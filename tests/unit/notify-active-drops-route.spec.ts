@@ -29,25 +29,27 @@ const mockState = vi.hoisted(() => {
                 return {
                     where(field: string, op: string, value: unknown) {
                         const clauses = [{ field, op, value }];
+                        const resolveDocs = () => {
+                            const statusClause = clauses.find((clause) => clause.field === "status");
+                            const docs = statusClause?.value === "scheduled"
+                                ? state.scheduledDocs
+                                : statusClause?.value === "active"
+                                    ? state.activeDocs
+                                    : [];
+
+                            return {
+                                empty: docs.length === 0,
+                                docs,
+                            };
+                        };
 
                         return {
+                            get: vi.fn(async () => resolveDocs()),
                             where(nextField: string, nextOp: string, nextValue: unknown) {
                                 clauses.push({ field: nextField, op: nextOp, value: nextValue });
 
                                 return {
-                                    get: vi.fn(async () => {
-                                        const statusClause = clauses.find((clause) => clause.field === "status");
-                                        const docs = statusClause?.value === "scheduled"
-                                            ? state.scheduledDocs
-                                            : statusClause?.value === "active"
-                                                ? state.activeDocs
-                                                : [];
-
-                                        return {
-                                            empty: docs.length === 0,
-                                            docs,
-                                        };
-                                    }),
+                                    get: vi.fn(async () => resolveDocs()),
                                 };
                             },
                         };
@@ -251,5 +253,87 @@ describe("GET /api/cron/notify-active-drops", () => {
         });
         expect(mockState.batch.commit).not.toHaveBeenCalled();
         expect(mockState.sendTargetedDropNotification).not.toHaveBeenCalled();
+    });
+
+    it("activates timestamp-shaped scheduled return drops and sends the return notification with a normalized key", async () => {
+        const now = Date.UTC(2026, 3, 2, 22, 0, 0);
+        vi.setSystemTime(new Date(now));
+
+        mockState.state.scheduledDocs = [
+            makeDropDoc("return_drop", {
+                title: "Return Drop",
+                validFrom: { toMillis: () => now - 5_000 },
+                validUntil: { toMillis: () => now + 60_000 },
+                activationCount: 2,
+                imageUrl: "https://example.com/return.jpg",
+                status: "scheduled",
+            }),
+        ];
+        mockState.state.ownersByDropId.set("return_drop", ["fan_legacy"]);
+
+        const request = new NextRequest("http://localhost/api/cron/notify-active-drops", {
+            headers: {
+                authorization: "Bearer test-secret",
+            },
+        });
+        const response = await GET(request);
+        const payload = await response.json();
+
+        expect(response.status).toBe(200);
+        expect(payload.activatedDrops).toEqual(["Return Drop"]);
+        expect(mockState.batch.update).toHaveBeenCalledWith(
+            { path: "drops/return_drop" },
+            { status: "active" },
+        );
+        expect(mockState.sendTargetedDropNotification).toHaveBeenCalledWith(
+            "Return Drop",
+            "return_drop",
+            "https://example.com/return.jpg",
+            true,
+            ["fan_legacy"],
+            `drop-activation:return_drop:${now - 5_000}`,
+        );
+    });
+
+    it("expires timestamp-shaped legacy active drops and requeues them when auto queue is enabled", async () => {
+        const now = Date.UTC(2026, 3, 2, 22, 0, 0);
+        vi.setSystemTime(new Date(now));
+
+        mockState.state.activeDocs = [
+            makeDropDoc("legacy_active", {
+                title: "Legacy Active",
+                validFrom: { toMillis: () => now - 120_000 },
+                validUntil: { toMillis: () => now - 1_000 },
+                activationCount: 1,
+                status: "active",
+                autoQueueOnExpire: true,
+            }),
+        ];
+
+        const request = new NextRequest("http://localhost/api/cron/notify-active-drops", {
+            headers: {
+                authorization: "Bearer test-secret",
+            },
+        });
+        const response = await GET(request);
+        const payload = await response.json();
+
+        expect(response.status).toBe(200);
+        expect(payload.expiredDrops).toEqual(["Legacy Active"]);
+        expect(payload.autoQueuedDrops).toEqual(["legacy_active"]);
+        expect(mockState.batch.update).toHaveBeenCalledWith(
+            { path: "drops/legacy_active" },
+            { status: "expired" },
+        );
+        expect(mockState.batch.set).toHaveBeenCalledWith(
+            { path: "adminSettings/dropQueue", id: "dropQueue" },
+            {
+                queue: {
+                    __op: "arrayUnion",
+                    values: ["legacy_active"],
+                },
+            },
+            { merge: true },
+        );
     });
 });

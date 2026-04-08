@@ -180,7 +180,7 @@ function describeReferenceAsset(asset: AdminAiDropCoverReferenceAsset) {
     if (asset.source === "retained_ai_cover") {
         return asset.retentionReason === "accepted" ? "Accepted AI cover" : "Liked AI cover";
     }
-    return "Drop cover library";
+    return "Latest catalog cover";
 }
 
 function formatReuseStats(asset: AdminAiDropCoverReferenceAsset) {
@@ -443,7 +443,7 @@ export default function AIAdminPage() {
                 <StatCard label="Active jobs" value={data?.aggregate.activeGenerationCount ?? "--"} meta={pollCadenceLabel} />
                 <StatCard label="Last refresh" value={lastRefreshLabel} meta="persisted dashboard snapshot time" />
                 <StatCard label="Selected model" value={selectedModelHealth?.shortLabel || "--"} meta={selectedModelHealth?.lastSuccessAtMs ? `last success ${formatCompactTimestamp(selectedModelHealth.lastSuccessAtMs)}` : selectedModelHealth?.note || "not yet proven"} />
-                <StatCard label="Visual signals" value={data?.visualSignals.totalReusableReferenceCount ?? "--"} meta={`${data?.visualSignals.templateCount ?? 0} template | ${data?.visualSignals.catalogDropCoverCount ?? 0} catalog | ${data?.visualSignals.retainedAiCoverCount ?? 0} positive AI`} />
+                <StatCard label="Visual signals" value={data?.visualSignals.totalReusableReferenceCount ?? "--"} meta={`${data?.visualSignals.templateCount ?? 0} template | ${data?.visualSignals.catalogDropCoverCount ?? 0} latest catalog | ${data?.visualSignals.retainedAiCoverCount ?? 0} positive AI`} />
                 <StatCard label="Estimated cost" value={data ? formatAdminAiUsd(data.aggregate.totalEstimatedCostUsd) : "--"} meta={data ? `${formatAdminAiUsd(data.settings.pricePerGenerationUsd)} each | ${data.settings.model}` : "Pricing unavailable"} />
             </div>
 
@@ -704,7 +704,7 @@ export default function AIAdminPage() {
                     <div>
                         <h2 className="text-lg font-bold text-white">Retained visual signals</h2>
                         <p className="mt-1 text-sm text-gray-400">
-                            KandyDrops does not retrain model weights here. Later reference-guided generations reuse these retained visual signals: the uploaded template, the drop cover library across current and legacy drops, and positively scored AI covers.
+                            KandyDrops does not retrain model weights here. Later reference-guided generations reuse these retained visual signals: the uploaded template, the latest reusable catalog cover, and positively scored AI covers.
                         </p>
                     </div>
                     <div className="inline-flex items-center gap-2 rounded-full border border-white/10 bg-white/5 px-3 py-1 text-xs text-gray-200">
@@ -782,8 +782,8 @@ export default function AIAdminPage() {
                     <div className="rounded-[1.15rem] border border-white/10 bg-black/25 p-4">
                         <div className="flex flex-wrap items-center justify-between gap-2">
                             <div>
-                                <p className="text-sm font-semibold text-white">Drop cover library</p>
-                                <p className="mt-1 text-xs text-gray-400">These are real uploaded drop covers currently eligible as reference inputs, including older legacy covers still present in the drop catalog.</p>
+                                <p className="text-sm font-semibold text-white">Latest catalog cover</p>
+                                <p className="mt-1 text-xs text-gray-400">This is the newest uploaded drop cover currently eligible as a reference input.</p>
                             </div>
                             <Button
                                 type="button"
@@ -793,7 +793,7 @@ export default function AIAdminPage() {
                                 disabled={!data?.settings || savingReferenceSettings}
                             >
                                 {savingReferenceSettings ? <Loader2 className="mr-2 h-3.5 w-3.5 animate-spin" /> : null}
-                                {data?.settings.useRecentDropCoverReferences ? "Library on" : "Library off"}
+                                {data?.settings.useRecentDropCoverReferences ? "Latest cover on" : "Latest cover off"}
                             </Button>
                         </div>
 
@@ -802,7 +802,7 @@ export default function AIAdminPage() {
                                 {data!.referenceAssets.catalogDropCovers.map((asset) => (
                                     <article key={asset.id} className="overflow-hidden rounded-[1rem] border border-white/10 bg-black/30">
                                         <div className="relative aspect-square">
-                                            <Image src={asset.imageUrl} alt={asset.title || "Drop cover library reference"} fill sizes="(max-width: 1280px) 50vw, 220px" className="object-cover" />
+                                            <Image src={asset.imageUrl} alt={asset.title || "Latest catalog cover reference"} fill sizes="(max-width: 1280px) 50vw, 220px" className="object-cover" />
                                         </div>
                                         <div className="space-y-1 p-3">
                                             <p className="text-xs font-semibold text-white">{asset.title || "Untitled Drop"}</p>
@@ -814,7 +814,7 @@ export default function AIAdminPage() {
                             </div>
                         ) : (
                             <div className="mt-4 rounded-[1rem] border border-dashed border-white/10 bg-black/20 p-4 text-sm text-gray-400">
-                                No uploaded drop covers are currently retained in the library as usable references.
+                                No recent uploaded drop cover is currently available as a reusable reference.
                             </div>
                         )}
                     </div>
@@ -850,7 +850,7 @@ export default function AIAdminPage() {
 
                 {missingReferenceInputs ? (
                     <div className="mt-4 rounded-[1rem] border border-amber-400/20 bg-amber-500/10 p-3 text-sm text-amber-100">
-                        Reference-guided mode is selected, but there is no uploaded template, no retained positive AI cover, and no drop cover library reference to send yet. The next generation will fail until at least one reference source exists.
+                        Reference-guided mode is selected, but there is no uploaded template, no retained positive AI cover, and no latest catalog cover reference to send yet. The next generation will fail until at least one reference source exists.
                     </div>
                 ) : null}
             </section>
@@ -958,7 +958,7 @@ export default function AIAdminPage() {
                                             ) : null}
                                             {job.generationMode === "reference_guided" ? (
                                                 <p className="mt-1 text-[11px] text-gray-500">
-                                                    Template {job.templateReferenceUsed ? "on" : "off"} | {job.catalogDropReferenceCount || job.recentDropReferenceCount || 0} catalog covers | {job.retainedAiReferenceCount || 0} retained AI covers
+                                                    Template {job.templateReferenceUsed ? "on" : "off"} | {job.catalogDropReferenceCount || job.recentDropReferenceCount || 0} latest catalog cover | {job.retainedAiReferenceCount || 0} retained AI covers
                                                 </p>
                                             ) : null}
                                         </div>

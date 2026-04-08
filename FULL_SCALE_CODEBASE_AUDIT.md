@@ -2,7 +2,7 @@
 
 Status: Canonical audit standard and live baseline
 Last refreshed: 2026-04-07
-Last full-scale audit execution: 2026-04-07 18:47:17 -05:00
+Last full-scale audit execution: 2026-04-07 19:22:35 -05:00
 Repo: `C:\Users\uylus\OneDrive\Documents\KandyDrops_Final`
 Audited HEAD at start: `8b24119`
 
@@ -1213,24 +1213,24 @@ Continuation implementation:
   - standard title-only generation
   - reference-guided generation
   - template-reference usage
-  - recent-drop-cover reference usage
+  - latest-catalog-cover reference usage
 - added a dedicated admin route for uploading and removing a single AI cover template image:
   - `src/app/api/admin/ai/drop-covers/template/route.ts`
 - stored the uploaded template in Firebase Storage under a dedicated AI reference path and persisted its URL/path/file metadata into the canonical AI cover settings document
 - taught the server-side generation helper to:
   - load the uploaded template as a reference image when enabled
-- load up to 4 retained drop-cover library references as additional reference images when enabled
-  - keep reference-guided generation on the selected/default Gemini image runtime by passing the uploaded template and recent covers as image inputs
+- load up to 4 retained positive AI cover references plus the latest catalog cover as additional reference images when enabled
+  - keep reference-guided generation on the selected/default Gemini image runtime by passing the uploaded template, retained AI references, and the latest catalog cover as image inputs
   - keep one canonical generation stack instead of splitting standard and reference-guided flows across different model families
 - kept the implementation truthful:
   - this is reference-guided generation, not live fine-tuning
-  - the runtime fails with an actionable validation error if reference-guided mode is enabled but no usable template/recent covers exist
+  - the runtime fails with an actionable validation error if reference-guided mode is enabled but no usable template/latest catalog cover exists
   - the create-drop panel and Admin AI page now show whether the next generation is standard or reference-guided
 - extended job history and dashboard state to record and display:
   - generation mode
   - total reference image count
   - whether the uploaded template was used
-- how many drop-cover library references were used
+- how many retained AI and latest-catalog references were used
 
 Commands run for continuation:
 - `git status --short`
@@ -1260,7 +1260,7 @@ Continuation results:
 - an initial attempt to run multiple build-based verification commands in parallel caused a Next build collision (`Another next build process is already running`); that was a verification-orchestration issue, not a code failure, and the affected checks were rerun sequentially to completion
 
 Runtime truth and continuity implications from continuation:
-- the Admin AI page can now control reference-guided generation against a real uploaded cover template and retained drop-cover library references
+- the Admin AI page can now control reference-guided generation against a real uploaded cover template, retained positive AI references, and the latest catalog cover
 - the repo now treats “train the AI on our covers” as a truthful reference-image customization workflow instead of fake live training
 - the active generation model/path shown in the UI now matches whether reference guidance is turned on
 - job history, pricing, and runtime notes remain explicit about what is estimated, what is real, and what depends on actual Vertex access
@@ -1328,7 +1328,7 @@ Continuation implementation:
 - replaced the single-model generate path with provider-aware runtime execution:
   - Gemini models use Vertex `:generateContent`
   - existing non-Gemini models still route through publisher-model `:predict`
-- kept reference-guided generation truthful under the Gemini path by sending the uploaded template and retained drop-cover library references as image inputs instead of pretending a separate tuned model exists
+- kept reference-guided generation truthful under the Gemini path by sending the uploaded template, retained AI references, and the latest catalog cover as image inputs instead of pretending a separate tuned model exists
 - added route-level validation so the create-drop switch cannot submit arbitrary model ids
 - updated the create-drop AI panel to show:
   - the selected model inline next to Generate
@@ -1997,7 +1997,7 @@ Initial AI audit findings before implementation:
 - the shared AI cover contract still exposes legacy Imagen constants, pricing entries, and model-location normalization as first-class runtime values instead of a bounded migration shim
 - the server AI runtime still preserves an older non-Gemini publisher-model `:predict` branch even though the current product path is Gemini image generation
 - the Admin AI page is truthful about not doing hidden training, but it still relies on 10-second polling only and does not show a canonical per-job consistency recipe or why retained references were selected
-- retained drop-cover library references and positive AI covers are visible, but their reuse value is only partially observable because the page does not surface positive reuse counts or ranked selection reasons
+- retained positive AI references and the latest catalog cover are visible, but their reuse value is only partially observable because the page does not surface positive reuse counts or ranked selection reasons
 
 ### Continuation: In-site Support Foundation and Dead Support Redirect Removal
 Current audit date: 2026-04-07 03:43:16 -05:00
@@ -2271,4 +2271,115 @@ Known warnings and non-blocking notices during continuation:
 Continuation follow-up gaps:
 - the drop-cover catalog currently scans the full `drops` collection for correctness; if cost or latency becomes an issue, the next step is a canonical summarized cover-reference index rather than a return to sampled recent-cover logic
 - compatibility reads still preserve `recentDropReferenceCount` for older AI job documents; new logic should continue to treat `catalogDropReferenceCount` as the live truth
+- the pre-existing Chromium `/creators/waitlist` visual instability still needs a separate stabilization or baseline refresh pass
+
+### Continuation: Latest-Cover AI Scan + Queue Reactivation Notification Audit
+Current audit date: 2026-04-07 19:22:35 -05:00
+Current branch / commit for continuation start: `main` / `0224af7`
+Continuation task:
+- narrow the non-AI cover reference scan so the AI stack only reuses the latest catalog cover instead of scanning the full drop collection
+- audit queue lifecycle and cooldown reactivation so queued drops still activate and notify correctly
+- verify the legacy Timestamp-shaped queued-drop glitch is fully fixed across both scheduling and activation notification paths
+
+Continuation start state:
+- working tree clean at continuation start
+- canonical startup docs re-read:
+  - `FULL_SCALE_CODEBASE_AUDIT.md`
+  - `REPO_MEMORY_LEDGER.md`
+  - `EVERY_FILE_FUNCTION_CHECKLIST.md`
+- `git status --short` confirmed a clean tree before editing
+- adjacency traces completed before editing for:
+  - `src/lib/server/ai-drop-covers.ts`
+  - `src/app/api/cron/process-queue/route.ts`
+  - `src/lib/server/drop-queue.ts`
+  - `src/app/api/cron/notify-active-drops/route.ts`
+
+Initial audit findings before implementation:
+- the legacy queue rollover bug was already fixed in `cron/process-queue` because that route now normalizes Firestore Timestamp-like `validFrom` / `validUntil` through `getFiniteDropTimestamp(...)`
+- the notification side still had the same class of timestamp bug:
+  - `src/app/api/cron/notify-active-drops/route.ts` queried `scheduled` and `active` drops with numeric range filters only
+  - the route still coerced `validFrom` with `Number(...)` and only accepted numeric `validUntil`
+  - legacy Timestamp-shaped scheduled/active drops could therefore miss activation, expiry, requeue, and activation-notification handling
+- the AI helper still scanned the full `drops` collection to get one extra human-made cover reference even though the create-drop form already feeds accepted AI covers back into the retained reference pool after save
+
+Exact touched surfaces:
+- `FULL_SCALE_CODEBASE_AUDIT.md`
+- `REPO_MEMORY_LEDGER.md`
+- `src/app/admin/ai/page.tsx`
+- `src/app/api/cron/notify-active-drops/route.ts`
+- `src/components/Admin/AiDropCoverGeneratorPanel.tsx`
+- `src/lib/server/ai-drop-covers.ts`
+- `tests/unit/admin-ai-drop-cover-catalog.spec.ts`
+- `tests/unit/notify-active-drops-route.spec.ts`
+
+Canonical helpers and modules actually reused:
+- `src/lib/drop-status.ts`
+- `src/lib/server/ai-drop-covers.ts`
+- `src/lib/ai-drop-covers.ts`
+- `src/lib/server/push-notifications.ts`
+- `src/lib/server/drop-runtime.ts`
+- `src/lib/server/drop-queue.ts`
+- `src/lib/drop-queue-lifecycle.ts`
+- `src/components/Admin/CreateDropModal.tsx`
+
+Implementation results:
+- narrowed non-AI cover reuse to the latest reusable catalog cover instead of a full collection scan:
+  - AI cover selection still keeps template and retained positive AI covers
+  - the latest catalog cover now comes from a bounded recent `validFrom` query window instead of `adminDb.collection("drops").get()`
+  - the catalog ranking now prefers the newest reusable cover before unlock count
+- corrected the admin AI wording to match that runtime truth:
+  - `Drop cover library` wording was replaced with `Latest catalog cover`
+  - stats and job detail text no longer imply a broad reusable library when only one recent cover is being reused
+- hardened `cron/notify-active-drops` against legacy Timestamp-shaped drops:
+  - dropped the numeric `validFrom <= now` / `validUntil <= now` query filters
+  - query now loads `scheduled` and `active` drops by status, then resolves due lifecycle changes with `getFiniteDropTimestamp(...)` and `resolveDropStatusFromTiming(...)`
+  - activation keys now use normalized millis rather than `Number(rawValidFrom)`
+  - legacy active drops with `autoQueueOnExpire` now requeue correctly after expiry
+  - scheduled return drops with prior `activationCount` now still send the correct return notification after cooldown reactivation
+
+Runtime truth and continuity implications:
+- accepted AI covers from the create-drop form remain the historical retained reference pool
+- non-AI cover reuse is now intentionally just the latest reusable catalog cover, not a full reusable library
+- queue processing and notify-active-drops now both normalize Timestamp-like timing values instead of mixing normalized scheduling with legacy numeric-only activation checks
+- return notifications for reactivated queued drops still depend on the real `activationCount >= 1` signal and now work for Timestamp-shaped legacy documents too
+
+Commands run for continuation:
+- `git status --short`
+- adjacency traces:
+  - `npm run trace:adjacent -- src/lib/server/ai-drop-covers.ts`
+  - `npm run trace:adjacent -- src/app/api/cron/process-queue/route.ts`
+  - `npm run trace:adjacent -- src/lib/server/drop-queue.ts`
+  - `npm run trace:adjacent -- src/app/api/cron/notify-active-drops/route.ts`
+- focused lint:
+  - `npx eslint src/app/api/cron/notify-active-drops/route.ts src/lib/server/ai-drop-covers.ts src/app/admin/ai/page.tsx src/components/Admin/AiDropCoverGeneratorPanel.tsx tests/unit/notify-active-drops-route.spec.ts tests/unit/admin-ai-drop-cover-catalog.spec.ts`
+- focused tests:
+  - `corepack pnpm exec vitest run tests/unit/notify-active-drops-route.spec.ts tests/unit/process-queue-route.spec.ts tests/unit/admin-ai-drop-cover-catalog.spec.ts tests/unit/ai-drop-covers.spec.ts`
+- repo-wide verification:
+  - `npm run check:continuity`
+  - `corepack pnpm run check`
+  - `npx vitest run`
+  - `npm run check:ui:lighthouse`
+  - `npm run check:ui:audits`
+
+Continuation results:
+- focused lint passed
+- focused queue/AI Vitest passed with `4` files and `20` tests
+- `npm run check:continuity` passed
+- `corepack pnpm run check` passed
+- `npx vitest run` passed with `94` files and `464` tests
+- `npm run check:ui:lighthouse` passed
+- `npm run check:ui:audits` failed only on the existing Chromium `/creators/waitlist` guest-hero screenshot instability; accessibility passed and the rest of the suite passed
+- an initial attempt to run multiple build-based verification commands in parallel caused a Next build collision (`Another next build process is already running`); the affected checks were rerun sequentially to completion
+- generated `playwright-report/`, `test-results/`, and `.lighthouseci/` artifacts were removed before signoff
+
+Known warnings and non-blocking notices during continuation:
+- npm unknown env config warnings during canonical script chains
+- `check:firebase-runtime` informational dotenv logs inside the canonical `check` pipeline
+- Node `punycode` deprecation warnings from Firebase/Vitest tooling
+- Lighthouse cleanup emitted temporary Windows `EPERM` warnings while deleting temp folders after successful audits
+- the Chromium `/creators/waitlist` guest-hero visual baseline remains unstable and can alternate between two section heights without any code change in this continuation
+
+Continuation follow-up gaps:
+- the latest-cover AI shortcut is cheaper but narrower than the earlier full-catalog scan; if broader human-cover reuse is needed again, the next step should be a canonical summarized reference index rather than another full collection scan
+- compatibility reads still preserve `recentDropReferenceCount` for older AI job documents even though the live truth is now the latest catalog cover count
 - the pre-existing Chromium `/creators/waitlist` visual instability still needs a separate stabilization or baseline refresh pass

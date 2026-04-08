@@ -22,7 +22,7 @@ vi.mock("@/lib/server/storage-assets", () => ({
 import { buildCatalogDropCoverReferenceAssetsFromDocs } from "@/lib/server/ai-drop-covers";
 
 describe("admin AI drop cover catalog references", () => {
-    it("retains legacy and current drop covers in the same reference catalog", () => {
+    it("keeps legacy and current drop covers available while ranking the newest covered drop first", () => {
         const assets = buildCatalogDropCoverReferenceAssetsFromDocs([
             {
                 id: "legacy-drop",
@@ -65,9 +65,9 @@ describe("admin AI drop cover catalog references", () => {
         });
 
         expect(assets).toHaveLength(2);
-        expect(assets.map((asset) => asset.dropId)).toEqual(["legacy-drop", "recent-drop"]);
+        expect(assets.map((asset) => asset.dropId)).toEqual(["recent-drop", "legacy-drop"]);
         expect(assets.every((asset) => asset.source === "catalog_drop_cover")).toBe(true);
-        expect(assets[0]?.fileName).toBe("legacy-blueberry.png");
+        expect(assets[1]?.fileName).toBe("legacy-blueberry.png");
     });
 
     it("excludes the current drop id from the reusable catalog", () => {
@@ -92,5 +92,31 @@ describe("admin AI drop cover catalog references", () => {
         });
 
         expect(assets.map((asset) => asset.dropId)).toEqual(["drop-1"]);
+    });
+
+    it("can reduce the catalog selection down to the latest reusable cover only", () => {
+        const assets = buildCatalogDropCoverReferenceAssetsFromDocs([
+            {
+                id: "older",
+                data: () => ({
+                    title: "Older Cover",
+                    imageUrl: "https://example.com/older.png",
+                    validFrom: { seconds: 1710000000, nanoseconds: 0 },
+                }),
+            },
+            {
+                id: "latest",
+                data: () => ({
+                    title: "Latest Cover",
+                    imageUrl: "https://example.com/latest.png",
+                    validFrom: { seconds: 1720000000, nanoseconds: 0 },
+                }),
+            },
+        ], {
+            limit: 1,
+        });
+
+        expect(assets).toHaveLength(1);
+        expect(assets[0]?.dropId).toBe("latest");
     });
 });

@@ -64,9 +64,10 @@ const DEFAULT_VERTEX_LOCATION = ADMIN_AI_DROP_COVER_DEFAULT_LOCATION;
 const VERTEX_SCOPE = "https://www.googleapis.com/auth/cloud-platform";
 const DEFAULT_TIMEOUT_MS = 20_000;
 const RECENT_JOB_LIMIT = 18;
-const DROP_COVER_CATALOG_PREVIEW_LIMIT = 4;
+const DROP_COVER_CATALOG_PREVIEW_LIMIT = 1;
 const RETAINED_AI_REFERENCE_LIMIT = 4;
-const DROP_COVER_CATALOG_CANDIDATE_LIMIT = 12;
+const DROP_COVER_CATALOG_CANDIDATE_LIMIT = 1;
+const DROP_COVER_CATALOG_QUERY_LIMIT = 24;
 const RETAINED_AI_REFERENCE_CANDIDATE_LIMIT = 12;
 const MAX_REFERENCE_INPUTS = 6;
 const TEMPLATE_REFERENCE_STYLE_DESCRIPTION = "KandyDrops premium candy-poster cover art with centered hero framing, strong flavor palette, and title-safe negative space.";
@@ -619,11 +620,11 @@ export function buildCatalogDropCoverReferenceAssetsFromDocs(
 
     return candidates
         .sort((left, right) => {
-            if (right.unlocks !== left.unlocks) {
-                return right.unlocks - left.unlocks;
-            }
             if (right.recencyMs !== left.recencyMs) {
                 return right.recencyMs - left.recencyMs;
+            }
+            if (right.unlocks !== left.unlocks) {
+                return right.unlocks - left.unlocks;
             }
             return (left.asset.title || "").localeCompare(right.asset.title || "");
         })
@@ -636,7 +637,11 @@ async function listCatalogDropCoverReferenceAssets(excludeDropId?: string | null
         return [] as AdminAiDropCoverReferenceAsset[];
     }
 
-    const snapshot = await adminDb.collection("drops").get();
+    const queryLimit = Math.max(DROP_COVER_CATALOG_QUERY_LIMIT, limit * 8);
+    const snapshot = await adminDb.collection("drops")
+        .orderBy("validFrom", "desc")
+        .limit(queryLimit)
+        .get();
     return buildCatalogDropCoverReferenceAssetsFromDocs(snapshot.docs, {
         excludeDropId,
         limit,
@@ -898,7 +903,7 @@ async function buildReferenceContext(
             "validation_failed",
             400,
             "Reference-guided cover generation was enabled, but no usable reference images could be loaded.",
-            "Reference-guided generation is on, but no usable template, retained positive AI cover, or drop cover library reference was available. Upload a template, keep at least one covered drop in the catalog, or turn reference guidance off.",
+            "Reference-guided generation is on, but no usable template, retained positive AI cover, or latest catalog cover reference was available. Upload a template, keep at least one covered drop in the recent catalog window, or turn reference guidance off.",
         );
     }
 
@@ -1475,7 +1480,7 @@ function buildAdminAiDropCoverRuntimeStatusFromSnapshot(snapshot: AdminAiDropCov
         enabled: true,
         status: "ready",
         note: settings.generationMode === "reference_guided"
-            ? `Credential, storage, and job-recording checks passed. When reference-guided generation is on, KandyDrops can send the uploaded template, retained positive AI covers, and retained drop cover library references as image inputs to ${runtime.model} in ${runtime.location}. This page does not expose hidden model reasoning or weight updates. Final model access is still only proven by a successful generation request.`
+            ? `Credential, storage, and job-recording checks passed. When reference-guided generation is on, KandyDrops can send the uploaded template, retained positive AI covers, and the latest reusable catalog cover as image inputs to ${runtime.model} in ${runtime.location}. This page does not expose hidden model reasoning or weight updates. Final model access is still only proven by a successful generation request.`
             : `Credential, storage, and job-recording checks passed. The active image runtime is ${runtime.model} in ${runtime.location}. This page does not expose hidden model reasoning or weight updates, and final model access is only proven by a successful generation request.`,
         project: runtime.project,
         location: runtime.location,

@@ -337,11 +337,13 @@ This file is not a changelog. It is the concise ledger for durable decisions tha
 ### 18. AI cover “training” is reference-guided customization, not live fine-tuning
 - Approximate date: Canonicalized and recorded on 2026-04-06
 - Status: Active canonical AI/runtime rule
+- Live-note: Entry 27 now governs the current catalog-cover rule; this entry remains the higher-level "reference-guided, not live training" decision.
 - Problem/context: Admin operators want the cover generator to follow a fixed KandyDrops house style and existing catalog covers, but claiming live retraining or hidden fine-tuning would overstate what the Vertex image stack is actually doing.
 - Decision made: Treat AI cover “training” as a truthful reference-guided generation workflow. The admin AI page can upload one template image and optionally use the retained drop-cover library as additional style references, while the generation runtime keeps the feedback history as a future evaluation dataset instead of pretending live fine-tuning exists.
 - What became canonical:
+  - current-runtime note: the live additional non-AI input is the latest reusable catalog cover, not a broad drop-cover library
   - admin operators can upload and remove a single AI cover template from the Admin AI page
-  - the runtime can use that template and/or retained drop-cover library references for generation
+  - the runtime can use that template and retained successful AI references for generation, with catalog-cover reuse governed by the current live rule
   - reference-guided mode is recorded in settings, runtime state, job history, and admin UI
   - the product continues to say “reference-guided” or “style references” instead of falsely claiming live model training
   - accepted/liked/disliked generation history remains real feedback data for later tuning work
@@ -542,9 +544,9 @@ This file is not a changelog. It is the concise ledger for durable decisions tha
   - `FULL_SCALE_CODEBASE_AUDIT.md`
 - Follow-up gaps: If operators ever need to grant purchased-equivalent balance intentionally, that needs a separate audited route and explicit UI language rather than overloading the current manual adjustment tool.
 
-### 26. AI drop-cover reuse pulls from the full drop catalog, not a recent-only sample
+### 26. AI drop-cover reuse briefly pulled from the full drop catalog, not a recent-only sample
 - Approximate date: Canonicalized and recorded on 2026-04-07
-- Status: Active canonical AI/runtime rule
+- Status: Superseded on 2026-04-07 by entry 27
 - Problem/context: The create-drop flow was already feeding accepted AI jobs back into the retained AI reference pool, but the non-AI cover reference side still sampled only a small recent `validFrom` window of drop covers. That excluded older legacy covers and made the Admin AI page overstate the breadth of the reusable cover library.
 - Decision made: Treat drop-cover references as a full catalog, not a recent feed. The create-drop form remains responsible for linking accepted AI jobs to saved drops, and the shared AI reference library now scans the full drop catalog so current and legacy uploaded covers can both seed future generations.
 - What became canonical:
@@ -564,4 +566,44 @@ This file is not a changelog. It is the concise ledger for durable decisions tha
   - `src/lib/server/ai-drop-covers.ts`
   - `src/lib/drop-status.ts`
   - `FULL_SCALE_CODEBASE_AUDIT.md`
-- Follow-up gaps: The catalog scan is intentionally admin-only and correctness-first. If it becomes too expensive, the next step is a canonical summarized cover-reference index rather than going back to sampled recent-cover logic.
+- Follow-up gaps: Superseded by entry 27 after the full-catalog scan proved too expensive for the single non-AI cover reference the runtime actually needs.
+
+### 27. Latest-cover AI reuse supersedes the brief full-catalog scan
+- Approximate date: Canonicalized and recorded on 2026-04-07
+- Status: Active canonical AI/runtime rule
+- Problem/context: The full-catalog AI cover scan was truthful but too expensive for one extra human-made cover reference, especially because accepted AI covers already form the durable retained reference pool after create-drop save.
+- Decision made: Keep accepted AI covers as the historical retained pool, but narrow non-AI cover reuse to the latest reusable catalog cover from a bounded recent query window. This entry supersedes the earlier full-catalog scan rule for live runtime behavior.
+- What became canonical:
+  - the create-drop form still links accepted AI jobs back to saved drops through the canonical feedback path
+  - non-AI cover reuse now means the latest reusable catalog cover, not a full drop-cover library
+  - Admin AI copy and stats must describe this as the latest catalog cover rather than a broad library
+- What is now disallowed or deprecated:
+  - scanning the entire `drops` collection for every AI reference refresh just to find one extra human-made cover reference
+  - calling the latest-cover shortcut a full catalog library
+- Truth lives in:
+  - `src/components/Admin/CreateDropModal.tsx`
+  - `src/lib/server/ai-drop-covers.ts`
+  - `src/app/admin/ai/page.tsx`
+  - `src/components/Admin/AiDropCoverGeneratorPanel.tsx`
+  - `FULL_SCALE_CODEBASE_AUDIT.md`
+- Follow-up gaps: If operators need broader human-cover reuse again, the next step should be a canonical summarized reference index rather than another full collection scan.
+
+### 28. Queue scheduling and activation notifications must normalize Timestamp-shaped drop timing on both cron paths
+- Approximate date: Canonicalized and recorded on 2026-04-07
+- Status: Active canonical drop-runtime rule
+- Problem/context: Fixing `cron/process-queue` alone was not enough. Legacy drops with Firestore Timestamp-shaped `validFrom` / `validUntil` could still miss activation, expiry, requeue, or return-notification handling if `cron/notify-active-drops` kept using numeric-only timing assumptions.
+- Decision made: Both queue cron paths must normalize drop timing through `getFiniteDropTimestamp(...)` and `resolveDropStatusFromTiming(...)` before making lifecycle decisions or generating activation keys.
+- What became canonical:
+  - `cron/process-queue` and `cron/notify-active-drops` both normalize legacy Timestamp-like timing values
+  - return notifications for queued/reactivated drops continue to rely on the real `activationCount >= 1` signal
+  - activation notification keys must use normalized millis so return activations dedupe correctly without collapsing to `0`
+- What is now disallowed or deprecated:
+  - numeric-only `Number(raw.validFrom)` / `typeof validUntil === "number"` lifecycle logic in queue cron routes
+  - relying on Firestore range queries alone to determine whether legacy scheduled/active drops are due
+- Truth lives in:
+  - `src/app/api/cron/process-queue/route.ts`
+  - `src/app/api/cron/notify-active-drops/route.ts`
+  - `src/lib/drop-status.ts`
+  - `src/lib/drop-queue-lifecycle.ts`
+  - `FULL_SCALE_CODEBASE_AUDIT.md`
+- Follow-up gaps: Other non-queue consumers that still query by raw numeric `validFrom` / `validUntil` should be audited separately if legacy Timestamp-shaped drops must remain visible there too.

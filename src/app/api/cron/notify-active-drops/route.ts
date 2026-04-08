@@ -2,12 +2,44 @@ import { NextRequest, NextResponse } from "next/server";
 import { adminDb } from "@/lib/server/firebase-admin";
 import { FieldValue } from "firebase-admin/firestore";
 import { sendTargetedDropNotification } from "@/lib/server/push-notifications";
-import { resolveDropStatusFromTiming } from "@/lib/drop-status";
+import { getFiniteDropTimestamp, resolveDropStatusFromTiming } from "@/lib/drop-status";
 import { CRON } from "@/lib/server/rate-limit";
 import { markDropsRuntimeChanged } from "@/lib/server/drop-runtime";
 import { guardApiRequest } from "@/lib/server/request-guard";
 import { handleApiError } from "@/lib/server/auth";
 import { recordRouteWarning } from "@/lib/server/route-diagnostics";
+
+type DropLifecycleSnapshot = {
+    id: string;
+    ref: FirebaseFirestore.DocumentReference;
+    data: Record<string, unknown>;
+    validFrom: number | null;
+    validUntil: number | null;
+    activationCount: number;
+    imageUrl?: string;
+    title: string;
+    status: "scheduled" | "active";
+    autoQueueOnExpire: boolean;
+};
+
+function normalizeDropLifecycleSnapshot(
+    doc: FirebaseFirestore.QueryDocumentSnapshot,
+    status: "scheduled" | "active",
+): DropLifecycleSnapshot {
+    const data = (doc.data() || {}) as Record<string, unknown>;
+    return {
+        id: doc.id,
+        ref: doc.ref,
+        data,
+        validFrom: getFiniteDropTimestamp(data.validFrom),
+        validUntil: getFiniteDropTimestamp(data.validUntil),
+        activationCount: Number.isFinite(Number(data.activationCount)) ? Number(data.activationCount) : 0,
+        imageUrl: typeof data.imageUrl === "string" ? data.imageUrl : undefined,
+        title: typeof data.title === "string" && data.title.trim().length > 0 ? data.title : doc.id,
+        status,
+        autoQueueOnExpire: data.autoQueueOnExpire === true,
+    };
+}
 
 // This cron job should be called frequently (e.g. every 5-15 minutes)
 export async function GET(request: NextRequest) {
@@ -34,14 +66,8 @@ export async function GET(request: NextRequest) {
         const dropsRef = adminDb.collection("drops");
 
         const [scheduledSnap, activeSnap] = await Promise.all([
-            dropsRef
-                .where("status", "==", "scheduled")
-                .where("validFrom", "<=", now)
-                .get(),
-            dropsRef
-                .where("status", "==", "active")
-                .where("validUntil", "<=", now)
-                .get(),
+            dropsRef.where("status", "==", "scheduled").get(),
+            dropsRef.where("status", "==", "active").get(),
         ]);
 
         if (scheduledSnap.empty && activeSnap.empty) {
@@ -65,12 +91,17 @@ export async function GET(request: NextRequest) {
         }> = [];
 
         for (const doc of scheduledSnap.docs) {
-            const dropId = doc.id;
-            const drop = doc.data();
+            const drop = normalizeDropLifecycleSnapshot(doc, "scheduled");
+            const dropId = drop.id;
             const nextStatus = resolveDropStatusFromTiming({
-                validFrom: Number(drop.validFrom || 0),
-                validUntil: typeof drop.validUntil === "number" ? drop.validUntil : undefined,
+                validFrom: drop.validFrom,
+                validUntil: drop.validUntil,
+                status: drop.status,
             }, now);
+
+            if (nextStatus === "scheduled") {
+                continue;
+            }
 
             batch.update(doc.ref, { status: nextStatus });
 
@@ -100,22 +131,23 @@ export async function GET(request: NextRequest) {
                 });
             }
 
-            const isReturn = (drop.activationCount || 0) >= 1;
+            const isReturn = drop.activationCount >= 1;
             activationNotifications.push({
                 dropId,
                 dropTitle: drop.title || "New Drop",
-                imageUrl: typeof drop.imageUrl === "string" ? drop.imageUrl : undefined,
+                imageUrl: drop.imageUrl,
                 isReturn,
                 excludedUserIds,
-                activationKey: `drop-activation:${dropId}:${Number(drop.validFrom || 0)}`,
+                activationKey: `drop-activation:${dropId}:${drop.validFrom || 0}`,
             });
         }
 
         for (const doc of activeSnap.docs) {
-            const drop = doc.data();
+            const drop = normalizeDropLifecycleSnapshot(doc, "active");
             const nextStatus = resolveDropStatusFromTiming({
-                validFrom: Number(drop.validFrom || 0),
-                validUntil: typeof drop.validUntil === "number" ? drop.validUntil : undefined,
+                validFrom: drop.validFrom,
+                validUntil: drop.validUntil,
+                status: drop.status,
             }, now);
 
             if (nextStatus === "active") {
