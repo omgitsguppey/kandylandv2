@@ -38,7 +38,6 @@ type CreatorListEntry = {
     photoURL: string | null;
     bio: string;
     isVerified: boolean;
-    followerCount: number;
 };
 
 const relationshipActionSchema = z.object({
@@ -88,13 +87,17 @@ async function countActiveCreatorFollowers(creatorId: string) {
         return 0;
     }
 
-    const snapshot = await adminDb.collection(CREATOR_COLLECTIONS.relationships)
+    const query = adminDb.collection(CREATOR_COLLECTIONS.relationships)
         .where("creatorId", "==", creatorId)
-        .where("following", "==", true)
-        .count()
-        .get();
+        .where("following", "==", true);
 
-    return Number(snapshot.data().count) || 0;
+    if (typeof query.count === "function") {
+        const snapshot = await query.count().get();
+        return Number(snapshot.data().count) || 0;
+    }
+
+    const snapshot = await query.get();
+    return snapshot.size || snapshot.docs.length || 0;
 }
 
 export async function GET(request: NextRequest) {
@@ -122,19 +125,12 @@ export async function GET(request: NextRequest) {
         }) as CreatorRelationshipRecord);
 
         const now = Date.now();
-        const [creatorOpsSnap, recommendedCreatorDocs, dropsSnap] = await Promise.all([
-            adminDb.collection("creator_ops").get(),
+        const [recommendedCreatorDocs, dropsSnap] = await Promise.all([
             adminDb.collection("users")
                 .select("role", "status", "displayName", "username", "photoURL", "bio", "isVerified", "creatorApplication")
                 .get(),
             adminDb.collection("drops").get(),
         ]);
-        const creatorFollowerCounts = new Map(
-            creatorOpsSnap.docs.map((doc) => {
-                const summary = doc.data()?.summary as Record<string, unknown> | undefined;
-                return [doc.id, typeof summary?.followerCount === "number" ? summary.followerCount : 0] as const;
-            }),
-        );
         const activeDropCounts = new Map<string, number>();
         dropsSnap.docs.forEach((doc) => {
             const normalized = normalizeAndApplyDropStatusOrNull(doc.data(), doc.id, now);
@@ -148,7 +144,6 @@ export async function GET(request: NextRequest) {
         const validCreators: CreatorListEntry[] = [];
         for (const doc of recommendedCreatorDocs.docs) {
             const entry = { id: doc.id, ...(doc.data() as Record<string, unknown>) } as RecommendedCreatorRecord;
-            const followerCount = creatorFollowerCounts.get(entry.id) ?? 0;
             if (isCreatorVisibleInDiscovery({
                 role: entry.role,
                 status: entry.status,
@@ -162,7 +157,6 @@ export async function GET(request: NextRequest) {
                     photoURL: typeof entry.photoURL === "string" ? entry.photoURL : null,
                     bio: typeof entry.bio === "string" ? entry.bio : "",
                     isVerified: entry.isVerified === true,
-                    followerCount,
                 });
             }
         }
@@ -170,20 +164,40 @@ export async function GET(request: NextRequest) {
         const validCreatorIds = new Set(validCreators.map((entry) => entry.uid));
         const relationships = rawRelationships.filter((entry) => typeof entry.creatorId === "string" && validCreatorIds.has(entry.creatorId));
 
+        const followedCreatorIds = relationships
+            .filter((entry) => entry.following === true && typeof entry.creatorId === "string")
+            .map((entry) => String(entry.creatorId));
+        const recommendedCreatorIds = validCreators
+            .filter((entry) => !followedCreatorIds.includes(entry.uid))
+            .slice(0, 12)
+            .map((entry) => entry.uid);
+        const visibleCreatorIds = Array.from(new Set(
+            creatorId
+                ? [creatorId]
+                : [...followedCreatorIds, ...recommendedCreatorIds],
+        ));
+        const realtimeFollowerCounts = new Map(
+            await Promise.all(
+                visibleCreatorIds.map(async (entry) => [entry, await countActiveCreatorFollowers(entry)] as const),
+            ),
+        );
+
         if (creatorId) {
             const relationship = relationships.find((entry) => entry.creatorId === creatorId) || null;
             const subscriptionSnap = await adminDb.collection(CREATOR_COLLECTIONS.subscriptions).doc(buildSubscriptionId(caller.uid, creatorId)).get();
 
             return NextResponse.json({
                 success: true,
-                relationship,
+                relationship: relationship
+                    ? {
+                        ...relationship,
+                        followerCount: realtimeFollowerCounts.get(creatorId) ?? 0,
+                    }
+                    : null,
                 subscription: subscriptionSnap.exists ? { id: subscriptionSnap.id, ...(subscriptionSnap.data() as Record<string, unknown>) } : null,
             });
         }
 
-        const followedCreatorIds = relationships
-            .filter((entry) => entry.following === true && typeof entry.creatorId === "string")
-            .map((entry) => String(entry.creatorId));
         const followedCreators = followedCreatorIds
             .map((entry) => validCreatorsById.get(entry))
             .filter((entry): entry is CreatorListEntry => Boolean(entry))
@@ -194,7 +208,7 @@ export async function GET(request: NextRequest) {
                 photoURL: entry.photoURL,
                 bio: entry.bio,
                 isVerified: entry.isVerified,
-                followerCount: entry.followerCount,
+                followerCount: realtimeFollowerCounts.get(entry.uid) ?? 0,
                 following: true,
             }));
         const recommendedCreators = validCreators
@@ -207,7 +221,7 @@ export async function GET(request: NextRequest) {
                 photoURL: entry.photoURL,
                 bio: entry.bio,
                 isVerified: entry.isVerified,
-                followerCount: entry.followerCount,
+                followerCount: realtimeFollowerCounts.get(entry.uid) ?? 0,
             }));
 
         return NextResponse.json({

@@ -151,8 +151,81 @@ describe("GET /api/creator/relationships", () => {
             uid: "creator_pending_role",
             displayName: "Jessi Ray",
             username: "jessiray",
-            followerCount: 42,
+            followerCount: 0,
             isVerified: true,
+        });
+    });
+
+    it("hydrates spotlight follower counts from live relationships instead of stale creator ops summary", async () => {
+        const now = Date.now();
+        mockState.collections.set("creator_relationships", [
+            {
+                id: "fan_1__creator_live_count",
+                data: {
+                    userId: "fan_1",
+                    creatorId: "creator_live_count",
+                    following: true,
+                },
+            },
+            {
+                id: "fan_2__creator_live_count",
+                data: {
+                    userId: "fan_2",
+                    creatorId: "creator_live_count",
+                    following: true,
+                },
+            },
+        ]);
+        mockState.collections.set("creator_ops", [
+            {
+                id: "creator_live_count",
+                data: {
+                    summary: {
+                        followerCount: 0,
+                    },
+                },
+            },
+        ]);
+        mockState.collections.set("users", [
+            {
+                id: "creator_live_count",
+                data: {
+                    role: "creator",
+                    status: "active",
+                    displayName: "Jessi Ray",
+                    username: "jessiray",
+                    isVerified: true,
+                },
+            },
+        ]);
+        mockState.collections.set("drops", [
+            {
+                id: "drop_1",
+                data: {
+                    creatorId: "creator_live_count",
+                    title: "Apple Pie",
+                    description: "Test drop",
+                    imageUrl: "https://example.com/apple.png",
+                    contentUrl: "https://example.com/content.zip",
+                    unlockCost: 100,
+                    validFrom: now - 10_000,
+                    validUntil: now + 60_000,
+                    status: "active",
+                    approvalStatus: "approved",
+                    totalUnlocks: 12,
+                },
+            },
+        ]);
+
+        const response = await GET(new NextRequest("http://localhost/api/creator/relationships"));
+        const body = await response.json();
+
+        expect(response.status).toBe(200);
+        expect(body.followedCreators).toHaveLength(1);
+        expect(body.followedCreators[0]).toMatchObject({
+            uid: "creator_live_count",
+            followerCount: 2,
+            following: true,
         });
     });
 });

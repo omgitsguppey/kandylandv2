@@ -21,9 +21,13 @@ test.describe("UI continuity visual audits", () => {
   test("home hero stays stable", async ({ page }) => {
     await openAuditSurface(page, "/", "main");
     const hero = page.locator("main section").first().locator("div.flex.min-w-0.max-w-2xl.w-full.flex-col.items-center").first();
+    const activityTicker = hero
+      .getByText(/Live Now:\s+\d+\s+KandyDrops are ready to unwrap!/i)
+      .locator("xpath=ancestor::div[contains(@class, 'inline-flex')][1]");
     await expect(hero).toHaveScreenshot("home-hero.png", {
       mask: [
         hero.locator(".animate-ping"),
+        activityTicker,
       ],
       maxDiffPixels: 40,
       timeout: 15000,
