@@ -48,6 +48,20 @@ const mockState = vi.hoisted(() => {
             available: true,
         })),
         generateUniqueUsernameSuggestion: vi.fn(async () => "creator-one"),
+        reserveUsernameForUser: vi.fn(async ({ requestedUsername, applyUserMutation }: { requestedUsername: string; applyUserMutation?: (transaction: any, normalizedUsername: string) => Promise<void> | void }) => {
+            const normalizedUsername = requestedUsername.replace(/[^a-z0-9_-]+/gi, "-").toLowerCase();
+            if (applyUserMutation) {
+                await applyUserMutation({
+                    set: async (docRef: MockDocRef, data: Record<string, unknown>, options?: { merge?: boolean }) => {
+                        await docRef.set(data, options);
+                    },
+                }, normalizedUsername);
+            }
+            return {
+                ok: true as const,
+                normalizedUsername,
+            };
+        }),
         trackServerEvent: vi.fn(async () => undefined),
         ensureCreatorOnboardingSubmission: vi.fn(),
         sendCreatorOnboardingAdminNotification: vi.fn(async () => ({
@@ -62,6 +76,7 @@ const mockState = vi.hoisted(() => {
             this.handleApiError.mockReset();
             this.checkUsernameAvailability.mockReset();
             this.generateUniqueUsernameSuggestion.mockReset();
+            this.reserveUsernameForUser.mockReset();
             this.trackServerEvent.mockReset();
             this.ensureCreatorOnboardingSubmission.mockReset();
             this.sendCreatorOnboardingAdminNotification.mockReset();
@@ -70,6 +85,20 @@ const mockState = vi.hoisted(() => {
                 available: true,
             }));
             this.generateUniqueUsernameSuggestion.mockResolvedValue("creator-one");
+            this.reserveUsernameForUser.mockImplementation(async ({ requestedUsername, applyUserMutation }: { requestedUsername: string; applyUserMutation?: (transaction: any, normalizedUsername: string) => Promise<void> | void }) => {
+                const normalizedUsername = requestedUsername.replace(/[^a-z0-9_-]+/gi, "-").toLowerCase();
+                if (applyUserMutation) {
+                    await applyUserMutation({
+                        set: async (docRef: MockDocRef, data: Record<string, unknown>, options?: { merge?: boolean }) => {
+                            await docRef.set(data, options);
+                        },
+                    }, normalizedUsername);
+                }
+                return {
+                    ok: true as const,
+                    normalizedUsername,
+                };
+            });
             this.sendCreatorOnboardingAdminNotification.mockResolvedValue({
                 delivered: true,
                 duplicate: false,
@@ -94,6 +123,7 @@ vi.mock("@/lib/server/request-guard", () => ({
 vi.mock("@/lib/server/username-suggestions", () => ({
     checkUsernameAvailability: mockState.checkUsernameAvailability,
     generateUniqueUsernameSuggestion: mockState.generateUniqueUsernameSuggestion,
+    reserveUsernameForUser: mockState.reserveUsernameForUser,
 }));
 
 vi.mock("@/lib/server/rate-limit", () => ({

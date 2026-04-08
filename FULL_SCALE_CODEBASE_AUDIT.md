@@ -3229,3 +3229,83 @@ Known warnings and non-blocking notices during continuation:
 Continuation follow-up gaps:
 - this refactor still relies on point-in-time username availability checks rather than a dedicated username reservation contract
 - the fallback auto-bootstrap path remains in place for non-manual-auth cases such as restored Google sessions with no user document, by design
+
+### Continuation: Server-Side Username Reservation
+Current audit date: 2026-04-08 15:49:00 -05:00
+Current branch / commit for continuation start: `main` / `4f44014`
+Continuation task:
+- implement a real server-side username reservation system
+- tie it to legacy accounts so existing usernames self-heal into the reservation map instead of only new sign-ups being protected
+
+Continuation start state:
+- canonical startup docs were already re-read earlier in this broad auth/refactor session
+- `git status --short` was clean immediately after pushing `4f44014`
+- targeted adjacency traces were run for:
+  - `src/app/api/user/check-username/route.ts`
+  - `src/app/api/user/profile/route.ts`
+
+Initial audit findings before implementation:
+- username uniqueness is still enforced mainly by point-in-time `users.where("username" == ...)` checks
+- explicit registration now preserves the requested normalized username, but there is still no durable reservation record preventing races across concurrent writes
+- legacy accounts with populated `users.username` fields have no canonical reservation row yet, so a reservation system must backfill from those existing user docs rather than treating them as second-class history
+
+Exact touched surfaces:
+- `src/lib/server/username-suggestions.ts`
+- `src/app/api/user/check-username/route.ts`
+- `src/app/api/user/register/route.ts`
+- `src/app/api/user/profile/route.ts`
+- `src/app/api/user/delete/route.ts`
+- `tests/unit/username-suggestions.spec.ts`
+- `tests/unit/user-register-route.spec.ts`
+- `REPO_MEMORY_LEDGER.md`
+- `FULL_SCALE_CODEBASE_AUDIT.md`
+
+Canonical helpers and modules reused:
+- `src/lib/user-utils.ts`
+- `src/lib/server/firebase-admin.ts`
+- `src/lib/server/request-guard.ts`
+- `src/lib/server/auth.ts`
+- `src/lib/manual-email-auth.ts`
+
+Implementation results:
+- `src/lib/server/username-suggestions.ts` now owns the canonical reservation contract through `username_reservations`
+- availability checks now:
+  - resolve reservation docs first
+  - backfill missing reservation rows from legacy `users.username` values
+  - keep generated username suggestions on the same reservation-backed availability logic
+- explicit registration now reserves usernames server-side instead of only checking point-in-time availability
+- profile username changes now reserve the new username and release the caller’s prior reservation in the same transaction path
+- account deletion now releases the owned username reservation after document cleanup, preventing stale claims from surviving account removal
+- legacy usernames no longer sit outside the contract; the first server-side availability/read path can backfill them into the reservation map
+
+Runtime truth and continuity implications:
+- username uniqueness is no longer modeled as a best-effort query check only
+- explicit sign-up, profile edits, generated suggestions, and legacy-account availability now all share one backend ownership source
+- `users.username` remains a user-profile field, but the durable ownership guard is the reservation map
+- manual sign-up’s exact-username behavior from the prior continuation is now backed by a real reservation contract rather than only a point-in-time check
+
+Commands run for continuation:
+- `git status --short`
+- `npm run trace:adjacent -- src/app/api/user/check-username/route.ts`
+- `npm run trace:adjacent -- src/app/api/user/profile/route.ts`
+- `npx eslint src/lib/server/username-suggestions.ts src/app/api/user/check-username/route.ts src/app/api/user/register/route.ts src/app/api/user/profile/route.ts src/app/api/user/delete/route.ts tests/unit/username-suggestions.spec.ts tests/unit/user-register-route.spec.ts`
+- `corepack pnpm exec vitest run tests/unit/username-suggestions.spec.ts tests/unit/user-register-route.spec.ts`
+- `npm run check:inventory`
+- `npm run check:continuity`
+- `corepack pnpm run check`
+
+Continuation results:
+- focused eslint passed
+- focused reservation/auth Vitest passed with `2` files and `10` tests
+- `npm run check:inventory` passed with `703` tracked files
+- `npm run check:continuity` passed
+- `corepack pnpm run check` passed with `100` files and `487` tests
+
+Known warnings and non-blocking notices during continuation:
+- standard npm unknown env config warnings in canonical scripts
+- Node `punycode` deprecation warnings from Firebase/Vitest tooling
+- the first broad `corepack pnpm run check` attempt failed only because the new test mock still had a TypeScript issue; the fix was applied and the full rerun passed
+
+Continuation follow-up gaps:
+- reservation release is now implemented for account deletion and profile username changes, but there is still no username-history or moderation-hold policy
+- if the product later needs temporary reservation holds or reclaim windows, those rules must extend `username_reservations` instead of bypassing it

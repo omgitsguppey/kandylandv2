@@ -9,6 +9,7 @@ import { normalizeUsername } from "@/lib/user-utils";
 import { guardApiRequest } from "@/lib/server/request-guard";
 import { parseAdultDateOfBirth } from "@/lib/user-profile-validation";
 import { isCreatorRole, normalizeCreatorSettings } from "@/lib/creator-experiences";
+import { reserveUsernameForUser } from "@/lib/server/username-suggestions";
 
 const ALLOWED_TIMEZONES = new Set([
     "Auto",
@@ -119,6 +120,31 @@ function normalizeBrowserPushToken(value: unknown): string | null {
     return trimmed;
 }
 
+async function reserveProfileUsername(input: {
+    requestedUsername: string;
+    userId: string;
+    previousUsername?: string | null;
+    applyUserMutation: (transaction: FirebaseFirestore.Transaction, normalizedUsername: string) => void | Promise<void>;
+}) {
+    const reservation = await reserveUsernameForUser({
+        requestedUsername: input.requestedUsername,
+        uid: input.userId,
+        previousUsername: input.previousUsername,
+        source: "user_profile",
+        applyUserMutation: input.applyUserMutation,
+    });
+
+    if (!reservation.ok) {
+        if (reservation.reason === "invalid") {
+            return NextResponse.json({ error: "Invalid username format" }, { status: 400 });
+        }
+
+        return NextResponse.json({ error: "Username already taken" }, { status: 409 });
+    }
+
+    return reservation.normalizedUsername;
+}
+
 export async function PUT(request: NextRequest) {
     try {
         const caller = await guardApiRequest(request, {
@@ -147,11 +173,6 @@ export async function PUT(request: NextRequest) {
             const normalizedUsername = normalizeUsername(payload.username);
             if (!normalizedUsername) {
                 return NextResponse.json({ error: "Invalid username format" }, { status: 400 });
-            }
-
-            const existing = await adminDb.collection("users").where("username", "==", normalizedUsername).limit(1).get();
-            if (!existing.empty && existing.docs[0].id !== caller.uid) {
-                return NextResponse.json({ error: "Username already taken" }, { status: 409 });
             }
 
             updates.username = normalizedUsername;
@@ -251,7 +272,26 @@ export async function PUT(request: NextRequest) {
                 ? existingUserData.displayName.trim()
                 : caller.email || caller.uid;
 
-        await userRef.update(updates);
+        if (typeof updates.username === "string") {
+            const updatesWithoutUsername = { ...updates };
+            delete updatesWithoutUsername.username;
+            const reservedUsername = await reserveProfileUsername({
+                requestedUsername: updates.username,
+                userId: caller.uid,
+                previousUsername: typeof existingUserData.username === "string" ? existingUserData.username : null,
+                applyUserMutation: async (transaction, normalizedUsername) => {
+                    transaction.update(userRef, {
+                        ...updatesWithoutUsername,
+                        username: normalizedUsername,
+                    });
+                },
+            });
+            if (reservedUsername instanceof NextResponse) {
+                return reservedUsername;
+            }
+        } else {
+            await userRef.update(updates);
+        }
 
         if (shouldTrackNotificationsEnabled) {
             await recordCanonicalTaskEvent(caller.uid, username, "task_notifications_enabled", {
@@ -292,10 +332,6 @@ export async function POST(request: NextRequest) {
             if (!normalized) {
                 return NextResponse.json({ error: "Invalid username format" }, { status: 400 });
             }
-            const existing = await adminDb.collection("users").where("username", "==", normalized).limit(1).get();
-            if (!existing.empty && existing.docs[0].id !== userId) {
-                return NextResponse.json({ error: "Username already taken" }, { status: 409 });
-            }
         }
 
         let normalizedDateOfBirth: string | undefined;
@@ -317,7 +353,28 @@ export async function POST(request: NextRequest) {
         if (photoURL) updates.photoURL = photoURL;
 
         const userRef = adminDb.collection("users").doc(userId);
-        await userRef.update(updates);
+        if (typeof updates.username === "string") {
+            const userSnap = await userRef.get();
+            const existingUserData = userSnap.data() ?? {};
+            const updatesWithoutUsername = { ...updates };
+            delete updatesWithoutUsername.username;
+            const reservedUsername = await reserveProfileUsername({
+                requestedUsername: updates.username,
+                userId,
+                previousUsername: typeof existingUserData.username === "string" ? existingUserData.username : null,
+                applyUserMutation: async (transaction, normalizedUsername) => {
+                    transaction.update(userRef, {
+                        ...updatesWithoutUsername,
+                        username: normalizedUsername,
+                    });
+                },
+            });
+            if (reservedUsername instanceof NextResponse) {
+                return reservedUsername;
+            }
+        } else {
+            await userRef.update(updates);
+        }
 
         return NextResponse.json({ success: true });
     } catch (error) {

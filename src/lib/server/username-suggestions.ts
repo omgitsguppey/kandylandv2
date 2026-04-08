@@ -1,9 +1,26 @@
+import { FieldValue } from "firebase-admin/firestore";
+
 import { adminDb } from "@/lib/server/firebase-admin";
 import { buildUsernameBaseCandidates, normalizeUsername } from "@/lib/user-utils";
 
 const USERNAME_AVAILABILITY_BATCH_SIZE = 10;
 const USERNAME_SUFFIX_MIN = 2;
 const USERNAME_SUFFIX_MAX = 100;
+export const USERNAME_RESERVATIONS_COLLECTION = "username_reservations";
+
+type UsernameReservationRecord = {
+    username: string;
+    uid: string;
+    source: string;
+    legacyBackfilled: boolean;
+    updatedAt: FieldValue;
+    createdAt: FieldValue;
+};
+
+type ReservationDocLike = {
+    exists: boolean;
+    data: () => Record<string, unknown> | undefined;
+};
 
 function buildFallbackUsername(uid: string) {
     return `user-${uid.slice(0, 8).toLowerCase()}`;
@@ -17,6 +34,79 @@ function chunkValues<T>(values: readonly T[], chunkSize: number) {
     }
 
     return chunks;
+}
+
+function readReservationOwner(snapshot: ReservationDocLike) {
+    if (!snapshot.exists) {
+        return null;
+    }
+
+    const data = snapshot.data() ?? {};
+    return typeof data.uid === "string" && data.uid.trim().length > 0
+        ? data.uid.trim()
+        : null;
+}
+
+function buildUsernameReservationRecord(input: {
+    username: string;
+    uid: string;
+    source: string;
+    legacyBackfilled?: boolean;
+}): UsernameReservationRecord {
+    return {
+        username: input.username,
+        uid: input.uid,
+        source: input.source,
+        legacyBackfilled: input.legacyBackfilled === true,
+        updatedAt: FieldValue.serverTimestamp(),
+        createdAt: FieldValue.serverTimestamp(),
+    };
+}
+
+function selectLegacyOwner(input: {
+    ownerIds: string[];
+    excludeUid?: string;
+}) {
+    const conflictingOwner = input.ownerIds.find((ownerId) => ownerId !== input.excludeUid);
+    if (conflictingOwner) {
+        return conflictingOwner;
+    }
+
+    return input.excludeUid && input.ownerIds.includes(input.excludeUid)
+        ? input.excludeUid
+        : input.ownerIds[0] ?? null;
+}
+
+async function queryLegacyOwnerIds(usernames: readonly string[]) {
+    const ownerMap = new Map<string, string[]>();
+
+    if (!adminDb || usernames.length === 0) {
+        return ownerMap;
+    }
+
+    for (const batch of chunkValues(usernames, USERNAME_AVAILABILITY_BATCH_SIZE)) {
+        const snap = await adminDb
+            .collection("users")
+            .where("username", "in", batch)
+            .get();
+
+        batch.forEach((username) => {
+            ownerMap.set(username, []);
+        });
+
+        snap.docs.forEach((doc) => {
+            const username = normalizeUsername((doc.data() as { username?: unknown }).username);
+            if (!username) {
+                return;
+            }
+
+            const owners = ownerMap.get(username) ?? [];
+            owners.push(doc.id);
+            ownerMap.set(username, owners);
+        });
+    }
+
+    return ownerMap;
 }
 
 async function loadUsernameAvailability(usernames: readonly string[], excludeUid?: string) {
@@ -34,27 +124,58 @@ async function loadUsernameAvailability(usernames: readonly string[], excludeUid
         return availabilityMap;
     }
 
-    for (const batch of chunkValues(uniqueUsernames, USERNAME_AVAILABILITY_BATCH_SIZE)) {
-        const snap = await adminDb
-            .collection("users")
-            .where("username", "in", batch)
-            .get();
+    const reservationRefs = uniqueUsernames.map((username) =>
+        adminDb.collection(USERNAME_RESERVATIONS_COLLECTION).doc(username),
+    );
+    const reservationSnapshots = await Promise.all(reservationRefs.map((docRef) => docRef.get()));
+    const usernamesWithoutReservations: string[] = [];
 
-        const unavailableUsernames = new Set<string>();
-        snap.docs.forEach((doc) => {
-            if (excludeUid && doc.id === excludeUid) {
-                return;
-            }
+    reservationSnapshots.forEach((snapshot, index) => {
+        const username = uniqueUsernames[index];
+        const reservationOwner = readReservationOwner(snapshot);
+        if (!reservationOwner) {
+            usernamesWithoutReservations.push(username);
+            return;
+        }
 
-            const username = normalizeUsername((doc.data() as { username?: unknown }).username);
-            if (username) {
-                unavailableUsernames.add(username);
-            }
+        availabilityMap.set(username, Boolean(excludeUid && reservationOwner === excludeUid));
+    });
+
+    if (usernamesWithoutReservations.length === 0) {
+        return availabilityMap;
+    }
+
+    const legacyOwners = await queryLegacyOwnerIds(usernamesWithoutReservations);
+    const backfillPromises: Promise<unknown>[] = [];
+
+    usernamesWithoutReservations.forEach((username) => {
+        const ownerIds = legacyOwners.get(username) ?? [];
+        const selectedOwner = selectLegacyOwner({
+            ownerIds,
+            excludeUid,
         });
 
-        batch.forEach((username) => {
-            availabilityMap.set(username, !unavailableUsernames.has(username));
-        });
+        if (!selectedOwner) {
+            availabilityMap.set(username, true);
+            return;
+        }
+
+        availabilityMap.set(username, selectedOwner === excludeUid);
+        backfillPromises.push(
+            adminDb
+                .collection(USERNAME_RESERVATIONS_COLLECTION)
+                .doc(username)
+                .set(buildUsernameReservationRecord({
+                    username,
+                    uid: selectedOwner,
+                    source: "legacy_backfill",
+                    legacyBackfilled: true,
+                }), { merge: true }),
+        );
+    });
+
+    if (backfillPromises.length > 0) {
+        await Promise.allSettled(backfillPromises);
     }
 
     return availabilityMap;
@@ -106,6 +227,25 @@ function buildUsernameSuffixBatch(candidate: string, batchStart: number, batchSi
     }
 
     return batchAlternatives;
+}
+
+async function findLegacyOwnerInTransaction(
+    transaction: FirebaseFirestore.Transaction,
+    normalizedUsername: string,
+    excludeUid?: string,
+) {
+    if (!adminDb) {
+        return null;
+    }
+
+    const query = adminDb.collection("users").where("username", "==", normalizedUsername).limit(5);
+    const snap = await transaction.get(query);
+    const ownerIds = snap.docs.map((doc) => doc.id);
+
+    return selectLegacyOwner({
+        ownerIds,
+        excludeUid,
+    });
 }
 
 export async function generateUniqueUsernameSuggestion(input: {
@@ -161,4 +301,105 @@ export async function checkUsernameAvailability(username: string, excludeUid?: s
         normalized,
         available: await availabilityResolver.isAvailable(normalized),
     };
+}
+
+export async function reserveUsernameForUser(input: {
+    requestedUsername: string;
+    uid: string;
+    previousUsername?: string | null;
+    source: string;
+    applyUserMutation?: (transaction: FirebaseFirestore.Transaction, normalizedUsername: string) => void | Promise<void>;
+}) {
+    const normalizedUsername = normalizeUsername(input.requestedUsername);
+    if (!normalizedUsername) {
+        return {
+            ok: false as const,
+            reason: "invalid" as const,
+            normalizedUsername: null,
+        };
+    }
+
+    if (!adminDb) {
+        throw new Error("Database not available");
+    }
+
+    return adminDb.runTransaction(async (transaction) => {
+        const reservationRef = adminDb.collection(USERNAME_RESERVATIONS_COLLECTION).doc(normalizedUsername);
+        const reservationSnap = await transaction.get(reservationRef);
+        const reservationOwner = readReservationOwner(reservationSnap);
+
+        if (reservationOwner && reservationOwner !== input.uid) {
+            return {
+                ok: false as const,
+                reason: "taken" as const,
+                normalizedUsername,
+                ownerUid: reservationOwner,
+            };
+        }
+
+        const legacyOwner = await findLegacyOwnerInTransaction(transaction, normalizedUsername, input.uid);
+        if (legacyOwner && legacyOwner !== input.uid) {
+            if (!reservationOwner) {
+                transaction.set(reservationRef, buildUsernameReservationRecord({
+                    username: normalizedUsername,
+                    uid: legacyOwner,
+                    source: "legacy_backfill",
+                    legacyBackfilled: true,
+                }), { merge: true });
+            }
+
+            return {
+                ok: false as const,
+                reason: "taken" as const,
+                normalizedUsername,
+                ownerUid: legacyOwner,
+            };
+        }
+
+        transaction.set(reservationRef, buildUsernameReservationRecord({
+            username: normalizedUsername,
+            uid: input.uid,
+            source: input.source,
+            legacyBackfilled: reservationOwner === null && legacyOwner === input.uid,
+        }), { merge: true });
+
+        const previousUsername = normalizeUsername(input.previousUsername);
+        if (previousUsername && previousUsername !== normalizedUsername) {
+            const previousReservationRef = adminDb.collection(USERNAME_RESERVATIONS_COLLECTION).doc(previousUsername);
+            const previousReservationSnap = await transaction.get(previousReservationRef);
+            const previousOwner = readReservationOwner(previousReservationSnap);
+            if (previousOwner === input.uid) {
+                transaction.delete(previousReservationRef);
+            }
+        }
+
+        if (input.applyUserMutation) {
+            await input.applyUserMutation(transaction, normalizedUsername);
+        }
+
+        return {
+            ok: true as const,
+            normalizedUsername,
+        };
+    });
+}
+
+export async function releaseUsernameReservationForUser(input: {
+    username?: string | null;
+    uid: string;
+}) {
+    const normalizedUsername = normalizeUsername(input.username);
+    if (!normalizedUsername || !adminDb) {
+        return;
+    }
+
+    await adminDb.runTransaction(async (transaction) => {
+        const reservationRef = adminDb.collection(USERNAME_RESERVATIONS_COLLECTION).doc(normalizedUsername);
+        const reservationSnap = await transaction.get(reservationRef);
+        const reservationOwner = readReservationOwner(reservationSnap);
+
+        if (reservationOwner === input.uid) {
+            transaction.delete(reservationRef);
+        }
+    });
 }

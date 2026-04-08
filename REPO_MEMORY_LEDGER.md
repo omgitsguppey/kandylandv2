@@ -630,4 +630,28 @@ This file is not a changelog. It is the concise ledger for durable decisions tha
   - `src/lib/manual-email-auth.ts`
   - `src/app/api/user/register/route.ts`
   - `FULL_SCALE_CODEBASE_AUDIT.md`
-- Follow-up gaps: If the product later needs true username reservation rather than point-in-time availability checks, that should be added as an explicit server-side reservation contract instead of restoring silent auto-suggestion during registration.
+- Follow-up gaps: This rule now depends on the server-side reservation contract recorded in entry 30 and should not be interpreted as permission to fall back to point-in-time username checks.
+
+### 30. Username ownership is enforced by a server-side reservation map with legacy backfill
+- Approximate date: Canonicalized and recorded on 2026-04-08
+- Status: Active canonical user-identity rule
+- Problem/context: Point-in-time `users.where("username" == ...)` checks were not durable enough to prevent concurrent claims, and legacy accounts with stored usernames had no canonical reservation row yet.
+- Decision made: Treat `username_reservations` as the canonical ownership map for usernames. New registrations and profile updates reserve usernames through server-side transactions, availability checks backfill missing reservations from legacy user docs, and account deletion releases the reservation owned by the deleted user.
+- What became canonical:
+  - username availability resolves through the reservation map first
+  - missing reservation rows for legacy user docs are backfilled server-side instead of leaving legacy accounts outside the contract
+  - explicit registration and profile updates reserve/release usernames transactionally
+  - account deletion releases the owned username reservation after document cleanup
+  - generated username suggestions use the same reservation-backed availability contract as explicit usernames
+- What is now disallowed or deprecated:
+  - relying on raw `users.where("username" == ...)` checks as the only uniqueness guard
+  - treating legacy user docs as exempt from username reservation rules
+  - changing a username without releasing the caller’s previous reservation
+- Truth lives in:
+  - `src/lib/server/username-suggestions.ts`
+  - `src/app/api/user/check-username/route.ts`
+  - `src/app/api/user/register/route.ts`
+  - `src/app/api/user/profile/route.ts`
+  - `src/app/api/user/delete/route.ts`
+  - `FULL_SCALE_CODEBASE_AUDIT.md`
+- Follow-up gaps: If username history, moderation holds, or grace-period reclaim rules are added later, they must extend the reservation contract rather than bypassing it with direct writes to `users.username`.

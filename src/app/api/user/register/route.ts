@@ -2,7 +2,7 @@ import { NextRequest, NextResponse } from "next/server";
 import { adminDb } from "@/lib/server/firebase-admin";
 import { handleApiError } from "@/lib/server/auth";
 import { FieldValue } from "firebase-admin/firestore";
-import { checkUsernameAvailability, generateUniqueUsernameSuggestion } from "@/lib/server/username-suggestions";
+import { checkUsernameAvailability, generateUniqueUsernameSuggestion, reserveUsernameForUser } from "@/lib/server/username-suggestions";
 import { STRICT } from "@/lib/server/rate-limit";
 import { PRIVACY_POLICY_VERSION } from "@/lib/privacy-policy";
 import { trackServerEvent } from "@/lib/server/analytics";
@@ -61,6 +61,40 @@ async function resolveRegistrationUsername(input: {
         uid: input.uid,
         excludeUid: input.excludeUid,
     });
+}
+
+async function reserveRegistrationUsername(input: {
+    requestedUsername: string;
+    userId: string;
+    previousUsername?: string | null;
+    applyUserMutation?: (transaction: FirebaseFirestore.Transaction, normalizedUsername: string) => void | Promise<void>;
+}) {
+    const reservation = await reserveUsernameForUser({
+        requestedUsername: input.requestedUsername,
+        uid: input.userId,
+        previousUsername: input.previousUsername,
+        source: "user_register",
+        applyUserMutation: input.applyUserMutation,
+    });
+
+    if (!reservation.ok) {
+        if (reservation.reason === "invalid") {
+            return NextResponse.json(
+                { error: "Use 3-20 lowercase letters, numbers, dashes, or underscores." },
+                { status: 400 },
+            );
+        }
+
+        return NextResponse.json(
+            {
+                error: "Username is already taken.",
+                authErrorCode: "auth/username-already-in-use",
+            },
+            { status: 409 },
+        );
+    }
+
+    return reservation.normalizedUsername;
 }
 
 async function emitCreatorSubmissionSignals(input: {
@@ -160,7 +194,24 @@ export async function POST(request: NextRequest) {
                 }
             }
 
-            if (Object.keys(profilePatch).length > 0) {
+            if (typeof profilePatch.username === "string") {
+                const profilePatchWithoutUsername = { ...profilePatch };
+                delete profilePatchWithoutUsername.username;
+                const reservedUsername = await reserveRegistrationUsername({
+                    requestedUsername: profilePatch.username,
+                    userId: caller.uid,
+                    previousUsername: typeof existingData.username === "string" ? existingData.username : null,
+                    applyUserMutation: async (transaction, normalizedUsername) => {
+                        transaction.set(userRef, {
+                            ...profilePatchWithoutUsername,
+                            username: normalizedUsername,
+                        }, { merge: true });
+                    },
+                });
+                if (reservedUsername instanceof NextResponse) {
+                    return reservedUsername;
+                }
+            } else if (Object.keys(profilePatch).length > 0) {
                 await userRef.set(profilePatch, { merge: true });
             }
 
@@ -214,14 +265,14 @@ export async function POST(request: NextRequest) {
             });
         }
 
-        const normalizedUsername = await resolveRegistrationUsername({
+        const resolvedUsername = await resolveRegistrationUsername({
             requestedUsername: username,
             displayName,
             email: caller.email,
             uid: caller.uid,
         });
-        if (normalizedUsername instanceof NextResponse) {
-            return normalizedUsername;
+        if (resolvedUsername instanceof NextResponse) {
+            return resolvedUsername;
         }
 
         const welcomeBonus = isCreatorSignup ? 0 : 50;
@@ -229,7 +280,7 @@ export async function POST(request: NextRequest) {
             uid: caller.uid,
             email: caller.email,
             displayName: (isCreatorSignup ? creatorDisplayName : displayName) || displayName || "User",
-            username: normalizedUsername,
+            username: resolvedUsername,
             onboardingCompleted: false,
             gumDropsBalance: welcomeBonus,
             gumDropsPurchasedBalance: 0,
@@ -258,7 +309,19 @@ export async function POST(request: NextRequest) {
         };
 
         if (parsedDob?.ok) newProfile.dateOfBirth = parsedDob.value;
-        await userRef.set(newProfile, { merge: true });
+        const normalizedUsername = await reserveRegistrationUsername({
+            requestedUsername: resolvedUsername,
+            userId: caller.uid,
+            applyUserMutation: async (transaction, reservedUsername) => {
+                transaction.set(userRef, {
+                    ...newProfile,
+                    username: reservedUsername,
+                }, { merge: true });
+            },
+        });
+        if (normalizedUsername instanceof NextResponse) {
+            return normalizedUsername;
+        }
 
         const creatorSubmission = isCreatorSignup
             ? await ensureCreatorOnboardingSubmission({

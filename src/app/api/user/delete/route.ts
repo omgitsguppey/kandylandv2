@@ -5,6 +5,7 @@ import { adminDb, adminAuth } from "@/lib/server/firebase-admin";
 import { STRICT } from "@/lib/server/rate-limit";
 import { guardApiRequest } from "@/lib/server/request-guard";
 import { creatorDocumentCleanupWrites } from "@/lib/server/creator-experiences";
+import { releaseUsernameReservationForUser } from "@/lib/server/username-suggestions";
 
 type DeletedDataSummary = {
     userDocumentTree: number;
@@ -80,6 +81,10 @@ export async function DELETE(request: NextRequest) {
         }
 
         const userRef = adminDb.collection("users").doc(uid);
+        const existingUserSnap = await userRef.get();
+        const existingUsername = typeof existingUserSnap.data()?.username === "string"
+            ? existingUserSnap.data()?.username
+            : null;
         const bulkWriter = adminDb.bulkWriter();
         bulkWriter.onWriteError((error) => {
             console.error("User delete bulk-writer error", error);
@@ -120,6 +125,22 @@ export async function DELETE(request: NextRequest) {
         bulkWriter.delete(adminDb.collection("analytics_users_rollup").doc(uid));
         bulkWriter.delete(adminDb.collection("analytics_active_users").doc(uid));
         await bulkWriter.close();
+
+        try {
+            await releaseUsernameReservationForUser({
+                uid,
+                username: existingUsername,
+            });
+        } catch (error) {
+            console.error("Account cleanup completed but username reservation release is pending", error);
+            return NextResponse.json({
+                success: false,
+                message: "Account data was removed, but username release is still pending.",
+                deleted: {
+                    authUserDeleted: false,
+                },
+            }, { status: 503 });
+        }
 
         const deletedSummary: DeletedDataSummary = {
             userDocumentTree: deletedSummaryValues[0],
