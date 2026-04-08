@@ -884,6 +884,13 @@ export default function AdminAnalyticsPage() {
   const viewerDropInsights = historicalResponse?.viewerDropInsights ?? [];
   const viewerUsers = historicalResponse?.viewerUsers ?? [];
   const activeViewerFilter = historicalResponse?.viewerFilter ?? viewerUserFilter;
+  // ⚡ Bolt Performance Optimization
+  // What: Extracted notification funnel filter & mapping into a memoized block.
+  // Why: Prevents redundant array filtering on every React render and preserves Pie data object references.
+  // Impact: Reduces CPU burn and garbage collection pressure in this component by preventing array allocation inside the render tree.
+  const activeNotificationFunnel = useMemo(() => notificationFunnel.filter((item) => item.count > 0), [notificationFunnel]);
+  const activeNotificationFunnelPieData = useMemo(() => activeNotificationFunnel.map((item) => ({ name: item.label, value: item.count })), [activeNotificationFunnel]);
+
   const semanticCategories = historicalResponse?.semanticCategories ?? [];
   const validations = historicalResponse?.validations ?? [];
   const componentContexts = historicalResponse?.componentContexts ?? [];
@@ -2880,14 +2887,14 @@ export default function AdminAnalyticsPage() {
                     <ResponsiveContainer width="100%" height="100%">
                       <PieChart>
                         <Pie
-                          data={notificationFunnel.filter((item) => item.count > 0).map((item) => ({ name: item.label, value: item.count }))}
+                          data={activeNotificationFunnelPieData}
                           dataKey="value"
                           nameKey="name"
                           innerRadius={52}
                           outerRadius={84}
                           paddingAngle={3}
                         >
-                          {notificationFunnel.filter((item) => item.count > 0).map((item, index) => (
+                          {activeNotificationFunnel.map((item, index) => (
                             <Cell key={item.label} fill={PIE_COLORS[index % PIE_COLORS.length]} />
                           ))}
                         </Pie>

@@ -17,3 +17,6 @@
 ## 2026-04-01 - Optimize loop processing and object cloning in Dashboard CollectionList
 **Learning:** High performance impact observed when large datasets are mapped multiple times (e.g. `map` -> `filter` -> `filter`) in hot-path React `useMemo` blocks. Specifically, `applyDropStatus` cloning objects inside `map` before a subsequent `filter` abandons them creates a significant garbage collection load.
 **Action:** Use a single-pass `for...of` loop to iterate elements, defer object cloning until an element is validated to match criteria, and combine multiple aggregations inside the same iteration pass.
+## 2024-05-15 - React Component Re-render Arrays
+**Learning:** React elements like Recharts receive deeply nested object data via `data` props. Using inline `.filter().map()` chains generates a brand new array reference on every single component render, causing Recharts to dump its cache and recalculate sizes/positions on every parent ping.
+**Action:** Always wrap data-processing pipelines inside a `useMemo` hook so that derived array structures maintain stable object references across standard component refreshes.
