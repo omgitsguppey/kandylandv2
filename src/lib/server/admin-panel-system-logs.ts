@@ -3,6 +3,7 @@ import "server-only";
 import { adminDb } from "@/lib/server/firebase-admin";
 import type { AdminUiChartHealthCategory, AdminUiChartHealthItem } from "@/lib/admin-ui-chart-health";
 import type { AdminOpsHealth } from "@/lib/admin-ops-health";
+import { getRouteRuntimeHealthStatus, type RouteRuntimeHealthItem } from "@/lib/route-runtime-health";
 import {
     ADMIN_PANEL_SYSTEM_LOG_COLLECTION,
     type AdminPanelSystemLog,
@@ -131,6 +132,7 @@ export function buildAdminPanelSystemLogs(input: {
     opsHealth: AdminOpsHealth;
     orchestration: OrchestrationSummaryInput;
     chartHealth?: AdminUiChartHealthItem[];
+    routeRuntimeHealth?: RouteRuntimeHealthItem[];
 }) {
     const nowMs = input.nowMs ?? Date.now();
     const materializerFailures = input.opsHealth.materializers.filter((item) => item.status === "fail").length;
@@ -172,12 +174,43 @@ export function buildAdminPanelSystemLogs(input: {
                 : "healthy";
 
     const chartHealth = input.chartHealth ?? [];
+    const routeRuntimeHealth = input.routeRuntimeHealth ?? [];
     const chartHealthLogs = (["overview", "operations", "audience", "commerce", "security"] as const)
         .map((category) => buildChartHealthCategoryLog({
             category,
             items: chartHealth.filter((item) => item.category === category),
             nowMs,
         }));
+    const routeFailCount = routeRuntimeHealth.filter((item) => getRouteRuntimeHealthStatus(item) === "fail").length;
+    const routeWarnCount = routeRuntimeHealth.filter((item) => getRouteRuntimeHealthStatus(item) === "warn").length;
+    const routeHealthLog = buildLog({
+        id: "ops.route_runtime_health",
+        panelKey: "ops.route_runtime_health",
+        tab: "ops",
+        panelTitle: "Tracked route runtime",
+        status: routeRuntimeHealth.length === 0
+            ? "warn"
+            : routeFailCount > 0
+                ? "fail"
+                : routeWarnCount > 0
+                    ? "warn"
+                    : "healthy",
+        summary: routeRuntimeHealth.length === 0
+            ? "No route runtime health rollups have been recorded yet for the tracked creator/support/AI endpoints."
+            : routeFailCount > 0
+                ? `${routeFailCount} tracked routes are currently failing and ${routeWarnCount} are degraded or historically noisy.`
+                : routeWarnCount > 0
+                    ? `${routeWarnCount} tracked routes are degraded or have recorded slow/error history without a current server failure.`
+                    : `${routeRuntimeHealth.length} tracked routes are healthy in the latest runtime rollup sample.`,
+        action: routeRuntimeHealth.length === 0
+            ? "Drive the tracked creator, support, and AI routes at least once so debug can materialize real route health."
+            : routeFailCount > 0 || routeWarnCount > 0
+                ? `Inspect the highest-risk routes first: ${routeRuntimeHealth.filter((item) => getRouteRuntimeHealthStatus(item) !== "healthy").slice(0, 3).map((item) => item.title).join(", ") || "tracked route runtime"}`
+                : "No action required.",
+        signalCount: routeFailCount + routeWarnCount,
+        signalKeys: routeRuntimeHealth.map((item) => `route_runtime_health.${item.key}`),
+        observedAtMs: nowMs,
+    });
 
     return [
         buildLog({
@@ -462,6 +495,7 @@ export function buildAdminPanelSystemLogs(input: {
             signalKeys: ["ops.diagnostics", "ops.materializers", "ops.diagnostics.activeWindowMs"],
             observedAtMs: nowMs,
         }),
+        routeHealthLog,
     ];
 }
 

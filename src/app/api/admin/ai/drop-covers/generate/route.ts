@@ -9,11 +9,24 @@ import {
 import { handleApiError } from "@/lib/server/auth";
 import { ADMIN_AI_GENERATE } from "@/lib/server/rate-limit";
 import { guardApiRequest } from "@/lib/server/request-guard";
+import { getErrorMessage } from "@/lib/server/route-diagnostics";
+import { recordRouteRuntimeSample } from "@/lib/server/route-runtime-health";
 
 export const dynamic = "force-dynamic";
 export const revalidate = 0;
 
 export async function POST(request: NextRequest) {
+    const startedAt = Date.now();
+    const finalize = (response: NextResponse, error?: unknown) => {
+        void recordRouteRuntimeSample({
+            key: "admin/ai/drop-covers/generate:POST",
+            durationMs: Date.now() - startedAt,
+            statusCode: response.status,
+            errorMessage: error ? getErrorMessage(error) : null,
+        });
+        return response;
+    };
+
     try {
         const caller = await guardApiRequest(request, {
             routeName: "admin/ai/drop-covers/generate",
@@ -25,10 +38,10 @@ export async function POST(request: NextRequest) {
 
         const settings = await getAdminAiDropCoverSettings();
         if (!settings.enabled) {
-            return NextResponse.json({
+            return finalize(NextResponse.json({
                 error: "AI cover generation is turned off.",
                 errorCode: "feature_disabled",
-            }, { status: 409 });
+            }, { status: 409 }));
         }
 
         const body = await request.json() as {
@@ -44,27 +57,27 @@ export async function POST(request: NextRequest) {
         };
         const title = typeof body.title === "string" ? body.title.trim() : "";
         if (title.length < 3) {
-            return NextResponse.json({
+            return finalize(NextResponse.json({
                 error: "Drop title must be at least 3 characters before generating a cover.",
                 errorCode: "validation_failed",
-            }, { status: 400 });
+            }, { status: 400 }));
         }
 
         const dropId = typeof body.dropId === "string" ? body.dropId : null;
         const draftSessionId = typeof body.draftSessionId === "string" ? body.draftSessionId.trim() : "";
         const requestedModel = typeof body.requestedModel === "string" ? body.requestedModel.trim() : "";
         if (!dropId && draftSessionId.length < 8) {
-            return NextResponse.json({
+            return finalize(NextResponse.json({
                 error: "Unsaved drop cover generation requires a valid draft session. Close and reopen Create Drop, then try again.",
                 errorCode: "draft_session_required",
-            }, { status: 400 });
+            }, { status: 400 }));
         }
 
         if (requestedModel && !isAdminAiDropCoverSelectableModel(requestedModel)) {
-            return NextResponse.json({
+            return finalize(NextResponse.json({
                 error: "The requested AI image model is not supported in the create-drop switch.",
                 errorCode: "validation_failed",
-            }, { status: 400 });
+            }, { status: 400 }));
         }
         const boundedRequestedModel = isAdminAiDropCoverSelectableModel(requestedModel)
             ? requestedModel
@@ -84,7 +97,7 @@ export async function POST(request: NextRequest) {
             requestedByEmail: caller?.email,
         });
 
-        return NextResponse.json({
+        return finalize(NextResponse.json({
             success: true,
             job,
         }, {
@@ -92,12 +105,12 @@ export async function POST(request: NextRequest) {
             headers: {
                 "Cache-Control": "no-store, max-age=0",
             },
-        });
+        }));
     } catch (error) {
         const aiError = toAdminAiDropCoverClientError(error);
         if (aiError) {
-            return NextResponse.json(aiError.body, { status: aiError.status });
+            return finalize(NextResponse.json(aiError.body, { status: aiError.status }), error);
         }
-        return handleApiError(error, "admin/ai/drop-covers/generate");
+        return finalize(handleApiError(error, "admin/ai/drop-covers/generate"), error);
     }
 }

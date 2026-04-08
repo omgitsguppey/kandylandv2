@@ -39,6 +39,7 @@ import { buildAdminPanelSystemLogs, syncAdminPanelSystemLogs } from "@/lib/serve
 import { buildCreatorOnboardingDiagnostics } from "@/lib/server/creator-onboarding-diagnostics";
 import { CREATOR_ONBOARDING_COLLECTION, CREATOR_REVIEW_QUEUE_COLLECTION } from "@/lib/server/creator-onboarding";
 import { listAdminUiChartHealth } from "@/lib/server/admin-ui-chart-health";
+import { listRouteRuntimeHealth } from "@/lib/server/route-runtime-health";
 
 const ONE_WEEK_MS = 7 * 24 * 60 * 60 * 1000;
 const TASK_GROUP_SET = new Set<string>(["visit", "notifications", "unwrap", "watch", "wallet", "purchase", "feedback", "share"]);
@@ -294,7 +295,10 @@ export async function GET(request: NextRequest) {
             adminDb.collection(CREATOR_REVIEW_QUEUE_COLLECTION).get(),
         ]);
 
-        const analyticsChartHealth = await listAdminUiChartHealth();
+        const [analyticsChartHealth, routeRuntimeHealth] = await Promise.all([
+            listAdminUiChartHealth(),
+            listRouteRuntimeHealth(),
+        ]);
         const opsHealth = buildAdminOpsHealth({
             nowMs,
             diagnosticsDocs: serverDiagnosticsSnapshot.docs,
@@ -813,6 +817,7 @@ export async function GET(request: NextRequest) {
             opsHealth,
             orchestration: orchestration.summary,
             chartHealth: analyticsChartHealth,
+            routeRuntimeHealth,
         });
         await syncAdminPanelSystemLogs(panelSystemLogs);
 
@@ -859,6 +864,9 @@ export async function GET(request: NextRequest) {
                 adminUiChartsReported: analyticsChartHealth.length,
                 adminUiChartWarnings: analyticsChartHealth.filter((item) => item.status === "warn").length,
                 adminUiChartFailures: analyticsChartHealth.filter((item) => item.status === "fail").length,
+                routeRuntimeHealthReported: routeRuntimeHealth.length,
+                routeRuntimeHealthWarnings: routeRuntimeHealth.filter((item) => item.lastResult !== "success" || item.slowCount > 0).length,
+                routeRuntimeHealthFailures: routeRuntimeHealth.filter((item) => item.lastResult === "server_error").length,
             },
             coverage,
             taskInventorySummary,
@@ -897,6 +905,7 @@ export async function GET(request: NextRequest) {
             orchestration,
             panelSystemLogs,
             analyticsChartHealth,
+            routeRuntimeHealth,
         });
     } catch (error) {
         return handleApiError(error, "Admin.Debug.GET");

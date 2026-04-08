@@ -24,6 +24,7 @@ import { useAdminPollingSWR } from "@/hooks/useAdminPollingSWR";
 import { useCompactViewport } from "@/hooks/useCompactViewport";
 import type { AdminAiDebugSummary } from "@/lib/ai-debug-assistant";
 import { summarizeAdminUiChartHealth } from "@/lib/admin-ui-chart-health";
+import { getRouteRuntimeHealthStatus, summarizeRouteRuntimeHealth } from "@/lib/route-runtime-health";
 import { authFetch } from "@/lib/authFetch";
 import { reportClientIssue } from "@/lib/client-error-reporting";
 import { cn } from "@/lib/utils";
@@ -183,6 +184,14 @@ export default function DebugConsole() {
         () => summarizeAdminUiChartHealth(analyticsChartHealth),
         [analyticsChartHealth],
     );
+    const routeRuntimeHealth = useMemo(
+        () => data?.routeRuntimeHealth || [],
+        [data?.routeRuntimeHealth],
+    );
+    const routeRuntimeHealthSummary = useMemo(
+        () => summarizeRouteRuntimeHealth(routeRuntimeHealth),
+        [routeRuntimeHealth],
+    );
     const derivedActionCount = useMemo(
         () => (
             (data?.stats?.orchestrationActionableRepairs ?? 0)
@@ -190,20 +199,23 @@ export default function DebugConsole() {
             + panelLogFailCount
             + analyticsChartHealthSummary.warn
             + analyticsChartHealthSummary.fail
+            + routeRuntimeHealthSummary.warn
+            + routeRuntimeHealthSummary.fail
         ),
-        [analyticsChartHealthSummary.fail, analyticsChartHealthSummary.warn, data?.stats?.orchestrationActionableRepairs, panelLogFailCount, panelLogWarnCount],
+        [analyticsChartHealthSummary.fail, analyticsChartHealthSummary.warn, data?.stats?.orchestrationActionableRepairs, panelLogFailCount, panelLogWarnCount, routeRuntimeHealthSummary.fail, routeRuntimeHealthSummary.warn],
     );
     const freshestLoadedSignalAt = useMemo(() => {
         const timestamps = [
             ...recentTransactions.map((entry) => (typeof entry.timestamp === "number" ? entry.timestamp : 0)),
             ...(data?.panelSystemLogs || []).map((entry: any) => typeof entry.updatedAtMs === "number" ? entry.updatedAtMs : 0),
             ...analyticsChartHealth.map((entry: any) => typeof entry.updatedAtMs === "number" ? entry.updatedAtMs : 0),
+            ...routeRuntimeHealth.map((entry: any) => typeof entry.updatedAtMs === "number" ? entry.updatedAtMs : 0),
             ...(data?.opsHealth?.diagnostics?.recent || []).map((entry: any) => typeof entry.timestamp === "number" ? entry.timestamp : 0),
             aiDebugData?.generated_at ? Date.parse(aiDebugData.generated_at) : 0,
         ].filter((value) => Number.isFinite(value) && value > 0);
 
         return timestamps.length > 0 ? Math.max(...timestamps) : 0;
-    }, [aiDebugData?.generated_at, analyticsChartHealth, data?.opsHealth?.diagnostics?.recent, data?.panelSystemLogs, recentTransactions]);
+    }, [aiDebugData?.generated_at, analyticsChartHealth, data?.opsHealth?.diagnostics?.recent, data?.panelSystemLogs, recentTransactions, routeRuntimeHealth]);
     const aiStatusLabel = aiDebugError
         ? "Unavailable"
         : !aiDebugData
@@ -345,12 +357,13 @@ export default function DebugConsole() {
 
             {renderTabControls()}
 
-            <div className="grid grid-cols-2 gap-3 md:grid-cols-3 xl:grid-cols-7">
+            <div className="grid grid-cols-2 gap-3 md:grid-cols-3 xl:grid-cols-8">
                 <StatCard label="Health score" value={data?.opsHealth ? `${data.opsHealth.score}%` : "--"} meta={`${data?.opsHealth?.diagnostics?.activeIssueClusterCount || 0} active issue clusters | ${getPipelineStatusLabel(data?.opsHealth?.pipeline?.status)} pipeline`} />
                 <StatCard label="Pipeline failures" value={data?.opsHealth?.pipeline?.failureCount ?? "--"} meta={data?.opsHealth?.pipeline?.status === "healthy" ? `no active incident in ${formatWindowHours(data?.opsHealth?.pipeline?.activeWindowMs)}` : data?.opsHealth?.pipeline?.lastFailureAt ? `last ${formatRelative(data.opsHealth.pipeline.lastFailureAt)}` : "recent failure state without timestamp"} />
                 <StatCard label="Task-issue users" value={data?.stats?.usersWithTaskIssues ?? "--"} meta={`${data?.stats?.runtimeUsersWithRefreshIssues ?? 0} sampled refresh warnings`} />
                 <StatCard label="Creator issues" value={data?.stats?.creatorOnboardingIssues ?? "--"} meta={`${data?.creatorOnboardingDiagnostics?.summary?.missingQueueCount ?? 0} missing queue links`} />
-                <StatCard label="Open actions" value={derivedActionCount} meta={`${data?.stats?.orchestrationActionableRepairs ?? 0} proposals + ${panelLogWarnCount + panelLogFailCount} panel log issues + ${analyticsChartHealthSummary.warn + analyticsChartHealthSummary.fail} chart issues`} />
+                <StatCard label="Open actions" value={derivedActionCount} meta={`${data?.stats?.orchestrationActionableRepairs ?? 0} proposals + ${panelLogWarnCount + panelLogFailCount} panel log issues + ${analyticsChartHealthSummary.warn + analyticsChartHealthSummary.fail} chart issues + ${routeRuntimeHealthSummary.warn + routeRuntimeHealthSummary.fail} route issues`} />
+                <StatCard label="Route health" value={routeRuntimeHealthSummary.total ? `${routeRuntimeHealthSummary.fail}/${routeRuntimeHealthSummary.warn}` : "--"} meta={routeRuntimeHealthSummary.total ? `${routeRuntimeHealthSummary.total} tracked | ${routeRuntimeHealthSummary.serverErrors} server errors | ${routeRuntimeHealthSummary.slow} slow samples` : "no route rollups yet"} />
                 <StatCard label="Freshest signal" value={freshestLoadedSignalAt ? formatRelative(freshestLoadedSignalAt) : "--"} meta="derived from loaded diagnostics, panel logs, transactions, and AI status" />
                 <StatCard label="AI assistant" value={aiStatusLabel} meta={aiDebugData ? `${aiDebugData.model} | ${aiDebugData.latency_ms}ms` : aiDebugError ? "assistant unavailable" : "waiting for summary"} />
             </div>
@@ -714,6 +727,52 @@ export default function DebugConsole() {
 
             {activeTab === "monitoring" ? (
                 <div className="space-y-4">
+                    <Section
+                        title="Tracked route runtime"
+                        subtitle="Canonical route rollups for creator relationships, support, and AI cover generation. This is persisted backend health, not guessed client state."
+                        defaultOpen={routeRuntimeHealthSummary.fail > 0 || routeRuntimeHealthSummary.warn > 0}
+                        summary={<><Pill label="Tracked" value={routeRuntimeHealthSummary.total} /><Pill label="Warn" value={routeRuntimeHealthSummary.warn} tone={routeRuntimeHealthSummary.warn > 0 ? "warn" : "good"} /><Pill label="Fail" value={routeRuntimeHealthSummary.fail} tone={routeRuntimeHealthSummary.fail > 0 ? "bad" : "good"} /><Pill label="Slow samples" value={routeRuntimeHealthSummary.slow} tone={routeRuntimeHealthSummary.slow > 0 ? "warn" : "good"} /></>}
+                    >
+                        {routeRuntimeHealth.length > 0 ? (
+                            <ScrollWrap>
+                                <div className="divide-y divide-white/10">
+                                    {routeRuntimeHealth.map((entry: any) => {
+                                        const status = getRouteRuntimeHealthStatus(entry);
+                                        return (
+                                            <div key={entry.key} className="space-y-2 px-4 py-3">
+                                                <div className="flex flex-wrap items-start justify-between gap-2">
+                                                    <div>
+                                                        <p className="font-semibold text-white">{entry.title}</p>
+                                                        <p className="text-xs text-gray-400">{entry.routeName} | {entry.method} | {formatRelative(entry.updatedAtMs)}</p>
+                                                    </div>
+                                                    <div className="flex flex-wrap gap-2">
+                                                        <Pill label="Status" value={status} tone={status === "healthy" ? "good" : status === "warn" ? "warn" : "bad"} />
+                                                        <Pill label="Last result" value={entry.lastResult} tone={entry.lastResult === "success" ? "good" : entry.lastResult === "client_error" ? "warn" : "bad"} />
+                                                    </div>
+                                                </div>
+                                                <div className="flex flex-wrap gap-2">
+                                                    <Pill label="Last latency" value={`${entry.lastLatencyMs ?? 0}ms`} tone={(entry.lastLatencyMs ?? 0) >= (entry.slowThresholdMs ?? 0) ? "warn" : "good"} />
+                                                    <Pill label="Avg latency" value={`${entry.averageLatencyMs ?? 0}ms`} />
+                                                    <Pill label="Max latency" value={`${entry.maxLatencyMs ?? 0}ms`} />
+                                                    <Pill label="Success" value={entry.successCount ?? 0} tone="good" />
+                                                    <Pill label="Client errors" value={entry.clientErrorCount ?? 0} tone={(entry.clientErrorCount ?? 0) > 0 ? "warn" : "good"} />
+                                                    <Pill label="Server errors" value={entry.serverErrorCount ?? 0} tone={(entry.serverErrorCount ?? 0) > 0 ? "bad" : "good"} />
+                                                    <Pill label="Slow" value={entry.slowCount ?? 0} tone={(entry.slowCount ?? 0) > 0 ? "warn" : "good"} />
+                                                </div>
+                                                <p className="text-xs text-gray-400">Slow threshold {entry.slowThresholdMs ?? 0}ms. Last success {formatRelative(entry.lastSuccessAtMs)}. Last server error {formatRelative(entry.lastServerErrorAtMs)}.</p>
+                                                {entry.lastErrorMessage ? <p className="text-sm text-amber-100">{entry.lastErrorMessage}</p> : null}
+                                            </div>
+                                        );
+                                    })}
+                                </div>
+                            </ScrollWrap>
+                        ) : (
+                            <div className="rounded-[1rem] border border-amber-400/20 bg-amber-500/10 p-4 text-sm text-amber-100">
+                                No tracked route rollups are loaded yet. Drive the creator follow, support inbox, or AI cover generation flows to populate this lane with real backend samples.
+                            </div>
+                        )}
+                    </Section>
+
                     <Section
                         title="Recent transactions"
                         subtitle="Latest loaded commerce entries. This is a bounded feed for fast inspection, not a full historical export."

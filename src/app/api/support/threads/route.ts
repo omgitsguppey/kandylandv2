@@ -5,6 +5,8 @@ import { AuthError, handleApiError } from "@/lib/server/auth";
 import { adminDb } from "@/lib/server/firebase-admin";
 import { guardApiRequest } from "@/lib/server/request-guard";
 import { STANDARD } from "@/lib/server/rate-limit";
+import { getErrorMessage } from "@/lib/server/route-diagnostics";
+import { recordRouteRuntimeSample } from "@/lib/server/route-runtime-health";
 import { createSupportThread, listSupportThreadsForUser } from "@/lib/server/support-threads";
 import { SUPPORT_THREAD_CATEGORIES } from "@/lib/support-readiness";
 
@@ -16,6 +18,17 @@ const createSupportThreadSchema = z.object({
 });
 
 export async function GET(request: NextRequest) {
+    const startedAt = Date.now();
+    const finalize = (response: NextResponse, error?: unknown) => {
+        void recordRouteRuntimeSample({
+            key: "support/threads:GET",
+            durationMs: Date.now() - startedAt,
+            statusCode: response.status,
+            errorMessage: error ? getErrorMessage(error) : null,
+        });
+        return response;
+    };
+
     try {
         const caller = await guardApiRequest(request, {
             routeName: "support/threads",
@@ -31,16 +44,27 @@ export async function GET(request: NextRequest) {
 
         const threads = await listSupportThreadsForUser(caller.uid);
 
-        return NextResponse.json({
+        return finalize(NextResponse.json({
             success: true,
             threads,
-        });
+        }));
     } catch (error) {
-        return handleApiError(error, "support/threads");
+        return finalize(handleApiError(error, "support/threads"), error);
     }
 }
 
 export async function POST(request: NextRequest) {
+    const startedAt = Date.now();
+    const finalize = (response: NextResponse, error?: unknown) => {
+        void recordRouteRuntimeSample({
+            key: "support/threads:POST",
+            durationMs: Date.now() - startedAt,
+            statusCode: response.status,
+            errorMessage: error ? getErrorMessage(error) : null,
+        });
+        return response;
+    };
+
     try {
         const caller = await guardApiRequest(request, {
             routeName: "support/threads",
@@ -68,11 +92,11 @@ export async function POST(request: NextRequest) {
             sourcePath: sourcePath || null,
         });
 
-        return NextResponse.json({
+        return finalize(NextResponse.json({
             success: true,
             thread,
-        });
+        }));
     } catch (error) {
-        return handleApiError(error, "support/threads");
+        return finalize(handleApiError(error, "support/threads"), error);
     }
 }

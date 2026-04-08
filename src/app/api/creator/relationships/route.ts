@@ -10,6 +10,8 @@ import { STANDARD } from "@/lib/server/rate-limit";
 import { adminDb } from "@/lib/server/firebase-admin";
 import { trackServerEvent } from "@/lib/server/analytics";
 import { guardApiRequest } from "@/lib/server/request-guard";
+import { getErrorMessage } from "@/lib/server/route-diagnostics";
+import { recordRouteRuntimeSample } from "@/lib/server/route-runtime-health";
 import { isDropHiddenFromPublic, normalizeAndApplyDropStatusOrNull } from "@/lib/drop-read-models";
 
 type CreatorRelationshipRecord = Record<string, unknown> & {
@@ -101,6 +103,17 @@ async function countActiveCreatorFollowers(creatorId: string) {
 }
 
 export async function GET(request: NextRequest) {
+    const startedAt = Date.now();
+    const finalize = (response: NextResponse, error?: unknown) => {
+        void recordRouteRuntimeSample({
+            key: "creator/relationships:GET",
+            durationMs: Date.now() - startedAt,
+            statusCode: response.status,
+            errorMessage: error ? getErrorMessage(error) : null,
+        });
+        return response;
+    };
+
     try {
         const caller = await guardApiRequest(request, {
             routeName: "creator/relationships",
@@ -110,7 +123,7 @@ export async function GET(request: NextRequest) {
             scopeToCaller: true,
         });
         if (!caller || !adminDb) {
-            return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
+            return finalize(NextResponse.json({ error: "Unauthorized" }, { status: 401 }));
         }
 
         const creatorId = request.nextUrl.searchParams.get("creatorId")?.trim() || "";
@@ -186,7 +199,7 @@ export async function GET(request: NextRequest) {
             const relationship = relationships.find((entry) => entry.creatorId === creatorId) || null;
             const subscriptionSnap = await adminDb.collection(CREATOR_COLLECTIONS.subscriptions).doc(buildSubscriptionId(caller.uid, creatorId)).get();
 
-            return NextResponse.json({
+            return finalize(NextResponse.json({
                 success: true,
                 relationship: relationship
                     ? {
@@ -195,7 +208,7 @@ export async function GET(request: NextRequest) {
                     }
                     : null,
                 subscription: subscriptionSnap.exists ? { id: subscriptionSnap.id, ...(subscriptionSnap.data() as Record<string, unknown>) } : null,
-            });
+            }));
         }
 
         const followedCreators = followedCreatorIds
@@ -224,18 +237,29 @@ export async function GET(request: NextRequest) {
                 followerCount: realtimeFollowerCounts.get(entry.uid) ?? 0,
             }));
 
-        return NextResponse.json({
+        return finalize(NextResponse.json({
             success: true,
             relationships,
             followedCreators,
             recommendedCreators,
-        });
+        }));
     } catch (error) {
-        return handleApiError(error, "Creator.Relationships.GET");
+        return finalize(handleApiError(error, "Creator.Relationships.GET"), error);
     }
 }
 
 export async function POST(request: NextRequest) {
+    const startedAt = Date.now();
+    const finalize = (response: NextResponse, error?: unknown) => {
+        void recordRouteRuntimeSample({
+            key: "creator/relationships:POST",
+            durationMs: Date.now() - startedAt,
+            statusCode: response.status,
+            errorMessage: error ? getErrorMessage(error) : null,
+        });
+        return response;
+    };
+
     try {
         const caller = await guardApiRequest(request, {
             routeName: "creator/relationships",
@@ -245,17 +269,17 @@ export async function POST(request: NextRequest) {
             scopeToCaller: true,
         });
         if (!caller || !adminDb) {
-            return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
+            return finalize(NextResponse.json({ error: "Unauthorized" }, { status: 401 }));
         }
 
         const { creatorId, action } = relationshipActionSchema.parse(await request.json());
         if (creatorId === caller.uid) {
-            return NextResponse.json({ error: "You cannot follow yourself." }, { status: 400 });
+            return finalize(NextResponse.json({ error: "You cannot follow yourself." }, { status: 400 }));
         }
 
         const creator = await getCreatorRecord(creatorId);
         if (!creator) {
-            return NextResponse.json({ error: "Creator not found" }, { status: 404 });
+            return finalize(NextResponse.json({ error: "Creator not found" }, { status: 404 }));
         }
 
         const relationshipRef = adminDb.collection(CREATOR_COLLECTIONS.relationships).doc(buildCreatorRelationshipId(caller.uid, creatorId));
@@ -360,15 +384,15 @@ export async function POST(request: NextRequest) {
 
         const followerCount = await countActiveCreatorFollowers(creatorId).catch(() => null);
 
-        return NextResponse.json({
+        return finalize(NextResponse.json({
             success: true,
             relationship: {
                 creatorId,
                 ...result,
                 followerCount,
             },
-        });
+        }));
     } catch (error) {
-        return handleApiError(error, "Creator.Relationships.POST");
+        return finalize(handleApiError(error, "Creator.Relationships.POST"), error);
     }
 }

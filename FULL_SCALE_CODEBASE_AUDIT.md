@@ -3008,3 +3008,128 @@ Runtime tracking improvement suggestions recorded from this audit:
 
 Continuation follow-up gaps:
 - the runtime tracking improvements above are recommendations only; this cleanup pass intentionally did not broaden scope into new observability infrastructure
+
+### Continuation: Route Runtime Health Rollups And Debug Visibility
+Current audit date: 2026-04-08 13:28:00 -05:00
+Current branch / commit for continuation start: `main` / `a0616a6`
+Continuation task:
+- continue from the working-tree cleanup pass by implementing the next concrete runtime-tracking improvement
+- add truthful route-level latency/error visibility for creator relationships, support threads, and AI cover generation
+
+Continuation start state:
+- canonical startup docs re-read:
+  - `FULL_SCALE_CODEBASE_AUDIT.md`
+  - `REPO_MEMORY_LEDGER.md`
+  - `EVERY_FILE_FUNCTION_CHECKLIST.md`
+- `git status --short` was clean at continuation start because the cleanup commit had already landed locally and been pushed
+- targeted adjacency traces were run for:
+  - `src/app/api/admin/debug/route.ts`
+  - `src/app/api/creator/relationships/route.ts`
+  - `src/app/api/support/threads/route.ts`
+  - `src/app/api/admin/ai/drop-covers/generate/route.ts`
+
+Initial audit findings before implementation:
+- the repo already had two canonical observability lanes:
+  - `server_diagnostics` for bounded diagnostic events
+  - `admin_ui_chart_health` for client-reported chart/module hydration
+- neither lane provided a simple persisted route-level rollup for high-value operational endpoints
+- the admin debug page could show current diagnostics and chart health, but it could not answer at a glance:
+  - which creator/support/AI routes are currently failing
+  - whether those routes are merely noisy versus actively broken
+  - what their latest latency profile looks like
+- `handleApiError(...)` already records server failures into diagnostics, so the missing piece was route-latency/result rollups rather than another raw error logger
+
+Exact touched surfaces for this continuation:
+- `FULL_SCALE_CODEBASE_AUDIT.md`
+- `src/lib/route-runtime-health.ts`
+- `src/lib/server/route-runtime-health.ts`
+- `src/lib/server/admin-panel-system-logs.ts`
+- `src/app/api/creator/relationships/route.ts`
+- `src/app/api/support/threads/route.ts`
+- `src/app/api/admin/ai/drop-covers/generate/route.ts`
+- `src/app/api/admin/debug/route.ts`
+- `src/app/admin/debug/page.tsx`
+- `tests/unit/route-runtime-health.spec.ts`
+- `tests/unit/admin-panel-system-logs.spec.ts`
+
+Canonical helpers and modules actually reused for truth validation:
+- `src/lib/server/route-diagnostics.ts`
+- `src/lib/server/auth.ts`
+- `src/lib/server/admin-panel-system-logs.ts`
+- `src/lib/server/admin-ui-chart-health.ts`
+- `src/components/CreatorDiscoveryRail.tsx`
+- `src/components/Support/SupportInbox.tsx`
+- `src/app/admin/ai/page.tsx`
+
+Implementation results:
+- added a canonical route-runtime-health contract in `src/lib/route-runtime-health.ts`
+- added server persistence/listing in `src/lib/server/route-runtime-health.ts` using the new `route_runtime_health` collection
+- instrumented these routes to record real latency/result samples:
+  - `creator/relationships:GET`
+  - `creator/relationships:POST`
+  - `support/threads:GET`
+  - `support/threads:POST`
+  - `admin/ai/drop-covers/generate:POST`
+- route samples now classify outcomes as:
+  - `success`
+  - `client_error`
+  - `server_error`
+- route rollups retain truthful aggregate counts plus latest timing/result fields:
+  - success/client/server error counts
+  - slow count
+  - average/max/latest latency
+  - last success/client-error/server-error timestamps
+  - last error message
+- `/api/admin/debug` now returns `routeRuntimeHealth` alongside existing diagnostics/chart health
+- the admin debug page now exposes a dedicated `Tracked route runtime` section with route-by-route status, latency, and last-result visibility
+- persisted panel logs now include an `ops.route_runtime_health` summary entry so route issues also appear in the at-a-glance system log lane
+
+Runtime truth and continuity implications:
+- this is a real backend rollup, not simulated client health
+- route health does not pretend to be a streaming trace system; it is a persisted latest-plus-rollup summary
+- client validation errors are kept separate from server errors so normal operator input mistakes do not masquerade as backend outages
+- existing `server_diagnostics` behavior remains canonical for detailed failure context; the new route rollups complement it rather than replacing it
+
+Commands run for continuation:
+- `git status --short`
+- `npm run trace:adjacent -- src/app/api/admin/debug/route.ts`
+- `npm run trace:adjacent -- src/app/api/creator/relationships/route.ts`
+- `npm run trace:adjacent -- src/app/api/support/threads/route.ts`
+- `npm run trace:adjacent -- src/app/api/admin/ai/drop-covers/generate/route.ts`
+- `npx eslint src/lib/route-runtime-health.ts src/lib/server/route-runtime-health.ts src/lib/server/admin-panel-system-logs.ts src/app/api/creator/relationships/route.ts src/app/api/support/threads/route.ts src/app/api/admin/ai/drop-covers/generate/route.ts src/app/api/admin/debug/route.ts src/app/admin/debug/page.tsx tests/unit/route-runtime-health.spec.ts tests/unit/admin-panel-system-logs.spec.ts tests/unit/creator-relationships-route.spec.ts tests/unit/support-threads-route.spec.ts tests/unit/admin-ai-drop-covers-generate-route.spec.ts`
+- `corepack pnpm exec vitest run tests/unit/route-runtime-health.spec.ts tests/unit/admin-panel-system-logs.spec.ts tests/unit/creator-relationships-route.spec.ts tests/unit/support-threads-route.spec.ts tests/unit/admin-ai-drop-covers-generate-route.spec.ts`
+- `npm run check:inventory`
+- `npm run check:continuity`
+- `npm run check:telemetry`
+- `corepack pnpm run check`
+- `npm run check:ui:lighthouse`
+- `npm run check:ui:audits`
+
+Continuation results:
+- focused eslint passed
+- focused Vitest passed with `5` files and `16` tests
+- `npm run check:inventory` passed with `701` tracked files after staging the new route-health files
+- `npm run check:continuity` passed
+- `npm run check:telemetry` passed
+- `corepack pnpm run check` passed with `99` files and `477` tests
+- `npm run check:ui:lighthouse` passed
+- `npm run check:ui:audits` passed with `16` tests green
+- generated `playwright-report/` and `test-results/` directories were removed after verification
+
+Known warnings and non-blocking notices during continuation:
+- standard npm unknown env config warnings in canonical scripts
+- Node `punycode` deprecation warnings from Firebase/Vitest tooling
+- the first Lighthouse attempt failed because another `next build` was already in progress; a clean rerun passed
+- Lighthouse still surfaced Windows temp-folder `EPERM` cleanup warnings after a successful run
+
+Runtime tracking improvement suggestions after this implementation:
+- add historical day/hour rollups for `route_runtime_health` so the debug console can separate recent degradation from lifetime aggregates without manual inference
+- extend the same canonical route-runtime-health instrumentation to:
+  - `/api/support/threads/[threadId]`
+  - `/api/admin/support/threads`
+  - `/api/admin/debug/assistant`
+- add creator-attributed signup/action funnel events so operator playbook conversions can be measured in-product rather than only through external scorecards
+
+Continuation follow-up gaps:
+- route runtime health currently reports persisted aggregate/latest samples, not sliding-window percentiles
+- only the highest-value creator/support/AI routes are covered so far; the follow-up routes above remain open
