@@ -2,9 +2,9 @@
 
 Status: Canonical audit standard and live baseline
 Last refreshed: 2026-04-08
-Last full-scale audit execution: 2026-04-07 21:27:55 -05:00
+Last full-scale audit execution: 2026-04-08 16:11:22 -05:00
 Repo: `C:\Users\uylus\OneDrive\Documents\KandyDrops_Final`
-Audited HEAD at start: `8b24119`
+Audited HEAD at start: `0fbe8aa`
 
 ## Purpose
 This file is the standing audit contract for the repository.
@@ -3390,3 +3390,78 @@ Known warnings and non-blocking notices during continuation:
 
 Continuation follow-up gaps:
 - this change is intentionally scoped to Google-only accounts; if the product later needs provider-aware hints for other non-password providers, they should extend the same lookup contract rather than reintroducing local client-side inference
+
+### Continuation: Full-Scale Audit Cleanup After Manual Auth Hardening
+Current audit date: 2026-04-08 16:11:22 -05:00
+Current branch / commit for continuation start: `main` / `0fbe8aa`
+Continuation task:
+- run a full-scale repo audit from the pushed `main` baseline
+- clean up any stale generated artifacts or failing audit lanes
+- update the standing audit file to the current verified baseline
+
+Continuation start state:
+- the Google-only manual sign-in guidance fix was already committed and pushed
+- `git status --short` was clean at continuation start
+- `git ls-files --others --exclude-standard` returned no untracked files before verification
+
+Initial audit findings before cleanup:
+- no runtime or contract regressions were evident from the start state
+- the main risk in this pass was stale audit evidence rather than stale application code
+- the only failure encountered during the audit run was operational:
+  - `npm run check:ui:lighthouse` collided with a concurrently running `next build`
+- the audit toolchain generated transient local artifacts:
+  - `playwright-report/`
+  - `test-results/`
+
+Exact touched surfaces:
+- `FULL_SCALE_CODEBASE_AUDIT.md`
+
+Operational cleanup results:
+- reran `npm run check:ui:lighthouse` cleanly after the build collision
+- removed transient audit artifacts:
+  - `playwright-report/`
+  - `test-results/`
+- confirmed the working tree returned to audit-doc-only changes after cleanup
+
+Full audit commands run for this continuation:
+- `git status --short`
+- `git ls-files --others --exclude-standard`
+- `corepack pnpm run check`
+- `npm run graph:architecture`
+- `npm run check:deps`
+- `npm run check:versions`
+- `npm run check:functions`
+- `npm run check:firebase:rules`
+- `npm run check:ui:audits`
+- `npm run check:ui:lighthouse`
+- final `git status --short`
+- final `git ls-files --others --exclude-standard`
+
+Continuation results:
+- `corepack pnpm run check` passed with `100` files and `490` tests
+- `npm run graph:architecture` passed and refreshed `output/dependency-graph.json`
+- `npm run check:deps` passed
+- `npm run check:versions` passed
+- `npm run check:functions` passed
+- `npm run check:firebase:rules` passed
+- `npm run check:ui:audits` passed with `16` tests green
+- `npm run check:ui:lighthouse` passed on clean rerun
+- no untracked files remained after removing transient audit artifacts
+
+Known warnings and non-blocking notices during continuation:
+- standard npm unknown env config warnings in canonical scripts
+- Node `punycode` deprecation warnings from Firebase/Vitest tooling
+- Lighthouse Windows temp-folder `EPERM` cleanup warnings after a successful run
+- the first Lighthouse attempt failed only because another `next build` was already running; the clean rerun passed without code changes
+
+Runtime tracking improvements suggested from this audit:
+- add route-runtime-health coverage for `/api/auth/manual-sign-in-lookup` so provider-resolution failures and Google-only mismatches are visible in admin debug without log spelunking
+- materialize a small auth-provider hint counter split:
+  - `auth/use-google-sign-in`
+  - `auth/invalid-credential`
+  so operator teams can tell whether manual sign-in confusion is mostly provider mismatch versus bad credentials
+- add a bounded admin debug card for recent auth-entry failure reasons so manual-auth regressions surface before they become support volume
+
+Continuation follow-up gaps:
+- no code cleanup was required beyond the already-landed manual auth hardening and transient artifact removal
+- the suggested auth runtime-tracking improvements above are not implemented in this pass
