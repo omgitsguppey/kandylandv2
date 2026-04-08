@@ -36,9 +36,9 @@ describe("getBundlePresentation", () => {
       bundleLabel: "Kandy Bag Pack",
       bundleKey: "kandy_bag_pack",
       bundleTier: "bonus",
-      baseAmount: 1100,
-      bonus: 0,
-      hasBonus: false,
+      baseAmount: 1000,
+      bonus: 100,
+      hasBonus: true,
     });
   });
 
@@ -47,9 +47,9 @@ describe("getBundlePresentation", () => {
       bundleLabel: "Kandy Land Pack",
       bundleKey: "kandy_land_pack",
       bundleTier: "bonus",
-      baseAmount: 2500,
-      bonus: 0,
-      hasBonus: false,
+      baseAmount: 2000,
+      bonus: 500,
+      hasBonus: true,
     });
   });
 
@@ -65,12 +65,12 @@ describe("getBundlePresentation", () => {
   });
 
   it("returns King Size Bundle for large custom amounts with a bonus", () => {
-    expect(getBundlePresentation(5050)).toEqual({
+    expect(getBundlePresentation(6000)).toEqual({
       bundleLabel: "King Size Bundle",
-      bundleKey: "bundle_5050",
+      bundleKey: "bundle_6000",
       bundleTier: "bundle",
-      baseAmount: 5000,
-      bonus: 50,
+      baseAmount: 3000,
+      bonus: 3000,
       hasBonus: true,
     });
   });

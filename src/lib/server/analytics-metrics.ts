@@ -400,32 +400,6 @@ function buildViewerAccumulator(input: AnalyticsMetricEngineInput) {
   return accumulator;
 }
 
-function countMatchingSessions(
-  sessions: Map<string, SessionSummary>,
-  predicate: (summary: SessionSummary) => boolean,
-) {
-  return Array.from(sessions.values()).filter(predicate).length;
-}
-
-function countMatchingActors(
-  sessions: Map<string, SessionSummary>,
-  predicate: (summary: SessionSummary) => boolean,
-) {
-  const actorSessions = new Map<string, number>();
-  sessions.forEach((summary) => {
-    if (!predicate(summary)) {
-      return;
-    }
-
-    actorSessions.set(summary.actorId, (actorSessions.get(summary.actorId) || 0) + 1);
-  });
-
-  return {
-    totalActors: actorSessions.size,
-    returningActors: Array.from(actorSessions.values()).filter((count) => count > 1).length,
-  };
-}
-
 function percent(numerator: number, denominator: number) {
   if (denominator <= 0) {
     return 0;
@@ -464,56 +438,80 @@ export function buildAnalyticsMetricReport(input: AnalyticsMetricEngineInput) {
   const viewer = buildViewerAccumulator(input);
 
   const reachedSessions = sessions.size;
-  const totalPageViews = Array.from(sessions.values()).reduce((sum, session) => sum + session.pageViews, 0);
-  const multiPageSessions = countMatchingSessions(sessions, (session) => session.pages.size > 1);
-  const exitingSessions = countMatchingSessions(sessions, (session) => session.exits > 0);
-  const fastBounceSessions = countMatchingSessions(sessions, (session) => session.fastBounces > 0);
-  const deepScrollSessions = countMatchingSessions(sessions, (session) => session.deepScroll);
-  const engagedExitSessions = countMatchingSessions(sessions, (session) => session.engagedExits > 0);
-  const homepageSessions = countMatchingSessions(sessions, (session) => session.hasHome);
-  const homeToDashboardSessions = countMatchingSessions(
-    sessions,
-    (session) => session.hasHome && session.hasDashboard,
-  );
-  const totalInteractionSignals = Array.from(sessions.values()).reduce(
-    (sum, session) => sum + session.clickCount + session.hoverCount + session.scrollCount,
-    0,
-  );
-  const globalActors = countMatchingActors(sessions, () => true);
+  let totalPageViews = 0;
+  let multiPageSessions = 0;
+  let exitingSessions = 0;
+  let fastBounceSessions = 0;
+  let deepScrollSessions = 0;
+  let engagedExitSessions = 0;
+  let homepageSessions = 0;
+  let homeToDashboardSessions = 0;
+  let totalInteractionSignals = 0;
 
-  const userSessions = countMatchingSessions(
-    sessions,
-    (session) => session.userSurfaces.size > 0 || session.hasDashboard,
-  );
-  const dashboardSessions = countMatchingSessions(sessions, (session) => session.hasDashboard);
-  const librarySessions = countMatchingSessions(sessions, (session) => session.hasLibrary);
-  const experiencesSessions = countMatchingSessions(sessions, (session) => session.hasExperiences);
-  const profileSessions = countMatchingSessions(sessions, (session) => session.hasProfile);
-  const crossSurfaceUserSessions = countMatchingSessions(
-    sessions,
-    (session) => session.userSurfaces.size >= 2,
-  );
+  let userSessions = 0;
+  let dashboardSessions = 0;
+  let librarySessions = 0;
+  let experiencesSessions = 0;
+  let profileSessions = 0;
+  let crossSurfaceUserSessions = 0;
 
-  const adminSessions = countMatchingSessions(sessions, (session) => session.hasAdmin);
-  const adminMultiPageSessions = countMatchingSessions(
-    sessions,
-    (session) => session.hasAdmin && session.adminPages.size > 1,
-  );
-  const adminAnalyticsSessions = countMatchingSessions(
-    sessions,
-    (session) => session.hasAdmin && session.hasAdminAnalytics,
-  );
-  const adminUserSessions = countMatchingSessions(
-    sessions,
-    (session) => session.hasAdmin && session.hasAdminUser,
-  );
-  const adminEngagedSessions = countMatchingSessions(
-    sessions,
-    (session) => session.hasAdmin && session.engagedExits > 0,
-  );
-  const adminActors = countMatchingActors(sessions, (session) => session.hasAdmin);
+  let adminSessions = 0;
+  let adminMultiPageSessions = 0;
+  let adminAnalyticsSessions = 0;
+  let adminUserSessions = 0;
+  let adminEngagedSessions = 0;
 
-  const dropSurfaceSessions = countMatchingSessions(sessions, (session) => session.hasDropSurface);
+  let dropSurfaceSessions = 0;
+
+  const globalActorsSet = new Map<string, number>();
+  const adminActorsSet = new Map<string, number>();
+
+  for (const session of sessions.values()) {
+    totalPageViews += session.pageViews;
+    totalInteractionSignals += session.clickCount + session.hoverCount + session.scrollCount;
+
+    if (session.pages.size > 1) multiPageSessions += 1;
+    if (session.exits > 0) exitingSessions += 1;
+    if (session.fastBounces > 0) fastBounceSessions += 1;
+    if (session.deepScroll) deepScrollSessions += 1;
+    if (session.engagedExits > 0) engagedExitSessions += 1;
+
+    if (session.hasHome) {
+      homepageSessions += 1;
+      if (session.hasDashboard) homeToDashboardSessions += 1;
+    }
+
+    if (session.userSurfaces.size > 0 || session.hasDashboard) userSessions += 1;
+    if (session.hasDashboard) dashboardSessions += 1;
+    if (session.hasLibrary) librarySessions += 1;
+    if (session.hasExperiences) experiencesSessions += 1;
+    if (session.hasProfile) profileSessions += 1;
+    if (session.userSurfaces.size >= 2) crossSurfaceUserSessions += 1;
+
+    if (session.hasAdmin) {
+      adminSessions += 1;
+      if (session.adminPages.size > 1) adminMultiPageSessions += 1;
+      if (session.hasAdminAnalytics) adminAnalyticsSessions += 1;
+      if (session.hasAdminUser) adminUserSessions += 1;
+      if (session.engagedExits > 0) adminEngagedSessions += 1;
+
+      adminActorsSet.set(session.actorId, (adminActorsSet.get(session.actorId) || 0) + 1);
+    }
+
+    if (session.hasDropSurface) dropSurfaceSessions += 1;
+
+    globalActorsSet.set(session.actorId, (globalActorsSet.get(session.actorId) || 0) + 1);
+  }
+
+  const globalActors = {
+    totalActors: globalActorsSet.size,
+    returningActors: Array.from(globalActorsSet.values()).filter((count) => count > 1).length,
+  };
+
+  const adminActors = {
+    totalActors: adminActorsSet.size,
+    returningActors: Array.from(adminActorsSet.values()).filter((count) => count > 1).length,
+  };
 
   const registrations = Math.max(0, input.onboarding?.registrations || 0);
   const onboardingStarts = Math.max(0, input.onboarding?.starts || 0);

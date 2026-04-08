@@ -2568,3 +2568,112 @@ Known warnings and non-blocking notices during continuation:
 Continuation follow-up gaps:
 - the creator spotlight still depends on poll/fetch hydration rather than a Firestore live listener
 - AI cover generation still depends on actual provider latency and provider/runtime health; this pass removed the fake local cutoff, not the upstream wait itself
+
+### Continuation: Open PR Assimilation And Audit Cleanup
+Current audit date: 2026-04-08 10:21:00 -05:00
+Current branch / commit for continuation start: `main` / `07a663f`
+Continuation task:
+- commit and push the outstanding local spotlight / drop-form changes
+- inspect every open PR, assimilate any still-missing changes onto `main`, and close the PRs
+- rerun the codebase review and clean up the audit state afterward
+
+Continuation start state:
+- canonical startup docs re-read earlier in this session and continuity maintained through this pass
+- `git status --short` was clean immediately after committing and pushing `07a663f`
+- open PRs at continuation start:
+  - `#159` `💸 Fix GumDrop economics and ledger integrity drift`
+  - `#160` `⚙️ Improve algorithmic efficiency and stability in high-ROI hotspot`
+  - `#161` `⚡ Bolt: Optimize notificationFunnel array processing in Admin Analytics`
+- adjacency traces completed before editing for:
+  - `src/lib/gumdrop-economics.ts`
+  - `src/lib/server/analytics-metrics.ts`
+  - `src/app/admin/analytics/page.tsx`
+
+Initial audit findings before implementation:
+- PR `#159` contained a real economics/presentation drift fix that was still missing on `main`; `getBundlePresentation(...)` still treated the 1100-drop and 2500-drop packs as if they had no bonus split in the presentation layer even though the package catalog and economics pipeline treat them as `1000 + 100` and `2000 + 500`
+- PR `#160` contained a real analytics efficiency improvement that was still missing on `main`; `buildAnalyticsMetricReport(...)` still performed repeated `Array.from(...).filter(...).reduce(...)` scans over the same session map
+- PR `#161` contained a small but valid React render optimization that was still missing on `main`; the notification funnel pie was still allocating filtered/mapped arrays inline during render
+
+Exact touched surfaces for this continuation:
+- `FULL_SCALE_CODEBASE_AUDIT.md`
+- `src/lib/gumdrop-economics.ts`
+- `tests/unit/gumdrop-economics.spec.ts`
+- `src/lib/server/analytics-metrics.ts`
+- `src/app/admin/analytics/page.tsx`
+
+Canonical helpers and modules actually reused:
+- `src/lib/gumdrop-economics.ts`
+- `src/lib/gumdrops-packages.ts`
+- `src/lib/server/analytics-metrics.ts`
+- `src/app/admin/analytics/page.tsx`
+- `src/lib/admin-ui-chart-health.ts`
+- `src/hooks/useAdminPollingSWR.ts`
+
+PR review and assimilation results:
+- PR `#159` was partially assimilated:
+  - adopted the corrected base/bonus presentation mapping for:
+    - `Sweet Pack` → `500 + 50`
+    - `Kandy Bag Pack` → `1000 + 100`
+    - `Kandy Land Pack` → `2000 + 500`
+    - `King Size Bundle` thousand-step bundle tiers → even split between paid and bonus presentation amounts
+  - updated `tests/unit/gumdrop-economics.spec.ts` to assert the corrected bonus presentation
+  - did not take the PR's audit-file patch directly; this audit entry supersedes it
+- PR `#160` was assimilated:
+  - consolidated repeated session-map scans in `buildAnalyticsMetricReport(...)` into one pass while preserving output semantics
+  - removed repeated array allocations and repeated linear scans across the same session set
+- PR `#161` was partially assimilated:
+  - adopted the notification-funnel `useMemo(...)` optimization
+  - intentionally omitted the PR’s `.jules/bolt.md` note because it is not production runtime code and did not belong in the mainline repo surface
+  - adjusted the memo dependency shape so ESLint stays clean on the live file
+
+Runtime truth and continuity implications:
+- GumDrop package presentation now matches the actual catalog and economics math instead of overstating base drops and hiding bonus drops on the larger fixed packs
+- admin analytics no longer recomputes the same session-derived counts through repeated full-map scans
+- the notification funnel pie now keeps stable filtered/mapped data references instead of recreating them inside render
+- no PR was merged wholesale; the missing deltas were applied directly onto audited `main`
+
+Commands run for continuation:
+- `git status --short`
+- `gh pr list --state open --limit 50`
+- `gh pr view 159 --json number,title,body,headRefName,baseRefName,author,files`
+- `gh pr view 160 --json number,title,body,headRefName,baseRefName,author,files`
+- `gh pr view 161 --json number,title,body,headRefName,baseRefName,author,files`
+- adjacency traces:
+  - `npm run trace:adjacent -- src/lib/gumdrop-economics.ts`
+  - `npm run trace:adjacent -- src/lib/server/analytics-metrics.ts`
+  - `npm run trace:adjacent -- src/app/admin/analytics/page.tsx`
+- focused lint:
+  - `npx eslint src/lib/gumdrop-economics.ts tests/unit/gumdrop-economics.spec.ts src/lib/server/analytics-metrics.ts src/app/admin/analytics/page.tsx`
+- focused tests:
+  - `corepack pnpm exec vitest run tests/unit/gumdrop-economics.spec.ts tests/unit/admin-analytics-realtime-route.spec.ts`
+- repo-wide verification:
+  - `npm run check:inventory`
+  - `npm run check:continuity`
+  - `corepack pnpm run check`
+  - `npx vitest run`
+  - `npm run check:ui:audits`
+  - `npm run check:ui:lighthouse`
+
+Continuation results:
+- focused lint passed after one dependency-shape cleanup in `src/app/admin/analytics/page.tsx`
+- focused Vitest passed with `2` files and `12` tests
+- `npm run check:inventory` passed with `691` tracked files
+- `npm run check:continuity` passed
+- `corepack pnpm run check` passed
+- `npx vitest run` passed with `97` files and `471` tests
+- `npm run check:ui:lighthouse` passed
+- `npm run check:ui:audits` still surfaced the pre-existing visual-regression instability on guest creator surfaces:
+  - Chromium `/creators/waitlist`
+  - Mobile Chrome `/creators/apply` with a very small pixel diff
+- generated `playwright-report/`, `test-results/`, and temporary Lighthouse artifacts were removed before signoff
+
+Known warnings and non-blocking notices during continuation:
+- npm unknown env config warnings during canonical script chains
+- `check:firebase-runtime` informational dotenv logs inside the canonical `check` pipeline
+- Node `punycode` deprecation warnings from Firebase/Vitest tooling
+- Lighthouse Chrome cleanup warnings on Windows temp directories after a successful Lighthouse run
+- Playwright surfaced the recurring webserver `transformAlgorithm` warning around otherwise successful UI audit runs
+
+Continuation follow-up gaps:
+- the creator guest-surface Playwright snapshots remain unstable and still need a separate baseline refresh or layout-stability pass
+- the PR-source local branches fetched for review (`jules_pr_159`, `jules_pr_160`, `jules_pr_161`) can be deleted later; they are not part of the product runtime

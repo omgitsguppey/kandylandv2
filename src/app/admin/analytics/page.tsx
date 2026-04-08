@@ -848,13 +848,24 @@ export default function AdminAnalyticsPage() {
   const onboardingDurationBuckets = historicalResponse?.onboardingDurationBuckets ?? [];
   const repeatVisitSegments = historicalResponse?.repeatVisitSegments ?? [];
   const destinationMix = historicalResponse?.destinationMix ?? [];
-  const notificationFunnel = historicalResponse?.notificationFunnel ?? [];
+  const notificationFunnel = useMemo(
+    () => historicalResponse?.notificationFunnel ?? [],
+    [historicalResponse?.notificationFunnel],
+  );
   const notificationActions = historicalResponse?.notificationActions ?? [];
   const taskPipeline = historicalResponse?.taskPipeline ?? [];
   const taskLeaderboard = historicalResponse?.taskLeaderboard ?? [];
   const taskDurationBuckets = historicalResponse?.taskDurationBuckets ?? [];
   const reminderReasons = historicalResponse?.reminderReasons ?? [];
   const packagePerformance = historicalResponse?.packagePerformance ?? [];
+  const activeNotificationFunnel = useMemo(
+    () => notificationFunnel.filter((item) => item.count > 0),
+    [notificationFunnel],
+  );
+  const activeNotificationFunnelPieData = useMemo(
+    () => activeNotificationFunnel.map((item) => ({ name: item.label, value: item.count })),
+    [activeNotificationFunnel],
+  );
   const unlockCategoryMix = historicalResponse?.unlockCategoryMix ?? [];
   const watchDepthBuckets = historicalResponse?.watchDepthBuckets ?? [];
   const contentJourney = historicalResponse?.contentJourney ?? [];
@@ -2880,14 +2891,14 @@ export default function AdminAnalyticsPage() {
                     <ResponsiveContainer width="100%" height="100%">
                       <PieChart>
                         <Pie
-                          data={notificationFunnel.filter((item) => item.count > 0).map((item) => ({ name: item.label, value: item.count }))}
+                          data={activeNotificationFunnelPieData}
                           dataKey="value"
                           nameKey="name"
                           innerRadius={52}
                           outerRadius={84}
                           paddingAngle={3}
                         >
-                          {notificationFunnel.filter((item) => item.count > 0).map((item, index) => (
+                          {activeNotificationFunnel.map((item, index) => (
                             <Cell key={item.label} fill={PIE_COLORS[index % PIE_COLORS.length]} />
                           ))}
                         </Pie>
