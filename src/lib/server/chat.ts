@@ -116,6 +116,12 @@ function readNullableString(value: unknown) {
     return normalized.length > 0 ? normalized : null;
 }
 
+function omitUndefinedFields<T extends Record<string, unknown>>(value: T) {
+    return Object.fromEntries(
+        Object.entries(value).filter(([, entryValue]) => typeof entryValue !== "undefined"),
+    ) as T;
+}
+
 function describeMessagePreview(input: {
     text?: string;
     messageKind: ChatMessageKind;
@@ -655,11 +661,11 @@ export async function sendChatMessageForViewer(input: SendChatMessageInput) {
             })();
 
     const messageKind = normalizeChatMessageKind(input.messageKind);
-    const text = readString(input.text);
+    const text = readOptionalString(input.text);
     const assetUrl = readOptionalString(input.assetUrl);
     const assetName = readOptionalString(input.assetName);
     const assetMimeType = readOptionalString(input.assetMimeType);
-    if (!text && !readString(input.assetUrl)) {
+    if (!text && !assetUrl) {
         throw new ChatClientError("Add a message or attachment before sending.", 400, buildChatErrorBody({
             error: "Add a message or attachment before sending.",
             errorCode: "empty_message",
@@ -796,7 +802,7 @@ export async function sendChatMessageForViewer(input: SendChatMessageInput) {
                 }),
         };
 
-        transaction.set(messageRef, {
+        const messageRecord = omitUndefinedFields({
             threadId: input.threadId,
             creatorId: parsedThread.creatorId,
             userId: parsedThread.userId,
@@ -810,24 +816,12 @@ export async function sendChatMessageForViewer(input: SendChatMessageInput) {
             creatorAccrualId,
             createdAt: now,
         });
+        transaction.set(messageRef, messageRecord);
         transaction.set(threadRef, threadPatch, { merge: true });
 
         return {
             thread: toChatThreadRecord(mapCreatorMessageThread(input.threadId, threadPatch), input.callerUid),
-            message: mapCreatorMessage(messageRef.id, {
-                threadId: input.threadId,
-                creatorId: parsedThread.creatorId,
-                userId: parsedThread.userId,
-                senderRole: viewerRole,
-                messageKind,
-                text,
-                assetUrl,
-                assetName,
-                assetMimeType,
-                costGd,
-                creatorAccrualId,
-                createdAt: now,
-            }),
+            message: mapCreatorMessage(messageRef.id, messageRecord),
             costGd,
             creatorAccrualId,
         };

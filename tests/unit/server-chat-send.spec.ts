@@ -6,8 +6,26 @@ const mockState = vi.hoisted(() => {
     const documents = new Map<string, StoredDoc>();
     let autoId = 0;
 
+    const hasUndefinedValue = (value: unknown): boolean => {
+        if (typeof value === "undefined") {
+            return true;
+        }
+        if (!value || typeof value !== "object") {
+            return false;
+        }
+        if (Array.isArray(value)) {
+            return value.some((entry) => hasUndefinedValue(entry));
+        }
+
+        return Object.values(value as Record<string, unknown>).some((entry) => hasUndefinedValue(entry));
+    };
+
     const readDoc = (path: string) => documents.get(path);
     const setDoc = (path: string, value: StoredDoc, merge = false) => {
+        if (hasUndefinedValue(value)) {
+            throw new Error(`Firestore does not allow undefined values: ${path}`);
+        }
+
         if (merge) {
             documents.set(path, {
                 ...(documents.get(path) || {}),
@@ -156,6 +174,42 @@ describe("sendChatMessageForViewer", () => {
             lastMessagePreview: "hello there",
             unreadCountForCreator: 1,
             unreadCountForUser: 0,
+        });
+    });
+
+    it("allows text sends from admin accounts acting as the paid participant", async () => {
+        const adminUserId = "admin_1";
+        const adminThreadId = buildChatThreadId(creatorId, adminUserId);
+
+        mockState.documents.set(`users/${adminUserId}`, {
+            uid: adminUserId,
+            role: "admin",
+            displayName: "Admin Operator",
+            username: "admin-operator",
+            gumDropsBalance: 14,
+            gumDropsPurchasedBalance: 14,
+            gumDropsRewardBalance: 0,
+        });
+
+        const result = await sendChatMessageForViewer({
+            callerUid: adminUserId,
+            callerEmail: "admin@example.com",
+            callerRole: "admin",
+            threadId: adminThreadId,
+            text: "admin check-in",
+            messageKind: "text",
+        });
+
+        expect(result.costGd).toBe(1);
+        expect(result.message).toMatchObject({
+            text: "admin check-in",
+            userId: adminUserId,
+            costGd: 1,
+        });
+        expect(mockState.documents.get(`users/${adminUserId}`)).toMatchObject({
+            gumDropsBalance: 13,
+            gumDropsPurchasedBalance: 13,
+            gumDropsRewardBalance: 0,
         });
     });
 

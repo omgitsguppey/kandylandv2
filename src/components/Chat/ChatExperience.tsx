@@ -185,6 +185,7 @@ export function ChatExperience() {
     const [sendingMessage, setSendingMessage] = useState(false);
     const [presence, setPresence] = useState<PresenceSnapshot | null>(null);
     const [insufficientFunds, setInsufficientFunds] = useState<ChatInsufficientFundsPayload | null>(null);
+    const [sendErrorMessage, setSendErrorMessage] = useState<string | null>(null);
     const markReadRef = useRef<string | null>(null);
     const typingResetTimerRef = useRef<number | null>(null);
 
@@ -242,6 +243,7 @@ export function ChatExperience() {
         setThreadLoading(true);
         setSelectedDetail(null);
         setInsufficientFunds(null);
+        setSendErrorMessage(null);
         try {
             const response = await authFetch(`/api/chat/threads/${encodeURIComponent(threadId)}`);
             const body = await response.json() as ThreadDetailResponse & { error?: string };
@@ -529,6 +531,7 @@ export function ChatExperience() {
 
         setSendingMessage(true);
         setInsufficientFunds(null);
+        setSendErrorMessage(null);
 
         try {
             const attachment = await uploadAttachment();
@@ -540,7 +543,7 @@ export function ChatExperience() {
                     ...attachment,
                 }),
             });
-            const body = await response.json() as { error?: string } & Partial<ChatInsufficientFundsPayload>;
+            const body = await response.json() as { error?: string; errorCode?: string } & Partial<ChatInsufficientFundsPayload>;
             if (!response.ok) {
                 if (body.errorCode === "insufficient_paid_gumdrops") {
                     setInsufficientFunds(body as ChatInsufficientFundsPayload);
@@ -555,6 +558,8 @@ export function ChatExperience() {
             setComposerKind("text");
             pushTypingState(false);
         } catch (error) {
+            const message = error instanceof Error ? error.message : "Failed to send message.";
+            setSendErrorMessage(message);
             reportClientIssue({
                 channel: "ui",
                 severity: "warn",
@@ -567,7 +572,7 @@ export function ChatExperience() {
                 },
                 consoleLabel: "[Chat] send message failed",
             });
-            toast.error(error instanceof Error ? error.message : "Failed to send message.");
+            toast.error(message);
         } finally {
             setSendingMessage(false);
         }
@@ -763,6 +768,23 @@ export function ChatExperience() {
                                 </div>
 
                                 <div className="border-t border-white/10 px-4 py-4">
+                                    {sendErrorMessage ? (
+                                        <div className="rounded-[1.4rem] border border-rose-400/20 bg-rose-500/10 p-4 text-sm text-rose-100">
+                                            <div className="flex items-start justify-between gap-3">
+                                                <div>
+                                                    <p className="font-semibold text-white">Message failed</p>
+                                                    <p className="mt-1 leading-6 text-rose-100">{sendErrorMessage}</p>
+                                                </div>
+                                                <button
+                                                    type="button"
+                                                    onClick={() => setSendErrorMessage(null)}
+                                                    className="text-xs font-bold uppercase tracking-[0.14em] text-rose-200"
+                                                >
+                                                    Close
+                                                </button>
+                                            </div>
+                                        </div>
+                                    ) : null}
                                     <InsufficientFundsCard
                                         payload={insufficientFunds}
                                         onClose={() => setInsufficientFunds(null)}

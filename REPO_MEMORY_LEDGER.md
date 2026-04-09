@@ -5,15 +5,18 @@ Last refreshed: 2026-04-09
 Repo: `C:\Users\uylus\OneDrive\Documents\KandyDrops_Final`
 
 ## Purpose
+
 This file records major architectural pivots, workflow-authority decisions, and continuity-sensitive repo rules that future contributors should not have to reconstruct from founder memory, private AI context, or scattered commit history alone.
 
 Use this file together with:
+
 - `FULL_SCALE_CODEBASE_AUDIT.md`
 - `EVERY_FILE_FUNCTION_CHECKLIST.md`
 
 This file is not a changelog. It is the concise ledger for durable decisions that shape how the repo should be understood and extended.
 
 ## How To Use This Ledger
+
 1. Read this file when a task touches architecture, deployment assumptions, dependency/tooling meaning, workflow authority, or historical pivots.
 2. If a change creates a new durable repo rule, add or update an entry here in the same change.
 3. Do not invent exact dates if the repo cannot prove them. Record uncertainty explicitly.
@@ -21,7 +24,26 @@ This file is not a changelog. It is the concise ledger for durable decisions tha
 
 ## Decision Entries
 
+### 1a. Auth Outcome Split must treat failed-attempt history as real data
+
+- Approximate date: Recorded explicitly on 2026-04-09 from the admin analytics auth-outcome refactor
+- Status: Active canonical analytics rule
+- Problem/context: The historical Auth Outcome Split module previously hid valid historical windows whenever the selected range had zero successful auth completions, even if failures and raw attempts existed.
+- Decision made: Treat any tracked auth attempts, failures, or unfinished attempts as real module data; successful completions are not the only valid signal.
+- What became canonical:
+  - Auth Outcome Split now uses an attempt-based derived model with:
+    - successes
+    - failures
+    - unfinished attempts
+  - Chart-health for this module must use attempt/outcome presence, not success-only presence
+- Truth lives in:
+  - `src/lib/admin-auth-outcome-chart.ts`
+  - `src/app/admin/analytics/page.tsx`
+  - `tests/unit/admin-auth-outcome-chart.spec.ts`
+- What is now disallowed or deprecated: Gating the entire auth-outcome visualization on `successes > 0`
+
 ### 1. Static-first origin, later backend/server pivot
+
 - Approximate date: Exact pivot date is not recoverable from current tracked evidence. This continuity context is now explicitly recorded on 2026-04-03 from operator context plus current repo structure.
 - Status: Active canonical context
 - Problem/context: The product did not begin as the current backend-heavy system. Without recording that pivot, future contributors can misread newer server/runtime layers as accidental complexity or try to simplify the repo back toward earlier static assumptions.
@@ -38,6 +60,7 @@ This file is not a changelog. It is the concise ledger for durable decisions tha
 - Follow-up gaps: Exact historical pivot date is still unresolved.
 
 ### 2. Firebase App Hosting is the deployed application runtime
+
 - Approximate date: Present by current tracked config; App Hosting evidence is recoverable from `apphosting.yaml`, `firebase.json`, and `backends.json`
 - Status: Active canonical deployment context
 - Problem/context: Contributors can easily confuse legacy Hosting assumptions with the current App Hosting deployment path if the deploy target is not recorded explicitly.
@@ -56,6 +79,7 @@ This file is not a changelog. It is the concise ledger for durable decisions tha
 - Follow-up gaps: Preview/live branch and rollout assumptions must still be recorded explicitly in future audit evidence whenever deployment behavior is part of the task.
 
 ### 3. Local-first workflow is canonical
+
 - Approximate date: Recorded explicitly on 2026-04-03 from operator continuity context and existing repo workflow files
 - Status: Active canonical workflow context
 - Problem/context: The repo is worked on locally before commit, but that operating reality was previously only partially implied in workflow files.
@@ -70,6 +94,7 @@ This file is not a changelog. It is the concise ledger for durable decisions tha
 - Follow-up gaps: Auth-bound emulator and admin-route local seams still need more work.
 
 ### 4. Codex and Antigravity are assistive local tooling, not authorities
+
 - Approximate date: Recorded explicitly on 2026-04-03 from operator continuity context
 - Status: Active canonical workflow-authority rule
 - Problem/context: AI-assisted local work can create founder-memory and tool-memory dependence if the repo does not explicitly separate assistive tools from authoritative sources of truth.
@@ -83,6 +108,7 @@ This file is not a changelog. It is the concise ledger for durable decisions tha
 - Follow-up gaps: Repo docs must continue to be expanded whenever private memory would otherwise be carrying a system explanation.
 
 ### 5. Telemetry event naming is centrally canonized
+
 - Approximate date: Present by 2026-04-03 audit evidence
 - Status: Active canonical behavior
 - Problem/context: Analytics and telemetry drift quickly when routes, tasks, and admin/debug surfaces invent local event names or aliases.
@@ -101,6 +127,7 @@ This file is not a changelog. It is the concise ledger for durable decisions tha
 - Follow-up gaps: Broader user-journey truth is still only partially canonical beyond the event inventory itself.
 
 ### 6. Daily task catalog and observability are canonical
+
 - Approximate date: Strengthened and explicitly recorded by the 2026-04-03 task-system audit passes
 - Status: Active canonical behavior
 - Problem/context: Task guidance, telemetry, completion, reward claims, and admin/debug visibility previously risked drifting apart.
@@ -120,6 +147,7 @@ This file is not a changelog. It is the concise ledger for durable decisions tha
 - Follow-up gaps: Live production runtime sampling still depends on authenticated admin inspection.
 
 ### 7. Runtime actions and navigation actions are intentionally different
+
 - Approximate date: Explicitly hardened by the 2026-04-03 task-guidance audit
 - Status: Active canonical behavior
 - Problem/context: Guidance and action wiring break when navigation-only tasks are treated like runtime actions or vice versa.
@@ -133,6 +161,7 @@ This file is not a changelog. It is the concise ledger for durable decisions tha
 - Follow-up gaps: If future action modes are added, all three helpers must be updated together.
 
 ### 8. Admin/debug should surface ambiguity instead of force-mapping it away
+
 - Approximate date: Strengthened during the 2026-04-03 observability passes
 - Status: Active canonical observability rule
 - Problem/context: Over-attributing noisy or shared facts creates dashboards that look confident but are less truthful.
@@ -146,6 +175,7 @@ This file is not a changelog. It is the concise ledger for durable decisions tha
 - Follow-up gaps: Wider analytics/admin surfaces still need more of this ambiguity discipline.
 
 ### 9. Firebase App Check is not part of the current runtime contract
+
 - Approximate date: Explicitly removed and recorded in the 2026-04-03 continuity pass
 - Status: Active canonical runtime rule
 - Problem/context: Half-enabled or implied App Check behavior created misleading runtime assumptions.
@@ -160,6 +190,7 @@ This file is not a changelog. It is the concise ledger for durable decisions tha
 - Follow-up gaps: A future reintroduction would need complete client/server/config/doc coverage, not a partial toggle.
 
 ### 10. Root package-manager reality is dual-lockfile until intentionally changed
+
 - Approximate date: Present in current tracked repo state; recorded explicitly on 2026-04-03
 - Status: Active continuity rule
 - Problem/context: The root repo currently carries both `package-lock.json` and `pnpm-lock.yaml`, while verification commonly runs through `corepack pnpm`. Without an explicit rule, contributors can update one lockfile and silently drift the other.
@@ -178,6 +209,7 @@ This file is not a changelog. It is the concise ledger for durable decisions tha
 - Follow-up gaps: A future consolidation pass could simplify this, but not by accident.
 
 ### 11. Generated platform metadata is evidence, not deploy authority
+
 - Approximate date: Recorded explicitly on 2026-04-03 after root-surface review
 - Status: Active continuity rule
 - Problem/context: Generated platform metadata files can look authoritative even when they are snapshots or evidence artifacts rather than canonical configuration.
@@ -193,6 +225,7 @@ This file is not a changelog. It is the concise ledger for durable decisions tha
 - Follow-up gaps: `backends.json` should continue to be handled carefully because generated platform snapshots can contain operationally sensitive metadata.
 
 ### 12. Creator onboarding is a staged audited intake, not a queue-position workflow
+
 - Approximate date: Canonical sequence finalized and recorded on 2026-04-04
 - Status: Active canonical product flow
 - Problem/context: Creator onboarding had drifted across waitlist copy, admin review controls, legacy queue language, segment assumptions, and partially disconnected compliance/legal steps.
@@ -221,6 +254,7 @@ This file is not a changelog. It is the concise ledger for durable decisions tha
 - Follow-up gaps: Admin countersign and template selection are present in the roster flow, but the system still uses native product UI rather than a third-party e-sign platform, and richer template-choosing UX can still improve later without changing the sequence.
 
 ### 13. Creator administration belongs in creator roster/intake, not generic user management
+
 - Approximate date: Canonical separation recorded on 2026-04-04
 - Status: Active canonical admin UX rule
 - Problem/context: Creator onboarding and creator operations had bled into generic user-management detail pages, creating duplicate controls, vertical-spaghetti review UX, and unclear authority boundaries.
@@ -241,6 +275,7 @@ This file is not a changelog. It is the concise ledger for durable decisions tha
 - Follow-up gaps: Legacy hidden creator sections still exist in the user-management page for safety, and can be deleted in a later cleanup pass once this handoff model has had enough runtime usage.
 
 ### 14. Gum Drop economics are backend source-aware even though the client shows one balance
+
 - Approximate date: Existing code path explicitly audited and recorded on 2026-04-04
 - Status: Active canonical economics rule
 - Problem/context: Creator experiences, messaging, and booking flows need to distinguish paid versus non-paid Gum Drops even when the visible wallet balance stays unified.
@@ -265,6 +300,7 @@ This file is not a changelog. It is the concise ledger for durable decisions tha
 - Follow-up gaps: Spend priority across mixed balances, refund rules, expiry, and payout-linkage policy still need to stay explicitly documented when product direction finalizes those choices.
 
 ### 15. Manual Firebase sign-in accepts username or email through server-side resolution
+
 - Approximate date: Canonicalized and recorded on 2026-04-04
 - Status: Active canonical auth rule
 - Problem/context: The product identity model is username-heavy, but Firebase email/password authentication is email-based. Leaving manual sign-in email-only caused real users to retry with usernames, which could fall through as invalid credentials and escalate into Firebase `auth/too-many-requests` throttling.
@@ -289,6 +325,7 @@ This file is not a changelog. It is the concise ledger for durable decisions tha
 - Follow-up gaps: If remote Firebase Authentication anti-abuse settings still throttle legitimate users after this fix, that remaining issue must be investigated in the Firebase/Google Cloud project configuration rather than by re-fragmenting the local auth flow.
 
 ### 16. Creator alert controls avoid duplicate writes when global new-drop alerts are already active
+
 - Approximate date: Recorded explicitly on 2026-04-05 from current tracked creator-profile behavior
 - Status: Active canonical UX/runtime rule
 - Problem/context: The creator profile follow/alert surface risked double-writing or redundantly toggling creator-specific alert state when the user had already enabled global new-drop alerts.
@@ -307,6 +344,7 @@ This file is not a changelog. It is the concise ledger for durable decisions tha
 - Follow-up gaps: Global-versus-creator notification precedence should continue to stay explicit anywhere new alert controls are added.
 
 ### 17. AI drop-cover generation is server-side, title-driven, and admin-only
+
 - Approximate date: Canonicalized and recorded on 2026-04-05
 - Status: Active canonical AI/runtime rule
 - Problem/context: The first real AI layer could easily drift into prompt-box UX, client-side secrets, fake “live training,” or decorative admin pages that do not expose actual runtime truth.
@@ -335,6 +373,7 @@ This file is not a changelog. It is the concise ledger for durable decisions tha
 - Follow-up gaps: Billing truth is still estimated from vendor pricing plus stored job metadata rather than direct billing export, and richer model-evaluation/tuning workflows remain future work.
 
 ### 18. AI cover “training” is reference-guided customization, not live fine-tuning
+
 - Approximate date: Canonicalized and recorded on 2026-04-06
 - Status: Active canonical AI/runtime rule
 - Live-note: Entry 27 now governs the current catalog-cover rule; this entry remains the higher-level "reference-guided, not live training" decision.
@@ -362,6 +401,7 @@ This file is not a changelog. It is the concise ledger for durable decisions tha
 - Follow-up gaps: Reference-guided generation still depends on actual project access to the Vertex customization model, and the system does not yet do deterministic post-generation frame compositing from a template image.
 
 ### 19. Create Drop chooses between two Gemini image models per generation
+
 - Approximate date: Canonicalized and recorded on 2026-04-06
 - Status: Active canonical AI/runtime rule
 - Problem/context: One fixed image model was too rigid for drop operations. Operators need a faster lower-cost default and a higher-cost quality option at generation time without forking the rest of the create-drop flow.
@@ -386,6 +426,7 @@ This file is not a changelog. It is the concise ledger for durable decisions tha
 - Follow-up gaps: `gemini-3-pro-image-preview` remains preview-stage and may need a future replacement path if Google changes availability, pricing, or lifecycle.
 
 ### 20. Admin dashboard hydration health is reported back into debug as a canonical client-to-server signal
+
 - Approximate date: Canonicalized and recorded on 2026-04-07
 - Status: Active canonical admin-debug rule
 - Problem/context: Admin overview and analytics pages had real loading/degradation logic, but those failures were trapped in local page state. The debug panel could not tell operators which admin modules were currently loaded, degraded, empty, or failed across the dashboard surfaces.
@@ -422,6 +463,7 @@ This file is not a changelog. It is the concise ledger for durable decisions tha
 - Follow-up gaps: The signal is latest-state reporting, not a long-lived historical time series, and section cards are the current granularity rather than individual sub-chart primitives within a card.
 
 ### 21. Creator operations live on the user dashboard, but route reads must stay ownership-scoped
+
 - Approximate date: Canonicalized and recorded on 2026-04-07
 - Status: Active creator/runtime rule
 - Problem/context: Creator workflows already existed on the backend for requests, bookings, inbox threads, subscriptions, broadcasts, payouts, and onboarding review state, but the user dashboard did not expose those operations clearly. At the same time, two creator GET routes were leaking too much data: public creator booking reads could expose other fans' bookings, and direct thread reads could expose messages to unrelated users.
@@ -447,6 +489,7 @@ This file is not a changelog. It is the concise ledger for durable decisions tha
 - Follow-up gaps: The workspace is route-backed rather than realtime-streamed per queue, and creator settings still keep their existing manual-save path in the profile view.
 
 ### 22. AI drop-cover execution is Gemini-only; old Imagen ids survive only as migration aliases
+
 - Approximate date: Canonicalized and recorded on 2026-04-07
 - Status: Active canonical AI/runtime rule
 - Problem/context: The AI cover stack had already moved to Gemini, but older Imagen model ids were still present in settings/history normalization. Without an explicit rule, contributors could mistake those aliases for an active second execution path and accidentally resurrect stale provider logic.
@@ -468,6 +511,7 @@ This file is not a changelog. It is the concise ledger for durable decisions tha
 - Follow-up gaps: Provider-side step streaming still does not exist for this runtime; the admin page remains a persisted-state polling surface.
 
 ### 23. Cost-heavy admin AI and live analytics routes use adaptive user-count rate limiting
+
 - Approximate date: Canonicalized and recorded on 2026-04-07
 - Status: Active canonical cost-control rule
 - Problem/context: Fixed request budgets were acceptable at small scale, but they became too blunt once the product crossed 200 users. Expensive admin AI generation and high-frequency live admin reads needed a cost-aware limit that tightens over time without breaking the existing request-guard contract.
@@ -494,6 +538,7 @@ This file is not a changelog. It is the concise ledger for durable decisions tha
 - Follow-up gaps: The scaling input is registered-user count, not direct billing export or traffic forecasting; future passes can refine tiers if real usage patterns diverge.
 
 ### 24. Signed-in support is in-site only and runs through support threads, not mailto links
+
 - Approximate date: Canonicalized and recorded on 2026-04-07
 - Status: Active user/admin support rule
 - Problem/context: The signed-in product still exposed dead `mailto:` support redirects even though no real support inbox email existed. The repo already had latent `support_threads` / `support_messages` scaffolding, but no live in-site support foundation for users or admins.
@@ -527,6 +572,7 @@ This file is not a changelog. It is the concise ledger for durable decisions tha
 - Follow-up gaps: The support inbox/queue is polling-backed rather than socket-streamed, and signed-out public/legal support still routes users into authenticated in-site support instead of a separate guest intake path.
 
 ### 25. Positive admin balance adjustments are reward-backed, not purchased-backed
+
 - Approximate date: Canonicalized and recorded on 2026-04-07
 - Status: Active canonical Gum Drop integrity rule
 - Problem/context: Manual admin balance adjustments were crediting purchased balance, which let goodwill/manual adjustments masquerade as paid currency and bypass purchased-only creator experience restrictions.
@@ -545,6 +591,7 @@ This file is not a changelog. It is the concise ledger for durable decisions tha
 - Follow-up gaps: If operators ever need to grant purchased-equivalent balance intentionally, that needs a separate audited route and explicit UI language rather than overloading the current manual adjustment tool.
 
 ### 26. AI drop-cover reuse briefly pulled from the full drop catalog, not a recent-only sample
+
 - Approximate date: Canonicalized and recorded on 2026-04-07
 - Status: Superseded on 2026-04-07 by entry 27
 - Problem/context: The create-drop flow was already feeding accepted AI jobs back into the retained AI reference pool, but the non-AI cover reference side still sampled only a small recent `validFrom` window of drop covers. That excluded older legacy covers and made the Admin AI page overstate the breadth of the reusable cover library.
@@ -569,6 +616,7 @@ This file is not a changelog. It is the concise ledger for durable decisions tha
 - Follow-up gaps: Superseded by entry 27 after the full-catalog scan proved too expensive for the single non-AI cover reference the runtime actually needs.
 
 ### 27. Latest-cover AI reuse supersedes the brief full-catalog scan
+
 - Approximate date: Canonicalized and recorded on 2026-04-07
 - Status: Active canonical AI/runtime rule
 - Problem/context: The full-catalog AI cover scan was truthful but too expensive for one extra human-made cover reference, especially because accepted AI covers already form the durable retained reference pool after create-drop save.
@@ -589,6 +637,7 @@ This file is not a changelog. It is the concise ledger for durable decisions tha
 - Follow-up gaps: If operators need broader human-cover reuse again, the next step should be a canonical summarized reference index rather than another full collection scan.
 
 ### 28. Queue scheduling and activation notifications must normalize Timestamp-shaped drop timing on both cron paths
+
 - Approximate date: Canonicalized and recorded on 2026-04-07
 - Status: Active canonical drop-runtime rule
 - Problem/context: Fixing `cron/process-queue` alone was not enough. Legacy drops with Firestore Timestamp-shaped `validFrom` / `validUntil` could still miss activation, expiry, requeue, or return-notification handling if `cron/notify-active-drops` kept using numeric-only timing assumptions.
@@ -609,6 +658,7 @@ This file is not a changelog. It is the concise ledger for durable decisions tha
 - Follow-up gaps: Other non-queue consumers that still query by raw numeric `validFrom` / `validUntil` should be audited separately if legacy Timestamp-shaped drops must remain visible there too.
 
 ### 29. Manual email sign-up is explicit-profile-first and must not silently auto-suggest around user input
+
 - Approximate date: Canonicalized and recorded on 2026-04-08
 - Status: Active canonical auth rule
 - Problem/context: Firebase email/password account creation finishes before KandyDrops profile bootstrap. Without an explicit guard, fallback profile bootstrap can race the sign-up flow, and server registration can silently replace the requested username with an auto-suggested fallback.
@@ -634,6 +684,7 @@ This file is not a changelog. It is the concise ledger for durable decisions tha
 - Follow-up gaps: This rule now depends on the server-side reservation contract recorded in entry 30 and should not be interpreted as permission to fall back to point-in-time username checks.
 
 ### 30. Username ownership is enforced by a server-side reservation map with legacy backfill
+
 - Approximate date: Canonicalized and recorded on 2026-04-08
 - Status: Active canonical user-identity rule
 - Problem/context: Point-in-time `users.where("username" == ...)` checks were not durable enough to prevent concurrent claims, and legacy accounts with stored usernames had no canonical reservation row yet.
@@ -658,6 +709,7 @@ This file is not a changelog. It is the concise ledger for durable decisions tha
 - Follow-up gaps: If username history, moderation holds, or grace-period reclaim rules are added later, they must extend the reservation contract rather than bypassing it with direct writes to `users.username`.
 
 ### 31. Creator messaging is now a dedicated Chat product with compatibility adapters
+
 - Approximate date: Canonicalized and recorded on 2026-04-08
 - Status: Active canonical messaging/runtime rule
 - Problem/context: Creator messaging had split into two competing surfaces: the public creator page composer and the creator dashboard workspace inbox. Both were refresh-driven, neither was the clear source of truth, and the insufficient-funds path was too generic for a paid-chat product.
@@ -696,7 +748,9 @@ This file is not a changelog. It is the concise ledger for durable decisions tha
   - `database.rules.json`
   - `FULL_SCALE_CODEBASE_AUDIT.md`
 - Follow-up gaps: RTDB presence reads are currently authenticated-wide rather than participant-scoped, and there is no dedicated RTDB-rules test suite yet.
+
 ### 32. Broad UI reviews require dated screenshot evidence packets
+
 - Approximate date: Canonicalized and recorded on 2026-04-08
 - Status: Active workflow rule
 - Problem/context: Automated UI audits catch regressions, but they do not produce a clean human review packet for desktop, tablet, and mobile. Prior screenshot evidence also accumulated as mixed timestamped folders plus loose top-level images, which made cross-run review noisy and inconsistent.
@@ -716,7 +770,9 @@ This file is not a changelog. It is the concise ledger for durable decisions tha
   - `qa-screenshots/ui-review-2026-04-08/README.md`
   - `FULL_SCALE_CODEBASE_AUDIT.md`
 - Follow-up gaps: Authenticated dashboard and admin surfaces still need a stable seeded review session so future packets can cover those routes without manual setup drift.
+
 ### 33. Viewer and dashboard regressions must surface through route runtime health
+
 - Approximate date: Canonicalized and recorded on 2026-04-09
 - Status: Active runtime-monitoring rule
 - Problem/context: Manual bug submissions flagged `/dashboard/viewer` and `/dashboard`, but the affected server routes were only partially covered by admin-debug runtime health. That left owned-content proxy failures, viewer watch-session failures, creator discovery drift, and dashboard activity failures too easy to miss until a user reported them.
@@ -748,6 +804,7 @@ This file is not a changelog. It is the concise ledger for durable decisions tha
 - Follow-up gaps: The dashboard still depends on client diagnostics for browser-only failures such as notification-permission UX; only the server-backed routes above are now visible in route-runtime-health.
 
 ### 34. Load-bearing user surfaces should be server-seeded first and only reconcile live changes after hydration
+
 - Approximate date: Canonicalized and recorded on 2026-04-09
 - Status: Active loading/runtime rule
 - Problem/context: Home, experiences, dashboard, drops, and creator spotlight were paying unnecessary client waterfalls or delayed mount penalties even when the server already had enough truth to render the first screen. That created visible second-phase loading without adding new realtime correctness.
@@ -785,6 +842,7 @@ This file is not a changelog. It is the concise ledger for durable decisions tha
 - Follow-up gaps: Admin overview and some authenticated dashboard-only modules still rely on client fetch after shell render because they require user-scoped or admin-scoped state that is not yet server-seeded end to end.
 
 ### 35. Admin debug must expose missing runtime evidence instead of silently omitting it
+
 - Approximate date: Canonicalized and recorded on 2026-04-09
 - Status: Active admin observability rule
 - Problem/context: The admin debug console already summarized route-runtime and client hydration health, but unobserved admin routes simply disappeared from the runtime ledger and the debug page itself did not report its own client-side hydration state. That made missing evidence look healthier than it was.
@@ -813,6 +871,7 @@ This file is not a changelog. It is the concise ledger for durable decisions tha
 - Follow-up gaps: Route-runtime-health still distinguishes observed vs never-observed, but it does not yet split fresh vs stale historical success for low-traffic admin surfaces.
 
 ### 36. Debug diagnostics channels must separate current incidents from historical sample totals
+
 - Approximate date: Canonicalized and recorded on 2026-04-09
 - Status: Active admin-debug truth rule
 - Problem/context: The admin debug diagnostics-channel lane was surfacing total per-channel errors and warnings from the loaded sample without separating active-window or recent-window counts. That let channels such as `runtime` or `auth` appear currently broken even when the loaded noise was mostly historical.
@@ -837,6 +896,7 @@ This file is not a changelog. It is the concise ledger for durable decisions tha
 - Follow-up gaps: There is still no long-lived channel materializer; the debug lane remains based on the bounded diagnostics query rather than historical per-channel rollups.
 
 ### 37. Notifications must carry a stable delivery timestamp and clear through a single server mutation
+
 - Approximate date: Canonicalized and recorded on 2026-04-09
 - Status: Active notifications runtime rule
 - Problem/context: The notification bell was showing `Delivery time unavailable` for valid inbox items because the shared notification contract only recognized client-side Firestore timestamps, while inbox reads run on server-side admin snapshots. At the same time, the clear-all path fanned out one mark-read request per unread notification, which made partial failures likely under normal route limits.
@@ -861,6 +921,7 @@ This file is not a changelog. It is the concise ledger for durable decisions tha
 - Follow-up gaps: Existing historical notifications that lack both a timestamp-like `createdAt` and `createdAtMs` will still show no delivery time; fixing that would require a one-time backfill, not just runtime logic.
 
 ### 38. Admin moderation is server-polled API truth, not client Firestore truth
+
 - Approximate date: Canonicalized and recorded on 2026-04-09
 - Status: Active admin moderation rule
 - Problem/context: The admin moderation console originally depended on client Firestore subscriptions for chat threads and security alerts. That surfaced permission errors directly in the UI and made “live” moderation depend on browser-side admin Firestore access instead of server-controlled reads.
@@ -887,6 +948,7 @@ This file is not a changelog. It is the concise ledger for durable decisions tha
 - Follow-up gaps: Moderation currently uses truthful server polling rather than push subscriptions; if sub-second live moderation becomes necessary, add a dedicated realtime transport instead of returning to browser-side Firestore reads.
 
 ### 39. Admin analytics time ranges are module-scoped and user-persisted
+
 - Approximate date: Canonicalized and recorded on 2026-04-09
 - Status: Active admin analytics rule
 - Problem/context: The analytics page was originally organized around a global time range, which forced broad payload reloads and made it harder to compare modules independently. That shape also made discrepancy work between auth and onboarding harder to localize.
@@ -908,6 +970,7 @@ This file is not a changelog. It is the concise ledger for durable decisions tha
 - Follow-up gaps: `activeTab` and the viewer drilldown filter still use client storage as convenience UI state; only module time ranges are canonicalized server-side today.
 
 ### 40. AI debug assistant settings must control the actual Vertex model invocation
+
 - Approximate date: Canonicalized and recorded on 2026-04-09
 - Status: Active admin AI debug rule
 - Problem/context: The debug assistant had been upgraded to expose a configurable model and enablement settings, but the actual Vertex call still used the hardcoded default model and partially depended on env-level disablement.
