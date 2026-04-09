@@ -11,6 +11,8 @@ const mockState = vi.hoisted(() => {
         safeListChatThreadsForViewer: vi.fn(),
         safeSendChatMessageForViewer: vi.fn(),
         toChatClientError: vi.fn(),
+        recordRouteRuntimeSample: vi.fn(),
+        getErrorMessage: vi.fn(),
         adminDb: {
             collection(name: string) {
                 return {
@@ -37,6 +39,8 @@ const mockState = vi.hoisted(() => {
             this.safeListChatThreadsForViewer.mockReset();
             this.safeSendChatMessageForViewer.mockReset();
             this.toChatClientError.mockReset();
+            this.recordRouteRuntimeSample.mockReset();
+            this.getErrorMessage.mockReset();
         },
     };
 });
@@ -60,6 +64,12 @@ vi.mock("@/lib/server/firebase-admin", () => ({
 vi.mock("@/lib/server/rate-limit", () => ({
     STANDARD: {},
 }));
+vi.mock("@/lib/server/route-runtime-health", () => ({
+    recordRouteRuntimeSample: mockState.recordRouteRuntimeSample,
+}));
+vi.mock("@/lib/server/route-diagnostics", () => ({
+    getErrorMessage: mockState.getErrorMessage,
+}));
 vi.mock("@/lib/server/chat", () => ({
     safeGetChatThreadDetailForViewer: mockState.safeGetChatThreadDetailForViewer,
     safeListChatThreadsForViewer: mockState.safeListChatThreadsForViewer,
@@ -76,6 +86,7 @@ describe("creator/messages compatibility route", () => {
             error: error instanceof Error ? error.message : String(error),
         }, { status: 500 }));
         mockState.toChatClientError.mockReturnValue(null);
+        mockState.getErrorMessage.mockImplementation((error: unknown) => error instanceof Error ? error.message : String(error));
     });
 
     it("returns thread messages for the current viewer", async () => {
@@ -95,6 +106,10 @@ describe("creator/messages compatibility route", () => {
             callerRole: "user",
             threadId: "creator_creator_1__user_fan_1",
         });
+        expect(mockState.recordRouteRuntimeSample).toHaveBeenCalledWith(expect.objectContaining({
+            key: "creator/messages:GET",
+            statusCode: 200,
+        }));
         expect(body.thread).toMatchObject({ id: "creator_creator_1__user_fan_1" });
         expect(body.messages).toHaveLength(1);
     });
@@ -115,6 +130,10 @@ describe("creator/messages compatibility route", () => {
             viewerUid: "creator_1",
             viewerRole: "creator",
         });
+        expect(mockState.recordRouteRuntimeSample).toHaveBeenCalledWith(expect.objectContaining({
+            key: "creator/messages:GET",
+            statusCode: 200,
+        }));
         expect(body.threads).toHaveLength(1);
     });
 
@@ -148,6 +167,10 @@ describe("creator/messages compatibility route", () => {
             assetMimeType: undefined,
             messageKind: "text",
         });
+        expect(mockState.recordRouteRuntimeSample).toHaveBeenCalledWith(expect.objectContaining({
+            key: "creator/messages:POST",
+            statusCode: 200,
+        }));
         expect(body.success).toBe(true);
     });
 });

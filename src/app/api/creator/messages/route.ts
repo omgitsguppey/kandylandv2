@@ -12,6 +12,8 @@ import { handleApiError } from "@/lib/server/auth";
 import { adminDb } from "@/lib/server/firebase-admin";
 import { STANDARD } from "@/lib/server/rate-limit";
 import { guardApiRequest } from "@/lib/server/request-guard";
+import { getErrorMessage } from "@/lib/server/route-diagnostics";
+import { recordRouteRuntimeSample } from "@/lib/server/route-runtime-health";
 
 const sendMessageSchema = z.object({
     creatorId: z.string().trim().min(1),
@@ -25,6 +27,17 @@ const sendMessageSchema = z.object({
 });
 
 export async function GET(request: NextRequest) {
+    const startedAt = Date.now();
+    const finalize = (response: NextResponse, error?: unknown) => {
+        void recordRouteRuntimeSample({
+            key: "creator/messages:GET",
+            durationMs: Date.now() - startedAt,
+            statusCode: response.status,
+            errorMessage: error ? getErrorMessage(error) : null,
+        });
+        return response;
+    };
+
     try {
         const caller = await guardApiRequest(request, {
             routeName: "creator/messages",
@@ -34,7 +47,7 @@ export async function GET(request: NextRequest) {
             scopeToCaller: true,
         });
         if (!caller || !adminDb) {
-            return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
+            return finalize(NextResponse.json({ error: "Unauthorized" }, { status: 401 }));
         }
 
         const creatorId = request.nextUrl.searchParams.get("creatorId")?.trim() || "";
@@ -51,11 +64,11 @@ export async function GET(request: NextRequest) {
                 threadId,
             });
 
-            return NextResponse.json({
+            return finalize(NextResponse.json({
                 success: true,
                 thread: detail?.thread ?? null,
                 messages: detail?.messages ?? [],
-            });
+            }));
         }
 
         if (callerIsCreator && !creatorId) {
@@ -64,11 +77,11 @@ export async function GET(request: NextRequest) {
                 viewerRole: "creator",
             });
 
-            return NextResponse.json({ success: true, threads: result.threads });
+            return finalize(NextResponse.json({ success: true, threads: result.threads }));
         }
 
         if (!creatorId) {
-            return NextResponse.json({ success: true, thread: null, messages: [] });
+            return finalize(NextResponse.json({ success: true, thread: null, messages: [] }));
         }
 
         const detail = await safeGetChatThreadDetailForViewer({
@@ -77,22 +90,33 @@ export async function GET(request: NextRequest) {
             threadId: buildChatThreadId(creatorId, caller.uid),
         });
 
-        return NextResponse.json({
+        return finalize(NextResponse.json({
             success: true,
             thread: detail?.thread ?? null,
             messages: detail?.messages ?? [],
-        });
+        }));
     } catch (error) {
         const chatError = toChatClientError(error);
         if (chatError) {
-            return NextResponse.json(chatError.body, { status: chatError.status });
+            return finalize(NextResponse.json(chatError.body, { status: chatError.status }), error);
         }
 
-        return handleApiError(error, "Creator.Messages.GET");
+        return finalize(handleApiError(error, "Creator.Messages.GET"), error);
     }
 }
 
 export async function POST(request: NextRequest) {
+    const startedAt = Date.now();
+    const finalize = (response: NextResponse, error?: unknown) => {
+        void recordRouteRuntimeSample({
+            key: "creator/messages:POST",
+            durationMs: Date.now() - startedAt,
+            statusCode: response.status,
+            errorMessage: error ? getErrorMessage(error) : null,
+        });
+        return response;
+    };
+
     try {
         const caller = await guardApiRequest(request, {
             routeName: "creator/messages",
@@ -102,7 +126,7 @@ export async function POST(request: NextRequest) {
             scopeToCaller: true,
         });
         if (!caller || !adminDb) {
-            return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
+            return finalize(NextResponse.json({ error: "Unauthorized" }, { status: 401 }));
         }
 
         const callerSnap = await adminDb.collection("users").doc(caller.uid).get();
@@ -126,18 +150,29 @@ export async function POST(request: NextRequest) {
             messageKind: payload.messageKind,
         });
 
-        return NextResponse.json({ success: true });
+        return finalize(NextResponse.json({ success: true }));
     } catch (error) {
         const chatError = toChatClientError(error);
         if (chatError) {
-            return NextResponse.json(chatError.body, { status: chatError.status });
+            return finalize(NextResponse.json(chatError.body, { status: chatError.status }), error);
         }
 
-        return handleApiError(error, "Creator.Messages.POST");
+        return finalize(handleApiError(error, "Creator.Messages.POST"), error);
     }
 }
 
 export async function DELETE(request: NextRequest) {
+    const startedAt = Date.now();
+    const finalize = (response: NextResponse, error?: unknown) => {
+        void recordRouteRuntimeSample({
+            key: "creator/messages:DELETE",
+            durationMs: Date.now() - startedAt,
+            statusCode: response.status,
+            errorMessage: error ? getErrorMessage(error) : null,
+        });
+        return response;
+    };
+
     try {
         const caller = await guardApiRequest(request, {
             routeName: "creator/messages",
@@ -147,12 +182,12 @@ export async function DELETE(request: NextRequest) {
             scopeToCaller: true,
         });
         if (!caller || !adminDb) {
-            return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
+            return finalize(NextResponse.json({ error: "Unauthorized" }, { status: 401 }));
         }
 
         const messageId = request.nextUrl.searchParams.get("messageId")?.trim() || "";
         if (!messageId) {
-            return NextResponse.json({ error: "Missing messageId" }, { status: 400 });
+            return finalize(NextResponse.json({ error: "Missing messageId" }, { status: 400 }));
         }
 
         const callerSnap = await adminDb.collection("users").doc(caller.uid).get();
@@ -160,7 +195,7 @@ export async function DELETE(request: NextRequest) {
         const messageRef = adminDb.collection(CHAT_COLLECTIONS.messages).doc(messageId);
         const messageSnap = await messageRef.get();
         if (!messageSnap.exists) {
-            return NextResponse.json({ error: "Message not found" }, { status: 404 });
+            return finalize(NextResponse.json({ error: "Message not found" }, { status: 404 }));
         }
 
         const messageData = messageSnap.data() as Record<string, unknown>;
@@ -168,7 +203,7 @@ export async function DELETE(request: NextRequest) {
         const userId = typeof messageData.userId === "string" ? messageData.userId : "";
         const canModerate = callerData?.role === "admin" || caller.uid === creatorId;
         if (!canModerate) {
-            return NextResponse.json({ error: "Forbidden" }, { status: 403 });
+            return finalize(NextResponse.json({ error: "Forbidden" }, { status: 403 }));
         }
 
         await messageRef.set({
@@ -176,8 +211,8 @@ export async function DELETE(request: NextRequest) {
             moderationRemovedBy: caller.uid,
         }, { merge: true });
 
-        return NextResponse.json({ success: true, creatorId, userId });
+        return finalize(NextResponse.json({ success: true, creatorId, userId }));
     } catch (error) {
-        return handleApiError(error, "Creator.Messages.DELETE");
+        return finalize(handleApiError(error, "Creator.Messages.DELETE"), error);
     }
 }

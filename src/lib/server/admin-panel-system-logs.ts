@@ -26,7 +26,7 @@ const CHART_CATEGORY_LABELS: Record<AdminUiChartHealthCategory, string> = {
     operations: "Operations charts",
     audience: "Audience charts",
     commerce: "Commerce charts",
-    security: "Signals charts",
+    security: "Moderation and security charts",
 };
 
 type PersistedAdminPanelSystemLog = Partial<AdminPanelSystemLog> & {
@@ -196,14 +196,14 @@ export function buildAdminPanelSystemLogs(input: {
                     ? "warn"
                     : "healthy",
         summary: routeRuntimeHealth.length === 0
-            ? "No route runtime health rollups have been recorded yet for the tracked creator/support/AI endpoints."
+            ? "No route runtime health rollups have been recorded yet for the tracked chat, creator-message compatibility, support, and AI endpoints."
             : routeFailCount > 0
                 ? `${routeFailCount} tracked routes are currently failing and ${routeWarnCount} are degraded or historically noisy.`
                 : routeWarnCount > 0
                     ? `${routeWarnCount} tracked routes are degraded or have recorded slow/error history without a current server failure.`
                     : `${routeRuntimeHealth.length} tracked routes are healthy in the latest runtime rollup sample.`,
         action: routeRuntimeHealth.length === 0
-            ? "Drive the tracked creator, support, and AI routes at least once so debug can materialize real route health."
+            ? "Drive the tracked chat, creator-message compatibility, support, and AI routes at least once so debug can materialize real route health."
             : routeFailCount > 0 || routeWarnCount > 0
                 ? `Inspect the highest-risk routes first: ${routeRuntimeHealth.filter((item) => getRouteRuntimeHealthStatus(item) !== "healthy").slice(0, 3).map((item) => item.title).join(", ") || "tracked route runtime"}`
                 : "No action required.",

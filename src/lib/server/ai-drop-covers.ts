@@ -69,7 +69,7 @@ const DROP_COVER_CATALOG_CANDIDATE_LIMIT = 1;
 const DROP_COVER_CATALOG_QUERY_LIMIT = 24;
 const RETAINED_AI_REFERENCE_CANDIDATE_LIMIT = 12;
 const MAX_REFERENCE_INPUTS = 6;
-const TEMPLATE_REFERENCE_STYLE_DESCRIPTION = "KandyDrops premium candy-poster cover art with centered hero framing, strong flavor palette, and title-safe negative space.";
+const TEMPLATE_REFERENCE_STYLE_DESCRIPTION = "KandyDrops premium candy-poster cover art with a centered dessert hero, a smaller creator-name treatment at the top, a bold main flavor title, and a distinct lower CTA ribbon with clearly separated colors.";
 
 type AdminAiDropCoverRuntime = {
     project: string;
@@ -987,6 +987,41 @@ async function getVertexAccessToken(project?: string) {
     return accessToken;
 }
 
+export function buildGeminiGenerateContentRequestBody(input: Pick<GenerateImageInput, "prompt" | "aspectRatio" | "referenceImages">) {
+    const referenceStyleParts = Array.from(new Set(
+        (input.referenceImages || [])
+            .map((referenceImage) => referenceImage.styleDescription?.trim() || "")
+            .filter((styleDescription) => styleDescription.length > 0),
+    )).map((styleDescription) => ({
+        text: `Reference style guidance: ${styleDescription}`,
+    }));
+
+    const referenceParts = (input.referenceImages || []).map((referenceImage) => ({
+        inlineData: {
+            mimeType: referenceImage.mimeType,
+            data: referenceImage.bytesBase64Encoded,
+        },
+    }));
+
+    return {
+        contents: {
+            role: "USER",
+            parts: [
+                { text: input.prompt },
+                ...referenceStyleParts,
+                ...referenceParts,
+            ],
+        },
+        generationConfig: {
+            responseModalities: ["TEXT", "IMAGE"],
+            candidateCount: 1,
+            imageConfig: {
+                aspectRatio: input.aspectRatio,
+            },
+        },
+    };
+}
+
 function buildVertexPublisherGenerateContentEndpoint(runtime: AdminAiDropCoverRuntime) {
     const hostname = runtime.location === "global"
         ? "aiplatform.googleapis.com"
@@ -996,13 +1031,6 @@ function buildVertexPublisherGenerateContentEndpoint(runtime: AdminAiDropCoverRu
 }
 
 async function generateGeminiImage(input: GenerateImageInput): Promise<GenerateVertexImageResult> {
-    const referenceParts = (input.referenceImages || []).map((referenceImage) => ({
-        inlineData: {
-            mimeType: referenceImage.mimeType,
-            data: referenceImage.bytesBase64Encoded,
-        },
-    }));
-
     const response = await fetch(
         buildVertexPublisherGenerateContentEndpoint(input.runtime),
         {
@@ -1011,22 +1039,7 @@ async function generateGeminiImage(input: GenerateImageInput): Promise<GenerateV
                 Authorization: `Bearer ${input.accessToken}`,
                 "Content-Type": "application/json; charset=utf-8",
             },
-            body: JSON.stringify({
-                contents: {
-                    role: "USER",
-                    parts: [
-                        { text: input.prompt },
-                        ...referenceParts,
-                    ],
-                },
-                generationConfig: {
-                    responseModalities: ["TEXT", "IMAGE"],
-                    candidateCount: 1,
-                    imageConfig: {
-                        aspectRatio: input.aspectRatio,
-                    },
-                },
-            }),
+            body: JSON.stringify(buildGeminiGenerateContentRequestBody(input)),
         },
     ).then(async (result) => {
         const json = await result.json().catch(() => null) as GeminiGenerateContentResponse | null;

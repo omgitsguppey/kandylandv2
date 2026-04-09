@@ -14,7 +14,7 @@ const LEGACY_ADMIN_AI_DROP_COVER_MODEL_ALIASES = new Set([
     "imagen-3.0-capability-001",
 ]);
 const LEGACY_ADMIN_AI_DROP_COVER_LOCATION_ALIASES = new Set(["us-central1"]);
-export const ADMIN_AI_DROP_COVER_PROMPT_VERSION = "drop-cover-v2";
+export const ADMIN_AI_DROP_COVER_PROMPT_VERSION = "drop-cover-v3";
 export const ADMIN_AI_DROP_COVER_PRICE_BASIS = "vertex-ai-pricing-gemini-2.5-flash-image-2026-04-06";
 export const ADMIN_AI_DROP_COVER_PREMIUM_PRICE_BASIS = "vertex-ai-pricing-gemini-3-pro-image-preview-2026-04-06";
 export const ADMIN_AI_DROP_COVER_PRICE_SOURCE_URL = "https://cloud.google.com/vertex-ai/generative-ai/pricing";
@@ -658,8 +658,8 @@ export function buildAdminAiDropCoverConsistencyRecipe(input: AdminAiDropCoverPr
         paletteDirection: familyRule?.paletteDirection || "Use one dominant flavor palette with premium contrast, glossy highlights, and restrained accent color drift.",
         lightingDirection: familyRule?.lightingDirection || "Use polished confection lighting with tactile highlights, depth, and a premium food-ad editorial finish.",
         backgroundDirection: familyRule?.backgroundDirection || "Create a soft glowing bokeh background with flavor-led atmosphere, depth, and minimal distracting props.",
-        compositionDirection: "Keep a square poster composition with one centered hero, stable negative space near the top arc, and a clean lower ribbon-safe zone for deterministic product overlays.",
-        overlayDirection: "Preserve clean safe zones for deterministic creator-name, flavor-title, and bottom CTA ribbon overlays. Never depend on model-rendered typography.",
+        compositionDirection: "Keep a square poster composition with one centered hero, clear upper title space, and a distinct lower ribbon band so the hero, title, and CTA treatment stay easy to distinguish.",
+        overlayDirection: "Render the creator name as a smaller top treatment when available, keep the main flavor title prominent and legible, and make the lower ribbon or CTA band visually distinct from the background.",
     };
 }
 
@@ -771,13 +771,18 @@ export function buildAdminAiDropCoverPrompt(
     options?: { referenceGuided?: boolean; recipe?: AdminAiDropCoverConsistencyRecipe },
 ) {
     const recipe = options?.recipe || buildAdminAiDropCoverConsistencyRecipe(input);
-    const title = recipe.normalizedFlavorTitle;
+    const requestedTitle = input.title.trim();
+    const title = recipe.creatorName?.trim() ? recipe.normalizedFlavorTitle : requestedTitle;
     const creatorName = recipe.creatorName?.trim();
+    const referenceInstruction = options?.referenceGuided
+        ? `Use the provided reference image and maintain the same style, focusing this time on "${requestedTitle}", ensuring the color matches the title theme and the colors are easy to distinguish.`
+        : `Focus this cover on "${requestedTitle}", ensuring the color matches the title theme and the colors are easy to distinguish.`;
 
     return [
         "Create premium square cover art for a KandyDrops drop.",
-        `Drop title concept: ${title}.`,
-        creatorName ? `Creator context: ${creatorName}. Use this only as mood context, never as rendered text.` : "",
+        referenceInstruction,
+        `Main title treatment: ${title}.`,
+        creatorName ? `Render ${creatorName} as the smaller creator-name treatment above the main title.` : "",
         buildDropTypeNote(input.dropType),
         recipe.heroSubject,
         recipe.paletteDirection,
@@ -787,12 +792,14 @@ export function buildAdminAiDropCoverPrompt(
         recipe.overlayDirection,
         "The image must feel like luxury candy packaging meets a premium poster.",
         options?.referenceGuided
-            ? "Use the provided KandyDrops cover references to preserve the KandyDrops house style while keeping the result original, title-safe, and production-ready."
+            ? "Keep the result aligned to the reference image typography layout, title hierarchy, and candy-poster presentation while still making this specific flavor distinct."
             : "",
         "Use depth, gloss, tactile lighting, and a flavor-led visual identity.",
-        "Do not render any readable text, letters, typography, logos, watermarks, UI, split panels, collage grids, or captions.",
-        "Do not crop the hero subject awkwardly. Avoid busy backgrounds, extra props, or generic stock-photo composition.",
-        "Return a clean 1:1 square image background/art treatment only.",
+        `Render the main title "${title}" clearly and legibly in the cover.`,
+        creatorName ? "Keep the creator-name treatment smaller than the main title and visually separate from it." : "",
+        "Keep the hero subject, title treatment, and lower ribbon treatment easy to distinguish at a glance.",
+        "Do not crop the hero subject awkwardly. Avoid logos, watermarks, UI, split panels, collage grids, busy backgrounds, extra props, or generic stock-photo composition.",
+        "Return a complete 1:1 square cover composition.",
     ].filter((line) => line.length > 0).join(" ");
 }
 

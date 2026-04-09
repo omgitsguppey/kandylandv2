@@ -16,6 +16,7 @@ import {
     type ChatViewerRole,
 } from "@/lib/chat";
 import {
+    isCreatorMessagingAvailable,
     normalizeCreatorRestrictions,
     normalizeCreatorSettings,
     type CreatorRestrictions,
@@ -413,6 +414,20 @@ function buildSeedThread(input: {
     return toChatThreadRecord(baseThread, input.viewerUid);
 }
 
+function canSeedChatThreadForCreator(creator: UserSummary | null | undefined): creator is UserSummary {
+    if (!creator) {
+        return false;
+    }
+
+    return isCreatorMessagingAvailable({
+        role: creator.role,
+        status: creator.status,
+        creatorApplication: creator.raw.creatorApplication,
+        creatorSettings: creator.creatorSettings,
+        creatorRestrictions: creator.creatorRestrictions,
+    });
+}
+
 async function resolveLegacyOrExistingThread(input: {
     threadId: string;
     viewerUid: string;
@@ -432,16 +447,17 @@ async function resolveLegacyOrExistingThread(input: {
         readUserSummary(parsed.creatorId),
         readUserSummary(parsed.userId),
     ]);
-    if (!creator || !participant) {
+    if (!canSeedChatThreadForCreator(creator) || !participant) {
         return null;
     }
 
+    const seededCreator = creator;
     const subscriptionActive = await readSubscriptionActive(parsed.userId, parsed.creatorId);
     return buildSeedThread({
-        creator,
+        creator: seededCreator,
         participant,
         viewerUid: input.viewerUid,
-        subscriberChatFree: shouldGrantSubscriberFreeChat(subscriptionActive, creator.creatorSettings),
+        subscriberChatFree: shouldGrantSubscriberFreeChat(subscriptionActive, seededCreator.creatorSettings),
     });
 }
 
@@ -482,7 +498,7 @@ export async function listChatThreadsForViewer(input: {
         .sort((left, right) => right.lastMessageAt - left.lastMessageAt);
 
     const selectedCreatorId = input.viewerRole === "user" ? input.creatorId ?? null : null;
-    const selectedThreadId = selectedCreatorId
+    let selectedThreadId = selectedCreatorId
         ? buildChatThreadId(selectedCreatorId, input.viewerUid)
         : null;
 
@@ -492,14 +508,17 @@ export async function listChatThreadsForViewer(input: {
             readUserSummary(input.viewerUid),
         ]);
 
-        if (creator && participant) {
+        if (canSeedChatThreadForCreator(creator) && participant) {
+            const seededCreator = creator;
             const subscriptionActive = await readSubscriptionActive(input.viewerUid, selectedCreatorId);
             records.unshift(buildSeedThread({
-                creator,
+                creator: seededCreator,
                 participant,
                 viewerUid: input.viewerUid,
-                subscriberChatFree: shouldGrantSubscriberFreeChat(subscriptionActive, creator.creatorSettings),
+                subscriberChatFree: shouldGrantSubscriberFreeChat(subscriptionActive, seededCreator.creatorSettings),
             }));
+        } else {
+            selectedThreadId = null;
         }
     }
 
@@ -649,10 +668,7 @@ export async function sendChatMessageForViewer(input: SendChatMessageInput) {
 
         const creator = createUserSummary(parsedThread.creatorId, creatorSnap.data() as Record<string, unknown>);
         const participant = createUserSummary(parsedThread.userId, participantSnap.data() as Record<string, unknown>);
-        if (creator.role !== "creator" || creator.status === "suspended" || creator.status === "banned") {
-            throw new AuthError("Creator unavailable", 409);
-        }
-        if (creator.creatorSettings.messagingEnabled === false || creator.creatorRestrictions.messagingRestricted === true) {
+        if (!canSeedChatThreadForCreator(creator)) {
             throw new AuthError("Messaging is unavailable for this creator.", 409);
         }
 
@@ -784,7 +800,7 @@ export async function sendChatMessageForViewer(input: SendChatMessageInput) {
     });
 
     await Promise.allSettled([
-        trackServerEvent(
+        Promise.resolve().then(() => trackServerEvent(
             sendResult.message.messageKind === "text" ? "creator_message_sent" : "creator_media_sent",
             {
                 creator_id: sendResult.thread.creatorId,
@@ -793,14 +809,14 @@ export async function sendChatMessageForViewer(input: SendChatMessageInput) {
                 media_kind: sendResult.message.messageKind,
             },
             input.callerUid,
-        ),
+        )),
         sendResult.creatorAccrualId
-            ? trackServerEvent("creator_ledger_accrual_created", {
+            ? Promise.resolve().then(() => trackServerEvent("creator_ledger_accrual_created", {
                 creator_id: sendResult.thread.creatorId,
                 source_type: "message",
                 accrual_id: sendResult.creatorAccrualId,
                 spend_gd: sendResult.costGd,
-            }, input.callerUid)
+            }, input.callerUid))
             : Promise.resolve(null),
     ]);
 

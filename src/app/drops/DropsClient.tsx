@@ -102,10 +102,6 @@ export function DropsClient({ initialDrops }: DropsClientProps) {
     const { openAuthModal, openPurchaseModal, openProfileSidebar } = useUI();
     const { drops: liveDrops, size, setSize, isLoadingMore, isReachingEnd } = useDrops(["active", "scheduled"], initialDrops);
     const { isConstrained, isVerySlow } = useNetworkConditions();
-    const creatorRailReady = useDeferredClientReady({
-        delayMs: isVerySlow ? 1_500 : isConstrained ? 1_000 : 250,
-        idle: true,
-    });
     const featuredReady = useDeferredClientReady({
         delayMs: isVerySlow ? 1_900 : isConstrained ? 1_100 : 200,
         idle: true,
@@ -287,7 +283,7 @@ export function DropsClient({ initialDrops }: DropsClientProps) {
                 />
             </div>
 
-            {creatorRailReady ? <CreatorDiscoveryRail surface="drops" compact /> : null}
+            <CreatorDiscoveryRail surface="drops" compact />
 
 
 

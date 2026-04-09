@@ -53,7 +53,7 @@ import { AdminPageHeader } from "@/components/Admin/AdminPageHeader";
 import { PageViewEvent } from "@/components/Analytics/PageViewEvent";
 import { TELEMETRY_EVENT_LABELS } from "@/lib/telemetry-catalog";
 
-type ViewTab = "operations" | "audience" | "commerce" | "security";
+type ViewTab = "operations" | "audience" | "commerce";
 type RangeOption = "24h" | "7d" | "30d" | "all";
 
 interface RealtimePoint {
@@ -489,7 +489,6 @@ const TAB_OPTIONS: Array<{ id: ViewTab; label: string; icon: typeof Activity }> 
   { id: "operations", label: "Operations", icon: Activity },
   { id: "audience", label: "Audience", icon: Users },
   { id: "commerce", label: "Commerce", icon: DollarSign },
-  { id: "security", label: "Signals", icon: ShieldAlert },
 ];
 
 const EVENT_LABELS: Record<string, string> = TELEMETRY_EVENT_LABELS;
@@ -1034,7 +1033,6 @@ export default function AdminAnalyticsPage() {
     || geo.length > 0
     || topDrops.length > 0
     || (commerce.feed?.length ?? 0) > 0
-    || security.length > 0
     || onboardingStartCount > 0
     || onboardingStats.completions > 0
     || viewerDropInsights.length > 0
@@ -1378,96 +1376,6 @@ export default function AdminAnalyticsPage() {
         healthySummary: "Watch-depth and tag demand are loaded.",
         emptySummary: "No watch-depth or tag-demand rows were returned in this window.",
       }),
-      buildAdminUiChartHealthItem({
-        key: "analytics.security.security_posture",
-        title: "Security Posture",
-        page: "analytics",
-        category: "security",
-        source: "historical_analytics",
-        updatedAtMs: historicalUpdatedAtMs,
-        hasLoaded: Boolean(historicalResponse) || Boolean(historicalError),
-        loading: historicalLoading,
-        hasData: security.length > 0 || securityReasons.length > 0,
-        blockingIssues: historicalBlockingIssues,
-        backgroundIssues: historicalBackgroundIssues,
-        healthySummary: "Security posture is loaded.",
-        emptySummary: "No security posture rows were returned in this window.",
-      }),
-      buildAdminUiChartHealthItem({
-        key: "analytics.security.daily_task_pipeline",
-        title: "Daily Task Pipeline",
-        page: "analytics",
-        category: "security",
-        source: "historical_analytics",
-        updatedAtMs: historicalUpdatedAtMs,
-        hasLoaded: Boolean(historicalResponse) || Boolean(historicalError),
-        loading: historicalLoading,
-        hasData: taskPipeline.length > 0,
-        blockingIssues: historicalBlockingIssues,
-        backgroundIssues: historicalBackgroundIssues,
-        healthySummary: "Daily task pipeline is loaded.",
-        emptySummary: "No daily-task pipeline rows were returned in this window.",
-      }),
-      buildAdminUiChartHealthItem({
-        key: "analytics.security.task_completion_speed",
-        title: "Task Completion Speed",
-        page: "analytics",
-        category: "security",
-        source: "historical_analytics",
-        updatedAtMs: historicalUpdatedAtMs,
-        hasLoaded: Boolean(historicalResponse) || Boolean(historicalError),
-        loading: historicalLoading,
-        hasData: taskDurationBuckets.length > 0,
-        blockingIssues: historicalBlockingIssues,
-        backgroundIssues: historicalBackgroundIssues,
-        healthySummary: "Task completion speed is loaded.",
-        emptySummary: "No task-completion duration buckets were returned in this window.",
-      }),
-      buildAdminUiChartHealthItem({
-        key: "analytics.security.task_leaderboard",
-        title: "Task Leaderboard",
-        page: "analytics",
-        category: "security",
-        source: "historical_analytics",
-        updatedAtMs: historicalUpdatedAtMs,
-        hasLoaded: Boolean(historicalResponse) || Boolean(historicalError),
-        loading: historicalLoading,
-        hasData: taskLeaderboard.length > 0,
-        blockingIssues: historicalBlockingIssues,
-        backgroundIssues: historicalBackgroundIssues,
-        healthySummary: "Task leaderboard is loaded.",
-        emptySummary: "No task leaderboard rows were returned in this window.",
-      }),
-      buildAdminUiChartHealthItem({
-        key: "analytics.security.notification_funnel",
-        title: "Notification Funnel",
-        page: "analytics",
-        category: "security",
-        source: "historical_analytics",
-        updatedAtMs: historicalUpdatedAtMs,
-        hasLoaded: Boolean(historicalResponse) || Boolean(historicalError),
-        loading: historicalLoading,
-        hasData: notificationFunnel.length > 0 || notificationActions.length > 0 || reminderReasons.length > 0,
-        blockingIssues: historicalBlockingIssues,
-        backgroundIssues: historicalBackgroundIssues,
-        healthySummary: "Notification funnel is loaded.",
-        emptySummary: "No notification-funnel rows were returned in this window.",
-      }),
-      buildAdminUiChartHealthItem({
-        key: "analytics.security.flagged_accounts",
-        title: "Flagged Accounts",
-        page: "analytics",
-        category: "security",
-        source: "historical_analytics",
-        updatedAtMs: historicalUpdatedAtMs,
-        hasLoaded: Boolean(historicalResponse) || Boolean(historicalError),
-        loading: historicalLoading,
-        hasData: security.length > 0,
-        blockingIssues: historicalBlockingIssues,
-        backgroundIssues: historicalBackgroundIssues,
-        healthySummary: "Flagged-account detail is loaded.",
-        emptySummary: "No flagged-account rows were returned in this window.",
-      }),
   ];
   const analyticsSectionHealthSummary = summarizeAdminUiChartHealth(analyticsSectionHealth);
 
@@ -1503,26 +1411,22 @@ export default function AdminAnalyticsPage() {
     );
   }
 
+  const showLegacySecurityAnalytics = false;
+
   return (
     <div className="space-y-4 pb-20 md:space-y-5 md:pb-8">
       <PageViewEvent eventName="admin_analytics_viewed" />
       <AdminPageHeader
         eyebrow="Admin Analytics"
         title="Mobile Monitoring Station"
-        subtitle="Live pulse, device mix, funnel health, revenue signals, and risk monitoring tuned for small screens first."
+        subtitle="Live pulse, device mix, funnel health, and revenue signals tuned for small screens first."
       />
 
       <div className="grid grid-cols-2 gap-2.5 md:grid-cols-4">
         <MetricCard label="Live GA" value={formatCompactNumber(liveResponse?.totalActive ?? 0)} hint="Active in the last 30 mins" icon={Activity} />
         <MetricCard label="Mobile Share" value={formatPercent(mobileShare)} hint={`${mobileUsers.toLocaleString()} mobile users in range`} icon={Smartphone} />
         <MetricCard label="Revenue" value={formatMoney(commerce.revenueUsd)} hint={`${range.toUpperCase()} tracked revenue`} icon={DollarSign} />
-        <MetricCard
-          label="Security Alerts"
-          value={securityAlerts.toLocaleString()}
-          hint={securityAlerts > 0 ? "Violations in the last 24h" : "No fresh violations"}
-          icon={ShieldAlert}
-          valueClassName={securityAlerts > 0 ? "text-2xl font-black tracking-tight text-red-400" : undefined}
-        />
+        <MetricCard label="Purchases" value={formatCompactNumber(funnel.purchases)} hint={`${funnel.checkoutStarts.toLocaleString()} checkout starts`} icon={ShoppingBag} />
       </div>
 
       <div className="sticky top-[8.6rem] z-20 space-y-2.5 rounded-[1.4rem] border border-white/10 bg-black/65 p-2.5 backdrop-blur-xl md:top-24">
@@ -2751,7 +2655,7 @@ export default function AdminAnalyticsPage() {
           </>
         ) : null}
 
-        {activeTab === "security" ? (
+        {showLegacySecurityAnalytics ? (
           <>
               <SectionCard title="Security Posture" subtitle="Flagged accounts are grouped into mobile cards with the newest risk surfaced first." icon={ShieldAlert} defaultExpanded>
                 <div className="grid grid-cols-2 gap-3 lg:grid-cols-4">

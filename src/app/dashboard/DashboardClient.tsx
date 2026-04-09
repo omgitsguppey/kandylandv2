@@ -46,10 +46,6 @@ const DASHBOARD_GREETING_VARIANTS: Record<string, string> = {
 export default function DashboardClient({ drops }: DashboardClientProps) {
     const { userProfile, loading } = useAuth();
     const { isConstrained, isVerySlow } = useNetworkConditions();
-    const creatorRailReady = useDeferredClientReady({
-        delayMs: isVerySlow ? 1_500 : isConstrained ? 900 : 250,
-        idle: true,
-    });
     const recentActivityReady = useDeferredClientReady({
         delayMs: isVerySlow ? 1_800 : isConstrained ? 1_100 : 450,
         idle: true,
@@ -114,7 +110,7 @@ export default function DashboardClient({ drops }: DashboardClientProps) {
             <div className="grid grid-cols-1 gap-5 sm:gap-8 lg:grid-cols-3">
                 <div className="space-y-6 md:space-y-8">
                     <DailyCheckIn />
-                    {creatorRailReady ? <CreatorDiscoveryRail surface="dashboard" compact /> : null}
+                    <CreatorDiscoveryRail surface="dashboard" compact />
 
                     <div className="glass-panel rounded-3xl p-4 md:p-5">
                         <h3 className="mb-3 flex items-center gap-2 text-base font-bold text-white md:text-lg">

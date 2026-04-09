@@ -5,7 +5,7 @@ import { readPreferredAuthenticatedPath } from "@/lib/navigation-persistence";
 import { useRouter, usePathname } from "next/navigation";
 import { useEffect } from "react";
 import Link from "next/link";
-import { LayoutDashboard, Package, Users, Terminal, ListChecks, TrendingUp, LifeBuoy } from "lucide-react";
+import { LayoutDashboard, Package, Users, Terminal, ListChecks, TrendingUp, LifeBuoy, ShieldAlert } from "lucide-react";
 import { cn } from "@/lib/utils";
 
 
@@ -18,6 +18,7 @@ const NAV_ITEMS = [
   { href: "/admin/debug", label: "Debug", icon: Terminal },
   { href: "/admin/ai", label: "AI", icon: Terminal },
   { href: "/admin/support", label: "Support", icon: LifeBuoy },
+  { href: "/admin/moderation", label: "Moderation", icon: ShieldAlert },
   { href: "/admin/content", label: "Content", icon: Package },
   { href: "/admin/economy", label: "Economy", icon: TrendingUp },
 ];

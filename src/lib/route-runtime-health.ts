@@ -23,6 +23,24 @@ export const ROUTE_RUNTIME_HEALTH_TARGETS = {
         title: "Chat read-state updates",
         slowThresholdMs: 800,
     },
+    "creator/messages:GET": {
+        routeName: "creator/messages",
+        method: "GET",
+        title: "Legacy creator-message reads",
+        slowThresholdMs: 1000,
+    },
+    "creator/messages:POST": {
+        routeName: "creator/messages",
+        method: "POST",
+        title: "Legacy creator-message sends",
+        slowThresholdMs: 1600,
+    },
+    "creator/messages:DELETE": {
+        routeName: "creator/messages",
+        method: "DELETE",
+        title: "Legacy creator-message moderation",
+        slowThresholdMs: 1000,
+    },
     "creator/relationships:GET": {
         routeName: "creator/relationships",
         method: "GET",

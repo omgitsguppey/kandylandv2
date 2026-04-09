@@ -32,7 +32,6 @@ import {
 import { reportClientIssue, reportRealtimeIssue, reportStorageIssue } from "@/lib/client-error-reporting";
 import { storage, db, rtdb } from "@/lib/firebase-data";
 import { useCompactViewport } from "@/hooks/useCompactViewport";
-import { trackEvent } from "@/lib/telemetry";
 import { cn } from "@/lib/utils";
 import { getDownloadURL, ref as storageRef, uploadBytes } from "firebase/storage";
 
@@ -241,6 +240,8 @@ export function ChatExperience() {
         }
 
         setThreadLoading(true);
+        setSelectedDetail(null);
+        setInsufficientFunds(null);
         try {
             const response = await authFetch(`/api/chat/threads/${encodeURIComponent(threadId)}`);
             const body = await response.json() as ThreadDetailResponse & { error?: string };
@@ -259,6 +260,7 @@ export function ChatExperience() {
                 },
                 consoleLabel: "[Chat] thread detail load failed",
             });
+            setSelectedDetail(null);
             toast.error(error instanceof Error ? error.message : "Failed to load this chat thread.");
         } finally {
             setThreadLoading(false);
@@ -548,10 +550,6 @@ export function ChatExperience() {
                 throw new Error(body.error || "Failed to send message.");
             }
 
-            trackEvent("navigation_click", {
-                destination: `/dashboard/chat?thread=${selectedThreadId}`,
-                source: "chat_send_message",
-            });
             setComposerText("");
             setComposerFile(null);
             setComposerKind("text");

@@ -8,6 +8,11 @@ service cloud.firestore {
     function isSelf(userId) {
       return isSignedIn() && request.auth.uid == userId;
     }
+
+    function isAdmin() {
+      return isSignedIn()
+        && get(/databases/$(database)/documents/users/$(request.auth.uid)).data.role == "admin";
+    }
     
     // Drops: NO direct client reads or writes.
     // Public browsing goes through server-side readers/API routes that sanitize content.
@@ -36,15 +41,25 @@ service cloud.firestore {
 
     // Creator chat threads: participant-scoped client reads for realtime chat only, no direct writes
     match /creator_message_threads/{threadId} {
-      allow read: if isSignedIn()
-        && (request.auth.uid == resource.data.creatorId || request.auth.uid == resource.data.userId);
+      allow read: if isAdmin() || (
+        isSignedIn()
+        && (request.auth.uid == resource.data.creatorId || request.auth.uid == resource.data.userId)
+      );
       allow write: if false;
     }
 
     // Creator chat messages: participant-scoped client reads for realtime chat only, no direct writes
     match /creator_messages/{messageId} {
-      allow read: if isSignedIn()
-        && (request.auth.uid == resource.data.creatorId || request.auth.uid == resource.data.userId);
+      allow read: if isAdmin() || (
+        isSignedIn()
+        && (request.auth.uid == resource.data.creatorId || request.auth.uid == resource.data.userId)
+      );
+      allow write: if false;
+    }
+
+    // Security events: admin-only client reads for the moderation console, no direct writes
+    match /security_events/{eventId} {
+      allow read: if isAdmin();
       allow write: if false;
     }
 

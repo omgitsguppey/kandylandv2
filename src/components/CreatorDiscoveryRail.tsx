@@ -45,17 +45,23 @@ function initialsFor(name: string) {
 }
 
 export function CreatorDiscoveryRail({ surface, title, compact = false }: CreatorDiscoveryRailProps) {
-    const { user } = useAuth();
+    const { user, loading: authLoading } = useAuth();
+    const authSettled = !authLoading;
     const { openAuthModal } = useUI();
     const [recommendedCreators, setRecommendedCreators] = useState<CreatorCard[]>([]);
     const [followedCreators, setFollowedCreators] = useState<CreatorCard[]>([]);
-    const [loading, setLoading] = useState(true);
+    const [railLoading, setRailLoading] = useState(true);
     const [pendingCreatorId, setPendingCreatorId] = useState<string | null>(null);
 
     useEffect(() => {
         let cancelled = false;
 
         async function loadCreators() {
+            if (!authSettled) {
+                return;
+            }
+
+            setRailLoading(true);
             try {
                 const discoveryPromise = fetch(`/api/creator/discovery?surface=${surface}`, { cache: "no-store" });
                 const relationshipPromise = user ? authFetch("/api/creator/relationships") : null;
@@ -110,7 +116,7 @@ export function CreatorDiscoveryRail({ surface, title, compact = false }: Creato
                 if (!cancelled) {
                     setRecommendedCreators(nextRecommended);
                     setFollowedCreators(nextFollowed);
-                    setLoading(false);
+                    setRailLoading(false);
                 }
             } catch (error) {
                 reportClientIssue({
@@ -125,7 +131,7 @@ export function CreatorDiscoveryRail({ surface, title, compact = false }: Creato
                     consoleLabel: "[CreatorDiscoveryRail] load failed",
                 });
                 if (!cancelled) {
-                    setLoading(false);
+                    setRailLoading(false);
                 }
             }
         }
@@ -134,7 +140,7 @@ export function CreatorDiscoveryRail({ surface, title, compact = false }: Creato
         return () => {
             cancelled = true;
         };
-    }, [surface, user]);
+    }, [authSettled, surface, user]);
 
     const primaryCreators = useMemo(
         () => followedCreators.length > 0 ? followedCreators : recommendedCreators,
@@ -223,14 +229,13 @@ export function CreatorDiscoveryRail({ surface, title, compact = false }: Creato
         }
     };
 
-    if (loading) {
+    if (!authSettled || railLoading) {
         return null;
     }
 
-    const header = title || (followedCreators.length > 0 ? "Jump back into your creator loop." : "Recommended creators");
-    const support = followedCreators.length > 0
+    const support = title || (followedCreators.length > 0
         ? null
-        : "Follow creators to unlock drops and private requests.";
+        : "Follow creators to unlock drops and private requests.");
     const emptyTitle = surface === "dashboard"
         ? "Creator spotlight opens as creators go live"
         : surface === "drops"
@@ -274,9 +279,8 @@ export function CreatorDiscoveryRail({ surface, title, compact = false }: Creato
                         <Sparkles className="h-3.5 w-3.5" />
                         Creator spotlight
                     </div>
-                    <h3 className="mt-1.5 text-balance text-base font-black text-white sm:mt-2 sm:text-xl">{header}</h3>
                     {support ? (
-                        <p className="mt-1 max-w-2xl text-sm leading-6 text-gray-400">{support}</p>
+                        <p className="mt-1.5 max-w-2xl text-sm leading-6 text-gray-400">{support}</p>
                     ) : null}
                 </div>
                 <div className="hidden shrink-0 rounded-2xl border border-white/10 bg-black/30 px-3 py-2 text-right sm:block">
@@ -291,10 +295,10 @@ export function CreatorDiscoveryRail({ surface, title, compact = false }: Creato
                         <article
                             key={creator.uid}
                             className={cn(
-                                "group flex shrink-0 flex-col items-center rounded-[1.45rem] border border-white/5 bg-white/[0.03] text-center",
+                                "group flex shrink-0 flex-col justify-between rounded-[1.45rem] border border-white/5 bg-white/[0.03] text-center",
                                 compact
-                                    ? "w-[5.4rem] gap-1.5 px-2 py-2.25"
-                                    : "w-[6rem] gap-2 px-2.25 py-2.5",
+                                    ? "aspect-square w-[7.25rem] gap-2 px-2.5 py-2.5"
+                                    : "aspect-square w-[8.75rem] gap-2.5 px-3 py-3",
                             )}
                         >
                             <Link
@@ -314,7 +318,7 @@ export function CreatorDiscoveryRail({ surface, title, compact = false }: Creato
                                 )}>
                                     <div className={cn(
                                         "flex items-center justify-center overflow-hidden rounded-full border-[3px] border-black bg-zinc-900",
-                                        compact ? "h-[3.45rem] w-[3.45rem]" : "h-[3.9rem] w-[3.9rem]",
+                                        compact ? "h-[3.65rem] w-[3.65rem]" : "h-[4.15rem] w-[4.15rem]",
                                     )}>
                                         {creator.photoURL ? (
                                             <Image src={creator.photoURL} alt={creator.username || creator.displayName} width={72} height={72} className="h-full w-full object-cover" />
@@ -331,12 +335,12 @@ export function CreatorDiscoveryRail({ surface, title, compact = false }: Creato
                                             delaySeed={creator.uid.charCodeAt(0) % 6}
                                             className={cn(
                                                 "max-w-full font-bold text-white tracking-tight",
-                                                compact ? "text-[10px]" : "text-[11px]",
+                                                compact ? "text-[11px]" : "text-[12px]",
                                             )}
                                         />
                                         {creator.isVerified ? <CheckCircle2 className="h-3.5 w-3.5 shrink-0 text-brand-purple" /> : null}
                                     </div>
-                                    <p className={cn("mt-0.5 text-gray-500", compact ? "text-[9px]" : "text-[10px]")}>
+                                    <p className={cn("mt-1 text-gray-500", compact ? "text-[10px]" : "text-[11px]")}>
                                         {followerFormatter.format(Math.max(creator.followerCount ?? 0, 0))} followers
                                     </p>
                                 </div>
@@ -349,7 +353,7 @@ export function CreatorDiscoveryRail({ surface, title, compact = false }: Creato
                                     disabled={pendingCreatorId === creator.uid}
                                     className={cn(
                                         "inline-flex items-center justify-center rounded-full border font-bold transition-colors",
-                                        compact ? "min-h-6 px-2.5 py-1 text-[9px]" : "min-h-7 px-3 py-1 text-[10px]",
+                                        compact ? "min-h-7 px-3 py-1.5 text-[10px]" : "min-h-8 px-3.5 py-1.5 text-[11px]",
                                         creator.following
                                             ? "border-brand-purple/60 bg-black text-brand-purple"
                                             : "border-brand-purple/30 bg-brand-purple/15 text-white",

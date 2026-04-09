@@ -3,8 +3,8 @@
 import { Home, Candy, Sparkles, LayoutDashboard, MessageSquare } from "lucide-react";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
-import { cn } from "@/lib/utils";
 import { useAuth } from "@/context/AuthContext";
+import { cn } from "@/lib/utils";
 import { trackEvent } from "@/lib/telemetry";
 
 const NAV_ITEMS = [
@@ -23,9 +23,10 @@ function triggerHaptic() {
 
 export default function MobileBottomBar() {
     const pathname = usePathname();
-    const { user, userProfile } = useAuth();
+    const { user, userProfile, loading } = useAuth();
+    const authSettled = !loading;
 
-    if (pathname?.startsWith("/admin")) {
+    if (pathname?.startsWith("/admin") || !authSettled) {
         return null;
     }
 

@@ -9,6 +9,7 @@ export const ADMIN_UI_CHART_HEALTH_CATEGORIES = [
 export const ADMIN_UI_CHART_HEALTH_PAGES = [
     "dashboard",
     "analytics",
+    "moderation",
 ] as const;
 
 export const ADMIN_UI_CHART_HEALTH_SOURCES = [

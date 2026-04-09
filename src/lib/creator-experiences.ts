@@ -1,5 +1,6 @@
 import type { CreatorRestrictions, CreatorSettings, CreatorAvailabilityWindow, CreatorRequestCategoryConfig } from "@/types/db";
 import { generateSecureClientToken } from "@/lib/client-random";
+import { normalizeCreatorOnboardingApprovalStatus } from "@/lib/creator-onboarding";
 
 export type { CreatorRestrictions, CreatorSettings, CreatorAvailabilityWindow, CreatorRequestCategoryConfig } from "@/types/db";
 
@@ -259,6 +260,36 @@ export function normalizeCreatorRestrictions(value: unknown): CreatorRestriction
             ? source.moderationNote.trim()
             : undefined,
     };
+}
+
+export function isCreatorMessagingAvailable(input: {
+    role?: unknown;
+    status?: unknown;
+    creatorApplication?: unknown;
+    creatorSettings?: CreatorSettings | null | undefined;
+    creatorRestrictions?: CreatorRestrictions | null | undefined;
+}) {
+    const status = typeof input.status === "string" ? input.status : "";
+    const creatorApplication = input.creatorApplication && typeof input.creatorApplication === "object" && !Array.isArray(input.creatorApplication)
+        ? input.creatorApplication as Record<string, unknown>
+        : null;
+    const approvalStatus = creatorApplication
+        ? normalizeCreatorOnboardingApprovalStatus(creatorApplication.approvalStatus ?? creatorApplication.status)
+        : "creator_pending";
+    const creatorEligible = isCreatorRole(input.role) || approvalStatus === "creator_approved";
+
+    if (!creatorEligible || status === "suspended" || status === "banned") {
+        return false;
+    }
+
+    const settings = input.creatorSettings
+        ? normalizeCreatorSettings(input.creatorSettings)
+        : DEFAULT_CREATOR_SETTINGS;
+    const restrictions = input.creatorRestrictions
+        ? normalizeCreatorRestrictions(input.creatorRestrictions)
+        : DEFAULT_CREATOR_RESTRICTIONS;
+
+    return settings.messagingEnabled !== false && restrictions.messagingRestricted !== true;
 }
 
 export function calculateCreatorCashoutUsd(gumDrops: number) {

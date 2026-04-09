@@ -17,7 +17,7 @@ import {
 } from "@/lib/ai-drop-covers";
 
 describe("ai drop cover shared contract", () => {
-    it("builds a title-driven hidden recipe with deterministic no-text rules", () => {
+    it("builds a title-driven prompt that asks for legible cover text", () => {
         const prompt = buildAdminAiDropCoverPrompt({
             title: "Midnight Cherry Crush",
             creatorName: "Kandy Lux",
@@ -26,19 +26,23 @@ describe("ai drop cover shared contract", () => {
         });
 
         expect(prompt).toContain("Midnight Cherry Crush");
-        expect(prompt).toContain("Kandy Lux");
-        expect(prompt).toContain("Do not render any readable text");
-        expect(prompt).toContain("1:1 square image");
+        expect(prompt).toContain("Render Kandy Lux as the smaller creator-name treatment above the main title.");
+        expect(prompt).toContain("Render the main title \"Midnight Cherry Crush\" clearly and legibly in the cover.");
+        expect(prompt).not.toContain("Do not render any readable text");
+        expect(prompt).toContain("Return a complete 1:1 square cover composition.");
     });
 
-    it("adds explicit reference-guided wording when cover references are active", () => {
+    it("adds the reference-image style instruction when cover references are active", () => {
         const prompt = buildAdminAiDropCoverPrompt({
-            title: "Midnight Cherry Crush",
+            title: "Jessi Ray's Strawberry Shortcake",
+            creatorName: "Jessi Ray",
         }, {
             referenceGuided: true,
         });
 
-        expect(prompt).toContain("provided KandyDrops cover references to preserve the KandyDrops house style");
+        expect(prompt).toContain("Use the provided reference image and maintain the same style, focusing this time on \"Jessi Ray's Strawberry Shortcake\"");
+        expect(prompt).toContain("ensuring the color matches the title theme and the colors are easy to distinguish");
+        expect(prompt).toContain("Render the main title \"Strawberry Shortcake\" clearly and legibly in the cover.");
     });
 
     it("uses the Gemini 2.5 Flash Image cost basis for the default model", () => {

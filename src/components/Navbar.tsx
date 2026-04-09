@@ -5,7 +5,7 @@ import Link from "next/link";
 import NextImage from "next/image";
 import { Plus, Sparkles, Wallet } from "lucide-react";
 
-import { useAuthIdentity, useUserProfile } from "@/context/AuthContext";
+import { useAuth } from "@/context/AuthContext";
 import { useUI } from "@/context/UIContext";
 import { trackEvent } from "@/lib/telemetry";
 import { SECONDARY_UNWRAP_CTA } from "@/lib/marketing-copy";
@@ -27,8 +27,8 @@ const AnimateBalance = dynamic(
 );
 
 export function Navbar() {
-    const { user } = useAuthIdentity();
-    const { userProfile } = useUserProfile();
+    const { user, userProfile, loading } = useAuth();
+    const authSettled = !loading;
     const {
         openPurchaseModal,
         openAuthModal,
@@ -64,7 +64,12 @@ export function Navbar() {
                     </Link>
 
                     <div className="flex min-w-0 items-center gap-2 sm:gap-4">
-                        {user ? (
+                        {!authSettled ? (
+                            <div className="flex items-center gap-2 sm:gap-4">
+                                <div className="hidden h-9 w-24 rounded-full border border-white/10 bg-white/5 md:block" />
+                                <div className="h-9 w-9 rounded-full border border-white/10 bg-white/5" />
+                            </div>
+                        ) : user ? (
                             <>
                                 {isAdmin ? <AdminDropdown /> : null}
                                 <NotificationBell />

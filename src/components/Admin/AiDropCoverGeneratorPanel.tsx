@@ -318,8 +318,8 @@ export function AiDropCoverGeneratorPanel({
                     </div>
                     <p className="mt-1 text-xs text-gray-400">
                         {dashboard?.settings.generationMode === "reference_guided"
-                            ? "Reference-guided mode is active. The server uses the uploaded template and/or the latest reusable catalog cover as style references, while keeping cover text deterministic in the product UI."
-                            : "Title-driven only. The server builds the hidden image recipe and keeps cover text deterministic in the product UI instead of trusting model-rendered text."}
+                            ? "Reference-guided mode is active. The server sends the uploaded template and/or latest reusable catalog cover as inline style references with the generation prompt."
+                            : "Title-driven only. The server builds the image prompt from the drop title and does not attach reference images."}
                     </p>
                 </div>
                 <div className="flex flex-wrap gap-2">
@@ -353,7 +353,7 @@ export function AiDropCoverGeneratorPanel({
 
             {dashboard?.settings.generationMode === "reference_guided" ? (
                 <div className="mt-3 rounded-[1rem] border border-brand-purple/20 bg-brand-purple/10 p-3 text-[11px] text-brand-purple">
-                    Reference-guided generation is active for this drop. The next {selectedModelOption.shortLabel} render will use the uploaded template{dashboard.settings.useRecentDropCoverReferences ? " and the latest reusable catalog cover" : ""} as style guidance.
+                    Reference-guided generation is active for this drop. The next {selectedModelOption.shortLabel} render will send the uploaded template{dashboard.settings.useRecentDropCoverReferences ? " and the latest reusable catalog cover" : ""} as inline style guidance before image generation starts.
                 </div>
             ) : null}
 

@@ -43,7 +43,7 @@ const GlobalBugReportTrigger = dynamic(
 );
 
 export function CoreLayoutWrapper({ children }: { children: React.ReactNode }) {
-    const { user, userProfile } = useAuth();
+    const { user, userProfile, loading } = useAuth();
     const {
         isAuthModalOpen,
         isInsufficientBalanceModalOpen,
@@ -52,7 +52,8 @@ export function CoreLayoutWrapper({ children }: { children: React.ReactNode }) {
     const pathname = usePathname();
     const isAdminRoute = pathname?.startsWith("/admin") ?? false;
     const isLegalRoute = pathname === "/privacy" || pathname === "/terms";
-    const isUserShell = Boolean(user) && userProfile?.role !== "admin" && !isAdminRoute;
+    const authSettled = !loading;
+    const isUserShell = authSettled && Boolean(user) && userProfile?.role !== "admin" && !isAdminRoute;
     const shouldShowPublicChrome = !isAdminRoute;
     const shouldShowBugReportTrigger = !isLegalRoute;
     const shouldShowPurchaseUi = !isAdminRoute;

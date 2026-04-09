@@ -2,6 +2,7 @@ import { afterEach, describe, expect, it, vi } from "vitest";
 
 import {
     cryptoSafeId,
+    isCreatorMessagingAvailable,
     normalizeCreatorAvailabilityWindows,
 } from "@/lib/creator-experiences";
 
@@ -47,5 +48,46 @@ describe("creator-experiences", () => {
         }]);
         expect(getRandomValues).toHaveBeenCalledTimes(1);
         expect(mathRandomSpy).not.toHaveBeenCalled();
+    });
+
+    it("treats messaging as unavailable for non-creators, disabled creators, and restricted creators", () => {
+        expect(isCreatorMessagingAvailable({
+            role: "creator",
+            status: "active",
+        })).toBe(true);
+
+        expect(isCreatorMessagingAvailable({
+            role: "user",
+            status: "active",
+        })).toBe(false);
+
+        expect(isCreatorMessagingAvailable({
+            role: "user",
+            status: "active",
+            creatorApplication: {
+                approvalStatus: "creator_approved",
+            },
+        })).toBe(true);
+
+        expect(isCreatorMessagingAvailable({
+            role: "creator",
+            status: "banned",
+        })).toBe(false);
+
+        expect(isCreatorMessagingAvailable({
+            role: "creator",
+            status: "active",
+            creatorSettings: {
+                messagingEnabled: false,
+            } as any,
+        })).toBe(false);
+
+        expect(isCreatorMessagingAvailable({
+            role: "creator",
+            status: "active",
+            creatorRestrictions: {
+                messagingRestricted: true,
+            } as any,
+        })).toBe(false);
     });
 });

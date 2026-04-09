@@ -729,7 +729,7 @@ export default function DebugConsole() {
                 <div className="space-y-4">
                     <Section
                         title="Tracked route runtime"
-                        subtitle="Canonical route rollups for creator relationships, support, and AI cover generation. This is persisted backend health, not guessed client state."
+                        subtitle="Canonical route rollups for chat, legacy creator-message compatibility, creator relationships, support, and AI cover generation. This is persisted backend health, not guessed client state."
                         defaultOpen={routeRuntimeHealthSummary.fail > 0 || routeRuntimeHealthSummary.warn > 0}
                         summary={<><Pill label="Tracked" value={routeRuntimeHealthSummary.total} /><Pill label="Warn" value={routeRuntimeHealthSummary.warn} tone={routeRuntimeHealthSummary.warn > 0 ? "warn" : "good"} /><Pill label="Fail" value={routeRuntimeHealthSummary.fail} tone={routeRuntimeHealthSummary.fail > 0 ? "bad" : "good"} /><Pill label="Slow samples" value={routeRuntimeHealthSummary.slow} tone={routeRuntimeHealthSummary.slow > 0 ? "warn" : "good"} /></>}
                     >

@@ -8,6 +8,30 @@ import { launch } from "chrome-launcher";
 const ROOT = process.cwd();
 const CONFIG_PATH = path.join(ROOT, ".lighthouserc.json");
 
+function isIgnorableLighthouseCleanupError(error) {
+  if (!error || typeof error !== "object") {
+    return false;
+  }
+
+  const source = /** @type {{ code?: unknown; path?: unknown; message?: unknown }} */ (error);
+  const message = typeof source.message === "string" ? source.message : "";
+  const errorPath = typeof source.path === "string" ? source.path : "";
+
+  return source.code === "EPERM"
+    && errorPath.toLowerCase().includes("lighthouse.")
+    && message.toLowerCase().includes("permission denied");
+}
+
+process.on("uncaughtException", (error) => {
+  if (process.platform === "win32" && isIgnorableLighthouseCleanupError(error)) {
+    const message = error instanceof Error ? error.message : String(error);
+    console.warn(`Lighthouse Chrome cleanup warning: ${message}`);
+    return;
+  }
+
+  throw error;
+});
+
 function readConfig() {
   return JSON.parse(readFileSync(CONFIG_PATH, "utf8"));
 }

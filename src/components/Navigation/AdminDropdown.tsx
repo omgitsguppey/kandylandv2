@@ -3,12 +3,13 @@
 import { useState, useRef, useEffect } from "react";
 import Link from "next/link";
 import { useAuth } from "@/context/AuthContext";
-import { House, LayoutDashboard, Package, TrendingUp, Users, Terminal, LogOut, ShieldCheck, LifeBuoy } from "lucide-react";
+import { House, LayoutDashboard, Package, TrendingUp, Users, Terminal, LogOut, ShieldCheck, LifeBuoy, ShieldAlert } from "lucide-react";
 
 import { cn } from "@/lib/utils";
 
 export function AdminDropdown() {
-    const { userProfile, logout } = useAuth();
+    const { logout, userProfile, loading } = useAuth();
+    const authSettled = !loading;
     const [isOpen, setIsOpen] = useState(false);
     const dropdownRef = useRef<HTMLDivElement>(null);
 
@@ -26,7 +27,7 @@ export function AdminDropdown() {
         return () => document.removeEventListener("mousedown", handleClickOutside);
     }, []);
 
-    if (!isAdmin) return null;
+    if (!authSettled || !isAdmin) return null;
 
     const navItems = [
         { label: "Home", href: "/", icon: House },
@@ -35,6 +36,7 @@ export function AdminDropdown() {
         { label: "Drops", href: "/admin/drops", icon: Package },
         { label: "Users", href: "/admin/users", icon: Users },
         { label: "Support", href: "/admin/support", icon: LifeBuoy },
+        { label: "Moderation", href: "/admin/moderation", icon: ShieldAlert },
         { label: "Debug Console", href: "/admin/debug", icon: Terminal },
     ];
 

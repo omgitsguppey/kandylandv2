@@ -2,9 +2,9 @@
 
 Status: Canonical audit standard and live baseline
 Last refreshed: 2026-04-08
-Last full-scale audit execution: 2026-04-08 16:11:22 -05:00
+Last full-scale audit execution: 2026-04-08 23:24:00 -05:00
 Repo: `C:\Users\uylus\OneDrive\Documents\KandyDrops_Final`
-Audited HEAD at start: `0fbe8aa`
+Audited HEAD at start: `eec0983`
 
 ## Purpose
 This file is the standing audit contract for the repository.
@@ -106,25 +106,25 @@ Current notable runtime package versions:
 | Captured evidence artifacts | `qa-screenshots/*`, `build.log`, `check_out*.txt`, `eslint*.json`, `eslint*_out.txt`, `lint*.txt`, `tsc_output*.txt`, `firestore-debug.log` | Tracked evidence and debug output, not canonical runtime truth |
 
 ## Current tracked inventory baseline
-Verified by `npm run check:inventory` on 2026-04-07:
+Verified by `npm run check:inventory` on 2026-04-08:
 
-- Total tracked files: `687`
+- Total tracked files: `715`
 - Root files: `54`
 - Root markdown/docs: `16`
 - Root lockfiles: `2`
 - Root config/runtime/tooling files: `36`
-- `src`: `389`
-- `src/app`: `132`
-- `src/components`: `73`
+- `src`: `401`
+- `src/app`: `137`
+- `src/components`: `74`
 - `src/context`: `4`
 - `src/hooks`: `14`
-- `src/lib`: `143`
-- `src/lib/server`: `60`
+- `src/lib`: `149`
+- `src/lib/server`: `62`
 - `src/types`: `3`
 - `functions`: `37`
 - `functions/src`: `30`
 - `scripts`: `17`
-- `tests`: `122`
+- `tests`: `132`
 - `public`: `11`
 - `dataconnect`: `14`
 - `src/dataconnect-generated`: `15`
@@ -3699,3 +3699,333 @@ Known warnings and non-blocking notices during continuation:
 
 Continuation follow-up gaps:
 - no additional functional gaps were introduced in this continuation
+
+### Continuation: Adjacent Chat Logic And Runtime Tracking Sweep
+Current audit date: 2026-04-08 21:09:00 -05:00
+Current branch / commit for continuation start: `main` / `eec0983`
+Continuation task:
+- review the adjacent logic around the large creator chat redesign
+- fix any real gaps in the new chat flow and legacy compatibility path
+- improve runtime tracking so admin debug surfaces the new and legacy messaging routes truthfully
+
+Continuation start state:
+- the previous creator chat redesign and spotlight pass were already committed and pushed
+- the working tree was clean before this sweep
+- continuity docs were read before editing and adjacent traces were run on the server chat helper, new chat routes, and the chat client UI
+
+Initial audit findings before implementation:
+- the seed-thread path in `src/lib/server/chat.ts` could fabricate a chat shell for any existing user ID, even if the target was not an actual creator or had messaging disabled/restricted
+- the new chat client was still emitting `navigation_click` telemetry on successful message send, which was semantically wrong because send is not navigation and server-side send telemetry already exists
+- the legacy compatibility route `src/app/api/creator/messages/route.ts` was still active for public-page previews and some adjacent flows, but it had no route-runtime-health samples, so admin debug could not see old-path traffic or failures beside the new chat routes
+- the admin debug copy for tracked route runtime still described only creator relationships, support, and AI, which understated the new chat and compatibility coverage
+- Lighthouse was still vulnerable to a Windows-only `chrome-launcher` temp-folder cleanup `EPERM`, which could fail the audit after otherwise successful page scores
+
+Exact touched surfaces:
+- `src/lib/creator-experiences.ts`
+- `src/lib/server/chat.ts`
+- `src/app/api/creator/messages/route.ts`
+- `src/components/Chat/ChatExperience.tsx`
+- `src/lib/route-runtime-health.ts`
+- `src/lib/server/admin-panel-system-logs.ts`
+- `src/app/admin/debug/page.tsx`
+- `scripts/run-lighthouse-audits.mjs`
+- `tests/unit/creator-experiences.spec.ts`
+- `tests/unit/creator-messages-route.spec.ts`
+- `tests/unit/server-chat.spec.ts`
+- `FULL_SCALE_CODEBASE_AUDIT.md`
+
+Implementation results:
+- added canonical `isCreatorMessagingAvailable(...)` in `src/lib/creator-experiences.ts` so creator chat eligibility now routes through one shared helper instead of ad hoc local checks
+- used that shared helper in `src/lib/server/chat.ts` to:
+  - block seeded chat creation for non-creators
+  - block seeded chat creation for suspended/banned creators
+  - block seeded chat creation for creators with messaging disabled or restricted
+  - return `selectedThreadId: null` when a requested creator seed is not actually eligible, instead of surfacing a broken thread shell
+- hardened `ChatExperience` so thread-detail loads clear stale detail/insufficient-funds state before refetching and removed the incorrect `navigation_click` send telemetry
+- added route-runtime-health coverage for the legacy compatibility route:
+  - `creator/messages:GET`
+  - `creator/messages:POST`
+  - `creator/messages:DELETE`
+- updated admin debug and admin system-log copy so route-health reporting now truthfully describes chat, legacy creator-message compatibility, support, and AI coverage
+- hardened `scripts/run-lighthouse-audits.mjs` to ignore only the known Windows `chrome-launcher` temp cleanup `EPERM` path instead of failing the audit after a successful Lighthouse run
+- added direct server-helper coverage in `tests/unit/server-chat.spec.ts` for:
+  - refusing non-creator seed threads
+  - refusing disabled/restricted creator seed threads
+  - seeding valid creator threads correctly
+
+Runtime truth and continuity implications:
+- opening Chat from a creator page now only seeds a draft thread when the target is actually a usable creator messaging target
+- legacy creator-message reads/writes remain supported, but they now contribute to the same route-runtime-health surface as the new chat routes
+- admin debug route-health summaries now cover both the new Chat system and the legacy compatibility adapter instead of implying only creator relationships/support/AI visibility
+- Lighthouse failures are less noisy on Windows because OS temp-folder cleanup issues no longer masquerade as page-quality failures
+
+Commands run for continuation:
+- `git status --short`
+- `npm run trace:adjacent -- src/lib/server/chat.ts`
+- `npm run trace:adjacent -- src/app/api/chat/threads/route.ts`
+- `npm run trace:adjacent -- src/app/api/chat/threads/[threadId]/messages/route.ts`
+- `npm run trace:adjacent -- src/components/Chat/ChatExperience.tsx`
+- focused `eslint` on the touched chat/debug/runtime files
+- `corepack pnpm exec vitest run tests/unit/creator-experiences.spec.ts tests/unit/creator-messages-route.spec.ts tests/unit/server-chat.spec.ts tests/unit/chat-threads-route.spec.ts tests/unit/chat-thread-route.spec.ts tests/unit/chat-thread-messages-route.spec.ts tests/unit/chat-thread-read-route.spec.ts`
+- `npm run check:pnpm-lock`
+- `corepack pnpm exec tsc --noEmit --pretty`
+- `corepack pnpm exec eslint . --max-warnings=0`
+- `npm run check:architecture`
+- `npm run check:telemetry`
+- `npm run check:analytics-semantics`
+- `npm run check:firebase-runtime`
+- `npm run test:contracts`
+- `npm run check:ui:audits`
+- `npm run check:ui:lighthouse`
+- `npm run check:inventory`
+- `npm run check:continuity`
+
+Continuation results:
+- focused eslint passed
+- focused chat/helper Vitest passed with `7` files and `16` tests
+- `npm run check:pnpm-lock` passed
+- `tsc --noEmit` passed
+- repo-wide `eslint . --max-warnings=0` passed
+- `npm run check:architecture` passed
+- `npm run check:telemetry` passed with `0` cataloged events lacking emitters
+- `npm run check:analytics-semantics` passed
+- `npm run check:firebase-runtime` passed
+- `npm run test:contracts` passed with `105` files and `503` tests
+- `npm run check:ui:audits` passed with `16` tests green
+- `npm run check:ui:lighthouse` passed after narrowing the Windows cleanup error handling in the audit script
+- `npm run check:inventory` passed with `715` tracked files
+- `npm run check:continuity` passed
+
+Known warnings and non-blocking notices during continuation:
+- standard npm unknown env config warnings in canonical scripts
+- Node `punycode` deprecation warnings from Firebase/Vitest tooling
+- the recurring Playwright/Next webserver warning `controller[kState].transformAlgorithm is not a function` appeared after a successful UI-audit run and did not fail the suite
+- `npm run check:ui:lighthouse` still prints the known Windows `EPERM` cleanup warning, but it no longer fails the audit because the page scores and server run completed successfully
+- one Lighthouse run showed `EADDRINUSE` logging from the child `next start` process after audits had already completed successfully; the command still exited cleanly and the final pass remained green
+
+Continuation follow-up improvements:
+- add route-runtime-health coverage for the public creator profile fetch path and any future dedicated chat-attachment route if media uploads move server-side
+- add a small admin-debug breakdown for legacy compatibility traffic versus native chat traffic so operators can see when the old path is still carrying load
+- if presence privacy needs to match thread privacy exactly, replace the current authenticated-wide RTDB presence read rule with a participant-aware presence contract rather than leaving it as a broad authenticated subtree
+
+### Continuation: AI Cover Prompt Contract And Reference-Attachment Audit
+Current audit date: 2026-04-08 21:45:00 -05:00
+Current branch / commit for continuation start: `main` / `eec0983`
+Continuation task:
+- change the AI drop-cover generation prompt so title-driven generation uses the requested reference-style instruction around the drop title
+- verify whether reference images are actually attached before generation or if a race condition is preventing them from being used
+- remove stale admin AI copy that still claimed cover text was deterministic in product UI
+
+Continuation start state:
+- the working tree was already dirty from the adjacent chat/runtime-health sweep that had not been committed yet
+- continuity docs were reread at the start of this continuation
+- targeted adjacency traces were run for:
+  - `src/lib/server/ai-drop-covers.ts`
+  - `src/app/api/admin/ai/drop-covers/generate/route.ts`
+  - `src/components/Admin/AiDropCoverGeneratorPanel.tsx`
+
+Initial audit findings before implementation:
+- the missing text on generated covers was not caused by a reference-image race condition
+- `buildAdminAiDropCoverPrompt(...)` in `src/lib/ai-drop-covers.ts` was explicitly instructing the model to:
+  - avoid rendered creator text
+  - preserve deterministic overlay safe zones
+  - never render readable text or typography
+- `buildReferenceContext(...)` in `src/lib/server/ai-drop-covers.ts` loads template and ranked reference images synchronously before the provider request, and `generateGeminiImage(...)` sends those references inline in the same `generateContent` payload, so there is no current async race between prompt creation and reference attachment
+- the admin AI panel copy was stale because it still claimed cover text remained deterministic in product UI, which is not the actual runtime contract
+
+Exact touched surfaces:
+- `src/lib/ai-drop-covers.ts`
+- `src/lib/server/ai-drop-covers.ts`
+- `src/components/Admin/AiDropCoverGeneratorPanel.tsx`
+- `tests/unit/ai-drop-covers.spec.ts`
+- `tests/unit/server-ai-drop-covers.spec.ts`
+- `tests/unit/admin-ai-drop-covers-feedback-route.spec.ts`
+- `tests/unit/admin-ai-drop-covers-generate-route.spec.ts`
+- `FULL_SCALE_CODEBASE_AUDIT.md`
+
+Implementation results:
+- bumped the AI cover prompt version from `drop-cover-v2` to `drop-cover-v3`
+- changed the shared prompt builder so reference-guided runs now explicitly say:
+  - `Use the provided reference image and maintain the same style, focusing this time on "<title>", ensuring the color matches the title theme and the colors are easy to distinguish.`
+- changed the shared cover recipe guidance away from deterministic overlay language and toward:
+  - legible creator-name treatment
+  - legible main title treatment
+  - visually distinct lower ribbon / CTA band
+- removed the old hard ban on readable text from the prompt contract
+- added `buildGeminiGenerateContentRequestBody(...)` in `src/lib/server/ai-drop-covers.ts` so the Gemini request body is assembled through one testable helper
+- used the existing `styleDescription` field for reference images as a real text guidance part in the provider request instead of leaving it unused
+- verified the Gemini request body now contains:
+  - the prompt text
+  - reference-style guidance text
+  - inline base64 image parts for each attached reference image
+- updated the create-drop admin AI panel copy so it now truthfully says the server sends inline style references when reference-guided mode is active, rather than claiming deterministic cover text behavior in product UI
+- updated stale test fixtures to the new `drop-cover-v3` prompt version
+
+Runtime truth and continuity implications:
+- AI cover generation is now explicitly prompting for legible rendered cover text instead of instructing the model to avoid it
+- the current missing-text behavior was caused by prompt policy, not by a race condition in reference-image loading
+- reference images are attached synchronously before generation and included inline in the Vertex Gemini request body; failures to use them are now model-behavior or prompt-quality issues, not a skipped attachment step in the current runtime
+- the admin AI panel now reflects the actual runtime contract for title-driven vs reference-guided generation
+
+Commands run for continuation:
+- `git status --short`
+- `npm run trace:adjacent -- src/lib/server/ai-drop-covers.ts`
+- `npm run trace:adjacent -- src/app/api/admin/ai/drop-covers/generate/route.ts`
+- `npm run trace:adjacent -- src/components/Admin/AiDropCoverGeneratorPanel.tsx`
+- `npx eslint src/lib/ai-drop-covers.ts src/lib/server/ai-drop-covers.ts src/components/Admin/AiDropCoverGeneratorPanel.tsx tests/unit/ai-drop-covers.spec.ts tests/unit/server-ai-drop-covers.spec.ts`
+- `corepack pnpm exec vitest run tests/unit/ai-drop-covers.spec.ts tests/unit/admin-ai-drop-covers-generate-route.spec.ts tests/unit/server-ai-drop-covers.spec.ts`
+- `corepack pnpm exec tsc --noEmit --pretty false`
+- `npm run check:inventory`
+- `npm run check:ui:audits`
+
+Continuation results:
+- focused eslint passed
+- focused AI-cover Vitest passed with `3` files and `16` tests
+- `tsc --noEmit` passed
+- `npm run check:inventory` passed with `715` tracked files
+- `npm run check:ui:audits` had one false-start failure because port `3000` was already occupied by an existing local node server, then passed cleanly against a controlled `next start --port 3100` instance using `PLAYWRIGHT_BASE_URL=http://localhost:3100`
+
+Known warnings and non-blocking notices during continuation:
+- standard Node `punycode` deprecation warnings from Vitest tooling
+- the initial `npm run check:ui:audits` failure was environmental and not caused by the AI-cover changes
+- no runtime race condition was found in the current reference-image attachment path
+
+Continuation follow-up gaps:
+- this pass improves the prompt contract, but model-rendered typography will still be less reliable than a future deterministic post-generation text compositor
+- if operators want to inspect the exact prompt text per job in admin debug, the next audited pass should persist a bounded prompt preview or prompt hash in job history rather than inferring from `promptVersion`
+
+### Continuation: Moderation, Chat Runtime, and Hydration Audit
+Current audit date: 2026-04-08 23:24:00 -05:00
+Current branch / commit for continuation start: `main` / `eec0983`
+Continuation task:
+- audit the adjacent chat, moderation, spotlight, analytics, and navigation surfaces together before editing
+- fix the plain-text chat send internal error with truthful runtime diagnostics
+- add a real admin moderation surface for live creator-user chat oversight and migrated security alerts
+- remove creator spotlight title copy, widen cards, and stabilize spotlight/auth hydration to stop visible reload loops and nav flashes
+
+Continuation start state:
+- the working tree was already dirty from the earlier adjacent chat/runtime-health and AI-cover prompt passes
+- continuity docs were reread at the start of this continuation
+- targeted adjacency traces were run for:
+  - `src/lib/server/chat.ts`
+  - `src/components/CreatorDiscoveryRail.tsx`
+  - `src/components/Navigation/MobileBottomBar.tsx`
+  - `src/app/admin/analytics/page.tsx`
+  - `src/components/Admin/AdminModerationConsole.tsx`
+  - `src/components/Navbar.tsx`
+- `firestore.rules` is not supported by `trace:adjacent`, so rules adjacency was verified through focused rules tests instead
+
+Initial audit findings before implementation:
+- legacy purchased GumDrops are already accounted for in creator messaging: when a legacy user document only has `gumDropsBalance`, `readSourceAwareBalance(...)` treats that legacy total as purchased balance
+- the plain-text creator chat failure was not caused by GumDrop accounting; the real drift was creator-message eligibility and send hardening:
+  - legacy approved creators with stale `role: "user"` could still be valid creators through `creatorApplication.approvalStatus === "creator_approved"`, but the chat send path and seed-thread path were not consistently honoring that
+  - post-send analytics could still throw into the request path if server tracking raised synchronously after a successful write
+- creator spotlight still fetched once as guest and then refetched after auth resolved, which caused the visible second-load loop on dashboard, drops, and experiences
+- navbar and mobile bottom bar still rendered guest/admin/user variants before auth loading settled, which caused the split-second nav-option flash
+- security alerts were still only truly useful in analytics, which was the wrong surface for live moderation
+
+Exact touched surfaces:
+- `src/lib/creator-experiences.ts`
+- `src/lib/server/chat.ts`
+- `tests/unit/creator-experiences.spec.ts`
+- `tests/unit/server-chat.spec.ts`
+- `src/components/Admin/AdminModerationConsole.tsx`
+- `src/app/admin/moderation/page.tsx`
+- `src/app/admin/layout.tsx`
+- `src/components/Navigation/AdminDropdown.tsx`
+- `src/lib/admin-ui-chart-health.ts`
+- `src/lib/server/admin-panel-system-logs.ts`
+- `firestore.rules`
+- `tests/firebase/firestore.rules.spec.ts`
+- `src/app/admin/analytics/page.tsx`
+- `src/components/Navbar.tsx`
+- `src/components/Navigation/MobileBottomBar.tsx`
+- `src/components/CoreLayoutWrapper.tsx`
+- `src/components/CreatorDiscoveryRail.tsx`
+- `src/app/dashboard/DashboardClient.tsx`
+- `src/app/drops/DropsClient.tsx`
+- `src/app/experiences/ExperiencesClient.tsx`
+- `src/lib/telemetry-catalog.ts`
+- `src/lib/analytics-semantics.ts`
+- `FULL_SCALE_CODEBASE_AUDIT.md`
+
+Implementation results:
+- hardened shared creator-message eligibility in `src/lib/creator-experiences.ts` so approved legacy creators are treated as messageable even if their `role` field has not been upgraded yet
+- aligned `src/lib/server/chat.ts` with that shared eligibility helper in both seed-thread and send-message flows
+- preserved legacy purchased GumDrop spend truth; no balance-model change was needed
+- kept post-send analytics from surfacing as generic request failures by moving tracking calls onto `Promise.allSettled(...)` with async wrapping after the send transaction succeeds
+- added a new admin moderation surface at `/admin/moderation` backed by realtime Firestore streams for:
+  - `creator_message_threads`
+  - selected `creator_messages`
+  - `security_events`
+- added admin-only Firestore rule reads for moderation over:
+  - `creator_message_threads`
+  - `creator_messages`
+  - `security_events`
+- moved the visible security-alert function out of analytics and into moderation
+- removed the visible spotlight title line entirely and widened spotlight cards to a more square 1:1 shape so usernames stop truncating as aggressively
+- blocked self-follow from both the spotlight data source and the spotlight card action surface
+- removed deferred creator-spotlight mounting from dashboard, drops, and experiences so those pages stop intentionally doing a second client-phase mount for the rail
+- gated navbar, mobile nav, admin dropdown, and layout shell decisions directly on auth loading so guest/user/admin chrome no longer flashes before the correct state is known
+- added the missing `admin_moderation_viewed` telemetry catalog and analytics-semantic entries so the new moderation page is fully tracked and audit-clean
+
+Runtime truth and continuity implications:
+- plain-text chat sends now treat approved legacy creators the same way as already-upgraded creator-role accounts
+- legacy purchased GumDrops were already valid spend for creator messages; that path remains source-aware and truthful
+- moderation is now a real realtime Firestore oversight surface, not an analytics proxy
+- security alerts are now surfaced where operators can inspect the exact live chat context and exchanged files instead of hunting through analytics cards
+- creator spotlight now waits for auth to settle before fetching, which removes the guest-first then signed-in refetch pattern on spotlight pages
+- navbar and mobile nav now prefer no shell over the wrong shell while auth is unresolved, which removes the visible option-flash bug
+- the old analytics security block is now inert and unreachable from the UI, but the hidden dead JSX branch still exists in `src/app/admin/analytics/page.tsx`; it should be deleted in a cleanup-only pass
+
+Commands run for continuation:
+- `git status --short`
+- `npm run trace:adjacent -- src/lib/server/chat.ts`
+- `npm run trace:adjacent -- src/components/CreatorDiscoveryRail.tsx`
+- `npm run trace:adjacent -- src/components/Navigation/MobileBottomBar.tsx`
+- `npm run trace:adjacent -- src/app/admin/analytics/page.tsx`
+- `npm run trace:adjacent -- src/components/Admin/AdminModerationConsole.tsx`
+- `npm run trace:adjacent -- src/components/Navbar.tsx`
+- focused verification:
+  - `npx eslint src/components/Admin/AdminModerationConsole.tsx src/app/admin/moderation/page.tsx src/app/admin/analytics/page.tsx src/components/CreatorDiscoveryRail.tsx src/components/Navbar.tsx src/components/Navigation/MobileBottomBar.tsx src/components/CoreLayoutWrapper.tsx src/components/Navigation/AdminDropdown.tsx src/app/dashboard/DashboardClient.tsx src/app/drops/DropsClient.tsx src/app/experiences/ExperiencesClient.tsx src/lib/creator-experiences.ts src/lib/server/chat.ts src/lib/admin-ui-chart-health.ts src/lib/server/admin-panel-system-logs.ts`
+  - `corepack pnpm exec tsc --noEmit`
+  - `corepack pnpm exec vitest run tests/unit/creator-experiences.spec.ts tests/unit/server-chat.spec.ts tests/unit/creator-messages-route.spec.ts tests/unit/chat-thread-messages-route.spec.ts tests/firebase/firestore.rules.spec.ts`
+- repo-wide verification:
+  - `npm run check:inventory`
+  - `npm run check:continuity`
+  - `npm run check:architecture`
+  - `npm run check:firebase:rules`
+  - `npm run check:telemetry`
+  - `npm run check:analytics-semantics`
+  - `corepack pnpm run check`
+  - `npx vitest run`
+  - `npm run check:ui:audits`
+  - `npm run check:ui:lighthouse`
+
+Continuation results:
+- focused eslint passed
+- focused TypeScript compile passed
+- focused chat/rules Vitest passed with `4` files and `12` tests
+- `npm run check:inventory` passed with `715` tracked files
+- `npm run check:continuity` passed
+- `npm run check:architecture` passed
+- `npm run check:firebase:rules` passed
+- `npm run check:telemetry` passed with `0` cataloged events lacking emitters
+- `npm run check:analytics-semantics` passed
+- `corepack pnpm run check` passed
+- `npx vitest run` passed with `106` files and `505` tests
+- `npm run check:ui:audits` passed with `16` tests green
+- `npm run check:ui:lighthouse` passed
+- generated `playwright-report/` and `test-results/` directories were removed after verification
+
+Known warnings and non-blocking notices during continuation:
+- standard npm unknown env config warnings in canonical script chains
+- Node `punycode` deprecation warnings from Firebase/Vitest tooling
+- the first `npm run check:ui:audits` attempt failed because port `3000` was already occupied by a stale local `next start` process; rerunning after killing that process passed cleanly
+- one earlier `corepack pnpm run check` attempt hit the tool timeout limit rather than a repo failure; the longer rerun passed
+- `npm run check:ui:lighthouse` still prints the known Windows temp-folder `EPERM` cleanup warning, but the audit now treats that as non-fatal once scores and server execution succeed
+
+Continuation follow-up improvements:
+- delete the now-hidden legacy analytics security JSX branch from `src/app/admin/analytics/page.tsx` in a cleanup-only pass
+- add route-runtime-health coverage for the new moderation page’s backing route mix if moderation later moves behind a dedicated server aggregation endpoint
+- split admin debug route-runtime-health between native chat traffic and legacy compatibility traffic so operators can see how much load the compatibility path still carries

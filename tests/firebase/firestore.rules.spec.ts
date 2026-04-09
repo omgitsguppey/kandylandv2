@@ -20,6 +20,7 @@ async function seedFirestore() {
       setDoc(doc(db, "drops/test-drop"), { title: "Test Drop" }),
       setDoc(doc(db, "users/alice"), { displayName: "Alice" }),
       setDoc(doc(db, "users/bob"), { displayName: "Bob" }),
+      setDoc(doc(db, "users/admin"), { displayName: "Admin", role: "admin" }),
       setDoc(doc(db, "transactions/tx-alice"), { userId: "alice", amount: 10 }),
       setDoc(doc(db, "transactions/tx-bob"), { userId: "bob", amount: 15 }),
       setDoc(doc(db, "notifications/notif-alice"), { userId: "alice", title: "Hi Alice" }),
@@ -34,6 +35,12 @@ async function seedFirestore() {
         creatorId: "alice",
         userId: "bob",
         text: "Hi Bob",
+      }),
+      setDoc(doc(db, "security_events/event-1"), {
+        userId: "bob",
+        username: "Bob",
+        label: "Screenshot attempt",
+        timestamp: 1710000000000,
       }),
     ]);
   });
@@ -109,6 +116,14 @@ describe("firestore.rules", () => {
 
     await assertFails(getDoc(doc(db, "creator_message_threads/thread-alice-bob")));
     await assertFails(getDoc(doc(db, "creator_messages/msg-alice-bob")));
+  });
+
+  it("allows admins to read chat threads, messages, and security events", async () => {
+    const db = testEnv.authenticatedContext("admin").firestore();
+
+    await assertSucceeds(getDoc(doc(db, "creator_message_threads/thread-alice-bob")));
+    await assertSucceeds(getDoc(doc(db, "creator_messages/msg-alice-bob")));
+    await assertSucceeds(getDoc(doc(db, "security_events/event-1")));
   });
 
   it("blocks direct client writes everywhere", async () => {

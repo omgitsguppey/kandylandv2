@@ -43,7 +43,7 @@ describe("POST /api/admin/ai/drop-covers/feedback", () => {
             title: "Cherry Rush",
             model: "gemini-2.5-flash-image",
             location: "global",
-            promptVersion: "drop-cover-v2",
+            promptVersion: "drop-cover-v3",
             recipeLabel: "KandyDrops title-safe cover art",
             status: "succeeded",
             feedback: "liked",

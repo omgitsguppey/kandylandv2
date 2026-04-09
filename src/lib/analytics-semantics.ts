@@ -173,6 +173,7 @@ const LEGACY_PAGE_EVENT_PATHS: Record<string, string> = {
   faq_page_viewed: "/faq",
   admin_dashboard_viewed: "/admin",
     admin_analytics_viewed: "/admin/analytics",
+    admin_moderation_viewed: "/admin/moderation",
     admin_debug_viewed: "/admin/debug",
     admin_support_viewed: "/admin/support",
     admin_users_viewed: "/admin/users",

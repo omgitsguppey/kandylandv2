@@ -25,10 +25,6 @@ export default function ExperiencesClient() {
     const { user } = useAuth();
     const { openPurchaseModal, openAuthModal } = useUI();
     const { isConstrained, isVerySlow } = useNetworkConditions();
-    const creatorRailReady = useDeferredClientReady({
-        delayMs: isVerySlow ? 1_500 : isConstrained ? 950 : 250,
-        idle: true,
-    });
     const liveDropsReady = useDeferredClientReady({
         delayMs: isVerySlow ? 1_800 : isConstrained ? 1_100 : 400,
         idle: true,
@@ -81,7 +77,7 @@ export default function ExperiencesClient() {
                         supportText="Create a free profile to start Day 1 and stack Gum Drops daily."
                     >
                         <div className="space-y-5">
-                            {creatorRailReady ? <CreatorDiscoveryRail surface="experiences" /> : null}
+                            <CreatorDiscoveryRail surface="experiences" />
                             <DailyCheckIn />
                             <DailyTasksModule />
                             {liveDropsReady ? <LiveDropsForYouCarousel /> : null}
