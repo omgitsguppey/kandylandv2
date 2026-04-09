@@ -7,3 +7,8 @@
 **Vulnerability:** Some cron endpoints returned raw `error.message` values directly in 500 responses instead of going through the shared server error sanitizer.
 **Learning:** This codebase already has a safe default in `handleApiError`, but isolated route handlers can drift away from it and reintroduce information exposure on failure paths.
 **Prevention:** Route-level catch blocks for privileged jobs should delegate to `handleApiError` unless they are returning an intentionally curated client-safe error.
+
+## 2024-05-25 - [dangerouslySetInnerHTML Static Injection Risk]
+**Vulnerability:** Injecting static `<style>` definitions using React's `dangerouslySetInnerHTML`.
+**Learning:** While static CSS is not an immediate XSS vulnerability, using dynamic injection primitives for static content violates strict CSP restrictions and establishes an insecure pattern that could be easily adapted by other developers for dynamic user data, introducing XSS.
+**Prevention:** Always migrate static keyframes, complex selectors, or raw styles into the application's global CSS or Tailwind configuration, and control dynamic behavior using React inline `style` tags coupled with CSS Variables (e.g., `['--var']: value`).
