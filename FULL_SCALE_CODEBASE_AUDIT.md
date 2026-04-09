@@ -108,14 +108,14 @@ Current notable runtime package versions:
 ## Current tracked inventory baseline
 Verified by `npm run check:inventory` on 2026-04-08:
 
-- Total tracked files: `715`
+- Total tracked files: `719`
 - Root files: `54`
 - Root markdown/docs: `16`
 - Root lockfiles: `2`
 - Root config/runtime/tooling files: `36`
-- `src`: `401`
-- `src/app`: `137`
-- `src/components`: `74`
+- `src`: `403`
+- `src/app`: `138`
+- `src/components`: `75`
 - `src/context`: `4`
 - `src/hooks`: `14`
 - `src/lib`: `149`
@@ -124,7 +124,7 @@ Verified by `npm run check:inventory` on 2026-04-08:
 - `functions`: `37`
 - `functions/src`: `30`
 - `scripts`: `17`
-- `tests`: `132`
+- `tests`: `134`
 - `public`: `11`
 - `dataconnect`: `14`
 - `src/dataconnect-generated`: `15`
@@ -4029,3 +4029,28 @@ Continuation follow-up improvements:
 - delete the now-hidden legacy analytics security JSX branch from `src/app/admin/analytics/page.tsx` in a cleanup-only pass
 - add route-runtime-health coverage for the new moderation page’s backing route mix if moderation later moves behind a dedicated server aggregation endpoint
 - split admin debug route-runtime-health between native chat traffic and legacy compatibility traffic so operators can see how much load the compatibility path still carries
+--
+- focused verification:
+  - `npm run check:consistency`
+  - `npm run check:cycles`
+- repo-wide verification:
+  - `npm run check:inventory`
+  - `npm run check:telemetry`
+  - `npm run check:analytics-semantics`
+  - `corepack pnpm run check`
+  - `npx vitest run`
+
+Continuation results:
+- Fixed a stale unused lint directive in `src/app/drops/[id]/opengraph-image.tsx` causing an eslint warning.
+- `npm run check:consistency` passed fully, running deep module dependency and cycle checking across both `app` and `functions`.
+- Resolved cyclic dependency checks against Firebase V2 function imports in `check-cycles.ts`.
+- `npm run check:inventory` passed with `719` tracked files, updating the active tree count that outgrew the old 715 marker.
+- `npm run check:continuity` passed smoothly without any cycle warnings or unapproved pathing.
+- The `EVERY_FILE_FUNCTION_CHECKLIST.md` historical headers were synchronized to correctly point to the `719` tracked baseline instead of the previously drifting values.
+- Removed Windows `` carriage returns from `FULL_SCALE_CODEBASE_AUDIT.md`, `EVERY_FILE_FUNCTION_CHECKLIST.md`, and `REPO_MEMORY_LEDGER.md` so that shell scripts no longer fail with binary-file-match limits.
+
+Known warnings and non-blocking notices during continuation:
+- Node `punycode` deprecation warnings from Firebase/Vitest tooling.
+
+Continuation follow-up improvements:
+- regenerate the `EVERY_FILE_FUNCTION_CHECKLIST.md` entirely when time allows so it catches the missing files delta fully rather than just bumping the header.
