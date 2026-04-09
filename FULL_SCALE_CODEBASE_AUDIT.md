@@ -4222,3 +4222,44 @@ Known warnings and local-state notes for this pass:
 - the working tree still includes earlier local documentation work that predates this investigation:
   - `REPO_MEMORY_LEDGER.md`
   - `UI_REVIEW_PROCESS.md`
+
+## 2026-04-09 Telemetry Integrity Sweep
+
+Scope for this pass:
+- verify there are no orphaned telemetry catalog entries
+- verify there are no unknown emitter call sites
+- remove or reconnect telemetry only if the audit finds a real gap
+
+Startup protocol executed:
+- read `FULL_SCALE_CODEBASE_AUDIT.md`
+- read `REPO_MEMORY_LEDGER.md`
+- read `EVERY_FILE_FUNCTION_CHECKLIST.md`
+- ran `git status --short`
+- ran `npm run trace:adjacent -- src/lib/telemetry-catalog.ts`
+- ran `npm run trace:adjacent -- src/lib/telemetry.ts`
+- ran `npm run trace:adjacent -- scripts/audit-telemetry.ts`
+
+Implementation results:
+- no runtime code changes were needed
+- no cataloged telemetry events were orphaned
+- no unknown emitter event names were found
+- no redundant telemetry entries needed removal in this pass
+
+Commands run for this pass:
+- `git status --short`
+- `npm run trace:adjacent -- src/lib/telemetry-catalog.ts`
+- `npm run trace:adjacent -- src/lib/telemetry.ts`
+- `npm run trace:adjacent -- scripts/audit-telemetry.ts`
+- `npm run check:telemetry`
+- `npm run check:analytics-semantics`
+
+Results:
+- `npm run check:telemetry` passed:
+  - `243` literal or resolvable emitters checked across `384` files
+  - `0` cataloged events with no detected emitters
+- `npm run check:analytics-semantics` passed
+
+Conclusion:
+- telemetry integrity is currently clean
+- no orphaned telemetry required reconnection
+- no redundant telemetry required removal
