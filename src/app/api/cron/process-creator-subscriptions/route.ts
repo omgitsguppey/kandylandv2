@@ -14,6 +14,8 @@ import { recordRouteWarning } from "@/lib/server/route-diagnostics";
 
 const SUBSCRIPTION_TERM_MS = 30 * 24 * 60 * 60 * 1000;
 const WARNING_WINDOW_MS = 7 * 24 * 60 * 60 * 1000;
+const USER_PREFETCH_CHUNK_SIZE = 100;
+const USER_PREFETCH_CONCURRENCY = 3;
 
 type RenewalOutcome =
     | { status: "warned"; creatorId: string; userId: string }
@@ -74,13 +76,21 @@ export async function GET(request: NextRequest) {
         const userSnapshots = new Map<string, FirebaseFirestore.DocumentSnapshot>();
         const userIdsArray = Array.from(userIdsToFetch);
 
-        // Fetch in chunks of 100 to avoid Firestore limits
-        for (let i = 0; i < userIdsArray.length; i += 100) {
-            const chunk = userIdsArray.slice(i, i + 100);
-            const refs = chunk.map((id) => adminDb.collection("users").doc(id));
-            const snaps = await adminDb.getAll(...refs);
-            for (const snap of snaps) {
-                userSnapshots.set(snap.id, snap);
+        // Fetch in bounded concurrent waves to reduce wall-clock time without issuing every chunk at once.
+        for (let waveStart = 0; waveStart < userIdsArray.length; waveStart += USER_PREFETCH_CHUNK_SIZE * USER_PREFETCH_CONCURRENCY) {
+            const chunkReads: Array<Promise<FirebaseFirestore.DocumentSnapshot[]>> = [];
+
+            for (let chunkStart = waveStart; chunkStart < Math.min(userIdsArray.length, waveStart + (USER_PREFETCH_CHUNK_SIZE * USER_PREFETCH_CONCURRENCY)); chunkStart += USER_PREFETCH_CHUNK_SIZE) {
+                const chunk = userIdsArray.slice(chunkStart, chunkStart + USER_PREFETCH_CHUNK_SIZE);
+                const refs = chunk.map((id) => adminDb.collection("users").doc(id));
+                chunkReads.push(adminDb.getAll(...refs));
+            }
+
+            const chunkSnapshots = await Promise.all(chunkReads);
+            for (const snaps of chunkSnapshots) {
+                for (const snap of snaps) {
+                    userSnapshots.set(snap.id, snap);
+                }
             }
         }
 

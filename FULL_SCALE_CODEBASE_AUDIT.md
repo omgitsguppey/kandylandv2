@@ -4883,3 +4883,50 @@ Final state:
 - generated verification artifacts were removed after the run:
   - `playwright-report/`
   - `test-results/`
+
+## 2026-04-09 Open PR Assimilation Sweep
+- Scope: inspect all open GitHub PRs, merge the safe ones, rework any changes that need bounded implementation on `main`, and close stale/redundant PRs.
+
+PR review outcomes:
+- `#165` `🛡️ Sentinel: [MEDIUM] Fix dangerouslySetInnerHTML usage for static styles`
+  - merged
+  - effect: `TitleMarquee` no longer injects static CSS with `dangerouslySetInnerHTML`; marquee styles now live in `src/app/globals.css`
+- `#164` `⚡ Bolt: Optimize Firestore N+1 queries in cron route`
+  - not merged as-is
+  - assimilated as a bounded-concurrency rework on `main`
+  - effect: creator-subscription user prefetch now runs in bounded concurrent waves instead of a fully sequential loop or an unbounded `Promise.all` across every chunk
+- `#163` `🧹 Audit continuity and codebase hygiene refresh`
+  - closed as stale/redundant
+  - reason: doc counts and continuity context were already superseded by later repo-wide audit passes, and the branch was dirty against current `main`
+
+Implementation details for the `#164` rework:
+- `src/app/api/cron/process-creator-subscriptions/route.ts`
+  - added bounded concurrent waves for `adminDb.getAll(...)` user prefetch
+  - current bounds:
+    - chunk size: `100`
+    - max concurrent chunks per wave: `3`
+- `tests/unit/process-creator-subscriptions-bench.spec.ts`
+  - aligned the benchmark helper with the new bounded concurrency model
+
+Commands run:
+- `gh pr list --state open --json number,title,author,headRefName,baseRefName,url,isDraft,reviewDecision,mergeable,statusCheckRollup,updatedAt`
+- `gh pr view 165 --json ...`
+- `gh pr view 164 --json ...`
+- `gh pr view 163 --json ...`
+- `gh pr diff 165 --patch`
+- `gh pr diff 164 --patch`
+- `gh pr diff 163 --patch`
+- `git fetch origin`
+- `git pull --ff-only origin main`
+- `npm run trace:adjacent -- src/components/ui/TitleMarquee.tsx`
+- `npm run trace:adjacent -- src/app/api/cron/process-creator-subscriptions/route.ts`
+- `npx tsc --noEmit`
+- `corepack pnpm exec vitest run tests/unit/process-creator-subscriptions-bench.spec.ts`
+
+Results:
+- local `main` fast-forwarded to include the merged `#165` change
+- bounded concurrency rework for the subscription cron route compiles and its benchmark test passes
+- all three PRs have final dispositions:
+  - `#165` merged
+  - `#164` implemented on `main` and then closed
+  - `#163` closed
