@@ -656,3 +656,43 @@ This file is not a changelog. It is the concise ledger for durable decisions tha
   - `src/app/api/user/delete/route.ts`
   - `FULL_SCALE_CODEBASE_AUDIT.md`
 - Follow-up gaps: If username history, moderation holds, or grace-period reclaim rules are added later, they must extend the reservation contract rather than bypassing it with direct writes to `users.username`.
+
+### 31. Creator messaging is now a dedicated Chat product with compatibility adapters
+- Approximate date: Canonicalized and recorded on 2026-04-08
+- Status: Active canonical messaging/runtime rule
+- Problem/context: Creator messaging had split into two competing surfaces: the public creator page composer and the creator dashboard workspace inbox. Both were refresh-driven, neither was the clear source of truth, and the insufficient-funds path was too generic for a paid-chat product.
+- Decision made: Make `/dashboard/chat` the primary creator-conversation surface for both fans and creators. Preserve the existing one-thread-per-creator-user model and creator-message economics, add realtime thread/message/read-state behavior, and keep `/api/creator/messages` only as a compatibility adapter while the rest of the product hands off into Chat.
+- What became canonical:
+  - one creator-user thread remains the canonical conversation identity
+  - `/dashboard/chat` is the primary inbox/chat surface
+  - the public creator page `Message` action deep-links into Chat instead of sending inline messages there
+  - the creator workspace message lane is summary-only and links into Chat
+  - fan message pricing stays `1 / 5 / 10 GD` for `text / image / video`
+  - creator replies remain free
+  - purchased-only spend remains server-enforced
+  - subscriber free chat still follows the creator setting `chatFreeForSubscribers`
+  - insufficient-balance chat failures now return a structured payload instead of a generic error
+  - realtime message/thread/read-state updates use Firestore, while ephemeral typing/presence uses RTDB under `chat_presence`
+  - admin debug/runtime health tracks the new chat routes directly
+- What is now disallowed or deprecated:
+  - treating the public creator page as the primary chat surface
+  - treating `CreatorWorkspacePanel` as a second full inbox
+  - leaving paid chat failures as generic send-message errors
+  - adding a second long-term messaging API alongside the dedicated chat routes
+- Truth lives in:
+  - `src/app/dashboard/chat/page.tsx`
+  - `src/components/Chat/ChatExperience.tsx`
+  - `src/lib/chat.ts`
+  - `src/lib/server/chat.ts`
+  - `src/app/api/chat/threads/route.ts`
+  - `src/app/api/chat/threads/[threadId]/route.ts`
+  - `src/app/api/chat/threads/[threadId]/messages/route.ts`
+  - `src/app/api/chat/threads/[threadId]/read/route.ts`
+  - `src/app/api/creator/messages/route.ts`
+  - `src/app/creators/[username]/CreatorProfileClient.tsx`
+  - `src/components/Creators/CreatorExperiencesPanel.tsx`
+  - `src/components/Dashboard/CreatorWorkspacePanel.tsx`
+  - `firestore.rules`
+  - `database.rules.json`
+  - `FULL_SCALE_CODEBASE_AUDIT.md`
+- Follow-up gaps: RTDB presence reads are currently authenticated-wide rather than participant-scoped, and there is no dedicated RTDB-rules test suite yet.

@@ -157,6 +157,9 @@ export async function GET(request: NextRequest) {
         const validCreators: CreatorListEntry[] = [];
         for (const doc of recommendedCreatorDocs.docs) {
             const entry = { id: doc.id, ...(doc.data() as Record<string, unknown>) } as RecommendedCreatorRecord;
+            if (entry.id === caller.uid) {
+                continue;
+            }
             if (isCreatorVisibleInDiscovery({
                 role: entry.role,
                 status: entry.status,

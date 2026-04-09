@@ -228,4 +228,77 @@ describe("GET /api/creator/relationships", () => {
             following: true,
         });
     });
+
+    it("does not recommend the signed-in creator to themselves", async () => {
+        const now = Date.now();
+        mockState.guardApiRequest.mockResolvedValue({ uid: "creator_self" });
+        mockState.collections.set("creator_relationships", []);
+        mockState.collections.set("users", [
+            {
+                id: "creator_self",
+                data: {
+                    role: "creator",
+                    status: "active",
+                    displayName: "Jessi Ray",
+                    username: "jessiray",
+                    isVerified: true,
+                },
+            },
+            {
+                id: "creator_other",
+                data: {
+                    role: "creator",
+                    status: "active",
+                    displayName: "Bloomytrip",
+                    username: "bloomytrip",
+                    isVerified: true,
+                },
+            },
+        ]);
+        mockState.collections.set("drops", [
+            {
+                id: "drop_1",
+                data: {
+                    creatorId: "creator_self",
+                    title: "Apple Pie",
+                    description: "Test drop",
+                    imageUrl: "https://example.com/apple.png",
+                    contentUrl: "https://example.com/content.zip",
+                    unlockCost: 100,
+                    validFrom: now - 10_000,
+                    validUntil: now + 60_000,
+                    status: "active",
+                    approvalStatus: "approved",
+                    totalUnlocks: 12,
+                },
+            },
+            {
+                id: "drop_2",
+                data: {
+                    creatorId: "creator_other",
+                    title: "Lemon Cake",
+                    description: "Test drop",
+                    imageUrl: "https://example.com/lemon.png",
+                    contentUrl: "https://example.com/content-2.zip",
+                    unlockCost: 100,
+                    validFrom: now - 10_000,
+                    validUntil: now + 60_000,
+                    status: "active",
+                    approvalStatus: "approved",
+                    totalUnlocks: 8,
+                },
+            },
+        ]);
+
+        const response = await GET(new NextRequest("http://localhost/api/creator/relationships"));
+        const body = await response.json();
+
+        expect(response.status).toBe(200);
+        expect(body.recommendedCreators).toHaveLength(1);
+        expect(body.recommendedCreators[0]).toMatchObject({
+            uid: "creator_other",
+            username: "bloomytrip",
+        });
+        expect(body.recommendedCreators.some((entry: { uid?: string }) => entry.uid === "creator_self")).toBe(false);
+    });
 });

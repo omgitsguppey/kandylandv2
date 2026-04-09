@@ -1,5 +1,14 @@
 {
   "rules": {
+    "chat_presence": {
+      "$threadId": {
+        ".read": "auth != null",
+        "$uid": {
+          ".write": "auth != null && auth.uid === $uid",
+          ".validate": "newData.hasChildren(['typing', 'activeAt']) && newData.child('typing').isBoolean() && newData.child('activeAt').isNumber() && (!newData.child('role').exists() || newData.child('role').isString()) && (!newData.child('displayName').exists() || newData.child('displayName').isString())"
+        }
+      }
+    },
     ".read": false,
     ".write": false
   }

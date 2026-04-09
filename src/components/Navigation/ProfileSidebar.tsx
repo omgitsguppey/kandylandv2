@@ -3,7 +3,7 @@
 import { useEffect, type ReactNode } from "react";
 import Link from "next/link";
 import Image from "next/image";
-import { LogOut, LayoutDashboard, Library, Settings, X, Plus, CircleHelp, LifeBuoy, FileText } from "lucide-react";
+import { LogOut, LayoutDashboard, Library, Settings, X, Plus, CircleHelp, LifeBuoy, FileText, MessageSquare } from "lucide-react";
 
 import { useAuthIdentity, useUserProfile } from "@/context/AuthContext";
 import { useUI } from "@/context/UIContext";
@@ -126,6 +126,7 @@ export function ProfileSidebar({ isOpen, onClose }: ProfileSidebarProps) {
 
                         <nav className="space-y-1">
                             <SidebarItem href="/dashboard" icon={<LayoutDashboard className="w-5 h-5" />} label="Dashboard" onClick={onClose} />
+                            <SidebarItem href="/dashboard/chat" icon={<MessageSquare className="w-5 h-5" />} label="Chat" onClick={onClose} />
                             <SidebarItem href="/dashboard/library" icon={<Library className="w-5 h-5" />} label="My KandyDrops" onClick={onClose} />
                             <SidebarItem href="/dashboard/profile" icon={<Settings className="w-5 h-5" />} label="Settings" onClick={onClose} />
                         </nav>

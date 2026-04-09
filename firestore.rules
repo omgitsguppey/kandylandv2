@@ -1,6 +1,13 @@
 rules_version = '2';
 service cloud.firestore {
   match /databases/{database}/documents {
+    function isSignedIn() {
+      return request.auth != null;
+    }
+
+    function isSelf(userId) {
+      return isSignedIn() && request.auth.uid == userId;
+    }
     
     // Drops: NO direct client reads or writes.
     // Public browsing goes through server-side readers/API routes that sanitize content.
@@ -11,19 +18,33 @@ service cloud.firestore {
     
     // Users: Authenticated read only for SELF, NO client writes
     match /users/{userId} {
-      allow read: if request.auth != null && request.auth.uid == userId;
+      allow read: if isSelf(userId);
       allow write: if false;
     }
 
     // Transactions: Authenticated read only for SELF, NO client writes
     match /transactions/{transactionId} {
-      allow read: if request.auth != null && request.auth.uid == resource.data.userId;
+      allow read: if isSelf(resource.data.userId);
       allow write: if false;
     }
 
     // Notifications: Authenticated read only for SELF, NO client writes
     match /notifications/{notificationId} {
-      allow read: if request.auth != null && request.auth.uid == resource.data.userId;
+      allow read: if isSelf(resource.data.userId);
+      allow write: if false;
+    }
+
+    // Creator chat threads: participant-scoped client reads for realtime chat only, no direct writes
+    match /creator_message_threads/{threadId} {
+      allow read: if isSignedIn()
+        && (request.auth.uid == resource.data.creatorId || request.auth.uid == resource.data.userId);
+      allow write: if false;
+    }
+
+    // Creator chat messages: participant-scoped client reads for realtime chat only, no direct writes
+    match /creator_messages/{messageId} {
+      allow read: if isSignedIn()
+        && (request.auth.uid == resource.data.creatorId || request.auth.uid == resource.data.userId);
       allow write: if false;
     }
 

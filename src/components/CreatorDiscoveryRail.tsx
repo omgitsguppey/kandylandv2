@@ -227,9 +227,9 @@ export function CreatorDiscoveryRail({ surface, title, compact = false }: Creato
         return null;
     }
 
-    const header = title || (followedCreators.length > 0 ? "Creators you follow" : "Recommended creators");
+    const header = title || (followedCreators.length > 0 ? "Jump back into your creator loop." : "Recommended creators");
     const support = followedCreators.length > 0
-        ? "Jump back into your creator loop."
+        ? null
         : "Follow creators to unlock drops and private requests.";
     const emptyTitle = surface === "dashboard"
         ? "Creator spotlight opens as creators go live"
@@ -245,7 +245,7 @@ export function CreatorDiscoveryRail({ surface, title, compact = false }: Creato
     if (primaryCreators.length === 0) {
         return (
             <section className={cn(
-                "glass-panel rounded-[2rem] border border-white/10 p-3 sm:p-4",
+                "glass-panel rounded-[1.7rem] border border-white/10 p-2.5 sm:rounded-[2rem] sm:p-4",
                 compact ? "space-y-2" : "space-y-3",
             )}>
                 <div className="inline-flex items-center gap-2 rounded-full border border-brand-purple/25 bg-brand-purple/15 px-3 py-1 text-[10px] font-bold uppercase tracking-[0.16em] text-white">
@@ -265,17 +265,19 @@ export function CreatorDiscoveryRail({ surface, title, compact = false }: Creato
 
     return (
         <section className={cn(
-            "glass-panel rounded-[2rem] border border-white/10 p-3 sm:p-4",
+            "glass-panel rounded-[1.7rem] border border-white/10 p-2.5 sm:rounded-[2rem] sm:p-4",
             compact ? "space-y-2" : "space-y-3",
         )}>
-            <div className="flex items-start justify-between gap-4">
+            <div className="flex items-start justify-between gap-3">
                 <div>
                     <div className="inline-flex items-center gap-2 rounded-full border border-brand-purple/25 bg-brand-purple/15 px-3 py-1 text-[10px] font-bold uppercase tracking-[0.16em] text-white">
                         <Sparkles className="h-3.5 w-3.5" />
                         Creator spotlight
                     </div>
-                    <h3 className="mt-2 text-balance text-lg font-black text-white sm:text-xl">{header}</h3>
-                    <p className="mt-1 max-w-2xl text-sm leading-6 text-gray-400">{support}</p>
+                    <h3 className="mt-1.5 text-balance text-base font-black text-white sm:mt-2 sm:text-xl">{header}</h3>
+                    {support ? (
+                        <p className="mt-1 max-w-2xl text-sm leading-6 text-gray-400">{support}</p>
+                    ) : null}
                 </div>
                 <div className="hidden shrink-0 rounded-2xl border border-white/10 bg-black/30 px-3 py-2 text-right sm:block">
                     <p className="text-[10px] font-bold uppercase tracking-[0.16em] text-gray-500">Surface</p>
@@ -286,9 +288,14 @@ export function CreatorDiscoveryRail({ surface, title, compact = false }: Creato
             <div className="overflow-x-auto pb-1">
                 <div className={cn("flex min-w-max gap-3", compact ? "pr-2" : "pr-4")}>
                     {primaryCreators.map((creator) => (
-                        <div
+                        <article
                             key={creator.uid}
-                            className="group flex w-[6.8rem] shrink-0 flex-col items-center gap-2.5 rounded-[1.75rem] border border-white/5 bg-white/[0.03] px-2.5 py-3 text-center"
+                            className={cn(
+                                "group flex shrink-0 flex-col items-center rounded-[1.45rem] border border-white/5 bg-white/[0.03] text-center",
+                                compact
+                                    ? "w-[5.4rem] gap-1.5 px-2 py-2.25"
+                                    : "w-[6rem] gap-2 px-2.25 py-2.5",
+                            )}
                         >
                             <Link
                                 href={creator.username ? `/creators/${creator.username}` : "#"}
@@ -305,11 +312,14 @@ export function CreatorDiscoveryRail({ surface, title, compact = false }: Creato
                                     "rounded-full p-[2px] transition-transform group-hover:scale-105",
                                     creator.following ? "bg-white/10" : "bg-gradient-to-tr from-brand-purple to-pink-500"
                                 )}>
-                                    <div className="flex h-[4.4rem] w-[4.4rem] items-center justify-center overflow-hidden rounded-full border-[3px] border-black bg-zinc-900">
+                                    <div className={cn(
+                                        "flex items-center justify-center overflow-hidden rounded-full border-[3px] border-black bg-zinc-900",
+                                        compact ? "h-[3.45rem] w-[3.45rem]" : "h-[3.9rem] w-[3.9rem]",
+                                    )}>
                                         {creator.photoURL ? (
-                                            <Image src={creator.photoURL} alt={creator.displayName} width={72} height={72} className="h-full w-full object-cover" />
+                                            <Image src={creator.photoURL} alt={creator.username || creator.displayName} width={72} height={72} className="h-full w-full object-cover" />
                                         ) : (
-                                            <span className="text-sm font-black text-white">{initialsFor(creator.displayName)}</span>
+                                            <span className="text-sm font-black text-white">{initialsFor(creator.username || creator.displayName)}</span>
                                         )}
                                     </div>
                                 </div>
@@ -317,39 +327,38 @@ export function CreatorDiscoveryRail({ surface, title, compact = false }: Creato
                                 <div className="flex w-full flex-col items-center">
                                     <div className="flex max-w-full items-center justify-center gap-1">
                                         <TitleMarquee
-                                            title={creator.displayName}
+                                            title={creator.username ? `@${creator.username.replace(/^@+/, "")}` : creator.displayName}
                                             delaySeed={creator.uid.charCodeAt(0) % 6}
-                                            className="max-w-full text-[11px] font-bold text-white tracking-tight"
+                                            className={cn(
+                                                "max-w-full font-bold text-white tracking-tight",
+                                                compact ? "text-[10px]" : "text-[11px]",
+                                            )}
                                         />
                                         {creator.isVerified ? <CheckCircle2 className="h-3.5 w-3.5 shrink-0 text-brand-purple" /> : null}
                                     </div>
-                                    {creator.username ? (
-                                        <TitleMarquee
-                                            title={creator.username.replace(/^@+/, "")}
-                                            delaySeed={(creator.uid.charCodeAt(0) + 2) % 6}
-                                            className="mt-0.5 max-w-full text-[10px] font-medium text-gray-300"
-                                        />
-                                    ) : null}
-                                    <p className="mt-1 text-[10px] text-gray-500">
+                                    <p className={cn("mt-0.5 text-gray-500", compact ? "text-[9px]" : "text-[10px]")}>
                                         {followerFormatter.format(Math.max(creator.followerCount ?? 0, 0))} followers
                                     </p>
                                 </div>
                             </Link>
 
-                            <button
-                                type="button"
-                                onClick={() => void handleFollowToggle(creator)}
-                                disabled={pendingCreatorId === creator.uid}
-                                className={cn(
-                                    "inline-flex min-h-7 items-center justify-center rounded-full border px-3 py-1 text-[10px] font-bold transition-colors",
-                                    creator.following
-                                        ? "border-brand-purple/60 bg-black text-brand-purple"
-                                        : "border-brand-purple/30 bg-brand-purple/15 text-white",
-                                )}
-                            >
-                                {pendingCreatorId === creator.uid ? <Loader2 className="h-3 w-3 animate-spin" /> : creator.following ? "following" : "Follow"}
-                            </button>
-                        </div>
+                            {user?.uid === creator.uid ? null : (
+                                <button
+                                    type="button"
+                                    onClick={() => void handleFollowToggle(creator)}
+                                    disabled={pendingCreatorId === creator.uid}
+                                    className={cn(
+                                        "inline-flex items-center justify-center rounded-full border font-bold transition-colors",
+                                        compact ? "min-h-6 px-2.5 py-1 text-[9px]" : "min-h-7 px-3 py-1 text-[10px]",
+                                        creator.following
+                                            ? "border-brand-purple/60 bg-black text-brand-purple"
+                                            : "border-brand-purple/30 bg-brand-purple/15 text-white",
+                                    )}
+                                >
+                                    {pendingCreatorId === creator.uid ? <Loader2 className="h-3 w-3 animate-spin" /> : creator.following ? "following" : "Follow"}
+                                </button>
+                            )}
+                        </article>
                     ))}
                 </div>
             </div>

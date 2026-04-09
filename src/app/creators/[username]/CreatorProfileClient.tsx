@@ -1,6 +1,6 @@
 ﻿"use client";
 
-import { useParams } from "next/navigation";
+import { useParams, useRouter } from "next/navigation";
 import { useEffect, useMemo, useRef, useState } from "react";
 import {
     Ghost,
@@ -8,7 +8,6 @@ import {
     Lock,
 } from "lucide-react";
 import { toast } from "sonner";
-import { getDownloadURL, ref, uploadBytes } from "firebase/storage";
 
 import { DropGrid } from "@/components/DropGrid";
 import { CreatorExperiencesPanel } from "@/components/Creators/CreatorExperiencesPanel";
@@ -22,7 +21,6 @@ import {
     CREATOR_BOOKING_MIN_MINUTES,
 } from "@/lib/creator-experiences";
 import { resolveCreatorPublicExperienceState } from "@/lib/creator-public-pages";
-import { storage } from "@/lib/firebase-data";
 import { trackEvent } from "@/lib/telemetry";
 import { cn } from "@/lib/utils";
 import { Drop, UserProfile } from "@/types/db";
@@ -31,6 +29,7 @@ type CreatorExperienceView = "subscriptions" | "messages" | "requests" | "bookin
 
 export default function CreatorProfileClient() {
     const params = useParams();
+    const router = useRouter();
     const { user: currentUser, userProfile: currentUserProfile, setUserProfile, loading: authLoading } = useAuth();
     const { openAuthModal } = useUI();
     const username = params.username as string;
@@ -46,10 +45,6 @@ export default function CreatorProfileClient() {
     const [subscriptionActive, setSubscriptionActive] = useState(false);
     const [subscribeLoading, setSubscribeLoading] = useState(false);
     const [selectedExperience, setSelectedExperience] = useState<CreatorExperienceView | null>(null);
-    const [messageText, setMessageText] = useState("");
-    const [messageKind, setMessageKind] = useState<"text" | "image" | "video">("text");
-    const [messageFile, setMessageFile] = useState<File | null>(null);
-    const [sendingMessage, setSendingMessage] = useState(false);
     const [messages, setMessages] = useState<Array<Record<string, unknown>>>([]);
     const [requestCategoryId, setRequestCategoryId] = useState("");
     const [requestDetails, setRequestDetails] = useState("");
@@ -280,6 +275,23 @@ export default function CreatorProfileClient() {
         setSelectedExperience(experience);
     };
 
+    const openChatExperience = () => {
+        if (!creator || !canMessageCreator) {
+            return;
+        }
+
+        if (!currentUser) {
+            openAuthModal("signup");
+            return;
+        }
+
+        trackEvent("navigation_click", {
+            destination: `/dashboard/chat?creator=${creator.uid}`,
+            source: "creator_profile_message_cta",
+        });
+        router.push(`/dashboard/chat?creator=${encodeURIComponent(creator.uid)}`);
+    };
+
     const handleFollow = async () => {
         if (!creator) {
             return;
@@ -477,77 +489,6 @@ export default function CreatorProfileClient() {
         }
     };
 
-    const uploadMessageAttachment = async () => {
-        if (!messageFile || !currentUser) {
-            return null;
-        }
-
-        const storageRef = ref(storage, `creator/messages/${currentUser.uid}/${Date.now()}_${messageFile.name}`);
-        await uploadBytes(storageRef, messageFile, {
-            contentType: messageFile.type || "application/octet-stream",
-        });
-        const downloadUrl = await getDownloadURL(storageRef);
-        return {
-            assetUrl: downloadUrl,
-            assetName: messageFile.name,
-            assetMimeType: messageFile.type || "application/octet-stream",
-        };
-    };
-
-    const handleSendMessage = async () => {
-        if (!currentUser || !creator) {
-            toast.error("Please sign in to message creators.");
-            return;
-        }
-
-        if (!messageText.trim() && !messageFile) {
-            toast.error("Add a message or attachment first.");
-            return;
-        }
-
-        setSendingMessage(true);
-        try {
-            const attachment = await uploadMessageAttachment();
-            const response = await authFetch("/api/creator/messages", {
-                method: "POST",
-                body: JSON.stringify({
-                    creatorId: creator.uid,
-                    text: messageText.trim(),
-                    messageKind: messageFile
-                        ? (messageFile.type.startsWith("video/") ? "video" : "image")
-                        : messageKind,
-                    ...attachment,
-                }),
-            });
-            const result = await response.json();
-            if (!response.ok) {
-                throw new Error(typeof result.error === "string" ? result.error : "Message failed.");
-            }
-
-            setMessageText("");
-            setMessageFile(null);
-            const refreshResponse = await authFetch(`/api/creator/messages?creatorId=${encodeURIComponent(creator.uid)}`);
-            const refreshResult = await refreshResponse.json() as { messages?: Array<Record<string, unknown>> };
-            setMessages(Array.isArray(refreshResult.messages) ? refreshResult.messages : []);
-            toast.success("Message sent.");
-        } catch (error: any) {
-            reportClientIssue({
-                channel: "ui",
-                message: "Creator message send failed",
-                error,
-                detail: {
-                    creatorId: creator.uid,
-                    messageKind,
-                    hasAttachment: Boolean(messageFile),
-                },
-                consoleLabel: "[CreatorProfile] send message failed",
-            });
-            toast.error(error.message || "Message failed.");
-        } finally {
-            setSendingMessage(false);
-        }
-    };
-
     const handleCreateRequest = async () => {
         if (!currentUser || !creator) {
             toast.error("Please sign in to request custom content.");
@@ -677,7 +618,7 @@ export default function CreatorProfileClient() {
                     hasGlobalAlerts={hasGlobalAlerts}
                     notificationsEnabled={notificationsEnabled}
                     onFollow={handleFollow}
-                    onMessage={() => openExperienceView("messages")}
+                    onMessage={openChatExperience}
                     onToggleAlerts={() => {
                         if (hasGlobalAlerts) {
                             return;
@@ -733,26 +674,20 @@ export default function CreatorProfileClient() {
                             creatingRequest={creatingRequest}
                             currentUser={currentUser}
                             latestBooking={latestBooking}
-                            messageKind={messageKind}
-                            messageText={messageText}
                             messages={messages}
                             onBookingDurationMinutesChange={setBookingDurationMinutes}
                             onBookingServiceTypeChange={setBookingServiceType}
                             onBookingStartAtChange={setBookingStartAt}
                             onCreateBooking={() => void handleCreateBooking()}
                             onCreateRequest={() => void handleCreateRequest()}
-                            onMessageFileChange={setMessageFile}
-                            onMessageKindChange={setMessageKind}
-                            onMessageTextChange={setMessageText}
                             onOpenAuth={() => openAuthModal("signup")}
+                            onOpenChat={openChatExperience}
                             onSelectedExperienceChange={setSelectedExperience}
-                            onSendMessage={() => void handleSendMessage()}
                             onStartSubscription={() => void handleSubscription()}
                             requestCategories={requestCategories}
                             requestCategoryId={requestCategoryId}
                             requestDetails={requestDetails}
                             selectedExperience={selectedExperience}
-                            sendingMessage={sendingMessage}
                             settings={creatorSettings}
                             setRequestCategoryId={setRequestCategoryId}
                             setRequestDetails={setRequestDetails}

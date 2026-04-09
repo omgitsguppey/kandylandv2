@@ -28,26 +28,20 @@ type CreatorExperiencesPanelProps = {
     creatingRequest: boolean;
     currentUser: unknown;
     latestBooking: Record<string, unknown> | null;
-    messageKind: "text" | "image" | "video";
-    messageText: string;
     messages: Array<Record<string, unknown>>;
     onBookingDurationMinutesChange: (value: number) => void;
     onBookingServiceTypeChange: (value: "phone" | "video") => void;
     onBookingStartAtChange: (value: string) => void;
     onCreateBooking: () => void;
     onCreateRequest: () => void;
-    onMessageFileChange: (file: File | null) => void;
-    onMessageKindChange: (kind: "text" | "image" | "video") => void;
-    onMessageTextChange: (value: string) => void;
     onOpenAuth: () => void;
+    onOpenChat: () => void;
     onSelectedExperienceChange: (value: CreatorExperienceView) => void;
-    onSendMessage: () => void;
     onStartSubscription: () => void;
     requestCategories: CreatorRequestCategoryConfig[];
     requestCategoryId: string;
     requestDetails: string;
     selectedExperience: CreatorExperienceView | null;
-    sendingMessage: boolean;
     settings: CreatorSettings;
     setRequestCategoryId: (value: string) => void;
     setRequestDetails: (value: string) => void;
@@ -63,26 +57,20 @@ export function CreatorExperiencesPanel({
     creatingRequest,
     currentUser,
     latestBooking,
-    messageKind,
-    messageText,
     messages,
     onBookingDurationMinutesChange,
     onBookingServiceTypeChange,
     onBookingStartAtChange,
     onCreateBooking,
     onCreateRequest,
-    onMessageFileChange,
-    onMessageKindChange,
-    onMessageTextChange,
     onOpenAuth,
+    onOpenChat,
     onSelectedExperienceChange,
-    onSendMessage,
     onStartSubscription,
     requestCategories,
     requestCategoryId,
     requestDetails,
     selectedExperience,
-    sendingMessage,
     settings,
     setRequestCategoryId,
     setRequestDetails,
@@ -201,7 +189,7 @@ export function CreatorExperiencesPanel({
                         <div>
                             <h2 className="text-lg font-black text-white">Private creator chat</h2>
                             <p className="mt-1 text-sm leading-6 text-gray-400">
-                                Text costs {CREATOR_MESSAGE_COSTS.text} GD, images {CREATOR_MESSAGE_COSTS.image} GD, videos {CREATOR_MESSAGE_COSTS.video} GD. Subscribers chat free.
+                                Chat now lives in the dedicated Chat inbox. Text costs {CREATOR_MESSAGE_COSTS.text} GD, images {CREATOR_MESSAGE_COSTS.image} GD, videos {CREATOR_MESSAGE_COSTS.video} GD, and subscribers chat free when enabled by the creator.
                             </p>
                         </div>
                         {subscriptionActive ? (
@@ -210,36 +198,20 @@ export function CreatorExperiencesPanel({
                             </div>
                         ) : null}
                     </div>
-                    <div className="mt-4 flex flex-wrap gap-2">
-                        {(["text", "image", "video"] as const).map((kind) => (
-                            <button
-                                key={kind}
-                                type="button"
-                                onClick={() => onMessageKindChange(kind)}
-                                className={cn(
-                                    "rounded-full border px-3 py-1.5 text-xs font-bold uppercase tracking-[0.14em]",
-                                    messageKind === kind
-                                        ? "border-brand-purple/40 bg-brand-purple/15 text-white"
-                                        : "border-white/10 bg-white/5 text-gray-400",
-                                )}
-                            >
-                                {kind}
-                            </button>
-                        ))}
+                    <div className="mt-4 grid gap-3 sm:grid-cols-3">
+                        <div className="rounded-2xl border border-white/10 bg-black/20 px-4 py-3">
+                            <p className="text-[10px] font-bold uppercase tracking-[0.16em] text-gray-500">Text</p>
+                            <p className="mt-2 text-sm font-semibold text-white">{CREATOR_MESSAGE_COSTS.text} GD</p>
+                        </div>
+                        <div className="rounded-2xl border border-white/10 bg-black/20 px-4 py-3">
+                            <p className="text-[10px] font-bold uppercase tracking-[0.16em] text-gray-500">Image</p>
+                            <p className="mt-2 text-sm font-semibold text-white">{CREATOR_MESSAGE_COSTS.image} GD</p>
+                        </div>
+                        <div className="rounded-2xl border border-white/10 bg-black/20 px-4 py-3">
+                            <p className="text-[10px] font-bold uppercase tracking-[0.16em] text-gray-500">Video</p>
+                            <p className="mt-2 text-sm font-semibold text-white">{CREATOR_MESSAGE_COSTS.video} GD</p>
+                        </div>
                     </div>
-                    <textarea
-                        value={messageText}
-                        onChange={(event) => onMessageTextChange(event.target.value)}
-                        rows={3}
-                        placeholder="Say what you want from the creator..."
-                        className="mt-4 w-full rounded-2xl border border-white/10 bg-black/30 px-4 py-3 text-sm text-white placeholder:text-gray-600"
-                    />
-                    <input
-                        type="file"
-                        accept={messageKind === "video" ? "video/*" : messageKind === "image" ? "image/*" : "*"}
-                        onChange={(event) => onMessageFileChange(event.target.files?.[0] || null)}
-                        className="mt-3 block w-full text-xs text-gray-400 file:mr-3 file:rounded-full file:border-0 file:bg-white/10 file:px-3 file:py-2 file:text-xs file:font-bold file:text-white"
-                    />
                     <button
                         type="button"
                         onClick={() => {
@@ -247,13 +219,12 @@ export function CreatorExperiencesPanel({
                                 onOpenAuth();
                                 return;
                             }
-                            onSendMessage();
+                            onOpenChat();
                         }}
-                        disabled={sendingMessage}
-                        className="mt-4 inline-flex w-full items-center justify-center gap-2 rounded-xl border border-white/10 bg-white/10 px-5 py-3 text-sm font-bold text-white"
+                        className="mt-4 inline-flex w-full items-center justify-center gap-2 rounded-xl bg-brand-purple px-5 py-3 text-sm font-bold text-white"
                     >
-                        {sendingMessage ? <Loader2 className="h-4 w-4 animate-spin" /> : <MessageSquare className="h-4 w-4" />}
-                        Send message
+                        <MessageSquare className="h-4 w-4" />
+                        Open chat
                     </button>
                     {recentMessages.length > 0 ? (
                         <div className="mt-4 space-y-2 rounded-2xl border border-white/10 bg-black/20 p-3">

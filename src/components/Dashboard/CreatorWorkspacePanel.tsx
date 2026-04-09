@@ -239,7 +239,6 @@ export function CreatorWorkspacePanel({ userProfile }: { userProfile: UserProfil
         broadcasts: null,
     });
     const [busyAction, setBusyAction] = useState<string | null>(null);
-    const [replyDraft, setReplyDraft] = useState("");
     const [broadcastDraft, setBroadcastDraft] = useState("");
     const [payoutAmount, setPayoutAmount] = useState(100);
 
@@ -302,7 +301,7 @@ export function CreatorWorkspacePanel({ userProfile }: { userProfile: UserProfil
             }>("/api/creator/settings"),
             readJson<{ requests?: CreatorRequestRecord[] }>("/api/creator/requests"),
             readJson<{ bookings?: CreatorBookingRecord[] }>("/api/creator/bookings"),
-            readJson<{ threads?: CreatorThreadRecord[] }>("/api/creator/messages"),
+            readJson<{ threads?: CreatorThreadRecord[] }>("/api/chat/threads"),
             readJson<{ subscribers?: CreatorSubscriptionRecord[] }>("/api/creator/subscriptions"),
             readJson<{ availableGd?: number; availableUsd?: number; payoutRequests?: CreatorPayoutRecord[] }>("/api/creator/payouts"),
             readJson<{ broadcasts?: CreatorBroadcastRecord[] }>("/api/creator/broadcasts"),
@@ -396,7 +395,7 @@ export function CreatorWorkspacePanel({ userProfile }: { userProfile: UserProfil
         try {
             const result = await readJson<{
                 messages?: CreatorMessageRecord[];
-            }>(`/api/creator/messages?threadId=${encodeURIComponent(threadId)}`);
+            }>(`/api/chat/threads/${encodeURIComponent(threadId)}`);
             setThreadMessages(Array.isArray(result.messages) ? result.messages : []);
         } catch (error) {
             reportClientIssue({
@@ -474,28 +473,6 @@ export function CreatorWorkspacePanel({ userProfile }: { userProfile: UserProfil
             await loadWorkspace();
         }, "We could not update that booking.");
     }, [loadWorkspace, runAction]);
-
-    const handleSendReply = useCallback(() => {
-        if (!selectedThread || !replyDraft.trim().length) {
-            return;
-        }
-
-        void runAction(`reply:${selectedThread.id}`, async () => {
-            await readJson("/api/creator/messages", {
-                method: "POST",
-                body: JSON.stringify({
-                    creatorId: userProfile.uid,
-                    targetUserId: selectedThread.userId,
-                    threadId: selectedThread.id,
-                    text: replyDraft.trim(),
-                    messageKind: "text",
-                }),
-            });
-            setReplyDraft("");
-            toast.success("Reply sent.");
-            await Promise.all([loadWorkspace(), loadThreadMessages(selectedThread.id)]);
-        }, "We could not send that reply.");
-    }, [loadThreadMessages, loadWorkspace, replyDraft, runAction, selectedThread, userProfile.uid]);
 
     const handlePayoutRequest = useCallback(() => {
         void runAction("payout:request", async () => {
@@ -749,7 +726,7 @@ export function CreatorWorkspacePanel({ userProfile }: { userProfile: UserProfil
 
                             <ModuleCard
                                 title="Message inbox"
-                                subtitle="Creator thread list and replies, backed by the creator message routes with thread ownership checks."
+                                subtitle="The primary creator inbox now lives in Chat. This dashboard module is a live summary and handoff."
                                 error={moduleErrors.threads}
                             >
                                 {threads.length > 0 ? (
@@ -801,28 +778,22 @@ export function CreatorWorkspacePanel({ userProfile }: { userProfile: UserProfil
                                                             </div>
                                                         )}
                                                     </div>
-                                                    <div className="mt-3 flex gap-2">
-                                                        <textarea
-                                                            value={replyDraft}
-                                                            onChange={(event) => setReplyDraft(event.target.value.slice(0, 1200))}
-                                                            rows={3}
-                                                            placeholder="Reply to this fan"
-                                                            className="w-full rounded-[1rem] border border-white/10 bg-black/40 px-3 py-2.5 text-sm text-white"
-                                                        />
-                                                        <Button
-                                                            variant="brand"
-                                                            className="self-end"
-                                                            isLoading={busyAction === `reply:${selectedThread.id}`}
-                                                            onClick={handleSendReply}
+                                                    <div className="mt-3 flex flex-wrap gap-2">
+                                                        <Link
+                                                            href={`/dashboard/chat?thread=${encodeURIComponent(selectedThread.id)}`}
+                                                            className="inline-flex items-center rounded-full bg-brand-purple px-4 py-2 text-sm font-bold text-white shadow-lg shadow-brand-purple/20"
                                                         >
                                                             <Send className="mr-2 h-4 w-4" />
-                                                            Reply
-                                                        </Button>
+                                                            Open in Chat
+                                                        </Link>
+                                                        <span className="rounded-full border border-white/10 bg-white/5 px-3 py-2 text-xs text-gray-300">
+                                                            Replies, typing, and read receipts live in the Chat tab.
+                                                        </span>
                                                     </div>
                                                 </>
                                             ) : (
                                                 <div className="rounded-[0.9rem] border border-white/10 bg-black/30 px-3 py-4 text-sm text-gray-300">
-                                                    Select a thread to inspect the real message history.
+                                                    Open Chat to work the full inbox. This module stays here as a quick summary of recent thread activity.
                                                 </div>
                                             )}
                                         </div>

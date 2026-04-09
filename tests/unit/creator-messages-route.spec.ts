@@ -1,69 +1,53 @@
 import { NextRequest, NextResponse } from "next/server";
 import { beforeEach, describe, expect, it, vi } from "vitest";
 
-type SeedDoc = {
-    id: string;
-    data: Record<string, unknown>;
-};
-
 const mockState = vi.hoisted(() => {
-    const collections = new Map<string, SeedDoc[]>();
-    const documents = new Map<string, Record<string, unknown>>();
-
-    function buildQuery(name: string, filters: Array<{ field: string; value: unknown }> = []) {
-        return {
-            where(field: string, _operator: string, value: unknown) {
-                return buildQuery(name, [...filters, { field, value }]);
-            },
-            doc(id: string) {
-                return {
-                    id,
-                    async get() {
-                        return {
-                            id,
-                            exists: documents.has(`${name}/${id}`),
-                            data: () => documents.get(`${name}/${id}`),
-                        };
-                    },
-                };
-            },
-            async get() {
-                const docs = (collections.get(name) ?? [])
-                    .filter((entry) => filters.every((filter) => entry.data[filter.field] === filter.value))
-                    .map((entry) => ({
-                        id: entry.id,
-                        data: () => entry.data,
-                    }));
-
-                return {
-                    docs,
-                    empty: docs.length === 0,
-                    size: docs.length,
-                };
-            },
-        };
-    }
+    const userDocs = new Map<string, Record<string, unknown>>();
 
     return {
         guardApiRequest: vi.fn(),
         handleApiError: vi.fn(),
+        safeGetChatThreadDetailForViewer: vi.fn(),
+        safeListChatThreadsForViewer: vi.fn(),
+        safeSendChatMessageForViewer: vi.fn(),
+        toChatClientError: vi.fn(),
         adminDb: {
             collection(name: string) {
-                return buildQuery(name);
+                return {
+                    doc(id: string) {
+                        return {
+                            async get() {
+                                return {
+                                    id,
+                                    exists: name === "users" ? userDocs.has(id) : false,
+                                    data: () => name === "users" ? userDocs.get(id) : undefined,
+                                };
+                            },
+                        };
+                    },
+                };
             },
         },
-        collections,
-        documents,
+        userDocs,
         reset() {
-            collections.clear();
-            documents.clear();
+            userDocs.clear();
             this.guardApiRequest.mockReset();
             this.handleApiError.mockReset();
+            this.safeGetChatThreadDetailForViewer.mockReset();
+            this.safeListChatThreadsForViewer.mockReset();
+            this.safeSendChatMessageForViewer.mockReset();
+            this.toChatClientError.mockReset();
         },
     };
 });
 
 vi.mock("server-only", () => ({}));
+vi.mock("@/lib/chat", () => ({
+    buildChatThreadId: (creatorId: string, userId: string) => `creator_${creatorId}__user_${userId}`,
+    CHAT_COLLECTIONS: {
+        messages: "creator_messages",
+    },
+}));
 vi.mock("@/lib/server/request-guard", () => ({
     guardApiRequest: mockState.guardApiRequest,
 }));
@@ -76,73 +60,94 @@ vi.mock("@/lib/server/firebase-admin", () => ({
 vi.mock("@/lib/server/rate-limit", () => ({
     STANDARD: {},
 }));
-vi.mock("@/lib/creator-experiences", () => ({
-    CREATOR_COLLECTIONS: {
-        messages: "creator_messages",
-        messageThreads: "creator_message_threads",
-    },
-    buildCreatorThreadId: (creatorId: string, userId: string) => `${creatorId}__${userId}`,
-    isCreatorRole: (role: unknown) => role === "creator" || role === "admin",
-    normalizeMessageKind: (kind: unknown) => kind,
-}));
-vi.mock("@/lib/server/creator-experiences", () => ({
-    buildCreatorAccrual: vi.fn(),
-    buildSourceAwareBalancePatch: vi.fn(),
-    calculateMessagePriceGd: vi.fn(),
-    readSourceAwareBalance: vi.fn(),
-    spendCreatorExperienceGumdrops: vi.fn(),
-}));
-vi.mock("@/lib/server/gumdrop-ledger", () => ({
-    buildCompletedGumdropTransaction: vi.fn(),
-}));
-vi.mock("@/lib/server/analytics", () => ({
-    trackServerEvent: vi.fn(),
+vi.mock("@/lib/server/chat", () => ({
+    safeGetChatThreadDetailForViewer: mockState.safeGetChatThreadDetailForViewer,
+    safeListChatThreadsForViewer: mockState.safeListChatThreadsForViewer,
+    safeSendChatMessageForViewer: mockState.safeSendChatMessageForViewer,
+    toChatClientError: mockState.toChatClientError,
 }));
 
-import { GET } from "@/app/api/creator/messages/route";
+import { GET, POST } from "@/app/api/creator/messages/route";
 
-describe("GET /api/creator/messages", () => {
+describe("creator/messages compatibility route", () => {
     beforeEach(() => {
         mockState.reset();
         mockState.handleApiError.mockImplementation((error: unknown) => NextResponse.json({
             error: error instanceof Error ? error.message : String(error),
         }, { status: 500 }));
+        mockState.toChatClientError.mockReturnValue(null);
     });
 
-    it("blocks thread reads for callers who do not own the thread", async () => {
-        mockState.guardApiRequest.mockResolvedValue({ uid: "fan_2" });
-        mockState.documents.set("users/fan_2", { role: "user" });
-        mockState.documents.set("creator_message_threads/thread_1", {
-            creatorId: "creator_1",
-            userId: "fan_1",
+    it("returns thread messages for the current viewer", async () => {
+        mockState.guardApiRequest.mockResolvedValue({ uid: "fan_1", email: "fan@example.com" });
+        mockState.userDocs.set("fan_1", { role: "user" });
+        mockState.safeGetChatThreadDetailForViewer.mockResolvedValue({
+            thread: { id: "creator_creator_1__user_fan_1", userId: "fan_1" },
+            messages: [{ id: "message_1", text: "hello" }],
         });
-        mockState.collections.set("creator_messages", [
-            { id: "message_1", data: { threadId: "thread_1", createdAt: 10, text: "hello" } },
-        ]);
 
-        const response = await GET(new NextRequest("http://localhost/api/creator/messages?threadId=thread_1"));
-        const body = await response.json();
-
-        expect(response.status).toBe(403);
-        expect(body.error).toBe("Forbidden");
-    });
-
-    it("returns messages for the thread participant", async () => {
-        mockState.guardApiRequest.mockResolvedValue({ uid: "fan_1" });
-        mockState.documents.set("users/fan_1", { role: "user" });
-        mockState.documents.set("creator_message_threads/thread_1", {
-            creatorId: "creator_1",
-            userId: "fan_1",
-        });
-        mockState.collections.set("creator_messages", [
-            { id: "message_1", data: { threadId: "thread_1", createdAt: 10, text: "hello" } },
-        ]);
-
-        const response = await GET(new NextRequest("http://localhost/api/creator/messages?threadId=thread_1"));
+        const response = await GET(new NextRequest("http://localhost/api/creator/messages?threadId=creator_creator_1__user_fan_1"));
         const body = await response.json();
 
         expect(response.status).toBe(200);
-        expect(body.thread).toMatchObject({ id: "thread_1", userId: "fan_1" });
+        expect(mockState.safeGetChatThreadDetailForViewer).toHaveBeenCalledWith({
+            viewerUid: "fan_1",
+            callerRole: "user",
+            threadId: "creator_creator_1__user_fan_1",
+        });
+        expect(body.thread).toMatchObject({ id: "creator_creator_1__user_fan_1" });
         expect(body.messages).toHaveLength(1);
+    });
+
+    it("lists creator inbox threads for creator operators", async () => {
+        mockState.guardApiRequest.mockResolvedValue({ uid: "creator_1", email: "creator@example.com" });
+        mockState.userDocs.set("creator_1", { role: "creator" });
+        mockState.safeListChatThreadsForViewer.mockResolvedValue({
+            threads: [{ id: "creator_creator_1__user_fan_1" }],
+            selectedThreadId: null,
+        });
+
+        const response = await GET(new NextRequest("http://localhost/api/creator/messages"));
+        const body = await response.json();
+
+        expect(response.status).toBe(200);
+        expect(mockState.safeListChatThreadsForViewer).toHaveBeenCalledWith({
+            viewerUid: "creator_1",
+            viewerRole: "creator",
+        });
+        expect(body.threads).toHaveLength(1);
+    });
+
+    it("forwards legacy sends into the chat send helper", async () => {
+        mockState.guardApiRequest.mockResolvedValue({ uid: "fan_1", email: "fan@example.com" });
+        mockState.userDocs.set("fan_1", { role: "user" });
+        mockState.safeSendChatMessageForViewer.mockResolvedValue({
+            threadId: "creator_creator_1__user_fan_1",
+            message: { id: "message_1" },
+        });
+
+        const response = await POST(new NextRequest("http://localhost/api/creator/messages", {
+            method: "POST",
+            body: JSON.stringify({
+                creatorId: "creator_1",
+                text: "hello there",
+                messageKind: "text",
+            }),
+        }));
+        const body = await response.json();
+
+        expect(response.status).toBe(200);
+        expect(mockState.safeSendChatMessageForViewer).toHaveBeenCalledWith({
+            callerUid: "fan_1",
+            callerEmail: "fan@example.com",
+            callerRole: "user",
+            threadId: "creator_creator_1__user_fan_1",
+            text: "hello there",
+            assetUrl: undefined,
+            assetName: undefined,
+            assetMimeType: undefined,
+            messageKind: "text",
+        });
+        expect(body.success).toBe(true);
     });
 });

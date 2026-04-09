@@ -3,7 +3,7 @@
 import { useState, useRef, useEffect } from "react";
 import Link from "next/link";
 import Image from "next/image";
-import { LogOut, LayoutDashboard, Library, Settings, ChevronDown, CircleHelp, LifeBuoy, FileText } from "lucide-react";
+import { LogOut, LayoutDashboard, Library, Settings, ChevronDown, CircleHelp, LifeBuoy, FileText, MessageSquare } from "lucide-react";
 
 import { useAuth, useUserProfile } from "@/context/AuthContext";
 import { trackEvent } from "@/lib/telemetry";
@@ -94,6 +94,7 @@ export function ProfileDropdown() {
 
                     <nav className="space-y-1">
                         <DropdownItem href="/dashboard" icon={<LayoutDashboard className="w-4 h-4" />} label="Dashboard" onClick={() => setIsOpen(false)} />
+                        <DropdownItem href="/dashboard/chat" icon={<MessageSquare className="w-4 h-4" />} label="Chat" onClick={() => setIsOpen(false)} />
                         <DropdownItem href="/dashboard/library" icon={<Library className="w-4 h-4" />} label="My KandyDrops" onClick={() => setIsOpen(false)} />
                         <DropdownItem href="/dashboard/profile" icon={<Settings className="w-4 h-4" />} label="Settings" onClick={() => setIsOpen(false)} />
                     </nav>

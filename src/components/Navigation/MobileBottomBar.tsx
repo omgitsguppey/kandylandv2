@@ -1,18 +1,18 @@
 "use client";
 
-import { Home, Candy, Wallet, Sparkles, LayoutDashboard } from "lucide-react";
+import { Home, Candy, Sparkles, LayoutDashboard, MessageSquare } from "lucide-react";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { cn } from "@/lib/utils";
 import { useAuth } from "@/context/AuthContext";
-import { useUI } from "@/context/UIContext";
 import { trackEvent } from "@/lib/telemetry";
 
 const NAV_ITEMS = [
     { label: "Home", href: "/", icon: Home },
-    { label: "Dashboard", href: "/dashboard", icon: LayoutDashboard },
     { label: "Drops", href: "/drops", icon: Candy },
+    { label: "Chat", href: "/dashboard/chat", icon: MessageSquare },
     { label: "Experiences", href: "/experiences", icon: Sparkles },
+    { label: "Dashboard", href: "/dashboard", icon: LayoutDashboard },
 ] as const;
 
 function triggerHaptic() {
@@ -24,7 +24,6 @@ function triggerHaptic() {
 export default function MobileBottomBar() {
     const pathname = usePathname();
     const { user, userProfile } = useAuth();
-    const { openPurchaseModal, isPurchaseModalOpen } = useUI();
 
     if (pathname?.startsWith("/admin")) {
         return null;
@@ -46,10 +45,12 @@ export default function MobileBottomBar() {
 
                     // Role-based visibility
                     if (item.label === "Dashboard" && isGuest) return null;
-                    if (item.label === "Home" && !isGuest && !isAdmin) return null;
+                    if (item.label === "Chat" && isGuest) return null;
 
                     const Icon = item.icon;
-                    const isActive = pathname === href;
+                    const isActive = href === "/dashboard"
+                        ? pathname === href
+                        : pathname === href || pathname?.startsWith(`${href}/`);
 
                     return (
                         <Link
@@ -70,23 +71,6 @@ export default function MobileBottomBar() {
                         </Link>
                     );
                 })}
-
-                 <button
-                     type="button"
-                     aria-label="Open wallet"
-                     aria-expanded={isPurchaseModalOpen}
-                     onClick={() => {
-                         triggerHaptic();
-                         openPurchaseModal();
-                    }}
-                    className={cn(
-                        "flex h-10 min-w-0 flex-1 flex-col items-center justify-center gap-1 rounded-full px-2 py-1 text-center transition-colors active:scale-95",
-                        isPurchaseModalOpen ? "bg-brand-purple/10 text-brand-purple" : "text-gray-400"
-                    )}
-                >
-                    <Wallet className="h-3.5 w-3.5 shrink-0" />
-                    <span className="text-[9px] font-semibold leading-none">Wallet</span>
-                </button>
             </nav>
         </div>
     );

@@ -1,4 +1,28 @@
 export const ROUTE_RUNTIME_HEALTH_TARGETS = {
+    "chat/threads:GET": {
+        routeName: "chat/threads",
+        method: "GET",
+        title: "Chat thread list reads",
+        slowThresholdMs: 900,
+    },
+    "chat/thread:GET": {
+        routeName: "chat/thread",
+        method: "GET",
+        title: "Chat thread detail reads",
+        slowThresholdMs: 1000,
+    },
+    "chat/messages:POST": {
+        routeName: "chat/messages",
+        method: "POST",
+        title: "Chat message sends",
+        slowThresholdMs: 1600,
+    },
+    "chat/read:POST": {
+        routeName: "chat/read",
+        method: "POST",
+        title: "Chat read-state updates",
+        slowThresholdMs: 800,
+    },
     "creator/relationships:GET": {
         routeName: "creator/relationships",
         method: "GET",

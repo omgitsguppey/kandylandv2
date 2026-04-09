@@ -24,6 +24,17 @@ async function seedFirestore() {
       setDoc(doc(db, "transactions/tx-bob"), { userId: "bob", amount: 15 }),
       setDoc(doc(db, "notifications/notif-alice"), { userId: "alice", title: "Hi Alice" }),
       setDoc(doc(db, "notifications/notif-bob"), { userId: "bob", title: "Hi Bob" }),
+      setDoc(doc(db, "creator_message_threads/thread-alice-bob"), {
+        creatorId: "alice",
+        userId: "bob",
+        lastMessagePreview: "Hi Bob",
+      }),
+      setDoc(doc(db, "creator_messages/msg-alice-bob"), {
+        threadId: "thread-alice-bob",
+        creatorId: "alice",
+        userId: "bob",
+        text: "Hi Bob",
+      }),
     ]);
   });
 }
@@ -81,6 +92,23 @@ describe("firestore.rules", () => {
     await assertSucceeds(getDoc(doc(db, "notifications/notif-alice")));
     await assertFails(getDoc(doc(db, "transactions/tx-bob")));
     await assertFails(getDoc(doc(db, "notifications/notif-bob")));
+  });
+
+  it("allows chat participants to read their thread and messages", async () => {
+    const creatorDb = testEnv.authenticatedContext("alice").firestore();
+    const userDb = testEnv.authenticatedContext("bob").firestore();
+
+    await assertSucceeds(getDoc(doc(creatorDb, "creator_message_threads/thread-alice-bob")));
+    await assertSucceeds(getDoc(doc(creatorDb, "creator_messages/msg-alice-bob")));
+    await assertSucceeds(getDoc(doc(userDb, "creator_message_threads/thread-alice-bob")));
+    await assertSucceeds(getDoc(doc(userDb, "creator_messages/msg-alice-bob")));
+  });
+
+  it("blocks non-participants from reading chat threads and messages", async () => {
+    const db = testEnv.authenticatedContext("carol").firestore();
+
+    await assertFails(getDoc(doc(db, "creator_message_threads/thread-alice-bob")));
+    await assertFails(getDoc(doc(db, "creator_messages/msg-alice-bob")));
   });
 
   it("blocks direct client writes everywhere", async () => {

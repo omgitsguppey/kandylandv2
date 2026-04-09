@@ -91,11 +91,20 @@ export type CreatorMessageThread = {
     id: string;
     creatorId: string;
     userId: string;
+    creatorDisplayName?: string;
+    creatorUsername?: string;
+    creatorPhotoURL?: string | null;
+    userDisplayName?: string;
+    userUsername?: string;
+    userPhotoURL?: string | null;
     lastMessageAt: number;
     lastMessagePreview: string;
     messageCount: number;
+    lastMessageSenderRole?: "user" | "creator" | "admin";
     lastReadByUserAt?: number;
     lastReadByCreatorAt?: number;
+    unreadCountForUser?: number;
+    unreadCountForCreator?: number;
     subscriberChatFree: boolean;
 };
 
