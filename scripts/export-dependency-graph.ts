@@ -27,8 +27,13 @@ const result = spawnSync(
   {
     cwd: process.cwd(),
     encoding: "utf8",
+    maxBuffer: 128 * 1024 * 1024,
   },
 );
+
+if (result.error) {
+  throw result.error;
+}
 
 if (result.status !== 0) {
   if (result.stdout) {

@@ -2,9 +2,77 @@
 
 Status: Canonical audit standard and live baseline
 Last refreshed: 2026-04-09
-Last full-scale audit execution: 2026-04-09 00:18:31 -05:00
+Last full-scale audit execution: 2026-04-09 01:23:31 -05:00
 Repo: `C:\Users\uylus\OneDrive\Documents\KandyDrops_Final`
-Audited HEAD at start: `eec0983`
+Audited HEAD at start: `5aaa9cb07f5ec0334f3505cc09248b2bd55d0c01`
+
+## 2026-04-09 Full Codebase Audit + Cleanup Sweep (In Progress)
+
+Scope for this pass:
+- run a repo-wide verification and cleanup sweep
+- fix any concrete issues that surface
+- refresh the standing audit baseline and leave the tree clean
+
+Startup protocol executed:
+- read `FULL_SCALE_CODEBASE_AUDIT.md`
+- read `REPO_MEMORY_LEDGER.md`
+- read `EVERY_FILE_FUNCTION_CHECKLIST.md`
+- ran `git status --short`
+- captured current HEAD with `git rev-parse HEAD`
+
+Start state:
+- current HEAD at sweep start: `5aaa9cb07f5ec0334f3505cc09248b2bd55d0c01`
+- working tree was clean before the sweep started
+
+Implementation results:
+- fixed `scripts/export-dependency-graph.ts` so `npm run graph:architecture` no longer fails on large repos due to `spawnSync` buffer exhaustion
+- removed stale generated `.next` artifacts after a rerun exposed a broken `prebuild` parse of `.next/dev/types/routes.d.ts`
+- removed generated Playwright artifacts after verification so the worktree returns clean
+- no runtime/product defects surfaced beyond the graph-export wrapper and the stale generated build artifact
+
+Primary touched surfaces for this pass:
+- `scripts/export-dependency-graph.ts`
+- `FULL_SCALE_CODEBASE_AUDIT.md`
+
+Commands run for this pass:
+- `git status --short`
+- `git rev-parse HEAD`
+- `npm run trace:adjacent -- src/lib/route-runtime-health.ts`
+- `npm run trace:adjacent -- src/lib/telemetry-catalog.ts`
+- `npm run trace:adjacent -- scripts/run-lighthouse-audits.mjs`
+- `npm run graph:architecture`
+- `npm run check:deps`
+- `npm run check:versions`
+- `npm run check:functions`
+- `npm run check:firebase:rules`
+- `corepack pnpm run check`
+- `npx vitest run`
+- `npm run check:ui:audits`
+- `npm run check:ui:lighthouse`
+
+Results:
+- `npm run graph:architecture` passed after the graph-export script buffer fix and wrote `output/dependency-graph.json`
+- `npm run check:deps` passed
+- `npm run check:versions` passed
+- `npm run check:functions` passed
+- `npm run check:firebase:rules` passed
+- `corepack pnpm run check` passed
+- `npx vitest run` passed: `106` files / `506` tests
+- `npm run check:ui:audits` passed after clearing the stale `.next` artifact and rerunning with a longer timeout window
+- `npm run check:ui:lighthouse` passed
+
+Warnings and non-blocking notes:
+- `npm run check:ui:audits` initially showed a small one-off Chromium home-hero screenshot drift; the isolated rerun passed, and the full suite passed on rerun after the stale `.next` cleanup
+- `npm run check:ui:audits` also initially failed because `prebuild` picked up a stale `.next/dev/types/routes.d.ts`; deleting `.next` resolved it
+- current Firebase/Vitest/Lighthouse runs still emit existing non-blocking warnings:
+  - npm unknown env config warnings
+  - Node `punycode` deprecation warnings
+  - Windows Lighthouse temp-folder cleanup `EPERM` warnings
+
+Final state:
+- broad repo verification is green
+- no untracked cleanup artifacts remain
+- the only code change in this pass is the graph-export wrapper hardening
 
 ## Purpose
 This file is the standing audit contract for the repository.
