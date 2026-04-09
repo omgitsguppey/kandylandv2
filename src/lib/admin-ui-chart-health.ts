@@ -10,6 +10,7 @@ export const ADMIN_UI_CHART_HEALTH_PAGES = [
     "dashboard",
     "analytics",
     "moderation",
+    "debug",
 ] as const;
 
 export const ADMIN_UI_CHART_HEALTH_SOURCES = [
@@ -38,6 +39,7 @@ export type AdminUiChartHealthPage = typeof ADMIN_UI_CHART_HEALTH_PAGES[number];
 export type AdminUiChartHealthSource = typeof ADMIN_UI_CHART_HEALTH_SOURCES[number];
 export type AdminUiChartHydrationState = typeof ADMIN_UI_CHART_HEALTH_STATES[number];
 export type AdminUiChartHealthStatus = typeof ADMIN_UI_CHART_HEALTH_STATUSES[number];
+export type AdminUiChartHealthFreshness = "fresh" | "stale" | "unseen";
 
 export type AdminUiChartHealthItem = {
     key: string;
@@ -86,6 +88,18 @@ export function getAdminUiChartHealthTone(status: AdminUiChartHealthStatus) {
     }
 
     return "warn" as const;
+}
+
+export function getAdminUiChartHealthFreshness(
+    item: Pick<AdminUiChartHealthItem, "updatedAtMs">,
+    nowMs = Date.now(),
+    staleAfterMs = 15 * 60_000,
+): AdminUiChartHealthFreshness {
+    if (!item.updatedAtMs || item.updatedAtMs <= 0) {
+        return "unseen";
+    }
+
+    return nowMs - item.updatedAtMs > staleAfterMs ? "stale" : "fresh";
 }
 
 export function buildAdminUiChartHealthItem(input: BuildAdminUiChartHealthItemInput): AdminUiChartHealthItem {

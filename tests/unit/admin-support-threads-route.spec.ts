@@ -8,6 +8,7 @@ const mockState = vi.hoisted(() => ({
     getSupportThreadForAdmin: vi.fn(),
     addSupportMessage: vi.fn(),
     updateSupportThreadStatus: vi.fn(),
+    recordRouteRuntimeSample: vi.fn(),
     reset() {
         this.guardApiRequest.mockReset();
         this.handleApiError.mockReset();
@@ -15,6 +16,7 @@ const mockState = vi.hoisted(() => ({
         this.getSupportThreadForAdmin.mockReset();
         this.addSupportMessage.mockReset();
         this.updateSupportThreadStatus.mockReset();
+        this.recordRouteRuntimeSample.mockReset();
     },
 }));
 
@@ -43,6 +45,9 @@ vi.mock("@/lib/server/support-threads", () => ({
     getSupportThreadForAdmin: mockState.getSupportThreadForAdmin,
     addSupportMessage: mockState.addSupportMessage,
     updateSupportThreadStatus: mockState.updateSupportThreadStatus,
+}));
+vi.mock("@/lib/server/route-runtime-health", () => ({
+    recordRouteRuntimeSample: mockState.recordRouteRuntimeSample,
 }));
 
 import { GET as getAdminThreads } from "@/app/api/admin/support/threads/route";

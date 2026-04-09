@@ -3,10 +3,23 @@ import { NextRequest, NextResponse } from "next/server";
 import { AuthError, handleApiError } from "@/lib/server/auth";
 import { ADMIN } from "@/lib/server/rate-limit";
 import { guardApiRequest } from "@/lib/server/request-guard";
+import { getErrorMessage } from "@/lib/server/route-diagnostics";
+import { recordRouteRuntimeSample } from "@/lib/server/route-runtime-health";
 import { listSupportThreadsForAdmin } from "@/lib/server/support-threads";
 import { normalizeSupportThreadStatus } from "@/lib/support-readiness";
 
 export async function GET(request: NextRequest) {
+    const startedAt = Date.now();
+    const finalize = (response: NextResponse, error?: unknown) => {
+        void recordRouteRuntimeSample({
+            key: "admin/support/threads:GET",
+            durationMs: Date.now() - startedAt,
+            statusCode: response.status,
+            errorMessage: error ? getErrorMessage(error) : null,
+        });
+        return response;
+    };
+
     try {
         const caller = await guardApiRequest(request, {
             routeName: "admin/support/threads",
@@ -32,7 +45,7 @@ export async function GET(request: NextRequest) {
         const waitingOnUserCount = threads.filter((thread) => thread.status === "waiting_on_user").length;
         const resolvedCount = threads.filter((thread) => thread.status === "resolved" || thread.status === "closed").length;
 
-        return NextResponse.json({
+        return finalize(NextResponse.json({
             success: true,
             threads,
             summary: {
@@ -41,8 +54,8 @@ export async function GET(request: NextRequest) {
                 waitingOnUserCount,
                 resolvedCount,
             },
-        });
+        }));
     } catch (error) {
-        return handleApiError(error, "admin/support/threads");
+        return finalize(handleApiError(error, "admin/support/threads"), error);
     }
 }

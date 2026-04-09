@@ -6,11 +6,13 @@ const mockState = vi.hoisted(() => ({
     handleApiError: vi.fn(),
     listAdminUiChartHealth: vi.fn(),
     saveAdminUiChartHealth: vi.fn(),
+    recordRouteRuntimeSample: vi.fn(),
     reset() {
         this.guardApiRequest.mockReset();
         this.handleApiError.mockReset();
         this.listAdminUiChartHealth.mockReset();
         this.saveAdminUiChartHealth.mockReset();
+        this.recordRouteRuntimeSample.mockReset();
     },
 }));
 
@@ -30,6 +32,9 @@ vi.mock("@/lib/server/rate-limit", () => ({
 vi.mock("@/lib/server/admin-ui-chart-health", () => ({
     listAdminUiChartHealth: mockState.listAdminUiChartHealth,
     saveAdminUiChartHealth: mockState.saveAdminUiChartHealth,
+}));
+vi.mock("@/lib/server/route-runtime-health", () => ({
+    recordRouteRuntimeSample: mockState.recordRouteRuntimeSample,
 }));
 
 import { GET, PUT } from "@/app/api/admin/ui-chart-health/route";

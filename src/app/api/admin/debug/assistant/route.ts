@@ -9,6 +9,8 @@ import { buildAdminAiDebugSignalInput, generateAdminAiDebugSummary } from "@/lib
 import { ORCHESTRATION_COLLECTIONS } from "@/lib/orchestration/contract";
 import { ADMIN_DEBUG_ASSISTANT } from "@/lib/server/rate-limit";
 import { guardApiRequest } from "@/lib/server/request-guard";
+import { getErrorMessage } from "@/lib/server/route-diagnostics";
+import { recordRouteRuntimeSample } from "@/lib/server/route-runtime-health";
 import { CREATOR_ONBOARDING_COLLECTION, CREATOR_REVIEW_QUEUE_COLLECTION } from "@/lib/server/creator-onboarding";
 import { getCSTDateKey } from "@/lib/timezone";
 
@@ -18,6 +20,17 @@ export const dynamic = "force-dynamic";
 export const revalidate = 0;
 
 export async function GET(request: NextRequest) {
+    const startedAt = Date.now();
+    const finalize = (response: NextResponse, error?: unknown) => {
+        void recordRouteRuntimeSample({
+            key: "admin/debug/assistant:GET",
+            durationMs: Date.now() - startedAt,
+            statusCode: response.status,
+            errorMessage: error ? getErrorMessage(error) : null,
+        });
+        return response;
+    };
+
     try {
         await guardApiRequest(request, {
             routeName: "admin/debug/assistant",
@@ -127,13 +140,13 @@ export async function GET(request: NextRequest) {
         });
         const summary = await generateAdminAiDebugSummary(signal);
 
-        return NextResponse.json(summary, {
+        return finalize(NextResponse.json(summary, {
             status: 200,
             headers: {
                 "Cache-Control": "no-store, max-age=0",
             },
-        });
+        }));
     } catch (error) {
-        return handleApiError(error, "admin/debug/assistant");
+        return finalize(handleApiError(error, "admin/debug/assistant"), error);
     }
 }

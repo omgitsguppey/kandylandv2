@@ -4,6 +4,8 @@ import { z } from "zod";
 import { AuthError, handleApiError } from "@/lib/server/auth";
 import { ADMIN } from "@/lib/server/rate-limit";
 import { guardApiRequest } from "@/lib/server/request-guard";
+import { getErrorMessage } from "@/lib/server/route-diagnostics";
+import { recordRouteRuntimeSample } from "@/lib/server/route-runtime-health";
 import { addSupportMessage, getSupportThreadForAdmin, updateSupportThreadStatus } from "@/lib/server/support-threads";
 import { normalizeSupportThreadStatus } from "@/lib/support-readiness";
 
@@ -19,7 +21,24 @@ type RouteContext = {
     params: Promise<{ threadId: string }>;
 };
 
+function finalizeAdminSupportThreadRoute(
+    key: "admin/support/thread:GET" | "admin/support/thread:POST" | "admin/support/thread:PATCH",
+    startedAt: number,
+    response: NextResponse,
+    error?: unknown,
+) {
+    void recordRouteRuntimeSample({
+        key,
+        durationMs: Date.now() - startedAt,
+        statusCode: response.status,
+        errorMessage: error ? getErrorMessage(error) : null,
+    });
+    return response;
+}
+
 export async function GET(request: NextRequest, context: RouteContext) {
+    const startedAt = Date.now();
+
     try {
         const caller = await guardApiRequest(request, {
             routeName: "admin/support/thread",
@@ -36,19 +55,21 @@ export async function GET(request: NextRequest, context: RouteContext) {
         const { threadId } = await context.params;
         const thread = await getSupportThreadForAdmin(threadId);
         if (!thread) {
-            return NextResponse.json({ success: true, thread: null, messages: [] });
+            return finalizeAdminSupportThreadRoute("admin/support/thread:GET", startedAt, NextResponse.json({ success: true, thread: null, messages: [] }));
         }
 
-        return NextResponse.json({
+        return finalizeAdminSupportThreadRoute("admin/support/thread:GET", startedAt, NextResponse.json({
             success: true,
             ...thread,
-        });
+        }));
     } catch (error) {
-        return handleApiError(error, "admin/support/thread");
+        return finalizeAdminSupportThreadRoute("admin/support/thread:GET", startedAt, handleApiError(error, "admin/support/thread"), error);
     }
 }
 
 export async function POST(request: NextRequest, context: RouteContext) {
+    const startedAt = Date.now();
+
     try {
         const caller = await guardApiRequest(request, {
             routeName: "admin/support/thread",
@@ -78,16 +99,18 @@ export async function POST(request: NextRequest, context: RouteContext) {
         });
 
         const refreshed = await getSupportThreadForAdmin(threadId, { markRead: false });
-        return NextResponse.json({
+        return finalizeAdminSupportThreadRoute("admin/support/thread:POST", startedAt, NextResponse.json({
             success: true,
             ...refreshed,
-        });
+        }));
     } catch (error) {
-        return handleApiError(error, "admin/support/thread");
+        return finalizeAdminSupportThreadRoute("admin/support/thread:POST", startedAt, handleApiError(error, "admin/support/thread"), error);
     }
 }
 
 export async function PATCH(request: NextRequest, context: RouteContext) {
+    const startedAt = Date.now();
+
     try {
         const caller = await guardApiRequest(request, {
             routeName: "admin/support/thread",
@@ -111,11 +134,11 @@ export async function PATCH(request: NextRequest, context: RouteContext) {
         await updateSupportThreadStatus(threadId, normalizeSupportThreadStatus(status));
         const refreshed = await getSupportThreadForAdmin(threadId, { markRead: false });
 
-        return NextResponse.json({
+        return finalizeAdminSupportThreadRoute("admin/support/thread:PATCH", startedAt, NextResponse.json({
             success: true,
             ...refreshed,
-        });
+        }));
     } catch (error) {
-        return handleApiError(error, "admin/support/thread");
+        return finalizeAdminSupportThreadRoute("admin/support/thread:PATCH", startedAt, handleApiError(error, "admin/support/thread"), error);
     }
 }

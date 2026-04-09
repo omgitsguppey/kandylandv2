@@ -52,6 +52,7 @@ const mockState = vi.hoisted(() => {
         buildCreatorOnboardingDiagnostics: vi.fn(),
         buildAdminAiDebugSignalInput: vi.fn(),
         generateAdminAiDebugSummary: vi.fn(),
+        recordRouteRuntimeSample: vi.fn(),
         adminDb: {
             collection(name: string) {
                 return createCollectionRef(name);
@@ -69,6 +70,7 @@ const mockState = vi.hoisted(() => {
             this.buildCreatorOnboardingDiagnostics.mockReset();
             this.buildAdminAiDebugSignalInput.mockReset();
             this.generateAdminAiDebugSummary.mockReset();
+            this.recordRouteRuntimeSample.mockReset();
         },
     };
 });
@@ -98,6 +100,9 @@ vi.mock("@/lib/server/creator-onboarding-diagnostics", () => ({
 vi.mock("@/lib/server/ai-debug-assistant", () => ({
     buildAdminAiDebugSignalInput: mockState.buildAdminAiDebugSignalInput,
     generateAdminAiDebugSummary: mockState.generateAdminAiDebugSummary,
+}));
+vi.mock("@/lib/server/route-runtime-health", () => ({
+    recordRouteRuntimeSample: mockState.recordRouteRuntimeSample,
 }));
 
 import { GET, dynamic, revalidate } from "@/app/api/admin/debug/assistant/route";

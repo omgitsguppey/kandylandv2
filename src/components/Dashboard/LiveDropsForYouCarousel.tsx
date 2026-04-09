@@ -9,10 +9,15 @@ import { useDrops } from "@/hooks/useDrops";
 import { useNow } from "@/hooks/useNow";
 import { getSupportedDropAspectRatio } from "@/lib/drop-presentation";
 import { trackEvent } from "@/lib/telemetry";
+import type { Drop } from "@/types/db";
 
-export function LiveDropsForYouCarousel() {
+interface LiveDropsForYouCarouselProps {
+  initialDrops?: Drop[];
+}
+
+export function LiveDropsForYouCarousel({ initialDrops }: LiveDropsForYouCarouselProps) {
   const router = useRouter();
-  const { drops, loading } = useDrops(["active"]);
+  const { drops, loading } = useDrops(["active"], initialDrops);
   const nowMs = useNow({ intervalMs: 60_000 });
 
   const activeDrops = useMemo(

@@ -21,6 +21,8 @@ import {
 import { adminDb } from "@/lib/server/firebase-admin";
 import { ADMIN, HEAVY_READ } from "@/lib/server/rate-limit";
 import { guardApiRequest } from "@/lib/server/request-guard";
+import { getErrorMessage } from "@/lib/server/route-diagnostics";
+import { recordRouteRuntimeSample } from "@/lib/server/route-runtime-health";
 
 const OVERVIEW_WINDOW_DAYS = 30;
 const RECENT_TRANSACTION_LIMIT = 20;
@@ -155,6 +157,17 @@ function buildAdminTelemetryActivityItems(input: {
 }
 
 export async function GET(request: NextRequest) {
+    const startedAt = Date.now();
+    const finalize = (response: NextResponse, error?: unknown) => {
+        void recordRouteRuntimeSample({
+            key: "admin/overview:GET",
+            durationMs: Date.now() - startedAt,
+            statusCode: response.status,
+            errorMessage: error ? getErrorMessage(error) : null,
+        });
+        return response;
+    };
+
     try {
         await guardApiRequest(request, {
             routeName: "admin/overview",
@@ -166,7 +179,7 @@ export async function GET(request: NextRequest) {
         });
 
         if (!adminDb) {
-            return NextResponse.json({ error: "Database not available" }, { status: 500 });
+            return finalize(NextResponse.json({ error: "Database not available" }, { status: 500 }));
         }
 
         const now = Date.now();
@@ -476,7 +489,7 @@ export async function GET(request: NextRequest) {
             adminActivity: "Admin activity combines admin balance adjustments with recent admin telemetry logs only. It does not claim to be a full cross-domain actor history.",
         };
 
-        return NextResponse.json({
+        return finalize(NextResponse.json({
             success: true,
             issues,
             generatedAt: now,
@@ -542,8 +555,8 @@ export async function GET(request: NextRequest) {
                     : null,
             },
             truthNotes,
-        });
+        }));
     } catch (error) {
-        return handleApiError(error, "Admin.Overview.GET");
+        return finalize(handleApiError(error, "Admin.Overview.GET"), error);
     }
 }

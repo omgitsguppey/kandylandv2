@@ -14,11 +14,24 @@ import { buildHistoricalOnboardingOverview } from "@/lib/server/admin-analytics-
 import { guardApiRequest } from "@/lib/server/request-guard";
 import { ANALYTICS_CANONICAL_COLLECTIONS, ANALYTICS_OPERATIONAL_COLLECTIONS } from "@/lib/server/analytics-governance";
 import { safeQueryWithDiagnostics } from "@/lib/server/diagnostic-read-fallbacks";
+import { getErrorMessage } from "@/lib/server/route-diagnostics";
+import { recordRouteRuntimeSample } from "@/lib/server/route-runtime-health";
 
 const propertyId = getAdminAnalyticsPropertyId();
 const analyticsClient = createAdminAnalyticsDataClient();
 
 export async function GET(request: NextRequest) {
+  const startedAt = Date.now();
+  const finalize = (response: NextResponse, error?: unknown) => {
+    void recordRouteRuntimeSample({
+      key: "admin/analytics/realtime:GET",
+      durationMs: Date.now() - startedAt,
+      statusCode: response.status,
+      errorMessage: error ? getErrorMessage(error) : null,
+    });
+    return response;
+  };
+
   try {
     await guardApiRequest(request, {
       routeName: "admin/analytics/realtime",
@@ -30,10 +43,10 @@ export async function GET(request: NextRequest) {
     });
 
     if (!propertyId) {
-      return NextResponse.json({
+      return finalize(NextResponse.json({
         error: "GA_PROPERTY_ID is missing from environment variables.",
         requiresSetup: true,
-      }, { status: 400 });
+      }, { status: 400 }));
     }
 
     const nowMs = Date.now();
@@ -118,7 +131,7 @@ export async function GET(request: NextRequest) {
       .slice(0, 8);
     const surfaceMix = buildRealtimeSurfaceMix({ activeUsers });
 
-    return NextResponse.json({
+    return finalize(NextResponse.json({
       success: true,
       generatedAtMs: nowMs,
       issues,
@@ -134,8 +147,8 @@ export async function GET(request: NextRequest) {
         completionRate: onboardingOverview.onboardingCompletionRate,
         startSource: onboardingOverview.onboardingStartSource,
       },
-    });
+    }));
   } catch (error) {
-    return handleApiError(error, "Admin.Analytics.Realtime.GET");
+    return finalize(handleApiError(error, "Admin.Analytics.Realtime.GET"), error);
   }
 }

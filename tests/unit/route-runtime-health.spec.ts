@@ -54,6 +54,15 @@ describe("route runtime health", () => {
         }))).toBe("warn");
     });
 
+    it("treats never-observed routes as warn so missing coverage stays visible", () => {
+        expect(getRouteRuntimeHealthStatus(buildItem({
+            updatedAtMs: 0,
+            firstObservedAtMs: 0,
+            lastSuccessAtMs: 0,
+            lastStatusCode: 0,
+        }))).toBe("warn");
+    });
+
     it("summarizes route health totals", () => {
         const summary = summarizeRouteRuntimeHealth([
             buildItem({}),
@@ -74,13 +83,24 @@ describe("route runtime health", () => {
                 lastStatusCode: 500,
                 slowCount: 2,
             }),
+            buildItem({
+                key: "admin/debug:GET",
+                routeName: "admin/debug",
+                method: "GET",
+                title: "Admin debug snapshot",
+                updatedAtMs: 0,
+                firstObservedAtMs: 0,
+                lastSuccessAtMs: 0,
+                lastStatusCode: 0,
+            }),
         ]);
 
         expect(summary).toMatchObject({
-            total: 3,
+            total: 4,
             healthy: 1,
-            warn: 1,
+            warn: 2,
             fail: 1,
+            unobserved: 1,
             clientErrors: 1,
             serverErrors: 1,
             slow: 2,

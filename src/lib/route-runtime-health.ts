@@ -1,4 +1,64 @@
 export const ROUTE_RUNTIME_HEALTH_TARGETS = {
+    "admin/debug:GET": {
+        routeName: "admin/debug",
+        method: "GET",
+        title: "Admin debug snapshot",
+        slowThresholdMs: 1800,
+    },
+    "admin/debug/assistant:GET": {
+        routeName: "admin/debug/assistant",
+        method: "GET",
+        title: "Admin debug assistant summary",
+        slowThresholdMs: 5000,
+    },
+    "admin/overview:GET": {
+        routeName: "admin/overview",
+        method: "GET",
+        title: "Admin overview snapshot",
+        slowThresholdMs: 1800,
+    },
+    "admin/analytics/realtime:GET": {
+        routeName: "admin/analytics/realtime",
+        method: "GET",
+        title: "Admin realtime analytics snapshot",
+        slowThresholdMs: 4000,
+    },
+    "admin/ui-chart-health:GET": {
+        routeName: "admin/ui-chart-health",
+        method: "GET",
+        title: "Admin UI chart health reads",
+        slowThresholdMs: 1200,
+    },
+    "admin/ui-chart-health:PUT": {
+        routeName: "admin/ui-chart-health",
+        method: "PUT",
+        title: "Admin UI chart health writes",
+        slowThresholdMs: 1200,
+    },
+    "admin/support/threads:GET": {
+        routeName: "admin/support/threads",
+        method: "GET",
+        title: "Admin support queue reads",
+        slowThresholdMs: 1200,
+    },
+    "admin/support/thread:GET": {
+        routeName: "admin/support/thread",
+        method: "GET",
+        title: "Admin support thread reads",
+        slowThresholdMs: 1200,
+    },
+    "admin/support/thread:POST": {
+        routeName: "admin/support/thread",
+        method: "POST",
+        title: "Admin support replies",
+        slowThresholdMs: 1500,
+    },
+    "admin/support/thread:PATCH": {
+        routeName: "admin/support/thread",
+        method: "PATCH",
+        title: "Admin support status updates",
+        slowThresholdMs: 1400,
+    },
     "creator/discovery:GET": {
         routeName: "creator/discovery",
         method: "GET",
@@ -71,6 +131,12 @@ export const ROUTE_RUNTIME_HEALTH_TARGETS = {
         title: "Daily check-in claims",
         slowThresholdMs: 1400,
     },
+    "drops/feed:GET": {
+        routeName: "drops/feed",
+        method: "GET",
+        title: "Drops feed reads",
+        slowThresholdMs: 900,
+    },
     "drops/content:GET": {
         routeName: "drops/content",
         method: "GET",
@@ -107,6 +173,7 @@ export type RouteRuntimeHealthKey = keyof typeof ROUTE_RUNTIME_HEALTH_TARGETS;
 export type RouteRuntimeHealthMethod = typeof ROUTE_RUNTIME_HEALTH_TARGETS[RouteRuntimeHealthKey]["method"];
 export type RouteRuntimeHealthLastResult = "success" | "client_error" | "server_error";
 export type RouteRuntimeHealthStatus = "healthy" | "warn" | "fail";
+export type RouteRuntimeHealthCoverageState = "observed" | "unseen";
 
 export type RouteRuntimeHealthItem = {
     key: RouteRuntimeHealthKey;
@@ -135,7 +202,15 @@ function toNumber(value: unknown) {
     return typeof value === "number" && Number.isFinite(value) ? value : 0;
 }
 
-export function getRouteRuntimeHealthStatus(item: Pick<RouteRuntimeHealthItem, "lastResult" | "clientErrorCount" | "serverErrorCount" | "slowCount">): RouteRuntimeHealthStatus {
+export function getRouteRuntimeHealthCoverageState(item: Pick<RouteRuntimeHealthItem, "updatedAtMs">): RouteRuntimeHealthCoverageState {
+    return toNumber(item.updatedAtMs) > 0 ? "observed" : "unseen";
+}
+
+export function getRouteRuntimeHealthStatus(item: Pick<RouteRuntimeHealthItem, "updatedAtMs" | "lastResult" | "clientErrorCount" | "serverErrorCount" | "slowCount">): RouteRuntimeHealthStatus {
+    if (getRouteRuntimeHealthCoverageState(item) === "unseen") {
+        return "warn";
+    }
+
     if (item.lastResult === "server_error") {
         return "fail";
     }
@@ -153,6 +228,7 @@ export function summarizeRouteRuntimeHealth(items: readonly RouteRuntimeHealthIt
         healthy: items.filter((item) => getRouteRuntimeHealthStatus(item) === "healthy").length,
         warn: items.filter((item) => getRouteRuntimeHealthStatus(item) === "warn").length,
         fail: items.filter((item) => getRouteRuntimeHealthStatus(item) === "fail").length,
+        unobserved: items.filter((item) => getRouteRuntimeHealthCoverageState(item) === "unseen").length,
         slow: items.reduce((sum, item) => sum + toNumber(item.slowCount), 0),
         serverErrors: items.reduce((sum, item) => sum + toNumber(item.serverErrorCount), 0),
         clientErrors: items.reduce((sum, item) => sum + toNumber(item.clientErrorCount), 0),

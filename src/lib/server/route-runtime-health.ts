@@ -31,6 +31,33 @@ function resolveLastResult(statusCode: number): RouteRuntimeHealthLastResult {
     return "success";
 }
 
+function buildDefaultRouteRuntimeHealthItem(key: RouteRuntimeHealthKey): RouteRuntimeHealthItem {
+    const target = ROUTE_RUNTIME_HEALTH_TARGETS[key];
+
+    return {
+        key,
+        routeName: target.routeName,
+        method: target.method,
+        title: target.title,
+        slowThresholdMs: target.slowThresholdMs,
+        successCount: 0,
+        clientErrorCount: 0,
+        serverErrorCount: 0,
+        slowCount: 0,
+        averageLatencyMs: 0,
+        maxLatencyMs: 0,
+        lastLatencyMs: 0,
+        lastResult: "success",
+        lastStatusCode: 0,
+        lastErrorMessage: null,
+        firstObservedAtMs: 0,
+        updatedAtMs: 0,
+        lastSuccessAtMs: 0,
+        lastClientErrorAtMs: 0,
+        lastServerErrorAtMs: 0,
+    };
+}
+
 export async function recordRouteRuntimeSample(input: {
     key: RouteRuntimeHealthKey;
     durationMs: number;
@@ -94,9 +121,11 @@ export async function recordRouteRuntimeSample(input: {
     }
 }
 
-export async function listRouteRuntimeHealth(limitCount = 20) {
+export async function listRouteRuntimeHealth(limitCount = Object.keys(ROUTE_RUNTIME_HEALTH_TARGETS).length) {
     if (!adminDb) {
-        return [] as RouteRuntimeHealthItem[];
+        return (Object.keys(ROUTE_RUNTIME_HEALTH_TARGETS) as RouteRuntimeHealthKey[])
+            .slice(0, limitCount)
+            .map((key) => buildDefaultRouteRuntimeHealthItem(key));
     }
 
     try {
@@ -105,7 +134,23 @@ export async function listRouteRuntimeHealth(limitCount = 20) {
             .limit(limitCount)
             .get();
 
-        return snapshot.docs.map((doc) => doc.data() as RouteRuntimeHealthItem);
+        const persistedByKey = snapshot.docs.reduce<Map<RouteRuntimeHealthKey, RouteRuntimeHealthItem>>((map, doc) => {
+            const item = doc.data() as RouteRuntimeHealthItem;
+            map.set(item.key, item);
+            return map;
+        }, new Map<RouteRuntimeHealthKey, RouteRuntimeHealthItem>());
+
+        return (Object.keys(ROUTE_RUNTIME_HEALTH_TARGETS) as RouteRuntimeHealthKey[])
+            .map((key) => persistedByKey.get(key) ?? buildDefaultRouteRuntimeHealthItem(key))
+            .sort((left, right) => {
+                const updatedDelta = toNumber(right.updatedAtMs) - toNumber(left.updatedAtMs);
+                if (updatedDelta !== 0) {
+                    return updatedDelta;
+                }
+
+                return left.title.localeCompare(right.title);
+            })
+            .slice(0, limitCount);
     } catch (error) {
         recordRouteWarning("route-runtime-health", "Route runtime health read failed", error, {
             channel: "runtime",
@@ -113,6 +158,8 @@ export async function listRouteRuntimeHealth(limitCount = 20) {
                 limitCount,
             },
         });
-        return [] as RouteRuntimeHealthItem[];
+        return (Object.keys(ROUTE_RUNTIME_HEALTH_TARGETS) as RouteRuntimeHealthKey[])
+            .slice(0, limitCount)
+            .map((key) => buildDefaultRouteRuntimeHealthItem(key));
     }
 }

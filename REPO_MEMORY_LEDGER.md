@@ -746,3 +746,68 @@ This file is not a changelog. It is the concise ledger for durable decisions tha
   - `src/app/api/viewer/watch-session/route.ts`
   - `FULL_SCALE_CODEBASE_AUDIT.md`
 - Follow-up gaps: The dashboard still depends on client diagnostics for browser-only failures such as notification-permission UX; only the server-backed routes above are now visible in route-runtime-health.
+
+### 34. Load-bearing user surfaces should be server-seeded first and only reconcile live changes after hydration
+- Approximate date: Canonicalized and recorded on 2026-04-09
+- Status: Active loading/runtime rule
+- Problem/context: Home, experiences, dashboard, drops, and creator spotlight were paying unnecessary client waterfalls or delayed mount penalties even when the server already had enough truth to render the first screen. That created visible second-phase loading without adding new realtime correctness.
+- Decision made: Treat server-seeded live snapshots as the default for load-bearing user surfaces, then let the client reconcile from realtime sources after hydration. Remove artificial deferred mounts for visible modules and do not immediately refetch the same payload on mount when SSR already supplied it.
+- What became canonical:
+  - home and experiences now receive server-seeded live drop data on first paint
+  - dashboard, drops, and experiences receive server-seeded creator spotlight data
+  - `CreatorDiscoveryRail` uses seeded data immediately and only falls back to client discovery fetches when no seed exists
+  - `useDrops(...)` does not immediately revalidate the first page when `initialData` already came from the server
+  - visible modules should prefer immediate render plus truthful loading placeholders over artificial `useDeferredClientReady(...)` delays
+  - global chrome should not be lazy-loaded as a second-phase chunk when it is present on nearly every route
+  - `drops/feed:GET` is a first-class route-runtime-health surface
+- What is now disallowed or deprecated:
+  - client-only first paint for load-bearing global drop surfaces when server data is already available
+  - immediate post-SSR refetches of the first drop feed page without new truth to justify them
+  - delaying visible core modules solely to smooth perceived load if the data is already present
+  - lazy-loading the primary navbar or bottom navigation as optional chrome
+- Truth lives in:
+  - `src/app/page.tsx`
+  - `src/app/HomeClient.tsx`
+  - `src/app/dashboard/page.tsx`
+  - `src/app/dashboard/DashboardClient.tsx`
+  - `src/app/drops/page.tsx`
+  - `src/app/drops/DropsClient.tsx`
+  - `src/app/experiences/page.tsx`
+  - `src/app/experiences/ExperiencesClient.tsx`
+  - `src/components/CoreLayoutWrapper.tsx`
+  - `src/components/CreatorDiscoveryRail.tsx`
+  - `src/components/Dashboard/LiveDropsForYouCarousel.tsx`
+  - `src/hooks/useDrops.ts`
+  - `src/lib/server/creator-discovery.ts`
+  - `src/app/api/drops/route.ts`
+  - `src/lib/route-runtime-health.ts`
+  - `FULL_SCALE_CODEBASE_AUDIT.md`
+- Follow-up gaps: Admin overview and some authenticated dashboard-only modules still rely on client fetch after shell render because they require user-scoped or admin-scoped state that is not yet server-seeded end to end.
+
+### 35. Admin debug must expose missing runtime evidence instead of silently omitting it
+- Approximate date: Canonicalized and recorded on 2026-04-09
+- Status: Active admin observability rule
+- Problem/context: The admin debug console already summarized route-runtime and client hydration health, but unobserved admin routes simply disappeared from the runtime ledger and the debug page itself did not report its own client-side hydration state. That made missing evidence look healthier than it was.
+- Decision made: Treat missing runtime evidence as a first-class debug signal. Route-runtime-health should enumerate all canonical tracked targets, mark never-observed routes as visible warnings, and the debug page should report its own client hydration state through the same admin UI chart-health channel used by other admin surfaces.
+- What became canonical:
+  - `listRouteRuntimeHealth()` must merge persisted route samples with the full target registry instead of returning only observed routes
+  - never-observed tracked routes must remain visible in admin debug as coverage gaps rather than disappearing from the health lane
+  - the admin debug console now self-reports at least these client surfaces:
+    - primary debug snapshot
+    - overview dependency lane
+    - AI assistant lane
+    - route-runtime lane
+  - admin-debug route summary counts must come from the canonical route-health summary helper, not ad hoc `lastResult` checks
+- What is now disallowed or deprecated:
+  - treating the absence of route samples as implicit health
+  - letting the debug console observe every other admin surface without reporting its own hydration state
+  - using custom route-health count logic in admin debug that can drift from the shared helper contract
+- Truth lives in:
+  - `src/lib/route-runtime-health.ts`
+  - `src/lib/server/route-runtime-health.ts`
+  - `src/lib/admin-ui-chart-health.ts`
+  - `src/app/admin/debug/page.tsx`
+  - `src/app/api/admin/debug/route.ts`
+  - `src/lib/server/admin-panel-system-logs.ts`
+  - `FULL_SCALE_CODEBASE_AUDIT.md`
+- Follow-up gaps: Route-runtime-health still distinguishes observed vs never-observed, but it does not yet split fresh vs stale historical success for low-traffic admin surfaces.

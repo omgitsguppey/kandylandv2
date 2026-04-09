@@ -9,6 +9,8 @@ import { handleApiError } from "@/lib/server/auth";
 import { listAdminUiChartHealth, saveAdminUiChartHealth } from "@/lib/server/admin-ui-chart-health";
 import { ADMIN, HEAVY_READ } from "@/lib/server/rate-limit";
 import { guardApiRequest } from "@/lib/server/request-guard";
+import { getErrorMessage } from "@/lib/server/route-diagnostics";
+import { recordRouteRuntimeSample } from "@/lib/server/route-runtime-health";
 
 function isAdminUiChartHealthItem(value: unknown): value is AdminUiChartHealthItem {
     if (!value || typeof value !== "object" || Array.isArray(value)) {
@@ -32,6 +34,17 @@ function isAdminUiChartHealthItem(value: unknown): value is AdminUiChartHealthIt
 }
 
 export async function GET(request: NextRequest) {
+    const startedAt = Date.now();
+    const finalize = (response: NextResponse, error?: unknown) => {
+        void recordRouteRuntimeSample({
+            key: "admin/ui-chart-health:GET",
+            durationMs: Date.now() - startedAt,
+            statusCode: response.status,
+            errorMessage: error ? getErrorMessage(error) : null,
+        });
+        return response;
+    };
+
     try {
         await guardApiRequest(request, {
             routeName: "admin/ui-chart-health",
@@ -44,16 +57,27 @@ export async function GET(request: NextRequest) {
 
         const items = await listAdminUiChartHealth();
 
-        return NextResponse.json({
+        return finalize(NextResponse.json({
             success: true,
             items,
-        });
+        }));
     } catch (error) {
-        return handleApiError(error, "Admin.UiChartHealth.GET");
+        return finalize(handleApiError(error, "Admin.UiChartHealth.GET"), error);
     }
 }
 
 export async function PUT(request: NextRequest) {
+    const startedAt = Date.now();
+    const finalize = (response: NextResponse, error?: unknown) => {
+        void recordRouteRuntimeSample({
+            key: "admin/ui-chart-health:PUT",
+            durationMs: Date.now() - startedAt,
+            statusCode: response.status,
+            errorMessage: error ? getErrorMessage(error) : null,
+        });
+        return response;
+    };
+
     try {
         const authResult = await guardApiRequest(request, {
             routeName: "admin/ui-chart-health",
@@ -64,7 +88,7 @@ export async function PUT(request: NextRequest) {
             scopeToCaller: true,
         });
         if (!authResult) {
-            return NextResponse.json({ error: "Admin authentication is required." }, { status: 401 });
+            return finalize(NextResponse.json({ error: "Admin authentication is required." }, { status: 401 }));
         }
 
         const body = await request.json().catch(() => ({}));
@@ -72,9 +96,9 @@ export async function PUT(request: NextRequest) {
         const items = rawItems.filter(isAdminUiChartHealthItem);
 
         if (items.length === 0) {
-            return NextResponse.json({
+            return finalize(NextResponse.json({
                 error: "No valid chart health items were provided.",
-            }, { status: 400 });
+            }, { status: 400 }));
         }
 
         await saveAdminUiChartHealth({
@@ -83,11 +107,11 @@ export async function PUT(request: NextRequest) {
             actorEmail: authResult.email ?? null,
         });
 
-        return NextResponse.json({
+        return finalize(NextResponse.json({
             success: true,
             itemCount: items.length,
-        });
+        }));
     } catch (error) {
-        return handleApiError(error, "Admin.UiChartHealth.PUT");
+        return finalize(handleApiError(error, "Admin.UiChartHealth.PUT"), error);
     }
 }

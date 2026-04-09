@@ -3,6 +3,8 @@
 import { PayPalProvider } from "@/components/PayPalProvider";
 import { Toaster } from "sonner";
 import CookieBanner from "@/components/CookieBanner";
+import { Navbar } from "@/components/Navbar";
+import MobileBottomBar from "@/components/Navigation/MobileBottomBar";
 import dynamic from "next/dynamic";
 import { useEffect } from "react";
 import { usePathname } from "next/navigation";
@@ -14,8 +16,6 @@ import { shouldBypassFanOnboarding } from "@/lib/creator-application";
 import { applyAnalyticsConsentToGtag, persistPrivacySettingsSnapshot, readPrivacySettingsSnapshot } from "@/lib/privacy-consent";
 import { writeLastVisitedPath } from "@/lib/navigation-persistence";
 
-const MobileBottomBar = dynamic(() => import("@/components/Navigation/MobileBottomBar"));
-const Navbar = dynamic(() => import("@/components/Navbar").then((mod) => mod.Navbar));
 const GlobalPurchaseModal = dynamic(() => import("@/components/GlobalPurchaseModal").then((mod) => mod.GlobalPurchaseModal));
 const GlobalAuthModal = dynamic(() => import("@/components/GlobalAuthModal").then((mod) => mod.GlobalAuthModal));
 const GuidedOnboarding = dynamic(() => import("@/components/Auth/GuidedOnboarding").then((mod) => mod.GuidedOnboarding), { ssr: false });

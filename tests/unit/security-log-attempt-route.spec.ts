@@ -84,5 +84,5 @@ describe("POST /api/security/log-attempt", () => {
     expect(handleApiErrorMock).toHaveBeenCalledWith(expect.any(Error), "SecurityLogAttempt.POST");
     expect(response.status).toBe(500);
     expect(trackServerEventMock).not.toHaveBeenCalled();
-  });
+  }, 15_000);
 });

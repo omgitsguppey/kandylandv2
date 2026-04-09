@@ -85,11 +85,14 @@ export function useDrops(
       nextCursor: initialData.length === DROPS_PAGE_SIZE ? buildDropCursor(initialData[initialData.length - 1]) : null,
     }] : undefined;
   }, [initialData]);
+  const hasServerSeed = Boolean(initialData && initialData.length >= 0);
 
   const { data, error, size, setSize, mutate } = useSWRInfinite<DropFeedPage>(getKey, fetcher, {
     fallbackData: fallback,
     persistSize: true,
-    revalidateFirstPage: true,
+    revalidateFirstPage: !hasServerSeed,
+    revalidateOnMount: !hasServerSeed,
+    revalidateIfStale: !hasServerSeed,
     revalidateOnFocus: false,
     refreshInterval: refreshIntervalMs,
     refreshWhenHidden: false,

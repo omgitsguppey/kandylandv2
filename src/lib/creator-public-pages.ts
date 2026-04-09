@@ -26,6 +26,18 @@ export type CreatorPublicExperienceCard = {
     summary: string;
 };
 
+export type CreatorDiscoveryProfile = {
+    uid: string;
+    displayName: string;
+    username: string;
+    photoURL: string | null;
+    bio: string;
+    isVerified: boolean;
+    activeDropCount: number;
+    followerCount: number;
+    notificationsEnabledCount?: number;
+};
+
 export function buildCreatorDiscoveryNavigationParams(input: {
     creatorId: string;
     creatorUsername?: string;

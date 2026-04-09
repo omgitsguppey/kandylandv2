@@ -4,22 +4,18 @@ import dynamic from "next/dynamic";
 import { useEffect, useMemo } from "react";
 import { Star } from "lucide-react";
 
+import { CreatorDiscoveryRail } from "@/components/CreatorDiscoveryRail";
 import { useAuth } from "@/context/AuthContext";
 import { useRolloutVariant } from "@/context/RolloutContext";
 import { DailyCheckIn } from "@/components/Dashboard/DailyCheckIn";
 import { CollectionList } from "@/components/Dashboard/CollectionList";
 import { CreatorWorkspacePanel } from "@/components/Dashboard/CreatorWorkspacePanel";
 import { useDrops } from "@/hooks/useDrops";
-import { useDeferredClientReady } from "@/hooks/useDeferredClientReady";
-import { useNetworkConditions } from "@/hooks/useNetworkConditions";
 import { mergeResolvedDropsById } from "@/lib/drop-dashboard";
 import { isDropActiveNow } from "@/lib/drop-status";
+import type { CreatorDiscoveryProfile } from "@/lib/creator-public-pages";
 import { trackEvent } from "@/lib/telemetry";
 import type { Drop } from "@/types/db";
-
-const CreatorDiscoveryRail = dynamic(
-    () => import("@/components/CreatorDiscoveryRail").then((mod) => mod.CreatorDiscoveryRail),
-);
 
 const RecentActivityFeed = dynamic(
     () => import("@/components/Dashboard/RecentActivityFeed").then((mod) => mod.RecentActivityFeed),
@@ -35,6 +31,7 @@ const RecentActivityFeed = dynamic(
 
 interface DashboardClientProps {
     drops: Drop[];
+    creatorRailProfiles: CreatorDiscoveryProfile[];
 }
 
 const DASHBOARD_GREETING_VARIANTS: Record<string, string> = {
@@ -43,13 +40,8 @@ const DASHBOARD_GREETING_VARIANTS: Record<string, string> = {
     shop: "Welcome back to the Kandy Shop, {name}",
 };
 
-export default function DashboardClient({ drops }: DashboardClientProps) {
+export default function DashboardClient({ drops, creatorRailProfiles }: DashboardClientProps) {
     const { userProfile, loading } = useAuth();
-    const { isConstrained, isVerySlow } = useNetworkConditions();
-    const recentActivityReady = useDeferredClientReady({
-        delayMs: isVerySlow ? 1_800 : isConstrained ? 1_100 : 450,
-        idle: true,
-    });
     const greetingVariant = useRolloutVariant("dashboard_greeting_experiment", "taste");
     const greetingTemplate = DASHBOARD_GREETING_VARIANTS[greetingVariant] || DASHBOARD_GREETING_VARIANTS.taste;
     const initialActiveDrops = useMemo(() => drops.filter((drop) => isDropActiveNow(drop)), [drops]);
@@ -110,7 +102,7 @@ export default function DashboardClient({ drops }: DashboardClientProps) {
             <div className="grid grid-cols-1 gap-5 sm:gap-8 lg:grid-cols-3">
                 <div className="space-y-6 md:space-y-8">
                     <DailyCheckIn />
-                    <CreatorDiscoveryRail surface="dashboard" compact />
+                    <CreatorDiscoveryRail surface="dashboard" compact initialCreators={creatorRailProfiles} />
 
                     <div className="glass-panel rounded-3xl p-4 md:p-5">
                         <h3 className="mb-3 flex items-center gap-2 text-base font-bold text-white md:text-lg">
@@ -129,7 +121,7 @@ export default function DashboardClient({ drops }: DashboardClientProps) {
                         </div>
                     </div>
 
-                    {recentActivityReady ? <RecentActivityFeed /> : null}
+                    <RecentActivityFeed />
                 </div>
 
                 <div className="lg:col-span-2">

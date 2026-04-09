@@ -247,4 +247,100 @@ describe("buildAdminPanelSystemLogs", () => {
         expect(routeLog?.summary).toContain("currently failing");
         expect(routeLog?.action).toContain("AI cover generation");
     });
+
+    it("keeps never-observed tracked routes visible in the runtime log", () => {
+        const logs = buildAdminPanelSystemLogs({
+            nowMs: Date.UTC(2026, 3, 8, 12, 0, 0),
+            recentTransactionsCount: 5,
+            unsupportedTasks: 0,
+            telemetryValidatedTasks: 12,
+            usersWithTaskIssues: 0,
+            completedEventsLast7d: 5,
+            receiptsLast7d: 5,
+            rewardEventDeltaLast7d: 0,
+            legacyRewardVersionCount: 0,
+            trackedTelemetryEvents: 40,
+            orphanedTelemetryEvents: 0,
+            bugReportsLast7d: 0,
+            rolloutCount: 2,
+            releaseEntryCount: 3,
+            creatorSpendViolationsLast7d: 0,
+            opsHealth: {
+                score: 96,
+                runtime: {
+                    gaPropertyConfigured: true,
+                    vapidConfigured: true,
+                    databaseUrlConfigured: true,
+                    projectId: "kandydrops-by-ikandy",
+                    navigationSessionSigningReady: true,
+                    warnings: [],
+                },
+                diagnostics: {
+                    total: 0,
+                    errorCount: 0,
+                    warnCount: 0,
+                    infoCount: 0,
+                    activeErrorCount: 0,
+                    activeWarnCount: 0,
+                    recentErrorCount: 0,
+                    recentWarnCount: 0,
+                    activeIssueClusterCount: 0,
+                    recentIssueClusterCount: 0,
+                    activeWindowMs: 3_600_000,
+                    recentWindowMs: 14_400_000,
+                    lastDiagnosticAt: 0,
+                    channels: [],
+                    recent: [],
+                },
+                pipeline: {
+                    status: "healthy",
+                    failureCount: 0,
+                    lastFailureAt: 0,
+                    lastRouteName: "",
+                    lastErrorMessage: "",
+                    activeWindowMs: 3_600_000,
+                    recentWindowMs: 14_400_000,
+                    routes: [],
+                },
+                materializers: [],
+            },
+            orchestration: {
+                score: 92,
+                openFindings: 0,
+                actionableProposals: 0,
+                lowConfidenceEvents: 0,
+                recommendationReady: 0,
+            },
+            routeRuntimeHealth: [
+                {
+                    key: "admin/debug:GET",
+                    routeName: "admin/debug",
+                    method: "GET",
+                    title: "Admin debug snapshot",
+                    slowThresholdMs: 1800,
+                    successCount: 0,
+                    clientErrorCount: 0,
+                    serverErrorCount: 0,
+                    slowCount: 0,
+                    averageLatencyMs: 0,
+                    maxLatencyMs: 0,
+                    lastLatencyMs: 0,
+                    lastResult: "success",
+                    lastStatusCode: 0,
+                    lastErrorMessage: null,
+                    firstObservedAtMs: 0,
+                    updatedAtMs: 0,
+                    lastSuccessAtMs: 0,
+                    lastClientErrorAtMs: 0,
+                    lastServerErrorAtMs: 0,
+                },
+            ],
+        });
+
+        const routeLog = logs.find((entry) => entry.id === "ops.route_runtime_health");
+        expect(routeLog).toMatchObject({
+            status: "warn",
+        });
+        expect(routeLog?.summary).toContain("never produced a runtime sample");
+    });
 });

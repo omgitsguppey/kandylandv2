@@ -2,21 +2,18 @@
 
 import { useEffect, useMemo, useRef, useState } from "react";
 import { usePathname, useSearchParams } from "next/navigation";
+import dynamic from "next/dynamic";
+
+import { CreatorDiscoveryRail } from "@/components/CreatorDiscoveryRail";
 import { DropGrid } from "@/components/DropGrid";
 import StickyFilterBar from "@/components/StickyFilterBar";
 import { Drop } from "@/types/db";
 import { useAuth } from "@/context/AuthContext";
 import { useUI } from "@/context/UIContext";
 import { useDrops } from "@/hooks/useDrops";
-import { useDeferredClientReady } from "@/hooks/useDeferredClientReady";
-import { useNetworkConditions } from "@/hooks/useNetworkConditions";
 import { KandyDropsAccountOverview, AccountOverviewState } from "@/components/KandyDropsAccountOverview";
-import dynamic from "next/dynamic";
+import type { CreatorDiscoveryProfile } from "@/lib/creator-public-pages";
 import { trackEvent } from "@/lib/telemetry";
-
-const CreatorDiscoveryRail = dynamic(
-    () => import("@/components/CreatorDiscoveryRail").then((mod) => mod.CreatorDiscoveryRail),
-);
 
 const FeaturedCarousel = dynamic(() => import("@/components/FeaturedCarousel").then(mod => mod.FeaturedCarousel), {
     ssr: false,
@@ -31,6 +28,7 @@ const CATEGORIES = ["All", "New", "Ending Soon", "Hottest", "Sweet", "Spicy", "R
 
 interface DropsClientProps {
     initialDrops: Drop[];
+    creatorRailProfiles: CreatorDiscoveryProfile[];
 }
 
 interface AccountOverviewViewModel {
@@ -95,17 +93,12 @@ function buildAccountOverviewViewModel(params: {
     };
 }
 
-export function DropsClient({ initialDrops }: DropsClientProps) {
+export function DropsClient({ initialDrops, creatorRailProfiles }: DropsClientProps) {
     const pathname = usePathname();
     const searchParams = useSearchParams();
     const { user, userProfile, loading: authLoading } = useAuth();
     const { openAuthModal, openPurchaseModal, openProfileSidebar } = useUI();
     const { drops: liveDrops, size, setSize, isLoadingMore, isReachingEnd } = useDrops(["active", "scheduled"], initialDrops);
-    const { isConstrained, isVerySlow } = useNetworkConditions();
-    const featuredReady = useDeferredClientReady({
-        delayMs: isVerySlow ? 1_900 : isConstrained ? 1_100 : 200,
-        idle: true,
-    });
     const [impressionTrackingSessionId] = useState(() => {
         let token = "";
         if (typeof crypto !== "undefined" && typeof crypto.randomUUID === "function") {
@@ -283,11 +276,9 @@ export function DropsClient({ initialDrops }: DropsClientProps) {
                 />
             </div>
 
-            <CreatorDiscoveryRail surface="drops" compact />
+            <CreatorDiscoveryRail surface="drops" compact initialCreators={creatorRailProfiles} />
 
-
-
-            {!searchQuery && selectedCategory === "All" && featuredReady && (
+            {!searchQuery && selectedCategory === "All" && (
                 <div className="mt-6">
                     <FeaturedCarousel drops={sourceDrops} onSelectDrop={handleSelectDrop} />
                 </div>

@@ -20,11 +20,20 @@ import { PageViewEvent } from "@/components/Analytics/PageViewEvent";
 import { Button } from "@/components/ui/Button";
 import { useAuth } from "@/context/AuthContext";
 import { useAdminOverview } from "@/hooks/useAdminOverview";
+import { useAdminUiChartHealthReporter } from "@/hooks/useAdminUiChartHealthReporter";
 import { useAdminPollingSWR } from "@/hooks/useAdminPollingSWR";
 import { useCompactViewport } from "@/hooks/useCompactViewport";
 import type { AdminAiDebugSummary } from "@/lib/ai-debug-assistant";
-import { summarizeAdminUiChartHealth } from "@/lib/admin-ui-chart-health";
-import { getRouteRuntimeHealthStatus, summarizeRouteRuntimeHealth } from "@/lib/route-runtime-health";
+import {
+    buildAdminUiChartHealthItem,
+    getAdminUiChartHealthFreshness,
+    summarizeAdminUiChartHealth,
+} from "@/lib/admin-ui-chart-health";
+import {
+    getRouteRuntimeHealthCoverageState,
+    getRouteRuntimeHealthStatus,
+    summarizeRouteRuntimeHealth,
+} from "@/lib/route-runtime-health";
 import { authFetch } from "@/lib/authFetch";
 import { reportClientIssue } from "@/lib/client-error-reporting";
 import { cn } from "@/lib/utils";
@@ -70,6 +79,12 @@ function getChartHealthStatusTone(status?: string) {
     if (status === "fail") return "bad" as const;
     if (status === "warn") return "warn" as const;
     return "good" as const;
+}
+
+function getFreshnessTone(state: "fresh" | "stale" | "unseen") {
+    if (state === "fresh") return "good" as const;
+    if (state === "stale") return "warn" as const;
+    return "neutral" as const;
 }
 
 function compactNumber(value?: number) {
@@ -216,6 +231,99 @@ export default function DebugConsole() {
 
         return timestamps.length > 0 ? Math.max(...timestamps) : 0;
     }, [aiDebugData?.generated_at, analyticsChartHealth, data?.opsHealth?.diagnostics?.recent, data?.panelSystemLogs, recentTransactions, routeRuntimeHealth]);
+    const overviewDependencyUpdatedAt = useMemo(() => {
+        const timestamps = recentTransactions
+            .map((entry) => (typeof entry.timestamp === "number" ? entry.timestamp : 0))
+            .filter((value) => Number.isFinite(value) && value > 0);
+
+        return timestamps.length > 0 ? Math.max(...timestamps) : 0;
+    }, [recentTransactions]);
+    const routeRuntimeLaneUpdatedAt = useMemo(() => {
+        const timestamps = routeRuntimeHealth
+            .map((entry: any) => (typeof entry.updatedAtMs === "number" ? entry.updatedAtMs : 0))
+            .filter((value: number) => Number.isFinite(value) && value > 0);
+
+        return timestamps.length > 0 ? Math.max(...timestamps) : 0;
+    }, [routeRuntimeHealth]);
+    const unseenRouteRuntimeCount = useMemo(
+        () => routeRuntimeHealth.filter((entry: any) => getRouteRuntimeHealthCoverageState(entry) === "unseen").length,
+        [routeRuntimeHealth],
+    );
+    const debugSurfaceHealth = useMemo(() => ([
+        buildAdminUiChartHealthItem({
+            key: "debug.console_snapshot",
+            title: "Debug console snapshot",
+            page: "debug",
+            category: "overview",
+            source: "overview_snapshot",
+            updatedAtMs: freshestLoadedSignalAt,
+            hasLoaded: Boolean(data) || Boolean(error),
+            loading: isLoading,
+            hasData: Boolean(data),
+            blockingIssues: error ? [error instanceof Error ? error.message : "Debug console snapshot failed to load."] : [],
+            healthySummary: "Primary debug snapshot is loaded from the canonical admin debug route.",
+            emptySummary: "The primary debug snapshot has not returned data yet.",
+        }),
+        buildAdminUiChartHealthItem({
+            key: "debug.overview_dependency",
+            title: "Overview dependency",
+            page: "debug",
+            category: "overview",
+            source: "overview_snapshot",
+            updatedAtMs: overviewDependencyUpdatedAt,
+            hasLoaded: Boolean(overviewData) || !overviewLoading,
+            loading: overviewLoading,
+            hasData: Boolean(overviewData),
+            healthySummary: "Admin overview dependency is loaded for recent transaction context.",
+            emptySummary: "Admin overview dependency returned no data for the debug console.",
+        }),
+        buildAdminUiChartHealthItem({
+            key: "debug.ai_assistant_summary",
+            title: "AI assistant summary",
+            page: "debug",
+            category: "operations",
+            source: "mixed_client_live",
+            updatedAtMs: aiDebugData?.generated_at ? Date.parse(aiDebugData.generated_at) : 0,
+            hasLoaded: Boolean(aiDebugData) || Boolean(aiDebugError),
+            loading: !aiDebugData && !aiDebugError,
+            hasData: Boolean(aiDebugData),
+            blockingIssues: aiDebugError ? [aiDebugError instanceof Error ? aiDebugError.message : "AI debug assistant is unavailable."] : [],
+            healthySummary: aiDebugData?.fallback_used
+                ? "AI assistant summary is loaded through the deterministic fallback path."
+                : "AI assistant summary is loaded from the live model path.",
+            emptySummary: "AI assistant summary has not returned data yet.",
+        }),
+        buildAdminUiChartHealthItem({
+            key: "debug.route_runtime_lane",
+            title: "Route runtime lane",
+            page: "debug",
+            category: "operations",
+            source: "overview_snapshot",
+            updatedAtMs: routeRuntimeLaneUpdatedAt,
+            hasLoaded: Boolean(data) || Boolean(error),
+            loading: isLoading,
+            hasData: routeRuntimeHealth.length > 0,
+            backgroundIssues: unseenRouteRuntimeCount > 0
+                ? [`${unseenRouteRuntimeCount} tracked routes have not produced a runtime sample yet.`]
+                : [],
+            healthySummary: `${routeRuntimeHealth.length} tracked routes are visible in the debug runtime lane.`,
+            emptySummary: "No tracked route runtime entries are loaded yet.",
+        }),
+    ]), [
+        aiDebugData,
+        aiDebugError,
+        data,
+        error,
+        freshestLoadedSignalAt,
+        isLoading,
+        overviewData,
+        overviewDependencyUpdatedAt,
+        overviewLoading,
+        routeRuntimeHealth.length,
+        routeRuntimeLaneUpdatedAt,
+        unseenRouteRuntimeCount,
+    ]);
+    useAdminUiChartHealthReporter(debugSurfaceHealth);
     const aiStatusLabel = aiDebugError
         ? "Unavailable"
         : !aiDebugData
@@ -363,8 +471,8 @@ export default function DebugConsole() {
                 <StatCard label="Task-issue users" value={data?.stats?.usersWithTaskIssues ?? "--"} meta={`${data?.stats?.runtimeUsersWithRefreshIssues ?? 0} sampled refresh warnings`} />
                 <StatCard label="Creator issues" value={data?.stats?.creatorOnboardingIssues ?? "--"} meta={`${data?.creatorOnboardingDiagnostics?.summary?.missingQueueCount ?? 0} missing queue links`} />
                 <StatCard label="Open actions" value={derivedActionCount} meta={`${data?.stats?.orchestrationActionableRepairs ?? 0} proposals + ${panelLogWarnCount + panelLogFailCount} panel log issues + ${analyticsChartHealthSummary.warn + analyticsChartHealthSummary.fail} chart issues + ${routeRuntimeHealthSummary.warn + routeRuntimeHealthSummary.fail} route issues`} />
-                <StatCard label="Route health" value={routeRuntimeHealthSummary.total ? `${routeRuntimeHealthSummary.fail}/${routeRuntimeHealthSummary.warn}` : "--"} meta={routeRuntimeHealthSummary.total ? `${routeRuntimeHealthSummary.total} tracked | ${routeRuntimeHealthSummary.serverErrors} server errors | ${routeRuntimeHealthSummary.slow} slow samples` : "no route rollups yet"} />
-                <StatCard label="Freshest signal" value={freshestLoadedSignalAt ? formatRelative(freshestLoadedSignalAt) : "--"} meta="derived from loaded diagnostics, panel logs, transactions, and AI status" />
+                <StatCard label="Route health" value={routeRuntimeHealthSummary.total ? `${routeRuntimeHealthSummary.fail}/${routeRuntimeHealthSummary.warn}` : "--"} meta={routeRuntimeHealthSummary.total ? `${routeRuntimeHealthSummary.total} tracked | ${routeRuntimeHealthSummary.unobserved} unseen | ${routeRuntimeHealthSummary.serverErrors} server errors | ${routeRuntimeHealthSummary.slow} slow samples` : "no route rollups yet"} />
+                <StatCard label="Freshest loaded sample" value={freshestLoadedSignalAt ? formatRelative(freshestLoadedSignalAt) : "--"} meta="derived from loaded diagnostics, panel logs, UI hydration reports, transactions, and AI status" />
                 <StatCard label="AI assistant" value={aiStatusLabel} meta={aiDebugData ? `${aiDebugData.model} | ${aiDebugData.latency_ms}ms` : aiDebugError ? "assistant unavailable" : "waiting for summary"} />
             </div>
 
@@ -729,15 +837,16 @@ export default function DebugConsole() {
                 <div className="space-y-4">
                     <Section
                         title="Tracked route runtime"
-                        subtitle="Canonical route rollups for chat, legacy creator-message compatibility, creator relationships, support, and AI cover generation. This is persisted backend health, not guessed client state."
+                        subtitle="Canonical route rollups for debug, overview, support, chat, creator-message compatibility, creator relationships, and AI flows. This is persisted backend health, not guessed client state."
                         defaultOpen={routeRuntimeHealthSummary.fail > 0 || routeRuntimeHealthSummary.warn > 0}
-                        summary={<><Pill label="Tracked" value={routeRuntimeHealthSummary.total} /><Pill label="Warn" value={routeRuntimeHealthSummary.warn} tone={routeRuntimeHealthSummary.warn > 0 ? "warn" : "good"} /><Pill label="Fail" value={routeRuntimeHealthSummary.fail} tone={routeRuntimeHealthSummary.fail > 0 ? "bad" : "good"} /><Pill label="Slow samples" value={routeRuntimeHealthSummary.slow} tone={routeRuntimeHealthSummary.slow > 0 ? "warn" : "good"} /></>}
+                        summary={<><Pill label="Tracked" value={routeRuntimeHealthSummary.total} /><Pill label="Unseen" value={routeRuntimeHealthSummary.unobserved} tone={routeRuntimeHealthSummary.unobserved > 0 ? "warn" : "good"} /><Pill label="Warn" value={routeRuntimeHealthSummary.warn} tone={routeRuntimeHealthSummary.warn > 0 ? "warn" : "good"} /><Pill label="Fail" value={routeRuntimeHealthSummary.fail} tone={routeRuntimeHealthSummary.fail > 0 ? "bad" : "good"} /><Pill label="Slow samples" value={routeRuntimeHealthSummary.slow} tone={routeRuntimeHealthSummary.slow > 0 ? "warn" : "good"} /></>}
                     >
                         {routeRuntimeHealth.length > 0 ? (
                             <ScrollWrap>
                                 <div className="divide-y divide-white/10">
                                     {routeRuntimeHealth.map((entry: any) => {
                                         const status = getRouteRuntimeHealthStatus(entry);
+                                        const coverageState = getRouteRuntimeHealthCoverageState(entry);
                                         return (
                                             <div key={entry.key} className="space-y-2 px-4 py-3">
                                                 <div className="flex flex-wrap items-start justify-between gap-2">
@@ -747,6 +856,7 @@ export default function DebugConsole() {
                                                     </div>
                                                     <div className="flex flex-wrap gap-2">
                                                         <Pill label="Status" value={status} tone={status === "healthy" ? "good" : status === "warn" ? "warn" : "bad"} />
+                                                        <Pill label="Coverage" value={coverageState} tone={coverageState === "observed" ? "good" : "warn"} />
                                                         <Pill label="Last result" value={entry.lastResult} tone={entry.lastResult === "success" ? "good" : entry.lastResult === "client_error" ? "warn" : "bad"} />
                                                     </div>
                                                 </div>
@@ -759,7 +869,11 @@ export default function DebugConsole() {
                                                     <Pill label="Server errors" value={entry.serverErrorCount ?? 0} tone={(entry.serverErrorCount ?? 0) > 0 ? "bad" : "good"} />
                                                     <Pill label="Slow" value={entry.slowCount ?? 0} tone={(entry.slowCount ?? 0) > 0 ? "warn" : "good"} />
                                                 </div>
-                                                <p className="text-xs text-gray-400">Slow threshold {entry.slowThresholdMs ?? 0}ms. Last success {formatRelative(entry.lastSuccessAtMs)}. Last server error {formatRelative(entry.lastServerErrorAtMs)}.</p>
+                                                <p className="text-xs text-gray-400">
+                                                    {coverageState === "unseen"
+                                                        ? "No runtime sample has been recorded for this route yet."
+                                                        : `Slow threshold ${entry.slowThresholdMs ?? 0}ms. Last success ${formatRelative(entry.lastSuccessAtMs)}. Last server error ${formatRelative(entry.lastServerErrorAtMs)}.`}
+                                                </p>
                                                 {entry.lastErrorMessage ? <p className="text-sm text-amber-100">{entry.lastErrorMessage}</p> : null}
                                             </div>
                                         );
@@ -801,7 +915,7 @@ export default function DebugConsole() {
 
                     <Section
                         title="Admin UI chart hydration"
-                        subtitle="Latest client-reported health for every admin overview module and analytics section. These are real UI-side hydration reports, not inferred server guesses."
+                        subtitle="Latest client-reported health for admin dashboard, analytics, moderation, and debug surfaces. These are real UI-side hydration reports, not inferred server guesses."
                         defaultOpen={(analyticsChartHealthSummary.warn + analyticsChartHealthSummary.fail) > 0}
                         summary={<><Pill label="Reported" value={analyticsChartHealthSummary.total} /><Pill label="Warn" value={analyticsChartHealthSummary.warn} tone={analyticsChartHealthSummary.warn > 0 ? "warn" : "good"} /><Pill label="Fail" value={analyticsChartHealthSummary.fail} tone={analyticsChartHealthSummary.fail > 0 ? "bad" : "good"} /></>}
                     >
@@ -817,6 +931,7 @@ export default function DebugConsole() {
                                                 </div>
                                                 <div className="flex flex-wrap gap-2">
                                                     <Pill label="Status" value={entry.status} tone={getChartHealthStatusTone(entry.status)} />
+                                                    <Pill label="Freshness" value={getAdminUiChartHealthFreshness(entry)} tone={getFreshnessTone(getAdminUiChartHealthFreshness(entry))} />
                                                     <Pill label="State" value={entry.hydrationState} tone={entry.hydrationState === "failed" ? "bad" : entry.hydrationState === "background_degraded" || entry.hydrationState === "empty" || entry.hydrationState === "loading" ? "warn" : "good"} />
                                                     <Pill label="Data" value={entry.hasData ? "Yes" : "No"} tone={entry.hasData ? "good" : "warn"} />
                                                 </div>

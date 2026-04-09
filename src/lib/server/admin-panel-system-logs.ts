@@ -3,7 +3,11 @@ import "server-only";
 import { adminDb } from "@/lib/server/firebase-admin";
 import type { AdminUiChartHealthCategory, AdminUiChartHealthItem } from "@/lib/admin-ui-chart-health";
 import type { AdminOpsHealth } from "@/lib/admin-ops-health";
-import { getRouteRuntimeHealthStatus, type RouteRuntimeHealthItem } from "@/lib/route-runtime-health";
+import {
+    getRouteRuntimeHealthCoverageState,
+    getRouteRuntimeHealthStatus,
+    type RouteRuntimeHealthItem,
+} from "@/lib/route-runtime-health";
 import {
     ADMIN_PANEL_SYSTEM_LOG_COLLECTION,
     type AdminPanelSystemLog,
@@ -183,6 +187,7 @@ export function buildAdminPanelSystemLogs(input: {
         }));
     const routeFailCount = routeRuntimeHealth.filter((item) => getRouteRuntimeHealthStatus(item) === "fail").length;
     const routeWarnCount = routeRuntimeHealth.filter((item) => getRouteRuntimeHealthStatus(item) === "warn").length;
+    const routeUnobservedCount = routeRuntimeHealth.filter((item) => getRouteRuntimeHealthCoverageState(item) === "unseen").length;
     const routeHealthLog = buildLog({
         id: "ops.route_runtime_health",
         panelKey: "ops.route_runtime_health",
@@ -199,13 +204,15 @@ export function buildAdminPanelSystemLogs(input: {
             ? "No route runtime health rollups have been recorded yet for the tracked chat, creator-message compatibility, support, and AI endpoints."
             : routeFailCount > 0
                 ? `${routeFailCount} tracked routes are currently failing and ${routeWarnCount} are degraded or historically noisy.`
+                : routeUnobservedCount > 0
+                    ? `${routeUnobservedCount} tracked routes have never produced a runtime sample yet, so this lane is not fully evidenced.`
                 : routeWarnCount > 0
                     ? `${routeWarnCount} tracked routes are degraded or have recorded slow/error history without a current server failure.`
                     : `${routeRuntimeHealth.length} tracked routes are healthy in the latest runtime rollup sample.`,
         action: routeRuntimeHealth.length === 0
             ? "Drive the tracked chat, creator-message compatibility, support, and AI routes at least once so debug can materialize real route health."
             : routeFailCount > 0 || routeWarnCount > 0
-                ? `Inspect the highest-risk routes first: ${routeRuntimeHealth.filter((item) => getRouteRuntimeHealthStatus(item) !== "healthy").slice(0, 3).map((item) => item.title).join(", ") || "tracked route runtime"}`
+                ? `Inspect the highest-risk or never-observed routes first: ${routeRuntimeHealth.filter((item) => getRouteRuntimeHealthStatus(item) !== "healthy").slice(0, 3).map((item) => item.title).join(", ") || "tracked route runtime"}`
                 : "No action required.",
         signalCount: routeFailCount + routeWarnCount,
         signalKeys: routeRuntimeHealth.map((item) => `route_runtime_health.${item.key}`),

@@ -1,6 +1,7 @@
 import type { Metadata } from "next";
 
 import { getDrops } from "@/lib/server/drops";
+import { listCreatorDiscoveryProfiles } from "@/lib/server/creator-discovery";
 import { DropsClient } from "./DropsClient";
 
 export const dynamic = "force-dynamic";
@@ -14,7 +15,11 @@ export const metadata: Metadata = {
 };
 
 export default async function DropsPage() {
-    const drops = (await getDrops()).filter((drop) => drop.status === "active");
+    const [allDrops, creatorRailProfiles] = await Promise.all([
+        getDrops(),
+        listCreatorDiscoveryProfiles("drops"),
+    ]);
+    const drops = allDrops.filter((drop) => drop.status === "active");
 
-    return <DropsClient initialDrops={drops} />;
+    return <DropsClient initialDrops={drops} creatorRailProfiles={creatorRailProfiles} />;
 }

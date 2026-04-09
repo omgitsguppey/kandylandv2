@@ -1,34 +1,29 @@
 "use client";
 
-import dynamic from "next/dynamic";
 import { useEffect } from "react";
 import { ArrowRight, Clock3, Gift, Sparkles, Wallet } from "lucide-react";
 
 import { GuestComponentBlur } from "@/components/Auth/GuestComponentBlur";
+import { CreatorDiscoveryRail } from "@/components/CreatorDiscoveryRail";
 import { DailyCheckIn } from "@/components/Dashboard/DailyCheckIn";
 import { DailyTasksModule } from "@/components/Dashboard/DailyTasksModule";
+import { LiveDropsForYouCarousel } from "@/components/Dashboard/LiveDropsForYouCarousel";
 import { useAuth } from "@/context/AuthContext";
 import { useUI } from "@/context/UIContext";
-import { useDeferredClientReady } from "@/hooks/useDeferredClientReady";
-import { useNetworkConditions } from "@/hooks/useNetworkConditions";
+import type { CreatorDiscoveryProfile } from "@/lib/creator-public-pages";
 import { GUMDROPS_PRIMARY_CTA, GUMDROPS_SUPPORT_COPY, SECONDARY_UNWRAP_CTA } from "@/lib/marketing-copy";
 import { trackEvent } from "@/lib/telemetry";
 
-const CreatorDiscoveryRail = dynamic(
-    () => import("@/components/CreatorDiscoveryRail").then((mod) => mod.CreatorDiscoveryRail),
-);
-const LiveDropsForYouCarousel = dynamic(
-    () => import("@/components/Dashboard/LiveDropsForYouCarousel").then((mod) => mod.LiveDropsForYouCarousel),
-);
+import type { Drop } from "@/types/db";
 
-export default function ExperiencesClient() {
+interface ExperiencesClientProps {
+    initialActiveDrops: Drop[];
+    creatorRailProfiles: CreatorDiscoveryProfile[];
+}
+
+export default function ExperiencesClient({ initialActiveDrops, creatorRailProfiles }: ExperiencesClientProps) {
     const { user } = useAuth();
     const { openPurchaseModal, openAuthModal } = useUI();
-    const { isConstrained, isVerySlow } = useNetworkConditions();
-    const liveDropsReady = useDeferredClientReady({
-        delayMs: isVerySlow ? 1_800 : isConstrained ? 1_100 : 400,
-        idle: true,
-    });
 
     useEffect(() => {
         trackEvent("experience_hub_viewed");
@@ -77,10 +72,10 @@ export default function ExperiencesClient() {
                         supportText="Create a free profile to start Day 1 and stack Gum Drops daily."
                     >
                         <div className="space-y-5">
-                            <CreatorDiscoveryRail surface="experiences" />
+                            <CreatorDiscoveryRail surface="experiences" initialCreators={creatorRailProfiles} />
                             <DailyCheckIn />
                             <DailyTasksModule />
-                            {liveDropsReady ? <LiveDropsForYouCarousel /> : null}
+                            <LiveDropsForYouCarousel initialDrops={initialActiveDrops} />
                         </div>
                     </GuestComponentBlur>
                 </div>

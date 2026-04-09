@@ -9,16 +9,12 @@ import { useAuth } from "@/context/AuthContext";
 import { useUI } from "@/context/UIContext";
 import { authFetch } from "@/lib/authFetch";
 import { reportClientIssue } from "@/lib/client-error-reporting";
-import { buildCreatorDiscoveryNavigationParams } from "@/lib/creator-public-pages";
+import { buildCreatorDiscoveryNavigationParams, type CreatorDiscoveryProfile } from "@/lib/creator-public-pages";
 import { cn } from "@/lib/utils";
 import { trackEvent } from "@/lib/telemetry";
 import { TitleMarquee } from "@/components/ui/TitleMarquee";
 
-type CreatorCard = {
-    uid: string;
-    displayName: string;
-    username: string;
-    photoURL: string | null;
+type CreatorCard = CreatorDiscoveryProfile & {
     bio?: string;
     isVerified?: boolean;
     followerCount?: number;
@@ -33,6 +29,7 @@ interface CreatorDiscoveryRailProps {
     surface: "dashboard" | "drops" | "experiences";
     title?: string;
     compact?: boolean;
+    initialCreators?: CreatorDiscoveryProfile[];
 }
 
 function initialsFor(name: string) {
@@ -44,37 +41,48 @@ function initialsFor(name: string) {
         .join("") || "C";
 }
 
-export function CreatorDiscoveryRail({ surface, title, compact = false }: CreatorDiscoveryRailProps) {
+export function CreatorDiscoveryRail({
+    surface,
+    title,
+    compact = false,
+    initialCreators = [],
+}: CreatorDiscoveryRailProps) {
     const { user, loading: authLoading } = useAuth();
     const authSettled = !authLoading;
     const { openAuthModal } = useUI();
-    const [recommendedCreators, setRecommendedCreators] = useState<CreatorCard[]>([]);
+    const [recommendedCreators, setRecommendedCreators] = useState<CreatorCard[]>(initialCreators);
     const [followedCreators, setFollowedCreators] = useState<CreatorCard[]>([]);
-    const [railLoading, setRailLoading] = useState(true);
+    const [railLoading, setRailLoading] = useState(initialCreators.length === 0);
     const [pendingCreatorId, setPendingCreatorId] = useState<string | null>(null);
 
     useEffect(() => {
         let cancelled = false;
+        const hasSeededCreators = initialCreators.length > 0;
 
         async function loadCreators() {
             if (!authSettled) {
+                if (hasSeededCreators && !cancelled) {
+                    setRailLoading(false);
+                }
                 return;
             }
 
-            setRailLoading(true);
             try {
-                const discoveryPromise = fetch(`/api/creator/discovery?surface=${surface}`, { cache: "no-store" });
-                const relationshipPromise = user ? authFetch("/api/creator/relationships") : null;
-                const [discoveryResponse, relationshipResponse] = await Promise.all([
-                    discoveryPromise,
-                    relationshipPromise,
-                ]);
-                const discoveryResult = await discoveryResponse.json() as { creators?: CreatorCard[] };
-
-                let nextRecommended = discoveryResult.creators || [];
+                let nextRecommended = initialCreators;
                 let nextFollowed: CreatorCard[] = [];
 
-                if (user && relationshipResponse) {
+                if (!user) {
+                    if (!hasSeededCreators) {
+                        setRailLoading(true);
+                        const discoveryResponse = await fetch(`/api/creator/discovery?surface=${surface}`, { cache: "no-store" });
+                        const discoveryResult = await discoveryResponse.json() as { creators?: CreatorCard[] };
+                        nextRecommended = discoveryResult.creators || [];
+                    }
+                } else {
+                    if (!hasSeededCreators) {
+                        setRailLoading(true);
+                    }
+                    const relationshipResponse = await authFetch("/api/creator/relationships");
                     const relationshipResult = await relationshipResponse.json() as {
                         relationships?: Array<Record<string, unknown>>;
                         recommendedCreators?: CreatorCard[];
@@ -105,10 +113,13 @@ export function CreatorDiscoveryRail({ surface, title, compact = false }: Creato
                             displayName: typeof entry.creatorDisplayName === "string" ? entry.creatorDisplayName : "Creator",
                             username: typeof entry.creatorUsername === "string" ? entry.creatorUsername : "",
                             photoURL: typeof entry.creatorPhotoURL === "string" ? entry.creatorPhotoURL : null,
+                            bio: "",
                             following: entry.following === true,
                             favorited: entry.favorited === true,
                             notificationsEnabled: entry.notificationsEnabled === true,
                             followerCount: typeof entry.followerCount === "number" ? entry.followerCount : 0,
+                            activeDropCount: 0,
+                            notificationsEnabledCount: 0,
                             isVerified: entry.isVerified === true,
                         }));
                 }
@@ -126,11 +137,14 @@ export function CreatorDiscoveryRail({ surface, title, compact = false }: Creato
                     error,
                     detail: {
                         surface,
-                        signedIn: Boolean(user),
-                    },
-                    consoleLabel: "[CreatorDiscoveryRail] load failed",
-                });
+                    signedIn: Boolean(user),
+                },
+                consoleLabel: "[CreatorDiscoveryRail] load failed",
+            });
                 if (!cancelled) {
+                    if (initialCreators.length > 0) {
+                        setRecommendedCreators(initialCreators);
+                    }
                     setRailLoading(false);
                 }
             }
@@ -140,11 +154,11 @@ export function CreatorDiscoveryRail({ surface, title, compact = false }: Creato
         return () => {
             cancelled = true;
         };
-    }, [authSettled, surface, user]);
+    }, [authSettled, initialCreators, surface, user]);
 
     const primaryCreators = useMemo(
-        () => followedCreators.length > 0 ? followedCreators : recommendedCreators,
-        [followedCreators, recommendedCreators],
+        () => (followedCreators.length > 0 ? followedCreators : recommendedCreators).filter((creator) => creator.uid !== user?.uid),
+        [followedCreators, recommendedCreators, user?.uid],
     );
     const followerFormatter = useMemo(() => new Intl.NumberFormat("en-US", { notation: "compact", maximumFractionDigits: 1 }), []);
 
@@ -229,7 +243,7 @@ export function CreatorDiscoveryRail({ surface, title, compact = false }: Creato
         }
     };
 
-    if (!authSettled || railLoading) {
+    if ((!authSettled && primaryCreators.length === 0) || railLoading) {
         return null;
     }
 

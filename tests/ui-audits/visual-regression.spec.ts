@@ -27,10 +27,11 @@ test.describe("UI continuity visual audits", () => {
     const activityTicker = hero
       .getByText(/Live Now:\s+\d+\s+KandyDrops are ready to unwrap!/i)
       .locator("xpath=ancestor::div[contains(@class, 'inline-flex')][1]");
+    const activityTickerWrapper = activityTicker.locator("xpath=ancestor::div[contains(@class, 'pb-1') or contains(@class, 'pt-0.5')][1]");
     await expect(hero).toHaveScreenshot("home-hero.png", {
       mask: [
         hero.locator(".animate-ping"),
-        activityTicker,
+        activityTickerWrapper,
       ],
       maxDiffPixels: 40,
       timeout: 15000,

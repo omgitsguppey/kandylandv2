@@ -27,6 +27,7 @@ import {
     TELEMETRY_EVENT_NAMES,
 } from "@/lib/telemetry-catalog";
 import { guardApiRequest } from "@/lib/server/request-guard";
+import { getErrorMessage } from "@/lib/server/route-diagnostics";
 import { buildAdminOpsHealth } from "@/lib/server/admin-ops-health";
 import { buildAdminOrchestrationSnapshot } from "@/lib/server/admin-orchestration";
 import { getConfiguredRollouts, getRolloutEvaluationSamples } from "@/lib/rollouts";
@@ -39,7 +40,8 @@ import { buildAdminPanelSystemLogs, syncAdminPanelSystemLogs } from "@/lib/serve
 import { buildCreatorOnboardingDiagnostics } from "@/lib/server/creator-onboarding-diagnostics";
 import { CREATOR_ONBOARDING_COLLECTION, CREATOR_REVIEW_QUEUE_COLLECTION } from "@/lib/server/creator-onboarding";
 import { listAdminUiChartHealth } from "@/lib/server/admin-ui-chart-health";
-import { listRouteRuntimeHealth } from "@/lib/server/route-runtime-health";
+import { listRouteRuntimeHealth, recordRouteRuntimeSample } from "@/lib/server/route-runtime-health";
+import { summarizeRouteRuntimeHealth } from "@/lib/route-runtime-health";
 
 const ONE_WEEK_MS = 7 * 24 * 60 * 60 * 1000;
 const TASK_GROUP_SET = new Set<string>(["visit", "notifications", "unwrap", "watch", "wallet", "purchase", "feedback", "share"]);
@@ -209,6 +211,17 @@ function hasInvalidRefreshMetadata(state: Record<string, unknown> | undefined, n
 }
 
 export async function GET(request: NextRequest) {
+    const startedAt = Date.now();
+    const finalize = (response: NextResponse, error?: unknown) => {
+        void recordRouteRuntimeSample({
+            key: "admin/debug:GET",
+            durationMs: Date.now() - startedAt,
+            statusCode: response.status,
+            errorMessage: error ? getErrorMessage(error) : null,
+        });
+        return response;
+    };
+
     try {
         await guardApiRequest(request, {
             routeName: "admin/debug",
@@ -299,6 +312,7 @@ export async function GET(request: NextRequest) {
             listAdminUiChartHealth(),
             listRouteRuntimeHealth(),
         ]);
+        const routeRuntimeHealthSummary = summarizeRouteRuntimeHealth(routeRuntimeHealth);
         const opsHealth = buildAdminOpsHealth({
             nowMs,
             diagnosticsDocs: serverDiagnosticsSnapshot.docs,
@@ -821,7 +835,7 @@ export async function GET(request: NextRequest) {
         });
         await syncAdminPanelSystemLogs(panelSystemLogs);
 
-        return NextResponse.json({
+        return finalize(NextResponse.json({
             success: true,
             stats: {
                 builtInTasks: BUILT_IN_DAILY_TASKS.length,
@@ -864,9 +878,11 @@ export async function GET(request: NextRequest) {
                 adminUiChartsReported: analyticsChartHealth.length,
                 adminUiChartWarnings: analyticsChartHealth.filter((item) => item.status === "warn").length,
                 adminUiChartFailures: analyticsChartHealth.filter((item) => item.status === "fail").length,
-                routeRuntimeHealthReported: routeRuntimeHealth.length,
-                routeRuntimeHealthWarnings: routeRuntimeHealth.filter((item) => item.lastResult !== "success" || item.slowCount > 0).length,
-                routeRuntimeHealthFailures: routeRuntimeHealth.filter((item) => item.lastResult === "server_error").length,
+                routeRuntimeHealthTracked: routeRuntimeHealth.length,
+                routeRuntimeHealthReported: Math.max(0, routeRuntimeHealth.length - routeRuntimeHealthSummary.unobserved),
+                routeRuntimeHealthWarnings: routeRuntimeHealthSummary.warn,
+                routeRuntimeHealthFailures: routeRuntimeHealthSummary.fail,
+                routeRuntimeHealthUnobserved: routeRuntimeHealthSummary.unobserved,
             },
             coverage,
             taskInventorySummary,
@@ -906,8 +922,8 @@ export async function GET(request: NextRequest) {
             panelSystemLogs,
             analyticsChartHealth,
             routeRuntimeHealth,
-        });
+        }));
     } catch (error) {
-        return handleApiError(error, "Admin.Debug.GET");
+        return finalize(handleApiError(error, "Admin.Debug.GET"), error);
     }
 }

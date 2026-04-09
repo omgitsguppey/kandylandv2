@@ -4,6 +4,8 @@ import { buildNotModifiedResponse, buildWeakEtag, PRIVATE_REVALIDATE_CACHE_CONTR
 import { STANDARD } from "@/lib/server/rate-limit";
 import { getDrops } from "@/lib/server/drops";
 import { isDropActiveNow } from "@/lib/drop-status";
+import { getErrorMessage } from "@/lib/server/route-diagnostics";
+import { recordRouteRuntimeSample } from "@/lib/server/route-runtime-health";
 import { Drop } from "@/types/db";
 import { guardApiRequest } from "@/lib/server/request-guard";
 
@@ -50,6 +52,17 @@ function parseFeedLimit(request: NextRequest) {
 }
 
 export async function GET(request: NextRequest) {
+    const startedAt = Date.now();
+    const finalize = (response: NextResponse, error?: unknown) => {
+        void recordRouteRuntimeSample({
+            key: "drops/feed:GET",
+            durationMs: Date.now() - startedAt,
+            statusCode: response.status,
+            errorMessage: error ? getErrorMessage(error) : null,
+        });
+        return response;
+    };
+
     try {
         await guardApiRequest(request, {
             routeName: DROPS_FEED_ROUTE_NAME,
@@ -93,10 +106,10 @@ export async function GET(request: NextRequest) {
         });
 
         if (requestMatchesEtag(request, etag)) {
-            return buildNotModifiedResponse(etag, PRIVATE_REVALIDATE_CACHE_CONTROL);
+            return finalize(buildNotModifiedResponse(etag, PRIVATE_REVALIDATE_CACHE_CONTROL));
         }
 
-        return NextResponse.json({
+        return finalize(NextResponse.json({
             drops,
             nextCursor,
         }, {
@@ -104,8 +117,8 @@ export async function GET(request: NextRequest) {
                 ETag: etag,
                 "Cache-Control": PRIVATE_REVALIDATE_CACHE_CONTROL,
             },
-        });
+        }));
     } catch (error) {
-        return handleApiError(error, DROPS_LIST_ERROR_CONTEXT);
+        return finalize(handleApiError(error, DROPS_LIST_ERROR_CONTEXT), error);
     }
 }

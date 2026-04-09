@@ -145,6 +145,7 @@ const mockState = vi.hoisted(() => {
         },
         guardApiRequest: vi.fn(),
         handleApiError: vi.fn(),
+        recordRouteRuntimeSample: vi.fn(),
         normalizeDrop: vi.fn(),
         isDropHidden: vi.fn(),
         buildUserMap: vi.fn(),
@@ -154,6 +155,7 @@ const mockState = vi.hoisted(() => {
             documents.clear();
             this.guardApiRequest.mockReset();
             this.handleApiError.mockReset();
+            this.recordRouteRuntimeSample.mockReset();
             this.normalizeDrop.mockReset();
             this.isDropHidden.mockReset();
             this.buildUserMap.mockReset();
@@ -164,6 +166,9 @@ const mockState = vi.hoisted(() => {
 
 vi.mock("@/lib/server/request-guard", () => ({
     guardApiRequest: mockState.guardApiRequest,
+}));
+vi.mock("@/lib/server/route-runtime-health", () => ({
+    recordRouteRuntimeSample: mockState.recordRouteRuntimeSample,
 }));
 
 vi.mock("@/lib/server/auth", () => ({
