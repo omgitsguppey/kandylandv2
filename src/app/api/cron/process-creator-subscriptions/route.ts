@@ -75,10 +75,16 @@ export async function GET(request: NextRequest) {
         const userIdsArray = Array.from(userIdsToFetch);
 
         // Fetch in chunks of 100 to avoid Firestore limits
+        // ⚡ Bolt: Fetch chunks concurrently via Promise.all to reduce latency
+        const userChunkPromises = [];
         for (let i = 0; i < userIdsArray.length; i += 100) {
             const chunk = userIdsArray.slice(i, i + 100);
             const refs = chunk.map((id) => adminDb.collection("users").doc(id));
-            const snaps = await adminDb.getAll(...refs);
+            userChunkPromises.push(adminDb.getAll(...refs));
+        }
+
+        const allUserSnaps = await Promise.all(userChunkPromises);
+        for (const snaps of allUserSnaps) {
             for (const snap of snaps) {
                 userSnapshots.set(snap.id, snap);
             }
