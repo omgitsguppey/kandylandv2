@@ -75,6 +75,10 @@ function scopeHistoricalResponse(section: string | null, payload: Record<string,
                 onboardingStepStats: payload.onboardingStepStats,
                 onboardingDurationBuckets: payload.onboardingDurationBuckets,
             });
+        case "onboardingStepFlow":
+            return withSharedFields({
+                onboardingStepStats: payload.onboardingStepStats,
+            });
         case "eventMix":
             return withSharedFields({ eventBreakdown: payload.eventBreakdown });
         case "liveInteractionStream":
@@ -129,6 +133,7 @@ function scopeHistoricalResponse(section: string | null, payload: Record<string,
                 viewerOverview: payload.viewerOverview,
                 viewerDropInsights: payload.viewerDropInsights,
                 viewerUsers: payload.viewerUsers,
+                userJourneys: payload.userJourneys,
                 viewerFilter: payload.viewerFilter,
             });
         case "viewerJourney":

@@ -41,24 +41,49 @@ export async function sendNotification(payload: NotificationPayload) {
 }
 
 export async function markNotificationAsRead(notificationId: string) {
+    const result = await markNotificationsAsRead([notificationId]);
+    return result.successCount > 0;
+}
+
+export async function markNotificationsAsRead(notificationIds: string[]) {
     try {
         const response = await authFetch("/api/notifications", {
             method: "PUT",
-            body: JSON.stringify({ notificationId }),
+            body: JSON.stringify(
+                notificationIds.length === 1
+                    ? { notificationId: notificationIds[0] }
+                    : { notificationIds },
+            ),
         });
 
-        return response.ok;
+        const result = await response.json().catch(() => null) as {
+            successCount?: unknown;
+            failedCount?: unknown;
+            notificationIds?: unknown;
+        } | null;
+
+        if (!response.ok) {
+            return { successCount: 0, failedCount: notificationIds.length, notificationIds: [] };
+        }
+
+        return {
+            successCount: typeof result?.successCount === "number" ? result.successCount : notificationIds.length,
+            failedCount: typeof result?.failedCount === "number" ? result.failedCount : 0,
+            notificationIds: Array.isArray(result?.notificationIds)
+                ? result.notificationIds.filter((entry): entry is string => typeof entry === "string")
+                : [...notificationIds],
+        };
     } catch (error) {
         reportClientIssue({
             channel: "notifications",
             message: "Notification mark-as-read failed",
             error,
             detail: {
-                context: "markNotificationAsRead",
-                notificationId,
+                context: "markNotificationsAsRead",
+                notificationIds,
             },
             consoleLabel: "[Notifications] mark as read failed",
         });
-        return false;
+        return { successCount: 0, failedCount: notificationIds.length, notificationIds: [] };
     }
 }

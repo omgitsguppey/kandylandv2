@@ -92,6 +92,7 @@ export async function sendCreatorOnboardingAdminNotification(input: {
             },
             link: input.link,
             createdAt: FieldValue.serverTimestamp(),
+            createdAtMs: nowMs,
             readBy: [],
             creatorOnboardingEventKey: input.eventKey,
         });

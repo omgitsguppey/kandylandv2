@@ -1,6 +1,6 @@
 "use client";
 
-import { useMemo, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import {
     Activity,
     ChevronDown,
@@ -166,6 +166,9 @@ export default function DebugConsole() {
     const [repairingId, setRepairingId] = useState<string | null>(null);
     const [simAmount, setSimAmount] = useState("500");
     const [activeTab, setActiveTab] = useState<DebugTabId>("now");
+    const [aiAssistantEnabled, setAiAssistantEnabled] = useState(true);
+    const [aiAssistantModel, setAiAssistantModel] = useState("gemini-2.5-flash-lite");
+    const [savingAiAssistantSettings, setSavingAiAssistantSettings] = useState(false);
 
     const { data, error, isLoading, mutate } = useAdminPollingSWR<any>("/api/admin/debug", 5000, {
         keepPreviousData: false,
@@ -249,6 +252,23 @@ export default function DebugConsole() {
         () => routeRuntimeHealth.filter((entry: any) => getRouteRuntimeHealthCoverageState(entry) === "unseen").length,
         [routeRuntimeHealth],
     );
+    const observedRouteRuntimeCount = Math.max(0, routeRuntimeHealthSummary.total - routeRuntimeHealthSummary.unobserved);
+    const activePipelineFailureCount = data?.opsHealth?.pipeline?.activeFailureCount ?? 0;
+    const recentPipelineFailureCount = data?.opsHealth?.pipeline?.recentFailureCount ?? 0;
+    const sampledPipelineFailureCount = data?.opsHealth?.pipeline?.sampleFailureCount ?? data?.opsHealth?.pipeline?.failureCount ?? 0;
+    const activeDiagnosticCount = (data?.opsHealth?.diagnostics?.activeErrorCount ?? 0) + (data?.opsHealth?.diagnostics?.activeWarnCount ?? 0);
+    const recentDiagnosticCount = (data?.opsHealth?.diagnostics?.recentErrorCount ?? 0) + (data?.opsHealth?.diagnostics?.recentWarnCount ?? 0);
+    const sampledDiagnosticCount = (data?.opsHealth?.diagnostics?.errorCount ?? 0) + (data?.opsHealth?.diagnostics?.warnCount ?? 0);
+
+    useEffect(() => {
+        if (!aiDebugData) {
+            return;
+        }
+
+        setAiAssistantEnabled(aiDebugData.enabled !== false);
+        setAiAssistantModel(aiDebugData.configured_model || aiDebugData.model || "gemini-2.5-flash-lite");
+    }, [aiDebugData]);
+
     const debugSurfaceHealth = useMemo(() => ([
         buildAdminUiChartHealthItem({
             key: "debug.console_snapshot",
@@ -328,14 +348,22 @@ export default function DebugConsole() {
         ? "Unavailable"
         : !aiDebugData
             ? "Loading"
-            : aiDebugData.fallback_used
+            : aiDebugData.enabled === false
+                ? "Disabled"
+                : aiDebugData.runtime_ready === false
+                    ? "Unavailable"
+                    : aiDebugData.fallback_used
                 ? "Fallback"
                 : "Live";
     const aiStatusTone: "neutral" | "good" | "warn" | "bad" = aiDebugError
         ? "bad"
         : !aiDebugData
             ? "neutral"
-            : aiDebugData.fallback_used
+            : aiDebugData.enabled === false
+                ? "warn"
+                : aiDebugData.runtime_ready === false
+                    ? "bad"
+                    : aiDebugData.fallback_used
                 ? "warn"
                 : "good";
 
@@ -409,6 +437,42 @@ export default function DebugConsole() {
         }
     };
 
+    const handleSaveAiAssistantSettings = async () => {
+        setSavingAiAssistantSettings(true);
+        try {
+            const response = await authFetch("/api/admin/debug/assistant", {
+                method: "PUT",
+                body: JSON.stringify({
+                    enabled: aiAssistantEnabled,
+                    model: aiAssistantModel.trim() || "gemini-2.5-flash-lite",
+                }),
+            });
+            const result = await response.json();
+            if (!response.ok) {
+                throw new Error(result.error || "AI assistant settings update failed");
+            }
+
+            toast.success("AI debug assistant settings saved");
+            await mutateAiDebug();
+            await mutate();
+        } catch (issue) {
+            reportClientIssue({
+                channel: "ui",
+                message: "Admin debug AI assistant settings save failed",
+                error: issue,
+                detail: {
+                    action: "save_ai_debug_assistant_settings",
+                    enabled: aiAssistantEnabled,
+                    model: aiAssistantModel,
+                },
+                consoleLabel: "[Admin Debug] AI assistant settings save failed",
+            });
+            toast.error(issue instanceof Error ? issue.message : "AI assistant settings update failed");
+        } finally {
+            setSavingAiAssistantSettings(false);
+        }
+    };
+
     const renderTabControls = () => {
         if (isCompactViewport) {
             return (
@@ -467,13 +531,13 @@ export default function DebugConsole() {
 
             <div className="grid grid-cols-2 gap-3 md:grid-cols-3 xl:grid-cols-8">
                 <StatCard label="Health score" value={data?.opsHealth ? `${data.opsHealth.score}%` : "--"} meta={`${data?.opsHealth?.diagnostics?.activeIssueClusterCount || 0} active issue clusters | ${getPipelineStatusLabel(data?.opsHealth?.pipeline?.status)} pipeline`} />
-                <StatCard label="Pipeline failures" value={data?.opsHealth?.pipeline?.failureCount ?? "--"} meta={data?.opsHealth?.pipeline?.status === "healthy" ? `no active incident in ${formatWindowHours(data?.opsHealth?.pipeline?.activeWindowMs)}` : data?.opsHealth?.pipeline?.lastFailureAt ? `last ${formatRelative(data.opsHealth.pipeline.lastFailureAt)}` : "recent failure state without timestamp"} />
+                <StatCard label="Pipeline active" value={activePipelineFailureCount} meta={`recent ${recentPipelineFailureCount} | sample ${sampledPipelineFailureCount} | ${data?.opsHealth?.pipeline?.status === "healthy" ? `no current incident in ${formatWindowHours(data?.opsHealth?.pipeline?.activeWindowMs)}` : data?.opsHealth?.pipeline?.lastFailureAt ? `last ${formatRelative(data.opsHealth.pipeline.lastFailureAt)}` : "missing last-failure timestamp"}`} />
                 <StatCard label="Task-issue users" value={data?.stats?.usersWithTaskIssues ?? "--"} meta={`${data?.stats?.runtimeUsersWithRefreshIssues ?? 0} sampled refresh warnings`} />
                 <StatCard label="Creator issues" value={data?.stats?.creatorOnboardingIssues ?? "--"} meta={`${data?.creatorOnboardingDiagnostics?.summary?.missingQueueCount ?? 0} missing queue links`} />
                 <StatCard label="Open actions" value={derivedActionCount} meta={`${data?.stats?.orchestrationActionableRepairs ?? 0} proposals + ${panelLogWarnCount + panelLogFailCount} panel log issues + ${analyticsChartHealthSummary.warn + analyticsChartHealthSummary.fail} chart issues + ${routeRuntimeHealthSummary.warn + routeRuntimeHealthSummary.fail} route issues`} />
-                <StatCard label="Route health" value={routeRuntimeHealthSummary.total ? `${routeRuntimeHealthSummary.fail}/${routeRuntimeHealthSummary.warn}` : "--"} meta={routeRuntimeHealthSummary.total ? `${routeRuntimeHealthSummary.total} tracked | ${routeRuntimeHealthSummary.unobserved} unseen | ${routeRuntimeHealthSummary.serverErrors} server errors | ${routeRuntimeHealthSummary.slow} slow samples` : "no route rollups yet"} />
+                <StatCard label="Route health" value={routeRuntimeHealthSummary.total ? `${routeRuntimeHealthSummary.fail}/${routeRuntimeHealthSummary.warn}` : "--"} meta={routeRuntimeHealthSummary.total ? `${routeRuntimeHealthSummary.total} tracked | ${observedRouteRuntimeCount} observed | ${routeRuntimeHealthSummary.unobserved} unseen (no sample yet)` : "no route rollups yet"} />
                 <StatCard label="Freshest loaded sample" value={freshestLoadedSignalAt ? formatRelative(freshestLoadedSignalAt) : "--"} meta="derived from loaded diagnostics, panel logs, UI hydration reports, transactions, and AI status" />
-                <StatCard label="AI assistant" value={aiStatusLabel} meta={aiDebugData ? `${aiDebugData.model} | ${aiDebugData.latency_ms}ms` : aiDebugError ? "assistant unavailable" : "waiting for summary"} />
+                <StatCard label="AI assistant" value={aiStatusLabel} meta={aiDebugData ? `${aiDebugData.configured_model} configured | ${aiDebugData.runtime_ready ? "runtime ready" : "runtime unavailable"} | ${aiDebugData.latency_ms}ms` : aiDebugError ? "assistant unavailable" : "waiting for summary"} />
             </div>
 
             {error ? <div className="rounded-[1.35rem] border border-red-400/20 bg-red-500/10 p-4 text-sm text-red-100">Debug data could not be loaded right now.</div> : null}
@@ -492,12 +556,12 @@ export default function DebugConsole() {
                                 <div className="rounded-[1rem] border border-white/10 bg-white/[0.03] p-4">
                                     <p className="text-[11px] uppercase tracking-[0.18em] text-gray-400">Pipeline</p>
                                     <p className="mt-2 text-xl font-black text-white">{getPipelineStatusLabel(data?.opsHealth?.pipeline?.status)}</p>
-                                    <p className="mt-1 text-sm text-gray-400">{data?.opsHealth?.pipeline?.status === "healthy" ? `No active incident in the last ${formatWindowHours(data?.opsHealth?.pipeline?.activeWindowMs)}. ${data?.opsHealth?.pipeline?.failureCount ?? 0} failures remain in the loaded sample.` : `Last failure ${formatRelative(data?.opsHealth?.pipeline?.lastFailureAt)}. ${data?.opsHealth?.pipeline?.failureCount ?? 0} failures remain in the loaded sample.`}</p>
+                                    <p className="mt-1 text-sm text-gray-400">{data?.opsHealth?.pipeline?.status === "healthy" ? `No active incident in the last ${formatWindowHours(data?.opsHealth?.pipeline?.activeWindowMs)}.` : `Last failure ${formatRelative(data?.opsHealth?.pipeline?.lastFailureAt)}.`} Active ${activePipelineFailureCount}, recent ${recentPipelineFailureCount}, sample ${sampledPipelineFailureCount}.</p>
                                 </div>
                                 <div className="rounded-[1rem] border border-white/10 bg-white/[0.03] p-4">
                                     <p className="text-[11px] uppercase tracking-[0.18em] text-gray-400">Diagnostics</p>
-                                    <p className="mt-2 text-xl font-black text-white">{data?.opsHealth?.diagnostics?.activeErrorCount ?? 0}</p>
-                                    <p className="mt-1 text-sm text-gray-400">{data?.opsHealth?.diagnostics?.activeIssueClusterCount ?? 0} current issue clusters across {data?.opsHealth?.diagnostics?.activeErrorCount ?? 0} active errors and {data?.opsHealth?.diagnostics?.activeWarnCount ?? 0} active warnings. {data?.opsHealth?.diagnostics?.errorCount ?? 0} errors and {data?.opsHealth?.diagnostics?.warnCount ?? 0} warnings remain in the loaded sample.</p>
+                                    <p className="mt-2 text-xl font-black text-white">{activeDiagnosticCount}</p>
+                                    <p className="mt-1 text-sm text-gray-400">{data?.opsHealth?.diagnostics?.activeIssueClusterCount ?? 0} current issue clusters. Active {activeDiagnosticCount}, recent {recentDiagnosticCount}, sample {sampledDiagnosticCount}.</p>
                                 </div>
                                 <div className="rounded-[1rem] border border-white/10 bg-white/[0.03] p-4">
                                     <p className="text-[11px] uppercase tracking-[0.18em] text-gray-400">Downstream writers</p>
@@ -636,14 +700,23 @@ export default function DebugConsole() {
                                             <div className="flex flex-wrap items-start justify-between gap-2">
                                                 <div>
                                                     <p className="font-semibold text-white">{channel.label}</p>
-                                                    <p className="text-xs text-gray-400">{formatRelative(channel.lastSeenAt)}</p>
+                                                    <p className="text-xs text-gray-400">
+                                                        {formatRelative(channel.lastSeenAt)} | active {channel.activeErrorCount ?? 0} errors / {channel.activeWarnCount ?? 0} warns in {formatWindowHours(data?.opsHealth?.diagnostics?.activeWindowMs)}
+                                                    </p>
                                                 </div>
-                                                <Pill label="Count" value={channel.count} />
+                                                <Pill
+                                                    label="Current"
+                                                    value={`${channel.activeErrorCount ?? 0}/${channel.activeWarnCount ?? 0}`}
+                                                    tone={(channel.activeErrorCount ?? 0) > 0 ? "bad" : (channel.activeWarnCount ?? 0) > 0 ? "warn" : "good"}
+                                                />
                                             </div>
                                             <div className="flex flex-wrap gap-2">
-                                                <Pill label="Errors" value={channel.errorCount} tone={channel.errorCount ? "bad" : "good"} />
-                                                <Pill label="Warns" value={channel.warnCount} tone={channel.warnCount ? "warn" : "good"} />
+                                                <Pill label="Recent errors" value={channel.recentErrorCount ?? 0} tone={(channel.recentErrorCount ?? 0) > 0 ? "bad" : "good"} />
+                                                <Pill label="Recent warns" value={channel.recentWarnCount ?? 0} tone={(channel.recentWarnCount ?? 0) > 0 ? "warn" : "good"} />
+                                                <Pill label="Sample errors" value={channel.errorCount} tone={channel.errorCount ? "bad" : "good"} />
+                                                <Pill label="Sample warns" value={channel.warnCount} tone={channel.warnCount ? "warn" : "good"} />
                                                 <Pill label="Info" value={channel.infoCount} />
+                                                <Pill label="Sample count" value={channel.count} />
                                             </div>
                                         </div>
                                     ))}
@@ -1121,13 +1194,76 @@ export default function DebugConsole() {
                         title="AI debug assistant"
                         subtitle="Advisory summary over bounded canonical signals. Live model output, fallback summaries, and unavailability stay labeled."
                         defaultOpen
-                        summary={<><Pill label="Status" value={aiStatusLabel} tone={aiStatusTone} /><Pill label="Model" value={aiDebugData?.model || "gemini-2.5-flash-lite"} /><Pill label="Last run" value={aiDebugData?.generated_at ? formatRelative(Date.parse(aiDebugData.generated_at)) : "Not recorded"} /><Pill label="Latency" value={aiDebugData ? `${aiDebugData.latency_ms}ms` : "--"} tone={aiDebugData && aiDebugData.latency_ms > 5000 ? "warn" : "neutral"} /></>}
+                        summary={<><Pill label="Status" value={aiStatusLabel} tone={aiStatusTone} /><Pill label="Enabled" value={aiDebugData?.enabled === false ? "No" : "Yes"} tone={aiDebugData?.enabled === false ? "warn" : "good"} /><Pill label="Configured model" value={aiDebugData?.configured_model || aiAssistantModel || "gemini-2.5-flash-lite"} /><Pill label="Runtime" value={aiDebugData?.runtime_ready ? "Ready" : "Unavailable"} tone={aiDebugData?.runtime_ready ? "good" : "bad"} /><Pill label="Last run" value={aiDebugData?.generated_at ? formatRelative(Date.parse(aiDebugData.generated_at)) : "Not recorded"} /><Pill label="Latency" value={aiDebugData ? `${aiDebugData.latency_ms}ms` : "--"} tone={aiDebugData && aiDebugData.latency_ms > 5000 ? "warn" : "neutral"} /></>}
                     >
                         {aiDebugError ? (
                             <div className="rounded-[1rem] border border-red-400/20 bg-red-500/10 p-4 text-sm text-red-100">
                                 AI debug summaries could not be loaded right now. Canonical diagnostics remain authoritative.
                             </div>
                         ) : null}
+
+                        <div className="grid gap-4 lg:grid-cols-[0.95fr_1.05fr]">
+                            <div className="rounded-[1rem] border border-white/10 bg-white/[0.03] p-4">
+                                <div className="flex items-start justify-between gap-3">
+                                    <div>
+                                        <p className="text-[11px] uppercase tracking-[0.18em] text-gray-400">Runtime config</p>
+                                        <p className="mt-2 text-sm text-gray-300">Admin settings are now the primary enablement control. Runtime readiness is still gated by Vertex project and credentials.</p>
+                                    </div>
+                                    <Pill label="Resolved" value={aiDebugData?.model || aiAssistantModel || "gemini-2.5-flash-lite"} tone={aiStatusTone} />
+                                </div>
+                                <div className="mt-4 grid gap-3 md:grid-cols-2">
+                                    <div className="rounded-xl border border-white/10 bg-black/20 p-3">
+                                        <p className="text-[11px] uppercase tracking-[0.18em] text-gray-400">Configured model</p>
+                                        <p className="mt-2 text-sm font-semibold text-white">{aiDebugData?.configured_model || aiAssistantModel || "gemini-2.5-flash-lite"}</p>
+                                    </div>
+                                    <div className="rounded-xl border border-white/10 bg-black/20 p-3">
+                                        <p className="text-[11px] uppercase tracking-[0.18em] text-gray-400">Runtime status</p>
+                                        <p className="mt-2 text-sm font-semibold text-white">{aiDebugData?.runtime_ready ? "Ready" : "Unavailable"}</p>
+                                    </div>
+                                    <div className="rounded-xl border border-white/10 bg-black/20 p-3">
+                                        <p className="text-[11px] uppercase tracking-[0.18em] text-gray-400">Project</p>
+                                        <p className="mt-2 break-all text-sm font-semibold text-white">{aiDebugData?.runtime_project || "Missing"}</p>
+                                    </div>
+                                    <div className="rounded-xl border border-white/10 bg-black/20 p-3">
+                                        <p className="text-[11px] uppercase tracking-[0.18em] text-gray-400">Location</p>
+                                        <p className="mt-2 text-sm font-semibold text-white">{aiDebugData?.runtime_location || "Missing"}</p>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <div className="rounded-[1rem] border border-white/10 bg-white/[0.03] p-4">
+                                <p className="text-[11px] uppercase tracking-[0.18em] text-gray-400">Assistant controls</p>
+                                <div className="mt-4 space-y-4">
+                                    <label className="flex items-center justify-between gap-4 rounded-xl border border-white/10 bg-black/20 px-3 py-3">
+                                        <div>
+                                            <p className="text-sm font-semibold text-white">Enabled</p>
+                                            <p className="mt-1 text-xs text-gray-400">Turns live assistant generation on or off without hiding the fallback truth surface.</p>
+                                        </div>
+                                        <input
+                                            type="checkbox"
+                                            checked={aiAssistantEnabled}
+                                            onChange={(event) => setAiAssistantEnabled(event.target.checked)}
+                                            className="h-5 w-5 rounded border-white/20 bg-black/40 text-brand-purple"
+                                        />
+                                    </label>
+                                    <label className="block">
+                                        <span className="mb-2 block text-sm font-semibold text-white">Configured model</span>
+                                        <input
+                                            type="text"
+                                            value={aiAssistantModel}
+                                            onChange={(event) => setAiAssistantModel(event.target.value)}
+                                            className="w-full rounded-xl border border-white/10 bg-black/20 px-3 py-3 text-sm text-white outline-none focus:border-brand-purple/40"
+                                            spellCheck={false}
+                                        />
+                                        <span className="mt-2 block text-xs text-gray-400">Default stays on the flash-lite alias unless you deliberately override it.</span>
+                                    </label>
+                                    <Button variant="glass" onClick={handleSaveAiAssistantSettings} disabled={savingAiAssistantSettings}>
+                                        {savingAiAssistantSettings ? <Loader2 className="mr-2 h-4 w-4 animate-spin" /> : <Sparkles className="mr-2 h-4 w-4" />}
+                                        Save assistant settings
+                                    </Button>
+                                </div>
+                            </div>
+                        </div>
 
                         {aiDebugData ? (
                             <div className="space-y-4">
@@ -1139,6 +1275,7 @@ export default function DebugConsole() {
                                             <Pill label="Source" value={aiDebugData.fallback_used ? "Deterministic fallback" : "Live model"} tone={aiDebugData.fallback_used ? "warn" : "good"} />
                                             <Pill label="Prompt" value={aiDebugData.prompt_version} />
                                             <Pill label="Generated" value={formatTimestamp(Date.parse(aiDebugData.generated_at))} />
+                                            <Pill label="Runtime" value={aiDebugData.runtime_ready ? "Ready" : "Unavailable"} tone={aiDebugData.runtime_ready ? "good" : "bad"} />
                                         </div>
                                         {aiDebugData.availability_note ? (
                                             <p className="mt-3 text-xs leading-6 text-gray-400">{aiDebugData.availability_note}</p>

@@ -4,7 +4,7 @@ import { useState, useEffect, useMemo, useRef } from "react";
 import { useAuthIdentity } from "@/context/AuthContext";
 import { CLIENT_RUNTIME_EVENTS, dispatchClientRuntimeEvent } from "@/hooks/client-runtime";
 import { reportClientIssue, reportRealtimeIssue } from "@/lib/client-error-reporting";
-import { markNotificationAsRead } from "@/lib/notifications";
+import { markNotificationsAsRead } from "@/lib/notifications";
 import { NOTIFICATION_RUNTIME_COLLECTION, NOTIFICATION_RUNTIME_DOC_ID } from "@/lib/notification-runtime";
 import { AppNotification } from "@/lib/notification-contracts";
 import { trackEvent } from "@/lib/telemetry";
@@ -79,8 +79,11 @@ export function useNotifications({ enabled = true }: UseNotificationsOptions = {
 
                 const scopedNotifications = (result.notifications || []).map((notification) => ({
                     ...notification,
-                    createdAt: notification.createdAtMs
-                        ? { toDate: () => new Date(notification.createdAtMs as number) }
+                    createdAt: typeof notification.createdAtMs === "number" && Number.isFinite(notification.createdAtMs)
+                        ? {
+                            toDate: () => new Date(notification.createdAtMs as number),
+                            toMillis: () => notification.createdAtMs as number,
+                        }
                         : null,
                 })) as Notification[];
 
@@ -218,8 +221,8 @@ export function useNotifications({ enabled = true }: UseNotificationsOptions = {
             return true;
         }
 
-        const success = await markNotificationAsRead(id);
-        if (!success) {
+        const result = await markNotificationsAsRead([id]);
+        if (result.successCount === 0) {
             return false;
         }
 
@@ -265,12 +268,9 @@ export function useNotifications({ enabled = true }: UseNotificationsOptions = {
             unread_count: unreadIds.length,
         });
 
-        const results = await Promise.allSettled(unreadIds.map((id) => markNotificationAsRead(id)));
-        const succeededIds = unreadIds.filter((id, index) => {
-            const result = results[index];
-            return result?.status === "fulfilled" && result.value === true;
-        });
-        const failedCount = unreadIds.length - succeededIds.length;
+        const result = await markNotificationsAsRead(unreadIds);
+        const failedCount = result.failedCount;
+        const succeededIds = result.notificationIds;
 
         if (succeededIds.length > 0) {
             setNotificationsState((prev) => prev.map((notification) => (

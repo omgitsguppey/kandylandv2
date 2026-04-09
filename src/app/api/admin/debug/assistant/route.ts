@@ -1,11 +1,16 @@
 import { NextRequest, NextResponse } from "next/server";
 
+import { AI_DEBUG_ASSISTANT_MODEL } from "@/lib/ai-debug-assistant";
 import { handleApiError } from "@/lib/server/auth";
 import { buildAdminOpsHealth } from "@/lib/server/admin-ops-health";
 import { buildAdminOrchestrationSnapshot } from "@/lib/server/admin-orchestration";
 import { buildCreatorOnboardingDiagnostics } from "@/lib/server/creator-onboarding-diagnostics";
 import { adminDb } from "@/lib/server/firebase-admin";
 import { buildAdminAiDebugSignalInput, generateAdminAiDebugSummary } from "@/lib/server/ai-debug-assistant";
+import {
+    getAdminAiDebugAssistantSettings,
+    saveAdminAiDebugAssistantSettings,
+} from "@/lib/server/admin-debug-settings";
 import { ORCHESTRATION_COLLECTIONS } from "@/lib/orchestration/contract";
 import { ADMIN_DEBUG_ASSISTANT } from "@/lib/server/rate-limit";
 import { guardApiRequest } from "@/lib/server/request-guard";
@@ -138,13 +143,77 @@ export async function GET(request: NextRequest) {
             orchestration,
             creatorOnboardingDiagnostics,
         });
-        const summary = await generateAdminAiDebugSummary(signal);
+        const settings = await getAdminAiDebugAssistantSettings();
+        const summary = await generateAdminAiDebugSummary(signal, {
+            settings,
+        });
 
         return finalize(NextResponse.json(summary, {
             status: 200,
             headers: {
                 "Cache-Control": "no-store, max-age=0",
             },
+        }));
+    } catch (error) {
+        return finalize(handleApiError(error, "admin/debug/assistant"), error);
+    }
+}
+
+export async function PUT(request: NextRequest) {
+    const startedAt = Date.now();
+    const finalize = (response: NextResponse, error?: unknown) => {
+        void recordRouteRuntimeSample({
+            key: "admin/debug/assistant:PUT",
+            durationMs: Date.now() - startedAt,
+            statusCode: response.status,
+            errorMessage: error ? getErrorMessage(error) : null,
+        });
+        return response;
+    };
+
+    try {
+        const caller = await guardApiRequest(request, {
+            routeName: "admin/debug/assistant",
+            rateLimit: ADMIN_DEBUG_ASSISTANT,
+            requireTrustedOrigin: true,
+            auth: "admin",
+            scopeToCaller: true,
+        });
+        if (!caller) {
+            return finalize(NextResponse.json({ error: "Unauthorized" }, { status: 401 }));
+        }
+
+        const body = await request.json() as {
+            enabled?: unknown;
+            model?: unknown;
+        };
+        const updates: {
+            enabled?: boolean;
+            model?: string;
+        } = {};
+
+        if (typeof body.enabled === "boolean") {
+            updates.enabled = body.enabled;
+        }
+
+        if (typeof body.model === "string" && body.model.trim().length > 0) {
+            updates.model = body.model.trim();
+        }
+
+        if (updates.enabled === undefined && !updates.model) {
+            return finalize(NextResponse.json({ error: "Missing AI debug assistant update fields" }, { status: 400 }));
+        }
+
+        const settings = await saveAdminAiDebugAssistantSettings({
+            enabled: updates.enabled,
+            model: updates.model || AI_DEBUG_ASSISTANT_MODEL,
+            actorUid: caller.uid,
+            actorEmail: caller.email,
+        });
+
+        return finalize(NextResponse.json({
+            success: true,
+            settings,
         }));
     } catch (error) {
         return finalize(handleApiError(error, "admin/debug/assistant"), error);

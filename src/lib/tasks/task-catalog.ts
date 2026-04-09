@@ -124,6 +124,30 @@ export const DAILY_TASK_ICON_OPTIONS: Array<{ value: DailyTaskIconName; label: s
   { value: "layers", label: "Layers" },
 ];
 
+export const LEGACY_DAILY_TASK_ID_ALIASES = {
+  unwrap_drops: "unwrap_one_drop",
+  unlock_spicy: "unwrap_spicy",
+  give_feedback: "submit_feedback",
+} as const;
+
+export const RETIRED_LEGACY_DAILY_TASK_IDS = [
+  "streak_30",
+] as const;
+
+export function resolveLegacyDailyTaskId(taskId: string) {
+  const normalizedTaskId = typeof taskId === "string" ? taskId.trim() : "";
+  if (!normalizedTaskId) {
+    return "";
+  }
+
+  return LEGACY_DAILY_TASK_ID_ALIASES[normalizedTaskId as keyof typeof LEGACY_DAILY_TASK_ID_ALIASES] || normalizedTaskId;
+}
+
+export function isRetiredLegacyDailyTaskId(taskId: string) {
+  const normalizedTaskId = typeof taskId === "string" ? taskId.trim() : "";
+  return RETIRED_LEGACY_DAILY_TASK_IDS.includes(normalizedTaskId as typeof RETIRED_LEGACY_DAILY_TASK_IDS[number]);
+}
+
 function createTask(definition: Omit<DailyTaskDefinition, "source">): DailyTaskDefinition {
   return {
     source: "built_in",

@@ -27,23 +27,6 @@ export interface NotificationInboxEntry {
   createdAtMs: number;
 }
 
-function toTimestampNumber(value: unknown) {
-  if (typeof value === "number" && Number.isFinite(value)) {
-    return value;
-  }
-
-  if (
-    value
-    && typeof value === "object"
-    && "toMillis" in value
-    && typeof (value as { toMillis: () => number }).toMillis === "function"
-  ) {
-    return (value as { toMillis: () => number }).toMillis();
-  }
-
-  return 0;
-}
-
 export function isNotificationVisibleToUser(
   notification: Pick<NotificationInboxEntry, "target" | "createdAtMs"> & { readBy: string[] },
   uid: string,
@@ -82,7 +65,9 @@ function normalizeInboxEntry(doc: QueryDocumentSnapshot, nowMs: number) {
     return null;
   }
 
-  const createdAtMs = toTimestampNumber(normalized.createdAt);
+  const createdAtMs = typeof normalized.createdAtMs === "number" && Number.isFinite(normalized.createdAtMs)
+    ? normalized.createdAtMs
+    : 0;
   if (createdAtMs && createdAtMs < nowMs - NOTIFICATION_RETENTION_MS) {
     return null;
   }

@@ -13,7 +13,8 @@ import { buildCompletedGumdropTransaction } from "@/lib/server/gumdrop-ledger";
 import { touchUserRuntime } from "@/lib/server/user-runtime";
 import { ensureCreatorOnboardingSubmission } from "@/lib/server/creator-onboarding";
 import { sendCreatorOnboardingAdminNotification } from "@/lib/server/creator-onboarding-alerts";
-import { recordRouteWarning } from "@/lib/server/route-diagnostics";
+import { getErrorMessage, recordRouteWarning } from "@/lib/server/route-diagnostics";
+import { recordRouteRuntimeSample } from "@/lib/server/route-runtime-health";
 import { REFERRAL_BONUS_GD } from "@/lib/referrals";
 
 function normalizeRegistrationMethod(value: unknown) {
@@ -120,6 +121,17 @@ async function emitCreatorSubmissionSignals(input: {
 }
 
 export async function POST(request: NextRequest) {
+    const startedAt = Date.now();
+    const finalize = (response: NextResponse, error?: unknown) => {
+        void recordRouteRuntimeSample({
+            key: "user/register:POST",
+            durationMs: Date.now() - startedAt,
+            statusCode: response.status,
+            errorMessage: error ? getErrorMessage(error) : null,
+        });
+        return response;
+    };
+
     try {
         const caller = await guardApiRequest(request, {
             routeName: "user/register",
@@ -129,11 +141,11 @@ export async function POST(request: NextRequest) {
             scopeToCaller: true,
         });
         if (!caller) {
-            return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
+            return finalize(NextResponse.json({ error: "Unauthorized" }, { status: 401 }));
         }
 
         if (!adminDb) {
-            return NextResponse.json({ error: "Database not available" }, { status: 500 });
+            return finalize(NextResponse.json({ error: "Database not available" }, { status: 500 }));
         }
 
         const {
@@ -152,10 +164,10 @@ export async function POST(request: NextRequest) {
         const isCreatorSignup = normalizedSignupIntent === "creator";
         const parsedDob = dateOfBirth ? parseAdultDateOfBirth(dateOfBirth) : null;
         if (parsedDob && !parsedDob.ok) {
-            return NextResponse.json(
+            return finalize(NextResponse.json(
                 { error: parsedDob.error },
                 { status: parsedDob.status ?? 400 },
-            );
+            ));
         }
 
         const userRef = adminDb.collection("users").doc(caller.uid);
@@ -188,7 +200,7 @@ export async function POST(request: NextRequest) {
                         excludeUid: caller.uid,
                     });
                     if (resolvedUsername instanceof NextResponse) {
-                        return resolvedUsername;
+                        return finalize(resolvedUsername);
                     }
                     profilePatch.username = resolvedUsername;
                 }
@@ -209,7 +221,7 @@ export async function POST(request: NextRequest) {
                     },
                 });
                 if (reservedUsername instanceof NextResponse) {
-                    return reservedUsername;
+                    return finalize(reservedUsername);
                 }
             } else if (Object.keys(profilePatch).length > 0) {
                 await userRef.set(profilePatch, { merge: true });
@@ -257,12 +269,12 @@ export async function POST(request: NextRequest) {
                 });
             }
 
-            return NextResponse.json({
+            return finalize(NextResponse.json({
                 success: true,
                 existing: true,
                 welcomeBonus: 0,
                 creatorApplication: creatorSubmission?.creatorApplication ?? existingData.creatorApplication ?? null,
-            });
+            }));
         }
 
         const resolvedUsername = await resolveRegistrationUsername({
@@ -272,7 +284,7 @@ export async function POST(request: NextRequest) {
             uid: caller.uid,
         });
         if (resolvedUsername instanceof NextResponse) {
-            return resolvedUsername;
+            return finalize(resolvedUsername);
         }
 
         const welcomeBonus = isCreatorSignup ? 0 : 50;
@@ -320,7 +332,7 @@ export async function POST(request: NextRequest) {
             },
         });
         if (normalizedUsername instanceof NextResponse) {
-            return normalizedUsername;
+            return finalize(normalizedUsername);
         }
 
         const creatorSubmission = isCreatorSignup
@@ -410,12 +422,12 @@ export async function POST(request: NextRequest) {
             }, caller.uid),
         ]);
 
-        return NextResponse.json({
+        return finalize(NextResponse.json({
             success: true,
             welcomeBonus,
             creatorApplication: creatorSubmission?.creatorApplication ?? null,
-        });
+        }));
     } catch (error) {
-        return handleApiError(error, "User.Register");
+        return finalize(handleApiError(error, "User.Register"), error);
     }
 }

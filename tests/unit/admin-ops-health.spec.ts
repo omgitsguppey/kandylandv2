@@ -132,4 +132,61 @@ describe("buildAdminOpsHealth", () => {
         expect(result.diagnostics.activeIssueClusterCount).toBe(1);
         expect(result.diagnostics.recentIssueClusterCount).toBe(2);
     });
+
+    it("tracks active and recent channel counts separately from loaded sample totals", () => {
+        const nowMs = Date.UTC(2026, 3, 6, 12, 0, 0);
+        const thirtyMinutesAgo = nowMs - (30 * 60 * 1000);
+        const threeHoursAgo = nowMs - (3 * 60 * 60 * 1000);
+        const twoDaysAgo = nowMs - (2 * 24 * 60 * 60 * 1000);
+
+        const result = buildAdminOpsHealth({
+            nowMs,
+            diagnosticsDocs: [
+                mockDoc("diag_auth_active", {
+                    channel: "auth",
+                    severity: "error",
+                    message: "Recent auth failure",
+                    createdAtMs: thirtyMinutesAgo,
+                }),
+                mockDoc("diag_runtime_recent", {
+                    channel: "runtime",
+                    severity: "warn",
+                    message: "Recent runtime warning",
+                    createdAtMs: threeHoursAgo,
+                }),
+                mockDoc("diag_runtime_old", {
+                    channel: "runtime",
+                    severity: "warn",
+                    message: "Older runtime warning",
+                    createdAtMs: twoDaysAgo,
+                }),
+            ],
+            pipelineDocs: [],
+            eventStatsDocs: [],
+            taskRollupDocs: [],
+            guestBatchDocs: [],
+            securityEventDocs: [],
+            watchSessionDocs: [],
+            watchAssetDocs: [],
+            commerceSummaryDoc: null,
+        });
+
+        const authChannel = result.diagnostics.channels.find((channel) => channel.key === "auth");
+        const runtimeChannel = result.diagnostics.channels.find((channel) => channel.key === "runtime");
+
+        expect(authChannel).toMatchObject({
+            errorCount: 1,
+            activeErrorCount: 1,
+            recentErrorCount: 1,
+            warnCount: 0,
+            activeWarnCount: 0,
+            recentWarnCount: 0,
+        });
+        expect(runtimeChannel).toMatchObject({
+            warnCount: 2,
+            activeWarnCount: 0,
+            recentWarnCount: 1,
+            errorCount: 0,
+        });
+    });
 });

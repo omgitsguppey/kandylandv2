@@ -11,6 +11,12 @@ export const ROUTE_RUNTIME_HEALTH_TARGETS = {
         title: "Admin debug assistant summary",
         slowThresholdMs: 5000,
     },
+    "admin/debug/assistant:PUT": {
+        routeName: "admin/debug/assistant",
+        method: "PUT",
+        title: "Admin debug assistant settings writes",
+        slowThresholdMs: 1400,
+    },
     "admin/overview:GET": {
         routeName: "admin/overview",
         method: "GET",
@@ -59,11 +65,59 @@ export const ROUTE_RUNTIME_HEALTH_TARGETS = {
         title: "Admin support status updates",
         slowThresholdMs: 1400,
     },
+    "admin/moderation/threads:GET": {
+        routeName: "admin/moderation/threads",
+        method: "GET",
+        title: "Admin moderation thread list",
+        slowThresholdMs: 1200,
+    },
+    "admin/moderation/thread:GET": {
+        routeName: "admin/moderation/thread",
+        method: "GET",
+        title: "Admin moderation thread detail",
+        slowThresholdMs: 1200,
+    },
+    "admin/moderation/security-alerts:GET": {
+        routeName: "admin/moderation/security-alerts",
+        method: "GET",
+        title: "Admin moderation security alerts",
+        slowThresholdMs: 1200,
+    },
+    "admin/analytics/preferences:GET": {
+        routeName: "admin/analytics/preferences",
+        method: "GET",
+        title: "Admin analytics preferences reads",
+        slowThresholdMs: 1000,
+    },
+    "admin/analytics/preferences:PUT": {
+        routeName: "admin/analytics/preferences",
+        method: "PUT",
+        title: "Admin analytics preferences writes",
+        slowThresholdMs: 1200,
+    },
     "creator/discovery:GET": {
         routeName: "creator/discovery",
         method: "GET",
         title: "Creator discovery reads",
         slowThresholdMs: 900,
+    },
+    "notifications:GET": {
+        routeName: "notifications",
+        method: "GET",
+        title: "Notification inbox reads",
+        slowThresholdMs: 900,
+    },
+    "notifications:POST": {
+        routeName: "notifications",
+        method: "POST",
+        title: "Notification dispatch writes",
+        slowThresholdMs: 1400,
+    },
+    "notifications:PUT": {
+        routeName: "notifications",
+        method: "PUT",
+        title: "Notification read-state writes",
+        slowThresholdMs: 1200,
     },
     "chat/threads:GET": {
         routeName: "chat/threads",
@@ -148,6 +202,18 @@ export const ROUTE_RUNTIME_HEALTH_TARGETS = {
         method: "POST",
         title: "Viewer watch-session writes",
         slowThresholdMs: 1800,
+    },
+    "auth/manual-sign-in-lookup:POST": {
+        routeName: "auth/manual-sign-in-lookup",
+        method: "POST",
+        title: "Manual sign-in lookup",
+        slowThresholdMs: 1000,
+    },
+    "user/register:POST": {
+        routeName: "user/register",
+        method: "POST",
+        title: "Manual account registration",
+        slowThresholdMs: 1500,
     },
     "support/threads:GET": {
         routeName: "support/threads",

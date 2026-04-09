@@ -60,6 +60,9 @@ describe("buildAdminPanelSystemLogs", () => {
                 pipeline: {
                     status: "healthy",
                     failureCount: 0,
+                    activeFailureCount: 0,
+                    recentFailureCount: 0,
+                    sampleFailureCount: 0,
                     lastFailureAt: 0,
                     lastRouteName: "",
                     lastErrorMessage: "",
@@ -219,6 +222,9 @@ describe("buildAdminPanelSystemLogs", () => {
                 pipeline: {
                     status: "healthy",
                     failureCount: 0,
+                    activeFailureCount: 0,
+                    recentFailureCount: 0,
+                    sampleFailureCount: 0,
                     lastFailureAt: 0,
                     lastRouteName: "",
                     lastErrorMessage: "",
@@ -295,6 +301,9 @@ describe("buildAdminPanelSystemLogs", () => {
                 pipeline: {
                     status: "healthy",
                     failureCount: 0,
+                    activeFailureCount: 0,
+                    recentFailureCount: 0,
+                    sampleFailureCount: 0,
                     lastFailureAt: 0,
                     lastRouteName: "",
                     lastErrorMessage: "",

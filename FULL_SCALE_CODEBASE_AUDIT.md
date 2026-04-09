@@ -6,6 +6,32 @@ Last full-scale audit execution: 2026-04-09 03:00:54 -05:00
 Repo: `C:\Users\uylus\OneDrive\Documents\KandyDrops_Final`
 Audited HEAD at start: `36fcca527b72b04c24531724465f490642018ba2`
 
+## 2026-04-09 Admin Truth, Moderation, Chat, and Analytics Refactor
+
+Scope for this pass:
+- harden native creator chat send behavior and make failure contracts explicit
+- replace client-side moderation Firestore subscriptions with server-backed moderation APIs
+- move AI debug assistant enablement to persisted admin settings with truthful runtime status
+- repair daily-task, auth, onboarding, rollout, and experiment debug parity
+- replace the admin analytics global time filter with per-module persisted filters
+
+Startup protocol executed:
+- read `FULL_SCALE_CODEBASE_AUDIT.md`
+- read `REPO_MEMORY_LEDGER.md`
+- read `EVERY_FILE_FUNCTION_CHECKLIST.md`
+- ran `git status --short`
+- traced adjacent surfaces for:
+  - `src/lib/server/chat.ts`
+  - `src/components/Admin/AdminModerationConsole.tsx`
+  - `src/app/admin/analytics/page.tsx`
+  - `src/app/api/admin/debug/route.ts`
+  - `src/lib/server/daily-tasks.ts`
+  - `src/lib/tasks/task-observability.ts`
+
+Start state:
+- current HEAD at refactor start: `36fcca527b72b04c24531724465f490642018ba2`
+- working tree already contained verified local notification-delivery and admin-debug truth changes that must be reconciled into this pass rather than reverted
+
 ## 2026-04-09 Admin Debug Truth Audit
 
 Scope for this pass:
@@ -103,6 +129,72 @@ Remaining limits after this pass:
 - route-runtime-health now exposes never-observed admin routes, but it still does not time-decay old successful samples into a separate stale state
 - moderation remains a live Firestore client surface, so its truth is represented through admin UI chart health rather than route-runtime-health
 - the worktree remains intentionally dirty after this pass because the earlier verified loading-optimization pass is still local and uncommitted alongside these debug-truth changes
+
+## 2026-04-09 Admin Debug Diagnostics Channel Truth Fix
+
+Scope for this pass:
+- investigate the reported runtime/auth warning counts in the admin debug panel
+- determine whether the warnings were current failures or historical sample counts being overstated
+- correct the diagnostics-channel lane so it reflects current vs recent vs loaded-sample truth
+
+Startup protocol executed:
+- read `FULL_SCALE_CODEBASE_AUDIT.md`
+- read `REPO_MEMORY_LEDGER.md`
+- read `EVERY_FILE_FUNCTION_CHECKLIST.md`
+- ran `git status --short`
+- traced adjacent surfaces for:
+  - `src/lib/server/admin-ops-health.ts`
+  - `src/app/admin/debug/page.tsx`
+
+Start state:
+- current HEAD for this follow-up debug pass: `a42ed27a7d4886645995f813867be70dd6fbe99b`
+- working tree was clean before this pass started
+
+Root cause:
+- the diagnostics-by-channel lane in the admin debug page was showing `errorCount` and `warnCount` totals from the full loaded diagnostics sample
+- those totals were not separated from active-window or recent-window counts
+- as a result, channels like `runtime` and `auth` could look currently broken even when most of the loaded diagnostics were older sample noise
+
+Implementation results:
+- extended `AdminOpsHealthChannelItem` with:
+  - `activeErrorCount`
+  - `activeWarnCount`
+  - `recentErrorCount`
+  - `recentWarnCount`
+- updated `buildAdminOpsHealth(...)` so per-channel diagnostics now track active-window and recent-window counts separately from full loaded-sample totals
+- changed channel sorting so currently active/noisy channels rise above long-tail historical noise
+- updated the admin debug diagnostics-channel UI so each row now leads with:
+  - current active errors/warns in the active ops window
+  - recent errors/warns in the recent ops window
+  - sample totals as secondary context
+- kept loaded-sample totals visible instead of hiding them, but they are no longer the primary signal
+
+Primary touched surfaces for this pass:
+- `src/lib/admin-ops-health.ts`
+- `src/lib/server/admin-ops-health.ts`
+- `src/app/admin/debug/page.tsx`
+- `tests/unit/admin-ops-health.spec.ts`
+- `tests/unit/ai-debug-assistant.spec.ts`
+
+Commands run for this pass:
+- `git status --short`
+- `npm run trace:adjacent -- src/lib/server/admin-ops-health.ts`
+- `npm run trace:adjacent -- src/app/admin/debug/page.tsx`
+- `npx eslint src/lib/admin-ops-health.ts src/lib/server/admin-ops-health.ts src/app/admin/debug/page.tsx tests/unit/admin-ops-health.spec.ts tests/unit/ai-debug-assistant.spec.ts`
+- `corepack pnpm exec vitest run tests/unit/admin-ops-health.spec.ts tests/unit/ai-debug-assistant.spec.ts`
+- `npm run check:ui:audits`
+
+Results:
+- targeted lint passed
+- targeted tests passed
+- `check:ui:audits` passed after updating the adjacent fixture type for the new diagnostics channel shape
+
+Warnings observed:
+- the standard Playwright/Next build run still emits the existing `transformAlgorithm` warning after a successful UI audit run
+- Node `punycode` deprecation warnings still surface from current tooling during Vitest runs
+
+Remaining limits after this pass:
+- diagnostics channels now distinguish active/recent/sample counts, but the lane still depends on the bounded diagnostics query loaded into debug rather than a dedicated long-term per-channel materializer
 
 ## 2026-04-09 Full Codebase Loading Optimization Audit (In Progress)
 
@@ -4602,3 +4694,192 @@ Final state:
 - UI audits and Lighthouse are green after the loading-path changes
 - no generated Playwright artifacts remain in the worktree
 - realtime behavior remains server-truth-first; this pass removed duplicated initial fetches and delayed mounts rather than replacing them with stale caches
+
+## 2026-04-09 Notifications Delivery Time And Clear Audit
+- Scope: inspect notification delivery-time rendering, clear actions, and adjacent notification runtime behavior while preserving the already-dirty local admin-debug truth pass.
+
+Root causes found:
+- notification timestamps were normalized against the client Firestore `Timestamp` class in `src/lib/notification-contracts.ts`, but the inbox route reads server-side admin snapshot data. That left `createdAt` null and surfaced `Delivery time unavailable` in the notification bell even when the document had a valid timestamp.
+- the notification clear-all path in `src/hooks/useNotifications.ts` faned out one `PUT /api/notifications` request per unread notification. Under normal route limits, that can partially fail and leave some notifications uncleared.
+- notification writes were inconsistent about persisting a numeric millisecond timestamp alongside `createdAt`, so runtime truth varied between producers even though the UI depends on a stable delivery-time field.
+- the notifications route was not included in route-runtime-health, so repeated inbox/read-state failures would not be visible in admin debug as a first-class route issue.
+
+Implementation results:
+- broadened notification timestamp normalization so `normalizeNotificationDoc(...)` accepts both timestamp-like objects and raw `createdAtMs` values
+- the notification inbox now derives `createdAtMs` from the normalized contract field instead of assuming a client-side Firestore timestamp instance
+- `PUT /api/notifications` now supports batch mark-read requests through `notificationIds`, while keeping the single-id flow intact
+- `useNotifications()` now clears all unread notifications through one server request instead of a burst of parallel `PUT`s
+- added route-runtime-health tracking for:
+  - `notifications:GET`
+  - `notifications:POST`
+  - `notifications:PUT`
+- normalized adjacent notification producers to persist `createdAtMs` at write time:
+  - creator broadcasts
+  - creator subscription renewal warnings/failures
+  - creator onboarding admin alerts
+  - daily-task user notifications
+  - drop activation push/inbox notifications
+  - admin notification dispatch
+
+Primary touched surfaces for this pass:
+- `src/lib/notification-contracts.ts`
+- `src/lib/server/notification-inbox.ts`
+- `src/app/api/notifications/route.ts`
+- `src/lib/notifications.ts`
+- `src/hooks/useNotifications.ts`
+- `src/lib/route-runtime-health.ts`
+- `src/app/api/creator/broadcasts/route.ts`
+- `src/app/api/cron/process-creator-subscriptions/route.ts`
+- `src/lib/server/creator-onboarding-alerts.ts`
+- `src/lib/server/daily-tasks.ts`
+- `src/lib/server/push-notifications.ts`
+- `tests/unit/notification-contracts.spec.ts`
+- `tests/unit/notifications-route.spec.ts`
+
+Commands run for this pass:
+- `git status --short`
+- `npm run trace:adjacent -- src/app/api/notifications/route.ts`
+- `npm run trace:adjacent -- src/components/Navigation/NotificationBell.tsx`
+- `npm run trace:adjacent -- src/lib/server/notification-inbox.ts`
+- `npx eslint src/lib/notification-contracts.ts src/lib/server/notification-inbox.ts src/app/api/notifications/route.ts src/lib/notifications.ts src/hooks/useNotifications.ts src/lib/route-runtime-health.ts src/app/api/creator/broadcasts/route.ts src/app/api/cron/process-creator-subscriptions/route.ts src/lib/server/creator-onboarding-alerts.ts src/lib/server/daily-tasks.ts src/lib/server/push-notifications.ts tests/unit/notification-contracts.spec.ts tests/unit/notifications-route.spec.ts`
+- `corepack pnpm exec vitest run tests/unit/notification-contracts.spec.ts tests/unit/notifications-route.spec.ts`
+- `npx tsc --noEmit`
+- `npm run check:telemetry`
+- `npm run check:inventory`
+- `npm run check:continuity`
+- `npm run check:ui:audits`
+- `corepack pnpm run check`
+
+Results:
+- targeted eslint passed
+- targeted Vitest passed:
+  - `2` files
+  - `4` tests
+- `npx tsc --noEmit` passed
+- `npm run check:telemetry` passed:
+  - `243` literal or resolvable emitters checked across `386` files
+  - `0` cataloged events with no detected emitters
+- `npm run check:inventory` passed:
+  - tracked files: `723`
+- `npm run check:continuity` passed
+- `npm run check:ui:audits` passed:
+  - `16` tests
+- `corepack pnpm run check` passed:
+  - `108` contract files
+  - `513` tests
+
+Warnings and non-blocking notes:
+- the route now reports batch clear outcomes truthfully, but notifications with genuinely invalid or unavailable targeting still return as failed instead of being silently hidden
+- existing toolchain warnings remain unchanged:
+  - npm unknown env config warnings
+  - Node `punycode` deprecation warnings
+
+Final state:
+- delivery time now resolves from real notification timestamps instead of falling back to `Delivery time unavailable` for valid docs
+- clear-all no longer depends on a burst of parallel mark-read requests
+- notifications route health is now visible in admin debug, so inbox/read-state regressions should surface without needing manual repro
+
+## 2026-04-09 Admin Truth, Moderation, Chat Send, And Analytics Refactor Finalization
+- Scope: finish the in-flight admin truth/moderation/analytics refactor, harden chat send and AI assistant runtime behavior, remove stale analytics security ownership, and verify the repo end to end.
+
+Key issues closed in this pass:
+- the admin AI debug assistant was still resolving a configured model but calling Vertex with a hardcoded model constant
+- assistant availability was still partially env-gated instead of treating admin settings as the primary control plane
+- the new moderation console had moved to polling APIs but still lacked direct contract coverage and still carried minor render-lifecycle noise
+- the analytics page had been partially migrated to per-module ranges but still contained a dead hidden security branch and stale copy implying a page-level time baseline
+- chat send still lacked direct helper-level coverage for legacy `gumDropsBalance`, purchased-only split-balance spending, and post-write tracking degradation
+- admin moderation APIs had been implemented but not yet directly covered by route tests
+
+Implementation results:
+- AI debug assistant runtime now uses the resolved admin-configured model for live Vertex requests instead of the old hardcoded model constant
+- AI debug assistant enablement now follows admin settings as the source of truth; disabled state is reported as an admin-settings decision instead of a runtime-override artifact
+- the admin debug page now exposes editable AI assistant controls and scoped active/recent/sample counts without conflating historical sample totals with current incidents
+- the moderation console remains server-backed and now has a cleaner derived-thread selection flow with no effect-driven state churn
+- the hidden legacy analytics security block was removed from `src/app/admin/analytics/page.tsx`; security ownership now lives in moderation only
+- analytics copy now reflects per-card time ranges truthfully instead of implying a remaining global time filter
+- added direct helper coverage for chat send proving:
+  - legacy `gumDropsBalance` is treated as purchased balance for creator text sends
+  - split balances spend purchased GumDrops only
+  - insufficient purchased balance returns the structured shortfall payload
+  - post-write tracking failures do not turn a successful send into a 500
+- added direct route coverage for the server-backed admin moderation APIs:
+  - thread list
+  - thread detail/messages/files
+  - security alerts
+
+Primary touched surfaces:
+- `src/app/admin/analytics/page.tsx`
+- `src/app/admin/debug/page.tsx`
+- `src/app/api/admin/analytics/historical/route.ts`
+- `src/app/api/admin/debug/assistant/route.ts`
+- `src/components/Admin/AdminModerationConsole.tsx`
+- `src/lib/server/ai-debug-assistant.ts`
+- `src/lib/server/chat.ts`
+- `src/lib/admin-moderation.ts`
+- `src/lib/server/admin-moderation.ts`
+- `src/app/api/admin/moderation/threads/route.ts`
+- `src/app/api/admin/moderation/threads/[threadId]/route.ts`
+- `src/app/api/admin/moderation/security-alerts/route.ts`
+- `tests/unit/ai-debug-assistant.spec.ts`
+- `tests/unit/admin-panel-system-logs.spec.ts`
+- `tests/unit/server-chat-send.spec.ts`
+- `tests/unit/admin-moderation-routes.spec.ts`
+
+Commands run for this finalization pass:
+- `git status --short`
+- `npm run trace:adjacent -- src/lib/server/chat.ts`
+- `npm run trace:adjacent -- src/components/Admin/AdminModerationConsole.tsx`
+- `npm run trace:adjacent -- src/app/admin/analytics/page.tsx`
+- `npm run trace:adjacent -- src/app/api/admin/debug/route.ts`
+- `npm run trace:adjacent -- src/lib/server/daily-tasks.ts`
+- `npm run trace:adjacent -- src/lib/tasks/task-observability.ts`
+- `npx tsc --noEmit`
+- `npx eslint src/app/admin/analytics/page.tsx src/app/admin/debug/page.tsx src/app/api/admin/analytics/historical/route.ts src/app/api/admin/debug/assistant/route.ts src/lib/server/ai-debug-assistant.ts src/lib/server/chat.ts src/components/Admin/AdminModerationConsole.tsx src/lib/admin-ops-health.ts src/lib/server/admin-ops-health.ts tests/unit/ai-debug-assistant.spec.ts tests/unit/admin-panel-system-logs.spec.ts`
+- `corepack pnpm exec vitest run tests/unit/server-chat.spec.ts tests/unit/chat-thread-messages-route.spec.ts tests/unit/chat-thread-route.spec.ts tests/unit/chat-threads-route.spec.ts tests/unit/chat-thread-read-route.spec.ts tests/unit/ai-debug-assistant.spec.ts tests/unit/admin-debug-assistant-route.spec.ts tests/unit/admin-panel-system-logs.spec.ts`
+- `corepack pnpm exec vitest run tests/unit/admin-ops-health.spec.ts tests/unit/task-observability.spec.ts tests/unit/notification-contracts.spec.ts tests/unit/notifications-route.spec.ts tests/unit/creator-onboarding-alerts.spec.ts tests/unit/admin-analytics-data.spec.ts tests/unit/admin-analytics-historical-users.spec.ts tests/unit/admin-analytics-realtime-route.spec.ts`
+- `corepack pnpm exec vitest run tests/unit/server-chat-send.spec.ts tests/unit/admin-moderation-routes.spec.ts`
+- `npm run check:inventory`
+- `npm run check:continuity`
+- `corepack pnpm run check`
+- `npm run check:firebase:rules`
+- `npm run check:ui:audits`
+- `npm run check:ui:lighthouse`
+
+Results:
+- `npx tsc --noEmit` passed
+- targeted eslint passed
+- targeted Vitest passed for chat/debug/ops/notifications/onboarding/analytics slices
+- added direct coverage:
+  - `tests/unit/server-chat-send.spec.ts`
+  - `tests/unit/admin-moderation-routes.spec.ts`
+- `npm run check:inventory` passed:
+  - tracked files: `723`
+- `npm run check:continuity` passed
+- `corepack pnpm run check` passed:
+  - `110` contract files
+  - `520` tests
+- `npm run check:firebase:rules` passed:
+  - Firestore rules: `10` tests
+  - Storage rules: `16` tests
+- `npm run check:ui:audits` passed:
+  - `16` tests
+- `npm run check:ui:lighthouse` passed
+
+Warnings and non-blocking notes:
+- one initial `check:ui:audits` attempt failed because port `3000` was occupied by a leftover local `next start` process; the port owner was confirmed and stopped, then the UI audit reran cleanly
+- Playwright still emits the existing non-blocking Next webserver warning during teardown:
+  - `TypeError: controller[kState].transformAlgorithm is not a function`
+  - this did not fail the passing UI audit run
+- toolchain warnings remain unchanged:
+  - npm unknown env config warnings
+  - Node `punycode` deprecation warnings
+  - Windows Lighthouse temp cleanup `EPERM` warnings
+
+Final state:
+- admin moderation is server-backed with direct route coverage; the old client-Firestore moderation dependency is no longer the expected read path
+- admin analytics now treats security ownership as moderation-only and keeps time filtering module-scoped
+- AI debug assistant model selection is now truthful end to end from settings to Vertex runtime
+- chat send is covered for legacy and split GumDrop balances, and post-write tracking degradation no longer threatens the message write result
+- generated verification artifacts were removed after the run:
+  - `playwright-report/`
+  - `test-results/`

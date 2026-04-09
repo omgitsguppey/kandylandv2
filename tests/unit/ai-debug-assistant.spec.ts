@@ -74,40 +74,63 @@ describe("admin AI debug assistant", () => {
 
     it("builds a deterministic fallback when the feature flag is disabled", async () => {
         const result = await generateAdminAiDebugSummary(createSignal(), {
-            enabled: false,
+            settings: {
+                enabled: false,
+                model: AI_DEBUG_ASSISTANT_MODEL,
+                updatedAtMs: 0,
+                updatedByUid: "",
+                updatedByEmail: null,
+            },
         });
 
         expect(result.fallback_used).toBe(true);
         expect(result.model).toBe(AI_DEBUG_ASSISTANT_MODEL);
         expect(result.prompt_version).toBe(AI_DEBUG_ASSISTANT_PROMPT_VERSION);
-        expect(result.availability_note).toContain("AI_DEBUG_ASSISTANT_ENABLED=true");
+        expect(result.availability_note).toContain("disabled in admin settings");
         expect(result.likely_root_causes.length).toBeGreaterThan(0);
     });
 
     it("returns a live structured summary when the model responds with valid JSON", async () => {
+        const runner = vi.fn().mockResolvedValue(JSON.stringify({
+            summary: "Analytics ingest is failing and creator onboarding parity also needs review.",
+            likely_root_causes: ["analytics ingest route failures", "stale drop projection rebuild backlog"],
+            affected_systems: ["analytics pipeline", "behavior orchestration"],
+            confidence_notes: ["bounded operational sample only"],
+            suggested_next_checks: ["inspect analytics_ingest failures", "review projection drift finding"],
+        }));
         const result = await generateAdminAiDebugSummary(createSignal(), {
-            enabled: true,
+            settings: {
+                enabled: true,
+                model: "gemini-custom-debug-model",
+                updatedAtMs: 0,
+                updatedByUid: "",
+                updatedByEmail: null,
+            },
             project: "kandydrops-by-ikandy",
             location: "us-central1",
-            runner: vi.fn().mockResolvedValue(JSON.stringify({
-                summary: "Analytics ingest is failing and creator onboarding parity also needs review.",
-                likely_root_causes: ["analytics ingest route failures", "stale drop projection rebuild backlog"],
-                affected_systems: ["analytics pipeline", "behavior orchestration"],
-                confidence_notes: ["bounded operational sample only"],
-                suggested_next_checks: ["inspect analytics_ingest failures", "review projection drift finding"],
-            })),
+            runner,
         });
 
         expect(result.fallback_used).toBe(false);
         expect(result.summary).toContain("Analytics ingest is failing");
-        expect(result.model).toBe(AI_DEBUG_ASSISTANT_MODEL);
+        expect(result.model).toBe("gemini-custom-debug-model");
+        expect(result.configured_model).toBe("gemini-custom-debug-model");
         expect(result.prompt_version).toBe(AI_DEBUG_ASSISTANT_PROMPT_VERSION);
         expect(result.generated_at).toBe("2026-04-03T16:45:00.000Z");
+        expect(runner).toHaveBeenCalledWith(expect.objectContaining({
+            model: "gemini-custom-debug-model",
+        }));
     });
 
     it("falls back safely when ADC or Vertex auth is unavailable", async () => {
         const result = await generateAdminAiDebugSummary(createSignal(), {
-            enabled: true,
+            settings: {
+                enabled: true,
+                model: AI_DEBUG_ASSISTANT_MODEL,
+                updatedAtMs: 0,
+                updatedByUid: "",
+                updatedByEmail: null,
+            },
             project: "kandydrops-by-ikandy",
             runner: vi.fn().mockRejectedValue(new Error("Could not load the default credentials.")),
         });
@@ -119,7 +142,13 @@ describe("admin AI debug assistant", () => {
 
     it("falls back safely when the model emits malformed output", async () => {
         const result = await generateAdminAiDebugSummary(createSignal(), {
-            enabled: true,
+            settings: {
+                enabled: true,
+                model: AI_DEBUG_ASSISTANT_MODEL,
+                updatedAtMs: 0,
+                updatedByUid: "",
+                updatedByEmail: null,
+            },
             project: "kandydrops-by-ikandy",
             runner: vi.fn().mockResolvedValue("not json"),
         });
@@ -155,12 +184,27 @@ describe("admin AI debug assistant", () => {
                     activeWindowMs: 21600000,
                     recentWindowMs: 86400000,
                     lastDiagnosticAt: 100,
-                    channels: [{ key: "analytics", label: "Analytics", count: 1, errorCount: 1, warnCount: 0, infoCount: 0, lastSeenAt: 100 }],
+                    channels: [{
+                        key: "analytics",
+                        label: "Analytics",
+                        count: 1,
+                        errorCount: 1,
+                        warnCount: 0,
+                        infoCount: 0,
+                        activeErrorCount: 1,
+                        activeWarnCount: 0,
+                        recentErrorCount: 1,
+                        recentWarnCount: 0,
+                        lastSeenAt: 100,
+                    }],
                     recent: [{ id: "diag_1", channel: "analytics", severity: "error", message: "Ingest failed", timestamp: 100, detailPreview: "route" }],
                 },
                 pipeline: {
                     status: "warn",
                     failureCount: 2,
+                    activeFailureCount: 2,
+                    recentFailureCount: 2,
+                    sampleFailureCount: 2,
                     lastFailureAt: 100,
                     lastRouteName: "analytics/ingest",
                     lastErrorMessage: "ingest failed",
@@ -222,6 +266,18 @@ describe("admin AI debug assistant", () => {
     it("creates explicit fallback summaries without mutating the signal shape", () => {
         const fallback = buildAdminAiDebugFallback({
             signal: createSignal(),
+            settings: {
+                enabled: true,
+                model: AI_DEBUG_ASSISTANT_MODEL,
+                updatedAtMs: 0,
+                updatedByUid: "",
+                updatedByEmail: null,
+            },
+            runtime: {
+                project: "kandydrops-by-ikandy",
+                location: "us-central1",
+                model: AI_DEBUG_ASSISTANT_MODEL,
+            },
             availabilityNote: "Vertex AI is temporarily unavailable.",
             latencyMs: 42,
         });

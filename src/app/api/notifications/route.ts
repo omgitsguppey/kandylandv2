@@ -12,8 +12,9 @@ import { buildNotModifiedResponse, PRIVATE_REVALIDATE_CACHE_CONTROL, requestMatc
 import { markNotificationsRuntimeChanged, touchNotificationsRuntime } from "@/lib/server/notification-runtime";
 import { HEAVY_READ, STANDARD } from "@/lib/server/rate-limit";
 import { guardApiRequest } from "@/lib/server/request-guard";
+import { getErrorMessage, recordRouteWarning } from "@/lib/server/route-diagnostics";
+import { recordRouteRuntimeSample } from "@/lib/server/route-runtime-health";
 import { touchUserRuntime } from "@/lib/server/user-runtime";
-import { recordRouteWarning } from "@/lib/server/route-diagnostics";
 
 const DUPLICATE_NOTIFICATION_WINDOW_MS = 2 * 60 * 1000;
 
@@ -53,6 +54,17 @@ function buildDispatchFingerprint(payload: ReturnType<typeof normalizeNotificati
 }
 
 export async function GET(request: NextRequest) {
+  const startedAt = Date.now();
+  const finalize = (response: NextResponse, error?: unknown) => {
+    void recordRouteRuntimeSample({
+      key: "notifications:GET",
+      durationMs: Date.now() - startedAt,
+      statusCode: response.status,
+      errorMessage: error ? getErrorMessage(error) : null,
+    });
+    return response;
+  };
+
   try {
     const caller = await guardApiRequest(request, {
       routeName: "notifications",
@@ -63,7 +75,7 @@ export async function GET(request: NextRequest) {
     });
 
     if (!adminDb) {
-      return NextResponse.json({ error: "Database not available" }, { status: 500 });
+      return finalize(NextResponse.json({ error: "Database not available" }, { status: 500 }));
     }
 
     const notifications = await fetchUnreadNotificationsForUser(caller?.uid ?? "", {
@@ -74,10 +86,10 @@ export async function GET(request: NextRequest) {
     const etag = buildNotificationsEtag(notifications);
 
     if (requestMatchesEtag(request, etag)) {
-      return buildNotModifiedResponse(etag, PRIVATE_REVALIDATE_CACHE_CONTROL);
+      return finalize(buildNotModifiedResponse(etag, PRIVATE_REVALIDATE_CACHE_CONTROL));
     }
 
-    return NextResponse.json(
+    return finalize(NextResponse.json(
       { success: true, notifications },
       {
         headers: {
@@ -85,13 +97,24 @@ export async function GET(request: NextRequest) {
           "Cache-Control": PRIVATE_REVALIDATE_CACHE_CONTROL,
         },
       },
-    );
+    ));
   } catch (error) {
-    return handleApiError(error, "Notifications.GET");
+    return finalize(handleApiError(error, "Notifications.GET"), error);
   }
 }
 
 export async function POST(request: NextRequest) {
+  const startedAt = Date.now();
+  const finalize = (response: NextResponse, error?: unknown) => {
+    void recordRouteRuntimeSample({
+      key: "notifications:POST",
+      durationMs: Date.now() - startedAt,
+      statusCode: response.status,
+      errorMessage: error ? getErrorMessage(error) : null,
+    });
+    return response;
+  };
+
   try {
     await guardApiRequest(request, {
       routeName: "notifications",
@@ -101,13 +124,13 @@ export async function POST(request: NextRequest) {
     });
 
     if (!adminDb) {
-      return NextResponse.json({ error: "Database not available" }, { status: 500 });
+      return finalize(NextResponse.json({ error: "Database not available" }, { status: 500 }));
     }
 
     const payload = normalizeNotificationCreatePayload(await request.json());
 
     if (!payload) {
-      return NextResponse.json({ error: "Invalid notification payload" }, { status: 400 });
+      return finalize(NextResponse.json({ error: "Invalid notification payload" }, { status: 400 }));
     }
 
     const dispatchFingerprint = buildDispatchFingerprint(payload);
@@ -134,6 +157,7 @@ export async function POST(request: NextRequest) {
         link: payload.link || null,
         dropContext: payload.dropContext || null,
         createdAt: FieldValue.serverTimestamp(),
+        createdAtMs: nowMs,
         readBy: [],
         dispatchFingerprint,
       });
@@ -148,7 +172,7 @@ export async function POST(request: NextRequest) {
     });
 
     if (result.duplicate) {
-      return NextResponse.json({ success: true, duplicate: true });
+      return finalize(NextResponse.json({ success: true, duplicate: true }));
     }
 
     if (payload.target.global) {
@@ -166,13 +190,24 @@ export async function POST(request: NextRequest) {
 
     await touchNotificationsRuntime(nowMs);
 
-    return NextResponse.json({ success: true, duplicate: false });
+    return finalize(NextResponse.json({ success: true, duplicate: false }));
   } catch (error) {
-    return handleApiError(error, "Notifications.POST");
+    return finalize(handleApiError(error, "Notifications.POST"), error);
   }
 }
 
 export async function PUT(request: NextRequest) {
+  const startedAt = Date.now();
+  const finalize = (response: NextResponse, error?: unknown) => {
+    void recordRouteRuntimeSample({
+      key: "notifications:PUT",
+      durationMs: Date.now() - startedAt,
+      statusCode: response.status,
+      errorMessage: error ? getErrorMessage(error) : null,
+    });
+    return response;
+  };
+
   try {
     const caller = await guardApiRequest(request, {
       routeName: "notifications",
@@ -182,43 +217,82 @@ export async function PUT(request: NextRequest) {
       scopeToCaller: true,
     });
 
-    const { notificationId } = await request.json();
+    const payload = await request.json() as {
+      notificationId?: unknown;
+      notificationIds?: unknown;
+    };
+    const requestedIds = [
+      ...(typeof payload.notificationId === "string" ? [payload.notificationId.trim()] : []),
+      ...(Array.isArray(payload.notificationIds)
+        ? payload.notificationIds
+          .filter((entry): entry is string => typeof entry === "string")
+          .map((entry) => entry.trim())
+        : []),
+    ].filter(Boolean);
 
-    if (!notificationId) {
-      return NextResponse.json({ error: "Missing notificationId" }, { status: 400 });
+    if (requestedIds.length === 0) {
+      return finalize(NextResponse.json({ error: "Missing notificationId" }, { status: 400 }));
     }
     if (!adminDb) {
-      return NextResponse.json({ error: "Database not available" }, { status: 500 });
+      return finalize(NextResponse.json({ error: "Database not available" }, { status: 500 }));
     }
 
-    const ref = adminDb.collection("notifications").doc(notificationId);
-    const snapshot = await ref.get();
-    if (!snapshot.exists) {
-      return NextResponse.json({ error: "Notification not found" }, { status: 404 });
-    }
+    const uniqueIds = [...new Set(requestedIds)];
+    const refs = uniqueIds.map((notificationId) => adminDb.collection("notifications").doc(notificationId));
+    const snapshots = refs.length === 1
+      ? [await refs[0].get()]
+      : await adminDb.getAll(...refs);
+    const batch = adminDb.batch();
+    const successfulIds: string[] = [];
+    const unavailableIds: string[] = [];
 
-    const normalized = normalizeNotificationDoc(notificationId, snapshot.data() as Record<string, unknown>);
-    if (!normalized) {
-      return NextResponse.json({ error: "Notification not found" }, { status: 404 });
-    }
+    snapshots.forEach((snapshot, index) => {
+      const notificationId = uniqueIds[index] ?? "";
+      if (!snapshot.exists) {
+        unavailableIds.push(notificationId);
+        return;
+      }
 
-    const createdAtMs = normalized.createdAt?.toMillis() ?? 0;
-    const visibleToUser = isNotificationVisibleToUser({
-      target: normalized.target,
-      createdAtMs,
-      readBy: normalized.readBy,
-    }, caller?.uid ?? "");
-    if (!visibleToUser) {
-      return NextResponse.json({ error: "Notification not available" }, { status: 404 });
-    }
+      const normalized = normalizeNotificationDoc(notificationId, snapshot.data() as Record<string, unknown>);
+      if (!normalized) {
+        unavailableIds.push(notificationId);
+        return;
+      }
 
-    await ref.update({ readBy: FieldValue.arrayUnion(caller?.uid ?? "") });
-    await touchUserRuntime(caller?.uid ?? "", {
-      notifications: true,
+      const visibleToUser = isNotificationVisibleToUser({
+        target: normalized.target,
+        createdAtMs: normalized.createdAtMs ?? 0,
+        readBy: normalized.readBy,
+      }, caller?.uid ?? "");
+      if (!visibleToUser) {
+        unavailableIds.push(notificationId);
+        return;
+      }
+
+      successfulIds.push(notificationId);
+      if (!normalized.readBy.includes(caller?.uid ?? "")) {
+        batch.update(snapshot.ref, { readBy: FieldValue.arrayUnion(caller?.uid ?? "") });
+      }
     });
 
-    return NextResponse.json({ success: true });
+    if (successfulIds.length === 0 && uniqueIds.length === 1) {
+      return finalize(NextResponse.json({ error: "Notification not available" }, { status: 404 }));
+    }
+
+    if (successfulIds.length > 0) {
+      await batch.commit();
+      await touchUserRuntime(caller?.uid ?? "", {
+        notifications: true,
+      });
+    }
+
+    return finalize(NextResponse.json({
+      success: true,
+      successCount: successfulIds.length,
+      failedCount: unavailableIds.length,
+      notificationIds: successfulIds,
+    }));
   } catch (error) {
-    return handleApiError(error, "Notifications.PUT");
+    return finalize(handleApiError(error, "Notifications.PUT"), error);
   }
 }

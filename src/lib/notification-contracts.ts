@@ -1,5 +1,3 @@
-import { Timestamp } from "firebase/firestore";
-
 export const NOTIFICATION_TYPES = ["info", "success", "warning", "error"] as const;
 
 export type NotificationType = (typeof NOTIFICATION_TYPES)[number];
@@ -21,11 +19,17 @@ export interface AppNotification {
   title: string;
   message: string;
   type: NotificationType;
-  createdAt: Timestamp | null;
+  createdAt: NotificationTimestampLike | null;
+  createdAtMs: number | null;
   readBy: string[];
   target: NotificationTarget;
   link?: string;
   dropContext?: DropNotificationContext;
+}
+
+export interface NotificationTimestampLike {
+  toDate: () => Date;
+  toMillis: () => number;
 }
 
 interface UnknownDropContext {
@@ -39,10 +43,38 @@ interface UnknownNotificationDoc {
   message?: unknown;
   type?: unknown;
   createdAt?: unknown;
+  createdAtMs?: unknown;
   readBy?: unknown;
   target?: unknown;
   link?: unknown;
   dropContext?: unknown;
+}
+
+function toNumberOrNull(value: unknown) {
+  return typeof value === "number" && Number.isFinite(value) ? value : null;
+}
+
+function normalizeTimestampLike(value: unknown): NotificationTimestampLike | null {
+  if (
+    value
+    && typeof value === "object"
+    && "toDate" in value
+    && typeof (value as { toDate?: unknown }).toDate === "function"
+    && "toMillis" in value
+    && typeof (value as { toMillis?: unknown }).toMillis === "function"
+  ) {
+    return value as NotificationTimestampLike;
+  }
+
+  const timestampMs = toNumberOrNull(value);
+  if (timestampMs === null) {
+    return null;
+  }
+
+  return {
+    toDate: () => new Date(timestampMs),
+    toMillis: () => timestampMs,
+  };
 }
 
 export function normalizeNotificationDoc(id: string, data: UnknownNotificationDoc): AppNotification | null {
@@ -54,7 +86,9 @@ export function normalizeNotificationDoc(id: string, data: UnknownNotificationDo
     ? (data.type as NotificationType)
     : "info";
 
-  const createdAt = data.createdAt instanceof Timestamp ? data.createdAt : null;
+  const createdAtMs = toNumberOrNull(data.createdAtMs);
+  const createdAt = normalizeTimestampLike(data.createdAt) ?? normalizeTimestampLike(createdAtMs);
+  const normalizedCreatedAtMs = createdAtMs ?? createdAt?.toMillis() ?? null;
   const readBy = Array.isArray(data.readBy) ? data.readBy.filter((entry): entry is string => typeof entry === "string") : [];
 
   const targetObj = (data.target && typeof data.target === "object") ? data.target as { global?: unknown; userIds?: unknown; excludedUserIds?: unknown } : null;
@@ -79,6 +113,7 @@ export function normalizeNotificationDoc(id: string, data: UnknownNotificationDo
     message: data.message,
     type,
     createdAt,
+    createdAtMs: normalizedCreatedAtMs,
     readBy,
     target,
     link: typeof data.link === "string" ? data.link : undefined,

@@ -19,13 +19,13 @@ import {
   PlayCircle,
   Route,
   Share2,
-  ShieldAlert,
   ShoppingBag,
   Smartphone,
   Sparkles,
   Users,
   Wallet,
 } from "lucide-react";
+import { toast } from "sonner";
 import {
   Area,
   AreaChart,
@@ -46,15 +46,23 @@ import { useAdminPollingSWR } from "@/hooks/useAdminPollingSWR";
 import { useAdminUiChartHealthReporter } from "@/hooks/useAdminUiChartHealthReporter";
 import { useNow } from "@/hooks/useNow";
 import { useAuth } from "@/context/AuthContext";
+import { authFetch } from "@/lib/authFetch";
 import { reportStorageIssue } from "@/lib/client-error-reporting";
 import { buildAdminUiChartHealthItem, summarizeAdminUiChartHealth } from "@/lib/admin-ui-chart-health";
+import {
+  ADMIN_ANALYTICS_DEFAULT_RANGE,
+  ADMIN_ANALYTICS_RANGE_OPTIONS,
+  normalizeAdminAnalyticsModuleRangeMap,
+  type AdminAnalyticsModuleRangeMap,
+  type AdminAnalyticsRangeOption,
+} from "@/lib/admin-analytics-preferences";
 import { cn } from "@/lib/utils";
 import { AdminPageHeader } from "@/components/Admin/AdminPageHeader";
 import { PageViewEvent } from "@/components/Analytics/PageViewEvent";
 import { TELEMETRY_EVENT_LABELS } from "@/lib/telemetry-catalog";
 
 type ViewTab = "operations" | "audience" | "commerce";
-type RangeOption = "24h" | "7d" | "30d" | "all";
+type RangeOption = AdminAnalyticsRangeOption;
 
 interface RealtimePoint {
   minute: number;
@@ -445,6 +453,13 @@ interface RealtimeAnalyticsResponse {
   surfaceMix?: SurfaceMixItem[];
 }
 
+interface AnalyticsPreferencesResponse {
+  success: boolean;
+  preferences?: {
+    moduleRanges?: AdminAnalyticsModuleRangeMap;
+  };
+}
+
 interface TooltipValue {
   color?: string;
   name?: string;
@@ -478,12 +493,10 @@ interface MetricCardProps {
   valueClassName?: string;
 }
 
-const RANGE_OPTIONS: Array<{ value: RangeOption; label: string }> = [
-  { value: "24h", label: "24H" },
-  { value: "7d", label: "7D" },
-  { value: "30d", label: "30D" },
-  { value: "all", label: "All" },
-];
+const RANGE_OPTIONS: Array<{ value: RangeOption; label: string }> = ADMIN_ANALYTICS_RANGE_OPTIONS.map((value) => ({
+  value,
+  label: value === "all" ? "All" : value.toUpperCase(),
+}));
 
 const TAB_OPTIONS: Array<{ id: ViewTab; label: string; icon: typeof Activity }> = [
   { id: "operations", label: "Operations", icon: Activity },
@@ -563,6 +576,61 @@ function SectionCard({
       </div>
       {expanded || !collapsible ? children : null}
     </section>
+  );
+}
+
+function buildSectionHistoricalUrl(section: string, range: RangeOption, viewerUser?: string) {
+  const searchParams = new URLSearchParams({
+    period: range,
+    section,
+  });
+
+  if (viewerUser) {
+    searchParams.set("viewerUser", viewerUser);
+  }
+
+  return `/api/admin/analytics/historical?${searchParams.toString()}`;
+}
+
+function SectionRangeControl({
+  sectionKey,
+  range,
+  saving,
+  onChange,
+}: {
+  sectionKey: string;
+  range: RangeOption;
+  saving?: boolean;
+  onChange: (sectionKey: string, range: RangeOption) => void;
+}) {
+  return (
+    <label className="inline-flex items-center gap-2 rounded-full border border-white/10 bg-white/5 px-3 py-1.5 text-[11px] font-semibold text-gray-300">
+      <Funnel className="h-3.5 w-3.5 text-gray-400" />
+      <select
+        value={range}
+        onChange={(event) => onChange(sectionKey, event.target.value as RangeOption)}
+        disabled={saving}
+        className="bg-transparent text-[11px] font-semibold uppercase tracking-[0.14em] text-white outline-none"
+      >
+        {RANGE_OPTIONS.map((option) => (
+          <option key={option.value} value={option.value} className="bg-black text-white">
+            {option.label}
+          </option>
+        ))}
+      </select>
+      {saving ? <Loader2 className="h-3.5 w-3.5 animate-spin text-brand-purple" /> : null}
+    </label>
+  );
+}
+
+function useHistoricalSectionOverride(sectionKey: string, range: RangeOption, viewerUser?: string) {
+  const shouldFetchOverride = range !== ADMIN_ANALYTICS_DEFAULT_RANGE || Boolean(viewerUser);
+  return useAdminPollingSWR<HistoricalAnalyticsResponse>(
+    shouldFetchOverride ? buildSectionHistoricalUrl(sectionKey, range, viewerUser) : null,
+    15_000,
+    {
+      keepPreviousData: true,
+    },
   );
 }
 
@@ -695,10 +763,12 @@ function getJourneyStateClasses(state: UserJourneyItem["journeyState"]) {
 export default function AdminAnalyticsPage() {
   const { user } = useAuth();
   const [activeTab, setActiveTab] = useState<ViewTab>("operations");
-  const [range, setRange] = useState<RangeOption>("30d");
+  const range: RangeOption = ADMIN_ANALYTICS_DEFAULT_RANGE;
   const nowMs = useNow({ intervalMs: 60_000, initialNowMs: 0 });
   const [viewerUserDraft, setViewerUserDraft] = useState("");
   const [viewerUserFilter, setViewerUserFilter] = useState("");
+  const [moduleRanges, setModuleRanges] = useState<AdminAnalyticsModuleRangeMap>({});
+  const [savingSectionKey, setSavingSectionKey] = useState<string | null>(null);
   const analyticsFilterStorageKey = user
     ? `${ANALYTICS_FILTER_STORAGE_KEY}:${user.uid}`
     : ANALYTICS_FILTER_STORAGE_KEY;
@@ -717,16 +787,12 @@ export default function AdminAnalyticsPage() {
 
         const parsed = JSON.parse(raw) as Partial<{
           activeTab: ViewTab;
-          range: RangeOption;
           viewerUserDraft: string;
           viewerUserFilter: string;
         }>;
 
         if (parsed.activeTab && TAB_OPTIONS.some((item) => item.id === parsed.activeTab)) {
           setActiveTab(parsed.activeTab);
-        }
-        if (parsed.range && RANGE_OPTIONS.some((item) => item.value === parsed.range)) {
-          setRange(parsed.range);
         }
         if (typeof parsed.viewerUserDraft === "string") {
           setViewerUserDraft(parsed.viewerUserDraft);
@@ -756,7 +822,6 @@ export default function AdminAnalyticsPage() {
         analyticsFilterStorageKey,
         JSON.stringify({
           activeTab,
-          range,
           viewerUserDraft,
           viewerUserFilter,
         }),
@@ -766,9 +831,68 @@ export default function AdminAnalyticsPage() {
         storageKey: analyticsFilterStorageKey,
       });
     }
-  }, [activeTab, analyticsFilterStorageKey, range, viewerUserDraft, viewerUserFilter]);
+  }, [activeTab, analyticsFilterStorageKey, viewerUserDraft, viewerUserFilter]);
 
-  const historicalUrl = `/api/admin/analytics/historical?period=${range}${viewerUserFilter ? `&viewerUser=${encodeURIComponent(viewerUserFilter)}` : ""}`;
+  const {
+    data: analyticsPreferencesResponse,
+    mutate: mutateAnalyticsPreferences,
+  } = useAdminPollingSWR<AnalyticsPreferencesResponse>("/api/admin/analytics/preferences", 15_000, {
+    keepPreviousData: true,
+  });
+
+  useEffect(() => {
+    setModuleRanges(normalizeAdminAnalyticsModuleRangeMap(analyticsPreferencesResponse?.preferences?.moduleRanges));
+  }, [analyticsPreferencesResponse?.preferences?.moduleRanges]);
+
+  const getSectionRange = (sectionKey: string): RangeOption => moduleRanges[sectionKey] ?? ADMIN_ANALYTICS_DEFAULT_RANGE;
+
+  const handleSectionRangeChange = async (sectionKey: string, nextRange: RangeOption) => {
+    const previousRanges = moduleRanges;
+    setModuleRanges((current) => ({
+      ...current,
+      [sectionKey]: nextRange,
+    }));
+    setSavingSectionKey(sectionKey);
+
+    try {
+      const response = await authFetch("/api/admin/analytics/preferences", {
+        method: "PUT",
+        body: JSON.stringify({
+          section: sectionKey,
+          range: nextRange,
+        }),
+      });
+      const result = await response.json();
+      if (!response.ok) {
+        throw new Error(result.error || "Analytics range update failed");
+      }
+
+      const nextRanges = normalizeAdminAnalyticsModuleRangeMap(result.preferences?.moduleRanges);
+      setModuleRanges(nextRanges);
+      await mutateAnalyticsPreferences({
+        success: true,
+        preferences: {
+          moduleRanges: nextRanges,
+        },
+      }, { revalidate: false });
+    } catch (error) {
+      setModuleRanges(previousRanges);
+      toast.error(error instanceof Error ? error.message : "Analytics range update failed");
+    } finally {
+      setSavingSectionKey((current) => current === sectionKey ? null : current);
+    }
+  };
+
+  const renderSectionRangeControl = (sectionKey: string) => (
+    <SectionRangeControl
+      sectionKey={sectionKey}
+      range={getSectionRange(sectionKey)}
+      saving={savingSectionKey === sectionKey}
+      onChange={handleSectionRangeChange}
+    />
+  );
+
+  const historicalUrl = `/api/admin/analytics/historical?period=${ADMIN_ANALYTICS_DEFAULT_RANGE}`;
   const {
     data: liveResponse,
     error: liveError,
@@ -783,6 +907,61 @@ export default function AdminAnalyticsPage() {
     historicalUrl,
     15_000,
   );
+
+  const livePulseRange = getSectionRange("livePulse");
+  const livePulseOverride = useHistoricalSectionOverride("livePulse", livePulseRange);
+  const journeyFunnelRange = getSectionRange("journeyFunnel");
+  const journeyFunnelOverride = useHistoricalSectionOverride("journeyFunnel", journeyFunnelRange);
+  const authOutcomeSplitRange = getSectionRange("authOutcomeSplit");
+  const authOutcomeSplitOverride = useHistoricalSectionOverride("authOutcomeSplit", authOutcomeSplitRange);
+  const onboardingVelocityRange = getSectionRange("onboardingVelocity");
+  const onboardingVelocityOverride = useHistoricalSectionOverride("onboardingVelocity", onboardingVelocityRange);
+  const onboardingStepFlowRange = getSectionRange("onboardingStepFlow");
+  const onboardingStepFlowOverride = useHistoricalSectionOverride("onboardingStepFlow", onboardingStepFlowRange);
+  const guestBounceQualityRange = getSectionRange("categorySemantics");
+  const guestBounceQualityOverride = useHistoricalSectionOverride("categorySemantics", guestBounceQualityRange);
+  const eventMixRange = getSectionRange("eventMix");
+  const eventMixOverride = useHistoricalSectionOverride("eventMix", eventMixRange);
+  const liveInteractionStreamRange = getSectionRange("liveInteractionStream");
+  const liveInteractionStreamOverride = useHistoricalSectionOverride("liveInteractionStream", liveInteractionStreamRange);
+  const dataValidationRange = getSectionRange("dataValidation");
+  const dataValidationOverride = useHistoricalSectionOverride("dataValidation", dataValidationRange);
+  const audienceSnapshotRange = getSectionRange("audienceSnapshot");
+  const audienceSnapshotOverride = useHistoricalSectionOverride("audienceSnapshot", audienceSnapshotRange);
+  const returnCadenceRange = getSectionRange("returnCadence");
+  const returnCadenceOverride = useHistoricalSectionOverride("returnCadence", returnCadenceRange);
+  const navigationDestinationsRange = getSectionRange("navigationDestinations");
+  const navigationDestinationsOverride = useHistoricalSectionOverride("navigationDestinations", navigationDestinationsRange);
+  const deviceMixRange = getSectionRange("deviceMix");
+  const deviceMixOverride = useHistoricalSectionOverride("deviceMix", deviceMixRange);
+  const topPathsRange = getSectionRange("topPaths");
+  const topPathsOverride = useHistoricalSectionOverride("topPaths", topPathsRange);
+  const regionsRange = getSectionRange("regions");
+  const regionsOverride = useHistoricalSectionOverride("regions", regionsRange);
+  const commerceSnapshotRange = getSectionRange("commerceSnapshot");
+  const commerceSnapshotOverride = useHistoricalSectionOverride("commerceSnapshot", commerceSnapshotRange);
+  const packagePerformanceRange = getSectionRange("packagePerformance");
+  const packagePerformanceOverride = useHistoricalSectionOverride("packagePerformance", packagePerformanceRange);
+  const contentConversionRange = getSectionRange("contentConversion");
+  const contentConversionOverride = useHistoricalSectionOverride("contentConversion", contentConversionRange);
+  const topDropConversionRange = getSectionRange("topDropConversion");
+  const topDropConversionOverride = useHistoricalSectionOverride("topDropConversion", topDropConversionRange);
+  const recentCommerceFeedRange = getSectionRange("recentCommerceFeed");
+  const recentCommerceFeedOverride = useHistoricalSectionOverride("recentCommerceFeed", recentCommerceFeedRange);
+  const viewerDrilldownRange = getSectionRange("viewerDrilldown");
+  const viewerDrilldownOverride = useHistoricalSectionOverride("viewerDrilldown", viewerDrilldownRange, viewerUserFilter);
+  const viewerJourneyRange = getSectionRange("viewerJourney");
+  const viewerJourneyOverride = useHistoricalSectionOverride("viewerJourney", viewerJourneyRange);
+  const watchDepthTagsRange = getSectionRange("watchDepthTags");
+  const watchDepthTagsOverride = useHistoricalSectionOverride("watchDepthTags", watchDepthTagsRange);
+  const dailyTaskPipelineRange = getSectionRange("dailyTaskPipeline");
+  const dailyTaskPipelineOverride = useHistoricalSectionOverride("dailyTaskPipeline", dailyTaskPipelineRange);
+  const taskCompletionSpeedRange = getSectionRange("taskCompletionSpeed");
+  const taskCompletionSpeedOverride = useHistoricalSectionOverride("taskCompletionSpeed", taskCompletionSpeedRange);
+  const taskLeaderboardRange = getSectionRange("taskLeaderboard");
+  const taskLeaderboardOverride = useHistoricalSectionOverride("taskLeaderboard", taskLeaderboardRange);
+  const notificationFunnelRange = getSectionRange("notificationFunnel");
+  const notificationFunnelOverride = useHistoricalSectionOverride("notificationFunnel", notificationFunnelRange);
 
   const liveSeries = useMemo(
     () =>
@@ -857,14 +1036,6 @@ export default function AdminAnalyticsPage() {
   const taskDurationBuckets = historicalResponse?.taskDurationBuckets ?? [];
   const reminderReasons = historicalResponse?.reminderReasons ?? [];
   const packagePerformance = historicalResponse?.packagePerformance ?? [];
-  const activeNotificationFunnel = useMemo(
-    () => notificationFunnel.filter((item) => item.count > 0),
-    [notificationFunnel],
-  );
-  const activeNotificationFunnelPieData = useMemo(
-    () => activeNotificationFunnel.map((item) => ({ name: item.label, value: item.count })),
-    [activeNotificationFunnel],
-  );
   const unlockCategoryMix = historicalResponse?.unlockCategoryMix ?? [];
   const watchDepthBuckets = historicalResponse?.watchDepthBuckets ?? [];
   const contentJourney = historicalResponse?.contentJourney ?? [];
@@ -1010,12 +1181,166 @@ export default function AdminAnalyticsPage() {
     : historicalLoading
       ? "Fetching..."
       : "Awaiting snapshot";
-  const viewerDropChartData = viewerDropInsights.slice(0, 8).map((item) => ({
+  const hasAuthSuccessData = authBreakdown.some((item) => item.successes > 0);
+  const hasOnboardingVelocityData = onboardingDurationBuckets.some((bucket) => bucket.count > 0);
+  const livePulseData = livePulseRange === ADMIN_ANALYTICS_DEFAULT_RANGE ? historicalResponse : livePulseOverride.data;
+  const livePulseFunnel = livePulseData?.funnel ?? funnel;
+  const livePulseOnboardingStats = livePulseData?.onboardingStats ?? onboardingStats;
+  const livePulseOnboardingStartCount = livePulseOnboardingStats.starts ?? 0;
+  const livePulseOnboardingCompletionRate = livePulseOnboardingStats.completionRate ?? (
+    livePulseOnboardingStartCount > 0 ? livePulseOnboardingStats.completions / Math.max(1, livePulseOnboardingStartCount) : 0
+  );
+  const journeyFunnelData = journeyFunnelRange === ADMIN_ANALYTICS_DEFAULT_RANGE ? historicalResponse : journeyFunnelOverride.data;
+  const journeyFunnelMetrics = journeyFunnelData?.funnel ?? funnel;
+  const authOutcomeData = authOutcomeSplitRange === ADMIN_ANALYTICS_DEFAULT_RANGE ? historicalResponse : authOutcomeSplitOverride.data;
+  const authOutcomeBreakdown = authOutcomeData?.authBreakdown ?? authBreakdown;
+  const authOutcomeHasSuccessData = authOutcomeBreakdown.some((item) => item.successes > 0);
+  const onboardingVelocityData = onboardingVelocityRange === ADMIN_ANALYTICS_DEFAULT_RANGE ? historicalResponse : onboardingVelocityOverride.data;
+  const onboardingVelocityStats = onboardingVelocityData?.onboardingStats ?? onboardingStats;
+  const onboardingVelocityBuckets = onboardingVelocityData?.onboardingDurationBuckets ?? onboardingDurationBuckets;
+  const onboardingVelocityStartCount = onboardingVelocityStats.starts ?? 0;
+  const onboardingVelocityCompletionRate = onboardingVelocityStats.completionRate ?? (
+    onboardingVelocityStartCount > 0 ? onboardingVelocityStats.completions / Math.max(1, onboardingVelocityStartCount) : 0
+  );
+  const onboardingVelocityDropOffCount = Math.max(0, onboardingVelocityStartCount - onboardingVelocityStats.completions);
+  const onboardingVelocityHasData = onboardingVelocityBuckets.some((bucket) => bucket.count > 0);
+  const onboardingStepFlowData = onboardingStepFlowRange === ADMIN_ANALYTICS_DEFAULT_RANGE ? historicalResponse : onboardingStepFlowOverride.data;
+  const onboardingStepFlowStats = onboardingStepFlowData?.onboardingStepStats ?? onboardingStepStats;
+  const onboardingStepFlowItems = onboardingStepFlowStats.map((step) => ({
+    ...step,
+    completionRate: step.starts > 0 ? step.completions / Math.max(1, step.starts) : 0,
+    dropOffCount: Math.max(0, step.starts - step.completions),
+  }));
+  const finalOnboardingStep = onboardingStepFlowItems.reduce<typeof onboardingStepFlowItems[number] | null>((current, step) => {
+    if (!current || step.stepIndex > current.stepIndex) {
+      return step;
+    }
+    return current;
+  }, null);
+  const authOnboardingDiscrepancies = [
+    journeyFunnelMetrics.authSignUps !== onboardingVelocityStartCount ? `Auth sign-ups ${journeyFunnelMetrics.authSignUps} do not match onboarding starts ${onboardingVelocityStartCount}.` : "",
+    finalOnboardingStep && finalOnboardingStep.completions !== onboardingVelocityStats.completions ? `Final onboarding step completions ${finalOnboardingStep.completions} do not match onboarding completions ${onboardingVelocityStats.completions}.` : "",
+  ].filter(Boolean);
+  const guestBounceQualityData = guestBounceQualityRange === ADMIN_ANALYTICS_DEFAULT_RANGE ? historicalResponse : guestBounceQualityOverride.data;
+  const guestBounceSemantics = guestBounceQualityData?.semanticCategories ?? semanticCategories;
+  const guestBounceGlobalSemantics = guestBounceSemantics.find((item) => item.key === "global");
+  const guestBounceUserSemantics = guestBounceSemantics.find((item) => item.key === "user");
+  const guestBounceAdminSemantics = guestBounceSemantics.find((item) => item.key === "admin");
+  const guestBounceDropSemantics = guestBounceSemantics.find((item) => item.key === "drop");
+  const guestBounceGuestRate = guestBounceGlobalSemantics && guestBounceGlobalSemantics.viewCount > 0
+    ? guestBounceGlobalSemantics.bounceCount / Math.max(1, guestBounceGlobalSemantics.viewCount)
+    : 0;
+  const guestBounceIdentifiedRate = guestBounceUserSemantics && guestBounceUserSemantics.viewCount > 0
+    ? guestBounceUserSemantics.bounceCount / Math.max(1, guestBounceUserSemantics.viewCount)
+    : 0;
+  const guestBounceEngagedRate = guestBounceGlobalSemantics && guestBounceGlobalSemantics.viewCount > 0
+    ? guestBounceGlobalSemantics.engagedViewCount / Math.max(1, guestBounceGlobalSemantics.viewCount)
+    : 0;
+  const guestBounceQualityCards = [
+    {
+      key: "global",
+      label: "Guest / Public",
+      views: guestBounceGlobalSemantics?.viewCount ?? 0,
+      engaged: guestBounceGlobalSemantics?.engagedViewCount ?? 0,
+      bounced: guestBounceGlobalSemantics?.bounceCount ?? 0,
+      exits: guestBounceGlobalSemantics?.exitCount ?? 0,
+    },
+    {
+      key: "user",
+      label: "Signed-in",
+      views: guestBounceUserSemantics?.viewCount ?? 0,
+      engaged: guestBounceUserSemantics?.engagedViewCount ?? 0,
+      bounced: guestBounceUserSemantics?.bounceCount ?? 0,
+      exits: guestBounceUserSemantics?.exitCount ?? 0,
+    },
+    {
+      key: "admin",
+      label: "Admin",
+      views: guestBounceAdminSemantics?.viewCount ?? 0,
+      engaged: guestBounceAdminSemantics?.engagedViewCount ?? 0,
+      bounced: guestBounceAdminSemantics?.bounceCount ?? 0,
+      exits: guestBounceAdminSemantics?.exitCount ?? 0,
+    },
+    {
+      key: "drop",
+      label: "Viewer",
+      views: guestBounceDropSemantics?.viewCount ?? 0,
+      engaged: guestBounceDropSemantics?.engagedViewCount ?? 0,
+      bounced: guestBounceDropSemantics?.bounceCount ?? 0,
+      exits: guestBounceDropSemantics?.exitCount ?? 0,
+    },
+  ];
+  const eventMixData = eventMixRange === ADMIN_ANALYTICS_DEFAULT_RANGE ? historicalResponse : eventMixOverride.data;
+  const eventMixBreakdown = eventMixData?.eventBreakdown ?? eventBreakdown;
+  const eventMixComponentContexts = eventMixData?.componentContexts ?? componentContexts;
+  const eventMixTopEvents = eventMixBreakdown.slice(0, 8).map((entry) => ({
+    ...entry,
+    label: EVENT_LABELS[entry.eventName] || entry.eventName.replaceAll("_", " "),
+  }));
+  const eventMixTopComponentContexts = eventMixComponentContexts.slice(0, 6);
+  const liveInteractionData = liveInteractionStreamRange === ADMIN_ANALYTICS_DEFAULT_RANGE ? historicalResponse : liveInteractionStreamOverride.data;
+  const liveInteractionEvents = liveInteractionData?.rawEvents ?? rawEvents;
+  const validationData = dataValidationRange === ADMIN_ANALYTICS_DEFAULT_RANGE ? historicalResponse : dataValidationOverride.data;
+  const validationItems = validationData?.validations ?? validations;
+  const audienceSnapshotData = audienceSnapshotRange === ADMIN_ANALYTICS_DEFAULT_RANGE ? historicalResponse : audienceSnapshotOverride.data;
+  const audienceHistorySeries = audienceSnapshotData?.data ?? historySeries;
+  const audienceTotals = audienceSnapshotData?.totals ?? totals;
+  const audienceDevices = audienceSnapshotData?.devices ?? devices;
+  const returnCadenceData = returnCadenceRange === ADMIN_ANALYTICS_DEFAULT_RANGE ? historicalResponse : returnCadenceOverride.data;
+  const returnCadenceSegments = returnCadenceData?.repeatVisitSegments ?? repeatVisitSegments;
+  const navigationDestinationsData = navigationDestinationsRange === ADMIN_ANALYTICS_DEFAULT_RANGE ? historicalResponse : navigationDestinationsOverride.data;
+  const navigationDestinationsMix = navigationDestinationsData?.destinationMix ?? destinationMix;
+  const deviceMixData = deviceMixRange === ADMIN_ANALYTICS_DEFAULT_RANGE ? historicalResponse : deviceMixOverride.data;
+  const deviceMixDevices = deviceMixData?.devices ?? devices;
+  const topPathsData = topPathsRange === ADMIN_ANALYTICS_DEFAULT_RANGE ? historicalResponse : topPathsOverride.data;
+  const topPathsPages = topPathsData?.pages ?? pages;
+  const regionsData = regionsRange === ADMIN_ANALYTICS_DEFAULT_RANGE ? historicalResponse : regionsOverride.data;
+  const regionsGeo = regionsData?.geo ?? geo;
+  const commerceSnapshotData = commerceSnapshotRange === ADMIN_ANALYTICS_DEFAULT_RANGE ? historicalResponse : commerceSnapshotOverride.data;
+  const commerceSnapshotCommerce = commerceSnapshotData?.commerce ?? commerce;
+  const commerceSnapshotFunnel = commerceSnapshotData?.funnel ?? funnel;
+  const packagePerformanceData = packagePerformanceRange === ADMIN_ANALYTICS_DEFAULT_RANGE ? historicalResponse : packagePerformanceOverride.data;
+  const packagePerformanceItems = packagePerformanceData?.packagePerformance ?? packagePerformance;
+  const contentConversionData = contentConversionRange === ADMIN_ANALYTICS_DEFAULT_RANGE ? historicalResponse : contentConversionOverride.data;
+  const contentConversionItems = contentConversionData?.unlockCategoryMix ?? unlockCategoryMix;
+  const topDropConversionData = topDropConversionRange === ADMIN_ANALYTICS_DEFAULT_RANGE ? historicalResponse : topDropConversionOverride.data;
+  const topDropConversionItems = topDropConversionData?.topDrops ?? topDrops;
+  const recentCommerceFeedData = recentCommerceFeedRange === ADMIN_ANALYTICS_DEFAULT_RANGE ? historicalResponse : recentCommerceFeedOverride.data;
+  const recentCommerceFeedItems = recentCommerceFeedData?.commerce?.feed ?? commerce.feed ?? [];
+  const viewerDrilldownData = (viewerDrilldownRange === ADMIN_ANALYTICS_DEFAULT_RANGE && !viewerUserFilter) ? historicalResponse : viewerDrilldownOverride.data;
+  const viewerDrilldownOverview = viewerDrilldownData?.viewerOverview ?? viewerOverview;
+  const viewerDrilldownInsights = viewerDrilldownData?.viewerDropInsights ?? viewerDropInsights;
+  const viewerDrilldownUsers = viewerDrilldownData?.viewerUsers ?? viewerUsers;
+  const viewerDrilldownFilter = viewerDrilldownData?.viewerFilter ?? activeViewerFilter;
+  const viewerDrilldownJourneys = (viewerDrilldownData?.userJourneys ?? userJourneys).slice(0, 6);
+  const viewerDropChartData = viewerDrilldownInsights.slice(0, 8).map((item) => ({
     ...item,
     shortLabel: item.dropTitle.length > 16 ? `${item.dropTitle.slice(0, 16)}...` : item.dropTitle,
   }));
-  const hasAuthSuccessData = authBreakdown.some((item) => item.successes > 0);
-  const hasOnboardingVelocityData = onboardingDurationBuckets.some((bucket) => bucket.count > 0);
+  const viewerJourneyData = viewerJourneyRange === ADMIN_ANALYTICS_DEFAULT_RANGE ? historicalResponse : viewerJourneyOverride.data;
+  const viewerJourneyItems = viewerJourneyData?.contentJourney ?? contentJourney;
+  const watchDepthTagsData = watchDepthTagsRange === ADMIN_ANALYTICS_DEFAULT_RANGE ? historicalResponse : watchDepthTagsOverride.data;
+  const watchDepthTagBuckets = watchDepthTagsData?.watchDepthBuckets ?? watchDepthBuckets;
+  const watchDepthTagDemand = watchDepthTagsData?.contentTagDemand ?? contentTagDemand;
+  const dailyTaskPipelineData = dailyTaskPipelineRange === ADMIN_ANALYTICS_DEFAULT_RANGE ? historicalResponse : dailyTaskPipelineOverride.data;
+  const dailyTaskPipelineItems = dailyTaskPipelineData?.taskPipeline ?? taskPipeline;
+  const taskCompletionSpeedData = taskCompletionSpeedRange === ADMIN_ANALYTICS_DEFAULT_RANGE ? historicalResponse : taskCompletionSpeedOverride.data;
+  const taskCompletionSpeedBuckets = taskCompletionSpeedData?.taskDurationBuckets ?? taskDurationBuckets;
+  const taskLeaderboardData = taskLeaderboardRange === ADMIN_ANALYTICS_DEFAULT_RANGE ? historicalResponse : taskLeaderboardOverride.data;
+  const taskLeaderboardItems = taskLeaderboardData?.taskLeaderboard ?? taskLeaderboard;
+  const notificationFunnelData = notificationFunnelRange === ADMIN_ANALYTICS_DEFAULT_RANGE ? historicalResponse : notificationFunnelOverride.data;
+  const notificationFunnelItems = notificationFunnelData?.notificationFunnel ?? notificationFunnel;
+  const notificationActionItems = notificationFunnelData?.notificationActions ?? notificationActions;
+  const notificationReminderReasons = notificationFunnelData?.reminderReasons ?? reminderReasons;
+  const deviceMixTotalUsers = deviceMixDevices.reduce((sum, item) => sum + item.users, 0);
+  const activeNotificationFunnel = useMemo(
+    () => notificationFunnelItems.filter((item) => item.count > 0),
+    [notificationFunnelItems],
+  );
+  const activeNotificationFunnelPieData = useMemo(
+    () => activeNotificationFunnel.map((item) => ({ name: item.label, value: item.count })),
+    [activeNotificationFunnel],
+  );
   const historicalHasSignals =
     historySeries.some((point) => point.users > 0 || point.views > 0 || point.sessions > 0 || point.newUsers > 0)
     || eventBreakdown.length > 0
@@ -1060,6 +1385,62 @@ export default function AdminAnalyticsPage() {
   ].filter((issue): issue is string => Boolean(issue));
   const liveUpdatedAtMs = liveResponse?.generatedAtMs ?? 0;
   const historicalUpdatedAtMs = historicalResponse?.generatedAtMs ?? 0;
+  const buildHistoricalSectionState = (
+    sectionLabel: string,
+    sectionRange: RangeOption,
+    overrideRequest: {
+      data?: HistoricalAnalyticsResponse;
+      error?: Error;
+      isLoading: boolean;
+    },
+  ) => {
+    if (sectionRange === ADMIN_ANALYTICS_DEFAULT_RANGE) {
+      return {
+        updatedAtMs: historicalUpdatedAtMs,
+        hasLoaded: Boolean(historicalResponse) || Boolean(historicalError),
+        loading: historicalLoading,
+        blockingIssues: historicalBlockingIssues,
+        backgroundIssues: historicalBackgroundIssues,
+      };
+    }
+
+    const overrideErrorMessage = overrideRequest.error?.message || `${sectionLabel} analytics request failed.`;
+    return {
+      updatedAtMs: overrideRequest.data?.generatedAtMs ?? 0,
+      hasLoaded: Boolean(overrideRequest.data) || Boolean(overrideRequest.error),
+      loading: overrideRequest.isLoading,
+      blockingIssues: !overrideRequest.data && overrideRequest.error ? [`${sectionLabel}: ${overrideErrorMessage}`] : [],
+      backgroundIssues: [
+        overrideRequest.data && overrideRequest.error ? `${sectionLabel}: ${overrideErrorMessage}` : null,
+        ...((overrideRequest.data?.issues || []).map((issue) => `${sectionLabel}: ${issue}`)),
+      ].filter((issue): issue is string => Boolean(issue)),
+    };
+  };
+  const authOutcomeSplitState = buildHistoricalSectionState("Auth outcome split", authOutcomeSplitRange, authOutcomeSplitOverride);
+  const onboardingVelocityState = buildHistoricalSectionState("Onboarding velocity", onboardingVelocityRange, onboardingVelocityOverride);
+  const onboardingStepFlowState = buildHistoricalSectionState("Onboarding step flow", onboardingStepFlowRange, onboardingStepFlowOverride);
+  const guestBounceQualityState = buildHistoricalSectionState("Guest and bounce quality", guestBounceQualityRange, guestBounceQualityOverride);
+  const eventMixState = buildHistoricalSectionState("Event mix", eventMixRange, eventMixOverride);
+  const liveInteractionStreamState = buildHistoricalSectionState("Live interaction stream", liveInteractionStreamRange, liveInteractionStreamOverride);
+  const dataValidationState = buildHistoricalSectionState("Data validation", dataValidationRange, dataValidationOverride);
+  const audienceSnapshotState = buildHistoricalSectionState("Audience snapshot", audienceSnapshotRange, audienceSnapshotOverride);
+  const returnCadenceState = buildHistoricalSectionState("Return cadence", returnCadenceRange, returnCadenceOverride);
+  const navigationDestinationsState = buildHistoricalSectionState("Navigation destinations", navigationDestinationsRange, navigationDestinationsOverride);
+  const deviceMixState = buildHistoricalSectionState("Device mix", deviceMixRange, deviceMixOverride);
+  const topPathsState = buildHistoricalSectionState("Top paths", topPathsRange, topPathsOverride);
+  const regionsState = buildHistoricalSectionState("Regions", regionsRange, regionsOverride);
+  const commerceSnapshotState = buildHistoricalSectionState("Commerce snapshot", commerceSnapshotRange, commerceSnapshotOverride);
+  const packagePerformanceState = buildHistoricalSectionState("Package performance", packagePerformanceRange, packagePerformanceOverride);
+  const contentConversionState = buildHistoricalSectionState("Content conversion", contentConversionRange, contentConversionOverride);
+  const topDropConversionState = buildHistoricalSectionState("Top drop conversion", topDropConversionRange, topDropConversionOverride);
+  const recentCommerceFeedState = buildHistoricalSectionState("Recent commerce feed", recentCommerceFeedRange, recentCommerceFeedOverride);
+  const viewerDrilldownState = buildHistoricalSectionState("Viewer drilldown", viewerDrilldownRange, viewerDrilldownOverride);
+  const viewerJourneyState = buildHistoricalSectionState("Viewer journey", viewerJourneyRange, viewerJourneyOverride);
+  const watchDepthTagsState = buildHistoricalSectionState("Watch depth and tags", watchDepthTagsRange, watchDepthTagsOverride);
+  const dailyTaskPipelineState = buildHistoricalSectionState("Daily task pipeline", dailyTaskPipelineRange, dailyTaskPipelineOverride);
+  const taskCompletionSpeedState = buildHistoricalSectionState("Task completion speed", taskCompletionSpeedRange, taskCompletionSpeedOverride);
+  const taskLeaderboardState = buildHistoricalSectionState("Task leaderboard", taskLeaderboardRange, taskLeaderboardOverride);
+  const notificationFunnelState = buildHistoricalSectionState("Notification funnel", notificationFunnelRange, notificationFunnelOverride);
   const analyticsSectionHealth = [
       buildAdminUiChartHealthItem({
         key: "analytics.operations.live_pulse",
@@ -1082,12 +1463,12 @@ export default function AdminAnalyticsPage() {
         page: "analytics",
         category: "operations",
         source: "historical_analytics",
-        updatedAtMs: historicalUpdatedAtMs,
-        hasLoaded: Boolean(historicalResponse) || Boolean(historicalError),
-        loading: historicalLoading,
-        hasData: authBreakdown.length > 0 && hasAuthSuccessData,
-        blockingIssues: historicalBlockingIssues,
-        backgroundIssues: historicalBackgroundIssues,
+        updatedAtMs: authOutcomeSplitState.updatedAtMs,
+        hasLoaded: authOutcomeSplitState.hasLoaded,
+        loading: authOutcomeSplitState.loading,
+        hasData: authOutcomeBreakdown.length > 0 && authOutcomeHasSuccessData,
+        blockingIssues: authOutcomeSplitState.blockingIssues,
+        backgroundIssues: authOutcomeSplitState.backgroundIssues,
         healthySummary: "Authentication outcome split is loaded from the historical analytics window.",
         emptySummary: "Auth outcome split loaded without any successful auth method signal in this window.",
       }),
@@ -1097,12 +1478,12 @@ export default function AdminAnalyticsPage() {
         page: "analytics",
         category: "operations",
         source: "historical_analytics",
-        updatedAtMs: historicalUpdatedAtMs,
-        hasLoaded: Boolean(historicalResponse) || Boolean(historicalError),
-        loading: historicalLoading,
-        hasData: hasOnboardingVelocityData || onboardingStepStats.length > 0 || onboardingStartCount > 0 || onboardingStats.completions > 0,
-        blockingIssues: historicalBlockingIssues,
-        backgroundIssues: historicalBackgroundIssues,
+        updatedAtMs: onboardingVelocityState.updatedAtMs,
+        hasLoaded: onboardingVelocityState.hasLoaded,
+        loading: onboardingVelocityState.loading,
+        hasData: onboardingVelocityHasData || onboardingStepFlowItems.length > 0 || onboardingVelocityStartCount > 0 || onboardingVelocityStats.completions > 0,
+        blockingIssues: onboardingVelocityState.blockingIssues,
+        backgroundIssues: onboardingVelocityState.backgroundIssues,
         healthySummary: "Onboarding velocity is loaded from tracked onboarding history.",
         emptySummary: "Onboarding velocity loaded without any tracked starts, completions, or duration buckets in this window.",
       }),
@@ -1112,12 +1493,12 @@ export default function AdminAnalyticsPage() {
         page: "analytics",
         category: "operations",
         source: "historical_analytics",
-        updatedAtMs: historicalUpdatedAtMs,
-        hasLoaded: Boolean(historicalResponse) || Boolean(historicalError),
-        loading: historicalLoading,
-        hasData: onboardingStepFlow.length > 0,
-        blockingIssues: historicalBlockingIssues,
-        backgroundIssues: historicalBackgroundIssues,
+        updatedAtMs: onboardingStepFlowState.updatedAtMs,
+        hasLoaded: onboardingStepFlowState.hasLoaded,
+        loading: onboardingStepFlowState.loading,
+        hasData: onboardingStepFlowItems.length > 0,
+        blockingIssues: onboardingStepFlowState.blockingIssues,
+        backgroundIssues: onboardingStepFlowState.backgroundIssues,
         healthySummary: "Step-level onboarding flow is loaded.",
         emptySummary: "No onboarding step-flow records were returned for the selected window.",
       }),
@@ -1127,12 +1508,12 @@ export default function AdminAnalyticsPage() {
         page: "analytics",
         category: "operations",
         source: "historical_analytics",
-        updatedAtMs: historicalUpdatedAtMs,
-        hasLoaded: Boolean(historicalResponse) || Boolean(historicalError),
-        loading: historicalLoading,
-        hasData: Boolean(globalSemantics?.viewCount || userSemantics?.viewCount || adminSemantics?.viewCount || dropSemantics?.viewCount),
-        blockingIssues: historicalBlockingIssues,
-        backgroundIssues: historicalBackgroundIssues,
+        updatedAtMs: guestBounceQualityState.updatedAtMs,
+        hasLoaded: guestBounceQualityState.hasLoaded,
+        loading: guestBounceQualityState.loading,
+        hasData: Boolean(guestBounceGlobalSemantics?.viewCount || guestBounceUserSemantics?.viewCount || guestBounceAdminSemantics?.viewCount || guestBounceDropSemantics?.viewCount),
+        blockingIssues: guestBounceQualityState.blockingIssues,
+        backgroundIssues: guestBounceQualityState.backgroundIssues,
         healthySummary: "Semantic quality metrics are loaded for guest and signed-in traffic.",
         emptySummary: "Semantic quality metrics loaded without any view-count signal.",
       }),
@@ -1142,12 +1523,12 @@ export default function AdminAnalyticsPage() {
         page: "analytics",
         category: "operations",
         source: "historical_analytics",
-        updatedAtMs: historicalUpdatedAtMs,
-        hasLoaded: Boolean(historicalResponse) || Boolean(historicalError),
-        loading: historicalLoading,
-        hasData: eventBreakdown.length > 0,
-        blockingIssues: historicalBlockingIssues,
-        backgroundIssues: historicalBackgroundIssues,
+        updatedAtMs: eventMixState.updatedAtMs,
+        hasLoaded: eventMixState.hasLoaded,
+        loading: eventMixState.loading,
+        hasData: eventMixBreakdown.length > 0,
+        blockingIssues: eventMixState.blockingIssues,
+        backgroundIssues: eventMixState.backgroundIssues,
         healthySummary: "Event mix is loaded from the selected historical range.",
         emptySummary: "Event mix loaded without any tracked event counts in this window.",
       }),
@@ -1157,12 +1538,12 @@ export default function AdminAnalyticsPage() {
         page: "analytics",
         category: "operations",
         source: "mixed_client_live",
-        updatedAtMs: Math.max(liveUpdatedAtMs, historicalUpdatedAtMs),
-        hasLoaded: Boolean(liveResponse) || Boolean(historicalResponse) || Boolean(liveError) || Boolean(historicalError),
-        loading: liveLoading || historicalLoading,
-        hasData: rawEvents.length > 0 || liveActiveUsers.length > 0 || liveSurfaceMix.length > 0,
-        blockingIssues: [...liveBlockingIssues, ...historicalBlockingIssues],
-        backgroundIssues: [...liveBackgroundIssues, ...historicalBackgroundIssues],
+        updatedAtMs: Math.max(liveUpdatedAtMs, liveInteractionStreamState.updatedAtMs),
+        hasLoaded: Boolean(liveResponse) || liveInteractionStreamState.hasLoaded || Boolean(liveError),
+        loading: liveLoading || liveInteractionStreamState.loading,
+        hasData: liveInteractionEvents.length > 0 || liveActiveUsers.length > 0 || liveSurfaceMix.length > 0,
+        blockingIssues: [...liveBlockingIssues, ...liveInteractionStreamState.blockingIssues],
+        backgroundIssues: [...liveBackgroundIssues, ...liveInteractionStreamState.backgroundIssues],
         healthySummary: "Interaction stream is loaded from realtime and recent historical inputs.",
         emptySummary: "Interaction stream loaded without any recent live or historical interaction records.",
       }),
@@ -1172,12 +1553,12 @@ export default function AdminAnalyticsPage() {
         page: "analytics",
         category: "operations",
         source: "historical_analytics",
-        updatedAtMs: historicalUpdatedAtMs,
-        hasLoaded: Boolean(historicalResponse) || Boolean(historicalError),
-        loading: historicalLoading,
-        hasData: validations.length > 0,
-        blockingIssues: historicalBlockingIssues,
-        backgroundIssues: historicalBackgroundIssues,
+        updatedAtMs: dataValidationState.updatedAtMs,
+        hasLoaded: dataValidationState.hasLoaded,
+        loading: dataValidationState.loading,
+        hasData: validationItems.length > 0,
+        blockingIssues: dataValidationState.blockingIssues,
+        backgroundIssues: dataValidationState.backgroundIssues,
         healthySummary: "Validation checks are loaded for the selected analytics window.",
         emptySummary: "Validation checks did not return any loaded rows.",
       }),
@@ -1187,12 +1568,12 @@ export default function AdminAnalyticsPage() {
         page: "analytics",
         category: "audience",
         source: "historical_analytics",
-        updatedAtMs: historicalUpdatedAtMs,
-        hasLoaded: Boolean(historicalResponse) || Boolean(historicalError),
-        loading: historicalLoading,
-        hasData: historySeries.length > 0 || totals.users > 0 || totals.views > 0 || totals.sessions > 0,
-        blockingIssues: historicalBlockingIssues,
-        backgroundIssues: historicalBackgroundIssues,
+        updatedAtMs: audienceSnapshotState.updatedAtMs,
+        hasLoaded: audienceSnapshotState.hasLoaded,
+        loading: audienceSnapshotState.loading,
+        hasData: audienceHistorySeries.length > 0 || audienceTotals.users > 0 || audienceTotals.views > 0 || audienceTotals.sessions > 0,
+        blockingIssues: audienceSnapshotState.blockingIssues,
+        backgroundIssues: audienceSnapshotState.backgroundIssues,
         healthySummary: "Audience snapshot is loaded for the selected range.",
         emptySummary: "Audience snapshot loaded without any audience metrics in this window.",
       }),
@@ -1202,12 +1583,12 @@ export default function AdminAnalyticsPage() {
         page: "analytics",
         category: "audience",
         source: "historical_analytics",
-        updatedAtMs: historicalUpdatedAtMs,
-        hasLoaded: Boolean(historicalResponse) || Boolean(historicalError),
-        loading: historicalLoading,
-        hasData: repeatVisitSegments.length > 0,
-        blockingIssues: historicalBlockingIssues,
-        backgroundIssues: historicalBackgroundIssues,
+        updatedAtMs: returnCadenceState.updatedAtMs,
+        hasLoaded: returnCadenceState.hasLoaded,
+        loading: returnCadenceState.loading,
+        hasData: returnCadenceSegments.length > 0,
+        blockingIssues: returnCadenceState.blockingIssues,
+        backgroundIssues: returnCadenceState.backgroundIssues,
         healthySummary: "Return cadence segments are loaded.",
         emptySummary: "No return-cadence segments were returned in this window.",
       }),
@@ -1217,12 +1598,12 @@ export default function AdminAnalyticsPage() {
         page: "analytics",
         category: "audience",
         source: "historical_analytics",
-        updatedAtMs: historicalUpdatedAtMs,
-        hasLoaded: Boolean(historicalResponse) || Boolean(historicalError),
-        loading: historicalLoading,
-        hasData: destinationMix.length > 0,
-        blockingIssues: historicalBlockingIssues,
-        backgroundIssues: historicalBackgroundIssues,
+        updatedAtMs: navigationDestinationsState.updatedAtMs,
+        hasLoaded: navigationDestinationsState.hasLoaded,
+        loading: navigationDestinationsState.loading,
+        hasData: navigationDestinationsMix.length > 0,
+        blockingIssues: navigationDestinationsState.blockingIssues,
+        backgroundIssues: navigationDestinationsState.backgroundIssues,
         healthySummary: "Navigation destinations are loaded.",
         emptySummary: "No navigation-destination mix was returned in this window.",
       }),
@@ -1232,12 +1613,12 @@ export default function AdminAnalyticsPage() {
         page: "analytics",
         category: "audience",
         source: "historical_analytics",
-        updatedAtMs: historicalUpdatedAtMs,
-        hasLoaded: Boolean(historicalResponse) || Boolean(historicalError),
-        loading: historicalLoading,
-        hasData: devices.length > 0,
-        blockingIssues: historicalBlockingIssues,
-        backgroundIssues: historicalBackgroundIssues,
+        updatedAtMs: deviceMixState.updatedAtMs,
+        hasLoaded: deviceMixState.hasLoaded,
+        loading: deviceMixState.loading,
+        hasData: deviceMixDevices.length > 0,
+        blockingIssues: deviceMixState.blockingIssues,
+        backgroundIssues: deviceMixState.backgroundIssues,
         healthySummary: "Device mix is loaded.",
         emptySummary: "No device-mix rows were returned in this window.",
       }),
@@ -1247,12 +1628,12 @@ export default function AdminAnalyticsPage() {
         page: "analytics",
         category: "audience",
         source: "historical_analytics",
-        updatedAtMs: historicalUpdatedAtMs,
-        hasLoaded: Boolean(historicalResponse) || Boolean(historicalError),
-        loading: historicalLoading,
-        hasData: pages.length > 0,
-        blockingIssues: historicalBlockingIssues,
-        backgroundIssues: historicalBackgroundIssues,
+        updatedAtMs: topPathsState.updatedAtMs,
+        hasLoaded: topPathsState.hasLoaded,
+        loading: topPathsState.loading,
+        hasData: topPathsPages.length > 0,
+        blockingIssues: topPathsState.blockingIssues,
+        backgroundIssues: topPathsState.backgroundIssues,
         healthySummary: "Top path performance is loaded.",
         emptySummary: "No top-path rows were returned in this window.",
       }),
@@ -1262,12 +1643,12 @@ export default function AdminAnalyticsPage() {
         page: "analytics",
         category: "audience",
         source: "historical_analytics",
-        updatedAtMs: historicalUpdatedAtMs,
-        hasLoaded: Boolean(historicalResponse) || Boolean(historicalError),
-        loading: historicalLoading,
-        hasData: geo.length > 0,
-        blockingIssues: historicalBlockingIssues,
-        backgroundIssues: historicalBackgroundIssues,
+        updatedAtMs: regionsState.updatedAtMs,
+        hasLoaded: regionsState.hasLoaded,
+        loading: regionsState.loading,
+        hasData: regionsGeo.length > 0,
+        blockingIssues: regionsState.blockingIssues,
+        backgroundIssues: regionsState.backgroundIssues,
         healthySummary: "Regional demand is loaded.",
         emptySummary: "No regional demand rows were returned in this window.",
       }),
@@ -1277,12 +1658,12 @@ export default function AdminAnalyticsPage() {
         page: "analytics",
         category: "commerce",
         source: "historical_analytics",
-        updatedAtMs: historicalUpdatedAtMs,
-        hasLoaded: Boolean(historicalResponse) || Boolean(historicalError),
-        loading: historicalLoading,
-        hasData: commerce.revenueUsd > 0 || commerce.gdSpent > 0 || funnel.purchases > 0,
-        blockingIssues: historicalBlockingIssues,
-        backgroundIssues: historicalBackgroundIssues,
+        updatedAtMs: commerceSnapshotState.updatedAtMs,
+        hasLoaded: commerceSnapshotState.hasLoaded,
+        loading: commerceSnapshotState.loading,
+        hasData: commerceSnapshotCommerce.revenueUsd > 0 || commerceSnapshotCommerce.gdSpent > 0 || commerceSnapshotFunnel.purchases > 0,
+        blockingIssues: commerceSnapshotState.blockingIssues,
+        backgroundIssues: commerceSnapshotState.backgroundIssues,
         healthySummary: "Commerce snapshot is loaded.",
         emptySummary: "Commerce snapshot loaded without any revenue, spend, or purchase signal.",
       }),
@@ -1292,12 +1673,12 @@ export default function AdminAnalyticsPage() {
         page: "analytics",
         category: "commerce",
         source: "historical_analytics",
-        updatedAtMs: historicalUpdatedAtMs,
-        hasLoaded: Boolean(historicalResponse) || Boolean(historicalError),
-        loading: historicalLoading,
-        hasData: packagePerformance.length > 0,
-        blockingIssues: historicalBlockingIssues,
-        backgroundIssues: historicalBackgroundIssues,
+        updatedAtMs: packagePerformanceState.updatedAtMs,
+        hasLoaded: packagePerformanceState.hasLoaded,
+        loading: packagePerformanceState.loading,
+        hasData: packagePerformanceItems.length > 0,
+        blockingIssues: packagePerformanceState.blockingIssues,
+        backgroundIssues: packagePerformanceState.backgroundIssues,
         healthySummary: "Package performance is loaded.",
         emptySummary: "No package-performance rows were returned in this window.",
       }),
@@ -1307,12 +1688,12 @@ export default function AdminAnalyticsPage() {
         page: "analytics",
         category: "commerce",
         source: "historical_analytics",
-        updatedAtMs: historicalUpdatedAtMs,
-        hasLoaded: Boolean(historicalResponse) || Boolean(historicalError),
-        loading: historicalLoading,
-        hasData: unlockCategoryMix.length > 0,
-        blockingIssues: historicalBlockingIssues,
-        backgroundIssues: historicalBackgroundIssues,
+        updatedAtMs: contentConversionState.updatedAtMs,
+        hasLoaded: contentConversionState.hasLoaded,
+        loading: contentConversionState.loading,
+        hasData: contentConversionItems.length > 0,
+        blockingIssues: contentConversionState.blockingIssues,
+        backgroundIssues: contentConversionState.backgroundIssues,
         healthySummary: "Content conversion mix is loaded.",
         emptySummary: "No content-conversion mix was returned in this window.",
       }),
@@ -1322,12 +1703,12 @@ export default function AdminAnalyticsPage() {
         page: "analytics",
         category: "commerce",
         source: "historical_analytics",
-        updatedAtMs: historicalUpdatedAtMs,
-        hasLoaded: Boolean(historicalResponse) || Boolean(historicalError),
-        loading: historicalLoading,
-        hasData: topDrops.length > 0,
-        blockingIssues: historicalBlockingIssues,
-        backgroundIssues: historicalBackgroundIssues,
+        updatedAtMs: topDropConversionState.updatedAtMs,
+        hasLoaded: topDropConversionState.hasLoaded,
+        loading: topDropConversionState.loading,
+        hasData: topDropConversionItems.length > 0,
+        blockingIssues: topDropConversionState.blockingIssues,
+        backgroundIssues: topDropConversionState.backgroundIssues,
         healthySummary: "Top drop conversion is loaded.",
         emptySummary: "No top-drop conversion rows were returned in this window.",
       }),
@@ -1337,14 +1718,29 @@ export default function AdminAnalyticsPage() {
         page: "analytics",
         category: "commerce",
         source: "historical_analytics",
-        updatedAtMs: historicalUpdatedAtMs,
-        hasLoaded: Boolean(historicalResponse) || Boolean(historicalError),
-        loading: historicalLoading,
-        hasData: (commerce.feed?.length ?? 0) > 0,
-        blockingIssues: historicalBlockingIssues,
-        backgroundIssues: historicalBackgroundIssues,
+        updatedAtMs: recentCommerceFeedState.updatedAtMs,
+        hasLoaded: recentCommerceFeedState.hasLoaded,
+        loading: recentCommerceFeedState.loading,
+        hasData: recentCommerceFeedItems.length > 0,
+        blockingIssues: recentCommerceFeedState.blockingIssues,
+        backgroundIssues: recentCommerceFeedState.backgroundIssues,
         healthySummary: "Recent commerce feed is loaded.",
         emptySummary: "No recent commerce feed rows were returned in this window.",
+      }),
+      buildAdminUiChartHealthItem({
+        key: "analytics.commerce.viewer_drilldown",
+        title: "Viewer Drilldown",
+        page: "analytics",
+        category: "commerce",
+        source: "historical_analytics",
+        updatedAtMs: viewerDrilldownState.updatedAtMs,
+        hasLoaded: viewerDrilldownState.hasLoaded,
+        loading: viewerDrilldownState.loading,
+        hasData: viewerDrilldownOverview.viewCount > 0 || viewerDrilldownInsights.length > 0 || viewerDrilldownUsers.length > 0,
+        blockingIssues: viewerDrilldownState.blockingIssues,
+        backgroundIssues: viewerDrilldownState.backgroundIssues,
+        healthySummary: "Viewer drilldown is loaded for the current viewer scope.",
+        emptySummary: "Viewer drilldown loaded without any viewer-level watch or identity signal.",
       }),
       buildAdminUiChartHealthItem({
         key: "analytics.commerce.viewer_journey",
@@ -1352,12 +1748,12 @@ export default function AdminAnalyticsPage() {
         page: "analytics",
         category: "commerce",
         source: "historical_analytics",
-        updatedAtMs: historicalUpdatedAtMs,
-        hasLoaded: Boolean(historicalResponse) || Boolean(historicalError),
-        loading: historicalLoading,
-        hasData: viewerOverview.viewCount > 0 || viewerDropInsights.length > 0,
-        blockingIssues: historicalBlockingIssues,
-        backgroundIssues: historicalBackgroundIssues,
+        updatedAtMs: viewerJourneyState.updatedAtMs,
+        hasLoaded: viewerJourneyState.hasLoaded,
+        loading: viewerJourneyState.loading,
+        hasData: viewerJourneyItems.length > 0,
+        blockingIssues: viewerJourneyState.blockingIssues,
+        backgroundIssues: viewerJourneyState.backgroundIssues,
         healthySummary: "Viewer journey metrics are loaded.",
         emptySummary: "Viewer journey loaded without any tracked viewer activity.",
       }),
@@ -1367,14 +1763,74 @@ export default function AdminAnalyticsPage() {
         page: "analytics",
         category: "commerce",
         source: "historical_analytics",
-        updatedAtMs: historicalUpdatedAtMs,
-        hasLoaded: Boolean(historicalResponse) || Boolean(historicalError),
-        loading: historicalLoading,
-        hasData: watchDepthBuckets.length > 0 || contentTagDemand.length > 0,
-        blockingIssues: historicalBlockingIssues,
-        backgroundIssues: historicalBackgroundIssues,
+        updatedAtMs: watchDepthTagsState.updatedAtMs,
+        hasLoaded: watchDepthTagsState.hasLoaded,
+        loading: watchDepthTagsState.loading,
+        hasData: watchDepthTagBuckets.length > 0 || watchDepthTagDemand.length > 0,
+        blockingIssues: watchDepthTagsState.blockingIssues,
+        backgroundIssues: watchDepthTagsState.backgroundIssues,
         healthySummary: "Watch-depth and tag demand are loaded.",
         emptySummary: "No watch-depth or tag-demand rows were returned in this window.",
+      }),
+      buildAdminUiChartHealthItem({
+        key: "analytics.commerce.daily_task_pipeline",
+        title: "Daily Task Pipeline",
+        page: "analytics",
+        category: "commerce",
+        source: "historical_analytics",
+        updatedAtMs: dailyTaskPipelineState.updatedAtMs,
+        hasLoaded: dailyTaskPipelineState.hasLoaded,
+        loading: dailyTaskPipelineState.loading,
+        hasData: dailyTaskPipelineItems.length > 0,
+        blockingIssues: dailyTaskPipelineState.blockingIssues,
+        backgroundIssues: dailyTaskPipelineState.backgroundIssues,
+        healthySummary: "Daily task pipeline metrics are loaded.",
+        emptySummary: "No daily task pipeline rows were returned in this window.",
+      }),
+      buildAdminUiChartHealthItem({
+        key: "analytics.commerce.task_completion_speed",
+        title: "Task Completion Speed",
+        page: "analytics",
+        category: "commerce",
+        source: "historical_analytics",
+        updatedAtMs: taskCompletionSpeedState.updatedAtMs,
+        hasLoaded: taskCompletionSpeedState.hasLoaded,
+        loading: taskCompletionSpeedState.loading,
+        hasData: taskCompletionSpeedBuckets.length > 0,
+        blockingIssues: taskCompletionSpeedState.blockingIssues,
+        backgroundIssues: taskCompletionSpeedState.backgroundIssues,
+        healthySummary: "Task completion speed buckets are loaded.",
+        emptySummary: "No task completion speed buckets were returned in this window.",
+      }),
+      buildAdminUiChartHealthItem({
+        key: "analytics.commerce.task_leaderboard",
+        title: "Task Leaderboard",
+        page: "analytics",
+        category: "commerce",
+        source: "historical_analytics",
+        updatedAtMs: taskLeaderboardState.updatedAtMs,
+        hasLoaded: taskLeaderboardState.hasLoaded,
+        loading: taskLeaderboardState.loading,
+        hasData: taskLeaderboardItems.length > 0,
+        blockingIssues: taskLeaderboardState.blockingIssues,
+        backgroundIssues: taskLeaderboardState.backgroundIssues,
+        healthySummary: "Task leaderboard is loaded.",
+        emptySummary: "No task leaderboard rows were returned in this window.",
+      }),
+      buildAdminUiChartHealthItem({
+        key: "analytics.commerce.notification_funnel",
+        title: "Notification Funnel",
+        page: "analytics",
+        category: "commerce",
+        source: "historical_analytics",
+        updatedAtMs: notificationFunnelState.updatedAtMs,
+        hasLoaded: notificationFunnelState.hasLoaded,
+        loading: notificationFunnelState.loading,
+        hasData: notificationFunnelItems.length > 0 || notificationActionItems.length > 0 || notificationReminderReasons.length > 0,
+        blockingIssues: notificationFunnelState.blockingIssues,
+        backgroundIssues: notificationFunnelState.backgroundIssues,
+        healthySummary: "Notification funnel metrics are loaded.",
+        emptySummary: "No notification funnel metrics were returned in this window.",
       }),
   ];
   const analyticsSectionHealthSummary = summarizeAdminUiChartHealth(analyticsSectionHealth);
@@ -1391,7 +1847,6 @@ export default function AdminAnalyticsPage() {
   };
 
   const clearAllFilters = () => {
-    setRange("30d");
     clearViewerFilter();
   };
 
@@ -1410,8 +1865,6 @@ export default function AdminAnalyticsPage() {
       </div>
     );
   }
-
-  const showLegacySecurityAnalytics = false;
 
   return (
     <div className="space-y-4 pb-20 md:space-y-5 md:pb-8">
@@ -1489,44 +1942,17 @@ export default function AdminAnalyticsPage() {
         </div>
 
         <div className="flex items-center gap-2">
-          <label className="flex min-w-0 flex-1 items-center gap-2 rounded-2xl border border-white/10 bg-white/[0.03] px-3 py-2 md:hidden">
+          <div className="flex min-w-0 flex-1 items-center gap-2 rounded-2xl border border-white/10 bg-white/[0.03] px-3 py-2">
             <Funnel className="h-4 w-4 shrink-0 text-gray-500" />
-            <span className="text-[10px] font-bold uppercase tracking-[0.14em] text-gray-500">Window</span>
-            <select
-              value={range}
-              onChange={(event) => setRange(event.target.value as RangeOption)}
-              className="min-w-0 flex-1 bg-transparent text-sm font-semibold text-white outline-none"
-            >
-              {RANGE_OPTIONS.map((option) => (
-                <option key={option.value} value={option.value} className="bg-black text-white">
-                  {option.label}
-                </option>
-              ))}
-            </select>
-          </label>
-
-          <div className="hidden gap-2 overflow-x-auto pb-1 md:flex">
-            {RANGE_OPTIONS.map((option) => (
-              <button
-                key={option.value}
-                type="button"
-                onClick={() => setRange(option.value)}
-                className={cn(
-                  "shrink-0 rounded-full border px-4 py-2 text-xs font-bold uppercase tracking-[0.14em] transition-colors",
-                  range === option.value ? "border-white bg-white text-black" : "border-white/10 bg-white/5 text-gray-400",
-                )}
-              >
-                {option.label}
-              </button>
-            ))}
+            <span className="text-[10px] font-bold uppercase tracking-[0.14em] text-gray-500">Module filters</span>
+            <span className="text-xs text-gray-400">Each card owns its own time range. The viewer drilldown filter is the only page-level control left.</span>
           </div>
-
           <button
             type="button"
             onClick={clearAllFilters}
             className="ml-auto shrink-0 rounded-full border border-white/15 bg-black/40 px-3 py-2 text-[10px] font-bold uppercase tracking-[0.14em] text-gray-300 transition-colors hover:border-brand-purple/40 hover:text-white"
           >
-            Reset
+            Clear viewer filter
           </button>
         </div>
       </div>
@@ -1565,15 +1991,6 @@ export default function AdminAnalyticsPage() {
               </p>
             </div>
             <div className="flex flex-wrap gap-2">
-              {range !== "all" ? (
-                <button
-                  type="button"
-                  onClick={() => setRange("all")}
-                  className="rounded-full border border-brand-purple/30 bg-brand-purple/10 px-3 py-2 text-[10px] font-bold uppercase tracking-[0.14em] text-brand-purple transition-colors hover:border-brand-purple/50 hover:bg-brand-purple/15"
-                >
-                  Show all time
-                </button>
-              ) : null}
               {viewerUserFilter ? (
                 <button
                   type="button"
@@ -1605,13 +2022,13 @@ export default function AdminAnalyticsPage() {
               subtitle="Current traffic against the selected historical window so mobile admins can sanity-check activity fast."
               icon={Activity}
               defaultExpanded
-              rightSlot={<span className="rounded-full border border-white/10 bg-white/5 px-3 py-1 text-xs font-semibold text-gray-400">{range.toUpperCase()}</span>}
+              rightSlot={renderSectionRangeControl("livePulse")}
             >
               <div className="grid grid-cols-2 gap-3 lg:grid-cols-4">
                 <MetricCard label="GA Active" value={formatCompactNumber(liveResponse?.totalActive ?? 0)} hint="Google Analytics realtime" icon={Users} />
                 <MetricCard label="Tracked Users" value={formatCompactNumber(liveResponse?.deepTrackerActive ?? 0)} hint="Authenticated users active in the last 30 minutes" icon={Sparkles} />
-                <MetricCard label="Onboarding" value={onboardingStats.completions.toLocaleString()} hint={`${onboardingStartCount.toLocaleString()} starts · ${formatPercent(onboardingCompletionRate)}`} icon={PlayCircle} />
-                <MetricCard label="Purchases" value={funnel.purchases.toLocaleString()} hint={`${formatPercent(checkoutToPurchaseRate)} of checkout starts`} icon={ShoppingBag} />
+                <MetricCard label="Onboarding" value={livePulseOnboardingStats.completions.toLocaleString()} hint={`${livePulseOnboardingStartCount.toLocaleString()} starts · ${formatPercent(livePulseOnboardingCompletionRate)}`} icon={PlayCircle} />
+                <MetricCard label="Purchases" value={livePulseFunnel.purchases.toLocaleString()} hint={`${formatPercent(livePulseFunnel.checkoutStarts > 0 ? livePulseFunnel.purchases / Math.max(1, livePulseFunnel.checkoutStarts) : 0)} of checkout starts`} icon={ShoppingBag} />
               </div>
 
               <div className="mt-5 h-64 w-full md:h-72">
@@ -1715,15 +2132,16 @@ export default function AdminAnalyticsPage() {
               title="Journey Funnel"
               subtitle="The custom event chain now shows where mobile users are entering, previewing, unlocking, and paying."
               icon={Eye}
+              rightSlot={renderSectionRangeControl("journeyFunnel")}
             >
               <div className="grid gap-3">
                 {[
-                  { label: "Auth modal opens", count: funnel.authModalOpens, ratio: 1, icon: Users },
-                  { label: "Drop previews", count: funnel.previewOpens, ratio: funnel.authModalOpens > 0 ? funnel.previewOpens / funnel.authModalOpens : 0, icon: Eye },
-                  { label: "Viewer opens", count: funnel.viewerOpens, ratio: funnel.previewOpens > 0 ? funnel.viewerOpens / funnel.previewOpens : 0, icon: PlayCircle },
-                  { label: "Unlocks", count: funnel.unlocks, ratio: previewToUnlockRate, icon: Sparkles },
-                  { label: "Checkout starts", count: funnel.checkoutStarts, ratio: funnel.unlocks > 0 ? funnel.checkoutStarts / funnel.unlocks : 0, icon: Wallet },
-                  { label: "Purchases", count: funnel.purchases, ratio: checkoutToPurchaseRate, icon: ShoppingBag },
+                  { label: "Auth modal opens", count: journeyFunnelMetrics.authModalOpens, ratio: 1, icon: Users },
+                  { label: "Drop previews", count: journeyFunnelMetrics.previewOpens, ratio: journeyFunnelMetrics.authModalOpens > 0 ? journeyFunnelMetrics.previewOpens / Math.max(1, journeyFunnelMetrics.authModalOpens) : 0, icon: Eye },
+                  { label: "Viewer opens", count: journeyFunnelMetrics.viewerOpens, ratio: journeyFunnelMetrics.previewOpens > 0 ? journeyFunnelMetrics.viewerOpens / Math.max(1, journeyFunnelMetrics.previewOpens) : 0, icon: PlayCircle },
+                  { label: "Unlocks", count: journeyFunnelMetrics.unlocks, ratio: journeyFunnelMetrics.previewOpens > 0 ? journeyFunnelMetrics.unlocks / Math.max(1, journeyFunnelMetrics.previewOpens) : 0, icon: Sparkles },
+                  { label: "Checkout starts", count: journeyFunnelMetrics.checkoutStarts, ratio: journeyFunnelMetrics.unlocks > 0 ? journeyFunnelMetrics.checkoutStarts / Math.max(1, journeyFunnelMetrics.unlocks) : 0, icon: Wallet },
+                  { label: "Purchases", count: journeyFunnelMetrics.purchases, ratio: journeyFunnelMetrics.checkoutStarts > 0 ? journeyFunnelMetrics.purchases / Math.max(1, journeyFunnelMetrics.checkoutStarts) : 0, icon: ShoppingBag },
                 ].map((step) => {
                   const Icon = step.icon;
                   return (
@@ -1749,27 +2167,27 @@ export default function AdminAnalyticsPage() {
               </div>
 
               <div className="mt-5 grid grid-cols-2 gap-3">
-                <MetricCard label="Shares" value={funnel.shares.toLocaleString()} hint="Copied invite/share actions" icon={Share2} />
-                <MetricCard label="Daily Check-ins" value={funnel.checkIns.toLocaleString()} hint="Reward claims in range" icon={CheckCircle2} />
+                <MetricCard label="Shares" value={journeyFunnelMetrics.shares.toLocaleString()} hint="Copied invite/share actions" icon={Share2} />
+                <MetricCard label="Daily Check-ins" value={journeyFunnelMetrics.checkIns.toLocaleString()} hint="Reward claims in range" icon={CheckCircle2} />
               </div>
             </SectionCard>
 
             <div className="grid gap-5 xl:grid-cols-[1fr_1fr]">
-              <SectionCard title="Auth Outcome Split" subtitle="Start, finish, and average completion speed by auth method." icon={Users}>
+              <SectionCard title="Auth Outcome Split" subtitle="Start, finish, and average completion speed by auth method." icon={Users} rightSlot={renderSectionRangeControl("authOutcomeSplit")}>
                 <div className="grid gap-4 lg:grid-cols-[0.85fr_1.15fr]">
                   <div className="h-64 w-full">
-                    {hasAuthSuccessData ? (
+                    {authOutcomeHasSuccessData ? (
                       <ResponsiveContainer width="100%" height="100%">
                         <PieChart>
                           <Pie
-                            data={authBreakdown.map((item) => ({ name: item.method, value: item.successes }))}
+                            data={authOutcomeBreakdown.map((item) => ({ name: item.method, value: item.successes }))}
                             dataKey="value"
                             nameKey="name"
                             innerRadius={56}
                             outerRadius={86}
                             paddingAngle={4}
                           >
-                            {authBreakdown.map((item, index) => (
+                            {authOutcomeBreakdown.map((item, index) => (
                               <Cell key={item.method} fill={PIE_COLORS[index % PIE_COLORS.length]} />
                             ))}
                           </Pie>
@@ -1784,8 +2202,8 @@ export default function AdminAnalyticsPage() {
                   </div>
 
                   <div className="space-y-3">
-                    {authBreakdown.length > 0 ? (
-                      authBreakdown.map((item, index) => (
+                    {authOutcomeBreakdown.length > 0 ? (
+                      authOutcomeBreakdown.map((item, index) => (
                         <div key={item.method} className="rounded-[1.5rem] border border-white/10 bg-black/30 p-4">
                           <div className="mb-2 flex items-center justify-between gap-3">
                             <div className="flex items-center gap-2">
@@ -1808,12 +2226,23 @@ export default function AdminAnalyticsPage() {
                 </div>
               </SectionCard>
 
-              <SectionCard title="Onboarding Velocity" subtitle="How long new users take to finish the guided tour on mobile." icon={PlayCircle}>
+              <SectionCard title="Onboarding Velocity" subtitle="How long new users take to finish the guided tour on mobile." icon={PlayCircle} rightSlot={renderSectionRangeControl("onboardingVelocity")}>
+                {authOnboardingDiscrepancies.length > 0 ? (
+                  <div className="mb-4 rounded-[1.35rem] border border-amber-400/20 bg-amber-500/10 p-4">
+                    <div className="flex flex-wrap items-center gap-2">
+                      <span className="rounded-full border border-amber-400/20 bg-amber-500/10 px-3 py-1 text-[10px] font-bold uppercase tracking-[0.14em] text-amber-100">Discrepancy</span>
+                      <span className="text-xs font-semibold text-gray-300">Cross-check against Onboarding Step Flow below.</span>
+                    </div>
+                    <div className="mt-3 space-y-1 text-sm text-amber-100">
+                      {authOnboardingDiscrepancies.map((item) => <p key={item}>- {item}</p>)}
+                    </div>
+                  </div>
+                ) : null}
                 <div className="grid gap-4 lg:grid-cols-[1.1fr_0.9fr]">
                   <div className="h-64 w-full">
-                    {hasOnboardingVelocityData ? (
+                    {onboardingVelocityHasData ? (
                       <ResponsiveContainer width="100%" height="100%">
-                        <BarChart data={onboardingDurationBuckets} margin={{ top: 8, right: 0, left: -18, bottom: 0 }}>
+                        <BarChart data={onboardingVelocityBuckets} margin={{ top: 8, right: 0, left: -18, bottom: 0 }}>
                           <CartesianGrid stroke="rgba(255,255,255,0.06)" vertical={false} />
                           <XAxis dataKey="label" stroke="#6b7280" fontSize={11} tickLine={false} axisLine={false} />
                           <YAxis stroke="#6b7280" fontSize={11} tickLine={false} axisLine={false} />
@@ -1829,13 +2258,13 @@ export default function AdminAnalyticsPage() {
                   </div>
 
                   <div className="grid grid-cols-2 gap-3 self-start">
-                    <MetricCard label="Started" value={formatCompactNumber(onboardingStartCount)} hint={onboardingStats.startSource === "tracked" ? "Canonical starts" : onboardingStats.startSource === "completion_fallback" ? "Backfilled from completions" : "No start signals"} icon={PlayCircle} />
-                    <MetricCard label="Completed" value={onboardingStats.completions.toLocaleString()} hint="Finished tours" icon={CheckCircle2} />
-                    <MetricCard label="Avg Time" value={formatDuration(onboardingStats.avgDuration)} hint="Mean completion time" icon={Clock3} />
+                    <MetricCard label="Started" value={formatCompactNumber(onboardingVelocityStartCount)} hint={onboardingVelocityStats.startSource === "tracked" ? "Canonical starts" : onboardingVelocityStats.startSource === "completion_fallback" ? "Backfilled from completions" : "No start signals"} icon={PlayCircle} />
+                    <MetricCard label="Completed" value={onboardingVelocityStats.completions.toLocaleString()} hint="Finished tours" icon={CheckCircle2} />
+                    <MetricCard label="Avg Time" value={formatDuration(onboardingVelocityStats.avgDuration)} hint="Mean completion time" icon={Clock3} />
                     <MetricCard
                       label="Completion Rate"
-                      value={formatPercent(onboardingCompletionRate)}
-                      hint={`${onboardingDropOffCount.toLocaleString()} users dropped before finish`}
+                      value={formatPercent(onboardingVelocityCompletionRate)}
+                      hint={`${onboardingVelocityDropOffCount.toLocaleString()} users dropped before finish`}
                       icon={Sparkles}
                     />
                   </div>
@@ -1844,10 +2273,10 @@ export default function AdminAnalyticsPage() {
             </div>
 
             <div className="grid gap-5 xl:grid-cols-[1fr_1fr]">
-              <SectionCard title="Onboarding Step Flow" subtitle="A step-by-step view of where people continue, stall, or finish in the guided tour." icon={Route}>
+              <SectionCard title="Onboarding Step Flow" subtitle="A step-by-step view of where people continue, stall, or finish in the guided tour." icon={Route} rightSlot={renderSectionRangeControl("onboardingStepFlow")}>
                 <div className="space-y-3">
-                  {onboardingStepFlow.length > 0 ? (
-                    onboardingStepFlow.map((step) => (
+                  {onboardingStepFlowItems.length > 0 ? (
+                    onboardingStepFlowItems.map((step) => (
                       <div key={step.stepKey} className="rounded-[1.5rem] border border-white/10 bg-black/30 p-4">
                         <div className="mb-3 flex items-start justify-between gap-3">
                           <div className="min-w-0">
@@ -1877,18 +2306,18 @@ export default function AdminAnalyticsPage() {
                 </div>
               </SectionCard>
 
-              <SectionCard title="Guest + Bounce Quality" subtitle="Public and signed-in traffic quality pulled from the semantic engine so bounce detection is visible instead of hidden in raw logs." icon={Monitor}>
+              <SectionCard title="Guest + Bounce Quality" subtitle="Public and signed-in traffic quality pulled from the semantic engine so bounce detection is visible instead of hidden in raw logs." icon={Monitor} rightSlot={renderSectionRangeControl("categorySemantics")}>
                 <div className="grid grid-cols-2 gap-3 lg:grid-cols-4">
-                  <MetricCard label="Guest Views" value={formatCompactNumber(globalSemantics?.viewCount ?? 0)} hint={`${(globalSemantics?.clickCount ?? 0).toLocaleString()} tracked public clicks`} icon={Users} />
-                  <MetricCard label="Guest Bounce" value={formatPercent(guestBounceRate)} hint={`${(globalSemantics?.bounceCount ?? 0).toLocaleString()} bounced exits`} icon={AlertTriangle} />
-                  <MetricCard label="Guest Engaged" value={formatPercent(guestEngagedRate)} hint={`${(globalSemantics?.engagedViewCount ?? 0).toLocaleString()} engaged sessions`} icon={Sparkles} />
-                  <MetricCard label="Signed-in Bounce" value={formatPercent(identifiedBounceRate)} hint={`${(userSemantics?.bounceCount ?? 0).toLocaleString()} bounced signed-in visits`} icon={Activity} />
+                  <MetricCard label="Guest Views" value={formatCompactNumber(guestBounceGlobalSemantics?.viewCount ?? 0)} hint={`${(guestBounceGlobalSemantics?.clickCount ?? 0).toLocaleString()} tracked public clicks`} icon={Users} />
+                  <MetricCard label="Guest Bounce" value={formatPercent(guestBounceGuestRate)} hint={`${(guestBounceGlobalSemantics?.bounceCount ?? 0).toLocaleString()} bounced exits`} icon={AlertTriangle} />
+                  <MetricCard label="Guest Engaged" value={formatPercent(guestBounceEngagedRate)} hint={`${(guestBounceGlobalSemantics?.engagedViewCount ?? 0).toLocaleString()} engaged sessions`} icon={Sparkles} />
+                  <MetricCard label="Signed-in Bounce" value={formatPercent(guestBounceIdentifiedRate)} hint={`${(guestBounceUserSemantics?.bounceCount ?? 0).toLocaleString()} bounced signed-in visits`} icon={Activity} />
                 </div>
 
                 <div className="mt-5 h-72 w-full">
-                  {semanticQualityCards.some(card => card.views > 0 || card.engaged > 0 || card.bounced > 0) ? (
+                  {guestBounceQualityCards.some(card => card.views > 0 || card.engaged > 0 || card.bounced > 0) ? (
                     <ResponsiveContainer width="100%" height="100%">
-                      <BarChart data={semanticQualityCards} margin={{ top: 8, right: 0, left: -18, bottom: 0 }}>
+                      <BarChart data={guestBounceQualityCards} margin={{ top: 8, right: 0, left: -18, bottom: 0 }}>
                         <CartesianGrid stroke="rgba(255,255,255,0.06)" vertical={false} />
                         <XAxis dataKey="label" stroke="#6b7280" fontSize={11} tickLine={false} axisLine={false} />
                         <YAxis stroke="#6b7280" fontSize={11} tickLine={false} axisLine={false} />
@@ -1908,11 +2337,11 @@ export default function AdminAnalyticsPage() {
             </div>
 
             <div className="grid gap-5 xl:grid-cols-[1.15fr_0.85fr]">
-              <SectionCard title="Event Mix" subtitle="The strongest custom GA events for the selected window." icon={Sparkles}>
+              <SectionCard title="Event Mix" subtitle="The strongest custom GA events for the selected window." icon={Sparkles} rightSlot={renderSectionRangeControl("eventMix")}>
                 <div className="grid gap-4 lg:grid-cols-[1fr_0.92fr]">
                   <div className="h-64 w-full md:h-72">
                     <ResponsiveContainer width="100%" height="100%">
-                      <BarChart data={topEvents} margin={{ top: 8, right: 0, left: -18, bottom: 0 }}>
+                      <BarChart data={eventMixTopEvents} margin={{ top: 8, right: 0, left: -18, bottom: 0 }}>
                         <CartesianGrid stroke="rgba(255,255,255,0.06)" vertical={false} />
                         <XAxis dataKey="label" stroke="#6b7280" fontSize={10} tickLine={false} axisLine={false} interval={0} angle={-18} textAnchor="end" height={56} />
                         <YAxis stroke="#6b7280" fontSize={11} tickLine={false} axisLine={false} />
@@ -1933,7 +2362,7 @@ export default function AdminAnalyticsPage() {
                       </span>
                     </div>
                     <div className="space-y-3">
-                      {topComponentContexts.length > 0 ? topComponentContexts.map((item) => (
+                      {eventMixTopComponentContexts.length > 0 ? eventMixTopComponentContexts.map((item) => (
                         <div key={item.key} className="rounded-2xl border border-white/10 bg-white/[0.03] p-3">
                           <div className="mb-2 flex items-center justify-between gap-3">
                             <p className="text-sm font-semibold text-white">{item.label}</p>
@@ -1955,10 +2384,10 @@ export default function AdminAnalyticsPage() {
                 </div>
               </SectionCard>
 
-              <SectionCard title="Live Interaction Stream" subtitle="Most recent telemetry events and guest interaction buckets collected from the live site." icon={Clock3}>
+              <SectionCard title="Live Interaction Stream" subtitle="Most recent telemetry events and guest interaction buckets collected from the live site." icon={Clock3} rightSlot={renderSectionRangeControl("liveInteractionStream")}>
                 <div className="space-y-3">
-                  {rawEvents.length > 0 ? (
-                    rawEvents.slice(0, 8).map((event, index) => (
+                  {liveInteractionEvents.length > 0 ? (
+                    liveInteractionEvents.slice(0, 8).map((event, index) => (
                       <div key={`${event.timestamp}-${index}`} className="rounded-[1.4rem] border border-white/10 bg-black/30 p-3.5">
                         <div className="mb-2 flex items-center justify-between gap-3">
                           <span className="rounded-full bg-white/5 px-2.5 py-1 text-[11px] font-semibold uppercase tracking-[0.14em] text-brand-purple">
@@ -1998,9 +2427,9 @@ export default function AdminAnalyticsPage() {
               </SectionCard>
             </div>
 
-            <SectionCard title="Data Validation" subtitle="Every overview here is grounded in a real source, with parity checks surfaced instead of hidden." icon={CheckCircle2}>
+            <SectionCard title="Data Validation" subtitle="Every overview here is grounded in a real source, with parity checks surfaced instead of hidden." icon={CheckCircle2} rightSlot={renderSectionRangeControl("dataValidation")}>
               <div className="grid gap-3 md:grid-cols-2 xl:grid-cols-3">
-                {validations.map((item) => (
+                {validationItems.map((item) => (
                   <div key={item.label} className="rounded-[1.5rem] border border-white/10 bg-black/30 p-4">
                     <div className="mb-2 flex items-center justify-between gap-3">
                       <p className="text-sm font-semibold text-white">{item.label}</p>
@@ -2018,17 +2447,17 @@ export default function AdminAnalyticsPage() {
 
         {activeTab === "audience" ? (
           <>
-            <SectionCard title="Audience Snapshot" subtitle="The selected time range emphasizes mobile traffic, retention quality, and visit depth." icon={Users} defaultExpanded>
+            <SectionCard title="Audience Snapshot" subtitle="The selected time range emphasizes mobile traffic, retention quality, and visit depth." icon={Users} defaultExpanded rightSlot={renderSectionRangeControl("audienceSnapshot")}>
               <div className="grid grid-cols-2 gap-3 lg:grid-cols-4">
-                <MetricCard label="Active Users" value={formatCompactNumber(totals.users)} hint={`${totals.newUsers.toLocaleString()} new users`} icon={Users} />
-                <MetricCard label="Sessions" value={formatCompactNumber(totals.sessions)} hint={`${totals.views.toLocaleString()} views`} icon={Activity} />
-                <MetricCard label="Avg Session" value={formatDuration(totals.avgSessionDuration)} hint="Average time per visit" icon={Clock3} />
-                <MetricCard label="Engagement" value={formatPercent(totals.engagementRate)} hint="GA engagement rate" icon={Sparkles} />
+                <MetricCard label="Active Users" value={formatCompactNumber(audienceTotals.users)} hint={`${audienceTotals.newUsers.toLocaleString()} new users`} icon={Users} />
+                <MetricCard label="Sessions" value={formatCompactNumber(audienceTotals.sessions)} hint={`${audienceTotals.views.toLocaleString()} views`} icon={Activity} />
+                <MetricCard label="Avg Session" value={formatDuration(audienceTotals.avgSessionDuration)} hint="Average time per visit" icon={Clock3} />
+                <MetricCard label="Engagement" value={formatPercent(audienceTotals.engagementRate)} hint="GA engagement rate" icon={Sparkles} />
               </div>
 
               <div className="mt-5 h-64 w-full md:h-72">
                 <ResponsiveContainer width="100%" height="100%">
-                  <AreaChart data={historySeries} margin={{ top: 8, right: 0, left: -18, bottom: 0 }}>
+                  <AreaChart data={audienceHistorySeries} margin={{ top: 8, right: 0, left: -18, bottom: 0 }}>
                     <defs>
                       <linearGradient id="historyUsersFill" x1="0" y1="0" x2="0" y2="1">
                         <stop offset="5%" stopColor="#b28cff" stopOpacity={0.35} />
@@ -2047,10 +2476,10 @@ export default function AdminAnalyticsPage() {
             </SectionCard>
 
             <div className="grid gap-5 xl:grid-cols-[1fr_1fr]">
-              <SectionCard title="Return Cadence" subtitle="Authenticated users grouped by how many distinct days they came back during the selected range." icon={Route}>
+              <SectionCard title="Return Cadence" subtitle="Authenticated users grouped by how many distinct days they came back during the selected range." icon={Route} rightSlot={renderSectionRangeControl("returnCadence")}>
                 <div className="h-64 w-full">
                   <ResponsiveContainer width="100%" height="100%">
-                    <BarChart data={repeatVisitSegments} margin={{ top: 8, right: 0, left: -18, bottom: 0 }}>
+                    <BarChart data={returnCadenceSegments} margin={{ top: 8, right: 0, left: -18, bottom: 0 }}>
                       <CartesianGrid stroke="rgba(255,255,255,0.06)" vertical={false} />
                       <XAxis dataKey="label" stroke="#6b7280" fontSize={11} tickLine={false} axisLine={false} />
                       <YAxis stroke="#6b7280" fontSize={11} tickLine={false} axisLine={false} />
@@ -2061,20 +2490,20 @@ export default function AdminAnalyticsPage() {
                 </div>
               </SectionCard>
 
-              <SectionCard title="Navigation Destinations" subtitle="Top in-app destinations reached from tracked taps, useful for mobile drill-down on where intent actually goes." icon={Route}>
+              <SectionCard title="Navigation Destinations" subtitle="Top in-app destinations reached from tracked taps, useful for mobile drill-down on where intent actually goes." icon={Route} rightSlot={renderSectionRangeControl("navigationDestinations")}>
                 <div className="grid gap-4 lg:grid-cols-[0.88fr_1.12fr]">
                   <div className="h-64 w-full">
                     <ResponsiveContainer width="100%" height="100%">
                       <PieChart>
                         <Pie
-                          data={destinationMix.slice(0, 6).map((item) => ({ name: item.destination, value: item.count }))}
+                          data={navigationDestinationsMix.slice(0, 6).map((item) => ({ name: item.destination, value: item.count }))}
                           dataKey="value"
                           nameKey="name"
                           innerRadius={52}
                           outerRadius={84}
                           paddingAngle={3}
                         >
-                          {destinationMix.slice(0, 6).map((item, index) => (
+                          {navigationDestinationsMix.slice(0, 6).map((item, index) => (
                             <Cell key={item.destination} fill={PIE_COLORS[index % PIE_COLORS.length]} />
                           ))}
                         </Pie>
@@ -2084,8 +2513,8 @@ export default function AdminAnalyticsPage() {
                   </div>
 
                   <div className="space-y-3">
-                    {destinationMix.length > 0 ? (
-                      destinationMix.slice(0, 6).map((item, index) => (
+                    {navigationDestinationsMix.length > 0 ? (
+                      navigationDestinationsMix.slice(0, 6).map((item, index) => (
                         <div key={item.destination} className="rounded-[1.5rem] border border-white/10 bg-black/30 p-4">
                           <div className="mb-2 flex items-center justify-between gap-3">
                             <div className="flex items-center gap-2">
@@ -2095,7 +2524,7 @@ export default function AdminAnalyticsPage() {
                             <span className="text-sm font-bold text-brand-purple">{item.count.toLocaleString()}</span>
                           </div>
                           <div className="h-2 overflow-hidden rounded-full bg-white/10">
-                            <div className="h-full rounded-full bg-gradient-to-r from-brand-purple to-cyan-400" style={{ width: `${Math.max(8, (item.count / Math.max(1, destinationMix[0]?.count || 1)) * 100)}%` }} />
+                            <div className="h-full rounded-full bg-gradient-to-r from-brand-purple to-cyan-400" style={{ width: `${Math.max(8, (item.count / Math.max(1, navigationDestinationsMix[0]?.count || 1)) * 100)}%` }} />
                           </div>
                         </div>
                       ))
@@ -2110,12 +2539,12 @@ export default function AdminAnalyticsPage() {
             </div>
 
             <div className="grid gap-5 xl:grid-cols-[0.9fr_1.1fr]">
-              <SectionCard title="Device Mix" subtitle="Mobile is the admin priority, so device share and engagement stay visible as first-class metrics." icon={Smartphone}>
+              <SectionCard title="Device Mix" subtitle="Mobile is the admin priority, so device share and engagement stay visible as first-class metrics." icon={Smartphone} rightSlot={renderSectionRangeControl("deviceMix")}>
                 <div className="space-y-3">
-                  {devices.length > 0 ? (
-                    devices.map((item) => {
+                  {deviceMixDevices.length > 0 ? (
+                    deviceMixDevices.map((item) => {
                       const Icon = getDeviceIcon(item.device);
-                      const share = totalDeviceUsers > 0 ? item.users / totalDeviceUsers : 0;
+                      const share = deviceMixTotalUsers > 0 ? item.users / deviceMixTotalUsers : 0;
                       return (
                         <div key={item.device} className="rounded-[1.6rem] border border-white/10 bg-black/30 p-4">
                           <div className="mb-3 flex items-center justify-between gap-3">
@@ -2147,10 +2576,10 @@ export default function AdminAnalyticsPage() {
                 </div>
               </SectionCard>
 
-              <SectionCard title="Top Paths" subtitle="What mobile admins should watch first: where people are actually spending time." icon={FileText}>
+              <SectionCard title="Top Paths" subtitle="What mobile admins should watch first: where people are actually spending time." icon={FileText} rightSlot={renderSectionRangeControl("topPaths")}>
                 <div className="space-y-3">
-                  {pages.length > 0 ? (
-                    pages.slice(0, 8).map((page) => (
+                  {topPathsPages.length > 0 ? (
+                    topPathsPages.slice(0, 8).map((page) => (
                       <div key={page.path} className="rounded-[1.6rem] border border-white/10 bg-black/30 p-4">
                         <div className="flex items-start justify-between gap-3">
                           <div className="min-w-0">
@@ -2174,10 +2603,10 @@ export default function AdminAnalyticsPage() {
               </SectionCard>
             </div>
 
-            <SectionCard title="Regions" subtitle="Geographic demand surfaced in a mobile-friendly list instead of a cramped desktop-style table." icon={MapPin}>
+            <SectionCard title="Regions" subtitle="Geographic demand surfaced in a mobile-friendly list instead of a cramped desktop-style table." icon={MapPin} rightSlot={renderSectionRangeControl("regions")}>
               <div className="space-y-3">
-                {geo.length > 0 ? (
-                  geo.slice(0, 10).map((item) => (
+                {regionsGeo.length > 0 ? (
+                  regionsGeo.slice(0, 10).map((item) => (
                     <div key={`${item.country}-${item.city}`} className="rounded-[1.6rem] border border-white/10 bg-black/30 p-4">
                       <div className="mb-2 flex items-center justify-between gap-3">
                         <div>
@@ -2187,7 +2616,7 @@ export default function AdminAnalyticsPage() {
                         <p className="text-lg font-black text-white">{item.users.toLocaleString()}</p>
                       </div>
                       <div className="h-2 overflow-hidden rounded-full bg-white/10">
-                        <div className="h-full rounded-full bg-brand-purple" style={{ width: `${Math.max(8, (item.users / Math.max(1, geo[0]?.users || 1)) * 100)}%` }} />
+                        <div className="h-full rounded-full bg-brand-purple" style={{ width: `${Math.max(8, (item.users / Math.max(1, regionsGeo[0]?.users || 1)) * 100)}%` }} />
                       </div>
                     </div>
                   ))
@@ -2203,35 +2632,35 @@ export default function AdminAnalyticsPage() {
 
         {activeTab === "commerce" ? (
           <>
-            <SectionCard title="Commerce Snapshot" subtitle="A tighter mobile revenue view with unlock and purchase efficiency kept above the fold." icon={DollarSign} defaultExpanded>
+            <SectionCard title="Commerce Snapshot" subtitle="A tighter mobile revenue view with unlock and purchase efficiency kept above the fold." icon={DollarSign} defaultExpanded rightSlot={renderSectionRangeControl("commerceSnapshot")}>
               <div className="grid grid-cols-2 gap-3 lg:grid-cols-4">
-                <MetricCard label="Revenue" value={formatMoney(commerce.revenueUsd)} hint="Completed currency purchases" icon={DollarSign} />
-                <MetricCard label="Adj. Profit" value={formatMoney(commerce.adjustedProfitUsd ?? 0)} hint={`${formatMoney(commerce.bonusValueUsd ?? 0)} promo value granted`} icon={Wallet} />
-                <MetricCard label="Yield / 100 GD" value={formatMoney(commerce.effectiveUsdPer100Gd ?? 0)} hint={`${formatCompactNumber(commerce.deliveredGumDrops ?? 0)} GD delivered`} icon={Sparkles} />
-                <MetricCard label="GD Spent" value={formatCompactNumber(commerce.gdSpent)} hint={`${formatCompactNumber(commerce.bonusGumDrops ?? 0)} bonus GD granted`} icon={ShoppingBag} />
+                <MetricCard label="Revenue" value={formatMoney(commerceSnapshotCommerce.revenueUsd)} hint="Completed currency purchases" icon={DollarSign} />
+                <MetricCard label="Adj. Profit" value={formatMoney(commerceSnapshotCommerce.adjustedProfitUsd ?? 0)} hint={`${formatMoney(commerceSnapshotCommerce.bonusValueUsd ?? 0)} promo value granted`} icon={Wallet} />
+                <MetricCard label="Yield / 100 GD" value={formatMoney(commerceSnapshotCommerce.effectiveUsdPer100Gd ?? 0)} hint={`${formatCompactNumber(commerceSnapshotCommerce.deliveredGumDrops ?? 0)} GD delivered`} icon={Sparkles} />
+                <MetricCard label="GD Spent" value={formatCompactNumber(commerceSnapshotCommerce.gdSpent)} hint={`${formatCompactNumber(commerceSnapshotCommerce.bonusGumDrops ?? 0)} bonus GD granted`} icon={ShoppingBag} />
               </div>
 
               <div className="mt-5 grid gap-3 md:grid-cols-3">
                 <div className="rounded-[1.6rem] border border-white/10 bg-black/30 p-4">
                   <p className="text-xs font-semibold uppercase tracking-[0.14em] text-gray-500">Wallet Opens</p>
-                  <p className="mt-2 text-3xl font-black text-white">{funnel.walletOpens.toLocaleString()}</p>
+                  <p className="mt-2 text-3xl font-black text-white">{commerceSnapshotFunnel.walletOpens.toLocaleString()}</p>
                 </div>
                 <div className="rounded-[1.6rem] border border-white/10 bg-black/30 p-4">
                   <p className="text-xs font-semibold uppercase tracking-[0.14em] text-gray-500">Checkout Starts</p>
-                  <p className="mt-2 text-3xl font-black text-white">{funnel.checkoutStarts.toLocaleString()}</p>
+                  <p className="mt-2 text-3xl font-black text-white">{commerceSnapshotFunnel.checkoutStarts.toLocaleString()}</p>
                 </div>
                 <div className="rounded-[1.6rem] border border-white/10 bg-black/30 p-4">
                   <p className="text-xs font-semibold uppercase tracking-[0.14em] text-gray-500">Purchase Completions</p>
-                  <p className="mt-2 text-3xl font-black text-white">{funnel.purchases.toLocaleString()}</p>
+                  <p className="mt-2 text-3xl font-black text-white">{commerceSnapshotFunnel.purchases.toLocaleString()}</p>
                 </div>
               </div>
             </SectionCard>
 
             <div className="grid gap-5 xl:grid-cols-[1fr_1fr]">
-              <SectionCard title="Package Performance" subtitle="Which Gum Drop packs are getting checkout intent, completions, and drop-off." icon={Wallet}>
+              <SectionCard title="Package Performance" subtitle="Which Gum Drop packs are getting checkout intent, completions, and drop-off." icon={Wallet} rightSlot={renderSectionRangeControl("packagePerformance")}>
                 <div className="h-64 w-full">
                   <ResponsiveContainer width="100%" height="100%">
-                    <BarChart data={packagePerformance.slice(0, 6)} margin={{ top: 8, right: 0, left: -18, bottom: 0 }}>
+                    <BarChart data={packagePerformanceItems.slice(0, 6)} margin={{ top: 8, right: 0, left: -18, bottom: 0 }}>
                       <CartesianGrid stroke="rgba(255,255,255,0.06)" vertical={false} />
                       <XAxis dataKey="label" stroke="#6b7280" fontSize={10} tickLine={false} axisLine={false} interval={0} angle={-18} textAnchor="end" height={56} />
                       <YAxis stroke="#6b7280" fontSize={11} tickLine={false} axisLine={false} />
@@ -2243,7 +2672,7 @@ export default function AdminAnalyticsPage() {
                 </div>
 
                 <div className="mt-5 space-y-3">
-                  {packagePerformance.slice(0, 5).map((item) => (
+                  {packagePerformanceItems.slice(0, 5).map((item) => (
                     <div key={item.label} className="rounded-[1.5rem] border border-white/10 bg-black/30 p-4">
                       <div className="mb-2 flex items-center justify-between gap-3">
                         <div>
@@ -2260,11 +2689,11 @@ export default function AdminAnalyticsPage() {
                 </div>
               </SectionCard>
 
-              <SectionCard title="Content Conversion" subtitle="Which content types are previewed most and which actually get unwrapped." icon={Candy}>
+              <SectionCard title="Content Conversion" subtitle="Which content types are previewed most and which actually get unwrapped." icon={Candy} rightSlot={renderSectionRangeControl("contentConversion")}>
                 <div className="grid gap-4 lg:grid-cols-[1.08fr_0.92fr]">
                   <div className="h-64 w-full">
                     <ResponsiveContainer width="100%" height="100%">
-                      <BarChart data={unlockCategoryMix.slice(0, 6)} margin={{ top: 8, right: 0, left: -18, bottom: 0 }}>
+                      <BarChart data={contentConversionItems.slice(0, 6)} margin={{ top: 8, right: 0, left: -18, bottom: 0 }}>
                         <CartesianGrid stroke="rgba(255,255,255,0.06)" vertical={false} />
                         <XAxis dataKey="label" stroke="#6b7280" fontSize={11} tickLine={false} axisLine={false} />
                         <YAxis stroke="#6b7280" fontSize={11} tickLine={false} axisLine={false} />
@@ -2276,7 +2705,7 @@ export default function AdminAnalyticsPage() {
                   </div>
 
                   <div className="space-y-3">
-                    {unlockCategoryMix.slice(0, 5).map((item) => (
+                    {contentConversionItems.slice(0, 5).map((item) => (
                       <div key={item.label} className="rounded-[1.5rem] border border-white/10 bg-black/30 p-4">
                         <div className="mb-2 flex items-center justify-between gap-3">
                           <p className="text-sm font-semibold capitalize text-white">{item.label}</p>
@@ -2291,10 +2720,10 @@ export default function AdminAnalyticsPage() {
             </div>
 
             <div className="grid gap-5 xl:grid-cols-[1.05fr_0.95fr]">
-              <SectionCard title="Top Drop Conversion" subtitle="Unlocked drops with enough demand to matter, surfaced as a compact mobile chart and list." icon={ShoppingBag}>
+              <SectionCard title="Top Drop Conversion" subtitle="Unlocked drops with enough demand to matter, surfaced as a compact mobile chart and list." icon={ShoppingBag} rightSlot={renderSectionRangeControl("topDropConversion")}>
                 <div className="h-64 w-full md:h-72">
                   <ResponsiveContainer width="100%" height="100%">
-                    <BarChart data={topDrops.slice(0, 8)} margin={{ top: 8, right: 0, left: -18, bottom: 0 }}>
+                    <BarChart data={topDropConversionItems.slice(0, 8)} margin={{ top: 8, right: 0, left: -18, bottom: 0 }}>
                       <CartesianGrid stroke="rgba(255,255,255,0.06)" vertical={false} />
                       <XAxis dataKey="dropId" stroke="#6b7280" fontSize={10} tickLine={false} axisLine={false} interval={0} angle={-18} textAnchor="end" height={56} />
                       <YAxis stroke="#6b7280" fontSize={11} tickLine={false} axisLine={false} />
@@ -2314,7 +2743,7 @@ export default function AdminAnalyticsPage() {
                 </div>
 
                 <div className="mt-5 space-y-3">
-                  {topDrops.slice(0, 6).map((drop) => {
+                  {topDropConversionItems.slice(0, 6).map((drop) => {
                     const rate = drop.views > 0 ? drop.unlocks / drop.views : 0;
                     return (
                       <div key={drop.dropId} className="rounded-[1.6rem] border border-white/10 bg-black/30 p-4">
@@ -2336,10 +2765,10 @@ export default function AdminAnalyticsPage() {
                 </div>
               </SectionCard>
 
-              <SectionCard title="Recent Commerce Feed" subtitle="Recent transactions condensed into mobile cards so admins can skim activity without horizontal scrolling." icon={Wallet}>
+              <SectionCard title="Recent Commerce Feed" subtitle="Recent transactions condensed into mobile cards so admins can skim activity without horizontal scrolling." icon={Wallet} rightSlot={renderSectionRangeControl("recentCommerceFeed")}>
                 <div className="space-y-3">
-                  {(commerce.feed ?? []).length > 0 ? (
-                    (commerce.feed ?? []).slice(0, 10).map((item) => (
+                  {recentCommerceFeedItems.length > 0 ? (
+                    recentCommerceFeedItems.slice(0, 10).map((item) => (
                       <div key={item.id} className="rounded-[1.6rem] border border-white/10 bg-black/30 p-4">
                         <div className="flex items-center gap-3">
                           <div className="relative flex h-11 w-11 shrink-0 items-center justify-center overflow-hidden rounded-2xl border border-white/10 bg-white/5">
@@ -2381,20 +2810,27 @@ export default function AdminAnalyticsPage() {
               <SectionCard
                 title="Library Viewer Drilldown"
                 subtitle={
-                  activeViewerFilter
-                    ? `Viewer playback, watch time, and drop affinity filtered to ${activeViewerFilter.startsWith("@") ? activeViewerFilter : `@${activeViewerFilter}`}.`
+                  viewerDrilldownFilter
+                    ? `Viewer playback, watch time, and drop affinity filtered to ${viewerDrilldownFilter.startsWith("@") ? viewerDrilldownFilter : `@${viewerDrilldownFilter}`}.`
                     : "Overall library-viewer performance across watch time, repeat sessions, asset completion, and the drops people actually spend time with."
                 }
                 icon={Eye}
                 className="xl:col-span-2"
                 rightSlot={
-                  activeViewerFilter ? (
-                    <span className="rounded-full border border-brand-purple/25 bg-brand-purple/12 px-3 py-1 text-[11px] font-semibold uppercase tracking-[0.14em] text-brand-purple">
-                      Filtered
-                    </span>
-                  ) : null
+                  <div className="flex flex-wrap items-center gap-2">
+                    {renderSectionRangeControl("viewerDrilldown")}
+                    {viewerDrilldownFilter ? (
+                      <span className="rounded-full border border-brand-purple/25 bg-brand-purple/12 px-3 py-1 text-[11px] font-semibold uppercase tracking-[0.14em] text-brand-purple">
+                        Filtered
+                      </span>
+                    ) : null}
+                  </div>
                 }
               >
+                {(() => {
+                  const viewerOverview = viewerDrilldownOverview;
+
+                  return (
                 <div className="space-y-4">
                   <div className="rounded-[1.6rem] border border-white/10 bg-black/30 p-4">
                     <div className="flex flex-col gap-3 lg:flex-row">
@@ -2433,9 +2869,9 @@ export default function AdminAnalyticsPage() {
                       </div>
                     </div>
 
-                    {viewerUsers.length > 0 ? (
+                    {viewerDrilldownUsers.length > 0 ? (
                       <div className="mt-4 flex gap-2 overflow-x-auto pb-1">
-                        {viewerUsers.map((item) => (
+                        {viewerDrilldownUsers.map((item) => (
                           <button
                             key={item.uid}
                             type="button"
@@ -2445,7 +2881,7 @@ export default function AdminAnalyticsPage() {
                             }}
                             className={cn(
                               "shrink-0 rounded-full border px-3 py-2 text-left text-xs transition-colors",
-                              activeViewerFilter && item.username === activeViewerFilter
+                              viewerDrilldownFilter && item.username === viewerDrilldownFilter
                                 ? "border-brand-purple/40 bg-brand-purple/15 text-white"
                                 : "border-white/10 bg-white/5 text-gray-300 hover:border-brand-purple/30 hover:text-white",
                             )}
@@ -2459,11 +2895,11 @@ export default function AdminAnalyticsPage() {
                   </div>
 
                   <div className="grid grid-cols-2 gap-3 xl:grid-cols-8">
-                    <MetricCard label="Views" value={formatCompactNumber(viewerOverview.viewCount)} hint="Viewer opens" icon={Eye} />
-                    <MetricCard label="Sessions" value={formatCompactNumber(viewerOverview.sessionCount)} hint={`${viewerOverview.repeatSessionCount.toLocaleString()} repeat / ${viewerOverview.returnSessionCount.toLocaleString()} returns`} icon={PlayCircle} />
-                    <MetricCard label="Unique Viewers" value={formatCompactNumber(viewerOverview.uniqueViewerCount)} hint="Distinct collectors in filter" icon={Users} />
-                    <MetricCard label="Watch Time" value={formatDuration(viewerOverview.totalWatchSeconds)} hint={`${formatDuration(viewerOverview.avgWatchSeconds)} avg watch`} icon={Clock3} />
-                    <MetricCard label="Meaningful" value={formatCompactNumber(viewerOverview.meaningfulSessionCount)} hint={`${viewerOverview.convertedSessionCount.toLocaleString()} converted / ${viewerOverview.completedSessionCount.toLocaleString()} completed`} icon={CheckCircle2} />
+                    <MetricCard label="Views" value={formatCompactNumber(viewerDrilldownOverview.viewCount)} hint="Viewer opens" icon={Eye} />
+                    <MetricCard label="Sessions" value={formatCompactNumber(viewerDrilldownOverview.sessionCount)} hint={`${viewerDrilldownOverview.repeatSessionCount.toLocaleString()} repeat / ${viewerDrilldownOverview.returnSessionCount.toLocaleString()} returns`} icon={PlayCircle} />
+                    <MetricCard label="Unique Viewers" value={formatCompactNumber(viewerDrilldownOverview.uniqueViewerCount)} hint="Distinct collectors in filter" icon={Users} />
+                    <MetricCard label="Watch Time" value={formatDuration(viewerDrilldownOverview.totalWatchSeconds)} hint={`${formatDuration(viewerDrilldownOverview.avgWatchSeconds)} avg watch`} icon={Clock3} />
+                    <MetricCard label="Meaningful" value={formatCompactNumber(viewerDrilldownOverview.meaningfulSessionCount)} hint={`${viewerDrilldownOverview.convertedSessionCount.toLocaleString()} converted / ${viewerDrilldownOverview.completedSessionCount.toLocaleString()} completed`} icon={CheckCircle2} />
                     <MetricCard label="Completion" value={formatPercent(viewerOverview.assetCompletionRate)} hint={`${viewerOverview.downloads.toLocaleString()} downloads · ${viewerOverview.relatedClicks.toLocaleString()} next clicks`} icon={CheckCircle2} />
                     <MetricCard label="Opened, No Depth" value={formatCompactNumber(viewerOverview.openedWithoutDepthCount)} hint="Opened without meaningful consumption" icon={Funnel} />
                     <MetricCard label="Early Exits" value={formatCompactNumber(viewerOverview.bounceSessionCount)} hint={`${viewerOverview.abandonedSessionCount.toLocaleString()} abandoned / ${viewerOverview.stalledSessionCount.toLocaleString()} stalled`} icon={AlertTriangle} />
@@ -2477,11 +2913,11 @@ export default function AdminAnalyticsPage() {
                           <p className="mt-1 text-sm text-gray-400">Which identities are looping through the viewer, and whether they actually stay long enough to matter.</p>
                         </div>
                         <span className="rounded-full border border-white/10 bg-white/5 px-3 py-1 text-[11px] font-semibold text-gray-300">
-                          {topUserJourneys.length} tracked
+                          {viewerDrilldownJourneys.length} tracked
                         </span>
                       </div>
                       <div className="space-y-3">
-                        {topUserJourneys.length > 0 ? topUserJourneys.map((item) => (
+                        {viewerDrilldownJourneys.length > 0 ? viewerDrilldownJourneys.map((item) => (
                           <div key={item.uid} className="rounded-2xl border border-white/10 bg-white/[0.03] p-3">
                             <div className="mb-2 flex items-center justify-between gap-3">
                               <div className="min-w-0">
@@ -2576,7 +3012,7 @@ export default function AdminAnalyticsPage() {
                     </div>
 
                     <div className="space-y-3">
-                      {viewerDropInsights.slice(0, 5).map((item) => (
+                      {viewerDrilldownInsights.slice(0, 5).map((item) => (
                         <div key={item.dropId} className="rounded-[1.5rem] border border-white/10 bg-black/30 p-4">
                           <div className="mb-3 flex items-start justify-between gap-3">
                             <div className="min-w-0">
@@ -2600,12 +3036,14 @@ export default function AdminAnalyticsPage() {
                     </div>
                   </div>
                 </div>
+                  );
+                })()}
               </SectionCard>
 
-              <SectionCard title="Viewer Journey" subtitle="How far users move from preview to opening, meaningful watch, completion, and return." icon={PlayCircle}>
+              <SectionCard title="Viewer Journey" subtitle="How far users move from preview to opening, meaningful watch, completion, and return." icon={PlayCircle} rightSlot={renderSectionRangeControl("viewerJourney")}>
                 <div className="h-64 w-full">
                   <ResponsiveContainer width="100%" height="100%">
-                    <LineChart data={contentJourney} margin={{ top: 8, right: 4, left: -18, bottom: 0 }}>
+                    <LineChart data={viewerJourneyItems} margin={{ top: 8, right: 4, left: -18, bottom: 0 }}>
                       <CartesianGrid stroke="rgba(255,255,255,0.06)" vertical={false} />
                       <XAxis dataKey="label" stroke="#6b7280" fontSize={10} tickLine={false} axisLine={false} interval={0} angle={-18} textAnchor="end" height={56} />
                       <YAxis stroke="#6b7280" fontSize={11} tickLine={false} axisLine={false} />
@@ -2616,19 +3054,19 @@ export default function AdminAnalyticsPage() {
                 </div>
               </SectionCard>
 
-              <SectionCard title="Watch Depth + Tags" subtitle="What people actually watch once they unwrap, plus the tags pulling the most demand." icon={Eye}>
+              <SectionCard title="Watch Depth + Tags" subtitle="What people actually watch once they unwrap, plus the tags pulling the most demand." icon={Eye} rightSlot={renderSectionRangeControl("watchDepthTags")}>
                 <div className="grid gap-4 lg:grid-cols-[1fr_1fr]">
                   <div className="rounded-[1.5rem] border border-white/10 bg-black/30 p-4">
                     <p className="mb-4 text-xs font-semibold uppercase tracking-[0.14em] text-gray-500">Watch depth</p>
                     <div className="space-y-3">
-                      {watchDepthBuckets.map((bucket) => (
+                      {watchDepthTagBuckets.map((bucket) => (
                         <div key={bucket.label}>
                           <div className="mb-2 flex items-center justify-between gap-3 text-sm">
                             <span className="text-white">{bucket.label}</span>
                             <span className="font-semibold text-brand-purple">{bucket.count.toLocaleString()}</span>
                           </div>
                           <div className="h-2 overflow-hidden rounded-full bg-white/10">
-                            <div className="h-full rounded-full bg-gradient-to-r from-brand-purple to-cyan-400" style={{ width: `${Math.max(6, (bucket.count / Math.max(1, watchDepthBuckets[0]?.count || 1)) * 100)}%` }} />
+                            <div className="h-full rounded-full bg-gradient-to-r from-brand-purple to-cyan-400" style={{ width: `${Math.max(6, (bucket.count / Math.max(1, watchDepthTagBuckets[0]?.count || 1)) * 100)}%` }} />
                           </div>
                         </div>
                       ))}
@@ -2638,8 +3076,8 @@ export default function AdminAnalyticsPage() {
                   <div className="rounded-[1.5rem] border border-white/10 bg-black/30 p-4">
                     <p className="mb-4 text-xs font-semibold uppercase tracking-[0.14em] text-gray-500">Top tags</p>
                     <div className="flex flex-wrap gap-2">
-                      {contentTagDemand.length > 0 ? (
-                        contentTagDemand.map((item) => (
+                      {watchDepthTagDemand.length > 0 ? (
+                        watchDepthTagDemand.map((item) => (
                           <span key={item.tag} className="rounded-full border border-brand-purple/25 bg-brand-purple/12 px-3 py-2 text-xs font-semibold text-white">
                             {item.tag} · {item.count}
                           </span>
@@ -2655,253 +3093,118 @@ export default function AdminAnalyticsPage() {
           </>
         ) : null}
 
-        {showLegacySecurityAnalytics ? (
-          <>
-              <SectionCard title="Security Posture" subtitle="Flagged accounts are grouped into mobile cards with the newest risk surfaced first." icon={ShieldAlert} defaultExpanded>
-                <div className="grid grid-cols-2 gap-3 lg:grid-cols-4">
-                  <MetricCard label="Flagged Users" value={security.length.toLocaleString()} hint="Users with recorded rip attempts" icon={ShieldAlert} />
-                  <MetricCard label="Fresh Alerts" value={securityAlerts.toLocaleString()} hint="Last 24 hours" icon={AlertTriangle} valueClassName={securityAlerts > 0 ? "text-2xl font-black tracking-tight text-red-400" : undefined} />
-                  <MetricCard label="Experience Views" value={funnel.experienceViews.toLocaleString()} hint="Signals around discovery" icon={Sparkles} />
-                  <MetricCard label="Viewer Switches" value={funnel.assetSwitches.toLocaleString()} hint="Asset interactions in viewer" icon={PlayCircle} />
-                </div>
 
-                <div className="mt-5 grid gap-4 xl:grid-cols-[1.05fr_0.95fr]">
-                  <div className="rounded-[1.5rem] border border-white/10 bg-black/30 p-4">
-                    <p className="mb-4 text-xs font-semibold uppercase tracking-[0.14em] text-gray-500">Violation mix</p>
-                    {topSecurityReasons.length > 0 ? (
-                      <div className="h-64 w-full">
-                        <ResponsiveContainer width="100%" height="100%">
-                          <BarChart data={topSecurityReasons} margin={{ top: 8, right: 0, left: -18, bottom: 14 }}>
-                            <CartesianGrid stroke="rgba(255,255,255,0.06)" vertical={false} />
-                            <XAxis dataKey="label" stroke="#6b7280" fontSize={10} tickLine={false} axisLine={false} interval={0} angle={-18} textAnchor="end" height={70} />
-                            <YAxis stroke="#6b7280" fontSize={11} tickLine={false} axisLine={false} />
-                            <Tooltip content={<AnalyticsTooltip />} />
-                            <Bar dataKey="count" name="Signals" fill="#f59e0b" radius={[10, 10, 0, 0]} />
-                          </BarChart>
-                        </ResponsiveContainer>
-                      </div>
-                    ) : (
-                      <div className="rounded-[1.4rem] border border-dashed border-white/10 bg-black/20 p-4 text-sm text-gray-500">
-                        Specific protection detections will appear here once the viewer logs screenshot, record, save, copy, or scrape attempts.
-                      </div>
-                    )}
-                  </div>
-
-                  <div className="rounded-[1.5rem] border border-white/10 bg-black/30 p-4">
-                    <div className="mb-3 flex items-center justify-between gap-3">
-                      <div>
-                        <p className="text-xs font-semibold uppercase tracking-[0.14em] text-gray-500">Detection reasons</p>
-                        <p className="mt-1 text-sm text-gray-400">Actionable labels instead of one generic window-switch warning.</p>
-                      </div>
-                      <span className="rounded-full border border-white/10 bg-white/5 px-3 py-1 text-[11px] font-semibold text-gray-300">
-                        {topSecurityReasons.length} reasons
-                      </span>
-                    </div>
-                    <div className="space-y-3">
-                      {topSecurityReasons.length > 0 ? topSecurityReasons.map((item) => (
-                        <div key={item.reason} className="rounded-2xl border border-white/10 bg-white/[0.03] p-3">
-                          <div className="mb-2 flex items-center justify-between gap-3">
-                            <p className="text-sm font-semibold text-white">{item.label}</p>
-                            <span className={cn(
-                              "rounded-full border px-2 py-1 text-[10px] font-semibold uppercase tracking-[0.14em]",
-                              item.severity === "high"
-                                ? "border-red-500/30 bg-red-500/10 text-red-200"
-                                : item.severity === "medium"
-                                  ? "border-amber-400/30 bg-amber-400/10 text-amber-200"
-                                  : "border-sky-400/30 bg-sky-400/10 text-sky-200",
-                            )}>
-                              {item.severity}
-                            </span>
-                          </div>
-                          <div className="flex flex-wrap gap-2 text-[11px] text-gray-400">
-                            <span>{item.count.toLocaleString()} detections</span>
-                            <span>{item.uniqueUsers.toLocaleString()} users</span>
-                            <span>{formatRelativeTime(item.lastSeenAt, nowMs)}</span>
-                          </div>
-                        </div>
-                      )) : (
-                        <div className="rounded-[1.4rem] border border-dashed border-white/10 bg-black/20 p-4 text-sm text-gray-500">
-                          Detection reasons will list the exact protection vectors once enough viewer security signals are captured.
-                        </div>
-                      )}
-                    </div>
-                  </div>
-                </div>
-              </SectionCard>
-
-            <div className="grid gap-5 xl:grid-cols-[1fr_1fr]">
-              <SectionCard title="Daily Task Pipeline" subtitle="Assigned, started, completed, and failed tasks in one mobile-friendly progression view." icon={Funnel}>
-                <div className="h-64 w-full">
-                  <ResponsiveContainer width="100%" height="100%">
-                    <BarChart data={taskPipeline} margin={{ top: 8, right: 0, left: -18, bottom: 0 }}>
-                      <CartesianGrid stroke="rgba(255,255,255,0.06)" vertical={false} />
-                      <XAxis dataKey="label" stroke="#6b7280" fontSize={11} tickLine={false} axisLine={false} />
-                      <YAxis stroke="#6b7280" fontSize={11} tickLine={false} axisLine={false} />
-                      <Tooltip content={<AnalyticsTooltip />} />
-                      <Bar dataKey="count" name="Events" fill="#b28cff" radius={[10, 10, 0, 0]} />
-                    </BarChart>
-                  </ResponsiveContainer>
-                </div>
-              </SectionCard>
-
-              <SectionCard title="Task Completion Speed" subtitle="How fast the finished task set is closing, so you can tune missions that are too easy or too heavy." icon={Clock3}>
-                <div className="h-64 w-full">
-                  <ResponsiveContainer width="100%" height="100%">
-                    <BarChart data={taskDurationBuckets} margin={{ top: 8, right: 0, left: -18, bottom: 0 }}>
-                      <CartesianGrid stroke="rgba(255,255,255,0.06)" vertical={false} />
-                      <XAxis dataKey="label" stroke="#6b7280" fontSize={11} tickLine={false} axisLine={false} />
-                      <YAxis stroke="#6b7280" fontSize={11} tickLine={false} axisLine={false} />
-                      <Tooltip content={<AnalyticsTooltip />} />
-                      <Bar dataKey="count" name="Completions" fill="#22d3ee" radius={[10, 10, 0, 0]} />
-                    </BarChart>
-                  </ResponsiveContainer>
-                </div>
-              </SectionCard>
+        <div className="grid gap-5 xl:grid-cols-[1fr_1fr]">
+          <SectionCard title="Daily Task Pipeline" subtitle="Assigned, started, completed, and failed tasks in one mobile-friendly progression view." icon={Funnel} rightSlot={renderSectionRangeControl("dailyTaskPipeline")}>
+            <div className="h-64 w-full">
+              <ResponsiveContainer width="100%" height="100%">
+                <BarChart data={dailyTaskPipelineItems} margin={{ top: 8, right: 0, left: -18, bottom: 0 }}>
+                  <CartesianGrid stroke="rgba(255,255,255,0.06)" vertical={false} />
+                  <XAxis dataKey="label" stroke="#6b7280" fontSize={11} tickLine={false} axisLine={false} />
+                  <YAxis stroke="#6b7280" fontSize={11} tickLine={false} axisLine={false} />
+                  <Tooltip content={<AnalyticsTooltip />} />
+                  <Bar dataKey="count" name="Events" fill="#b28cff" radius={[10, 10, 0, 0]} />
+                </BarChart>
+              </ResponsiveContainer>
             </div>
+          </SectionCard>
 
-            <div className="grid gap-5 xl:grid-cols-[1fr_1fr]">
-              <SectionCard title="Task Leaderboard" subtitle="The missions driving the most completions, reward payout, and momentum." icon={Sparkles}>
-                <div className="space-y-3">
-                  {taskLeaderboard.length > 0 ? (
-                    taskLeaderboard.map((task) => (
-                      <div key={task.taskId} className="rounded-[1.5rem] border border-white/10 bg-black/30 p-4">
-                        <div className="mb-2 flex items-center justify-between gap-3">
-                          <div className="min-w-0">
-                            <p className="truncate text-sm font-semibold text-white">{task.title}</p>
-                            <p className="mt-1 text-xs text-gray-500">
-                              {task.completed.toLocaleString()} completed · {formatDuration(task.avgDurationMs / 1000)} avg
-                            </p>
-                          </div>
-                          <span className="shrink-0 text-sm font-bold text-brand-purple">{formatPercent(task.completionRate)}</span>
-                        </div>
-                        <div className="grid grid-cols-3 gap-2 text-center text-xs">
-                          <div className="rounded-2xl border border-white/10 bg-white/5 px-2 py-2 text-gray-300">Assigned<br />{task.assigned}</div>
-                          <div className="rounded-2xl border border-white/10 bg-white/5 px-2 py-2 text-gray-300">Started<br />{task.started}</div>
-                          <div className="rounded-2xl border border-white/10 bg-white/5 px-2 py-2 text-brand-purple">Reward<br />{task.rewardTotal}</div>
-                        </div>
-                      </div>
-                    ))
-                  ) : (
-                    <div className="rounded-[1.6rem] border border-dashed border-white/10 bg-black/20 p-5 text-sm text-gray-500">
-                      Task leaderboard data will appear once more lifecycle events land in this range.
-                    </div>
-                  )}
-                </div>
-              </SectionCard>
-
-              <SectionCard title="Notification Funnel" subtitle="Prompt, enablement, open, and read behaviors, plus reminder reasons when people run short on time." icon={BellRing}>
-                <div className="grid gap-4 lg:grid-cols-[0.92fr_1.08fr]">
-                  <div className="h-64 w-full">
-                    <ResponsiveContainer width="100%" height="100%">
-                      <PieChart>
-                        <Pie
-                          data={activeNotificationFunnelPieData}
-                          dataKey="value"
-                          nameKey="name"
-                          innerRadius={52}
-                          outerRadius={84}
-                          paddingAngle={3}
-                        >
-                          {activeNotificationFunnel.map((item, index) => (
-                            <Cell key={item.label} fill={PIE_COLORS[index % PIE_COLORS.length]} />
-                          ))}
-                        </Pie>
-                        <Tooltip content={<AnalyticsTooltip />} />
-                      </PieChart>
-                    </ResponsiveContainer>
-                  </div>
-
-                  <div className="space-y-3">
-                    {notificationActions.map((item) => (
-                      <div key={item.label} className="rounded-[1.4rem] border border-white/10 bg-black/30 p-3.5">
-                        <div className="mb-2 flex items-center justify-between gap-3">
-                          <p className="text-sm font-semibold text-white">{item.label}</p>
-                          <span className="text-sm font-bold text-brand-purple">{item.value.toLocaleString()}</span>
-                        </div>
-                        <div className="h-2 overflow-hidden rounded-full bg-white/10">
-                          <div className="h-full rounded-full bg-gradient-to-r from-brand-purple to-cyan-400" style={{ width: `${Math.max(6, (item.value / Math.max(1, notificationActions[0]?.value || 1)) * 100)}%` }} />
-                        </div>
-                      </div>
-                    ))}
-
-                    <div className="rounded-[1.4rem] border border-white/10 bg-black/30 p-4">
-                      <p className="mb-3 text-xs font-semibold uppercase tracking-[0.14em] text-gray-500">Reminder reasons</p>
-                      <div className="flex flex-wrap gap-2">
-                        {reminderReasons.length > 0 ? reminderReasons.map((item) => (
-                          <span key={item.label} className="rounded-full border border-white/10 bg-white/5 px-3 py-1.5 text-xs font-semibold text-white">
-                            {item.label} · {item.count}
-                          </span>
-                        )) : <span className="text-sm text-gray-500">No reminder traffic in this range.</span>}
-                      </div>
-                    </div>
-                  </div>
-                </div>
-              </SectionCard>
+          <SectionCard title="Task Completion Speed" subtitle="How fast the finished task set is closing, so you can tune missions that are too easy or too heavy." icon={Clock3} rightSlot={renderSectionRangeControl("taskCompletionSpeed")}>
+            <div className="h-64 w-full">
+              <ResponsiveContainer width="100%" height="100%">
+                <BarChart data={taskCompletionSpeedBuckets} margin={{ top: 8, right: 0, left: -18, bottom: 0 }}>
+                  <CartesianGrid stroke="rgba(255,255,255,0.06)" vertical={false} />
+                  <XAxis dataKey="label" stroke="#6b7280" fontSize={11} tickLine={false} axisLine={false} />
+                  <YAxis stroke="#6b7280" fontSize={11} tickLine={false} axisLine={false} />
+                  <Tooltip content={<AnalyticsTooltip />} />
+                  <Bar dataKey="count" name="Completions" fill="#22d3ee" radius={[10, 10, 0, 0]} />
+                </BarChart>
+              </ResponsiveContainer>
             </div>
+          </SectionCard>
+        </div>
 
-            <SectionCard title="Flagged Accounts" subtitle="A phone-sized audit list with user, vector, timing, and target drop at a glance." icon={AlertTriangle}>
-              <div className="space-y-3">
-                {security.length > 0 ? (
-                  security.map((item) => {
-                    const recent = isRecentViolation(item.lastViolation, nowMs);
-                    return (
-                      <div
-                        key={item.uid}
-                        className={cn(
-                          "rounded-[1.6rem] border p-4",
-                          recent ? "border-red-500/30 bg-red-500/5" : "border-white/10 bg-black/30",
-                        )}
-                      >
-                        <div className="flex items-start gap-3">
-                          <div className="relative flex h-12 w-12 shrink-0 items-center justify-center overflow-hidden rounded-2xl border border-white/10 bg-white/5">
-                            {item.photoURL ? (
-                              <Image src={item.photoURL} alt={item.username} fill className="object-cover" />
-                            ) : (
-                              <span className="text-base font-bold text-gray-400">{item.username.charAt(0).toUpperCase()}</span>
-                            )}
-                          </div>
-                          <div className="min-w-0 flex-1">
-                            <div className="flex items-center gap-2">
-                              <p className="truncate text-sm font-semibold text-white">{item.username}</p>
-                              {recent ? <span className="rounded-full bg-red-500 px-2 py-0.5 text-[10px] font-bold uppercase tracking-[0.14em] text-white">New</span> : null}
-                            </div>
-                            <p className="mt-1 break-all text-[11px] text-gray-500">{item.uid}</p>
-                          </div>
-                          <div className="text-right">
-                            <p className="text-lg font-black text-red-400">{item.ripAttempts}</p>
-                            <p className="text-[11px] uppercase tracking-[0.14em] text-gray-500">violations</p>
-                          </div>
-                        </div>
-
-                        <div className="mt-4 grid gap-3 md:grid-cols-3">
-                          <div className="rounded-2xl border border-white/10 bg-black/30 p-3">
-                            <p className="text-[11px] font-semibold uppercase tracking-[0.14em] text-gray-500">Last seen</p>
-                            <p className="mt-2 text-sm text-white">{formatAbsoluteDateTime(item.lastViolation)}</p>
-                          </div>
-                          <div className="rounded-2xl border border-white/10 bg-black/30 p-3">
-                            <p className="text-[11px] font-semibold uppercase tracking-[0.14em] text-gray-500">Vector</p>
-                            <p className="mt-2 text-sm text-white">{item.lastViolationReason}</p>
-                          </div>
-                          <div className="rounded-2xl border border-white/10 bg-black/30 p-3">
-                            <p className="text-[11px] font-semibold uppercase tracking-[0.14em] text-gray-500">Drop</p>
-                            <p className="mt-2 text-sm text-white">{item.lastViolationDropId || "N/A"}</p>
-                          </div>
-                        </div>
+        <div className="grid gap-5 xl:grid-cols-[1fr_1fr]">
+          <SectionCard title="Task Leaderboard" subtitle="The missions driving the most completions, reward payout, and momentum." icon={Sparkles} rightSlot={renderSectionRangeControl("taskLeaderboard")}>
+            <div className="space-y-3">
+              {taskLeaderboardItems.length > 0 ? (
+                taskLeaderboardItems.map((task) => (
+                  <div key={task.taskId} className="rounded-[1.5rem] border border-white/10 bg-black/30 p-4">
+                    <div className="mb-2 flex items-center justify-between gap-3">
+                      <div className="min-w-0">
+                        <p className="truncate text-sm font-semibold text-white">{task.title}</p>
+                        <p className="mt-1 text-xs text-gray-500">
+                          {task.completed.toLocaleString()} completed Â· {formatDuration(task.avgDurationMs / 1000)} avg
+                        </p>
                       </div>
-                    );
-                  })
-                ) : (
-                  <div className="rounded-[1.6rem] border border-dashed border-white/10 bg-black/20 p-6 text-center">
-                    <ShieldAlert className="mx-auto mb-3 h-8 w-8 text-green-500/60" />
-                    <p className="text-sm font-semibold text-white">Clear skies</p>
-                    <p className="mt-1 text-sm text-gray-500">No flagged users were returned for this period.</p>
+                      <span className="shrink-0 text-sm font-bold text-brand-purple">{formatPercent(task.completionRate)}</span>
+                    </div>
+                    <div className="grid grid-cols-3 gap-2 text-center text-xs">
+                      <div className="rounded-2xl border border-white/10 bg-white/5 px-2 py-2 text-gray-300">Assigned<br />{task.assigned}</div>
+                      <div className="rounded-2xl border border-white/10 bg-white/5 px-2 py-2 text-gray-300">Started<br />{task.started}</div>
+                      <div className="rounded-2xl border border-white/10 bg-white/5 px-2 py-2 text-brand-purple">Reward<br />{task.rewardTotal}</div>
+                    </div>
                   </div>
-                )}
+                ))
+              ) : (
+                <div className="rounded-[1.6rem] border border-dashed border-white/10 bg-black/20 p-5 text-sm text-gray-500">
+                  Task leaderboard data will appear once more lifecycle events land in this range.
+                </div>
+              )}
+            </div>
+          </SectionCard>
+
+          <SectionCard title="Notification Funnel" subtitle="Prompt, enablement, open, and read behaviors, plus reminder reasons when people run short on time." icon={BellRing} rightSlot={renderSectionRangeControl("notificationFunnel")}>
+            <div className="grid gap-4 lg:grid-cols-[0.92fr_1.08fr]">
+              <div className="h-64 w-full">
+                <ResponsiveContainer width="100%" height="100%">
+                  <PieChart>
+                    <Pie
+                      data={activeNotificationFunnelPieData}
+                      dataKey="value"
+                      nameKey="name"
+                      innerRadius={52}
+                      outerRadius={84}
+                      paddingAngle={3}
+                    >
+                      {activeNotificationFunnel.map((item, index) => (
+                        <Cell key={item.label} fill={PIE_COLORS[index % PIE_COLORS.length]} />
+                      ))}
+                    </Pie>
+                    <Tooltip content={<AnalyticsTooltip />} />
+                  </PieChart>
+                </ResponsiveContainer>
               </div>
-            </SectionCard>
-          </>
-        ) : null}
+
+              <div className="space-y-3">
+                {notificationActionItems.map((item) => (
+                  <div key={item.label} className="rounded-[1.4rem] border border-white/10 bg-black/30 p-3.5">
+                    <div className="mb-2 flex items-center justify-between gap-3">
+                      <p className="text-sm font-semibold text-white">{item.label}</p>
+                      <span className="text-sm font-bold text-brand-purple">{item.value.toLocaleString()}</span>
+                    </div>
+                    <div className="h-2 overflow-hidden rounded-full bg-white/10">
+                      <div className="h-full rounded-full bg-gradient-to-r from-brand-purple to-cyan-400" style={{ width: `${Math.max(6, (item.value / Math.max(1, notificationActionItems[0]?.value || 1)) * 100)}%` }} />
+                    </div>
+                  </div>
+                ))}
+
+                <div className="rounded-[1.4rem] border border-white/10 bg-black/30 p-4">
+                  <p className="mb-3 text-xs font-semibold uppercase tracking-[0.14em] text-gray-500">Reminder reasons</p>
+                  <div className="flex flex-wrap gap-2">
+                    {notificationReminderReasons.length > 0 ? notificationReminderReasons.map((item) => (
+                      <span key={item.label} className="rounded-full border border-white/10 bg-white/5 px-3 py-1.5 text-xs font-semibold text-white">
+                        {item.label} Â· {item.count}
+                      </span>
+                    )) : <span className="text-sm text-gray-500">No reminder traffic in this range.</span>}
+                  </div>
+                </div>
+              </div>
+            </div>
+          </SectionCard>
+        </div>
       </main>
     </div>
   );
 }
+

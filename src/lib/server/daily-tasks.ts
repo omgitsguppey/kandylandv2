@@ -12,6 +12,8 @@ import {
   DAILY_TASK_COOLDOWN_DAYS,
   DAILY_TASK_LIMIT,
   DAILY_TASK_REWARD_VERSION,
+  isRetiredLegacyDailyTaskId,
+  resolveLegacyDailyTaskId,
   type DailyTaskActionType,
   type DailyTaskAssignment,
   type DailyTaskCriteria,
@@ -129,8 +131,13 @@ function normalizeTaskAssignment(raw: unknown): Partial<DailyTaskAssignment> | n
   }
 
   const source = raw as Record<string, unknown>;
-  const id = typeof source.id === "string" ? source.id : "";
+  const rawId = typeof source.id === "string" ? source.id : "";
+  const id = resolveLegacyDailyTaskId(rawId);
   if (!id) {
+    return null;
+  }
+
+  if (isRetiredLegacyDailyTaskId(rawId)) {
     return null;
   }
 
@@ -691,7 +698,7 @@ async function resolveTaskEligibilityContext(
         return isUnreadNotificationForUser({
           readBy: normalized.readBy,
           target: normalized.target,
-          createdAtMs: normalized.createdAt?.toMillis() ?? 0,
+          createdAtMs: normalized.createdAtMs ?? 0,
         }, uid, nowMs);
       });
     })(),
@@ -877,6 +884,7 @@ function queueUserNotification(
     link: payload.link || "/experiences",
     dropContext: null,
     createdAt: FieldValue.serverTimestamp(),
+    createdAtMs: nowMs,
     readBy: [],
   });
   markNotificationsRuntimeChanged(transaction, nowMs);

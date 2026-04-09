@@ -811,3 +811,121 @@ This file is not a changelog. It is the concise ledger for durable decisions tha
   - `src/lib/server/admin-panel-system-logs.ts`
   - `FULL_SCALE_CODEBASE_AUDIT.md`
 - Follow-up gaps: Route-runtime-health still distinguishes observed vs never-observed, but it does not yet split fresh vs stale historical success for low-traffic admin surfaces.
+
+### 36. Debug diagnostics channels must separate current incidents from historical sample totals
+- Approximate date: Canonicalized and recorded on 2026-04-09
+- Status: Active admin-debug truth rule
+- Problem/context: The admin debug diagnostics-channel lane was surfacing total per-channel errors and warnings from the loaded sample without separating active-window or recent-window counts. That let channels such as `runtime` or `auth` appear currently broken even when the loaded noise was mostly historical.
+- Decision made: Treat per-channel active/recent counts as the primary debug signal and demote loaded-sample totals to secondary context.
+- What became canonical:
+  - `AdminOpsHealthChannelItem` now carries:
+    - `activeErrorCount`
+    - `activeWarnCount`
+    - `recentErrorCount`
+    - `recentWarnCount`
+  - the admin debug diagnostics-channel lane should lead with active-window and recent-window counts first
+  - loaded-sample totals remain visible for context but should not be presented as current incidents
+- What is now disallowed or deprecated:
+  - presenting week-sample channel totals as if they were current failures
+  - sorting diagnostics channels only by total sample count when active or recent noise exists
+- Truth lives in:
+  - `src/lib/admin-ops-health.ts`
+  - `src/lib/server/admin-ops-health.ts`
+  - `src/app/admin/debug/page.tsx`
+  - `tests/unit/admin-ops-health.spec.ts`
+  - `FULL_SCALE_CODEBASE_AUDIT.md`
+- Follow-up gaps: There is still no long-lived channel materializer; the debug lane remains based on the bounded diagnostics query rather than historical per-channel rollups.
+
+### 37. Notifications must carry a stable delivery timestamp and clear through a single server mutation
+- Approximate date: Canonicalized and recorded on 2026-04-09
+- Status: Active notifications runtime rule
+- Problem/context: The notification bell was showing `Delivery time unavailable` for valid inbox items because the shared notification contract only recognized client-side Firestore timestamps, while inbox reads run on server-side admin snapshots. At the same time, the clear-all path fanned out one mark-read request per unread notification, which made partial failures likely under normal route limits.
+- Decision made: Normalize notification timestamps by behavior, not by SDK class, persist `createdAtMs` on notification writes, and treat bulk mark-read as one server-side mutation instead of a burst of parallel requests.
+- What became canonical:
+  - `normalizeNotificationDoc(...)` must accept timestamp-like values from either Firebase Admin or client SDKs, and it must surface a stable `createdAtMs`
+  - notification producers should persist both `createdAt` and `createdAtMs`
+  - bulk clear from the client must use one `PUT /api/notifications` request with `notificationIds`
+  - notifications route reads and writes are first-class route-runtime-health surfaces
+- What is now disallowed or deprecated:
+  - relying on `instanceof Timestamp` for server-side notification timestamp normalization
+  - clearing many notifications by firing one request per notification from the client
+  - adding new notification writers that omit `createdAtMs`
+- Truth lives in:
+  - `src/lib/notification-contracts.ts`
+  - `src/lib/server/notification-inbox.ts`
+  - `src/app/api/notifications/route.ts`
+  - `src/lib/notifications.ts`
+  - `src/hooks/useNotifications.ts`
+  - `src/lib/route-runtime-health.ts`
+  - `FULL_SCALE_CODEBASE_AUDIT.md`
+- Follow-up gaps: Existing historical notifications that lack both a timestamp-like `createdAt` and `createdAtMs` will still show no delivery time; fixing that would require a one-time backfill, not just runtime logic.
+
+### 38. Admin moderation is server-polled API truth, not client Firestore truth
+- Approximate date: Canonicalized and recorded on 2026-04-09
+- Status: Active admin moderation rule
+- Problem/context: The admin moderation console originally depended on client Firestore subscriptions for chat threads and security alerts. That surfaced permission errors directly in the UI and made “live” moderation depend on browser-side admin Firestore access instead of server-controlled reads.
+- Decision made: Make moderation a server-backed admin API surface with automatic polling cadence. Chat threads, thread detail/files, and security alerts should all come from admin routes and report freshness/failure state explicitly in the UI.
+- What became canonical:
+  - moderation data sources are:
+    - `GET /api/admin/moderation/threads`
+    - `GET /api/admin/moderation/threads/[threadId]`
+    - `GET /api/admin/moderation/security-alerts`
+  - the moderation console should report server freshness timestamps and failed state per lane
+  - security alerts belong operationally to moderation, not to the admin analytics page
+- What is now disallowed or deprecated:
+  - direct client Firestore subscriptions as the primary admin moderation source
+  - treating analytics as the primary operational home for security alerts
+- Truth lives in:
+  - `src/lib/admin-moderation.ts`
+  - `src/lib/server/admin-moderation.ts`
+  - `src/components/Admin/AdminModerationConsole.tsx`
+  - `src/app/api/admin/moderation/threads/route.ts`
+  - `src/app/api/admin/moderation/threads/[threadId]/route.ts`
+  - `src/app/api/admin/moderation/security-alerts/route.ts`
+  - `tests/unit/admin-moderation-routes.spec.ts`
+  - `FULL_SCALE_CODEBASE_AUDIT.md`
+- Follow-up gaps: Moderation currently uses truthful server polling rather than push subscriptions; if sub-second live moderation becomes necessary, add a dedicated realtime transport instead of returning to browser-side Firestore reads.
+
+### 39. Admin analytics time ranges are module-scoped and user-persisted
+- Approximate date: Canonicalized and recorded on 2026-04-09
+- Status: Active admin analytics rule
+- Problem/context: The analytics page was originally organized around a global time range, which forced broad payload reloads and made it harder to compare modules independently. That shape also made discrepancy work between auth and onboarding harder to localize.
+- Decision made: Move analytics time selection to per-module controls, persist those selections on the admin user record, and let each module refresh independently without a page-level time switch.
+- What became canonical:
+  - analytics module ranges live under `users/{uid}.adminPreferences.analytics.moduleRanges`
+  - each module owns its own range control and displays its own active range
+  - the viewer drilldown filter remains the only page-level analytics filter
+  - security-specific analytics modules removed from the visible analytics surface stay owned by moderation instead
+- What is now disallowed or deprecated:
+  - relying on a single page-level time filter as the primary admin analytics control
+  - storing analytics module ranges in session storage as the durable source of truth
+- Truth lives in:
+  - `src/lib/admin-analytics-preferences.ts`
+  - `src/lib/server/admin-analytics-preferences.ts`
+  - `src/app/api/admin/analytics/preferences/route.ts`
+  - `src/app/admin/analytics/page.tsx`
+  - `FULL_SCALE_CODEBASE_AUDIT.md`
+- Follow-up gaps: `activeTab` and the viewer drilldown filter still use client storage as convenience UI state; only module time ranges are canonicalized server-side today.
+
+### 40. AI debug assistant settings must control the actual Vertex model invocation
+- Approximate date: Canonicalized and recorded on 2026-04-09
+- Status: Active admin AI debug rule
+- Problem/context: The debug assistant had been upgraded to expose a configurable model and enablement settings, but the actual Vertex call still used the hardcoded default model and partially depended on env-level disablement.
+- Decision made: Treat `adminSettings/debugAssistant` as the primary control plane for enablement and configured model, and pass the resolved runtime model into the live Vertex request.
+- What became canonical:
+  - assistant settings live in `adminSettings/debugAssistant`
+  - disabled state should be explained as an admin-settings decision unless runtime prerequisites are missing
+  - the resolved runtime model must be the model passed into Vertex
+  - the default model remains `gemini-2.5-flash-lite` unless explicitly changed in settings
+- What is now disallowed or deprecated:
+  - exposing a configurable model in admin while still calling Vertex with a different hardcoded model
+  - treating env-only toggles as the primary operator-visible explanation for assistant disablement
+- Truth lives in:
+  - `src/lib/ai-debug-assistant.ts`
+  - `src/lib/server/ai-debug-assistant.ts`
+  - `src/lib/server/admin-debug-settings.ts`
+  - `src/app/api/admin/debug/assistant/route.ts`
+  - `src/app/admin/debug/page.tsx`
+  - `tests/unit/ai-debug-assistant.spec.ts`
+  - `FULL_SCALE_CODEBASE_AUDIT.md`
+- Follow-up gaps: Runtime readiness still depends on actual Vertex credentials and project configuration; settings can enable the assistant, but the fallback path remains the truthful result when runtime prerequisites are absent.

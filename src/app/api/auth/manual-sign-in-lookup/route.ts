@@ -5,7 +5,8 @@ import { AuthError, handleApiError } from "@/lib/server/auth";
 import { adminAuth, adminDb } from "@/lib/server/firebase-admin";
 import { STANDARD } from "@/lib/server/rate-limit";
 import { guardApiRequest } from "@/lib/server/request-guard";
-import { recordRouteWarning } from "@/lib/server/route-diagnostics";
+import { getErrorMessage, recordRouteWarning } from "@/lib/server/route-diagnostics";
+import { recordRouteRuntimeSample } from "@/lib/server/route-runtime-health";
 import { looksLikeEmailAddress, normalizeEmailAddress } from "@/lib/auth-errors";
 import { normalizeUsername } from "@/lib/user-utils";
 
@@ -82,6 +83,17 @@ async function resolveManualAuthLookupForEmail(
 }
 
 export async function POST(request: NextRequest) {
+    const startedAt = Date.now();
+    const finalize = (response: NextResponse, error?: unknown) => {
+        void recordRouteRuntimeSample({
+            key: "auth/manual-sign-in-lookup:POST",
+            durationMs: Date.now() - startedAt,
+            statusCode: response.status,
+            errorMessage: error ? getErrorMessage(error) : null,
+        });
+        return response;
+    };
+
     try {
         await guardApiRequest(request, {
             routeName: "auth/manual-sign-in-lookup",
@@ -105,14 +117,14 @@ export async function POST(request: NextRequest) {
         }
 
         if (looksLikeEmailAddress(normalizedIdentifier)) {
-            return NextResponse.json(
+            return finalize(NextResponse.json(
                 await resolveManualAuthLookupForEmail(normalizeEmailAddress(normalizedIdentifier), "email"),
-            );
+            ));
         }
 
         const normalizedUsername = normalizeUsername(normalizedIdentifier);
         if (!normalizedUsername) {
-            return NextResponse.json(buildInvalidCredentialResult("unknown"));
+            return finalize(NextResponse.json(buildInvalidCredentialResult("unknown")));
         }
 
         const matchingUsers = await adminDb
@@ -122,7 +134,7 @@ export async function POST(request: NextRequest) {
             .get();
 
         if (matchingUsers.empty) {
-            return NextResponse.json(buildInvalidCredentialResult("username"));
+            return finalize(NextResponse.json(buildInvalidCredentialResult("username")));
         }
 
         const matchedUser = matchingUsers.docs[0];
@@ -136,11 +148,11 @@ export async function POST(request: NextRequest) {
                     username: normalizedUsername,
                 },
             });
-            return NextResponse.json(buildInvalidCredentialResult("username"));
+            return finalize(NextResponse.json(buildInvalidCredentialResult("username")));
         }
 
-        return NextResponse.json(await resolveManualAuthLookupForEmail(resolvedEmail, "username"));
+        return finalize(NextResponse.json(await resolveManualAuthLookupForEmail(resolvedEmail, "username")));
     } catch (error) {
-        return handleApiError(error, "Auth.ManualSignInLookup");
+        return finalize(handleApiError(error, "Auth.ManualSignInLookup"), error);
     }
 }

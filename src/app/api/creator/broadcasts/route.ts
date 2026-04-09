@@ -173,6 +173,7 @@ export async function POST(request: NextRequest) {
                 },
                 link: creatorUsername ? `/creators/${creatorUsername}` : "/dashboard/profile",
                 createdAt: FieldValue.serverTimestamp(),
+                createdAtMs: now,
                 readBy: [],
             });
             markNotificationsRuntimeChanged(batch, now);

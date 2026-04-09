@@ -142,6 +142,7 @@ export async function GET(request: NextRequest) {
                             },
                             link: creatorUsername ? `/creators/${creatorUsername}` : "/dashboard/profile",
                             createdAt: FieldValue.serverTimestamp(),
+                            createdAtMs: now,
                             readBy: [],
                         });
                         transaction.set(subscriptionDoc.ref, {
@@ -210,6 +211,7 @@ export async function GET(request: NextRequest) {
                             },
                             link: creatorUsername ? `/creators/${creatorUsername}` : "/dashboard/profile",
                             createdAt: FieldValue.serverTimestamp(),
+                            createdAtMs: now,
                             readBy: [],
                         });
                         markNotificationsRuntimeChanged(transaction, now);

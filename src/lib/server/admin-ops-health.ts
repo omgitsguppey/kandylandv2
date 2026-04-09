@@ -234,6 +234,10 @@ export function buildAdminOpsHealth(input: {
       errorCount: 0,
       warnCount: 0,
       infoCount: 0,
+      activeErrorCount: 0,
+      activeWarnCount: 0,
+      recentErrorCount: 0,
+      recentWarnCount: 0,
       lastSeenAt: 0,
     };
     current.count += 1;
@@ -241,6 +245,14 @@ export function buildAdminOpsHealth(input: {
     if (entry.severity === "error") current.errorCount += 1;
     else if (entry.severity === "warn") current.warnCount += 1;
     else current.infoCount += 1;
+    if (entry.timestamp >= nowMs - ACTIVE_DIAGNOSTIC_WINDOW_MS) {
+      if (entry.severity === "error") current.activeErrorCount += 1;
+      if (entry.severity === "warn") current.activeWarnCount += 1;
+    }
+    if (entry.timestamp >= nowMs - RECENT_DIAGNOSTIC_WINDOW_MS) {
+      if (entry.severity === "error") current.recentErrorCount += 1;
+      if (entry.severity === "warn") current.recentWarnCount += 1;
+    }
     map.set(entry.channel, current);
     return map;
   }, new Map<string, {
@@ -250,6 +262,10 @@ export function buildAdminOpsHealth(input: {
     errorCount: number;
     warnCount: number;
     infoCount: number;
+    activeErrorCount: number;
+    activeWarnCount: number;
+    recentErrorCount: number;
+    recentWarnCount: number;
     lastSeenAt: number;
   }>());
 
@@ -282,6 +298,12 @@ export function buildAdminOpsHealth(input: {
     .slice(0, 8);
 
   const pipelineFailureCount = pipelineDocs.reduce((sum, entry) => sum + entry.failureCount, 0);
+  const activePipelineFailureCount = pipelineDocs
+    .filter((entry) => entry.lastFailureAtMs > 0 && entry.lastFailureAtMs >= nowMs - ACTIVE_PIPELINE_WINDOW_MS)
+    .reduce((sum, entry) => sum + entry.failureCount, 0);
+  const recentPipelineFailureCount = pipelineDocs
+    .filter((entry) => entry.lastFailureAtMs > 0 && entry.lastFailureAtMs >= nowMs - RECENT_PIPELINE_WINDOW_MS)
+    .reduce((sum, entry) => sum + entry.failureCount, 0);
   const lastPipelineEntry = [...pipelineDocs].sort((left, right) => right.lastFailureAtMs - left.lastFailureAtMs)[0];
   const guestIngestFailureCount = readRouteFailureCount(pipelineDocs, "analytics_ingest");
   const guestIngestFailureLastSeenAt = readRouteFailureLastSeenAt(
@@ -451,12 +473,19 @@ export function buildAdminOpsHealth(input: {
       activeWindowMs: ACTIVE_DIAGNOSTIC_WINDOW_MS,
       recentWindowMs: RECENT_DIAGNOSTIC_WINDOW_MS,
       lastDiagnosticAt: diagnostics[0]?.timestamp || 0,
-      channels: Array.from(diagnosticsByChannel.values()).sort((left, right) => right.count - left.count),
+      channels: Array.from(diagnosticsByChannel.values()).sort((left, right) => (
+        (right.activeErrorCount + right.activeWarnCount) - (left.activeErrorCount + left.activeWarnCount)
+        || (right.recentErrorCount + right.recentWarnCount) - (left.recentErrorCount + left.recentWarnCount)
+        || right.count - left.count
+      )),
       recent: diagnostics.slice(0, 10),
     },
     pipeline: {
       status: pipelineStatus,
       failureCount: pipelineFailureCount,
+      activeFailureCount: activePipelineFailureCount,
+      recentFailureCount: recentPipelineFailureCount,
+      sampleFailureCount: pipelineFailureCount,
       lastFailureAt: lastPipelineEntry?.lastFailureAtMs || 0,
       lastRouteName: lastPipelineEntry?.lastRouteName || "",
       lastErrorMessage: lastPipelineEntry?.lastErrorMessage || "",

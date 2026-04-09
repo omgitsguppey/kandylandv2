@@ -3,7 +3,6 @@ import "server-only";
 import { VertexAI } from "@google-cloud/vertexai";
 
 import {
-    AI_DEBUG_ASSISTANT_FLAG,
     AI_DEBUG_ASSISTANT_MODEL,
     AI_DEBUG_ASSISTANT_PROMPT_VERSION,
     adminAiDebugModelOutputSchema,
@@ -13,6 +12,10 @@ import {
 } from "@/lib/ai-debug-assistant";
 import type { AdminOpsHealth } from "@/lib/admin-ops-health";
 import { FIREBASE_PROJECT_ID } from "@/lib/firebase-runtime";
+import {
+    getAdminAiDebugAssistantSettings,
+    type AdminAiDebugAssistantSettings,
+} from "@/lib/server/admin-debug-settings";
 import type { CreatorOnboardingDiagnosticIssue, CreatorOnboardingDiagnosticSummary } from "@/lib/server/creator-onboarding-diagnostics";
 import { recordRouteWarning } from "@/lib/server/route-diagnostics";
 import { recordServerDiagnostic } from "@/lib/server/server-diagnostics";
@@ -26,6 +29,7 @@ type GenerateTextInput = {
     prompt: string;
     project: string;
     location: string;
+    model: string;
     timeoutMs: number;
 };
 
@@ -117,11 +121,11 @@ async function withTimeout<T>(promise: Promise<T>, timeoutMs: number) {
     });
 }
 
-export function isAdminAiDebugAssistantEnabled() {
-    return process.env[AI_DEBUG_ASSISTANT_FLAG]?.trim().toLowerCase() === "true";
+export function isAdminAiDebugAssistantEnabled(settings?: Pick<AdminAiDebugAssistantSettings, "enabled"> | null) {
+    return settings?.enabled !== false;
 }
 
-export function resolveAdminAiDebugVertexRuntime() {
+export function resolveAdminAiDebugVertexRuntime(configuredModel?: string) {
     const project = (
         process.env.GOOGLE_CLOUD_PROJECT
         || process.env.GCLOUD_PROJECT
@@ -140,6 +144,7 @@ export function resolveAdminAiDebugVertexRuntime() {
     return {
         project,
         location: location || DEFAULT_VERTEX_LOCATION,
+        model: configuredModel?.trim() || AI_DEBUG_ASSISTANT_MODEL,
     };
 }
 
@@ -240,6 +245,8 @@ export function buildAdminAiDebugPrompt(signal: AdminAiDebugSignalInput) {
 
 export function buildAdminAiDebugFallback(input: {
     signal: AdminAiDebugSignalInput;
+    settings: AdminAiDebugAssistantSettings;
+    runtime: ReturnType<typeof resolveAdminAiDebugVertexRuntime>;
     availabilityNote: string;
     latencyMs?: number;
 }) : AdminAiDebugSummary {
@@ -282,7 +289,12 @@ export function buildAdminAiDebugFallback(input: {
         ]),
         suggested_next_checks: suggestedNextChecks.length ? suggestedNextChecks : ["Inspect canonical diagnostics and route health directly in Admin Debug."],
         fallback_used: true,
-        model: AI_DEBUG_ASSISTANT_MODEL,
+        enabled: input.settings.enabled,
+        runtime_ready: Boolean(input.runtime.project) && input.settings.enabled,
+        configured_model: input.settings.model,
+        runtime_project: input.runtime.project || undefined,
+        runtime_location: input.runtime.location,
+        model: input.runtime.model,
         prompt_version: AI_DEBUG_ASSISTANT_PROMPT_VERSION,
         generated_at: signal.generatedAt,
         latency_ms: Math.max(0, Math.round(input.latencyMs || 0)),
@@ -296,7 +308,7 @@ export async function generateVertexAiDebugText(input: GenerateTextInput) {
         location: input.location,
     });
     const model = vertexAi.getGenerativeModel({
-        model: AI_DEBUG_ASSISTANT_MODEL,
+        model: input.model,
         generationConfig: {
             temperature: 0.2,
             topP: 0.8,
@@ -319,31 +331,36 @@ export async function generateVertexAiDebugText(input: GenerateTextInput) {
 export async function generateAdminAiDebugSummary(
     signal: AdminAiDebugSignalInput,
     options?: {
-        enabled?: boolean;
         runner?: AdminAiDebugTextRunner;
         project?: string;
         location?: string;
         timeoutMs?: number;
+        settings?: AdminAiDebugAssistantSettings;
     },
 ) : Promise<AdminAiDebugSummary> {
     const startedAt = Date.now();
-    const enabled = options?.enabled ?? isAdminAiDebugAssistantEnabled();
+    const settings = options?.settings ?? await getAdminAiDebugAssistantSettings();
+    const enabled = isAdminAiDebugAssistantEnabled(settings);
 
     if (!enabled) {
         return buildAdminAiDebugFallback({
             signal,
-            availabilityNote: "AI debug assistant is disabled. Set AI_DEBUG_ASSISTANT_ENABLED=true to request live summaries.",
+            settings,
+            runtime: resolveAdminAiDebugVertexRuntime(settings.model),
+            availabilityNote: "AI debug assistant is disabled in admin settings.",
             latencyMs: Date.now() - startedAt,
         });
     }
 
-    const runtime = resolveAdminAiDebugVertexRuntime();
+    const runtime = resolveAdminAiDebugVertexRuntime(settings.model);
     const project = options?.project ?? runtime.project;
     const location = options?.location ?? runtime.location;
 
     if (!project) {
         return buildAdminAiDebugFallback({
             signal,
+            settings,
+            runtime,
             availabilityNote: "Vertex AI project configuration is missing. Set GOOGLE_CLOUD_PROJECT or FIREBASE_PROJECT_ID before enabling live summaries.",
             latencyMs: Date.now() - startedAt,
         });
@@ -358,6 +375,7 @@ export async function generateAdminAiDebugSummary(
             prompt,
             project,
             location,
+            model: runtime.model,
             timeoutMs,
         });
         const parsed = adminAiDebugModelOutputSchema.parse(JSON.parse(extractJsonBlock(rawText)));
@@ -368,7 +386,7 @@ export async function generateAdminAiDebugSummary(
             severity: "info",
             message: "Admin AI debug summary generated",
             detail: {
-                model: AI_DEBUG_ASSISTANT_MODEL,
+                model: runtime.model,
                 promptVersion: AI_DEBUG_ASSISTANT_PROMPT_VERSION,
                 location,
                 latencyMs,
@@ -379,7 +397,12 @@ export async function generateAdminAiDebugSummary(
         return adminAiDebugSummarySchema.parse({
             ...parsed,
             fallback_used: false,
-            model: AI_DEBUG_ASSISTANT_MODEL,
+            enabled: settings.enabled,
+            runtime_ready: true,
+            configured_model: settings.model,
+            runtime_project: project,
+            runtime_location: location,
+            model: runtime.model,
             prompt_version: AI_DEBUG_ASSISTANT_PROMPT_VERSION,
             generated_at: signal.generatedAt,
             latency_ms: latencyMs,
@@ -395,7 +418,7 @@ export async function generateAdminAiDebugSummary(
             {
                 channel: "admin",
                 detail: {
-                    model: AI_DEBUG_ASSISTANT_MODEL,
+                    model: runtime.model,
                     promptVersion: AI_DEBUG_ASSISTANT_PROMPT_VERSION,
                     location,
                     latencyMs,
@@ -406,6 +429,8 @@ export async function generateAdminAiDebugSummary(
 
         return buildAdminAiDebugFallback({
             signal,
+            settings,
+            runtime,
             availabilityNote,
             latencyMs,
         });

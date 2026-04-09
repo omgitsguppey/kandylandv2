@@ -52,6 +52,7 @@ async function queueDropNotificationDoc(
         return;
     }
 
+    const nowMs = Date.now();
     await adminDb.collection("notifications").add({
         title,
         message,
@@ -64,10 +65,11 @@ async function queueDropNotificationDoc(
             previewImageUrl: imageUrl,
         } : null,
         createdAt: admin.firestore.FieldValue.serverTimestamp(),
+        createdAtMs: nowMs,
         readBy: [],
     });
 
-    await touchNotificationsRuntime();
+    await touchNotificationsRuntime(nowMs);
 }
 
 export async function sendGlobalDropNotification(

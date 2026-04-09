@@ -16,6 +16,11 @@ export const adminAiDebugModelOutputSchema = z.object({
 
 export const adminAiDebugSummarySchema = adminAiDebugModelOutputSchema.extend({
     fallback_used: z.boolean(),
+    enabled: z.boolean(),
+    runtime_ready: z.boolean(),
+    configured_model: z.string().trim().min(1),
+    runtime_project: z.string().trim().min(1).optional(),
+    runtime_location: z.string().trim().min(1).optional(),
     model: z.string().trim().min(1),
     prompt_version: z.string().trim().min(1),
     generated_at: z.string().trim().min(1),

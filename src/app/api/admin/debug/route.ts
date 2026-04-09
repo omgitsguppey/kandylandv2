@@ -11,6 +11,8 @@ import {
     DAILY_TASK_LIMIT,
     DAILY_TASK_REWARD_MULTIPLIER,
     DAILY_TASK_REWARD_VERSION,
+    isRetiredLegacyDailyTaskId,
+    resolveLegacyDailyTaskId,
     resolveDailyTaskReward,
     type DailyTaskAssignment,
     type DailyTaskDefinition,
@@ -95,7 +97,7 @@ function normalizeTaskIds(rawTasks: unknown) {
         .map((task) => (task && typeof task === "object" ? task as DailyTaskAssignment : null))
         .filter((task): task is DailyTaskAssignment => Boolean(task))
         .map((task) => ({
-            id: toStringValue(task.id),
+            id: resolveLegacyDailyTaskId(toStringValue(task.id)),
             title: toStringValue(task.title),
             progress: toNumber(task.progress),
             maxProgress: toNumber(task.maxProgress) || 1,
@@ -103,7 +105,7 @@ function normalizeTaskIds(rawTasks: unknown) {
             claimedAt: toNumber(task.claimedAt),
             assignedAt: toNumber(task.assignedAt),
         }))
-        .filter((task) => task.id.length > 0);
+        .filter((task) => task.id.length > 0 && !isRetiredLegacyDailyTaskId(task.id));
 }
 
 function normalizeStringArray(rawValue: unknown) {
@@ -472,13 +474,19 @@ export async function GET(request: NextRequest) {
             };
         });
 
-        const transactionEntries = transactionsSnapshot.docs.map((doc) => ({
-            id: doc.id,
-            ...(doc.data() as Record<string, unknown>),
-        })) as Array<Record<string, unknown> & { id: string }>;
+        const transactionEntries = transactionsSnapshot.docs.map((doc) => {
+            const data = doc.data() as Record<string, unknown>;
+            const timestampMs = toNumber(data.timestampMs) || toTimestampNumber(data.timestamp);
+
+            return {
+                id: doc.id,
+                ...data,
+                timestampMs,
+            };
+        }) as Array<Record<string, unknown> & { id: string; timestampMs: number }>;
 
         const rewardTransactions7d = transactionEntries
-            .filter((entry) => toStringValue(entry.type) === "daily_reward" && toNumber(entry.timestamp) >= weekAgoMs);
+            .filter((entry) => toStringValue(entry.type) === "daily_reward" && toNumber(entry.timestampMs) >= weekAgoMs);
         const completedEvents7d = recentTaskEvents.filter((event) => event.type === "completed" && event.timestamp >= weekAgoMs);
         const receiptEvents7d = recentReceipts.filter((entry) => entry.timestamp >= weekAgoMs);
         const rewardClaimNormalizationIssues: Array<{
@@ -499,7 +507,7 @@ export async function GET(request: NextRequest) {
                 return [{
                     taskId: matchedTaskIds[0],
                     title: taskTitle || matchedTaskIds[0],
-                    timestamp: toNumber(entry.timestamp),
+                    timestamp: toNumber(entry.timestampMs),
                     reward: Math.abs(toNumber(entry.amount)),
                 }];
             }
@@ -618,6 +626,15 @@ export async function GET(request: NextRequest) {
 
         const taskParity = Array.from(rewardParityByTask.values())
             .sort((left, right) => right.completedCount - left.completedCount || right.rewardTotal - left.rewardTotal);
+        const totalRewardTransactionsAmount7d = rewardTransactions7d.reduce((sum, entry) => sum + Math.abs(toNumber(entry.amount)), 0);
+        const taskParitySummary = {
+            completedCount7d: completedEvents7d.length,
+            receiptCount7d: receiptEvents7d.length,
+            rewardedCount7d: rewardTransactions7d.length,
+            rewardedAmount7d: totalRewardTransactionsAmount7d,
+            mismatchDelta7d: completedEvents7d.length - rewardTransactions7d.length,
+            checkInToday: taskParity.find((entry) => entry.taskId === "check_in_today") || null,
+        };
 
         const eventStats = eventStatsSnapshot.docs.map((doc) => {
             const data = doc.data() as Record<string, unknown>;
@@ -706,7 +723,7 @@ export async function GET(request: NextRequest) {
         const creatorSpendTransactions7d = transactionEntries.filter((entry) => {
             const type = toStringValue(entry.type);
             return CREATOR_SPEND_TRANSACTION_TYPES.includes(type as typeof CREATOR_SPEND_TRANSACTION_TYPES[number])
-                && toNumber(entry.timestamp) >= weekAgoMs;
+                && toNumber(entry.timestampMs) >= weekAgoMs;
         });
 
         const creatorSpendParity = {
@@ -802,6 +819,11 @@ export async function GET(request: NextRequest) {
                 active: assignment.active,
             })),
         }));
+        const rolloutSampleSnapshot = {
+            generatedAtMs: nowMs,
+            stale: false,
+            source: "live_config_evaluation",
+        };
         const release = getCurrentRelease();
         const changeLog = getChangelogEntries(8);
 
@@ -862,7 +884,7 @@ export async function GET(request: NextRequest) {
                 receiptsLast7d: receiptEvents7d.length,
                 completedEventsLast7d: completedEvents7d.length,
                 rewardTransactionsLast7d: rewardTransactions7d.length,
-                rewardEventDeltaLast7d: completedEvents7d.length - rewardTransactions7d.length,
+                rewardEventDeltaLast7d: taskParitySummary.mismatchDelta7d,
                 legacyTaskRewardVersions: legacyRewardVersionCount,
                 creatorSpendViolationsLast7d: creatorSpendParity.restrictedSpendViolationCount,
                 trackedTelemetryEvents: eventStats.length,
@@ -874,6 +896,7 @@ export async function GET(request: NextRequest) {
                 orchestrationActionableRepairs: orchestration.summary.actionableProposals,
                 orchestrationLowConfidence: orchestration.summary.lowConfidenceEvents,
                 rolloutSamples: rolloutSamples.length,
+                rolloutSampleGeneratedAtMs: rolloutSampleSnapshot.generatedAtMs,
                 releaseEntries: changeLog.length,
                 adminUiChartsReported: analyticsChartHealth.length,
                 adminUiChartWarnings: analyticsChartHealth.filter((item) => item.status === "warn").length,
@@ -890,6 +913,7 @@ export async function GET(request: NextRequest) {
             telemetryOnlyTasks,
             assignmentIssues,
             taskParity,
+            taskParitySummary,
             recentTaskEvents: recentTaskEvents.slice(0, 80),
             recentReceipts: recentReceipts.slice(0, 80),
             receiptSummary,
@@ -915,6 +939,7 @@ export async function GET(request: NextRequest) {
             creatorOnboardingDiagnostics,
             rollouts,
             rolloutSamples,
+            rolloutSampleSnapshot,
             release,
             changeLog,
             opsHealth,

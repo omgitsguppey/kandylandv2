@@ -26,6 +26,10 @@ export interface AdminOpsHealthChannelItem {
   errorCount: number;
   warnCount: number;
   infoCount: number;
+  activeErrorCount: number;
+  activeWarnCount: number;
+  recentErrorCount: number;
+  recentWarnCount: number;
   lastSeenAt: number;
 }
 
@@ -56,6 +60,9 @@ export interface AdminOpsHealthPipelineRoute {
 export interface AdminOpsHealthPipeline {
   status: AdminOpsHealthStatus;
   failureCount: number;
+  activeFailureCount: number;
+  recentFailureCount: number;
+  sampleFailureCount: number;
   lastFailureAt: number;
   lastRouteName: string;
   lastErrorMessage: string;

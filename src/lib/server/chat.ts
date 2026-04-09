@@ -33,6 +33,7 @@ import { AuthError } from "@/lib/server/auth";
 import { adminDb } from "@/lib/server/firebase-admin";
 import { buildCompletedGumdropTransaction } from "@/lib/server/gumdrop-ledger";
 import { getErrorMessage, recordRouteWarning } from "@/lib/server/route-diagnostics";
+import { recordServerDiagnostic } from "@/lib/server/server-diagnostics";
 
 type UserSummary = {
     uid: string;
@@ -368,6 +369,18 @@ export function toChatClientError(error: unknown) {
     };
 }
 
+function buildChatErrorBody(input: {
+    error: string;
+    errorCode: string;
+    detail?: Record<string, unknown>;
+}) {
+    return {
+        error: input.error,
+        errorCode: input.errorCode,
+        ...input.detail,
+    };
+}
+
 async function listMessagesForThread(threadId: string) {
     const db = requireAdminDb();
     const snapshot = await db.collection(CHAT_COLLECTIONS.messages)
@@ -635,16 +648,31 @@ export async function sendChatMessageForViewer(input: SendChatMessageInput) {
         : parsedThread.userId === input.callerUid
             ? "user"
             : (() => {
-                throw new AuthError("Forbidden", 403);
+                throw new ChatClientError("You are not allowed to send messages in this thread.", 403, buildChatErrorBody({
+                    error: "You are not allowed to send messages in this thread.",
+                    errorCode: "forbidden",
+                }));
             })();
 
     const messageKind = normalizeChatMessageKind(input.messageKind);
     const text = readString(input.text);
+    const assetUrl = readOptionalString(input.assetUrl);
+    const assetName = readOptionalString(input.assetName);
+    const assetMimeType = readOptionalString(input.assetMimeType);
     if (!text && !readString(input.assetUrl)) {
-        throw new ChatClientError("Add a message or attachment before sending.", 400, {
+        throw new ChatClientError("Add a message or attachment before sending.", 400, buildChatErrorBody({
             error: "Add a message or attachment before sending.",
             errorCode: "empty_message",
-        });
+        }));
+    }
+    if ((messageKind === "image" || messageKind === "video") && !assetUrl) {
+        throw new ChatClientError("This message type requires an attachment.", 400, buildChatErrorBody({
+            error: "This message type requires an attachment.",
+            errorCode: "invalid_attachment",
+            detail: {
+                messageKind,
+            },
+        }));
     }
 
     const creatorRef = db.collection("users").doc(parsedThread.creatorId);
@@ -663,13 +691,19 @@ export async function sendChatMessageForViewer(input: SendChatMessageInput) {
         ]);
 
         if (!creatorSnap.exists || !participantSnap.exists) {
-            throw new AuthError("Creator or participant not found", 404);
+            throw new ChatClientError("Creator or participant not found.", 404, buildChatErrorBody({
+                error: "Creator or participant not found.",
+                errorCode: "participants_not_found",
+            }));
         }
 
         const creator = createUserSummary(parsedThread.creatorId, creatorSnap.data() as Record<string, unknown>);
         const participant = createUserSummary(parsedThread.userId, participantSnap.data() as Record<string, unknown>);
         if (!canSeedChatThreadForCreator(creator)) {
-            throw new AuthError("Messaging is unavailable for this creator.", 409);
+            throw new ChatClientError("Messaging is unavailable for this creator.", 409, buildChatErrorBody({
+                error: "Messaging is unavailable for this creator.",
+                errorCode: "creator_unavailable",
+            }));
         }
 
         const subscriptionActive = subscriptionSnap.exists && readString((subscriptionSnap.data() as Record<string, unknown>).status) === "active";
@@ -769,9 +803,9 @@ export async function sendChatMessageForViewer(input: SendChatMessageInput) {
             senderRole: viewerRole,
             messageKind,
             text,
-            assetUrl: readOptionalString(input.assetUrl),
-            assetName: readOptionalString(input.assetName),
-            assetMimeType: readOptionalString(input.assetMimeType),
+            assetUrl,
+            assetName,
+            assetMimeType,
             costGd,
             creatorAccrualId,
             createdAt: now,
@@ -787,9 +821,9 @@ export async function sendChatMessageForViewer(input: SendChatMessageInput) {
                 senderRole: viewerRole,
                 messageKind,
                 text,
-                assetUrl: readOptionalString(input.assetUrl),
-                assetName: readOptionalString(input.assetName),
-                assetMimeType: readOptionalString(input.assetMimeType),
+                assetUrl,
+                assetName,
+                assetMimeType,
                 costGd,
                 creatorAccrualId,
                 createdAt: now,
@@ -799,7 +833,7 @@ export async function sendChatMessageForViewer(input: SendChatMessageInput) {
         };
     });
 
-    await Promise.allSettled([
+    const trackingResults = await Promise.allSettled([
         Promise.resolve().then(() => trackServerEvent(
             sendResult.message.messageKind === "text" ? "creator_message_sent" : "creator_media_sent",
             {
@@ -820,7 +854,41 @@ export async function sendChatMessageForViewer(input: SendChatMessageInput) {
             : Promise.resolve(null),
     ]);
 
-    return sendResult;
+    const trackingFailures = trackingResults
+        .filter((result): result is PromiseRejectedResult => result.status === "rejected")
+        .map((result) => getErrorMessage(result.reason))
+        .filter((message, index, list) => message && list.indexOf(message) === index);
+
+    if (trackingFailures.length > 0) {
+        recordRouteWarning("chat/messages", "Chat send post-write tracking degraded", new Error(trackingFailures.join(" | ")), {
+            channel: "runtime",
+            detail: {
+                threadId: input.threadId,
+                callerRole: input.callerRole,
+                trackingFailures,
+            },
+        });
+        await recordServerDiagnostic({
+            channel: "runtime",
+            severity: "warn",
+            message: "Chat send completed with post-write tracking failures",
+            detail: {
+                threadId: input.threadId,
+                callerUid: input.callerUid,
+                trackingFailures,
+            },
+        });
+    }
+
+    return {
+        ...sendResult,
+        warnings: trackingFailures.length > 0
+            ? [{
+                code: "post_send_tracking_failure",
+                detail: trackingFailures.join(" | "),
+            }]
+            : [],
+    };
 }
 
 export async function listChatMessagesForViewer(input: {
