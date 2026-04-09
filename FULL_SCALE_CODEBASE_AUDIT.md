@@ -1,8 +1,8 @@
 # Full Scale Codebase Audit
 
 Status: Canonical audit standard and live baseline
-Last refreshed: 2026-04-08
-Last full-scale audit execution: 2026-04-08 23:24:00 -05:00
+Last refreshed: 2026-04-09
+Last full-scale audit execution: 2026-04-09 00:18:31 -05:00
 Repo: `C:\Users\uylus\OneDrive\Documents\KandyDrops_Final`
 Audited HEAD at start: `eec0983`
 
@@ -43,6 +43,7 @@ Before broad UI work, backend work, shared-helper changes, Firebase work, or aud
 5. Identify touched surfaces and canonical helpers before editing.
 6. Run `npm run trace:adjacent -- <path>` for the highest-risk touched files.
 7. Update this file at the start and again at the end.
+8. For broad UI audits or visual polish passes, create or refresh a dated screenshot packet under `qa-screenshots/ui-review-YYYY-MM-DD/` and record any deferred authenticated surfaces truthfully.
 
 ## Non-negotiable repo rules
 - No route should invent its own error contract when shared route handling already exists.
@@ -4029,3 +4030,195 @@ Continuation follow-up improvements:
 - delete the now-hidden legacy analytics security JSX branch from `src/app/admin/analytics/page.tsx` in a cleanup-only pass
 - add route-runtime-health coverage for the new moderation page’s backing route mix if moderation later moves behind a dedicated server aggregation endpoint
 - split admin debug route-runtime-health between native chat traffic and legacy compatibility traffic so operators can see how much load the compatibility path still carries
+## 2026-04-08 UI Evidence Review Pass (started)
+
+Scope:
+- no-code visual audit pass
+- capture current public UI evidence into a dated `qa-screenshots/` run folder
+- review desktop, tablet, and mobile screenshots for consistency, scale, vertical sprawl, and safe-zone issues
+- translate Apple Human Interface Guidelines layout and clarity principles into repo-specific UI recommendations
+- add a repeatable screenshot-review process so future visual audits produce one clean evidence set per run
+
+Startup protocol executed:
+- read `FULL_SCALE_CODEBASE_AUDIT.md`
+- read `REPO_MEMORY_LEDGER.md`
+- read `EVERY_FILE_FUNCTION_CHECKLIST.md`
+- ran `git status --short`
+- reviewed existing screenshot evidence surfaces under `qa-screenshots/` and `tests/ui-audits/`
+- ran `npm run trace:adjacent -- tests/ui-audits/visual-regression.spec.ts`
+
+Initial findings before capture:
+- the repo already has a tracked screenshot evidence root at `qa-screenshots/`, so this pass will reuse that surface instead of inventing another top-level artifact directory
+- prior screenshot evidence is mixed between timestamped subfolders and older top-level PNG files, which makes cross-run comparison harder than it needs to be
+- the existing automated UI audits prove baseline regression coverage, but they do not produce a clean per-run human review packet for desktop, tablet, and mobile
+- authenticated and admin-only pages still require a seeded review session; this pass is starting from the public/live unauthenticated surface unless a stable authenticated review context becomes available during capture
+
+Primary touched surfaces for this pass:
+- `FULL_SCALE_CODEBASE_AUDIT.md`
+- `qa-screenshots/**`
+- `tests/ui-audits/visual-regression.spec.ts` adjacency was reviewed for process alignment only; no runtime/UI code change is planned
+- `UI_REVIEW_PROCESS.md`
+- `REPO_MEMORY_LEDGER.md`
+
+Implementation results:
+- created a dated screenshot evidence packet at `qa-screenshots/ui-review-2026-04-08/`
+- captured `11` public page surfaces and `19` unique top-level component surfaces at each of:
+  - `desktop`
+  - `tablet`
+  - `mobile`
+- wrote `capture-manifest.json` with truthful deferred authenticated/admin route coverage
+- generated per-device contact sheets in both HTML and PNG form for fast human review
+- wrote the run review at `qa-screenshots/ui-review-2026-04-08/README.md`
+- added the durable repeatable process document at `UI_REVIEW_PROCESS.md`
+- recorded the new screenshot-packet workflow rule in `REPO_MEMORY_LEDGER.md`
+
+Review findings from the evidence packet:
+- the clearest polish issue is safe-zone interference:
+  - consent surfaces and mobile bottom-nav chrome still visually overlap primary content on several public pages
+- mobile page shells are inconsistent in top rhythm, card scale, and CTA placement across home, drops, experiences, creator profile, and creator onboarding pages
+- vertical sprawl is highest on mobile drops, FAQ, and creator-application surfaces because too many explanatory and framing modules land before core content
+- card scale and glass-panel density drift too much between routes, which weakens visual cohesion
+- the creator profile header remains taller than it needs to be before content begins
+- the guest home `Unwrap Your KandyDrops` CTA did not open an auth dialog in the review build, so auth-modal capture was excluded rather than faked
+
+Apple-guided standards translated into repo guidance:
+- prioritize clarity over extra chrome, with one dominant action per screen
+- standardize mobile shell templates instead of giving every page family its own hero rhythm
+- keep persistent overlays and nav out of the primary-action lane
+- keep touch targets at or above the `44x44` Apple minimum
+- keep identity, controls, and content grouped predictably so layouts do not shift in a way that fights muscle memory
+
+Commands run for this pass:
+- `git status --short`
+- `npm run trace:adjacent -- tests/ui-audits/visual-regression.spec.ts`
+- local Playwright capture against `http://localhost:3100` for:
+  - `11` public pages
+  - `19` unique component surfaces
+  - `3` device classes
+- `npm run check:inventory`
+- `git ls-files --others --exclude-standard`
+
+Results:
+- `npm run check:inventory` passed and the tracked inventory baseline remains `719` files
+- `git ls-files --others --exclude-standard` returned clean; the screenshot packet lives under the repo-local ignored evidence root by design
+- current tracked worktree changes are documentation/process only:
+  - `FULL_SCALE_CODEBASE_AUDIT.md`
+  - `REPO_MEMORY_LEDGER.md`
+  - `UI_REVIEW_PROCESS.md`
+
+Known warnings and non-blocking notices for this pass:
+- `qa-screenshots/` is ignored by git, so the dated screenshot packet is local evidence rather than tracked source
+- authenticated and admin-only routes still need a seeded review session for full packet coverage
+- the guest home signup CTA behavior should be treated as a separate functional review item because it did not surface an auth dialog during capture
+
+Follow-up improvements now clearly justified by evidence:
+- establish one canonical mobile shell for marketing, discovery, creator-profile, and help/legal surfaces
+- reserve one bottom-safe-area lane for nav and consent so neither covers primary content
+- compress the mobile drops and creator-profile top stacks
+- normalize card primitives and button heights across public pages
+- run the same packet again with a seeded authenticated session so dashboard/admin UI can be reviewed under the same rubric
+
+## 2026-04-09 Dashboard Viewer + Dashboard Bug Report Investigation (In Progress)
+
+Scope for this pass:
+- investigate reported manual bug submissions on:
+  - `/dashboard/viewer` with `action_failed`
+  - `/dashboard` with `permissions`
+- fix any confirmed adjacent defects
+- add runtime tracking so the next recurrence surfaces in admin debug without waiting on a manual bug report
+
+Startup protocol executed:
+- read `FULL_SCALE_CODEBASE_AUDIT.md`
+- read `REPO_MEMORY_LEDGER.md`
+- read `EVERY_FILE_FUNCTION_CHECKLIST.md`
+- ran `git status --short`
+- ran `npm run trace:adjacent -- src/app/dashboard/viewer/ViewerClient.tsx`
+- ran `npm run trace:adjacent -- src/app/dashboard/page.tsx`
+- ran `npm run trace:adjacent -- src/lib/bug-reporting.ts`
+
+Known local worktree context before this pass:
+- `FULL_SCALE_CODEBASE_AUDIT.md` already had local updates from the screenshot review pass
+- `REPO_MEMORY_LEDGER.md` already had local updates from the screenshot review pass
+- `UI_REVIEW_PROCESS.md` was already present as a new tracked-process artifact candidate
+
+Initial findings:
+- both reported items came through the global manual bug trigger path, so the report titles themselves are generic and do not prove a thrown runtime exception
+- `/dashboard/viewer` is still server-rendered from the public drop loader, which can hide owned non-public drops before viewer ownership is evaluated
+- several dashboard-sensitive routes still lack route-runtime-health coverage:
+  - `creator/discovery`
+  - `user/activity`
+  - `drops/content`
+  - `viewer/watch-session`
+- `user/activity` and `checkin` were still missing explicit null-caller guards after `guardApiRequest`, which weakens permission-path correctness if auth resolution fails upstream
+
+Implementation results:
+- fixed `/dashboard/viewer` to load the raw owned drop record with `getDropRaw(...)` and then sanitize it for the client, instead of using the public-only `getDrop(...)` path
+- added route-runtime-health coverage for:
+  - `creator/discovery:GET`
+  - `user/activity:GET`
+  - `checkin:POST`
+  - `drops/content:GET`
+  - `viewer/watch-session:POST`
+- added explicit `401` handling when `guardApiRequest(...)` does not yield a caller in:
+  - `src/app/api/user/activity/route.ts`
+  - `src/app/api/checkin/route.ts`
+- added targeted regression coverage for:
+  - the dashboard viewer using `getDropRaw(...)`
+  - `user/activity` returning a clean `401` on missing caller
+  - the creator discovery route after runtime-health instrumentation
+
+Files touched in this pass:
+- `src/app/dashboard/viewer/page.tsx`
+- `src/app/api/creator/discovery/route.ts`
+- `src/app/api/user/activity/route.ts`
+- `src/app/api/checkin/route.ts`
+- `src/app/api/drops/content/route.ts`
+- `src/app/api/viewer/watch-session/route.ts`
+- `src/lib/route-runtime-health.ts`
+- `tests/unit/dashboard-viewer-page.spec.tsx`
+- `tests/unit/creator-discovery-route.spec.ts`
+- `tests/unit/user-activity-route.spec.ts`
+- `REPO_MEMORY_LEDGER.md`
+- `FULL_SCALE_CODEBASE_AUDIT.md`
+
+Commands run for this pass:
+- `git status --short`
+- `npm run trace:adjacent -- src/app/dashboard/viewer/ViewerClient.tsx`
+- `npm run trace:adjacent -- src/app/dashboard/page.tsx`
+- `npm run trace:adjacent -- src/lib/bug-reporting.ts`
+- `npm run trace:adjacent -- src/app/dashboard/viewer/page.tsx`
+- `npm run trace:adjacent -- src/app/api/user/activity/route.ts`
+- `npm run trace:adjacent -- src/app/api/drops/content/route.ts`
+- `npm run trace:adjacent -- src/app/api/viewer/watch-session/route.ts`
+- `npx eslint src/app/dashboard/viewer/page.tsx src/app/api/creator/discovery/route.ts src/app/api/user/activity/route.ts src/app/api/checkin/route.ts src/app/api/drops/content/route.ts src/app/api/viewer/watch-session/route.ts src/lib/route-runtime-health.ts tests/unit/dashboard-viewer-page.spec.tsx tests/unit/creator-discovery-route.spec.ts tests/unit/user-activity-route.spec.ts`
+- `corepack pnpm exec vitest run tests/unit/dashboard-viewer-page.spec.tsx tests/unit/creator-discovery-route.spec.ts tests/unit/user-activity-route.spec.ts tests/unit/server-drops.spec.ts tests/unit/route-runtime-health.spec.ts`
+- `npm run check:inventory`
+- `npm run check:continuity`
+- `npm run check:telemetry`
+- `corepack pnpm run check`
+- `npm run check:ui:audits`
+- `npm run check:ui:lighthouse`
+
+Results:
+- targeted eslint passed
+- targeted vitest passed: `4` files, `8` tests
+- `npm run check:inventory` passed
+- `npm run check:continuity` passed
+- `npm run check:telemetry` passed
+- `corepack pnpm run check` passed, including `106` contract files / `506` tests
+- `npm run check:ui:audits` passed
+- `npm run check:ui:lighthouse` passed
+
+Confirmed defects fixed:
+- owned non-public drops can now resolve through `/dashboard/viewer` because the page no longer depends on the public drop loader
+- auth-required dashboard routes no longer drift through blank-user execution when `guardApiRequest(...)` does not yield a caller
+
+What was investigated but not proven as a distinct code defect from the bug report alone:
+- the `/dashboard` `permissions` report did not have local access to its original stored `autoContext`, so there was no direct evidence of a single crashing dashboard module
+- instead of guessing, this pass expanded runtime tracking on the dashboard-sensitive server surfaces so the next recurrence will show up in admin debug with route name, status code, latency, and last error
+
+Known warnings and local-state notes for this pass:
+- Firestore bug-report payloads under `platform_feedback` could not be inspected locally because default admin credentials were not available in this shell
+- the working tree still includes earlier local documentation work that predates this investigation:
+  - `REPO_MEMORY_LEDGER.md`
+  - `UI_REVIEW_PROCESS.md`

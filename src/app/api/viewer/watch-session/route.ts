@@ -11,6 +11,8 @@ import { createAnalyticsStorageKey, isValidAnalyticsWatchSessionId } from "@/lib
 import { buildAnalyticsTimeKeys } from "@/lib/server/analytics-event-utils";
 import { recordAnalyticsPipelineFailure } from "@/lib/server/analytics-pipeline-health";
 import { recordServerDiagnostic } from "@/lib/server/server-diagnostics";
+import { getErrorMessage } from "@/lib/server/route-diagnostics";
+import { recordRouteRuntimeSample } from "@/lib/server/route-runtime-health";
 import {
     ANALYTICS_CANONICAL_COLLECTIONS,
     ANALYTICS_ROUTE_POLICIES,
@@ -99,6 +101,17 @@ function normalizeSeconds(value: number) {
 }
 
 export async function POST(request: NextRequest) {
+    const startedAt = Date.now();
+    const finalize = (response: NextResponse, error?: unknown) => {
+        void recordRouteRuntimeSample({
+            key: "viewer/watch-session:POST",
+            durationMs: Date.now() - startedAt,
+            statusCode: response.status,
+            errorMessage: error ? getErrorMessage(error) : null,
+        });
+        return response;
+    };
+
     try {
         const caller = await guardApiRequest(request, {
             ...ANALYTICS_ROUTE_POLICIES.viewerWatchSession,
@@ -106,12 +119,12 @@ export async function POST(request: NextRequest) {
             rateLimit: ANALYTICS_WRITE,
         });
         if (!caller) {
-            return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
+            return finalize(NextResponse.json({ error: "Unauthorized" }, { status: 401 }));
         }
 
         const contentLength = Number(request.headers.get("content-length") || 0);
         if (Number.isFinite(contentLength) && contentLength > MAX_WATCH_SESSION_BODY_BYTES) {
-            return NextResponse.json({ error: "Payload too large" }, { status: 413 });
+            return finalize(NextResponse.json({ error: "Payload too large" }, { status: 413 }));
         }
 
         const parsedBody = watchSessionSchema.parse(await request.json());
@@ -120,17 +133,17 @@ export async function POST(request: NextRequest) {
         const [userSnapshot, dropSnapshot] = await Promise.all([userRef.get(), dropRef.get()]);
 
         if (!userSnapshot.exists) {
-            return NextResponse.json({ error: "User not found" }, { status: 404 });
+            return finalize(NextResponse.json({ error: "User not found" }, { status: 404 }));
         }
 
         if (!dropSnapshot.exists) {
-            return NextResponse.json({ error: "Drop not found" }, { status: 404 });
+            return finalize(NextResponse.json({ error: "Drop not found" }, { status: 404 }));
         }
 
         const userProfile = (userSnapshot.data() as UserProfile | undefined) ?? null;
         const unlockedContent = Array.isArray(userProfile?.unlockedContent) ? userProfile.unlockedContent : [];
         if (!unlockedContent.includes(parsedBody.dropId)) {
-            return NextResponse.json({ error: "You do not own this content" }, { status: 403 });
+            return finalize(NextResponse.json({ error: "You do not own this content" }, { status: 403 }));
         }
 
         const username = readUserDisplayName(userProfile, caller.email);
@@ -328,16 +341,16 @@ export async function POST(request: NextRequest) {
             return { accepted: true, stale: false };
         });
 
-        return NextResponse.json({
+        return finalize(NextResponse.json({
             success: true,
             accepted: transactionResult.accepted,
             stale: transactionResult.stale,
             assetCount: parsedBody.assets.length,
             watchSessionId: parsedBody.watchSessionId,
-        });
+        }));
     } catch (error) {
         if (error instanceof z.ZodError) {
-            return NextResponse.json({ error: "Invalid watch session payload" }, { status: 400 });
+            return finalize(NextResponse.json({ error: "Invalid watch session payload" }, { status: 400 }), error);
         }
 
         await recordServerDiagnostic({
@@ -353,6 +366,6 @@ export async function POST(request: NextRequest) {
             routeName: "viewer/watch-session",
             errorMessage: error instanceof Error ? error.message : String(error),
         });
-        return handleApiError(error, "Viewer.WatchSession.POST");
+        return finalize(handleApiError(error, "Viewer.WatchSession.POST"), error);
     }
 }

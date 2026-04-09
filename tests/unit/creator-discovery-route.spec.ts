@@ -13,6 +13,8 @@ const mockState = vi.hoisted(() => {
         collections,
         guardApiRequest: vi.fn(),
         handleApiError: vi.fn(),
+        recordRouteRuntimeSample: vi.fn(),
+        getErrorMessage: vi.fn(),
         adminDb: {
             collection(name: string) {
                 return {
@@ -35,6 +37,8 @@ const mockState = vi.hoisted(() => {
             collections.clear();
             this.guardApiRequest.mockReset();
             this.handleApiError.mockReset();
+            this.recordRouteRuntimeSample.mockReset();
+            this.getErrorMessage.mockReset();
         },
     };
 });
@@ -51,6 +55,12 @@ vi.mock("@/lib/server/firebase-admin", () => ({
 }));
 vi.mock("@/lib/server/rate-limit", () => ({
     RELAXED: {},
+}));
+vi.mock("@/lib/server/route-runtime-health", () => ({
+    recordRouteRuntimeSample: mockState.recordRouteRuntimeSample,
+}));
+vi.mock("@/lib/server/route-diagnostics", () => ({
+    getErrorMessage: mockState.getErrorMessage,
 }));
 
 import { GET } from "@/app/api/creator/discovery/route";

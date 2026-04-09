@@ -7,6 +7,8 @@ import { STANDARD } from "@/lib/server/rate-limit";
 import { recordServerDiagnostic } from "@/lib/server/server-diagnostics";
 import { getTransactionDisplayLabel, normalizeTransactionRecord } from "@/lib/transaction-normalizers";
 import { guardApiRequest } from "@/lib/server/request-guard";
+import { getErrorMessage } from "@/lib/server/route-diagnostics";
+import { recordRouteRuntimeSample } from "@/lib/server/route-runtime-health";
 
 type TaskEventType = "assigned" | "started" | "completed" | "failed" | "reminder_sent";
 type ActivityItem =
@@ -218,6 +220,17 @@ export const __test = {
 };
 
 export async function GET(request: NextRequest) {
+    const startedAt = Date.now();
+    const finalize = (response: NextResponse, error?: unknown) => {
+        void recordRouteRuntimeSample({
+            key: "user/activity:GET",
+            durationMs: Date.now() - startedAt,
+            statusCode: response.status,
+            errorMessage: error ? getErrorMessage(error) : null,
+        });
+        return response;
+    };
+
     try {
         const caller = await guardApiRequest(request, {
             routeName: "user/activity",
@@ -226,8 +239,11 @@ export async function GET(request: NextRequest) {
             auth: "user",
             scopeToCaller: true,
         });
+        if (!caller) {
+            return finalize(NextResponse.json({ error: "Unauthorized" }, { status: 401 }));
+        }
 
-        const uid = caller?.uid ?? "";
+        const uid = caller.uid;
         const view = request.nextUrl.searchParams.get("view") === "history" ? "history" : "summary";
         const itemLimit = view === "history" ? undefined : 1;
 
@@ -248,10 +264,10 @@ export async function GET(request: NextRequest) {
         });
 
         if (requestMatchesEtag(request, etag)) {
-            return buildNotModifiedResponse(etag, PRIVATE_REVALIDATE_CACHE_CONTROL);
+            return finalize(buildNotModifiedResponse(etag, PRIVATE_REVALIDATE_CACHE_CONTROL));
         }
 
-        return NextResponse.json({
+        return finalize(NextResponse.json({
             success: true,
             view,
             activities,
@@ -262,8 +278,8 @@ export async function GET(request: NextRequest) {
                 ETag: etag,
                 "Cache-Control": PRIVATE_REVALIDATE_CACHE_CONTROL,
             },
-        });
+        }));
     } catch (error) {
-        return handleApiError(error, "User.Activity.GET");
+        return finalize(handleApiError(error, "User.Activity.GET"), error);
     }
 }

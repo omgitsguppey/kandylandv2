@@ -6,6 +6,8 @@ import { guardApiRequest } from "@/lib/server/request-guard";
 import { adminDb } from "@/lib/server/firebase-admin";
 import { isCreatorVisibleInDiscovery } from "@/lib/creator-public-pages";
 import { isDropHiddenFromPublic, normalizeAndApplyDropStatusOrNull } from "@/lib/drop-read-models";
+import { getErrorMessage } from "@/lib/server/route-diagnostics";
+import { recordRouteRuntimeSample } from "@/lib/server/route-runtime-health";
 
 type DiscoverySurface = "dashboard" | "drops" | "experiences";
 type DiscoveryCreatorRecord = Record<string, unknown> & {
@@ -21,6 +23,17 @@ type DiscoveryCreatorRecord = Record<string, unknown> & {
 };
 
 export async function GET(request: NextRequest) {
+    const startedAt = Date.now();
+    const finalize = (response: NextResponse, error?: unknown) => {
+        void recordRouteRuntimeSample({
+            key: "creator/discovery:GET",
+            durationMs: Date.now() - startedAt,
+            statusCode: response.status,
+            errorMessage: error ? getErrorMessage(error) : null,
+        });
+        return response;
+    };
+
     try {
         await guardApiRequest(request, {
             routeName: "creator/discovery",
@@ -28,7 +41,7 @@ export async function GET(request: NextRequest) {
         });
 
         if (!adminDb) {
-            return NextResponse.json({ creators: [] });
+            return finalize(NextResponse.json({ creators: [] }));
         }
 
         const surface = (request.nextUrl.searchParams.get("surface")?.trim() || "drops") as DiscoverySurface;
@@ -96,11 +109,11 @@ export async function GET(request: NextRequest) {
             })
             .slice(0, surface === "dashboard" ? 8 : 12);
 
-        return NextResponse.json({
+        return finalize(NextResponse.json({
             success: true,
             creators,
-        });
+        }));
     } catch (error) {
-        return handleApiError(error, "Creator.Discovery.GET");
+        return finalize(handleApiError(error, "Creator.Discovery.GET"), error);
     }
 }

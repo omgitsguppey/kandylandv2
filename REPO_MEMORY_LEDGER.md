@@ -1,7 +1,7 @@
 # Repo Memory Ledger
 
 Status: Canonical repository-memory and architecture-decision ledger
-Last refreshed: 2026-04-07
+Last refreshed: 2026-04-09
 Repo: `C:\Users\uylus\OneDrive\Documents\KandyDrops_Final`
 
 ## Purpose
@@ -696,3 +696,53 @@ This file is not a changelog. It is the concise ledger for durable decisions tha
   - `database.rules.json`
   - `FULL_SCALE_CODEBASE_AUDIT.md`
 - Follow-up gaps: RTDB presence reads are currently authenticated-wide rather than participant-scoped, and there is no dedicated RTDB-rules test suite yet.
+### 32. Broad UI reviews require dated screenshot evidence packets
+- Approximate date: Canonicalized and recorded on 2026-04-08
+- Status: Active workflow rule
+- Problem/context: Automated UI audits catch regressions, but they do not produce a clean human review packet for desktop, tablet, and mobile. Prior screenshot evidence also accumulated as mixed timestamped folders plus loose top-level images, which made cross-run review noisy and inconsistent.
+- Decision made: Broad UI audits now produce one dated evidence packet under `qa-screenshots/ui-review-YYYY-MM-DD/` with separate `desktop`, `tablet`, and `mobile` page/component screenshots, a capture manifest, contact sheets, and a written review.
+- What became canonical:
+  - `qa-screenshots/` is the tracked evidence root for manual UI review packets
+  - each visual audit run gets one dated folder
+  - the packet must separate pages from components and separate device classes from each other
+  - failed or unavailable captures must be recorded truthfully rather than faked
+  - broad UI signoff should include both automated UI audits and a human-readable screenshot packet when layout/polish work is material
+- What is now disallowed or deprecated:
+  - leaving a broad UI pass without a clean dated evidence packet
+  - mixing duplicate viewport/full-page images of the same surface into the same run
+  - leaving partial screenshot runs or loose temporary artifacts in the review folder after signoff
+- Truth lives in:
+  - `UI_REVIEW_PROCESS.md`
+  - `qa-screenshots/ui-review-2026-04-08/README.md`
+  - `FULL_SCALE_CODEBASE_AUDIT.md`
+- Follow-up gaps: Authenticated dashboard and admin surfaces still need a stable seeded review session so future packets can cover those routes without manual setup drift.
+### 33. Viewer and dashboard regressions must surface through route runtime health
+- Approximate date: Canonicalized and recorded on 2026-04-09
+- Status: Active runtime-monitoring rule
+- Problem/context: Manual bug submissions flagged `/dashboard/viewer` and `/dashboard`, but the affected server routes were only partially covered by admin-debug runtime health. That left owned-content proxy failures, viewer watch-session failures, creator discovery drift, and dashboard activity failures too easy to miss until a user reported them.
+- Decision made: Expand route-runtime-health coverage to the viewer and dashboard-critical routes and keep dashboard-owned viewer rendering sourced from the raw drop record instead of the public-only loader.
+- What became canonical:
+  - `/dashboard/viewer` must load owned content from `getDropRaw(...)` and sanitize it for the client instead of depending on the public drop loader
+  - the following routes are now first-class route-runtime-health surfaces:
+    - `creator/discovery:GET`
+    - `user/activity:GET`
+    - `checkin:POST`
+    - `drops/content:GET`
+    - `viewer/watch-session:POST`
+  - user-facing auth-required routes should return explicit `401` responses when `guardApiRequest(...)` does not yield a caller, instead of drifting into ambiguous empty or error states
+- What is now disallowed or deprecated:
+  - using the public drop loader as the dashboard viewer source of truth
+  - leaving viewer and dashboard-critical routes outside admin-debug route health
+  - allowing auth-required dashboard routes to continue with blank user ids after a missing caller
+- Truth lives in:
+  - `src/app/dashboard/viewer/page.tsx`
+  - `src/lib/server/drops.ts`
+  - `src/lib/route-runtime-health.ts`
+  - `src/lib/server/route-runtime-health.ts`
+  - `src/app/api/creator/discovery/route.ts`
+  - `src/app/api/user/activity/route.ts`
+  - `src/app/api/checkin/route.ts`
+  - `src/app/api/drops/content/route.ts`
+  - `src/app/api/viewer/watch-session/route.ts`
+  - `FULL_SCALE_CODEBASE_AUDIT.md`
+- Follow-up gaps: The dashboard still depends on client diagnostics for browser-only failures such as notification-permission UX; only the server-backed routes above are now visible in route-runtime-health.

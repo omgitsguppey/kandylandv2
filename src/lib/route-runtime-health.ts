@@ -1,4 +1,10 @@
 export const ROUTE_RUNTIME_HEALTH_TARGETS = {
+    "creator/discovery:GET": {
+        routeName: "creator/discovery",
+        method: "GET",
+        title: "Creator discovery reads",
+        slowThresholdMs: 900,
+    },
     "chat/threads:GET": {
         routeName: "chat/threads",
         method: "GET",
@@ -52,6 +58,30 @@ export const ROUTE_RUNTIME_HEALTH_TARGETS = {
         method: "POST",
         title: "Creator relationships writes",
         slowThresholdMs: 1000,
+    },
+    "user/activity:GET": {
+        routeName: "user/activity",
+        method: "GET",
+        title: "User activity reads",
+        slowThresholdMs: 900,
+    },
+    "checkin:POST": {
+        routeName: "checkin",
+        method: "POST",
+        title: "Daily check-in claims",
+        slowThresholdMs: 1400,
+    },
+    "drops/content:GET": {
+        routeName: "drops/content",
+        method: "GET",
+        title: "Owned content proxy reads",
+        slowThresholdMs: 1800,
+    },
+    "viewer/watch-session:POST": {
+        routeName: "viewer/watch-session",
+        method: "POST",
+        title: "Viewer watch-session writes",
+        slowThresholdMs: 1800,
     },
     "support/threads:GET": {
         routeName: "support/threads",

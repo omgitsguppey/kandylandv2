@@ -9,11 +9,23 @@ import { buildCompletedGumdropTransaction } from "@/lib/server/gumdrop-ledger";
 import type { DailyTasksState } from "@/lib/tasks/task-catalog";
 import { recordCanonicalTaskEvent } from "@/lib/server/daily-tasks";
 import { guardApiRequest } from "@/lib/server/request-guard";
-import { recordRouteWarning } from "@/lib/server/route-diagnostics";
+import { getErrorMessage, recordRouteWarning } from "@/lib/server/route-diagnostics";
+import { recordRouteRuntimeSample } from "@/lib/server/route-runtime-health";
 import { touchUserRuntime } from "@/lib/server/user-runtime";
 import type { UserProfile } from "@/types/db";
 
 export async function POST(request: NextRequest) {
+    const startedAt = Date.now();
+    const finalize = (response: NextResponse, error?: unknown) => {
+        void recordRouteRuntimeSample({
+            key: "checkin:POST",
+            durationMs: Date.now() - startedAt,
+            statusCode: response.status,
+            errorMessage: error ? getErrorMessage(error) : null,
+        });
+        return response;
+    };
+
     try {
         const caller = await guardApiRequest(request, {
             routeName: "checkin",
@@ -22,13 +34,16 @@ export async function POST(request: NextRequest) {
             auth: "user",
             scopeToCaller: true,
         });
+        if (!caller) {
+            return finalize(NextResponse.json({ error: "Unauthorized" }, { status: 401 }));
+        }
 
         if (!adminDb) {
-            return NextResponse.json({ error: "Database not available" }, { status: 500 });
+            return finalize(NextResponse.json({ error: "Database not available" }, { status: 500 }));
         }
 
         // Use the verified UID from the token, not from the request body
-        const userId = caller?.uid ?? "";
+        const userId = caller.uid;
 
         // 1. Fetch user profile and process check-in inside an atomic transaction
         const userRef = adminDb.collection("users").doc(userId);
@@ -101,13 +116,13 @@ export async function POST(request: NextRequest) {
         });
 
         if (result.alreadyClaimed) {
-            return NextResponse.json({
+            return finalize(NextResponse.json({
                 error: "Already claimed today",
                 alreadyClaimed: true,
                 streak: result.nextStreak,
                 lastCheckIn: result.lastCheckIn,
                 nextCheckInAt: result.nextCheckInAt,
-            }, { status: 409 });
+            }, { status: 409 }));
         }
 
         try {
@@ -136,7 +151,7 @@ export async function POST(request: NextRequest) {
             profile: true,
         }, result.lastCheckIn);
 
-        return NextResponse.json({
+        return finalize(NextResponse.json({
             success: true,
             reward: result.reward,
             streak: result.nextStreak,
@@ -146,8 +161,8 @@ export async function POST(request: NextRequest) {
                 ? Number(updatedUserData.gumDropsBalance)
                 : result.newBalance,
             dailyTasksState: (updatedUserData.dailyTasksState ?? null) as DailyTasksState | null,
-        });
+        }));
     } catch (error) {
-        return handleApiError(error, "Checkin.POST");
+        return finalize(handleApiError(error, "Checkin.POST"), error);
     }
 }

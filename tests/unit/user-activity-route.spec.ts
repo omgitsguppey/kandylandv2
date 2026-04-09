@@ -15,8 +15,16 @@ vi.mock("@/lib/server/request-guard", () => ({
 vi.mock("@/lib/server/server-diagnostics", () => ({
     recordServerDiagnostic: vi.fn(),
 }));
+vi.mock("@/lib/server/route-runtime-health", () => ({
+    recordRouteRuntimeSample: vi.fn(),
+}));
+vi.mock("@/lib/server/route-diagnostics", () => ({
+    getErrorMessage: vi.fn(),
+}));
 
-import { __test } from "@/app/api/user/activity/route";
+import { GET, __test } from "@/app/api/user/activity/route";
+import { NextRequest } from "next/server";
+import { guardApiRequest } from "@/lib/server/request-guard";
 
 describe("user activity route helpers", () => {
     it("normalizes Firestore-like task timestamps", () => {
@@ -88,5 +96,17 @@ describe("user activity route helpers", () => {
             "Task in progress: Watch a creator clip",
             "Task ready: Open the app",
         ]);
+    });
+
+    it("returns 401 when auth resolution does not yield a caller", async () => {
+        vi.mocked(guardApiRequest).mockResolvedValueOnce(null);
+
+        const response = await GET(new NextRequest("http://localhost/api/user/activity"));
+        const body = await response.json();
+
+        expect(response.status).toBe(401);
+        expect(body).toEqual({
+            error: "Unauthorized",
+        });
     });
 });
