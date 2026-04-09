@@ -60,6 +60,9 @@ import {
   type AdminAnalyticsRangeOption,
 } from "@/lib/admin-analytics-preferences";
 import { buildAuthOutcomeChartModel } from "@/lib/admin-auth-outcome-chart";
+import { buildAdminNotificationFunnelModel } from "@/lib/admin-notification-funnel";
+import { buildAdminOnboardingVelocityModel } from "@/lib/admin-onboarding-velocity";
+import { buildAdminTaskPipelineModel } from "@/lib/admin-task-pipeline";
 import { cn } from "@/lib/utils";
 import { AdminPageHeader } from "@/components/Admin/AdminPageHeader";
 import { PageViewEvent } from "@/components/Analytics/PageViewEvent";
@@ -258,6 +261,17 @@ interface ContentTagDemandItem {
   tag: string;
   count: number;
 }
+
+const EMPTY_ONBOARDING_STATS = {
+  starts: 0,
+  completions: 0,
+  avgDuration: 0,
+  completionRate: 0,
+  startSource: "none" as const,
+};
+
+const EMPTY_ONBOARDING_STEP_STATS: OnboardingStepStatItem[] = [];
+const EMPTY_COUNT_BUCKETS: CountBucketItem[] = [];
 
 interface ViewerOverviewItem {
   viewCount: number;
@@ -1202,17 +1216,13 @@ export default function AdminAnalyticsPage() {
   };
   const security = historicalResponse?.security ?? [];
   const rawEvents = historicalResponse?.rawEvents ?? [];
-  const onboardingStats = historicalResponse?.onboardingStats ?? {
-    starts: 0,
-    completions: 0,
-    avgDuration: 0,
-    completionRate: 0,
-    startSource: "none" as const,
-  };
-  const onboardingStepStats = historicalResponse?.onboardingStepStats ?? [];
+  const onboardingStats =
+    historicalResponse?.onboardingStats ?? EMPTY_ONBOARDING_STATS;
+  const onboardingStepStats =
+    historicalResponse?.onboardingStepStats ?? EMPTY_ONBOARDING_STEP_STATS;
   const authBreakdown = historicalResponse?.authBreakdown ?? [];
   const onboardingDurationBuckets =
-    historicalResponse?.onboardingDurationBuckets ?? [];
+    historicalResponse?.onboardingDurationBuckets ?? EMPTY_COUNT_BUCKETS;
   const repeatVisitSegments = historicalResponse?.repeatVisitSegments ?? [];
   const destinationMix = historicalResponse?.destinationMix ?? [];
   const notificationFunnel = useMemo(
@@ -1324,16 +1334,16 @@ export default function AdminAnalyticsPage() {
     0,
     onboardingStartCount - onboardingStats.completions,
   );
-  const onboardingStepFlow = onboardingStepStats.map((step) => ({
-    ...step,
-    completionRate:
-      step.starts > 0 ? step.completions / Math.max(1, step.starts) : 0,
-    dropOffCount: Math.max(0, step.starts - step.completions),
-    shortLabel:
-      step.stepTitle.length > 18
-        ? `${step.stepTitle.slice(0, 18)}...`
-        : step.stepTitle,
-  }));
+  const historicalOnboardingModel = useMemo(
+    () =>
+      buildAdminOnboardingVelocityModel({
+        stats: onboardingStats,
+        durationBuckets: onboardingDurationBuckets,
+        steps: onboardingStepStats,
+        authSignUps: funnel.authSignUps,
+      }),
+    [funnel.authSignUps, onboardingDurationBuckets, onboardingStats, onboardingStepStats],
+  );
   const globalSemantics = semanticCategories.find(
     (item) => item.key === "global",
   );
@@ -1405,10 +1415,6 @@ export default function AdminAnalyticsPage() {
     : historicalLoading
       ? "Fetching..."
       : "Awaiting snapshot";
-  const hasAuthSuccessData = authBreakdown.some((item) => item.successes > 0);
-  const hasOnboardingVelocityData = onboardingDurationBuckets.some(
-    (bucket) => bucket.count > 0,
-  );
   const livePulseData =
     livePulseRange === ADMIN_ANALYTICS_DEFAULT_RANGE
       ? historicalResponse
@@ -1440,6 +1446,12 @@ export default function AdminAnalyticsPage() {
   const authOutcomeChartItems = authOutcomeChartModel.items;
   const authOutcomeTotals = authOutcomeChartModel.totals;
   const authOutcomeHasData = authOutcomeChartModel.hasData;
+  const onboardingStepFlowData =
+    onboardingStepFlowRange === ADMIN_ANALYTICS_DEFAULT_RANGE
+      ? historicalResponse
+      : onboardingStepFlowOverride.data;
+  const onboardingStepFlowStats =
+    onboardingStepFlowData?.onboardingStepStats ?? onboardingStepStats;
   const onboardingVelocityData =
     onboardingVelocityRange === ADMIN_ANALYTICS_DEFAULT_RANGE
       ? historicalResponse
@@ -1449,49 +1461,33 @@ export default function AdminAnalyticsPage() {
   const onboardingVelocityBuckets =
     onboardingVelocityData?.onboardingDurationBuckets ??
     onboardingDurationBuckets;
-  const onboardingVelocityStartCount = onboardingVelocityStats.starts ?? 0;
-  const onboardingVelocityCompletionRate =
-    onboardingVelocityStats.completionRate ??
-    (onboardingVelocityStartCount > 0
-      ? onboardingVelocityStats.completions /
-        Math.max(1, onboardingVelocityStartCount)
-      : 0);
-  const onboardingVelocityDropOffCount = Math.max(
-    0,
-    onboardingVelocityStartCount - onboardingVelocityStats.completions,
+  const onboardingVelocityModel = useMemo(
+    () =>
+      buildAdminOnboardingVelocityModel({
+        stats: onboardingVelocityStats,
+        durationBuckets: onboardingVelocityBuckets,
+        steps: onboardingStepFlowStats,
+        authSignUps: journeyFunnelMetrics.authSignUps,
+      }),
+    [journeyFunnelMetrics.authSignUps, onboardingStepFlowStats, onboardingVelocityBuckets, onboardingVelocityStats],
   );
-  const onboardingVelocityHasData = onboardingVelocityBuckets.some(
-    (bucket) => bucket.count > 0,
+  const onboardingStepFlowModel = useMemo(
+    () =>
+      buildAdminOnboardingVelocityModel({
+        stats: onboardingVelocityStats,
+        durationBuckets: [],
+        steps: onboardingStepFlowStats,
+        authSignUps: journeyFunnelMetrics.authSignUps,
+      }),
+    [journeyFunnelMetrics.authSignUps, onboardingStepFlowStats, onboardingVelocityStats],
   );
-  const onboardingStepFlowData =
-    onboardingStepFlowRange === ADMIN_ANALYTICS_DEFAULT_RANGE
-      ? historicalResponse
-      : onboardingStepFlowOverride.data;
-  const onboardingStepFlowStats =
-    onboardingStepFlowData?.onboardingStepStats ?? onboardingStepStats;
-  const onboardingStepFlowItems = onboardingStepFlowStats.map((step) => ({
-    ...step,
-    completionRate:
-      step.starts > 0 ? step.completions / Math.max(1, step.starts) : 0,
-    dropOffCount: Math.max(0, step.starts - step.completions),
-  }));
-  const finalOnboardingStep = onboardingStepFlowItems.reduce<
-    (typeof onboardingStepFlowItems)[number] | null
-  >((current, step) => {
-    if (!current || step.stepIndex > current.stepIndex) {
-      return step;
-    }
-    return current;
-  }, null);
-  const authOnboardingDiscrepancies = [
-    journeyFunnelMetrics.authSignUps !== onboardingVelocityStartCount
-      ? `Auth sign-ups ${journeyFunnelMetrics.authSignUps} do not match onboarding starts ${onboardingVelocityStartCount}.`
-      : "",
-    finalOnboardingStep &&
-    finalOnboardingStep.completions !== onboardingVelocityStats.completions
-      ? `Final onboarding step completions ${finalOnboardingStep.completions} do not match onboarding completions ${onboardingVelocityStats.completions}.`
-      : "",
-  ].filter(Boolean);
+  const onboardingStepFlowItems = onboardingStepFlowModel.steps;
+  const onboardingVelocityStartCount = onboardingVelocityModel.starts;
+  const onboardingVelocityCompletionRate = onboardingVelocityModel.completionRate;
+  const onboardingVelocityDropOffCount = onboardingVelocityModel.dropOffCount;
+  const onboardingVelocityHasData = onboardingVelocityModel.hasVelocityData;
+  const onboardingVelocityCompletionCount = onboardingVelocityModel.completions;
+  const authOnboardingDiscrepancies = onboardingVelocityModel.discrepancies;
   const guestBounceQualityData =
     guestBounceQualityRange === ADMIN_ANALYTICS_DEFAULT_RANGE
       ? historicalResponse
@@ -1688,6 +1684,10 @@ export default function AdminAnalyticsPage() {
       : dailyTaskPipelineOverride.data;
   const dailyTaskPipelineItems =
     dailyTaskPipelineData?.taskPipeline ?? taskPipeline;
+  const dailyTaskPipelineModel = useMemo(
+    () => buildAdminTaskPipelineModel(dailyTaskPipelineItems),
+    [dailyTaskPipelineItems],
+  );
   const taskCompletionSpeedData =
     taskCompletionSpeedRange === ADMIN_ANALYTICS_DEFAULT_RANGE
       ? historicalResponse
@@ -1710,21 +1710,22 @@ export default function AdminAnalyticsPage() {
     notificationFunnelData?.notificationActions ?? notificationActions;
   const notificationReminderReasons =
     notificationFunnelData?.reminderReasons ?? reminderReasons;
+  const notificationFunnelModel = useMemo(
+    () =>
+      buildAdminNotificationFunnelModel({
+        funnelItems: notificationFunnelItems,
+        actionItems: notificationActionItems,
+        reminderReasons: notificationReminderReasons,
+      }),
+    [notificationActionItems, notificationFunnelItems, notificationReminderReasons],
+  );
+  const activeNotificationFunnel = notificationFunnelModel.activeFunnelItems;
+  const activeNotificationFunnelPieData = notificationFunnelModel.pieData;
+  const maxNotificationActionValue = notificationFunnelModel.maxActionValue;
+  const hasNotificationReminderReasons = notificationFunnelModel.reminderReasonCount > 0;
   const deviceMixTotalUsers = deviceMixDevices.reduce(
     (sum, item) => sum + item.users,
     0,
-  );
-  const activeNotificationFunnel = useMemo(
-    () => notificationFunnelItems.filter((item) => item.count > 0),
-    [notificationFunnelItems],
-  );
-  const activeNotificationFunnelPieData = useMemo(
-    () =>
-      activeNotificationFunnel.map((item) => ({
-        name: item.label,
-        value: item.count,
-      })),
-    [activeNotificationFunnel],
   );
   const historicalHasSignals =
     historySeries.some(
@@ -1750,8 +1751,8 @@ export default function AdminAnalyticsPage() {
     geo.length > 0 ||
     topDrops.length > 0 ||
     (commerce.feed?.length ?? 0) > 0 ||
-    onboardingStartCount > 0 ||
-    onboardingStats.completions > 0 ||
+    historicalOnboardingModel.starts > 0 ||
+    historicalOnboardingModel.completions > 0 ||
     viewerDropInsights.length > 0 ||
     viewerUsers.length > 0 ||
     taskLeaderboard.length > 0 ||
@@ -2010,7 +2011,7 @@ export default function AdminAnalyticsPage() {
         onboardingVelocityHasData ||
         onboardingStepFlowItems.length > 0 ||
         onboardingVelocityStartCount > 0 ||
-        onboardingVelocityStats.completions > 0,
+        onboardingVelocityCompletionCount > 0,
       blockingIssues: onboardingVelocityState.blockingIssues,
       backgroundIssues: onboardingVelocityState.backgroundIssues,
       healthySummary:
@@ -2358,7 +2359,7 @@ export default function AdminAnalyticsPage() {
       updatedAtMs: dailyTaskPipelineState.updatedAtMs,
       hasLoaded: dailyTaskPipelineState.hasLoaded,
       loading: dailyTaskPipelineState.loading,
-      hasData: dailyTaskPipelineItems.length > 0,
+      hasData: dailyTaskPipelineModel.hasData,
       blockingIssues: dailyTaskPipelineState.blockingIssues,
       backgroundIssues: dailyTaskPipelineState.backgroundIssues,
       healthySummary: "Daily task pipeline metrics are loaded.",
@@ -2404,10 +2405,7 @@ export default function AdminAnalyticsPage() {
       updatedAtMs: notificationFunnelState.updatedAtMs,
       hasLoaded: notificationFunnelState.hasLoaded,
       loading: notificationFunnelState.loading,
-      hasData:
-        notificationFunnelItems.length > 0 ||
-        notificationActionItems.length > 0 ||
-        notificationReminderReasons.length > 0,
+      hasData: notificationFunnelModel.hasData,
       blockingIssues: notificationFunnelState.blockingIssues,
       backgroundIssues: notificationFunnelState.backgroundIssues,
       healthySummary: "Notification funnel metrics are loaded.",
@@ -3341,15 +3339,13 @@ export default function AdminAnalyticsPage() {
                     />
                     <MetricCard
                       label="Completed"
-                      value={onboardingVelocityStats.completions.toLocaleString()}
+                      value={onboardingVelocityCompletionCount.toLocaleString()}
                       hint="Finished tours"
                       icon={CheckCircle2}
                     />
                     <MetricCard
                       label="Avg Time"
-                      value={formatDuration(
-                        onboardingVelocityStats.avgDuration,
-                      )}
+                      value={formatDuration(onboardingVelocityStats.avgDuration)}
                       hint="Mean completion time"
                       icon={Clock3}
                     />
@@ -4996,37 +4992,43 @@ export default function AdminAnalyticsPage() {
             rightSlot={renderSectionRangeControl("dailyTaskPipeline")}
           >
             <div className="h-64 w-full">
-              <ResponsiveContainer width="100%" height="100%">
-                <BarChart
-                  data={dailyTaskPipelineItems}
-                  margin={{ top: 8, right: 0, left: -18, bottom: 0 }}
-                >
-                  <CartesianGrid
-                    stroke="rgba(255,255,255,0.06)"
-                    vertical={false}
-                  />
-                  <XAxis
-                    dataKey="label"
-                    stroke="#6b7280"
-                    fontSize={11}
-                    tickLine={false}
-                    axisLine={false}
-                  />
-                  <YAxis
-                    stroke="#6b7280"
-                    fontSize={11}
-                    tickLine={false}
-                    axisLine={false}
-                  />
-                  <Tooltip content={<AnalyticsTooltip />} />
-                  <Bar
-                    dataKey="count"
-                    name="Events"
-                    fill="#b28cff"
-                    radius={[10, 10, 0, 0]}
-                  />
-                </BarChart>
-              </ResponsiveContainer>
+              {dailyTaskPipelineModel.hasData ? (
+                <ResponsiveContainer width="100%" height="100%">
+                  <BarChart
+                    data={dailyTaskPipelineModel.items}
+                    margin={{ top: 8, right: 0, left: -18, bottom: 0 }}
+                  >
+                    <CartesianGrid
+                      stroke="rgba(255,255,255,0.06)"
+                      vertical={false}
+                    />
+                    <XAxis
+                      dataKey="label"
+                      stroke="#6b7280"
+                      fontSize={11}
+                      tickLine={false}
+                      axisLine={false}
+                    />
+                    <YAxis
+                      stroke="#6b7280"
+                      fontSize={11}
+                      tickLine={false}
+                      axisLine={false}
+                    />
+                    <Tooltip content={<AnalyticsTooltip />} />
+                    <Bar
+                      dataKey="count"
+                      name="Events"
+                      fill="#b28cff"
+                      radius={[10, 10, 0, 0]}
+                    />
+                  </BarChart>
+                </ResponsiveContainer>
+              ) : (
+                <div className="flex h-full items-center justify-center rounded-[1.6rem] border border-dashed border-white/10 bg-black/20 p-5 text-sm text-gray-500">
+                  No daily task pipeline data in this range.
+                </div>
+              )}
             </div>
           </SectionCard>
 
@@ -5136,26 +5138,32 @@ export default function AdminAnalyticsPage() {
           >
             <div className="grid gap-4 lg:grid-cols-[0.92fr_1.08fr]">
               <div className="h-64 w-full">
-                <ResponsiveContainer width="100%" height="100%">
-                  <PieChart>
-                    <Pie
-                      data={activeNotificationFunnelPieData}
-                      dataKey="value"
-                      nameKey="name"
-                      innerRadius={52}
-                      outerRadius={84}
-                      paddingAngle={3}
-                    >
-                      {activeNotificationFunnel.map((item, index) => (
-                        <Cell
-                          key={item.label}
-                          fill={PIE_COLORS[index % PIE_COLORS.length]}
-                        />
-                      ))}
-                    </Pie>
-                    <Tooltip content={<AnalyticsTooltip />} />
-                  </PieChart>
-                </ResponsiveContainer>
+                {activeNotificationFunnelPieData.length > 0 ? (
+                  <ResponsiveContainer width="100%" height="100%">
+                    <PieChart>
+                      <Pie
+                        data={activeNotificationFunnelPieData}
+                        dataKey="value"
+                        nameKey="name"
+                        innerRadius={52}
+                        outerRadius={84}
+                        paddingAngle={3}
+                      >
+                        {activeNotificationFunnel.map((item, index) => (
+                          <Cell
+                            key={item.label}
+                            fill={PIE_COLORS[index % PIE_COLORS.length]}
+                          />
+                        ))}
+                      </Pie>
+                      <Tooltip content={<AnalyticsTooltip />} />
+                    </PieChart>
+                  </ResponsiveContainer>
+                ) : (
+                  <div className="flex h-full items-center justify-center rounded-[1.6rem] border border-dashed border-white/10 bg-black/20 p-5 text-sm text-gray-500">
+                    No notification funnel flow was tracked in this range.
+                  </div>
+                )}
               </div>
 
               <div className="space-y-3">
@@ -5176,7 +5184,7 @@ export default function AdminAnalyticsPage() {
                       <div
                         className="h-full rounded-full bg-gradient-to-r from-brand-purple to-cyan-400"
                         style={{
-                          width: `${Math.max(6, (item.value / Math.max(1, notificationActionItems[0]?.value || 1)) * 100)}%`,
+                          width: `${Math.max(6, (item.value / Math.max(1, maxNotificationActionValue || 1)) * 100)}%`,
                         }}
                       />
                     </div>
@@ -5188,7 +5196,7 @@ export default function AdminAnalyticsPage() {
                     Reminder reasons
                   </p>
                   <div className="flex flex-wrap gap-2">
-                    {notificationReminderReasons.length > 0 ? (
+                    {hasNotificationReminderReasons ? (
                       notificationReminderReasons.map((item) => (
                         <span
                           key={item.label}

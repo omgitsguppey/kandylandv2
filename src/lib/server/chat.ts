@@ -32,6 +32,7 @@ import { trackServerEvent } from "@/lib/server/analytics";
 import { AuthError } from "@/lib/server/auth";
 import { adminDb } from "@/lib/server/firebase-admin";
 import { buildCompletedGumdropTransaction } from "@/lib/server/gumdrop-ledger";
+import { sanitizeFirestorePayload } from "@/lib/server/firestore-sanitize";
 import { getErrorMessage, recordRouteWarning } from "@/lib/server/route-diagnostics";
 import { recordServerDiagnostic } from "@/lib/server/server-diagnostics";
 
@@ -114,12 +115,6 @@ function readOptionalString(value: unknown) {
 function readNullableString(value: unknown) {
     const normalized = readString(value);
     return normalized.length > 0 ? normalized : null;
-}
-
-function omitUndefinedFields<T extends Record<string, unknown>>(value: T) {
-    return Object.fromEntries(
-        Object.entries(value).filter(([, entryValue]) => typeof entryValue !== "undefined"),
-    ) as T;
 }
 
 function describeMessagePreview(input: {
@@ -802,7 +797,7 @@ export async function sendChatMessageForViewer(input: SendChatMessageInput) {
                 }),
         };
 
-        const messageRecord = omitUndefinedFields({
+        const messageRecord = sanitizeFirestorePayload({
             threadId: input.threadId,
             creatorId: parsedThread.creatorId,
             userId: parsedThread.userId,

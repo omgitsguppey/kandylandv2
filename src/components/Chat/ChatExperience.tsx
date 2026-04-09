@@ -29,6 +29,11 @@ import {
     type ChatThreadDetail,
     type ChatThreadRecord,
 } from "@/lib/chat";
+import {
+    buildChatSendErrorMessage,
+    buildChatSendWarningMessage,
+    type ChatSendWarning,
+} from "@/lib/chat-send-feedback";
 import { reportClientIssue, reportRealtimeIssue, reportStorageIssue } from "@/lib/client-error-reporting";
 import { storage, db, rtdb } from "@/lib/firebase-data";
 import { useCompactViewport } from "@/hooks/useCompactViewport";
@@ -46,6 +51,12 @@ type ThreadDetailResponse = {
     pricing: ChatThreadDetail["pricing"];
     threadExists: boolean;
 };
+
+type ChatSendResponse = {
+    error?: string;
+    errorCode?: string;
+    warnings?: ChatSendWarning[];
+} & Partial<ChatInsufficientFundsPayload>;
 
 type PresenceSnapshot = {
     typing?: boolean;
@@ -186,6 +197,7 @@ export function ChatExperience() {
     const [presence, setPresence] = useState<PresenceSnapshot | null>(null);
     const [insufficientFunds, setInsufficientFunds] = useState<ChatInsufficientFundsPayload | null>(null);
     const [sendErrorMessage, setSendErrorMessage] = useState<string | null>(null);
+    const [sendWarningMessage, setSendWarningMessage] = useState<string | null>(null);
     const markReadRef = useRef<string | null>(null);
     const typingResetTimerRef = useRef<number | null>(null);
 
@@ -244,6 +256,7 @@ export function ChatExperience() {
         setSelectedDetail(null);
         setInsufficientFunds(null);
         setSendErrorMessage(null);
+        setSendWarningMessage(null);
         try {
             const response = await authFetch(`/api/chat/threads/${encodeURIComponent(threadId)}`);
             const body = await response.json() as ThreadDetailResponse & { error?: string };
@@ -532,6 +545,7 @@ export function ChatExperience() {
         setSendingMessage(true);
         setInsufficientFunds(null);
         setSendErrorMessage(null);
+        setSendWarningMessage(null);
 
         try {
             const attachment = await uploadAttachment();
@@ -543,20 +557,24 @@ export function ChatExperience() {
                     ...attachment,
                 }),
             });
-            const body = await response.json() as { error?: string; errorCode?: string } & Partial<ChatInsufficientFundsPayload>;
+            const body = await response.json() as ChatSendResponse;
             if (!response.ok) {
                 if (body.errorCode === "insufficient_paid_gumdrops") {
                     setInsufficientFunds(body as ChatInsufficientFundsPayload);
                     return;
                 }
 
-                throw new Error(body.error || "Failed to send message.");
+                throw new Error(buildChatSendErrorMessage(body));
             }
 
             setComposerText("");
             setComposerFile(null);
             setComposerKind("text");
             pushTypingState(false);
+            const warningMessage = buildChatSendWarningMessage(body.warnings);
+            if (warningMessage) {
+                setSendWarningMessage(warningMessage);
+            }
         } catch (error) {
             const message = error instanceof Error ? error.message : "Failed to send message.";
             setSendErrorMessage(message);
@@ -779,6 +797,23 @@ export function ChatExperience() {
                                                     type="button"
                                                     onClick={() => setSendErrorMessage(null)}
                                                     className="text-xs font-bold uppercase tracking-[0.14em] text-rose-200"
+                                                >
+                                                    Close
+                                                </button>
+                                            </div>
+                                        </div>
+                                    ) : null}
+                                    {sendWarningMessage ? (
+                                        <div className="mt-3 rounded-[1.4rem] border border-amber-400/20 bg-amber-500/10 p-4 text-sm text-amber-100">
+                                            <div className="flex items-start justify-between gap-3">
+                                                <div>
+                                                    <p className="font-semibold text-white">Message sent with warning</p>
+                                                    <p className="mt-1 leading-6 text-amber-100">{sendWarningMessage}</p>
+                                                </div>
+                                                <button
+                                                    type="button"
+                                                    onClick={() => setSendWarningMessage(null)}
+                                                    className="text-xs font-bold uppercase tracking-[0.14em] text-amber-200"
                                                 >
                                                     Close
                                                 </button>

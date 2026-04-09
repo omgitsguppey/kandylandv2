@@ -1,10 +1,13 @@
 import { describe, expect, it } from "vitest";
 
 import {
+    getRouteRuntimeHealthFreshness,
     getRouteRuntimeHealthStatus,
     summarizeRouteRuntimeHealth,
     type RouteRuntimeHealthItem,
 } from "@/lib/route-runtime-health";
+
+const BASE_NOW_MS = Date.UTC(2026, 3, 8, 12, 0, 0);
 
 function buildItem(overrides: Partial<RouteRuntimeHealthItem>): RouteRuntimeHealthItem {
     return {
@@ -23,9 +26,9 @@ function buildItem(overrides: Partial<RouteRuntimeHealthItem>): RouteRuntimeHeal
         lastResult: "success",
         lastStatusCode: 200,
         lastErrorMessage: null,
-        firstObservedAtMs: 100,
-        updatedAtMs: 200,
-        lastSuccessAtMs: 200,
+        firstObservedAtMs: BASE_NOW_MS - 10_000,
+        updatedAtMs: BASE_NOW_MS - 5_000,
+        lastSuccessAtMs: BASE_NOW_MS - 5_000,
         lastClientErrorAtMs: 0,
         lastServerErrorAtMs: 0,
         ...overrides,
@@ -38,7 +41,8 @@ describe("route runtime health", () => {
             serverErrorCount: 1,
             lastResult: "server_error",
             lastStatusCode: 500,
-        }))).toBe("fail");
+            lastServerErrorAtMs: BASE_NOW_MS - 500,
+        }), BASE_NOW_MS)).toBe("fail");
     });
 
     it("treats historical slow or client-error history as warn", () => {
@@ -46,12 +50,12 @@ describe("route runtime health", () => {
             clientErrorCount: 2,
             lastResult: "success",
             lastStatusCode: 200,
-        }))).toBe("warn");
+        }), BASE_NOW_MS)).toBe("warn");
         expect(getRouteRuntimeHealthStatus(buildItem({
             slowCount: 1,
             lastResult: "success",
             lastStatusCode: 200,
-        }))).toBe("warn");
+        }), BASE_NOW_MS)).toBe("warn");
     });
 
     it("treats never-observed routes as warn so missing coverage stays visible", () => {
@@ -61,6 +65,16 @@ describe("route runtime health", () => {
             lastSuccessAtMs: 0,
             lastStatusCode: 0,
         }))).toBe("warn");
+    });
+
+    it("treats old route samples as stale instead of healthy", () => {
+        const staleItem = buildItem({
+            updatedAtMs: Date.UTC(2026, 3, 1, 0, 0, 0),
+            lastSuccessAtMs: Date.UTC(2026, 3, 1, 0, 0, 0),
+        });
+
+        expect(getRouteRuntimeHealthFreshness(staleItem, Date.UTC(2026, 3, 3, 12, 0, 0))).toBe("stale");
+        expect(getRouteRuntimeHealthStatus(staleItem, Date.UTC(2026, 3, 3, 12, 0, 0))).toBe("stale");
     });
 
     it("summarizes route health totals", () => {
@@ -82,6 +96,7 @@ describe("route runtime health", () => {
                 lastResult: "server_error",
                 lastStatusCode: 500,
                 slowCount: 2,
+                lastServerErrorAtMs: BASE_NOW_MS - 500,
             }),
             buildItem({
                 key: "admin/debug:GET",
@@ -93,13 +108,14 @@ describe("route runtime health", () => {
                 lastSuccessAtMs: 0,
                 lastStatusCode: 0,
             }),
-        ]);
+        ], BASE_NOW_MS);
 
         expect(summary).toMatchObject({
             total: 4,
             healthy: 1,
             warn: 2,
             fail: 1,
+            stale: 0,
             unobserved: 1,
             clientErrors: 1,
             serverErrors: 1,

@@ -79,7 +79,12 @@ export function normalizeChatMessageKind(value: unknown): ChatMessageKind {
 }
 
 export function buildChatPresenceThreadPath(threadId: string) {
-    return `${CHAT_PRESENCE_ROOT}/${threadId}`;
+    const parsed = parseCreatorThreadId(threadId);
+    if (!parsed) {
+        return `${CHAT_PRESENCE_ROOT}/invalid/${threadId}`;
+    }
+
+    return `${CHAT_PRESENCE_ROOT}/${parsed.creatorId}/${parsed.userId}`;
 }
 
 export function buildChatPresenceMemberPath(threadId: string, uid: string) {

@@ -992,3 +992,56 @@ This file is not a changelog. It is the concise ledger for durable decisions tha
   - `tests/unit/ai-debug-assistant.spec.ts`
   - `FULL_SCALE_CODEBASE_AUDIT.md`
 - Follow-up gaps: Runtime readiness still depends on actual Vertex credentials and project configuration; settings can enable the assistant, but the fallback path remains the truthful result when runtime prerequisites are absent.
+
+### 41. Route runtime health must distinguish unseen, stale, and chat traffic clusters
+
+- Approximate date: Canonicalized and recorded on 2026-04-09
+- Status: Active admin runtime rule
+- Problem/context: Route runtime health originally treated missing samples and stale samples too loosely, and chat failures from the native route and the legacy compatibility route were mixed together operationally.
+- Decision made: Track freshness explicitly, surface `stale` as a first-class route health state, and classify route keys into `native_chat`, `compatibility_chat`, or `other` for debug/system-log summaries.
+- What became canonical:
+  - `unseen` means no sample exists yet
+  - `stale` means the last sample is older than the runtime freshness window
+  - native chat and creator-message compatibility routes should be visible as separate runtime groupings in admin logs/debug
+- Truth lives in:
+  - `src/lib/route-runtime-health.ts`
+  - `src/lib/server/admin-panel-system-logs.ts`
+  - `src/app/admin/debug/page.tsx`
+  - `tests/unit/route-runtime-health.spec.ts`
+  - `tests/unit/admin-panel-system-logs.spec.ts`
+  - `FULL_SCALE_CODEBASE_AUDIT.md`
+- Follow-up gaps: Route health still summarizes from cumulative counters rather than windowed per-route time buckets.
+
+### 42. Chat presence is participant-scoped in Realtime Database
+
+- Approximate date: Canonicalized and recorded on 2026-04-09
+- Status: Active chat privacy rule
+- Problem/context: Chat presence originally lived under a thread-only RTDB path and allowed any authenticated user to read presence state, which was broader than the actual chat participant boundary.
+- Decision made: Scope presence reads and writes to `chat_presence/{creatorId}/{userId}/{uid}` and allow access only to the two thread participants, with writers restricted to their own member node.
+- What became canonical:
+  - presence pathing derives from the canonical creator-thread id
+  - only the creator or user for that thread can read presence
+  - only the authenticated participant matching `$uid` can write their own presence node
+- Truth lives in:
+  - `src/lib/chat.ts`
+  - `database.rules.json`
+  - `tests/firebase/database.rules.spec.ts`
+  - `scripts/run-database-rules-tests.ts`
+  - `FULL_SCALE_CODEBASE_AUDIT.md`
+- Follow-up gaps: Presence rules do not yet cover richer payload validation beyond the current typing/activity/display fields.
+
+### 43. Generated verification artifacts are continuity failures, not optional cleanup
+
+- Approximate date: Canonicalized and recorded on 2026-04-09
+- Status: Active repo hygiene rule
+- Problem/context: Broad UI and emulator verification passes kept leaving local artifacts like `playwright-report/`, `test-results/`, and emulator debug logs behind, which made later audits ambiguous and let dirty-tree noise masquerade as code changes.
+- Decision made: Add an explicit generated-artifact check and make it part of continuity so broad sign-off fails until those files are removed.
+- What became canonical:
+  - `check:generated-artifacts` must pass before broad work is signed off
+  - continuity includes generated-artifact cleanup verification
+  - tracked artifact set currently includes UI audit output, build logs, and Firebase emulator debug logs
+- Truth lives in:
+  - `scripts/check-generated-artifacts.ts`
+  - `package.json`
+  - `FULL_SCALE_CODEBASE_AUDIT.md`
+- Follow-up gaps: This check only covers known generated artifacts; add to the list if other recurring outputs start polluting the tree.

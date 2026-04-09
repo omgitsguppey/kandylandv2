@@ -5600,3 +5600,117 @@ Results:
   - `#165` merged
   - `#164` implemented on `main` and then closed
   - `#163` closed
+
+## 2026-04-09 Broad Hardening Follow-Through
+
+- Scope: finish the deferred hardening pass across admin analytics, route runtime health, chat send UX, RTDB presence privacy, and repo cleanup enforcement; then run a fresh audit for additional improvements.
+
+What changed:
+
+- Added a shared Firestore payload sanitizer and applied it to chat message writes:
+  - `src/lib/server/firestore-sanitize.ts`
+  - `src/lib/server/chat.ts`
+- Route runtime health now distinguishes freshness and chat traffic clusters:
+  - `src/lib/route-runtime-health.ts`
+  - `src/lib/server/admin-panel-system-logs.ts`
+  - `src/app/admin/debug/page.tsx`
+- Chat presence is now participant-scoped in RTDB pathing and rules:
+  - `src/lib/chat.ts`
+  - `database.rules.json`
+  - `tests/firebase/database.rules.spec.ts`
+  - `scripts/run-database-rules-tests.ts`
+- Chat send UI now handles structured failure reasons and non-blocking post-send warnings explicitly:
+  - `src/lib/chat-send-feedback.ts`
+  - `src/components/Chat/ChatExperience.tsx`
+  - `tests/unit/chat-send-feedback.spec.ts`
+- Admin analytics now uses extracted model helpers for onboarding velocity, notification funnel, and daily task pipeline instead of inline truth logic:
+  - `src/lib/admin-onboarding-velocity.ts`
+  - `src/lib/admin-notification-funnel.ts`
+  - `src/lib/admin-task-pipeline.ts`
+  - `src/app/admin/analytics/page.tsx`
+  - `tests/unit/admin-onboarding-velocity.spec.ts`
+  - `tests/unit/admin-notification-funnel.spec.ts`
+  - `tests/unit/admin-task-pipeline.spec.ts`
+- Continuity now enforces cleanup of generated verification artifacts:
+  - `scripts/check-generated-artifacts.ts`
+  - `package.json`
+
+Adjacent surfaces reviewed on purpose:
+
+- `src/lib/server/chat.ts`
+- `src/app/api/chat/threads/[threadId]/messages/route.ts`
+- `src/app/api/creator/messages/route.ts`
+- `src/components/Chat/ChatExperience.tsx`
+- `src/app/admin/analytics/page.tsx`
+- `src/lib/server/admin-panel-system-logs.ts`
+- `database.rules.json`
+
+Commands run:
+
+- `git status --short`
+- `npm run trace:adjacent -- src/lib/server/chat.ts`
+- `npm run trace:adjacent -- src/app/api/chat/threads/[threadId]/messages/route.ts`
+- `npm run trace:adjacent -- src/app/api/creator/messages/route.ts`
+- `npm run trace:adjacent -- src/components/Chat/ChatExperience.tsx`
+- `npm run trace:adjacent -- src/app/admin/analytics/page.tsx`
+- `npm run trace:adjacent -- src/lib/server/admin-panel-system-logs.ts`
+- `npx tsc --noEmit`
+- `npx eslint src/app/admin/analytics/page.tsx src/app/admin/debug/page.tsx src/components/Chat/ChatExperience.tsx src/lib/chat.ts src/lib/route-runtime-health.ts src/lib/server/admin-panel-system-logs.ts src/lib/server/chat.ts src/lib/server/firestore-sanitize.ts src/lib/admin-onboarding-velocity.ts src/lib/admin-notification-funnel.ts src/lib/admin-task-pipeline.ts src/lib/chat-send-feedback.ts tests/unit/admin-onboarding-velocity.spec.ts tests/unit/admin-notification-funnel.spec.ts tests/unit/admin-task-pipeline.spec.ts tests/unit/chat-send-feedback.spec.ts tests/unit/firestore-sanitize.spec.ts tests/unit/route-runtime-health.spec.ts tests/unit/admin-panel-system-logs.spec.ts tests/firebase/database.rules.spec.ts scripts/run-database-rules-tests.ts scripts/check-generated-artifacts.ts`
+- `corepack pnpm exec vitest run tests/unit/chat-send-feedback.spec.ts tests/unit/firestore-sanitize.spec.ts tests/unit/admin-onboarding-velocity.spec.ts tests/unit/admin-notification-funnel.spec.ts tests/unit/admin-task-pipeline.spec.ts tests/unit/route-runtime-health.spec.ts tests/unit/admin-panel-system-logs.spec.ts tests/unit/server-chat-send.spec.ts tests/unit/server-chat.spec.ts tests/unit/chat-thread-messages-route.spec.ts tests/unit/creator-messages-route.spec.ts`
+- `npm run test:rules:database`
+- `npm run check:continuity`
+- `npm run check:firebase:rules`
+- `corepack pnpm run check`
+- `npm run check:ui:audits`
+- `npm run check:ui:lighthouse`
+- `npm run check:generated-artifacts`
+- `git status --short`
+
+Results:
+
+- `npx tsc --noEmit` passed
+- targeted eslint passed
+- focused Vitest passed:
+  - `11` files
+  - `31` tests
+- `npm run test:rules:database` passed:
+  - `4` tests
+- `npm run check:continuity` passed
+- `npm run check:firebase:rules` passed:
+  - Firestore rules: `10` tests
+  - Realtime Database rules: `4` tests
+  - Storage rules: `16` tests
+- `corepack pnpm run check` passed:
+  - `116` contract files
+  - `534` tests
+- `npm run check:ui:audits` passed:
+  - `16` tests
+- `npm run check:ui:lighthouse` passed on rerun after a build-collision false start
+- `npm run check:generated-artifacts` passed after removing generated local artifacts
+- `npm run check:inventory` passed during continuity:
+  - tracked files: `738`
+
+Warnings and non-blocking notes:
+
+- `npm run trace:adjacent -- database.rules.json` is not supported by the repo tracing tool because the target is not a traced internal module; adjacency for RTDB presence was reviewed manually through `src/lib/chat.ts`, `database.rules.json`, and the new rules test
+- the first `check:continuity` run failed because a stale local `build.log` existed from an earlier build-debug run; the artifact was removed and continuity reran cleanly
+- the first `check:ui:lighthouse` run collided with the immediately preceding `next build` from `check:ui:audits`; the rerun passed cleanly
+- existing non-blocking warnings remain unchanged:
+  - npm unknown env config warnings
+  - Node `punycode` deprecation warnings
+  - Lighthouse temp cleanup `EPERM` warnings on Windows
+  - Playwright/Next teardown warning after a passing UI audit run:
+    - `TypeError: controller[kState].transformAlgorithm is not a function`
+
+Additional improvement opportunities from the follow-up audit:
+
+1. Split the remaining analytics page view sections into module components so UI state and chart rendering stop living in one file.
+2. Extend `sanitizeFirestorePayload(...)` to other write-heavy server modules such as support threads and notification writes.
+3. Add a first-class `stale` badge and filter control inside the admin debug route runtime table so operators can isolate stale-only routes fast.
+4. Add route-runtime-health coverage for attachment upload and storage URL resolution if chat/media volume grows.
+5. Replace chat compatibility route traffic with a formal migration banner and kill-switch once creator-page deep links are fully migrated.
+6. Add participant-scoped RTDB presence tests for invalid path/write payloads, not just allowed participant reads and writes.
+7. Add a debug summary specifically for native chat versus compatibility chat error rates over bounded windows.
+8. Persist admin debug display preferences the same way analytics module ranges are persisted, instead of keeping all debug panel state local.
+9. Add a repo check that blocks committed Firebase emulator debug logs in the same way generated UI artifacts are blocked.
+10. Extract onboarding discrepancy rendering into a dedicated admin analytics module so auth/onboarding parity rules are testable without the full page.

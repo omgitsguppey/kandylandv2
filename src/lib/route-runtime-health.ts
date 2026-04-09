@@ -235,11 +235,16 @@ export const ROUTE_RUNTIME_HEALTH_TARGETS = {
     },
 } as const;
 
+export const ROUTE_RUNTIME_HEALTH_STALE_AFTER_MS = 1000 * 60 * 60 * 24;
+export const ROUTE_RUNTIME_HEALTH_FAIL_ACTIVE_WINDOW_MS = 1000 * 60 * 60 * 4;
+
 export type RouteRuntimeHealthKey = keyof typeof ROUTE_RUNTIME_HEALTH_TARGETS;
 export type RouteRuntimeHealthMethod = typeof ROUTE_RUNTIME_HEALTH_TARGETS[RouteRuntimeHealthKey]["method"];
 export type RouteRuntimeHealthLastResult = "success" | "client_error" | "server_error";
-export type RouteRuntimeHealthStatus = "healthy" | "warn" | "fail";
+export type RouteRuntimeHealthStatus = "healthy" | "warn" | "fail" | "stale";
 export type RouteRuntimeHealthCoverageState = "observed" | "unseen";
+export type RouteRuntimeHealthFreshness = "fresh" | "stale" | "unseen";
+export type RouteRuntimeHealthCluster = "native_chat" | "compatibility_chat" | "other";
 
 export type RouteRuntimeHealthItem = {
     key: RouteRuntimeHealthKey;
@@ -272,12 +277,48 @@ export function getRouteRuntimeHealthCoverageState(item: Pick<RouteRuntimeHealth
     return toNumber(item.updatedAtMs) > 0 ? "observed" : "unseen";
 }
 
-export function getRouteRuntimeHealthStatus(item: Pick<RouteRuntimeHealthItem, "updatedAtMs" | "lastResult" | "clientErrorCount" | "serverErrorCount" | "slowCount">): RouteRuntimeHealthStatus {
+export function getRouteRuntimeHealthFreshness(
+    item: Pick<RouteRuntimeHealthItem, "updatedAtMs">,
+    nowMs = Date.now(),
+): RouteRuntimeHealthFreshness {
     if (getRouteRuntimeHealthCoverageState(item) === "unseen") {
+        return "unseen";
+    }
+
+    return Math.max(0, nowMs - toNumber(item.updatedAtMs)) >= ROUTE_RUNTIME_HEALTH_STALE_AFTER_MS
+        ? "stale"
+        : "fresh";
+}
+
+export function getRouteRuntimeHealthCluster(key: RouteRuntimeHealthKey | string): RouteRuntimeHealthCluster {
+    if (key.startsWith("chat/")) {
+        return "native_chat";
+    }
+
+    if (key.startsWith("creator/messages:")) {
+        return "compatibility_chat";
+    }
+
+    return "other";
+}
+
+export function getRouteRuntimeHealthStatus(
+    item: Pick<RouteRuntimeHealthItem, "updatedAtMs" | "lastResult" | "clientErrorCount" | "serverErrorCount" | "slowCount" | "lastServerErrorAtMs">,
+    nowMs = Date.now(),
+): RouteRuntimeHealthStatus {
+    const freshness = getRouteRuntimeHealthFreshness(item, nowMs);
+    if (freshness === "unseen") {
         return "warn";
     }
 
-    if (item.lastResult === "server_error") {
+    if (freshness === "stale") {
+        return "stale";
+    }
+
+    if (
+        item.lastResult === "server_error"
+        && Math.max(0, nowMs - toNumber(item.lastServerErrorAtMs || item.updatedAtMs)) <= ROUTE_RUNTIME_HEALTH_FAIL_ACTIVE_WINDOW_MS
+    ) {
         return "fail";
     }
 
@@ -288,12 +329,13 @@ export function getRouteRuntimeHealthStatus(item: Pick<RouteRuntimeHealthItem, "
     return "healthy";
 }
 
-export function summarizeRouteRuntimeHealth(items: readonly RouteRuntimeHealthItem[]) {
+export function summarizeRouteRuntimeHealth(items: readonly RouteRuntimeHealthItem[], nowMs = Date.now()) {
     return {
         total: items.length,
-        healthy: items.filter((item) => getRouteRuntimeHealthStatus(item) === "healthy").length,
-        warn: items.filter((item) => getRouteRuntimeHealthStatus(item) === "warn").length,
-        fail: items.filter((item) => getRouteRuntimeHealthStatus(item) === "fail").length,
+        healthy: items.filter((item) => getRouteRuntimeHealthStatus(item, nowMs) === "healthy").length,
+        warn: items.filter((item) => getRouteRuntimeHealthStatus(item, nowMs) === "warn").length,
+        fail: items.filter((item) => getRouteRuntimeHealthStatus(item, nowMs) === "fail").length,
+        stale: items.filter((item) => getRouteRuntimeHealthStatus(item, nowMs) === "stale").length,
         unobserved: items.filter((item) => getRouteRuntimeHealthCoverageState(item) === "unseen").length,
         slow: items.reduce((sum, item) => sum + toNumber(item.slowCount), 0),
         serverErrors: items.reduce((sum, item) => sum + toNumber(item.serverErrorCount), 0),

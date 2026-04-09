@@ -1,11 +1,13 @@
 {
   "rules": {
     "chat_presence": {
-      "$threadId": {
-        ".read": "auth != null",
-        "$uid": {
-          ".write": "auth != null && auth.uid === $uid",
-          ".validate": "newData.hasChildren(['typing', 'activeAt']) && newData.child('typing').isBoolean() && newData.child('activeAt').isNumber() && (!newData.child('role').exists() || newData.child('role').isString()) && (!newData.child('displayName').exists() || newData.child('displayName').isString())"
+      "$creatorId": {
+        "$userId": {
+          ".read": "auth != null && (auth.uid === $creatorId || auth.uid === $userId)",
+          "$uid": {
+            ".write": "auth != null && (auth.uid === $creatorId || auth.uid === $userId) && auth.uid === $uid && ($uid === $creatorId || $uid === $userId)",
+            ".validate": "newData.hasChildren(['typing', 'activeAt']) && newData.child('typing').isBoolean() && newData.child('activeAt').isNumber() && (!newData.child('role').exists() || newData.child('role').isString()) && (!newData.child('displayName').exists() || newData.child('displayName').isString())"
+          }
         }
       }
     },

@@ -4,6 +4,7 @@ import { adminDb } from "@/lib/server/firebase-admin";
 import type { AdminUiChartHealthCategory, AdminUiChartHealthItem } from "@/lib/admin-ui-chart-health";
 import type { AdminOpsHealth } from "@/lib/admin-ops-health";
 import {
+    getRouteRuntimeHealthCluster,
     getRouteRuntimeHealthCoverageState,
     getRouteRuntimeHealthStatus,
     type RouteRuntimeHealthItem,
@@ -117,6 +118,60 @@ function buildChartHealthCategoryLog(input: {
     });
 }
 
+function buildRouteRuntimeClusterLog(input: {
+    id: string;
+    panelTitle: string;
+    items: RouteRuntimeHealthItem[];
+    nowMs: number;
+}) {
+    const failCount = input.items.filter((item) => getRouteRuntimeHealthStatus(item, input.nowMs) === "fail").length;
+    const warnCount = input.items.filter((item) => getRouteRuntimeHealthStatus(item, input.nowMs) === "warn").length;
+    const staleCount = input.items.filter((item) => getRouteRuntimeHealthStatus(item, input.nowMs) === "stale").length;
+    const unseenCount = input.items.filter((item) => getRouteRuntimeHealthCoverageState(item) === "unseen").length;
+    const status: AdminPanelSystemLogStatus = input.items.length === 0
+        ? "warn"
+        : failCount > 0
+            ? "fail"
+            : warnCount > 0 || staleCount > 0 || unseenCount > 0
+                ? "warn"
+                : "healthy";
+
+    const summary = input.items.length === 0
+        ? `No tracked routes are assigned to ${input.panelTitle.toLowerCase()}.`
+        : failCount > 0
+            ? `${failCount} ${input.panelTitle.toLowerCase()} routes are actively failing.`
+            : staleCount > 0
+                ? `${staleCount} ${input.panelTitle.toLowerCase()} routes are stale and need fresh samples.`
+                : unseenCount > 0
+                    ? `${unseenCount} ${input.panelTitle.toLowerCase()} routes have no runtime sample yet.`
+                    : warnCount > 0
+                        ? `${warnCount} ${input.panelTitle.toLowerCase()} routes have slow or client-error history in the current sample.`
+                        : `${input.items.length} ${input.panelTitle.toLowerCase()} routes are healthy.`;
+
+    const action = input.items.length === 0
+        ? "No action required."
+        : failCount > 0 || warnCount > 0 || staleCount > 0 || unseenCount > 0
+            ? `Inspect the highest-risk routes first: ${input.items
+                .filter((item) => getRouteRuntimeHealthStatus(item, input.nowMs) !== "healthy" || getRouteRuntimeHealthCoverageState(item) === "unseen")
+                .slice(0, 3)
+                .map((item) => item.title)
+                .join(", ") || input.panelTitle.toLowerCase()}`
+            : "No action required.";
+
+    return buildLog({
+        id: input.id,
+        panelKey: input.id,
+        tab: "ops",
+        panelTitle: input.panelTitle,
+        status,
+        summary,
+        action,
+        signalCount: failCount + warnCount + staleCount + unseenCount,
+        signalKeys: input.items.map((item) => `route_runtime_health.${item.key}`),
+        observedAtMs: input.nowMs,
+    });
+}
+
 export function buildAdminPanelSystemLogs(input: {
     nowMs?: number;
     recentTransactionsCount: number;
@@ -185,9 +240,12 @@ export function buildAdminPanelSystemLogs(input: {
             items: chartHealth.filter((item) => item.category === category),
             nowMs,
         }));
-    const routeFailCount = routeRuntimeHealth.filter((item) => getRouteRuntimeHealthStatus(item) === "fail").length;
-    const routeWarnCount = routeRuntimeHealth.filter((item) => getRouteRuntimeHealthStatus(item) === "warn").length;
+    const routeFailCount = routeRuntimeHealth.filter((item) => getRouteRuntimeHealthStatus(item, nowMs) === "fail").length;
+    const routeWarnCount = routeRuntimeHealth.filter((item) => getRouteRuntimeHealthStatus(item, nowMs) === "warn").length;
+    const routeStaleCount = routeRuntimeHealth.filter((item) => getRouteRuntimeHealthStatus(item, nowMs) === "stale").length;
     const routeUnobservedCount = routeRuntimeHealth.filter((item) => getRouteRuntimeHealthCoverageState(item) === "unseen").length;
+    const nativeChatRouteHealth = routeRuntimeHealth.filter((item) => getRouteRuntimeHealthCluster(item.key) === "native_chat");
+    const compatibilityChatRouteHealth = routeRuntimeHealth.filter((item) => getRouteRuntimeHealthCluster(item.key) === "compatibility_chat");
     const routeHealthLog = buildLog({
         id: "ops.route_runtime_health",
         panelKey: "ops.route_runtime_health",
@@ -197,24 +255,26 @@ export function buildAdminPanelSystemLogs(input: {
             ? "warn"
             : routeFailCount > 0
                 ? "fail"
-                : routeWarnCount > 0
+                : routeWarnCount > 0 || routeStaleCount > 0
                     ? "warn"
                     : "healthy",
         summary: routeRuntimeHealth.length === 0
             ? "No route runtime health rollups have been recorded yet for the tracked chat, creator-message compatibility, support, and AI endpoints."
             : routeFailCount > 0
                 ? `${routeFailCount} tracked routes are currently failing and ${routeWarnCount} are degraded or historically noisy.`
-                : routeUnobservedCount > 0
+                : routeStaleCount > 0
+                    ? `${routeStaleCount} tracked routes are stale, so the runtime lane is no longer fresh enough to trust at a glance.`
+                    : routeUnobservedCount > 0
                     ? `${routeUnobservedCount} tracked routes have never produced a runtime sample yet, so this lane is not fully evidenced.`
-                : routeWarnCount > 0
-                    ? `${routeWarnCount} tracked routes are degraded or have recorded slow/error history without a current server failure.`
-                    : `${routeRuntimeHealth.length} tracked routes are healthy in the latest runtime rollup sample.`,
+                    : routeWarnCount > 0
+                        ? `${routeWarnCount} tracked routes are degraded or have recorded slow/error history without a current server failure.`
+                        : `${routeRuntimeHealth.length} tracked routes are healthy in the latest runtime rollup sample.`,
         action: routeRuntimeHealth.length === 0
             ? "Drive the tracked chat, creator-message compatibility, support, and AI routes at least once so debug can materialize real route health."
-            : routeFailCount > 0 || routeWarnCount > 0
-                ? `Inspect the highest-risk or never-observed routes first: ${routeRuntimeHealth.filter((item) => getRouteRuntimeHealthStatus(item) !== "healthy").slice(0, 3).map((item) => item.title).join(", ") || "tracked route runtime"}`
+            : routeFailCount > 0 || routeWarnCount > 0 || routeStaleCount > 0
+                ? `Inspect the highest-risk or never-observed routes first: ${routeRuntimeHealth.filter((item) => getRouteRuntimeHealthStatus(item, nowMs) !== "healthy").slice(0, 3).map((item) => item.title).join(", ") || "tracked route runtime"}`
                 : "No action required.",
-        signalCount: routeFailCount + routeWarnCount,
+        signalCount: routeFailCount + routeWarnCount + routeStaleCount + routeUnobservedCount,
         signalKeys: routeRuntimeHealth.map((item) => `route_runtime_health.${item.key}`),
         observedAtMs: nowMs,
     });
@@ -503,6 +563,18 @@ export function buildAdminPanelSystemLogs(input: {
             observedAtMs: nowMs,
         }),
         routeHealthLog,
+        buildRouteRuntimeClusterLog({
+            id: "ops.chat_runtime_native",
+            panelTitle: "Native chat runtime",
+            items: nativeChatRouteHealth,
+            nowMs,
+        }),
+        buildRouteRuntimeClusterLog({
+            id: "ops.chat_runtime_compatibility",
+            panelTitle: "Creator-message compatibility runtime",
+            items: compatibilityChatRouteHealth,
+            nowMs,
+        }),
     ];
 }
 

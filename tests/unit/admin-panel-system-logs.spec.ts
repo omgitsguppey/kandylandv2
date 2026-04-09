@@ -13,6 +13,8 @@ import { buildAdminPanelSystemLogs } from "@/lib/server/admin-panel-system-logs"
 import type { RouteRuntimeHealthItem } from "@/lib/route-runtime-health";
 
 describe("buildAdminPanelSystemLogs", () => {
+    const NOW_MS = Date.UTC(2026, 3, 8, 12, 0, 0);
+
     it("adds analytics chart-health summaries by category", () => {
         const logs = buildAdminPanelSystemLogs({
             nowMs: Date.UTC(2026, 3, 6, 23, 59, 0),
@@ -146,9 +148,9 @@ describe("buildAdminPanelSystemLogs", () => {
                 lastResult: "success",
                 lastStatusCode: 200,
                 lastErrorMessage: null,
-                firstObservedAtMs: 100,
-                updatedAtMs: 200,
-                lastSuccessAtMs: 200,
+                firstObservedAtMs: NOW_MS - 15_000,
+                updatedAtMs: NOW_MS - 5_000,
+                lastSuccessAtMs: NOW_MS - 5_000,
                 lastClientErrorAtMs: 0,
                 lastServerErrorAtMs: 0,
             },
@@ -168,16 +170,16 @@ describe("buildAdminPanelSystemLogs", () => {
                 lastResult: "server_error",
                 lastStatusCode: 500,
                 lastErrorMessage: "Vertex provider timeout",
-                firstObservedAtMs: 100,
-                updatedAtMs: 200,
-                lastSuccessAtMs: 150,
-                lastClientErrorAtMs: 160,
-                lastServerErrorAtMs: 200,
+                firstObservedAtMs: NOW_MS - 15_000,
+                updatedAtMs: NOW_MS - 1_000,
+                lastSuccessAtMs: NOW_MS - 6_000,
+                lastClientErrorAtMs: NOW_MS - 2_000,
+                lastServerErrorAtMs: NOW_MS - 1_000,
             },
         ];
 
         const logs = buildAdminPanelSystemLogs({
-            nowMs: Date.UTC(2026, 3, 8, 12, 0, 0),
+            nowMs: NOW_MS,
             recentTransactionsCount: 5,
             unsupportedTasks: 0,
             telemetryValidatedTasks: 12,
@@ -256,7 +258,7 @@ describe("buildAdminPanelSystemLogs", () => {
 
     it("keeps never-observed tracked routes visible in the runtime log", () => {
         const logs = buildAdminPanelSystemLogs({
-            nowMs: Date.UTC(2026, 3, 8, 12, 0, 0),
+            nowMs: NOW_MS,
             recentTransactionsCount: 5,
             unsupportedTasks: 0,
             telemetryValidatedTasks: 12,
@@ -351,5 +353,129 @@ describe("buildAdminPanelSystemLogs", () => {
             status: "warn",
         });
         expect(routeLog?.summary).toContain("never produced a runtime sample");
+    });
+
+    it("adds separate native and compatibility chat runtime logs", () => {
+        const logs = buildAdminPanelSystemLogs({
+            nowMs: Date.UTC(2026, 3, 8, 12, 0, 0),
+            recentTransactionsCount: 5,
+            unsupportedTasks: 0,
+            telemetryValidatedTasks: 12,
+            usersWithTaskIssues: 0,
+            completedEventsLast7d: 5,
+            receiptsLast7d: 5,
+            rewardEventDeltaLast7d: 0,
+            legacyRewardVersionCount: 0,
+            trackedTelemetryEvents: 40,
+            orphanedTelemetryEvents: 0,
+            bugReportsLast7d: 0,
+            rolloutCount: 2,
+            releaseEntryCount: 3,
+            creatorSpendViolationsLast7d: 0,
+            opsHealth: {
+                score: 96,
+                runtime: {
+                    gaPropertyConfigured: true,
+                    vapidConfigured: true,
+                    databaseUrlConfigured: true,
+                    projectId: "kandydrops-by-ikandy",
+                    navigationSessionSigningReady: true,
+                    warnings: [],
+                },
+                diagnostics: {
+                    total: 0,
+                    errorCount: 0,
+                    warnCount: 0,
+                    infoCount: 0,
+                    activeErrorCount: 0,
+                    activeWarnCount: 0,
+                    recentErrorCount: 0,
+                    recentWarnCount: 0,
+                    activeIssueClusterCount: 0,
+                    recentIssueClusterCount: 0,
+                    activeWindowMs: 3_600_000,
+                    recentWindowMs: 14_400_000,
+                    lastDiagnosticAt: 0,
+                    channels: [],
+                    recent: [],
+                },
+                pipeline: {
+                    status: "healthy",
+                    failureCount: 0,
+                    activeFailureCount: 0,
+                    recentFailureCount: 0,
+                    sampleFailureCount: 0,
+                    lastFailureAt: 0,
+                    lastRouteName: "",
+                    lastErrorMessage: "",
+                    activeWindowMs: 3_600_000,
+                    recentWindowMs: 14_400_000,
+                    routes: [],
+                },
+                materializers: [],
+            },
+            orchestration: {
+                score: 92,
+                openFindings: 0,
+                actionableProposals: 0,
+                lowConfidenceEvents: 0,
+                recommendationReady: 0,
+            },
+            routeRuntimeHealth: [
+                {
+                    key: "chat/messages:POST",
+                    routeName: "chat/messages",
+                    method: "POST",
+                    title: "Chat message sends",
+                    slowThresholdMs: 1600,
+                    successCount: 3,
+                    clientErrorCount: 0,
+                    serverErrorCount: 1,
+                    slowCount: 0,
+                    averageLatencyMs: 320,
+                    maxLatencyMs: 640,
+                    lastLatencyMs: 640,
+                    lastResult: "server_error",
+                    lastStatusCode: 500,
+                    lastErrorMessage: "broken",
+                    firstObservedAtMs: 100,
+                    updatedAtMs: Date.UTC(2026, 3, 8, 11, 59, 0),
+                    lastSuccessAtMs: Date.UTC(2026, 3, 8, 11, 58, 0),
+                    lastClientErrorAtMs: 0,
+                    lastServerErrorAtMs: Date.UTC(2026, 3, 8, 11, 59, 0),
+                },
+                {
+                    key: "creator/messages:POST",
+                    routeName: "creator/messages",
+                    method: "POST",
+                    title: "Legacy creator-message sends",
+                    slowThresholdMs: 1600,
+                    successCount: 2,
+                    clientErrorCount: 1,
+                    serverErrorCount: 0,
+                    slowCount: 0,
+                    averageLatencyMs: 240,
+                    maxLatencyMs: 400,
+                    lastLatencyMs: 320,
+                    lastResult: "success",
+                    lastStatusCode: 200,
+                    lastErrorMessage: null,
+                    firstObservedAtMs: 100,
+                    updatedAtMs: Date.UTC(2026, 3, 8, 11, 58, 0),
+                    lastSuccessAtMs: Date.UTC(2026, 3, 8, 11, 58, 0),
+                    lastClientErrorAtMs: Date.UTC(2026, 3, 8, 10, 0, 0),
+                    lastServerErrorAtMs: 0,
+                },
+            ],
+        });
+
+        expect(logs.find((entry) => entry.id === "ops.chat_runtime_native")).toMatchObject({
+            panelTitle: "Native chat runtime",
+            status: "fail",
+        });
+        expect(logs.find((entry) => entry.id === "ops.chat_runtime_compatibility")).toMatchObject({
+            panelTitle: "Creator-message compatibility runtime",
+            status: "warn",
+        });
     });
 });
