@@ -55,26 +55,6 @@ export function TitleMarquee({
 
     return (
         <div ref={frameRef} className="overflow-hidden relative">
-            {overflowPx > 0 && (
-                <style dangerouslySetInnerHTML={{
-                    __html: `
-                @keyframes title-marquee-anim {
-                    0%, 10% { transform: translateX(0); }
-                    40%, 60% { transform: translateX(var(--title-shift)); }
-                    90%, 100% { transform: translateX(0); }
-                }
-                .title-marquee-active {
-                    animation: title-marquee-anim 17.5s cubic-bezier(0.23, 1, 0.32, 1) infinite;
-                    will-change: transform;
-                    display: inline-block;
-                }
-                @media (prefers-reduced-motion: reduce) {
-                    .title-marquee-active {
-                        animation: none;
-                    }
-                }
-                ` }} />
-            )}
             <p
                 ref={textRef}
                 className={cn(
