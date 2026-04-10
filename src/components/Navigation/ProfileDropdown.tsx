@@ -6,6 +6,7 @@ import Image from "next/image";
 import { LogOut, LayoutDashboard, Library, Settings, ChevronDown, CircleHelp, LifeBuoy, FileText, MessageSquare } from "lucide-react";
 
 import { useAuth, useUserProfile } from "@/context/AuthContext";
+import { useChatUnreadStatus } from "@/hooks/useChatUnreadStatus";
 import { trackEvent } from "@/lib/telemetry";
 import { cn } from "@/lib/utils";
 
@@ -15,6 +16,7 @@ export function ProfileDropdown() {
     const dropdownRef = useRef<HTMLDivElement>(null);
 
     const { userProfile } = useUserProfile();
+    const { hasUnreadMessages } = useChatUnreadStatus();
     const isAdmin = userProfile?.role === "admin";
 
     // Close on click outside
@@ -94,7 +96,14 @@ export function ProfileDropdown() {
 
                     <nav className="space-y-1">
                         <DropdownItem href="/dashboard" icon={<LayoutDashboard className="w-4 h-4" />} label="Dashboard" onClick={() => setIsOpen(false)} />
-                        <DropdownItem href="/dashboard/chat" icon={<MessageSquare className="w-4 h-4" />} label="Chat" onClick={() => setIsOpen(false)} />
+                        <DropdownItem href="/dashboard/chat" icon={
+                            <div className="relative">
+                                <MessageSquare className="w-4 h-4" />
+                                {hasUnreadMessages && (
+                                    <span className="absolute -right-0.5 -top-0.5 h-2 w-2 rounded-full bg-brand-purple ring-2 ring-zinc-950" />
+                                )}
+                            </div>
+                        } label="Chat" onClick={() => setIsOpen(false)} />
                         <DropdownItem href="/dashboard/library" icon={<Library className="w-4 h-4" />} label="My KandyDrops" onClick={() => setIsOpen(false)} />
                         <DropdownItem href="/dashboard/profile" icon={<Settings className="w-4 h-4" />} label="Settings" onClick={() => setIsOpen(false)} />
                     </nav>

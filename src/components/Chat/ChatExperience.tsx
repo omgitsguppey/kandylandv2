@@ -349,6 +349,7 @@ export function ChatExperience() {
                         viewerRole,
                         unreadCount: resolveChatThreadUnreadCount(raw, viewerRole),
                         readAt: resolveChatThreadReadAt(raw, viewerRole),
+                        counterpartReadAt: resolveChatThreadReadAt(raw, viewerRole === "creator" ? "user" : "creator"),
                     } satisfies ChatThreadRecord;
                 }).sort((left, right) => right.lastMessageAt - left.lastMessageAt);
 
@@ -365,12 +366,22 @@ export function ChatExperience() {
     }, [creatorId, selectedDetail?.thread, selectedThreadId, user, userProfile]);
 
     useEffect(() => {
-        if (!selectedThreadId || !user) {
+        if (!selectedThreadId || !user || !userProfile) {
             return;
         }
 
+        const viewerField = creatorId && creatorId !== user.uid
+            ? "userId"
+            : userProfile.role === "creator"
+                ? "creatorId"
+                : "userId";
+
         const unsubscribe = onSnapshot(
-            query(collection(db, CHAT_COLLECTIONS.messages), where("threadId", "==", selectedThreadId)),
+            query(
+                collection(db, CHAT_COLLECTIONS.messages),
+                where("threadId", "==", selectedThreadId),
+                where(viewerField, "==", user.uid)
+            ),
             (snapshot) => {
                 const nextMessages = snapshot.docs
                     .map((docSnapshot) => ({
@@ -392,7 +403,7 @@ export function ChatExperience() {
         );
 
         return () => unsubscribe();
-    }, [selectedThreadId, user]);
+    }, [creatorId, selectedThreadId, user, userProfile]);
 
     useEffect(() => {
         if (!selectedDetail || !selectedThreadId) {
@@ -588,18 +599,52 @@ export function ChatExperience() {
         setSendErrorMessage(null);
         setSendWarningMessage(null);
 
+        const currentComposerText = composerText.trim();
+        const currentComposerFile = composerFile;
+        const currentComposerKind = composerKind;
+
+        const optimisticId = `optimistic-${Date.now()}`;
+        if (!currentComposerFile) {
+            setSelectedDetail((current) => current ? {
+                ...current,
+                messages: [
+                    ...current.messages,
+                    {
+                        id: optimisticId,
+                        threadId: selectedThreadId,
+                        creatorId: selectedThread.creatorId,
+                        userId: selectedThread.userId,
+                        senderRole: selectedThread.viewerRole,
+                        messageKind: currentComposerKind,
+                        text: currentComposerText,
+                        createdAt: Date.now(),
+                        costGd: 0,
+                    } as ThreadDetailResponse["messages"][number],
+                ],
+            } : current);
+            setComposerText("");
+            setComposerKind("text");
+            pushTypingState(false);
+        }
+
         try {
             const attachment = await uploadAttachment();
             const response = await authFetch(`/api/chat/threads/${encodeURIComponent(selectedThreadId)}/messages`, {
                 method: "POST",
                 body: JSON.stringify({
-                    text: composerText.trim(),
-                    messageKind: attachment ? (attachment.assetMimeType?.startsWith("video/") ? "video" : "image") : composerKind,
+                    text: currentComposerText,
+                    messageKind: attachment ? (attachment.assetMimeType?.startsWith("video/") ? "video" : "image") : currentComposerKind,
                     ...attachment,
                 }),
             });
             const body = await response.json() as ChatSendResponse;
             if (!response.ok) {
+                if (!currentComposerFile) {
+                    setSelectedDetail((current) => current ? {
+                        ...current,
+                        messages: current.messages.filter((msg) => msg.id !== optimisticId),
+                    } : current);
+                }
                 if (body.errorCode === "insufficient_paid_gumdrops") {
                     setInsufficientFunds(body as ChatInsufficientFundsPayload);
                     return;
@@ -608,15 +653,24 @@ export function ChatExperience() {
                 throw new Error(buildChatSendErrorMessage(body));
             }
 
-            setComposerText("");
-            setComposerFile(null);
-            setComposerKind("text");
-            pushTypingState(false);
+            if (currentComposerFile) {
+                setComposerText("");
+                setComposerFile(null);
+                setComposerKind("text");
+                pushTypingState(false);
+            }
             const warningMessage = buildChatSendWarningMessage(body.warnings);
             if (warningMessage) {
                 setSendWarningMessage(warningMessage);
             }
         } catch (error) {
+            if (!currentComposerFile) {
+                setSelectedDetail((current) => current ? {
+                    ...current,
+                    messages: current.messages.filter((msg) => msg.id !== optimisticId),
+                } : current);
+                setComposerText(currentComposerText);
+            }
             const message = error instanceof Error ? error.message : "Failed to send message.";
             setSendErrorMessage(message);
             reportClientIssue({
@@ -626,8 +680,8 @@ export function ChatExperience() {
                 error,
                 detail: {
                     threadId: selectedThreadId,
-                    messageKind: composerKind,
-                    hasAttachment: Boolean(composerFile),
+                    messageKind: currentComposerKind,
+                    hasAttachment: Boolean(currentComposerFile),
                 },
                 consoleLabel: "[Chat] send message failed",
             });
@@ -673,6 +727,7 @@ export function ChatExperience() {
                     viewerRole,
                     unreadCount: resolveChatThreadUnreadCount(raw, viewerRole),
                     readAt: resolveChatThreadReadAt(raw, viewerRole),
+                    counterpartReadAt: resolveChatThreadReadAt(raw, viewerRole === "creator" ? "user" : "creator"),
                 } satisfies ChatThreadRecord;
 
                 setThreads((current) => mergeThreads(current.map((thread) => thread.id === nextThread.id ? nextThread : thread), nextThread));
@@ -696,22 +751,7 @@ export function ChatExperience() {
     }
 
     return (
-        <div className="mx-auto w-full max-w-7xl px-3 sm:px-4">
-            <header className="mb-5 flex items-end justify-between gap-3">
-                <div>
-                    <p className="text-[11px] font-bold uppercase tracking-[0.16em] text-brand-purple">Creator chat</p>
-                    <h1 className="mt-1 text-[clamp(1.6rem,4vw,2.8rem)] font-black tracking-tight text-white">Messages</h1>
-                    <p className="mt-2 max-w-2xl text-sm leading-6 text-gray-400">
-                        Live creator conversations with realtime threads, read receipts, and paid-message gating based on the current creator rules.
-                    </p>
-                </div>
-                {!isCompactViewport ? (
-                    <Link href="/dashboard" className="text-sm font-semibold text-gray-400 hover:text-white">
-                        Back to dashboard
-                    </Link>
-                ) : null}
-            </header>
-
+        <div className="mx-auto w-full max-w-7xl px-3 sm:px-4 mt-8">
             <div className="overflow-hidden rounded-[2rem] border border-white/10 bg-black/40 shadow-[0_24px_70px_rgba(0,0,0,0.4)]">
                 <div className="grid min-h-[72vh] lg:grid-cols-[360px_1fr]">
                     {(!isCompactViewport || !selectedThreadId) ? (
@@ -789,13 +829,15 @@ export function ChatExperience() {
                                     ) : selectedDetail?.messages.length ? selectedDetail.messages.map((message) => {
                                         const isOutgoing = message.senderRole === selectedThread.viewerRole;
                                         const isLatestOutgoing = message.id === latestOutgoingMessageId;
-                                        const readState = isLatestOutgoing && selectedThread.readAt >= message.createdAt ? "Read" : "Sent";
+                                        const isOptimistic = message.id.startsWith("optimistic-");
+                                        const readState = isOptimistic ? "Sending..." : isLatestOutgoing && selectedThread.counterpartReadAt >= message.createdAt ? "Read" : "Sent";
 
                                         return (
                                             <div key={message.id} className={cn("flex", isOutgoing ? "justify-end" : "justify-start")}>
                                                 <div className={cn(
                                                     "max-w-[85%] rounded-[1.6rem] px-4 py-3 shadow-lg",
                                                     isOutgoing ? "bg-brand-purple text-white" : "bg-zinc-200 text-zinc-900",
+                                                    isOptimistic ? "opacity-70" : "",
                                                 )}>
                                                     {message.text ? <p className="whitespace-pre-wrap text-sm leading-6">{message.text}</p> : null}
                                                     {message.assetUrl ? (

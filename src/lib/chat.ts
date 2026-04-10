@@ -24,6 +24,7 @@ export type ChatThreadRecord = CreatorMessageThread & {
     viewerRole: ChatViewerRole;
     unreadCount: number;
     readAt: number;
+    counterpartReadAt: number;
 };
 
 export type ChatThreadPricing = {

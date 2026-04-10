@@ -6,6 +6,7 @@ import Image from "next/image";
 import { LogOut, LayoutDashboard, Library, Settings, X, Plus, CircleHelp, LifeBuoy, FileText, MessageSquare } from "lucide-react";
 
 import { useAuthIdentity, useUserProfile } from "@/context/AuthContext";
+import { useChatUnreadStatus } from "@/hooks/useChatUnreadStatus";
 import { useUI } from "@/context/UIContext";
 import { trackEvent } from "@/lib/telemetry";
 
@@ -24,6 +25,7 @@ interface SidebarItemProps {
 export function ProfileSidebar({ isOpen, onClose }: ProfileSidebarProps) {
     const { user, logout } = useAuthIdentity();
     const { userProfile } = useUserProfile();
+    const { hasUnreadMessages } = useChatUnreadStatus();
     const { openPurchaseModal } = useUI();
 
     const isAdmin = userProfile?.role === "admin";
@@ -126,7 +128,14 @@ export function ProfileSidebar({ isOpen, onClose }: ProfileSidebarProps) {
 
                         <nav className="space-y-1">
                             <SidebarItem href="/dashboard" icon={<LayoutDashboard className="w-5 h-5" />} label="Dashboard" onClick={onClose} />
-                            <SidebarItem href="/dashboard/chat" icon={<MessageSquare className="w-5 h-5" />} label="Chat" onClick={onClose} />
+                            <SidebarItem href="/dashboard/chat" icon={
+                                <div className="relative">
+                                    <MessageSquare className="w-5 h-5" />
+                                    {hasUnreadMessages && (
+                                        <span className="absolute -right-0.5 -top-0.5 h-2 w-2 rounded-full bg-brand-purple ring-2 ring-[#0b0b10]" />
+                                    )}
+                                </div>
+                            } label="Chat" onClick={onClose} />
                             <SidebarItem href="/dashboard/library" icon={<Library className="w-5 h-5" />} label="My KandyDrops" onClick={onClose} />
                             <SidebarItem href="/dashboard/profile" icon={<Settings className="w-5 h-5" />} label="Settings" onClick={onClose} />
                         </nav>
