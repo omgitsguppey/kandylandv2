@@ -6,6 +6,82 @@ Last full-scale audit execution: 2026-04-09 19:40:21 -05:00
 Repo: `C:\Users\uylus\OneDrive\Documents\KandyDrops_Final`
 Audited HEAD at start: `36fcca527b72b04c24531724465f490642018ba2`
 
+## 2026-04-10 Firestore Internal Assertion Hardening for Chat Realtime
+
+Scope for this pass:
+
+- investigate the browser Firestore internal assertion failure
+- remove local realtime-listener churn in chat
+- add fallback polling for chat and unread state when browser listeners fail
+- make future recurrences explicit in client diagnostics instead of opaque Firebase noise
+
+Startup protocol executed:
+
+- read `FULL_SCALE_CODEBASE_AUDIT.md`
+- read `REPO_MEMORY_LEDGER.md`
+- read `EVERY_FILE_FUNCTION_CHECKLIST.md`
+- ran `git status --short`
+- ran `npm run trace:adjacent -- src/components/Chat/ChatExperience.tsx`
+
+Start state:
+
+- current HEAD at pass start: `eddf90d5b54d7d2fd40c34d4d38d93921a6c6f68`
+- working tree was clean at pass start
+- deployed clients were still surfacing opaque browser Firestore errors like:
+  - `FIRESTORE (12.11.0) INTERNAL ASSERTION FAILED: Unexpected state (ID: b815)`
+  - nested context with `Unexpected state (ID: ca9)` and `{"ve":-1}`
+- the main chat thread-list listener in `src/components/Chat/ChatExperience.tsx` still depended on selected thread state, which caused avoidable resubscribe churn during normal chat updates
+- unread badge handling failed closed to `false` on realtime errors with no recovery path besides a refresh
+
+Implementation results:
+
+- added `src/lib/firestore-client-errors.ts` to normalize browser Firestore failures into:
+  - issue kind
+  - SDK version
+  - assertion IDs
+  - plain-English meaning
+  - explicit recovery guidance
+- updated `src/lib/client-error-reporting.ts` so `reportRealtimeIssue(...)` upgrades Firestore internal assertions from generic realtime warnings to explicit Firebase diagnostics
+- updated `src/lib/client-diagnostics.ts` so global client errors also emit dedicated Firebase diagnostics when the error message matches a Firestore internal assertion
+- refactored `src/components/Chat/ChatExperience.tsx` so the main thread-list snapshot no longer resubscribes on every selected-thread update
+- added chat realtime degradation handling in `src/components/Chat/ChatExperience.tsx`:
+  - listener failures now show a plain-English banner
+  - a one-time toast explains that polling fallback is active
+  - chat thread list and selected thread detail are polled every `5s` until realtime recovers
+- updated `src/hooks/useChatUnreadStatus.ts` so unread-state failures no longer stay dead until refresh:
+  - the hook now falls back to `/api/chat/threads`
+  - unread state refreshes immediately and then every `15s` while degraded
+- the new diagnostics now make this class of failure explicit as:
+  - browser Firestore client state failure
+  - not a normal permission/auth error
+  - assertion IDs captured for future triage
+
+Commands run:
+
+- `git status --short`
+- `npm run trace:adjacent -- src/components/Chat/ChatExperience.tsx`
+- `npx eslint src/components/Chat/ChatExperience.tsx src/hooks/useChatUnreadStatus.ts src/lib/client-diagnostics.ts src/lib/client-error-reporting.ts src/lib/firestore-client-errors.ts tests/unit/use-chat-unread-status.spec.tsx tests/unit/firestore-client-errors.spec.ts`
+- `corepack pnpm exec vitest run tests/unit/use-chat-unread-status.spec.tsx tests/unit/firestore-client-errors.spec.ts`
+- `npx tsc --noEmit`
+- `npm run check:ui:audits`
+
+Results:
+
+- focused eslint passed
+- focused Vitest passed:
+  - `2` files
+  - `6` tests
+- `npx tsc --noEmit` passed
+- `npm run check:ui:audits` passed:
+  - `16` tests green across Chromium and Mobile Chrome
+
+Warnings and notes:
+
+- the existing non-blocking Next teardown warning still appears after the UI audit suite passes:
+  - `TypeError: controller[kState].transformAlgorithm is not a function`
+- the root local defect was listener churn in the chat thread-list effect; the Firestore browser SDK assertion itself was not coming from the server routes
+- client diagnostics now record the assertion IDs so future reports can distinguish SDK-state failures from permission/auth failures immediately
+
 ## 2026-04-10 Chat Route Zoom Lock and Nested Scroll Containment
 
 Scope for this pass:

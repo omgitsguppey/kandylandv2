@@ -5,6 +5,7 @@ import {
   type ClientDiagnosticChannel,
   type ClientDiagnosticSeverity,
 } from "@/lib/client-diagnostics";
+import { analyzeFirestoreClientIssue, buildFirestoreClientIssueDetail } from "@/lib/firestore-client-errors";
 
 export function getClientErrorMessage(error: unknown, fallback = "Unexpected client error") {
   if (error instanceof Error && error.message.trim().length > 0) {
@@ -69,12 +70,15 @@ export function reportRealtimeIssue(
   error?: unknown,
   detail?: Record<string, unknown>,
 ) {
+  const firestoreIssue = analyzeFirestoreClientIssue(error);
   reportClientIssue({
-    channel: "realtime",
-    severity: "warn",
-    message: `${scope} realtime issue`,
+    channel: firestoreIssue ? "firebase" : "realtime",
+    severity: firestoreIssue?.kind === "internal_assertion" ? "error" : "warn",
+    message: firestoreIssue?.kind === "internal_assertion"
+      ? `${scope} realtime listener entered an invalid Firestore client state`
+      : `${scope} realtime issue`,
     error,
-    detail,
+    detail: buildFirestoreClientIssueDetail(error, detail),
     consoleLabel: `[Realtime] ${scope}`,
   });
 }

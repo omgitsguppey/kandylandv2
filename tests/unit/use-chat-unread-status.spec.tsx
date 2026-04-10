@@ -20,6 +20,7 @@ const mockState = vi.hoisted(() => {
         db: { id: "mock-db" },
         reportRealtimeIssue: vi.fn(),
         collection: vi.fn((_db: unknown, name: string) => ({ type: "collection", name })),
+        authFetch: vi.fn(),
         where: vi.fn((field: string, operator: string, value: string) => {
             lastWhereField = field;
             return { type: "where", field, operator, value };
@@ -69,6 +70,13 @@ const mockState = vi.hoisted(() => {
             snapshotErrorListener = null;
             lastWhereField = null;
             this.reportRealtimeIssue.mockReset();
+            this.authFetch.mockReset();
+            this.authFetch.mockResolvedValue({
+                ok: true,
+                async json() {
+                    return { threads: [] };
+                },
+            });
             this.collection.mockClear();
             this.where.mockClear();
             this.query.mockClear();
@@ -83,6 +91,9 @@ vi.mock("@/context/AuthContext", () => ({
 
 vi.mock("@/lib/firebase-data", () => ({
     db: mockState.db,
+}));
+vi.mock("@/lib/authFetch", () => ({
+    authFetch: mockState.authFetch,
 }));
 
 vi.mock("firebase/firestore", () => ({
@@ -167,8 +178,46 @@ describe("useChatUnreadStatus", () => {
         expect(mockState.reportRealtimeIssue).toHaveBeenCalledWith(
             "chat unread status",
             expect.any(Error),
-            { userId: "fan_1" },
+            expect.objectContaining({ userId: "fan_1" }),
         );
+
+        hook.unmount();
+    });
+
+    it("falls back to the server thread list when the realtime subscription fails", async () => {
+        mockState.setAuth({
+            user: { uid: "fan_1" },
+            userProfile: {
+                role: "user",
+                status: "active",
+            },
+        });
+        mockState.authFetch.mockResolvedValue({
+            ok: true,
+            async json() {
+                return {
+                    threads: [{
+                        id: "creator_creator_1__user_fan_1",
+                        creatorId: "creator_1",
+                        userId: "fan_1",
+                        viewerRole: "user",
+                        unreadCountForCreator: 0,
+                        unreadCountForUser: 2,
+                    }],
+                };
+            },
+        });
+
+        const hook = renderHook(() => useChatUnreadStatus());
+
+        await act(async () => {
+            mockState.emitError(new Error("FIRESTORE (12.11.0) INTERNAL ASSERTION FAILED: Unexpected state (ID: b815) CONTEXT: {\"Pc\":\"FIRESTORE (12.11.0) INTERNAL ASSERTION FAILED: Unexpected state (ID: ca9) CONTEXT: {\\\"ve\\\":-1}\"}"));
+            await Promise.resolve();
+            await Promise.resolve();
+        });
+
+        expect(mockState.authFetch).toHaveBeenCalledWith("/api/chat/threads");
+        expect(hook.result.current.hasUnreadMessages).toBe(true);
 
         hook.unmount();
     });

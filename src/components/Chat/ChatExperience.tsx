@@ -47,6 +47,10 @@ import {
     buildChatSendWarningMessage,
     type ChatSendWarning,
 } from "@/lib/chat-send-feedback";
+import {
+    buildFirestoreClientFallbackMessage,
+    buildFirestoreClientIssueDetail,
+} from "@/lib/firestore-client-errors";
 import { reportClientIssue, reportRealtimeIssue, reportStorageIssue } from "@/lib/client-error-reporting";
 import { storage, db, rtdb } from "@/lib/firebase-data";
 import { useCompactViewport } from "@/hooks/useCompactViewport";
@@ -369,6 +373,8 @@ export function ChatExperience() {
     const [insufficientFunds, setInsufficientFunds] = useState<ChatInsufficientFundsPayload | null>(null);
     const [sendErrorMessage, setSendErrorMessage] = useState<string | null>(null);
     const [sendWarningMessage, setSendWarningMessage] = useState<string | null>(null);
+    const [realtimeFallbackMessage, setRealtimeFallbackMessage] = useState<string | null>(null);
+    const [degradedRealtimeScopes, setDegradedRealtimeScopes] = useState<string[]>([]);
     const markReadRef = useRef<string | null>(null);
     const typingResetTimerRef = useRef<number | null>(null);
     const messageListRef = useRef<HTMLDivElement | null>(null);
@@ -378,6 +384,9 @@ export function ChatExperience() {
     const videoInputRef = useRef<HTMLInputElement | null>(null);
     const composePickerRef = useRef<HTMLDivElement | null>(null);
     const threadEditMenuRef = useRef<HTMLDivElement | null>(null);
+    const selectedThreadIdRef = useRef<string | null>(selectedThreadId);
+    const selectedDetailThreadRef = useRef<ChatThreadRecord | null>(selectedDetail?.thread ?? null);
+    const degradedRealtimeToastScopesRef = useRef<Set<string>>(new Set());
 
     const visibleThreads = useMemo(
         () => mergeThreads(threads, selectedDetail?.thread ?? null),
@@ -415,6 +424,43 @@ export function ChatExperience() {
         creatorId,
         profile: userProfile,
     }), [creatorId, user?.uid, userProfile]);
+
+    useEffect(() => {
+        selectedThreadIdRef.current = selectedThreadId;
+    }, [selectedThreadId]);
+
+    useEffect(() => {
+        selectedDetailThreadRef.current = selectedDetail?.thread ?? null;
+    }, [selectedDetail?.thread]);
+
+    const clearRealtimeDegradedScope = useCallback((scope: string) => {
+        degradedRealtimeToastScopesRef.current.delete(scope);
+        setDegradedRealtimeScopes((current) => {
+            const next = current.filter((entry) => entry !== scope);
+            if (next.length === 0) {
+                setRealtimeFallbackMessage(null);
+            }
+            return next;
+        });
+    }, []);
+
+    const markRealtimeDegraded = useCallback((scope: string, error: unknown, detail?: Record<string, unknown>) => {
+        const fallbackMessage = buildFirestoreClientFallbackMessage(scope, error);
+        setRealtimeFallbackMessage(fallbackMessage);
+        setDegradedRealtimeScopes((current) => current.includes(scope) ? current : [...current, scope]);
+
+        if (!degradedRealtimeToastScopesRef.current.has(scope)) {
+            degradedRealtimeToastScopesRef.current.add(scope);
+            toast.error(fallbackMessage);
+        }
+
+        reportRealtimeIssue(scope, error, {
+            ...buildFirestoreClientIssueDetail(error, {
+                fallbackMessage,
+            }),
+            ...detail,
+        });
+    }, []);
 
     const loadThreads = useCallback(async () => {
         if (!user) {
@@ -691,17 +737,21 @@ export function ChatExperience() {
                     .filter((thread) => isChatThreadVisibleToViewer(thread, thread.viewerRole))
                     .sort((left, right) => right.lastMessageAt - left.lastMessageAt);
 
-                setThreads((current) => mergeThreads(nextThreads, selectedDetail?.thread ?? current.find((thread) => thread.id === selectedThreadId) ?? null));
+                clearRealtimeDegradedScope("chat thread list");
+                setThreads((current) => mergeThreads(
+                    nextThreads,
+                    selectedDetailThreadRef.current ?? current.find((thread) => thread.id === selectedThreadIdRef.current) ?? null,
+                ));
             },
             (error) => {
-                reportRealtimeIssue("chat thread list", error, {
+                markRealtimeDegraded("chat thread list", error, {
                     creatorId: creatorId || null,
                 });
             },
         );
 
         return () => unsubscribe();
-    }, [creatorId, liveViewerRole, selectedDetail?.thread, selectedThreadId, user, userProfile]);
+    }, [clearRealtimeDegradedScope, creatorId, liveViewerRole, markRealtimeDegraded, user, userProfile]);
 
     useEffect(() => {
         if (!selectedThreadId || !user || !userProfile) {
@@ -724,20 +774,21 @@ export function ChatExperience() {
                     }))
                     .sort((left, right) => (left.createdAt || 0) - (right.createdAt || 0));
 
+                clearRealtimeDegradedScope("chat messages");
                 setSelectedDetail((current) => current ? {
                     ...current,
                     messages: nextMessages,
                 } : current);
             },
             (error) => {
-                reportRealtimeIssue("chat messages", error, {
+                markRealtimeDegraded("chat messages", error, {
                     threadId: selectedThreadId,
                 });
             },
         );
 
         return () => unsubscribe();
-    }, [liveViewerRole, selectedThreadId, user, userProfile]);
+    }, [clearRealtimeDegradedScope, liveViewerRole, markRealtimeDegraded, selectedThreadId, user, userProfile]);
 
     useEffect(() => {
         if (!selectedDetail || !selectedThreadId) {
@@ -1226,6 +1277,7 @@ export function ChatExperience() {
                     counterpartReadAt: resolveChatThreadReadAt(raw, viewerRole === "creator" ? "user" : "creator"),
                 } satisfies ChatThreadRecord;
 
+                clearRealtimeDegradedScope("chat thread");
                 setThreads((current) => mergeThreads(current.map((thread) => thread.id === nextThread.id ? nextThread : thread), nextThread));
                 setSelectedDetail((current) => current ? {
                     ...current,
@@ -1233,14 +1285,36 @@ export function ChatExperience() {
                 } : current);
             },
             (error) => {
-                reportRealtimeIssue("chat thread", error, {
+                markRealtimeDegraded("chat thread", error, {
                     threadId: selectedThreadId,
                 });
             },
         );
 
         return () => unsubscribe();
-    }, [selectedThreadId, user]);
+    }, [clearRealtimeDegradedScope, markRealtimeDegraded, selectedThreadId, user]);
+
+    useEffect(() => {
+        if (!user || degradedRealtimeScopes.length === 0) {
+            return;
+        }
+
+        const refreshChatFromServer = async () => {
+            await loadThreads();
+            if (selectedThreadIdRef.current) {
+                await loadThreadDetail(selectedThreadIdRef.current);
+            }
+        };
+
+        void refreshChatFromServer();
+        const intervalId = window.setInterval(() => {
+            void refreshChatFromServer();
+        }, 5_000);
+
+        return () => {
+            window.clearInterval(intervalId);
+        };
+    }, [degradedRealtimeScopes.length, loadThreadDetail, loadThreads, user]);
 
     useEffect(() => {
         shouldStickToBottomRef.current = true;
@@ -1274,6 +1348,12 @@ export function ChatExperience() {
     return (
         <div className="mx-auto flex h-full min-h-0 w-full max-w-6xl flex-1 overflow-hidden px-0 sm:px-4">
             <div className="flex h-full min-h-0 w-full flex-col overflow-hidden rounded-[2rem] border border-white/10 bg-black shadow-[0_26px_80px_rgba(0,0,0,0.55)]">
+                {realtimeFallbackMessage ? (
+                    <div className="border-b border-amber-400/15 bg-amber-500/10 px-4 py-3 text-sm text-amber-100 sm:px-5">
+                        <p className="font-semibold text-white">Realtime chat degraded</p>
+                        <p className="mt-1 leading-6 text-amber-100">{realtimeFallbackMessage}</p>
+                    </div>
+                ) : null}
                 <div className="grid h-full min-h-0 lg:grid-cols-[320px_minmax(0,1fr)]">
                     {(!isCompactViewport || !selectedThreadId) ? (
                         <aside className={cn(

@@ -1,6 +1,7 @@
 "use client";
 
 import { getClientSessionId, getClientSubjectId } from "@/lib/client-session";
+import { analyzeFirestoreClientIssue, buildFirestoreClientIssueDetail } from "@/lib/firestore-client-errors";
 
 const DIAGNOSTIC_STORAGE_KEY = "kandydrops.clientDiagnostics";
 const BREADCRUMB_STORAGE_KEY = "kandydrops.clientBreadcrumbs";
@@ -238,6 +239,18 @@ export function recordClientError(
     source: context?.source ?? "client",
     componentStack: context?.componentStack,
   }, "error");
+  const firestoreIssue = analyzeFirestoreClientIssue(normalizedError);
+  if (firestoreIssue) {
+    recordClientDiagnostic(
+      "firebase",
+      `Firestore client ${firestoreIssue.kind === "internal_assertion" ? "internal assertion" : "error"}`,
+      buildFirestoreClientIssueDetail(normalizedError, {
+        source: context?.source ?? "client",
+        componentStack: context?.componentStack,
+      }),
+      "error",
+    );
+  }
   recordClientBreadcrumb("error", normalizedError.message, {
     source: context?.source ?? "client",
   });

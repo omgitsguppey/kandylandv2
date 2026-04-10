@@ -24,6 +24,28 @@ This file is not a changelog. It is the concise ledger for durable decisions tha
 
 ## Decision Entries
 
+### 1f. Browser Firestore listener failures must degrade to polling with explicit diagnostics
+
+- Approximate date: Recorded explicitly on 2026-04-10 from the Firestore internal-assertion hardening pass
+- Status: Active canonical realtime rule
+- Problem/context: Browser Firestore listeners in chat and unread-state surfaces could fail with opaque SDK assertions such as `Unexpected state (ID: b815)` and `Unexpected state (ID: ca9)`, while the UI had no plain-English recovery path and operators could not easily distinguish SDK-state failures from auth or permission problems.
+- Decision made: Firestore browser-listener failures must be normalized into explicit diagnostics and must degrade to polling for the current session instead of simply failing closed until refresh.
+- What became canonical:
+  - Firestore internal assertions are treated as browser SDK state failures, not generic realtime warnings
+  - chat thread list/detail listeners fall back to server polling when realtime breaks
+  - unread-badge state falls back to `/api/chat/threads` polling when realtime breaks
+  - assertion IDs from Firestore error messages are recorded in client diagnostics for future triage
+  - chat realtime listeners should not depend on selected-thread state in a way that forces resubscribe churn on normal updates
+- Truth lives in:
+  - `src/lib/firestore-client-errors.ts`
+  - `src/lib/client-error-reporting.ts`
+  - `src/lib/client-diagnostics.ts`
+  - `src/components/Chat/ChatExperience.tsx`
+  - `src/hooks/useChatUnreadStatus.ts`
+  - `tests/unit/firestore-client-errors.spec.ts`
+  - `tests/unit/use-chat-unread-status.spec.tsx`
+- What is now disallowed or deprecated: Letting browser Firestore listener failures stay opaque, or relying on refresh-only recovery after realtime listener failure
+
 ### 1e. Chat route owns its own viewport and scroll containment rules
 
 - Approximate date: Recorded explicitly on 2026-04-10 from the chat zoom-lock and nested-scroll pass
