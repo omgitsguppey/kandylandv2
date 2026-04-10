@@ -12,8 +12,12 @@
 
 ## 2026-03-24 - Drop Metadata Cache Opportunities
 **Learning:** Functions like `getDropMediaSummary` and `getSupportedDropAspectRatio` heavily use Regex or array iterations on the same strings and fallback logic (like parsing dimensions with `match(/^(\d+)\s*[xX:]\s*(\d+)$/)` and classifying URL types). These are repeatedly evaluated inside React component `useMemo` hooks, meaning the work scales linearly with Drop component counts on every initial render or data refresh. We can memoize or cache these results at the module level.
-**Action:** Implement a small, simple LRU-style cache or a plain Map inside `drop-presentation.ts` so `getSupportedDropAspectRatio` and `getDropMediaSummary` do not redundantly process identical strings or objects. Alternatively, we can memoize the results of `getSupportedDropAspectRatio` by the `drop.fileMetadata?.dimensions` string, and `getDropMediaSummary` by `drop.id`.
+**Action:** Implement a small, simple LRU-style cache or a plain Map inside `drop-presentation.ts` so `getSupportedDropAspectRatio` and `getDropMediaSummary` do not redundantly process identical strings or objects. Alternatively, we can memoize the results of `getSupportedDropAspectRatio` by the `drop.fileMetadata?.dimensions` string, and `getDropMediaSummary` by a deterministic cache property.
 
 ## 2026-04-01 - Optimize loop processing and object cloning in Dashboard CollectionList
 **Learning:** High performance impact observed when large datasets are mapped multiple times (e.g. `map` -> `filter` -> `filter`) in hot-path React `useMemo` blocks. Specifically, `applyDropStatus` cloning objects inside `map` before a subsequent `filter` abandons them creates a significant garbage collection load.
 **Action:** Use a single-pass `for...of` loop to iterate elements, defer object cloning until an element is validated to match criteria, and combine multiple aggregations inside the same iteration pass.
+
+## 2026-04-02 - Array/String Allocations in Cache Keys
+**Learning:** Creating cache keys using dynamic string concatenations of arrays (e.g., `drop.contentUrls?.join(",")`) defeats the purpose of caching by unconditionally allocating memory and adding garbage collection pressure on every call. This causes a net performance regression in hot paths compared to simple, non-allocating property checks.
+**Action:** Use lightweight, non-allocating cache keys. For entities where we know references do not mutate deeply without a new top-level reference (like `drop`), we can use the entity's ID or `WeakMap` on the entity itself to cache derived data, avoiding costly key generation strings entirely.
