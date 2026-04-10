@@ -84,6 +84,7 @@ export async function PUT(request: NextRequest) {
             preAuthRouteName: "admin/ui-chart-health/preauth",
             preAuthRateLimit: HEAVY_READ,
             rateLimit: ADMIN,
+            requireTrustedOrigin: true,
             auth: "admin",
             scopeToCaller: true,
         });

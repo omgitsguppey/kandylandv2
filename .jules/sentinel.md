@@ -12,3 +12,8 @@
 **Vulnerability:** Injecting static `<style>` definitions using React's `dangerouslySetInnerHTML`.
 **Learning:** While static CSS is not an immediate XSS vulnerability, using dynamic injection primitives for static content violates strict CSP restrictions and establishes an insecure pattern that could be easily adapted by other developers for dynamic user data, introducing XSS.
 **Prevention:** Always migrate static keyframes, complex selectors, or raw styles into the application's global CSS or Tailwind configuration, and control dynamic behavior using React inline `style` tags coupled with CSS Variables (e.g., `['--var']: value`).
+
+## 2026-04-10 - [Missing CSRF Protection on Mutating API Endpoints]
+**Vulnerability:** The PUT endpoint in `api/admin/ui-chart-health/route.ts` was missing the `requireTrustedOrigin: true` parameter in its `guardApiRequest` call.
+**Learning:** Without explicit trusted origin validation, state-mutating endpoints (POST, PUT, DELETE) are vulnerable to Cross-Site Request Forgery (CSRF) if the API relies on cookies or other ambient authority that browsers automatically attach.
+**Prevention:** Always include `requireTrustedOrigin: true` in the `guardApiRequest` configuration object for any Next.js route handler that performs state mutations (POST, PUT, DELETE), regardless of other authentication checks.
