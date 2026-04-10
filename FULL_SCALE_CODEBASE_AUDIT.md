@@ -6,6 +6,132 @@ Last full-scale audit execution: 2026-04-09 19:40:21 -05:00
 Repo: `C:\Users\uylus\OneDrive\Documents\KandyDrops_Final`
 Audited HEAD at start: `36fcca527b72b04c24531724465f490642018ba2`
 
+## 2026-04-10 Compact Chat Thread List Simplification
+
+Scope for this pass:
+
+- simplify the thread-list view shown before entering a chat thread
+- stop auto-entering the first conversation on compact view
+- add a compose action that lets users start a message with a creator they already follow
+- add a truthful empty state with a follow-more-creators CTA when the user follows no creators yet
+
+Startup protocol executed:
+
+- read `FULL_SCALE_CODEBASE_AUDIT.md`
+- read `REPO_MEMORY_LEDGER.md`
+- read `EVERY_FILE_FUNCTION_CHECKLIST.md`
+- ran `git status --short`
+- ran `npm run trace:adjacent -- src/components/Chat/ChatExperience.tsx`
+- ran `npm run trace:adjacent -- src/app/api/creator/relationships/route.ts`
+
+Start state:
+
+- current HEAD at pass start: `d30c239af0f5f8cf290aeafc4db3729163672fb5`
+- working tree already contained the uncommitted composer-alignment pass
+- compact chat view still auto-selected the first thread after load, which prevented a clean standalone message-list surface
+- there was no in-chat compose action for choosing from followed creators without leaving the chat route
+- the no-thread state still used the broader generic chat placeholder instead of a dedicated messages-list empty state
+
+Implementation results:
+
+- refactored `src/components/Chat/ChatExperience.tsx` so compact view now stays in a standalone thread-list surface until the user explicitly opens a conversation
+- stopped auto-selecting the first thread on compact view unless:
+  - a `thread` query param is already present
+  - a `creator` query param seeded a target thread through the existing server route
+- added a compact messages list surface with:
+  - simplified `Messages` header
+  - cleaner row treatment
+  - local search filtering for the visible thread list
+  - floating bottom-right compose action
+- added a server-backed compose picker that loads creators from the existing `GET /api/creator/relationships` followed-creator list
+- wired the compose picker to the existing `?creator=<uid>` chat seeding flow instead of introducing a parallel draft-thread model
+- added truthful compact empty states:
+  - if followed creators exist but no threads exist:
+    - show a `No messages yet` state with `Compose a message`
+  - if no followed creators exist:
+    - show a `No creators followed yet` state with a CTA to `/experiences`
+- hardened compact back-navigation so returning from a thread clears the chat route back to `/dashboard/chat` instead of leaving stale thread params behind
+
+Commands run:
+
+- `git status --short`
+- `npm run trace:adjacent -- src/components/Chat/ChatExperience.tsx`
+- `npm run trace:adjacent -- src/app/api/creator/relationships/route.ts`
+- `npx eslint src/components/Chat/ChatExperience.tsx`
+- `npx tsc --noEmit`
+- `npm run check:ui:audits`
+- removed `playwright-report/` and `test-results`
+- `git status --short`
+
+Results:
+
+- focused eslint passed
+- `npx tsc --noEmit` passed
+- `npm run check:ui:audits` passed:
+  - `16` tests green across Chromium and Mobile Chrome
+- generated Playwright artifacts were removed after verification
+
+Warnings and notes:
+
+- `npm run check:ui:audits` still emits the standing non-blocking Next teardown warning after the suite passes:
+  - `TypeError: controller[kState].transformAlgorithm is not a function`
+- this pass intentionally reused the existing relationships route for compose-picker data, so there is no new chat-specific creator picker API surface yet
+
+## 2026-04-10 Chat Composer Alignment Tightening
+
+Scope for this pass:
+
+- tighten the bottom chat composer alignment after the attachment-menu change
+- ensure the plus button, input field, and send button sit on the same vertical rhythm
+- reduce the oversized top padding visible inside the input field
+
+Startup protocol executed:
+
+- read `FULL_SCALE_CODEBASE_AUDIT.md`
+- read `REPO_MEMORY_LEDGER.md`
+- read `EVERY_FILE_FUNCTION_CHECKLIST.md`
+- ran `git status --short`
+- ran `npm run trace:adjacent -- src/components/Chat/ChatExperience.tsx`
+
+Start state:
+
+- current HEAD at pass start: `d30c239af0f5f8cf290aeafc4db3729163672fb5`
+- working tree was clean at pass start
+- the attachment-menu behavior was correct, but the composer row still showed excess top space in the text field and the send control was sitting slightly low relative to the plus button and input body
+
+Implementation results:
+
+- tightened the composer row in `src/components/Chat/ChatExperience.tsx` so the bottom actions now share a common vertical centerline
+- reduced the plus button from `44px` to `40px` to match the visual scale of the send control and composer pill more closely
+- changed the outer composer row from bottom-aligned to center-aligned
+- changed the inner composer pill from bottom-aligned to center-aligned
+- reduced the composer pill vertical padding and min-height so the input no longer carries excess empty space above the text baseline
+- tightened the textarea line box and added explicit vertical centering so one-line input text sits more naturally inside the pill
+- slightly reduced the send button from `36px` to `32px` and explicitly centered it within the composer pill
+
+Commands run:
+
+- `git status --short`
+- `npm run trace:adjacent -- src/components/Chat/ChatExperience.tsx`
+- `npx eslint src/components/Chat/ChatExperience.tsx`
+- `npx tsc --noEmit`
+- `npm run check:ui:audits`
+- removed `playwright-report/` and `test-results`
+- `git status --short`
+
+Results:
+
+- focused eslint passed
+- `npx tsc --noEmit` passed
+- `npm run check:ui:audits` passed:
+  - `16` tests green across Chromium and Mobile Chrome
+- generated Playwright artifacts were removed after verification
+
+Warnings and notes:
+
+- `npm run check:ui:audits` still emits the standing non-blocking Next teardown warning after the suite passes:
+  - `TypeError: controller[kState].transformAlgorithm is not a function`
+
 ## 2026-04-10 Chat Composer Attachment Menu Simplification
 
 Scope for this pass:

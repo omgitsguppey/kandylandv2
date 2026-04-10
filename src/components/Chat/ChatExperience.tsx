@@ -5,10 +5,13 @@ import { useRouter, useSearchParams } from "next/navigation";
 import { startTransition, useCallback, useEffect, useMemo, useRef, useState, type KeyboardEvent } from "react";
 import {
     ArrowLeft,
+    ChevronRight,
     ImageIcon,
     MessageSquare,
     Plus,
+    Search,
     Send,
+    SquarePen,
     Video,
     X,
 } from "lucide-react";
@@ -49,6 +52,20 @@ import { ref as storageRef, uploadBytes } from "firebase/storage";
 type ThreadListResponse = {
     threads?: ChatThreadRecord[];
     selectedThreadId?: string | null;
+};
+
+type FollowedCreatorEntry = {
+    uid: string;
+    displayName: string;
+    username: string;
+    photoURL: string | null;
+    bio: string;
+    isVerified: boolean;
+    following: boolean;
+};
+
+type CreatorRelationshipsListResponse = {
+    followedCreators?: FollowedCreatorEntry[];
 };
 
 type ThreadDetailResponse = {
@@ -134,6 +151,34 @@ function formatTimelineLabel(timestamp?: number) {
         day: "numeric",
         hour: "numeric",
         minute: "2-digit",
+    }).format(current);
+}
+
+function formatThreadListTime(timestamp?: number) {
+    if (!timestamp || !Number.isFinite(timestamp)) {
+        return "";
+    }
+
+    const current = new Date(timestamp);
+    const now = new Date();
+
+    if (current.toDateString() === now.toDateString()) {
+        return new Intl.DateTimeFormat("en-US", {
+            hour: "numeric",
+            minute: "2-digit",
+        }).format(current);
+    }
+
+    const diffDays = Math.floor((now.getTime() - current.getTime()) / 86_400_000);
+    if (diffDays < 7) {
+        return new Intl.DateTimeFormat("en-US", {
+            weekday: "short",
+        }).format(current);
+    }
+
+    return new Intl.DateTimeFormat("en-US", {
+        month: "short",
+        day: "numeric",
     }).format(current);
 }
 
@@ -304,6 +349,9 @@ export function ChatExperience() {
     const [selectedDetail, setSelectedDetail] = useState<ThreadDetailResponse | null>(null);
     const [threadsLoading, setThreadsLoading] = useState(true);
     const [threadLoading, setThreadLoading] = useState(false);
+    const [threadSearch, setThreadSearch] = useState("");
+    const [followedCreators, setFollowedCreators] = useState<FollowedCreatorEntry[]>([]);
+    const [composePickerOpen, setComposePickerOpen] = useState(false);
     const [composerText, setComposerText] = useState("");
     const [composerKind, setComposerKind] = useState<ChatMessageKind>("text");
     const [composerFile, setComposerFile] = useState<File | null>(null);
@@ -320,6 +368,7 @@ export function ChatExperience() {
     const attachmentMenuRef = useRef<HTMLDivElement | null>(null);
     const imageInputRef = useRef<HTMLInputElement | null>(null);
     const videoInputRef = useRef<HTMLInputElement | null>(null);
+    const composePickerRef = useRef<HTMLDivElement | null>(null);
 
     const visibleThreads = useMemo(
         () => mergeThreads(threads, selectedDetail?.thread ?? null),
@@ -330,6 +379,27 @@ export function ChatExperience() {
         () => visibleThreads.find((thread) => thread.id === selectedThreadId) ?? selectedDetail?.thread ?? null,
         [selectedDetail?.thread, selectedThreadId, visibleThreads],
     );
+    const normalizedThreadSearch = threadSearch.trim().toLowerCase();
+    const filteredThreads = useMemo(() => {
+        if (!normalizedThreadSearch) {
+            return visibleThreads;
+        }
+
+        return visibleThreads.filter((thread) => {
+            const haystack = [
+                thread.counterpartDisplayName,
+                thread.counterpartUsername,
+                thread.lastMessagePreview,
+            ]
+                .filter(Boolean)
+                .join(" ")
+                .toLowerCase();
+
+            return haystack.includes(normalizedThreadSearch);
+        });
+    }, [normalizedThreadSearch, visibleThreads]);
+    const showCompactThreadListOnly = isCompactViewport && !selectedThreadId;
+    const canComposeFromFollowedCreators = followedCreators.length > 0;
     const liveViewerRole = useMemo(() => resolveChatViewerRole({
         viewerUid: user?.uid || "",
         creatorId,
@@ -353,7 +423,21 @@ export function ChatExperience() {
             const nextThreads = Array.isArray(body.threads) ? body.threads : [];
             setThreads(nextThreads);
             startTransition(() => {
-                setSelectedThreadId((current) => current || requestedThreadId || body.selectedThreadId || nextThreads[0]?.id || null);
+                setSelectedThreadId((current) => {
+                    if (current) {
+                        return current;
+                    }
+
+                    if (requestedThreadId) {
+                        return requestedThreadId;
+                    }
+
+                    if (body.selectedThreadId) {
+                        return body.selectedThreadId;
+                    }
+
+                    return isCompactViewport ? null : nextThreads[0]?.id || null;
+                });
             });
         } catch (error) {
             reportClientIssue({
@@ -370,7 +454,32 @@ export function ChatExperience() {
         } finally {
             setThreadsLoading(false);
         }
-    }, [creatorId, requestedThreadId, user]);
+    }, [creatorId, isCompactViewport, requestedThreadId, user]);
+
+    const loadFollowedCreators = useCallback(async () => {
+        if (!user) {
+            return;
+        }
+
+        try {
+            const response = await authFetch("/api/creator/relationships");
+            const body = await response.json() as CreatorRelationshipsListResponse & { error?: string };
+            if (!response.ok) {
+                throw new Error(body.error || "Failed to load followed creators.");
+            }
+
+            setFollowedCreators(Array.isArray(body.followedCreators) ? body.followedCreators : []);
+        } catch (error) {
+            reportClientIssue({
+                channel: "runtime",
+                severity: "warn",
+                message: "Followed creators load failed for chat compose",
+                error,
+                consoleLabel: "[Chat] followed creators load failed",
+            });
+            setFollowedCreators([]);
+        }
+    }, [user]);
 
     const loadThreadDetail = useCallback(async (threadId: string) => {
         if (!user) {
@@ -410,6 +519,10 @@ export function ChatExperience() {
     useEffect(() => {
         void loadThreads();
     }, [loadThreads]);
+
+    useEffect(() => {
+        void loadFollowedCreators();
+    }, [loadFollowedCreators]);
 
     useEffect(() => {
         if (!selectedThreadId) {
@@ -453,6 +566,39 @@ export function ChatExperience() {
             window.removeEventListener("keydown", handleKeyDown);
         };
     }, [attachmentMenuOpen]);
+
+    useEffect(() => {
+        if (!composePickerOpen) {
+            return;
+        }
+
+        const handlePointerDown = (event: MouseEvent) => {
+            const target = event.target;
+            if (!(target instanceof Node)) {
+                return;
+            }
+
+            if (composePickerRef.current?.contains(target)) {
+                return;
+            }
+
+            setComposePickerOpen(false);
+        };
+
+        const handleKeyDown = (event: globalThis.KeyboardEvent) => {
+            if (event.key === "Escape") {
+                setComposePickerOpen(false);
+            }
+        };
+
+        window.addEventListener("pointerdown", handlePointerDown);
+        window.addEventListener("keydown", handleKeyDown);
+
+        return () => {
+            window.removeEventListener("pointerdown", handlePointerDown);
+            window.removeEventListener("keydown", handleKeyDown);
+        };
+    }, [composePickerOpen]);
 
     useEffect(() => {
         if (!selectedThreadId) {
@@ -575,6 +721,17 @@ export function ChatExperience() {
             });
         });
     }, [selectedDetail, selectedThreadId]);
+
+    const openThreadComposer = useCallback((nextCreatorId: string) => {
+        setComposePickerOpen(false);
+        router.replace(`/dashboard/chat?creator=${encodeURIComponent(nextCreatorId)}`, { scroll: false });
+    }, [router]);
+
+    const returnToThreadList = useCallback(() => {
+        setSelectedThreadId(null);
+        setComposePickerOpen(false);
+        router.replace("/dashboard/chat", { scroll: false });
+    }, [router]);
 
     useEffect(() => {
         if (!selectedThreadId || !selectedThread || !user) {
@@ -985,60 +1142,186 @@ export function ChatExperience() {
             <div className="overflow-hidden rounded-[2rem] border border-white/10 bg-black shadow-[0_26px_80px_rgba(0,0,0,0.55)]">
                 <div className="grid min-h-[78vh] lg:grid-cols-[320px_minmax(0,1fr)]">
                     {(!isCompactViewport || !selectedThreadId) ? (
-                        <aside className="border-b border-white/10 bg-[#050505] lg:border-b-0 lg:border-r lg:border-r-white/10">
-                            <div className="border-b border-white/10 px-4 py-4 sm:px-5">
-                                <p className="text-[11px] font-semibold uppercase tracking-[0.18em] text-[#7f7f86]">Chat</p>
-                                <p className="mt-1 text-sm text-[#b6b6bc]">
-                                    {threadsLoading ? "Loading live threads..." : `${visibleThreads.length} conversation${visibleThreads.length === 1 ? "" : "s"}`}
-                                </p>
-                            </div>
-                            <div className="max-h-[78vh] overflow-y-auto">
-                                {visibleThreads.length > 0 ? visibleThreads.map((thread) => (
-                                    <button
-                                        key={thread.id}
-                                        type="button"
-                                        onClick={() => startTransition(() => setSelectedThreadId(thread.id))}
-                                        className={cn(
-                                            "flex w-full items-center gap-3 border-b border-white/5 px-4 py-3 text-left transition-colors sm:px-5",
-                                            selectedThreadId === thread.id
-                                                ? "bg-[linear-gradient(90deg,rgba(123,63,255,0.18)_0%,rgba(255,255,255,0)_85%)]"
-                                                : "hover:bg-white/[0.03]",
-                                        )}
-                                    >
-                                        <ChatAvatar
-                                            photoURL={thread.counterpartPhotoURL}
-                                            label={thread.counterpartDisplayName}
-                                            sizeClassName="h-11 w-11"
-                                            textClassName="text-sm"
-                                        />
-                                        <div className="min-w-0 flex-1">
-                                            <div className="flex items-start justify-between gap-3">
-                                                <div className="min-w-0">
-                                                    <p className="truncate text-sm font-semibold text-white">{thread.counterpartDisplayName}</p>
-                                                    <p className="truncate text-xs text-[#7e7f87]">
-                                                        {thread.counterpartUsername ? `@${thread.counterpartUsername}` : thread.counterpartId}
-                                                    </p>
-                                                </div>
-                                                <div className="flex shrink-0 flex-col items-end gap-1">
-                                                    <span className="text-[11px] text-[#6b6c73]">{thread.lastMessageAt ? formatRelativeTime(thread.lastMessageAt) : "New"}</span>
-                                                    {thread.unreadCount > 0 ? (
-                                                        <span className="rounded-full bg-brand-purple px-2 py-0.5 text-[10px] font-semibold text-white">{thread.unreadCount}</span>
-                                                    ) : null}
-                                                </div>
-                                            </div>
-                                            <p className="mt-1 line-clamp-1 text-sm text-[#b6b6bc]">{thread.lastMessagePreview || "No messages yet"}</p>
+                        <aside className={cn(
+                            "bg-[#050505]",
+                            showCompactThreadListOnly
+                                ? "relative min-h-[78vh]"
+                                : "border-b border-white/10 lg:border-b-0 lg:border-r lg:border-r-white/10",
+                        )}>
+                            {showCompactThreadListOnly ? (
+                                <div className="flex min-h-[78vh] flex-col">
+                                    <div className="px-5 pb-4 pt-6">
+                                        <div>
+                                            <p className="text-4xl font-black tracking-[-0.04em] text-white">Messages</p>
+                                            <p className="mt-2 text-sm text-[#8f9097]">
+                                                {threadsLoading ? "Loading your conversations..." : `${visibleThreads.length} conversation${visibleThreads.length === 1 ? "" : "s"}`}
+                                            </p>
                                         </div>
-                                    </button>
-                                )) : (
-                                    <div className="px-4 py-10 text-sm text-[#8f9097] sm:px-5">
-                                        No chat threads yet. Start from a creator page to open the first one.
                                     </div>
-                                )}
-                            </div>
+
+                                    <div className="flex-1 overflow-y-auto px-5 pb-36">
+                                        {filteredThreads.length > 0 ? (
+                                            <div className="space-y-1">
+                                                {filteredThreads.map((thread) => (
+                                                    <button
+                                                        key={thread.id}
+                                                        type="button"
+                                                        onClick={() => startTransition(() => setSelectedThreadId(thread.id))}
+                                                        className="flex w-full items-center gap-3 rounded-[1.35rem] px-1 py-3 text-left transition hover:bg-white/[0.03]"
+                                                    >
+                                                        <ChatAvatar
+                                                            photoURL={thread.counterpartPhotoURL}
+                                                            label={thread.counterpartDisplayName}
+                                                            sizeClassName="h-12 w-12"
+                                                            textClassName="text-sm"
+                                                        />
+                                                        <div className="min-w-0 flex-1 border-b border-white/6 pb-3">
+                                                            <div className="flex items-start justify-between gap-3">
+                                                                <div className="min-w-0">
+                                                                    <p className="truncate text-[15px] font-semibold text-white">{thread.counterpartDisplayName}</p>
+                                                                    <p className="mt-1 line-clamp-2 text-[13px] leading-5 text-[#8f9097]">
+                                                                        {thread.lastMessagePreview || "No messages yet"}
+                                                                    </p>
+                                                                </div>
+                                                                <div className="flex shrink-0 items-center gap-2 pl-2">
+                                                                    <span className="text-[11px] font-medium text-[#7f8087]">
+                                                                        {formatThreadListTime(thread.lastMessageAt)}
+                                                                    </span>
+                                                                    {thread.unreadCount > 0 ? (
+                                                                        <span className="inline-flex h-2.5 w-2.5 rounded-full bg-brand-purple" />
+                                                                    ) : null}
+                                                                    <ChevronRight className="h-4 w-4 text-[#63646b]" />
+                                                                </div>
+                                                            </div>
+                                                        </div>
+                                                    </button>
+                                                ))}
+                                            </div>
+                                        ) : visibleThreads.length > 0 ? (
+                                            <div className="flex min-h-[44vh] flex-col items-center justify-center text-center">
+                                                <p className="text-lg font-semibold text-white">No conversations match that search.</p>
+                                                <p className="mt-2 max-w-sm text-sm leading-6 text-[#8f9097]">
+                                                    Try a different name or clear the search field to see your full thread list.
+                                                </p>
+                                            </div>
+                                        ) : canComposeFromFollowedCreators ? (
+                                            <div className="flex min-h-[44vh] flex-col items-center justify-center text-center">
+                                                <div className="rounded-full bg-[#141417] p-4 text-brand-purple ring-1 ring-white/8">
+                                                    <MessageSquare className="h-8 w-8" />
+                                                </div>
+                                                <p className="mt-5 text-2xl font-black text-white">No messages yet</p>
+                                                <p className="mt-2 max-w-sm text-sm leading-6 text-[#8f9097]">
+                                                    Start your first chat with a creator you already follow.
+                                                </p>
+                                                <button
+                                                    type="button"
+                                                    onClick={() => setComposePickerOpen(true)}
+                                                    className="mt-5 rounded-full bg-brand-purple px-5 py-3 text-sm font-semibold text-white transition hover:bg-[#8457ff]"
+                                                >
+                                                    Compose a message
+                                                </button>
+                                            </div>
+                                        ) : (
+                                            <div className="flex min-h-[44vh] flex-col items-center justify-center text-center">
+                                                <div className="rounded-full bg-[#141417] p-4 text-brand-purple ring-1 ring-white/8">
+                                                    <MessageSquare className="h-8 w-8" />
+                                                </div>
+                                                <p className="mt-5 text-2xl font-black text-white">No creators followed yet</p>
+                                                <p className="mt-2 max-w-sm text-sm leading-6 text-[#8f9097]">
+                                                    Follow creators first so you can start messaging them from this inbox.
+                                                </p>
+                                                <Link
+                                                    href="/experiences"
+                                                    className="mt-5 rounded-full bg-white px-5 py-3 text-sm font-semibold text-black transition hover:bg-[#e8e8ea]"
+                                                >
+                                                    Follow more creators
+                                                </Link>
+                                            </div>
+                                        )}
+                                    </div>
+
+                                    <div className="pointer-events-none absolute inset-x-0 bottom-0 px-5 pb-6">
+                                        <div className="pointer-events-auto mx-auto max-w-md rounded-full bg-[#121214] px-4 py-3 ring-1 ring-white/8">
+                                            <div className="flex items-center gap-3">
+                                                <Search className="h-4 w-4 text-[#6e7077]" />
+                                                <input
+                                                    value={threadSearch}
+                                                    onChange={(event) => setThreadSearch(event.target.value)}
+                                                    placeholder="Search"
+                                                    className="w-full bg-transparent text-sm text-white placeholder:text-[#6e7077] focus:outline-none"
+                                                />
+                                            </div>
+                                        </div>
+                                        {canComposeFromFollowedCreators ? (
+                                            <button
+                                                type="button"
+                                                onClick={() => setComposePickerOpen(true)}
+                                                className="pointer-events-auto absolute bottom-6 right-5 inline-flex h-14 w-14 items-center justify-center rounded-full bg-brand-purple text-white shadow-[0_18px_36px_rgba(111,63,244,0.36)] transition hover:bg-[#8457ff]"
+                                                aria-label="Compose message"
+                                            >
+                                                <SquarePen className="h-5 w-5" />
+                                            </button>
+                                        ) : null}
+                                    </div>
+                                </div>
+                            ) : (
+                                <>
+                                    <div className="border-b border-white/10 px-4 py-4 sm:px-5">
+                                        <p className="text-[11px] font-semibold uppercase tracking-[0.18em] text-[#7f7f86]">Chat</p>
+                                        <p className="mt-1 text-sm text-[#b6b6bc]">
+                                            {threadsLoading ? "Loading live threads..." : `${visibleThreads.length} conversation${visibleThreads.length === 1 ? "" : "s"}`}
+                                        </p>
+                                    </div>
+                                    <div className="max-h-[78vh] overflow-y-auto">
+                                        {visibleThreads.length > 0 ? visibleThreads.map((thread) => (
+                                            <button
+                                                key={thread.id}
+                                                type="button"
+                                                onClick={() => startTransition(() => setSelectedThreadId(thread.id))}
+                                                className={cn(
+                                                    "flex w-full items-center gap-3 border-b border-white/5 px-4 py-3 text-left transition-colors sm:px-5",
+                                                    selectedThreadId === thread.id
+                                                        ? "bg-[linear-gradient(90deg,rgba(123,63,255,0.18)_0%,rgba(255,255,255,0)_85%)]"
+                                                        : "hover:bg-white/[0.03]",
+                                                )}
+                                            >
+                                                <ChatAvatar
+                                                    photoURL={thread.counterpartPhotoURL}
+                                                    label={thread.counterpartDisplayName}
+                                                    sizeClassName="h-11 w-11"
+                                                    textClassName="text-sm"
+                                                />
+                                                <div className="min-w-0 flex-1">
+                                                    <div className="flex items-start justify-between gap-3">
+                                                        <div className="min-w-0">
+                                                            <p className="truncate text-sm font-semibold text-white">{thread.counterpartDisplayName}</p>
+                                                            <p className="truncate text-xs text-[#7e7f87]">
+                                                                {thread.counterpartUsername ? `@${thread.counterpartUsername}` : thread.counterpartId}
+                                                            </p>
+                                                        </div>
+                                                        <div className="flex shrink-0 flex-col items-end gap-1">
+                                                            <span className="text-[11px] text-[#6b6c73]">{thread.lastMessageAt ? formatRelativeTime(thread.lastMessageAt) : "New"}</span>
+                                                            {thread.unreadCount > 0 ? (
+                                                                <span className="rounded-full bg-brand-purple px-2 py-0.5 text-[10px] font-semibold text-white">{thread.unreadCount}</span>
+                                                            ) : null}
+                                                        </div>
+                                                    </div>
+                                                    <p className="mt-1 line-clamp-1 text-sm text-[#b6b6bc]">{thread.lastMessagePreview || "No messages yet"}</p>
+                                                </div>
+                                            </button>
+                                        )) : (
+                                            <div className="px-4 py-10 text-sm text-[#8f9097] sm:px-5">
+                                                No chat threads yet. Start from a creator page to open the first one.
+                                            </div>
+                                        )}
+                                    </div>
+                                </>
+                            )}
                         </aside>
                     ) : null}
 
-                    <section className="flex min-h-[78vh] flex-col bg-[#000000]">
+                    {!showCompactThreadListOnly ? (
+                        <section className="flex min-h-[78vh] flex-col bg-[#000000]">
                         {selectedThread ? (
                             <>
                                 <div className="border-b border-white/10 px-4 pb-4 pt-5 sm:px-6">
@@ -1046,7 +1329,7 @@ export function ChatExperience() {
                                         {isCompactViewport ? (
                                             <button
                                                 type="button"
-                                                onClick={() => setSelectedThreadId(null)}
+                                                onClick={returnToThreadList}
                                                 className="absolute left-0 inline-flex h-11 w-11 items-center justify-center rounded-full bg-[#161618] text-white transition hover:bg-[#202024]"
                                                 aria-label="Back to chat list"
                                             >
@@ -1236,12 +1519,12 @@ export function ChatExperience() {
                                     {composerSummary ? (
                                         <div className="mt-3 text-[11px] text-[#7f8087]">{composerSummary}</div>
                                     ) : null}
-                                    <div className="mt-3 flex items-end gap-3">
+                                    <div className="mt-3 flex items-center gap-3">
                                         <div ref={attachmentMenuRef} className="relative shrink-0">
                                             <button
                                                 type="button"
                                                 onClick={() => setAttachmentMenuOpen((current) => !current)}
-                                                className="inline-flex h-11 w-11 items-center justify-center rounded-full bg-[#141417] text-white transition hover:bg-[#1a1b1f]"
+                                                className="inline-flex h-10 w-10 items-center justify-center rounded-full bg-[#141417] text-white transition hover:bg-[#1a1b1f]"
                                                 aria-label="Add attachment"
                                                 aria-expanded={attachmentMenuOpen}
                                                 aria-haspopup="menu"
@@ -1299,21 +1582,21 @@ export function ChatExperience() {
                                                 }}
                                             />
                                         </div>
-                                        <div className="flex min-h-11 flex-1 items-end gap-3 rounded-[1.75rem] bg-[#121214] px-4 py-3 ring-1 ring-white/8">
+                                        <div className="flex min-h-10 flex-1 items-center gap-2 rounded-[1.75rem] bg-[#121214] px-4 py-2.5 ring-1 ring-white/8">
                                             <textarea
                                                 value={composerText}
                                                 onChange={(event) => handleComposerTextChange(event.target.value.slice(0, 1200))}
                                                 onKeyDown={handleComposerKeyDown}
                                                 rows={1}
                                                 placeholder={selectedThread.viewerRole === "creator" ? "Reply..." : "Message"}
-                                                className="max-h-32 min-h-[24px] w-full resize-none bg-transparent text-[15px] leading-6 text-white placeholder:text-[#6e7077] focus:outline-none"
+                                                className="block max-h-32 min-h-[22px] w-full resize-none self-center bg-transparent py-0.5 text-[15px] leading-5 text-white placeholder:text-[#6e7077] focus:outline-none"
                                             />
                                             <button
                                                 type="button"
                                                 onClick={() => void handleSendMessage()}
                                                 disabled={sendingMessage}
                                                 className={cn(
-                                                    "inline-flex h-9 w-9 shrink-0 items-center justify-center rounded-full transition",
+                                                    "inline-flex h-8 w-8 shrink-0 self-center items-center justify-center rounded-full transition",
                                                     sendingMessage
                                                         ? "bg-brand-purple/50 text-white/80"
                                                         : "bg-brand-purple text-white hover:bg-[#8457ff]",
@@ -1349,9 +1632,69 @@ export function ChatExperience() {
                                 </div>
                             </div>
                         )}
-                    </section>
+                        </section>
+                    ) : null}
                 </div>
             </div>
+            {composePickerOpen ? (
+                <div className="fixed inset-0 z-40 bg-black/70 px-4 py-6 backdrop-blur-[2px]">
+                    <div ref={composePickerRef} className="mx-auto flex h-full w-full max-w-md flex-col justify-end">
+                        <div className="overflow-hidden rounded-[2rem] border border-white/10 bg-[#111113] shadow-[0_32px_80px_rgba(0,0,0,0.55)]">
+                            <div className="flex items-center justify-between border-b border-white/10 px-5 py-4">
+                                <div>
+                                    <p className="text-base font-semibold text-white">New message</p>
+                                    <p className="mt-1 text-sm text-[#8f9097]">Choose a creator you already follow.</p>
+                                </div>
+                                <button
+                                    type="button"
+                                    onClick={() => setComposePickerOpen(false)}
+                                    className="inline-flex h-9 w-9 items-center justify-center rounded-full bg-white/5 text-[#b6b6bc] transition hover:bg-white/10 hover:text-white"
+                                    aria-label="Close new message picker"
+                                >
+                                    <X className="h-4 w-4" />
+                                </button>
+                            </div>
+                            <div className="max-h-[60vh] overflow-y-auto px-3 py-3">
+                                {followedCreators.length > 0 ? followedCreators.map((creator) => (
+                                    <button
+                                        key={creator.uid}
+                                        type="button"
+                                        onClick={() => openThreadComposer(creator.uid)}
+                                        className="flex w-full items-center gap-3 rounded-[1.2rem] px-3 py-3 text-left transition hover:bg-white/[0.04]"
+                                    >
+                                        <ChatAvatar
+                                            photoURL={creator.photoURL}
+                                            label={creator.displayName}
+                                            sizeClassName="h-11 w-11"
+                                            textClassName="text-sm"
+                                        />
+                                        <div className="min-w-0 flex-1">
+                                            <p className="truncate text-sm font-semibold text-white">{creator.displayName}</p>
+                                            <p className="truncate text-xs text-[#8f9097]">
+                                                {creator.username ? `@${creator.username}` : creator.uid}
+                                            </p>
+                                        </div>
+                                        <ChevronRight className="h-4 w-4 text-[#63646b]" />
+                                    </button>
+                                )) : (
+                                    <div className="px-3 py-10 text-center">
+                                        <p className="text-base font-semibold text-white">No followed creators yet</p>
+                                        <p className="mt-2 text-sm leading-6 text-[#8f9097]">
+                                            Follow creators first, then come back here to start a new message.
+                                        </p>
+                                        <Link
+                                            href="/experiences"
+                                            className="mt-5 inline-flex rounded-full bg-white px-4 py-2.5 text-sm font-semibold text-black transition hover:bg-[#e8e8ea]"
+                                        >
+                                            Follow creators
+                                        </Link>
+                                    </div>
+                                )}
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            ) : null}
         </div>
     );
 }
