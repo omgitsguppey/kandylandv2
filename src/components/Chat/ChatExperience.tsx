@@ -5,9 +5,11 @@ import { useRouter, useSearchParams } from "next/navigation";
 import { startTransition, useCallback, useEffect, useMemo, useRef, useState, type KeyboardEvent } from "react";
 import {
     ArrowLeft,
+    ImageIcon,
     MessageSquare,
     Plus,
     Send,
+    Video,
     X,
 } from "lucide-react";
 import { collection, doc, onSnapshot, query, where } from "firebase/firestore";
@@ -305,6 +307,7 @@ export function ChatExperience() {
     const [composerText, setComposerText] = useState("");
     const [composerKind, setComposerKind] = useState<ChatMessageKind>("text");
     const [composerFile, setComposerFile] = useState<File | null>(null);
+    const [attachmentMenuOpen, setAttachmentMenuOpen] = useState(false);
     const [sendingMessage, setSendingMessage] = useState(false);
     const [presence, setPresence] = useState<PresenceSnapshot | null>(null);
     const [insufficientFunds, setInsufficientFunds] = useState<ChatInsufficientFundsPayload | null>(null);
@@ -314,6 +317,9 @@ export function ChatExperience() {
     const typingResetTimerRef = useRef<number | null>(null);
     const messageListRef = useRef<HTMLDivElement | null>(null);
     const shouldStickToBottomRef = useRef(true);
+    const attachmentMenuRef = useRef<HTMLDivElement | null>(null);
+    const imageInputRef = useRef<HTMLInputElement | null>(null);
+    const videoInputRef = useRef<HTMLInputElement | null>(null);
 
     const visibleThreads = useMemo(
         () => mergeThreads(threads, selectedDetail?.thread ?? null),
@@ -408,11 +414,45 @@ export function ChatExperience() {
     useEffect(() => {
         if (!selectedThreadId) {
             setSelectedDetail(null);
+            setAttachmentMenuOpen(false);
             return;
         }
 
         void loadThreadDetail(selectedThreadId);
     }, [loadThreadDetail, selectedThreadId]);
+
+    useEffect(() => {
+        if (!attachmentMenuOpen) {
+            return;
+        }
+
+        const handlePointerDown = (event: MouseEvent) => {
+            const target = event.target;
+            if (!(target instanceof Node)) {
+                return;
+            }
+
+            if (attachmentMenuRef.current?.contains(target)) {
+                return;
+            }
+
+            setAttachmentMenuOpen(false);
+        };
+
+        const handleKeyDown = (event: globalThis.KeyboardEvent) => {
+            if (event.key === "Escape") {
+                setAttachmentMenuOpen(false);
+            }
+        };
+
+        window.addEventListener("pointerdown", handlePointerDown);
+        window.addEventListener("keydown", handleKeyDown);
+
+        return () => {
+            window.removeEventListener("pointerdown", handlePointerDown);
+            window.removeEventListener("keydown", handleKeyDown);
+        };
+    }, [attachmentMenuOpen]);
 
     useEffect(() => {
         if (!selectedThreadId) {
@@ -619,6 +659,7 @@ export function ChatExperience() {
     }, [pushTypingState]);
 
     const handleSelectFile = useCallback((file: File | null) => {
+        setAttachmentMenuOpen(false);
         setComposerFile(file);
         if (file?.type.startsWith("video/")) {
             setComposerKind("video");
@@ -626,7 +667,19 @@ export function ChatExperience() {
         }
         if (file?.type.startsWith("image/")) {
             setComposerKind("image");
+            return;
         }
+        setComposerKind("text");
+    }, []);
+
+    const openImagePicker = useCallback(() => {
+        setAttachmentMenuOpen(false);
+        imageInputRef.current?.click();
+    }, []);
+
+    const openVideoPicker = useCallback(() => {
+        setAttachmentMenuOpen(false);
+        videoInputRef.current?.click();
     }, []);
 
     const uploadAttachment = useCallback(async () => {
@@ -1184,15 +1237,68 @@ export function ChatExperience() {
                                         <div className="mt-3 text-[11px] text-[#7f8087]">{composerSummary}</div>
                                     ) : null}
                                     <div className="mt-3 flex items-end gap-3">
-                                        <label className="inline-flex h-11 w-11 shrink-0 cursor-pointer items-center justify-center rounded-full bg-[#141417] text-white transition hover:bg-[#1a1b1f]">
-                                            <Plus className="h-4 w-4" />
+                                        <div ref={attachmentMenuRef} className="relative shrink-0">
+                                            <button
+                                                type="button"
+                                                onClick={() => setAttachmentMenuOpen((current) => !current)}
+                                                className="inline-flex h-11 w-11 items-center justify-center rounded-full bg-[#141417] text-white transition hover:bg-[#1a1b1f]"
+                                                aria-label="Add attachment"
+                                                aria-expanded={attachmentMenuOpen}
+                                                aria-haspopup="menu"
+                                            >
+                                                <Plus className="h-4 w-4" />
+                                            </button>
+                                            {attachmentMenuOpen ? (
+                                                <div
+                                                    role="menu"
+                                                    aria-label="Attachment options"
+                                                    className="absolute bottom-full left-0 z-20 mb-3 w-44 overflow-hidden rounded-[1.35rem] border border-white/10 bg-[#151518]/95 p-2 shadow-[0_24px_48px_rgba(0,0,0,0.45)] backdrop-blur"
+                                                >
+                                                    <button
+                                                        type="button"
+                                                        role="menuitem"
+                                                        onClick={openImagePicker}
+                                                        className="flex w-full items-center gap-3 rounded-[1rem] px-3 py-3 text-left text-sm font-medium text-white transition hover:bg-white/5"
+                                                    >
+                                                        <span className="inline-flex h-9 w-9 items-center justify-center rounded-full bg-brand-purple/18 text-brand-purple">
+                                                            <ImageIcon className="h-4 w-4" />
+                                                        </span>
+                                                        <span>Image</span>
+                                                    </button>
+                                                    <button
+                                                        type="button"
+                                                        role="menuitem"
+                                                        onClick={openVideoPicker}
+                                                        className="flex w-full items-center gap-3 rounded-[1rem] px-3 py-3 text-left text-sm font-medium text-white transition hover:bg-white/5"
+                                                    >
+                                                        <span className="inline-flex h-9 w-9 items-center justify-center rounded-full bg-white/8 text-white">
+                                                            <Video className="h-4 w-4" />
+                                                        </span>
+                                                        <span>Video</span>
+                                                    </button>
+                                                </div>
+                                            ) : null}
                                             <input
+                                                ref={imageInputRef}
                                                 type="file"
-                                                accept="image/*,video/*"
+                                                accept="image/*"
                                                 className="hidden"
-                                                onChange={(event) => handleSelectFile(event.target.files?.[0] || null)}
+                                                onChange={(event) => {
+                                                    handleSelectFile(event.target.files?.[0] || null);
+                                                    event.currentTarget.value = "";
+                                                }}
                                             />
-                                        </label>
+                                            <input
+                                                ref={videoInputRef}
+                                                type="file"
+                                                accept="video/*"
+                                                className="hidden"
+                                                onChange={(event) => {
+                                                    handleSelectFile(event.target.files?.[0] || null);
+                                                    event.currentTarget.value = "";
+                                                }}
+                                            />
+                                        </div>
                                         <div className="flex min-h-11 flex-1 items-end gap-3 rounded-[1.75rem] bg-[#121214] px-4 py-3 ring-1 ring-white/8">
                                             <textarea
                                                 value={composerText}

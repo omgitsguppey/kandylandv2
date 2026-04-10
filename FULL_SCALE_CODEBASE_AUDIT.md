@@ -6,6 +6,67 @@ Last full-scale audit execution: 2026-04-09 19:40:21 -05:00
 Repo: `C:\Users\uylus\OneDrive\Documents\KandyDrops_Final`
 Audited HEAD at start: `36fcca527b72b04c24531724465f490642018ba2`
 
+## 2026-04-10 Chat Composer Attachment Menu Simplification
+
+Scope for this pass:
+
+- replace the direct plus-button file picker in chat with a compact attachment menu
+- limit the composer attachment actions to `Image` and `Video`
+- keep the existing attachment upload/send path intact while tightening adjacent composer state behavior
+
+Startup protocol executed:
+
+- read `FULL_SCALE_CODEBASE_AUDIT.md`
+- read `REPO_MEMORY_LEDGER.md`
+- read `EVERY_FILE_FUNCTION_CHECKLIST.md`
+- ran `git status --short`
+- ran `npm run trace:adjacent -- src/components/Chat/ChatExperience.tsx`
+
+Start state:
+
+- current HEAD at pass start: `d0182a59c12bcfa6cf86f26f6987ba4c1cfde342`
+- working tree was clean at pass start
+- the chat plus button opened the OS file picker immediately instead of presenting the reduced two-option action sheet requested for the thread composer
+- the composer had no explicit attachment-menu open/close state because the plus control was implemented as a hidden file input label
+
+Implementation results:
+
+- updated `src/components/Chat/ChatExperience.tsx` so the plus button now opens a compact attachment menu instead of directly invoking the file picker
+- limited the attachment actions to exactly two options:
+  - `Image`
+  - `Video`
+- replaced the single mixed hidden input with dedicated hidden inputs for image-only and video-only attachment selection
+- added explicit attachment-menu state management so the menu now closes when:
+  - clicking outside the menu
+  - pressing `Escape`
+  - switching threads
+  - choosing either attachment action
+- reset hidden input values after selection so re-choosing the same file still triggers a new selection event
+
+Commands run:
+
+- `git status --short`
+- `npm run trace:adjacent -- src/components/Chat/ChatExperience.tsx`
+- `npx eslint src/components/Chat/ChatExperience.tsx`
+- `npx tsc --noEmit`
+- `npm run check:ui:audits`
+- removed `playwright-report/` and `test-results`
+- `git status --short`
+
+Results:
+
+- focused eslint passed
+- `npx tsc --noEmit` passed
+- `npm run check:ui:audits` passed:
+  - `16` tests green across Chromium and Mobile Chrome
+- generated Playwright artifacts were removed after verification so the working tree reflects only intended source/doc changes
+
+Warnings and notes:
+
+- `npm run check:ui:audits` still emits the standing non-blocking Next teardown warning after the suite passes:
+  - `TypeError: controller[kState].transformAlgorithm is not a function`
+- this pass intentionally did not change the existing attachment upload/send contract; it only simplified how users choose between image and video before the existing upload flow runs
+
 ## 2026-04-10 Chat Surface Redesign Toward Simpler Mobile Messaging
 
 Scope for this pass:
