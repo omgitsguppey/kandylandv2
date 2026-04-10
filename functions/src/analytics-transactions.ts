@@ -100,15 +100,20 @@ function classifyTransaction(data: TransactionFact, amount: number, status: stri
   const type = readString(data.type)
   const isRewardTransaction = type === "daily_reward" || type === "onboarding_reward" || type === "referral_bonus"
   const isPurchaseTransaction = type === "purchase_currency"
-  const isSpendTransaction = type === "unlock_content"
+  const isSpendTransaction = type === "unlock_content" || type === "creator_message_text" || type === "creator_message_image" || type === "creator_message_video" || type === "creator_subscription" || type === "creator_subscription_renewal" || type === "creator_custom_request" || type === "creator_booking_phone" || type === "creator_booking_video"
   const isAdminAdjustment = type === "admin_adjustment"
+
+  const explicitPaid = readOptionalNumber(data.paidGumDrops) ?? 0
+  const explicitBonus = readOptionalNumber(data.bonusGumDrops) ?? 0
+  const purchasePaidAmount = isPurchaseTransaction ? (explicitPaid > 0 ? explicitPaid : positiveAmount) : 0
+  const purchaseBonusAmount = isPurchaseTransaction ? explicitBonus : 0
 
   return {
     gumdropDelta: amount,
     gumdropCreditTotal: positiveAmount,
     gumdropDebitTotal: negativeAmount,
-    gumdropRewardTotal: isRewardTransaction ? positiveAmount : 0,
-    gumdropPurchaseTotal: isPurchaseTransaction ? positiveAmount : 0,
+    gumdropRewardTotal: (isRewardTransaction ? positiveAmount : 0) + purchaseBonusAmount,
+    gumdropPurchaseTotal: purchasePaidAmount,
     gumdropSpendTotal: isSpendTransaction ? negativeAmount : 0,
     gumdropAdjustmentPositiveTotal: isAdminAdjustment ? positiveAmount : 0,
     gumdropAdjustmentNegativeTotal: isAdminAdjustment ? negativeAmount : 0,

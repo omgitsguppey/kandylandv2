@@ -130,9 +130,9 @@ export function spendSourceAwareGumdrops(
         };
     }
 
-    const purchasedSpent = Math.min(current.purchased, required);
-    const rewardSpent = Math.max(0, required - purchasedSpent);
-    if (purchasedSpent + rewardSpent < required || rewardSpent > current.reward) {
+    const rewardSpent = Math.min(current.reward, required);
+    const purchasedSpent = Math.max(0, required - rewardSpent);
+    if (purchasedSpent + rewardSpent < required || purchasedSpent > current.purchased) {
         return {
             ok: false as const,
             error: "Insufficient Gum Drops for this creator experience.",
@@ -195,6 +195,8 @@ export function classifyGumdropTransaction(input: {
     status?: unknown;
     purchasedAmountSpent?: number;
     rewardAmountSpent?: number;
+    paidGumDrops?: number;
+    bonusGumDrops?: number;
 }) {
     const amount = normalizeGumdropAmount(input.amount);
     const type = typeof input.type === "string" ? input.type : "";
@@ -246,12 +248,17 @@ export function classifyGumdropTransaction(input: {
         : 0;
     const creatorRestrictedSpendViolationCount = isCreatorSpendTransaction && creatorRewardSpendTotal > 0 ? 1 : 0;
 
+    const explicitPaid = "paidGumDrops" in input && typeof input.paidGumDrops === "number" ? normalizeGumdropAmount(input.paidGumDrops) : 0;
+    const explicitBonus = "bonusGumDrops" in input && typeof input.bonusGumDrops === "number" ? normalizeGumdropAmount(input.bonusGumDrops) : 0;
+    const purchasePaidAmount = isPurchaseTransaction ? (explicitPaid > 0 ? explicitPaid : positiveAmount) : 0;
+    const purchaseBonusAmount = isPurchaseTransaction ? explicitBonus : 0;
+
     return {
         gumdropDelta: amount,
         gumdropCreditTotal: positiveAmount,
         gumdropDebitTotal: negativeAmount,
-        gumdropRewardTotal: isRewardTransaction ? positiveAmount : 0,
-        gumdropPurchaseTotal: isPurchaseTransaction ? positiveAmount : 0,
+        gumdropRewardTotal: (isRewardTransaction ? positiveAmount : 0) + purchaseBonusAmount,
+        gumdropPurchaseTotal: purchasePaidAmount,
         gumdropSpendTotal: isSpendTransaction ? negativeAmount : 0,
         gumdropAdjustmentPositiveTotal: isAdminAdjustment ? positiveAmount : 0,
         gumdropAdjustmentNegativeTotal: isAdminAdjustment ? negativeAmount : 0,
