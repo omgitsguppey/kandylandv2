@@ -79,8 +79,9 @@ describe("POST /api/chat/threads/[threadId]/messages", () => {
         mockState.guardApiRequest.mockResolvedValue({ uid: "fan_1", email: "fan@example.com" });
         mockState.userDocs.set("fan_1", { role: "user" });
         mockState.safeSendChatMessageForViewer.mockResolvedValue({
-            threadId: "thread_1",
+            thread: { id: "thread_1" },
             message: { id: "message_1" },
+            pricing: { purchasedBalanceGd: 9 },
         });
 
         const response = await POST(new NextRequest("http://localhost/api/chat/threads/thread_1/messages", {
@@ -104,6 +105,8 @@ describe("POST /api/chat/threads/[threadId]/messages", () => {
             messageKind: "text",
         });
         expect(body.success).toBe(true);
+        expect(body.message).toMatchObject({ id: "message_1" });
+        expect(body.pricing).toMatchObject({ purchasedBalanceGd: 9 });
     });
 
     it("returns structured insufficient-funds style chat errors", async () => {

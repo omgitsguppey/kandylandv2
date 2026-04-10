@@ -6,6 +6,161 @@ Last full-scale audit execution: 2026-04-09 19:40:21 -05:00
 Repo: `C:\Users\uylus\OneDrive\Documents\KandyDrops_Final`
 Audited HEAD at start: `36fcca527b72b04c24531724465f490642018ba2`
 
+## 2026-04-10 Chat Surface Redesign Toward Simpler Mobile Messaging
+
+Scope for this pass:
+
+- redesign the in-thread chat experience around a simpler iMessage-like reference
+- keep the purple outgoing accent while darkening the canvas and incoming bubble system
+- preserve the existing realtime send, read, and presence behavior while reducing the current dashboard-like chrome
+
+Startup protocol executed:
+
+- read `FULL_SCALE_CODEBASE_AUDIT.md`
+- read `REPO_MEMORY_LEDGER.md`
+- read `EVERY_FILE_FUNCTION_CHECKLIST.md`
+- ran `git status --short`
+- ran `npm run trace:adjacent -- src/components/Chat/ChatExperience.tsx`
+- reviewed the supplied reference image directly from:
+  - `C:\Users\uylus\Downloads\IMG_3609.png`
+
+Start state:
+
+- current HEAD at pass start: `502ae3d030132f55018918c7e9ba57324a909a64`
+- working tree already contained the prior uncommitted chat send hardening pass
+- the chat thread UI still read more like an admin panel:
+  - radial background instead of a clean black canvas
+  - heavy composer chrome
+  - bubble metadata on every message
+  - visible message-kind controls that added clutter to routine chat
+
+Implementation results:
+
+- redesigned `src/components/Chat/ChatExperience.tsx` around:
+  - a black canvas thread view
+  - denser charcoal incoming bubbles
+  - purple outgoing bubbles with softer gradient treatment
+  - centered identity header on compact viewports
+  - timeline markers between message groups instead of timestamp noise on every bubble
+  - a simpler bottom composer with:
+    - plus-style attachment control
+    - pill input field
+    - compact circular send affordance
+  - inline attachment summary chip instead of a bulky attachment state
+- added auto-scroll behavior for active threads so new messages and successful sends stay visually current without needing a thread remount
+- kept the existing realtime send reconciliation and thread/pricing updates from the previous pass intact while simplifying the visual layer
+
+Commands run:
+
+- `git status --short`
+- `npm run trace:adjacent -- src/components/Chat/ChatExperience.tsx`
+- `npx eslint src/components/Chat/ChatExperience.tsx`
+- `npx tsc --noEmit`
+- `corepack pnpm exec vitest run tests/unit/chat-send-realtime.spec.ts tests/unit/server-chat-send.spec.ts tests/unit/chat-thread-messages-route.spec.ts`
+- `npm run check:ui:audits`
+- removed `.next`, `playwright-report`, and `test-results`
+- `npm run check:continuity`
+
+Results:
+
+- focused eslint passed
+- `npx tsc --noEmit` passed
+- focused chat send/reconciliation Vitest passed:
+  - `3` files
+  - `10` tests
+- `npm run check:ui:audits` passed:
+  - `16` tests green across Chromium and Mobile Chrome
+- `npm run check:continuity` passed after artifact cleanup
+
+Warnings and notes:
+
+- `npm run check:ui:audits` still emitted the standing non-blocking Next teardown warning `TypeError: controller[kState].transformAlgorithm is not a function` after the suite passed
+- the UI audit run also logged several upstream Firebase Storage image timeouts on unrelated public imagery while still passing the suite
+- the chat route itself is not covered by the standing public Playwright audit suite, so this redesign was verified through compile/lint/realtime-adjacent tests plus global UI continuity checks rather than a chat-route screenshot baseline
+- this pass kept the current data model and send semantics; it was a thread-surface redesign, not a chat contract rewrite
+
+## 2026-04-10 Chat Send Realtime Reconciliation Hardening
+
+Scope for this pass:
+
+- fix the stuck `Sending...` state in chat without requiring a thread remount
+- harden the immediate send response so thread/read/pricing state stays truthful before snapshots arrive
+- review adjacent chat send and realtime subscription logic rather than applying a narrow UI-only patch
+
+Startup protocol executed:
+
+- read `FULL_SCALE_CODEBASE_AUDIT.md`
+- read `REPO_MEMORY_LEDGER.md`
+- read `EVERY_FILE_FUNCTION_CHECKLIST.md`
+- ran `git status --short`
+- traced adjacent surfaces for:
+  - `src/components/Chat/ChatExperience.tsx`
+  - `src/lib/server/chat.ts`
+  - `src/app/api/chat/threads/[threadId]/messages/route.ts`
+
+Start state:
+
+- current HEAD at pass start: `502ae3d030132f55018918c7e9ba57324a909a64`
+- working tree was clean at pass start
+- successful text sends could remain rendered as optimistic `Sending...` bubbles until the user navigated away and back into the thread
+
+Implementation results:
+
+- added a dedicated realtime reconciliation helper in:
+  - `src/lib/chat-send-realtime.ts`
+- updated `src/components/Chat/ChatExperience.tsx` so successful sends immediately:
+  - replace optimistic placeholders with the persisted server message
+  - append attachment sends without waiting for Firestore snapshot churn
+  - refresh the selected thread and thread list from the server response
+  - refresh pricing state immediately after paid sends
+- hardened `src/lib/server/chat.ts` so the immediate send response now:
+  - preserves existing thread read-state fields instead of rebuilding from the patch alone
+  - returns the updated pricing summary alongside the created message and thread
+- added direct regression coverage in:
+  - `tests/unit/chat-send-realtime.spec.ts`
+  - `tests/unit/server-chat-send.spec.ts`
+  - `tests/unit/chat-thread-messages-route.spec.ts`
+
+Commands run:
+
+- `git status --short`
+- `npm run trace:adjacent -- src/components/Chat/ChatExperience.tsx`
+- `npm run trace:adjacent -- src/lib/server/chat.ts`
+- `npm run trace:adjacent -- src/app/api/chat/threads/[threadId]/messages/route.ts`
+
+Results:
+
+- focused eslint passed
+- focused chat send and reconciliation Vitest passed:
+  - `3` files
+  - `10` tests
+- `npx tsc --noEmit` passed
+- `npm run check:ui:audits` passed:
+  - `16` tests green across Chromium and Mobile Chrome
+- `npm run check:continuity` passed after clearing `.next` left by the UI audit build step
+
+Root cause:
+
+- `src/components/Chat/ChatExperience.tsx` was creating optimistic text messages locally but not reconciling them against the already-successful server response, so the bubble could remain stuck as `Sending...` until a thread remount forced a fresh detail fetch
+- `src/lib/server/chat.ts` was also returning the immediate thread payload from the write patch alone, which could temporarily drop unchanged read-state fields until the next thread snapshot arrived
+
+Commands run:
+
+- `git status --short`
+- `npm run trace:adjacent -- src/components/Chat/ChatExperience.tsx`
+- `npm run trace:adjacent -- src/lib/server/chat.ts`
+- `npm run trace:adjacent -- src/app/api/chat/threads/[threadId]/messages/route.ts`
+- `npx eslint src/components/Chat/ChatExperience.tsx src/lib/server/chat.ts src/lib/chat-send-realtime.ts tests/unit/chat-send-realtime.spec.ts tests/unit/server-chat-send.spec.ts tests/unit/chat-thread-messages-route.spec.ts`
+- `corepack pnpm exec vitest run tests/unit/chat-send-realtime.spec.ts tests/unit/server-chat-send.spec.ts tests/unit/chat-thread-messages-route.spec.ts`
+- `npx tsc --noEmit`
+- `npm run check:ui:audits`
+- `npm run check:continuity`
+
+Warnings and notes:
+
+- `npm run check:ui:audits` still emits the standing non-blocking Next teardown warning `TypeError: controller[kState].transformAlgorithm is not a function` after the suite passes
+- UI audit builds leave `.next` behind, so continuity must run after cleaning generated artifacts or it will fail truthfully on the artifact check
+
 ## 2026-04-10 Dedicated Hook Test Harness for Unread Status
 
 Scope for this pass:

@@ -165,6 +165,10 @@ describe("sendChatMessageForViewer", () => {
             costGd: 1,
             messageKind: "text",
         });
+        expect(result.pricing).toMatchObject({
+            purchasedBalanceGd: 9,
+            textPriceGd: 1,
+        });
         expect(participant).toMatchObject({
             gumDropsBalance: 9,
             gumDropsPurchasedBalance: 9,
@@ -211,6 +215,9 @@ describe("sendChatMessageForViewer", () => {
             gumDropsPurchasedBalance: 13,
             gumDropsRewardBalance: 0,
         });
+        expect(result.pricing).toMatchObject({
+            purchasedBalanceGd: 13,
+        });
     });
 
     it("spends only purchased balance when split balances exist", async () => {
@@ -241,6 +248,52 @@ describe("sendChatMessageForViewer", () => {
             gumDropsPurchasedBalance: 1,
             gumDropsRewardBalance: 18,
         });
+        expect(result.pricing).toMatchObject({
+            purchasedBalanceGd: 1,
+        });
+    });
+
+    it("preserves existing read-state fields in the immediate returned thread", async () => {
+        mockState.documents.set(`users/${userId}`, {
+            uid: userId,
+            role: "user",
+            displayName: "Fan One",
+            username: "fanone",
+            gumDropsBalance: 10,
+        });
+        mockState.documents.set(`creator_message_threads/${threadId}`, {
+            id: threadId,
+            creatorId,
+            userId,
+            creatorDisplayName: "Creator One",
+            creatorUsername: "creatorone",
+            creatorPhotoURL: null,
+            userDisplayName: "Fan One",
+            userUsername: "fanone",
+            userPhotoURL: null,
+            lastMessageAt: 20,
+            lastMessagePreview: "older",
+            messageCount: 2,
+            lastMessageSenderRole: "creator",
+            lastReadByUserAt: 20,
+            lastReadByCreatorAt: 18,
+            unreadCountForUser: 0,
+            unreadCountForCreator: 0,
+            subscriberChatFree: false,
+        });
+
+        const result = await sendChatMessageForViewer({
+            callerUid: userId,
+            callerEmail: "fan@example.com",
+            callerRole: "user",
+            threadId,
+            text: "fresh ping",
+            messageKind: "text",
+        });
+
+        expect(result.thread.readAt).toBeGreaterThanOrEqual(20);
+        expect(result.thread.counterpartReadAt).toBe(18);
+        expect(result.thread.lastMessagePreview).toBe("fresh ping");
     });
 
     it("returns structured insufficient-funds errors for purchased-only sends", async () => {

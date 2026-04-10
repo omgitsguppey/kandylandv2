@@ -2,14 +2,13 @@
 
 import Link from "next/link";
 import { useRouter, useSearchParams } from "next/navigation";
-import { startTransition, useCallback, useEffect, useMemo, useRef, useState } from "react";
+import { startTransition, useCallback, useEffect, useMemo, useRef, useState, type KeyboardEvent } from "react";
 import {
     ArrowLeft,
-    CircleDot,
-    ImagePlus,
     MessageSquare,
+    Plus,
     Send,
-    Video,
+    X,
 } from "lucide-react";
 import { collection, doc, onSnapshot, query, where } from "firebase/firestore";
 import { onDisconnect, onValue, ref, remove, set } from "firebase/database";
@@ -30,6 +29,10 @@ import {
     type ChatThreadDetail,
     type ChatThreadRecord,
 } from "@/lib/chat";
+import {
+    reconcileChatSendSuccess,
+    type ChatSendRealtimePayload,
+} from "@/lib/chat-send-realtime";
 import {
     buildChatSendErrorMessage,
     buildChatSendWarningMessage,
@@ -57,7 +60,7 @@ type ChatSendResponse = {
     error?: string;
     errorCode?: string;
     warnings?: ChatSendWarning[];
-} & Partial<ChatInsufficientFundsPayload>;
+} & Partial<ChatInsufficientFundsPayload> & Partial<ChatSendRealtimePayload>;
 
 type ChatAttachmentPrepareResponse = {
     storagePath: string;
@@ -77,6 +80,8 @@ type PresenceSnapshot = {
     displayName?: string;
     role?: string;
 };
+
+const MESSAGE_GROUP_GAP_MS = 15 * 60_000;
 
 function formatRelativeTime(timestamp?: number) {
     if (!timestamp || !Number.isFinite(timestamp)) {
@@ -100,20 +105,114 @@ function formatRelativeTime(timestamp?: number) {
     return rtf.format(-diffDays, "day");
 }
 
-function formatComposerCost(detail: ThreadDetailResponse | null, kind: ChatMessageKind) {
+function formatTimelineLabel(timestamp?: number) {
+    if (!timestamp || !Number.isFinite(timestamp)) {
+        return "Just now";
+    }
+
+    const current = new Date(timestamp);
+    const now = new Date();
+    const timeLabel = new Intl.DateTimeFormat("en-US", {
+        hour: "numeric",
+        minute: "2-digit",
+    }).format(current);
+
+    if (current.toDateString() === now.toDateString()) {
+        return `Today ${timeLabel}`;
+    }
+
+    const yesterday = new Date(now);
+    yesterday.setDate(now.getDate() - 1);
+    if (current.toDateString() === yesterday.toDateString()) {
+        return `Yesterday ${timeLabel}`;
+    }
+
+    return new Intl.DateTimeFormat("en-US", {
+        month: "short",
+        day: "numeric",
+        hour: "numeric",
+        minute: "2-digit",
+    }).format(current);
+}
+
+function shouldRenderTimelineMarker(
+    message: ThreadDetailResponse["messages"][number],
+    previousMessage?: ThreadDetailResponse["messages"][number],
+) {
+    if (!previousMessage) {
+        return true;
+    }
+
+    const currentDate = new Date(message.createdAt).toDateString();
+    const previousDate = new Date(previousMessage.createdAt).toDateString();
+    if (currentDate !== previousDate) {
+        return true;
+    }
+
+    return Math.abs(message.createdAt - previousMessage.createdAt) >= MESSAGE_GROUP_GAP_MS;
+}
+
+function getDisplayInitial(label?: string | null) {
+    const normalized = (label || "").trim();
+    if (!normalized) {
+        return "?";
+    }
+
+    const parts = normalized.split(/\s+/).filter(Boolean);
+    if (parts.length === 1) {
+        return parts[0].slice(0, 1).toUpperCase();
+    }
+
+    return `${parts[0]?.slice(0, 1) || ""}${parts[1]?.slice(0, 1) || ""}`.toUpperCase();
+}
+
+function ChatAvatar({
+    photoURL,
+    label,
+    sizeClassName,
+    textClassName,
+}: {
+    photoURL?: string | null;
+    label?: string | null;
+    sizeClassName: string;
+    textClassName: string;
+}) {
+    if (photoURL) {
+        return (
+            // eslint-disable-next-line @next/next/no-img-element
+            <img
+                src={photoURL}
+                alt=""
+                className={cn("rounded-full object-cover ring-1 ring-white/10", sizeClassName)}
+            />
+        );
+    }
+
+    return (
+        <div className={cn(
+            "flex items-center justify-center rounded-full bg-[linear-gradient(145deg,#34204f_0%,#17171b_100%)] font-semibold text-white ring-1 ring-white/10",
+            sizeClassName,
+            textClassName,
+        )}>
+            {getDisplayInitial(label)}
+        </div>
+    );
+}
+
+function renderPriceSummary(detail: ThreadDetailResponse | null, viewerRole: ChatThreadRecord["viewerRole"]) {
     if (!detail) {
-        return 0;
+        return null;
     }
 
-    if (kind === "image") {
-        return detail.pricing.imagePriceGd;
+    if (detail.pricing.subscriberFreeChatApplies) {
+        return "Subscriber chat is free on this thread.";
     }
 
-    if (kind === "video") {
-        return detail.pricing.videoPriceGd;
+    if (viewerRole === "creator") {
+        return "Creator replies are free.";
     }
 
-    return detail.pricing.textPriceGd;
+    return `Text ${detail.pricing.textPriceGd} GD, image ${detail.pricing.imagePriceGd} GD, video ${detail.pricing.videoPriceGd} GD. Paid balance ${detail.pricing.purchasedBalanceGd} GD.`;
 }
 
 function isImageAttachment(mimeType?: string, assetUrl?: string) {
@@ -213,6 +312,8 @@ export function ChatExperience() {
     const [sendWarningMessage, setSendWarningMessage] = useState<string | null>(null);
     const markReadRef = useRef<string | null>(null);
     const typingResetTimerRef = useRef<number | null>(null);
+    const messageListRef = useRef<HTMLDivElement | null>(null);
+    const shouldStickToBottomRef = useRef(true);
 
     const visibleThreads = useMemo(
         () => mergeThreads(threads, selectedDetail?.thread ?? null),
@@ -657,6 +758,20 @@ export function ChatExperience() {
                 setComposerKind("text");
                 pushTypingState(false);
             }
+            if (body.message && body.thread) {
+                const persistedMessage = body.message;
+                const persistedThread = body.thread;
+                setSelectedDetail((current) => reconcileChatSendSuccess(current, {
+                    thread: persistedThread,
+                    message: persistedMessage,
+                    pricing: body.pricing,
+                    optimisticMessageId: currentComposerFile ? null : optimisticId,
+                }));
+                setThreads((current) => mergeThreads(
+                    current.map((thread) => thread.id === persistedThread.id ? persistedThread : thread),
+                    persistedThread,
+                ));
+            }
             const warningMessage = buildChatSendWarningMessage(body.warnings);
             if (warningMessage) {
                 setSendWarningMessage(warningMessage);
@@ -689,6 +804,15 @@ export function ChatExperience() {
         }
     }, [composerFile, composerKind, composerText, pushTypingState, selectedThread, selectedThreadId, uploadAttachment]);
 
+    const handleComposerKeyDown = useCallback((event: KeyboardEvent<HTMLTextAreaElement>) => {
+        if (event.key === "Enter" && !event.shiftKey) {
+            event.preventDefault();
+            if (!sendingMessage) {
+                void handleSendMessage();
+            }
+        }
+    }, [handleSendMessage, sendingMessage]);
+
     const latestOutgoingMessageId = useMemo(() => {
         if (!selectedDetail) {
             return null;
@@ -698,6 +822,36 @@ export function ChatExperience() {
         const outgoing = [...selectedDetail.messages].reverse().find((message) => message.senderRole === viewerRole);
         return outgoing?.id ?? null;
     }, [selectedDetail]);
+    const latestMessageSnapshot = useMemo(() => {
+        const latestMessage = selectedDetail?.messages[selectedDetail.messages.length - 1];
+        if (!latestMessage) {
+            return null;
+        }
+
+        return `${latestMessage.id}:${latestMessage.createdAt}`;
+    }, [selectedDetail]);
+
+    const scrollMessageListToBottom = useCallback((behavior: ScrollBehavior = "smooth") => {
+        const node = messageListRef.current;
+        if (!node) {
+            return;
+        }
+
+        node.scrollTo({
+            top: node.scrollHeight,
+            behavior,
+        });
+    }, []);
+
+    const handleMessageListScroll = useCallback(() => {
+        const node = messageListRef.current;
+        if (!node) {
+            return;
+        }
+
+        const distanceFromBottom = node.scrollHeight - node.scrollTop - node.clientHeight;
+        shouldStickToBottomRef.current = distanceFromBottom < 72;
+    }, []);
 
     useEffect(() => {
         if (!selectedThreadId || !user) {
@@ -744,51 +898,86 @@ export function ChatExperience() {
         return () => unsubscribe();
     }, [selectedThreadId, user]);
 
+    useEffect(() => {
+        shouldStickToBottomRef.current = true;
+        window.requestAnimationFrame(() => {
+            scrollMessageListToBottom("auto");
+        });
+    }, [scrollMessageListToBottom, selectedThreadId]);
+
+    useEffect(() => {
+        if (!selectedDetail?.messages.length || !selectedThread) {
+            return;
+        }
+
+        const latestMessage = selectedDetail.messages[selectedDetail.messages.length - 1];
+        if (shouldStickToBottomRef.current || latestMessage.senderRole === selectedThread.viewerRole) {
+            window.requestAnimationFrame(() => {
+                scrollMessageListToBottom(shouldStickToBottomRef.current ? "smooth" : "auto");
+            });
+        }
+    }, [latestMessageSnapshot, scrollMessageListToBottom, selectedDetail?.messages, selectedThread]);
+
+    const composerSummary = useMemo(
+        () => renderPriceSummary(selectedDetail, selectedThread?.viewerRole ?? "user"),
+        [selectedDetail, selectedThread?.viewerRole],
+    );
+
     if (!user || !userProfile) {
         return null;
     }
 
     return (
-        <div className="mx-auto w-full max-w-7xl px-3 sm:px-4 mt-8">
-            <div className="overflow-hidden rounded-[2rem] border border-white/10 bg-black/40 shadow-[0_24px_70px_rgba(0,0,0,0.4)]">
-                <div className="grid min-h-[72vh] lg:grid-cols-[360px_1fr]">
+        <div className="mx-auto mt-4 w-full max-w-6xl px-0 sm:px-4">
+            <div className="overflow-hidden rounded-[2rem] border border-white/10 bg-black shadow-[0_26px_80px_rgba(0,0,0,0.55)]">
+                <div className="grid min-h-[78vh] lg:grid-cols-[320px_minmax(0,1fr)]">
                     {(!isCompactViewport || !selectedThreadId) ? (
-                        <aside className="border-b border-white/10 bg-black/30 lg:border-b-0 lg:border-r">
-                            <div className="border-b border-white/10 px-4 py-4">
-                                <p className="text-[11px] font-bold uppercase tracking-[0.16em] text-gray-500">Inbox</p>
-                                <p className="mt-1 text-sm text-gray-300">
+                        <aside className="border-b border-white/10 bg-[#050505] lg:border-b-0 lg:border-r lg:border-r-white/10">
+                            <div className="border-b border-white/10 px-4 py-4 sm:px-5">
+                                <p className="text-[11px] font-semibold uppercase tracking-[0.18em] text-[#7f7f86]">Chat</p>
+                                <p className="mt-1 text-sm text-[#b6b6bc]">
                                     {threadsLoading ? "Loading live threads..." : `${visibleThreads.length} conversation${visibleThreads.length === 1 ? "" : "s"}`}
                                 </p>
                             </div>
-                            <div className="max-h-[72vh] overflow-y-auto">
+                            <div className="max-h-[78vh] overflow-y-auto">
                                 {visibleThreads.length > 0 ? visibleThreads.map((thread) => (
                                     <button
                                         key={thread.id}
                                         type="button"
                                         onClick={() => startTransition(() => setSelectedThreadId(thread.id))}
                                         className={cn(
-                                            "w-full border-b border-white/10 px-4 py-4 text-left transition-colors",
-                                            selectedThreadId === thread.id ? "bg-brand-purple/10" : "hover:bg-white/[0.04]",
+                                            "flex w-full items-center gap-3 border-b border-white/5 px-4 py-3 text-left transition-colors sm:px-5",
+                                            selectedThreadId === thread.id
+                                                ? "bg-[linear-gradient(90deg,rgba(123,63,255,0.18)_0%,rgba(255,255,255,0)_85%)]"
+                                                : "hover:bg-white/[0.03]",
                                         )}
                                     >
-                                        <div className="flex items-start justify-between gap-3">
-                                            <div className="min-w-0">
-                                                <p className="truncate text-sm font-semibold text-white">{thread.counterpartDisplayName}</p>
-                                                <p className="truncate text-xs text-gray-500">
-                                                    {thread.counterpartUsername ? `@${thread.counterpartUsername}` : thread.counterpartId}
-                                                </p>
+                                        <ChatAvatar
+                                            photoURL={thread.counterpartPhotoURL}
+                                            label={thread.counterpartDisplayName}
+                                            sizeClassName="h-11 w-11"
+                                            textClassName="text-sm"
+                                        />
+                                        <div className="min-w-0 flex-1">
+                                            <div className="flex items-start justify-between gap-3">
+                                                <div className="min-w-0">
+                                                    <p className="truncate text-sm font-semibold text-white">{thread.counterpartDisplayName}</p>
+                                                    <p className="truncate text-xs text-[#7e7f87]">
+                                                        {thread.counterpartUsername ? `@${thread.counterpartUsername}` : thread.counterpartId}
+                                                    </p>
+                                                </div>
+                                                <div className="flex shrink-0 flex-col items-end gap-1">
+                                                    <span className="text-[11px] text-[#6b6c73]">{thread.lastMessageAt ? formatRelativeTime(thread.lastMessageAt) : "New"}</span>
+                                                    {thread.unreadCount > 0 ? (
+                                                        <span className="rounded-full bg-brand-purple px-2 py-0.5 text-[10px] font-semibold text-white">{thread.unreadCount}</span>
+                                                    ) : null}
+                                                </div>
                                             </div>
-                                            <div className="flex flex-col items-end gap-2">
-                                                <span className="text-[11px] text-gray-500">{thread.lastMessageAt ? formatRelativeTime(thread.lastMessageAt) : "New"}</span>
-                                                {thread.unreadCount > 0 ? (
-                                                    <span className="rounded-full bg-brand-purple px-2 py-0.5 text-[10px] font-bold text-white">{thread.unreadCount}</span>
-                                                ) : null}
-                                            </div>
+                                            <p className="mt-1 line-clamp-1 text-sm text-[#b6b6bc]">{thread.lastMessagePreview || "No messages yet"}</p>
                                         </div>
-                                        <p className="mt-2 line-clamp-2 text-sm leading-6 text-gray-300">{thread.lastMessagePreview || "No messages yet"}</p>
                                     </button>
                                 )) : (
-                                    <div className="px-4 py-8 text-sm text-gray-400">
+                                    <div className="px-4 py-10 text-sm text-[#8f9097] sm:px-5">
                                         No chat threads yet. Start from a creator page to open the first one.
                                     </div>
                                 )}
@@ -796,79 +985,141 @@ export function ChatExperience() {
                         </aside>
                     ) : null}
 
-                    <section className="flex min-h-[72vh] flex-col bg-[radial-gradient(circle_at_top,#25103b_0%,#110b16_35%,#060608_100%)]">
+                    <section className="flex min-h-[78vh] flex-col bg-[#000000]">
                         {selectedThread ? (
                             <>
-                                <div className="border-b border-white/10 px-4 py-4">
-                                    <div className="flex items-center gap-3">
+                                <div className="border-b border-white/10 px-4 pb-4 pt-5 sm:px-6">
+                                    <div className={cn("relative flex items-center", isCompactViewport ? "justify-center" : "justify-between")}>
                                         {isCompactViewport ? (
                                             <button
                                                 type="button"
                                                 onClick={() => setSelectedThreadId(null)}
-                                                className="inline-flex h-10 w-10 items-center justify-center rounded-full border border-white/10 bg-white/5 text-white"
+                                                className="absolute left-0 inline-flex h-11 w-11 items-center justify-center rounded-full bg-[#161618] text-white transition hover:bg-[#202024]"
                                                 aria-label="Back to chat list"
                                             >
                                                 <ArrowLeft className="h-4 w-4" />
                                             </button>
                                         ) : null}
-                                        <div className="min-w-0">
-                                            <p className="truncate text-lg font-bold text-white">{selectedThread.counterpartDisplayName}</p>
-                                            <div className="mt-1 flex items-center gap-2">
-                                                <CircleDot className="h-3.5 w-3.5 text-brand-purple" />
-                                                <TypingStatus presence={presence} fallback={selectedThread.lastMessageAt ? `Last message ${formatRelativeTime(selectedThread.lastMessageAt)}` : "No messages yet"} />
+                                        <div className="flex items-center gap-3 rounded-full bg-[#141417] px-3 py-2 shadow-[0_12px_28px_rgba(0,0,0,0.3)] ring-1 ring-white/8">
+                                            <ChatAvatar
+                                                photoURL={selectedThread.counterpartPhotoURL}
+                                                label={selectedThread.counterpartDisplayName}
+                                                sizeClassName="h-12 w-12"
+                                                textClassName="text-sm"
+                                            />
+                                            <div className="min-w-0">
+                                                <p className="truncate text-sm font-semibold text-white">{selectedThread.counterpartDisplayName}</p>
+                                                <p className="truncate text-xs text-[#8f9097]">
+                                                    {selectedThread.counterpartUsername ? `@${selectedThread.counterpartUsername}` : "Direct chat"}
+                                                </p>
                                             </div>
                                         </div>
+                                        {!isCompactViewport ? (
+                                            <div className="text-right">
+                                                <p className="text-xs font-medium text-white">Realtime thread</p>
+                                                <TypingStatus
+                                                    presence={presence}
+                                                    fallback={selectedThread.lastMessageAt ? `Last message ${formatRelativeTime(selectedThread.lastMessageAt)}` : "No messages yet"}
+                                                />
+                                            </div>
+                                        ) : null}
                                     </div>
+                                    {isCompactViewport ? (
+                                        <div className="mt-3 flex justify-center">
+                                            <TypingStatus
+                                                presence={presence}
+                                                fallback={selectedThread.lastMessageAt ? `Last message ${formatRelativeTime(selectedThread.lastMessageAt)}` : "No messages yet"}
+                                            />
+                                        </div>
+                                    ) : null}
                                 </div>
 
-                                <div className="flex-1 space-y-3 overflow-y-auto px-4 py-4">
+                                <div
+                                    ref={messageListRef}
+                                    onScroll={handleMessageListScroll}
+                                    className="flex-1 overflow-y-auto bg-black px-4 pb-5 pt-4 sm:px-6"
+                                >
                                     {threadLoading && !selectedDetail ? (
-                                        <div className="text-sm text-gray-300">Loading thread…</div>
-                                    ) : selectedDetail?.messages.length ? selectedDetail.messages.map((message) => {
+                                        <div className="text-sm text-[#b6b6bc]">Loading thread...</div>
+                                    ) : selectedDetail?.messages.length ? selectedDetail.messages.map((message, index) => {
+                                        const previousMessage = selectedDetail.messages[index - 1];
                                         const isOutgoing = message.senderRole === selectedThread.viewerRole;
                                         const isLatestOutgoing = message.id === latestOutgoingMessageId;
                                         const isOptimistic = message.id.startsWith("optimistic-");
-                                        const readState = isOptimistic ? "Sending..." : isLatestOutgoing && selectedThread.counterpartReadAt >= message.createdAt ? "Read" : "Sent";
+                                        const showTimelineMarker = shouldRenderTimelineMarker(message, previousMessage);
+                                        const showStatus = isOutgoing && (isLatestOutgoing || isOptimistic);
+                                        const readState = isOptimistic
+                                            ? "Sending..."
+                                            : isLatestOutgoing && selectedThread.counterpartReadAt >= message.createdAt
+                                                ? "Read"
+                                                : "Sent";
 
                                         return (
-                                            <div key={message.id} className={cn("flex", isOutgoing ? "justify-end" : "justify-start")}>
-                                                <div className={cn(
-                                                    "max-w-[85%] rounded-[1.6rem] px-4 py-3 shadow-lg",
-                                                    isOutgoing ? "bg-brand-purple text-white" : "bg-zinc-200 text-zinc-900",
-                                                    isOptimistic ? "opacity-70" : "",
-                                                )}>
-                                                    {message.text ? <p className="whitespace-pre-wrap text-sm leading-6">{message.text}</p> : null}
-                                                    {message.assetUrl ? (
-                                                        <div className="mt-2 overflow-hidden rounded-[1.2rem] border border-black/10 bg-black/10">
-                                                            {isImageAttachment(message.assetMimeType, message.assetUrl) ? (
-                                                                // eslint-disable-next-line @next/next/no-img-element
-                                                                <img src={message.assetUrl} alt="" className="h-auto w-full object-cover" />
-                                                            ) : isVideoAttachment(message.assetMimeType, message.assetUrl) ? (
-                                                                <video src={message.assetUrl} controls className="h-auto w-full" />
-                                                            ) : (
-                                                                <a href={message.assetUrl} target="_blank" rel="noreferrer" className="block px-4 py-3 text-sm font-semibold underline">
-                                                                    Open attachment
-                                                                </a>
-                                                            )}
+                                            <div key={message.id} className={cn(index === 0 ? "" : "mt-1")}>
+                                                {showTimelineMarker ? (
+                                                    <div className="mb-4 flex justify-center">
+                                                        <span className="rounded-full bg-[#141417] px-3 py-1 text-[11px] font-medium text-[#8f9097]">
+                                                            {formatTimelineLabel(message.createdAt)}
+                                                        </span>
+                                                    </div>
+                                                ) : null}
+                                                <div className={cn("flex", isOutgoing ? "justify-end" : "justify-start")}>
+                                                    <div className="max-w-[84%] sm:max-w-[72%]">
+                                                        <div className={cn(
+                                                            "overflow-hidden px-4 py-3 text-[15px] leading-6 shadow-[0_12px_30px_rgba(0,0,0,0.22)]",
+                                                            isOutgoing
+                                                                ? "rounded-[1.45rem] rounded-br-[0.5rem] bg-[linear-gradient(180deg,#8f6dff_0%,#6f3ff4_100%)] text-white"
+                                                                : "rounded-[1.45rem] rounded-bl-[0.5rem] bg-[#26262a] text-white",
+                                                            message.assetUrl && !message.text ? "p-1.5" : "",
+                                                            isOptimistic ? "opacity-75" : "",
+                                                        )}>
+                                                            {message.text ? <p className="whitespace-pre-wrap break-words">{message.text}</p> : null}
+                                                            {message.assetUrl ? (
+                                                                <div className={cn(message.text ? "mt-3" : "")}>
+                                                                    <div className={cn(
+                                                                        "overflow-hidden rounded-[1.15rem]",
+                                                                        isOutgoing ? "bg-[#5b2fdd]" : "bg-[#1a1a1d]",
+                                                                    )}>
+                                                                        {isImageAttachment(message.assetMimeType, message.assetUrl) ? (
+                                                                            // eslint-disable-next-line @next/next/no-img-element
+                                                                            <img src={message.assetUrl} alt="" className="h-auto w-full object-cover" />
+                                                                        ) : isVideoAttachment(message.assetMimeType, message.assetUrl) ? (
+                                                                            <video src={message.assetUrl} controls className="h-auto w-full" />
+                                                                        ) : (
+                                                                            <a
+                                                                                href={message.assetUrl}
+                                                                                target="_blank"
+                                                                                rel="noreferrer"
+                                                                                className="block px-4 py-3 text-sm font-medium text-white underline"
+                                                                            >
+                                                                                Open attachment
+                                                                            </a>
+                                                                        )}
+                                                                    </div>
+                                                                </div>
+                                                            ) : null}
                                                         </div>
-                                                    ) : null}
-                                                    <div className={cn("mt-2 flex items-center gap-2 text-[11px]", isOutgoing ? "text-white/75" : "text-zinc-600")}>
-                                                        <span>{formatRelativeTime(message.createdAt)}</span>
-                                                        {isOutgoing ? <span>{readState}</span> : null}
+                                                        {showStatus ? (
+                                                            <div className="mt-1 px-3 text-right text-[11px] font-medium text-[#7f8087]">
+                                                                {readState}
+                                                            </div>
+                                                        ) : null}
                                                     </div>
                                                 </div>
                                             </div>
                                         );
                                     }) : (
-                                        <div className="rounded-[1.4rem] border border-white/10 bg-black/25 p-4 text-sm text-gray-300">
-                                            No messages yet. This thread is ready when you are.
+                                        <div className="flex h-full min-h-[320px] items-center justify-center">
+                                            <div className="rounded-[1.4rem] bg-[#121214] px-4 py-3 text-sm text-[#b6b6bc] ring-1 ring-white/8">
+                                                No messages yet. This thread is ready when you are.
+                                            </div>
                                         </div>
                                     )}
                                 </div>
 
-                                <div className="border-t border-white/10 px-4 py-4">
+                                <div className="border-t border-white/10 bg-[linear-gradient(180deg,rgba(0,0,0,0)_0%,rgba(0,0,0,0.92)_18%,#000_100%)] px-4 pb-4 pt-3 sm:px-6">
                                     {sendErrorMessage ? (
-                                        <div className="rounded-[1.4rem] border border-rose-400/20 bg-rose-500/10 p-4 text-sm text-rose-100">
+                                        <div className="rounded-[1.2rem] border border-rose-400/20 bg-rose-500/10 px-4 py-3 text-sm text-rose-100">
                                             <div className="flex items-start justify-between gap-3">
                                                 <div>
                                                     <p className="font-semibold text-white">Message failed</p>
@@ -877,7 +1128,7 @@ export function ChatExperience() {
                                                 <button
                                                     type="button"
                                                     onClick={() => setSendErrorMessage(null)}
-                                                    className="text-xs font-bold uppercase tracking-[0.14em] text-rose-200"
+                                                    className="text-xs font-semibold uppercase tracking-[0.14em] text-rose-200"
                                                 >
                                                     Close
                                                 </button>
@@ -885,7 +1136,7 @@ export function ChatExperience() {
                                         </div>
                                     ) : null}
                                     {sendWarningMessage ? (
-                                        <div className="mt-3 rounded-[1.4rem] border border-amber-400/20 bg-amber-500/10 p-4 text-sm text-amber-100">
+                                        <div className="mt-3 rounded-[1.2rem] border border-amber-400/20 bg-amber-500/10 px-4 py-3 text-sm text-amber-100">
                                             <div className="flex items-start justify-between gap-3">
                                                 <div>
                                                     <p className="font-semibold text-white">Message sent with warning</p>
@@ -894,93 +1145,99 @@ export function ChatExperience() {
                                                 <button
                                                     type="button"
                                                     onClick={() => setSendWarningMessage(null)}
-                                                    className="text-xs font-bold uppercase tracking-[0.14em] text-amber-200"
+                                                    className="text-xs font-semibold uppercase tracking-[0.14em] text-amber-200"
                                                 >
                                                     Close
                                                 </button>
                                             </div>
                                         </div>
                                     ) : null}
-                                    <InsufficientFundsCard
-                                        payload={insufficientFunds}
-                                        onClose={() => setInsufficientFunds(null)}
-                                        onPurchase={() => openPurchaseModal(insufficientFunds?.paidGdShortfall)}
-                                    />
-                                    <div className="mt-3 rounded-[1.6rem] border border-white/10 bg-black/35 p-3">
-                                        <div className="mb-3 flex flex-wrap items-center justify-between gap-2">
-                                            <div className="flex flex-wrap gap-2">
-                                                {(["text", "image", "video"] as const).map((kind) => {
-                                                    const cost = formatComposerCost(selectedDetail, kind);
-                                                    return (
-                                                        <button
-                                                            key={kind}
-                                                            type="button"
-                                                            onClick={() => setComposerKind(kind)}
-                                                            className={cn(
-                                                                "rounded-full border px-3 py-1.5 text-[11px] font-bold uppercase tracking-[0.14em]",
-                                                                composerKind === kind
-                                                                    ? "border-brand-purple/50 bg-brand-purple/15 text-white"
-                                                                    : "border-white/10 bg-white/5 text-gray-400",
-                                                            )}
-                                                        >
-                                                            {kind} {cost > 0 ? `· ${cost} GD` : "· Free"}
-                                                        </button>
-                                                    );
-                                                })}
-                                            </div>
-                                            {selectedDetail?.pricing.subscriberFreeChatApplies ? (
-                                                <span className="rounded-full border border-emerald-400/20 bg-emerald-500/10 px-3 py-1 text-[11px] font-semibold text-emerald-100">
-                                                    Subscriber free chat active
-                                                </span>
-                                            ) : null}
-                                        </div>
-
-                                        <textarea
-                                            value={composerText}
-                                            onChange={(event) => handleComposerTextChange(event.target.value.slice(0, 1200))}
-                                            rows={3}
-                                            placeholder={selectedThread.viewerRole === "creator" ? "Reply to this fan" : "Write your message"}
-                                            className="w-full rounded-[1.2rem] border border-white/10 bg-black/35 px-4 py-3 text-sm text-white placeholder:text-gray-600"
+                                    <div className={cn(sendErrorMessage || sendWarningMessage ? "mt-3" : "")}>
+                                        <InsufficientFundsCard
+                                            payload={insufficientFunds}
+                                            onClose={() => setInsufficientFunds(null)}
+                                            onPurchase={() => openPurchaseModal(insufficientFunds?.paidGdShortfall)}
                                         />
-                                        <div className="mt-3 flex flex-wrap items-center justify-between gap-3">
-                                            <label className="inline-flex cursor-pointer items-center gap-2 rounded-full border border-white/10 bg-white/5 px-3 py-2 text-xs font-semibold text-gray-200">
-                                                {composerKind === "video" ? <Video className="h-4 w-4" /> : <ImagePlus className="h-4 w-4" />}
-                                                {composerFile ? composerFile.name : composerKind === "text" ? "Optional attachment" : `Add ${composerKind}`}
-                                                <input
-                                                    type="file"
-                                                    accept={composerKind === "video" ? "video/*" : composerKind === "image" ? "image/*" : "image/*,video/*"}
-                                                    className="hidden"
-                                                    onChange={(event) => handleSelectFile(event.target.files?.[0] || null)}
-                                                />
-                                            </label>
-                                            <Button variant="brand" onClick={handleSendMessage} isLoading={sendingMessage}>
-                                                <Send className="mr-2 h-4 w-4" />
-                                                Send
-                                            </Button>
+                                    </div>
+                                    {composerFile ? (
+                                        <div className="mt-3 flex items-center justify-between rounded-[1.1rem] bg-[#121214] px-4 py-3 text-sm text-white ring-1 ring-white/8">
+                                            <div className="min-w-0">
+                                                <p className="truncate font-medium">{composerFile.name}</p>
+                                                <p className="truncate text-xs text-[#8f9097]">
+                                                    {composerFile.type.startsWith("video/") ? "Video attachment" : "Image attachment"}
+                                                </p>
+                                            </div>
+                                            <button
+                                                type="button"
+                                                onClick={() => {
+                                                    setComposerFile(null);
+                                                    setComposerKind("text");
+                                                }}
+                                                className="inline-flex h-8 w-8 shrink-0 items-center justify-center rounded-full bg-white/5 text-[#b6b6bc] transition hover:bg-white/10 hover:text-white"
+                                                aria-label="Remove attachment"
+                                            >
+                                                <X className="h-4 w-4" />
+                                            </button>
                                         </div>
-                                        <div className="mt-3 flex flex-wrap gap-2 text-[11px] text-gray-500">
-                                            <span>{selectedThread.viewerRole === "creator" ? "Creator replies are free." : "Paid messages use purchased Gum Drops only."}</span>
-                                            {!selectedDetail?.pricing.subscriberFreeChatApplies && selectedThread.viewerRole === "user" ? (
-                                                <span>Paid balance available: {selectedDetail?.pricing.purchasedBalanceGd ?? 0} GD</span>
-                                            ) : null}
+                                    ) : null}
+                                    {composerSummary ? (
+                                        <div className="mt-3 text-[11px] text-[#7f8087]">{composerSummary}</div>
+                                    ) : null}
+                                    <div className="mt-3 flex items-end gap-3">
+                                        <label className="inline-flex h-11 w-11 shrink-0 cursor-pointer items-center justify-center rounded-full bg-[#141417] text-white transition hover:bg-[#1a1b1f]">
+                                            <Plus className="h-4 w-4" />
+                                            <input
+                                                type="file"
+                                                accept="image/*,video/*"
+                                                className="hidden"
+                                                onChange={(event) => handleSelectFile(event.target.files?.[0] || null)}
+                                            />
+                                        </label>
+                                        <div className="flex min-h-11 flex-1 items-end gap-3 rounded-[1.75rem] bg-[#121214] px-4 py-3 ring-1 ring-white/8">
+                                            <textarea
+                                                value={composerText}
+                                                onChange={(event) => handleComposerTextChange(event.target.value.slice(0, 1200))}
+                                                onKeyDown={handleComposerKeyDown}
+                                                rows={1}
+                                                placeholder={selectedThread.viewerRole === "creator" ? "Reply..." : "Message"}
+                                                className="max-h-32 min-h-[24px] w-full resize-none bg-transparent text-[15px] leading-6 text-white placeholder:text-[#6e7077] focus:outline-none"
+                                            />
+                                            <button
+                                                type="button"
+                                                onClick={() => void handleSendMessage()}
+                                                disabled={sendingMessage}
+                                                className={cn(
+                                                    "inline-flex h-9 w-9 shrink-0 items-center justify-center rounded-full transition",
+                                                    sendingMessage
+                                                        ? "bg-brand-purple/50 text-white/80"
+                                                        : "bg-brand-purple text-white hover:bg-[#8457ff]",
+                                                )}
+                                                aria-label="Send message"
+                                            >
+                                                {sendingMessage ? (
+                                                    <span className="h-4 w-4 animate-spin rounded-full border-2 border-white/30 border-t-white" />
+                                                ) : (
+                                                    <Send className="h-4 w-4" />
+                                                )}
+                                            </button>
                                         </div>
                                     </div>
                                 </div>
                             </>
                         ) : (
-                            <div className="flex h-full min-h-[72vh] flex-col items-center justify-center px-6 text-center">
-                                <div className="rounded-full border border-brand-purple/20 bg-brand-purple/10 p-4 text-brand-purple">
+                            <div className="flex h-full min-h-[78vh] flex-col items-center justify-center px-6 text-center">
+                                <div className="rounded-full bg-[#141417] p-4 text-brand-purple ring-1 ring-white/8">
                                     <MessageSquare className="h-8 w-8" />
                                 </div>
                                 <h2 className="mt-5 text-2xl font-black text-white">Open a creator conversation</h2>
-                                <p className="mt-2 max-w-md text-sm leading-6 text-gray-400">
+                                <p className="mt-2 max-w-md text-sm leading-6 text-[#8f9097]">
                                     Start from a creator page, follow them, then open Chat to keep the conversation in one place.
                                 </p>
                                 <div className="mt-6 flex flex-wrap justify-center gap-2">
-                                    <Link href="/experiences" className="rounded-full border border-white/10 bg-white/5 px-4 py-2 text-sm font-semibold text-white">
+                                    <Link href="/experiences" className="rounded-full bg-[#141417] px-4 py-2 text-sm font-semibold text-white ring-1 ring-white/8">
                                         Browse creators
                                     </Link>
-                                    <Link href="/dashboard/support" className="rounded-full border border-white/10 bg-white/5 px-4 py-2 text-sm font-semibold text-white">
+                                    <Link href="/dashboard/support" className="rounded-full bg-[#141417] px-4 py-2 text-sm font-semibold text-white ring-1 ring-white/8">
                                         Support stays separate
                                     </Link>
                                 </div>

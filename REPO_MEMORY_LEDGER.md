@@ -24,6 +24,25 @@ This file is not a changelog. It is the concise ledger for durable decisions tha
 
 ## Decision Entries
 
+### 1d. Chat send UI must reconcile against the successful server response immediately
+
+- Approximate date: Recorded explicitly on 2026-04-10 from the realtime chat send hardening pass
+- Status: Active canonical chat runtime rule
+- Problem/context: Chat text sends could remain rendered as local optimistic `Sending...` bubbles until the user left and re-entered the thread, even though the server write had already succeeded.
+- Decision made: Successful chat sends must immediately reconcile the selected thread, persisted message, and pricing state from the server response instead of waiting for Firestore snapshots or a thread remount.
+- What became canonical:
+  - optimistic send placeholders must be replaced with the persisted message returned by the send route
+  - attachment sends should append the persisted server message immediately without waiting for snapshot churn
+  - immediate thread send responses must preserve unchanged read-state fields from the stored thread, not rebuild from the write patch alone
+  - pricing state shown in the composer should update from the same successful send response
+- Truth lives in:
+  - `src/lib/chat-send-realtime.ts`
+  - `src/components/Chat/ChatExperience.tsx`
+  - `src/lib/server/chat.ts`
+  - `tests/unit/chat-send-realtime.spec.ts`
+  - `tests/unit/server-chat-send.spec.ts`
+- What is now disallowed or deprecated: Treating successful chat sends as snapshot-only UI updates when the server already returned the persisted thread and message
+
 ### 1c. Client-hook tests use a scoped jsdom harness, not a global browser-suite switch
 
 - Approximate date: Recorded explicitly on 2026-04-10 from the unread-hook direct-test pass

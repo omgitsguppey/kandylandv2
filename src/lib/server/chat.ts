@@ -710,6 +710,10 @@ export async function sendChatMessageForViewer(input: SendChatMessageInput) {
 
         const subscriptionActive = subscriptionSnap.exists && readString((subscriptionSnap.data() as Record<string, unknown>).status) === "active";
         const subscriberFreeChatApplies = shouldGrantSubscriberFreeChat(subscriptionActive, creator.creatorSettings);
+        const participantBalance = viewerRole === "user"
+            ? readSourceAwareBalance(participant.raw)
+            : { total: 0, purchased: 0, reward: 0 };
+        let nextParticipantBalance = participantBalance;
         const costGd = viewerRole === "creator"
             ? 0
             : subscriberFreeChatApplies
@@ -727,17 +731,17 @@ export async function sendChatMessageForViewer(input: SendChatMessageInput) {
         let creatorAccrualId: string | undefined;
 
         if (viewerRole === "user" && costGd > 0) {
-            const balance = readSourceAwareBalance(participant.raw);
-            const spend = spendCreatorExperienceGumdrops(balance, costGd, "message");
+            const spend = spendCreatorExperienceGumdrops(participantBalance, costGd, "message");
             if (!spend.ok) {
                 throw new ChatClientError("Insufficient paid Gum Drops.", 409, buildInsufficientFundsPayload({
                     requiredPriceGd: costGd,
-                    purchasedBalanceGd: balance.purchased,
+                    purchasedBalanceGd: participantBalance.purchased,
                     subscriberFreeChatApplies,
                     messageKind,
                 }));
             }
 
+            nextParticipantBalance = spend.next;
             transaction.update(participantRef, buildSourceAwareBalancePatch(spend.next));
             const accrual = buildCreatorAccrual({
                 creatorId: parsedThread.creatorId,
@@ -754,7 +758,7 @@ export async function sendChatMessageForViewer(input: SendChatMessageInput) {
                 amount: -costGd,
                 creatorId: parsedThread.creatorId,
                 description: `Creator ${messageKind} message`,
-                balanceBefore: balance.total,
+                balanceBefore: participantBalance.total,
                 balanceAfter: spend.next.total,
                 extra: {
                     purchasedAmountSpent: spend.purchasedSpent,
@@ -814,10 +818,21 @@ export async function sendChatMessageForViewer(input: SendChatMessageInput) {
         });
         transaction.set(messageRef, messageRecord);
         transaction.set(threadRef, threadPatch, { merge: true });
+        const nextThreadState = existingThread
+            ? {
+                ...existingThread,
+                ...threadPatch,
+            }
+            : threadPatch;
 
         return {
-            thread: toChatThreadRecord(mapCreatorMessageThread(input.threadId, threadPatch), input.callerUid),
+            thread: toChatThreadRecord(mapCreatorMessageThread(input.threadId, nextThreadState), input.callerUid),
             message: mapCreatorMessage(messageRef.id, messageRecord),
+            pricing: buildChatPricingSummary({
+                purchasedBalanceGd: viewerRole === "user" ? nextParticipantBalance.purchased : 0,
+                subscriberFreeChatApplies,
+                subscriberFreeChatEnabled: creator.creatorSettings.chatFreeForSubscribers !== false,
+            }),
             costGd,
             creatorAccrualId,
         };
