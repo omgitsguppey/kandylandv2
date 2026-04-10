@@ -1272,18 +1272,18 @@ export function ChatExperience() {
     }
 
     return (
-        <div className="mx-auto mt-4 w-full max-w-6xl px-0 sm:px-4">
-            <div className="overflow-hidden rounded-[2rem] border border-white/10 bg-black shadow-[0_26px_80px_rgba(0,0,0,0.55)]">
-                <div className="grid min-h-[78vh] lg:grid-cols-[320px_minmax(0,1fr)]">
+        <div className="mx-auto flex h-full min-h-0 w-full max-w-6xl flex-1 overflow-hidden px-0 sm:px-4">
+            <div className="flex h-full min-h-0 w-full flex-col overflow-hidden rounded-[2rem] border border-white/10 bg-black shadow-[0_26px_80px_rgba(0,0,0,0.55)]">
+                <div className="grid h-full min-h-0 lg:grid-cols-[320px_minmax(0,1fr)]">
                     {(!isCompactViewport || !selectedThreadId) ? (
                         <aside className={cn(
-                            "bg-[#050505]",
+                            "min-h-0 bg-[#050505]",
                             showCompactThreadListOnly
-                                ? "relative min-h-[78vh]"
-                                : "border-b border-white/10 lg:border-b-0 lg:border-r lg:border-r-white/10",
+                                ? "relative h-full overflow-hidden"
+                                : "flex min-h-0 flex-col border-b border-white/10 lg:border-b-0 lg:border-r lg:border-r-white/10",
                         )}>
                             {showCompactThreadListOnly ? (
-                                <div className="flex min-h-[78vh] flex-col">
+                                <div className="flex h-full min-h-0 flex-col overflow-hidden">
                                     <div className="px-5 pb-4 pt-6">
                                         <div className="flex items-center justify-between">
                                             <div ref={threadEditMenuRef} className="relative">
@@ -1336,7 +1336,7 @@ export function ChatExperience() {
                                         </div>
                                     </div>
 
-                                    <div className="flex-1 overflow-y-auto px-5 pb-36">
+                                    <div className="min-h-0 flex-1 overflow-y-auto overscroll-y-contain px-5 pb-[calc(8.5rem+env(safe-area-inset-bottom))]">
                                         {filteredThreads.length > 0 ? (
                                             <div className="space-y-1">
                                                 {filteredThreads.map((thread) => (
@@ -1437,7 +1437,7 @@ export function ChatExperience() {
                                     </div>
 
                                     {threadSelectionMode ? (
-                                        <div className="pointer-events-none absolute inset-x-0 bottom-0 px-5 pb-6">
+                                        <div className="pointer-events-none absolute inset-x-0 bottom-0 px-5 pb-[calc(1.25rem+env(safe-area-inset-bottom))]">
                                             <div className="pointer-events-auto flex items-center justify-between">
                                                 <button
                                                     type="button"
@@ -1469,7 +1469,7 @@ export function ChatExperience() {
                                             </div>
                                         </div>
                                     ) : (
-                                        <div className="pointer-events-none absolute inset-x-0 bottom-0 px-5 pb-6">
+                                        <div className="pointer-events-none absolute inset-x-0 bottom-0 px-5 pb-[calc(1.25rem+env(safe-area-inset-bottom))]">
                                             <div className="pointer-events-auto mx-auto max-w-md rounded-full bg-[#121214] px-4 py-3 ring-1 ring-white/8">
                                                 <div className="flex items-center gap-3">
                                                     <Search className="h-4 w-4 text-[#6e7077]" />
@@ -1477,7 +1477,7 @@ export function ChatExperience() {
                                                         value={threadSearch}
                                                         onChange={(event) => setThreadSearch(event.target.value)}
                                                         placeholder="Search"
-                                                        className="w-full bg-transparent text-sm text-white placeholder:text-[#6e7077] focus:outline-none"
+                                                        className="w-full bg-transparent text-base text-white placeholder:text-[#6e7077] focus:outline-none sm:text-sm"
                                                     />
                                                 </div>
                                             </div>
@@ -1485,7 +1485,7 @@ export function ChatExperience() {
                                                 <button
                                                     type="button"
                                                     onClick={() => setComposePickerOpen(true)}
-                                                    className="pointer-events-auto absolute bottom-6 right-5 inline-flex h-14 w-14 items-center justify-center rounded-full bg-brand-purple text-white shadow-[0_18px_36px_rgba(111,63,244,0.36)] transition hover:bg-[#8457ff]"
+                                                    className="pointer-events-auto absolute bottom-[calc(1.25rem+env(safe-area-inset-bottom))] right-5 inline-flex h-14 w-14 items-center justify-center rounded-full bg-brand-purple text-white shadow-[0_18px_36px_rgba(111,63,244,0.36)] transition hover:bg-[#8457ff]"
                                                     aria-label="Compose message"
                                                 >
                                                     <SquarePen className="h-5 w-5" />
@@ -1502,7 +1502,7 @@ export function ChatExperience() {
                                             {threadsLoading ? "Loading live threads..." : `${visibleThreads.length} conversation${visibleThreads.length === 1 ? "" : "s"}`}
                                         </p>
                                     </div>
-                                    <div className="max-h-[78vh] overflow-y-auto">
+                                    <div className="min-h-0 flex-1 overflow-y-auto overscroll-y-contain">
                                         {visibleThreads.length > 0 ? visibleThreads.map((thread) => (
                                             <button
                                                 key={thread.id}
@@ -1551,7 +1551,7 @@ export function ChatExperience() {
                     ) : null}
 
                     {!showCompactThreadListOnly ? (
-                        <section className="flex min-h-[78vh] flex-col bg-[#000000]">
+                        <section className="flex h-full min-h-0 flex-col bg-[#000000]">
                         {selectedThread ? (
                             <>
                                 <div className="border-b border-white/10 px-4 pb-4 pt-5 sm:px-6">
@@ -1603,7 +1603,7 @@ export function ChatExperience() {
                                 <div
                                     ref={messageListRef}
                                     onScroll={handleMessageListScroll}
-                                    className="flex-1 overflow-y-auto bg-black px-4 pb-5 pt-4 sm:px-6"
+                                    className="min-h-0 flex-1 overflow-y-auto overscroll-y-contain bg-black px-4 pb-5 pt-4 sm:px-6"
                                 >
                                     {threadLoading && !selectedDetail ? (
                                         <div className="text-sm text-[#b6b6bc]">Loading thread...</div>
@@ -1683,7 +1683,7 @@ export function ChatExperience() {
                                     )}
                                 </div>
 
-                                <div className="border-t border-white/10 bg-[linear-gradient(180deg,rgba(0,0,0,0)_0%,rgba(0,0,0,0.92)_18%,#000_100%)] px-4 pb-4 pt-3 sm:px-6">
+                                <div className="border-t border-white/10 bg-[linear-gradient(180deg,rgba(0,0,0,0)_0%,rgba(0,0,0,0.92)_18%,#000_100%)] px-4 pb-[calc(1rem+env(safe-area-inset-bottom))] pt-3 sm:px-6 sm:pb-4">
                                     {sendErrorMessage ? (
                                         <div className="rounded-[1.2rem] border border-rose-400/20 bg-rose-500/10 px-4 py-3 text-sm text-rose-100">
                                             <div className="flex items-start justify-between gap-3">
@@ -1819,7 +1819,7 @@ export function ChatExperience() {
                                                 onKeyDown={handleComposerKeyDown}
                                                 rows={1}
                                                 placeholder={selectedThread.viewerRole === "creator" ? "Reply..." : "Message"}
-                                                className="block max-h-32 min-h-[22px] w-full resize-none self-center bg-transparent py-0.5 text-[15px] leading-5 text-white placeholder:text-[#6e7077] focus:outline-none"
+                                                className="block max-h-32 min-h-[22px] w-full resize-none self-center bg-transparent py-0.5 text-base leading-5 text-white placeholder:text-[#6e7077] focus:outline-none sm:text-[15px]"
                                             />
                                             <button
                                                 type="button"
@@ -1844,7 +1844,7 @@ export function ChatExperience() {
                                 </div>
                             </>
                         ) : (
-                            <div className="flex h-full min-h-[78vh] flex-col items-center justify-center px-6 text-center">
+                            <div className="flex h-full min-h-0 flex-col items-center justify-center px-6 text-center">
                                 <div className="rounded-full bg-[#141417] p-4 text-brand-purple ring-1 ring-white/8">
                                     <MessageSquare className="h-8 w-8" />
                                 </div>

@@ -24,6 +24,23 @@ This file is not a changelog. It is the concise ledger for durable decisions tha
 
 ## Decision Entries
 
+### 1e. Chat route owns its own viewport and scroll containment rules
+
+- Approximate date: Recorded explicitly on 2026-04-10 from the chat zoom-lock and nested-scroll pass
+- Status: Active canonical chat UX/runtime rule
+- Problem/context: The generic app shell allowed page-level scroll and scroll chaining outside the chat frame, and mobile chat inputs used sub-16px text sizing that triggered iOS focus zoom.
+- Decision made: `/dashboard/chat` must be treated as a contained interaction surface with its own viewport and overflow rules instead of inheriting the generic page-scroll contract.
+- What became canonical:
+  - chat route exports route-scoped viewport settings rather than changing the global app viewport
+  - chat route locks document/main overflow while mounted so only chat-owned nested regions scroll
+  - chat thread lists and message panes use `min-h-0` plus contained scroll regions, not viewport-ish `min-h` hacks
+  - mobile chat text inputs that can receive focus must be at least `16px` to prevent iOS keyboard zoom
+- Truth lives in:
+  - `src/app/dashboard/chat/layout.tsx`
+  - `src/components/Chat/ChatRouteShell.tsx`
+  - `src/components/Chat/ChatExperience.tsx`
+- What is now disallowed or deprecated: Letting `/dashboard/chat` rely on generic page scroll, scroll chaining, or sub-16px mobile input text sizing
+
 ### 1d. Chat send UI must reconcile against the successful server response immediately
 
 - Approximate date: Recorded explicitly on 2026-04-10 from the realtime chat send hardening pass

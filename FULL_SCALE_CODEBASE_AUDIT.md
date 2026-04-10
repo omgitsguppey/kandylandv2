@@ -6,6 +6,83 @@ Last full-scale audit execution: 2026-04-09 19:40:21 -05:00
 Repo: `C:\Users\uylus\OneDrive\Documents\KandyDrops_Final`
 Audited HEAD at start: `36fcca527b72b04c24531724465f490642018ba2`
 
+## 2026-04-10 Chat Route Zoom Lock and Nested Scroll Containment
+
+Scope for this pass:
+
+- stop mobile auto-zoom and pinch zoom on chat surfaces only
+- prevent page-level scroll chaining outside the chat frame
+- make thread list and message list the only nested scroll regions
+- account for navbar and mobile bottom-nav safe zones inside the chat route
+
+Startup protocol executed:
+
+- read `FULL_SCALE_CODEBASE_AUDIT.md`
+- read `REPO_MEMORY_LEDGER.md`
+- read `EVERY_FILE_FUNCTION_CHECKLIST.md`
+- ran `git status --short`
+- ran `npm run trace:adjacent -- src/components/Chat/ChatExperience.tsx`
+
+Start state:
+
+- current HEAD at pass start: `d32cb9e39ea18c3874c14af84349a787e991f9fc`
+- working tree was clean at pass start
+- chat route still inherited the generic page-shell scroll behavior
+- the composer textarea and compact search input still used sub-16px mobile text sizing, which is the usual trigger for iOS focus zoom
+- chat list and thread surfaces still relied on `min-h-[78vh]` sizing and outer page scrolling instead of a strict contained viewport contract
+
+Implementation results:
+
+- added a route-scoped chat layout in:
+  - `src/app/dashboard/chat/layout.tsx`
+  - `src/components/Chat/ChatRouteShell.tsx`
+- the chat route now exports its own viewport metadata with:
+  - `maximumScale: 1`
+  - `userScalable: false`
+  - `viewportFit: "cover"`
+- the chat route now locks document-level scroll while mounted by setting:
+  - `html` overflow hidden
+  - `body` overflow hidden
+  - `main` overflow hidden
+  so page-level scroll chaining cannot escape the chat frame
+- refactored `src/components/Chat/ChatExperience.tsx` so the route uses:
+  - `h-full`
+  - `min-h-0`
+  - `overflow-hidden`
+  as the canonical shell contract instead of `mt-4` plus `min-h-[78vh]`
+- converted the compact thread list, desktop thread list, and message pane scroll regions to:
+  - nested `overflow-y-auto`
+  - `overscroll-y-contain`
+  so only the list/message regions scroll
+- updated compact thread-list bottom spacing and composer bottom spacing to account for `env(safe-area-inset-bottom)`
+- raised the compact search input and composer textarea to `16px` on mobile so iOS focus zoom no longer triggers from sub-16px text fields
+- preserved desktop sizing by stepping back down to the previous smaller type size on `sm+`
+
+Commands run:
+
+- `git status --short`
+- `npm run trace:adjacent -- src/components/Chat/ChatExperience.tsx`
+- `npm run trace:adjacent -- src/app/dashboard/chat/layout.tsx`
+- `npx eslint src/app/dashboard/chat/layout.tsx src/components/Chat/ChatRouteShell.tsx src/components/Chat/ChatExperience.tsx`
+- `if (Test-Path .next) { Remove-Item -Recurse -Force .next }`
+- `npx next typegen`
+- `npx tsc --noEmit`
+- `npm run check:ui:audits`
+
+Results:
+
+- focused eslint passed
+- `npx next typegen` passed
+- `npx tsc --noEmit` passed
+- `npm run check:ui:audits` passed:
+  - `16` tests green across Chromium and Mobile Chrome
+
+Warnings and notes:
+
+- the first post-edit `tsc` and `check:ui:audits` run hit the standing repo issue where `.next/dev` route-type artifacts can conflict with newly added segment layouts; removing `.next` and regenerating route types with `npx next typegen` resolved it cleanly
+- disabling user scaling is scoped to `/dashboard/chat` only; the root app viewport remains unchanged
+- the iOS keyboard zoom issue was not just pinch zoom; the direct trigger was the chat inputs using sub-16px mobile text sizing
+
 ## 2026-04-10 Compact Chat Edit Mode and Viewer-Side Thread Hiding
 
 Scope for this pass:
