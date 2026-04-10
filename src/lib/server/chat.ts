@@ -274,6 +274,7 @@ function toChatThreadRecord(thread: CreatorMessageThread, viewerUid: string): Ch
         viewerRole,
         unreadCount: resolveChatThreadUnreadCount(thread, viewerRole),
         readAt: resolveChatThreadReadAt(thread, viewerRole),
+        counterpartReadAt: resolveChatThreadReadAt(thread, viewerRole === "creator" ? "user" : "creator"),
     };
 }
 

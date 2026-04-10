@@ -4,6 +4,7 @@ import { Home, Candy, Sparkles, LayoutDashboard, MessageSquare } from "lucide-re
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { useAuth } from "@/context/AuthContext";
+import { useChatUnreadStatus } from "@/hooks/useChatUnreadStatus";
 import { cn } from "@/lib/utils";
 import { trackEvent } from "@/lib/telemetry";
 
@@ -24,6 +25,7 @@ function triggerHaptic() {
 export default function MobileBottomBar() {
     const pathname = usePathname();
     const { user, userProfile, loading } = useAuth();
+    const { hasUnreadMessages } = useChatUnreadStatus();
     const authSettled = !loading;
 
     if (pathname?.startsWith("/admin") || !authSettled) {
@@ -67,7 +69,12 @@ export default function MobileBottomBar() {
                                 isActive ? "bg-brand-purple/10 text-brand-purple" : "text-gray-400"
                             )}
                         >
-                            <Icon className="h-3.5 w-3.5 shrink-0" />
+                            <div className="relative">
+                                <Icon className="h-3.5 w-3.5 shrink-0" />
+                                {item.label === "Chat" && hasUnreadMessages && (
+                                    <span className="absolute -right-0.5 -top-0.5 h-2 w-2 rounded-full bg-brand-purple ring-2 ring-black/55" />
+                                )}
+                            </div>
                             <span className="text-[9px] font-semibold leading-none">{item.label}</span>
                         </Link>
                     );
