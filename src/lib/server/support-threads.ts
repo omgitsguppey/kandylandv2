@@ -13,6 +13,7 @@ import {
     normalizeSupportThreadCategory,
     normalizeSupportThreadStatus,
 } from "@/lib/support-readiness";
+import { sanitizeFirestorePayload } from "@/lib/server/firestore-sanitize";
 
 type ThreadMutableFields = {
     status?: SupportThreadStatus;
@@ -252,7 +253,7 @@ export async function createSupportThread(input: {
     const preview = summarizeMessagePreview(input.body);
 
     await db.runTransaction(async (transaction) => {
-        transaction.set(threadRef, {
+        transaction.set(threadRef, sanitizeFirestorePayload({
             userId: input.userId,
             threadKey: buildSupportThreadKey(input.userId),
             userEmail: input.userEmail || null,
@@ -270,15 +271,15 @@ export async function createSupportThread(input: {
             unreadForUser: false,
             unreadForAdmin: true,
             messageCount: 1,
-        });
-        transaction.set(messageRef, {
+        }));
+        transaction.set(messageRef, sanitizeFirestorePayload({
             threadId: threadRef.id,
             senderRole: "user",
             senderId: input.userId,
             senderLabel: input.userDisplayName || input.userHandle || input.userEmail || "User",
             body: input.body.trim(),
             createdAt: now,
-        });
+        }));
     });
 
     return getSupportThreadForUser(input.userId, threadRef.id, { markRead: false });
@@ -320,15 +321,15 @@ export async function addSupportMessage(input: {
             ? Math.max(0, Math.floor(threadData.messageCount)) + 1
             : 1;
 
-        transaction.set(messageRef, {
+        transaction.set(messageRef, sanitizeFirestorePayload({
             threadId: input.threadId,
             senderRole: input.senderRole,
             senderId: input.senderId || null,
             senderLabel: input.senderLabel || null,
             body: input.body.trim(),
             createdAt: now,
-        });
-        transaction.update(threadRef, {
+        }));
+        transaction.update(threadRef, sanitizeFirestorePayload({
             status: getReplyStatus(input.senderRole),
             updatedAt: now,
             lastMessageAt: now,
@@ -336,7 +337,7 @@ export async function addSupportMessage(input: {
             unreadForUser: input.senderRole === "admin",
             unreadForAdmin: input.senderRole !== "admin",
             messageCount: nextMessageCount,
-        });
+        }));
     });
 
     return readThread(input.threadId);
@@ -350,10 +351,10 @@ export async function updateSupportThreadStatus(threadId: string, status: Suppor
         throw new AuthError("Support thread not found", 404);
     }
 
-    await ref.update({
+    await ref.update(sanitizeFirestorePayload({
         status,
         updatedAt: Date.now(),
-    });
+    }));
 
     return readThread(threadId);
 }

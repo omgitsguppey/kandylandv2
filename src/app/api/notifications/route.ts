@@ -13,6 +13,7 @@ import { markNotificationsRuntimeChanged, touchNotificationsRuntime } from "@/li
 import { HEAVY_READ, STANDARD } from "@/lib/server/rate-limit";
 import { guardApiRequest } from "@/lib/server/request-guard";
 import { getErrorMessage, recordRouteWarning } from "@/lib/server/route-diagnostics";
+import { sanitizeFirestorePayload } from "@/lib/server/firestore-sanitize";
 import { recordRouteRuntimeSample } from "@/lib/server/route-runtime-health";
 import { touchUserRuntime } from "@/lib/server/user-runtime";
 
@@ -149,7 +150,7 @@ export async function POST(request: NextRequest) {
         return { duplicate: true };
       }
 
-      transaction.set(notificationRef, {
+      transaction.set(notificationRef, sanitizeFirestorePayload({
         title: payload.title,
         message: payload.message,
         type: payload.type,
@@ -160,12 +161,12 @@ export async function POST(request: NextRequest) {
         createdAtMs: nowMs,
         readBy: [],
         dispatchFingerprint,
-      });
-      transaction.set(dispatchRef, {
+      }));
+      transaction.set(dispatchRef, sanitizeFirestorePayload({
         dispatchedAtMs: nowMs,
         notificationId: notificationRef.id,
         updatedAt: FieldValue.serverTimestamp(),
-      }, { merge: true });
+      }), { merge: true });
       markNotificationsRuntimeChanged(transaction, nowMs);
 
       return { duplicate: false };

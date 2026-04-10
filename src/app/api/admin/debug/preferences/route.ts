@@ -1,0 +1,114 @@
+import { NextRequest, NextResponse } from "next/server";
+
+import {
+    type AdminDebugRouteRuntimeFilter,
+    type AdminDebugTabOption,
+    isAdminDebugRouteRuntimeFilter,
+    isAdminDebugTabOption,
+} from "@/lib/admin-debug-preferences";
+import {
+    getAdminDebugPreferences,
+    saveAdminDebugPreferences,
+} from "@/lib/server/admin-debug-preferences";
+import { handleApiError } from "@/lib/server/auth";
+import { ADMIN, HEAVY_READ } from "@/lib/server/rate-limit";
+import { guardApiRequest } from "@/lib/server/request-guard";
+import { getErrorMessage } from "@/lib/server/route-diagnostics";
+import { recordRouteRuntimeSample } from "@/lib/server/route-runtime-health";
+
+export const dynamic = "force-dynamic";
+export const revalidate = 0;
+
+export async function GET(request: NextRequest) {
+    const startedAt = Date.now();
+    const finalize = (response: NextResponse, error?: unknown) => {
+        void recordRouteRuntimeSample({
+            key: "admin/debug/preferences:GET",
+            durationMs: Date.now() - startedAt,
+            statusCode: response.status,
+            errorMessage: error ? getErrorMessage(error) : null,
+        });
+        return response;
+    };
+
+    try {
+        const caller = await guardApiRequest(request, {
+            routeName: "admin/debug/preferences",
+            preAuthRouteName: "admin/debug/preferences/preauth",
+            preAuthRateLimit: HEAVY_READ,
+            rateLimit: ADMIN,
+            requireTrustedOrigin: true,
+            auth: "admin",
+            scopeToCaller: true,
+        });
+        if (!caller) {
+            return finalize(NextResponse.json({ error: "Unauthorized" }, { status: 401 }));
+        }
+
+        return finalize(NextResponse.json({
+            success: true,
+            preferences: await getAdminDebugPreferences(caller.uid),
+        }));
+    } catch (error) {
+        return finalize(handleApiError(error, "admin/debug/preferences"), error);
+    }
+}
+
+export async function PUT(request: NextRequest) {
+    const startedAt = Date.now();
+    const finalize = (response: NextResponse, error?: unknown) => {
+        void recordRouteRuntimeSample({
+            key: "admin/debug/preferences:PUT",
+            durationMs: Date.now() - startedAt,
+            statusCode: response.status,
+            errorMessage: error ? getErrorMessage(error) : null,
+        });
+        return response;
+    };
+
+    try {
+        const caller = await guardApiRequest(request, {
+            routeName: "admin/debug/preferences",
+            rateLimit: ADMIN,
+            requireTrustedOrigin: true,
+            auth: "admin",
+            scopeToCaller: true,
+        });
+        if (!caller) {
+            return finalize(NextResponse.json({ error: "Unauthorized" }, { status: 401 }));
+        }
+
+        const body = await request.json() as {
+            activeTab?: unknown;
+            routeRuntimeFilter?: unknown;
+        };
+        const hasActiveTab = body.activeTab !== undefined;
+        const hasRouteRuntimeFilter = body.routeRuntimeFilter !== undefined;
+
+        if (!hasActiveTab && !hasRouteRuntimeFilter) {
+            return finalize(NextResponse.json({ error: "Missing debug preference fields" }, { status: 400 }));
+        }
+        if (hasActiveTab && !isAdminDebugTabOption(body.activeTab)) {
+            return finalize(NextResponse.json({ error: "Invalid debug tab" }, { status: 400 }));
+        }
+        if (hasRouteRuntimeFilter && !isAdminDebugRouteRuntimeFilter(body.routeRuntimeFilter)) {
+            return finalize(NextResponse.json({ error: "Invalid route runtime filter" }, { status: 400 }));
+        }
+
+        const activeTab = hasActiveTab ? body.activeTab as AdminDebugTabOption : undefined;
+        const routeRuntimeFilter = hasRouteRuntimeFilter
+            ? body.routeRuntimeFilter as AdminDebugRouteRuntimeFilter
+            : undefined;
+
+        return finalize(NextResponse.json({
+            success: true,
+            preferences: await saveAdminDebugPreferences({
+                uid: caller.uid,
+                activeTab,
+                routeRuntimeFilter,
+            }),
+        }));
+    } catch (error) {
+        return finalize(handleApiError(error, "admin/debug/preferences"), error);
+    }
+}

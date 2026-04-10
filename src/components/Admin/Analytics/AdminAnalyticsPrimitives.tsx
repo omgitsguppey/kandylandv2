@@ -1,0 +1,169 @@
+"use client";
+
+import { useState } from "react";
+import type { ReactNode } from "react";
+import type { LucideIcon } from "lucide-react";
+import { Activity } from "lucide-react";
+
+import { cn } from "@/lib/utils";
+
+type TooltipValue = {
+    name?: string;
+    value?: string | number;
+    color?: string;
+};
+
+export interface AnalyticsTooltipProps {
+    active?: boolean;
+    payload?: TooltipValue[];
+    label?: string;
+    valueFormatter?: (value: string | number, name?: string) => string;
+}
+
+export interface SectionCardProps {
+    title: string;
+    subtitle?: string;
+    icon: LucideIcon;
+    children: ReactNode;
+    className?: string;
+    rightSlot?: ReactNode;
+    defaultExpanded?: boolean;
+    collapsible?: boolean;
+}
+
+export interface MetricCardProps {
+    label: string;
+    value: string;
+    hint?: string;
+    icon: LucideIcon;
+    className?: string;
+    valueClassName?: string;
+}
+
+export function AnalyticsTooltip({
+    active,
+    payload,
+    label,
+    valueFormatter,
+}: AnalyticsTooltipProps) {
+    if (!active || !payload?.length) {
+        return null;
+    }
+
+    return (
+        <div className="rounded-2xl border border-white/10 bg-black/90 p-3 shadow-2xl backdrop-blur-md">
+            <p className="mb-2 text-xs font-semibold uppercase tracking-[0.16em] text-gray-500">
+                {label}
+            </p>
+            <div className="space-y-1.5">
+                {payload.map((entry, index) => (
+                    <div
+                        key={`${entry.name}-${index}`}
+                        className="flex items-center justify-between gap-3 text-sm"
+                    >
+                        <div className="flex items-center gap-2 text-gray-300">
+                            <span
+                                className="h-2.5 w-2.5 rounded-full"
+                                style={{ backgroundColor: entry.color }}
+                            />
+                            <span>{entry.name}</span>
+                        </div>
+                        <span className="font-semibold text-white">
+                            {valueFormatter
+                                ? valueFormatter(entry.value ?? 0, entry.name)
+                                : entry.value}
+                        </span>
+                    </div>
+                ))}
+            </div>
+        </div>
+    );
+}
+
+export function SectionCard({
+    title,
+    subtitle,
+    icon: Icon,
+    children,
+    className,
+    rightSlot,
+    defaultExpanded = false,
+    collapsible = true,
+}: SectionCardProps) {
+    const [expanded, setExpanded] = useState(defaultExpanded);
+
+    return (
+        <section
+            className={cn(
+                "glass-panel rounded-[1.6rem] border border-white/10 p-3.5 md:p-5",
+                className,
+            )}
+        >
+            <div className="mb-3 flex items-start justify-between gap-2.5">
+                <div className="min-w-0">
+                    <div className="mb-1.5 flex items-center gap-2">
+                        <div className="flex h-8 w-8 items-center justify-center rounded-xl border border-white/10 bg-white/5 text-brand-purple">
+                            <Icon className="h-4 w-4" />
+                        </div>
+                        <h2 className="text-base font-bold text-white md:text-lg">
+                            {title}
+                        </h2>
+                    </div>
+                    {subtitle ? (
+                        <p className="text-xs leading-5 text-gray-400 md:text-sm">
+                            {subtitle}
+                        </p>
+                    ) : null}
+                </div>
+                <div className="flex items-center gap-2">
+                    {rightSlot}
+                    {collapsible ? (
+                        <button
+                            type="button"
+                            onClick={() => setExpanded((prev) => !prev)}
+                            className="rounded-full border border-white/10 bg-white/5 px-3 py-1.5 text-[10px] font-bold uppercase tracking-[0.14em] text-gray-300 transition-colors hover:border-brand-purple/40 hover:text-white"
+                            aria-expanded={expanded}
+                        >
+                            {expanded ? "Collapse" : "Expand"}
+                        </button>
+                    ) : null}
+                </div>
+            </div>
+            {expanded || !collapsible ? children : null}
+        </section>
+    );
+}
+
+export function MetricCard({
+    label,
+    value,
+    hint,
+    icon: Icon,
+    className,
+    valueClassName,
+}: MetricCardProps) {
+    return (
+        <div
+            className={cn(
+                "rounded-[1.6rem] border border-white/10 bg-black/30 p-4",
+                className,
+            )}
+        >
+            <div className="mb-3 flex items-center gap-2 text-xs font-semibold uppercase tracking-[0.14em] text-gray-500">
+                <Icon className="h-3.5 w-3.5 text-brand-purple" />
+                <span>{label}</span>
+            </div>
+            <div
+                className={cn(
+                    "text-2xl font-black tracking-tight text-white",
+                    valueClassName,
+                )}
+            >
+                {value}
+            </div>
+            {hint ? <p className="mt-2 text-xs text-gray-400">{hint}</p> : null}
+        </div>
+    );
+}
+
+export const AnalyticsPrimitivesActivityIcon = Activity;

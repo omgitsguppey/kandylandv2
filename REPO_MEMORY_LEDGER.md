@@ -1045,3 +1045,78 @@ This file is not a changelog. It is the concise ledger for durable decisions tha
   - `package.json`
   - `FULL_SCALE_CODEBASE_AUDIT.md`
 - Follow-up gaps: This check only covers known generated artifacts; add to the list if other recurring outputs start polluting the tree.
+
+### 44. Admin debug preferences are persisted per admin user
+
+- Approximate date: Canonicalized and recorded on 2026-04-09
+- Status: Active admin runtime rule
+- Problem/context: Admin debug state such as active tab and route-runtime filtering was local-only, which made the debug surface inconsistent across reloads and weakened operator continuity during incident work.
+- Decision made: Persist debug preferences under `users/{uid}.adminPreferences.debug` and load/save them through dedicated admin APIs.
+- What became canonical:
+  - debug tab state is not session-only
+  - route-runtime filter state is not session-only
+  - debug preference persistence is user-scoped, not global admin config
+- Truth lives in:
+  - `src/lib/admin-debug-preferences.ts`
+  - `src/lib/server/admin-debug-preferences.ts`
+  - `src/app/api/admin/debug/preferences/route.ts`
+  - `src/app/admin/debug/page.tsx`
+  - `tests/unit/admin-debug-preferences-route.spec.ts`
+  - `FULL_SCALE_CODEBASE_AUDIT.md`
+- Follow-up gaps: Additional debug display preferences can be folded into the same subtree once they stop being purely cosmetic.
+
+### 45. Chat attachments are server-issued and server-finalized
+
+- Approximate date: Canonicalized and recorded on 2026-04-09
+- Status: Active chat runtime rule
+- Problem/context: Client-only attachment path generation and storage URL resolution made chat media tracking weaker and left room for path drift or untracked upload failures.
+- Decision made: Move attachment preparation and completion into explicit server routes so storage paths, thread ownership, and final asset URLs are validated server-side.
+- What became canonical:
+  - clients request an upload target from the server before uploading
+  - clients finalize uploads through the server after bytes land in storage
+  - runtime health covers both prepare and complete attachment routes
+- Truth lives in:
+  - `src/app/api/chat/attachments/prepare/route.ts`
+  - `src/app/api/chat/attachments/complete/route.ts`
+  - `src/components/Chat/ChatExperience.tsx`
+  - `src/lib/route-runtime-health.ts`
+  - `tests/unit/chat-attachments-route.spec.ts`
+  - `FULL_SCALE_CODEBASE_AUDIT.md`
+- Follow-up gaps: Attachment lifecycle still uses request/response polling rather than resumable-progress observability.
+
+### 46. Legacy creator-message compatibility is explicit and time-bounded
+
+- Approximate date: Canonicalized and recorded on 2026-04-09
+- Status: Active migration rule
+- Problem/context: The compatibility creator-message route was still operationally necessary, but there was no first-class runtime signal telling operators or clients that it was legacy traffic on a removal path.
+- Decision made: Add explicit compatibility headers and a canonical removal target so the route advertises its migration state in-band.
+- What became canonical:
+  - legacy creator-message responses carry compatibility headers
+  - removal timing is tracked in code, not only in chat history
+  - native chat and compatibility chat should stay operationally separable in runtime health
+- Truth lives in:
+  - `src/lib/creator-message-compatibility.ts`
+  - `src/app/api/creator/messages/route.ts`
+  - `src/app/admin/debug/page.tsx`
+  - `src/lib/server/admin-panel-system-logs.ts`
+  - `FULL_SCALE_CODEBASE_AUDIT.md`
+- Follow-up gaps: The route still exists; the next real milestone is a hard kill-switch once remaining callers are gone.
+
+### 47. Admin analytics extraction now follows a module-plus-primitives pattern
+
+- Approximate date: Canonicalized and recorded on 2026-04-09
+- Status: Active admin analytics rule
+- Problem/context: The admin analytics page had grown into a state-dense monolith where data-truth logic and chart rendering were too entangled to audit safely.
+- Decision made: Continue extracting high-risk sections into dedicated module components backed by shared analytics primitives and pure view-model helpers.
+- What became canonical:
+  - onboarding/auth discrepancy rendering lives in a dedicated module component
+  - task and notification sections live in a dedicated module component
+  - shared analytics card/tooltip primitives live outside the page
+- Truth lives in:
+  - `src/components/Admin/Analytics/AdminAnalyticsPrimitives.tsx`
+  - `src/components/Admin/Analytics/AdminOnboardingAnalyticsModules.tsx`
+  - `src/components/Admin/Analytics/AdminTaskAndNotificationModules.tsx`
+  - `src/app/admin/analytics/page.tsx`
+  - `tests/unit/admin-auth-outcome-chart.spec.ts`
+  - `FULL_SCALE_CODEBASE_AUDIT.md`
+- Follow-up gaps: More analytics sections still need the same extraction treatment before the page stops being a high-risk shared surface.

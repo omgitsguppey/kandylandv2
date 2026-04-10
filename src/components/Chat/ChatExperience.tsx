@@ -38,7 +38,7 @@ import { reportClientIssue, reportRealtimeIssue, reportStorageIssue } from "@/li
 import { storage, db, rtdb } from "@/lib/firebase-data";
 import { useCompactViewport } from "@/hooks/useCompactViewport";
 import { cn } from "@/lib/utils";
-import { getDownloadURL, ref as storageRef, uploadBytes } from "firebase/storage";
+import { ref as storageRef, uploadBytes } from "firebase/storage";
 
 type ThreadListResponse = {
     threads?: ChatThreadRecord[];
@@ -57,6 +57,18 @@ type ChatSendResponse = {
     errorCode?: string;
     warnings?: ChatSendWarning[];
 } & Partial<ChatInsufficientFundsPayload>;
+
+type ChatAttachmentPrepareResponse = {
+    storagePath: string;
+    fileName: string;
+    mimeType: string;
+};
+
+type ChatAttachmentCompleteResponse = {
+    assetUrl: string;
+    assetName: string;
+    assetMimeType: string;
+};
 
 type PresenceSnapshot = {
     typing?: boolean;
@@ -508,29 +520,58 @@ export function ChatExperience() {
     }, []);
 
     const uploadAttachment = useCallback(async () => {
-        if (!composerFile || !user) {
+        if (!composerFile || !user || !selectedThreadId) {
             return null;
         }
 
         try {
-            const target = storageRef(storage, `creator/messages/${user.uid}/${Date.now()}_${composerFile.name}`);
-            await uploadBytes(target, composerFile, {
-                contentType: composerFile.type || "application/octet-stream",
+            const prepareResponse = await authFetch("/api/chat/attachments/prepare", {
+                method: "POST",
+                body: JSON.stringify({
+                    threadId: selectedThreadId,
+                    fileName: composerFile.name,
+                    mimeType: composerFile.type || "application/octet-stream",
+                    sizeBytes: composerFile.size,
+                }),
             });
-            const assetUrl = await getDownloadURL(target);
+            const prepareBody = await prepareResponse.json() as { error?: string } & Partial<ChatAttachmentPrepareResponse>;
+            if (!prepareResponse.ok || !prepareBody.storagePath) {
+                throw new Error(prepareBody.error || "Failed to prepare chat attachment upload.");
+            }
+
+            const target = storageRef(storage, prepareBody.storagePath);
+            await uploadBytes(target, composerFile, {
+                contentType: prepareBody.mimeType || composerFile.type || "application/octet-stream",
+            });
+
+            const completeResponse = await authFetch("/api/chat/attachments/complete", {
+                method: "POST",
+                body: JSON.stringify({
+                    threadId: selectedThreadId,
+                    storagePath: prepareBody.storagePath,
+                    fileName: prepareBody.fileName || composerFile.name,
+                    mimeType: prepareBody.mimeType || composerFile.type || "application/octet-stream",
+                }),
+            });
+            const completeBody = await completeResponse.json() as { error?: string } & Partial<ChatAttachmentCompleteResponse>;
+            if (!completeResponse.ok || !completeBody.assetUrl) {
+                throw new Error(completeBody.error || "Failed to finalize chat attachment.");
+            }
+
             return {
-                assetUrl,
-                assetName: composerFile.name,
-                assetMimeType: composerFile.type || "application/octet-stream",
+                assetUrl: completeBody.assetUrl,
+                assetName: completeBody.assetName || composerFile.name,
+                assetMimeType: completeBody.assetMimeType || composerFile.type || "application/octet-stream",
             };
         } catch (error) {
             reportStorageIssue("chat attachment upload", error, {
                 fileName: composerFile.name,
                 mimeType: composerFile.type,
+                threadId: selectedThreadId,
             });
             throw error;
         }
-    }, [composerFile, user]);
+    }, [composerFile, selectedThreadId, user]);
 
     const handleSendMessage = useCallback(async () => {
         if (!selectedThreadId || !selectedThread) {

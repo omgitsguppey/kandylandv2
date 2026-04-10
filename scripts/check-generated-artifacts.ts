@@ -2,8 +2,12 @@ import { existsSync } from "node:fs";
 import { resolve } from "node:path";
 
 const GENERATED_ARTIFACTS = [
+    ".next",
+    "coverage",
     "playwright-report",
     "test-results",
+    "lighthouse-results",
+    "firebase-export",
     "build.log",
     "database-debug.log",
     "firestore-debug.log",

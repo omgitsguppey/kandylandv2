@@ -17,6 +17,18 @@ export const ROUTE_RUNTIME_HEALTH_TARGETS = {
         title: "Admin debug assistant settings writes",
         slowThresholdMs: 1400,
     },
+    "admin/debug/preferences:GET": {
+        routeName: "admin/debug/preferences",
+        method: "GET",
+        title: "Admin debug preferences reads",
+        slowThresholdMs: 1000,
+    },
+    "admin/debug/preferences:PUT": {
+        routeName: "admin/debug/preferences",
+        method: "PUT",
+        title: "Admin debug preferences writes",
+        slowThresholdMs: 1200,
+    },
     "admin/overview:GET": {
         routeName: "admin/overview",
         method: "GET",
@@ -136,6 +148,18 @@ export const ROUTE_RUNTIME_HEALTH_TARGETS = {
         method: "POST",
         title: "Chat message sends",
         slowThresholdMs: 1600,
+    },
+    "chat/attachments/prepare:POST": {
+        routeName: "chat/attachments/prepare",
+        method: "POST",
+        title: "Chat attachment prepare",
+        slowThresholdMs: 1200,
+    },
+    "chat/attachments/complete:POST": {
+        routeName: "chat/attachments/complete",
+        method: "POST",
+        title: "Chat attachment finalize",
+        slowThresholdMs: 1800,
     },
     "chat/read:POST": {
         routeName: "chat/read",

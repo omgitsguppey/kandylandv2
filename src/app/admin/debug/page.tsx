@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useMemo, useState } from "react";
+import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import {
     Activity,
     ChevronDown,
@@ -30,6 +30,14 @@ import {
     summarizeAdminUiChartHealth,
 } from "@/lib/admin-ui-chart-health";
 import {
+    ADMIN_DEBUG_DEFAULT_TAB,
+    ADMIN_DEBUG_ROUTE_RUNTIME_FILTER_OPTIONS,
+    type AdminDebugRouteRuntimeFilter,
+    type AdminDebugTabOption,
+} from "@/lib/admin-debug-preferences";
+import { filterAdminDebugRouteRuntimeHealth, buildAdminDebugRouteRuntimeRateSummary } from "@/lib/admin-debug-route-runtime";
+import { CREATOR_MESSAGES_COMPATIBILITY_REMOVE_AFTER } from "@/lib/creator-message-compatibility";
+import {
     getRouteRuntimeHealthCluster,
     getRouteRuntimeHealthCoverageState,
     getRouteRuntimeHealthFreshness,
@@ -40,7 +48,7 @@ import { authFetch } from "@/lib/authFetch";
 import { reportClientIssue } from "@/lib/client-error-reporting";
 import { cn } from "@/lib/utils";
 
-type DebugTabId = "now" | "actions" | "monitoring" | "ai" | "advanced";
+type DebugTabId = AdminDebugTabOption;
 
 const DEBUG_TABS: Array<{ id: DebugTabId; label: string; icon: typeof Activity }> = [
     { id: "now", label: "Right now", icon: Activity },
@@ -167,18 +175,79 @@ export default function DebugConsole() {
     const [processing, setProcessing] = useState(false);
     const [repairingId, setRepairingId] = useState<string | null>(null);
     const [simAmount, setSimAmount] = useState("500");
-    const [activeTab, setActiveTab] = useState<DebugTabId>("now");
+    const [activeTab, setActiveTab] = useState<DebugTabId>(ADMIN_DEBUG_DEFAULT_TAB);
+    const [routeRuntimeFilter, setRouteRuntimeFilter] = useState<AdminDebugRouteRuntimeFilter>("all");
     const [aiAssistantEnabled, setAiAssistantEnabled] = useState(true);
     const [aiAssistantModel, setAiAssistantModel] = useState("gemini-2.5-flash-lite");
     const [savingAiAssistantSettings, setSavingAiAssistantSettings] = useState(false);
+    const [savingDebugPreferences, setSavingDebugPreferences] = useState(false);
+    const debugPreferencesHydratedRef = useRef(false);
 
     const { data, error, isLoading, mutate } = useAdminPollingSWR<any>("/api/admin/debug", 5000, {
         keepPreviousData: false,
+    });
+    const { data: debugPreferencesData, mutate: mutateDebugPreferences } = useAdminPollingSWR<any>("/api/admin/debug/preferences", 15000, {
+        keepPreviousData: true,
     });
     const { data: aiDebugData, error: aiDebugError, mutate: mutateAiDebug } = useAdminPollingSWR<AdminAiDebugSummary>("/api/admin/debug/assistant", 15000, {
         keepPreviousData: true,
     });
     const { data: overviewData, isLoading: overviewLoading, mutate: mutateOverview } = useAdminOverview();
+
+    useEffect(() => {
+        const preferences = debugPreferencesData?.preferences;
+        if (!preferences || debugPreferencesHydratedRef.current) {
+            return;
+        }
+
+        debugPreferencesHydratedRef.current = true;
+        if (typeof preferences.activeTab === "string") {
+            setActiveTab(preferences.activeTab as DebugTabId);
+        }
+        if (typeof preferences.routeRuntimeFilter === "string") {
+            setRouteRuntimeFilter(preferences.routeRuntimeFilter as AdminDebugRouteRuntimeFilter);
+        }
+    }, [debugPreferencesData?.preferences]);
+
+    const persistDebugPreferences = useCallback(async (patch: {
+        activeTab?: DebugTabId;
+        routeRuntimeFilter?: AdminDebugRouteRuntimeFilter;
+    }) => {
+        setSavingDebugPreferences(true);
+        try {
+            const response = await authFetch("/api/admin/debug/preferences", {
+                method: "PUT",
+                body: JSON.stringify(patch),
+            });
+            const body = await response.json() as { error?: string };
+            if (!response.ok) {
+                throw new Error(body.error || "Failed to save debug preferences.");
+            }
+            await mutateDebugPreferences();
+        } catch (preferenceError) {
+            reportClientIssue({
+                channel: "runtime",
+                severity: "warn",
+                message: "Admin debug preferences save failed",
+                error: preferenceError,
+                detail: patch,
+                consoleLabel: "[Admin Debug] preference save failed",
+            });
+            toast.error(preferenceError instanceof Error ? preferenceError.message : "Failed to save debug preferences.");
+        } finally {
+            setSavingDebugPreferences(false);
+        }
+    }, [mutateDebugPreferences]);
+
+    const handleActiveTabChange = useCallback((nextTab: DebugTabId) => {
+        setActiveTab(nextTab);
+        void persistDebugPreferences({ activeTab: nextTab });
+    }, [persistDebugPreferences]);
+
+    const handleRouteRuntimeFilterChange = useCallback((nextFilter: AdminDebugRouteRuntimeFilter) => {
+        setRouteRuntimeFilter(nextFilter);
+        void persistDebugPreferences({ routeRuntimeFilter: nextFilter });
+    }, [persistDebugPreferences]);
 
     const recentTransactions = useMemo(() => (
         (overviewData?.recentTransactions || []).map((entry: any) => ({
@@ -208,6 +277,10 @@ export default function DebugConsole() {
         () => data?.routeRuntimeHealth || [],
         [data?.routeRuntimeHealth],
     );
+    const filteredRouteRuntimeHealth = useMemo(
+        () => filterAdminDebugRouteRuntimeHealth(routeRuntimeHealth, routeRuntimeFilter),
+        [routeRuntimeHealth, routeRuntimeFilter],
+    );
     const routeRuntimeHealthSummary = useMemo(
         () => summarizeRouteRuntimeHealth(routeRuntimeHealth),
         [routeRuntimeHealth],
@@ -226,6 +299,14 @@ export default function DebugConsole() {
     );
     const compatibilityChatRouteRuntimeSummary = useMemo(
         () => summarizeRouteRuntimeHealth(compatibilityChatRouteRuntimeHealth),
+        [compatibilityChatRouteRuntimeHealth],
+    );
+    const nativeChatRouteRuntimeRates = useMemo(
+        () => buildAdminDebugRouteRuntimeRateSummary(nativeChatRouteRuntimeHealth),
+        [nativeChatRouteRuntimeHealth],
+    );
+    const compatibilityChatRouteRuntimeRates = useMemo(
+        () => buildAdminDebugRouteRuntimeRateSummary(compatibilityChatRouteRuntimeHealth),
         [compatibilityChatRouteRuntimeHealth],
     );
     const derivedActionCount = useMemo(
@@ -505,11 +586,12 @@ export default function DebugConsole() {
                     <label className="mb-2 block text-[11px] uppercase tracking-[0.18em] text-gray-400">Operator lane</label>
                     <select
                         value={activeTab}
-                        onChange={(event) => setActiveTab(event.target.value as DebugTabId)}
+                        onChange={(event) => handleActiveTabChange(event.target.value as DebugTabId)}
                         className="min-h-11 w-full rounded-[1rem] border border-white/10 bg-black/40 px-3 text-sm font-semibold text-white"
                     >
                         {DEBUG_TABS.map((tab) => <option key={tab.id} value={tab.id}>{tab.label}</option>)}
                     </select>
+                    {savingDebugPreferences ? <p className="mt-2 text-xs text-gray-500">Saving debug preference...</p> : null}
                 </div>
             );
         }
@@ -523,7 +605,7 @@ export default function DebugConsole() {
                         <button
                             key={tab.id}
                             type="button"
-                            onClick={() => setActiveTab(tab.id)}
+                            onClick={() => handleActiveTabChange(tab.id)}
                             className={cn(
                                 "inline-flex items-center gap-2 rounded-full border px-4 py-2 text-sm font-semibold",
                                 active ? "border-brand-purple/40 bg-brand-purple/20 text-white" : "border-white/10 bg-white/5 text-gray-300"
@@ -937,12 +1019,51 @@ export default function DebugConsole() {
                         title="Tracked route runtime"
                         subtitle="Canonical route rollups for debug, overview, support, chat, creator-message compatibility, creator relationships, and AI flows. This is persisted backend health, not guessed client state."
                         defaultOpen={routeRuntimeHealthSummary.fail > 0 || routeRuntimeHealthSummary.warn > 0 || routeRuntimeHealthSummary.stale > 0}
-                        summary={<><Pill label="Tracked" value={routeRuntimeHealthSummary.total} /><Pill label="Unseen" value={routeRuntimeHealthSummary.unobserved} tone={routeRuntimeHealthSummary.unobserved > 0 ? "warn" : "good"} /><Pill label="Stale" value={routeRuntimeHealthSummary.stale} tone={routeRuntimeHealthSummary.stale > 0 ? "warn" : "good"} /><Pill label="Warn" value={routeRuntimeHealthSummary.warn} tone={routeRuntimeHealthSummary.warn > 0 ? "warn" : "good"} /><Pill label="Fail" value={routeRuntimeHealthSummary.fail} tone={routeRuntimeHealthSummary.fail > 0 ? "bad" : "good"} /><Pill label="Slow samples" value={routeRuntimeHealthSummary.slow} tone={routeRuntimeHealthSummary.slow > 0 ? "warn" : "good"} /><Pill label="Native chat" value={`${nativeChatRouteRuntimeSummary.fail}/${nativeChatRouteRuntimeSummary.warn}/${nativeChatRouteRuntimeSummary.stale}`} tone={nativeChatRouteRuntimeSummary.fail > 0 ? "bad" : nativeChatRouteRuntimeSummary.warn > 0 || nativeChatRouteRuntimeSummary.stale > 0 ? "warn" : "good"} /><Pill label="Compat chat" value={`${compatibilityChatRouteRuntimeSummary.fail}/${compatibilityChatRouteRuntimeSummary.warn}/${compatibilityChatRouteRuntimeSummary.stale}`} tone={compatibilityChatRouteRuntimeSummary.fail > 0 ? "bad" : compatibilityChatRouteRuntimeSummary.warn > 0 || compatibilityChatRouteRuntimeSummary.stale > 0 ? "warn" : "good"} /></>}
+                        summary={<><Pill label="Tracked" value={routeRuntimeHealthSummary.total} /><Pill label="Filter" value={routeRuntimeFilter.replace("_", " ")} tone={routeRuntimeFilter === "all" ? "neutral" : "warn"} /><Pill label="Unseen" value={routeRuntimeHealthSummary.unobserved} tone={routeRuntimeHealthSummary.unobserved > 0 ? "warn" : "good"} /><Pill label="Stale" value={routeRuntimeHealthSummary.stale} tone={routeRuntimeHealthSummary.stale > 0 ? "warn" : "good"} /><Pill label="Warn" value={routeRuntimeHealthSummary.warn} tone={routeRuntimeHealthSummary.warn > 0 ? "warn" : "good"} /><Pill label="Fail" value={routeRuntimeHealthSummary.fail} tone={routeRuntimeHealthSummary.fail > 0 ? "bad" : "good"} /><Pill label="Slow samples" value={routeRuntimeHealthSummary.slow} tone={routeRuntimeHealthSummary.slow > 0 ? "warn" : "good"} /><Pill label="Native chat" value={`${nativeChatRouteRuntimeSummary.fail}/${nativeChatRouteRuntimeSummary.warn}/${nativeChatRouteRuntimeSummary.stale}`} tone={nativeChatRouteRuntimeSummary.fail > 0 ? "bad" : nativeChatRouteRuntimeSummary.warn > 0 || nativeChatRouteRuntimeSummary.stale > 0 ? "warn" : "good"} /><Pill label="Compat chat" value={`${compatibilityChatRouteRuntimeSummary.fail}/${compatibilityChatRouteRuntimeSummary.warn}/${compatibilityChatRouteRuntimeSummary.stale}`} tone={compatibilityChatRouteRuntimeSummary.fail > 0 ? "bad" : compatibilityChatRouteRuntimeSummary.warn > 0 || compatibilityChatRouteRuntimeSummary.stale > 0 ? "warn" : "good"} /></>}
                     >
-                        {routeRuntimeHealth.length > 0 ? (
+                        <div className="mb-4 grid gap-3 xl:grid-cols-[1fr_1fr_0.8fr]">
+                            <div className="rounded-[1rem] border border-white/10 bg-white/[0.03] p-4">
+                                <div className="flex flex-wrap items-center gap-2">
+                                    <Pill label="Native chat error rate" value={nativeChatRouteRuntimeRates.errorRateLabel} tone={nativeChatRouteRuntimeRates.errorSamples > 0 ? "warn" : "good"} />
+                                    <Pill label="Observed" value={nativeChatRouteRuntimeHealth.length - nativeChatRouteRuntimeRates.unseenCount} />
+                                    <Pill label="Samples" value={nativeChatRouteRuntimeRates.totalSamples} />
+                                </div>
+                                <p className="mt-3 text-sm text-gray-300">
+                                    Native chat routes currently show {nativeChatRouteRuntimeRates.errorSamples} error samples across {nativeChatRouteRuntimeRates.totalSamples} tracked samples.
+                                </p>
+                            </div>
+                            <div className="rounded-[1rem] border border-white/10 bg-white/[0.03] p-4">
+                                <div className="flex flex-wrap items-center gap-2">
+                                    <Pill label="Compat error rate" value={compatibilityChatRouteRuntimeRates.errorRateLabel} tone={compatibilityChatRouteRuntimeRates.errorSamples > 0 ? "warn" : "good"} />
+                                    <Pill label="Observed" value={compatibilityChatRouteRuntimeHealth.length - compatibilityChatRouteRuntimeRates.unseenCount} />
+                                    <Pill label="Samples" value={compatibilityChatRouteRuntimeRates.totalSamples} />
+                                </div>
+                                <p className="mt-3 text-sm text-gray-300">
+                                    Compatibility traffic stays visible until the legacy creator-messages route is removed after {CREATOR_MESSAGES_COMPATIBILITY_REMOVE_AFTER}.
+                                </p>
+                            </div>
+                            <div className="rounded-[1rem] border border-white/10 bg-white/[0.03] p-4">
+                                <label className="mb-2 block text-[11px] uppercase tracking-[0.18em] text-gray-400">Route filter</label>
+                                <select
+                                    value={routeRuntimeFilter}
+                                    onChange={(event) => handleRouteRuntimeFilterChange(event.target.value as AdminDebugRouteRuntimeFilter)}
+                                    className="min-h-11 w-full rounded-[1rem] border border-white/10 bg-black/40 px-3 text-sm font-semibold text-white"
+                                >
+                                    {ADMIN_DEBUG_ROUTE_RUNTIME_FILTER_OPTIONS.map((option) => (
+                                        <option key={option} value={option}>
+                                            {option === "all" ? "All tracked routes" : option === "failing" ? "Active failures" : option === "stale" ? "Stale only" : option === "unseen" ? "Unseen only" : option === "native_chat" ? "Native chat only" : "Compatibility chat only"}
+                                        </option>
+                                    ))}
+                                </select>
+                                <p className="mt-2 text-xs text-gray-500">
+                                    Unseen means no sample recorded yet. Stale means the last sample is older than the runtime freshness window.
+                                </p>
+                            </div>
+                        </div>
+                        {filteredRouteRuntimeHealth.length > 0 ? (
                             <ScrollWrap>
                                 <div className="divide-y divide-white/10">
-                                    {routeRuntimeHealth.map((entry: any) => {
+                                    {filteredRouteRuntimeHealth.map((entry: any) => {
                                         const status = getRouteRuntimeHealthStatus(entry);
                                         const coverageState = getRouteRuntimeHealthCoverageState(entry);
                                         const freshness = getRouteRuntimeHealthFreshness(entry);
@@ -985,7 +1106,9 @@ export default function DebugConsole() {
                             </ScrollWrap>
                         ) : (
                             <div className="rounded-[1rem] border border-amber-400/20 bg-amber-500/10 p-4 text-sm text-amber-100">
-                                No tracked route rollups are loaded yet. Drive the creator follow, support inbox, or AI cover generation flows to populate this lane with real backend samples.
+                                {routeRuntimeHealth.length > 0
+                                    ? `No route entries match the current "${routeRuntimeFilter.replace("_", " ")}" filter.`
+                                    : "No tracked route rollups are loaded yet. Drive the creator follow, support inbox, or AI cover generation flows to populate this lane with real backend samples."}
                             </div>
                         )}
                     </Section>

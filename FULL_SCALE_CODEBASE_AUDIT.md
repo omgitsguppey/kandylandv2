@@ -2,9 +2,139 @@
 
 Status: Canonical audit standard and live baseline
 Last refreshed: 2026-04-09
-Last full-scale audit execution: 2026-04-09 03:00:54 -05:00
+Last full-scale audit execution: 2026-04-09 19:40:21 -05:00
 Repo: `C:\Users\uylus\OneDrive\Documents\KandyDrops_Final`
 Audited HEAD at start: `36fcca527b72b04c24531724465f490642018ba2`
+
+## 2026-04-09 Runtime Truth and Tracking Hardening Follow-Up
+
+Scope for this pass:
+
+- implement the next 10 runtime/tracking hardening improvements identified in the prior audit
+- extract remaining high-risk admin analytics modules out of the monolithic analytics page
+- persist admin debug display preferences, improve stale/runtime visibility, and harden compatibility-chat migration truth
+- extend sanitizer usage, RTDB rules coverage, and artifact enforcement so truth surfaces are easier to trust
+- finish with another tracking/state-of-truth audit informed by external platform observability practices
+
+Startup protocol executed:
+
+- read `FULL_SCALE_CODEBASE_AUDIT.md`
+- read `REPO_MEMORY_LEDGER.md`
+- read `EVERY_FILE_FUNCTION_CHECKLIST.md`
+- ran `git status --short`
+- traced adjacent surfaces for:
+  - `src/app/admin/analytics/page.tsx`
+  - `src/app/admin/debug/page.tsx`
+  - `src/lib/server/support-threads.ts`
+  - `src/app/api/notifications/route.ts`
+
+Start state:
+
+- current HEAD at follow-up start: `360cdaa5d3033ece915dfa1b074ee6c4845ac6b9`
+- working tree was clean at pass start
+- the next changes should land on top of the already-pushed runtime-truth baseline rather than reopening parallel helper paths
+
+Implementation results:
+
+- extracted shared admin analytics UI primitives into `src/components/Admin/Analytics/AdminAnalyticsPrimitives.tsx`
+- extracted onboarding/auth discrepancy rendering into `src/components/Admin/Analytics/AdminOnboardingAnalyticsModules.tsx`
+- extracted task and notification analytics into `src/components/Admin/Analytics/AdminTaskAndNotificationModules.tsx`
+- added persisted admin debug preferences under `users/{uid}.adminPreferences.debug` through:
+  - `src/lib/admin-debug-preferences.ts`
+  - `src/lib/server/admin-debug-preferences.ts`
+  - `src/app/api/admin/debug/preferences/route.ts`
+- added route-runtime filtering/rate summaries for stale, unseen, native chat, and compatibility chat through `src/lib/admin-debug-route-runtime.ts`
+- added compatibility lifecycle headers and a formal removal target to the legacy creator-message route through `src/lib/creator-message-compatibility.ts` and `src/app/api/creator/messages/route.ts`
+- moved chat attachment preparation/finalization into server-backed routes:
+  - `src/app/api/chat/attachments/prepare/route.ts`
+  - `src/app/api/chat/attachments/complete/route.ts`
+  - `src/components/Chat/ChatExperience.tsx` now uploads against server-issued storage paths and server-verified asset URLs
+- extended route-runtime-health coverage for:
+  - `admin/debug/preferences:GET`
+  - `admin/debug/preferences:PUT`
+  - `chat/attachments/prepare:POST`
+  - `chat/attachments/complete:POST`
+- applied `sanitizeFirestorePayload(...)` to support-thread writes and notification writes so undefined-field regressions do not recur in those surfaces
+- expanded Realtime Database rules coverage to reject malformed presence payloads and mismatched participant paths
+- extended generated-artifact continuity checks to include `.next`, `coverage`, `lighthouse-results`, and `firebase-export`
+
+Commands run:
+
+- `git status --short`
+- `npm run trace:adjacent -- src/app/admin/analytics/page.tsx`
+- `npm run trace:adjacent -- src/app/admin/debug/page.tsx`
+- `npm run trace:adjacent -- src/lib/server/support-threads.ts`
+- `npm run trace:adjacent -- src/app/api/notifications/route.ts`
+- `npm run trace:adjacent -- src/app/api/chat/attachments/prepare/route.ts`
+- `npx eslint src/app/admin/analytics/page.tsx src/components/Admin/Analytics/AdminTaskAndNotificationModules.tsx src/app/admin/debug/page.tsx src/app/api/admin/debug/preferences/route.ts src/app/api/chat/attachments/prepare/route.ts src/app/api/chat/attachments/complete/route.ts src/app/api/creator/messages/route.ts src/app/api/notifications/route.ts src/components/Chat/ChatExperience.tsx src/lib/admin-debug-preferences.ts src/lib/admin-debug-route-runtime.ts src/lib/creator-message-compatibility.ts src/lib/route-runtime-health.ts src/lib/server/admin-debug-preferences.ts src/lib/server/support-threads.ts tests/unit/admin-debug-route-runtime.spec.ts tests/unit/admin-debug-preferences-route.spec.ts tests/unit/chat-attachments-route.spec.ts tests/firebase/database.rules.spec.ts`
+- `npx tsc --noEmit`
+- `corepack pnpm exec vitest run tests/unit/admin-debug-route-runtime.spec.ts tests/unit/admin-debug-preferences-route.spec.ts tests/unit/chat-attachments-route.spec.ts tests/firebase/database.rules.spec.ts`
+- `npm run check:inventory`
+- `npm run check:firebase:rules`
+- `npm run check:continuity`
+- `npm run check:telemetry`
+- `npm run check:analytics-semantics`
+- `corepack pnpm run check`
+- `npm run check:ui:audits`
+- `npm run check:ui:lighthouse`
+- `git status --short`
+
+Results:
+
+- targeted eslint passed
+- `npx tsc --noEmit` passed
+- focused Vitest passed:
+  - `3` files
+  - `8` tests
+- `npm run check:inventory` passed:
+  - tracked files: `751`
+- `npm run check:firebase:rules` passed:
+  - Firestore rules: `10` tests
+  - Realtime Database rules: `6` tests
+  - Storage rules: `16` tests
+- `npm run check:continuity` passed
+- `npm run check:telemetry` passed:
+  - `243` emitters checked across `411` files
+  - orphaned catalog events: `0`
+- `npm run check:analytics-semantics` passed
+- `corepack pnpm run check` passed:
+  - `119` contract files
+  - `542` tests
+- `npm run check:ui:audits` passed:
+  - `16` tests
+- `npm run check:ui:lighthouse` passed
+
+Warnings and non-blocking notes:
+
+- the first `corepack pnpm run check` attempt timed out under the default shell timeout; rerunning with a longer timeout passed cleanly
+- UI audits and Lighthouse regenerate `.next` and local audit outputs as expected; those artifacts must still be removed before final signoff
+- existing non-blocking warnings remain:
+  - npm unknown env config warnings
+  - Node `punycode` deprecation warnings
+  - Lighthouse temp cleanup `EPERM` warnings on Windows
+
+Research inputs for the next runtime-tracking audit:
+
+- Google SRE on the four golden signals and production monitoring: <https://sre.google/sre-book/monitoring-distributed-systems/>
+- Google SRE Workbook on multi-window, multi-burn-rate SLO alerting: <https://sre.google/workbook/alerting-on-slos/>
+- YouTube Analytics API data model and bounded report availability: <https://developers.google.com/youtube/analytics/data_model>
+- Meta Engineering on structured logging (`Logarithm`): <https://engineering.fb.com/2024/03/18/data-infrastructure/logarithm-logging-engine-ai-training-workflows-services-meta/>
+- Meta Engineering on automated root-cause analyzers (`DrP`): <https://engineering.fb.com/2022/11/22/production-engineering/drp-ai-root-cause-analysis/>
+- Meta Engineering on typed data contracts (`Tulip`): <https://engineering.fb.com/2025/10/17/developer-tools/tulip-meta-internal-python-data-validation-library/>
+- Meta Engineering on automated coverage-gap/staleness repair for tribal knowledge systems: <https://engineering.fb.com/2025/09/30/ai-research/how-meta-used-ai-to-map-tribal-knowledge/>
+
+Next tracking/state-of-truth improvements suggested by this follow-up audit:
+
+1. Add per-surface SLOs and burn-rate alerting for chat send, moderation reads, notifications, auth entry, and AI admin routes.
+2. Add explicit freshness watermarks to every admin analytics/debug module so stale-but-loaded data is never visually mistaken for realtime.
+3. Version telemetry payload schemas and reject ambiguous shared-event mappings unless a task-specific discriminator is present.
+4. Add automated route analyzers that trigger on new failure clusters and pre-fill likely RCA context into admin debug.
+5. Introduce context-rich structured logs for high-risk routes so thread id, actor role, module key, and range are always queryable.
+6. Add runtime coverage audits that fail when a tracked route remains unseen beyond a bounded warm-up window.
+7. Separate realtime analytics paths from historical aggregation paths more aggressively so module freshness and bounded lag stay visible.
+8. Materialize module-level discrepancy snapshots for auth/onboarding, daily-task parity, and reward-receipt drift so mismatches are queryable over time.
+9. Expand generated-artifact enforcement to any future emulator/export outputs the moment they first appear in the repo.
+10. Keep decomposing admin analytics into module components with pure view-model helpers so data-truth gating is testable without the full page.
 
 ## 2026-04-09 Creator Messaging Send Failure Hardening
 

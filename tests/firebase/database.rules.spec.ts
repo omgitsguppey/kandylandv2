@@ -94,4 +94,35 @@ describe("database.rules.json", () => {
       displayName: "Creator One",
     }));
   });
+
+  it("rejects invalid presence payload shapes", async () => {
+    const creatorDb = testEnv.authenticatedContext("creator-1").database();
+
+    await assertFails(creatorDb.ref("chat_presence/creator-1/user-1/creator-1").set({
+      activeAt: 1710000005000,
+      role: "creator",
+    }));
+    await assertFails(creatorDb.ref("chat_presence/creator-1/user-1/creator-1").set({
+      typing: "yes",
+      activeAt: 1710000005000,
+    }));
+    await assertFails(creatorDb.ref("chat_presence/creator-1/user-1/creator-1").set({
+      typing: true,
+      activeAt: "later",
+    }));
+  });
+
+  it("blocks writes to malformed or mismatched presence paths", async () => {
+    const creatorDb = testEnv.authenticatedContext("creator-1").database();
+    const userDb = testEnv.authenticatedContext("user-1").database();
+
+    await assertFails(creatorDb.ref("chat_presence/creator-1/user-1/outsider").set({
+      typing: true,
+      activeAt: 1710000006000,
+    }));
+    await assertFails(userDb.ref("chat_presence/creator-1/other-user/user-1").set({
+      typing: false,
+      activeAt: 1710000007000,
+    }));
+  });
 });

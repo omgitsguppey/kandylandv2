@@ -5,7 +5,6 @@ import Image from "next/image";
 import {
   Activity,
   AlertTriangle,
-  BellRing,
   Candy,
   CheckCircle2,
   Clock3,
@@ -65,6 +64,13 @@ import { buildAdminOnboardingVelocityModel } from "@/lib/admin-onboarding-veloci
 import { buildAdminTaskPipelineModel } from "@/lib/admin-task-pipeline";
 import { cn } from "@/lib/utils";
 import { AdminPageHeader } from "@/components/Admin/AdminPageHeader";
+import { AdminOnboardingAnalyticsModules } from "@/components/Admin/Analytics/AdminOnboardingAnalyticsModules";
+import {
+  AnalyticsTooltip,
+  MetricCard,
+  SectionCard,
+} from "@/components/Admin/Analytics/AdminAnalyticsPrimitives";
+import { AdminTaskAndNotificationModules } from "@/components/Admin/Analytics/AdminTaskAndNotificationModules";
 import { PageViewEvent } from "@/components/Analytics/PageViewEvent";
 import { TELEMETRY_EVENT_LABELS } from "@/lib/telemetry-catalog";
 
@@ -484,33 +490,6 @@ interface TooltipValue {
   value?: string | number;
 }
 
-interface AnalyticsTooltipProps {
-  active?: boolean;
-  payload?: TooltipValue[];
-  label?: string;
-  valueFormatter?: (value: string | number, name?: string) => string;
-}
-
-interface SectionCardProps {
-  title: string;
-  subtitle?: string;
-  icon: typeof Activity;
-  children: React.ReactNode;
-  className?: string;
-  rightSlot?: React.ReactNode;
-  defaultExpanded?: boolean;
-  collapsible?: boolean;
-}
-
-interface MetricCardProps {
-  label: string;
-  value: string;
-  hint?: string;
-  icon: typeof Activity;
-  className?: string;
-  valueClassName?: string;
-}
-
 const RANGE_OPTIONS: Array<{ value: RangeOption; label: string }> =
   ADMIN_ANALYTICS_RANGE_OPTIONS.map((value) => ({
     value,
@@ -542,98 +521,6 @@ const ANALYTICS_DATE_TIME_FORMATTER = new Intl.DateTimeFormat("en-US", {
   timeZone: "America/Chicago",
 });
 const ANALYTICS_FILTER_STORAGE_KEY = "kandydrops.admin.analytics.filters";
-
-function AnalyticsTooltip({
-  active,
-  payload,
-  label,
-  valueFormatter,
-}: AnalyticsTooltipProps) {
-  if (!active || !payload?.length) return null;
-
-  return (
-    <div className="rounded-2xl border border-white/10 bg-black/90 p-3 shadow-2xl backdrop-blur-md">
-      <p className="mb-2 text-xs font-semibold uppercase tracking-[0.16em] text-gray-500">
-        {label}
-      </p>
-      <div className="space-y-1.5">
-        {payload.map((entry, index) => (
-          <div
-            key={`${entry.name}-${index}`}
-            className="flex items-center justify-between gap-3 text-sm"
-          >
-            <div className="flex items-center gap-2 text-gray-300">
-              <span
-                className="h-2.5 w-2.5 rounded-full"
-                style={{ backgroundColor: entry.color }}
-              />
-              <span>{entry.name}</span>
-            </div>
-            <span className="font-semibold text-white">
-              {valueFormatter
-                ? valueFormatter(entry.value ?? 0, entry.name)
-                : entry.value}
-            </span>
-          </div>
-        ))}
-      </div>
-    </div>
-  );
-}
-
-function SectionCard({
-  title,
-  subtitle,
-  icon: Icon,
-  children,
-  className,
-  rightSlot,
-  defaultExpanded = false,
-  collapsible = true,
-}: SectionCardProps) {
-  const [expanded, setExpanded] = useState(defaultExpanded);
-
-  return (
-    <section
-      className={cn(
-        "glass-panel rounded-[1.6rem] border border-white/10 p-3.5 md:p-5",
-        className,
-      )}
-    >
-      <div className="mb-3 flex items-start justify-between gap-2.5">
-        <div className="min-w-0">
-          <div className="mb-1.5 flex items-center gap-2">
-            <div className="flex h-8 w-8 items-center justify-center rounded-xl border border-white/10 bg-white/5 text-brand-purple">
-              <Icon className="h-4 w-4" />
-            </div>
-            <h2 className="text-base font-bold text-white md:text-lg">
-              {title}
-            </h2>
-          </div>
-          {subtitle ? (
-            <p className="text-xs leading-5 text-gray-400 md:text-sm">
-              {subtitle}
-            </p>
-          ) : null}
-        </div>
-        <div className="flex items-center gap-2">
-          {rightSlot}
-          {collapsible ? (
-            <button
-              type="button"
-              onClick={() => setExpanded((prev) => !prev)}
-              className="rounded-full border border-white/10 bg-white/5 px-3 py-1.5 text-[10px] font-bold uppercase tracking-[0.14em] text-gray-300 transition-colors hover:border-brand-purple/40 hover:text-white"
-              aria-expanded={expanded}
-            >
-              {expanded ? "Collapse" : "Expand"}
-            </button>
-          ) : null}
-        </div>
-      </div>
-      {expanded || !collapsible ? children : null}
-    </section>
-  );
-}
 
 function buildSectionHistoricalUrl(
   section: string,
@@ -706,38 +593,6 @@ function useHistoricalSectionOverride(
     {
       keepPreviousData: true,
     },
-  );
-}
-
-function MetricCard({
-  label,
-  value,
-  hint,
-  icon: Icon,
-  className,
-  valueClassName,
-}: MetricCardProps) {
-  return (
-    <div
-      className={cn(
-        "rounded-[1.6rem] border border-white/10 bg-black/30 p-4",
-        className,
-      )}
-    >
-      <div className="mb-3 flex items-center gap-2 text-xs font-semibold uppercase tracking-[0.14em] text-gray-500">
-        <Icon className="h-3.5 w-3.5 text-brand-purple" />
-        <span>{label}</span>
-      </div>
-      <div
-        className={cn(
-          "text-2xl font-black tracking-tight text-white",
-          valueClassName,
-        )}
-      >
-        {value}
-      </div>
-      {hint ? <p className="mt-2 text-xs text-gray-400">{hint}</p> : null}
-    </div>
   );
 }
 
@@ -1488,6 +1343,12 @@ export default function AdminAnalyticsPage() {
   const onboardingVelocityHasData = onboardingVelocityModel.hasVelocityData;
   const onboardingVelocityCompletionCount = onboardingVelocityModel.completions;
   const authOnboardingDiscrepancies = onboardingVelocityModel.discrepancies;
+  const onboardingVelocityStartSourceHint =
+    onboardingVelocityStats.startSource === "tracked"
+      ? "Canonical starts"
+      : onboardingVelocityStats.startSource === "completion_fallback"
+        ? "Backfilled from completions"
+        : "No start signals";
   const guestBounceQualityData =
     guestBounceQualityRange === ADMIN_ANALYTICS_DEFAULT_RANGE
       ? historicalResponse
@@ -3259,161 +3120,25 @@ export default function AdminAnalyticsPage() {
                 </div>
               </SectionCard>
 
-              <SectionCard
-                title="Onboarding Velocity"
-                subtitle="How long new users take to finish the guided tour on mobile."
-                icon={PlayCircle}
-                rightSlot={renderSectionRangeControl("onboardingVelocity")}
-              >
-                {authOnboardingDiscrepancies.length > 0 ? (
-                  <div className="mb-4 rounded-[1.35rem] border border-amber-400/20 bg-amber-500/10 p-4">
-                    <div className="flex flex-wrap items-center gap-2">
-                      <span className="rounded-full border border-amber-400/20 bg-amber-500/10 px-3 py-1 text-[10px] font-bold uppercase tracking-[0.14em] text-amber-100">
-                        Discrepancy
-                      </span>
-                      <span className="text-xs font-semibold text-gray-300">
-                        Cross-check against Onboarding Step Flow below.
-                      </span>
-                    </div>
-                    <div className="mt-3 space-y-1 text-sm text-amber-100">
-                      {authOnboardingDiscrepancies.map((item) => (
-                        <p key={item}>- {item}</p>
-                      ))}
-                    </div>
-                  </div>
-                ) : null}
-                <div className="grid gap-4 lg:grid-cols-[1.1fr_0.9fr]">
-                  <div className="h-64 w-full">
-                    {onboardingVelocityHasData ? (
-                      <ResponsiveContainer width="100%" height="100%">
-                        <BarChart
-                          data={onboardingVelocityBuckets}
-                          margin={{ top: 8, right: 0, left: -18, bottom: 0 }}
-                        >
-                          <CartesianGrid
-                            stroke="rgba(255,255,255,0.06)"
-                            vertical={false}
-                          />
-                          <XAxis
-                            dataKey="label"
-                            stroke="#6b7280"
-                            fontSize={11}
-                            tickLine={false}
-                            axisLine={false}
-                          />
-                          <YAxis
-                            stroke="#6b7280"
-                            fontSize={11}
-                            tickLine={false}
-                            axisLine={false}
-                          />
-                          <Tooltip content={<AnalyticsTooltip />} />
-                          <Bar
-                            dataKey="count"
-                            name="Completions"
-                            fill="#b28cff"
-                            radius={[10, 10, 0, 0]}
-                          />
-                        </BarChart>
-                      </ResponsiveContainer>
-                    ) : (
-                      <div className="flex h-full items-center justify-center rounded-[1.6rem] border border-dashed border-white/10 bg-black/20 p-5 text-sm text-gray-500">
-                        No onboarding data in this range.
-                      </div>
-                    )}
-                  </div>
-
-                  <div className="grid grid-cols-2 gap-3 self-start">
-                    <MetricCard
-                      label="Started"
-                      value={formatCompactNumber(onboardingVelocityStartCount)}
-                      hint={
-                        onboardingVelocityStats.startSource === "tracked"
-                          ? "Canonical starts"
-                          : onboardingVelocityStats.startSource ===
-                              "completion_fallback"
-                            ? "Backfilled from completions"
-                            : "No start signals"
-                      }
-                      icon={PlayCircle}
-                    />
-                    <MetricCard
-                      label="Completed"
-                      value={onboardingVelocityCompletionCount.toLocaleString()}
-                      hint="Finished tours"
-                      icon={CheckCircle2}
-                    />
-                    <MetricCard
-                      label="Avg Time"
-                      value={formatDuration(onboardingVelocityStats.avgDuration)}
-                      hint="Mean completion time"
-                      icon={Clock3}
-                    />
-                    <MetricCard
-                      label="Completion Rate"
-                      value={formatPercent(onboardingVelocityCompletionRate)}
-                      hint={`${onboardingVelocityDropOffCount.toLocaleString()} users dropped before finish`}
-                      icon={Sparkles}
-                    />
-                  </div>
-                </div>
-              </SectionCard>
+              <AdminOnboardingAnalyticsModules
+                renderSectionRangeControl={renderSectionRangeControl}
+                discrepancies={authOnboardingDiscrepancies}
+                onboardingVelocityHasData={onboardingVelocityHasData}
+                onboardingVelocityBuckets={onboardingVelocityBuckets}
+                onboardingVelocityStartCount={onboardingVelocityStartCount}
+                onboardingVelocityCompletionCount={onboardingVelocityCompletionCount}
+                onboardingVelocityCompletionRate={onboardingVelocityCompletionRate}
+                onboardingVelocityDropOffCount={onboardingVelocityDropOffCount}
+                onboardingVelocityAvgDurationSeconds={onboardingVelocityStats.avgDuration}
+                onboardingVelocityStartSourceHint={onboardingVelocityStartSourceHint}
+                onboardingStepFlowItems={onboardingStepFlowItems}
+                formatCompactNumber={formatCompactNumber}
+                formatDuration={formatDuration}
+                formatPercent={formatPercent}
+              />
             </div>
 
             <div className="grid gap-5 xl:grid-cols-[1fr_1fr]">
-              <SectionCard
-                title="Onboarding Step Flow"
-                subtitle="A step-by-step view of where people continue, stall, or finish in the guided tour."
-                icon={Route}
-                rightSlot={renderSectionRangeControl("onboardingStepFlow")}
-              >
-                <div className="space-y-3">
-                  {onboardingStepFlowItems.length > 0 ? (
-                    onboardingStepFlowItems.map((step) => (
-                      <div
-                        key={step.stepKey}
-                        className="rounded-[1.5rem] border border-white/10 bg-black/30 p-4"
-                      >
-                        <div className="mb-3 flex items-start justify-between gap-3">
-                          <div className="min-w-0">
-                            <p className="truncate text-sm font-semibold text-white">
-                              {step.stepTitle}
-                            </p>
-                            <p className="mt-1 text-xs text-gray-500">
-                              {step.starts.toLocaleString()} starts ·{" "}
-                              {step.completions.toLocaleString()} completions ·{" "}
-                              {formatDuration(step.avgDurationMs / 1000)} avg
-                            </p>
-                          </div>
-                          <span className="shrink-0 rounded-full border border-brand-purple/25 bg-brand-purple/12 px-3 py-1 text-[11px] font-semibold text-brand-purple">
-                            {formatPercent(step.completionRate)}
-                          </span>
-                        </div>
-                        <div className="h-2 overflow-hidden rounded-full bg-white/10">
-                          <div
-                            className="h-full rounded-full bg-gradient-to-r from-brand-purple to-cyan-400"
-                            style={{
-                              width: `${Math.max(6, Math.min(100, step.completionRate * 100))}%`,
-                            }}
-                          />
-                        </div>
-                        <div className="mt-2 flex items-center justify-between text-[11px] text-gray-500">
-                          <span>Step {step.stepIndex + 1}</span>
-                          <span>
-                            {step.dropOffCount.toLocaleString()} drop-offs
-                          </span>
-                        </div>
-                      </div>
-                    ))
-                  ) : (
-                    <div className="rounded-[1.6rem] border border-dashed border-white/10 bg-black/20 p-5 text-sm text-gray-500">
-                      Step-by-step onboarding data will appear once more guided
-                      onboarding progress events land in this range.
-                    </div>
-                  )}
-                </div>
-              </SectionCard>
-
               <SectionCard
                 title="Guest + Bounce Quality"
                 subtitle="Public and signed-in traffic quality pulled from the semantic engine so bounce detection is visible instead of hidden in raw logs."
@@ -4984,238 +4709,21 @@ export default function AdminAnalyticsPage() {
           </>
         ) : null}
 
-        <div className="grid gap-5 xl:grid-cols-[1fr_1fr]">
-          <SectionCard
-            title="Daily Task Pipeline"
-            subtitle="Assigned, started, completed, and failed tasks in one mobile-friendly progression view."
-            icon={Funnel}
-            rightSlot={renderSectionRangeControl("dailyTaskPipeline")}
-          >
-            <div className="h-64 w-full">
-              {dailyTaskPipelineModel.hasData ? (
-                <ResponsiveContainer width="100%" height="100%">
-                  <BarChart
-                    data={dailyTaskPipelineModel.items}
-                    margin={{ top: 8, right: 0, left: -18, bottom: 0 }}
-                  >
-                    <CartesianGrid
-                      stroke="rgba(255,255,255,0.06)"
-                      vertical={false}
-                    />
-                    <XAxis
-                      dataKey="label"
-                      stroke="#6b7280"
-                      fontSize={11}
-                      tickLine={false}
-                      axisLine={false}
-                    />
-                    <YAxis
-                      stroke="#6b7280"
-                      fontSize={11}
-                      tickLine={false}
-                      axisLine={false}
-                    />
-                    <Tooltip content={<AnalyticsTooltip />} />
-                    <Bar
-                      dataKey="count"
-                      name="Events"
-                      fill="#b28cff"
-                      radius={[10, 10, 0, 0]}
-                    />
-                  </BarChart>
-                </ResponsiveContainer>
-              ) : (
-                <div className="flex h-full items-center justify-center rounded-[1.6rem] border border-dashed border-white/10 bg-black/20 p-5 text-sm text-gray-500">
-                  No daily task pipeline data in this range.
-                </div>
-              )}
-            </div>
-          </SectionCard>
+        <AdminTaskAndNotificationModules
+          renderSectionRangeControl={renderSectionRangeControl}
+          dailyTaskPipelineItems={dailyTaskPipelineModel.items}
+          dailyTaskPipelineHasData={dailyTaskPipelineModel.hasData}
+          taskCompletionSpeedBuckets={taskCompletionSpeedBuckets}
+          taskLeaderboardItems={taskLeaderboardItems}
+          activeNotificationFunnelPieData={activeNotificationFunnelPieData}
+          notificationActionItems={notificationActionItems}
+          maxNotificationActionValue={maxNotificationActionValue}
+          hasNotificationReminderReasons={hasNotificationReminderReasons}
+          notificationReminderReasons={notificationReminderReasons}
+          formatDuration={formatDuration}
+          formatPercent={formatPercent}
+        />
 
-          <SectionCard
-            title="Task Completion Speed"
-            subtitle="How fast the finished task set is closing, so you can tune missions that are too easy or too heavy."
-            icon={Clock3}
-            rightSlot={renderSectionRangeControl("taskCompletionSpeed")}
-          >
-            <div className="h-64 w-full">
-              <ResponsiveContainer width="100%" height="100%">
-                <BarChart
-                  data={taskCompletionSpeedBuckets}
-                  margin={{ top: 8, right: 0, left: -18, bottom: 0 }}
-                >
-                  <CartesianGrid
-                    stroke="rgba(255,255,255,0.06)"
-                    vertical={false}
-                  />
-                  <XAxis
-                    dataKey="label"
-                    stroke="#6b7280"
-                    fontSize={11}
-                    tickLine={false}
-                    axisLine={false}
-                  />
-                  <YAxis
-                    stroke="#6b7280"
-                    fontSize={11}
-                    tickLine={false}
-                    axisLine={false}
-                  />
-                  <Tooltip content={<AnalyticsTooltip />} />
-                  <Bar
-                    dataKey="count"
-                    name="Completions"
-                    fill="#22d3ee"
-                    radius={[10, 10, 0, 0]}
-                  />
-                </BarChart>
-              </ResponsiveContainer>
-            </div>
-          </SectionCard>
-        </div>
-
-        <div className="grid gap-5 xl:grid-cols-[1fr_1fr]">
-          <SectionCard
-            title="Task Leaderboard"
-            subtitle="The missions driving the most completions, reward payout, and momentum."
-            icon={Sparkles}
-            rightSlot={renderSectionRangeControl("taskLeaderboard")}
-          >
-            <div className="space-y-3">
-              {taskLeaderboardItems.length > 0 ? (
-                taskLeaderboardItems.map((task) => (
-                  <div
-                    key={task.taskId}
-                    className="rounded-[1.5rem] border border-white/10 bg-black/30 p-4"
-                  >
-                    <div className="mb-2 flex items-center justify-between gap-3">
-                      <div className="min-w-0">
-                        <p className="truncate text-sm font-semibold text-white">
-                          {task.title}
-                        </p>
-                        <p className="mt-1 text-xs text-gray-500">
-                          {task.completed.toLocaleString()} completed Â·{" "}
-                          {formatDuration(task.avgDurationMs / 1000)} avg
-                        </p>
-                      </div>
-                      <span className="shrink-0 text-sm font-bold text-brand-purple">
-                        {formatPercent(task.completionRate)}
-                      </span>
-                    </div>
-                    <div className="grid grid-cols-3 gap-2 text-center text-xs">
-                      <div className="rounded-2xl border border-white/10 bg-white/5 px-2 py-2 text-gray-300">
-                        Assigned
-                        <br />
-                        {task.assigned}
-                      </div>
-                      <div className="rounded-2xl border border-white/10 bg-white/5 px-2 py-2 text-gray-300">
-                        Started
-                        <br />
-                        {task.started}
-                      </div>
-                      <div className="rounded-2xl border border-white/10 bg-white/5 px-2 py-2 text-brand-purple">
-                        Reward
-                        <br />
-                        {task.rewardTotal}
-                      </div>
-                    </div>
-                  </div>
-                ))
-              ) : (
-                <div className="rounded-[1.6rem] border border-dashed border-white/10 bg-black/20 p-5 text-sm text-gray-500">
-                  Task leaderboard data will appear once more lifecycle events
-                  land in this range.
-                </div>
-              )}
-            </div>
-          </SectionCard>
-
-          <SectionCard
-            title="Notification Funnel"
-            subtitle="Prompt, enablement, open, and read behaviors, plus reminder reasons when people run short on time."
-            icon={BellRing}
-            rightSlot={renderSectionRangeControl("notificationFunnel")}
-          >
-            <div className="grid gap-4 lg:grid-cols-[0.92fr_1.08fr]">
-              <div className="h-64 w-full">
-                {activeNotificationFunnelPieData.length > 0 ? (
-                  <ResponsiveContainer width="100%" height="100%">
-                    <PieChart>
-                      <Pie
-                        data={activeNotificationFunnelPieData}
-                        dataKey="value"
-                        nameKey="name"
-                        innerRadius={52}
-                        outerRadius={84}
-                        paddingAngle={3}
-                      >
-                        {activeNotificationFunnel.map((item, index) => (
-                          <Cell
-                            key={item.label}
-                            fill={PIE_COLORS[index % PIE_COLORS.length]}
-                          />
-                        ))}
-                      </Pie>
-                      <Tooltip content={<AnalyticsTooltip />} />
-                    </PieChart>
-                  </ResponsiveContainer>
-                ) : (
-                  <div className="flex h-full items-center justify-center rounded-[1.6rem] border border-dashed border-white/10 bg-black/20 p-5 text-sm text-gray-500">
-                    No notification funnel flow was tracked in this range.
-                  </div>
-                )}
-              </div>
-
-              <div className="space-y-3">
-                {notificationActionItems.map((item) => (
-                  <div
-                    key={item.label}
-                    className="rounded-[1.4rem] border border-white/10 bg-black/30 p-3.5"
-                  >
-                    <div className="mb-2 flex items-center justify-between gap-3">
-                      <p className="text-sm font-semibold text-white">
-                        {item.label}
-                      </p>
-                      <span className="text-sm font-bold text-brand-purple">
-                        {item.value.toLocaleString()}
-                      </span>
-                    </div>
-                    <div className="h-2 overflow-hidden rounded-full bg-white/10">
-                      <div
-                        className="h-full rounded-full bg-gradient-to-r from-brand-purple to-cyan-400"
-                        style={{
-                          width: `${Math.max(6, (item.value / Math.max(1, maxNotificationActionValue || 1)) * 100)}%`,
-                        }}
-                      />
-                    </div>
-                  </div>
-                ))}
-
-                <div className="rounded-[1.4rem] border border-white/10 bg-black/30 p-4">
-                  <p className="mb-3 text-xs font-semibold uppercase tracking-[0.14em] text-gray-500">
-                    Reminder reasons
-                  </p>
-                  <div className="flex flex-wrap gap-2">
-                    {hasNotificationReminderReasons ? (
-                      notificationReminderReasons.map((item) => (
-                        <span
-                          key={item.label}
-                          className="rounded-full border border-white/10 bg-white/5 px-3 py-1.5 text-xs font-semibold text-white"
-                        >
-                          {item.label} Â· {item.count}
-                        </span>
-                      ))
-                    ) : (
-                      <span className="text-sm text-gray-500">
-                        No reminder traffic in this range.
-                      </span>
-                    )}
-                  </div>
-                </div>
-              </div>
-            </div>
-          </SectionCard>
-        </div>
       </main>
     </div>
   );
