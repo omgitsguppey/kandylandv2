@@ -5844,3 +5844,21 @@ Additional improvement opportunities from the follow-up audit:
 8. Persist admin debug display preferences the same way analytics module ranges are persisted, instead of keeping all debug panel state local.
 9. Add a repo check that blocks committed Firebase emulator debug logs in the same way generated UI artifacts are blocked.
 10. Extract onboarding discrepancy rendering into a dedicated admin analytics module so auth/onboarding parity rules are testable without the full page.
+
+## 2026-04-10 GumDrop Economics and Ledger Integrity Pass
+
+- Scope: Audit the codebase for economic and ledger integrity issues, specifically around conflicting math, mismatched price-to-GumDrop mappings, source-of-funds confusion, and stale labels.
+
+Key issues closed in this pass:
+- **Spend rule inconsistency**: Fixed an issue in `spendSourceAwareGumdrops` where `purchased` GumDrops were incorrectly consumed before `reward` GumDrops for generalized spend (like drop unwraps). This forced users to burn real purchased value first, violating the principle of prioritizing free/reward promotional balances before real-money balances.
+- **Source separation failure**: Analytics tracking in `classifyGumdropTransaction` and `functions/src/analytics-transactions.ts` incorrectly conflated bonus drops from packages into the `gumdropPurchaseTotal`. The `extra.bonusGumDrops` field is now appropriately aggregated into `gumdropRewardTotal` and only `extra.paidGumDrops` into `gumdropPurchaseTotal`, accurately mirroring the `creditSourceAwareGumdrops` balance split logic.
+- **Codebase hygiene**: Removed an unused `eslint-disable-next-line` from `src/app/drops/[id]/opengraph-image.tsx` that was causing `npm run check` warnings.
+
+Implementation results:
+- General spend routes (where `purchasedOnly: false`) now strictly deplete from `reward` prior to `purchased`.
+- Analytics transaction classification ensures proper segregation between true purchased revenue value and promotional bundle bonus value.
+
+Primary touched surfaces:
+- `src/lib/gumdrop-ledger.ts`
+- `functions/src/analytics-transactions.ts`
+- `src/app/drops/[id]/opengraph-image.tsx`
