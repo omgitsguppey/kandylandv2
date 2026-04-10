@@ -5,13 +5,16 @@ import { useRouter, useSearchParams } from "next/navigation";
 import { startTransition, useCallback, useEffect, useMemo, useRef, useState, type KeyboardEvent } from "react";
 import {
     ArrowLeft,
+    Check,
     ChevronRight,
+    Circle,
     ImageIcon,
     MessageSquare,
     Plus,
     Search,
     Send,
     SquarePen,
+    Trash2,
     Video,
     X,
 } from "lucide-react";
@@ -26,6 +29,7 @@ import { authFetch } from "@/lib/authFetch";
 import {
     buildChatPresenceMemberPath,
     CHAT_COLLECTIONS,
+    isChatThreadVisibleToViewer,
     resolveChatThreadReadAt,
     resolveChatThreadUnreadCount,
     resolveChatViewerRole,
@@ -352,6 +356,10 @@ export function ChatExperience() {
     const [threadSearch, setThreadSearch] = useState("");
     const [followedCreators, setFollowedCreators] = useState<FollowedCreatorEntry[]>([]);
     const [composePickerOpen, setComposePickerOpen] = useState(false);
+    const [threadEditMenuOpen, setThreadEditMenuOpen] = useState(false);
+    const [threadSelectionMode, setThreadSelectionMode] = useState(false);
+    const [selectedThreadIds, setSelectedThreadIds] = useState<string[]>([]);
+    const [editingThreads, setEditingThreads] = useState(false);
     const [composerText, setComposerText] = useState("");
     const [composerKind, setComposerKind] = useState<ChatMessageKind>("text");
     const [composerFile, setComposerFile] = useState<File | null>(null);
@@ -369,6 +377,7 @@ export function ChatExperience() {
     const imageInputRef = useRef<HTMLInputElement | null>(null);
     const videoInputRef = useRef<HTMLInputElement | null>(null);
     const composePickerRef = useRef<HTMLDivElement | null>(null);
+    const threadEditMenuRef = useRef<HTMLDivElement | null>(null);
 
     const visibleThreads = useMemo(
         () => mergeThreads(threads, selectedDetail?.thread ?? null),
@@ -400,6 +409,7 @@ export function ChatExperience() {
     }, [normalizedThreadSearch, visibleThreads]);
     const showCompactThreadListOnly = isCompactViewport && !selectedThreadId;
     const canComposeFromFollowedCreators = followedCreators.length > 0;
+    const selectedThreadIdSet = useMemo(() => new Set(selectedThreadIds), [selectedThreadIds]);
     const liveViewerRole = useMemo(() => resolveChatViewerRole({
         viewerUid: user?.uid || "",
         creatorId,
@@ -601,6 +611,39 @@ export function ChatExperience() {
     }, [composePickerOpen]);
 
     useEffect(() => {
+        if (!threadEditMenuOpen) {
+            return;
+        }
+
+        const handlePointerDown = (event: MouseEvent) => {
+            const target = event.target;
+            if (!(target instanceof Node)) {
+                return;
+            }
+
+            if (threadEditMenuRef.current?.contains(target)) {
+                return;
+            }
+
+            setThreadEditMenuOpen(false);
+        };
+
+        const handleKeyDown = (event: globalThis.KeyboardEvent) => {
+            if (event.key === "Escape") {
+                setThreadEditMenuOpen(false);
+            }
+        };
+
+        window.addEventListener("pointerdown", handlePointerDown);
+        window.addEventListener("keydown", handleKeyDown);
+
+        return () => {
+            window.removeEventListener("pointerdown", handlePointerDown);
+            window.removeEventListener("keydown", handleKeyDown);
+        };
+    }, [threadEditMenuOpen]);
+
+    useEffect(() => {
         if (!selectedThreadId) {
             return;
         }
@@ -612,6 +655,10 @@ export function ChatExperience() {
         }
         router.replace(`/dashboard/chat?${params.toString()}`, { scroll: false });
     }, [creatorId, router, searchParams, selectedThreadId]);
+
+    useEffect(() => {
+        setSelectedThreadIds((current) => current.filter((threadId) => visibleThreads.some((thread) => thread.id === threadId)));
+    }, [visibleThreads]);
 
     useEffect(() => {
         if (!user || !userProfile) {
@@ -640,7 +687,9 @@ export function ChatExperience() {
                         readAt: resolveChatThreadReadAt(raw, viewerRole),
                         counterpartReadAt: resolveChatThreadReadAt(raw, viewerRole === "creator" ? "user" : "creator"),
                     } satisfies ChatThreadRecord;
-                }).sort((left, right) => right.lastMessageAt - left.lastMessageAt);
+                })
+                    .filter((thread) => isChatThreadVisibleToViewer(thread, thread.viewerRole))
+                    .sort((left, right) => right.lastMessageAt - left.lastMessageAt);
 
                 setThreads((current) => mergeThreads(nextThreads, selectedDetail?.thread ?? current.find((thread) => thread.id === selectedThreadId) ?? null));
             },
@@ -732,6 +781,91 @@ export function ChatExperience() {
         setComposePickerOpen(false);
         router.replace("/dashboard/chat", { scroll: false });
     }, [router]);
+
+    const enterThreadSelectionMode = useCallback(() => {
+        setThreadEditMenuOpen(false);
+        setThreadSelectionMode(true);
+        setSelectedThreadIds([]);
+    }, []);
+
+    const exitThreadSelectionMode = useCallback(() => {
+        setThreadEditMenuOpen(false);
+        setThreadSelectionMode(false);
+        setSelectedThreadIds([]);
+    }, []);
+
+    const toggleThreadSelection = useCallback((threadId: string) => {
+        setSelectedThreadIds((current) => current.includes(threadId)
+            ? current.filter((entry) => entry !== threadId)
+            : [...current, threadId]);
+    }, []);
+
+    const handleMarkThreadsRead = useCallback(async () => {
+        const targetIds = selectedThreadIds.length > 0
+            ? selectedThreadIds
+            : filteredThreads.map((thread) => thread.id);
+        if (targetIds.length === 0) {
+            return;
+        }
+
+        setEditingThreads(true);
+        try {
+            const results = await Promise.allSettled(targetIds.map(async (threadId) => {
+                const response = await authFetch(`/api/chat/threads/${encodeURIComponent(threadId)}/read`, {
+                    method: "POST",
+                });
+                if (!response.ok) {
+                    throw new Error("Chat read update failed.");
+                }
+            }));
+            const failedCount = results.filter((result) => result.status === "rejected").length;
+            setThreads((current) => current.map((thread) => targetIds.includes(thread.id)
+                ? {
+                    ...thread,
+                    unreadCount: 0,
+                    readAt: Math.max(Date.now(), thread.lastMessageAt || 0),
+                }
+                : thread));
+            exitThreadSelectionMode();
+            if (failedCount > 0) {
+                toast.error(`Failed to mark ${failedCount} conversation${failedCount === 1 ? "" : "s"} as read.`);
+            }
+        } finally {
+            setEditingThreads(false);
+        }
+    }, [exitThreadSelectionMode, filteredThreads, selectedThreadIds]);
+
+    const handleDeleteThreads = useCallback(async () => {
+        if (selectedThreadIds.length === 0) {
+            return;
+        }
+
+        setEditingThreads(true);
+        try {
+            const results = await Promise.allSettled(selectedThreadIds.map(async (threadId) => {
+                const response = await authFetch(`/api/chat/threads/${encodeURIComponent(threadId)}`, {
+                    method: "DELETE",
+                });
+                if (!response.ok) {
+                    throw new Error("Chat delete failed.");
+                }
+            }));
+            const failedCount = results.filter((result) => result.status === "rejected").length;
+            if (failedCount === selectedThreadIds.length) {
+                throw new Error("Failed to delete the selected conversations.");
+            }
+
+            setThreads((current) => current.filter((thread) => !selectedThreadIds.includes(thread.id)));
+            exitThreadSelectionMode();
+            if (failedCount > 0) {
+                toast.error(`Deleted conversations with ${failedCount} failure${failedCount === 1 ? "" : "s"}.`);
+            }
+        } catch (error) {
+            toast.error(error instanceof Error ? error.message : "Failed to delete the selected conversations.");
+        } finally {
+            setEditingThreads(false);
+        }
+    }, [exitThreadSelectionMode, selectedThreadIds]);
 
     useEffect(() => {
         if (!selectedThreadId || !selectedThread || !user) {
@@ -1151,7 +1285,50 @@ export function ChatExperience() {
                             {showCompactThreadListOnly ? (
                                 <div className="flex min-h-[78vh] flex-col">
                                     <div className="px-5 pb-4 pt-6">
-                                        <div>
+                                        <div className="flex items-center justify-between">
+                                            <div ref={threadEditMenuRef} className="relative">
+                                                {threadSelectionMode ? (
+                                                    <button
+                                                        type="button"
+                                                        onClick={exitThreadSelectionMode}
+                                                        className="inline-flex h-11 w-11 items-center justify-center rounded-full bg-[#4d9cff] text-white shadow-[0_18px_32px_rgba(77,156,255,0.35)] transition hover:bg-[#68a9ff]"
+                                                        aria-label="Done selecting chats"
+                                                    >
+                                                        <Check className="h-5 w-5" />
+                                                    </button>
+                                                ) : visibleThreads.length > 0 ? (
+                                                    <>
+                                                        <button
+                                                            type="button"
+                                                            onClick={() => setThreadEditMenuOpen((current) => !current)}
+                                                            className="rounded-full bg-[#141417] px-4 py-2 text-sm font-semibold text-white ring-1 ring-white/8 transition hover:bg-[#1b1c20]"
+                                                            aria-expanded={threadEditMenuOpen}
+                                                            aria-haspopup="menu"
+                                                        >
+                                                            Edit
+                                                        </button>
+                                                        {threadEditMenuOpen ? (
+                                                            <div
+                                                                role="menu"
+                                                                aria-label="Edit message list"
+                                                                className="absolute left-0 top-full z-20 mt-3 w-52 overflow-hidden rounded-[1.5rem] border border-white/10 bg-[#141417]/95 p-2 shadow-[0_24px_48px_rgba(0,0,0,0.5)] backdrop-blur"
+                                                            >
+                                                                <button
+                                                                    type="button"
+                                                                    role="menuitem"
+                                                                    onClick={enterThreadSelectionMode}
+                                                                    className="flex w-full items-center gap-3 rounded-[1rem] px-3 py-3 text-left text-sm font-medium text-white transition hover:bg-white/5"
+                                                                >
+                                                                    <Circle className="h-4 w-4" />
+                                                                    <span>Select chats</span>
+                                                                </button>
+                                                            </div>
+                                                        ) : null}
+                                                    </>
+                                                ) : null}
+                                            </div>
+                                        </div>
+                                        <div className="mt-5">
                                             <p className="text-4xl font-black tracking-[-0.04em] text-white">Messages</p>
                                             <p className="mt-2 text-sm text-[#8f9097]">
                                                 {threadsLoading ? "Loading your conversations..." : `${visibleThreads.length} conversation${visibleThreads.length === 1 ? "" : "s"}`}
@@ -1166,9 +1343,26 @@ export function ChatExperience() {
                                                     <button
                                                         key={thread.id}
                                                         type="button"
-                                                        onClick={() => startTransition(() => setSelectedThreadId(thread.id))}
+                                                        onClick={() => {
+                                                            if (threadSelectionMode) {
+                                                                toggleThreadSelection(thread.id);
+                                                                return;
+                                                            }
+
+                                                            startTransition(() => setSelectedThreadId(thread.id));
+                                                        }}
                                                         className="flex w-full items-center gap-3 rounded-[1.35rem] px-1 py-3 text-left transition hover:bg-white/[0.03]"
                                                     >
+                                                        {threadSelectionMode ? (
+                                                            <span className={cn(
+                                                                "inline-flex h-5 w-5 shrink-0 items-center justify-center rounded-full border transition",
+                                                                selectedThreadIdSet.has(thread.id)
+                                                                    ? "border-[#4d9cff] bg-[#4d9cff] text-white"
+                                                                    : "border-white/20 bg-transparent text-transparent",
+                                                            )}>
+                                                                <Check className="h-3.5 w-3.5" />
+                                                            </span>
+                                                        ) : null}
                                                         <ChatAvatar
                                                             photoURL={thread.counterpartPhotoURL}
                                                             label={thread.counterpartDisplayName}
@@ -1190,7 +1384,9 @@ export function ChatExperience() {
                                                                     {thread.unreadCount > 0 ? (
                                                                         <span className="inline-flex h-2.5 w-2.5 rounded-full bg-brand-purple" />
                                                                     ) : null}
-                                                                    <ChevronRight className="h-4 w-4 text-[#63646b]" />
+                                                                    {!threadSelectionMode ? (
+                                                                        <ChevronRight className="h-4 w-4 text-[#63646b]" />
+                                                                    ) : null}
                                                                 </div>
                                                             </div>
                                                         </div>
@@ -1240,29 +1436,63 @@ export function ChatExperience() {
                                         )}
                                     </div>
 
-                                    <div className="pointer-events-none absolute inset-x-0 bottom-0 px-5 pb-6">
-                                        <div className="pointer-events-auto mx-auto max-w-md rounded-full bg-[#121214] px-4 py-3 ring-1 ring-white/8">
-                                            <div className="flex items-center gap-3">
-                                                <Search className="h-4 w-4 text-[#6e7077]" />
-                                                <input
-                                                    value={threadSearch}
-                                                    onChange={(event) => setThreadSearch(event.target.value)}
-                                                    placeholder="Search"
-                                                    className="w-full bg-transparent text-sm text-white placeholder:text-[#6e7077] focus:outline-none"
-                                                />
+                                    {threadSelectionMode ? (
+                                        <div className="pointer-events-none absolute inset-x-0 bottom-0 px-5 pb-6">
+                                            <div className="pointer-events-auto flex items-center justify-between">
+                                                <button
+                                                    type="button"
+                                                    onClick={() => void handleMarkThreadsRead()}
+                                                    disabled={editingThreads || filteredThreads.length === 0}
+                                                    className={cn(
+                                                        "rounded-full px-4 py-2.5 text-sm font-semibold transition",
+                                                        editingThreads || filteredThreads.length === 0
+                                                            ? "bg-[#1a1a1d] text-[#5f6067]"
+                                                            : "bg-[#1a1a1d] text-white hover:bg-[#25262a]",
+                                                    )}
+                                                >
+                                                    Read All
+                                                </button>
+                                                <button
+                                                    type="button"
+                                                    onClick={() => void handleDeleteThreads()}
+                                                    disabled={editingThreads || selectedThreadIds.length === 0}
+                                                    className={cn(
+                                                        "inline-flex h-11 w-11 items-center justify-center rounded-full transition",
+                                                        editingThreads || selectedThreadIds.length === 0
+                                                            ? "bg-[#1a1a1d] text-[#5f6067]"
+                                                            : "bg-[#1a1a1d] text-white hover:bg-[#25262a]",
+                                                    )}
+                                                    aria-label="Delete selected chats"
+                                                >
+                                                    <Trash2 className="h-4 w-4" />
+                                                </button>
                                             </div>
                                         </div>
-                                        {canComposeFromFollowedCreators ? (
-                                            <button
-                                                type="button"
-                                                onClick={() => setComposePickerOpen(true)}
-                                                className="pointer-events-auto absolute bottom-6 right-5 inline-flex h-14 w-14 items-center justify-center rounded-full bg-brand-purple text-white shadow-[0_18px_36px_rgba(111,63,244,0.36)] transition hover:bg-[#8457ff]"
-                                                aria-label="Compose message"
-                                            >
-                                                <SquarePen className="h-5 w-5" />
-                                            </button>
-                                        ) : null}
-                                    </div>
+                                    ) : (
+                                        <div className="pointer-events-none absolute inset-x-0 bottom-0 px-5 pb-6">
+                                            <div className="pointer-events-auto mx-auto max-w-md rounded-full bg-[#121214] px-4 py-3 ring-1 ring-white/8">
+                                                <div className="flex items-center gap-3">
+                                                    <Search className="h-4 w-4 text-[#6e7077]" />
+                                                    <input
+                                                        value={threadSearch}
+                                                        onChange={(event) => setThreadSearch(event.target.value)}
+                                                        placeholder="Search"
+                                                        className="w-full bg-transparent text-sm text-white placeholder:text-[#6e7077] focus:outline-none"
+                                                    />
+                                                </div>
+                                            </div>
+                                            {canComposeFromFollowedCreators ? (
+                                                <button
+                                                    type="button"
+                                                    onClick={() => setComposePickerOpen(true)}
+                                                    className="pointer-events-auto absolute bottom-6 right-5 inline-flex h-14 w-14 items-center justify-center rounded-full bg-brand-purple text-white shadow-[0_18px_36px_rgba(111,63,244,0.36)] transition hover:bg-[#8457ff]"
+                                                    aria-label="Compose message"
+                                                >
+                                                    <SquarePen className="h-5 w-5" />
+                                                </button>
+                                            ) : null}
+                                        </div>
+                                    )}
                                 </div>
                             ) : (
                                 <>

@@ -26,6 +26,11 @@ const mockState = vi.hoisted(() => {
                 data: () => readDoc(path),
             };
         },
+        async set(value: Record<string, unknown>, options?: { merge?: boolean }) {
+            const path = `${collectionName}/${id}`;
+            const existing = readDoc(path) ?? {};
+            documents.set(path, options?.merge ? { ...existing, ...value } : { ...value });
+        },
     });
 
     const adminDb = {
@@ -69,7 +74,7 @@ vi.mock("@/lib/server/firebase-admin", () => ({
 }));
 
 import { buildChatThreadId } from "@/lib/chat";
-import { getChatThreadDetailForViewer, listChatThreadsForViewer } from "@/lib/server/chat";
+import { getChatThreadDetailForViewer, hideChatThreadForViewer, listChatThreadsForViewer } from "@/lib/server/chat";
 
 describe("server chat helper", () => {
     beforeEach(() => {
@@ -165,5 +170,84 @@ describe("server chat helper", () => {
 
         expect(result.selectedThreadId).toBe(buildChatThreadId("creator_approved", "fan_1"));
         expect(result.threads).toHaveLength(1);
+    });
+
+    it("filters hidden threads out of the viewer list until a newer message arrives", async () => {
+        const threadId = buildChatThreadId("creator_live", "fan_1");
+        mockState.documents.set("users/creator_live", {
+            uid: "creator_live",
+            role: "creator",
+            status: "active",
+            displayName: "Live Creator",
+            username: "live-creator",
+        });
+        mockState.documents.set(`creator_message_threads/${threadId}`, {
+            creatorId: "creator_live",
+            userId: "fan_1",
+            creatorDisplayName: "Live Creator",
+            creatorUsername: "live-creator",
+            userDisplayName: "Fan One",
+            userUsername: "fan-one",
+            lastMessageAt: 500,
+            lastMessagePreview: "Latest preview",
+            messageCount: 2,
+            hiddenByUserAt: 600,
+            unreadCountForUser: 0,
+            unreadCountForCreator: 0,
+        });
+
+        const hiddenResult = await listChatThreadsForViewer({
+            viewerUid: "fan_1",
+            viewerRole: "user",
+        });
+        expect(hiddenResult.threads).toHaveLength(0);
+
+        mockState.documents.set(`creator_message_threads/${threadId}`, {
+            ...(mockState.documents.get(`creator_message_threads/${threadId}`) ?? {}),
+            lastMessageAt: 900,
+        });
+
+        const visibleResult = await listChatThreadsForViewer({
+            viewerUid: "fan_1",
+            viewerRole: "user",
+        });
+        expect(visibleResult.threads).toHaveLength(1);
+        expect(visibleResult.threads[0]?.id).toBe(threadId);
+    });
+
+    it("hides an existing thread for the user viewer and clears unread count", async () => {
+        const threadId = buildChatThreadId("creator_live", "fan_1");
+        mockState.documents.set("users/creator_live", {
+            uid: "creator_live",
+            role: "creator",
+            status: "active",
+            displayName: "Live Creator",
+            username: "live-creator",
+        });
+        mockState.documents.set(`creator_message_threads/${threadId}`, {
+            creatorId: "creator_live",
+            userId: "fan_1",
+            creatorDisplayName: "Live Creator",
+            creatorUsername: "live-creator",
+            userDisplayName: "Fan One",
+            userUsername: "fan-one",
+            lastMessageAt: 500,
+            lastMessagePreview: "Latest preview",
+            messageCount: 2,
+            unreadCountForUser: 3,
+            unreadCountForCreator: 0,
+        });
+
+        const result = await hideChatThreadForViewer({
+            viewerUid: "fan_1",
+            threadId,
+        });
+
+        const stored = mockState.documents.get(`creator_message_threads/${threadId}`);
+        expect(result.success).toBe(true);
+        expect(result.threadId).toBe(threadId);
+        expect(typeof result.hiddenAt).toBe("number");
+        expect(stored?.hiddenByUserAt).toBe(result.hiddenAt);
+        expect(stored?.unreadCountForUser).toBe(0);
     });
 });

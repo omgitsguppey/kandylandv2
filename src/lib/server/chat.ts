@@ -4,6 +4,7 @@ import type { CreatorMessage, CreatorMessageThread } from "@/types/db";
 import {
     CHAT_COLLECTIONS,
     buildChatThreadId,
+    isChatThreadVisibleToViewer,
     normalizeChatMessageKind,
     parseCreatorThreadId,
     resolveChatThreadReadAt,
@@ -192,6 +193,8 @@ function mapCreatorMessageThread(id: string, raw: Record<string, unknown>): Crea
         unreadCountForCreator: typeof raw.unreadCountForCreator === "number" && Number.isFinite(raw.unreadCountForCreator)
             ? Math.max(0, Math.trunc(raw.unreadCountForCreator))
             : 0,
+        hiddenByUserAt: toTimestampNumber(raw.hiddenByUserAt) || undefined,
+        hiddenByCreatorAt: toTimestampNumber(raw.hiddenByCreatorAt) || undefined,
         subscriberChatFree: raw.subscriberChatFree === true,
     };
 }
@@ -304,6 +307,12 @@ function buildThreadBackfillPatch(thread: CreatorMessageThread, creator: UserSum
     }
     if (thread.unreadCountForUser == null) {
         patch.unreadCountForUser = 0;
+    }
+    if (thread.hiddenByCreatorAt == null) {
+        patch.hiddenByCreatorAt = 0;
+    }
+    if (thread.hiddenByUserAt == null) {
+        patch.hiddenByUserAt = 0;
     }
 
     return patch;
@@ -510,6 +519,7 @@ export async function listChatThreadsForViewer(input: {
                 userPhotoURL: thread.userPhotoURL ?? participant?.photoURL ?? null,
             }, input.viewerUid);
         })
+        .filter((thread) => isChatThreadVisibleToViewer(thread, thread.viewerRole))
         .sort((left, right) => right.lastMessageAt - left.lastMessageAt);
 
     const selectedCreatorId = input.viewerRole === "user" ? input.creatorId ?? null : null;
@@ -581,6 +591,9 @@ export async function getChatThreadDetailForViewer(input: {
         userUsername: normalizedThreadRecord.userUsername || participant.username,
         userPhotoURL: normalizedThreadRecord.userPhotoURL ?? participant.photoURL ?? null,
     }, input.viewerUid);
+    if (!isChatThreadVisibleToViewer(threadRecord, viewerRole)) {
+        return null;
+    }
     const subscriptionActive = await readSubscriptionActive(threadRecord.userId, threadRecord.creatorId);
     const subscriberFreeChatApplies = shouldGrantSubscriberFreeChat(subscriptionActive, creator.creatorSettings);
     const participantBalance = viewerRole === "user"
@@ -632,6 +645,42 @@ export async function markChatThreadReadForViewer(input: {
         success: true,
         threadId: input.threadId,
         readAt: now,
+    };
+}
+
+export async function hideChatThreadForViewer(input: {
+    viewerUid: string;
+    threadId: string;
+}) {
+    const db = requireAdminDb();
+    const threadSnapshot = await db.collection(CHAT_COLLECTIONS.threads).doc(input.threadId).get();
+    if (!threadSnapshot.exists) {
+        return {
+            success: true,
+            threadId: input.threadId,
+            hiddenAt: Date.now(),
+        };
+    }
+
+    const thread = mapCreatorMessageThread(threadSnapshot.id, threadSnapshot.data() as Record<string, unknown>);
+    const viewerRole = resolveViewerRoleForThread(thread, input.viewerUid);
+    const now = Date.now();
+    const patch = viewerRole === "creator"
+        ? {
+            hiddenByCreatorAt: now,
+            unreadCountForCreator: 0,
+        }
+        : {
+            hiddenByUserAt: now,
+            unreadCountForUser: 0,
+        };
+
+    await db.collection(CHAT_COLLECTIONS.threads).doc(input.threadId).set(patch, { merge: true });
+
+    return {
+        success: true,
+        threadId: input.threadId,
+        hiddenAt: now,
     };
 }
 
@@ -789,6 +838,8 @@ export async function sendChatMessageForViewer(input: SendChatMessageInput) {
             lastMessageSenderRole: viewerRole,
             messageCount: nextMessageCount,
             subscriberChatFree: subscriberFreeChatApplies,
+            hiddenByCreatorAt: 0,
+            hiddenByUserAt: 0,
             ...(viewerRole === "creator"
                 ? {
                     lastReadByCreatorAt: now,
@@ -975,6 +1026,23 @@ export async function safeMarkChatThreadReadForViewer(input: {
         return await markChatThreadReadForViewer(input);
     } catch (error) {
         recordRouteWarning("chat/read", "Chat read update failed", error, {
+            channel: "runtime",
+            detail: {
+                threadId: input.threadId,
+            },
+        });
+        throw error;
+    }
+}
+
+export async function safeHideChatThreadForViewer(input: {
+    viewerUid: string;
+    threadId: string;
+}) {
+    try {
+        return await hideChatThreadForViewer(input);
+    } catch (error) {
+        recordRouteWarning("chat/thread", "Chat thread hide failed", error, {
             channel: "runtime",
             detail: {
                 threadId: input.threadId,

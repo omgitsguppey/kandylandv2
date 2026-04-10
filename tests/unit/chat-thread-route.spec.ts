@@ -7,6 +7,7 @@ const mockState = vi.hoisted(() => {
     return {
         guardApiRequest: vi.fn(),
         safeGetChatThreadDetailForViewer: vi.fn(),
+        safeHideChatThreadForViewer: vi.fn(),
         toChatClientError: vi.fn(),
         handleApiError: vi.fn(),
         recordRouteRuntimeSample: vi.fn(),
@@ -32,6 +33,7 @@ const mockState = vi.hoisted(() => {
             userDocs.clear();
             this.guardApiRequest.mockReset();
             this.safeGetChatThreadDetailForViewer.mockReset();
+            this.safeHideChatThreadForViewer.mockReset();
             this.toChatClientError.mockReset();
             this.handleApiError.mockReset();
             this.recordRouteRuntimeSample.mockReset();
@@ -46,6 +48,7 @@ vi.mock("@/lib/server/request-guard", () => ({
 }));
 vi.mock("@/lib/server/chat", () => ({
     safeGetChatThreadDetailForViewer: mockState.safeGetChatThreadDetailForViewer,
+    safeHideChatThreadForViewer: mockState.safeHideChatThreadForViewer,
     toChatClientError: mockState.toChatClientError,
 }));
 vi.mock("@/lib/server/auth", () => ({
@@ -64,7 +67,7 @@ vi.mock("@/lib/server/route-diagnostics", () => ({
     getErrorMessage: mockState.getErrorMessage,
 }));
 
-import { GET } from "@/app/api/chat/threads/[threadId]/route";
+import { DELETE, GET } from "@/app/api/chat/threads/[threadId]/route";
 
 describe("GET /api/chat/threads/[threadId]", () => {
     beforeEach(() => {
@@ -108,5 +111,40 @@ describe("GET /api/chat/threads/[threadId]", () => {
         expect(body.thread.id).toBe("thread_1");
         expect(body.messages).toHaveLength(1);
         expect(body.threadExists).toBe(true);
+    });
+});
+
+describe("DELETE /api/chat/threads/[threadId]", () => {
+    beforeEach(() => {
+        mockState.reset();
+        mockState.toChatClientError.mockReturnValue(null);
+        mockState.handleApiError.mockImplementation((error: unknown) => NextResponse.json({
+            error: error instanceof Error ? error.message : String(error),
+        }, { status: 500 }));
+    });
+
+    it("hides the thread for the caller", async () => {
+        mockState.guardApiRequest.mockResolvedValue({ uid: "fan_1" });
+        mockState.safeHideChatThreadForViewer.mockResolvedValue({
+            success: true,
+            threadId: "thread_1",
+            hiddenAt: 123456789,
+        });
+
+        const response = await DELETE(new NextRequest("http://localhost/api/chat/threads/thread_1"), {
+            params: Promise.resolve({ threadId: "thread_1" }),
+        });
+        const body = await response.json();
+
+        expect(response.status).toBe(200);
+        expect(mockState.safeHideChatThreadForViewer).toHaveBeenCalledWith({
+            viewerUid: "fan_1",
+            threadId: "thread_1",
+        });
+        expect(body).toMatchObject({
+            success: true,
+            threadId: "thread_1",
+            hiddenAt: 123456789,
+        });
     });
 });

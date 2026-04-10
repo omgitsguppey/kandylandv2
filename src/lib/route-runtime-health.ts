@@ -143,6 +143,12 @@ export const ROUTE_RUNTIME_HEALTH_TARGETS = {
         title: "Chat thread detail reads",
         slowThresholdMs: 1000,
     },
+    "chat/thread:DELETE": {
+        routeName: "chat/thread",
+        method: "DELETE",
+        title: "Chat thread hides",
+        slowThresholdMs: 1000,
+    },
     "chat/messages:POST": {
         routeName: "chat/messages",
         method: "POST",

@@ -6,6 +6,89 @@ Last full-scale audit execution: 2026-04-09 19:40:21 -05:00
 Repo: `C:\Users\uylus\OneDrive\Documents\KandyDrops_Final`
 Audited HEAD at start: `36fcca527b72b04c24531724465f490642018ba2`
 
+## 2026-04-10 Compact Chat Edit Mode and Viewer-Side Thread Hiding
+
+Scope for this pass:
+
+- add a minimal edit affordance to the compact messages list
+- expose only `Select chats` from the edit menu
+- add bottom `Read All` and `Delete` actions in selection mode
+- make delete a real viewer-side hide action instead of a fake UI-only removal
+
+Startup protocol executed:
+
+- read `FULL_SCALE_CODEBASE_AUDIT.md`
+- read `REPO_MEMORY_LEDGER.md`
+- read `EVERY_FILE_FUNCTION_CHECKLIST.md`
+- ran `git status --short`
+- ran `npm run trace:adjacent -- src/components/Chat/ChatExperience.tsx`
+- ran `npm run trace:adjacent -- src/app/api/chat/threads/[threadId]/route.ts`
+
+Start state:
+
+- current HEAD at pass start: `beb308b210e7bca3e728e886f365b63492e0a3fb`
+- working tree was clean at pass start
+- compact chat list had no edit affordance or selection mode
+- there was a real `read` path for threads, but no viewer-side delete/hide behavior for compact chat list management
+- compact list rows could only open threads; they could not enter a management mode similar to the supplied reference
+
+Implementation results:
+
+- updated `src/components/Chat/ChatExperience.tsx` so compact view now has:
+  - an `Edit` pill
+  - a one-option edit menu containing only `Select chats`
+  - a dedicated selection mode with check markers on thread rows
+  - a bottom action bar in edit mode with:
+    - `Read All`
+    - `Delete`
+- hid the search bar and compose button while edit mode is active so the bottom bar stays singular and clear
+- made thread rows toggle selection during edit mode instead of opening the thread
+- made the top-left action become a blue completion button while in selection mode
+- added real viewer-side thread hiding in:
+  - `src/lib/server/chat.ts`
+  - `src/app/api/chat/threads/[threadId]/route.ts`
+- delete now performs a viewer-specific hide by writing:
+  - `hiddenByUserAt`
+  - `hiddenByCreatorAt`
+  depending on who initiated the delete
+- hidden threads are now filtered out from:
+  - initial server thread-list reads
+  - compact realtime thread-list subscriptions
+  - stale direct thread-detail reads for the same viewer
+- new messages unhide the thread for both participants by resetting hidden markers during send
+- added runtime tracking for thread hide operations in:
+  - `src/lib/route-runtime-health.ts`
+
+Commands run:
+
+- `git status --short`
+- `npm run trace:adjacent -- src/components/Chat/ChatExperience.tsx`
+- `npm run trace:adjacent -- src/app/api/chat/threads/[threadId]/route.ts`
+- `npx eslint src/components/Chat/ChatExperience.tsx src/lib/chat.ts src/lib/server/chat.ts src/lib/route-runtime-health.ts src/app/api/chat/threads/[threadId]/route.ts src/types/db.ts`
+- `corepack pnpm exec vitest run tests/unit/chat-thread-route.spec.ts tests/unit/server-chat.spec.ts`
+- `npx tsc --noEmit`
+- `npm run check:ui:audits`
+- removed `playwright-report/` and `test-results`
+- `git status --short`
+
+Results:
+
+- focused eslint passed
+- focused Vitest passed:
+  - `2` files
+  - `9` tests
+- `npx tsc --noEmit` passed
+- `npm run check:ui:audits` passed:
+  - `16` tests green across Chromium and Mobile Chrome
+- generated Playwright artifacts were removed after verification
+
+Warnings and notes:
+
+- `npm run check:ui:audits` still emits the standing non-blocking Next teardown warning after the suite passes:
+  - `TypeError: controller[kState].transformAlgorithm is not a function`
+- `Read All` currently applies to the selected threads if any are selected, otherwise it applies to the visible filtered thread list
+- delete is intentionally viewer-specific hide semantics, not a destructive cross-participant thread delete
+
 ## 2026-04-10 Compact Chat Thread List Simplification
 
 Scope for this pass:

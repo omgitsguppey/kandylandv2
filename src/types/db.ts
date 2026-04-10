@@ -105,6 +105,8 @@ export type CreatorMessageThread = {
     lastReadByCreatorAt?: number;
     unreadCountForUser?: number;
     unreadCountForCreator?: number;
+    hiddenByUserAt?: number;
+    hiddenByCreatorAt?: number;
     subscriberChatFree: boolean;
 };
 

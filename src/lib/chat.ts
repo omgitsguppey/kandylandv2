@@ -107,6 +107,27 @@ export function resolveChatThreadUnreadCount(thread: Pick<CreatorMessageThread, 
         : (typeof thread.unreadCountForUser === "number" ? thread.unreadCountForUser : 0);
 }
 
+export function resolveChatThreadHiddenAt(
+    thread: Pick<CreatorMessageThread, "hiddenByCreatorAt" | "hiddenByUserAt">,
+    viewerRole: ChatViewerRole,
+) {
+    return viewerRole === "creator"
+        ? (typeof thread.hiddenByCreatorAt === "number" ? thread.hiddenByCreatorAt : 0)
+        : (typeof thread.hiddenByUserAt === "number" ? thread.hiddenByUserAt : 0);
+}
+
+export function isChatThreadVisibleToViewer(
+    thread: Pick<CreatorMessageThread, "hiddenByCreatorAt" | "hiddenByUserAt" | "lastMessageAt">,
+    viewerRole: ChatViewerRole,
+) {
+    const hiddenAt = resolveChatThreadHiddenAt(thread, viewerRole);
+    if (!hiddenAt) {
+        return true;
+    }
+
+    return (typeof thread.lastMessageAt === "number" ? thread.lastMessageAt : 0) > hiddenAt;
+}
+
 export function isChatThreadParticipant(thread: Pick<CreatorMessageThread, "creatorId" | "userId">, uid: string) {
     return thread.creatorId === uid || thread.userId === uid;
 }
