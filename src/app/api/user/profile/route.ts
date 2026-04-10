@@ -212,7 +212,7 @@ export async function PUT(request: NextRequest) {
 
         if (payload.dateOfBirth !== undefined) {
             if (payload.dateOfBirth === null || payload.dateOfBirth === "") {
-                updates.dateOfBirth = FieldValue.delete();
+                return NextResponse.json({ error: "Date of birth cannot be removed." }, { status: 400 });
             } else {
                 const parsedDob = parseAdultDateOfBirth(payload.dateOfBirth);
                 if (!parsedDob.ok) {

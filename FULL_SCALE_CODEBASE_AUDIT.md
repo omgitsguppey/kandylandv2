@@ -6,6 +6,67 @@ Last full-scale audit execution: 2026-04-09 19:40:21 -05:00
 Repo: `C:\Users\uylus\OneDrive\Documents\KandyDrops_Final`
 Audited HEAD at start: `36fcca527b72b04c24531724465f490642018ba2`
 
+## 2026-04-10 PR #167 Conflict Resolution
+
+Scope for this pass:
+
+- inspect open PR `#167`
+- resolve its dirty conflict against current `main` without applying stale hunks blindly
+- land the DOB-compliance fix in the current profile route and add direct route coverage
+
+Startup protocol executed:
+
+- read `FULL_SCALE_CODEBASE_AUDIT.md`
+- read `REPO_MEMORY_LEDGER.md`
+- read `EVERY_FILE_FUNCTION_CHECKLIST.md`
+- ran `git status --short`
+- inspected `gh pr view 167 --json ...`
+- traced adjacent surfaces for:
+  - `src/app/api/user/profile/route.ts`
+  - `src/lib/user-profile-validation.ts`
+
+Start state:
+
+- current HEAD at PR resolution start: `cad0795b314559305b6d0d580ec1c326c66ee3d6`
+- working tree was clean at pass start
+- PR `#167` was open and `DIRTY` against `main`
+
+Implementation results:
+
+- confirmed the real conflicting change in PR `#167` was narrow:
+  - block DOB removal through `PUT /api/user/profile`
+- implemented the fix directly in the current route:
+  - `src/app/api/user/profile/route.ts`
+  - `dateOfBirth: null` now returns `400`
+  - `dateOfBirth: ""` now returns `400`
+  - valid adult DOB updates still succeed
+- added direct route coverage in:
+  - `tests/unit/user-profile-route.spec.ts`
+
+Commands run:
+
+- `git status --short`
+- `gh pr view 167 --json number,title,state,isDraft,mergeStateStatus,baseRefName,headRefName,author,files,commits,url`
+- `npm run trace:adjacent -- src/app/api/user/profile/route.ts`
+- `npm run trace:adjacent -- src/lib/user-profile-validation.ts`
+- `npx eslint src/app/api/user/profile/route.ts tests/unit/user-profile-route.spec.ts`
+- `npx tsc --noEmit`
+- `corepack pnpm exec vitest run tests/unit/user-profile-route.spec.ts`
+
+Results:
+
+- PR `#167` inspected successfully
+- targeted eslint passed
+- `npx tsc --noEmit` passed
+- focused Vitest passed:
+  - `1` file
+  - `3` tests
+
+Warnings and notes:
+
+- the PR branch is still dirty against `main`, so the correct path was to implement the live fix directly rather than merge the branch as-is
+- the audit-only markdown change in the PR was superseded by this canonical audit entry
+
 ## 2026-04-09 Runtime Truth and Tracking Hardening Follow-Up
 
 Scope for this pass:

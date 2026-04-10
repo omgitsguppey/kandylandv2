@@ -1120,3 +1120,20 @@ This file is not a changelog. It is the concise ledger for durable decisions tha
   - `tests/unit/admin-auth-outcome-chart.spec.ts`
   - `FULL_SCALE_CODEBASE_AUDIT.md`
 - Follow-up gaps: More analytics sections still need the same extraction treatment before the page stops being a high-risk shared surface.
+
+### 48. Date of birth cannot be removed through profile updates
+
+- Approximate date: Canonicalized and recorded on 2026-04-10 while resolving PR #167
+- Status: Active privacy/compliance rule
+- Problem/context: The profile update API allowed `dateOfBirth` to be removed after registration by sending `null` or an empty string, which weakened the enforced 18+ platform gate after signup.
+- Decision made: Treat DOB as a non-removable compliance field once the account exists; profile updates may correct it to another valid adult DOB, but may not clear it.
+- What became canonical:
+  - `PUT /api/user/profile` must reject `dateOfBirth: null`
+  - `PUT /api/user/profile` must reject `dateOfBirth: ""`
+  - valid adult DOB replacements remain allowed
+- Truth lives in:
+  - `src/app/api/user/profile/route.ts`
+  - `src/lib/user-profile-validation.ts`
+  - `tests/unit/user-profile-route.spec.ts`
+  - `FULL_SCALE_CODEBASE_AUDIT.md`
+- Follow-up gaps: If support/admin ever need DOB remediation flows, those should exist as explicit elevated routes rather than reopening self-service deletion.
