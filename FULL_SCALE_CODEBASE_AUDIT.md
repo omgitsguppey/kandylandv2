@@ -6,6 +6,75 @@ Last full-scale audit execution: 2026-04-09 19:40:21 -05:00
 Repo: `C:\Users\uylus\OneDrive\Documents\KandyDrops_Final`
 Audited HEAD at start: `36fcca527b72b04c24531724465f490642018ba2`
 
+## 2026-04-10 Dedicated Hook Test Harness for Unread Status
+
+Scope for this pass:
+
+- replace indirect unread-hook coverage with a real client-side hook test path
+- add the smallest reusable hook harness that can exercise React client hooks directly
+- keep the main Vitest suite in `node` and scope DOM runtime only to hook tests that need it
+
+Startup protocol executed:
+
+- read `FULL_SCALE_CODEBASE_AUDIT.md`
+- read `REPO_MEMORY_LEDGER.md`
+- read `EVERY_FILE_FUNCTION_CHECKLIST.md`
+- ran `git status --short`
+- traced adjacent surfaces for:
+  - `src/hooks/useChatUnreadStatus.ts`
+  - `src/context/AuthContext.tsx`
+
+Start state:
+
+- current HEAD at hook-harness start: `036391b006060a8fb32e471ebb620b9bd59697b6`
+- working tree was clean at pass start
+- unread-hook hardening existed, but there was still no direct hook-spec path in the repo
+
+Implementation results:
+
+- added `jsdom` as a dev dependency so client-hook tests can run in a real DOM runtime without changing the entire suite environment
+- expanded `vitest.config.ts` test globs to include both `*.spec.ts` and `*.spec.tsx`
+- added a reusable client hook harness in:
+  - `tests/unit/utils/renderHook.tsx`
+- added a direct unread-hook spec in:
+  - `tests/unit/use-chat-unread-status.spec.tsx`
+- direct coverage now proves:
+  - approved legacy creators subscribe on the creator-side unread lane even if their profile role is still `user`
+  - realtime subscription errors clear the unread badge state instead of leaving stale UI
+  - rerendering after auth removal returns a false unread state directly from the hook
+- while verifying the repo-wide check pipeline, fixed an unrelated standing lint blocker in:
+  - `src/app/drops/[id]/opengraph-image.tsx`
+  - the file now explicitly documents the required `next/og` `<img>` exception so `eslint --max-warnings=0` passes again
+
+Commands run:
+
+- `git status --short`
+- `npm run trace:adjacent -- src/hooks/useChatUnreadStatus.ts`
+- `npm run trace:adjacent -- src/context/AuthContext.tsx`
+- `corepack pnpm add -D jsdom`
+- `npx eslint vitest.config.ts tests/unit/use-chat-unread-status.spec.tsx tests/unit/utils/renderHook.tsx src/app/drops/[id]/opengraph-image.tsx`
+- `corepack pnpm exec vitest run tests/unit/use-chat-unread-status.spec.tsx`
+- `npx tsc --noEmit`
+- `npm run check:generated-artifacts`
+- `corepack pnpm run check`
+- `npm run check:continuity`
+
+Results:
+
+- focused eslint passed
+- focused unread-hook Vitest passed:
+  - `1` file
+  - `3` tests
+- `npx tsc --noEmit` passed
+- `corepack pnpm run check` passed
+- `npm run check:continuity` passed
+- `npm run check:generated-artifacts` passed
+
+Warnings and notes:
+
+- the jsdom addition is scoped to tests that opt in via `// @vitest-environment jsdom`; the main suite still runs under the default `node` environment
+- `corepack pnpm run check` still emits the standing npm unknown-env warnings and Node `punycode` deprecation warnings, but all verification steps passed
+
 ## 2026-04-10 PR #166 and #168 Post-Merge Hardening
 
 Scope for this pass:

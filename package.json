@@ -98,6 +98,7 @@
     "eslint-plugin-playwright": "^2.10.1",
     "eslint-plugin-unused-imports": "^4.4.1",
     "firebase-tools": "^15.11.0",
+    "jsdom": "^29.0.2",
     "knip": "^5.88.1",
     "lighthouse": "^13.0.3",
     "madge": "^8.0.0",

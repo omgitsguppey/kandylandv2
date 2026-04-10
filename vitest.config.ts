@@ -6,7 +6,12 @@ export default defineConfig({
   },
   test: {
     environment: "node",
-    include: ["tests/contracts/**/*.spec.ts", "tests/unit/**/*.spec.ts"],
+    include: [
+      "tests/contracts/**/*.spec.ts",
+      "tests/contracts/**/*.spec.tsx",
+      "tests/unit/**/*.spec.ts",
+      "tests/unit/**/*.spec.tsx",
+    ],
     coverage: {
       provider: "v8",
       reporter: ["text", "html"],

@@ -1,0 +1,207 @@
+// @vitest-environment jsdom
+
+import { act } from "react";
+import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
+
+const mockState = vi.hoisted(() => {
+    let authValue: {
+        user: { uid: string } | null;
+        userProfile: Record<string, unknown> | null;
+    } = {
+        user: null,
+        userProfile: null,
+    };
+
+    let snapshotListener: ((snapshot: { docs: Array<{ data: () => unknown }> }) => void) | null = null;
+    let snapshotErrorListener: ((error: unknown) => void) | null = null;
+    let lastWhereField: string | null = null;
+
+    return {
+        db: { id: "mock-db" },
+        reportRealtimeIssue: vi.fn(),
+        collection: vi.fn((_db: unknown, name: string) => ({ type: "collection", name })),
+        where: vi.fn((field: string, operator: string, value: string) => {
+            lastWhereField = field;
+            return { type: "where", field, operator, value };
+        }),
+        query: vi.fn((...parts: unknown[]) => ({ type: "query", parts })),
+        onSnapshot: vi.fn((_query: unknown, next: typeof snapshotListener, error: typeof snapshotErrorListener) => {
+            snapshotListener = next;
+            snapshotErrorListener = error;
+            return () => {
+                snapshotListener = null;
+                snapshotErrorListener = null;
+            };
+        }),
+        setAuth(next: {
+            user: { uid: string } | null;
+            userProfile: Record<string, unknown> | null;
+        }) {
+            authValue = next;
+        },
+        getAuth() {
+            return authValue;
+        },
+        emitSnapshot(docs: Array<Record<string, unknown>>) {
+            if (!snapshotListener) {
+                throw new Error("Snapshot listener is not registered.");
+            }
+
+            snapshotListener({
+                docs: docs.map((doc) => ({
+                    data: () => doc,
+                })),
+            });
+        },
+        emitError(error: unknown) {
+            if (!snapshotErrorListener) {
+                throw new Error("Snapshot error listener is not registered.");
+            }
+
+            snapshotErrorListener(error);
+        },
+        getLastWhereField() {
+            return lastWhereField;
+        },
+        reset() {
+            authValue = { user: null, userProfile: null };
+            snapshotListener = null;
+            snapshotErrorListener = null;
+            lastWhereField = null;
+            this.reportRealtimeIssue.mockReset();
+            this.collection.mockClear();
+            this.where.mockClear();
+            this.query.mockClear();
+            this.onSnapshot.mockClear();
+        },
+    };
+});
+
+vi.mock("@/context/AuthContext", () => ({
+    useAuth: () => mockState.getAuth(),
+}));
+
+vi.mock("@/lib/firebase-data", () => ({
+    db: mockState.db,
+}));
+
+vi.mock("firebase/firestore", () => ({
+    collection: mockState.collection,
+    onSnapshot: mockState.onSnapshot,
+    query: mockState.query,
+    where: mockState.where,
+}));
+
+vi.mock("@/lib/client-error-reporting", () => ({
+    reportRealtimeIssue: mockState.reportRealtimeIssue,
+}));
+
+import { useChatUnreadStatus } from "@/hooks/useChatUnreadStatus";
+import { renderHook } from "./utils/renderHook";
+
+describe("useChatUnreadStatus", () => {
+    afterEach(() => {
+        document.body.innerHTML = "";
+    });
+
+    beforeEach(() => {
+        mockState.reset();
+    });
+
+    it("subscribes on the creator lane for approved legacy creators and reports unread state", () => {
+        mockState.setAuth({
+            user: { uid: "creator_legacy" },
+            userProfile: {
+                role: "user",
+                status: "active",
+                creatorApplication: {
+                    approvalStatus: "creator_approved",
+                },
+            },
+        });
+
+        const hook = renderHook(() => useChatUnreadStatus());
+
+        expect(mockState.getLastWhereField()).toBe("creatorId");
+
+        act(() => {
+            mockState.emitSnapshot([{
+                creatorId: "creator_legacy",
+                userId: "fan_1",
+                unreadCountForCreator: 2,
+                unreadCountForUser: 0,
+            }]);
+        });
+
+        expect(hook.result.current.hasUnreadMessages).toBe(true);
+
+        hook.unmount();
+    });
+
+    it("clears the unread badge state when the realtime subscription errors", () => {
+        mockState.setAuth({
+            user: { uid: "fan_1" },
+            userProfile: {
+                role: "user",
+                status: "active",
+            },
+        });
+
+        const hook = renderHook(() => useChatUnreadStatus());
+
+        act(() => {
+            mockState.emitSnapshot([{
+                creatorId: "creator_1",
+                userId: "fan_1",
+                unreadCountForCreator: 0,
+                unreadCountForUser: 1,
+            }]);
+        });
+        expect(hook.result.current.hasUnreadMessages).toBe(true);
+
+        act(() => {
+            mockState.emitError(new Error("permission denied"));
+        });
+
+        expect(hook.result.current.hasUnreadMessages).toBe(false);
+        expect(mockState.reportRealtimeIssue).toHaveBeenCalledWith(
+            "chat unread status",
+            expect.any(Error),
+            { userId: "fan_1" },
+        );
+
+        hook.unmount();
+    });
+
+    it("returns a false unread state after auth is removed on rerender", () => {
+        mockState.setAuth({
+            user: { uid: "fan_1" },
+            userProfile: {
+                role: "user",
+                status: "active",
+            },
+        });
+
+        const hook = renderHook(() => useChatUnreadStatus());
+
+        act(() => {
+            mockState.emitSnapshot([{
+                creatorId: "creator_1",
+                userId: "fan_1",
+                unreadCountForCreator: 0,
+                unreadCountForUser: 1,
+            }]);
+        });
+        expect(hook.result.current.hasUnreadMessages).toBe(true);
+
+        mockState.setAuth({
+            user: null,
+            userProfile: null,
+        });
+        hook.rerender();
+
+        expect(hook.result.current.hasUnreadMessages).toBe(false);
+
+        hook.unmount();
+    });
+});

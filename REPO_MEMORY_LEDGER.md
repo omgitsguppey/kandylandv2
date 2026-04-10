@@ -24,6 +24,22 @@ This file is not a changelog. It is the concise ledger for durable decisions tha
 
 ## Decision Entries
 
+### 1c. Client-hook tests use a scoped jsdom harness, not a global browser-suite switch
+
+- Approximate date: Recorded explicitly on 2026-04-10 from the unread-hook direct-test pass
+- Status: Active canonical test rule
+- Problem/context: The repo previously had no direct hook-test path for client hooks like `useChatUnreadStatus`, so hook correctness had to be inferred from route and helper tests.
+- Decision made: Client hooks that require DOM or React lifecycle behavior should use a reusable jsdom-backed hook harness and a per-file Vitest environment override, while the suite default remains `node`.
+- What became canonical:
+  - reusable hook harness lives in `tests/unit/utils/renderHook.tsx`
+  - hook specs that need DOM should opt in with `// @vitest-environment jsdom`
+  - Vitest test globs include both `*.spec.ts` and `*.spec.tsx`
+- Truth lives in:
+  - `vitest.config.ts`
+  - `tests/unit/utils/renderHook.tsx`
+  - `tests/unit/use-chat-unread-status.spec.tsx`
+- What is now disallowed or deprecated: Treating indirect route coverage as sufficient for client-hook correctness when the hook has meaningful DOM/subscription behavior
+
 ### 1b. Chat viewer role must be resolved from creator eligibility, not raw role checks
 
 - Approximate date: Recorded explicitly on 2026-04-10 from PR `#168` post-merge hardening
