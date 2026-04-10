@@ -5844,3 +5844,14 @@ Additional improvement opportunities from the follow-up audit:
 8. Persist admin debug display preferences the same way analytics module ranges are persisted, instead of keeping all debug panel state local.
 9. Add a repo check that blocks committed Firebase emulator debug logs in the same way generated UI artifacts are blocked.
 10. Extract onboarding discrepancy rendering into a dedicated admin analytics module so auth/onboarding parity rules are testable without the full page.
+
+## 2026-04-10 Privacy Compliance Pass
+
+- Scope: Audited user profile settings for GDPR/Privacy compliance gaps and implemented safe fixes supported by codebase reality.
+
+What changed:
+- **Age/DOB sensitivity issue fixed**: Previously, `src/app/api/user/profile/route.ts` permitted users to bypass the 18+ platform requirement by deleting their `dateOfBirth` entry after successful registration (submitting a `null` or empty string caused a `FieldValue.delete()`). The API now returns a 400 error indicating that the "Date of birth cannot be removed."
+
+Truth lives in:
+- `src/app/api/user/profile/route.ts`
+- `src/lib/user-profile-validation.ts`
