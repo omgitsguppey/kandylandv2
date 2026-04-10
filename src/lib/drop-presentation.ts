@@ -37,10 +37,18 @@ function parseDimensions(dimensions: string): { width: number; height: number } 
   return result;
 }
 
+const aspectRatioCache = new Map<string, SupportedAspectRatio>();
+
+// ⚡ Bolt: Caching drop aspect ratio computation by raw dimensions string
+// Impact: Eliminates repeated regex parsing and object allocations in hot-path list renders
 export function getSupportedDropAspectRatio(drop: Drop): SupportedAspectRatio {
   const metadataDimensions = drop.fileMetadata?.dimensions;
   if (typeof metadataDimensions !== "string") {
     return "1:1";
+  }
+
+  if (aspectRatioCache.has(metadataDimensions)) {
+    return aspectRatioCache.get(metadataDimensions)!;
   }
 
   const parsed = parseDimensions(metadataDimensions);
@@ -61,6 +69,8 @@ export function getSupportedDropAspectRatio(drop: Drop): SupportedAspectRatio {
     }
   });
 
+  if (aspectRatioCache.size > 1000) aspectRatioCache.clear();
+  aspectRatioCache.set(metadataDimensions, closest);
   return closest;
 }
 
@@ -111,9 +121,18 @@ export function getDropAssetCount(drop: Pick<Drop, "contentUrl" | "contentUrls" 
   return Math.max(0, imageCount + videoCount);
 }
 
+const mediaSummaryCache = new WeakMap<Drop, { imageCount: number; videoCount: number }>();
+
+// ⚡ Bolt: Caching drop media summary computation using WeakMap on the object reference
+// Impact: Bypasses array iteration and regex URL checks during list re-renders without string allocations or stale data
 export function getDropMediaSummary(drop: Drop): { imageCount: number; videoCount: number } {
-  // 1. Prefer explicitly saved counts
-  const mediaCounts = drop.mediaCounts;
+  if (mediaSummaryCache.has(drop)) {
+    return mediaSummaryCache.get(drop)!;
+  }
+
+  const compute = () => {
+    // 1. Prefer explicitly saved counts
+    const mediaCounts = drop.mediaCounts;
   if (mediaCounts && Number.isFinite(mediaCounts.images) && Number.isFinite(mediaCounts.videos)) {
     return {
       imageCount: Math.max(0, Math.floor(mediaCounts.images)),
@@ -150,5 +169,10 @@ export function getDropMediaSummary(drop: Drop): { imageCount: number; videoCoun
     return { imageCount: 0, videoCount: 1 };
   }
 
-  return { imageCount: 1, videoCount: 0 };
+    return { imageCount: 1, videoCount: 0 };
+  };
+
+  const result = compute();
+  mediaSummaryCache.set(drop, result);
+  return result;
 }
