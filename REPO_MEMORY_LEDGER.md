@@ -1,7 +1,7 @@
 # Repo Memory Ledger
 
 Status: Canonical repository-memory and architecture-decision ledger
-Last refreshed: 2026-04-09
+Last refreshed: 2026-04-10
 Repo: `C:\Users\uylus\OneDrive\Documents\KandyDrops_Final`
 
 ## Purpose
@@ -23,6 +23,24 @@ This file is not a changelog. It is the concise ledger for durable decisions tha
 4. When this file and runtime code disagree, runtime code plus verification wins and this file must be updated immediately.
 
 ## Decision Entries
+
+### 1b. Chat viewer role must be resolved from creator eligibility, not raw role checks
+
+- Approximate date: Recorded explicitly on 2026-04-10 from PR `#168` post-merge hardening
+- Status: Active canonical chat rule
+- Problem/context: Several chat surfaces started keying unread state and realtime thread queries off `role === "creator"` only. That breaks approved legacy creators whose profile role may still be `user` even though the platform now treats them as creator-eligible for messaging.
+- Decision made: All chat viewer-role decisions must use creator-eligibility resolution, not raw role checks.
+- What became canonical:
+  - approved creator applications plus creator settings/restrictions can make a user a creator-side chat viewer
+  - direct creator deep-links still force user-view semantics for the requesting fan side
+  - unread badges and realtime thread/message subscriptions must share the same viewer-role rule as the server route
+- Truth lives in:
+  - `src/lib/chat.ts`
+  - `src/app/api/chat/threads/route.ts`
+  - `src/components/Chat/ChatExperience.tsx`
+  - `src/hooks/useChatUnreadStatus.ts`
+  - `tests/unit/chat-threads-route.spec.ts`
+- What is now disallowed or deprecated: Ad hoc `role === "creator"` checks to choose chat thread ownership or unread-query fields
 
 ### 1a. Auth Outcome Split must treat failed-attempt history as real data
 

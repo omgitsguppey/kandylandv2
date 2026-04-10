@@ -1,5 +1,6 @@
 import { NextRequest, NextResponse } from "next/server";
 
+import { resolveChatViewerRole } from "@/lib/chat";
 import { safeListChatThreadsForViewer } from "@/lib/server/chat";
 import { handleApiError } from "@/lib/server/auth";
 import { adminDb } from "@/lib/server/firebase-admin";
@@ -35,12 +36,11 @@ export async function GET(request: NextRequest) {
         const creatorId = request.nextUrl.searchParams.get("creatorId")?.trim() || null;
         const callerSnap = await adminDb.collection("users").doc(caller.uid).get();
         const callerData = callerSnap.data() as Record<string, unknown> | undefined;
-        const callerRole = typeof callerData?.role === "string" ? callerData.role : "user";
-        const viewerRole = creatorId && creatorId !== caller.uid
-            ? "user"
-            : callerRole === "creator"
-                ? "creator"
-                : "user";
+        const viewerRole = resolveChatViewerRole({
+            viewerUid: caller.uid,
+            creatorId,
+            profile: callerData,
+        });
 
         const result = await safeListChatThreadsForViewer({
             viewerUid: caller.uid,

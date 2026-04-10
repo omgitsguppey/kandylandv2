@@ -108,4 +108,28 @@ describe("GET /api/chat/threads", () => {
             creatorId: null,
         });
     });
+
+    it("uses creator viewer role for approved legacy creators without an upgraded role", async () => {
+        mockState.guardApiRequest.mockResolvedValue({ uid: "creator_legacy" });
+        mockState.userDocs.set("creator_legacy", {
+            role: "user",
+            status: "active",
+            creatorApplication: {
+                approvalStatus: "creator_approved",
+            },
+        });
+        mockState.safeListChatThreadsForViewer.mockResolvedValue({
+            threads: [{ id: "creator_creator_legacy__user_fan_1" }],
+            selectedThreadId: null,
+        });
+
+        const response = await GET(new NextRequest("http://localhost/api/chat/threads"));
+
+        expect(response.status).toBe(200);
+        expect(mockState.safeListChatThreadsForViewer).toHaveBeenCalledWith({
+            viewerUid: "creator_legacy",
+            viewerRole: "creator",
+            creatorId: null,
+        });
+    });
 });

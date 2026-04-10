@@ -3,7 +3,10 @@ import {
     CREATOR_COLLECTIONS,
     CREATOR_MESSAGE_COSTS,
     buildCreatorThreadId,
+    isCreatorMessagingAvailable,
     normalizeMessageKind,
+    type CreatorRestrictions,
+    type CreatorSettings,
 } from "@/lib/creator-experiences";
 
 export const CHAT_COLLECTIONS = {
@@ -106,4 +109,34 @@ export function resolveChatThreadUnreadCount(thread: Pick<CreatorMessageThread, 
 
 export function isChatThreadParticipant(thread: Pick<CreatorMessageThread, "creatorId" | "userId">, uid: string) {
     return thread.creatorId === uid || thread.userId === uid;
+}
+
+export function resolveChatViewerRole(input: {
+    viewerUid: string;
+    creatorId?: string | null;
+    profile: {
+        role?: unknown;
+        status?: unknown;
+        creatorApplication?: unknown;
+        creatorSettings?: CreatorSettings | null | undefined;
+        creatorRestrictions?: CreatorRestrictions | null | undefined;
+    } | null | undefined;
+}): ChatViewerRole {
+    if (input.creatorId && input.creatorId !== input.viewerUid) {
+        return "user";
+    }
+
+    if (!input.profile) {
+        return "user";
+    }
+
+    return isCreatorMessagingAvailable({
+        role: input.profile.role,
+        status: input.profile.status,
+        creatorApplication: input.profile.creatorApplication,
+        creatorSettings: input.profile.creatorSettings,
+        creatorRestrictions: input.profile.creatorRestrictions,
+    })
+        ? "creator"
+        : "user";
 }

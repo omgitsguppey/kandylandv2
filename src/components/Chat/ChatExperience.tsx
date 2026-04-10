@@ -24,6 +24,7 @@ import {
     CHAT_COLLECTIONS,
     resolveChatThreadReadAt,
     resolveChatThreadUnreadCount,
+    resolveChatViewerRole,
     type ChatInsufficientFundsPayload,
     type ChatMessageKind,
     type ChatThreadDetail,
@@ -222,6 +223,11 @@ export function ChatExperience() {
         () => visibleThreads.find((thread) => thread.id === selectedThreadId) ?? selectedDetail?.thread ?? null,
         [selectedDetail?.thread, selectedThreadId, visibleThreads],
     );
+    const liveViewerRole = useMemo(() => resolveChatViewerRole({
+        viewerUid: user?.uid || "",
+        creatorId,
+        profile: userProfile,
+    }), [creatorId, user?.uid, userProfile]);
 
     const loadThreads = useCallback(async () => {
         if (!user) {
@@ -325,11 +331,7 @@ export function ChatExperience() {
             return;
         }
 
-        const viewerField = creatorId && creatorId !== user.uid
-            ? "userId"
-            : userProfile.role === "creator"
-                ? "creatorId"
-                : "userId";
+        const viewerField = liveViewerRole === "creator" ? "creatorId" : "userId";
 
         const unsubscribe = onSnapshot(
             query(collection(db, CHAT_COLLECTIONS.threads), where(viewerField, "==", user.uid)),
@@ -363,18 +365,14 @@ export function ChatExperience() {
         );
 
         return () => unsubscribe();
-    }, [creatorId, selectedDetail?.thread, selectedThreadId, user, userProfile]);
+    }, [creatorId, liveViewerRole, selectedDetail?.thread, selectedThreadId, user, userProfile]);
 
     useEffect(() => {
         if (!selectedThreadId || !user || !userProfile) {
             return;
         }
 
-        const viewerField = creatorId && creatorId !== user.uid
-            ? "userId"
-            : userProfile.role === "creator"
-                ? "creatorId"
-                : "userId";
+        const viewerField = liveViewerRole === "creator" ? "creatorId" : "userId";
 
         const unsubscribe = onSnapshot(
             query(
@@ -403,7 +401,7 @@ export function ChatExperience() {
         );
 
         return () => unsubscribe();
-    }, [creatorId, selectedThreadId, user, userProfile]);
+    }, [liveViewerRole, selectedThreadId, user, userProfile]);
 
     useEffect(() => {
         if (!selectedDetail || !selectedThreadId) {
