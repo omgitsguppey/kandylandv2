@@ -1,10 +1,174 @@
 # Full Scale Codebase Audit
 
 Status: Canonical audit standard and live baseline
-Last refreshed: 2026-04-10
+Last refreshed: 2026-04-11
 Last full-scale audit execution: 2026-04-09 19:40:21 -05:00
 Repo: `C:\Users\uylus\OneDrive\Documents\KandyDrops_Final`
 Audited HEAD at start: `36fcca527b72b04c24531724465f490642018ba2`
+
+## 2026-04-11 Admin AI Safe-Zone Overflow Containment
+
+Scope for this pass:
+
+- fix right-edge safe-zone bleed in `/admin/ai`
+- harden shared admin module/header shells so dense admin layouts do not widen beyond the viewport
+- keep dynamic AI content readable without horizontal page spill
+
+Startup protocol executed:
+
+- read `FULL_SCALE_CODEBASE_AUDIT.md`
+- read `REPO_MEMORY_LEDGER.md`
+- read `EVERY_FILE_FUNCTION_CHECKLIST.md`
+- ran `git status --short`
+- ran:
+  - `cmd /c "npm run trace:adjacent -- src/app/admin/ai/page.tsx"`
+  - `cmd /c "npm run trace:adjacent -- src/components/Admin/AdminDashboardModule.tsx"`
+  - `cmd /c "npm run trace:adjacent -- src/components/Admin/AdminPageHeader.tsx"`
+
+Root cause confirmed:
+
+- the admin AI page had multiple independent overflow paths rather than one broken component
+- the page shell, shared admin module shell, and header shell did not consistently enforce `min-w-0`/overflow containment across nested grids and flex rows
+- several AI-specific dynamic blocks could widen the layout on narrow viewports:
+  - prompt provenance `pre` blocks
+  - diagnostics metadata strings
+  - reference-selection reasons
+  - model-card notes and preflight detail text
+  - prompt-history diff chips
+- the custom AI reference-library split grid used `fr` tracks without explicit `minmax(0, ...)`, which made shrink behavior less safe under long content
+
+Implementation results:
+
+- updated `src/app/admin/ai/page.tsx`
+  - clipped horizontal overflow at the page shell
+  - added `min-w-0` to main admin AI grid columns and dense nested grids
+  - changed the reference-library split grid to `minmax(0, ...)` tracks
+  - added overflow containment and word-breaking to dynamic AI content blocks, including prompts, diagnostics, reasons, and gallery/history chips
+  - hardened metric cards, badges, and empty states against long content
+- updated `src/components/Admin/AdminDashboardModule.tsx`
+  - module shell, header row, and content body now enforce `min-w-0` and content overflow containment
+- updated `src/components/Admin/AdminPageHeader.tsx`
+  - header shell now clips horizontal overflow and lets actions/content shrink safely inside the page frame
+
+Commands run:
+
+- `git status --short`
+- `cmd /c "npm run trace:adjacent -- src/app/admin/ai/page.tsx"`
+- `cmd /c "npm run trace:adjacent -- src/components/Admin/AdminDashboardModule.tsx"`
+- `cmd /c "npm run trace:adjacent -- src/components/Admin/AdminPageHeader.tsx"`
+- `cmd /c "npx eslint src/app/admin/ai/page.tsx src/components/Admin/AdminDashboardModule.tsx src/components/Admin/AdminPageHeader.tsx"`
+- `cmd /c "npx tsc --noEmit"`
+- `cmd /c "npm run check:ui:audits"`
+- cleanup:
+  - `.next`
+  - `playwright-report`
+  - `test-results`
+  - `database-debug.log`
+  - `firestore-debug.log`
+- `cmd /c "npm run check:continuity"`
+
+Verification results:
+
+- adjacent traces passed
+- focused eslint passed
+- `npx tsc --noEmit` passed
+- `npm run check:ui:audits` passed:
+  - `16/16`
+- `npm run check:continuity` passed
+
+Warnings and notes:
+
+- the standard Playwright/Next shutdown warning still appeared after successful UI audits:
+  - `TypeError: controller[kState].transformAlgorithm is not a function`
+- `check:ui:audits` recreated `.next`; it was removed before the final continuity sign-off
+
+## 2026-04-10 Chat Live Thread Degradation Recovery
+
+Scope for this pass:
+
+- fix the sticky `Realtime chat degraded` state inside `/dashboard/chat`
+- restore automatic live-thread recovery after transient browser Firestore failures
+- harden adjacent unread-state behavior so chat and shell indicators do not diverge after the same client failure
+
+Startup protocol executed:
+
+- read `FULL_SCALE_CODEBASE_AUDIT.md`
+- read `REPO_MEMORY_LEDGER.md`
+- read `EVERY_FILE_FUNCTION_CHECKLIST.md`
+- ran `git status --short`
+- attempted:
+  - `npm run trace:adjacent -- src/components/Chat/ChatExperience.tsx`
+  - `npm run trace:adjacent -- src/hooks/useChatUnreadStatus.ts`
+  - `npm run trace:adjacent -- src/lib/server/chat.ts`
+- initial trace commands failed under the sandbox with `EPERM` while opening local Node toolchain files, so they were rerun successfully outside the sandbox
+
+Root cause confirmed:
+
+- chat already degraded to polling when a Firestore browser listener failed, but it never resubscribed automatically
+- once `onSnapshot(..., error)` fired for:
+  - the thread-list listener
+  - the selected-thread listener
+  - the message listener
+  the current listener terminated and stayed terminated until refresh or route/state churn recreated it
+- the unread hook had the same one-way degradation pattern, which meant the badge and the live thread surface could recover on different timelines
+- the chat degraded banner stored one fallback string globally, so after partial recovery it could continue describing the wrong failing lane
+
+Implementation results:
+
+- added `src/lib/chat-realtime.ts`
+  - canonical bounded reconnect delays for chat realtime retry:
+    - `1500ms`
+    - `3000ms`
+    - `5000ms`
+    - `10000ms`
+    - `15000ms` max
+- updated `src/components/Chat/ChatExperience.tsx`
+  - thread-list, selected-thread, and message listeners now schedule automatic reconnect attempts after Firestore client failures
+  - retry state is tracked per scope instead of one global reconnect flag
+  - degraded scopes clear their own retry timers/attempt counters on successful listener recovery
+  - the degraded banner now remains truthful when only one lane is still degraded
+  - the banner explicitly tells operators that polling fallback is active while live chat retries automatically
+- updated `src/hooks/useChatUnreadStatus.ts`
+  - unread realtime now retries automatically after listener failure instead of staying degraded until refresh
+  - unread badge state stays stable while polling fallback takes over, avoiding false-clear flicker
+- added/updated tests:
+  - `tests/unit/chat-realtime.spec.ts`
+  - `tests/unit/use-chat-unread-status.spec.tsx`
+
+Commands run:
+
+- `git status --short`
+- `cmd /c "npm run trace:adjacent -- src/components/Chat/ChatExperience.tsx"`
+- `cmd /c "npm run trace:adjacent -- src/hooks/useChatUnreadStatus.ts"`
+- `cmd /c "npm run trace:adjacent -- src/lib/server/chat.ts"`
+- `cmd /c "npx eslint src/components/Chat/ChatExperience.tsx src/hooks/useChatUnreadStatus.ts src/lib/chat-realtime.ts tests/unit/use-chat-unread-status.spec.tsx tests/unit/chat-realtime.spec.ts"`
+- `cmd /c "npx vitest run tests/unit/use-chat-unread-status.spec.tsx tests/unit/chat-realtime.spec.ts"`
+- `cmd /c "npx tsc --noEmit"`
+- `cmd /c "npm run check:ui:audits"`
+- cleanup:
+  - `.next`
+  - `playwright-report`
+  - `test-results`
+  - `database-debug.log`
+  - `firestore-debug.log`
+- `cmd /c "npm run check:continuity"`
+
+Verification results:
+
+- adjacent traces completed successfully after rerunning outside the sandbox
+- focused eslint passed with no errors or warnings after dependency cleanup
+- focused Vitest passed:
+  - `2` files
+  - `7` tests
+- `npx tsc --noEmit` passed
+- `npm run check:ui:audits` passed:
+  - `16/16`
+- `npm run check:continuity` passed
+
+Warnings and notes:
+
+- local Node-based repo tooling hit sandbox `EPERM` on first attempt when opening workspace/local-cache tool binaries; the commands themselves were valid and passed once rerun outside the sandbox
+- `check:ui:audits` recreated `.next`; it was removed before the final continuity sign-off
 
 ## 2026-04-10 Chat Security, Creator-Page Firestore Failure, and Shell Listener Reduction
 

@@ -1,7 +1,7 @@
 # Repo Memory Ledger
 
 Status: Canonical repository-memory and architecture-decision ledger
-Last refreshed: 2026-04-10
+Last refreshed: 2026-04-11
 Repo: `C:\Users\uylus\OneDrive\Documents\KandyDrops_Final`
 
 ## Purpose
@@ -23,6 +23,43 @@ This file is not a changelog. It is the concise ledger for durable decisions tha
 4. When this file and runtime code disagree, runtime code plus verification wins and this file must be updated immediately.
 
 ## Decision Entries
+
+### 1k. Dense admin layouts must be shrink-safe and horizontally contained by default
+
+- Approximate date: Recorded explicitly on 2026-04-11 from the admin AI safe-zone overflow fix
+- Status: Active canonical admin-layout rule
+- Problem/context: `/admin/ai` exposed a shared admin-shell weakness: nested grids, module shells, and long dynamic text/media blocks were not consistently enforcing `min-w-0` and overflow containment, which allowed content to bleed past the right safe zone on narrower admin viewports.
+- Decision made: Admin shells and dense admin modules must default to shrink-safe containers, explicit overflow containment, and word-breaking for dynamic content instead of relying on page-level luck.
+- What became canonical:
+  - admin page wrappers should clip horizontal overflow instead of allowing safe-zone bleed
+  - shared admin headers and modules must expose `min-w-0` boundaries so nested grids and actions can shrink safely
+  - custom dense grid tracks should prefer `minmax(0, ...)` when long dynamic content is possible
+  - prompt text, diagnostics, metadata strings, and history chips in admin surfaces must break or wrap instead of widening the page
+- Truth lives in:
+  - `src/app/admin/ai/page.tsx`
+  - `src/components/Admin/AdminDashboardModule.tsx`
+  - `src/components/Admin/AdminPageHeader.tsx`
+- What is now disallowed or deprecated: Admin modules that assume implicit shrink behavior under long content, or admin page shells that allow horizontal bleed past the viewport safe zone
+
+### 1j. Chat realtime must auto-reconnect after browser Firestore failures instead of degrading until refresh
+
+- Approximate date: Recorded explicitly on 2026-04-10 from the live-thread degradation recovery pass
+- Status: Active canonical chat realtime rule
+- Problem/context: Chat already downgraded to polling after browser Firestore listener failures, but it did not automatically recreate the failed listeners. A transient client-side failure could therefore leave `/dashboard/chat` and unread indicators stuck in degraded mode until a manual refresh or unrelated route churn happened to remount the listeners.
+- Decision made: Chat realtime listeners must retry automatically with bounded backoff, and degraded messaging must stay scoped to the lane that is still failing.
+- What became canonical:
+  - chat thread-list, selected-thread, and message listeners retry automatically after client-side Firestore failures
+  - unread badge realtime retries automatically on the chat route as well
+  - polling fallback remains active while reconnect attempts are in flight
+  - degraded UI copy must stay truthful to the currently failing scope instead of preserving a stale fallback message after partial recovery
+  - bounded reconnect delays are centralized so chat realtime recovery is consistent across surfaces
+- Truth lives in:
+  - `src/lib/chat-realtime.ts`
+  - `src/components/Chat/ChatExperience.tsx`
+  - `src/hooks/useChatUnreadStatus.ts`
+  - `tests/unit/chat-realtime.spec.ts`
+  - `tests/unit/use-chat-unread-status.spec.tsx`
+- What is now disallowed or deprecated: One-way listener degradation that requires refresh to restore chat realtime, or degraded banners that describe the wrong still-failing lane after partial recovery
 
 ### 1h. Public shell surfaces should avoid non-essential Firestore listeners, and auth profile reads must degrade to server fallback
 

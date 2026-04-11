@@ -44,6 +44,7 @@ import {
     reconcileChatSendSuccess,
     type ChatSendRealtimePayload,
 } from "@/lib/chat-send-realtime";
+import { getChatRealtimeRetryDelayMs } from "@/lib/chat-realtime";
 import {
     buildChatSendErrorMessage,
     buildChatSendWarningMessage,
@@ -119,6 +120,16 @@ type PresenceSnapshot = {
 };
 
 const MESSAGE_GROUP_GAP_MS = 15 * 60_000;
+const CHAT_THREAD_LIST_SCOPE = "chat thread list";
+const CHAT_THREAD_SCOPE = "chat thread";
+const CHAT_MESSAGES_SCOPE = "chat messages";
+const CHAT_REALTIME_SCOPES = [
+    CHAT_THREAD_LIST_SCOPE,
+    CHAT_THREAD_SCOPE,
+    CHAT_MESSAGES_SCOPE,
+] as const;
+
+type ChatRealtimeScope = typeof CHAT_REALTIME_SCOPES[number];
 
 function formatRelativeTime(timestamp?: number) {
     if (!timestamp || !Number.isFinite(timestamp)) {
@@ -397,6 +408,21 @@ export function ChatExperience() {
     const selectedThreadIdRef = useRef<string | null>(selectedThreadId);
     const selectedDetailThreadRef = useRef<ChatThreadRecord | null>(selectedDetail?.thread ?? null);
     const degradedRealtimeToastScopesRef = useRef<Set<string>>(new Set());
+    const degradedRealtimeMessagesRef = useRef<Partial<Record<ChatRealtimeScope, string>>>({});
+    const realtimeRetryAttemptsRef = useRef<Record<ChatRealtimeScope, number>>({
+        [CHAT_THREAD_LIST_SCOPE]: 0,
+        [CHAT_THREAD_SCOPE]: 0,
+        [CHAT_MESSAGES_SCOPE]: 0,
+    });
+    const realtimeRetryTimersRef = useRef<Partial<Record<ChatRealtimeScope, number>>>({});
+    const [realtimeRetryEpochs, setRealtimeRetryEpochs] = useState<Record<ChatRealtimeScope, number>>({
+        [CHAT_THREAD_LIST_SCOPE]: 0,
+        [CHAT_THREAD_SCOPE]: 0,
+        [CHAT_MESSAGES_SCOPE]: 0,
+    });
+    const threadListRealtimeEpoch = realtimeRetryEpochs[CHAT_THREAD_LIST_SCOPE];
+    const threadRealtimeEpoch = realtimeRetryEpochs[CHAT_THREAD_SCOPE];
+    const messagesRealtimeEpoch = realtimeRetryEpochs[CHAT_MESSAGES_SCOPE];
 
     const visibleThreads = useMemo(
         () => mergeThreads(threads, selectedDetail?.thread ?? null),
@@ -443,19 +469,54 @@ export function ChatExperience() {
         selectedDetailThreadRef.current = selectedDetail?.thread ?? null;
     }, [selectedDetail?.thread]);
 
-    const clearRealtimeDegradedScope = useCallback((scope: string) => {
+    const clearRealtimeRetry = useCallback((scope: ChatRealtimeScope) => {
+        const timerId = realtimeRetryTimersRef.current[scope];
+        if (timerId) {
+            window.clearTimeout(timerId);
+            delete realtimeRetryTimersRef.current[scope];
+        }
+        realtimeRetryAttemptsRef.current[scope] = 0;
+    }, []);
+
+    const scheduleRealtimeRetry = useCallback((scope: ChatRealtimeScope) => {
+        const existingTimer = realtimeRetryTimersRef.current[scope];
+        if (existingTimer) {
+            return getChatRealtimeRetryDelayMs(realtimeRetryAttemptsRef.current[scope] || 1);
+        }
+
+        const nextAttempt = (realtimeRetryAttemptsRef.current[scope] || 0) + 1;
+        realtimeRetryAttemptsRef.current[scope] = nextAttempt;
+        const retryDelayMs = getChatRealtimeRetryDelayMs(nextAttempt);
+        realtimeRetryTimersRef.current[scope] = window.setTimeout(() => {
+            delete realtimeRetryTimersRef.current[scope];
+            setRealtimeRetryEpochs((current) => ({
+                ...current,
+                [scope]: current[scope] + 1,
+            }));
+        }, retryDelayMs);
+        return retryDelayMs;
+    }, []);
+
+    const clearRealtimeDegradedScope = useCallback((scope: ChatRealtimeScope) => {
+        clearRealtimeRetry(scope);
         degradedRealtimeToastScopesRef.current.delete(scope);
+        delete degradedRealtimeMessagesRef.current[scope];
         setDegradedRealtimeScopes((current) => {
             const next = current.filter((entry) => entry !== scope);
             if (next.length === 0) {
                 setRealtimeFallbackMessage(null);
+            } else {
+                const nextScope = next[next.length - 1] as ChatRealtimeScope | undefined;
+                setRealtimeFallbackMessage(nextScope ? (degradedRealtimeMessagesRef.current[nextScope] ?? null) : null);
             }
             return next;
         });
-    }, []);
+    }, [clearRealtimeRetry]);
 
-    const markRealtimeDegraded = useCallback((scope: string, error: unknown, detail?: Record<string, unknown>) => {
+    const markRealtimeDegraded = useCallback((scope: ChatRealtimeScope, error: unknown, detail?: Record<string, unknown>) => {
         const fallbackMessage = buildFirestoreClientFallbackMessage(scope, error);
+        const retryDelayMs = scheduleRealtimeRetry(scope);
+        degradedRealtimeMessagesRef.current[scope] = fallbackMessage;
         setRealtimeFallbackMessage(fallbackMessage);
         setDegradedRealtimeScopes((current) => current.includes(scope) ? current : [...current, scope]);
 
@@ -467,10 +528,21 @@ export function ChatExperience() {
         reportRealtimeIssue(scope, error, {
             ...buildFirestoreClientIssueDetail(error, {
                 fallbackMessage,
+                retryDelayMs,
             }),
             ...detail,
         });
-    }, []);
+    }, [scheduleRealtimeRetry]);
+
+    const clearAllRealtimeRetries = useCallback(() => {
+        CHAT_REALTIME_SCOPES.forEach((scope) => {
+            clearRealtimeRetry(scope);
+        });
+    }, [clearRealtimeRetry]);
+
+    useEffect(() => {
+        return () => clearAllRealtimeRetries();
+    }, [clearAllRealtimeRetries]);
 
     const loadThreads = useCallback(async () => {
         if (!user) {
@@ -752,21 +824,21 @@ export function ChatExperience() {
                     .filter((thread) => isChatThreadVisibleToViewer(thread, thread.viewerRole))
                     .sort((left, right) => right.lastMessageAt - left.lastMessageAt);
 
-                clearRealtimeDegradedScope("chat thread list");
+                clearRealtimeDegradedScope(CHAT_THREAD_LIST_SCOPE);
                 setThreads((current) => mergeThreads(
                     nextThreads,
                     selectedDetailThreadRef.current ?? current.find((thread) => thread.id === selectedThreadIdRef.current) ?? null,
                 ));
             },
             (error) => {
-                markRealtimeDegraded("chat thread list", error, {
+                markRealtimeDegraded(CHAT_THREAD_LIST_SCOPE, error, {
                     creatorId: creatorId || null,
                 });
             },
         );
 
         return () => unsubscribe();
-    }, [clearRealtimeDegradedScope, creatorId, liveViewerRole, markRealtimeDegraded, user, userProfile]);
+    }, [clearRealtimeDegradedScope, creatorId, liveViewerRole, markRealtimeDegraded, threadListRealtimeEpoch, user, userProfile]);
 
     useEffect(() => {
         if (!selectedThreadId || !user || !userProfile) {
@@ -795,21 +867,21 @@ export function ChatExperience() {
                     })
                     .sort((left, right) => (left.createdAt || 0) - (right.createdAt || 0));
 
-                clearRealtimeDegradedScope("chat messages");
+                clearRealtimeDegradedScope(CHAT_MESSAGES_SCOPE);
                 setSelectedDetail((current) => current ? {
                     ...current,
                     messages: nextMessages,
                 } : current);
             },
             (error) => {
-                markRealtimeDegraded("chat messages", error, {
+                markRealtimeDegraded(CHAT_MESSAGES_SCOPE, error, {
                     threadId: selectedThreadId,
                 });
             },
         );
 
         return () => unsubscribe();
-    }, [clearRealtimeDegradedScope, liveViewerRole, markRealtimeDegraded, selectedThreadId, user, userProfile]);
+    }, [clearRealtimeDegradedScope, liveViewerRole, markRealtimeDegraded, messagesRealtimeEpoch, selectedThreadId, user, userProfile]);
 
     useEffect(() => {
         if (!selectedDetail || !selectedThreadId) {
@@ -1363,7 +1435,7 @@ export function ChatExperience() {
                     counterpartReadAt: resolveChatThreadReadAt(raw, viewerRole === "creator" ? "user" : "creator"),
                 } satisfies ChatThreadRecord;
 
-                clearRealtimeDegradedScope("chat thread");
+                clearRealtimeDegradedScope(CHAT_THREAD_SCOPE);
                 setThreads((current) => mergeThreads(current.map((thread) => thread.id === nextThread.id ? nextThread : thread), nextThread));
                 setSelectedDetail((current) => current ? {
                     ...current,
@@ -1371,14 +1443,14 @@ export function ChatExperience() {
                 } : current);
             },
             (error) => {
-                markRealtimeDegraded("chat thread", error, {
+                markRealtimeDegraded(CHAT_THREAD_SCOPE, error, {
                     threadId: selectedThreadId,
                 });
             },
         );
 
         return () => unsubscribe();
-    }, [clearRealtimeDegradedScope, markRealtimeDegraded, selectedThreadId, user]);
+    }, [clearRealtimeDegradedScope, markRealtimeDegraded, selectedThreadId, threadRealtimeEpoch, user]);
 
     useEffect(() => {
         if (!user || degradedRealtimeScopes.length === 0) {
@@ -1438,6 +1510,9 @@ export function ChatExperience() {
                     <div className="border-b border-amber-400/15 bg-amber-500/10 px-4 py-3 text-sm text-amber-100 sm:px-5">
                         <p className="font-semibold text-white">Realtime chat degraded</p>
                         <p className="mt-1 leading-6 text-amber-100">{realtimeFallbackMessage}</p>
+                        <p className="mt-1 text-xs uppercase tracking-[0.18em] text-amber-200/85">
+                            Polling fallback is active while live chat retries automatically.
+                        </p>
                     </div>
                 ) : null}
                 <div className="grid h-full min-h-0 lg:grid-cols-[320px_minmax(0,1fr)]">

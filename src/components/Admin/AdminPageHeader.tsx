@@ -26,12 +26,12 @@ export function AdminPageHeader({
     return (
         <header
             className={cn(
-                "mb-5 rounded-[1.6rem] border border-white/10 bg-[radial-gradient(circle_at_top_left,rgba(178,140,255,0.14),rgba(0,0,0,0.08)_42%,rgba(0,0,0,0.92)_100%)] px-4 py-4 shadow-xl shadow-black/20 md:mb-6 md:px-6 md:py-5",
+                "mb-5 min-w-0 overflow-x-clip rounded-[1.6rem] border border-white/10 bg-[radial-gradient(circle_at_top_left,rgba(178,140,255,0.14),rgba(0,0,0,0.08)_42%,rgba(0,0,0,0.92)_100%)] px-4 py-4 shadow-xl shadow-black/20 md:mb-6 md:px-6 md:py-5",
                 className
             )}
         >
             {topSlot ? <div className="mb-3">{topSlot}</div> : null}
-            <div className={cn("flex flex-col gap-3 lg:flex-row lg:items-start lg:justify-between", contentClassName)}>
+            <div className={cn("flex min-w-0 flex-col gap-3 lg:flex-row lg:items-start lg:justify-between", contentClassName)}>
                 <div className="min-w-0">
                     {eyebrow ? (
                         <p className="mb-1 text-[11px] font-semibold uppercase tracking-[0.18em] text-brand-purple">
@@ -46,7 +46,7 @@ export function AdminPageHeader({
                     ) : null}
                 </div>
                 {actions ? (
-                    <div className="flex flex-wrap items-center gap-2 sm:gap-3 lg:justify-end">
+                    <div className="min-w-0 flex flex-wrap items-center gap-2 sm:gap-3 lg:justify-end">
                         {actions}
                     </div>
                 ) : null}

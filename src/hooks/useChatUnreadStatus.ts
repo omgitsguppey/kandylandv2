@@ -1,4 +1,4 @@
-import { useCallback, useEffect, useState } from "react";
+import { useCallback, useEffect, useRef, useState } from "react";
 import { collection, onSnapshot, query, where } from "firebase/firestore";
 import { usePathname } from "next/navigation";
 
@@ -10,6 +10,7 @@ import {
     resolveChatViewerRole,
     type ChatThreadRecord,
 } from "@/lib/chat";
+import { getChatRealtimeRetryDelayMs } from "@/lib/chat-realtime";
 import { buildFirestoreClientFallbackMessage, buildFirestoreClientIssueDetail } from "@/lib/firestore-client-errors";
 import { db } from "@/lib/firebase-data";
 import { reportRealtimeIssue } from "@/lib/client-error-reporting";
@@ -19,6 +20,9 @@ export function useChatUnreadStatus() {
     const pathname = usePathname();
     const [hasUnreadMessages, setHasUnreadMessages] = useState(false);
     const [realtimeDegraded, setRealtimeDegraded] = useState(false);
+    const [realtimeRetryEpoch, setRealtimeRetryEpoch] = useState(0);
+    const realtimeRetryAttemptRef = useRef(0);
+    const realtimeRetryTimerRef = useRef<number | null>(null);
     const preferRealtime = pathname?.startsWith("/dashboard/chat") === true;
     const viewerRole = resolveChatViewerRole({
         viewerUid: user?.uid || "",
@@ -52,14 +56,37 @@ export function useChatUnreadStatus() {
         if (!user || !userProfile) {
             setHasUnreadMessages(false);
             setRealtimeDegraded(false);
+            realtimeRetryAttemptRef.current = 0;
+            if (realtimeRetryTimerRef.current) {
+                window.clearTimeout(realtimeRetryTimerRef.current);
+                realtimeRetryTimerRef.current = null;
+            }
             return;
         }
         if (!preferRealtime) {
             setRealtimeDegraded(false);
+            realtimeRetryAttemptRef.current = 0;
+            if (realtimeRetryTimerRef.current) {
+                window.clearTimeout(realtimeRetryTimerRef.current);
+                realtimeRetryTimerRef.current = null;
+            }
             return;
         }
 
         const viewerField = viewerRole === "creator" ? "creatorId" : "userId";
+        const scheduleRetry = () => {
+            if (realtimeRetryTimerRef.current) {
+                return getChatRealtimeRetryDelayMs(realtimeRetryAttemptRef.current || 1);
+            }
+
+            realtimeRetryAttemptRef.current += 1;
+            const retryDelayMs = getChatRealtimeRetryDelayMs(realtimeRetryAttemptRef.current);
+            realtimeRetryTimerRef.current = window.setTimeout(() => {
+                realtimeRetryTimerRef.current = null;
+                setRealtimeRetryEpoch((current) => current + 1);
+            }, retryDelayMs);
+            return retryDelayMs;
+        };
 
         const unsubscribe = onSnapshot(
             query(collection(db, CHAT_COLLECTIONS.threads), where(viewerField, "==", user.uid)),
@@ -70,23 +97,35 @@ export function useChatUnreadStatus() {
                     const viewerRole = raw.creatorId === user.uid ? "creator" : "user";
                     unreadCount += resolveChatThreadUnreadCount(raw, viewerRole);
                 }
+                if (realtimeRetryTimerRef.current) {
+                    window.clearTimeout(realtimeRetryTimerRef.current);
+                    realtimeRetryTimerRef.current = null;
+                }
+                realtimeRetryAttemptRef.current = 0;
                 setRealtimeDegraded(false);
                 setHasUnreadMessages(unreadCount > 0);
             },
             (error) => {
-                setHasUnreadMessages(false);
                 setRealtimeDegraded(true);
+                const retryDelayMs = scheduleRetry();
                 reportRealtimeIssue("chat unread status", error, {
                     userId: user.uid,
                     ...buildFirestoreClientIssueDetail(error, {
                         fallbackMessage: buildFirestoreClientFallbackMessage("Chat unread badge", error),
+                        retryDelayMs,
                     }),
                 });
             },
         );
 
-        return () => unsubscribe();
-    }, [preferRealtime, user, userProfile, viewerRole]);
+        return () => {
+            if (realtimeRetryTimerRef.current) {
+                window.clearTimeout(realtimeRetryTimerRef.current);
+                realtimeRetryTimerRef.current = null;
+            }
+            unsubscribe();
+        };
+    }, [preferRealtime, realtimeRetryEpoch, user, userProfile, viewerRole]);
 
     useEffect(() => {
         if (!user || !userProfile || (!realtimeDegraded && preferRealtime)) {

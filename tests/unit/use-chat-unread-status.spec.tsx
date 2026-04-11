@@ -119,11 +119,13 @@ vi.mock("@/lib/client-error-reporting", () => ({
 }));
 
 import { useChatUnreadStatus } from "@/hooks/useChatUnreadStatus";
+import { getChatRealtimeRetryDelayMs } from "@/lib/chat-realtime";
 import { renderHook } from "./utils/renderHook";
 
 describe("useChatUnreadStatus", () => {
     afterEach(() => {
         document.body.innerHTML = "";
+        vi.useRealTimers();
     });
 
     beforeEach(() => {
@@ -160,7 +162,7 @@ describe("useChatUnreadStatus", () => {
         hook.unmount();
     });
 
-    it("clears the unread badge state when the realtime subscription errors", () => {
+    it("keeps the last unread state visible while fallback polling takes over after a realtime error", () => {
         mockState.setAuth({
             user: { uid: "fan_1" },
             userProfile: {
@@ -185,7 +187,7 @@ describe("useChatUnreadStatus", () => {
             mockState.emitError(new Error("permission denied"));
         });
 
-        expect(hook.result.current.hasUnreadMessages).toBe(false);
+        expect(hook.result.current.hasUnreadMessages).toBe(true);
         expect(mockState.reportRealtimeIssue).toHaveBeenCalledWith(
             "chat unread status",
             expect.any(Error),
@@ -228,6 +230,45 @@ describe("useChatUnreadStatus", () => {
         });
 
         expect(mockState.authFetch).toHaveBeenCalledWith("/api/chat/threads");
+        expect(hook.result.current.hasUnreadMessages).toBe(true);
+
+        hook.unmount();
+    });
+
+    it("retries the realtime unread listener after a Firestore client failure", async () => {
+        vi.useFakeTimers();
+        mockState.setAuth({
+            user: { uid: "fan_1" },
+            userProfile: {
+                role: "user",
+                status: "active",
+            },
+        });
+
+        const hook = renderHook(() => useChatUnreadStatus());
+
+        expect(mockState.onSnapshot).toHaveBeenCalledTimes(1);
+
+        act(() => {
+            mockState.emitError(new Error("FIRESTORE (12.11.0) INTERNAL ASSERTION FAILED: Unexpected state (ID: b815)"));
+        });
+
+        await act(async () => {
+            vi.advanceTimersByTime(getChatRealtimeRetryDelayMs(1));
+            await Promise.resolve();
+        });
+
+        expect(mockState.onSnapshot).toHaveBeenCalledTimes(2);
+
+        act(() => {
+            mockState.emitSnapshot([{
+                creatorId: "creator_1",
+                userId: "fan_1",
+                unreadCountForCreator: 0,
+                unreadCountForUser: 1,
+            }]);
+        });
+
         expect(hook.result.current.hasUnreadMessages).toBe(true);
 
         hook.unmount();

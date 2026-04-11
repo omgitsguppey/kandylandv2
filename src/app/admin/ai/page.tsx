@@ -184,17 +184,17 @@ function MetricCard({ label, value, meta, tone = "neutral" }: {
             : "border-white/10 bg-white/[0.04]";
 
     return (
-        <div className={cn("rounded-[1.1rem] border p-3", toneClassName)}>
+        <div className={cn("min-w-0 overflow-hidden rounded-[1.1rem] border p-3", toneClassName)}>
             <p className="text-[11px] uppercase tracking-[0.18em] text-gray-400">{label}</p>
-            <div className="mt-1.5 text-xl font-black text-white md:text-2xl">{value}</div>
-            {meta ? <p className="mt-1 text-xs text-gray-400">{meta}</p> : null}
+            <div className="mt-1.5 break-words text-xl font-black text-white md:text-2xl">{value}</div>
+            {meta ? <p className="mt-1 break-words text-xs text-gray-400">{meta}</p> : null}
         </div>
     );
 }
 
 function Badge({ children, className }: { children: React.ReactNode; className?: string }) {
     return (
-        <span className={cn("inline-flex items-center gap-1 rounded-full border px-2.5 py-1 text-[11px] font-semibold", className)}>
+        <span className={cn("inline-flex max-w-full items-center gap-1 rounded-full border px-2.5 py-1 text-[11px] font-semibold break-words", className)}>
             {children}
         </span>
     );
@@ -245,9 +245,9 @@ function EmptyState({
     action?: React.ReactNode;
 }) {
     return (
-        <div className="rounded-[1.1rem] border border-dashed border-white/10 bg-black/25 px-4 py-5 text-sm text-gray-400">
+        <div className="overflow-hidden rounded-[1.1rem] border border-dashed border-white/10 bg-black/25 px-4 py-5 text-sm text-gray-400">
             <div className="font-semibold text-white">{title}</div>
-            <p className="mt-1">{detail}</p>
+            <p className="mt-1 break-words">{detail}</p>
             {action ? <div className="mt-3">{action}</div> : null}
         </div>
     );
@@ -750,7 +750,7 @@ export default function AIAdminPage() {
     };
 
     return (
-        <div className="min-h-screen bg-black px-4 pb-[calc(2rem+env(safe-area-inset-bottom))] pt-4 sm:px-6 lg:px-8">
+        <div className="min-h-screen overflow-x-clip bg-black px-4 pb-[calc(2rem+env(safe-area-inset-bottom))] pt-4 sm:px-6 lg:px-8">
             <PageViewEvent eventName="admin_ai_viewed" eventParams={{ page: "admin-ai" }} />
             <input
                 ref={libraryInputRef}
@@ -768,7 +768,7 @@ export default function AIAdminPage() {
                 onChange={handlePrimaryUploadChange}
             />
 
-            <div className="mx-auto max-w-7xl space-y-4">
+            <div className="mx-auto min-w-0 max-w-7xl space-y-4 overflow-x-clip">
                 <AdminPageHeader
                     eyebrow="Admin AI"
                     title="Cover Ops"
@@ -824,8 +824,8 @@ export default function AIAdminPage() {
                     </div>
                 ) : null}
 
-                <div className="grid gap-4 xl:grid-cols-12">
-                    <div className="space-y-4 xl:col-span-7">
+                <div className="grid min-w-0 gap-4 xl:grid-cols-12">
+                    <div className="min-w-0 space-y-4 xl:col-span-7">
                         <AdminDashboardModule
                             title="Runtime strip"
                             description="Model readiness, reference-mode flags, and current preflight status."
@@ -839,8 +839,8 @@ export default function AIAdminPage() {
                                 </Badge>
                             )}
                         >
-                            <div className="grid gap-3 lg:grid-cols-2">
-                                <div className="rounded-[1.1rem] border border-white/10 bg-black/25 p-3.5">
+                            <div className="grid min-w-0 gap-3 lg:grid-cols-2">
+                                <div className="min-w-0 rounded-[1.1rem] border border-white/10 bg-black/25 p-3.5">
                                     <div className="flex flex-wrap gap-2">
                                         {(data?.modelHealth || []).map((entry) => (
                                             <button
@@ -848,20 +848,20 @@ export default function AIAdminPage() {
                                                 type="button"
                                                 onClick={() => void handleDefaultModelChange(entry.id)}
                                                 className={cn(
-                                                    "flex-1 rounded-[1rem] border px-3 py-3 text-left transition",
+                                                    "min-w-0 flex-1 rounded-[1rem] border px-3 py-3 text-left transition",
                                                     entry.selected ? "border-brand-purple/40 bg-brand-purple/12" : "border-white/10 bg-white/[0.03] hover:border-white/20",
                                                 )}
                                             >
-                                                <div className="flex items-start justify-between gap-2">
-                                                    <div>
+                                                <div className="flex min-w-0 items-start justify-between gap-2">
+                                                    <div className="min-w-0">
                                                         <div className="text-sm font-semibold text-white">{entry.label}</div>
-                                                        <div className="mt-1 text-xs text-gray-400">
+                                                        <div className="mt-1 break-words text-xs text-gray-400">
                                                             {entry.maxReferenceInputs} refs • {formatAdminAiUsd(entry.pricePerGenerationUsd)}/run
                                                         </div>
                                                     </div>
                                                     <Badge className={cn("border", preflightTone(entry.preflightStatus))}>{entry.preflightStatus}</Badge>
                                                 </div>
-                                                <p className="mt-2 text-xs text-gray-400">{entry.note}</p>
+                                                <p className="mt-2 break-words text-xs text-gray-400">{entry.note}</p>
                                                 <div className="mt-3 flex flex-wrap gap-2 text-[11px] text-gray-500">
                                                     <span>{entry.recentSuccessCount} success</span>
                                                     <span>{entry.recentFailureCount} fail</span>
@@ -905,7 +905,7 @@ export default function AIAdminPage() {
                                     </div>
                                 </div>
 
-                                <div className="rounded-[1.1rem] border border-white/10 bg-black/25 p-3.5">
+                                <div className="min-w-0 rounded-[1.1rem] border border-white/10 bg-black/25 p-3.5">
                                     <div className="grid gap-2 sm:grid-cols-2">
                                         {(data?.preflightChecks || []).map((check) => (
                                             <div key={check.key} className={cn("rounded-[1rem] border px-3 py-3", preflightTone(check.status))}>
@@ -913,7 +913,7 @@ export default function AIAdminPage() {
                                                     <div className="text-sm font-semibold text-white">{check.label}</div>
                                                     {check.status === "pass" ? <CheckCircle2 className="h-4 w-4" /> : <FileWarning className="h-4 w-4" />}
                                                 </div>
-                                                <p className="mt-1 text-xs">{check.detail}</p>
+                                                <p className="mt-1 break-words text-xs">{check.detail}</p>
                                             </div>
                                         ))}
                                     </div>
@@ -940,13 +940,13 @@ export default function AIAdminPage() {
                                 </>
                             )}
                         >
-                            <div className="grid gap-3 lg:grid-cols-[1.05fr_0.95fr]">
-                                <div className="space-y-3">
-                                    <div className="rounded-[1.1rem] border border-white/10 bg-black/25 p-3.5">
-                                        <div className="flex items-center justify-between gap-3">
-                                            <div>
+                            <div className="grid min-w-0 gap-3 lg:grid-cols-[minmax(0,1.05fr)_minmax(0,0.95fr)]">
+                                <div className="min-w-0 space-y-3">
+                                    <div className="min-w-0 rounded-[1.1rem] border border-white/10 bg-black/25 p-3.5">
+                                        <div className="flex min-w-0 items-center justify-between gap-3">
+                                            <div className="min-w-0">
                                                 <div className="text-sm font-semibold text-white">Current ranked set</div>
-                                                <div className="mt-1 text-xs text-gray-400">{referencePreview.length}/{referenceCap} references queued for the next generation.</div>
+                                                <div className="mt-1 break-words text-xs text-gray-400">{referencePreview.length}/{referenceCap} references queued for the next generation.</div>
                                             </div>
                                             <Badge className={cn("border", statTone(referencePreview.length > 0))}>
                                                 <Eye className="h-3.5 w-3.5" />
@@ -954,14 +954,14 @@ export default function AIAdminPage() {
                                             </Badge>
                                         </div>
 
-                                        <div className="mt-3 space-y-2">
+                                        <div className="mt-3 min-w-0 space-y-2">
                                             {referencePreview.length === 0 ? (
                                                 <EmptyState
                                                     title="No ranked references yet"
                                                     detail="Upload a primary style reference first. Accepted and liked outputs will start filling the rest of the set automatically."
                                                 />
                                             ) : referencePreview.map((asset, index) => (
-                                                <div key={`${asset.id}-${index}`} className="flex items-start gap-3 rounded-[1rem] border border-white/8 bg-white/[0.03] p-2.5">
+                                                <div key={`${asset.id}-${index}`} className="flex min-w-0 items-start gap-3 rounded-[1rem] border border-white/8 bg-white/[0.03] p-2.5">
                                                     <div className="flex h-7 w-7 shrink-0 items-center justify-center rounded-full border border-white/10 bg-black/40 text-xs font-semibold text-white">{index + 1}</div>
                                                     <div className="relative h-14 w-14 shrink-0 overflow-hidden rounded-[0.9rem] border border-white/10 bg-black/30">
                                                         <Image src={asset.imageUrl} alt={asset.title || "Reference"} fill className="object-cover" sizes="56px" />
@@ -971,16 +971,16 @@ export default function AIAdminPage() {
                                                             <div className="truncate text-sm font-semibold text-white">{asset.title || asset.fileName || "Untitled reference"}</div>
                                                             <Badge className="border border-white/10 bg-white/5 text-gray-200">{getReferenceSourceLabel(asset)}</Badge>
                                                         </div>
-                                                        <p className="mt-1 text-xs text-gray-400">{asset.selectionReason}</p>
+                                                        <p className="mt-1 break-words text-xs text-gray-400">{asset.selectionReason}</p>
                                                     </div>
                                                 </div>
                                             ))}
                                         </div>
                                     </div>
 
-                                    <div className="rounded-[1.1rem] border border-white/10 bg-black/25 p-3.5">
+                                    <div className="min-w-0 rounded-[1.1rem] border border-white/10 bg-black/25 p-3.5">
                                         <div className="text-sm font-semibold text-white">Uploaded house references</div>
-                                        <div className="mt-1 text-xs text-gray-400">Gemini 3 Pro Preview can use up to 14 references. The library can hold more, but the ranked set stops at the model cap.</div>
+                                        <div className="mt-1 break-words text-xs text-gray-400">Gemini 3 Pro Preview can use up to 14 references. The library can hold more, but the ranked set stops at the model cap.</div>
 
                                         <div className="mt-3 space-y-3">
                                             {activeHouseReferences.length === 0 ? (
@@ -989,7 +989,7 @@ export default function AIAdminPage() {
                                                     detail="Upload style references here. The Create Drop AI panel will inherit them without changing its layout."
                                                 />
                                             ) : activeHouseReferences.map((asset) => (
-                                                <div key={asset.id} className="rounded-[1rem] border border-white/10 bg-white/[0.03] p-3">
+                                                <div key={asset.id} className="min-w-0 rounded-[1rem] border border-white/10 bg-white/[0.03] p-3">
                                                     <div className="flex flex-col gap-3 sm:flex-row">
                                                         <div className="relative h-24 w-full shrink-0 overflow-hidden rounded-[0.9rem] border border-white/10 bg-black/30 sm:h-24 sm:w-24">
                                                             <Image src={asset.imageUrl} alt={asset.title || asset.fileName || "Reference"} fill className="object-cover" sizes="96px" />
@@ -1000,7 +1000,7 @@ export default function AIAdminPage() {
                                                                 {asset.primary ? <Badge className="border border-brand-purple/30 bg-brand-purple/15 text-brand-purple">Primary</Badge> : null}
                                                                 {asset.pinned ? <Badge className="border border-white/10 bg-white/5 text-gray-200">Pinned</Badge> : null}
                                                             </div>
-                                                            <p className="mt-1 text-xs text-gray-400">{getReferenceSelectionReason(asset)}</p>
+                                                            <p className="mt-1 break-words text-xs text-gray-400">{getReferenceSelectionReason(asset)}</p>
                                                             <div className="mt-2 flex flex-wrap gap-2 text-[11px] text-gray-500">
                                                                 <span>{asset.usageCount || 0} reuse</span>
                                                                 <span>{asset.successfulReuseCount || 0} success</span>
@@ -1034,10 +1034,10 @@ export default function AIAdminPage() {
 
                                         {data?.referenceAssets.template && !activeHouseReferences.some((asset) => asset.primary) ? (
                                             <div className="mt-3 rounded-[1rem] border border-amber-400/20 bg-amber-500/10 p-3">
-                                                <div className="flex flex-wrap items-center justify-between gap-3">
-                                                    <div>
+                                                <div className="flex min-w-0 flex-wrap items-center justify-between gap-3">
+                                                    <div className="min-w-0">
                                                         <div className="text-sm font-semibold text-white">Legacy primary style asset</div>
-                                                        <div className="mt-1 text-xs text-amber-100/80">This primary reference still lives on the legacy template path. Replace it with an uploaded house reference when ready.</div>
+                                                        <div className="mt-1 break-words text-xs text-amber-100/80">This primary reference still lives on the legacy template path. Replace it with an uploaded house reference when ready.</div>
                                                     </div>
                                                     <Button variant="danger" size="sm" onClick={handleLegacyTemplateDelete} isLoading={removingReferenceId === "template"}>
                                                         <Trash2 className="mr-2 h-3.5 w-3.5" />
@@ -1049,22 +1049,22 @@ export default function AIAdminPage() {
                                     </div>
                                 </div>
 
-                                <div className="space-y-3">
-                                    <div className="rounded-[1.1rem] border border-white/10 bg-black/25 p-3.5">
+                                <div className="min-w-0 space-y-3">
+                                    <div className="min-w-0 rounded-[1.1rem] border border-white/10 bg-black/25 p-3.5">
                                         <div className="text-sm font-semibold text-white">Reference health</div>
-                                        <div className="mt-3 grid gap-3 sm:grid-cols-2">
+                                        <div className="mt-3 grid min-w-0 gap-3 sm:grid-cols-2">
                                             <MetricCard label="House refs" value={data?.visualSignals.houseReferenceCount || 0} />
                                             <MetricCard label="Retained positive" value={data?.visualSignals.acceptedRetainedCount || 0} />
                                             <MetricCard label="Catalog fallback" value={data?.referenceAssets.catalogDropCovers.length || 0} />
                                             <MetricCard label="Reuse rate" value={`${referenceReuseRate}%`} />
                                         </div>
                                     </div>
-                                    <div className="rounded-[1.1rem] border border-white/10 bg-black/25 p-3.5">
+                                    <div className="min-w-0 rounded-[1.1rem] border border-white/10 bg-black/25 p-3.5">
                                         <div className="text-sm font-semibold text-white">Why the next set looks different</div>
                                         <div className="mt-2 space-y-2 text-sm text-gray-300">
-                                            <p>The style lock keeps typography, ribbon rhythm, and poster finish stable.</p>
-                                            <p>The subject lock now derives the hero object and palette from the flavor side of <span className="font-semibold text-white">Creator | Flavor</span>.</p>
-                                            <p>Anti-anchoring blocks the reference subject from dictating the next food form unless the requested flavor matches it.</p>
+                                            <p className="break-words">The style lock keeps typography, ribbon rhythm, and poster finish stable.</p>
+                                            <p className="break-words">The subject lock now derives the hero object and palette from the flavor side of <span className="font-semibold text-white">Creator | Flavor</span>.</p>
+                                            <p className="break-words">Anti-anchoring blocks the reference subject from dictating the next food form unless the requested flavor matches it.</p>
                                         </div>
                                     </div>
                                 </div>
@@ -1087,9 +1087,9 @@ export default function AIAdminPage() {
                             {(data?.recentJobs || []).length === 0 ? (
                                 <EmptyState title="No generation jobs yet" detail="Generate a cover from Create Drop and the full prompt lineage will show up here." />
                             ) : (
-                                <div className="grid gap-3 lg:grid-cols-2">
+                                <div className="grid min-w-0 gap-3 lg:grid-cols-2">
                                     {(data?.recentJobs || []).map((job) => (
-                                        <div key={job.id} className="overflow-hidden rounded-[1.1rem] border border-white/10 bg-black/25">
+                                        <div key={job.id} className="min-w-0 overflow-hidden rounded-[1.1rem] border border-white/10 bg-black/25">
                                             <div className="relative aspect-square overflow-hidden bg-black/40">
                                                 {job.imageUrl ? (
                                                     <Image src={job.imageUrl} alt={job.title} fill className="object-cover" sizes="(min-width: 1280px) 360px, 100vw" />
@@ -1098,10 +1098,10 @@ export default function AIAdminPage() {
                                                 )}
                                             </div>
                                             <div className="space-y-3 p-3.5">
-                                                <div className="flex flex-wrap items-start justify-between gap-2">
+                                                <div className="flex min-w-0 flex-wrap items-start justify-between gap-2">
                                                     <div className="min-w-0">
                                                         <div className="truncate text-sm font-semibold text-white">{job.title}</div>
-                                                        <div className="mt-1 text-xs text-gray-400">{formatCompactTimestamp(job.requestedAtMs)} • {job.model}</div>
+                                                        <div className="mt-1 break-words text-xs text-gray-400">{formatCompactTimestamp(job.requestedAtMs)} • {job.model}</div>
                                                     </div>
                                                     <div className="flex flex-wrap gap-2">
                                                         <Badge className={cn("border", job.status === "succeeded" ? "border-emerald-400/20 bg-emerald-500/10 text-emerald-100" : job.status === "failed" ? "border-red-400/20 bg-red-500/10 text-red-100" : "border-cyan-400/20 bg-cyan-500/10 text-cyan-100")}>{job.status}</Badge>
@@ -1115,38 +1115,38 @@ export default function AIAdminPage() {
                                                 </div>
 
                                                 {job.validationWarnings && job.validationWarnings.length > 0 ? (
-                                                    <div className="rounded-[0.95rem] border border-amber-400/20 bg-amber-500/10 px-3 py-2 text-xs text-amber-100">{job.validationWarnings.join(" | ")}</div>
+                                                    <div className="rounded-[0.95rem] border border-amber-400/20 bg-amber-500/10 px-3 py-2 text-xs text-amber-100 break-words">{job.validationWarnings.join(" | ")}</div>
                                                 ) : null}
 
-                                                <details className="rounded-[0.95rem] border border-white/10 bg-white/[0.03] px-3 py-2">
+                                                <details className="overflow-hidden rounded-[0.95rem] border border-white/10 bg-white/[0.03] px-3 py-2">
                                                     <summary className="cursor-pointer list-none text-sm font-semibold text-white">Prompt provenance</summary>
                                                     <div className="mt-3 space-y-3 text-xs text-gray-300">
                                                         <div>
                                                             <div className="mb-1 font-semibold text-white">Working prompt</div>
-                                                            <pre className="whitespace-pre-wrap font-sans">{job.workingPrompt || "Not recorded"}</pre>
+                                                            <pre className="whitespace-pre-wrap break-words font-sans">{job.workingPrompt || "Not recorded"}</pre>
                                                         </div>
                                                         {job.optimizerAdjustedPrompt ? (
                                                             <div>
                                                                 <div className="mb-1 font-semibold text-white">Optimizer-adjusted prompt</div>
-                                                                <pre className="whitespace-pre-wrap font-sans">{job.optimizerAdjustedPrompt}</pre>
+                                                                <pre className="whitespace-pre-wrap break-words font-sans">{job.optimizerAdjustedPrompt}</pre>
                                                             </div>
                                                         ) : null}
                                                         {job.providerEnhancedPrompt ? (
                                                             <div>
                                                                 <div className="mb-1 font-semibold text-white">Provider-enhanced prompt</div>
-                                                                <pre className="whitespace-pre-wrap font-sans">{job.providerEnhancedPrompt}</pre>
+                                                                <pre className="whitespace-pre-wrap break-words font-sans">{job.providerEnhancedPrompt}</pre>
                                                             </div>
                                                         ) : null}
                                                     </div>
                                                 </details>
 
-                                                <details className="rounded-[0.95rem] border border-white/10 bg-white/[0.03] px-3 py-2">
+                                                <details className="overflow-hidden rounded-[0.95rem] border border-white/10 bg-white/[0.03] px-3 py-2">
                                                     <summary className="cursor-pointer list-none text-sm font-semibold text-white">References used</summary>
                                                     <div className="mt-3 space-y-2">
                                                         {(job.referenceAssets || []).length === 0 ? (
                                                             <p className="text-xs text-gray-400">No reference metadata stored on this job.</p>
                                                         ) : (job.referenceAssets || []).map((asset) => (
-                                                            <div key={`${job.id}-${asset.id}`} className="flex items-center gap-3 rounded-[0.9rem] border border-white/8 bg-black/25 p-2.5">
+                                                            <div key={`${job.id}-${asset.id}`} className="flex min-w-0 items-center gap-3 rounded-[0.9rem] border border-white/8 bg-black/25 p-2.5">
                                                                 <div className="relative h-12 w-12 shrink-0 overflow-hidden rounded-[0.8rem] border border-white/10 bg-black/30">
                                                                     <Image src={asset.imageUrl} alt={asset.title || "Reference"} fill className="object-cover" sizes="48px" />
                                                                 </div>
@@ -1166,7 +1166,7 @@ export default function AIAdminPage() {
                         </AdminDashboardModule>
                     </div>
 
-                    <div className="space-y-4 xl:col-span-5">
+                    <div className="min-w-0 space-y-4 xl:col-span-5">
                         <AdminDashboardModule
                             title="Prompt workbench"
                             description="Locked style clauses stay stable. Mutable clauses adapt per flavor, feedback, and optimizer output."
@@ -1201,19 +1201,19 @@ export default function AIAdminPage() {
                             )}
                         >
                             <div className="space-y-3">
-                                <div className="grid gap-3 sm:grid-cols-2">
+                                <div className="grid min-w-0 gap-3 sm:grid-cols-2">
                                     <MetricCard label="Policy version" value={`v${data?.promptPolicy.version || 1}`} meta={formatCompactTimestamp(data?.promptPolicy.lastEditedAtMs)} />
                                     <MetricCard label="Last accepted" value={formatCompactTimestamp(data?.promptPolicy.lastAcceptedAtMs)} meta={data?.promptPolicy.lastAcceptedPrompt ? "Accepted prompt snapshot retained" : "No accepted prompt snapshot yet"} />
                                 </div>
 
-                                <div className="grid gap-3">
+                                <div className="grid min-w-0 gap-3">
                                     <TextAreaBlock label="Base style prompt" value={policyDraft.baseStylePrompt} onChange={(value) => { setPolicyDraft((current) => ({ ...current, baseStylePrompt: value })); setPolicyDirty(true); }} rows={4} helper="This stays stable across flavors." />
                                     <TextAreaBlock label="Locked clauses" value={policyDraft.lockedClauses} onChange={(value) => { setPolicyDraft((current) => ({ ...current, lockedClauses: value })); setPolicyDirty(true); }} rows={6} helper="One clause per line." />
                                     <TextAreaBlock label="Mutable clauses" value={policyDraft.mutableClauses} onChange={(value) => { setPolicyDraft((current) => ({ ...current, mutableClauses: value })); setPolicyDirty(true); }} rows={5} helper="These are the rules the optimizer is allowed to reshape." />
                                     <TextAreaBlock label="Current mutable prompt" value={policyDraft.currentMutablePrompt} onChange={(value) => { setPolicyDraft((current) => ({ ...current, currentMutablePrompt: value })); setPolicyDirty(true); }} rows={8} helper="This is what the next generation will inherit before per-job flavor shaping." />
                                 </div>
 
-                                <div className="flex flex-wrap gap-2">
+                                <div className="min-w-0 flex flex-wrap gap-2">
                                     <button
                                         type="button"
                                         onClick={() => { setPolicyDraft((current) => ({ ...current, autoOptimize: !current.autoOptimize })); setPolicyDirty(true); }}
@@ -1243,7 +1243,7 @@ export default function AIAdminPage() {
                             open={moduleOpenState["admin_ai.gallery"]}
                             onOpenChange={(nextOpen) => persistModuleState("admin_ai.gallery", nextOpen)}
                             actions={(
-                                <div className="flex flex-wrap gap-2">
+                                <div className="min-w-0 flex flex-wrap gap-2">
                                     {(["all", "accepted", "liked", "neutral", "disliked", "failed"] as ReviewFilter[]).map((filter) => (
                                         <button
                                             key={filter}
@@ -1260,9 +1260,9 @@ export default function AIAdminPage() {
                             {filteredReviewGallery.length === 0 ? (
                                 <EmptyState title="No outputs in this filter" detail="Rejected, neutral, and failed covers remain visible here as soon as they land." />
                             ) : (
-                                <div className="grid gap-3 sm:grid-cols-2">
+                                <div className="grid min-w-0 gap-3 sm:grid-cols-2">
                                     {filteredReviewGallery.map((item) => (
-                                        <div key={item.id} className="overflow-hidden rounded-[1rem] border border-white/10 bg-black/25">
+                                        <div key={item.id} className="min-w-0 overflow-hidden rounded-[1rem] border border-white/10 bg-black/25">
                                             <div className="relative aspect-square overflow-hidden bg-black/40">
                                                 <Image src={item.imageUrl} alt={item.title} fill className="object-cover" sizes="(min-width: 1024px) 280px, 100vw" />
                                             </div>
@@ -1299,14 +1299,14 @@ export default function AIAdminPage() {
                                 </Badge>
                             )}
                         >
-                            <div className="grid gap-3 sm:grid-cols-2">
+                            <div className="grid min-w-0 gap-3 sm:grid-cols-2">
                                 <MetricCard label="Optimizer status" value={data?.promptPolicy.optimizerStatus || "idle"} meta={data?.promptPolicy.optimizerNote || "No optimizer note"} tone={data?.promptPolicy.optimizerStatus === "ready" ? "good" : "warn"} />
                                 <MetricCard label="Reuse win rate" value={`${referenceReuseRate}%`} meta="Positive retained output reuse" />
                                 <MetricCard label="Current version jobs" value={currentVersionJobs.length} meta={`${currentVersionAcceptanceRate}% accepted`} />
                                 <MetricCard label="Last run" value={formatCompactTimestamp(data?.promptPolicy.lastOptimizerRunAtMs)} meta={data?.settings.optimizerModel || "gemini-2.5-flash-lite"} />
                             </div>
 
-                            <div className="mt-3 rounded-[1rem] border border-white/10 bg-black/25 p-3">
+                            <div className="mt-3 min-w-0 rounded-[1rem] border border-white/10 bg-black/25 p-3">
                                 <div className="text-sm font-semibold text-white">Prompt history</div>
                                 <div className="mt-3 space-y-2">
                                     {(data?.promptPolicyHistory || []).slice(0, 8).map((entry) => (
@@ -1324,7 +1324,7 @@ export default function AIAdminPage() {
                                             {entry.diff.length > 0 ? (
                                                 <div className="mt-2 flex flex-wrap gap-2">
                                                     {entry.diff.map((line, index) => (
-                                                        <span key={`${entry.id}-${index}`} className="rounded-full border border-white/10 bg-white/5 px-2 py-1 text-[11px] text-gray-300">{line}</span>
+                                                        <span key={`${entry.id}-${index}`} className="max-w-full break-all rounded-full border border-white/10 bg-white/5 px-2 py-1 text-[11px] text-gray-300">{line}</span>
                                                     ))}
                                                 </div>
                                             ) : null}
@@ -1333,13 +1333,13 @@ export default function AIAdminPage() {
                                 </div>
                             </div>
 
-                            <div className="mt-3 rounded-[1rem] border border-white/10 bg-black/25 p-3">
+                            <div className="mt-3 min-w-0 rounded-[1rem] border border-white/10 bg-black/25 p-3">
                                 <div className="text-sm font-semibold text-white">Top failure reasons</div>
                                 <div className="mt-3 space-y-2">
                                     {topFailureReasons.length === 0 ? (
                                         <p className="text-sm text-gray-400">No recent AI failures recorded.</p>
                                     ) : topFailureReasons.map((reason, index) => (
-                                        <div key={`${reason}-${index}`} className="rounded-[0.95rem] border border-red-400/15 bg-red-500/5 px-3 py-2 text-sm text-red-100">{reason}</div>
+                                        <div key={`${reason}-${index}`} className="rounded-[0.95rem] border border-red-400/15 bg-red-500/5 px-3 py-2 text-sm text-red-100 break-words">{reason}</div>
                                     ))}
                                 </div>
                             </div>
@@ -1355,15 +1355,15 @@ export default function AIAdminPage() {
                             {(data?.recentDiagnostics || []).length === 0 ? (
                                 <EmptyState title="No AI diagnostics yet" detail="Runtime diagnostics will appear here as generation, optimizer, and storage events occur." />
                             ) : (
-                                <div className="space-y-2">
+                                <div className="min-w-0 space-y-2">
                                     {(data?.recentDiagnostics || []).map((entry) => (
-                                        <div key={entry.id} className={cn("rounded-[1rem] border px-3 py-3", diagnosticTone(entry.severity))}>
+                                        <div key={entry.id} className={cn("min-w-0 rounded-[1rem] border px-3 py-3", diagnosticTone(entry.severity))}>
                                             <div className="flex flex-wrap items-center justify-between gap-2">
                                                 <div className="text-sm font-semibold text-white">{entry.message}</div>
                                                 <div className="text-xs text-gray-300">{formatCompactTimestamp(entry.createdAtMs)}</div>
                                             </div>
-                                            <div className="mt-1 text-xs text-gray-300">{[entry.model, entry.generationMode, entry.failureCode, entry.jobId].filter(Boolean).join(" • ") || "No extra metadata"}</div>
-                                            {entry.summary ? <p className="mt-2 text-xs text-gray-200">{entry.summary}</p> : null}
+                                            <div className="mt-1 break-all text-xs text-gray-300">{[entry.model, entry.generationMode, entry.failureCode, entry.jobId].filter(Boolean).join(" • ") || "No extra metadata"}</div>
+                                            {entry.summary ? <p className="mt-2 break-words text-xs text-gray-200">{entry.summary}</p> : null}
                                         </div>
                                     ))}
                                 </div>

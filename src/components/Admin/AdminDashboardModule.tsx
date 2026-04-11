@@ -37,12 +37,12 @@ export function AdminDashboardModule({
     };
 
     return (
-        <section className={cn("glass-panel overflow-hidden rounded-[1.4rem] border border-white/10", className)}>
+        <section className={cn("glass-panel min-w-0 overflow-hidden rounded-[1.4rem] border border-white/10", className)}>
             <button
                 type="button"
                 onClick={() => handleOpenChange(!resolvedOpen)}
                 aria-expanded={resolvedOpen}
-                className="flex w-full items-center justify-between gap-4 px-4 py-3.5 text-left md:px-5"
+                className="flex min-w-0 w-full items-center justify-between gap-4 px-4 py-3.5 text-left md:px-5"
             >
                 <div className="min-w-0">
                     <h2 className="text-[15px] font-bold text-white md:text-base">{title}</h2>
@@ -64,7 +64,7 @@ export function AdminDashboardModule({
             </button>
 
             {resolvedOpen ? (
-                <div className="border-t border-white/10 px-4 py-3.5 md:px-5">
+                <div className="min-w-0 overflow-hidden border-t border-white/10 px-4 py-3.5 md:px-5">
                     {actions ? <div className="mb-3 flex flex-wrap items-center gap-2 md:hidden">{actions}</div> : null}
                     {children}
                 </div>
