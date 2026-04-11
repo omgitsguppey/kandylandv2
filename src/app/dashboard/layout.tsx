@@ -2,7 +2,7 @@
 
 import dynamic from "next/dynamic";
 import { useEffect } from "react";
-import { useRouter } from "next/navigation";
+import { usePathname, useRouter } from "next/navigation";
 
 import { useAuth } from "@/context/AuthContext";
 const NotificationPromptBanner = dynamic(
@@ -16,6 +16,8 @@ export default function DashboardLayout({
 }) {
     const { user, userProfile, loading } = useAuth();
     const router = useRouter();
+    const pathname = usePathname();
+    const shouldShowNotificationPromptBanner = pathname !== "/dashboard/chat";
 
     useEffect(() => {
         if (loading) {
@@ -41,7 +43,7 @@ export default function DashboardLayout({
     return (
         <div className="relative flex-1 w-full">
             <div className="w-full space-y-2 pb-2 sm:space-y-3 sm:pb-3">
-                <NotificationPromptBanner />
+                {shouldShowNotificationPromptBanner ? <NotificationPromptBanner /> : null}
                 <div className="w-full">{children}</div>
             </div>
         </div>

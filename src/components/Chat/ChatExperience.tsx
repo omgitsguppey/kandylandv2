@@ -410,6 +410,7 @@ export function ChatExperience() {
     const [sendWarningMessage, setSendWarningMessage] = useState<string | null>(null);
     const [realtimeFallbackMessage, setRealtimeFallbackMessage] = useState<string | null>(null);
     const [degradedRealtimeScopes, setDegradedRealtimeScopes] = useState<string[]>([]);
+    const [realtimeBannerDismissed, setRealtimeBannerDismissed] = useState(false);
     const markReadRef = useRef<string | null>(null);
     const typingResetTimerRef = useRef<number | null>(null);
     const messageListRef = useRef<HTMLDivElement | null>(null);
@@ -478,6 +479,10 @@ export function ChatExperience() {
     useEffect(() => {
         selectedThreadIdRef.current = selectedThreadId;
     }, [selectedThreadId]);
+
+    useEffect(() => {
+        setRealtimeBannerDismissed(false);
+    }, [realtimeFallbackMessage]);
 
     useEffect(() => {
         selectedDetailThreadRef.current = selectedDetail?.thread ?? null;
@@ -1574,15 +1579,6 @@ export function ChatExperience() {
     return (
         <div className="mx-auto flex h-full min-h-0 w-full max-w-6xl flex-1 overflow-hidden px-0 sm:px-4">
             <div className="flex h-full min-h-0 w-full flex-col overflow-hidden rounded-[2rem] border border-white/10 bg-black shadow-[0_26px_80px_rgba(0,0,0,0.55)]">
-                {realtimeFallbackMessage ? (
-                    <div className="border-b border-amber-400/15 bg-amber-500/10 px-4 py-3 text-sm text-amber-100 sm:px-5">
-                        <p className="font-semibold text-white">Realtime chat degraded</p>
-                        <p className="mt-1 leading-6 text-amber-100">{realtimeFallbackMessage}</p>
-                        <p className="mt-1 text-xs uppercase tracking-[0.18em] text-amber-200/85">
-                            Polling fallback is active while live chat retries automatically.
-                        </p>
-                    </div>
-                ) : null}
                 <div className="grid h-full min-h-0 lg:grid-cols-[320px_minmax(0,1fr)]">
                     {(!isCompactViewport || !selectedThreadId) ? (
                         <aside className={cn(
@@ -1642,6 +1638,14 @@ export function ChatExperience() {
                                             <p className="mt-2 text-sm text-[#8f9097]">
                                                 {threadsLoading ? "Loading your conversations..." : `${visibleThreads.length} conversation${visibleThreads.length === 1 ? "" : "s"}`}
                                             </p>
+                                            {realtimeFallbackMessage && !realtimeBannerDismissed ? (
+                                                <div className="mt-4">
+                                                    <ChatRealtimeStatusNotice
+                                                        message={realtimeFallbackMessage}
+                                                        onDismiss={() => setRealtimeBannerDismissed(true)}
+                                                    />
+                                                </div>
+                                            ) : null}
                                         </div>
                                     </div>
 
@@ -1810,6 +1814,14 @@ export function ChatExperience() {
                                         <p className="mt-1 text-sm text-[#b6b6bc]">
                                             {threadsLoading ? "Loading live threads..." : `${visibleThreads.length} conversation${visibleThreads.length === 1 ? "" : "s"}`}
                                         </p>
+                                        {realtimeFallbackMessage && !realtimeBannerDismissed ? (
+                                            <div className="mt-3">
+                                                <ChatRealtimeStatusNotice
+                                                    message={realtimeFallbackMessage}
+                                                    onDismiss={() => setRealtimeBannerDismissed(true)}
+                                                />
+                                            </div>
+                                        ) : null}
                                     </div>
                                     <div className="min-h-0 flex-1 overflow-y-auto overscroll-y-contain">
                                         {visibleThreads.length > 0 ? visibleThreads.map((thread) => (
@@ -1864,6 +1876,14 @@ export function ChatExperience() {
                         {selectedThread ? (
                             <>
                                 <div className="border-b border-white/10 px-4 pb-4 pt-5 sm:px-6">
+                                    {realtimeFallbackMessage && !realtimeBannerDismissed ? (
+                                        <div className="mb-4">
+                                            <ChatRealtimeStatusNotice
+                                                message={realtimeFallbackMessage}
+                                                onDismiss={() => setRealtimeBannerDismissed(true)}
+                                            />
+                                        </div>
+                                    ) : null}
                                     <div className={cn("relative flex items-center", isCompactViewport ? "justify-center" : "justify-between")}>
                                         {isCompactViewport ? (
                                             <button
@@ -2234,6 +2254,31 @@ export function ChatExperience() {
                     </div>
                 </div>
             ) : null}
+        </div>
+    );
+}
+
+function ChatRealtimeStatusNotice({
+    message,
+    onDismiss,
+}: {
+    message: string;
+    onDismiss: () => void;
+}) {
+    return (
+        <div className="flex items-start justify-between gap-3 rounded-[1.15rem] border border-amber-400/15 bg-amber-500/10 px-3.5 py-3 text-[13px] text-amber-100">
+            <div className="min-w-0">
+                <p className="font-semibold text-white">Realtime is retrying</p>
+                <p className="mt-1 line-clamp-2 text-amber-100">{message}</p>
+            </div>
+            <button
+                type="button"
+                onClick={onDismiss}
+                className="inline-flex h-7 w-7 shrink-0 items-center justify-center rounded-full bg-white/5 text-amber-100 transition hover:bg-white/10 hover:text-white"
+                aria-label="Dismiss realtime warning"
+            >
+                <X className="h-3.5 w-3.5" />
+            </button>
         </div>
     );
 }

@@ -59,10 +59,12 @@ export function CoreLayoutWrapper({ children }: { children: React.ReactNode }) {
     const shouldShowPurchaseUi = !isAdminRoute;
     const shouldShowAuthUi = !isAdminRoute;
     const shouldShowCookieBanner = !isAdminRoute;
+    const isChatRoute = pathname?.startsWith("/dashboard/chat") ?? false;
     const shouldShowDebugBreakpoints = process.env.NODE_ENV !== "production";
     const shouldTrackDeepAnalytics = true;
     const shouldEnablePwaRuntime = !isAdminRoute;
     const shouldLoadOnboarding = isUserShell && userProfile?.onboardingCompleted !== true && !shouldBypassFanOnboarding(userProfile);
+    const shouldShowTaskGuidanceBanner = isUserShell && !isChatRoute;
     const runtimeReady = useDeferredClientReady();
     const afterPaintReady = useDeferredClientReady({ delayMs: 180 });
     const idleReady = useDeferredClientReady({ delayMs: 500, idle: true });
@@ -125,7 +127,7 @@ export function CoreLayoutWrapper({ children }: { children: React.ReactNode }) {
             {runtimeReady ? <ClientDiagnosticsBridge /> : null}
             {afterPaintReady && shouldTrackDeepAnalytics ? <DeepTracker /> : null}
             {afterPaintReady && isUserShell ? <NotificationRuntimeBridge /> : null}
-            {afterPaintReady && isUserShell ? <TaskGuidanceBanner /> : null}
+            {afterPaintReady && shouldShowTaskGuidanceBanner ? <TaskGuidanceBanner /> : null}
             {idleReady && shouldEnablePwaRuntime ? <PwaRuntimeBridge /> : null}
             {idleReady && shouldShowBugReportTrigger ? <GlobalBugReportTrigger /> : null}
             {afterPaintReady && shouldShowPurchaseUi && isPurchaseModalOpen ? (
