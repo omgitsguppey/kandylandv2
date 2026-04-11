@@ -1467,3 +1467,23 @@ This file is not a changelog. It is the concise ledger for durable decisions tha
   - `src/lib/server/ai-drop-descriptions.ts`
   - `FULL_SCALE_CODEBASE_AUDIT.md`
 - What is now disallowed or deprecated: treating modal history clear as a server-side delete of canonical AI jobs, or forcing paragraph-length helper copy into the Create Drop AI controls.
+
+### 54. Dependency security hardening prefers targeted overrides over risky major toolchain jumps
+
+- Approximate date: Canonicalized and recorded on 2026-04-11
+- Status: Active repo maintenance rule
+- Problem/context: After the AI description rollout, the repo still had transitive audit issues and local install instability. Some were safely patchable with targeted overrides, while others required major toolchain upgrades that would change behavior or raise migration risk.
+- Decision made: prefer safe direct updates plus version-targeted transitive overrides for security and stability fixes, and leave risky major upgrades as explicit reported holds until they can be migrated deliberately.
+- What became canonical:
+  - safe patch/minor dependency upgrades should be applied freely when verification stays green
+  - transitive security fixes may use package-manager overrides when the target version is a compatible patch/minor within the existing dependency contract
+  - risky major upgrades should stay reported in the audit instead of being forced to chase warnings during a stability pass
+  - root and functions workspaces both need explicit audit coverage because they carry separate lockfiles and dependency trees
+- Truth lives in:
+  - `package.json`
+  - `package-lock.json`
+  - `pnpm-lock.yaml`
+  - `functions/package.json`
+  - `functions/package-lock.json`
+  - `FULL_SCALE_CODEBASE_AUDIT.md`
+- What is now disallowed or deprecated: forcing major toolchain upgrades just to clear warnings when the repo can instead be kept secure and stable through verified patch/minor upgrades and targeted overrides.

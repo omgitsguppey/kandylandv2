@@ -86,7 +86,7 @@ describe("CreatorWaitlistPage", () => {
         expect(markup).toContain("Creator intro");
         expect(markup).toContain("Acknowledge creator intro");
         expect(markup).toContain("Revise your application");
-        expect(markup).toContain("No queue number is used on this page. Status is stage-based only.");
+        expect(markup).toContain("Manual approval is required, status is stage-based, and this page stays your source of truth until approval.");
         expect(markup).not.toContain("777");
         expect(markup).not.toContain("in line");
     });

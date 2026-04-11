@@ -6,6 +6,148 @@ Last full-scale audit execution: 2026-04-09 19:40:21 -05:00
 Repo: `C:\Users\uylus\OneDrive\Documents\KandyDrops_Final`
 Audited HEAD at start: `36fcca527b72b04c24531724465f490642018ba2`
 
+## 2026-04-11 Dependency Hardening, Deprecation Sweep, and Phase 2 Verification
+
+Scope for this pass:
+
+- finish the dependency/deprecation phase after the AI description rollout
+- repair the local install and stale test fallout introduced during the update pass
+- update safe patch/minor dependencies and safe transitive security overrides without changing app behavior
+- verify the full repo again, including UI and Lighthouse audits
+
+Startup protocol executed:
+
+- read `FULL_SCALE_CODEBASE_AUDIT.md`
+- read `REPO_MEMORY_LEDGER.md`
+- read `EVERY_FILE_FUNCTION_CHECKLIST.md`
+- ran `git status --short`
+- reran adjacency traces for the main affected surfaces:
+  - `npm run trace:adjacent -- tests/unit/creator-waitlist-page.spec.tsx`
+  - `npm run trace:adjacent -- src/app/creators/waitlist/page.tsx`
+  - `npm run trace:adjacent -- vitest.config.ts`
+- revalidated current Google Vertex model docs while continuing the AI work:
+  - `https://docs.cloud.google.com/vertex-ai/generative-ai/docs/models/gemini/2-5-flash-lite`
+  - `https://docs.cloud.google.com/vertex-ai/generative-ai/docs/models/gemini/3-pro-image`
+
+Root causes confirmed:
+
+- the first dependency update left the local install partially extracted, which broke jsdom-backed Vitest workers on missing transitive files like `whatwg-mimetype/lib/index.js`
+- one waitlist unit test was still asserting an old copy sentence after the compact-copy pass
+- remaining audit issues after the safe package updates were mostly transitive tooling vulnerabilities that could be handled with targeted overrides instead of risky major upgrades
+
+Implementation results:
+
+- repaired the local dependency tree with a clean `npm ci` at the repo root and `npm ci --prefix functions`
+- updated the stale waitlist unit test in:
+  - `tests/unit/creator-waitlist-page.spec.tsx`
+- applied additional safe patch/minor upgrades in the root workspace:
+  - `@types/node`
+  - `recharts`
+  - `npm-check-updates`
+- applied additional safe patch/minor upgrades in the functions workspace:
+  - `firebase-functions`
+  - `@typescript-eslint/eslint-plugin`
+  - `@typescript-eslint/parser`
+- added targeted transitive overrides in the root workspace for safe security-only updates:
+  - `@hono/node-server`
+  - `hono`
+  - `vite`
+  - `yaml`
+  - `smol-toml`
+  - `basic-ftp`
+  - `picomatch` `2.x` and `4.x`
+  - `brace-expansion` `1.x`, `2.x`, and `5.x`
+  - `express -> path-to-regexp`
+  - `router -> path-to-regexp`
+- added targeted transitive overrides in the functions workspace for safe security-only updates:
+  - `lodash`
+  - `picomatch` `2.x` and `4.x`
+  - `brace-expansion` `1.x` and `2.x`
+  - `firebase-functions -> path-to-regexp`
+- reinstalled Playwright browsers after the package update invalidated the local browser bundle
+
+Commands run:
+
+- `git status --short`
+- `npm run trace:adjacent -- tests/unit/creator-waitlist-page.spec.tsx`
+- `npm run trace:adjacent -- src/app/creators/waitlist/page.tsx`
+- `npm run trace:adjacent -- vitest.config.ts`
+- `npm install`
+- `corepack pnpm exec vitest run tests/unit/creator-waitlist-page.spec.tsx tests/unit/use-chat-unread-status.spec.tsx`
+- `npm audit --json`
+- `npm ci`
+- `npm ci --prefix functions`
+- `npm outdated`
+- `npm outdated --prefix functions`
+- `npm install recharts@^3.8.1 @types/node@^20.19.39 npm-check-updates@^19.6.6`
+- `npm install --prefix functions firebase-functions@^7.2.5 @typescript-eslint/eslint-plugin@^8.58.1 @typescript-eslint/parser@^8.58.1`
+- `npm ls vite hono @hono/node-server smol-toml path-to-regexp basic-ftp picomatch yaml`
+- `npm audit --prefix functions --json`
+- `npm install`
+- `npm install --prefix functions`
+- `corepack pnpm install --lockfile-only`
+- `corepack pnpm run check`
+- `npm run check:functions`
+- `npm run check:deps`
+- `npm run check:versions`
+- `npm run check:inventory`
+- `npx playwright install`
+- `npm run check:ui:audits`
+- `npm run check:ui:lighthouse`
+- cleanup:
+  - `.next`
+  - `playwright-report`
+  - `test-results`
+  - `database-debug.log`
+  - `firestore-debug.log`
+- `npm run check:continuity`
+- `git status --short`
+
+Verification results:
+
+- `npm audit` root: `0` vulnerabilities
+- `npm audit --prefix functions`: `0` vulnerabilities
+- focused Vitest rerun passed:
+  - `2` files
+  - `8` tests
+- `corepack pnpm run check` passed:
+  - `132` files
+  - `593` tests
+- `npm run check:functions` passed
+- `npm run check:deps` passed
+- `npm run check:versions` passed
+- `npm run check:inventory` passed:
+  - tracked files: `799`
+- `npm run check:ui:audits` passed:
+  - `16/16`
+- `npm run check:ui:lighthouse` passed
+- `npm run check:continuity` passed
+
+Warnings and non-blocking notes:
+
+- `npm outdated` still reports major-version holds that were intentionally not forced because they carry functional/tooling risk:
+  - root:
+    - `@paypal/react-paypal-js 8.9.2 -> 9.1.1`
+    - `eslint 9.39.4 -> 10.2.0`
+    - `google-auth-library 9.15.1 -> 10.6.2`
+    - `knip 5.88.1 -> 6.4.0`
+    - `lucide-react 0.563.0 -> 1.8.0`
+    - `typescript 5.9.3 -> 6.0.2`
+  - functions:
+    - `eslint 9.39.4 -> 10.2.0`
+    - `typescript 5.9.3 -> 6.0.2`
+- local functions installs still emit the expected engine warning because this shell runs Node `24.13.1` while `functions/package.json` pins Node `22`
+- repo checks still emit existing upstream/tooling warnings that were not force-fixed in this pass:
+  - npm unknown env config warnings:
+    - `npm-globalconfig`
+    - `verify-deps-before-run`
+    - `_jsr-registry`
+  - Node `punycode` deprecation warnings from upstream tooling
+  - Playwright/Next teardown warning after a passing UI audit run:
+    - `TypeError: controller[kState].transformAlgorithm is not a function`
+  - occasional upstream Firebase Storage image timeout warnings during UI audits on existing generated-cover assets
+  - Lighthouse temp cleanup `EPERM` warnings on Windows
+
 ## 2026-04-11 AI Description Generation and Admin AI Mobile-First Phase 1
 
 Scope for this pass:
