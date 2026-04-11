@@ -1509,3 +1509,22 @@ This file is not a changelog. It is the concise ledger for durable decisions tha
   - `tests/unit/use-chat-unread-status.spec.tsx`
   - `FULL_SCALE_CODEBASE_AUDIT.md`
 - What is now disallowed or deprecated: background chat recovery that blanks the active thread every poll cycle, route self-replace loops for already-synced thread URLs, or repeated identical realtime diagnostics without cooldown.
+
+### 56. Chat should prefer fewer Firestore listeners plus transport auto-detection over eager degraded warnings
+
+- Approximate date: Canonicalized and recorded on 2026-04-11
+- Status: Active chat/firestore runtime rule
+- Problem/context: chat still showed `Realtime chat degraded` too often because one redundant selected-thread Firestore listener could fail independently of the main thread-list listener, and the UI surfaced degraded state on the first transient listener failure even when the next retry often recovered. Firestore was also using default transport setup instead of the documented auto-detect long-polling option.
+- Decision made: initialize Firestore with transport auto-detection, keep the chat listener graph minimal, and only surface degraded-chat UI after a realtime scope fails past the first retry window.
+- What became canonical:
+  - Firestore initializes through `initializeFirestore(...)` with `experimentalAutoDetectLongPolling: true`
+  - chat uses the live thread-list listener plus the live message listener; selected-thread metadata is synchronized from those sources instead of opening a redundant extra thread-doc listener
+  - the user-facing degraded banner is for persistent listener failure, not the first transient blip
+  - fallback polling remains truthful and active only when the issue persists
+- Truth lives in:
+  - `src/lib/firebase-data.ts`
+  - `src/components/Chat/ChatExperience.tsx`
+  - `src/hooks/useChatUnreadStatus.ts`
+  - `src/lib/chat-realtime.ts`
+  - `FULL_SCALE_CODEBASE_AUDIT.md`
+- What is now disallowed or deprecated: default Firestore transport initialization for this app’s chat runtime, redundant selected-thread Firestore listeners, or immediate degraded-chat banners for first-attempt listener hiccups.

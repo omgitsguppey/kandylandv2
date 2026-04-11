@@ -7578,6 +7578,39 @@ Results:
 - `npm run check:continuity` passed
 - `npm run check:ui:audits` passed
 
+## 2026-04-11 - Chat degraded-warning reduction and Firestore transport hardening
+
+Scope:
+- `src/lib/firebase-data.ts`
+- `src/components/Chat/ChatExperience.tsx`
+- `src/hooks/useChatUnreadStatus.ts`
+- `src/lib/chat-realtime.ts`
+
+Root causes fixed:
+- chat still had one redundant Firestore document listener for the selected thread even though the thread list listener already carried the same thread metadata
+- a single transient Firestore listener failure was enough to surface the degraded-chat banner immediately, even if the next retry recovered cleanly
+- Firestore was being initialized with default transport settings instead of the documented auto-detect long-polling option that helps on problematic network paths
+
+Hardening applied:
+- Firestore client initialization now uses `initializeFirestore(..., { experimentalAutoDetectLongPolling: true })` before `getFirestore()`
+- chat no longer opens a dedicated selected-thread document listener; selected-thread metadata is synchronized from the already-live thread list instead
+- degraded-chat UI is now held back until the same realtime scope fails again after the first retry window, so transient listener blips retry silently instead of immediately warning the user
+- polling fallback still activates truthfully if the listener keeps failing, but one-off transport hiccups no longer produce the user-facing degraded banner
+
+Research basis:
+- Firebase documents `initializeFirestore(app, settings)` as the supported way to configure Firestore before any `getFirestore()` call and documents `experimentalAutoDetectLongPolling` as a transport setting for environments that need long-polling fallback
+- Firebase also documents that `onSnapshot(...)` listeners are never-ending streams that must be canceled with the returned unsubscribe function, which aligns with explicitly tearing down failed listeners before retry
+
+Verification:
+- `npx eslint src/components/Chat/ChatExperience.tsx src/hooks/useChatUnreadStatus.ts src/lib/chat-realtime.ts src/lib/firebase-data.ts tests/unit/chat-realtime.spec.ts tests/unit/use-chat-unread-status.spec.tsx`
+- `corepack pnpm exec vitest run tests/unit/chat-realtime.spec.ts tests/unit/use-chat-unread-status.spec.tsx`
+- `npx tsc --noEmit`
+
+Results:
+- targeted eslint passed
+- focused Vitest passed: `2` files / `10` tests
+- `npx tsc --noEmit` passed
+
 Follow-up opportunities:
 1. Move the same per-user module-collapse persistence into the remaining admin pages that still use local-only section state.
 2. Add a ranked-reference preview endpoint keyed by `Creator | Flavor` so the admin page can inspect selection reasons for a specific future generation instead of the next generic run.

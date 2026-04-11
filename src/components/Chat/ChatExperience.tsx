@@ -18,7 +18,7 @@ import {
     Video,
     X,
 } from "lucide-react";
-import { collection, doc, onSnapshot, query, where } from "firebase/firestore";
+import { collection, onSnapshot, query, where } from "firebase/firestore";
 import { onDisconnect, onValue, ref, remove, set } from "firebase/database";
 import { toast } from "sonner";
 
@@ -136,11 +136,9 @@ type LoadThreadDetailOptions = {
 
 const MESSAGE_GROUP_GAP_MS = 15 * 60_000;
 const CHAT_THREAD_LIST_SCOPE = "chat thread list";
-const CHAT_THREAD_SCOPE = "chat thread";
 const CHAT_MESSAGES_SCOPE = "chat messages";
 const CHAT_REALTIME_SCOPES = [
     CHAT_THREAD_LIST_SCOPE,
-    CHAT_THREAD_SCOPE,
     CHAT_MESSAGES_SCOPE,
 ] as const;
 
@@ -428,7 +426,6 @@ export function ChatExperience() {
     const realtimeIssueReportedAtRef = useRef<Partial<Record<ChatRealtimeScope, number>>>({});
     const realtimeRetryAttemptsRef = useRef<Record<ChatRealtimeScope, number>>({
         [CHAT_THREAD_LIST_SCOPE]: 0,
-        [CHAT_THREAD_SCOPE]: 0,
         [CHAT_MESSAGES_SCOPE]: 0,
     });
     const realtimeRetryTimersRef = useRef<Partial<Record<ChatRealtimeScope, number>>>({});
@@ -436,11 +433,9 @@ export function ChatExperience() {
     const threadsLoadRequestIdRef = useRef(0);
     const [realtimeRetryEpochs, setRealtimeRetryEpochs] = useState<Record<ChatRealtimeScope, number>>({
         [CHAT_THREAD_LIST_SCOPE]: 0,
-        [CHAT_THREAD_SCOPE]: 0,
         [CHAT_MESSAGES_SCOPE]: 0,
     });
     const threadListRealtimeEpoch = realtimeRetryEpochs[CHAT_THREAD_LIST_SCOPE];
-    const threadRealtimeEpoch = realtimeRetryEpochs[CHAT_THREAD_SCOPE];
     const messagesRealtimeEpoch = realtimeRetryEpochs[CHAT_MESSAGES_SCOPE];
 
     const visibleThreads = useMemo(
@@ -536,12 +531,15 @@ export function ChatExperience() {
     const markRealtimeDegraded = useCallback((scope: ChatRealtimeScope, error: unknown, detail?: Record<string, unknown>) => {
         const fallbackMessage = buildFirestoreClientFallbackMessage(scope, error);
         const retryDelayMs = scheduleRealtimeRetry(scope);
+        const shouldSurfaceToUser = (realtimeRetryAttemptsRef.current[scope] || 0) > 1;
         const now = Date.now();
         degradedRealtimeMessagesRef.current[scope] = fallbackMessage;
-        setRealtimeFallbackMessage(fallbackMessage);
-        setDegradedRealtimeScopes((current) => current.includes(scope) ? current : [...current, scope]);
+        if (shouldSurfaceToUser) {
+            setRealtimeFallbackMessage(fallbackMessage);
+            setDegradedRealtimeScopes((current) => current.includes(scope) ? current : [...current, scope]);
+        }
 
-        if (!degradedRealtimeToastScopesRef.current.has(scope)) {
+        if (shouldSurfaceToUser && !degradedRealtimeToastScopesRef.current.has(scope)) {
             degradedRealtimeToastScopesRef.current.add(scope);
             toast.error(fallbackMessage);
         }
@@ -1496,67 +1494,21 @@ export function ChatExperience() {
     }, []);
 
     useEffect(() => {
-        if (!selectedThreadId || !user) {
+        if (!selectedThread || !selectedDetail) {
             return;
         }
 
-        let active = true;
-        let unsubscribe: (() => void) | null = null;
-        unsubscribe = onSnapshot(
-            doc(db, CHAT_COLLECTIONS.threads, selectedThreadId),
-            (snapshot) => {
-                if (!active) {
-                    return;
-                }
-                if (!snapshot.exists()) {
-                    return;
-                }
+        setSelectedDetail((current) => {
+            if (!current || current.thread.id !== selectedThread.id || current.thread === selectedThread) {
+                return current;
+            }
 
-                const raw = snapshot.data() as ChatThreadRecord;
-                const viewerRole = raw.creatorId === user.uid ? "creator" : "user";
-                const nextThread = {
-                    ...raw,
-                    id: snapshot.id,
-                    lastMessagePreview: softOpenChatValue(
-                        buildChatSoftSealScope(snapshot.id, "preview"),
-                        raw.lastMessagePreview,
-                    ) || "New message",
-                    counterpartId: viewerRole === "creator" ? raw.userId : raw.creatorId,
-                    counterpartDisplayName: viewerRole === "creator"
-                        ? (raw.userDisplayName || raw.userUsername || raw.userId)
-                        : (raw.creatorDisplayName || raw.creatorUsername || raw.creatorId),
-                    counterpartUsername: viewerRole === "creator" ? raw.userUsername : raw.creatorUsername,
-                    counterpartPhotoURL: viewerRole === "creator" ? (raw.userPhotoURL ?? null) : (raw.creatorPhotoURL ?? null),
-                    viewerRole,
-                    unreadCount: resolveChatThreadUnreadCount(raw, viewerRole),
-                    readAt: resolveChatThreadReadAt(raw, viewerRole),
-                    counterpartReadAt: resolveChatThreadReadAt(raw, viewerRole === "creator" ? "user" : "creator"),
-                } satisfies ChatThreadRecord;
-
-                clearRealtimeDegradedScope(CHAT_THREAD_SCOPE);
-                setThreads((current) => mergeThreads(current.map((thread) => thread.id === nextThread.id ? nextThread : thread), nextThread));
-                setSelectedDetail((current) => current ? {
-                    ...current,
-                    thread: nextThread,
-                } : current);
-            },
-            (error) => {
-                if (!active) {
-                    return;
-                }
-                active = false;
-                unsubscribe?.();
-                markRealtimeDegraded(CHAT_THREAD_SCOPE, error, {
-                    threadId: selectedThreadId,
-                });
-            },
-        );
-
-        return () => {
-            active = false;
-            unsubscribe?.();
-        };
-    }, [clearRealtimeDegradedScope, markRealtimeDegraded, selectedThreadId, threadRealtimeEpoch, user]);
+            return {
+                ...current,
+                thread: selectedThread,
+            };
+        });
+    }, [selectedDetail, selectedThread]);
 
     useEffect(() => {
         if (!user || degradedRealtimeScopes.length === 0) {
