@@ -1487,3 +1487,25 @@ This file is not a changelog. It is the concise ledger for durable decisions tha
   - `functions/package-lock.json`
   - `FULL_SCALE_CODEBASE_AUDIT.md`
 - What is now disallowed or deprecated: forcing major toolchain upgrades just to clear warnings when the repo can instead be kept secure and stable through verified patch/minor upgrades and targeted overrides.
+
+### 55. Chat realtime recovery must preserve the active surface and rate-limit repeated diagnostics
+
+- Approximate date: Canonicalized and recorded on 2026-04-11
+- Status: Active chat runtime rule
+- Problem/context: chat listener recovery was mutating the route even when already in sync, background refreshes were blanking the active thread while polling fallback ran, and repeated Firestore listener failures could spam diagnostics before retry.
+- Decision made: chat realtime recovery must be route-stable, background-safe, and failure-cooled. Failed listeners are torn down immediately, retries are scheduled with backoff, fallback polling preserves the active thread UI, and repeated identical chat realtime failures are rate-limited in client diagnostics.
+- What became canonical:
+  - selected-thread URL syncing only runs when the current URL is actually out of sync
+  - fallback refreshes use background loads that do not clear the active thread detail or show repeated toast noise
+  - fallback refreshes are scope-aware instead of always reloading both thread list and thread detail
+  - failed Firestore listeners are explicitly unsubscribed before retry to avoid repeated error callbacks from a broken listener instance
+  - repeated identical chat realtime failures are cooled down before being reported again
+  - compose-from-followed-creators clears the current selected thread first so seeding the new thread stays deterministic
+- Truth lives in:
+  - `src/components/Chat/ChatExperience.tsx`
+  - `src/hooks/useChatUnreadStatus.ts`
+  - `src/lib/chat-realtime.ts`
+  - `tests/unit/chat-realtime.spec.ts`
+  - `tests/unit/use-chat-unread-status.spec.tsx`
+  - `FULL_SCALE_CODEBASE_AUDIT.md`
+- What is now disallowed or deprecated: background chat recovery that blanks the active thread every poll cycle, route self-replace loops for already-synced thread URLs, or repeated identical realtime diagnostics without cooldown.

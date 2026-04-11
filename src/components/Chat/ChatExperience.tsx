@@ -44,7 +44,12 @@ import {
     reconcileChatSendSuccess,
     type ChatSendRealtimePayload,
 } from "@/lib/chat-send-realtime";
-import { getChatRealtimeRetryDelayMs } from "@/lib/chat-realtime";
+import {
+    buildChatThreadRouteSyncTarget,
+    getChatRealtimeRefreshPlan,
+    getChatRealtimeRetryDelayMs,
+    shouldReportChatRealtimeFailure,
+} from "@/lib/chat-realtime";
 import {
     buildChatSendErrorMessage,
     buildChatSendWarningMessage,
@@ -117,6 +122,16 @@ type PresenceSnapshot = {
     activeAt?: number;
     displayName?: string;
     role?: string;
+};
+
+type LoadThreadsOptions = {
+    background?: boolean;
+    quiet?: boolean;
+};
+
+type LoadThreadDetailOptions = {
+    background?: boolean;
+    quiet?: boolean;
 };
 
 const MESSAGE_GROUP_GAP_MS = 15 * 60_000;
@@ -373,6 +388,7 @@ export function ChatExperience() {
 
     const creatorId = searchParams.get("creator")?.trim() || "";
     const requestedThreadId = searchParams.get("thread")?.trim() || "";
+    const searchParamsString = searchParams.toString();
     const [threads, setThreads] = useState<ChatThreadRecord[]>([]);
     const [selectedThreadId, setSelectedThreadId] = useState<string | null>(requestedThreadId || null);
     const [selectedDetail, setSelectedDetail] = useState<ThreadDetailResponse | null>(null);
@@ -409,12 +425,15 @@ export function ChatExperience() {
     const selectedDetailThreadRef = useRef<ChatThreadRecord | null>(selectedDetail?.thread ?? null);
     const degradedRealtimeToastScopesRef = useRef<Set<string>>(new Set());
     const degradedRealtimeMessagesRef = useRef<Partial<Record<ChatRealtimeScope, string>>>({});
+    const realtimeIssueReportedAtRef = useRef<Partial<Record<ChatRealtimeScope, number>>>({});
     const realtimeRetryAttemptsRef = useRef<Record<ChatRealtimeScope, number>>({
         [CHAT_THREAD_LIST_SCOPE]: 0,
         [CHAT_THREAD_SCOPE]: 0,
         [CHAT_MESSAGES_SCOPE]: 0,
     });
     const realtimeRetryTimersRef = useRef<Partial<Record<ChatRealtimeScope, number>>>({});
+    const threadDetailRequestIdRef = useRef(0);
+    const threadsLoadRequestIdRef = useRef(0);
     const [realtimeRetryEpochs, setRealtimeRetryEpochs] = useState<Record<ChatRealtimeScope, number>>({
         [CHAT_THREAD_LIST_SCOPE]: 0,
         [CHAT_THREAD_SCOPE]: 0,
@@ -501,6 +520,7 @@ export function ChatExperience() {
         clearRealtimeRetry(scope);
         degradedRealtimeToastScopesRef.current.delete(scope);
         delete degradedRealtimeMessagesRef.current[scope];
+        delete realtimeIssueReportedAtRef.current[scope];
         setDegradedRealtimeScopes((current) => {
             const next = current.filter((entry) => entry !== scope);
             if (next.length === 0) {
@@ -516,6 +536,7 @@ export function ChatExperience() {
     const markRealtimeDegraded = useCallback((scope: ChatRealtimeScope, error: unknown, detail?: Record<string, unknown>) => {
         const fallbackMessage = buildFirestoreClientFallbackMessage(scope, error);
         const retryDelayMs = scheduleRealtimeRetry(scope);
+        const now = Date.now();
         degradedRealtimeMessagesRef.current[scope] = fallbackMessage;
         setRealtimeFallbackMessage(fallbackMessage);
         setDegradedRealtimeScopes((current) => current.includes(scope) ? current : [...current, scope]);
@@ -525,13 +546,16 @@ export function ChatExperience() {
             toast.error(fallbackMessage);
         }
 
-        reportRealtimeIssue(scope, error, {
-            ...buildFirestoreClientIssueDetail(error, {
-                fallbackMessage,
-                retryDelayMs,
-            }),
-            ...detail,
-        });
+        if (shouldReportChatRealtimeFailure(realtimeIssueReportedAtRef.current[scope], now)) {
+            realtimeIssueReportedAtRef.current[scope] = now;
+            reportRealtimeIssue(scope, error, {
+                ...buildFirestoreClientIssueDetail(error, {
+                    fallbackMessage,
+                    retryDelayMs,
+                }),
+                ...detail,
+            });
+        }
     }, [scheduleRealtimeRetry]);
 
     const clearAllRealtimeRetries = useCallback(() => {
@@ -544,18 +568,28 @@ export function ChatExperience() {
         return () => clearAllRealtimeRetries();
     }, [clearAllRealtimeRetries]);
 
-    const loadThreads = useCallback(async () => {
+    const loadThreads = useCallback(async (options?: LoadThreadsOptions) => {
         if (!user) {
             return;
         }
 
-        setThreadsLoading(true);
+        const background = options?.background ?? false;
+        const quiet = options?.quiet ?? background;
+        const requestId = threadsLoadRequestIdRef.current + 1;
+        threadsLoadRequestIdRef.current = requestId;
+
+        if (!background) {
+            setThreadsLoading(true);
+        }
         try {
             const queryString = creatorId ? `?creatorId=${encodeURIComponent(creatorId)}` : "";
             const response = await authFetch(`/api/chat/threads${queryString}`);
             const body = await response.json() as ThreadListResponse & { error?: string };
             if (!response.ok) {
                 throw new Error(body.error || "Failed to load chat threads.");
+            }
+            if (threadsLoadRequestIdRef.current !== requestId) {
+                return;
             }
 
             const nextThreads = Array.isArray(body.threads) ? body.threads : [];
@@ -564,10 +598,6 @@ export function ChatExperience() {
                 setSelectedThreadId((current) => {
                     if (current) {
                         return current;
-                    }
-
-                    if (requestedThreadId) {
-                        return requestedThreadId;
                     }
 
                     if (body.selectedThreadId) {
@@ -588,11 +618,15 @@ export function ChatExperience() {
                 },
                 consoleLabel: "[Chat] thread list load failed",
             });
-            toast.error(error instanceof Error ? error.message : "Failed to load chat threads.");
+            if (!quiet) {
+                toast.error(error instanceof Error ? error.message : "Failed to load chat threads.");
+            }
         } finally {
-            setThreadsLoading(false);
+            if (!background) {
+                setThreadsLoading(false);
+            }
         }
-    }, [creatorId, isCompactViewport, requestedThreadId, user]);
+    }, [creatorId, isCompactViewport, user]);
 
     const loadFollowedCreators = useCallback(async () => {
         if (!user) {
@@ -619,21 +653,36 @@ export function ChatExperience() {
         }
     }, [user]);
 
-    const loadThreadDetail = useCallback(async (threadId: string) => {
+    const loadThreadDetail = useCallback(async (threadId: string, options?: LoadThreadDetailOptions) => {
         if (!user) {
             return;
         }
 
-        setThreadLoading(true);
-        setSelectedDetail(null);
-        setInsufficientFunds(null);
-        setSendErrorMessage(null);
-        setSendWarningMessage(null);
+        const background = options?.background ?? false;
+        const quiet = options?.quiet ?? background;
+        const requestId = threadDetailRequestIdRef.current + 1;
+        threadDetailRequestIdRef.current = requestId;
+        const keepCurrentDetailVisible = background || selectedDetailThreadRef.current?.id === threadId;
+
+        if (!background) {
+            setThreadLoading(true);
+        }
+        if (!keepCurrentDetailVisible) {
+            setSelectedDetail(null);
+        }
+        if (!background) {
+            setInsufficientFunds(null);
+            setSendErrorMessage(null);
+            setSendWarningMessage(null);
+        }
         try {
             const response = await authFetch(`/api/chat/threads/${encodeURIComponent(threadId)}`);
             const body = await response.json() as ThreadDetailResponse & { error?: string };
             if (!response.ok) {
                 throw new Error(body.error || "Failed to load this chat thread.");
+            }
+            if (threadDetailRequestIdRef.current !== requestId || selectedThreadIdRef.current !== threadId) {
+                return;
             }
             setSelectedDetail(body);
         } catch (error) {
@@ -647,16 +696,32 @@ export function ChatExperience() {
                 },
                 consoleLabel: "[Chat] thread detail load failed",
             });
-            setSelectedDetail(null);
-            toast.error(error instanceof Error ? error.message : "Failed to load this chat thread.");
+            if (!keepCurrentDetailVisible && selectedThreadIdRef.current === threadId) {
+                setSelectedDetail(null);
+            }
+            if (!quiet) {
+                toast.error(error instanceof Error ? error.message : "Failed to load this chat thread.");
+            }
         } finally {
-            setThreadLoading(false);
+            if (!background) {
+                setThreadLoading(false);
+            }
         }
     }, [user]);
 
     useEffect(() => {
         void loadThreads();
     }, [loadThreads]);
+
+    useEffect(() => {
+        if (!requestedThreadId || requestedThreadId === selectedThreadIdRef.current) {
+            return;
+        }
+
+        startTransition(() => {
+            setSelectedThreadId(requestedThreadId);
+        });
+    }, [requestedThreadId]);
 
     useEffect(() => {
         void loadFollowedCreators();
@@ -772,17 +837,17 @@ export function ChatExperience() {
     }, [threadEditMenuOpen]);
 
     useEffect(() => {
-        if (!selectedThreadId) {
+        const nextHref = buildChatThreadRouteSyncTarget({
+            creatorId,
+            currentSearch: searchParamsString,
+            selectedThreadId,
+        });
+        if (!nextHref) {
             return;
         }
 
-        const params = new URLSearchParams(searchParams.toString());
-        params.set("thread", selectedThreadId);
-        if (!creatorId) {
-            params.delete("creator");
-        }
-        router.replace(`/dashboard/chat?${params.toString()}`, { scroll: false });
-    }, [creatorId, router, searchParams, selectedThreadId]);
+        router.replace(nextHref, { scroll: false });
+    }, [creatorId, router, searchParamsString, selectedThreadId]);
 
     useEffect(() => {
         setSelectedThreadIds((current) => current.filter((threadId) => visibleThreads.some((thread) => thread.id === threadId)));
@@ -795,9 +860,14 @@ export function ChatExperience() {
 
         const viewerField = liveViewerRole === "creator" ? "creatorId" : "userId";
 
-        const unsubscribe = onSnapshot(
+        let active = true;
+        let unsubscribe: (() => void) | null = null;
+        unsubscribe = onSnapshot(
             query(collection(db, CHAT_COLLECTIONS.threads), where(viewerField, "==", user.uid)),
             (snapshot) => {
+                if (!active) {
+                    return;
+                }
                 const nextThreads = snapshot.docs.map((docSnapshot) => {
                     const raw = docSnapshot.data() as ChatThreadRecord;
                     const threadId = docSnapshot.id;
@@ -831,13 +901,21 @@ export function ChatExperience() {
                 ));
             },
             (error) => {
+                if (!active) {
+                    return;
+                }
+                active = false;
+                unsubscribe?.();
                 markRealtimeDegraded(CHAT_THREAD_LIST_SCOPE, error, {
                     creatorId: creatorId || null,
                 });
             },
         );
 
-        return () => unsubscribe();
+        return () => {
+            active = false;
+            unsubscribe?.();
+        };
     }, [clearRealtimeDegradedScope, creatorId, liveViewerRole, markRealtimeDegraded, threadListRealtimeEpoch, user, userProfile]);
 
     useEffect(() => {
@@ -847,13 +925,18 @@ export function ChatExperience() {
 
         const viewerField = liveViewerRole === "creator" ? "creatorId" : "userId";
 
-        const unsubscribe = onSnapshot(
+        let active = true;
+        let unsubscribe: (() => void) | null = null;
+        unsubscribe = onSnapshot(
             query(
                 collection(db, CHAT_COLLECTIONS.messages),
                 where("threadId", "==", selectedThreadId),
                 where(viewerField, "==", user.uid)
             ),
             (snapshot) => {
+                if (!active) {
+                    return;
+                }
                 const nextMessages = snapshot.docs
                     .map((docSnapshot) => {
                         const raw = docSnapshot.data() as ThreadDetailResponse["messages"][number];
@@ -874,13 +957,21 @@ export function ChatExperience() {
                 } : current);
             },
             (error) => {
+                if (!active) {
+                    return;
+                }
+                active = false;
+                unsubscribe?.();
                 markRealtimeDegraded(CHAT_MESSAGES_SCOPE, error, {
                     threadId: selectedThreadId,
                 });
             },
         );
 
-        return () => unsubscribe();
+        return () => {
+            active = false;
+            unsubscribe?.();
+        };
     }, [clearRealtimeDegradedScope, liveViewerRole, markRealtimeDegraded, messagesRealtimeEpoch, selectedThreadId, user, userProfile]);
 
     useEffect(() => {
@@ -917,6 +1008,8 @@ export function ChatExperience() {
 
     const openThreadComposer = useCallback((nextCreatorId: string) => {
         setComposePickerOpen(false);
+        setSelectedThreadId(null);
+        setSelectedDetail(null);
         router.replace(`/dashboard/chat?creator=${encodeURIComponent(nextCreatorId)}`, { scroll: false });
     }, [router]);
 
@@ -1407,9 +1500,14 @@ export function ChatExperience() {
             return;
         }
 
-        const unsubscribe = onSnapshot(
+        let active = true;
+        let unsubscribe: (() => void) | null = null;
+        unsubscribe = onSnapshot(
             doc(db, CHAT_COLLECTIONS.threads, selectedThreadId),
             (snapshot) => {
+                if (!active) {
+                    return;
+                }
                 if (!snapshot.exists()) {
                     return;
                 }
@@ -1443,13 +1541,21 @@ export function ChatExperience() {
                 } : current);
             },
             (error) => {
+                if (!active) {
+                    return;
+                }
+                active = false;
+                unsubscribe?.();
                 markRealtimeDegraded(CHAT_THREAD_SCOPE, error, {
                     threadId: selectedThreadId,
                 });
             },
         );
 
-        return () => unsubscribe();
+        return () => {
+            active = false;
+            unsubscribe?.();
+        };
     }, [clearRealtimeDegradedScope, markRealtimeDegraded, selectedThreadId, threadRealtimeEpoch, user]);
 
     useEffect(() => {
@@ -1457,10 +1563,20 @@ export function ChatExperience() {
             return;
         }
 
+        const refreshPlan = getChatRealtimeRefreshPlan({
+            degradedScopes: degradedRealtimeScopes,
+            hasSelectedThread: Boolean(selectedThreadIdRef.current),
+        });
+        if (!refreshPlan.refreshThreads && !refreshPlan.refreshSelectedThreadDetail) {
+            return;
+        }
+
         const refreshChatFromServer = async () => {
-            await loadThreads();
-            if (selectedThreadIdRef.current) {
-                await loadThreadDetail(selectedThreadIdRef.current);
+            if (refreshPlan.refreshThreads) {
+                await loadThreads({ background: true, quiet: true });
+            }
+            if (refreshPlan.refreshSelectedThreadDetail && selectedThreadIdRef.current) {
+                await loadThreadDetail(selectedThreadIdRef.current, { background: true, quiet: true });
             }
         };
 
@@ -1472,7 +1588,7 @@ export function ChatExperience() {
         return () => {
             window.clearInterval(intervalId);
         };
-    }, [degradedRealtimeScopes.length, loadThreadDetail, loadThreads, user]);
+    }, [degradedRealtimeScopes, loadThreadDetail, loadThreads, user]);
 
     useEffect(() => {
         shouldStickToBottomRef.current = true;

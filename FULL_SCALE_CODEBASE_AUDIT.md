@@ -7537,6 +7537,46 @@ Warnings and non-blocking notes:
   - npm unknown env config warnings
   - Node `punycode` deprecation warnings
   - Lighthouse temp cleanup `EPERM` warnings on Windows
+ - Next/Playwright still emits the known non-blocking teardown warning during UI audits:
+   - `TypeError: controller[kState].transformAlgorithm is not a function`
+
+## 2026-04-11 - Chat realtime loop hardening follow-up
+
+Scope:
+- `src/components/Chat/ChatExperience.tsx`
+- `src/hooks/useChatUnreadStatus.ts`
+- `src/lib/chat-realtime.ts`
+- `tests/unit/chat-realtime.spec.ts`
+- `tests/unit/use-chat-unread-status.spec.tsx`
+
+Root causes fixed:
+- chat route syncing could call `router.replace(...)` for an already-synced thread URL, which retriggered route work and made the surface feel like it was refreshing itself
+- degraded realtime polling was reloading thread data on an interval by clearing active detail state, which caused visible message-pane jumps
+- failed Firestore listeners were left alive until React effect cleanup, allowing repeated listener errors and noisy diagnostics before retry
+- repeated identical chat realtime failures were being reported every retry cycle instead of being cooled down
+
+Hardening applied:
+- chat route syncing now no-ops unless the selected thread is actually missing from the current URL
+- external route thread changes still hydrate the selected thread state without causing a self-refresh loop
+- degraded fallback refreshes now run in background mode and preserve the active thread UI instead of blanking it
+- degraded refreshes are scope-aware, so thread-list failures do not force unnecessary thread-detail reloads
+- chat realtime listeners and unread listeners now tear themselves down immediately on failure before the scheduled retry window
+- repeated identical realtime failures are rate-limited in diagnostics while polling fallback keeps the surface usable
+- compose-to-creator now clears the prior selected thread first so new thread seeding can take over cleanly
+
+Verification:
+- `npx eslint src/components/Chat/ChatExperience.tsx src/hooks/useChatUnreadStatus.ts src/lib/chat-realtime.ts tests/unit/chat-realtime.spec.ts tests/unit/use-chat-unread-status.spec.tsx`
+- `corepack pnpm exec vitest run tests/unit/chat-realtime.spec.ts tests/unit/use-chat-unread-status.spec.tsx`
+- `npx tsc --noEmit`
+- `npm run check:continuity`
+- `npm run check:ui:audits`
+
+Results:
+- targeted eslint passed
+- focused Vitest passed: `2` files / `10` tests
+- `npx tsc --noEmit` passed
+- `npm run check:continuity` passed
+- `npm run check:ui:audits` passed
 
 Follow-up opportunities:
 1. Move the same per-user module-collapse persistence into the remaining admin pages that still use local-only section state.

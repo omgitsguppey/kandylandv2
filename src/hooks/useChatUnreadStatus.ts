@@ -10,7 +10,7 @@ import {
     resolveChatViewerRole,
     type ChatThreadRecord,
 } from "@/lib/chat";
-import { getChatRealtimeRetryDelayMs } from "@/lib/chat-realtime";
+import { getChatRealtimeRetryDelayMs, shouldReportChatRealtimeFailure } from "@/lib/chat-realtime";
 import { buildFirestoreClientFallbackMessage, buildFirestoreClientIssueDetail } from "@/lib/firestore-client-errors";
 import { db } from "@/lib/firebase-data";
 import { reportRealtimeIssue } from "@/lib/client-error-reporting";
@@ -23,6 +23,7 @@ export function useChatUnreadStatus() {
     const [realtimeRetryEpoch, setRealtimeRetryEpoch] = useState(0);
     const realtimeRetryAttemptRef = useRef(0);
     const realtimeRetryTimerRef = useRef<number | null>(null);
+    const realtimeIssueReportedAtRef = useRef<number | null>(null);
     const preferRealtime = pathname?.startsWith("/dashboard/chat") === true;
     const viewerRole = resolveChatViewerRole({
         viewerUid: user?.uid || "",
@@ -57,6 +58,7 @@ export function useChatUnreadStatus() {
             setHasUnreadMessages(false);
             setRealtimeDegraded(false);
             realtimeRetryAttemptRef.current = 0;
+            realtimeIssueReportedAtRef.current = null;
             if (realtimeRetryTimerRef.current) {
                 window.clearTimeout(realtimeRetryTimerRef.current);
                 realtimeRetryTimerRef.current = null;
@@ -66,6 +68,7 @@ export function useChatUnreadStatus() {
         if (!preferRealtime) {
             setRealtimeDegraded(false);
             realtimeRetryAttemptRef.current = 0;
+            realtimeIssueReportedAtRef.current = null;
             if (realtimeRetryTimerRef.current) {
                 window.clearTimeout(realtimeRetryTimerRef.current);
                 realtimeRetryTimerRef.current = null;
@@ -88,9 +91,14 @@ export function useChatUnreadStatus() {
             return retryDelayMs;
         };
 
-        const unsubscribe = onSnapshot(
+        let active = true;
+        let unsubscribe: (() => void) | null = null;
+        unsubscribe = onSnapshot(
             query(collection(db, CHAT_COLLECTIONS.threads), where(viewerField, "==", user.uid)),
             (snapshot) => {
+                if (!active) {
+                    return;
+                }
                 let unreadCount = 0;
                 for (const docSnapshot of snapshot.docs) {
                     const raw = docSnapshot.data() as ChatThreadRecord;
@@ -102,28 +110,39 @@ export function useChatUnreadStatus() {
                     realtimeRetryTimerRef.current = null;
                 }
                 realtimeRetryAttemptRef.current = 0;
+                realtimeIssueReportedAtRef.current = null;
                 setRealtimeDegraded(false);
                 setHasUnreadMessages(unreadCount > 0);
             },
             (error) => {
+                if (!active) {
+                    return;
+                }
+                active = false;
+                unsubscribe?.();
                 setRealtimeDegraded(true);
                 const retryDelayMs = scheduleRetry();
-                reportRealtimeIssue("chat unread status", error, {
-                    userId: user.uid,
-                    ...buildFirestoreClientIssueDetail(error, {
-                        fallbackMessage: buildFirestoreClientFallbackMessage("Chat unread badge", error),
-                        retryDelayMs,
-                    }),
-                });
+                const now = Date.now();
+                if (shouldReportChatRealtimeFailure(realtimeIssueReportedAtRef.current, now)) {
+                    realtimeIssueReportedAtRef.current = now;
+                    reportRealtimeIssue("chat unread status", error, {
+                        userId: user.uid,
+                        ...buildFirestoreClientIssueDetail(error, {
+                            fallbackMessage: buildFirestoreClientFallbackMessage("Chat unread badge", error),
+                            retryDelayMs,
+                        }),
+                    });
+                }
             },
         );
 
         return () => {
+            active = false;
             if (realtimeRetryTimerRef.current) {
                 window.clearTimeout(realtimeRetryTimerRef.current);
                 realtimeRetryTimerRef.current = null;
             }
-            unsubscribe();
+            unsubscribe?.();
         };
     }, [preferRealtime, realtimeRetryEpoch, user, userProfile, viewerRole]);
 
