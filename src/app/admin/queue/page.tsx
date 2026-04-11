@@ -229,7 +229,8 @@ export default function ManageQueuePage() {
                 <AdminPageHeader
                     eyebrow="Admin Queue"
                     title="Manage Queue"
-                    subtitle="Configure your automated drop rotation and schedule."
+                    subtitle="Configure automated drop rotation and schedule."
+                    compact
                 />
                 <div className="glass-panel rounded-3xl border border-red-500/20 bg-red-500/10 p-6 text-center">
                     <p className="text-base font-semibold text-red-200">Queue data could not be loaded.</p>
@@ -260,7 +261,8 @@ export default function ManageQueuePage() {
                     </Link>
                 )}
                 title="Manage Queue"
-                subtitle="Keep the automated rotation readable by default, then switch into edit mode only when you need to reorder or remove drops."
+                subtitle="Keep automated rotation readable by default and switch to edit mode only when needed."
+                compact
                 actions={(
                     <button
                         type="button"

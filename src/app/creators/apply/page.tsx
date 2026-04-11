@@ -7,23 +7,22 @@ import { PageViewEvent } from "@/components/Analytics/PageViewEvent";
 import { useAuth } from "@/context/AuthContext";
 import { useUI } from "@/context/UIContext";
 import { CREATOR_WAITLIST_PATH } from "@/lib/creator-application";
-import { CREATOR_REVIEW_TIMELINE_COPY, KREATOR_EXPERIENCES_DEFINITION } from "@/lib/creator-onboarding";
 import { trackEvent } from "@/lib/telemetry";
 
 const CREATOR_STEPS = [
     {
         title: "Tell us who you create as",
-        description: "Add your creator name, main platform, and content focus so the review team knows how to route your application.",
+        description: "Add your creator name, main platform, and content focus.",
         icon: Sparkles,
     },
     {
         title: "Confirm your account details",
-        description: "Pick your handle and confirm the account details needed before your review can begin.",
+        description: "Confirm the account details tied to this review.",
         icon: Users,
     },
     {
         title: "Enter manual review",
-        description: "Finish signup and your application will move into manual review. The creator intro, identity package, and agreement steps happen next on your waiting page.",
+        description: "Finish signup, then complete intro, ID, and agreement steps from the waiting page.",
         icon: ShieldCheck,
     },
 ] as const;
@@ -48,8 +47,8 @@ export default function CreatorApplyPage() {
                 eventName="creator_apply_viewed"
                 eventParams={{ component_name: "creator_apply_page", creator_lane: "intake" }}
             />
-            <div className="mx-auto flex w-full max-w-5xl flex-col gap-6">
-                <section className="overflow-hidden rounded-[2rem] border border-white/10 bg-zinc-950/80 p-6 shadow-2xl shadow-black/30 backdrop-blur-xl sm:p-8">
+            <div className="mx-auto flex w-full max-w-5xl flex-col gap-5">
+                <section className="overflow-hidden rounded-[2rem] border border-white/10 bg-zinc-950/80 p-5 shadow-2xl shadow-black/30 backdrop-blur-xl sm:p-6">
                     <div className="max-w-2xl">
                         <span className="inline-flex rounded-full border border-white/10 bg-white/5 px-3 py-1 text-[11px] font-semibold uppercase tracking-[0.18em] text-brand-purple">
                             Creator application
@@ -57,8 +56,8 @@ export default function CreatorApplyPage() {
                         <h1 className="mt-4 text-3xl font-black tracking-tight text-white sm:text-4xl">
                             Apply for creator access
                         </h1>
-                        <p className="mt-4 max-w-xl text-sm leading-7 text-gray-300 sm:text-base">
-                            {KREATOR_EXPERIENCES_DEFINITION} {CREATOR_REVIEW_TIMELINE_COPY} Manual admin approval is required before creator tools turn on.
+                        <p className="mt-4 max-w-xl text-sm leading-6 text-gray-300 sm:text-base">
+                            Apply once, then track the real review, legal, and ID steps here until approval.
                         </p>
                     </div>
 
@@ -112,8 +111,8 @@ export default function CreatorApplyPage() {
                     </div>
 
                     {user && !hasCreatorApplication && !loading ? (
-                        <p className="mt-4 rounded-[1.25rem] border border-amber-400/20 bg-amber-400/10 px-4 py-3 text-xs leading-6 text-amber-100">
-                            You are already signed into a regular account. Use the in-site creator support flow if this account should enter creator review.
+                        <p className="mt-4 rounded-[1.25rem] border border-amber-400/20 bg-amber-400/10 px-4 py-3 text-xs leading-5 text-amber-100">
+                            This account is still a regular user account, so use creator support if it should already be in review.
                         </p>
                     ) : null}
                 </section>
@@ -130,7 +129,7 @@ export default function CreatorApplyPage() {
                                     <Icon className="h-5 w-5 text-brand-purple" />
                                 </div>
                                 <h2 className="mt-3 text-base font-bold text-white">{step.title}</h2>
-                                <p className="mt-2 text-sm leading-6 text-gray-400">{step.description}</p>
+                                <p className="mt-2 text-sm leading-5 text-gray-400">{step.description}</p>
                             </article>
                         );
                     })}
@@ -140,20 +139,20 @@ export default function CreatorApplyPage() {
                     <article className="rounded-[1.75rem] border border-white/10 bg-zinc-950/70 p-4 backdrop-blur-sm">
                         <h2 className="flex items-center gap-2 text-base font-bold text-white">
                             <BadgeCheck className="h-5 w-5 text-brand-purple" />
-                            What happens after you apply
+                            What happens next
                         </h2>
-                        <p className="mt-3 text-sm leading-7 text-gray-400">
-                            After you submit, your application stays visible to the review team with clear legal, ID, and approval checkpoints. You will see the same real status updates on your waiting page.
+                        <p className="mt-3 text-sm leading-6 text-gray-400">
+                            Your waiting page shows the same legal, ID, and approval checkpoints the review team sees.
                         </p>
                     </article>
 
                     <article className="rounded-[1.75rem] border border-white/10 bg-zinc-950/70 p-4 backdrop-blur-sm">
                         <h2 className="flex items-center gap-2 text-base font-bold text-white">
                             <ShieldCheck className="h-5 w-5 text-brand-purple" />
-                            What you will need later
+                            What you&apos;ll need
                         </h2>
-                        <p className="mt-3 text-sm leading-7 text-gray-400">
-                            Be ready to acknowledge the short creator intro, upload the full verification package, and review the in-app agreement. Those steps appear on your waiting page only when the backend review stage actually reaches them.
+                        <p className="mt-3 text-sm leading-6 text-gray-400">
+                            Be ready for the creator intro, the full verification package, and the in-app agreement when those steps unlock.
                         </p>
                     </article>
                 </section>

@@ -72,7 +72,7 @@ export function AdminTaskAndNotificationModules(props: {
             <div className="grid gap-5 xl:grid-cols-[1fr_1fr]">
                 <SectionCard
                     title="Daily Task Pipeline"
-                    subtitle="Assigned, started, completed, and failed tasks in one mobile-friendly progression view."
+                    subtitle="Assigned, started, completed, and failed tasks in one progression view."
                     icon={Funnel}
                     rightSlot={props.renderSectionRangeControl("dailyTaskPipeline")}
                 >
@@ -119,7 +119,7 @@ export function AdminTaskAndNotificationModules(props: {
 
                 <SectionCard
                     title="Task Completion Speed"
-                    subtitle="How fast the finished task set is closing, so you can tune missions that are too easy or too heavy."
+                    subtitle="How fast completed tasks close."
                     icon={Clock3}
                     rightSlot={props.renderSectionRangeControl("taskCompletionSpeed")}
                 >
@@ -162,7 +162,7 @@ export function AdminTaskAndNotificationModules(props: {
             <div className="grid gap-5 xl:grid-cols-[1fr_1fr]">
                 <SectionCard
                     title="Task Leaderboard"
-                    subtitle="The missions driving the most completions, reward payout, and momentum."
+                    subtitle="The missions driving the most completions and payout."
                     icon={Sparkles}
                     rightSlot={props.renderSectionRangeControl("taskLeaderboard")}
                 >
@@ -216,7 +216,7 @@ export function AdminTaskAndNotificationModules(props: {
 
                 <SectionCard
                     title="Notification Funnel"
-                    subtitle="Prompt, enablement, open, and read behaviors, plus reminder reasons when people run short on time."
+                    subtitle="Prompt, enablement, open, read, and reminder behavior."
                     icon={BellRing}
                     rightSlot={props.renderSectionRangeControl("notificationFunnel")}
                 >

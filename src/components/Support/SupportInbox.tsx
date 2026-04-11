@@ -276,14 +276,12 @@ export function SupportInbox() {
     return (
         <div className="mx-auto w-full max-w-7xl px-3 pb-20 pt-16 sm:px-4 md:pt-[4.5rem]">
             <PageViewEvent eventName="support_inbox_viewed" />
-            <div className="mb-5 rounded-[1.85rem] border border-white/10 bg-[radial-gradient(circle_at_top_left,rgba(178,140,255,0.18),rgba(0,0,0,0.2)_48%,rgba(0,0,0,0.96)_100%)] px-5 py-6 md:px-7">
+            <div className="mb-5 rounded-[1.85rem] border border-white/10 bg-[radial-gradient(circle_at_top_left,rgba(178,140,255,0.18),rgba(0,0,0,0.2)_48%,rgba(0,0,0,0.96)_100%)] px-5 py-5 md:px-6">
                 <div className="flex flex-col gap-3 md:flex-row md:items-center md:justify-between">
                     <div>
                         <p className="text-[11px] font-semibold uppercase tracking-[0.2em] text-brand-purple">Support</p>
                         <h1 className="mt-2 text-3xl font-black tracking-tight text-white">In-site support inbox</h1>
-                        <p className="mt-2 max-w-2xl text-sm leading-6 text-gray-300">
-                            Open a ticket, track replies, and keep creator-application or account issues inside your dashboard instead of a dead email redirect.
-                        </p>
+                        <p className="mt-2 max-w-2xl text-sm leading-6 text-gray-300">Open tickets, track replies, and keep account or creator issues inside your dashboard.</p>
                     </div>
                     <div className="flex flex-wrap gap-2">
                         <span className="rounded-full border border-white/10 bg-black/35 px-3 py-1.5 text-xs font-semibold text-white">
@@ -301,7 +299,7 @@ export function SupportInbox() {
                     <div className="flex items-center justify-between gap-3">
                         <div>
                             <h2 className="text-sm font-bold text-white">Tickets</h2>
-                            <p className="mt-1 text-xs leading-5 text-gray-400">Open a new ticket or pick an existing thread.</p>
+                            <p className="mt-1 text-xs leading-5 text-gray-400">Open a ticket or continue one already in flight.</p>
                         </div>
                         <Button
                             type="button"
@@ -346,7 +344,7 @@ export function SupportInbox() {
                                         value={message}
                                         onChange={(event) => setMessage(event.target.value)}
                                         rows={5}
-                                        placeholder="Describe the issue, what you expected, and anything blocking you right now."
+                                        placeholder="Describe the issue and what you need."
                                         className="w-full rounded-[1rem] border border-white/10 bg-black/35 px-4 py-3 text-sm text-white outline-none transition-colors placeholder:text-gray-500 focus:border-brand-purple"
                                     />
                                 </label>
@@ -378,7 +376,7 @@ export function SupportInbox() {
                         {threadListLoading && !threadList?.threads.length ? (
                             <div className="flex items-center gap-2 rounded-[1.2rem] border border-white/10 bg-black/25 px-4 py-4 text-sm text-gray-300">
                                 <Loader2 className="h-4 w-4 animate-spin text-brand-purple" />
-                                Loading support threads...
+                                Loading tickets...
                             </div>
                         ) : threadList?.threads.length ? threadList.threads.map((thread) => {
                             const active = thread.id === selectedThreadId;
@@ -413,7 +411,7 @@ export function SupportInbox() {
                             );
                         }) : (
                             <div className="rounded-[1.2rem] border border-dashed border-white/10 bg-black/25 px-4 py-5 text-sm text-gray-400">
-                                No support tickets yet. Open one here whenever a creator, billing, account, or technical issue needs in-site follow-up.
+                                No tickets yet. Open one here when you need help.
                             </div>
                         )}
                     </div>
@@ -424,7 +422,7 @@ export function SupportInbox() {
                         <div>
                             <h2 className="text-sm font-bold text-white">Thread detail</h2>
                             <p className="mt-1 text-xs leading-5 text-gray-400">
-                                Replies stay tied to this ticket and update live every 10 seconds.
+                                Replies stay in this ticket and refresh every 10 seconds.
                             </p>
                         </div>
                         <Button type="button" variant="glass" size="sm" onClick={() => void mutateSelectedThread()}>
@@ -435,7 +433,7 @@ export function SupportInbox() {
 
                     {!selectedThreadId ? (
                         <div className="mt-4 rounded-[1.2rem] border border-dashed border-white/10 bg-black/25 px-4 py-8 text-center text-sm text-gray-400">
-                            Pick a ticket or open a new one to start the conversation.
+                            Pick a ticket or open a new one.
                         </div>
                     ) : selectedThreadLoading && !selectedThread?.thread ? (
                         <div className="mt-4 flex items-center gap-2 rounded-[1.2rem] border border-white/10 bg-black/25 px-4 py-4 text-sm text-gray-300">
@@ -490,7 +488,7 @@ export function SupportInbox() {
                                     );
                                 }) : (
                                     <div className="rounded-[1.2rem] border border-dashed border-white/10 bg-black/25 px-4 py-4 text-sm text-gray-400">
-                                        No messages are recorded in this thread yet.
+                                        No messages are in this ticket yet.
                                     </div>
                                 )}
                             </div>
@@ -502,7 +500,7 @@ export function SupportInbox() {
                                         value={reply}
                                         onChange={(event) => setReply(event.target.value)}
                                         rows={4}
-                                        placeholder="Add the next detail, answer support, or confirm the issue is resolved."
+                                        placeholder="Add the next detail or reply."
                                         className="w-full rounded-[1rem] border border-white/10 bg-black/35 px-4 py-3 text-sm text-white outline-none transition-colors placeholder:text-gray-500 focus:border-brand-purple"
                                     />
                                 </label>
@@ -529,7 +527,7 @@ export function SupportInbox() {
                     ) : (
                         <div className="mt-4 rounded-[1.2rem] border border-dashed border-white/10 bg-black/25 px-4 py-8 text-center text-sm text-gray-400">
                             <LifeBuoy className="mx-auto mb-3 h-6 w-6 text-brand-purple" />
-                            Select a support thread to see its messages.
+                            Select a ticket to view messages.
                         </div>
                     )}
                 </section>

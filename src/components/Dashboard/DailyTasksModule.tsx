@@ -458,9 +458,7 @@ export function DailyTasksModule() {
         <div className="fixed inset-0 z-[100] flex items-center justify-center bg-black/80 p-4 backdrop-blur-md">
           <div className="glass-panel w-full max-w-md rounded-[2rem] border border-white/10 p-5">
             <h2 className="text-xl font-bold text-white">Share feedback</h2>
-            <p className="mt-1 text-sm leading-6 text-gray-400">
-              Tell us what would make you come back and unwrap more often.
-            </p>
+            <p className="mt-1 text-sm leading-6 text-gray-400">Tell us what would make daily tasks more useful.</p>
 
             <div className="mt-4 space-y-4">
               <div className="space-y-2">
@@ -511,7 +509,7 @@ export function DailyTasksModule() {
                   value={feedbackMessage}
                   onChange={(event) => setFeedbackMessage(event.target.value)}
                   className="h-32 w-full rounded-[1.4rem] border border-white/10 bg-white/5 px-4 py-3 text-sm text-white outline-none transition-colors placeholder:text-gray-500 focus:border-brand-purple"
-                  placeholder="What would make KandyDrops feel more addictive, easier, or more exciting on mobile?"
+                  placeholder="What should we improve?"
                 />
               </div>
             </div>
@@ -564,16 +562,16 @@ export function DailyTasksModule() {
       </section>
 
       {rotating && activeTasks.length === 0 ? (
-        <div className="glass-panel rounded-[2rem] border border-white/10 p-8 text-center">
+        <div className="glass-panel rounded-[2rem] border border-white/10 p-6 text-center">
           <Loader2 className="mx-auto h-7 w-7 animate-spin text-brand-purple" />
-          <p className="mt-3 text-sm text-gray-400">Loading today&apos;s missions...</p>
+          <p className="mt-3 text-sm text-gray-400">Loading today&apos;s tasks...</p>
         </div>
       ) : null}
 
       {!rotating && activeTasks.length === 0 ? (
-        <div className="glass-panel rounded-[2rem] border border-white/10 p-8 text-center">
+        <div className="glass-panel rounded-[2rem] border border-white/10 p-6 text-center">
           <Gift className="mx-auto h-8 w-8 text-brand-purple" />
-          <p className="mt-3 text-sm text-gray-400">No tasks are ready yet. Explore what is live while the next batch cooks.</p>
+          <p className="mt-3 text-sm text-gray-400">No tasks are ready right now.</p>
           <div className="mt-4 grid gap-2 sm:grid-cols-2">
             <button
               type="button"
@@ -613,9 +611,7 @@ export function DailyTasksModule() {
           <div className="rounded-[1.7rem] border border-brand-purple/25 bg-[radial-gradient(circle_at_top,rgba(178,140,255,0.22),rgba(18,18,24,0.94)_72%)] p-5 text-center">
             <CheckCircle2 className="mx-auto h-10 w-10 text-brand-purple" />
             <h3 className="mt-3 text-xl font-bold text-white">Today&apos;s tasks are complete</h3>
-            <p className="mt-2 text-sm leading-6 text-gray-300">
-              You already finished all {DAILY_TASK_LIMIT} missions. The next batch unlocks when the daily timer resets.
-            </p>
+            <p className="mt-2 text-sm leading-6 text-gray-300">You finished all {DAILY_TASK_LIMIT} tasks, and the next batch unlocks at reset.</p>
             <div className="mt-4 inline-flex items-center rounded-full border border-brand-purple/30 bg-brand-purple/15 px-4 py-2 text-sm font-bold text-white">
               Next batch in {waitLabel}
             </div>

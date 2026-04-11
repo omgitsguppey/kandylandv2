@@ -773,6 +773,7 @@ export default function AIAdminPage() {
                     eyebrow="Admin AI"
                     title="Cover Ops"
                     subtitle={subtitle}
+                    compact
                     actions={(
                         <>
                             <Button variant="outline" size="sm" onClick={() => void mutate()} disabled={isLoading}>
@@ -828,7 +829,7 @@ export default function AIAdminPage() {
                     <div className="min-w-0 space-y-4 xl:col-span-7">
                         <AdminDashboardModule
                             title="Runtime strip"
-                            description="Model readiness, reference-mode flags, and current preflight status."
+                            description="Model readiness and current preflight state."
                             defaultOpen={MODULE_DEFAULTS["admin_ai.runtime"]}
                             open={moduleOpenState["admin_ai.runtime"]}
                             onOpenChange={(nextOpen) => persistModuleState("admin_ai.runtime", nextOpen)}
@@ -923,7 +924,7 @@ export default function AIAdminPage() {
 
                         <AdminDashboardModule
                             title="Reference library"
-                            description="Primary style ref first, pinned support refs second, retained outputs third, then catalog fallback."
+                            description="Primary style refs lead, then pinned, retained, and catalog support refs."
                             defaultOpen={MODULE_DEFAULTS["admin_ai.references"]}
                             open={moduleOpenState["admin_ai.references"]}
                             onOpenChange={(nextOpen) => persistModuleState("admin_ai.references", nextOpen)}
@@ -958,7 +959,7 @@ export default function AIAdminPage() {
                                             {referencePreview.length === 0 ? (
                                                 <EmptyState
                                                     title="No ranked references yet"
-                                                    detail="Upload a primary style reference first. Accepted and liked outputs will start filling the rest of the set automatically."
+                                                    detail="Upload a primary style reference to seed the next ranked set."
                                                 />
                                             ) : referencePreview.map((asset, index) => (
                                                 <div key={`${asset.id}-${index}`} className="flex min-w-0 items-start gap-3 rounded-[1rem] border border-white/8 bg-white/[0.03] p-2.5">
@@ -980,13 +981,13 @@ export default function AIAdminPage() {
 
                                     <div className="min-w-0 rounded-[1.1rem] border border-white/10 bg-black/25 p-3.5">
                                         <div className="text-sm font-semibold text-white">Uploaded house references</div>
-                                        <div className="mt-1 break-words text-xs text-gray-400">Gemini 3 Pro Preview can use up to 14 references. The library can hold more, but the ranked set stops at the model cap.</div>
+                                        <div className="mt-1 break-words text-xs text-gray-400">Gemini 3 Pro Preview uses up to 14 refs, and the ranked set stops at that cap.</div>
 
                                         <div className="mt-3 space-y-3">
                                             {activeHouseReferences.length === 0 ? (
                                                 <EmptyState
                                                     title="No uploaded house references"
-                                                    detail="Upload style references here. The Create Drop AI panel will inherit them without changing its layout."
+                                                    detail="Upload reusable house references here and Create Drop AI will inherit them automatically."
                                                 />
                                             ) : activeHouseReferences.map((asset) => (
                                                 <div key={asset.id} className="min-w-0 rounded-[1rem] border border-white/10 bg-white/[0.03] p-3">
@@ -1073,7 +1074,7 @@ export default function AIAdminPage() {
 
                         <AdminDashboardModule
                             title="Recent generations"
-                            description="Prompt provenance, reference usage, and validation signals for the latest jobs."
+                            description="Recent jobs show prompt lineage, refs, and validation results."
                             defaultOpen={MODULE_DEFAULTS["admin_ai.recent"]}
                             open={moduleOpenState["admin_ai.recent"]}
                             onOpenChange={(nextOpen) => persistModuleState("admin_ai.recent", nextOpen)}
@@ -1085,7 +1086,7 @@ export default function AIAdminPage() {
                             )}
                         >
                             {(data?.recentJobs || []).length === 0 ? (
-                                <EmptyState title="No generation jobs yet" detail="Generate a cover from Create Drop and the full prompt lineage will show up here." />
+                                <EmptyState title="No generation jobs yet" detail="Generate a cover from Create Drop to populate prompt lineage here." />
                             ) : (
                                 <div className="grid min-w-0 gap-3 lg:grid-cols-2">
                                     {(data?.recentJobs || []).map((job) => (
@@ -1169,7 +1170,7 @@ export default function AIAdminPage() {
                     <div className="min-w-0 space-y-4 xl:col-span-5">
                         <AdminDashboardModule
                             title="Prompt workbench"
-                            description="Locked style clauses stay stable. Mutable clauses adapt per flavor, feedback, and optimizer output."
+                            description="Locked style stays fixed while mutable prompt rules adapt."
                             defaultOpen={MODULE_DEFAULTS["admin_ai.prompt"]}
                             open={moduleOpenState["admin_ai.prompt"]}
                             onOpenChange={(nextOpen) => persistModuleState("admin_ai.prompt", nextOpen)}
@@ -1207,10 +1208,10 @@ export default function AIAdminPage() {
                                 </div>
 
                                 <div className="grid min-w-0 gap-3">
-                                    <TextAreaBlock label="Base style prompt" value={policyDraft.baseStylePrompt} onChange={(value) => { setPolicyDraft((current) => ({ ...current, baseStylePrompt: value })); setPolicyDirty(true); }} rows={4} helper="This stays stable across flavors." />
-                                    <TextAreaBlock label="Locked clauses" value={policyDraft.lockedClauses} onChange={(value) => { setPolicyDraft((current) => ({ ...current, lockedClauses: value })); setPolicyDirty(true); }} rows={6} helper="One clause per line." />
-                                    <TextAreaBlock label="Mutable clauses" value={policyDraft.mutableClauses} onChange={(value) => { setPolicyDraft((current) => ({ ...current, mutableClauses: value })); setPolicyDirty(true); }} rows={5} helper="These are the rules the optimizer is allowed to reshape." />
-                                    <TextAreaBlock label="Current mutable prompt" value={policyDraft.currentMutablePrompt} onChange={(value) => { setPolicyDraft((current) => ({ ...current, currentMutablePrompt: value })); setPolicyDirty(true); }} rows={8} helper="This is what the next generation will inherit before per-job flavor shaping." />
+                                    <TextAreaBlock label="Base style prompt" value={policyDraft.baseStylePrompt} onChange={(value) => { setPolicyDraft((current) => ({ ...current, baseStylePrompt: value })); setPolicyDirty(true); }} rows={4} helper="This stays constant across flavors." />
+                                    <TextAreaBlock label="Locked clauses" value={policyDraft.lockedClauses} onChange={(value) => { setPolicyDraft((current) => ({ ...current, lockedClauses: value })); setPolicyDirty(true); }} rows={6} helper="Keep one clause per line." />
+                                    <TextAreaBlock label="Mutable clauses" value={policyDraft.mutableClauses} onChange={(value) => { setPolicyDraft((current) => ({ ...current, mutableClauses: value })); setPolicyDirty(true); }} rows={5} helper="The optimizer can reshape these rules." />
+                                    <TextAreaBlock label="Current mutable prompt" value={policyDraft.currentMutablePrompt} onChange={(value) => { setPolicyDraft((current) => ({ ...current, currentMutablePrompt: value })); setPolicyDirty(true); }} rows={8} helper="This seeds the next run before flavor shaping." />
                                 </div>
 
                                 <div className="min-w-0 flex flex-wrap gap-2">
@@ -1238,7 +1239,7 @@ export default function AIAdminPage() {
 
                         <AdminDashboardModule
                             title="Review gallery"
-                            description="Rejected and neutral outputs stay visible here. Reuse is manual for anything not accepted or liked."
+                            description="Rejected and neutral outputs stay here until you promote them."
                             defaultOpen={MODULE_DEFAULTS["admin_ai.gallery"]}
                             open={moduleOpenState["admin_ai.gallery"]}
                             onOpenChange={(nextOpen) => persistModuleState("admin_ai.gallery", nextOpen)}
@@ -1258,7 +1259,7 @@ export default function AIAdminPage() {
                             )}
                         >
                             {filteredReviewGallery.length === 0 ? (
-                                <EmptyState title="No outputs in this filter" detail="Rejected, neutral, and failed covers remain visible here as soon as they land." />
+                                <EmptyState title="No outputs in this filter" detail="Rejected, neutral, and failed covers appear here as they land." />
                             ) : (
                                 <div className="grid min-w-0 gap-3 sm:grid-cols-2">
                                     {filteredReviewGallery.map((item) => (
@@ -1288,7 +1289,7 @@ export default function AIAdminPage() {
 
                         <AdminDashboardModule
                             title="Optimizer health"
-                            description="Runtime status, policy lineage, and recent failure reasons."
+                            description="Optimizer status, policy lineage, and recent failure reasons."
                             defaultOpen={MODULE_DEFAULTS["admin_ai.optimizer"]}
                             open={moduleOpenState["admin_ai.optimizer"]}
                             onOpenChange={(nextOpen) => persistModuleState("admin_ai.optimizer", nextOpen)}
@@ -1347,13 +1348,13 @@ export default function AIAdminPage() {
 
                         <AdminDashboardModule
                             title="Diagnostics"
-                            description="Recent AI runtime events and what they mean."
+                            description="Recent AI runtime events with clear failure context."
                             defaultOpen={MODULE_DEFAULTS["admin_ai.diagnostics"]}
                             open={moduleOpenState["admin_ai.diagnostics"]}
                             onOpenChange={(nextOpen) => persistModuleState("admin_ai.diagnostics", nextOpen)}
                         >
                             {(data?.recentDiagnostics || []).length === 0 ? (
-                                <EmptyState title="No AI diagnostics yet" detail="Runtime diagnostics will appear here as generation, optimizer, and storage events occur." />
+                                <EmptyState title="No AI diagnostics yet" detail="Runtime diagnostics appear here as AI events land." />
                             ) : (
                                 <div className="min-w-0 space-y-2">
                                     {(data?.recentDiagnostics || []).map((entry) => (

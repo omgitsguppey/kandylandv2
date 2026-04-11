@@ -2318,7 +2318,8 @@ export default function AdminAnalyticsPage() {
       <AdminPageHeader
         eyebrow="Admin Analytics"
         title="Mobile Monitoring Station"
-        subtitle="Live pulse, device mix, funnel health, and revenue signals tuned for small screens first."
+        subtitle="Live pulse, funnels, revenue, and retention tuned for mobile-first admin monitoring."
+        compact
       />
 
       <div className="grid grid-cols-2 gap-2.5 md:grid-cols-4">
@@ -2428,8 +2429,7 @@ export default function AdminAnalyticsPage() {
               Module filters
             </span>
             <span className="text-xs text-gray-400">
-              Each card owns its own time range. The viewer drilldown filter is
-              the only page-level control left.
+              Each card owns its own time range, and only viewer drilldown stays page-level.
             </span>
           </div>
           <button
@@ -2509,7 +2509,7 @@ export default function AdminAnalyticsPage() {
           <>
             <SectionCard
               title="Live Pulse"
-              subtitle="Current traffic against the selected historical window so mobile admins can sanity-check activity fast."
+              subtitle="Current traffic against the selected historical window."
               icon={Activity}
               defaultExpanded
               rightSlot={renderSectionRangeControl("livePulse")}
@@ -2743,7 +2743,7 @@ export default function AdminAnalyticsPage() {
 
             <SectionCard
               title="Journey Funnel"
-              subtitle="The custom event chain now shows where mobile users are entering, previewing, unlocking, and paying."
+              subtitle="The custom event chain shows where users enter, preview, unlock, and pay."
               icon={Eye}
               rightSlot={renderSectionRangeControl("journeyFunnel")}
             >
@@ -2864,7 +2864,7 @@ export default function AdminAnalyticsPage() {
             <div className="grid gap-5 xl:grid-cols-[1fr_1fr]">
               <SectionCard
                 title="Auth Outcome Split"
-                subtitle="Attempt volume, completion quality, and finish speed by auth method."
+                subtitle="Attempts, completion quality, and finish speed by auth method."
                 icon={Users}
                 rightSlot={renderSectionRangeControl("authOutcomeSplit")}
               >
@@ -3141,7 +3141,7 @@ export default function AdminAnalyticsPage() {
             <div className="grid gap-5 xl:grid-cols-[1fr_1fr]">
               <SectionCard
                 title="Guest + Bounce Quality"
-                subtitle="Public and signed-in traffic quality pulled from the semantic engine so bounce detection is visible instead of hidden in raw logs."
+                subtitle="Public and signed-in traffic quality from the semantic engine."
                 icon={Monitor}
                 rightSlot={renderSectionRangeControl("categorySemantics")}
               >
@@ -3234,7 +3234,7 @@ export default function AdminAnalyticsPage() {
             <div className="grid gap-5 xl:grid-cols-[1.15fr_0.85fr]">
               <SectionCard
                 title="Event Mix"
-                subtitle="The strongest custom GA events for the selected window."
+                subtitle="The strongest custom GA events in the selected window."
                 icon={Sparkles}
                 rightSlot={renderSectionRangeControl("eventMix")}
               >
@@ -3335,7 +3335,7 @@ export default function AdminAnalyticsPage() {
 
               <SectionCard
                 title="Live Interaction Stream"
-                subtitle="Most recent telemetry events and guest interaction buckets collected from the live site."
+                subtitle="Recent telemetry events and guest interaction buckets from the live site."
                 icon={Clock3}
                 rightSlot={renderSectionRangeControl("liveInteractionStream")}
               >
@@ -3391,7 +3391,7 @@ export default function AdminAnalyticsPage() {
 
             <SectionCard
               title="Data Validation"
-              subtitle="Every overview here is grounded in a real source, with parity checks surfaced instead of hidden."
+              subtitle="Every overview here is grounded in a real source with parity checks surfaced."
               icon={CheckCircle2}
               rightSlot={renderSectionRangeControl("dataValidation")}
             >
@@ -3428,7 +3428,7 @@ export default function AdminAnalyticsPage() {
           <>
             <SectionCard
               title="Audience Snapshot"
-              subtitle="The selected time range emphasizes mobile traffic, retention quality, and visit depth."
+              subtitle="The selected time range emphasizes mobile traffic, retention, and visit depth."
               icon={Users}
               defaultExpanded
               rightSlot={renderSectionRangeControl("audienceSnapshot")}
@@ -3529,7 +3529,7 @@ export default function AdminAnalyticsPage() {
             <div className="grid gap-5 xl:grid-cols-[1fr_1fr]">
               <SectionCard
                 title="Return Cadence"
-                subtitle="Authenticated users grouped by how many distinct days they came back during the selected range."
+                subtitle="Authenticated users grouped by distinct return days in the selected range."
                 icon={Route}
                 rightSlot={renderSectionRangeControl("returnCadence")}
               >
@@ -3570,7 +3570,7 @@ export default function AdminAnalyticsPage() {
 
               <SectionCard
                 title="Navigation Destinations"
-                subtitle="Top in-app destinations reached from tracked taps, useful for mobile drill-down on where intent actually goes."
+                subtitle="Top in-app destinations reached from tracked taps."
                 icon={Route}
                 rightSlot={renderSectionRangeControl("navigationDestinations")}
               >
@@ -3655,7 +3655,7 @@ export default function AdminAnalyticsPage() {
             <div className="grid gap-5 xl:grid-cols-[0.9fr_1.1fr]">
               <SectionCard
                 title="Device Mix"
-                subtitle="Mobile is the admin priority, so device share and engagement stay visible as first-class metrics."
+                subtitle="Device share and engagement with mobile kept first."
                 icon={Smartphone}
                 rightSlot={renderSectionRangeControl("deviceMix")}
               >
@@ -3715,7 +3715,7 @@ export default function AdminAnalyticsPage() {
 
               <SectionCard
                 title="Top Paths"
-                subtitle="What mobile admins should watch first: where people are actually spending time."
+                subtitle="Where people are actually spending time."
                 icon={FileText}
                 rightSlot={renderSectionRangeControl("topPaths")}
               >
@@ -3753,7 +3753,7 @@ export default function AdminAnalyticsPage() {
 
             <SectionCard
               title="Regions"
-              subtitle="Geographic demand surfaced in a mobile-friendly list instead of a cramped desktop-style table."
+              subtitle="Geographic demand in a compact mobile-first list."
               icon={MapPin}
               rightSlot={renderSectionRangeControl("regions")}
             >
@@ -3801,7 +3801,7 @@ export default function AdminAnalyticsPage() {
           <>
             <SectionCard
               title="Commerce Snapshot"
-              subtitle="A tighter mobile revenue view with unlock and purchase efficiency kept above the fold."
+              subtitle="Unlock and purchase efficiency kept above the fold."
               icon={DollarSign}
               defaultExpanded
               rightSlot={renderSectionRangeControl("commerceSnapshot")}
@@ -3868,7 +3868,7 @@ export default function AdminAnalyticsPage() {
             <div className="grid gap-5 xl:grid-cols-[1fr_1fr]">
               <SectionCard
                 title="Package Performance"
-                subtitle="Which Gum Drop packs are getting checkout intent, completions, and drop-off."
+                subtitle="Which Gum Drop packs earn starts, purchases, and drop-off."
                 icon={Wallet}
                 rightSlot={renderSectionRangeControl("packagePerformance")}
               >
@@ -3947,7 +3947,7 @@ export default function AdminAnalyticsPage() {
 
               <SectionCard
                 title="Content Conversion"
-                subtitle="Which content types are previewed most and which actually get unwrapped."
+                subtitle="Which content types get previews and unwraps."
                 icon={Candy}
                 rightSlot={renderSectionRangeControl("contentConversion")}
               >
@@ -4020,7 +4020,7 @@ export default function AdminAnalyticsPage() {
             <div className="grid gap-5 xl:grid-cols-[1.05fr_0.95fr]">
               <SectionCard
                 title="Top Drop Conversion"
-                subtitle="Unlocked drops with enough demand to matter, surfaced as a compact mobile chart and list."
+                subtitle="Unlocked drops with enough demand to matter."
                 icon={ShoppingBag}
                 rightSlot={renderSectionRangeControl("topDropConversion")}
               >
@@ -4114,7 +4114,7 @@ export default function AdminAnalyticsPage() {
 
               <SectionCard
                 title="Recent Commerce Feed"
-                subtitle="Recent transactions condensed into mobile cards so admins can skim activity without horizontal scrolling."
+                subtitle="Recent transactions condensed into mobile cards."
                 icon={Wallet}
                 rightSlot={renderSectionRangeControl("recentCommerceFeed")}
               >
@@ -4182,7 +4182,7 @@ export default function AdminAnalyticsPage() {
                 subtitle={
                   viewerDrilldownFilter
                     ? `Viewer playback, watch time, and drop affinity filtered to ${viewerDrilldownFilter.startsWith("@") ? viewerDrilldownFilter : `@${viewerDrilldownFilter}`}.`
-                    : "Overall library-viewer performance across watch time, repeat sessions, asset completion, and the drops people actually spend time with."
+                    : "Overall library viewer performance across watch time, repeat sessions, asset completion, and top drops."
                 }
                 icon={Eye}
                 className="xl:col-span-2"
@@ -4649,8 +4649,8 @@ export default function AdminAnalyticsPage() {
               </SectionCard>
 
               <SectionCard
-                title="Watch Depth + Tags"
-                subtitle="What people actually watch once they unwrap, plus the tags pulling the most demand."
+              title="Watch Depth + Tags"
+                subtitle="What people watch after unwrap, plus the tags driving demand."
                 icon={Eye}
                 rightSlot={renderSectionRangeControl("watchDepthTags")}
               >

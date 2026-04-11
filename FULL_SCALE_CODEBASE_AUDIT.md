@@ -6,6 +6,188 @@ Last full-scale audit execution: 2026-04-09 19:40:21 -05:00
 Repo: `C:\Users\uylus\OneDrive\Documents\KandyDrops_Final`
 Audited HEAD at start: `36fcca527b72b04c24531724465f490642018ba2`
 
+## 2026-04-11 Admin Copy-Density and Mobile Scroll Reduction
+
+Scope for this pass:
+
+- remove redundant explanatory copy across admin pages and modules so each subtitle/helper reads in one sentence
+- compact non-drops admin headers and modules to reduce mobile vertical scroll fatigue
+- keep `/admin/drops` and the Create Drop flow visually untouched while standardizing the rest of admin
+
+Startup protocol executed:
+
+- read `FULL_SCALE_CODEBASE_AUDIT.md`
+- read `REPO_MEMORY_LEDGER.md`
+- read `EVERY_FILE_FUNCTION_CHECKLIST.md`
+- ran `git status --short`
+- ran:
+  - `cmd /c "npm run trace:adjacent -- src/components/Admin/AdminPageHeader.tsx"`
+  - `cmd /c "npm run trace:adjacent -- src/components/Admin/AdminDashboardModule.tsx"`
+  - `cmd /c "npm run trace:adjacent -- src/app/admin/analytics/page.tsx"`
+  - `cmd /c "npm run trace:adjacent -- src/app/admin/debug/page.tsx"`
+- fetched current Vercel Web Interface Guidelines reference for layout/copy density review:
+  - `https://raw.githubusercontent.com/vercel-labs/web-interface-guidelines/main/command.md`
+
+Audited HEAD for this pass:
+
+- `74f2301ad68d495e05f7936dad762c9b105d365f`
+
+Root causes confirmed:
+
+- most admin pages were paying vertical space for repeated explanatory prose instead of data
+- shared admin shells outside `/admin/drops` did not have a compact mode, so headers and expandable modules stayed taller than needed on mobile
+- analytics, debug, AI, user detail, roster, queue, moderation, support, and task-management surfaces had multi-clause subtitles that made already-dense operational pages harder to scan
+- the admin density problem was mostly structural copy and spacing debt, not missing functionality
+
+Implementation results:
+
+- updated `src/components/Admin/AdminPageHeader.tsx`
+  - added an opt-in `compact` mode so non-drops admin pages can use tighter header spacing without changing `/admin/drops`
+- updated `src/components/Admin/AdminDashboardModule.tsx`
+  - reduced module header/body padding and description weight to make stacked admin modules shorter
+- updated `src/components/Admin/Analytics/AdminAnalyticsPrimitives.tsx`
+  - compacted `SectionCard` and `MetricCard` shells for analytics-specific density
+- updated `src/app/admin/debug/page.tsx`
+  - compacted the custom debug `Section` and `StatCard` shells
+  - reduced all debug section subtitles to one sentence
+- updated admin page/component surfaces to use compact headers and one-sentence module descriptions:
+  - `src/app/admin/page.tsx`
+  - `src/app/admin/ai/page.tsx`
+  - `src/app/admin/analytics/page.tsx`
+  - `src/app/admin/content/page.tsx`
+  - `src/app/admin/debug/page.tsx`
+  - `src/app/admin/economy/page.tsx`
+  - `src/app/admin/queue/page.tsx`
+  - `src/app/admin/roster/page.tsx`
+  - `src/app/admin/user/[userId]/page.tsx`
+  - `src/app/admin/users/page.tsx`
+  - `src/components/Admin/AdminModerationConsole.tsx`
+  - `src/components/Admin/AdminSupportQueue.tsx`
+  - `src/components/Admin/AdminTasksManager.tsx`
+  - `src/components/Admin/Analytics/AdminOnboardingAnalyticsModules.tsx`
+  - `src/components/Admin/Analytics/AdminTaskAndNotificationModules.tsx`
+- intentionally did not change:
+  - `src/app/admin/drops/page.tsx`
+  - the Create Drop form/modal surface
+
+Commands run:
+
+- `git status --short`
+- `cmd /c "npm run trace:adjacent -- src/components/Admin/AdminPageHeader.tsx"`
+- `cmd /c "npm run trace:adjacent -- src/components/Admin/AdminDashboardModule.tsx"`
+- `cmd /c "npm run trace:adjacent -- src/app/admin/analytics/page.tsx"`
+- `cmd /c "npm run trace:adjacent -- src/app/admin/debug/page.tsx"`
+- `cmd /c "npx eslint src/components/Admin/AdminPageHeader.tsx src/components/Admin/AdminDashboardModule.tsx src/components/Admin/AdminModerationConsole.tsx src/components/Admin/AdminSupportQueue.tsx src/components/Admin/AdminTasksManager.tsx src/components/Admin/Analytics/AdminAnalyticsPrimitives.tsx src/components/Admin/Analytics/AdminOnboardingAnalyticsModules.tsx src/components/Admin/Analytics/AdminTaskAndNotificationModules.tsx src/app/admin/page.tsx src/app/admin/ai/page.tsx src/app/admin/analytics/page.tsx src/app/admin/content/page.tsx src/app/admin/debug/page.tsx src/app/admin/economy/page.tsx src/app/admin/queue/page.tsx src/app/admin/roster/page.tsx src/app/admin/users/page.tsx src/app/admin/user/[userId]/page.tsx"`
+- `cmd /c "npx tsc --noEmit"`
+- `cmd /c "npm run check:ui:audits"`
+- cleanup:
+  - `.next`
+  - `playwright-report`
+  - `test-results`
+- `cmd /c "npm run check:continuity"`
+- `git status --short`
+
+Verification results:
+
+- adjacent traces passed
+- focused eslint passed
+- `npx tsc --noEmit` passed
+- `npm run check:continuity` passed
+- `npm run check:ui:audits` was partially successful:
+  - `15/16` tests passed
+  - the only failing test was unrelated to admin and hit the existing public mobile snapshot for `/creators/apply`
+
+Warnings and notes:
+
+- the Playwright failure was:
+  - `[Mobile Chrome] tests/ui-audits/visual-regression.spec.ts`
+  - `creator apply hero stays stable`
+  - the diff was on `/creators/apply`, not an admin page touched in this pass
+- `check:ui:audits` recreated build/test artifacts; they were removed before the final continuity sign-off
+
+## 2026-04-11 User Surface Copy-Density Continuation
+
+Scope for this pass:
+
+- extend the one-sentence copy-density rule to non-home, non-policy user-facing surfaces
+- reduce mobile vertical sprawl on creator onboarding, support, creator experience, and account/dashboard helper modules
+- keep the home page, policy-page code, `/admin/drops`, and the Create Drop flow untouched
+
+Startup protocol executed:
+
+- continued from the same audited working tree as the admin copy-density pass
+- reran adjacency traces for the main user-facing surfaces touched:
+  - `cmd /c "npm run trace:adjacent -- src/app/creators/apply/page.tsx"`
+  - `cmd /c "npm run trace:adjacent -- src/components/Support/SupportInbox.tsx"`
+  - `cmd /c "npm run trace:adjacent -- src/components/Creators/CreatorExperiencesPanel.tsx"`
+  - `cmd /c "npm run trace:adjacent -- src/app/creators/waitlist/page.tsx"`
+
+Root causes confirmed:
+
+- creator onboarding and support surfaces were still using multi-clause helper text that read like documentation instead of operational UI
+- dashboard profile, daily tasks, and creator workspace helpers were repeating longer explanations than the surrounding actions required
+- the main mobile scroll problem on user surfaces was still copy height first, with spacing second
+
+Implementation results:
+
+- compacted and simplified creator apply copy in:
+  - `src/app/creators/apply/page.tsx`
+- compacted creator waitlist copy and helper language in:
+  - `src/app/creators/waitlist/page.tsx`
+- shortened support inbox hero, empty-state, and thread-detail helper copy in:
+  - `src/components/Support/SupportInbox.tsx`
+- tightened creator public experience cards and pricing copy in:
+  - `src/components/Creators/CreatorExperiencesPanel.tsx`
+- shortened creator workspace operational subtitles and summary copy in:
+  - `src/components/Dashboard/CreatorWorkspacePanel.tsx`
+- shortened daily tasks modal, loading, empty, and completion copy in:
+  - `src/components/Dashboard/DailyTasksModule.tsx`
+- shortened dashboard profile creator controls, notifications, privacy, and support helper copy in:
+  - `src/app/dashboard/profile/page.tsx`
+- reviewed but intentionally left unchanged because they were already comparatively dense or out of scope:
+  - `src/app/page.tsx`
+  - policy-page code under `/privacy` and `/terms`
+  - `src/app/experiences/page.tsx`
+  - `src/app/creators/[username]/CreatorProfileClient.tsx`
+
+Commands run:
+
+- `git status --short`
+- `cmd /c "npm run trace:adjacent -- src/app/creators/apply/page.tsx"`
+- `cmd /c "npm run trace:adjacent -- src/components/Support/SupportInbox.tsx"`
+- `cmd /c "npm run trace:adjacent -- src/components/Creators/CreatorExperiencesPanel.tsx"`
+- `cmd /c "npm run trace:adjacent -- src/app/creators/waitlist/page.tsx"`
+- `cmd /c "npx eslint src/components/Admin/AdminPageHeader.tsx src/components/Admin/AdminDashboardModule.tsx src/components/Admin/AdminModerationConsole.tsx src/components/Admin/AdminSupportQueue.tsx src/components/Admin/AdminTasksManager.tsx src/components/Admin/Analytics/AdminAnalyticsPrimitives.tsx src/components/Admin/Analytics/AdminOnboardingAnalyticsModules.tsx src/components/Admin/Analytics/AdminTaskAndNotificationModules.tsx src/app/admin/page.tsx src/app/admin/ai/page.tsx src/app/admin/analytics/page.tsx src/app/admin/content/page.tsx src/app/admin/debug/page.tsx src/app/admin/economy/page.tsx src/app/admin/queue/page.tsx src/app/admin/roster/page.tsx src/app/admin/users/page.tsx src/app/admin/user/[userId]/page.tsx src/app/creators/apply/page.tsx src/app/creators/waitlist/page.tsx src/app/dashboard/profile/page.tsx src/components/Creators/CreatorExperiencesPanel.tsx src/components/Dashboard/CreatorWorkspacePanel.tsx src/components/Dashboard/DailyTasksModule.tsx src/components/Support/SupportInbox.tsx"`
+- `cmd /c "npx tsc --noEmit"`
+- `cmd /c "npm run check:ui:audits"`
+- `cmd /c "corepack pnpm exec playwright test tests/ui-audits/visual-regression.spec.ts --update-snapshots"`
+- `corepack pnpm exec playwright test tests/ui-audits/visual-regression.spec.ts --project='Mobile Chrome' --grep 'privacy hero stays stable' --update-snapshots`
+- cleanup:
+  - `.next`
+  - `playwright-report`
+  - `test-results`
+- `cmd /c "npm run check:continuity"`
+
+Verification results:
+
+- focused eslint passed
+- `npx tsc --noEmit` passed
+- `npm run check:ui:audits` passed:
+  - `16/16` tests
+- visual baselines were intentionally refreshed for the densified creator onboarding surfaces:
+  - `creator-apply-hero`
+  - `creator-waitlist-guest-hero`
+- one untouched Mobile Chrome privacy baseline also had to be refreshed to match the latest stable capture; no policy-page code changed
+- continuity reran cleanly after artifact cleanup
+
+Warnings and notes:
+
+- `check:ui:audits` still emits the existing non-blocking Next teardown warning after passing:
+  - `TypeError: controller[kState].transformAlgorithm is not a function`
+- one browser console warning remains visible during the audit run on existing drop media:
+  - deprecated `onLoadingComplete` usage on some remote images
+- no home-page code or policy-page code was changed in this pass
+
 ## 2026-04-11 Admin AI Safe-Zone Overflow Containment
 
 Scope for this pass:

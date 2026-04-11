@@ -72,14 +72,14 @@ function TaskCard({
   icon: typeof Bell;
 }) {
   return (
-    <section className="glass-panel rounded-[1.8rem] border border-white/10 p-4 sm:p-5">
-      <div className="mb-4 flex items-start gap-3">
-        <div className="flex h-11 w-11 shrink-0 items-center justify-center rounded-2xl border border-brand-purple/25 bg-brand-purple/15 text-white">
-          <Icon className="h-5 w-5" />
+    <section className="glass-panel rounded-[1.5rem] border border-white/10 p-3.5 sm:p-4">
+      <div className="mb-3 flex items-start gap-2.5">
+        <div className="flex h-9.5 w-9.5 shrink-0 items-center justify-center rounded-[1rem] border border-brand-purple/25 bg-brand-purple/15 text-white">
+          <Icon className="h-4.5 w-4.5" />
         </div>
         <div>
-          <h3 className="text-lg font-bold text-white">{title}</h3>
-          <p className="mt-1 text-sm leading-6 text-gray-400">{subtitle}</p>
+          <h3 className="text-base font-bold text-white">{title}</h3>
+          <p className="mt-0.5 text-xs leading-5 text-gray-400">{subtitle}</p>
         </div>
       </div>
       {children}
@@ -281,7 +281,7 @@ export function AdminTasksManager({ users }: { users: UserProfile[] }) {
     <div className="space-y-4">
       <TaskCard
         title="Task builder"
-        subtitle="Create global or user-specific missions with reward, progress, cooldown, uniqueness, and filter controls."
+        subtitle="Create global or user-specific missions with reward, progress, cooldown, and filter controls."
         icon={Plus}
       >
         <div className="grid gap-3 md:grid-cols-2 xl:grid-cols-3">
@@ -414,8 +414,8 @@ export function AdminTasksManager({ users }: { users: UserProfile[] }) {
           </select>
         </div>
 
-        <p className="mt-3 text-xs leading-6 text-gray-500">
-          Use `uniqueByParamKey` for progress like distinct `drop_id` or `asset_key`. Criteria can enforce exact matches, minimum numeric thresholds, or comma-separated allowed values.
+        <p className="mt-3 text-xs leading-5 text-gray-500">
+          Use `uniqueByParamKey` for distinct progress keys, and use criteria to limit valid events.
         </p>
 
         <div className="mt-4 grid gap-4 lg:grid-cols-[1.2fr_0.8fr]">
@@ -515,7 +515,7 @@ export function AdminTasksManager({ users }: { users: UserProfile[] }) {
 
       <TaskCard
         title="Custom task queue"
-        subtitle="Pause or reactivate custom tasks while keeping cooldown, reward, and performance context visible."
+        subtitle="Pause or reactivate custom tasks while keeping cooldown, reward, and performance visible."
         icon={Target}
       >
         {isLoading ? (
@@ -616,7 +616,7 @@ export function AdminTasksManager({ users }: { users: UserProfile[] }) {
 
         <TaskCard
           title="Event trigger visibility"
-          subtitle="Live rollup of the telemetry triggers currently feeding the daily task engine."
+          subtitle="Live rollup of the telemetry triggers feeding the daily task engine."
           icon={Activity}
         >
           {(data?.eventStats?.length ?? 0) === 0 ? (
@@ -650,7 +650,7 @@ export function AdminTasksManager({ users }: { users: UserProfile[] }) {
 
       <TaskCard
         title="Task lifecycle feed"
-        subtitle="Recent assignments, starts, completions, failures, and reminder sends from the current task engine."
+        subtitle="Recent assignments, starts, completions, failures, and reminder sends."
         icon={CheckCircle2}
       >
         {(data?.recentTaskEvents?.length ?? 0) === 0 ? (
@@ -684,15 +684,15 @@ export function AdminTasksManager({ users }: { users: UserProfile[] }) {
         )}
       </TaskCard>
 
-      <div className="rounded-[1.8rem] border border-white/10 bg-[linear-gradient(135deg,rgba(178,140,255,0.12),rgba(0,0,0,0.65))] p-4 sm:p-5">
+      <div className="rounded-[1.6rem] border border-white/10 bg-[linear-gradient(135deg,rgba(178,140,255,0.12),rgba(0,0,0,0.65))] p-4">
         <div className="flex items-start gap-3">
           <div className="flex h-11 w-11 shrink-0 items-center justify-center rounded-2xl border border-brand-purple/25 bg-brand-purple/15 text-white">
             <Repeat className="h-5 w-5" />
           </div>
           <div>
-            <h3 className="text-lg font-bold text-white">Rotation rules now supported</h3>
-            <p className="mt-1 text-sm leading-6 text-gray-300">
-              Cooldowns stay configurable per task, completions are tracked in the lifecycle feed, and one-time tasks can retire forever once a user clears them.
+            <h3 className="text-base font-bold text-white">Rotation rules now supported</h3>
+            <p className="mt-1 text-sm leading-5 text-gray-300">
+              Cooldowns, lifecycle tracking, and one-time retirement now stay in one task surface.
             </p>
           </div>
         </div>

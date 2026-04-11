@@ -120,10 +120,10 @@ function Pill({ label, value, tone = "neutral" }: { label: string; value: string
 
 function StatCard({ label, value, meta }: { label: string; value: string | number; meta?: string }) {
     return (
-        <div className="rounded-[1.25rem] border border-white/10 bg-white/[0.04] p-4">
+        <div className="rounded-[1.1rem] border border-white/10 bg-white/[0.04] p-3.5">
             <p className="text-[11px] uppercase tracking-[0.18em] text-gray-400">{label}</p>
-            <div className="mt-2 text-2xl font-black text-white">{value}</div>
-            {meta ? <p className="mt-1 text-xs text-gray-400">{meta}</p> : null}
+            <div className="mt-1.5 text-[1.7rem] font-black text-white">{value}</div>
+            {meta ? <p className="mt-1 text-[11px] text-gray-400">{meta}</p> : null}
         </div>
     );
 }
@@ -144,23 +144,23 @@ function Section({
     const [open, setOpen] = useState(defaultOpen);
 
     return (
-        <section className="overflow-hidden rounded-[1.35rem] border border-white/10 bg-black/25">
+        <section className="overflow-hidden rounded-[1.25rem] border border-white/10 bg-black/25">
             <button
                 type="button"
                 onClick={() => setOpen((current) => !current)}
-                className="flex w-full items-start justify-between gap-4 px-4 py-4 text-left md:px-5"
+                className="flex w-full items-start justify-between gap-3 px-3.5 py-3.5 text-left md:px-4"
                 aria-expanded={open}
             >
                 <div className="min-w-0">
-                    <h2 className="text-base font-bold text-white md:text-lg">{title}</h2>
-                    {subtitle ? <p className="mt-1 text-sm text-gray-400">{subtitle}</p> : null}
-                    {summary ? <div className="mt-3 flex flex-wrap gap-2">{summary}</div> : null}
+                    <h2 className="text-[15px] font-bold text-white md:text-base">{title}</h2>
+                    {subtitle ? <p className="mt-0.5 text-[11px] leading-5 text-gray-400 md:text-xs">{subtitle}</p> : null}
+                    {summary ? <div className="mt-2.5 flex flex-wrap gap-2">{summary}</div> : null}
                 </div>
-                <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-full border border-white/10 bg-white/5 text-gray-300">
+                <div className="flex h-8.5 w-8.5 shrink-0 items-center justify-center rounded-full border border-white/10 bg-white/5 text-gray-300">
                     {open ? <ChevronUp className="h-4 w-4" /> : <ChevronDown className="h-4 w-4" />}
                 </div>
             </button>
-            {open ? <div className="border-t border-white/10 px-4 py-4 md:px-5">{children}</div> : null}
+            {open ? <div className="border-t border-white/10 px-3.5 py-3.5 md:px-4">{children}</div> : null}
         </section>
     );
 }
@@ -626,6 +626,7 @@ export default function DebugConsole() {
             <AdminPageHeader
                 eyebrow="Admin Debug"
                 title="Debug Console"
+                compact
                 actions={(
                     <Button variant="glass" onClick={refreshAll}>
                         <RefreshCw className="mr-2 h-4 w-4" />
@@ -654,7 +655,7 @@ export default function DebugConsole() {
                 <div className="space-y-4">
                     <Section
                         title="System health now"
-                        subtitle="Loaded health score, current diagnostics, and sampled pipeline freshness. Historical failures stay visible, but the score only penalizes active or recent ops issues."
+                        subtitle="Loaded health score, current diagnostics, and sampled pipeline freshness."
                         defaultOpen
                         summary={<><Pill label="Score" value={`${data?.opsHealth?.score ?? 0}%`} tone={(data?.opsHealth?.score ?? 0) >= 90 ? "good" : (data?.opsHealth?.score ?? 0) >= 70 ? "warn" : "bad"} /><Pill label="Pipeline" value={getPipelineStatusLabel(data?.opsHealth?.pipeline?.status)} tone={data?.opsHealth?.pipeline?.status === "fail" ? "bad" : data?.opsHealth?.pipeline?.status === "warn" ? "warn" : "good"} /><Pill label="Active diagnostics" value={(data?.opsHealth?.diagnostics?.activeErrorCount ?? 0) + (data?.opsHealth?.diagnostics?.activeWarnCount ?? 0)} tone={((data?.opsHealth?.diagnostics?.activeErrorCount ?? 0) + (data?.opsHealth?.diagnostics?.activeWarnCount ?? 0)) > 0 ? "warn" : "good"} /><Pill label="Freshest loaded signal" value={freshestLoadedSignalAt ? formatRelative(freshestLoadedSignalAt) : "Not loaded"} /></>}
                     >
@@ -739,7 +740,7 @@ export default function DebugConsole() {
 
                     <Section
                         title="Creator intake blockers"
-                        subtitle="Live cross-checks between onboarding records, queue entries, and user projections. This is a real mismatch check, not a blanket readiness claim."
+                        subtitle="Live cross-checks between onboarding records, queue entries, and user projections."
                         defaultOpen={(data?.creatorOnboardingDiagnostics?.summary?.totalIssues ?? 0) > 0}
                         summary={<><Pill label="Issues" value={data?.creatorOnboardingDiagnostics?.summary?.totalIssues ?? 0} tone={(data?.creatorOnboardingDiagnostics?.summary?.totalIssues ?? 0) > 0 ? "warn" : "good"} /><Pill label="Missing queue" value={data?.creatorOnboardingDiagnostics?.summary?.missingQueueCount ?? 0} tone={(data?.creatorOnboardingDiagnostics?.summary?.missingQueueCount ?? 0) > 0 ? "bad" : "good"} /><Pill label="Role mismatch" value={data?.creatorOnboardingDiagnostics?.summary?.roleMismatchCount ?? 0} tone={(data?.creatorOnboardingDiagnostics?.summary?.roleMismatchCount ?? 0) > 0 ? "warn" : "good"} /></>}
                     >
@@ -795,7 +796,7 @@ export default function DebugConsole() {
 
                     <Section
                         title="Recent diagnostics and downstream writers"
-                        subtitle="Recent diagnostics, route failures, and materializer freshness. This is a loaded sample, not full historical coverage."
+                        subtitle="Recent diagnostics, route failures, and materializer freshness from the loaded sample."
                         defaultOpen={!isCompactViewport && ((data?.opsHealth?.diagnostics?.errorCount ?? 0) > 0 || (data?.opsHealth?.pipeline?.failureCount ?? 0) > 0)}
                         summary={<><Pill label="Channels" value={(data?.opsHealth?.diagnostics?.channels || []).length} /><Pill label="Recent diagnostics" value={(data?.opsHealth?.diagnostics?.recent || []).length} /><Pill label="Routes" value={(data?.opsHealth?.pipeline?.routes || []).length} /></>}
                     >
@@ -876,7 +877,7 @@ export default function DebugConsole() {
 
                     <Section
                         title="Panel status by section"
-                        subtitle="Saved panel summaries with concrete next actions. Counts here are derived from the current persisted panel log set."
+                        subtitle="Saved panel summaries with concrete next actions."
                         defaultOpen={(panelLogWarnCount + panelLogFailCount) > 0}
                         summary={<><Pill label="Panels" value={(data?.panelSystemLogs || []).length} /><Pill label="Warn" value={panelLogWarnCount} tone={panelLogWarnCount > 0 ? "warn" : "good"} /><Pill label="Fail" value={panelLogFailCount} tone={panelLogFailCount > 0 ? "bad" : "good"} /></>}
                     >
@@ -914,7 +915,7 @@ export default function DebugConsole() {
                 <div className="space-y-4">
                     <Section
                         title="Repairs available now"
-                        subtitle="Open repair proposals that can be applied or dismissed. Actor bleed risk stays visible in advanced internals."
+                        subtitle="Open repair proposals that can be applied or dismissed."
                         defaultOpen={(data?.stats?.orchestrationActionableRepairs ?? 0) > 0}
                         summary={<><Pill label="Actionable" value={data?.stats?.orchestrationActionableRepairs ?? 0} tone={(data?.stats?.orchestrationActionableRepairs ?? 0) ? "warn" : "good"} /><Pill label="Contamination risks" value={data?.orchestration?.summary?.contaminationRisks ?? 0} tone={(data?.orchestration?.summary?.contaminationRisks ?? 0) ? "bad" : "good"} /></>}
                     >
@@ -957,7 +958,7 @@ export default function DebugConsole() {
 
                     <Section
                         title="Bug reports to triage"
-                        subtitle="Recent bug intake with severity, path, and diagnostic context. This is a loaded sample, not a full incident system."
+                        subtitle="Recent bug intake with severity, path, and diagnostic context."
                         defaultOpen={(data?.bugReports || []).length > 0}
                         summary={<><Pill label="Loaded" value={(data?.bugReports || []).length} /><Pill label="Last 7d" value={data?.stats?.bugReportsLast7d ?? 0} tone={(data?.stats?.bugReportsLast7d ?? 0) > 0 ? "warn" : "good"} /></>}
                     >
@@ -988,7 +989,7 @@ export default function DebugConsole() {
 
                     <Section
                         title="Manual utilities (not live health)"
-                        subtitle="Operator-triggered controls only. They do not prove system health and they are separated from live diagnostics on purpose."
+                        subtitle="Operator-triggered controls that stay separate from live diagnostics."
                         defaultOpen={false}
                         summary={<><Pill label="Balance adjust" value={`${simAmount} drops`} /></>}
                     >
@@ -1017,7 +1018,7 @@ export default function DebugConsole() {
                 <div className="space-y-4">
                     <Section
                         title="Tracked route runtime"
-                        subtitle="Canonical route rollups for debug, overview, support, chat, creator-message compatibility, creator relationships, and AI flows. This is persisted backend health, not guessed client state."
+                        subtitle="Canonical route rollups for debug, overview, support, chat, creator relationships, and AI flows."
                         defaultOpen={routeRuntimeHealthSummary.fail > 0 || routeRuntimeHealthSummary.warn > 0 || routeRuntimeHealthSummary.stale > 0}
                         summary={<><Pill label="Tracked" value={routeRuntimeHealthSummary.total} /><Pill label="Filter" value={routeRuntimeFilter.replace("_", " ")} tone={routeRuntimeFilter === "all" ? "neutral" : "warn"} /><Pill label="Unseen" value={routeRuntimeHealthSummary.unobserved} tone={routeRuntimeHealthSummary.unobserved > 0 ? "warn" : "good"} /><Pill label="Stale" value={routeRuntimeHealthSummary.stale} tone={routeRuntimeHealthSummary.stale > 0 ? "warn" : "good"} /><Pill label="Warn" value={routeRuntimeHealthSummary.warn} tone={routeRuntimeHealthSummary.warn > 0 ? "warn" : "good"} /><Pill label="Fail" value={routeRuntimeHealthSummary.fail} tone={routeRuntimeHealthSummary.fail > 0 ? "bad" : "good"} /><Pill label="Slow samples" value={routeRuntimeHealthSummary.slow} tone={routeRuntimeHealthSummary.slow > 0 ? "warn" : "good"} /><Pill label="Native chat" value={`${nativeChatRouteRuntimeSummary.fail}/${nativeChatRouteRuntimeSummary.warn}/${nativeChatRouteRuntimeSummary.stale}`} tone={nativeChatRouteRuntimeSummary.fail > 0 ? "bad" : nativeChatRouteRuntimeSummary.warn > 0 || nativeChatRouteRuntimeSummary.stale > 0 ? "warn" : "good"} /><Pill label="Compat chat" value={`${compatibilityChatRouteRuntimeSummary.fail}/${compatibilityChatRouteRuntimeSummary.warn}/${compatibilityChatRouteRuntimeSummary.stale}`} tone={compatibilityChatRouteRuntimeSummary.fail > 0 ? "bad" : compatibilityChatRouteRuntimeSummary.warn > 0 || compatibilityChatRouteRuntimeSummary.stale > 0 ? "warn" : "good"} /></>}
                     >
@@ -1115,7 +1116,7 @@ export default function DebugConsole() {
 
                     <Section
                         title="Recent transactions"
-                        subtitle="Latest loaded commerce entries. This is a bounded feed for fast inspection, not a full historical export."
+                        subtitle="Latest loaded commerce entries from the current bounded feed."
                         defaultOpen
                         summary={<><Pill label="Loaded" value={recentTransactions.length} /><Pill label="Feed window" value="Latest loaded entries" /></>}
                     >
@@ -1141,7 +1142,7 @@ export default function DebugConsole() {
 
                     <Section
                         title="Admin UI chart hydration"
-                        subtitle="Latest client-reported health for admin dashboard, analytics, moderation, and debug surfaces. These are real UI-side hydration reports, not inferred server guesses."
+                        subtitle="Latest client-reported health for admin dashboard, analytics, moderation, and debug surfaces."
                         defaultOpen={(analyticsChartHealthSummary.warn + analyticsChartHealthSummary.fail) > 0}
                         summary={<><Pill label="Reported" value={analyticsChartHealthSummary.total} /><Pill label="Warn" value={analyticsChartHealthSummary.warn} tone={analyticsChartHealthSummary.warn > 0 ? "warn" : "good"} /><Pill label="Fail" value={analyticsChartHealthSummary.fail} tone={analyticsChartHealthSummary.fail > 0 ? "bad" : "good"} /></>}
                     >
@@ -1184,7 +1185,7 @@ export default function DebugConsole() {
 
                     <Section
                         title="Admin session and runtime prerequisites"
-                        subtitle="Current admin identity plus narrow runtime prerequisites that affect debug behavior. This is not a system-wide readiness claim."
+                        subtitle="Current admin identity plus the runtime prerequisites that affect debug behavior."
                         defaultOpen={false}
                         summary={<><Pill label="Role" value={userProfile?.role || "user"} tone="good" /><Pill label="GA property" value={data?.opsHealth?.runtime?.gaPropertyConfigured ? "Ready" : "Missing"} tone={data?.opsHealth?.runtime?.gaPropertyConfigured ? "good" : "warn"} /><Pill label="VAPID" value={data?.opsHealth?.runtime?.vapidConfigured ? "Yes" : "No"} tone={data?.opsHealth?.runtime?.vapidConfigured ? "good" : "warn"} /></>}
                     >
@@ -1209,7 +1210,7 @@ export default function DebugConsole() {
 
                     <Section
                         title="Recent event flow"
-                        subtitle="Derived recent events normalized from telemetry and backend signals. This helps with interpretation, but it is not canonical truth by itself."
+                        subtitle="Derived recent events normalized from telemetry and backend signals."
                         defaultOpen={!isCompactViewport}
                         summary={<><Pill label="Events" value={data?.stats?.orchestrationEvents ?? 0} /><Pill label="Low confidence" value={data?.stats?.orchestrationLowConfidence ?? 0} tone={(data?.stats?.orchestrationLowConfidence ?? 0) ? "warn" : "good"} /></>}
                     >
@@ -1242,7 +1243,7 @@ export default function DebugConsole() {
 
                     <Section
                         title="Recent task activity sample"
-                        subtitle="Recent task events and longer-tail rollups. This is an activity sample, not a full user-journey ledger."
+                        subtitle="Recent task events and longer-tail rollups from the activity sample."
                         defaultOpen={false}
                         summary={<><Pill label="Recent events" value={(data?.recentTaskEvents || []).length} /><Pill label="Rollups" value={(data?.taskRollups || []).length} /><Pill label="Daily points" value={(data?.dailyTaskSeries || []).length} /></>}
                     >
@@ -1302,7 +1303,7 @@ export default function DebugConsole() {
 
                     <Section
                         title="Recent receipts and dedupe sample"
-                        subtitle="Recent receipts plus dedupe counters. This is a sample view of receipt visibility, not a full ledger reconciliation screen."
+                        subtitle="Recent receipts plus dedupe counters from the current sample."
                         defaultOpen={false}
                         summary={<><Pill label="Receipts 7d" value={data?.stats?.receiptsLast7d ?? 0} /><Pill label="Recent" value={(data?.recentReceipts || []).length} /></>}
                     >
@@ -1345,7 +1346,7 @@ export default function DebugConsole() {
                 <div className="space-y-4">
                     <Section
                         title="AI debug assistant"
-                        subtitle="Advisory summary over bounded canonical signals. Live model output, fallback summaries, and unavailability stay labeled."
+                        subtitle="Advisory summary over bounded canonical signals with labeled fallbacks."
                         defaultOpen
                         summary={<><Pill label="Status" value={aiStatusLabel} tone={aiStatusTone} /><Pill label="Enabled" value={aiDebugData?.enabled === false ? "No" : "Yes"} tone={aiDebugData?.enabled === false ? "warn" : "good"} /><Pill label="Configured model" value={aiDebugData?.configured_model || aiAssistantModel || "gemini-2.5-flash-lite"} /><Pill label="Runtime" value={aiDebugData?.runtime_ready ? "Ready" : "Unavailable"} tone={aiDebugData?.runtime_ready ? "good" : "bad"} /><Pill label="Last run" value={aiDebugData?.generated_at ? formatRelative(Date.parse(aiDebugData.generated_at)) : "Not recorded"} /><Pill label="Latency" value={aiDebugData ? `${aiDebugData.latency_ms}ms` : "--"} tone={aiDebugData && aiDebugData.latency_ms > 5000 ? "warn" : "neutral"} /></>}
                     >
@@ -1480,7 +1481,7 @@ export default function DebugConsole() {
                 <div className="space-y-4">
                     <Section
                         title="Behavior normalization internals"
-                        subtitle="Derived internal coordination state: normalized events, open findings, dependency gaps, and domain-level coverage. Useful, but not canonical truth by itself."
+                        subtitle="Derived coordination state covering events, open findings, and domain coverage."
                         defaultOpen={false}
                         summary={<><Pill label="Health" value={`${data?.orchestration?.summary?.score ?? 0}%`} tone={(data?.orchestration?.summary?.score ?? 0) >= 90 ? "good" : (data?.orchestration?.summary?.score ?? 0) >= 70 ? "warn" : "bad"} /><Pill label="Open findings" value={data?.orchestration?.summary?.openFindings ?? 0} tone={(data?.orchestration?.summary?.openFindings ?? 0) ? "warn" : "good"} /><Pill label="Actionable repairs" value={data?.orchestration?.summary?.actionableProposals ?? 0} tone={(data?.orchestration?.summary?.actionableProposals ?? 0) ? "warn" : "good"} /><Pill label="Low confidence" value={data?.orchestration?.summary?.lowConfidenceEvents ?? 0} tone={(data?.orchestration?.summary?.lowConfidenceEvents ?? 0) ? "warn" : "good"} /></>}
                     >
@@ -1534,7 +1535,7 @@ export default function DebugConsole() {
 
                     <Section
                         title="Actor ownership and bleed risk"
-                        subtitle="Per-actor summaries from the normalization layer. Useful for debugging cross-session contamination, but still a derived view."
+                        subtitle="Per-actor summaries from the normalization layer."
                         defaultOpen={false}
                         summary={<><Pill label="Actors" value={(data?.orchestration?.actorSummaries || []).length} /><Pill label="Contamination risks" value={data?.orchestration?.summary?.contaminationRisks ?? 0} tone={(data?.orchestration?.summary?.contaminationRisks ?? 0) ? "bad" : "good"} /></>}
                     >
@@ -1563,7 +1564,7 @@ export default function DebugConsole() {
 
                     <Section
                         title="Task catalog coverage"
-                        subtitle="Built-in task definitions, trigger source, and action path. This is code-backed catalog truth, not live completion behavior."
+                        subtitle="Built-in task definitions, trigger source, and action path."
                         defaultOpen={false}
                         summary={<><Pill label="Built-in" value={data?.stats?.builtInTasks ?? 0} /><Pill label="Canonical" value={data?.stats?.canonicalTasks ?? 0} tone="good" /><Pill label="Telemetry" value={data?.stats?.telemetryValidatedTasks ?? 0} tone="good" /><Pill label="Unsupported" value={data?.stats?.unsupportedTasks ?? 0} tone={data?.stats?.unsupportedTasks ? "warn" : "good"} /></>}
                     >
@@ -1598,7 +1599,7 @@ export default function DebugConsole() {
 
                     <Section
                         title="Task parity and Gum Drop guardrails"
-                        subtitle="Combines task assignment issues, reward parity, and creator-spend guardrails so the higher-risk mismatches stay together."
+                        subtitle="Task assignment issues, reward parity, and creator-spend guardrails in one view."
                         defaultOpen={false}
                         summary={<><Pill label="Affected users" value={data?.stats?.usersWithTaskIssues ?? 0} tone={data?.stats?.usersWithTaskIssues ? "warn" : "good"} /><Pill label="Reward delta 7d" value={data?.stats?.rewardEventDeltaLast7d ?? 0} tone={(data?.stats?.rewardEventDeltaLast7d ?? 0) === 0 ? "good" : "warn"} /><Pill label="Creator spend violations" value={data?.stats?.creatorSpendViolationsLast7d ?? 0} tone={(data?.stats?.creatorSpendViolationsLast7d ?? 0) === 0 ? "good" : "warn"} /></>}
                     >
@@ -1688,7 +1689,7 @@ export default function DebugConsole() {
 
                     <Section
                         title="Runtime task sample and custom-task drift"
-                        subtitle="Sampled runtime state from user assignments, task events, receipts, reward claims, and rollups so built-ins and custom tasks can be inspected on the same truth surface."
+                        subtitle="Sampled runtime state from assignments, task events, receipts, reward claims, and rollups."
                         defaultOpen={false}
                         summary={<><Pill label="Sampled users" value={data?.runtimeTaskAudit?.summary?.sampledUsers ?? 0} /><Pill label="Assignments" value={data?.stats?.runtimeAssignedTasks ?? 0} /><Pill label="Custom assigned" value={data?.stats?.runtimeCustomAssignments ?? 0} tone={(data?.stats?.runtimeCustomAssignments ?? 0) > 0 ? "good" : "warn"} /><Pill label="Cooldown drift" value={data?.stats?.runtimeCooldownConflictUsers ?? 0} tone={(data?.stats?.runtimeCooldownConflictUsers ?? 0) === 0 ? "good" : "warn"} /><Pill label="Unsupported runtime" value={data?.stats?.runtimeUnsupportedTaskRecords ?? 0} tone={(data?.stats?.runtimeUnsupportedTaskRecords ?? 0) === 0 ? "good" : "warn"} /></>}
                     >
@@ -1777,7 +1778,7 @@ export default function DebugConsole() {
 
                     <Section
                         title="Task telemetry mapping"
-                        subtitle="Canonical task facts, telemetry event stats, and shared-event ambiguity shown separately so attribution uncertainty stays visible."
+                        subtitle="Canonical task facts, telemetry event stats, and shared-event ambiguity."
                         defaultOpen={false}
                         summary={<><Pill label="Alignment warnings" value={data?.stats?.telemetryAlignmentWarnings ?? 0} tone={(data?.stats?.telemetryAlignmentWarnings ?? 0) === 0 ? "good" : "warn"} /><Pill label="Shared events" value={data?.stats?.runtimeSharedEventMappings ?? 0} tone={(data?.stats?.runtimeSharedEventMappings ?? 0) === 0 ? "good" : "warn"} /><Pill label="Unsupported runtime" value={data?.stats?.runtimeUnsupportedTaskRecords ?? 0} tone={(data?.stats?.runtimeUnsupportedTaskRecords ?? 0) === 0 ? "good" : "warn"} /></>}
                     >
@@ -1856,7 +1857,7 @@ export default function DebugConsole() {
 
                     <Section
                         title="Telemetry coverage sample"
-                        subtitle="Tracked events, task mappings, and last-seen visibility in one bounded sample. The orphaned count below is task-related only, not every non-task event."
+                        subtitle="Tracked events, task mappings, and last-seen visibility in one bounded sample."
                         defaultOpen={false}
                         summary={<><Pill label="Tracked events" value={data?.stats?.trackedTelemetryEvents ?? 0} /><Pill label="Orphaned" value={data?.stats?.orphanedTelemetryEvents ?? 0} tone={data?.stats?.orphanedTelemetryEvents ? "warn" : "good"} /></>}
                     >
@@ -1885,7 +1886,7 @@ export default function DebugConsole() {
 
                     <Section
                         title="Tracked events with no task mapping"
-                        subtitle="Warning list for tracked task-related events that do not currently map to a task."
+                        subtitle="Tracked task-related events that do not currently map to a task."
                         defaultOpen={false}
                         summary={<><Pill label="Orphaned" value={(data?.orphanedEventStats || []).length} tone={(data?.orphanedEventStats || []).length ? "warn" : "good"} /></>}
                     >
@@ -1911,7 +1912,7 @@ export default function DebugConsole() {
 
                     <Section
                         title="Experiment and rollout registry"
-                        subtitle="Current experimentation footprint and sample actor resolution. Useful for context, but not live service health."
+                        subtitle="Current experimentation footprint and sample actor resolution."
                         defaultOpen={false}
                         summary={<><Pill label="Configured rollouts" value={(data?.rollouts || []).length} /><Pill label="Sample actors" value={data?.stats?.rolloutSamples ?? 0} /></>}
                     >

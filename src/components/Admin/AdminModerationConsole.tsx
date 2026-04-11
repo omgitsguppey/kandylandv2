@@ -142,7 +142,8 @@ export function AdminModerationConsole() {
             <AdminPageHeader
                 eyebrow="Admin Moderation"
                 title="Content Moderation"
-                subtitle="Server-backed creator chat oversight and security alerts. This surface uses admin APIs with automatic polling, not client Firestore subscriptions."
+                subtitle="Server-backed creator chat oversight and security alerts with automatic polling."
+                compact
                 actions={(
                     <>
                         <span className="rounded-full border border-white/10 bg-black/35 px-3 py-1.5 text-xs font-semibold text-white">{threads.length} threads</span>
@@ -193,7 +194,7 @@ export function AdminModerationConsole() {
                         <div className="mb-4 flex items-start justify-between gap-3">
                             <div>
                                 <h2 className="text-sm font-bold text-white">Security alerts</h2>
-                                <p className="mt-1 text-xs leading-5 text-gray-400">This is the primary operational surface for viewer-protection detections.</p>
+                                <p className="mt-1 text-xs leading-5 text-gray-400">Primary operational surface for viewer-protection detections.</p>
                             </div>
                             <span className="rounded-full border border-white/10 bg-white/5 px-3 py-1 text-[11px] font-semibold text-gray-200">{highAlerts} high</span>
                         </div>

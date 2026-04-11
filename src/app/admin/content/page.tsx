@@ -161,12 +161,13 @@ export default function ContentManagerPage() {
     };
 
     return (
-        <div className="space-y-6">
+        <div className="space-y-4 md:space-y-5">
             <PageViewEvent eventName="admin_content_viewed" />
             <AdminPageHeader
                 eyebrow="Admin Storage"
                 title="Content Manager"
-                subtitle="Manage assets in Firebase Storage."
+                subtitle="Manage Firebase Storage assets."
+                compact
                 actions={
                     <>
                     <Button variant="ghost" onClick={() => setRefreshTrigger(prev => prev + 1)}>

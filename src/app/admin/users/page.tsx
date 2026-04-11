@@ -414,16 +414,17 @@ export default function UserManagementPage() {
     };
 
     return (
-        <div className="space-y-6">
+        <div className="space-y-4 md:space-y-5">
             <PageViewEvent eventName="admin_users_viewed" />
             <AdminPageHeader
                 eyebrow="Admin Users"
                 title={viewMode === 'users' ? 'User Management' : viewMode === 'feedback' ? 'Platform Feedback' : 'Daily Task Control'}
+                compact
                 subtitle={viewMode === 'users'
                     ? 'Manage accounts, roles, balance, and content access.'
                     : viewMode === 'feedback'
                         ? 'Review user-submitted feedback from daily tasks.'
-                        : 'Create custom daily missions and monitor live task triggers.'}
+                        : 'Create daily missions and monitor live task triggers.'}
                 actions={
                     <>
                     <button

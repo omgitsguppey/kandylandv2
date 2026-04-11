@@ -28,13 +28,11 @@ import {
 import {
     canEditCreatorApplicantIntake,
     CREATOR_LEGAL_WAITING_HEADLINE,
-    CREATOR_LEGAL_WAITING_HELPER,
     CREATOR_REVIEW_TIMELINE_COPY,
     describeCreatorFacingOnboardingBlockingReason,
     getCreatorOnboardingIdDocumentBySide,
     getCreatorOnboardingIdDocumentSummary,
     getCreatorOnboardingStatusSummary,
-    KREATOR_EXPERIENCES_DEFINITION,
 } from "@/lib/creator-onboarding";
 
 type CreatorApplicationState = NonNullable<NonNullable<ReturnType<typeof useAuth>["userProfile"]>["creatorApplication"]>;
@@ -164,21 +162,21 @@ function getIdVerificationPresentation(value: CreatorApplicationState | null, co
     if (value.idVerificationStatus === "id_rejected") {
         return {
             label: "Blocked",
-            description: "Your last ID submission needs a replacement. Upload fresh files from this page so review can continue.",
+            description: "Your last ID submission needs a replacement, so upload fresh files from this page.",
         };
     }
 
     if (count === 0) {
         return {
             label: "Missing",
-            description: "ID verification is required for every creator application. Upload the full four-part verification package from this page when the secure upload step is available.",
+            description: "ID verification is required for every creator application, so upload the full four-part package when this step opens.",
         };
     }
 
     if (!complete) {
         return {
             label: "Pending",
-            description: "Part of the verification package is already in. Upload the remaining files from this page so identity review can continue.",
+            description: "Part of the verification package is already in, so upload the remaining files from this page.",
         };
     }
 
@@ -250,43 +248,43 @@ export default function CreatorWaitlistPage() {
         ? statusSummary.stage === "Approved"
             ? {
                 title: "Open your creator tools",
-                description: "Approval is complete. Use your creator dashboard and standard creator management pages for profile updates, drops, messaging, bookings, and payouts where they are enabled.",
+                description: "Approval is complete, so creator tools now live in your dashboard and profile.",
             }
             : !introAcknowledged
                 ? {
                     title: "Acknowledge the creator program",
-                    description: "Read the short creator and fan explainer on this page before the identity and contract steps can continue.",
+                    description: "Acknowledge the intro here before ID and contract review can continue.",
                 }
                 : canSubmitId
                 ? {
                     title: "Upload your verification package",
                     description: idSummary.count > 0
-                        ? "Part of the required verification package is already in. Upload the remaining files so identity review can continue."
-                        : "Your next step is to upload the required verification package from this page.",
+                        ? "Upload the remaining verification files so identity review can continue."
+                        : "Upload the required verification package from this page.",
                 }
                 : contractReady && !creatorContractSigned
                     ? {
                         title: "Review and sign your agreement",
-                        description: "Read the summary, review the full agreement, and add your signature from this page when you are ready.",
+                        description: "Review the agreement and add your signature from this page.",
                     }
                     : creatorContractSigned && !adminCountersigned
                         ? {
                             title: "Wait for countersign",
-                            description: "Your signature is on file. The agreement is still waiting for admin countersign before approval can continue.",
+                            description: "Your signature is on file, and the agreement is waiting for admin countersign.",
                         }
                         : contractReady
                             ? {
                                 title: "Wait for review updates",
-                                description: "Your agreement and verification steps are in progress. This page will update again if the review team needs changes or when approval is complete.",
+                                description: "Your agreement and ID steps are in review, and this page will update if anything changes.",
                             }
                             : statusSummary.stage === "Needs attention"
                                 ? {
                                     title: "Contact creator support",
-                                    description: "This application needs follow-up. Use the creator support action on this page if anything looks incomplete or contradictory.",
+                                    description: "This application needs follow-up, so use creator support from this page.",
                                 }
                                 : {
                                     title: "Wait for review updates",
-                                    description: "You are caught up right now. This page will only change when the review team needs something from you or when approval is complete.",
+                                    description: "You are caught up, and this page will update when review changes.",
                                 }
         : null;
     const stageHistory = creatorApplication ? [
@@ -533,8 +531,8 @@ export default function CreatorWaitlistPage() {
                     ) : !user ? (
                         <div className="mt-6">
                             <h1 className="text-3xl font-black tracking-tight text-white sm:text-4xl">Start your creator application</h1>
-                            <p className="mt-4 max-w-2xl text-sm leading-7 text-gray-300 sm:text-base">
-                                {KREATOR_EXPERIENCES_DEFINITION} {CREATOR_REVIEW_TIMELINE_COPY}
+                            <p className="mt-4 max-w-2xl text-sm leading-6 text-gray-300 sm:text-base">
+                                Apply once, then track the real review, legal, and ID steps here.
                             </p>
                             <div className="mt-6 flex flex-wrap gap-3">
                                 <button
@@ -555,8 +553,8 @@ export default function CreatorWaitlistPage() {
                     ) : !creatorApplication ? (
                         <div className="mt-6">
                             <h1 className="text-3xl font-black tracking-tight text-white sm:text-4xl">No creator application found</h1>
-                            <p className="mt-4 max-w-2xl text-sm leading-7 text-gray-300 sm:text-base">
-                                You are signed in, but this account does not have an active creator application yet. Start a new creator application or use creator support if this account should already be in review.
+                            <p className="mt-4 max-w-2xl text-sm leading-6 text-gray-300 sm:text-base">
+                                This account has no active creator application, so start one now or open creator support if it should already be in review.
                             </p>
                             <div className="mt-6 flex flex-wrap gap-3">
                                 <Link
@@ -578,11 +576,8 @@ export default function CreatorWaitlistPage() {
                             <h1 className="mt-4 text-3xl font-black tracking-tight text-white sm:text-4xl">
                                 Creator application status
                             </h1>
-                            <p className="mt-4 max-w-3xl text-sm leading-7 text-gray-300 sm:text-base">
-                                {KREATOR_EXPERIENCES_DEFINITION}
-                            </p>
-                            <p className="mt-3 max-w-3xl text-sm leading-7 text-gray-300 sm:text-base">
-                                {statusSummary.summary}
+                            <p className="mt-4 max-w-3xl text-sm leading-6 text-gray-300 sm:text-base">
+                                This page is the live source of truth for your creator stage, legal review, ID review, and approval status.
                             </p>
 
                             <div className="mt-5 flex flex-wrap gap-2">
@@ -661,13 +656,9 @@ export default function CreatorWaitlistPage() {
 
                                 <div className="rounded-[1.75rem] border border-white/10 bg-black/25 p-5">
                                     <p className="text-[11px] font-semibold uppercase tracking-[0.18em] text-gray-500">Review facts</p>
-                                    <div className="mt-4 space-y-3 text-sm leading-6 text-gray-300">
-                                        <p>Manual admin approval is the only way creator access turns on.</p>
-                                        <p>No queue number is used on this page. Status is stage-based only.</p>
-                                        <p>The creator intro acknowledgment is required before identity and contract review continue.</p>
-                                        <p>The legal step on this page is the native in-app agreement flow, not a fake external placeholder.</p>
-                                        <p>Until approval is complete, this page is your single source of truth for creator intake updates.</p>
-                                    </div>
+                                    <p className="mt-4 text-sm leading-6 text-gray-300">
+                                        Manual approval is required, status is stage-based, and this page stays your source of truth until approval.
+                                    </p>
                                 </div>
                             </div>
                         </>
@@ -690,14 +681,14 @@ export default function CreatorWaitlistPage() {
                                             ? "Waiting on admin countersign."
                                         : "Legal review complete."}
                             </p>
-                            <p className="mt-2 text-sm leading-7 text-gray-400">
+                            <p className="mt-2 text-sm leading-6 text-gray-400">
                                 {creatorApplication.contractDocumentStatus !== "contract_sent"
-                                    ? CREATOR_LEGAL_WAITING_HELPER
+                                    ? "Legal unlocks here when review reaches the in-app agreement step."
                                     : creatorApplication.creatorSignatureStatus !== "signature_signed"
-                                        ? "Review the summary, read the full agreement, and sign from this page when you are ready."
+                                        ? "Review the summary and sign the in-app agreement here."
                                         : creatorApplication.adminSignatureStatus !== "signature_signed"
-                                            ? "Your signature is on file. Approval stays blocked until admin countersign is complete or owner override is used."
-                                        : "Your signed legal record is already attached to the application."}
+                                            ? "Your signature is on file, and admin countersign is still pending."
+                                        : "Your signed legal record is attached to this application."}
                             </p>
                         </article>
 
@@ -727,8 +718,8 @@ export default function CreatorWaitlistPage() {
                                     ))}
                                 </div>
                             ) : (
-                                <p className="mt-3 text-sm leading-7 text-gray-400">
-                                    Creator tools stay locked until manual approval is complete. Completing intake means your application is submitted, not approved.
+                                <p className="mt-3 text-sm leading-6 text-gray-400">
+                                    Creator tools stay locked until manual approval is complete.
                                 </p>
                             )}
                         </article>
@@ -752,7 +743,7 @@ export default function CreatorWaitlistPage() {
                         <div className="mt-4 space-y-3">
                             {blockingReasonDetails.length === 0 ? (
                                 <div className="rounded-2xl border border-emerald-400/20 bg-emerald-400/10 px-4 py-3 text-sm text-emerald-200">
-                                    You are caught up. The review team can keep moving your creator application forward.
+                                    You are caught up, and the review team can keep moving your creator application forward.
                                 </div>
                             ) : (
                                 blockingReasonDetails.map((blockingReason) => (
@@ -773,8 +764,8 @@ export default function CreatorWaitlistPage() {
                                 <Sparkles className="h-5 w-5 text-brand-purple" />
                                 Creator intro
                             </div>
-                            <p className="mt-3 text-sm leading-7 text-gray-400">
-                                This short intro is required acknowledgment before identity review and contract signing continue.
+                            <p className="mt-3 text-sm leading-6 text-gray-400">
+                                Acknowledge this intro before identity and contract review continue.
                             </p>
                             <div className="mt-4 grid gap-3 md:grid-cols-2">
                                 <div className="rounded-[1.3rem] border border-white/10 bg-black/25 p-3">
@@ -808,8 +799,8 @@ export default function CreatorWaitlistPage() {
                                 <BadgeCheck className="h-5 w-5 text-brand-purple" />
                                 Creator agreement
                             </div>
-                            <p className="mt-3 text-sm leading-7 text-gray-400">
-                                The contract step stays native to this product: plain-language summary first, then the full agreement, then signature capture, then the internal audit trail.
+                            <p className="mt-3 text-sm leading-6 text-gray-400">
+                                Review the summary, then sign the full in-app agreement when it unlocks.
                             </p>
                             <div className="mt-4 rounded-[1.3rem] border border-white/10 bg-black/25 p-3">
                                 <p className="text-[11px] font-semibold uppercase tracking-[0.18em] text-gray-500">Plain-language summary</p>
@@ -866,8 +857,8 @@ export default function CreatorWaitlistPage() {
                 {creatorApplication ? (
                     <section className="rounded-[1.75rem] border border-white/10 bg-zinc-950/70 p-4 backdrop-blur-sm">
                         <h2 className="text-base font-bold text-white">Stage history</h2>
-                        <p className="mt-2 text-sm leading-7 text-gray-400">
-                            Creators only see milestone history from the real backend stages and signatures attached to this application.
+                        <p className="mt-2 text-sm leading-6 text-gray-400">
+                            Stage history only shows backend-backed milestones on this application.
                         </p>
                         <div className="mt-4 space-y-3">
                             {stageHistory.map((entry) => (
@@ -889,8 +880,8 @@ export default function CreatorWaitlistPage() {
                             <PencilLine className="mt-0.5 h-5 w-5 text-brand-purple" />
                             Revise your application
                         </div>
-                        <p className="mt-3 text-sm leading-7 text-gray-400">
-                            Until manual approval is granted, you can update your creator name, primary platform, and creator summary here. Changes update the same creator application record that admin review uses.
+                        <p className="mt-3 text-sm leading-6 text-gray-400">
+                            Update your creator name, platform, and summary here until approval is granted.
                         </p>
 
                         <div className="mt-4 grid gap-3 md:grid-cols-2">
@@ -963,8 +954,8 @@ export default function CreatorWaitlistPage() {
                             <UploadCloud className="h-5 w-5 text-brand-purple" />
                             Upload your verification package
                         </h2>
-                        <p className="mt-3 text-sm leading-7 text-gray-300">
-                            ID verification is required for every creator applicant. Upload the full verification package here: front of ID, back of ID, face with ID, and the short video holding the ID and stating your government name and today&apos;s date.
+                        <p className="mt-3 text-sm leading-6 text-gray-300">
+                            Upload the four required verification files from this page when ID review opens.
                         </p>
 
                         <div className="mt-4 grid gap-2 sm:grid-cols-2">
@@ -1043,11 +1034,9 @@ export default function CreatorWaitlistPage() {
                                 <BadgeCheck className="h-5 w-5 text-brand-purple" />
                                 About Kreator Experiences
                             </h2>
-                            <div className="mt-3 space-y-3 text-sm leading-7 text-gray-400">
-                                <p>{KREATOR_EXPERIENCES_DEFINITION}</p>
-                                <p>{CREATOR_REVIEW_TIMELINE_COPY}</p>
-                                <p>This waiting page only claims what the backend can currently prove: your stage, your real legal state, your real ID state, and whether the review team still needs something from you.</p>
-                            </div>
+                            <p className="mt-3 text-sm leading-6 text-gray-400">
+                                Kreator Experiences uses the real stage, legal, ID, and approval data attached to this application.
+                            </p>
                         </article>
 
                         <article className="rounded-[1.75rem] border border-white/10 bg-zinc-950/70 p-4 backdrop-blur-sm">
@@ -1055,8 +1044,8 @@ export default function CreatorWaitlistPage() {
                                 <LifeBuoy className="h-5 w-5 text-brand-purple" />
                                 Creator support
                             </h2>
-                            <p className="mt-3 text-sm leading-7 text-gray-400">
-                                Use creator support if your application looks stuck, if the stage on this page contradicts what you were told, or if a required file or legal step is missing after review should have reached it.
+                            <p className="mt-3 text-sm leading-6 text-gray-400">
+                                Use creator support if this page looks stuck or the stage does not match what you were told.
                             </p>
                             <div className="mt-4 flex flex-wrap gap-3">
                                 <Link

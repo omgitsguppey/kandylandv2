@@ -24,6 +24,31 @@ This file is not a changelog. It is the concise ledger for durable decisions tha
 
 ## Decision Entries
 
+### 1l. Non-drops admin pages should default to compact operational copy and tighter shells
+
+- Approximate date: Recorded explicitly on 2026-04-11 from the admin copy-density pass
+- Status: Active canonical admin-UX rule
+- Problem/context: Most admin surfaces had correct functionality but spent too much vertical space on repeated explanation blocks, multi-clause subtitles, and oversized headers/modules, which made mobile admin workflows slower to scan and harder to operate.
+- Decision made: Admin pages outside `/admin/drops` should prefer compact headers, one-sentence subtitles, and tighter module shells so screen space is reserved for operational data instead of prose.
+- What became canonical:
+  - `AdminPageHeader` supports opt-in compact mode for non-drops admin surfaces
+  - expandable admin modules and analytics cards should use tighter padding and smaller description copy by default
+  - admin page and module subtitles should be one sentence unless extra detail is essential to operate the surface safely
+  - explanatory copy should move behind detail toggles or stay embedded in the data itself rather than leading every module with a paragraph
+  - `/admin/drops` and the Create Drop flow remain exempt from this specific compaction rule unless explicitly redesigned later
+- Truth lives in:
+  - `src/components/Admin/AdminPageHeader.tsx`
+  - `src/components/Admin/AdminDashboardModule.tsx`
+  - `src/components/Admin/Analytics/AdminAnalyticsPrimitives.tsx`
+  - `src/app/admin/ai/page.tsx`
+  - `src/app/admin/analytics/page.tsx`
+  - `src/app/admin/debug/page.tsx`
+  - `src/app/admin/queue/page.tsx`
+  - `src/app/admin/roster/page.tsx`
+  - `src/app/admin/users/page.tsx`
+  - `src/app/admin/user/[userId]/page.tsx`
+- What is now disallowed or deprecated: Adding new admin modules with paragraph-length operational subtitles by default, or relying on oversized headers to communicate context that could be expressed in one sentence
+
 ### 1k. Dense admin layouts must be shrink-safe and horizontally contained by default
 
 - Approximate date: Recorded explicitly on 2026-04-11 from the admin AI safe-zone overflow fix
@@ -1374,3 +1399,25 @@ This file is not a changelog. It is the concise ledger for durable decisions tha
   - `src/app/admin/ai/page.tsx`
   - `FULL_SCALE_CODEBASE_AUDIT.md`
 - Follow-up gaps: the remaining admin pages still need to adopt the same preference model instead of local-only section state.
+
+### 51. Non-home, non-policy user surfaces should keep helper copy to one sentence by default
+
+- Approximate date: Canonicalized and recorded on 2026-04-11
+- Status: Active user-surface density rule
+- Problem/context: Creator onboarding, support, and dashboard helper surfaces had grown vertically because module and hero copy was explaining workflows in multiple sentences instead of keeping the UI operational and scannable.
+- Decision made: outside the home page and policy pages, user-facing modules and hero helpers should default to one sentence unless the text is itself the product content.
+- What became canonical:
+  - creator apply and waitlist helpers stay concise and action-first
+  - support inbox hero, empty states, and thread-detail helpers stay compact
+  - dashboard helper modules like daily tasks, creator workspace, and profile settings prefer one-sentence descriptions
+  - copy reductions should be paired with modest spacing reductions when the height win is material on mobile
+- Truth lives in:
+  - `src/app/creators/apply/page.tsx`
+  - `src/app/creators/waitlist/page.tsx`
+  - `src/components/Support/SupportInbox.tsx`
+  - `src/components/Creators/CreatorExperiencesPanel.tsx`
+  - `src/components/Dashboard/DailyTasksModule.tsx`
+  - `src/components/Dashboard/CreatorWorkspacePanel.tsx`
+  - `src/app/dashboard/profile/page.tsx`
+  - `FULL_SCALE_CODEBASE_AUDIT.md`
+- Follow-up gaps: `src/app/creators/[username]/CreatorProfileClient.tsx` and some secondary dashboard surfaces can still be tightened further if product copy keeps expanding.

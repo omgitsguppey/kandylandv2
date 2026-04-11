@@ -422,7 +422,8 @@ export default function AdminRosterPage() {
                 <AdminPageHeader
                     eyebrow="Creator Operations"
                     title="Creator intake and live roster"
-                    subtitle="One creator flow, one focused intake view, and one place to approve, return, reject, or override without spilling creator controls into generic user management."
+                    subtitle="Approve, return, reject, or override creators in one focused roster."
+                    compact
                     actions={(
                         <>
                             <button type="button" onClick={() => setTab("intake")} className={`rounded-full px-4 py-2 text-sm font-semibold ${tab === "intake" ? "bg-white text-black" : "border border-white/10 bg-white/5 text-white"}`}>Intake</button>
@@ -458,8 +459,8 @@ export default function AdminRosterPage() {
                                         <h2 className="text-lg font-black text-white">{tab === "intake" ? "Creator intake" : "Live creator roster"}</h2>
                                         <p className="mt-1 text-sm leading-6 text-gray-400">
                                             {tab === "intake"
-                                                ? "Each intake row shows one real stage, one blocker count, and one primary path into a focused intake record."
-                                                : "Approved creator accounts stay separate from intake and open into the same creator record when deeper operations are needed."}
+                                                ? "Each intake row shows the current stage, blocker count, and primary next action."
+                                                : "Approved creators stay separate from intake and open into the same creator record."}
                                         </p>
                                     </div>
                                     <input

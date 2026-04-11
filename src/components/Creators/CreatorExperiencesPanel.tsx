@@ -80,14 +80,14 @@ export function CreatorExperiencesPanel({
     const recentMessages = messages.slice(-3).reverse();
 
     return (
-        <div className="space-y-4 animate-in fade-in zoom-in-95 duration-300">
+        <div className="space-y-3 animate-in fade-in zoom-in-95 duration-300">
             <div className="grid grid-cols-2 gap-3 sm:grid-cols-4">
                 {settings.subscriptionsEnabled ? (
                     <button
                         type="button"
                         onClick={() => onSelectedExperienceChange("subscriptions")}
                         className={cn(
-                            "rounded-[1.6rem] border px-4 py-4 text-left transition-all",
+                            "rounded-[1.6rem] border px-3 py-3 text-left transition-all",
                             selectedExperience === "subscriptions"
                                 ? "border-brand-purple/40 bg-brand-purple/15 text-white"
                                 : "border-white/10 bg-white/[0.04] text-gray-200 hover:bg-white/[0.08]",
@@ -104,7 +104,7 @@ export function CreatorExperiencesPanel({
                         type="button"
                         onClick={() => onSelectedExperienceChange("messages")}
                         className={cn(
-                            "rounded-[1.6rem] border px-4 py-4 text-left transition-all",
+                            "rounded-[1.6rem] border px-3 py-3 text-left transition-all",
                             selectedExperience === "messages"
                                 ? "border-brand-purple/40 bg-brand-purple/15 text-white"
                                 : "border-white/10 bg-white/[0.04] text-gray-200 hover:bg-white/[0.08]",
@@ -121,7 +121,7 @@ export function CreatorExperiencesPanel({
                         type="button"
                         onClick={() => onSelectedExperienceChange("requests")}
                         className={cn(
-                            "rounded-[1.6rem] border px-4 py-4 text-left transition-all",
+                            "rounded-[1.6rem] border px-3 py-3 text-left transition-all",
                             selectedExperience === "requests"
                                 ? "border-brand-purple/40 bg-brand-purple/15 text-white"
                                 : "border-white/10 bg-white/[0.04] text-gray-200 hover:bg-white/[0.08]",
@@ -138,7 +138,7 @@ export function CreatorExperiencesPanel({
                         type="button"
                         onClick={() => onSelectedExperienceChange("bookings")}
                         className={cn(
-                            "rounded-[1.6rem] border px-4 py-4 text-left transition-all",
+                            "rounded-[1.6rem] border px-3 py-3 text-left transition-all",
                             selectedExperience === "bookings"
                                 ? "border-brand-purple/40 bg-brand-purple/15 text-white"
                                 : "border-white/10 bg-white/[0.04] text-gray-200 hover:bg-white/[0.08]",
@@ -152,12 +152,12 @@ export function CreatorExperiencesPanel({
             </div>
 
             {selectedExperience === "subscriptions" && settings.subscriptionsEnabled ? (
-                <section className="glass-panel rounded-[1.8rem] border border-white/10 p-5">
+                <section className="glass-panel rounded-[1.8rem] border border-white/10 p-4">
                     <div className="flex flex-col gap-3 sm:flex-row sm:items-start sm:justify-between">
                         <div>
                             <h2 className="text-lg font-black text-white">Fan Pass</h2>
                             <p className="mt-1 text-sm leading-6 text-gray-400">
-                                Subscriber chat, discounted bookings, and first access when requests open.
+                                Subscriber chat, lower booking friction, and first access when requests open.
                             </p>
                         </div>
                         <div className="rounded-2xl border border-white/10 bg-black/30 px-4 py-3">
@@ -184,12 +184,12 @@ export function CreatorExperiencesPanel({
             ) : null}
 
             {selectedExperience === "messages" && settings.messagingEnabled ? (
-                <section className="glass-panel rounded-[1.8rem] border border-white/10 p-5">
+                <section className="glass-panel rounded-[1.8rem] border border-white/10 p-4">
                     <div className="flex flex-col gap-3 sm:flex-row sm:items-start sm:justify-between">
                         <div>
                             <h2 className="text-lg font-black text-white">Private creator chat</h2>
                             <p className="mt-1 text-sm leading-6 text-gray-400">
-                                Chat now lives in the dedicated Chat inbox. Text costs {CREATOR_MESSAGE_COSTS.text} GD, images {CREATOR_MESSAGE_COSTS.image} GD, videos {CREATOR_MESSAGE_COSTS.video} GD, and subscribers chat free when enabled by the creator.
+                                Open the Chat inbox to send text, image, or video messages at these rates, and subscribers chat free when enabled.
                             </p>
                         </div>
                         {subscriptionActive ? (
@@ -245,7 +245,7 @@ export function CreatorExperiencesPanel({
             ) : null}
 
             {selectedExperience === "requests" && settings.customRequestsEnabled && requestCategories.length > 0 ? (
-                <section className="glass-panel rounded-[1.8rem] border border-white/10 p-5">
+                <section className="glass-panel rounded-[1.8rem] border border-white/10 p-4">
                     <div className="flex flex-col gap-3 sm:flex-row sm:items-start sm:justify-between">
                         <div>
                             <h2 className="text-lg font-black text-white">Custom request</h2>
@@ -302,7 +302,7 @@ export function CreatorExperiencesPanel({
             ) : null}
 
             {selectedExperience === "bookings" && settings.bookingsEnabled ? (
-                <section className="glass-panel rounded-[1.8rem] border border-white/10 p-5">
+                <section className="glass-panel rounded-[1.8rem] border border-white/10 p-4">
                     <div className="flex flex-col gap-3 sm:flex-row sm:items-start sm:justify-between">
                         <div>
                             <h2 className="text-lg font-black text-white">Phone or video time</h2>

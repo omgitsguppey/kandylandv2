@@ -70,7 +70,7 @@ export function AdminOnboardingAnalyticsModules(props: {
         <div className="grid gap-5 xl:grid-cols-[1fr_1fr]">
             <SectionCard
                 title="Onboarding Velocity"
-                subtitle="How long new users take to finish the guided tour on mobile."
+                subtitle="How long new users take to finish guided onboarding."
                 icon={PlayCircle}
                 rightSlot={props.renderSectionRangeControl("onboardingVelocity")}
             >
@@ -147,7 +147,7 @@ export function AdminOnboardingAnalyticsModules(props: {
 
             <SectionCard
                 title="Onboarding Step Flow"
-                subtitle="A step-by-step view of where people continue, stall, or finish in the guided tour."
+                subtitle="Step-by-step drop-off and completion through guided onboarding."
                 icon={Route}
                 rightSlot={props.renderSectionRangeControl("onboardingStepFlow")}
             >

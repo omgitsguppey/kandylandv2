@@ -95,22 +95,22 @@ export function SectionCard({
     return (
         <section
             className={cn(
-                "glass-panel rounded-[1.6rem] border border-white/10 p-3.5 md:p-5",
+                "glass-panel rounded-[1.4rem] border border-white/10 p-3 md:p-4",
                 className,
             )}
         >
-            <div className="mb-3 flex items-start justify-between gap-2.5">
+            <div className="mb-2.5 flex items-start justify-between gap-2">
                 <div className="min-w-0">
-                    <div className="mb-1.5 flex items-center gap-2">
-                        <div className="flex h-8 w-8 items-center justify-center rounded-xl border border-white/10 bg-white/5 text-brand-purple">
-                            <Icon className="h-4 w-4" />
+                    <div className="mb-1 flex items-center gap-2">
+                        <div className="flex h-7.5 w-7.5 items-center justify-center rounded-[0.9rem] border border-white/10 bg-white/5 text-brand-purple">
+                            <Icon className="h-3.5 w-3.5" />
                         </div>
-                        <h2 className="text-base font-bold text-white md:text-lg">
+                        <h2 className="text-[15px] font-bold text-white md:text-base">
                             {title}
                         </h2>
                     </div>
                     {subtitle ? (
-                        <p className="text-xs leading-5 text-gray-400 md:text-sm">
+                        <p className="text-[11px] leading-5 text-gray-400 md:text-xs">
                             {subtitle}
                         </p>
                     ) : null}
@@ -121,7 +121,7 @@ export function SectionCard({
                         <button
                             type="button"
                             onClick={() => setExpanded((prev) => !prev)}
-                            className="rounded-full border border-white/10 bg-white/5 px-3 py-1.5 text-[10px] font-bold uppercase tracking-[0.14em] text-gray-300 transition-colors hover:border-brand-purple/40 hover:text-white"
+                            className="rounded-full border border-white/10 bg-white/5 px-2.5 py-1 text-[10px] font-bold uppercase tracking-[0.14em] text-gray-300 transition-colors hover:border-brand-purple/40 hover:text-white"
                             aria-expanded={expanded}
                         >
                             {expanded ? "Collapse" : "Expand"}
@@ -145,23 +145,23 @@ export function MetricCard({
     return (
         <div
             className={cn(
-                "rounded-[1.6rem] border border-white/10 bg-black/30 p-4",
+                "rounded-[1.4rem] border border-white/10 bg-black/30 p-3.5",
                 className,
             )}
         >
-            <div className="mb-3 flex items-center gap-2 text-xs font-semibold uppercase tracking-[0.14em] text-gray-500">
+            <div className="mb-2.5 flex items-center gap-2 text-[11px] font-semibold uppercase tracking-[0.14em] text-gray-500">
                 <Icon className="h-3.5 w-3.5 text-brand-purple" />
                 <span>{label}</span>
             </div>
             <div
                 className={cn(
-                    "text-2xl font-black tracking-tight text-white",
+                    "text-[1.7rem] font-black tracking-tight text-white",
                     valueClassName,
                 )}
             >
                 {value}
             </div>
-            {hint ? <p className="mt-2 text-xs text-gray-400">{hint}</p> : null}
+            {hint ? <p className="mt-1.5 text-[11px] text-gray-400">{hint}</p> : null}
         </div>
     );
 }

@@ -251,7 +251,7 @@ export function CreatorWorkspacePanel({ userProfile }: { userProfile: UserProfil
             return {
                 stage: "Approved",
                 label: "Creator access live",
-                summary: "Creator access is already active. The queues below are backed by the live creator routes for messaging, requests, bookings, subscriptions, broadcasts, and payouts.",
+                summary: "Creator access is already live, and this workspace reads from the real creator routes.",
                 timeline: "",
             };
         }
@@ -506,14 +506,12 @@ export function CreatorWorkspacePanel({ userProfile }: { userProfile: UserProfil
     }
 
     return (
-        <section className="glass-panel mb-5 rounded-3xl p-4 md:mb-6 md:p-6">
+        <section className="glass-panel mb-5 rounded-3xl p-4 md:mb-6 md:p-5">
             <div className="flex flex-wrap items-start justify-between gap-4">
                 <div>
                     <p className="text-[11px] font-bold uppercase tracking-[0.18em] text-brand-purple">Creator workspace</p>
                     <h2 className="mt-2 text-xl font-black text-white md:text-2xl">Approval, fan work, and creator operations</h2>
-                    <p className="mt-2 max-w-3xl text-sm text-gray-300">
-                        This lane only shows backend-backed creator workflows. If a module fails to load, the failure stays visible here instead of collapsing into an empty state.
-                    </p>
+                    <p className="mt-2 max-w-3xl text-sm text-gray-300">This workspace only shows backend-backed creator workflows, and load failures stay visible.</p>
                 </div>
                 <div className="flex flex-wrap gap-2">
                     {userProfile.username ? (
@@ -601,7 +599,7 @@ export function CreatorWorkspacePanel({ userProfile }: { userProfile: UserProfil
                         <div className="space-y-4">
                             <ModuleCard
                                 title="Creator ops snapshot"
-                                subtitle="Real counts pulled from creator settings and ledger-backed stats."
+                                subtitle="Live counts pulled from creator settings and ledger-backed stats."
                                 error={moduleErrors.settings}
                             >
                                 <div className="grid gap-3 sm:grid-cols-2 xl:grid-cols-5">
@@ -615,7 +613,7 @@ export function CreatorWorkspacePanel({ userProfile }: { userProfile: UserProfil
 
                             <ModuleCard
                                 title="Custom requests"
-                                subtitle="Accept, decline, and fulfill paid requests already backed by the creator request route."
+                                subtitle="Review live paid requests without opening admin."
                                 error={moduleErrors.requests}
                             >
                                 <div className="space-y-3">
@@ -676,7 +674,7 @@ export function CreatorWorkspacePanel({ userProfile }: { userProfile: UserProfil
 
                             <ModuleCard
                                 title="Bookings"
-                                subtitle="Complete or cancel live booking records without opening admin."
+                                subtitle="Complete or cancel live booking records here."
                                 error={moduleErrors.bookings}
                             >
                                 <div className="space-y-3">
@@ -726,7 +724,7 @@ export function CreatorWorkspacePanel({ userProfile }: { userProfile: UserProfil
 
                             <ModuleCard
                                 title="Message inbox"
-                                subtitle="The primary creator inbox now lives in Chat. This dashboard module is a live summary and handoff."
+                                subtitle="Chat is primary, and this module is a live summary and handoff."
                                 error={moduleErrors.threads}
                             >
                                 {threads.length > 0 ? (
@@ -793,7 +791,7 @@ export function CreatorWorkspacePanel({ userProfile }: { userProfile: UserProfil
                                                 </>
                                             ) : (
                                                 <div className="rounded-[0.9rem] border border-white/10 bg-black/30 px-3 py-4 text-sm text-gray-300">
-                                                    Open Chat to work the full inbox. This module stays here as a quick summary of recent thread activity.
+                                                    Open Chat for the full inbox while this module stays a quick summary.
                                                 </div>
                                             )}
                                         </div>
@@ -809,7 +807,7 @@ export function CreatorWorkspacePanel({ userProfile }: { userProfile: UserProfil
                         <div className="space-y-4">
                             <ModuleCard
                                 title="Audience and memberships"
-                                subtitle="Subscribers currently tied to this creator account."
+                                subtitle="Current subscribers on this creator account."
                                 error={moduleErrors.subscribers}
                             >
                                 <div className="space-y-3">
@@ -837,7 +835,7 @@ export function CreatorWorkspacePanel({ userProfile }: { userProfile: UserProfil
 
                             <ModuleCard
                                 title="Payouts"
-                                subtitle="Real ledger-backed creator cashout availability and request history."
+                                subtitle="Ledger-backed cashout availability and request history."
                                 error={moduleErrors.payouts}
                             >
                                 <div className="grid gap-3 sm:grid-cols-2">
@@ -882,7 +880,7 @@ export function CreatorWorkspacePanel({ userProfile }: { userProfile: UserProfil
 
                             <ModuleCard
                                 title="Broadcasts"
-                                subtitle="Send updates to followers who already opted into creator-specific alerts."
+                                subtitle="Send updates to followers who opted into creator alerts."
                                 error={moduleErrors.broadcasts}
                             >
                                 <textarea

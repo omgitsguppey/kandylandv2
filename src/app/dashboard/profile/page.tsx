@@ -923,46 +923,46 @@ export default function ProfilePage() {
                             <div className="rounded-[1.15rem] border border-white/10 bg-black/30 px-4 py-3">
                                 <p className="text-[10px] font-bold uppercase tracking-[0.16em] text-gray-500">Creator earnings</p>
                                 <p className="mt-2 text-2xl font-black text-brand-purple">{creatorStats?.earningsGd || 0} GD</p>
-                                <p className="mt-1 text-xs text-gray-500">Accrued across messaging, subscriptions, requests, and bookings.</p>
+                                <p className="mt-1 text-xs text-gray-500">Across messaging, subscriptions, requests, and bookings.</p>
                             </div>
                             <div className="rounded-[1.15rem] border border-white/10 bg-black/30 px-4 py-3">
                                 <p className="text-[10px] font-bold uppercase tracking-[0.16em] text-gray-500">Subscribers</p>
                                 <p className="mt-2 text-2xl font-black text-white">{creatorStats?.activeSubscribers || 0}</p>
-                                <p className="mt-1 text-xs text-gray-500">Active monthly access members.</p>
+                                <p className="mt-1 text-xs text-gray-500">Active monthly members.</p>
                             </div>
                         </div>
 
                         <ToggleRow
                             label="Creator messaging"
-                            description="Turn paid 1:1 creator chat on or off."
+                            description="Turn paid creator chat on or off."
                             icon={<MessageSquare className="h-4 w-4 text-brand-purple" />}
                             checked={creatorSettingsState.messagingEnabled}
                             onChange={(value) => updateCreatorSettingsState("messagingEnabled", value)}
                         />
                         <ToggleRow
                             label="Creator broadcasts"
-                            description="Allow broadcast posts to followers."
+                            description="Send broadcast posts to followers."
                             icon={<Sparkles className="h-4 w-4 text-brand-purple" />}
                             checked={creatorSettingsState.broadcastsEnabled}
                             onChange={(value) => updateCreatorSettingsState("broadcastsEnabled", value)}
                         />
                         <ToggleRow
                             label="Subscriptions"
-                            description="Control whether users can subscribe monthly."
+                            description="Let users subscribe monthly."
                             icon={<Wallet className="h-4 w-4 text-brand-purple" />}
                             checked={creatorSettingsState.subscriptionsEnabled}
                             onChange={(value) => updateCreatorSettingsState("subscriptionsEnabled", value)}
                         />
                         <ToggleRow
                             label="Calls + bookings"
-                            description="Allow phone and video creator experiences."
+                            description="Allow phone and video experiences."
                             icon={<CalendarClock className="h-4 w-4 text-brand-purple" />}
                             checked={creatorSettingsState.bookingsEnabled}
                             onChange={(value) => updateCreatorSettingsState("bookingsEnabled", value)}
                         />
                         <ToggleRow
                             label="Custom requests"
-                            description="Show paid custom-content request categories on your creator page."
+                            description="Show paid request categories on your creator page."
                             icon={<Sparkles className="h-4 w-4 text-brand-purple" />}
                             checked={creatorSettingsState.customRequestsEnabled}
                             onChange={(value) => updateCreatorSettingsState("customRequestsEnabled", value)}
@@ -1080,7 +1080,7 @@ export default function ProfilePage() {
                             <div className="flex items-center justify-between gap-3">
                                 <div>
                                     <p className="text-sm font-semibold text-white">Creator broadcast</p>
-                                    <p className="mt-1 text-xs leading-5 text-gray-500">Send short updates to followers and notify fans who enabled creator alerts.</p>
+                                    <p className="mt-1 text-xs leading-5 text-gray-500">Send short updates to followers with creator alerts enabled.</p>
                                 </div>
                                 <span className="rounded-full border border-white/10 bg-white/5 px-2 py-1 text-[10px] font-bold uppercase tracking-[0.14em] text-gray-400">
                                     Followers
@@ -1122,7 +1122,7 @@ export default function ProfilePage() {
 
                         <div className="rounded-[1.15rem] border border-white/10 bg-black/25 p-4">
                             <p className="text-sm font-semibold text-white">Request payout</p>
-                            <p className="mt-1 text-xs leading-5 text-gray-500">Manual payout requests are honored within 5–7 business days. 100 GD = $1.</p>
+                            <p className="mt-1 text-xs leading-5 text-gray-500">Manual payout review takes 5–7 business days. 100 GD = $1.</p>
                             <div className="mt-3 flex gap-3">
                                 <input
                                     type="number"
@@ -1149,7 +1149,7 @@ export default function ProfilePage() {
                         <p className="text-[10px] font-bold uppercase tracking-[0.16em] text-gray-500">Required service and account notices</p>
                         <StaticSettingRow
                             label="Account and purchase notices"
-                            description="Security, payment, and account recovery notices stay on because they are required to run your account safely."
+                            description="Required for security, payments, and account recovery."
                             icon={<Bell className="h-4 w-4 text-brand-purple" />}
                             badge="Always on"
                         />
@@ -1158,7 +1158,7 @@ export default function ProfilePage() {
                         <p className="text-[10px] font-bold uppercase tracking-[0.16em] text-gray-500">Optional product alerts</p>
                         <ToggleRow
                             label="Browser push alerts"
-                            description={notificationSupportMessage || "Use browser reminders for daily tasks, check-ins, and live drop alerts."}
+                            description={notificationSupportMessage || "Use browser reminders for tasks, check-ins, and drop alerts."}
                             checked={formState.browserPushEnabled}
                             onChange={(value) => void handleBrowserPushToggle(value)}
                             icon={<Bell className="h-4 w-4 text-brand-purple" />}
@@ -1167,21 +1167,21 @@ export default function ProfilePage() {
                         />
                         <ToggleRow
                             label="In-app activity alerts"
-                            description="Shows account, task, and drop alerts inside KandyDrops."
+                            description="Show account, task, and drop alerts inside KandyDrops."
                             checked={formState.inAppEnabled}
                             onChange={(value) => updateForm("inAppEnabled", value)}
                             icon={<Bell className="h-4 w-4 text-brand-purple" />}
                         />
                         <ToggleRow
                             label="New drop releases"
-                            description="Alerts you when new drops or creator releases become available."
+                            description="Alert me when new drops or creator releases go live."
                             checked={formState.newDropAlerts}
                             onChange={(value) => updateForm("newDropAlerts", value)}
                             icon={<Bell className="h-4 w-4 text-brand-purple" />}
                         />
                         <ToggleRow
                             label="Ending soon reminders"
-                            description="Warns you before limited-time drops or tasks expire."
+                            description="Warn me before drops or tasks expire."
                             checked={formState.expiringSoonAlerts}
                             onChange={(value) => updateForm("expiringSoonAlerts", value)}
                             icon={<Bell className="h-4 w-4 text-brand-purple" />}
@@ -1192,13 +1192,13 @@ export default function ProfilePage() {
                 <SectionCard title="Privacy, Tracking & Rights">
                     <StaticSettingRow
                         label="Strictly necessary storage"
-                        description="Always on for sign-in, security, payment confirmation, and core product functionality. This storage is required to run the site safely."
+                        description="Required for sign-in, security, payments, and core site functionality."
                         icon={<Lock className="h-4 w-4 text-brand-purple" />}
                         badge="Always on"
                     />
                     <ToggleRow
                         label="Anonymous product analytics"
-                        description="Lets KandyDrops measure page views, clicks, and drop interest without tying the data to your account."
+                        description="Measure product usage without tying it to your account."
                         checked={formState.anonymousAnalyticsEnabled}
                         onChange={(value) => {
                             updateForm("anonymousAnalyticsEnabled", value);
@@ -1211,7 +1211,7 @@ export default function ProfilePage() {
                     />
                     <ToggleRow
                         label="Account-linked analytics"
-                        description="Lets KandyDrops connect your activity to your account for viewer stats, purchase funnels, and user-level insights."
+                        description="Link activity to your account for funnels and user-level insights."
                         checked={formState.identifiedAnalyticsEnabled}
                         onChange={(value) => {
                             updateForm("identifiedAnalyticsEnabled", value);
@@ -1224,7 +1224,7 @@ export default function ProfilePage() {
                     />
                     <ToggleRow
                         label="Allow activity-based recommendations"
-                        description="Uses your KandyDrops activity to improve content suggestions."
+                        description="Use your activity to improve recommendations."
                         checked={formState.allowRecommendations}
                         onChange={(value) => {
                             updateForm("allowRecommendations", value);
@@ -1236,7 +1236,7 @@ export default function ProfilePage() {
                     />
                     <ToggleRow
                         label="Include me in aggregated trend reports"
-                        description="Lets your activity contribute to anonymous creator and drop trend reporting."
+                        description="Include your activity in anonymous trend reporting."
                         checked={formState.showInAnonymousStats}
                         onChange={(value) => {
                             updateForm("showInAnonymousStats", value);
@@ -1247,14 +1247,14 @@ export default function ProfilePage() {
                     />
                     <ToggleRow
                         label="Honor Global Privacy Control"
-                        description="If your browser sends a Global Privacy Control signal, KandyDrops will turn off optional analytics automatically."
+                        description="Turn off optional analytics when your browser sends Global Privacy Control."
                         checked={formState.honorGlobalPrivacyControl}
                         onChange={(value) => updateForm("honorGlobalPrivacyControl", value)}
                         badge={browserGpcEnabled ? "Detected" : undefined}
                     />
                     {browserGpcEnabled ? (
                         <p className="rounded-xl border border-white/5 bg-black/25 px-3 py-2 text-xs leading-5 text-gray-400">
-                            Your browser is sending a Global Privacy Control signal right now. Optional analytics stay off unless you disable the setting above.
+                            Your browser is sending Global Privacy Control right now, so optional analytics stay off unless you override it.
                         </p>
                     ) : null}
                     <div className="rounded-[1.15rem] border border-white/10 bg-black/30 px-4 py-3">
@@ -1265,7 +1265,7 @@ export default function ProfilePage() {
                                     Your privacy controls
                                 </p>
                                 <p className="mt-1 text-xs leading-5 text-gray-500">
-                                    Optional analytics stay off until you turn them on. You can withdraw consent here at any time, download your data below, or read the full privacy policy before deciding.
+                                    Optional analytics stay off until you enable them, and you can withdraw consent here anytime.
                                 </p>
                             </div>
                             <div className="flex flex-wrap gap-2">
@@ -1287,7 +1287,7 @@ export default function ProfilePage() {
                             </div>
                         </div>
                         <p className="mt-3 text-[11px] leading-5 text-gray-500">
-                            Last privacy notice update: {PRIVACY_POLICY_LAST_UPDATED}. Data export stays below in Data &amp; Security, and account deletion stays isolated in the Danger Zone.
+                            Last privacy notice update: {PRIVACY_POLICY_LAST_UPDATED}.
                         </p>
                     </div>
                 </SectionCard>
@@ -1347,7 +1347,7 @@ export default function ProfilePage() {
                     </div>
                     <div className="rounded-[1.15rem] border border-white/10 bg-black/30 px-4 py-3">
                         <p className="text-sm font-medium text-gray-100">Support & policies</p>
-                        <p className="mt-1 text-xs leading-5 text-gray-500">Quick access to help, in-site support, and policy details from the same account surface where you manage sign-out and security.</p>
+                        <p className="mt-1 text-xs leading-5 text-gray-500">Open help, support, and policies from this account page.</p>
                         <div className="mt-3 flex flex-wrap gap-2">
                             <Link
                                 href="/faq"
@@ -1378,7 +1378,7 @@ export default function ProfilePage() {
                     <h2 className="text-base md:text-lg font-bold text-red-500 flex items-center gap-2">
                         <ShieldAlert className="w-5 h-5" /> Danger Zone
                     </h2>
-                    <p className="text-sm text-red-400/80 mb-4">Are you incredibly sure? This will permanently delete your account, your KandyDrops collection, and your entire data profile. This cannot be undone.</p>
+                    <p className="text-sm text-red-400/80 mb-4">Deleting your account permanently removes your profile, collection, and data.</p>
                     <Button type="button" variant="glass" onClick={handleRequestDeletion} disabled={isDeleting} className="w-full text-red-500 justify-center border-red-500/30 hover:bg-red-500/10 hover:border-red-500/50 transition-colors">
                         {isDeleting ? <Loader2 className="w-4 h-4 mr-2 animate-spin" /> : <Trash2 className="w-4 h-4 mr-2" />}
                         Delete Account

@@ -91,6 +91,7 @@ export default function AdminDashboardPage() {
             <AdminPageHeader
                 eyebrow="Control Room"
                 title="Admin Dashboard"
+                compact
                 actions={(
                     <>
                         <span className="rounded-full border border-white/10 bg-black/35 px-3 py-1.5 text-xs font-semibold text-white">

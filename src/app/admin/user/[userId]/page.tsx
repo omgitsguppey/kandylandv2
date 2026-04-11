@@ -689,7 +689,7 @@ export default function AdminUserAnalyticsPage() {
     }
 
     return (
-        <div className="mx-auto max-w-5xl space-y-6 pb-20">
+        <div className="mx-auto max-w-5xl space-y-4 pb-20 md:space-y-5">
             <PageViewEvent eventName="admin_user_detail_viewed" />
             <AdminPageHeader
                 eyebrow="Admin Roster"
@@ -711,6 +711,7 @@ export default function AdminUserAnalyticsPage() {
                         ) : null}
                     </span>
                 )}
+                compact
                 subtitle={(
                     <span className="flex flex-col items-center gap-1 text-center sm:flex-row sm:flex-wrap sm:justify-center">
                         <span className="font-mono text-xs text-gray-400">{targetUser.email || "No email"}</span>
@@ -740,7 +741,7 @@ export default function AdminUserAnalyticsPage() {
                                 <p className="mt-1 text-sm font-semibold text-white">
                                     {targetUser.username ? `@${targetUser.username}` : "No public username"}
                                 </p>
-                                <p className="mt-1 text-xs text-gray-500">Detailed activity, watch behavior, and protection events for this account.</p>
+                                <p className="mt-1 text-xs text-gray-500">Behavior and protection details for this account.</p>
                             </div>
                         </div>
                         <div className="grid flex-1 grid-cols-2 gap-3">
@@ -757,8 +758,8 @@ export default function AdminUserAnalyticsPage() {
                 )}
             />
 
-            <div className="grid grid-cols-1 gap-6 md:grid-cols-2">
-                <div className="glass-panel rounded-3xl border border-white/5 p-6">
+            <div className="grid grid-cols-1 gap-4 md:grid-cols-2">
+                <div className="glass-panel rounded-3xl border border-white/5 p-4 md:p-5">
                     <h3 className="mb-4 flex items-center gap-2 text-sm font-bold text-white">
                         <Activity className="h-4 w-4 text-brand-purple" /> Behavior Profile
                     </h3>
@@ -845,7 +846,7 @@ export default function AdminUserAnalyticsPage() {
                     </div>
                 </div>
 
-                <div className="glass-panel rounded-3xl border border-white/5 p-6">
+                <div className="glass-panel rounded-3xl border border-white/5 p-4 md:p-5">
                     <h3 className="mb-4 flex items-center gap-2 text-sm font-bold text-white">
                         <History className="h-4 w-4 text-brand-purple" /> Action Ledger
                     </h3>
@@ -898,15 +899,15 @@ export default function AdminUserAnalyticsPage() {
                 </div>
             </div>
 
-            <div className="glass-panel rounded-3xl border border-white/5 p-6">
+            <div className="glass-panel rounded-3xl border border-white/5 p-4 md:p-5">
                 <div className="flex flex-col gap-2 sm:flex-row sm:items-start sm:justify-between">
                     <div>
                         <h3 className="flex items-center gap-2 text-sm font-bold text-white">
                             <LifeBuoy className="h-4 w-4 text-brand-purple" /> Support Readiness
                         </h3>
-                        <p className="mt-1 text-xs leading-6 text-gray-400">
-                            Current in-site support threads and bug-report signals attached to this account.
-                        </p>
+                            <p className="mt-1 text-xs leading-5 text-gray-400">
+                                Current in-site support threads and bug-report signals for this account.
+                            </p>
                     </div>
                     <div className="flex flex-wrap gap-2">
                         <span className={`inline-flex items-center rounded-full border px-3 py-1 text-[10px] font-bold uppercase tracking-[0.14em] ${getSupportStateClasses(supportReadiness?.summary.state || "ready")}`}>
@@ -927,7 +928,7 @@ export default function AdminUserAnalyticsPage() {
                             <div className="rounded-[1.35rem] border border-white/10 bg-black/25 p-4">
                                 <p className="text-[10px] font-semibold uppercase tracking-[0.16em] text-gray-500">Support handle</p>
                                 <p className="mt-2 text-lg font-black text-white">{supportReadiness?.summary.primaryHandle || targetUser.username || targetUser.email || targetUser.uid}</p>
-                                <p className="mt-1 text-xs text-gray-400">Primary identity the in-site support queue attaches to.</p>
+                                <p className="mt-1 text-xs text-gray-400">Primary identity for the in-site support queue.</p>
                             </div>
                             <div className="rounded-[1.35rem] border border-white/10 bg-black/25 p-4">
                                 <p className="text-[10px] font-semibold uppercase tracking-[0.16em] text-gray-500">Support thread key</p>
@@ -937,7 +938,7 @@ export default function AdminUserAnalyticsPage() {
                             <div className="rounded-[1.35rem] border border-white/10 bg-black/25 p-4">
                                 <p className="text-[10px] font-semibold uppercase tracking-[0.16em] text-gray-500">Open support threads</p>
                                 <p className="mt-2 text-2xl font-black text-white">{supportReadiness?.summary.openThreads ?? 0}</p>
-                                <p className="mt-1 text-xs text-gray-400">{supportReadiness?.summary.totalThreads ?? 0} total historical threads.</p>
+                                <p className="mt-1 text-xs text-gray-400">{supportReadiness?.summary.totalThreads ?? 0} historical threads.</p>
                             </div>
                             <div className="rounded-[1.35rem] border border-white/10 bg-black/25 p-4">
                                 <p className="text-[10px] font-semibold uppercase tracking-[0.16em] text-gray-500">Support signals</p>
@@ -958,7 +959,7 @@ export default function AdminUserAnalyticsPage() {
                                     Push alerts {supportReadiness?.summary.channels.browserPush ? "enabled" : "off"}
                                 </span>
                             </div>
-                            <p className="mt-3 text-xs leading-6 text-gray-400">
+                            <p className="mt-3 text-xs leading-5 text-gray-400">
                                 {supportReadiness?.summary.stateDescription || "No current in-site support thread is open for this account."}
                             </p>
                             <p className="mt-2 text-[11px] text-gray-500">
@@ -971,8 +972,8 @@ export default function AdminUserAnalyticsPage() {
                         <div className="flex items-start justify-between gap-3">
                             <div>
                                 <p className="text-sm font-semibold text-white">Recent support signals</p>
-                                <p className="mt-1 text-xs leading-6 text-gray-400">
-                                    Current support threads and bug reports share the same operational lane here.
+                                <p className="mt-1 text-xs leading-5 text-gray-400">
+                                    Current support threads and bug reports share the same operational lane.
                                 </p>
                             </div>
                             <span className="rounded-full border border-white/10 bg-black/30 px-3 py-1 text-[10px] font-bold uppercase tracking-[0.14em] text-gray-300">
@@ -1007,14 +1008,14 @@ export default function AdminUserAnalyticsPage() {
             </div>
 
             {(creatorApplication || isCreatorOpsUser) ? (
-                <div className="glass-panel rounded-3xl border border-white/5 p-6">
+                <div className="glass-panel rounded-3xl border border-white/5 p-4 md:p-5">
                     <div className="flex flex-col gap-3 sm:flex-row sm:items-start sm:justify-between">
                         <div>
                             <h3 className="flex items-center gap-2 text-sm font-bold text-white">
                                 <Sparkles className="h-4 w-4 text-brand-purple" /> Creator record handoff
                             </h3>
-                            <p className="mt-1 text-xs leading-6 text-gray-400">
-                                Creator intake, contract, ID review, approval, and live creator operations now live in the dedicated creator roster. Generic user management only links you into that focused record.
+                            <p className="mt-1 text-xs leading-5 text-gray-400">
+                                Creator intake, approval, and live operations now stay in the dedicated creator roster.
                             </p>
                         </div>
                         {creatorRecordSummary ? (
@@ -1032,25 +1033,23 @@ export default function AdminUserAnalyticsPage() {
                             <ArrowLeft className="h-4 w-4 rotate-180" />
                         </Link>
                         {creatorOnboardingCanonical ? (
-                            <p className="max-w-2xl text-sm leading-6 text-gray-400">{creatorRecordSummary?.summary}</p>
+                            <p className="max-w-2xl text-sm leading-5 text-gray-400">{creatorRecordSummary?.summary}</p>
                         ) : (
-                            <p className="max-w-2xl text-sm leading-6 text-gray-400">
-                                This account has creator-linked state, but the focused roster record is the canonical place to review onboarding, creator operations, overrides, and audit trail details.
-                            </p>
+                            <p className="max-w-2xl text-sm leading-5 text-gray-400">This account has creator-linked state, but the focused roster record remains canonical.</p>
                         )}
                     </div>
                 </div>
             ) : null}
 
             {showCreatorControlsInUserManagement && creatorApplication ? (
-                <div className="glass-panel rounded-3xl border border-white/5 p-6">
+                <div className="glass-panel rounded-3xl border border-white/5 p-4 md:p-5">
                     <div className="flex flex-col gap-2 sm:flex-row sm:items-start sm:justify-between">
                         <div>
                             <h3 className="flex items-center gap-2 text-sm font-bold text-white">
                                 <Sparkles className="h-4 w-4 text-brand-purple" /> Creator Intake Review
                             </h3>
-                            <p className="mt-1 text-xs leading-6 text-gray-400">
-                                Manage the stage-based creator intake lane: legal documents, ID verification, internal review, and approval state before this account ever sees creator tools.
+                            <p className="mt-1 text-xs leading-5 text-gray-400">
+                                Manage legal, ID, internal review, and approval state before creator tools unlock.
                             </p>
                         </div>
                     </div>
@@ -1082,9 +1081,9 @@ export default function AdminUserAnalyticsPage() {
 
                             <div className="rounded-[1.5rem] border border-white/10 bg-black/25 p-4">
                                 <p className="text-sm font-semibold text-white">Creator context</p>
-                                <p className="mt-3 text-sm leading-7 text-gray-400">
-                                    {creatorApplication.creatorContentFocus || "No creator content note supplied yet."}
-                                </p>
+                                        <p className="mt-3 text-sm leading-6 text-gray-400">
+                                            {creatorApplication.creatorContentFocus || "No creator content note supplied yet."}
+                                        </p>
                             </div>
                         </div>
 
@@ -1266,8 +1265,8 @@ export default function AdminUserAnalyticsPage() {
                                 <div className="flex items-start justify-between gap-3">
                                     <div>
                                         <p className="text-sm font-semibold text-white">Current blockers</p>
-                                        <p className="mt-1 text-xs leading-6 text-gray-400">
-                                            Canonical onboarding blockers are derived from legal, ID, segment, approval, and role activation state.
+                                        <p className="mt-1 text-xs leading-5 text-gray-400">
+                                            Canonical blockers derive from legal, ID, segment, approval, and role state.
                                         </p>
                                     </div>
                                     <span className="rounded-full border border-white/10 bg-black/30 px-3 py-1 text-[10px] font-bold uppercase tracking-[0.14em] text-gray-300">
@@ -1293,7 +1292,7 @@ export default function AdminUserAnalyticsPage() {
                                                     }`} />
                                                     <div>
                                                         <p className="text-sm font-semibold text-white">{blockingReason.label}</p>
-                                                        <p className="mt-1 text-xs leading-6 text-gray-400">{blockingReason.description}</p>
+                                                        <p className="mt-1 text-xs leading-5 text-gray-400">{blockingReason.description}</p>
                                                     </div>
                                                 </div>
                                             </div>
@@ -1341,8 +1340,8 @@ export default function AdminUserAnalyticsPage() {
                                 <div className="flex items-start justify-between gap-3">
                                     <div>
                                         <p className="text-sm font-semibold text-white">Audit trail</p>
-                                        <p className="mt-1 text-xs leading-6 text-gray-400">
-                                            Every creator onboarding state transition writes back to the canonical history log.
+                                        <p className="mt-1 text-xs leading-5 text-gray-400">
+                                            Every creator onboarding state transition writes to the canonical history log.
                                         </p>
                                     </div>
                                     <span className="rounded-full border border-white/10 bg-black/30 px-3 py-1 text-[10px] font-bold uppercase tracking-[0.14em] text-gray-300">
@@ -1365,7 +1364,7 @@ export default function AdminUserAnalyticsPage() {
                                                             {entry.actorLabel} · {format(entry.timestamp, "MMM d, yyyy h:mm a")}
                                                         </p>
                                                         {entry.detail ? (
-                                                            <p className="mt-2 text-xs leading-6 text-gray-400">{entry.detail}</p>
+                                                            <p className="mt-2 text-xs leading-5 text-gray-400">{entry.detail}</p>
                                                         ) : null}
                                                     </div>
                                                     <span className="rounded-full border border-white/10 bg-black/30 px-2.5 py-1 text-[10px] font-bold uppercase tracking-[0.14em] text-gray-300">
@@ -1394,14 +1393,14 @@ export default function AdminUserAnalyticsPage() {
             ) : null}
 
             {showCreatorControlsInUserManagement && isCreatorOpsUser ? (
-                <div className="glass-panel rounded-3xl border border-white/5 p-6">
+                <div className="glass-panel rounded-3xl border border-white/5 p-4 md:p-5">
                     <div className="flex flex-col gap-2 sm:flex-row sm:items-end sm:justify-between">
                         <div>
                             <h3 className="flex items-center gap-2 text-sm font-bold text-white">
                                 <Sparkles className="h-4 w-4 text-brand-purple" /> Creator Operations
                             </h3>
-                            <p className="mt-1 text-xs leading-6 text-gray-400">
-                                Live creator relationship, monetization, moderation, and submission state inside the existing admin user view.
+                            <p className="mt-1 text-xs leading-5 text-gray-400">
+                                Live creator relationship, monetization, moderation, and submission state.
                             </p>
                         </div>
                         <span className="rounded-full border border-white/10 bg-black/30 px-3 py-1 text-[10px] font-bold uppercase tracking-[0.14em] text-gray-300">
