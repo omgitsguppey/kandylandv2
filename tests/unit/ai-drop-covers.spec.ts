@@ -26,7 +26,7 @@ describe("ai drop cover shared contract", () => {
         });
 
         expect(prompt).toContain("Midnight Cherry Crush");
-        expect(prompt).toContain("Render Kandy Lux as the smaller creator-name treatment above the main title.");
+        expect(prompt).toContain("Render Kandy Lux as the smaller creator-name treatment above the main title and keep it intact.");
         expect(prompt).toContain("Render the main title \"Midnight Cherry Crush\" clearly and legibly in the cover.");
         expect(prompt).not.toContain("Do not render any readable text");
         expect(prompt).toContain("Return a complete 1:1 square cover composition.");
@@ -40,8 +40,8 @@ describe("ai drop cover shared contract", () => {
             referenceGuided: true,
         });
 
-        expect(prompt).toContain("Use the provided reference image and maintain the same style, focusing this time on \"Jessi Ray's Strawberry Shortcake\"");
-        expect(prompt).toContain("ensuring the color matches the title theme and the colors are easy to distinguish");
+        expect(prompt).toContain("Use the provided reference image and maintain the same style system, focusing this time on \"Jessi Ray's Strawberry Shortcake\"");
+        expect(prompt).toContain("ensuring the colors are easy to distinguish and the subject matches the flavor instead of copying the reference subject");
         expect(prompt).toContain("Render the main title \"Strawberry Shortcake\" clearly and legibly in the cover.");
     });
 

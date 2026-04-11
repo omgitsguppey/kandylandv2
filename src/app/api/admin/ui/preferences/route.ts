@@ -1,0 +1,89 @@
+import { NextRequest, NextResponse } from "next/server";
+
+import type { RouteRuntimeHealthKey } from "@/lib/route-runtime-health";
+import { handleApiError } from "@/lib/server/auth";
+import {
+    getAdminUiPreferences,
+    saveAdminUiCollapsedModulePreference,
+} from "@/lib/server/admin-ui-preferences";
+import { ADMIN, HEAVY_READ } from "@/lib/server/rate-limit";
+import { guardApiRequest } from "@/lib/server/request-guard";
+import { getErrorMessage } from "@/lib/server/route-diagnostics";
+import { recordRouteRuntimeSample } from "@/lib/server/route-runtime-health";
+
+export const dynamic = "force-dynamic";
+export const revalidate = 0;
+
+function finalize(startedAt: number, key: RouteRuntimeHealthKey, response: NextResponse, error?: unknown) {
+    void recordRouteRuntimeSample({
+        key,
+        durationMs: Date.now() - startedAt,
+        statusCode: response.status,
+        errorMessage: error ? getErrorMessage(error) : null,
+    });
+    return response;
+}
+
+export async function GET(request: NextRequest) {
+    const startedAt = Date.now();
+    try {
+        const caller = await guardApiRequest(request, {
+            routeName: "admin/ui/preferences",
+            preAuthRouteName: "admin/ui/preferences/preauth",
+            preAuthRateLimit: HEAVY_READ,
+            rateLimit: ADMIN,
+            requireTrustedOrigin: true,
+            auth: "admin",
+            scopeToCaller: true,
+        });
+        if (!caller) {
+            return finalize(startedAt, "admin/ui/preferences:GET", NextResponse.json({ error: "Unauthorized" }, { status: 401 }));
+        }
+
+        return finalize(startedAt, "admin/ui/preferences:GET", NextResponse.json({
+            success: true,
+            preferences: await getAdminUiPreferences(caller.uid),
+        }));
+    } catch (error) {
+        return finalize(startedAt, "admin/ui/preferences:GET", handleApiError(error, "admin/ui/preferences"), error);
+    }
+}
+
+export async function PUT(request: NextRequest) {
+    const startedAt = Date.now();
+    try {
+        const caller = await guardApiRequest(request, {
+            routeName: "admin/ui/preferences",
+            rateLimit: ADMIN,
+            requireTrustedOrigin: true,
+            auth: "admin",
+            scopeToCaller: true,
+        });
+        if (!caller) {
+            return finalize(startedAt, "admin/ui/preferences:PUT", NextResponse.json({ error: "Unauthorized" }, { status: 401 }));
+        }
+
+        const body = await request.json() as {
+            key?: unknown;
+            collapsed?: unknown;
+        };
+        const key = typeof body.key === "string" ? body.key.trim() : "";
+        if (!key) {
+            return finalize(startedAt, "admin/ui/preferences:PUT", NextResponse.json({ error: "Missing module key" }, { status: 400 }));
+        }
+        if (typeof body.collapsed !== "boolean") {
+            return finalize(startedAt, "admin/ui/preferences:PUT", NextResponse.json({ error: "Missing collapsed flag" }, { status: 400 }));
+        }
+
+        return finalize(startedAt, "admin/ui/preferences:PUT", NextResponse.json({
+            success: true,
+            preferences: await saveAdminUiCollapsedModulePreference({
+                uid: caller.uid,
+                key,
+                collapsed: body.collapsed,
+            }),
+        }));
+    } catch (error) {
+        return finalize(startedAt, "admin/ui/preferences:PUT", handleApiError(error, "admin/ui/preferences"), error);
+    }
+}

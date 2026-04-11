@@ -23,6 +23,7 @@ import { normalizeUserProfile } from "@/lib/user-utils";
 import { useRouter, usePathname } from "next/navigation";
 import { toast } from "sonner";
 import { authFetch } from "@/lib/authFetch";
+import { reportRealtimeIssue } from "@/lib/client-error-reporting";
 import {
     clearLastVisitedPath,
     syncLastVisitedPathOwner,
@@ -31,6 +32,7 @@ import { CREATOR_WAITLIST_PATH, getPreferredAuthenticatedPathForProfile } from "
 import {
     normalizeEmailAddress,
 } from "@/lib/auth-errors";
+import { buildFirestoreClientFallbackMessage, buildFirestoreClientIssueDetail } from "@/lib/firestore-client-errors";
 import { syncClientSessionOwnership } from "@/lib/client-session";
 import { clearTaskGuidanceStorage } from "@/lib/task-guidance";
 import { syncIdentifiedTelemetryOwnership, trackEvent } from "@/lib/telemetry";
@@ -266,12 +268,89 @@ export function AuthProvider({ children }: { children: ReactNode }) {
         }
 
         const currentUserId = user.uid;
+        const preferRealtimeProfile = pathname?.startsWith("/dashboard") || pathname?.startsWith("/admin");
         const autoRegisterInFlight = autoRegisterInFlightRef.current;
         let unsubscribe: (() => void) | undefined;
         let cancelled = false;
+        let profilePollingIntervalId: number | null = null;
 
         setUserProfile(null);
         setLoading(true);
+
+        const stopProfilePolling = () => {
+            if (profilePollingIntervalId !== null) {
+                window.clearInterval(profilePollingIntervalId);
+                profilePollingIntervalId = null;
+            }
+            window.removeEventListener("focus", refreshProfileFromApi);
+            document.removeEventListener("visibilitychange", refreshProfileOnVisible);
+        };
+
+        const refreshProfileFromApi = async () => {
+            try {
+                const response = await authFetch("/api/user/profile");
+                const result = await response.json() as {
+                    success?: boolean;
+                    error?: string;
+                    profile?: unknown;
+                };
+
+                if (!response.ok || !result.success) {
+                    throw new Error(result.error || "Failed to refresh your account profile.");
+                }
+
+                if (cancelled || auth?.currentUser?.uid !== currentUserId) {
+                    return;
+                }
+
+                const profile = normalizeUserProfile(result.profile, user);
+                if (profile) {
+                    setUserProfile(profile);
+                }
+                setLoading(false);
+            } catch (error) {
+                reportRealtimeIssue("auth profile fallback", error, {
+                    userId: currentUserId,
+                });
+                if (!cancelled) {
+                    setLoading(false);
+                }
+            }
+        };
+
+        const refreshProfileOnVisible = () => {
+            if (document.visibilityState === "visible") {
+                void refreshProfileFromApi();
+            }
+        };
+
+        const startProfilePollingFallback = (error?: unknown) => {
+            if (typeof error !== "undefined") {
+                reportRealtimeIssue("auth profile", error, {
+                    userId: currentUserId,
+                    ...buildFirestoreClientIssueDetail(error, {
+                        fallbackMessage: buildFirestoreClientFallbackMessage("Account profile", error),
+                    }),
+                });
+            }
+            void refreshProfileFromApi();
+            if (profilePollingIntervalId === null) {
+                profilePollingIntervalId = window.setInterval(() => {
+                    void refreshProfileFromApi();
+                }, 15_000);
+                window.addEventListener("focus", refreshProfileFromApi);
+                document.addEventListener("visibilitychange", refreshProfileOnVisible);
+            }
+        };
+
+        if (!preferRealtimeProfile) {
+            startProfilePollingFallback();
+            return () => {
+                cancelled = true;
+                autoRegisterInFlight.delete(currentUserId);
+                stopProfilePolling();
+            };
+        }
 
         const setupProfileListener = async () => {
             const { db } = await import("@/lib/firebase-data");
@@ -286,6 +365,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
                 if (cancelled || auth?.currentUser?.uid !== currentUserId) {
                     return;
                 }
+                stopProfilePolling();
 
                 if (snapshot.exists()) {
                     const profile = normalizeUserProfile(snapshot.data(), user);
@@ -346,23 +426,28 @@ export function AuthProvider({ children }: { children: ReactNode }) {
                         }
                     }
                 }
-            }, () => {
+            }, (error) => {
                 if (!cancelled) {
-                    setLoading(false);
+                    startProfilePollingFallback(error);
                 }
             });
         };
 
-        void setupProfileListener();
+        void setupProfileListener().catch((error) => {
+            if (!cancelled) {
+                startProfilePollingFallback(error);
+            }
+        });
 
         return () => {
             cancelled = true;
             autoRegisterInFlight.delete(currentUserId);
+            stopProfilePolling();
             if (unsubscribe) {
                 unsubscribe();
             }
         };
-    }, [authStateResolved, router, user]);
+    }, [authStateResolved, pathname, router, user]);
 
     useEffect(() => {
         if (!user) {

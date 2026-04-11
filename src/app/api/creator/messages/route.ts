@@ -141,13 +141,21 @@ export async function POST(request: NextRequest) {
         const callerSnap = await adminDb.collection("users").doc(caller.uid).get();
         const callerData = callerSnap.data() as Record<string, unknown> | undefined;
         const callerRole = typeof callerData?.role === "string" ? callerData.role : "user";
-        const payload = sendMessageSchema.parse(await request.json());
+        const parsedPayload = sendMessageSchema.safeParse(await request.json());
+        if (!parsedPayload.success) {
+            return finalize(withCompatibilityHeaders(NextResponse.json({
+                error: "Invalid creator message request.",
+                errorCode: "invalid_message_request",
+            }, { status: 400 })));
+        }
+
+        const payload = parsedPayload.data;
         const resolvedThreadId = payload.threadId
             || (payload.targetUserId
                 ? buildChatThreadId(payload.creatorId, payload.targetUserId)
                 : buildChatThreadId(payload.creatorId, caller.uid));
 
-        await safeSendChatMessageForViewer({
+        const result = await safeSendChatMessageForViewer({
             callerUid: caller.uid,
             callerEmail: caller.email,
             callerRole,
@@ -159,7 +167,10 @@ export async function POST(request: NextRequest) {
             messageKind: payload.messageKind,
         });
 
-        return finalize(withCompatibilityHeaders(NextResponse.json({ success: true })));
+        return finalize(withCompatibilityHeaders(NextResponse.json({
+            success: true,
+            ...result,
+        })));
     } catch (error) {
         const chatError = toChatClientError(error);
         if (chatError) {

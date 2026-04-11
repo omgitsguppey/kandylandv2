@@ -1,5 +1,6 @@
 import { NextRequest, NextResponse } from "next/server";
 
+import type { RouteRuntimeHealthKey } from "@/lib/route-runtime-health";
 import {
     removeAdminAiDropCoverTemplate,
     toAdminAiDropCoverClientError,
@@ -8,13 +9,26 @@ import {
 import { handleApiError } from "@/lib/server/auth";
 import { ADMIN_AI_CONTROL } from "@/lib/server/rate-limit";
 import { guardApiRequest } from "@/lib/server/request-guard";
+import { getErrorMessage } from "@/lib/server/route-diagnostics";
+import { recordRouteRuntimeSample } from "@/lib/server/route-runtime-health";
 
 export const dynamic = "force-dynamic";
 export const revalidate = 0;
 
 const MAX_TEMPLATE_SIZE_BYTES = 10 * 1024 * 1024;
 
+function finalize(startedAt: number, key: RouteRuntimeHealthKey, response: NextResponse, error?: unknown) {
+    void recordRouteRuntimeSample({
+        key,
+        durationMs: Date.now() - startedAt,
+        statusCode: response.status,
+        errorMessage: error ? getErrorMessage(error) : null,
+    });
+    return response;
+}
+
 export async function POST(request: NextRequest) {
+    const startedAt = Date.now();
     try {
         const caller = await guardApiRequest(request, {
             routeName: "admin/ai/drop-covers/template",
@@ -27,15 +41,15 @@ export async function POST(request: NextRequest) {
         const formData = await request.formData();
         const file = formData.get("file");
         if (!(file instanceof File)) {
-            return NextResponse.json({ error: "Missing template file" }, { status: 400 });
+            return finalize(startedAt, "admin/ai/drop-covers/template:POST", NextResponse.json({ error: "Missing template file" }, { status: 400 }));
         }
 
         if (!file.type.startsWith("image/")) {
-            return NextResponse.json({ error: "Template file must be an image" }, { status: 400 });
+            return finalize(startedAt, "admin/ai/drop-covers/template:POST", NextResponse.json({ error: "Template file must be an image" }, { status: 400 }));
         }
 
         if (file.size > MAX_TEMPLATE_SIZE_BYTES) {
-            return NextResponse.json({ error: "Template file must be 10 MB or smaller" }, { status: 400 });
+            return finalize(startedAt, "admin/ai/drop-covers/template:POST", NextResponse.json({ error: "Template file must be 10 MB or smaller" }, { status: 400 }));
         }
 
         const result = await uploadAdminAiDropCoverTemplate({
@@ -46,7 +60,7 @@ export async function POST(request: NextRequest) {
             actorEmail: caller?.email,
         });
 
-        return NextResponse.json({
+        return finalize(startedAt, "admin/ai/drop-covers/template:POST", NextResponse.json({
             success: true,
             settings: result.settings,
             template: result.template,
@@ -55,17 +69,18 @@ export async function POST(request: NextRequest) {
             headers: {
                 "Cache-Control": "no-store, max-age=0",
             },
-        });
+        }));
     } catch (error) {
         const aiError = toAdminAiDropCoverClientError(error);
         if (aiError) {
-            return NextResponse.json(aiError.body, { status: aiError.status });
+            return finalize(startedAt, "admin/ai/drop-covers/template:POST", NextResponse.json(aiError.body, { status: aiError.status }), error);
         }
-        return handleApiError(error, "admin/ai/drop-covers/template");
+        return finalize(startedAt, "admin/ai/drop-covers/template:POST", handleApiError(error, "admin/ai/drop-covers/template"), error);
     }
 }
 
 export async function DELETE(request: NextRequest) {
+    const startedAt = Date.now();
     try {
         const caller = await guardApiRequest(request, {
             routeName: "admin/ai/drop-covers/template",
@@ -80,19 +95,19 @@ export async function DELETE(request: NextRequest) {
             actorEmail: caller?.email,
         });
 
-        return NextResponse.json({
+        return finalize(startedAt, "admin/ai/drop-covers/template:DELETE", NextResponse.json({
             success: true,
             settings,
         }, {
             headers: {
                 "Cache-Control": "no-store, max-age=0",
             },
-        });
+        }));
     } catch (error) {
         const aiError = toAdminAiDropCoverClientError(error);
         if (aiError) {
-            return NextResponse.json(aiError.body, { status: aiError.status });
+            return finalize(startedAt, "admin/ai/drop-covers/template:DELETE", NextResponse.json(aiError.body, { status: aiError.status }), error);
         }
-        return handleApiError(error, "admin/ai/drop-covers/template");
+        return finalize(startedAt, "admin/ai/drop-covers/template:DELETE", handleApiError(error, "admin/ai/drop-covers/template"), error);
     }
 }

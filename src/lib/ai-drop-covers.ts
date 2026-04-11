@@ -4,9 +4,13 @@ export const ADMIN_AI_DROP_COVER_SETTINGS_DOC = "aiDropCovers";
 export const ADMIN_AI_DROP_COVER_JOBS_COLLECTION = "admin_ai_drop_cover_jobs";
 export const ADMIN_AI_DROP_COVER_SUMMARY_COLLECTION = "admin_ai_drop_cover_summary";
 export const ADMIN_AI_DROP_COVER_SUMMARY_DOC = "overview";
+export const ADMIN_AI_DROP_COVER_REFERENCE_LIBRARY_COLLECTION = "admin_ai_drop_cover_reference_library";
+export const ADMIN_AI_DROP_COVER_PROMPT_POLICY_DOC = "aiDropCoverPromptPolicy";
+export const ADMIN_AI_DROP_COVER_PROMPT_POLICY_HISTORY_COLLECTION = "admin_ai_drop_cover_prompt_policy_history";
 
 export const ADMIN_AI_DROP_COVER_MODEL = "gemini-2.5-flash-image";
 export const ADMIN_AI_DROP_COVER_PREMIUM_MODEL = "gemini-3-pro-image-preview";
+export const ADMIN_AI_DROP_COVER_OPTIMIZER_MODEL = "gemini-2.5-flash-lite";
 export const ADMIN_AI_DROP_COVER_DEFAULT_LOCATION = "global";
 const LEGACY_ADMIN_AI_DROP_COVER_MODEL_ALIASES = new Set([
     "imagen-3.0-fast-generate-001",
@@ -14,7 +18,7 @@ const LEGACY_ADMIN_AI_DROP_COVER_MODEL_ALIASES = new Set([
     "imagen-3.0-capability-001",
 ]);
 const LEGACY_ADMIN_AI_DROP_COVER_LOCATION_ALIASES = new Set(["us-central1"]);
-export const ADMIN_AI_DROP_COVER_PROMPT_VERSION = "drop-cover-v3";
+export const ADMIN_AI_DROP_COVER_PROMPT_VERSION = "drop-cover-v4";
 export const ADMIN_AI_DROP_COVER_PRICE_BASIS = "vertex-ai-pricing-gemini-2.5-flash-image-2026-04-06";
 export const ADMIN_AI_DROP_COVER_PREMIUM_PRICE_BASIS = "vertex-ai-pricing-gemini-3-pro-image-preview-2026-04-06";
 export const ADMIN_AI_DROP_COVER_PRICE_SOURCE_URL = "https://cloud.google.com/vertex-ai/generative-ai/pricing";
@@ -26,6 +30,9 @@ export type AdminAiDropCoverSelectableModel =
     | typeof ADMIN_AI_DROP_COVER_MODEL
     | typeof ADMIN_AI_DROP_COVER_PREMIUM_MODEL;
 
+export type AdminAiDropCoverPromptOptimizerModel =
+    | typeof ADMIN_AI_DROP_COVER_OPTIMIZER_MODEL;
+
 export const ADMIN_AI_DROP_COVER_MODEL_OPTIONS = [
     {
         id: ADMIN_AI_DROP_COVER_MODEL,
@@ -36,6 +43,9 @@ export const ADMIN_AI_DROP_COVER_MODEL_OPTIONS = [
         pricePerGenerationUsd: 0.0387,
         priceBasis: ADMIN_AI_DROP_COVER_PRICE_BASIS,
         location: ADMIN_AI_DROP_COVER_DEFAULT_LOCATION,
+        maxReferenceInputs: 6,
+        supportsReferenceLibrary: true,
+        supportsPromptOptimization: true,
     },
     {
         id: ADMIN_AI_DROP_COVER_PREMIUM_MODEL,
@@ -46,6 +56,9 @@ export const ADMIN_AI_DROP_COVER_MODEL_OPTIONS = [
         pricePerGenerationUsd: 0.134,
         priceBasis: ADMIN_AI_DROP_COVER_PREMIUM_PRICE_BASIS,
         location: ADMIN_AI_DROP_COVER_DEFAULT_LOCATION,
+        maxReferenceInputs: 14,
+        supportsReferenceLibrary: true,
+        supportsPromptOptimization: true,
     },
 ] as const;
 
@@ -62,9 +75,22 @@ export type AdminAiDropCoverJobStatus = "running" | "succeeded" | "failed";
 
 export type AdminAiDropCoverFeedback = "neutral" | "liked" | "disliked";
 
-export type AdminAiDropCoverFeedbackAction = "like" | "dislike" | "accept" | "link_drop";
+export type AdminAiDropCoverFeedbackAction =
+    | "like"
+    | "dislike"
+    | "accept"
+    | "link_drop";
 
 export type AdminAiDropCoverGenerationMode = "standard" | "reference_guided";
+
+export type AdminAiDropCoverPromptEditSource = "default" | "optimizer" | "manual_override";
+
+export type AdminAiDropCoverPromptOptimizerStatus =
+    | "idle"
+    | "running"
+    | "ready"
+    | "degraded"
+    | "error";
 
 export type AdminAiDropCoverErrorCode =
     | "feature_disabled"
@@ -89,6 +115,17 @@ export type AdminAiDropCoverFlavorFamily =
     | "candy"
     | "neutral";
 
+export type AdminAiDropCoverSubjectCategory =
+    | "drink"
+    | "frozen"
+    | "fruit"
+    | "candy"
+    | "baked"
+    | "cream"
+    | "chocolate"
+    | "coffee"
+    | "other";
+
 export interface AdminAiDropCoverPromptInput {
     title: string;
     creatorId?: string | null;
@@ -101,7 +138,9 @@ export interface AdminAiDropCoverConsistencyRecipe {
     family: AdminAiDropCoverFlavorFamily;
     creatorId?: string | null;
     creatorName?: string | null;
+    creatorDisplayName?: string | null;
     normalizedFlavorTitle: string;
+    subjectCategory: AdminAiDropCoverSubjectCategory;
     focusTerms: string[];
     heroSubject: string;
     paletteDirection: string;
@@ -109,12 +148,15 @@ export interface AdminAiDropCoverConsistencyRecipe {
     backgroundDirection: string;
     compositionDirection: string;
     overlayDirection: string;
+    antiAnchoringDirection: string;
 }
 
 export interface AdminAiDropCoverSettings {
     enabled: boolean;
     model: string;
     location: string;
+    optimizerModel: AdminAiDropCoverPromptOptimizerModel;
+    optimizerEnabled: boolean;
     aspectRatio: "1:1";
     outputMimeType: string;
     pricePerGenerationUsd: number;
@@ -126,9 +168,53 @@ export interface AdminAiDropCoverSettings {
     templateReferenceUrl?: string | null;
     templateReferenceStoragePath?: string | null;
     templateReferenceFileName?: string | null;
+    primaryStyleReferenceId?: string | null;
     updatedAtMs?: number;
     updatedByUid?: string;
     updatedByEmail?: string | null;
+}
+
+export interface AdminAiDropCoverPromptPolicyPerformance {
+    generationCount: number;
+    acceptedCount: number;
+    likedCount: number;
+    dislikedCount: number;
+}
+
+export interface AdminAiDropCoverPromptPolicy {
+    version: number;
+    optimizerModel: AdminAiDropCoverPromptOptimizerModel;
+    autoOptimize: boolean;
+    optimizerStatus: AdminAiDropCoverPromptOptimizerStatus;
+    optimizerNote?: string | null;
+    optimizerProposal?: string | null;
+    baseStylePrompt: string;
+    lockedClauses: string[];
+    mutableClauses: string[];
+    currentMutablePrompt: string;
+    lastAcceptedPrompt?: string | null;
+    lastOptimizerRunAtMs?: number | null;
+    lastAcceptedAtMs?: number | null;
+    lastAutoRefinementDiff?: string[];
+    lastEditedAtMs?: number | null;
+    lastEditedByUid?: string;
+    lastEditedByEmail?: string | null;
+    categoryPerformance?: Record<string, AdminAiDropCoverPromptPolicyPerformance>;
+}
+
+export interface AdminAiDropCoverPromptPolicyHistoryEntry {
+    id: string;
+    version: number;
+    source: AdminAiDropCoverPromptEditSource;
+    action: "generation" | "feedback" | "manual_edit";
+    previousMutablePrompt?: string | null;
+    nextMutablePrompt: string;
+    diff: string[];
+    createdAtMs: number;
+    actorUid?: string | null;
+    actorEmail?: string | null;
+    jobId?: string | null;
+    feedbackAction?: AdminAiDropCoverFeedbackAction | null;
 }
 
 export interface AdminAiDropCoverJobRecord {
@@ -142,6 +228,11 @@ export interface AdminAiDropCoverJobRecord {
     location: string;
     generationMode: AdminAiDropCoverGenerationMode;
     promptVersion: string;
+    promptEditSource?: AdminAiDropCoverPromptEditSource;
+    promptPolicyVersion?: number;
+    workingPrompt?: string | null;
+    optimizerAdjustedPrompt?: string | null;
+    providerEnhancedPrompt?: string | null;
     recipeLabel: string;
     consistencyRecipe?: AdminAiDropCoverConsistencyRecipe;
     status: AdminAiDropCoverJobStatus;
@@ -167,6 +258,11 @@ export interface AdminAiDropCoverJobRecord {
     retainedAcceptedAiReferenceCount?: number;
     retainedLikedAiReferenceCount?: number;
     referenceAssets?: AdminAiDropCoverReferenceAsset[];
+    referenceRequestCount?: number;
+    referenceTruncated?: boolean;
+    overAnchoringRisk?: "low" | "medium" | "high";
+    validationWarnings?: string[];
+    manualReuseApproved?: boolean;
     acceptedAtMs?: number | null;
     acceptedForDropId?: string | null;
     errorMessage?: string | null;
@@ -174,7 +270,7 @@ export interface AdminAiDropCoverJobRecord {
 
 export interface AdminAiDropCoverReferenceAsset {
     id: string;
-    source: "template" | "catalog_drop_cover" | "recent_drop_cover" | "retained_ai_cover";
+    source: "template" | "house_reference" | "catalog_drop_cover" | "recent_drop_cover" | "retained_ai_cover";
     imageUrl: string;
     fileName?: string | null;
     storagePath?: string | null;
@@ -182,7 +278,11 @@ export interface AdminAiDropCoverReferenceAsset {
     title?: string | null;
     creatorId?: string | null;
     creatorName?: string | null;
-    retentionReason?: "template" | "catalog" | "accepted" | "liked";
+    retentionReason?: "template" | "pinned" | "catalog" | "accepted" | "liked" | "manual";
+    primary?: boolean;
+    pinned?: boolean;
+    reusable?: boolean;
+    active?: boolean;
     accepted?: boolean;
     feedback?: AdminAiDropCoverFeedback | null;
     usageCount?: number;
@@ -204,6 +304,9 @@ export interface AdminAiDropCoverModelOption {
     pricePerGenerationUsd: number;
     priceBasis: string;
     location: string;
+    maxReferenceInputs: number;
+    supportsReferenceLibrary: boolean;
+    supportsPromptOptimization: boolean;
 }
 
 export interface AdminAiDropCoverPreflightCheck {
@@ -220,6 +323,7 @@ export interface AdminAiDropCoverModelHealth {
     shortLabel: string;
     provider: "gemini";
     launchStage: "ga" | "preview";
+    pricePerGenerationUsd: number;
     selected: boolean;
     location: string;
     runtimeStatus: AdminAiDropCoverRuntimeStatus;
@@ -236,6 +340,9 @@ export interface AdminAiDropCoverModelHealth {
     lastFailureMessage?: string | null;
     diagnosticWarnCount: number;
     diagnosticErrorCount: number;
+    maxReferenceInputs: number;
+    supportsReferenceLibrary: boolean;
+    supportsPromptOptimization: boolean;
 }
 
 export interface AdminAiDropCoverRuntimeDiagnostic {
@@ -252,6 +359,7 @@ export interface AdminAiDropCoverRuntimeDiagnostic {
 
 export interface AdminAiDropCoverVisualSignalSummary {
     templateCount: number;
+    houseReferenceCount: number;
     catalogDropCoverCount: number;
     retainedAiCoverCount: number;
     acceptedRetainedCount: number;
@@ -259,6 +367,18 @@ export interface AdminAiDropCoverVisualSignalSummary {
     dislikedHistoryCount: number;
     totalReusableReferenceCount: number;
     referenceGuidanceReady: boolean;
+}
+
+export interface AdminAiDropCoverReviewGalleryItem {
+    id: string;
+    title: string;
+    imageUrl: string;
+    feedback: AdminAiDropCoverFeedback;
+    status: AdminAiDropCoverJobStatus;
+    requestedAtMs: number;
+    model: string;
+    reusable: boolean;
+    accepted: boolean;
 }
 
 export interface AdminAiDropCoverSummaryRecord {
@@ -277,6 +397,13 @@ export interface AdminAiDropCoverSummaryRecord {
     updatedAtMs?: number;
 }
 
+export const adminAiDropCoverPromptPolicyPerformanceSchema = z.object({
+    generationCount: z.number(),
+    acceptedCount: z.number(),
+    likedCount: z.number(),
+    dislikedCount: z.number(),
+});
+
 export const adminAiDropCoverJobSchema = z.object({
     id: z.string(),
     title: z.string(),
@@ -288,6 +415,11 @@ export const adminAiDropCoverJobSchema = z.object({
     location: z.string(),
     generationMode: z.enum(["standard", "reference_guided"]),
     promptVersion: z.string(),
+    promptEditSource: z.enum(["default", "optimizer", "manual_override"]).optional(),
+    promptPolicyVersion: z.number().optional(),
+    workingPrompt: z.string().nullable().optional(),
+    optimizerAdjustedPrompt: z.string().nullable().optional(),
+    providerEnhancedPrompt: z.string().nullable().optional(),
     recipeLabel: z.string(),
     consistencyRecipe: z.lazy(() => adminAiDropCoverConsistencyRecipeSchema).optional(),
     status: z.enum(["running", "succeeded", "failed"]),
@@ -313,6 +445,11 @@ export const adminAiDropCoverJobSchema = z.object({
     retainedAcceptedAiReferenceCount: z.number().optional(),
     retainedLikedAiReferenceCount: z.number().optional(),
     referenceAssets: z.array(z.lazy(() => adminAiDropCoverReferenceAssetSchema)).optional(),
+    referenceRequestCount: z.number().optional(),
+    referenceTruncated: z.boolean().optional(),
+    overAnchoringRisk: z.enum(["low", "medium", "high"]).optional(),
+    validationWarnings: z.array(z.string()).optional(),
+    manualReuseApproved: z.boolean().optional(),
     acceptedAtMs: z.number().nullable().optional(),
     acceptedForDropId: z.string().nullable().optional(),
     errorMessage: z.string().nullable().optional(),
@@ -322,6 +459,8 @@ export const adminAiDropCoverSettingsSchema = z.object({
     enabled: z.boolean(),
     model: z.string(),
     location: z.string(),
+    optimizerModel: z.literal(ADMIN_AI_DROP_COVER_OPTIMIZER_MODEL),
+    optimizerEnabled: z.boolean(),
     aspectRatio: z.literal("1:1"),
     outputMimeType: z.string(),
     pricePerGenerationUsd: z.number(),
@@ -333,9 +472,46 @@ export const adminAiDropCoverSettingsSchema = z.object({
     templateReferenceUrl: z.string().url().nullable().optional(),
     templateReferenceStoragePath: z.string().nullable().optional(),
     templateReferenceFileName: z.string().nullable().optional(),
+    primaryStyleReferenceId: z.string().nullable().optional(),
     updatedAtMs: z.number().optional(),
     updatedByUid: z.string().optional(),
     updatedByEmail: z.string().nullable().optional(),
+});
+
+export const adminAiDropCoverPromptPolicySchema = z.object({
+    version: z.number(),
+    optimizerModel: z.literal(ADMIN_AI_DROP_COVER_OPTIMIZER_MODEL),
+    autoOptimize: z.boolean(),
+    optimizerStatus: z.enum(["idle", "running", "ready", "degraded", "error"]),
+    optimizerNote: z.string().nullable().optional(),
+    optimizerProposal: z.string().nullable().optional(),
+    baseStylePrompt: z.string(),
+    lockedClauses: z.array(z.string()),
+    mutableClauses: z.array(z.string()),
+    currentMutablePrompt: z.string(),
+    lastAcceptedPrompt: z.string().nullable().optional(),
+    lastOptimizerRunAtMs: z.number().nullable().optional(),
+    lastAcceptedAtMs: z.number().nullable().optional(),
+    lastAutoRefinementDiff: z.array(z.string()).optional(),
+    lastEditedAtMs: z.number().nullable().optional(),
+    lastEditedByUid: z.string().optional(),
+    lastEditedByEmail: z.string().nullable().optional(),
+    categoryPerformance: z.record(z.string(), adminAiDropCoverPromptPolicyPerformanceSchema).optional(),
+});
+
+export const adminAiDropCoverPromptPolicyHistoryEntrySchema = z.object({
+    id: z.string(),
+    version: z.number(),
+    source: z.enum(["default", "optimizer", "manual_override"]),
+    action: z.enum(["generation", "feedback", "manual_edit"]),
+    previousMutablePrompt: z.string().nullable().optional(),
+    nextMutablePrompt: z.string(),
+    diff: z.array(z.string()),
+    createdAtMs: z.number(),
+    actorUid: z.string().nullable().optional(),
+    actorEmail: z.string().nullable().optional(),
+    jobId: z.string().nullable().optional(),
+    feedbackAction: z.enum(["like", "dislike", "accept", "link_drop"]).nullable().optional(),
 });
 
 export const adminAiDropCoverRuntimeSchema = z.object({
@@ -363,7 +539,9 @@ export const adminAiDropCoverConsistencyRecipeSchema = z.object({
     family: z.enum(["apple_spice", "berry", "citrus", "cream", "chocolate", "coffee", "mint", "tropical", "candy", "neutral"]),
     creatorId: z.string().nullable().optional(),
     creatorName: z.string().nullable().optional(),
+    creatorDisplayName: z.string().nullable().optional(),
     normalizedFlavorTitle: z.string(),
+    subjectCategory: z.enum(["drink", "frozen", "fruit", "candy", "baked", "cream", "chocolate", "coffee", "other"]),
     focusTerms: z.array(z.string()),
     heroSubject: z.string(),
     paletteDirection: z.string(),
@@ -371,11 +549,12 @@ export const adminAiDropCoverConsistencyRecipeSchema = z.object({
     backgroundDirection: z.string(),
     compositionDirection: z.string(),
     overlayDirection: z.string(),
+    antiAnchoringDirection: z.string(),
 });
 
 export const adminAiDropCoverReferenceAssetSchema = z.object({
     id: z.string(),
-    source: z.enum(["template", "catalog_drop_cover", "recent_drop_cover", "retained_ai_cover"]),
+    source: z.enum(["template", "house_reference", "catalog_drop_cover", "recent_drop_cover", "retained_ai_cover"]),
     imageUrl: z.string().url(),
     fileName: z.string().nullable().optional(),
     storagePath: z.string().nullable().optional(),
@@ -383,7 +562,11 @@ export const adminAiDropCoverReferenceAssetSchema = z.object({
     title: z.string().nullable().optional(),
     creatorId: z.string().nullable().optional(),
     creatorName: z.string().nullable().optional(),
-    retentionReason: z.enum(["template", "catalog", "accepted", "liked"]).optional(),
+    retentionReason: z.enum(["template", "pinned", "catalog", "accepted", "liked", "manual"]).optional(),
+    primary: z.boolean().optional(),
+    pinned: z.boolean().optional(),
+    reusable: z.boolean().optional(),
+    active: z.boolean().optional(),
     accepted: z.boolean().optional(),
     feedback: z.enum(["neutral", "liked", "disliked"]).nullable().optional(),
     usageCount: z.number().optional(),
@@ -402,6 +585,7 @@ export const adminAiDropCoverModelHealthSchema = z.object({
     shortLabel: z.string(),
     provider: z.literal("gemini"),
     launchStage: z.enum(["ga", "preview"]),
+    pricePerGenerationUsd: z.number(),
     selected: z.boolean(),
     location: z.string(),
     runtimeStatus: z.enum(["disabled", "ready", "missing_project", "auth_missing", "error"]),
@@ -418,6 +602,9 @@ export const adminAiDropCoverModelHealthSchema = z.object({
     lastFailureMessage: z.string().nullable().optional(),
     diagnosticWarnCount: z.number(),
     diagnosticErrorCount: z.number(),
+    maxReferenceInputs: z.number(),
+    supportsReferenceLibrary: z.boolean(),
+    supportsPromptOptimization: z.boolean(),
 });
 
 export const adminAiDropCoverRuntimeDiagnosticSchema = z.object({
@@ -434,6 +621,7 @@ export const adminAiDropCoverRuntimeDiagnosticSchema = z.object({
 
 export const adminAiDropCoverVisualSignalSummarySchema = z.object({
     templateCount: z.number(),
+    houseReferenceCount: z.number(),
     catalogDropCoverCount: z.number(),
     retainedAiCoverCount: z.number(),
     acceptedRetainedCount: z.number(),
@@ -441,6 +629,18 @@ export const adminAiDropCoverVisualSignalSummarySchema = z.object({
     dislikedHistoryCount: z.number(),
     totalReusableReferenceCount: z.number(),
     referenceGuidanceReady: z.boolean(),
+});
+
+export const adminAiDropCoverReviewGalleryItemSchema = z.object({
+    id: z.string(),
+    title: z.string(),
+    imageUrl: z.string().url(),
+    feedback: z.enum(["neutral", "liked", "disliked"]),
+    status: z.enum(["running", "succeeded", "failed"]),
+    requestedAtMs: z.number(),
+    model: z.string(),
+    reusable: z.boolean(),
+    accepted: z.boolean(),
 });
 
 export const adminAiDropCoverSummarySchema = z.object({
@@ -467,10 +667,14 @@ export const adminAiDropCoverSummarySchema = z.object({
     recentJobs: z.array(adminAiDropCoverJobSchema),
     referenceAssets: z.object({
         template: adminAiDropCoverReferenceAssetSchema.nullable(),
+        houseReferences: z.array(adminAiDropCoverReferenceAssetSchema),
         catalogDropCovers: z.array(adminAiDropCoverReferenceAssetSchema),
         retainedAiCovers: z.array(adminAiDropCoverReferenceAssetSchema),
     }),
     visualSignals: adminAiDropCoverVisualSignalSummarySchema,
+    promptPolicy: adminAiDropCoverPromptPolicySchema,
+    promptPolicyHistory: z.array(adminAiDropCoverPromptPolicyHistoryEntrySchema),
+    reviewGallery: z.array(adminAiDropCoverReviewGalleryItemSchema),
 });
 
 const DEFAULT_RECIPE_LABEL = "KandyDrops title-safe cover art";
@@ -499,29 +703,29 @@ const FLAVOR_FAMILY_RULES: Array<{
 }> = [
     {
         family: "apple_spice",
-        keywords: ["apple", "pie", "cinnamon", "caramel", "pumpkin", "pecan", "cobbler", "baked"],
-        paletteDirection: "Use a warm amber and cinnamon palette with glossy caramel highlights and soft bakery warmth.",
-        lightingDirection: "Light the hero like a premium bakery ad with warm steam, golden highlights, and rich appetizing contrast.",
-        backgroundDirection: "Build a luminous bakery-style bokeh background with soft haze and controlled edge falloff.",
+        keywords: ["apple", "cinnamon", "caramel", "pumpkin", "pecan", "cobbler", "spice", "baked"],
+        paletteDirection: "Use warm amber, cinnamon, and baked sugar tones without forcing the hero into pastry form unless the flavor explicitly calls for pie, cobbler, or another baked item.",
+        lightingDirection: "Use polished warm highlights with tactile gloss and depth, like premium food packaging rather than a literal bakery scene.",
+        backgroundDirection: "Build a glowing warm background with spice-led color haze and minimal secondary props.",
     },
     {
         family: "berry",
         keywords: ["berry", "blueberry", "strawberry", "raspberry", "blackberry", "cherry", "grape"],
-        paletteDirection: "Use one saturated berry-led palette with jewel-toned highlights and soft confection glow.",
-        lightingDirection: "Use glossy, premium beverage-or-dessert lighting with crisp highlights and a rich candy finish.",
-        backgroundDirection: "Create a dreamy berry bokeh field with atmospheric depth and subtle flavor particles.",
+        paletteDirection: "Use bold berry-driven reds, magentas, violets, or garnet tones with crisp color separation and jewel-like highlights.",
+        lightingDirection: "Use glossy premium highlights that suit drinks, candy, frozen treats, or fruit without assuming one food format.",
+        backgroundDirection: "Create a saturated berry atmosphere with controlled bokeh and clean subject separation.",
     },
     {
         family: "citrus",
         keywords: ["lemon", "lime", "orange", "citrus", "yuzu", "sorbet"],
-        paletteDirection: "Use a bright citrus palette with creamy yellow-white balance, luminous highlights, and clean contrast.",
-        lightingDirection: "Light the hero like a fresh bakery or dessert ad with bright glaze, sparkle, and soft radiant warmth.",
-        backgroundDirection: "Use an airy citrus glow with round bokeh and light flavor texture without clutter.",
+        paletteDirection: "Use bright citrus color energy with strong yellow, lime, or orange contrast and clean white balance.",
+        lightingDirection: "Use fresh, high-clarity highlights with crisp edges and premium product gloss.",
+        backgroundDirection: "Use an airy citrus glow with clean depth and no crowded garnish collage.",
     },
     {
         family: "cream",
         keywords: ["cream", "cake", "vanilla", "cheesecake", "sundae", "ice", "milkshake", "custard"],
-        paletteDirection: "Use creamy dessert tones with one dominant flavor color and glossy premium contrast.",
+        paletteDirection: "Use creamy base tones with one dominant flavor color accent and clearly separated secondary colors.",
         lightingDirection: "Use luscious dessert lighting with polished highlights, creamy depth, and tactile texture.",
         backgroundDirection: "Create a soft confection bokeh backdrop with premium depth and minimal prop noise.",
     },
@@ -535,9 +739,9 @@ const FLAVOR_FAMILY_RULES: Array<{
     {
         family: "coffee",
         keywords: ["coffee", "espresso", "latte", "mocha", "cappuccino"],
-        paletteDirection: "Use espresso, cream, and caramel tones with glossy premium warmth and restrained contrast.",
-        lightingDirection: "Use cafe-style editorial lighting with polished highlights and warm steam-driven atmosphere.",
-        backgroundDirection: "Create a moody coffeehouse bokeh field with subtle haze and premium product depth.",
+        paletteDirection: "Use espresso, caramel, cream, and roast tones with polished warmth and readable tonal separation.",
+        lightingDirection: "Use editorial cafe-style lighting with premium gloss but without forcing mugs or pastries unless the flavor explicitly asks for them.",
+        backgroundDirection: "Create a moody roasted atmosphere with subtle haze and clean visual hierarchy.",
     },
     {
         family: "mint",
@@ -549,9 +753,9 @@ const FLAVOR_FAMILY_RULES: Array<{
     {
         family: "tropical",
         keywords: ["mango", "pineapple", "banana", "coconut", "peach", "melon", "watermelon"],
-        paletteDirection: "Use a bright tropical palette with one dominant fruit tone, glossy highlights, and candy-level saturation control.",
-        lightingDirection: "Use juicy, sunlit product lighting with premium gloss and strong edible clarity.",
-        backgroundDirection: "Create a tropical bokeh atmosphere with flavor haze and premium depth without collage clutter.",
+        paletteDirection: "Use vibrant tropical hues with one dominant fruit color and supporting accent contrast that still reads clearly at thumbnail size.",
+        lightingDirection: "Use juicy, polished highlights and bright premium lighting without collapsing into a generic smoothie or pie format.",
+        backgroundDirection: "Create a saturated tropical atmosphere with clean depth and disciplined secondary elements.",
     },
     {
         family: "candy",
@@ -561,6 +765,40 @@ const FLAVOR_FAMILY_RULES: Array<{
         backgroundDirection: "Build a glowing candy-world backdrop with soft bokeh and disciplined prop use.",
     },
 ];
+const SUBJECT_CATEGORY_RULES: Array<{
+    category: AdminAiDropCoverSubjectCategory;
+    keywords: string[];
+}> = [
+    { category: "drink", keywords: ["slushy", "soda", "juice", "cola", "drink", "tea", "boba", "punch", "spritz"] },
+    { category: "frozen", keywords: ["ice", "sorbet", "gelato", "frozen", "float", "snow", "freeze"] },
+    { category: "fruit", keywords: ["apple", "berry", "cherry", "grape", "mango", "pineapple", "banana", "peach", "melon", "orange", "lime", "lemon"] },
+    { category: "candy", keywords: ["candy", "gummy", "taffy", "lollipop", "bubblegum", "cotton"] },
+    { category: "baked", keywords: ["pie", "cake", "brownie", "cookie", "cobbler", "pastry", "donut"] },
+    { category: "cream", keywords: ["cream", "custard", "shake", "milkshake", "sundae", "cheesecake", "vanilla"] },
+    { category: "chocolate", keywords: ["chocolate", "cocoa", "fudge"] },
+    { category: "coffee", keywords: ["coffee", "espresso", "latte", "cappuccino", "mocha"] },
+];
+const COLOR_DIRECTION_RULES: Array<{
+    keywords: string[];
+    direction: string;
+}> = [
+    { keywords: ["cherry", "strawberry", "raspberry", "watermelon"], direction: "Anchor the palette in vivid cherry-red and crushed pink tones with high contrast accents." },
+    { keywords: ["blueberry", "grape", "blackberry"], direction: "Anchor the palette in indigo, violet, and deep berry tones with bright highlight contrast." },
+    { keywords: ["apple", "lime", "mint", "matcha"], direction: "Anchor the palette in fresh green tones with controlled cool highlights and readable neutrals." },
+    { keywords: ["lemon", "banana", "pineapple"], direction: "Anchor the palette in electric yellow and golden tones with crisp separation from white and black." },
+    { keywords: ["orange", "mango", "peach"], direction: "Anchor the palette in orange and sunset tones with warm highlight separation and bold contrast." },
+    { keywords: ["chocolate", "coffee", "mocha", "cocoa"], direction: "Anchor the palette in dark cocoa, roast, and caramel tones with polished metallic highlights." },
+];
+const DEFAULT_STYLE_LOCKED_CLAUSES = [
+    "Keep the KandyDrops premium candy-poster design language with a centered hero, a smaller creator-name treatment above the title, a bold main flavor title, and a lower ribbon band that is easy to separate from the hero image.",
+    "Keep the typography hierarchy, ribbon treatment, glossy finish, and premium poster composition aligned to the established KandyDrops style system.",
+    "Preserve strong title readability, clear subject isolation, and thumbnail-safe contrast.",
+];
+const DEFAULT_MUTABLE_CLAUSES = [
+    "Match the hero object, palette, and atmosphere to the requested flavor instead of copying the literal object from the reference image.",
+    "Keep each flavor visually distinct so adjacent covers are easy to tell apart at a glance.",
+];
+const DEFAULT_BASE_STYLE_PROMPT = "Create premium square cover art for a KandyDrops drop that feels like luxury candy packaging meets a polished poster.";
 
 function normalizeTag(label: string) {
     return label.trim().toLowerCase();
@@ -582,9 +820,35 @@ function escapeRegExp(value: string) {
     return value.replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
 }
 
-export function normalizeAdminAiDropCoverFlavorTitle(title: string, creatorName?: string | null) {
+export function parseAdminAiDropCoverTitle(
+    title: string,
+    creatorName?: string | null,
+) {
     const trimmedTitle = title.trim();
-    const trimmedCreator = creatorName?.trim() || "";
+    const titleParts = trimmedTitle
+        .split("|")
+        .map((part) => part.trim())
+        .filter((part) => part.length > 0);
+    const explicitCreator = titleParts.length >= 2 ? titleParts[0] || null : null;
+    const explicitFlavor = titleParts.length >= 2 ? titleParts.slice(1).join(" | ").trim() : null;
+    const creatorDisplayName = explicitCreator || creatorName?.trim() || null;
+    const normalizedFlavorTitle = explicitFlavor || trimmedTitle;
+
+    return {
+        requestedTitle: trimmedTitle,
+        creatorDisplayName,
+        normalizedFlavorTitle,
+    };
+}
+
+export function normalizeAdminAiDropCoverFlavorTitle(title: string, creatorName?: string | null) {
+    const parsed = parseAdminAiDropCoverTitle(title, creatorName);
+    if (parsed.requestedTitle.includes("|")) {
+        return parsed.normalizedFlavorTitle;
+    }
+
+    const trimmedTitle = parsed.requestedTitle;
+    const trimmedCreator = parsed.creatorDisplayName?.trim() || "";
     if (!trimmedCreator) {
         return trimmedTitle;
     }
@@ -607,6 +871,27 @@ function getFlavorFamilyRule(
     family: AdminAiDropCoverFlavorFamily,
 ) {
     return FLAVOR_FAMILY_RULES.find((rule) => rule.family === family) || null;
+}
+
+export function inferAdminAiDropCoverSubjectCategory(input: AdminAiDropCoverPromptInput): AdminAiDropCoverSubjectCategory {
+    const focusTerms = getAdminAiDropCoverFocusTerms(input.title, input.creatorName);
+    for (const rule of SUBJECT_CATEGORY_RULES) {
+        if (rule.keywords.some((keyword) => focusTerms.includes(keyword))) {
+            return rule.category;
+        }
+    }
+
+    return "other";
+}
+
+function getColorDirection(focusTerms: string[]) {
+    for (const rule of COLOR_DIRECTION_RULES) {
+        if (rule.keywords.some((keyword) => focusTerms.includes(keyword))) {
+            return rule.direction;
+        }
+    }
+
+    return "Anchor the palette in the flavor's most legible dominant color with clearly separated accent colors and premium contrast.";
 }
 
 export function inferAdminAiDropCoverFlavorFamily(input: AdminAiDropCoverPromptInput): AdminAiDropCoverFlavorFamily {
@@ -643,23 +928,29 @@ export function inferAdminAiDropCoverFlavorFamily(input: AdminAiDropCoverPromptI
 }
 
 export function buildAdminAiDropCoverConsistencyRecipe(input: AdminAiDropCoverPromptInput): AdminAiDropCoverConsistencyRecipe {
+    const parsedTitle = parseAdminAiDropCoverTitle(input.title, input.creatorName);
     const normalizedFlavorTitle = normalizeAdminAiDropCoverFlavorTitle(input.title, input.creatorName);
     const focusTerms = getAdminAiDropCoverFocusTerms(input.title, input.creatorName).slice(0, 5);
     const family = inferAdminAiDropCoverFlavorFamily(input);
     const familyRule = getFlavorFamilyRule(family);
+    const subjectCategory = inferAdminAiDropCoverSubjectCategory(input);
+    const subjectLabel = subjectCategory === "other" ? "flavor-specific hero object" : `${subjectCategory} hero object`;
 
     return {
         family,
         creatorId: input.creatorId?.trim() || null,
         creatorName: input.creatorName?.trim() || null,
+        creatorDisplayName: parsedTitle.creatorDisplayName,
         normalizedFlavorTitle,
+        subjectCategory,
         focusTerms,
-        heroSubject: `Center one unmistakable edible hero inspired by ${normalizedFlavorTitle}, keeping the food or drink subject large, premium, and immediately readable.`,
-        paletteDirection: familyRule?.paletteDirection || "Use one dominant flavor palette with premium contrast, glossy highlights, and restrained accent color drift.",
-        lightingDirection: familyRule?.lightingDirection || "Use polished confection lighting with tactile highlights, depth, and a premium food-ad editorial finish.",
+        heroSubject: `Center one unmistakable ${subjectLabel} inspired by ${normalizedFlavorTitle}. Choose the object that best expresses this flavor, make it large and immediately readable, and only use pie, cake, pastry, or another baked form when the requested flavor explicitly names that format.`,
+        paletteDirection: `${familyRule?.paletteDirection || "Use one dominant flavor palette with premium contrast, glossy highlights, and restrained accent color drift."} ${getColorDirection(focusTerms)}`,
+        lightingDirection: familyRule?.lightingDirection || "Use polished product lighting with tactile highlights, depth, and a premium editorial finish.",
         backgroundDirection: familyRule?.backgroundDirection || "Create a soft glowing bokeh background with flavor-led atmosphere, depth, and minimal distracting props.",
         compositionDirection: "Keep a square poster composition with one centered hero, clear upper title space, and a distinct lower ribbon band so the hero, title, and CTA treatment stay easy to distinguish.",
         overlayDirection: "Render the creator name as a smaller top treatment when available, keep the main flavor title prominent and legible, and make the lower ribbon or CTA band visually distinct from the background.",
+        antiAnchoringDirection: "Do not replicate the exact food form, garnish, or prop arrangement from the reference unless the requested flavor explicitly matches it. Keep the design language, but redesign the hero object and palette for this specific flavor.",
     };
 }
 
@@ -768,21 +1059,33 @@ export function selectAdminAiDropCoverReferenceAssets(
 
 export function buildAdminAiDropCoverPrompt(
     input: AdminAiDropCoverPromptInput,
-    options?: { referenceGuided?: boolean; recipe?: AdminAiDropCoverConsistencyRecipe },
+    options?: {
+        referenceGuided?: boolean;
+        recipe?: AdminAiDropCoverConsistencyRecipe;
+        promptPolicy?: AdminAiDropCoverPromptPolicy | null;
+        manualPromptOverride?: string | null;
+    },
 ) {
     const recipe = options?.recipe || buildAdminAiDropCoverConsistencyRecipe(input);
-    const requestedTitle = input.title.trim();
-    const title = recipe.creatorName?.trim() ? recipe.normalizedFlavorTitle : requestedTitle;
-    const creatorName = recipe.creatorName?.trim();
+    const parsedTitle = parseAdminAiDropCoverTitle(input.title, input.creatorName);
+    const requestedTitle = parsedTitle.requestedTitle;
+    const title = recipe.normalizedFlavorTitle;
+    const creatorName = recipe.creatorDisplayName?.trim() || "";
+    const promptPolicy = options?.promptPolicy || getDefaultAdminAiDropCoverPromptPolicy();
+    const lockedClauses = promptPolicy.lockedClauses.length > 0 ? promptPolicy.lockedClauses : DEFAULT_STYLE_LOCKED_CLAUSES;
+    const mutablePrompt = options?.manualPromptOverride?.trim()
+        || promptPolicy.currentMutablePrompt.trim()
+        || promptPolicy.mutableClauses.join(" ");
     const referenceInstruction = options?.referenceGuided
-        ? `Use the provided reference image and maintain the same style, focusing this time on "${requestedTitle}", ensuring the color matches the title theme and the colors are easy to distinguish.`
+        ? `Use the provided reference image and maintain the same style system, focusing this time on "${requestedTitle}", ensuring the colors are easy to distinguish and the subject matches the flavor instead of copying the reference subject.`
         : `Focus this cover on "${requestedTitle}", ensuring the color matches the title theme and the colors are easy to distinguish.`;
 
     return [
-        "Create premium square cover art for a KandyDrops drop.",
+        promptPolicy.baseStylePrompt || DEFAULT_BASE_STYLE_PROMPT,
+        ...lockedClauses,
         referenceInstruction,
         `Main title treatment: ${title}.`,
-        creatorName ? `Render ${creatorName} as the smaller creator-name treatment above the main title.` : "",
+        creatorName ? `Render ${creatorName} as the smaller creator-name treatment above the main title and keep it intact.` : "",
         buildDropTypeNote(input.dropType),
         recipe.heroSubject,
         recipe.paletteDirection,
@@ -790,9 +1093,11 @@ export function buildAdminAiDropCoverPrompt(
         recipe.backgroundDirection,
         recipe.compositionDirection,
         recipe.overlayDirection,
+        recipe.antiAnchoringDirection,
+        mutablePrompt,
         "The image must feel like luxury candy packaging meets a premium poster.",
         options?.referenceGuided
-            ? "Keep the result aligned to the reference image typography layout, title hierarchy, and candy-poster presentation while still making this specific flavor distinct."
+            ? "Keep the result aligned to the reference image typography layout, title hierarchy, and candy-poster presentation while still making this specific flavor clearly distinct."
             : "",
         "Use depth, gloss, tactile lighting, and a flavor-led visual identity.",
         `Render the main title "${title}" clearly and legibly in the cover.`,
@@ -872,12 +1177,20 @@ export function getAdminAiDropCoverGenerationMode(input: Pick<AdminAiDropCoverSe
         : "standard";
 }
 
+export function getAdminAiDropCoverMaxReferenceInputs(model = ADMIN_AI_DROP_COVER_MODEL) {
+    return getAdminAiDropCoverModelOption(model)?.maxReferenceInputs
+        ?? getAdminAiDropCoverModelOption(ADMIN_AI_DROP_COVER_MODEL)?.maxReferenceInputs
+        ?? 6;
+}
+
 export function getDefaultAdminAiDropCoverSettings(): AdminAiDropCoverSettings {
     const generationMode: AdminAiDropCoverGenerationMode = "standard";
     return {
         enabled: false,
         model: ADMIN_AI_DROP_COVER_MODEL,
         location: ADMIN_AI_DROP_COVER_DEFAULT_LOCATION,
+        optimizerModel: ADMIN_AI_DROP_COVER_OPTIMIZER_MODEL,
+        optimizerEnabled: true,
         aspectRatio: "1:1",
         outputMimeType: ADMIN_AI_DROP_COVER_OUTPUT_MIME_TYPE,
         pricePerGenerationUsd: getAdminAiDropCoverPricePerGenerationUsd(),
@@ -889,6 +1202,30 @@ export function getDefaultAdminAiDropCoverSettings(): AdminAiDropCoverSettings {
         templateReferenceUrl: null,
         templateReferenceStoragePath: null,
         templateReferenceFileName: null,
+        primaryStyleReferenceId: null,
+    };
+}
+
+export function getDefaultAdminAiDropCoverPromptPolicy(): AdminAiDropCoverPromptPolicy {
+    return {
+        version: 1,
+        optimizerModel: ADMIN_AI_DROP_COVER_OPTIMIZER_MODEL,
+        autoOptimize: true,
+        optimizerStatus: "idle",
+        optimizerNote: "Prompt optimizer ready.",
+        optimizerProposal: null,
+        baseStylePrompt: DEFAULT_BASE_STYLE_PROMPT,
+        lockedClauses: [...DEFAULT_STYLE_LOCKED_CLAUSES],
+        mutableClauses: [...DEFAULT_MUTABLE_CLAUSES],
+        currentMutablePrompt: DEFAULT_MUTABLE_CLAUSES.join(" "),
+        lastAcceptedPrompt: null,
+        lastOptimizerRunAtMs: null,
+        lastAcceptedAtMs: null,
+        lastAutoRefinementDiff: [],
+        lastEditedAtMs: null,
+        lastEditedByUid: undefined,
+        lastEditedByEmail: undefined,
+        categoryPerformance: {},
     };
 }
 

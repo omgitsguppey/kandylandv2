@@ -3,12 +3,10 @@
 import { useState, useEffect, useMemo, useRef } from "react";
 import { useAuthIdentity } from "@/context/AuthContext";
 import { CLIENT_RUNTIME_EVENTS, dispatchClientRuntimeEvent } from "@/hooks/client-runtime";
-import { reportClientIssue, reportRealtimeIssue } from "@/lib/client-error-reporting";
+import { reportRealtimeIssue } from "@/lib/client-error-reporting";
 import { markNotificationsAsRead } from "@/lib/notifications";
-import { NOTIFICATION_RUNTIME_COLLECTION, NOTIFICATION_RUNTIME_DOC_ID } from "@/lib/notification-runtime";
 import { AppNotification } from "@/lib/notification-contracts";
 import { trackEvent } from "@/lib/telemetry";
-import { USER_RUNTIME_COLLECTION } from "@/lib/user-runtime";
 import { authFetch } from "@/lib/authFetch";
 
 type Notification = AppNotification;
@@ -43,11 +41,6 @@ export function useNotifications({ enabled = true }: UseNotificationsOptions = {
         const currentUserId = userId;
 
         let cancelled = false;
-        let unsubscribeSystemRuntime: (() => void) | undefined;
-        let unsubscribeUserRuntime: (() => void) | undefined;
-        let sawSystemRuntimeSnapshot = false;
-        let sawUserRuntimeSnapshot = false;
-
         const fetchNotifications = async () => {
             try {
                 const headers = new Headers();
@@ -108,75 +101,10 @@ export function useNotifications({ enabled = true }: UseNotificationsOptions = {
             void fetchNotifications();
         };
 
-        const subscribeToRuntimeSignals = async () => {
-            try {
-                const [{ doc, onSnapshot }, { db }] = await Promise.all([
-                    import("firebase/firestore"),
-                    import("@/lib/firebase-data"),
-                ]);
-
-                if (cancelled) {
-                    return;
-                }
-
-                unsubscribeSystemRuntime = onSnapshot(
-                    doc(db, NOTIFICATION_RUNTIME_COLLECTION, NOTIFICATION_RUNTIME_DOC_ID),
-                    () => {
-                        if (!sawSystemRuntimeSnapshot) {
-                            sawSystemRuntimeSnapshot = true;
-                            return;
-                        }
-
-                        refreshOnDemand();
-                    },
-                    (error) => {
-                        reportRealtimeIssue("notifications runtime subscription", error, {
-                            scope: "system",
-                            message: error.message,
-                        });
-                    },
-                );
-
-                unsubscribeUserRuntime = onSnapshot(
-                    doc(db, USER_RUNTIME_COLLECTION, currentUserId),
-                    (snapshot) => {
-                        if (!sawUserRuntimeSnapshot) {
-                            sawUserRuntimeSnapshot = true;
-                            return;
-                        }
-
-                        const data = snapshot.data() as { notificationsVersion?: number } | undefined;
-                        if (typeof data?.notificationsVersion === "number") {
-                            refreshOnDemand();
-                        }
-                    },
-                    (error) => {
-                        reportRealtimeIssue("notifications user runtime subscription", error, {
-                            scope: "user",
-                            message: error.message,
-                        });
-                    },
-                );
-            } catch (error) {
-                reportClientIssue({
-                    channel: "firebase",
-                    severity: "warn",
-                    message: "Notifications runtime setup failed",
-                    error,
-                    detail: {
-                        userId: currentUserId,
-                        message: error instanceof Error ? error.message : String(error),
-                    },
-                    consoleLabel: "[Notifications] runtime setup failed",
-                });
-            }
-        };
-
         void fetchNotifications();
-        void subscribeToRuntimeSignals();
         const interval = window.setInterval(() => {
             void fetchNotifications();
-        }, 90_000);
+        }, 45_000);
         const refreshOnVisible = () => {
             if (document.visibilityState === "visible") {
                 void fetchNotifications();
@@ -193,12 +121,6 @@ export function useNotifications({ enabled = true }: UseNotificationsOptions = {
             window.removeEventListener("focus", refreshOnDemand);
             window.removeEventListener(CLIENT_RUNTIME_EVENTS.notificationsSync, refreshOnDemand);
             document.removeEventListener("visibilitychange", refreshOnVisible);
-            if (unsubscribeSystemRuntime) {
-                unsubscribeSystemRuntime();
-            }
-            if (unsubscribeUserRuntime) {
-                unsubscribeUserRuntime();
-            }
         };
     }, [enabled, userId]);
 

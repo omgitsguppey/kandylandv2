@@ -26,6 +26,8 @@ import { Button } from "@/components/ui/Button";
 import { useAuth } from "@/context/AuthContext";
 import { useUI } from "@/context/UIContext";
 import { authFetch } from "@/lib/authFetch";
+import { resolveChatAttachmentKind } from "@/lib/chat-attachments";
+import { buildChatSoftSealScope, softOpenChatValue } from "@/lib/chat-soft-seal";
 import {
     buildChatPresenceMemberPath,
     CHAT_COLLECTIONS,
@@ -99,6 +101,14 @@ type ChatAttachmentCompleteResponse = {
     assetUrl: string;
     assetName: string;
     assetMimeType: string;
+    storagePath: string;
+};
+
+type UploadedChatAttachment = {
+    assetUrl: string;
+    assetName: string;
+    assetMimeType: string;
+    storagePath: string;
 };
 
 type PresenceSnapshot = {
@@ -718,10 +728,15 @@ export function ChatExperience() {
             (snapshot) => {
                 const nextThreads = snapshot.docs.map((docSnapshot) => {
                     const raw = docSnapshot.data() as ChatThreadRecord;
+                    const threadId = docSnapshot.id;
                     const viewerRole = raw.creatorId === user.uid ? "creator" : "user";
                     return {
                         ...raw,
-                        id: docSnapshot.id,
+                        id: threadId,
+                        lastMessagePreview: softOpenChatValue(
+                            buildChatSoftSealScope(threadId, "preview"),
+                            raw.lastMessagePreview,
+                        ) || "New message",
                         counterpartId: viewerRole === "creator" ? raw.userId : raw.creatorId,
                         counterpartDisplayName: viewerRole === "creator"
                             ? (raw.userDisplayName || raw.userUsername || raw.userId)
@@ -768,10 +783,16 @@ export function ChatExperience() {
             ),
             (snapshot) => {
                 const nextMessages = snapshot.docs
-                    .map((docSnapshot) => ({
-                        ...(docSnapshot.data() as ThreadDetailResponse["messages"][number]),
-                        id: docSnapshot.id,
-                    }))
+                    .map((docSnapshot) => {
+                        const raw = docSnapshot.data() as ThreadDetailResponse["messages"][number];
+                        return {
+                            ...raw,
+                            id: docSnapshot.id,
+                            text: softOpenChatValue(buildChatSoftSealScope(selectedThreadId, "text"), raw.text) ?? undefined,
+                            assetUrl: softOpenChatValue(buildChatSoftSealScope(selectedThreadId, "assetUrl"), raw.assetUrl) ?? undefined,
+                            assetName: softOpenChatValue(buildChatSoftSealScope(selectedThreadId, "assetName"), raw.assetName) ?? undefined,
+                        };
+                    })
                     .sort((left, right) => (left.createdAt || 0) - (right.createdAt || 0));
 
                 clearRealtimeDegradedScope("chat messages");
@@ -1002,16 +1023,23 @@ export function ChatExperience() {
 
     const handleSelectFile = useCallback((file: File | null) => {
         setAttachmentMenuOpen(false);
+        if (!file) {
+            setComposerFile(null);
+            setComposerKind("text");
+            return;
+        }
+
+        const attachmentKind = resolveChatAttachmentKind(file.type);
+        if (!attachmentKind) {
+            setComposerFile(null);
+            setComposerKind("text");
+            setSendErrorMessage("Only image and video files can be attached in chat.");
+            toast.error("Only image and video files can be attached in chat.");
+            return;
+        }
+
         setComposerFile(file);
-        if (file?.type.startsWith("video/")) {
-            setComposerKind("video");
-            return;
-        }
-        if (file?.type.startsWith("image/")) {
-            setComposerKind("image");
-            return;
-        }
-        setComposerKind("text");
+        setComposerKind(attachmentKind);
     }, []);
 
     const openImagePicker = useCallback(() => {
@@ -1024,11 +1052,45 @@ export function ChatExperience() {
         videoInputRef.current?.click();
     }, []);
 
-    const uploadAttachment = useCallback(async () => {
+    const discardUploadedAttachment = useCallback(async (storagePath: string) => {
+        if (!user || !selectedThreadId || !storagePath) {
+            return true;
+        }
+
+        try {
+            const response = await authFetch("/api/chat/attachments/cancel", {
+                method: "POST",
+                body: JSON.stringify({
+                    threadId: selectedThreadId,
+                    storagePath,
+                }),
+            });
+            const body = await response.json() as { error?: string };
+            if (!response.ok) {
+                throw new Error(body.error || "Failed to clean up chat attachment.");
+            }
+
+            return true;
+        } catch (error) {
+            reportStorageIssue("chat attachment cleanup", error, {
+                storagePath,
+                threadId: selectedThreadId,
+            });
+            return false;
+        }
+    }, [selectedThreadId, user]);
+
+    const uploadAttachment = useCallback(async (): Promise<UploadedChatAttachment | null> => {
         if (!composerFile || !user || !selectedThreadId) {
             return null;
         }
 
+        const attachmentKind = resolveChatAttachmentKind(composerFile.type);
+        if (!attachmentKind) {
+            throw new Error("Only image and video files can be attached in chat.");
+        }
+
+        let preparedStoragePath: string | null = null;
         try {
             const prepareResponse = await authFetch("/api/chat/attachments/prepare", {
                 method: "POST",
@@ -1043,6 +1105,7 @@ export function ChatExperience() {
             if (!prepareResponse.ok || !prepareBody.storagePath) {
                 throw new Error(prepareBody.error || "Failed to prepare chat attachment upload.");
             }
+            preparedStoragePath = prepareBody.storagePath;
 
             const target = storageRef(storage, prepareBody.storagePath);
             await uploadBytes(target, composerFile, {
@@ -1067,16 +1130,21 @@ export function ChatExperience() {
                 assetUrl: completeBody.assetUrl,
                 assetName: completeBody.assetName || composerFile.name,
                 assetMimeType: completeBody.assetMimeType || composerFile.type || "application/octet-stream",
+                storagePath: completeBody.storagePath || prepareBody.storagePath,
             };
         } catch (error) {
+            if (preparedStoragePath) {
+                await discardUploadedAttachment(preparedStoragePath);
+            }
             reportStorageIssue("chat attachment upload", error, {
                 fileName: composerFile.name,
                 mimeType: composerFile.type,
                 threadId: selectedThreadId,
+                storagePath: preparedStoragePath,
             });
             throw error;
         }
-    }, [composerFile, selectedThreadId, user]);
+    }, [composerFile, discardUploadedAttachment, selectedThreadId, user]);
 
     const handleSendMessage = useCallback(async () => {
         if (!selectedThreadId || !selectedThread) {
@@ -1096,6 +1164,7 @@ export function ChatExperience() {
         const currentComposerText = composerText.trim();
         const currentComposerFile = composerFile;
         const currentComposerKind = composerKind;
+        let uploadedAttachment: UploadedChatAttachment | null = null;
 
         const optimisticId = `optimistic-${Date.now()}`;
         if (!currentComposerFile) {
@@ -1122,13 +1191,19 @@ export function ChatExperience() {
         }
 
         try {
-            const attachment = await uploadAttachment();
+            uploadedAttachment = await uploadAttachment();
             const response = await authFetch(`/api/chat/threads/${encodeURIComponent(selectedThreadId)}/messages`, {
                 method: "POST",
                 body: JSON.stringify({
                     text: currentComposerText,
-                    messageKind: attachment ? (attachment.assetMimeType?.startsWith("video/") ? "video" : "image") : currentComposerKind,
-                    ...attachment,
+                    messageKind: uploadedAttachment
+                        ? (resolveChatAttachmentKind(uploadedAttachment.assetMimeType) || currentComposerKind)
+                        : currentComposerKind,
+                    ...(uploadedAttachment ? {
+                        assetUrl: uploadedAttachment.assetUrl,
+                        assetName: uploadedAttachment.assetName,
+                        assetMimeType: uploadedAttachment.assetMimeType,
+                    } : {}),
                 }),
             });
             const body = await response.json() as ChatSendResponse;
@@ -1172,6 +1247,10 @@ export function ChatExperience() {
                 setSendWarningMessage(warningMessage);
             }
         } catch (error) {
+            let cleanupFailed = false;
+            if (uploadedAttachment?.storagePath) {
+                cleanupFailed = !(await discardUploadedAttachment(uploadedAttachment.storagePath));
+            }
             if (!currentComposerFile) {
                 setSelectedDetail((current) => current ? {
                     ...current,
@@ -1179,7 +1258,9 @@ export function ChatExperience() {
                 } : current);
                 setComposerText(currentComposerText);
             }
-            const message = error instanceof Error ? error.message : "Failed to send message.";
+            const message = cleanupFailed
+                ? `${error instanceof Error ? error.message : "Failed to send message."} The uploaded attachment could not be cleaned up automatically, and this was logged.`
+                : (error instanceof Error ? error.message : "Failed to send message.");
             setSendErrorMessage(message);
             reportClientIssue({
                 channel: "ui",
@@ -1190,6 +1271,7 @@ export function ChatExperience() {
                     threadId: selectedThreadId,
                     messageKind: currentComposerKind,
                     hasAttachment: Boolean(currentComposerFile),
+                    attachmentCleanupFailed: cleanupFailed,
                 },
                 consoleLabel: "[Chat] send message failed",
             });
@@ -1197,7 +1279,7 @@ export function ChatExperience() {
         } finally {
             setSendingMessage(false);
         }
-    }, [composerFile, composerKind, composerText, pushTypingState, selectedThread, selectedThreadId, uploadAttachment]);
+    }, [composerFile, composerKind, composerText, discardUploadedAttachment, pushTypingState, selectedThread, selectedThreadId, uploadAttachment]);
 
     const handleComposerKeyDown = useCallback((event: KeyboardEvent<HTMLTextAreaElement>) => {
         if (event.key === "Enter" && !event.shiftKey) {
@@ -1265,6 +1347,10 @@ export function ChatExperience() {
                 const nextThread = {
                     ...raw,
                     id: snapshot.id,
+                    lastMessagePreview: softOpenChatValue(
+                        buildChatSoftSealScope(snapshot.id, "preview"),
+                        raw.lastMessagePreview,
+                    ) || "New message",
                     counterpartId: viewerRole === "creator" ? raw.userId : raw.creatorId,
                     counterpartDisplayName: viewerRole === "creator"
                         ? (raw.userDisplayName || raw.userUsername || raw.userId)

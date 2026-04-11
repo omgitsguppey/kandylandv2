@@ -14,6 +14,7 @@ const mockState = vi.hoisted(() => {
     const userDocs = new Map<string, Record<string, unknown>>();
     const storageEntries = new Map<string, StorageEntry>();
     const setMetadata = vi.fn();
+    const deleteObject = vi.fn();
 
     return {
         guardApiRequest: vi.fn(),
@@ -61,6 +62,10 @@ const mockState = vi.hoisted(() => {
                                     };
                                 }
                             },
+                            async delete() {
+                                deleteObject(path);
+                                storageEntries.delete(path);
+                            },
                         };
                     },
                 };
@@ -68,10 +73,12 @@ const mockState = vi.hoisted(() => {
         },
         userDocs,
         storageEntries,
+        deleteObject,
         reset() {
             userDocs.clear();
             storageEntries.clear();
             setMetadata.mockReset();
+            deleteObject.mockReset();
             this.guardApiRequest.mockReset();
             this.safeGetChatThreadDetailForViewer.mockReset();
             this.toChatClientError.mockReset();
@@ -108,6 +115,7 @@ vi.mock("@/lib/server/route-diagnostics", () => ({
 }));
 
 import { POST as preparePost } from "@/app/api/chat/attachments/prepare/route";
+import { POST as cancelPost } from "@/app/api/chat/attachments/cancel/route";
 import { POST as completePost } from "@/app/api/chat/attachments/complete/route";
 
 describe("chat attachment routes", () => {
@@ -137,8 +145,24 @@ describe("chat attachment routes", () => {
         const body = await response.json();
 
         expect(response.status).toBe(200);
-        expect(body.storagePath).toMatch(/^chat-attachments\/thread_1\/fan_1\//);
+        expect(body.storagePath).toMatch(/^creator\/messages\/fan_1\/thread_1\//);
         expect(body.fileName).toBe("my photo-.png");
+    });
+
+    it("rejects unsupported attachment types during prepare", async () => {
+        const response = await preparePost(new NextRequest("http://localhost/api/chat/attachments/prepare", {
+            method: "POST",
+            body: JSON.stringify({
+                threadId: "thread_1",
+                fileName: "archive.zip",
+                mimeType: "application/zip",
+                sizeBytes: 12345,
+            }),
+        }));
+        const body = await response.json();
+
+        expect(response.status).toBe(400);
+        expect(body.errorCode).toBe("unsupported_attachment_type");
     });
 
     it("rejects attachment completion when the storage path does not match the caller thread scope", async () => {
@@ -146,7 +170,7 @@ describe("chat attachment routes", () => {
             method: "POST",
             body: JSON.stringify({
                 threadId: "thread_1",
-                storagePath: "chat-attachments/thread_2/fan_1/file.png",
+                storagePath: "creator/messages/fan_1/thread_2/file.png",
                 fileName: "file.png",
                 mimeType: "image/png",
             }),
@@ -158,7 +182,7 @@ describe("chat attachment routes", () => {
     });
 
     it("returns a canonical download URL for completed uploads", async () => {
-        mockState.storageEntries.set("chat-attachments/thread_1/fan_1/file.png", {
+        mockState.storageEntries.set("creator/messages/fan_1/thread_1/file.png", {
             exists: true,
             metadata: {
                 contentType: "image/png",
@@ -173,7 +197,7 @@ describe("chat attachment routes", () => {
             method: "POST",
             body: JSON.stringify({
                 threadId: "thread_1",
-                storagePath: "chat-attachments/thread_1/fan_1/file.png",
+                storagePath: "creator/messages/fan_1/thread_1/file.png",
                 fileName: "file.png",
                 mimeType: "image/png",
             }),
@@ -181,10 +205,35 @@ describe("chat attachment routes", () => {
         const body = await response.json();
 
         expect(response.status).toBe(200);
-        expect(body.assetUrl).toContain("chat-attachments%2Fthread_1%2Ffan_1%2Ffile.png");
+        expect(body.assetUrl).toContain("creator%2Fmessages%2Ffan_1%2Fthread_1%2Ffile.png");
         expect(body.assetUrl).toContain("token=token-123");
         expect(body.assetMimeType).toBe("image/png");
         expect(body.sizeBytes).toBe(4096);
         expect(mockState.setMetadata).toHaveBeenCalled();
+    });
+
+    it("removes an uploaded attachment during cancel cleanup", async () => {
+        mockState.storageEntries.set("creator/messages/fan_1/thread_1/file.png", {
+            exists: true,
+            metadata: {
+                contentType: "image/png",
+                size: "4096",
+            },
+        });
+
+        const response = await cancelPost(new NextRequest("http://localhost/api/chat/attachments/cancel", {
+            method: "POST",
+            body: JSON.stringify({
+                threadId: "thread_1",
+                storagePath: "creator/messages/fan_1/thread_1/file.png",
+            }),
+        }));
+        const body = await response.json();
+
+        expect(response.status).toBe(200);
+        expect(body.success).toBe(true);
+        expect(body.removed).toBe(true);
+        expect(mockState.deleteObject).toHaveBeenCalledWith("creator/messages/fan_1/thread_1/file.png");
+        expect(mockState.storageEntries.has("creator/messages/fan_1/thread_1/file.png")).toBe(false);
     });
 });

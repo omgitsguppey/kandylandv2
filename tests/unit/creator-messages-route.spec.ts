@@ -143,6 +143,9 @@ describe("creator/messages compatibility route", () => {
         mockState.safeSendChatMessageForViewer.mockResolvedValue({
             threadId: "creator_creator_1__user_fan_1",
             message: { id: "message_1" },
+            thread: { id: "creator_creator_1__user_fan_1" },
+            pricing: { purchasedBalanceGd: 9 },
+            warnings: [{ code: "post_send_tracking_failure", detail: "analytics unavailable" }],
         });
 
         const response = await POST(new NextRequest("http://localhost/api/creator/messages", {
@@ -172,5 +175,27 @@ describe("creator/messages compatibility route", () => {
             statusCode: 200,
         }));
         expect(body.success).toBe(true);
+        expect(body.thread).toMatchObject({ id: "creator_creator_1__user_fan_1" });
+        expect(body.pricing).toMatchObject({ purchasedBalanceGd: 9 });
+        expect(body.warnings).toHaveLength(1);
+    });
+
+    it("returns a stable invalid request payload error for malformed sends", async () => {
+        mockState.guardApiRequest.mockResolvedValue({ uid: "fan_1", email: "fan@example.com" });
+        mockState.userDocs.set("fan_1", { role: "user" });
+
+        const response = await POST(new NextRequest("http://localhost/api/creator/messages", {
+            method: "POST",
+            body: JSON.stringify({
+                creatorId: "",
+                text: "hello there",
+                messageKind: "text",
+            }),
+        }));
+        const body = await response.json();
+
+        expect(response.status).toBe(400);
+        expect(body.errorCode).toBe("invalid_message_request");
+        expect(mockState.safeSendChatMessageForViewer).not.toHaveBeenCalled();
     });
 });

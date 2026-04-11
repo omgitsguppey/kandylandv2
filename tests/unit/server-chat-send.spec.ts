@@ -117,6 +117,7 @@ vi.mock("@/lib/server/server-diagnostics", () => ({
 }));
 
 import { buildChatThreadId, type ChatInsufficientFundsPayload } from "@/lib/chat";
+import { buildChatSoftSealScope, softOpenChatValue } from "@/lib/chat-soft-seal";
 import { ChatClientError, sendChatMessageForViewer } from "@/lib/server/chat";
 
 describe("sendChatMessageForViewer", () => {
@@ -174,8 +175,10 @@ describe("sendChatMessageForViewer", () => {
             gumDropsPurchasedBalance: 9,
             gumDropsRewardBalance: 0,
         });
-        expect(mockState.documents.get(`creator_message_threads/${threadId}`)).toMatchObject({
-            lastMessagePreview: "hello there",
+        const storedThread = mockState.documents.get(`creator_message_threads/${threadId}`);
+        expect(storedThread?.lastMessagePreview).not.toBe("hello there");
+        expect(softOpenChatValue(buildChatSoftSealScope(threadId, "preview"), storedThread?.lastMessagePreview as string)).toBe("hello there");
+        expect(storedThread).toMatchObject({
             unreadCountForCreator: 1,
             unreadCountForUser: 0,
         });

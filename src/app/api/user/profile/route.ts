@@ -9,6 +9,8 @@ import { normalizeUsername } from "@/lib/user-utils";
 import { guardApiRequest } from "@/lib/server/request-guard";
 import { parseAdultDateOfBirth } from "@/lib/user-profile-validation";
 import { isCreatorRole, normalizeCreatorSettings } from "@/lib/creator-experiences";
+import { getErrorMessage } from "@/lib/server/route-diagnostics";
+import { recordRouteRuntimeSample } from "@/lib/server/route-runtime-health";
 import { reserveUsernameForUser } from "@/lib/server/username-suggestions";
 
 const ALLOWED_TIMEZONES = new Set([
@@ -304,6 +306,47 @@ export async function PUT(request: NextRequest) {
         return NextResponse.json({ success: true });
     } catch (error) {
         return handleApiError(error, "Profile.PUT");
+    }
+}
+
+export async function GET(request: NextRequest) {
+    const startedAt = Date.now();
+    const finalize = (response: NextResponse, error?: unknown) => {
+        void recordRouteRuntimeSample({
+            key: "user/profile:GET",
+            durationMs: Date.now() - startedAt,
+            statusCode: response.status,
+            errorMessage: error ? getErrorMessage(error) : null,
+        });
+        return response;
+    };
+
+    try {
+        const caller = await guardApiRequest(request, {
+            routeName: "user/profile",
+            rateLimit: STANDARD,
+            auth: "user",
+            scopeToCaller: true,
+        });
+        if (!caller) {
+            return finalize(NextResponse.json({ error: "Unauthorized" }, { status: 401 }));
+        }
+
+        if (!adminDb) {
+            return finalize(NextResponse.json({ error: "Database not available" }, { status: 500 }));
+        }
+
+        const userSnapshot = await adminDb.collection("users").doc(caller.uid).get();
+        if (!userSnapshot.exists) {
+            return finalize(NextResponse.json({ error: "User not found" }, { status: 404 }));
+        }
+
+        return finalize(NextResponse.json({
+            success: true,
+            profile: userSnapshot.data() ?? null,
+        }));
+    } catch (error) {
+        return finalize(handleApiError(error, "Profile.GET"), error);
     }
 }
 

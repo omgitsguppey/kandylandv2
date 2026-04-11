@@ -1,5 +1,6 @@
 import { useCallback, useEffect, useState } from "react";
 import { collection, onSnapshot, query, where } from "firebase/firestore";
+import { usePathname } from "next/navigation";
 
 import { useAuth } from "@/context/AuthContext";
 import { authFetch } from "@/lib/authFetch";
@@ -15,8 +16,10 @@ import { reportRealtimeIssue } from "@/lib/client-error-reporting";
 
 export function useChatUnreadStatus() {
     const { user, userProfile } = useAuth();
+    const pathname = usePathname();
     const [hasUnreadMessages, setHasUnreadMessages] = useState(false);
     const [realtimeDegraded, setRealtimeDegraded] = useState(false);
+    const preferRealtime = pathname?.startsWith("/dashboard/chat") === true;
     const viewerRole = resolveChatViewerRole({
         viewerUid: user?.uid || "",
         profile: userProfile,
@@ -47,6 +50,11 @@ export function useChatUnreadStatus() {
 
     useEffect(() => {
         if (!user || !userProfile) {
+            setHasUnreadMessages(false);
+            setRealtimeDegraded(false);
+            return;
+        }
+        if (!preferRealtime) {
             setRealtimeDegraded(false);
             return;
         }
@@ -78,10 +86,10 @@ export function useChatUnreadStatus() {
         );
 
         return () => unsubscribe();
-    }, [user, userProfile, viewerRole]);
+    }, [preferRealtime, user, userProfile, viewerRole]);
 
     useEffect(() => {
-        if (!realtimeDegraded || !user || !userProfile) {
+        if (!user || !userProfile || (!realtimeDegraded && preferRealtime)) {
             return;
         }
 
@@ -89,11 +97,24 @@ export function useChatUnreadStatus() {
         const intervalId = window.setInterval(() => {
             void refreshUnreadFromApi();
         }, 15_000);
+        const refreshOnFocus = () => {
+            void refreshUnreadFromApi();
+        };
+        const refreshOnVisible = () => {
+            if (document.visibilityState === "visible") {
+                void refreshUnreadFromApi();
+            }
+        };
+
+        window.addEventListener("focus", refreshOnFocus);
+        document.addEventListener("visibilitychange", refreshOnVisible);
 
         return () => {
             window.clearInterval(intervalId);
+            window.removeEventListener("focus", refreshOnFocus);
+            document.removeEventListener("visibilitychange", refreshOnVisible);
         };
-    }, [realtimeDegraded, refreshUnreadFromApi, user, userProfile]);
+    }, [preferRealtime, realtimeDegraded, refreshUnreadFromApi, user, userProfile]);
 
     return { hasUnreadMessages: (user && userProfile) ? hasUnreadMessages : false };
 }

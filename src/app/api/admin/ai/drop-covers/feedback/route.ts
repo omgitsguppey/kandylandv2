@@ -1,14 +1,28 @@
 import { NextRequest, NextResponse } from "next/server";
 
+import type { RouteRuntimeHealthKey } from "@/lib/route-runtime-health";
 import { handleApiError } from "@/lib/server/auth";
 import { updateAdminAiDropCoverFeedback } from "@/lib/server/ai-drop-covers";
 import { ADMIN_AI_CONTROL } from "@/lib/server/rate-limit";
 import { guardApiRequest } from "@/lib/server/request-guard";
+import { getErrorMessage } from "@/lib/server/route-diagnostics";
+import { recordRouteRuntimeSample } from "@/lib/server/route-runtime-health";
 
 export const dynamic = "force-dynamic";
 export const revalidate = 0;
 
+function finalize(startedAt: number, key: RouteRuntimeHealthKey, response: NextResponse, error?: unknown) {
+    void recordRouteRuntimeSample({
+        key,
+        durationMs: Date.now() - startedAt,
+        statusCode: response.status,
+        errorMessage: error ? getErrorMessage(error) : null,
+    });
+    return response;
+}
+
 export async function POST(request: NextRequest) {
+    const startedAt = Date.now();
     try {
         const caller = await guardApiRequest(request, {
             routeName: "admin/ai/drop-covers/feedback",
@@ -25,12 +39,12 @@ export async function POST(request: NextRequest) {
         };
 
         if (typeof body.jobId !== "string" || body.jobId.trim().length === 0) {
-            return NextResponse.json({ error: "Missing generation job id" }, { status: 400 });
+            return finalize(startedAt, "admin/ai/drop-covers/feedback:POST", NextResponse.json({ error: "Missing generation job id" }, { status: 400 }));
         }
 
         const action = typeof body.action === "string" ? body.action : "";
         if (!["like", "dislike", "accept", "link_drop"].includes(action)) {
-            return NextResponse.json({ error: "Unsupported feedback action" }, { status: 400 });
+            return finalize(startedAt, "admin/ai/drop-covers/feedback:POST", NextResponse.json({ error: "Unsupported feedback action" }, { status: 400 }));
         }
 
         const job = await updateAdminAiDropCoverFeedback({
@@ -41,15 +55,15 @@ export async function POST(request: NextRequest) {
             actorEmail: caller?.email,
         });
 
-        return NextResponse.json({
+        return finalize(startedAt, "admin/ai/drop-covers/feedback:POST", NextResponse.json({
             success: true,
             job,
         }, {
             headers: {
                 "Cache-Control": "no-store, max-age=0",
             },
-        });
+        }));
     } catch (error) {
-        return handleApiError(error, "admin/ai/drop-covers/feedback");
+        return finalize(startedAt, "admin/ai/drop-covers/feedback:POST", handleApiError(error, "admin/ai/drop-covers/feedback"), error);
     }
 }

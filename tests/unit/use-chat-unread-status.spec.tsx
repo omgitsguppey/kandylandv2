@@ -11,6 +11,7 @@ const mockState = vi.hoisted(() => {
         user: null,
         userProfile: null,
     };
+    let pathname = "/dashboard/chat";
 
     let snapshotListener: ((snapshot: { docs: Array<{ data: () => unknown }> }) => void) | null = null;
     let snapshotErrorListener: ((error: unknown) => void) | null = null;
@@ -40,8 +41,14 @@ const mockState = vi.hoisted(() => {
         }) {
             authValue = next;
         },
+        setPathname(next: string) {
+            pathname = next;
+        },
         getAuth() {
             return authValue;
+        },
+        getPathname() {
+            return pathname;
         },
         emitSnapshot(docs: Array<Record<string, unknown>>) {
             if (!snapshotListener) {
@@ -66,6 +73,7 @@ const mockState = vi.hoisted(() => {
         },
         reset() {
             authValue = { user: null, userProfile: null };
+            pathname = "/dashboard/chat";
             snapshotListener = null;
             snapshotErrorListener = null;
             lastWhereField = null;
@@ -87,6 +95,9 @@ const mockState = vi.hoisted(() => {
 
 vi.mock("@/context/AuthContext", () => ({
     useAuth: () => mockState.getAuth(),
+}));
+vi.mock("next/navigation", () => ({
+    usePathname: () => mockState.getPathname(),
 }));
 
 vi.mock("@/lib/firebase-data", () => ({
@@ -250,6 +261,45 @@ describe("useChatUnreadStatus", () => {
         hook.rerender();
 
         expect(hook.result.current.hasUnreadMessages).toBe(false);
+
+        hook.unmount();
+    });
+
+    it("uses polling instead of a Firestore listener outside the chat route", async () => {
+        mockState.setPathname("/creators/jessica");
+        mockState.setAuth({
+            user: { uid: "fan_1" },
+            userProfile: {
+                role: "user",
+                status: "active",
+            },
+        });
+        mockState.authFetch.mockResolvedValue({
+            ok: true,
+            async json() {
+                return {
+                    threads: [{
+                        id: "creator_creator_1__user_fan_1",
+                        creatorId: "creator_1",
+                        userId: "fan_1",
+                        viewerRole: "user",
+                        unreadCountForCreator: 0,
+                        unreadCountForUser: 1,
+                    }],
+                };
+            },
+        });
+
+        const hook = renderHook(() => useChatUnreadStatus());
+
+        await act(async () => {
+            await Promise.resolve();
+            await Promise.resolve();
+        });
+
+        expect(mockState.onSnapshot).not.toHaveBeenCalled();
+        expect(mockState.authFetch).toHaveBeenCalledWith("/api/chat/threads");
+        expect(hook.result.current.hasUnreadMessages).toBe(true);
 
         hook.unmount();
     });

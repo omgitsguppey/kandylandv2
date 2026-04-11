@@ -107,6 +107,18 @@ export const ROUTE_RUNTIME_HEALTH_TARGETS = {
         title: "Admin analytics preferences writes",
         slowThresholdMs: 1200,
     },
+    "admin/ui/preferences:GET": {
+        routeName: "admin/ui/preferences",
+        method: "GET",
+        title: "Admin UI preferences reads",
+        slowThresholdMs: 1000,
+    },
+    "admin/ui/preferences:PUT": {
+        routeName: "admin/ui/preferences",
+        method: "PUT",
+        title: "Admin UI preferences writes",
+        slowThresholdMs: 1200,
+    },
     "creator/discovery:GET": {
         routeName: "creator/discovery",
         method: "GET",
@@ -166,6 +178,12 @@ export const ROUTE_RUNTIME_HEALTH_TARGETS = {
         method: "POST",
         title: "Chat attachment finalize",
         slowThresholdMs: 1800,
+    },
+    "chat/attachments/cancel:POST": {
+        routeName: "chat/attachments/cancel",
+        method: "POST",
+        title: "Chat attachment cleanup",
+        slowThresholdMs: 1400,
     },
     "chat/read:POST": {
         routeName: "chat/read",
@@ -245,6 +263,12 @@ export const ROUTE_RUNTIME_HEALTH_TARGETS = {
         title: "Manual account registration",
         slowThresholdMs: 1500,
     },
+    "user/profile:GET": {
+        routeName: "user/profile",
+        method: "GET",
+        title: "User profile reads",
+        slowThresholdMs: 1000,
+    },
     "support/threads:GET": {
         routeName: "support/threads",
         method: "GET",
@@ -262,6 +286,84 @@ export const ROUTE_RUNTIME_HEALTH_TARGETS = {
         method: "POST",
         title: "AI cover generation",
         slowThresholdMs: 12_000,
+    },
+    "admin/ai/drop-covers:GET": {
+        routeName: "admin/ai/drop-covers",
+        method: "GET",
+        title: "AI cover admin reads",
+        slowThresholdMs: 1400,
+    },
+    "admin/ai/drop-covers:PUT": {
+        routeName: "admin/ai/drop-covers",
+        method: "PUT",
+        title: "AI cover admin settings writes",
+        slowThresholdMs: 1600,
+    },
+    "admin/ai/drop-covers/template:POST": {
+        routeName: "admin/ai/drop-covers/template",
+        method: "POST",
+        title: "AI cover primary reference uploads",
+        slowThresholdMs: 2500,
+    },
+    "admin/ai/drop-covers/template:DELETE": {
+        routeName: "admin/ai/drop-covers/template",
+        method: "DELETE",
+        title: "AI cover primary reference removals",
+        slowThresholdMs: 1800,
+    },
+    "admin/ai/drop-covers/feedback:POST": {
+        routeName: "admin/ai/drop-covers/feedback",
+        method: "POST",
+        title: "AI cover feedback writes",
+        slowThresholdMs: 1400,
+    },
+    "admin/ai/drop-covers/references:GET": {
+        routeName: "admin/ai/drop-covers/references",
+        method: "GET",
+        title: "AI cover reference library reads",
+        slowThresholdMs: 1200,
+    },
+    "admin/ai/drop-covers/references:POST": {
+        routeName: "admin/ai/drop-covers/references",
+        method: "POST",
+        title: "AI cover reference uploads",
+        slowThresholdMs: 2500,
+    },
+    "admin/ai/drop-covers/references:PUT": {
+        routeName: "admin/ai/drop-covers/references",
+        method: "PUT",
+        title: "AI cover reference updates",
+        slowThresholdMs: 1400,
+    },
+    "admin/ai/drop-covers/references:DELETE": {
+        routeName: "admin/ai/drop-covers/references",
+        method: "DELETE",
+        title: "AI cover reference removals",
+        slowThresholdMs: 1600,
+    },
+    "admin/ai/drop-covers/prompt-policy:GET": {
+        routeName: "admin/ai/drop-covers/prompt-policy",
+        method: "GET",
+        title: "AI cover prompt policy reads",
+        slowThresholdMs: 1200,
+    },
+    "admin/ai/drop-covers/prompt-policy:PUT": {
+        routeName: "admin/ai/drop-covers/prompt-policy",
+        method: "PUT",
+        title: "AI cover prompt policy writes",
+        slowThresholdMs: 1600,
+    },
+    "admin/ai/drop-covers/review-gallery:GET": {
+        routeName: "admin/ai/drop-covers/review-gallery",
+        method: "GET",
+        title: "AI cover review gallery reads",
+        slowThresholdMs: 1200,
+    },
+    "admin/ai/drop-covers/review-gallery:PUT": {
+        routeName: "admin/ai/drop-covers/review-gallery",
+        method: "PUT",
+        title: "AI cover review gallery updates",
+        slowThresholdMs: 1400,
     },
 } as const;
 

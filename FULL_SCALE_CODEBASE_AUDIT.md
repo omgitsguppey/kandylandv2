@@ -6,6 +6,216 @@ Last full-scale audit execution: 2026-04-09 19:40:21 -05:00
 Repo: `C:\Users\uylus\OneDrive\Documents\KandyDrops_Final`
 Audited HEAD at start: `36fcca527b72b04c24531724465f490642018ba2`
 
+## 2026-04-10 Chat Security, Creator-Page Firestore Failure, and Shell Listener Reduction
+
+Scope for this pass:
+
+- finalize the previously started chat security/moderation hardening work
+- reduce client-side chat/moderation leak surface without pretending the system is true end-to-end encryption
+- fix and explain the Firestore browser assertion reported while visiting creator pages
+- keep chat realtime where it materially matters while removing non-essential Firestore listeners from public/shell surfaces
+
+Official documentation/research reviewed first:
+
+- Firebase JavaScript SDK release notes:
+  - [Firebase JavaScript SDK Release Notes](https://firebase.google.com/support/release-notes/js)
+- The current repo was still on `firebase` `12.11.0`, while Firebase lists `12.12.0` on `2026-04-09`
+- No official release-note entry currently documents assertion IDs `b815` / `ca9`, so this pass prioritized application-side listener hardening and fallback behavior over guessing that a version bump alone would resolve the issue
+
+Root causes confirmed:
+
+- the signed-in shell was still mounting Firestore listeners on public creator pages even though those pages do not need live Firestore chat/profile state:
+  - auth profile listener in `src/context/AuthContext.tsx`
+  - unread badge listener in `src/hooks/useChatUnreadStatus.ts`
+  - notification runtime listeners in `src/hooks/useNotifications.ts`
+- earlier chat hardening reduced the chat-thread listener churn, but creator-page visits could still hit the browser Firestore SDK through these shared shell listeners
+- direct client admin reads for moderation data were still broader than needed before this pass; even though moderation UI is server-backed now, rules still needed to make that least-privilege decision explicit
+- chat message/thread documents still stored raw preview/text/attachment URL values in Firestore, which increased the blast radius of accidental client-side document inspection
+
+Implementation results:
+
+- added `src/lib/chat-soft-seal.ts`
+  - no-dependency reversible soft obfuscation for chat fields using scoped XOR + base64url
+  - intentionally documented as soft sealing only, not true cryptographic confidentiality
+- sealed chat-at-rest fields in `src/lib/server/chat.ts`:
+  - `text`
+  - `assetUrl`
+  - `assetName`
+  - `lastMessagePreview`
+- unsealed those same fields in:
+  - `src/lib/server/chat.ts`
+  - `src/lib/server/admin-moderation.ts`
+  - `src/components/Chat/ChatExperience.tsx`
+- tightened `firestore.rules`
+  - `creator_message_threads` and `creator_messages` are now participant-read-only in the client
+  - `security_events` is now fully server-only
+  - direct client admin reads of moderation/security data are explicitly blocked
+- aligned chat attachment runtime/storage security:
+  - attachment prepare/finalize/cancel now use `creator/messages/{uid}/{threadId}/...`
+  - this matches the existing `storage.rules` owner-scoped upload path
+- added `/api/chat/attachments/cancel` as server-backed cleanup and kept cleanup runtime-tracked
+- added `GET /api/user/profile` in `src/app/api/user/profile/route.ts`
+  - this is the canonical server fallback for auth-shell profile reads
+  - runtime health is now tracked under `user/profile:GET`
+- hardened `src/context/AuthContext.tsx`
+  - dashboard/admin surfaces still prefer realtime profile sync
+  - public creator pages and other non-dashboard surfaces now prefer server polling instead of mounting a Firestore profile listener
+  - Firestore listener failures on the profile doc now degrade to `/api/user/profile` polling with explicit diagnostics instead of silently failing
+- hardened `src/hooks/useChatUnreadStatus.ts`
+  - Firestore realtime unread subscription now runs only on `/dashboard/chat`
+  - outside chat, unread state uses server polling plus focus/visibility refresh
+  - this keeps chat itself realtime while removing a global query listener from creator-page visits
+- simplified `src/hooks/useNotifications.ts`
+  - removed the extra Firestore runtime document listeners entirely
+  - notifications now use server fetch + focus/visibility/event/interval refresh instead of two global Firestore listeners
+- updated specs to match the security/runtime contract:
+  - `tests/unit/chat-soft-seal.spec.ts`
+  - `tests/unit/chat-attachments-route.spec.ts`
+  - `tests/unit/user-profile-route.spec.ts`
+  - `tests/unit/use-chat-unread-status.spec.tsx`
+  - `tests/firebase/firestore.rules.spec.ts`
+  - existing send/route specs remained green with the sealed payload flow
+
+Commands run:
+
+- `git status --short`
+- `npx eslint src/context/AuthContext.tsx src/hooks/useNotifications.ts src/hooks/useChatUnreadStatus.ts src/app/api/user/profile/route.ts src/lib/chat-soft-seal.ts src/lib/server/chat.ts src/lib/server/admin-moderation.ts src/app/api/chat/attachments/prepare/route.ts src/app/api/chat/attachments/complete/route.ts src/app/api/chat/attachments/cancel/route.ts firestore.rules tests/unit/chat-attachments-route.spec.ts tests/unit/user-profile-route.spec.ts tests/unit/use-chat-unread-status.spec.tsx tests/unit/chat-soft-seal.spec.ts tests/firebase/firestore.rules.spec.ts`
+- `corepack pnpm exec vitest run tests/unit/chat-attachments-route.spec.ts tests/unit/user-profile-route.spec.ts tests/unit/use-chat-unread-status.spec.tsx tests/unit/chat-soft-seal.spec.ts tests/unit/chat-thread-messages-route.spec.ts tests/unit/creator-messages-route.spec.ts tests/unit/server-chat-send.spec.ts`
+- `npx tsc --noEmit`
+- `npm run check:firebase:rules`
+- `npm run check:ui:audits`
+- `corepack pnpm run check`
+- `npm run check:continuity`
+
+Verification results:
+
+- targeted eslint passed
+  - note: `firestore.rules` is ignored by eslint config and reports a benign “file ignored” warning when invoked directly
+- targeted Vitest passed: `7` files / `30` tests
+- `npx tsc --noEmit` passed
+- `npm run check:firebase:rules` passed:
+  - Firestore rules: `10/10`
+  - Realtime Database rules: `6/6`
+  - Storage rules: `16/16`
+- `npm run check:ui:audits` passed:
+  - `16/16`
+  - Next emitted a non-blocking `transformAlgorithm is not a function` shutdown log after successful Playwright completion
+- `corepack pnpm run check` passed:
+  - `127` files / `575` contract tests
+- `npm run check:continuity` passed after cleanup
+
+Cleanup notes:
+
+- `npm run check:ui:audits` leaves `.next` behind by design because it runs a production build first
+- generated artifacts were removed before the final continuity pass:
+  - `.next`
+  - `playwright-report`
+  - `test-results`
+  - `database-debug.log`
+  - `firestore-debug.log`
+
+Current canonical runtime posture after this pass:
+
+- admin moderation visibility is server-backed only
+- client Firestore access for chat is limited to actual participants only
+- client-side shell listener count on public creator pages is materially lower
+- chat remains realtime inside `/dashboard/chat`
+- unread badge and notification state still stay fresh, but use server polling off the chat route to avoid unnecessary Firestore client-state churn
+- chat documents are no longer stored as raw plaintext/raw preview/raw attachment URL in Firestore, but this is still soft obfuscation, not E2EE
+
+## 2026-04-10 Chat Hardening Sweep for Silent Failures, Orphaned Uploads, and Compatibility Drift
+
+Scope for this pass:
+
+- harden recent chat changes and adjacent logic
+- remove silent compatibility drift between native chat send and legacy creator-message send
+- prevent orphaned chat attachment uploads when send or finalize fails
+- replace vague route-level payload failures with stable chat-specific validation errors
+
+Startup protocol executed:
+
+- read `FULL_SCALE_CODEBASE_AUDIT.md`
+- read `REPO_MEMORY_LEDGER.md`
+- read `EVERY_FILE_FUNCTION_CHECKLIST.md`
+- ran `git status --short`
+- ran:
+  - `npm run trace:adjacent -- src/components/Chat/ChatExperience.tsx`
+  - `npm run trace:adjacent -- src/lib/server/chat.ts`
+  - `npm run trace:adjacent -- src/app/api/creator/messages/route.ts`
+  - `npm run trace:adjacent -- src/app/api/chat/threads/[threadId]/messages/route.ts`
+  - `npm run trace:adjacent -- src/hooks/useChatUnreadStatus.ts`
+
+Start state:
+
+- current HEAD at pass start: `6f7cc613a3ce8eb8df4a1909173e5164770c8da9`
+- working tree was clean at pass start
+- native chat send was already structured and immediate, but the legacy compatibility route still dropped the structured result and always returned only `{ success: true }`
+- attachment upload had an orphaning path:
+  - prepare -> upload -> complete could succeed
+  - message send could then fail
+  - the uploaded file would remain in storage with no message record pointing at it
+- several active chat POST routes still relied on generic exception handling for malformed payloads, which could collapse into vague server errors instead of explicit chat-specific `400` responses
+
+Implementation results:
+
+- added `src/lib/chat-attachments.ts` as the canonical helper for:
+  - supported chat attachment media types
+  - max attachment size
+- hardened `src/app/api/chat/attachments/prepare/route.ts`:
+  - invalid payloads now return `400` with `errorCode: "invalid_attachment_request"`
+  - unsupported mime types now return `400` with `errorCode: "unsupported_attachment_type"`
+- hardened `src/app/api/chat/attachments/complete/route.ts`:
+  - invalid payloads now return `400` with `errorCode: "invalid_attachment_finalize_request"`
+  - unsupported or mismatched resolved content types now return `400` with `errorCode: "unsupported_attachment_type"`
+  - oversized finalized uploads now return `400` with `errorCode: "attachment_too_large"`
+- added `src/app/api/chat/attachments/cancel/route.ts`:
+  - server-backed cleanup for uploaded attachments that should not remain in storage
+  - access is still bound to the caller and the thread-scoped storage prefix
+  - runtime health is now tracked under `chat/attachments/cancel:POST`
+- updated `src/components/Chat/ChatExperience.tsx`:
+  - unsupported local files are rejected before upload starts
+  - uploaded attachment state now carries the `storagePath`
+  - if upload/finalize fails after a storage object exists, chat performs best-effort server cleanup
+  - if message send fails after attachment finalize, chat performs best-effort server cleanup
+  - if cleanup also fails, the UI now says that the uploaded attachment could not be cleaned up automatically and that the incident was logged
+- aligned `src/app/api/chat/threads/[threadId]/messages/route.ts`:
+  - malformed send payloads now return `400` with `errorCode: "invalid_message_request"`
+- aligned `src/app/api/creator/messages/route.ts`:
+  - malformed compatibility payloads now return `400` with `errorCode: "invalid_message_request"`
+  - compatibility sends now forward the structured native result instead of dropping:
+    - `thread`
+    - `message`
+    - `pricing`
+    - `warnings`
+- updated `src/lib/route-runtime-health.ts` so attachment cleanup is first-class in admin runtime tracking
+
+Commands run:
+
+- `git status --short`
+- `npx eslint src/components/Chat/ChatExperience.tsx src/lib/chat-attachments.ts src/lib/route-runtime-health.ts src/app/api/chat/attachments/prepare/route.ts src/app/api/chat/attachments/complete/route.ts src/app/api/chat/attachments/cancel/route.ts src/app/api/chat/threads/[threadId]/messages/route.ts src/app/api/creator/messages/route.ts tests/unit/chat-attachments-route.spec.ts tests/unit/chat-thread-messages-route.spec.ts tests/unit/creator-messages-route.spec.ts`
+- `corepack pnpm exec vitest run tests/unit/chat-attachments-route.spec.ts tests/unit/chat-thread-messages-route.spec.ts tests/unit/creator-messages-route.spec.ts tests/unit/server-chat-send.spec.ts tests/unit/server-chat.spec.ts tests/unit/use-chat-unread-status.spec.tsx`
+- `npx tsc --noEmit`
+- `npm run check:ui:audits`
+- `npm run check:continuity`
+
+Results:
+
+- focused eslint passed
+- focused Vitest passed:
+  - `6` files
+  - `28` tests
+- `npx tsc --noEmit` passed
+- `npm run check:ui:audits` passed:
+  - `16` tests green across Chromium and Mobile Chrome
+- `npm run check:continuity` passed
+
+Warnings and notes:
+
+- `npm run check:ui:audits` recreated `.next`, `playwright-report/`, and `test-results/`; these were removed before the final continuity sign-off, and the final generated-artifact check passed cleanly
+- Playwright still emitted the existing non-blocking Next teardown warning after the UI audit suite passed:
+  - `TypeError: controller[kState].transformAlgorithm is not a function`
+- no new chat runtime or validation warnings remained unexplained after this pass
+
 ## 2026-04-10 Firestore Internal Assertion Hardening for Chat Realtime
 
 Scope for this pass:
@@ -6656,3 +6866,91 @@ Primary touched surfaces:
 - `src/lib/gumdrop-ledger.ts`
 - `functions/src/analytics-transactions.ts`
 - `src/app/drops/[id]/opengraph-image.tsx`
+
+## 2026-04-10 AI Cover Learning and Admin Density Refactor
+
+- Scope: replace the AI cover system’s single-template assumptions with a reference library and prompt policy layer, then densify the admin AI surface and shared admin chrome without altering the Create Drop AI panel layout.
+
+Key issues closed in this pass:
+- **Reference cap mismatch**: Gemini 3 Pro Image Preview now supports up to `14` reference inputs in-app instead of being held to the old internal cap of `6`.
+- **Prompt over-anchoring**: cover prompting now separates style lock from subject lock, parses `Creator | Flavor`, and explicitly blocks copying the reference subject when the requested flavor differs.
+- **Learning visibility gap**: prompt policy, prompt history, optimizer proposal, and rejected-gallery state are now explicit server-backed admin records rather than implicit job-only history.
+- **Admin AI sprawl**: `/admin/ai` is now a dense operational surface with collapsible modules, compact header chrome, prompt workbench, reference library manager, recent-generation provenance, and rejected review gallery.
+- **Preference persistence gap**: admin UI module collapse state now persists per admin user through `users/{uid}.adminPreferences.ui`.
+- **Runtime truth gap**: admin AI settings, template, feedback, references, prompt-policy, review-gallery, and UI-preferences routes now produce first-class runtime-health samples.
+
+Primary touched surfaces:
+- `src/lib/ai-drop-covers.ts`
+- `src/lib/server/ai-drop-covers.ts`
+- `src/app/admin/ai/page.tsx`
+- `src/components/Admin/AdminPageHeader.tsx`
+- `src/components/Admin/AdminDashboardModule.tsx`
+- `src/app/api/admin/ai/drop-covers/route.ts`
+- `src/app/api/admin/ai/drop-covers/feedback/route.ts`
+- `src/app/api/admin/ai/drop-covers/template/route.ts`
+- `src/app/api/admin/ai/drop-covers/references/route.ts`
+- `src/app/api/admin/ai/drop-covers/prompt-policy/route.ts`
+- `src/app/api/admin/ai/drop-covers/review-gallery/route.ts`
+- `src/app/api/admin/ui/preferences/route.ts`
+- `src/lib/server/admin-ui-preferences.ts`
+- `src/lib/route-runtime-health.ts`
+- `tests/unit/ai-drop-covers.spec.ts`
+- `tests/unit/admin-ai-drop-covers-ops-routes.spec.ts`
+
+Adjacent surfaces reviewed on purpose:
+- `src/components/Admin/AiDropCoverGeneratorPanel.tsx`
+- `src/app/api/admin/ai/drop-covers/generate/route.ts`
+- `src/app/api/admin/analytics/preferences/route.ts`
+- `src/lib/server/admin-debug-preferences.ts`
+- `src/app/admin/analytics/page.tsx`
+- `src/app/admin/debug/page.tsx`
+
+Commands run:
+- `git status --short`
+- `npm run trace:adjacent -- src/app/admin/ai/page.tsx`
+- `npm run trace:adjacent -- src/lib/server/ai-drop-covers.ts`
+- `npm run trace:adjacent -- src/components/Admin/AdminPageHeader.tsx`
+- `npx tsc --noEmit`
+- `npx eslint src/app/admin/ai/page.tsx src/components/Admin/AdminPageHeader.tsx src/components/Admin/AdminDashboardModule.tsx src/lib/ai-drop-covers.ts src/lib/server/ai-drop-covers.ts src/app/api/admin/ai/drop-covers/route.ts src/app/api/admin/ai/drop-covers/feedback/route.ts src/app/api/admin/ai/drop-covers/template/route.ts src/app/api/admin/ai/drop-covers/references/route.ts src/app/api/admin/ai/drop-covers/prompt-policy/route.ts src/app/api/admin/ai/drop-covers/review-gallery/route.ts src/app/api/admin/ui/preferences/route.ts src/lib/server/admin-ui-preferences.ts src/lib/route-runtime-health.ts tests/unit/admin-ai-drop-covers-ops-routes.spec.ts`
+- `corepack pnpm exec vitest run tests/unit/ai-drop-covers.spec.ts tests/unit/server-ai-drop-covers.spec.ts tests/unit/admin-ai-drop-covers-route.spec.ts tests/unit/admin-ai-drop-covers-generate-route.spec.ts tests/unit/admin-ai-drop-covers-template-route.spec.ts tests/unit/admin-ai-drop-covers-ops-routes.spec.ts`
+- `npm run check:ui:audits`
+- `npm run check:inventory`
+- `npm run check:continuity`
+- `npm run check:telemetry`
+- `npm run check:analytics-semantics`
+- `npm run check:ui:lighthouse`
+- `corepack pnpm run check`
+- `git status --short`
+
+Results:
+- `npx tsc --noEmit` passed
+- targeted eslint passed
+- focused AI/admin Vitest passed:
+  - `6` files
+  - `28` tests
+- `npm run check:ui:audits` passed:
+  - `16` tests
+- `npm run check:inventory` passed:
+  - tracked files: `775`
+- `npm run check:continuity` passed
+- `npm run check:telemetry` passed:
+  - `243` emitters across `424` files
+- `npm run check:analytics-semantics` passed
+- `npm run check:ui:lighthouse` passed
+- `corepack pnpm run check` passed:
+  - `128` contract files
+  - `580` tests
+
+Warnings and non-blocking notes:
+- the admin-wide density pass is shared-chrome-first; `/admin/ai` got the dedicated rebuild, while other admin pages inherit the compact header/module treatment without a one-off page rewrite in this same pass
+- generated build and Playwright artifacts were produced during verification and removed before final continuity sign-off
+- existing non-blocking warnings remain unchanged:
+  - npm unknown env config warnings
+  - Node `punycode` deprecation warnings
+  - Lighthouse temp cleanup `EPERM` warnings on Windows
+
+Follow-up opportunities:
+1. Move the same per-user module-collapse persistence into the remaining admin pages that still use local-only section state.
+2. Add a ranked-reference preview endpoint keyed by `Creator | Flavor` so the admin page can inspect selection reasons for a specific future generation instead of the next generic run.
+3. Add more prompt-policy performance rollups beyond the current category bucket counts so acceptance rate by policy version is not limited to recent job history.
+4. Add attachment/reference storage rules coverage if the AI admin reference library starts accepting anything beyond image assets.

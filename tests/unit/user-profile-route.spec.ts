@@ -8,6 +8,8 @@ const mockState = vi.hoisted(() => {
     return {
         guardApiRequest: vi.fn(),
         handleApiError: vi.fn(),
+        recordRouteRuntimeSample: vi.fn(),
+        getErrorMessage: vi.fn((error: unknown) => error instanceof Error ? error.message : String(error)),
         recordCanonicalTaskEvent: vi.fn(),
         normalizeUsername: vi.fn((value: unknown) => typeof value === "string" ? value.trim().toLowerCase() : null),
         parseAdultDateOfBirth: vi.fn((value: unknown) => value === "1990-01-01"
@@ -44,12 +46,15 @@ const mockState = vi.hoisted(() => {
             updateCalls.length = 0;
             this.guardApiRequest.mockReset();
             this.handleApiError.mockReset();
+            this.recordRouteRuntimeSample.mockReset();
+            this.getErrorMessage.mockReset();
             this.recordCanonicalTaskEvent.mockReset();
             this.normalizeUsername.mockClear();
             this.parseAdultDateOfBirth.mockClear();
             this.isCreatorRole.mockClear();
             this.normalizeCreatorSettings.mockClear();
             this.reserveUsernameForUser.mockReset();
+            this.getErrorMessage.mockImplementation((error: unknown) => error instanceof Error ? error.message : String(error));
         },
     };
 });
@@ -60,6 +65,12 @@ vi.mock("@/lib/server/firebase-admin", () => ({
 }));
 vi.mock("@/lib/server/auth", () => ({
     handleApiError: mockState.handleApiError,
+}));
+vi.mock("@/lib/server/route-runtime-health", () => ({
+    recordRouteRuntimeSample: mockState.recordRouteRuntimeSample,
+}));
+vi.mock("@/lib/server/route-diagnostics", () => ({
+    getErrorMessage: mockState.getErrorMessage,
 }));
 vi.mock("@/lib/server/rate-limit", () => ({
     STANDARD: {},
@@ -87,7 +98,37 @@ vi.mock("@/lib/server/username-suggestions", () => ({
     reserveUsernameForUser: mockState.reserveUsernameForUser,
 }));
 
-import { PUT } from "@/app/api/user/profile/route";
+import { GET, PUT } from "@/app/api/user/profile/route";
+
+describe("GET /api/user/profile", () => {
+    beforeEach(() => {
+        mockState.reset();
+        mockState.guardApiRequest.mockResolvedValue({
+            uid: "user_1",
+            email: "user@example.com",
+        });
+        mockState.handleApiError.mockImplementation((error: unknown) => NextResponse.json({
+            error: error instanceof Error ? error.message : String(error),
+        }, { status: 500 }));
+    });
+
+    it("returns the caller profile for fallback reads", async () => {
+        mockState.userDocs.set("user_1", {
+            username: "existing-user",
+            displayName: "Existing User",
+        });
+
+        const response = await GET(new NextRequest("http://localhost/api/user/profile"));
+        const body = await response.json();
+
+        expect(response.status).toBe(200);
+        expect(body.success).toBe(true);
+        expect(body.profile).toEqual({
+            username: "existing-user",
+            displayName: "Existing User",
+        });
+    });
+});
 
 describe("PUT /api/user/profile", () => {
     beforeEach(() => {

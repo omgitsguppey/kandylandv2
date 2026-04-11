@@ -6,6 +6,7 @@ import type {
     AdminModerationSecurityAlert,
     AdminModerationThreadSummary,
 } from "@/lib/admin-moderation";
+import { buildChatSoftSealScope, softOpenChatValue } from "@/lib/chat-soft-seal";
 import { adminDb } from "@/lib/server/firebase-admin";
 import { recordRouteWarning } from "@/lib/server/route-diagnostics";
 
@@ -59,7 +60,7 @@ function mapThreadSummary(id: string, value: Record<string, unknown>): AdminMode
         userUsername: toNullableString(value.userUsername) ?? undefined,
         userPhotoURL: toNullableString(value.userPhotoURL),
         lastMessageAt: toNumber(value.lastMessageAt),
-        lastMessagePreview: toStringValue(value.lastMessagePreview) || "New message",
+        lastMessagePreview: toStringValue(softOpenChatValue(buildChatSoftSealScope(id, "preview"), toStringValue(value.lastMessagePreview))) || "New message",
         messageCount: Math.max(0, toNumber(value.messageCount)),
         lastMessageSenderRole: value.lastMessageSenderRole === "creator" || value.lastMessageSenderRole === "admin" || value.lastMessageSenderRole === "user"
             ? value.lastMessageSenderRole
@@ -71,18 +72,19 @@ function mapThreadSummary(id: string, value: Record<string, unknown>): AdminMode
 }
 
 function mapMessageRecord(id: string, value: Record<string, unknown>): AdminModerationMessageRecord {
+    const threadId = toStringValue(value.threadId);
     return {
         id,
-        threadId: toStringValue(value.threadId),
+        threadId,
         creatorId: toStringValue(value.creatorId),
         userId: toStringValue(value.userId),
         senderRole: value.senderRole === "creator" || value.senderRole === "admin" ? value.senderRole : "user",
         messageKind: value.messageKind === "image" || value.messageKind === "video" || value.messageKind === "broadcast"
             ? value.messageKind
             : "text",
-        text: toNullableString(value.text) ?? undefined,
-        assetUrl: toNullableString(value.assetUrl) ?? undefined,
-        assetName: toNullableString(value.assetName) ?? undefined,
+        text: toNullableString(softOpenChatValue(buildChatSoftSealScope(threadId, "text"), toNullableString(value.text))) ?? undefined,
+        assetUrl: toNullableString(softOpenChatValue(buildChatSoftSealScope(threadId, "assetUrl"), toNullableString(value.assetUrl))) ?? undefined,
+        assetName: toNullableString(softOpenChatValue(buildChatSoftSealScope(threadId, "assetName"), toNullableString(value.assetName))) ?? undefined,
         assetMimeType: toNullableString(value.assetMimeType) ?? undefined,
         costGd: Math.max(0, toNumber(value.costGd)),
         createdAt: toNumber(value.createdAt),

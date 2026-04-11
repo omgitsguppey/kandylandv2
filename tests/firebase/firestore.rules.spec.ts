@@ -118,12 +118,12 @@ describe("firestore.rules", () => {
     await assertFails(getDoc(doc(db, "creator_messages/msg-alice-bob")));
   });
 
-  it("allows admins to read chat threads, messages, and security events", async () => {
+  it("blocks admins from directly reading chat threads, messages, and security events in the client", async () => {
     const db = testEnv.authenticatedContext("admin").firestore();
 
-    await assertSucceeds(getDoc(doc(db, "creator_message_threads/thread-alice-bob")));
-    await assertSucceeds(getDoc(doc(db, "creator_messages/msg-alice-bob")));
-    await assertSucceeds(getDoc(doc(db, "security_events/event-1")));
+    await assertFails(getDoc(doc(db, "creator_message_threads/thread-alice-bob")));
+    await assertFails(getDoc(doc(db, "creator_messages/msg-alice-bob")));
+    await assertFails(getDoc(doc(db, "security_events/event-1")));
   });
 
   it("blocks direct client writes everywhere", async () => {

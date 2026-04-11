@@ -16,6 +16,7 @@ type AdminPageHeaderProps = {
 
 export function AdminPageHeader({
     title,
+    subtitle,
     eyebrow = "Admin Console",
     actions,
     topSlot,
@@ -25,24 +26,31 @@ export function AdminPageHeader({
     return (
         <header
             className={cn(
-                "mb-6 rounded-[2rem] border border-white/10 bg-[radial-gradient(circle_at_top_left,rgba(178,140,255,0.18),rgba(0,0,0,0.12)_48%,rgba(0,0,0,0.9)_100%)] px-5 py-6 shadow-xl shadow-black/20 md:mb-8 md:px-8 md:py-8",
+                "mb-5 rounded-[1.6rem] border border-white/10 bg-[radial-gradient(circle_at_top_left,rgba(178,140,255,0.14),rgba(0,0,0,0.08)_42%,rgba(0,0,0,0.92)_100%)] px-4 py-4 shadow-xl shadow-black/20 md:mb-6 md:px-6 md:py-5",
                 className
             )}
         >
-            {topSlot ? <div className="mb-4 flex justify-center">{topSlot}</div> : null}
-            <div className={cn("mx-auto flex max-w-3xl flex-col items-center text-center", contentClassName)}>
-                {eyebrow ? (
-                    <p className="mb-2 text-[11px] font-semibold uppercase tracking-[0.2em] text-brand-purple">
-                        {eyebrow}
-                    </p>
-                ) : null}
-                <h1 className="text-3xl font-black tracking-tight text-white md:text-4xl">{title}</h1>
-            </div>
-            {actions ? (
-                <div className="mt-5 flex flex-wrap items-center justify-center gap-2 sm:gap-3">
-                    {actions}
+            {topSlot ? <div className="mb-3">{topSlot}</div> : null}
+            <div className={cn("flex flex-col gap-3 lg:flex-row lg:items-start lg:justify-between", contentClassName)}>
+                <div className="min-w-0">
+                    {eyebrow ? (
+                        <p className="mb-1 text-[11px] font-semibold uppercase tracking-[0.18em] text-brand-purple">
+                            {eyebrow}
+                        </p>
+                    ) : null}
+                    <h1 className="text-2xl font-black tracking-tight text-white md:text-[2rem]">{title}</h1>
+                    {subtitle ? (
+                        <p className="mt-1 max-w-3xl text-sm text-gray-300 md:text-[15px]">
+                            {subtitle}
+                        </p>
+                    ) : null}
                 </div>
-            ) : null}
+                {actions ? (
+                    <div className="flex flex-wrap items-center gap-2 sm:gap-3 lg:justify-end">
+                        {actions}
+                    </div>
+                ) : null}
+            </div>
         </header>
     );
 }

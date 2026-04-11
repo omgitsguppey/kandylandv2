@@ -24,6 +24,72 @@ This file is not a changelog. It is the concise ledger for durable decisions tha
 
 ## Decision Entries
 
+### 1h. Public shell surfaces should avoid non-essential Firestore listeners, and auth profile reads must degrade to server fallback
+
+- Approximate date: Recorded explicitly on 2026-04-10 from the creator-page Firestore assertion fix
+- Status: Active canonical shell/runtime rule
+- Problem/context: Public creator-page visits were still mounting signed-in shell Firestore listeners that were not essential to the page itself, including unread-badge, notification-runtime, and auth-profile realtime reads. That increased the chance of browser Firestore SDK assertion failures surfacing during ordinary navigation.
+- Decision made: Firestore realtime in the shell should be reserved for surfaces that materially need it. Public/non-chat surfaces must prefer server polling and explicit fallback behavior over keeping extra browser Firestore listeners alive.
+- What became canonical:
+  - `/dashboard/chat` remains the primary place where chat realtime is guaranteed through Firestore listeners
+  - unread badge state should use Firestore realtime only inside chat; outside chat it should poll the server thread list
+  - notifications should not depend on client Firestore runtime-signal documents for freshness
+  - auth profile reads must have a canonical server fallback route and should prefer polling on public creator/non-dashboard surfaces
+  - Firestore browser assertion failures must degrade the shell to polling instead of staying opaque
+- Truth lives in:
+  - `src/context/AuthContext.tsx`
+  - `src/hooks/useChatUnreadStatus.ts`
+  - `src/hooks/useNotifications.ts`
+  - `src/app/api/user/profile/route.ts`
+  - `src/lib/firestore-client-errors.ts`
+- What is now disallowed or deprecated: Mounting unnecessary Firestore listeners on public creator pages or treating public signed-in shell pages as if they require full dashboard-grade realtime
+
+### 1i. Chat at-rest values are soft-sealed, while moderation remains server-visible only
+
+- Approximate date: Recorded explicitly on 2026-04-10 from the chat security hardening pass
+- Status: Active canonical chat-security rule
+- Problem/context: Even after moderation moved server-side, chat message documents still stored raw text, preview, and attachment URL fields in Firestore, and direct client admin reads of moderation/security collections were broader than needed.
+- Decision made: Chat-at-rest values should be soft-sealed without new dependencies, moderation/security visibility should be server-backed only, and rules should enforce that client access stays participant-scoped.
+- What became canonical:
+  - chat text, preview, and attachment URL/name fields are stored in Firestore using the scoped soft-seal helper
+  - server chat readers and server moderation readers are responsible for unsealing those fields before returning them
+  - Firestore client rules must not allow direct admin reads of moderation/security documents
+  - this soft seal is not a claim of end-to-end encryption or real confidentiality against trusted code/operators
+- Truth lives in:
+  - `src/lib/chat-soft-seal.ts`
+  - `src/lib/server/chat.ts`
+  - `src/lib/server/admin-moderation.ts`
+  - `src/components/Chat/ChatExperience.tsx`
+  - `firestore.rules`
+  - `tests/unit/chat-soft-seal.spec.ts`
+  - `tests/firebase/firestore.rules.spec.ts`
+- What is now disallowed or deprecated: Storing raw chat preview/text/asset URL fields in Firestore as the canonical at-rest form, or letting client-side admin sessions read moderation/security collections directly
+
+### 1g. Chat attachment uploads must be cleanup-backed, and compatibility sends must mirror native send truth
+
+- Approximate date: Recorded explicitly on 2026-04-10 from the chat hardening sweep
+- Status: Active canonical chat runtime rule
+- Problem/context: Chat attachment uploads could succeed in storage before the message write completed, which meant a failed send could leave orphaned uploaded files behind. At the same time, the legacy creator-message compatibility route still discarded the structured native send result and returned only `{ success: true }`, which hid warnings and pricing updates from compatibility callers.
+- Decision made: Chat attachments must follow a prepare -> finalize -> cleanup-backed lifecycle, and any compatibility send path must return the same source-of-truth result shape as the native chat send path.
+- What became canonical:
+  - chat only accepts image and video attachments through explicit shared attachment-type rules
+  - malformed chat attachment or message payloads must return stable chat-specific `400` errors, not generic server failures
+  - uploaded chat attachments must be removable through a server-backed cleanup route when finalize or send fails
+  - chat UI must attempt best-effort cleanup for finalized attachments if the downstream message send fails
+  - the legacy `/api/creator/messages` send route must forward the structured native send result, including warnings and pricing, rather than collapsing success into a boolean
+- Truth lives in:
+  - `src/lib/chat-attachments.ts`
+  - `src/app/api/chat/attachments/prepare/route.ts`
+  - `src/app/api/chat/attachments/complete/route.ts`
+  - `src/app/api/chat/attachments/cancel/route.ts`
+  - `src/app/api/chat/threads/[threadId]/messages/route.ts`
+  - `src/app/api/creator/messages/route.ts`
+  - `src/components/Chat/ChatExperience.tsx`
+  - `tests/unit/chat-attachments-route.spec.ts`
+  - `tests/unit/chat-thread-messages-route.spec.ts`
+  - `tests/unit/creator-messages-route.spec.ts`
+- What is now disallowed or deprecated: Leaving finalized chat uploads orphaned after a failed send, or letting compatibility send callers lose native chat warnings and pricing state
+
 ### 1f. Browser Firestore listener failures must degrade to polling with explicit diagnostics
 
 - Approximate date: Recorded explicitly on 2026-04-10 from the Firestore internal-assertion hardening pass
@@ -1229,3 +1295,45 @@ This file is not a changelog. It is the concise ledger for durable decisions tha
   - `tests/unit/user-profile-route.spec.ts`
   - `FULL_SCALE_CODEBASE_AUDIT.md`
 - Follow-up gaps: If support/admin ever need DOB remediation flows, those should exist as explicit elevated routes rather than reopening self-service deletion.
+
+### 49. Admin AI cover generation now runs on a prompt-policy and reference-library model
+
+- Approximate date: Canonicalized and recorded on 2026-04-10
+- Status: Active admin AI runtime rule
+- Problem/context: The original AI cover flow treated one template image as the main guidance source, capped references too low for Gemini 3 Pro Preview, and left prompt learning mostly implicit in job history. That made outputs too reference-subject-bound and kept the admin page too sparse to operate the system honestly.
+- Decision made: move AI cover generation to a model-aware reference library plus prompt-policy system, with Gemini 3 Pro Preview allowed up to 14 references, editable locked/mutable prompt clauses, optimizer state, and visible rejected output review.
+- What became canonical:
+  - `gemini-3-pro-image-preview` supports up to `14` reference inputs
+  - titles are interpreted as `Creator | Flavor` when possible
+  - prompt construction separates stable style lock from mutable subject/palette lock
+  - anti-anchoring clauses explicitly block copying the reference subject when the requested flavor differs
+  - only liked/accepted or manually promoted assets are reusable by default
+  - prompt policy, optimizer output, prompt history, and review-gallery state live outside transient job history
+- Truth lives in:
+  - `src/lib/ai-drop-covers.ts`
+  - `src/lib/server/ai-drop-covers.ts`
+  - `src/app/api/admin/ai/drop-covers/references/route.ts`
+  - `src/app/api/admin/ai/drop-covers/prompt-policy/route.ts`
+  - `src/app/api/admin/ai/drop-covers/review-gallery/route.ts`
+  - `src/app/admin/ai/page.tsx`
+  - `tests/unit/ai-drop-covers.spec.ts`
+  - `tests/unit/admin-ai-drop-covers-ops-routes.spec.ts`
+  - `FULL_SCALE_CODEBASE_AUDIT.md`
+- Follow-up gaps: reference ranking is still previewed generically from the current library/pool, not yet simulated for a specific future `Creator | Flavor` request.
+
+### 50. Admin UI module collapse state is persisted per admin user
+
+- Approximate date: Canonicalized and recorded on 2026-04-10
+- Status: Active admin operations rule
+- Problem/context: Dense admin pages need collapsible modules to avoid vertical sprawl, but collapse state was otherwise lost on reload and operators had to repeatedly rebuild their working layout.
+- Decision made: store collapsed-module state under `users/{uid}.adminPreferences.ui.collapsedModules` and expose it through dedicated admin UI preference APIs.
+- What became canonical:
+  - module-collapse state is not session-only
+  - collapse state is user-scoped, not global admin config
+  - `/admin/ai` is the first page using this preference path directly
+- Truth lives in:
+  - `src/lib/server/admin-ui-preferences.ts`
+  - `src/app/api/admin/ui/preferences/route.ts`
+  - `src/app/admin/ai/page.tsx`
+  - `FULL_SCALE_CODEBASE_AUDIT.md`
+- Follow-up gaps: the remaining admin pages still need to adopt the same preference model instead of local-only section state.

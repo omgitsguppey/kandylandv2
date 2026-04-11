@@ -51,7 +51,15 @@ export async function POST(request: NextRequest, context: RouteContext) {
         const callerSnap = await adminDb.collection("users").doc(caller.uid).get();
         const callerData = callerSnap.data() as Record<string, unknown> | undefined;
         const callerRole = typeof callerData?.role === "string" ? callerData.role : "user";
-        const body = sendMessageSchema.parse(await request.json());
+        const parsedBody = sendMessageSchema.safeParse(await request.json());
+        if (!parsedBody.success) {
+            return finalize(NextResponse.json({
+                error: "Invalid chat message request.",
+                errorCode: "invalid_message_request",
+            }, { status: 400 }));
+        }
+
+        const body = parsedBody.data;
 
         const result = await safeSendChatMessageForViewer({
             callerUid: caller.uid,

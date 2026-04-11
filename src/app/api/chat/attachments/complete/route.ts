@@ -3,6 +3,7 @@ import { randomUUID } from "node:crypto";
 import { NextRequest, NextResponse } from "next/server";
 import { z } from "zod";
 
+import { CHAT_ATTACHMENT_MAX_BYTES, isSupportedChatAttachmentMimeType } from "@/lib/chat-attachments";
 import { safeGetChatThreadDetailForViewer, toChatClientError } from "@/lib/server/chat";
 import { handleApiError } from "@/lib/server/auth";
 import { adminDb, adminStorage } from "@/lib/server/firebase-admin";
@@ -46,7 +47,22 @@ export async function POST(request: NextRequest) {
             return finalize(NextResponse.json({ error: "Unauthorized" }, { status: 401 }));
         }
 
-        const payload = completeAttachmentSchema.parse(await request.json());
+        const parsedPayload = completeAttachmentSchema.safeParse(await request.json());
+        if (!parsedPayload.success) {
+            return finalize(NextResponse.json({
+                error: "Invalid chat attachment finalize request.",
+                errorCode: "invalid_attachment_finalize_request",
+            }, { status: 400 }));
+        }
+
+        const payload = parsedPayload.data;
+        if (!isSupportedChatAttachmentMimeType(payload.mimeType)) {
+            return finalize(NextResponse.json({
+                error: "Only image and video attachments are supported in chat.",
+                errorCode: "unsupported_attachment_type",
+            }, { status: 400 }));
+        }
+
         const callerSnap = await adminDb.collection("users").doc(caller.uid).get();
         const callerData = callerSnap.data() as Record<string, unknown> | undefined;
         const callerRole = typeof callerData?.role === "string" ? callerData.role : "user";
@@ -63,7 +79,7 @@ export async function POST(request: NextRequest) {
             }, { status: 404 }));
         }
 
-        const expectedPrefix = `chat-attachments/${payload.threadId}/${caller.uid}/`;
+        const expectedPrefix = `creator/messages/${caller.uid}/${payload.threadId}/`;
         if (!payload.storagePath.startsWith(expectedPrefix)) {
             return finalize(NextResponse.json({
                 error: "Attachment path does not match this chat thread.",
@@ -88,11 +104,23 @@ export async function POST(request: NextRequest) {
             ? rawMetadataToken
             : randomUUID();
         const contentType = metadata.contentType || payload.mimeType || "application/octet-stream";
+        if (!isSupportedChatAttachmentMimeType(contentType)) {
+            return finalize(NextResponse.json({
+                error: "Only image and video attachments are supported in chat.",
+                errorCode: "unsupported_attachment_type",
+            }, { status: 400 }));
+        }
         const size = Number(metadata.size || 0);
         if (!Number.isFinite(size) || size <= 0) {
             return finalize(NextResponse.json({
                 error: "Uploaded attachment is empty or invalid.",
                 errorCode: "attachment_invalid",
+            }, { status: 400 }));
+        }
+        if (size > CHAT_ATTACHMENT_MAX_BYTES) {
+            return finalize(NextResponse.json({
+                error: "Uploaded attachment exceeds the chat size limit.",
+                errorCode: "attachment_too_large",
             }, { status: 400 }));
         }
 

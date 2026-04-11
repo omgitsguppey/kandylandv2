@@ -141,4 +141,24 @@ describe("POST /api/chat/threads/[threadId]/messages", () => {
         expect(body.errorCode).toBe("insufficient_paid_gumdrops");
         expect(body.paidGdShortfall).toBe(3);
     });
+
+    it("returns a stable invalid request payload error for malformed sends", async () => {
+        mockState.guardApiRequest.mockResolvedValue({ uid: "fan_1", email: "fan@example.com" });
+        mockState.userDocs.set("fan_1", { role: "user" });
+
+        const response = await POST(new NextRequest("http://localhost/api/chat/threads/thread_1/messages", {
+            method: "POST",
+            body: JSON.stringify({
+                text: "hello",
+                messageKind: "audio",
+            }),
+        }), {
+            params: Promise.resolve({ threadId: "thread_1" }),
+        });
+        const body = await response.json();
+
+        expect(response.status).toBe(400);
+        expect(body.errorCode).toBe("invalid_message_request");
+        expect(mockState.safeSendChatMessageForViewer).not.toHaveBeenCalled();
+    });
 });

@@ -16,6 +16,7 @@ import {
     type ChatThreadRecord,
     type ChatViewerRole,
 } from "@/lib/chat";
+import { buildChatSoftSealScope, softOpenChatValue, softSealChatValue } from "@/lib/chat-soft-seal";
 import {
     isCreatorMessagingAvailable,
     normalizeCreatorRestrictions,
@@ -141,18 +142,19 @@ function describeMessagePreview(input: {
 }
 
 function mapCreatorMessage(id: string, raw: Record<string, unknown>): CreatorMessage {
+    const threadId = readString(raw.threadId);
     return {
         id,
-        threadId: readString(raw.threadId),
+        threadId,
         creatorId: readString(raw.creatorId),
         userId: readString(raw.userId),
         senderRole: raw.senderRole === "creator" || raw.senderRole === "admin" ? raw.senderRole : "user",
         messageKind: raw.messageKind === "image" || raw.messageKind === "video" || raw.messageKind === "broadcast"
             ? raw.messageKind
             : "text",
-        text: readOptionalString(raw.text),
-        assetUrl: readOptionalString(raw.assetUrl),
-        assetName: readOptionalString(raw.assetName),
+        text: readOptionalString(softOpenChatValue(buildChatSoftSealScope(threadId, "text"), readOptionalString(raw.text))),
+        assetUrl: readOptionalString(softOpenChatValue(buildChatSoftSealScope(threadId, "assetUrl"), readOptionalString(raw.assetUrl))),
+        assetName: readOptionalString(softOpenChatValue(buildChatSoftSealScope(threadId, "assetName"), readOptionalString(raw.assetName))),
         assetMimeType: readOptionalString(raw.assetMimeType),
         costGd: typeof raw.costGd === "number" && Number.isFinite(raw.costGd) ? Math.max(0, Math.trunc(raw.costGd)) : 0,
         creatorAccrualId: readOptionalString(raw.creatorAccrualId),
@@ -176,7 +178,7 @@ function mapCreatorMessageThread(id: string, raw: Record<string, unknown>): Crea
         userUsername: readOptionalString(raw.userUsername),
         userPhotoURL: readNullableString(raw.userPhotoURL),
         lastMessageAt: toTimestampNumber(raw.lastMessageAt),
-        lastMessagePreview: readString(raw.lastMessagePreview) || "New message",
+        lastMessagePreview: readString(softOpenChatValue(buildChatSoftSealScope(id, "preview"), readString(raw.lastMessagePreview))) || "New message",
         messageCount: typeof raw.messageCount === "number" && Number.isFinite(raw.messageCount)
             ? Math.max(0, Math.trunc(raw.messageCount))
             : 0,
@@ -859,22 +861,26 @@ export async function sendChatMessageForViewer(input: SendChatMessageInput) {
             userId: parsedThread.userId,
             senderRole: viewerRole,
             messageKind,
-            text,
-            assetUrl,
-            assetName,
+            text: softSealChatValue(buildChatSoftSealScope(input.threadId, "text"), text),
+            assetUrl: softSealChatValue(buildChatSoftSealScope(input.threadId, "assetUrl"), assetUrl),
+            assetName: softSealChatValue(buildChatSoftSealScope(input.threadId, "assetName"), assetName),
             assetMimeType,
             costGd,
             creatorAccrualId,
             createdAt: now,
         });
+        const sealedThreadPatch = {
+            ...threadPatch,
+            lastMessagePreview: softSealChatValue(buildChatSoftSealScope(input.threadId, "preview"), preview) || "New message",
+        };
         transaction.set(messageRef, messageRecord);
-        transaction.set(threadRef, threadPatch, { merge: true });
+        transaction.set(threadRef, sealedThreadPatch, { merge: true });
         const nextThreadState = existingThread
             ? {
                 ...existingThread,
-                ...threadPatch,
+                ...sealedThreadPatch,
             }
-            : threadPatch;
+            : sealedThreadPatch;
 
         return {
             thread: toChatThreadRecord(mapCreatorMessageThread(input.threadId, nextThreadState), input.callerUid),

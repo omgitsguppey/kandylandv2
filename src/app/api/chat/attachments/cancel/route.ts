@@ -1,35 +1,24 @@
 import { NextRequest, NextResponse } from "next/server";
 import { z } from "zod";
 
-import { CHAT_ATTACHMENT_MAX_BYTES, isSupportedChatAttachmentMimeType } from "@/lib/chat-attachments";
 import { safeGetChatThreadDetailForViewer, toChatClientError } from "@/lib/server/chat";
 import { handleApiError } from "@/lib/server/auth";
-import { adminDb } from "@/lib/server/firebase-admin";
+import { adminDb, adminStorage } from "@/lib/server/firebase-admin";
 import { STANDARD } from "@/lib/server/rate-limit";
 import { guardApiRequest } from "@/lib/server/request-guard";
 import { getErrorMessage } from "@/lib/server/route-diagnostics";
 import { recordRouteRuntimeSample } from "@/lib/server/route-runtime-health";
 
-const prepareAttachmentSchema = z.object({
+const cancelAttachmentSchema = z.object({
     threadId: z.string().trim().min(1),
-    fileName: z.string().trim().min(1).max(260),
-    mimeType: z.string().trim().min(1).max(160),
-    sizeBytes: z.number().int().positive().max(CHAT_ATTACHMENT_MAX_BYTES),
+    storagePath: z.string().trim().min(1),
 });
-
-function sanitizeFileName(fileName: string) {
-    const normalized = fileName
-        .replace(/[\\/:*?"<>|]+/g, "-")
-        .replace(/\s+/g, " ")
-        .trim();
-    return normalized.length > 0 ? normalized : "attachment";
-}
 
 export async function POST(request: NextRequest) {
     const startedAt = Date.now();
     const finalize = (response: NextResponse, error?: unknown) => {
         void recordRouteRuntimeSample({
-            key: "chat/attachments/prepare:POST",
+            key: "chat/attachments/cancel:POST",
             durationMs: Date.now() - startedAt,
             statusCode: response.status,
             errorMessage: error ? getErrorMessage(error) : null,
@@ -39,7 +28,7 @@ export async function POST(request: NextRequest) {
 
     try {
         const caller = await guardApiRequest(request, {
-            routeName: "chat/attachments/prepare",
+            routeName: "chat/attachments/cancel",
             rateLimit: STANDARD,
             requireTrustedOrigin: true,
             auth: "user",
@@ -49,22 +38,15 @@ export async function POST(request: NextRequest) {
             return finalize(NextResponse.json({ error: "Unauthorized" }, { status: 401 }));
         }
 
-        const parsedPayload = prepareAttachmentSchema.safeParse(await request.json());
+        const parsedPayload = cancelAttachmentSchema.safeParse(await request.json());
         if (!parsedPayload.success) {
             return finalize(NextResponse.json({
-                error: "Invalid chat attachment request.",
-                errorCode: "invalid_attachment_request",
+                error: "Invalid chat attachment cancel request.",
+                errorCode: "invalid_attachment_cancel_request",
             }, { status: 400 }));
         }
 
         const payload = parsedPayload.data;
-        if (!isSupportedChatAttachmentMimeType(payload.mimeType)) {
-            return finalize(NextResponse.json({
-                error: "Only image and video attachments are supported in chat.",
-                errorCode: "unsupported_attachment_type",
-            }, { status: 400 }));
-        }
-
         const callerSnap = await adminDb.collection("users").doc(caller.uid).get();
         const callerData = callerSnap.data() as Record<string, unknown> | undefined;
         const callerRole = typeof callerData?.role === "string" ? callerData.role : "user";
@@ -81,16 +63,30 @@ export async function POST(request: NextRequest) {
             }, { status: 404 }));
         }
 
-        const safeName = sanitizeFileName(payload.fileName);
-        const storagePath = `creator/messages/${caller.uid}/${payload.threadId}/${Date.now()}_${safeName}`;
+        const expectedPrefix = `creator/messages/${caller.uid}/${payload.threadId}/`;
+        if (!payload.storagePath.startsWith(expectedPrefix)) {
+            return finalize(NextResponse.json({
+                error: "Attachment path does not match this chat thread.",
+                errorCode: "invalid_attachment_path",
+            }, { status: 400 }));
+        }
+
+        const file = adminStorage.bucket().file(payload.storagePath);
+        const [exists] = await file.exists();
+        if (!exists) {
+            return finalize(NextResponse.json({
+                success: true,
+                removed: false,
+                storagePath: payload.storagePath,
+            }));
+        }
+
+        await file.delete({ ignoreNotFound: true });
 
         return finalize(NextResponse.json({
             success: true,
-            threadId: payload.threadId,
-            storagePath,
-            fileName: safeName,
-            mimeType: payload.mimeType,
-            sizeBytes: payload.sizeBytes,
+            removed: true,
+            storagePath: payload.storagePath,
         }));
     } catch (error) {
         const chatError = toChatClientError(error);
@@ -98,6 +94,6 @@ export async function POST(request: NextRequest) {
             return finalize(NextResponse.json(chatError.body, { status: chatError.status }), error);
         }
 
-        return finalize(handleApiError(error, "chat/attachments/prepare"), error);
+        return finalize(handleApiError(error, "chat/attachments/cancel"), error);
     }
 }
