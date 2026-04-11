@@ -1,4 +1,5 @@
 import { z } from "zod";
+import { ADMIN_AI_MODEL_PRICE_SOURCE_URL, getAdminAiModelAlias } from "@/lib/admin-ai-models";
 
 export const ADMIN_AI_DROP_COVER_SETTINGS_DOC = "aiDropCovers";
 export const ADMIN_AI_DROP_COVER_JOBS_COLLECTION = "admin_ai_drop_cover_jobs";
@@ -8,9 +9,9 @@ export const ADMIN_AI_DROP_COVER_REFERENCE_LIBRARY_COLLECTION = "admin_ai_drop_c
 export const ADMIN_AI_DROP_COVER_PROMPT_POLICY_DOC = "aiDropCoverPromptPolicy";
 export const ADMIN_AI_DROP_COVER_PROMPT_POLICY_HISTORY_COLLECTION = "admin_ai_drop_cover_prompt_policy_history";
 
-export const ADMIN_AI_DROP_COVER_MODEL = "gemini-2.5-flash-image";
-export const ADMIN_AI_DROP_COVER_PREMIUM_MODEL = "gemini-3-pro-image-preview";
-export const ADMIN_AI_DROP_COVER_OPTIMIZER_MODEL = "gemini-2.5-flash-lite";
+export const ADMIN_AI_DROP_COVER_MODEL = getAdminAiModelAlias("drop_cover_standard");
+export const ADMIN_AI_DROP_COVER_PREMIUM_MODEL = getAdminAiModelAlias("drop_cover_premium");
+export const ADMIN_AI_DROP_COVER_OPTIMIZER_MODEL = getAdminAiModelAlias("drop_cover_optimizer");
 export const ADMIN_AI_DROP_COVER_DEFAULT_LOCATION = "global";
 const LEGACY_ADMIN_AI_DROP_COVER_MODEL_ALIASES = new Set([
     "imagen-3.0-fast-generate-001",
@@ -21,7 +22,7 @@ const LEGACY_ADMIN_AI_DROP_COVER_LOCATION_ALIASES = new Set(["us-central1"]);
 export const ADMIN_AI_DROP_COVER_PROMPT_VERSION = "drop-cover-v4";
 export const ADMIN_AI_DROP_COVER_PRICE_BASIS = "vertex-ai-pricing-gemini-2.5-flash-image-2026-04-06";
 export const ADMIN_AI_DROP_COVER_PREMIUM_PRICE_BASIS = "vertex-ai-pricing-gemini-3-pro-image-preview-2026-04-06";
-export const ADMIN_AI_DROP_COVER_PRICE_SOURCE_URL = "https://cloud.google.com/vertex-ai/generative-ai/pricing";
+export const ADMIN_AI_DROP_COVER_PRICE_SOURCE_URL = ADMIN_AI_MODEL_PRICE_SOURCE_URL;
 export const ADMIN_AI_DROP_COVER_OUTPUT_MIME_TYPE = "image/png";
 export const ADMIN_AI_DROP_COVER_ACTIVE_POLL_INTERVAL_MS = 2_500;
 export const ADMIN_AI_DROP_COVER_IDLE_POLL_INTERVAL_MS = 10_000;

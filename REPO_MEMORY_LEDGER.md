@@ -1421,3 +1421,49 @@ This file is not a changelog. It is the concise ledger for durable decisions tha
   - `src/app/dashboard/profile/page.tsx`
   - `FULL_SCALE_CODEBASE_AUDIT.md`
 - Follow-up gaps: `src/app/creators/[username]/CreatorProfileClient.tsx` and some secondary dashboard surfaces can still be tightened further if product copy keeps expanding.
+
+### 52. Text AI surfaces use a shared model registry and stable aliases where Google documents them
+
+- Approximate date: Canonicalized and recorded on 2026-04-11
+- Status: Active AI runtime rule
+- Problem/context: text and image AI surfaces were carrying model aliases independently, which made stable-alias upgrades, pricing provenance, and runtime-truth display drift-prone.
+- Decision made: centralize AI model metadata in one registry, use stable aliases for Flash-Lite text surfaces where Google documents them, and keep explicit preview ids only where the provider still exposes preview ids as the canonical path.
+- What became canonical:
+  - `gemini-2.5-flash-lite` is the default stable alias for:
+    - admin debug assistant
+    - drop description generation
+    - drop description optimization
+    - drop cover prompt optimization
+  - preview image models remain explicit when preview ids are the documented source of truth
+  - AI runtime truth should distinguish:
+    - configured alias
+    - provider-resolved runtime model version when available
+    - runtime version not exposed when Vertex does not return one
+- Truth lives in:
+  - `src/lib/admin-ai-models.ts`
+  - `src/lib/ai-debug-assistant.ts`
+  - `src/lib/ai-drop-covers.ts`
+  - `src/lib/ai-drop-descriptions.ts`
+  - `tests/unit/admin-ai-models.spec.ts`
+  - `FULL_SCALE_CODEBASE_AUDIT.md`
+- What is now disallowed or deprecated: hardcoding Flash-Lite model aliases independently across AI surfaces when the shared registry can provide the alias, pricing basis, and capability metadata.
+
+### 53. Create Drop AI history clearing is modal-local while canonical AI history stays in Admin AI
+
+- Approximate date: Canonicalized and recorded on 2026-04-11
+- Status: Active AI UX/data rule
+- Problem/context: repeated in-form AI generations were cluttering the Create Drop workflow, but deleting server-side AI history would remove the operational learning trail needed in the Admin AI console.
+- Decision made: Create Drop can clear AI history only for the current modal session; canonical AI generation history remains stored server-side for admin operations, auditability, and prompt learning.
+- What became canonical:
+  - description generation in Create Drop uses one compact action plus local session history
+  - cover generation in Create Drop keeps local session history and supports local clear-history without deleting server records
+  - accepted description jobs can be linked to the final saved drop after Create Drop succeeds
+  - Admin AI remains the canonical place for prompt policy, full history, review gallery, and runtime truth
+- Truth lives in:
+  - `src/components/Admin/CreateDropModal.tsx`
+  - `src/components/Admin/AiDropDescriptionGeneratorPanel.tsx`
+  - `src/components/Admin/AiDropCoverGeneratorPanel.tsx`
+  - `src/components/Admin/AdminAiDescriptionOperations.tsx`
+  - `src/lib/server/ai-drop-descriptions.ts`
+  - `FULL_SCALE_CODEBASE_AUDIT.md`
+- What is now disallowed or deprecated: treating modal history clear as a server-side delete of canonical AI jobs, or forcing paragraph-length helper copy into the Create Drop AI controls.

@@ -3,21 +3,22 @@
 import { useCallback, useEffect, useMemo, useState } from "react";
 import Image from "next/image";
 import Link from "next/link";
-import { Check, Loader2, RefreshCw, Sparkles, ThumbsDown, ThumbsUp, TriangleAlert } from "lucide-react";
+import { Check, Loader2, RefreshCw, Sparkles, ThumbsDown, ThumbsUp, Trash2, TriangleAlert } from "lucide-react";
 import { toast } from "sonner";
 
 import {
     ADMIN_AI_DROP_COVER_MODEL,
+    formatAdminAiUsd,
     getAdminAiDropCoverModelOption,
     getAdminAiDropCoverSelectableModelOptions,
     type AdminAiDropCoverErrorCode,
-    type AdminAiDropCoverSelectableModel,
-    formatAdminAiUsd,
     type AdminAiDropCoverJobRecord,
     type AdminAiDropCoverRuntimeStatus,
+    type AdminAiDropCoverSelectableModel,
 } from "@/lib/ai-drop-covers";
 import { authFetch } from "@/lib/authFetch";
 import { reportClientIssue } from "@/lib/client-error-reporting";
+import { trackEvent } from "@/lib/telemetry";
 import { cn } from "@/lib/utils";
 
 type AdminAiDropCoverDashboard = {
@@ -73,13 +74,13 @@ function getGenerationErrorMessage(errorCode?: AdminAiDropCoverErrorCode, fallba
         case "draft_session_required":
             return "This draft could not be identified. Close and reopen Create Drop, then try AI cover generation again.";
         case "model_location_unavailable":
-            return fallback || "The configured AI image model is not available to this project in the current Vertex location. Check Admin AI runtime settings and Google Cloud model access.";
+            return fallback || "The configured AI image model is not available to this project in the current Vertex location.";
         case "provider_unavailable":
-            return fallback || "The Vertex image provider is unavailable right now. Check Admin AI runtime/auth and try again.";
+            return fallback || "The Vertex image provider is unavailable right now.";
         case "provider_timeout":
             return fallback || "The image provider ended the request before the cover finished rendering.";
         case "storage_failed":
-            return fallback || "The cover image rendered, but KandyDrops could not save it to Firebase Storage.";
+            return fallback || "The cover rendered, but KandyDrops could not save it to Firebase Storage.";
         case "database_failed":
             return fallback || "The AI cover job could not be recorded or finalized in Firebase.";
         case "runtime_unavailable":
@@ -128,12 +129,16 @@ export function AiDropCoverGeneratorPanel({
     const [feedbackingJobId, setFeedbackingJobId] = useState<string | null>(null);
     const [generationError, setGenerationError] = useState<string | null>(null);
     const [selectedModel, setSelectedModel] = useState<AdminAiDropCoverSelectableModel>(ADMIN_AI_DROP_COVER_MODEL);
+    const [clearedBeforeMs, setClearedBeforeMs] = useState<number | null>(null);
 
     const titleReady = title.trim().length >= 3;
-    const latestJob = jobs[0] ?? null;
     const featureEnabled = dashboard?.settings.enabled === true;
     const runtimeReady = dashboard?.runtime.status === "ready";
     const modelOptions = useMemo(() => getAdminAiDropCoverSelectableModelOptions(), []);
+    const visibleJobs = useMemo(
+        () => jobs.filter((job) => clearedBeforeMs === null || job.requestedAtMs > clearedBeforeMs),
+        [clearedBeforeMs, jobs],
+    );
     const selectedModelOption = useMemo(
         () => getAdminAiDropCoverModelOption(selectedModel) || modelOptions[0],
         [modelOptions, selectedModel],
@@ -163,6 +168,7 @@ export function AiDropCoverGeneratorPanel({
                 detail: {
                     adminView: "create_drop_modal",
                     dropId: dropId || undefined,
+                    draftSessionId: draftSessionId || undefined,
                 },
                 consoleLabel: "[AI Drop Cover Panel] status fetch failed",
             });
@@ -189,6 +195,12 @@ export function AiDropCoverGeneratorPanel({
             setSelectedModel(dashboardModel.id);
         }
     }, [dashboard?.settings.model]);
+
+    useEffect(() => {
+        if (!visible) {
+            setClearedBeforeMs(null);
+        }
+    }, [visible]);
 
     const handleGenerate = useCallback(async (previousJobId?: string | null) => {
         if (!titleReady || generating) {
@@ -252,10 +264,7 @@ export function AiDropCoverGeneratorPanel({
         try {
             const response = await authFetch("/api/admin/ai/drop-covers/feedback", {
                 method: "POST",
-                body: JSON.stringify({
-                    jobId,
-                    action,
-                }),
+                body: JSON.stringify({ jobId, action }),
             });
             const result = await response.json() as { error?: string; job?: AdminAiDropCoverJobRecord };
             if (!response.ok || !result.job) {
@@ -293,6 +302,17 @@ export function AiDropCoverGeneratorPanel({
         }
     }, [onApplyCover, onSelectedJobChange, refreshDashboard]);
 
+    const clearHistory = useCallback(() => {
+        const nowMs = Date.now();
+        setClearedBeforeMs(nowMs);
+        trackEvent("admin_ai_cover_history_cleared", {
+            source: "create_drop_modal",
+            drop_id: dropId || "",
+            draft_session_id: draftSessionId || "",
+        });
+        toast.success("Cover history cleared for this modal");
+    }, [draftSessionId, dropId]);
+
     const runtimeTone = useMemo(() => {
         switch (dashboard?.runtime.status) {
             case "ready":
@@ -316,11 +336,6 @@ export function AiDropCoverGeneratorPanel({
                         <Sparkles className="h-4 w-4 text-brand-purple" />
                         AI Cover Generation
                     </div>
-                    <p className="mt-1 text-xs text-gray-400">
-                        {dashboard?.settings.generationMode === "reference_guided"
-                            ? "Reference-guided mode is active. The server sends the uploaded template and/or latest reusable catalog cover as inline style references with the generation prompt."
-                            : "Title-driven only. The server builds the image prompt from the drop title and does not attach reference images."}
-                    </p>
                 </div>
                 <div className="flex flex-wrap gap-2">
                     {dashboard ? (
@@ -336,26 +351,6 @@ export function AiDropCoverGeneratorPanel({
                     ) : null}
                 </div>
             </div>
-
-            <div className="mt-3 rounded-[1rem] border border-white/10 bg-black/30 p-3 text-xs text-gray-300">
-                {loadingDashboard && !dashboard ? (
-                    <span className="inline-flex items-center gap-2"><Loader2 className="h-3.5 w-3.5 animate-spin" />Loading AI status…</span>
-                ) : (
-                    dashboard?.runtime.note || "AI status not loaded yet."
-                )}
-            </div>
-
-            {!dropId && draftSessionId ? (
-                <div className="mt-3 rounded-[1rem] border border-white/10 bg-black/25 p-3 text-[11px] text-gray-300">
-                    Draft-safe mode: generate and select a cover before saving. The accepted cover job will be linked to the real drop record after Create Drop succeeds.
-                </div>
-            ) : null}
-
-            {dashboard?.settings.generationMode === "reference_guided" ? (
-                <div className="mt-3 rounded-[1rem] border border-brand-purple/20 bg-brand-purple/10 p-3 text-[11px] text-brand-purple">
-                    Reference-guided generation is active for this drop. The next {selectedModelOption.shortLabel} render will send the uploaded template{dashboard.settings.useRecentDropCoverReferences ? " and the latest reusable catalog cover" : ""} as inline style guidance before image generation starts.
-                </div>
-            ) : null}
 
             {featureEnabled && runtimeReady ? (
                 <div className="mt-3 flex flex-wrap gap-2">
@@ -394,15 +389,27 @@ export function AiDropCoverGeneratorPanel({
                             );
                         })}
                     </div>
-                    <button
-                        type="button"
-                        onClick={() => void handleGenerate(latestJob?.id || null)}
-                        disabled={!titleReady || generating || !latestJob}
-                        className="inline-flex min-h-11 items-center justify-center gap-2 rounded-full border border-white/10 bg-black/35 px-4 text-sm font-semibold text-white disabled:opacity-50"
-                    >
-                        <RefreshCw className="h-4 w-4" />
-                        Regenerate
-                    </button>
+                    {visibleJobs.length > 0 ? (
+                        <>
+                            <button
+                                type="button"
+                                onClick={() => void handleGenerate(visibleJobs[0]?.id || null)}
+                                disabled={!titleReady || generating}
+                                className="inline-flex min-h-11 items-center justify-center gap-2 rounded-full border border-white/10 bg-black/35 px-4 text-sm font-semibold text-white disabled:opacity-50"
+                            >
+                                <RefreshCw className="h-4 w-4" />
+                                Regenerate
+                            </button>
+                            <button
+                                type="button"
+                                onClick={clearHistory}
+                                className="inline-flex min-h-11 items-center justify-center gap-2 rounded-full border border-white/10 bg-black/35 px-4 text-sm font-semibold text-white"
+                            >
+                                <Trash2 className="h-4 w-4" />
+                                Clear history
+                            </button>
+                        </>
+                    ) : null}
                 </div>
             ) : (
                 <div className="mt-3 flex flex-wrap items-center gap-2">
@@ -419,9 +426,28 @@ export function AiDropCoverGeneratorPanel({
                 <p className="mt-2 text-[11px] text-amber-200/80">Enter at least 3 title characters before generating a cover.</p>
             ) : null}
 
-            <p className="mt-2 text-[11px] text-gray-500">
-                Selected model: {selectedModelOption.label} | {formatAdminAiUsd(selectedModelOption.pricePerGenerationUsd)} per image{selectedModelOption.launchStage === "preview" ? " | preview model" : ""}
-            </p>
+            {dashboard && !loadingDashboard ? (
+                <div className="mt-2 flex flex-wrap gap-2 text-[11px] text-gray-500">
+                    <span>{selectedModelOption.label}</span>
+                    <span>|</span>
+                    <span>{formatAdminAiUsd(selectedModelOption.pricePerGenerationUsd)} / image</span>
+                    {dashboard.runtime.note ? (
+                        <>
+                            <span>|</span>
+                            <span>{dashboard.runtime.note}</span>
+                        </>
+                    ) : null}
+                </div>
+            ) : null}
+
+            {loadingDashboard && !dashboard ? (
+                <div className="mt-3 rounded-[1rem] border border-white/10 bg-black/30 p-3 text-xs text-gray-300">
+                    <span className="inline-flex items-center gap-2">
+                        <Loader2 className="h-3.5 w-3.5 animate-spin" />
+                        Loading AI status...
+                    </span>
+                </div>
+            ) : null}
 
             {generating ? (
                 <div className="mt-3 rounded-[1rem] border border-cyan-400/20 bg-cyan-500/10 p-3 text-sm text-cyan-100">
@@ -438,24 +464,27 @@ export function AiDropCoverGeneratorPanel({
                 </div>
             ) : null}
 
-            {jobs.length > 0 ? (
+            {visibleJobs.length > 0 ? (
                 <div className="mt-4 grid gap-3 sm:grid-cols-2">
-                    {jobs.map((job) => {
+                    {visibleJobs.map((job) => {
                         const isSelected = selectedJobId === job.id;
                         const feedbackPending = feedbackingJobId === job.id;
                         const canUse = job.status === "succeeded" && typeof job.imageUrl === "string" && job.imageUrl.length > 0;
 
                         return (
-                            <article key={job.id} className={cn(
-                                "overflow-hidden rounded-[1.2rem] border bg-black/35",
-                                isSelected ? "border-brand-purple/35" : "border-white/10",
-                            )}>
+                            <article
+                                key={job.id}
+                                className={cn(
+                                    "overflow-hidden rounded-[1.2rem] border bg-black/35",
+                                    isSelected ? "border-brand-purple/35" : "border-white/10",
+                                )}
+                            >
                                 <div className="relative aspect-square overflow-hidden bg-black">
                                     {job.imageUrl ? (
                                         <Image src={job.imageUrl} alt={job.title} fill sizes="(max-width: 768px) 50vw, 240px" className="object-cover" />
                                     ) : (
                                         <div className="flex h-full items-center justify-center text-xs text-gray-500">
-                                            {job.status === "failed" ? "Generation failed" : "Rendering…"}
+                                            {job.status === "failed" ? "Generation failed" : "Rendering..."}
                                         </div>
                                     )}
                                 </div>
@@ -469,11 +498,6 @@ export function AiDropCoverGeneratorPanel({
                                             <p className="mt-1 text-[11px] text-gray-500">
                                                 {getAdminAiDropCoverModelOption(job.model)?.label || job.model}
                                             </p>
-                                            {job.generationMode === "reference_guided" ? (
-                                                <p className="mt-1 text-[11px] text-gray-500">
-                                                    {job.referenceImageCount ? `${job.referenceImageCount} style references` : "Reference-guided"}{job.templateReferenceUsed ? " | template" : ""}{(job.catalogDropReferenceCount || job.recentDropReferenceCount) ? ` | ${job.catalogDropReferenceCount || job.recentDropReferenceCount} latest catalog cover` : ""}
-                                                </p>
-                                            ) : null}
                                         </div>
                                         <StatusPill status={job.status} />
                                     </div>

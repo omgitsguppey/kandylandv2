@@ -1,6 +1,7 @@
 import { z } from "zod";
+import { getAdminAiModelAlias } from "@/lib/admin-ai-models";
 
-export const AI_DEBUG_ASSISTANT_MODEL = "gemini-2.5-flash-lite";
+export const AI_DEBUG_ASSISTANT_MODEL = getAdminAiModelAlias("debug_assistant");
 export const AI_DEBUG_ASSISTANT_PROMPT_VERSION = "debug-assistant-v1";
 export const AI_DEBUG_ASSISTANT_FLAG = "AI_DEBUG_ASSISTANT_ENABLED";
 

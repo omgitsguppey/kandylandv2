@@ -353,6 +353,36 @@ export const ROUTE_RUNTIME_HEALTH_TARGETS = {
         title: "AI cover prompt policy writes",
         slowThresholdMs: 1600,
     },
+    "admin/ai/drop-descriptions:GET": {
+        routeName: "admin/ai/drop-descriptions",
+        method: "GET",
+        title: "AI description admin reads",
+        slowThresholdMs: 1400,
+    },
+    "admin/ai/drop-descriptions:PUT": {
+        routeName: "admin/ai/drop-descriptions",
+        method: "PUT",
+        title: "AI description admin settings writes",
+        slowThresholdMs: 1600,
+    },
+    "admin/ai/drop-descriptions/generate:POST": {
+        routeName: "admin/ai/drop-descriptions/generate",
+        method: "POST",
+        title: "AI description generation",
+        slowThresholdMs: 7000,
+    },
+    "admin/ai/drop-descriptions/feedback:POST": {
+        routeName: "admin/ai/drop-descriptions/feedback",
+        method: "POST",
+        title: "AI description feedback writes",
+        slowThresholdMs: 1400,
+    },
+    "admin/ai/drop-descriptions/prompt-policy:PUT": {
+        routeName: "admin/ai/drop-descriptions/prompt-policy",
+        method: "PUT",
+        title: "AI description prompt policy writes",
+        slowThresholdMs: 1600,
+    },
     "admin/ai/drop-covers/review-gallery:GET": {
         routeName: "admin/ai/drop-covers/review-gallery",
         method: "GET",

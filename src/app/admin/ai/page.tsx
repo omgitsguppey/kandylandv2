@@ -20,6 +20,7 @@ import {
 import { toast } from "sonner";
 
 import { PageViewEvent } from "@/components/Analytics/PageViewEvent";
+import { AdminAiDescriptionOperations } from "@/components/Admin/AdminAiDescriptionOperations";
 import { AdminDashboardModule } from "@/components/Admin/AdminDashboardModule";
 import { AdminPageHeader } from "@/components/Admin/AdminPageHeader";
 import { Button } from "@/components/ui/Button";
@@ -1371,6 +1372,10 @@ export default function AIAdminPage() {
                             )}
                         </AdminDashboardModule>
                     </div>
+                </div>
+
+                <div className="mt-4 border-t border-white/10 pt-4">
+                    <AdminAiDescriptionOperations />
                 </div>
             </div>
         </div>

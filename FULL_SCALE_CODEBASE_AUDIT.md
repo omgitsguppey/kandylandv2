@@ -6,6 +6,107 @@ Last full-scale audit execution: 2026-04-09 19:40:21 -05:00
 Repo: `C:\Users\uylus\OneDrive\Documents\KandyDrops_Final`
 Audited HEAD at start: `36fcca527b72b04c24531724465f490642018ba2`
 
+## 2026-04-11 AI Description Generation and Admin AI Mobile-First Phase 1
+
+Scope for this pass:
+
+- centralize AI model alias/runtime truth across text and image AI surfaces
+- add a dedicated drop-description AI subsystem using `gemini-2.5-flash-lite`
+- simplify the Create Drop AI controls so the description surface is one-button plus local history
+- add a mobile-first description-operations lane to `/admin/ai`
+
+Startup protocol executed:
+
+- read `FULL_SCALE_CODEBASE_AUDIT.md`
+- read `REPO_MEMORY_LEDGER.md`
+- read `EVERY_FILE_FUNCTION_CHECKLIST.md`
+- ran `git status --short`
+- ran:
+  - `npm run trace:adjacent -- src/components/Admin/CreateDropModal.tsx`
+  - `npm run trace:adjacent -- src/app/admin/ai/page.tsx`
+  - `npm run trace:adjacent -- src/lib/server/ai-drop-covers.ts`
+- verified current Google Vertex model guidance before implementation:
+  - `https://docs.cloud.google.com/vertex-ai/generative-ai/docs/models/gemini/2-5-flash-lite`
+  - `https://docs.cloud.google.com/vertex-ai/generative-ai/docs/learn/model-versions`
+  - `https://docs.cloud.google.com/vertex-ai/generative-ai/docs/models/gemini/3-pro-image`
+  - `https://cloud.google.com/vertex-ai/generative-ai/pricing`
+
+Root causes confirmed:
+
+- AI model aliases were still scattered across multiple surfaces, which made stable-alias upgrades and runtime-truth display harder to keep consistent
+- Create Drop only had cover-generation assistance; description drafting had no server-backed learning/runtime surface
+- the in-form AI panels still spent too much room on explanation instead of actions and history
+- `/admin/ai` had strong cover tooling but no parallel description operations lane
+
+Implementation results:
+
+- added shared model registry in:
+  - `src/lib/admin-ai-models.ts`
+- moved text AI surfaces to stable Flash-Lite alias via the shared registry:
+  - `src/lib/ai-debug-assistant.ts`
+  - `src/lib/ai-drop-covers.ts`
+- added the description subsystem contracts and server runtime:
+  - `src/lib/ai-drop-descriptions.ts`
+  - `src/lib/server/ai-drop-descriptions.ts`
+- added admin routes for description dashboard/settings/generate/feedback/prompt-policy:
+  - `src/app/api/admin/ai/drop-descriptions/route.ts`
+  - `src/app/api/admin/ai/drop-descriptions/generate/route.ts`
+  - `src/app/api/admin/ai/drop-descriptions/feedback/route.ts`
+  - `src/app/api/admin/ai/drop-descriptions/prompt-policy/route.ts`
+- added runtime-health coverage for those routes in:
+  - `src/lib/route-runtime-health.ts`
+- added description AI telemetry and modal history-clear telemetry in:
+  - `src/lib/telemetry-catalog.ts`
+- added compact Create Drop description generation UI:
+  - `src/components/Admin/AiDropDescriptionGeneratorPanel.tsx`
+  - `src/components/Admin/CreateDropModal.tsx`
+- simplified the in-form cover AI panel and added modal-only clear history:
+  - `src/components/Admin/AiDropCoverGeneratorPanel.tsx`
+- added the mobile-first admin AI description operations lane:
+  - `src/components/Admin/AdminAiDescriptionOperations.tsx`
+  - `src/app/admin/ai/page.tsx`
+- added direct tests for:
+  - `tests/unit/ai-drop-descriptions.spec.ts`
+  - `tests/unit/admin-ai-drop-descriptions-routes.spec.ts`
+  - `tests/unit/admin-ai-models.spec.ts`
+
+Commands run:
+
+- `git status --short`
+- `npx eslint src/lib/admin-ai-models.ts src/lib/ai-drop-covers.ts src/lib/ai-drop-descriptions.ts src/lib/server/ai-drop-descriptions.ts src/lib/ai-debug-assistant.ts src/lib/route-runtime-health.ts src/lib/telemetry-catalog.ts src/components/Admin/AiDropCoverGeneratorPanel.tsx src/components/Admin/AiDropDescriptionGeneratorPanel.tsx src/components/Admin/AdminAiDescriptionOperations.tsx src/components/Admin/CreateDropModal.tsx src/app/admin/ai/page.tsx src/app/api/admin/ai/drop-descriptions/route.ts src/app/api/admin/ai/drop-descriptions/generate/route.ts src/app/api/admin/ai/drop-descriptions/feedback/route.ts src/app/api/admin/ai/drop-descriptions/prompt-policy/route.ts tests/unit/ai-drop-descriptions.spec.ts tests/unit/admin-ai-drop-descriptions-routes.spec.ts tests/unit/admin-ai-models.spec.ts`
+- `npx tsc --noEmit`
+- `corepack pnpm exec vitest run tests/unit/ai-drop-descriptions.spec.ts tests/unit/admin-ai-drop-descriptions-routes.spec.ts tests/unit/admin-ai-models.spec.ts`
+- `npm run check:telemetry`
+- `npm run check:inventory`
+- `npm run check:ui:audits`
+- cleanup:
+  - `.next`
+  - `test-results`
+  - `playwright-report`
+- `npm run check:continuity`
+
+Verification results:
+
+- focused eslint passed
+- `npx tsc --noEmit` passed
+- focused Vitest passed:
+  - `3` files
+  - `11` tests
+- `npm run check:telemetry` passed:
+  - `252` emitters across `434` files
+- `npm run check:inventory` passed:
+  - tracked files: `787`
+- `npm run check:ui:audits` passed:
+  - `16/16`
+- `npm run check:continuity` passed
+
+Warnings and notes:
+
+- `check:ui:audits` required a longer timeout because the build plus dual-project Playwright run exceeded the default shell window
+- the standard non-blocking Next/Playwright teardown warning still appeared after the passing UI audit run:
+  - `TypeError: controller[kState].transformAlgorithm is not a function`
+- upstream Firebase Storage image timeouts appeared during the passing UI audit run for existing remote generated covers; the audit still completed successfully and no AI code was relying on those specific images for correctness
+
 ## 2026-04-11 Admin Copy-Density and Mobile Scroll Reduction
 
 Scope for this pass:

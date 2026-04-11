@@ -7,6 +7,7 @@ import { Loader2, Save, Calendar, DollarSign, X, ImageIcon, FileAudio, ChevronDo
 import * as Dialog from "@radix-ui/react-dialog";
 
 import { AiDropCoverGeneratorPanel } from "@/components/Admin/AiDropCoverGeneratorPanel";
+import { AiDropDescriptionGeneratorPanel } from "@/components/Admin/AiDropDescriptionGeneratorPanel";
 import { AssetUploader, UploadAspectRatio } from "@/components/Admin/AssetUploader";
 import { useForm, SubmitHandler, useWatch, FieldErrors } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
@@ -236,6 +237,7 @@ export function CreateDropModal({ isOpen, onClose, dropId, duplicateFromId, onSu
     const [coverAspectRatio, setCoverAspectRatio] = useState<UploadAspectRatio>("1:1");
     const [contentAspectRatio, setContentAspectRatio] = useState<UploadAspectRatio>("1:1");
     const [selectedAiCoverJobId, setSelectedAiCoverJobId] = useState<string | null>(null);
+    const [selectedAiDescriptionJobId, setSelectedAiDescriptionJobId] = useState<string | null>(null);
     const [draftSessionId, setDraftSessionId] = useState<string | null>(null);
 
     const {
@@ -361,6 +363,7 @@ export function CreateDropModal({ isOpen, onClose, dropId, duplicateFromId, onSu
             setContentAssets([]);
             setOpenSection(null);
             setSelectedAiCoverJobId(null);
+            setSelectedAiDescriptionJobId(null);
             setDraftSessionId(null);
             reset(createDefaultDropFormValues(creatorIdOverride));
             setDuplicateWarnings([]);
@@ -426,6 +429,17 @@ export function CreateDropModal({ isOpen, onClose, dropId, duplicateFromId, onSu
         setValue("imageUrl", primary?.url || "", { shouldValidate: true });
         setValue("coverFileName", primary?.fileName || "", { shouldValidate: false });
         setSelectedAiCoverJobId(null);
+    }, [setValue]);
+
+    const handleApplyAiDescription = useCallback((job: { id: string; descriptionText?: string | null }) => {
+        if (typeof job.descriptionText === "string" && job.descriptionText.trim().length > 0) {
+            setValue("description", job.descriptionText, {
+                shouldDirty: true,
+                shouldTouch: true,
+                shouldValidate: true,
+            });
+        }
+        setSelectedAiDescriptionJobId(job.id);
     }, [setValue]);
 
     const handleApplyAiCover = useCallback((job: AdminAiDropCoverJobRecord) => {
@@ -607,6 +621,36 @@ export function CreateDropModal({ isOpen, onClose, dropId, duplicateFromId, onSu
                 }
             }
 
+            if (mode === "admin" && selectedAiDescriptionJobId && persistedDropId) {
+                try {
+                    const response = await authFetch("/api/admin/ai/drop-descriptions/feedback", {
+                        method: "POST",
+                        body: JSON.stringify({
+                            jobId: selectedAiDescriptionJobId,
+                            action: "link_drop",
+                            dropId: persistedDropId,
+                        }),
+                    });
+                    if (!response.ok) {
+                        const result = await response.json().catch(() => ({})) as { error?: string };
+                        throw new Error(result.error || "Failed to link AI description history");
+                    }
+                } catch (linkError) {
+                    reportClientIssue({
+                        channel: "ui",
+                        severity: "warn",
+                        message: "AI drop description history link failed after drop save",
+                        error: linkError,
+                        detail: {
+                            adminView: "create_drop_modal",
+                            selectedAiDescriptionJobId,
+                            persistedDropId,
+                        },
+                        consoleLabel: "[Create Drop Modal] AI description link failed",
+                    });
+                }
+            }
+
             if (mode === "admin") {
                 dispatchAdminOverviewSync();
             }
@@ -729,6 +773,20 @@ export function CreateDropModal({ isOpen, onClose, dropId, duplicateFromId, onSu
                                             />
                                             {errors.description && <p className="text-red-400 text-xs mt-1">{errors.description.message}</p>}
                                         </div>
+
+                                        {mode === "admin" ? (
+                                            <AiDropDescriptionGeneratorPanel
+                                                visible={basicsOpen}
+                                                title={titleValue}
+                                                creatorId={creatorIdValue || creatorIdOverride || null}
+                                                creatorName={selectedCreatorName}
+                                                dropId={dropId}
+                                                draftSessionId={draftSessionId}
+                                                selectedJobId={selectedAiDescriptionJobId}
+                                                onApplyDescription={handleApplyAiDescription}
+                                                onSelectedJobChange={setSelectedAiDescriptionJobId}
+                                            />
+                                        ) : null}
 
                                         <div className="flex flex-col gap-2">
                                             <div className="flex flex-wrap gap-2">
