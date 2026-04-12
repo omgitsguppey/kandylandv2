@@ -30,9 +30,7 @@ function MobileBottomBarInner() {
     const { hasUnreadMessages } = useChatUnreadStatus();
     const authSettled = !loading;
 
-    const isChatThread = pathname?.startsWith("/dashboard/chat") && (searchParams.has("thread") || searchParams.has("creator"));
-
-    if (pathname?.startsWith("/admin") || !authSettled || isChatThread) {
+    if (pathname?.startsWith("/admin") || !authSettled) {
         return null;
     }
 

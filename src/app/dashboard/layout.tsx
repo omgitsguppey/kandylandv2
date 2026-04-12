@@ -41,10 +41,10 @@ export default function DashboardLayout({
     }
 
     return (
-        <div className="relative flex-1 w-full">
-            <div className="w-full space-y-2 pb-2 sm:space-y-3 sm:pb-3">
+        <div className="relative flex-1 flex flex-col w-full min-h-0">
+            <div className="w-full flex-1 flex flex-col min-h-0 space-y-2 pb-2 sm:space-y-3 sm:pb-3">
                 {shouldShowNotificationPromptBanner ? <NotificationPromptBanner /> : null}
-                <div className="w-full">{children}</div>
+                <div className="w-full flex-1 flex flex-col min-h-0 relative z-0">{children}</div>
             </div>
         </div>
     );
