@@ -6,6 +6,26 @@ Last full-scale audit execution: 2026-04-09 19:40:21 -05:00
 Repo: `C:\Users\uylus\OneDrive\Documents\KandyDrops_Final`
 Audited HEAD at start: `36fcca527b72b04c24531724465f490642018ba2`
 
+## 2026-04-12 Chat UI Fallback Polling & Warning Eradication
+
+Scope for this pass:
+- Completely strip the legacy UI components that surfaced Firestore client errors to the end user.
+- Purge redundant interval polling inside `ChatExperience.tsx` that contradicted the WebSocket auto-healing logic.
+- Remove all fallback state variables and orphaned code paths leftover from the previous architecture overhaul.
+
+Startup protocol executed:
+- Read `REPO_MEMORY_LEDGER.md` rules confirming that manual polling fallbacks are banned.
+- Mapped occurrences of `degradedRealtimeScopes` and `realtimeFallbackMessage`.
+
+Root Causes & Implementation Results:
+- `ChatExperience.tsx` contained an orphaned `setInterval` loop that attempted to query REST APIs manually when Firestore degraded. This loop inherently fought against the new native WebSocket SDK resilience in `createAutoHealingObserver`, creating unscalable network spam.
+- The same arrays generated `ChatRealtimeStatusNotice` UI alerts on mobile and desktop views, which flooded the user.
+- These loops, state hooks, imports, and UI rendering layers were thoroughly purged. The live chat now strictly trusts `createAutoHealingObserver` to self-heal without annoying the user or polling the database.
+
+Verification Commands Run:
+- `npm run build`: Production compilation passed gracefully showing no lingering TypeScript errors.
+
+---
 ## 2026-04-11 Soft Realtime Resilience, Dependency Upgrades, & UI Tooling
 
 Scope for this pass:

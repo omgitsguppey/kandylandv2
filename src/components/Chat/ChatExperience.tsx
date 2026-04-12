@@ -47,19 +47,12 @@ import {
 } from "@/lib/chat-send-realtime";
 import {
     buildChatThreadRouteSyncTarget,
-    getChatRealtimeRefreshPlan,
-    getChatRealtimeRetryDelayMs,
-    shouldReportChatRealtimeFailure,
 } from "@/lib/chat-realtime";
 import {
     buildChatSendErrorMessage,
     buildChatSendWarningMessage,
     type ChatSendWarning,
 } from "@/lib/chat-send-feedback";
-import {
-    buildFirestoreClientFallbackMessage,
-    buildFirestoreClientIssueDetail,
-} from "@/lib/firestore-client-errors";
 import { reportClientIssue, reportRealtimeIssue, reportStorageIssue } from "@/lib/client-error-reporting";
 import { storage, db, rtdb } from "@/lib/firebase-data";
 import { useCompactViewport } from "@/hooks/useCompactViewport";
@@ -409,9 +402,6 @@ export function ChatExperience() {
     const [insufficientFunds, setInsufficientFunds] = useState<ChatInsufficientFundsPayload | null>(null);
     const [sendErrorMessage, setSendErrorMessage] = useState<string | null>(null);
     const [sendWarningMessage, setSendWarningMessage] = useState<string | null>(null);
-    const [realtimeFallbackMessage, setRealtimeFallbackMessage] = useState<string | null>(null);
-    const [degradedRealtimeScopes, setDegradedRealtimeScopes] = useState<string[]>([]);
-    const [realtimeBannerDismissed, setRealtimeBannerDismissed] = useState(false);
     const markReadRef = useRef<string | null>(null);
     const typingResetTimerRef = useRef<number | null>(null);
     const messageListRef = useRef<HTMLDivElement | null>(null);
@@ -423,22 +413,8 @@ export function ChatExperience() {
     const threadEditMenuRef = useRef<HTMLDivElement | null>(null);
     const selectedThreadIdRef = useRef<string | null>(selectedThreadId);
     const selectedDetailThreadRef = useRef<ChatThreadRecord | null>(selectedDetail?.thread ?? null);
-    const degradedRealtimeToastScopesRef = useRef<Set<string>>(new Set());
-    const degradedRealtimeMessagesRef = useRef<Partial<Record<ChatRealtimeScope, string>>>({});
-    const realtimeIssueReportedAtRef = useRef<Partial<Record<ChatRealtimeScope, number>>>({});
-    const realtimeRetryAttemptsRef = useRef<Record<ChatRealtimeScope, number>>({
-        [CHAT_THREAD_LIST_SCOPE]: 0,
-        [CHAT_MESSAGES_SCOPE]: 0,
-    });
-    const realtimeRetryTimersRef = useRef<Partial<Record<ChatRealtimeScope, number>>>({});
     const threadDetailRequestIdRef = useRef(0);
     const threadsLoadRequestIdRef = useRef(0);
-    const [realtimeRetryEpochs, setRealtimeRetryEpochs] = useState<Record<ChatRealtimeScope, number>>({
-        [CHAT_THREAD_LIST_SCOPE]: 0,
-        [CHAT_MESSAGES_SCOPE]: 0,
-    });
-    const threadListRealtimeEpoch = realtimeRetryEpochs[CHAT_THREAD_LIST_SCOPE];
-    const messagesRealtimeEpoch = realtimeRetryEpochs[CHAT_MESSAGES_SCOPE];
 
     const visibleThreads = useMemo(
         () => mergeThreads(threads, selectedDetail?.thread ?? null),
@@ -481,96 +457,11 @@ export function ChatExperience() {
         selectedThreadIdRef.current = selectedThreadId;
     }, [selectedThreadId]);
 
-    useEffect(() => {
-        setRealtimeBannerDismissed(false);
-    }, [realtimeFallbackMessage]);
 
     useEffect(() => {
         selectedDetailThreadRef.current = selectedDetail?.thread ?? null;
     }, [selectedDetail?.thread]);
 
-    const clearRealtimeRetry = useCallback((scope: ChatRealtimeScope) => {
-        const timerId = realtimeRetryTimersRef.current[scope];
-        if (timerId) {
-            window.clearTimeout(timerId);
-            delete realtimeRetryTimersRef.current[scope];
-        }
-        realtimeRetryAttemptsRef.current[scope] = 0;
-    }, []);
-
-    const scheduleRealtimeRetry = useCallback((scope: ChatRealtimeScope) => {
-        const existingTimer = realtimeRetryTimersRef.current[scope];
-        if (existingTimer) {
-            return getChatRealtimeRetryDelayMs(realtimeRetryAttemptsRef.current[scope] || 1);
-        }
-
-        const nextAttempt = (realtimeRetryAttemptsRef.current[scope] || 0) + 1;
-        realtimeRetryAttemptsRef.current[scope] = nextAttempt;
-        const retryDelayMs = getChatRealtimeRetryDelayMs(nextAttempt);
-        realtimeRetryTimersRef.current[scope] = window.setTimeout(() => {
-            delete realtimeRetryTimersRef.current[scope];
-            setRealtimeRetryEpochs((current) => ({
-                ...current,
-                [scope]: current[scope] + 1,
-            }));
-        }, retryDelayMs);
-        return retryDelayMs;
-    }, []);
-
-    const clearRealtimeDegradedScope = useCallback((scope: ChatRealtimeScope) => {
-        clearRealtimeRetry(scope);
-        degradedRealtimeToastScopesRef.current.delete(scope);
-        delete degradedRealtimeMessagesRef.current[scope];
-        delete realtimeIssueReportedAtRef.current[scope];
-        setDegradedRealtimeScopes((current) => {
-            const next = current.filter((entry) => entry !== scope);
-            if (next.length === 0) {
-                setRealtimeFallbackMessage(null);
-            } else {
-                const nextScope = next[next.length - 1] as ChatRealtimeScope | undefined;
-                setRealtimeFallbackMessage(nextScope ? (degradedRealtimeMessagesRef.current[nextScope] ?? null) : null);
-            }
-            return next;
-        });
-    }, [clearRealtimeRetry]);
-
-    const markRealtimeDegraded = useCallback((scope: ChatRealtimeScope, error: unknown, detail?: Record<string, unknown>) => {
-        const fallbackMessage = buildFirestoreClientFallbackMessage(scope, error);
-        const retryDelayMs = scheduleRealtimeRetry(scope);
-        const shouldSurfaceToUser = (realtimeRetryAttemptsRef.current[scope] || 0) > 1;
-        const now = Date.now();
-        degradedRealtimeMessagesRef.current[scope] = fallbackMessage;
-        if (shouldSurfaceToUser) {
-            setRealtimeFallbackMessage(fallbackMessage);
-            setDegradedRealtimeScopes((current) => current.includes(scope) ? current : [...current, scope]);
-        }
-
-        if (shouldSurfaceToUser && !degradedRealtimeToastScopesRef.current.has(scope)) {
-            degradedRealtimeToastScopesRef.current.add(scope);
-            toast.error(fallbackMessage);
-        }
-
-        if (shouldReportChatRealtimeFailure(realtimeIssueReportedAtRef.current[scope], now)) {
-            realtimeIssueReportedAtRef.current[scope] = now;
-            reportRealtimeIssue(scope, error, {
-                ...buildFirestoreClientIssueDetail(error, {
-                    fallbackMessage,
-                    retryDelayMs,
-                }),
-                ...detail,
-            });
-        }
-    }, [scheduleRealtimeRetry]);
-
-    const clearAllRealtimeRetries = useCallback(() => {
-        CHAT_REALTIME_SCOPES.forEach((scope) => {
-            clearRealtimeRetry(scope);
-        });
-    }, [clearRealtimeRetry]);
-
-    useEffect(() => {
-        return () => clearAllRealtimeRetries();
-    }, [clearAllRealtimeRetries]);
 
     const loadThreads = useCallback(async (options?: LoadThreadsOptions) => {
         if (!user) {
@@ -1511,38 +1402,6 @@ export function ChatExperience() {
     }, [selectedDetail, selectedThread]);
 
     useEffect(() => {
-        if (!user || degradedRealtimeScopes.length === 0) {
-            return;
-        }
-
-        const refreshPlan = getChatRealtimeRefreshPlan({
-            degradedScopes: degradedRealtimeScopes,
-            hasSelectedThread: Boolean(selectedThreadIdRef.current),
-        });
-        if (!refreshPlan.refreshThreads && !refreshPlan.refreshSelectedThreadDetail) {
-            return;
-        }
-
-        const refreshChatFromServer = async () => {
-            if (refreshPlan.refreshThreads) {
-                await loadThreads({ background: true, quiet: true });
-            }
-            if (refreshPlan.refreshSelectedThreadDetail && selectedThreadIdRef.current) {
-                await loadThreadDetail(selectedThreadIdRef.current, { background: true, quiet: true });
-            }
-        };
-
-        void refreshChatFromServer();
-        const intervalId = window.setInterval(() => {
-            void refreshChatFromServer();
-        }, 5_000);
-
-        return () => {
-            window.clearInterval(intervalId);
-        };
-    }, [degradedRealtimeScopes, loadThreadDetail, loadThreads, user]);
-
-    useEffect(() => {
         shouldStickToBottomRef.current = true;
         window.requestAnimationFrame(() => {
             scrollMessageListToBottom("auto");
@@ -1633,14 +1492,6 @@ export function ChatExperience() {
                                             <p className="mt-2 text-sm text-[#8f9097]">
                                                 {threadsLoading ? "Loading your conversations..." : `${visibleThreads.length} conversation${visibleThreads.length === 1 ? "" : "s"}`}
                                             </p>
-                                            {realtimeFallbackMessage && !realtimeBannerDismissed ? (
-                                                <div className="mt-4">
-                                                    <ChatRealtimeStatusNotice
-                                                        message={realtimeFallbackMessage}
-                                                        onDismiss={() => setRealtimeBannerDismissed(true)}
-                                                    />
-                                                </div>
-                                            ) : null}
                                         </div>
                                     </div>
 
@@ -1809,14 +1660,6 @@ export function ChatExperience() {
                                         <p className="mt-1 text-sm text-[#b6b6bc]">
                                             {threadsLoading ? "Loading live threads..." : `${visibleThreads.length} conversation${visibleThreads.length === 1 ? "" : "s"}`}
                                         </p>
-                                        {realtimeFallbackMessage && !realtimeBannerDismissed ? (
-                                            <div className="mt-3">
-                                                <ChatRealtimeStatusNotice
-                                                    message={realtimeFallbackMessage}
-                                                    onDismiss={() => setRealtimeBannerDismissed(true)}
-                                                />
-                                            </div>
-                                        ) : null}
                                     </div>
                                     <div className="min-h-0 flex-1 overflow-y-auto overscroll-y-contain">
                                         {visibleThreads.length > 0 ? visibleThreads.map((thread) => (
@@ -1871,14 +1714,6 @@ export function ChatExperience() {
                         {selectedThread ? (
                             <>
                                 <div className="border-b border-white/10 px-4 pb-4 pt-5 sm:px-6">
-                                    {realtimeFallbackMessage && !realtimeBannerDismissed ? (
-                                        <div className="mb-4">
-                                            <ChatRealtimeStatusNotice
-                                                message={realtimeFallbackMessage}
-                                                onDismiss={() => setRealtimeBannerDismissed(true)}
-                                            />
-                                        </div>
-                                    ) : null}
                                     <div className={cn("relative flex items-center", isCompactViewport ? "justify-center" : "justify-between")}>
                                         {isCompactViewport ? (
                                             <button
@@ -2253,27 +2088,3 @@ export function ChatExperience() {
     );
 }
 
-function ChatRealtimeStatusNotice({
-    message,
-    onDismiss,
-}: {
-    message: string;
-    onDismiss: () => void;
-}) {
-    return (
-        <div className="flex items-start justify-between gap-3 rounded-[1.15rem] border border-amber-400/15 bg-amber-500/10 px-3.5 py-3 text-[13px] text-amber-100">
-            <div className="min-w-0">
-                <p className="font-semibold text-white">Realtime is retrying</p>
-                <p className="mt-1 line-clamp-2 text-amber-100">{message}</p>
-            </div>
-            <button
-                type="button"
-                onClick={onDismiss}
-                className="inline-flex h-7 w-7 shrink-0 items-center justify-center rounded-full bg-white/5 text-amber-100 transition hover:bg-white/10 hover:text-white"
-                aria-label="Dismiss realtime warning"
-            >
-                <X className="h-3.5 w-3.5" />
-            </button>
-        </div>
-    );
-}
