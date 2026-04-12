@@ -1,8 +1,9 @@
 "use client";
 
+import { Suspense } from "react";
 import { Home, Candy, Sparkles, LayoutDashboard, MessageSquare } from "lucide-react";
 import Link from "next/link";
-import { usePathname } from "next/navigation";
+import { usePathname, useSearchParams } from "next/navigation";
 import { useAuth } from "@/context/AuthContext";
 import { useChatUnreadStatus } from "@/hooks/useChatUnreadStatus";
 import { cn } from "@/lib/utils";
@@ -22,13 +23,16 @@ function triggerHaptic() {
     }
 }
 
-export default function MobileBottomBar() {
+function MobileBottomBarInner() {
     const pathname = usePathname();
+    const searchParams = useSearchParams();
     const { user, userProfile, loading } = useAuth();
     const { hasUnreadMessages } = useChatUnreadStatus();
     const authSettled = !loading;
 
-    if (pathname?.startsWith("/admin") || !authSettled) {
+    const isChatThread = pathname?.startsWith("/dashboard/chat") && (searchParams.has("thread") || searchParams.has("creator"));
+
+    if (pathname?.startsWith("/admin") || !authSettled || isChatThread) {
         return null;
     }
 
@@ -81,5 +85,13 @@ export default function MobileBottomBar() {
                 })}
             </nav>
         </div>
+    );
+}
+
+export default function MobileBottomBar() {
+    return (
+        <Suspense fallback={null}>
+            <MobileBottomBarInner />
+        </Suspense>
     );
 }
