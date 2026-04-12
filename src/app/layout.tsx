@@ -10,6 +10,7 @@ import { CoreLayoutWrapper } from "@/components/CoreLayoutWrapper";
 import { GoogleAnalytics } from "@next/third-parties/google";
 import { SITE_ORIGIN } from "@/lib/site-origin";
 import { UIDebug } from "@/components/UIDebug";
+import { CSPostHogProvider } from "@/components/Analytics/CSPostHogProvider";
 
 const geistSans = Geist({
   variable: "--font-geist-sans",
@@ -89,25 +90,27 @@ export default function RootLayout({
     <html lang="en" className={`${geistSans.variable} ${geistMono.variable}`}>
       <body className="antialiased min-h-[100dvh] app-bg text-white selection:bg-brand-purple selection:text-white flex flex-col">
         <UIDebug />
-        <AuthProvider>
-          <RolloutProvider>
-            <SWRProvider>
-              <UIProvider>
-                <CoreLayoutWrapper>
-                  <main className="pt-24 pb-32 md:pb-0 flex-1 relative flex flex-col overflow-x-hidden">
+        <CSPostHogProvider>
+          <AuthProvider>
+            <RolloutProvider>
+              <SWRProvider>
+                <UIProvider>
+                  <CoreLayoutWrapper>
+                    <main className="pt-24 pb-32 md:pb-0 flex-1 relative flex flex-col overflow-x-hidden">
 
-                    {/* Content */}
-                    <div className="relative z-10 flex-1 w-full">
-                      <ErrorBoundary>
-                        {children}
-                      </ErrorBoundary>
-                    </div>
-                  </main>
-                </CoreLayoutWrapper>
-              </UIProvider>
-            </SWRProvider>
-          </RolloutProvider>
-        </AuthProvider>
+                      {/* Content */}
+                      <div className="relative z-10 flex-1 w-full">
+                        <ErrorBoundary>
+                          {children}
+                        </ErrorBoundary>
+                      </div>
+                    </main>
+                  </CoreLayoutWrapper>
+                </UIProvider>
+              </SWRProvider>
+            </RolloutProvider>
+          </AuthProvider>
+        </CSPostHogProvider>
       </body>
       <GoogleAnalytics gaId={googleAnalyticsId} />
     </html>

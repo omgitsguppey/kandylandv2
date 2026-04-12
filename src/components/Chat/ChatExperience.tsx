@@ -47,6 +47,7 @@ import {
 } from "@/lib/chat-send-realtime";
 import {
     buildChatThreadRouteSyncTarget,
+    getChatRealtimeRefreshPlan,
     getChatRealtimeRetryDelayMs,
     shouldReportChatRealtimeFailure,
 } from "@/lib/chat-realtime";
