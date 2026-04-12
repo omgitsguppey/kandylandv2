@@ -10,12 +10,6 @@ type ChatRouteSyncInput = {
 
 
 
-export function getChatRealtimeRetryDelayMs(attempt: number) {
-    const normalizedAttempt = Number.isFinite(attempt) && attempt > 0
-        ? Math.floor(attempt)
-        : 1;
-    return CHAT_REALTIME_RETRY_DELAYS_MS[Math.min(normalizedAttempt - 1, CHAT_REALTIME_RETRY_DELAYS_MS.length - 1)];
-}
 
 export function buildChatThreadRouteSyncTarget({
     creatorId,
@@ -41,18 +35,4 @@ export function buildChatThreadRouteSyncTarget({
     }
 
     return nextSearch ? `/dashboard/chat?${nextSearch}` : "/dashboard/chat";
-}
-
-
-
-export function shouldReportChatRealtimeFailure(
-    lastReportedAtMs?: number | null,
-    nowMs = Date.now(),
-    cooldownMs = CHAT_REALTIME_FAILURE_REPORT_COOLDOWN_MS,
-) {
-    if (!Number.isFinite(lastReportedAtMs) || !Number.isFinite(nowMs)) {
-        return true;
-    }
-
-    return nowMs - Number(lastReportedAtMs) >= cooldownMs;
 }

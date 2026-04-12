@@ -20,7 +20,8 @@ Startup protocol executed:
 Root Causes & Implementation Results:
 - `ChatExperience.tsx` contained an orphaned `setInterval` loop that attempted to query REST APIs manually when Firestore degraded. This loop inherently fought against the new native WebSocket SDK resilience in `createAutoHealingObserver`, creating unscalable network spam.
 - The same arrays generated `ChatRealtimeStatusNotice` UI alerts on mobile and desktop views, which flooded the user.
-- These loops, state hooks, imports, and UI rendering layers were thoroughly purged. The live chat now strictly trusts `createAutoHealingObserver` to self-heal without annoying the user or polling the database.
+- These loops, state hooks, imports, and UI rendering layers were thoroughly purged in `ChatExperience.tsx`. 
+- `useChatUnreadStatus.ts` was also relying on the same raw fallback retry mechanics (`getChatRealtimeRetryDelayMs`). It was successfully refactored to consume `createAutoHealingObserver`, permitting full deletion of the last custom retry fallback logic in `src/lib/chat-realtime.ts`.
 
 Verification Commands Run:
 - `npm run build`: Production compilation passed gracefully showing no lingering TypeScript errors.

@@ -119,7 +119,6 @@ vi.mock("@/lib/client-error-reporting", () => ({
 }));
 
 import { useChatUnreadStatus } from "@/hooks/useChatUnreadStatus";
-import { getChatRealtimeRetryDelayMs } from "@/lib/chat-realtime";
 import { renderHook } from "./utils/renderHook";
 
 describe("useChatUnreadStatus", () => {
@@ -197,27 +196,12 @@ describe("useChatUnreadStatus", () => {
         hook.unmount();
     });
 
-    it("falls back to the server thread list when the realtime subscription fails", async () => {
+    it("reports an issue locally when the realtime subscription fails repeatedly", async () => {
         mockState.setAuth({
             user: { uid: "fan_1" },
             userProfile: {
                 role: "user",
                 status: "active",
-            },
-        });
-        mockState.authFetch.mockResolvedValue({
-            ok: true,
-            async json() {
-                return {
-                    threads: [{
-                        id: "creator_creator_1__user_fan_1",
-                        creatorId: "creator_1",
-                        userId: "fan_1",
-                        viewerRole: "user",
-                        unreadCountForCreator: 0,
-                        unreadCountForUser: 2,
-                    }],
-                };
             },
         });
 
@@ -229,13 +213,13 @@ describe("useChatUnreadStatus", () => {
             await Promise.resolve();
         });
 
-        expect(mockState.authFetch).toHaveBeenCalledWith("/api/chat/threads");
-        expect(hook.result.current.hasUnreadMessages).toBe(true);
+        expect(mockState.reportRealtimeIssue).toHaveBeenCalled();
+        expect(hook.result.current.hasUnreadMessages).toBe(false);
 
         hook.unmount();
     });
 
-    it("retries the realtime unread listener after a Firestore client failure", async () => {
+    it("retries the realtime unread listener after a Firestore client failure using createAutoHealingObserver", async () => {
         vi.useFakeTimers();
         mockState.setAuth({
             user: { uid: "fan_1" },
@@ -254,7 +238,7 @@ describe("useChatUnreadStatus", () => {
         });
 
         await act(async () => {
-            vi.advanceTimersByTime(getChatRealtimeRetryDelayMs(1));
+            vi.advanceTimersByTime(5000); // the fixed auto-healing interval
             await Promise.resolve();
         });
 
@@ -306,28 +290,13 @@ describe("useChatUnreadStatus", () => {
         hook.unmount();
     });
 
-    it("uses polling instead of a Firestore listener outside the chat route", async () => {
+    it("bypasses attaching a Firestore listener entirely when outside the chat route", async () => {
         mockState.setPathname("/creators/jessica");
         mockState.setAuth({
             user: { uid: "fan_1" },
             userProfile: {
                 role: "user",
                 status: "active",
-            },
-        });
-        mockState.authFetch.mockResolvedValue({
-            ok: true,
-            async json() {
-                return {
-                    threads: [{
-                        id: "creator_creator_1__user_fan_1",
-                        creatorId: "creator_1",
-                        userId: "fan_1",
-                        viewerRole: "user",
-                        unreadCountForCreator: 0,
-                        unreadCountForUser: 1,
-                    }],
-                };
             },
         });
 
@@ -339,8 +308,7 @@ describe("useChatUnreadStatus", () => {
         });
 
         expect(mockState.onSnapshot).not.toHaveBeenCalled();
-        expect(mockState.authFetch).toHaveBeenCalledWith("/api/chat/threads");
-        expect(hook.result.current.hasUnreadMessages).toBe(true);
+        expect(hook.result.current.hasUnreadMessages).toBe(false);
 
         hook.unmount();
     });
