@@ -27,6 +27,12 @@ service cloud.firestore {
       allow write: if false;
     }
 
+    // User Runtime: Authenticated read only for SELF, NO client writes (Firebase Admin only)
+    match /userRuntime/{userId} {
+      allow read: if isSelf(userId);
+      allow write: if false;
+    }
+
     // Transactions: Authenticated read only for SELF, NO client writes
     match /transactions/{transactionId} {
       allow read: if isSelf(resource.data.userId);

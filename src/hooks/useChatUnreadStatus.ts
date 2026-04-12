@@ -19,7 +19,6 @@ export function useChatUnreadStatus() {
     const { user, userProfile } = useAuth();
     const pathname = usePathname();
     const [hasUnreadMessages, setHasUnreadMessages] = useState(false);
-    const [realtimeDegraded, setRealtimeDegraded] = useState(false);
     const [realtimeRetryEpoch, setRealtimeRetryEpoch] = useState(0);
     const realtimeRetryAttemptRef = useRef(0);
     const realtimeRetryTimerRef = useRef<number | null>(null);
@@ -29,34 +28,10 @@ export function useChatUnreadStatus() {
         viewerUid: user?.uid || "",
         profile: userProfile,
     });
-    const refreshUnreadFromApi = useCallback(async () => {
-        if (!user || !userProfile) {
-            setHasUnreadMessages(false);
-            return;
-        }
-
-        try {
-            const response = await authFetch("/api/chat/threads");
-            const body = await response.json() as { threads?: ChatThreadRecord[]; error?: string };
-            if (!response.ok) {
-                throw new Error(body.error || "Failed to refresh unread chat state.");
-            }
-
-            const unreadCount = (Array.isArray(body.threads) ? body.threads : []).reduce((total, thread) => (
-                total + resolveChatThreadUnreadCount(thread, thread.viewerRole)
-            ), 0);
-            setHasUnreadMessages(unreadCount > 0);
-        } catch (error) {
-            reportRealtimeIssue("chat unread status fallback", error, {
-                userId: user.uid,
-            });
-        }
-    }, [user, userProfile]);
 
     useEffect(() => {
         if (!user || !userProfile) {
             setHasUnreadMessages(false);
-            setRealtimeDegraded(false);
             realtimeRetryAttemptRef.current = 0;
             realtimeIssueReportedAtRef.current = null;
             if (realtimeRetryTimerRef.current) {
@@ -66,7 +41,6 @@ export function useChatUnreadStatus() {
             return;
         }
         if (!preferRealtime) {
-            setRealtimeDegraded(false);
             realtimeRetryAttemptRef.current = 0;
             realtimeIssueReportedAtRef.current = null;
             if (realtimeRetryTimerRef.current) {
@@ -111,7 +85,6 @@ export function useChatUnreadStatus() {
                 }
                 realtimeRetryAttemptRef.current = 0;
                 realtimeIssueReportedAtRef.current = null;
-                setRealtimeDegraded(false);
                 setHasUnreadMessages(unreadCount > 0);
             },
             (error) => {
@@ -120,7 +93,6 @@ export function useChatUnreadStatus() {
                 }
                 active = false;
                 unsubscribe?.();
-                setRealtimeDegraded(true);
                 const retryDelayMs = scheduleRetry();
                 const now = Date.now();
                 if (shouldReportChatRealtimeFailure(realtimeIssueReportedAtRef.current, now)) {
@@ -145,34 +117,6 @@ export function useChatUnreadStatus() {
             unsubscribe?.();
         };
     }, [preferRealtime, realtimeRetryEpoch, user, userProfile, viewerRole]);
-
-    useEffect(() => {
-        if (!user || !userProfile || (!realtimeDegraded && preferRealtime)) {
-            return;
-        }
-
-        void refreshUnreadFromApi();
-        const intervalId = window.setInterval(() => {
-            void refreshUnreadFromApi();
-        }, 15_000);
-        const refreshOnFocus = () => {
-            void refreshUnreadFromApi();
-        };
-        const refreshOnVisible = () => {
-            if (document.visibilityState === "visible") {
-                void refreshUnreadFromApi();
-            }
-        };
-
-        window.addEventListener("focus", refreshOnFocus);
-        document.addEventListener("visibilitychange", refreshOnVisible);
-
-        return () => {
-            window.clearInterval(intervalId);
-            window.removeEventListener("focus", refreshOnFocus);
-            document.removeEventListener("visibilitychange", refreshOnVisible);
-        };
-    }, [preferRealtime, realtimeDegraded, refreshUnreadFromApi, user, userProfile]);
 
     return { hasUnreadMessages: (user && userProfile) ? hasUnreadMessages : false };
 }

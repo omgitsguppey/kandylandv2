@@ -4,7 +4,7 @@ import { ExternalLink, FileText, Lock, ShieldCheck } from "lucide-react";
 
 import { PageViewEvent } from "@/components/Analytics/PageViewEvent";
 import { LegalBackLink } from "@/components/Legal/LegalBackLink";
-import { PRIVACY_POLICY_LAST_UPDATED } from "@/lib/privacy-policy";
+import { PRIVACY_POLICY_LAST_UPDATED } from "@/lib/platform-config";
 import { SITE_ORIGIN } from "@/lib/site-origin";
 
 export const metadata: Metadata = {

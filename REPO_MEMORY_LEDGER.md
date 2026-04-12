@@ -66,6 +66,21 @@ This file is not a changelog. It is the concise ledger for durable decisions tha
   - `src/components/Admin/AdminPageHeader.tsx`
 - What is now disallowed or deprecated: Admin modules that assume implicit shrink behavior under long content, or admin page shells that allow horizontal bleed past the viewport safe zone
 
+### 1m. Live chat resilience relies purely on Firebase WebSocket SDK; manual polling fallbacks are banned
+
+- Approximate date: Recorded explicitly on 2026-04-11 from the chat stabilization drop.
+- Status: Active canonical chat-network rule
+- Problem/context: Chat previously relied heavily on a brittle fallback layer orchestrating manual API polling with intervals and error scopes whenever native `onSnapshot` WebSockets disconnected over edge networks. This caused infinite looping, memory leaks, high backend read volume, and UX-destroying toast cascades.
+- Decision made: All chat logic (message rendering and unread badge status) must strictly run through pure Firebase SDK websockets. Any transient connectivity issues must silently fail back to the inherent JS SDK offline/retry management layer.
+- What became canonical:
+  - No `setInterval` backend REST routes polling lists during websocket degradation logic.
+  - Native fallback loops arrays tracking realtime error strings are fully purged. 
+  - Silently trigger `reportRealtimeIssue` under the hood if connection drops completely, trusting `onSnapshot` logic to resurrect the feed naturally.
+- Truth lives in:
+  - `src/components/Chat/ChatExperience.tsx`
+  - `src/hooks/useChatUnreadStatus.ts`
+- What is now disallowed or deprecated: Building forced REST API polling loops as a fallback mechanism when a Firebase real-time subscription throws an error block.
+
 ### 1j. Chat realtime must auto-reconnect after browser Firestore failures instead of degrading until refresh
 
 - Approximate date: Recorded explicitly on 2026-04-10 from the live-thread degradation recovery pass

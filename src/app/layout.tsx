@@ -9,6 +9,7 @@ import { ErrorBoundary } from "@/components/ErrorBoundary";
 import { CoreLayoutWrapper } from "@/components/CoreLayoutWrapper";
 import { GoogleAnalytics } from "@next/third-parties/google";
 import { SITE_ORIGIN } from "@/lib/site-origin";
+import { UIDebug } from "@/components/UIDebug";
 
 const geistSans = Geist({
   variable: "--font-geist-sans",
@@ -72,6 +73,7 @@ export const metadata: Metadata = {
   },
 };
 
+
 export const viewport = {
   width: 'device-width',
   initialScale: 1,
@@ -86,6 +88,7 @@ export default function RootLayout({
   return (
     <html lang="en" className={`${geistSans.variable} ${geistMono.variable}`}>
       <body className="antialiased min-h-[100dvh] app-bg text-white selection:bg-brand-purple selection:text-white flex flex-col">
+        <UIDebug />
         <AuthProvider>
           <RolloutProvider>
             <SWRProvider>

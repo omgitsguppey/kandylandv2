@@ -85,12 +85,12 @@ export function buildFirestoreClientIssueDetail(error: unknown, detail?: Record<
 export function buildFirestoreClientFallbackMessage(scope: string, error: unknown) {
     const issue = analyzeFirestoreClientIssue(error);
     if (issue?.kind === "internal_assertion") {
-        return `${scope} live updates hit a Firestore client state failure. Realtime is temporarily degraded and polling fallback is active.`;
+        return `${scope} live updates hit a Firestore client state failure. Realtime may be momentarily interrupted.`;
     }
 
-    if (issue) {
-        return `${scope} live updates failed in the Firestore browser client. Polling fallback is active.`;
+    if ((error as any)?.code === "resource-exhausted") {
+        return `${scope} live updates paused due to quota limits.`;
     }
 
-    return `${scope} live updates are temporarily degraded. Polling fallback is active.`;
+    return `${scope} live updates are temporarily out of sync. Firebase is attempting restoration.`;
 }

@@ -8,10 +8,7 @@ type ChatRouteSyncInput = {
     selectedThreadId?: string | null;
 };
 
-type ChatRealtimeRefreshPlanInput = {
-    degradedScopes: readonly string[];
-    hasSelectedThread: boolean;
-};
+
 
 export function getChatRealtimeRetryDelayMs(attempt: number) {
     const normalizedAttempt = Number.isFinite(attempt) && attempt > 0
@@ -46,22 +43,7 @@ export function buildChatThreadRouteSyncTarget({
     return nextSearch ? `/dashboard/chat?${nextSearch}` : "/dashboard/chat";
 }
 
-export function getChatRealtimeRefreshPlan({
-    degradedScopes,
-    hasSelectedThread,
-}: ChatRealtimeRefreshPlanInput) {
-    const degradedScopeSet = new Set(degradedScopes);
-    const refreshThreads = degradedScopeSet.has("chat thread list") || degradedScopeSet.has("chat thread");
-    const refreshSelectedThreadDetail = hasSelectedThread && (
-        degradedScopeSet.has("chat thread")
-        || degradedScopeSet.has("chat messages")
-    );
 
-    return {
-        refreshThreads,
-        refreshSelectedThreadDetail,
-    };
-}
 
 export function shouldReportChatRealtimeFailure(
     lastReportedAtMs?: number | null,

@@ -233,13 +233,8 @@ export function NotificationRuntimeBridge() {
         window.addEventListener("focus", syncIfVisible);
         document.addEventListener("visibilitychange", syncIfVisible);
 
-        const intervalId = window.setInterval(() => {
-            void triggerReminder();
-        }, 60_000);
-
         if (reminderAt <= nowMs) {
             return () => {
-                window.clearInterval(intervalId);
                 window.removeEventListener("focus", syncIfVisible);
                 document.removeEventListener("visibilitychange", syncIfVisible);
             };
@@ -251,7 +246,6 @@ export function NotificationRuntimeBridge() {
 
         return () => {
             window.clearTimeout(timeoutId);
-            window.clearInterval(intervalId);
             window.removeEventListener("focus", syncIfVisible);
             document.removeEventListener("visibilitychange", syncIfVisible);
         };

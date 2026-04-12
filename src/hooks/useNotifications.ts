@@ -97,28 +97,30 @@ export function useNotifications({ enabled = true }: UseNotificationsOptions = {
             }
         };
 
+        let lastFetchedAt = 0;
+
         const refreshOnDemand = () => {
+            lastFetchedAt = Date.now();
             void fetchNotifications();
         };
 
         void fetchNotifications();
-        const interval = window.setInterval(() => {
-            void fetchNotifications();
-        }, 45_000);
+        lastFetchedAt = Date.now();
+
         const refreshOnVisible = () => {
-            if (document.visibilityState === "visible") {
+            if (document.visibilityState === "visible" && Date.now() - lastFetchedAt > 120_000) {
+                lastFetchedAt = Date.now();
                 void fetchNotifications();
             }
         };
 
-        window.addEventListener("focus", refreshOnDemand);
+        window.addEventListener("focus", refreshOnVisible);
         window.addEventListener(CLIENT_RUNTIME_EVENTS.notificationsSync, refreshOnDemand);
         document.addEventListener("visibilitychange", refreshOnVisible);
 
         return () => {
             cancelled = true;
-            window.clearInterval(interval);
-            window.removeEventListener("focus", refreshOnDemand);
+            window.removeEventListener("focus", refreshOnVisible);
             window.removeEventListener(CLIENT_RUNTIME_EVENTS.notificationsSync, refreshOnDemand);
             document.removeEventListener("visibilitychange", refreshOnVisible);
         };

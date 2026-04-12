@@ -24,7 +24,7 @@ import { trackEvent } from "@/lib/telemetry";
 import type { Transaction } from "@/types/db";
 import { authFetch } from "@/lib/authFetch";
 import { ACTIVITY_SYNC_EVENT } from "@/lib/activity-sync";
-import { USER_RUNTIME_COLLECTION } from "@/lib/user-runtime";
+import { USER_RUNTIME_COLLECTION } from "@/lib/platform-config";
 import { getTransactionDisplayLabel } from "@/lib/transaction-normalizers";
 
 interface TaskEventRecord {
@@ -541,18 +541,12 @@ function useRecentActivityState(user: AuthenticatedUser, userId: string | null, 
 
         void refreshActivity("summary");
         void subscribeToUserRuntime();
-        const intervalId = window.setInterval(() => {
-            if (document.visibilityState === "visible") {
-                refreshRecentActivity();
-            }
-        }, 90_000);
         window.addEventListener("focus", refreshRecentActivity);
         window.addEventListener(ACTIVITY_SYNC_EVENT, refreshRecentActivity);
         document.addEventListener("visibilitychange", handleVisibilityChange);
 
         return () => {
             mounted = false;
-            window.clearInterval(intervalId);
             window.removeEventListener("focus", refreshRecentActivity);
             window.removeEventListener(ACTIVITY_SYNC_EVENT, refreshRecentActivity);
             document.removeEventListener("visibilitychange", handleVisibilityChange);

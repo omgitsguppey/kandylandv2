@@ -2,7 +2,7 @@ import type { Metadata } from "next";
 
 import { PageViewEvent } from "@/components/Analytics/PageViewEvent";
 import { LegalBackLink } from "@/components/Legal/LegalBackLink";
-import { TERMS_LAST_UPDATED_LABEL } from "@/lib/legal-documents";
+import { TERMS_LAST_UPDATED_LABEL } from "@/lib/platform-config";
 
 export const metadata: Metadata = {
     title: "Terms of Service",

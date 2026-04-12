@@ -85,11 +85,19 @@ function buildDiagnosticDetail(
   error: unknown,
   context: string,
   detail?: Record<string, unknown>,
+  structuredContext?: {
+    actorRole?: string;
+    traceId?: string;
+    moduleKey?: string;
+  }
 ) {
   return sanitizeDetail({
     routeContext: context,
     errorName: error instanceof Error ? error.name : "UnknownError",
     errorMessage: getErrorMessage(error),
+    actorRole: structuredContext?.actorRole,
+    traceId: structuredContext?.traceId,
+    moduleKey: structuredContext?.moduleKey,
     ...detail,
   });
 }
@@ -102,6 +110,9 @@ interface RouteDiagnosticInput {
   detail?: Record<string, unknown>;
   severity?: ServerDiagnosticSeverity;
   includePipelineHealth?: boolean;
+  actorRole?: string;
+  traceId?: string;
+  moduleKey?: string;
 }
 
 export function recordRouteDiagnostic(input: RouteDiagnosticInput) {
@@ -113,7 +124,11 @@ export function recordRouteDiagnostic(input: RouteDiagnosticInput) {
     channel,
     severity,
     message: input.message,
-    detail: buildDiagnosticDetail(input.error, input.context, input.detail),
+    detail: buildDiagnosticDetail(input.error, input.context, input.detail, {
+      actorRole: input.actorRole,
+      traceId: input.traceId,
+      moduleKey: input.moduleKey,
+    }),
   });
 
   if (input.includePipelineHealth === true) {
@@ -132,6 +147,9 @@ export function recordRouteFailure(
     detail?: Record<string, unknown>;
     includePipelineHealth?: boolean;
     message?: string;
+    actorRole?: string;
+    traceId?: string;
+    moduleKey?: string;
   },
 ) {
   recordRouteDiagnostic({
@@ -142,6 +160,9 @@ export function recordRouteFailure(
     includePipelineHealth: options?.includePipelineHealth,
     message: options?.message ?? `${context} failed`,
     severity: "error",
+    actorRole: options?.actorRole,
+    traceId: options?.traceId,
+    moduleKey: options?.moduleKey,
   });
 }
 
@@ -152,6 +173,9 @@ export function recordRouteWarning(
   options?: {
     channel?: ServerDiagnosticChannel;
     detail?: Record<string, unknown>;
+    actorRole?: string;
+    traceId?: string;
+    moduleKey?: string;
   },
 ) {
   recordRouteDiagnostic({
@@ -161,5 +185,8 @@ export function recordRouteWarning(
     detail: options?.detail,
     message,
     severity: "warn",
+    actorRole: options?.actorRole,
+    traceId: options?.traceId,
+    moduleKey: options?.moduleKey,
   });
 }

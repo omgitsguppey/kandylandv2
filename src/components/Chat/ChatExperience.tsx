@@ -3,6 +3,7 @@
 import Link from "next/link";
 import { useRouter, useSearchParams } from "next/navigation";
 import { startTransition, useCallback, useEffect, useMemo, useRef, useState, type KeyboardEvent } from "react";
+import { createAutoHealingObserver } from "@/lib/self-healing";
 import {
     ArrowLeft,
     Check,
@@ -46,7 +47,6 @@ import {
 } from "@/lib/chat-send-realtime";
 import {
     buildChatThreadRouteSyncTarget,
-    getChatRealtimeRefreshPlan,
     getChatRealtimeRetryDelayMs,
     shouldReportChatRealtimeFailure,
 } from "@/lib/chat-realtime";
@@ -855,127 +855,121 @@ export function ChatExperience() {
     useEffect(() => {
         setSelectedThreadIds((current) => current.filter((threadId) => visibleThreads.some((thread) => thread.id === threadId)));
     }, [visibleThreads]);
-
     useEffect(() => {
         if (!user || !userProfile) {
             return;
         }
 
         const viewerField = liveViewerRole === "creator" ? "creatorId" : "userId";
-
         let active = true;
-        let unsubscribe: (() => void) | null = null;
-        unsubscribe = onSnapshot(
-            query(collection(db, CHAT_COLLECTIONS.threads), where(viewerField, "==", user.uid)),
-            (snapshot) => {
-                if (!active) {
-                    return;
-                }
-                const nextThreads = snapshot.docs.map((docSnapshot) => {
-                    const raw = docSnapshot.data() as ChatThreadRecord;
-                    const threadId = docSnapshot.id;
-                    const viewerRole = raw.creatorId === user.uid ? "creator" : "user";
-                    return {
-                        ...raw,
-                        id: threadId,
-                        lastMessagePreview: softOpenChatValue(
-                            buildChatSoftSealScope(threadId, "preview"),
-                            raw.lastMessagePreview,
-                        ) || "New message",
-                        counterpartId: viewerRole === "creator" ? raw.userId : raw.creatorId,
-                        counterpartDisplayName: viewerRole === "creator"
-                            ? (raw.userDisplayName || raw.userUsername || raw.userId)
-                            : (raw.creatorDisplayName || raw.creatorUsername || raw.creatorId),
-                        counterpartUsername: viewerRole === "creator" ? raw.userUsername : raw.creatorUsername,
-                        counterpartPhotoURL: viewerRole === "creator" ? (raw.userPhotoURL ?? null) : (raw.creatorPhotoURL ?? null),
-                        viewerRole,
-                        unreadCount: resolveChatThreadUnreadCount(raw, viewerRole),
-                        readAt: resolveChatThreadReadAt(raw, viewerRole),
-                        counterpartReadAt: resolveChatThreadReadAt(raw, viewerRole === "creator" ? "user" : "creator"),
-                    } satisfies ChatThreadRecord;
-                })
-                    .filter((thread) => isChatThreadVisibleToViewer(thread, thread.viewerRole))
-                    .sort((left, right) => right.lastMessageAt - left.lastMessageAt);
 
-                clearRealtimeDegradedScope(CHAT_THREAD_LIST_SCOPE);
-                setThreads((current) => mergeThreads(
-                    nextThreads,
-                    selectedDetailThreadRef.current ?? current.find((thread) => thread.id === selectedThreadIdRef.current) ?? null,
-                ));
-            },
-            (error) => {
-                if (!active) {
-                    return;
-                }
-                active = false;
-                unsubscribe?.();
-                markRealtimeDegraded(CHAT_THREAD_LIST_SCOPE, error, {
-                    creatorId: creatorId || null,
-                });
-            },
-        );
+        const observerControl = createAutoHealingObserver(() => {
+            if (!active) return;
+            return onSnapshot(
+                query(collection(db, CHAT_COLLECTIONS.threads), where(viewerField, "==", user.uid)),
+                (snapshot) => {
+                    if (!active) {
+                        return;
+                    }
+                    const nextThreads = snapshot.docs.map((docSnapshot) => {
+                        const raw = docSnapshot.data() as ChatThreadRecord;
+                        const threadId = docSnapshot.id;
+                        const viewerRole = raw.creatorId === user.uid ? "creator" : "user";
+                        return {
+                            ...raw,
+                            id: threadId,
+                            lastMessagePreview: softOpenChatValue(
+                                buildChatSoftSealScope(threadId, "preview"),
+                                raw.lastMessagePreview,
+                            ) || "New message",
+                            counterpartId: viewerRole === "creator" ? raw.userId : raw.creatorId,
+                            counterpartDisplayName: viewerRole === "creator"
+                                ? (raw.userDisplayName || raw.userUsername || raw.userId)
+                                : (raw.creatorDisplayName || raw.creatorUsername || raw.creatorId),
+                            counterpartUsername: viewerRole === "creator" ? raw.userUsername : raw.creatorUsername,
+                            counterpartPhotoURL: viewerRole === "creator" ? (raw.userPhotoURL ?? null) : (raw.creatorPhotoURL ?? null),
+                            viewerRole,
+                            unreadCount: resolveChatThreadUnreadCount(raw, viewerRole),
+                            readAt: resolveChatThreadReadAt(raw, viewerRole),
+                            counterpartReadAt: resolveChatThreadReadAt(raw, viewerRole === "creator" ? "user" : "creator"),
+                        } satisfies ChatThreadRecord;
+                    })
+                        .filter((thread) => isChatThreadVisibleToViewer(thread, thread.viewerRole))
+                        .sort((left, right) => right.lastMessageAt - left.lastMessageAt);
+
+                    setThreads((current) => mergeThreads(
+                        nextThreads,
+                        selectedDetailThreadRef.current ?? current.find((thread) => thread.id === selectedThreadIdRef.current) ?? null,
+                    ));
+                },
+                (error: unknown) => {
+                    if (!active) return;
+                    observerControl.triggerReconnect(error);
+                },
+            );
+        }, (error: unknown) => {
+            reportRealtimeIssue(CHAT_THREAD_LIST_SCOPE, error, {
+                creatorId: creatorId || null,
+            });
+        });
 
         return () => {
             active = false;
-            unsubscribe?.();
+            observerControl.cleanup();
         };
-    }, [clearRealtimeDegradedScope, creatorId, liveViewerRole, markRealtimeDegraded, threadListRealtimeEpoch, user, userProfile]);
+    }, [creatorId, liveViewerRole, user, userProfile]);
 
     useEffect(() => {
         if (!selectedThreadId || !user || !userProfile) {
             return;
         }
-
         const viewerField = liveViewerRole === "creator" ? "creatorId" : "userId";
-
         let active = true;
-        let unsubscribe: (() => void) | null = null;
-        unsubscribe = onSnapshot(
-            query(
-                collection(db, CHAT_COLLECTIONS.messages),
-                where("threadId", "==", selectedThreadId),
-                where(viewerField, "==", user.uid)
-            ),
-            (snapshot) => {
-                if (!active) {
-                    return;
-                }
-                const nextMessages = snapshot.docs
-                    .map((docSnapshot) => {
-                        const raw = docSnapshot.data() as ThreadDetailResponse["messages"][number];
-                        return {
-                            ...raw,
-                            id: docSnapshot.id,
-                            text: softOpenChatValue(buildChatSoftSealScope(selectedThreadId, "text"), raw.text) ?? undefined,
-                            assetUrl: softOpenChatValue(buildChatSoftSealScope(selectedThreadId, "assetUrl"), raw.assetUrl) ?? undefined,
-                            assetName: softOpenChatValue(buildChatSoftSealScope(selectedThreadId, "assetName"), raw.assetName) ?? undefined,
-                        };
-                    })
-                    .sort((left, right) => (left.createdAt || 0) - (right.createdAt || 0));
 
-                clearRealtimeDegradedScope(CHAT_MESSAGES_SCOPE);
-                setSelectedDetail((current) => current ? {
-                    ...current,
-                    messages: nextMessages,
-                } : current);
-            },
-            (error) => {
-                if (!active) {
-                    return;
-                }
-                active = false;
-                unsubscribe?.();
-                markRealtimeDegraded(CHAT_MESSAGES_SCOPE, error, {
-                    threadId: selectedThreadId,
-                });
-            },
-        );
+        const observerControl = createAutoHealingObserver(() => {
+            if (!active) return;
+            return onSnapshot(
+                query(
+                    collection(db, CHAT_COLLECTIONS.messages),
+                    where("threadId", "==", selectedThreadId),
+                    where(viewerField, "==", user.uid)
+                ),
+                (snapshot) => {
+                    if (!active) return;
+                    const nextMessages = snapshot.docs
+                        .map((docSnapshot) => {
+                            const raw = docSnapshot.data() as ThreadDetailResponse["messages"][number];
+                            return {
+                                ...raw,
+                                id: docSnapshot.id,
+                                text: softOpenChatValue(buildChatSoftSealScope(selectedThreadId, "text"), raw.text) ?? undefined,
+                                assetUrl: softOpenChatValue(buildChatSoftSealScope(selectedThreadId, "assetUrl"), raw.assetUrl) ?? undefined,
+                                assetName: softOpenChatValue(buildChatSoftSealScope(selectedThreadId, "assetName"), raw.assetName) ?? undefined,
+                            };
+                        })
+                        .sort((left, right) => (left.createdAt || 0) - (right.createdAt || 0));
+    
+                    setSelectedDetail((current) => current ? {
+                        ...current,
+                        messages: nextMessages,
+                    } : current);
+                },
+                (error: unknown) => {
+                    if (!active) return;
+                    observerControl.triggerReconnect(error);
+                },
+            );
+        }, (error: unknown) => {
+            reportRealtimeIssue(CHAT_MESSAGES_SCOPE, error, {
+                threadId: selectedThreadId,
+            });
+        });
 
         return () => {
             active = false;
-            unsubscribe?.();
+            observerControl.cleanup();
         };
-    }, [clearRealtimeDegradedScope, liveViewerRole, markRealtimeDegraded, messagesRealtimeEpoch, selectedThreadId, user, userProfile]);
+    }, [liveViewerRole, selectedThreadId, user, userProfile]);
 
     useEffect(() => {
         if (!selectedDetail || !selectedThreadId) {

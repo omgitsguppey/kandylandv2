@@ -2,7 +2,7 @@ import "server-only";
 
 import { FieldValue, type Transaction, type WriteBatch } from "firebase-admin/firestore";
 
-import { NOTIFICATION_RUNTIME_COLLECTION, NOTIFICATION_RUNTIME_DOC_ID } from "@/lib/notification-runtime";
+import { NOTIFICATION_RUNTIME_COLLECTION, NOTIFICATION_RUNTIME_DOC_ID } from "@/lib/platform-config";
 import { adminDb } from "@/lib/server/firebase-admin";
 
 type RuntimeWriter = Transaction | WriteBatch;

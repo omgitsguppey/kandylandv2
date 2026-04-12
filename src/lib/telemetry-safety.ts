@@ -15,6 +15,8 @@ const PRIORITY_KEYS = [
     "event_modules",
     "tracking_origin",
     "tracking_sources",
+    "event_schema_version",
+    "task_discriminator",
     "event_index_version",
     "analytics_surface",
     "analytics_scope",
@@ -214,8 +216,18 @@ function sanitizeTelemetryParams(
     return Object.keys(sanitized).length > 0 ? sanitized : undefined;
 }
 
-export function sanitizeTelemetryParamsForBackend(eventParams?: Record<string, unknown>) {
-    return sanitizeTelemetryParams(eventParams, "backend", 20);
+export function sanitizeTelemetryParamsForBackend(eventParams?: Record<string, unknown>): SanitizedTelemetryParams {
+    const rawSanitized = sanitizeTelemetryParams(eventParams, "backend", 20);
+    
+    // Explicitly enforce schema versioning per observability hardening directives
+    if (!rawSanitized) {
+        return { event_schema_version: "v2" };
+    }
+    
+    return {
+        ...rawSanitized,
+        event_schema_version: rawSanitized.event_schema_version ?? "v2",
+    };
 }
 
 export function sanitizeTelemetryParamsForGa4(eventParams?: Record<string, unknown>) {

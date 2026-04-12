@@ -2,7 +2,7 @@ import "server-only";
 
 import { FieldValue } from "firebase-admin/firestore";
 
-import { USER_RUNTIME_COLLECTION } from "@/lib/user-runtime";
+import { USER_RUNTIME_COLLECTION } from "@/lib/platform-config";
 import { adminDb } from "@/lib/server/firebase-admin";
 
 type UserRuntimeSignalKey = "activity" | "notifications" | "tasks" | "profile";

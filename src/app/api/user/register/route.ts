@@ -4,7 +4,7 @@ import { handleApiError } from "@/lib/server/auth";
 import { FieldValue } from "firebase-admin/firestore";
 import { checkUsernameAvailability, generateUniqueUsernameSuggestion, reserveUsernameForUser } from "@/lib/server/username-suggestions";
 import { STRICT } from "@/lib/server/rate-limit";
-import { PRIVACY_POLICY_VERSION } from "@/lib/privacy-policy";
+import { PRIVACY_POLICY_VERSION } from "@/lib/platform-config";
 import { trackServerEvent } from "@/lib/server/analytics";
 import { guardApiRequest } from "@/lib/server/request-guard";
 import { parseAdultDateOfBirth } from "@/lib/user-profile-validation";
@@ -15,7 +15,7 @@ import { ensureCreatorOnboardingSubmission } from "@/lib/server/creator-onboardi
 import { sendCreatorOnboardingAdminNotification } from "@/lib/server/creator-onboarding-alerts";
 import { getErrorMessage, recordRouteWarning } from "@/lib/server/route-diagnostics";
 import { recordRouteRuntimeSample } from "@/lib/server/route-runtime-health";
-import { REFERRAL_BONUS_GD } from "@/lib/referrals";
+import { REFERRAL_BONUS_GD } from "@/lib/platform-config";
 
 function normalizeRegistrationMethod(value: unknown) {
     return value === "google" ? "google" : "email";

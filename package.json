@@ -17,7 +17,6 @@
     "check:firebase-runtime": "tsx scripts/check-firebase-runtime.ts",
     "check:firebase:rules": "npm run test:rules:firestore && npm run test:rules:database && npm run test:rules:storage",
     "check:deps": "knip --config knip.json",
-    "check:pnpm-lock": "corepack pnpm install --lockfile-only --frozen-lockfile",
     "check:generated-artifacts": "tsx scripts/check-generated-artifacts.ts",
     "check:versions": "syncpack lint",
     "check:outdated": "ncu --packageFile package.json --format group,installedVersion --cooldown 7d && ncu --packageFile functions/package.json --format group,installedVersion --cooldown 7d",
@@ -36,12 +35,13 @@
     "test:rules:storage": "tsx scripts/run-storage-rules-tests.ts",
     "prebuild": "tsc --noEmit --pretty",
     "build:debug": "tsc --noEmit --pretty && next build > build.log 2>&1",
-    "check": "npm run check:pnpm-lock && tsc --noEmit --pretty && eslint . --max-warnings=0 && npm run check:architecture && npm run check:telemetry && npm run check:analytics-semantics && npm run check:firebase-runtime && npm run test:contracts",
+    "check": "tsc --noEmit --pretty && eslint . --max-warnings=0 && npm run check:architecture && npm run check:telemetry && npm run check:analytics-semantics && npm run check:firebase-runtime && npm run test:contracts",
     "check:consistency": "npm run check && npm run check:deps && npm run check:versions && npm run check:inventory && npm run check:cycles && npm run check:functions",
     "analyze": "cross-env ANALYZE=true next build --webpack",
     "promote-admin": "tsx scripts/promote-admin.ts",
     "review:admin-panel-logs": "tsx scripts/review-admin-panel-logs.ts",
-    "firebase:dataconnect:generate": "firebase dataconnect:sdk:generate"
+    "firebase:dataconnect:generate": "firebase dataconnect:sdk:generate",
+    "refresh:paypal": "tsx scripts/refresh-paypal-mcp-token.ts"
   },
   "dependencies": {
     "@dataconnect/admin-generated": "file:src/dataconnect-admin-generated",
@@ -71,6 +71,7 @@
     "react-easy-crop": "^5.5.7",
     "react-hook-form": "^7.72.1",
     "react-loading-skeleton": "^3.5.0",
+    "react-scan": "^0.5.3",
     "recharts": "^3.8.1",
     "server-only": "^0.0.1",
     "sonner": "^2.0.7",

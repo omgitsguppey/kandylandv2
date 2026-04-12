@@ -41,6 +41,7 @@ import {
     readManualRegistrationResult,
     resolveManualSignInIdentity,
 } from "@/lib/manual-email-auth";
+import { createAutoHealingObserver } from "@/lib/self-healing";
 
 type SignupIntent = "fan" | "creator";
 
@@ -268,184 +269,112 @@ export function AuthProvider({ children }: { children: ReactNode }) {
         }
 
         const currentUserId = user.uid;
-        const preferRealtimeProfile = pathname?.startsWith("/dashboard") || pathname?.startsWith("/admin");
         const autoRegisterInFlight = autoRegisterInFlightRef.current;
-        let unsubscribe: (() => void) | undefined;
         let cancelled = false;
-        let profilePollingIntervalId: number | null = null;
-
         setUserProfile(null);
         setLoading(true);
 
-        const stopProfilePolling = () => {
-            if (profilePollingIntervalId !== null) {
-                window.clearInterval(profilePollingIntervalId);
-                profilePollingIntervalId = null;
-            }
-            window.removeEventListener("focus", refreshProfileFromApi);
-            document.removeEventListener("visibilitychange", refreshProfileOnVisible);
-        };
+        const observerControl = createAutoHealingObserver(() => {
+            const connect = async () => {
+                const { db } = await import("@/lib/firebase-data");
+                const { doc, onSnapshot } = await import("firebase/firestore");
+                if (cancelled) return null;
 
-        const refreshProfileFromApi = async () => {
-            try {
-                const response = await authFetch("/api/user/profile");
-                const result = await response.json() as {
-                    success?: boolean;
-                    error?: string;
-                    profile?: unknown;
-                };
+                const profileDocRef = doc(db, "users", currentUserId);
 
-                if (!response.ok || !result.success) {
-                    throw new Error(result.error || "Failed to refresh your account profile.");
-                }
-
-                if (cancelled || auth?.currentUser?.uid !== currentUserId) {
-                    return;
-                }
-
-                const profile = normalizeUserProfile(result.profile, user);
-                if (profile) {
-                    setUserProfile(profile);
-                }
-                setLoading(false);
-            } catch (error) {
-                reportRealtimeIssue("auth profile fallback", error, {
-                    userId: currentUserId,
-                });
-                if (!cancelled) {
-                    setLoading(false);
-                }
-            }
-        };
-
-        const refreshProfileOnVisible = () => {
-            if (document.visibilityState === "visible") {
-                void refreshProfileFromApi();
-            }
-        };
-
-        const startProfilePollingFallback = (error?: unknown) => {
-            if (typeof error !== "undefined") {
-                reportRealtimeIssue("auth profile", error, {
-                    userId: currentUserId,
-                    ...buildFirestoreClientIssueDetail(error, {
-                        fallbackMessage: buildFirestoreClientFallbackMessage("Account profile", error),
-                    }),
-                });
-            }
-            void refreshProfileFromApi();
-            if (profilePollingIntervalId === null) {
-                profilePollingIntervalId = window.setInterval(() => {
-                    void refreshProfileFromApi();
-                }, 15_000);
-                window.addEventListener("focus", refreshProfileFromApi);
-                document.addEventListener("visibilitychange", refreshProfileOnVisible);
-            }
-        };
-
-        if (!preferRealtimeProfile) {
-            startProfilePollingFallback();
-            return () => {
-                cancelled = true;
-                autoRegisterInFlight.delete(currentUserId);
-                stopProfilePolling();
-            };
-        }
-
-        const setupProfileListener = async () => {
-            const { db } = await import("@/lib/firebase-data");
-            const { doc, onSnapshot } = await import("firebase/firestore");
-            if (cancelled) {
-                return;
-            }
-
-            const profileDocRef = doc(db, "users", currentUserId);
-
-            unsubscribe = onSnapshot(profileDocRef, async (snapshot) => {
-                if (cancelled || auth?.currentUser?.uid !== currentUserId) {
-                    return;
-                }
-                stopProfilePolling();
-
-                if (snapshot.exists()) {
-                    const profile = normalizeUserProfile(snapshot.data(), user);
-                    autoRegisterInFlight.delete(currentUserId);
-
-                    if (profile && (profile.status === "banned" || profile.status === "suspended")) {
-                        setUserProfile(profile);
-                        setLoading(false);
-                        if (pathnameRef.current !== "/banned") {
-                            router.replace("/banned");
-                        }
+                return onSnapshot(profileDocRef, async (snapshot) => {
+                    if (cancelled || auth?.currentUser?.uid !== currentUserId) {
                         return;
                     }
 
-                    if (profile) {
-                        setUserProfile(profile);
-                        setLoading(false);
-                    }
-                } else {
-                    const pendingManualRegistration = manualRegistrationStateRef.current;
-                    if (
-                        pendingManualRegistration
-                        && (
-                            pendingManualRegistration.uid === currentUserId
-                            || (
-                                pendingManualRegistration.uid === null
-                                && normalizeEmailAddress(user.email ?? "") === pendingManualRegistration.email
+                    if (snapshot.exists()) {
+                        const profile = normalizeUserProfile(snapshot.data(), user);
+                        autoRegisterInFlight.delete(currentUserId);
+
+                        if (profile && (profile.status === "banned" || profile.status === "suspended")) {
+                            setUserProfile(profile);
+                            setLoading(false);
+                            if (pathnameRef.current !== "/banned") {
+                                router.replace("/banned");
+                            }
+                            return;
+                        }
+
+                        if (profile) {
+                            setUserProfile(profile);
+                            setLoading(false);
+                        }
+                    } else {
+                        const pendingManualRegistration = manualRegistrationStateRef.current;
+                        if (
+                            pendingManualRegistration
+                            && (
+                                pendingManualRegistration.uid === currentUserId
+                                || (
+                                    pendingManualRegistration.uid === null
+                                    && normalizeEmailAddress(user.email ?? "") === pendingManualRegistration.email
+                                )
                             )
-                        )
-                    ) {
-                        return;
-                    }
-
-                    if (autoRegisterInFlight.has(currentUserId)) {
-                        return;
-                    }
-
-                    autoRegisterInFlight.add(currentUserId);
-
-                    try {
-                        const registrationMethod = user.providerData[0]?.providerId === "google.com" ? "google" : "email";
-                        const response = await authFetch("/api/user/register", {
-                            method: "POST",
-                            body: JSON.stringify({
-                                displayName: user.displayName || "User",
-                                registrationMethod,
-                                referredBy: readSessionStorageValue(CLIENT_RUNTIME_STORAGE_KEYS.referralCode) ?? undefined,
-                            }),
-                        });
-                        if (!response.ok && !cancelled) {
-                            autoRegisterInFlight.delete(currentUserId);
-                            setLoading(false);
+                        ) {
+                            return;
                         }
-                    } catch {
-                        if (!cancelled) {
-                            autoRegisterInFlight.delete(currentUserId);
-                            setLoading(false);
+
+                        if (autoRegisterInFlight.has(currentUserId)) {
+                            return;
+                        }
+
+                        autoRegisterInFlight.add(currentUserId);
+
+                        try {
+                            const registrationMethod = user.providerData[0]?.providerId === "google.com" ? "google" : "email";
+                            const response = await authFetch("/api/user/register", {
+                                method: "POST",
+                                body: JSON.stringify({
+                                    displayName: user.displayName || "User",
+                                    registrationMethod,
+                                    referredBy: readSessionStorageValue(CLIENT_RUNTIME_STORAGE_KEYS.referralCode) ?? undefined,
+                                }),
+                            });
+                            if (!response.ok && !cancelled) {
+                                autoRegisterInFlight.delete(currentUserId);
+                                setLoading(false);
+                            }
+                        } catch {
+                            if (!cancelled) {
+                                autoRegisterInFlight.delete(currentUserId);
+                                setLoading(false);
+                            }
                         }
                     }
-                }
-            }, (error) => {
+                }, (error: unknown) => {
+                    if (!cancelled) {
+                        observerControl.triggerReconnect(error);
+                    }
+                });
+            };
+
+            let internalUnsubscribe: (() => void) | void = undefined;
+            void connect().then((unsub) => {
+                if (unsub) internalUnsubscribe = unsub;
+            }).catch((error) => {
                 if (!cancelled) {
-                    startProfilePollingFallback(error);
+                    observerControl.triggerReconnect(error);
                 }
             });
-        };
 
-        void setupProfileListener().catch((error) => {
-            if (!cancelled) {
-                startProfilePollingFallback(error);
-            }
+            return () => {
+                if (internalUnsubscribe) internalUnsubscribe();
+            };
+        }, (error: unknown) => {
+            reportRealtimeIssue("auth profile snapshot", error, {
+                userId: currentUserId,
+            });
         });
 
         return () => {
             cancelled = true;
             autoRegisterInFlight.delete(currentUserId);
-            stopProfilePolling();
-            if (unsubscribe) {
-                unsubscribe();
-            }
+            observerControl.cleanup();
         };
     }, [authStateResolved, pathname, router, user]);
 

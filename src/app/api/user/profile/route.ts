@@ -4,7 +4,7 @@ import { adminDb } from "@/lib/server/firebase-admin";
 import { handleApiError } from "@/lib/server/auth";
 import { STANDARD } from "@/lib/server/rate-limit";
 import { recordCanonicalTaskEvent } from "@/lib/server/daily-tasks";
-import { PRIVACY_POLICY_VERSION } from "@/lib/privacy-policy";
+import { PRIVACY_POLICY_VERSION } from "@/lib/platform-config";
 import { normalizeUsername } from "@/lib/user-utils";
 import { guardApiRequest } from "@/lib/server/request-guard";
 import { parseAdultDateOfBirth } from "@/lib/user-profile-validation";

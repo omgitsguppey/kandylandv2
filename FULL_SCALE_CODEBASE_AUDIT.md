@@ -6,6 +6,38 @@ Last full-scale audit execution: 2026-04-09 19:40:21 -05:00
 Repo: `C:\Users\uylus\OneDrive\Documents\KandyDrops_Final`
 Audited HEAD at start: `36fcca527b72b04c24531724465f490642018ba2`
 
+## 2026-04-11 Soft Realtime Resilience, Dependency Upgrades, & UI Tooling
+
+Scope for this pass:
+- Modularize native Auto-healing loop utilities into `src/lib/self-healing.ts`.
+- Run NPM check updates for dependencies.
+- Install "no-auth" UI bug finding utilities (`react-scan`, `@axe-core/react`).
+- Commit and Git push all modifications.
+
+Startup protocol executed:
+- Ran repo scan mapping `onSnapshot` implementations in the core realtime scopes.
+
+---
+## 2026-04-11 Realtime Infrastructure Adjacency Hardening
+
+Scope for this pass:
+- Improve adjacent logic stability across core realtime services (AuthContext, ChatExperience, useNotifications).
+- Gracefully handle edge-network failures without falling back to aggressive, unscalable REST polling.
+- Introduce native auto-healing observer logic for Firestore churn timeouts.
+
+Startup protocol executed:
+- Ran repo scan mapping `onSnapshot` implementations in the core realtime scopes.
+
+Root Causes & Implementation Results:
+- `AuthContext`: Hardcoded to fully drop `onSnapshot` tracking and spin up a browser `focus` REST API poller upon any internal network glitch. Ripped out the polling fallback entirely, replacing it with an auto-healing 5s loop around native observers.
+- `ChatExperience`: Read and Message threads failed silently and permanently if Firebase disconnected. Rebuilt with safe, repeating `setTimout` loops to immediately reattach the dropped observer.
+- `useNotifications.ts`: A visibility state listener hammered `/api/notifications/` on every tab change. Instilled an intelligent 120s cooldown throttle while prioritizing true realtime push updates.
+
+Verification Commands Run:
+- `npx tsc`: 0 errors.
+- `npm run trace:adjacent -- src/context/AuthContext.tsx`: Trace passed validation for contextual injection.
+
+---
 ## 2026-04-11 Dependency Hardening, Deprecation Sweep, and Phase 2 Verification
 
 Scope for this pass:
