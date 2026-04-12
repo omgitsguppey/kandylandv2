@@ -24,6 +24,20 @@ This file is not a changelog. It is the concise ledger for durable decisions tha
 
 ## Decision Entries
 
+### 1m. Supplemental behavioral auto-capture relies on PostHog
+
+- Approximate date: Recorded explicitly on 2026-04-11 from the supplemental tracking analytics pass
+- Status: Active canonical analytics rule
+- Problem/context: While our custom `telemetry.ts` and GOOGLE ANALYTICS pipeline handles backend-associated interactions perfectly, they failed to passively track frontend user behaviors (rage clicks, drop-off, layout maps).
+- Decision made: Utilize `posthog-js` inside the client layer to passively map unstructured layouts and session replays without interfering with the manual server interaction signals.
+- What became canonical:
+  - `CSPostHogProvider.tsx` dictates passive tracking behavior mapped across `usePathname` explicitly so standard NextJS routing remains compatible.
+  - Telemetry manual events shouldn't be duplicated if PostHog naturally covers the visual click context.
+- Truth lives in:
+  - `src/components/Analytics/CSPostHogProvider.tsx`
+  - `src/app/layout.tsx`
+- What is now disallowed or deprecated: Building massive unstructured `trackEvent(...)` cascades for simple UI hover/click events which clutter telemetry payloads when passive trackers catch this flawlessly out-of-the-box.
+
 ### 1l. Non-drops admin pages should default to compact operational copy and tighter shells
 
 - Approximate date: Recorded explicitly on 2026-04-11 from the admin copy-density pass
