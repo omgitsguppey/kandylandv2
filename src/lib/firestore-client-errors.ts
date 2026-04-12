@@ -85,7 +85,7 @@ export function buildFirestoreClientIssueDetail(error: unknown, detail?: Record<
 export function buildFirestoreClientFallbackMessage(scope: string, error: unknown) {
     const issue = analyzeFirestoreClientIssue(error);
     if (issue?.kind === "internal_assertion") {
-        return `${scope} live updates hit a Firestore client state failure. Realtime may be momentarily interrupted.`;
+        return `${scope} live updates hit a Firestore client state failure. Realtime may be momentarily interrupted. A polling fallback is active.`;
     }
 
     if ((error as any)?.code === "resource-exhausted") {

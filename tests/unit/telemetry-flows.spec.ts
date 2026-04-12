@@ -238,8 +238,8 @@ describe("telemetry flow functions", () => {
 
             expect(result.durationMs).toBe(0);
             // when duration is 0, the duration object keys aren't merged based on lib/telemetry.ts logic
-            expect(result.mergedParams.duration_ms).toBeUndefined();
-            expect(result.mergedParams.duration_seconds).toBeUndefined();
+            expect((result.mergedParams as any).duration_ms).toBeUndefined();
+            expect((result.mergedParams as any).duration_seconds).toBeUndefined();
         });
     });
 });

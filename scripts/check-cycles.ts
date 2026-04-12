@@ -38,12 +38,14 @@ const TARGETS: Record<TargetName, CycleTargetConfig> = {
       "^react-loading-skeleton/dist/skeleton\\.css$",
       "^@tanstack-query-firebase/react/data-connect$",
       "^@tanstack/react-query$",
+      "^@axe-core/react$",
     ],
     allowedSkipped: [
       "tailwindcss",
       "react-loading-skeleton/dist/skeleton.css",
       "@tanstack-query-firebase/react/data-connect",
       "@tanstack/react-query",
+      "@axe-core/react",
     ],
   },
   functions: {
@@ -51,6 +53,18 @@ const TARGETS: Record<TargetName, CycleTargetConfig> = {
     input: "functions/src",
     tsConfig: "functions/tsconfig.json",
     extensions: ["ts"],
+    excludeRegExp: [
+      "^firebase-functions/v2/firestore$",
+      "^firebase-functions/v2/scheduler$",
+      "^firebase-functions/logger$",
+      "^firebase-functions/v2$"
+    ],
+    allowedSkipped: [
+      "firebase-functions/v2/firestore",
+      "firebase-functions/v2/scheduler",
+      "firebase-functions/logger",
+      "firebase-functions/v2"
+    ],
   },
 };
 

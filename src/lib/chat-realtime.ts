@@ -56,3 +56,18 @@ export function shouldReportChatRealtimeFailure(
 
     return nowMs - Number(lastReportedAtMs) >= cooldownMs;
 }
+
+export type ChatRealtimeRefreshPlanInput = {
+    degradedScopes: string[];
+    hasSelectedThread: boolean;
+};
+
+export function getChatRealtimeRefreshPlan({
+    degradedScopes,
+    hasSelectedThread,
+}: ChatRealtimeRefreshPlanInput) {
+    return {
+        refreshThreads: degradedScopes.includes("threads") || degradedScopes.includes("all"),
+        refreshSelectedThreadDetail: hasSelectedThread && (degradedScopes.includes("selectedThread") || degradedScopes.includes("all")),
+    };
+}

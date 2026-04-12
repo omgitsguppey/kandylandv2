@@ -2331,13 +2331,13 @@ Current notable runtime package versions:
 
 ## Current tracked inventory baseline
 
-Verified by `npm run check:inventory` on 2026-04-08:
+Verified by `npm run check:inventory` on 2026-04-12:
 
-- Total tracked files: `715`
-- Root files: `54`
-- Root markdown/docs: `16`
-- Root lockfiles: `2`
-- Root config/runtime/tooling files: `36`
+- Total tracked files: `799`
+- Root files: `55`
+- Root markdown/docs: `17`
+- Root lockfiles: `1`
+- Root config/runtime/tooling files: `37`
 - `src`: `401`
 - `src/app`: `137`
 - `src/components`: `74`

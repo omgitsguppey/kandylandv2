@@ -1,0 +1,27 @@
+
+> kandydrops@0.1.0 check:inventory
+> tsx scripts/repo-inventory.ts
+
+Repository inventory
+- Total tracked files: 799
+- Root files: 55
+- Root markdown/docs: 17
+- Root lockfiles: 1
+- Root config/runtime/tooling files: 37
+- src: 452
+- src/app: 157
+- src/components: 83
+- src/context: 4
+- src/hooks: 15
+- src/lib: 169
+- src/lib/server: 70
+- src/types: 4
+- functions: 37
+- functions/src: 30
+- scripts: 20
+- tests: 160
+- public: 11
+- dataconnect: 14
+- src/dataconnect-generated: 15
+- src/dataconnect-admin-generated: 5
+- functions/src/dataconnect-admin-generated: 5

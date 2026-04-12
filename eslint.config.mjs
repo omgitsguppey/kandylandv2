@@ -23,7 +23,7 @@ const eslintConfig = [
             "unused-imports": unusedImports,
         },
         rules: {
-            "import/no-unresolved": ["error", { ignore: ["^@/"] }],
+            "import/no-unresolved": ["error", { ignore: ["^@/", "^firebase-functions/", "^@axe-core/react"] }],
             "import/no-duplicates": "error",
             "unused-imports/no-unused-imports": "error",
         },

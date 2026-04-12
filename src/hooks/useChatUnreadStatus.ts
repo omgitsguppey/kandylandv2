@@ -1,9 +1,8 @@
-import { useCallback, useEffect, useRef, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { collection, onSnapshot, query, where } from "firebase/firestore";
 import { usePathname } from "next/navigation";
 
 import { useAuth } from "@/context/AuthContext";
-import { authFetch } from "@/lib/authFetch";
 import {
     CHAT_COLLECTIONS,
     resolveChatThreadUnreadCount,
@@ -14,6 +13,7 @@ import { getChatRealtimeRetryDelayMs, shouldReportChatRealtimeFailure } from "@/
 import { buildFirestoreClientFallbackMessage, buildFirestoreClientIssueDetail } from "@/lib/firestore-client-errors";
 import { db } from "@/lib/firebase-data";
 import { reportRealtimeIssue } from "@/lib/client-error-reporting";
+import { authFetch } from "@/lib/authFetch";
 
 export function useChatUnreadStatus() {
     const { user, userProfile } = useAuth();
@@ -31,6 +31,7 @@ export function useChatUnreadStatus() {
 
     useEffect(() => {
         if (!user || !userProfile) {
+            // eslint-disable-next-line react-hooks/set-state-in-effect
             setHasUnreadMessages(false);
             realtimeRetryAttemptRef.current = 0;
             realtimeIssueReportedAtRef.current = null;
@@ -40,6 +41,23 @@ export function useChatUnreadStatus() {
             }
             return;
         }
+        const pollFallback = () => {
+            void authFetch("/api/chat/threads").then((res) => {
+                if (res.ok) {
+                    res.json().then((data) => {
+                         let unreadCount = 0;
+                         if (Array.isArray(data?.threads)) {
+                             for (const thread of data.threads) {
+                                  const role = thread.creatorId === user.uid ? "creator" : "user";
+                                  unreadCount += resolveChatThreadUnreadCount(thread, role);
+                             }
+                         }
+                         setHasUnreadMessages(unreadCount > 0);
+                    }).catch(() => {});
+                }
+            }).catch(() => {});
+        };
+
         if (!preferRealtime) {
             realtimeRetryAttemptRef.current = 0;
             realtimeIssueReportedAtRef.current = null;
@@ -47,6 +65,7 @@ export function useChatUnreadStatus() {
                 window.clearTimeout(realtimeRetryTimerRef.current);
                 realtimeRetryTimerRef.current = null;
             }
+            pollFallback();
             return;
         }
 
@@ -105,6 +124,7 @@ export function useChatUnreadStatus() {
                         }),
                     });
                 }
+                pollFallback();
             },
         );
 

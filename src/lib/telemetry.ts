@@ -58,7 +58,14 @@ let telemetryRolloutContext: RolloutTelemetryContext | null = null;
 let telemetryReleaseContext: SanitizedEventParams | null = null;
 
 function sanitizeEventParams(eventParams?: Record<string, unknown>) {
-    return sanitizeTelemetryParamsForBackend(eventParams);
+    const backendParams = sanitizeTelemetryParamsForBackend(eventParams);
+    // Don't inject event_schema_version for internal flow state,
+    // only attach it when sending the final payload
+    if (Object.keys(backendParams).length === 1 && backendParams.event_schema_version === "v2") {
+        return undefined;
+    }
+    const { event_schema_version, ...rest } = backendParams;
+    return Object.keys(rest).length > 0 ? rest : undefined;
 }
 
 function readJsonStorage<T>(storageKey: string): T | null {
@@ -266,17 +273,32 @@ export function consumeTimedFlow(flowKey: string, eventParams?: Record<string, u
     }
 
     const durationMs = entry ? Math.max(0, Date.now() - entry.startedAt) : undefined;
-    return {
-        durationMs,
-        startedAt: entry?.startedAt,
-        mergedParams: {
+    const sanitizedParams = sanitizeEventParams(eventParams) ?? {};
+
+    // Check if the sanitized params only have event_schema_version and no actual data
+    const hasOnlySchemaVersion = Object.keys(sanitizedParams).length === 1 && 'event_schema_version' in sanitizedParams;
+    const extraParams = hasOnlySchemaVersion ? {} : sanitizedParams;
+
+    const hasStoredParams = entry?.params && Object.keys(entry.params).length > 0;
+    const hasExtraParams = Object.keys(extraParams).length > 0;
+    const hasDuration = durationMs !== undefined;
+
+    let mergedParams = {};
+    if (hasStoredParams || hasExtraParams || hasDuration) {
+        mergedParams = {
             ...(entry?.params ?? {}),
-            ...(sanitizeEventParams(eventParams) ?? {}),
+            ...extraParams,
             ...(durationMs ? {
                 duration_ms: durationMs,
                 duration_seconds: Math.round(durationMs / 1000),
             } : {}),
-        },
+        };
+    }
+
+    return {
+        durationMs,
+        startedAt: entry?.startedAt,
+        mergedParams,
     };
 }
 

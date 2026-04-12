@@ -14,7 +14,7 @@ export function UIDebug() {
                 import("react-dom").then((ReactDOM) => {
                     // @ts-expect-error missing @types resolution for axe-core/react
                     import("@axe-core/react").then((axe) => {
-                        // eslint-disable-next-line @typescript-eslint/no-unsafe-member-access, @typescript-eslint/no-unsafe-call
+
                         axe.default(React, ReactDOM, 1000);
                     }).catch(() => {});
                 });
