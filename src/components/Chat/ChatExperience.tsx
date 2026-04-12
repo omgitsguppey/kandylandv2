@@ -1596,7 +1596,7 @@ export function ChatExperience() {
                                     </div>
 
                                     {threadSelectionMode ? (
-                                        <div className="pointer-events-none absolute inset-x-0 bottom-0 px-5 pb-[calc(4.8rem+env(safe-area-inset-bottom))] md:pb-[calc(1.25rem+env(safe-area-inset-bottom))]">
+                                        <div className="pointer-events-none absolute inset-x-0 bottom-0 px-5 pb-[calc(1.25rem+env(safe-area-inset-bottom))]">
                                             <div className="pointer-events-auto flex items-center justify-between">
                                                 <button
                                                     type="button"
@@ -1628,7 +1628,7 @@ export function ChatExperience() {
                                             </div>
                                         </div>
                                     ) : (
-                                        <div className="pointer-events-none absolute inset-x-0 bottom-0 px-5 pb-[calc(4.8rem+env(safe-area-inset-bottom))] md:pb-[calc(1.25rem+env(safe-area-inset-bottom))]">
+                                        <div className="pointer-events-none absolute inset-x-0 bottom-0 px-5 pb-[calc(1.25rem+env(safe-area-inset-bottom))]">
                                             <div className="pointer-events-auto mx-auto max-w-md rounded-full bg-[#121214] px-4 py-3 ring-1 ring-white/8">
                                                 <div className="flex items-center gap-3">
                                                     <Search className="h-4 w-4 text-[#6e7077]" />
@@ -1644,7 +1644,7 @@ export function ChatExperience() {
                                                 <button
                                                     type="button"
                                                     onClick={() => setComposePickerOpen(true)}
-                                                    className="pointer-events-auto absolute bottom-[calc(4.8rem+env(safe-area-inset-bottom))] right-5 inline-flex h-14 w-14 items-center justify-center rounded-full bg-brand-purple text-white shadow-[0_18px_36px_rgba(111,63,244,0.36)] transition hover:bg-[#8457ff] md:bottom-[calc(1.25rem+env(safe-area-inset-bottom))]"
+                                                    className="pointer-events-auto absolute bottom-[calc(1.25rem+env(safe-area-inset-bottom))] right-5 inline-flex h-14 w-14 items-center justify-center rounded-full bg-brand-purple text-white shadow-[0_18px_36px_rgba(111,63,244,0.36)] transition hover:bg-[#8457ff]"
                                                     aria-label="Compose message"
                                                 >
                                                     <SquarePen className="h-5 w-5" />
@@ -1842,7 +1842,7 @@ export function ChatExperience() {
                                     )}
                                 </div>
 
-                                <div className="border-t border-white/10 bg-[linear-gradient(180deg,rgba(0,0,0,0)_0%,rgba(0,0,0,0.92)_18%,#000_100%)] px-4 pb-[calc(4.8rem+env(safe-area-inset-bottom))] pt-3 sm:px-6 md:pb-4">
+                                <div className="border-t border-white/10 bg-[linear-gradient(180deg,rgba(0,0,0,0)_0%,rgba(0,0,0,0.92)_18%,#000_100%)] px-4 pb-[calc(1rem+env(safe-area-inset-bottom))] pt-3 sm:px-6 sm:pb-4">
                                     {sendErrorMessage ? (
                                         <div className="rounded-[1.2rem] border border-rose-400/20 bg-rose-500/10 px-4 py-3 text-sm text-rose-100">
                                             <div className="flex items-start justify-between gap-3">
