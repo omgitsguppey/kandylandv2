@@ -5,7 +5,7 @@ import { usePathname } from "next/navigation";
 import { useRolloutVariant } from "@/context/RolloutContext";
 import { ReportBugButton } from "@/components/Feedback/ReportBugButton";
 
-const HIDDEN_PATH_PREFIXES = ["/offline", "/banned"];
+const HIDDEN_PATH_PREFIXES = ["/offline", "/banned", "/dashboard/chat"];
 
 export function GlobalBugReportTrigger() {
   const pathname = usePathname();

@@ -134,6 +134,10 @@ export default function UserManagementPage() {
 
     const [securityDetailsUser, setSecurityDetailsUser] = useState<UserProfile | null>(null);
 
+    // Username Editing State
+    const [editUsernameUser, setEditUsernameUser] = useState<UserProfile | null>(null);
+    const [editUsernameInput, setEditUsernameInput] = useState("");
+
     // Balance Editing State
     const [editBalanceUser, setEditBalanceUser] = useState<UserProfile | null>(null);
     const [historyUser, setHistoryUser] = useState<UserProfile | null>(null);
@@ -286,6 +290,27 @@ export default function UserManagementPage() {
                 consoleLabel: "[Admin Users] update status failed",
             });
             toast.error(error.message || "Failed to update user status.");
+        } finally {
+            setProcessing(false);
+        }
+    };
+
+    const handleUpdateUsername = async () => {
+        if (!editUsernameUser) return;
+        setProcessing(true);
+        try {
+            const response = await authFetch(`/api/admin/users/${editUsernameUser.uid}/username`, {
+                method: "PATCH",
+                body: JSON.stringify({ username: editUsernameInput }),
+            });
+            const result = await response.json();
+            if (!response.ok) throw new Error(result.error);
+            setUsers((current) => current.map((u) => (u.uid === editUsernameUser.uid ? { ...u, username: result.username } : u)));
+            toast.success("Username updated successfully.");
+            setEditUsernameUser(null);
+            setEditUsernameInput("");
+        } catch (error: any) {
+            toast.error(error.message || "Failed to update username.");
         } finally {
             setProcessing(false);
         }
@@ -590,6 +615,7 @@ export default function UserManagementPage() {
                                                             <div className="flex items-center gap-1 font-bold text-white">
                                                                 {user.username ? `@${user.username}` : user.displayName || "No Name"}
                                                                 {user.isVerified && <CheckCircle className="w-3 h-3 text-brand-purple" />}
+                                                                <button onClick={() => { setEditUsernameUser(user); setEditUsernameInput(user.username || ""); }} className="p-1 rounded-md text-gray-500 hover:text-white transition-colors" title="Edit username"><Edit2 className="w-3 h-3" /></button>
                                                             </div>
                                                             <div className="text-[10px] text-gray-500 uppercase font-bold tracking-wider mb-0.5">
                                                                 {user.username ? user.displayName : user.uid.slice(0, 8)}
@@ -739,6 +765,7 @@ export default function UserManagementPage() {
                                                     <div className="flex items-center gap-1.5 font-bold text-white text-base">
                                                         <span className="truncate">{user.username ? `@${user.username}` : user.displayName || "No Name"}</span>
                                                         {user.isVerified && <CheckCircle className="w-4 h-4 text-brand-purple shrink-0" />}
+                                                        <button onClick={() => { setEditUsernameUser(user); setEditUsernameInput(user.username || ""); }} className="p-1 rounded-md text-gray-500 hover:text-white transition-colors shrink-0" title="Edit username"><Edit2 className="w-4 h-4" /></button>
                                                     </div>
                                                     <div className="text-[10px] text-gray-400 font-bold uppercase tracking-wider truncate mb-0.5">
                                                         {user.username ? user.displayName : user.uid.slice(0, 8)}
@@ -1004,8 +1031,39 @@ export default function UserManagementPage() {
             )}
 
             {/* Action Modals */}
-            {(actionType || editBalanceUser || contentUser || historyUser || securityDetailsUser) && (
+            {(actionType || editUsernameUser || editBalanceUser || contentUser || historyUser || securityDetailsUser) && (
                 <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/80 backdrop-blur-sm">
+                    {editUsernameUser && (
+                        <div className="bg-zinc-900 border border-white/10 rounded-2xl p-6 max-w-md w-full shadow-2xl">
+                            <h3 className="text-xl font-bold text-white mb-2">Edit Username</h3>
+                            <p className="text-gray-400 mb-6">
+                                Change username for <strong>{editUsernameUser.email}</strong>
+                            </p>
+                            <div className="mb-6">
+                                <label className="block text-xs font-bold text-gray-500 uppercase mb-2">New Username</label>
+                                <input
+                                    type="text"
+                                    className="w-full bg-black/50 border border-white/10 rounded-xl p-3 text-white focus:border-brand-purple outline-none"
+                                    placeholder="Enter new username..."
+                                    value={editUsernameInput}
+                                    onChange={(e) => setEditUsernameInput(e.target.value)}
+                                />
+                                <p className="mt-2 text-xs text-brand-purple/70">Requires exactly 3-20 chars (a-z, 0-9, _).</p>
+                                <p className="mt-1 text-xs text-red-400 font-bold">Warning: This instantly alters the creator&apos;s public profile URL!</p>
+                            </div>
+                            <div className="flex justify-end gap-3">
+                                <Button variant="ghost" onClick={() => setEditUsernameUser(null)}>Cancel</Button>
+                                <Button
+                                    variant="brand"
+                                    onClick={handleUpdateUsername}
+                                    disabled={processing || !editUsernameInput || editUsernameInput === editUsernameUser.username}
+                                >
+                                    {processing ? <Loader2 className="w-4 h-4 animate-spin" /> : 'Save Changes'}
+                                </Button>
+                            </div>
+                        </div>
+                    )}
+
                     {actionType && actionUser && (
                         <div className="bg-zinc-900 border border-white/10 rounded-2xl p-6 max-w-md w-full shadow-2xl">
                             <h3 className="text-xl font-bold text-white mb-2">

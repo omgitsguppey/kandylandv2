@@ -6,6 +6,18 @@ Last full-scale audit execution: 2026-04-09 19:40:21 -05:00
 Repo: `C:\Users\uylus\OneDrive\Documents\KandyDrops_Final`
 Audited HEAD at start: `36fcca527b72b04c24531724465f490642018ba2`
 
+## [2026-04-12] Admin Username Management & Discovery Glitch Fixes
+
+Scope for this pass:
+- Implemented robust `PATCH` API at `/api/admin/users/[userId]/username` returning uniquely constrained usernames.
+- Merged safe state toggles and modal logic to update Creator profiles in real-time from the Admin Console.
+- Eradicated bug within `CreatorDiscoveryRail` where native mapping overwritten previously fetched valid arrays.
+- Stabilized `relationships` logic enforcing prior score sort index.
+
+Verification Commands Run:
+- `npm run build`: Production compilation verified.
+
+---
 ## 2026-04-12 Chat UI Fallback Polling & Warning Eradication
 
 Scope for this pass:

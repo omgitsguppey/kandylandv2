@@ -156,10 +156,16 @@ export function CreatorDiscoveryRail({
         };
     }, [authSettled, initialCreators, surface, user]);
 
-    const primaryCreators = useMemo(
-        () => (followedCreators.length > 0 ? followedCreators : recommendedCreators).filter((creator) => creator.uid !== user?.uid),
-        [followedCreators, recommendedCreators, user?.uid],
-    );
+    const primaryCreators = useMemo(() => {
+        const combined = [...followedCreators];
+        const followedIds = new Set(followedCreators.map((c) => c.uid));
+        for (const rec of recommendedCreators) {
+            if (!followedIds.has(rec.uid)) {
+                combined.push(rec);
+            }
+        }
+        return combined.filter((creator) => creator.uid !== user?.uid);
+    }, [followedCreators, recommendedCreators, user?.uid]);
     const followerFormatter = useMemo(() => new Intl.NumberFormat("en-US", { notation: "compact", maximumFractionDigits: 1 }), []);
 
     const handleFollowToggle = async (creator: CreatorCard) => {

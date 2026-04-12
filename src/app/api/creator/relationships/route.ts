@@ -176,6 +176,13 @@ export async function GET(request: NextRequest) {
                 });
             }
         }
+        
+        validCreators.sort((left, right) => {
+            const leftDrops = activeDropCounts.get(left.uid) ?? 0;
+            const rightDrops = activeDropCounts.get(right.uid) ?? 0;
+            return rightDrops - leftDrops || left.displayName.localeCompare(right.displayName);
+        });
+
         const validCreatorsById = new Map(validCreators.map((entry) => [entry.uid, entry]));
         const validCreatorIds = new Set(validCreators.map((entry) => entry.uid));
         const relationships = rawRelationships.filter((entry) => typeof entry.creatorId === "string" && validCreatorIds.has(entry.creatorId));
