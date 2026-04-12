@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect } from "react";
+import { useEffect, Suspense } from "react";
 import { usePathname, useSearchParams } from "next/navigation";
 
 import {
@@ -9,7 +9,7 @@ import {
   recordClientDiagnostic,
 } from "@/lib/client-diagnostics";
 
-export function ClientDiagnosticsBridge() {
+function DiagnosticsBridgeInner() {
   const pathname = usePathname();
   const searchParams = useSearchParams();
 
@@ -29,4 +29,12 @@ export function ClientDiagnosticsBridge() {
   }, [pathname, searchParams]);
 
   return null;
+}
+
+export function ClientDiagnosticsBridge() {
+  return (
+    <Suspense fallback={null}>
+      <DiagnosticsBridgeInner />
+    </Suspense>
+  );
 }

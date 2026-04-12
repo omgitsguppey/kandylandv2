@@ -1,7 +1,7 @@
 "use client";
 
 import posthog from "posthog-js";
-import { useEffect } from "react";
+import { useEffect, Suspense } from "react";
 import { usePathname, useSearchParams } from "next/navigation";
 
 // Only initialize outside of the component so it binds to the window securely once
@@ -19,7 +19,7 @@ if (typeof window !== "undefined") {
     }
 }
 
-export function CSPostHogProvider({ children }: { children: React.ReactNode }) {
+function PostHogPageViewTracker() {
     const pathname = usePathname();
     const searchParams = useSearchParams();
 
@@ -35,7 +35,18 @@ export function CSPostHogProvider({ children }: { children: React.ReactNode }) {
         }
     }, [pathname, searchParams]);
 
+    return null;
+}
+
+export function CSPostHogProvider({ children }: { children: React.ReactNode }) {
     // We do not need the heavy <PostHogProvider client={posthog}> from posthog-js/react
     // as we just want purely passive trackings, not React hooks usage for feature flags.
-    return <>{children}</>;
+    return (
+        <>
+            <Suspense fallback={null}>
+                <PostHogPageViewTracker />
+            </Suspense>
+            {children}
+        </>
+    );
 }
