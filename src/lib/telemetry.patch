@@ -1,0 +1,11 @@
+--- src/lib/telemetry.ts
++++ src/lib/telemetry.ts
+@@ -291,6 +291,7 @@
+     return {
+         durationMs,
+         startedAt: entry?.startedAt,
+         mergedParams: {
++            event_schema_version: "v2",
+             ...(entry?.params ?? {}),
+             ...(sanitizeEventParams(eventParams) ?? {}),
+             ...(durationMs ? {

@@ -21,7 +21,11 @@ function sanitizeDetail(detail: Record<string, unknown> | undefined) {
       return [key, value] as const;
     }
 
-    return [key, JSON.stringify(value).slice(0, 500)] as const;
+    if (typeof value === "function") {
+      return [key, "[Function]"];
+    }
+
+    return [key, value === undefined ? "undefined" : JSON.stringify(value)?.slice(0, 500)] as const;
   });
 
   return Object.fromEntries(entries);

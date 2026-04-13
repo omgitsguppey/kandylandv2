@@ -18,12 +18,11 @@ import { getBrowserNotificationState } from "@/lib/firebase-messaging";
 import { enableBrowserNotifications } from "@/lib/browser-notification-enrollment";
 import { CREATOR_BOOKING_RATES, CREATOR_SUBSCRIPTION_MIN_GD, DEFAULT_CREATOR_SETTINGS, type CreatorRequestCategoryConfig, type CreatorSettings } from "@/lib/creator-experiences";
 import { getBrowserGlobalPrivacyControl, persistPrivacySettingsSnapshot } from "@/lib/privacy-consent";
-import { PRIVACY_POLICY_LAST_UPDATED } from "@/lib/platform-config";
+import { PRIVACY_POLICY_LAST_UPDATED , REFERRAL_BONUS_GD } from "@/lib/platform-config";
 import { reportClientIssue } from "@/lib/client-error-reporting";
 import { trackEvent } from "@/lib/telemetry";
 import { PageViewEvent } from "@/components/Analytics/PageViewEvent";
 import { CreateDropModal } from "@/components/Admin/CreateDropModal";
-import { REFERRAL_BONUS_GD } from "@/lib/platform-config";
 
 const TIMEZONE_OPTIONS = [
     "Auto",
