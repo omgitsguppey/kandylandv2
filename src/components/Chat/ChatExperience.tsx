@@ -1155,7 +1155,13 @@ export function ChatExperience() {
                     sizeBytes: composerFile.size,
                 }),
             });
-            const prepareBody = await prepareResponse.json() as { error?: string } & Partial<ChatAttachmentPrepareResponse>;
+            let prepareBody = {} as { error?: string } & Partial<ChatAttachmentPrepareResponse>;
+            try {
+                prepareBody = await prepareResponse.json() as typeof prepareBody;
+            } catch {
+                const textDetail = await prepareResponse.text().catch(() => "");
+                throw new Error(`Prepare API returned non-JSON (${prepareResponse.status}): ${textDetail.slice(0, 150).trim()}`);
+            }
             if (!prepareResponse.ok || !prepareBody.storagePath) {
                 throw new Error(prepareBody.error || "Failed to prepare chat attachment upload.");
             }
@@ -1175,7 +1181,13 @@ export function ChatExperience() {
                     mimeType: prepareBody.mimeType || composerFile.type || "application/octet-stream",
                 }),
             });
-            const completeBody = await completeResponse.json() as { error?: string } & Partial<ChatAttachmentCompleteResponse>;
+            let completeBody = {} as { error?: string } & Partial<ChatAttachmentCompleteResponse>;
+            try {
+                completeBody = await completeResponse.json() as typeof completeBody;
+            } catch {
+                const textDetail = await completeResponse.text().catch(() => "");
+                throw new Error(`Complete API returned non-JSON (${completeResponse.status}): ${textDetail.slice(0, 150).trim()}`);
+            }
             if (!completeResponse.ok || !completeBody.assetUrl) {
                 throw new Error(completeBody.error || "Failed to finalize chat attachment.");
             }
@@ -1260,7 +1272,14 @@ export function ChatExperience() {
                     } : {}),
                 }),
             });
-            const body = await response.json() as ChatSendResponse;
+            let body = {} as ChatSendResponse;
+            try {
+                body = await response.json() as ChatSendResponse;
+            } catch (jsonParseError) {
+                const rawResponse = await response.text().catch(() => "");
+                throw new Error(`Server returned a non-JSON response (${response.status}). This suggests a Vercel runtime crash: ${rawResponse.slice(0, 150).trim()}`);
+            }
+
             if (!response.ok) {
                 if (!currentComposerFile) {
                     setSelectedDetail((current) => current ? {
