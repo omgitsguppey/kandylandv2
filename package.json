@@ -44,6 +44,7 @@
     "refresh:paypal": "tsx scripts/refresh-paypal-mcp-token.ts"
   },
   "dependencies": {
+    "@axe-core/react": "^4.11.1",
     "@dataconnect/admin-generated": "file:src/dataconnect-admin-generated",
     "@dataconnect/generated": "file:src/dataconnect-generated",
     "@google-analytics/data": "^5.2.1",

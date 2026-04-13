@@ -96,7 +96,7 @@ export default function RootLayout({
               <SWRProvider>
                 <UIProvider>
                   <CoreLayoutWrapper>
-                    <main className="pt-24 pb-32 md:pb-0 flex-1 relative flex flex-col overflow-x-hidden">
+                    <main className="pt-24 flex-1 relative flex flex-col overflow-x-hidden md:pb-0">
 
                       {/* Content */}
                       <div className="relative z-10 flex-1 w-full">
