@@ -1,21 +1,36 @@
 "use client";
 
 import { Suspense } from "react";
-import { Home, Candy, Sparkles, LayoutDashboard, MessageSquare } from "lucide-react";
+import { Home, Candy, Sparkles, LayoutDashboard, MessageSquare, Wallet } from "lucide-react";
 import Link from "next/link";
 import { usePathname, useSearchParams } from "next/navigation";
 import { useAuth } from "@/context/AuthContext";
+import { useUI } from "@/context/UIContext";
 import { useChatUnreadStatus } from "@/hooks/useChatUnreadStatus";
 import { cn } from "@/lib/utils";
 import { trackEvent } from "@/lib/telemetry";
 
-const NAV_ITEMS = [
+type NavItem = {
+    label: string;
+    href: string;
+    icon: typeof Home;
+    /** If true, opens purchase modal instead of navigating */
+    action?: "purchase";
+};
+
+const GUEST_NAV_ITEMS: NavItem[] = [
     { label: "Home", href: "/", icon: Home },
+    { label: "Drops", href: "/drops", icon: Candy },
+    { label: "Experiences", href: "/experiences", icon: Sparkles },
+];
+
+const AUTHED_NAV_ITEMS: NavItem[] = [
+    { label: "Dashboard", href: "/dashboard", icon: LayoutDashboard },
     { label: "Drops", href: "/drops", icon: Candy },
     { label: "Chat", href: "/dashboard/chat", icon: MessageSquare },
     { label: "Experiences", href: "/experiences", icon: Sparkles },
-    { label: "Dashboard", href: "/dashboard", icon: LayoutDashboard },
-] as const;
+    { label: "Wallet", href: "#wallet", icon: Wallet, action: "purchase" },
+];
 
 function triggerHaptic() {
     if (typeof navigator !== "undefined" && navigator.vibrate) {
@@ -27,12 +42,16 @@ function MobileBottomBarInner() {
     const pathname = usePathname();
     const searchParams = useSearchParams();
     const { user, userProfile, loading } = useAuth();
+    const { openPurchaseModal } = useUI();
     const { hasUnreadMessages } = useChatUnreadStatus();
     const authSettled = !loading;
 
     if (pathname?.startsWith("/admin") || !authSettled) {
         return null;
     }
+
+    const isSignedIn = !!user;
+    const navItems = isSignedIn ? AUTHED_NAV_ITEMS : GUEST_NAV_ITEMS;
 
     return (
         <div
@@ -41,31 +60,44 @@ function MobileBottomBarInner() {
         >
             <nav
                 className="pointer-events-auto mx-auto flex max-w-7xl items-center justify-between rounded-full border border-white/10 bg-black/55 px-3.5 py-2 shadow-xl shadow-black/40 backdrop-blur-xl"
-
                 style={{ WebkitBackdropFilter: "blur(20px)" }}
             >
-                {NAV_ITEMS.map((item) => {
-                    const isAdmin = userProfile?.role === "admin";
-                    const isGuest = !user;
-                    const href = item.href;
-
-                    // Role-based visibility
-                    if (item.label === "Dashboard" && isGuest) return null;
-                    if (item.label === "Chat" && isGuest) return null;
-
+                {navItems.map((item) => {
                     const Icon = item.icon;
-                    const isActive = href === "/dashboard"
-                        ? pathname === href
-                        : pathname === href || pathname?.startsWith(`${href}/`);
+                    const isActive = item.action
+                        ? false
+                        : item.href === "/dashboard"
+                            ? pathname === item.href
+                            : pathname === item.href || pathname?.startsWith(`${item.href}/`);
+
+                    if (item.action === "purchase") {
+                        return (
+                            <button
+                                key={item.label}
+                                onClick={() => {
+                                    triggerHaptic();
+                                    trackEvent("navigation_click", { destination: "wallet", source: "mobile_bottom_bar" });
+                                    openPurchaseModal();
+                                }}
+                                className={cn(
+                                    "flex h-10 min-w-0 flex-1 flex-col items-center justify-center gap-1 rounded-full px-2 py-1 text-center transition-colors active:scale-95",
+                                    "text-gray-400"
+                                )}
+                            >
+                                <Icon className="h-3.5 w-3.5 shrink-0" />
+                                <span className="text-[9px] font-semibold leading-none">{item.label}</span>
+                            </button>
+                        );
+                    }
 
                     return (
                         <Link
                             key={item.label}
-                            href={href}
+                            href={item.href}
                             data-onboarding-target={`${item.label.toLowerCase()}-nav`}
                             onClick={() => {
                                 triggerHaptic();
-                                trackEvent('navigation_click', { destination: href, source: 'mobile_bottom_bar' });
+                                trackEvent('navigation_click', { destination: item.href, source: 'mobile_bottom_bar' });
                             }}
                             className={cn(
                                 "flex h-10 min-w-0 flex-1 flex-col items-center justify-center gap-1 rounded-full px-2 py-1 text-center transition-colors active:scale-95",
