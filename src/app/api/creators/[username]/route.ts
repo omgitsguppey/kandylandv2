@@ -76,6 +76,10 @@ export async function GET(
                 : [];
         }).sort((left, right) => right.validFrom - left.validFrom);
 
+        // Intentionally decouple and swallow the view-count increment to prevent blocking or failing the read path.
+        const { FieldValue } = await import("firebase-admin/firestore");
+        creatorDoc.ref.update({ profileViewsCount: FieldValue.increment(1) }).catch(() => { /* Safe fail */ });
+
         return NextResponse.json({ success: true, creator, drops });
     } catch (error) {
         return handleApiError(error, "Creators.Profile.GET");

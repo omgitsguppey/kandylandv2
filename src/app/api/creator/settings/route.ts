@@ -39,12 +39,14 @@ export async function GET(request: NextRequest) {
         }
 
         const { data } = await requireCreator(caller.uid);
-        const [ledgerSnap, payoutSnap, subscriptionSnap, requestSnap, bookingSnap] = await Promise.all([
+        const [ledgerSnap, payoutSnap, subscriptionSnap, requestSnap, bookingSnap, relationshipsOpsSnap, dropsSnap] = await Promise.all([
             adminDb.collection("creator_ledger_accruals").where("creatorId", "==", caller.uid).get(),
             adminDb.collection("creator_payout_requests").where("creatorId", "==", caller.uid).get(),
             adminDb.collection("creator_subscriptions").where("creatorId", "==", caller.uid).get(),
             adminDb.collection("creator_custom_requests").where("creatorId", "==", caller.uid).get(),
             adminDb.collection("creator_call_bookings").where("creatorId", "==", caller.uid).get(),
+            adminDb.collection("creator_relationships_ops").doc(caller.uid).get(),
+            adminDb.collection("drops").where("creatorId", "==", caller.uid).where("status", "==", "active").get(),
         ]);
 
         const earningsGd = ledgerSnap.docs.reduce((sum, doc) => {
@@ -58,6 +60,13 @@ export async function GET(request: NextRequest) {
                 return sum + (typeof entry.requestedGd === "number" ? entry.requestedGd : 0);
             }, 0);
 
+        const followerCount = relationshipsOpsSnap.exists 
+            ? (relationshipsOpsSnap.data() as { followerCount?: number }).followerCount || 0
+            : 0;
+            
+        const profileViewsCount = typeof data.profileViewsCount === "number" ? data.profileViewsCount : 0;
+        const liveDropsCount = dropsSnap.size;
+
         return NextResponse.json({
             success: true,
             creatorSettings: data.creatorSettings ?? null,
@@ -65,6 +74,9 @@ export async function GET(request: NextRequest) {
             stats: {
                 earningsGd,
                 pendingCashoutGd,
+                followerCount,
+                profileViewsCount,
+                liveDropsCount,
                 activeSubscribers: subscriptionSnap.docs.filter((doc) => (doc.data() as Record<string, unknown>).status === "active").length,
                 openRequests: requestSnap.docs.filter((doc) => (doc.data() as Record<string, unknown>).status === "pending").length,
                 bookedCalls: bookingSnap.docs.filter((doc) => (doc.data() as Record<string, unknown>).status === "booked").length,
