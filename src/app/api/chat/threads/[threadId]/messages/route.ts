@@ -51,7 +51,16 @@ export async function POST(request: NextRequest, context: RouteContext) {
         const callerSnap = await adminDb.collection("users").doc(caller.uid).get();
         const callerData = callerSnap.data() as Record<string, unknown> | undefined;
         const callerRole = typeof callerData?.role === "string" ? callerData.role : "user";
-        const parsedBody = sendMessageSchema.safeParse(await request.json());
+        let rawBody: unknown;
+        try {
+            rawBody = await request.json();
+        } catch {
+            return finalize(NextResponse.json({
+                error: "Malformed request body.",
+                errorCode: "malformed_body",
+            }, { status: 400 }));
+        }
+        const parsedBody = sendMessageSchema.safeParse(rawBody);
         if (!parsedBody.success) {
             return finalize(NextResponse.json({
                 error: "Invalid chat message request.",

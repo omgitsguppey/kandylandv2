@@ -141,7 +141,16 @@ export async function POST(request: NextRequest) {
         const callerSnap = await adminDb.collection("users").doc(caller.uid).get();
         const callerData = callerSnap.data() as Record<string, unknown> | undefined;
         const callerRole = typeof callerData?.role === "string" ? callerData.role : "user";
-        const parsedPayload = sendMessageSchema.safeParse(await request.json());
+        let rawBody: unknown;
+        try {
+            rawBody = await request.json();
+        } catch {
+            return finalize(withCompatibilityHeaders(NextResponse.json({
+                error: "Malformed request body.",
+                errorCode: "malformed_body",
+            }, { status: 400 })));
+        }
+        const parsedPayload = sendMessageSchema.safeParse(rawBody);
         if (!parsedPayload.success) {
             return finalize(withCompatibilityHeaders(NextResponse.json({
                 error: "Invalid creator message request.",

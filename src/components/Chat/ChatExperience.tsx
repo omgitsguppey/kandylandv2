@@ -479,7 +479,13 @@ export function ChatExperience() {
         try {
             const queryString = creatorId ? `?creatorId=${encodeURIComponent(creatorId)}` : "";
             const response = await authFetch(`/api/chat/threads${queryString}`);
-            const body = await response.json() as ThreadListResponse & { error?: string };
+            const rawText = await response.text().catch(() => "");
+            let body: ThreadListResponse & { error?: string };
+            try {
+                body = JSON.parse(rawText) as ThreadListResponse & { error?: string };
+            } catch {
+                throw new Error(`Chat threads returned non-JSON (${response.status}): ${rawText.slice(0, 150).trim()}`);
+            }
             if (!response.ok) {
                 throw new Error(body.error || "Failed to load chat threads.");
             }
@@ -530,7 +536,13 @@ export function ChatExperience() {
 
         try {
             const response = await authFetch("/api/creator/relationships");
-            const body = await response.json() as CreatorRelationshipsListResponse & { error?: string };
+            const rawText = await response.text().catch(() => "");
+            let body: CreatorRelationshipsListResponse & { error?: string };
+            try {
+                body = JSON.parse(rawText) as CreatorRelationshipsListResponse & { error?: string };
+            } catch {
+                throw new Error(`Followed creators returned non-JSON (${response.status}): ${rawText.slice(0, 150).trim()}`);
+            }
             if (!response.ok) {
                 throw new Error(body.error || "Failed to load followed creators.");
             }
@@ -572,7 +584,13 @@ export function ChatExperience() {
         }
         try {
             const response = await authFetch(`/api/chat/threads/${encodeURIComponent(threadId)}`);
-            const body = await response.json() as ThreadDetailResponse & { error?: string };
+            const rawText = await response.text().catch(() => "");
+            let body: ThreadDetailResponse & { error?: string };
+            try {
+                body = JSON.parse(rawText) as ThreadDetailResponse & { error?: string };
+            } catch {
+                throw new Error(`Chat thread detail returned non-JSON (${response.status}): ${rawText.slice(0, 150).trim()}`);
+            }
             if (!response.ok) {
                 throw new Error(body.error || "Failed to load this chat thread.");
             }
@@ -1119,7 +1137,13 @@ export function ChatExperience() {
                     storagePath,
                 }),
             });
-            const body = await response.json() as { error?: string };
+            const rawText = await response.text().catch(() => "");
+            let body: { error?: string };
+            try {
+                body = JSON.parse(rawText) as { error?: string };
+            } catch {
+                throw new Error(`Attachment cleanup returned non-JSON (${response.status}): ${rawText.slice(0, 150).trim()}`);
+            }
             if (!response.ok) {
                 throw new Error(body.error || "Failed to clean up chat attachment.");
             }
@@ -1281,13 +1305,13 @@ export function ChatExperience() {
             }
 
             if (!response.ok) {
-                if (!currentComposerFile) {
-                    setSelectedDetail((current) => current ? {
-                        ...current,
-                        messages: current.messages.filter((msg) => msg.id !== optimisticId),
-                    } : current);
-                }
                 if (body.errorCode === "insufficient_paid_gumdrops") {
+                    if (!currentComposerFile) {
+                        setSelectedDetail((current) => current ? {
+                            ...current,
+                            messages: current.messages.filter((msg) => msg.id !== optimisticId),
+                        } : current);
+                    }
                     setInsufficientFunds(body as ChatInsufficientFundsPayload);
                     return;
                 }

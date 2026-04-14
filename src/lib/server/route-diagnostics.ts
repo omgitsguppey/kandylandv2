@@ -21,7 +21,13 @@ function sanitizeDetail(detail: Record<string, unknown> | undefined) {
       return [key, value] as const;
     }
 
-    const stringified = JSON.stringify(value);
+    const stringified = (() => {
+      try {
+        return JSON.stringify(value);
+      } catch {
+        return String(value);
+      }
+    })();
     return [key, stringified ? stringified.slice(0, 500) : "undefined"] as const;
   });
 

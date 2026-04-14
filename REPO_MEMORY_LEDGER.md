@@ -24,6 +24,22 @@ This file is not a changelog. It is the concise ledger for durable decisions tha
 
 ## Decision Entries
 
+### 1o. All API route POST handlers must wrap request.json() in try/catch
+
+- Approximate date: 2026-04-13
+- Status: Active canonical server-side pattern
+- Problem/context: If a client sends a malformed or empty body, `request.json()` throws a native parse error that falls through to the generic `handleApiError` 500 path. This turns a client mistake into a server error in logs and telemetry.
+- Decision made: Every POST route handler must wrap `await request.json()` in its own try/catch, returning `400 malformed_body` on parse failure, before passing the parsed result to Zod validation.
+- What became canonical:
+  - `let rawBody: unknown; try { rawBody = await request.json(); } catch { return 400 malformed_body; }`
+  - Zod validation then runs on `rawBody`, returning its own `400` for schema mismatches
+- Truth lives in:
+  - `src/app/api/chat/threads/[threadId]/messages/route.ts`
+  - `src/app/api/chat/attachments/prepare/route.ts`
+  - `src/app/api/chat/attachments/complete/route.ts`
+  - `src/app/api/creator/messages/route.ts`
+- What is now disallowed: Calling `safeParse(await request.json())` inline without a surrounding try/catch for the `.json()` call.
+
 ### 1n. Server error-handler diagnostics must never crash the error handler itself
 
 - Approximate date: Recorded explicitly on 2026-04-13 from the chat 500 crash diagnosis

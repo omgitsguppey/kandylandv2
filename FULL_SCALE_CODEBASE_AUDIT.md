@@ -6,6 +6,40 @@ Last full-scale audit execution: 2026-04-09 19:40:21 -05:00
 Repo: `C:\Users\uylus\OneDrive\Documents\KandyDrops_Final`
 Audited HEAD at start: `36fcca527b72b04c24531724465f490642018ba2`
 
+
+## [2026-04-13 #2] Chat Pipeline Defensive Hardening Refactor
+
+Scope for this pass:
+- Harden every client-side fetch/parse site and server-side request body consumption site in the chat pipeline against non-JSON responses, malformed bodies, and non-serializable diagnostics values
+- Remove dead code in the universal error handler (`handleApiError`)
+- Fix redundant optimistic message removal in the send error path
+
+Startup protocol executed:
+- Read `FULL_SCALE_CODEBASE_AUDIT.md`
+- Read `REPO_MEMORY_LEDGER.md`
+- Read `EVERY_FILE_FUNCTION_CHECKLIST.md`
+- Ran `git status --short`
+- Identified touched surfaces:
+  - `src/components/Chat/ChatExperience.tsx`
+  - `src/app/api/chat/threads/[threadId]/messages/route.ts`
+  - `src/app/api/chat/attachments/prepare/route.ts`
+  - `src/app/api/chat/attachments/complete/route.ts`
+  - `src/app/api/creator/messages/route.ts`
+  - `src/lib/server/auth.ts`
+  - `src/lib/server/route-diagnostics.ts`
+
+Implementation Results:
+- `ChatExperience.tsx`: Converted 4 remaining `response.json()` calls (loadThreads, loadFollowedCreators, loadThreadDetail, discardUploadedAttachment) to the safe `text() → JSON.parse()` pattern. Fixed redundant optimistic message removal: now only the catch block removes the optimistic message on error, and the `!response.ok` path only removes it for the insufficient-funds early return.
+- `messages/route.ts`, `creator/messages/route.ts`, `attachments/prepare/route.ts`, `attachments/complete/route.ts`: Wrapped `request.json()` in try/catch on all 4 POST routes so that malformed/empty bodies return `400 malformed_body` instead of falling through to the generic 500 handler.
+- `auth.ts`: Removed dead code path (re-checking `error instanceof AuthError` after it already returned). Changed `error: any` to `error: unknown` for type safety. Simplified status/message to always be 500/"Internal server error" since AuthError and RateLimitError are already handled by early returns.
+- `route-diagnostics.ts`: Wrapped `JSON.stringify(value)` in try/catch so that `BigInt`, circular references, or other non-serializable types fall back to `String(value)` instead of crashing the diagnostics layer.
+
+Verification Commands Run:
+- `npx tsc --noEmit` — exit code 0, no type errors
+- `npm run build` — exit code 0, successful production build
+- `git status --short` — only expected modified files
+
+---
 ## [2026-04-13] Chat Message Send 500 Crash — Diagnostics Serialization Bug
 
 Scope for this pass:

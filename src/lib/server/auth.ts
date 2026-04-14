@@ -80,33 +80,28 @@ export async function verifyAdmin(request: NextRequest): Promise<AuthResult> {
 /**
  * Standard API error handler for route handlers.
  */
-export function handleApiError(error: any, context: string) {
+export function handleApiError(error: unknown, context: string) {
     if (error instanceof RateLimitError) {
         return buildRateLimitResponse(error);
     }
     if (error instanceof AuthError) {
         return NextResponse.json({ error: error.message }, { status: error.status });
     }
-    const status = error instanceof AuthError ? error.status : 500;
     const diagnosticChannel = inferDiagnosticChannel(context);
 
     // Keep structured logs useful for observability without forwarding raw stacks or payloads.
-    console.error(JSON.stringify(buildApiErrorLogEntry(error, context, status)));
+    console.error(JSON.stringify(buildApiErrorLogEntry(error, context, 500)));
     recordRouteFailure(context, error, {
         channel: diagnosticChannel,
         includePipelineHealth: diagnosticChannel === "analytics",
         detail: {
-            status,
+            status: 500,
         },
     });
 
-    const clientMessage = status >= 500
-        ? "Internal server error"
-        : (error instanceof Error ? error.message : "Request failed");
-
     return NextResponse.json(
-        { error: clientMessage },
-        { status }
+        { error: "Internal server error" },
+        { status: 500 }
     );
 }
 

@@ -47,7 +47,16 @@ export async function POST(request: NextRequest) {
             return finalize(NextResponse.json({ error: "Unauthorized" }, { status: 401 }));
         }
 
-        const parsedPayload = completeAttachmentSchema.safeParse(await request.json());
+        let rawBody: unknown;
+        try {
+            rawBody = await request.json();
+        } catch {
+            return finalize(NextResponse.json({
+                error: "Malformed request body.",
+                errorCode: "malformed_body",
+            }, { status: 400 }));
+        }
+        const parsedPayload = completeAttachmentSchema.safeParse(rawBody);
         if (!parsedPayload.success) {
             return finalize(NextResponse.json({
                 error: "Invalid chat attachment finalize request.",
