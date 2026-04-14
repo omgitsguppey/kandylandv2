@@ -1,7 +1,7 @@
 # Repo Memory Ledger
 
 Status: Canonical repository-memory and architecture-decision ledger
-Last refreshed: 2026-04-11
+Last refreshed: 2026-04-13
 Repo: `C:\Users\uylus\OneDrive\Documents\KandyDrops_Final`
 
 ## Purpose
@@ -23,6 +23,22 @@ This file is not a changelog. It is the concise ledger for durable decisions tha
 4. When this file and runtime code disagree, runtime code plus verification wins and this file must be updated immediately.
 
 ## Decision Entries
+
+### 1n. Server error-handler diagnostics must never crash the error handler itself
+
+- Approximate date: Recorded explicitly on 2026-04-13 from the chat 500 crash diagnosis
+- Status: Active canonical runtime-safety rule
+- Problem/context: `sanitizeDetail()` in `route-diagnostics.ts` called `JSON.stringify(value).slice(0, 500)` without guarding against `JSON.stringify()` returning `undefined`. Because this function runs inside `handleApiError()`, a crash in diagnostics serialization killed the entire API error handler, causing Vercel to return an empty 500 with no JSON body. This silently broke ALL error responses platform-wide.
+- Decision made: The server diagnostics/logging layer must never throw. Any serialization, stringify, or formatting call in the error-handling path must be wrapped or guarded so that a telemetry bug cannot mask or replace the original API error.
+- What became canonical:
+  - `sanitizeDetail()` guards `JSON.stringify()` results before calling string methods
+  - Any future additions to the diagnostics serialization path must follow the same defensive pattern
+  - Client-side response parsing must read `response.text()` first and then `JSON.parse()`, never `response.json()` followed by `response.text()`, because the response stream can only be consumed once
+- Truth lives in:
+  - `src/lib/server/route-diagnostics.ts`
+  - `src/lib/server/auth.ts` (handleApiError)
+  - `src/components/Chat/ChatExperience.tsx`
+- What is now disallowed or deprecated: Calling `.slice()`, `.trim()`, or any string method on the raw output of `JSON.stringify()` without guarding for `undefined`. Calling `response.json()` as a primary parse attempt followed by `response.text()` as a fallback (the stream is consumed after the first call).
 
 ### 1m. Supplemental behavioral auto-capture relies on PostHog
 

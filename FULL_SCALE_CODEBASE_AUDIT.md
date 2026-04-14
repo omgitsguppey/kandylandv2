@@ -1,11 +1,57 @@
 # Full Scale Codebase Audit
 
 Status: Canonical audit standard and live baseline
-Last refreshed: 2026-04-11
+Last refreshed: 2026-04-13
 Last full-scale audit execution: 2026-04-09 19:40:21 -05:00
 Repo: `C:\Users\uylus\OneDrive\Documents\KandyDrops_Final`
 Audited HEAD at start: `36fcca527b72b04c24531724465f490642018ba2`
 
+## [2026-04-13] Chat Message Send 500 Crash — Diagnostics Serialization Bug
+
+Scope for this pass:
+- Diagnose and fix persistent "message failed" error when sending chat messages on mobile
+- Identify why the server returned an empty 500 response with no JSON body
+- Clean up stale log files, superseded audit documents, and orphaned build artifacts from the project root
+
+Startup protocol executed:
+- Read `FULL_SCALE_CODEBASE_AUDIT.md`
+- Read `REPO_MEMORY_LEDGER.md`
+- Read `EVERY_FILE_FUNCTION_CHECKLIST.md`
+- Ran `git status --short`
+- Identified touched surfaces:
+  - `src/components/Chat/ChatExperience.tsx` (message send handler)
+  - `src/app/api/chat/threads/[threadId]/messages/route.ts` (Zod validation)
+  - `src/app/api/creator/messages/route.ts` (compatibility send route)
+  - `src/lib/server/route-diagnostics.ts` (error logging serialization)
+  - `src/lib/server/request-guard.ts` (auth/rate-limit guard)
+  - `src/lib/server/auth.ts` (handleApiError)
+
+Root Causes:
+- The primary crash was NOT in chat logic, Zod validation, or payload construction. It was in `src/lib/server/route-diagnostics.ts` line 24.
+- `sanitizeDetail()` called `JSON.stringify(value).slice(0, 500)` on values that could be `undefined`. `JSON.stringify(undefined)` returns `undefined` (not a string), and calling `.slice()` on `undefined` threw a fatal `TypeError: Cannot read properties of undefined (reading 'slice')`.
+- This crash occurred inside `handleApiError()` which is the universal API error handler. When the error handler itself crashes, the entire Vercel serverless function dies with a raw 500 and empty body, masking the original business-logic error.
+- This bug silently affected ALL API error responses platform-wide, not just chat. Any route that threw a catchable error and passed detail objects with undefined values through `recordRouteFailure()` would crash the handler.
+- A secondary issue in `ChatExperience.tsx` prevented debugging: the client called `response.json()` first, which consumed the response stream. When that failed (because the body was HTML/empty), the fallback `response.text()` returned empty because the stream was already consumed.
+
+Implementation Results:
+- Fixed `src/lib/server/route-diagnostics.ts`:
+  - `sanitizeDetail()` now safely handles `JSON.stringify()` returning `undefined` by falling back to the string `"undefined"` before calling `.slice()`.
+- Fixed `src/components/Chat/ChatExperience.tsx`:
+  - All three JSON response parsing sites (prepare attachment, complete attachment, send message) now read `response.text()` first, then parse with `JSON.parse()`. This guarantees the raw server output is always available for error reporting if parsing fails.
+- Removed stale files from project root:
+  - Temp logs: `check_out.txt`, `check_out_3.txt`, `check_out_4.txt`, `eslint.json`, `eslint_out.txt`, `eslint_output.txt`, `lint_out.txt`, `lint_output.txt`, `linterrors.json`, `lints.txt`, `status.txt`, `tsc_output.txt`, `tsc_output_2.txt`, `plan_review.md`, `database-debug.log`, `firestore-debug.log`
+  - Superseded audit docs: `FULL_CODEBASE_AUDIT_2026-04-01.md`, `FULL_CODEBASE_AUDIT_2026-04-03.md`, `FULL_CODEBASE_POST_AUDIT_2026-03-18.md`, `REPO_STATE_SCORECARD_2026-03-18.md`, `REPO_STATE_SCORECARD_2026-03-19.md`, `DEPENDENCY_CONSISTENCY_AUDIT_2026-03-24.md`, `STANDARDIZATION_AUDIT_CHECKLIST.md`, `ANALYTICS_SYSTEM_AUDIT_2026-03-18.md`, `TELEMETRY_MIDDLEWARE_AUDIT_2026-03-23.md`, `V1_STABILITY_AUDIT_2026-03-24.md`, `CHANGELOG.md`, `UI_REVIEW_PROCESS.md`
+  - Orphaned test script: `scripts/test-chat.ts`
+  - Build/test artifacts: `.next`, `playwright-report`, `test-results`, `output`
+
+Verification Commands Run:
+- Local dev server started (`npm run dev`) and direct API test via `node -e fetch(...)` against `/api/creator/messages` POST:
+  - Before fix: `TypeError: Cannot read properties of undefined (reading 'slice')` crashed the handler, returning empty 500
+  - After fix: Clean JSON `{"error":"Creator or participant not found.","errorCode":"participants_not_found"}` returned correctly
+- `git status --short` confirmed clean working tree after cleanup
+- `git push origin main` succeeded for all three commits
+
+---
 ## [2026-04-12] Admin Username Management & Discovery Glitch Fixes
 
 Scope for this pass:
