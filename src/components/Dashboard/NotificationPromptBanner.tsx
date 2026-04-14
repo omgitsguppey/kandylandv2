@@ -22,9 +22,9 @@ function clearLegacyNotificationPromptDismissal(storageKey: string) {
     }
 
     try {
-        window.localStorage.removeItem(storageKey);
+        window.sessionStorage.removeItem(storageKey);
     } catch {
-        // Ignore storage cleanup failures and continue with session-scoped dismissal.
+        // Ignore storage cleanup failures and continue with persistent dismissal.
     }
 }
 
@@ -83,7 +83,7 @@ export function NotificationPromptBanner() {
         }
 
         clearLegacyNotificationPromptDismissal(dismissKey);
-        setDismissed(window.sessionStorage.getItem(dismissKey) === "1");
+        setDismissed(window.localStorage.getItem(dismissKey) === "1");
     }, [dismissKey, isCheckingKey]);
 
     useEffect(() => {
@@ -153,7 +153,7 @@ export function NotificationPromptBanner() {
             setIsVisible(false);
             setDismissed(true);
             if (dismissKey) {
-                window.sessionStorage.setItem(dismissKey, "1");
+                window.localStorage.setItem(dismissKey, "1");
             }
             trackEvent("task_notifications_enabled", {
                 source: "prompt_banner",
@@ -181,7 +181,7 @@ export function NotificationPromptBanner() {
         setIsVisible(false);
         setDismissed(true);
         if (typeof window !== "undefined" && dismissKey) {
-            window.sessionStorage.setItem(dismissKey, "1");
+            window.localStorage.setItem(dismissKey, "1");
         }
         trackEvent("notification_prompt_banner_dismissed", {
             requires_pwa_install: needsStandaloneInstall,

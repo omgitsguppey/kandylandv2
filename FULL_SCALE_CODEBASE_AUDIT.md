@@ -1,4 +1,22 @@
-# Full Scale Codebase Audit
+# KandyDrops Core Codebase Audit & Defensive Ledger
+
+## [2026-04-13 #3] PayPal Funding Constraints Eradication
+
+Scope for this pass:
+- Unblock guest user intent to utilize native standalone Debit & Credit card surfaces strictly without signing up for PayPal. 
+
+Startup protocol executed:
+- Read `FULL_SCALE_CODEBASE_AUDIT.md`
+- Read `REPO_MEMORY_LEDGER.md`
+- Read `EVERY_FILE_FUNCTION_CHECKLIST.md`
+- Ran `git status --short` (clean)
+- Ran `npm run trace:adjacent -- src/components/PayPalProvider.tsx`
+
+Verification Commands Run:
+- `npx tsc --noEmit`
+
+Implementation Results:
+- Eradicated `disableFunding: "credit,card"` array intercept from `initialOptions` dynamically inside `src/components/PayPalProvider.tsx`.
 
 Status: Canonical audit standard and live baseline
 Last refreshed: 2026-04-13
@@ -6,6 +24,30 @@ Last full-scale audit execution: 2026-04-09 19:40:21 -05:00
 Repo: `C:\Users\uylus\OneDrive\Documents\KandyDrops_Final`
 Audited HEAD at start: `36fcca527b72b04c24531724465f490642018ba2`
 
+## [2026-04-13 #3] Notification System Defensive Hardening & Optimization
+
+Scope for this pass:
+- Patch `fcm-utils.ts` to cleanup dead tokens efficiently via `FieldValue.arrayRemove`
+- Update `NotificationPromptBanner.tsx` to handle dismissals natively across tabs via `localStorage`
+- Introduce generic HTML5 `BroadcastChannel` support internally into `client-runtime.ts` ensuring instantaneous multi-tab invalidations
+- Hardening `useNotifications.ts` to connect to realtime broadcast messages seamlessly
+- Rewrite `api/notifications/route.ts` ETag generation intercept mechanisms to evaluate `userRuntime.notifications` prior to scanning root collections
+
+Startup protocol executed:
+- Read `FULL_SCALE_CODEBASE_AUDIT.md`
+- Read `REPO_MEMORY_LEDGER.md`
+- Read `EVERY_FILE_FUNCTION_CHECKLIST.md`
+- Ran `git status --short` (clean)
+
+Verification Commands Run:
+- `npx tsc --noEmit`
+- `npm run trace:adjacent -- src/app/api/notifications/route.ts`
+
+Implementation Results:
+- Injected `tokenToUidMap` into array payload logic in `broadcastFCM` dynamically cleaning dead endpoints natively tracking back indices via `FieldValue.arrayRemove`.
+- Substituted ephemeral `sessionStorage` into permanent `localStorage` within `NotificationPromptBanner.tsx`.
+- Instantiated unified `BroadcastChannel("kandydrops:runtime")` intercept inside `client-runtime.ts`.
+- Substituted expensive ETags spanning root Firestore tables inside `/api/notifications` heavily targeting exact `touchUserRuntime()` payload `notifications_v`.
 
 ## [2026-04-13 #2] Chat Pipeline Defensive Hardening Refactor
 

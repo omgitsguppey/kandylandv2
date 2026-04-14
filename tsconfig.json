@@ -41,6 +41,9 @@
   "exclude": [
     "node_modules",
     "functions",
-    "dataconnect"
+    "dataconnect",
+    "cypress",
+    "tests/puppeteer",
+    ".storybook"
   ]
 }

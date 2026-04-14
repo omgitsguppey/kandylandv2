@@ -42,12 +42,38 @@ export function writeSessionStorageValue(key: string, value: string) {
     window.sessionStorage.setItem(key, value);
 }
 
-export function dispatchClientRuntimeEvent(eventName: string) {
+let globalBroadcastChannel: BroadcastChannel | null = null;
+
+function getBroadcastChannel() {
+    if (typeof window === "undefined" || !("BroadcastChannel" in window)) {
+        return null;
+    }
+    
+    if (!globalBroadcastChannel) {
+        globalBroadcastChannel = new BroadcastChannel("kandydrops:runtime");
+        globalBroadcastChannel.onmessage = (event) => {
+            if (event.data && typeof event.data === "string") {
+                window.dispatchEvent(new Event(event.data));
+            }
+        };
+    }
+    
+    return globalBroadcastChannel;
+}
+
+export function dispatchClientRuntimeEvent(eventName: string, proxyBroadcast = false) {
     if (typeof window === "undefined") {
         return;
     }
 
     window.dispatchEvent(new Event(eventName));
+
+    if (proxyBroadcast) {
+        const channel = getBroadcastChannel();
+        if (channel) {
+            channel.postMessage(eventName);
+        }
+    }
 }
 
 export function dispatchAdminOverviewSync() {
@@ -58,6 +84,9 @@ export function listenForClientRuntimeEvent(eventName: string, listener: EventLi
     if (typeof window === "undefined") {
         return () => undefined;
     }
+
+    getBroadcastChannel(); // Initialize background sync dynamically
+
 
     window.addEventListener(eventName, listener);
     return () => window.removeEventListener(eventName, listener);

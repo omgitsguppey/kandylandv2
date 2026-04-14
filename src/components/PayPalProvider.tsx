@@ -11,7 +11,6 @@ const initialOptions: ReactPayPalScriptOptions = {
   clientId: normalizedClientId || "test", // 'test' prevents instant crash if empty, but ensures it can't run a real sb transaction
   currency: "USD",
   intent: "capture",
-  disableFunding: "credit,card",
 };
 
 interface PayPalProviderProps {

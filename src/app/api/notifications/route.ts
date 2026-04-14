@@ -79,16 +79,25 @@ export async function GET(request: NextRequest) {
       return finalize(NextResponse.json({ error: "Database not available" }, { status: 500 }));
     }
 
+    const userRuntimeRef = adminDb.collection("runtime").doc(caller?.uid ?? "guest");
+    const globalRuntimeRef = adminDb.collection("runtime").doc("notifications");
+    
+    const [userRuntimeDoc, globalRuntimeDoc] = await adminDb.getAll(userRuntimeRef, globalRuntimeRef);
+    
+    const userVersion = userRuntimeDoc.data()?.notifications_v ?? -1;
+    const globalVersion = globalRuntimeDoc.data()?.version ?? -1;
+
+    const etag = `W/"v2-${userVersion}-${globalVersion}"`;
+
+    if (requestMatchesEtag(request, etag)) {
+      return finalize(buildNotModifiedResponse(etag, PRIVATE_REVALIDATE_CACHE_CONTROL));
+    }
+
     const notifications = await fetchUnreadNotificationsForUser(caller?.uid ?? "", {
       targetLimit: 50,
       pageSize: 100,
       maxPages: 5,
     });
-    const etag = buildNotificationsEtag(notifications);
-
-    if (requestMatchesEtag(request, etag)) {
-      return finalize(buildNotModifiedResponse(etag, PRIVATE_REVALIDATE_CACHE_CONTROL));
-    }
 
     return finalize(NextResponse.json(
       { success: true, notifications },

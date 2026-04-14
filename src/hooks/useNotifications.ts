@@ -169,7 +169,7 @@ export function useNotifications({ enabled = true }: UseNotificationsOptions = {
         });
 
         if (!options?.preserveVisible) {
-            dispatchClientRuntimeEvent(CLIENT_RUNTIME_EVENTS.notificationsSync);
+            dispatchClientRuntimeEvent(CLIENT_RUNTIME_EVENTS.notificationsSync, true);
         }
 
         return true;
@@ -209,7 +209,7 @@ export function useNotifications({ enabled = true }: UseNotificationsOptions = {
             )));
         }
 
-        dispatchClientRuntimeEvent(CLIENT_RUNTIME_EVENTS.notificationsSync);
+        dispatchClientRuntimeEvent(CLIENT_RUNTIME_EVENTS.notificationsSync, true);
         return {
             successCount: succeededIds.length,
             failedCount,

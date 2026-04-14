@@ -25,6 +25,7 @@ export async function broadcastFCM(
     try {
         const BATCH_SIZE = 500;
         let tokensChunk: string[] = [];
+        let tokenToUidMap = new Map<string, string>();
         let successCount = 0;
         let failureCount = 0;
         let tokensSent = false;
@@ -44,6 +45,37 @@ export async function broadcastFCM(
             const response = await admin.messaging().sendEachForMulticast(message);
             successCount += response.successCount;
             failureCount += response.failureCount;
+
+            if (response.failureCount > 0) {
+                const failedTokensToRemoveByUid = new Map<string, string[]>();
+                response.responses.forEach((resp, index) => {
+                    const errorCode = resp.error?.code;
+                    if (!resp.success && (errorCode === "messaging/invalid-registration-token" || errorCode === "messaging/registration-token-not-registered")) {
+                        const deadToken = tokens[index];
+                        const uid = tokenToUidMap.get(deadToken);
+                        if (uid) {
+                            const deadList = failedTokensToRemoveByUid.get(uid) ?? [];
+                            deadList.push(deadToken);
+                            failedTokensToRemoveByUid.set(uid, deadList);
+                        }
+                    }
+                });
+                
+                if (failedTokensToRemoveByUid.size > 0) {
+                    const batch = adminDb!.batch();
+                    let batchCount = 0;
+                    for (const [uid, deadTokens] of failedTokensToRemoveByUid.entries()) {
+                        if (batchCount >= 500) break;
+                        batch.update(adminDb!.collection("users").doc(uid), {
+                            fcmTokens: admin.firestore.FieldValue.arrayRemove(...deadTokens)
+                        });
+                        batchCount++;
+                    }
+                    if (batchCount > 0) {
+                        await batch.commit().catch(e => console.error("FCM Token Cleanup Error:", e));
+                    }
+                }
+            }
         };
 
         for await (const doc of stream) {
@@ -71,6 +103,7 @@ export async function broadcastFCM(
             }
 
             if (shouldSend && tokens.length > 0) {
+                tokens.forEach(t => tokenToUidMap.set(t, documentSnapshot.id));
                 tokensChunk.push(...tokens);
 
                 while (tokensChunk.length >= BATCH_SIZE) {
@@ -95,7 +128,7 @@ export async function broadcastFCM(
             return true;
         }
 
-        return true; // No tokens to send to, but no failure occurred
+        return true; 
     } catch (err) {
         console.error("FCM broadcast multicasting failed:", err);
         return false;
