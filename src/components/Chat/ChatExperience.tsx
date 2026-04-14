@@ -1156,11 +1156,11 @@ export function ChatExperience() {
                 }),
             });
             let prepareBody = {} as { error?: string } & Partial<ChatAttachmentPrepareResponse>;
+            const prepareRawText = await prepareResponse.text().catch(() => "");
             try {
-                prepareBody = await prepareResponse.json() as typeof prepareBody;
+                prepareBody = JSON.parse(prepareRawText) as typeof prepareBody;
             } catch {
-                const textDetail = await prepareResponse.text().catch(() => "");
-                throw new Error(`Prepare API returned non-JSON (${prepareResponse.status}): ${textDetail.slice(0, 150).trim()}`);
+                throw new Error(`Prepare API returned non-JSON (${prepareResponse.status}): ${prepareRawText.slice(0, 150).trim()}`);
             }
             if (!prepareResponse.ok || !prepareBody.storagePath) {
                 throw new Error(prepareBody.error || "Failed to prepare chat attachment upload.");
@@ -1182,11 +1182,11 @@ export function ChatExperience() {
                 }),
             });
             let completeBody = {} as { error?: string } & Partial<ChatAttachmentCompleteResponse>;
+            const completeRawText = await completeResponse.text().catch(() => "");
             try {
-                completeBody = await completeResponse.json() as typeof completeBody;
+                completeBody = JSON.parse(completeRawText) as typeof completeBody;
             } catch {
-                const textDetail = await completeResponse.text().catch(() => "");
-                throw new Error(`Complete API returned non-JSON (${completeResponse.status}): ${textDetail.slice(0, 150).trim()}`);
+                throw new Error(`Complete API returned non-JSON (${completeResponse.status}): ${completeRawText.slice(0, 150).trim()}`);
             }
             if (!completeResponse.ok || !completeBody.assetUrl) {
                 throw new Error(completeBody.error || "Failed to finalize chat attachment.");
@@ -1273,10 +1273,10 @@ export function ChatExperience() {
                 }),
             });
             let body = {} as ChatSendResponse;
+            const rawResponse = await response.text().catch(() => "");
             try {
-                body = await response.json() as ChatSendResponse;
+                body = JSON.parse(rawResponse) as ChatSendResponse;
             } catch (jsonParseError) {
-                const rawResponse = await response.text().catch(() => "");
                 throw new Error(`Server returned a non-JSON response (${response.status}). This suggests a Vercel runtime crash: ${rawResponse.slice(0, 150).trim()}`);
             }
 
