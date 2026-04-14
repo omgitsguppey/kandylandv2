@@ -1,9 +1,8 @@
-import { useCallback, useEffect, useRef, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { collection, onSnapshot, query, where } from "firebase/firestore";
 import { usePathname } from "next/navigation";
 
 import { useAuth } from "@/context/AuthContext";
-import { authFetch } from "@/lib/authFetch";
 import {
     CHAT_COLLECTIONS,
     resolveChatThreadUnreadCount,
@@ -28,7 +27,10 @@ export function useChatUnreadStatus() {
 
     useEffect(() => {
         if (!user || !userProfile || !preferRealtime) {
-            setHasUnreadMessages(false);
+            // Delaying state update slightly to avoid synchronous set state cascading React 18 error
+            queueMicrotask(() => {
+                setHasUnreadMessages(false);
+            });
             realtimeIssueReportedAtRef.current = null;
             return;
         }

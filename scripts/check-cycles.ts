@@ -44,6 +44,7 @@ const TARGETS: Record<TargetName, CycleTargetConfig> = {
       "react-loading-skeleton/dist/skeleton.css",
       "@tanstack-query-firebase/react/data-connect",
       "@tanstack/react-query",
+      "storybook/test",
     ],
   },
   functions: {

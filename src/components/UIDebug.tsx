@@ -13,7 +13,7 @@ export function UIDebug() {
             import("react").then((React) => {
                 import("react-dom").then((ReactDOM) => {
                     import("@axe-core/react").then((axe) => {
-                        // eslint-disable-next-line @typescript-eslint/no-unsafe-member-access, @typescript-eslint/no-unsafe-call
+
                         axe.default(React, ReactDOM, 1000);
                     }).catch(() => {});
                 });
