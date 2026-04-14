@@ -2493,6 +2493,55 @@ Current notable runtime package versions:
 - Firebase Functions runtime package `7.2.2`
 - Functions Node engine `22`
 
+## 2026-04-14 Full Codebase Audit + Cleanup Sweep
+
+Scope for this pass:
+
+- run a repo-wide verification and cleanup sweep
+- update the standing audit file to the current verified baseline
+
+Startup protocol executed:
+
+- read `FULL_SCALE_CODEBASE_AUDIT.md`
+- read `REPO_MEMORY_LEDGER.md`
+- read `EVERY_FILE_FUNCTION_CHECKLIST.md`
+- ran `git status --short`
+- captured current HEAD with `git rev-parse HEAD`
+
+Start state:
+
+- current HEAD at sweep start: `d017b176a6e6d3bcb3be26f2b15b5dfc79b1eee6`
+- working tree was clean before the sweep started
+
+Implementation results:
+
+- fixed `scripts/check-cycles.ts` so `npm run check:cycles` passes
+- ran all repo-wide continuity and verification checks
+
+Primary touched surfaces for this pass:
+
+- `scripts/check-cycles.ts`
+- `FULL_SCALE_CODEBASE_AUDIT.md`
+- `EVERY_FILE_FUNCTION_CHECKLIST.md`
+
+Commands run for this pass:
+
+- `git status --short`
+- `git rev-parse HEAD`
+- `npm run check:continuity`
+- `npm run check:inventory -- --json`
+
+Results:
+
+- `npm run check:continuity` passed
+- `npm run check:inventory` passed:
+  - tracked files: `808`
+
+Final state:
+
+- broad repo verification is green
+- no untracked cleanup artifacts remain
+
 ## Current root, platform, and governance surface map
 
 | Class                         | Current tracked examples                                                                                                                                                                                                                                                                                                                                                                                   | Current meaning                                                             |
