@@ -8,6 +8,7 @@ import { TELEMETRY_EVENT_INDEX_VERSION } from "@/lib/telemetry-catalog";
 import { buildAnalyticsTimeKeys } from "@/lib/server/analytics-event-utils";
 import { recordAnalyticsPipelineFailure } from "@/lib/server/analytics-pipeline-health";
 import { guardApiRequest } from "@/lib/server/request-guard";
+import { recordRouteWarning } from "@/lib/server/route-diagnostics";
 import { recordServerDiagnostic } from "@/lib/server/server-diagnostics";
 import { ANALYTICS_BATCH_ID_PATTERN, createAnalyticsBatchId, createAnalyticsStorageKey } from "@/lib/analytics-identifiers";
 import {
@@ -130,7 +131,8 @@ export async function POST(request: NextRequest) {
         const parsed = PayloadSchema.safeParse(rawPayload);
 
         if (!parsed.success || parsed.data.events.length === 0) {
-            console.warn("Telemetry ingestion validation failed or empty payload", !parsed.success ? parsed.error : "empty events array");
+            // Security: Prevent exposure of validation errors/stack traces in standard output logs
+            recordRouteWarning("Analytics.Ingest", "Telemetry ingestion validation failed or empty payload", !parsed.success ? parsed.error : "empty events array", { channel: "analytics" });
             return NextResponse.json({ success: true, ignored: true });
         }
 

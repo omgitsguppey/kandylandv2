@@ -9,6 +9,7 @@ import { normalizeUserProfile } from "@/lib/user-utils";
 import { describeSecurityEvent } from "@/lib/security-events";
 import { getDropReferenceMap, resolveDropTitle } from "@/lib/server/drop-references";
 import { deriveGumdropEconomics } from "@/lib/gumdrop-economics";
+import { recordRouteWarning } from "@/lib/server/route-diagnostics";
 import { buildModuleCoverageReport, buildParityInsight } from "@/lib/server/analytics-parity";
 import { guardApiRequest } from "@/lib/server/request-guard";
 import { CREATOR_COLLECTIONS, isCreatorRole } from "@/lib/creator-experiences";
@@ -770,7 +771,8 @@ export async function GET(
                 pendingSubmissions,
             };
             } catch (error) {
-                console.warn("[Admin] Gracefully recovered from creatorOps indexing or fetch error:", error);
+                // Security: Prevent exposure of raw errors/stack traces in standard output logs
+                recordRouteWarning("Admin.User.CreatorOps", "[Admin] Gracefully recovered from creatorOps indexing or fetch error", error, { channel: "admin" });
                 
                 creatorOps = {
                     summary: {
