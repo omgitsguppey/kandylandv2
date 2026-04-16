@@ -2,7 +2,7 @@
 
 import Link from "next/link";
 import { useCallback, useEffect, useMemo, useState } from "react";
-import { Loader2, Megaphone, Send, Users, Eye, Activity, Video, Phone, ArrowUpRight, DollarSign, MessageCircle, PlaySquare, CheckCircle, Package } from "lucide-react";
+import { Megaphone, Send, Users, Eye, Activity, Phone, DollarSign, MessageCircle, PlaySquare, CheckCircle, Package } from "lucide-react";
 import { toast } from "sonner";
 
 import { Button } from "@/components/ui/Button";
@@ -563,7 +563,10 @@ export function CreatorWorkspacePanel({ userProfile }: { userProfile: UserProfil
                         {recentThread ? (
                             <Link href={`/dashboard/chat?thread=${recentThread.id}`} className="group relative flex w-full shrink-0 items-center gap-3 rounded-2xl border border-white/10 bg-black/40 px-4 py-3 transition-colors hover:bg-white/5 sm:w-[280px]">
                                 {recentThread.counterpartPhotoURL ? (
-                                    <img src={recentThread.counterpartPhotoURL} alt="Fan" className="h-10 w-10 shrink-0 rounded-full object-cover" />
+                                    <>
+                                        {/* eslint-disable-next-line @next/next/no-img-element */}
+                                        <img src={recentThread.counterpartPhotoURL} alt="Fan" className="h-10 w-10 shrink-0 rounded-full object-cover" />
+                                    </>
                                 ) : (
                                     <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-full bg-white/10 text-white">
                                         <Users className="h-5 w-5 opacity-50" />

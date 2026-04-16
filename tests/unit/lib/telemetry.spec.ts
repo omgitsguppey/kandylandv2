@@ -69,7 +69,9 @@ describe("telemetry", () => {
 
             expect(result.durationMs).toBeUndefined();
             expect(result.startedAt).toBeUndefined();
-            expect(result.mergedParams).toEqual({});
+            expect(result.mergedParams).toEqual({
+                event_schema_version: "v2"
+            });
         });
 
         it("handles empty storage safely", () => {
@@ -80,7 +82,9 @@ describe("telemetry", () => {
 
             expect(result.durationMs).toBeUndefined();
             expect(result.startedAt).toBeUndefined();
-            expect(result.mergedParams).toEqual({});
+            expect(result.mergedParams).toEqual({
+                event_schema_version: "v2"
+            });
         });
     });
 });

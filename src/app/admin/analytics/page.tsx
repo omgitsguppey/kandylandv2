@@ -56,7 +56,6 @@ import {
   ADMIN_ANALYTICS_RANGE_OPTIONS,
   normalizeAdminAnalyticsModuleRangeMap,
   type AdminAnalyticsModuleRangeMap,
-  type AdminAnalyticsRangeOption,
 } from "@/lib/admin-analytics-preferences";
 import { buildAuthOutcomeChartModel } from "@/lib/admin-auth-outcome-chart";
 import { buildAdminNotificationFunnelModel } from "@/lib/admin-notification-funnel";
@@ -74,7 +73,7 @@ import { AdminTaskAndNotificationModules } from "@/components/Admin/Analytics/Ad
 import { PageViewEvent } from "@/components/Analytics/PageViewEvent";
 import { TELEMETRY_EVENT_LABELS } from "@/lib/telemetry-catalog";
 
-import type { ViewTab, RangeOption, HistoricalAnalyticsResponse, RealtimeAnalyticsResponse, AnalyticsPreferencesResponse, RawEventItem, UserJourneyItem, ValidationItem, OnboardingStepStatItem, CountBucketItem, ViewerOverviewItem, ViewerDropInsightItem, ViewerUserOptionItem, ComponentContextItem, ExperienceContextItem, SecurityReasonItem } from "@/types/admin-analytics";
+import type { ViewTab, RangeOption, HistoricalAnalyticsResponse, RealtimeAnalyticsResponse, AnalyticsPreferencesResponse, RawEventItem, UserJourneyItem, ValidationItem, OnboardingStepStatItem, CountBucketItem } from "@/types/admin-analytics";
 
 const EMPTY_ONBOARDING_STATS = {
   starts: 0,

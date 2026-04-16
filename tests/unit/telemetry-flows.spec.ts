@@ -65,7 +65,7 @@ describe("telemetry flow functions", () => {
             const stored = JSON.parse(storedRaw);
             expect(stored["onboarding_flow"]).toBeDefined();
             expect(stored["onboarding_flow"].startedAt).toBe(1704103200000); // 2024-01-01T10:00:00.000Z
-            expect(stored["onboarding_flow"].params).toEqual({ step: 1 });
+            expect(stored["onboarding_flow"].params).toEqual({ step: 1, event_schema_version: "v2" });
         });
 
         it("sanitizes event params", () => {
@@ -81,19 +81,14 @@ describe("telemetry flow functions", () => {
             startTimedFlow("test_flow", complexParams);
 
             const stored = JSON.parse(sessionStorageStore[FLOW_STORAGE_KEY]);
-            expect(stored["test_flow"].params).toEqual({
-                validString: "string",
-                validNumber: 42,
-                validBoolean: true,
-                complexObject: '{"a":1}'
-            });
+            expect(stored["test_flow"].params).toEqual({ validString: "string", validNumber: 42, validBoolean: true, complexObject: JSON.stringify({ a: 1 }), event_schema_version: "v2" });
         });
 
         it("handles missing eventParams", () => {
             startTimedFlow("empty_flow");
 
             const stored = JSON.parse(sessionStorageStore[FLOW_STORAGE_KEY]);
-            expect(stored["empty_flow"].params).toBeUndefined();
+            expect(stored["empty_flow"].params).toEqual({ event_schema_version: "v2" });
         });
     });
 
@@ -171,7 +166,8 @@ describe("telemetry flow functions", () => {
                 initial: "value",
                 final: "value",
                 duration_ms: 2500,
-                duration_seconds: 3, // Math.round(2500 / 1000) = 3
+                duration_seconds: 3,
+                event_schema_version: "v2" // Math.round(2500 / 1000) = 3
             });
         });
 
@@ -192,7 +188,8 @@ describe("telemetry flow functions", () => {
             expect(result.durationMs).toBeUndefined();
             expect(result.startedAt).toBeUndefined();
             expect(result.mergedParams).toEqual({
-                param: "value"
+                param: "value",
+                event_schema_version: "v2"
             });
         });
 
@@ -204,7 +201,8 @@ describe("telemetry flow functions", () => {
             expect(result.durationMs).toBeUndefined();
             expect(result.startedAt).toBeUndefined();
             expect(result.mergedParams).toEqual({
-                some: "param"
+                some: "param",
+                event_schema_version: "v2"
             });
         });
 
@@ -221,7 +219,8 @@ describe("telemetry flow functions", () => {
             expect(result.durationMs).toBeUndefined();
             expect(result.startedAt).toBeUndefined();
             expect(result.mergedParams).toEqual({
-                some: "param"
+                some: "param",
+                event_schema_version: "v2"
             });
         });
 

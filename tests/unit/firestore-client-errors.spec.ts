@@ -28,6 +28,6 @@ describe("firestore client error helpers", () => {
             firestorePrimaryAssertionId: "b815",
             scope: "chat thread list",
         }));
-        expect(buildFirestoreClientFallbackMessage("Chat", error)).toContain("polling fallback is active");
+        expect(buildFirestoreClientFallbackMessage("Chat", error)).toContain("Chat live updates hit a Firestore client state failure. Realtime may be momentarily interrupted.");
     });
 });

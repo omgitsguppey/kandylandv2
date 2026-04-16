@@ -106,7 +106,7 @@ describe("telemetry flow logic", () => {
             expect(stored).toBeDefined();
             expect(stored["test_flow"]).toBeDefined();
             expect(stored["test_flow"].startedAt).toBe(1767225600000); // 2026-01-01T00:00:00Z
-            expect(stored["test_flow"].params).toEqual({ some_param: "value" });
+            expect(stored["test_flow"].params).toEqual({ some_param: "value", event_schema_version: "v2" });
         });
 
         it("sanitizes event params", () => {
@@ -119,12 +119,7 @@ describe("telemetry flow logic", () => {
             });
 
             const stored = JSON.parse(mockSessionStorage[FLOW_STORAGE_KEY]);
-            expect(stored["test_flow"].params).toEqual({
-                valid_str: "str",
-                valid_num: 123,
-                valid_bool: true,
-                invalid_obj: '{"nested":"ignored but stringified"}'
-            });
+            expect(stored["test_flow"].params).toEqual({ valid_str: "str", valid_num: 123, valid_bool: true, invalid_obj: JSON.stringify({ nested: "ignored but stringified" }), event_schema_version: "v2" });
         });
     });
 
@@ -158,7 +153,7 @@ describe("telemetry flow logic", () => {
             const result = telemetry.consumeTimedFlow("test_flow", { new_param: "value" });
             expect(result.durationMs).toBeUndefined();
             expect(result.startedAt).toBeUndefined();
-            expect(result.mergedParams).toEqual({ new_param: "value" });
+            expect(result.mergedParams).toEqual({ new_param: "value", event_schema_version: "v2" });
         });
 
         it("calculates duration, merges params, and clears flow from storage", () => {
@@ -176,12 +171,7 @@ describe("telemetry flow logic", () => {
 
             expect(result.durationMs).toBe(5500);
             expect(result.startedAt).toBe(startMs);
-            expect(result.mergedParams).toEqual({
-                original_param: "old",
-                new_param: "new",
-                duration_ms: 5500,
-                duration_seconds: 6
-            });
+            expect(result.mergedParams).toEqual({ original_param: "old", new_param: "new", duration_ms: 5500, duration_seconds: 6, event_schema_version: "v2" });
 
             const stored = JSON.parse(mockSessionStorage[FLOW_STORAGE_KEY]);
             expect(stored["test_flow"]).toBeUndefined();
