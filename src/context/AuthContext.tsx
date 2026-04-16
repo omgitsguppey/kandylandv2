@@ -32,7 +32,6 @@ import { CREATOR_WAITLIST_PATH, getPreferredAuthenticatedPathForProfile } from "
 import {
     normalizeEmailAddress,
 } from "@/lib/auth-errors";
-import { buildFirestoreClientFallbackMessage, buildFirestoreClientIssueDetail } from "@/lib/firestore-client-errors";
 import { syncClientSessionOwnership } from "@/lib/client-session";
 import { clearTaskGuidanceStorage } from "@/lib/task-guidance";
 import { syncIdentifiedTelemetryOwnership, trackEvent } from "@/lib/telemetry";

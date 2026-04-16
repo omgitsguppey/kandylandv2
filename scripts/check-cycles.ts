@@ -43,7 +43,7 @@ const TARGETS: Record<TargetName, CycleTargetConfig> = {
       "tailwindcss",
       "react-loading-skeleton/dist/skeleton.css",
       "@tanstack-query-firebase/react/data-connect",
-      "@tanstack/react-query",
+      "@tanstack/react-query", "storybook/test",
     ],
   },
   functions: {

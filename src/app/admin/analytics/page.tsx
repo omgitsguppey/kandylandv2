@@ -56,7 +56,6 @@ import {
   ADMIN_ANALYTICS_RANGE_OPTIONS,
   normalizeAdminAnalyticsModuleRangeMap,
   type AdminAnalyticsModuleRangeMap,
-  type AdminAnalyticsRangeOption,
 } from "@/lib/admin-analytics-preferences";
 import { buildAuthOutcomeChartModel } from "@/lib/admin-auth-outcome-chart";
 import { buildAdminNotificationFunnelModel } from "@/lib/admin-notification-funnel";
@@ -74,7 +73,7 @@ import { AdminTaskAndNotificationModules } from "@/components/Admin/Analytics/Ad
 import { PageViewEvent } from "@/components/Analytics/PageViewEvent";
 import { TELEMETRY_EVENT_LABELS } from "@/lib/telemetry-catalog";
 
-import type { ViewTab, RangeOption, HistoricalAnalyticsResponse, RealtimeAnalyticsResponse, AnalyticsPreferencesResponse, RawEventItem, UserJourneyItem, ValidationItem, OnboardingStepStatItem, CountBucketItem, ViewerOverviewItem, ViewerDropInsightItem, ViewerUserOptionItem, ComponentContextItem, ExperienceContextItem, SecurityReasonItem } from "@/types/admin-analytics";
+import type { ViewTab, RangeOption, HistoricalAnalyticsResponse, RealtimeAnalyticsResponse, AnalyticsPreferencesResponse, RawEventItem, UserJourneyItem, ValidationItem, OnboardingStepStatItem, CountBucketItem } from "@/types/admin-analytics";
 
 const EMPTY_ONBOARDING_STATS = {
   starts: 0,
@@ -671,7 +670,6 @@ export default function AdminAnalyticsPage() {
     gdSpent: 0,
     feed: [],
   };
-  const security = historicalResponse?.security ?? [];
   const rawEvents = historicalResponse?.rawEvents ?? [];
   const onboardingStats =
     historicalResponse?.onboardingStats ?? EMPTY_ONBOARDING_STATS;
@@ -727,7 +725,6 @@ export default function AdminAnalyticsPage() {
   const componentContexts = historicalResponse?.componentContexts ?? [];
   const userJourneys = historicalResponse?.userJourneys ?? [];
   const experienceContexts = historicalResponse?.experienceContexts ?? [];
-  const securityReasons = historicalResponse?.securityReasons ?? [];
   const liveActiveUsers = liveResponse?.activeUsers ?? [];
   const liveSurfaceMix = liveResponse?.surfaceMix ?? [];
 
@@ -778,9 +775,6 @@ export default function AdminAnalyticsPage() {
     funnel.previewOpens > 0 ? funnel.unlocks / funnel.previewOpens : 0;
   const checkoutToPurchaseRate =
     funnel.checkoutStarts > 0 ? funnel.purchases / funnel.checkoutStarts : 0;
-  const securityAlerts = security.filter((item) =>
-    isRecentViolation(item.lastViolation, nowMs),
-  ).length;
   const onboardingStartCount = onboardingStats.starts ?? 0;
   const onboardingCompletionRate =
     onboardingStats.completionRate ??
@@ -861,7 +855,6 @@ export default function AdminAnalyticsPage() {
   const topComponentContexts = componentContexts.slice(0, 6);
   const topUserJourneys = userJourneys.slice(0, 6);
   const topExperienceContexts = experienceContexts.slice(0, 6);
-  const topSecurityReasons = securityReasons.slice(0, 8);
   const liveSnapshotLabel = liveResponse?.generatedAtMs
     ? formatRelativeTime(liveResponse.generatedAtMs, nowMs)
     : liveLoading
