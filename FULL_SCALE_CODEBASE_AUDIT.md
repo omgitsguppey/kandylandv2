@@ -1,5 +1,10 @@
 # KandyDrops Core Codebase Audit & Defensive Ledger
 
+## [2026-04-16 #8] Admin Username Update Contract Fix
+- Fixed a security/integrity bug where `PATCH /api/admin/users/[userId]/username` updated the user's `username` field directly without passing through the transactional `reserveUsernameForUser` helper.
+- The route now respects the `username_reservations` collection, releasing previous usernames and reserving new ones correctly.
+- This adheres to the codebase's strict username ownership rules which prevent duplicate reservations or abandoned reserved usernames.
+
 ## [2026-04-16 #7] Open PR Evaluation, Repo Reconciliation, and Commit Pass
 
 Scope for this pass:

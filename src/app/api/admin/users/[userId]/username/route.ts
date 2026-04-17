@@ -2,6 +2,7 @@ import { NextRequest, NextResponse } from "next/server";
 import { adminDb } from "@/lib/server/firebase-admin";
 import { guardApiRequest } from "@/lib/server/request-guard";
 import { ADMIN } from "@/lib/server/rate-limit";
+import { reserveUsernameForUser } from "@/lib/server/username-suggestions";
 
 const USERNAME_REGEX = /^[a-z0-9_]{3,20}$/;
 
@@ -47,31 +48,37 @@ export async function PATCH(
       return NextResponse.json({ success: false, error: "User not found" }, { status: 404 });
     }
 
-    // Check if username is already taken by another user
-    const usernameQuery = await adminDb
-      .collection("users")
-      .where("username", "==", newUsername)
-      .limit(1)
-      .get();
+    const userData = userDoc.data();
+    const previousUsername = userData?.username;
 
-    if (!usernameQuery.empty) {
-      const takenBy = usernameQuery.docs[0];
-      if (takenBy.id !== userId) {
-        return NextResponse.json({ success: false, error: "Username is already taken" }, { status: 409 });
-      } else {
-        // Same user, no change needed
-        return NextResponse.json({ success: true, message: "Username is unchanged" });
-      }
+    if (previousUsername === newUsername) {
+      return NextResponse.json({ success: true, message: "Username is unchanged" });
     }
 
-    // Update the username
-    await userRef.update({
-      username: newUsername,
-      updatedAt: Date.now(),
-      updatedBy: adminAuth && 'uid' in adminAuth ? adminAuth.uid : "system"
+    const updatedBy = adminAuth && 'uid' in adminAuth ? adminAuth.uid : "system";
+
+    const reservation = await reserveUsernameForUser({
+      requestedUsername: newUsername,
+      uid: userId,
+      previousUsername: previousUsername,
+      source: "admin_username_change",
+      applyUserMutation: (transaction, normalizedUsername) => {
+        transaction.update(userRef, {
+          username: normalizedUsername,
+          updatedAt: Date.now(),
+          updatedBy: updatedBy
+        });
+      },
     });
 
-    return NextResponse.json({ success: true, username: newUsername });
+    if (!reservation.ok) {
+      if (reservation.reason === "invalid") {
+        return NextResponse.json({ success: false, error: "Invalid username format" }, { status: 400 });
+      }
+      return NextResponse.json({ success: false, error: "Username is already taken" }, { status: 409 });
+    }
+
+    return NextResponse.json({ success: true, username: reservation.normalizedUsername });
   } catch (error: any) {
     console.error("[Admin Username Update API Error]:", error);
     return NextResponse.json(

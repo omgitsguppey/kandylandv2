@@ -24,6 +24,16 @@ This file is not a changelog. It is the concise ledger for durable decisions tha
 
 ## Decision Entries
 
+### 1y. Admin Username Update Contract Fix
+- Approximate date: Recorded explicitly on 2026-04-16
+- Status: Active canonical admin-UX rule
+- Problem/context: Changing a user's username from the admin `/api/admin/users/[userId]/username` endpoint updated the `username` field directly without maintaining the integrity of the `username_reservations` collection.
+- Decision made: Update the route to use the transactionally-safe `reserveUsernameForUser` helper which manages the `username_reservations` records and releases the old username, if present.
+- What became canonical:
+  - You must not bypass the `username_reservations` collection for any user mutation that modifies usernames.
+- Truth lives in:
+  - `src/app/api/admin/users/[userId]/username/route.ts`
+
 ### 1x. Creator settings summaries must use Firestore aggregates, and recoverable route warnings must flow through structured diagnostics
 
 - Approximate date: Recorded explicitly on 2026-04-16 from the open PR reconciliation pass
