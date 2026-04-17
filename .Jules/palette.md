@@ -9,3 +9,7 @@
 ## 2024-03-31 - Added ARIA label to mobile profile avatar
 **Learning:** Found a profile avatar `<button>` in the Navbar that was visually an icon-only button on mobile devices (`md:hidden`). It used an image or initial for sighted users but lacked an accessible name for screen readers.
 **Action:** Always provide an `aria-label` to avatar or profile buttons when they function as icon-only interactive elements without visible text labels.
+
+## 2026-04-17 - Added ARIA label to remove asset button
+**Learning:** Found an 'X' icon button in the `AssetUploader.tsx` component used for removing selected media assets. The button lacked an accessible name, rendering it unintelligible for screen reader users. Additionally, lacking a `title`, it provided no visual tooltip for sighted users trying to understand the icon's purpose.
+**Action:** Always provide an `aria-label` and a `title` to icon-only action buttons (like remove, close, or edit) to ensure they are accessible to assistive technologies and provide clear context for sighted users on hover.
