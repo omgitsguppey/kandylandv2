@@ -81,3 +81,9 @@ description: "Auto-run standard project commands"
    `npm run check:inventory`
    `npm run check:architecture`
    `npm run check:continuity`
+
+16. Investigate and verify creator settings route regressions:
+   `npm run trace:adjacent -- src/app/api/creator/settings/route.ts`
+   `npm run trace:adjacent -- src/app/dashboard/profile/page.tsx`
+   `npx vitest run tests/unit/api/creator-settings-route.test.ts`
+   `npm run typecheck`

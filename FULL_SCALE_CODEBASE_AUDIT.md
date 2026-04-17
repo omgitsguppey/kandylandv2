@@ -1,5 +1,63 @@
 # KandyDrops Core Codebase Audit & Defensive Ledger
 
+## [2026-04-17 #11] Creator Settings Internal Error Route Fix
+
+Scope for this pass:
+- Investigate and fix the creator-settings internal error banner by tracing the profile/settings caller path, correcting the creator-role gate in the API route, and locking the behavior down with a targeted unit regression test.
+
+Startup protocol executed:
+- Read `FULL_SCALE_CODEBASE_AUDIT.md`.
+- Read `REPO_MEMORY_LEDGER.md`.
+- Read `EVERY_FILE_FUNCTION_CHECKLIST.md`.
+- Ran `git status --short`.
+- Identified touched surfaces around:
+  - `src/app/api/creator/settings/route.ts`
+  - `src/app/dashboard/profile/page.tsx`
+  - `src/lib/server/auth.ts`
+  - `src/lib/creator-experiences.ts`
+  - `tests/unit/creator-settings-route.spec.ts`
+- Ran adjacency review for the main touched runtime surfaces before implementation.
+
+Root Causes:
+- `src/app/dashboard/profile/page.tsx` treats both `creator` and `admin` accounts as creator-capable and eagerly loads `/api/creator/settings` for both roles.
+- `src/app/api/creator/settings/route.ts` used `isCreatorRole(...)`, which rejects `admin`, so admin callers were routed into a generic thrown error path.
+- The same route also threw plain `Error` instances for expected missing-profile and access-denied states. Those errors were funneled through `handleApiError(...)` as `500 Internal server error`, which is the wrong contract for recoverable creator-state problems.
+
+Verification Commands Run:
+- `Get-Content .agent/workflows/auto-tasks.md`
+- `Get-Content src/app/dashboard/profile/page.tsx`
+- `Get-Content src/app/api/creator/settings/route.ts`
+- `Get-Content src/lib/server/auth.ts`
+- `Get-ChildItem -Recurse src,tests | Select-String -Pattern "new AuthError|AuthError\\(" | Select-Object Path,LineNumber,Line`
+- `Get-ChildItem -Recurse src | Select-String -Pattern "isCreatorOrAdminRole" | Select-Object Path,LineNumber,Line`
+- `Get-Content src/lib/creator-experiences.ts | Select-Object -First 170`
+- `Get-Content tests/unit/user-profile-route.spec.ts`
+- `npm run trace:adjacent -- src/app/api/creator/settings/route.ts`
+- `npm run trace:adjacent -- src/app/dashboard/profile/page.tsx`
+- `npx vitest run tests/unit/creator-settings-route.spec.ts`
+- `npm run typecheck`
+- `git status --short`
+
+Implementation Results:
+- Updated `src/app/api/creator/settings/route.ts` to use the existing `AuthError` contract instead of generic thrown errors for expected creator-state failures.
+- Widened the route gate from `isCreatorRole(...)` to `isCreatorOrAdminRole(...)` so the API matches the profile page's existing `creator || admin` loading posture.
+- Changed expected failure cases to return explicit non-500 statuses:
+  - missing database -> `503`
+  - missing creator profile -> `404`
+  - non-creator access -> `403`
+- Added `tests/unit/creator-settings-route.spec.ts` to cover:
+  - admin callers loading creator settings successfully
+  - non-creator callers receiving `403` instead of `500`
+  - missing profile callers receiving `404` instead of `500`
+- Fixed the new regression test to mirror the real `handleApiError(...)` `AuthError` behavior rather than masking status codes back to `500`.
+
+Warnings and non-blocking notes:
+- The profile page currently logs and falls back silently when creator settings fail to load. This pass corrected the route contract that was producing incorrect internal errors, but it did not change the page's client-side fallback UX.
+- Verification for this narrow pass was targeted: adjacency review, one new route regression spec, and full TypeScript typecheck. Broader UI/audit suites were not re-run because the change was confined to one route contract and one new unit test.
+
+Cleanup:
+- No generated build or test noise required cleanup after this pass.
+
 ## [2026-04-17 #10] Repo Intelligence Post-Implementation Audit
 
 Scope for this pass:

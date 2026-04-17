@@ -1,26 +1,26 @@
 import { NextRequest, NextResponse } from "next/server";
 import { AggregateField } from "firebase-admin/firestore";
 
-import { handleApiError } from "@/lib/server/auth";
+import { AuthError, handleApiError } from "@/lib/server/auth";
 import { STANDARD } from "@/lib/server/rate-limit";
 import { adminDb } from "@/lib/server/firebase-admin";
 import { guardApiRequest } from "@/lib/server/request-guard";
-import { isCreatorRole } from "@/lib/creator-experiences";
+import { isCreatorOrAdminRole } from "@/lib/creator-experiences";
 import { buildCreatorUpdateMerge, sanitizeCreatorRestrictionsUpdate, sanitizeCreatorSettingsUpdate } from "@/lib/server/creator-experiences";
 
 async function requireCreator(uid: string) {
     if (!adminDb) {
-        throw new Error("Database not available");
+        throw new AuthError("Creator settings database unavailable", 503);
     }
 
     const userSnap = await adminDb.collection("users").doc(uid).get();
     if (!userSnap.exists) {
-        throw new Error("Creator not found");
+        throw new AuthError("Creator profile not found", 404);
     }
 
     const data = userSnap.data() as Record<string, unknown>;
-    if (!isCreatorRole(data.role)) {
-        throw new Error("Creator access required");
+    if (!isCreatorOrAdminRole(data.role)) {
+        throw new AuthError("Creator access required", 403);
     }
 
     return { snap: userSnap, data };
