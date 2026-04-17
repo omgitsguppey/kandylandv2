@@ -1,116 +1,112 @@
 {
-  "generatedAt": "2026-04-17T06:04:23.316Z",
+  "generatedAt": "2026-04-17T15:12:48.510Z",
   "total": 5,
-  "passed": 1,
-  "failed": 4,
-  "status": "warn",
+  "passed": 5,
+  "failed": 0,
+  "status": "pass",
   "results": [
     {
       "id": "route_bug_patch",
       "task": "patch a single API route bug in admin debug diagnostics",
       "expectedScope": "moderate",
-      "actualScope": "broad",
+      "actualScope": "moderate",
       "fileHits": 2,
       "helperHits": 2,
       "verificationHits": 1,
-      "passed": false,
+      "passed": true,
       "likelyTouchedFiles": [
         "src/app/api/admin/debug/route.ts",
         "src/lib/server/firebase-admin.ts",
         "src/lib/server/route-diagnostics.ts",
-        "src/lib/route-runtime-health.ts",
-        "src/lib/telemetry-catalog.ts",
         "src/lib/server/admin-panel-system-logs.ts",
-        "src/lib/timezone.ts",
-        "src/lib/server/auth.ts"
+        "src/lib/server/admin-ui-chart-health.ts",
+        "src/lib/server/admin-ops-health.ts",
+        "src/lib/server/admin-orchestration.ts",
+        "functions/src/firebase-admin.ts"
       ],
       "canonicalHelpersToReuse": [
-        "src/lib/route-runtime-health.ts",
+        "src/lib/admin-ui-chart-health.ts",
         "src/lib/server/admin-panel-system-logs.ts",
-        "src/lib/server/auth.ts",
-        "src/lib/server/request-guard.ts",
+        "src/lib/server/admin-ui-chart-health.ts",
         "src/lib/server/route-diagnostics.ts",
-        "src/lib/server/route-runtime-health.ts"
+        "src/lib/server/auth.ts",
+        "src/lib/server/request-guard.ts"
       ],
       "requiredVerificationCommands": [
-        "npm run check:architecture",
-        "npm run check:inventory",
-        "npm run check:agent-intelligence",
-        "npm run check:ui:audits",
-        "npm run check:continuity",
         "npm run test:contracts",
-        "npm run trace:adjacent -- <path>"
+        "npm run trace:adjacent -- <path>",
+        "npm run check:ui:audits",
+        "npm run check:telemetry",
+        "npm run check:analytics-semantics",
+        "npm --prefix functions run check"
       ]
     },
     {
       "id": "admin_ui_density",
       "task": "densify the admin UI chart health surface without changing telemetry contracts",
       "expectedScope": "moderate",
-      "actualScope": "broad",
+      "actualScope": "moderate",
       "fileHits": 2,
-      "helperHits": 1,
+      "helperHits": 2,
       "verificationHits": 1,
-      "passed": false,
+      "passed": true,
       "likelyTouchedFiles": [
         "src/app/api/admin/ui-chart-health/route.ts",
         "src/lib/server/route-diagnostics.ts",
         "src/lib/admin-ui-chart-health.ts",
-        "src/lib/server/auth.ts",
-        "src/lib/server/rate-limit.ts",
-        "src/lib/server/request-guard.ts",
-        "src/lib/server/route-runtime-health.ts",
-        "src/lib/telemetry.ts"
+        "src/lib/server/admin-ui-chart-health.ts",
+        "src/lib/telemetry.ts",
+        "src/lib/server/firebase-admin.ts",
+        "functions/src/analytics-event-facts.ts",
+        "functions/src/analytics-guest-batches.ts"
       ],
       "canonicalHelpersToReuse": [
         "src/lib/admin-ui-chart-health.ts",
-        "src/lib/server/auth.ts",
-        "src/lib/server/request-guard.ts",
+        "src/lib/server/admin-ui-chart-health.ts",
         "src/lib/server/route-diagnostics.ts",
-        "src/lib/server/route-runtime-health.ts",
-        "src/lib/telemetry.ts"
+        "src/lib/telemetry.ts",
+        "src/lib/server/auth.ts",
+        "src/lib/server/request-guard.ts"
       ],
       "requiredVerificationCommands": [
-        "npm run check:architecture",
-        "npm run check:inventory",
+        "npm run check:analytics-semantics",
+        "npm run check:telemetry",
         "npm run check:ui:audits",
-        "npm run check:ui:lighthouse",
-        "npm run check:continuity",
         "npm run test:contracts",
-        "npm run trace:adjacent -- <path>"
+        "npm run trace:adjacent -- <path>",
+        "npm --prefix functions run check"
       ]
     },
     {
       "id": "chat_runtime",
       "task": "modify a chat runtime fallback behavior without breaking canonical realtime handling",
       "expectedScope": "moderate",
-      "actualScope": "broad",
-      "fileHits": 0,
-      "helperHits": 0,
-      "verificationHits": 0,
-      "passed": false,
+      "actualScope": "moderate",
+      "fileHits": 1,
+      "helperHits": 1,
+      "verificationHits": 1,
+      "passed": true,
       "likelyTouchedFiles": [
-        "src/lib/route-runtime-health.ts",
+        "src/lib/chat-attachments.ts",
+        "src/lib/chat-realtime.ts",
+        "src/lib/chat-send-feedback.ts",
+        "src/lib/chat-send-realtime.ts",
+        "src/lib/chat-soft-seal.ts",
+        "src/lib/chat.ts",
         "src/components/Chat/ChatExperience.tsx",
-        "src/lib/server/analytics-runtime.ts",
-        "src/lib/server/drop-runtime.ts",
-        "src/lib/server/notification-runtime.ts",
-        "src/lib/server/route-runtime-health.ts",
-        "src/hooks/client-runtime.ts",
-        "src/hooks/useChatUnreadStatus.ts"
+        "src/components/Chat/ChatRouteShell.tsx"
       ],
       "canonicalHelpersToReuse": [
-        "src/lib/route-runtime-health.ts",
-        "src/lib/server/route-runtime-health.ts",
-        "src/lib/admin-ui-chart-health.ts",
-        "src/lib/ai-drop-covers.ts",
         "src/lib/chat-realtime.ts",
-        "src/lib/gumdrop-ledger.ts"
+        "src/lib/server/chat.ts",
+        "src/lib/server/auth.ts",
+        "src/lib/server/request-guard.ts",
+        "src/lib/server/route-diagnostics.ts",
+        "src/lib/server/server-diagnostics.ts"
       ],
       "requiredVerificationCommands": [
-        "npm run check:architecture",
-        "npm run check:inventory",
-        "npm run check:continuity",
-        "npm run trace:adjacent -- <path>"
+        "npm run test:contracts",
+        "npm run check:ui:audits"
       ]
     },
     {
@@ -125,60 +121,63 @@
       "likelyTouchedFiles": [
         "functions/pnpm-lock.yaml",
         "functions/package.json",
-        "src/lib/platform-config.ts",
-        "functions/tsconfig.json",
-        "scripts/export-dependency-graph.ts",
         "package-lock.json",
         "package.json",
-        "functions/src/orchestration-parity.ts"
+        "src/lib/gumdrops-packages.ts",
+        "functions/package-lock.json",
+        "agent/schemas/package-manager-truth.schema.json",
+        "tests/unit/gumdrops-packages.spec.ts"
       ],
       "canonicalHelpersToReuse": [
+        "src/lib/server/admin-ui-chart-health.ts",
         "src/lib/server/auth.ts",
         "src/lib/server/request-guard.ts",
         "src/lib/server/route-runtime-health.ts",
         "src/lib/server/server-diagnostics.ts"
       ],
       "requiredVerificationCommands": [
+        "npm --prefix functions run check",
+        "npm run check:continuity",
+        "npm run trace:adjacent -- <path>",
+        "npm run test:contracts",
         "npm run check:architecture",
         "npm run check:inventory",
-        "npm run check:continuity",
-        "npm --prefix functions run check",
-        "npm run trace:adjacent -- <path>"
+        "npm run check:agent-context"
       ]
     },
     {
       "id": "telemetry_change",
       "task": "add or modify a telemetry event safely",
       "expectedScope": "moderate",
-      "actualScope": "broad",
+      "actualScope": "moderate",
       "fileHits": 1,
       "helperHits": 1,
-      "verificationHits": 0,
-      "passed": false,
+      "verificationHits": 1,
+      "passed": true,
       "likelyTouchedFiles": [
         "src/lib/telemetry.ts",
         "functions/src/analytics-event-facts.ts",
         "functions/src/analytics-security-events.ts",
         "functions/src/analytics-task-events.ts",
-        "src/lib/platform-config.ts",
         "src/lib/telemetry-catalog.ts",
-        "src/components/Dashboard/CreatorWorkspacePanel.tsx",
-        "src/lib/server/admin-analytics-historical-validation.ts"
+        "src/lib/server/admin-analytics-historical-validation.ts",
+        "src/components/Analytics/PageViewEvent.tsx",
+        "functions/src/analytics-core.ts"
       ],
       "canonicalHelpersToReuse": [
-        "src/lib/creator-onboarding.ts",
         "src/lib/telemetry-catalog.ts",
         "src/lib/telemetry.ts",
         "src/lib/chat-realtime.ts",
-        "src/lib/server/auth.ts",
-        "src/lib/server/creator-onboarding.ts"
+        "src/lib/creator-onboarding.ts",
+        "src/lib/server/admin-ui-chart-health.ts",
+        "src/lib/server/auth.ts"
       ],
       "requiredVerificationCommands": [
-        "npm run check:architecture",
-        "npm run check:inventory",
-        "npm run check:continuity",
-        "git status --short",
-        "npm run trace:adjacent -- <path>"
+        "npm run check:analytics-semantics",
+        "npm run check:telemetry",
+        "npm run test:contracts",
+        "npm run check:ui:audits",
+        "npm --prefix functions run check"
       ]
     }
   ]

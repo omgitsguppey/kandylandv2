@@ -1,5 +1,5 @@
 {
-  "generatedAt": "2026-04-17T06:04:17.324Z",
+  "generatedAt": "2026-04-17T15:12:44.681Z",
   "truthOrder": [
     "verified_runtime_code",
     "verified_configuration",
@@ -56,7 +56,7 @@
       "risk_tags": [
         "broad_signoff"
       ],
-      "recency": "1776401366358:dbdb2be827c2",
+      "recency": "1776434551969:be6b53d52fb0",
       "freshness": {
         "local": "fresh",
         "sql_mirror": "unknown"
@@ -444,7 +444,7 @@
       "risk_tags": [
         "broad_signoff"
       ],
-      "recency": "1776405743109:717af33f7f4b",
+      "recency": "1776438665476:6f985b727cbd",
       "freshness": {
         "local": "fresh",
         "sql_mirror": "unknown"
@@ -516,7 +516,7 @@
       "risk_tags": [
         "broad_signoff"
       ],
-      "recency": "1776405844416:7f140a709f68",
+      "recency": "1776438755422:07e452f9f71a",
       "freshness": {
         "local": "fresh",
         "sql_mirror": "unknown"
@@ -540,7 +540,7 @@
       "risk_tags": [
         "broad_signoff"
       ],
-      "recency": "1776405844382:1292ea6a90ad",
+      "recency": "1776438755401:c7f2edfaa435",
       "freshness": {
         "local": "fresh",
         "sql_mirror": "unknown"
@@ -564,7 +564,7 @@
       "risk_tags": [
         "broad_signoff"
       ],
-      "recency": "1776405844408:b97d67ee7d0b",
+      "recency": "1776438755418:c5c199b58cf3",
       "freshness": {
         "local": "fresh",
         "sql_mirror": "unknown"
@@ -588,7 +588,7 @@
       "risk_tags": [
         "broad_signoff"
       ],
-      "recency": "1776405844396:269e9ceca740",
+      "recency": "1776438755408:daa1f2ce0c40",
       "freshness": {
         "local": "fresh",
         "sql_mirror": "unknown"
@@ -612,7 +612,7 @@
       "risk_tags": [
         "broad_signoff"
       ],
-      "recency": "1776405844398:820326072c18",
+      "recency": "1776438755410:ba6b07effb39",
       "freshness": {
         "local": "fresh",
         "sql_mirror": "unknown"
@@ -636,7 +636,7 @@
       "risk_tags": [
         "broad_signoff"
       ],
-      "recency": "1776405844389:c4ddb172ff82",
+      "recency": "1776438755405:e628708dec4f",
       "freshness": {
         "local": "fresh",
         "sql_mirror": "unknown"
@@ -660,7 +660,7 @@
       "risk_tags": [
         "broad_signoff"
       ],
-      "recency": "1776405844403:c3644a9a2560",
+      "recency": "1776438755413:b2f4777d593b",
       "freshness": {
         "local": "fresh",
         "sql_mirror": "unknown"
@@ -684,7 +684,7 @@
       "risk_tags": [
         "broad_signoff"
       ],
-      "recency": "1776405844365:08089341d6eb",
+      "recency": "1776438755389:643945e5926a",
       "freshness": {
         "local": "fresh",
         "sql_mirror": "unknown"
@@ -708,7 +708,7 @@
       "risk_tags": [
         "broad_signoff"
       ],
-      "recency": "1776405844442:1b527a3aceb3",
+      "recency": "1776438755438:e693952c0700",
       "freshness": {
         "local": "fresh",
         "sql_mirror": "unknown"
@@ -732,7 +732,7 @@
       "risk_tags": [
         "broad_signoff"
       ],
-      "recency": "1776405844406:947a0eff40ac",
+      "recency": "1776438755416:566288d9d04e",
       "freshness": {
         "local": "fresh",
         "sql_mirror": "unknown"
@@ -756,7 +756,7 @@
       "risk_tags": [
         "broad_signoff"
       ],
-      "recency": "1776405844378:d6fa250c4c89",
+      "recency": "1776438755398:85649c241214",
       "freshness": {
         "local": "fresh",
         "sql_mirror": "unknown"
@@ -780,7 +780,7 @@
       "risk_tags": [
         "broad_signoff"
       ],
-      "recency": "1776405844385:ea8140930e61",
+      "recency": "1776438755402:f2ffebfb0d59",
       "freshness": {
         "local": "fresh",
         "sql_mirror": "unknown"
@@ -804,7 +804,7 @@
       "risk_tags": [
         "broad_signoff"
       ],
-      "recency": "1776405844391:1c3c8dd04877",
+      "recency": "1776438755406:84883221228b",
       "freshness": {
         "local": "fresh",
         "sql_mirror": "unknown"
@@ -828,7 +828,7 @@
       "risk_tags": [
         "broad_signoff"
       ],
-      "recency": "1776405850958:fe7f71e061ef",
+      "recency": "1776438760328:e452aadb905a",
       "freshness": {
         "local": "fresh",
         "sql_mirror": "unknown"
@@ -852,7 +852,7 @@
       "risk_tags": [
         "broad_signoff"
       ],
-      "recency": "1776405850950:522d8dfeab87",
+      "recency": "1776438760325:d5b0baf2a846",
       "freshness": {
         "local": "fresh",
         "sql_mirror": "unknown"
@@ -876,7 +876,7 @@
       "risk_tags": [
         "broad_signoff"
       ],
-      "recency": "1776405850954:fc10886668ec",
+      "recency": "1776438760327:20f41ed8cb9c",
       "freshness": {
         "local": "fresh",
         "sql_mirror": "unknown"
@@ -1356,7 +1356,7 @@
       "risk_tags": [
         "broad_signoff"
       ],
-      "recency": "1776405148734:15570a581784",
+      "recency": "1776434984867:c192dfeed499",
       "freshness": {
         "local": "fresh",
         "sql_mirror": "unknown"
@@ -1428,7 +1428,7 @@
       "risk_tags": [
         "broad_signoff"
       ],
-      "recency": "1776405818801:84cbfe07656b",
+      "recency": "1776438736978:422766fc5f03",
       "freshness": {
         "local": "fresh",
         "sql_mirror": "unknown"
@@ -1452,7 +1452,7 @@
       "risk_tags": [
         "broad_signoff"
       ],
-      "recency": "1776405818796:1fd94dd16ea8",
+      "recency": "1776438736973:37967b12cae7",
       "freshness": {
         "local": "fresh",
         "sql_mirror": "unknown"
@@ -1476,7 +1476,7 @@
       "risk_tags": [
         "broad_signoff"
       ],
-      "recency": "1776405850947:0e229799acef",
+      "recency": "1776438760323:36a86dacfdfe",
       "freshness": {
         "local": "fresh",
         "sql_mirror": "unknown"
@@ -3860,7 +3860,7 @@
         "shared_helper",
         "broad_signoff"
       ],
-      "recency": "1776404498992:a7c7ff2d5c01",
+      "recency": "1776434910688:676348cdfbb5",
       "freshness": {
         "local": "fresh",
         "sql_mirror": "unknown"
@@ -3935,7 +3935,7 @@
         "shared_helper",
         "broad_signoff"
       ],
-      "recency": "1776402653407:1957aa902b31",
+      "recency": "1776434920024:1f175a5ca823",
       "freshness": {
         "local": "fresh",
         "sql_mirror": "unknown"
@@ -19998,6 +19998,31 @@
       "do_not_use_as_primary_truth": false
     },
     {
+      "stable_id": "helper__src__lib__server__admin-ui-chart-health-ts",
+      "source_type": "helper",
+      "source_id": "helper__src__lib__server__admin-ui-chart-health-ts",
+      "searchable_terms": [
+        "src/lib/server/admin-ui-chart-health.ts",
+        "runtime_health_admin_debug_observability",
+        "Server persistence and reads for canonical admin UI chart health records."
+      ],
+      "surface_tags": [
+        "runtime_health_admin_debug_observability"
+      ],
+      "helper_tags": [
+        "runtime_health_admin_debug_observability"
+      ],
+      "risk_tags": [
+        "broad_signoff"
+      ],
+      "recency": "src/lib/server/admin-ui-chart-health.ts",
+      "freshness": {
+        "local": "fresh",
+        "sql_mirror": "unknown"
+      },
+      "do_not_use_as_primary_truth": false
+    },
+    {
       "stable_id": "helper__src__lib__server__admin-panel-system-logs-ts",
       "source_type": "helper",
       "source_id": "helper__src__lib__server__admin-panel-system-logs-ts",
@@ -20399,6 +20424,77 @@
       "do_not_use_as_primary_truth": true
     },
     {
+      "stable_id": "retrieval__pass__2026-04-17-repo-intelligence-post-implementation-audit",
+      "source_type": "recent_pass",
+      "source_id": "pass__2026-04-17-repo-intelligence-post-implementation-audit",
+      "searchable_terms": [
+        "Repo Intelligence Post-Implementation Audit",
+        "Audit and test the newly implemented Repo Intelligence Fabric functions and operational processes after warning remediation.",
+        "Re-run the generator, self-check, eval, and continuity lanes, then inspect the outputs for concrete behavioral defects or drift instead of relying on green status alone.",
+        "agent/index/",
+        "agent/prompts/",
+        "agent/state/",
+        "scripts/agent/build-agent-indexes.ts",
+        "scripts/agent/build-task-context.ts",
+        "scripts/agent/check-agent-context.ts",
+        "scripts/agent/run-evals.ts",
+        "scripts/agent/sync-sql.ts"
+      ],
+      "surface_tags": [
+        "ui",
+        "tooling"
+      ],
+      "helper_tags": [],
+      "risk_tags": [
+        "architecture"
+      ],
+      "recency": "2026-04-17",
+      "freshness": {
+        "local": "fresh",
+        "sql_mirror": "unknown"
+      },
+      "do_not_use_as_primary_truth": true
+    },
+    {
+      "stable_id": "retrieval__pass__2026-04-17-repo-intelligence-warning-remediation",
+      "source_type": "recent_pass",
+      "source_id": "pass__2026-04-17-repo-intelligence-warning-remediation",
+      "searchable_terms": [
+        "Repo Intelligence Warning Remediation",
+        "Remove the remaining Repo Intelligence Fabric warning states by fixing the underlying ranking, scope-classification, and verification behavior rather than downgrading, suppressing, or reclassifying failures away.",
+        "Re-run the agent-context verification and eval lanes after code changes until the warning-producing commands either pass cleanly or surface a smaller verified defect with explicit root cause.",
+        "/agent/index/*",
+        "/agent/prompts/*",
+        "/agent/state/*",
+        "agent/index/",
+        "agent/state/",
+        "npm run trace:adjacent -- scripts/agent/build-task-context.ts",
+        "npm run trace:adjacent -- scripts/agent/run-evals.ts",
+        "scripts/agent/build-task-context.ts",
+        "scripts/agent/extract-canonical-helpers.ts",
+        "scripts/agent/run-evals.ts",
+        "src/lib/server/admin-ui-chart-health.ts"
+      ],
+      "surface_tags": [
+        "admin",
+        "ui",
+        "tooling",
+        "architecture"
+      ],
+      "helper_tags": [
+        "src/lib/server/admin-ui-chart-health.ts"
+      ],
+      "risk_tags": [
+        "architecture"
+      ],
+      "recency": "2026-04-17",
+      "freshness": {
+        "local": "fresh",
+        "sql_mirror": "unknown"
+      },
+      "do_not_use_as_primary_truth": true
+    },
+    {
       "stable_id": "retrieval__pass__2026-04-16-repo-intelligence-fabric-v1",
       "source_type": "recent_pass",
       "source_id": "pass__2026-04-16-repo-intelligence-fabric-v1",
@@ -20696,110 +20792,6 @@
       "helper_tags": [],
       "risk_tags": [
         "architecture",
-        "ui"
-      ],
-      "recency": "2026-04-16",
-      "freshness": {
-        "local": "fresh",
-        "sql_mirror": "unknown"
-      },
-      "do_not_use_as_primary_truth": true
-    },
-    {
-      "stable_id": "retrieval__pass__2026-04-16-fix-findings-from-antigravity-review",
-      "source_type": "recent_pass",
-      "source_id": "pass__2026-04-16-fix-findings-from-antigravity-review",
-      "searchable_terms": [
-        "Fix Findings From Antigravity Review",
-        "Resolve the concrete regressions found in the committed-state review.",
-        "Restore green continuity/lint verification where the fixes are straightforward and local.",
-        "Remove hidden creator dashboard fan-out that survived the workspace compaction pass.",
-        "next/image",
-        "npm run trace:adjacent -- src/app/admin/analytics/page.tsx",
-        "npm run trace:adjacent -- src/components/Dashboard/CreatorWorkspacePanel.tsx",
-        "npm run trace:adjacent -- src/hooks/useChatUnreadStatus.ts",
-        "npx vitest run --config vitest.config.ts tests/unit/telemetry.spec.ts tests/unit/telemetry-flows.spec.ts tests/unit/lib/telemetry.spec.ts tests/unit/firestore-client-errors.spec.ts",
-        "scripts/check-cycles.ts",
-        "src/app/admin/analytics/page.tsx",
-        "src/app/api/user/register/route.ts",
-        "src/app/dashboard/profile/page.tsx",
-        "src/app/sitemap.ts",
-        "src/components/Dashboard/CreatorWorkspacePanel.tsx",
-        "src/components/UIDebug.tsx",
-        "src/context/AuthContext.tsx",
-        "src/hooks/useChatUnreadStatus.ts",
-        "src/stories/Page.tsx",
-        "storybook-static/**",
-        "storybook/test",
-        "tests/unit/firestore-client-errors.spec.ts",
-        "tests/unit/lib/telemetry.spec.ts",
-        "tests/unit/telemetry-flows.spec.ts",
-        "tests/unit/telemetry.spec.ts"
-      ],
-      "surface_tags": [
-        "admin",
-        "ui",
-        "runtime",
-        "tooling"
-      ],
-      "helper_tags": [],
-      "risk_tags": [
-        "architecture",
-        "runtime",
-        "ui"
-      ],
-      "recency": "2026-04-16",
-      "freshness": {
-        "local": "fresh",
-        "sql_mirror": "unknown"
-      },
-      "do_not_use_as_primary_truth": true
-    },
-    {
-      "stable_id": "retrieval__pass__2026-04-16-antigravity-committed-state-review-audit-refresh",
-      "source_type": "recent_pass",
-      "source_id": "pass__2026-04-16-antigravity-committed-state-review-audit-refresh",
-      "searchable_terms": [
-        "Antigravity Committed-State Review & Audit Refresh",
-        "Review the current committed repo state after recent Antigravity IDE work already landed on `main`.",
-        "Reconcile the latest high-risk chat, navigation, creator workspace, notification, and Storybook/testing changes against continuity checks.",
-        "Refresh the canonical audit artifacts to match the actual repository state instead of prior chat assumptions.",
-        "/api/creator/broadcasts",
-        "/api/creator/payouts",
-        "/api/creator/subscriptions",
-        "npm run trace:adjacent -- src/components/Chat/ChatExperience.tsx",
-        "npm run trace:adjacent -- src/components/Dashboard/CreatorWorkspacePanel.tsx",
-        "npm run trace:adjacent -- src/components/Navigation/MobileBottomBar.tsx",
-        "scripts/check-cycles.ts",
-        "src/app/admin/analytics/page.tsx",
-        "src/app/api/notifications/route.ts",
-        "src/app/api/user/register/route.ts",
-        "src/app/dashboard/profile/page.tsx",
-        "src/app/sitemap.ts",
-        "src/components/Chat/ChatExperience.tsx",
-        "src/components/Dashboard/CreatorWorkspacePanel.tsx",
-        "src/components/Navigation/MobileBottomBar.tsx",
-        "src/context/AuthContext.tsx",
-        "src/hooks/client-runtime.ts",
-        "src/hooks/useChatUnreadStatus.ts",
-        "src/hooks/useNotifications.ts",
-        "src/lib/server/fcm-utils.ts",
-        "src/stories",
-        "src/stories/*.stories.ts",
-        "src/stories/Page.tsx",
-        "storybook/test"
-      ],
-      "surface_tags": [
-        "admin",
-        "ui",
-        "runtime",
-        "tooling",
-        "architecture"
-      ],
-      "helper_tags": [],
-      "risk_tags": [
-        "architecture",
-        "runtime",
         "ui"
       ],
       "recency": "2026-04-16",

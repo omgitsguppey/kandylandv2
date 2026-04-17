@@ -134,6 +134,15 @@ const HELPER_CANDIDATES: CanonicalHelperSeed[] = [
     ],
   },
   {
+    path: "src/lib/server/admin-ui-chart-health.ts",
+    family: "runtime_health_admin_debug_observability",
+    purpose: "Server persistence and reads for canonical admin UI chart health records.",
+    reuseBeforeNew: true,
+    adjacentUsageNotes: [
+      "Admin chart-health routes should reuse the shared server lane instead of ad hoc status storage.",
+    ],
+  },
+  {
     path: "src/lib/server/admin-panel-system-logs.ts",
     family: "runtime_health_admin_debug_observability",
     purpose: "System-log rollups that combine diagnostics, chart health, and runtime health into admin/debug summaries.",

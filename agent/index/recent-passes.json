@@ -1,5 +1,5 @@
 {
-  "generatedAt": "2026-04-17T06:04:12.361Z",
+  "generatedAt": "2026-04-17T15:12:41.108Z",
   "truthOrder": [
     "verified_runtime_code",
     "verified_configuration",
@@ -14,6 +14,113 @@
     "FULL_SCALE_CODEBASE_AUDIT.md"
   ],
   "passes": [
+    {
+      "stable_id": "pass__2026-04-17-repo-intelligence-post-implementation-audit",
+      "date": "2026-04-17",
+      "title": "Repo Intelligence Post-Implementation Audit",
+      "scopeSummary": [
+        "Audit and test the newly implemented Repo Intelligence Fabric functions and operational processes after warning remediation.",
+        "Re-run the generator, self-check, eval, and continuity lanes, then inspect the outputs for concrete behavioral defects or drift instead of relying on green status alone."
+      ],
+      "touchedSurfaces": [
+        "agent/index/",
+        "agent/prompts/",
+        "agent/state/",
+        "scripts/agent/build-agent-indexes.ts",
+        "scripts/agent/build-task-context.ts",
+        "scripts/agent/check-agent-context.ts",
+        "scripts/agent/run-evals.ts",
+        "scripts/agent/sync-sql.ts"
+      ],
+      "canonicalHelpersReused": [],
+      "verificationCommandsRun": [],
+      "resultSummary": [],
+      "warnings": [],
+      "architecture_change": true,
+      "runtime_change": false,
+      "ui_change": false,
+      "security_change": false,
+      "maintenance_only": false,
+      "changeKinds": [
+        "ui",
+        "tooling"
+      ]
+    },
+    {
+      "stable_id": "pass__2026-04-17-repo-intelligence-warning-remediation",
+      "date": "2026-04-17",
+      "title": "Repo Intelligence Warning Remediation",
+      "scopeSummary": [
+        "Remove the remaining Repo Intelligence Fabric warning states by fixing the underlying ranking, scope-classification, and verification behavior rather than downgrading, suppressing, or reclassifying failures away.",
+        "Re-run the agent-context verification and eval lanes after code changes until the warning-producing commands either pass cleanly or surface a smaller verified defect with explicit root cause."
+      ],
+      "touchedSurfaces": [
+        "/agent/index/*",
+        "/agent/prompts/*",
+        "/agent/state/*",
+        "agent/index/",
+        "agent/state/",
+        "npm run trace:adjacent -- scripts/agent/build-task-context.ts",
+        "npm run trace:adjacent -- scripts/agent/run-evals.ts",
+        "scripts/agent/build-task-context.ts",
+        "scripts/agent/extract-canonical-helpers.ts",
+        "scripts/agent/run-evals.ts",
+        "src/lib/server/admin-ui-chart-health.ts"
+      ],
+      "canonicalHelpersReused": [
+        "src/lib/server/admin-ui-chart-health.ts"
+      ],
+      "verificationCommandsRun": [
+        "git status --short",
+        "Get-Content FULL_SCALE_CODEBASE_AUDIT.md -TotalCount 80",
+        "Get-Content REPO_MEMORY_LEDGER.md -TotalCount 120",
+        "Get-Content EVERY_FILE_FUNCTION_CHECKLIST.md -TotalCount 60",
+        "npm run trace:adjacent -- scripts/agent/build-task-context.ts",
+        "npm run trace:adjacent -- scripts/agent/run-evals.ts",
+        "npm run check:inventory",
+        "npm run eval:agent-context",
+        "npm run typecheck",
+        "npm run agent:refresh",
+        "npm run eval:agent-context",
+        "npm run check:agent-context",
+        "npm run check:inventory",
+        "npm run check:continuity"
+      ],
+      "resultSummary": [
+        "Updated `scripts/agent/build-task-context.ts` to:",
+        "filter low-signal task tokens that were causing generic runtime matches",
+        "derive deterministic task signals for chat, admin, AI, creator, telemetry, dependency, audit, and route/diagnostics work",
+        "narrow broad-signoff detection so repo-wide classification is reserved for actual repo/governance/package/config surfaces instead of ordinary route-plus-helper work",
+        "select verification commands from explicit lane rules rather than generic token overlap",
+        "improve canonical helper scoring using task-signal family matches",
+        "Updated `scripts/agent/extract-canonical-helpers.ts` to register `src/lib/server/admin-ui-chart-health.ts` as a canonical helper in the runtime/admin debug observability family.",
+        "Regenerated the full `/agent/index/*`, `/agent/prompts/*`, and `/agent/state/*` surfaces after the compiler changes.",
+        "Removed the previous pre-commit-only Data Connect inventory warning from the live baseline by verifying against the now-tracked `dataconnect/` files.",
+        "Updated `scripts/agent/build-task-context.ts` to:",
+        "filter low-signal task tokens that were causing generic runtime matches",
+        "derive deterministic task signals for chat, admin, AI, creator, telemetry, dependency, audit, and route/diagnostics work",
+        "narrow broad-signoff detection so repo-wide classification is reserved for actual repo/governance/package/config surfaces instead of ordinary route-plus-helper work",
+        "select verification commands from explicit lane rules rather than generic token overlap",
+        "improve canonical helper scoring using task-signal family matches",
+        "Updated `scripts/agent/extract-canonical-helpers.ts` to register `src/lib/server/admin-ui-chart-health.ts` as a canonical helper in the runtime/admin debug observability family.",
+        "Regenerated the full `/agent/index/*`, `/agent/prompts/*`, and `/agent/state/*` surfaces after the compiler changes.",
+        "Removed the previous pre-commit-only Data Connect inventory warning from the live baseline by verifying against the now-tracked `dataconnect/` files."
+      ],
+      "warnings": [
+        "None. The previously warning-producing repo-intelligence lanes now pass cleanly."
+      ],
+      "architecture_change": true,
+      "runtime_change": false,
+      "ui_change": false,
+      "security_change": false,
+      "maintenance_only": false,
+      "changeKinds": [
+        "admin",
+        "ui",
+        "tooling",
+        "architecture"
+      ]
+    },
     {
       "stable_id": "pass__2026-04-16-repo-intelligence-fabric-v1",
       "date": "2026-04-16",
@@ -560,139 +667,6 @@
       "maintenance_only": false,
       "changeKinds": [
         "ui",
-        "architecture"
-      ]
-    },
-    {
-      "stable_id": "pass__2026-04-16-fix-findings-from-antigravity-review",
-      "date": "2026-04-16",
-      "title": "Fix Findings From Antigravity Review",
-      "scopeSummary": [
-        "Resolve the concrete regressions found in the committed-state review.",
-        "Restore green continuity/lint verification where the fixes are straightforward and local.",
-        "Remove hidden creator dashboard fan-out that survived the workspace compaction pass."
-      ],
-      "touchedSurfaces": [
-        "next/image",
-        "npm run trace:adjacent -- src/app/admin/analytics/page.tsx",
-        "npm run trace:adjacent -- src/components/Dashboard/CreatorWorkspacePanel.tsx",
-        "npm run trace:adjacent -- src/hooks/useChatUnreadStatus.ts",
-        "npx vitest run --config vitest.config.ts tests/unit/telemetry.spec.ts tests/unit/telemetry-flows.spec.ts tests/unit/lib/telemetry.spec.ts tests/unit/firestore-client-errors.spec.ts",
-        "scripts/check-cycles.ts",
-        "src/app/admin/analytics/page.tsx",
-        "src/app/api/user/register/route.ts",
-        "src/app/dashboard/profile/page.tsx",
-        "src/app/sitemap.ts",
-        "src/components/Dashboard/CreatorWorkspacePanel.tsx",
-        "src/components/UIDebug.tsx",
-        "src/context/AuthContext.tsx",
-        "src/hooks/useChatUnreadStatus.ts",
-        "src/stories/Page.tsx",
-        "storybook-static/**",
-        "storybook/test",
-        "tests/unit/firestore-client-errors.spec.ts",
-        "tests/unit/lib/telemetry.spec.ts",
-        "tests/unit/telemetry-flows.spec.ts",
-        "tests/unit/telemetry.spec.ts"
-      ],
-      "canonicalHelpersReused": [],
-      "verificationCommandsRun": [
-        "git status --short",
-        "npm run trace:adjacent -- src/components/Dashboard/CreatorWorkspacePanel.tsx",
-        "npm run trace:adjacent -- src/hooks/useChatUnreadStatus.ts",
-        "npm run trace:adjacent -- src/app/admin/analytics/page.tsx"
-      ],
-      "resultSummary": [
-        "`scripts/check-cycles.ts`: allowlisted `storybook/test` so continuity accepts the approved Storybook-only import path.",
-        "`src/components/Dashboard/CreatorWorkspacePanel.tsx`: removed dead creator-settings state, subscription/payout/broadcast preload fan-out, eager thread-detail loading, and other orphaned state left behind by the compaction refactor; also replaced the raw preview avatar `<img>` with `next/image`.",
-        "`src/hooks/useChatUnreadStatus.ts`: removed dead imports and replaced the effect-driven reset with a subscription-keyed derived unread state so the hook no longer trips the React `set-state-in-effect` lint rule.",
-        "`src/app/admin/analytics/page.tsx`, `src/app/api/user/register/route.ts`, `src/app/dashboard/profile/page.tsx`, `src/app/sitemap.ts`, `src/context/AuthContext.tsx`, `src/components/UIDebug.tsx`, and `src/stories/Page.tsx`: cleaned the committed lint regressions found in the review.",
-        "`tests/unit/telemetry.spec.ts`, `tests/unit/telemetry-flows.spec.ts`, `tests/unit/lib/telemetry.spec.ts`, and `tests/unit/firestore-client-errors.spec.ts`: updated stale assertions to the current canonical contracts (`event_schema_version: \"v2\"` and the non-polling Firestore fallback message).",
-        "`eslint.config.mjs`: excluded `storybook-static/**` from lint so local Storybook builds do not poison `npm run check`.",
-        "`scripts/check-cycles.ts`: allowlisted `storybook/test` so continuity accepts the approved Storybook-only import path.",
-        "`src/components/Dashboard/CreatorWorkspacePanel.tsx`: removed dead creator-settings state, subscription/payout/broadcast preload fan-out, eager thread-detail loading, and other orphaned state left behind by the compaction refactor; also replaced the raw preview avatar `<img>` with `next/image`.",
-        "`src/hooks/useChatUnreadStatus.ts`: removed dead imports and replaced the effect-driven reset with a subscription-keyed derived unread state so the hook no longer trips the React `set-state-in-effect` lint rule.",
-        "`src/app/admin/analytics/page.tsx`, `src/app/api/user/register/route.ts`, `src/app/dashboard/profile/page.tsx`, `src/app/sitemap.ts`, `src/context/AuthContext.tsx`, `src/components/UIDebug.tsx`, and `src/stories/Page.tsx`: cleaned the committed lint regressions found in the review.",
-        "`tests/unit/telemetry.spec.ts`, `tests/unit/telemetry-flows.spec.ts`, `tests/unit/lib/telemetry.spec.ts`, and `tests/unit/firestore-client-errors.spec.ts`: updated stale assertions to the current canonical contracts (`event_schema_version: \"v2\"` and the non-polling Firestore fallback message).",
-        "`eslint.config.mjs`: excluded `storybook-static/**` from lint so local Storybook builds do not poison `npm run check`."
-      ],
-      "warnings": [],
-      "architecture_change": true,
-      "runtime_change": true,
-      "ui_change": true,
-      "security_change": false,
-      "maintenance_only": false,
-      "changeKinds": [
-        "admin",
-        "ui",
-        "runtime",
-        "tooling"
-      ]
-    },
-    {
-      "stable_id": "pass__2026-04-16-antigravity-committed-state-review-audit-refresh",
-      "date": "2026-04-16",
-      "title": "Antigravity Committed-State Review & Audit Refresh",
-      "scopeSummary": [
-        "Review the current committed repo state after recent Antigravity IDE work already landed on `main`.",
-        "Reconcile the latest high-risk chat, navigation, creator workspace, notification, and Storybook/testing changes against continuity checks.",
-        "Refresh the canonical audit artifacts to match the actual repository state instead of prior chat assumptions."
-      ],
-      "touchedSurfaces": [
-        "/api/creator/broadcasts",
-        "/api/creator/payouts",
-        "/api/creator/subscriptions",
-        "npm run trace:adjacent -- src/components/Chat/ChatExperience.tsx",
-        "npm run trace:adjacent -- src/components/Dashboard/CreatorWorkspacePanel.tsx",
-        "npm run trace:adjacent -- src/components/Navigation/MobileBottomBar.tsx",
-        "scripts/check-cycles.ts",
-        "src/app/admin/analytics/page.tsx",
-        "src/app/api/notifications/route.ts",
-        "src/app/api/user/register/route.ts",
-        "src/app/dashboard/profile/page.tsx",
-        "src/app/sitemap.ts",
-        "src/components/Chat/ChatExperience.tsx",
-        "src/components/Dashboard/CreatorWorkspacePanel.tsx",
-        "src/components/Navigation/MobileBottomBar.tsx",
-        "src/context/AuthContext.tsx",
-        "src/hooks/client-runtime.ts",
-        "src/hooks/useChatUnreadStatus.ts",
-        "src/hooks/useNotifications.ts",
-        "src/lib/server/fcm-utils.ts",
-        "src/stories",
-        "src/stories/*.stories.ts",
-        "src/stories/Page.tsx",
-        "storybook/test"
-      ],
-      "canonicalHelpersReused": [],
-      "verificationCommandsRun": [],
-      "resultSummary": [
-        "No runtime code changes were applied in this pass.",
-        "Cleaned verification-only generated artifacts (`.next`, `storybook-static`) after running Storybook/build checks so the repo returned to a clean worktree.",
-        "Refreshed the canonical audit files to match the current committed-state findings.",
-        "`scripts/check-cycles.ts` plus `src/stories/*.stories.ts`: continuity is currently broken because the new Storybook example stories import `storybook/test`, which Madge reports as a skipped non-runtime import and the allowlist does not recognize.",
-        "`src/components/Dashboard/CreatorWorkspacePanel.tsx`: the compressed creator home still fetches `/api/creator/subscriptions`, `/api/creator/payouts`, and `/api/creator/broadcasts` into local state even though those records are no longer rendered in the new UI; this adds unnecessary dashboard latency and failure surface.",
-        "`src/components/Dashboard/CreatorWorkspacePanel.tsx`: `setSelectedThreadId(...)` still drives `loadThreadMessages(...)` for the first thread on every workspace load even though thread detail/messages are no longer rendered in the compressed dashboard, creating an unnecessary extra chat request.",
-        "`npm run check` currently fails in additional committed files:",
-        "`src/app/admin/analytics/page.tsx` unused imported types",
-        "`src/app/api/user/register/route.ts` duplicate `platform-config` import",
-        "`src/app/dashboard/profile/page.tsx` duplicate `platform-config` import",
-        "`src/app/sitemap.ts` duplicate `platform-config` import",
-        "`src/context/AuthContext.tsx` unused Firestore fallback helpers",
-        "`src/hooks/useChatUnreadStatus.ts` unused imports plus React `set-state-in-effect` violation",
-        "`src/stories/Page.tsx` unescaped quote lint failure"
-      ],
-      "warnings": [],
-      "architecture_change": true,
-      "runtime_change": true,
-      "ui_change": true,
-      "security_change": false,
-      "maintenance_only": false,
-      "changeKinds": [
-        "admin",
-        "ui",
-        "runtime",
-        "tooling",
         "architecture"
       ]
     }

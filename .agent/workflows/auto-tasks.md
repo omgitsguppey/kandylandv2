@@ -69,9 +69,14 @@ description: "Auto-run standard project commands"
    `npm run trace:adjacent -- scripts/repo-inventory.ts`
    `npm run trace:adjacent -- scripts/export-dependency-graph.ts`
    `npm run trace:adjacent -- scripts/trace-adjacent-surfaces.ts`
+   `npm run trace:adjacent -- scripts/agent/build-task-context.ts`
+   `npm run trace:adjacent -- scripts/agent/run-evals.ts`
    `npm run agent:index`
+   `npm run agent:refresh`
    `npm run check:agent-intelligence`
+   `npm run check:agent-context`
    `npm run agent:task-context -- --task "<task description>" --mode=<mode> --file=<path>`
+   `npm run eval:agent-context`
    `npm run typecheck`
    `npm run check:inventory`
    `npm run check:architecture`

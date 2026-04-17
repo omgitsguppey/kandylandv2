@@ -1,5 +1,5 @@
 {
-  "generatedAt": "2026-04-17T06:04:12.325Z",
+  "generatedAt": "2026-04-17T15:12:41.085Z",
   "truthOrder": [
     "verified_runtime_code",
     "verified_configuration",
@@ -27,6 +27,8 @@
         "codex"
       ],
       "relatedPaths": [
+        "npm run trace:adjacent -- scripts/agent/build-task-context.ts",
+        "npm run trace:adjacent -- scripts/agent/run-evals.ts",
         "npm run trace:adjacent -- scripts/export-dependency-graph.ts",
         "npm run trace:adjacent -- scripts/repo-inventory.ts",
         "npm run trace:adjacent -- scripts/trace-adjacent-surfaces.ts"

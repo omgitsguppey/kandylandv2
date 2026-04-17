@@ -1,5 +1,122 @@
 # KandyDrops Core Codebase Audit & Defensive Ledger
 
+## [2026-04-17 #10] Repo Intelligence Post-Implementation Audit
+
+Scope for this pass:
+- Audit and test the newly implemented Repo Intelligence Fabric functions and operational processes after warning remediation.
+- Re-run the generator, self-check, eval, and continuity lanes, then inspect the outputs for concrete behavioral defects or drift instead of relying on green status alone.
+
+Startup protocol executed:
+- Read `FULL_SCALE_CODEBASE_AUDIT.md`.
+- Read `REPO_MEMORY_LEDGER.md`.
+- Read `EVERY_FILE_FUNCTION_CHECKLIST.md`.
+- Ran `git status --short`.
+- Identified touched/audited surfaces around:
+  - `scripts/agent/build-agent-indexes.ts`
+  - `scripts/agent/build-task-context.ts`
+  - `scripts/agent/check-agent-context.ts`
+  - `scripts/agent/run-evals.ts`
+  - `scripts/agent/sync-sql.ts`
+  - generated outputs under `agent/index/`, `agent/prompts/`, and `agent/state/`
+- Planned targeted adjacency review and post-refresh output inspection before signoff.
+
+Root Causes:
+- No new implementation defect was reproduced in this post-remediation audit pass.
+- The main audit target was process drift: stale generated artifacts, failing self-checks, eval regressions, or SQL-mirror freshness issues after the warning-remediation changes.
+- The post-refresh generated outputs and the command lanes remained consistent with repo truth during this audit window.
+
+Verification Commands Run:
+- `git status --short`
+- `Get-Content FULL_SCALE_CODEBASE_AUDIT.md -TotalCount 100`
+- `Get-Content REPO_MEMORY_LEDGER.md -TotalCount 80`
+- `Get-Content EVERY_FILE_FUNCTION_CHECKLIST.md -TotalCount 40`
+- `npm run trace:adjacent -- scripts/agent/build-agent-indexes.ts`
+- `npm run trace:adjacent -- scripts/agent/check-agent-context.ts`
+- `npm run trace:adjacent -- scripts/agent/sync-sql.ts`
+- `npm run agent:refresh`
+- `npm run check:agent-context`
+- `npm run eval:agent-context`
+- `npm run typecheck`
+- `npm run check:continuity`
+- `Get-Content agent/state/task-context.generated.json`
+- `Get-Content agent/state/sql-mirror-status.generated.json`
+- `Get-Content agent/state/eval-results.generated.json`
+
+Implementation Results:
+- Audited the new Repo Intelligence Fabric process end to end after the warning-remediation pass instead of relying on historical green statuses.
+- Re-ran the generator and SQL-mirror payload flow with `npm run agent:refresh`; the generated agent indexes validated and the SQL mirror status remained healthy with no stale artifacts.
+- Re-ran the repo-intelligence self-check with `npm run check:agent-context`; it passed without missing files, schema drift, stable-ID collisions, or stale mirror metadata.
+- Re-ran the eval harness with `npm run eval:agent-context`; it now reports `pass (5/5 passing)` rather than a warning state.
+- Re-ran `npm run typecheck` and `npm run check:continuity`; both passed, and the continuity lane reported no dependency violations, no cycle violations, and no generated-artifact cleanup misses.
+- Inspected sampled generated outputs:
+  - `agent/state/task-context.generated.json`
+  - `agent/state/sql-mirror-status.generated.json`
+  - `agent/state/eval-results.generated.json`
+  They were internally consistent with the command results and repo truth order.
+
+Warnings and non-blocking notes:
+- No blocking findings were discovered in this audit pass.
+- Residual testing gap: the eval harness currently covers five representative task classes. That is sufficient to verify the repaired routing path, but it is still a curated fixture set rather than exhaustive production-task coverage.
+
+Cleanup:
+- No generated build/test noise remained after verification.
+
+## [2026-04-17 #9] Repo Intelligence Warning Remediation
+
+Scope for this pass:
+- Remove the remaining Repo Intelligence Fabric warning states by fixing the underlying ranking, scope-classification, and verification behavior rather than downgrading, suppressing, or reclassifying failures away.
+- Re-run the agent-context verification and eval lanes after code changes until the warning-producing commands either pass cleanly or surface a smaller verified defect with explicit root cause.
+
+Startup protocol executed:
+- Read `FULL_SCALE_CODEBASE_AUDIT.md`.
+- Read `REPO_MEMORY_LEDGER.md`.
+- Read `EVERY_FILE_FUNCTION_CHECKLIST.md`.
+- Ran `git status --short`.
+- Identified touched surfaces around:
+  - `scripts/agent/build-task-context.ts`
+  - `scripts/agent/run-evals.ts`
+  - generated agent indexes and eval outputs under `agent/index/` and `agent/state/`
+- Planned targeted adjacency review for the main touched scripts before implementation.
+
+Root Causes:
+- The remaining live warning was no longer inventory/Data Connect drift after commit; it was the task-context compiler itself.
+- Broad-signoff detection was too permissive for normal route/helper work, so moderate runtime/admin/chat/telemetry tasks were being mislabeled as broad.
+- Verification-command selection was too keyword-broad and continuity-heavy, so the compiler missed expected lane-specific checks such as `npm run check:telemetry` while over-selecting repo-wide commands.
+- The canonical helper registry was also missing the server-side `admin-ui-chart-health` helper entry, which weakened helper routing for admin chart-health work.
+
+Verification Commands Run:
+- `git status --short`
+- `Get-Content FULL_SCALE_CODEBASE_AUDIT.md -TotalCount 80`
+- `Get-Content REPO_MEMORY_LEDGER.md -TotalCount 120`
+- `Get-Content EVERY_FILE_FUNCTION_CHECKLIST.md -TotalCount 60`
+- `npm run trace:adjacent -- scripts/agent/build-task-context.ts`
+- `npm run trace:adjacent -- scripts/agent/run-evals.ts`
+- `npm run check:inventory`
+- `npm run eval:agent-context`
+- `npm run typecheck`
+- `npm run agent:refresh`
+- `npm run eval:agent-context`
+- `npm run check:agent-context`
+- `npm run check:inventory`
+- `npm run check:continuity`
+
+Implementation Results:
+- Updated `scripts/agent/build-task-context.ts` to:
+  - filter low-signal task tokens that were causing generic runtime matches
+  - derive deterministic task signals for chat, admin, AI, creator, telemetry, dependency, audit, and route/diagnostics work
+  - narrow broad-signoff detection so repo-wide classification is reserved for actual repo/governance/package/config surfaces instead of ordinary route-plus-helper work
+  - select verification commands from explicit lane rules rather than generic token overlap
+  - improve canonical helper scoring using task-signal family matches
+- Updated `scripts/agent/extract-canonical-helpers.ts` to register `src/lib/server/admin-ui-chart-health.ts` as a canonical helper in the runtime/admin debug observability family.
+- Regenerated the full `/agent/index/*`, `/agent/prompts/*`, and `/agent/state/*` surfaces after the compiler changes.
+- Removed the previous pre-commit-only Data Connect inventory warning from the live baseline by verifying against the now-tracked `dataconnect/` files.
+
+Warnings and non-blocking notes:
+- None. The previously warning-producing repo-intelligence lanes now pass cleanly.
+
+Cleanup:
+- No generated build/test noise remained after verification.
+
 ## [2026-04-16 #8] Repo Intelligence Fabric v1
 
 Scope for this pass:

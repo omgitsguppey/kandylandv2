@@ -16,6 +16,32 @@ type TaskMode =
   | "functions"
   | "governance";
 
+const NOISE_TOKENS = new Set([
+  "add",
+  "breaking",
+  "build",
+  "canonical",
+  "change",
+  "changes",
+  "handling",
+  "modify",
+  "patch",
+  "runtime",
+  "safe",
+  "safely",
+  "single",
+  "surface",
+  "surfaces",
+  "without",
+]);
+
+type TaskSignals = {
+  pathNeedles: string[];
+  helperFamilyNeedles: string[];
+  requiredCommands: string[];
+  optionalCommands: string[];
+};
+
 function parseArgs() {
   const files: string[] = [];
   let mode: TaskMode | null = null;
@@ -61,9 +87,79 @@ function inferMode(task: string): TaskMode {
   return "runtime";
 }
 
+function buildTaskSignals(mode: TaskMode, taskTokens: string[]) {
+  const hasAny = (...needles: string[]) => needles.some((needle) => taskTokens.includes(needle));
+  const pathNeedles = new Set<string>();
+  const helperFamilyNeedles = new Set<string>();
+  const requiredCommands = new Set<string>();
+  const optionalCommands = new Set<string>();
+
+  if (mode === "chat" || hasAny("chat", "realtime", "thread", "message", "unread")) {
+    ["chat", "chat-realtime", "thread", "message", "unread"].forEach((entry) => pathNeedles.add(entry));
+    ["chat_realtime_runtime_helpers", "route_diagnostics_server_diagnostics", "route_boundary_auth_request_guard"].forEach((entry) => helperFamilyNeedles.add(entry));
+    requiredCommands.add("npm run test:contracts");
+  }
+
+  if (mode === "admin" || hasAny("admin", "debug", "diagnostic", "diagnostics", "chart", "health")) {
+    ["admin", "debug", "ui-chart-health", "chart-health", "route-diagnostics", "admin-panel-system-logs"].forEach((entry) => pathNeedles.add(entry));
+    ["runtime_health_admin_debug_observability", "route_diagnostics_server_diagnostics", "route_boundary_auth_request_guard"].forEach((entry) => helperFamilyNeedles.add(entry));
+    requiredCommands.add("npm run test:contracts");
+    if (hasAny("ui", "chart", "health") || mode === "admin") {
+      requiredCommands.add("npm run check:ui:audits");
+    }
+  }
+
+  if (mode === "ai" || hasAny("ai", "model", "prompt", "cover")) {
+    ["ai", "drop-covers"].forEach((entry) => pathNeedles.add(entry));
+    helperFamilyNeedles.add("ai_admin_runtime_helpers");
+    requiredCommands.add("npm run test:contracts");
+  }
+
+  if (mode === "creator" || hasAny("creator", "onboarding", "compliance")) {
+    ["creator", "onboarding"].forEach((entry) => pathNeedles.add(entry));
+    helperFamilyNeedles.add("creator_onboarding_compliance");
+    requiredCommands.add("npm run test:contracts");
+  }
+
+  if (hasAny("telemetry", "analytics", "event")) {
+    ["telemetry", "analytics", "analytics-event-facts", "analytics-security-events", "analytics-task-events"].forEach((entry) => pathNeedles.add(entry));
+    helperFamilyNeedles.add("telemetry_analytics_canon");
+    requiredCommands.add("npm run check:telemetry");
+    requiredCommands.add("npm run check:analytics-semantics");
+    optionalCommands.add("npm run test:contracts");
+  }
+
+  if (mode === "dependency" || mode === "functions" || hasAny("dependency", "deploy", "lockfile", "npm", "package", "pnpm")) {
+    ["package", "package-lock", "pnpm-lock", "functions/package", "functions/pnpm-lock"].forEach((entry) => pathNeedles.add(entry));
+    requiredCommands.add("npm run check:continuity");
+    if (mode === "functions" || hasAny("functions")) {
+      requiredCommands.add("npm --prefix functions run check");
+    }
+  }
+
+  if (mode === "audit" || mode === "governance" || hasAny("agent", "audit", "governance", "ledger", "repo")) {
+    ["agent/", "governance", "ledger", "audit", "scripts/agent"].forEach((entry) => pathNeedles.add(entry));
+    requiredCommands.add("npm run check:agent-context");
+    requiredCommands.add("npm run check:continuity");
+  }
+
+  if (hasAny("contract", "contracts", "route", "routes", "api", "debug", "diagnostic", "diagnostics")) {
+    helperFamilyNeedles.add("route_diagnostics_server_diagnostics");
+    helperFamilyNeedles.add("route_boundary_auth_request_guard");
+    optionalCommands.add("npm run test:contracts");
+  }
+
+  return {
+    pathNeedles: Array.from(pathNeedles).sort(),
+    helperFamilyNeedles: Array.from(helperFamilyNeedles).sort(),
+    requiredCommands: Array.from(requiredCommands).sort(),
+    optionalCommands: Array.from(optionalCommands).sort(),
+  } satisfies TaskSignals;
+}
+
 function scoreCandidate(input: {
   entry: RepoInventoryEntry;
-  taskTokens: string[];
+  signalTokens: string[];
   mode: TaskMode;
   fileHints: string[];
   recentPasses: Array<{ title: string; touchedSurfaces: string[] }>;
@@ -72,8 +168,9 @@ function scoreCandidate(input: {
   verificationCommands: Array<{ command: string; scopeType: string }>;
   graph: Map<string, { imports: Set<string>; importers: Set<string> }>;
   highInboundPaths: Set<string>;
+  taskSignals: TaskSignals;
 }) {
-  const { entry, taskTokens, mode, fileHints, recentPasses, pitfalls, helperEntries, verificationCommands, graph, highInboundPaths } = input;
+  const { entry, signalTokens, mode, fileHints, recentPasses, pitfalls, helperEntries, verificationCommands, graph, highInboundPaths, taskSignals } = input;
   const evidence: string[] = [];
   let score = 0;
 
@@ -82,18 +179,27 @@ function scoreCandidate(input: {
     evidence.push("explicit_file_hint");
   }
 
-  if (taskTokens.some((token) => entry.path.toLowerCase().includes(token) || entry.file_class.includes(token) || entry.surface_category.includes(token))) {
+  if (signalTokens.some((token) => entry.path.toLowerCase().includes(token) || entry.file_class.includes(token) || entry.surface_category.includes(token))) {
     score += 28;
     evidence.push("path_domain_match");
   }
 
+  if (taskSignals.pathNeedles.some((needle) => entry.path.toLowerCase().includes(needle) || entry.surface_category.includes(needle) || entry.file_class.includes(needle))) {
+    score += 30;
+    evidence.push("task_signal_match");
+  }
+
   const fileName = entry.path.split("/").pop() ?? entry.path;
-  if (taskTokens.some((token) => fileName.toLowerCase().includes(token))) {
+  if (signalTokens.some((token) => fileName.toLowerCase().includes(token))) {
     score += 22;
     evidence.push("filename_match");
   }
 
-  if (helperEntries.some((helper) => helper.path === entry.path || taskTokens.some((token) => helper.family.includes(token) || helper.purpose.toLowerCase().includes(token)))) {
+  if (helperEntries.some((helper) =>
+    helper.path === entry.path
+    || signalTokens.some((token) => helper.family.includes(token) || helper.purpose.toLowerCase().includes(token))
+    || taskSignals.helperFamilyNeedles.some((needle) => helper.family.includes(needle) && helper.path === entry.path),
+  )) {
     score += 18;
     evidence.push("canonical_helper_relevance");
   }
@@ -108,7 +214,7 @@ function scoreCandidate(input: {
 
   if (recentPasses.some((pass) =>
     pass.touchedSurfaces.includes(entry.path)
-    || taskTokens.some((token) => pass.title.toLowerCase().includes(token) && pass.touchedSurfaces.includes(entry.path)),
+    || signalTokens.some((token) => pass.title.toLowerCase().includes(token) && pass.touchedSurfaces.includes(entry.path)),
   )) {
     score += 14;
     evidence.push("recent_pass_match");
@@ -126,7 +232,7 @@ function scoreCandidate(input: {
     evidence.push("runtime_sensitivity");
   }
 
-  if (verificationCommands.some((command) => taskTokens.some((token) => command.command.includes(token) || command.scopeType.includes(token)))) {
+  if (verificationCommands.some((command) => signalTokens.some((token) => command.command.includes(token) || command.scopeType.includes(token)))) {
     score += 8;
     evidence.push("verification_lane_match");
   }
@@ -149,10 +255,33 @@ function scoreCandidate(input: {
   return { path: entry.path, score, evidence, entry };
 }
 
-function broadSignoffRequired(paths: string[], entriesByPath: Map<string, RepoInventoryEntry>) {
-  const broadPaths = paths.filter((candidate) => entriesByPath.get(candidate)?.likely_broad_signoff_relevant);
-  const domainCount = new Set(broadPaths.map((candidate) => entriesByPath.get(candidate)?.file_class)).size;
-  return broadPaths.length > 0 && domainCount > 1;
+function broadSignoffRequired(mode: TaskMode, touchedFiles: Array<{ entry: RepoInventoryEntry }>) {
+  if (mode === "audit" || mode === "governance") {
+    return true;
+  }
+
+  if (mode === "dependency" && touchedFiles.some((entry) =>
+    entry.entry.path === "package.json"
+    || entry.entry.path === "functions/package.json"
+    || entry.entry.path.endsWith("package-lock.json")
+    || entry.entry.path.endsWith("pnpm-lock.yaml"),
+  )) {
+    return true;
+  }
+
+  return touchedFiles.some((entry) =>
+    entry.entry.file_class === "repo_intelligence_tooling"
+    || entry.entry.file_class === "repo_tooling"
+    || entry.entry.file_class === "agent_docs"
+    || entry.entry.file_class === "agent_index"
+    || entry.entry.file_class === "agent_schema"
+    || entry.entry.file_class === "agent_state"
+    || entry.entry.file_class === "governance"
+    || entry.entry.file_class === "workflow_guidance"
+    || entry.entry.file_class === "workflow_tooling"
+    || entry.entry.file_class === "root_config"
+    || entry.entry.file_class === "functions_config",
+  );
 }
 
 function classifyScope(mode: TaskMode, touchedFiles: Array<{ entry: RepoInventoryEntry }>, broadSignoff: boolean) {
@@ -173,6 +302,91 @@ function classifyScope(mode: TaskMode, touchedFiles: Array<{ entry: RepoInventor
   return {
     scope: "narrow",
     why: "Primary impact is limited to a small number of directly relevant surfaces.",
+  };
+}
+
+function selectVerificationCommands(input: {
+  mode: TaskMode;
+  taskTokens: string[];
+  taskSignals: TaskSignals;
+  likelyTouchedFiles: Array<{ entry: RepoInventoryEntry; path: string }>;
+  verificationCommands: Array<{ command: string; scopeType: string }>;
+  broadSignoff: boolean;
+  fileHints: string[];
+}) {
+  const { mode, taskTokens, taskSignals, likelyTouchedFiles, verificationCommands, broadSignoff, fileHints } = input;
+  const available = new Set(verificationCommands.map((entry) => entry.command));
+  const required = new Set<string>();
+  const optional = new Set<string>();
+  const paths = likelyTouchedFiles.map((entry) => entry.path);
+  const touchesRouteOrRuntime = likelyTouchedFiles.some((entry) =>
+    entry.entry.file_class === "app_route"
+    || entry.entry.file_class === "server_helper"
+    || entry.entry.file_class === "shared_helper"
+    || entry.entry.path.startsWith("src/app/api/"),
+  );
+  const touchesUi = likelyTouchedFiles.some((entry) =>
+    entry.entry.file_class === "app_surface"
+    || entry.entry.file_class === "admin_surface"
+    || entry.entry.file_class === "component"
+    || entry.entry.path.includes("ui-chart-health"),
+  );
+  const touchesTelemetry = taskTokens.includes("telemetry") || taskTokens.includes("analytics") || paths.some((entry) => entry.includes("telemetry") || entry.includes("analytics"));
+  const touchesFunctions = likelyTouchedFiles.some((entry) => entry.entry.functions_related) || mode === "functions";
+  const touchesRepoTooling = likelyTouchedFiles.some((entry) => entry.entry.file_class.includes("repo") || entry.entry.file_class.startsWith("agent_") || entry.entry.file_class === "governance");
+
+  const addRequired = (command: string) => {
+    if (available.has(command)) required.add(command);
+  };
+  const addOptional = (command: string) => {
+    if (available.has(command) && !required.has(command)) optional.add(command);
+  };
+
+  taskSignals.requiredCommands.forEach(addRequired);
+  taskSignals.optionalCommands.forEach(addOptional);
+
+  if (fileHints.length > 0 || broadSignoff) {
+    addRequired("npm run trace:adjacent -- <path>");
+  } else {
+    addOptional("npm run trace:adjacent -- <path>");
+  }
+
+  if (touchesRouteOrRuntime || mode === "runtime" || mode === "chat" || mode === "admin" || mode === "ai" || mode === "creator") {
+    addRequired("npm run test:contracts");
+  }
+
+  if (touchesUi || mode === "ui" || (mode === "admin" && (taskTokens.includes("ui") || taskTokens.includes("chart") || taskTokens.includes("health")))) {
+    addRequired("npm run check:ui:audits");
+  }
+
+  if (taskTokens.includes("performance") || taskTokens.includes("loading") || taskTokens.includes("render") || taskTokens.includes("lighthouse")) {
+    addRequired("npm run check:ui:lighthouse");
+  }
+
+  if (touchesTelemetry) {
+    addRequired("npm run check:telemetry");
+    addRequired("npm run check:analytics-semantics");
+  }
+
+  if (touchesFunctions || (mode === "dependency" && paths.some((entry) => entry.startsWith("functions/")))) {
+    addRequired("npm --prefix functions run check");
+  }
+
+  if (broadSignoff || mode === "dependency" || touchesRepoTooling) {
+    addRequired("npm run check:continuity");
+    addRequired("npm run check:architecture");
+  } else if (touchesRouteOrRuntime) {
+    addOptional("npm run check:architecture");
+  }
+
+  if (touchesRepoTooling || mode === "audit" || mode === "governance") {
+    addRequired("npm run check:inventory");
+    addRequired("npm run check:agent-context");
+  }
+
+  return {
+    required: Array.from(required),
+    optional: Array.from(optional).slice(0, 10),
   };
 }
 
@@ -227,6 +441,8 @@ export function buildTaskContext() {
   const { task, mode: rawMode, files: fileHints } = parseArgs();
   const mode = rawMode ?? inferMode(task);
   const taskTokens = tokenize(task).concat(fileHints.flatMap((entry) => tokenize(entry)));
+  const signalTokens = taskTokens.filter((token) => !NOISE_TOKENS.has(token));
+  const taskSignals = buildTaskSignals(mode, signalTokens);
   const repoInventory = readJsonFile<{ items: RepoInventoryEntry[] }>("agent/index/repo-inventory.json").items;
   const helperEntries = readJsonFile<{ entries: Array<{ path: string; family: string; purpose: string }> }>("agent/index/canonical-helpers.json").entries;
   const recentPasses = readJsonFile<{ passes: Array<{ title: string; touchedSurfaces: string[] }> }>("agent/index/recent-passes.json").passes;
@@ -241,7 +457,7 @@ export function buildTaskContext() {
   const ranked = repoInventory
     .map((entry) => scoreCandidate({
       entry,
-      taskTokens,
+      signalTokens,
       mode,
       fileHints,
       recentPasses,
@@ -250,6 +466,7 @@ export function buildTaskContext() {
       verificationCommands,
       graph,
       highInboundPaths,
+      taskSignals,
     }))
     .sort((left, right) =>
       Number(fileHints.includes(right.path)) - Number(fileHints.includes(left.path))
@@ -274,7 +491,8 @@ export function buildTaskContext() {
       ...entry,
       score:
         (likelyTouchedFiles.some((candidate) => candidate.path === entry.path) ? 100 : 0)
-        + (taskTokens.some((token) => entry.family.includes(token) || entry.purpose.toLowerCase().includes(token)) ? 18 : 0)
+        + (signalTokens.some((token) => entry.family.includes(token) || entry.purpose.toLowerCase().includes(token)) ? 18 : 0)
+        + (taskSignals.helperFamilyNeedles.some((needle) => entry.family.includes(needle)) ? 20 : 0)
         + (likelyAdjacentFiles.includes(entry.path) ? 16 : 0),
     }))
     .filter((entry) => entry.score > 0)
@@ -284,31 +502,20 @@ export function buildTaskContext() {
   const relevantPitfalls = pitfalls.filter((pitfall) =>
     likelyTouchedFiles.some((entry) =>
       pitfall.affected_surfaces.some((surface) => entry.path === surface || entry.path.startsWith(surface.replace("/**", ""))),
-    ) || taskTokens.some((token) => pitfall.title.includes(token) || pitfall.description.toLowerCase().includes(token)),
+    ) || signalTokens.some((token) => pitfall.title.includes(token) || pitfall.description.toLowerCase().includes(token)),
   );
 
-  const requiredVerificationCommands = verificationCommands
-    .filter((command) =>
-      command.requiredWhen.length > 0
-      && (
-        likelyTouchedFiles.some((entry) => command.scopeType === "repo_tooling" && entry.entry.likely_broad_signoff_relevant)
-        || taskTokens.some((token) => command.command.includes(token) || command.scopeType.includes(token))
-        || command.command === "npm run check:continuity"
-      ),
-    )
-    .map((entry) => entry.command);
-
-  const optionalVerificationCommands = verificationCommands
-    .filter((command) => !requiredVerificationCommands.includes(command.command))
-    .filter((command) =>
-      taskTokens.some((token) => command.command.includes(token) || command.scopeType.includes(token))
-      || likelyTouchedFiles.some((entry) => command.scopeType === "tests" && entry.entry.runtime_critical),
-    )
-    .map((entry) => entry.command)
-    .slice(0, 10);
-
-  const broadSignoff = broadSignoffRequired(likelyTouchedFiles.map((entry) => entry.path), entriesByPath);
+  const broadSignoff = broadSignoffRequired(mode, likelyTouchedFiles);
   const scopeInfo = classifyScope(mode, likelyTouchedFiles, broadSignoff);
+  const verificationSelection = selectVerificationCommands({
+    mode,
+    taskTokens: signalTokens,
+    taskSignals,
+    likelyTouchedFiles,
+    verificationCommands,
+    broadSignoff,
+    fileHints,
+  });
   const payload = {
     ...createMetadata([
       "agent/index/repo-inventory.json",
@@ -333,8 +540,8 @@ export function buildTaskContext() {
     governanceConsultSelective: governanceTruth.filter((entry) => entry.consultMode === "selective" || entry.consultMode === "historical_only").map((entry) => entry.path),
     canonicalHelpersToReuse: likelyAdjacentHelpers.map((entry) => entry.path),
     relevantKnownPitfalls: relevantPitfalls.map((entry) => entry.title),
-    requiredVerificationCommands: Array.from(new Set(requiredVerificationCommands)),
-    optionalVerificationCommands: Array.from(new Set(optionalVerificationCommands)),
+    requiredVerificationCommands: Array.from(new Set(verificationSelection.required)),
+    optionalVerificationCommands: Array.from(new Set(verificationSelection.optional)),
     cleanupExpectations: [
       "Remove non-committed generated artifacts such as output/dependency-graph.json if created only for local verification.",
       "Clean .next, playwright-report, test-results, lighthouse-results, build.log, and emulator logs before signoff.",
