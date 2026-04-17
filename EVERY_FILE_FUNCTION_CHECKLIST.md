@@ -1,8 +1,8 @@
 # EVERY FILE FUNCTION CHECKLIST
 
 **Last Updated:** 2026-04-17
-**Current Focus:** Repo Intelligence Fabric v1 added the committed `/agent/` machine-readable context layer, generator scripts under `scripts/agent/`, and a derived Data Connect mirror schema while preserving the existing continuity/audit truth order. The 2026-04-17 continuity delta also includes the creator-settings route contract fix and its new focused unit regression coverage.
-**Status:** In Progress. Historical exhaustive sweep remains valuable, and the 2026-04-17 continuity metadata now reflects the repo-intelligence layer, the creator-settings route regression coverage, the earlier telemetry cleanup, the warning-free verification baseline, and the open-PR reconciliation pass.
+**Current Focus:** Repo Intelligence Fabric v1 added the committed `/agent/` machine-readable context layer, generator scripts under `scripts/agent/`, and a derived Data Connect mirror schema while preserving the existing continuity/audit truth order. The 2026-04-17 continuity delta also includes the creator-settings route contract fix, its focused unit regression coverage, and the profile-page follow-up that now surfaces recoverable creator-tool load failures instead of failing silently.
+**Status:** In Progress. Historical exhaustive sweep remains valuable, and the 2026-04-17 continuity metadata now reflects the repo-intelligence layer, the creator-settings route regression coverage, the profile-page creator warning handling follow-up, the earlier telemetry cleanup, the warning-free verification baseline, and the open-PR reconciliation pass.
 Purpose: exhaustive no-skip audit checklist covering every repository file currently in scope and every detected function-like implementation.
 
 Scoring: all entries below are marked as included in the current validated sweep. Confidence reflects current repository-state confidence, not perfection or future-proofing.
@@ -23,6 +23,9 @@ Current repo-wide state snapshot: see [FULL_SCALE_CODEBASE_AUDIT.md](/Users/uylu
 - Added focused creator-settings regression coverage:
   - `tests/unit/creator-settings-route.spec.ts`
 - Continuity note: `src/app/api/creator/settings/route.ts` now uses explicit `AuthError` statuses for missing creator profiles and access-denied states, and the route gate aligns with the existing `creator || admin` profile-page caller posture.
+- Added creator profile-page warning handling follow-up:
+  - `src/app/dashboard/profile/page.tsx`
+- Continuity note: the profile page now separates creator-settings and creator-broadcast load failures, preserves partial success when one request still succeeds, and shows a visible warning instead of silently hiding common recoverable creator-tool load errors behind fallback state.
 - Coverage note: these files are included in current continuity/signoff scope even though the historical exhaustive body below has not yet been fully regenerated for the new directories.
 
 Historical sweep file-body baseline: 413 tracked files

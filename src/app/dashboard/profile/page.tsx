@@ -19,7 +19,7 @@ import { enableBrowserNotifications } from "@/lib/browser-notification-enrollmen
 import { CREATOR_BOOKING_RATES, CREATOR_SUBSCRIPTION_MIN_GD, DEFAULT_CREATOR_SETTINGS, type CreatorRequestCategoryConfig, type CreatorSettings } from "@/lib/creator-experiences";
 import { getBrowserGlobalPrivacyControl, persistPrivacySettingsSnapshot } from "@/lib/privacy-consent";
 import { PRIVACY_POLICY_LAST_UPDATED, REFERRAL_BONUS_GD } from "@/lib/platform-config";
-import { reportClientIssue } from "@/lib/client-error-reporting";
+import { getClientErrorMessage, reportClientIssue } from "@/lib/client-error-reporting";
 import { trackEvent } from "@/lib/telemetry";
 import { PageViewEvent } from "@/components/Analytics/PageViewEvent";
 import { CreateDropModal } from "@/components/Admin/CreateDropModal";
@@ -53,6 +53,8 @@ interface ProfileSettingsFormState {
     showInAnonymousStats: boolean;
     honorGlobalPrivacyControl: boolean;
 }
+
+type CreatorLoadTarget = "settings" | "broadcasts";
 
 function normalizeTimezone(value: unknown): TimezoneOption {
     if (typeof value !== "string") {
@@ -97,6 +99,39 @@ function buildFormState(params: {
         showInAnonymousStats: params.showInAnonymousStats === true,
         honorGlobalPrivacyControl: params.honorGlobalPrivacyControl !== false,
     };
+}
+
+async function readJsonSafely<T>(response: Response): Promise<T | null> {
+    try {
+        return await response.json() as T;
+    } catch {
+        return null;
+    }
+}
+
+function getCreatorLoadFailureMessage(target: CreatorLoadTarget, status?: number) {
+    if (target === "settings") {
+        if (status === 403) {
+            return "Creator controls are not available for this account yet.";
+        }
+        if (status === 404) {
+            return "Your creator profile is still finishing setup. Refresh in a moment.";
+        }
+        if (status === 503) {
+            return "Creator controls are temporarily unavailable. Try again shortly.";
+        }
+
+        return "We could not load your creator controls right now.";
+    }
+
+    if (status === 403 || status === 404) {
+        return "Broadcast tools are not available for this account yet.";
+    }
+    if (status === 503) {
+        return "Broadcast tools are temporarily unavailable. You can still update the rest of your creator settings.";
+    }
+
+    return "Recent creator broadcasts could not be loaded right now.";
 }
 
 function SectionCard({ title, children, id }: { title: string; children: React.ReactNode; id?: string }) {
@@ -230,6 +265,7 @@ export default function ProfilePage() {
     const [runtimeOrigin, setRuntimeOrigin] = useState(SITE_ORIGIN);
     const [creatorSettingsState, setCreatorSettingsState] = useState<CreatorSettings>(DEFAULT_CREATOR_SETTINGS);
     const [creatorSettingsLoading, setCreatorSettingsLoading] = useState(false);
+    const [creatorSettingsNotice, setCreatorSettingsNotice] = useState<string | null>(null);
     const [creatorStats, setCreatorStats] = useState<{
         earningsGd: number;
         pendingCashoutGd: number;
@@ -242,6 +278,7 @@ export default function ProfilePage() {
     const [sendingCreatorBroadcast, setSendingCreatorBroadcast] = useState(false);
     const [creatorDropModalOpen, setCreatorDropModalOpen] = useState(false);
     const [creatorPayoutAmount, setCreatorPayoutAmount] = useState(100);
+    const lastCreatorNoticeRef = useRef<string | null>(null);
     const browserGpcEnabled = useMemo(() => getBrowserGlobalPrivacyControl(), []);
     const isCreatorAccount = userProfile?.role === "creator" || userProfile?.role === "admin";
     useEffect(() => {
@@ -263,6 +300,10 @@ export default function ProfilePage() {
 
     useEffect(() => {
         if (!isCreatorAccount) {
+            setCreatorSettingsNotice(null);
+            setCreatorStats(null);
+            setCreatorBroadcasts([]);
+            lastCreatorNoticeRef.current = null;
             return;
         }
 
@@ -271,33 +312,137 @@ export default function ProfilePage() {
         async function loadCreatorSettings() {
             try {
                 setCreatorSettingsLoading(true);
-                const [response, broadcastsResponse] = await Promise.all([
+                const [settingsResult, broadcastsResult] = await Promise.allSettled([
                     authFetch("/api/creator/settings"),
                     authFetch("/api/creator/broadcasts"),
                 ]);
-                const result = await response.json() as {
-                    creatorSettings?: CreatorSettings | null;
-                    stats?: {
-                        earningsGd: number;
-                        pendingCashoutGd: number;
-                        activeSubscribers: number;
-                        openRequests: number;
-                        bookedCalls: number;
-                    };
-                };
-                const broadcastsResult = await broadcastsResponse.json().catch(() => ({})) as {
-                    broadcasts?: Array<Record<string, unknown>>;
-                };
-                if (!response.ok) {
-                    throw new Error("Failed to load creator settings");
+                const notices: string[] = [];
+
+                if (settingsResult.status === "fulfilled") {
+                    const response = settingsResult.value;
+                    const result = await readJsonSafely<{
+                        creatorSettings?: CreatorSettings | null;
+                        stats?: {
+                            earningsGd: number;
+                            pendingCashoutGd: number;
+                            activeSubscribers: number;
+                            openRequests: number;
+                            bookedCalls: number;
+                        };
+                        error?: string;
+                    }>(response);
+
+                    if (response.ok) {
+                        if (!cancelled) {
+                            setCreatorSettingsState(result?.creatorSettings || userProfile?.creatorSettings || DEFAULT_CREATOR_SETTINGS);
+                            setCreatorStats(result?.stats || null);
+                        }
+                    } else {
+                        const message = typeof result?.error === "string"
+                            ? result.error
+                            : getCreatorLoadFailureMessage("settings", response.status);
+                        notices.push(message);
+                        reportClientIssue({
+                            channel: "network",
+                            severity: "warn",
+                            message: "Profile creator settings load failed",
+                            error: new Error(message),
+                            detail: {
+                                source: "profile_page",
+                                action: "load_creator_settings",
+                                route: "/api/creator/settings",
+                                status: response.status,
+                            },
+                            consoleLabel: "[Profile] creator settings load failed",
+                        });
+                        if (!cancelled) {
+                            setCreatorSettingsState(userProfile?.creatorSettings || DEFAULT_CREATOR_SETTINGS);
+                            setCreatorStats(null);
+                        }
+                    }
+                } else {
+                    const message = getCreatorLoadFailureMessage("settings");
+                    notices.push(message);
+                    reportClientIssue({
+                        channel: "network",
+                        severity: "warn",
+                        message: "Profile creator settings load failed",
+                        error: settingsResult.reason,
+                        detail: {
+                            source: "profile_page",
+                            action: "load_creator_settings",
+                            route: "/api/creator/settings",
+                            userMessage: message,
+                        },
+                        consoleLabel: "[Profile] creator settings load failed",
+                    });
+                    if (!cancelled) {
+                        setCreatorSettingsState(userProfile?.creatorSettings || DEFAULT_CREATOR_SETTINGS);
+                        setCreatorStats(null);
+                    }
                 }
 
+                if (broadcastsResult.status === "fulfilled") {
+                    const response = broadcastsResult.value;
+                    const result = await readJsonSafely<{
+                        broadcasts?: Array<Record<string, unknown>>;
+                        error?: string;
+                    }>(response);
+
+                    if (response.ok) {
+                        if (!cancelled) {
+                            setCreatorBroadcasts(Array.isArray(result?.broadcasts) ? result.broadcasts : []);
+                        }
+                    } else {
+                        const message = typeof result?.error === "string"
+                            ? result.error
+                            : getCreatorLoadFailureMessage("broadcasts", response.status);
+                        notices.push(message);
+                        reportClientIssue({
+                            channel: "network",
+                            severity: "warn",
+                            message: "Profile creator broadcasts load failed",
+                            error: new Error(message),
+                            detail: {
+                                source: "profile_page",
+                                action: "load_creator_broadcasts",
+                                route: "/api/creator/broadcasts",
+                                status: response.status,
+                            },
+                            consoleLabel: "[Profile] creator broadcasts load failed",
+                        });
+                    }
+                } else {
+                    const message = getCreatorLoadFailureMessage("broadcasts");
+                    notices.push(message);
+                    reportClientIssue({
+                        channel: "network",
+                        severity: "warn",
+                        message: "Profile creator broadcasts load failed",
+                        error: broadcastsResult.reason,
+                        detail: {
+                            source: "profile_page",
+                            action: "load_creator_broadcasts",
+                            route: "/api/creator/broadcasts",
+                            userMessage: message,
+                        },
+                        consoleLabel: "[Profile] creator broadcasts load failed",
+                    });
+                }
+
+                const nextNotice = notices[0] ?? null;
                 if (!cancelled) {
-                    setCreatorSettingsState(result.creatorSettings || userProfile?.creatorSettings || DEFAULT_CREATOR_SETTINGS);
-                    setCreatorStats(result.stats || null);
-                    setCreatorBroadcasts(Array.isArray(broadcastsResult.broadcasts) ? broadcastsResult.broadcasts : []);
+                    setCreatorSettingsNotice(nextNotice);
+                }
+                if (nextNotice && lastCreatorNoticeRef.current !== nextNotice) {
+                    toast.error(nextNotice);
+                    lastCreatorNoticeRef.current = nextNotice;
+                }
+                if (!nextNotice) {
+                    lastCreatorNoticeRef.current = null;
                 }
             } catch (error) {
+                const message = getClientErrorMessage(error, "We could not load your creator tools right now.");
                 reportClientIssue({
                     channel: "network",
                     severity: "warn",
@@ -306,11 +451,18 @@ export default function ProfilePage() {
                     detail: {
                         source: "profile_page",
                         action: "load_creator_settings",
+                        userMessage: message,
                     },
                     consoleLabel: "[Profile] creator settings load failed",
                 });
                 if (!cancelled) {
                     setCreatorSettingsState(userProfile?.creatorSettings || DEFAULT_CREATOR_SETTINGS);
+                    setCreatorStats(null);
+                    setCreatorSettingsNotice(message);
+                }
+                if (lastCreatorNoticeRef.current !== message) {
+                    toast.error(message);
+                    lastCreatorNoticeRef.current = message;
                 }
             } finally {
                 if (!cancelled) {
@@ -918,6 +1070,11 @@ export default function ProfilePage() {
 
                 {isCreatorAccount ? (
                     <SectionCard title="Kreator Experiences" id="creator-tools">
+                        {creatorSettingsNotice ? (
+                            <div className="rounded-[1.15rem] border border-amber-400/25 bg-amber-500/10 px-4 py-3 text-sm text-amber-100">
+                                {creatorSettingsNotice}
+                            </div>
+                        ) : null}
                         <div className="grid gap-3 md:grid-cols-2">
                             <div className="rounded-[1.15rem] border border-white/10 bg-black/30 px-4 py-3">
                                 <p className="text-[10px] font-bold uppercase tracking-[0.16em] text-gray-500">Creator earnings</p>

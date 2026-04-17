@@ -1,5 +1,56 @@
 # KandyDrops Core Codebase Audit & Defensive Ledger
 
+## [2026-04-17 #12] Creator Settings Silent Error Handling Follow-up
+
+Scope for this pass:
+- Reduce silent or overly-coupled creator-settings load failures in the profile page by separating creator-settings and creator-broadcast fetch handling, preserving partial success, and surfacing visible recoverable warnings instead of failing quietly behind fallback state.
+
+Startup protocol executed:
+- Read `FULL_SCALE_CODEBASE_AUDIT.md`.
+- Read `REPO_MEMORY_LEDGER.md`.
+- Read `EVERY_FILE_FUNCTION_CHECKLIST.md`.
+- Ran `git status --short`.
+- Identified touched surfaces around:
+  - `src/app/dashboard/profile/page.tsx`
+  - `src/lib/client-error-reporting.ts`
+  - `src/app/api/creator/settings/route.ts`
+- Ran adjacency review for the main touched client surface before implementation.
+
+Root Causes:
+- `src/app/dashboard/profile/page.tsx` used `Promise.all([authFetch("/api/creator/settings"), authFetch("/api/creator/broadcasts")])`, so a failure in one request could collapse both creator surfaces into the same fallback path.
+- The page only logged creator-settings load failures through `reportClientIssue(...)` and quietly restored fallback state, which made common recoverable route failures effectively silent to the creator.
+- The earlier route fix corrected the server contract, but the profile page still needed client-side differentiation between partial creator-surface failure and complete creator-tools failure.
+
+Verification Commands Run:
+- `git status --short`
+- `npm run trace:adjacent -- src/app/dashboard/profile/page.tsx`
+- `Get-ChildItem -Recurse src | Select-String -Pattern "setCreatorSettingsLoading|creator settings load failed|reportClientIssue\\(|toast\\.error\\(|set.*Error\\(" | Select-Object Path,LineNumber,Line`
+- `Get-Content src/app/dashboard/profile/page.tsx | Select-Object -Skip 220 -First 130`
+- `Get-Content src/components/Dashboard/CreatorWorkspacePanel.tsx | Select-Object -Skip 180 -First 130`
+- `Get-Content src/lib/client-error-reporting.ts`
+- `Get-Content src/app/dashboard/profile/page.tsx | Select-Object -Skip 700 -First 130`
+- `Get-Content src/app/dashboard/profile/page.tsx | Select-Object -Skip 560 -First 180`
+- `npx eslint src/app/dashboard/profile/page.tsx`
+- `npx vitest run tests/unit/creator-settings-route.spec.ts`
+- `npm run typecheck`
+
+Implementation Results:
+- Added creator-settings load notice handling to `src/app/dashboard/profile/page.tsx` so recoverable creator-tool failures are visible in-page and also surfaced through a deduplicated toast instead of failing silently.
+- Replaced the coupled `Promise.all(...)` creator loader with separate settled handling for:
+  - `/api/creator/settings`
+  - `/api/creator/broadcasts`
+  This preserves partial success when one creator surface fails but the other still loads correctly.
+- Added safe JSON response parsing and status-aware creator-facing messages for common route outcomes such as `403`, `404`, and `503`.
+- Preserved fallback state for creator settings when the route fails, but now clear creator stats on settings failure and avoid dropping successful broadcast data just because a sibling request failed.
+- Corrected the new route regression test typing so the repo-wide TypeScript verification lane remains green after the follow-up pass.
+
+Warnings and non-blocking notes:
+- No new blocking findings were discovered after the follow-up implementation.
+- This pass added visible warning handling and partial-failure recovery to the profile page, but it did not perform a full browser audit sweep. Verification remained targeted to the touched client surface, the existing creator-settings regression spec, and repo-wide type safety.
+
+Cleanup:
+- No generated build or test noise required cleanup after this pass.
+
 ## [2026-04-17 #11] Creator Settings Internal Error Route Fix
 
 Scope for this pass:

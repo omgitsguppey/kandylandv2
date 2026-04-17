@@ -136,7 +136,7 @@ describe("GET /api/creator/settings", () => {
             error: error instanceof Error ? error.message : String(error),
         }, {
             status: error instanceof Error && typeof (error as { status?: unknown }).status === "number"
-                ? (error as { status: number }).status
+                ? (error as unknown as { status: number }).status
                 : 500,
         }));
     });
