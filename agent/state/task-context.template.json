@@ -1,0 +1,23 @@
+{
+  "input": {
+    "task": "replace-me",
+    "mode": "runtime",
+    "fileHints": []
+  },
+  "normalizedTaskSummary": "replace-me",
+  "likelySurfaceCategory": "replace-me",
+  "likelyTouchedFiles": [],
+  "likelyAdjacentFiles": [],
+  "likelyAdjacentHelpers": [],
+  "governanceConsultFull": [],
+  "governanceConsultSelective": [],
+  "canonicalHelpersToReuse": [],
+  "relevantKnownPitfalls": [],
+  "requiredVerificationCommands": [],
+  "optionalVerificationCommands": [],
+  "cleanupExpectations": [],
+  "broadSignoffAuditUpdateRequired": false,
+  "confidenceNotes": [],
+  "ambiguityNotes": [],
+  "rankingEvidence": []
+}

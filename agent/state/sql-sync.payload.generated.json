@@ -1,0 +1,176 @@
+{
+  "generatedAt": "2026-04-17T06:03:38.793Z",
+  "truthOrder": [
+    "verified_runtime_code",
+    "verified_configuration",
+    "verified_command_output",
+    "FULL_SCALE_CODEBASE_AUDIT.md",
+    "REPO_MEMORY_LEDGER.md",
+    "EVERY_FILE_FUNCTION_CHECKLIST.md",
+    "AGENTS.md_and_workflow_notes",
+    "prior_chat_context"
+  ],
+  "source": [
+    "agent/index/*.json",
+    "firebase.json",
+    ".firebase/.graphqlrc",
+    "dataconnect/schema/agent-context.gql",
+    "dataconnect/example/agent-context.gql"
+  ],
+  "stable_id": "sqlsync__2026-04-17-1776405818724",
+  "mirrorKind": "firebase_dataconnect_secondary_truth",
+  "mirrorMode": "wired_dataconnect_schema",
+  "repoTruthPrecedence": "repo_truth_wins_over_sql_mirror",
+  "syncedAt": "2026-04-17T06:03:38.793Z",
+  "syncRevision": "2026-04-17-1776405818724",
+  "dataconnectSchemaFiles": [
+    "dataconnect/schema/agent-context.gql",
+    "dataconnect/example/agent-context.gql"
+  ],
+  "artifacts": [
+    {
+      "stable_id": "sqlmirror__repo-inventory-json",
+      "table_name": "repo_inventory",
+      "source_path": "agent/index/repo-inventory.json",
+      "source_hash": "1ea0b93310d5",
+      "generated_at": "2026-04-17T06:03:32.595Z",
+      "synced_at": "2026-04-17T06:03:38.724Z",
+      "sync_revision": "2026-04-17-1776405818724",
+      "stale": false,
+      "row_count": 826
+    },
+    {
+      "stable_id": "sqlmirror__surface-map-json",
+      "table_name": "surface_map",
+      "source_path": "agent/index/surface-map.json",
+      "source_hash": "b7f5ef6ef77a",
+      "generated_at": "2026-04-17T06:03:32.602Z",
+      "synced_at": "2026-04-17T06:03:38.724Z",
+      "sync_revision": "2026-04-17-1776405818724",
+      "stale": false,
+      "row_count": 10
+    },
+    {
+      "stable_id": "sqlmirror__canonical-helpers-json",
+      "table_name": "canonical_helpers",
+      "source_path": "agent/index/canonical-helpers.json",
+      "source_hash": "1be5d2b058e1",
+      "generated_at": "2026-04-17T06:03:32.603Z",
+      "synced_at": "2026-04-17T06:03:38.724Z",
+      "sync_revision": "2026-04-17-1776405818724",
+      "stale": false,
+      "row_count": 21
+    },
+    {
+      "stable_id": "sqlmirror__verification-commands-json",
+      "table_name": "verification_commands",
+      "source_path": "agent/index/verification-commands.json",
+      "source_hash": "a2c80dcff7e2",
+      "generated_at": "2026-04-17T06:03:32.618Z",
+      "synced_at": "2026-04-17T06:03:38.724Z",
+      "sync_revision": "2026-04-17-1776405818724",
+      "stale": false,
+      "row_count": 64
+    },
+    {
+      "stable_id": "sqlmirror__package-manager-truth-json",
+      "table_name": "package_manager_truth",
+      "source_path": "agent/index/package-manager-truth.json",
+      "source_hash": "e112f76eef9b",
+      "generated_at": "2026-04-17T06:03:32.621Z",
+      "synced_at": "2026-04-17T06:03:38.724Z",
+      "sync_revision": "2026-04-17-1776405818724",
+      "stale": false,
+      "row_count": 2
+    },
+    {
+      "stable_id": "sqlmirror__workflow-guidance-json",
+      "table_name": "workflow_guidance",
+      "source_path": "agent/index/workflow-guidance.json",
+      "source_hash": "b97def3da22b",
+      "generated_at": "2026-04-17T06:03:32.646Z",
+      "synced_at": "2026-04-17T06:03:38.724Z",
+      "sync_revision": "2026-04-17-1776405818724",
+      "stale": false,
+      "row_count": 10
+    },
+    {
+      "stable_id": "sqlmirror__governance-truth-json",
+      "table_name": "governance_truth",
+      "source_path": "agent/index/governance-truth.json",
+      "source_hash": "3aad92350f1c",
+      "generated_at": "2026-04-17T06:03:32.649Z",
+      "synced_at": "2026-04-17T06:03:38.724Z",
+      "sync_revision": "2026-04-17-1776405818724",
+      "stale": false,
+      "row_count": 3
+    },
+    {
+      "stable_id": "sqlmirror__known-pitfalls-json",
+      "table_name": "known_pitfalls",
+      "source_path": "agent/index/known-pitfalls.json",
+      "source_hash": "54ce9bb3acb7",
+      "generated_at": "2026-04-17T06:03:32.659Z",
+      "synced_at": "2026-04-17T06:03:38.724Z",
+      "sync_revision": "2026-04-17-1776405818724",
+      "stale": false,
+      "row_count": 7
+    },
+    {
+      "stable_id": "sqlmirror__recent-passes-json",
+      "table_name": "recent_passes",
+      "source_path": "agent/index/recent-passes.json",
+      "source_hash": "65348e78c0f7",
+      "generated_at": "2026-04-17T06:03:32.671Z",
+      "synced_at": "2026-04-17T06:03:38.724Z",
+      "sync_revision": "2026-04-17-1776405818724",
+      "stale": false,
+      "row_count": 8
+    },
+    {
+      "stable_id": "sqlmirror__runtime-observability-json",
+      "table_name": "runtime_observability",
+      "source_path": "agent/index/runtime-observability.json",
+      "source_hash": "c45985956324",
+      "generated_at": "2026-04-17T06:03:32.703Z",
+      "synced_at": "2026-04-17T06:03:38.724Z",
+      "sync_revision": "2026-04-17-1776405818724",
+      "stale": false,
+      "row_count": 4
+    },
+    {
+      "stable_id": "sqlmirror__dependency-graph-summary-json",
+      "table_name": "dependency_graph_summary",
+      "source_path": "agent/index/dependency-graph.summary.json",
+      "source_hash": "1c2be888ef2e",
+      "generated_at": "2026-04-17T06:03:32.703Z",
+      "synced_at": "2026-04-17T06:03:38.724Z",
+      "sync_revision": "2026-04-17-1776405818724",
+      "stale": false,
+      "row_count": 20
+    },
+    {
+      "stable_id": "sqlmirror__blast-radius-json",
+      "table_name": "blast_radius",
+      "source_path": "agent/index/blast-radius.json",
+      "source_hash": "9d30fa66d592",
+      "generated_at": "2026-04-17T06:03:37.372Z",
+      "synced_at": "2026-04-17T06:03:38.724Z",
+      "sync_revision": "2026-04-17-1776405818724",
+      "stale": false,
+      "row_count": 553
+    },
+    {
+      "stable_id": "sqlmirror__retrieval-index-json",
+      "table_name": "retrieval_index",
+      "source_path": "agent/index/retrieval-index.json",
+      "source_hash": "398c87a3c21d",
+      "generated_at": "2026-04-17T06:03:38.597Z",
+      "synced_at": "2026-04-17T06:03:38.724Z",
+      "sync_revision": "2026-04-17-1776405818724",
+      "stale": false,
+      "row_count": 862
+    }
+  ],
+  "staleArtifacts": []
+}

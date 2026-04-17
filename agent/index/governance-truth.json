@@ -1,0 +1,44 @@
+{
+  "generatedAt": "2026-04-17T06:04:12.332Z",
+  "truthOrder": [
+    "verified_runtime_code",
+    "verified_configuration",
+    "verified_command_output",
+    "FULL_SCALE_CODEBASE_AUDIT.md",
+    "REPO_MEMORY_LEDGER.md",
+    "EVERY_FILE_FUNCTION_CHECKLIST.md",
+    "AGENTS.md_and_workflow_notes",
+    "prior_chat_context"
+  ],
+  "source": [
+    "FULL_SCALE_CODEBASE_AUDIT.md",
+    "REPO_MEMORY_LEDGER.md",
+    "EVERY_FILE_FUNCTION_CHECKLIST.md"
+  ],
+  "files": [
+    {
+      "stable_id": "governance__full_scale_codebase_audit-md",
+      "path": "FULL_SCALE_CODEBASE_AUDIT.md",
+      "role": "Canonical pass-by-pass audit record and verification ledger.",
+      "docType": "ledger",
+      "startupRelevance": "always",
+      "consultMode": "full"
+    },
+    {
+      "stable_id": "governance__repo_memory_ledger-md",
+      "path": "REPO_MEMORY_LEDGER.md",
+      "role": "Durable architecture and workflow decision ledger.",
+      "docType": "ledger",
+      "startupRelevance": "always",
+      "consultMode": "full"
+    },
+    {
+      "stable_id": "governance__every_file_function_checklist-md",
+      "path": "EVERY_FILE_FUNCTION_CHECKLIST.md",
+      "role": "Exhaustive historical file/function sweep companion.",
+      "docType": "exhaustive_companion",
+      "startupRelevance": "always",
+      "consultMode": "full"
+    }
+  ]
+}

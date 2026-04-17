@@ -1,0 +1,152 @@
+{
+  "generatedAt": "2026-04-17T06:04:12.325Z",
+  "truthOrder": [
+    "verified_runtime_code",
+    "verified_configuration",
+    "verified_command_output",
+    "FULL_SCALE_CODEBASE_AUDIT.md",
+    "REPO_MEMORY_LEDGER.md",
+    "EVERY_FILE_FUNCTION_CHECKLIST.md",
+    "AGENTS.md_and_workflow_notes",
+    "prior_chat_context"
+  ],
+  "source": [
+    "AGENTS.md",
+    ".agent/workflows/*",
+    ".jules/*",
+    ".Jules/*",
+    ".vscode/*"
+  ],
+  "files": [
+    {
+      "stable_id": "workflow__agent__workflows__auto-tasks-md",
+      "path": ".agent/workflows/auto-tasks.md",
+      "purpose": "Auto-run standard project commands",
+      "authorityLevel": "workflow_advisory",
+      "intendedAgents": [
+        "codex"
+      ],
+      "relatedPaths": [
+        "npm run trace:adjacent -- scripts/export-dependency-graph.ts",
+        "npm run trace:adjacent -- scripts/repo-inventory.ts",
+        "npm run trace:adjacent -- scripts/trace-adjacent-surfaces.ts"
+      ]
+    },
+    {
+      "stable_id": "workflow__agent__workflows__pre-commit-md",
+      "path": ".agent/workflows/pre-commit.md",
+      "purpose": "Workflow guidance for pre-commit.",
+      "authorityLevel": "workflow_advisory",
+      "intendedAgents": [
+        "codex"
+      ],
+      "relatedPaths": [
+        " | Cross-runtime imports or forbidden app/functions coupling | Recheck ",
+        "Module not found: @/components/...",
+        "src/lib/firebase-runtime.ts",
+        "src/lib/server/analytics-governance.ts",
+        "src/lib/server/analytics.ts",
+        "src/lib/telemetry-catalog.ts"
+      ]
+    },
+    {
+      "stable_id": "workflow__agent__workflows__simulate-ui-md",
+      "path": ".agent/workflows/simulate-ui.md",
+      "purpose": "Workflow guidance for simulate-ui.",
+      "authorityLevel": "workflow_advisory",
+      "intendedAgents": [
+        "codex"
+      ],
+      "relatedPaths": [
+        "cypress/e2e/temp.cy.ts",
+        "src/components"
+      ]
+    },
+    {
+      "stable_id": "workflow__agent__workflows__sync-ledgers-md",
+      "path": ".agent/workflows/sync-ledgers.md",
+      "purpose": "Workflow instructions for synchronizing audit and ledger artifacts.",
+      "authorityLevel": "workflow_advisory",
+      "intendedAgents": [
+        "codex"
+      ],
+      "relatedPaths": []
+    },
+    {
+      "stable_id": "workflow__jules__bolt-md",
+      "path": ".jules/bolt.md",
+      "purpose": "Workflow guidance for bolt.",
+      "authorityLevel": "workflow_advisory",
+      "intendedAgents": [
+        "codex"
+      ],
+      "relatedPaths": [
+        "match(/^(/d+)/s*[xX:]/s*(/d+)$/)",
+        "src/app/api/cron/process-queue/route.ts"
+      ]
+    },
+    {
+      "stable_id": "workflow__jules__palette-md",
+      "path": ".jules/palette.md",
+      "purpose": "Workflow guidance for palette.",
+      "authorityLevel": "workflow_advisory",
+      "intendedAgents": [
+        "codex"
+      ],
+      "relatedPaths": []
+    },
+    {
+      "stable_id": "workflow__jules__sentinel-md",
+      "path": ".jules/sentinel.md",
+      "purpose": "Workflow guidance for sentinel.",
+      "authorityLevel": "workflow_advisory",
+      "intendedAgents": [
+        "codex"
+      ],
+      "relatedPaths": [
+        "api/admin/ui-chart-health/route.ts"
+      ]
+    },
+    {
+      "stable_id": "workflow__vscode__settings-json",
+      "path": ".vscode/settings.json",
+      "purpose": "Workflow guidance for settings.",
+      "authorityLevel": "workflow_advisory",
+      "intendedAgents": [
+        "codex"
+      ],
+      "relatedPaths": []
+    },
+    {
+      "stable_id": "workflow__vscode__tailwind-json",
+      "path": ".vscode/tailwind.json",
+      "purpose": "Workflow guidance for tailwind.",
+      "authorityLevel": "workflow_advisory",
+      "intendedAgents": [
+        "codex"
+      ],
+      "relatedPaths": []
+    },
+    {
+      "stable_id": "workflow__agents-md",
+      "path": "AGENTS.md",
+      "purpose": "Cross-agent operational entrypoint for repo truth order, startup, verification, and signoff.",
+      "authorityLevel": "workflow_required",
+      "intendedAgents": [
+        "codex",
+        "google_antigravity",
+        "google_jules",
+        "generic_repo_agent"
+      ],
+      "relatedPaths": [
+        "/agent/index/*",
+        "agent/index/*.json",
+        "agent/prompts/task-prompt.deep.md",
+        "agent/prompts/task-prompt.short.md",
+        "agent/prompts/task-prompt.standard.md",
+        "agent/state/task-context.generated.json",
+        "output/dependency-graph.json"
+      ]
+    }
+  ]
+}

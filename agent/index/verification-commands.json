@@ -1,0 +1,1125 @@
+{
+  "generatedAt": "2026-04-17T06:04:12.298Z",
+  "truthOrder": [
+    "verified_runtime_code",
+    "verified_configuration",
+    "verified_command_output",
+    "FULL_SCALE_CODEBASE_AUDIT.md",
+    "REPO_MEMORY_LEDGER.md",
+    "EVERY_FILE_FUNCTION_CHECKLIST.md",
+    "AGENTS.md_and_workflow_notes",
+    "prior_chat_context"
+  ],
+  "source": [
+    "package.json",
+    "functions/package.json"
+  ],
+  "commands": [
+    {
+      "stable_id": "command__root-dev",
+      "command": "npm run dev",
+      "scopeType": "repo",
+      "root_or_functions": "root",
+      "requiredWhen": [],
+      "optionalWhen": [
+        "Run when the touched surface overlaps the command lane."
+      ],
+      "cleanupExpected": [],
+      "broadSignoffWeight": 1,
+      "verifies_runtime": false,
+      "verifies_ui": false,
+      "verifies_rules": false,
+      "verifies_inventory": false,
+      "verifies_continuity": false
+    },
+    {
+      "stable_id": "command__root-build",
+      "command": "npm run build",
+      "scopeType": "ui",
+      "root_or_functions": "root",
+      "requiredWhen": [],
+      "optionalWhen": [
+        "Run when the touched surface overlaps the command lane."
+      ],
+      "cleanupExpected": [],
+      "broadSignoffWeight": 1,
+      "verifies_runtime": false,
+      "verifies_ui": false,
+      "verifies_rules": false,
+      "verifies_inventory": false,
+      "verifies_continuity": false
+    },
+    {
+      "stable_id": "command__root-start",
+      "command": "npm run start",
+      "scopeType": "repo",
+      "root_or_functions": "root",
+      "requiredWhen": [],
+      "optionalWhen": [
+        "Run when the touched surface overlaps the command lane."
+      ],
+      "cleanupExpected": [],
+      "broadSignoffWeight": 1,
+      "verifies_runtime": false,
+      "verifies_ui": false,
+      "verifies_rules": false,
+      "verifies_inventory": false,
+      "verifies_continuity": false
+    },
+    {
+      "stable_id": "command__root-lint",
+      "command": "npm run lint",
+      "scopeType": "repo",
+      "root_or_functions": "root",
+      "requiredWhen": [],
+      "optionalWhen": [
+        "Run when the touched surface overlaps the command lane."
+      ],
+      "cleanupExpected": [],
+      "broadSignoffWeight": 1,
+      "verifies_runtime": false,
+      "verifies_ui": false,
+      "verifies_rules": false,
+      "verifies_inventory": false,
+      "verifies_continuity": false
+    },
+    {
+      "stable_id": "command__root-typecheck",
+      "command": "npm run typecheck",
+      "scopeType": "repo",
+      "root_or_functions": "root",
+      "requiredWhen": [
+        "Changing TypeScript runtime code, routes, helpers, or shared contracts."
+      ],
+      "optionalWhen": [
+        "Documentation-only changes."
+      ],
+      "cleanupExpected": [],
+      "broadSignoffWeight": 4,
+      "verifies_runtime": true,
+      "verifies_ui": false,
+      "verifies_rules": false,
+      "verifies_inventory": false,
+      "verifies_continuity": false
+    },
+    {
+      "stable_id": "command__root-check-architecture",
+      "command": "npm run check:architecture",
+      "scopeType": "repo_tooling",
+      "root_or_functions": "root",
+      "requiredWhen": [
+        "Touching repo inventory, dependency/tooling, or agent intelligence."
+      ],
+      "optionalWhen": [],
+      "cleanupExpected": [],
+      "broadSignoffWeight": 8,
+      "verifies_runtime": false,
+      "verifies_ui": false,
+      "verifies_rules": false,
+      "verifies_inventory": true,
+      "verifies_continuity": false
+    },
+    {
+      "stable_id": "command__root-graph-architecture",
+      "command": "npm run graph:architecture",
+      "scopeType": "repo_tooling",
+      "root_or_functions": "root",
+      "requiredWhen": [],
+      "optionalWhen": [
+        "Run when the touched surface overlaps the command lane."
+      ],
+      "cleanupExpected": [],
+      "broadSignoffWeight": 1,
+      "verifies_runtime": false,
+      "verifies_ui": false,
+      "verifies_rules": false,
+      "verifies_inventory": false,
+      "verifies_continuity": false
+    },
+    {
+      "stable_id": "command__root-check-inventory",
+      "command": "npm run check:inventory",
+      "scopeType": "repo_tooling",
+      "root_or_functions": "root",
+      "requiredWhen": [
+        "Touching repo inventory, dependency/tooling, or agent intelligence."
+      ],
+      "optionalWhen": [],
+      "cleanupExpected": [],
+      "broadSignoffWeight": 8,
+      "verifies_runtime": false,
+      "verifies_ui": false,
+      "verifies_rules": false,
+      "verifies_inventory": true,
+      "verifies_continuity": false
+    },
+    {
+      "stable_id": "command__root-agent-index",
+      "command": "npm run agent:index",
+      "scopeType": "repo_tooling",
+      "root_or_functions": "root",
+      "requiredWhen": [],
+      "optionalWhen": [
+        "Run when the touched surface overlaps the command lane."
+      ],
+      "cleanupExpected": [],
+      "broadSignoffWeight": 1,
+      "verifies_runtime": false,
+      "verifies_ui": false,
+      "verifies_rules": false,
+      "verifies_inventory": false,
+      "verifies_continuity": false
+    },
+    {
+      "stable_id": "command__root-agent-build-index",
+      "command": "npm run agent:build-index",
+      "scopeType": "ui",
+      "root_or_functions": "root",
+      "requiredWhen": [],
+      "optionalWhen": [
+        "Run when the touched surface overlaps the command lane."
+      ],
+      "cleanupExpected": [],
+      "broadSignoffWeight": 1,
+      "verifies_runtime": false,
+      "verifies_ui": false,
+      "verifies_rules": false,
+      "verifies_inventory": false,
+      "verifies_continuity": false
+    },
+    {
+      "stable_id": "command__root-agent-task-context",
+      "command": "npm run agent:task-context",
+      "scopeType": "repo_tooling",
+      "root_or_functions": "root",
+      "requiredWhen": [],
+      "optionalWhen": [
+        "Run when the touched surface overlaps the command lane."
+      ],
+      "cleanupExpected": [],
+      "broadSignoffWeight": 1,
+      "verifies_runtime": false,
+      "verifies_ui": false,
+      "verifies_rules": false,
+      "verifies_inventory": false,
+      "verifies_continuity": false
+    },
+    {
+      "stable_id": "command__root-agent-build-task-context",
+      "command": "npm run agent:build-task-context",
+      "scopeType": "ui",
+      "root_or_functions": "root",
+      "requiredWhen": [],
+      "optionalWhen": [
+        "Run when the touched surface overlaps the command lane."
+      ],
+      "cleanupExpected": [],
+      "broadSignoffWeight": 1,
+      "verifies_runtime": false,
+      "verifies_ui": false,
+      "verifies_rules": false,
+      "verifies_inventory": false,
+      "verifies_continuity": false
+    },
+    {
+      "stable_id": "command__root-agent-sync-sql",
+      "command": "npm run agent:sync-sql",
+      "scopeType": "repo_tooling",
+      "root_or_functions": "root",
+      "requiredWhen": [],
+      "optionalWhen": [
+        "Run when the touched surface overlaps the command lane."
+      ],
+      "cleanupExpected": [],
+      "broadSignoffWeight": 1,
+      "verifies_runtime": false,
+      "verifies_ui": false,
+      "verifies_rules": false,
+      "verifies_inventory": false,
+      "verifies_continuity": false
+    },
+    {
+      "stable_id": "command__root-agent-refresh",
+      "command": "npm run agent:refresh",
+      "scopeType": "repo_tooling",
+      "root_or_functions": "root",
+      "requiredWhen": [],
+      "optionalWhen": [
+        "Run when the touched surface overlaps the command lane."
+      ],
+      "cleanupExpected": [],
+      "broadSignoffWeight": 1,
+      "verifies_runtime": false,
+      "verifies_ui": false,
+      "verifies_rules": false,
+      "verifies_inventory": false,
+      "verifies_continuity": false
+    },
+    {
+      "stable_id": "command__root-check-agent-intelligence",
+      "command": "npm run check:agent-intelligence",
+      "scopeType": "repo",
+      "root_or_functions": "root",
+      "requiredWhen": [
+        "Touching repo inventory, dependency/tooling, or agent intelligence."
+      ],
+      "optionalWhen": [],
+      "cleanupExpected": [],
+      "broadSignoffWeight": 8,
+      "verifies_runtime": false,
+      "verifies_ui": false,
+      "verifies_rules": false,
+      "verifies_inventory": true,
+      "verifies_continuity": true
+    },
+    {
+      "stable_id": "command__root-check-agent-context",
+      "command": "npm run check:agent-context",
+      "scopeType": "repo",
+      "root_or_functions": "root",
+      "requiredWhen": [],
+      "optionalWhen": [
+        "Run when the touched surface overlaps the command lane."
+      ],
+      "cleanupExpected": [],
+      "broadSignoffWeight": 1,
+      "verifies_runtime": false,
+      "verifies_ui": false,
+      "verifies_rules": false,
+      "verifies_inventory": false,
+      "verifies_continuity": false
+    },
+    {
+      "stable_id": "command__root-eval-agent-context",
+      "command": "npm run eval:agent-context",
+      "scopeType": "repo",
+      "root_or_functions": "root",
+      "requiredWhen": [],
+      "optionalWhen": [
+        "Run when the touched surface overlaps the command lane."
+      ],
+      "cleanupExpected": [],
+      "broadSignoffWeight": 1,
+      "verifies_runtime": false,
+      "verifies_ui": false,
+      "verifies_rules": false,
+      "verifies_inventory": false,
+      "verifies_continuity": false
+    },
+    {
+      "stable_id": "command__root-check-telemetry",
+      "command": "npm run check:telemetry",
+      "scopeType": "analytics",
+      "root_or_functions": "root",
+      "requiredWhen": [],
+      "optionalWhen": [
+        "Run when the touched surface overlaps the command lane."
+      ],
+      "cleanupExpected": [],
+      "broadSignoffWeight": 1,
+      "verifies_runtime": false,
+      "verifies_ui": false,
+      "verifies_rules": false,
+      "verifies_inventory": false,
+      "verifies_continuity": false
+    },
+    {
+      "stable_id": "command__root-check-analytics-semantics",
+      "command": "npm run check:analytics-semantics",
+      "scopeType": "analytics",
+      "root_or_functions": "root",
+      "requiredWhen": [],
+      "optionalWhen": [
+        "Run when the touched surface overlaps the command lane."
+      ],
+      "cleanupExpected": [],
+      "broadSignoffWeight": 1,
+      "verifies_runtime": false,
+      "verifies_ui": false,
+      "verifies_rules": false,
+      "verifies_inventory": false,
+      "verifies_continuity": false
+    },
+    {
+      "stable_id": "command__root-check-firebase-runtime",
+      "command": "npm run check:firebase-runtime",
+      "scopeType": "firebase",
+      "root_or_functions": "root",
+      "requiredWhen": [],
+      "optionalWhen": [
+        "Run when the touched surface overlaps the command lane."
+      ],
+      "cleanupExpected": [],
+      "broadSignoffWeight": 1,
+      "verifies_runtime": false,
+      "verifies_ui": false,
+      "verifies_rules": false,
+      "verifies_inventory": false,
+      "verifies_continuity": false
+    },
+    {
+      "stable_id": "command__root-check-firebase-rules",
+      "command": "npm run check:firebase:rules",
+      "scopeType": "firebase",
+      "root_or_functions": "root",
+      "requiredWhen": [
+        "Touching Firebase rules or emulator-sensitive behavior."
+      ],
+      "optionalWhen": [
+        "Non-Firebase changes."
+      ],
+      "cleanupExpected": [
+        "May produce emulator logs."
+      ],
+      "broadSignoffWeight": 5,
+      "verifies_runtime": false,
+      "verifies_ui": false,
+      "verifies_rules": true,
+      "verifies_inventory": false,
+      "verifies_continuity": false
+    },
+    {
+      "stable_id": "command__root-check-deps",
+      "command": "npm run check:deps",
+      "scopeType": "repo",
+      "root_or_functions": "root",
+      "requiredWhen": [],
+      "optionalWhen": [
+        "Run when the touched surface overlaps the command lane."
+      ],
+      "cleanupExpected": [],
+      "broadSignoffWeight": 1,
+      "verifies_runtime": false,
+      "verifies_ui": false,
+      "verifies_rules": false,
+      "verifies_inventory": false,
+      "verifies_continuity": false
+    },
+    {
+      "stable_id": "command__root-check-generated-artifacts",
+      "command": "npm run check:generated-artifacts",
+      "scopeType": "repo",
+      "root_or_functions": "root",
+      "requiredWhen": [],
+      "optionalWhen": [
+        "Run when the touched surface overlaps the command lane."
+      ],
+      "cleanupExpected": [],
+      "broadSignoffWeight": 1,
+      "verifies_runtime": false,
+      "verifies_ui": false,
+      "verifies_rules": false,
+      "verifies_inventory": false,
+      "verifies_continuity": false
+    },
+    {
+      "stable_id": "command__root-check-versions",
+      "command": "npm run check:versions",
+      "scopeType": "repo",
+      "root_or_functions": "root",
+      "requiredWhen": [],
+      "optionalWhen": [
+        "Run when the touched surface overlaps the command lane."
+      ],
+      "cleanupExpected": [],
+      "broadSignoffWeight": 1,
+      "verifies_runtime": false,
+      "verifies_ui": false,
+      "verifies_rules": false,
+      "verifies_inventory": false,
+      "verifies_continuity": false
+    },
+    {
+      "stable_id": "command__root-check-outdated",
+      "command": "npm run check:outdated",
+      "scopeType": "repo",
+      "root_or_functions": "root",
+      "requiredWhen": [],
+      "optionalWhen": [
+        "Run when the touched surface overlaps the command lane."
+      ],
+      "cleanupExpected": [],
+      "broadSignoffWeight": 1,
+      "verifies_runtime": false,
+      "verifies_ui": false,
+      "verifies_rules": false,
+      "verifies_inventory": false,
+      "verifies_continuity": false
+    },
+    {
+      "stable_id": "command__root-check-cycles-app",
+      "command": "npm run check:cycles:app",
+      "scopeType": "repo",
+      "root_or_functions": "root",
+      "requiredWhen": [],
+      "optionalWhen": [
+        "Run when the touched surface overlaps the command lane."
+      ],
+      "cleanupExpected": [],
+      "broadSignoffWeight": 1,
+      "verifies_runtime": false,
+      "verifies_ui": false,
+      "verifies_rules": false,
+      "verifies_inventory": false,
+      "verifies_continuity": false
+    },
+    {
+      "stable_id": "command__root-check-cycles-functions",
+      "command": "npm run check:cycles:functions",
+      "scopeType": "functions",
+      "root_or_functions": "root",
+      "requiredWhen": [],
+      "optionalWhen": [
+        "Run when the touched surface overlaps the command lane."
+      ],
+      "cleanupExpected": [],
+      "broadSignoffWeight": 1,
+      "verifies_runtime": false,
+      "verifies_ui": false,
+      "verifies_rules": false,
+      "verifies_inventory": false,
+      "verifies_continuity": false
+    },
+    {
+      "stable_id": "command__root-check-cycles",
+      "command": "npm run check:cycles",
+      "scopeType": "repo",
+      "root_or_functions": "root",
+      "requiredWhen": [],
+      "optionalWhen": [
+        "Run when the touched surface overlaps the command lane."
+      ],
+      "cleanupExpected": [],
+      "broadSignoffWeight": 1,
+      "verifies_runtime": false,
+      "verifies_ui": false,
+      "verifies_rules": false,
+      "verifies_inventory": false,
+      "verifies_continuity": false
+    },
+    {
+      "stable_id": "command__root-sync-ledgers",
+      "command": "npm run sync-ledgers",
+      "scopeType": "repo",
+      "root_or_functions": "root",
+      "requiredWhen": [],
+      "optionalWhen": [
+        "Run when the touched surface overlaps the command lane."
+      ],
+      "cleanupExpected": [],
+      "broadSignoffWeight": 1,
+      "verifies_runtime": false,
+      "verifies_ui": false,
+      "verifies_rules": false,
+      "verifies_inventory": false,
+      "verifies_continuity": false
+    },
+    {
+      "stable_id": "command__root-trace-adjacent",
+      "command": "npm run trace:adjacent",
+      "scopeType": "repo",
+      "root_or_functions": "root",
+      "requiredWhen": [],
+      "optionalWhen": [
+        "Run when the touched surface overlaps the command lane."
+      ],
+      "cleanupExpected": [],
+      "broadSignoffWeight": 1,
+      "verifies_runtime": false,
+      "verifies_ui": false,
+      "verifies_rules": false,
+      "verifies_inventory": false,
+      "verifies_continuity": false
+    },
+    {
+      "stable_id": "command__root-check-ui-audits",
+      "command": "npm run check:ui:audits",
+      "scopeType": "ui",
+      "root_or_functions": "root",
+      "requiredWhen": [
+        "Touching user-facing or admin-facing UI surfaces."
+      ],
+      "optionalWhen": [
+        "Pure backend or governance-only changes."
+      ],
+      "cleanupExpected": [
+        "Produces .next and Playwright artifacts."
+      ],
+      "broadSignoffWeight": 6,
+      "verifies_runtime": false,
+      "verifies_ui": true,
+      "verifies_rules": false,
+      "verifies_inventory": false,
+      "verifies_continuity": false
+    },
+    {
+      "stable_id": "command__root-check-ui-omni",
+      "command": "npm run check:ui:omni",
+      "scopeType": "ui",
+      "root_or_functions": "root",
+      "requiredWhen": [],
+      "optionalWhen": [
+        "Run when the touched surface overlaps the command lane."
+      ],
+      "cleanupExpected": [],
+      "broadSignoffWeight": 1,
+      "verifies_runtime": false,
+      "verifies_ui": false,
+      "verifies_rules": false,
+      "verifies_inventory": false,
+      "verifies_continuity": false
+    },
+    {
+      "stable_id": "command__root-test-ui-cypress",
+      "command": "npm run test:ui:cypress",
+      "scopeType": "ui",
+      "root_or_functions": "root",
+      "requiredWhen": [],
+      "optionalWhen": [
+        "Run when the touched surface overlaps the command lane."
+      ],
+      "cleanupExpected": [],
+      "broadSignoffWeight": 1,
+      "verifies_runtime": false,
+      "verifies_ui": false,
+      "verifies_rules": false,
+      "verifies_inventory": false,
+      "verifies_continuity": false
+    },
+    {
+      "stable_id": "command__root-test-ui-storybook",
+      "command": "npm run test:ui:storybook",
+      "scopeType": "ui",
+      "root_or_functions": "root",
+      "requiredWhen": [],
+      "optionalWhen": [
+        "Run when the touched surface overlaps the command lane."
+      ],
+      "cleanupExpected": [],
+      "broadSignoffWeight": 1,
+      "verifies_runtime": false,
+      "verifies_ui": false,
+      "verifies_rules": false,
+      "verifies_inventory": false,
+      "verifies_continuity": false
+    },
+    {
+      "stable_id": "command__root-test-ui-puppeteer",
+      "command": "npm run test:ui:puppeteer",
+      "scopeType": "ui",
+      "root_or_functions": "root",
+      "requiredWhen": [],
+      "optionalWhen": [
+        "Run when the touched surface overlaps the command lane."
+      ],
+      "cleanupExpected": [],
+      "broadSignoffWeight": 1,
+      "verifies_runtime": false,
+      "verifies_ui": false,
+      "verifies_rules": false,
+      "verifies_inventory": false,
+      "verifies_continuity": false
+    },
+    {
+      "stable_id": "command__root-check-ui-lighthouse",
+      "command": "npm run check:ui:lighthouse",
+      "scopeType": "ui",
+      "root_or_functions": "root",
+      "requiredWhen": [
+        "Touching render/loading/performance-sensitive UI paths."
+      ],
+      "optionalWhen": [
+        "Non-UI changes."
+      ],
+      "cleanupExpected": [
+        "Produces build and lighthouse output."
+      ],
+      "broadSignoffWeight": 5,
+      "verifies_runtime": false,
+      "verifies_ui": true,
+      "verifies_rules": false,
+      "verifies_inventory": false,
+      "verifies_continuity": false
+    },
+    {
+      "stable_id": "command__root-check-continuity",
+      "command": "npm run check:continuity",
+      "scopeType": "ui",
+      "root_or_functions": "root",
+      "requiredWhen": [
+        "Broad repo-tooling, governance, or shared-helper work."
+      ],
+      "optionalWhen": [],
+      "cleanupExpected": [
+        "Fails if generated artifact noise remains."
+      ],
+      "broadSignoffWeight": 10,
+      "verifies_runtime": false,
+      "verifies_ui": false,
+      "verifies_rules": false,
+      "verifies_inventory": true,
+      "verifies_continuity": true
+    },
+    {
+      "stable_id": "command__root-check-functions",
+      "command": "npm run check:functions",
+      "scopeType": "functions",
+      "root_or_functions": "root",
+      "requiredWhen": [],
+      "optionalWhen": [
+        "Run when the touched surface overlaps the command lane."
+      ],
+      "cleanupExpected": [],
+      "broadSignoffWeight": 1,
+      "verifies_runtime": false,
+      "verifies_ui": false,
+      "verifies_rules": false,
+      "verifies_inventory": false,
+      "verifies_continuity": false
+    },
+    {
+      "stable_id": "command__root-test-contracts",
+      "command": "npm run test:contracts",
+      "scopeType": "tests",
+      "root_or_functions": "root",
+      "requiredWhen": [
+        "Changing TypeScript runtime code, routes, helpers, or shared contracts."
+      ],
+      "optionalWhen": [
+        "Documentation-only changes."
+      ],
+      "cleanupExpected": [],
+      "broadSignoffWeight": 4,
+      "verifies_runtime": true,
+      "verifies_ui": false,
+      "verifies_rules": false,
+      "verifies_inventory": false,
+      "verifies_continuity": false
+    },
+    {
+      "stable_id": "command__root-test-contracts-watch",
+      "command": "npm run test:contracts:watch",
+      "scopeType": "tests",
+      "root_or_functions": "root",
+      "requiredWhen": [],
+      "optionalWhen": [
+        "Run when the touched surface overlaps the command lane."
+      ],
+      "cleanupExpected": [],
+      "broadSignoffWeight": 1,
+      "verifies_runtime": false,
+      "verifies_ui": false,
+      "verifies_rules": false,
+      "verifies_inventory": false,
+      "verifies_continuity": false
+    },
+    {
+      "stable_id": "command__root-test-rules-database",
+      "command": "npm run test:rules:database",
+      "scopeType": "firebase",
+      "root_or_functions": "root",
+      "requiredWhen": [],
+      "optionalWhen": [
+        "Run when the touched surface overlaps the command lane."
+      ],
+      "cleanupExpected": [],
+      "broadSignoffWeight": 1,
+      "verifies_runtime": false,
+      "verifies_ui": false,
+      "verifies_rules": false,
+      "verifies_inventory": false,
+      "verifies_continuity": false
+    },
+    {
+      "stable_id": "command__root-test-rules-firestore",
+      "command": "npm run test:rules:firestore",
+      "scopeType": "firebase",
+      "root_or_functions": "root",
+      "requiredWhen": [],
+      "optionalWhen": [
+        "Run when the touched surface overlaps the command lane."
+      ],
+      "cleanupExpected": [],
+      "broadSignoffWeight": 1,
+      "verifies_runtime": false,
+      "verifies_ui": false,
+      "verifies_rules": false,
+      "verifies_inventory": false,
+      "verifies_continuity": false
+    },
+    {
+      "stable_id": "command__root-test-rules-storage",
+      "command": "npm run test:rules:storage",
+      "scopeType": "firebase",
+      "root_or_functions": "root",
+      "requiredWhen": [],
+      "optionalWhen": [
+        "Run when the touched surface overlaps the command lane."
+      ],
+      "cleanupExpected": [],
+      "broadSignoffWeight": 1,
+      "verifies_runtime": false,
+      "verifies_ui": false,
+      "verifies_rules": false,
+      "verifies_inventory": false,
+      "verifies_continuity": false
+    },
+    {
+      "stable_id": "command__root-prebuild",
+      "command": "npm run prebuild",
+      "scopeType": "ui",
+      "root_or_functions": "root",
+      "requiredWhen": [],
+      "optionalWhen": [
+        "Run when the touched surface overlaps the command lane."
+      ],
+      "cleanupExpected": [],
+      "broadSignoffWeight": 1,
+      "verifies_runtime": false,
+      "verifies_ui": false,
+      "verifies_rules": false,
+      "verifies_inventory": false,
+      "verifies_continuity": false
+    },
+    {
+      "stable_id": "command__root-build-debug",
+      "command": "npm run build:debug",
+      "scopeType": "ui",
+      "root_or_functions": "root",
+      "requiredWhen": [],
+      "optionalWhen": [
+        "Run when the touched surface overlaps the command lane."
+      ],
+      "cleanupExpected": [],
+      "broadSignoffWeight": 1,
+      "verifies_runtime": false,
+      "verifies_ui": false,
+      "verifies_rules": false,
+      "verifies_inventory": false,
+      "verifies_continuity": false
+    },
+    {
+      "stable_id": "command__root-check",
+      "command": "npm run check",
+      "scopeType": "firebase",
+      "root_or_functions": "root",
+      "requiredWhen": [],
+      "optionalWhen": [
+        "Run when the touched surface overlaps the command lane."
+      ],
+      "cleanupExpected": [],
+      "broadSignoffWeight": 1,
+      "verifies_runtime": true,
+      "verifies_ui": false,
+      "verifies_rules": false,
+      "verifies_inventory": false,
+      "verifies_continuity": false
+    },
+    {
+      "stable_id": "command__root-check-consistency",
+      "command": "npm run check:consistency",
+      "scopeType": "repo",
+      "root_or_functions": "root",
+      "requiredWhen": [],
+      "optionalWhen": [
+        "Run when the touched surface overlaps the command lane."
+      ],
+      "cleanupExpected": [],
+      "broadSignoffWeight": 1,
+      "verifies_runtime": false,
+      "verifies_ui": false,
+      "verifies_rules": false,
+      "verifies_inventory": false,
+      "verifies_continuity": false
+    },
+    {
+      "stable_id": "command__root-analyze",
+      "command": "npm run analyze",
+      "scopeType": "repo",
+      "root_or_functions": "root",
+      "requiredWhen": [],
+      "optionalWhen": [
+        "Run when the touched surface overlaps the command lane."
+      ],
+      "cleanupExpected": [],
+      "broadSignoffWeight": 1,
+      "verifies_runtime": false,
+      "verifies_ui": false,
+      "verifies_rules": false,
+      "verifies_inventory": false,
+      "verifies_continuity": false
+    },
+    {
+      "stable_id": "command__root-promote-admin",
+      "command": "npm run promote-admin",
+      "scopeType": "repo",
+      "root_or_functions": "root",
+      "requiredWhen": [],
+      "optionalWhen": [
+        "Run when the touched surface overlaps the command lane."
+      ],
+      "cleanupExpected": [],
+      "broadSignoffWeight": 1,
+      "verifies_runtime": false,
+      "verifies_ui": false,
+      "verifies_rules": false,
+      "verifies_inventory": false,
+      "verifies_continuity": false
+    },
+    {
+      "stable_id": "command__root-review-admin-panel-logs",
+      "command": "npm run review:admin-panel-logs",
+      "scopeType": "repo",
+      "root_or_functions": "root",
+      "requiredWhen": [],
+      "optionalWhen": [
+        "Run when the touched surface overlaps the command lane."
+      ],
+      "cleanupExpected": [],
+      "broadSignoffWeight": 1,
+      "verifies_runtime": false,
+      "verifies_ui": false,
+      "verifies_rules": false,
+      "verifies_inventory": false,
+      "verifies_continuity": false
+    },
+    {
+      "stable_id": "command__root-refresh-paypal",
+      "command": "npm run refresh:paypal",
+      "scopeType": "repo",
+      "root_or_functions": "root",
+      "requiredWhen": [],
+      "optionalWhen": [
+        "Run when the touched surface overlaps the command lane."
+      ],
+      "cleanupExpected": [],
+      "broadSignoffWeight": 1,
+      "verifies_runtime": false,
+      "verifies_ui": false,
+      "verifies_rules": false,
+      "verifies_inventory": false,
+      "verifies_continuity": false
+    },
+    {
+      "stable_id": "command__root-storybook",
+      "command": "npm run storybook",
+      "scopeType": "ui",
+      "root_or_functions": "root",
+      "requiredWhen": [],
+      "optionalWhen": [
+        "Run when the touched surface overlaps the command lane."
+      ],
+      "cleanupExpected": [],
+      "broadSignoffWeight": 1,
+      "verifies_runtime": false,
+      "verifies_ui": false,
+      "verifies_rules": false,
+      "verifies_inventory": false,
+      "verifies_continuity": false
+    },
+    {
+      "stable_id": "command__root-build-storybook",
+      "command": "npm run build-storybook",
+      "scopeType": "ui",
+      "root_or_functions": "root",
+      "requiredWhen": [],
+      "optionalWhen": [
+        "Run when the touched surface overlaps the command lane."
+      ],
+      "cleanupExpected": [],
+      "broadSignoffWeight": 1,
+      "verifies_runtime": false,
+      "verifies_ui": false,
+      "verifies_rules": false,
+      "verifies_inventory": false,
+      "verifies_continuity": false
+    },
+    {
+      "stable_id": "command__functions-lint",
+      "command": "npm --prefix functions run lint",
+      "scopeType": "functions",
+      "root_or_functions": "functions",
+      "requiredWhen": [],
+      "optionalWhen": [
+        "Functions-lane maintenance."
+      ],
+      "cleanupExpected": [],
+      "broadSignoffWeight": 1,
+      "verifies_runtime": false,
+      "verifies_ui": false,
+      "verifies_rules": false,
+      "verifies_inventory": false,
+      "verifies_continuity": false
+    },
+    {
+      "stable_id": "command__functions-build",
+      "command": "npm --prefix functions run build",
+      "scopeType": "functions",
+      "root_or_functions": "functions",
+      "requiredWhen": [],
+      "optionalWhen": [
+        "Functions-lane maintenance."
+      ],
+      "cleanupExpected": [],
+      "broadSignoffWeight": 1,
+      "verifies_runtime": false,
+      "verifies_ui": false,
+      "verifies_rules": false,
+      "verifies_inventory": false,
+      "verifies_continuity": false
+    },
+    {
+      "stable_id": "command__functions-check",
+      "command": "npm --prefix functions run check",
+      "scopeType": "functions",
+      "root_or_functions": "functions",
+      "requiredWhen": [
+        "Touching functions runtime or manifests."
+      ],
+      "optionalWhen": [],
+      "cleanupExpected": [],
+      "broadSignoffWeight": 7,
+      "verifies_runtime": true,
+      "verifies_ui": false,
+      "verifies_rules": false,
+      "verifies_inventory": false,
+      "verifies_continuity": false
+    },
+    {
+      "stable_id": "command__functions-build-watch",
+      "command": "npm --prefix functions run build:watch",
+      "scopeType": "functions",
+      "root_or_functions": "functions",
+      "requiredWhen": [],
+      "optionalWhen": [
+        "Functions-lane maintenance."
+      ],
+      "cleanupExpected": [],
+      "broadSignoffWeight": 1,
+      "verifies_runtime": false,
+      "verifies_ui": false,
+      "verifies_rules": false,
+      "verifies_inventory": false,
+      "verifies_continuity": false
+    },
+    {
+      "stable_id": "command__functions-serve",
+      "command": "npm --prefix functions run serve",
+      "scopeType": "functions",
+      "root_or_functions": "functions",
+      "requiredWhen": [],
+      "optionalWhen": [
+        "Functions-lane maintenance."
+      ],
+      "cleanupExpected": [],
+      "broadSignoffWeight": 1,
+      "verifies_runtime": false,
+      "verifies_ui": false,
+      "verifies_rules": false,
+      "verifies_inventory": false,
+      "verifies_continuity": false
+    },
+    {
+      "stable_id": "command__functions-shell",
+      "command": "npm --prefix functions run shell",
+      "scopeType": "functions",
+      "root_or_functions": "functions",
+      "requiredWhen": [],
+      "optionalWhen": [
+        "Functions-lane maintenance."
+      ],
+      "cleanupExpected": [],
+      "broadSignoffWeight": 1,
+      "verifies_runtime": false,
+      "verifies_ui": false,
+      "verifies_rules": false,
+      "verifies_inventory": false,
+      "verifies_continuity": false
+    },
+    {
+      "stable_id": "command__functions-start",
+      "command": "npm --prefix functions run start",
+      "scopeType": "functions",
+      "root_or_functions": "functions",
+      "requiredWhen": [],
+      "optionalWhen": [
+        "Functions-lane maintenance."
+      ],
+      "cleanupExpected": [],
+      "broadSignoffWeight": 1,
+      "verifies_runtime": false,
+      "verifies_ui": false,
+      "verifies_rules": false,
+      "verifies_inventory": false,
+      "verifies_continuity": false
+    },
+    {
+      "stable_id": "command__functions-deploy",
+      "command": "npm --prefix functions run deploy",
+      "scopeType": "functions",
+      "root_or_functions": "functions",
+      "requiredWhen": [],
+      "optionalWhen": [
+        "Functions-lane maintenance."
+      ],
+      "cleanupExpected": [],
+      "broadSignoffWeight": 1,
+      "verifies_runtime": false,
+      "verifies_ui": false,
+      "verifies_rules": false,
+      "verifies_inventory": false,
+      "verifies_continuity": false
+    },
+    {
+      "stable_id": "command__functions-logs",
+      "command": "npm --prefix functions run logs",
+      "scopeType": "functions",
+      "root_or_functions": "functions",
+      "requiredWhen": [],
+      "optionalWhen": [
+        "Functions-lane maintenance."
+      ],
+      "cleanupExpected": [],
+      "broadSignoffWeight": 1,
+      "verifies_runtime": false,
+      "verifies_ui": false,
+      "verifies_rules": false,
+      "verifies_inventory": false,
+      "verifies_continuity": false
+    },
+    {
+      "stable_id": "command__git_status_short",
+      "command": "git status --short",
+      "scopeType": "repo",
+      "root_or_functions": "root",
+      "requiredWhen": [
+        "Mandatory startup for every edit and broad work pass."
+      ],
+      "optionalWhen": [],
+      "cleanupExpected": [],
+      "broadSignoffWeight": 5,
+      "verifies_runtime": false,
+      "verifies_ui": false,
+      "verifies_rules": false,
+      "verifies_inventory": false,
+      "verifies_continuity": false
+    },
+    {
+      "stable_id": "command__trace_adjacent",
+      "command": "npm run trace:adjacent -- <path>",
+      "scopeType": "repo_tooling",
+      "root_or_functions": "root",
+      "requiredWhen": [
+        "Broad work and high-risk touched files."
+      ],
+      "optionalWhen": [],
+      "cleanupExpected": [],
+      "broadSignoffWeight": 6,
+      "verifies_runtime": false,
+      "verifies_ui": false,
+      "verifies_rules": false,
+      "verifies_inventory": false,
+      "verifies_continuity": false
+    }
+  ]
+}

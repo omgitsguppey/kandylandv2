@@ -1,0 +1,23 @@
+{
+  "type": "object",
+  "required": ["generatedAt", "truthOrder", "source", "files"],
+  "properties": {
+    "generatedAt": { "type": "string" },
+    "truthOrder": { "type": "array", "items": { "type": "string" } },
+    "source": { "type": "array", "items": { "type": "string" } },
+    "files": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "required": ["path", "purpose", "authorityLevel", "intendedAgents", "relatedPaths"],
+        "properties": {
+          "path": { "type": "string" },
+          "purpose": { "type": "string" },
+          "authorityLevel": { "type": "string" },
+          "intendedAgents": { "type": "array", "items": { "type": "string" } },
+          "relatedPaths": { "type": "array", "items": { "type": "string" } }
+        }
+      }
+    }
+  }
+}

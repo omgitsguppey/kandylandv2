@@ -1,0 +1,27 @@
+{
+  "type": "object",
+  "required": ["generatedAt", "truthOrder", "source", "passes"],
+  "properties": {
+    "generatedAt": { "type": "string" },
+    "truthOrder": { "type": "array", "items": { "type": "string" } },
+    "source": { "type": "array", "items": { "type": "string" } },
+    "passes": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "required": ["date", "title", "scopeSummary", "touchedSurfaces", "canonicalHelpersReused", "verificationCommandsRun", "resultSummary", "warnings", "changeKinds"],
+        "properties": {
+          "date": { "type": "string" },
+          "title": { "type": "string" },
+          "scopeSummary": { "type": "array", "items": { "type": "string" } },
+          "touchedSurfaces": { "type": "array", "items": { "type": "string" } },
+          "canonicalHelpersReused": { "type": "array", "items": { "type": "string" } },
+          "verificationCommandsRun": { "type": "array", "items": { "type": "string" } },
+          "resultSummary": { "type": "array", "items": { "type": "string" } },
+          "warnings": { "type": "array", "items": { "type": "string" } },
+          "changeKinds": { "type": "array", "items": { "type": "string" } }
+        }
+      }
+    }
+  }
+}

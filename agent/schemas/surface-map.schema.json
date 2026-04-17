@@ -1,0 +1,29 @@
+{
+  "type": "object",
+  "required": ["generatedAt", "truthOrder", "source", "domains"],
+  "properties": {
+    "generatedAt": { "type": "string" },
+    "truthOrder": { "type": "array", "items": { "type": "string" } },
+    "source": { "type": "array", "items": { "type": "string" } },
+    "domains": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "required": ["stable_id", "name", "path_prefixes", "description", "runtime_sensitivity", "broad_work_trigger", "related_verification_lanes", "related_helper_families", "related_observability_lanes", "danger_notes"],
+        "properties": {
+          "stable_id": { "type": "string" },
+          "name": { "type": "string" },
+          "path_prefixes": { "type": "array", "items": { "type": "string" } },
+          "description": { "type": "string" },
+          "runtime_sensitivity": { "type": "string" },
+          "broad_work_trigger": { "type": "boolean" },
+          "related_verification_lanes": { "type": "array", "items": { "type": "string" } },
+          "related_helper_families": { "type": "array", "items": { "type": "string" } },
+          "related_observability_lanes": { "type": "array", "items": { "type": "string" } },
+          "related_deploy_or_rules_surfaces": { "type": "array", "items": { "type": "string" } },
+          "danger_notes": { "type": "array", "items": { "type": "string" } }
+        }
+      }
+    }
+  }
+}

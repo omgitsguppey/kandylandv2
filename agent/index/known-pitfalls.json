@@ -1,0 +1,161 @@
+{
+  "generatedAt": "2026-04-17T06:04:12.345Z",
+  "truthOrder": [
+    "verified_runtime_code",
+    "verified_configuration",
+    "verified_command_output",
+    "FULL_SCALE_CODEBASE_AUDIT.md",
+    "REPO_MEMORY_LEDGER.md",
+    "EVERY_FILE_FUNCTION_CHECKLIST.md",
+    "AGENTS.md_and_workflow_notes",
+    "prior_chat_context"
+  ],
+  "source": [
+    "FULL_SCALE_CODEBASE_AUDIT.md",
+    "REPO_MEMORY_LEDGER.md",
+    "scripts/check-generated-artifacts.ts"
+  ],
+  "pitfalls": [
+    {
+      "stable_id": "pitfall__stale_lockfile_drift",
+      "title": "stale_lockfile_drift",
+      "description": "Package manifest changes can drift from tracked lockfiles and break frozen-lockfile or deployment paths.",
+      "symptom_pattern": "Install or deploy failures complaining that lockfiles are out of date with package manifests.",
+      "affected_surfaces": [
+        "package.json",
+        "package-lock.json",
+        "functions/pnpm-lock.yaml"
+      ],
+      "prevention_rule": "Treat tracked lockfiles as source truth and resynchronize every affected workspace when dependency changes land.",
+      "detection_hint": "Run continuity and lockfile-aware verification after dependency edits.",
+      "related_commands": [
+        "npm run check:continuity"
+      ],
+      "related_helpers": [],
+      "severity": "high",
+      "broad_work_relevance": true
+    },
+    {
+      "stable_id": "pitfall__diagnostics_serialization_crash",
+      "title": "diagnostics_serialization_crash",
+      "description": "Diagnostics formatting can crash the error handler if stringify results are treated as guaranteed strings.",
+      "symptom_pattern": "Routes return empty or opaque 500 responses because the logging path threw while handling the original error.",
+      "affected_surfaces": [
+        "src/lib/server/route-diagnostics.ts",
+        "src/lib/server/auth.ts"
+      ],
+      "prevention_rule": "Server error-handling and diagnostics serialization must never throw.",
+      "detection_hint": "Review error-path logging changes for unsafe stringify or string-method calls.",
+      "related_commands": [
+        "npm run test:contracts"
+      ],
+      "related_helpers": [
+        "src/lib/server/route-diagnostics.ts",
+        "src/lib/server/auth.ts"
+      ],
+      "severity": "high",
+      "broad_work_relevance": false
+    },
+    {
+      "stable_id": "pitfall__request_json_parse_falls_into_500",
+      "title": "request_json_parse_falls_into_500",
+      "description": "Malformed request bodies can throw before validation and fall through to generic 500 handling.",
+      "symptom_pattern": "Bad client payloads look like server failures instead of explicit malformed-body 400s.",
+      "affected_surfaces": [
+        "src/app/api/**"
+      ],
+      "prevention_rule": "Wrap request.json() in try/catch before schema validation in POST routes.",
+      "detection_hint": "Search POST routes for inline safeParse(await request.json()) patterns.",
+      "related_commands": [
+        "npm run test:contracts"
+      ],
+      "related_helpers": [
+        "src/lib/server/auth.ts"
+      ],
+      "severity": "medium",
+      "broad_work_relevance": false
+    },
+    {
+      "stable_id": "pitfall__consumed_response_stream_fallback",
+      "title": "consumed_response_stream_fallback",
+      "description": "Calling response.json() before response.text() consumes the stream and hides fallback diagnostics.",
+      "symptom_pattern": "Fallback parse branches receive empty text after the first parse attempt.",
+      "affected_surfaces": [
+        "src/components/**",
+        "src/lib/**"
+      ],
+      "prevention_rule": "Read response.text() first, then parse JSON from the captured text if needed.",
+      "detection_hint": "Search for response.json() fallback patterns followed by response.text().",
+      "related_commands": [
+        "npm run test:contracts"
+      ],
+      "related_helpers": [],
+      "severity": "medium",
+      "broad_work_relevance": false
+    },
+    {
+      "stable_id": "pitfall__generated_artifact_cleanup_miss",
+      "title": "generated_artifact_cleanup_miss",
+      "description": "Verification runs can leave build, audit, or emulator outputs behind and pollute continuity signoff.",
+      "symptom_pattern": "Continuity fails or dirty-tree noise appears after otherwise passing verification.",
+      "affected_surfaces": [
+        "scripts/check-generated-artifacts.ts",
+        ".next",
+        "playwright-report",
+        "test-results",
+        "lighthouse-results"
+      ],
+      "prevention_rule": "Clean generated artifacts before final signoff.",
+      "detection_hint": "Run the generated-artifact check before completion.",
+      "related_commands": [
+        "npm run check:continuity"
+      ],
+      "related_helpers": [
+        "scripts/check-generated-artifacts.ts"
+      ],
+      "severity": "medium",
+      "broad_work_relevance": true
+    },
+    {
+      "stable_id": "pitfall__sidecar_truth_confusion",
+      "title": "sidecar_truth_confusion",
+      "description": "Fallback, RTDB, or Data Connect sidecars can be mistaken for canonical serving truth when they are not current in-repo readers.",
+      "symptom_pattern": "Sidecar/export layers are treated as if they are the main product-serving analytics source.",
+      "affected_surfaces": [
+        "src/lib/server/admin-analytics-shared.ts",
+        "src/app/api/telemetry/track/route.ts",
+        "functions/src/**"
+      ],
+      "prevention_rule": "Do not represent fallback or derived data as stronger truth than source truth.",
+      "detection_hint": "Check whether the candidate storage layer has a verified in-repo reader before treating it as canonical.",
+      "related_commands": [
+        "npm run check:analytics-semantics"
+      ],
+      "related_helpers": [
+        "src/lib/telemetry.ts"
+      ],
+      "severity": "high",
+      "broad_work_relevance": true
+    },
+    {
+      "stable_id": "pitfall__route_runtime_stale_vs_unseen_confusion",
+      "title": "route_runtime_stale_vs_unseen_confusion",
+      "description": "Stale route samples and never-observed route samples have different meanings and should not be collapsed together.",
+      "symptom_pattern": "Debug summaries overstate failures because stale, unseen, and healthy states are not separated.",
+      "affected_surfaces": [
+        "src/lib/route-runtime-health.ts",
+        "src/lib/server/admin-panel-system-logs.ts"
+      ],
+      "prevention_rule": "Use shared route-runtime freshness and coverage helpers.",
+      "detection_hint": "Check route-runtime summaries for ad hoc last-result logic instead of shared helpers.",
+      "related_commands": [
+        "npm run test:contracts"
+      ],
+      "related_helpers": [
+        "src/lib/route-runtime-health.ts"
+      ],
+      "severity": "medium",
+      "broad_work_relevance": false
+    }
+  ]
+}

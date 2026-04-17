@@ -1,0 +1,313 @@
+{
+  "generatedAt": "2026-04-17T06:04:12.285Z",
+  "truthOrder": [
+    "verified_runtime_code",
+    "verified_configuration",
+    "verified_command_output",
+    "FULL_SCALE_CODEBASE_AUDIT.md",
+    "REPO_MEMORY_LEDGER.md",
+    "EVERY_FILE_FUNCTION_CHECKLIST.md",
+    "AGENTS.md_and_workflow_notes",
+    "prior_chat_context"
+  ],
+  "source": [
+    "scripts/repo-inventory.ts",
+    "src/lib/route-runtime-health.ts",
+    "src/lib/server/route-diagnostics.ts"
+  ],
+  "domains": [
+    {
+      "stable_id": "surface__app_routes",
+      "name": "app_routes",
+      "path_prefixes": [
+        "src/app/api",
+        "src/app"
+      ],
+      "description": "app routes surface map entry.",
+      "runtime_sensitivity": "high",
+      "broad_work_trigger": false,
+      "related_verification_lanes": [
+        "npm run typecheck",
+        "npm run test:contracts",
+        "npm run check:architecture"
+      ],
+      "related_helper_families": [
+        "route_boundary_auth_request_guard",
+        "route_diagnostics_server_diagnostics"
+      ],
+      "related_observability_lanes": [
+        "route_runtime_health",
+        "server_diagnostics"
+      ],
+      "related_deploy_or_rules_surfaces": [
+        "firebase.json",
+        "middleware.ts"
+      ],
+      "danger_notes": [
+        "Route contracts should stay on canonical helpers."
+      ]
+    },
+    {
+      "stable_id": "surface__admin_ops",
+      "name": "admin_ops",
+      "path_prefixes": [
+        "src/app/admin",
+        "src/app/api/admin"
+      ],
+      "description": "admin ops surface map entry.",
+      "runtime_sensitivity": "high",
+      "broad_work_trigger": true,
+      "related_verification_lanes": [
+        "npm run check:ui:audits",
+        "npm run test:contracts",
+        "npm run check:continuity"
+      ],
+      "related_helper_families": [
+        "runtime_health_admin_debug_observability",
+        "route_boundary_auth_request_guard"
+      ],
+      "related_observability_lanes": [
+        "admin_ui_chart_health",
+        "route_runtime_health",
+        "server_diagnostics",
+        "admin_panel_system_logs"
+      ],
+      "related_deploy_or_rules_surfaces": [],
+      "danger_notes": [
+        "Operational surfaces often require broad signoff."
+      ]
+    },
+    {
+      "stable_id": "surface__chat",
+      "name": "chat",
+      "path_prefixes": [
+        "src/components/Chat",
+        "src/app/api/chat",
+        "src/lib/chat"
+      ],
+      "description": "chat surface map entry.",
+      "runtime_sensitivity": "high",
+      "broad_work_trigger": false,
+      "related_verification_lanes": [
+        "npm run test:contracts",
+        "npm run check:architecture"
+      ],
+      "related_helper_families": [
+        "chat_realtime_runtime_helpers",
+        "route_diagnostics_server_diagnostics"
+      ],
+      "related_observability_lanes": [
+        "route_runtime_health",
+        "server_diagnostics"
+      ],
+      "related_deploy_or_rules_surfaces": [
+        "database.rules.json",
+        "firebase.json"
+      ],
+      "danger_notes": [
+        "Chat fallback and realtime semantics are continuity-sensitive."
+      ]
+    },
+    {
+      "stable_id": "surface__analytics",
+      "name": "analytics",
+      "path_prefixes": [
+        "src/lib/telemetry",
+        "src/app/api/telemetry",
+        "functions/src/analytics",
+        "dataconnect"
+      ],
+      "description": "analytics surface map entry.",
+      "runtime_sensitivity": "high",
+      "broad_work_trigger": true,
+      "related_verification_lanes": [
+        "npm run check:telemetry",
+        "npm run check:analytics-semantics",
+        "npm run test:contracts"
+      ],
+      "related_helper_families": [
+        "telemetry_analytics_canon",
+        "route_diagnostics_server_diagnostics"
+      ],
+      "related_observability_lanes": [
+        "server_diagnostics",
+        "admin_panel_system_logs"
+      ],
+      "related_deploy_or_rules_surfaces": [
+        "firebase.json",
+        "dataconnect/schema"
+      ],
+      "danger_notes": [
+        "Do not treat sidecars as stronger truth than canonical facts."
+      ]
+    },
+    {
+      "stable_id": "surface__creator_onboarding",
+      "name": "creator_onboarding",
+      "path_prefixes": [
+        "src/app/creators",
+        "src/lib/creator-onboarding"
+      ],
+      "description": "creator onboarding surface map entry.",
+      "runtime_sensitivity": "medium",
+      "broad_work_trigger": false,
+      "related_verification_lanes": [
+        "npm run test:contracts",
+        "npm run check:architecture"
+      ],
+      "related_helper_families": [
+        "creator_onboarding_compliance"
+      ],
+      "related_observability_lanes": [
+        "server_diagnostics"
+      ],
+      "related_deploy_or_rules_surfaces": [],
+      "danger_notes": [
+        "Creator eligibility rules are continuity-sensitive."
+      ]
+    },
+    {
+      "stable_id": "surface__ai_admin",
+      "name": "ai_admin",
+      "path_prefixes": [
+        "src/app/admin/ai",
+        "src/app/api/admin/ai",
+        "src/lib/ai-",
+        "src/lib/server/ai-"
+      ],
+      "description": "ai admin surface map entry.",
+      "runtime_sensitivity": "high",
+      "broad_work_trigger": false,
+      "related_verification_lanes": [
+        "npm run test:contracts",
+        "npm run check:ui:audits"
+      ],
+      "related_helper_families": [
+        "ai_admin_runtime_helpers",
+        "runtime_health_admin_debug_observability"
+      ],
+      "related_observability_lanes": [
+        "route_runtime_health",
+        "server_diagnostics",
+        "admin_panel_system_logs"
+      ],
+      "related_deploy_or_rules_surfaces": [],
+      "danger_notes": [
+        "Keep AI runtime truth aligned with shared registries."
+      ]
+    },
+    {
+      "stable_id": "surface__functions",
+      "name": "functions",
+      "path_prefixes": [
+        "functions/src",
+        "functions/package.json",
+        "functions/pnpm-lock.yaml"
+      ],
+      "description": "functions surface map entry.",
+      "runtime_sensitivity": "high",
+      "broad_work_trigger": true,
+      "related_verification_lanes": [
+        "npm --prefix functions run check"
+      ],
+      "related_helper_families": [
+        "telemetry_analytics_canon",
+        "economics_ledger_payments"
+      ],
+      "related_observability_lanes": [
+        "server_diagnostics"
+      ],
+      "related_deploy_or_rules_surfaces": [
+        "functions/package.json",
+        "functions/pnpm-lock.yaml"
+      ],
+      "danger_notes": [
+        "Functions lockfile drift can break deployment or verification."
+      ]
+    },
+    {
+      "stable_id": "surface__shared_server_helpers",
+      "name": "shared_server_helpers",
+      "path_prefixes": [
+        "src/lib/server",
+        "src/lib"
+      ],
+      "description": "shared server helpers surface map entry.",
+      "runtime_sensitivity": "high",
+      "broad_work_trigger": true,
+      "related_verification_lanes": [
+        "npm run check:architecture",
+        "npm run test:contracts",
+        "npm run check:continuity"
+      ],
+      "related_helper_families": [
+        "route_boundary_auth_request_guard",
+        "route_diagnostics_server_diagnostics",
+        "runtime_health_admin_debug_observability"
+      ],
+      "related_observability_lanes": [
+        "server_diagnostics",
+        "route_runtime_health"
+      ],
+      "related_deploy_or_rules_surfaces": [],
+      "danger_notes": [
+        "High inbound helpers are broad-change surfaces."
+      ]
+    },
+    {
+      "stable_id": "surface__repo_tooling",
+      "name": "repo_tooling",
+      "path_prefixes": [
+        "scripts",
+        "agent",
+        ".agent/workflows",
+        ".jules",
+        ".vscode",
+        "package.json",
+        "AGENTS.md"
+      ],
+      "description": "repo tooling surface map entry.",
+      "runtime_sensitivity": "medium",
+      "broad_work_trigger": true,
+      "related_verification_lanes": [
+        "npm run check:inventory",
+        "npm run check:architecture",
+        "npm run check:continuity",
+        "npm run check:agent-intelligence"
+      ],
+      "related_helper_families": [
+        "continuity_audit_support"
+      ],
+      "related_observability_lanes": [],
+      "related_deploy_or_rules_surfaces": [
+        "package.json",
+        "firebase.json",
+        "dataconnect/schema"
+      ],
+      "danger_notes": [
+        "Repo-tooling changes are broad work."
+      ]
+    },
+    {
+      "stable_id": "surface__governance",
+      "name": "governance",
+      "path_prefixes": [
+        "FULL_SCALE_CODEBASE_AUDIT.md",
+        "REPO_MEMORY_LEDGER.md",
+        "EVERY_FILE_FUNCTION_CHECKLIST.md"
+      ],
+      "description": "governance surface map entry.",
+      "runtime_sensitivity": "low",
+      "broad_work_trigger": true,
+      "related_verification_lanes": [
+        "npm run check:continuity"
+      ],
+      "related_helper_families": [],
+      "related_observability_lanes": [],
+      "related_deploy_or_rules_surfaces": [],
+      "danger_notes": [
+        "Governance prose remains secondary to verified code/config/output."
+      ]
+    }
+  ]
+}

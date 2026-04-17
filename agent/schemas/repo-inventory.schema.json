@@ -1,0 +1,33 @@
+{
+  "type": "object",
+  "required": ["generatedAt", "truthOrder", "source", "items", "counts"],
+  "properties": {
+    "generatedAt": { "type": "string" },
+    "truthOrder": { "type": "array", "items": { "type": "string" }, "minItems": 1 },
+    "source": { "type": "array", "items": { "type": "string" }, "minItems": 1 },
+    "items": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "required": ["stable_id", "path", "file_class", "surface_category", "generated", "evidence_only", "runtime_critical", "likely_shared_helper", "likely_broad_signoff_relevant"],
+        "properties": {
+          "stable_id": { "type": "string" },
+          "path": { "type": "string" },
+          "file_class": { "type": "string" },
+          "surface_category": { "type": "string" },
+          "generated": { "type": "boolean" },
+          "evidence_only": { "type": "boolean" },
+          "runtime_critical": { "type": "boolean" },
+          "workflow_guidance": { "type": "boolean" },
+          "governance_artifact": { "type": "boolean" },
+          "likely_shared_helper": { "type": "boolean" },
+          "likely_broad_signoff_relevant": { "type": "boolean" },
+          "dataconnect_related": { "type": "boolean" },
+          "functions_related": { "type": "boolean" },
+          "last_modified_or_hash": { "type": "string" }
+        }
+      }
+    },
+    "counts": { "type": "object" }
+  }
+}

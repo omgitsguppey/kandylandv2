@@ -64,3 +64,15 @@ description: "Auto-run standard project commands"
    `git add -A`
    `git commit -m <message>`
    `git push origin <branch>:main`
+
+15. Build and verify repo intelligence artifacts when touching `/agent`, `AGENTS.md`, or repo-governance tooling:
+   `npm run trace:adjacent -- scripts/repo-inventory.ts`
+   `npm run trace:adjacent -- scripts/export-dependency-graph.ts`
+   `npm run trace:adjacent -- scripts/trace-adjacent-surfaces.ts`
+   `npm run agent:index`
+   `npm run check:agent-intelligence`
+   `npm run agent:task-context -- --task "<task description>" --mode=<mode> --file=<path>`
+   `npm run typecheck`
+   `npm run check:inventory`
+   `npm run check:architecture`
+   `npm run check:continuity`

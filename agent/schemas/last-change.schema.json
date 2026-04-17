@@ -1,0 +1,14 @@
+{
+  "type": "object",
+  "required": ["change_id", "summary", "changed_files", "helper_families_reused", "commands_run", "commands_not_run", "cleanup_done", "final_status"],
+  "properties": {
+    "change_id": { "type": "string" },
+    "summary": { "type": "string" },
+    "changed_files": { "type": "array", "items": { "type": "string" } },
+    "helper_families_reused": { "type": "array", "items": { "type": "string" } },
+    "commands_run": { "type": "array", "items": { "type": "string" } },
+    "commands_not_run": { "type": "array", "items": { "type": "string" } },
+    "cleanup_done": { "type": "boolean" },
+    "final_status": { "type": "string" }
+  }
+}

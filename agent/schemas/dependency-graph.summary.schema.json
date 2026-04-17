@@ -1,0 +1,15 @@
+{
+  "type": "object",
+  "required": ["generatedAt", "truthOrder", "source", "sourceKind", "highInboundFiles", "blastRadiusSurfaces", "highRiskSharedHelpers", "routeHelperAdjacencyHints", "broadChangeDangerMarkers"],
+  "properties": {
+    "generatedAt": { "type": "string" },
+    "truthOrder": { "type": "array", "items": { "type": "string" } },
+    "source": { "type": "array", "items": { "type": "string" } },
+    "sourceKind": { "type": "string" },
+    "highInboundFiles": { "type": "array", "items": { "type": "object" } },
+    "blastRadiusSurfaces": { "type": "array", "items": { "type": "object" } },
+    "highRiskSharedHelpers": { "type": "array", "items": { "type": "object" } },
+    "routeHelperAdjacencyHints": { "type": "array", "items": { "type": "object" } },
+    "broadChangeDangerMarkers": { "type": "array", "items": { "type": "object" } }
+  }
+}

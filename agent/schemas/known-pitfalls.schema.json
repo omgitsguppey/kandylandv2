@@ -1,0 +1,29 @@
+{
+  "type": "object",
+  "required": ["generatedAt", "truthOrder", "source", "pitfalls"],
+  "properties": {
+    "generatedAt": { "type": "string" },
+    "truthOrder": { "type": "array", "items": { "type": "string" } },
+    "source": { "type": "array", "items": { "type": "string" } },
+    "pitfalls": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "required": ["stable_id", "title", "description", "affected_surfaces", "symptom_pattern", "prevention_rule", "detection_hint", "related_commands", "related_helpers", "severity", "broad_work_relevance"],
+        "properties": {
+          "stable_id": { "type": "string" },
+          "title": { "type": "string" },
+          "description": { "type": "string" },
+          "affected_surfaces": { "type": "array", "items": { "type": "string" } },
+          "symptom_pattern": { "type": "string" },
+          "prevention_rule": { "type": "string" },
+          "detection_hint": { "type": "string" },
+          "related_commands": { "type": "array", "items": { "type": "string" } },
+          "related_helpers": { "type": "array", "items": { "type": "string" } },
+          "severity": { "type": "string" },
+          "broad_work_relevance": { "type": "boolean" }
+        }
+      }
+    }
+  }
+}

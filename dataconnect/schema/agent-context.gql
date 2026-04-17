@@ -1,0 +1,163 @@
+type AgentRepoInventory @table(key: "stable_id") {
+  stable_id: String!
+  path: String!
+  file_class: String!
+  surface_category: String!
+  runtime_critical: Boolean!
+  generated: Boolean!
+  evidence_only: Boolean!
+  workflow_guidance: Boolean!
+  governance_artifact: Boolean!
+  likely_shared_helper: Boolean!
+  likely_broad_signoff_relevant: Boolean!
+  dataconnect_related: Boolean!
+  functions_related: Boolean!
+  last_modified_or_hash: String!
+  source_path: String!
+  source_hash: String!
+  generated_at: DateTime!
+  synced_at: DateTime!
+  sync_revision: String!
+  stale: Boolean!
+}
+
+type AgentSurfaceMap @table(key: "stable_id") {
+  stable_id: String!
+  name: String!
+  description: String!
+  runtime_sensitivity: String!
+  broad_work_trigger: Boolean!
+  path_prefixes_json: String!
+  related_verification_lanes_json: String!
+  related_helper_families_json: String!
+  related_observability_lanes_json: String!
+  related_deploy_or_rules_surfaces_json: String!
+  danger_notes_json: String!
+  source_path: String!
+  source_hash: String!
+  generated_at: DateTime!
+  synced_at: DateTime!
+  sync_revision: String!
+  stale: Boolean!
+}
+
+type AgentCanonicalHelper @table(key: "stable_id") {
+  stable_id: String!
+  path: String!
+  helper_family: String!
+  purpose: String!
+  reuse_before_new: Boolean!
+  typical_callers_json: String!
+  risk_if_changed: String!
+  broad_signoff_likely: Boolean!
+  source_path: String!
+  source_hash: String!
+  generated_at: DateTime!
+  synced_at: DateTime!
+  sync_revision: String!
+  stale: Boolean!
+}
+
+type AgentVerificationCommand @table(key: "stable_id") {
+  stable_id: String!
+  command: String!
+  scope_type: String!
+  root_or_functions: String!
+  required_when_json: String!
+  optional_when_json: String!
+  cleanup_expected_json: String!
+  broad_signoff_weight: Int!
+  verifies_runtime: Boolean!
+  verifies_ui: Boolean!
+  verifies_rules: Boolean!
+  verifies_inventory: Boolean!
+  verifies_continuity: Boolean!
+  source_path: String!
+  source_hash: String!
+  generated_at: DateTime!
+  synced_at: DateTime!
+  sync_revision: String!
+  stale: Boolean!
+}
+
+type AgentKnowledgeRecord @table(key: "stable_id") {
+  stable_id: String!
+  record_type: String!
+  title: String!
+  body_json: String!
+  source_path: String!
+  source_hash: String!
+  generated_at: DateTime!
+  synced_at: DateTime!
+  sync_revision: String!
+  stale: Boolean!
+}
+
+type AgentTaskContextRun @table(key: "stable_id") {
+  stable_id: String!
+  task_summary: String!
+  task_mode: String!
+  scope_classification: String!
+  likely_surface_category: String!
+  likely_touched_files_json: String!
+  likely_adjacent_files_json: String!
+  canonical_helpers_json: String!
+  required_verification_commands_json: String!
+  relevant_known_pitfalls_json: String!
+  sql_mirror_freshness_state: String!
+  source_path: String!
+  source_hash: String!
+  generated_at: DateTime!
+  synced_at: DateTime!
+  sync_revision: String!
+  stale: Boolean!
+}
+
+type AgentActiveTask @table(key: "task_id") {
+  task_id: String!
+  agent_name: String!
+  started_at: DateTime!
+  expires_at: DateTime!
+  likely_touched_surfaces_json: String!
+  lock_strength: String!
+  status: String!
+  source_path: String!
+  source_hash: String!
+  generated_at: DateTime!
+  synced_at: DateTime!
+  sync_revision: String!
+  stale: Boolean!
+}
+
+type AgentHandoff @table(key: "task_id") {
+  task_id: String!
+  changed_files_json: String!
+  helper_families_reused_json: String!
+  commands_run_json: String!
+  commands_not_run_json: String!
+  unresolved_suspicions_json: String!
+  next_best_inspection_point: String!
+  cleanup_done_json: String!
+  final_status: String!
+  source_path: String!
+  source_hash: String!
+  generated_at: DateTime!
+  synced_at: DateTime!
+  sync_revision: String!
+  stale: Boolean!
+}
+
+type AgentRetrievalEdge @table(key: "stable_id") {
+  stable_id: String!
+  source_id: String!
+  target_id: String!
+  edge_type: String!
+  weight: Int!
+  rationale: String!
+  source_path: String!
+  source_hash: String!
+  generated_at: DateTime!
+  synced_at: DateTime!
+  sync_revision: String!
+  stale: Boolean!
+}

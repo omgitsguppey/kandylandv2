@@ -1,0 +1,64 @@
+{
+  "generatedAt": "2026-04-17T06:04:12.307Z",
+  "truthOrder": [
+    "verified_runtime_code",
+    "verified_configuration",
+    "verified_command_output",
+    "FULL_SCALE_CODEBASE_AUDIT.md",
+    "REPO_MEMORY_LEDGER.md",
+    "EVERY_FILE_FUNCTION_CHECKLIST.md",
+    "AGENTS.md_and_workflow_notes",
+    "prior_chat_context"
+  ],
+  "source": [
+    "package.json",
+    "functions/package.json",
+    "package-lock.json",
+    "functions/package-lock.json",
+    "functions/pnpm-lock.yaml"
+  ],
+  "stable_id": "pkgtruth__root-functions",
+  "root": {
+    "manifest": "package.json",
+    "packageManagerField": null,
+    "expectedManagers": [
+      "npm"
+    ],
+    "requiredLockfiles": [
+      "package-lock.json"
+    ],
+    "verificationCommands": [
+      "npm run check",
+      "npm run check:inventory",
+      "npm run check:architecture"
+    ],
+    "packageChangesTriggerAgentBuild": true,
+    "packageChangesTriggerSqlSync": true
+  },
+  "functions": {
+    "manifest": "functions/package.json",
+    "packageManagerField": null,
+    "expectedManagers": [
+      "npm",
+      "pnpm"
+    ],
+    "requiredLockfiles": [
+      "functions/package-lock.json",
+      "functions/pnpm-lock.yaml"
+    ],
+    "verificationCommands": [
+      "npm --prefix functions run check"
+    ],
+    "nodeEngine": "22",
+    "packageChangesTriggerAgentBuild": true,
+    "packageChangesTriggerSqlSync": true
+  },
+  "syncInvariants": [
+    "Root npm dependency changes must keep package-lock.json in sync.",
+    "Functions npm dependency changes must keep functions/package-lock.json in sync.",
+    "Functions pnpm dependency changes must keep functions/pnpm-lock.yaml in sync."
+  ],
+  "knownFailureModes": [
+    "Functions dual-lockfile drift can break functions verification or deployment parity."
+  ]
+}

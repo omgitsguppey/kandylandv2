@@ -1,0 +1,13 @@
+{
+  "type": "object",
+  "required": ["task_id", "agent_name", "started_at", "expires_at", "likely_touched_surfaces", "lock_strength", "status"],
+  "properties": {
+    "task_id": { "type": "string" },
+    "agent_name": { "type": "string" },
+    "started_at": { "type": "string" },
+    "expires_at": { "type": "string" },
+    "likely_touched_surfaces": { "type": "array", "items": { "type": "string" } },
+    "lock_strength": { "type": "string" },
+    "status": { "type": "string" }
+  }
+}

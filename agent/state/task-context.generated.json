@@ -1,0 +1,337 @@
+{
+  "generatedAt": "2026-04-17T06:04:23.301Z",
+  "truthOrder": [
+    "verified_runtime_code",
+    "verified_configuration",
+    "verified_command_output",
+    "FULL_SCALE_CODEBASE_AUDIT.md",
+    "REPO_MEMORY_LEDGER.md",
+    "EVERY_FILE_FUNCTION_CHECKLIST.md",
+    "AGENTS.md_and_workflow_notes",
+    "prior_chat_context"
+  ],
+  "source": [
+    "agent/index/repo-inventory.json",
+    "agent/index/canonical-helpers.json",
+    "agent/index/recent-passes.json",
+    "agent/index/known-pitfalls.json",
+    "agent/index/verification-commands.json",
+    "agent/index/dependency-graph.summary.json"
+  ],
+  "stable_id": "taskctx__runtime-add-or-modify-a-telemetry-event-safely",
+  "input": {
+    "task": "add or modify a telemetry event safely",
+    "mode": "runtime",
+    "fileHints": [],
+    "tokenBudgetProfile": "standard"
+  },
+  "normalizedTaskSummary": "add or modify a telemetry event safely",
+  "taskModeClassification": "runtime",
+  "scopeClassification": "broad",
+  "scopeWhy": "Touches repo-tooling, governance, or multiple broad-signoff surfaces.",
+  "likelySurfaceCategory": "analytics",
+  "likelySurfaces": [
+    "analytics",
+    "shared_runtime",
+    "ui_component",
+    "creator"
+  ],
+  "likelyTouchedFiles": [
+    "src/lib/telemetry.ts",
+    "functions/src/analytics-event-facts.ts",
+    "functions/src/analytics-security-events.ts",
+    "functions/src/analytics-task-events.ts",
+    "src/lib/platform-config.ts",
+    "src/lib/telemetry-catalog.ts",
+    "src/components/Dashboard/CreatorWorkspacePanel.tsx",
+    "src/lib/server/admin-analytics-historical-validation.ts",
+    "src/lib/client-error-reporting.ts",
+    "src/lib/creator-experiences.ts",
+    "src/lib/creator-onboarding.ts",
+    "src/components/Analytics/PageViewEvent.tsx"
+  ],
+  "likelyAdjacentFiles": [
+    "src/lib/authFetch.ts",
+    "src/lib/analytics-client-engine.ts",
+    "src/lib/analytics-identifiers.ts",
+    "src/lib/analytics-semantics.ts",
+    "src/lib/client-session.ts",
+    "src/lib/client-diagnostics.ts",
+    "src/lib/privacy-consent.ts",
+    "src/lib/tasks/task-catalog.ts",
+    "src/lib/rollouts.ts",
+    "src/lib/telemetry-safety.ts",
+    "src/app/HomeClient.tsx",
+    "src/app/admin/roster/page.tsx"
+  ],
+  "likelyAdjacentHelpers": [
+    "src/lib/creator-onboarding.ts",
+    "src/lib/telemetry-catalog.ts",
+    "src/lib/telemetry.ts",
+    "src/lib/chat-realtime.ts",
+    "src/lib/server/auth.ts",
+    "src/lib/server/creator-onboarding.ts",
+    "src/lib/server/request-guard.ts",
+    "src/lib/server/route-diagnostics.ts"
+  ],
+  "governanceConsultFull": [
+    "FULL_SCALE_CODEBASE_AUDIT.md",
+    "REPO_MEMORY_LEDGER.md",
+    "EVERY_FILE_FUNCTION_CHECKLIST.md"
+  ],
+  "governanceConsultSelective": [],
+  "canonicalHelpersToReuse": [
+    "src/lib/creator-onboarding.ts",
+    "src/lib/telemetry-catalog.ts",
+    "src/lib/telemetry.ts",
+    "src/lib/chat-realtime.ts",
+    "src/lib/server/auth.ts",
+    "src/lib/server/creator-onboarding.ts",
+    "src/lib/server/request-guard.ts",
+    "src/lib/server/route-diagnostics.ts"
+  ],
+  "relevantKnownPitfalls": [
+    "stale_lockfile_drift",
+    "diagnostics_serialization_crash",
+    "request_json_parse_falls_into_500",
+    "consumed_response_stream_fallback",
+    "generated_artifact_cleanup_miss",
+    "sidecar_truth_confusion"
+  ],
+  "requiredVerificationCommands": [
+    "npm run check:architecture",
+    "npm run check:inventory",
+    "npm run check:continuity",
+    "git status --short",
+    "npm run trace:adjacent -- <path>"
+  ],
+  "optionalVerificationCommands": [
+    "npm run check:telemetry",
+    "npm run test:ui:storybook",
+    "npm run test:contracts",
+    "npm run test:contracts:watch",
+    "npm run test:rules:firestore",
+    "npm run test:rules:storage",
+    "npm run storybook",
+    "npm run build-storybook"
+  ],
+  "cleanupExpectations": [
+    "Remove non-committed generated artifacts such as output/dependency-graph.json if created only for local verification.",
+    "Clean .next, playwright-report, test-results, lighthouse-results, build.log, and emulator logs before signoff."
+  ],
+  "broadSignoffAuditUpdateRequired": true,
+  "broadWorkStartupProtocolRequired": true,
+  "sqlMirrorFreshnessState": "unknown",
+  "confidenceNotes": [
+    "Mode resolved as runtime.",
+    "Ranking considered 826 repo files and 21 canonical helper entries."
+  ],
+  "ambiguityNotes": [
+    "No explicit file hints were provided, so ranking depended on task keywords and repo history."
+  ],
+  "do_not_read_unless_needed": [],
+  "do_not_touch_without_broad_signoff": [
+    "src/lib/telemetry.ts",
+    "src/lib/platform-config.ts",
+    "src/lib/telemetry-catalog.ts",
+    "src/lib/server/admin-analytics-historical-validation.ts",
+    "src/lib/client-error-reporting.ts",
+    "src/lib/creator-experiences.ts",
+    "src/lib/creator-onboarding.ts"
+  ],
+  "rankingEvidence": [
+    {
+      "stable_id": "file__src__lib__telemetry-ts",
+      "path": "src/lib/telemetry.ts",
+      "score": 118,
+      "why_selected": "path_domain_match, filename_match, canonical_helper_relevance, recent_pass_match, pitfall_match, runtime_sensitivity, verification_lane_match, high_inbound_bonus",
+      "weighted_components": [
+        "path_domain_match",
+        "filename_match",
+        "canonical_helper_relevance",
+        "recent_pass_match",
+        "pitfall_match",
+        "runtime_sensitivity",
+        "verification_lane_match",
+        "high_inbound_bonus"
+      ],
+      "freshness_state": "fresh"
+    },
+    {
+      "stable_id": "file__functions__src__analytics-event-facts-ts",
+      "path": "functions/src/analytics-event-facts.ts",
+      "score": 112,
+      "why_selected": "path_domain_match, filename_match, canonical_helper_relevance, recent_pass_match, pitfall_match, runtime_sensitivity, verification_lane_match",
+      "weighted_components": [
+        "path_domain_match",
+        "filename_match",
+        "canonical_helper_relevance",
+        "recent_pass_match",
+        "pitfall_match",
+        "runtime_sensitivity",
+        "verification_lane_match"
+      ],
+      "freshness_state": "fresh"
+    },
+    {
+      "stable_id": "file__functions__src__analytics-security-events-ts",
+      "path": "functions/src/analytics-security-events.ts",
+      "score": 112,
+      "why_selected": "path_domain_match, filename_match, canonical_helper_relevance, recent_pass_match, pitfall_match, runtime_sensitivity, verification_lane_match",
+      "weighted_components": [
+        "path_domain_match",
+        "filename_match",
+        "canonical_helper_relevance",
+        "recent_pass_match",
+        "pitfall_match",
+        "runtime_sensitivity",
+        "verification_lane_match"
+      ],
+      "freshness_state": "fresh"
+    },
+    {
+      "stable_id": "file__functions__src__analytics-task-events-ts",
+      "path": "functions/src/analytics-task-events.ts",
+      "score": 112,
+      "why_selected": "path_domain_match, filename_match, canonical_helper_relevance, recent_pass_match, pitfall_match, runtime_sensitivity, verification_lane_match",
+      "weighted_components": [
+        "path_domain_match",
+        "filename_match",
+        "canonical_helper_relevance",
+        "recent_pass_match",
+        "pitfall_match",
+        "runtime_sensitivity",
+        "verification_lane_match"
+      ],
+      "freshness_state": "fresh"
+    },
+    {
+      "stable_id": "file__src__lib__platform-config-ts",
+      "path": "src/lib/platform-config.ts",
+      "score": 112,
+      "why_selected": "path_domain_match, filename_match, canonical_helper_relevance, recent_pass_match, pitfall_match, runtime_sensitivity, verification_lane_match",
+      "weighted_components": [
+        "path_domain_match",
+        "filename_match",
+        "canonical_helper_relevance",
+        "recent_pass_match",
+        "pitfall_match",
+        "runtime_sensitivity",
+        "verification_lane_match"
+      ],
+      "freshness_state": "fresh"
+    },
+    {
+      "stable_id": "file__src__lib__telemetry-catalog-ts",
+      "path": "src/lib/telemetry-catalog.ts",
+      "score": 112,
+      "why_selected": "path_domain_match, filename_match, canonical_helper_relevance, recent_pass_match, pitfall_match, runtime_sensitivity, verification_lane_match",
+      "weighted_components": [
+        "path_domain_match",
+        "filename_match",
+        "canonical_helper_relevance",
+        "recent_pass_match",
+        "pitfall_match",
+        "runtime_sensitivity",
+        "verification_lane_match"
+      ],
+      "freshness_state": "fresh"
+    },
+    {
+      "stable_id": "file__src__components__dashboard__creatorworkspacepanel-tsx",
+      "path": "src/components/Dashboard/CreatorWorkspacePanel.tsx",
+      "score": 112,
+      "why_selected": "path_domain_match, filename_match, canonical_helper_relevance, recent_pass_match, pitfall_match, runtime_sensitivity, verification_lane_match",
+      "weighted_components": [
+        "path_domain_match",
+        "filename_match",
+        "canonical_helper_relevance",
+        "recent_pass_match",
+        "pitfall_match",
+        "runtime_sensitivity",
+        "verification_lane_match"
+      ],
+      "freshness_state": "fresh"
+    },
+    {
+      "stable_id": "file__src__lib__server__admin-analytics-historical-validation-ts",
+      "path": "src/lib/server/admin-analytics-historical-validation.ts",
+      "score": 112,
+      "why_selected": "path_domain_match, filename_match, canonical_helper_relevance, recent_pass_match, pitfall_match, runtime_sensitivity, verification_lane_match",
+      "weighted_components": [
+        "path_domain_match",
+        "filename_match",
+        "canonical_helper_relevance",
+        "recent_pass_match",
+        "pitfall_match",
+        "runtime_sensitivity",
+        "verification_lane_match"
+      ],
+      "freshness_state": "fresh"
+    },
+    {
+      "stable_id": "file__src__lib__client-error-reporting-ts",
+      "path": "src/lib/client-error-reporting.ts",
+      "score": 104,
+      "why_selected": "path_domain_match, filename_match, canonical_helper_relevance, pitfall_match, runtime_sensitivity, verification_lane_match, high_inbound_bonus",
+      "weighted_components": [
+        "path_domain_match",
+        "filename_match",
+        "canonical_helper_relevance",
+        "pitfall_match",
+        "runtime_sensitivity",
+        "verification_lane_match",
+        "high_inbound_bonus"
+      ],
+      "freshness_state": "fresh"
+    },
+    {
+      "stable_id": "file__src__lib__creator-experiences-ts",
+      "path": "src/lib/creator-experiences.ts",
+      "score": 104,
+      "why_selected": "path_domain_match, filename_match, canonical_helper_relevance, pitfall_match, runtime_sensitivity, verification_lane_match, high_inbound_bonus",
+      "weighted_components": [
+        "path_domain_match",
+        "filename_match",
+        "canonical_helper_relevance",
+        "pitfall_match",
+        "runtime_sensitivity",
+        "verification_lane_match",
+        "high_inbound_bonus"
+      ],
+      "freshness_state": "fresh"
+    },
+    {
+      "stable_id": "file__src__lib__creator-onboarding-ts",
+      "path": "src/lib/creator-onboarding.ts",
+      "score": 104,
+      "why_selected": "path_domain_match, filename_match, canonical_helper_relevance, pitfall_match, runtime_sensitivity, verification_lane_match, high_inbound_bonus",
+      "weighted_components": [
+        "path_domain_match",
+        "filename_match",
+        "canonical_helper_relevance",
+        "pitfall_match",
+        "runtime_sensitivity",
+        "verification_lane_match",
+        "high_inbound_bonus"
+      ],
+      "freshness_state": "fresh"
+    },
+    {
+      "stable_id": "file__src__components__analytics__pageviewevent-tsx",
+      "path": "src/components/Analytics/PageViewEvent.tsx",
+      "score": 104,
+      "why_selected": "path_domain_match, filename_match, canonical_helper_relevance, pitfall_match, runtime_sensitivity, verification_lane_match, high_inbound_bonus",
+      "weighted_components": [
+        "path_domain_match",
+        "filename_match",
+        "canonical_helper_relevance",
+        "pitfall_match",
+        "runtime_sensitivity",
+        "verification_lane_match",
+        "high_inbound_bonus"
+      ],
+      "freshness_state": "fresh"
+    }
+  ]
+}

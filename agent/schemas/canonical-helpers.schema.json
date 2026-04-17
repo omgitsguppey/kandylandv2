@@ -1,0 +1,27 @@
+{
+  "type": "object",
+  "required": ["generatedAt", "truthOrder", "source", "entries", "families"],
+  "properties": {
+    "generatedAt": { "type": "string" },
+    "truthOrder": { "type": "array", "items": { "type": "string" } },
+    "source": { "type": "array", "items": { "type": "string" } },
+    "families": { "type": "array", "items": { "type": "string" } },
+    "entries": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "required": ["stable_id", "path", "family", "purpose", "reuseBeforeNew", "adjacentUsageNotes", "risk_if_changed", "broad_signoff_likely"],
+        "properties": {
+          "stable_id": { "type": "string" },
+          "path": { "type": "string" },
+          "family": { "type": "string" },
+          "purpose": { "type": "string" },
+          "reuseBeforeNew": { "type": "boolean" },
+          "adjacentUsageNotes": { "type": "array", "items": { "type": "string" } },
+          "risk_if_changed": { "type": "string" },
+          "broad_signoff_likely": { "type": "boolean" }
+        }
+      }
+    }
+  }
+}

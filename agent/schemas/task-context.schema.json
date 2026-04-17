@@ -1,0 +1,26 @@
+{
+  "type": "object",
+  "required": ["generatedAt", "truthOrder", "source", "input", "normalizedTaskSummary", "likelySurfaceCategory", "likelyTouchedFiles", "likelyAdjacentFiles", "likelyAdjacentHelpers", "governanceConsultFull", "governanceConsultSelective", "canonicalHelpersToReuse", "relevantKnownPitfalls", "requiredVerificationCommands", "optionalVerificationCommands", "cleanupExpectations", "broadSignoffAuditUpdateRequired", "confidenceNotes", "ambiguityNotes", "rankingEvidence"],
+  "properties": {
+    "generatedAt": { "type": "string" },
+    "truthOrder": { "type": "array", "items": { "type": "string" } },
+    "source": { "type": "array", "items": { "type": "string" } },
+    "input": { "type": "object" },
+    "normalizedTaskSummary": { "type": "string" },
+    "likelySurfaceCategory": { "type": "string" },
+    "likelyTouchedFiles": { "type": "array", "items": { "type": "string" } },
+    "likelyAdjacentFiles": { "type": "array", "items": { "type": "string" } },
+    "likelyAdjacentHelpers": { "type": "array", "items": { "type": "string" } },
+    "governanceConsultFull": { "type": "array", "items": { "type": "string" } },
+    "governanceConsultSelective": { "type": "array", "items": { "type": "string" } },
+    "canonicalHelpersToReuse": { "type": "array", "items": { "type": "string" } },
+    "relevantKnownPitfalls": { "type": "array", "items": { "type": "string" } },
+    "requiredVerificationCommands": { "type": "array", "items": { "type": "string" } },
+    "optionalVerificationCommands": { "type": "array", "items": { "type": "string" } },
+    "cleanupExpectations": { "type": "array", "items": { "type": "string" } },
+    "broadSignoffAuditUpdateRequired": { "type": "boolean" },
+    "confidenceNotes": { "type": "array", "items": { "type": "string" } },
+    "ambiguityNotes": { "type": "array", "items": { "type": "string" } },
+    "rankingEvidence": { "type": "array", "items": { "type": "object" } }
+  }
+}

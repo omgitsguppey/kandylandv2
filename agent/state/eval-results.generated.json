@@ -1,0 +1,185 @@
+{
+  "generatedAt": "2026-04-17T06:04:23.316Z",
+  "total": 5,
+  "passed": 1,
+  "failed": 4,
+  "status": "warn",
+  "results": [
+    {
+      "id": "route_bug_patch",
+      "task": "patch a single API route bug in admin debug diagnostics",
+      "expectedScope": "moderate",
+      "actualScope": "broad",
+      "fileHits": 2,
+      "helperHits": 2,
+      "verificationHits": 1,
+      "passed": false,
+      "likelyTouchedFiles": [
+        "src/app/api/admin/debug/route.ts",
+        "src/lib/server/firebase-admin.ts",
+        "src/lib/server/route-diagnostics.ts",
+        "src/lib/route-runtime-health.ts",
+        "src/lib/telemetry-catalog.ts",
+        "src/lib/server/admin-panel-system-logs.ts",
+        "src/lib/timezone.ts",
+        "src/lib/server/auth.ts"
+      ],
+      "canonicalHelpersToReuse": [
+        "src/lib/route-runtime-health.ts",
+        "src/lib/server/admin-panel-system-logs.ts",
+        "src/lib/server/auth.ts",
+        "src/lib/server/request-guard.ts",
+        "src/lib/server/route-diagnostics.ts",
+        "src/lib/server/route-runtime-health.ts"
+      ],
+      "requiredVerificationCommands": [
+        "npm run check:architecture",
+        "npm run check:inventory",
+        "npm run check:agent-intelligence",
+        "npm run check:ui:audits",
+        "npm run check:continuity",
+        "npm run test:contracts",
+        "npm run trace:adjacent -- <path>"
+      ]
+    },
+    {
+      "id": "admin_ui_density",
+      "task": "densify the admin UI chart health surface without changing telemetry contracts",
+      "expectedScope": "moderate",
+      "actualScope": "broad",
+      "fileHits": 2,
+      "helperHits": 1,
+      "verificationHits": 1,
+      "passed": false,
+      "likelyTouchedFiles": [
+        "src/app/api/admin/ui-chart-health/route.ts",
+        "src/lib/server/route-diagnostics.ts",
+        "src/lib/admin-ui-chart-health.ts",
+        "src/lib/server/auth.ts",
+        "src/lib/server/rate-limit.ts",
+        "src/lib/server/request-guard.ts",
+        "src/lib/server/route-runtime-health.ts",
+        "src/lib/telemetry.ts"
+      ],
+      "canonicalHelpersToReuse": [
+        "src/lib/admin-ui-chart-health.ts",
+        "src/lib/server/auth.ts",
+        "src/lib/server/request-guard.ts",
+        "src/lib/server/route-diagnostics.ts",
+        "src/lib/server/route-runtime-health.ts",
+        "src/lib/telemetry.ts"
+      ],
+      "requiredVerificationCommands": [
+        "npm run check:architecture",
+        "npm run check:inventory",
+        "npm run check:ui:audits",
+        "npm run check:ui:lighthouse",
+        "npm run check:continuity",
+        "npm run test:contracts",
+        "npm run trace:adjacent -- <path>"
+      ]
+    },
+    {
+      "id": "chat_runtime",
+      "task": "modify a chat runtime fallback behavior without breaking canonical realtime handling",
+      "expectedScope": "moderate",
+      "actualScope": "broad",
+      "fileHits": 0,
+      "helperHits": 0,
+      "verificationHits": 0,
+      "passed": false,
+      "likelyTouchedFiles": [
+        "src/lib/route-runtime-health.ts",
+        "src/components/Chat/ChatExperience.tsx",
+        "src/lib/server/analytics-runtime.ts",
+        "src/lib/server/drop-runtime.ts",
+        "src/lib/server/notification-runtime.ts",
+        "src/lib/server/route-runtime-health.ts",
+        "src/hooks/client-runtime.ts",
+        "src/hooks/useChatUnreadStatus.ts"
+      ],
+      "canonicalHelpersToReuse": [
+        "src/lib/route-runtime-health.ts",
+        "src/lib/server/route-runtime-health.ts",
+        "src/lib/admin-ui-chart-health.ts",
+        "src/lib/ai-drop-covers.ts",
+        "src/lib/chat-realtime.ts",
+        "src/lib/gumdrop-ledger.ts"
+      ],
+      "requiredVerificationCommands": [
+        "npm run check:architecture",
+        "npm run check:inventory",
+        "npm run check:continuity",
+        "npm run trace:adjacent -- <path>"
+      ]
+    },
+    {
+      "id": "lockfile_drift",
+      "task": "patch dependency lockfile drift for functions without breaking deployment parity",
+      "expectedScope": "broad",
+      "actualScope": "broad",
+      "fileHits": 2,
+      "helperHits": 0,
+      "verificationHits": 2,
+      "passed": true,
+      "likelyTouchedFiles": [
+        "functions/pnpm-lock.yaml",
+        "functions/package.json",
+        "src/lib/platform-config.ts",
+        "functions/tsconfig.json",
+        "scripts/export-dependency-graph.ts",
+        "package-lock.json",
+        "package.json",
+        "functions/src/orchestration-parity.ts"
+      ],
+      "canonicalHelpersToReuse": [
+        "src/lib/server/auth.ts",
+        "src/lib/server/request-guard.ts",
+        "src/lib/server/route-runtime-health.ts",
+        "src/lib/server/server-diagnostics.ts"
+      ],
+      "requiredVerificationCommands": [
+        "npm run check:architecture",
+        "npm run check:inventory",
+        "npm run check:continuity",
+        "npm --prefix functions run check",
+        "npm run trace:adjacent -- <path>"
+      ]
+    },
+    {
+      "id": "telemetry_change",
+      "task": "add or modify a telemetry event safely",
+      "expectedScope": "moderate",
+      "actualScope": "broad",
+      "fileHits": 1,
+      "helperHits": 1,
+      "verificationHits": 0,
+      "passed": false,
+      "likelyTouchedFiles": [
+        "src/lib/telemetry.ts",
+        "functions/src/analytics-event-facts.ts",
+        "functions/src/analytics-security-events.ts",
+        "functions/src/analytics-task-events.ts",
+        "src/lib/platform-config.ts",
+        "src/lib/telemetry-catalog.ts",
+        "src/components/Dashboard/CreatorWorkspacePanel.tsx",
+        "src/lib/server/admin-analytics-historical-validation.ts"
+      ],
+      "canonicalHelpersToReuse": [
+        "src/lib/creator-onboarding.ts",
+        "src/lib/telemetry-catalog.ts",
+        "src/lib/telemetry.ts",
+        "src/lib/chat-realtime.ts",
+        "src/lib/server/auth.ts",
+        "src/lib/server/creator-onboarding.ts"
+      ],
+      "requiredVerificationCommands": [
+        "npm run check:architecture",
+        "npm run check:inventory",
+        "npm run check:continuity",
+        "git status --short",
+        "npm run trace:adjacent -- <path>"
+      ]
+    }
+  ]
+}

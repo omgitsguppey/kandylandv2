@@ -1,0 +1,284 @@
+{
+  "generatedAt": "2026-04-17T06:04:12.285Z",
+  "truthOrder": [
+    "verified_runtime_code",
+    "verified_configuration",
+    "verified_command_output",
+    "FULL_SCALE_CODEBASE_AUDIT.md",
+    "REPO_MEMORY_LEDGER.md",
+    "EVERY_FILE_FUNCTION_CHECKLIST.md",
+    "AGENTS.md_and_workflow_notes",
+    "prior_chat_context"
+  ],
+  "source": [
+    "src/lib/**",
+    "src/lib/server/**",
+    "functions/src/**"
+  ],
+  "entries": [
+    {
+      "stable_id": "helper__src__lib__server__auth-ts",
+      "path": "src/lib/server/auth.ts",
+      "family": "route_boundary_auth_request_guard",
+      "purpose": "Canonical auth verification and API error handling for route boundaries.",
+      "reuseBeforeNew": true,
+      "adjacentUsageNotes": [
+        "Pair with src/lib/server/request-guard.ts for trusted-origin and rate-limit checks.",
+        "Use handleApiError(...) instead of ad hoc route error wrappers."
+      ],
+      "risk_if_changed": "High. Shared runtime or route contracts can drift across multiple surfaces.",
+      "broad_signoff_likely": true
+    },
+    {
+      "stable_id": "helper__src__lib__server__request-guard-ts",
+      "path": "src/lib/server/request-guard.ts",
+      "family": "route_boundary_auth_request_guard",
+      "purpose": "Canonical request guard for auth, rate limiting, trusted origin, and caller scoping.",
+      "reuseBeforeNew": true,
+      "adjacentUsageNotes": [
+        "Default route-entry guard for Next route handlers."
+      ],
+      "risk_if_changed": "High. Shared runtime or route contracts can drift across multiple surfaces.",
+      "broad_signoff_likely": true
+    },
+    {
+      "stable_id": "helper__src__lib__server__route-diagnostics-ts",
+      "path": "src/lib/server/route-diagnostics.ts",
+      "family": "route_diagnostics_server_diagnostics",
+      "purpose": "Canonical route warning/failure recording into structured diagnostics lanes.",
+      "reuseBeforeNew": true,
+      "adjacentUsageNotes": [
+        "Use recordRouteWarning(...) or recordRouteFailure(...) instead of raw console warnings in server routes."
+      ],
+      "risk_if_changed": "High. Shared runtime or route contracts can drift across multiple surfaces.",
+      "broad_signoff_likely": true
+    },
+    {
+      "stable_id": "helper__src__lib__server__server-diagnostics-ts",
+      "path": "src/lib/server/server-diagnostics.ts",
+      "family": "route_diagnostics_server_diagnostics",
+      "purpose": "Persisted server diagnostics writer for canonical admin/debug observability.",
+      "reuseBeforeNew": true,
+      "adjacentUsageNotes": [
+        "Backs the server_diagnostics lane; not a replacement for route runtime health."
+      ],
+      "risk_if_changed": "High. Shared runtime or route contracts can drift across multiple surfaces.",
+      "broad_signoff_likely": true
+    },
+    {
+      "stable_id": "helper__src__lib__telemetry-ts",
+      "path": "src/lib/telemetry.ts",
+      "family": "telemetry_analytics_canon",
+      "purpose": "Canonical client telemetry enqueueing, batching, and backend mirroring entrypoint.",
+      "reuseBeforeNew": true,
+      "adjacentUsageNotes": [
+        "Keep event naming and batching aligned with telemetry catalog and backend ingestion contracts."
+      ],
+      "risk_if_changed": "Medium. Shared helper changes can alter adjacent features and verification scope.",
+      "broad_signoff_likely": true
+    },
+    {
+      "stable_id": "helper__src__lib__telemetry-catalog-ts",
+      "path": "src/lib/telemetry-catalog.ts",
+      "family": "telemetry_analytics_canon",
+      "purpose": "Canonical telemetry event registry and alias normalization source.",
+      "reuseBeforeNew": true,
+      "adjacentUsageNotes": [
+        "Use catalog-backed event naming before adding new telemetry emitters."
+      ],
+      "risk_if_changed": "Medium. Shared helper changes can alter adjacent features and verification scope.",
+      "broad_signoff_likely": true
+    },
+    {
+      "stable_id": "helper__src__lib__tasks__task-observability-ts",
+      "path": "src/lib/tasks/task-observability.ts",
+      "family": "task_observability_runtime_audit",
+      "purpose": "Daily-task observability and runtime audit helpers used by admin/debug tooling.",
+      "reuseBeforeNew": true,
+      "adjacentUsageNotes": [
+        "Prefer inventory/audit helpers over one-off task coverage logic."
+      ],
+      "risk_if_changed": "High. Shared runtime or route contracts can drift across multiple surfaces.",
+      "broad_signoff_likely": true
+    },
+    {
+      "stable_id": "helper__src__lib__tasks__task-catalog-ts",
+      "path": "src/lib/tasks/task-catalog.ts",
+      "family": "task_observability_runtime_audit",
+      "purpose": "Built-in daily-task contract and reward configuration source.",
+      "reuseBeforeNew": true,
+      "adjacentUsageNotes": [
+        "Task coverage, rewards, and event bindings should reuse the catalog."
+      ],
+      "risk_if_changed": "High. Shared runtime or route contracts can drift across multiple surfaces.",
+      "broad_signoff_likely": true
+    },
+    {
+      "stable_id": "helper__src__lib__server__creator-onboarding-ts",
+      "path": "src/lib/server/creator-onboarding.ts",
+      "family": "creator_onboarding_compliance",
+      "purpose": "Server-side creator onboarding storage and queue contract.",
+      "reuseBeforeNew": true,
+      "adjacentUsageNotes": [
+        "Keep creator onboarding persistence and queue semantics centralized."
+      ],
+      "risk_if_changed": "Medium. Shared helper changes can alter adjacent features and verification scope.",
+      "broad_signoff_likely": true
+    },
+    {
+      "stable_id": "helper__src__lib__creator-onboarding-ts",
+      "path": "src/lib/creator-onboarding.ts",
+      "family": "creator_onboarding_compliance",
+      "purpose": "Shared creator onboarding contract helpers.",
+      "reuseBeforeNew": true,
+      "adjacentUsageNotes": [
+        "Use shared onboarding helpers before new creator-specific utility files."
+      ],
+      "risk_if_changed": "Medium. Shared helper changes can alter adjacent features and verification scope.",
+      "broad_signoff_likely": true
+    },
+    {
+      "stable_id": "helper__src__lib__route-runtime-health-ts",
+      "path": "src/lib/route-runtime-health.ts",
+      "family": "runtime_health_admin_debug_observability",
+      "purpose": "Canonical route runtime health target registry and summarization logic.",
+      "reuseBeforeNew": true,
+      "adjacentUsageNotes": [
+        "Use tracked route keys and shared summary helpers instead of custom runtime-health math."
+      ],
+      "risk_if_changed": "High. Shared runtime or route contracts can drift across multiple surfaces.",
+      "broad_signoff_likely": true
+    },
+    {
+      "stable_id": "helper__src__lib__server__route-runtime-health-ts",
+      "path": "src/lib/server/route-runtime-health.ts",
+      "family": "runtime_health_admin_debug_observability",
+      "purpose": "Server persistence and reads for route runtime health samples.",
+      "reuseBeforeNew": true,
+      "adjacentUsageNotes": [
+        "Route handlers should record samples through this lane instead of inventing new route-health sinks."
+      ],
+      "risk_if_changed": "High. Shared runtime or route contracts can drift across multiple surfaces.",
+      "broad_signoff_likely": true
+    },
+    {
+      "stable_id": "helper__src__lib__admin-ui-chart-health-ts",
+      "path": "src/lib/admin-ui-chart-health.ts",
+      "family": "runtime_health_admin_debug_observability",
+      "purpose": "Canonical client/admin chart-health item modeling and summary logic.",
+      "reuseBeforeNew": true,
+      "adjacentUsageNotes": [
+        "Admin chart hydration status should stay on this shared contract."
+      ],
+      "risk_if_changed": "High. Shared runtime or route contracts can drift across multiple surfaces.",
+      "broad_signoff_likely": true
+    },
+    {
+      "stable_id": "helper__src__lib__server__admin-panel-system-logs-ts",
+      "path": "src/lib/server/admin-panel-system-logs.ts",
+      "family": "runtime_health_admin_debug_observability",
+      "purpose": "System-log rollups that combine diagnostics, chart health, and runtime health into admin/debug summaries.",
+      "reuseBeforeNew": true,
+      "adjacentUsageNotes": [
+        "Operational summaries should flow through the shared admin panel system log builder."
+      ],
+      "risk_if_changed": "High. Shared runtime or route contracts can drift across multiple surfaces.",
+      "broad_signoff_likely": true
+    },
+    {
+      "stable_id": "helper__src__lib__ai-drop-covers-ts",
+      "path": "src/lib/ai-drop-covers.ts",
+      "family": "ai_admin_runtime_helpers",
+      "purpose": "Canonical AI cover prompt, policy, and generation metadata helpers.",
+      "reuseBeforeNew": true,
+      "adjacentUsageNotes": [
+        "AI cover surfaces should reuse shared model and prompt helpers instead of in-route duplication."
+      ],
+      "risk_if_changed": "High. Shared runtime or route contracts can drift across multiple surfaces.",
+      "broad_signoff_likely": true
+    },
+    {
+      "stable_id": "helper__src__lib__server__ai-drop-covers-ts",
+      "path": "src/lib/server/ai-drop-covers.ts",
+      "family": "ai_admin_runtime_helpers",
+      "purpose": "Server-side AI cover admin settings, policy, and review state contract.",
+      "reuseBeforeNew": true,
+      "adjacentUsageNotes": [
+        "Admin AI routes should stay aligned with this storage/runtime layer."
+      ],
+      "risk_if_changed": "High. Shared runtime or route contracts can drift across multiple surfaces.",
+      "broad_signoff_likely": true
+    },
+    {
+      "stable_id": "helper__src__lib__chat-realtime-ts",
+      "path": "src/lib/chat-realtime.ts",
+      "family": "chat_realtime_runtime_helpers",
+      "purpose": "Canonical chat realtime retry, fallback, and listener orchestration helpers.",
+      "reuseBeforeNew": true,
+      "adjacentUsageNotes": [
+        "Chat realtime recovery must reuse the shared retry/failure handling model."
+      ],
+      "risk_if_changed": "High. Shared runtime or route contracts can drift across multiple surfaces.",
+      "broad_signoff_likely": true
+    },
+    {
+      "stable_id": "helper__src__lib__server__chat-ts",
+      "path": "src/lib/server/chat.ts",
+      "family": "chat_realtime_runtime_helpers",
+      "purpose": "Canonical server-side chat thread and message operations.",
+      "reuseBeforeNew": true,
+      "adjacentUsageNotes": [
+        "Server chat routes should route writes through this helper surface."
+      ],
+      "risk_if_changed": "High. Shared runtime or route contracts can drift across multiple surfaces.",
+      "broad_signoff_likely": true
+    },
+    {
+      "stable_id": "helper__src__lib__gumdrop-ledger-ts",
+      "path": "src/lib/gumdrop-ledger.ts",
+      "family": "economics_ledger_payments",
+      "purpose": "Canonical Gum Drop balance split, spending, and ledger source accounting logic.",
+      "reuseBeforeNew": true,
+      "adjacentUsageNotes": [
+        "Do not duplicate spend-source math in routes or functions."
+      ],
+      "risk_if_changed": "Medium. Shared helper changes can alter adjacent features and verification scope.",
+      "broad_signoff_likely": true
+    },
+    {
+      "stable_id": "helper__src__lib__gumdrop-economics-ts",
+      "path": "src/lib/gumdrop-economics.ts",
+      "family": "economics_ledger_payments",
+      "purpose": "Shared Gum Drop economics and pricing derivation helpers.",
+      "reuseBeforeNew": true,
+      "adjacentUsageNotes": [
+        "Pricing and economics displays should derive from shared helpers."
+      ],
+      "risk_if_changed": "Medium. Shared helper changes can alter adjacent features and verification scope.",
+      "broad_signoff_likely": true
+    },
+    {
+      "stable_id": "helper__src__lib__server__paypal-ts",
+      "path": "src/lib/server/paypal.ts",
+      "family": "economics_ledger_payments",
+      "purpose": "Canonical server PayPal integration helper layer.",
+      "reuseBeforeNew": true,
+      "adjacentUsageNotes": [
+        "Payment routes should reuse the shared PayPal helper instead of route-local clients."
+      ],
+      "risk_if_changed": "Medium. Shared helper changes can alter adjacent features and verification scope.",
+      "broad_signoff_likely": true
+    }
+  ],
+  "families": [
+    "ai_admin_runtime_helpers",
+    "chat_realtime_runtime_helpers",
+    "creator_onboarding_compliance",
+    "economics_ledger_payments",
+    "route_boundary_auth_request_guard",
+    "route_diagnostics_server_diagnostics",
+    "runtime_health_admin_debug_observability",
+    "task_observability_runtime_audit",
+    "telemetry_analytics_canon"
+  ]
+}

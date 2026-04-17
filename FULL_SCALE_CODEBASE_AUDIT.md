@@ -1,5 +1,72 @@
 # KandyDrops Core Codebase Audit & Defensive Ledger
 
+## [2026-04-16 #8] Repo Intelligence Fabric v1
+
+Scope for this pass:
+- Build a repo-native machine-readable agent context layer under `/agent/` so task routing, repo memory, verification guidance, and helper reuse can be derived from generated JSON instead of repeatedly restating giant markdown context.
+- Reuse existing inventory, dependency, adjacency, observability, and continuity systems rather than replacing them.
+- Update the cross-agent entrypoint and continuity ledgers so future agents consume generated context packs before falling back to broad prose reads.
+
+Startup protocol executed:
+- Read `FULL_SCALE_CODEBASE_AUDIT.md`.
+- Read `REPO_MEMORY_LEDGER.md`.
+- Read `EVERY_FILE_FUNCTION_CHECKLIST.md`.
+- Ran `git status --short`.
+- Identified touched surfaces and canonical helper systems around:
+  - `scripts/repo-inventory.ts`
+  - `scripts/export-dependency-graph.ts`
+  - `scripts/trace-adjacent-surfaces.ts`
+  - `package.json`
+  - `AGENTS.md`
+  - existing runtime observability helpers under `src/lib/route-runtime-health.ts`, `src/lib/server/route-diagnostics.ts`, `src/lib/admin-ui-chart-health.ts`, and `src/lib/server/admin-panel-system-logs.ts`
+- Mapped repo truth inputs before implementation, including tracked manifests, governance ledgers, workflow tooling notes, and current observability/helper contracts.
+
+Root Causes:
+- Repo continuity and architecture truth were already documented, but the agent-facing memory surface remained dominated by large markdown ledgers that are expensive to reread and easy to over-quote in prompts.
+- Existing repo-native tooling already exposes inventory, dependency graph, adjacency, and observability truth, but there was no committed machine-readable layer that unified those signals into a reusable task-context pack.
+- At least one governance note already drifted from tracked repo state, proving that generated machine-readable truth needs to derive from manifests and code first, then treat prose ledgers as secondary evidence.
+
+Verification Commands Run:
+- `git status --short`
+- `npm run trace:adjacent -- scripts/repo-inventory.ts`
+- `npm run trace:adjacent -- scripts/export-dependency-graph.ts`
+- `npm run trace:adjacent -- scripts/trace-adjacent-surfaces.ts`
+- `npm run trace:adjacent -- scripts/agent/build-agent-indexes.ts`
+- `npm run trace:adjacent -- scripts/agent/build-task-context.ts`
+- `npm run trace:adjacent -- scripts/agent/sync-sql.ts`
+- `npm run agent:index`
+- `npm run check:agent-intelligence`
+- `npm run agent:sync-sql`
+- `npm run agent:refresh`
+- `npm run agent:task-context -- --task="build repo intelligence fabric for agent context routing" --mode=audit --file=scripts/agent/build-agent-indexes.ts`
+- `npm run check:agent-context`
+- `npm run eval:agent-context`
+- `npm run typecheck`
+- `npm run check:inventory`
+- `npm run check:architecture`
+- `npm run check:continuity`
+
+Implementation Results:
+- Added the committed `/agent/` machine-readable context layer with schemas, state templates, prompt outputs, and generated repo intelligence indexes.
+- Implemented deterministic generators under `scripts/agent/` for repo inventory, surface mapping, canonical helpers, workflow guidance, governance truth, runtime observability, dependency summary, blast radius, retrieval index, task-context compilation, SQL mirror payload generation, self-checking, and eval reporting.
+- Reused existing repo-native truth lanes instead of replacing them:
+  - `scripts/repo-inventory.ts`
+  - `scripts/export-dependency-graph.ts`
+  - `scripts/trace-adjacent-surfaces.ts`
+  - runtime observability helpers under `src/lib/route-runtime-health.ts`, `src/lib/server/route-diagnostics.ts`, `src/lib/admin-ui-chart-health.ts`, and `src/lib/server/admin-panel-system-logs.ts`
+- Added a derived Data Connect mirror definition under `dataconnect/schema/agent-context.gql` plus a query surface under `dataconnect/example/agent-context.gql`, while keeping repo truth authoritative over the mirror.
+- Updated `AGENTS.md` into a cross-agent operational entrypoint that points agents to `/agent/index/*`, `/agent/state/*`, and the deterministic task-context flow before broad prose prompting.
+- Updated `REPO_MEMORY_LEDGER.md` to codify `/agent/` as the committed machine-readable context layer and `/.agent/` as workflow-only tooling.
+- Updated `EVERY_FILE_FUNCTION_CHECKLIST.md` metadata to cover the new repo-intelligence surfaces and the 2026-04-17 delta set.
+
+Warnings and non-blocking notes:
+- `npm run eval:agent-context` currently reports `warn (1/5 passing)` because the initial ranking/scope heuristics are still broad-biased for several moderate cases. The harness is intentionally reporting that miss rather than masking it.
+- `npm run check:inventory` still reports `dataconnect: 0` in this pre-commit verification state because the new `dataconnect/` files are untracked until commit. The generated agent fabric and Data Connect mirror wiring still exist locally and validate successfully.
+- The SQL/Data Connect mirror is wired as a derived retrieval plane and sync-status artifact, not a live authoritative runtime dependency.
+
+Cleanup:
+- No generated build/test noise remained after verification.
+
 ## [2026-04-16 #7] Open PR Evaluation, Repo Reconciliation, and Commit Pass
 
 Scope for this pass:

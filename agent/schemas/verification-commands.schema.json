@@ -1,0 +1,31 @@
+{
+  "type": "object",
+  "required": ["generatedAt", "truthOrder", "source", "commands"],
+  "properties": {
+    "generatedAt": { "type": "string" },
+    "truthOrder": { "type": "array", "items": { "type": "string" } },
+    "source": { "type": "array", "items": { "type": "string" } },
+    "commands": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "required": ["stable_id", "command", "scopeType", "root_or_functions", "requiredWhen", "optionalWhen", "cleanupExpected", "broadSignoffWeight"],
+        "properties": {
+          "stable_id": { "type": "string" },
+          "command": { "type": "string" },
+          "scopeType": { "type": "string" },
+          "root_or_functions": { "type": "string" },
+          "requiredWhen": { "type": "array", "items": { "type": "string" } },
+          "optionalWhen": { "type": "array", "items": { "type": "string" } },
+          "cleanupExpected": { "type": "array", "items": { "type": "string" } },
+          "broadSignoffWeight": { "type": "integer" },
+          "verifies_runtime": { "type": "boolean" },
+          "verifies_ui": { "type": "boolean" },
+          "verifies_rules": { "type": "boolean" },
+          "verifies_inventory": { "type": "boolean" },
+          "verifies_continuity": { "type": "boolean" }
+        }
+      }
+    }
+  }
+}

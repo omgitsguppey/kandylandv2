@@ -1,7 +1,7 @@
 # Repo Memory Ledger
 
 Status: Canonical repository-memory and architecture-decision ledger
-Last refreshed: 2026-04-16
+Last refreshed: 2026-04-17
 Repo: `C:\Users\uylus\OneDrive\Documents\KandyDrops_Final`
 
 ## Purpose
@@ -23,6 +23,31 @@ This file is not a changelog. It is the concise ledger for durable decisions tha
 4. When this file and runtime code disagree, runtime code plus verification wins and this file must be updated immediately.
 
 ## Decision Entries
+
+### 1y. `/agent/` is the committed machine-readable context layer; `/.agent/` remains workflow tooling, and the SQL mirror is secondary
+
+- Approximate date: Recorded explicitly on 2026-04-17 from the Repo Intelligence Fabric pass
+- Status: Active canonical cross-agent workflow rule
+- Problem/context: Repo continuity truth already existed across code, manifests, audits, and workflow notes, but agents still had to reread large markdown ledgers or infer task scope from partial prompts. The repo also needed a retrieval-friendly structured layer without promoting SQL or generated artifacts above repo truth.
+- Decision made: Add a committed `/agent/` layer generated from verified repo truth. Keep governance in markdown, keep `/.agent/` as workflow-only tooling, and treat the Data Connect / SQL mirror as a derived retrieval plane over generated local truth rather than an authority.
+- What became canonical:
+  - `agent/index/*.json` is the default low-token repo context surface for agents
+  - `agent/state/task-context.generated.json` plus `agent/prompts/*.md` are the deterministic task-context outputs
+  - `/.agent/` remains advisory workflow tooling and auto-run notes
+  - Data Connect mirror freshness matters, but repo truth still outranks the mirror and generated artifacts
+  - narrow tasks should use generated context packs first instead of giant freeform prompt payloads
+- Truth lives in:
+  - `agent/README.md`
+  - `agent/index/*.json`
+  - `agent/state/*.json`
+  - `agent/prompts/*.md`
+  - `scripts/agent/*.ts`
+  - `dataconnect/schema/agent-context.gql`
+  - `AGENTS.md`
+- What is now disallowed or deprecated:
+  - treating `/.agent/` as the machine-readable repo memory layer
+  - treating the SQL/Data Connect mirror as stronger truth than repo code/config/output
+  - defaulting to giant repeated governance-doc prompts when a generated context pack exists
 
 ### 1x. Creator settings summaries must use Firestore aggregates, and recoverable route warnings must flow through structured diagnostics
 

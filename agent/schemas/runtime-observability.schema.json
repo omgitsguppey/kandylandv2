@@ -1,0 +1,29 @@
+{
+  "type": "object",
+  "required": ["generatedAt", "truthOrder", "source", "lanes"],
+  "properties": {
+    "generatedAt": { "type": "string" },
+    "truthOrder": { "type": "array", "items": { "type": "string" } },
+    "source": { "type": "array", "items": { "type": "string" } },
+    "lanes": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "required": ["stable_id", "key", "purpose", "intended_use", "non_goals", "persisted", "raw_or_rollup", "client_or_server_origin", "trust_notes", "backingPaths"],
+        "properties": {
+          "stable_id": { "type": "string" },
+          "key": { "type": "string" },
+          "storage_or_collection": {},
+          "purpose": { "type": "string" },
+          "intended_use": { "type": "string" },
+          "non_goals": { "type": "array", "items": { "type": "string" } },
+          "persisted": { "type": "boolean" },
+          "raw_or_rollup": { "type": "string" },
+          "client_or_server_origin": { "type": "string" },
+          "trust_notes": { "type": "array", "items": { "type": "string" } },
+          "backingPaths": { "type": "array", "items": { "type": "string" } }
+        }
+      }
+    }
+  }
+}

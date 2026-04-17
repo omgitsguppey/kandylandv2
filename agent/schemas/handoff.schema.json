@@ -1,0 +1,13 @@
+{
+  "type": "object",
+  "required": ["taskId", "handoffSummary", "completedWork", "remainingWork", "verificationRun", "warnings", "cleanupStatus"],
+  "properties": {
+    "taskId": { "type": "string" },
+    "handoffSummary": { "type": "string" },
+    "completedWork": { "type": "array", "items": { "type": "string" } },
+    "remainingWork": { "type": "array", "items": { "type": "string" } },
+    "verificationRun": { "type": "array", "items": { "type": "string" } },
+    "warnings": { "type": "array", "items": { "type": "string" } },
+    "cleanupStatus": { "type": "string" }
+  }
+}

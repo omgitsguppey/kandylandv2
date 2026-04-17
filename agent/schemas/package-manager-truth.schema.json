@@ -1,0 +1,13 @@
+{
+  "type": "object",
+  "required": ["generatedAt", "truthOrder", "source", "root", "functions", "syncInvariants", "knownFailureModes"],
+  "properties": {
+    "generatedAt": { "type": "string" },
+    "truthOrder": { "type": "array", "items": { "type": "string" } },
+    "source": { "type": "array", "items": { "type": "string" } },
+    "root": { "type": "object" },
+    "functions": { "type": "object" },
+    "syncInvariants": { "type": "array", "items": { "type": "string" } },
+    "knownFailureModes": { "type": "array", "items": { "type": "string" } }
+  }
+}

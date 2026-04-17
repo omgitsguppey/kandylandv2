@@ -1,13 +1,26 @@
 # EVERY FILE FUNCTION CHECKLIST
 
-**Last Updated:** 2026-04-16
-**Current Focus:** PR reconciliation baseline updated; creator-settings stats now use server-side Firestore aggregates, and recoverable admin/analytics route warnings now flow through structured diagnostics alongside the earlier telemetry and warning cleanup work.
-**Status:** In Progress. Historical exhaustive sweep remains valuable, and the 2026-04-16 continuity metadata now reflects the telemetry cleanup, the warning-free verification baseline, and the open-PR reconciliation pass.
+**Last Updated:** 2026-04-17
+**Current Focus:** Repo Intelligence Fabric v1 added the committed `/agent/` machine-readable context layer, generator scripts under `scripts/agent/`, and a derived Data Connect mirror schema while preserving the existing continuity/audit truth order.
+**Status:** In Progress. Historical exhaustive sweep remains valuable, and the 2026-04-17 continuity metadata now reflects the repo-intelligence layer in addition to the earlier telemetry cleanup, warning-free verification baseline, and open-PR reconciliation pass.
 Purpose: exhaustive no-skip audit checklist covering every repository file currently in scope and every detected function-like implementation.
 
 Scoring: all entries below are marked as included in the current validated sweep. Confidence reflects current repository-state confidence, not perfection or future-proofing.
 
-Current repo-wide state snapshot: see [FULL_SCALE_CODEBASE_AUDIT.md](/Users/uylus/OneDrive/Documents/KandyDrops_Final/FULL_SCALE_CODEBASE_AUDIT.md) for the current live baseline, verification state, and continuity rules, and see [REPO_MEMORY_LEDGER.md](/Users/uylus/OneDrive/Documents/KandyDrops_Final/REPO_MEMORY_LEDGER.md) for major architectural and workflow decisions. The detailed file/function body below remains valuable historical evidence, but it has not been fully regenerated against the current 2026-04-16 inventory review yet.
+Current repo-wide state snapshot: see [FULL_SCALE_CODEBASE_AUDIT.md](/Users/uylus/OneDrive/Documents/KandyDrops_Final/FULL_SCALE_CODEBASE_AUDIT.md) for the current live baseline, verification state, and continuity rules, and see [REPO_MEMORY_LEDGER.md](/Users/uylus/OneDrive/Documents/KandyDrops_Final/REPO_MEMORY_LEDGER.md) for major architectural and workflow decisions. The detailed file/function body below remains valuable historical evidence, but it has not been fully regenerated against the current 2026-04-17 inventory review yet.
+
+## 2026-04-17 Delta Coverage
+
+- Added repo-intelligence and cross-agent context surfaces:
+  - `agent/README.md`
+  - `agent/index/*.json`
+  - `agent/prompts/*.md`
+  - `agent/schemas/*.json`
+  - `agent/state/*.json`
+  - `scripts/agent/*.ts`
+  - `dataconnect/schema/agent-context.gql`
+  - `dataconnect/example/agent-context.gql`
+- Coverage note: these files are included in current continuity/signoff scope even though the historical exhaustive body below has not yet been fully regenerated for the new directories.
 
 Historical sweep file-body baseline: 413 tracked files
 Current tracked baseline in the standing audit: 808 tracked files after the 2026-04-16 committed-state review
