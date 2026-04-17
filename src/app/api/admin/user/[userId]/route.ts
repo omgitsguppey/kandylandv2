@@ -1,7 +1,7 @@
 import { NextRequest, NextResponse } from "next/server";
 import type { User } from "firebase/auth";
 
-import { adminDb, firebaseAdmin } from "@/lib/server/firebase-admin";
+import { adminDb } from "@/lib/server/firebase-admin";
 import { handleApiError } from "@/lib/server/auth";
 import { ADMIN, HEAVY_READ } from "@/lib/server/rate-limit";
 import { normalizeTransactionRecord } from "@/lib/transaction-normalizers";
@@ -9,6 +9,7 @@ import { normalizeUserProfile } from "@/lib/user-utils";
 import { describeSecurityEvent } from "@/lib/security-events";
 import { getDropReferenceMap, resolveDropTitle } from "@/lib/server/drop-references";
 import { deriveGumdropEconomics } from "@/lib/gumdrop-economics";
+import { recordRouteWarning } from "@/lib/server/route-diagnostics";
 import { buildModuleCoverageReport, buildParityInsight } from "@/lib/server/analytics-parity";
 import { guardApiRequest } from "@/lib/server/request-guard";
 import { CREATOR_COLLECTIONS, isCreatorRole } from "@/lib/creator-experiences";
@@ -240,40 +241,19 @@ export async function GET(
         ];
         const dropReferences = await getDropReferenceMap(referencedDropIds);
 
-        const realtimeUserSnap = await firebaseAdmin.database().ref(`telemetry/users/${userId}`).get();
-        const realtimeUserData = realtimeUserSnap.val() || {};
-        const realtimeEvents = Object.values(realtimeUserData) as any[];
-
-        const isNewerThanFacts = (rtEvent: any) => {
-            const timestamp = typeof rtEvent?.timestamp === "number" ? rtEvent.timestamp : 0;
-            return timestamp > (analyticsFacts[0]?.timestamp || 0); // facts are sorted desc, so [0] is the latest
-        };
-
-        const realtimePurchaseVerified = realtimeEvents.filter((e) => e.eventName === "purchase_verified" && isNewerThanFacts(e)).length;
-        const realtimePurchaseCompleted = realtimeEvents.filter((e) => e.eventName === "gumdrops_purchase_completed" && isNewerThanFacts(e)).length;
-        const realtimePurchases = realtimePurchaseVerified > 0 ? realtimePurchaseVerified : realtimePurchaseCompleted;
-        const realtimeUnlocks = realtimeEvents.filter((e) => e.eventName === "unlock_drop_success" && isNewerThanFacts(e)).length;
-        const realtimeViewerSessionStarted = realtimeEvents.filter((e) => e.eventName === "viewer_session_started" && isNewerThanFacts(e)).length;
-        const realtimeViewerOpened = realtimeEvents.filter((e) => e.eventName === "viewer_opened" && isNewerThanFacts(e)).length;
-        const realtimeAssetStarted = realtimeEvents.filter((e) => e.eventName === "viewer_asset_started" && isNewerThanFacts(e)).length;
-        const realtimeAssetCompleted = realtimeEvents.filter((e) => e.eventName === "viewer_asset_completed" && isNewerThanFacts(e)).length;
-        const realtimeSourceDownloaded = realtimeEvents.filter((e) => e.eventName === "viewer_source_downloaded" && isNewerThanFacts(e)).length;
-        const realtimeRelatedClick = realtimeEvents.filter((e) => e.eventName === "viewer_related_drop_clicked" && isNewerThanFacts(e)).length;
-
-        const directViewSessionCount = analyticsFacts.filter((event) => event.eventName === "viewer_session_started").length + realtimeViewerSessionStarted;
-        const directViewerOpenedCount = analyticsFacts.filter((event) => event.eventName === "viewer_opened").length + realtimeViewerOpened;
-        const directAssetViewCount = analyticsFacts.filter((event) => event.eventName === "viewer_asset_started").length + realtimeAssetStarted;
-        const directAssetCompletionCount = analyticsFacts.filter((event) => event.eventName === "viewer_asset_completed").length + realtimeAssetCompleted;
-        const directDownloadCount = analyticsFacts.filter((event) => event.eventName === "viewer_source_downloaded").length + realtimeSourceDownloaded;
-        const directRelatedClickCount = analyticsFacts.filter((event) => event.eventName === "viewer_related_drop_clicked").length + realtimeRelatedClick;
-        const directUnwrapCount = analyticsFacts.filter((event) => event.eventName === "unlock_drop_success").length + realtimeUnlocks;
+        const directViewSessionCount = analyticsFacts.filter((event) => event.eventName === "viewer_session_started").length;
+        const directViewerOpenedCount = analyticsFacts.filter((event) => event.eventName === "viewer_opened").length;
+        const directAssetViewCount = analyticsFacts.filter((event) => event.eventName === "viewer_asset_started").length;
+        const directAssetCompletionCount = analyticsFacts.filter((event) => event.eventName === "viewer_asset_completed").length;
+        const directDownloadCount = analyticsFacts.filter((event) => event.eventName === "viewer_source_downloaded").length;
+        const directRelatedClickCount = analyticsFacts.filter((event) => event.eventName === "viewer_related_drop_clicked").length;
+        const directUnwrapCount = analyticsFacts.filter((event) => event.eventName === "unlock_drop_success").length;
         const purchaseVerifiedFactCount = analyticsFacts.filter((event) => event.eventName === "purchase_verified").length;
         const purchaseCompletedFactCount = analyticsFacts.filter((event) => event.eventName === "gumdrops_purchase_completed").length;
-        const directPurchaseCount = (purchaseVerifiedFactCount > 0 ? purchaseVerifiedFactCount : purchaseCompletedFactCount) + realtimePurchases;
-        const directEventCount = analyticsFacts.length + realtimeEvents.filter(isNewerThanFacts).length;
+        const directPurchaseCount = purchaseVerifiedFactCount > 0 ? purchaseVerifiedFactCount : purchaseCompletedFactCount;
+        const directEventCount = analyticsFacts.length;
         const directLastSeenAt = Math.max(
             analyticsFacts.reduce((latest, event) => Math.max(latest, event.timestamp), 0),
-            realtimeEvents.reduce((latest, event) => Math.max(latest, typeof event?.timestamp === "number" ? event.timestamp : 0), 0)
         );
         const completedSessionWatchSeconds = analyticsFacts.reduce((total, event) => {
             if (event.eventName !== "viewer_session_completed") {
@@ -281,10 +261,6 @@ export async function GET(
             }
 
             return total + Math.max(event.sessionWatchSeconds, event.watchSeconds, 0);
-        }, 0) + realtimeEvents.filter((e) => e.eventName === "viewer_session_completed" && isNewerThanFacts(e)).reduce((total, event) => {
-            const sessionWatchSeconds = typeof event.sessionWatchSeconds === "number" ? event.sessionWatchSeconds : 0;
-            const watchSeconds = typeof event.watchSeconds === "number" ? event.watchSeconds : 0;
-            return total + Math.max(sessionWatchSeconds, watchSeconds, 0);
         }, 0);
         const loadSamples = analyticsFacts.filter((event) => event.loadMs > 0).map((event) => event.loadMs);
         const directAvgLoadMs = loadSamples.length > 0
@@ -770,7 +746,12 @@ export async function GET(
                 pendingSubmissions,
             };
             } catch (error) {
-                console.warn("[Admin] Gracefully recovered from creatorOps indexing or fetch error:", error);
+                recordRouteWarning(
+                    "Admin.User.CreatorOps",
+                    "[Admin] Gracefully recovered from creatorOps indexing or fetch error",
+                    error,
+                    { channel: "admin" },
+                );
                 
                 creatorOps = {
                     summary: {

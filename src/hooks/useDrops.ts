@@ -5,7 +5,7 @@ import useSWRInfinite from "swr/infinite";
 import { reportClientIssue, reportRealtimeIssue } from "@/lib/client-error-reporting";
 import { Drop } from "@/types/db";
 import { applyDropStatus, resolveDropStatusFromTiming } from "@/lib/drop-status";
-import { DROP_RUNTIME_COLLECTION, DROP_RUNTIME_DOC_ID } from "@/lib/platform-config";
+import { SYSTEM_RUNTIME_COLLECTION, DROP_RUNTIME_DOC_ID } from "@/lib/platform-config";
 import { useNetworkConditions } from "@/hooks/useNetworkConditions";
 
 const INITIAL_SWEEP_NOW = Date.now();
@@ -150,7 +150,7 @@ export function useDrops(
         }
 
         unsubscribe = onSnapshot(
-          doc(db, DROP_RUNTIME_COLLECTION, DROP_RUNTIME_DOC_ID),
+          doc(db, SYSTEM_RUNTIME_COLLECTION, DROP_RUNTIME_DOC_ID),
           () => {
             if (!sawInitialSnapshot) {
               sawInitialSnapshot = true;

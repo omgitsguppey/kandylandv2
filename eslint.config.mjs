@@ -13,6 +13,7 @@ const eslintConfig = [{
         "src/dataconnect-admin-generated/**",
         "output/**",
         "qa-screenshots/**",
+        "storybook-static/**",
         ".playwright-cli/**",
         "build.log",
         "check.log",

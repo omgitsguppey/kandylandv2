@@ -137,7 +137,7 @@ function buildAdminTelemetryActivityItems(input: {
             items.push({
                 id: `telemetry_${eventName}_${record.timestamp}_${record.userId || "anonymous"}_${index}`,
                 domain: "admin",
-                source: "telemetry_logs",
+                source: "analytics_event_facts",
                 type: eventName,
                 label: TELEMETRY_EVENT_LABELS[eventName] || eventName,
                 detail,
@@ -486,7 +486,7 @@ export async function GET(request: NextRequest) {
             revenue: "30-day chart is built from analytics_commerce_daily and compared against the prior 30-day window. It is polled, not realtime.",
             topDrops: "Ranked from current drop records by total unwrap count. This is a compact leaderboard, not a historical export.",
             transactions: "Recent transactions hydrate from the live Firestore transactions collection. The overview shell still refreshes on a 5s poll.",
-            adminActivity: "Admin activity combines admin balance adjustments with recent admin telemetry logs only. It does not claim to be a full cross-domain actor history.",
+            adminActivity: "Admin activity combines admin balance adjustments with recent canonical admin event facts only. It does not claim to be a full cross-domain actor history.",
         };
 
         return finalize(NextResponse.json({

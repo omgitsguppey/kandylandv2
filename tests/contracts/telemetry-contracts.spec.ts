@@ -67,12 +67,9 @@ describe("analytics consistency contracts", () => {
     expect(rootPackageJson.dependencies?.["firebase-admin"]).toBe(
       functionsPackageJson.dependencies?.["firebase-admin"],
     );
-    expect(rootPackageJson.dependencies?.["@dataconnect/admin-generated"]).toBe(
-      functionsPackageJson.dependencies?.["@dataconnect/admin-generated"],
-    );
   });
 
-  it("keeps admin analytics telemetry log queries tied to the shared event catalog", () => {
+  it("keeps admin analytics historical queries tied to the shared event catalog", () => {
     const adminAnalyticsHistoricalRouteSource = readFileSync(
       path.resolve(process.cwd(), "src/app/api/admin/analytics/historical/route.ts"),
       "utf8",

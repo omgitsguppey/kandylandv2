@@ -21,11 +21,8 @@
     "*.mjs"
   ],
   "ignore": [
-    "src/dataconnect-generated/**"
   ],
   "ignoreDependencies": [
-    "@dataconnect/generated",
-    "@dataconnect/admin-generated",
     "@tailwindcss/typography",
     "tailwindcss",
     "eslint-import-resolver-typescript",

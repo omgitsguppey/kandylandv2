@@ -3,6 +3,7 @@
 import { useMemo, memo } from "react";
 import Image from "next/image";
 import type { Drop } from "@/types/db";
+import { isFirebaseStorageMediaUrl } from "@/lib/media-hosts";
 
 interface HomeDropTickerProps {
   drops: Drop[];
@@ -17,7 +18,14 @@ export const HomeDropTicker = memo(function HomeDropTicker({ drops }: HomeDropTi
       {[...tickerDrops, ...tickerDrops].map((drop, idx) => (
         <div key={`${drop.id}-${idx}`} className="w-36 md:w-44 shrink-0 rounded-2xl overflow-hidden border border-white/10 bg-black/60">
           <div className="relative w-full h-24 md:h-28 bg-black">
-            <Image src={drop.imageUrl} alt={drop.title} fill sizes="180px" className="object-contain" />
+            <Image
+              src={drop.imageUrl}
+              alt={drop.title}
+              fill
+              sizes="180px"
+              className="object-contain"
+              unoptimized={isFirebaseStorageMediaUrl(drop.imageUrl)}
+            />
           </div>
           <div className="p-2 text-left">
             <p className="text-[11px] md:text-xs font-semibold text-white line-clamp-1">{drop.title}</p>

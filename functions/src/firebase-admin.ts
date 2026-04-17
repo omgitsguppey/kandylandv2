@@ -1,5 +1,4 @@
 import {App, getApps, initializeApp} from "firebase-admin/app"
-import {getDatabase} from "firebase-admin/database"
 import {getFirestore} from "firebase-admin/firestore"
 
 import {resolveDatabaseUrl, resolveProjectId, resolveStorageBucket} from "./firebase-runtime.js"
@@ -23,5 +22,4 @@ function getOrCreateAdminApp(): App {
 const adminApp = getOrCreateAdminApp()
 
 export const db = getFirestore(adminApp)
-export const rtdb = getDatabase(adminApp)
 export {adminApp}

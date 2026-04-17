@@ -1,4 +1,5 @@
 import { NextRequest, NextResponse } from "next/server";
+import { AggregateField } from "firebase-admin/firestore";
 
 import { handleApiError } from "@/lib/server/auth";
 import { STANDARD } from "@/lib/server/rate-limit";
@@ -39,33 +40,56 @@ export async function GET(request: NextRequest) {
         }
 
         const { data } = await requireCreator(caller.uid);
-        const [ledgerSnap, payoutSnap, subscriptionSnap, requestSnap, bookingSnap, relationshipsOpsSnap, dropsSnap] = await Promise.all([
-            adminDb.collection("creator_ledger_accruals").where("creatorId", "==", caller.uid).get(),
-            adminDb.collection("creator_payout_requests").where("creatorId", "==", caller.uid).get(),
-            adminDb.collection("creator_subscriptions").where("creatorId", "==", caller.uid).get(),
-            adminDb.collection("creator_custom_requests").where("creatorId", "==", caller.uid).get(),
-            adminDb.collection("creator_call_bookings").where("creatorId", "==", caller.uid).get(),
+        const [
+            ledgerSnap,
+            payoutSnap,
+            subscriptionSnap,
+            requestSnap,
+            bookingSnap,
+            relationshipsOpsSnap,
+            dropsSnap,
+        ] = await Promise.all([
+            adminDb.collection("creator_ledger_accruals")
+                .where("creatorId", "==", caller.uid)
+                .aggregate({ totalEarnings: AggregateField.sum("creatorShareGd") })
+                .get(),
+            adminDb.collection("creator_payout_requests")
+                .where("creatorId", "==", caller.uid)
+                .where("status", "==", "pending")
+                .aggregate({ totalPending: AggregateField.sum("requestedGd") })
+                .get(),
+            adminDb.collection("creator_subscriptions")
+                .where("creatorId", "==", caller.uid)
+                .where("status", "==", "active")
+                .count()
+                .get(),
+            adminDb.collection("creator_custom_requests")
+                .where("creatorId", "==", caller.uid)
+                .where("status", "==", "pending")
+                .count()
+                .get(),
+            adminDb.collection("creator_call_bookings")
+                .where("creatorId", "==", caller.uid)
+                .where("status", "==", "booked")
+                .count()
+                .get(),
             adminDb.collection("creator_relationships_ops").doc(caller.uid).get(),
-            adminDb.collection("drops").where("creatorId", "==", caller.uid).where("status", "==", "active").get(),
+            adminDb.collection("drops")
+                .where("creatorId", "==", caller.uid)
+                .where("status", "==", "active")
+                .count()
+                .get(),
         ]);
 
-        const earningsGd = ledgerSnap.docs.reduce((sum, doc) => {
-            const entry = doc.data() as Record<string, unknown>;
-            return sum + (typeof entry.creatorShareGd === "number" ? entry.creatorShareGd : 0);
-        }, 0);
-        const pendingCashoutGd = payoutSnap.docs
-            .filter((doc) => (doc.data() as Record<string, unknown>).status === "pending")
-            .reduce((sum, doc) => {
-                const entry = doc.data() as Record<string, unknown>;
-                return sum + (typeof entry.requestedGd === "number" ? entry.requestedGd : 0);
-            }, 0);
+        const earningsGd = ledgerSnap.data().totalEarnings || 0;
+        const pendingCashoutGd = payoutSnap.data().totalPending || 0;
 
         const followerCount = relationshipsOpsSnap.exists 
             ? (relationshipsOpsSnap.data() as { followerCount?: number }).followerCount || 0
             : 0;
             
         const profileViewsCount = typeof data.profileViewsCount === "number" ? data.profileViewsCount : 0;
-        const liveDropsCount = dropsSnap.size;
+        const liveDropsCount = dropsSnap.data().count;
 
         return NextResponse.json({
             success: true,
@@ -77,9 +101,9 @@ export async function GET(request: NextRequest) {
                 followerCount,
                 profileViewsCount,
                 liveDropsCount,
-                activeSubscribers: subscriptionSnap.docs.filter((doc) => (doc.data() as Record<string, unknown>).status === "active").length,
-                openRequests: requestSnap.docs.filter((doc) => (doc.data() as Record<string, unknown>).status === "pending").length,
-                bookedCalls: bookingSnap.docs.filter((doc) => (doc.data() as Record<string, unknown>).status === "booked").length,
+                activeSubscribers: subscriptionSnap.data().count,
+                openRequests: requestSnap.data().count,
+                bookedCalls: bookingSnap.data().count,
             },
         });
     } catch (error) {

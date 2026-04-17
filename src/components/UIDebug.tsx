@@ -13,8 +13,12 @@ export function UIDebug() {
             import("react").then((React) => {
                 import("react-dom").then((ReactDOM) => {
                     import("@axe-core/react").then((axe) => {
-                        // eslint-disable-next-line @typescript-eslint/no-unsafe-member-access, @typescript-eslint/no-unsafe-call
-                        axe.default(React, ReactDOM, 1000);
+                        const runAxe = axe.default as (
+                            reactModule: typeof import("react"),
+                            reactDomModule: typeof import("react-dom"),
+                            delay?: number,
+                        ) => void;
+                        runAxe(React, ReactDOM, 1000);
                     }).catch(() => {});
                 });
             });
@@ -26,6 +30,6 @@ export function UIDebug() {
     }
 
     return (
-        <Script src="https://unpkg.com/react-scan/dist/auto.global.js" strategy="beforeInteractive" />
+        <Script src="https://unpkg.com/react-scan/dist/auto.global.js" strategy="afterInteractive" />
     );
 }

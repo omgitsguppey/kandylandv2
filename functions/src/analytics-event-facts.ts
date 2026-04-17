@@ -12,7 +12,6 @@ import {
 } from "./analytics-core.js"
 import {db} from "./firebase-admin.js"
 import {REGION} from "./firebase-runtime.js"
-import {incrementRealtimeNode} from "./analytics-realtime.js"
 import {recordSemanticRollupFromEventFact} from "./analytics-semantics.js"
 import {touchAnalyticsRuntime} from "./analytics-runtime.js"
 
@@ -191,44 +190,7 @@ export const onAnalyticsEventFactCreated = onDocumentCreated(
 
     await batch.commit()
 
-    const realtimeUpdates: Array<Promise<unknown>> = [
-      incrementRealtimeNode("analytics/realtime/overview", {
-        totalEvents: 1,
-        authenticatedEvents: 1,
-        mobileEvents: isMobileViewport ? 1 : 0,
-        lastEventAt: timestamp,
-      }),
-    ]
-
-    if (userId) {
-      realtimeUpdates.push(incrementRealtimeNode(`analytics/realtime/users/${encodeKeyFragment(userId)}`, {
-        eventCount: 1,
-        sessionCount: eventName === "viewer_session_started" ? 1 : 0,
-        lastSeenAt: timestamp,
-        username: username || userId,
-      }))
-    }
-
-    if (pagePath) {
-      realtimeUpdates.push(incrementRealtimeNode(`analytics/realtime/pages/${encodeKeyFragment(pagePath)}`, {
-        eventCount: 1,
-        lastEventAt: timestamp,
-        pagePath,
-      }))
-    }
-
-    if (dropId) {
-      realtimeUpdates.push(incrementRealtimeNode(`analytics/realtime/drops/${encodeKeyFragment(dropId)}`, {
-        eventCount: 1,
-        viewerSessionCount: eventName === "viewer_session_started" ? 1 : 0,
-        unwrapCount: eventName === "unlock_drop_success" ? 1 : 0,
-        lastEventAt: timestamp,
-        dropTitle,
-      }))
-    }
-
     await Promise.all([
-      ...realtimeUpdates,
       recordSemanticRollupFromEventFact({
         eventFact: data,
         sourceKey: "analytics_event_facts",

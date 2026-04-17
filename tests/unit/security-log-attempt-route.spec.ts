@@ -1,11 +1,19 @@
-import { describe, expect, it, vi, beforeEach } from "vitest";
+import { describe, expect, it, vi, beforeAll, beforeEach } from "vitest";
 import { NextRequest } from "next/server";
 
-const guardApiRequestMock = vi.fn();
-const runTransactionMock = vi.fn();
-const collectionMock = vi.fn();
-const trackServerEventMock = vi.fn();
-const handleApiErrorMock = vi.fn();
+const {
+  guardApiRequestMock,
+  runTransactionMock,
+  collectionMock,
+  trackServerEventMock,
+  handleApiErrorMock,
+} = vi.hoisted(() => ({
+  guardApiRequestMock: vi.fn(),
+  runTransactionMock: vi.fn(),
+  collectionMock: vi.fn(),
+  trackServerEventMock: vi.fn(),
+  handleApiErrorMock: vi.fn(),
+}));
 
 vi.mock("@/lib/server/firebase-admin", () => ({
   adminDb: {
@@ -57,6 +65,12 @@ vi.mock("@/lib/server/analytics-event-utils", () => ({
 }));
 
 describe("POST /api/security/log-attempt", () => {
+  let POST: typeof import("@/app/api/security/log-attempt/route").POST;
+
+  beforeAll(async () => {
+    ({ POST } = await import("@/app/api/security/log-attempt/route"));
+  });
+
   beforeEach(() => {
     vi.clearAllMocks();
     guardApiRequestMock.mockResolvedValue({ uid: "user-1", email: "user@example.com" });
@@ -69,7 +83,6 @@ describe("POST /api/security/log-attempt", () => {
   it("delegates unexpected failures to handleApiError", async () => {
     runTransactionMock.mockRejectedValue(new Error("db write failed"));
 
-    const { POST } = await import("@/app/api/security/log-attempt/route");
     const request = new NextRequest("http://localhost/api/security/log-attempt", {
       method: "POST",
       body: JSON.stringify({ reason: "rip_attempt" }),

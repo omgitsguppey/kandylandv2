@@ -221,18 +221,6 @@ export async function POST(req: NextRequest) {
                 ...event,
                 nowMs,
                 storageKey,
-                telemetryData: {
-                    eventId: event.eventId,
-                    eventName: event.canonicalEventName,
-                    params: {
-                        ...event.eventParamsWithMetadata,
-                        ...(dropId ? { drop_id: dropId, drop_title: dropTitle } : {}),
-                    },
-                    userId,
-                    username,
-                    timestamp: nowMs,
-                    userAgent,
-                },
                 analyticsEventFact: {
                     source: "authenticated",
                     consentMode: "identified",
@@ -293,12 +281,6 @@ export async function POST(req: NextRequest) {
                 throw error;
             }
         }));
-
-        const realtimeDb = admin.database();
-        await Promise.all(telemetryFacts.flatMap((event) => [
-            realtimeDb.ref(`telemetry/events/${event.canonicalEventName}/${event.storageKey}`).set(event.telemetryData),
-            realtimeDb.ref(`telemetry/users/${userId}/${event.storageKey}`).set(event.telemetryData),
-        ]));
 
         const latestTelemetryFact = telemetryFacts[telemetryFacts.length - 1];
         const latestParams = latestTelemetryFact?.eventParamsWithMetadata ?? {};

@@ -136,7 +136,7 @@ export function buildHistoricalValidationSummary(input: {
       label: "Telemetry depth",
       status: (input.telemetryLogCount > 0 || input.firstPartyAuthenticatedEvents > 0) ? "pass" : "warn",
       detail: (input.telemetryLogCount > 0 || input.firstPartyAuthenticatedEvents > 0)
-        ? `${input.firstPartyAuthenticatedEvents.toLocaleString()} canonical authenticated events with ${input.telemetryLogCount.toLocaleString()} realtime telemetry log records in range.`
+        ? `${input.firstPartyAuthenticatedEvents.toLocaleString()} canonical authenticated events with ${input.telemetryLogCount.toLocaleString()} canonical event samples in range.`
         : "No authenticated telemetry events matched the selected range.",
     },
     {

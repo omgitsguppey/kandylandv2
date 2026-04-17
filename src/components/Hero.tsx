@@ -77,7 +77,10 @@ export default function Hero({ activeDrops }: HeroProps) {
                         </Link>
                     </div>
 
-                    <div className="pb-1 pt-0.5 max-[360px]:pt-0 landscape:pb-0">
+                    <div
+                        data-testid="hero-activity-ticker-mask"
+                        className="pb-1 pt-0.5 max-[360px]:pt-0 landscape:pb-0"
+                    >
                         <ActivityTicker count={activeDropsCount} />
                     </div>
 

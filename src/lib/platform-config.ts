@@ -2,13 +2,10 @@
 export const USER_RUNTIME_COLLECTION = "userRuntime";
 export const SYSTEM_RUNTIME_COLLECTION = "systemRuntime";
 
-export const DROP_RUNTIME_COLLECTION = SYSTEM_RUNTIME_COLLECTION;
 export const DROP_RUNTIME_DOC_ID = "drops";
 
-export const ANALYTICS_RUNTIME_COLLECTION = SYSTEM_RUNTIME_COLLECTION;
 export const ANALYTICS_RUNTIME_DOC_ID = "analytics";
 
-export const NOTIFICATION_RUNTIME_COLLECTION = SYSTEM_RUNTIME_COLLECTION;
 export const NOTIFICATION_RUNTIME_DOC_ID = "notifications";
 
 // --- Legal & Documents ---

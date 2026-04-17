@@ -4,7 +4,6 @@ import {FieldValue} from "firebase-admin/firestore"
 import {buildIncrementUpdate, readNumber, readString, toTimeKeys} from "./analytics-core.js"
 import {db} from "./firebase-admin.js"
 import {REGION} from "./firebase-runtime.js"
-import {incrementRealtimeNode} from "./analytics-realtime.js"
 import {touchAnalyticsRuntime} from "./analytics-runtime.js"
 
 interface TaskEventFact {
@@ -78,13 +77,6 @@ export const onDailyTaskEventCreated = onDocumentCreated(
     }
 
     await batch.commit()
-    await Promise.all([
-      incrementRealtimeNode("analytics/realtime/tasks", {
-        eventCount: 1,
-        rewardTotal: reward,
-        lastEventAt: timestamp,
-      }),
-      touchAnalyticsRuntime(timestamp),
-    ])
+    await touchAnalyticsRuntime(timestamp)
   },
 )

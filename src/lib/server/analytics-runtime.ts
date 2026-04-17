@@ -2,7 +2,7 @@ import "server-only";
 
 import { FieldValue, type Transaction, type WriteBatch } from "firebase-admin/firestore";
 
-import { ANALYTICS_RUNTIME_COLLECTION, ANALYTICS_RUNTIME_DOC_ID } from "@/lib/platform-config";
+import { SYSTEM_RUNTIME_COLLECTION, ANALYTICS_RUNTIME_DOC_ID } from "@/lib/platform-config";
 import { adminDb } from "@/lib/server/firebase-admin";
 
 type RuntimeWriter = Transaction | WriteBatch;
@@ -20,7 +20,7 @@ export function markAnalyticsRuntimeChanged(writer: RuntimeWriter, nowMs = Date.
         return;
     }
 
-    const documentRef = adminDb.collection(ANALYTICS_RUNTIME_COLLECTION).doc(ANALYTICS_RUNTIME_DOC_ID);
+    const documentRef = adminDb.collection(SYSTEM_RUNTIME_COLLECTION).doc(ANALYTICS_RUNTIME_DOC_ID);
     const setDoc = writer.set.bind(writer) as (
         ref: FirebaseFirestore.DocumentReference,
         data: FirebaseFirestore.DocumentData,
@@ -36,7 +36,7 @@ export async function touchAnalyticsRuntime(nowMs = Date.now()) {
     }
 
     await adminDb
-        .collection(ANALYTICS_RUNTIME_COLLECTION)
+        .collection(SYSTEM_RUNTIME_COLLECTION)
         .doc(ANALYTICS_RUNTIME_DOC_ID)
         .set(buildRuntimePayload(nowMs), { merge: true });
 }

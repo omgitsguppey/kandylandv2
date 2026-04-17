@@ -1,6 +1,5 @@
 import {FieldValue} from "firebase-admin/firestore"
 
-export const DASHBOARD_CACHE_COLLECTION = "analytics_dashboard_cache"
 export const ANALYTICS_TIMEZONE = "America/Chicago"
 
 export interface AnalyticsEventFact {
@@ -133,12 +132,6 @@ export function readNumber(value: unknown) {
 
 export function readBoolean(value: unknown) {
   return typeof value === "boolean" ? value : false
-}
-
-export function quantizePixelPoint(x: number, y: number) {
-  const bucketX = Math.floor(x / 24) * 24
-  const bucketY = Math.floor(y / 24) * 24
-  return `${bucketX}:${bucketY}`
 }
 
 export function sum(values: number[]) {

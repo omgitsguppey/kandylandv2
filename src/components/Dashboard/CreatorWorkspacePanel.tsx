@@ -1,14 +1,14 @@
 "use client";
 
+import Image from "next/image";
 import Link from "next/link";
 import { useCallback, useEffect, useMemo, useState } from "react";
-import { Loader2, Megaphone, Send, Users, Eye, Activity, Video, Phone, ArrowUpRight, DollarSign, MessageCircle, PlaySquare, CheckCircle, Package } from "lucide-react";
+import { Megaphone, Send, Users, Eye, Activity, Phone, DollarSign, MessageCircle, PlaySquare, CheckCircle, Package } from "lucide-react";
 import { toast } from "sonner";
 
 import { Button } from "@/components/ui/Button";
 import { authFetch } from "@/lib/authFetch";
 import { reportClientIssue } from "@/lib/client-error-reporting";
-import { DEFAULT_CREATOR_SETTINGS, type CreatorSettings } from "@/lib/creator-experiences";
 import {
     describeCreatorFacingOnboardingBlockingReason,
     getCreatorOnboardingStatusSummary,
@@ -60,59 +60,17 @@ type CreatorThreadRecord = {
     counterpartPhotoURL?: string | null;
 };
 
-type CreatorMessageRecord = {
-    id: string;
-    senderRole?: string;
-    text?: string;
-    createdAt?: number;
-    messageKind?: string;
-};
-
-type CreatorSubscriptionRecord = {
-    id: string;
-    userId?: string;
-    status?: string;
-    priceGd?: number;
-    renewAt?: number;
-    startedAt?: number;
-};
-
-type CreatorPayoutRecord = {
-    id: string;
-    status?: string;
-    requestedGd?: number;
-    requestedUsd?: number;
-    createdAt?: number;
-    reviewedAt?: number;
-    reviewNote?: string | null;
-};
-
-type CreatorBroadcastRecord = {
-    id: string;
-    title?: string;
-    message?: string;
-    createdAtMs?: number;
-    audienceFollowerCount?: number;
-    audienceNotificationCount?: number;
-};
-
 type ModuleKey =
     | "settings"
     | "requests"
     | "bookings"
-    | "threads"
-    | "subscribers"
-    | "payouts"
-    | "broadcasts";
+    | "threads";
 
 const moduleLabels: Record<ModuleKey, string> = {
     settings: "creator settings",
     requests: "custom requests",
     bookings: "bookings",
     threads: "messages",
-    subscribers: "subscribers",
-    payouts: "payouts",
-    broadcasts: "broadcasts",
 };
 
 function formatRelativeTime(timestamp?: number) {
@@ -166,47 +124,6 @@ function StatusPill({ label, tone = "neutral" }: { label: string; tone?: "good" 
     );
 }
 
-function MiniStat({ label, value, tone = "neutral" }: { label: string; value: string | number; tone?: "good" | "warn" | "bad" | "neutral" }) {
-    return (
-        <div className="rounded-[1.1rem] border border-white/10 bg-black/30 px-3 py-3">
-            <p className="text-[10px] font-bold uppercase tracking-[0.16em] text-gray-500">{label}</p>
-            <p className={`mt-2 text-lg font-black ${tone === "good" ? "text-emerald-300" : tone === "warn" ? "text-amber-200" : tone === "bad" ? "text-red-200" : "text-white"}`}>
-                {value}
-            </p>
-        </div>
-    );
-}
-
-function ModuleCard({
-    title,
-    subtitle,
-    children,
-    error,
-}: {
-    title: string;
-    subtitle: string;
-    children: React.ReactNode;
-    error?: string | null;
-}) {
-    return (
-        <section className="rounded-[1.4rem] border border-white/10 bg-black/35 p-4">
-            <div className="flex flex-wrap items-start justify-between gap-3">
-                <div>
-                    <h3 className="text-sm font-bold text-white">{title}</h3>
-                    <p className="mt-1 text-xs leading-5 text-gray-400">{subtitle}</p>
-                </div>
-                {error ? <StatusPill label="Load issue" tone="warn" /> : null}
-            </div>
-            {error ? (
-                <div className="mt-3 rounded-[1rem] border border-amber-400/20 bg-amber-500/10 px-3 py-2 text-xs text-amber-100">
-                    {error}
-                </div>
-            ) : null}
-            <div className="mt-4">{children}</div>
-        </section>
-    );
-}
-
 async function readJson<T>(url: string, init?: RequestInit): Promise<T> {
     const response = await authFetch(url, init);
     const body = await response.json().catch(() => ({})) as T & { error?: string };
@@ -221,33 +138,18 @@ export function CreatorWorkspacePanel({ userProfile }: { userProfile: UserProfil
     const isCreatorOperator = userProfile.role === "creator";
     const hasCreatorWorkspace = isCreatorOperator || Boolean(creatorApplication);
 
-    const [loading, setLoading] = useState(false);
-    const [lastLoadedAt, setLastLoadedAt] = useState<number | null>(null);
-    const [creatorSettings, setCreatorSettings] = useState<CreatorSettings>(DEFAULT_CREATOR_SETTINGS);
     const [creatorStats, setCreatorStats] = useState<CreatorStats | null>(null);
     const [requests, setRequests] = useState<CreatorRequestRecord[]>([]);
     const [bookings, setBookings] = useState<CreatorBookingRecord[]>([]);
     const [threads, setThreads] = useState<CreatorThreadRecord[]>([]);
-    const [selectedThreadId, setSelectedThreadId] = useState<string | null>(null);
-    const [threadMessages, setThreadMessages] = useState<CreatorMessageRecord[]>([]);
-    const [threadLoading, setThreadLoading] = useState(false);
-    const [subscribers, setSubscribers] = useState<CreatorSubscriptionRecord[]>([]);
-    const [availablePayoutGd, setAvailablePayoutGd] = useState(0);
-    const [availablePayoutUsd, setAvailablePayoutUsd] = useState(0);
-    const [payoutRequests, setPayoutRequests] = useState<CreatorPayoutRecord[]>([]);
-    const [broadcasts, setBroadcasts] = useState<CreatorBroadcastRecord[]>([]);
     const [moduleErrors, setModuleErrors] = useState<Record<ModuleKey, string | null>>({
         settings: null,
         requests: null,
         bookings: null,
         threads: null,
-        subscribers: null,
-        payouts: null,
-        broadcasts: null,
     });
     const [busyAction, setBusyAction] = useState<string | null>(null);
     const [broadcastDraft, setBroadcastDraft] = useState("");
-    const [payoutAmount, setPayoutAmount] = useState(100);
 
     const onboardingSummary = useMemo(() => {
         if (creatorApplication) {
@@ -269,49 +171,30 @@ export function CreatorWorkspacePanel({ userProfile }: { userProfile: UserProfil
         () => (creatorApplication?.blockingReasons ?? []).map((reason) => describeCreatorFacingOnboardingBlockingReason(reason)),
         [creatorApplication?.blockingReasons],
     );
-    const selectedThread = useMemo(
-        () => threads.find((thread) => thread.id === selectedThreadId) ?? null,
-        [selectedThreadId, threads],
-    );
     const moduleErrorEntries = useMemo(
         () => Object.entries(moduleErrors).filter((entry): entry is [ModuleKey, string] => typeof entry[1] === "string" && entry[1].length > 0),
         [moduleErrors],
     );
-    const capabilitySummary = useMemo(() => ([
-        { label: "Messages", enabled: creatorSettings.messagingEnabled },
-        { label: "Broadcasts", enabled: creatorSettings.broadcastsEnabled },
-        { label: "Subscriptions", enabled: creatorSettings.subscriptionsEnabled },
-        { label: "Bookings", enabled: creatorSettings.bookingsEnabled },
-        { label: "Custom requests", enabled: creatorSettings.customRequestsEnabled },
-    ]), [creatorSettings]);
 
     const loadWorkspace = useCallback(async () => {
         if (!isCreatorOperator) {
             return;
         }
 
-        setLoading(true);
         const nextErrors: Record<ModuleKey, string | null> = {
             settings: null,
             requests: null,
             bookings: null,
             threads: null,
-            subscribers: null,
-            payouts: null,
-            broadcasts: null,
         };
 
         const results = await Promise.allSettled([
             readJson<{
-                creatorSettings?: CreatorSettings | null;
                 stats?: CreatorStats | null;
             }>("/api/creator/settings"),
             readJson<{ requests?: CreatorRequestRecord[] }>("/api/creator/requests"),
             readJson<{ bookings?: CreatorBookingRecord[] }>("/api/creator/bookings"),
             readJson<{ threads?: CreatorThreadRecord[] }>("/api/chat/threads"),
-            readJson<{ subscribers?: CreatorSubscriptionRecord[] }>("/api/creator/subscriptions"),
-            readJson<{ availableGd?: number; availableUsd?: number; payoutRequests?: CreatorPayoutRecord[] }>("/api/creator/payouts"),
-            readJson<{ broadcasts?: CreatorBroadcastRecord[] }>("/api/creator/broadcasts"),
         ]);
 
         const logFailure = (module: ModuleKey, issue: unknown) => {
@@ -335,13 +218,9 @@ export function CreatorWorkspacePanel({ userProfile }: { userProfile: UserProfil
             requestsResult,
             bookingsResult,
             threadsResult,
-            subscribersResult,
-            payoutsResult,
-            broadcastsResult,
         ] = results;
 
         if (settingsResult.status === "fulfilled") {
-            setCreatorSettings(settingsResult.value.creatorSettings ?? DEFAULT_CREATOR_SETTINGS);
             setCreatorStats(settingsResult.value.stats ?? null);
         } else {
             logFailure("settings", settingsResult.reason);
@@ -360,66 +239,13 @@ export function CreatorWorkspacePanel({ userProfile }: { userProfile: UserProfil
         }
 
         if (threadsResult.status === "fulfilled") {
-            const nextThreads = Array.isArray(threadsResult.value.threads) ? threadsResult.value.threads : [];
-            setThreads(nextThreads);
-            setSelectedThreadId((current) => {
-                if (current && nextThreads.some((thread) => thread.id === current)) {
-                    return current;
-                }
-                return nextThreads[0]?.id ?? null;
-            });
+            setThreads(Array.isArray(threadsResult.value.threads) ? threadsResult.value.threads : []);
         } else {
             logFailure("threads", threadsResult.reason);
         }
 
-        if (subscribersResult.status === "fulfilled") {
-            setSubscribers(Array.isArray(subscribersResult.value.subscribers) ? subscribersResult.value.subscribers : []);
-        } else {
-            logFailure("subscribers", subscribersResult.reason);
-        }
-
-        if (payoutsResult.status === "fulfilled") {
-            setAvailablePayoutGd(typeof payoutsResult.value.availableGd === "number" ? payoutsResult.value.availableGd : 0);
-            setAvailablePayoutUsd(typeof payoutsResult.value.availableUsd === "number" ? payoutsResult.value.availableUsd : 0);
-            setPayoutRequests(Array.isArray(payoutsResult.value.payoutRequests) ? payoutsResult.value.payoutRequests : []);
-        } else {
-            logFailure("payouts", payoutsResult.reason);
-        }
-
-        if (broadcastsResult.status === "fulfilled") {
-            setBroadcasts(Array.isArray(broadcastsResult.value.broadcasts) ? broadcastsResult.value.broadcasts : []);
-        } else {
-            logFailure("broadcasts", broadcastsResult.reason);
-        }
-
         setModuleErrors(nextErrors);
-        setLastLoadedAt(Date.now());
-        setLoading(false);
     }, [isCreatorOperator]);
-
-    const loadThreadMessages = useCallback(async (threadId: string) => {
-        setThreadLoading(true);
-        try {
-            const result = await readJson<{
-                messages?: CreatorMessageRecord[];
-            }>(`/api/chat/threads/${encodeURIComponent(threadId)}`);
-            setThreadMessages(Array.isArray(result.messages) ? result.messages : []);
-        } catch (error) {
-            reportClientIssue({
-                channel: "runtime",
-                severity: "warn",
-                message: "Creator workspace thread load failed",
-                error,
-                detail: {
-                    threadId,
-                },
-                consoleLabel: "[CreatorWorkspace] thread load failed",
-            });
-            toast.error(error instanceof Error ? error.message : "We could not load that message thread.");
-        } finally {
-            setThreadLoading(false);
-        }
-    }, []);
 
     useEffect(() => {
         if (!isCreatorOperator) {
@@ -428,16 +254,6 @@ export function CreatorWorkspacePanel({ userProfile }: { userProfile: UserProfil
 
         void loadWorkspace();
     }, [isCreatorOperator, loadWorkspace]);
-
-    useEffect(() => {
-        if (!selectedThreadId || !isCreatorOperator) {
-            setThreadMessages([]);
-            return;
-        }
-
-        void loadThreadMessages(selectedThreadId);
-    }, [isCreatorOperator, loadThreadMessages, selectedThreadId]);
-
     const runAction = useCallback(async (actionKey: string, callback: () => Promise<void>, failureMessage: string) => {
         setBusyAction(actionKey);
         try {
@@ -481,28 +297,16 @@ export function CreatorWorkspacePanel({ userProfile }: { userProfile: UserProfil
         }, "We could not update that booking.");
     }, [loadWorkspace, runAction]);
 
-    const handlePayoutRequest = useCallback(() => {
-        void runAction("payout:request", async () => {
-            await readJson("/api/creator/payouts", {
-                method: "POST",
-                body: JSON.stringify({ requestedGd: payoutAmount }),
-            });
-            toast.success("Payout request submitted.");
-            await loadWorkspace();
-        }, "We could not submit that payout request.");
-    }, [loadWorkspace, payoutAmount, runAction]);
-
     const handleBroadcastSend = useCallback(() => {
         if (!broadcastDraft.trim().length) {
             return;
         }
 
         void runAction("broadcast:send", async () => {
-            const result = await readJson<{ broadcast?: CreatorBroadcastRecord }>("/api/creator/broadcasts", {
+            await readJson("/api/creator/broadcasts", {
                 method: "POST",
                 body: JSON.stringify({ message: broadcastDraft.trim() }),
             });
-            setBroadcasts((current) => result.broadcast ? [result.broadcast, ...current] : current);
             setBroadcastDraft("");
             toast.success("Broadcast sent.");
         }, "We could not send that broadcast.");
@@ -563,7 +367,14 @@ export function CreatorWorkspacePanel({ userProfile }: { userProfile: UserProfil
                         {recentThread ? (
                             <Link href={`/dashboard/chat?thread=${recentThread.id}`} className="group relative flex w-full shrink-0 items-center gap-3 rounded-2xl border border-white/10 bg-black/40 px-4 py-3 transition-colors hover:bg-white/5 sm:w-[280px]">
                                 {recentThread.counterpartPhotoURL ? (
-                                    <img src={recentThread.counterpartPhotoURL} alt="Fan" className="h-10 w-10 shrink-0 rounded-full object-cover" />
+                                    <Image
+                                        src={recentThread.counterpartPhotoURL}
+                                        alt="Fan"
+                                        width={40}
+                                        height={40}
+                                        className="h-10 w-10 shrink-0 rounded-full object-cover"
+                                        unoptimized
+                                    />
                                 ) : (
                                     <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-full bg-white/10 text-white">
                                         <Users className="h-5 w-5 opacity-50" />

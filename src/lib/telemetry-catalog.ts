@@ -315,7 +315,7 @@ export const TELEMETRY_MODULE_INDEXES: TelemetryModuleIndex[] = [
       "auth_logout",
       "password_reset_requested",
     ],
-    fallbackSources: ["analytics_event_facts", "ga4", "telemetry_logs"],
+    fallbackSources: ["analytics_event_facts", "ga4"],
   },
   {
     key: "onboarding",
@@ -331,7 +331,7 @@ export const TELEMETRY_MODULE_INDEXES: TelemetryModuleIndex[] = [
       "creator_intro_acknowledged",
       "creator_contract_signed",
     ],
-    fallbackSources: ["analytics_event_facts", "ga4", "telemetry_logs"],
+    fallbackSources: ["analytics_event_facts", "ga4"],
   },
   {
     key: "navigation",
@@ -377,7 +377,7 @@ export const TELEMETRY_MODULE_INDEXES: TelemetryModuleIndex[] = [
       "daily_deadline_in_app_reminder_dismissed",
       "daily_deadline_browser_notification_shown",
     ],
-    fallbackSources: ["analytics_event_facts", "ga4", "telemetry_logs"],
+    fallbackSources: ["analytics_event_facts", "ga4"],
   },
   {
     key: "tasks",
@@ -405,7 +405,7 @@ export const TELEMETRY_MODULE_INDEXES: TelemetryModuleIndex[] = [
       "task_guidance_cta_clicked",
       "task_guidance_completed",
     ],
-    fallbackSources: ["analytics_event_facts", "ga4", "telemetry_logs"],
+    fallbackSources: ["analytics_event_facts", "ga4"],
   },
   {
     key: "commerce",
@@ -458,7 +458,7 @@ export const TELEMETRY_MODULE_INDEXES: TelemetryModuleIndex[] = [
       "viewer_related_drop_clicked",
       "viewer_backgrounded",
     ],
-    fallbackSources: ["analytics_watch_sessions", "analytics_watch_assets", "analytics_session_facts", "analytics_event_facts", "ga4", "telemetry_logs"],
+    fallbackSources: ["analytics_watch_sessions", "analytics_watch_assets", "analytics_session_facts", "analytics_event_facts", "ga4"],
   },
   {
     key: "creator",
@@ -582,7 +582,7 @@ export const TELEMETRY_MODULE_INDEXES: TelemetryModuleIndex[] = [
       "feature_flag_exposed",
       "experiment_variant_exposed",
     ],
-    fallbackSources: ["analytics_event_facts", "telemetry_logs"],
+    fallbackSources: ["analytics_event_facts"],
   },
   {
     key: "security",
@@ -602,7 +602,7 @@ export const TELEMETRY_MODULE_INDEXES: TelemetryModuleIndex[] = [
       "security_source_view_attempted",
       "security_capture_pattern_detected",
     ],
-    fallbackSources: ["security_events", "analytics_event_facts", "telemetry_logs"],
+    fallbackSources: ["security_events", "analytics_event_facts"],
   },
 ];
 

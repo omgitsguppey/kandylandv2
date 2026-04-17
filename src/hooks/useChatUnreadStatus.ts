@@ -1,9 +1,8 @@
-import { useCallback, useEffect, useRef, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { collection, onSnapshot, query, where } from "firebase/firestore";
 import { usePathname } from "next/navigation";
 
 import { useAuth } from "@/context/AuthContext";
-import { authFetch } from "@/lib/authFetch";
 import {
     CHAT_COLLECTIONS,
     resolveChatThreadUnreadCount,
@@ -18,17 +17,21 @@ import { createAutoHealingObserver } from "@/lib/self-healing";
 export function useChatUnreadStatus() {
     const { user, userProfile } = useAuth();
     const pathname = usePathname();
-    const [hasUnreadMessages, setHasUnreadMessages] = useState(false);
+    const [unreadState, setUnreadState] = useState({
+        ownerKey: "",
+        hasUnreadMessages: false,
+    });
     const realtimeIssueReportedAtRef = useRef<number | null>(null);
     const preferRealtime = pathname?.startsWith("/dashboard/chat") === true;
     const viewerRole = resolveChatViewerRole({
         viewerUid: user?.uid || "",
         profile: userProfile,
     });
+    const subscriptionKey =
+        user && userProfile && preferRealtime ? `${user.uid}:${viewerRole}` : null;
 
     useEffect(() => {
-        if (!user || !userProfile || !preferRealtime) {
-            setHasUnreadMessages(false);
+        if (!subscriptionKey || !user) {
             realtimeIssueReportedAtRef.current = null;
             return;
         }
@@ -47,7 +50,10 @@ export function useChatUnreadStatus() {
                             unreadCount += resolveChatThreadUnreadCount(raw, currentRole);
                         }
                         realtimeIssueReportedAtRef.current = null;
-                        setHasUnreadMessages(unreadCount > 0);
+                        setUnreadState({
+                            ownerKey: subscriptionKey,
+                            hasUnreadMessages: unreadCount > 0,
+                        });
                     },
                     (error) => {
                         observerControl.triggerReconnect(error);
@@ -72,7 +78,12 @@ export function useChatUnreadStatus() {
         return () => {
             observerControl.cleanup();
         };
-    }, [preferRealtime, user, userProfile, viewerRole]);
+    }, [subscriptionKey, user, viewerRole]);
 
-    return { hasUnreadMessages: (user && userProfile) ? hasUnreadMessages : false };
+    return {
+        hasUnreadMessages:
+            subscriptionKey !== null && unreadState.ownerKey === subscriptionKey
+                ? unreadState.hasUnreadMessages
+                : false,
+    };
 }

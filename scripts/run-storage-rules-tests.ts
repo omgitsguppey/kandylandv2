@@ -2,6 +2,9 @@ import { existsSync, mkdtempSync, readdirSync, rmSync, writeFileSync } from "nod
 import { spawnSync } from "node:child_process";
 import { tmpdir } from "node:os";
 import { join } from "node:path";
+import { createRequire } from "node:module";
+
+const require = createRequire(import.meta.url);
 
 function findJavaHome() {
     if (process.env.JAVA_HOME && existsSync(join(process.env.JAVA_HOME, "bin", process.platform === "win32" ? "java.exe" : "java"))) {
@@ -33,14 +36,7 @@ if (javaHome) {
     env.PATH = `${join(javaHome, "bin")}${process.platform === "win32" ? ";" : ":"}${env.PATH || ""}`;
 }
 
-const firebaseCli = join(
-    process.cwd(),
-    "node_modules",
-    "firebase-tools",
-    "lib",
-    "bin",
-    "firebase.js",
-);
+const firebaseCli = require.resolve("firebase-tools/lib/bin/firebase.js");
 const vitestCli = join(process.cwd(), "node_modules", "vitest", "vitest.mjs");
 const projectId = "kandydrops-rules-test";
 const testCommand = `"${process.execPath}" "${vitestCli}" run --config vitest.rules.config.ts tests/firebase/storage.rules.spec.ts`;

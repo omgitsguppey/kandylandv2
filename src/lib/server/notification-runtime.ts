@@ -2,7 +2,7 @@ import "server-only";
 
 import { FieldValue, type Transaction, type WriteBatch } from "firebase-admin/firestore";
 
-import { NOTIFICATION_RUNTIME_COLLECTION, NOTIFICATION_RUNTIME_DOC_ID } from "@/lib/platform-config";
+import { SYSTEM_RUNTIME_COLLECTION, NOTIFICATION_RUNTIME_DOC_ID } from "@/lib/platform-config";
 import { adminDb } from "@/lib/server/firebase-admin";
 
 type RuntimeWriter = Transaction | WriteBatch;
@@ -16,7 +16,7 @@ function buildRuntimePayload(nowMs: number) {
 }
 
 export function markNotificationsRuntimeChanged(writer: RuntimeWriter, nowMs = Date.now()) {
-  const documentRef = adminDb.collection(NOTIFICATION_RUNTIME_COLLECTION).doc(NOTIFICATION_RUNTIME_DOC_ID);
+  const documentRef = adminDb.collection(SYSTEM_RUNTIME_COLLECTION).doc(NOTIFICATION_RUNTIME_DOC_ID);
   const setDoc = writer.set.bind(writer) as (
     ref: FirebaseFirestore.DocumentReference,
     data: FirebaseFirestore.DocumentData,
@@ -32,7 +32,7 @@ export async function touchNotificationsRuntime(nowMs = Date.now()) {
   }
 
   await adminDb
-    .collection(NOTIFICATION_RUNTIME_COLLECTION)
+    .collection(SYSTEM_RUNTIME_COLLECTION)
     .doc(NOTIFICATION_RUNTIME_DOC_ID)
     .set(buildRuntimePayload(nowMs), { merge: true });
 }

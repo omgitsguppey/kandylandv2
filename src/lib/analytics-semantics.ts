@@ -16,7 +16,7 @@ export interface AnalyticsSemanticContext {
 export interface AnalyticsSemanticSourceDescriptor {
   key: string;
   label: string;
-  engine: "firestore" | "realtime" | "dataconnect" | "sql" | "ga4" | "legacy";
+  engine: "firestore" | "ga4" | "legacy";
   description: string;
 }
 
@@ -65,34 +65,16 @@ export const ANALYTICS_SEMANTIC_SOURCE_REGISTRY: AnalyticsSemanticSourceDescript
     description: "Per-user protection alerts and historical flag records.",
   },
   {
-    key: "telemetry_logs",
-    label: "Realtime telemetry logs",
-    engine: "realtime",
-    description: "Live event streams mirrored into Realtime Database for quick inspection and recovery.",
-  },
-  {
     key: "analytics_drop_daily",
-    label: "Data Connect drop daily mirror",
-    engine: "dataconnect",
-    description: "Drop-level daily summaries exposed through Data Connect for admin-grade SQL joins.",
-  },
-  {
-    key: "analytics_page_daily_sql",
-    label: "Data Connect page daily mirror",
-    engine: "dataconnect",
-    description: "Page daily rollups available through Data Connect for warehouse-friendly reporting.",
+    label: "Drop daily rollups",
+    engine: "firestore",
+    description: "Drop-level daily summaries sourced directly from Firestore rollups.",
   },
   {
     key: "analytics_semantic_daily",
     label: "Semantic daily rollups",
     engine: "firestore",
     description: "Category-aware daily metrics that keep global, user, admin, and drop semantics in one canonical structure.",
-  },
-  {
-    key: "semantic_sql_rollups",
-    label: "SQL semantic rollups",
-    engine: "sql",
-    description: "Future warehouse views that can materialize the same category metrics without changing client code.",
   },
   {
     key: "ga4",
@@ -107,11 +89,6 @@ export const ANALYTICS_SEMANTIC_STRATEGIES: AnalyticsSemanticStrategy[] = [
     key: "fact_to_scope_rollup",
     label: "Fact-to-scope rollups",
     description: "Normalize each event into a semantic category and scope, then roll counts and dwell into daily Firestore summaries.",
-  },
-  {
-    key: "realtime_backfill_queue",
-    label: "Realtime backfill queue",
-    description: "Mirror each interaction into Realtime Database so delayed Firestore writes can be replayed without losing session order.",
   },
   {
     key: "guest_auth_session_stitching",
@@ -136,7 +113,7 @@ export const ANALYTICS_SEMANTIC_STRATEGIES: AnalyticsSemanticStrategy[] = [
   {
     key: "cross_source_consensus",
     label: "Cross-source consensus scoring",
-    description: "Compare Firestore, GA4, Data Connect, and realtime counts to compute confidence scores instead of trusting a single stream.",
+    description: "Compare Firestore and GA4 counts to compute confidence scores instead of trusting a single stream.",
   },
   {
     key: "late_event_compaction",

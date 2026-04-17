@@ -422,57 +422,65 @@ export async function fetchTelemetryLogs(
   startMs: number,
 ): Promise<Record<string, TelemetryLogRecord[]>> {
   const eventMap: Record<string, TelemetryLogRecord[]> = {};
+  const normalizedEventNames = Array.from(new Set(eventNames.filter((eventName) => eventName.trim().length > 0)));
 
-  try {
-    const database = firebaseAdmin.database();
-    await Promise.all(
-      eventNames.map(async (eventName) => {
-        try {
-        const snapshot = await database
-          .ref(`telemetry/events/${eventName}`)
-          .orderByChild("timestamp")
-          .startAt(startMs)
-          .get();
+  normalizedEventNames.forEach((eventName) => {
+    eventMap[eventName] = [];
+  });
 
-        const rawValue = snapshot.val();
-        const records = rawValue && typeof rawValue === "object"
-          ? Object.values(rawValue as Record<string, unknown>).flatMap((entry) => {
-              if (!entry || typeof entry !== "object" || Array.isArray(entry)) {
-                return [];
-              }
-
-              const rawEntry = entry as Record<string, unknown>;
-              return [{
-                eventName,
-                params: safeParams(rawEntry.params),
-                userId: toStringValue(rawEntry.userId),
-                username: toStringValue(rawEntry.username) || undefined,
-                timestamp: toNumber(rawEntry.timestamp),
-                userAgent: toStringValue(rawEntry.userAgent) || undefined,
-              }];
-            })
-          : [];
-
-        eventMap[eventName] = records
-          .filter((record) => record.timestamp >= startMs)
-          .sort((left, right) => right.timestamp - left.timestamp);
-        } catch (error) {
-          console.warn(`Admin analytics telemetry query failed for ${eventName}:`, error);
-          eventMap[eventName] = [];
-        }
-      }),
-    );
-  } catch (error) {
-    console.warn("Admin analytics telemetry query failed:", error);
-    eventNames.forEach((eventName) => {
-      eventMap[eventName] = [];
-    });
+  if (normalizedEventNames.length === 0) {
+    return eventMap;
   }
 
-  eventNames.forEach((eventName) => {
-    if (!eventMap[eventName]) {
-      eventMap[eventName] = [];
+  try {
+    const eventNameChunks: string[][] = [];
+    for (let index = 0; index < normalizedEventNames.length; index += 10) {
+      eventNameChunks.push(normalizedEventNames.slice(index, index + 10));
     }
+
+    const snapshots = await Promise.all(eventNameChunks.map(async (eventNameChunk) => {
+      try {
+        return await firebaseAdmin.firestore()
+          .collection("analytics_event_facts")
+          .where("timestamp", ">=", startMs)
+          .where("eventName", "in", eventNameChunk)
+          .get();
+      } catch (error) {
+        console.warn(`Admin analytics fact query failed for ${eventNameChunk.join(", ")}:`, error);
+        return null;
+      }
+    }));
+
+    snapshots.forEach((snapshot) => {
+      if (!snapshot) {
+        return;
+      }
+
+      snapshot.docs.forEach((doc) => {
+        const rawEntry = doc.data() as Record<string, unknown>;
+        const eventName = toStringValue(rawEntry.eventName);
+        if (!normalizedEventNames.includes(eventName)) {
+          return;
+        }
+
+        eventMap[eventName].push({
+          eventName,
+          params: safeParams(rawEntry.params),
+          userId: toStringValue(rawEntry.userId),
+          username: toStringValue(rawEntry.username) || undefined,
+          timestamp: toNumber(rawEntry.timestamp),
+          userAgent: toStringValue(rawEntry.userAgent) || undefined,
+        });
+      });
+    });
+  } catch (error) {
+    console.warn("Admin analytics canonical event query failed:", error);
+  }
+
+  normalizedEventNames.forEach((eventName) => {
+    eventMap[eventName] = eventMap[eventName]
+      .filter((record) => record.timestamp >= startMs)
+      .sort((left, right) => right.timestamp - left.timestamp);
   });
 
   return eventMap;

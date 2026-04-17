@@ -1,7 +1,7 @@
 # Repo Memory Ledger
 
 Status: Canonical repository-memory and architecture-decision ledger
-Last refreshed: 2026-04-13
+Last refreshed: 2026-04-16
 Repo: `C:\Users\uylus\OneDrive\Documents\KandyDrops_Final`
 
 ## Purpose
@@ -23,6 +23,163 @@ This file is not a changelog. It is the concise ledger for durable decisions tha
 4. When this file and runtime code disagree, runtime code plus verification wins and this file must be updated immediately.
 
 ## Decision Entries
+
+### 1x. Creator settings summaries must use Firestore aggregates, and recoverable route warnings must flow through structured diagnostics
+
+- Approximate date: Recorded explicitly on 2026-04-16 from the open PR reconciliation pass
+- Status: Active canonical route-handling rule
+- Problem/context: Creator settings summary metrics were still materializing full Firestore query snapshots and then reducing/filtering them in process memory, while some recoverable route-level issues were still emitted via raw `console.warn`, which bypassed the repo's structured runtime diagnostics surfaces.
+- Decision made: Use Firestore server-side `count()` and `aggregate()` queries for creator summary metrics whenever the route only needs counts or sums, and send recoverable warning paths through `recordRouteWarning(...)` so they land in the canonical diagnostics pipeline.
+- What became canonical:
+  - creator stats routes should not download entire collections just to compute simple counts or sums
+  - recoverable route warnings should use `recordRouteWarning(...)`, not raw `console.warn(...)`
+  - direct PR reconciliation against a dirty mainline can preserve unique low-risk deltas locally instead of merging stale overlapping branches
+- Truth lives in:
+  - `src/app/api/creator/settings/route.ts`
+  - `src/app/api/analytics/ingest/route.ts`
+  - `src/app/api/admin/user/[userId]/route.ts`
+  - `src/lib/server/route-diagnostics.ts`
+- What is now disallowed or deprecated:
+  - route-local snapshot scans for creator summary totals when Firestore aggregate queries can answer the same question
+  - raw `console.warn(...)` in server routes for recoverable operational warnings that should be visible in structured diagnostics
+
+### 1w. Contract tests run on a dedicated Vitest config with test-only Firebase/Vertex SDK stubs
+
+- Approximate date: Recorded explicitly on 2026-04-16 from the error and warning remediation pass
+- Status: Active canonical test-infrastructure rule
+- Problem/context: The repo’s contract suite was being executed through the shared Vitest workspace config that also declared Storybook/browser projects. That increased import pressure, amplified first-load timeouts, and pulled real `firebase-admin` and `@google-cloud/vertexai` dependency trees into unit tests, producing deprecated `punycode` noise unrelated to application logic.
+- Decision made: Keep the contract/unit suite isolated on `vitest.contracts.config.ts` and alias server SDKs to explicit test stubs. Storybook/browser projects remain in the workspace config for their own use, but normal contract verification must not initialize them or the real Admin/Vertex SDKs.
+- What became canonical:
+  - `npm run test:contracts` and `npm run test:contracts:watch` run through `vitest.contracts.config.ts`
+  - contract tests use test-only stubs for `firebase-admin`, `firebase-admin/firestore`, and `@google-cloud/vertexai`
+  - unit/contract verification should not depend on live Google/Firebase SDK initialization just to import route modules
+- Truth lives in:
+  - `vitest.contracts.config.ts`
+  - `tests/support/firebase-admin.mock.ts`
+  - `tests/support/firebase-admin-firestore.mock.ts`
+  - `tests/support/google-cloud-vertexai.mock.ts`
+  - `package.json`
+- What is now disallowed or deprecated:
+  - routing normal contract verification through the shared Storybook/browser Vitest workspace
+  - allowing unit tests to pull real Admin/Vertex SDK dependency trees unless a test is explicitly integration-scoped
+
+### 1v. Analytics telemetry now serves from Firestore facts and consumed rollups only; verified-unused RTDB and SQL sidecars were removed
+
+- Approximate date: Recorded explicitly on 2026-04-16 from the telemetry redundancy cleanup pass
+- Status: Active canonical architecture fact
+- Problem/context: The repo had accumulated canonical Firestore event facts, Firestore rollups, RTDB telemetry mirrors, scheduled dashboard-cache documents, and a Data Connect analytics export connector. After tracing the actual readers, the RTDB telemetry mirrors and SQL/export layers were not serving product code in-repo, while one drop-daily writer was also using a mismatched document key.
+- Decision made: Serve analytics truth in-repo from canonical Firestore facts plus explicitly consumed Firestore rollups/session aggregates. Remove verified-unused RTDB analytics mirrors, dashboard cache materializers, guest target/heatmap sidecars, and Data Connect export/generated SDK surfaces rather than preserving them as speculative infrastructure.
+- What became canonical:
+  - `analytics_event_facts` is the canonical per-event ledger for authenticated telemetry
+  - admin and user analytics flows must not read `telemetry/events/*` or `telemetry/users/*` RTDB mirrors for freshness tails
+  - verified-unused analytics storage layers should be deleted, not left as write-only baggage
+  - `analytics_drop_daily` document IDs use the canonical `dayKey_dropId` format
+  - functions workspace lockfiles must stay synchronized across npm and pnpm when dependency cleanup lands
+- Truth lives in:
+  - `src/lib/server/admin-analytics-shared.ts`
+  - `src/app/api/telemetry/track/route.ts`
+  - `src/app/api/admin/user/[userId]/route.ts`
+  - `src/app/api/drops/impression/route.ts`
+  - `functions/src/analytics-event-facts.ts`
+  - `functions/src/analytics-guest-batches.ts`
+  - `functions/src/analytics-security-events.ts`
+  - `functions/src/analytics-task-events.ts`
+  - `functions/src/analytics-transactions.ts`
+  - `functions/tsconfig.json`
+- What is now disallowed or deprecated:
+  - writing or reading RTDB telemetry mirrors for admin/user analytics truth
+  - keeping analytics export connectors, dashboard cache jobs, or guest target/heatmap projections without a verified reader
+  - inventing alternate `analytics_drop_daily` key shapes
+
+### 1u. Analytics SQL/Data Connect and dashboard-cache layers are sidecars until a verified serving path exists
+
+- Approximate date: Recorded explicitly on 2026-04-16 from the telemetry and SQL surface audit
+- Status: Active canonical architecture fact
+- Problem/context: The repo now contains multiple analytics persistence layers: Firestore canonical facts, Firestore rollups, Realtime Database mirrors, scheduled dashboard-cache documents, and Data Connect/PostgreSQL export tables. Within this repo, admin and user-facing reads still come from Firestore, GA, and limited Realtime Database mirrors; they do not read the SQL export or scheduled cache as primary sources.
+- Decision made: Treat Firestore canonical facts and explicitly consumed Firestore rollups as the serving analytics source inside this repo. Treat Data Connect/PostgreSQL export tables and scheduled dashboard-cache documents as sidecar/export layers only until a concrete read path is implemented and verified.
+- What became canonical:
+  - do not add new SQL/Data Connect analytics tables unless they have a verified reader or a documented external consumer
+  - do not preserve scheduled dashboard-cache documents solely because they exist; they should either back a verified read path or be removed
+  - treat Realtime Database telemetry mirrors as freshness/debug overlays, not the canonical event ledger
+- Truth lives in:
+  - `src/lib/server/admin-analytics-data.ts`
+  - `src/app/api/admin/analytics/realtime/route.ts`
+  - `src/app/api/telemetry/track/route.ts`
+  - `functions/src/analytics-schedules.ts`
+  - `functions/src/analytics-export-sync.ts`
+  - `dataconnect/schema/schema.gql`
+
+### 1s. Visual audit masks for live metrics must target explicit stable wrappers
+
+- Approximate date: Recorded explicitly on 2026-04-16 from the home-hero audit remediation pass
+- Status: Active canonical UI-audit rule
+- Problem/context: The home hero visual audit masked a live count by crawling ancestor selectors from dynamic text content. The UI had not materially regressed, but the masked region width changed with the live metric and caused false visual failures.
+- Decision made: Any visual regression mask applied to live counters, runtime badges, or other variable-width UI should target an explicit stable wrapper element rather than a text-derived ancestor chain.
+- What became canonical:
+  - add explicit audit hooks such as `data-testid` on the wrapper that should be masked
+  - prefer stable wrapper masking over dynamic text ancestry for variable content
+- Truth lives in:
+  - `src/components/Hero.tsx`
+  - `tests/ui-audits/visual-regression.spec.ts`
+- What is now disallowed or deprecated: Masking variable-width live content by traversing from text nodes and assuming ancestor dimensions will stay constant over time.
+
+### 1t. Landing-page Firebase media can bypass local Next image optimization when audit stability matters
+
+- Approximate date: Recorded explicitly on 2026-04-16 from the landing media timeout fix
+- Status: Active canonical landing-media rule
+- Problem/context: The marketing home surface was loading Firebase Storage drop art through the local Next image optimizer during UI audits. That made audit reliability depend on upstream image fetch latency and produced server-side timeout noise unrelated to the audited hero itself.
+- Decision made: Landing-only Firebase Storage media may be served unoptimized from the browser when that avoids audit/runtime instability and the surface does not depend on server-side transformation benefits.
+- What became canonical:
+  - use a helper to detect Firebase Storage media URLs
+  - apply `unoptimized` intentionally on the landing ticker/carousel rather than globally
+- Truth lives in:
+  - `src/lib/media-hosts.ts`
+  - `src/components/HomeDropTicker.tsx`
+  - `src/components/Landing/HomeActiveDropsCarousel.tsx`
+- What is now disallowed or deprecated: Treating local Next image optimization as mandatory for every Firebase-hosted marketing asset when it introduces avoidable audit/runtime instability.
+
+### 1r. Generated verification outputs must never become lint input
+
+- Approximate date: Recorded explicitly on 2026-04-16 from the Antigravity findings remediation pass
+- Status: Active canonical verification-workflow rule
+- Problem/context: Local verification commands such as Storybook builds produce generated output trees like `storybook-static/`. If ESLint scans those outputs, `npm run check` can fail on generated vendor code even when source code is correct.
+- Decision made: Generated verification outputs must be ignored by source linting while still being cleaned before sign-off.
+- What became canonical:
+  - `eslint.config.mjs` ignores `storybook-static/**`
+  - `npm run check:generated-artifacts` remains the source of truth for whether build artifacts were cleaned before completion
+- Truth lives in:
+  - `eslint.config.mjs`
+  - `scripts/check-generated-artifacts.ts`
+- What is now disallowed or deprecated: Letting local build output directories become part of the source lint surface, or treating generated vendor code failures as application-source regressions.
+
+### 1q. Dense UI refactors must delete hidden data fan-out, not just hide the module
+
+- Approximate date: Recorded explicitly on 2026-04-16 from the Antigravity committed-state review
+- Status: Active canonical dashboard-performance rule
+- Problem/context: The compressed Creator Workspace redesign successfully removed several rendered modules, but it left their backing state, fetches, and effects active. That means the dashboard still loads subscriptions, payout history, broadcast history, and eager thread detail even when the UI no longer renders those surfaces.
+- Decision made: When a dashboard or admin surface is compacted, any removed module must also lose its backing state, network fan-out, and side effects unless that data still powers a visible affordance.
+- What became canonical:
+  - visible cards and controls define the minimum required fetch set
+  - hidden or removed modules must not keep producing load failures, stale state, or background requests
+  - preview-only chat summaries must not eagerly fetch full thread detail unless the detail is actually rendered
+- Truth lives in:
+  - `src/components/Dashboard/CreatorWorkspacePanel.tsx`
+  - any future dense operational shells that replace larger legacy modules
+- What is now disallowed or deprecated: Leaving `Promise.allSettled(...)` fan-out, state setters, or effects alive for modules that were removed from the visible UI during a density refactor.
+
+### 1p. Tooling-only imports added under `src/` must update continuity allowlists in the same change
+
+- Approximate date: Recorded explicitly on 2026-04-16 from the Storybook integration review
+- Status: Active canonical continuity rule
+- Problem/context: The repo now keeps Storybook stories under `src/`, and those stories legitimately import tooling-only specifiers such as `storybook/test`. Our continuity cycle audit treats unexpected skipped imports as failures, so adding these imports without updating the allowlist breaks `npm run check:continuity`.
+- Decision made: Any non-runtime import intentionally introduced under `src/` must be reflected in `scripts/check-cycles.ts` allowlists or exclusions in the same change that adds it.
+- What became canonical:
+  - Storybook, test-only, and other tooling-only imports under scanned source trees are part of the continuity contract
+  - continuity tooling must be kept in sync with approved non-runtime imports
+- Truth lives in:
+  - `scripts/check-cycles.ts`
+  - `src/stories/*.stories.ts`
+- What is now disallowed or deprecated: Landing new non-runtime imports under scanned source roots and expecting `npm run check:continuity` to stay green without updating the cycle-audit config.
 
 ### 1o. All API route POST handlers must wrap request.json() in try/catch
 

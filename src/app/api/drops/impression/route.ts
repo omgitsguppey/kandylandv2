@@ -54,7 +54,7 @@ export async function POST(request: NextRequest) {
     const viewerKey = sessionId?.trim() || buildAnonymousFingerprint(request, dropId, dayKey, normalizedPagePath, normalizedSurface);
     const receiptRef = adminDb.collection("drop_impression_receipts").doc(buildImpressionReceiptId(dropId, dayKey, viewerKey));
     const dropRef = adminDb.collection("drops").doc(dropId);
-    const rollupRef = adminDb.collection("analytics_drop_daily").doc(`${dayKey}__${dropId}`);
+    const rollupRef = adminDb.collection("analytics_drop_daily").doc(`${dayKey}_${dropId}`);
     const dropSnapshot = await dropRef.get();
     if (!dropSnapshot.exists) {
       return NextResponse.json({ error: "Drop not found" }, { status: 404 });

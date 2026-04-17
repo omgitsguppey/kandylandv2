@@ -10,6 +10,7 @@ import { useUI } from "@/context/UIContext";
 import { useAuthIdentity } from "@/context/AuthContext";
 import { cn } from "@/lib/utils";
 import { getSupportedDropAspectRatio } from "@/lib/drop-presentation";
+import { isFirebaseStorageMediaUrl } from "@/lib/media-hosts";
 import { trackEvent } from "@/lib/telemetry";
 import type { Drop } from "@/types/db";
 
@@ -138,6 +139,7 @@ export const HomeActiveDropsCarousel = memo(function HomeActiveDropsCarousel({
                                     alt={drop.title}
                                     fill
                                     sizes="(max-width: 768px) 100vw, 720px"
+                                    unoptimized={isFirebaseStorageMediaUrl(drop.imageUrl)}
                                     className={cn(
                                         "object-cover object-center transition-transform duration-500",
                                         isActive ? "scale-100" : "scale-[0.985]",

@@ -5,7 +5,6 @@ import {buildIncrementUpdate, encodeKeyFragment, readNumber, readString, toTimeK
 import {db} from "./firebase-admin.js"
 import {REGION} from "./firebase-runtime.js"
 import {deriveGumdropEconomics} from "./gumdrop-economics.js"
-import {incrementRealtimeNode} from "./analytics-realtime.js"
 import {touchAnalyticsRuntime} from "./analytics-runtime.js"
 
 interface TransactionFact {
@@ -376,25 +375,6 @@ export const onTransactionCreated = onDocumentCreated(
     }
 
     await batch.commit()
-
-    await Promise.all([
-      incrementRealtimeNode("analytics/realtime/commerce", {
-        transactionCount: 1,
-        purchaseCount: type === "purchase_currency" && status === "completed" ? 1 : 0,
-        unlockCount: type === "unlock_content" ? 1 : 0,
-        revenueCentsTotal: type === "purchase_currency" && status === "completed" ? economics.grossRevenueCents : 0,
-        grossRevenueUsdTotal: type === "purchase_currency" && status === "completed" ? economics.grossRevenueUsd : 0,
-        paypalFeeUsdTotal: type === "purchase_currency" && status === "completed" ? economics.paypalFeeUsd : 0,
-        paypalFeeCentsTotal: type === "purchase_currency" && status === "completed" ? economics.paypalFeeCents : 0,
-        netRevenueUsdTotal: type === "purchase_currency" && status === "completed" ? economics.netRevenueUsd : 0,
-        netRevenueCentsTotal: type === "purchase_currency" && status === "completed" ? economics.netRevenueCents : 0,
-        adjustedProfitUsdTotal: type === "purchase_currency" && status === "completed" ? economics.adjustedProfitUsd : 0,
-        bonusValueUsdTotal: type === "purchase_currency" && status === "completed" ? economics.bonusValueUsd : 0,
-        bonusGumDropsTotal: type === "purchase_currency" && status === "completed" ? economics.bonusGumDrops : 0,
-        unlockSpendGdTotal: unlockSpendAmount,
-        lastTransactionAt: timestamp,
-      }),
-      touchAnalyticsRuntime(timestamp),
-    ])
+    await touchAnalyticsRuntime(timestamp)
   },
 )

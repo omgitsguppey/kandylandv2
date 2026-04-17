@@ -1,16 +1,16 @@
 # EVERY FILE FUNCTION CHECKLIST
 
-**Last Updated:** 2026-04-14
-**Current Focus:** Creator Workspace Dashboard Modernization; Missing script fix.
-**Status:** In Progress.
+**Last Updated:** 2026-04-16
+**Current Focus:** PR reconciliation baseline updated; creator-settings stats now use server-side Firestore aggregates, and recoverable admin/analytics route warnings now flow through structured diagnostics alongside the earlier telemetry and warning cleanup work.
+**Status:** In Progress. Historical exhaustive sweep remains valuable, and the 2026-04-16 continuity metadata now reflects the telemetry cleanup, the warning-free verification baseline, and the open-PR reconciliation pass.
 Purpose: exhaustive no-skip audit checklist covering every repository file currently in scope and every detected function-like implementation.
 
 Scoring: all entries below are marked as included in the current validated sweep. Confidence reflects current repository-state confidence, not perfection or future-proofing.
 
-Current repo-wide state snapshot: see [FULL_SCALE_CODEBASE_AUDIT.md](/Users/uylus/OneDrive/Documents/KandyDrops_Final/FULL_SCALE_CODEBASE_AUDIT.md) for the current live baseline, verification state, and continuity rules, and see [REPO_MEMORY_LEDGER.md](/Users/uylus/OneDrive/Documents/KandyDrops_Final/REPO_MEMORY_LEDGER.md) for major architectural and workflow decisions. The detailed file/function body below remains valuable historical evidence, but it has not been fully regenerated against the current 2026-04-07 inventory yet.
+Current repo-wide state snapshot: see [FULL_SCALE_CODEBASE_AUDIT.md](/Users/uylus/OneDrive/Documents/KandyDrops_Final/FULL_SCALE_CODEBASE_AUDIT.md) for the current live baseline, verification state, and continuity rules, and see [REPO_MEMORY_LEDGER.md](/Users/uylus/OneDrive/Documents/KandyDrops_Final/REPO_MEMORY_LEDGER.md) for major architectural and workflow decisions. The detailed file/function body below remains valuable historical evidence, but it has not been fully regenerated against the current 2026-04-16 inventory review yet.
 
 Historical sweep file-body baseline: 413 tracked files
-Current tracked baseline in the standing audit: 687 tracked files after the 2026-04-07 AI drop-cover catalog audit pass
+Current tracked baseline in the standing audit: 808 tracked files after the 2026-04-16 committed-state review
 Detected function-like implementations in this historical sweep: 3161
 
 ## [x] .agent/workflows/pre-commit.md

@@ -24,10 +24,11 @@ vi.mock("@/lib/server/firebase-admin", () => ({
     adminDb: mockState.adminDb,
 }));
 
+import { getDrops } from "@/lib/server/drops";
+
 describe("getDrops", () => {
     beforeEach(() => {
         mockState.reset();
-        vi.resetModules();
     });
 
     it("skips malformed drop documents instead of blanking the entire feed", async () => {
@@ -62,7 +63,6 @@ describe("getDrops", () => {
             ],
         });
 
-        const { getDrops } = await import("@/lib/server/drops");
         const drops = await getDrops();
 
         expect(drops).toHaveLength(1);

@@ -1,5 +1,395 @@
 # KandyDrops Core Codebase Audit & Defensive Ledger
 
+## [2026-04-16 #7] Open PR Evaluation, Repo Reconciliation, and Commit Pass
+
+Scope for this pass:
+- Inventory every open pull request against the current local dirty worktree and decide whether each PR should be merged, implemented locally, or closed as redundant.
+- Reconcile any still-relevant PR changes with the current repo state rather than blindly merging stale work.
+- Commit and push the local uncommitted changes only after the open PR inventory is evaluated.
+
+Startup protocol executed:
+- Read `FULL_SCALE_CODEBASE_AUDIT.md`.
+- Read `REPO_MEMORY_LEDGER.md`.
+- Read `EVERY_FILE_FUNCTION_CHECKLIST.md`.
+- Ran `git status --short`.
+- Traced adjacent surfaces for:
+  - `src/app/api/telemetry/track/route.ts`
+  - `src/lib/server/admin-analytics-shared.ts`
+  - `src/app/api/admin/user/[userId]/route.ts`
+  - `src/lib/server/firebase-admin.ts`
+
+Root Causes:
+- The open PR queue had collapsed into overlapping bot-generated branches across the same telemetry, admin, and hygiene surfaces, so direct merges would have reapplied stale diffs onto an already dirty and partially superseding local tree.
+- Only two PRs still contained unique, low-risk changes missing from the current branch: `#175` for creator settings aggregation efficiency and `#178` for structured route-warning diagnostics.
+- The unique changes were both route-local, so direct implementation into the current branch was lower risk than merging stale PR branches with unrelated overlap.
+
+Verification Commands Run:
+- `git status --short`
+- `gh pr list --state open --limit 50 --json number,title,headRefName,baseRefName,isDraft,author,mergeStateStatus,reviewDecision,url`
+- `gh pr diff 171 --name-only`
+- `gh pr diff 172 --name-only`
+- `gh pr diff 173 --name-only`
+- `gh pr diff 174 --name-only`
+- `gh pr diff 175 --name-only`
+- `gh pr diff 176 --name-only`
+- `gh pr diff 177 --name-only`
+- `gh pr diff 178 --name-only`
+- `gh pr view 171 --json number,title,body,commits,files,mergeStateStatus,reviewDecision,isDraft,url`
+- `gh pr view 172 --json number,title,body,commits,files,mergeStateStatus,reviewDecision,isDraft,url`
+- `gh pr view 173 --json number,title,body,commits,files,mergeStateStatus,reviewDecision,isDraft,url`
+- `gh pr view 174 --json number,title,body,commits,files,mergeStateStatus,reviewDecision,isDraft,url`
+- `gh pr view 175 --json number,title,body,commits,files,mergeStateStatus,reviewDecision,isDraft,url`
+- `gh pr view 176 --json number,title,body,commits,files,mergeStateStatus,reviewDecision,isDraft,url`
+- `gh pr view 177 --json number,title,body,commits,files,mergeStateStatus,reviewDecision,isDraft,url`
+- `gh pr view 178 --json number,title,body,commits,files,mergeStateStatus,reviewDecision,isDraft,url`
+- `gh pr diff 175`
+- `gh pr diff 178`
+- `npm run trace:adjacent -- src/app/api/creator/settings/route.ts`
+- `npm run trace:adjacent -- src/app/api/analytics/ingest/route.ts`
+- `npm run typecheck`
+- `npm run test:contracts`
+- `npx vitest run --config vitest.contracts.config.ts tests/unit/analytics-ingest-route.spec.ts`
+
+Implementation Results:
+- Evaluated open PRs `#171` through `#178` against the current dirty worktree and rejected wholesale merges for the overlapping hygiene/analytics cluster because the local branch already carried newer or conflicting changes across the same files.
+- Implemented the unique code changes from `#175` directly in `src/app/api/creator/settings/route.ts`, replacing full snapshot downloads and client-side reductions with Firestore server-side `count()` and `aggregate()` reads for creator stats.
+- Implemented the unique code changes from `#178` directly in:
+  - `src/app/api/analytics/ingest/route.ts`
+  - `src/app/api/admin/user/[userId]/route.ts`
+  Both routes now record structured diagnostics through `recordRouteWarning(...)` instead of raw `console.warn(...)`.
+- Left `package.json` untouched for the `#175` PR because its diff only reflected dependency ordering noise already present in the current branch, not a required functional change.
+
+## [2026-04-16 #6] Error And Warning Remediation Pass
+
+Scope for this pass:
+- Re-run the repo verification surfaces that still emit errors or warnings after the telemetry cleanup.
+- Fix root-cause configuration, dependency, typing, or runtime issues rather than suppressing diagnostics.
+- Re-baseline the continuity ledgers once the warning/error inventory is resolved.
+
+Startup protocol executed:
+- Read `FULL_SCALE_CODEBASE_AUDIT.md`.
+- Read `REPO_MEMORY_LEDGER.md`.
+- Read `EVERY_FILE_FUNCTION_CHECKLIST.md`.
+- Ran `git status --short`.
+- Traced adjacent surfaces for:
+  - `src/lib/server/admin-analytics-shared.ts`
+  - `functions/src/firebase-admin.ts`
+  - `functions/src/analytics-event-facts.ts`
+  - `src/app/api/admin/overview/route.ts`
+
+Root Causes:
+- `npm run test:contracts` was still using the shared Vitest workspace config that also declared Storybook/browser projects, which inflated transform/import pressure and made route-spec first-load costs show up as full-suite timeouts.
+- `tests/unit/security-log-attempt-route.spec.ts` still paid a route-module import inside the test body, so full-suite cold-start cost consumed the test timeout budget even though the assertion itself was fine.
+- The contract suite was still loading real `firebase-admin` and `@google-cloud/vertexai` dependency trees in some workers, which pulled deprecated `node-fetch@2 -> whatwg-url -> tr46 -> punycode` paths into otherwise unit-scoped tests.
+- The repo still had stale dependency/tooling noise: duplicate runtime collection aliases in `src/lib/platform-config.ts`, fragile emulator script resolution through hard-coded `node_modules` paths, stale `knip` ignores, and unused Storybook interface exports.
+- The root direct `google-auth-library` dependency for AI cover auth was still pinned to the older major that carried the deprecated `gaxios@6` stack.
+
+Verification Commands Run:
+- `git status --short`
+- `npm run trace:adjacent -- src/lib/server/admin-analytics-shared.ts`
+- `npm run trace:adjacent -- functions/src/firebase-admin.ts`
+- `npm run trace:adjacent -- functions/src/analytics-event-facts.ts`
+- `npm run trace:adjacent -- src/app/api/admin/overview/route.ts`
+- `npm run trace:adjacent -- src/lib/telemetry.ts`
+- `npm run trace:adjacent -- src/app/api/security/log-attempt/route.ts`
+- `npm run trace:adjacent -- src/stories/Header.tsx`
+- `npm uninstall react-scan @types/puppeteer jsdom`
+- `npm install`
+- `npm run check:deps`
+- `npx vitest run --config vitest.config.ts tests/unit/security-log-attempt-route.spec.ts tests/unit/telemetry.spec.ts`
+- `npm run test:contracts`
+- `npm run check`
+- `npm audit --audit-level=moderate`
+- `npm --prefix functions audit --audit-level=moderate`
+- `npm --prefix functions run check`
+- `corepack pnpm install --lockfile-only --ignore-scripts` (in `functions/`)
+- `npx -p node@22 -p pnpm pnpm install --lockfile-only --ignore-scripts` (in `functions/`)
+- `npm run check:versions`
+
+Implementation Results:
+- Added `vitest.contracts.config.ts` and moved `test:contracts` / `test:contracts:watch` onto the dedicated contracts config so the contract suite no longer boots the Storybook/browser workspace during normal verification.
+- Hardened timeout-prone tests:
+  - `tests/unit/security-log-attempt-route.spec.ts` now hoists mocks and imports the route once in `beforeAll` instead of inside the test body.
+  - `tests/unit/server-drops.spec.ts` now uses a static import path instead of re-importing the module per test.
+  - `tests/unit/use-chat-unread-status.spec.tsx` now uses `happy-dom` instead of `jsdom`.
+- Added test-only SDK stubs and aliased them through `vitest.contracts.config.ts`:
+  - `tests/support/firebase-admin.mock.ts`
+  - `tests/support/firebase-admin-firestore.mock.ts`
+  - `tests/support/google-cloud-vertexai.mock.ts`
+  This keeps contract tests unit-scoped and stops them from pulling real Admin/Vertex SDK dependency trees into workers.
+- Upgraded the root `google-auth-library` dependency to `^10.6.2` so the repo’s direct AI auth path no longer depends on the deprecated `gaxios@6` stack.
+- Removed stale or misleading dependency noise:
+  - deleted duplicate runtime collection aliases from `src/lib/platform-config.ts`
+  - updated `src/hooks/useDrops.ts`, `src/lib/server/analytics-runtime.ts`, `src/lib/server/drop-runtime.ts`, and `src/lib/server/notification-runtime.ts` to use `SYSTEM_RUNTIME_COLLECTION`
+  - removed stale `knip` ignore for `src/dataconnect-generated/**`
+  - removed unused Storybook interface exports from `src/stories/Button.tsx` and `src/stories/Header.tsx`
+  - updated Firebase rules scripts to resolve `firebase-tools` via `require.resolve(...)` instead of hard-coded `node_modules` paths
+- Cleaned dependency inventory and lockfiles:
+  - removed unused `react-scan`, `@types/puppeteer`, and `jsdom`
+  - added `happy-dom`
+  - refreshed root and functions lockfiles, including the functions `pnpm` lock
+- Final verification state for this pass:
+  - `npm run check` passes cleanly
+  - `npm run check:deps` passes cleanly
+  - `npm run test:contracts` passes cleanly with 130 files / 588 tests and no deprecation output
+  - root and functions `npm audit --audit-level=moderate` both pass with `0 vulnerabilities`
+  - `npm --prefix functions run check` passes cleanly
+
+## [2026-04-16 #5] Telemetry Redundancy Cleanup & SQL Surface Remediation
+
+Scope for this pass:
+- Eliminate the verified split-truth analytics reads that still depend on Realtime Database telemetry mirrors.
+- Remove or retire verified write-only analytics sidecars that are not serving app surfaces in-repo.
+- Remove the orphaned AI Data Connect SQL surface and its generated package footprint if it remains unused.
+- Re-verify telemetry contracts after the cleanup and refresh the continuity ledgers with the implemented state.
+
+Startup protocol executed:
+- Read `FULL_SCALE_CODEBASE_AUDIT.md`.
+- Read `REPO_MEMORY_LEDGER.md`.
+- Read `EVERY_FILE_FUNCTION_CHECKLIST.md`.
+- Ran `git status --short`.
+- Traced adjacent surfaces for:
+  - `src/app/api/telemetry/track/route.ts`
+  - `src/lib/server/admin-analytics-data.ts`
+  - `src/app/api/admin/user/[userId]/route.ts`
+  - `functions/src/analytics-schedules.ts`
+
+Root Causes:
+- Canonical analytics facts in Firestore were still being dual-written into Realtime Database mirrors and read back by admin surfaces, which created a split-truth freshness tail even though the repo already had a canonical Firestore event ledger.
+- Several analytics projections and SQL/Data Connect connectors were verified write-only in-repo: scheduled dashboard cache documents, RTDB realtime rollups, guest/type/target/heatmap projections, and the analytics export connector had no verified product-serving reader.
+- `src/app/api/drops/impression/route.ts` was writing `analytics_drop_daily` documents with `dayKey__dropId` while the rest of the pipeline uses `dayKey_dropId`, which silently fragments drop-daily analytics.
+- The functions workspace TypeScript build was inheriting ambient MDX React typings from the root dependency tree, so the functions verification surface was broader than the actual Node runtime contract.
+
+Verification Commands Run:
+- `git status --short`
+- `npm run trace:adjacent -- src/app/api/telemetry/track/route.ts`
+- `npm run trace:adjacent -- src/lib/server/admin-analytics-data.ts`
+- `npm run trace:adjacent -- src/app/api/admin/user/[userId]/route.ts`
+- `npm run trace:adjacent -- functions/src/analytics-schedules.ts`
+- `npx vitest run --config vitest.config.ts tests/contracts/telemetry-contracts.spec.ts tests/unit/admin-overview-route.spec.ts tests/unit/admin-analytics-realtime-route.spec.ts tests/unit/lib/telemetry.spec.ts tests/unit/telemetry.spec.ts tests/unit/telemetry-flows.spec.ts`
+- `npm run check:telemetry`
+- `npm run check:analytics-semantics`
+- `npm run check:inventory`
+- `npm run check:continuity`
+- `npm --prefix functions run check` (failed first on ambient MDX `JSX` namespace leakage; passed after scoping the functions TS config to Node types)
+- `npm uninstall @dataconnect/admin-generated @dataconnect/generated`
+- `npm uninstall @dataconnect/admin-generated` (in `functions/`)
+- `corepack pnpm install --lockfile-only --ignore-scripts` (in `functions/`)
+
+Implementation Results:
+- `src/lib/server/admin-analytics-shared.ts` now sources `fetchTelemetryLogs(...)` from canonical `analytics_event_facts` queries instead of Realtime Database telemetry mirrors.
+- `src/app/api/telemetry/track/route.ts` no longer dual-writes RTDB telemetry mirror records; canonical Firestore event facts remain the source of truth.
+- `src/app/api/admin/user/[userId]/route.ts` no longer reads `telemetry/users/*` for a freshness tail; user analytics now derive from canonical facts, rollups, and session aggregates only.
+- `src/app/api/drops/impression/route.ts` now writes `analytics_drop_daily` using the canonical `dayKey_dropId` key shape so drop-daily rollups stop fragmenting.
+- `src/app/api/admin/overview/route.ts`, `src/lib/admin-overview.ts`, `src/lib/analytics-metric-catalog.ts`, `src/lib/analytics-semantics.ts`, `src/lib/server/admin-analytics-historical-validation.ts`, and `src/lib/telemetry-catalog.ts` were updated so admin/debug truth labels describe canonical event facts instead of retired RTDB telemetry logs.
+- `functions/src/analytics-event-facts.ts`, `functions/src/analytics-guest-batches.ts`, `functions/src/analytics-security-events.ts`, `functions/src/analytics-task-events.ts`, and `functions/src/analytics-transactions.ts` no longer write RTDB mirror state or write-only guest target/heatmap cache projections.
+- Removed verified-unused function sidecars and generated SQL/export surfaces:
+  - `functions/src/analytics-export-dataconnect.ts`
+  - `functions/src/analytics-export-sync.ts`
+  - `functions/src/analytics-realtime.ts`
+  - `functions/src/analytics-schedules.ts`
+  - `dataconnect/**`
+  - `src/dataconnect-generated/**`
+  - `src/dataconnect-admin-generated/**`
+  - `functions/src/dataconnect-admin-generated/**`
+  - `tests/contracts/analytics-export-contract.spec.ts`
+- `package.json`, `functions/package.json`, and the corresponding lockfiles were cleaned to remove the unused Data Connect generated packages and export check script; `functions/pnpm-lock.yaml` was explicitly resynchronized after the dependency removal.
+- `functions/tsconfig.json` now scopes the functions workspace to Node ambient types so `npm --prefix functions run check` reflects the actual server runtime surface.
+
+## [2026-04-16 #4] Event Tracking, Telemetry, and SQL Surface Audit
+
+Scope for this pass:
+- Audit the event tracking and telemetry stack for redundancy, stale paths, truth gaps, and simplification opportunities.
+- Identify whether the repo has any active SQL/database surface beyond Firestore/Data Connect and review those paths for redundancy or risk.
+- Update the canonical audit ledgers with the review conclusions.
+
+Startup protocol executed:
+- Read `FULL_SCALE_CODEBASE_AUDIT.md`.
+- Read `REPO_MEMORY_LEDGER.md`.
+- Read `EVERY_FILE_FUNCTION_CHECKLIST.md`.
+- Ran `git status --short`.
+- Traced adjacent surfaces for:
+  - `src/lib/telemetry.ts`
+  - `src/app/admin/analytics/page.tsx`
+  - `src/app/api/user/register/route.ts`
+
+Root Causes:
+- The analytics stack currently writes the same behavioral signal into overlapping persistence layers without a strict serving contract: canonical Firestore facts, Firestore rollups, Realtime Database mirrors, scheduled dashboard-cache documents, and a Data Connect/PostgreSQL export sidecar all coexist.
+- Admin analytics and admin user-detail reads still serve from Firestore, GA, and Realtime Database mirrors rather than the SQL export layer, so the SQL path adds maintenance and drift risk without reducing read complexity inside the repo.
+- At least one SQL/Data Connect surface (`AiInteraction`) and several Firestore analytics projections are schema-present but repo-readless, which means they currently behave as write-only inventory rather than product-serving storage.
+
+Verification Commands Run:
+- `git status --short`
+- `npm run trace:adjacent -- src/lib/telemetry.ts`
+- `npm run trace:adjacent -- src/app/admin/analytics/page.tsx`
+- `npm run trace:adjacent -- src/app/api/user/register/route.ts`
+- `npm run check:telemetry`
+- `npm run check:analytics-semantics`
+- Targeted repo inspection with `git grep`, `Select-String`, and `Get-Content` across:
+  - `src/app/api/telemetry/track/route.ts`
+  - `src/lib/server/admin-analytics-data.ts`
+  - `src/lib/server/admin-analytics-shared.ts`
+  - `src/app/api/admin/analytics/realtime/route.ts`
+  - `src/app/api/admin/user/[userId]/route.ts`
+  - `functions/src/analytics-event-facts.ts`
+  - `functions/src/analytics-guest-batches.ts`
+  - `functions/src/analytics-schedules.ts`
+  - `functions/src/analytics-export-sync.ts`
+  - `dataconnect/schema/schema.gql`
+  - `dataconnect/schema/machine_learning.gql`
+  - `tests/contracts/analytics-export-contract.spec.ts`
+
+Implementation Results:
+- No product code changed in this pass; this was a repo-truth audit and ledger refresh.
+- Confirmed the in-repo serving path for analytics remains Firestore canonical facts/rollups plus GA and limited Realtime Database mirrors. The Data Connect/PostgreSQL export is currently a sidecar export surface, not a live app-serving dependency.
+- Confirmed `telemetry/events/*` and `telemetry/users/*` Realtime Database mirrors are still dual-written from `/api/telemetry/track` and are still read back by admin analytics/user-detail flows as a freshness tail, which creates a split-truth boundary the codebase now needs to treat explicitly.
+- Confirmed `analytics_dashboard_cache`, `analytics_guest_daily`, `analytics_target_daily`, `analytics_heatmap_daily`, and `analytics/realtime/*` are write-only within this repo today.
+- Confirmed the `AiInteraction` Data Connect SQL table and generated SDK packages remain present but have no non-generated runtime caller in this repo, so they are effectively orphaned until wired or removed.
+
+## [2026-04-16 #3] Home Hero Audit Stability & Landing Media Timeout Fix
+
+Scope for this pass:
+- Resolve the remaining UI audit failures on the home surface.
+- Remove audit instability from the live-count hero ticker masking.
+- Prevent landing-page Firebase Storage images from routing through the local Next image optimizer during audits.
+
+Startup protocol executed:
+- Read `FULL_SCALE_CODEBASE_AUDIT.md`.
+- Read `REPO_MEMORY_LEDGER.md`.
+- Read `EVERY_FILE_FUNCTION_CHECKLIST.md`.
+- Ran `git status --short`.
+- Traced adjacent surfaces for:
+  - `src/app/page.tsx`
+  - `src/app/HomeClient.tsx`
+  - `src/components/Hero.tsx`
+  - `src/components/Landing/HomeActiveDropsCarousel.tsx`
+  - `src/components/HomeDropTicker.tsx`
+  - `tests/ui-audits/visual-regression.spec.ts`
+
+Root Causes:
+- The home-hero visual test masked a live-count ticker by climbing dynamic ancestor selectors from the text node, so a harmless width change in the masked ticker region showed up as a visual regression.
+- The landing page was still routing Firebase Storage drop art through the local Next image optimizer on audit runs, which exposed the UI audit server to upstream image-response timeouts even though those assets are marketing-only media.
+
+Verification Commands Run:
+- `git status --short`
+- `npm run trace:adjacent -- src/app/page.tsx`
+- `npm run build`
+- `npx playwright test tests/ui-audits/visual-regression.spec.ts -g "home hero stays stable" --project=chromium --project="Mobile Chrome"` (Failed before the fix)
+- `npx playwright test tests/ui-audits/visual-regression.spec.ts -g "home hero stays stable" --project=chromium --project="Mobile Chrome" --update-snapshots` (Passed; refreshed only the home hero baselines)
+- `npx playwright test tests/ui-audits/visual-regression.spec.ts -g "home hero stays stable" --project=chromium --project="Mobile Chrome"` (Passed after the fix)
+- `npm run check:ui:audits` (Passed)
+- `npm run check:ui:lighthouse` (Passed; only OS-level temp cleanup warnings remained)
+- `npm run check:generated-artifacts` (Passed after cleanup)
+
+Implementation Results:
+- `src/components/Hero.tsx`: added an explicit `data-testid` on the home ticker wrapper so UI audits can mask the live-count area by a stable element instead of dynamic text ancestry.
+- `tests/ui-audits/visual-regression.spec.ts`: switched the home-hero mask to the explicit ticker wrapper target and refreshed the desktop/mobile home-hero snapshots accordingly.
+- `src/lib/media-hosts.ts`: added `isFirebaseStorageMediaUrl(...)` so client surfaces can make intentional delivery decisions for Firebase-hosted media.
+- `src/components/HomeDropTicker.tsx` and `src/components/Landing/HomeActiveDropsCarousel.tsx`: bypassed the local Next image optimizer for Firebase Storage landing media, which removed the upstream Firebase timeout from the UI audit path.
+
+## [2026-04-16 #2] Fix Findings From Antigravity Review
+
+Scope for this pass:
+- Resolve the concrete regressions found in the committed-state review.
+- Restore green continuity/lint verification where the fixes are straightforward and local.
+- Remove hidden creator dashboard fan-out that survived the workspace compaction pass.
+
+Startup protocol executed:
+- Read `FULL_SCALE_CODEBASE_AUDIT.md`.
+- Read `REPO_MEMORY_LEDGER.md`.
+- Read `EVERY_FILE_FUNCTION_CHECKLIST.md`.
+- Ran `git status --short`.
+- Traced adjacent surfaces for:
+  - `src/components/Dashboard/CreatorWorkspacePanel.tsx`
+  - `src/hooks/useChatUnreadStatus.ts`
+  - `src/app/admin/analytics/page.tsx`
+
+Root Causes:
+- `scripts/check-cycles.ts` and the Storybook stories had drifted apart, so continuity treated `storybook/test` as an unexpected skipped import.
+- The creator workspace compaction removed visible modules without deleting their backing state, initial fan-out requests, and eager thread-detail effect.
+- Several repo-wide lint and test expectations were stale relative to the current telemetry schema-version contract, Firestore fallback copy, and local verification outputs.
+
+Verification Commands Run:
+- `git status --short`
+- `npm run trace:adjacent -- src/components/Dashboard/CreatorWorkspacePanel.tsx`
+- `npm run trace:adjacent -- src/hooks/useChatUnreadStatus.ts`
+- `npm run trace:adjacent -- src/app/admin/analytics/page.tsx`
+- `npm run check:continuity` (Passed)
+- `npx vitest run --config vitest.config.ts tests/unit/telemetry.spec.ts tests/unit/telemetry-flows.spec.ts tests/unit/lib/telemetry.spec.ts tests/unit/firestore-client-errors.spec.ts` (Passed)
+- `npm run build-storybook` (Passed)
+- `npm run check` (Passed)
+- `npm run check:ui:audits` (Failed: existing `home-hero` visual snapshot drift in desktop and mobile; also saw an upstream Firebase Storage image timeout during the audit server run)
+- `npm run check:ui:lighthouse` (Passed)
+- `npm run check:generated-artifacts` (Passed after cleanup)
+
+Implementation Results:
+- `scripts/check-cycles.ts`: allowlisted `storybook/test` so continuity accepts the approved Storybook-only import path.
+- `src/components/Dashboard/CreatorWorkspacePanel.tsx`: removed dead creator-settings state, subscription/payout/broadcast preload fan-out, eager thread-detail loading, and other orphaned state left behind by the compaction refactor; also replaced the raw preview avatar `<img>` with `next/image`.
+- `src/hooks/useChatUnreadStatus.ts`: removed dead imports and replaced the effect-driven reset with a subscription-keyed derived unread state so the hook no longer trips the React `set-state-in-effect` lint rule.
+- `src/app/admin/analytics/page.tsx`, `src/app/api/user/register/route.ts`, `src/app/dashboard/profile/page.tsx`, `src/app/sitemap.ts`, `src/context/AuthContext.tsx`, `src/components/UIDebug.tsx`, and `src/stories/Page.tsx`: cleaned the committed lint regressions found in the review.
+- `tests/unit/telemetry.spec.ts`, `tests/unit/telemetry-flows.spec.ts`, `tests/unit/lib/telemetry.spec.ts`, and `tests/unit/firestore-client-errors.spec.ts`: updated stale assertions to the current canonical contracts (`event_schema_version: "v2"` and the non-polling Firestore fallback message).
+- `eslint.config.mjs`: excluded `storybook-static/**` from lint so local Storybook builds do not poison `npm run check`.
+
+## [2026-04-16] Antigravity Committed-State Review & Audit Refresh
+
+Scope for this pass:
+- Review the current committed repo state after recent Antigravity IDE work already landed on `main`.
+- Reconcile the latest high-risk chat, navigation, creator workspace, notification, and Storybook/testing changes against continuity checks.
+- Refresh the canonical audit artifacts to match the actual repository state instead of prior chat assumptions.
+
+Startup protocol executed:
+- Read `FULL_SCALE_CODEBASE_AUDIT.md`.
+- Read `REPO_MEMORY_LEDGER.md`.
+- Read `EVERY_FILE_FUNCTION_CHECKLIST.md`.
+- Ran `git status --short` (clean worktree before verification).
+- Identified main touched surfaces from recent commits:
+  - `src/components/Chat/ChatExperience.tsx`
+  - `src/components/Dashboard/CreatorWorkspacePanel.tsx`
+  - `src/components/Navigation/MobileBottomBar.tsx`
+  - `src/app/api/notifications/route.ts`
+  - `src/hooks/client-runtime.ts`
+  - `src/hooks/useNotifications.ts`
+  - `src/lib/server/fcm-utils.ts`
+  - `scripts/check-cycles.ts`
+  - `src/stories/*.stories.ts`
+- Ran adjacency traces for:
+  - `src/components/Chat/ChatExperience.tsx`
+  - `src/components/Dashboard/CreatorWorkspacePanel.tsx`
+  - `src/components/Navigation/MobileBottomBar.tsx`
+
+Root Causes:
+- The Storybook integration introduced `storybook/test` imports under `src/stories`, but the cycle-audit allowlist in `scripts/check-cycles.ts` was not updated, so `npm run check:continuity` now fails on `main`.
+- The creator workspace compression removed several rendered modules but left their backing state, API fan-out, and thread-detail fetch effect alive, so the dashboard still performs hidden work and can surface module failures for data that is no longer shown.
+- The broader committed repo state now contains multiple lint regressions outside the immediate workspace refactor, so `npm run check` no longer passes cleanly on `main`.
+
+Verification Commands Run:
+- `git status --short` (Passed: clean before and after review)
+- `npm run trace:adjacent -- src/components/Chat/ChatExperience.tsx` (Passed)
+- `npm run trace:adjacent -- src/components/Dashboard/CreatorWorkspacePanel.tsx` (Passed)
+- `npm run trace:adjacent -- src/components/Navigation/MobileBottomBar.tsx` (Passed)
+- `npm run check:continuity` (Failed in `check:cycles:app`: unexpected skipped import `storybook/test`)
+- `npm run check` (Failed in ESLint)
+- `npm run build-storybook` (Passed)
+- `npm run check:generated-artifacts` (Failed after verification because `.next` existed; passed after cleanup)
+
+Review Results:
+- `scripts/check-cycles.ts` plus `src/stories/*.stories.ts`: continuity is currently broken because the new Storybook example stories import `storybook/test`, which Madge reports as a skipped non-runtime import and the allowlist does not recognize.
+- `src/components/Dashboard/CreatorWorkspacePanel.tsx`: the compressed creator home still fetches `/api/creator/subscriptions`, `/api/creator/payouts`, and `/api/creator/broadcasts` into local state even though those records are no longer rendered in the new UI; this adds unnecessary dashboard latency and failure surface.
+- `src/components/Dashboard/CreatorWorkspacePanel.tsx`: `setSelectedThreadId(...)` still drives `loadThreadMessages(...)` for the first thread on every workspace load even though thread detail/messages are no longer rendered in the compressed dashboard, creating an unnecessary extra chat request.
+- `npm run check` currently fails in additional committed files:
+  - `src/app/admin/analytics/page.tsx` unused imported types
+  - `src/app/api/user/register/route.ts` duplicate `platform-config` import
+  - `src/app/dashboard/profile/page.tsx` duplicate `platform-config` import
+  - `src/app/sitemap.ts` duplicate `platform-config` import
+  - `src/context/AuthContext.tsx` unused Firestore fallback helpers
+  - `src/hooks/useChatUnreadStatus.ts` unused imports plus React `set-state-in-effect` violation
+  - `src/stories/Page.tsx` unescaped quote lint failure
+
+Implementation Results:
+- No runtime code changes were applied in this pass.
+- Cleaned verification-only generated artifacts (`.next`, `storybook-static`) after running Storybook/build checks so the repo returned to a clean worktree.
+- Refreshed the canonical audit files to match the current committed-state findings.
+
 ## [2026-04-14] Creator Workspace Dashboard Modernization
 
 Scope for this pass:
@@ -41,7 +431,7 @@ Implementation Results:
 - Refactored `EVERY_FILE_FUNCTION_CHECKLIST.md` silently to acknowledge 30+ new testing assets without bloating root line-counts manually.
 
 Status: Canonical audit standard and live baseline
-Last refreshed: 2026-04-13
+Last refreshed: 2026-04-16
 Last full-scale audit execution: 2026-04-09 19:40:21 -05:00
 Repo: `C:\Users\uylus\OneDrive\Documents\KandyDrops_Final`
 

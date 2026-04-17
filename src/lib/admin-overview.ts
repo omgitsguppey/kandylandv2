@@ -68,7 +68,7 @@ export type AdminOverviewTransactionRecord = Transaction & {
 export type AdminOverviewActivityItem = {
     id: string;
     domain: "admin";
-    source: "transactions" | "telemetry_logs";
+    source: "transactions" | "analytics_event_facts";
     type: string;
     label: string;
     detail: string;

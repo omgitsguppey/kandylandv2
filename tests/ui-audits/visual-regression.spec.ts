@@ -24,14 +24,10 @@ test.describe("UI continuity visual audits", () => {
   test("home hero stays stable", async ({ page }) => {
     await openAuditSurface(page, "/", "main");
     const hero = page.locator("main section").first().locator("div.flex.min-w-0.max-w-2xl.w-full.flex-col.items-center").first();
-    const activityTicker = hero
-      .getByText(/Live Now:\s+\d+\s+KandyDrops are ready to unwrap!/i)
-      .locator("xpath=ancestor::div[contains(@class, 'inline-flex')][1]");
-    const activityTickerWrapper = activityTicker.locator("xpath=ancestor::div[contains(@class, 'pb-1') or contains(@class, 'pt-0.5')][1]");
     await expect(hero).toHaveScreenshot("home-hero.png", {
       mask: [
         hero.locator(".animate-ping"),
-        activityTickerWrapper,
+        hero.getByTestId("hero-activity-ticker-mask"),
       ],
       maxDiffPixels: 40,
       timeout: 15000,

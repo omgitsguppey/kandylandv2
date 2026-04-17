@@ -64,3 +64,15 @@ export function isAllowedRemoteMediaUrl(value: string) {
     return false;
   }
 }
+
+export function isFirebaseStorageMediaUrl(value: string) {
+  try {
+    const url = new URL(value);
+    return url.protocol === "https:" && (
+      url.hostname === "firebasestorage.googleapis.com"
+      || url.hostname === "storage.googleapis.com"
+    );
+  } catch {
+    return false;
+  }
+}

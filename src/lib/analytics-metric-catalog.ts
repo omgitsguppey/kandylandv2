@@ -231,7 +231,7 @@ export const ANALYTICS_SOCIAL_METRIC_DEFINITIONS: AnalyticsMetricDefinition[] = 
     "Share of notification prompt views that converted into enabled notifications.",
     "notifications_enabled / notification_prompt_views",
     "Close to reminder opt-in conversion or notification consent rate.",
-    metricSources("analytics_event_facts", "telemetry_logs"),
+    metricSources("analytics_event_facts"),
     "canonical",
   ),
   percentMetric(
@@ -242,7 +242,7 @@ export const ANALYTICS_SOCIAL_METRIC_DEFINITIONS: AnalyticsMetricDefinition[] = 
     "Share of guidance banner views that ended in a guided completion.",
     "task_guidance_completed / task_guidance_banner_viewed",
     "Comparable to guided action completion from an in-product education banner.",
-    metricSources("analytics_event_facts", "telemetry_logs"),
+    metricSources("analytics_event_facts"),
     "canonical",
   ),
   percentMetric(

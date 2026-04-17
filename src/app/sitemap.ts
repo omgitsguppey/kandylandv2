@@ -1,7 +1,6 @@
 import type { MetadataRoute } from "next";
 
-import { TERMS_LAST_UPDATED } from "@/lib/platform-config";
-import { PRIVACY_POLICY_VERSION } from "@/lib/platform-config";
+import { PRIVACY_POLICY_VERSION, TERMS_LAST_UPDATED } from "@/lib/platform-config";
 import { SITE_ORIGIN } from "@/lib/site-origin";
 import { adminDb } from "@/lib/server/firebase-admin";
 

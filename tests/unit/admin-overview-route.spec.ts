@@ -407,12 +407,12 @@ describe("GET /api/admin/overview", () => {
                     actorLabel: "owner@example.com",
                 }),
                 expect.objectContaining({
-                    source: "telemetry_logs",
+                    source: "analytics_event_facts",
                     domain: "admin",
                     label: "Admin dashboard viewed",
                 }),
                 expect.objectContaining({
-                    source: "telemetry_logs",
+                    source: "analytics_event_facts",
                     domain: "admin",
                     label: "Creator legal sent",
                 }),
