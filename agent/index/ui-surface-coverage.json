@@ -1,5 +1,5 @@
 {
-  "generatedAt": "2026-04-18T13:42:32.076Z",
+  "generatedAt": "2026-04-18T15:17:57.384Z",
   "truthOrder": [
     "verified_runtime_code",
     "verified_configuration",
@@ -1419,6 +1419,7 @@
       "lighthouse_required": false,
       "existing_tests": [
         "tests/unit/chat-attachments-route.spec.ts",
+        "tests/unit/chat-route-shell.spec.tsx",
         "tests/unit/chat-send-feedback.spec.ts",
         "tests/unit/chat-send-realtime.spec.ts",
         "tests/unit/chat-soft-seal.spec.ts",

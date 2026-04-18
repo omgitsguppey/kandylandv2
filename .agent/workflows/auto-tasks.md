@@ -168,3 +168,11 @@ description: "Auto-run standard project commands"
    `npm run check:analytics:continuity`
    `npm run check:telemetry`
    `npm run check:continuity`
+
+22. Fix mobile chat/message interaction regressions, especially untappable overlays after search focus/blur:
+   `npm run trace:adjacent -- src/components/Chat/ChatExperience.tsx`
+   `npm run trace:adjacent -- src/app/dashboard/chat/page.tsx`
+   `npm run trace:adjacent -- src/app/dashboard/chat/layout.tsx`
+   `npx vitest run <chat-related-test-paths>`
+   `npm run typecheck`
+   `npm run check:ui:runtime`

@@ -1,5 +1,105 @@
 # KandyDrops Core Codebase Audit & Defensive Ledger
 
+## [2026-04-18 #20] Compact Interaction Recovery Hardening
+
+Scope for this pass:
+- Harden the codebase so compact/mobile interaction lockups like the chat search untappable regression are detected earlier and self-healed when safe by extending the shared self-healing layer, wiring it into chat search release paths, and exposing the lane in repo-native runtime observability.
+
+Startup protocol executed:
+- Read `FULL_SCALE_CODEBASE_AUDIT.md`.
+- Read `REPO_MEMORY_LEDGER.md`.
+- Read `EVERY_FILE_FUNCTION_CHECKLIST.md`.
+- Ran `git status --short`.
+- Identified touched surfaces around:
+  - `src/lib/self-healing.ts`
+  - `src/components/Chat/ChatExperience.tsx`
+  - `scripts/agent/extract-runtime-observability.ts`
+  - targeted compact/mobile interaction regression tests.
+- Ran adjacency review for:
+  - `src/lib/self-healing.ts`
+  - `scripts/agent/extract-runtime-observability.ts`
+
+Root causes identified:
+- The chat layout fix removed the immediate compact/mobile untappable regression, but the repo still lacked a reusable client-side way to detect and recover stale focused inputs or unexpected document-level overflow locks after mobile interaction release.
+- Existing self-healing only covered reconnect loops, not compact/mobile UI interaction recovery.
+- The runtime observability index did not explicitly expose any client-side interaction recovery lane, so agents and continuity tooling had no machine-readable signal that this class of self-healing existed.
+
+Implementation results:
+- Extended `src/lib/self-healing.ts` with `createCompactInteractionRecoveryGuard(...)`, a reusable compact/mobile recovery helper that detects stale target focus and unexpected `html`/`body`/`main` overflow or overscroll locks, skips recovery when a real dialog/modal is open, and clears stale interaction state when safe.
+- Wired `src/components/Chat/ChatExperience.tsx` to use the new recovery guard for thread-search blur recovery, compact thread-transition recovery, and unmount cleanup recovery while emitting structured `ui` diagnostics when recovery actually fires.
+- Extended `scripts/agent/extract-runtime-observability.ts` with a `compact_interaction_recovery` lane so the repo-intelligence/runtime-observability output exposes this new self-healing path explicitly.
+- Added `tests/unit/self-healing.spec.ts` to verify that the recovery guard clears unexpected compact interaction locks, blurs the target, and correctly skips recovery when a dialog is open.
+
+Verification commands run:
+- `git status --short`
+- `npm run trace:adjacent -- src/lib/self-healing.ts`
+- `npm run trace:adjacent -- scripts/agent/extract-runtime-observability.ts`
+- `npx vitest run tests/unit/self-healing.spec.ts tests/unit/chat-route-shell.spec.tsx tests/unit/use-chat-unread-status.spec.tsx`
+- `npm run typecheck`
+
+Verification results:
+- `npx vitest run tests/unit/self-healing.spec.ts tests/unit/chat-route-shell.spec.tsx tests/unit/use-chat-unread-status.spec.tsx` passed.
+- `npm run typecheck` passed.
+- The compact/mobile chat surface now has both the layout fix and a scoped self-healing guard for stale interaction-release states.
+
+Warnings / follow-up:
+- This pass adds focused compact/mobile self-healing for the messages/chat surface first. Other UI surfaces can reuse the same helper when they introduce compact/mobile focused-input or document-lock release risk, but no additional surfaces were rewritten in this pass without verified need.
+
+Cleanup:
+- No generated build/UI artifact cleanup was required for this pass.
+
+## [2026-04-18 #19] Mobile Messages Search Overlay Untappable Regression
+
+Scope for this pass:
+- Fix the mobile messages/chat regression where tapping the search bar and exiting the input leaves the site untappable until refresh by tracing the message search surface, identifying any stuck mobile fixed-layer or global overflow lock behavior, and patching the canonical chat UI path with targeted verification.
+
+Startup protocol executed:
+- Read `FULL_SCALE_CODEBASE_AUDIT.md`.
+- Read `REPO_MEMORY_LEDGER.md`.
+- Read `EVERY_FILE_FUNCTION_CHECKLIST.md`.
+- Ran `git status --short`.
+- Updated `.agent/workflows/auto-tasks.md` for the mobile messages regression pass.
+- Identified likely touched surfaces around:
+  - `src/components/Chat/ChatExperience.tsx`
+  - `src/components/Chat/ChatRouteShell.tsx`
+  - `src/app/dashboard/chat/page.tsx`
+  - adjacent mobile overlay/focus handling inside the chat experience shell.
+- Ran adjacency review for:
+  - `src/components/Chat/ChatExperience.tsx`
+  - `src/app/dashboard/chat/page.tsx`
+  - `src/app/dashboard/chat/layout.tsx`
+
+Root causes identified:
+- The mobile chat page was rendered inside a full-screen `fixed` wrapper (`top-20` to bottom safe-area offset), which kept the entire chat surface inside a fixed-position layer during mobile input focus/blur.
+- `src/components/Chat/ChatRouteShell.tsx` also applied global `overflow: hidden` and `overscrollBehaviorY: none` locks to `html`, `body`, and `main` even on compact/mobile viewports, which widened the blast radius from the chat surface to the whole document.
+- The thread search input did not explicitly release focus when transitioning from the compact thread list into a selected thread or when the component unmounted, leaving mobile Safari free to keep the focused search/input layer alive longer than the visible UI.
+
+Implementation results:
+- Updated `src/app/dashboard/chat/page.tsx` so the mobile chat page uses local height containment instead of a viewport-wide `fixed` wrapper.
+- Updated `src/components/Chat/ChatRouteShell.tsx` so document/body/main overflow locking only applies on non-compact viewports; compact/mobile chat now relies on local container overflow control instead of page-wide scroll locking.
+- Updated `src/components/Chat/ChatExperience.tsx` with a dedicated `threadSearchInputRef` and `releaseThreadSearchFocus()` cleanup so the mobile search input blurs when entering a thread and when the chat experience unmounts.
+- Added `tests/unit/chat-route-shell.spec.tsx` to verify that compact viewports do not lock document scrolling while desktop viewports still do and restore correctly on unmount.
+
+Verification commands run:
+- `git status --short`
+- `npm run trace:adjacent -- src/components/Chat/ChatExperience.tsx`
+- `npm run trace:adjacent -- src/app/dashboard/chat/page.tsx`
+- `npm run trace:adjacent -- src/app/dashboard/chat/layout.tsx`
+- `npx vitest run tests/unit/chat-route-shell.spec.tsx tests/unit/use-chat-unread-status.spec.tsx`
+- `npm run typecheck`
+
+Verification results:
+- `npx vitest run tests/unit/chat-route-shell.spec.tsx tests/unit/use-chat-unread-status.spec.tsx` passed.
+- `npm run typecheck` passed.
+- The compact/mobile chat shell no longer applies the document-wide overflow lock that could poison hit testing outside the local chat container.
+
+Warnings / follow-up:
+- This pass was verified with targeted unit coverage and typecheck, not a live authenticated mobile browser session, so the fix is grounded in the actual mobile layout/global-lock code path rather than a fresh end-to-end reproduction capture.
+
+Cleanup:
+- No generated build/UI artifact cleanup was required for this pass.
+
+
 ## [2026-04-18 #18] Verification Blocker Remediation + Runtime Continuity Truth Alignment
 
 Scope for this pass:
@@ -9049,3 +9149,4 @@ Follow-up opportunities:
 2. Add a ranked-reference preview endpoint keyed by `Creator | Flavor` so the admin page can inspect selection reasons for a specific future generation instead of the next generic run.
 3. Add more prompt-policy performance rollups beyond the current category bucket counts so acceptance rate by policy version is not limited to recent job history.
 4. Add attachment/reference storage rules coverage if the AI admin reference library starts accepting anything beyond image assets.
+

@@ -24,6 +24,48 @@ This file is not a changelog. It is the concise ledger for durable decisions tha
 
 ## Decision Entries
 
+### 1af. Compact/mobile UI lockups should use the shared interaction-recovery guard and emit structured UI diagnostics when self-healing fires
+
+- Approximate date: Recorded explicitly on 2026-04-18 from the Compact Interaction Recovery Hardening pass
+- Status: Active client-side self-healing rule
+- Problem/context: Fixing the chat search untappable regression removed the immediate layout bug, but the repo still had no reusable client-side recovery lane for compact/mobile focused-input release failures or stale document-level overflow locks.
+- Decision made: Add a shared compact/mobile interaction-recovery guard in `src/lib/self-healing.ts`. When a surface has verified compact/mobile input-release risk, it should use this helper to recover stale focus/document locks safely and record a structured `ui` diagnostic when recovery actually happens.
+- What became canonical:
+  - `src/lib/self-healing.ts` now exposes `createCompactInteractionRecoveryGuard(...)`
+  - the guard may clear stale compact/mobile `html`/`body`/`main` overflow and overscroll locks only when no real dialog/modal is open
+  - recovery use should emit structured `ui` diagnostics so later debugging can distinguish real layout bugs from recovered interaction-release incidents
+  - `scripts/agent/extract-runtime-observability.ts` now exposes `compact_interaction_recovery` as a machine-readable client-side observability lane
+- Truth lives in:
+  - `src/lib/self-healing.ts`
+  - `src/components/Chat/ChatExperience.tsx`
+  - `scripts/agent/extract-runtime-observability.ts`
+  - `tests/unit/self-healing.spec.ts`
+- What is now disallowed or deprecated:
+  - re-implementing ad hoc compact/mobile interaction-release recovery logic in each surface when the shared helper fits
+  - silently auto-healing a compact/mobile interaction lockup without recording a structured UI diagnostic
+  - clearing document-wide locks while a real modal/dialog is open
+
+### 1ae. Compact/mobile chat must use local overflow containment, not document-wide scroll locks or viewport-wide fixed shells
+
+- Approximate date: Recorded explicitly on 2026-04-18 from the Mobile Messages Search Overlay Untappable Regression pass
+- Status: Active canonical mobile chat UI rule
+- Problem/context: The mobile messages surface could leave the site untappable after focusing and exiting the thread search input. The root cause was not a dedicated modal overlay, but the combination of a viewport-wide fixed chat page wrapper and a chat route shell that locked `html`, `body`, and `main` overflow even on compact/mobile viewports.
+- Decision made: Keep the chat shell locally contained on mobile. Compact/mobile chat must not rely on document-wide overflow locks or viewport-wide fixed wrappers for its normal route layout, and compact thread-search inputs must explicitly release focus when leaving the thread list path.
+- What became canonical:
+  - `src/app/dashboard/chat/page.tsx` now uses local height containment on mobile instead of a viewport-wide fixed wrapper
+  - `src/components/Chat/ChatRouteShell.tsx` only applies document/body/main overflow locking on non-compact viewports
+  - `src/components/Chat/ChatExperience.tsx` explicitly releases thread-search focus when entering a selected thread and on unmount
+  - `tests/unit/chat-route-shell.spec.tsx` is the regression guard for compact-vs-desktop overflow locking
+- Truth lives in:
+  - `src/app/dashboard/chat/page.tsx`
+  - `src/components/Chat/ChatRouteShell.tsx`
+  - `src/components/Chat/ChatExperience.tsx`
+  - `tests/unit/chat-route-shell.spec.tsx`
+- What is now disallowed or deprecated:
+  - wrapping the normal compact/mobile chat route in a viewport-wide fixed shell when a local height-constrained container is sufficient
+  - applying document-wide overflow locks to compact/mobile chat as a default layout behavior
+  - leaving mobile chat search focus cleanup implicit when a route transition or unmount can release it deterministically
+
 ### 1ad. Firestore-backed continuity scripts now pin the Admin transport stack off the deprecated `punycode` path, while Functions runtime truth stays on Node 22
 
 - Approximate date: Recorded explicitly on 2026-04-18 from the Verification Blocker Remediation + Runtime Continuity Truth Alignment pass

@@ -1,5 +1,5 @@
 {
-  "generatedAt": "2026-04-18T13:42:32.056Z",
+  "generatedAt": "2026-04-18T15:17:57.373Z",
   "truthOrder": [
     "verified_runtime_code",
     "verified_configuration",
@@ -14,6 +14,71 @@
     "FULL_SCALE_CODEBASE_AUDIT.md"
   ],
   "passes": [
+    {
+      "stable_id": "pass__2026-04-18-compact-interaction-recovery-hardening",
+      "date": "2026-04-18",
+      "title": "Compact Interaction Recovery Hardening",
+      "scopeSummary": [
+        "Harden the codebase so compact/mobile interaction lockups like the chat search untappable regression are detected earlier and self-healed when safe by extending the shared self-healing layer, wiring it into chat search release paths, and exposing the lane in repo-native runtime observability."
+      ],
+      "touchedSurfaces": [
+        ", a reusable compact/mobile recovery helper that detects stale target focus and unexpected ",
+        "npm run trace:adjacent -- scripts/agent/extract-runtime-observability.ts",
+        "npm run trace:adjacent -- src/lib/self-healing.ts",
+        "npx vitest run tests/unit/self-healing.spec.ts tests/unit/chat-route-shell.spec.tsx tests/unit/use-chat-unread-status.spec.tsx",
+        "scripts/agent/extract-runtime-observability.ts",
+        "src/components/Chat/ChatExperience.tsx",
+        "src/lib/self-healing.ts",
+        "tests/unit/self-healing.spec.ts"
+      ],
+      "canonicalHelpersReused": [],
+      "verificationCommandsRun": [],
+      "resultSummary": [],
+      "warnings": [],
+      "architecture_change": true,
+      "runtime_change": false,
+      "ui_change": true,
+      "security_change": false,
+      "maintenance_only": false,
+      "changeKinds": [
+        "ui",
+        "runtime",
+        "tooling",
+        "architecture"
+      ]
+    },
+    {
+      "stable_id": "pass__2026-04-18-mobile-messages-search-overlay-untappable-regression",
+      "date": "2026-04-18",
+      "title": "Mobile Messages Search Overlay Untappable Regression",
+      "scopeSummary": [
+        "Fix the mobile messages/chat regression where tapping the search bar and exiting the input leaves the site untappable until refresh by tracing the message search surface, identifying any stuck mobile fixed-layer or global overflow lock behavior, and patching the canonical chat UI path with targeted verification."
+      ],
+      "touchedSurfaces": [
+        ".agent/workflows/auto-tasks.md",
+        "npm run trace:adjacent -- src/app/dashboard/chat/layout.tsx",
+        "npm run trace:adjacent -- src/app/dashboard/chat/page.tsx",
+        "npm run trace:adjacent -- src/components/Chat/ChatExperience.tsx",
+        "npx vitest run tests/unit/chat-route-shell.spec.tsx tests/unit/use-chat-unread-status.spec.tsx",
+        "src/app/dashboard/chat/layout.tsx",
+        "src/app/dashboard/chat/page.tsx",
+        "src/components/Chat/ChatExperience.tsx",
+        "src/components/Chat/ChatRouteShell.tsx",
+        "tests/unit/chat-route-shell.spec.tsx"
+      ],
+      "canonicalHelpersReused": [],
+      "verificationCommandsRun": [],
+      "resultSummary": [],
+      "warnings": [],
+      "architecture_change": false,
+      "runtime_change": false,
+      "ui_change": true,
+      "security_change": false,
+      "maintenance_only": false,
+      "changeKinds": [
+        "ui"
+      ]
+    },
     {
       "stable_id": "pass__2026-04-18-verification-blocker-remediation-runtime-continuity-truth-alignment",
       "date": "2026-04-18",
@@ -634,155 +699,6 @@
       "maintenance_only": false,
       "changeKinds": [
         "ui",
-        "runtime",
-        "architecture"
-      ]
-    },
-    {
-      "stable_id": "pass__2026-04-17-creator-settings-silent-error-handling-follow-up",
-      "date": "2026-04-17",
-      "title": "Creator Settings Silent Error Handling Follow-up",
-      "scopeSummary": [
-        "Reduce silent or overly-coupled creator-settings load failures in the profile page by separating creator-settings and creator-broadcast fetch handling, preserving partial success, and surfacing visible recoverable warnings instead of failing quietly behind fallback state."
-      ],
-      "touchedSurfaces": [
-        "/api/creator/broadcasts",
-        "/api/creator/settings",
-        "Get-Content src/app/dashboard/profile/page.tsx | Select-Object -Skip 220 -First 130",
-        "Get-Content src/app/dashboard/profile/page.tsx | Select-Object -Skip 560 -First 180",
-        "Get-Content src/app/dashboard/profile/page.tsx | Select-Object -Skip 700 -First 130",
-        "Get-Content src/components/Dashboard/CreatorWorkspacePanel.tsx | Select-Object -Skip 180 -First 130",
-        "Get-Content src/lib/client-error-reporting.ts",
-        "Promise.all([authFetch(\"/api/creator/settings\"), authFetch(\"/api/creator/broadcasts\")])",
-        "npm run trace:adjacent -- src/app/dashboard/profile/page.tsx",
-        "npx eslint src/app/dashboard/profile/page.tsx",
-        "npx vitest run tests/unit/creator-settings-route.spec.ts",
-        "src/app/api/creator/settings/route.ts",
-        "src/app/dashboard/profile/page.tsx",
-        "src/lib/client-error-reporting.ts"
-      ],
-      "canonicalHelpersReused": [],
-      "verificationCommandsRun": [
-        "git status --short",
-        "npm run trace:adjacent -- src/app/dashboard/profile/page.tsx",
-        "Get-ChildItem -Recurse src | Select-String -Pattern \"setCreatorSettingsLoading|creator settings load failed|reportClientIssue\\\\(|toast\\\\.error\\\\(|set.*Error\\\\(\" | Select-Object Path,LineNumber,Line",
-        "Get-Content src/app/dashboard/profile/page.tsx | Select-Object -Skip 220 -First 130",
-        "Get-Content src/components/Dashboard/CreatorWorkspacePanel.tsx | Select-Object -Skip 180 -First 130",
-        "Get-Content src/lib/client-error-reporting.ts",
-        "Get-Content src/app/dashboard/profile/page.tsx | Select-Object -Skip 700 -First 130",
-        "Get-Content src/app/dashboard/profile/page.tsx | Select-Object -Skip 560 -First 180",
-        "npx eslint src/app/dashboard/profile/page.tsx",
-        "npx vitest run tests/unit/creator-settings-route.spec.ts",
-        "npm run typecheck"
-      ],
-      "resultSummary": [
-        "Added creator-settings load notice handling to `src/app/dashboard/profile/page.tsx` so recoverable creator-tool failures are visible in-page and also surfaced through a deduplicated toast instead of failing silently.",
-        "Replaced the coupled `Promise.all(...)` creator loader with separate settled handling for:",
-        "`/api/creator/settings`",
-        "`/api/creator/broadcasts`",
-        "This preserves partial success when one creator surface fails but the other still loads correctly.",
-        "Added safe JSON response parsing and status-aware creator-facing messages for common route outcomes such as `403`, `404`, and `503`.",
-        "Preserved fallback state for creator settings when the route fails, but now clear creator stats on settings failure and avoid dropping successful broadcast data just because a sibling request failed.",
-        "Corrected the new route regression test typing so the repo-wide TypeScript verification lane remains green after the follow-up pass.",
-        "Added creator-settings load notice handling to `src/app/dashboard/profile/page.tsx` so recoverable creator-tool failures are visible in-page and also surfaced through a deduplicated toast instead of failing silently.",
-        "Replaced the coupled `Promise.all(...)` creator loader with separate settled handling for:",
-        "`/api/creator/settings`",
-        "`/api/creator/broadcasts`",
-        "This preserves partial success when one creator surface fails but the other still loads correctly.",
-        "Added safe JSON response parsing and status-aware creator-facing messages for common route outcomes such as `403`, `404`, and `503`.",
-        "Preserved fallback state for creator settings when the route fails, but now clear creator stats on settings failure and avoid dropping successful broadcast data just because a sibling request failed.",
-        "Corrected the new route regression test typing so the repo-wide TypeScript verification lane remains green after the follow-up pass."
-      ],
-      "warnings": [
-        "No new blocking findings were discovered after the follow-up implementation.",
-        "This pass added visible warning handling and partial-failure recovery to the profile page, but it did not perform a full browser audit sweep. Verification remained targeted to the touched client surface, the existing creator-settings regression spec, and repo-wide type safety."
-      ],
-      "architecture_change": true,
-      "runtime_change": true,
-      "ui_change": true,
-      "security_change": false,
-      "maintenance_only": false,
-      "changeKinds": [
-        "runtime",
-        "architecture"
-      ]
-    },
-    {
-      "stable_id": "pass__2026-04-17-creator-settings-internal-error-route-fix",
-      "date": "2026-04-17",
-      "title": "Creator Settings Internal Error Route Fix",
-      "scopeSummary": [
-        "Investigate and fix the creator-settings internal error banner by tracing the profile/settings caller path, correcting the creator-role gate in the API route, and locking the behavior down with a targeted unit regression test."
-      ],
-      "touchedSurfaces": [
-        "/api/creator/settings",
-        "Get-Content .agent/workflows/auto-tasks.md",
-        "Get-Content src/app/api/creator/settings/route.ts",
-        "Get-Content src/app/dashboard/profile/page.tsx",
-        "Get-Content src/lib/creator-experiences.ts | Select-Object -First 170",
-        "Get-Content src/lib/server/auth.ts",
-        "Get-Content tests/unit/user-profile-route.spec.ts",
-        "npm run trace:adjacent -- src/app/api/creator/settings/route.ts",
-        "npm run trace:adjacent -- src/app/dashboard/profile/page.tsx",
-        "npx vitest run tests/unit/creator-settings-route.spec.ts",
-        "src/app/api/creator/settings/route.ts",
-        "src/app/dashboard/profile/page.tsx",
-        "src/lib/creator-experiences.ts",
-        "src/lib/server/auth.ts",
-        "tests/unit/creator-settings-route.spec.ts"
-      ],
-      "canonicalHelpersReused": [
-        "src/lib/server/auth.ts"
-      ],
-      "verificationCommandsRun": [
-        "Get-Content .agent/workflows/auto-tasks.md",
-        "Get-Content src/app/dashboard/profile/page.tsx",
-        "Get-Content src/app/api/creator/settings/route.ts",
-        "Get-Content src/lib/server/auth.ts",
-        "Get-ChildItem -Recurse src,tests | Select-String -Pattern \"new AuthError|AuthError\\\\(\" | Select-Object Path,LineNumber,Line",
-        "Get-ChildItem -Recurse src | Select-String -Pattern \"isCreatorOrAdminRole\" | Select-Object Path,LineNumber,Line",
-        "Get-Content src/lib/creator-experiences.ts | Select-Object -First 170",
-        "Get-Content tests/unit/user-profile-route.spec.ts",
-        "npm run trace:adjacent -- src/app/api/creator/settings/route.ts",
-        "npm run trace:adjacent -- src/app/dashboard/profile/page.tsx",
-        "npx vitest run tests/unit/creator-settings-route.spec.ts",
-        "npm run typecheck",
-        "git status --short"
-      ],
-      "resultSummary": [
-        "Updated `src/app/api/creator/settings/route.ts` to use the existing `AuthError` contract instead of generic thrown errors for expected creator-state failures.",
-        "Widened the route gate from `isCreatorRole(...)` to `isCreatorOrAdminRole(...)` so the API matches the profile page's existing `creator || admin` loading posture.",
-        "Changed expected failure cases to return explicit non-500 statuses:",
-        "missing database -> `503`",
-        "missing creator profile -> `404`",
-        "non-creator access -> `403`",
-        "Added `tests/unit/creator-settings-route.spec.ts` to cover:",
-        "admin callers loading creator settings successfully",
-        "non-creator callers receiving `403` instead of `500`",
-        "missing profile callers receiving `404` instead of `500`",
-        "Fixed the new regression test to mirror the real `handleApiError(...)` `AuthError` behavior rather than masking status codes back to `500`.",
-        "Updated `src/app/api/creator/settings/route.ts` to use the existing `AuthError` contract instead of generic thrown errors for expected creator-state failures.",
-        "Widened the route gate from `isCreatorRole(...)` to `isCreatorOrAdminRole(...)` so the API matches the profile page's existing `creator || admin` loading posture.",
-        "Changed expected failure cases to return explicit non-500 statuses:",
-        "missing database -> `503`",
-        "missing creator profile -> `404`",
-        "non-creator access -> `403`",
-        "Added `tests/unit/creator-settings-route.spec.ts` to cover:",
-        "admin callers loading creator settings successfully",
-        "non-creator callers receiving `403` instead of `500`",
-        "missing profile callers receiving `404` instead of `500`",
-        "Fixed the new regression test to mirror the real `handleApiError(...)` `AuthError` behavior rather than masking status codes back to `500`."
-      ],
-      "warnings": [
-        "The profile page currently logs and falls back silently when creator settings fail to load. This pass corrected the route contract that was producing incorrect internal errors, but it did not change the page's client-side fallback UX.",
-        "Verification for this narrow pass was targeted: adjacency review, one new route regression spec, and full TypeScript typecheck. Broader UI/audit suites were not re-run because the change was confined to one route contract and one new unit test."
-      ],
-      "architecture_change": true,
-      "runtime_change": true,
-      "ui_change": true,
-      "security_change": false,
-      "maintenance_only": false,
-      "changeKinds": [
         "runtime",
         "architecture"
       ]

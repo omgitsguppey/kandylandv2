@@ -1,5 +1,5 @@
 {
-  "generatedAt": "2026-04-18T13:42:32.032Z",
+  "generatedAt": "2026-04-18T15:17:57.360Z",
   "truthOrder": [
     "verified_runtime_code",
     "verified_configuration",
@@ -50,8 +50,11 @@
         "npm run trace:adjacent -- src/app/api/cron/process-queue/route.ts",
         "npm run trace:adjacent -- src/app/api/viewer/watch-session/route.ts",
         "npm run trace:adjacent -- src/app/creators/[username]/CreatorProfileClient.tsx",
+        "npm run trace:adjacent -- src/app/dashboard/chat/layout.tsx",
+        "npm run trace:adjacent -- src/app/dashboard/chat/page.tsx",
         "npm run trace:adjacent -- src/app/dashboard/profile/page.tsx",
         "npm run trace:adjacent -- src/components/Admin/AssetUploader.tsx",
+        "npm run trace:adjacent -- src/components/Chat/ChatExperience.tsx",
         "npm run trace:adjacent -- src/components/Dashboard/CreatorWorkspacePanel.tsx",
         "npm run trace:adjacent -- src/hooks/useViewerWatchSession.ts",
         "npm run trace:adjacent -- src/lib/server/push-notifications.ts",

@@ -19,7 +19,7 @@ Likely touched files:
 - FULL_SCALE_CODEBASE_AUDIT.md
 - REPO_MEMORY_LEDGER.md
 - EVERY_FILE_FUNCTION_CHECKLIST.md
--  package-manager overrides/lockfiles so 
+- , a reusable compact/mobile recovery helper that detects stale target focus and unexpected 
 
 Canonical helpers to reuse:
 - src/lib/gumdrop-economics.ts

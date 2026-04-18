@@ -197,6 +197,25 @@ export function buildRuntimeObservability() {
         "src/components/ui/UiContinuityNotice.tsx",
       ].filter((entry) => fileExists(entry)),
     },
+    {
+      stable_id: toStableId("observability", "compact_interaction_recovery"),
+      key: "compact_interaction_recovery",
+      storage_or_collection: null,
+      purpose: "Client-side self-healing for compact/mobile interaction release when focused inputs or unexpected document locks leave surfaces untappable.",
+      intended_use: "Detect and auto-recover compact/mobile UI lockups sooner, while emitting structured UI diagnostics for later triage.",
+      non_goals: [
+        "Replacing canonical route or layout fixes.",
+        "Acting as a persisted operational warehouse.",
+      ],
+      persisted: false,
+      raw_or_rollup: "status_items",
+      client_or_server_origin: "client",
+      trust_notes: ["Client-side recovery aid only; source layout/runtime truth still outranks the recovery signal."],
+      backingPaths: [
+        "src/lib/self-healing.ts",
+        "src/components/Chat/ChatExperience.tsx",
+      ].filter((entry) => fileExists(entry)),
+    },
   ];
 
   return {
@@ -210,6 +229,7 @@ export function buildRuntimeObservability() {
       "src/lib/server/admin-panel-system-logs.ts",
       "src/lib/server/runtime-warning-store.ts",
       "src/lib/server/queue-runtime.ts",
+      "src/lib/self-healing.ts",
       "src/app/api/viewer/watch-session/route.ts",
       "src/lib/server/admin-analytics-capture-health.ts",
       "scripts/check-analytics-continuity.ts",

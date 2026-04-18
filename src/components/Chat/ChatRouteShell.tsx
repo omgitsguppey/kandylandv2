@@ -1,9 +1,16 @@
 "use client";
 
 import { useEffect } from "react";
+import { useCompactViewport } from "@/hooks/useCompactViewport";
 
 export function ChatRouteShell({ children }: { children: React.ReactNode }) {
+    const isCompactViewport = useCompactViewport();
+
     useEffect(() => {
+        if (isCompactViewport) {
+            return;
+        }
+
         const documentElement = document.documentElement;
         const body = document.body;
         const main = document.querySelector("main");
@@ -37,7 +44,7 @@ export function ChatRouteShell({ children }: { children: React.ReactNode }) {
                 mainElement.style.overscrollBehaviorY = previousMainOverscrollY;
             }
         };
-    }, []);
+    }, [isCompactViewport]);
 
     return (
         <div className="flex h-full min-h-0 flex-col overflow-hidden overscroll-none touch-pan-y">

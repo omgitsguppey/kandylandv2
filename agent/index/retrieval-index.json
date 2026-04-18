@@ -1,5 +1,5 @@
 {
-  "generatedAt": "2026-04-18T13:42:41.033Z",
+  "generatedAt": "2026-04-18T15:18:02.739Z",
   "truthOrder": [
     "verified_runtime_code",
     "verified_configuration",
@@ -58,7 +58,7 @@
       "risk_tags": [
         "broad_signoff"
       ],
-      "recency": "1776516297126:adfcc4943e89",
+      "recency": "1776524456575:ced14ce77229",
       "freshness": {
         "local": "fresh",
         "sql_mirror": "unknown"
@@ -454,7 +454,7 @@
       "risk_tags": [
         "broad_signoff"
       ],
-      "recency": "1776519708120:166faf2a0f4c",
+      "recency": "1776525438847:661d5f655d4d",
       "freshness": {
         "local": "fresh",
         "sql_mirror": "unknown"
@@ -482,7 +482,7 @@
       "risk_tags": [
         "broad_signoff"
       ],
-      "recency": "1776519708108:2354829a9738",
+      "recency": "1776525422127:3a25aae80f9f",
       "freshness": {
         "local": "fresh",
         "sql_mirror": "unknown"
@@ -510,7 +510,7 @@
       "risk_tags": [
         "broad_signoff"
       ],
-      "recency": "1776519708112:af683f372871",
+      "recency": "1776525422131:5ad7a514d8fd",
       "freshness": {
         "local": "fresh",
         "sql_mirror": "unknown"
@@ -564,7 +564,7 @@
       "risk_tags": [
         "broad_signoff"
       ],
-      "recency": "1776519747744:0688bad4c5d8",
+      "recency": "1776525474107:f28cd38fb608",
       "freshness": {
         "local": "fresh",
         "sql_mirror": "unknown"
@@ -592,7 +592,7 @@
       "risk_tags": [
         "broad_signoff"
       ],
-      "recency": "1776519747714:2ec4d60f5af9",
+      "recency": "1776525474082:ce4387176fda",
       "freshness": {
         "local": "fresh",
         "sql_mirror": "unknown"
@@ -620,7 +620,7 @@
       "risk_tags": [
         "broad_signoff"
       ],
-      "recency": "1776519747739:268e68629723",
+      "recency": "1776525474104:ede8d88bd957",
       "freshness": {
         "local": "fresh",
         "sql_mirror": "unknown"
@@ -648,7 +648,7 @@
       "risk_tags": [
         "broad_signoff"
       ],
-      "recency": "1776519747725:ba6f52739932",
+      "recency": "1776525474091:18c7e0983053",
       "freshness": {
         "local": "fresh",
         "sql_mirror": "unknown"
@@ -676,7 +676,7 @@
       "risk_tags": [
         "broad_signoff"
       ],
-      "recency": "1776519747727:dd1a90890645",
+      "recency": "1776525474092:e817bac8dff1",
       "freshness": {
         "local": "fresh",
         "sql_mirror": "unknown"
@@ -704,7 +704,7 @@
       "risk_tags": [
         "broad_signoff"
       ],
-      "recency": "1776519747721:bcf71de0cbbc",
+      "recency": "1776525474087:6f7e9c29e0ab",
       "freshness": {
         "local": "fresh",
         "sql_mirror": "unknown"
@@ -732,7 +732,7 @@
       "risk_tags": [
         "broad_signoff"
       ],
-      "recency": "1776519747730:f7026470f418",
+      "recency": "1776525474095:20181cc2b97f",
       "freshness": {
         "local": "fresh",
         "sql_mirror": "unknown"
@@ -760,7 +760,7 @@
       "risk_tags": [
         "broad_signoff"
       ],
-      "recency": "1776519747703:c9c738ab4df9",
+      "recency": "1776525474074:46db712674c8",
       "freshness": {
         "local": "fresh",
         "sql_mirror": "unknown"
@@ -788,7 +788,7 @@
       "risk_tags": [
         "broad_signoff"
       ],
-      "recency": "1776519747757:a3f14ed625e4",
+      "recency": "1776525474117:26041783be05",
       "freshness": {
         "local": "fresh",
         "sql_mirror": "unknown"
@@ -816,7 +816,7 @@
       "risk_tags": [
         "broad_signoff"
       ],
-      "recency": "1776519747734:1a13a4f06a76",
+      "recency": "1776525474098:a00b4e2b4d0d",
       "freshness": {
         "local": "fresh",
         "sql_mirror": "unknown"
@@ -844,7 +844,7 @@
       "risk_tags": [
         "broad_signoff"
       ],
-      "recency": "1776519747712:6152da0db232",
+      "recency": "1776525474080:5569b8671322",
       "freshness": {
         "local": "fresh",
         "sql_mirror": "unknown"
@@ -872,7 +872,7 @@
       "risk_tags": [
         "broad_signoff"
       ],
-      "recency": "1776519757201:72ffe887dd39",
+      "recency": "1776525480533:9cc0481f55cb",
       "freshness": {
         "local": "fresh",
         "sql_mirror": "unknown"
@@ -900,7 +900,7 @@
       "risk_tags": [
         "broad_signoff"
       ],
-      "recency": "1776519747718:4899a2316823",
+      "recency": "1776525474085:a80f497b80ee",
       "freshness": {
         "local": "fresh",
         "sql_mirror": "unknown"
@@ -928,7 +928,7 @@
       "risk_tags": [
         "broad_signoff"
       ],
-      "recency": "1776519747723:ba6a8ad2f89d",
+      "recency": "1776525474089:5aa3a7f3247a",
       "freshness": {
         "local": "fresh",
         "sql_mirror": "unknown"
@@ -956,7 +956,7 @@
       "risk_tags": [
         "broad_signoff"
       ],
-      "recency": "1776519751335:cd8a1b317a14",
+      "recency": "1776525476870:c2e98bd373a5",
       "freshness": {
         "local": "fresh",
         "sql_mirror": "unknown"
@@ -982,7 +982,7 @@
       "risk_tags": [
         "broad_signoff"
       ],
-      "recency": "1776519751332:4fc7a603882d",
+      "recency": "1776525476868:4fc7a603882d",
       "freshness": {
         "local": "fresh",
         "sql_mirror": "unknown"
@@ -1008,7 +1008,7 @@
       "risk_tags": [
         "broad_signoff"
       ],
-      "recency": "1776519751333:95a95f0ce527",
+      "recency": "1776525476869:95a95f0ce527",
       "freshness": {
         "local": "fresh",
         "sql_mirror": "unknown"
@@ -1634,7 +1634,7 @@
       "risk_tags": [
         "broad_signoff"
       ],
-      "recency": "1776519622166:a112e1b6cad7",
+      "recency": "1776524909703:97cae5dd35b9",
       "freshness": {
         "local": "fresh",
         "sql_mirror": "unknown"
@@ -1662,7 +1662,7 @@
       "risk_tags": [
         "broad_signoff"
       ],
-      "recency": "1776519622165:d9878e6f4755",
+      "recency": "1776524909701:7b494cf5b17e",
       "freshness": {
         "local": "fresh",
         "sql_mirror": "unknown"
@@ -1690,7 +1690,7 @@
       "risk_tags": [
         "broad_signoff"
       ],
-      "recency": "1776519751328:0c163305f8f0",
+      "recency": "1776525476866:223107822c3b",
       "freshness": {
         "local": "fresh",
         "sql_mirror": "unknown"
@@ -4626,7 +4626,7 @@
         "shared_helper",
         "broad_signoff"
       ],
-      "recency": "1776482925632:cc070fb0026f",
+      "recency": "1776525274195:e15ccffbbee4",
       "freshness": {
         "local": "fresh",
         "sql_mirror": "unknown"
@@ -8990,7 +8990,7 @@
       "risk_tags": [
         "runtime_critical"
       ],
-      "recency": "1776109420770:68be38a10831",
+      "recency": "1776524661054:df188795ab35",
       "freshness": {
         "local": "fresh",
         "sql_mirror": "unknown"
@@ -10446,7 +10446,7 @@
       "risk_tags": [
         "runtime_critical"
       ],
-      "recency": "1776130440089:7fbfb4e58a1c",
+      "recency": "1776525258761:ce8af1f346de",
       "freshness": {
         "local": "fresh",
         "sql_mirror": "unknown"
@@ -10472,7 +10472,7 @@
       "risk_tags": [
         "runtime_critical"
       ],
-      "recency": "1775852777938:dabbf655b470",
+      "recency": "1776524661053:4bfbf4648be2",
       "freshness": {
         "local": "fresh",
         "sql_mirror": "unknown"
@@ -14755,7 +14755,7 @@
         "shared_helper",
         "broad_signoff"
       ],
-      "recency": "1775965115506:6eae2363bf9b",
+      "recency": "1776525204550:6efbe46e452d",
       "freshness": {
         "local": "fresh",
         "sql_mirror": "unknown"
@@ -20038,6 +20038,30 @@
       "do_not_use_as_primary_truth": false
     },
     {
+      "stable_id": "file__tests__unit__chat-route-shell-spec-tsx",
+      "source_type": "file",
+      "source_id": "file__tests__unit__chat-route-shell-spec-tsx",
+      "searchable_terms": [
+        "tests/unit/chat-route-shell.spec.tsx",
+        "tests",
+        "tests"
+      ],
+      "surface_tags": [
+        "tests",
+        "tests"
+      ],
+      "helper_tags": [],
+      "risk_tags": [],
+      "recency": "1776524773910:4502cc33e974",
+      "freshness": {
+        "local": "fresh",
+        "sql_mirror": "unknown"
+      },
+      "context_tier": "warm",
+      "exclusion_tags": [],
+      "do_not_use_as_primary_truth": false
+    },
+    {
       "stable_id": "file__tests__unit__chat-send-feedback-spec-ts",
       "source_type": "file",
       "source_id": "file__tests__unit__chat-send-feedback-spec-ts",
@@ -21709,6 +21733,30 @@
       "helper_tags": [],
       "risk_tags": [],
       "recency": "1776397393377:f8f12eedbe20",
+      "freshness": {
+        "local": "fresh",
+        "sql_mirror": "unknown"
+      },
+      "context_tier": "warm",
+      "exclusion_tags": [],
+      "do_not_use_as_primary_truth": false
+    },
+    {
+      "stable_id": "file__tests__unit__self-healing-spec-ts",
+      "source_type": "file",
+      "source_id": "file__tests__unit__self-healing-spec-ts",
+      "searchable_terms": [
+        "tests/unit/self-healing.spec.ts",
+        "tests",
+        "tests"
+      ],
+      "surface_tags": [
+        "tests",
+        "tests"
+      ],
+      "helper_tags": [],
+      "risk_tags": [],
+      "recency": "1776525204556:e170535081f0",
       "freshness": {
         "local": "fresh",
         "sql_mirror": "unknown"
@@ -23562,6 +23610,80 @@
       "do_not_use_as_primary_truth": true
     },
     {
+      "stable_id": "retrieval__pass__2026-04-18-compact-interaction-recovery-hardening",
+      "source_type": "recent_pass",
+      "source_id": "pass__2026-04-18-compact-interaction-recovery-hardening",
+      "searchable_terms": [
+        "Compact Interaction Recovery Hardening",
+        "Harden the codebase so compact/mobile interaction lockups like the chat search untappable regression are detected earlier and self-healed when safe by extending the shared self-healing layer, wiring it into chat search release paths, and exposing the lane in repo-native runtime observability.",
+        ", a reusable compact/mobile recovery helper that detects stale target focus and unexpected ",
+        "npm run trace:adjacent -- scripts/agent/extract-runtime-observability.ts",
+        "npm run trace:adjacent -- src/lib/self-healing.ts",
+        "npx vitest run tests/unit/self-healing.spec.ts tests/unit/chat-route-shell.spec.tsx tests/unit/use-chat-unread-status.spec.tsx",
+        "scripts/agent/extract-runtime-observability.ts",
+        "src/components/Chat/ChatExperience.tsx",
+        "src/lib/self-healing.ts",
+        "tests/unit/self-healing.spec.ts"
+      ],
+      "surface_tags": [
+        "ui",
+        "runtime",
+        "tooling",
+        "architecture"
+      ],
+      "helper_tags": [],
+      "risk_tags": [
+        "architecture",
+        "ui"
+      ],
+      "recency": "2026-04-18",
+      "freshness": {
+        "local": "fresh",
+        "sql_mirror": "unknown"
+      },
+      "context_tier": "cold",
+      "exclusion_tags": [
+        "secondary_truth"
+      ],
+      "do_not_use_as_primary_truth": true
+    },
+    {
+      "stable_id": "retrieval__pass__2026-04-18-mobile-messages-search-overlay-untappable-regression",
+      "source_type": "recent_pass",
+      "source_id": "pass__2026-04-18-mobile-messages-search-overlay-untappable-regression",
+      "searchable_terms": [
+        "Mobile Messages Search Overlay Untappable Regression",
+        "Fix the mobile messages/chat regression where tapping the search bar and exiting the input leaves the site untappable until refresh by tracing the message search surface, identifying any stuck mobile fixed-layer or global overflow lock behavior, and patching the canonical chat UI path with targeted verification.",
+        ".agent/workflows/auto-tasks.md",
+        "npm run trace:adjacent -- src/app/dashboard/chat/layout.tsx",
+        "npm run trace:adjacent -- src/app/dashboard/chat/page.tsx",
+        "npm run trace:adjacent -- src/components/Chat/ChatExperience.tsx",
+        "npx vitest run tests/unit/chat-route-shell.spec.tsx tests/unit/use-chat-unread-status.spec.tsx",
+        "src/app/dashboard/chat/layout.tsx",
+        "src/app/dashboard/chat/page.tsx",
+        "src/components/Chat/ChatExperience.tsx",
+        "src/components/Chat/ChatRouteShell.tsx",
+        "tests/unit/chat-route-shell.spec.tsx"
+      ],
+      "surface_tags": [
+        "ui"
+      ],
+      "helper_tags": [],
+      "risk_tags": [
+        "ui"
+      ],
+      "recency": "2026-04-18",
+      "freshness": {
+        "local": "fresh",
+        "sql_mirror": "unknown"
+      },
+      "context_tier": "cold",
+      "exclusion_tags": [
+        "secondary_truth"
+      ],
+      "do_not_use_as_primary_truth": true
+    },
+    {
       "stable_id": "retrieval__pass__2026-04-18-verification-blocker-remediation-runtime-continuity-truth-alignment",
       "source_type": "recent_pass",
       "source_id": "pass__2026-04-18-verification-blocker-remediation-runtime-continuity-truth-alignment",
@@ -23935,95 +24057,6 @@
         "architecture"
       ],
       "helper_tags": [],
-      "risk_tags": [
-        "architecture",
-        "runtime",
-        "ui"
-      ],
-      "recency": "2026-04-17",
-      "freshness": {
-        "local": "fresh",
-        "sql_mirror": "unknown"
-      },
-      "context_tier": "cold",
-      "exclusion_tags": [
-        "secondary_truth"
-      ],
-      "do_not_use_as_primary_truth": true
-    },
-    {
-      "stable_id": "retrieval__pass__2026-04-17-creator-settings-silent-error-handling-follow-up",
-      "source_type": "recent_pass",
-      "source_id": "pass__2026-04-17-creator-settings-silent-error-handling-follow-up",
-      "searchable_terms": [
-        "Creator Settings Silent Error Handling Follow-up",
-        "Reduce silent or overly-coupled creator-settings load failures in the profile page by separating creator-settings and creator-broadcast fetch handling, preserving partial success, and surfacing visible recoverable warnings instead of failing quietly behind fallback state.",
-        "/api/creator/broadcasts",
-        "/api/creator/settings",
-        "Get-Content src/app/dashboard/profile/page.tsx | Select-Object -Skip 220 -First 130",
-        "Get-Content src/app/dashboard/profile/page.tsx | Select-Object -Skip 560 -First 180",
-        "Get-Content src/app/dashboard/profile/page.tsx | Select-Object -Skip 700 -First 130",
-        "Get-Content src/components/Dashboard/CreatorWorkspacePanel.tsx | Select-Object -Skip 180 -First 130",
-        "Get-Content src/lib/client-error-reporting.ts",
-        "Promise.all([authFetch(\"/api/creator/settings\"), authFetch(\"/api/creator/broadcasts\")])",
-        "npm run trace:adjacent -- src/app/dashboard/profile/page.tsx",
-        "npx eslint src/app/dashboard/profile/page.tsx",
-        "npx vitest run tests/unit/creator-settings-route.spec.ts",
-        "src/app/api/creator/settings/route.ts",
-        "src/app/dashboard/profile/page.tsx",
-        "src/lib/client-error-reporting.ts"
-      ],
-      "surface_tags": [
-        "runtime",
-        "architecture"
-      ],
-      "helper_tags": [],
-      "risk_tags": [
-        "architecture",
-        "runtime",
-        "ui"
-      ],
-      "recency": "2026-04-17",
-      "freshness": {
-        "local": "fresh",
-        "sql_mirror": "unknown"
-      },
-      "context_tier": "cold",
-      "exclusion_tags": [
-        "secondary_truth"
-      ],
-      "do_not_use_as_primary_truth": true
-    },
-    {
-      "stable_id": "retrieval__pass__2026-04-17-creator-settings-internal-error-route-fix",
-      "source_type": "recent_pass",
-      "source_id": "pass__2026-04-17-creator-settings-internal-error-route-fix",
-      "searchable_terms": [
-        "Creator Settings Internal Error Route Fix",
-        "Investigate and fix the creator-settings internal error banner by tracing the profile/settings caller path, correcting the creator-role gate in the API route, and locking the behavior down with a targeted unit regression test.",
-        "/api/creator/settings",
-        "Get-Content .agent/workflows/auto-tasks.md",
-        "Get-Content src/app/api/creator/settings/route.ts",
-        "Get-Content src/app/dashboard/profile/page.tsx",
-        "Get-Content src/lib/creator-experiences.ts | Select-Object -First 170",
-        "Get-Content src/lib/server/auth.ts",
-        "Get-Content tests/unit/user-profile-route.spec.ts",
-        "npm run trace:adjacent -- src/app/api/creator/settings/route.ts",
-        "npm run trace:adjacent -- src/app/dashboard/profile/page.tsx",
-        "npx vitest run tests/unit/creator-settings-route.spec.ts",
-        "src/app/api/creator/settings/route.ts",
-        "src/app/dashboard/profile/page.tsx",
-        "src/lib/creator-experiences.ts",
-        "src/lib/server/auth.ts",
-        "tests/unit/creator-settings-route.spec.ts"
-      ],
-      "surface_tags": [
-        "runtime",
-        "architecture"
-      ],
-      "helper_tags": [
-        "src/lib/server/auth.ts"
-      ],
       "risk_tags": [
         "architecture",
         "runtime",
