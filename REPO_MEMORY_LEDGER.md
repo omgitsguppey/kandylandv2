@@ -24,6 +24,31 @@ This file is not a changelog. It is the concise ledger for durable decisions tha
 
 ## Decision Entries
 
+### 1ah. Loaded admin health cards must downgrade on stale or unseen snapshots, and fallback support labels must not overstate certainty
+
+- Approximate date: Recorded explicitly on 2026-04-18 from the UI Truthfulness Refinement + Chart Health Freshness Downgrade pass
+- Status: Active UI truthfulness rule
+- Problem/context: Some shared admin health cards could still appear healthy when the source timestamp was stale or missing, and the support-state fallback label used a more confident word than the underlying state justified.
+- Decision made: Treat stale or unseen snapshots as warn-level truth in the shared admin chart-health helper, with the freshness issue surfaced first in the issue list. Fallback support-state labels must remain conservative and avoid claiming readiness for unexpected values.
+- What became canonical:
+  - `src/lib/admin-ui-chart-health.ts` now downgrades stale or unseen loaded sections to `warn` and emits a freshness-specific issue message
+  - `src/lib/support-readiness.ts` now falls back to `Open` for unexpected support states instead of `Ready`
+  - admin-facing copy in the drops, support, transactions, and AI surfaces should prefer direct source/current-state wording over vague or overly confident labels
+- Truth lives in:
+  - `src/lib/admin-ui-chart-health.ts`
+  - `src/lib/support-readiness.ts`
+  - `src/components/Admin/AdminDropsAtGlancePanel.tsx`
+  - `src/components/Admin/AdminSupportQueue.tsx`
+  - `src/components/Admin/RecentTransactionsPanel.tsx`
+  - `src/app/admin/page.tsx`
+  - `src/app/admin/ai/page.tsx`
+  - `tests/unit/admin-ui-chart-health.spec.ts`
+  - `tests/unit/support-readiness.spec.ts`
+- What is now disallowed or deprecated:
+  - allowing a loaded admin card to remain healthy when its latest verified snapshot is stale or missing
+  - using a fallback support-state label that implies readiness when the code cannot prove it
+  - leaving obvious encoding artifacts in visible status separators when they reduce scanability
+
 ### 1ag. Analytics truth must separate required canonical sources from optional legacy-history support, and admin health must penalize stale downstream writers explicitly
 
 - Approximate date: Recorded explicitly on 2026-04-18 from the Admin Analytics Parity + State-of-Truth Hardening pass

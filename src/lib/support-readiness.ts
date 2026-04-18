@@ -132,6 +132,8 @@ export function normalizeSupportThreadCategory(value: unknown): SupportThreadCat
 
 export function describeSupportState(state: SupportThreadStatus) {
     switch (state) {
+        case "ready":
+            return "Ready";
         case "open":
         case "pending":
         case "waiting_on_support":
@@ -140,7 +142,7 @@ export function describeSupportState(state: SupportThreadStatus) {
             return "Waiting on User";
         case "closed":
         case "resolved": return "Resolved";
-        default: return "Ready";
+        default: return "Open";
     }
 }
 
@@ -156,7 +158,7 @@ export function describeSupportStateDetail(state: SupportThreadStatus) {
         case "resolved":
             return "This support thread is resolved and no active follow-up is open.";
         default:
-            return "No active in-site support thread is open for this account.";
+            return "No active in-site support thread is currently open for this account.";
     }
 }
 

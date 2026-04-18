@@ -256,7 +256,7 @@ function EmptyState({
 
 function getReferenceSourceLabel(asset: AdminAiDropCoverReferenceAsset) {
     if (asset.primary) return "Primary style";
-    if (asset.source === "house_reference") return asset.pinned ? "Pinned support" : "House reference";
+    if (asset.source === "house_reference") return asset.pinned ? "Pinned reference" : "House reference";
     if (asset.source === "retained_ai_cover") return asset.retentionReason === "accepted" ? "Accepted output" : "Liked output";
     if (asset.source === "catalog_drop_cover") return "Catalog cover";
     if (asset.source === "recent_drop_cover") return "Recent cover";
@@ -265,7 +265,7 @@ function getReferenceSourceLabel(asset: AdminAiDropCoverReferenceAsset) {
 
 function getReferenceSelectionReason(asset: AdminAiDropCoverReferenceAsset) {
     if (asset.primary) return "Primary style lock for typography, composition, and poster rhythm.";
-    if (asset.pinned) return "Pinned supporting reference ranked ahead of retained and catalog assets.";
+    if (asset.pinned) return "Pinned reference ranked ahead of retained and catalog assets.";
     if (asset.selectionReasons && asset.selectionReasons.length > 0) return asset.selectionReasons.join(" | ");
     if (asset.source === "retained_ai_cover") return "Positive prior output retained for style continuity without forcing subject reuse.";
     if (asset.source === "catalog_drop_cover") return "Published catalog cover used as a lower-priority fallback reference.";

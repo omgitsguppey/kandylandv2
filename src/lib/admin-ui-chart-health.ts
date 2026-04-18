@@ -71,6 +71,7 @@ type BuildAdminUiChartHealthItemInput = {
     backgroundIssues?: Array<string | null | undefined>;
     healthySummary: string;
     emptySummary: string;
+    staleAfterMs?: number;
     healthyAction?: string;
     loadingAction?: string;
     emptyAction?: string;
@@ -109,7 +110,21 @@ export function buildAdminUiChartHealthItem(input: BuildAdminUiChartHealthItemIn
     const backgroundIssues = (input.backgroundIssues ?? []).filter(
         (issue): issue is string => typeof issue === "string" && issue.trim().length > 0,
     );
-    const updatedAtMs = input.updatedAtMs ?? Date.now();
+    const updatedAtMs = input.updatedAtMs ?? 0;
+    const freshness = getAdminUiChartHealthFreshness(
+        { updatedAtMs },
+        Date.now(),
+        input.staleAfterMs ?? 15 * 60_000,
+    );
+    const freshnessIssue =
+        freshness === "stale"
+            ? `${input.title} is showing stale data. Refresh the source before treating it as current.`
+            : freshness === "unseen"
+                ? `${input.title} has no verified snapshot timestamp, so its freshness cannot be confirmed.`
+                : null;
+    const combinedBackgroundIssues = freshnessIssue
+        ? [freshnessIssue, ...backgroundIssues]
+        : backgroundIssues;
 
     if (blockingIssues.length > 0) {
         return {
@@ -157,15 +172,15 @@ export function buildAdminUiChartHealthItem(input: BuildAdminUiChartHealthItemIn
             status: "warn",
             hydrationState: "empty",
             hasData: false,
-            summary: input.emptySummary,
+            summary: freshnessIssue ? `${input.emptySummary} ${freshnessIssue}` : input.emptySummary,
             action: input.emptyAction ?? "Confirm whether this section is truly empty or whether its source data is missing.",
-            issueCount: backgroundIssues.length,
-            issueMessages: backgroundIssues,
+            issueCount: combinedBackgroundIssues.length,
+            issueMessages: combinedBackgroundIssues,
             updatedAtMs,
         };
     }
 
-    if (backgroundIssues.length > 0) {
+    if (combinedBackgroundIssues.length > 0) {
         return {
             key: input.key,
             title: input.title,
@@ -175,10 +190,28 @@ export function buildAdminUiChartHealthItem(input: BuildAdminUiChartHealthItemIn
             status: "warn",
             hydrationState: "background_degraded",
             hasData: true,
-            summary: backgroundIssues[0],
+            summary: combinedBackgroundIssues[0],
             action: input.degradedAction ?? "Review the degraded source before treating this section as fully current.",
-            issueCount: backgroundIssues.length,
-            issueMessages: backgroundIssues,
+            issueCount: combinedBackgroundIssues.length,
+            issueMessages: combinedBackgroundIssues,
+            updatedAtMs,
+        };
+    }
+
+    if (freshness !== "fresh") {
+        return {
+            key: input.key,
+            title: input.title,
+            page: input.page,
+            category: input.category,
+            source: input.source,
+            status: "warn",
+            hydrationState: "background_degraded",
+            hasData: true,
+            summary: freshnessIssue ?? `${input.title} is not fresh enough to mark current.`,
+            action: input.degradedAction ?? "Refresh the source before treating this section as fully current.",
+            issueCount: freshnessIssue ? 1 : 0,
+            issueMessages: freshnessIssue ? [freshnessIssue] : [],
             updatedAtMs,
         };
     }

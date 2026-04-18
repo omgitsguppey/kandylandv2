@@ -1,5 +1,45 @@
 # KandyDrops Core Codebase Audit & Defensive Ledger
 
+## [2026-04-18 #22] UI Truthfulness Refinement + Chart Health Freshness Downgrade
+
+Scope for this pass:
+- Harden the shared admin chart-health helper so stale or unseen snapshots no longer report as healthy, refine support/admin copy that was overstating certainty or showing encoding artifacts, and preserve the existing product direction on admin dashboard, drops, transactions, and support surfaces without rewriting flows.
+
+Startup protocol executed:
+- Read `FULL_SCALE_CODEBASE_AUDIT.md`.
+- Read `REPO_MEMORY_LEDGER.md`.
+- Read `EVERY_FILE_FUNCTION_CHECKLIST.md`.
+- Ran `git status --short`.
+- Reviewed adjacency for:
+  - `src/lib/admin-ui-chart-health.ts`
+  - `src/lib/support-readiness.ts`
+  - `src/components/Admin/AdminDropsAtGlancePanel.tsx`
+  - `src/components/Admin/AdminSupportQueue.tsx`
+  - `src/components/Admin/RecentTransactionsPanel.tsx`
+  - `src/app/admin/page.tsx`
+  - `src/app/admin/ai/page.tsx`
+- Targeted follow-up tests:
+  - `tests/unit/admin-ui-chart-health.spec.ts`
+  - `tests/unit/support-readiness.spec.ts`
+
+Root causes identified:
+- The shared admin chart-health helper only distinguished blocking failures, loading, empty, background degraded, and healthy states. It did not automatically downgrade loaded sections whose snapshot timestamp was stale or missing, which left some admin modules able to appear healthy without a verified current source.
+- A handful of visible admin/support labels still carried vague or misleading copy, and some live views contained mojibake separators that reduced scanability and trust.
+
+Implementation results:
+- Extended `src/lib/admin-ui-chart-health.ts` so loaded sections with stale or unseen timestamps now downgrade to `warn`, surface a freshness-specific issue message, and keep the freshness warning first in the issue list.
+- Refined `src/lib/support-readiness.ts` so the fallback support state label no longer claims `Ready` for unexpected values.
+- Tightened visible copy on admin dashboard, support queue, recent transactions, drops-at-a-glance, and Admin AI reference labels so the UI reads more directly and truthfully.
+- Added unit coverage for stale chart-health downgrade behavior and the support-state fallback label.
+
+Verification commands queued:
+- `npm run trace:adjacent -- src/lib/admin-ui-chart-health.ts`
+- `npm run trace:adjacent -- src/lib/support-readiness.ts`
+- `npx vitest run tests/unit/admin-ui-chart-health.spec.ts tests/unit/support-readiness.spec.ts`
+- `npm run typecheck`
+- `npm run check:agent-context`
+- `npm run check:continuity`
+
 ## [2026-04-18 #21] Admin Analytics Parity + State-of-Truth Hardening
 
 Scope for this pass:
