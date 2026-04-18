@@ -51,9 +51,9 @@ describe("describeSupportState", () => {
         expect(describeSupportState("closed")).toBe("Resolved");
     });
 
-    it("returns 'Ready' for 'ready' (default)", () => {
+    it("returns 'Ready' for 'ready' and 'Open' for unexpected values", () => {
         expect(describeSupportState("ready")).toBe("Ready");
-        expect(describeSupportState("anything" as any)).toBe("Ready");
+        expect(describeSupportState("anything" as any)).toBe("Open");
     });
 });
 

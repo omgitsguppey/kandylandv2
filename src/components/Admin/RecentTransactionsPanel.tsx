@@ -141,7 +141,7 @@ export function RecentTransactionsPanel({ transactions: fallbackTransactions, tr
                     </span>
                 ) : (
                     <span className="rounded-full border border-white/10 bg-black/30 px-2.5 py-1">
-                        5s polled overview fallback
+                        Overview fallback, polled every 5s
                     </span>
                 )}
                 {chartHealth.status !== "healthy" ? (

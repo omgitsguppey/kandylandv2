@@ -30,13 +30,15 @@ describe("admin UI chart health helpers", () => {
     });
 
     it("marks loaded empty sections as warn without inventing a failure", () => {
+        const nowMs = Date.UTC(2026, 3, 18, 12, 0, 0);
         const item = buildAdminUiChartHealthItem({
             key: "analytics.audience.regions",
             title: "Regions",
             page: "analytics",
             category: "audience",
             source: "historical_analytics",
-            updatedAtMs: 456,
+            updatedAtMs: nowMs - 10 * 60 * 1000,
+            staleAfterMs: 24 * 60 * 60 * 1000,
             hasLoaded: true,
             hasData: false,
             healthySummary: "Loaded.",
@@ -52,13 +54,15 @@ describe("admin UI chart health helpers", () => {
     });
 
     it("marks loaded sections with background issues as degraded instead of failed", () => {
+        const nowMs = Date.UTC(2026, 3, 18, 12, 0, 0);
         const item = buildAdminUiChartHealthItem({
             key: "dashboard.recent_transactions",
             title: "Recent transactions",
             page: "dashboard",
             category: "overview",
             source: "realtime_analytics",
-            updatedAtMs: 789,
+            updatedAtMs: nowMs - 2 * 60 * 1000,
+            staleAfterMs: 24 * 60 * 60 * 1000,
             hasLoaded: true,
             hasData: true,
             backgroundIssues: ["Live transaction listener failed."],
@@ -74,6 +78,29 @@ describe("admin UI chart health helpers", () => {
         });
     });
 
+    it("downgrades loaded sections with stale freshness to warn", () => {
+        const nowMs = Date.UTC(2026, 3, 18, 12, 0, 0);
+        const item = buildAdminUiChartHealthItem({
+            key: "dashboard.platform_pulse",
+            title: "Platform pulse",
+            page: "dashboard",
+            category: "overview",
+            source: "overview_snapshot",
+            updatedAtMs: nowMs - 20 * 60 * 1000,
+            hasLoaded: true,
+            hasData: true,
+            healthySummary: "Loaded.",
+            emptySummary: "Empty.",
+        });
+
+        expect(item).toMatchObject({
+            status: "warn",
+            hydrationState: "background_degraded",
+            issueCount: 1,
+        });
+        expect(item.summary).toContain("stale data");
+    });
+
     it("summarizes category counts from the reported chart items", () => {
         const summary = summarizeAdminUiChartHealth([
             buildAdminUiChartHealthItem({
@@ -82,7 +109,8 @@ describe("admin UI chart health helpers", () => {
                 page: "dashboard",
                 category: "overview",
                 source: "overview_snapshot",
-                updatedAtMs: 100,
+                updatedAtMs: Date.UTC(2026, 3, 18, 11, 59, 0),
+                staleAfterMs: 24 * 60 * 60 * 1000,
                 hasLoaded: true,
                 hasData: true,
                 healthySummary: "Loaded.",
@@ -94,7 +122,8 @@ describe("admin UI chart health helpers", () => {
                 page: "analytics",
                 category: "operations",
                 source: "historical_analytics",
-                updatedAtMs: 200,
+                updatedAtMs: Date.UTC(2026, 3, 18, 11, 58, 0),
+                staleAfterMs: 24 * 60 * 60 * 1000,
                 hasLoaded: true,
                 hasData: false,
                 healthySummary: "Loaded.",
