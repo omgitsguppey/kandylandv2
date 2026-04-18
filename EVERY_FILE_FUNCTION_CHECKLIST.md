@@ -1,13 +1,13 @@
 # EVERY FILE FUNCTION CHECKLIST
 
 **Last Updated:** 2026-04-18
-**Current Focus:** Repo Intelligence Fabric v1 remains active, and the 2026-04-18 delta now includes the generated UI continuity ledger, the self-debugging queue/runtime canonicalization lane, the mobile chat untappable regression fix plus compact interaction recovery hardening, the verification-blocker remediation pass for canonical scheduler freshness truth plus Firestore transport warning removal, the open-PR reconciliation pass, the token-efficiency/watch-session analytics deepening pass, the analytics state-of-truth / creator-spend parity hardening pass, and the UI truthfulness / chart-health freshness downgrade pass.
+**Current Focus:** Repo Intelligence Fabric v1 remains active, and the 2026-04-18 delta now includes the generated UI continuity ledger, the self-debugging queue/runtime canonicalization lane, the open-PR reconciliation pass covering analytics truth gating, canonical admin username reservation, and admin asset-uploader accessibility labeling, plus the mobile chat untappable regression fix, compact interaction recovery hardening, analytics truth/freshness hardening, and the UI truthfulness / chart-health freshness downgrade pass.
 **Status:** In Progress. Historical exhaustive sweep remains valuable, and the 2026-04-18 continuity metadata now reflects the repo-intelligence layer, the UI continuity fabric, the creator-settings route regression coverage, the profile-page creator warning handling follow-up, the self-debugging queue/runtime canonicalization pass, the mobile chat local-overflow remediation pass, the compact interaction recovery guard rollout, the scheduler-heartbeat provenance remediation pass, the Firestore transport dependency remediation pass, the warning-free static verification baseline, the open-PR reconciliation pass, the watch-session capture-health / task-context tiering pass, the analytics truth/freshness hardening lane, and the UI truthfulness freshness downgrade lane.
 Purpose: exhaustive no-skip audit checklist covering every repository file currently in scope and every detected function-like implementation.
 
 Scoring: all entries below are marked as included in the current validated sweep. Confidence reflects current repository-state confidence, not perfection or future-proofing.
 
-Current repo-wide state snapshot: see [FULL_SCALE_CODEBASE_AUDIT.md](/Users/uylus/OneDrive/Documents/KandyDrops_Final/FULL_SCALE_CODEBASE_AUDIT.md) for the current live baseline, verification state, and continuity rules, and see [REPO_MEMORY_LEDGER.md](/Users/uylus/OneDrive/Documents/KandyDrops_Final/REPO_MEMORY_LEDGER.md) for major architectural and workflow decisions. The detailed file/function body below remains valuable historical evidence, but it has not been fully regenerated against the current 2026-04-17 inventory review yet.
+Current repo-wide state snapshot: see [FULL_SCALE_CODEBASE_AUDIT.md](/Users/uylus/OneDrive/Documents/KandyDrops_Final/FULL_SCALE_CODEBASE_AUDIT.md) for the current live baseline, verification state, and continuity rules, and see [REPO_MEMORY_LEDGER.md](/Users/uylus/OneDrive/Documents/KandyDrops_Final/REPO_MEMORY_LEDGER.md) for major architectural and workflow decisions. The detailed file/function body below remains valuable historical evidence, but it has not been fully regenerated against the current 2026-04-18 inventory review yet.
 
 ## 2026-04-18 Delta Coverage
 
@@ -8837,3 +8837,3405 @@ Detected function-like implementations in this historical sweep: 3161
     - Confidence: 97%
   - [x] it callback (arrow, line 36)
     - Confidence: 97%
+
+## Newly Detected Files (Pending Full Audit Analysis)
+
+### `.storybook/main.ts`
+
+- [x] File exists and is tracked.
+- [ ] Pending detailed function-level audit.
+
+### `.storybook/preview.ts`
+
+- [x] File exists and is tracked.
+- [ ] Pending detailed function-level audit.
+
+### `cypress.config.ts`
+
+- [x] File exists and is tracked.
+- [ ] Pending detailed function-level audit.
+
+### `functions/eslint.config.js`
+
+- [x] File exists and is tracked.
+- [ ] Pending detailed function-level audit.
+
+### `functions/src/analytics-core.ts`
+
+- [x] File exists and is tracked.
+- [ ] Pending detailed function-level audit.
+
+### `functions/src/analytics-event-facts.ts`
+
+- [x] File exists and is tracked.
+- [ ] Pending detailed function-level audit.
+
+### `functions/src/analytics-guest-batches.ts`
+
+- [x] File exists and is tracked.
+- [ ] Pending detailed function-level audit.
+
+### `functions/src/analytics-runtime.ts`
+
+- [x] File exists and is tracked.
+- [ ] Pending detailed function-level audit.
+
+### `functions/src/analytics-security-events.ts`
+
+- [x] File exists and is tracked.
+- [ ] Pending detailed function-level audit.
+
+### `functions/src/analytics-semantics.ts`
+
+- [x] File exists and is tracked.
+- [ ] Pending detailed function-level audit.
+
+### `functions/src/analytics-task-events.ts`
+
+- [x] File exists and is tracked.
+- [ ] Pending detailed function-level audit.
+
+### `functions/src/analytics-transactions.ts`
+
+- [x] File exists and is tracked.
+- [ ] Pending detailed function-level audit.
+
+### `functions/src/firebase-admin.ts`
+
+- [x] File exists and is tracked.
+- [ ] Pending detailed function-level audit.
+
+### `functions/src/firebase-runtime.ts`
+
+- [x] File exists and is tracked.
+- [ ] Pending detailed function-level audit.
+
+### `functions/src/gumdrop-economics.ts`
+
+- [x] File exists and is tracked.
+- [ ] Pending detailed function-level audit.
+
+### `functions/src/index.ts`
+
+- [x] File exists and is tracked.
+- [ ] Pending detailed function-level audit.
+
+### `functions/src/orchestration-contract.ts`
+
+- [x] File exists and is tracked.
+- [ ] Pending detailed function-level audit.
+
+### `functions/src/orchestration-diagnostics.ts`
+
+- [x] File exists and is tracked.
+- [ ] Pending detailed function-level audit.
+
+### `functions/src/orchestration-engine.ts`
+
+- [x] File exists and is tracked.
+- [ ] Pending detailed function-level audit.
+
+### `functions/src/orchestration-identity.ts`
+
+- [x] File exists and is tracked.
+- [ ] Pending detailed function-level audit.
+
+### `functions/src/orchestration-parity.ts`
+
+- [x] File exists and is tracked.
+- [ ] Pending detailed function-level audit.
+
+### `functions/src/orchestration-readiness.ts`
+
+- [x] File exists and is tracked.
+- [ ] Pending detailed function-level audit.
+
+### `functions/src/orchestration-routing.ts`
+
+- [x] File exists and is tracked.
+- [ ] Pending detailed function-level audit.
+
+### `functions/src/orchestration-runtime.ts`
+
+- [x] File exists and is tracked.
+- [ ] Pending detailed function-level audit.
+
+### `functions/src/orchestration-utils.ts`
+
+- [x] File exists and is tracked.
+- [ ] Pending detailed function-level audit.
+
+### `functions/src/queue-runtime.ts`
+
+- [x] File exists and is tracked.
+- [ ] Pending detailed function-level audit.
+
+### `functions/src/runtime-warning-store.ts`
+
+- [x] File exists and is tracked.
+- [ ] Pending detailed function-level audit.
+
+### `makeAdmin.js`
+
+- [x] File exists and is tracked.
+- [ ] Pending detailed function-level audit.
+
+### `middleware.ts`
+
+- [x] File exists and is tracked.
+- [ ] Pending detailed function-level audit.
+
+### `next.config.ts`
+
+- [x] File exists and is tracked.
+- [ ] Pending detailed function-level audit.
+
+### `playwright.config.ts`
+
+- [x] File exists and is tracked.
+- [ ] Pending detailed function-level audit.
+
+### `public/firebase-messaging-sw.js`
+
+- [x] File exists and is tracked.
+- [ ] Pending detailed function-level audit.
+
+### `scripts/agent/build-agent-indexes.ts`
+
+- [x] File exists and is tracked.
+- [ ] Pending detailed function-level audit.
+
+### `scripts/agent/build-task-context.ts`
+
+- [x] File exists and is tracked.
+- [ ] Pending detailed function-level audit.
+
+### `scripts/agent/build-ui-runtime-audit.ts`
+
+- [x] File exists and is tracked.
+- [ ] Pending detailed function-level audit.
+
+### `scripts/agent/build-ui-surface-coverage.ts`
+
+- [x] File exists and is tracked.
+- [ ] Pending detailed function-level audit.
+
+### `scripts/agent/check-agent-context.ts`
+
+- [x] File exists and is tracked.
+- [ ] Pending detailed function-level audit.
+
+### `scripts/agent/check-ui-surface-coverage.ts`
+
+- [x] File exists and is tracked.
+- [ ] Pending detailed function-level audit.
+
+### `scripts/agent/classify-repo-files.ts`
+
+- [x] File exists and is tracked.
+- [ ] Pending detailed function-level audit.
+
+### `scripts/agent/extract-canonical-helpers.ts`
+
+- [x] File exists and is tracked.
+- [ ] Pending detailed function-level audit.
+
+### `scripts/agent/extract-governance.ts`
+
+- [x] File exists and is tracked.
+- [ ] Pending detailed function-level audit.
+
+### `scripts/agent/extract-runtime-observability.ts`
+
+- [x] File exists and is tracked.
+- [ ] Pending detailed function-level audit.
+
+### `scripts/agent/extract-workflow.ts`
+
+- [x] File exists and is tracked.
+- [ ] Pending detailed function-level audit.
+
+### `scripts/agent/run-evals.ts`
+
+- [x] File exists and is tracked.
+- [ ] Pending detailed function-level audit.
+
+### `scripts/agent/shared.ts`
+
+- [x] File exists and is tracked.
+- [ ] Pending detailed function-level audit.
+
+### `scripts/agent/summarize-dependency-graph.ts`
+
+- [x] File exists and is tracked.
+- [ ] Pending detailed function-level audit.
+
+### `scripts/agent/sync-sql.ts`
+
+- [x] File exists and is tracked.
+- [ ] Pending detailed function-level audit.
+
+### `scripts/agent/validate-agent-indexes.ts`
+
+- [x] File exists and is tracked.
+- [ ] Pending detailed function-level audit.
+
+### `scripts/audit-telemetry.ts`
+
+- [x] File exists and is tracked.
+- [ ] Pending detailed function-level audit.
+
+### `scripts/backfill-analytics-parity.ts`
+
+- [x] File exists and is tracked.
+- [ ] Pending detailed function-level audit.
+
+### `scripts/bench-process-queue-drops.ts`
+
+- [x] File exists and is tracked.
+- [ ] Pending detailed function-level audit.
+
+### `scripts/check-analytics-semantics.ts`
+
+- [x] File exists and is tracked.
+- [ ] Pending detailed function-level audit.
+
+### `scripts/check-cycles.ts`
+
+- [x] File exists and is tracked.
+- [ ] Pending detailed function-level audit.
+
+### `scripts/check-firebase-runtime.ts`
+
+- [x] File exists and is tracked.
+- [ ] Pending detailed function-level audit.
+
+### `scripts/check-generated-artifacts.ts`
+
+- [x] File exists and is tracked.
+- [ ] Pending detailed function-level audit.
+
+### `scripts/check-queue-runtime.ts`
+
+- [x] File exists and is tracked.
+- [ ] Pending detailed function-level audit.
+
+### `scripts/check-runtime-continuity.ts`
+
+- [x] File exists and is tracked.
+- [ ] Pending detailed function-level audit.
+
+### `scripts/check-scheduler-freshness.ts`
+
+- [x] File exists and is tracked.
+- [ ] Pending detailed function-level audit.
+
+### `scripts/check-warnings.ts`
+
+- [x] File exists and is tracked.
+- [ ] Pending detailed function-level audit.
+
+### `scripts/export-dependency-graph.ts`
+
+- [x] File exists and is tracked.
+- [ ] Pending detailed function-level audit.
+
+### `scripts/promote-admin.ts`
+
+- [x] File exists and is tracked.
+- [ ] Pending detailed function-level audit.
+
+### `scripts/refresh-paypal-mcp-token.ts`
+
+- [x] File exists and is tracked.
+- [ ] Pending detailed function-level audit.
+
+### `scripts/replace-colors.js`
+
+- [x] File exists and is tracked.
+- [ ] Pending detailed function-level audit.
+
+### `scripts/repo-inventory.ts`
+
+- [x] File exists and is tracked.
+- [ ] Pending detailed function-level audit.
+
+### `scripts/review-admin-panel-logs.ts`
+
+- [x] File exists and is tracked.
+- [ ] Pending detailed function-level audit.
+
+### `scripts/run-database-rules-tests.ts`
+
+- [x] File exists and is tracked.
+- [ ] Pending detailed function-level audit.
+
+### `scripts/run-firestore-rules-tests.ts`
+
+- [x] File exists and is tracked.
+- [ ] Pending detailed function-level audit.
+
+### `scripts/run-storage-rules-tests.ts`
+
+- [x] File exists and is tracked.
+- [ ] Pending detailed function-level audit.
+
+### `scripts/runtime-admin.ts`
+
+- [x] File exists and is tracked.
+- [ ] Pending detailed function-level audit.
+
+### `scripts/trace-adjacent-surfaces.ts`
+
+- [x] File exists and is tracked.
+- [ ] Pending detailed function-level audit.
+
+### `shared/runtime/drop-queue-lifecycle.ts`
+
+- [x] File exists and is tracked.
+- [ ] Pending detailed function-level audit.
+
+### `shared/runtime/drop-queue-schedule.ts`
+
+- [x] File exists and is tracked.
+- [ ] Pending detailed function-level audit.
+
+### `shared/runtime/drop-status.ts`
+
+- [x] File exists and is tracked.
+- [ ] Pending detailed function-level audit.
+
+### `shared/runtime/queue-runtime.ts`
+
+- [x] File exists and is tracked.
+- [ ] Pending detailed function-level audit.
+
+### `shared/runtime/runtime-warning-contract.ts`
+
+- [x] File exists and is tracked.
+- [ ] Pending detailed function-level audit.
+
+### `shared/runtime/timezone.ts`
+
+- [x] File exists and is tracked.
+- [ ] Pending detailed function-level audit.
+
+### `src/app/%5F%5F/auth/[...path]/route.ts`
+
+- [x] File exists and is tracked.
+- [ ] Pending detailed function-level audit.
+
+### `src/app/%5F%5F/firebase/[...path]/route.ts`
+
+- [x] File exists and is tracked.
+- [ ] Pending detailed function-level audit.
+
+### `src/app/(legal)/privacy/page.tsx`
+
+- [x] File exists and is tracked.
+- [ ] Pending detailed function-level audit.
+
+### `src/app/(legal)/terms/page.tsx`
+
+- [x] File exists and is tracked.
+- [ ] Pending detailed function-level audit.
+
+### `src/app/HomeClient.tsx`
+
+- [x] File exists and is tracked.
+- [ ] Pending detailed function-level audit.
+
+### `src/app/admin/ai/page.tsx`
+
+- [x] File exists and is tracked.
+- [ ] Pending detailed function-level audit.
+
+### `src/app/admin/analytics/page.tsx`
+
+- [x] File exists and is tracked.
+- [ ] Pending detailed function-level audit.
+
+### `src/app/admin/content/page.tsx`
+
+- [x] File exists and is tracked.
+- [ ] Pending detailed function-level audit.
+
+### `src/app/admin/debug/page.tsx`
+
+- [x] File exists and is tracked.
+- [ ] Pending detailed function-level audit.
+
+### `src/app/admin/drops/page.tsx`
+
+- [x] File exists and is tracked.
+- [ ] Pending detailed function-level audit.
+
+### `src/app/admin/economy/page.tsx`
+
+- [x] File exists and is tracked.
+- [ ] Pending detailed function-level audit.
+
+### `src/app/admin/error.tsx`
+
+- [x] File exists and is tracked.
+- [ ] Pending detailed function-level audit.
+
+### `src/app/admin/layout.tsx`
+
+- [x] File exists and is tracked.
+- [ ] Pending detailed function-level audit.
+
+### `src/app/admin/loading.tsx`
+
+- [x] File exists and is tracked.
+- [ ] Pending detailed function-level audit.
+
+### `src/app/admin/moderation/page.tsx`
+
+- [x] File exists and is tracked.
+- [ ] Pending detailed function-level audit.
+
+### `src/app/admin/page.tsx`
+
+- [x] File exists and is tracked.
+- [ ] Pending detailed function-level audit.
+
+### `src/app/admin/queue/page.tsx`
+
+- [x] File exists and is tracked.
+- [ ] Pending detailed function-level audit.
+
+### `src/app/admin/roster/page.tsx`
+
+- [x] File exists and is tracked.
+- [ ] Pending detailed function-level audit.
+
+### `src/app/admin/support/page.tsx`
+
+- [x] File exists and is tracked.
+- [ ] Pending detailed function-level audit.
+
+### `src/app/admin/user/[userId]/page.tsx`
+
+- [x] File exists and is tracked.
+- [ ] Pending detailed function-level audit.
+
+### `src/app/admin/users/page.tsx`
+
+- [x] File exists and is tracked.
+- [ ] Pending detailed function-level audit.
+
+### `src/app/api/admin/ai/drop-covers/feedback/route.ts`
+
+- [x] File exists and is tracked.
+- [ ] Pending detailed function-level audit.
+
+### `src/app/api/admin/ai/drop-covers/generate/route.ts`
+
+- [x] File exists and is tracked.
+- [ ] Pending detailed function-level audit.
+
+### `src/app/api/admin/ai/drop-covers/prompt-policy/route.ts`
+
+- [x] File exists and is tracked.
+- [ ] Pending detailed function-level audit.
+
+### `src/app/api/admin/ai/drop-covers/references/route.ts`
+
+- [x] File exists and is tracked.
+- [ ] Pending detailed function-level audit.
+
+### `src/app/api/admin/ai/drop-covers/review-gallery/route.ts`
+
+- [x] File exists and is tracked.
+- [ ] Pending detailed function-level audit.
+
+### `src/app/api/admin/ai/drop-covers/route.ts`
+
+- [x] File exists and is tracked.
+- [ ] Pending detailed function-level audit.
+
+### `src/app/api/admin/ai/drop-covers/template/route.ts`
+
+- [x] File exists and is tracked.
+- [ ] Pending detailed function-level audit.
+
+### `src/app/api/admin/ai/drop-descriptions/feedback/route.ts`
+
+- [x] File exists and is tracked.
+- [ ] Pending detailed function-level audit.
+
+### `src/app/api/admin/ai/drop-descriptions/generate/route.ts`
+
+- [x] File exists and is tracked.
+- [ ] Pending detailed function-level audit.
+
+### `src/app/api/admin/ai/drop-descriptions/prompt-policy/route.ts`
+
+- [x] File exists and is tracked.
+- [ ] Pending detailed function-level audit.
+
+### `src/app/api/admin/ai/drop-descriptions/route.ts`
+
+- [x] File exists and is tracked.
+- [ ] Pending detailed function-level audit.
+
+### `src/app/api/admin/analytics/historical/route.ts`
+
+- [x] File exists and is tracked.
+- [ ] Pending detailed function-level audit.
+
+### `src/app/api/admin/analytics/preferences/route.ts`
+
+- [x] File exists and is tracked.
+- [ ] Pending detailed function-level audit.
+
+### `src/app/api/admin/analytics/realtime/route.ts`
+
+- [x] File exists and is tracked.
+- [ ] Pending detailed function-level audit.
+
+### `src/app/api/admin/analytics/route.ts`
+
+- [x] File exists and is tracked.
+- [ ] Pending detailed function-level audit.
+
+### `src/app/api/admin/balance/route.ts`
+
+- [x] File exists and is tracked.
+- [ ] Pending detailed function-level audit.
+
+### `src/app/api/admin/content/route.ts`
+
+- [x] File exists and is tracked.
+- [ ] Pending detailed function-level audit.
+
+### `src/app/api/admin/creator-options/route.ts`
+
+- [x] File exists and is tracked.
+- [ ] Pending detailed function-level audit.
+
+### `src/app/api/admin/debug/assistant/route.ts`
+
+- [x] File exists and is tracked.
+- [ ] Pending detailed function-level audit.
+
+### `src/app/api/admin/debug/preferences/route.ts`
+
+- [x] File exists and is tracked.
+- [ ] Pending detailed function-level audit.
+
+### `src/app/api/admin/debug/route.ts`
+
+- [x] File exists and is tracked.
+- [ ] Pending detailed function-level audit.
+
+### `src/app/api/admin/drops/route.ts`
+
+- [x] File exists and is tracked.
+- [ ] Pending detailed function-level audit.
+
+### `src/app/api/admin/feedback/route.ts`
+
+- [x] File exists and is tracked.
+- [ ] Pending detailed function-level audit.
+
+### `src/app/api/admin/moderation/security-alerts/route.ts`
+
+- [x] File exists and is tracked.
+- [ ] Pending detailed function-level audit.
+
+### `src/app/api/admin/moderation/threads/[threadId]/route.ts`
+
+- [x] File exists and is tracked.
+- [ ] Pending detailed function-level audit.
+
+### `src/app/api/admin/moderation/threads/route.ts`
+
+- [x] File exists and is tracked.
+- [ ] Pending detailed function-level audit.
+
+### `src/app/api/admin/orchestration/repairs/route.ts`
+
+- [x] File exists and is tracked.
+- [ ] Pending detailed function-level audit.
+
+### `src/app/api/admin/overview/route.ts`
+
+- [x] File exists and is tracked.
+- [ ] Pending detailed function-level audit.
+
+### `src/app/api/admin/queue/route.ts`
+
+- [x] File exists and is tracked.
+- [ ] Pending detailed function-level audit.
+
+### `src/app/api/admin/queue/toggle/route.ts`
+
+- [x] File exists and is tracked.
+- [ ] Pending detailed function-level audit.
+
+### `src/app/api/admin/roster/route.ts`
+
+- [x] File exists and is tracked.
+- [ ] Pending detailed function-level audit.
+
+### `src/app/api/admin/support/threads/[threadId]/route.ts`
+
+- [x] File exists and is tracked.
+- [ ] Pending detailed function-level audit.
+
+### `src/app/api/admin/support/threads/route.ts`
+
+- [x] File exists and is tracked.
+- [ ] Pending detailed function-level audit.
+
+### `src/app/api/admin/tasks/route.ts`
+
+- [x] File exists and is tracked.
+- [ ] Pending detailed function-level audit.
+
+### `src/app/api/admin/ui-chart-health/route.ts`
+
+- [x] File exists and is tracked.
+- [ ] Pending detailed function-level audit.
+
+### `src/app/api/admin/ui/preferences/route.ts`
+
+- [x] File exists and is tracked.
+- [ ] Pending detailed function-level audit.
+
+### `src/app/api/admin/user/[userId]/creator-onboarding/id-document/route.ts`
+
+- [x] File exists and is tracked.
+- [ ] Pending detailed function-level audit.
+
+### `src/app/api/admin/user/[userId]/route.ts`
+
+- [x] File exists and is tracked.
+- [ ] Pending detailed function-level audit.
+
+### `src/app/api/admin/users/[userId]/username/route.ts`
+
+- [x] File exists and is tracked.
+- [ ] Pending detailed function-level audit.
+
+### `src/app/api/admin/users/route.ts`
+
+- [x] File exists and is tracked.
+- [ ] Pending detailed function-level audit.
+
+### `src/app/api/analytics/ingest/route.ts`
+
+- [x] File exists and is tracked.
+- [ ] Pending detailed function-level audit.
+
+### `src/app/api/auth/manual-sign-in-lookup/route.ts`
+
+- [x] File exists and is tracked.
+- [ ] Pending detailed function-level audit.
+
+### `src/app/api/auth/navigation-session/route.ts`
+
+- [x] File exists and is tracked.
+- [ ] Pending detailed function-level audit.
+
+### `src/app/api/chat/attachments/cancel/route.ts`
+
+- [x] File exists and is tracked.
+- [ ] Pending detailed function-level audit.
+
+### `src/app/api/chat/attachments/complete/route.ts`
+
+- [x] File exists and is tracked.
+- [ ] Pending detailed function-level audit.
+
+### `src/app/api/chat/attachments/prepare/route.ts`
+
+- [x] File exists and is tracked.
+- [ ] Pending detailed function-level audit.
+
+### `src/app/api/chat/threads/[threadId]/messages/route.ts`
+
+- [x] File exists and is tracked.
+- [ ] Pending detailed function-level audit.
+
+### `src/app/api/chat/threads/[threadId]/read/route.ts`
+
+- [x] File exists and is tracked.
+- [ ] Pending detailed function-level audit.
+
+### `src/app/api/chat/threads/[threadId]/route.ts`
+
+- [x] File exists and is tracked.
+- [ ] Pending detailed function-level audit.
+
+### `src/app/api/chat/threads/route.ts`
+
+- [x] File exists and is tracked.
+- [ ] Pending detailed function-level audit.
+
+### `src/app/api/checkin/route.ts`
+
+- [x] File exists and is tracked.
+- [ ] Pending detailed function-level audit.
+
+### `src/app/api/creator/bookings/route.ts`
+
+- [x] File exists and is tracked.
+- [ ] Pending detailed function-level audit.
+
+### `src/app/api/creator/broadcasts/route.ts`
+
+- [x] File exists and is tracked.
+- [ ] Pending detailed function-level audit.
+
+### `src/app/api/creator/discovery/route.ts`
+
+- [x] File exists and is tracked.
+- [ ] Pending detailed function-level audit.
+
+### `src/app/api/creator/drops/route.ts`
+
+- [x] File exists and is tracked.
+- [ ] Pending detailed function-level audit.
+
+### `src/app/api/creator/messages/route.ts`
+
+- [x] File exists and is tracked.
+- [ ] Pending detailed function-level audit.
+
+### `src/app/api/creator/onboarding/application/route.ts`
+
+- [x] File exists and is tracked.
+- [ ] Pending detailed function-level audit.
+
+### `src/app/api/creator/onboarding/contract-signature/route.ts`
+
+- [x] File exists and is tracked.
+- [ ] Pending detailed function-level audit.
+
+### `src/app/api/creator/onboarding/id-submission/route.ts`
+
+- [x] File exists and is tracked.
+- [ ] Pending detailed function-level audit.
+
+### `src/app/api/creator/onboarding/intro/route.ts`
+
+- [x] File exists and is tracked.
+- [ ] Pending detailed function-level audit.
+
+### `src/app/api/creator/payouts/route.ts`
+
+- [x] File exists and is tracked.
+- [ ] Pending detailed function-level audit.
+
+### `src/app/api/creator/relationships/route.ts`
+
+- [x] File exists and is tracked.
+- [ ] Pending detailed function-level audit.
+
+### `src/app/api/creator/requests/route.ts`
+
+- [x] File exists and is tracked.
+- [ ] Pending detailed function-level audit.
+
+### `src/app/api/creator/settings/route.ts`
+
+- [x] File exists and is tracked.
+- [ ] Pending detailed function-level audit.
+
+### `src/app/api/creator/subscriptions/route.ts`
+
+- [x] File exists and is tracked.
+- [ ] Pending detailed function-level audit.
+
+### `src/app/api/creators/[username]/route.ts`
+
+- [x] File exists and is tracked.
+- [ ] Pending detailed function-level audit.
+
+### `src/app/api/cron/notify-active-drops/route.ts`
+
+- [x] File exists and is tracked.
+- [ ] Pending detailed function-level audit.
+
+### `src/app/api/cron/process-creator-subscriptions/route.ts`
+
+- [x] File exists and is tracked.
+- [ ] Pending detailed function-level audit.
+
+### `src/app/api/cron/process-queue/route.ts`
+
+- [x] File exists and is tracked.
+- [ ] Pending detailed function-level audit.
+
+### `src/app/api/drops/[dropId]/click/route.ts`
+
+- [x] File exists and is tracked.
+- [ ] Pending detailed function-level audit.
+
+### `src/app/api/drops/content/route.ts`
+
+- [x] File exists and is tracked.
+- [ ] Pending detailed function-level audit.
+
+### `src/app/api/drops/duplicate-filenames/route.ts`
+
+- [x] File exists and is tracked.
+- [ ] Pending detailed function-level audit.
+
+### `src/app/api/drops/impression/route.ts`
+
+- [x] File exists and is tracked.
+- [ ] Pending detailed function-level audit.
+
+### `src/app/api/drops/route.ts`
+
+- [x] File exists and is tracked.
+- [ ] Pending detailed function-level audit.
+
+### `src/app/api/drops/track/route.ts`
+
+- [x] File exists and is tracked.
+- [ ] Pending detailed function-level audit.
+
+### `src/app/api/drops/unlock/route.ts`
+
+- [x] File exists and is tracked.
+- [ ] Pending detailed function-level audit.
+
+### `src/app/api/notifications/route.ts`
+
+- [x] File exists and is tracked.
+- [ ] Pending detailed function-level audit.
+
+### `src/app/api/paypal/capture/route.ts`
+
+- [x] File exists and is tracked.
+- [ ] Pending detailed function-level audit.
+
+### `src/app/api/paypal/create/route.ts`
+
+- [x] File exists and is tracked.
+- [ ] Pending detailed function-level audit.
+
+### `src/app/api/privacy/consent/route.ts`
+
+- [x] File exists and is tracked.
+- [ ] Pending detailed function-level audit.
+
+### `src/app/api/security/log-attempt/route.ts`
+
+- [x] File exists and is tracked.
+- [ ] Pending detailed function-level audit.
+
+### `src/app/api/settings/landing/route.ts`
+
+- [x] File exists and is tracked.
+- [ ] Pending detailed function-level audit.
+
+### `src/app/api/settings/landing/upload/route.ts`
+
+- [x] File exists and is tracked.
+- [ ] Pending detailed function-level audit.
+
+### `src/app/api/support/threads/[threadId]/route.ts`
+
+- [x] File exists and is tracked.
+- [ ] Pending detailed function-level audit.
+
+### `src/app/api/support/threads/guest/route.ts`
+
+- [x] File exists and is tracked.
+- [ ] Pending detailed function-level audit.
+
+### `src/app/api/support/threads/route.ts`
+
+- [x] File exists and is tracked.
+- [ ] Pending detailed function-level audit.
+
+### `src/app/api/tasks/feedback/route.ts`
+
+- [x] File exists and is tracked.
+- [ ] Pending detailed function-level audit.
+
+### `src/app/api/tasks/reminders/sync/route.ts`
+
+- [x] File exists and is tracked.
+- [ ] Pending detailed function-level audit.
+
+### `src/app/api/tasks/rotate/route.ts`
+
+- [x] File exists and is tracked.
+- [ ] Pending detailed function-level audit.
+
+### `src/app/api/telemetry/track/route.ts`
+
+- [x] File exists and is tracked.
+- [ ] Pending detailed function-level audit.
+
+### `src/app/api/user/activity/route.ts`
+
+- [x] File exists and is tracked.
+- [ ] Pending detailed function-level audit.
+
+### `src/app/api/user/check-username/route.ts`
+
+- [x] File exists and is tracked.
+- [ ] Pending detailed function-level audit.
+
+### `src/app/api/user/complete-onboarding/route.ts`
+
+- [x] File exists and is tracked.
+- [ ] Pending detailed function-level audit.
+
+### `src/app/api/user/data/route.ts`
+
+- [x] File exists and is tracked.
+- [ ] Pending detailed function-level audit.
+
+### `src/app/api/user/delete/route.ts`
+
+- [x] File exists and is tracked.
+- [ ] Pending detailed function-level audit.
+
+### `src/app/api/user/follow/route.ts`
+
+- [x] File exists and is tracked.
+- [ ] Pending detailed function-level audit.
+
+### `src/app/api/user/onboarding-progress/route.ts`
+
+- [x] File exists and is tracked.
+- [ ] Pending detailed function-level audit.
+
+### `src/app/api/user/profile/route.ts`
+
+- [x] File exists and is tracked.
+- [ ] Pending detailed function-level audit.
+
+### `src/app/api/user/register/route.ts`
+
+- [x] File exists and is tracked.
+- [ ] Pending detailed function-level audit.
+
+### `src/app/api/user/revoke-sessions/route.ts`
+
+- [x] File exists and is tracked.
+- [ ] Pending detailed function-level audit.
+
+### `src/app/api/viewer/watch-session/route.ts`
+
+- [x] File exists and is tracked.
+- [ ] Pending detailed function-level audit.
+
+### `src/app/banned/page.tsx`
+
+- [x] File exists and is tracked.
+- [ ] Pending detailed function-level audit.
+
+### `src/app/creators/[username]/CreatorProfileClient.tsx`
+
+- [x] File exists and is tracked.
+- [ ] Pending detailed function-level audit.
+
+### `src/app/creators/[username]/page.tsx`
+
+- [x] File exists and is tracked.
+- [ ] Pending detailed function-level audit.
+
+### `src/app/creators/apply/page.tsx`
+
+- [x] File exists and is tracked.
+- [ ] Pending detailed function-level audit.
+
+### `src/app/creators/waitlist/page.tsx`
+
+- [x] File exists and is tracked.
+- [ ] Pending detailed function-level audit.
+
+### `src/app/dashboard/DashboardClient.tsx`
+
+- [x] File exists and is tracked.
+- [ ] Pending detailed function-level audit.
+
+### `src/app/dashboard/chat/layout.tsx`
+
+- [x] File exists and is tracked.
+- [ ] Pending detailed function-level audit.
+
+### `src/app/dashboard/chat/page.tsx`
+
+- [x] File exists and is tracked.
+- [ ] Pending detailed function-level audit.
+
+### `src/app/dashboard/layout.tsx`
+
+- [x] File exists and is tracked.
+- [ ] Pending detailed function-level audit.
+
+### `src/app/dashboard/library/LibraryClient.tsx`
+
+- [x] File exists and is tracked.
+- [ ] Pending detailed function-level audit.
+
+### `src/app/dashboard/library/page.tsx`
+
+- [x] File exists and is tracked.
+- [ ] Pending detailed function-level audit.
+
+### `src/app/dashboard/page.tsx`
+
+- [x] File exists and is tracked.
+- [ ] Pending detailed function-level audit.
+
+### `src/app/dashboard/profile/page.tsx`
+
+- [x] File exists and is tracked.
+- [ ] Pending detailed function-level audit.
+
+### `src/app/dashboard/support/page.tsx`
+
+- [x] File exists and is tracked.
+- [ ] Pending detailed function-level audit.
+
+### `src/app/dashboard/viewer/ViewerClient.tsx`
+
+- [x] File exists and is tracked.
+- [ ] Pending detailed function-level audit.
+
+### `src/app/dashboard/viewer/page.tsx`
+
+- [x] File exists and is tracked.
+- [ ] Pending detailed function-level audit.
+
+### `src/app/drops/DropsClient.tsx`
+
+- [x] File exists and is tracked.
+- [ ] Pending detailed function-level audit.
+
+### `src/app/drops/[id]/opengraph-image.tsx`
+
+- [x] File exists and is tracked.
+- [ ] Pending detailed function-level audit.
+
+### `src/app/drops/loading.tsx`
+
+- [x] File exists and is tracked.
+- [ ] Pending detailed function-level audit.
+
+### `src/app/drops/page.tsx`
+
+- [x] File exists and is tracked.
+- [ ] Pending detailed function-level audit.
+
+### `src/app/error.tsx`
+
+- [x] File exists and is tracked.
+- [ ] Pending detailed function-level audit.
+
+### `src/app/experiences/ExperiencesClient.tsx`
+
+- [x] File exists and is tracked.
+- [ ] Pending detailed function-level audit.
+
+### `src/app/experiences/page.tsx`
+
+- [x] File exists and is tracked.
+- [ ] Pending detailed function-level audit.
+
+### `src/app/faq/FAQClient.tsx`
+
+- [x] File exists and is tracked.
+- [ ] Pending detailed function-level audit.
+
+### `src/app/faq/HowItWorksStory.tsx`
+
+- [x] File exists and is tracked.
+- [ ] Pending detailed function-level audit.
+
+### `src/app/faq/faq-data.ts`
+
+- [x] File exists and is tracked.
+- [ ] Pending detailed function-level audit.
+
+### `src/app/faq/page.tsx`
+
+- [x] File exists and is tracked.
+- [ ] Pending detailed function-level audit.
+
+### `src/app/layout.tsx`
+
+- [x] File exists and is tracked.
+- [ ] Pending detailed function-level audit.
+
+### `src/app/loading.tsx`
+
+- [x] File exists and is tracked.
+- [ ] Pending detailed function-level audit.
+
+### `src/app/not-found.tsx`
+
+- [x] File exists and is tracked.
+- [ ] Pending detailed function-level audit.
+
+### `src/app/offline/page.tsx`
+
+- [x] File exists and is tracked.
+- [ ] Pending detailed function-level audit.
+
+### `src/app/page.tsx`
+
+- [x] File exists and is tracked.
+- [ ] Pending detailed function-level audit.
+
+### `src/app/robots.ts`
+
+- [x] File exists and is tracked.
+- [ ] Pending detailed function-level audit.
+
+### `src/app/sitemap.ts`
+
+- [x] File exists and is tracked.
+- [ ] Pending detailed function-level audit.
+
+### `src/components/Admin/AdminActivityLogPanel.tsx`
+
+- [x] File exists and is tracked.
+- [ ] Pending detailed function-level audit.
+
+### `src/components/Admin/AdminAiDescriptionOperations.tsx`
+
+- [x] File exists and is tracked.
+- [ ] Pending detailed function-level audit.
+
+### `src/components/Admin/AdminAnalyticsCharts.tsx`
+
+- [x] File exists and is tracked.
+- [ ] Pending detailed function-level audit.
+
+### `src/components/Admin/AdminDashboardModule.tsx`
+
+- [x] File exists and is tracked.
+- [ ] Pending detailed function-level audit.
+
+### `src/components/Admin/AdminDropsAtGlancePanel.tsx`
+
+- [x] File exists and is tracked.
+- [ ] Pending detailed function-level audit.
+
+### `src/components/Admin/AdminModerationConsole.tsx`
+
+- [x] File exists and is tracked.
+- [ ] Pending detailed function-level audit.
+
+### `src/components/Admin/AdminPageHeader.tsx`
+
+- [x] File exists and is tracked.
+- [ ] Pending detailed function-level audit.
+
+### `src/components/Admin/AdminStatsBar.tsx`
+
+- [x] File exists and is tracked.
+- [ ] Pending detailed function-level audit.
+
+### `src/components/Admin/AdminSupportQueue.tsx`
+
+- [x] File exists and is tracked.
+- [ ] Pending detailed function-level audit.
+
+### `src/components/Admin/AdminTasksManager.tsx`
+
+- [x] File exists and is tracked.
+- [ ] Pending detailed function-level audit.
+
+### `src/components/Admin/AiDropCoverGeneratorPanel.tsx`
+
+- [x] File exists and is tracked.
+- [ ] Pending detailed function-level audit.
+
+### `src/components/Admin/AiDropDescriptionGeneratorPanel.tsx`
+
+- [x] File exists and is tracked.
+- [ ] Pending detailed function-level audit.
+
+### `src/components/Admin/Analytics/AdminAnalyticsPrimitives.tsx`
+
+- [x] File exists and is tracked.
+- [ ] Pending detailed function-level audit.
+
+### `src/components/Admin/Analytics/AdminOnboardingAnalyticsModules.tsx`
+
+- [x] File exists and is tracked.
+- [ ] Pending detailed function-level audit.
+
+### `src/components/Admin/Analytics/AdminTaskAndNotificationModules.tsx`
+
+- [x] File exists and is tracked.
+- [ ] Pending detailed function-level audit.
+
+### `src/components/Admin/AssetUploader.tsx`
+
+- [x] File exists and is tracked.
+- [ ] Pending detailed function-level audit.
+
+### `src/components/Admin/BalanceAdjustmentModal.tsx`
+
+- [x] File exists and is tracked.
+- [ ] Pending detailed function-level audit.
+
+### `src/components/Admin/CreateDropModal.tsx`
+
+- [x] File exists and is tracked.
+- [ ] Pending detailed function-level audit.
+
+### `src/components/Admin/RecentTransactionsPanel.tsx`
+
+- [x] File exists and is tracked.
+- [ ] Pending detailed function-level audit.
+
+### `src/components/Admin/TopDropsPanel.tsx`
+
+- [x] File exists and is tracked.
+- [ ] Pending detailed function-level audit.
+
+### `src/components/Admin/TransactionHistoryModal.tsx`
+
+- [x] File exists and is tracked.
+- [ ] Pending detailed function-level audit.
+
+### `src/components/Analytics/CSPostHogProvider.tsx`
+
+- [x] File exists and is tracked.
+- [ ] Pending detailed function-level audit.
+
+### `src/components/Analytics/DeepTracker.tsx`
+
+- [x] File exists and is tracked.
+- [ ] Pending detailed function-level audit.
+
+### `src/components/Analytics/PageViewEvent.tsx`
+
+- [x] File exists and is tracked.
+- [ ] Pending detailed function-level audit.
+
+### `src/components/Auth/AuthModal.tsx`
+
+- [x] File exists and is tracked.
+- [ ] Pending detailed function-level audit.
+
+### `src/components/Auth/GuestComponentBlur.tsx`
+
+- [x] File exists and is tracked.
+- [ ] Pending detailed function-level audit.
+
+### `src/components/Auth/GuidedOnboarding.tsx`
+
+- [x] File exists and is tracked.
+- [ ] Pending detailed function-level audit.
+
+### `src/components/Chat/ChatExperience.tsx`
+
+- [x] File exists and is tracked.
+- [ ] Pending detailed function-level audit.
+
+### `src/components/Chat/ChatRouteShell.tsx`
+
+- [x] File exists and is tracked.
+- [ ] Pending detailed function-level audit.
+
+### `src/components/ClientDiagnosticsBridge.tsx`
+
+- [x] File exists and is tracked.
+- [ ] Pending detailed function-level audit.
+
+### `src/components/CookieBanner.tsx`
+
+- [x] File exists and is tracked.
+- [ ] Pending detailed function-level audit.
+
+### `src/components/CoreLayoutWrapper.tsx`
+
+- [x] File exists and is tracked.
+- [ ] Pending detailed function-level audit.
+
+### `src/components/CreatorDiscoveryRail.tsx`
+
+- [x] File exists and is tracked.
+- [ ] Pending detailed function-level audit.
+
+### `src/components/Creators/CreatorExperiencesPanel.tsx`
+
+- [x] File exists and is tracked.
+- [ ] Pending detailed function-level audit.
+
+### `src/components/Creators/CreatorProfileHeader.tsx`
+
+- [x] File exists and is tracked.
+- [ ] Pending detailed function-level audit.
+
+### `src/components/Creators/CreatorUpdatesFeed.tsx`
+
+- [x] File exists and is tracked.
+- [ ] Pending detailed function-level audit.
+
+### `src/components/Dashboard/CollectionList.tsx`
+
+- [x] File exists and is tracked.
+- [ ] Pending detailed function-level audit.
+
+### `src/components/Dashboard/CreatorWorkspacePanel.tsx`
+
+- [x] File exists and is tracked.
+- [ ] Pending detailed function-level audit.
+
+### `src/components/Dashboard/DailyCheckIn.tsx`
+
+- [x] File exists and is tracked.
+- [ ] Pending detailed function-level audit.
+
+### `src/components/Dashboard/DailyTasksModule.tsx`
+
+- [x] File exists and is tracked.
+- [ ] Pending detailed function-level audit.
+
+### `src/components/Dashboard/LiveDropsForYouCarousel.tsx`
+
+- [x] File exists and is tracked.
+- [ ] Pending detailed function-level audit.
+
+### `src/components/Dashboard/NotificationPromptBanner.tsx`
+
+- [x] File exists and is tracked.
+- [ ] Pending detailed function-level audit.
+
+### `src/components/Dashboard/OwnedDropGalleryCard.tsx`
+
+- [x] File exists and is tracked.
+- [ ] Pending detailed function-level audit.
+
+### `src/components/Dashboard/RecentActivityFeed.tsx`
+
+- [x] File exists and is tracked.
+- [ ] Pending detailed function-level audit.
+
+### `src/components/Dashboard/TaskGuidanceBanner.tsx`
+
+- [x] File exists and is tracked.
+- [ ] Pending detailed function-level audit.
+
+### `src/components/Debug/DebugBreakpoints.tsx`
+
+- [x] File exists and is tracked.
+- [ ] Pending detailed function-level audit.
+
+### `src/components/DropCard.tsx`
+
+- [x] File exists and is tracked.
+- [ ] Pending detailed function-level audit.
+
+### `src/components/DropGrid.tsx`
+
+- [x] File exists and is tracked.
+- [ ] Pending detailed function-level audit.
+
+### `src/components/DropPreviewModal.tsx`
+
+- [x] File exists and is tracked.
+- [ ] Pending detailed function-level audit.
+
+### `src/components/ErrorBoundary.tsx`
+
+- [x] File exists and is tracked.
+- [ ] Pending detailed function-level audit.
+
+### `src/components/FeaturedCarousel.tsx`
+
+- [x] File exists and is tracked.
+- [ ] Pending detailed function-level audit.
+
+### `src/components/Feedback/GlobalBugReportTrigger.tsx`
+
+- [x] File exists and is tracked.
+- [ ] Pending detailed function-level audit.
+
+### `src/components/Feedback/ReportBugButton.tsx`
+
+- [x] File exists and is tracked.
+- [ ] Pending detailed function-level audit.
+
+### `src/components/GlobalAuthModal.tsx`
+
+- [x] File exists and is tracked.
+- [ ] Pending detailed function-level audit.
+
+### `src/components/GlobalPurchaseModal.tsx`
+
+- [x] File exists and is tracked.
+- [ ] Pending detailed function-level audit.
+
+### `src/components/Hero.tsx`
+
+- [x] File exists and is tracked.
+- [ ] Pending detailed function-level audit.
+
+### `src/components/HomeDropTicker.tsx`
+
+- [x] File exists and is tracked.
+- [ ] Pending detailed function-level audit.
+
+### `src/components/InsufficientBalanceModal.tsx`
+
+- [x] File exists and is tracked.
+- [ ] Pending detailed function-level audit.
+
+### `src/components/KandyDropsAccountOverview.tsx`
+
+- [x] File exists and is tracked.
+- [ ] Pending detailed function-level audit.
+
+### `src/components/Landing/HomeActiveDropsCarousel.tsx`
+
+- [x] File exists and is tracked.
+- [ ] Pending detailed function-level audit.
+
+### `src/components/Landing/HowItWorks.tsx`
+
+- [x] File exists and is tracked.
+- [ ] Pending detailed function-level audit.
+
+### `src/components/Legal/LegalBackLink.tsx`
+
+- [x] File exists and is tracked.
+- [ ] Pending detailed function-level audit.
+
+### `src/components/Navbar.tsx`
+
+- [x] File exists and is tracked.
+- [ ] Pending detailed function-level audit.
+
+### `src/components/Navigation/AdminDropdown.tsx`
+
+- [x] File exists and is tracked.
+- [ ] Pending detailed function-level audit.
+
+### `src/components/Navigation/AnimateBalance.tsx`
+
+- [x] File exists and is tracked.
+- [ ] Pending detailed function-level audit.
+
+### `src/components/Navigation/AutoScrollToTop.tsx`
+
+- [x] File exists and is tracked.
+- [ ] Pending detailed function-level audit.
+
+### `src/components/Navigation/MobileBottomBar.tsx`
+
+- [x] File exists and is tracked.
+- [ ] Pending detailed function-level audit.
+
+### `src/components/Navigation/NotificationBell.tsx`
+
+- [x] File exists and is tracked.
+- [ ] Pending detailed function-level audit.
+
+### `src/components/Navigation/ProfileDropdown.tsx`
+
+- [x] File exists and is tracked.
+- [ ] Pending detailed function-level audit.
+
+### `src/components/Navigation/ProfileSidebar.tsx`
+
+- [x] File exists and is tracked.
+- [ ] Pending detailed function-level audit.
+
+### `src/components/Navigation/ScrollToTop.tsx`
+
+- [x] File exists and is tracked.
+- [ ] Pending detailed function-level audit.
+
+### `src/components/Notifications/NotificationRuntimeBridge.tsx`
+
+- [x] File exists and is tracked.
+- [ ] Pending detailed function-level audit.
+
+### `src/components/PayPalProvider.tsx`
+
+- [x] File exists and is tracked.
+- [ ] Pending detailed function-level audit.
+
+### `src/components/PromoCard.tsx`
+
+- [x] File exists and is tracked.
+- [ ] Pending detailed function-level audit.
+
+### `src/components/PurchaseModal.tsx`
+
+- [x] File exists and is tracked.
+- [ ] Pending detailed function-level audit.
+
+### `src/components/PwaRuntimeBridge.tsx`
+
+- [x] File exists and is tracked.
+- [ ] Pending detailed function-level audit.
+
+### `src/components/StickyFilterBar.tsx`
+
+- [x] File exists and is tracked.
+- [ ] Pending detailed function-level audit.
+
+### `src/components/Support/SupportInbox.tsx`
+
+- [x] File exists and is tracked.
+- [ ] Pending detailed function-level audit.
+
+### `src/components/Toasts/UnwrapSuccessToast.tsx`
+
+- [x] File exists and is tracked.
+- [ ] Pending detailed function-level audit.
+
+### `src/components/UIDebug.tsx`
+
+- [x] File exists and is tracked.
+- [ ] Pending detailed function-level audit.
+
+### `src/components/ui/Button.tsx`
+
+- [x] File exists and is tracked.
+- [ ] Pending detailed function-level audit.
+
+### `src/components/ui/Icon.tsx`
+
+- [x] File exists and is tracked.
+- [ ] Pending detailed function-level audit.
+
+### `src/components/ui/TitleMarquee.tsx`
+
+- [x] File exists and is tracked.
+- [ ] Pending detailed function-level audit.
+
+### `src/components/ui/UiContinuityNotice.tsx`
+
+- [x] File exists and is tracked.
+- [ ] Pending detailed function-level audit.
+
+### `src/context/AuthContext.tsx`
+
+- [x] File exists and is tracked.
+- [ ] Pending detailed function-level audit.
+
+### `src/context/RolloutContext.tsx`
+
+- [x] File exists and is tracked.
+- [ ] Pending detailed function-level audit.
+
+### `src/context/SWRProvider.tsx`
+
+- [x] File exists and is tracked.
+- [ ] Pending detailed function-level audit.
+
+### `src/context/UIContext.tsx`
+
+- [x] File exists and is tracked.
+- [ ] Pending detailed function-level audit.
+
+### `src/hooks/client-runtime.ts`
+
+- [x] File exists and is tracked.
+- [ ] Pending detailed function-level audit.
+
+### `src/hooks/useAdminDropsFeed.ts`
+
+- [x] File exists and is tracked.
+- [ ] Pending detailed function-level audit.
+
+### `src/hooks/useAdminOverview.ts`
+
+- [x] File exists and is tracked.
+- [ ] Pending detailed function-level audit.
+
+### `src/hooks/useAdminPollingSWR.ts`
+
+- [x] File exists and is tracked.
+- [ ] Pending detailed function-level audit.
+
+### `src/hooks/useAdminUiChartHealthReporter.ts`
+
+- [x] File exists and is tracked.
+- [ ] Pending detailed function-level audit.
+
+### `src/hooks/useAuthSWR.ts`
+
+- [x] File exists and is tracked.
+- [ ] Pending detailed function-level audit.
+
+### `src/hooks/useChatUnreadStatus.ts`
+
+- [x] File exists and is tracked.
+- [ ] Pending detailed function-level audit.
+
+### `src/hooks/useCompactViewport.ts`
+
+- [x] File exists and is tracked.
+- [ ] Pending detailed function-level audit.
+
+### `src/hooks/useDeferredClientReady.ts`
+
+- [x] File exists and is tracked.
+- [ ] Pending detailed function-level audit.
+
+### `src/hooks/useDrops.ts`
+
+- [x] File exists and is tracked.
+- [ ] Pending detailed function-level audit.
+
+### `src/hooks/useNetworkConditions.ts`
+
+- [x] File exists and is tracked.
+- [ ] Pending detailed function-level audit.
+
+### `src/hooks/useNotifications.ts`
+
+- [x] File exists and is tracked.
+- [ ] Pending detailed function-level audit.
+
+### `src/hooks/useNow.ts`
+
+- [x] File exists and is tracked.
+- [ ] Pending detailed function-level audit.
+
+### `src/hooks/useTaskGuidanceActions.ts`
+
+- [x] File exists and is tracked.
+- [ ] Pending detailed function-level audit.
+
+### `src/hooks/useViewerWatchSession.ts`
+
+- [x] File exists and is tracked.
+- [ ] Pending detailed function-level audit.
+
+### `src/lib/activity-sync.ts`
+
+- [x] File exists and is tracked.
+- [ ] Pending detailed function-level audit.
+
+### `src/lib/admin-ai-models.ts`
+
+- [x] File exists and is tracked.
+- [ ] Pending detailed function-level audit.
+
+### `src/lib/admin-analytics-preferences.ts`
+
+- [x] File exists and is tracked.
+- [ ] Pending detailed function-level audit.
+
+### `src/lib/admin-auth-outcome-chart.ts`
+
+- [x] File exists and is tracked.
+- [ ] Pending detailed function-level audit.
+
+### `src/lib/admin-debug-preferences.ts`
+
+- [x] File exists and is tracked.
+- [ ] Pending detailed function-level audit.
+
+### `src/lib/admin-debug-route-runtime.ts`
+
+- [x] File exists and is tracked.
+- [ ] Pending detailed function-level audit.
+
+### `src/lib/admin-drop-form-sections.ts`
+
+- [x] File exists and is tracked.
+- [ ] Pending detailed function-level audit.
+
+### `src/lib/admin-drop-form.ts`
+
+- [x] File exists and is tracked.
+- [ ] Pending detailed function-level audit.
+
+### `src/lib/admin-drop-formatting.ts`
+
+- [x] File exists and is tracked.
+- [ ] Pending detailed function-level audit.
+
+### `src/lib/admin-drop-lifecycle.ts`
+
+- [x] File exists and is tracked.
+- [ ] Pending detailed function-level audit.
+
+### `src/lib/admin-drop-queue.ts`
+
+- [x] File exists and is tracked.
+- [ ] Pending detailed function-level audit.
+
+### `src/lib/admin-moderation.ts`
+
+- [x] File exists and is tracked.
+- [ ] Pending detailed function-level audit.
+
+### `src/lib/admin-notification-funnel.ts`
+
+- [x] File exists and is tracked.
+- [ ] Pending detailed function-level audit.
+
+### `src/lib/admin-onboarding-velocity.ts`
+
+- [x] File exists and is tracked.
+- [ ] Pending detailed function-level audit.
+
+### `src/lib/admin-ops-health.ts`
+
+- [x] File exists and is tracked.
+- [ ] Pending detailed function-level audit.
+
+### `src/lib/admin-overview.ts`
+
+- [x] File exists and is tracked.
+- [ ] Pending detailed function-level audit.
+
+### `src/lib/admin-panel-system-logs.ts`
+
+- [x] File exists and is tracked.
+- [ ] Pending detailed function-level audit.
+
+### `src/lib/admin-task-pipeline.ts`
+
+- [x] File exists and is tracked.
+- [ ] Pending detailed function-level audit.
+
+### `src/lib/admin-ui-chart-health.ts`
+
+- [x] File exists and is tracked.
+- [ ] Pending detailed function-level audit.
+
+### `src/lib/ai-debug-assistant.ts`
+
+- [x] File exists and is tracked.
+- [ ] Pending detailed function-level audit.
+
+### `src/lib/ai-drop-covers.ts`
+
+- [x] File exists and is tracked.
+- [ ] Pending detailed function-level audit.
+
+### `src/lib/ai-drop-descriptions.ts`
+
+- [x] File exists and is tracked.
+- [ ] Pending detailed function-level audit.
+
+### `src/lib/analytics-client-engine.ts`
+
+- [x] File exists and is tracked.
+- [ ] Pending detailed function-level audit.
+
+### `src/lib/analytics-identifiers.ts`
+
+- [x] File exists and is tracked.
+- [ ] Pending detailed function-level audit.
+
+### `src/lib/analytics-metric-catalog.ts`
+
+- [x] File exists and is tracked.
+- [ ] Pending detailed function-level audit.
+
+### `src/lib/analytics-semantics.ts`
+
+- [x] File exists and is tracked.
+- [ ] Pending detailed function-level audit.
+
+### `src/lib/analytics-time.ts`
+
+- [x] File exists and is tracked.
+- [ ] Pending detailed function-level audit.
+
+### `src/lib/auth-errors.ts`
+
+- [x] File exists and is tracked.
+- [ ] Pending detailed function-level audit.
+
+### `src/lib/authFetch.ts`
+
+- [x] File exists and is tracked.
+- [ ] Pending detailed function-level audit.
+
+### `src/lib/browser-notification-enrollment.ts`
+
+- [x] File exists and is tracked.
+- [ ] Pending detailed function-level audit.
+
+### `src/lib/browser-utils.ts`
+
+- [x] File exists and is tracked.
+- [ ] Pending detailed function-level audit.
+
+### `src/lib/bug-reporting.ts`
+
+- [x] File exists and is tracked.
+- [ ] Pending detailed function-level audit.
+
+### `src/lib/chat-attachments.ts`
+
+- [x] File exists and is tracked.
+- [ ] Pending detailed function-level audit.
+
+### `src/lib/chat-realtime.ts`
+
+- [x] File exists and is tracked.
+- [ ] Pending detailed function-level audit.
+
+### `src/lib/chat-send-feedback.ts`
+
+- [x] File exists and is tracked.
+- [ ] Pending detailed function-level audit.
+
+### `src/lib/chat-send-realtime.ts`
+
+- [x] File exists and is tracked.
+- [ ] Pending detailed function-level audit.
+
+### `src/lib/chat-soft-seal.ts`
+
+- [x] File exists and is tracked.
+- [ ] Pending detailed function-level audit.
+
+### `src/lib/chat.ts`
+
+- [x] File exists and is tracked.
+- [ ] Pending detailed function-level audit.
+
+### `src/lib/client-diagnostics.ts`
+
+- [x] File exists and is tracked.
+- [ ] Pending detailed function-level audit.
+
+### `src/lib/client-error-reporting.ts`
+
+- [x] File exists and is tracked.
+- [ ] Pending detailed function-level audit.
+
+### `src/lib/client-random.ts`
+
+- [x] File exists and is tracked.
+- [ ] Pending detailed function-level audit.
+
+### `src/lib/client-session.ts`
+
+- [x] File exists and is tracked.
+- [ ] Pending detailed function-level audit.
+
+### `src/lib/creator-admin.ts`
+
+- [x] File exists and is tracked.
+- [ ] Pending detailed function-level audit.
+
+### `src/lib/creator-application.ts`
+
+- [x] File exists and is tracked.
+- [ ] Pending detailed function-level audit.
+
+### `src/lib/creator-contract.ts`
+
+- [x] File exists and is tracked.
+- [ ] Pending detailed function-level audit.
+
+### `src/lib/creator-experiences.ts`
+
+- [x] File exists and is tracked.
+- [ ] Pending detailed function-level audit.
+
+### `src/lib/creator-message-compatibility.ts`
+
+- [x] File exists and is tracked.
+- [ ] Pending detailed function-level audit.
+
+### `src/lib/creator-onboarding.ts`
+
+- [x] File exists and is tracked.
+- [ ] Pending detailed function-level audit.
+
+### `src/lib/creator-public-pages.ts`
+
+- [x] File exists and is tracked.
+- [ ] Pending detailed function-level audit.
+
+### `src/lib/daily-checkin.ts`
+
+- [x] File exists and is tracked.
+- [ ] Pending detailed function-level audit.
+
+### `src/lib/drop-dashboard.ts`
+
+- [x] File exists and is tracked.
+- [ ] Pending detailed function-level audit.
+
+### `src/lib/drop-engagement.ts`
+
+- [x] File exists and is tracked.
+- [ ] Pending detailed function-level audit.
+
+### `src/lib/drop-normalizers.ts`
+
+- [x] File exists and is tracked.
+- [ ] Pending detailed function-level audit.
+
+### `src/lib/drop-presentation.ts`
+
+- [x] File exists and is tracked.
+- [ ] Pending detailed function-level audit.
+
+### `src/lib/drop-queue-lifecycle.ts`
+
+- [x] File exists and is tracked.
+- [ ] Pending detailed function-level audit.
+
+### `src/lib/drop-queue-schedule.ts`
+
+- [x] File exists and is tracked.
+- [ ] Pending detailed function-level audit.
+
+### `src/lib/drop-read-models.ts`
+
+- [x] File exists and is tracked.
+- [ ] Pending detailed function-level audit.
+
+### `src/lib/drop-status.ts`
+
+- [x] File exists and is tracked.
+- [ ] Pending detailed function-level audit.
+
+### `src/lib/firebase-data.ts`
+
+- [x] File exists and is tracked.
+- [ ] Pending detailed function-level audit.
+
+### `src/lib/firebase-messaging.ts`
+
+- [x] File exists and is tracked.
+- [ ] Pending detailed function-level audit.
+
+### `src/lib/firebase-runtime.ts`
+
+- [x] File exists and is tracked.
+- [ ] Pending detailed function-level audit.
+
+### `src/lib/firebase.ts`
+
+- [x] File exists and is tracked.
+- [ ] Pending detailed function-level audit.
+
+### `src/lib/firebase/admin-actions.ts`
+
+- [x] File exists and is tracked.
+- [ ] Pending detailed function-level audit.
+
+### `src/lib/firestore-client-errors.ts`
+
+- [x] File exists and is tracked.
+- [ ] Pending detailed function-level audit.
+
+### `src/lib/gumdrop-economics.ts`
+
+- [x] File exists and is tracked.
+- [ ] Pending detailed function-level audit.
+
+### `src/lib/gumdrop-ledger.ts`
+
+- [x] File exists and is tracked.
+- [ ] Pending detailed function-level audit.
+
+### `src/lib/gumdrops-packages.ts`
+
+- [x] File exists and is tracked.
+- [ ] Pending detailed function-level audit.
+
+### `src/lib/http-cache.ts`
+
+- [x] File exists and is tracked.
+- [ ] Pending detailed function-level audit.
+
+### `src/lib/landing-assets.ts`
+
+- [x] File exists and is tracked.
+- [ ] Pending detailed function-level audit.
+
+### `src/lib/manual-email-auth.ts`
+
+- [x] File exists and is tracked.
+- [ ] Pending detailed function-level audit.
+
+### `src/lib/marketing-copy.ts`
+
+- [x] File exists and is tracked.
+- [ ] Pending detailed function-level audit.
+
+### `src/lib/media-hosts.ts`
+
+- [x] File exists and is tracked.
+- [ ] Pending detailed function-level audit.
+
+### `src/lib/navigation-persistence.ts`
+
+- [x] File exists and is tracked.
+- [ ] Pending detailed function-level audit.
+
+### `src/lib/navigation-session.ts`
+
+- [x] File exists and is tracked.
+- [ ] Pending detailed function-level audit.
+
+### `src/lib/notification-contracts.ts`
+
+- [x] File exists and is tracked.
+- [ ] Pending detailed function-level audit.
+
+### `src/lib/notifications.ts`
+
+- [x] File exists and is tracked.
+- [ ] Pending detailed function-level audit.
+
+### `src/lib/orchestration/contract.ts`
+
+- [x] File exists and is tracked.
+- [ ] Pending detailed function-level audit.
+
+### `src/lib/platform-config.ts`
+
+- [x] File exists and is tracked.
+- [ ] Pending detailed function-level audit.
+
+### `src/lib/privacy-consent.ts`
+
+- [x] File exists and is tracked.
+- [ ] Pending detailed function-level audit.
+
+### `src/lib/release-tracking.ts`
+
+- [x] File exists and is tracked.
+- [ ] Pending detailed function-level audit.
+
+### `src/lib/rollouts.ts`
+
+- [x] File exists and is tracked.
+- [ ] Pending detailed function-level audit.
+
+### `src/lib/route-runtime-health.ts`
+
+- [x] File exists and is tracked.
+- [ ] Pending detailed function-level audit.
+
+### `src/lib/security-events.ts`
+
+- [x] File exists and is tracked.
+- [ ] Pending detailed function-level audit.
+
+### `src/lib/self-healing.ts`
+
+- [x] File exists and is tracked.
+- [ ] Pending detailed function-level audit.
+
+### `src/lib/server/admin-analytics-context.ts`
+
+- [x] File exists and is tracked.
+- [ ] Pending detailed function-level audit.
+
+### `src/lib/server/admin-analytics-data.ts`
+
+- [x] File exists and is tracked.
+- [ ] Pending detailed function-level audit.
+
+### `src/lib/server/admin-analytics-historical-activity.ts`
+
+- [x] File exists and is tracked.
+- [ ] Pending detailed function-level audit.
+
+### `src/lib/server/admin-analytics-historical-content.ts`
+
+- [x] File exists and is tracked.
+- [ ] Pending detailed function-level audit.
+
+### `src/lib/server/admin-analytics-historical-engagement.ts`
+
+- [x] File exists and is tracked.
+- [ ] Pending detailed function-level audit.
+
+### `src/lib/server/admin-analytics-historical-onboarding.ts`
+
+- [x] File exists and is tracked.
+- [ ] Pending detailed function-level audit.
+
+### `src/lib/server/admin-analytics-historical-tasks.ts`
+
+- [x] File exists and is tracked.
+- [ ] Pending detailed function-level audit.
+
+### `src/lib/server/admin-analytics-historical-traffic.ts`
+
+- [x] File exists and is tracked.
+- [ ] Pending detailed function-level audit.
+
+### `src/lib/server/admin-analytics-historical-users.ts`
+
+- [x] File exists and is tracked.
+- [ ] Pending detailed function-level audit.
+
+### `src/lib/server/admin-analytics-historical-validation.ts`
+
+- [x] File exists and is tracked.
+- [ ] Pending detailed function-level audit.
+
+### `src/lib/server/admin-analytics-historical-viewer.ts`
+
+- [x] File exists and is tracked.
+- [ ] Pending detailed function-level audit.
+
+### `src/lib/server/admin-analytics-preferences.ts`
+
+- [x] File exists and is tracked.
+- [ ] Pending detailed function-level audit.
+
+### `src/lib/server/admin-analytics-shared.ts`
+
+- [x] File exists and is tracked.
+- [ ] Pending detailed function-level audit.
+
+### `src/lib/server/admin-cli-logging.ts`
+
+- [x] File exists and is tracked.
+- [ ] Pending detailed function-level audit.
+
+### `src/lib/server/admin-debug-preferences.ts`
+
+- [x] File exists and is tracked.
+- [ ] Pending detailed function-level audit.
+
+### `src/lib/server/admin-debug-settings.ts`
+
+- [x] File exists and is tracked.
+- [ ] Pending detailed function-level audit.
+
+### `src/lib/server/admin-moderation.ts`
+
+- [x] File exists and is tracked.
+- [ ] Pending detailed function-level audit.
+
+### `src/lib/server/admin-ops-health.ts`
+
+- [x] File exists and is tracked.
+- [ ] Pending detailed function-level audit.
+
+### `src/lib/server/admin-orchestration.ts`
+
+- [x] File exists and is tracked.
+- [ ] Pending detailed function-level audit.
+
+### `src/lib/server/admin-overview-users.ts`
+
+- [x] File exists and is tracked.
+- [ ] Pending detailed function-level audit.
+
+### `src/lib/server/admin-panel-system-logs.ts`
+
+- [x] File exists and is tracked.
+- [ ] Pending detailed function-level audit.
+
+### `src/lib/server/admin-ui-chart-health.ts`
+
+- [x] File exists and is tracked.
+- [ ] Pending detailed function-level audit.
+
+### `src/lib/server/admin-ui-preferences.ts`
+
+- [x] File exists and is tracked.
+- [ ] Pending detailed function-level audit.
+
+### `src/lib/server/ai-debug-assistant.ts`
+
+- [x] File exists and is tracked.
+- [ ] Pending detailed function-level audit.
+
+### `src/lib/server/ai-drop-covers.ts`
+
+- [x] File exists and is tracked.
+- [ ] Pending detailed function-level audit.
+
+### `src/lib/server/ai-drop-descriptions.ts`
+
+- [x] File exists and is tracked.
+- [ ] Pending detailed function-level audit.
+
+### `src/lib/server/analytics-event-utils.ts`
+
+- [x] File exists and is tracked.
+- [ ] Pending detailed function-level audit.
+
+### `src/lib/server/analytics-governance.ts`
+
+- [x] File exists and is tracked.
+- [ ] Pending detailed function-level audit.
+
+### `src/lib/server/analytics-metrics.ts`
+
+- [x] File exists and is tracked.
+- [ ] Pending detailed function-level audit.
+
+### `src/lib/server/analytics-parity.ts`
+
+- [x] File exists and is tracked.
+- [ ] Pending detailed function-level audit.
+
+### `src/lib/server/analytics-pipeline-health.ts`
+
+- [x] File exists and is tracked.
+- [ ] Pending detailed function-level audit.
+
+### `src/lib/server/analytics-runtime.ts`
+
+- [x] File exists and is tracked.
+- [ ] Pending detailed function-level audit.
+
+### `src/lib/server/analytics-semantics.ts`
+
+- [x] File exists and is tracked.
+- [ ] Pending detailed function-level audit.
+
+### `src/lib/server/analytics.ts`
+
+- [x] File exists and is tracked.
+- [ ] Pending detailed function-level audit.
+
+### `src/lib/server/auth.ts`
+
+- [x] File exists and is tracked.
+- [ ] Pending detailed function-level audit.
+
+### `src/lib/server/chat.ts`
+
+- [x] File exists and is tracked.
+- [ ] Pending detailed function-level audit.
+
+### `src/lib/server/creator-discovery.ts`
+
+- [x] File exists and is tracked.
+- [ ] Pending detailed function-level audit.
+
+### `src/lib/server/creator-experiences.ts`
+
+- [x] File exists and is tracked.
+- [ ] Pending detailed function-level audit.
+
+### `src/lib/server/creator-onboarding-alerts.ts`
+
+- [x] File exists and is tracked.
+- [ ] Pending detailed function-level audit.
+
+### `src/lib/server/creator-onboarding-diagnostics.ts`
+
+- [x] File exists and is tracked.
+- [ ] Pending detailed function-level audit.
+
+### `src/lib/server/creator-onboarding.ts`
+
+- [x] File exists and is tracked.
+- [ ] Pending detailed function-level audit.
+
+### `src/lib/server/daily-tasks.ts`
+
+- [x] File exists and is tracked.
+- [ ] Pending detailed function-level audit.
+
+### `src/lib/server/diagnostic-read-fallbacks.ts`
+
+- [x] File exists and is tracked.
+- [ ] Pending detailed function-level audit.
+
+### `src/lib/server/drop-mutations.ts`
+
+- [x] File exists and is tracked.
+- [ ] Pending detailed function-level audit.
+
+### `src/lib/server/drop-queue.ts`
+
+- [x] File exists and is tracked.
+- [ ] Pending detailed function-level audit.
+
+### `src/lib/server/drop-references.ts`
+
+- [x] File exists and is tracked.
+- [ ] Pending detailed function-level audit.
+
+### `src/lib/server/drop-runtime.ts`
+
+- [x] File exists and is tracked.
+- [ ] Pending detailed function-level audit.
+
+### `src/lib/server/drops.ts`
+
+- [x] File exists and is tracked.
+- [ ] Pending detailed function-level audit.
+
+### `src/lib/server/fcm-utils.ts`
+
+- [x] File exists and is tracked.
+- [ ] Pending detailed function-level audit.
+
+### `src/lib/server/firebase-admin.ts`
+
+- [x] File exists and is tracked.
+- [ ] Pending detailed function-level audit.
+
+### `src/lib/server/firestore-sanitize.ts`
+
+- [x] File exists and is tracked.
+- [ ] Pending detailed function-level audit.
+
+### `src/lib/server/gumdrop-ledger.ts`
+
+- [x] File exists and is tracked.
+- [ ] Pending detailed function-level audit.
+
+### `src/lib/server/notification-inbox.ts`
+
+- [x] File exists and is tracked.
+- [ ] Pending detailed function-level audit.
+
+### `src/lib/server/notification-runtime.ts`
+
+- [x] File exists and is tracked.
+- [ ] Pending detailed function-level audit.
+
+### `src/lib/server/onboarding-analytics.ts`
+
+- [x] File exists and is tracked.
+- [ ] Pending detailed function-level audit.
+
+### `src/lib/server/paypal.ts`
+
+- [x] File exists and is tracked.
+- [ ] Pending detailed function-level audit.
+
+### `src/lib/server/privacy-consent.ts`
+
+- [x] File exists and is tracked.
+- [ ] Pending detailed function-level audit.
+
+### `src/lib/server/process-queue-drops.ts`
+
+- [x] File exists and is tracked.
+- [ ] Pending detailed function-level audit.
+
+### `src/lib/server/push-notifications.ts`
+
+- [x] File exists and is tracked.
+- [ ] Pending detailed function-level audit.
+
+### `src/lib/server/queue-runtime.ts`
+
+- [x] File exists and is tracked.
+- [ ] Pending detailed function-level audit.
+
+### `src/lib/server/rate-limit.ts`
+
+- [x] File exists and is tracked.
+- [ ] Pending detailed function-level audit.
+
+### `src/lib/server/request-client-ip.ts`
+
+- [x] File exists and is tracked.
+- [ ] Pending detailed function-level audit.
+
+### `src/lib/server/request-guard.ts`
+
+- [x] File exists and is tracked.
+- [ ] Pending detailed function-level audit.
+
+### `src/lib/server/request-origin.ts`
+
+- [x] File exists and is tracked.
+- [ ] Pending detailed function-level audit.
+
+### `src/lib/server/route-diagnostics.ts`
+
+- [x] File exists and is tracked.
+- [ ] Pending detailed function-level audit.
+
+### `src/lib/server/route-runtime-health.ts`
+
+- [x] File exists and is tracked.
+- [ ] Pending detailed function-level audit.
+
+### `src/lib/server/runtime-warning-store.ts`
+
+- [x] File exists and is tracked.
+- [ ] Pending detailed function-level audit.
+
+### `src/lib/server/server-diagnostics.ts`
+
+- [x] File exists and is tracked.
+- [ ] Pending detailed function-level audit.
+
+### `src/lib/server/storage-assets.ts`
+
+- [x] File exists and is tracked.
+- [ ] Pending detailed function-level audit.
+
+### `src/lib/server/support-threads.ts`
+
+- [x] File exists and is tracked.
+- [ ] Pending detailed function-level audit.
+
+### `src/lib/server/user-runtime.ts`
+
+- [x] File exists and is tracked.
+- [ ] Pending detailed function-level audit.
+
+### `src/lib/server/username-suggestions.ts`
+
+- [x] File exists and is tracked.
+- [ ] Pending detailed function-level audit.
+
+### `src/lib/site-origin.ts`
+
+- [x] File exists and is tracked.
+- [ ] Pending detailed function-level audit.
+
+### `src/lib/support-readiness.ts`
+
+- [x] File exists and is tracked.
+- [ ] Pending detailed function-level audit.
+
+### `src/lib/task-guidance.ts`
+
+- [x] File exists and is tracked.
+- [ ] Pending detailed function-level audit.
+
+### `src/lib/tasks/task-catalog.ts`
+
+- [x] File exists and is tracked.
+- [ ] Pending detailed function-level audit.
+
+### `src/lib/tasks/task-observability.ts`
+
+- [x] File exists and is tracked.
+- [ ] Pending detailed function-level audit.
+
+### `src/lib/telemetry-catalog.ts`
+
+- [x] File exists and is tracked.
+- [ ] Pending detailed function-level audit.
+
+### `src/lib/telemetry-safety.ts`
+
+- [x] File exists and is tracked.
+- [ ] Pending detailed function-level audit.
+
+### `src/lib/telemetry.ts`
+
+- [x] File exists and is tracked.
+- [ ] Pending detailed function-level audit.
+
+### `src/lib/timezone.ts`
+
+- [x] File exists and is tracked.
+- [ ] Pending detailed function-level audit.
+
+### `src/lib/transaction-normalizers.ts`
+
+- [x] File exists and is tracked.
+- [ ] Pending detailed function-level audit.
+
+### `src/lib/ui-continuity.ts`
+
+- [x] File exists and is tracked.
+- [ ] Pending detailed function-level audit.
+
+### `src/lib/user-profile-validation.ts`
+
+- [x] File exists and is tracked.
+- [ ] Pending detailed function-level audit.
+
+### `src/lib/user-utils.ts`
+
+- [x] File exists and is tracked.
+- [ ] Pending detailed function-level audit.
+
+### `src/lib/utils.ts`
+
+- [x] File exists and is tracked.
+- [ ] Pending detailed function-level audit.
+
+### `src/lib/viewer-asset-prefetch.ts`
+
+- [x] File exists and is tracked.
+- [ ] Pending detailed function-level audit.
+
+### `src/lib/viewer-watch-session.ts`
+
+- [x] File exists and is tracked.
+- [ ] Pending detailed function-level audit.
+
+### `src/stories/Button.stories.ts`
+
+- [x] File exists and is tracked.
+- [ ] Pending detailed function-level audit.
+
+### `src/stories/Button.tsx`
+
+- [x] File exists and is tracked.
+- [ ] Pending detailed function-level audit.
+
+### `src/stories/Header.stories.ts`
+
+- [x] File exists and is tracked.
+- [ ] Pending detailed function-level audit.
+
+### `src/stories/Header.tsx`
+
+- [x] File exists and is tracked.
+- [ ] Pending detailed function-level audit.
+
+### `src/stories/Page.stories.ts`
+
+- [x] File exists and is tracked.
+- [ ] Pending detailed function-level audit.
+
+### `src/stories/Page.tsx`
+
+- [x] File exists and is tracked.
+- [ ] Pending detailed function-level audit.
+
+### `src/types/admin-analytics.ts`
+
+- [x] File exists and is tracked.
+- [ ] Pending detailed function-level audit.
+
+### `src/types/analytics.ts`
+
+- [x] File exists and is tracked.
+- [ ] Pending detailed function-level audit.
+
+### `src/types/db.ts`
+
+- [x] File exists and is tracked.
+- [ ] Pending detailed function-level audit.
+
+### `src/types/gtag.d.ts`
+
+- [x] File exists and is tracked.
+- [ ] Pending detailed function-level audit.
+
+### `tests/auth.spec.ts`
+
+- [x] File exists and is tracked.
+- [ ] Pending detailed function-level audit.
+
+### `tests/contracts/task-economy-contract.spec.ts`
+
+- [x] File exists and is tracked.
+- [ ] Pending detailed function-level audit.
+
+### `tests/contracts/telemetry-contracts.spec.ts`
+
+- [x] File exists and is tracked.
+- [ ] Pending detailed function-level audit.
+
+### `tests/drops.spec.ts`
+
+- [x] File exists and is tracked.
+- [ ] Pending detailed function-level audit.
+
+### `tests/firebase/database.rules.spec.ts`
+
+- [x] File exists and is tracked.
+- [ ] Pending detailed function-level audit.
+
+### `tests/firebase/firestore.rules.spec.ts`
+
+- [x] File exists and is tracked.
+- [ ] Pending detailed function-level audit.
+
+### `tests/firebase/storage.rules.spec.ts`
+
+- [x] File exists and is tracked.
+- [ ] Pending detailed function-level audit.
+
+### `tests/guest-dismissal.spec.ts`
+
+- [x] File exists and is tracked.
+- [ ] Pending detailed function-level audit.
+
+### `tests/launch-qa.spec.ts`
+
+- [x] File exists and is tracked.
+- [ ] Pending detailed function-level audit.
+
+### `tests/performance-bench.spec.ts`
+
+- [x] File exists and is tracked.
+- [ ] Pending detailed function-level audit.
+
+### `tests/puppeteer/sample.ts`
+
+- [x] File exists and is tracked.
+- [ ] Pending detailed function-level audit.
+
+### `tests/qa-audit.spec.ts`
+
+- [x] File exists and is tracked.
+- [ ] Pending detailed function-level audit.
+
+### `tests/security-ip-spoofing.spec.ts`
+
+- [x] File exists and is tracked.
+- [ ] Pending detailed function-level audit.
+
+### `tests/support/firebase-admin-firestore.mock.ts`
+
+- [x] File exists and is tracked.
+- [ ] Pending detailed function-level audit.
+
+### `tests/support/firebase-admin.mock.ts`
+
+- [x] File exists and is tracked.
+- [ ] Pending detailed function-level audit.
+
+### `tests/support/google-cloud-vertexai.mock.ts`
+
+- [x] File exists and is tracked.
+- [ ] Pending detailed function-level audit.
+
+### `tests/ui-audits/accessibility.spec.ts`
+
+- [x] File exists and is tracked.
+- [ ] Pending detailed function-level audit.
+
+### `tests/ui-audits/helpers.ts`
+
+- [x] File exists and is tracked.
+- [ ] Pending detailed function-level audit.
+
+### `tests/ui-audits/known-accessibility-baseline.ts`
+
+- [x] File exists and is tracked.
+- [ ] Pending detailed function-level audit.
+
+### `tests/ui-audits/runtime.spec.ts`
+
+- [x] File exists and is tracked.
+- [ ] Pending detailed function-level audit.
+
+### `tests/ui-audits/ui-surface-targets.ts`
+
+- [x] File exists and is tracked.
+- [ ] Pending detailed function-level audit.
+
+### `tests/ui-audits/visual-regression.spec.ts`
+
+- [x] File exists and is tracked.
+- [ ] Pending detailed function-level audit.
+
+### `tests/unit/admin-ai-drop-cover-catalog.spec.ts`
+
+- [x] File exists and is tracked.
+- [ ] Pending detailed function-level audit.
+
+### `tests/unit/admin-ai-drop-covers-feedback-route.spec.ts`
+
+- [x] File exists and is tracked.
+- [ ] Pending detailed function-level audit.
+
+### `tests/unit/admin-ai-drop-covers-generate-route.spec.ts`
+
+- [x] File exists and is tracked.
+- [ ] Pending detailed function-level audit.
+
+### `tests/unit/admin-ai-drop-covers-ops-routes.spec.ts`
+
+- [x] File exists and is tracked.
+- [ ] Pending detailed function-level audit.
+
+### `tests/unit/admin-ai-drop-covers-route.spec.ts`
+
+- [x] File exists and is tracked.
+- [ ] Pending detailed function-level audit.
+
+### `tests/unit/admin-ai-drop-covers-template-route.spec.ts`
+
+- [x] File exists and is tracked.
+- [ ] Pending detailed function-level audit.
+
+### `tests/unit/admin-ai-drop-descriptions-routes.spec.ts`
+
+- [x] File exists and is tracked.
+- [ ] Pending detailed function-level audit.
+
+### `tests/unit/admin-ai-models.spec.ts`
+
+- [x] File exists and is tracked.
+- [ ] Pending detailed function-level audit.
+
+### `tests/unit/admin-analytics-data.spec.ts`
+
+- [x] File exists and is tracked.
+- [ ] Pending detailed function-level audit.
+
+### `tests/unit/admin-analytics-historical-users.spec.ts`
+
+- [x] File exists and is tracked.
+- [ ] Pending detailed function-level audit.
+
+### `tests/unit/admin-analytics-realtime-route.spec.ts`
+
+- [x] File exists and is tracked.
+- [ ] Pending detailed function-level audit.
+
+### `tests/unit/admin-auth-outcome-chart.spec.ts`
+
+- [x] File exists and is tracked.
+- [ ] Pending detailed function-level audit.
+
+### `tests/unit/admin-balance-route.spec.ts`
+
+- [x] File exists and is tracked.
+- [ ] Pending detailed function-level audit.
+
+### `tests/unit/admin-cli-logging.spec.ts`
+
+- [x] File exists and is tracked.
+- [ ] Pending detailed function-level audit.
+
+### `tests/unit/admin-content-route.spec.ts`
+
+- [x] File exists and is tracked.
+- [ ] Pending detailed function-level audit.
+
+### `tests/unit/admin-creator-id-document-route.spec.ts`
+
+- [x] File exists and is tracked.
+- [ ] Pending detailed function-level audit.
+
+### `tests/unit/admin-debug-assistant-route.spec.ts`
+
+- [x] File exists and is tracked.
+- [ ] Pending detailed function-level audit.
+
+### `tests/unit/admin-debug-preferences-route.spec.ts`
+
+- [x] File exists and is tracked.
+- [ ] Pending detailed function-level audit.
+
+### `tests/unit/admin-debug-route-runtime.spec.ts`
+
+- [x] File exists and is tracked.
+- [ ] Pending detailed function-level audit.
+
+### `tests/unit/admin-drop-form-sections.spec.ts`
+
+- [x] File exists and is tracked.
+- [ ] Pending detailed function-level audit.
+
+### `tests/unit/admin-drop-form.spec.ts`
+
+- [x] File exists and is tracked.
+- [ ] Pending detailed function-level audit.
+
+### `tests/unit/admin-moderation-routes.spec.ts`
+
+- [x] File exists and is tracked.
+- [ ] Pending detailed function-level audit.
+
+### `tests/unit/admin-notification-funnel.spec.ts`
+
+- [x] File exists and is tracked.
+- [ ] Pending detailed function-level audit.
+
+### `tests/unit/admin-onboarding-velocity.spec.ts`
+
+- [x] File exists and is tracked.
+- [ ] Pending detailed function-level audit.
+
+### `tests/unit/admin-ops-health.spec.ts`
+
+- [x] File exists and is tracked.
+- [ ] Pending detailed function-level audit.
+
+### `tests/unit/admin-overview-route.spec.ts`
+
+- [x] File exists and is tracked.
+- [ ] Pending detailed function-level audit.
+
+### `tests/unit/admin-overview-users.spec.ts`
+
+- [x] File exists and is tracked.
+- [ ] Pending detailed function-level audit.
+
+### `tests/unit/admin-overview.spec.ts`
+
+- [x] File exists and is tracked.
+- [ ] Pending detailed function-level audit.
+
+### `tests/unit/admin-panel-system-logs.spec.ts`
+
+- [x] File exists and is tracked.
+- [ ] Pending detailed function-level audit.
+
+### `tests/unit/admin-roster-route.spec.ts`
+
+- [x] File exists and is tracked.
+- [ ] Pending detailed function-level audit.
+
+### `tests/unit/admin-support-threads-route.spec.ts`
+
+- [x] File exists and is tracked.
+- [ ] Pending detailed function-level audit.
+
+### `tests/unit/admin-task-pipeline.spec.ts`
+
+- [x] File exists and is tracked.
+- [ ] Pending detailed function-level audit.
+
+### `tests/unit/admin-ui-chart-health-route.spec.ts`
+
+- [x] File exists and is tracked.
+- [ ] Pending detailed function-level audit.
+
+### `tests/unit/admin-ui-chart-health.spec.ts`
+
+- [x] File exists and is tracked.
+- [ ] Pending detailed function-level audit.
+
+### `tests/unit/admin-user-username-route.spec.ts`
+
+- [x] File exists and is tracked.
+- [ ] Pending detailed function-level audit.
+
+### `tests/unit/admin-users-route.spec.ts`
+
+- [x] File exists and is tracked.
+- [ ] Pending detailed function-level audit.
+
+### `tests/unit/ai-debug-assistant.spec.ts`
+
+- [x] File exists and is tracked.
+- [ ] Pending detailed function-level audit.
+
+### `tests/unit/ai-drop-covers.spec.ts`
+
+- [x] File exists and is tracked.
+- [ ] Pending detailed function-level audit.
+
+### `tests/unit/ai-drop-descriptions.spec.ts`
+
+- [x] File exists and is tracked.
+- [ ] Pending detailed function-level audit.
+
+### `tests/unit/analytics-identifiers.spec.ts`
+
+- [x] File exists and is tracked.
+- [ ] Pending detailed function-level audit.
+
+### `tests/unit/analytics-ingest-route.spec.ts`
+
+- [x] File exists and is tracked.
+- [ ] Pending detailed function-level audit.
+
+### `tests/unit/analytics-metric-catalog.spec.ts`
+
+- [x] File exists and is tracked.
+- [ ] Pending detailed function-level audit.
+
+### `tests/unit/auth-errors.spec.ts`
+
+- [x] File exists and is tracked.
+- [ ] Pending detailed function-level audit.
+
+### `tests/unit/auth-handle-api-error.spec.ts`
+
+- [x] File exists and is tracked.
+- [ ] Pending detailed function-level audit.
+
+### `tests/unit/chat-attachments-route.spec.ts`
+
+- [x] File exists and is tracked.
+- [ ] Pending detailed function-level audit.
+
+### `tests/unit/chat-send-feedback.spec.ts`
+
+- [x] File exists and is tracked.
+- [ ] Pending detailed function-level audit.
+
+### `tests/unit/chat-send-realtime.spec.ts`
+
+- [x] File exists and is tracked.
+- [ ] Pending detailed function-level audit.
+
+### `tests/unit/chat-soft-seal.spec.ts`
+
+- [x] File exists and is tracked.
+- [ ] Pending detailed function-level audit.
+
+### `tests/unit/chat-thread-messages-route.spec.ts`
+
+- [x] File exists and is tracked.
+- [ ] Pending detailed function-level audit.
+
+### `tests/unit/chat-thread-read-route.spec.ts`
+
+- [x] File exists and is tracked.
+- [ ] Pending detailed function-level audit.
+
+### `tests/unit/chat-thread-route.spec.ts`
+
+- [x] File exists and is tracked.
+- [ ] Pending detailed function-level audit.
+
+### `tests/unit/chat-threads-route.spec.ts`
+
+- [x] File exists and is tracked.
+- [ ] Pending detailed function-level audit.
+
+### `tests/unit/client-diagnostics.spec.ts`
+
+- [x] File exists and is tracked.
+- [ ] Pending detailed function-level audit.
+
+### `tests/unit/client-random.spec.ts`
+
+- [x] File exists and is tracked.
+- [ ] Pending detailed function-level audit.
+
+### `tests/unit/client-session.spec.ts`
+
+- [x] File exists and is tracked.
+- [ ] Pending detailed function-level audit.
+
+### `tests/unit/complete-onboarding-route.spec.ts`
+
+- [x] File exists and is tracked.
+- [ ] Pending detailed function-level audit.
+
+### `tests/unit/creator-bookings-route.spec.ts`
+
+- [x] File exists and is tracked.
+- [ ] Pending detailed function-level audit.
+
+### `tests/unit/creator-contract-signature-route.spec.ts`
+
+- [x] File exists and is tracked.
+- [ ] Pending detailed function-level audit.
+
+### `tests/unit/creator-discovery-route.spec.ts`
+
+- [x] File exists and is tracked.
+- [ ] Pending detailed function-level audit.
+
+### `tests/unit/creator-experiences-panel.spec.tsx`
+
+- [x] File exists and is tracked.
+- [ ] Pending detailed function-level audit.
+
+### `tests/unit/creator-experiences.spec.ts`
+
+- [x] File exists and is tracked.
+- [ ] Pending detailed function-level audit.
+
+### `tests/unit/creator-id-submission-route.spec.ts`
+
+- [x] File exists and is tracked.
+- [ ] Pending detailed function-level audit.
+
+### `tests/unit/creator-messages-route.spec.ts`
+
+- [x] File exists and is tracked.
+- [ ] Pending detailed function-level audit.
+
+### `tests/unit/creator-onboarding-alerts.spec.ts`
+
+- [x] File exists and is tracked.
+- [ ] Pending detailed function-level audit.
+
+### `tests/unit/creator-onboarding-application-route.spec.ts`
+
+- [x] File exists and is tracked.
+- [ ] Pending detailed function-level audit.
+
+### `tests/unit/creator-onboarding-diagnostics.spec.ts`
+
+- [x] File exists and is tracked.
+- [ ] Pending detailed function-level audit.
+
+### `tests/unit/creator-onboarding-intro-route.spec.ts`
+
+- [x] File exists and is tracked.
+- [ ] Pending detailed function-level audit.
+
+### `tests/unit/creator-onboarding-server.spec.ts`
+
+- [x] File exists and is tracked.
+- [ ] Pending detailed function-level audit.
+
+### `tests/unit/creator-onboarding.spec.ts`
+
+- [x] File exists and is tracked.
+- [ ] Pending detailed function-level audit.
+
+### `tests/unit/creator-public-pages.spec.ts`
+
+- [x] File exists and is tracked.
+- [ ] Pending detailed function-level audit.
+
+### `tests/unit/creator-relationships-route.spec.ts`
+
+- [x] File exists and is tracked.
+- [ ] Pending detailed function-level audit.
+
+### `tests/unit/creator-settings-route.spec.ts`
+
+- [x] File exists and is tracked.
+- [ ] Pending detailed function-level audit.
+
+### `tests/unit/creator-subscriptions-route.spec.ts`
+
+- [x] File exists and is tracked.
+- [ ] Pending detailed function-level audit.
+
+### `tests/unit/creator-waitlist-page.spec.tsx`
+
+- [x] File exists and is tracked.
+- [ ] Pending detailed function-level audit.
+
+### `tests/unit/creator-workspace-panel.spec.tsx`
+
+- [x] File exists and is tracked.
+- [ ] Pending detailed function-level audit.
+
+### `tests/unit/dashboard-viewer-page.spec.tsx`
+
+- [x] File exists and is tracked.
+- [ ] Pending detailed function-level audit.
+
+### `tests/unit/drop-queue-lifecycle.spec.ts`
+
+- [x] File exists and is tracked.
+- [ ] Pending detailed function-level audit.
+
+### `tests/unit/drop-references.spec.ts`
+
+- [x] File exists and is tracked.
+- [ ] Pending detailed function-level audit.
+
+### `tests/unit/drop-status.spec.ts`
+
+- [x] File exists and is tracked.
+- [ ] Pending detailed function-level audit.
+
+### `tests/unit/drops-route.spec.ts`
+
+- [x] File exists and is tracked.
+- [ ] Pending detailed function-level audit.
+
+### `tests/unit/duplicate-filenames-route.spec.ts`
+
+- [x] File exists and is tracked.
+- [ ] Pending detailed function-level audit.
+
+### `tests/unit/fcm-utils.spec.ts`
+
+- [x] File exists and is tracked.
+- [ ] Pending detailed function-level audit.
+
+### `tests/unit/firebase-client-config.spec.ts`
+
+- [x] File exists and is tracked.
+- [ ] Pending detailed function-level audit.
+
+### `tests/unit/firestore-client-errors.spec.ts`
+
+- [x] File exists and is tracked.
+- [ ] Pending detailed function-level audit.
+
+### `tests/unit/firestore-sanitize.spec.ts`
+
+- [x] File exists and is tracked.
+- [ ] Pending detailed function-level audit.
+
+### `tests/unit/guest-dismissal.spec.ts`
+
+- [x] File exists and is tracked.
+- [ ] Pending detailed function-level audit.
+
+### `tests/unit/gumdrop-economics.spec.ts`
+
+- [x] File exists and is tracked.
+- [ ] Pending detailed function-level audit.
+
+### `tests/unit/gumdrop-ledger.spec.ts`
+
+- [x] File exists and is tracked.
+- [ ] Pending detailed function-level audit.
+
+### `tests/unit/gumdrops-packages.spec.ts`
+
+- [x] File exists and is tracked.
+- [ ] Pending detailed function-level audit.
+
+### `tests/unit/lib/drop-engagement.spec.ts`
+
+- [x] File exists and is tracked.
+- [ ] Pending detailed function-level audit.
+
+### `tests/unit/lib/drop-normalizers.spec.ts`
+
+- [x] File exists and is tracked.
+- [ ] Pending detailed function-level audit.
+
+### `tests/unit/lib/gumdrop-economics.spec.ts`
+
+- [x] File exists and is tracked.
+- [ ] Pending detailed function-level audit.
+
+### `tests/unit/lib/telemetry.spec.ts`
+
+- [x] File exists and is tracked.
+- [ ] Pending detailed function-level audit.
+
+### `tests/unit/manual-email-auth.spec.ts`
+
+- [x] File exists and is tracked.
+- [ ] Pending detailed function-level audit.
+
+### `tests/unit/manual-sign-in-lookup-route.spec.ts`
+
+- [x] File exists and is tracked.
+- [ ] Pending detailed function-level audit.
+
+### `tests/unit/media-hosts.spec.ts`
+
+- [x] File exists and is tracked.
+- [ ] Pending detailed function-level audit.
+
+### `tests/unit/navigation-session.spec.ts`
+
+- [x] File exists and is tracked.
+- [ ] Pending detailed function-level audit.
+
+### `tests/unit/notification-bell-layout.spec.ts`
+
+- [x] File exists and is tracked.
+- [ ] Pending detailed function-level audit.
+
+### `tests/unit/notification-contracts.spec.ts`
+
+- [x] File exists and is tracked.
+- [ ] Pending detailed function-level audit.
+
+### `tests/unit/notifications-route.spec.ts`
+
+- [x] File exists and is tracked.
+- [ ] Pending detailed function-level audit.
+
+### `tests/unit/notify-active-drops-route.spec.ts`
+
+- [x] File exists and is tracked.
+- [ ] Pending detailed function-level audit.
+
+### `tests/unit/paypal-capture-route.spec.ts`
+
+- [x] File exists and is tracked.
+- [ ] Pending detailed function-level audit.
+
+### `tests/unit/performance-bench.spec.ts`
+
+- [x] File exists and is tracked.
+- [ ] Pending detailed function-level audit.
+
+### `tests/unit/playwright-config.spec.ts`
+
+- [x] File exists and is tracked.
+- [ ] Pending detailed function-level audit.
+
+### `tests/unit/privacy-consent.spec.ts`
+
+- [x] File exists and is tracked.
+- [ ] Pending detailed function-level audit.
+
+### `tests/unit/process-creator-subscriptions-bench.spec.ts`
+
+- [x] File exists and is tracked.
+- [ ] Pending detailed function-level audit.
+
+### `tests/unit/process-queue-drops.spec.ts`
+
+- [x] File exists and is tracked.
+- [ ] Pending detailed function-level audit.
+
+### `tests/unit/process-queue-route.spec.ts`
+
+- [x] File exists and is tracked.
+- [ ] Pending detailed function-level audit.
+
+### `tests/unit/promo-card.spec.ts`
+
+- [x] File exists and is tracked.
+- [ ] Pending detailed function-level audit.
+
+### `tests/unit/queue-bench.spec.ts`
+
+- [x] File exists and is tracked.
+- [ ] Pending detailed function-level audit.
+
+### `tests/unit/rate-limit.spec.ts`
+
+- [x] File exists and is tracked.
+- [ ] Pending detailed function-level audit.
+
+### `tests/unit/rollouts.spec.ts`
+
+- [x] File exists and is tracked.
+- [ ] Pending detailed function-level audit.
+
+### `tests/unit/route-runtime-health.spec.ts`
+
+- [x] File exists and is tracked.
+- [ ] Pending detailed function-level audit.
+
+### `tests/unit/security-log-attempt-route.spec.ts`
+
+- [x] File exists and is tracked.
+- [ ] Pending detailed function-level audit.
+
+### `tests/unit/server-ai-drop-covers.spec.ts`
+
+- [x] File exists and is tracked.
+- [ ] Pending detailed function-level audit.
+
+### `tests/unit/server-chat-send.spec.ts`
+
+- [x] File exists and is tracked.
+- [ ] Pending detailed function-level audit.
+
+### `tests/unit/server-chat.spec.ts`
+
+- [x] File exists and is tracked.
+- [ ] Pending detailed function-level audit.
+
+### `tests/unit/server-drops.spec.ts`
+
+- [x] File exists and is tracked.
+- [ ] Pending detailed function-level audit.
+
+### `tests/unit/support-readiness.spec.ts`
+
+- [x] File exists and is tracked.
+- [ ] Pending detailed function-level audit.
+
+### `tests/unit/support-threads-route.spec.ts`
+
+- [x] File exists and is tracked.
+- [ ] Pending detailed function-level audit.
+
+### `tests/unit/task-guidance.spec.ts`
+
+- [x] File exists and is tracked.
+- [ ] Pending detailed function-level audit.
+
+### `tests/unit/task-observability.spec.ts`
+
+- [x] File exists and is tracked.
+- [ ] Pending detailed function-level audit.
+
+### `tests/unit/telemetry-flows.spec.ts`
+
+- [x] File exists and is tracked.
+- [ ] Pending detailed function-level audit.
+
+### `tests/unit/telemetry.spec.ts`
+
+- [x] File exists and is tracked.
+- [ ] Pending detailed function-level audit.
+
+### `tests/unit/ui-continuity.spec.ts`
+
+- [x] File exists and is tracked.
+- [ ] Pending detailed function-level audit.
+
+### `tests/unit/use-chat-unread-status.spec.tsx`
+
+- [x] File exists and is tracked.
+- [ ] Pending detailed function-level audit.
+
+### `tests/unit/useViewerWatchSession-bench-manual.ts`
+
+- [x] File exists and is tracked.
+- [ ] Pending detailed function-level audit.
+
+### `tests/unit/useViewerWatchSession-bench.spec.ts`
+
+- [x] File exists and is tracked.
+- [ ] Pending detailed function-level audit.
+
+### `tests/unit/user-activity-route.spec.ts`
+
+- [x] File exists and is tracked.
+- [ ] Pending detailed function-level audit.
+
+### `tests/unit/user-profile-route.spec.ts`
+
+- [x] File exists and is tracked.
+- [ ] Pending detailed function-level audit.
+
+### `tests/unit/user-register-route.spec.ts`
+
+- [x] File exists and is tracked.
+- [ ] Pending detailed function-level audit.
+
+### `tests/unit/username-suggestions-bench.spec.ts`
+
+- [x] File exists and is tracked.
+- [ ] Pending detailed function-level audit.
+
+### `tests/unit/username-suggestions.spec.ts`
+
+- [x] File exists and is tracked.
+- [ ] Pending detailed function-level audit.
+
+### `tests/unit/utils/renderHook.tsx`
+
+- [x] File exists and is tracked.
+- [ ] Pending detailed function-level audit.
+
+### `tests/unit/viewer-asset-prefetch-bench.spec.ts`
+
+- [x] File exists and is tracked.
+- [ ] Pending detailed function-level audit.
+
+### `tests/unit/viewer-asset-prefetch.spec.ts`
+
+- [x] File exists and is tracked.
+- [ ] Pending detailed function-level audit.
+
+### `tests/visual.spec.ts`
+
+- [x] File exists and is tracked.
+- [ ] Pending detailed function-level audit.
+
+### `vitest.config.ts`
+
+- [x] File exists and is tracked.
+- [ ] Pending detailed function-level audit.
+
+### `vitest.contracts.config.ts`
+
+- [x] File exists and is tracked.
+- [ ] Pending detailed function-level audit.
+
+### `vitest.rules.config.ts`
+
+- [x] File exists and is tracked.
+- [ ] Pending detailed function-level audit.
+
+### `vitest.shims.d.ts`
+
+- [x] File exists and is tracked.
+- [ ] Pending detailed function-level audit.

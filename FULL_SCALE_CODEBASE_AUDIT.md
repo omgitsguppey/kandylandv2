@@ -40,6 +40,35 @@ Verification commands queued:
 - `npm run check:agent-context`
 - `npm run check:continuity`
 
+## [2026-04-18 #17] Codebase Continuity & Audit Hygiene Refresh
+
+Scope for this pass:
+- Perform a repo-wide audit pass focused on code health, continuity drift, stale documentation, and canonical inventory alignment.
+- Verify that tracked files, inventory counts, and continuity ledgers are mutually aligned.
+- Prevent historical snapshot language from being incorrectly treated as current truth by agents.
+
+Startup protocol executed:
+- Read `FULL_SCALE_CODEBASE_AUDIT.md`.
+- Read `REPO_MEMORY_LEDGER.md`.
+- Read `EVERY_FILE_FUNCTION_CHECKLIST.md`.
+- Ran `git ls-files` and `npm run check:continuity`.
+- Identified 680 files tracked by Git but missing from `EVERY_FILE_FUNCTION_CHECKLIST.md` (primarily tests, tooling config, and newer domain surfaces).
+- Identified outdated inventory counts in `FULL_SCALE_CODEBASE_AUDIT.md`.
+- Noticed carriage returns (CRLF) causing issues with file parsers and replaced them with standard unix line endings (LF).
+
+Corrections Implemented:
+- Appended missing tracked source files to `EVERY_FILE_FUNCTION_CHECKLIST.md` explicitly acknowledging they need a detailed function-level audit sweep in the future, thus satisfying continuity without faking certainty.
+- Updated `FULL_SCALE_CODEBASE_AUDIT.md` to reflect the current, real inventory counts matching `scripts/repo-inventory.ts`.
+- Updated "Last Updated" timestamps in the ledger files to the current 2026-04-18 timestamp to accurately reflect the latest assessment.
+- Removed carriage return line endings (CRLF) from the markdown files.
+
+Verification:
+- `npm run check:continuity` completed successfully.
+  - `check:architecture` reported 0 dependency violations (467 modules, 1791 dependencies cruised).
+  - `check:inventory` matches the documented counts (862 tracked files).
+  - `check:cycles` reported no circular dependencies for both `app` and `functions` targets.
+  - `check:generated-artifacts` reported no rogue generated UI or build artifacts.
+
 ## [2026-04-18 #21] Admin Analytics Parity + State-of-Truth Hardening
 
 Scope for this pass:
@@ -3939,28 +3968,28 @@ Current notable runtime package versions:
 
 Verified by `npm run check:inventory` on 2026-04-08:
 
-- Total tracked files: `715`
-- Root files: `54`
-- Root markdown/docs: `16`
-- Root lockfiles: `2`
-- Root config/runtime/tooling files: `36`
-- `src`: `401`
-- `src/app`: `137`
-- `src/components`: `74`
-- `src/context`: `4`
-- `src/hooks`: `14`
-- `src/lib`: `149`
-- `src/lib/server`: `62`
-- `src/types`: `3`
-- `functions`: `37`
-- `functions/src`: `30`
-- `scripts`: `17`
-- `tests`: `132`
-- `public`: `11`
-- `dataconnect`: `14`
-- `src/dataconnect-generated`: `15`
-- `src/dataconnect-admin-generated`: `5`
-- `functions/src/dataconnect-admin-generated`: `5`
+- Total tracked files: 862
+- Root files: 31
+- Root markdown/docs: 4
+- Root lockfiles: 1
+- Root config/runtime/tooling files: 26
+- src: 463
+- src/app: 158
+- src/components: 84
+- src/context: 4
+- src/hooks: 15
+- src/lib: 172
+- src/lib/server: 72
+- src/types: 4
+- functions: 30
+- functions/src: 23
+- scripts: 41
+- tests: 178
+- public: 11
+- dataconnect: 2
+- src/dataconnect-generated: 0
+- src/dataconnect-admin-generated: 0
+- functions/src/dataconnect-admin-generated: 0
 
 ## Current surface map by code domain
 
@@ -9254,4 +9283,3 @@ Follow-up opportunities:
 2. Add a ranked-reference preview endpoint keyed by `Creator | Flavor` so the admin page can inspect selection reasons for a specific future generation instead of the next generic run.
 3. Add more prompt-policy performance rollups beyond the current category bucket counts so acceptance rate by policy version is not limited to recent job history.
 4. Add attachment/reference storage rules coverage if the AI admin reference library starts accepting anything beyond image assets.
-
