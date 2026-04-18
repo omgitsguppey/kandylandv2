@@ -24,6 +24,30 @@ This file is not a changelog. It is the concise ledger for durable decisions tha
 
 ## Decision Entries
 
+### 1ag. Analytics truth must separate required canonical sources from optional legacy-history support, and admin health must penalize stale downstream writers explicitly
+
+- Approximate date: Recorded explicitly on 2026-04-18 from the Admin Analytics Parity + State-of-Truth Hardening pass
+- Status: Active analytics/debug continuity rule
+- Problem/context: Admin analytics and admin debug health exposed stale or partial analytics state inconsistently. The debug health score did not include stale downstream writers/materializers, while the analytics parity layer did not distinguish required canonical sources from optional legacy-history support sources. That made state-of-truth problems harder to interpret and caused the no-build continuity lane to over-fail on legacy-support gaps.
+- Decision made: Treat analytics truth in two layers. Required canonical sources must stay continuity-blocking, while optional legacy-history support sources remain explicit warnings. Admin ops health must penalize stale downstream writers/materializers directly so the score reflects analytics freshness/state-of-truth drift instead of only diagnostics and pipeline incidents.
+- What became canonical:
+  - `src/lib/admin-analytics-truth.ts` is the shared analytics truth/freshness summarizer for canonical vs legacy-history support sources
+  - `src/lib/server/admin-analytics-historical-validation.ts` now includes creator-spend parity, historical freshness, and legacy-history coverage in the analytics validation lane
+  - `scripts/check-analytics-continuity.ts` now validates creator-spend parity and required analytics source freshness, while surfacing optional legacy-history support gaps as warnings instead of false hard blockers
+  - `src/lib/server/admin-ops-health.ts` now includes downstream writer/materializer freshness in `opsHealth.score`, with `materializerSummary` and `scoreBreakdown` for debug/admin inspection
+- Truth lives in:
+  - `src/lib/admin-analytics-truth.ts`
+  - `src/lib/server/admin-analytics-historical-validation.ts`
+  - `src/app/api/admin/analytics/historical/route.ts`
+  - `src/lib/server/admin-ops-health.ts`
+  - `scripts/check-analytics-continuity.ts`
+  - `tests/unit/admin-analytics-truth.spec.ts`
+  - `tests/unit/admin-ops-health.spec.ts`
+- What is now disallowed or deprecated:
+  - treating every legacy/history-support analytics source as a hard continuity blocker regardless of whether it is optional support data
+  - reporting admin analytics health without accounting for stale downstream writers/materializers
+  - evaluating creator spend parity only informally instead of through canonical transaction-source checks
+
 ### 1af. Compact/mobile UI lockups should use the shared interaction-recovery guard and emit structured UI diagnostics when self-healing fires
 
 - Approximate date: Recorded explicitly on 2026-04-18 from the Compact Interaction Recovery Hardening pass

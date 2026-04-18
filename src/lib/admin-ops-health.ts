@@ -78,7 +78,23 @@ export interface AdminOpsHealthMaterializerItem {
   status: AdminOpsHealthStatus;
   count: number;
   lastSeenAt: number;
+  ageMs?: number | null;
   detail: string;
+}
+
+export interface AdminOpsHealthMaterializerSummary {
+  total: number;
+  healthy: number;
+  warn: number;
+  fail: number;
+}
+
+export interface AdminOpsHealthScoreBreakdown {
+  runtimePenalty: number;
+  diagnosticPenalty: number;
+  pipelinePenalty: number;
+  materializerPenalty: number;
+  totalPenalty: number;
 }
 
 export interface AdminOpsHealth {
@@ -87,4 +103,6 @@ export interface AdminOpsHealth {
   diagnostics: AdminOpsHealthDiagnostics;
   pipeline: AdminOpsHealthPipeline;
   materializers: AdminOpsHealthMaterializerItem[];
+  materializerSummary?: AdminOpsHealthMaterializerSummary;
+  scoreBreakdown?: AdminOpsHealthScoreBreakdown;
 }

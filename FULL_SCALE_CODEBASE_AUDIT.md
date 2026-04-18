@@ -1,5 +1,70 @@
 # KandyDrops Core Codebase Audit & Defensive Ledger
 
+## [2026-04-18 #21] Admin Analytics Parity + State-of-Truth Hardening
+
+Scope for this pass:
+- Harden the full analytics/purchase-parity/state-of-truth path so admin health no longer reports stale or undercounted health because legacy history, parity drift, or freshness gaps are being ignored, while preserving canonical source truth order across realtime, historical, and derived admin analytics surfaces.
+
+Startup protocol executed:
+- Read `FULL_SCALE_CODEBASE_AUDIT.md`.
+- Read `REPO_MEMORY_LEDGER.md`.
+- Read `EVERY_FILE_FUNCTION_CHECKLIST.md`.
+- Ran `git status --short`.
+- Updated `.agent/workflows/auto-tasks.md` for the analytics/parity hardening pass.
+- Identified likely touched surfaces around:
+  - `src/app/admin/analytics/page.tsx`
+  - `src/app/api/admin/analytics/historical/route.ts`
+  - `src/app/api/admin/analytics/realtime/route.ts`
+  - `src/lib/gumdrop-ledger.ts`
+  - `src/lib/server/admin-analytics-capture-health.ts`
+  - `scripts/check-analytics-continuity.ts`
+- Pending adjacency review for:
+  - `src/app/admin/analytics/page.tsx`
+  - `src/app/api/admin/analytics/historical/route.ts`
+  - `src/app/api/admin/analytics/realtime/route.ts`
+  - `src/lib/gumdrop-ledger.ts`
+  - `scripts/check-analytics-continuity.ts`
+
+Root causes identified:
+- The admin debug health score (`opsHealth.score`) only penalized runtime warnings, recent diagnostics, and pipeline incidents. It did not include stale downstream analytics writers/materializers, so analytics truth drift and materializer freshness degradation were visible in side panels but not part of the canonical score itself.
+- The historical analytics validation/parity layer only averaged purchase, unlock, onboarding, and task-guidance parity. It did not account for creator-spend source parity or a structured truth/freshness view over the historical-support sources that keep legacy analytics history usable.
+- The no-build analytics continuity check only validated watch-session capture health. It did not verify creator spend parity or differentiate between required canonical sources and optional legacy-history support sources, so it could neither catch creator-spend drift nor report partial legacy-history coverage cleanly.
+
+Implementation results:
+- Added `src/lib/admin-analytics-truth.ts`, a shared deterministic analytics truth/freshness summarizer that classifies canonical and legacy-history support sources into healthy/warn/fail states with an inspectable score.
+- Extended `src/lib/server/admin-ops-health.ts` and `src/lib/admin-ops-health.ts` so `opsHealth.score` now includes downstream materializer freshness penalties plus explicit `materializerSummary` and `scoreBreakdown` fields. The admin debug UI now surfaces warn/fail writer counts directly beside the health score.
+- Extended `src/app/api/admin/analytics/historical/route.ts` and `src/lib/server/admin-analytics-historical-validation.ts` so the historical analytics payload now evaluates creator spend parity, historical freshness, and legacy-history coverage alongside the prior purchase/unlock/onboarding/task parity lanes. The new truth summary is built from tracked analytics rollups, commerce summary state, guest/history support lanes, watch sessions/assets, and transactions.
+- Extended `scripts/check-analytics-continuity.ts` so the lightweight no-build lane now verifies canonical analytics source freshness and creator spend parity in addition to watch-session capture health. Legacy-history support sources remain visible as warnings, but they no longer falsely fail continuity when the local/runtime window simply lacks guest or page-history data.
+- Added `tests/unit/admin-analytics-truth.spec.ts` and extended `tests/unit/admin-ops-health.spec.ts` so the new truth-summary and materializer-penalty behavior is covered locally.
+
+Verification commands run:
+- `git status --short`
+- `npm run trace:adjacent -- src/app/admin/analytics/page.tsx`
+- `npm run trace:adjacent -- src/app/api/admin/analytics/historical/route.ts`
+- `npm run trace:adjacent -- src/app/api/admin/analytics/realtime/route.ts`
+- `npm run trace:adjacent -- src/lib/gumdrop-ledger.ts`
+- `npm run trace:adjacent -- scripts/check-analytics-continuity.ts`
+- `npx vitest run tests/unit/admin-analytics-truth.spec.ts tests/unit/admin-ops-health.spec.ts tests/unit/admin-analytics-data.spec.ts tests/unit/admin-analytics-realtime-route.spec.ts tests/unit/admin-analytics-capture-health.spec.ts tests/unit/gumdrop-ledger.spec.ts`
+- `npx vitest run tests/unit/admin-analytics-truth.spec.ts tests/unit/admin-ops-health.spec.ts tests/unit/admin-panel-system-logs.spec.ts tests/unit/ai-debug-assistant.spec.ts`
+- `npm run typecheck`
+- `npm run check:telemetry`
+- `npm run check:continuity`
+- `npm run check:analytics:continuity`
+
+Verification results:
+- The targeted Vitest coverage for analytics truth, admin ops health, admin analytics sources, realtime analytics, capture health, gumdrop ledger parity, admin panel logs, and AI debug assistant all passed.
+- `npm run typecheck` passed after the new admin ops health fields were made backward-compatible for existing typed fixtures.
+- `npm run check:telemetry` passed.
+- `npm run check:continuity` passed.
+- `npm run check:analytics:continuity` passed and truthfully emitted a warning that `analytics_page_daily` and `analytics_guest_batches` are currently stale/partial legacy-history support sources in the sampled environment.
+
+Warnings / follow-up:
+- The current environment still reports `analytics_page_daily` and `analytics_guest_batches` as stale/partial legacy-history support sources. They are now surfaced as explicit warnings rather than hard false blockers, but the underlying data freshness is still not fully restored in this environment.
+- Targeted local verification was run for this pass. No full UI/build-heavy audit was required because the implementation changed analytics/debug/runtime truth handling rather than blocking user-facing UI rendering contracts.
+
+Cleanup:
+- No generated build or UI artifact cleanup was required for this pass.
+
 ## [2026-04-18 #20] Compact Interaction Recovery Hardening
 
 Scope for this pass:

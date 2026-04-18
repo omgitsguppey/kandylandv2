@@ -176,3 +176,16 @@ description: "Auto-run standard project commands"
    `npx vitest run <chat-related-test-paths>`
    `npm run typecheck`
    `npm run check:ui:runtime`
+
+23. Harden admin analytics, purchase parity, and legacy-history truth reconciliation:
+   `npm run trace:adjacent -- src/app/admin/analytics/page.tsx`
+   `npm run trace:adjacent -- src/app/api/admin/analytics/historical/route.ts`
+   `npm run trace:adjacent -- src/app/api/admin/analytics/realtime/route.ts`
+   `npm run trace:adjacent -- src/lib/gumdrop-ledger.ts`
+   `npm run trace:adjacent -- src/lib/server/admin-analytics-capture-health.ts`
+   `npm run trace:adjacent -- scripts/check-analytics-continuity.ts`
+   `npx vitest run tests/unit/admin-analytics-capture-health.spec.ts tests/unit/admin-analytics-realtime-route.spec.ts tests/unit/admin-analytics-page.spec.tsx`
+   `npm run check:analytics:continuity`
+   `npm run check:telemetry`
+   `npm run typecheck`
+   `npm run check:continuity`

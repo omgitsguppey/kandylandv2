@@ -64,13 +64,25 @@ describe("buildAdminOpsHealth", () => {
         });
 
         expect(result.score).toBeGreaterThanOrEqual(90);
-        expect(result.score).toBe(100);
+        expect(result.score).toBe(94);
         expect(result.pipeline.status).toBe("healthy");
         expect(result.diagnostics.activeErrorCount).toBe(0);
         expect(result.diagnostics.recentErrorCount).toBe(0);
         expect(result.diagnostics.activeIssueClusterCount).toBe(0);
         expect(result.diagnostics.recentIssueClusterCount).toBe(0);
         expect(result.pipeline.failureCount).toBe(632);
+        expect(result.materializerSummary).toMatchObject({
+            healthy: 6,
+            warn: 3,
+            fail: 0,
+        });
+        expect(result.scoreBreakdown).toMatchObject({
+            runtimePenalty: 0,
+            diagnosticPenalty: 0,
+            pipelinePenalty: 0,
+            materializerPenalty: 6,
+            totalPenalty: 6,
+        });
         expect(result.materializers.find((item) => item.key === "analytics_pipeline_daily")?.status).toBe("warn");
     });
 
@@ -131,6 +143,18 @@ describe("buildAdminOpsHealth", () => {
         expect(result.diagnostics.recentWarnCount).toBe(1);
         expect(result.diagnostics.activeIssueClusterCount).toBe(1);
         expect(result.diagnostics.recentIssueClusterCount).toBe(2);
+        expect(result.materializerSummary).toMatchObject({
+            healthy: 9,
+            warn: 0,
+            fail: 0,
+        });
+        expect(result.scoreBreakdown).toMatchObject({
+            runtimePenalty: 0,
+            diagnosticPenalty: 3,
+            pipelinePenalty: 10,
+            materializerPenalty: 0,
+            totalPenalty: 13,
+        });
     });
 
     it("tracks active and recent channel counts separately from loaded sample totals", () => {

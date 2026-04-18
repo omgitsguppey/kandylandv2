@@ -1,8 +1,8 @@
 # EVERY FILE FUNCTION CHECKLIST
 
 **Last Updated:** 2026-04-18
-**Current Focus:** Repo Intelligence Fabric v1 remains active, and the 2026-04-18 delta now includes the generated UI continuity ledger, the self-debugging queue/runtime canonicalization lane, the mobile chat untappable regression fix plus compact interaction recovery hardening, the verification-blocker remediation pass for canonical scheduler freshness truth plus Firestore transport warning removal, the open-PR reconciliation pass, and the token-efficiency/watch-session analytics deepening pass.
-**Status:** In Progress. Historical exhaustive sweep remains valuable, and the 2026-04-18 continuity metadata now reflects the repo-intelligence layer, the UI continuity fabric, the creator-settings route regression coverage, the profile-page creator warning handling follow-up, the self-debugging queue/runtime canonicalization pass, the mobile chat local-overflow remediation pass, the compact interaction recovery guard rollout, the scheduler-heartbeat provenance remediation pass, the Firestore transport dependency remediation pass, the warning-free static verification baseline, the open-PR reconciliation pass, and the watch-session capture-health / task-context tiering pass.
+**Current Focus:** Repo Intelligence Fabric v1 remains active, and the 2026-04-18 delta now includes the generated UI continuity ledger, the self-debugging queue/runtime canonicalization lane, the mobile chat untappable regression fix plus compact interaction recovery hardening, the verification-blocker remediation pass for canonical scheduler freshness truth plus Firestore transport warning removal, the open-PR reconciliation pass, the token-efficiency/watch-session analytics deepening pass, and the analytics state-of-truth / creator-spend parity hardening pass.
+**Status:** In Progress. Historical exhaustive sweep remains valuable, and the 2026-04-18 continuity metadata now reflects the repo-intelligence layer, the UI continuity fabric, the creator-settings route regression coverage, the profile-page creator warning handling follow-up, the self-debugging queue/runtime canonicalization pass, the mobile chat local-overflow remediation pass, the compact interaction recovery guard rollout, the scheduler-heartbeat provenance remediation pass, the Firestore transport dependency remediation pass, the warning-free static verification baseline, the open-PR reconciliation pass, the watch-session capture-health / task-context tiering pass, and the analytics truth/freshness hardening lane.
 Purpose: exhaustive no-skip audit checklist covering every repository file currently in scope and every detected function-like implementation.
 
 Scoring: all entries below are marked as included in the current validated sweep. Confidence reflects current repository-state confidence, not perfection or future-proofing.
@@ -78,6 +78,16 @@ Current repo-wide state snapshot: see [FULL_SCALE_CODEBASE_AUDIT.md](/Users/uylu
   - `src/hooks/useViewerWatchSession.ts`
   - `src/app/dashboard/viewer/ViewerClient.tsx`
   - `src/app/api/viewer/watch-session/route.ts`
+- Added analytics truth/state-of-truth hardening surfaces:
+  - `src/lib/admin-analytics-truth.ts`
+  - `src/lib/server/admin-analytics-historical-validation.ts`
+  - `src/lib/server/admin-ops-health.ts`
+  - `src/lib/admin-ops-health.ts`
+  - `src/app/api/admin/analytics/historical/route.ts`
+  - `src/app/admin/debug/page.tsx`
+  - `src/types/admin-analytics.ts`
+  - `tests/unit/admin-analytics-truth.spec.ts`
+  - `tests/unit/admin-ops-health.spec.ts`
   - `src/app/api/admin/analytics/historical/route.ts`
   - `src/app/api/admin/analytics/realtime/route.ts`
   - `src/lib/server/admin-analytics-historical-validation.ts`

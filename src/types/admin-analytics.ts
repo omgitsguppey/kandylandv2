@@ -2,6 +2,10 @@ import type {
   AdminAnalyticsModuleRangeMap,
   AdminAnalyticsRangeOption,
 } from "@/lib/admin-analytics-preferences";
+import type {
+  AnalyticsTruthSourceSummary,
+  AnalyticsTruthSummary,
+} from "@/lib/admin-analytics-truth";
 
 export type ViewTab = "operations" | "audience" | "commerce";
 export type RangeOption = AdminAnalyticsRangeOption;
@@ -405,6 +409,8 @@ export interface HistoricalAnalyticsResponse {
   watchCaptureHealth?: WatchCaptureHealthItem;
   viewerFilter?: string;
   semanticCategories?: SemanticCategorySummaryItem[];
+  truthState?: AnalyticsTruthSummary;
+  truthSources?: AnalyticsTruthSourceSummary[];
   validations?: ValidationItem[];
 }
 
