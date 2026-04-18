@@ -1,7 +1,7 @@
 # Repo Memory Ledger
 
 Status: Canonical repository-memory and architecture-decision ledger
-Last refreshed: 2026-04-17
+Last refreshed: 2026-04-18
 Repo: `C:\Users\uylus\OneDrive\Documents\KandyDrops_Final`
 
 ## Purpose
@@ -23,6 +23,54 @@ This file is not a changelog. It is the concise ledger for durable decisions tha
 4. When this file and runtime code disagree, runtime code plus verification wins and this file must be updated immediately.
 
 ## Decision Entries
+
+### 1ad. Firestore-backed continuity scripts now pin the Admin transport stack off the deprecated `punycode` path, while Functions runtime truth stays on Node 22
+
+- Approximate date: Recorded explicitly on 2026-04-18 from the Verification Blocker Remediation + Runtime Continuity Truth Alignment pass
+- Status: Active package-manager/runtime continuity rule
+- Problem/context: The runtime continuity scripts read canonical Firestore admin data on the local workstation. Under Node 24, the previous Admin transport stack (`@google-cloud/firestore@7.x -> google-gax@4.x -> node-fetch@2 -> whatwg-url@5 -> tr46@0.0.3`) emitted a `node:punycode` deprecation warning on every live Firestore-backed continuity run, which left the verification pass with a truthful residual warning even after the queue/runtime logic itself was fixed.
+- Decision made: Keep the deployed Functions runtime target at Node 22, but update root and `functions` package-manager overrides so `firebase-admin` resolves `@google-cloud/firestore@8.5.0` and `google-gax@5.0.6` for local/admin continuity execution. This removes the deprecated `punycode` chain from the Firestore-backed verification path without changing the repo's runtime authority order.
+- What became canonical:
+  - root `package.json`/`package-lock.json` and `functions/package.json`/`functions/package-lock.json` now override `@google-cloud/firestore` to `^8.5.0` and `google-gax` to `^5.0.6`
+  - Firestore-backed continuity scripts (`scripts/runtime-admin.ts`, `scripts/check-scheduler-freshness.ts`, `scripts/check-queue-runtime.ts`, `scripts/check-runtime-continuity.ts`) should run cleanly on the local Node 24 workstation without the prior `node:punycode` deprecation
+  - `functions/package.json` still truthfully targets Node 22 for deployed/runtime compatibility, and local install-time `EBADENGINE` notices on Node 24 do not outrank that runtime truth
+- Truth lives in:
+  - `package.json`
+  - `package-lock.json`
+  - `functions/package.json`
+  - `functions/package-lock.json`
+  - `scripts/runtime-admin.ts`
+  - `scripts/check-scheduler-freshness.ts`
+  - `scripts/check-queue-runtime.ts`
+  - `scripts/check-runtime-continuity.ts`
+- What is now disallowed or deprecated:
+  - carrying a known Firestore-backed `node:punycode` verification warning forward as unavoidable when the repo can remove it with package-manager overrides
+  - changing the Functions Node engine away from 22 just to silence a local install-time engine notice on a Node 24 workstation
+
+### 1ac. Scheduler freshness now trusts canonical scheduler heartbeats first and uses static wiring only as the local empty-state fallback
+
+- Approximate date: Recorded explicitly on 2026-04-18 from the Verification Blocker Remediation + Runtime Continuity Truth Alignment pass
+- Status: Active canonical runtime continuity rule
+- Problem/context: The new no-build runtime continuity lane correctly required canonical queue scheduler heartbeats, but the first implementation treated the absence of any live heartbeat documents as an unconditional failure. That broke truthful local verification even when the repo could statically prove the Firebase scheduled jobs and heartbeat writers were wired correctly. At the same time, queue heartbeats did not record execution-layer provenance, which meant a manual adapter run could be misread as canonical scheduler health.
+- Decision made: Canonical scheduler freshness now trusts persisted heartbeats only when they exist with `executionLayer: "scheduler"`. If no canonical scheduler heartbeats exist yet, local verification may fall back to static wiring proof that the scheduled exports and heartbeat writers are present. Manual/adapter heartbeats must never satisfy scheduler freshness truth.
+- What became canonical:
+  - `shared/runtime/runtime-warning-contract.ts` includes `executionLayer` and `surface` on `QueueJobHeartbeat`
+  - `src/lib/server/runtime-warning-store.ts` and `functions/src/runtime-warning-store.ts` persist execution-layer provenance on heartbeat writes
+  - `src/lib/server/queue-runtime.ts` and `functions/src/queue-runtime.ts` propagate execution-layer/source metadata on every queue heartbeat write
+  - `scripts/check-scheduler-freshness.ts` accepts static wiring only when no canonical scheduler heartbeats exist and otherwise fails on missing, stale, or failed scheduler docs
+  - `tests/unit/check-scheduler-freshness.spec.ts` is the regression guard for static fallback vs canonical scheduler truth
+- Truth lives in:
+  - `shared/runtime/runtime-warning-contract.ts`
+  - `src/lib/server/runtime-warning-store.ts`
+  - `functions/src/runtime-warning-store.ts`
+  - `src/lib/server/queue-runtime.ts`
+  - `functions/src/queue-runtime.ts`
+  - `scripts/check-scheduler-freshness.ts`
+  - `tests/unit/check-scheduler-freshness.spec.ts`
+- What is now disallowed or deprecated:
+  - treating manual or adapter-triggered queue runs as proof of scheduler freshness
+  - failing local scheduler verification solely because canonical heartbeat docs have not yet been produced, when the static scheduler wiring is present
+  - recording queue heartbeat provenance without execution-layer/source metadata
 
 ### 1ab. Viewer watch/session analytics now carry canonical capture-health truth, and agent task context uses explicit hot/warm/cold tiers
 

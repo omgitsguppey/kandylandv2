@@ -9,8 +9,8 @@ Likely touched files:
 - scripts/agent/build-agent-indexes.ts
 - scripts/agent/build-task-context.ts
 - scripts/agent/build-ui-surface-coverage.ts
-- scripts/agent/check-agent-context.ts
 - scripts/agent/extract-runtime-observability.ts
+- scripts/agent/run-evals.ts
 
 Canonical helpers to reuse:
 - src/lib/gumdrop-economics.ts

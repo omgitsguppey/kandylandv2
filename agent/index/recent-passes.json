@@ -1,5 +1,5 @@
 {
-  "generatedAt": "2026-04-18T03:43:31.701Z",
+  "generatedAt": "2026-04-18T13:42:32.056Z",
   "truthOrder": [
     "verified_runtime_code",
     "verified_configuration",
@@ -14,6 +14,57 @@
     "FULL_SCALE_CODEBASE_AUDIT.md"
   ],
   "passes": [
+    {
+      "stable_id": "pass__2026-04-18-verification-blocker-remediation-runtime-continuity-truth-alignment",
+      "date": "2026-04-18",
+      "title": "Verification Blocker Remediation + Runtime Continuity Truth Alignment",
+      "scopeSummary": [
+        "Remove the remaining truthful verification blockers and stale warnings/non-blocking notes by aligning the runtime continuity checks with the repo's actual executable truth, fixing any queue/runtime continuity gaps that still fail local verification, and rerunning the affected signoff lanes."
+      ],
+      "touchedSurfaces": [
+        " package-manager overrides/lockfiles so ",
+        ".agent/workflows/auto-tasks.md",
+        "@google-cloud/firestore@8.5.0",
+        "functions/package.json",
+        "functions/src/index.ts",
+        "functions/src/queue-runtime.ts",
+        "functions/src/runtime-warning-store.ts",
+        "notifyActiveDropsRuntime({ executionLayer: \"scheduler\", surface: \"functions/notifyActiveDropsLifecycle/manual-remediation\", ... })",
+        "npm --prefix functions ls @google-cloud/firestore google-gax whatwg-url tr46",
+        "npm ls @google-cloud/firestore google-gax whatwg-url tr46",
+        "npm run trace:adjacent -- functions/src/index.ts",
+        "npm run trace:adjacent -- functions/src/queue-runtime.ts",
+        "npm run trace:adjacent -- scripts/check-runtime-continuity.ts",
+        "npm run trace:adjacent -- scripts/check-scheduler-freshness.ts",
+        "npm run trace:adjacent -- scripts/runtime-admin.ts",
+        "npm run trace:adjacent -- src/lib/server/runtime-warning-store.ts",
+        "npx vitest run tests/unit/check-scheduler-freshness.spec.ts tests/unit/process-queue-route.spec.ts tests/unit/notify-active-drops-route.spec.ts tests/unit/drop-queue-lifecycle.spec.ts tests/unit/admin-analytics-capture-health.spec.ts tests/unit/admin-analytics-realtime-route.spec.ts",
+        "processQueueLifecycleRuntime({ executionLayer: \"scheduler\", surface: \"functions/processQueueLifecycle/manual-remediation\", ... })",
+        "scripts/check-runtime-continuity.ts",
+        "scripts/check-scheduler-freshness.ts",
+        "scripts/runtime-admin.ts",
+        "shared/runtime/runtime-warning-contract.ts",
+        "src/lib/server/queue-runtime.ts",
+        "src/lib/server/runtime-warning-store.ts",
+        "tests/unit/check-scheduler-freshness.spec.ts"
+      ],
+      "canonicalHelpersReused": [],
+      "verificationCommandsRun": [],
+      "resultSummary": [],
+      "warnings": [],
+      "architecture_change": true,
+      "runtime_change": true,
+      "ui_change": false,
+      "security_change": false,
+      "maintenance_only": false,
+      "changeKinds": [
+        "admin",
+        "ui",
+        "runtime",
+        "tooling",
+        "architecture"
+      ]
+    },
     {
       "stable_id": "pass__2026-04-17-token-efficiency-fabric-hardening-watch__session-analytics-deepening",
       "date": "2026-04-17",
@@ -734,88 +785,6 @@
       "changeKinds": [
         "runtime",
         "architecture"
-      ]
-    },
-    {
-      "stable_id": "pass__2026-04-17-repo-intelligence-post-implementation-audit",
-      "date": "2026-04-17",
-      "title": "Repo Intelligence Post-Implementation Audit",
-      "scopeSummary": [
-        "Audit and test the newly implemented Repo Intelligence Fabric functions and operational processes after warning remediation.",
-        "Re-run the generator, self-check, eval, and continuity lanes, then inspect the outputs for concrete behavioral defects or drift instead of relying on green status alone."
-      ],
-      "touchedSurfaces": [
-        "Get-Content agent/state/eval-results.generated.json",
-        "Get-Content agent/state/sql-mirror-status.generated.json",
-        "Get-Content agent/state/task-context.generated.json",
-        "agent/index/",
-        "agent/prompts/",
-        "agent/state/",
-        "agent/state/eval-results.generated.json",
-        "agent/state/sql-mirror-status.generated.json",
-        "agent/state/task-context.generated.json",
-        "npm run trace:adjacent -- scripts/agent/build-agent-indexes.ts",
-        "npm run trace:adjacent -- scripts/agent/check-agent-context.ts",
-        "npm run trace:adjacent -- scripts/agent/sync-sql.ts",
-        "pass (5/5 passing)",
-        "scripts/agent/build-agent-indexes.ts",
-        "scripts/agent/build-task-context.ts",
-        "scripts/agent/check-agent-context.ts",
-        "scripts/agent/run-evals.ts",
-        "scripts/agent/sync-sql.ts"
-      ],
-      "canonicalHelpersReused": [],
-      "verificationCommandsRun": [
-        "git status --short",
-        "Get-Content FULL_SCALE_CODEBASE_AUDIT.md -TotalCount 100",
-        "Get-Content REPO_MEMORY_LEDGER.md -TotalCount 80",
-        "Get-Content EVERY_FILE_FUNCTION_CHECKLIST.md -TotalCount 40",
-        "npm run trace:adjacent -- scripts/agent/build-agent-indexes.ts",
-        "npm run trace:adjacent -- scripts/agent/check-agent-context.ts",
-        "npm run trace:adjacent -- scripts/agent/sync-sql.ts",
-        "npm run agent:refresh",
-        "npm run check:agent-context",
-        "npm run eval:agent-context",
-        "npm run typecheck",
-        "npm run check:continuity",
-        "Get-Content agent/state/task-context.generated.json",
-        "Get-Content agent/state/sql-mirror-status.generated.json",
-        "Get-Content agent/state/eval-results.generated.json"
-      ],
-      "resultSummary": [
-        "Audited the new Repo Intelligence Fabric process end to end after the warning-remediation pass instead of relying on historical green statuses.",
-        "Re-ran the generator and SQL-mirror payload flow with `npm run agent:refresh`; the generated agent indexes validated and the SQL mirror status remained healthy with no stale artifacts.",
-        "Re-ran the repo-intelligence self-check with `npm run check:agent-context`; it passed without missing files, schema drift, stable-ID collisions, or stale mirror metadata.",
-        "Re-ran the eval harness with `npm run eval:agent-context`; it now reports `pass (5/5 passing)` rather than a warning state.",
-        "Re-ran `npm run typecheck` and `npm run check:continuity`; both passed, and the continuity lane reported no dependency violations, no cycle violations, and no generated-artifact cleanup misses.",
-        "Inspected sampled generated outputs:",
-        "`agent/state/task-context.generated.json`",
-        "`agent/state/sql-mirror-status.generated.json`",
-        "`agent/state/eval-results.generated.json`",
-        "They were internally consistent with the command results and repo truth order.",
-        "Audited the new Repo Intelligence Fabric process end to end after the warning-remediation pass instead of relying on historical green statuses.",
-        "Re-ran the generator and SQL-mirror payload flow with `npm run agent:refresh`; the generated agent indexes validated and the SQL mirror status remained healthy with no stale artifacts.",
-        "Re-ran the repo-intelligence self-check with `npm run check:agent-context`; it passed without missing files, schema drift, stable-ID collisions, or stale mirror metadata.",
-        "Re-ran the eval harness with `npm run eval:agent-context`; it now reports `pass (5/5 passing)` rather than a warning state.",
-        "Re-ran `npm run typecheck` and `npm run check:continuity`; both passed, and the continuity lane reported no dependency violations, no cycle violations, and no generated-artifact cleanup misses.",
-        "Inspected sampled generated outputs:",
-        "`agent/state/task-context.generated.json`",
-        "`agent/state/sql-mirror-status.generated.json`",
-        "`agent/state/eval-results.generated.json`",
-        "They were internally consistent with the command results and repo truth order."
-      ],
-      "warnings": [
-        "No blocking findings were discovered in this audit pass.",
-        "Residual testing gap: the eval harness currently covers five representative task classes. That is sufficient to verify the repaired routing path, but it is still a curated fixture set rather than exhaustive production-task coverage."
-      ],
-      "architecture_change": true,
-      "runtime_change": false,
-      "ui_change": false,
-      "security_change": false,
-      "maintenance_only": false,
-      "changeKinds": [
-        "ui",
-        "tooling"
       ]
     }
   ]

@@ -1,5 +1,5 @@
 {
-  "generatedAt": "2026-04-18T03:43:40.666Z",
+  "generatedAt": "2026-04-18T13:42:41.033Z",
   "truthOrder": [
     "verified_runtime_code",
     "verified_configuration",
@@ -58,7 +58,7 @@
       "risk_tags": [
         "broad_signoff"
       ],
-      "recency": "1776481981009:fbf9ded6ff90",
+      "recency": "1776516297126:adfcc4943e89",
       "freshness": {
         "local": "fresh",
         "sql_mirror": "unknown"
@@ -454,7 +454,7 @@
       "risk_tags": [
         "broad_signoff"
       ],
-      "recency": "1776483750653:cefeea8e7d0d",
+      "recency": "1776519708120:166faf2a0f4c",
       "freshness": {
         "local": "fresh",
         "sql_mirror": "unknown"
@@ -482,7 +482,7 @@
       "risk_tags": [
         "broad_signoff"
       ],
-      "recency": "1776483705847:059f5b407a8e",
+      "recency": "1776519708108:2354829a9738",
       "freshness": {
         "local": "fresh",
         "sql_mirror": "unknown"
@@ -510,7 +510,7 @@
       "risk_tags": [
         "broad_signoff"
       ],
-      "recency": "1776483729019:1cb1c6c95710",
+      "recency": "1776519708112:af683f372871",
       "freshness": {
         "local": "fresh",
         "sql_mirror": "unknown"
@@ -564,7 +564,7 @@
       "risk_tags": [
         "broad_signoff"
       ],
-      "recency": "1776483804625:313ff6fea186",
+      "recency": "1776519747744:0688bad4c5d8",
       "freshness": {
         "local": "fresh",
         "sql_mirror": "unknown"
@@ -592,7 +592,7 @@
       "risk_tags": [
         "broad_signoff"
       ],
-      "recency": "1776483804587:40e485c87741",
+      "recency": "1776519747714:2ec4d60f5af9",
       "freshness": {
         "local": "fresh",
         "sql_mirror": "unknown"
@@ -620,7 +620,7 @@
       "risk_tags": [
         "broad_signoff"
       ],
-      "recency": "1776483804619:c27bdc50a65c",
+      "recency": "1776519747739:268e68629723",
       "freshness": {
         "local": "fresh",
         "sql_mirror": "unknown"
@@ -648,7 +648,7 @@
       "risk_tags": [
         "broad_signoff"
       ],
-      "recency": "1776483804601:e25786d9ffdf",
+      "recency": "1776519747725:ba6f52739932",
       "freshness": {
         "local": "fresh",
         "sql_mirror": "unknown"
@@ -676,7 +676,7 @@
       "risk_tags": [
         "broad_signoff"
       ],
-      "recency": "1776483804603:023a8097cd26",
+      "recency": "1776519747727:dd1a90890645",
       "freshness": {
         "local": "fresh",
         "sql_mirror": "unknown"
@@ -704,7 +704,7 @@
       "risk_tags": [
         "broad_signoff"
       ],
-      "recency": "1776483804593:3918bdf865d4",
+      "recency": "1776519747721:bcf71de0cbbc",
       "freshness": {
         "local": "fresh",
         "sql_mirror": "unknown"
@@ -732,7 +732,7 @@
       "risk_tags": [
         "broad_signoff"
       ],
-      "recency": "1776483804606:b07623860212",
+      "recency": "1776519747730:f7026470f418",
       "freshness": {
         "local": "fresh",
         "sql_mirror": "unknown"
@@ -760,7 +760,7 @@
       "risk_tags": [
         "broad_signoff"
       ],
-      "recency": "1776483804570:93dc726844f4",
+      "recency": "1776519747703:c9c738ab4df9",
       "freshness": {
         "local": "fresh",
         "sql_mirror": "unknown"
@@ -788,7 +788,7 @@
       "risk_tags": [
         "broad_signoff"
       ],
-      "recency": "1776483804643:45f97a7c8b0d",
+      "recency": "1776519747757:a3f14ed625e4",
       "freshness": {
         "local": "fresh",
         "sql_mirror": "unknown"
@@ -816,7 +816,7 @@
       "risk_tags": [
         "broad_signoff"
       ],
-      "recency": "1776483804610:7a6eec5a7bf0",
+      "recency": "1776519747734:1a13a4f06a76",
       "freshness": {
         "local": "fresh",
         "sql_mirror": "unknown"
@@ -844,7 +844,7 @@
       "risk_tags": [
         "broad_signoff"
       ],
-      "recency": "1776483804584:4323d31e4425",
+      "recency": "1776519747712:6152da0db232",
       "freshness": {
         "local": "fresh",
         "sql_mirror": "unknown"
@@ -872,7 +872,7 @@
       "risk_tags": [
         "broad_signoff"
       ],
-      "recency": "1776483816940:1f733851bddc",
+      "recency": "1776519757201:72ffe887dd39",
       "freshness": {
         "local": "fresh",
         "sql_mirror": "unknown"
@@ -900,7 +900,7 @@
       "risk_tags": [
         "broad_signoff"
       ],
-      "recency": "1776483804589:9d435f32e7ea",
+      "recency": "1776519747718:4899a2316823",
       "freshness": {
         "local": "fresh",
         "sql_mirror": "unknown"
@@ -928,7 +928,7 @@
       "risk_tags": [
         "broad_signoff"
       ],
-      "recency": "1776483804596:60a43667f505",
+      "recency": "1776519747723:ba6a8ad2f89d",
       "freshness": {
         "local": "fresh",
         "sql_mirror": "unknown"
@@ -956,7 +956,7 @@
       "risk_tags": [
         "broad_signoff"
       ],
-      "recency": "1776483810568:c8fecd67e86a",
+      "recency": "1776519751335:cd8a1b317a14",
       "freshness": {
         "local": "fresh",
         "sql_mirror": "unknown"
@@ -982,7 +982,7 @@
       "risk_tags": [
         "broad_signoff"
       ],
-      "recency": "1776483810564:afeeef5da576",
+      "recency": "1776519751332:4fc7a603882d",
       "freshness": {
         "local": "fresh",
         "sql_mirror": "unknown"
@@ -1008,7 +1008,7 @@
       "risk_tags": [
         "broad_signoff"
       ],
-      "recency": "1776483810566:db70a0a3681e",
+      "recency": "1776519751333:95a95f0ce527",
       "freshness": {
         "local": "fresh",
         "sql_mirror": "unknown"
@@ -1634,7 +1634,7 @@
       "risk_tags": [
         "broad_signoff"
       ],
-      "recency": "1776483433021:cf2186ecc20a",
+      "recency": "1776519622166:a112e1b6cad7",
       "freshness": {
         "local": "fresh",
         "sql_mirror": "unknown"
@@ -1662,7 +1662,7 @@
       "risk_tags": [
         "broad_signoff"
       ],
-      "recency": "1776483433018:7bc3459e4677",
+      "recency": "1776519622165:d9878e6f4755",
       "freshness": {
         "local": "fresh",
         "sql_mirror": "unknown"
@@ -1690,7 +1690,7 @@
       "risk_tags": [
         "broad_signoff"
       ],
-      "recency": "1776483810557:53352139a8fe",
+      "recency": "1776519751328:0c163305f8f0",
       "freshness": {
         "local": "fresh",
         "sql_mirror": "unknown"
@@ -2222,7 +2222,7 @@
       "risk_tags": [
         "broad_signoff"
       ],
-      "recency": "1776391462433:674cd9e496d1",
+      "recency": "1776518183580:be276cbe189b",
       "freshness": {
         "local": "fresh",
         "sql_mirror": "unknown"
@@ -2248,7 +2248,7 @@
       "risk_tags": [
         "broad_signoff"
       ],
-      "recency": "1776391433049:368eda41a5f5",
+      "recency": "1776518165376:3afe191046d5",
       "freshness": {
         "local": "fresh",
         "sql_mirror": "unknown"
@@ -2846,7 +2846,7 @@
       "risk_tags": [
         "runtime_critical"
       ],
-      "recency": "1776480144010:c0bd957e3141",
+      "recency": "1776516673888:d4398db8858d",
       "freshness": {
         "local": "fresh",
         "sql_mirror": "unknown"
@@ -2872,7 +2872,7 @@
       "risk_tags": [
         "runtime_critical"
       ],
-      "recency": "1776476368387:15800b8ae990",
+      "recency": "1776516651498:e4a3bc1d6bc5",
       "freshness": {
         "local": "fresh",
         "sql_mirror": "unknown"
@@ -3054,7 +3054,7 @@
       "risk_tags": [
         "broad_signoff"
       ],
-      "recency": "1776398004770:9691fef11ebc",
+      "recency": "1776518201660:c7258a90180b",
       "freshness": {
         "local": "fresh",
         "sql_mirror": "unknown"
@@ -3080,7 +3080,7 @@
       "risk_tags": [
         "broad_signoff"
       ],
-      "recency": "1776482874552:78812cd44937",
+      "recency": "1776518165374:3d8264fe67f9",
       "freshness": {
         "local": "fresh",
         "sql_mirror": "unknown"
@@ -5076,7 +5076,7 @@
       "risk_tags": [
         "broad_signoff"
       ],
-      "recency": "1776480248381:dace5546e6d9",
+      "recency": "1776516685992:95deaca99b18",
       "freshness": {
         "local": "fresh",
         "sql_mirror": "unknown"
@@ -5586,7 +5586,7 @@
       ],
       "helper_tags": [],
       "risk_tags": [],
-      "recency": "1776476148834:9f30f1861c3c",
+      "recency": "1776516636843:b8b0f8a59ccc",
       "freshness": {
         "local": "fresh",
         "sql_mirror": "unknown"
@@ -16463,7 +16463,7 @@
         "shared_helper",
         "broad_signoff"
       ],
-      "recency": "1776479969803:c9d6bc345a1c",
+      "recency": "1776516662668:a53c2a233900",
       "freshness": {
         "local": "fresh",
         "sql_mirror": "unknown"
@@ -16659,7 +16659,7 @@
         "shared_helper",
         "broad_signoff"
       ],
-      "recency": "1776476368384:bda59ebb5bbf",
+      "recency": "1776516644185:294a816bec4f",
       "freshness": {
         "local": "fresh",
         "sql_mirror": "unknown"
@@ -20206,6 +20206,30 @@
       "do_not_use_as_primary_truth": false
     },
     {
+      "stable_id": "file__tests__unit__check-scheduler-freshness-spec-ts",
+      "source_type": "file",
+      "source_id": "file__tests__unit__check-scheduler-freshness-spec-ts",
+      "searchable_terms": [
+        "tests/unit/check-scheduler-freshness.spec.ts",
+        "tests",
+        "tests"
+      ],
+      "surface_tags": [
+        "tests",
+        "tests"
+      ],
+      "helper_tags": [],
+      "risk_tags": [],
+      "recency": "1776516701836:f6aa41ecc58d",
+      "freshness": {
+        "local": "fresh",
+        "sql_mirror": "unknown"
+      },
+      "context_tier": "warm",
+      "exclusion_tags": [],
+      "do_not_use_as_primary_truth": false
+    },
+    {
       "stable_id": "file__tests__unit__client-diagnostics-spec-ts",
       "source_type": "file",
       "source_id": "file__tests__unit__client-diagnostics-spec-ts",
@@ -23538,6 +23562,62 @@
       "do_not_use_as_primary_truth": true
     },
     {
+      "stable_id": "retrieval__pass__2026-04-18-verification-blocker-remediation-runtime-continuity-truth-alignment",
+      "source_type": "recent_pass",
+      "source_id": "pass__2026-04-18-verification-blocker-remediation-runtime-continuity-truth-alignment",
+      "searchable_terms": [
+        "Verification Blocker Remediation + Runtime Continuity Truth Alignment",
+        "Remove the remaining truthful verification blockers and stale warnings/non-blocking notes by aligning the runtime continuity checks with the repo's actual executable truth, fixing any queue/runtime continuity gaps that still fail local verification, and rerunning the affected signoff lanes.",
+        " package-manager overrides/lockfiles so ",
+        ".agent/workflows/auto-tasks.md",
+        "@google-cloud/firestore@8.5.0",
+        "functions/package.json",
+        "functions/src/index.ts",
+        "functions/src/queue-runtime.ts",
+        "functions/src/runtime-warning-store.ts",
+        "notifyActiveDropsRuntime({ executionLayer: \"scheduler\", surface: \"functions/notifyActiveDropsLifecycle/manual-remediation\", ... })",
+        "npm --prefix functions ls @google-cloud/firestore google-gax whatwg-url tr46",
+        "npm ls @google-cloud/firestore google-gax whatwg-url tr46",
+        "npm run trace:adjacent -- functions/src/index.ts",
+        "npm run trace:adjacent -- functions/src/queue-runtime.ts",
+        "npm run trace:adjacent -- scripts/check-runtime-continuity.ts",
+        "npm run trace:adjacent -- scripts/check-scheduler-freshness.ts",
+        "npm run trace:adjacent -- scripts/runtime-admin.ts",
+        "npm run trace:adjacent -- src/lib/server/runtime-warning-store.ts",
+        "npx vitest run tests/unit/check-scheduler-freshness.spec.ts tests/unit/process-queue-route.spec.ts tests/unit/notify-active-drops-route.spec.ts tests/unit/drop-queue-lifecycle.spec.ts tests/unit/admin-analytics-capture-health.spec.ts tests/unit/admin-analytics-realtime-route.spec.ts",
+        "processQueueLifecycleRuntime({ executionLayer: \"scheduler\", surface: \"functions/processQueueLifecycle/manual-remediation\", ... })",
+        "scripts/check-runtime-continuity.ts",
+        "scripts/check-scheduler-freshness.ts",
+        "scripts/runtime-admin.ts",
+        "shared/runtime/runtime-warning-contract.ts",
+        "src/lib/server/queue-runtime.ts",
+        "src/lib/server/runtime-warning-store.ts",
+        "tests/unit/check-scheduler-freshness.spec.ts"
+      ],
+      "surface_tags": [
+        "admin",
+        "ui",
+        "runtime",
+        "tooling",
+        "architecture"
+      ],
+      "helper_tags": [],
+      "risk_tags": [
+        "architecture",
+        "runtime"
+      ],
+      "recency": "2026-04-18",
+      "freshness": {
+        "local": "fresh",
+        "sql_mirror": "unknown"
+      },
+      "context_tier": "cold",
+      "exclusion_tags": [
+        "secondary_truth"
+      ],
+      "do_not_use_as_primary_truth": true
+    },
+    {
       "stable_id": "retrieval__pass__2026-04-17-token-efficiency-fabric-hardening-watch__session-analytics-deepening",
       "source_type": "recent_pass",
       "source_id": "pass__2026-04-17-token-efficiency-fabric-hardening-watch__session-analytics-deepening",
@@ -23948,52 +24028,6 @@
         "architecture",
         "runtime",
         "ui"
-      ],
-      "recency": "2026-04-17",
-      "freshness": {
-        "local": "fresh",
-        "sql_mirror": "unknown"
-      },
-      "context_tier": "cold",
-      "exclusion_tags": [
-        "secondary_truth"
-      ],
-      "do_not_use_as_primary_truth": true
-    },
-    {
-      "stable_id": "retrieval__pass__2026-04-17-repo-intelligence-post-implementation-audit",
-      "source_type": "recent_pass",
-      "source_id": "pass__2026-04-17-repo-intelligence-post-implementation-audit",
-      "searchable_terms": [
-        "Repo Intelligence Post-Implementation Audit",
-        "Audit and test the newly implemented Repo Intelligence Fabric functions and operational processes after warning remediation.",
-        "Re-run the generator, self-check, eval, and continuity lanes, then inspect the outputs for concrete behavioral defects or drift instead of relying on green status alone.",
-        "Get-Content agent/state/eval-results.generated.json",
-        "Get-Content agent/state/sql-mirror-status.generated.json",
-        "Get-Content agent/state/task-context.generated.json",
-        "agent/index/",
-        "agent/prompts/",
-        "agent/state/",
-        "agent/state/eval-results.generated.json",
-        "agent/state/sql-mirror-status.generated.json",
-        "agent/state/task-context.generated.json",
-        "npm run trace:adjacent -- scripts/agent/build-agent-indexes.ts",
-        "npm run trace:adjacent -- scripts/agent/check-agent-context.ts",
-        "npm run trace:adjacent -- scripts/agent/sync-sql.ts",
-        "pass (5/5 passing)",
-        "scripts/agent/build-agent-indexes.ts",
-        "scripts/agent/build-task-context.ts",
-        "scripts/agent/check-agent-context.ts",
-        "scripts/agent/run-evals.ts",
-        "scripts/agent/sync-sql.ts"
-      ],
-      "surface_tags": [
-        "ui",
-        "tooling"
-      ],
-      "helper_tags": [],
-      "risk_tags": [
-        "architecture"
       ],
       "recency": "2026-04-17",
       "freshness": {

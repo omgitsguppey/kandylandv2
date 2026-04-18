@@ -1,15 +1,15 @@
 # EVERY FILE FUNCTION CHECKLIST
 
-**Last Updated:** 2026-04-17
-**Current Focus:** Repo Intelligence Fabric v1 remains active, and the 2026-04-17 delta now includes the generated UI continuity ledger, the self-debugging queue/runtime canonicalization lane, the open-PR reconciliation pass, and the token-efficiency/watch-session analytics deepening pass.
-**Status:** In Progress. Historical exhaustive sweep remains valuable, and the 2026-04-17 continuity metadata now reflects the repo-intelligence layer, the UI continuity fabric, the creator-settings route regression coverage, the profile-page creator warning handling follow-up, the self-debugging queue/runtime canonicalization pass, the warning-free static verification baseline, the open-PR reconciliation pass, and the watch-session capture-health / task-context tiering pass.
+**Last Updated:** 2026-04-18
+**Current Focus:** Repo Intelligence Fabric v1 remains active, and the 2026-04-18 delta now includes the generated UI continuity ledger, the self-debugging queue/runtime canonicalization lane, the verification-blocker remediation pass for canonical scheduler freshness truth plus Firestore transport warning removal, the open-PR reconciliation pass, and the token-efficiency/watch-session analytics deepening pass.
+**Status:** In Progress. Historical exhaustive sweep remains valuable, and the 2026-04-18 continuity metadata now reflects the repo-intelligence layer, the UI continuity fabric, the creator-settings route regression coverage, the profile-page creator warning handling follow-up, the self-debugging queue/runtime canonicalization pass, the scheduler-heartbeat provenance remediation pass, the Firestore transport dependency remediation pass, the warning-free static verification baseline, the open-PR reconciliation pass, and the watch-session capture-health / task-context tiering pass.
 Purpose: exhaustive no-skip audit checklist covering every repository file currently in scope and every detected function-like implementation.
 
 Scoring: all entries below are marked as included in the current validated sweep. Confidence reflects current repository-state confidence, not perfection or future-proofing.
 
 Current repo-wide state snapshot: see [FULL_SCALE_CODEBASE_AUDIT.md](/Users/uylus/OneDrive/Documents/KandyDrops_Final/FULL_SCALE_CODEBASE_AUDIT.md) for the current live baseline, verification state, and continuity rules, and see [REPO_MEMORY_LEDGER.md](/Users/uylus/OneDrive/Documents/KandyDrops_Final/REPO_MEMORY_LEDGER.md) for major architectural and workflow decisions. The detailed file/function body below remains valuable historical evidence, but it has not been fully regenerated against the current 2026-04-17 inventory review yet.
 
-## 2026-04-17 Delta Coverage
+## 2026-04-18 Delta Coverage
 
 - Added repo-intelligence and cross-agent context surfaces:
   - `agent/README.md`
@@ -57,6 +57,7 @@ Current repo-wide state snapshot: see [FULL_SCALE_CODEBASE_AUDIT.md](/Users/uylu
   - `scripts/check-runtime-continuity.ts`
   - `tests/unit/process-queue-route.spec.ts`
   - `tests/unit/notify-active-drops-route.spec.ts`
+  - `tests/unit/check-scheduler-freshness.spec.ts`
 - Added admin/debug queue runtime visibility:
   - `src/lib/server/admin-analytics-capture-health.ts`
   - `scripts/check-analytics-continuity.ts`
@@ -100,6 +101,8 @@ Current repo-wide state snapshot: see [FULL_SCALE_CODEBASE_AUDIT.md](/Users/uylu
 - Continuity note: the profile page now separates creator-settings and creator-broadcast load failures, preserves partial success when one request still succeeds, and shows a visible warning instead of silently hiding common recoverable creator-tool load errors behind fallback state.
 - Continuity note: creator/public/dashboard UI surfaces now flow through a generated machine-readable coverage ledger, and the creator public profile plus creator workspace use shared module continuity handling instead of silent all-or-nothing hydration.
 - Continuity note: queue lifecycle now has a canonical Firebase Functions scheduler lane, the Next cron routes are warning-producing legacy adapters only, and runtime continuity checks can now fail on missing queue heartbeats or missing notification outcomes without requiring a full build.
+- Continuity note: queue heartbeat truth now records `executionLayer` and `surface`, scheduler freshness only trusts canonical `executionLayer: "scheduler"` heartbeat docs, and local empty-state verification may fall back to static scheduler-wiring proof until live scheduler heartbeats exist.
+- Continuity note: root `package.json`/`package-lock.json` and `functions/package.json`/`functions/package-lock.json` now override `@google-cloud/firestore` to `^8.5.0` and `google-gax` to `^5.0.6` so Firestore-backed continuity scripts stop emitting the previous Node 24 `punycode` deprecation warning while Functions runtime truth remains on Node 22.
 - Coverage note: these files are included in current continuity/signoff scope even though the historical exhaustive body below has not yet been fully regenerated for the new directories.
 
 Historical sweep file-body baseline: 413 tracked files

@@ -1,5 +1,5 @@
 {
-  "generatedAt": "2026-04-18T03:43:31.674Z",
+  "generatedAt": "2026-04-18T13:42:32.032Z",
   "truthOrder": [
     "verified_runtime_code",
     "verified_configuration",
@@ -29,13 +29,17 @@
       "relatedPaths": [
         "npm run trace:adjacent -- \"src/app/api/admin/users/[userId]/username/route.ts\"",
         "npm run trace:adjacent -- functions/src/index.ts",
+        "npm run trace:adjacent -- functions/src/queue-runtime.ts",
         "npm run trace:adjacent -- scripts/agent/build-task-context.ts",
         "npm run trace:adjacent -- scripts/agent/build-ui-runtime-audit.ts",
         "npm run trace:adjacent -- scripts/agent/build-ui-surface-coverage.ts",
         "npm run trace:adjacent -- scripts/agent/check-ui-surface-coverage.ts",
         "npm run trace:adjacent -- scripts/agent/run-evals.ts",
+        "npm run trace:adjacent -- scripts/check-runtime-continuity.ts",
+        "npm run trace:adjacent -- scripts/check-scheduler-freshness.ts",
         "npm run trace:adjacent -- scripts/export-dependency-graph.ts",
         "npm run trace:adjacent -- scripts/repo-inventory.ts",
+        "npm run trace:adjacent -- scripts/runtime-admin.ts",
         "npm run trace:adjacent -- scripts/trace-adjacent-surfaces.ts",
         "npm run trace:adjacent -- src/app/admin/analytics/page.tsx",
         "npm run trace:adjacent -- src/app/admin/debug/page.tsx",
@@ -51,11 +55,13 @@
         "npm run trace:adjacent -- src/components/Dashboard/CreatorWorkspacePanel.tsx",
         "npm run trace:adjacent -- src/hooks/useViewerWatchSession.ts",
         "npm run trace:adjacent -- src/lib/server/push-notifications.ts",
+        "npm run trace:adjacent -- src/lib/server/runtime-warning-store.ts",
         "npx vitest run tests/unit/admin-user-username-route.spec.ts tests/unit/admin-analytics-page.spec.tsx",
         "npx vitest run tests/unit/analytics-ingest-route.spec.ts tests/unit/analytics-identifiers.spec.ts tests/unit/useViewerWatchSession-bench.spec.ts",
         "npx vitest run tests/unit/api/creator-settings-route.test.ts",
         "npx vitest run tests/unit/creator-bookings-route.spec.ts tests/unit/creator-subscriptions-route.spec.ts tests/unit/ui-continuity.spec.ts",
-        "npx vitest run tests/unit/process-queue-route.spec.ts tests/unit/notify-active-drops-route.spec.ts tests/unit/drop-queue-lifecycle.spec.ts"
+        "npx vitest run tests/unit/process-queue-route.spec.ts tests/unit/notify-active-drops-route.spec.ts tests/unit/drop-queue-lifecycle.spec.ts",
+        "npx vitest run tests/unit/process-queue-route.spec.ts tests/unit/notify-active-drops-route.spec.ts tests/unit/drop-queue-lifecycle.spec.ts tests/unit/admin-analytics-capture-health.spec.ts tests/unit/admin-analytics-realtime-route.spec.ts"
       ]
     },
     {
