@@ -1,5 +1,5 @@
 {
-  "generatedAt": "2026-04-18T15:18:02.816Z",
+  "generatedAt": "2026-04-18T22:39:42.176Z",
   "truthOrder": [
     "verified_runtime_code",
     "verified_configuration",
@@ -13,128 +13,128 @@
   "source": [
     "agent/state/sql-sync.payload.generated.json"
   ],
-  "stable_id": "sqlstatus__2026-04-18-1776525482790",
-  "syncRevision": "2026-04-18-1776525482790",
+  "stable_id": "sqlstatus__2026-04-18-1776551982112",
+  "syncRevision": "2026-04-18-1776551982112",
   "mirrorMode": "wired_dataconnect_schema",
   "healthy": true,
   "repoTruthPrecedence": "repo_truth_wins_over_sql_mirror",
   "artifacts": {
     "agent/index/repo-inventory.json": {
       "sourcePath": "agent/index/repo-inventory.json",
-      "sourceHash": "389f20752b7e",
-      "generatedAt": "2026-04-18T15:17:57.344Z",
-      "syncedAt": "2026-04-18T15:18:02.790Z",
-      "syncRevision": "2026-04-18-1776525482790",
+      "sourceHash": "2cc038db8790",
+      "generatedAt": "2026-04-18T22:39:27.875Z",
+      "syncedAt": "2026-04-18T22:39:42.113Z",
+      "syncRevision": "2026-04-18-1776551982112",
       "stale": false,
-      "rowCount": 868
+      "rowCount": 871
     },
     "agent/index/surface-map.json": {
       "sourcePath": "agent/index/surface-map.json",
-      "sourceHash": "73a28e88aa2f",
-      "generatedAt": "2026-04-18T15:17:57.346Z",
-      "syncedAt": "2026-04-18T15:18:02.790Z",
-      "syncRevision": "2026-04-18-1776525482790",
+      "sourceHash": "714edf4f3a81",
+      "generatedAt": "2026-04-18T22:39:27.878Z",
+      "syncedAt": "2026-04-18T22:39:42.113Z",
+      "syncRevision": "2026-04-18-1776551982112",
       "stale": false,
       "rowCount": 10
     },
     "agent/index/canonical-helpers.json": {
       "sourcePath": "agent/index/canonical-helpers.json",
-      "sourceHash": "911e739a120c",
-      "generatedAt": "2026-04-18T15:17:57.346Z",
-      "syncedAt": "2026-04-18T15:18:02.790Z",
-      "syncRevision": "2026-04-18-1776525482790",
+      "sourceHash": "6321c8be70f7",
+      "generatedAt": "2026-04-18T22:39:27.878Z",
+      "syncedAt": "2026-04-18T22:39:42.113Z",
+      "syncRevision": "2026-04-18-1776551982112",
       "stale": false,
       "rowCount": 22
     },
     "agent/index/verification-commands.json": {
       "sourcePath": "agent/index/verification-commands.json",
-      "sourceHash": "10c48dcba4a7",
-      "generatedAt": "2026-04-18T15:17:57.351Z",
-      "syncedAt": "2026-04-18T15:18:02.790Z",
-      "syncRevision": "2026-04-18-1776525482790",
+      "sourceHash": "ffb6635c1d55",
+      "generatedAt": "2026-04-18T22:39:27.892Z",
+      "syncedAt": "2026-04-18T22:39:42.113Z",
+      "syncRevision": "2026-04-18-1776551982112",
       "stale": false,
       "rowCount": 73
     },
     "agent/index/package-manager-truth.json": {
       "sourcePath": "agent/index/package-manager-truth.json",
-      "sourceHash": "65917de42590",
-      "generatedAt": "2026-04-18T15:17:57.353Z",
-      "syncedAt": "2026-04-18T15:18:02.790Z",
-      "syncRevision": "2026-04-18-1776525482790",
+      "sourceHash": "1aa83c9b5c46",
+      "generatedAt": "2026-04-18T22:39:27.895Z",
+      "syncedAt": "2026-04-18T22:39:42.113Z",
+      "syncRevision": "2026-04-18-1776551982112",
       "stale": false,
       "rowCount": 2
     },
     "agent/index/workflow-guidance.json": {
       "sourcePath": "agent/index/workflow-guidance.json",
-      "sourceHash": "9fd79cc30475",
-      "generatedAt": "2026-04-18T15:17:57.360Z",
-      "syncedAt": "2026-04-18T15:18:02.790Z",
-      "syncRevision": "2026-04-18-1776525482790",
+      "sourceHash": "f8ca68511ab0",
+      "generatedAt": "2026-04-18T22:39:27.913Z",
+      "syncedAt": "2026-04-18T22:39:42.113Z",
+      "syncRevision": "2026-04-18-1776551982112",
       "stale": false,
       "rowCount": 10
     },
     "agent/index/governance-truth.json": {
       "sourcePath": "agent/index/governance-truth.json",
-      "sourceHash": "895d2e6f51ba",
-      "generatedAt": "2026-04-18T15:17:57.361Z",
-      "syncedAt": "2026-04-18T15:18:02.790Z",
-      "syncRevision": "2026-04-18-1776525482790",
+      "sourceHash": "44d328be3310",
+      "generatedAt": "2026-04-18T22:39:27.920Z",
+      "syncedAt": "2026-04-18T22:39:42.113Z",
+      "syncRevision": "2026-04-18-1776551982112",
       "stale": false,
       "rowCount": 3
     },
     "agent/index/known-pitfalls.json": {
       "sourcePath": "agent/index/known-pitfalls.json",
-      "sourceHash": "8b5328533c25",
-      "generatedAt": "2026-04-18T15:17:57.369Z",
-      "syncedAt": "2026-04-18T15:18:02.790Z",
-      "syncRevision": "2026-04-18-1776525482790",
+      "sourceHash": "8f6c7fa5a866",
+      "generatedAt": "2026-04-18T22:39:27.937Z",
+      "syncedAt": "2026-04-18T22:39:42.113Z",
+      "syncRevision": "2026-04-18-1776551982112",
       "stale": false,
       "rowCount": 14
     },
     "agent/index/recent-passes.json": {
       "sourcePath": "agent/index/recent-passes.json",
-      "sourceHash": "f4deb1ffae7b",
-      "generatedAt": "2026-04-18T15:17:57.373Z",
-      "syncedAt": "2026-04-18T15:18:02.790Z",
-      "syncRevision": "2026-04-18-1776525482790",
+      "sourceHash": "d0c00ad4c7e4",
+      "generatedAt": "2026-04-18T22:39:27.949Z",
+      "syncedAt": "2026-04-18T22:39:42.113Z",
+      "syncRevision": "2026-04-18-1776551982112",
       "stale": false,
       "rowCount": 8
     },
     "agent/index/runtime-observability.json": {
       "sourcePath": "agent/index/runtime-observability.json",
-      "sourceHash": "865d18dbd2ea",
-      "generatedAt": "2026-04-18T15:17:57.384Z",
-      "syncedAt": "2026-04-18T15:18:02.790Z",
-      "syncRevision": "2026-04-18-1776525482790",
+      "sourceHash": "94a19758850a",
+      "generatedAt": "2026-04-18T22:39:27.971Z",
+      "syncedAt": "2026-04-18T22:39:42.113Z",
+      "syncRevision": "2026-04-18-1776551982112",
       "stale": false,
       "rowCount": 10
     },
     "agent/index/dependency-graph.summary.json": {
       "sourcePath": "agent/index/dependency-graph.summary.json",
-      "sourceHash": "757b2c0c6d2e",
-      "generatedAt": "2026-04-18T15:18:00.535Z",
-      "syncedAt": "2026-04-18T15:18:02.790Z",
-      "syncRevision": "2026-04-18-1776525482790",
+      "sourceHash": "17d0005c6d8e",
+      "generatedAt": "2026-04-18T22:39:36.270Z",
+      "syncedAt": "2026-04-18T22:39:42.113Z",
+      "syncRevision": "2026-04-18-1776551982112",
       "stale": false,
       "rowCount": 20
     },
     "agent/index/blast-radius.json": {
       "sourcePath": "agent/index/blast-radius.json",
-      "sourceHash": "0509a3193392",
-      "generatedAt": "2026-04-18T15:18:02.209Z",
-      "syncedAt": "2026-04-18T15:18:02.790Z",
-      "syncRevision": "2026-04-18-1776525482790",
+      "sourceHash": "31068c85cdae",
+      "generatedAt": "2026-04-18T22:39:40.687Z",
+      "syncedAt": "2026-04-18T22:39:42.113Z",
+      "syncRevision": "2026-04-18-1776551982112",
       "stale": false,
-      "rowCount": 571
+      "rowCount": 572
     },
     "agent/index/retrieval-index.json": {
       "sourcePath": "agent/index/retrieval-index.json",
-      "sourceHash": "1d3415186cb9",
-      "generatedAt": "2026-04-18T15:18:02.739Z",
-      "syncedAt": "2026-04-18T15:18:02.790Z",
-      "syncRevision": "2026-04-18-1776525482790",
+      "sourceHash": "12e187175b99",
+      "generatedAt": "2026-04-18T22:39:42.012Z",
+      "syncedAt": "2026-04-18T22:39:42.113Z",
+      "syncRevision": "2026-04-18-1776551982112",
       "stale": false,
-      "rowCount": 912
+      "rowCount": 915
     }
   }
 }

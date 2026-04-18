@@ -1,5 +1,5 @@
 {
-  "generatedAt": "2026-04-18T15:17:57.360Z",
+  "generatedAt": "2026-04-18T22:39:27.913Z",
   "truthOrder": [
     "verified_runtime_code",
     "verified_configuration",
@@ -35,6 +35,7 @@
         "npm run trace:adjacent -- scripts/agent/build-ui-surface-coverage.ts",
         "npm run trace:adjacent -- scripts/agent/check-ui-surface-coverage.ts",
         "npm run trace:adjacent -- scripts/agent/run-evals.ts",
+        "npm run trace:adjacent -- scripts/check-analytics-continuity.ts",
         "npm run trace:adjacent -- scripts/check-runtime-continuity.ts",
         "npm run trace:adjacent -- scripts/check-scheduler-freshness.ts",
         "npm run trace:adjacent -- scripts/export-dependency-graph.ts",
@@ -43,6 +44,8 @@
         "npm run trace:adjacent -- scripts/trace-adjacent-surfaces.ts",
         "npm run trace:adjacent -- src/app/admin/analytics/page.tsx",
         "npm run trace:adjacent -- src/app/admin/debug/page.tsx",
+        "npm run trace:adjacent -- src/app/api/admin/analytics/historical/route.ts",
+        "npm run trace:adjacent -- src/app/api/admin/analytics/realtime/route.ts",
         "npm run trace:adjacent -- src/app/api/creator/bookings/route.ts",
         "npm run trace:adjacent -- src/app/api/creator/settings/route.ts",
         "npm run trace:adjacent -- src/app/api/creator/subscriptions/route.ts",
@@ -57,8 +60,11 @@
         "npm run trace:adjacent -- src/components/Chat/ChatExperience.tsx",
         "npm run trace:adjacent -- src/components/Dashboard/CreatorWorkspacePanel.tsx",
         "npm run trace:adjacent -- src/hooks/useViewerWatchSession.ts",
+        "npm run trace:adjacent -- src/lib/gumdrop-ledger.ts",
+        "npm run trace:adjacent -- src/lib/server/admin-analytics-capture-health.ts",
         "npm run trace:adjacent -- src/lib/server/push-notifications.ts",
         "npm run trace:adjacent -- src/lib/server/runtime-warning-store.ts",
+        "npx vitest run tests/unit/admin-analytics-capture-health.spec.ts tests/unit/admin-analytics-realtime-route.spec.ts tests/unit/admin-analytics-page.spec.tsx",
         "npx vitest run tests/unit/admin-user-username-route.spec.ts tests/unit/admin-analytics-page.spec.tsx",
         "npx vitest run tests/unit/analytics-ingest-route.spec.ts tests/unit/analytics-identifiers.spec.ts tests/unit/useViewerWatchSession-bench.spec.ts",
         "npx vitest run tests/unit/api/creator-settings-route.test.ts",
@@ -139,6 +145,7 @@
         "codex"
       ],
       "relatedPaths": [
+        "//evil.com",
         "api/admin/ui-chart-health/route.ts"
       ]
     },

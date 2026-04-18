@@ -24,6 +24,50 @@ This file is not a changelog. It is the concise ledger for durable decisions tha
 
 ## Decision Entries
 
+### 1aj. Viewer watch close intent must survive flush failure, and closed recovered sessions are not permanently flush-degraded
+
+- Approximate date: Recorded explicitly on 2026-04-18 from the Viewer Watch Close-Intent Repair pass
+- Status: Active viewer continuity rule
+- Problem/context: A failed terminal watch-session close flush could still fall back to heartbeat retries, which dropped the close intent and left canonical sessions open forever. The capture-state helper also treated any flush failure as permanently degraded, even after the session had been repaired to a terminal close.
+- Decision made: Preserve close intent across flush failure, retry the terminal close explicitly, and classify flush-degraded state only while the session is still open. Once the terminal close is recorded, the session may remain replayed or otherwise degraded in history, but it should no longer be counted as an unresolved flush-degraded continuity failure.
+- What became canonical:
+  - `src/hooks/useViewerWatchSession.ts` now schedules a close retry instead of downgrading a failed close into a heartbeat retry
+  - `src/lib/viewer-watch-session.ts` exports `shouldRetryViewerWatchCloseFlush(...)` and only counts flush-degraded state while a session is still open
+  - `scripts/repair-viewer-watch-close-missing.ts` can backfill canonical close-missing sessions by writing the terminal close source truth and logging the repaired docs
+  - `scripts/check-analytics-continuity.ts` now observes the repaired canonical truth and passes with only the expected legacy-history warnings
+- Truth lives in:
+  - `src/hooks/useViewerWatchSession.ts`
+  - `src/lib/viewer-watch-session.ts`
+  - `src/lib/server/admin-analytics-capture-health.ts`
+  - `scripts/repair-viewer-watch-close-missing.ts`
+  - `scripts/check-analytics-continuity.ts`
+  - `tests/unit/viewer-watch-session.spec.ts`
+  - `tests/unit/admin-analytics-capture-health.spec.ts`
+- What is now disallowed or deprecated:
+  - letting a failed close flush silently degrade into a heartbeat retry that drops terminal close intent
+  - counting a closed-and-recovered watch session as permanently flush-degraded just because it once had flush failures
+  - fixing continuity by weakening the checker instead of repairing or classifying the source truth
+
+### 1ai. Viewer unwrapped/static watch time should resolve from visible dwell time, while media remains playback-progress truth
+
+- Approximate date: Recorded explicitly on 2026-04-18 from the Viewer Unwrapped Watch-Time Refactor pass
+- Status: Active viewer engagement rule
+- Problem/context: The viewer session code still treated watch time as a fixed bucket for all assets. That undercounted unwrapped/static content where the user’s actual visible dwell time is the truth source, while media content still needed playback-progress accounting.
+- Decision made: Add a shared resolver that computes watch seconds from playback progress for media and from visible dwell time for static/unwrapped assets. Static/unwrapped viewer assets must accumulate elapsed visible time on cleanup/finalization instead of replacing the session bucket with a floor value.
+- What became canonical:
+  - `src/lib/viewer-watch-session.ts` now exposes `resolveViewerWatchSeconds(...)`
+  - `src/app/dashboard/viewer/ViewerClient.tsx` starts and commits visible-time windows for non-media assets and preserves playback-based timing for video/audio assets
+  - the static asset auto-complete timer now resolves its telemetry/watch seconds through the shared helper instead of hard-coding a fixed 6-second bucket
+  - watch-time updates for unwrapped/static content should be additive to the session tally, not a fixed minimum bucket
+- Truth lives in:
+  - `src/lib/viewer-watch-session.ts`
+  - `src/app/dashboard/viewer/ViewerClient.tsx`
+  - `tests/unit/viewer-watch-session.spec.ts`
+- What is now disallowed or deprecated:
+  - treating static/unwrapped viewer watch time as a fixed placeholder duration when the viewer can prove actual visible dwell time
+  - applying visible-window accumulation to media playback content when playback progress is the more truthful source
+  - keeping a hard-coded 6-second static auto-complete bucket after the shared resolver exists
+
 ### 1ah. Loaded admin health cards must downgrade on stale or unseen snapshots, and fallback support labels must not overstate certainty
 
 - Approximate date: Recorded explicitly on 2026-04-18 from the UI Truthfulness Refinement + Chart Health Freshness Downgrade pass

@@ -8,26 +8,27 @@ Why scope: Touches repo-tooling, governance, or multiple broad-signoff surfaces.
 Likely touched files:
 - scripts/agent/build-agent-indexes.ts
 - scripts/agent/build-task-context.ts
-- scripts/agent/build-ui-surface-coverage.ts
 - scripts/agent/extract-runtime-observability.ts
 - scripts/agent/run-evals.ts
+- src/lib/gumdrop-ledger.ts
+- scripts/agent/build-ui-surface-coverage.ts
 - scripts/agent/check-agent-context.ts
 - scripts/agent/classify-repo-files.ts
 - scripts/agent/extract-canonical-helpers.ts
 - scripts/agent/extract-governance.ts
-- scripts/agent/extract-workflow.ts
 - FULL_SCALE_CODEBASE_AUDIT.md
 - REPO_MEMORY_LEDGER.md
 - EVERY_FILE_FUNCTION_CHECKLIST.md
-- , a reusable compact/mobile recovery helper that detects stale target focus and unexpected 
+- npx vitest run tests/unit/viewer-watch-session.spec.ts
 
 Canonical helpers to reuse:
-- src/lib/gumdrop-economics.ts
 - src/lib/gumdrop-ledger.ts
+- src/lib/gumdrop-economics.ts
 - src/lib/server/paypal.ts
 
 Relevant pitfalls:
 - diagnostics_serialization_crash
+- consumed_response_stream_fallback
 - generated_artifact_cleanup_miss
 - sidecar_truth_confusion
 - legacy_queue_adapter_usage
@@ -38,6 +39,7 @@ Required verification:
 - npm run check:agent-context
 - npm run check:continuity
 - npm run trace:adjacent -- <path>
+- npm run test:contracts
 - npm run check:architecture
 - npm run check:inventory
 
@@ -46,13 +48,13 @@ Do not read unless needed:
 Do not touch without broad signoff:
 - scripts/agent/build-agent-indexes.ts
 - scripts/agent/build-task-context.ts
-- scripts/agent/build-ui-surface-coverage.ts
 - scripts/agent/extract-runtime-observability.ts
 - scripts/agent/run-evals.ts
+- src/lib/gumdrop-ledger.ts
+- scripts/agent/build-ui-surface-coverage.ts
 - scripts/agent/check-agent-context.ts
 - scripts/agent/classify-repo-files.ts
 - scripts/agent/extract-canonical-helpers.ts
 - scripts/agent/extract-governance.ts
 - scripts/agent/extract-workflow.ts
 - scripts/agent/shared.ts
-- scripts/agent/summarize-dependency-graph.ts

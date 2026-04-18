@@ -88,4 +88,27 @@ describe("buildWatchCaptureHealthSummary", () => {
       "1 session(s) degraded with close-missing capture state.",
     );
   });
+
+  it("does not keep closed sessions in flush-degraded state after terminal recovery", () => {
+    const summary = buildWatchCaptureHealthSummary({
+      watchSessionDocs: [
+        mockDoc("watch_closed", {
+          watchSessionId: "watch_closed",
+          lastSeenAtMs: 3_000,
+          captureTransport: "fetch",
+          replayRecovered: true,
+          replayRecoveredCount: 1,
+          flushFailureCount: 12,
+          gapCount: 0,
+          isClosed: true,
+          closeReason: "flush_close_recovered",
+        }),
+      ],
+      watchAssetDocs: [],
+    });
+
+    expect(summary.flushDegradedCount).toBe(0);
+    expect(summary.closeMissingCount).toBe(0);
+    expect(summary.degradedSessionCount).toBe(1);
+  });
 });

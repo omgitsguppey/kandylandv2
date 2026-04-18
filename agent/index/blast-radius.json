@@ -1,5 +1,5 @@
 {
-  "generatedAt": "2026-04-18T15:18:02.209Z",
+  "generatedAt": "2026-04-18T22:39:40.687Z",
   "truthOrder": [
     "verified_runtime_code",
     "verified_configuration",
@@ -349,6 +349,21 @@
     {
       "stable_id": "blast__src__lib__admin-analytics-preferences-ts",
       "path": "src/lib/admin-analytics-preferences.ts",
+      "blast_radius_score": 70,
+      "shared_helper_risk": 25,
+      "route_boundary_risk": 0,
+      "runtime_criticality": 25,
+      "verification_burden": 20,
+      "deploy_or_lockfile_sensitivity": 0,
+      "why_score_was_assigned": [
+        "Likely shared helper.",
+        "Runtime-critical surface.",
+        "Broad signoff likely."
+      ]
+    },
+    {
+      "stable_id": "blast__src__lib__admin-analytics-truth-ts",
+      "path": "src/lib/admin-analytics-truth.ts",
       "blast_radius_score": 70,
       "shared_helper_risk": 25,
       "route_boundary_risk": 0,

@@ -20,6 +20,7 @@ import { useViewerWatchSession } from "@/hooks/useViewerWatchSession";
 import { useNetworkConditions } from "@/hooks/useNetworkConditions";
 import { getClientSessionId } from "@/lib/client-session";
 import { getViewerAssetPrefetchConcurrency, runConcurrentViewerPrefetch } from "@/lib/viewer-asset-prefetch";
+import { resolveViewerWatchSeconds } from "@/lib/viewer-watch-session";
 
 
 
@@ -75,6 +76,10 @@ function resolveContentKind(mimeType: string): ContentKind {
     if (mimeType.startsWith("image/")) return "image";
     if (mimeType === "application/pdf") return "pdf";
     return "unknown";
+}
+
+function isMediaContent(kind: ContentKind) {
+    return kind === "video" || kind === "audio";
 }
 
 function resolveContent(blobType: string, metadataType?: string): ResolvedContent {
@@ -293,6 +298,14 @@ function sumNumbers(values: Iterable<number>): number {
     return total;
 }
 
+function roundSeconds(value: number) {
+    if (!Number.isFinite(value) || value <= 0) {
+        return 0;
+    }
+
+    return Number(value.toFixed(2));
+}
+
 const WATCH_CHECKPOINT_SECONDS = [15, 45, 90, 180, 300] as const;
 
 function buildWatchTelemetryMetrics(watchSeconds: number, assetDurationSeconds?: number): Record<string, number> {
@@ -383,6 +396,7 @@ export function ViewerClient({ drop, allDrops }: ViewerClientProps) {
     const sessionAssetSwitchCountRef = useRef(0);
     const sessionDownloadCountRef = useRef(0);
     const sessionRelatedClickCountRef = useRef(0);
+    const sessionAssetWatchStartedAtRef = useRef<Map<string, number>>(new Map());
     const startedAssetKeysRef = useRef<Set<string>>(new Set());
     const completedAssetKeysRef = useRef<Set<string>>(new Set());
     const mediaSeekStartedAtRef = useRef<number | null>(null);
@@ -470,23 +484,64 @@ export function ViewerClient({ drop, allDrops }: ViewerClientProps) {
         sessionAssetSwitchCountRef.current = 0;
         sessionDownloadCountRef.current = 0;
         sessionRelatedClickCountRef.current = 0;
+        sessionAssetWatchStartedAtRef.current.clear();
         consumedAssetKeysRef.current.clear();
         watchCheckpointKeysRef.current.clear();
         startedAssetKeysRef.current.clear();
         completedAssetKeysRef.current.clear();
     }, []);
 
-    const updateSessionWatchTime = useCallback((watchSeconds: number, assetIndex = activeIndex) => {
+    const updateSessionWatchTime = useCallback((watchSeconds: number, assetIndex = activeIndex, mode: "max" | "add" = "max") => {
         if (!drop || !Number.isFinite(watchSeconds) || watchSeconds <= 0) {
             return;
         }
 
         const assetKey = `${drop.id}:${assetIndex}`;
-        const normalizedWatchSeconds = Math.max(1, Math.round(watchSeconds));
+        const normalizedWatchSeconds = roundSeconds(watchSeconds);
+        if (normalizedWatchSeconds <= 0) {
+            return;
+        }
+
         const current = sessionWatchSecondsByAssetRef.current.get(assetKey) ?? 0;
-        sessionWatchSecondsByAssetRef.current.set(assetKey, Math.max(current, normalizedWatchSeconds));
+        sessionWatchSecondsByAssetRef.current.set(
+            assetKey,
+            mode === "add" ? roundSeconds(current + normalizedWatchSeconds) : Math.max(current, normalizedWatchSeconds),
+        );
         sessionViewedAssetsRef.current.add(assetKey);
     }, [activeIndex, drop]);
+
+    const markAssetWatchStarted = useCallback((assetIndex = activeIndex, timestampMs = Date.now()) => {
+        if (!drop || isMediaContent(resolvedContent.kind)) {
+            return;
+        }
+
+        sessionAssetWatchStartedAtRef.current.set(`${drop.id}:${assetIndex}`, timestampMs);
+    }, [activeIndex, drop, resolvedContent.kind]);
+
+    const commitAssetWatchTime = useCallback((assetIndex = activeIndex) => {
+        if (!drop || isMediaContent(resolvedContent.kind)) {
+            return;
+        }
+
+        const assetKey = `${drop.id}:${assetIndex}`;
+        const startedAtMs = sessionAssetWatchStartedAtRef.current.get(assetKey);
+        if (!Number.isFinite(startedAtMs)) {
+            return;
+        }
+
+        const elapsedWatchSeconds = resolveViewerWatchSeconds({
+            contentKind: resolvedContent.kind,
+            watchSeconds: 0,
+            assetStartedAtMs: startedAtMs,
+            nowMs: Date.now(),
+        });
+
+        if (elapsedWatchSeconds > 0) {
+            updateSessionWatchTime(elapsedWatchSeconds, assetIndex, "add");
+        }
+
+        sessionAssetWatchStartedAtRef.current.delete(assetKey);
+    }, [activeIndex, drop, resolvedContent.kind, updateSessionWatchTime]);
 
     const finalizeViewerSession = useCallback((reason: string) => {
         if (!drop || !sessionStartedAtRef.current) {
@@ -494,6 +549,7 @@ export function ViewerClient({ drop, allDrops }: ViewerClientProps) {
             return;
         }
 
+        commitAssetWatchTime();
         void flushWatchSession(reason, {
             close: true,
             keepalive: reason === "page_exit" || reason === "viewer_unmounted",
@@ -529,7 +585,7 @@ export function ViewerClient({ drop, allDrops }: ViewerClientProps) {
 
         sessionStartedAtRef.current = null;
         resetViewerSessionMetrics();
-    }, [assetCount, drop, dropType, flushWatchSession, resetViewerSessionMetrics, withWatchSessionParams]);
+    }, [assetCount, commitAssetWatchTime, drop, dropType, flushWatchSession, resetViewerSessionMetrics, withWatchSessionParams]);
     const finalizeViewerSessionRef = useRef(finalizeViewerSession);
 
     useEffect(() => {
@@ -550,6 +606,7 @@ export function ViewerClient({ drop, allDrops }: ViewerClientProps) {
         }
 
         const assetKey = `${drop.id}:${activeIndex}`;
+        markAssetWatchStarted(activeIndex);
         if (startedAssetKeysRef.current.has(assetKey)) {
             return;
         }
@@ -566,7 +623,7 @@ export function ViewerClient({ drop, allDrops }: ViewerClientProps) {
             asset_key: assetKey,
             content_kind: resolvedContent.kind,
         }));
-    }, [activeIndex, assetCount, drop, dropType, reportWatchAssetStarted, resolvedContent.kind, withWatchSessionParams]);
+    }, [activeIndex, assetCount, drop, dropType, markAssetWatchStarted, reportWatchAssetStarted, resolvedContent.kind, withWatchSessionParams]);
 
     const trackAssetCompleted = useCallback((watchSeconds: number, assetDurationSeconds?: number) => {
         if (!drop) {
@@ -578,7 +635,16 @@ export function ViewerClient({ drop, allDrops }: ViewerClientProps) {
             return;
         }
 
-        updateSessionWatchTime(watchSeconds);
+        if (isMediaContent(resolvedContent.kind)) {
+            const committedWatchSeconds = resolveViewerWatchSeconds({
+                contentKind: resolvedContent.kind,
+                watchSeconds,
+                assetStartedAtMs: sessionAssetWatchStartedAtRef.current.get(assetKey),
+                nowMs: Date.now(),
+            });
+            updateSessionWatchTime(committedWatchSeconds, activeIndex);
+        }
+
         reportWatchAssetCompleted(watchSeconds, assetDurationSeconds);
         if (!consumedAssetKeysRef.current.has(assetKey)) {
             consumedAssetKeysRef.current.add(assetKey);
@@ -783,6 +849,22 @@ export function ViewerClient({ drop, allDrops }: ViewerClientProps) {
         lastTrackedAssetRef.current = assetKey;
     }, [activeIndex, assetCount, drop, dropType, isAuthorized, withWatchSessionParams]);
 
+    useEffect(() => {
+        if (!drop || !isAuthorized || contentLoading || !contentBlobUrl) {
+            return;
+        }
+
+        if (isMediaContent(resolvedContent.kind)) {
+            return;
+        }
+
+        markAssetWatchStarted(activeIndex);
+
+        return () => {
+            commitAssetWatchTime(activeIndex);
+        };
+    }, [activeIndex, commitAssetWatchTime, contentBlobUrl, contentLoading, drop, isAuthorized, markAssetWatchStarted, resolvedContent.kind]);
+
     const trackAssetConsumed = useCallback((watchSeconds: number, assetDurationSeconds?: number) => {
         if (!drop) {
             return;
@@ -839,16 +921,23 @@ export function ViewerClient({ drop, allDrops }: ViewerClientProps) {
             return;
         }
 
+        const currentAssetIndex = activeIndex;
         const timerId = window.setTimeout(() => {
-            updateSessionWatchTime(6);
-            trackAssetConsumed(6, 6);
-            trackAssetCompleted(6, 6);
+            const elapsedWatchSeconds = resolveViewerWatchSeconds({
+                contentKind: resolvedContent.kind,
+                watchSeconds: 6,
+                assetStartedAtMs: sessionAssetWatchStartedAtRef.current.get(`${drop.id}:${currentAssetIndex}`),
+                nowMs: Date.now(),
+            });
+
+            trackAssetConsumed(elapsedWatchSeconds, elapsedWatchSeconds);
+            trackAssetCompleted(elapsedWatchSeconds, elapsedWatchSeconds);
         }, 6000);
 
         return () => {
             window.clearTimeout(timerId);
         };
-    }, [contentBlobUrl, contentLoading, drop, isAuthorized, resolvedContent.kind, trackAssetCompleted, trackAssetConsumed, updateSessionWatchTime]);
+    }, [activeIndex, contentBlobUrl, contentLoading, drop, isAuthorized, resolvedContent.kind, trackAssetCompleted, trackAssetConsumed]);
 
     useEffect(() => {
         if (!drop || !isAuthorized || contentLoading || !contentBlobUrl) {

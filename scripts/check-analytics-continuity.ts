@@ -1,6 +1,7 @@
 import { summarizeAnalyticsTruth } from "@/lib/admin-analytics-truth";
 import { classifyGumdropTransaction } from "@/lib/gumdrop-ledger";
 import { buildWatchCaptureHealthSummary } from "@/lib/server/admin-analytics-capture-health";
+import { deriveViewerWatchCaptureState } from "@/lib/viewer-watch-session";
 import { getRuntimeAdminDb } from "./runtime-admin";
 
 function assert(condition: unknown, message: string) {
@@ -43,6 +44,29 @@ export async function checkAnalyticsContinuity() {
     watchSessionDocs: watchSessionsSnapshot.docs,
     watchAssetDocs: watchAssetsSnapshot.docs,
   });
+  const watchCaptureIssues = watchSessionsSnapshot.docs
+    .map((doc) => {
+      const data = doc.data() as Record<string, unknown>;
+      const captureState = deriveViewerWatchCaptureState({
+        replayRecovered: data.replayRecovered === true,
+        replayRecoveredCount: typeof data.replayRecoveredCount === "number" ? data.replayRecoveredCount : Number(data.replayRecoveredCount || 0),
+        gapCount: typeof data.gapCount === "number" ? data.gapCount : Number(data.gapCount || 0),
+        flushFailureCount: typeof data.flushFailureCount === "number" ? data.flushFailureCount : Number(data.flushFailureCount || 0),
+        isClosed: data.isClosed === true,
+        closeReason: typeof data.closeReason === "string" ? data.closeReason : null,
+      });
+
+      return {
+        id: doc.id,
+        dropId: typeof data.dropId === "string" ? data.dropId : "",
+        isClosed: data.isClosed === true,
+        closeReason: typeof data.closeReason === "string" ? data.closeReason : "",
+        captureQuality: captureState.captureQuality,
+        closeMissing: captureState.closeMissing,
+        flushDegraded: captureState.flushDegraded,
+      };
+    })
+    .filter((issue) => issue.closeMissing || issue.flushDegraded);
   const truthState = summarizeAnalyticsTruth({
     sources: [
       {
@@ -144,11 +168,11 @@ export async function checkAnalyticsContinuity() {
 
   assert(
     captureHealth.closeMissingCount === 0,
-    `Analytics continuity failed: ${captureHealth.closeMissingCount} watch session(s) ended in close-missing state during the last 7 days.`,
+    `Analytics continuity failed: ${captureHealth.closeMissingCount} watch session(s) ended in close-missing state during the last 7 days. Offenders: ${watchCaptureIssues.filter((issue) => issue.closeMissing).map((issue) => `${issue.id}(${issue.dropId || "unknown-drop"})`).join(", ") || "none"}.`,
   );
   assert(
     captureHealth.flushDegradedCount === 0,
-    `Analytics continuity failed: ${captureHealth.flushDegradedCount} watch session(s) reported flush-degraded capture during the last 7 days.`,
+    `Analytics continuity failed: ${captureHealth.flushDegradedCount} watch session(s) reported flush-degraded capture during the last 7 days. Offenders: ${watchCaptureIssues.filter((issue) => issue.flushDegraded).map((issue) => `${issue.id}(${issue.dropId || "unknown-drop"})[${issue.captureQuality}]`).join(", ") || "none"}.`,
   );
   assert(
     captureHealth.sessionCount === 0 || captureHealth.degradedRate <= 0.25,

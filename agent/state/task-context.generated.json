@@ -1,5 +1,5 @@
 {
-  "generatedAt": "2026-04-18T15:17:56.863Z",
+  "generatedAt": "2026-04-18T22:39:26.626Z",
   "truthOrder": [
     "verified_runtime_code",
     "verified_configuration",
@@ -34,56 +34,63 @@
   "scopeWhy": "Touches repo-tooling, governance, or multiple broad-signoff surfaces.",
   "likelySurfaceCategory": "repo_scripts",
   "likelySurfaces": [
-    "repo_scripts"
+    "repo_scripts",
+    "economics"
   ],
   "hotContextFiles": [
     "scripts/agent/build-agent-indexes.ts",
     "scripts/agent/build-task-context.ts",
-    "scripts/agent/build-ui-surface-coverage.ts",
     "scripts/agent/extract-runtime-observability.ts",
-    "scripts/agent/run-evals.ts"
+    "scripts/agent/run-evals.ts",
+    "src/lib/gumdrop-ledger.ts"
   ],
   "warmContextFiles": [
+    "scripts/agent/build-ui-surface-coverage.ts",
     "scripts/agent/check-agent-context.ts",
     "scripts/agent/classify-repo-files.ts",
     "scripts/agent/extract-canonical-helpers.ts",
-    "scripts/agent/extract-governance.ts",
-    "scripts/agent/extract-workflow.ts"
+    "scripts/agent/extract-governance.ts"
   ],
   "coldContextFiles": [
     "FULL_SCALE_CODEBASE_AUDIT.md",
     "REPO_MEMORY_LEDGER.md",
     "EVERY_FILE_FUNCTION_CHECKLIST.md",
-    ", a reusable compact/mobile recovery helper that detects stale target focus and unexpected ",
-    "npm run trace:adjacent -- scripts/agent/extract-runtime-observability.ts",
-    "npm run trace:adjacent -- src/lib/self-healing.ts",
-    "npx vitest run tests/unit/self-healing.spec.ts tests/unit/chat-route-shell.spec.tsx tests/unit/use-chat-unread-status.spec.tsx"
+    "npx vitest run tests/unit/viewer-watch-session.spec.ts",
+    "src/app/api/viewer/watch-session/route.ts",
+    "src/app/dashboard/viewer/ViewerClient.tsx",
+    "src/hooks/useViewerWatchSession.ts"
   ],
   "likelyTouchedFiles": [
     "scripts/agent/build-agent-indexes.ts",
     "scripts/agent/build-task-context.ts",
-    "scripts/agent/build-ui-surface-coverage.ts",
     "scripts/agent/extract-runtime-observability.ts",
     "scripts/agent/run-evals.ts",
+    "src/lib/gumdrop-ledger.ts",
+    "scripts/agent/build-ui-surface-coverage.ts",
     "scripts/agent/check-agent-context.ts",
     "scripts/agent/classify-repo-files.ts",
     "scripts/agent/extract-canonical-helpers.ts",
     "scripts/agent/extract-governance.ts",
     "scripts/agent/extract-workflow.ts",
-    "scripts/agent/shared.ts",
-    "scripts/agent/summarize-dependency-graph.ts"
+    "scripts/agent/shared.ts"
   ],
   "likelyAdjacentFiles": [
+    "scripts/agent/summarize-dependency-graph.ts",
     "scripts/agent/sync-sql.ts",
-    "scripts/agent/build-ui-runtime-audit.ts",
-    "scripts/agent/check-ui-surface-coverage.ts",
-    "scripts/agent/validate-agent-indexes.ts",
-    "scripts/check-runtime-continuity.ts",
-    "scripts/check-scheduler-freshness.ts"
+    "scripts/check-analytics-continuity.ts",
+    "src/app/api/admin/analytics/historical/route.ts",
+    "src/app/api/admin/balance/route.ts",
+    "src/app/api/admin/users/route.ts",
+    "src/app/api/checkin/route.ts",
+    "src/app/api/drops/unlock/route.ts",
+    "src/app/api/paypal/capture/route.ts",
+    "src/app/api/user/complete-onboarding/route.ts",
+    "src/app/api/user/register/route.ts",
+    "src/lib/server/creator-experiences.ts"
   ],
   "likelyAdjacentHelpers": [
-    "src/lib/gumdrop-economics.ts",
     "src/lib/gumdrop-ledger.ts",
+    "src/lib/gumdrop-economics.ts",
     "src/lib/server/paypal.ts"
   ],
   "governanceConsultFull": [
@@ -93,12 +100,13 @@
   ],
   "governanceConsultSelective": [],
   "canonicalHelpersToReuse": [
-    "src/lib/gumdrop-economics.ts",
     "src/lib/gumdrop-ledger.ts",
+    "src/lib/gumdrop-economics.ts",
     "src/lib/server/paypal.ts"
   ],
   "relevantKnownPitfalls": [
     "diagnostics_serialization_crash",
+    "consumed_response_stream_fallback",
     "generated_artifact_cleanup_miss",
     "sidecar_truth_confusion",
     "legacy_queue_adapter_usage",
@@ -109,6 +117,7 @@
     "npm run check:agent-context",
     "npm run check:continuity",
     "npm run trace:adjacent -- <path>",
+    "npm run test:contracts",
     "npm run check:architecture",
     "npm run check:inventory"
   ],
@@ -122,7 +131,7 @@
   "sqlMirrorFreshnessState": "unknown",
   "confidenceNotes": [
     "Mode resolved as audit.",
-    "Ranking considered 868 repo files and 22 canonical helper entries.",
+    "Ranking considered 871 repo files and 22 canonical helper entries.",
     "UI coverage matched 8 indexed surfaces."
   ],
   "ambiguityNotes": [],
@@ -165,23 +174,23 @@
       "why_not_selected": "evidence_only"
     },
     {
-      "path": "agent/index/ui-surface-coverage.json",
+      "path": "scripts/check-generated-artifacts.ts",
       "why_not_selected": "generated_penalty"
     }
   ],
   "do_not_touch_without_broad_signoff": [
     "scripts/agent/build-agent-indexes.ts",
     "scripts/agent/build-task-context.ts",
-    "scripts/agent/build-ui-surface-coverage.ts",
     "scripts/agent/extract-runtime-observability.ts",
     "scripts/agent/run-evals.ts",
+    "src/lib/gumdrop-ledger.ts",
+    "scripts/agent/build-ui-surface-coverage.ts",
     "scripts/agent/check-agent-context.ts",
     "scripts/agent/classify-repo-files.ts",
     "scripts/agent/extract-canonical-helpers.ts",
     "scripts/agent/extract-governance.ts",
     "scripts/agent/extract-workflow.ts",
-    "scripts/agent/shared.ts",
-    "scripts/agent/summarize-dependency-graph.ts"
+    "scripts/agent/shared.ts"
   ],
   "rankingEvidence": [
     {
@@ -203,22 +212,6 @@
     {
       "stable_id": "file__scripts__agent__build-task-context-ts",
       "path": "scripts/agent/build-task-context.ts",
-      "score": 136,
-      "why_selected": "path_domain_match, task_signal_match, filename_match, canonical_helper_relevance, adjacency_match, recent_pass_match, verification_lane_match",
-      "weighted_components": [
-        "path_domain_match",
-        "task_signal_match",
-        "filename_match",
-        "canonical_helper_relevance",
-        "adjacency_match",
-        "recent_pass_match",
-        "verification_lane_match"
-      ],
-      "freshness_state": "fresh"
-    },
-    {
-      "stable_id": "file__scripts__agent__build-ui-surface-coverage-ts",
-      "path": "scripts/agent/build-ui-surface-coverage.ts",
       "score": 136,
       "why_selected": "path_domain_match, task_signal_match, filename_match, canonical_helper_relevance, adjacency_match, recent_pass_match, verification_lane_match",
       "weighted_components": [
@@ -260,6 +253,37 @@
         "canonical_helper_relevance",
         "adjacency_match",
         "recent_pass_match",
+        "verification_lane_match"
+      ],
+      "freshness_state": "fresh"
+    },
+    {
+      "stable_id": "file__src__lib__gumdrop-ledger-ts",
+      "path": "src/lib/gumdrop-ledger.ts",
+      "score": 132,
+      "why_selected": "path_domain_match, task_signal_match, filename_match, canonical_helper_relevance, recent_pass_match, pitfall_match, verification_lane_match",
+      "weighted_components": [
+        "path_domain_match",
+        "task_signal_match",
+        "filename_match",
+        "canonical_helper_relevance",
+        "recent_pass_match",
+        "pitfall_match",
+        "verification_lane_match"
+      ],
+      "freshness_state": "fresh"
+    },
+    {
+      "stable_id": "file__scripts__agent__build-ui-surface-coverage-ts",
+      "path": "scripts/agent/build-ui-surface-coverage.ts",
+      "score": 122,
+      "why_selected": "path_domain_match, task_signal_match, filename_match, canonical_helper_relevance, adjacency_match, verification_lane_match",
+      "weighted_components": [
+        "path_domain_match",
+        "task_signal_match",
+        "filename_match",
+        "canonical_helper_relevance",
+        "adjacency_match",
         "verification_lane_match"
       ],
       "freshness_state": "fresh"
@@ -342,21 +366,6 @@
     {
       "stable_id": "file__scripts__agent__shared-ts",
       "path": "scripts/agent/shared.ts",
-      "score": 122,
-      "why_selected": "path_domain_match, task_signal_match, filename_match, canonical_helper_relevance, adjacency_match, verification_lane_match",
-      "weighted_components": [
-        "path_domain_match",
-        "task_signal_match",
-        "filename_match",
-        "canonical_helper_relevance",
-        "adjacency_match",
-        "verification_lane_match"
-      ],
-      "freshness_state": "fresh"
-    },
-    {
-      "stable_id": "file__scripts__agent__summarize-dependency-graph-ts",
-      "path": "scripts/agent/summarize-dependency-graph.ts",
       "score": 122,
       "why_selected": "path_domain_match, task_signal_match, filename_match, canonical_helper_relevance, adjacency_match, verification_lane_match",
       "weighted_components": [

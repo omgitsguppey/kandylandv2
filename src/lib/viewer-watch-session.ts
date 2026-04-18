@@ -81,6 +81,30 @@ function roundSeconds(value: number) {
     return Number(value.toFixed(2));
 }
 
+export function resolveViewerWatchSeconds(input: {
+    contentKind: ViewerWatchContentKind;
+    watchSeconds?: number | null;
+    assetStartedAtMs?: number | null;
+    nowMs?: number | null;
+}) {
+    const watchSeconds = Math.max(0, asFiniteNumber(input.watchSeconds));
+    const nowMs = Number.isFinite(input.nowMs ?? Number.NaN) ? Number(input.nowMs) : Date.now();
+    const assetStartedAtMs = Number.isFinite(input.assetStartedAtMs ?? Number.NaN)
+        ? Number(input.assetStartedAtMs)
+        : null;
+
+    if (input.contentKind === "video" || input.contentKind === "audio") {
+        return roundSeconds(watchSeconds);
+    }
+
+    if (assetStartedAtMs === null) {
+        return roundSeconds(watchSeconds);
+    }
+
+    const elapsedSeconds = Math.max(0, (nowMs - assetStartedAtMs) / 1000);
+    return roundSeconds(Math.max(watchSeconds, elapsedSeconds));
+}
+
 function asFiniteInteger(value: unknown) {
     const numeric = Number(value);
     if (!Number.isFinite(numeric)) {
@@ -191,8 +215,8 @@ export function deriveViewerWatchCaptureState(input: {
 }) {
     const replayRecovered = Boolean(input.replayRecovered) || asFiniteInteger(input.replayRecoveredCount) > 0;
     const gapDetected = asFiniteInteger(input.gapCount) > 0;
-    const flushDegraded = asFiniteInteger(input.flushFailureCount) > 0;
     const closeMissing = !Boolean(input.isClosed) && asFiniteInteger(input.flushFailureCount) > 0 && !input.closeReason;
+    const flushDegraded = !Boolean(input.isClosed) && asFiniteInteger(input.flushFailureCount) > 0;
 
     let captureQuality: ViewerWatchCaptureQuality = "full";
     if (closeMissing) {
@@ -213,6 +237,14 @@ export function deriveViewerWatchCaptureState(input: {
         gapDetected,
         flushDegraded,
     } satisfies ViewerWatchCaptureState;
+}
+
+export function shouldRetryViewerWatchCloseFlush(input: {
+    close: boolean;
+    flushSucceeded: boolean;
+    activeSessionMatches: boolean;
+}) {
+    return input.close && input.activeSessionMatches && !input.flushSucceeded;
 }
 
 export interface ViewerWatchAssetSnapshot {

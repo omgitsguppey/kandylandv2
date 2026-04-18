@@ -1,5 +1,5 @@
 {
-  "generatedAt": "2026-04-18T15:18:02.739Z",
+  "generatedAt": "2026-04-18T22:39:42.012Z",
   "truthOrder": [
     "verified_runtime_code",
     "verified_configuration",
@@ -58,7 +58,7 @@
       "risk_tags": [
         "broad_signoff"
       ],
-      "recency": "1776524456575:ced14ce77229",
+      "recency": "1776535167795:cf8eabbcc5d9",
       "freshness": {
         "local": "fresh",
         "sql_mirror": "unknown"
@@ -234,7 +234,7 @@
       ],
       "helper_tags": [],
       "risk_tags": [],
-      "recency": "1775850277865:bc726ff55f45",
+      "recency": "1776535304707:376fc16a7acf",
       "freshness": {
         "local": "fresh",
         "sql_mirror": "unknown"
@@ -454,7 +454,7 @@
       "risk_tags": [
         "broad_signoff"
       ],
-      "recency": "1776525438847:661d5f655d4d",
+      "recency": "1776551699340:aac6b82565c4",
       "freshness": {
         "local": "fresh",
         "sql_mirror": "unknown"
@@ -482,7 +482,7 @@
       "risk_tags": [
         "broad_signoff"
       ],
-      "recency": "1776525422127:3a25aae80f9f",
+      "recency": "1776551824155:1ced27d90ed6",
       "freshness": {
         "local": "fresh",
         "sql_mirror": "unknown"
@@ -510,7 +510,7 @@
       "risk_tags": [
         "broad_signoff"
       ],
-      "recency": "1776525422131:5ad7a514d8fd",
+      "recency": "1776551831318:a3bac4d78592",
       "freshness": {
         "local": "fresh",
         "sql_mirror": "unknown"
@@ -564,7 +564,7 @@
       "risk_tags": [
         "broad_signoff"
       ],
-      "recency": "1776525474107:f28cd38fb608",
+      "recency": "1776551958282:fbd42967fb0a",
       "freshness": {
         "local": "fresh",
         "sql_mirror": "unknown"
@@ -592,7 +592,7 @@
       "risk_tags": [
         "broad_signoff"
       ],
-      "recency": "1776525474082:ce4387176fda",
+      "recency": "1776551958231:f3c71faf2fcc",
       "freshness": {
         "local": "fresh",
         "sql_mirror": "unknown"
@@ -620,7 +620,7 @@
       "risk_tags": [
         "broad_signoff"
       ],
-      "recency": "1776525474104:ede8d88bd957",
+      "recency": "1776551958271:843496d79965",
       "freshness": {
         "local": "fresh",
         "sql_mirror": "unknown"
@@ -648,7 +648,7 @@
       "risk_tags": [
         "broad_signoff"
       ],
-      "recency": "1776525474091:18c7e0983053",
+      "recency": "1776551958250:24db02949545",
       "freshness": {
         "local": "fresh",
         "sql_mirror": "unknown"
@@ -676,7 +676,7 @@
       "risk_tags": [
         "broad_signoff"
       ],
-      "recency": "1776525474092:e817bac8dff1",
+      "recency": "1776551958253:df7ebdefde59",
       "freshness": {
         "local": "fresh",
         "sql_mirror": "unknown"
@@ -704,7 +704,7 @@
       "risk_tags": [
         "broad_signoff"
       ],
-      "recency": "1776525474087:6f7e9c29e0ab",
+      "recency": "1776551958246:126f6cdc9c55",
       "freshness": {
         "local": "fresh",
         "sql_mirror": "unknown"
@@ -732,7 +732,7 @@
       "risk_tags": [
         "broad_signoff"
       ],
-      "recency": "1776525474095:20181cc2b97f",
+      "recency": "1776551958257:20247c2b1d30",
       "freshness": {
         "local": "fresh",
         "sql_mirror": "unknown"
@@ -760,7 +760,7 @@
       "risk_tags": [
         "broad_signoff"
       ],
-      "recency": "1776525474074:46db712674c8",
+      "recency": "1776551958207:bf59dd227396",
       "freshness": {
         "local": "fresh",
         "sql_mirror": "unknown"
@@ -788,7 +788,7 @@
       "risk_tags": [
         "broad_signoff"
       ],
-      "recency": "1776525474117:26041783be05",
+      "recency": "1776551958301:5173f5f50ad6",
       "freshness": {
         "local": "fresh",
         "sql_mirror": "unknown"
@@ -816,7 +816,7 @@
       "risk_tags": [
         "broad_signoff"
       ],
-      "recency": "1776525474098:a00b4e2b4d0d",
+      "recency": "1776551958261:6c023ed6a8b1",
       "freshness": {
         "local": "fresh",
         "sql_mirror": "unknown"
@@ -844,7 +844,7 @@
       "risk_tags": [
         "broad_signoff"
       ],
-      "recency": "1776525474080:5569b8671322",
+      "recency": "1776551958228:24a950af1ccd",
       "freshness": {
         "local": "fresh",
         "sql_mirror": "unknown"
@@ -872,7 +872,7 @@
       "risk_tags": [
         "broad_signoff"
       ],
-      "recency": "1776525480533:9cc0481f55cb",
+      "recency": "1776551976268:2cd8af498b94",
       "freshness": {
         "local": "fresh",
         "sql_mirror": "unknown"
@@ -900,7 +900,7 @@
       "risk_tags": [
         "broad_signoff"
       ],
-      "recency": "1776525474085:a80f497b80ee",
+      "recency": "1776551958238:2582da5c3f7c",
       "freshness": {
         "local": "fresh",
         "sql_mirror": "unknown"
@@ -928,7 +928,7 @@
       "risk_tags": [
         "broad_signoff"
       ],
-      "recency": "1776525474089:5aa3a7f3247a",
+      "recency": "1776551958248:e8b2e050c3c3",
       "freshness": {
         "local": "fresh",
         "sql_mirror": "unknown"
@@ -956,7 +956,7 @@
       "risk_tags": [
         "broad_signoff"
       ],
-      "recency": "1776525476870:c2e98bd373a5",
+      "recency": "1776551966639:bb6e65a9176f",
       "freshness": {
         "local": "fresh",
         "sql_mirror": "unknown"
@@ -982,7 +982,7 @@
       "risk_tags": [
         "broad_signoff"
       ],
-      "recency": "1776525476868:4fc7a603882d",
+      "recency": "1776551966636:b20f370400bc",
       "freshness": {
         "local": "fresh",
         "sql_mirror": "unknown"
@@ -1008,7 +1008,7 @@
       "risk_tags": [
         "broad_signoff"
       ],
-      "recency": "1776525476869:95a95f0ce527",
+      "recency": "1776551966638:4f7ccd9136c3",
       "freshness": {
         "local": "fresh",
         "sql_mirror": "unknown"
@@ -1554,7 +1554,7 @@
       "risk_tags": [
         "broad_signoff"
       ],
-      "recency": "1776483507069:bb967aea97ee",
+      "recency": "1776535168059:ececf4e83bfd",
       "freshness": {
         "local": "fresh",
         "sql_mirror": "unknown"
@@ -1634,7 +1634,7 @@
       "risk_tags": [
         "broad_signoff"
       ],
-      "recency": "1776524909703:97cae5dd35b9",
+      "recency": "1776535168066:224c675bad18",
       "freshness": {
         "local": "fresh",
         "sql_mirror": "unknown"
@@ -1662,7 +1662,7 @@
       "risk_tags": [
         "broad_signoff"
       ],
-      "recency": "1776524909701:7b494cf5b17e",
+      "recency": "1776535168079:e7c3892ed1f1",
       "freshness": {
         "local": "fresh",
         "sql_mirror": "unknown"
@@ -1690,7 +1690,7 @@
       "risk_tags": [
         "broad_signoff"
       ],
-      "recency": "1776525476866:223107822c3b",
+      "recency": "1776551966630:1cfc694ba59d",
       "freshness": {
         "local": "fresh",
         "sql_mirror": "unknown"
@@ -2222,7 +2222,7 @@
       "risk_tags": [
         "broad_signoff"
       ],
-      "recency": "1776518183580:be276cbe189b",
+      "recency": "1776535168160:e4a96115ca0a",
       "freshness": {
         "local": "fresh",
         "sql_mirror": "unknown"
@@ -2248,7 +2248,7 @@
       "risk_tags": [
         "broad_signoff"
       ],
-      "recency": "1776518165376:3afe191046d5",
+      "recency": "1776535168166:90f9ec05d67b",
       "freshness": {
         "local": "fresh",
         "sql_mirror": "unknown"
@@ -2846,7 +2846,7 @@
       "risk_tags": [
         "runtime_critical"
       ],
-      "recency": "1776516673888:d4398db8858d",
+      "recency": "1776535168181:71d329f69737",
       "freshness": {
         "local": "fresh",
         "sql_mirror": "unknown"
@@ -2872,7 +2872,7 @@
       "risk_tags": [
         "runtime_critical"
       ],
-      "recency": "1776516651498:e4a3bc1d6bc5",
+      "recency": "1776535168189:9e74e0a12891",
       "freshness": {
         "local": "fresh",
         "sql_mirror": "unknown"
@@ -3054,7 +3054,7 @@
       "risk_tags": [
         "broad_signoff"
       ],
-      "recency": "1776518201660:c7258a90180b",
+      "recency": "1776535168255:93aa3b7eab9e",
       "freshness": {
         "local": "fresh",
         "sql_mirror": "unknown"
@@ -3080,7 +3080,7 @@
       "risk_tags": [
         "broad_signoff"
       ],
-      "recency": "1776518165374:3d8264fe67f9",
+      "recency": "1776535168260:10672d2c8c76",
       "freshness": {
         "local": "fresh",
         "sql_mirror": "unknown"
@@ -4383,7 +4383,7 @@
         "shared_helper",
         "broad_signoff"
       ],
-      "recency": "1776483202958:bd00b0ada72c",
+      "recency": "1776535168266:93166933382c",
       "freshness": {
         "local": "fresh",
         "sql_mirror": "unknown"
@@ -4410,7 +4410,7 @@
         "shared_helper",
         "broad_signoff"
       ],
-      "recency": "1776483059646:2a781c917633",
+      "recency": "1776535168300:c7cfc43e8aab",
       "freshness": {
         "local": "fresh",
         "sql_mirror": "unknown"
@@ -4626,7 +4626,7 @@
         "shared_helper",
         "broad_signoff"
       ],
-      "recency": "1776525274195:e15ccffbbee4",
+      "recency": "1776535168306:2cf8764cebc3",
       "freshness": {
         "local": "fresh",
         "sql_mirror": "unknown"
@@ -4680,7 +4680,7 @@
         "shared_helper",
         "broad_signoff"
       ],
-      "recency": "1776483021229:e3608daf9246",
+      "recency": "1776535168317:736218c8f846",
       "freshness": {
         "local": "fresh",
         "sql_mirror": "unknown"
@@ -4892,7 +4892,7 @@
       "risk_tags": [
         "broad_signoff"
       ],
-      "recency": "1776482864697:38d62352d233",
+      "recency": "1776535168324:4cff19020f40",
       "freshness": {
         "local": "fresh",
         "sql_mirror": "unknown"
@@ -5076,7 +5076,7 @@
       "risk_tags": [
         "broad_signoff"
       ],
-      "recency": "1776516685992:95deaca99b18",
+      "recency": "1776535168329:b96a472c307d",
       "freshness": {
         "local": "fresh",
         "sql_mirror": "unknown"
@@ -5586,7 +5586,7 @@
       ],
       "helper_tags": [],
       "risk_tags": [],
-      "recency": "1776516636843:b8b0f8a59ccc",
+      "recency": "1776535168335:d8b574ed2f44",
       "freshness": {
         "local": "fresh",
         "sql_mirror": "unknown"
@@ -5766,7 +5766,7 @@
       "risk_tags": [
         "runtime_critical"
       ],
-      "recency": "1775926804844:534029ebe832",
+      "recency": "1776535304800:fe5b765a055e",
       "freshness": {
         "local": "fresh",
         "sql_mirror": "unknown"
@@ -5792,7 +5792,7 @@
       "risk_tags": [
         "runtime_critical"
       ],
-      "recency": "1776482847215:62a302120259",
+      "recency": "1776535168364:7fb20c22d675",
       "freshness": {
         "local": "fresh",
         "sql_mirror": "unknown"
@@ -5844,7 +5844,7 @@
       "risk_tags": [
         "runtime_critical"
       ],
-      "recency": "1776480520466:3e79ac8452fa",
+      "recency": "1776535168374:78c771f6b57d",
       "freshness": {
         "local": "fresh",
         "sql_mirror": "unknown"
@@ -6026,7 +6026,7 @@
       "risk_tags": [
         "runtime_critical"
       ],
-      "recency": "1775908589226:a93709e363b8",
+      "recency": "1776535304807:4a06c4ca4212",
       "freshness": {
         "local": "fresh",
         "sql_mirror": "unknown"
@@ -6468,7 +6468,7 @@
       "risk_tags": [
         "runtime_critical"
       ],
-      "recency": "1776482696563:0aa1c5679ad8",
+      "recency": "1776535168388:264458848e74",
       "freshness": {
         "local": "fresh",
         "sql_mirror": "unknown"
@@ -6520,7 +6520,7 @@
       "risk_tags": [
         "runtime_critical"
       ],
-      "recency": "1776482714451:4c019559e443",
+      "recency": "1776535168420:7c3e0603444b",
       "freshness": {
         "local": "fresh",
         "sql_mirror": "unknown"
@@ -8782,7 +8782,7 @@
       "risk_tags": [
         "runtime_critical"
       ],
-      "recency": "1776482652166:b3b79513e119",
+      "recency": "1776535168429:b21e1e1fc2a5",
       "freshness": {
         "local": "fresh",
         "sql_mirror": "unknown"
@@ -8990,7 +8990,7 @@
       "risk_tags": [
         "runtime_critical"
       ],
-      "recency": "1776524661054:df188795ab35",
+      "recency": "1776535168436:ce4c139a7068",
       "freshness": {
         "local": "fresh",
         "sql_mirror": "unknown"
@@ -9172,7 +9172,7 @@
       "risk_tags": [
         "runtime_critical"
       ],
-      "recency": "1776482290151:f1a009d229c4",
+      "recency": "1776551769968:e275325eb99b",
       "freshness": {
         "local": "fresh",
         "sql_mirror": "unknown"
@@ -9848,7 +9848,7 @@
       "risk_tags": [
         "runtime_critical"
       ],
-      "recency": "1775538657299:8938622d2aba",
+      "recency": "1776535304811:9d6abcfdddca",
       "freshness": {
         "local": "fresh",
         "sql_mirror": "unknown"
@@ -9952,7 +9952,7 @@
       "risk_tags": [
         "runtime_critical"
       ],
-      "recency": "1775908589234:eed65c95d4d4",
+      "recency": "1776535304816:fe3032ef8c43",
       "freshness": {
         "local": "fresh",
         "sql_mirror": "unknown"
@@ -10212,7 +10212,7 @@
       "risk_tags": [
         "runtime_critical"
       ],
-      "recency": "1775538887190:57116f100521",
+      "recency": "1776535304821:933b984e4280",
       "freshness": {
         "local": "fresh",
         "sql_mirror": "unknown"
@@ -10446,7 +10446,7 @@
       "risk_tags": [
         "runtime_critical"
       ],
-      "recency": "1776525258761:ce8af1f346de",
+      "recency": "1776535168473:ca521c2f3556",
       "freshness": {
         "local": "fresh",
         "sql_mirror": "unknown"
@@ -10472,7 +10472,7 @@
       "risk_tags": [
         "runtime_critical"
       ],
-      "recency": "1776524661053:4bfbf4648be2",
+      "recency": "1776535168476:a444c35731bd",
       "freshness": {
         "local": "fresh",
         "sql_mirror": "unknown"
@@ -11642,7 +11642,7 @@
       "risk_tags": [
         "runtime_critical"
       ],
-      "recency": "1775156427665:1d33c81e70db",
+      "recency": "1776535304828:38eb7421522f",
       "freshness": {
         "local": "fresh",
         "sql_mirror": "unknown"
@@ -12403,7 +12403,7 @@
         "runtime_critical",
         "shared_helper"
       ],
-      "recency": "1776482264405:0b0a07ba5059",
+      "recency": "1776535168487:cb1d6974dcf2",
       "freshness": {
         "local": "fresh",
         "sql_mirror": "unknown"
@@ -12488,6 +12488,34 @@
         "broad_signoff"
       ],
       "recency": "1775744189897:3d1e204867fa",
+      "freshness": {
+        "local": "fresh",
+        "sql_mirror": "unknown"
+      },
+      "context_tier": "hot",
+      "exclusion_tags": [],
+      "do_not_use_as_primary_truth": false
+    },
+    {
+      "stable_id": "file__src__lib__admin-analytics-truth-ts",
+      "source_type": "file",
+      "source_id": "file__src__lib__admin-analytics-truth-ts",
+      "searchable_terms": [
+        "src/lib/admin-analytics-truth.ts",
+        "shared_helper",
+        "analytics"
+      ],
+      "surface_tags": [
+        "analytics",
+        "shared_helper"
+      ],
+      "helper_tags": [],
+      "risk_tags": [
+        "runtime_critical",
+        "shared_helper",
+        "broad_signoff"
+      ],
+      "recency": "1776535168490:2b021d43eca2",
       "freshness": {
         "local": "fresh",
         "sql_mirror": "unknown"
@@ -12823,7 +12851,7 @@
         "shared_helper",
         "broad_signoff"
       ],
-      "recency": "1775744799248:389890a082d8",
+      "recency": "1776535168493:51626d8574e9",
       "freshness": {
         "local": "fresh",
         "sql_mirror": "unknown"
@@ -12935,7 +12963,7 @@
         "shared_helper",
         "broad_signoff"
       ],
-      "recency": "1775719896358:c66c14f6a1c2",
+      "recency": "1776535304858:016ac1fe51e4",
       "freshness": {
         "local": "fresh",
         "sql_mirror": "unknown"
@@ -14755,7 +14783,7 @@
         "shared_helper",
         "broad_signoff"
       ],
-      "recency": "1776525204550:6efbe46e452d",
+      "recency": "1776535168505:174fdfb5c326",
       "freshness": {
         "local": "fresh",
         "sql_mirror": "unknown"
@@ -14783,7 +14811,7 @@
         "shared_helper",
         "broad_signoff"
       ],
-      "recency": "1776483515656:24d3239a62c7",
+      "recency": "1776535168507:8a4107263ef5",
       "freshness": {
         "local": "fresh",
         "sql_mirror": "unknown"
@@ -15063,7 +15091,7 @@
         "shared_helper",
         "broad_signoff"
       ],
-      "recency": "1776482680180:4f0b77ca9f84",
+      "recency": "1776535168519:4b06a0ec9738",
       "freshness": {
         "local": "fresh",
         "sql_mirror": "unknown"
@@ -15287,7 +15315,7 @@
         "shared_helper",
         "broad_signoff"
       ],
-      "recency": "1775744799262:47f9b807fd1f",
+      "recency": "1776535168523:cc34a82250f2",
       "freshness": {
         "local": "fresh",
         "sql_mirror": "unknown"
@@ -16463,7 +16491,7 @@
         "shared_helper",
         "broad_signoff"
       ],
-      "recency": "1776516662668:a53c2a233900",
+      "recency": "1776535168527:f24521548fbf",
       "freshness": {
         "local": "fresh",
         "sql_mirror": "unknown"
@@ -16659,7 +16687,7 @@
         "shared_helper",
         "broad_signoff"
       ],
-      "recency": "1776516644185:294a816bec4f",
+      "recency": "1776535168529:d86cd1c20264",
       "freshness": {
         "local": "fresh",
         "sql_mirror": "unknown"
@@ -16855,7 +16883,7 @@
         "shared_helper",
         "broad_signoff"
       ],
-      "recency": "1775549322119:0316994e81f8",
+      "recency": "1776535304861:49c8e88e1cfe",
       "freshness": {
         "local": "fresh",
         "sql_mirror": "unknown"
@@ -17247,7 +17275,7 @@
         "shared_helper",
         "broad_signoff"
       ],
-      "recency": "1776482176622:2978cebb1a9e",
+      "recency": "1776547464789:ae639642a0ab",
       "freshness": {
         "local": "fresh",
         "sql_mirror": "unknown"
@@ -17895,7 +17923,7 @@
       ],
       "helper_tags": [],
       "risk_tags": [],
-      "recency": "1776482726740:aeaf7d6bba10",
+      "recency": "1776535168547:147849c8c5f7",
       "freshness": {
         "local": "fresh",
         "sql_mirror": "unknown"
@@ -19140,7 +19168,7 @@
       ],
       "helper_tags": [],
       "risk_tags": [],
-      "recency": "1776483187415:b99d0607e1f6",
+      "recency": "1776535168552:7c26c680e52d",
       "freshness": {
         "local": "fresh",
         "sql_mirror": "unknown"
@@ -19212,7 +19240,31 @@
       ],
       "helper_tags": [],
       "risk_tags": [],
-      "recency": "1776482976358:e647076ccdb8",
+      "recency": "1776535168556:7b3d0f6de15a",
+      "freshness": {
+        "local": "fresh",
+        "sql_mirror": "unknown"
+      },
+      "context_tier": "warm",
+      "exclusion_tags": [],
+      "do_not_use_as_primary_truth": false
+    },
+    {
+      "stable_id": "file__tests__unit__admin-analytics-truth-spec-ts",
+      "source_type": "file",
+      "source_id": "file__tests__unit__admin-analytics-truth-spec-ts",
+      "searchable_terms": [
+        "tests/unit/admin-analytics-truth.spec.ts",
+        "tests",
+        "analytics"
+      ],
+      "surface_tags": [
+        "analytics",
+        "tests"
+      ],
+      "helper_tags": [],
+      "risk_tags": [],
+      "recency": "1776535168570:a66403a8b6b7",
       "freshness": {
         "local": "fresh",
         "sql_mirror": "unknown"
@@ -19548,7 +19600,7 @@
       ],
       "helper_tags": [],
       "risk_tags": [],
-      "recency": "1775735311311:1e68c455f75e",
+      "recency": "1776535168573:59478dcd88c0",
       "freshness": {
         "local": "fresh",
         "sql_mirror": "unknown"
@@ -19764,7 +19816,7 @@
       ],
       "helper_tags": [],
       "risk_tags": [],
-      "recency": "1775538727325:f7d2bbd50e17",
+      "recency": "1776535304875:7229cf9cefcf",
       "freshness": {
         "local": "fresh",
         "sql_mirror": "unknown"
@@ -20052,7 +20104,7 @@
       ],
       "helper_tags": [],
       "risk_tags": [],
-      "recency": "1776524773910:4502cc33e974",
+      "recency": "1776535168578:f9557457484d",
       "freshness": {
         "local": "fresh",
         "sql_mirror": "unknown"
@@ -20244,7 +20296,7 @@
       ],
       "helper_tags": [],
       "risk_tags": [],
-      "recency": "1776516701836:f6aa41ecc58d",
+      "recency": "1776535168580:0433d2deeb5e",
       "freshness": {
         "local": "fresh",
         "sql_mirror": "unknown"
@@ -21612,7 +21664,7 @@
       ],
       "helper_tags": [],
       "risk_tags": [],
-      "recency": "1775156671894:378050f3eac3",
+      "recency": "1776535304880:1bcab39ee92a",
       "freshness": {
         "local": "fresh",
         "sql_mirror": "unknown"
@@ -21756,7 +21808,7 @@
       ],
       "helper_tags": [],
       "risk_tags": [],
-      "recency": "1776525204556:e170535081f0",
+      "recency": "1776535168589:3edacf9fd69f",
       "freshness": {
         "local": "fresh",
         "sql_mirror": "unknown"
@@ -21876,7 +21928,7 @@
       ],
       "helper_tags": [],
       "risk_tags": [],
-      "recency": "1775549980572:382415894a13",
+      "recency": "1776535304889:b06a65ad722e",
       "freshness": {
         "local": "fresh",
         "sql_mirror": "unknown"
@@ -22285,6 +22337,30 @@
       "helper_tags": [],
       "risk_tags": [],
       "recency": "1775149254412:13d76bda7ef7",
+      "freshness": {
+        "local": "fresh",
+        "sql_mirror": "unknown"
+      },
+      "context_tier": "warm",
+      "exclusion_tags": [],
+      "do_not_use_as_primary_truth": false
+    },
+    {
+      "stable_id": "file__tests__unit__viewer-watch-session-spec-ts",
+      "source_type": "file",
+      "source_id": "file__tests__unit__viewer-watch-session-spec-ts",
+      "searchable_terms": [
+        "tests/unit/viewer-watch-session.spec.ts",
+        "tests",
+        "tests"
+      ],
+      "surface_tags": [
+        "tests",
+        "tests"
+      ],
+      "helper_tags": [],
+      "risk_tags": [],
+      "recency": "1776547537801:8c53c13028a4",
       "freshness": {
         "local": "fresh",
         "sql_mirror": "unknown"
@@ -23610,6 +23686,167 @@
       "do_not_use_as_primary_truth": true
     },
     {
+      "stable_id": "retrieval__pass__2026-04-18-viewer-unwrapped-watch-time-refactor",
+      "source_type": "recent_pass",
+      "source_id": "pass__2026-04-18-viewer-unwrapped-watch-time-refactor",
+      "searchable_terms": [
+        "Viewer Unwrapped Watch-Time Refactor",
+        "Refactor viewer watch-time tracking so unwrapped/static drop assets accumulate truthful visible time instead of relying on the old fixed-duration bucket, while preserving playback-based media tracking and the existing viewer watch-session pipeline.",
+        "npx vitest run tests/unit/viewer-watch-session.spec.ts",
+        "src/app/api/viewer/watch-session/route.ts",
+        "src/app/dashboard/viewer/ViewerClient.tsx",
+        "src/hooks/useViewerWatchSession.ts",
+        "src/lib/viewer-watch-session.ts",
+        "tests/unit/viewer-watch-session.spec.ts"
+      ],
+      "surface_tags": [
+        "runtime",
+        "architecture"
+      ],
+      "helper_tags": [],
+      "risk_tags": [
+        "architecture",
+        "runtime",
+        "ui"
+      ],
+      "recency": "2026-04-18",
+      "freshness": {
+        "local": "fresh",
+        "sql_mirror": "unknown"
+      },
+      "context_tier": "cold",
+      "exclusion_tags": [
+        "secondary_truth"
+      ],
+      "do_not_use_as_primary_truth": true
+    },
+    {
+      "stable_id": "retrieval__pass__2026-04-18-ui-truthfulness-refinement-chart-health-freshness-downgrade",
+      "source_type": "recent_pass",
+      "source_id": "pass__2026-04-18-ui-truthfulness-refinement-chart-health-freshness-downgrade",
+      "searchable_terms": [
+        "UI Truthfulness Refinement + Chart Health Freshness Downgrade",
+        "Harden the shared admin chart-health helper so stale or unseen snapshots no longer report as healthy, refine support/admin copy that was overstating certainty or showing encoding artifacts, and preserve the existing product direction on admin dashboard, drops, transactions, and support surfaces without rewriting flows.",
+        "npm run trace:adjacent -- src/lib/admin-ui-chart-health.ts",
+        "npm run trace:adjacent -- src/lib/support-readiness.ts",
+        "npx vitest run tests/unit/admin-ui-chart-health.spec.ts tests/unit/support-readiness.spec.ts",
+        "src/app/admin/ai/page.tsx",
+        "src/app/admin/page.tsx",
+        "src/components/Admin/AdminDropsAtGlancePanel.tsx",
+        "src/components/Admin/AdminSupportQueue.tsx",
+        "src/components/Admin/RecentTransactionsPanel.tsx",
+        "src/lib/admin-ui-chart-health.ts",
+        "src/lib/support-readiness.ts",
+        "tests/unit/admin-ui-chart-health.spec.ts",
+        "tests/unit/support-readiness.spec.ts"
+      ],
+      "surface_tags": [
+        "admin",
+        "ui",
+        "architecture"
+      ],
+      "helper_tags": [
+        "src/lib/admin-ui-chart-health.ts"
+      ],
+      "risk_tags": [
+        "architecture",
+        "ui"
+      ],
+      "recency": "2026-04-18",
+      "freshness": {
+        "local": "fresh",
+        "sql_mirror": "unknown"
+      },
+      "context_tier": "cold",
+      "exclusion_tags": [
+        "secondary_truth"
+      ],
+      "do_not_use_as_primary_truth": true
+    },
+    {
+      "stable_id": "retrieval__pass__2026-04-18-codebase-continuity-audit-hygiene-refresh",
+      "source_type": "recent_pass",
+      "source_id": "pass__2026-04-18-codebase-continuity-audit-hygiene-refresh",
+      "searchable_terms": [
+        "Codebase Continuity & Audit Hygiene Refresh",
+        "Perform a repo-wide audit pass focused on code health, continuity drift, stale documentation, and canonical inventory alignment.",
+        "Verify that tracked files, inventory counts, and continuity ledgers are mutually aligned.",
+        "Prevent historical snapshot language from being incorrectly treated as current truth by agents.",
+        "scripts/repo-inventory.ts"
+      ],
+      "surface_tags": [
+        "tooling"
+      ],
+      "helper_tags": [],
+      "risk_tags": [
+        "architecture"
+      ],
+      "recency": "2026-04-18",
+      "freshness": {
+        "local": "fresh",
+        "sql_mirror": "unknown"
+      },
+      "context_tier": "cold",
+      "exclusion_tags": [
+        "secondary_truth"
+      ],
+      "do_not_use_as_primary_truth": true
+    },
+    {
+      "stable_id": "retrieval__pass__2026-04-18-admin-analytics-parity-state-of-truth-hardening",
+      "source_type": "recent_pass",
+      "source_id": "pass__2026-04-18-admin-analytics-parity-state-of-truth-hardening",
+      "searchable_terms": [
+        "Admin Analytics Parity + State-of-Truth Hardening",
+        "Harden the full analytics/purchase-parity/state-of-truth path so admin health no longer reports stale or undercounted health because legacy history, parity drift, or freshness gaps are being ignored, while preserving canonical source truth order across realtime, historical, and derived admin analytics surfaces.",
+        ".agent/workflows/auto-tasks.md",
+        "npm run trace:adjacent -- scripts/check-analytics-continuity.ts",
+        "npm run trace:adjacent -- src/app/admin/analytics/page.tsx",
+        "npm run trace:adjacent -- src/app/api/admin/analytics/historical/route.ts",
+        "npm run trace:adjacent -- src/app/api/admin/analytics/realtime/route.ts",
+        "npm run trace:adjacent -- src/lib/gumdrop-ledger.ts",
+        "npx vitest run tests/unit/admin-analytics-truth.spec.ts tests/unit/admin-ops-health.spec.ts tests/unit/admin-analytics-data.spec.ts tests/unit/admin-analytics-realtime-route.spec.ts tests/unit/admin-analytics-capture-health.spec.ts tests/unit/gumdrop-ledger.spec.ts",
+        "npx vitest run tests/unit/admin-analytics-truth.spec.ts tests/unit/admin-ops-health.spec.ts tests/unit/admin-panel-system-logs.spec.ts tests/unit/ai-debug-assistant.spec.ts",
+        "scripts/check-analytics-continuity.ts",
+        "src/app/admin/analytics/page.tsx",
+        "src/app/api/admin/analytics/historical/route.ts",
+        "src/app/api/admin/analytics/realtime/route.ts",
+        "src/lib/admin-analytics-truth.ts",
+        "src/lib/admin-ops-health.ts",
+        "src/lib/gumdrop-ledger.ts",
+        "src/lib/server/admin-analytics-capture-health.ts",
+        "src/lib/server/admin-analytics-historical-validation.ts",
+        "src/lib/server/admin-ops-health.ts",
+        "tests/unit/admin-analytics-truth.spec.ts",
+        "tests/unit/admin-ops-health.spec.ts"
+      ],
+      "surface_tags": [
+        "admin",
+        "ui",
+        "runtime",
+        "tooling",
+        "architecture"
+      ],
+      "helper_tags": [
+        "src/lib/gumdrop-ledger.ts"
+      ],
+      "risk_tags": [
+        "architecture",
+        "runtime",
+        "ui"
+      ],
+      "recency": "2026-04-18",
+      "freshness": {
+        "local": "fresh",
+        "sql_mirror": "unknown"
+      },
+      "context_tier": "cold",
+      "exclusion_tags": [
+        "secondary_truth"
+      ],
+      "do_not_use_as_primary_truth": true
+    },
+    {
       "stable_id": "retrieval__pass__2026-04-18-compact-interaction-recovery-hardening",
       "source_type": "recent_pass",
       "source_id": "pass__2026-04-18-compact-interaction-recovery-hardening",
@@ -23776,284 +24013,6 @@
         "ui",
         "runtime",
         "tooling",
-        "architecture"
-      ],
-      "helper_tags": [],
-      "risk_tags": [
-        "architecture",
-        "runtime",
-        "ui"
-      ],
-      "recency": "2026-04-17",
-      "freshness": {
-        "local": "fresh",
-        "sql_mirror": "unknown"
-      },
-      "context_tier": "cold",
-      "exclusion_tags": [
-        "secondary_truth"
-      ],
-      "do_not_use_as_primary_truth": true
-    },
-    {
-      "stable_id": "retrieval__pass__2026-04-17-open-pr-evaluation-selective-reimplementation-and-closure",
-      "source_type": "recent_pass",
-      "source_id": "pass__2026-04-17-open-pr-evaluation-selective-reimplementation-and-closure",
-      "searchable_terms": [
-        "Open PR Evaluation, Selective Reimplementation, and Closure",
-        "Evaluate every open GitHub PR against current repo truth, selectively implement the still-correct changes directly in the current codebase, and close or supersede PRs that are redundant, stale, or continuity-breaking.",
-        ".agent/workflows/auto-tasks.md",
-        "npm run trace:adjacent -- \"src/app/api/admin/users/[userId]/username/route.ts\"",
-        "npm run trace:adjacent -- src/app/admin/analytics/page.tsx",
-        "npm run trace:adjacent -- src/components/Admin/AssetUploader.tsx",
-        "npx vitest run tests/unit/admin-user-username-route.spec.ts",
-        "src/app/admin/analytics/page.tsx",
-        "src/app/api/admin/users/[userId]/username/route.ts",
-        "src/components/Admin/AssetUploader.tsx",
-        "tests/unit/admin-user-username-route.spec.ts"
-      ],
-      "surface_tags": [
-        "admin",
-        "ui",
-        "runtime"
-      ],
-      "helper_tags": [],
-      "risk_tags": [
-        "runtime",
-        "ui"
-      ],
-      "recency": "2026-04-17",
-      "freshness": {
-        "local": "fresh",
-        "sql_mirror": "unknown"
-      },
-      "context_tier": "cold",
-      "exclusion_tags": [
-        "secondary_truth"
-      ],
-      "do_not_use_as_primary_truth": true
-    },
-    {
-      "stable_id": "retrieval__pass__2026-04-17-self-debugging-hardening-queue-runtime-canonicalization",
-      "source_type": "recent_pass",
-      "source_id": "pass__2026-04-17-self-debugging-hardening-queue-runtime-canonicalization",
-      "searchable_terms": [
-        "Self-Debugging Hardening + Queue Runtime Canonicalization",
-        "Canonicalize queue reactivation and activation-notification runtime into Firebase Functions scheduler sources, demote the Next cron routes into legacy adapters, add low-build self-debugging and warning-budget lanes across runtime layers, and extend the agent fabric so queue/runtime freshness and warning drift are visible without a full UI/build audit.",
-        ".agent/workflows/auto-tasks.md",
-        "Get-ChildItem -Path functions/src | Select-Object -ExpandProperty Name",
-        "Get-Content -Path functions/package.json",
-        "Get-Content -Path functions/src/analytics-runtime.ts",
-        "Get-Content -Path functions/src/firebase-admin.ts",
-        "Get-Content -Path functions/src/firebase-runtime.ts",
-        "Get-Content -Path functions/src/index.ts",
-        "Get-Content -Path functions/src/runtime-warning-store.ts",
-        "Get-Content -Path scripts/agent/check-agent-context.ts",
-        "Get-Content -Path scripts/agent/extract-runtime-observability.ts",
-        "Get-Content -Path scripts/check-firebase-runtime.ts",
-        "Get-Content -Path shared/runtime/queue-runtime.ts",
-        "Get-Content -Path shared/runtime/runtime-warning-contract.ts",
-        "Get-Content -Path src/app/admin/debug/page.tsx",
-        "Get-Content -Path src/app/api/admin/debug/route.ts",
-        "Get-Content -Path src/app/api/cron/notify-active-drops/route.ts",
-        "Get-Content -Path src/app/api/cron/process-queue/route.ts",
-        "Get-Content -Path src/lib/server/drop-queue.ts",
-        "Get-Content -Path src/lib/server/drop-runtime.ts",
-        "Get-Content -Path src/lib/server/firebase-admin.ts",
-        "Get-Content -Path src/lib/server/process-queue-drops.ts",
-        "Get-Content -Path src/lib/server/push-notifications.ts",
-        "Get-Content -Path src/lib/server/route-diagnostics.ts",
-        "Get-Content -Path src/lib/server/runtime-warning-store.ts",
-        "Get-Content -Path src/lib/ui-continuity.ts",
-        "Get-Content -Path tests/unit/notify-active-drops-route.spec.ts",
-        "Get-Content -Path tests/unit/process-queue-route.spec.ts",
-        "dataconnect/schema/agent-context.gql",
-        "functions/src/index.ts",
-        "functions/src/queue-runtime.ts",
-        "functions/src/runtime-warning-store.ts",
-        "npm run trace:adjacent -- functions/src/index.ts",
-        "npm run trace:adjacent -- src/app/api/cron/notify-active-drops/route.ts",
-        "npm run trace:adjacent -- src/app/api/cron/process-queue/route.ts",
-        "npx vitest run tests/unit/process-queue-route.spec.ts tests/unit/notify-active-drops-route.spec.ts",
-        "scripts/agent/*",
-        "scripts/agent/build-agent-indexes.ts",
-        "scripts/agent/extract-runtime-observability.ts",
-        "scripts/check-queue-runtime.ts",
-        "scripts/check-runtime-continuity.ts",
-        "scripts/check-scheduler-freshness.ts",
-        "scripts/check-warnings.ts",
-        "scripts/runtime-admin.ts",
-        "shared/runtime/",
-        "src/app/admin/debug/page.tsx",
-        "src/app/api/admin/debug/route.ts",
-        "src/app/api/cron/notify-active-drops/route.ts",
-        "src/app/api/cron/process-queue/route.ts",
-        "src/lib/drop-queue-lifecycle.ts",
-        "src/lib/server/drop-queue.ts",
-        "src/lib/server/push-notifications.ts",
-        "src/lib/server/queue-runtime.ts",
-        "src/lib/server/route-diagnostics.ts",
-        "src/lib/server/runtime-warning-store.ts"
-      ],
-      "surface_tags": [
-        "admin",
-        "ui",
-        "runtime",
-        "tooling",
-        "architecture"
-      ],
-      "helper_tags": [
-        "src/lib/server/route-diagnostics.ts"
-      ],
-      "risk_tags": [
-        "architecture",
-        "runtime",
-        "ui"
-      ],
-      "recency": "2026-04-17",
-      "freshness": {
-        "local": "fresh",
-        "sql_mirror": "unknown"
-      },
-      "context_tier": "cold",
-      "exclusion_tags": [
-        "secondary_truth"
-      ],
-      "do_not_use_as_primary_truth": true
-    },
-    {
-      "stable_id": "retrieval__pass__2026-04-17-repo-wide-ui-continuity-fabric-implementation",
-      "source_type": "recent_pass",
-      "source_id": "pass__2026-04-17-repo-wide-ui-continuity-fabric-implementation",
-      "searchable_terms": [
-        "Repo-Wide UI Continuity Fabric Implementation",
-        "Implement the repo-wide UI continuity fabric across agent indexes, blocking UI verification, shared hydration/runtime canaries, and the first runtime fixes for the audited creator booking/subscription/profile/workspace surfaces so UI breakage is caught before users see it.",
-        ".agent/workflows/auto-tasks.md",
-        "/api/creator/subscriptions",
-        "Get-ChildItem -Path agent/schemas -File | Select-Object -ExpandProperty Name",
-        "Get-ChildItem -Path tests/ui-audits -File | Select-Object -ExpandProperty Name",
-        "Get-Content -LiteralPath 'src/app/creators/[username]/CreatorProfileClient.tsx'",
-        "Get-Content -Path scripts/agent/build-agent-indexes.ts",
-        "Get-Content -Path scripts/agent/build-task-context.ts",
-        "Get-Content -Path scripts/agent/classify-repo-files.ts",
-        "Get-Content -Path scripts/agent/extract-runtime-observability.ts",
-        "Get-Content -Path scripts/agent/shared.ts",
-        "Get-Content -Path scripts/agent/validate-agent-indexes.ts",
-        "Get-Content -Path scripts/trace-adjacent-surfaces.ts",
-        "Get-Content -Path src/app/api/creator/bookings/route.ts",
-        "Get-Content -Path src/app/api/creator/settings/route.ts",
-        "Get-Content -Path src/app/api/creator/subscriptions/route.ts",
-        "Get-Content -Path src/app/dashboard/DashboardClient.tsx",
-        "Get-Content -Path src/components/Creators/CreatorExperiencesPanel.tsx",
-        "Get-Content -Path src/components/Dashboard/CreatorWorkspacePanel.tsx",
-        "Get-Content -Path src/context/AuthContext.tsx",
-        "Get-Content -Path src/lib/client-error-reporting.ts",
-        "Get-Content -Path tests/ui-audits/accessibility.spec.ts",
-        "Get-Content -Path tests/ui-audits/helpers.ts",
-        "Get-Content -Path tests/ui-audits/visual-regression.spec.ts",
-        "Get-Content -Path tests/unit/creator-bookings-route.spec.ts",
-        "Get-Content -Path tests/unit/dashboard-viewer-page.spec.tsx",
-        "agent/index/*",
-        "agent/index/ui-surface-coverage.json",
-        "agent/schemas/*",
-        "agent/schemas/ui-surface-coverage.schema.json",
-        "npm run agent:build-task-context -- --task=\"Harden creator booking and subscription UI continuity\" --mode=ui --file=src/app/creators/[username]/CreatorProfileClient.tsx --file=src/components/Dashboard/CreatorWorkspacePanel.tsx --file=src/app/api/creator/bookings/route.ts --file=src/app/api/creator/subscriptions/route.ts",
-        "npm run trace:adjacent -- 'src/app/creators/[username]/CreatorProfileClient.tsx'",
-        "npm run trace:adjacent -- src/app/api/creator/bookings/route.ts",
-        "npm run trace:adjacent -- src/app/api/creator/subscriptions/route.ts",
-        "npm run trace:adjacent -- src/components/Dashboard/CreatorWorkspacePanel.tsx",
-        "npx vitest run tests/unit/creator-bookings-route.spec.ts tests/unit/creator-subscriptions-route.spec.ts tests/unit/ui-continuity.spec.ts tests/unit/creator-experiences-panel.spec.tsx tests/unit/creator-workspace-panel.spec.tsx",
-        "output/lhci",
-        "scripts/agent/*",
-        "scripts/agent/build-ui-runtime-audit.ts",
-        "scripts/agent/build-ui-surface-coverage.ts",
-        "scripts/agent/check-ui-surface-coverage.ts",
-        "src/app/api/creator/bookings/route.ts",
-        "src/app/api/creator/subscriptions/route.ts",
-        "src/app/creators/[username]/CreatorProfileClient.tsx",
-        "src/components/Creators/CreatorExperiencesPanel.tsx",
-        "src/components/Dashboard/CreatorWorkspacePanel.tsx",
-        "src/components/ui/UiContinuityNotice.tsx",
-        "src/lib/*",
-        "src/lib/ui-continuity.ts",
-        "tests/ui-audits/*",
-        "tests/ui-audits/accessibility.spec.ts",
-        "tests/ui-audits/runtime.spec.ts",
-        "tests/ui-audits/visual-regression.spec.ts",
-        "tests/ui-audits/visual-regression.spec.ts-snapshots/*.png",
-        "tests/unit/creator-bookings-route.spec.ts",
-        "tests/unit/creator-experiences-panel.spec.tsx",
-        "tests/unit/creator-subscriptions-route.spec.ts",
-        "tests/unit/creator-workspace-panel.spec.tsx",
-        "tests/unit/ui-continuity.spec.ts"
-      ],
-      "surface_tags": [
-        "ui",
-        "runtime",
-        "tooling",
-        "architecture"
-      ],
-      "helper_tags": [],
-      "risk_tags": [
-        "architecture",
-        "runtime",
-        "ui"
-      ],
-      "recency": "2026-04-17",
-      "freshness": {
-        "local": "fresh",
-        "sql_mirror": "unknown"
-      },
-      "context_tier": "cold",
-      "exclusion_tags": [
-        "secondary_truth"
-      ],
-      "do_not_use_as_primary_truth": true
-    },
-    {
-      "stable_id": "retrieval__pass__2026-04-17-booking-and-subscription-surface-audit",
-      "source_type": "recent_pass",
-      "source_id": "pass__2026-04-17-booking-and-subscription-surface-audit",
-      "searchable_terms": [
-        "Booking and Subscription Surface Audit",
-        "Audit creator/user booking, video-call booking, and subscription flows end to end across the public creator profile, creator dashboard/workspace surfaces, and the server routes/helpers that back those experiences, with emphasis on UI hydration, visible tracking surfaces, and creator/user state continuity.",
-        "/api/creator/subscriptions",
-        "Get-ChildItem src,tests -Recurse -File | Select-String -Pattern '/api/creator/subscriptions|creator/subscriptions' | Select-Object Path,LineNumber,Line",
-        "Get-Content -LiteralPath 'src/app/api/creators/[username]/route.ts'",
-        "Get-Content -LiteralPath 'src/app/creators/[username]/CreatorProfileClient.tsx'",
-        "Get-Content src/app/api/creator/bookings/route.ts",
-        "Get-Content src/app/api/creator/broadcasts/route.ts",
-        "Get-Content src/app/api/creator/relationships/route.ts",
-        "Get-Content src/app/api/creator/subscriptions/route.ts",
-        "Get-Content src/components/Creators/CreatorExperiencesPanel.tsx",
-        "Get-Content src/components/Creators/CreatorProfileHeader.tsx",
-        "Get-Content src/components/Dashboard/CreatorWorkspacePanel.tsx",
-        "Get-Content src/lib/creator-public-pages.ts",
-        "Get-Content src/lib/server/creator-experiences.ts",
-        "Get-Content tests/unit/creator-bookings-route.spec.ts",
-        "Get-Content tests/unit/creator-public-pages.spec.ts",
-        "Get-Content tests/unit/process-creator-subscriptions-bench.spec.ts",
-        "creator/settings",
-        "npm run trace:adjacent -- \"src/app/creators/[username]/CreatorProfileClient.tsx\"",
-        "npm run trace:adjacent -- src/app/api/creator/bookings/route.ts",
-        "npm run trace:adjacent -- src/app/api/creator/subscriptions/route.ts",
-        "npm run trace:adjacent -- src/components/Creators/CreatorExperiencesPanel.tsx",
-        "npm run trace:adjacent -- src/components/Dashboard/CreatorWorkspacePanel.tsx",
-        "npx vitest run tests/unit/creator-bookings-route.spec.ts tests/unit/creator-public-pages.spec.ts tests/unit/process-creator-subscriptions-bench.spec.ts",
-        "src/app/api/creator/bookings/route.ts",
-        "src/app/api/creator/subscriptions/route.ts",
-        "src/app/creators/[username]/CreatorProfileClient.tsx",
-        "src/components/Creators/CreatorExperiencesPanel.tsx",
-        "src/components/Dashboard/CreatorWorkspacePanel.tsx",
-        "src/lib/creator-experiences.ts",
-        "src/lib/server/creator-experiences.ts",
-        "tests/unit/creator-bookings-route.spec.ts",
-        "tests/unit/creator-public-pages.spec.ts",
-        "tests/unit/process-creator-subscriptions-bench.spec.ts"
-      ],
-      "surface_tags": [
-        "ui",
-        "runtime",
         "architecture"
       ],
       "helper_tags": [],

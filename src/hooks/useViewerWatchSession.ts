@@ -14,6 +14,7 @@ import type {
     ViewerWatchContentKind,
     ViewerWatchSessionSnapshot,
 } from "@/lib/viewer-watch-session";
+import { shouldRetryViewerWatchCloseFlush } from "@/lib/viewer-watch-session";
 
 const HEARTBEAT_INTERVAL_MS = 1_000;
 const HEARTBEAT_FLUSH_WINDOW_MS = 5_000;
@@ -236,6 +237,7 @@ export function useViewerWatchSession(options: UseViewerWatchSessionOptions) {
     const mediaPlayingRef = useRef(false);
     const flushInFlightRef = useRef<Promise<void> | null>(null);
     const flushQueuedRef = useRef<{ reason: string; options?: FlushOptions } | null>(null);
+    const closeRetryTimeoutRef = useRef<number | null>(null);
     const pendingReplayAttemptedRef = useRef(false);
     const assetsRef = useRef<Map<string, AssetWatchState>>(new Map());
     const dirtyAssetKeysRef = useRef<Set<string>>(new Set());
@@ -262,7 +264,34 @@ export function useViewerWatchSession(options: UseViewerWatchSessionOptions) {
         pagePathRef.current = window.location.pathname || "/dashboard/viewer";
     }
 
+    const clearCloseRetryTimeout = useCallback(() => {
+        if (typeof window === "undefined" || closeRetryTimeoutRef.current === null) {
+            return;
+        }
+
+        window.clearTimeout(closeRetryTimeoutRef.current);
+        closeRetryTimeoutRef.current = null;
+    }, []);
+
+    const scheduleCloseRetry = useCallback((reason: string, options?: FlushOptions) => {
+        if (typeof window === "undefined" || options?.close !== true) {
+            return;
+        }
+
+        clearCloseRetryTimeout();
+        closeRetryTimeoutRef.current = window.setTimeout(() => {
+            closeRetryTimeoutRef.current = null;
+            if (!watchSessionIdRef.current || !sessionStartedAtRef.current) {
+                return;
+            }
+
+            flushQueuedRef.current = { reason, options };
+            void flushSessionRef.current(reason, options);
+        }, HEARTBEAT_INTERVAL_MS);
+    }, [clearCloseRetryTimeout]);
+
     const resetSessionState = useCallback(() => {
+        clearCloseRetryTimeout();
         watchSessionIdRef.current = null;
         clientSessionIdRef.current = "";
         sessionStartedAtRef.current = null;
@@ -616,7 +645,18 @@ export function useViewerWatchSession(options: UseViewerWatchSessionOptions) {
                 payload.assets.forEach((asset) => dirtyAssetKeysRef.current.add(asset.assetKey));
             } finally {
                 flushInFlightRef.current = null;
-                if (options?.close && watchSessionIdRef.current === activeWatchSessionId && flushSucceeded) {
+                const activeSessionMatches = watchSessionIdRef.current === activeWatchSessionId;
+                if (shouldRetryViewerWatchCloseFlush({
+                    close: options?.close === true,
+                    flushSucceeded,
+                    activeSessionMatches,
+                })) {
+                    scheduleCloseRetry(reason, options);
+                    return;
+                }
+
+                if (options?.close && activeSessionMatches && flushSucceeded) {
+                    clearCloseRetryTimeout();
                     resetSessionState();
                 } else if (flushQueuedRef.current) {
                     const queuedFlush = flushQueuedRef.current;
