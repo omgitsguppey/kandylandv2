@@ -1,5 +1,5 @@
 {
-  "generatedAt": "2026-04-17T23:58:33.986Z",
+  "generatedAt": "2026-04-18T02:54:48.779Z",
   "truthOrder": [
     "verified_runtime_code",
     "verified_configuration",
@@ -373,6 +373,74 @@
       "verifies_rules": false,
       "verifies_inventory": false,
       "verifies_continuity": false
+    },
+    {
+      "stable_id": "command__root-check-runtime-continuity",
+      "command": "npm run check:runtime:continuity",
+      "scopeType": "ui",
+      "root_or_functions": "root",
+      "requiredWhen": [
+        "Runtime drift checks, queue lifecycle work, scheduler hardening, or warning-budget signoff."
+      ],
+      "optionalWhen": [],
+      "cleanupExpected": [],
+      "broadSignoffWeight": 9,
+      "verifies_runtime": true,
+      "verifies_ui": false,
+      "verifies_rules": false,
+      "verifies_inventory": true,
+      "verifies_continuity": true
+    },
+    {
+      "stable_id": "command__root-check-queue-runtime",
+      "command": "npm run check:queue:runtime",
+      "scopeType": "repo",
+      "root_or_functions": "root",
+      "requiredWhen": [
+        "Touching queue lifecycle, cooldown reactivation, activation notifications, or legacy queue adapters."
+      ],
+      "optionalWhen": [],
+      "cleanupExpected": [],
+      "broadSignoffWeight": 8,
+      "verifies_runtime": true,
+      "verifies_ui": false,
+      "verifies_rules": false,
+      "verifies_inventory": false,
+      "verifies_continuity": true
+    },
+    {
+      "stable_id": "command__root-check-warnings",
+      "command": "npm run check:warnings",
+      "scopeType": "repo",
+      "root_or_functions": "root",
+      "requiredWhen": [
+        "Touching warning budgets, runtime fallback handling, or silent-degradation detection."
+      ],
+      "optionalWhen": [],
+      "cleanupExpected": [],
+      "broadSignoffWeight": 7,
+      "verifies_runtime": true,
+      "verifies_ui": false,
+      "verifies_rules": false,
+      "verifies_inventory": false,
+      "verifies_continuity": true
+    },
+    {
+      "stable_id": "command__root-check-scheduler-freshness",
+      "command": "npm run check:scheduler:freshness",
+      "scopeType": "repo",
+      "root_or_functions": "root",
+      "requiredWhen": [
+        "Touching Firebase scheduled jobs or runtime heartbeats."
+      ],
+      "optionalWhen": [],
+      "cleanupExpected": [],
+      "broadSignoffWeight": 7,
+      "verifies_runtime": true,
+      "verifies_ui": false,
+      "verifies_rules": false,
+      "verifies_inventory": false,
+      "verifies_continuity": true
     },
     {
       "stable_id": "command__root-check-firebase-rules",

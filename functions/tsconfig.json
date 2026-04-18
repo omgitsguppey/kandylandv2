@@ -1,5 +1,6 @@
 {
   "compilerOptions": {
+    "baseUrl": "..",
     "module": "NodeNext",
     "esModuleInterop": true,
     "moduleResolution": "nodenext",
@@ -9,10 +10,14 @@
     "sourceMap": true,
     "strict": true,
     "target": "es2017",
-    "types": ["node"]
+    "types": ["node"],
+    "paths": {
+      "@shared/*": ["shared/*"]
+    }
   },
   "compileOnSave": true,
   "include": [
-    "src"
+    "src",
+    "../shared/runtime/**/*.ts"
   ]
 }

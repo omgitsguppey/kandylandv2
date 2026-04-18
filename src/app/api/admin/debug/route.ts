@@ -43,7 +43,13 @@ import { buildCreatorOnboardingDiagnostics } from "@/lib/server/creator-onboardi
 import { CREATOR_ONBOARDING_COLLECTION, CREATOR_REVIEW_QUEUE_COLLECTION } from "@/lib/server/creator-onboarding";
 import { listAdminUiChartHealth } from "@/lib/server/admin-ui-chart-health";
 import { listRouteRuntimeHealth, recordRouteRuntimeSample } from "@/lib/server/route-runtime-health";
+import {
+    listNotificationDispatchOutcomes,
+    listQueueJobHeartbeats,
+    listRuntimeWarnings,
+} from "@/lib/server/runtime-warning-store";
 import { summarizeRouteRuntimeHealth } from "@/lib/route-runtime-health";
+import { QUEUE_RUNTIME_WARNING_CODES } from "../../../../../shared/runtime/runtime-warning-contract";
 
 const ONE_WEEK_MS = 7 * 24 * 60 * 60 * 1000;
 const TASK_GROUP_SET = new Set<string>(["visit", "notifications", "unwrap", "watch", "wallet", "purchase", "feedback", "share"]);
@@ -310,11 +316,64 @@ export async function GET(request: NextRequest) {
             adminDb.collection(CREATOR_REVIEW_QUEUE_COLLECTION).get(),
         ]);
 
-        const [analyticsChartHealth, routeRuntimeHealth] = await Promise.all([
+        const [analyticsChartHealth, routeRuntimeHealth, runtimeWarnings, queueJobHeartbeats, notificationDispatchOutcomes] = await Promise.all([
             listAdminUiChartHealth(),
             listRouteRuntimeHealth(),
+            listRuntimeWarnings(80),
+            listQueueJobHeartbeats(),
+            listNotificationDispatchOutcomes(80),
         ]);
         const routeRuntimeHealthSummary = summarizeRouteRuntimeHealth(routeRuntimeHealth);
+        const queueJobHeartbeatSummary = queueJobHeartbeats.reduce((summary, entry) => {
+            const lastTouch = Math.max(
+                toNumber(entry.completedAt),
+                toNumber(entry.startedAt),
+                toNumber(entry.updatedAt),
+            );
+            const stale = lastTouch <= 0 || (toNumber(entry.staleAfterMs) > 0 && nowMs - lastTouch > toNumber(entry.staleAfterMs));
+            return {
+                total: summary.total + 1,
+                stale: summary.stale + (stale ? 1 : 0),
+                failed: summary.failed + (entry.status === "failed" ? 1 : 0),
+                running: summary.running + (entry.status === "running" ? 1 : 0),
+            };
+        }, {
+            total: 0,
+            stale: 0,
+            failed: 0,
+            running: 0,
+        });
+        const runtimeWarningSummary = runtimeWarnings.reduce<{
+            total: number;
+            failed: number;
+            degraded: number;
+            fallback: number;
+            legacyAdapterUses: number;
+            queueDriftWarnings: number;
+        }>((summary, entry) => {
+            const code = toStringValue(entry.code);
+            return {
+                total: summary.total + 1,
+                failed: summary.failed + (toStringValue(entry.status) === "failed" ? 1 : 0),
+                degraded: summary.degraded + (toStringValue(entry.status) === "degraded" ? 1 : 0),
+                fallback: summary.fallback + (toStringValue(entry.status) === "fallback" ? 1 : 0),
+                legacyAdapterUses: summary.legacyAdapterUses + (code === QUEUE_RUNTIME_WARNING_CODES.legacyAdapterInvoked ? 1 : 0),
+                queueDriftWarnings: summary.queueDriftWarnings + (code === QUEUE_RUNTIME_WARNING_CODES.queueMembershipDrift ? 1 : 0),
+            };
+        }, {
+            total: 0,
+            failed: 0,
+            degraded: 0,
+            fallback: 0,
+            legacyAdapterUses: 0,
+            queueDriftWarnings: 0,
+        });
+        const queueRuntimeSummary = {
+            jobHeartbeats: queueJobHeartbeatSummary,
+            warnings: runtimeWarningSummary,
+            missingNotificationOutcomes: runtimeWarnings.filter((entry) => toStringValue(entry.code) === QUEUE_RUNTIME_WARNING_CODES.activationMissingOutcome).length,
+            recentOutcomes: notificationDispatchOutcomes.length,
+        };
         const opsHealth = buildAdminOpsHealth({
             nowMs,
             diagnosticsDocs: serverDiagnosticsSnapshot.docs,
@@ -906,6 +965,13 @@ export async function GET(request: NextRequest) {
                 routeRuntimeHealthWarnings: routeRuntimeHealthSummary.warn,
                 routeRuntimeHealthFailures: routeRuntimeHealthSummary.fail,
                 routeRuntimeHealthUnobserved: routeRuntimeHealthSummary.unobserved,
+                queueJobsTracked: queueJobHeartbeatSummary.total,
+                queueJobsStale: queueJobHeartbeatSummary.stale,
+                queueJobsFailed: queueJobHeartbeatSummary.failed,
+                runtimeWarningsTracked: runtimeWarningSummary.total,
+                runtimeWarningFailures: runtimeWarningSummary.failed,
+                runtimeLegacyAdapterUses: runtimeWarningSummary.legacyAdapterUses,
+                queueMissingNotificationOutcomes: queueRuntimeSummary.missingNotificationOutcomes,
             },
             coverage,
             taskInventorySummary,
@@ -947,6 +1013,10 @@ export async function GET(request: NextRequest) {
             panelSystemLogs,
             analyticsChartHealth,
             routeRuntimeHealth,
+            runtimeWarnings,
+            queueJobHeartbeats,
+            notificationDispatchOutcomes,
+            queueRuntimeSummary,
         }));
     } catch (error) {
         return finalize(handleApiError(error, "Admin.Debug.GET"), error);

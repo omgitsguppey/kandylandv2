@@ -1,75 +1,35 @@
 import { NextRequest, NextResponse } from "next/server";
-import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
+import { beforeEach, describe, expect, it, vi } from "vitest";
 
-import { fromCSTInput } from "@/lib/timezone";
-
-const mockState = vi.hoisted(() => {
-    const updates = new Map<string, Record<string, unknown>>();
-
-    const batch = {
-        update: vi.fn((ref: { path: string }, data: Record<string, unknown>) => {
-            updates.set(ref.path, {
-                ...(updates.get(ref.path) ?? {}),
-                ...data,
-            });
-        }),
-        commit: vi.fn(async () => undefined),
-    };
-
-    const adminDb = {
-        collection: vi.fn((name: string) => ({
-            doc: (id: string) => ({
-                id,
-                path: `${name}/${id}`,
-            }),
-        })),
-        batch: vi.fn(() => batch),
-        getAll: vi.fn(),
-    };
-
-    return {
-        updates,
-        batch,
-        adminDb,
-        guardApiRequest: vi.fn(),
-        getResolvedQueueConfig: vi.fn(),
-        buildQueuedDropsMap: vi.fn(),
-        markDropsRuntimeChanged: vi.fn(),
-        handleApiError: vi.fn(),
-        reset() {
-            updates.clear();
-            batch.update.mockClear();
-            batch.commit.mockClear();
-            adminDb.collection.mockClear();
-            adminDb.batch.mockClear();
-            adminDb.getAll.mockClear();
-            this.guardApiRequest.mockReset();
-            this.getResolvedQueueConfig.mockReset();
-            this.buildQueuedDropsMap.mockReset();
-            this.markDropsRuntimeChanged.mockReset();
-            this.handleApiError.mockReset();
-        },
-    };
-});
-
-vi.mock("@/lib/server/firebase-admin", () => ({
-    adminDb: mockState.adminDb,
+const mockState = vi.hoisted(() => ({
+    guardApiRequest: vi.fn(),
+    processQueueLifecycleRuntime: vi.fn(),
+    recordRuntimeWarning: vi.fn(),
+    recordRouteWarning: vi.fn(),
+    handleApiError: vi.fn(),
+    reset() {
+        this.guardApiRequest.mockReset();
+        this.processQueueLifecycleRuntime.mockReset();
+        this.recordRuntimeWarning.mockReset();
+        this.recordRouteWarning.mockReset();
+        this.handleApiError.mockReset();
+    },
 }));
 
 vi.mock("@/lib/server/request-guard", () => ({
     guardApiRequest: mockState.guardApiRequest,
 }));
 
-vi.mock("@/lib/server/drop-queue", () => ({
-    getResolvedQueueConfig: mockState.getResolvedQueueConfig,
+vi.mock("@/lib/server/queue-runtime", () => ({
+    processQueueLifecycleRuntime: mockState.processQueueLifecycleRuntime,
 }));
 
-vi.mock("@/lib/server/process-queue-drops", () => ({
-    buildQueuedDropsMap: mockState.buildQueuedDropsMap,
+vi.mock("@/lib/server/runtime-warning-store", () => ({
+    recordRuntimeWarning: mockState.recordRuntimeWarning,
 }));
 
-vi.mock("@/lib/server/drop-runtime", () => ({
-    markDropsRuntimeChanged: mockState.markDropsRuntimeChanged,
+vi.mock("@/lib/server/route-diagnostics", () => ({
+    recordRouteWarning: mockState.recordRouteWarning,
 }));
 
 vi.mock("@/lib/server/auth", () => ({
@@ -84,48 +44,19 @@ import { GET } from "@/app/api/cron/process-queue/route";
 
 describe("GET /api/cron/process-queue", () => {
     beforeEach(() => {
-        vi.useFakeTimers();
         mockState.reset();
-        mockState.guardApiRequest.mockResolvedValue({
-            uid: "cron_runner",
-        });
+        mockState.guardApiRequest.mockResolvedValue({ uid: "cron_runner" });
         mockState.handleApiError.mockImplementation(() => NextResponse.json({ error: "Internal server error" }, { status: 500 }));
+        mockState.processQueueLifecycleRuntime.mockResolvedValue({
+            message: "Scheduled 1 drops",
+            updates: [{ dropId: "drop_1", validFrom: 123, activationCount: 2 }],
+            lifecycleReconciled: [],
+            invariants: [],
+        });
         process.env.CRON_SECRET = "test-secret";
     });
 
-    afterEach(() => {
-        vi.useRealTimers();
-    });
-
-    it("schedules ready return drops after already-scheduled queue entries", async () => {
-        const now = fromCSTInput("2026-04-02T09:00");
-        const scheduledSlot = fromCSTInput("2026-04-03T12:00");
-        const cooledDropEnd = fromCSTInput("2026-03-20T12:00");
-        vi.setSystemTime(new Date(now));
-
-        mockState.getResolvedQueueConfig.mockResolvedValue({
-            queue: ["scheduled_first", "ready_second"],
-            dropsPerDay: 1,
-            cooldownDays: 7,
-            timesPerDay: ["12:00"],
-        });
-        mockState.buildQueuedDropsMap.mockResolvedValue({
-            scheduled_first: {
-                id: "scheduled_first",
-                validFrom: scheduledSlot,
-                validUntil: scheduledSlot + (24 * 60 * 60 * 1000),
-                activationCount: 0,
-                status: "scheduled",
-            },
-            ready_second: {
-                id: "ready_second",
-                validFrom: cooledDropEnd - (24 * 60 * 60 * 1000),
-                validUntil: cooledDropEnd,
-                activationCount: 2,
-                status: "expired",
-            },
-        });
-
+    it("delegates queue lifecycle work to the canonical runtime and marks the route as legacy", async () => {
         const request = new NextRequest("http://localhost/api/cron/process-queue", {
             headers: {
                 authorization: "Bearer test-secret",
@@ -135,109 +66,52 @@ describe("GET /api/cron/process-queue", () => {
         const payload = await response.json();
 
         expect(response.status).toBe(200);
-        expect(payload.updates).toHaveLength(1);
-        expect(payload.updates[0]).toMatchObject({
-            dropId: "ready_second",
-            activationCount: 3,
+        expect(mockState.processQueueLifecycleRuntime).toHaveBeenCalledWith({
+            executionLayer: "next_route",
+            surface: "cron/process-queue",
+            staleAfterMs: 60 * 60 * 1000,
         });
-        expect(payload.updates[0].validFrom).toBeGreaterThan(scheduledSlot);
-        expect(mockState.updates.get("drops/ready_second")).toMatchObject({
-            validFrom: payload.updates[0].validFrom,
-            validUntil: payload.updates[0].validFrom + (24 * 60 * 60 * 1000),
-            status: "scheduled",
-            activationCount: 3,
+        expect(mockState.recordRouteWarning).toHaveBeenCalledWith(
+            "cron/process-queue",
+            expect.stringContaining("Legacy queue lifecycle adapter invoked"),
+            undefined,
+            expect.objectContaining({
+                channel: "cron",
+                moduleKey: "queue_lifecycle_adapter",
+            }),
+        );
+        expect(mockState.recordRuntimeWarning).toHaveBeenCalledWith(expect.objectContaining({
+            code: "legacy_queue_adapter_invoked",
+            executionLayer: "next_route",
+            surface: "cron/process-queue",
+            moduleKey: "process_queue",
+        }));
+        expect(payload).toEqual({
+            message: "Scheduled 1 drops",
+            updates: [{ dropId: "drop_1", validFrom: 123, activationCount: 2 }],
+            lifecycleReconciled: [],
+            invariants: [],
+            legacyAdapter: true,
         });
-        expect(mockState.markDropsRuntimeChanged).toHaveBeenCalled();
-        expect(mockState.batch.commit).toHaveBeenCalled();
     });
 
-    it("reconciles stale queued lifecycle status even when no new slot is assigned", async () => {
-        const now = fromCSTInput("2026-04-02T09:00");
-        vi.setSystemTime(new Date(now));
-
-        mockState.getResolvedQueueConfig.mockResolvedValue({
-            queue: ["stale_live_drop"],
-            dropsPerDay: 1,
-            cooldownDays: 7,
-            timesPerDay: ["12:00"],
-        });
-        mockState.buildQueuedDropsMap.mockResolvedValue({
-            stale_live_drop: {
-                id: "stale_live_drop",
-                validFrom: fromCSTInput("2026-04-02T08:00"),
-                validUntil: fromCSTInput("2026-04-03T08:00"),
-                activationCount: 0,
-                status: "scheduled",
-            },
-        });
-
+    it("returns unauthorized when the cron secret does not match", async () => {
         const request = new NextRequest("http://localhost/api/cron/process-queue", {
             headers: {
-                authorization: "Bearer test-secret",
+                authorization: "Bearer wrong-secret",
             },
         });
         const response = await GET(request);
         const payload = await response.json();
 
-        expect(response.status).toBe(200);
-        expect(payload.updates).toEqual([]);
-        expect(payload.lifecycleReconciled).toEqual([
-            {
-                dropId: "stale_live_drop",
-                status: "active",
-            },
-        ]);
-        expect(mockState.updates.get("drops/stale_live_drop")).toMatchObject({
-            status: "active",
-        });
-        expect(mockState.batch.commit).toHaveBeenCalled();
+        expect(response.status).toBe(401);
+        expect(payload).toEqual({ error: "Unauthorized" });
+        expect(mockState.processQueueLifecycleRuntime).not.toHaveBeenCalled();
+        expect(mockState.recordRuntimeWarning).not.toHaveBeenCalled();
     });
 
-    it("keeps already-scheduled legacy drops stable when validFrom and validUntil are Firestore timestamps", async () => {
-        const now = fromCSTInput("2026-04-02T09:00");
-        const scheduledSlot = fromCSTInput("2026-04-03T12:00");
-        vi.setSystemTime(new Date(now));
-
-        mockState.getResolvedQueueConfig.mockResolvedValue({
-            queue: ["legacy_scheduled"],
-            dropsPerDay: 1,
-            cooldownDays: 7,
-            timesPerDay: ["12:00"],
-        });
-        mockState.buildQueuedDropsMap.mockImplementation(async (input: {
-            materialize: (doc: { id: string; exists: boolean; data: () => Record<string, unknown> | undefined }) => { id: string } | null;
-        }) => {
-            const materialized = input.materialize({
-                id: "legacy_scheduled",
-                exists: true,
-                data: () => ({
-                    validFrom: { toMillis: () => scheduledSlot },
-                    validUntil: { toMillis: () => scheduledSlot + (24 * 60 * 60 * 1000) },
-                    activationCount: 4,
-                    status: "scheduled",
-                }),
-            });
-
-            return materialized ? { legacy_scheduled: materialized } : {};
-        });
-
-        const request = new NextRequest("http://localhost/api/cron/process-queue", {
-            headers: {
-                authorization: "Bearer test-secret",
-            },
-        });
-        const response = await GET(request);
-        const payload = await response.json();
-
-        expect(response.status).toBe(200);
-        expect(payload.updates).toEqual([]);
-        expect(payload.lifecycleReconciled).toEqual([]);
-        expect(mockState.updates.size).toBe(0);
-        expect(mockState.batch.commit).not.toHaveBeenCalled();
-    });
-
-    it("does not leak internal errors when queue processing fails", async () => {
-        mockState.getResolvedQueueConfig.mockRejectedValue(new Error("firestore batch pipeline exploded"));
+    it("does not leak internal errors when canonical runtime delegation fails", async () => {
+        mockState.processQueueLifecycleRuntime.mockRejectedValue(new Error("runtime exploded"));
 
         const request = new NextRequest("http://localhost/api/cron/process-queue", {
             headers: {

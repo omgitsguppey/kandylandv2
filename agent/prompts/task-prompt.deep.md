@@ -11,11 +11,11 @@ Likely touched files:
 - scripts/agent/build-ui-surface-coverage.ts
 - scripts/agent/check-agent-context.ts
 - scripts/agent/extract-canonical-helpers.ts
+- scripts/agent/extract-runtime-observability.ts
 - scripts/agent/run-evals.ts
 - scripts/agent/sync-sql.ts
 - scripts/agent/classify-repo-files.ts
 - scripts/agent/extract-governance.ts
-- scripts/agent/extract-runtime-observability.ts
 - scripts/agent/extract-workflow.ts
 - scripts/agent/shared.ts
 
@@ -28,6 +28,9 @@ Relevant pitfalls:
 - diagnostics_serialization_crash
 - generated_artifact_cleanup_miss
 - sidecar_truth_confusion
+- legacy_queue_adapter_usage
+- queue_activation_missing_notification_outcome
+- creator_booking_timezone_drift
 
 Required verification:
 - npm run check:agent-context
@@ -44,10 +47,10 @@ Do not touch without broad signoff:
 - scripts/agent/build-ui-surface-coverage.ts
 - scripts/agent/check-agent-context.ts
 - scripts/agent/extract-canonical-helpers.ts
+- scripts/agent/extract-runtime-observability.ts
 - scripts/agent/run-evals.ts
 - scripts/agent/sync-sql.ts
 - scripts/agent/classify-repo-files.ts
 - scripts/agent/extract-governance.ts
-- scripts/agent/extract-runtime-observability.ts
 - scripts/agent/extract-workflow.ts
 - scripts/agent/shared.ts

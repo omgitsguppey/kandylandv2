@@ -1,5 +1,5 @@
 {
-  "generatedAt": "2026-04-17T23:59:17.501Z",
+  "generatedAt": "2026-04-18T02:54:55.144Z",
   "truthOrder": [
     "verified_runtime_code",
     "verified_configuration",
@@ -56,7 +56,7 @@
       "risk_tags": [
         "broad_signoff"
       ],
-      "recency": "1776465818777:dd92e32d9098",
+      "recency": "1776475688080:ab56a29bea53",
       "freshness": {
         "local": "fresh",
         "sql_mirror": "unknown"
@@ -420,7 +420,7 @@
       "risk_tags": [
         "broad_signoff"
       ],
-      "recency": "1776469513672:bbdf08391010",
+      "recency": "1776480808981:d220d8e852aa",
       "freshness": {
         "local": "fresh",
         "sql_mirror": "unknown"
@@ -444,7 +444,7 @@
       "risk_tags": [
         "broad_signoff"
       ],
-      "recency": "1776469591793:45eed5f8899c",
+      "recency": "1776480845808:0ff41de8dc81",
       "freshness": {
         "local": "fresh",
         "sql_mirror": "unknown"
@@ -468,7 +468,7 @@
       "risk_tags": [
         "broad_signoff"
       ],
-      "recency": "1776469464484:4f7f12f56ef9",
+      "recency": "1776480786432:4201be4fecd4",
       "freshness": {
         "local": "fresh",
         "sql_mirror": "unknown"
@@ -516,7 +516,7 @@
       "risk_tags": [
         "broad_signoff"
       ],
-      "recency": "1776470278354:544889691967",
+      "recency": "1776480885211:50828b261572",
       "freshness": {
         "local": "fresh",
         "sql_mirror": "unknown"
@@ -540,7 +540,7 @@
       "risk_tags": [
         "broad_signoff"
       ],
-      "recency": "1776470278211:a2bd77716639",
+      "recency": "1776480885187:e337461c972b",
       "freshness": {
         "local": "fresh",
         "sql_mirror": "unknown"
@@ -564,7 +564,7 @@
       "risk_tags": [
         "broad_signoff"
       ],
-      "recency": "1776470278329:993a4759c730",
+      "recency": "1776480885207:bf2f7c8b2138",
       "freshness": {
         "local": "fresh",
         "sql_mirror": "unknown"
@@ -588,7 +588,7 @@
       "risk_tags": [
         "broad_signoff"
       ],
-      "recency": "1776470278270:d2d1e9553d1c",
+      "recency": "1776480885196:9eb28d10c30a",
       "freshness": {
         "local": "fresh",
         "sql_mirror": "unknown"
@@ -612,7 +612,7 @@
       "risk_tags": [
         "broad_signoff"
       ],
-      "recency": "1776470278280:691f63e463f8",
+      "recency": "1776480885198:de97552fd403",
       "freshness": {
         "local": "fresh",
         "sql_mirror": "unknown"
@@ -636,7 +636,7 @@
       "risk_tags": [
         "broad_signoff"
       ],
-      "recency": "1776470278251:f4b549bb092d",
+      "recency": "1776480885193:2bf92d6c5e3b",
       "freshness": {
         "local": "fresh",
         "sql_mirror": "unknown"
@@ -660,7 +660,7 @@
       "risk_tags": [
         "broad_signoff"
       ],
-      "recency": "1776470278293:dd078c8da822",
+      "recency": "1776480885201:61b8009e2448",
       "freshness": {
         "local": "fresh",
         "sql_mirror": "unknown"
@@ -684,7 +684,7 @@
       "risk_tags": [
         "broad_signoff"
       ],
-      "recency": "1776470278122:9a04e7c058a4",
+      "recency": "1776480885175:d9b0d95043c4",
       "freshness": {
         "local": "fresh",
         "sql_mirror": "unknown"
@@ -708,7 +708,7 @@
       "risk_tags": [
         "broad_signoff"
       ],
-      "recency": "1776470278417:06c7ca68b4b7",
+      "recency": "1776480885218:81cf2ed77022",
       "freshness": {
         "local": "fresh",
         "sql_mirror": "unknown"
@@ -732,7 +732,7 @@
       "risk_tags": [
         "broad_signoff"
       ],
-      "recency": "1776470278302:e84e78faf110",
+      "recency": "1776480885202:06f5b9161fde",
       "freshness": {
         "local": "fresh",
         "sql_mirror": "unknown"
@@ -756,7 +756,7 @@
       "risk_tags": [
         "broad_signoff"
       ],
-      "recency": "1776470278198:b0159a428bf8",
+      "recency": "1776480885185:fae284c1f1af",
       "freshness": {
         "local": "fresh",
         "sql_mirror": "unknown"
@@ -780,7 +780,7 @@
       "risk_tags": [
         "broad_signoff"
       ],
-      "recency": "1776470340994:5bc4bacd7a79",
+      "recency": "1776480892315:688eab26da4d",
       "freshness": {
         "local": "fresh",
         "sql_mirror": "unknown"
@@ -804,7 +804,7 @@
       "risk_tags": [
         "broad_signoff"
       ],
-      "recency": "1776470278229:c20965adf1e8",
+      "recency": "1776480885190:e2f0faadc6fb",
       "freshness": {
         "local": "fresh",
         "sql_mirror": "unknown"
@@ -828,7 +828,7 @@
       "risk_tags": [
         "broad_signoff"
       ],
-      "recency": "1776470278260:7c132d3f2f87",
+      "recency": "1776480885195:4da13f8c1cfa",
       "freshness": {
         "local": "fresh",
         "sql_mirror": "unknown"
@@ -852,7 +852,7 @@
       "risk_tags": [
         "broad_signoff"
       ],
-      "recency": "1776470308916:07eadb4bacfe",
+      "recency": "1776480888232:8c74d525f2ef",
       "freshness": {
         "local": "fresh",
         "sql_mirror": "unknown"
@@ -876,7 +876,7 @@
       "risk_tags": [
         "broad_signoff"
       ],
-      "recency": "1776470308888:33a84ce3afb0",
+      "recency": "1776480888230:496d3ef1d6ff",
       "freshness": {
         "local": "fresh",
         "sql_mirror": "unknown"
@@ -900,7 +900,7 @@
       "risk_tags": [
         "broad_signoff"
       ],
-      "recency": "1776470308904:22c5f905d634",
+      "recency": "1776480888231:4bafcbe6a358",
       "freshness": {
         "local": "fresh",
         "sql_mirror": "unknown"
@@ -1476,7 +1476,7 @@
       "risk_tags": [
         "broad_signoff"
       ],
-      "recency": "1776438736978:422766fc5f03",
+      "recency": "1776480753395:dc8a21e4a5c4",
       "freshness": {
         "local": "fresh",
         "sql_mirror": "unknown"
@@ -1500,7 +1500,7 @@
       "risk_tags": [
         "broad_signoff"
       ],
-      "recency": "1776438736973:37967b12cae7",
+      "recency": "1776480753394:0a704e87961a",
       "freshness": {
         "local": "fresh",
         "sql_mirror": "unknown"
@@ -1524,7 +1524,7 @@
       "risk_tags": [
         "broad_signoff"
       ],
-      "recency": "1776470308819:999b4b51a123",
+      "recency": "1776480888228:4c963cf62a34",
       "freshness": {
         "local": "fresh",
         "sql_mirror": "unknown"
@@ -2348,7 +2348,7 @@
       "risk_tags": [
         "runtime_critical"
       ],
-      "recency": "1776389626802:7e138e07ab17",
+      "recency": "1776479962245:cd4c5c3b32e2",
       "freshness": {
         "local": "fresh",
         "sql_mirror": "unknown"
@@ -2572,6 +2572,54 @@
       "do_not_use_as_primary_truth": false
     },
     {
+      "stable_id": "file__functions__src__queue-runtime-ts",
+      "source_type": "file",
+      "source_id": "file__functions__src__queue-runtime-ts",
+      "searchable_terms": [
+        "functions/src/queue-runtime.ts",
+        "functions_runtime",
+        "firebase_functions"
+      ],
+      "surface_tags": [
+        "firebase_functions",
+        "functions_runtime"
+      ],
+      "helper_tags": [],
+      "risk_tags": [
+        "runtime_critical"
+      ],
+      "recency": "1776480144010:c0bd957e3141",
+      "freshness": {
+        "local": "fresh",
+        "sql_mirror": "unknown"
+      },
+      "do_not_use_as_primary_truth": false
+    },
+    {
+      "stable_id": "file__functions__src__runtime-warning-store-ts",
+      "source_type": "file",
+      "source_id": "file__functions__src__runtime-warning-store-ts",
+      "searchable_terms": [
+        "functions/src/runtime-warning-store.ts",
+        "functions_runtime",
+        "firebase_functions"
+      ],
+      "surface_tags": [
+        "firebase_functions",
+        "functions_runtime"
+      ],
+      "helper_tags": [],
+      "risk_tags": [
+        "runtime_critical"
+      ],
+      "recency": "1776476368387:15800b8ae990",
+      "freshness": {
+        "local": "fresh",
+        "sql_mirror": "unknown"
+      },
+      "do_not_use_as_primary_truth": false
+    },
+    {
       "stable_id": "file__functions__tsconfig-dev-json",
       "source_type": "file",
       "source_id": "file__functions__tsconfig-dev-json",
@@ -2612,7 +2660,7 @@
       "risk_tags": [
         "broad_signoff"
       ],
-      "recency": "1776390077829:960c9e59c818",
+      "recency": "1776476312222:9714def21ce6",
       "freshness": {
         "local": "fresh",
         "sql_mirror": "unknown"
@@ -2756,7 +2804,7 @@
       "risk_tags": [
         "broad_signoff"
       ],
-      "recency": "1776466443397:f254f4a9a5b2",
+      "recency": "1776480323473:eb0a3cd5de3c",
       "freshness": {
         "local": "fresh",
         "sql_mirror": "unknown"
@@ -3883,7 +3931,7 @@
         "shared_helper",
         "broad_signoff"
       ],
-      "recency": "1776466395625:18bfae87d599",
+      "recency": "1776480390512:f1b8b67c17dd",
       "freshness": {
         "local": "fresh",
         "sql_mirror": "unknown"
@@ -4108,7 +4156,7 @@
         "shared_helper",
         "broad_signoff"
       ],
-      "recency": "1776466896340:59dd886a6c71",
+      "recency": "1776480353951:3b29176db40c",
       "freshness": {
         "local": "fresh",
         "sql_mirror": "unknown"
@@ -4434,6 +4482,102 @@
       "do_not_use_as_primary_truth": true
     },
     {
+      "stable_id": "file__scripts__check-queue-runtime-ts",
+      "source_type": "file",
+      "source_id": "file__scripts__check-queue-runtime-ts",
+      "searchable_terms": [
+        "scripts/check-queue-runtime.ts",
+        "repo_tooling",
+        "repo_scripts"
+      ],
+      "surface_tags": [
+        "repo_scripts",
+        "repo_tooling"
+      ],
+      "helper_tags": [],
+      "risk_tags": [
+        "broad_signoff"
+      ],
+      "recency": "1776480574540:c14d77c0dc32",
+      "freshness": {
+        "local": "fresh",
+        "sql_mirror": "unknown"
+      },
+      "do_not_use_as_primary_truth": false
+    },
+    {
+      "stable_id": "file__scripts__check-runtime-continuity-ts",
+      "source_type": "file",
+      "source_id": "file__scripts__check-runtime-continuity-ts",
+      "searchable_terms": [
+        "scripts/check-runtime-continuity.ts",
+        "repo_tooling",
+        "repo_scripts"
+      ],
+      "surface_tags": [
+        "repo_scripts",
+        "repo_tooling"
+      ],
+      "helper_tags": [],
+      "risk_tags": [
+        "broad_signoff"
+      ],
+      "recency": "1776480312750:5b04aabf2c59",
+      "freshness": {
+        "local": "fresh",
+        "sql_mirror": "unknown"
+      },
+      "do_not_use_as_primary_truth": false
+    },
+    {
+      "stable_id": "file__scripts__check-scheduler-freshness-ts",
+      "source_type": "file",
+      "source_id": "file__scripts__check-scheduler-freshness-ts",
+      "searchable_terms": [
+        "scripts/check-scheduler-freshness.ts",
+        "repo_tooling",
+        "repo_scripts"
+      ],
+      "surface_tags": [
+        "repo_scripts",
+        "repo_tooling"
+      ],
+      "helper_tags": [],
+      "risk_tags": [
+        "broad_signoff"
+      ],
+      "recency": "1776480248381:dace5546e6d9",
+      "freshness": {
+        "local": "fresh",
+        "sql_mirror": "unknown"
+      },
+      "do_not_use_as_primary_truth": false
+    },
+    {
+      "stable_id": "file__scripts__check-warnings-ts",
+      "source_type": "file",
+      "source_id": "file__scripts__check-warnings-ts",
+      "searchable_terms": [
+        "scripts/check-warnings.ts",
+        "repo_tooling",
+        "repo_scripts"
+      ],
+      "surface_tags": [
+        "repo_scripts",
+        "repo_tooling"
+      ],
+      "helper_tags": [],
+      "risk_tags": [
+        "broad_signoff"
+      ],
+      "recency": "1776480259420:b39a8d4493b5",
+      "freshness": {
+        "local": "fresh",
+        "sql_mirror": "unknown"
+      },
+      "do_not_use_as_primary_truth": false
+    },
+    {
       "stable_id": "file__scripts__export-dependency-graph-ts",
       "source_type": "file",
       "source_id": "file__scripts__export-dependency-graph-ts",
@@ -4722,6 +4866,30 @@
       "do_not_use_as_primary_truth": false
     },
     {
+      "stable_id": "file__scripts__runtime-admin-ts",
+      "source_type": "file",
+      "source_id": "file__scripts__runtime-admin-ts",
+      "searchable_terms": [
+        "scripts/runtime-admin.ts",
+        "repo_tooling",
+        "repo_scripts"
+      ],
+      "surface_tags": [
+        "repo_scripts",
+        "repo_tooling"
+      ],
+      "helper_tags": [],
+      "risk_tags": [
+        "broad_signoff"
+      ],
+      "recency": "1776480233711:6836c5f957af",
+      "freshness": {
+        "local": "fresh",
+        "sql_mirror": "unknown"
+      },
+      "do_not_use_as_primary_truth": false
+    },
+    {
       "stable_id": "file__scripts__trace-adjacent-surfaces-ts",
       "source_type": "file",
       "source_id": "file__scripts__trace-adjacent-surfaces-ts",
@@ -4739,6 +4907,138 @@
         "broad_signoff"
       ],
       "recency": "1775231573419:c9841f4b9518",
+      "freshness": {
+        "local": "fresh",
+        "sql_mirror": "unknown"
+      },
+      "do_not_use_as_primary_truth": false
+    },
+    {
+      "stable_id": "file__shared__runtime__drop-queue-lifecycle-ts",
+      "source_type": "file",
+      "source_id": "file__shared__runtime__drop-queue-lifecycle-ts",
+      "searchable_terms": [
+        "shared/runtime/drop-queue-lifecycle.ts",
+        "other",
+        "misc"
+      ],
+      "surface_tags": [
+        "misc",
+        "other"
+      ],
+      "helper_tags": [],
+      "risk_tags": [],
+      "recency": "1776476218556:a1bc06590763",
+      "freshness": {
+        "local": "fresh",
+        "sql_mirror": "unknown"
+      },
+      "do_not_use_as_primary_truth": false
+    },
+    {
+      "stable_id": "file__shared__runtime__drop-queue-schedule-ts",
+      "source_type": "file",
+      "source_id": "file__shared__runtime__drop-queue-schedule-ts",
+      "searchable_terms": [
+        "shared/runtime/drop-queue-schedule.ts",
+        "other",
+        "misc"
+      ],
+      "surface_tags": [
+        "misc",
+        "other"
+      ],
+      "helper_tags": [],
+      "risk_tags": [],
+      "recency": "1776476218555:37309f8f4988",
+      "freshness": {
+        "local": "fresh",
+        "sql_mirror": "unknown"
+      },
+      "do_not_use_as_primary_truth": false
+    },
+    {
+      "stable_id": "file__shared__runtime__drop-status-ts",
+      "source_type": "file",
+      "source_id": "file__shared__runtime__drop-status-ts",
+      "searchable_terms": [
+        "shared/runtime/drop-status.ts",
+        "other",
+        "misc"
+      ],
+      "surface_tags": [
+        "misc",
+        "other"
+      ],
+      "helper_tags": [],
+      "risk_tags": [],
+      "recency": "1776476148836:5d35a4ab5a98",
+      "freshness": {
+        "local": "fresh",
+        "sql_mirror": "unknown"
+      },
+      "do_not_use_as_primary_truth": false
+    },
+    {
+      "stable_id": "file__shared__runtime__queue-runtime-ts",
+      "source_type": "file",
+      "source_id": "file__shared__runtime__queue-runtime-ts",
+      "searchable_terms": [
+        "shared/runtime/queue-runtime.ts",
+        "other",
+        "misc"
+      ],
+      "surface_tags": [
+        "misc",
+        "other"
+      ],
+      "helper_tags": [],
+      "risk_tags": [],
+      "recency": "1776476218559:556c96621031",
+      "freshness": {
+        "local": "fresh",
+        "sql_mirror": "unknown"
+      },
+      "do_not_use_as_primary_truth": false
+    },
+    {
+      "stable_id": "file__shared__runtime__runtime-warning-contract-ts",
+      "source_type": "file",
+      "source_id": "file__shared__runtime__runtime-warning-contract-ts",
+      "searchable_terms": [
+        "shared/runtime/runtime-warning-contract.ts",
+        "other",
+        "misc"
+      ],
+      "surface_tags": [
+        "misc",
+        "other"
+      ],
+      "helper_tags": [],
+      "risk_tags": [],
+      "recency": "1776476148834:9f30f1861c3c",
+      "freshness": {
+        "local": "fresh",
+        "sql_mirror": "unknown"
+      },
+      "do_not_use_as_primary_truth": false
+    },
+    {
+      "stable_id": "file__shared__runtime__timezone-ts",
+      "source_type": "file",
+      "source_id": "file__shared__runtime__timezone-ts",
+      "searchable_terms": [
+        "shared/runtime/timezone.ts",
+        "other",
+        "misc"
+      ],
+      "surface_tags": [
+        "misc",
+        "other"
+      ],
+      "helper_tags": [],
+      "risk_tags": [],
+      "recency": "1776476148837:94ebef85d2af",
       "freshness": {
         "local": "fresh",
         "sql_mirror": "unknown"
@@ -4954,7 +5254,7 @@
       "risk_tags": [
         "runtime_critical"
       ],
-      "recency": "1775908696953:6e4fe09163dd",
+      "recency": "1776480520466:3e79ac8452fa",
       "freshness": {
         "local": "fresh",
         "sql_mirror": "unknown"
@@ -5746,7 +6046,7 @@
       "risk_tags": [
         "runtime_critical"
       ],
-      "recency": "1775745708149:3df2b8f34bf9",
+      "recency": "1776480584389:0779fd052c66",
       "freshness": {
         "local": "fresh",
         "sql_mirror": "unknown"
@@ -6850,7 +7150,7 @@
       "risk_tags": [
         "runtime_critical"
       ],
-      "recency": "1775606570612:8d3deab9e5c3",
+      "recency": "1776479721980:f7e1241fdb61",
       "freshness": {
         "local": "fresh",
         "sql_mirror": "unknown"
@@ -6898,7 +7198,7 @@
       "risk_tags": [
         "runtime_critical"
       ],
-      "recency": "1775532523175:46e318a00f8e",
+      "recency": "1776479705345:1d24a14130aa",
       "freshness": {
         "local": "fresh",
         "sql_mirror": "unknown"
@@ -12439,7 +12739,7 @@
         "shared_helper",
         "broad_signoff"
       ],
-      "recency": "1775153449123:cef4da08c2cc",
+      "recency": "1776476312218:3df385b926a0",
       "freshness": {
         "local": "fresh",
         "sql_mirror": "unknown"
@@ -12465,7 +12765,7 @@
         "shared_helper",
         "broad_signoff"
       ],
-      "recency": "1773777202800:e651019f59c1",
+      "recency": "1776476312217:3cb5d7ba331d",
       "freshness": {
         "local": "fresh",
         "sql_mirror": "unknown"
@@ -12517,7 +12817,7 @@
         "shared_helper",
         "broad_signoff"
       ],
-      "recency": "1775532733122:45e4ca67e836",
+      "recency": "1776480089203:239d41d2d701",
       "freshness": {
         "local": "fresh",
         "sql_mirror": "unknown"
@@ -14727,7 +15027,33 @@
         "shared_helper",
         "broad_signoff"
       ],
-      "recency": "1775736382900:f5a2e144f01d",
+      "recency": "1776479689972:153ddef06f18",
+      "freshness": {
+        "local": "fresh",
+        "sql_mirror": "unknown"
+      },
+      "do_not_use_as_primary_truth": false
+    },
+    {
+      "stable_id": "file__src__lib__server__queue-runtime-ts",
+      "source_type": "file",
+      "source_id": "file__src__lib__server__queue-runtime-ts",
+      "searchable_terms": [
+        "src/lib/server/queue-runtime.ts",
+        "server_helper",
+        "server_runtime"
+      ],
+      "surface_tags": [
+        "server_runtime",
+        "server_helper"
+      ],
+      "helper_tags": [],
+      "risk_tags": [
+        "runtime_critical",
+        "shared_helper",
+        "broad_signoff"
+      ],
+      "recency": "1776479969803:c9d6bc345a1c",
       "freshness": {
         "local": "fresh",
         "sql_mirror": "unknown"
@@ -14884,6 +15210,32 @@
         "broad_signoff"
       ],
       "recency": "1775719880957:5adddd4a8c72",
+      "freshness": {
+        "local": "fresh",
+        "sql_mirror": "unknown"
+      },
+      "do_not_use_as_primary_truth": false
+    },
+    {
+      "stable_id": "file__src__lib__server__runtime-warning-store-ts",
+      "source_type": "file",
+      "source_id": "file__src__lib__server__runtime-warning-store-ts",
+      "searchable_terms": [
+        "src/lib/server/runtime-warning-store.ts",
+        "server_helper",
+        "server_runtime"
+      ],
+      "surface_tags": [
+        "server_runtime",
+        "server_helper"
+      ],
+      "helper_tags": [],
+      "risk_tags": [
+        "runtime_critical",
+        "shared_helper",
+        "broad_signoff"
+      ],
+      "recency": "1776476368384:bda59ebb5bbf",
       "freshness": {
         "local": "fresh",
         "sql_mirror": "unknown"
@@ -15247,7 +15599,7 @@
         "shared_helper",
         "broad_signoff"
       ],
-      "recency": "1773777210117:6f6a1c99fe16",
+      "recency": "1776476312219:43a4b7000b39",
       "freshness": {
         "local": "fresh",
         "sql_mirror": "unknown"
@@ -19128,7 +19480,7 @@
       ],
       "helper_tags": [],
       "risk_tags": [],
-      "recency": "1775606596572:11f3b4914d65",
+      "recency": "1776479789929:b6cfb3d4c8b0",
       "freshness": {
         "local": "fresh",
         "sql_mirror": "unknown"
@@ -19282,7 +19634,7 @@
       ],
       "helper_tags": [],
       "risk_tags": [],
-      "recency": "1775532564724:253f3dac6ec1",
+      "recency": "1776479761614:d212e7de3a30",
       "freshness": {
         "local": "fresh",
         "sql_mirror": "unknown"
@@ -20032,7 +20384,7 @@
       "risk_tags": [
         "broad_signoff"
       ],
-      "recency": "1776138725988:ba83d913ecec",
+      "recency": "1776476312220:7bcb3ef8431b",
       "freshness": {
         "local": "fresh",
         "sql_mirror": "unknown"
@@ -20883,6 +21235,99 @@
       "do_not_use_as_primary_truth": true
     },
     {
+      "stable_id": "retrieval__legacy_queue_adapter_usage",
+      "source_type": "pitfall",
+      "source_id": "pitfall__legacy_queue_adapter_usage",
+      "searchable_terms": [
+        "legacy_queue_adapter_usage",
+        "Next App Route cron endpoints are now compatibility adapters only and should not remain the active queue scheduler lane.",
+        "src/app/api/cron/process-queue/route.ts",
+        "src/app/api/cron/notify-active-drops/route.ts",
+        "functions/src/queue-runtime.ts"
+      ],
+      "surface_tags": [
+        "src/app/api/cron/process-queue/route.ts",
+        "src/app/api/cron/notify-active-drops/route.ts",
+        "functions/src/queue-runtime.ts"
+      ],
+      "helper_tags": [
+        "functions/src/queue-runtime.ts",
+        "src/lib/server/queue-runtime.ts"
+      ],
+      "risk_tags": [
+        "pitfall",
+        "high"
+      ],
+      "recency": "ledger_backed",
+      "freshness": {
+        "local": "fresh",
+        "sql_mirror": "unknown"
+      },
+      "do_not_use_as_primary_truth": true
+    },
+    {
+      "stable_id": "retrieval__queue_activation_missing_notification_outcome",
+      "source_type": "pitfall",
+      "source_id": "pitfall__queue_activation_missing_notification_outcome",
+      "searchable_terms": [
+        "queue_activation_missing_notification_outcome",
+        "Every canonical activation attempt must persist a dispatch outcome; silent notification attempts are no longer acceptable truth.",
+        "src/lib/server/push-notifications.ts",
+        "functions/src/queue-runtime.ts",
+        "shared/runtime/runtime-warning-contract.ts"
+      ],
+      "surface_tags": [
+        "src/lib/server/push-notifications.ts",
+        "functions/src/queue-runtime.ts",
+        "shared/runtime/runtime-warning-contract.ts"
+      ],
+      "helper_tags": [
+        "src/lib/server/push-notifications.ts",
+        "functions/src/queue-runtime.ts"
+      ],
+      "risk_tags": [
+        "pitfall",
+        "high"
+      ],
+      "recency": "ledger_backed",
+      "freshness": {
+        "local": "fresh",
+        "sql_mirror": "unknown"
+      },
+      "do_not_use_as_primary_truth": true
+    },
+    {
+      "stable_id": "retrieval__stale_queue_scheduler_heartbeat",
+      "source_type": "pitfall",
+      "source_id": "pitfall__stale_queue_scheduler_heartbeat",
+      "searchable_terms": [
+        "stale_queue_scheduler_heartbeat",
+        "Queue lifecycle and activation jobs can silently stop running even while the rest of the app appears healthy.",
+        "functions/src/index.ts",
+        "functions/src/queue-runtime.ts",
+        "scripts/check-scheduler-freshness.ts"
+      ],
+      "surface_tags": [
+        "functions/src/index.ts",
+        "functions/src/queue-runtime.ts",
+        "scripts/check-scheduler-freshness.ts"
+      ],
+      "helper_tags": [
+        "functions/src/index.ts",
+        "functions/src/queue-runtime.ts"
+      ],
+      "risk_tags": [
+        "pitfall",
+        "high"
+      ],
+      "recency": "ledger_backed",
+      "freshness": {
+        "local": "fresh",
+        "sql_mirror": "unknown"
+      },
+      "do_not_use_as_primary_truth": true
+    },
+    {
       "stable_id": "retrieval__unchecked_response_ok_ui_hydration",
       "source_type": "pitfall",
       "source_id": "pitfall__unchecked_response_ok_ui_hydration",
@@ -20898,6 +21343,32 @@
       ],
       "helper_tags": [
         "src/lib/ui-continuity.ts"
+      ],
+      "risk_tags": [
+        "pitfall",
+        "high"
+      ],
+      "recency": "ledger_backed",
+      "freshness": {
+        "local": "fresh",
+        "sql_mirror": "unknown"
+      },
+      "do_not_use_as_primary_truth": true
+    },
+    {
+      "stable_id": "retrieval__creator_booking_timezone_drift",
+      "source_type": "pitfall",
+      "source_id": "pitfall__creator_booking_timezone_drift",
+      "searchable_terms": [
+        "creator_booking_timezone_drift",
+        "Booking availability validation can drift when creator windows are stored in creator-local time but validated in UTC.",
+        "src/app/api/creator/bookings/route.ts"
+      ],
+      "surface_tags": [
+        "src/app/api/creator/bookings/route.ts"
+      ],
+      "helper_tags": [
+        "src/lib/creator-experiences.ts"
       ],
       "risk_tags": [
         "pitfall",
@@ -20940,6 +21411,90 @@
       "do_not_use_as_primary_truth": true
     },
     {
+      "stable_id": "retrieval__pass__2026-04-17-self-debugging-hardening-queue-runtime-canonicalization",
+      "source_type": "recent_pass",
+      "source_id": "pass__2026-04-17-self-debugging-hardening-queue-runtime-canonicalization",
+      "searchable_terms": [
+        "Self-Debugging Hardening + Queue Runtime Canonicalization",
+        "Canonicalize queue reactivation and activation-notification runtime into Firebase Functions scheduler sources, demote the Next cron routes into legacy adapters, add low-build self-debugging and warning-budget lanes across runtime layers, and extend the agent fabric so queue/runtime freshness and warning drift are visible without a full UI/build audit.",
+        ".agent/workflows/auto-tasks.md",
+        "Get-ChildItem -Path functions/src | Select-Object -ExpandProperty Name",
+        "Get-Content -Path functions/package.json",
+        "Get-Content -Path functions/src/analytics-runtime.ts",
+        "Get-Content -Path functions/src/firebase-admin.ts",
+        "Get-Content -Path functions/src/firebase-runtime.ts",
+        "Get-Content -Path functions/src/index.ts",
+        "Get-Content -Path functions/src/runtime-warning-store.ts",
+        "Get-Content -Path scripts/agent/check-agent-context.ts",
+        "Get-Content -Path scripts/agent/extract-runtime-observability.ts",
+        "Get-Content -Path scripts/check-firebase-runtime.ts",
+        "Get-Content -Path shared/runtime/queue-runtime.ts",
+        "Get-Content -Path shared/runtime/runtime-warning-contract.ts",
+        "Get-Content -Path src/app/admin/debug/page.tsx",
+        "Get-Content -Path src/app/api/admin/debug/route.ts",
+        "Get-Content -Path src/app/api/cron/notify-active-drops/route.ts",
+        "Get-Content -Path src/app/api/cron/process-queue/route.ts",
+        "Get-Content -Path src/lib/server/drop-queue.ts",
+        "Get-Content -Path src/lib/server/drop-runtime.ts",
+        "Get-Content -Path src/lib/server/firebase-admin.ts",
+        "Get-Content -Path src/lib/server/process-queue-drops.ts",
+        "Get-Content -Path src/lib/server/push-notifications.ts",
+        "Get-Content -Path src/lib/server/route-diagnostics.ts",
+        "Get-Content -Path src/lib/server/runtime-warning-store.ts",
+        "Get-Content -Path src/lib/ui-continuity.ts",
+        "Get-Content -Path tests/unit/notify-active-drops-route.spec.ts",
+        "Get-Content -Path tests/unit/process-queue-route.spec.ts",
+        "dataconnect/schema/agent-context.gql",
+        "functions/src/index.ts",
+        "functions/src/queue-runtime.ts",
+        "functions/src/runtime-warning-store.ts",
+        "npm run trace:adjacent -- functions/src/index.ts",
+        "npm run trace:adjacent -- src/app/api/cron/notify-active-drops/route.ts",
+        "npm run trace:adjacent -- src/app/api/cron/process-queue/route.ts",
+        "npx vitest run tests/unit/process-queue-route.spec.ts tests/unit/notify-active-drops-route.spec.ts",
+        "scripts/agent/*",
+        "scripts/agent/build-agent-indexes.ts",
+        "scripts/agent/extract-runtime-observability.ts",
+        "scripts/check-queue-runtime.ts",
+        "scripts/check-runtime-continuity.ts",
+        "scripts/check-scheduler-freshness.ts",
+        "scripts/check-warnings.ts",
+        "scripts/runtime-admin.ts",
+        "shared/runtime/",
+        "src/app/admin/debug/page.tsx",
+        "src/app/api/admin/debug/route.ts",
+        "src/app/api/cron/notify-active-drops/route.ts",
+        "src/app/api/cron/process-queue/route.ts",
+        "src/lib/drop-queue-lifecycle.ts",
+        "src/lib/server/drop-queue.ts",
+        "src/lib/server/push-notifications.ts",
+        "src/lib/server/queue-runtime.ts",
+        "src/lib/server/route-diagnostics.ts",
+        "src/lib/server/runtime-warning-store.ts"
+      ],
+      "surface_tags": [
+        "admin",
+        "ui",
+        "runtime",
+        "tooling",
+        "architecture"
+      ],
+      "helper_tags": [
+        "src/lib/server/route-diagnostics.ts"
+      ],
+      "risk_tags": [
+        "architecture",
+        "runtime",
+        "ui"
+      ],
+      "recency": "2026-04-17",
+      "freshness": {
+        "local": "fresh",
+        "sql_mirror": "unknown"
+      },
+      "do_not_use_as_primary_truth": true
+    },
+    {
       "stable_id": "retrieval__pass__2026-04-17-repo-wide-ui-continuity-fabric-implementation",
       "source_type": "recent_pass",
       "source_id": "pass__2026-04-17-repo-wide-ui-continuity-fabric-implementation",
@@ -20948,8 +21503,6 @@
         "Implement the repo-wide UI continuity fabric across agent indexes, blocking UI verification, shared hydration/runtime canaries, and the first runtime fixes for the audited creator booking/subscription/profile/workspace surfaces so UI breakage is caught before users see it.",
         ".agent/workflows/auto-tasks.md",
         "/api/creator/subscriptions",
-        "/creators/apply",
-        "/creators/waitlist",
         "Get-ChildItem -Path agent/schemas -File | Select-Object -ExpandProperty Name",
         "Get-ChildItem -Path tests/ui-audits -File | Select-Object -ExpandProperty Name",
         "Get-Content -LiteralPath 'src/app/creators/[username]/CreatorProfileClient.tsx'",
@@ -20983,6 +21536,7 @@
         "npm run trace:adjacent -- src/app/api/creator/subscriptions/route.ts",
         "npm run trace:adjacent -- src/components/Dashboard/CreatorWorkspacePanel.tsx",
         "npx vitest run tests/unit/creator-bookings-route.spec.ts tests/unit/creator-subscriptions-route.spec.ts tests/unit/ui-continuity.spec.ts tests/unit/creator-experiences-panel.spec.tsx tests/unit/creator-workspace-panel.spec.tsx",
+        "output/lhci",
         "scripts/agent/*",
         "scripts/agent/build-ui-runtime-audit.ts",
         "scripts/agent/build-ui-surface-coverage.ts",
@@ -20999,6 +21553,7 @@
         "tests/ui-audits/accessibility.spec.ts",
         "tests/ui-audits/runtime.spec.ts",
         "tests/ui-audits/visual-regression.spec.ts",
+        "tests/ui-audits/visual-regression.spec.ts-snapshots/*.png",
         "tests/unit/creator-bookings-route.spec.ts",
         "tests/unit/creator-experiences-panel.spec.tsx",
         "tests/unit/creator-subscriptions-route.spec.ts",
@@ -21290,43 +21845,6 @@
       ],
       "risk_tags": [
         "architecture"
-      ],
-      "recency": "2026-04-16",
-      "freshness": {
-        "local": "fresh",
-        "sql_mirror": "unknown"
-      },
-      "do_not_use_as_primary_truth": true
-    },
-    {
-      "stable_id": "retrieval__pass__2026-04-16-open-pr-evaluation-repo-reconciliation-and-commit-pass",
-      "source_type": "recent_pass",
-      "source_id": "pass__2026-04-16-open-pr-evaluation-repo-reconciliation-and-commit-pass",
-      "searchable_terms": [
-        "Open PR Evaluation, Repo Reconciliation, and Commit Pass",
-        "Inventory every open pull request against the current local dirty worktree and decide whether each PR should be merged, implemented locally, or closed as redundant.",
-        "Reconcile any still-relevant PR changes with the current repo state rather than blindly merging stale work.",
-        "Commit and push the local uncommitted changes only after the open PR inventory is evaluated.",
-        "npm run trace:adjacent -- src/app/api/analytics/ingest/route.ts",
-        "npm run trace:adjacent -- src/app/api/creator/settings/route.ts",
-        "npx vitest run --config vitest.contracts.config.ts tests/unit/analytics-ingest-route.spec.ts",
-        "src/app/api/admin/user/[userId]/route.ts",
-        "src/app/api/analytics/ingest/route.ts",
-        "src/app/api/creator/settings/route.ts",
-        "src/app/api/telemetry/track/route.ts",
-        "src/lib/server/admin-analytics-shared.ts",
-        "src/lib/server/firebase-admin.ts"
-      ],
-      "surface_tags": [
-        "admin",
-        "runtime",
-        "architecture"
-      ],
-      "helper_tags": [],
-      "risk_tags": [
-        "architecture",
-        "runtime",
-        "ui"
       ],
       "recency": "2026-04-16",
       "freshness": {

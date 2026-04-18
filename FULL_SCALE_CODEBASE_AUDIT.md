@@ -1,5 +1,169 @@
 # KandyDrops Core Codebase Audit & Defensive Ledger
 
+## [2026-04-17 #16] Open PR Evaluation, Selective Reimplementation, and Closure
+
+Scope for this pass:
+- Evaluate every open GitHub PR against current repo truth, selectively implement the still-correct changes directly in the current codebase, and close or supersede PRs that are redundant, stale, or continuity-breaking.
+
+Startup protocol executed:
+- Read `FULL_SCALE_CODEBASE_AUDIT.md`.
+- Read `REPO_MEMORY_LEDGER.md`.
+- Read `EVERY_FILE_FUNCTION_CHECKLIST.md`.
+- Ran `git status --short`.
+- Updated `.agent/workflows/auto-tasks.md` for the open-PR reconciliation pass.
+- Identified touched surfaces around:
+  - `src/app/api/admin/users/[userId]/username/route.ts`
+  - `src/components/Admin/AssetUploader.tsx`
+  - `src/app/admin/analytics/page.tsx`
+  - GitHub PRs `#179`, `#180`, `#181`, and `#182`
+- Planned adjacency review for the likely local reconciliation surfaces before implementation.
+
+Root Causes:
+- Four open PRs overlapped current repo truth in uneven ways: one was already satisfied by shared analytics CSRF policy, two carried still-valid fixes that were absent locally, and one mixed a valid analytics UI correction with a continuity-breaking root lockfile addition.
+- The repo had no completed reconciliation pass tying those PRs back to current canonical helpers and current branch state, which left stale or redundant PRs open even after the stronger shared-policy path was already in place.
+
+Verification Commands Run:
+- `git status --short`
+- `gh pr list --state open --json number,title,headRefName,baseRefName,author,isDraft,mergeStateStatus,reviewDecision,url`
+- `gh pr view 179 --json number,title,body,files,commits,comments,reviews,author,headRefName,baseRefName,url`
+- `gh pr view 180 --json number,title,body,files,commits,comments,reviews,author,headRefName,baseRefName,url`
+- `gh pr view 181 --json number,title,body,files,commits,comments,reviews,author,headRefName,baseRefName,url`
+- `gh pr view 182 --json number,title,body,files,commits,comments,reviews,author,headRefName,baseRefName,url`
+- `gh pr diff 179`
+- `gh pr diff 180`
+- `gh pr diff 181`
+- `gh pr diff 182`
+- `npm run trace:adjacent -- "src/app/api/admin/users/[userId]/username/route.ts"`
+- `npm run trace:adjacent -- src/components/Admin/AssetUploader.tsx`
+- `npm run trace:adjacent -- src/app/admin/analytics/page.tsx`
+- `npx vitest run tests/unit/admin-user-username-route.spec.ts`
+- `npm run typecheck`
+
+Implementation Results:
+- Reconciled the still-valid security fix from PR `#180` directly into `src/app/api/admin/users/[userId]/username/route.ts` by routing admin username changes through the canonical `reserveUsernameForUser(...)` helper instead of open-coding username ownership mutation.
+- Extended `tests/unit/admin-user-username-route.spec.ts` so the helper-based username path is covered for success, unchanged usernames, invalid helper responses, and taken usernames.
+- Reconciled the valid accessibility fix from PR `#181` directly into `src/components/Admin/AssetUploader.tsx` by adding explicit `aria-label` and `title` attributes to the icon-only remove button.
+- Reconciled the valid analytics truth fix from PR `#179` directly into `src/app/admin/analytics/page.tsx` by switching chart-health and rendering gates from array-length truthiness to actual non-zero data checks, while intentionally rejecting the PR's root `pnpm-lock.yaml` addition as continuity-breaking.
+- Verified that PR `#182` is already satisfied in current repo truth because the shared analytics governance policies already enforce `requireTrustedOrigin: true` on the affected routes.
+
+Warnings / Notes:
+- This pass intentionally did not merge PR branches directly because the valid code changes were safer to reconcile against current `main` than to merge stale branches carrying unrelated or continuity-breaking edits.
+- The broader queue/runtime work already present in the worktree remains out of scope for this PR reconciliation pass and was not folded into the PR-specific verification claims above.
+
+Cleanup:
+- No generated build artifacts or temporary audit outputs were created during this reconciliation pass.
+
+## [2026-04-17 #15] Self-Debugging Hardening + Queue Runtime Canonicalization
+
+Scope for this pass:
+- Canonicalize queue reactivation and activation-notification runtime into Firebase Functions scheduler sources, demote the Next cron routes into legacy adapters, add low-build self-debugging and warning-budget lanes across runtime layers, and extend the agent fabric so queue/runtime freshness and warning drift are visible without a full UI/build audit.
+
+Startup protocol executed:
+- Read `FULL_SCALE_CODEBASE_AUDIT.md`.
+- Read `REPO_MEMORY_LEDGER.md`.
+- Read `EVERY_FILE_FUNCTION_CHECKLIST.md`.
+- Ran `git status --short`.
+- Updated `.agent/workflows/auto-tasks.md` for the self-debugging and queue-runtime canonicalization pass.
+- Identified touched surfaces around:
+  - `src/app/api/cron/process-queue/route.ts`
+  - `src/app/api/cron/notify-active-drops/route.ts`
+  - `src/lib/drop-queue-lifecycle.ts`
+  - `src/lib/server/drop-queue.ts`
+  - `src/lib/server/push-notifications.ts`
+  - `src/lib/server/route-diagnostics.ts`
+  - `src/app/admin/debug/page.tsx`
+  - `functions/src/index.ts`
+  - shared cross-runtime queue/runtime modules under the new neutral shared runtime layer
+  - `scripts/agent/*`, `dataconnect/schema/agent-context.gql`, and verification command metadata
+- Ran adjacency review for the main queue/runtime and scheduler entry surfaces before implementation.
+
+Root Causes:
+- Queue lifecycle and activation notifications were still owned by Next App Route cron endpoints, so the repo had no canonical Firebase scheduler source, no queue heartbeat truth, and no explicit legacy-path visibility when the route adapters were used.
+- Queue runtime math and status transitions were derivable from existing helpers, but the repo had no shared cross-runtime layer for lifecycle planning, warning taxonomy, or notification outcome contracts, which encouraged duplicated logic and silent divergence between runtimes.
+- Runtime degradations still depended too heavily on heavier audits or route-level inspection because missing queue heartbeats, missing activation outcomes, and repeated degradation classes were not exposed through a lightweight blocking continuity lane.
+- Admin/debug and machine-readable agent observability surfaces did not yet summarize queue scheduler freshness, runtime warning classes, or persisted notification outcomes.
+
+Verification Commands Run:
+- `git status --short`
+- `Get-Content -Path src/lib/server/push-notifications.ts`
+- `Get-Content -Path src/app/api/cron/process-queue/route.ts`
+- `Get-Content -Path src/app/api/cron/notify-active-drops/route.ts`
+- `Get-Content -Path functions/src/index.ts`
+- `Get-Content -Path package.json`
+- `Get-Content -Path src/lib/server/route-diagnostics.ts`
+- `Get-Content -Path functions/package.json`
+- `Get-ChildItem -Path functions/src | Select-Object -ExpandProperty Name`
+- `Get-Content -Path src/app/api/admin/debug/route.ts`
+- `Get-Content -Path src/app/admin/debug/page.tsx`
+- `Get-Content -Path src/lib/ui-continuity.ts`
+- `Get-Content -Path src/lib/server/drop-queue.ts`
+- `Get-Content -Path src/lib/server/process-queue-drops.ts`
+- `Get-Content -Path src/lib/server/firebase-admin.ts`
+- `Get-Content -Path functions/src/firebase-admin.ts`
+- `Get-Content -Path src/lib/server/drop-runtime.ts`
+- `Get-Content -Path tests/unit/process-queue-route.spec.ts`
+- `Get-Content -Path tests/unit/notify-active-drops-route.spec.ts`
+- `Get-Content -Path shared/runtime/queue-runtime.ts`
+- `Get-Content -Path shared/runtime/runtime-warning-contract.ts`
+- `Get-Content -Path src/lib/server/runtime-warning-store.ts`
+- `Get-Content -Path functions/src/runtime-warning-store.ts`
+- `Get-Content -Path functions/src/firebase-runtime.ts`
+- `Get-Content -Path functions/src/analytics-runtime.ts`
+- `Get-Content -Path scripts/check-firebase-runtime.ts`
+- `Get-Content -Path scripts/agent/extract-runtime-observability.ts`
+- `Get-Content -Path scripts/agent/check-agent-context.ts`
+- `npm run trace:adjacent -- src/app/api/cron/process-queue/route.ts`
+- `npm run trace:adjacent -- src/app/api/cron/notify-active-drops/route.ts`
+- `npm run trace:adjacent -- functions/src/index.ts`
+- `npx vitest run tests/unit/process-queue-route.spec.ts tests/unit/notify-active-drops-route.spec.ts`
+- `npm run typecheck`
+- `npm --prefix functions run check`
+- `npm run agent:index`
+- `npm run check:agent-intelligence`
+- `npm run check:agent-context`
+- `npm run check:scheduler:freshness`
+- `npm run check:queue:runtime`
+- `npm run check:warnings`
+- `npm run check:runtime:continuity`
+- `npm run check:continuity`
+
+Implementation Results:
+- Added a shared pure runtime layer under `shared/runtime/` for queue lifecycle planning, timezone/status helpers, and runtime warning/heartbeat/notification-outcome contracts so queue scheduling math is defined once for both root and Functions runtimes.
+- Added persisted runtime warning, queue heartbeat, and notification-dispatch outcome stores in both root and Functions runtimes:
+  - `src/lib/server/runtime-warning-store.ts`
+  - `functions/src/runtime-warning-store.ts`
+- Added canonical queue execution wrappers:
+  - `src/lib/server/queue-runtime.ts` for root/manual adapter execution
+  - `functions/src/queue-runtime.ts` for Firebase scheduled execution
+- Moved canonical queue execution into Firebase Functions by exporting:
+  - `processQueueLifecycle`
+  - `notifyActiveDropsLifecycle`
+  from `functions/src/index.ts` with explicit `onSchedule(...)` configuration.
+- Converted `src/app/api/cron/process-queue/route.ts` and `src/app/api/cron/notify-active-drops/route.ts` into legacy/manual-trigger adapters over the canonical runtime, added `legacyAdapter: true` to responses, and persisted explicit legacy-adapter warnings whenever those routes are used.
+- Upgraded `src/lib/server/push-notifications.ts` so targeted/global drop notifications now persist explicit dispatch outcomes with stable activation keys instead of relying on console-only success/failure behavior.
+- Added the lightweight no-build runtime continuity lane:
+  - `scripts/runtime-admin.ts`
+  - `scripts/check-scheduler-freshness.ts`
+  - `scripts/check-queue-runtime.ts`
+  - `scripts/check-warnings.ts`
+  - `scripts/check-runtime-continuity.ts`
+  - package scripts `check:scheduler:freshness`, `check:queue:runtime`, `check:warnings`, and `check:runtime:continuity`
+- Extended admin/debug and generated agent observability so queue job heartbeats, runtime warnings, notification outcomes, and the new runtime continuity commands are visible in:
+  - `src/app/api/admin/debug/route.ts`
+  - `src/app/admin/debug/page.tsx`
+  - `scripts/agent/extract-runtime-observability.ts`
+  - `scripts/agent/build-agent-indexes.ts`
+- Rebased the queue-route unit tests so they now validate canonical runtime delegation and legacy-adapter behavior instead of duplicated in-route lifecycle logic.
+
+Warnings / Non-blocking Notes:
+- `npm run check:scheduler:freshness` failed against live runtime state because there are currently no persisted queue heartbeats for `process_queue` or `notify_active_drops`. The new check is working; the live scheduler heartbeat data has not been established yet.
+- `npm run check:queue:runtime` failed against live runtime state because an already-activated drop (`drop-activation:fXxwfOxhMwUZEFgtwAM3:1776402000000`) has no persisted notification outcome. This appears to be pre-existing runtime drift that the new check surfaced rather than a static implementation defect.
+- `npm run check:runtime:continuity` failed for the same missing-heartbeat condition as `check:scheduler:freshness`.
+- `npm run check:warnings` passed, which means the warning-budget lane itself is wired correctly and there are not yet persisted warning classes over the configured thresholds.
+
+Cleanup:
+- No generated UI/build artifact cleanup was required after this pass; `npm run check:generated-artifacts` remained clean through `npm run check:continuity`.
+
 ## [2026-04-17 #14] Repo-Wide UI Continuity Fabric Implementation
 
 Scope for this pass:

@@ -24,6 +24,35 @@ This file is not a changelog. It is the concise ledger for durable decisions tha
 
 ## Decision Entries
 
+### 1aa. Queue lifecycle is now canonically scheduled in Firebase Functions, and runtime continuity uses a no-build lane first
+
+- Approximate date: Recorded explicitly on 2026-04-17 from the Self-Debugging Hardening + Queue Runtime Canonicalization pass
+- Status: Active canonical runtime/debugging rule
+- Problem/context: Queue reactivation and activation notifications were still owned by Next App Route cron endpoints, which left scheduler wiring ambiguous, made heartbeats invisible, and required heavier audits to discover silent runtime drift. The repo also lacked a lightweight runtime continuity lane that could fail fast on stale schedulers, queue drift, missing notification outcomes, and repeated warning classes.
+- Decision made: Move canonical queue execution into Firebase Functions scheduled jobs, keep the Next cron routes only as legacy/manual-trigger adapters over the same shared runtime, and add blocking no-build runtime continuity commands for scheduler freshness, queue invariants, warning budgets, and runtime continuity.
+- What became canonical:
+  - `functions/src/index.ts` exports the scheduled `processQueueLifecycle` and `notifyActiveDropsLifecycle` jobs
+  - `functions/src/queue-runtime.ts`, `src/lib/server/queue-runtime.ts`, and `shared/runtime/*` define one queue lifecycle family with shared scheduling math, invariant detection, heartbeat writes, and notification outcome persistence
+  - `src/app/api/cron/process-queue/route.ts` and `src/app/api/cron/notify-active-drops/route.ts` are compatibility/manual-trigger adapters only and must emit legacy-adapter warnings when used
+  - `runtime_warning_records`, `queue_job_heartbeats`, and `notification_dispatch_outcomes` are the runtime continuity surfaces for queue drift and scheduler health
+  - `npm run check:scheduler:freshness`, `npm run check:queue:runtime`, `npm run check:warnings`, and `npm run check:runtime:continuity` are the first-line runtime drift checks before build-heavy audits
+- Truth lives in:
+  - `shared/runtime/runtime-warning-contract.ts`
+  - `shared/runtime/queue-runtime.ts`
+  - `src/lib/server/queue-runtime.ts`
+  - `src/lib/server/push-notifications.ts`
+  - `functions/src/queue-runtime.ts`
+  - `functions/src/index.ts`
+  - `scripts/check-scheduler-freshness.ts`
+  - `scripts/check-queue-runtime.ts`
+  - `scripts/check-warnings.ts`
+  - `scripts/check-runtime-continuity.ts`
+  - `agent/index/runtime-observability.json`
+- What is now disallowed or deprecated:
+  - treating the Next cron routes as the source of queue truth
+  - allowing activation notifications to complete without a persisted dispatch outcome
+  - treating missing scheduler heartbeats or repeated legacy-adapter warnings as non-blocking noise
+
 ### 1z. UI signoff is now driven by the generated UI surface coverage ledger and runtime continuity checks
 
 - Approximate date: Recorded explicitly on 2026-04-17 from the Repo-Wide UI Continuity Fabric pass

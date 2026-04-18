@@ -11,7 +11,7 @@ Likely touched files:
 - scripts/agent/build-ui-surface-coverage.ts
 - scripts/agent/check-agent-context.ts
 - scripts/agent/extract-canonical-helpers.ts
-- scripts/agent/run-evals.ts
+- scripts/agent/extract-runtime-observability.ts
 
 Canonical helpers to reuse:
 - src/lib/gumdrop-economics.ts
@@ -22,6 +22,7 @@ Relevant pitfalls:
 - diagnostics_serialization_crash
 - generated_artifact_cleanup_miss
 - sidecar_truth_confusion
+- legacy_queue_adapter_usage
 
 Required verification:
 - npm run check:agent-context

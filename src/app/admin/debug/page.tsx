@@ -309,6 +309,27 @@ export default function DebugConsole() {
         () => buildAdminDebugRouteRuntimeRateSummary(compatibilityChatRouteRuntimeHealth),
         [compatibilityChatRouteRuntimeHealth],
     );
+    const queueJobHeartbeats = useMemo(
+        () => data?.queueJobHeartbeats || [],
+        [data?.queueJobHeartbeats],
+    );
+    const runtimeWarnings = useMemo(
+        () => data?.runtimeWarnings || [],
+        [data?.runtimeWarnings],
+    );
+    const notificationDispatchOutcomes = useMemo(
+        () => data?.notificationDispatchOutcomes || [],
+        [data?.notificationDispatchOutcomes],
+    );
+    const queueRuntimeSummary = useMemo(
+        () => data?.queueRuntimeSummary || {
+            jobHeartbeats: { total: 0, stale: 0, failed: 0, running: 0 },
+            warnings: { total: 0, failed: 0, degraded: 0, fallback: 0, legacyAdapterUses: 0, queueDriftWarnings: 0 },
+            missingNotificationOutcomes: 0,
+            recentOutcomes: 0,
+        },
+        [data?.queueRuntimeSummary],
+    );
     const derivedActionCount = useMemo(
         () => (
             (data?.stats?.orchestrationActionableRepairs ?? 0)
@@ -319,8 +340,11 @@ export default function DebugConsole() {
             + routeRuntimeHealthSummary.warn
             + routeRuntimeHealthSummary.fail
             + routeRuntimeHealthSummary.stale
+            + queueRuntimeSummary.jobHeartbeats.stale
+            + queueRuntimeSummary.jobHeartbeats.failed
+            + queueRuntimeSummary.missingNotificationOutcomes
         ),
-        [analyticsChartHealthSummary.fail, analyticsChartHealthSummary.warn, data?.stats?.orchestrationActionableRepairs, panelLogFailCount, panelLogWarnCount, routeRuntimeHealthSummary.fail, routeRuntimeHealthSummary.stale, routeRuntimeHealthSummary.warn],
+        [analyticsChartHealthSummary.fail, analyticsChartHealthSummary.warn, data?.stats?.orchestrationActionableRepairs, panelLogFailCount, panelLogWarnCount, queueRuntimeSummary.jobHeartbeats.failed, queueRuntimeSummary.jobHeartbeats.stale, queueRuntimeSummary.missingNotificationOutcomes, routeRuntimeHealthSummary.fail, routeRuntimeHealthSummary.stale, routeRuntimeHealthSummary.warn],
     );
     const freshestLoadedSignalAt = useMemo(() => {
         const timestamps = [
@@ -328,12 +352,15 @@ export default function DebugConsole() {
             ...(data?.panelSystemLogs || []).map((entry: any) => typeof entry.updatedAtMs === "number" ? entry.updatedAtMs : 0),
             ...analyticsChartHealth.map((entry: any) => typeof entry.updatedAtMs === "number" ? entry.updatedAtMs : 0),
             ...routeRuntimeHealth.map((entry: any) => typeof entry.updatedAtMs === "number" ? entry.updatedAtMs : 0),
+            ...queueJobHeartbeats.map((entry: any) => typeof entry.updatedAt === "number" ? entry.updatedAt : 0),
+            ...runtimeWarnings.map((entry: any) => typeof entry.lastSeenAt === "number" ? entry.lastSeenAt : 0),
+            ...notificationDispatchOutcomes.map((entry: any) => typeof entry.updatedAt === "number" ? entry.updatedAt : 0),
             ...(data?.opsHealth?.diagnostics?.recent || []).map((entry: any) => typeof entry.timestamp === "number" ? entry.timestamp : 0),
             aiDebugData?.generated_at ? Date.parse(aiDebugData.generated_at) : 0,
         ].filter((value) => Number.isFinite(value) && value > 0);
 
         return timestamps.length > 0 ? Math.max(...timestamps) : 0;
-    }, [aiDebugData?.generated_at, analyticsChartHealth, data?.opsHealth?.diagnostics?.recent, data?.panelSystemLogs, recentTransactions, routeRuntimeHealth]);
+    }, [aiDebugData?.generated_at, analyticsChartHealth, data?.opsHealth?.diagnostics?.recent, data?.panelSystemLogs, notificationDispatchOutcomes, queueJobHeartbeats, recentTransactions, routeRuntimeHealth, runtimeWarnings]);
     const overviewDependencyUpdatedAt = useMemo(() => {
         const timestamps = recentTransactions
             .map((entry) => (typeof entry.timestamp === "number" ? entry.timestamp : 0))
@@ -1138,6 +1165,97 @@ export default function DebugConsole() {
                                 </tbody>
                             </table>
                         </ScrollWrap>
+                    </Section>
+
+                    <Section
+                        title="Queue runtime continuity"
+                        subtitle="Canonical scheduler heartbeats, runtime warnings, and notification outcomes for queue lifecycle health."
+                        defaultOpen={queueRuntimeSummary.jobHeartbeats.stale > 0 || queueRuntimeSummary.jobHeartbeats.failed > 0 || queueRuntimeSummary.missingNotificationOutcomes > 0 || queueRuntimeSummary.warnings.failed > 0}
+                        summary={<><Pill label="Jobs" value={queueRuntimeSummary.jobHeartbeats.total} /><Pill label="Stale" value={queueRuntimeSummary.jobHeartbeats.stale} tone={queueRuntimeSummary.jobHeartbeats.stale > 0 ? "warn" : "good"} /><Pill label="Failed" value={queueRuntimeSummary.jobHeartbeats.failed} tone={queueRuntimeSummary.jobHeartbeats.failed > 0 ? "bad" : "good"} /><Pill label="Legacy adapter" value={queueRuntimeSummary.warnings.legacyAdapterUses} tone={queueRuntimeSummary.warnings.legacyAdapterUses > 0 ? "bad" : "good"} /><Pill label="Missing outcomes" value={queueRuntimeSummary.missingNotificationOutcomes} tone={queueRuntimeSummary.missingNotificationOutcomes > 0 ? "bad" : "good"} /></>}
+                    >
+                        <div className="grid gap-4 xl:grid-cols-[0.9fr_1.1fr]">
+                            <div className="space-y-4">
+                                <ScrollWrap>
+                                    <div className="divide-y divide-white/10">
+                                        {queueJobHeartbeats.map((entry: any) => (
+                                            <div key={entry.jobId} className="space-y-2 px-4 py-3">
+                                                <div className="flex flex-wrap items-start justify-between gap-2">
+                                                    <div>
+                                                        <p className="font-semibold text-white">{entry.jobId}</p>
+                                                        <p className="text-xs text-gray-400">Last touch {formatRelative(entry.completedAt || entry.startedAt || entry.updatedAt)}</p>
+                                                    </div>
+                                                    <div className="flex flex-wrap gap-2">
+                                                        <Pill label="Status" value={entry.status} tone={entry.status === "failed" ? "bad" : entry.status === "warn" || entry.status === "running" ? "warn" : "good"} />
+                                                        <Pill label="Scanned" value={entry.itemsScanned ?? 0} />
+                                                        <Pill label="Changed" value={entry.itemsChanged ?? 0} />
+                                                    </div>
+                                                </div>
+                                                <div className="flex flex-wrap gap-2">
+                                                    <Pill label="Duration" value={`${entry.durationMs ?? 0}ms`} />
+                                                    <Pill label="Stale after" value={formatWindowHours(entry.staleAfterMs)} />
+                                                    <Pill label="Warnings" value={(entry.warnings || []).length} tone={(entry.warnings || []).length > 0 ? "warn" : "good"} />
+                                                </div>
+                                                {entry.lastErrorCode ? <p className="text-sm text-amber-100">{entry.lastErrorCode}</p> : null}
+                                            </div>
+                                        ))}
+                                        {queueJobHeartbeats.length === 0 ? <div className="px-4 py-4 text-sm text-amber-100">No queue scheduler heartbeats have been recorded yet.</div> : null}
+                                    </div>
+                                </ScrollWrap>
+                                <div className="rounded-[1rem] border border-white/10 bg-white/[0.03] p-4">
+                                    <div className="flex flex-wrap gap-2">
+                                        <Pill label="Warnings" value={queueRuntimeSummary.warnings.total} tone={queueRuntimeSummary.warnings.total > 0 ? "warn" : "good"} />
+                                        <Pill label="Failed" value={queueRuntimeSummary.warnings.failed} tone={queueRuntimeSummary.warnings.failed > 0 ? "bad" : "good"} />
+                                        <Pill label="Degraded" value={queueRuntimeSummary.warnings.degraded} tone={queueRuntimeSummary.warnings.degraded > 0 ? "warn" : "good"} />
+                                        <Pill label="Fallback" value={queueRuntimeSummary.warnings.fallback} tone={queueRuntimeSummary.warnings.fallback > 0 ? "warn" : "good"} />
+                                        <Pill label="Queue drift" value={queueRuntimeSummary.warnings.queueDriftWarnings} tone={queueRuntimeSummary.warnings.queueDriftWarnings > 0 ? "warn" : "good"} />
+                                    </div>
+                                    <p className="mt-3 text-sm text-gray-300">
+                                        Legacy queue adapters are compatibility-only. Any adapter usage or missing dispatch outcome should be treated as blocking runtime continuity drift.
+                                    </p>
+                                </div>
+                            </div>
+                            <div className="space-y-4">
+                                <ScrollWrap>
+                                    <div className="divide-y divide-white/10">
+                                        {runtimeWarnings.slice(0, 20).map((entry: any) => (
+                                            <div key={entry.stable_id} className="space-y-2 px-4 py-3">
+                                                <div className="flex flex-wrap items-start justify-between gap-2">
+                                                    <div>
+                                                        <p className="font-semibold text-white">{entry.code}</p>
+                                                        <p className="text-xs text-gray-400">{entry.surface} | {entry.executionLayer} | {formatRelative(entry.lastSeenAt)}</p>
+                                                    </div>
+                                                    <div className="flex flex-wrap gap-2">
+                                                        <Pill label="Status" value={entry.status} tone={entry.status === "failed" ? "bad" : entry.status === "fallback" || entry.status === "degraded" ? "warn" : "good"} />
+                                                        <Pill label="Count" value={entry.occurrenceCount ?? 0} />
+                                                    </div>
+                                                </div>
+                                                {entry.detail?.message ? <p className="text-sm text-gray-300">{String(entry.detail.message)}</p> : null}
+                                            </div>
+                                        ))}
+                                        {runtimeWarnings.length === 0 ? <div className="px-4 py-4 text-sm text-emerald-100">No persisted runtime warning records are active.</div> : null}
+                                    </div>
+                                </ScrollWrap>
+                                <ScrollWrap>
+                                    <div className="divide-y divide-white/10">
+                                        {notificationDispatchOutcomes.slice(0, 20).map((entry: any) => (
+                                            <div key={entry.stable_id} className="space-y-2 px-4 py-3">
+                                                <div className="flex flex-wrap items-start justify-between gap-2">
+                                                    <div>
+                                                        <p className="font-semibold text-white">{entry.dropId}</p>
+                                                        <p className="text-xs text-gray-400">{entry.activationKey} | {formatRelative(entry.updatedAt)}</p>
+                                                    </div>
+                                                    <div className="flex flex-wrap gap-2">
+                                                        <Pill label="Outcome" value={entry.status} tone={entry.status === "failed" ? "bad" : entry.status === "duplicate" ? "warn" : "good"} />
+                                                        <Pill label="Error" value={entry.errorCode || "none"} tone={entry.errorCode ? "warn" : "good"} />
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        ))}
+                                        {notificationDispatchOutcomes.length === 0 ? <div className="px-4 py-4 text-sm text-amber-100">No recent notification dispatch outcomes are loaded yet.</div> : null}
+                                    </div>
+                                </ScrollWrap>
+                            </div>
+                        </div>
                     </Section>
 
                     <Section

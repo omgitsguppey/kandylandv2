@@ -1,5 +1,5 @@
 {
-  "generatedAt": "2026-04-17T23:58:28.770Z",
+  "generatedAt": "2026-04-18T02:54:48.226Z",
   "truthOrder": [
     "verified_runtime_code",
     "verified_configuration",
@@ -42,11 +42,11 @@
     "scripts/agent/build-ui-surface-coverage.ts",
     "scripts/agent/check-agent-context.ts",
     "scripts/agent/extract-canonical-helpers.ts",
+    "scripts/agent/extract-runtime-observability.ts",
     "scripts/agent/run-evals.ts",
     "scripts/agent/sync-sql.ts",
     "scripts/agent/classify-repo-files.ts",
     "scripts/agent/extract-governance.ts",
-    "scripts/agent/extract-runtime-observability.ts",
     "scripts/agent/extract-workflow.ts",
     "scripts/agent/shared.ts"
   ],
@@ -54,7 +54,8 @@
     "scripts/agent/summarize-dependency-graph.ts",
     "scripts/agent/build-ui-runtime-audit.ts",
     "scripts/agent/check-ui-surface-coverage.ts",
-    "scripts/agent/validate-agent-indexes.ts"
+    "scripts/agent/validate-agent-indexes.ts",
+    "scripts/check-runtime-continuity.ts"
   ],
   "likelyAdjacentHelpers": [
     "src/lib/gumdrop-economics.ts",
@@ -75,7 +76,10 @@
   "relevantKnownPitfalls": [
     "diagnostics_serialization_crash",
     "generated_artifact_cleanup_miss",
-    "sidecar_truth_confusion"
+    "sidecar_truth_confusion",
+    "legacy_queue_adapter_usage",
+    "queue_activation_missing_notification_outcome",
+    "creator_booking_timezone_drift"
   ],
   "requiredVerificationCommands": [
     "npm run check:agent-context",
@@ -94,7 +98,7 @@
   "sqlMirrorFreshnessState": "unknown",
   "confidenceNotes": [
     "Mode resolved as audit.",
-    "Ranking considered 846 repo files and 22 canonical helper entries.",
+    "Ranking considered 861 repo files and 22 canonical helper entries.",
     "UI coverage matched 8 indexed surfaces."
   ],
   "ambiguityNotes": [],
@@ -105,11 +109,11 @@
     "scripts/agent/build-ui-surface-coverage.ts",
     "scripts/agent/check-agent-context.ts",
     "scripts/agent/extract-canonical-helpers.ts",
+    "scripts/agent/extract-runtime-observability.ts",
     "scripts/agent/run-evals.ts",
     "scripts/agent/sync-sql.ts",
     "scripts/agent/classify-repo-files.ts",
     "scripts/agent/extract-governance.ts",
-    "scripts/agent/extract-runtime-observability.ts",
     "scripts/agent/extract-workflow.ts",
     "scripts/agent/shared.ts"
   ],
@@ -195,6 +199,22 @@
       "freshness_state": "fresh"
     },
     {
+      "stable_id": "file__scripts__agent__extract-runtime-observability-ts",
+      "path": "scripts/agent/extract-runtime-observability.ts",
+      "score": 136,
+      "why_selected": "path_domain_match, task_signal_match, filename_match, canonical_helper_relevance, adjacency_match, recent_pass_match, verification_lane_match",
+      "weighted_components": [
+        "path_domain_match",
+        "task_signal_match",
+        "filename_match",
+        "canonical_helper_relevance",
+        "adjacency_match",
+        "recent_pass_match",
+        "verification_lane_match"
+      ],
+      "freshness_state": "fresh"
+    },
+    {
       "stable_id": "file__scripts__agent__run-evals-ts",
       "path": "scripts/agent/run-evals.ts",
       "score": 136,
@@ -244,21 +264,6 @@
     {
       "stable_id": "file__scripts__agent__extract-governance-ts",
       "path": "scripts/agent/extract-governance.ts",
-      "score": 122,
-      "why_selected": "path_domain_match, task_signal_match, filename_match, canonical_helper_relevance, adjacency_match, verification_lane_match",
-      "weighted_components": [
-        "path_domain_match",
-        "task_signal_match",
-        "filename_match",
-        "canonical_helper_relevance",
-        "adjacency_match",
-        "verification_lane_match"
-      ],
-      "freshness_state": "fresh"
-    },
-    {
-      "stable_id": "file__scripts__agent__extract-runtime-observability-ts",
-      "path": "scripts/agent/extract-runtime-observability.ts",
       "score": 122,
       "why_selected": "path_domain_match, task_signal_match, filename_match, canonical_helper_relevance, adjacency_match, verification_lane_match",
       "weighted_components": [

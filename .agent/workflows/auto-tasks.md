@@ -38,6 +38,18 @@ description: "Auto-run standard project commands"
 
 11. Run warning-focused dependency and tooling verification when cleanup touches packages or lockfiles:
    `npm run check:deps`
+
+19. Reconcile open PRs against current repo truth:
+   `gh pr list --state open --json number,title,headRefName,baseRefName,author,isDraft,mergeStateStatus,reviewDecision,url`
+   `gh pr view <number> --json number,title,body,files,commits,comments,reviews,author,headRefName,baseRefName,url`
+   `gh pr diff <number>`
+   `npm run trace:adjacent -- "src/app/api/admin/users/[userId]/username/route.ts"`
+   `npm run trace:adjacent -- src/components/Admin/AssetUploader.tsx`
+   `npm run trace:adjacent -- src/app/admin/analytics/page.tsx`
+   `npx vitest run tests/unit/admin-user-username-route.spec.ts tests/unit/admin-analytics-page.spec.tsx`
+   `npm run typecheck`
+   `npm run check:continuity`
+   `gh pr close <number> --comment "<reason>"`
    `npm run check:versions`
    `npm run lint`
    `npm audit --audit-level=moderate`
@@ -106,3 +118,18 @@ description: "Auto-run standard project commands"
    `npm run typecheck`
    `npm run test:contracts`
    `npm run check:continuity`
+
+18. Build and verify self-debugging hardening and queue runtime canonicalization:
+   `npm run trace:adjacent -- src/app/api/cron/process-queue/route.ts`
+   `npm run trace:adjacent -- src/app/api/cron/notify-active-drops/route.ts`
+   `npm run trace:adjacent -- functions/src/index.ts`
+   `npm run trace:adjacent -- src/lib/server/push-notifications.ts`
+   `npm run trace:adjacent -- src/app/admin/debug/page.tsx`
+   `npx vitest run tests/unit/process-queue-route.spec.ts tests/unit/notify-active-drops-route.spec.ts tests/unit/drop-queue-lifecycle.spec.ts`
+   `npm run check:runtime:continuity`
+   `npm run check:queue:runtime`
+   `npm run check:warnings`
+   `npm run check:scheduler:freshness`
+   `npm run check:agent-context`
+   `npm run check:continuity`
+   `npm --prefix functions run check`

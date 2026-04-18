@@ -1,142 +1,39 @@
-import { NextRequest } from "next/server";
-import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
+import { NextRequest, NextResponse } from "next/server";
+import { beforeEach, describe, expect, it, vi } from "vitest";
 
-const mockState = vi.hoisted(() => {
-    const batch = {
-        update: vi.fn(),
-        set: vi.fn(),
-        commit: vi.fn(async () => undefined),
-    };
-
-    const state = {
-        scheduledDocs: [] as Array<{
-            id: string;
-            ref: { path: string };
-            data: () => Record<string, unknown>;
-        }>,
-        activeDocs: [] as Array<{
-            id: string;
-            ref: { path: string };
-            data: () => Record<string, unknown>;
-        }>,
-        ownersByDropId: new Map<string, string[]>(),
-    };
-
-    const adminDb = {
-        batch: vi.fn(() => batch),
-        collection: vi.fn((name: string) => {
-            if (name === "drops") {
-                return {
-                    where(field: string, op: string, value: unknown) {
-                        const clauses = [{ field, op, value }];
-                        const resolveDocs = () => {
-                            const statusClause = clauses.find((clause) => clause.field === "status");
-                            const docs = statusClause?.value === "scheduled"
-                                ? state.scheduledDocs
-                                : statusClause?.value === "active"
-                                    ? state.activeDocs
-                                    : [];
-
-                            return {
-                                empty: docs.length === 0,
-                                docs,
-                            };
-                        };
-
-                        return {
-                            get: vi.fn(async () => resolveDocs()),
-                            where(nextField: string, nextOp: string, nextValue: unknown) {
-                                clauses.push({ field: nextField, op: nextOp, value: nextValue });
-
-                                return {
-                                    get: vi.fn(async () => resolveDocs()),
-                                };
-                            },
-                        };
-                    },
-                };
-            }
-
-            if (name === "users") {
-                return {
-                    where(_field: string, _op: string, dropId: string) {
-                        return {
-                            get: vi.fn(async () => ({
-                                forEach(callback: (doc: { id: string }) => void) {
-                                    for (const userId of state.ownersByDropId.get(dropId) ?? []) {
-                                        callback({ id: userId });
-                                    }
-                                },
-                            })),
-                        };
-                    },
-                };
-            }
-
-            if (name === "adminSettings") {
-                return {
-                    doc(id: string) {
-                        return {
-                            id,
-                            path: `${name}/${id}`,
-                        };
-                    },
-                };
-            }
-
-            throw new Error(`Unexpected collection: ${name}`);
-        }),
-    };
-
-    return {
-        adminDb,
-        batch,
-        state,
-        guardApiRequest: vi.fn(),
-        markDropsRuntimeChanged: vi.fn(),
-        sendTargetedDropNotification: vi.fn(async () => undefined),
-        arrayUnion: vi.fn((...values: string[]) => ({
-            __op: "arrayUnion",
-            values,
-        })),
-        reset() {
-            state.scheduledDocs = [];
-            state.activeDocs = [];
-            state.ownersByDropId.clear();
-            batch.update.mockReset();
-            batch.set.mockReset();
-            batch.commit.mockReset();
-            adminDb.batch.mockClear();
-            adminDb.collection.mockClear();
-            this.guardApiRequest.mockReset();
-            this.markDropsRuntimeChanged.mockReset();
-            this.sendTargetedDropNotification.mockReset();
-            this.sendTargetedDropNotification.mockResolvedValue(undefined);
-            this.arrayUnion.mockClear();
-        },
-    };
-});
-
-vi.mock("@/lib/server/firebase-admin", () => ({
-    adminDb: mockState.adminDb,
-}));
-
-vi.mock("@/lib/server/push-notifications", () => ({
-    sendTargetedDropNotification: mockState.sendTargetedDropNotification,
-}));
-
-vi.mock("@/lib/server/drop-runtime", () => ({
-    markDropsRuntimeChanged: mockState.markDropsRuntimeChanged,
+const mockState = vi.hoisted(() => ({
+    guardApiRequest: vi.fn(),
+    notifyActiveDropsRuntime: vi.fn(),
+    recordRuntimeWarning: vi.fn(),
+    recordRouteWarning: vi.fn(),
+    handleApiError: vi.fn(),
+    reset() {
+        this.guardApiRequest.mockReset();
+        this.notifyActiveDropsRuntime.mockReset();
+        this.recordRuntimeWarning.mockReset();
+        this.recordRouteWarning.mockReset();
+        this.handleApiError.mockReset();
+    },
 }));
 
 vi.mock("@/lib/server/request-guard", () => ({
     guardApiRequest: mockState.guardApiRequest,
 }));
 
-vi.mock("firebase-admin/firestore", () => ({
-    FieldValue: {
-        arrayUnion: mockState.arrayUnion,
-    },
+vi.mock("@/lib/server/queue-runtime", () => ({
+    notifyActiveDropsRuntime: mockState.notifyActiveDropsRuntime,
+}));
+
+vi.mock("@/lib/server/runtime-warning-store", () => ({
+    recordRuntimeWarning: mockState.recordRuntimeWarning,
+}));
+
+vi.mock("@/lib/server/route-diagnostics", () => ({
+    recordRouteWarning: mockState.recordRouteWarning,
+}));
+
+vi.mock("@/lib/server/auth", () => ({
+    handleApiError: mockState.handleApiError,
 }));
 
 vi.mock("@/lib/server/rate-limit", () => ({
@@ -145,52 +42,22 @@ vi.mock("@/lib/server/rate-limit", () => ({
 
 import { GET } from "@/app/api/cron/notify-active-drops/route";
 
-function makeDropDoc(id: string, data: Record<string, unknown>) {
-    return {
-        id,
-        ref: { path: `drops/${id}` },
-        data: () => data,
-    };
-}
-
 describe("GET /api/cron/notify-active-drops", () => {
     beforeEach(() => {
-        vi.useFakeTimers();
         mockState.reset();
-        mockState.guardApiRequest.mockResolvedValue({
-            uid: "cron_runner",
+        mockState.guardApiRequest.mockResolvedValue({ uid: "cron_runner" });
+        mockState.handleApiError.mockImplementation(() => NextResponse.json({ error: "Internal server error" }, { status: 500 }));
+        mockState.notifyActiveDropsRuntime.mockResolvedValue({
+            message: "Activated 1 drops, expired 1 drops, and reconciled lifecycle status.",
+            activatedDrops: ["Scheduled Drop"],
+            expiredDrops: ["Finished Drop"],
+            autoQueuedDrops: ["finished_drop"],
+            invariants: [],
         });
         process.env.CRON_SECRET = "test-secret";
     });
 
-    afterEach(() => {
-        vi.useRealTimers();
-    });
-
-    it("activates due scheduled drops, expires finished active drops, and requeues configured returns", async () => {
-        const now = Date.UTC(2026, 3, 2, 22, 0, 0);
-        vi.setSystemTime(new Date(now));
-
-        mockState.state.scheduledDocs = [
-            makeDropDoc("scheduled_1", {
-                title: "Scheduled Drop",
-                validFrom: now - 5_000,
-                validUntil: now + 60_000,
-                activationCount: 0,
-                imageUrl: "https://example.com/drop.jpg",
-            }),
-        ];
-        mockState.state.activeDocs = [
-            makeDropDoc("active_1", {
-                title: "Finished Drop",
-                validFrom: now - 120_000,
-                validUntil: now - 1_000,
-                status: "active",
-                autoQueueOnExpire: true,
-            }),
-        ];
-        mockState.state.ownersByDropId.set("scheduled_1", ["fan_1", "fan_2"]);
-
+    it("delegates activation work to the canonical runtime and marks the route as legacy", async () => {
         const request = new NextRequest("http://localhost/api/cron/notify-active-drops", {
             headers: {
                 authorization: "Bearer test-secret",
@@ -200,44 +67,53 @@ describe("GET /api/cron/notify-active-drops", () => {
         const payload = await response.json();
 
         expect(response.status).toBe(200);
-        expect(payload).toMatchObject({
+        expect(mockState.notifyActiveDropsRuntime).toHaveBeenCalledWith({
+            executionLayer: "next_route",
+            surface: "cron/notify-active-drops",
+            staleAfterMs: 20 * 60 * 1000,
+        });
+        expect(mockState.recordRouteWarning).toHaveBeenCalledWith(
+            "cron/notify-active-drops",
+            expect.stringContaining("Legacy activation adapter invoked"),
+            undefined,
+            expect.objectContaining({
+                channel: "cron",
+                moduleKey: "notify_active_drops_adapter",
+            }),
+        );
+        expect(mockState.recordRuntimeWarning).toHaveBeenCalledWith(expect.objectContaining({
+            code: "legacy_queue_adapter_invoked",
+            executionLayer: "next_route",
+            surface: "cron/notify-active-drops",
+            moduleKey: "notify_active_drops",
+        }));
+        expect(payload).toEqual({
+            message: "Activated 1 drops, expired 1 drops, and reconciled lifecycle status.",
             activatedDrops: ["Scheduled Drop"],
             expiredDrops: ["Finished Drop"],
-            autoQueuedDrops: ["active_1"],
+            autoQueuedDrops: ["finished_drop"],
+            invariants: [],
+            legacyAdapter: true,
         });
-        expect(mockState.batch.update).toHaveBeenCalledWith(
-            { path: "drops/scheduled_1" },
-            { status: "active" },
-        );
-        expect(mockState.batch.update).toHaveBeenCalledWith(
-            { path: "drops/active_1" },
-            { status: "expired" },
-        );
-        expect(mockState.batch.set).toHaveBeenCalledWith(
-            { path: "adminSettings/dropQueue", id: "dropQueue" },
-            {
-                queue: {
-                    __op: "arrayUnion",
-                    values: ["active_1"],
-                },
-            },
-            { merge: true },
-        );
-        expect(mockState.markDropsRuntimeChanged).toHaveBeenCalledWith(mockState.batch, now);
-        expect(mockState.batch.commit).toHaveBeenCalled();
-        expect(mockState.sendTargetedDropNotification).toHaveBeenCalledWith(
-            "Scheduled Drop",
-            "scheduled_1",
-            "https://example.com/drop.jpg",
-            false,
-            ["fan_1", "fan_2"],
-            `drop-activation:scheduled_1:${now - 5_000}`,
-        );
     });
 
-    it("returns a no-op response when nothing is due for activation or expiry", async () => {
-        const now = Date.UTC(2026, 3, 2, 22, 0, 0);
-        vi.setSystemTime(new Date(now));
+    it("returns unauthorized when the cron secret does not match", async () => {
+        const request = new NextRequest("http://localhost/api/cron/notify-active-drops", {
+            headers: {
+                authorization: "Bearer wrong-secret",
+            },
+        });
+        const response = await GET(request);
+        const payload = await response.json();
+
+        expect(response.status).toBe(401);
+        expect(payload).toEqual({ error: "Unauthorized" });
+        expect(mockState.notifyActiveDropsRuntime).not.toHaveBeenCalled();
+        expect(mockState.recordRuntimeWarning).not.toHaveBeenCalled();
+    });
+
+    it("does not leak internal errors when canonical runtime delegation fails", async () => {
+        mockState.notifyActiveDropsRuntime.mockRejectedValue(new Error("runtime exploded"));
 
         const request = new NextRequest("http://localhost/api/cron/notify-active-drops", {
             headers: {
@@ -247,93 +123,8 @@ describe("GET /api/cron/notify-active-drops", () => {
         const response = await GET(request);
         const payload = await response.json();
 
-        expect(response.status).toBe(200);
-        expect(payload).toEqual({
-            message: "No drop lifecycle changes to process.",
-        });
-        expect(mockState.batch.commit).not.toHaveBeenCalled();
-        expect(mockState.sendTargetedDropNotification).not.toHaveBeenCalled();
-    });
-
-    it("activates timestamp-shaped scheduled return drops and sends the return notification with a normalized key", async () => {
-        const now = Date.UTC(2026, 3, 2, 22, 0, 0);
-        vi.setSystemTime(new Date(now));
-
-        mockState.state.scheduledDocs = [
-            makeDropDoc("return_drop", {
-                title: "Return Drop",
-                validFrom: { toMillis: () => now - 5_000 },
-                validUntil: { toMillis: () => now + 60_000 },
-                activationCount: 2,
-                imageUrl: "https://example.com/return.jpg",
-                status: "scheduled",
-            }),
-        ];
-        mockState.state.ownersByDropId.set("return_drop", ["fan_legacy"]);
-
-        const request = new NextRequest("http://localhost/api/cron/notify-active-drops", {
-            headers: {
-                authorization: "Bearer test-secret",
-            },
-        });
-        const response = await GET(request);
-        const payload = await response.json();
-
-        expect(response.status).toBe(200);
-        expect(payload.activatedDrops).toEqual(["Return Drop"]);
-        expect(mockState.batch.update).toHaveBeenCalledWith(
-            { path: "drops/return_drop" },
-            { status: "active" },
-        );
-        expect(mockState.sendTargetedDropNotification).toHaveBeenCalledWith(
-            "Return Drop",
-            "return_drop",
-            "https://example.com/return.jpg",
-            true,
-            ["fan_legacy"],
-            `drop-activation:return_drop:${now - 5_000}`,
-        );
-    });
-
-    it("expires timestamp-shaped legacy active drops and requeues them when auto queue is enabled", async () => {
-        const now = Date.UTC(2026, 3, 2, 22, 0, 0);
-        vi.setSystemTime(new Date(now));
-
-        mockState.state.activeDocs = [
-            makeDropDoc("legacy_active", {
-                title: "Legacy Active",
-                validFrom: { toMillis: () => now - 120_000 },
-                validUntil: { toMillis: () => now - 1_000 },
-                activationCount: 1,
-                status: "active",
-                autoQueueOnExpire: true,
-            }),
-        ];
-
-        const request = new NextRequest("http://localhost/api/cron/notify-active-drops", {
-            headers: {
-                authorization: "Bearer test-secret",
-            },
-        });
-        const response = await GET(request);
-        const payload = await response.json();
-
-        expect(response.status).toBe(200);
-        expect(payload.expiredDrops).toEqual(["Legacy Active"]);
-        expect(payload.autoQueuedDrops).toEqual(["legacy_active"]);
-        expect(mockState.batch.update).toHaveBeenCalledWith(
-            { path: "drops/legacy_active" },
-            { status: "expired" },
-        );
-        expect(mockState.batch.set).toHaveBeenCalledWith(
-            { path: "adminSettings/dropQueue", id: "dropQueue" },
-            {
-                queue: {
-                    __op: "arrayUnion",
-                    values: ["legacy_active"],
-                },
-            },
-            { merge: true },
-        );
+        expect(response.status).toBe(500);
+        expect(payload).toEqual({ error: "Internal server error" });
+        expect(mockState.handleApiError).toHaveBeenCalledWith(expect.any(Error), "Cron.NotifyActiveDrops.GET");
     });
 });

@@ -1,5 +1,5 @@
 {
-  "generatedAt": "2026-04-17T23:58:34.136Z",
+  "generatedAt": "2026-04-18T02:54:48.796Z",
   "truthOrder": [
     "verified_runtime_code",
     "verified_configuration",
@@ -158,6 +158,75 @@
       "broad_work_relevance": false
     },
     {
+      "stable_id": "pitfall__legacy_queue_adapter_usage",
+      "title": "legacy_queue_adapter_usage",
+      "description": "Next App Route cron endpoints are now compatibility adapters only and should not remain the active queue scheduler lane.",
+      "symptom_pattern": "Legacy adapter warnings accumulate even though Firebase scheduler is supposed to be canonical.",
+      "affected_surfaces": [
+        "src/app/api/cron/process-queue/route.ts",
+        "src/app/api/cron/notify-active-drops/route.ts",
+        "functions/src/queue-runtime.ts"
+      ],
+      "prevention_rule": "Use Firebase Functions scheduler as the canonical queue runtime and treat route cron endpoints as manual adapters only.",
+      "detection_hint": "Run scheduler freshness and warning-budget checks; any legacy adapter warning is blocking.",
+      "related_commands": [
+        "npm run check:scheduler:freshness",
+        "npm run check:warnings"
+      ],
+      "related_helpers": [
+        "functions/src/queue-runtime.ts",
+        "src/lib/server/queue-runtime.ts"
+      ],
+      "severity": "high",
+      "broad_work_relevance": true
+    },
+    {
+      "stable_id": "pitfall__queue_activation_missing_notification_outcome",
+      "title": "queue_activation_missing_notification_outcome",
+      "description": "Every canonical activation attempt must persist a dispatch outcome; silent notification attempts are no longer acceptable truth.",
+      "symptom_pattern": "Drops activate but no persisted `notification_dispatch_outcomes` row exists for the activation key.",
+      "affected_surfaces": [
+        "src/lib/server/push-notifications.ts",
+        "functions/src/queue-runtime.ts",
+        "shared/runtime/runtime-warning-contract.ts"
+      ],
+      "prevention_rule": "Persist an explicit outcome for success, duplicate, skipped, or failed dispatch states.",
+      "detection_hint": "Run the queue runtime continuity check and inspect notification outcome rows for missing activation keys.",
+      "related_commands": [
+        "npm run check:queue:runtime",
+        "npm run check:runtime:continuity"
+      ],
+      "related_helpers": [
+        "src/lib/server/push-notifications.ts",
+        "functions/src/queue-runtime.ts"
+      ],
+      "severity": "high",
+      "broad_work_relevance": true
+    },
+    {
+      "stable_id": "pitfall__stale_queue_scheduler_heartbeat",
+      "title": "stale_queue_scheduler_heartbeat",
+      "description": "Queue lifecycle and activation jobs can silently stop running even while the rest of the app appears healthy.",
+      "symptom_pattern": "Drops remain scheduled/expired incorrectly because `queue_job_heartbeats` are stale or failed.",
+      "affected_surfaces": [
+        "functions/src/index.ts",
+        "functions/src/queue-runtime.ts",
+        "scripts/check-scheduler-freshness.ts"
+      ],
+      "prevention_rule": "Treat heartbeat freshness as a blocking runtime continuity lane.",
+      "detection_hint": "Run `npm run check:scheduler:freshness` and fail when queue heartbeats are missing, stale, or failed.",
+      "related_commands": [
+        "npm run check:scheduler:freshness",
+        "npm run check:runtime:continuity"
+      ],
+      "related_helpers": [
+        "functions/src/index.ts",
+        "functions/src/queue-runtime.ts"
+      ],
+      "severity": "high",
+      "broad_work_relevance": true
+    },
+    {
       "stable_id": "pitfall__unchecked_response_ok_ui_hydration",
       "title": "unchecked_response_ok_ui_hydration",
       "description": "Client module hydration that parses bodies without response.ok guards can downgrade route failures into misleading empty states.",
@@ -173,6 +242,25 @@
       ],
       "related_helpers": [
         "src/lib/ui-continuity.ts"
+      ],
+      "severity": "high",
+      "broad_work_relevance": false
+    },
+    {
+      "stable_id": "pitfall__creator_booking_timezone_drift",
+      "title": "creator_booking_timezone_drift",
+      "description": "Booking availability validation can drift when creator windows are stored in creator-local time but validated in UTC.",
+      "symptom_pattern": "Valid creator-local booking slots are rejected or off by hours for non-UTC creators.",
+      "affected_surfaces": [
+        "src/app/api/creator/bookings/route.ts"
+      ],
+      "prevention_rule": "Validate booking slots against the stored availabilityTimezone before applying conflict logic.",
+      "detection_hint": "Check booking validation for getUTC* calls against creator availability windows.",
+      "related_commands": [
+        "npm run test:contracts"
+      ],
+      "related_helpers": [
+        "src/lib/creator-experiences.ts"
       ],
       "severity": "high",
       "broad_work_relevance": false
