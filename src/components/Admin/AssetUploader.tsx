@@ -466,6 +466,8 @@ export function AssetUploader({
                     type="button"
                     className="absolute top-1 right-1 rounded-full bg-black/70 p-1 text-white opacity-100 transition-opacity sm:opacity-0 sm:group-hover:opacity-100"
                     onClick={() => removeAsset(asset.id)}
+                    aria-label="Remove asset"
+                    title="Remove asset"
                   >
                     <X className="w-3.5 h-3.5" />
                   </button>

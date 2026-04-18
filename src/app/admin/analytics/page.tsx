@@ -1788,7 +1788,7 @@ export default function AdminAnalyticsPage() {
       updatedAtMs: viewerJourneyState.updatedAtMs,
       hasLoaded: viewerJourneyState.hasLoaded,
       loading: viewerJourneyState.loading,
-      hasData: viewerJourneyItems.length > 0,
+      hasData: viewerJourneyItems.some((item) => item.count > 0),
       blockingIssues: viewerJourneyState.blockingIssues,
       backgroundIssues: viewerJourneyState.backgroundIssues,
       healthySummary: "Viewer journey metrics are loaded.",
@@ -1805,7 +1805,7 @@ export default function AdminAnalyticsPage() {
       hasLoaded: watchDepthTagsState.hasLoaded,
       loading: watchDepthTagsState.loading,
       hasData:
-        watchDepthTagBuckets.length > 0 || watchDepthTagDemand.length > 0,
+        watchDepthTagBuckets.some((bucket) => bucket.count > 0) || watchDepthTagDemand.length > 0,
       blockingIssues: watchDepthTagsState.blockingIssues,
       backgroundIssues: watchDepthTagsState.backgroundIssues,
       healthySummary: "Watch-depth and tag demand are loaded.",
@@ -4208,103 +4208,115 @@ export default function AdminAnalyticsPage() {
                 icon={PlayCircle}
                 rightSlot={renderSectionRangeControl("viewerJourney")}
               >
-                <div className="h-64 w-full">
-                  <ResponsiveContainer width="100%" height="100%">
-                    <LineChart
-                      data={viewerJourneyItems}
-                      margin={{ top: 8, right: 4, left: -18, bottom: 0 }}
-                    >
-                      <CartesianGrid
-                        stroke="rgba(255,255,255,0.06)"
-                        vertical={false}
-                      />
-                      <XAxis
-                        dataKey="label"
-                        stroke="#6b7280"
-                        fontSize={10}
-                        tickLine={false}
-                        axisLine={false}
-                        interval={0}
-                        angle={-18}
-                        textAnchor="end"
-                        height={56}
-                      />
-                      <YAxis
-                        stroke="#6b7280"
-                        fontSize={11}
-                        tickLine={false}
-                        axisLine={false}
-                      />
-                      <Tooltip content={<AnalyticsTooltip />} />
-                      <Line
-                        type="monotone"
-                        dataKey="count"
-                        name="Events"
-                        stroke="#b28cff"
-                        strokeWidth={3}
-                        dot={{ r: 4, fill: "#b28cff" }}
-                      />
-                    </LineChart>
-                  </ResponsiveContainer>
-                </div>
+                {viewerJourneyItems.some((item) => item.count > 0) ? (
+                  <div className="h-64 w-full">
+                    <ResponsiveContainer width="100%" height="100%">
+                      <LineChart
+                        data={viewerJourneyItems}
+                        margin={{ top: 8, right: 4, left: -18, bottom: 0 }}
+                      >
+                        <CartesianGrid
+                          stroke="rgba(255,255,255,0.06)"
+                          vertical={false}
+                        />
+                        <XAxis
+                          dataKey="label"
+                          stroke="#6b7280"
+                          fontSize={10}
+                          tickLine={false}
+                          axisLine={false}
+                          interval={0}
+                          angle={-18}
+                          textAnchor="end"
+                          height={56}
+                        />
+                        <YAxis
+                          stroke="#6b7280"
+                          fontSize={11}
+                          tickLine={false}
+                          axisLine={false}
+                        />
+                        <Tooltip content={<AnalyticsTooltip />} />
+                        <Line
+                          type="monotone"
+                          dataKey="count"
+                          name="Events"
+                          stroke="#b28cff"
+                          strokeWidth={3}
+                          dot={{ r: 4, fill: "#b28cff" }}
+                        />
+                      </LineChart>
+                    </ResponsiveContainer>
+                  </div>
+                ) : (
+                  <div className="rounded-[1.6rem] border border-dashed border-white/10 bg-black/20 p-5 text-sm text-gray-500">
+                    Viewer journey loaded without any tracked viewer activity.
+                  </div>
+                )}
               </SectionCard>
 
               <SectionCard
-              title="Watch Depth + Tags"
+                title="Watch Depth + Tags"
                 subtitle="What people watch after unwrap, plus the tags driving demand."
                 icon={Eye}
                 rightSlot={renderSectionRangeControl("watchDepthTags")}
               >
-                <div className="grid gap-4 lg:grid-cols-[1fr_1fr]">
-                  <div className="rounded-[1.5rem] border border-white/10 bg-black/30 p-4">
-                    <p className="mb-4 text-xs font-semibold uppercase tracking-[0.14em] text-gray-500">
-                      Watch depth
-                    </p>
-                    <div className="space-y-3">
-                      {watchDepthTagBuckets.map((bucket) => (
-                        <div key={bucket.label}>
-                          <div className="mb-2 flex items-center justify-between gap-3 text-sm">
-                            <span className="text-white">{bucket.label}</span>
-                            <span className="font-semibold text-brand-purple">
-                              {bucket.count.toLocaleString()}
-                            </span>
+                {watchDepthTagBuckets.some((bucket) => bucket.count > 0) || watchDepthTagDemand.length > 0 ? (
+                  <div className="grid gap-4 lg:grid-cols-[1fr_1fr]">
+                    <div className="rounded-[1.5rem] border border-white/10 bg-black/30 p-4">
+                      <p className="mb-4 text-xs font-semibold uppercase tracking-[0.14em] text-gray-500">
+                        Watch depth
+                      </p>
+                      <div className="space-y-3">
+                        {watchDepthTagBuckets.map((bucket) => (
+                          <div key={bucket.label}>
+                            <div className="mb-2 flex items-center justify-between gap-3 text-sm">
+                              <span className="text-white">{bucket.label}</span>
+                              <span className="font-semibold text-brand-purple">
+                                {bucket.count.toLocaleString()}
+                              </span>
+                            </div>
+                            <div className="h-2 overflow-hidden rounded-full bg-white/10">
+                              <div
+                                className="h-full rounded-full bg-gradient-to-r from-brand-purple to-cyan-400"
+                                style={{
+                                  width: `${Math.max(6, (bucket.count / Math.max(1, watchDepthTagBuckets[0]?.count || 1)) * 100)}%`,
+                                }}
+                              />
+                            </div>
                           </div>
-                          <div className="h-2 overflow-hidden rounded-full bg-white/10">
-                            <div
-                              className="h-full rounded-full bg-gradient-to-r from-brand-purple to-cyan-400"
-                              style={{
-                                width: `${Math.max(6, (bucket.count / Math.max(1, watchDepthTagBuckets[0]?.count || 1)) * 100)}%`,
-                              }}
-                            />
-                          </div>
-                        </div>
-                      ))}
+                        ))}
+                      </div>
                     </div>
-                  </div>
 
-                  <div className="rounded-[1.5rem] border border-white/10 bg-black/30 p-4">
-                    <p className="mb-4 text-xs font-semibold uppercase tracking-[0.14em] text-gray-500">
-                      Top tags
-                    </p>
-                    <div className="flex flex-wrap gap-2">
-                      {watchDepthTagDemand.length > 0 ? (
-                        watchDepthTagDemand.map((item) => (
-                          <span
-                            key={item.tag}
-                            className="rounded-full border border-brand-purple/25 bg-brand-purple/12 px-3 py-2 text-xs font-semibold text-white"
-                          >
-                            {item.tag} · {item.count}
-                          </span>
-                        ))
-                      ) : (
-                        <p className="text-sm text-gray-500">
-                          Tag demand will populate after more unwraps land in
-                          this range.
-                        </p>
-                      )}
+                    <div className="rounded-[1.5rem] border border-white/10 bg-black/30 p-4">
+                      <p className="mb-4 text-xs font-semibold uppercase tracking-[0.14em] text-gray-500">
+                        Top tags
+                      </p>
+                      <div className="flex flex-wrap gap-2">
+                        {watchDepthTagDemand.length > 0 ? (
+                          watchDepthTagDemand.map((item) => (
+                            <span
+                              key={item.tag}
+                              className="rounded-full border border-brand-purple/25 bg-brand-purple/12 px-3 py-2 text-xs font-semibold text-white"
+                            >
+                              {item.tag} · {item.count}
+                            </span>
+                          ))
+                        ) : (
+                          <p className="text-sm text-gray-500">
+                            Tag demand will populate after more unwraps land in
+                            this range.
+                          </p>
+                        )}
+                      </div>
                     </div>
                   </div>
-                </div>
+                ) : (
+                  <div className="rounded-[1.6rem] border border-dashed border-white/10 bg-black/20 p-5 text-sm text-gray-500">
+                    No watch-depth or tag-demand rows were returned in this window.
+                  </div>
+                )}
               </SectionCard>
             </div>
           </>
