@@ -18,8 +18,11 @@ import {
     ANALYTICS_ROUTE_POLICIES,
 } from "@/lib/server/analytics-governance";
 import {
+    VIEWER_WATCH_CAPTURE_QUALITIES,
+    VIEWER_WATCH_CAPTURE_TRANSPORTS,
     VIEWER_WATCH_CONTENT_KINDS,
     deriveViewerWatchAssetState,
+    deriveViewerWatchCaptureState,
     deriveViewerWatchSessionState,
 } from "@/lib/viewer-watch-session";
 
@@ -44,6 +47,13 @@ const assetSnapshotSchema = z.object({
     heartbeatCount: z.number().int().min(0).max(100000),
     loadMsTotal: z.number().int().min(0).max(172800000),
     loadSampleCount: z.number().int().min(0).max(10000),
+    seekCount: z.number().int().min(0).max(100000).optional(),
+    seekForwardSeconds: z.number().min(0).max(172800).optional(),
+    seekBackwardSeconds: z.number().min(0).max(172800).optional(),
+    waitingCount: z.number().int().min(0).max(100000).optional(),
+    waitingDurationSeconds: z.number().min(0).max(172800).optional(),
+    playbackRateAverage: z.number().min(0).max(8).optional(),
+    mutedSampleCount: z.number().int().min(0).max(100000).optional(),
 });
 
 const watchSessionSchema = z.object({
@@ -77,6 +87,17 @@ const watchSessionSchema = z.object({
     loadMsTotal: z.number().int().min(0).max(172800000),
     loadSampleCount: z.number().int().min(0).max(10000),
     averageLoadMs: z.number().int().min(0).max(172800000),
+    captureQuality: z.enum(VIEWER_WATCH_CAPTURE_QUALITIES).optional(),
+    captureTransport: z.enum(VIEWER_WATCH_CAPTURE_TRANSPORTS).optional(),
+    replayRecovered: z.boolean().optional(),
+    replayRecoveredCount: z.number().int().min(0).max(100000).optional(),
+    flushAttemptCount: z.number().int().min(0).max(100000).optional(),
+    flushSuccessCount: z.number().int().min(0).max(100000).optional(),
+    flushFailureCount: z.number().int().min(0).max(100000).optional(),
+    visibilityHiddenCount: z.number().int().min(0).max(100000).optional(),
+    hiddenDurationSeconds: z.number().min(0).max(172800).optional(),
+    gapCount: z.number().int().min(0).max(100000).optional(),
+    maxGapMs: z.number().int().min(0).max(172800000).optional(),
     assets: z.array(assetSnapshotSchema).max(64),
 });
 
@@ -181,6 +202,15 @@ export async function POST(request: NextRequest) {
                 return { accepted: false, stale: true };
             }
 
+            const captureDerivedState = deriveViewerWatchCaptureState({
+                replayRecovered: parsedBody.replayRecovered,
+                replayRecoveredCount: parsedBody.replayRecoveredCount,
+                gapCount: parsedBody.gapCount,
+                flushFailureCount: parsedBody.flushFailureCount,
+                isClosed: parsedBody.isClosed,
+                closeReason: parsedBody.closeReason ?? null,
+            });
+
             const mergedSessionData = {
                 watchSessionId: parsedBody.watchSessionId,
                 clientSessionId: parsedBody.clientSessionId,
@@ -218,6 +248,17 @@ export async function POST(request: NextRequest) {
                 loadMsTotal: Math.max(typeof existingSession?.loadMsTotal === "number" ? Number(existingSession.loadMsTotal) : 0, parsedBody.loadMsTotal),
                 loadSampleCount: Math.max(typeof existingSession?.loadSampleCount === "number" ? Number(existingSession.loadSampleCount) : 0, parsedBody.loadSampleCount),
                 averageLoadMs: Math.max(typeof existingSession?.averageLoadMs === "number" ? Number(existingSession.averageLoadMs) : 0, parsedBody.averageLoadMs),
+                captureQuality: captureDerivedState.captureQuality,
+                captureTransport: parsedBody.captureTransport ?? (typeof existingSession?.captureTransport === "string" ? existingSession.captureTransport : "unknown"),
+                replayRecovered: Boolean(existingSession?.replayRecovered) || Boolean(parsedBody.replayRecovered) || captureDerivedState.replayRecovered,
+                replayRecoveredCount: Math.max(typeof existingSession?.replayRecoveredCount === "number" ? Number(existingSession.replayRecoveredCount) : 0, parsedBody.replayRecoveredCount ?? 0),
+                flushAttemptCount: Math.max(typeof existingSession?.flushAttemptCount === "number" ? Number(existingSession.flushAttemptCount) : 0, parsedBody.flushAttemptCount ?? 0),
+                flushSuccessCount: Math.max(typeof existingSession?.flushSuccessCount === "number" ? Number(existingSession.flushSuccessCount) : 0, parsedBody.flushSuccessCount ?? 0),
+                flushFailureCount: Math.max(typeof existingSession?.flushFailureCount === "number" ? Number(existingSession.flushFailureCount) : 0, parsedBody.flushFailureCount ?? 0),
+                visibilityHiddenCount: Math.max(typeof existingSession?.visibilityHiddenCount === "number" ? Number(existingSession.visibilityHiddenCount) : 0, parsedBody.visibilityHiddenCount ?? 0),
+                hiddenDurationSeconds: normalizeSeconds(readMax(existingSession?.hiddenDurationSeconds, parsedBody.hiddenDurationSeconds ?? 0)),
+                gapCount: Math.max(typeof existingSession?.gapCount === "number" ? Number(existingSession.gapCount) : 0, parsedBody.gapCount ?? 0),
+                maxGapMs: Math.max(typeof existingSession?.maxGapMs === "number" ? Number(existingSession.maxGapMs) : 0, parsedBody.maxGapMs ?? 0),
                 startedDayKey: startedTimeKeys.dayKey,
                 startedHourKey: startedTimeKeys.hourKey,
                 lastDayKey: lastSeenTimeKeys.dayKey,
@@ -255,6 +296,11 @@ export async function POST(request: NextRequest) {
                 converted: sessionDerivedState.converted,
                 completedSession: sessionDerivedState.completedSession,
                 openedWithoutDepth: sessionDerivedState.openedWithoutDepth,
+                captureDegraded: captureDerivedState.degraded,
+                captureReplayRecovered: captureDerivedState.replayRecovered,
+                captureCloseMissing: captureDerivedState.closeMissing,
+                captureGapDetected: captureDerivedState.gapDetected,
+                captureFlushDegraded: captureDerivedState.flushDegraded,
                 idleVisibleSeconds: sessionDerivedState.idleVisibleSeconds,
                 sessionOutcome: sessionDerivedState.outcome,
                 dropOffStage: sessionDerivedState.dropOffStage,
@@ -306,6 +352,13 @@ export async function POST(request: NextRequest) {
                     heartbeatCount: Math.max(typeof existingAsset?.heartbeatCount === "number" ? Number(existingAsset.heartbeatCount) : 0, asset.heartbeatCount),
                     loadMsTotal: Math.max(typeof existingAsset?.loadMsTotal === "number" ? Number(existingAsset.loadMsTotal) : 0, asset.loadMsTotal),
                     loadSampleCount: Math.max(typeof existingAsset?.loadSampleCount === "number" ? Number(existingAsset.loadSampleCount) : 0, asset.loadSampleCount),
+                    seekCount: Math.max(typeof existingAsset?.seekCount === "number" ? Number(existingAsset.seekCount) : 0, asset.seekCount ?? 0),
+                    seekForwardSeconds: normalizeSeconds(readMax(existingAsset?.seekForwardSeconds, asset.seekForwardSeconds ?? 0)),
+                    seekBackwardSeconds: normalizeSeconds(readMax(existingAsset?.seekBackwardSeconds, asset.seekBackwardSeconds ?? 0)),
+                    waitingCount: Math.max(typeof existingAsset?.waitingCount === "number" ? Number(existingAsset.waitingCount) : 0, asset.waitingCount ?? 0),
+                    waitingDurationSeconds: normalizeSeconds(readMax(existingAsset?.waitingDurationSeconds, asset.waitingDurationSeconds ?? 0)),
+                    playbackRateAverage: Math.max(typeof existingAsset?.playbackRateAverage === "number" ? Number(existingAsset.playbackRateAverage) : 0, asset.playbackRateAverage ?? 0),
+                    mutedSampleCount: Math.max(typeof existingAsset?.mutedSampleCount === "number" ? Number(existingAsset.mutedSampleCount) : 0, asset.mutedSampleCount ?? 0),
                     lastSequence: parsedBody.sessionSequence,
                     updatedAt: admin.firestore.FieldValue.serverTimestamp(),
                     ...(existingAssetSnapshot.exists ? {} : {

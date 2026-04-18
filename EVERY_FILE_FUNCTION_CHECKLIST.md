@@ -1,8 +1,8 @@
 # EVERY FILE FUNCTION CHECKLIST
 
 **Last Updated:** 2026-04-17
-**Current Focus:** Repo Intelligence Fabric v1 remains active, and the 2026-04-17 delta now includes the generated UI continuity ledger, the self-debugging queue/runtime canonicalization lane, and the open-PR reconciliation pass covering analytics truth gating, canonical admin username reservation, and admin asset-uploader accessibility labeling.
-**Status:** In Progress. Historical exhaustive sweep remains valuable, and the 2026-04-17 continuity metadata now reflects the repo-intelligence layer, the UI continuity fabric, the creator-settings route regression coverage, the profile-page creator warning handling follow-up, the self-debugging queue/runtime canonicalization pass, the warning-free static verification baseline, and the open-PR reconciliation pass.
+**Current Focus:** Repo Intelligence Fabric v1 remains active, and the 2026-04-17 delta now includes the generated UI continuity ledger, the self-debugging queue/runtime canonicalization lane, the open-PR reconciliation pass, and the token-efficiency/watch-session analytics deepening pass.
+**Status:** In Progress. Historical exhaustive sweep remains valuable, and the 2026-04-17 continuity metadata now reflects the repo-intelligence layer, the UI continuity fabric, the creator-settings route regression coverage, the profile-page creator warning handling follow-up, the self-debugging queue/runtime canonicalization pass, the warning-free static verification baseline, the open-PR reconciliation pass, and the watch-session capture-health / task-context tiering pass.
 Purpose: exhaustive no-skip audit checklist covering every repository file currently in scope and every detected function-like implementation.
 
 Scoring: all entries below are marked as included in the current validated sweep. Confidence reflects current repository-state confidence, not perfection or future-proofing.
@@ -58,6 +58,27 @@ Current repo-wide state snapshot: see [FULL_SCALE_CODEBASE_AUDIT.md](/Users/uylu
   - `tests/unit/process-queue-route.spec.ts`
   - `tests/unit/notify-active-drops-route.spec.ts`
 - Added admin/debug queue runtime visibility:
+  - `src/lib/server/admin-analytics-capture-health.ts`
+  - `scripts/check-analytics-continuity.ts`
+  - `tests/unit/admin-analytics-capture-health.spec.ts`
+- Extended agent and analytics continuity surfaces:
+  - `scripts/agent/build-task-context.ts`
+  - `scripts/agent/build-agent-indexes.ts`
+  - `scripts/agent/run-evals.ts`
+  - `scripts/agent/extract-runtime-observability.ts`
+  - `agent/index/retrieval-index.json`
+  - `agent/index/runtime-observability.json`
+- Extended canonical viewer watch/session surfaces:
+  - `src/lib/viewer-watch-session.ts`
+  - `src/hooks/useViewerWatchSession.ts`
+  - `src/app/dashboard/viewer/ViewerClient.tsx`
+  - `src/app/api/viewer/watch-session/route.ts`
+  - `src/app/api/admin/analytics/historical/route.ts`
+  - `src/app/api/admin/analytics/realtime/route.ts`
+  - `src/lib/server/admin-analytics-historical-validation.ts`
+  - `src/types/admin-analytics.ts`
+  - `src/app/admin/analytics/page.tsx`
+  - `tests/unit/admin-analytics-realtime-route.spec.ts`
   - `src/app/admin/debug/page.tsx`
   - `src/app/api/admin/debug/route.ts`
 - Added open-PR reconciliation coverage and local supersession surfaces:

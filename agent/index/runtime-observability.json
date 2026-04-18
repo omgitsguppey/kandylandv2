@@ -1,5 +1,5 @@
 {
-  "generatedAt": "2026-04-18T02:54:48.811Z",
+  "generatedAt": "2026-04-18T03:43:31.720Z",
   "truthOrder": [
     "verified_runtime_code",
     "verified_configuration",
@@ -20,6 +20,9 @@
     "src/lib/server/admin-panel-system-logs.ts",
     "src/lib/server/runtime-warning-store.ts",
     "src/lib/server/queue-runtime.ts",
+    "src/app/api/viewer/watch-session/route.ts",
+    "src/lib/server/admin-analytics-capture-health.ts",
+    "scripts/check-analytics-continuity.ts",
     "functions/src/runtime-warning-store.ts",
     "functions/src/queue-runtime.ts"
   ],
@@ -177,6 +180,29 @@
         "src/lib/server/push-notifications.ts",
         "src/lib/server/runtime-warning-store.ts",
         "functions/src/queue-runtime.ts"
+      ]
+    },
+    {
+      "stable_id": "observability__viewer_watch_capture_health",
+      "key": "viewer_watch_capture_health",
+      "storage_or_collection": "analytics_watch_sessions",
+      "purpose": "Canonical watch-session capture quality lane for replay recovery, flush degradation, close-path misses, and viewer session continuity health.",
+      "intended_use": "Detect watch-time/session analytics degradation before historical dashboards or downstream rollups become misleading.",
+      "non_goals": [
+        "Replacing the canonical watch-session documents themselves.",
+        "Serving as a client-facing analytics chart."
+      ],
+      "persisted": true,
+      "raw_or_rollup": "status_items",
+      "client_or_server_origin": "mixed",
+      "trust_notes": [
+        "Canonical watch-session documents remain the stronger truth; this lane summarizes continuity and capture quality from those documents."
+      ],
+      "backingPaths": [
+        "src/app/api/viewer/watch-session/route.ts",
+        "src/lib/viewer-watch-session.ts",
+        "src/lib/server/admin-analytics-capture-health.ts",
+        "scripts/check-analytics-continuity.ts"
       ]
     },
     {

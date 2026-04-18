@@ -24,6 +24,33 @@ This file is not a changelog. It is the concise ledger for durable decisions tha
 
 ## Decision Entries
 
+### 1ab. Viewer watch/session analytics now carry canonical capture-health truth, and agent task context uses explicit hot/warm/cold tiers
+
+- Approximate date: Recorded explicitly on 2026-04-17 from the Token-Efficiency Fabric Hardening + Watch/Session Analytics Deepening pass
+- Status: Active canonical analytics/context rule
+- Problem/context: Viewer watch/session analytics previously recorded watch depth without enough continuity metadata to explain replay recovery, flush degradation, close-path misses, or visibility gaps. In parallel, the repo-intelligence task compiler still forced agents to infer what to read first because all ranked context was effectively a single flat list.
+- Decision made: Persist canonical watch capture-health fields directly on watch-session/watch-asset documents, expose a shared capture-health summary in admin analytics and a no-build analytics continuity lane, and extend the task-context compiler with explicit hot/warm/cold context tiers plus exclusion metadata.
+- What became canonical:
+  - `src/lib/viewer-watch-session.ts`, `src/hooks/useViewerWatchSession.ts`, `src/app/dashboard/viewer/ViewerClient.tsx`, and `src/app/api/viewer/watch-session/route.ts` now define and persist capture-quality, replay-recovery, flush, gap, visibility, seek, wait, playback-rate, and muted-session watch metadata
+  - `src/lib/server/admin-analytics-capture-health.ts` is the shared summarizer for canonical watch capture health across admin analytics and continuity checks
+  - `npm run check:analytics:continuity` is the lightweight signoff lane for canonical viewer capture quality
+  - `scripts/agent/build-task-context.ts` emits `hotContextFiles`, `warmContextFiles`, `coldContextFiles`, and `excludedContext` so repo-native prompts stop over-reading broad context by default
+- Truth lives in:
+  - `src/lib/viewer-watch-session.ts`
+  - `src/hooks/useViewerWatchSession.ts`
+  - `src/app/dashboard/viewer/ViewerClient.tsx`
+  - `src/app/api/viewer/watch-session/route.ts`
+  - `src/lib/server/admin-analytics-capture-health.ts`
+  - `src/app/api/admin/analytics/historical/route.ts`
+  - `src/app/api/admin/analytics/realtime/route.ts`
+  - `scripts/check-analytics-continuity.ts`
+  - `scripts/agent/build-task-context.ts`
+  - `agent/state/task-context.generated.json`
+- What is now disallowed or deprecated:
+  - treating viewer watch depth as complete truth without checking capture quality
+  - allowing replay/flush/close degradation to remain visible only in client memory
+  - using flat, giant task-context payloads when the generated hot/warm/cold context tiers are available
+
 ### 1aa. Queue lifecycle is now canonically scheduled in Firebase Functions, and runtime continuity uses a no-build lane first
 
 - Approximate date: Recorded explicitly on 2026-04-17 from the Self-Debugging Hardening + Queue Runtime Canonicalization pass

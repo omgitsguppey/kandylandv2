@@ -1,5 +1,5 @@
 {
-  "generatedAt": "2026-04-18T02:54:48.796Z",
+  "generatedAt": "2026-04-18T03:43:31.692Z",
   "truthOrder": [
     "verified_runtime_code",
     "verified_configuration",
@@ -285,6 +285,29 @@
       ],
       "severity": "medium",
       "broad_work_relevance": true
+    },
+    {
+      "stable_id": "pitfall__viewer_watch_capture_continuity_drift",
+      "title": "viewer_watch_capture_continuity_drift",
+      "description": "Viewer watch sessions can degrade silently when flush outcomes, close-path sync, or replay recovery are not surfaced into continuity checks.",
+      "symptom_pattern": "Watch-time analytics look sparse or inconsistent even though viewer usage continues.",
+      "affected_surfaces": [
+        "src/app/api/viewer/watch-session/route.ts",
+        "src/hooks/useViewerWatchSession.ts",
+        "scripts/check-analytics-continuity.ts"
+      ],
+      "prevention_rule": "Persist capture-quality metadata on canonical watch sessions and run the analytics continuity lane for viewer capture work.",
+      "detection_hint": "Check close-missing, flush-degraded, and degraded-rate counts in canonical watch session docs.",
+      "related_commands": [
+        "npm run check:analytics:continuity",
+        "npm run check:analytics-semantics"
+      ],
+      "related_helpers": [
+        "src/lib/viewer-watch-session.ts",
+        "src/lib/server/admin-analytics-capture-health.ts"
+      ],
+      "severity": "high",
+      "broad_work_relevance": false
     }
   ]
 }

@@ -133,6 +133,7 @@ function buildTaskSignals(mode: TaskMode, taskTokens: string[]) {
     helperFamilyNeedles.add("telemetry_analytics_canon");
     requiredCommands.add("npm run check:telemetry");
     requiredCommands.add("npm run check:analytics-semantics");
+    requiredCommands.add("npm run check:analytics:continuity");
     optionalCommands.add("npm run test:contracts");
   }
 
@@ -398,7 +399,14 @@ function selectVerificationCommands(input: {
 }
 
 function buildPrompt(name: "short" | "standard" | "deep", context: Record<string, unknown>) {
-  const touched = (context.likelyTouchedFiles as string[]).slice(0, name === "short" ? 6 : name === "standard" ? 10 : 14);
+  const hot = (context.hotContextFiles as string[]) ?? [];
+  const warm = (context.warmContextFiles as string[]) ?? [];
+  const cold = (context.coldContextFiles as string[]) ?? [];
+  const touched = name === "short"
+    ? hot.slice(0, 6)
+    : name === "standard"
+      ? [...hot, ...warm].slice(0, 10)
+      : [...hot, ...warm, ...cold].slice(0, 14);
   const helpers = (context.canonicalHelpersToReuse as string[]).slice(0, name === "short" ? 4 : 8);
   const pitfalls = (context.relevantKnownPitfalls as string[]).slice(0, name === "short" ? 4 : 8);
   const required = context.requiredVerificationCommands as string[];
@@ -527,6 +535,22 @@ export function buildTaskContext() {
 
   const broadSignoff = broadSignoffRequired(mode, likelyTouchedFiles);
   const scopeInfo = classifyScope(mode, likelyTouchedFiles, broadSignoff);
+  const hotContextFiles = likelyTouchedFiles.slice(0, 5).map((entry) => entry.path);
+  const warmContextFiles = likelyTouchedFiles.slice(5, 10).map((entry) => entry.path);
+  const coldContextFiles = compact([
+    ...governanceTruth
+      .filter((entry) => entry.consultMode !== "historical_only")
+      .slice(0, mode === "audit" || broadSignoff ? 3 : 1)
+      .map((entry) => entry.path),
+    ...recentPasses
+      .flatMap((entry) => entry.touchedSurfaces)
+      .filter((entry, index, array) =>
+        !hotContextFiles.includes(entry)
+        && !warmContextFiles.includes(entry)
+        && array.indexOf(entry) === index,
+      )
+      .slice(0, 4),
+  ]);
   const verificationSelection = selectVerificationCommands({
     mode,
     taskTokens: signalTokens,
@@ -554,6 +578,9 @@ export function buildTaskContext() {
     scopeWhy: scopeInfo.why,
     likelySurfaceCategory: likelyTouchedFiles[0]?.entry.surface_category ?? "unknown",
     likelySurfaces: Array.from(new Set(likelyTouchedFiles.map((entry) => entry.entry.surface_category))).slice(0, 8),
+    hotContextFiles,
+    warmContextFiles,
+    coldContextFiles,
     likelyTouchedFiles: likelyTouchedFiles.map((entry) => entry.path),
     likelyAdjacentFiles,
     likelyAdjacentHelpers: likelyAdjacentHelpers.map((entry) => entry.path),
@@ -581,6 +608,17 @@ export function buildTaskContext() {
       mode === "ui" && relevantUiSurfaces.length === 0 ? "UI mode resolved without any indexed UI surface match." : null,
     ]),
     do_not_read_unless_needed: governanceTruth.filter((entry) => entry.consultMode === "historical_only").map((entry) => entry.path),
+    excludedContext: ranked
+      .filter((entry) => entry.score <= 0 || entry.entry.evidence_only || entry.entry.generated)
+      .slice(0, 10)
+      .map((entry) => ({
+        path: entry.path,
+        why_not_selected: entry.entry.evidence_only
+          ? "evidence_only"
+          : entry.entry.generated
+            ? "generated_penalty"
+            : "non_matching_or_low_signal",
+      })),
     do_not_touch_without_broad_signoff: likelyTouchedFiles.filter((entry) => entry.entry.likely_broad_signoff_relevant).map((entry) => entry.path).slice(0, 12),
     rankingEvidence: likelyTouchedFiles.map((entry) => ({
       stable_id: entry.entry.stable_id,

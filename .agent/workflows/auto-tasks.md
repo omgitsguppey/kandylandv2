@@ -133,3 +133,19 @@ description: "Auto-run standard project commands"
    `npm run check:agent-context`
    `npm run check:continuity`
    `npm --prefix functions run check`
+
+20. Build and verify token-efficiency and analytics/watch-session hardening:
+   `npm run trace:adjacent -- scripts/agent/build-task-context.ts`
+   `npm run trace:adjacent -- src/hooks/useViewerWatchSession.ts`
+   `npm run trace:adjacent -- src/app/api/viewer/watch-session/route.ts`
+   `npm run trace:adjacent -- src/app/admin/analytics/page.tsx`
+   `npx vitest run tests/unit/analytics-ingest-route.spec.ts tests/unit/analytics-identifiers.spec.ts tests/unit/useViewerWatchSession-bench.spec.ts`
+   `npm run agent:index`
+   `npm run eval:agent-context`
+   `npm run check:agent-context`
+   `npm run check:telemetry`
+   `npm run check:analytics-semantics`
+   `npm run check:runtime:continuity`
+   `npm run typecheck`
+   `npm run test:contracts`
+   `npm run check:continuity`

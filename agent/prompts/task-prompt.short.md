@@ -10,7 +10,6 @@ Likely touched files:
 - scripts/agent/build-task-context.ts
 - scripts/agent/build-ui-surface-coverage.ts
 - scripts/agent/check-agent-context.ts
-- scripts/agent/extract-canonical-helpers.ts
 - scripts/agent/extract-runtime-observability.ts
 
 Canonical helpers to reuse:

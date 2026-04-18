@@ -4,9 +4,24 @@ export type ViewerWatchContentKind = (typeof VIEWER_WATCH_CONTENT_KINDS)[number]
 
 export const VIEWER_WATCH_SESSION_OUTCOMES = ["bounce", "abandoned", "engaged", "converted", "completed"] as const;
 export const VIEWER_WATCH_DROP_OFF_STAGES = ["opened_only", "started_only", "meaningful_watch", "converted", "completed"] as const;
+export const VIEWER_WATCH_CAPTURE_QUALITIES = [
+    "full",
+    "replayed",
+    "gap_detected",
+    "flush_degraded",
+    "close_missing",
+] as const;
+export const VIEWER_WATCH_CAPTURE_TRANSPORTS = [
+    "fetch",
+    "keepalive_fetch",
+    "replay_fetch",
+    "unknown",
+] as const;
 
 export type ViewerWatchSessionOutcome = (typeof VIEWER_WATCH_SESSION_OUTCOMES)[number];
 export type ViewerWatchDropOffStage = (typeof VIEWER_WATCH_DROP_OFF_STAGES)[number];
+export type ViewerWatchCaptureQuality = (typeof VIEWER_WATCH_CAPTURE_QUALITIES)[number];
+export type ViewerWatchCaptureTransport = (typeof VIEWER_WATCH_CAPTURE_TRANSPORTS)[number];
 
 export interface ViewerWatchDerivedState {
     meaningfulWatch: boolean;
@@ -20,6 +35,15 @@ export interface ViewerWatchDerivedState {
     idleVisibleSeconds: number;
     outcome: ViewerWatchSessionOutcome;
     dropOffStage: ViewerWatchDropOffStage;
+}
+
+export interface ViewerWatchCaptureState {
+    captureQuality: ViewerWatchCaptureQuality;
+    degraded: boolean;
+    replayRecovered: boolean;
+    closeMissing: boolean;
+    gapDetected: boolean;
+    flushDegraded: boolean;
 }
 
 interface ViewerWatchDerivationInput {
@@ -55,6 +79,15 @@ function roundSeconds(value: number) {
     }
 
     return Number(value.toFixed(2));
+}
+
+function asFiniteInteger(value: unknown) {
+    const numeric = Number(value);
+    if (!Number.isFinite(numeric)) {
+        return 0;
+    }
+
+    return Math.max(0, Math.trunc(numeric));
 }
 
 function deriveWatchState(input: ViewerWatchDerivationInput): ViewerWatchDerivedState {
@@ -148,6 +181,40 @@ export function deriveViewerWatchAssetState(input: ViewerWatchDerivationInput) {
     return deriveWatchState(input);
 }
 
+export function deriveViewerWatchCaptureState(input: {
+    replayRecovered?: boolean | null;
+    replayRecoveredCount?: number | null;
+    gapCount?: number | null;
+    flushFailureCount?: number | null;
+    isClosed?: boolean | null;
+    closeReason?: string | null;
+}) {
+    const replayRecovered = Boolean(input.replayRecovered) || asFiniteInteger(input.replayRecoveredCount) > 0;
+    const gapDetected = asFiniteInteger(input.gapCount) > 0;
+    const flushDegraded = asFiniteInteger(input.flushFailureCount) > 0;
+    const closeMissing = !Boolean(input.isClosed) && asFiniteInteger(input.flushFailureCount) > 0 && !input.closeReason;
+
+    let captureQuality: ViewerWatchCaptureQuality = "full";
+    if (closeMissing) {
+        captureQuality = "close_missing";
+    } else if (flushDegraded) {
+        captureQuality = "flush_degraded";
+    } else if (gapDetected) {
+        captureQuality = "gap_detected";
+    } else if (replayRecovered) {
+        captureQuality = "replayed";
+    }
+
+    return {
+        captureQuality,
+        degraded: captureQuality !== "full",
+        replayRecovered,
+        closeMissing,
+        gapDetected,
+        flushDegraded,
+    } satisfies ViewerWatchCaptureState;
+}
+
 export interface ViewerWatchAssetSnapshot {
     assetKey: string;
     assetIndex: number;
@@ -167,6 +234,13 @@ export interface ViewerWatchAssetSnapshot {
     heartbeatCount: number;
     loadMsTotal: number;
     loadSampleCount: number;
+    seekCount?: number;
+    seekForwardSeconds?: number;
+    seekBackwardSeconds?: number;
+    waitingCount?: number;
+    waitingDurationSeconds?: number;
+    playbackRateAverage?: number;
+    mutedSampleCount?: number;
 }
 
 export interface ViewerWatchSessionSnapshot {
@@ -198,5 +272,16 @@ export interface ViewerWatchSessionSnapshot {
     loadMsTotal: number;
     loadSampleCount: number;
     averageLoadMs: number;
+    captureQuality?: ViewerWatchCaptureQuality;
+    captureTransport?: ViewerWatchCaptureTransport;
+    replayRecovered?: boolean;
+    replayRecoveredCount?: number;
+    flushAttemptCount?: number;
+    flushSuccessCount?: number;
+    flushFailureCount?: number;
+    visibilityHiddenCount?: number;
+    hiddenDurationSeconds?: number;
+    gapCount?: number;
+    maxGapMs?: number;
     assets: ViewerWatchAssetSnapshot[];
 }

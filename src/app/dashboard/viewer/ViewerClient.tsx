@@ -385,6 +385,8 @@ export function ViewerClient({ drop, allDrops }: ViewerClientProps) {
     const sessionRelatedClickCountRef = useRef(0);
     const startedAssetKeysRef = useRef<Set<string>>(new Set());
     const completedAssetKeysRef = useRef<Set<string>>(new Set());
+    const mediaSeekStartedAtRef = useRef<number | null>(null);
+    const mediaWaitingStartedAtRef = useRef<number | null>(null);
     const securityLastSignalAtRef = useRef<Map<string, number>>(new Map());
     const securitySignalCountsRef = useRef<Map<string, number>>(new Map());
     const rapidVisibilityTimestampsRef = useRef<number[]>([]);
@@ -444,6 +446,9 @@ export function ViewerClient({ drop, allDrops }: ViewerClientProps) {
         reportMediaEnded: reportWatchMediaEnded,
         reportMediaPause: reportWatchMediaPause,
         reportMediaPlay: reportWatchMediaPlay,
+        reportMediaSeeking: reportWatchMediaSeeking,
+        reportMediaWaiting: reportWatchMediaWaiting,
+        reportPlaybackState: reportWatchPlaybackState,
     } = useViewerWatchSession({
         enabled: isAuthorized && Boolean(dropId),
         dropId,
@@ -1431,6 +1436,7 @@ export function ViewerClient({ drop, allDrops }: ViewerClientProps) {
                                             draggable={false}
                                             onPlay={() => {
                                                 reportWatchMediaPlay();
+                                                reportWatchPlaybackState(1, false);
                                                 trackEvent("video_played", {
                                                     content_id: drop.id,
                                                     video_title: drop.title
@@ -1441,11 +1447,57 @@ export function ViewerClient({ drop, allDrops }: ViewerClientProps) {
                                                     event.currentTarget.currentTime,
                                                     event.currentTarget.duration,
                                                 );
+                                                reportWatchPlaybackState(
+                                                    event.currentTarget.playbackRate,
+                                                    event.currentTarget.muted,
+                                                );
+                                            }}
+                                            onSeeking={(event) => {
+                                                mediaSeekStartedAtRef.current =
+                                                    event.currentTarget.currentTime;
                                             }}
                                             onSeeked={(event) => {
+                                                reportWatchMediaSeeking(
+                                                    mediaSeekStartedAtRef.current ?? event.currentTarget.currentTime,
+                                                    event.currentTarget.currentTime,
+                                                    event.currentTarget.duration,
+                                                );
+                                                mediaSeekStartedAtRef.current = null;
                                                 reportWatchAssetProgress(
                                                     event.currentTarget.currentTime,
                                                     event.currentTarget.duration,
+                                                );
+                                            }}
+                                            onWaiting={() => {
+                                                mediaWaitingStartedAtRef.current = performance.now();
+                                            }}
+                                            onPlaying={(event) => {
+                                                const waitingStartedAt =
+                                                    mediaWaitingStartedAtRef.current;
+                                                if (waitingStartedAt !== null) {
+                                                    reportWatchMediaWaiting(
+                                                        Math.max(
+                                                            0,
+                                                            (performance.now() - waitingStartedAt) / 1000,
+                                                        ),
+                                                    );
+                                                    mediaWaitingStartedAtRef.current = null;
+                                                }
+                                                reportWatchPlaybackState(
+                                                    event.currentTarget.playbackRate,
+                                                    event.currentTarget.muted,
+                                                );
+                                            }}
+                                            onRateChange={(event) => {
+                                                reportWatchPlaybackState(
+                                                    event.currentTarget.playbackRate,
+                                                    event.currentTarget.muted,
+                                                );
+                                            }}
+                                            onVolumeChange={(event) => {
+                                                reportWatchPlaybackState(
+                                                    event.currentTarget.playbackRate,
+                                                    event.currentTarget.muted,
                                                 );
                                             }}
                                             onTimeUpdate={(event) => {
@@ -1491,17 +1543,64 @@ export function ViewerClient({ drop, allDrops }: ViewerClientProps) {
                                                 onContextMenu={preventContextMenu}
                                                 onPlay={() => {
                                                     reportWatchMediaPlay();
+                                                    reportWatchPlaybackState(1, false);
                                                 }}
                                                 onPause={(event) => {
                                                     reportWatchMediaPause(
                                                         event.currentTarget.currentTime,
                                                         event.currentTarget.duration,
                                                     );
+                                                    reportWatchPlaybackState(
+                                                        event.currentTarget.playbackRate,
+                                                        event.currentTarget.muted,
+                                                    );
+                                                }}
+                                                onSeeking={(event) => {
+                                                    mediaSeekStartedAtRef.current =
+                                                        event.currentTarget.currentTime;
                                                 }}
                                                 onSeeked={(event) => {
+                                                    reportWatchMediaSeeking(
+                                                        mediaSeekStartedAtRef.current ?? event.currentTarget.currentTime,
+                                                        event.currentTarget.currentTime,
+                                                        event.currentTarget.duration,
+                                                    );
+                                                    mediaSeekStartedAtRef.current = null;
                                                     reportWatchAssetProgress(
                                                         event.currentTarget.currentTime,
                                                         event.currentTarget.duration,
+                                                    );
+                                                }}
+                                                onWaiting={() => {
+                                                    mediaWaitingStartedAtRef.current = performance.now();
+                                                }}
+                                                onPlaying={(event) => {
+                                                    const waitingStartedAt =
+                                                        mediaWaitingStartedAtRef.current;
+                                                    if (waitingStartedAt !== null) {
+                                                        reportWatchMediaWaiting(
+                                                            Math.max(
+                                                                0,
+                                                                (performance.now() - waitingStartedAt) / 1000,
+                                                            ),
+                                                        );
+                                                        mediaWaitingStartedAtRef.current = null;
+                                                    }
+                                                    reportWatchPlaybackState(
+                                                        event.currentTarget.playbackRate,
+                                                        event.currentTarget.muted,
+                                                    );
+                                                }}
+                                                onRateChange={(event) => {
+                                                    reportWatchPlaybackState(
+                                                        event.currentTarget.playbackRate,
+                                                        event.currentTarget.muted,
+                                                    );
+                                                }}
+                                                onVolumeChange={(event) => {
+                                                    reportWatchPlaybackState(
+                                                        event.currentTarget.playbackRate,
+                                                        event.currentTarget.muted,
                                                     );
                                                 }}
                                                 onTimeUpdate={(event) => {

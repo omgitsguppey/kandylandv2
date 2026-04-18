@@ -9,6 +9,7 @@ import { adminDb } from "@/lib/server/firebase-admin";
 import { ADMIN_ANALYTICS_REALTIME_ADAPTIVE } from "@/lib/server/rate-limit";
 import { AnalyticsReportRow, safeRunRealtimeReport } from "@/lib/server/admin-analytics-shared";
 import { buildRealtimeSurfaceMix } from "@/lib/server/admin-analytics-context";
+import { buildWatchCaptureHealthSummary } from "@/lib/server/admin-analytics-capture-health";
 import { createAdminAnalyticsDataClient, getAdminAnalyticsPropertyId } from "@/lib/server/admin-analytics-data";
 import { buildHistoricalOnboardingOverview } from "@/lib/server/admin-analytics-historical-onboarding";
 import { guardApiRequest } from "@/lib/server/request-guard";
@@ -85,7 +86,7 @@ export async function GET(request: NextRequest) {
 
     liveData.sort((a, b) => b.minute - a.minute);
 
-    const [sessionsQuery, onboardingFactsSnapshot] = await Promise.all([
+    const [sessionsQuery, onboardingFactsSnapshot, watchSessionsSnapshot, watchAssetsSnapshot] = await Promise.all([
       safeQueryWithDiagnostics({
         routeName: "admin/analytics/realtime",
         channel: "analytics",
@@ -102,6 +103,24 @@ export async function GET(request: NextRequest) {
         issues,
         reader: () => adminDb.collection(ANALYTICS_CANONICAL_COLLECTIONS.identifiedEventFacts)
           .where("timestamp", ">=", onboardingWindowStartMs)
+          .get(),
+      }),
+      safeQueryWithDiagnostics({
+        routeName: "admin/analytics/realtime",
+        channel: "analytics",
+        label: "watch sessions",
+        issues,
+        reader: () => adminDb.collection(ANALYTICS_CANONICAL_COLLECTIONS.watchSessions)
+          .where("lastSeenAtMs", ">=", thirtyMinsAgo)
+          .get(),
+      }),
+      safeQueryWithDiagnostics({
+        routeName: "admin/analytics/realtime",
+        channel: "analytics",
+        label: "watch assets",
+        issues,
+        reader: () => adminDb.collection(ANALYTICS_CANONICAL_COLLECTIONS.watchAssets)
+          .where("lastSeenAtMs", ">=", thirtyMinsAgo)
           .get(),
       }),
     ]);
@@ -130,6 +149,10 @@ export async function GET(request: NextRequest) {
       .sort((left, right) => right.lastSeenAt - left.lastSeenAt)
       .slice(0, 8);
     const surfaceMix = buildRealtimeSurfaceMix({ activeUsers });
+    const watchCaptureHealth = buildWatchCaptureHealthSummary({
+      watchSessionDocs: watchSessionsSnapshot.docs,
+      watchAssetDocs: watchAssetsSnapshot.docs,
+    });
 
     return finalize(NextResponse.json({
       success: true,
@@ -140,6 +163,7 @@ export async function GET(request: NextRequest) {
       data: liveData,
       activeUsers,
       surfaceMix,
+      watchCaptureHealth,
       onboardingStats: {
         starts: onboardingOverview.onboardingStartCount,
         completions: onboardingOverview.normalizedOnboardingCompletions,

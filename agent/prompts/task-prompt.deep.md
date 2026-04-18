@@ -10,14 +10,16 @@ Likely touched files:
 - scripts/agent/build-task-context.ts
 - scripts/agent/build-ui-surface-coverage.ts
 - scripts/agent/check-agent-context.ts
-- scripts/agent/extract-canonical-helpers.ts
 - scripts/agent/extract-runtime-observability.ts
 - scripts/agent/run-evals.ts
 - scripts/agent/sync-sql.ts
 - scripts/agent/classify-repo-files.ts
+- scripts/agent/extract-canonical-helpers.ts
 - scripts/agent/extract-governance.ts
-- scripts/agent/extract-workflow.ts
-- scripts/agent/shared.ts
+- FULL_SCALE_CODEBASE_AUDIT.md
+- REPO_MEMORY_LEDGER.md
+- EVERY_FILE_FUNCTION_CHECKLIST.md
+- .agent/workflows/auto-tasks.md
 
 Canonical helpers to reuse:
 - src/lib/gumdrop-economics.ts
@@ -46,11 +48,11 @@ Do not touch without broad signoff:
 - scripts/agent/build-task-context.ts
 - scripts/agent/build-ui-surface-coverage.ts
 - scripts/agent/check-agent-context.ts
-- scripts/agent/extract-canonical-helpers.ts
 - scripts/agent/extract-runtime-observability.ts
 - scripts/agent/run-evals.ts
 - scripts/agent/sync-sql.ts
 - scripts/agent/classify-repo-files.ts
+- scripts/agent/extract-canonical-helpers.ts
 - scripts/agent/extract-governance.ts
 - scripts/agent/extract-workflow.ts
 - scripts/agent/shared.ts

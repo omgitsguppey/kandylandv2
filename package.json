@@ -23,6 +23,7 @@
     "eval:agent-context": "tsx scripts/agent/run-evals.ts",
     "check:telemetry": "tsx scripts/audit-telemetry.ts",
     "check:analytics-semantics": "tsx scripts/check-analytics-semantics.ts",
+    "check:analytics:continuity": "tsx scripts/check-analytics-continuity.ts",
     "check:firebase-runtime": "tsx scripts/check-firebase-runtime.ts",
     "check:runtime:continuity": "tsx scripts/check-runtime-continuity.ts",
     "check:queue:runtime": "tsx scripts/check-queue-runtime.ts",

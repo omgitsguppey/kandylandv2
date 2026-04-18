@@ -1,5 +1,5 @@
 {
-  "generatedAt": "2026-04-18T02:54:48.226Z",
+  "generatedAt": "2026-04-18T03:43:30.551Z",
   "truthOrder": [
     "verified_runtime_code",
     "verified_configuration",
@@ -36,16 +36,39 @@
   "likelySurfaces": [
     "repo_scripts"
   ],
+  "hotContextFiles": [
+    "scripts/agent/build-agent-indexes.ts",
+    "scripts/agent/build-task-context.ts",
+    "scripts/agent/build-ui-surface-coverage.ts",
+    "scripts/agent/check-agent-context.ts",
+    "scripts/agent/extract-runtime-observability.ts"
+  ],
+  "warmContextFiles": [
+    "scripts/agent/run-evals.ts",
+    "scripts/agent/sync-sql.ts",
+    "scripts/agent/classify-repo-files.ts",
+    "scripts/agent/extract-canonical-helpers.ts",
+    "scripts/agent/extract-governance.ts"
+  ],
+  "coldContextFiles": [
+    "FULL_SCALE_CODEBASE_AUDIT.md",
+    "REPO_MEMORY_LEDGER.md",
+    "EVERY_FILE_FUNCTION_CHECKLIST.md",
+    ".agent/workflows/auto-tasks.md",
+    "6/6",
+    "npm run trace:adjacent -- scripts/agent/build-task-context.ts",
+    "npm run trace:adjacent -- src/app/admin/analytics/page.tsx"
+  ],
   "likelyTouchedFiles": [
     "scripts/agent/build-agent-indexes.ts",
     "scripts/agent/build-task-context.ts",
     "scripts/agent/build-ui-surface-coverage.ts",
     "scripts/agent/check-agent-context.ts",
-    "scripts/agent/extract-canonical-helpers.ts",
     "scripts/agent/extract-runtime-observability.ts",
     "scripts/agent/run-evals.ts",
     "scripts/agent/sync-sql.ts",
     "scripts/agent/classify-repo-files.ts",
+    "scripts/agent/extract-canonical-helpers.ts",
     "scripts/agent/extract-governance.ts",
     "scripts/agent/extract-workflow.ts",
     "scripts/agent/shared.ts"
@@ -98,21 +121,63 @@
   "sqlMirrorFreshnessState": "unknown",
   "confidenceNotes": [
     "Mode resolved as audit.",
-    "Ranking considered 861 repo files and 22 canonical helper entries.",
+    "Ranking considered 865 repo files and 22 canonical helper entries.",
     "UI coverage matched 8 indexed surfaces."
   ],
   "ambiguityNotes": [],
   "do_not_read_unless_needed": [],
+  "excludedContext": [
+    {
+      "path": "agent/state/eval-results.generated.json",
+      "why_not_selected": "generated_penalty"
+    },
+    {
+      "path": "REPO_MEMORY_LEDGER.md",
+      "why_not_selected": "evidence_only"
+    },
+    {
+      "path": "agent/index/repo-inventory.json",
+      "why_not_selected": "generated_penalty"
+    },
+    {
+      "path": "tests/ui-audits/visual-regression.spec.ts-snapshots/ui-surface-src-app-creators-apply-page-tsx-chromium-win32.png",
+      "why_not_selected": "evidence_only"
+    },
+    {
+      "path": "tests/ui-audits/visual-regression.spec.ts-snapshots/ui-surface-src-app-creators-apply-page-tsx-Mobile-Chrome-win32.png",
+      "why_not_selected": "evidence_only"
+    },
+    {
+      "path": "tests/ui-audits/visual-regression.spec.ts-snapshots/ui-surface-src-app-creators-waitlist-page-tsx-chromium-win32.png",
+      "why_not_selected": "evidence_only"
+    },
+    {
+      "path": "tests/ui-audits/visual-regression.spec.ts-snapshots/ui-surface-src-app-creators-waitlist-page-tsx-Mobile-Chrome-win32.png",
+      "why_not_selected": "evidence_only"
+    },
+    {
+      "path": "tests/ui-audits/visual-regression.spec.ts-snapshots/ui-surface-src-app-page-tsx-chromium-win32.png",
+      "why_not_selected": "evidence_only"
+    },
+    {
+      "path": "tests/ui-audits/visual-regression.spec.ts-snapshots/ui-surface-src-app-page-tsx-Mobile-Chrome-win32.png",
+      "why_not_selected": "evidence_only"
+    },
+    {
+      "path": "agent/index/ui-surface-coverage.json",
+      "why_not_selected": "generated_penalty"
+    }
+  ],
   "do_not_touch_without_broad_signoff": [
     "scripts/agent/build-agent-indexes.ts",
     "scripts/agent/build-task-context.ts",
     "scripts/agent/build-ui-surface-coverage.ts",
     "scripts/agent/check-agent-context.ts",
-    "scripts/agent/extract-canonical-helpers.ts",
     "scripts/agent/extract-runtime-observability.ts",
     "scripts/agent/run-evals.ts",
     "scripts/agent/sync-sql.ts",
     "scripts/agent/classify-repo-files.ts",
+    "scripts/agent/extract-canonical-helpers.ts",
     "scripts/agent/extract-governance.ts",
     "scripts/agent/extract-workflow.ts",
     "scripts/agent/shared.ts"
@@ -183,22 +248,6 @@
       "freshness_state": "fresh"
     },
     {
-      "stable_id": "file__scripts__agent__extract-canonical-helpers-ts",
-      "path": "scripts/agent/extract-canonical-helpers.ts",
-      "score": 136,
-      "why_selected": "path_domain_match, task_signal_match, filename_match, canonical_helper_relevance, adjacency_match, recent_pass_match, verification_lane_match",
-      "weighted_components": [
-        "path_domain_match",
-        "task_signal_match",
-        "filename_match",
-        "canonical_helper_relevance",
-        "adjacency_match",
-        "recent_pass_match",
-        "verification_lane_match"
-      ],
-      "freshness_state": "fresh"
-    },
-    {
       "stable_id": "file__scripts__agent__extract-runtime-observability-ts",
       "path": "scripts/agent/extract-runtime-observability.ts",
       "score": 136,
@@ -249,6 +298,21 @@
     {
       "stable_id": "file__scripts__agent__classify-repo-files-ts",
       "path": "scripts/agent/classify-repo-files.ts",
+      "score": 122,
+      "why_selected": "path_domain_match, task_signal_match, filename_match, canonical_helper_relevance, adjacency_match, verification_lane_match",
+      "weighted_components": [
+        "path_domain_match",
+        "task_signal_match",
+        "filename_match",
+        "canonical_helper_relevance",
+        "adjacency_match",
+        "verification_lane_match"
+      ],
+      "freshness_state": "fresh"
+    },
+    {
+      "stable_id": "file__scripts__agent__extract-canonical-helpers-ts",
+      "path": "scripts/agent/extract-canonical-helpers.ts",
       "score": 122,
       "why_selected": "path_domain_match, task_signal_match, filename_match, canonical_helper_relevance, adjacency_match, verification_lane_match",
       "weighted_components": [

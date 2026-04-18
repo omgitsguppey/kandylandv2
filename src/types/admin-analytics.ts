@@ -254,6 +254,31 @@ export interface ViewerUserOptionItem {
   totalWatchSeconds: number;
 }
 
+export interface WatchCaptureTransportCountItem {
+  transport: "fetch" | "keepalive_fetch" | "replay_fetch" | "unknown";
+  count: number;
+}
+
+export interface WatchCaptureHealthItem {
+  sessionCount: number;
+  fullCaptureCount: number;
+  degradedSessionCount: number;
+  replayRecoveredCount: number;
+  gapDetectedCount: number;
+  flushDegradedCount: number;
+  closeMissingCount: number;
+  degradedRate: number;
+  averageGapMs: number;
+  averageHiddenSeconds: number;
+  averageWaitSeconds: number;
+  averageSeekCount: number;
+  averagePlaybackRate: number;
+  mutedSessionCount: number;
+  transportBreakdown: WatchCaptureTransportCountItem[];
+  lastSeenAtMs: number;
+  warnings: string[];
+}
+
 export interface ValidationItem {
   label: string;
   status: "pass" | "warn" | "fail";
@@ -377,6 +402,7 @@ export interface HistoricalAnalyticsResponse {
   viewerOverview?: ViewerOverviewItem;
   viewerDropInsights?: ViewerDropInsightItem[];
   viewerUsers?: ViewerUserOptionItem[];
+  watchCaptureHealth?: WatchCaptureHealthItem;
   viewerFilter?: string;
   semanticCategories?: SemanticCategorySummaryItem[];
   validations?: ValidationItem[];
@@ -393,6 +419,7 @@ export interface RealtimeAnalyticsResponse {
   data?: RealtimePoint[];
   activeUsers?: RealtimeActiveUserItem[];
   surfaceMix?: SurfaceMixItem[];
+  watchCaptureHealth?: WatchCaptureHealthItem;
 }
 
 export interface AnalyticsPreferencesResponse {

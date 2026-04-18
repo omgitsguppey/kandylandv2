@@ -23,6 +23,7 @@ import { buildHistoricalTrafficOverview } from "@/lib/server/admin-analytics-his
 import { buildHistoricalValidationSummary } from "@/lib/server/admin-analytics-historical-validation";
 import { buildHistoricalViewerOverview } from "@/lib/server/admin-analytics-historical-viewer";
 import { buildHistoricalAnalyticsUserMap } from "@/lib/server/admin-analytics-historical-users";
+import { buildWatchCaptureHealthSummary } from "@/lib/server/admin-analytics-capture-health";
 import { buildAdminOpsHealth } from "@/lib/server/admin-ops-health";
 import { buildSemanticCategorySummaries } from "@/lib/server/analytics-semantics";
 import { buildAnalyticsMetricReport } from "@/lib/server/analytics-metrics";
@@ -98,7 +99,10 @@ function scopeHistoricalResponse(section: string | null, payload: Record<string,
         case "semanticsEngine":
             return withSharedFields({ semanticEngine: payload.semanticEngine });
         case "dataValidation":
-            return withSharedFields({ validations: payload.validations });
+            return withSharedFields({
+                validations: payload.validations,
+                watchCaptureHealth: payload.watchCaptureHealth,
+            });
         case "audienceSnapshot":
             return withSharedFields({
                 data: payload.data,
@@ -133,6 +137,7 @@ function scopeHistoricalResponse(section: string | null, payload: Record<string,
                 viewerOverview: payload.viewerOverview,
                 viewerDropInsights: payload.viewerDropInsights,
                 viewerUsers: payload.viewerUsers,
+                watchCaptureHealth: payload.watchCaptureHealth,
                 userJourneys: payload.userJourneys,
                 viewerFilter: payload.viewerFilter,
             });
@@ -614,6 +619,10 @@ export async function GET(request: NextRequest) {
                 viewerUser,
                 dropReferences,
             });
+            const watchCaptureHealth = buildWatchCaptureHealthSummary({
+                watchSessionDocs: watchSessionsSnapshot.docs,
+                watchAssetDocs: watchAssetsSnapshot.docs,
+            });
             const contextInsights = buildHistoricalAnalyticsContext({
                 telemetryLogs,
                 guestBatchDocs: guestBatchesSnapshot.docs,
@@ -695,6 +704,10 @@ export async function GET(request: NextRequest) {
                 viewerSessionCount: viewerOverviewCanonical.sessionCount,
                 watchSessionCount: watchSessionsSnapshot.size,
                 watchAssetCount: watchAssetsSnapshot.size,
+                watchCaptureFullCount: watchCaptureHealth.fullCaptureCount,
+                watchCaptureDegradedCount: watchCaptureHealth.degradedSessionCount,
+                watchCaptureCloseMissingCount: watchCaptureHealth.closeMissingCount,
+                watchCaptureReplayRecoveredCount: watchCaptureHealth.replayRecoveredCount,
                 filteredSessionFactsLength: filteredSessionFacts.length,
                 viewerSessionStartedLogsLength: viewerSessionStartedLogs.length,
                 pipelineFailureCount,
@@ -760,6 +773,7 @@ export async function GET(request: NextRequest) {
                 viewerOverview: viewerOverviewCanonical,
                 viewerDropInsights,
                 viewerUsers,
+                watchCaptureHealth,
                 viewerFilter: viewerUser,
                 semanticCategories,
                 semanticEngine,

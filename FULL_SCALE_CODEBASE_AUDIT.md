@@ -1,5 +1,80 @@
 # KandyDrops Core Codebase Audit & Defensive Ledger
 
+## [2026-04-17 #17] Token-Efficiency Fabric Hardening + Watch/Session Analytics Deepening
+
+Scope for this pass:
+- Implement the research-driven token-efficiency and analytics hardening work inside the existing repo intelligence, runtime continuity, and admin analytics lanes: add stronger context compaction/exclusion/freshness metadata for agent task generation, deepen watch/session capture quality and replay confidence, add analytics continuity checks that surface silent capture degradation, and expose capture health in admin analytics.
+
+Startup protocol executed:
+- Read `FULL_SCALE_CODEBASE_AUDIT.md`.
+- Read `REPO_MEMORY_LEDGER.md`.
+- Read `EVERY_FILE_FUNCTION_CHECKLIST.md`.
+- Ran `git status --short`.
+- Updated `.agent/workflows/auto-tasks.md` for the token-efficiency and watch-session hardening pass.
+- Identified touched surfaces around:
+  - `scripts/agent/build-task-context.ts`
+  - `scripts/agent/build-agent-indexes.ts`
+  - `scripts/agent/run-evals.ts`
+  - `scripts/agent/extract-runtime-observability.ts`
+  - `src/hooks/useViewerWatchSession.ts`
+  - `src/app/api/viewer/watch-session/route.ts`
+  - `src/lib/viewer-watch-session.ts`
+  - `src/app/api/admin/analytics/historical/route.ts`
+  - `src/app/api/admin/analytics/realtime/route.ts`
+  - `src/app/admin/analytics/page.tsx`
+- Ran adjacency review for the main task-context, viewer watch-session, and admin analytics surfaces before implementation.
+
+Root causes identified:
+- Agent task compilation still over-read broad repo context because the generated context pack did not distinguish hot/warm/cold context tiers or record explicit exclusions for generated/evidence-heavy surfaces.
+- Viewer watch-session ingestion captured only coarse watch metrics, which left replay recovery, flush degradation, close-path misses, visibility gaps, and seek/wait quality invisible to canonical analytics truth.
+- Admin analytics could show viewer watch depth but not capture-quality health, so silent watch-session degradation could survive until a human manually compared multiple surfaces.
+- The repo had no lightweight analytics continuity lane for canonical watch-session quality, so degraded capture behavior could slip through without a full audit.
+
+Implementation results:
+- Extended `scripts/agent/build-task-context.ts` to emit explicit `hotContextFiles`, `warmContextFiles`, `coldContextFiles`, and `excludedContext`, and updated retrieval metadata/evals so low-token context selection is more deterministic and inspectable.
+- Extended `src/lib/viewer-watch-session.ts`, `src/hooks/useViewerWatchSession.ts`, and `src/app/dashboard/viewer/ViewerClient.tsx` so canonical watch-session payloads now include capture quality/transport, replay recovery, flush counts, visibility-hidden duration, gap detection, seek/wait metrics, playback-rate averages, and muted-session samples.
+- Extended `src/app/api/viewer/watch-session/route.ts` to validate and persist the expanded session/asset fields and derive canonical capture-degraded flags from source truth.
+- Added `src/lib/server/admin-analytics-capture-health.ts` and threaded it into `src/app/api/admin/analytics/historical/route.ts`, `src/app/api/admin/analytics/realtime/route.ts`, `src/lib/server/admin-analytics-historical-validation.ts`, `src/types/admin-analytics.ts`, and `src/app/admin/analytics/page.tsx` so admin analytics exposes viewer capture-health summaries instead of only watch depth.
+- Added `scripts/check-analytics-continuity.ts`, registered `npm run check:analytics:continuity`, and wired the lane into agent verification guidance, runtime observability, known pitfalls, and agent eval coverage.
+- Added targeted verification coverage with `tests/unit/admin-analytics-capture-health.spec.ts` and extended `tests/unit/admin-analytics-realtime-route.spec.ts`.
+
+Verification commands run:
+- `git status --short`
+- `npm run trace:adjacent -- scripts/agent/build-task-context.ts`
+- `npm run trace:adjacent -- src/hooks/useViewerWatchSession.ts`
+- `npm run trace:adjacent -- src/app/api/viewer/watch-session/route.ts`
+- `npm run trace:adjacent -- src/app/admin/analytics/page.tsx`
+- `npx vitest run tests/unit/admin-analytics-capture-health.spec.ts tests/unit/admin-analytics-realtime-route.spec.ts tests/unit/useViewerWatchSession-bench.spec.ts tests/unit/analytics-ingest-route.spec.ts tests/unit/analytics-identifiers.spec.ts`
+- `npm run typecheck`
+- `npm run agent:index`
+- `npm run eval:agent-context`
+- `npm run check:agent-context`
+- `npm run check:analytics-semantics`
+- `npm run check:analytics:continuity`
+- `npm run check:telemetry`
+- `npm run check:continuity`
+- `npm run check:runtime:continuity`
+
+Verification results:
+- `npx vitest run tests/unit/admin-analytics-capture-health.spec.ts tests/unit/admin-analytics-realtime-route.spec.ts tests/unit/useViewerWatchSession-bench.spec.ts tests/unit/analytics-ingest-route.spec.ts tests/unit/analytics-identifiers.spec.ts` passed.
+- `npm run typecheck` passed.
+- `npm run agent:index` passed.
+- `npm run eval:agent-context` passed with `6/6` eval cases.
+- `npm run check:agent-context` passed.
+- `npm run check:analytics-semantics` passed.
+- `npm run check:analytics:continuity` passed.
+- `npm run check:telemetry` passed.
+- `npm run check:continuity` passed.
+- `npm run check:runtime:continuity` failed because the runtime source state is missing canonical `queue_job_heartbeats` entries for `process_queue` and `notify_active_drops`.
+
+Warnings / follow-up:
+- The runtime continuity failure is real and should remain blocking until the canonical queue scheduler heartbeat documents are present; this pass did not silence or bypass that lane.
+- `npm run eval:agent-context` required a longer timeout in the local environment but completed successfully when rerun with adequate time budget.
+- The watch capture-health admin UI depends on canonical watch-session docs existing in the selected range; empty ranges correctly render as no-session state rather than synthetic health.
+
+Cleanup:
+- No generated build/UI artifact cleanup was required; `npm run check:generated-artifacts` remained clean during the continuity sweep.
+
 ## [2026-04-17 #16] Open PR Evaluation, Selective Reimplementation, and Closure
 
 Scope for this pass:

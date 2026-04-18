@@ -73,7 +73,7 @@ import { AdminTaskAndNotificationModules } from "@/components/Admin/Analytics/Ad
 import { PageViewEvent } from "@/components/Analytics/PageViewEvent";
 import { TELEMETRY_EVENT_LABELS } from "@/lib/telemetry-catalog";
 
-import type { ViewTab, RangeOption, HistoricalAnalyticsResponse, RealtimeAnalyticsResponse, AnalyticsPreferencesResponse, RawEventItem, UserJourneyItem, ValidationItem, OnboardingStepStatItem, CountBucketItem } from "@/types/admin-analytics";
+import type { ViewTab, RangeOption, HistoricalAnalyticsResponse, RealtimeAnalyticsResponse, AnalyticsPreferencesResponse, RawEventItem, UserJourneyItem, ValidationItem, OnboardingStepStatItem, CountBucketItem, WatchCaptureHealthItem } from "@/types/admin-analytics";
 
 const EMPTY_ONBOARDING_STATS = {
   starts: 0,
@@ -84,6 +84,25 @@ const EMPTY_ONBOARDING_STATS = {
 };
 const EMPTY_ONBOARDING_STEP_STATS: OnboardingStepStatItem[] = [];
 const EMPTY_COUNT_BUCKETS: CountBucketItem[] = [];
+const EMPTY_WATCH_CAPTURE_HEALTH: WatchCaptureHealthItem = {
+  sessionCount: 0,
+  fullCaptureCount: 0,
+  degradedSessionCount: 0,
+  replayRecoveredCount: 0,
+  gapDetectedCount: 0,
+  flushDegradedCount: 0,
+  closeMissingCount: 0,
+  degradedRate: 0,
+  averageGapMs: 0,
+  averageHiddenSeconds: 0,
+  averageWaitSeconds: 0,
+  averageSeekCount: 0,
+  averagePlaybackRate: 0,
+  mutedSessionCount: 0,
+  transportBreakdown: [],
+  lastSeenAtMs: 0,
+  warnings: [],
+};
 
 interface TooltipValue {
   color?: string;
@@ -719,6 +738,8 @@ export default function AdminAnalyticsPage() {
   };
   const viewerDropInsights = historicalResponse?.viewerDropInsights ?? [];
   const viewerUsers = historicalResponse?.viewerUsers ?? [];
+  const watchCaptureHealth =
+    historicalResponse?.watchCaptureHealth ?? EMPTY_WATCH_CAPTURE_HEALTH;
   const activeViewerFilter =
     historicalResponse?.viewerFilter ?? viewerUserFilter;
   const semanticCategories = historicalResponse?.semanticCategories ?? [];
@@ -729,6 +750,8 @@ export default function AdminAnalyticsPage() {
   const securityReasons = historicalResponse?.securityReasons ?? [];
   const liveActiveUsers = liveResponse?.activeUsers ?? [];
   const liveSurfaceMix = liveResponse?.surfaceMix ?? [];
+  const liveWatchCaptureHealth =
+    liveResponse?.watchCaptureHealth ?? EMPTY_WATCH_CAPTURE_HEALTH;
 
   const needsSetup =
     liveResponse?.requiresSetup ||
@@ -1112,6 +1135,8 @@ export default function AdminAnalyticsPage() {
   const viewerDrilldownInsights =
     viewerDrilldownData?.viewerDropInsights ?? viewerDropInsights;
   const viewerDrilldownUsers = viewerDrilldownData?.viewerUsers ?? viewerUsers;
+  const viewerDrilldownCaptureHealth =
+    viewerDrilldownData?.watchCaptureHealth ?? watchCaptureHealth;
   const viewerDrilldownFilter =
     viewerDrilldownData?.viewerFilter ?? activeViewerFilter;
   const viewerDrilldownJourneys = (
@@ -3939,6 +3964,198 @@ export default function AdminAnalyticsPage() {
                           hint={`${viewerOverview.abandonedSessionCount.toLocaleString()} abandoned / ${viewerOverview.stalledSessionCount.toLocaleString()} stalled`}
                           icon={AlertTriangle}
                         />
+                      </div>
+
+                      <div className="grid gap-4 xl:grid-cols-[0.92fr_1.08fr]">
+                        <div className="rounded-[1.5rem] border border-white/10 bg-black/30 p-4">
+                          <div className="mb-3 flex items-center justify-between gap-3">
+                            <div>
+                              <p className="text-xs font-semibold uppercase tracking-[0.14em] text-gray-500">
+                                Watch capture health
+                              </p>
+                              <p className="mt-1 text-sm text-gray-400">
+                                Canonical viewer-session capture quality,
+                                including degraded sync, replay recovery, and
+                                close-path misses.
+                              </p>
+                            </div>
+                            <span
+                              className={cn(
+                                "rounded-full border px-3 py-1 text-[11px] font-semibold",
+                                viewerDrilldownCaptureHealth.closeMissingCount >
+                                  0
+                                  ? "border-red-400/25 bg-red-500/10 text-red-200"
+                                  : viewerDrilldownCaptureHealth
+                                        .degradedSessionCount > 0
+                                    ? "border-amber-400/25 bg-amber-500/10 text-amber-100"
+                                    : "border-emerald-400/25 bg-emerald-500/10 text-emerald-100",
+                              )}
+                            >
+                              {viewerDrilldownCaptureHealth.sessionCount > 0
+                                ? `${formatPercent(
+                                    1 -
+                                      viewerDrilldownCaptureHealth.degradedRate,
+                                  )} full`
+                                : "No sessions"}
+                            </span>
+                          </div>
+
+                          <div className="grid gap-3 sm:grid-cols-2">
+                            <MetricCard
+                              label="Degraded"
+                              value={formatCompactNumber(
+                                viewerDrilldownCaptureHealth.degradedSessionCount,
+                              )}
+                              hint={`${viewerDrilldownCaptureHealth.replayRecoveredCount.toLocaleString()} replay recovered`}
+                              icon={AlertTriangle}
+                            />
+                            <MetricCard
+                              label="Close Missing"
+                              value={formatCompactNumber(
+                                viewerDrilldownCaptureHealth.closeMissingCount,
+                              )}
+                              hint={`${viewerDrilldownCaptureHealth.flushDegradedCount.toLocaleString()} flush degraded`}
+                              icon={Activity}
+                            />
+                            <MetricCard
+                              label="Avg Wait"
+                              value={formatDuration(
+                                viewerDrilldownCaptureHealth.averageWaitSeconds,
+                              )}
+                              hint={`${viewerDrilldownCaptureHealth.averageSeekCount.toFixed(
+                                1,
+                              )} seeks / session`}
+                              icon={Clock3}
+                            />
+                            <MetricCard
+                              label="Avg Gap"
+                              value={
+                                viewerDrilldownCaptureHealth.averageGapMs > 0
+                                  ? `${viewerDrilldownCaptureHealth.averageGapMs}ms`
+                                  : "0ms"
+                              }
+                              hint={`${viewerDrilldownCaptureHealth.mutedSessionCount.toLocaleString()} muted sessions`}
+                              icon={Route}
+                            />
+                          </div>
+
+                          <div className="mt-4 flex flex-wrap gap-2 text-[11px] text-gray-400">
+                            {viewerDrilldownCaptureHealth.transportBreakdown.map(
+                              (item) => (
+                                <span
+                                  key={item.transport}
+                                  className="rounded-full border border-white/10 bg-white/5 px-3 py-1"
+                                >
+                                  {item.transport.replace(/_/g, " ")} ·{" "}
+                                  {item.count.toLocaleString()}
+                                </span>
+                              ),
+                            )}
+                            {viewerDrilldownCaptureHealth.averagePlaybackRate >
+                            0 ? (
+                              <span className="rounded-full border border-white/10 bg-white/5 px-3 py-1">
+                                Avg playback ·{" "}
+                                {viewerDrilldownCaptureHealth.averagePlaybackRate.toFixed(
+                                  2,
+                                )}
+                                x
+                              </span>
+                            ) : null}
+                            {viewerDrilldownCaptureHealth.lastSeenAtMs > 0 ? (
+                              <span className="rounded-full border border-white/10 bg-white/5 px-3 py-1">
+                                Last session ·{" "}
+                                {formatRelativeTime(
+                                  viewerDrilldownCaptureHealth.lastSeenAtMs,
+                                  nowMs,
+                                )}
+                              </span>
+                            ) : null}
+                          </div>
+
+                          {viewerDrilldownCaptureHealth.warnings.length > 0 ? (
+                            <div className="mt-4 space-y-2">
+                              {viewerDrilldownCaptureHealth.warnings.map(
+                                (warning) => (
+                                  <div
+                                    key={warning}
+                                    className="rounded-2xl border border-amber-400/20 bg-amber-500/10 px-3 py-2 text-xs text-amber-100"
+                                  >
+                                    {warning}
+                                  </div>
+                                ),
+                              )}
+                            </div>
+                          ) : null}
+                        </div>
+
+                        <div className="rounded-[1.5rem] border border-white/10 bg-black/30 p-4">
+                          <div className="mb-3 flex items-center justify-between gap-3">
+                            <div>
+                              <p className="text-xs font-semibold uppercase tracking-[0.14em] text-gray-500">
+                                Live capture pulse
+                              </p>
+                              <p className="mt-1 text-sm text-gray-400">
+                                Recent-session continuity signal from the
+                                realtime lane, kept separate from the broader
+                                historical range.
+                              </p>
+                            </div>
+                            <span className="rounded-full border border-white/10 bg-white/5 px-3 py-1 text-[11px] font-semibold text-gray-300">
+                              {liveWatchCaptureHealth.sessionCount.toLocaleString()}{" "}
+                              recent
+                            </span>
+                          </div>
+
+                          <div className="space-y-3">
+                            {[
+                              {
+                                label: "Full capture",
+                                value: liveWatchCaptureHealth.fullCaptureCount,
+                              },
+                              {
+                                label: "Replay recovered",
+                                value:
+                                  liveWatchCaptureHealth.replayRecoveredCount,
+                              },
+                              {
+                                label: "Gap detected",
+                                value: liveWatchCaptureHealth.gapDetectedCount,
+                              },
+                              {
+                                label: "Close missing",
+                                value: liveWatchCaptureHealth.closeMissingCount,
+                              },
+                            ].map((item) => (
+                              <div key={item.label}>
+                                <div className="mb-2 flex items-center justify-between gap-3 text-sm">
+                                  <span className="text-white">
+                                    {item.label}
+                                  </span>
+                                  <span className="font-semibold text-brand-purple">
+                                    {item.value.toLocaleString()}
+                                  </span>
+                                </div>
+                                <div className="h-2 overflow-hidden rounded-full bg-white/10">
+                                  <div
+                                    className="h-full rounded-full bg-gradient-to-r from-brand-purple to-cyan-400"
+                                    style={{
+                                      width: `${Math.max(
+                                        6,
+                                        (item.value /
+                                          Math.max(
+                                            1,
+                                            liveWatchCaptureHealth
+                                              .sessionCount || 1,
+                                          )) *
+                                          100,
+                                      )}%`,
+                                    }}
+                                  />
+                                </div>
+                              </div>
+                            ))}
+                          </div>
+                        </div>
                       </div>
 
                       <div className="grid gap-4 xl:grid-cols-[0.98fr_1.02fr]">

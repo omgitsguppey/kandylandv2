@@ -1,5 +1,5 @@
 {
-  "generatedAt": "2026-04-18T02:54:48.802Z",
+  "generatedAt": "2026-04-18T03:43:31.701Z",
   "truthOrder": [
     "verified_runtime_code",
     "verified_configuration",
@@ -14,6 +14,116 @@
     "FULL_SCALE_CODEBASE_AUDIT.md"
   ],
   "passes": [
+    {
+      "stable_id": "pass__2026-04-17-token-efficiency-fabric-hardening-watch__session-analytics-deepening",
+      "date": "2026-04-17",
+      "title": "Token-Efficiency Fabric Hardening + Watch/Session Analytics Deepening",
+      "scopeSummary": [
+        "Implement the research-driven token-efficiency and analytics hardening work inside the existing repo intelligence, runtime continuity, and admin analytics lanes: add stronger context compaction/exclusion/freshness metadata for agent task generation, deepen watch/session capture quality and replay confidence, add analytics continuity checks that surface silent capture degradation, and expose capture health in admin analytics."
+      ],
+      "touchedSurfaces": [
+        ".agent/workflows/auto-tasks.md",
+        "6/6",
+        "npm run trace:adjacent -- scripts/agent/build-task-context.ts",
+        "npm run trace:adjacent -- src/app/admin/analytics/page.tsx",
+        "npm run trace:adjacent -- src/app/api/viewer/watch-session/route.ts",
+        "npm run trace:adjacent -- src/hooks/useViewerWatchSession.ts",
+        "npx vitest run tests/unit/admin-analytics-capture-health.spec.ts tests/unit/admin-analytics-realtime-route.spec.ts tests/unit/useViewerWatchSession-bench.spec.ts tests/unit/analytics-ingest-route.spec.ts tests/unit/analytics-identifiers.spec.ts",
+        "scripts/agent/build-agent-indexes.ts",
+        "scripts/agent/build-task-context.ts",
+        "scripts/agent/extract-runtime-observability.ts",
+        "scripts/agent/run-evals.ts",
+        "scripts/check-analytics-continuity.ts",
+        "src/app/admin/analytics/page.tsx",
+        "src/app/api/admin/analytics/historical/route.ts",
+        "src/app/api/admin/analytics/realtime/route.ts",
+        "src/app/api/viewer/watch-session/route.ts",
+        "src/app/dashboard/viewer/ViewerClient.tsx",
+        "src/hooks/useViewerWatchSession.ts",
+        "src/lib/server/admin-analytics-capture-health.ts",
+        "src/lib/server/admin-analytics-historical-validation.ts",
+        "src/lib/viewer-watch-session.ts",
+        "src/types/admin-analytics.ts",
+        "tests/unit/admin-analytics-capture-health.spec.ts",
+        "tests/unit/admin-analytics-realtime-route.spec.ts"
+      ],
+      "canonicalHelpersReused": [],
+      "verificationCommandsRun": [],
+      "resultSummary": [],
+      "warnings": [],
+      "architecture_change": true,
+      "runtime_change": true,
+      "ui_change": true,
+      "security_change": false,
+      "maintenance_only": false,
+      "changeKinds": [
+        "admin",
+        "ui",
+        "runtime",
+        "tooling",
+        "architecture"
+      ]
+    },
+    {
+      "stable_id": "pass__2026-04-17-open-pr-evaluation-selective-reimplementation-and-closure",
+      "date": "2026-04-17",
+      "title": "Open PR Evaluation, Selective Reimplementation, and Closure",
+      "scopeSummary": [
+        "Evaluate every open GitHub PR against current repo truth, selectively implement the still-correct changes directly in the current codebase, and close or supersede PRs that are redundant, stale, or continuity-breaking."
+      ],
+      "touchedSurfaces": [
+        ".agent/workflows/auto-tasks.md",
+        "npm run trace:adjacent -- \"src/app/api/admin/users/[userId]/username/route.ts\"",
+        "npm run trace:adjacent -- src/app/admin/analytics/page.tsx",
+        "npm run trace:adjacent -- src/components/Admin/AssetUploader.tsx",
+        "npx vitest run tests/unit/admin-user-username-route.spec.ts",
+        "src/app/admin/analytics/page.tsx",
+        "src/app/api/admin/users/[userId]/username/route.ts",
+        "src/components/Admin/AssetUploader.tsx",
+        "tests/unit/admin-user-username-route.spec.ts"
+      ],
+      "canonicalHelpersReused": [],
+      "verificationCommandsRun": [
+        "git status --short",
+        "gh pr list --state open --json number,title,headRefName,baseRefName,author,isDraft,mergeStateStatus,reviewDecision,url",
+        "gh pr view 179 --json number,title,body,files,commits,comments,reviews,author,headRefName,baseRefName,url",
+        "gh pr view 180 --json number,title,body,files,commits,comments,reviews,author,headRefName,baseRefName,url",
+        "gh pr view 181 --json number,title,body,files,commits,comments,reviews,author,headRefName,baseRefName,url",
+        "gh pr view 182 --json number,title,body,files,commits,comments,reviews,author,headRefName,baseRefName,url",
+        "gh pr diff 179",
+        "gh pr diff 180",
+        "gh pr diff 181",
+        "gh pr diff 182",
+        "npm run trace:adjacent -- \"src/app/api/admin/users/[userId]/username/route.ts\"",
+        "npm run trace:adjacent -- src/components/Admin/AssetUploader.tsx",
+        "npm run trace:adjacent -- src/app/admin/analytics/page.tsx",
+        "npx vitest run tests/unit/admin-user-username-route.spec.ts",
+        "npm run typecheck"
+      ],
+      "resultSummary": [
+        "Reconciled the still-valid security fix from PR `#180` directly into `src/app/api/admin/users/[userId]/username/route.ts` by routing admin username changes through the canonical `reserveUsernameForUser(...)` helper instead of open-coding username ownership mutation.",
+        "Extended `tests/unit/admin-user-username-route.spec.ts` so the helper-based username path is covered for success, unchanged usernames, invalid helper responses, and taken usernames.",
+        "Reconciled the valid accessibility fix from PR `#181` directly into `src/components/Admin/AssetUploader.tsx` by adding explicit `aria-label` and `title` attributes to the icon-only remove button.",
+        "Reconciled the valid analytics truth fix from PR `#179` directly into `src/app/admin/analytics/page.tsx` by switching chart-health and rendering gates from array-length truthiness to actual non-zero data checks, while intentionally rejecting the PR's root `pnpm-lock.yaml` addition as continuity-breaking.",
+        "Verified that PR `#182` is already satisfied in current repo truth because the shared analytics governance policies already enforce `requireTrustedOrigin: true` on the affected routes.",
+        "Reconciled the still-valid security fix from PR `#180` directly into `src/app/api/admin/users/[userId]/username/route.ts` by routing admin username changes through the canonical `reserveUsernameForUser(...)` helper instead of open-coding username ownership mutation.",
+        "Extended `tests/unit/admin-user-username-route.spec.ts` so the helper-based username path is covered for success, unchanged usernames, invalid helper responses, and taken usernames.",
+        "Reconciled the valid accessibility fix from PR `#181` directly into `src/components/Admin/AssetUploader.tsx` by adding explicit `aria-label` and `title` attributes to the icon-only remove button.",
+        "Reconciled the valid analytics truth fix from PR `#179` directly into `src/app/admin/analytics/page.tsx` by switching chart-health and rendering gates from array-length truthiness to actual non-zero data checks, while intentionally rejecting the PR's root `pnpm-lock.yaml` addition as continuity-breaking.",
+        "Verified that PR `#182` is already satisfied in current repo truth because the shared analytics governance policies already enforce `requireTrustedOrigin: true` on the affected routes."
+      ],
+      "warnings": [],
+      "architecture_change": false,
+      "runtime_change": true,
+      "ui_change": true,
+      "security_change": false,
+      "maintenance_only": false,
+      "changeKinds": [
+        "admin",
+        "ui",
+        "runtime"
+      ]
+    },
     {
       "stable_id": "pass__2026-04-17-self-debugging-hardening-queue-runtime-canonicalization",
       "date": "2026-04-17",
@@ -706,180 +816,6 @@
       "changeKinds": [
         "ui",
         "tooling"
-      ]
-    },
-    {
-      "stable_id": "pass__2026-04-17-repo-intelligence-warning-remediation",
-      "date": "2026-04-17",
-      "title": "Repo Intelligence Warning Remediation",
-      "scopeSummary": [
-        "Remove the remaining Repo Intelligence Fabric warning states by fixing the underlying ranking, scope-classification, and verification behavior rather than downgrading, suppressing, or reclassifying failures away.",
-        "Re-run the agent-context verification and eval lanes after code changes until the warning-producing commands either pass cleanly or surface a smaller verified defect with explicit root cause."
-      ],
-      "touchedSurfaces": [
-        "/agent/index/*",
-        "/agent/prompts/*",
-        "/agent/state/*",
-        "agent/index/",
-        "agent/state/",
-        "npm run trace:adjacent -- scripts/agent/build-task-context.ts",
-        "npm run trace:adjacent -- scripts/agent/run-evals.ts",
-        "scripts/agent/build-task-context.ts",
-        "scripts/agent/extract-canonical-helpers.ts",
-        "scripts/agent/run-evals.ts",
-        "src/lib/server/admin-ui-chart-health.ts"
-      ],
-      "canonicalHelpersReused": [
-        "src/lib/server/admin-ui-chart-health.ts"
-      ],
-      "verificationCommandsRun": [
-        "git status --short",
-        "Get-Content FULL_SCALE_CODEBASE_AUDIT.md -TotalCount 80",
-        "Get-Content REPO_MEMORY_LEDGER.md -TotalCount 120",
-        "Get-Content EVERY_FILE_FUNCTION_CHECKLIST.md -TotalCount 60",
-        "npm run trace:adjacent -- scripts/agent/build-task-context.ts",
-        "npm run trace:adjacent -- scripts/agent/run-evals.ts",
-        "npm run check:inventory",
-        "npm run eval:agent-context",
-        "npm run typecheck",
-        "npm run agent:refresh",
-        "npm run eval:agent-context",
-        "npm run check:agent-context",
-        "npm run check:inventory",
-        "npm run check:continuity"
-      ],
-      "resultSummary": [
-        "Updated `scripts/agent/build-task-context.ts` to:",
-        "filter low-signal task tokens that were causing generic runtime matches",
-        "derive deterministic task signals for chat, admin, AI, creator, telemetry, dependency, audit, and route/diagnostics work",
-        "narrow broad-signoff detection so repo-wide classification is reserved for actual repo/governance/package/config surfaces instead of ordinary route-plus-helper work",
-        "select verification commands from explicit lane rules rather than generic token overlap",
-        "improve canonical helper scoring using task-signal family matches",
-        "Updated `scripts/agent/extract-canonical-helpers.ts` to register `src/lib/server/admin-ui-chart-health.ts` as a canonical helper in the runtime/admin debug observability family.",
-        "Regenerated the full `/agent/index/*`, `/agent/prompts/*`, and `/agent/state/*` surfaces after the compiler changes.",
-        "Removed the previous pre-commit-only Data Connect inventory warning from the live baseline by verifying against the now-tracked `dataconnect/` files.",
-        "Updated `scripts/agent/build-task-context.ts` to:",
-        "filter low-signal task tokens that were causing generic runtime matches",
-        "derive deterministic task signals for chat, admin, AI, creator, telemetry, dependency, audit, and route/diagnostics work",
-        "narrow broad-signoff detection so repo-wide classification is reserved for actual repo/governance/package/config surfaces instead of ordinary route-plus-helper work",
-        "select verification commands from explicit lane rules rather than generic token overlap",
-        "improve canonical helper scoring using task-signal family matches",
-        "Updated `scripts/agent/extract-canonical-helpers.ts` to register `src/lib/server/admin-ui-chart-health.ts` as a canonical helper in the runtime/admin debug observability family.",
-        "Regenerated the full `/agent/index/*`, `/agent/prompts/*`, and `/agent/state/*` surfaces after the compiler changes.",
-        "Removed the previous pre-commit-only Data Connect inventory warning from the live baseline by verifying against the now-tracked `dataconnect/` files."
-      ],
-      "warnings": [
-        "None. The previously warning-producing repo-intelligence lanes now pass cleanly."
-      ],
-      "architecture_change": true,
-      "runtime_change": false,
-      "ui_change": false,
-      "security_change": false,
-      "maintenance_only": false,
-      "changeKinds": [
-        "admin",
-        "ui",
-        "tooling",
-        "architecture"
-      ]
-    },
-    {
-      "stable_id": "pass__2026-04-16-repo-intelligence-fabric-v1",
-      "date": "2026-04-16",
-      "title": "Repo Intelligence Fabric v1",
-      "scopeSummary": [
-        "Build a repo-native machine-readable agent context layer under `/agent/` so task routing, repo memory, verification guidance, and helper reuse can be derived from generated JSON instead of repeatedly restating giant markdown context.",
-        "Reuse existing inventory, dependency, adjacency, observability, and continuity systems rather than replacing them.",
-        "Update the cross-agent entrypoint and continuity ledgers so future agents consume generated context packs before falling back to broad prose reads."
-      ],
-      "touchedSurfaces": [
-        "/agent/index/*",
-        "/agent/state/*",
-        "dataconnect/example/agent-context.gql",
-        "dataconnect/schema/agent-context.gql",
-        "npm run agent:task-context -- --task=\"build repo intelligence fabric for agent context routing\" --mode=audit --file=scripts/agent/build-agent-indexes.ts",
-        "npm run trace:adjacent -- scripts/agent/build-agent-indexes.ts",
-        "npm run trace:adjacent -- scripts/agent/build-task-context.ts",
-        "npm run trace:adjacent -- scripts/agent/sync-sql.ts",
-        "npm run trace:adjacent -- scripts/export-dependency-graph.ts",
-        "npm run trace:adjacent -- scripts/repo-inventory.ts",
-        "npm run trace:adjacent -- scripts/trace-adjacent-surfaces.ts",
-        "scripts/agent/",
-        "scripts/export-dependency-graph.ts",
-        "scripts/repo-inventory.ts",
-        "scripts/trace-adjacent-surfaces.ts",
-        "src/lib/admin-ui-chart-health.ts",
-        "src/lib/route-runtime-health.ts",
-        "src/lib/server/admin-panel-system-logs.ts",
-        "src/lib/server/route-diagnostics.ts",
-        "warn (1/5 passing)"
-      ],
-      "canonicalHelpersReused": [
-        "src/lib/admin-ui-chart-health.ts",
-        "src/lib/route-runtime-health.ts",
-        "src/lib/server/admin-panel-system-logs.ts",
-        "src/lib/server/route-diagnostics.ts"
-      ],
-      "verificationCommandsRun": [
-        "git status --short",
-        "npm run trace:adjacent -- scripts/repo-inventory.ts",
-        "npm run trace:adjacent -- scripts/export-dependency-graph.ts",
-        "npm run trace:adjacent -- scripts/trace-adjacent-surfaces.ts",
-        "npm run trace:adjacent -- scripts/agent/build-agent-indexes.ts",
-        "npm run trace:adjacent -- scripts/agent/build-task-context.ts",
-        "npm run trace:adjacent -- scripts/agent/sync-sql.ts",
-        "npm run agent:index",
-        "npm run check:agent-intelligence",
-        "npm run agent:sync-sql",
-        "npm run agent:refresh",
-        "npm run agent:task-context -- --task=\"build repo intelligence fabric for agent context routing\" --mode=audit --file=scripts/agent/build-agent-indexes.ts",
-        "npm run check:agent-context",
-        "npm run eval:agent-context",
-        "npm run typecheck",
-        "npm run check:inventory",
-        "npm run check:architecture",
-        "npm run check:continuity"
-      ],
-      "resultSummary": [
-        "Added the committed `/agent/` machine-readable context layer with schemas, state templates, prompt outputs, and generated repo intelligence indexes.",
-        "Implemented deterministic generators under `scripts/agent/` for repo inventory, surface mapping, canonical helpers, workflow guidance, governance truth, runtime observability, dependency summary, blast radius, retrieval index, task-context compilation, SQL mirror payload generation, self-checking, and eval reporting.",
-        "Reused existing repo-native truth lanes instead of replacing them:",
-        "`scripts/repo-inventory.ts`",
-        "`scripts/export-dependency-graph.ts`",
-        "`scripts/trace-adjacent-surfaces.ts`",
-        "runtime observability helpers under `src/lib/route-runtime-health.ts`, `src/lib/server/route-diagnostics.ts`, `src/lib/admin-ui-chart-health.ts`, and `src/lib/server/admin-panel-system-logs.ts`",
-        "Added a derived Data Connect mirror definition under `dataconnect/schema/agent-context.gql` plus a query surface under `dataconnect/example/agent-context.gql`, while keeping repo truth authoritative over the mirror.",
-        "Updated `AGENTS.md` into a cross-agent operational entrypoint that points agents to `/agent/index/*`, `/agent/state/*`, and the deterministic task-context flow before broad prose prompting.",
-        "Updated `REPO_MEMORY_LEDGER.md` to codify `/agent/` as the committed machine-readable context layer and `/.agent/` as workflow-only tooling.",
-        "Updated `EVERY_FILE_FUNCTION_CHECKLIST.md` metadata to cover the new repo-intelligence surfaces and the 2026-04-17 delta set.",
-        "Added the committed `/agent/` machine-readable context layer with schemas, state templates, prompt outputs, and generated repo intelligence indexes.",
-        "Implemented deterministic generators under `scripts/agent/` for repo inventory, surface mapping, canonical helpers, workflow guidance, governance truth, runtime observability, dependency summary, blast radius, retrieval index, task-context compilation, SQL mirror payload generation, self-checking, and eval reporting.",
-        "Reused existing repo-native truth lanes instead of replacing them:",
-        "`scripts/repo-inventory.ts`",
-        "`scripts/export-dependency-graph.ts`",
-        "`scripts/trace-adjacent-surfaces.ts`",
-        "runtime observability helpers under `src/lib/route-runtime-health.ts`, `src/lib/server/route-diagnostics.ts`, `src/lib/admin-ui-chart-health.ts`, and `src/lib/server/admin-panel-system-logs.ts`",
-        "Added a derived Data Connect mirror definition under `dataconnect/schema/agent-context.gql` plus a query surface under `dataconnect/example/agent-context.gql`, while keeping repo truth authoritative over the mirror.",
-        "Updated `AGENTS.md` into a cross-agent operational entrypoint that points agents to `/agent/index/*`, `/agent/state/*`, and the deterministic task-context flow before broad prose prompting.",
-        "Updated `REPO_MEMORY_LEDGER.md` to codify `/agent/` as the committed machine-readable context layer and `/.agent/` as workflow-only tooling.",
-        "Updated `EVERY_FILE_FUNCTION_CHECKLIST.md` metadata to cover the new repo-intelligence surfaces and the 2026-04-17 delta set."
-      ],
-      "warnings": [
-        "`npm run eval:agent-context` currently reports `warn (1/5 passing)` because the initial ranking/scope heuristics are still broad-biased for several moderate cases. The harness is intentionally reporting that miss rather than masking it.",
-        "`npm run check:inventory` still reports `dataconnect: 0` in this pre-commit verification state because the new `dataconnect/` files are untracked until commit. The generated agent fabric and Data Connect mirror wiring still exist locally and validate successfully.",
-        "The SQL/Data Connect mirror is wired as a derived retrieval plane and sync-status artifact, not a live authoritative runtime dependency."
-      ],
-      "architecture_change": true,
-      "runtime_change": false,
-      "ui_change": false,
-      "security_change": false,
-      "maintenance_only": false,
-      "changeKinds": [
-        "admin",
-        "ui",
-        "runtime",
-        "tooling",
-        "architecture"
       ]
     }
   ]

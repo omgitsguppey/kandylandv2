@@ -54,6 +54,10 @@ export function buildHistoricalValidationSummary(input: {
   viewerSessionCount: number;
   watchSessionCount: number;
   watchAssetCount: number;
+  watchCaptureFullCount: number;
+  watchCaptureDegradedCount: number;
+  watchCaptureCloseMissingCount: number;
+  watchCaptureReplayRecoveredCount: number;
   filteredSessionFactsLength: number;
   viewerSessionStartedLogsLength: number;
   pipelineFailureCount: number;
@@ -190,6 +194,19 @@ export function buildHistoricalValidationSummary(input: {
       detail: (input.watchSessionCount > 0 || input.filteredSessionFactsLength > 0 || input.viewerSessionStartedLogsLength > 0)
         ? `${input.watchSessionCount.toLocaleString()} canonical watch sessions, ${input.watchAssetCount.toLocaleString()} watch assets, ${input.filteredSessionFactsLength.toLocaleString()} session facts, and ${input.viewerSessionStartedLogsLength.toLocaleString()} raw session-start events matched the selected range.`
         : "No viewer sessions matched the selected range and filter.",
+    },
+    {
+      label: "Watch capture health",
+      status: input.watchSessionCount === 0
+        ? "warn"
+        : input.watchCaptureCloseMissingCount > 0
+          ? "fail"
+          : input.watchCaptureDegradedCount > 0
+            ? "warn"
+            : "pass",
+      detail: input.watchSessionCount === 0
+        ? "No canonical watch sessions matched the selected range, so capture quality could not be evaluated."
+        : `${input.watchCaptureFullCount.toLocaleString()} full captures, ${input.watchCaptureDegradedCount.toLocaleString()} degraded captures, ${input.watchCaptureReplayRecoveredCount.toLocaleString()} replay-recovered sessions, and ${input.watchCaptureCloseMissingCount.toLocaleString()} close-missing sessions were recorded in the selected range.`,
     },
   ];
 
