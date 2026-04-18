@@ -17,3 +17,7 @@
 **Vulnerability:** The PUT endpoint in `api/admin/ui-chart-health/route.ts` was missing the `requireTrustedOrigin: true` parameter in its `guardApiRequest` call.
 **Learning:** Without explicit trusted origin validation, state-mutating endpoints (POST, PUT, DELETE) are vulnerable to Cross-Site Request Forgery (CSRF) if the API relies on cookies or other ambient authority that browsers automatically attach.
 **Prevention:** Always include `requireTrustedOrigin: true` in the `guardApiRequest` configuration object for any Next.js route handler that performs state mutations (POST, PUT, DELETE), regardless of other authentication checks.
+## 2025-02-27 - Open Redirect via Protocol-Relative Pathnames
+**Vulnerability:** Open redirect risk in `getSafeUrl` via inputs like `//evil.com` or `/\evil.com` bypassing relative path validation when checked against a dummy base URL.
+**Learning:** Normalizing and parsing a user-provided URL against an internal base URL (e.g. `https://kandydrops.invalid`) preserves `//` at the start of the `pathname` property for certain inputs (e.g. `//evil.com`). If the origin matches but the pathname starts with `//`, returning it directly allows browsers to interpret it as a protocol-relative absolute URL (open redirect).
+**Prevention:** When extracting the relative path (`pathname + search + hash`) from a validated URL object, explicitly verify that `pathname` does not start with `//`.

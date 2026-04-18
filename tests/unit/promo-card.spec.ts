@@ -9,6 +9,11 @@ describe("getSafeUrl", () => {
     expect(getSafeUrl("/drops/spring-promo")).toBe("/drops/spring-promo");
   });
 
+  it("blocks protocol-relative open redirect URLs", () => {
+    expect(getSafeUrl("https://kandydrops.invalid//evil.com")).toBeUndefined();
+    expect(getSafeUrl("https://kandydrops.invalid/\\evil.com")).toBeUndefined();
+  });
+
   it("blocks script-bearing and control-character-obfuscated URLs", () => {
     expect(getSafeUrl("javascript:alert(1)")).toBeUndefined();
     expect(getSafeUrl("java\nscript:alert(1)")).toBeUndefined();
