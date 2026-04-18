@@ -84,6 +84,7 @@ function buildMaterializer(input: {
   lastSeenAt: number;
   detail: string;
 }): AdminOpsHealthMaterializerItem {
+  const ageMs = input.lastSeenAt > 0 ? Math.max(0, input.nowMs - input.lastSeenAt) : null;
   return {
     key: input.key,
     label: input.label,
@@ -91,6 +92,7 @@ function buildMaterializer(input: {
     status: getMaterializerStatus(input.nowMs, input.count, input.lastSeenAt),
     count: input.count,
     lastSeenAt: input.lastSeenAt,
+    ageMs,
     detail: input.detail,
   };
 }
@@ -437,17 +439,31 @@ export function buildAdminOpsHealth(input: {
     : pipelineStatus === "warn"
       ? 4
       : 0;
+  const materializerPenalty = materializers.reduce((sum, materializer) => {
+    if (materializer.status === "fail") {
+      return sum + 6;
+    }
+    if (materializer.status === "warn") {
+      return sum + 2;
+    }
+    return sum;
+  }, 0);
+  const runtimePenalty = runtimeWarnings.length * 4;
+  const totalPenalty = runtimePenalty + pipelinePenalty + recentDiagnosticPenalty + materializerPenalty;
 
   const score = Math.max(
     0,
     Math.min(
       100,
-      100
-        - (runtimeWarnings.length * 4)
-        - pipelinePenalty
-        - recentDiagnosticPenalty,
+      100 - totalPenalty,
     ),
   );
+  const materializerSummary = {
+    total: materializers.length,
+    healthy: materializers.filter((item) => item.status === "healthy").length,
+    warn: materializers.filter((item) => item.status === "warn").length,
+    fail: materializers.filter((item) => item.status === "fail").length,
+  };
 
   return {
     score,
@@ -494,5 +510,13 @@ export function buildAdminOpsHealth(input: {
       routes: pipelineRoutes,
     },
     materializers,
+    materializerSummary,
+    scoreBreakdown: {
+      runtimePenalty,
+      diagnosticPenalty: recentDiagnosticPenalty,
+      pipelinePenalty,
+      materializerPenalty,
+      totalPenalty,
+    },
   };
 }

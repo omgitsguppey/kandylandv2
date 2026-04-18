@@ -33,6 +33,8 @@ export type QueueJobStatus = "ok" | "warn" | "failed" | "running"
 
 export type QueueJobHeartbeat = {
   jobId: QueueJobId
+  executionLayer: RuntimeWarningExecutionLayer
+  surface: string
   startedAt: number
   completedAt: number | null
   status: QueueJobStatus

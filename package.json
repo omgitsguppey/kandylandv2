@@ -23,6 +23,7 @@
     "eval:agent-context": "tsx scripts/agent/run-evals.ts",
     "check:telemetry": "tsx scripts/audit-telemetry.ts",
     "check:analytics-semantics": "tsx scripts/check-analytics-semantics.ts",
+    "check:analytics:continuity": "tsx scripts/check-analytics-continuity.ts",
     "check:firebase-runtime": "tsx scripts/check-firebase-runtime.ts",
     "check:runtime:continuity": "tsx scripts/check-runtime-continuity.ts",
     "check:queue:runtime": "tsx scripts/check-queue-runtime.ts",
@@ -166,6 +167,8 @@
     "express": {
       "path-to-regexp": "0.1.13"
     },
+    "@google-cloud/firestore": "^8.5.0",
+    "google-gax": "^5.0.6",
     "router": {
       "path-to-regexp": "^8.4.2"
     },

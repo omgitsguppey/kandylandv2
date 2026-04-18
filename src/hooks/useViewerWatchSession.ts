@@ -8,6 +8,8 @@ import { recordClientDiagnostic } from "@/lib/client-diagnostics";
 import { auth } from "@/lib/firebase";
 import { createAnalyticsWatchSessionId } from "@/lib/analytics-identifiers";
 import type {
+    ViewerWatchCaptureQuality,
+    ViewerWatchCaptureTransport,
     ViewerWatchAssetSnapshot,
     ViewerWatchContentKind,
     ViewerWatchSessionSnapshot,
@@ -37,6 +39,7 @@ interface AssetWatchState extends ViewerWatchAssetSnapshot {
 interface FlushOptions {
     close?: boolean;
     keepalive?: boolean;
+    transport?: ViewerWatchCaptureTransport;
 }
 
 interface SessionContext {
@@ -77,6 +80,32 @@ function clampDeltaMs(value: number) {
     }
 
     return Math.min(value, MAX_TICK_DELTA_MS);
+}
+
+function inferCaptureQuality(input: {
+    replayRecoveredCount: number;
+    gapCount: number;
+    flushFailureCount: number;
+    close: boolean;
+    reason: string;
+}) {
+    if (input.close && input.flushFailureCount > 0) {
+        return "close_missing" satisfies ViewerWatchCaptureQuality;
+    }
+
+    if (input.flushFailureCount > 0) {
+        return "flush_degraded" satisfies ViewerWatchCaptureQuality;
+    }
+
+    if (input.gapCount > 0) {
+        return "gap_detected" satisfies ViewerWatchCaptureQuality;
+    }
+
+    if (input.replayRecoveredCount > 0 || input.reason.startsWith("replay")) {
+        return "replayed" satisfies ViewerWatchCaptureQuality;
+    }
+
+    return "full" satisfies ViewerWatchCaptureQuality;
 }
 
 function isMediaContent(kind: ViewerWatchContentKind) {
@@ -216,6 +245,15 @@ export function useViewerWatchSession(options: UseViewerWatchSessionOptions) {
         assetSwitchCount: 0,
         downloadCount: 0,
         relatedClickCount: 0,
+        visibilityHiddenCount: 0,
+        hiddenDurationMs: 0,
+        hiddenSinceMs: null as number | null,
+        gapCount: 0,
+        maxGapMs: 0,
+        flushAttemptCount: 0,
+        flushSuccessCount: 0,
+        flushFailureCount: 0,
+        replayRecoveredCount: 0,
     });
     const flushSessionRef = useRef<(reason: string, options?: FlushOptions) => Promise<void>>(async () => {});
 
@@ -244,6 +282,15 @@ export function useViewerWatchSession(options: UseViewerWatchSessionOptions) {
             assetSwitchCount: 0,
             downloadCount: 0,
             relatedClickCount: 0,
+            visibilityHiddenCount: 0,
+            hiddenDurationMs: 0,
+            hiddenSinceMs: null,
+            gapCount: 0,
+            maxGapMs: 0,
+            flushAttemptCount: 0,
+            flushSuccessCount: 0,
+            flushFailureCount: 0,
+            replayRecoveredCount: 0,
         };
         setWatchSessionId(null);
     }, []);
@@ -309,6 +356,13 @@ export function useViewerWatchSession(options: UseViewerWatchSessionOptions) {
             heartbeatCount: 0,
             loadMsTotal: 0,
             loadSampleCount: 0,
+            seekCount: 0,
+            seekForwardSeconds: 0,
+            seekBackwardSeconds: 0,
+            waitingCount: 0,
+            waitingDurationSeconds: 0,
+            playbackRateAverage: 0,
+            mutedSampleCount: 0,
             revision: 1,
         };
         assetsRef.current.set(assetKey, created);
@@ -349,10 +403,17 @@ export function useViewerWatchSession(options: UseViewerWatchSessionOptions) {
             return;
         }
 
-        const deltaMs = clampDeltaMs(timestampMs - lastTickAt);
+        const rawDeltaMs = timestampMs - lastTickAt;
+        const deltaMs = clampDeltaMs(rawDeltaMs);
         lastTickAtRef.current = timestampMs;
         if (deltaMs <= 0) {
             return;
+        }
+
+        if (rawDeltaMs > HEARTBEAT_INTERVAL_MS * 2) {
+            sessionMetadataRef.current.gapCount += 1;
+            sessionMetadataRef.current.maxGapMs = Math.max(sessionMetadataRef.current.maxGapMs, Math.round(rawDeltaMs));
+            markSessionDirty();
         }
 
         const deltaSeconds = roundSeconds(deltaMs / 1000);
@@ -377,7 +438,7 @@ export function useViewerWatchSession(options: UseViewerWatchSessionOptions) {
         });
     }, [ensureAssetState, getCurrentAssetIdentity, updateAssetState]);
 
-    const buildSessionPayload = useCallback((reason: string, close: boolean) => {
+    const buildSessionPayload = useCallback((reason: string, close: boolean, options?: FlushOptions) => {
         const activeWatchSessionId = watchSessionIdRef.current;
         if (!activeWatchSessionId || !contextRef.current.dropId || !sessionStartedAtRef.current) {
             return null;
@@ -404,6 +465,17 @@ export function useViewerWatchSession(options: UseViewerWatchSessionOptions) {
         const loadMsTotal = Math.round(allAssets.reduce((sum, asset) => sum + asset.loadMsTotal, 0));
         const loadSampleCount = allAssets.reduce((sum, asset) => sum + asset.loadSampleCount, 0);
         const assetRevisionMap = new Map<string, number>(dirtyAssets.map((asset) => [asset.assetKey, asset.revision]));
+        const captureTransport = (
+            options?.transport
+            ?? (options?.keepalive ? "keepalive_fetch" : "fetch")
+        ) satisfies ViewerWatchCaptureTransport;
+        const captureQuality = inferCaptureQuality({
+            replayRecoveredCount: sessionMetadataRef.current.replayRecoveredCount,
+            gapCount: sessionMetadataRef.current.gapCount,
+            flushFailureCount: sessionMetadataRef.current.flushFailureCount,
+            close,
+            reason,
+        });
 
         const payload: ViewerWatchSessionSnapshot = {
             watchSessionId: activeWatchSessionId,
@@ -434,6 +506,17 @@ export function useViewerWatchSession(options: UseViewerWatchSessionOptions) {
             loadMsTotal,
             loadSampleCount,
             averageLoadMs: loadSampleCount > 0 ? Math.round(loadMsTotal / loadSampleCount) : 0,
+            captureQuality,
+            captureTransport,
+            replayRecovered: sessionMetadataRef.current.replayRecoveredCount > 0,
+            replayRecoveredCount: sessionMetadataRef.current.replayRecoveredCount,
+            flushAttemptCount: sessionMetadataRef.current.flushAttemptCount,
+            flushSuccessCount: sessionMetadataRef.current.flushSuccessCount,
+            flushFailureCount: sessionMetadataRef.current.flushFailureCount,
+            visibilityHiddenCount: sessionMetadataRef.current.visibilityHiddenCount,
+            hiddenDurationSeconds: roundSeconds(sessionMetadataRef.current.hiddenDurationMs / 1000),
+            gapCount: sessionMetadataRef.current.gapCount,
+            maxGapMs: sessionMetadataRef.current.maxGapMs,
             assets: dirtyAssets.map((asset) => ({
                 assetKey: asset.assetKey,
                 assetIndex: asset.assetIndex,
@@ -453,6 +536,13 @@ export function useViewerWatchSession(options: UseViewerWatchSessionOptions) {
                 heartbeatCount: asset.heartbeatCount,
                 loadMsTotal: asset.loadMsTotal,
                 loadSampleCount: asset.loadSampleCount,
+                seekCount: asset.seekCount ?? 0,
+                seekForwardSeconds: asset.seekForwardSeconds ?? 0,
+                seekBackwardSeconds: asset.seekBackwardSeconds ?? 0,
+                waitingCount: asset.waitingCount ?? 0,
+                waitingDurationSeconds: asset.waitingDurationSeconds ?? 0,
+                playbackRateAverage: asset.playbackRateAverage ?? 0,
+                mutedSampleCount: asset.mutedSampleCount ?? 0,
             })),
         };
 
@@ -464,7 +554,7 @@ export function useViewerWatchSession(options: UseViewerWatchSessionOptions) {
     }, [applyActiveDelta, getCurrentAssetIdentity]);
 
     const flushSession = useCallback(async (reason: string, options?: FlushOptions) => {
-        const payloadBundle = buildSessionPayload(reason, options?.close === true);
+        const payloadBundle = buildSessionPayload(reason, options?.close === true, options);
         if (!payloadBundle) {
             return;
         }
@@ -480,6 +570,7 @@ export function useViewerWatchSession(options: UseViewerWatchSessionOptions) {
         const { payload, sessionRevision, assetRevisionMap } = payloadBundle;
         sessionSequenceRef.current = payload.sessionSequence;
         const activeWatchSessionId = payload.watchSessionId;
+        sessionMetadataRef.current.flushAttemptCount += 1;
         persistPendingWatchSession(payload);
         flushInFlightRef.current = (async () => {
             let flushSucceeded = false;
@@ -495,6 +586,7 @@ export function useViewerWatchSession(options: UseViewerWatchSessionOptions) {
                 }
 
                 flushSucceeded = true;
+                sessionMetadataRef.current.flushSuccessCount += 1;
                 clearPendingWatchSession(activeWatchSessionId);
                 lastHeartbeatFlushAtRef.current = currentTimestamp();
 
@@ -513,6 +605,7 @@ export function useViewerWatchSession(options: UseViewerWatchSessionOptions) {
                     }
                 });
             } catch (error) {
+                sessionMetadataRef.current.flushFailureCount += 1;
                 recordClientDiagnostic("telemetry", "Viewer watch session sync failed", {
                     reason,
                     close: options?.close === true,
@@ -573,6 +666,27 @@ export function useViewerWatchSession(options: UseViewerWatchSessionOptions) {
         });
     }, [ensureAssetState, updateAssetState]);
 
+    const reportPlaybackState = useCallback((playbackRate?: number, muted?: boolean) => {
+        const asset = ensureAssetState();
+        if (!asset) {
+            return;
+        }
+
+        updateAssetState(asset, () => {
+            if (Number.isFinite(playbackRate) && playbackRate && playbackRate > 0) {
+                const currentAverage = asset.playbackRateAverage ?? 0;
+                asset.playbackRateAverage = currentAverage > 0
+                    ? Number(((currentAverage + playbackRate) / 2).toFixed(2))
+                    : Number(playbackRate.toFixed(2));
+            }
+
+            if (muted === true) {
+                asset.mutedSampleCount = (asset.mutedSampleCount ?? 0) + 1;
+            }
+            asset.lastSeenAtMs = Math.max(asset.lastSeenAtMs, currentTimestamp());
+        });
+    }, [ensureAssetState, updateAssetState]);
+
     const reportAssetProgress = useCallback((progressSeconds: number, durationSeconds?: number) => {
         const asset = ensureAssetState();
         if (!asset) {
@@ -586,6 +700,42 @@ export function useViewerWatchSession(options: UseViewerWatchSessionOptions) {
             if (Number.isFinite(durationSeconds) && durationSeconds && durationSeconds > 0) {
                 asset.durationSeconds = Math.max(1, Math.round(durationSeconds));
             }
+            asset.lastSeenAtMs = Math.max(asset.lastSeenAtMs, currentTimestamp());
+        });
+    }, [ensureAssetState, updateAssetState]);
+
+    const reportMediaSeeking = useCallback((fromSeconds: number, toSeconds: number, durationSeconds?: number) => {
+        const asset = ensureAssetState();
+        if (!asset) {
+            return;
+        }
+
+        updateAssetState(asset, () => {
+            const normalizedFrom = Math.max(0, Number.isFinite(fromSeconds) ? fromSeconds : 0);
+            const normalizedTo = Math.max(0, Number.isFinite(toSeconds) ? toSeconds : 0);
+            const delta = Math.abs(normalizedTo - normalizedFrom);
+            asset.seekCount = (asset.seekCount ?? 0) + 1;
+            if (normalizedTo >= normalizedFrom) {
+                asset.seekForwardSeconds = roundSeconds((asset.seekForwardSeconds ?? 0) + delta);
+            } else {
+                asset.seekBackwardSeconds = roundSeconds((asset.seekBackwardSeconds ?? 0) + delta);
+            }
+            if (Number.isFinite(durationSeconds) && durationSeconds && durationSeconds > 0) {
+                asset.durationSeconds = Math.max(1, Math.round(durationSeconds));
+            }
+            asset.lastSeenAtMs = Math.max(asset.lastSeenAtMs, currentTimestamp());
+        });
+    }, [ensureAssetState, updateAssetState]);
+
+    const reportMediaWaiting = useCallback((waitingSeconds: number) => {
+        const asset = ensureAssetState();
+        if (!asset) {
+            return;
+        }
+
+        updateAssetState(asset, () => {
+            asset.waitingCount = (asset.waitingCount ?? 0) + 1;
+            asset.waitingDurationSeconds = roundSeconds((asset.waitingDurationSeconds ?? 0) + Math.max(0, waitingSeconds || 0));
             asset.lastSeenAtMs = Math.max(asset.lastSeenAtMs, currentTimestamp());
         });
     }, [ensureAssetState, updateAssetState]);
@@ -666,11 +816,19 @@ export function useViewerWatchSession(options: UseViewerWatchSessionOptions) {
 
     const noteVisibility = useCallback((hidden: boolean) => {
         applyActiveDelta();
-        lastTickAtRef.current = currentTimestamp();
+        const timestamp = currentTimestamp();
+        lastTickAtRef.current = timestamp;
         if (hidden) {
+            sessionMetadataRef.current.visibilityHiddenCount += 1;
+            sessionMetadataRef.current.hiddenSinceMs = timestamp;
+            markSessionDirty();
             void flushSessionRef.current("visibility_hidden", { keepalive: true });
+        } else if (sessionMetadataRef.current.hiddenSinceMs) {
+            sessionMetadataRef.current.hiddenDurationMs += Math.max(0, timestamp - sessionMetadataRef.current.hiddenSinceMs);
+            sessionMetadataRef.current.hiddenSinceMs = null;
+            markSessionDirty();
         }
-    }, [applyActiveDelta]);
+    }, [applyActiveDelta, markSessionDirty]);
 
     useEffect(() => {
         if (!options.enabled || !options.dropId) {
@@ -719,9 +877,16 @@ export function useViewerWatchSession(options: UseViewerWatchSessionOptions) {
             const results = await Promise.allSettled(
                 pendingEntries.map(async (entry) => {
                     try {
+                        const replayPayload: ViewerWatchSessionSnapshot = {
+                            ...entry.payload,
+                            captureTransport: "replay_fetch",
+                            replayRecovered: true,
+                            replayRecoveredCount: (entry.payload.replayRecoveredCount ?? 0) + 1,
+                            captureQuality: entry.payload.captureQuality === "full" ? "replayed" : entry.payload.captureQuality,
+                        };
                         const response = await authFetch("/api/viewer/watch-session", {
                             method: "POST",
-                            body: JSON.stringify(entry.payload),
+                            body: JSON.stringify(replayPayload),
                         });
 
                         if (
@@ -759,6 +924,7 @@ export function useViewerWatchSession(options: UseViewerWatchSessionOptions) {
 
             if (successfulIds.length > 0) {
                 clearPendingWatchSessions(successfulIds);
+                sessionMetadataRef.current.replayRecoveredCount += successfulIds.length;
             }
         })();
     }, [options.dropId, options.enabled]);
@@ -832,5 +998,8 @@ export function useViewerWatchSession(options: UseViewerWatchSessionOptions) {
         reportMediaEnded,
         reportMediaPause,
         reportMediaPlay,
+        reportMediaSeeking,
+        reportMediaWaiting,
+        reportPlaybackState,
     };
 }

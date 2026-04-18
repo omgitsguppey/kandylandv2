@@ -665,7 +665,7 @@ export default function DebugConsole() {
             {renderTabControls()}
 
             <div className="grid grid-cols-2 gap-3 md:grid-cols-3 xl:grid-cols-8">
-                <StatCard label="Health score" value={data?.opsHealth ? `${data.opsHealth.score}%` : "--"} meta={`${data?.opsHealth?.diagnostics?.activeIssueClusterCount || 0} active issue clusters | ${getPipelineStatusLabel(data?.opsHealth?.pipeline?.status)} pipeline`} />
+                <StatCard label="Health score" value={data?.opsHealth ? `${data.opsHealth.score}%` : "--"} meta={`${data?.opsHealth?.diagnostics?.activeIssueClusterCount || 0} active issue clusters | ${getPipelineStatusLabel(data?.opsHealth?.pipeline?.status)} pipeline | ${data?.opsHealth?.materializerSummary?.warn ?? 0} warn / ${data?.opsHealth?.materializerSummary?.fail ?? 0} fail writers`} />
                 <StatCard label="Pipeline active" value={activePipelineFailureCount} meta={`recent ${recentPipelineFailureCount} | sample ${sampledPipelineFailureCount} | ${data?.opsHealth?.pipeline?.status === "healthy" ? `no current incident in ${formatWindowHours(data?.opsHealth?.pipeline?.activeWindowMs)}` : data?.opsHealth?.pipeline?.lastFailureAt ? `last ${formatRelative(data.opsHealth.pipeline.lastFailureAt)}` : "missing last-failure timestamp"}`} />
                 <StatCard label="Task-issue users" value={data?.stats?.usersWithTaskIssues ?? "--"} meta={`${data?.stats?.runtimeUsersWithRefreshIssues ?? 0} sampled refresh warnings`} />
                 <StatCard label="Creator issues" value={data?.stats?.creatorOnboardingIssues ?? "--"} meta={`${data?.creatorOnboardingDiagnostics?.summary?.missingQueueCount ?? 0} missing queue links`} />
@@ -684,7 +684,7 @@ export default function DebugConsole() {
                         title="System health now"
                         subtitle="Loaded health score, current diagnostics, and sampled pipeline freshness."
                         defaultOpen
-                        summary={<><Pill label="Score" value={`${data?.opsHealth?.score ?? 0}%`} tone={(data?.opsHealth?.score ?? 0) >= 90 ? "good" : (data?.opsHealth?.score ?? 0) >= 70 ? "warn" : "bad"} /><Pill label="Pipeline" value={getPipelineStatusLabel(data?.opsHealth?.pipeline?.status)} tone={data?.opsHealth?.pipeline?.status === "fail" ? "bad" : data?.opsHealth?.pipeline?.status === "warn" ? "warn" : "good"} /><Pill label="Active diagnostics" value={(data?.opsHealth?.diagnostics?.activeErrorCount ?? 0) + (data?.opsHealth?.diagnostics?.activeWarnCount ?? 0)} tone={((data?.opsHealth?.diagnostics?.activeErrorCount ?? 0) + (data?.opsHealth?.diagnostics?.activeWarnCount ?? 0)) > 0 ? "warn" : "good"} /><Pill label="Freshest loaded signal" value={freshestLoadedSignalAt ? formatRelative(freshestLoadedSignalAt) : "Not loaded"} /></>}
+                        summary={<><Pill label="Score" value={`${data?.opsHealth?.score ?? 0}%`} tone={(data?.opsHealth?.score ?? 0) >= 90 ? "good" : (data?.opsHealth?.score ?? 0) >= 70 ? "warn" : "bad"} /><Pill label="Pipeline" value={getPipelineStatusLabel(data?.opsHealth?.pipeline?.status)} tone={data?.opsHealth?.pipeline?.status === "fail" ? "bad" : data?.opsHealth?.pipeline?.status === "warn" ? "warn" : "good"} /><Pill label="Active diagnostics" value={(data?.opsHealth?.diagnostics?.activeErrorCount ?? 0) + (data?.opsHealth?.diagnostics?.activeWarnCount ?? 0)} tone={((data?.opsHealth?.diagnostics?.activeErrorCount ?? 0) + (data?.opsHealth?.diagnostics?.activeWarnCount ?? 0)) > 0 ? "warn" : "good"} /><Pill label="Writers" value={`${data?.opsHealth?.materializerSummary?.warn ?? 0}/${data?.opsHealth?.materializerSummary?.fail ?? 0}`} tone={((data?.opsHealth?.materializerSummary?.warn ?? 0) + (data?.opsHealth?.materializerSummary?.fail ?? 0)) > 0 ? "warn" : "good"} /><Pill label="Freshest loaded signal" value={freshestLoadedSignalAt ? formatRelative(freshestLoadedSignalAt) : "Not loaded"} /></>}
                     >
                         <div className="grid gap-4 xl:grid-cols-[0.95fr_1.05fr]">
                             <div className="grid gap-3 md:grid-cols-2 xl:grid-cols-1">
@@ -701,7 +701,7 @@ export default function DebugConsole() {
                                 <div className="rounded-[1rem] border border-white/10 bg-white/[0.03] p-4">
                                     <p className="text-[11px] uppercase tracking-[0.18em] text-gray-400">Downstream writers</p>
                                     <p className="mt-2 text-xl font-black text-white">{(data?.opsHealth?.materializers || []).length}</p>
-                                    <p className="mt-1 text-sm text-gray-400">Materializers tracked in this health slice. Missing writers outside this slice are still possible.</p>
+                                    <p className="mt-1 text-sm text-gray-400">Materializers tracked in this health slice. Warn {data?.opsHealth?.materializerSummary?.warn ?? 0}, fail {data?.opsHealth?.materializerSummary?.fail ?? 0}. Missing writers outside this slice are still possible.</p>
                                 </div>
                                 <div className="rounded-[1rem] border border-white/10 bg-white/[0.03] p-4">
                                     <p className="text-[11px] uppercase tracking-[0.18em] text-gray-400">Runtime warnings</p>

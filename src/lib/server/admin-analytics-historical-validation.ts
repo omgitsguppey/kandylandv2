@@ -1,6 +1,7 @@
 import "server-only";
 
 import { TELEMETRY_MODULE_INDEXES } from "@/lib/telemetry-catalog";
+import type { AnalyticsTruthSummary } from "@/lib/admin-analytics-truth";
 
 import { buildModuleCoverageReport, buildParityInsight, sumCountBuckets } from "./analytics-parity";
 import { sumEventCounts } from "./admin-analytics-shared";
@@ -16,6 +17,7 @@ export interface HistoricalValidationSummary {
   moduleCoverage: ReturnType<typeof buildModuleCoverageReport>[];
   unhealthyModules: ReturnType<typeof buildModuleCoverageReport>[];
   parityScore: number;
+  truthState: AnalyticsTruthSummary;
   validations: Array<{
     label: string;
     status: string;
@@ -54,9 +56,17 @@ export function buildHistoricalValidationSummary(input: {
   viewerSessionCount: number;
   watchSessionCount: number;
   watchAssetCount: number;
+  watchCaptureFullCount: number;
+  watchCaptureDegradedCount: number;
+  watchCaptureCloseMissingCount: number;
+  watchCaptureReplayRecoveredCount: number;
   filteredSessionFactsLength: number;
   viewerSessionStartedLogsLength: number;
   pipelineFailureCount: number;
+  creatorSpendTransactionCount: number;
+  creatorSpendParityMismatchCount: number;
+  creatorRestrictedSpendViolationCount: number;
+  truthState: AnalyticsTruthSummary;
 }): HistoricalValidationSummary {
   const moduleCoverage = TELEMETRY_MODULE_INDEXES.map((moduleIndex) => {
     const sources = [
@@ -124,7 +134,19 @@ export function buildHistoricalValidationSummary(input: {
     { key: "taps", label: "Guide taps", count: input.taskGuidance.tapped },
     { key: "wins", label: "Guide wins", count: input.taskGuidance.completed },
   ], { tolerance: 2, relativeTolerance: 0.35 });
-  const parityScore = Math.round((purchaseParity.score + unlockParity.score + onboardingParity.score + taskGuidanceParity.score) / 4);
+  const creatorSpendParityScore = input.creatorSpendTransactionCount === 0
+    ? 100
+    : (input.creatorSpendParityMismatchCount > 0 || input.creatorRestrictedSpendViolationCount > 0)
+      ? 20
+      : 100;
+  const parityScore = Math.round((
+    purchaseParity.score
+    + unlockParity.score
+    + onboardingParity.score
+    + taskGuidanceParity.score
+    + creatorSpendParityScore
+    + input.truthState.score
+  ) / 6);
 
   const validations = [
     {
@@ -178,6 +200,35 @@ export function buildHistoricalValidationSummary(input: {
       detail: `${input.taskGuidance.viewed.toLocaleString()} guide views, ${input.taskGuidance.dismissed.toLocaleString()} dismissals, ${input.taskGuidance.tapped.toLocaleString()} guide taps, and ${input.taskGuidance.completed.toLocaleString()} guided completions were collected in range. Confidence ${taskGuidanceParity.score}%.`,
     },
     {
+      label: "Creator spend parity",
+      status: input.creatorSpendParityMismatchCount > 0 || input.creatorRestrictedSpendViolationCount > 0
+        ? "fail"
+        : input.creatorSpendTransactionCount > 0
+          ? "pass"
+          : "warn",
+      detail: input.creatorSpendTransactionCount > 0
+        ? `${input.creatorSpendTransactionCount.toLocaleString()} creator spend transaction(s) were sampled. ${input.creatorSpendParityMismatchCount.toLocaleString()} amount mismatches and ${input.creatorRestrictedSpendViolationCount.toLocaleString()} restricted reward-spend violations were detected. Confidence ${creatorSpendParityScore}%.`
+        : "No creator spend transactions matched the selected range, so creator purchase/source parity could not be sampled in this window.",
+    },
+    {
+      label: "Historical freshness",
+      status: input.truthState.fail > 0
+        ? "fail"
+        : input.truthState.warn > 0
+          ? "warn"
+          : "pass",
+      detail: input.truthState.fail > 0 || input.truthState.warn > 0
+        ? `${input.truthState.fail.toLocaleString()} required analytics source(s) failed freshness and ${input.truthState.warn.toLocaleString()} source(s) are stale or partial. Truth score ${input.truthState.score}%.`
+        : `All ${input.truthState.sources.length.toLocaleString()} sampled analytics source(s) are fresh enough for this window. Truth score ${input.truthState.score}%.`,
+    },
+    {
+      label: "Legacy history coverage",
+      status: input.truthState.legacyCoverageWarnings > 0 ? "warn" : "pass",
+      detail: input.truthState.legacyCoverageWarnings > 0
+        ? `${input.truthState.legacyCoverageWarnings.toLocaleString()} legacy-history support source(s) are stale or missing, so older trend history may be incomplete until those rollups are refreshed.`
+        : "Legacy-history support sources are present and fresh enough to contribute historical analytics truth.",
+    },
+    {
       label: "Module coverage",
       status: unhealthyModules.length === 0 ? "pass" : unhealthyModules.length <= 3 ? "warn" : "fail",
       detail: unhealthyModules.length === 0
@@ -191,12 +242,26 @@ export function buildHistoricalValidationSummary(input: {
         ? `${input.watchSessionCount.toLocaleString()} canonical watch sessions, ${input.watchAssetCount.toLocaleString()} watch assets, ${input.filteredSessionFactsLength.toLocaleString()} session facts, and ${input.viewerSessionStartedLogsLength.toLocaleString()} raw session-start events matched the selected range.`
         : "No viewer sessions matched the selected range and filter.",
     },
+    {
+      label: "Watch capture health",
+      status: input.watchSessionCount === 0
+        ? "warn"
+        : input.watchCaptureCloseMissingCount > 0
+          ? "fail"
+          : input.watchCaptureDegradedCount > 0
+            ? "warn"
+            : "pass",
+      detail: input.watchSessionCount === 0
+        ? "No canonical watch sessions matched the selected range, so capture quality could not be evaluated."
+        : `${input.watchCaptureFullCount.toLocaleString()} full captures, ${input.watchCaptureDegradedCount.toLocaleString()} degraded captures, ${input.watchCaptureReplayRecoveredCount.toLocaleString()} replay-recovered sessions, and ${input.watchCaptureCloseMissingCount.toLocaleString()} close-missing sessions were recorded in the selected range.`,
+    },
   ];
 
   return {
     moduleCoverage,
     unhealthyModules,
     parityScore,
+    truthState: input.truthState,
     validations,
   };
 }

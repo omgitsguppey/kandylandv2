@@ -424,6 +424,8 @@ export async function processQueueLifecycleRuntime(input: {
   const startedAt = Date.now()
   await recordQueueJobHeartbeat({
     jobId: "process_queue",
+    executionLayer: input.executionLayer,
+    surface: input.surface,
     startedAt,
     completedAt: null,
     status: "running",
@@ -440,6 +442,8 @@ export async function processQueueLifecycleRuntime(input: {
       const completedAt = Date.now()
       await recordQueueJobHeartbeat({
         jobId: "process_queue",
+        executionLayer: input.executionLayer,
+        surface: input.surface,
         startedAt,
         completedAt,
         status: "ok",
@@ -479,6 +483,8 @@ export async function processQueueLifecycleRuntime(input: {
     const completedAt = Date.now()
     await recordQueueJobHeartbeat({
       jobId: "process_queue",
+      executionLayer: input.executionLayer,
+      surface: input.surface,
       startedAt,
       completedAt,
       status: plan.invariants.some((entry) => entry.severity === "error") ? "warn" : "ok",
@@ -513,6 +519,8 @@ export async function processQueueLifecycleRuntime(input: {
     })
     await recordQueueJobHeartbeat({
       jobId: "process_queue",
+      executionLayer: input.executionLayer,
+      surface: input.surface,
       startedAt,
       completedAt,
       status: "failed",
@@ -535,6 +543,8 @@ export async function notifyActiveDropsRuntime(input: {
   const startedAt = Date.now()
   await recordQueueJobHeartbeat({
     jobId: "notify_active_drops",
+    executionLayer: input.executionLayer,
+    surface: input.surface,
     startedAt,
     completedAt: null,
     status: "running",
@@ -653,6 +663,8 @@ export async function notifyActiveDropsRuntime(input: {
     const completedAt = Date.now()
     await recordQueueJobHeartbeat({
       jobId: "notify_active_drops",
+      executionLayer: input.executionLayer,
+      surface: input.surface,
       startedAt,
       completedAt,
       status: warningCodes.length > 0 ? "warn" : "ok",
@@ -684,6 +696,8 @@ export async function notifyActiveDropsRuntime(input: {
     })
     await recordQueueJobHeartbeat({
       jobId: "notify_active_drops",
+      executionLayer: input.executionLayer,
+      surface: input.surface,
       startedAt,
       completedAt,
       status: "failed",

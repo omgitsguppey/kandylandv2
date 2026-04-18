@@ -6,7 +6,9 @@ import { NextRequest, NextResponse } from "next/server";
 import { handleApiError } from "@/lib/server/auth";
 import { adminDb } from "@/lib/server/firebase-admin";
 import { ANALYTICS_SEMANTIC_SOURCE_REGISTRY, ANALYTICS_SEMANTIC_STRATEGIES } from "@/lib/analytics-semantics";
+import { summarizeAnalyticsTruth } from "@/lib/admin-analytics-truth";
 import { deriveGumdropEconomics } from "@/lib/gumdrop-economics";
+import { classifyGumdropTransaction } from "@/lib/gumdrop-ledger";
 import { normalizeTransactionRecord } from "@/lib/transaction-normalizers";
 import { getAllDropReferenceMap, resolveDropTitle } from "@/lib/server/drop-references";
 import {
@@ -23,6 +25,7 @@ import { buildHistoricalTrafficOverview } from "@/lib/server/admin-analytics-his
 import { buildHistoricalValidationSummary } from "@/lib/server/admin-analytics-historical-validation";
 import { buildHistoricalViewerOverview } from "@/lib/server/admin-analytics-historical-viewer";
 import { buildHistoricalAnalyticsUserMap } from "@/lib/server/admin-analytics-historical-users";
+import { buildWatchCaptureHealthSummary } from "@/lib/server/admin-analytics-capture-health";
 import { buildAdminOpsHealth } from "@/lib/server/admin-ops-health";
 import { buildSemanticCategorySummaries } from "@/lib/server/analytics-semantics";
 import { buildAnalyticsMetricReport } from "@/lib/server/analytics-metrics";
@@ -44,6 +47,38 @@ import { ADMIN_ANALYTICS } from "@/lib/server/rate-limit";
 
 const propertyId = getAdminAnalyticsPropertyId();
 const analyticsClient = createAdminAnalyticsDataClient();
+
+function toTimestampNumber(value: unknown) {
+    if (typeof value === "number" && Number.isFinite(value)) {
+        return value;
+    }
+
+    if (
+        value
+        && typeof value === "object"
+        && "toMillis" in value
+        && typeof (value as { toMillis?: unknown }).toMillis === "function"
+    ) {
+        try {
+            return Number((value as { toMillis: () => number }).toMillis()) || 0;
+        } catch {
+            return 0;
+        }
+    }
+
+    return 0;
+}
+
+function readLatestSnapshotTimestamp(
+    docs: FirebaseFirestore.QueryDocumentSnapshot[],
+    keys: string[],
+) {
+    return docs.reduce((latest, doc) => {
+        const data = doc.data() as Record<string, unknown>;
+        const timestamp = keys.reduce((current, key) => current || toTimestampNumber(data[key]), 0);
+        return Math.max(latest, timestamp);
+    }, 0);
+}
 
 function scopeHistoricalResponse(section: string | null, payload: Record<string, unknown>) {
     const withSharedFields = (value: Record<string, unknown>) => ({
@@ -98,7 +133,10 @@ function scopeHistoricalResponse(section: string | null, payload: Record<string,
         case "semanticsEngine":
             return withSharedFields({ semanticEngine: payload.semanticEngine });
         case "dataValidation":
-            return withSharedFields({ validations: payload.validations });
+            return withSharedFields({
+                validations: payload.validations,
+                watchCaptureHealth: payload.watchCaptureHealth,
+            });
         case "audienceSnapshot":
             return withSharedFields({
                 data: payload.data,
@@ -133,6 +171,7 @@ function scopeHistoricalResponse(section: string | null, payload: Record<string,
                 viewerOverview: payload.viewerOverview,
                 viewerDropInsights: payload.viewerDropInsights,
                 viewerUsers: payload.viewerUsers,
+                watchCaptureHealth: payload.watchCaptureHealth,
                 userJourneys: payload.userJourneys,
                 viewerFilter: payload.viewerFilter,
             });
@@ -319,6 +358,27 @@ export async function GET(request: NextRequest) {
                 }
             });
             const rawTransactions = normalizedTransactionsInRange.slice(0, 50);
+            const creatorSpendParitySummary = normalizedTransactionsInRange.reduce((summary, transaction) => {
+                const classified = classifyGumdropTransaction({
+                    type: transaction.type,
+                    amount: transaction.amount,
+                    status: transaction.status,
+                    rewardSource: transaction.rewardSource,
+                    purchasedAmountSpent: transaction.purchasedAmountSpent,
+                    rewardAmountSpent: transaction.rewardAmountSpent,
+                    paidGumDrops: transaction.paidGumDrops,
+                    bonusGumDrops: transaction.bonusGumDrops,
+                });
+
+                summary.creatorSpendTransactionCount += classified.creatorSpendTransactionCount;
+                summary.creatorSpendParityMismatchCount += classified.creatorSpendParityMismatchCount;
+                summary.creatorRestrictedSpendViolationCount += classified.creatorRestrictedSpendViolationCount;
+                return summary;
+            }, {
+                creatorSpendTransactionCount: 0,
+                creatorSpendParityMismatchCount: 0,
+                creatorRestrictedSpendViolationCount: 0,
+            });
 
             const userUids = new Set<string>();
             rawTransactions.forEach((tx) => {
@@ -614,6 +674,10 @@ export async function GET(request: NextRequest) {
                 viewerUser,
                 dropReferences,
             });
+            const watchCaptureHealth = buildWatchCaptureHealthSummary({
+                watchSessionDocs: watchSessionsSnapshot.docs,
+                watchAssetDocs: watchAssetsSnapshot.docs,
+            });
             const contextInsights = buildHistoricalAnalyticsContext({
                 telemetryLogs,
                 guestBatchDocs: guestBatchesSnapshot.docs,
@@ -644,6 +708,93 @@ export async function GET(request: NextRequest) {
                 const data = doc.data() as Record<string, unknown>;
                 return total + toNumber(data.eventCount);
             }, 0);
+            const analyticsTruth = summarizeAnalyticsTruth({
+                nowMs: Date.now(),
+                sources: [
+                    {
+                        key: "analytics_event_stats",
+                        label: "Event stats",
+                        count: analyticsEventStatsSnapshot.docs.length,
+                        lastSeenAt: readLatestSnapshotTimestamp(analyticsEventStatsSnapshot.docs, ["lastSeenAt", "updatedAt"]),
+                        detail: "Canonical event counters and last-seen timestamps.",
+                    },
+                    {
+                        key: "analytics_rollups_daily",
+                        label: "Daily analytics rollups",
+                        count: dailyRollupsSnapshot.docs.length,
+                        lastSeenAt: readLatestSnapshotTimestamp(dailyRollupsSnapshot.docs, ["lastEventAt", "updatedAt"]),
+                        legacyHistoricalSupport: true,
+                        detail: "Historical day buckets for authenticated analytics activity.",
+                    },
+                    {
+                        key: "analytics_page_daily",
+                        label: "Page daily rollups",
+                        count: pageRollupsSnapshot.docs.length,
+                        lastSeenAt: readLatestSnapshotTimestamp(pageRollupsSnapshot.docs, ["lastEventAt", "updatedAt"]),
+                        required: false,
+                        legacyHistoricalSupport: true,
+                        detail: "Historical page-level trend and dwell support.",
+                    },
+                    {
+                        key: "analytics_drop_daily",
+                        label: "Drop daily rollups",
+                        count: dropDailySnapshot.docs.length,
+                        lastSeenAt: readLatestSnapshotTimestamp(dropDailySnapshot.docs, ["lastEventAt", "updatedAt"]),
+                        legacyHistoricalSupport: true,
+                        detail: "Historical drop engagement and unwrap support.",
+                    },
+                    {
+                        key: "analytics_commerce_daily",
+                        label: "Commerce daily rollups",
+                        count: commerceDailySnapshot.docs.length,
+                        lastSeenAt: readLatestSnapshotTimestamp(commerceDailySnapshot.docs, ["lastTransactionAt", "updatedAt"]),
+                        legacyHistoricalSupport: true,
+                        detail: "Historical purchase and unlock rollups.",
+                    },
+                    {
+                        key: "analytics_commerce_rollup",
+                        label: "Commerce summary rollup",
+                        count: commerceSummarySnapshot.exists ? 1 : 0,
+                        lastSeenAt: commerceSummarySnapshot.exists
+                            ? Math.max(
+                                toNumber((commerceSummarySnapshot.data() as Record<string, unknown>).lastTransactionAt),
+                                toTimestampNumber((commerceSummarySnapshot.data() as Record<string, unknown>).updatedAt),
+                            )
+                            : 0,
+                        detail: "Lifetime commerce summary used for all-range analytics parity.",
+                    },
+                    {
+                        key: "analytics_guest_batches",
+                        label: "Guest batches",
+                        count: guestBatchesSnapshot.docs.length,
+                        lastSeenAt: readLatestSnapshotTimestamp(guestBatchesSnapshot.docs, ["receivedAtMs", "createdAt", "updatedAt"]),
+                        required: false,
+                        legacyHistoricalSupport: true,
+                        detail: "Anonymous browsing history support for legacy and guest traffic.",
+                    },
+                    {
+                        key: "analytics_watch_sessions",
+                        label: "Watch sessions",
+                        count: watchSessionsSnapshot.docs.length,
+                        lastSeenAt: readLatestSnapshotTimestamp(watchSessionsSnapshot.docs, ["lastSeenAtMs", "updatedAt", "createdAt"]),
+                        detail: "Canonical watch-session history.",
+                    },
+                    {
+                        key: "analytics_watch_assets",
+                        label: "Watch assets",
+                        count: watchAssetsSnapshot.docs.length,
+                        lastSeenAt: readLatestSnapshotTimestamp(watchAssetsSnapshot.docs, ["lastSeenAtMs", "updatedAt", "createdAt"]),
+                        detail: "Asset-level watch history backing canonical sessions.",
+                    },
+                    {
+                        key: "transactions",
+                        label: "Transactions",
+                        count: transactionsInRangeSnapshot.docs.length,
+                        lastSeenAt: readLatestSnapshotTimestamp(transactionsInRangeSnapshot.docs, ["timestampMs", "timestamp", "updatedAt", "createdAt"]),
+                        detail: "Canonical purchase and spend ledger.",
+                    },
+                ],
+            });
             const pipelineFailureCount = pipelineHealthSnapshot.docs.reduce((total, doc) => {
                 const data = doc.data() as Record<string, unknown>;
                 return total + toNumber(data.failureCount);
@@ -695,9 +846,17 @@ export async function GET(request: NextRequest) {
                 viewerSessionCount: viewerOverviewCanonical.sessionCount,
                 watchSessionCount: watchSessionsSnapshot.size,
                 watchAssetCount: watchAssetsSnapshot.size,
+                watchCaptureFullCount: watchCaptureHealth.fullCaptureCount,
+                watchCaptureDegradedCount: watchCaptureHealth.degradedSessionCount,
+                watchCaptureCloseMissingCount: watchCaptureHealth.closeMissingCount,
+                watchCaptureReplayRecoveredCount: watchCaptureHealth.replayRecoveredCount,
                 filteredSessionFactsLength: filteredSessionFacts.length,
                 viewerSessionStartedLogsLength: viewerSessionStartedLogs.length,
                 pipelineFailureCount,
+                creatorSpendTransactionCount: creatorSpendParitySummary.creatorSpendTransactionCount,
+                creatorSpendParityMismatchCount: creatorSpendParitySummary.creatorSpendParityMismatchCount,
+                creatorRestrictedSpendViolationCount: creatorSpendParitySummary.creatorRestrictedSpendViolationCount,
+                truthState: analyticsTruth,
             });
             const opsHealth = buildAdminOpsHealth({
                 diagnosticsDocs: serverDiagnosticsSnapshot.docs,
@@ -760,6 +919,7 @@ export async function GET(request: NextRequest) {
                 viewerOverview: viewerOverviewCanonical,
                 viewerDropInsights,
                 viewerUsers,
+                watchCaptureHealth,
                 viewerFilter: viewerUser,
                 semanticCategories,
                 semanticEngine,
@@ -767,6 +927,7 @@ export async function GET(request: NextRequest) {
                 moduleCoverage,
                 unhealthyModules,
                 parityScore,
+                truthState: analyticsTruth,
                 validations,
                 opsHealth,
             };

@@ -133,3 +133,59 @@ description: "Auto-run standard project commands"
    `npm run check:agent-context`
    `npm run check:continuity`
    `npm --prefix functions run check`
+
+20. Build and verify token-efficiency and analytics/watch-session hardening:
+   `npm run trace:adjacent -- scripts/agent/build-task-context.ts`
+   `npm run trace:adjacent -- src/hooks/useViewerWatchSession.ts`
+   `npm run trace:adjacent -- src/app/api/viewer/watch-session/route.ts`
+   `npm run trace:adjacent -- src/app/admin/analytics/page.tsx`
+   `npx vitest run tests/unit/analytics-ingest-route.spec.ts tests/unit/analytics-identifiers.spec.ts tests/unit/useViewerWatchSession-bench.spec.ts`
+   `npm run agent:index`
+   `npm run eval:agent-context`
+   `npm run check:agent-context`
+   `npm run check:telemetry`
+   `npm run check:analytics-semantics`
+   `npm run check:runtime:continuity`
+   `npm run typecheck`
+   `npm run test:contracts`
+   `npm run check:continuity`
+
+21. Fix verification blockers and remaining truthful warnings/non-blocking notes:
+   `npm run trace:adjacent -- scripts/check-runtime-continuity.ts`
+   `npm run trace:adjacent -- scripts/check-scheduler-freshness.ts`
+   `npm run trace:adjacent -- scripts/runtime-admin.ts`
+   `npm run trace:adjacent -- functions/src/index.ts`
+   `npm run trace:adjacent -- functions/src/queue-runtime.ts`
+   `npm run trace:adjacent -- src/lib/server/runtime-warning-store.ts`
+   `npx vitest run tests/unit/process-queue-route.spec.ts tests/unit/notify-active-drops-route.spec.ts tests/unit/drop-queue-lifecycle.spec.ts tests/unit/admin-analytics-capture-health.spec.ts tests/unit/admin-analytics-realtime-route.spec.ts`
+   `npm run typecheck`
+   `npm run agent:index`
+   `npm run check:agent-context`
+   `npm run check:scheduler:freshness`
+   `npm run check:queue:runtime`
+   `npm run check:warnings`
+   `npm run check:runtime:continuity`
+   `npm run check:analytics:continuity`
+   `npm run check:telemetry`
+   `npm run check:continuity`
+
+22. Fix mobile chat/message interaction regressions, especially untappable overlays after search focus/blur:
+   `npm run trace:adjacent -- src/components/Chat/ChatExperience.tsx`
+   `npm run trace:adjacent -- src/app/dashboard/chat/page.tsx`
+   `npm run trace:adjacent -- src/app/dashboard/chat/layout.tsx`
+   `npx vitest run <chat-related-test-paths>`
+   `npm run typecheck`
+   `npm run check:ui:runtime`
+
+23. Harden admin analytics, purchase parity, and legacy-history truth reconciliation:
+   `npm run trace:adjacent -- src/app/admin/analytics/page.tsx`
+   `npm run trace:adjacent -- src/app/api/admin/analytics/historical/route.ts`
+   `npm run trace:adjacent -- src/app/api/admin/analytics/realtime/route.ts`
+   `npm run trace:adjacent -- src/lib/gumdrop-ledger.ts`
+   `npm run trace:adjacent -- src/lib/server/admin-analytics-capture-health.ts`
+   `npm run trace:adjacent -- scripts/check-analytics-continuity.ts`
+   `npx vitest run tests/unit/admin-analytics-capture-health.spec.ts tests/unit/admin-analytics-realtime-route.spec.ts tests/unit/admin-analytics-page.spec.tsx`
+   `npm run check:analytics:continuity`
+   `npm run check:telemetry`
+   `npm run typecheck`
+   `npm run check:continuity`

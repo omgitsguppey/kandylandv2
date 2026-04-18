@@ -1,7 +1,7 @@
 {
-  "generatedAt": "2026-04-17T15:12:48.510Z",
-  "total": 5,
-  "passed": 5,
+  "generatedAt": "2026-04-18T03:38:27.066Z",
+  "total": 6,
+  "passed": 6,
   "failed": 0,
   "status": "pass",
   "results": [
@@ -16,29 +16,28 @@
       "passed": true,
       "likelyTouchedFiles": [
         "src/app/api/admin/debug/route.ts",
-        "src/lib/server/firebase-admin.ts",
         "src/lib/server/route-diagnostics.ts",
-        "src/lib/server/admin-panel-system-logs.ts",
-        "src/lib/server/admin-ui-chart-health.ts",
+        "src/lib/server/firebase-admin.ts",
         "src/lib/server/admin-ops-health.ts",
         "src/lib/server/admin-orchestration.ts",
-        "functions/src/firebase-admin.ts"
-      ],
-      "canonicalHelpersToReuse": [
-        "src/lib/admin-ui-chart-health.ts",
         "src/lib/server/admin-panel-system-logs.ts",
         "src/lib/server/admin-ui-chart-health.ts",
-        "src/lib/server/route-diagnostics.ts",
+        "src/components/Admin/AssetUploader.tsx"
+      ],
+      "canonicalHelpersToReuse": [
+        "src/lib/server/admin-panel-system-logs.ts",
+        "src/lib/server/admin-ui-chart-health.ts",
         "src/lib/server/auth.ts",
-        "src/lib/server/request-guard.ts"
+        "src/lib/server/route-diagnostics.ts",
+        "src/lib/server/request-guard.ts",
+        "src/lib/admin-ui-chart-health.ts"
       ],
       "requiredVerificationCommands": [
         "npm run test:contracts",
         "npm run trace:adjacent -- <path>",
         "npm run check:ui:audits",
         "npm run check:telemetry",
-        "npm run check:analytics-semantics",
-        "npm --prefix functions run check"
+        "npm run check:analytics-semantics"
       ]
     },
     {
@@ -55,10 +54,10 @@
         "src/lib/server/route-diagnostics.ts",
         "src/lib/admin-ui-chart-health.ts",
         "src/lib/server/admin-ui-chart-health.ts",
-        "src/lib/telemetry.ts",
-        "src/lib/server/firebase-admin.ts",
-        "functions/src/analytics-event-facts.ts",
-        "functions/src/analytics-guest-batches.ts"
+        "src/components/Admin/AssetUploader.tsx",
+        "src/app/api/admin/debug/route.ts",
+        "src/app/api/admin/analytics/historical/route.ts",
+        "src/app/api/admin/analytics/realtime/route.ts"
       ],
       "canonicalHelpersToReuse": [
         "src/lib/admin-ui-chart-health.ts",
@@ -70,11 +69,13 @@
       ],
       "requiredVerificationCommands": [
         "npm run check:analytics-semantics",
+        "npm run check:analytics:continuity",
         "npm run check:telemetry",
         "npm run check:ui:audits",
+        "npm run check:ui:coverage",
+        "npm run check:ui:runtime",
         "npm run test:contracts",
-        "npm run trace:adjacent -- <path>",
-        "npm --prefix functions run check"
+        "npm run trace:adjacent -- <path>"
       ]
     },
     {
@@ -156,13 +157,13 @@
       "passed": true,
       "likelyTouchedFiles": [
         "src/lib/telemetry.ts",
+        "src/components/Analytics/PageViewEvent.tsx",
+        "functions/src/analytics-core.ts",
         "functions/src/analytics-event-facts.ts",
         "functions/src/analytics-security-events.ts",
         "functions/src/analytics-task-events.ts",
         "src/lib/telemetry-catalog.ts",
-        "src/lib/server/admin-analytics-historical-validation.ts",
-        "src/components/Analytics/PageViewEvent.tsx",
-        "functions/src/analytics-core.ts"
+        "src/lib/telemetry-safety.ts"
       ],
       "canonicalHelpersToReuse": [
         "src/lib/telemetry-catalog.ts",
@@ -174,10 +175,49 @@
       ],
       "requiredVerificationCommands": [
         "npm run check:analytics-semantics",
+        "npm run check:analytics:continuity",
         "npm run check:telemetry",
         "npm run test:contracts",
         "npm run check:ui:audits",
         "npm --prefix functions run check"
+      ]
+    },
+    {
+      "id": "viewer_watch_capture_hardening",
+      "task": "harden viewer watch session capture quality and admin analytics continuity without widening prompt scope",
+      "expectedScope": "moderate",
+      "actualScope": "moderate",
+      "fileHits": 2,
+      "helperHits": 0,
+      "verificationHits": 2,
+      "passed": true,
+      "likelyTouchedFiles": [
+        "src/app/admin/analytics/page.tsx",
+        "src/app/api/viewer/watch-session/route.ts",
+        "src/lib/server/route-diagnostics.ts",
+        "src/components/Analytics/PageViewEvent.tsx",
+        "src/lib/server/firebase-admin.ts",
+        "src/lib/admin-analytics-preferences.ts",
+        "src/lib/admin-auth-outcome-chart.ts",
+        "src/lib/admin-notification-funnel.ts"
+      ],
+      "canonicalHelpersToReuse": [
+        "src/lib/admin-ui-chart-health.ts",
+        "src/lib/server/route-diagnostics.ts",
+        "src/lib/telemetry-catalog.ts",
+        "src/lib/ai-drop-covers.ts",
+        "src/lib/route-runtime-health.ts",
+        "src/lib/server/admin-panel-system-logs.ts"
+      ],
+      "requiredVerificationCommands": [
+        "npm run check:analytics-semantics",
+        "npm run check:analytics:continuity",
+        "npm run check:telemetry",
+        "npm run check:ui:audits",
+        "npm run check:ui:coverage",
+        "npm run check:ui:runtime",
+        "npm run test:contracts",
+        "npm run trace:adjacent -- <path>"
       ]
     }
   ]

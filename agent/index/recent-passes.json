@@ -1,5 +1,5 @@
 {
-  "generatedAt": "2026-04-18T02:54:48.802Z",
+  "generatedAt": "2026-04-18T15:17:57.373Z",
   "truthOrder": [
     "verified_runtime_code",
     "verified_configuration",
@@ -14,6 +14,232 @@
     "FULL_SCALE_CODEBASE_AUDIT.md"
   ],
   "passes": [
+    {
+      "stable_id": "pass__2026-04-18-compact-interaction-recovery-hardening",
+      "date": "2026-04-18",
+      "title": "Compact Interaction Recovery Hardening",
+      "scopeSummary": [
+        "Harden the codebase so compact/mobile interaction lockups like the chat search untappable regression are detected earlier and self-healed when safe by extending the shared self-healing layer, wiring it into chat search release paths, and exposing the lane in repo-native runtime observability."
+      ],
+      "touchedSurfaces": [
+        ", a reusable compact/mobile recovery helper that detects stale target focus and unexpected ",
+        "npm run trace:adjacent -- scripts/agent/extract-runtime-observability.ts",
+        "npm run trace:adjacent -- src/lib/self-healing.ts",
+        "npx vitest run tests/unit/self-healing.spec.ts tests/unit/chat-route-shell.spec.tsx tests/unit/use-chat-unread-status.spec.tsx",
+        "scripts/agent/extract-runtime-observability.ts",
+        "src/components/Chat/ChatExperience.tsx",
+        "src/lib/self-healing.ts",
+        "tests/unit/self-healing.spec.ts"
+      ],
+      "canonicalHelpersReused": [],
+      "verificationCommandsRun": [],
+      "resultSummary": [],
+      "warnings": [],
+      "architecture_change": true,
+      "runtime_change": false,
+      "ui_change": true,
+      "security_change": false,
+      "maintenance_only": false,
+      "changeKinds": [
+        "ui",
+        "runtime",
+        "tooling",
+        "architecture"
+      ]
+    },
+    {
+      "stable_id": "pass__2026-04-18-mobile-messages-search-overlay-untappable-regression",
+      "date": "2026-04-18",
+      "title": "Mobile Messages Search Overlay Untappable Regression",
+      "scopeSummary": [
+        "Fix the mobile messages/chat regression where tapping the search bar and exiting the input leaves the site untappable until refresh by tracing the message search surface, identifying any stuck mobile fixed-layer or global overflow lock behavior, and patching the canonical chat UI path with targeted verification."
+      ],
+      "touchedSurfaces": [
+        ".agent/workflows/auto-tasks.md",
+        "npm run trace:adjacent -- src/app/dashboard/chat/layout.tsx",
+        "npm run trace:adjacent -- src/app/dashboard/chat/page.tsx",
+        "npm run trace:adjacent -- src/components/Chat/ChatExperience.tsx",
+        "npx vitest run tests/unit/chat-route-shell.spec.tsx tests/unit/use-chat-unread-status.spec.tsx",
+        "src/app/dashboard/chat/layout.tsx",
+        "src/app/dashboard/chat/page.tsx",
+        "src/components/Chat/ChatExperience.tsx",
+        "src/components/Chat/ChatRouteShell.tsx",
+        "tests/unit/chat-route-shell.spec.tsx"
+      ],
+      "canonicalHelpersReused": [],
+      "verificationCommandsRun": [],
+      "resultSummary": [],
+      "warnings": [],
+      "architecture_change": false,
+      "runtime_change": false,
+      "ui_change": true,
+      "security_change": false,
+      "maintenance_only": false,
+      "changeKinds": [
+        "ui"
+      ]
+    },
+    {
+      "stable_id": "pass__2026-04-18-verification-blocker-remediation-runtime-continuity-truth-alignment",
+      "date": "2026-04-18",
+      "title": "Verification Blocker Remediation + Runtime Continuity Truth Alignment",
+      "scopeSummary": [
+        "Remove the remaining truthful verification blockers and stale warnings/non-blocking notes by aligning the runtime continuity checks with the repo's actual executable truth, fixing any queue/runtime continuity gaps that still fail local verification, and rerunning the affected signoff lanes."
+      ],
+      "touchedSurfaces": [
+        " package-manager overrides/lockfiles so ",
+        ".agent/workflows/auto-tasks.md",
+        "@google-cloud/firestore@8.5.0",
+        "functions/package.json",
+        "functions/src/index.ts",
+        "functions/src/queue-runtime.ts",
+        "functions/src/runtime-warning-store.ts",
+        "notifyActiveDropsRuntime({ executionLayer: \"scheduler\", surface: \"functions/notifyActiveDropsLifecycle/manual-remediation\", ... })",
+        "npm --prefix functions ls @google-cloud/firestore google-gax whatwg-url tr46",
+        "npm ls @google-cloud/firestore google-gax whatwg-url tr46",
+        "npm run trace:adjacent -- functions/src/index.ts",
+        "npm run trace:adjacent -- functions/src/queue-runtime.ts",
+        "npm run trace:adjacent -- scripts/check-runtime-continuity.ts",
+        "npm run trace:adjacent -- scripts/check-scheduler-freshness.ts",
+        "npm run trace:adjacent -- scripts/runtime-admin.ts",
+        "npm run trace:adjacent -- src/lib/server/runtime-warning-store.ts",
+        "npx vitest run tests/unit/check-scheduler-freshness.spec.ts tests/unit/process-queue-route.spec.ts tests/unit/notify-active-drops-route.spec.ts tests/unit/drop-queue-lifecycle.spec.ts tests/unit/admin-analytics-capture-health.spec.ts tests/unit/admin-analytics-realtime-route.spec.ts",
+        "processQueueLifecycleRuntime({ executionLayer: \"scheduler\", surface: \"functions/processQueueLifecycle/manual-remediation\", ... })",
+        "scripts/check-runtime-continuity.ts",
+        "scripts/check-scheduler-freshness.ts",
+        "scripts/runtime-admin.ts",
+        "shared/runtime/runtime-warning-contract.ts",
+        "src/lib/server/queue-runtime.ts",
+        "src/lib/server/runtime-warning-store.ts",
+        "tests/unit/check-scheduler-freshness.spec.ts"
+      ],
+      "canonicalHelpersReused": [],
+      "verificationCommandsRun": [],
+      "resultSummary": [],
+      "warnings": [],
+      "architecture_change": true,
+      "runtime_change": true,
+      "ui_change": false,
+      "security_change": false,
+      "maintenance_only": false,
+      "changeKinds": [
+        "admin",
+        "ui",
+        "runtime",
+        "tooling",
+        "architecture"
+      ]
+    },
+    {
+      "stable_id": "pass__2026-04-17-token-efficiency-fabric-hardening-watch__session-analytics-deepening",
+      "date": "2026-04-17",
+      "title": "Token-Efficiency Fabric Hardening + Watch/Session Analytics Deepening",
+      "scopeSummary": [
+        "Implement the research-driven token-efficiency and analytics hardening work inside the existing repo intelligence, runtime continuity, and admin analytics lanes: add stronger context compaction/exclusion/freshness metadata for agent task generation, deepen watch/session capture quality and replay confidence, add analytics continuity checks that surface silent capture degradation, and expose capture health in admin analytics."
+      ],
+      "touchedSurfaces": [
+        ".agent/workflows/auto-tasks.md",
+        "6/6",
+        "npm run trace:adjacent -- scripts/agent/build-task-context.ts",
+        "npm run trace:adjacent -- src/app/admin/analytics/page.tsx",
+        "npm run trace:adjacent -- src/app/api/viewer/watch-session/route.ts",
+        "npm run trace:adjacent -- src/hooks/useViewerWatchSession.ts",
+        "npx vitest run tests/unit/admin-analytics-capture-health.spec.ts tests/unit/admin-analytics-realtime-route.spec.ts tests/unit/useViewerWatchSession-bench.spec.ts tests/unit/analytics-ingest-route.spec.ts tests/unit/analytics-identifiers.spec.ts",
+        "scripts/agent/build-agent-indexes.ts",
+        "scripts/agent/build-task-context.ts",
+        "scripts/agent/extract-runtime-observability.ts",
+        "scripts/agent/run-evals.ts",
+        "scripts/check-analytics-continuity.ts",
+        "src/app/admin/analytics/page.tsx",
+        "src/app/api/admin/analytics/historical/route.ts",
+        "src/app/api/admin/analytics/realtime/route.ts",
+        "src/app/api/viewer/watch-session/route.ts",
+        "src/app/dashboard/viewer/ViewerClient.tsx",
+        "src/hooks/useViewerWatchSession.ts",
+        "src/lib/server/admin-analytics-capture-health.ts",
+        "src/lib/server/admin-analytics-historical-validation.ts",
+        "src/lib/viewer-watch-session.ts",
+        "src/types/admin-analytics.ts",
+        "tests/unit/admin-analytics-capture-health.spec.ts",
+        "tests/unit/admin-analytics-realtime-route.spec.ts"
+      ],
+      "canonicalHelpersReused": [],
+      "verificationCommandsRun": [],
+      "resultSummary": [],
+      "warnings": [],
+      "architecture_change": true,
+      "runtime_change": true,
+      "ui_change": true,
+      "security_change": false,
+      "maintenance_only": false,
+      "changeKinds": [
+        "admin",
+        "ui",
+        "runtime",
+        "tooling",
+        "architecture"
+      ]
+    },
+    {
+      "stable_id": "pass__2026-04-17-open-pr-evaluation-selective-reimplementation-and-closure",
+      "date": "2026-04-17",
+      "title": "Open PR Evaluation, Selective Reimplementation, and Closure",
+      "scopeSummary": [
+        "Evaluate every open GitHub PR against current repo truth, selectively implement the still-correct changes directly in the current codebase, and close or supersede PRs that are redundant, stale, or continuity-breaking."
+      ],
+      "touchedSurfaces": [
+        ".agent/workflows/auto-tasks.md",
+        "npm run trace:adjacent -- \"src/app/api/admin/users/[userId]/username/route.ts\"",
+        "npm run trace:adjacent -- src/app/admin/analytics/page.tsx",
+        "npm run trace:adjacent -- src/components/Admin/AssetUploader.tsx",
+        "npx vitest run tests/unit/admin-user-username-route.spec.ts",
+        "src/app/admin/analytics/page.tsx",
+        "src/app/api/admin/users/[userId]/username/route.ts",
+        "src/components/Admin/AssetUploader.tsx",
+        "tests/unit/admin-user-username-route.spec.ts"
+      ],
+      "canonicalHelpersReused": [],
+      "verificationCommandsRun": [
+        "git status --short",
+        "gh pr list --state open --json number,title,headRefName,baseRefName,author,isDraft,mergeStateStatus,reviewDecision,url",
+        "gh pr view 179 --json number,title,body,files,commits,comments,reviews,author,headRefName,baseRefName,url",
+        "gh pr view 180 --json number,title,body,files,commits,comments,reviews,author,headRefName,baseRefName,url",
+        "gh pr view 181 --json number,title,body,files,commits,comments,reviews,author,headRefName,baseRefName,url",
+        "gh pr view 182 --json number,title,body,files,commits,comments,reviews,author,headRefName,baseRefName,url",
+        "gh pr diff 179",
+        "gh pr diff 180",
+        "gh pr diff 181",
+        "gh pr diff 182",
+        "npm run trace:adjacent -- \"src/app/api/admin/users/[userId]/username/route.ts\"",
+        "npm run trace:adjacent -- src/components/Admin/AssetUploader.tsx",
+        "npm run trace:adjacent -- src/app/admin/analytics/page.tsx",
+        "npx vitest run tests/unit/admin-user-username-route.spec.ts",
+        "npm run typecheck"
+      ],
+      "resultSummary": [
+        "Reconciled the still-valid security fix from PR `#180` directly into `src/app/api/admin/users/[userId]/username/route.ts` by routing admin username changes through the canonical `reserveUsernameForUser(...)` helper instead of open-coding username ownership mutation.",
+        "Extended `tests/unit/admin-user-username-route.spec.ts` so the helper-based username path is covered for success, unchanged usernames, invalid helper responses, and taken usernames.",
+        "Reconciled the valid accessibility fix from PR `#181` directly into `src/components/Admin/AssetUploader.tsx` by adding explicit `aria-label` and `title` attributes to the icon-only remove button.",
+        "Reconciled the valid analytics truth fix from PR `#179` directly into `src/app/admin/analytics/page.tsx` by switching chart-health and rendering gates from array-length truthiness to actual non-zero data checks, while intentionally rejecting the PR's root `pnpm-lock.yaml` addition as continuity-breaking.",
+        "Verified that PR `#182` is already satisfied in current repo truth because the shared analytics governance policies already enforce `requireTrustedOrigin: true` on the affected routes.",
+        "Reconciled the still-valid security fix from PR `#180` directly into `src/app/api/admin/users/[userId]/username/route.ts` by routing admin username changes through the canonical `reserveUsernameForUser(...)` helper instead of open-coding username ownership mutation.",
+        "Extended `tests/unit/admin-user-username-route.spec.ts` so the helper-based username path is covered for success, unchanged usernames, invalid helper responses, and taken usernames.",
+        "Reconciled the valid accessibility fix from PR `#181` directly into `src/components/Admin/AssetUploader.tsx` by adding explicit `aria-label` and `title` attributes to the icon-only remove button.",
+        "Reconciled the valid analytics truth fix from PR `#179` directly into `src/app/admin/analytics/page.tsx` by switching chart-health and rendering gates from array-length truthiness to actual non-zero data checks, while intentionally rejecting the PR's root `pnpm-lock.yaml` addition as continuity-breaking.",
+        "Verified that PR `#182` is already satisfied in current repo truth because the shared analytics governance policies already enforce `requireTrustedOrigin: true` on the affected routes."
+      ],
+      "warnings": [],
+      "architecture_change": false,
+      "runtime_change": true,
+      "ui_change": true,
+      "security_change": false,
+      "maintenance_only": false,
+      "changeKinds": [
+        "admin",
+        "ui",
+        "runtime"
+      ]
+    },
     {
       "stable_id": "pass__2026-04-17-self-debugging-hardening-queue-runtime-canonicalization",
       "date": "2026-04-17",
@@ -474,411 +700,6 @@
       "changeKinds": [
         "ui",
         "runtime",
-        "architecture"
-      ]
-    },
-    {
-      "stable_id": "pass__2026-04-17-creator-settings-silent-error-handling-follow-up",
-      "date": "2026-04-17",
-      "title": "Creator Settings Silent Error Handling Follow-up",
-      "scopeSummary": [
-        "Reduce silent or overly-coupled creator-settings load failures in the profile page by separating creator-settings and creator-broadcast fetch handling, preserving partial success, and surfacing visible recoverable warnings instead of failing quietly behind fallback state."
-      ],
-      "touchedSurfaces": [
-        "/api/creator/broadcasts",
-        "/api/creator/settings",
-        "Get-Content src/app/dashboard/profile/page.tsx | Select-Object -Skip 220 -First 130",
-        "Get-Content src/app/dashboard/profile/page.tsx | Select-Object -Skip 560 -First 180",
-        "Get-Content src/app/dashboard/profile/page.tsx | Select-Object -Skip 700 -First 130",
-        "Get-Content src/components/Dashboard/CreatorWorkspacePanel.tsx | Select-Object -Skip 180 -First 130",
-        "Get-Content src/lib/client-error-reporting.ts",
-        "Promise.all([authFetch(\"/api/creator/settings\"), authFetch(\"/api/creator/broadcasts\")])",
-        "npm run trace:adjacent -- src/app/dashboard/profile/page.tsx",
-        "npx eslint src/app/dashboard/profile/page.tsx",
-        "npx vitest run tests/unit/creator-settings-route.spec.ts",
-        "src/app/api/creator/settings/route.ts",
-        "src/app/dashboard/profile/page.tsx",
-        "src/lib/client-error-reporting.ts"
-      ],
-      "canonicalHelpersReused": [],
-      "verificationCommandsRun": [
-        "git status --short",
-        "npm run trace:adjacent -- src/app/dashboard/profile/page.tsx",
-        "Get-ChildItem -Recurse src | Select-String -Pattern \"setCreatorSettingsLoading|creator settings load failed|reportClientIssue\\\\(|toast\\\\.error\\\\(|set.*Error\\\\(\" | Select-Object Path,LineNumber,Line",
-        "Get-Content src/app/dashboard/profile/page.tsx | Select-Object -Skip 220 -First 130",
-        "Get-Content src/components/Dashboard/CreatorWorkspacePanel.tsx | Select-Object -Skip 180 -First 130",
-        "Get-Content src/lib/client-error-reporting.ts",
-        "Get-Content src/app/dashboard/profile/page.tsx | Select-Object -Skip 700 -First 130",
-        "Get-Content src/app/dashboard/profile/page.tsx | Select-Object -Skip 560 -First 180",
-        "npx eslint src/app/dashboard/profile/page.tsx",
-        "npx vitest run tests/unit/creator-settings-route.spec.ts",
-        "npm run typecheck"
-      ],
-      "resultSummary": [
-        "Added creator-settings load notice handling to `src/app/dashboard/profile/page.tsx` so recoverable creator-tool failures are visible in-page and also surfaced through a deduplicated toast instead of failing silently.",
-        "Replaced the coupled `Promise.all(...)` creator loader with separate settled handling for:",
-        "`/api/creator/settings`",
-        "`/api/creator/broadcasts`",
-        "This preserves partial success when one creator surface fails but the other still loads correctly.",
-        "Added safe JSON response parsing and status-aware creator-facing messages for common route outcomes such as `403`, `404`, and `503`.",
-        "Preserved fallback state for creator settings when the route fails, but now clear creator stats on settings failure and avoid dropping successful broadcast data just because a sibling request failed.",
-        "Corrected the new route regression test typing so the repo-wide TypeScript verification lane remains green after the follow-up pass.",
-        "Added creator-settings load notice handling to `src/app/dashboard/profile/page.tsx` so recoverable creator-tool failures are visible in-page and also surfaced through a deduplicated toast instead of failing silently.",
-        "Replaced the coupled `Promise.all(...)` creator loader with separate settled handling for:",
-        "`/api/creator/settings`",
-        "`/api/creator/broadcasts`",
-        "This preserves partial success when one creator surface fails but the other still loads correctly.",
-        "Added safe JSON response parsing and status-aware creator-facing messages for common route outcomes such as `403`, `404`, and `503`.",
-        "Preserved fallback state for creator settings when the route fails, but now clear creator stats on settings failure and avoid dropping successful broadcast data just because a sibling request failed.",
-        "Corrected the new route regression test typing so the repo-wide TypeScript verification lane remains green after the follow-up pass."
-      ],
-      "warnings": [
-        "No new blocking findings were discovered after the follow-up implementation.",
-        "This pass added visible warning handling and partial-failure recovery to the profile page, but it did not perform a full browser audit sweep. Verification remained targeted to the touched client surface, the existing creator-settings regression spec, and repo-wide type safety."
-      ],
-      "architecture_change": true,
-      "runtime_change": true,
-      "ui_change": true,
-      "security_change": false,
-      "maintenance_only": false,
-      "changeKinds": [
-        "runtime",
-        "architecture"
-      ]
-    },
-    {
-      "stable_id": "pass__2026-04-17-creator-settings-internal-error-route-fix",
-      "date": "2026-04-17",
-      "title": "Creator Settings Internal Error Route Fix",
-      "scopeSummary": [
-        "Investigate and fix the creator-settings internal error banner by tracing the profile/settings caller path, correcting the creator-role gate in the API route, and locking the behavior down with a targeted unit regression test."
-      ],
-      "touchedSurfaces": [
-        "/api/creator/settings",
-        "Get-Content .agent/workflows/auto-tasks.md",
-        "Get-Content src/app/api/creator/settings/route.ts",
-        "Get-Content src/app/dashboard/profile/page.tsx",
-        "Get-Content src/lib/creator-experiences.ts | Select-Object -First 170",
-        "Get-Content src/lib/server/auth.ts",
-        "Get-Content tests/unit/user-profile-route.spec.ts",
-        "npm run trace:adjacent -- src/app/api/creator/settings/route.ts",
-        "npm run trace:adjacent -- src/app/dashboard/profile/page.tsx",
-        "npx vitest run tests/unit/creator-settings-route.spec.ts",
-        "src/app/api/creator/settings/route.ts",
-        "src/app/dashboard/profile/page.tsx",
-        "src/lib/creator-experiences.ts",
-        "src/lib/server/auth.ts",
-        "tests/unit/creator-settings-route.spec.ts"
-      ],
-      "canonicalHelpersReused": [
-        "src/lib/server/auth.ts"
-      ],
-      "verificationCommandsRun": [
-        "Get-Content .agent/workflows/auto-tasks.md",
-        "Get-Content src/app/dashboard/profile/page.tsx",
-        "Get-Content src/app/api/creator/settings/route.ts",
-        "Get-Content src/lib/server/auth.ts",
-        "Get-ChildItem -Recurse src,tests | Select-String -Pattern \"new AuthError|AuthError\\\\(\" | Select-Object Path,LineNumber,Line",
-        "Get-ChildItem -Recurse src | Select-String -Pattern \"isCreatorOrAdminRole\" | Select-Object Path,LineNumber,Line",
-        "Get-Content src/lib/creator-experiences.ts | Select-Object -First 170",
-        "Get-Content tests/unit/user-profile-route.spec.ts",
-        "npm run trace:adjacent -- src/app/api/creator/settings/route.ts",
-        "npm run trace:adjacent -- src/app/dashboard/profile/page.tsx",
-        "npx vitest run tests/unit/creator-settings-route.spec.ts",
-        "npm run typecheck",
-        "git status --short"
-      ],
-      "resultSummary": [
-        "Updated `src/app/api/creator/settings/route.ts` to use the existing `AuthError` contract instead of generic thrown errors for expected creator-state failures.",
-        "Widened the route gate from `isCreatorRole(...)` to `isCreatorOrAdminRole(...)` so the API matches the profile page's existing `creator || admin` loading posture.",
-        "Changed expected failure cases to return explicit non-500 statuses:",
-        "missing database -> `503`",
-        "missing creator profile -> `404`",
-        "non-creator access -> `403`",
-        "Added `tests/unit/creator-settings-route.spec.ts` to cover:",
-        "admin callers loading creator settings successfully",
-        "non-creator callers receiving `403` instead of `500`",
-        "missing profile callers receiving `404` instead of `500`",
-        "Fixed the new regression test to mirror the real `handleApiError(...)` `AuthError` behavior rather than masking status codes back to `500`.",
-        "Updated `src/app/api/creator/settings/route.ts` to use the existing `AuthError` contract instead of generic thrown errors for expected creator-state failures.",
-        "Widened the route gate from `isCreatorRole(...)` to `isCreatorOrAdminRole(...)` so the API matches the profile page's existing `creator || admin` loading posture.",
-        "Changed expected failure cases to return explicit non-500 statuses:",
-        "missing database -> `503`",
-        "missing creator profile -> `404`",
-        "non-creator access -> `403`",
-        "Added `tests/unit/creator-settings-route.spec.ts` to cover:",
-        "admin callers loading creator settings successfully",
-        "non-creator callers receiving `403` instead of `500`",
-        "missing profile callers receiving `404` instead of `500`",
-        "Fixed the new regression test to mirror the real `handleApiError(...)` `AuthError` behavior rather than masking status codes back to `500`."
-      ],
-      "warnings": [
-        "The profile page currently logs and falls back silently when creator settings fail to load. This pass corrected the route contract that was producing incorrect internal errors, but it did not change the page's client-side fallback UX.",
-        "Verification for this narrow pass was targeted: adjacency review, one new route regression spec, and full TypeScript typecheck. Broader UI/audit suites were not re-run because the change was confined to one route contract and one new unit test."
-      ],
-      "architecture_change": true,
-      "runtime_change": true,
-      "ui_change": true,
-      "security_change": false,
-      "maintenance_only": false,
-      "changeKinds": [
-        "runtime",
-        "architecture"
-      ]
-    },
-    {
-      "stable_id": "pass__2026-04-17-repo-intelligence-post-implementation-audit",
-      "date": "2026-04-17",
-      "title": "Repo Intelligence Post-Implementation Audit",
-      "scopeSummary": [
-        "Audit and test the newly implemented Repo Intelligence Fabric functions and operational processes after warning remediation.",
-        "Re-run the generator, self-check, eval, and continuity lanes, then inspect the outputs for concrete behavioral defects or drift instead of relying on green status alone."
-      ],
-      "touchedSurfaces": [
-        "Get-Content agent/state/eval-results.generated.json",
-        "Get-Content agent/state/sql-mirror-status.generated.json",
-        "Get-Content agent/state/task-context.generated.json",
-        "agent/index/",
-        "agent/prompts/",
-        "agent/state/",
-        "agent/state/eval-results.generated.json",
-        "agent/state/sql-mirror-status.generated.json",
-        "agent/state/task-context.generated.json",
-        "npm run trace:adjacent -- scripts/agent/build-agent-indexes.ts",
-        "npm run trace:adjacent -- scripts/agent/check-agent-context.ts",
-        "npm run trace:adjacent -- scripts/agent/sync-sql.ts",
-        "pass (5/5 passing)",
-        "scripts/agent/build-agent-indexes.ts",
-        "scripts/agent/build-task-context.ts",
-        "scripts/agent/check-agent-context.ts",
-        "scripts/agent/run-evals.ts",
-        "scripts/agent/sync-sql.ts"
-      ],
-      "canonicalHelpersReused": [],
-      "verificationCommandsRun": [
-        "git status --short",
-        "Get-Content FULL_SCALE_CODEBASE_AUDIT.md -TotalCount 100",
-        "Get-Content REPO_MEMORY_LEDGER.md -TotalCount 80",
-        "Get-Content EVERY_FILE_FUNCTION_CHECKLIST.md -TotalCount 40",
-        "npm run trace:adjacent -- scripts/agent/build-agent-indexes.ts",
-        "npm run trace:adjacent -- scripts/agent/check-agent-context.ts",
-        "npm run trace:adjacent -- scripts/agent/sync-sql.ts",
-        "npm run agent:refresh",
-        "npm run check:agent-context",
-        "npm run eval:agent-context",
-        "npm run typecheck",
-        "npm run check:continuity",
-        "Get-Content agent/state/task-context.generated.json",
-        "Get-Content agent/state/sql-mirror-status.generated.json",
-        "Get-Content agent/state/eval-results.generated.json"
-      ],
-      "resultSummary": [
-        "Audited the new Repo Intelligence Fabric process end to end after the warning-remediation pass instead of relying on historical green statuses.",
-        "Re-ran the generator and SQL-mirror payload flow with `npm run agent:refresh`; the generated agent indexes validated and the SQL mirror status remained healthy with no stale artifacts.",
-        "Re-ran the repo-intelligence self-check with `npm run check:agent-context`; it passed without missing files, schema drift, stable-ID collisions, or stale mirror metadata.",
-        "Re-ran the eval harness with `npm run eval:agent-context`; it now reports `pass (5/5 passing)` rather than a warning state.",
-        "Re-ran `npm run typecheck` and `npm run check:continuity`; both passed, and the continuity lane reported no dependency violations, no cycle violations, and no generated-artifact cleanup misses.",
-        "Inspected sampled generated outputs:",
-        "`agent/state/task-context.generated.json`",
-        "`agent/state/sql-mirror-status.generated.json`",
-        "`agent/state/eval-results.generated.json`",
-        "They were internally consistent with the command results and repo truth order.",
-        "Audited the new Repo Intelligence Fabric process end to end after the warning-remediation pass instead of relying on historical green statuses.",
-        "Re-ran the generator and SQL-mirror payload flow with `npm run agent:refresh`; the generated agent indexes validated and the SQL mirror status remained healthy with no stale artifacts.",
-        "Re-ran the repo-intelligence self-check with `npm run check:agent-context`; it passed without missing files, schema drift, stable-ID collisions, or stale mirror metadata.",
-        "Re-ran the eval harness with `npm run eval:agent-context`; it now reports `pass (5/5 passing)` rather than a warning state.",
-        "Re-ran `npm run typecheck` and `npm run check:continuity`; both passed, and the continuity lane reported no dependency violations, no cycle violations, and no generated-artifact cleanup misses.",
-        "Inspected sampled generated outputs:",
-        "`agent/state/task-context.generated.json`",
-        "`agent/state/sql-mirror-status.generated.json`",
-        "`agent/state/eval-results.generated.json`",
-        "They were internally consistent with the command results and repo truth order."
-      ],
-      "warnings": [
-        "No blocking findings were discovered in this audit pass.",
-        "Residual testing gap: the eval harness currently covers five representative task classes. That is sufficient to verify the repaired routing path, but it is still a curated fixture set rather than exhaustive production-task coverage."
-      ],
-      "architecture_change": true,
-      "runtime_change": false,
-      "ui_change": false,
-      "security_change": false,
-      "maintenance_only": false,
-      "changeKinds": [
-        "ui",
-        "tooling"
-      ]
-    },
-    {
-      "stable_id": "pass__2026-04-17-repo-intelligence-warning-remediation",
-      "date": "2026-04-17",
-      "title": "Repo Intelligence Warning Remediation",
-      "scopeSummary": [
-        "Remove the remaining Repo Intelligence Fabric warning states by fixing the underlying ranking, scope-classification, and verification behavior rather than downgrading, suppressing, or reclassifying failures away.",
-        "Re-run the agent-context verification and eval lanes after code changes until the warning-producing commands either pass cleanly or surface a smaller verified defect with explicit root cause."
-      ],
-      "touchedSurfaces": [
-        "/agent/index/*",
-        "/agent/prompts/*",
-        "/agent/state/*",
-        "agent/index/",
-        "agent/state/",
-        "npm run trace:adjacent -- scripts/agent/build-task-context.ts",
-        "npm run trace:adjacent -- scripts/agent/run-evals.ts",
-        "scripts/agent/build-task-context.ts",
-        "scripts/agent/extract-canonical-helpers.ts",
-        "scripts/agent/run-evals.ts",
-        "src/lib/server/admin-ui-chart-health.ts"
-      ],
-      "canonicalHelpersReused": [
-        "src/lib/server/admin-ui-chart-health.ts"
-      ],
-      "verificationCommandsRun": [
-        "git status --short",
-        "Get-Content FULL_SCALE_CODEBASE_AUDIT.md -TotalCount 80",
-        "Get-Content REPO_MEMORY_LEDGER.md -TotalCount 120",
-        "Get-Content EVERY_FILE_FUNCTION_CHECKLIST.md -TotalCount 60",
-        "npm run trace:adjacent -- scripts/agent/build-task-context.ts",
-        "npm run trace:adjacent -- scripts/agent/run-evals.ts",
-        "npm run check:inventory",
-        "npm run eval:agent-context",
-        "npm run typecheck",
-        "npm run agent:refresh",
-        "npm run eval:agent-context",
-        "npm run check:agent-context",
-        "npm run check:inventory",
-        "npm run check:continuity"
-      ],
-      "resultSummary": [
-        "Updated `scripts/agent/build-task-context.ts` to:",
-        "filter low-signal task tokens that were causing generic runtime matches",
-        "derive deterministic task signals for chat, admin, AI, creator, telemetry, dependency, audit, and route/diagnostics work",
-        "narrow broad-signoff detection so repo-wide classification is reserved for actual repo/governance/package/config surfaces instead of ordinary route-plus-helper work",
-        "select verification commands from explicit lane rules rather than generic token overlap",
-        "improve canonical helper scoring using task-signal family matches",
-        "Updated `scripts/agent/extract-canonical-helpers.ts` to register `src/lib/server/admin-ui-chart-health.ts` as a canonical helper in the runtime/admin debug observability family.",
-        "Regenerated the full `/agent/index/*`, `/agent/prompts/*`, and `/agent/state/*` surfaces after the compiler changes.",
-        "Removed the previous pre-commit-only Data Connect inventory warning from the live baseline by verifying against the now-tracked `dataconnect/` files.",
-        "Updated `scripts/agent/build-task-context.ts` to:",
-        "filter low-signal task tokens that were causing generic runtime matches",
-        "derive deterministic task signals for chat, admin, AI, creator, telemetry, dependency, audit, and route/diagnostics work",
-        "narrow broad-signoff detection so repo-wide classification is reserved for actual repo/governance/package/config surfaces instead of ordinary route-plus-helper work",
-        "select verification commands from explicit lane rules rather than generic token overlap",
-        "improve canonical helper scoring using task-signal family matches",
-        "Updated `scripts/agent/extract-canonical-helpers.ts` to register `src/lib/server/admin-ui-chart-health.ts` as a canonical helper in the runtime/admin debug observability family.",
-        "Regenerated the full `/agent/index/*`, `/agent/prompts/*`, and `/agent/state/*` surfaces after the compiler changes.",
-        "Removed the previous pre-commit-only Data Connect inventory warning from the live baseline by verifying against the now-tracked `dataconnect/` files."
-      ],
-      "warnings": [
-        "None. The previously warning-producing repo-intelligence lanes now pass cleanly."
-      ],
-      "architecture_change": true,
-      "runtime_change": false,
-      "ui_change": false,
-      "security_change": false,
-      "maintenance_only": false,
-      "changeKinds": [
-        "admin",
-        "ui",
-        "tooling",
-        "architecture"
-      ]
-    },
-    {
-      "stable_id": "pass__2026-04-16-repo-intelligence-fabric-v1",
-      "date": "2026-04-16",
-      "title": "Repo Intelligence Fabric v1",
-      "scopeSummary": [
-        "Build a repo-native machine-readable agent context layer under `/agent/` so task routing, repo memory, verification guidance, and helper reuse can be derived from generated JSON instead of repeatedly restating giant markdown context.",
-        "Reuse existing inventory, dependency, adjacency, observability, and continuity systems rather than replacing them.",
-        "Update the cross-agent entrypoint and continuity ledgers so future agents consume generated context packs before falling back to broad prose reads."
-      ],
-      "touchedSurfaces": [
-        "/agent/index/*",
-        "/agent/state/*",
-        "dataconnect/example/agent-context.gql",
-        "dataconnect/schema/agent-context.gql",
-        "npm run agent:task-context -- --task=\"build repo intelligence fabric for agent context routing\" --mode=audit --file=scripts/agent/build-agent-indexes.ts",
-        "npm run trace:adjacent -- scripts/agent/build-agent-indexes.ts",
-        "npm run trace:adjacent -- scripts/agent/build-task-context.ts",
-        "npm run trace:adjacent -- scripts/agent/sync-sql.ts",
-        "npm run trace:adjacent -- scripts/export-dependency-graph.ts",
-        "npm run trace:adjacent -- scripts/repo-inventory.ts",
-        "npm run trace:adjacent -- scripts/trace-adjacent-surfaces.ts",
-        "scripts/agent/",
-        "scripts/export-dependency-graph.ts",
-        "scripts/repo-inventory.ts",
-        "scripts/trace-adjacent-surfaces.ts",
-        "src/lib/admin-ui-chart-health.ts",
-        "src/lib/route-runtime-health.ts",
-        "src/lib/server/admin-panel-system-logs.ts",
-        "src/lib/server/route-diagnostics.ts",
-        "warn (1/5 passing)"
-      ],
-      "canonicalHelpersReused": [
-        "src/lib/admin-ui-chart-health.ts",
-        "src/lib/route-runtime-health.ts",
-        "src/lib/server/admin-panel-system-logs.ts",
-        "src/lib/server/route-diagnostics.ts"
-      ],
-      "verificationCommandsRun": [
-        "git status --short",
-        "npm run trace:adjacent -- scripts/repo-inventory.ts",
-        "npm run trace:adjacent -- scripts/export-dependency-graph.ts",
-        "npm run trace:adjacent -- scripts/trace-adjacent-surfaces.ts",
-        "npm run trace:adjacent -- scripts/agent/build-agent-indexes.ts",
-        "npm run trace:adjacent -- scripts/agent/build-task-context.ts",
-        "npm run trace:adjacent -- scripts/agent/sync-sql.ts",
-        "npm run agent:index",
-        "npm run check:agent-intelligence",
-        "npm run agent:sync-sql",
-        "npm run agent:refresh",
-        "npm run agent:task-context -- --task=\"build repo intelligence fabric for agent context routing\" --mode=audit --file=scripts/agent/build-agent-indexes.ts",
-        "npm run check:agent-context",
-        "npm run eval:agent-context",
-        "npm run typecheck",
-        "npm run check:inventory",
-        "npm run check:architecture",
-        "npm run check:continuity"
-      ],
-      "resultSummary": [
-        "Added the committed `/agent/` machine-readable context layer with schemas, state templates, prompt outputs, and generated repo intelligence indexes.",
-        "Implemented deterministic generators under `scripts/agent/` for repo inventory, surface mapping, canonical helpers, workflow guidance, governance truth, runtime observability, dependency summary, blast radius, retrieval index, task-context compilation, SQL mirror payload generation, self-checking, and eval reporting.",
-        "Reused existing repo-native truth lanes instead of replacing them:",
-        "`scripts/repo-inventory.ts`",
-        "`scripts/export-dependency-graph.ts`",
-        "`scripts/trace-adjacent-surfaces.ts`",
-        "runtime observability helpers under `src/lib/route-runtime-health.ts`, `src/lib/server/route-diagnostics.ts`, `src/lib/admin-ui-chart-health.ts`, and `src/lib/server/admin-panel-system-logs.ts`",
-        "Added a derived Data Connect mirror definition under `dataconnect/schema/agent-context.gql` plus a query surface under `dataconnect/example/agent-context.gql`, while keeping repo truth authoritative over the mirror.",
-        "Updated `AGENTS.md` into a cross-agent operational entrypoint that points agents to `/agent/index/*`, `/agent/state/*`, and the deterministic task-context flow before broad prose prompting.",
-        "Updated `REPO_MEMORY_LEDGER.md` to codify `/agent/` as the committed machine-readable context layer and `/.agent/` as workflow-only tooling.",
-        "Updated `EVERY_FILE_FUNCTION_CHECKLIST.md` metadata to cover the new repo-intelligence surfaces and the 2026-04-17 delta set.",
-        "Added the committed `/agent/` machine-readable context layer with schemas, state templates, prompt outputs, and generated repo intelligence indexes.",
-        "Implemented deterministic generators under `scripts/agent/` for repo inventory, surface mapping, canonical helpers, workflow guidance, governance truth, runtime observability, dependency summary, blast radius, retrieval index, task-context compilation, SQL mirror payload generation, self-checking, and eval reporting.",
-        "Reused existing repo-native truth lanes instead of replacing them:",
-        "`scripts/repo-inventory.ts`",
-        "`scripts/export-dependency-graph.ts`",
-        "`scripts/trace-adjacent-surfaces.ts`",
-        "runtime observability helpers under `src/lib/route-runtime-health.ts`, `src/lib/server/route-diagnostics.ts`, `src/lib/admin-ui-chart-health.ts`, and `src/lib/server/admin-panel-system-logs.ts`",
-        "Added a derived Data Connect mirror definition under `dataconnect/schema/agent-context.gql` plus a query surface under `dataconnect/example/agent-context.gql`, while keeping repo truth authoritative over the mirror.",
-        "Updated `AGENTS.md` into a cross-agent operational entrypoint that points agents to `/agent/index/*`, `/agent/state/*`, and the deterministic task-context flow before broad prose prompting.",
-        "Updated `REPO_MEMORY_LEDGER.md` to codify `/agent/` as the committed machine-readable context layer and `/.agent/` as workflow-only tooling.",
-        "Updated `EVERY_FILE_FUNCTION_CHECKLIST.md` metadata to cover the new repo-intelligence surfaces and the 2026-04-17 delta set."
-      ],
-      "warnings": [
-        "`npm run eval:agent-context` currently reports `warn (1/5 passing)` because the initial ranking/scope heuristics are still broad-biased for several moderate cases. The harness is intentionally reporting that miss rather than masking it.",
-        "`npm run check:inventory` still reports `dataconnect: 0` in this pre-commit verification state because the new `dataconnect/` files are untracked until commit. The generated agent fabric and Data Connect mirror wiring still exist locally and validate successfully.",
-        "The SQL/Data Connect mirror is wired as a derived retrieval plane and sync-status artifact, not a live authoritative runtime dependency."
-      ],
-      "architecture_change": true,
-      "runtime_change": false,
-      "ui_change": false,
-      "security_change": false,
-      "maintenance_only": false,
-      "changeKinds": [
-        "admin",
-        "ui",
-        "runtime",
-        "tooling",
         "architecture"
       ]
     }

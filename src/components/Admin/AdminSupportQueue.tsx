@@ -246,7 +246,7 @@ export function AdminSupportQueue() {
                             {(threadList?.summary.total ?? 0)} threads loaded
                         </span>
                         <span className="rounded-full border border-white/10 bg-black/35 px-3 py-1.5 text-xs font-semibold text-white">
-                            10s live poll
+                            Live poll every 10s
                         </span>
                     </>
                 )}
@@ -257,7 +257,7 @@ export function AdminSupportQueue() {
                     <div className="flex flex-wrap items-start justify-between gap-3">
                         <div>
                             <h2 className="text-sm font-bold text-white">Queue</h2>
-                            <p className="mt-1 text-xs leading-5 text-gray-400">In-site user tickets only. No mailto fallback.</p>
+                            <p className="mt-1 text-xs leading-5 text-gray-400">In-site tickets only. No email fallback.</p>
                         </div>
                         <div className="flex flex-wrap gap-2">
                             {[
@@ -319,7 +319,7 @@ export function AdminSupportQueue() {
                                         <div className="min-w-0">
                                             <p className="truncate text-sm font-semibold text-white">{thread.subject || "Support thread"}</p>
                                             <p className="mt-1 truncate text-xs text-gray-400">
-                                                {primaryIdentity} • {formatSupportCategoryLabel(thread.category)}
+                                                {primaryIdentity} · {formatSupportCategoryLabel(thread.category)}
                                             </p>
                                         </div>
                                         <div className="flex shrink-0 items-center gap-2">

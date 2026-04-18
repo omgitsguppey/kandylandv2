@@ -62,6 +62,27 @@ const EVAL_CASES: EvalCase[] = [
     expectedVerificationCommands: ["npm run check:telemetry"],
     expectedScope: "moderate",
   },
+  {
+    id: "viewer_watch_capture_hardening",
+    task: "harden viewer watch session capture quality and admin analytics continuity without widening prompt scope",
+    mode: "runtime",
+    files: ["src/app/api/viewer/watch-session/route.ts", "src/app/admin/analytics/page.tsx"],
+    expectedRelevantFiles: [
+      "src/app/api/viewer/watch-session/route.ts",
+      "src/lib/viewer-watch-session.ts",
+      "src/lib/server/admin-analytics-capture-health.ts",
+      "src/app/admin/analytics/page.tsx",
+    ],
+    expectedHelpers: [
+      "src/lib/viewer-watch-session.ts",
+      "src/lib/server/admin-analytics-capture-health.ts",
+    ],
+    expectedVerificationCommands: [
+      "npm run check:analytics:continuity",
+      "npm run check:analytics-semantics",
+    ],
+    expectedScope: "moderate",
+  },
 ];
 
 function runTaskContext(task: string, mode: string, files: string[] = []) {

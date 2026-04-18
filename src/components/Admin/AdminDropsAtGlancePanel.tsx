@@ -304,7 +304,7 @@ export function AdminDropsAtGlancePanel() {
                         { label: "Live", value: summary.live },
                         { label: "Scheduled", value: summary.scheduled },
                         { label: "Queued", value: summary.queued },
-                        { label: "Review", value: summary.pending },
+                        { label: "Pending review", value: summary.pending },
                     ].map((item) => (
                         <div key={item.label} className="rounded-[1.1rem] border border-white/8 bg-black/30 px-3 py-3">
                             <p className="text-[10px] font-semibold uppercase tracking-[0.16em] text-gray-500">{item.label}</p>
@@ -377,7 +377,7 @@ export function AdminDropsAtGlancePanel() {
                                                 </span>
                                                 {row.isQueued ? (
                                                     <span className="rounded-full border border-brand-purple/20 bg-brand-purple/10 px-2.5 py-1 text-[10px] font-semibold text-brand-pink">
-                                                        {row.queueLabel ? `Queued · ${row.queueLabel}` : "Queued"}
+                                                        {row.queueLabel ? `Queued • ${row.queueLabel}` : "Queued"}
                                                     </span>
                                                 ) : null}
                                             </div>

@@ -1,8 +1,8 @@
 # EVERY FILE FUNCTION CHECKLIST
 
 **Last Updated:** 2026-04-18
-**Current Focus:** Repo Intelligence Fabric v1 remains active, and the 2026-04-18 delta now includes the generated UI continuity ledger, the self-debugging queue/runtime canonicalization lane, and the open-PR reconciliation pass covering analytics truth gating, canonical admin username reservation, and admin asset-uploader accessibility labeling.
-**Status:** In Progress. Historical exhaustive sweep remains valuable, and the 2026-04-18 continuity metadata now reflects the repo-intelligence layer, the UI continuity fabric, the creator-settings route regression coverage, the profile-page creator warning handling follow-up, the self-debugging queue/runtime canonicalization pass, the warning-free static verification baseline, and the open-PR reconciliation pass.
+**Current Focus:** Repo Intelligence Fabric v1 remains active, and the 2026-04-18 delta now includes the generated UI continuity ledger, the self-debugging queue/runtime canonicalization lane, the open-PR reconciliation pass covering analytics truth gating, canonical admin username reservation, and admin asset-uploader accessibility labeling, plus the mobile chat untappable regression fix, compact interaction recovery hardening, analytics truth/freshness hardening, and the UI truthfulness / chart-health freshness downgrade pass.
+**Status:** In Progress. Historical exhaustive sweep remains valuable, and the 2026-04-18 continuity metadata now reflects the repo-intelligence layer, the UI continuity fabric, the creator-settings route regression coverage, the profile-page creator warning handling follow-up, the self-debugging queue/runtime canonicalization pass, the mobile chat local-overflow remediation pass, the compact interaction recovery guard rollout, the scheduler-heartbeat provenance remediation pass, the Firestore transport dependency remediation pass, the warning-free static verification baseline, the open-PR reconciliation pass, the watch-session capture-health / task-context tiering pass, the analytics truth/freshness hardening lane, and the UI truthfulness freshness downgrade lane.
 Purpose: exhaustive no-skip audit checklist covering every repository file currently in scope and every detected function-like implementation.
 
 Scoring: all entries below are marked as included in the current validated sweep. Confidence reflects current repository-state confidence, not perfection or future-proofing.
@@ -57,7 +57,43 @@ Current repo-wide state snapshot: see [FULL_SCALE_CODEBASE_AUDIT.md](/Users/uylu
   - `scripts/check-runtime-continuity.ts`
   - `tests/unit/process-queue-route.spec.ts`
   - `tests/unit/notify-active-drops-route.spec.ts`
+  - `tests/unit/check-scheduler-freshness.spec.ts`
+- Added compact mobile chat regression coverage:
+  - `tests/unit/chat-route-shell.spec.tsx`
+- Added compact interaction self-healing coverage:
+  - `tests/unit/self-healing.spec.ts`
 - Added admin/debug queue runtime visibility:
+  - `src/lib/server/admin-analytics-capture-health.ts`
+  - `scripts/check-analytics-continuity.ts`
+  - `tests/unit/admin-analytics-capture-health.spec.ts`
+- Extended agent and analytics continuity surfaces:
+  - `scripts/agent/build-task-context.ts`
+  - `scripts/agent/build-agent-indexes.ts`
+  - `scripts/agent/run-evals.ts`
+  - `scripts/agent/extract-runtime-observability.ts`
+  - `agent/index/retrieval-index.json`
+  - `agent/index/runtime-observability.json`
+- Extended canonical viewer watch/session surfaces:
+  - `src/lib/viewer-watch-session.ts`
+  - `src/hooks/useViewerWatchSession.ts`
+  - `src/app/dashboard/viewer/ViewerClient.tsx`
+  - `src/app/api/viewer/watch-session/route.ts`
+- Added analytics truth/state-of-truth hardening surfaces:
+  - `src/lib/admin-analytics-truth.ts`
+  - `src/lib/server/admin-analytics-historical-validation.ts`
+  - `src/lib/server/admin-ops-health.ts`
+  - `src/lib/admin-ops-health.ts`
+  - `src/app/api/admin/analytics/historical/route.ts`
+  - `src/app/admin/debug/page.tsx`
+  - `src/types/admin-analytics.ts`
+  - `tests/unit/admin-analytics-truth.spec.ts`
+  - `tests/unit/admin-ops-health.spec.ts`
+  - `src/app/api/admin/analytics/historical/route.ts`
+  - `src/app/api/admin/analytics/realtime/route.ts`
+  - `src/lib/server/admin-analytics-historical-validation.ts`
+  - `src/types/admin-analytics.ts`
+  - `src/app/admin/analytics/page.tsx`
+  - `tests/unit/admin-analytics-realtime-route.spec.ts`
   - `src/app/admin/debug/page.tsx`
   - `src/app/api/admin/debug/route.ts`
 - Added open-PR reconciliation coverage and local supersession surfaces:
@@ -79,6 +115,10 @@ Current repo-wide state snapshot: see [FULL_SCALE_CODEBASE_AUDIT.md](/Users/uylu
 - Continuity note: the profile page now separates creator-settings and creator-broadcast load failures, preserves partial success when one request still succeeds, and shows a visible warning instead of silently hiding common recoverable creator-tool load errors behind fallback state.
 - Continuity note: creator/public/dashboard UI surfaces now flow through a generated machine-readable coverage ledger, and the creator public profile plus creator workspace use shared module continuity handling instead of silent all-or-nothing hydration.
 - Continuity note: queue lifecycle now has a canonical Firebase Functions scheduler lane, the Next cron routes are warning-producing legacy adapters only, and runtime continuity checks can now fail on missing queue heartbeats or missing notification outcomes without requiring a full build.
+- Continuity note: queue heartbeat truth now records `executionLayer` and `surface`, scheduler freshness only trusts canonical `executionLayer: "scheduler"` heartbeat docs, and local empty-state verification may fall back to static scheduler-wiring proof until live scheduler heartbeats exist.
+- Continuity note: root `package.json`/`package-lock.json` and `functions/package.json`/`functions/package-lock.json` now override `@google-cloud/firestore` to `^8.5.0` and `google-gax` to `^5.0.6` so Firestore-backed continuity scripts stop emitting the previous Node 24 `punycode` deprecation warning while Functions runtime truth remains on Node 22.
+- Continuity note: compact/mobile chat now uses local height containment instead of a viewport-wide fixed route shell, `ChatRouteShell` only locks document overflow on non-compact viewports, and the thread-search input explicitly releases focus when leaving the compact thread list path.
+- Continuity note: `src/lib/self-healing.ts` now exposes a shared compact interaction recovery guard, and `ChatExperience` uses it to self-heal stale compact/mobile interaction-release states while emitting structured `ui` diagnostics.
 - Coverage note: these files are included in current continuity/signoff scope even though the historical exhaustive body below has not yet been fully regenerated for the new directories.
 
 Historical sweep file-body baseline: 413 tracked files

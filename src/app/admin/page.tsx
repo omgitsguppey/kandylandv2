@@ -95,7 +95,7 @@ export default function AdminDashboardPage() {
                 actions={(
                     <>
                         <span className="rounded-full border border-white/10 bg-black/35 px-3 py-1.5 text-xs font-semibold text-white">
-                            5s polled snapshot
+                            Overview snapshot, refreshed every 5s
                         </span>
                         <span className="rounded-full border border-white/10 bg-black/35 px-3 py-1.5 text-xs font-semibold text-white">
                             Last commerce activity {lastCommerceLabel}

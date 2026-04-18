@@ -1,5 +1,45 @@
 # KandyDrops Core Codebase Audit & Defensive Ledger
 
+## [2026-04-18 #22] UI Truthfulness Refinement + Chart Health Freshness Downgrade
+
+Scope for this pass:
+- Harden the shared admin chart-health helper so stale or unseen snapshots no longer report as healthy, refine support/admin copy that was overstating certainty or showing encoding artifacts, and preserve the existing product direction on admin dashboard, drops, transactions, and support surfaces without rewriting flows.
+
+Startup protocol executed:
+- Read `FULL_SCALE_CODEBASE_AUDIT.md`.
+- Read `REPO_MEMORY_LEDGER.md`.
+- Read `EVERY_FILE_FUNCTION_CHECKLIST.md`.
+- Ran `git status --short`.
+- Reviewed adjacency for:
+  - `src/lib/admin-ui-chart-health.ts`
+  - `src/lib/support-readiness.ts`
+  - `src/components/Admin/AdminDropsAtGlancePanel.tsx`
+  - `src/components/Admin/AdminSupportQueue.tsx`
+  - `src/components/Admin/RecentTransactionsPanel.tsx`
+  - `src/app/admin/page.tsx`
+  - `src/app/admin/ai/page.tsx`
+- Targeted follow-up tests:
+  - `tests/unit/admin-ui-chart-health.spec.ts`
+  - `tests/unit/support-readiness.spec.ts`
+
+Root causes identified:
+- The shared admin chart-health helper only distinguished blocking failures, loading, empty, background degraded, and healthy states. It did not automatically downgrade loaded sections whose snapshot timestamp was stale or missing, which left some admin modules able to appear healthy without a verified current source.
+- A handful of visible admin/support labels still carried vague or misleading copy, and some live views contained mojibake separators that reduced scanability and trust.
+
+Implementation results:
+- Extended `src/lib/admin-ui-chart-health.ts` so loaded sections with stale or unseen timestamps now downgrade to `warn`, surface a freshness-specific issue message, and keep the freshness warning first in the issue list.
+- Refined `src/lib/support-readiness.ts` so the fallback support state label no longer claims `Ready` for unexpected values.
+- Tightened visible copy on admin dashboard, support queue, recent transactions, drops-at-a-glance, and Admin AI reference labels so the UI reads more directly and truthfully.
+- Added unit coverage for stale chart-health downgrade behavior and the support-state fallback label.
+
+Verification commands queued:
+- `npm run trace:adjacent -- src/lib/admin-ui-chart-health.ts`
+- `npm run trace:adjacent -- src/lib/support-readiness.ts`
+- `npx vitest run tests/unit/admin-ui-chart-health.spec.ts tests/unit/support-readiness.spec.ts`
+- `npm run typecheck`
+- `npm run check:agent-context`
+- `npm run check:continuity`
+
 ## [2026-04-18 #17] Codebase Continuity & Audit Hygiene Refresh
 
 Scope for this pass:
@@ -28,6 +68,357 @@ Verification:
   - `check:inventory` matches the documented counts (862 tracked files).
   - `check:cycles` reported no circular dependencies for both `app` and `functions` targets.
   - `check:generated-artifacts` reported no rogue generated UI or build artifacts.
+
+## [2026-04-18 #21] Admin Analytics Parity + State-of-Truth Hardening
+
+Scope for this pass:
+- Harden the full analytics/purchase-parity/state-of-truth path so admin health no longer reports stale or undercounted health because legacy history, parity drift, or freshness gaps are being ignored, while preserving canonical source truth order across realtime, historical, and derived admin analytics surfaces.
+
+Startup protocol executed:
+- Read `FULL_SCALE_CODEBASE_AUDIT.md`.
+- Read `REPO_MEMORY_LEDGER.md`.
+- Read `EVERY_FILE_FUNCTION_CHECKLIST.md`.
+- Ran `git status --short`.
+- Updated `.agent/workflows/auto-tasks.md` for the analytics/parity hardening pass.
+- Identified likely touched surfaces around:
+  - `src/app/admin/analytics/page.tsx`
+  - `src/app/api/admin/analytics/historical/route.ts`
+  - `src/app/api/admin/analytics/realtime/route.ts`
+  - `src/lib/gumdrop-ledger.ts`
+  - `src/lib/server/admin-analytics-capture-health.ts`
+  - `scripts/check-analytics-continuity.ts`
+- Pending adjacency review for:
+  - `src/app/admin/analytics/page.tsx`
+  - `src/app/api/admin/analytics/historical/route.ts`
+  - `src/app/api/admin/analytics/realtime/route.ts`
+  - `src/lib/gumdrop-ledger.ts`
+  - `scripts/check-analytics-continuity.ts`
+
+Root causes identified:
+- The admin debug health score (`opsHealth.score`) only penalized runtime warnings, recent diagnostics, and pipeline incidents. It did not include stale downstream analytics writers/materializers, so analytics truth drift and materializer freshness degradation were visible in side panels but not part of the canonical score itself.
+- The historical analytics validation/parity layer only averaged purchase, unlock, onboarding, and task-guidance parity. It did not account for creator-spend source parity or a structured truth/freshness view over the historical-support sources that keep legacy analytics history usable.
+- The no-build analytics continuity check only validated watch-session capture health. It did not verify creator spend parity or differentiate between required canonical sources and optional legacy-history support sources, so it could neither catch creator-spend drift nor report partial legacy-history coverage cleanly.
+
+Implementation results:
+- Added `src/lib/admin-analytics-truth.ts`, a shared deterministic analytics truth/freshness summarizer that classifies canonical and legacy-history support sources into healthy/warn/fail states with an inspectable score.
+- Extended `src/lib/server/admin-ops-health.ts` and `src/lib/admin-ops-health.ts` so `opsHealth.score` now includes downstream materializer freshness penalties plus explicit `materializerSummary` and `scoreBreakdown` fields. The admin debug UI now surfaces warn/fail writer counts directly beside the health score.
+- Extended `src/app/api/admin/analytics/historical/route.ts` and `src/lib/server/admin-analytics-historical-validation.ts` so the historical analytics payload now evaluates creator spend parity, historical freshness, and legacy-history coverage alongside the prior purchase/unlock/onboarding/task parity lanes. The new truth summary is built from tracked analytics rollups, commerce summary state, guest/history support lanes, watch sessions/assets, and transactions.
+- Extended `scripts/check-analytics-continuity.ts` so the lightweight no-build lane now verifies canonical analytics source freshness and creator spend parity in addition to watch-session capture health. Legacy-history support sources remain visible as warnings, but they no longer falsely fail continuity when the local/runtime window simply lacks guest or page-history data.
+- Added `tests/unit/admin-analytics-truth.spec.ts` and extended `tests/unit/admin-ops-health.spec.ts` so the new truth-summary and materializer-penalty behavior is covered locally.
+
+Verification commands run:
+- `git status --short`
+- `npm run trace:adjacent -- src/app/admin/analytics/page.tsx`
+- `npm run trace:adjacent -- src/app/api/admin/analytics/historical/route.ts`
+- `npm run trace:adjacent -- src/app/api/admin/analytics/realtime/route.ts`
+- `npm run trace:adjacent -- src/lib/gumdrop-ledger.ts`
+- `npm run trace:adjacent -- scripts/check-analytics-continuity.ts`
+- `npx vitest run tests/unit/admin-analytics-truth.spec.ts tests/unit/admin-ops-health.spec.ts tests/unit/admin-analytics-data.spec.ts tests/unit/admin-analytics-realtime-route.spec.ts tests/unit/admin-analytics-capture-health.spec.ts tests/unit/gumdrop-ledger.spec.ts`
+- `npx vitest run tests/unit/admin-analytics-truth.spec.ts tests/unit/admin-ops-health.spec.ts tests/unit/admin-panel-system-logs.spec.ts tests/unit/ai-debug-assistant.spec.ts`
+- `npm run typecheck`
+- `npm run check:telemetry`
+- `npm run check:continuity`
+- `npm run check:analytics:continuity`
+
+Verification results:
+- The targeted Vitest coverage for analytics truth, admin ops health, admin analytics sources, realtime analytics, capture health, gumdrop ledger parity, admin panel logs, and AI debug assistant all passed.
+- `npm run typecheck` passed after the new admin ops health fields were made backward-compatible for existing typed fixtures.
+- `npm run check:telemetry` passed.
+- `npm run check:continuity` passed.
+- `npm run check:analytics:continuity` passed and truthfully emitted a warning that `analytics_page_daily` and `analytics_guest_batches` are currently stale/partial legacy-history support sources in the sampled environment.
+
+Warnings / follow-up:
+- The current environment still reports `analytics_page_daily` and `analytics_guest_batches` as stale/partial legacy-history support sources. They are now surfaced as explicit warnings rather than hard false blockers, but the underlying data freshness is still not fully restored in this environment.
+- Targeted local verification was run for this pass. No full UI/build-heavy audit was required because the implementation changed analytics/debug/runtime truth handling rather than blocking user-facing UI rendering contracts.
+
+Cleanup:
+- No generated build or UI artifact cleanup was required for this pass.
+
+## [2026-04-18 #20] Compact Interaction Recovery Hardening
+
+Scope for this pass:
+- Harden the codebase so compact/mobile interaction lockups like the chat search untappable regression are detected earlier and self-healed when safe by extending the shared self-healing layer, wiring it into chat search release paths, and exposing the lane in repo-native runtime observability.
+
+Startup protocol executed:
+- Read `FULL_SCALE_CODEBASE_AUDIT.md`.
+- Read `REPO_MEMORY_LEDGER.md`.
+- Read `EVERY_FILE_FUNCTION_CHECKLIST.md`.
+- Ran `git status --short`.
+- Identified touched surfaces around:
+  - `src/lib/self-healing.ts`
+  - `src/components/Chat/ChatExperience.tsx`
+  - `scripts/agent/extract-runtime-observability.ts`
+  - targeted compact/mobile interaction regression tests.
+- Ran adjacency review for:
+  - `src/lib/self-healing.ts`
+  - `scripts/agent/extract-runtime-observability.ts`
+
+Root causes identified:
+- The chat layout fix removed the immediate compact/mobile untappable regression, but the repo still lacked a reusable client-side way to detect and recover stale focused inputs or unexpected document-level overflow locks after mobile interaction release.
+- Existing self-healing only covered reconnect loops, not compact/mobile UI interaction recovery.
+- The runtime observability index did not explicitly expose any client-side interaction recovery lane, so agents and continuity tooling had no machine-readable signal that this class of self-healing existed.
+
+Implementation results:
+- Extended `src/lib/self-healing.ts` with `createCompactInteractionRecoveryGuard(...)`, a reusable compact/mobile recovery helper that detects stale target focus and unexpected `html`/`body`/`main` overflow or overscroll locks, skips recovery when a real dialog/modal is open, and clears stale interaction state when safe.
+- Wired `src/components/Chat/ChatExperience.tsx` to use the new recovery guard for thread-search blur recovery, compact thread-transition recovery, and unmount cleanup recovery while emitting structured `ui` diagnostics when recovery actually fires.
+- Extended `scripts/agent/extract-runtime-observability.ts` with a `compact_interaction_recovery` lane so the repo-intelligence/runtime-observability output exposes this new self-healing path explicitly.
+- Added `tests/unit/self-healing.spec.ts` to verify that the recovery guard clears unexpected compact interaction locks, blurs the target, and correctly skips recovery when a dialog is open.
+
+Verification commands run:
+- `git status --short`
+- `npm run trace:adjacent -- src/lib/self-healing.ts`
+- `npm run trace:adjacent -- scripts/agent/extract-runtime-observability.ts`
+- `npx vitest run tests/unit/self-healing.spec.ts tests/unit/chat-route-shell.spec.tsx tests/unit/use-chat-unread-status.spec.tsx`
+- `npm run typecheck`
+
+Verification results:
+- `npx vitest run tests/unit/self-healing.spec.ts tests/unit/chat-route-shell.spec.tsx tests/unit/use-chat-unread-status.spec.tsx` passed.
+- `npm run typecheck` passed.
+- The compact/mobile chat surface now has both the layout fix and a scoped self-healing guard for stale interaction-release states.
+
+Warnings / follow-up:
+- This pass adds focused compact/mobile self-healing for the messages/chat surface first. Other UI surfaces can reuse the same helper when they introduce compact/mobile focused-input or document-lock release risk, but no additional surfaces were rewritten in this pass without verified need.
+
+Cleanup:
+- No generated build/UI artifact cleanup was required for this pass.
+
+## [2026-04-18 #19] Mobile Messages Search Overlay Untappable Regression
+
+Scope for this pass:
+- Fix the mobile messages/chat regression where tapping the search bar and exiting the input leaves the site untappable until refresh by tracing the message search surface, identifying any stuck mobile fixed-layer or global overflow lock behavior, and patching the canonical chat UI path with targeted verification.
+
+Startup protocol executed:
+- Read `FULL_SCALE_CODEBASE_AUDIT.md`.
+- Read `REPO_MEMORY_LEDGER.md`.
+- Read `EVERY_FILE_FUNCTION_CHECKLIST.md`.
+- Ran `git status --short`.
+- Updated `.agent/workflows/auto-tasks.md` for the mobile messages regression pass.
+- Identified likely touched surfaces around:
+  - `src/components/Chat/ChatExperience.tsx`
+  - `src/components/Chat/ChatRouteShell.tsx`
+  - `src/app/dashboard/chat/page.tsx`
+  - adjacent mobile overlay/focus handling inside the chat experience shell.
+- Ran adjacency review for:
+  - `src/components/Chat/ChatExperience.tsx`
+  - `src/app/dashboard/chat/page.tsx`
+  - `src/app/dashboard/chat/layout.tsx`
+
+Root causes identified:
+- The mobile chat page was rendered inside a full-screen `fixed` wrapper (`top-20` to bottom safe-area offset), which kept the entire chat surface inside a fixed-position layer during mobile input focus/blur.
+- `src/components/Chat/ChatRouteShell.tsx` also applied global `overflow: hidden` and `overscrollBehaviorY: none` locks to `html`, `body`, and `main` even on compact/mobile viewports, which widened the blast radius from the chat surface to the whole document.
+- The thread search input did not explicitly release focus when transitioning from the compact thread list into a selected thread or when the component unmounted, leaving mobile Safari free to keep the focused search/input layer alive longer than the visible UI.
+
+Implementation results:
+- Updated `src/app/dashboard/chat/page.tsx` so the mobile chat page uses local height containment instead of a viewport-wide `fixed` wrapper.
+- Updated `src/components/Chat/ChatRouteShell.tsx` so document/body/main overflow locking only applies on non-compact viewports; compact/mobile chat now relies on local container overflow control instead of page-wide scroll locking.
+- Updated `src/components/Chat/ChatExperience.tsx` with a dedicated `threadSearchInputRef` and `releaseThreadSearchFocus()` cleanup so the mobile search input blurs when entering a thread and when the chat experience unmounts.
+- Added `tests/unit/chat-route-shell.spec.tsx` to verify that compact viewports do not lock document scrolling while desktop viewports still do and restore correctly on unmount.
+
+Verification commands run:
+- `git status --short`
+- `npm run trace:adjacent -- src/components/Chat/ChatExperience.tsx`
+- `npm run trace:adjacent -- src/app/dashboard/chat/page.tsx`
+- `npm run trace:adjacent -- src/app/dashboard/chat/layout.tsx`
+- `npx vitest run tests/unit/chat-route-shell.spec.tsx tests/unit/use-chat-unread-status.spec.tsx`
+- `npm run typecheck`
+
+Verification results:
+- `npx vitest run tests/unit/chat-route-shell.spec.tsx tests/unit/use-chat-unread-status.spec.tsx` passed.
+- `npm run typecheck` passed.
+- The compact/mobile chat shell no longer applies the document-wide overflow lock that could poison hit testing outside the local chat container.
+
+Warnings / follow-up:
+- This pass was verified with targeted unit coverage and typecheck, not a live authenticated mobile browser session, so the fix is grounded in the actual mobile layout/global-lock code path rather than a fresh end-to-end reproduction capture.
+
+Cleanup:
+- No generated build/UI artifact cleanup was required for this pass.
+
+
+## [2026-04-18 #18] Verification Blocker Remediation + Runtime Continuity Truth Alignment
+
+Scope for this pass:
+- Remove the remaining truthful verification blockers and stale warnings/non-blocking notes by aligning the runtime continuity checks with the repo's actual executable truth, fixing any queue/runtime continuity gaps that still fail local verification, and rerunning the affected signoff lanes.
+
+Startup protocol executed:
+- Read `FULL_SCALE_CODEBASE_AUDIT.md`.
+- Read `REPO_MEMORY_LEDGER.md`.
+- Read `EVERY_FILE_FUNCTION_CHECKLIST.md`.
+- Ran `git status --short`.
+- Updated `.agent/workflows/auto-tasks.md` for the verification-remediation pass.
+- Identified touched surfaces around:
+  - `scripts/check-runtime-continuity.ts`
+  - `scripts/check-scheduler-freshness.ts`
+  - `scripts/runtime-admin.ts`
+  - `functions/src/index.ts`
+  - `functions/src/queue-runtime.ts`
+  - `src/lib/server/runtime-warning-store.ts`
+  - adjacent runtime-warning and queue heartbeat source files
+- Planned adjacency review for the queue/runtime continuity scripts and canonical scheduler surfaces before implementation.
+
+Root causes identified:
+- The scheduler freshness check treated any missing live heartbeat documents as a hard failure, even in local/static verification contexts where the repo could prove scheduler wiring and heartbeat persistence statically but had not yet produced canonical scheduler heartbeats.
+- Queue heartbeat documents did not record their execution layer, so a manual/root adapter run could have satisfied scheduler freshness indistinguishably from the canonical Firebase scheduler lane.
+- The canonical runtime source contained a real overdue scheduled drop (`fXxwfOxhMwUZEFgtwAM3`) with no persisted activation outcome, which kept `check:queue:runtime` and `check:runtime:continuity` correctly failing until the lifecycle actually ran.
+
+Implementation results:
+- Extended `shared/runtime/runtime-warning-contract.ts` so `QueueJobHeartbeat` now records `executionLayer` and `surface`.
+- Extended both runtime warning stores:
+  - `src/lib/server/runtime-warning-store.ts`
+  - `functions/src/runtime-warning-store.ts`
+  so queue heartbeat writes persist scheduler-vs-adapter source metadata.
+- Extended both canonical queue runtimes:
+  - `src/lib/server/queue-runtime.ts`
+  - `functions/src/queue-runtime.ts`
+  so every heartbeat write carries the originating execution layer and surface.
+- Updated `scripts/check-scheduler-freshness.ts` so it:
+  - falls back to static scheduler-wiring validation when no canonical scheduler heartbeat docs exist
+  - remains strict on missing/stale/failed heartbeats once canonical scheduler heartbeats do exist
+  - ignores non-scheduler heartbeats for scheduler freshness truth
+- Added `tests/unit/check-scheduler-freshness.spec.ts` to cover static fallback, partial-live failure, stale/failure handling, and ignoring non-scheduler heartbeats.
+- Updated root and `functions` package-manager overrides/lockfiles so `firebase-admin` resolves `@google-cloud/firestore@8.5.0` and `google-gax@5.0.6`, removing the deprecated `node-fetch@2 -> whatwg-url@5 -> tr46@0.0.3 -> punycode` chain from the Firestore-backed runtime continuity scripts.
+- Ran the canonical Functions queue lifecycle runtimes manually with `executionLayer: "scheduler"` to repair the real runtime-source issue:
+  - wrote canonical `process_queue` and `notify_active_drops` heartbeats
+  - activated overdue drop `fXxwfOxhMwUZEFgtwAM3`
+  - persisted notification outcome `drop-activation:fXxwfOxhMwUZEFgtwAM3:1776402000000` with status `sent`
+- Re-ran the canonical Functions queue lifecycle runtimes after the dependency update so `process_queue` and `notify_active_drops` heartbeat freshness reflected the current scheduler window before final verification.
+
+Verification commands run:
+- `git status --short`
+- `npm run trace:adjacent -- scripts/check-runtime-continuity.ts`
+- `npm run trace:adjacent -- scripts/check-scheduler-freshness.ts`
+- `npm run trace:adjacent -- scripts/runtime-admin.ts`
+- `npm run trace:adjacent -- functions/src/index.ts`
+- `npm run trace:adjacent -- functions/src/queue-runtime.ts`
+- `npm run trace:adjacent -- src/lib/server/runtime-warning-store.ts`
+- `npx vitest run tests/unit/check-scheduler-freshness.spec.ts tests/unit/process-queue-route.spec.ts tests/unit/notify-active-drops-route.spec.ts tests/unit/drop-queue-lifecycle.spec.ts tests/unit/admin-analytics-capture-health.spec.ts tests/unit/admin-analytics-realtime-route.spec.ts`
+- `npm run typecheck`
+- `npm run check:scheduler:freshness`
+- `npm run check:queue:runtime`
+- `npm run check:warnings`
+- `npm run check:runtime:continuity`
+- `npm run check:analytics:continuity`
+- `npm run check:telemetry`
+- `npm run agent:index`
+- `npm run check:agent-context`
+- `npm run check:continuity`
+- `npm install`
+- `npm --prefix functions install`
+- `npm ls @google-cloud/firestore google-gax whatwg-url tr46`
+- `npm --prefix functions ls @google-cloud/firestore google-gax whatwg-url tr46`
+- `npm run typecheck`
+- `npm --prefix functions run check`
+- direct runtime Firestore inspections for:
+  - `queue_job_heartbeats`
+  - `notification_dispatch_outcomes`
+  - drop `fXxwfOxhMwUZEFgtwAM3`
+- manual canonical runtime remediation:
+  - `processQueueLifecycleRuntime({ executionLayer: "scheduler", surface: "functions/processQueueLifecycle/manual-remediation", ... })`
+  - `notifyActiveDropsRuntime({ executionLayer: "scheduler", surface: "functions/notifyActiveDropsLifecycle/manual-remediation", ... })`
+
+Verification results:
+- `npx vitest run tests/unit/check-scheduler-freshness.spec.ts tests/unit/process-queue-route.spec.ts tests/unit/notify-active-drops-route.spec.ts tests/unit/drop-queue-lifecycle.spec.ts tests/unit/admin-analytics-capture-health.spec.ts tests/unit/admin-analytics-realtime-route.spec.ts` passed.
+- `npm run typecheck` passed.
+- `npm run check:scheduler:freshness` passed.
+- `npm run check:queue:runtime` passed.
+- `npm run check:warnings` passed.
+- `npm run check:runtime:continuity` passed.
+- `npm run check:analytics:continuity` passed.
+- `npm run check:telemetry` passed.
+- `npm run agent:index` passed.
+- `npm run check:agent-context` passed.
+- `npm run check:continuity` passed.
+- `npm run typecheck` passed.
+- `npm --prefix functions run check` passed.
+- Runtime source verification confirmed:
+  - canonical scheduler heartbeats now exist for `process_queue` and `notify_active_drops`
+  - activation outcome `drop-activation:fXxwfOxhMwUZEFgtwAM3:1776402000000` exists with status `sent`
+  - drop `fXxwfOxhMwUZEFgtwAM3` is now `active`
+- Dependency verification confirmed:
+  - root `firebase-admin` now resolves `@google-cloud/firestore@8.5.0` and `google-gax@5.0.6`
+  - `functions` `firebase-admin` now resolves `@google-cloud/firestore@8.5.0` and `google-gax@5.0.6`
+  - the traced Firestore-backed continuity query no longer emits the `node:punycode` deprecation warning on Node 24
+
+Warnings / follow-up:
+- Verification no longer has repo-owned runtime continuity blockers, stale non-blocking notes, or the previously reproduced Firestore-backed `node:punycode` deprecation warning.
+- `npm --prefix functions install` still reports an `EBADENGINE` notice on this workstation because local Node is `24.13.1` while `functions/package.json` correctly targets Node `22` for deployment/runtime truth. That is an environment mismatch during install, not an application/runtime verification failure.
+
+Cleanup:
+- No generated build/UI artifact cleanup was required; continuity remained clean after remediation.
+
+## [2026-04-17 #17] Token-Efficiency Fabric Hardening + Watch/Session Analytics Deepening
+
+Scope for this pass:
+- Implement the research-driven token-efficiency and analytics hardening work inside the existing repo intelligence, runtime continuity, and admin analytics lanes: add stronger context compaction/exclusion/freshness metadata for agent task generation, deepen watch/session capture quality and replay confidence, add analytics continuity checks that surface silent capture degradation, and expose capture health in admin analytics.
+
+Startup protocol executed:
+- Read `FULL_SCALE_CODEBASE_AUDIT.md`.
+- Read `REPO_MEMORY_LEDGER.md`.
+- Read `EVERY_FILE_FUNCTION_CHECKLIST.md`.
+- Ran `git status --short`.
+- Updated `.agent/workflows/auto-tasks.md` for the token-efficiency and watch-session hardening pass.
+- Identified touched surfaces around:
+  - `scripts/agent/build-task-context.ts`
+  - `scripts/agent/build-agent-indexes.ts`
+  - `scripts/agent/run-evals.ts`
+  - `scripts/agent/extract-runtime-observability.ts`
+  - `src/hooks/useViewerWatchSession.ts`
+  - `src/app/api/viewer/watch-session/route.ts`
+  - `src/lib/viewer-watch-session.ts`
+  - `src/app/api/admin/analytics/historical/route.ts`
+  - `src/app/api/admin/analytics/realtime/route.ts`
+  - `src/app/admin/analytics/page.tsx`
+- Ran adjacency review for the main task-context, viewer watch-session, and admin analytics surfaces before implementation.
+
+Root causes identified:
+- Agent task compilation still over-read broad repo context because the generated context pack did not distinguish hot/warm/cold context tiers or record explicit exclusions for generated/evidence-heavy surfaces.
+- Viewer watch-session ingestion captured only coarse watch metrics, which left replay recovery, flush degradation, close-path misses, visibility gaps, and seek/wait quality invisible to canonical analytics truth.
+- Admin analytics could show viewer watch depth but not capture-quality health, so silent watch-session degradation could survive until a human manually compared multiple surfaces.
+- The repo had no lightweight analytics continuity lane for canonical watch-session quality, so degraded capture behavior could slip through without a full audit.
+
+Implementation results:
+- Extended `scripts/agent/build-task-context.ts` to emit explicit `hotContextFiles`, `warmContextFiles`, `coldContextFiles`, and `excludedContext`, and updated retrieval metadata/evals so low-token context selection is more deterministic and inspectable.
+- Extended `src/lib/viewer-watch-session.ts`, `src/hooks/useViewerWatchSession.ts`, and `src/app/dashboard/viewer/ViewerClient.tsx` so canonical watch-session payloads now include capture quality/transport, replay recovery, flush counts, visibility-hidden duration, gap detection, seek/wait metrics, playback-rate averages, and muted-session samples.
+- Extended `src/app/api/viewer/watch-session/route.ts` to validate and persist the expanded session/asset fields and derive canonical capture-degraded flags from source truth.
+- Added `src/lib/server/admin-analytics-capture-health.ts` and threaded it into `src/app/api/admin/analytics/historical/route.ts`, `src/app/api/admin/analytics/realtime/route.ts`, `src/lib/server/admin-analytics-historical-validation.ts`, `src/types/admin-analytics.ts`, and `src/app/admin/analytics/page.tsx` so admin analytics exposes viewer capture-health summaries instead of only watch depth.
+- Added `scripts/check-analytics-continuity.ts`, registered `npm run check:analytics:continuity`, and wired the lane into agent verification guidance, runtime observability, known pitfalls, and agent eval coverage.
+- Added targeted verification coverage with `tests/unit/admin-analytics-capture-health.spec.ts` and extended `tests/unit/admin-analytics-realtime-route.spec.ts`.
+
+Verification commands run:
+- `git status --short`
+- `npm run trace:adjacent -- scripts/agent/build-task-context.ts`
+- `npm run trace:adjacent -- src/hooks/useViewerWatchSession.ts`
+- `npm run trace:adjacent -- src/app/api/viewer/watch-session/route.ts`
+- `npm run trace:adjacent -- src/app/admin/analytics/page.tsx`
+- `npx vitest run tests/unit/admin-analytics-capture-health.spec.ts tests/unit/admin-analytics-realtime-route.spec.ts tests/unit/useViewerWatchSession-bench.spec.ts tests/unit/analytics-ingest-route.spec.ts tests/unit/analytics-identifiers.spec.ts`
+- `npm run typecheck`
+- `npm run agent:index`
+- `npm run eval:agent-context`
+- `npm run check:agent-context`
+- `npm run check:analytics-semantics`
+- `npm run check:analytics:continuity`
+- `npm run check:telemetry`
+- `npm run check:continuity`
+- `npm run check:runtime:continuity`
+
+Verification results:
+- `npx vitest run tests/unit/admin-analytics-capture-health.spec.ts tests/unit/admin-analytics-realtime-route.spec.ts tests/unit/useViewerWatchSession-bench.spec.ts tests/unit/analytics-ingest-route.spec.ts tests/unit/analytics-identifiers.spec.ts` passed.
+- `npm run typecheck` passed.
+- `npm run agent:index` passed.
+- `npm run eval:agent-context` passed with `6/6` eval cases.
+- `npm run check:agent-context` passed.
+- `npm run check:analytics-semantics` passed.
+- `npm run check:analytics:continuity` passed.
+- `npm run check:telemetry` passed.
+- `npm run check:continuity` passed.
+- `npm run check:runtime:continuity` failed because the runtime source state is missing canonical `queue_job_heartbeats` entries for `process_queue` and `notify_active_drops`.
+
+Warnings / follow-up:
+- The runtime continuity failure is real and should remain blocking until the canonical queue scheduler heartbeat documents are present; this pass did not silence or bypass that lane.
+- `npm run eval:agent-context` required a longer timeout in the local environment but completed successfully when rerun with adequate time budget.
+- The watch capture-health admin UI depends on canonical watch-session docs existing in the selected range; empty ranges correctly render as no-session state rather than synthetic health.
+
+Cleanup:
+- No generated build/UI artifact cleanup was required; `npm run check:generated-artifacts` remained clean during the continuity sweep.
 
 ## [2026-04-17 #16] Open PR Evaluation, Selective Reimplementation, and Closure
 

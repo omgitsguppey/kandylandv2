@@ -3,7 +3,7 @@
 import Link from "next/link";
 import { useRouter, useSearchParams } from "next/navigation";
 import { startTransition, useCallback, useEffect, useMemo, useRef, useState, type KeyboardEvent } from "react";
-import { createAutoHealingObserver } from "@/lib/self-healing";
+import { createAutoHealingObserver, createCompactInteractionRecoveryGuard } from "@/lib/self-healing";
 import {
     ArrowLeft,
     Check,
@@ -411,6 +411,7 @@ export function ChatExperience() {
     const videoInputRef = useRef<HTMLInputElement | null>(null);
     const composePickerRef = useRef<HTMLDivElement | null>(null);
     const threadEditMenuRef = useRef<HTMLDivElement | null>(null);
+    const threadSearchInputRef = useRef<HTMLInputElement | null>(null);
     const selectedThreadIdRef = useRef<string | null>(selectedThreadId);
     const selectedDetailThreadRef = useRef<ChatThreadRecord | null>(selectedDetail?.thread ?? null);
     const threadDetailRequestIdRef = useRef(0);
@@ -453,6 +454,41 @@ export function ChatExperience() {
         profile: userProfile,
     }), [creatorId, user?.uid, userProfile]);
 
+    const releaseThreadSearchFocus = useCallback(() => {
+        const activeElement = document.activeElement;
+        const searchInput = threadSearchInputRef.current;
+
+        if (!searchInput) {
+            return;
+        }
+
+        if (activeElement === searchInput) {
+            searchInput.blur();
+        }
+    }, []);
+
+    const scheduleCompactInteractionRecovery = useCallback((scope: string, target?: HTMLElement | null) => {
+        const recoveryGuard = createCompactInteractionRecoveryGuard({
+            isEnabled: () => isCompactViewport,
+            getTarget: () => target ?? threadSearchInputRef.current,
+            isOverlayOpen: () => composePickerOpen,
+            onRecovered: (snapshot) => {
+                reportClientIssue({
+                    channel: "ui",
+                    severity: "warn",
+                    message: "Compact chat interaction required recovery",
+                    detail: {
+                        scope,
+                        ...snapshot,
+                    },
+                    consoleLabel: "[Chat] compact interaction recovered",
+                });
+            },
+        });
+        recoveryGuard.scheduleCheck();
+        return recoveryGuard;
+    }, [composePickerOpen, isCompactViewport]);
+
     useEffect(() => {
         selectedThreadIdRef.current = selectedThreadId;
     }, [selectedThreadId]);
@@ -461,6 +497,39 @@ export function ChatExperience() {
     useEffect(() => {
         selectedDetailThreadRef.current = selectedDetail?.thread ?? null;
     }, [selectedDetail?.thread]);
+
+    useEffect(() => {
+        if (!isCompactViewport || !selectedThreadId) {
+            return;
+        }
+
+        releaseThreadSearchFocus();
+        const recoveryGuard = scheduleCompactInteractionRecovery("chat_thread_transition");
+        return () => recoveryGuard.cleanup();
+    }, [isCompactViewport, releaseThreadSearchFocus, scheduleCompactInteractionRecovery, selectedThreadId]);
+
+    useEffect(() => () => {
+        releaseThreadSearchFocus();
+        const recoveryGuard = createCompactInteractionRecoveryGuard({
+            isEnabled: () => isCompactViewport,
+            getTarget: () => threadSearchInputRef.current,
+            isOverlayOpen: () => composePickerOpen,
+            onRecovered: (snapshot) => {
+                reportClientIssue({
+                    channel: "ui",
+                    severity: "warn",
+                    message: "Compact chat interaction required recovery",
+                    detail: {
+                        scope: "chat_unmount_cleanup",
+                        ...snapshot,
+                    },
+                    consoleLabel: "[Chat] compact interaction recovered",
+                });
+            },
+        });
+        recoveryGuard.runCheck();
+        recoveryGuard.cleanup();
+    }, [composePickerOpen, isCompactViewport, releaseThreadSearchFocus]);
 
 
     const loadThreads = useCallback(async (options?: LoadThreadsOptions) => {
@@ -1676,8 +1745,18 @@ export function ChatExperience() {
                                                 <div className="flex items-center gap-3">
                                                     <Search className="h-4 w-4 text-[#6e7077]" />
                                                     <input
+                                                        ref={threadSearchInputRef}
                                                         value={threadSearch}
                                                         onChange={(event) => setThreadSearch(event.target.value)}
+                                                        onBlur={(event) => {
+                                                            releaseThreadSearchFocus();
+                                                            scheduleCompactInteractionRecovery("chat_search_blur", event.currentTarget);
+                                                        }}
+                                                        onKeyDown={(event) => {
+                                                            if (event.key === "Escape") {
+                                                                event.currentTarget.blur();
+                                                            }
+                                                        }}
                                                         placeholder="Search"
                                                         className="w-full bg-transparent text-base text-white placeholder:text-[#6e7077] focus:outline-none sm:text-sm"
                                                     />

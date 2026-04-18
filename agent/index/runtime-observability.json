@@ -1,5 +1,5 @@
 {
-  "generatedAt": "2026-04-18T02:54:48.811Z",
+  "generatedAt": "2026-04-18T15:17:57.384Z",
   "truthOrder": [
     "verified_runtime_code",
     "verified_configuration",
@@ -20,6 +20,10 @@
     "src/lib/server/admin-panel-system-logs.ts",
     "src/lib/server/runtime-warning-store.ts",
     "src/lib/server/queue-runtime.ts",
+    "src/lib/self-healing.ts",
+    "src/app/api/viewer/watch-session/route.ts",
+    "src/lib/server/admin-analytics-capture-health.ts",
+    "scripts/check-analytics-continuity.ts",
     "functions/src/runtime-warning-store.ts",
     "functions/src/queue-runtime.ts"
   ],
@@ -180,6 +184,29 @@
       ]
     },
     {
+      "stable_id": "observability__viewer_watch_capture_health",
+      "key": "viewer_watch_capture_health",
+      "storage_or_collection": "analytics_watch_sessions",
+      "purpose": "Canonical watch-session capture quality lane for replay recovery, flush degradation, close-path misses, and viewer session continuity health.",
+      "intended_use": "Detect watch-time/session analytics degradation before historical dashboards or downstream rollups become misleading.",
+      "non_goals": [
+        "Replacing the canonical watch-session documents themselves.",
+        "Serving as a client-facing analytics chart."
+      ],
+      "persisted": true,
+      "raw_or_rollup": "status_items",
+      "client_or_server_origin": "mixed",
+      "trust_notes": [
+        "Canonical watch-session documents remain the stronger truth; this lane summarizes continuity and capture quality from those documents."
+      ],
+      "backingPaths": [
+        "src/app/api/viewer/watch-session/route.ts",
+        "src/lib/viewer-watch-session.ts",
+        "src/lib/server/admin-analytics-capture-health.ts",
+        "scripts/check-analytics-continuity.ts"
+      ]
+    },
+    {
       "stable_id": "observability__ui_module_continuity",
       "key": "ui_module_continuity",
       "storage_or_collection": null,
@@ -198,6 +225,27 @@
       "backingPaths": [
         "src/lib/ui-continuity.ts",
         "src/components/ui/UiContinuityNotice.tsx"
+      ]
+    },
+    {
+      "stable_id": "observability__compact_interaction_recovery",
+      "key": "compact_interaction_recovery",
+      "storage_or_collection": null,
+      "purpose": "Client-side self-healing for compact/mobile interaction release when focused inputs or unexpected document locks leave surfaces untappable.",
+      "intended_use": "Detect and auto-recover compact/mobile UI lockups sooner, while emitting structured UI diagnostics for later triage.",
+      "non_goals": [
+        "Replacing canonical route or layout fixes.",
+        "Acting as a persisted operational warehouse."
+      ],
+      "persisted": false,
+      "raw_or_rollup": "status_items",
+      "client_or_server_origin": "client",
+      "trust_notes": [
+        "Client-side recovery aid only; source layout/runtime truth still outranks the recovery signal."
+      ],
+      "backingPaths": [
+        "src/lib/self-healing.ts",
+        "src/components/Chat/ChatExperience.tsx"
       ]
     }
   ]

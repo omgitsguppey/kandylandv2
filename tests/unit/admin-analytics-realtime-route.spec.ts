@@ -183,6 +183,35 @@ describe("GET /api/admin/analytics/realtime", () => {
                 }),
             },
         ]);
+        mockState.collections.set("analytics_watch_sessions", [
+            {
+                id: "watch_1",
+                data: () => ({
+                    lastSeenAtMs: nowMs - 2_000,
+                    captureTransport: "fetch",
+                    replayRecovered: false,
+                    replayRecoveredCount: 0,
+                    flushFailureCount: 0,
+                    gapCount: 0,
+                    hiddenDurationSeconds: 2,
+                    isClosed: true,
+                    closeReason: "manual_close",
+                }),
+            },
+        ]);
+        mockState.collections.set("analytics_watch_assets", [
+            {
+                id: "asset_1",
+                data: () => ({
+                    watchSessionId: "watch_1",
+                    lastSeenAtMs: nowMs - 2_000,
+                    waitingDurationSeconds: 3,
+                    seekCount: 1,
+                    playbackRateAverage: 1,
+                    mutedSampleCount: 0,
+                }),
+            },
+        ]);
 
         const request = new NextRequest("http://localhost/api/admin/analytics/realtime");
         const response = await GET(request);
@@ -198,6 +227,12 @@ describe("GET /api/admin/analytics/realtime", () => {
                 starts: 1,
                 completions: 1,
                 startSource: "tracked",
+            },
+            watchCaptureHealth: {
+                sessionCount: 1,
+                fullCaptureCount: 1,
+                degradedSessionCount: 0,
+                closeMissingCount: 0,
             },
         });
         expect(mockState.handleApiError).not.toHaveBeenCalled();

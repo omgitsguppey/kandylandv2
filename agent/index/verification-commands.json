@@ -1,5 +1,5 @@
 {
-  "generatedAt": "2026-04-18T02:54:48.779Z",
+  "generatedAt": "2026-04-18T15:17:57.351Z",
   "truthOrder": [
     "verified_runtime_code",
     "verified_configuration",
@@ -356,6 +356,25 @@
       "verifies_rules": false,
       "verifies_inventory": false,
       "verifies_continuity": false
+    },
+    {
+      "stable_id": "command__root-check-analytics-continuity",
+      "command": "npm run check:analytics:continuity",
+      "scopeType": "ui",
+      "root_or_functions": "root",
+      "requiredWhen": [
+        "Touching watch-session capture, viewer analytics continuity, or analytics health instrumentation."
+      ],
+      "optionalWhen": [
+        "General analytics review without viewer/session capture changes."
+      ],
+      "cleanupExpected": [],
+      "broadSignoffWeight": 7,
+      "verifies_runtime": true,
+      "verifies_ui": false,
+      "verifies_rules": false,
+      "verifies_inventory": false,
+      "verifies_continuity": true
     },
     {
       "stable_id": "command__root-check-firebase-runtime",

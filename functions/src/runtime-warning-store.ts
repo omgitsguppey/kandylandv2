@@ -77,6 +77,8 @@ export async function recordRuntimeWarning(input: {
 
 export async function recordQueueJobHeartbeat(input: {
   jobId: QueueJobId
+  executionLayer: RuntimeWarningExecutionLayer
+  surface: string
   startedAt: number
   completedAt: number | null
   status: QueueJobStatus
@@ -89,6 +91,8 @@ export async function recordQueueJobHeartbeat(input: {
 }) {
   const heartbeat: QueueJobHeartbeat = {
     jobId: input.jobId,
+    executionLayer: input.executionLayer,
+    surface: input.surface,
     startedAt: input.startedAt,
     completedAt: input.completedAt,
     status: input.status,
