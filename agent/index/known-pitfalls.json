@@ -1,5 +1,5 @@
 {
-  "generatedAt": "2026-04-17T15:12:41.098Z",
+  "generatedAt": "2026-04-17T23:58:34.136Z",
   "truthOrder": [
     "verified_runtime_code",
     "verified_configuration",
@@ -156,6 +156,47 @@
       ],
       "severity": "medium",
       "broad_work_relevance": false
+    },
+    {
+      "stable_id": "pitfall__unchecked_response_ok_ui_hydration",
+      "title": "unchecked_response_ok_ui_hydration",
+      "description": "Client module hydration that parses bodies without response.ok guards can downgrade route failures into misleading empty states.",
+      "symptom_pattern": "UI renders as empty or stale even though the backing route failed.",
+      "affected_surfaces": [
+        "src/app/creators/[username]/CreatorProfileClient.tsx",
+        "src/components/Dashboard/CreatorWorkspacePanel.tsx"
+      ],
+      "prevention_rule": "Parse route responses through a helper that validates response.ok before hydrating UI state.",
+      "detection_hint": "Search for response.json() before a response.ok branch in client fetch flows.",
+      "related_commands": [
+        "npm run check:ui:runtime"
+      ],
+      "related_helpers": [
+        "src/lib/ui-continuity.ts"
+      ],
+      "severity": "high",
+      "broad_work_relevance": false
+    },
+    {
+      "stable_id": "pitfall__silent_ui_fallback_masking_failure",
+      "title": "silent_ui_fallback_masking_failure",
+      "description": "Fallback UI data should not hide the fact that a critical module failed to hydrate.",
+      "symptom_pattern": "Users see partial content without any warning that a creator/admin module is degraded.",
+      "affected_surfaces": [
+        "src/lib/ui-continuity.ts",
+        "src/components/ui/UiContinuityNotice.tsx"
+      ],
+      "prevention_rule": "Fallbacks must render explicit warning state and emit diagnostics.",
+      "detection_hint": "Inspect async-heavy UI modules for fallback data with no warning shell.",
+      "related_commands": [
+        "npm run check:ui:runtime"
+      ],
+      "related_helpers": [
+        "src/lib/ui-continuity.ts",
+        "src/components/ui/UiContinuityNotice.tsx"
+      ],
+      "severity": "medium",
+      "broad_work_relevance": true
     }
   ]
 }

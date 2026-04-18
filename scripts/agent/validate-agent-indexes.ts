@@ -11,6 +11,7 @@ const REQUIRED_OUTPUTS = [
   ["agent/index/known-pitfalls.json", "agent/schemas/known-pitfalls.schema.json"],
   ["agent/index/recent-passes.json", "agent/schemas/recent-passes.schema.json"],
   ["agent/index/runtime-observability.json", "agent/schemas/runtime-observability.schema.json"],
+  ["agent/index/ui-surface-coverage.json", "agent/schemas/ui-surface-coverage.schema.json"],
   ["agent/index/dependency-graph.summary.json", "agent/schemas/dependency-graph.summary.schema.json"],
   ["agent/index/blast-radius.json", "agent/schemas/blast-radius.schema.json"],
   ["agent/index/retrieval-index.json", "agent/schemas/retrieval-index.schema.json"],

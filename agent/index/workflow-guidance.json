@@ -1,5 +1,5 @@
 {
-  "generatedAt": "2026-04-17T15:12:41.085Z",
+  "generatedAt": "2026-04-17T23:58:34.059Z",
   "truthOrder": [
     "verified_runtime_code",
     "verified_configuration",
@@ -28,10 +28,21 @@
       ],
       "relatedPaths": [
         "npm run trace:adjacent -- scripts/agent/build-task-context.ts",
+        "npm run trace:adjacent -- scripts/agent/build-ui-runtime-audit.ts",
+        "npm run trace:adjacent -- scripts/agent/build-ui-surface-coverage.ts",
+        "npm run trace:adjacent -- scripts/agent/check-ui-surface-coverage.ts",
         "npm run trace:adjacent -- scripts/agent/run-evals.ts",
         "npm run trace:adjacent -- scripts/export-dependency-graph.ts",
         "npm run trace:adjacent -- scripts/repo-inventory.ts",
-        "npm run trace:adjacent -- scripts/trace-adjacent-surfaces.ts"
+        "npm run trace:adjacent -- scripts/trace-adjacent-surfaces.ts",
+        "npm run trace:adjacent -- src/app/api/creator/bookings/route.ts",
+        "npm run trace:adjacent -- src/app/api/creator/settings/route.ts",
+        "npm run trace:adjacent -- src/app/api/creator/subscriptions/route.ts",
+        "npm run trace:adjacent -- src/app/creators/[username]/CreatorProfileClient.tsx",
+        "npm run trace:adjacent -- src/app/dashboard/profile/page.tsx",
+        "npm run trace:adjacent -- src/components/Dashboard/CreatorWorkspacePanel.tsx",
+        "npx vitest run tests/unit/api/creator-settings-route.test.ts",
+        "npx vitest run tests/unit/creator-bookings-route.spec.ts tests/unit/creator-subscriptions-route.spec.ts tests/unit/ui-continuity.spec.ts"
       ]
     },
     {
@@ -143,6 +154,7 @@
       "relatedPaths": [
         "/agent/index/*",
         "agent/index/*.json",
+        "agent/index/ui-surface-coverage.json",
         "agent/prompts/task-prompt.deep.md",
         "agent/prompts/task-prompt.short.md",
         "agent/prompts/task-prompt.standard.md",

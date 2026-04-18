@@ -1,5 +1,5 @@
 {
-  "generatedAt": "2026-04-17T15:12:41.119Z",
+  "generatedAt": "2026-04-17T23:58:34.264Z",
   "truthOrder": [
     "verified_runtime_code",
     "verified_configuration",
@@ -103,6 +103,27 @@
       "backingPaths": [
         "src/lib/server/admin-panel-system-logs.ts",
         "src/app/api/admin/debug/route.ts"
+      ]
+    },
+    {
+      "stable_id": "observability__ui_module_continuity",
+      "key": "ui_module_continuity",
+      "storage_or_collection": null,
+      "purpose": "Client-side hydration continuity signals for route modules that use the shared UI continuity helper.",
+      "intended_use": "Detect partial module failure, visible warning fallbacks, and hydration success/failure sequencing before signoff.",
+      "non_goals": [
+        "Replacing route runtime truth.",
+        "Acting as persisted analytics history."
+      ],
+      "persisted": false,
+      "raw_or_rollup": "status_items",
+      "client_or_server_origin": "client",
+      "trust_notes": [
+        "Advisory client continuity signal only; repo/runtime source truth outranks it."
+      ],
+      "backingPaths": [
+        "src/lib/ui-continuity.ts",
+        "src/components/ui/UiContinuityNotice.tsx"
       ]
     }
   ]

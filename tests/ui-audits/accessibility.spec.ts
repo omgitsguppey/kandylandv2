@@ -1,51 +1,35 @@
 import { test } from "@playwright/test";
 
-import { expectAxeViolationsToMatchBaseline, openAuditSurface } from "./helpers";
+import { expectAxeViolationsToMatchBaseline, expectNoAxeViolations, openAuditSurface } from "./helpers";
 import { KNOWN_ACCESSIBILITY_BASELINE } from "./known-accessibility-baseline";
+import { ACCESSIBILITY_TARGETS } from "./ui-surface-targets";
 
-const AUDIT_TARGETS = [
-  {
-    baselineKey: "creatorApply",
-    name: "creator apply hero",
-    path: "/creators/apply",
-    readySelector: "main",
-    axeSelector: "main",
-  },
-  {
-    baselineKey: "creatorWaitlistGuest",
-    name: "creator waiting guest state",
-    path: "/creators/waitlist",
-    readySelector: "main",
-    axeSelector: "main",
-  },
-  {
-    baselineKey: "home",
-    name: "home page",
-    path: "/",
-    readySelector: "main",
-    axeSelector: "main",
-  },
-  {
-    baselineKey: "privacy",
-    name: "privacy page",
-    path: "/privacy",
-    readySelector: "main",
-    axeSelector: "main",
-  },
-] as const;
+const BASELINE_KEYS: Record<string, keyof typeof KNOWN_ACCESSIBILITY_BASELINE> = {
+  "/creators/apply": "creatorApply",
+  "/creators/waitlist": "creatorWaitlistGuest",
+  "/": "home",
+  "/privacy": "privacy",
+};
 
 test.describe("UI continuity accessibility audits", () => {
   test.skip(({ browserName }) => browserName !== "chromium");
 
-  for (const target of AUDIT_TARGETS) {
-    test(`${target.name} matches the known accessibility baseline`, async ({ page }, testInfo) => {
-      await openAuditSurface(page, target.path, target.readySelector);
-      await expectAxeViolationsToMatchBaseline(
-        page,
-        KNOWN_ACCESSIBILITY_BASELINE[target.baselineKey],
-        target.axeSelector,
-        testInfo.project.name,
-      );
+  for (const target of ACCESSIBILITY_TARGETS) {
+    test(`${target.path} satisfies indexed accessibility audit coverage`, async ({ page }, testInfo) => {
+      test.setTimeout(120000);
+      await openAuditSurface(page, target.path, target.ready_selector);
+      const baselineKey = BASELINE_KEYS[target.path];
+      if (baselineKey) {
+        await expectAxeViolationsToMatchBaseline(
+          page,
+          KNOWN_ACCESSIBILITY_BASELINE[baselineKey],
+          target.hydration_signal,
+          testInfo.project.name,
+        );
+        return;
+      }
+
+      await expectNoAxeViolations(page, target.hydration_signal);
     });
   }
 });

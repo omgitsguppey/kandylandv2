@@ -87,3 +87,22 @@ description: "Auto-run standard project commands"
    `npm run trace:adjacent -- src/app/dashboard/profile/page.tsx`
    `npx vitest run tests/unit/api/creator-settings-route.test.ts`
    `npm run typecheck`
+
+17. Build and verify repo-wide UI continuity hardening:
+   `npm run trace:adjacent -- scripts/agent/build-ui-surface-coverage.ts`
+   `npm run trace:adjacent -- scripts/agent/check-ui-surface-coverage.ts`
+   `npm run trace:adjacent -- scripts/agent/build-ui-runtime-audit.ts`
+   `npm run trace:adjacent -- src/app/creators/[username]/CreatorProfileClient.tsx`
+   `npm run trace:adjacent -- src/components/Dashboard/CreatorWorkspacePanel.tsx`
+   `npm run trace:adjacent -- src/app/api/creator/bookings/route.ts`
+   `npm run trace:adjacent -- src/app/api/creator/subscriptions/route.ts`
+   `npm run agent:ui-index`
+   `npm run check:ui:coverage`
+   `npm run check:ui:runtime`
+   `npm run check:ui:audits`
+   `npm run check:ui:lighthouse`
+   `npm run check:ui:continuity`
+   `npx vitest run tests/unit/creator-bookings-route.spec.ts tests/unit/creator-subscriptions-route.spec.ts tests/unit/ui-continuity.spec.ts`
+   `npm run typecheck`
+   `npm run test:contracts`
+   `npm run check:continuity`

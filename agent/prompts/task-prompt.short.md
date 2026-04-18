@@ -1,33 +1,31 @@
 # SHORT Task Context
 
-Task: add or modify a telemetry event safely
-Mode: runtime
-Scope: moderate
-Why scope: Touches several files or shared helper surfaces with non-trivial adjacency.
+Task: validate repo intelligence fabric outputs
+Mode: audit
+Scope: broad
+Why scope: Touches repo-tooling, governance, or multiple broad-signoff surfaces.
 
 Likely touched files:
-- src/lib/telemetry.ts
-- functions/src/analytics-event-facts.ts
-- functions/src/analytics-security-events.ts
-- functions/src/analytics-task-events.ts
-- src/lib/telemetry-catalog.ts
-- src/lib/server/admin-analytics-historical-validation.ts
+- scripts/agent/build-agent-indexes.ts
+- scripts/agent/build-task-context.ts
+- scripts/agent/build-ui-surface-coverage.ts
+- scripts/agent/check-agent-context.ts
+- scripts/agent/extract-canonical-helpers.ts
+- scripts/agent/run-evals.ts
 
 Canonical helpers to reuse:
-- src/lib/telemetry-catalog.ts
-- src/lib/telemetry.ts
-- src/lib/chat-realtime.ts
-- src/lib/creator-onboarding.ts
+- src/lib/gumdrop-economics.ts
+- src/lib/gumdrop-ledger.ts
+- src/lib/server/paypal.ts
 
 Relevant pitfalls:
-- stale_lockfile_drift
 - diagnostics_serialization_crash
-- request_json_parse_falls_into_500
-- consumed_response_stream_fallback
+- generated_artifact_cleanup_miss
+- sidecar_truth_confusion
 
 Required verification:
-- npm run check:analytics-semantics
-- npm run check:telemetry
-- npm run test:contracts
-- npm run check:ui:audits
-- npm --prefix functions run check
+- npm run check:agent-context
+- npm run check:continuity
+- npm run trace:adjacent -- <path>
+- npm run check:architecture
+- npm run check:inventory

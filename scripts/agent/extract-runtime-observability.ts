@@ -93,6 +93,25 @@ export function buildRuntimeObservability() {
         "src/app/api/admin/debug/route.ts",
       ].filter((entry) => fileExists(entry)),
     },
+    {
+      stable_id: toStableId("observability", "ui_module_continuity"),
+      key: "ui_module_continuity",
+      storage_or_collection: null,
+      purpose: "Client-side hydration continuity signals for route modules that use the shared UI continuity helper.",
+      intended_use: "Detect partial module failure, visible warning fallbacks, and hydration success/failure sequencing before signoff.",
+      non_goals: [
+        "Replacing route runtime truth.",
+        "Acting as persisted analytics history.",
+      ],
+      persisted: false,
+      raw_or_rollup: "status_items",
+      client_or_server_origin: "client",
+      trust_notes: ["Advisory client continuity signal only; repo/runtime source truth outranks it."],
+      backingPaths: [
+        "src/lib/ui-continuity.ts",
+        "src/components/ui/UiContinuityNotice.tsx",
+      ].filter((entry) => fileExists(entry)),
+    },
   ];
 
   return {

@@ -97,7 +97,7 @@ vi.mock("@/lib/server/analytics", () => ({
     trackServerEvent: vi.fn(),
 }));
 
-import { GET } from "@/app/api/creator/bookings/route";
+import { GET, getTimeZoneParts, isWithinAnyWindow } from "@/app/api/creator/bookings/route";
 
 describe("GET /api/creator/bookings", () => {
     beforeEach(() => {
@@ -139,5 +139,48 @@ describe("GET /api/creator/bookings", () => {
 
         expect(response.status).toBe(200);
         expect(body.bookings).toHaveLength(2);
+    });
+});
+
+describe("creator booking timezone availability helpers", () => {
+    it("maps timestamps into the creator timezone instead of UTC", () => {
+        const utcNoon = Date.UTC(2026, 3, 17, 12, 0, 0);
+        const chicagoParts = getTimeZoneParts(utcNoon, "America/Chicago");
+
+        expect(chicagoParts.dayOfWeek).toBe(5);
+        expect(chicagoParts.minutesSinceMidnight).toBe(7 * 60);
+    });
+
+    it("accepts a creator-local booking window for non-UTC creators", () => {
+        const bookingStartAt = Date.UTC(2026, 3, 17, 16, 0, 0);
+        const windows = [
+            {
+                dayOfWeek: 5,
+                startHour: 9,
+                startMinute: 0,
+                endHour: 12,
+                endMinute: 0,
+                serviceTypes: ["phone", "video"],
+            },
+        ];
+
+        expect(isWithinAnyWindow(bookingStartAt, 30, "video", windows, "America/Los_Angeles")).toBe(true);
+        expect(isWithinAnyWindow(bookingStartAt, 30, "video", windows, "UTC")).toBe(false);
+    });
+
+    it("rejects creator-local windows when the booking crosses into the next local day", () => {
+        const bookingStartAt = Date.UTC(2026, 3, 18, 4, 45, 0);
+        const windows = [
+            {
+                dayOfWeek: 5,
+                startHour: 23,
+                startMinute: 30,
+                endHour: 23,
+                endMinute: 59,
+                serviceTypes: ["phone"],
+            },
+        ];
+
+        expect(isWithinAnyWindow(bookingStartAt, 30, "phone", windows, "America/Chicago")).toBe(false);
     });
 });

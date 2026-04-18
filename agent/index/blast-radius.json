@@ -1,5 +1,5 @@
 {
-  "generatedAt": "2026-04-17T15:12:43.829Z",
+  "generatedAt": "2026-04-17T23:59:13.457Z",
   "truthOrder": [
     "verified_runtime_code",
     "verified_configuration",
@@ -2507,6 +2507,21 @@
       ]
     },
     {
+      "stable_id": "blast__src__lib__ui-continuity-ts",
+      "path": "src/lib/ui-continuity.ts",
+      "blast_radius_score": 70,
+      "shared_helper_risk": 25,
+      "route_boundary_risk": 0,
+      "runtime_criticality": 25,
+      "verification_burden": 20,
+      "deploy_or_lockfile_sensitivity": 0,
+      "why_score_was_assigned": [
+        "Likely shared helper.",
+        "Runtime-critical surface.",
+        "Broad signoff likely."
+      ]
+    },
+    {
       "stable_id": "blast__src__lib__user-profile-validation-ts",
       "path": "src/lib/user-profile-validation.ts",
       "blast_radius_score": 70,
@@ -4243,8 +4258,50 @@
       ]
     },
     {
+      "stable_id": "blast__scripts__agent__build-ui-runtime-audit-ts",
+      "path": "scripts/agent/build-ui-runtime-audit.ts",
+      "blast_radius_score": 45,
+      "shared_helper_risk": 25,
+      "route_boundary_risk": 0,
+      "runtime_criticality": 0,
+      "verification_burden": 20,
+      "deploy_or_lockfile_sensitivity": 0,
+      "why_score_was_assigned": [
+        "Likely shared helper.",
+        "Broad signoff likely."
+      ]
+    },
+    {
+      "stable_id": "blast__scripts__agent__build-ui-surface-coverage-ts",
+      "path": "scripts/agent/build-ui-surface-coverage.ts",
+      "blast_radius_score": 45,
+      "shared_helper_risk": 25,
+      "route_boundary_risk": 0,
+      "runtime_criticality": 0,
+      "verification_burden": 20,
+      "deploy_or_lockfile_sensitivity": 0,
+      "why_score_was_assigned": [
+        "Likely shared helper.",
+        "Broad signoff likely."
+      ]
+    },
+    {
       "stable_id": "blast__scripts__agent__check-agent-context-ts",
       "path": "scripts/agent/check-agent-context.ts",
+      "blast_radius_score": 45,
+      "shared_helper_risk": 25,
+      "route_boundary_risk": 0,
+      "runtime_criticality": 0,
+      "verification_burden": 20,
+      "deploy_or_lockfile_sensitivity": 0,
+      "why_score_was_assigned": [
+        "Likely shared helper.",
+        "Broad signoff likely."
+      ]
+    },
+    {
+      "stable_id": "blast__scripts__agent__check-ui-surface-coverage-ts",
+      "path": "scripts/agent/check-ui-surface-coverage.ts",
       "blast_radius_score": 45,
       "shared_helper_risk": 25,
       "route_boundary_risk": 0,
@@ -6439,6 +6496,19 @@
       ]
     },
     {
+      "stable_id": "blast__src__components__ui__uicontinuitynotice-tsx",
+      "path": "src/components/ui/UiContinuityNotice.tsx",
+      "blast_radius_score": 35,
+      "shared_helper_risk": 0,
+      "route_boundary_risk": 0,
+      "runtime_criticality": 25,
+      "verification_burden": 10,
+      "deploy_or_lockfile_sensitivity": 0,
+      "why_score_was_assigned": [
+        "Runtime-critical surface."
+      ]
+    },
+    {
       "stable_id": "blast__src__components__uidebug-tsx",
       "path": "src/components/UIDebug.tsx",
       "blast_radius_score": 35,
@@ -6738,6 +6808,19 @@
       ]
     },
     {
+      "stable_id": "blast__agent__index__ui-surface-coverage-json",
+      "path": "agent/index/ui-surface-coverage.json",
+      "blast_radius_score": 20,
+      "shared_helper_risk": 0,
+      "route_boundary_risk": 0,
+      "runtime_criticality": 0,
+      "verification_burden": 20,
+      "deploy_or_lockfile_sensitivity": 0,
+      "why_score_was_assigned": [
+        "Broad signoff likely."
+      ]
+    },
+    {
       "stable_id": "blast__agent__index__verification-commands-json",
       "path": "agent/index/verification-commands.json",
       "blast_radius_score": 20,
@@ -6987,6 +7070,19 @@
     {
       "stable_id": "blast__agent__schemas__task-context-schema-json",
       "path": "agent/schemas/task-context.schema.json",
+      "blast_radius_score": 20,
+      "shared_helper_risk": 0,
+      "route_boundary_risk": 0,
+      "runtime_criticality": 0,
+      "verification_burden": 20,
+      "deploy_or_lockfile_sensitivity": 0,
+      "why_score_was_assigned": [
+        "Broad signoff likely."
+      ]
+    },
+    {
+      "stable_id": "blast__agent__schemas__ui-surface-coverage-schema-json",
+      "path": "agent/schemas/ui-surface-coverage.schema.json",
       "blast_radius_score": 20,
       "shared_helper_risk": 0,
       "route_boundary_risk": 0,

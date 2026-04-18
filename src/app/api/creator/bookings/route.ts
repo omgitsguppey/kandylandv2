@@ -22,16 +22,45 @@ const updateBookingSchema = z.object({
     action: z.enum(["complete", "cancel"]),
 });
 
-function minutesSinceMidnight(timestamp: number) {
-    const date = new Date(timestamp);
-    return (date.getUTCHours() * 60) + date.getUTCMinutes();
+const WEEKDAY_INDEX: Record<string, number> = {
+    sun: 0,
+    mon: 1,
+    tue: 2,
+    wed: 3,
+    thu: 4,
+    fri: 5,
+    sat: 6,
+};
+
+export function getTimeZoneParts(timestamp: number, timeZone: string) {
+    const formatter = new Intl.DateTimeFormat("en-US", {
+        timeZone,
+        weekday: "short",
+        hour: "2-digit",
+        minute: "2-digit",
+        hour12: false,
+    });
+    const parts = formatter.formatToParts(new Date(timestamp));
+    const weekdayToken = parts.find((part) => part.type === "weekday")?.value.toLowerCase().slice(0, 3) ?? "sun";
+    const hour = Number(parts.find((part) => part.type === "hour")?.value ?? 0);
+    const minute = Number(parts.find((part) => part.type === "minute")?.value ?? 0);
+
+    return {
+        dayOfWeek: WEEKDAY_INDEX[weekdayToken] ?? 0,
+        minutesSinceMidnight: (hour * 60) + minute,
+    };
 }
 
-function isWithinAnyWindow(startAt: number, durationMinutes: number, serviceType: "phone" | "video", windows: Array<Record<string, unknown>>) {
-    const date = new Date(startAt);
-    const dayOfWeek = date.getUTCDay();
-    const startMinutes = minutesSinceMidnight(startAt);
+export function isWithinAnyWindow(startAt: number, durationMinutes: number, serviceType: "phone" | "video", windows: Array<Record<string, unknown>>, timeZone: string) {
+    const startParts = getTimeZoneParts(startAt, timeZone);
+    const endParts = getTimeZoneParts(startAt + (durationMinutes * 60 * 1000), timeZone);
+    const dayOfWeek = startParts.dayOfWeek;
+    const startMinutes = startParts.minutesSinceMidnight;
     const endMinutes = startMinutes + durationMinutes;
+
+    if (endParts.dayOfWeek !== dayOfWeek) {
+        return false;
+    }
 
     return windows.some((window) => {
         const services = Array.isArray(window.serviceTypes)
@@ -157,7 +186,10 @@ export async function POST(request: NextRequest) {
             const windows = Array.isArray(creatorSettings.availabilityWindows)
                 ? creatorSettings.availabilityWindows.filter((entry): entry is Record<string, unknown> => Boolean(entry && typeof entry === "object"))
                 : [];
-            if (!isWithinAnyWindow(startAt, durationMinutes, serviceType, windows)) {
+            const availabilityTimezone = typeof creatorSettings.availabilityTimezone === "string" && creatorSettings.availabilityTimezone.trim().length > 0
+                ? creatorSettings.availabilityTimezone.trim()
+                : "UTC";
+            if (!isWithinAnyWindow(startAt, durationMinutes, serviceType, windows, availabilityTimezone)) {
                 throw new Error("That slot is outside the creator's availability.");
             }
 

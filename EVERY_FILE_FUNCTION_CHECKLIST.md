@@ -1,8 +1,8 @@
 # EVERY FILE FUNCTION CHECKLIST
 
 **Last Updated:** 2026-04-17
-**Current Focus:** Repo Intelligence Fabric v1 added the committed `/agent/` machine-readable context layer, generator scripts under `scripts/agent/`, and a derived Data Connect mirror schema while preserving the existing continuity/audit truth order. The 2026-04-17 continuity delta also includes the creator-settings route contract fix, its focused unit regression coverage, and the profile-page follow-up that now surfaces recoverable creator-tool load failures instead of failing silently.
-**Status:** In Progress. Historical exhaustive sweep remains valuable, and the 2026-04-17 continuity metadata now reflects the repo-intelligence layer, the creator-settings route regression coverage, the profile-page creator warning handling follow-up, the earlier telemetry cleanup, the warning-free verification baseline, and the open-PR reconciliation pass.
+**Current Focus:** Repo Intelligence Fabric v1 remains active, and the 2026-04-17 UI continuity delta now adds the generated `agent/index/ui-surface-coverage.json` ledger, blocking UI coverage/runtime verification scripts, the shared `src/lib/ui-continuity.ts` runtime helper, creator booking timezone correction, creator subscription workspace UI hydration, and the first creator/public/dashboard continuity tests.
+**Status:** In Progress. Historical exhaustive sweep remains valuable, and the 2026-04-17 continuity metadata now reflects the repo-intelligence layer, the UI continuity fabric, the creator-settings route regression coverage, the profile-page creator warning handling follow-up, the earlier telemetry cleanup, the warning-free verification baseline, and the open-PR reconciliation pass.
 Purpose: exhaustive no-skip audit checklist covering every repository file currently in scope and every detected function-like implementation.
 
 Scoring: all entries below are marked as included in the current validated sweep. Confidence reflects current repository-state confidence, not perfection or future-proofing.
@@ -22,10 +22,28 @@ Current repo-wide state snapshot: see [FULL_SCALE_CODEBASE_AUDIT.md](/Users/uylu
   - `dataconnect/example/agent-context.gql`
 - Added focused creator-settings regression coverage:
   - `tests/unit/creator-settings-route.spec.ts`
+- Added generated UI continuity and coverage surfaces:
+  - `agent/index/ui-surface-coverage.json`
+  - `agent/schemas/ui-surface-coverage.schema.json`
+  - `scripts/agent/build-ui-surface-coverage.ts`
+  - `scripts/agent/check-ui-surface-coverage.ts`
+  - `scripts/agent/build-ui-runtime-audit.ts`
+  - `tests/ui-audits/runtime.spec.ts`
+  - `tests/ui-audits/ui-surface-targets.ts`
+- Added shared UI continuity runtime helpers:
+  - `src/lib/ui-continuity.ts`
+  - `src/components/ui/UiContinuityNotice.tsx`
+- Added creator booking/subscription continuity coverage:
+  - `tests/unit/creator-bookings-route.spec.ts`
+  - `tests/unit/creator-subscriptions-route.spec.ts`
+  - `tests/unit/ui-continuity.spec.ts`
+  - `tests/unit/creator-experiences-panel.spec.tsx`
+  - `tests/unit/creator-workspace-panel.spec.tsx`
 - Continuity note: `src/app/api/creator/settings/route.ts` now uses explicit `AuthError` statuses for missing creator profiles and access-denied states, and the route gate aligns with the existing `creator || admin` profile-page caller posture.
 - Added creator profile-page warning handling follow-up:
   - `src/app/dashboard/profile/page.tsx`
 - Continuity note: the profile page now separates creator-settings and creator-broadcast load failures, preserves partial success when one request still succeeds, and shows a visible warning instead of silently hiding common recoverable creator-tool load errors behind fallback state.
+- Continuity note: creator/public/dashboard UI surfaces now flow through a generated machine-readable coverage ledger, and the creator public profile plus creator workspace use shared module continuity handling instead of silent all-or-nothing hydration.
 - Coverage note: these files are included in current continuity/signoff scope even though the historical exhaustive body below has not yet been fully regenerated for the new directories.
 
 Historical sweep file-body baseline: 413 tracked files

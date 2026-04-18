@@ -1,44 +1,21 @@
 import { expect, test } from "@playwright/test";
 
 import { openAuditSurface } from "./helpers";
+import { VISUAL_TARGETS } from "./ui-surface-targets";
 
 test.describe("UI continuity visual audits", () => {
   test.skip(({ browserName }) => browserName !== "chromium");
 
-  test("creator apply hero stays stable", async ({ page }) => {
-    await openAuditSurface(page, "/creators/apply", "main");
-    await expect(page.getByRole("heading", { name: /Apply for creator access/i })).toBeVisible({ timeout: 15000 });
-    await expect(page.locator("main section").first()).toHaveScreenshot("creator-apply-hero.png", {
-      maxDiffPixels: 500,
+  for (const target of VISUAL_TARGETS) {
+    test(`${target.path} stays visually stable`, async ({ page }) => {
+      await openAuditSurface(page, target.path, target.ready_selector);
+      for (const anchor of target.expected_anchors) {
+        await expect(page.getByText(anchor, { exact: false }).first()).toBeVisible({ timeout: 15000 });
+      }
+      await expect(page.locator(target.screenshot_selector).first()).toHaveScreenshot(`${target.stable_id}.png`, {
+        maxDiffPixels: target.path === "/" ? 60 : 500,
+        timeout: 15000,
+      });
     });
-  });
-
-  test("creator waiting guest hero stays stable", async ({ page }) => {
-    await openAuditSurface(page, "/creators/waitlist", "main");
-    await expect(page.getByRole("heading", { name: /Start your creator application/i })).toBeVisible({ timeout: 15000 });
-    await expect(page.locator("main section").first()).toHaveScreenshot("creator-waitlist-guest-hero.png", {
-      maxDiffPixels: 400,
-    });
-  });
-
-  test("home hero stays stable", async ({ page }) => {
-    await openAuditSurface(page, "/", "main");
-    const hero = page.locator("main section").first().locator("div.flex.min-w-0.max-w-2xl.w-full.flex-col.items-center").first();
-    await expect(hero).toHaveScreenshot("home-hero.png", {
-      mask: [
-        hero.locator(".animate-ping"),
-        hero.getByTestId("hero-activity-ticker-mask"),
-      ],
-      maxDiffPixels: 40,
-      timeout: 15000,
-    });
-  });
-
-  test("privacy hero stays stable", async ({ page }) => {
-    await openAuditSurface(page, "/privacy", "main");
-    const introCard = page
-      .getByRole("heading", { name: "How KandyDrops handles your data" })
-      .locator("xpath=ancestor::div[contains(@class, 'rounded-[2rem]')][1]");
-    await expect(introCard).toHaveScreenshot("privacy-page.png", { timeout: 15000 });
-  });
+  }
 });

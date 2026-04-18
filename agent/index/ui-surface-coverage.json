@@ -1,0 +1,1924 @@
+{
+  "generatedAt": "2026-04-18T00:05:14.893Z",
+  "truthOrder": [
+    "verified_runtime_code",
+    "verified_configuration",
+    "verified_command_output",
+    "FULL_SCALE_CODEBASE_AUDIT.md",
+    "REPO_MEMORY_LEDGER.md",
+    "EVERY_FILE_FUNCTION_CHECKLIST.md",
+    "AGENTS.md_and_workflow_notes",
+    "prior_chat_context"
+  ],
+  "source": [
+    "agent/index/surface-map.json",
+    "src/app",
+    "src/components",
+    "src/hooks",
+    "tests/ui-audits",
+    "tests/unit"
+  ],
+  "surfaces": [
+    {
+      "stable_id": "ui_surface__src__app__-legal-__privacy__page-tsx",
+      "route_or_component": "src/app/(legal)/privacy/page.tsx",
+      "surface_type": "page",
+      "audience": [
+        "guest",
+        "user"
+      ],
+      "runtime_dependencies": [
+        "src/lib/platform-config.ts",
+        "src/lib/site-origin.ts"
+      ],
+      "hydration_mode": "static",
+      "criticality": "medium",
+      "playwright_owner": null,
+      "lighthouse_required": false,
+      "existing_tests": [
+        "tests/unit/privacy-consent.spec.ts"
+      ],
+      "known_gap": null,
+      "blocking_required": false,
+      "runtime_canary": {
+        "protected": false,
+        "helper_paths": [],
+        "observability_lanes": []
+      },
+      "audit_target": null,
+      "coverage_notes": [
+        "Mapped to app_routes."
+      ]
+    },
+    {
+      "stable_id": "ui_surface__src__app__-legal-__terms__page-tsx",
+      "route_or_component": "src/app/(legal)/terms/page.tsx",
+      "surface_type": "page",
+      "audience": [
+        "guest",
+        "user"
+      ],
+      "runtime_dependencies": [
+        "src/lib/platform-config.ts"
+      ],
+      "hydration_mode": "static",
+      "criticality": "medium",
+      "playwright_owner": null,
+      "lighthouse_required": false,
+      "existing_tests": [],
+      "known_gap": null,
+      "blocking_required": false,
+      "runtime_canary": {
+        "protected": false,
+        "helper_paths": [],
+        "observability_lanes": []
+      },
+      "audit_target": null,
+      "coverage_notes": [
+        "Mapped to app_routes."
+      ]
+    },
+    {
+      "stable_id": "ui_surface__src__app__admin__ai__page-tsx",
+      "route_or_component": "src/app/admin/ai/page.tsx",
+      "surface_type": "admin_page",
+      "audience": [
+        "admin"
+      ],
+      "runtime_dependencies": [
+        "src/hooks/useAdminPollingSWR.ts",
+        "src/lib/ai-drop-covers.ts",
+        "src/lib/authFetch.ts",
+        "src/lib/client-error-reporting.ts",
+        "src/lib/utils.ts"
+      ],
+      "hydration_mode": "auth_hydrated",
+      "criticality": "high",
+      "playwright_owner": "tests/ui-audits/runtime.spec.ts",
+      "lighthouse_required": false,
+      "existing_tests": [
+        "tests/ui-audits/runtime.spec.ts",
+        "tests/unit/admin-ai-drop-cover-catalog.spec.ts",
+        "tests/unit/admin-ai-drop-covers-feedback-route.spec.ts",
+        "tests/unit/admin-ai-drop-covers-generate-route.spec.ts",
+        "tests/unit/admin-ai-drop-covers-ops-routes.spec.ts",
+        "tests/unit/admin-ai-drop-covers-route.spec.ts",
+        "tests/unit/admin-ai-drop-covers-template-route.spec.ts",
+        "tests/unit/admin-ai-drop-descriptions-routes.spec.ts",
+        "tests/unit/admin-ai-models.spec.ts",
+        "tests/unit/admin-analytics-data.spec.ts",
+        "tests/unit/admin-analytics-historical-users.spec.ts",
+        "tests/unit/admin-analytics-realtime-route.spec.ts",
+        "tests/unit/admin-auth-outcome-chart.spec.ts",
+        "tests/unit/admin-balance-route.spec.ts",
+        "tests/unit/admin-cli-logging.spec.ts",
+        "tests/unit/admin-content-route.spec.ts",
+        "tests/unit/admin-creator-id-document-route.spec.ts",
+        "tests/unit/admin-debug-assistant-route.spec.ts",
+        "tests/unit/admin-debug-preferences-route.spec.ts",
+        "tests/unit/admin-debug-route-runtime.spec.ts",
+        "tests/unit/admin-drop-form-sections.spec.ts",
+        "tests/unit/admin-drop-form.spec.ts",
+        "tests/unit/admin-moderation-routes.spec.ts",
+        "tests/unit/admin-notification-funnel.spec.ts",
+        "tests/unit/admin-onboarding-velocity.spec.ts",
+        "tests/unit/admin-ops-health.spec.ts",
+        "tests/unit/admin-overview-route.spec.ts",
+        "tests/unit/admin-overview-users.spec.ts",
+        "tests/unit/admin-overview.spec.ts",
+        "tests/unit/admin-panel-system-logs.spec.ts",
+        "tests/unit/admin-roster-route.spec.ts",
+        "tests/unit/admin-support-threads-route.spec.ts",
+        "tests/unit/admin-task-pipeline.spec.ts",
+        "tests/unit/admin-ui-chart-health-route.spec.ts",
+        "tests/unit/admin-ui-chart-health.spec.ts",
+        "tests/unit/admin-users-route.spec.ts"
+      ],
+      "known_gap": "auth_required_surface_not_in_guest_playwright_lane",
+      "blocking_required": false,
+      "runtime_canary": {
+        "protected": true,
+        "helper_paths": [
+          "src/app/admin/ai/page.tsx"
+        ],
+        "observability_lanes": [
+          "server_diagnostics",
+          "route_runtime_health",
+          "admin_ui_chart_health"
+        ]
+      },
+      "audit_target": {
+        "path": "/admin/ai",
+        "ready_selector": "main",
+        "hydration_signal": "main",
+        "expected_anchors": [
+          "Admin"
+        ],
+        "screenshot_selector": "main",
+        "auth_required": "admin",
+        "audit_modes": [
+          "runtime"
+        ]
+      },
+      "coverage_notes": [
+        "Auth-required surface indexed with admin audit requirement.",
+        "Mapped to app_routes."
+      ]
+    },
+    {
+      "stable_id": "ui_surface__src__app__admin__analytics__page-tsx",
+      "route_or_component": "src/app/admin/analytics/page.tsx",
+      "surface_type": "admin_page",
+      "audience": [
+        "admin"
+      ],
+      "runtime_dependencies": [
+        "src/hooks/useAdminPollingSWR.ts",
+        "src/hooks/useAdminUiChartHealthReporter.ts",
+        "src/hooks/useNow.ts",
+        "src/lib/admin-analytics-preferences.ts",
+        "src/lib/admin-auth-outcome-chart.ts",
+        "src/lib/admin-notification-funnel.ts",
+        "src/lib/admin-onboarding-velocity.ts",
+        "src/lib/admin-task-pipeline.ts",
+        "src/lib/admin-ui-chart-health.ts",
+        "src/lib/authFetch.ts",
+        "src/lib/client-error-reporting.ts",
+        "src/lib/telemetry-catalog.ts",
+        "src/lib/utils.ts"
+      ],
+      "hydration_mode": "auth_hydrated",
+      "criticality": "high",
+      "playwright_owner": "tests/ui-audits/runtime.spec.ts",
+      "lighthouse_required": false,
+      "existing_tests": [
+        "tests/ui-audits/runtime.spec.ts",
+        "tests/unit/admin-ai-drop-cover-catalog.spec.ts",
+        "tests/unit/admin-ai-drop-covers-feedback-route.spec.ts",
+        "tests/unit/admin-ai-drop-covers-generate-route.spec.ts",
+        "tests/unit/admin-ai-drop-covers-ops-routes.spec.ts",
+        "tests/unit/admin-ai-drop-covers-route.spec.ts",
+        "tests/unit/admin-ai-drop-covers-template-route.spec.ts",
+        "tests/unit/admin-ai-drop-descriptions-routes.spec.ts",
+        "tests/unit/admin-ai-models.spec.ts",
+        "tests/unit/admin-analytics-data.spec.ts",
+        "tests/unit/admin-analytics-historical-users.spec.ts",
+        "tests/unit/admin-analytics-realtime-route.spec.ts",
+        "tests/unit/admin-auth-outcome-chart.spec.ts",
+        "tests/unit/admin-balance-route.spec.ts",
+        "tests/unit/admin-cli-logging.spec.ts",
+        "tests/unit/admin-content-route.spec.ts",
+        "tests/unit/admin-creator-id-document-route.spec.ts",
+        "tests/unit/admin-debug-assistant-route.spec.ts",
+        "tests/unit/admin-debug-preferences-route.spec.ts",
+        "tests/unit/admin-debug-route-runtime.spec.ts",
+        "tests/unit/admin-drop-form-sections.spec.ts",
+        "tests/unit/admin-drop-form.spec.ts",
+        "tests/unit/admin-moderation-routes.spec.ts",
+        "tests/unit/admin-notification-funnel.spec.ts",
+        "tests/unit/admin-onboarding-velocity.spec.ts",
+        "tests/unit/admin-ops-health.spec.ts",
+        "tests/unit/admin-overview-route.spec.ts",
+        "tests/unit/admin-overview-users.spec.ts",
+        "tests/unit/admin-overview.spec.ts",
+        "tests/unit/admin-panel-system-logs.spec.ts",
+        "tests/unit/admin-roster-route.spec.ts",
+        "tests/unit/admin-support-threads-route.spec.ts",
+        "tests/unit/admin-task-pipeline.spec.ts",
+        "tests/unit/admin-ui-chart-health-route.spec.ts",
+        "tests/unit/admin-ui-chart-health.spec.ts",
+        "tests/unit/admin-users-route.spec.ts",
+        "tests/unit/analytics-identifiers.spec.ts",
+        "tests/unit/analytics-ingest-route.spec.ts",
+        "tests/unit/analytics-metric-catalog.spec.ts"
+      ],
+      "known_gap": "auth_required_surface_not_in_guest_playwright_lane",
+      "blocking_required": false,
+      "runtime_canary": {
+        "protected": true,
+        "helper_paths": [
+          "src/app/admin/analytics/page.tsx"
+        ],
+        "observability_lanes": [
+          "server_diagnostics",
+          "route_runtime_health",
+          "admin_ui_chart_health"
+        ]
+      },
+      "audit_target": {
+        "path": "/admin/analytics",
+        "ready_selector": "main",
+        "hydration_signal": "main",
+        "expected_anchors": [
+          "Admin"
+        ],
+        "screenshot_selector": "main",
+        "auth_required": "admin",
+        "audit_modes": [
+          "runtime"
+        ]
+      },
+      "coverage_notes": [
+        "Auth-required surface indexed with admin audit requirement.",
+        "Mapped to app_routes."
+      ]
+    },
+    {
+      "stable_id": "ui_surface__src__app__admin__content__page-tsx",
+      "route_or_component": "src/app/admin/content/page.tsx",
+      "surface_type": "admin_page",
+      "audience": [
+        "admin"
+      ],
+      "runtime_dependencies": [
+        "src/lib/authFetch.ts",
+        "src/lib/client-error-reporting.ts"
+      ],
+      "hydration_mode": "auth_hydrated",
+      "criticality": "high",
+      "playwright_owner": "tests/ui-audits/runtime.spec.ts",
+      "lighthouse_required": false,
+      "existing_tests": [
+        "tests/ui-audits/runtime.spec.ts",
+        "tests/unit/admin-ai-drop-cover-catalog.spec.ts",
+        "tests/unit/admin-ai-drop-covers-feedback-route.spec.ts",
+        "tests/unit/admin-ai-drop-covers-generate-route.spec.ts",
+        "tests/unit/admin-ai-drop-covers-ops-routes.spec.ts",
+        "tests/unit/admin-ai-drop-covers-route.spec.ts",
+        "tests/unit/admin-ai-drop-covers-template-route.spec.ts",
+        "tests/unit/admin-ai-drop-descriptions-routes.spec.ts",
+        "tests/unit/admin-ai-models.spec.ts",
+        "tests/unit/admin-analytics-data.spec.ts",
+        "tests/unit/admin-analytics-historical-users.spec.ts",
+        "tests/unit/admin-analytics-realtime-route.spec.ts",
+        "tests/unit/admin-auth-outcome-chart.spec.ts",
+        "tests/unit/admin-balance-route.spec.ts",
+        "tests/unit/admin-cli-logging.spec.ts",
+        "tests/unit/admin-content-route.spec.ts",
+        "tests/unit/admin-creator-id-document-route.spec.ts",
+        "tests/unit/admin-debug-assistant-route.spec.ts",
+        "tests/unit/admin-debug-preferences-route.spec.ts",
+        "tests/unit/admin-debug-route-runtime.spec.ts",
+        "tests/unit/admin-drop-form-sections.spec.ts",
+        "tests/unit/admin-drop-form.spec.ts",
+        "tests/unit/admin-moderation-routes.spec.ts",
+        "tests/unit/admin-notification-funnel.spec.ts",
+        "tests/unit/admin-onboarding-velocity.spec.ts",
+        "tests/unit/admin-ops-health.spec.ts",
+        "tests/unit/admin-overview-route.spec.ts",
+        "tests/unit/admin-overview-users.spec.ts",
+        "tests/unit/admin-overview.spec.ts",
+        "tests/unit/admin-panel-system-logs.spec.ts",
+        "tests/unit/admin-roster-route.spec.ts",
+        "tests/unit/admin-support-threads-route.spec.ts",
+        "tests/unit/admin-task-pipeline.spec.ts",
+        "tests/unit/admin-ui-chart-health-route.spec.ts",
+        "tests/unit/admin-ui-chart-health.spec.ts",
+        "tests/unit/admin-users-route.spec.ts"
+      ],
+      "known_gap": "auth_required_surface_not_in_guest_playwright_lane",
+      "blocking_required": false,
+      "runtime_canary": {
+        "protected": true,
+        "helper_paths": [
+          "src/app/admin/content/page.tsx"
+        ],
+        "observability_lanes": [
+          "server_diagnostics",
+          "route_runtime_health",
+          "admin_ui_chart_health"
+        ]
+      },
+      "audit_target": {
+        "path": "/admin/content",
+        "ready_selector": "main",
+        "hydration_signal": "main",
+        "expected_anchors": [
+          "Admin"
+        ],
+        "screenshot_selector": "main",
+        "auth_required": "admin",
+        "audit_modes": [
+          "runtime"
+        ]
+      },
+      "coverage_notes": [
+        "Auth-required surface indexed with admin audit requirement.",
+        "Mapped to app_routes."
+      ]
+    },
+    {
+      "stable_id": "ui_surface__src__app__admin__debug__page-tsx",
+      "route_or_component": "src/app/admin/debug/page.tsx",
+      "surface_type": "admin_page",
+      "audience": [
+        "admin"
+      ],
+      "runtime_dependencies": [
+        "src/hooks/useAdminOverview.ts",
+        "src/hooks/useAdminPollingSWR.ts",
+        "src/hooks/useAdminUiChartHealthReporter.ts",
+        "src/hooks/useCompactViewport.ts",
+        "src/lib/admin-debug-preferences.ts",
+        "src/lib/admin-debug-route-runtime.ts",
+        "src/lib/admin-ui-chart-health.ts",
+        "src/lib/ai-debug-assistant.ts",
+        "src/lib/authFetch.ts",
+        "src/lib/client-error-reporting.ts",
+        "src/lib/creator-message-compatibility.ts",
+        "src/lib/route-runtime-health.ts",
+        "src/lib/utils.ts"
+      ],
+      "hydration_mode": "auth_hydrated",
+      "criticality": "high",
+      "playwright_owner": "tests/ui-audits/runtime.spec.ts",
+      "lighthouse_required": false,
+      "existing_tests": [
+        "tests/ui-audits/runtime.spec.ts",
+        "tests/unit/admin-ai-drop-cover-catalog.spec.ts",
+        "tests/unit/admin-ai-drop-covers-feedback-route.spec.ts",
+        "tests/unit/admin-ai-drop-covers-generate-route.spec.ts",
+        "tests/unit/admin-ai-drop-covers-ops-routes.spec.ts",
+        "tests/unit/admin-ai-drop-covers-route.spec.ts",
+        "tests/unit/admin-ai-drop-covers-template-route.spec.ts",
+        "tests/unit/admin-ai-drop-descriptions-routes.spec.ts",
+        "tests/unit/admin-ai-models.spec.ts",
+        "tests/unit/admin-analytics-data.spec.ts",
+        "tests/unit/admin-analytics-historical-users.spec.ts",
+        "tests/unit/admin-analytics-realtime-route.spec.ts",
+        "tests/unit/admin-auth-outcome-chart.spec.ts",
+        "tests/unit/admin-balance-route.spec.ts",
+        "tests/unit/admin-cli-logging.spec.ts",
+        "tests/unit/admin-content-route.spec.ts",
+        "tests/unit/admin-creator-id-document-route.spec.ts",
+        "tests/unit/admin-debug-assistant-route.spec.ts",
+        "tests/unit/admin-debug-preferences-route.spec.ts",
+        "tests/unit/admin-debug-route-runtime.spec.ts",
+        "tests/unit/admin-drop-form-sections.spec.ts",
+        "tests/unit/admin-drop-form.spec.ts",
+        "tests/unit/admin-moderation-routes.spec.ts",
+        "tests/unit/admin-notification-funnel.spec.ts",
+        "tests/unit/admin-onboarding-velocity.spec.ts",
+        "tests/unit/admin-ops-health.spec.ts",
+        "tests/unit/admin-overview-route.spec.ts",
+        "tests/unit/admin-overview-users.spec.ts",
+        "tests/unit/admin-overview.spec.ts",
+        "tests/unit/admin-panel-system-logs.spec.ts",
+        "tests/unit/admin-roster-route.spec.ts",
+        "tests/unit/admin-support-threads-route.spec.ts",
+        "tests/unit/admin-task-pipeline.spec.ts",
+        "tests/unit/admin-ui-chart-health-route.spec.ts",
+        "tests/unit/admin-ui-chart-health.spec.ts",
+        "tests/unit/admin-users-route.spec.ts",
+        "tests/unit/ai-debug-assistant.spec.ts"
+      ],
+      "known_gap": "auth_required_surface_not_in_guest_playwright_lane",
+      "blocking_required": false,
+      "runtime_canary": {
+        "protected": true,
+        "helper_paths": [
+          "src/app/admin/debug/page.tsx"
+        ],
+        "observability_lanes": [
+          "server_diagnostics",
+          "route_runtime_health",
+          "admin_ui_chart_health"
+        ]
+      },
+      "audit_target": {
+        "path": "/admin/debug",
+        "ready_selector": "main",
+        "hydration_signal": "main",
+        "expected_anchors": [
+          "Admin"
+        ],
+        "screenshot_selector": "main",
+        "auth_required": "admin",
+        "audit_modes": [
+          "runtime"
+        ]
+      },
+      "coverage_notes": [
+        "Auth-required surface indexed with admin audit requirement.",
+        "Mapped to app_routes."
+      ]
+    },
+    {
+      "stable_id": "ui_surface__src__app__admin__drops__page-tsx",
+      "route_or_component": "src/app/admin/drops/page.tsx",
+      "surface_type": "admin_page",
+      "audience": [
+        "admin"
+      ],
+      "runtime_dependencies": [
+        "src/hooks/client-runtime.ts",
+        "src/hooks/useAdminDropsFeed.ts",
+        "src/hooks/useAdminPollingSWR.ts",
+        "src/hooks/useNow.ts",
+        "src/lib/admin-drop-formatting.ts",
+        "src/lib/admin-drop-lifecycle.ts",
+        "src/lib/admin-drop-queue.ts",
+        "src/lib/authFetch.ts",
+        "src/lib/client-error-reporting.ts",
+        "src/lib/notifications.ts",
+        "src/lib/utils.ts"
+      ],
+      "hydration_mode": "auth_hydrated",
+      "criticality": "high",
+      "playwright_owner": "tests/ui-audits/runtime.spec.ts",
+      "lighthouse_required": false,
+      "existing_tests": [
+        "tests/ui-audits/runtime.spec.ts",
+        "tests/unit/admin-ai-drop-cover-catalog.spec.ts",
+        "tests/unit/admin-ai-drop-covers-feedback-route.spec.ts",
+        "tests/unit/admin-ai-drop-covers-generate-route.spec.ts",
+        "tests/unit/admin-ai-drop-covers-ops-routes.spec.ts",
+        "tests/unit/admin-ai-drop-covers-route.spec.ts",
+        "tests/unit/admin-ai-drop-covers-template-route.spec.ts",
+        "tests/unit/admin-ai-drop-descriptions-routes.spec.ts",
+        "tests/unit/admin-ai-models.spec.ts",
+        "tests/unit/admin-analytics-data.spec.ts",
+        "tests/unit/admin-analytics-historical-users.spec.ts",
+        "tests/unit/admin-analytics-realtime-route.spec.ts",
+        "tests/unit/admin-auth-outcome-chart.spec.ts",
+        "tests/unit/admin-balance-route.spec.ts",
+        "tests/unit/admin-cli-logging.spec.ts",
+        "tests/unit/admin-content-route.spec.ts",
+        "tests/unit/admin-creator-id-document-route.spec.ts",
+        "tests/unit/admin-debug-assistant-route.spec.ts",
+        "tests/unit/admin-debug-preferences-route.spec.ts",
+        "tests/unit/admin-debug-route-runtime.spec.ts",
+        "tests/unit/admin-drop-form-sections.spec.ts",
+        "tests/unit/admin-drop-form.spec.ts",
+        "tests/unit/admin-moderation-routes.spec.ts",
+        "tests/unit/admin-notification-funnel.spec.ts",
+        "tests/unit/admin-onboarding-velocity.spec.ts",
+        "tests/unit/admin-ops-health.spec.ts",
+        "tests/unit/admin-overview-route.spec.ts",
+        "tests/unit/admin-overview-users.spec.ts",
+        "tests/unit/admin-overview.spec.ts",
+        "tests/unit/admin-panel-system-logs.spec.ts",
+        "tests/unit/admin-roster-route.spec.ts",
+        "tests/unit/admin-support-threads-route.spec.ts",
+        "tests/unit/admin-task-pipeline.spec.ts",
+        "tests/unit/admin-ui-chart-health-route.spec.ts",
+        "tests/unit/admin-ui-chart-health.spec.ts",
+        "tests/unit/admin-users-route.spec.ts",
+        "tests/unit/drops-route.spec.ts",
+        "tests/unit/gumdrops-packages.spec.ts",
+        "tests/unit/notify-active-drops-route.spec.ts",
+        "tests/unit/process-queue-drops.spec.ts",
+        "tests/unit/server-drops.spec.ts"
+      ],
+      "known_gap": "auth_required_surface_not_in_guest_playwright_lane",
+      "blocking_required": false,
+      "runtime_canary": {
+        "protected": true,
+        "helper_paths": [
+          "src/app/admin/drops/page.tsx"
+        ],
+        "observability_lanes": [
+          "server_diagnostics",
+          "route_runtime_health",
+          "admin_ui_chart_health"
+        ]
+      },
+      "audit_target": {
+        "path": "/admin/drops",
+        "ready_selector": "main",
+        "hydration_signal": "main",
+        "expected_anchors": [
+          "Admin"
+        ],
+        "screenshot_selector": "main",
+        "auth_required": "admin",
+        "audit_modes": [
+          "runtime"
+        ]
+      },
+      "coverage_notes": [
+        "Auth-required surface indexed with admin audit requirement.",
+        "Mapped to app_routes."
+      ]
+    },
+    {
+      "stable_id": "ui_surface__src__app__admin__economy__page-tsx",
+      "route_or_component": "src/app/admin/economy/page.tsx",
+      "surface_type": "admin_page",
+      "audience": [
+        "admin"
+      ],
+      "runtime_dependencies": [],
+      "hydration_mode": "static",
+      "criticality": "high",
+      "playwright_owner": "tests/ui-audits/runtime.spec.ts",
+      "lighthouse_required": false,
+      "existing_tests": [
+        "tests/ui-audits/runtime.spec.ts",
+        "tests/unit/admin-ai-drop-cover-catalog.spec.ts",
+        "tests/unit/admin-ai-drop-covers-feedback-route.spec.ts",
+        "tests/unit/admin-ai-drop-covers-generate-route.spec.ts",
+        "tests/unit/admin-ai-drop-covers-ops-routes.spec.ts",
+        "tests/unit/admin-ai-drop-covers-route.spec.ts",
+        "tests/unit/admin-ai-drop-covers-template-route.spec.ts",
+        "tests/unit/admin-ai-drop-descriptions-routes.spec.ts",
+        "tests/unit/admin-ai-models.spec.ts",
+        "tests/unit/admin-analytics-data.spec.ts",
+        "tests/unit/admin-analytics-historical-users.spec.ts",
+        "tests/unit/admin-analytics-realtime-route.spec.ts",
+        "tests/unit/admin-auth-outcome-chart.spec.ts",
+        "tests/unit/admin-balance-route.spec.ts",
+        "tests/unit/admin-cli-logging.spec.ts",
+        "tests/unit/admin-content-route.spec.ts",
+        "tests/unit/admin-creator-id-document-route.spec.ts",
+        "tests/unit/admin-debug-assistant-route.spec.ts",
+        "tests/unit/admin-debug-preferences-route.spec.ts",
+        "tests/unit/admin-debug-route-runtime.spec.ts",
+        "tests/unit/admin-drop-form-sections.spec.ts",
+        "tests/unit/admin-drop-form.spec.ts",
+        "tests/unit/admin-moderation-routes.spec.ts",
+        "tests/unit/admin-notification-funnel.spec.ts",
+        "tests/unit/admin-onboarding-velocity.spec.ts",
+        "tests/unit/admin-ops-health.spec.ts",
+        "tests/unit/admin-overview-route.spec.ts",
+        "tests/unit/admin-overview-users.spec.ts",
+        "tests/unit/admin-overview.spec.ts",
+        "tests/unit/admin-panel-system-logs.spec.ts",
+        "tests/unit/admin-roster-route.spec.ts",
+        "tests/unit/admin-support-threads-route.spec.ts",
+        "tests/unit/admin-task-pipeline.spec.ts",
+        "tests/unit/admin-ui-chart-health-route.spec.ts",
+        "tests/unit/admin-ui-chart-health.spec.ts",
+        "tests/unit/admin-users-route.spec.ts"
+      ],
+      "known_gap": "auth_required_surface_not_in_guest_playwright_lane",
+      "blocking_required": false,
+      "runtime_canary": {
+        "protected": false,
+        "helper_paths": [],
+        "observability_lanes": [
+          "admin_ui_chart_health"
+        ]
+      },
+      "audit_target": {
+        "path": "/admin/economy",
+        "ready_selector": "main",
+        "hydration_signal": "main",
+        "expected_anchors": [
+          "Admin"
+        ],
+        "screenshot_selector": "main",
+        "auth_required": "admin",
+        "audit_modes": [
+          "runtime"
+        ]
+      },
+      "coverage_notes": [
+        "Auth-required surface indexed with admin audit requirement.",
+        "No direct runtime dependency imports detected.",
+        "Mapped to app_routes."
+      ]
+    },
+    {
+      "stable_id": "ui_surface__src__app__admin__moderation__page-tsx",
+      "route_or_component": "src/app/admin/moderation/page.tsx",
+      "surface_type": "admin_page",
+      "audience": [
+        "admin"
+      ],
+      "runtime_dependencies": [],
+      "hydration_mode": "static",
+      "criticality": "high",
+      "playwright_owner": "tests/ui-audits/runtime.spec.ts",
+      "lighthouse_required": false,
+      "existing_tests": [
+        "tests/ui-audits/runtime.spec.ts",
+        "tests/unit/admin-ai-drop-cover-catalog.spec.ts",
+        "tests/unit/admin-ai-drop-covers-feedback-route.spec.ts",
+        "tests/unit/admin-ai-drop-covers-generate-route.spec.ts",
+        "tests/unit/admin-ai-drop-covers-ops-routes.spec.ts",
+        "tests/unit/admin-ai-drop-covers-route.spec.ts",
+        "tests/unit/admin-ai-drop-covers-template-route.spec.ts",
+        "tests/unit/admin-ai-drop-descriptions-routes.spec.ts",
+        "tests/unit/admin-ai-models.spec.ts",
+        "tests/unit/admin-analytics-data.spec.ts",
+        "tests/unit/admin-analytics-historical-users.spec.ts",
+        "tests/unit/admin-analytics-realtime-route.spec.ts",
+        "tests/unit/admin-auth-outcome-chart.spec.ts",
+        "tests/unit/admin-balance-route.spec.ts",
+        "tests/unit/admin-cli-logging.spec.ts",
+        "tests/unit/admin-content-route.spec.ts",
+        "tests/unit/admin-creator-id-document-route.spec.ts",
+        "tests/unit/admin-debug-assistant-route.spec.ts",
+        "tests/unit/admin-debug-preferences-route.spec.ts",
+        "tests/unit/admin-debug-route-runtime.spec.ts",
+        "tests/unit/admin-drop-form-sections.spec.ts",
+        "tests/unit/admin-drop-form.spec.ts",
+        "tests/unit/admin-moderation-routes.spec.ts",
+        "tests/unit/admin-notification-funnel.spec.ts",
+        "tests/unit/admin-onboarding-velocity.spec.ts",
+        "tests/unit/admin-ops-health.spec.ts",
+        "tests/unit/admin-overview-route.spec.ts",
+        "tests/unit/admin-overview-users.spec.ts",
+        "tests/unit/admin-overview.spec.ts",
+        "tests/unit/admin-panel-system-logs.spec.ts",
+        "tests/unit/admin-roster-route.spec.ts",
+        "tests/unit/admin-support-threads-route.spec.ts",
+        "tests/unit/admin-task-pipeline.spec.ts",
+        "tests/unit/admin-ui-chart-health-route.spec.ts",
+        "tests/unit/admin-ui-chart-health.spec.ts",
+        "tests/unit/admin-users-route.spec.ts"
+      ],
+      "known_gap": "auth_required_surface_not_in_guest_playwright_lane",
+      "blocking_required": false,
+      "runtime_canary": {
+        "protected": false,
+        "helper_paths": [],
+        "observability_lanes": [
+          "admin_ui_chart_health"
+        ]
+      },
+      "audit_target": {
+        "path": "/admin/moderation",
+        "ready_selector": "main",
+        "hydration_signal": "main",
+        "expected_anchors": [
+          "Admin"
+        ],
+        "screenshot_selector": "main",
+        "auth_required": "admin",
+        "audit_modes": [
+          "runtime"
+        ]
+      },
+      "coverage_notes": [
+        "Auth-required surface indexed with admin audit requirement.",
+        "No direct runtime dependency imports detected.",
+        "Mapped to app_routes."
+      ]
+    },
+    {
+      "stable_id": "ui_surface__src__app__admin__page-tsx",
+      "route_or_component": "src/app/admin/page.tsx",
+      "surface_type": "admin_page",
+      "audience": [
+        "admin"
+      ],
+      "runtime_dependencies": [
+        "src/hooks/useAdminOverview.ts",
+        "src/hooks/useAdminUiChartHealthReporter.ts",
+        "src/lib/admin-ui-chart-health.ts"
+      ],
+      "hydration_mode": "static",
+      "criticality": "high",
+      "playwright_owner": "tests/ui-audits/runtime.spec.ts",
+      "lighthouse_required": false,
+      "existing_tests": [
+        "tests/ui-audits/runtime.spec.ts",
+        "tests/unit/admin-ai-drop-cover-catalog.spec.ts",
+        "tests/unit/admin-ai-drop-covers-feedback-route.spec.ts",
+        "tests/unit/admin-ai-drop-covers-generate-route.spec.ts",
+        "tests/unit/admin-ai-drop-covers-ops-routes.spec.ts",
+        "tests/unit/admin-ai-drop-covers-route.spec.ts",
+        "tests/unit/admin-ai-drop-covers-template-route.spec.ts",
+        "tests/unit/admin-ai-drop-descriptions-routes.spec.ts",
+        "tests/unit/admin-ai-models.spec.ts",
+        "tests/unit/admin-analytics-data.spec.ts",
+        "tests/unit/admin-analytics-historical-users.spec.ts",
+        "tests/unit/admin-analytics-realtime-route.spec.ts",
+        "tests/unit/admin-auth-outcome-chart.spec.ts",
+        "tests/unit/admin-balance-route.spec.ts",
+        "tests/unit/admin-cli-logging.spec.ts",
+        "tests/unit/admin-content-route.spec.ts",
+        "tests/unit/admin-creator-id-document-route.spec.ts",
+        "tests/unit/admin-debug-assistant-route.spec.ts",
+        "tests/unit/admin-debug-preferences-route.spec.ts",
+        "tests/unit/admin-debug-route-runtime.spec.ts",
+        "tests/unit/admin-drop-form-sections.spec.ts",
+        "tests/unit/admin-drop-form.spec.ts",
+        "tests/unit/admin-moderation-routes.spec.ts",
+        "tests/unit/admin-notification-funnel.spec.ts",
+        "tests/unit/admin-onboarding-velocity.spec.ts",
+        "tests/unit/admin-ops-health.spec.ts",
+        "tests/unit/admin-overview-route.spec.ts",
+        "tests/unit/admin-overview-users.spec.ts",
+        "tests/unit/admin-overview.spec.ts",
+        "tests/unit/admin-panel-system-logs.spec.ts",
+        "tests/unit/admin-roster-route.spec.ts",
+        "tests/unit/admin-support-threads-route.spec.ts",
+        "tests/unit/admin-task-pipeline.spec.ts",
+        "tests/unit/admin-ui-chart-health-route.spec.ts",
+        "tests/unit/admin-ui-chart-health.spec.ts",
+        "tests/unit/admin-users-route.spec.ts"
+      ],
+      "known_gap": "auth_required_surface_not_in_guest_playwright_lane",
+      "blocking_required": false,
+      "runtime_canary": {
+        "protected": false,
+        "helper_paths": [],
+        "observability_lanes": [
+          "admin_ui_chart_health"
+        ]
+      },
+      "audit_target": {
+        "path": "/admin",
+        "ready_selector": "main",
+        "hydration_signal": "main",
+        "expected_anchors": [
+          "Admin"
+        ],
+        "screenshot_selector": "main",
+        "auth_required": "admin",
+        "audit_modes": [
+          "runtime"
+        ]
+      },
+      "coverage_notes": [
+        "Auth-required surface indexed with admin audit requirement.",
+        "Mapped to app_routes."
+      ]
+    },
+    {
+      "stable_id": "ui_surface__src__app__admin__queue__page-tsx",
+      "route_or_component": "src/app/admin/queue/page.tsx",
+      "surface_type": "admin_page",
+      "audience": [
+        "admin"
+      ],
+      "runtime_dependencies": [
+        "src/lib/admin-drop-formatting.ts",
+        "src/lib/admin-drop-queue.ts",
+        "src/lib/authFetch.ts",
+        "src/lib/client-error-reporting.ts",
+        "src/lib/drop-read-models.ts",
+        "src/lib/firebase-data.ts"
+      ],
+      "hydration_mode": "auth_hydrated",
+      "criticality": "high",
+      "playwright_owner": "tests/ui-audits/runtime.spec.ts",
+      "lighthouse_required": false,
+      "existing_tests": [
+        "tests/ui-audits/runtime.spec.ts",
+        "tests/unit/admin-ai-drop-cover-catalog.spec.ts",
+        "tests/unit/admin-ai-drop-covers-feedback-route.spec.ts",
+        "tests/unit/admin-ai-drop-covers-generate-route.spec.ts",
+        "tests/unit/admin-ai-drop-covers-ops-routes.spec.ts",
+        "tests/unit/admin-ai-drop-covers-route.spec.ts",
+        "tests/unit/admin-ai-drop-covers-template-route.spec.ts",
+        "tests/unit/admin-ai-drop-descriptions-routes.spec.ts",
+        "tests/unit/admin-ai-models.spec.ts",
+        "tests/unit/admin-analytics-data.spec.ts",
+        "tests/unit/admin-analytics-historical-users.spec.ts",
+        "tests/unit/admin-analytics-realtime-route.spec.ts",
+        "tests/unit/admin-auth-outcome-chart.spec.ts",
+        "tests/unit/admin-balance-route.spec.ts",
+        "tests/unit/admin-cli-logging.spec.ts",
+        "tests/unit/admin-content-route.spec.ts",
+        "tests/unit/admin-creator-id-document-route.spec.ts",
+        "tests/unit/admin-debug-assistant-route.spec.ts",
+        "tests/unit/admin-debug-preferences-route.spec.ts",
+        "tests/unit/admin-debug-route-runtime.spec.ts",
+        "tests/unit/admin-drop-form-sections.spec.ts",
+        "tests/unit/admin-drop-form.spec.ts",
+        "tests/unit/admin-moderation-routes.spec.ts",
+        "tests/unit/admin-notification-funnel.spec.ts",
+        "tests/unit/admin-onboarding-velocity.spec.ts",
+        "tests/unit/admin-ops-health.spec.ts",
+        "tests/unit/admin-overview-route.spec.ts",
+        "tests/unit/admin-overview-users.spec.ts",
+        "tests/unit/admin-overview.spec.ts",
+        "tests/unit/admin-panel-system-logs.spec.ts",
+        "tests/unit/admin-roster-route.spec.ts",
+        "tests/unit/admin-support-threads-route.spec.ts",
+        "tests/unit/admin-task-pipeline.spec.ts",
+        "tests/unit/admin-ui-chart-health-route.spec.ts",
+        "tests/unit/admin-ui-chart-health.spec.ts",
+        "tests/unit/admin-users-route.spec.ts",
+        "tests/unit/drop-queue-lifecycle.spec.ts",
+        "tests/unit/process-queue-drops.spec.ts",
+        "tests/unit/process-queue-route.spec.ts",
+        "tests/unit/queue-bench.spec.ts"
+      ],
+      "known_gap": "auth_required_surface_not_in_guest_playwright_lane",
+      "blocking_required": false,
+      "runtime_canary": {
+        "protected": true,
+        "helper_paths": [
+          "src/app/admin/queue/page.tsx"
+        ],
+        "observability_lanes": [
+          "server_diagnostics",
+          "route_runtime_health",
+          "admin_ui_chart_health"
+        ]
+      },
+      "audit_target": {
+        "path": "/admin/queue",
+        "ready_selector": "main",
+        "hydration_signal": "main",
+        "expected_anchors": [
+          "Admin"
+        ],
+        "screenshot_selector": "main",
+        "auth_required": "admin",
+        "audit_modes": [
+          "runtime"
+        ]
+      },
+      "coverage_notes": [
+        "Auth-required surface indexed with admin audit requirement.",
+        "Mapped to app_routes."
+      ]
+    },
+    {
+      "stable_id": "ui_surface__src__app__admin__roster__page-tsx",
+      "route_or_component": "src/app/admin/roster/page.tsx",
+      "surface_type": "admin_page",
+      "audience": [
+        "admin"
+      ],
+      "runtime_dependencies": [
+        "src/lib/authFetch.ts",
+        "src/lib/client-error-reporting.ts",
+        "src/lib/creator-admin.ts",
+        "src/lib/creator-contract.ts",
+        "src/lib/creator-onboarding.ts",
+        "src/lib/telemetry.ts"
+      ],
+      "hydration_mode": "auth_hydrated",
+      "criticality": "high",
+      "playwright_owner": "tests/ui-audits/runtime.spec.ts",
+      "lighthouse_required": false,
+      "existing_tests": [
+        "tests/ui-audits/runtime.spec.ts",
+        "tests/unit/admin-ai-drop-cover-catalog.spec.ts",
+        "tests/unit/admin-ai-drop-covers-feedback-route.spec.ts",
+        "tests/unit/admin-ai-drop-covers-generate-route.spec.ts",
+        "tests/unit/admin-ai-drop-covers-ops-routes.spec.ts",
+        "tests/unit/admin-ai-drop-covers-route.spec.ts",
+        "tests/unit/admin-ai-drop-covers-template-route.spec.ts",
+        "tests/unit/admin-ai-drop-descriptions-routes.spec.ts",
+        "tests/unit/admin-ai-models.spec.ts",
+        "tests/unit/admin-analytics-data.spec.ts",
+        "tests/unit/admin-analytics-historical-users.spec.ts",
+        "tests/unit/admin-analytics-realtime-route.spec.ts",
+        "tests/unit/admin-auth-outcome-chart.spec.ts",
+        "tests/unit/admin-balance-route.spec.ts",
+        "tests/unit/admin-cli-logging.spec.ts",
+        "tests/unit/admin-content-route.spec.ts",
+        "tests/unit/admin-creator-id-document-route.spec.ts",
+        "tests/unit/admin-debug-assistant-route.spec.ts",
+        "tests/unit/admin-debug-preferences-route.spec.ts",
+        "tests/unit/admin-debug-route-runtime.spec.ts",
+        "tests/unit/admin-drop-form-sections.spec.ts",
+        "tests/unit/admin-drop-form.spec.ts",
+        "tests/unit/admin-moderation-routes.spec.ts",
+        "tests/unit/admin-notification-funnel.spec.ts",
+        "tests/unit/admin-onboarding-velocity.spec.ts",
+        "tests/unit/admin-ops-health.spec.ts",
+        "tests/unit/admin-overview-route.spec.ts",
+        "tests/unit/admin-overview-users.spec.ts",
+        "tests/unit/admin-overview.spec.ts",
+        "tests/unit/admin-panel-system-logs.spec.ts",
+        "tests/unit/admin-roster-route.spec.ts",
+        "tests/unit/admin-support-threads-route.spec.ts",
+        "tests/unit/admin-task-pipeline.spec.ts",
+        "tests/unit/admin-ui-chart-health-route.spec.ts",
+        "tests/unit/admin-ui-chart-health.spec.ts",
+        "tests/unit/admin-users-route.spec.ts"
+      ],
+      "known_gap": "auth_required_surface_not_in_guest_playwright_lane",
+      "blocking_required": false,
+      "runtime_canary": {
+        "protected": true,
+        "helper_paths": [
+          "src/app/admin/roster/page.tsx"
+        ],
+        "observability_lanes": [
+          "server_diagnostics",
+          "route_runtime_health",
+          "admin_ui_chart_health"
+        ]
+      },
+      "audit_target": {
+        "path": "/admin/roster",
+        "ready_selector": "main",
+        "hydration_signal": "main",
+        "expected_anchors": [
+          "Admin"
+        ],
+        "screenshot_selector": "main",
+        "auth_required": "admin",
+        "audit_modes": [
+          "runtime"
+        ]
+      },
+      "coverage_notes": [
+        "Auth-required surface indexed with admin audit requirement.",
+        "Mapped to app_routes."
+      ]
+    },
+    {
+      "stable_id": "ui_surface__src__app__admin__support__page-tsx",
+      "route_or_component": "src/app/admin/support/page.tsx",
+      "surface_type": "admin_page",
+      "audience": [
+        "admin"
+      ],
+      "runtime_dependencies": [],
+      "hydration_mode": "static",
+      "criticality": "high",
+      "playwright_owner": "tests/ui-audits/runtime.spec.ts",
+      "lighthouse_required": false,
+      "existing_tests": [
+        "tests/ui-audits/runtime.spec.ts",
+        "tests/unit/admin-ai-drop-cover-catalog.spec.ts",
+        "tests/unit/admin-ai-drop-covers-feedback-route.spec.ts",
+        "tests/unit/admin-ai-drop-covers-generate-route.spec.ts",
+        "tests/unit/admin-ai-drop-covers-ops-routes.spec.ts",
+        "tests/unit/admin-ai-drop-covers-route.spec.ts",
+        "tests/unit/admin-ai-drop-covers-template-route.spec.ts",
+        "tests/unit/admin-ai-drop-descriptions-routes.spec.ts",
+        "tests/unit/admin-ai-models.spec.ts",
+        "tests/unit/admin-analytics-data.spec.ts",
+        "tests/unit/admin-analytics-historical-users.spec.ts",
+        "tests/unit/admin-analytics-realtime-route.spec.ts",
+        "tests/unit/admin-auth-outcome-chart.spec.ts",
+        "tests/unit/admin-balance-route.spec.ts",
+        "tests/unit/admin-cli-logging.spec.ts",
+        "tests/unit/admin-content-route.spec.ts",
+        "tests/unit/admin-creator-id-document-route.spec.ts",
+        "tests/unit/admin-debug-assistant-route.spec.ts",
+        "tests/unit/admin-debug-preferences-route.spec.ts",
+        "tests/unit/admin-debug-route-runtime.spec.ts",
+        "tests/unit/admin-drop-form-sections.spec.ts",
+        "tests/unit/admin-drop-form.spec.ts",
+        "tests/unit/admin-moderation-routes.spec.ts",
+        "tests/unit/admin-notification-funnel.spec.ts",
+        "tests/unit/admin-onboarding-velocity.spec.ts",
+        "tests/unit/admin-ops-health.spec.ts",
+        "tests/unit/admin-overview-route.spec.ts",
+        "tests/unit/admin-overview-users.spec.ts",
+        "tests/unit/admin-overview.spec.ts",
+        "tests/unit/admin-panel-system-logs.spec.ts",
+        "tests/unit/admin-roster-route.spec.ts",
+        "tests/unit/admin-support-threads-route.spec.ts",
+        "tests/unit/admin-task-pipeline.spec.ts",
+        "tests/unit/admin-ui-chart-health-route.spec.ts",
+        "tests/unit/admin-ui-chart-health.spec.ts",
+        "tests/unit/admin-users-route.spec.ts",
+        "tests/unit/support-readiness.spec.ts",
+        "tests/unit/support-threads-route.spec.ts"
+      ],
+      "known_gap": "auth_required_surface_not_in_guest_playwright_lane",
+      "blocking_required": false,
+      "runtime_canary": {
+        "protected": false,
+        "helper_paths": [],
+        "observability_lanes": [
+          "admin_ui_chart_health"
+        ]
+      },
+      "audit_target": {
+        "path": "/admin/support",
+        "ready_selector": "main",
+        "hydration_signal": "main",
+        "expected_anchors": [
+          "Admin"
+        ],
+        "screenshot_selector": "main",
+        "auth_required": "admin",
+        "audit_modes": [
+          "runtime"
+        ]
+      },
+      "coverage_notes": [
+        "Auth-required surface indexed with admin audit requirement.",
+        "No direct runtime dependency imports detected.",
+        "Mapped to app_routes."
+      ]
+    },
+    {
+      "stable_id": "ui_surface__src__app__admin__user__-userid-__page-tsx",
+      "route_or_component": "src/app/admin/user/[userId]/page.tsx",
+      "surface_type": "admin_page",
+      "audience": [
+        "admin"
+      ],
+      "runtime_dependencies": [
+        "src/lib/authFetch.ts",
+        "src/lib/client-error-reporting.ts",
+        "src/lib/creator-onboarding.ts",
+        "src/lib/gumdrop-economics.ts",
+        "src/lib/support-readiness.ts"
+      ],
+      "hydration_mode": "auth_hydrated",
+      "criticality": "high",
+      "playwright_owner": "tests/ui-audits/runtime.spec.ts",
+      "lighthouse_required": false,
+      "existing_tests": [
+        "tests/ui-audits/runtime.spec.ts",
+        "tests/unit/admin-ai-drop-cover-catalog.spec.ts",
+        "tests/unit/admin-ai-drop-covers-feedback-route.spec.ts",
+        "tests/unit/admin-ai-drop-covers-generate-route.spec.ts",
+        "tests/unit/admin-ai-drop-covers-ops-routes.spec.ts",
+        "tests/unit/admin-ai-drop-covers-route.spec.ts",
+        "tests/unit/admin-ai-drop-covers-template-route.spec.ts",
+        "tests/unit/admin-ai-drop-descriptions-routes.spec.ts",
+        "tests/unit/admin-ai-models.spec.ts",
+        "tests/unit/admin-analytics-data.spec.ts",
+        "tests/unit/admin-analytics-historical-users.spec.ts",
+        "tests/unit/admin-analytics-realtime-route.spec.ts",
+        "tests/unit/admin-auth-outcome-chart.spec.ts",
+        "tests/unit/admin-balance-route.spec.ts",
+        "tests/unit/admin-cli-logging.spec.ts",
+        "tests/unit/admin-content-route.spec.ts",
+        "tests/unit/admin-creator-id-document-route.spec.ts",
+        "tests/unit/admin-debug-assistant-route.spec.ts",
+        "tests/unit/admin-debug-preferences-route.spec.ts",
+        "tests/unit/admin-debug-route-runtime.spec.ts",
+        "tests/unit/admin-drop-form-sections.spec.ts",
+        "tests/unit/admin-drop-form.spec.ts",
+        "tests/unit/admin-moderation-routes.spec.ts",
+        "tests/unit/admin-notification-funnel.spec.ts",
+        "tests/unit/admin-onboarding-velocity.spec.ts",
+        "tests/unit/admin-ops-health.spec.ts",
+        "tests/unit/admin-overview-route.spec.ts",
+        "tests/unit/admin-overview-users.spec.ts",
+        "tests/unit/admin-overview.spec.ts",
+        "tests/unit/admin-panel-system-logs.spec.ts",
+        "tests/unit/admin-roster-route.spec.ts",
+        "tests/unit/admin-support-threads-route.spec.ts",
+        "tests/unit/admin-task-pipeline.spec.ts",
+        "tests/unit/admin-ui-chart-health-route.spec.ts",
+        "tests/unit/admin-ui-chart-health.spec.ts",
+        "tests/unit/admin-users-route.spec.ts",
+        "tests/unit/user-activity-route.spec.ts",
+        "tests/unit/user-profile-route.spec.ts",
+        "tests/unit/user-register-route.spec.ts",
+        "tests/unit/username-suggestions-bench.spec.ts",
+        "tests/unit/username-suggestions.spec.ts"
+      ],
+      "known_gap": "auth_required_surface_not_in_guest_playwright_lane",
+      "blocking_required": false,
+      "runtime_canary": {
+        "protected": true,
+        "helper_paths": [
+          "src/app/admin/user/[userId]/page.tsx"
+        ],
+        "observability_lanes": [
+          "server_diagnostics",
+          "route_runtime_health",
+          "admin_ui_chart_health"
+        ]
+      },
+      "audit_target": {
+        "path": "/admin/user/[userId]",
+        "ready_selector": "main",
+        "hydration_signal": "main",
+        "expected_anchors": [
+          "Admin"
+        ],
+        "screenshot_selector": "main",
+        "auth_required": "admin",
+        "audit_modes": [
+          "runtime"
+        ]
+      },
+      "coverage_notes": [
+        "Auth-required surface indexed with admin audit requirement.",
+        "Mapped to app_routes."
+      ]
+    },
+    {
+      "stable_id": "ui_surface__src__app__admin__users__page-tsx",
+      "route_or_component": "src/app/admin/users/page.tsx",
+      "surface_type": "admin_page",
+      "audience": [
+        "admin"
+      ],
+      "runtime_dependencies": [
+        "src/lib/authFetch.ts",
+        "src/lib/client-error-reporting.ts",
+        "src/lib/security-events.ts",
+        "src/lib/utils.ts"
+      ],
+      "hydration_mode": "auth_hydrated",
+      "criticality": "high",
+      "playwright_owner": "tests/ui-audits/runtime.spec.ts",
+      "lighthouse_required": false,
+      "existing_tests": [
+        "tests/ui-audits/runtime.spec.ts",
+        "tests/unit/admin-ai-drop-cover-catalog.spec.ts",
+        "tests/unit/admin-ai-drop-covers-feedback-route.spec.ts",
+        "tests/unit/admin-ai-drop-covers-generate-route.spec.ts",
+        "tests/unit/admin-ai-drop-covers-ops-routes.spec.ts",
+        "tests/unit/admin-ai-drop-covers-route.spec.ts",
+        "tests/unit/admin-ai-drop-covers-template-route.spec.ts",
+        "tests/unit/admin-ai-drop-descriptions-routes.spec.ts",
+        "tests/unit/admin-ai-models.spec.ts",
+        "tests/unit/admin-analytics-data.spec.ts",
+        "tests/unit/admin-analytics-historical-users.spec.ts",
+        "tests/unit/admin-analytics-realtime-route.spec.ts",
+        "tests/unit/admin-auth-outcome-chart.spec.ts",
+        "tests/unit/admin-balance-route.spec.ts",
+        "tests/unit/admin-cli-logging.spec.ts",
+        "tests/unit/admin-content-route.spec.ts",
+        "tests/unit/admin-creator-id-document-route.spec.ts",
+        "tests/unit/admin-debug-assistant-route.spec.ts",
+        "tests/unit/admin-debug-preferences-route.spec.ts",
+        "tests/unit/admin-debug-route-runtime.spec.ts",
+        "tests/unit/admin-drop-form-sections.spec.ts",
+        "tests/unit/admin-drop-form.spec.ts",
+        "tests/unit/admin-moderation-routes.spec.ts",
+        "tests/unit/admin-notification-funnel.spec.ts",
+        "tests/unit/admin-onboarding-velocity.spec.ts",
+        "tests/unit/admin-ops-health.spec.ts",
+        "tests/unit/admin-overview-route.spec.ts",
+        "tests/unit/admin-overview-users.spec.ts",
+        "tests/unit/admin-overview.spec.ts",
+        "tests/unit/admin-panel-system-logs.spec.ts",
+        "tests/unit/admin-roster-route.spec.ts",
+        "tests/unit/admin-support-threads-route.spec.ts",
+        "tests/unit/admin-task-pipeline.spec.ts",
+        "tests/unit/admin-ui-chart-health-route.spec.ts",
+        "tests/unit/admin-ui-chart-health.spec.ts",
+        "tests/unit/admin-users-route.spec.ts"
+      ],
+      "known_gap": "auth_required_surface_not_in_guest_playwright_lane",
+      "blocking_required": false,
+      "runtime_canary": {
+        "protected": true,
+        "helper_paths": [
+          "src/app/admin/users/page.tsx"
+        ],
+        "observability_lanes": [
+          "server_diagnostics",
+          "route_runtime_health",
+          "admin_ui_chart_health"
+        ]
+      },
+      "audit_target": {
+        "path": "/admin/users",
+        "ready_selector": "main",
+        "hydration_signal": "main",
+        "expected_anchors": [
+          "Admin"
+        ],
+        "screenshot_selector": "main",
+        "auth_required": "admin",
+        "audit_modes": [
+          "runtime"
+        ]
+      },
+      "coverage_notes": [
+        "Auth-required surface indexed with admin audit requirement.",
+        "Mapped to app_routes."
+      ]
+    },
+    {
+      "stable_id": "ui_surface__src__app__banned__page-tsx",
+      "route_or_component": "src/app/banned/page.tsx",
+      "surface_type": "page",
+      "audience": [
+        "guest",
+        "user"
+      ],
+      "runtime_dependencies": [
+        "src/lib/creator-application.ts"
+      ],
+      "hydration_mode": "static",
+      "criticality": "medium",
+      "playwright_owner": null,
+      "lighthouse_required": false,
+      "existing_tests": [],
+      "known_gap": null,
+      "blocking_required": false,
+      "runtime_canary": {
+        "protected": false,
+        "helper_paths": [],
+        "observability_lanes": []
+      },
+      "audit_target": null,
+      "coverage_notes": [
+        "Mapped to app_routes."
+      ]
+    },
+    {
+      "stable_id": "ui_surface__src__app__creators__-username-__page-tsx",
+      "route_or_component": "src/app/creators/[username]/page.tsx",
+      "surface_type": "public_profile",
+      "audience": [
+        "guest",
+        "user"
+      ],
+      "runtime_dependencies": [
+        "src/lib/creator-experiences.ts",
+        "src/lib/server/firebase-admin.ts",
+        "src/lib/site-origin.ts"
+      ],
+      "hydration_mode": "static",
+      "criticality": "critical",
+      "playwright_owner": null,
+      "lighthouse_required": true,
+      "existing_tests": [
+        "tests/unit/creator-experiences-panel.spec.tsx"
+      ],
+      "known_gap": null,
+      "blocking_required": false,
+      "runtime_canary": {
+        "protected": false,
+        "helper_paths": [],
+        "observability_lanes": []
+      },
+      "audit_target": null,
+      "coverage_notes": [
+        "Mapped to app_routes."
+      ]
+    },
+    {
+      "stable_id": "ui_surface__src__app__creators__apply__page-tsx",
+      "route_or_component": "src/app/creators/apply/page.tsx",
+      "surface_type": "page",
+      "audience": [
+        "guest",
+        "creator"
+      ],
+      "runtime_dependencies": [
+        "src/lib/creator-application.ts",
+        "src/lib/telemetry.ts"
+      ],
+      "hydration_mode": "static",
+      "criticality": "medium",
+      "playwright_owner": "tests/ui-audits/runtime.spec.ts",
+      "lighthouse_required": false,
+      "existing_tests": [
+        "tests/ui-audits/accessibility.spec.ts",
+        "tests/ui-audits/runtime.spec.ts",
+        "tests/ui-audits/visual-regression.spec.ts"
+      ],
+      "known_gap": null,
+      "blocking_required": false,
+      "runtime_canary": {
+        "protected": false,
+        "helper_paths": [],
+        "observability_lanes": []
+      },
+      "audit_target": {
+        "path": "/creators/apply",
+        "ready_selector": "main",
+        "hydration_signal": "main",
+        "expected_anchors": [
+          "Apply for creator access"
+        ],
+        "screenshot_selector": "main section:first-of-type",
+        "auth_required": "none",
+        "audit_modes": [
+          "runtime",
+          "accessibility",
+          "visual"
+        ]
+      },
+      "coverage_notes": [
+        "Mapped to app_routes."
+      ]
+    },
+    {
+      "stable_id": "ui_surface__src__app__creators__waitlist__page-tsx",
+      "route_or_component": "src/app/creators/waitlist/page.tsx",
+      "surface_type": "page",
+      "audience": [
+        "guest",
+        "creator"
+      ],
+      "runtime_dependencies": [
+        "src/lib/authFetch.ts",
+        "src/lib/client-error-reporting.ts",
+        "src/lib/creator-contract.ts",
+        "src/lib/creator-onboarding.ts"
+      ],
+      "hydration_mode": "auth_hydrated",
+      "criticality": "medium",
+      "playwright_owner": "tests/ui-audits/runtime.spec.ts",
+      "lighthouse_required": false,
+      "existing_tests": [
+        "tests/ui-audits/accessibility.spec.ts",
+        "tests/ui-audits/runtime.spec.ts",
+        "tests/ui-audits/visual-regression.spec.ts",
+        "tests/unit/creator-waitlist-page.spec.tsx"
+      ],
+      "known_gap": null,
+      "blocking_required": false,
+      "runtime_canary": {
+        "protected": true,
+        "helper_paths": [
+          "src/app/creators/waitlist/page.tsx"
+        ],
+        "observability_lanes": [
+          "server_diagnostics",
+          "route_runtime_health"
+        ]
+      },
+      "audit_target": {
+        "path": "/creators/waitlist",
+        "ready_selector": "main",
+        "hydration_signal": "main",
+        "expected_anchors": [
+          "Start your creator application"
+        ],
+        "screenshot_selector": "main section:first-of-type",
+        "auth_required": "none",
+        "audit_modes": [
+          "runtime",
+          "accessibility",
+          "visual"
+        ]
+      },
+      "coverage_notes": [
+        "Mapped to app_routes."
+      ]
+    },
+    {
+      "stable_id": "ui_surface__src__app__dashboard__chat__page-tsx",
+      "route_or_component": "src/app/dashboard/chat/page.tsx",
+      "surface_type": "page",
+      "audience": [
+        "user",
+        "creator"
+      ],
+      "runtime_dependencies": [],
+      "hydration_mode": "static",
+      "criticality": "medium",
+      "playwright_owner": null,
+      "lighthouse_required": false,
+      "existing_tests": [
+        "tests/unit/chat-attachments-route.spec.ts",
+        "tests/unit/chat-send-feedback.spec.ts",
+        "tests/unit/chat-send-realtime.spec.ts",
+        "tests/unit/chat-soft-seal.spec.ts",
+        "tests/unit/chat-thread-messages-route.spec.ts",
+        "tests/unit/chat-thread-read-route.spec.ts",
+        "tests/unit/chat-thread-route.spec.ts",
+        "tests/unit/chat-threads-route.spec.ts",
+        "tests/unit/dashboard-viewer-page.spec.tsx",
+        "tests/unit/server-chat-send.spec.ts",
+        "tests/unit/server-chat.spec.ts",
+        "tests/unit/use-chat-unread-status.spec.tsx"
+      ],
+      "known_gap": null,
+      "blocking_required": false,
+      "runtime_canary": {
+        "protected": false,
+        "helper_paths": [],
+        "observability_lanes": []
+      },
+      "audit_target": null,
+      "coverage_notes": [
+        "No direct runtime dependency imports detected.",
+        "Mapped to app_routes."
+      ]
+    },
+    {
+      "stable_id": "ui_surface__src__app__dashboard__library__page-tsx",
+      "route_or_component": "src/app/dashboard/library/page.tsx",
+      "surface_type": "page",
+      "audience": [
+        "user",
+        "creator"
+      ],
+      "runtime_dependencies": [
+        "src/lib/server/drops.ts"
+      ],
+      "hydration_mode": "static",
+      "criticality": "medium",
+      "playwright_owner": null,
+      "lighthouse_required": false,
+      "existing_tests": [
+        "tests/unit/dashboard-viewer-page.spec.tsx"
+      ],
+      "known_gap": null,
+      "blocking_required": false,
+      "runtime_canary": {
+        "protected": false,
+        "helper_paths": [],
+        "observability_lanes": []
+      },
+      "audit_target": null,
+      "coverage_notes": [
+        "Mapped to app_routes."
+      ]
+    },
+    {
+      "stable_id": "ui_surface__src__app__dashboard__page-tsx",
+      "route_or_component": "src/app/dashboard/page.tsx",
+      "surface_type": "page",
+      "audience": [
+        "user",
+        "creator"
+      ],
+      "runtime_dependencies": [
+        "src/lib/server/creator-discovery.ts",
+        "src/lib/server/drops.ts"
+      ],
+      "hydration_mode": "static",
+      "criticality": "critical",
+      "playwright_owner": "tests/ui-audits/runtime.spec.ts",
+      "lighthouse_required": false,
+      "existing_tests": [
+        "tests/ui-audits/runtime.spec.ts",
+        "tests/unit/dashboard-viewer-page.spec.tsx"
+      ],
+      "known_gap": "auth_required_surface_not_in_guest_playwright_lane",
+      "blocking_required": false,
+      "runtime_canary": {
+        "protected": false,
+        "helper_paths": [],
+        "observability_lanes": []
+      },
+      "audit_target": {
+        "path": "/dashboard",
+        "ready_selector": "#dashboard-home, main",
+        "hydration_signal": "#dashboard-home",
+        "expected_anchors": [
+          "Your Stats"
+        ],
+        "screenshot_selector": "#dashboard-home",
+        "auth_required": "user",
+        "audit_modes": [
+          "runtime"
+        ]
+      },
+      "coverage_notes": [
+        "Auth-required surface indexed with user audit requirement.",
+        "Mapped to app_routes."
+      ]
+    },
+    {
+      "stable_id": "ui_surface__src__app__dashboard__profile__page-tsx",
+      "route_or_component": "src/app/dashboard/profile/page.tsx",
+      "surface_type": "page",
+      "audience": [
+        "user",
+        "creator"
+      ],
+      "runtime_dependencies": [
+        "src/lib/authFetch.ts",
+        "src/lib/browser-notification-enrollment.ts",
+        "src/lib/client-error-reporting.ts",
+        "src/lib/creator-experiences.ts",
+        "src/lib/firebase-data.ts",
+        "src/lib/firebase-messaging.ts",
+        "src/lib/platform-config.ts",
+        "src/lib/privacy-consent.ts",
+        "src/lib/site-origin.ts",
+        "src/lib/telemetry.ts"
+      ],
+      "hydration_mode": "auth_hydrated",
+      "criticality": "medium",
+      "playwright_owner": null,
+      "lighthouse_required": false,
+      "existing_tests": [
+        "tests/unit/dashboard-viewer-page.spec.tsx",
+        "tests/unit/user-profile-route.spec.ts"
+      ],
+      "known_gap": null,
+      "blocking_required": false,
+      "runtime_canary": {
+        "protected": true,
+        "helper_paths": [
+          "src/app/dashboard/profile/page.tsx"
+        ],
+        "observability_lanes": [
+          "server_diagnostics",
+          "route_runtime_health"
+        ]
+      },
+      "audit_target": null,
+      "coverage_notes": [
+        "Mapped to app_routes."
+      ]
+    },
+    {
+      "stable_id": "ui_surface__src__app__dashboard__support__page-tsx",
+      "route_or_component": "src/app/dashboard/support/page.tsx",
+      "surface_type": "page",
+      "audience": [
+        "user",
+        "creator"
+      ],
+      "runtime_dependencies": [],
+      "hydration_mode": "static",
+      "criticality": "medium",
+      "playwright_owner": null,
+      "lighthouse_required": false,
+      "existing_tests": [
+        "tests/unit/admin-support-threads-route.spec.ts",
+        "tests/unit/dashboard-viewer-page.spec.tsx",
+        "tests/unit/support-readiness.spec.ts",
+        "tests/unit/support-threads-route.spec.ts"
+      ],
+      "known_gap": null,
+      "blocking_required": false,
+      "runtime_canary": {
+        "protected": false,
+        "helper_paths": [],
+        "observability_lanes": []
+      },
+      "audit_target": null,
+      "coverage_notes": [
+        "No direct runtime dependency imports detected.",
+        "Mapped to app_routes."
+      ]
+    },
+    {
+      "stable_id": "ui_surface__src__app__dashboard__viewer__page-tsx",
+      "route_or_component": "src/app/dashboard/viewer/page.tsx",
+      "surface_type": "page",
+      "audience": [
+        "user",
+        "creator"
+      ],
+      "runtime_dependencies": [
+        "src/lib/server/drops.ts"
+      ],
+      "hydration_mode": "static",
+      "criticality": "medium",
+      "playwright_owner": null,
+      "lighthouse_required": false,
+      "existing_tests": [
+        "tests/unit/dashboard-viewer-page.spec.tsx",
+        "tests/unit/useViewerWatchSession-bench-manual.ts",
+        "tests/unit/useViewerWatchSession-bench.spec.ts",
+        "tests/unit/viewer-asset-prefetch-bench.spec.ts",
+        "tests/unit/viewer-asset-prefetch.spec.ts"
+      ],
+      "known_gap": null,
+      "blocking_required": false,
+      "runtime_canary": {
+        "protected": false,
+        "helper_paths": [],
+        "observability_lanes": []
+      },
+      "audit_target": null,
+      "coverage_notes": [
+        "Mapped to app_routes."
+      ]
+    },
+    {
+      "stable_id": "ui_surface__src__app__drops__page-tsx",
+      "route_or_component": "src/app/drops/page.tsx",
+      "surface_type": "page",
+      "audience": [
+        "guest",
+        "user"
+      ],
+      "runtime_dependencies": [
+        "src/lib/server/creator-discovery.ts",
+        "src/lib/server/drops.ts"
+      ],
+      "hydration_mode": "static",
+      "criticality": "medium",
+      "playwright_owner": null,
+      "lighthouse_required": false,
+      "existing_tests": [
+        "tests/unit/drops-route.spec.ts",
+        "tests/unit/gumdrops-packages.spec.ts",
+        "tests/unit/notify-active-drops-route.spec.ts",
+        "tests/unit/process-queue-drops.spec.ts",
+        "tests/unit/server-drops.spec.ts"
+      ],
+      "known_gap": null,
+      "blocking_required": false,
+      "runtime_canary": {
+        "protected": false,
+        "helper_paths": [],
+        "observability_lanes": []
+      },
+      "audit_target": null,
+      "coverage_notes": [
+        "Mapped to app_routes."
+      ]
+    },
+    {
+      "stable_id": "ui_surface__src__app__experiences__page-tsx",
+      "route_or_component": "src/app/experiences/page.tsx",
+      "surface_type": "page",
+      "audience": [
+        "guest",
+        "user"
+      ],
+      "runtime_dependencies": [
+        "src/lib/drop-status.ts",
+        "src/lib/server/creator-discovery.ts",
+        "src/lib/server/drops.ts"
+      ],
+      "hydration_mode": "static",
+      "criticality": "medium",
+      "playwright_owner": null,
+      "lighthouse_required": false,
+      "existing_tests": [
+        "tests/unit/creator-experiences-panel.spec.tsx",
+        "tests/unit/creator-experiences.spec.ts"
+      ],
+      "known_gap": null,
+      "blocking_required": false,
+      "runtime_canary": {
+        "protected": false,
+        "helper_paths": [],
+        "observability_lanes": []
+      },
+      "audit_target": null,
+      "coverage_notes": [
+        "Mapped to app_routes."
+      ]
+    },
+    {
+      "stable_id": "ui_surface__src__app__faq__page-tsx",
+      "route_or_component": "src/app/faq/page.tsx",
+      "surface_type": "page",
+      "audience": [
+        "guest",
+        "user"
+      ],
+      "runtime_dependencies": [],
+      "hydration_mode": "static",
+      "criticality": "medium",
+      "playwright_owner": null,
+      "lighthouse_required": false,
+      "existing_tests": [],
+      "known_gap": null,
+      "blocking_required": false,
+      "runtime_canary": {
+        "protected": false,
+        "helper_paths": [],
+        "observability_lanes": []
+      },
+      "audit_target": null,
+      "coverage_notes": [
+        "No direct runtime dependency imports detected.",
+        "Mapped to app_routes."
+      ]
+    },
+    {
+      "stable_id": "ui_surface__src__app__offline__page-tsx",
+      "route_or_component": "src/app/offline/page.tsx",
+      "surface_type": "page",
+      "audience": [
+        "guest",
+        "user"
+      ],
+      "runtime_dependencies": [],
+      "hydration_mode": "static",
+      "criticality": "medium",
+      "playwright_owner": null,
+      "lighthouse_required": false,
+      "existing_tests": [],
+      "known_gap": null,
+      "blocking_required": false,
+      "runtime_canary": {
+        "protected": false,
+        "helper_paths": [],
+        "observability_lanes": []
+      },
+      "audit_target": null,
+      "coverage_notes": [
+        "No direct runtime dependency imports detected.",
+        "Mapped to app_routes."
+      ]
+    },
+    {
+      "stable_id": "ui_surface__src__app__page-tsx",
+      "route_or_component": "src/app/page.tsx",
+      "surface_type": "page",
+      "audience": [
+        "guest",
+        "user"
+      ],
+      "runtime_dependencies": [
+        "src/lib/drop-status.ts",
+        "src/lib/server/drops.ts"
+      ],
+      "hydration_mode": "static",
+      "criticality": "critical",
+      "playwright_owner": "tests/ui-audits/runtime.spec.ts",
+      "lighthouse_required": true,
+      "existing_tests": [
+        "tests/ui-audits/accessibility.spec.ts",
+        "tests/ui-audits/runtime.spec.ts",
+        "tests/ui-audits/visual-regression.spec.ts"
+      ],
+      "known_gap": null,
+      "blocking_required": true,
+      "runtime_canary": {
+        "protected": false,
+        "helper_paths": [],
+        "observability_lanes": []
+      },
+      "audit_target": {
+        "path": "/",
+        "ready_selector": "main",
+        "hydration_signal": "main",
+        "expected_anchors": [
+          "KandyDrops"
+        ],
+        "screenshot_selector": "main section:first-of-type",
+        "auth_required": "none",
+        "audit_modes": [
+          "runtime",
+          "accessibility",
+          "visual"
+        ]
+      },
+      "coverage_notes": [
+        "Blocking public surface included in Playwright UI continuity lane.",
+        "Mapped to app_routes."
+      ]
+    },
+    {
+      "stable_id": "ui_surface__src__components__creators__creatorexperiencespanel-tsx",
+      "route_or_component": "src/components/Creators/CreatorExperiencesPanel.tsx",
+      "surface_type": "shared_component",
+      "audience": [
+        "guest",
+        "user"
+      ],
+      "runtime_dependencies": [
+        "src/lib/creator-experiences.ts",
+        "src/lib/utils.ts"
+      ],
+      "hydration_mode": "static",
+      "criticality": "high",
+      "playwright_owner": null,
+      "lighthouse_required": false,
+      "existing_tests": [
+        "tests/unit/creator-experiences-panel.spec.tsx"
+      ],
+      "known_gap": null,
+      "blocking_required": false,
+      "runtime_canary": {
+        "protected": false,
+        "helper_paths": [],
+        "observability_lanes": []
+      },
+      "audit_target": null,
+      "coverage_notes": []
+    },
+    {
+      "stable_id": "ui_surface__src__components__creators__creatorprofileheader-tsx",
+      "route_or_component": "src/components/Creators/CreatorProfileHeader.tsx",
+      "surface_type": "shared_component",
+      "audience": [
+        "guest",
+        "user"
+      ],
+      "runtime_dependencies": [
+        "src/lib/utils.ts"
+      ],
+      "hydration_mode": "static",
+      "criticality": "medium",
+      "playwright_owner": null,
+      "lighthouse_required": false,
+      "existing_tests": [],
+      "known_gap": null,
+      "blocking_required": false,
+      "runtime_canary": {
+        "protected": false,
+        "helper_paths": [],
+        "observability_lanes": []
+      },
+      "audit_target": null,
+      "coverage_notes": []
+    },
+    {
+      "stable_id": "ui_surface__src__components__creators__creatorupdatesfeed-tsx",
+      "route_or_component": "src/components/Creators/CreatorUpdatesFeed.tsx",
+      "surface_type": "shared_component",
+      "audience": [
+        "guest",
+        "user"
+      ],
+      "runtime_dependencies": [],
+      "hydration_mode": "static",
+      "criticality": "medium",
+      "playwright_owner": null,
+      "lighthouse_required": false,
+      "existing_tests": [],
+      "known_gap": null,
+      "blocking_required": false,
+      "runtime_canary": {
+        "protected": false,
+        "helper_paths": [],
+        "observability_lanes": []
+      },
+      "audit_target": null,
+      "coverage_notes": [
+        "No direct runtime dependency imports detected."
+      ]
+    },
+    {
+      "stable_id": "ui_surface__src__components__dashboard__creatorworkspacepanel-tsx",
+      "route_or_component": "src/components/Dashboard/CreatorWorkspacePanel.tsx",
+      "surface_type": "dashboard_module",
+      "audience": [
+        "user",
+        "creator"
+      ],
+      "runtime_dependencies": [
+        "src/lib/authFetch.ts",
+        "src/lib/client-error-reporting.ts",
+        "src/lib/creator-onboarding.ts",
+        "src/lib/ui-continuity.ts"
+      ],
+      "hydration_mode": "auth_hydrated",
+      "criticality": "high",
+      "playwright_owner": null,
+      "lighthouse_required": false,
+      "existing_tests": [
+        "tests/unit/creator-workspace-panel.spec.tsx",
+        "tests/unit/dashboard-viewer-page.spec.tsx"
+      ],
+      "known_gap": null,
+      "blocking_required": false,
+      "runtime_canary": {
+        "protected": true,
+        "helper_paths": [
+          "src/lib/ui-continuity.ts",
+          "src/components/ui/UiContinuityNotice.tsx"
+        ],
+        "observability_lanes": [
+          "server_diagnostics",
+          "route_runtime_health"
+        ]
+      },
+      "audit_target": null,
+      "coverage_notes": []
+    },
+    {
+      "stable_id": "ui_surface__src__components__dropgrid-tsx",
+      "route_or_component": "src/components/DropGrid.tsx",
+      "surface_type": "shared_component",
+      "audience": [
+        "guest",
+        "user"
+      ],
+      "runtime_dependencies": [
+        "src/lib/drop-presentation.ts",
+        "src/lib/utils.ts"
+      ],
+      "hydration_mode": "static",
+      "criticality": "medium",
+      "playwright_owner": null,
+      "lighthouse_required": false,
+      "existing_tests": [],
+      "known_gap": null,
+      "blocking_required": false,
+      "runtime_canary": {
+        "protected": false,
+        "helper_paths": [],
+        "observability_lanes": []
+      },
+      "audit_target": null,
+      "coverage_notes": []
+    }
+  ]
+}

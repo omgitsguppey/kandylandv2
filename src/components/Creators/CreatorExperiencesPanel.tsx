@@ -8,6 +8,7 @@ import {
     Wallet,
 } from "lucide-react";
 
+import { UiContinuityNotice } from "@/components/ui/UiContinuityNotice";
 import {
     CREATOR_BOOKING_MIN_MINUTES,
     CREATOR_BOOKING_RATES,
@@ -27,6 +28,7 @@ type CreatorExperiencesPanelProps = {
     creatingBooking: boolean;
     creatingRequest: boolean;
     currentUser: unknown;
+    experienceWarnings: Array<{ key: string; label: string; message: string }>;
     latestBooking: Record<string, unknown> | null;
     messages: Array<Record<string, unknown>>;
     onBookingDurationMinutesChange: (value: number) => void;
@@ -46,6 +48,7 @@ type CreatorExperiencesPanelProps = {
     setRequestCategoryId: (value: string) => void;
     setRequestDetails: (value: string) => void;
     subscriptionActive: boolean;
+    subscriptionHydrated: boolean;
     subscribeLoading: boolean;
 };
 
@@ -56,6 +59,7 @@ export function CreatorExperiencesPanel({
     creatingBooking,
     creatingRequest,
     currentUser,
+    experienceWarnings,
     latestBooking,
     messages,
     onBookingDurationMinutesChange,
@@ -75,12 +79,27 @@ export function CreatorExperiencesPanel({
     setRequestCategoryId,
     setRequestDetails,
     subscriptionActive,
+    subscriptionHydrated,
     subscribeLoading,
 }: CreatorExperiencesPanelProps) {
     const recentMessages = messages.slice(-3).reverse();
 
     return (
-        <div className="space-y-3 animate-in fade-in zoom-in-95 duration-300">
+        <div className="space-y-3 animate-in fade-in zoom-in-95 duration-300" data-testid="creator-experiences-shell">
+            {experienceWarnings.length > 0 ? (
+                <div className="space-y-2">
+                    {experienceWarnings.map((warning) => (
+                        <UiContinuityNotice
+                            key={warning.key}
+                            title={`${warning.label} is degraded`}
+                            body={warning.message}
+                            tone="warning"
+                            data-testid={`creator-experience-warning-${warning.key}`}
+                        />
+                    ))}
+                </div>
+            ) : null}
+
             <div className="grid grid-cols-2 gap-3 sm:grid-cols-4">
                 {settings.subscriptionsEnabled ? (
                     <button
@@ -180,6 +199,11 @@ export function CreatorExperiencesPanel({
                         {subscribeLoading ? <Loader2 className="h-4 w-4 animate-spin" /> : <Wallet className="h-4 w-4" />}
                         {subscriptionActive ? "Cancel fan pass" : "Start fan pass"}
                     </button>
+                    {!subscriptionHydrated ? (
+                        <div className="mt-3 rounded-2xl border border-white/10 bg-white/5 px-4 py-3 text-xs text-gray-300">
+                            Subscription status is loading from the creator subscription route.
+                        </div>
+                    ) : null}
                 </section>
             ) : null}
 
@@ -309,16 +333,29 @@ export function CreatorExperiencesPanel({
                             <p className="mt-1 text-sm leading-6 text-gray-400">
                                 Phone from {CREATOR_BOOKING_RATES.phone} GD/min and video from {CREATOR_BOOKING_RATES.video} GD/min.
                             </p>
+                            {typeof settings.videoSubscriberDiscountPercent === "number" && settings.videoSubscriberDiscountPercent > 0 ? (
+                                <p className="mt-2 text-xs font-semibold text-brand-purple">
+                                    Subscriber video discount: {settings.videoSubscriberDiscountPercent}% off from creator settings
+                                </p>
+                            ) : null}
                         </div>
                         {latestBooking ? (
                             <div className="rounded-2xl border border-white/10 bg-black/20 px-4 py-3 text-right">
                                 <p className="text-[10px] font-bold uppercase tracking-[0.16em] text-gray-500">Latest booking</p>
                                 <p className="mt-1 text-sm text-white">
-                                    {String(latestBooking.serviceType || "call")}
-                                    {typeof latestBooking.priceGd === "number" ? ` - ${latestBooking.priceGd} GD` : ""}
+                                    {String(latestBooking.serviceType || "call")} - {String(latestBooking.status || "unknown")}
+                                </p>
+                                <p className="mt-1 text-xs text-gray-400">
+                                    {typeof latestBooking.priceGd === "number" ? `${latestBooking.priceGd} GD` : "Price unavailable"}
+                                    {latestBooking.subscriberDiscountApplied === true ? " - subscriber discount applied" : ""}
                                 </p>
                             </div>
-                        ) : null}
+                        ) : (
+                            <div className="rounded-2xl border border-dashed border-white/10 bg-black/20 px-4 py-3 text-right">
+                                <p className="text-[10px] font-bold uppercase tracking-[0.16em] text-gray-500">Latest booking</p>
+                                <p className="mt-1 text-sm text-gray-300">No bookings hydrated yet.</p>
+                            </div>
+                        )}
                     </div>
                     <div className="mt-4 grid gap-3 sm:grid-cols-2">
                         <select

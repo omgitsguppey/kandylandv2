@@ -34,6 +34,7 @@ For narrow work, use the generated agent context first and only escalate to full
 Use `/agent/` as the default low-token machine-readable context layer:
 
 - `agent/index/*.json`: repo inventory, surface map, canonical helpers, verification commands, package-manager truth, workflow guidance, governance truth, pitfalls, recent passes, observability, dependency summary, blast radius, retrieval index
+- `agent/index/ui-surface-coverage.json`: concrete UI surface registry, coverage ownership, hydration mode, runtime canary state, and blocking audit eligibility
 - `agent/state/task-context.generated.json`: deterministic task-context pack
 - `agent/prompts/task-prompt.short.md`
 - `agent/prompts/task-prompt.standard.md`
@@ -47,6 +48,12 @@ Build local indexes:
 
 ```bash
 npm run agent:index
+```
+
+Build the UI surface registry only:
+
+```bash
+npm run agent:ui-index
 ```
 
 Build and sync the derived SQL/Data Connect mirror:
@@ -104,6 +111,9 @@ Use existing repo lanes as required by the touched surface:
 - `npm run check:inventory`
 - `npm run trace:adjacent -- <path>`
 - `npm run check:ui:audits`
+- `npm run check:ui:coverage`
+- `npm run check:ui:runtime`
+- `npm run check:ui:continuity`
 - `npm run check:ui:lighthouse`
 - `npm run check:firebase:rules`
 - `npm run check:continuity`
@@ -112,7 +122,9 @@ Use existing repo lanes as required by the touched surface:
 
 Rules:
 
-- UI/admin UI changes require `npm run check:ui:audits`.
+- UI/admin UI changes require `npm run check:ui:coverage`, `npm run check:ui:runtime`, and `npm run check:ui:audits`.
+- Missing coverage for a blocking UI surface is a signoff failure.
+- Broad UI work must use `agent/index/ui-surface-coverage.json` instead of ad hoc prompting or hand-maintained target lists.
 - Performance-sensitive UI changes require `npm run check:ui:lighthouse`.
 - Firebase rules or emulator-sensitive changes require `npm run check:firebase:rules`.
 - Functions runtime or manifest changes require `npm --prefix functions run check`.

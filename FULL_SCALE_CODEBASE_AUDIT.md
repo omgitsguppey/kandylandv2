@@ -1,5 +1,195 @@
 # KandyDrops Core Codebase Audit & Defensive Ledger
 
+## [2026-04-17 #14] Repo-Wide UI Continuity Fabric Implementation
+
+Scope for this pass:
+- Implement the repo-wide UI continuity fabric across agent indexes, blocking UI verification, shared hydration/runtime canaries, and the first runtime fixes for the audited creator booking/subscription/profile/workspace surfaces so UI breakage is caught before users see it.
+
+Startup protocol executed:
+- Read `FULL_SCALE_CODEBASE_AUDIT.md`.
+- Read `REPO_MEMORY_LEDGER.md`.
+- Read `EVERY_FILE_FUNCTION_CHECKLIST.md`.
+- Ran `git status --short`.
+- Updated `.agent/workflows/auto-tasks.md` for the UI continuity implementation pass.
+- Identified touched surfaces around:
+  - `agent/index/*`
+  - `agent/schemas/*`
+  - `scripts/agent/*`
+  - `tests/ui-audits/*`
+  - `src/app/creators/[username]/CreatorProfileClient.tsx`
+  - `src/components/Dashboard/CreatorWorkspacePanel.tsx`
+  - `src/app/api/creator/bookings/route.ts`
+  - `src/app/api/creator/subscriptions/route.ts`
+  - shared client diagnostics/runtime helpers under `src/lib/*`
+- Planned adjacency review for the new UI-index scripts and the first creator/public/dashboard runtime targets before implementation.
+
+Root Causes:
+- UI continuity coverage was still fragmented across a tiny hardcoded Playwright list, partial component-level diagnostics, and repeated prompt context rather than a generated machine-readable surface ledger.
+- Creator public/profile/dashboard hydration still relied on silent or all-or-nothing multi-fetch patterns, so common route failures could collapse subscriptions/bookings/broadcast visibility without an inline degraded-state contract.
+- Creator booking validation still interpreted availability windows in UTC instead of the creator's stored `availabilityTimezone`, which could reject valid creator-local slots or accept invalid ones.
+- The creator subscription route already exposed creator-facing subscriber data, but the creator workspace was not hydrating that route into a visible module.
+
+Verification Commands Run:
+- `git status --short`
+- `Get-Content -Path scripts/agent/build-agent-indexes.ts`
+- `Get-Content -Path scripts/agent/build-task-context.ts`
+- `Get-Content -Path scripts/agent/shared.ts`
+- `Get-Content -Path scripts/agent/validate-agent-indexes.ts`
+- `Get-Content -Path scripts/agent/classify-repo-files.ts`
+- `Get-Content -Path scripts/trace-adjacent-surfaces.ts`
+- `Get-Content -Path tests/ui-audits/accessibility.spec.ts`
+- `Get-Content -Path tests/ui-audits/visual-regression.spec.ts`
+- `Get-ChildItem -Path tests/ui-audits -File | Select-Object -ExpandProperty Name`
+- `Get-Content -Path tests/ui-audits/helpers.ts`
+- `Get-Content -LiteralPath 'src/app/creators/[username]/CreatorProfileClient.tsx'`
+- `Get-Content -Path src/components/Dashboard/CreatorWorkspacePanel.tsx`
+- `Get-Content -Path src/app/api/creator/bookings/route.ts`
+- `Get-Content -Path src/app/api/creator/subscriptions/route.ts`
+- `Get-Content -Path tests/unit/creator-bookings-route.spec.ts`
+- `Get-Content -Path src/lib/client-error-reporting.ts`
+- `Get-Content -Path scripts/agent/extract-runtime-observability.ts`
+- `Get-ChildItem -Path src -Recurse -File | Select-String -Pattern 'reportClientIssue|Promise\\.allSettled|Promise\\.all\\(|response\\.ok' | Select-Object -First 200 | ForEach-Object { ... }`
+- `npm run trace:adjacent -- src/app/api/creator/bookings/route.ts`
+- `npm run trace:adjacent -- src/app/api/creator/subscriptions/route.ts`
+- `npm run trace:adjacent -- src/components/Dashboard/CreatorWorkspacePanel.tsx`
+- `npm run trace:adjacent -- 'src/app/creators/[username]/CreatorProfileClient.tsx'`
+- `Get-Content -Path src/app/api/creator/settings/route.ts`
+- `Get-Content -Path src/components/Creators/CreatorExperiencesPanel.tsx`
+- `Get-Content -Path src/app/dashboard/DashboardClient.tsx`
+- `Get-ChildItem -Path agent/schemas -File | Select-Object -ExpandProperty Name`
+- `Get-Content -Path src/context/AuthContext.tsx`
+- `Get-Content -Path tests/unit/dashboard-viewer-page.spec.tsx`
+- `Get-ChildItem -Path tests -Recurse -File | Select-String -Pattern 'localStorage|sessionStorage|mockAuth|AuthContext|useAuth\\(' | Select-Object -First 120 | ForEach-Object { ... }`
+- `npm run typecheck`
+- `npm run agent:ui-index`
+- `npm run check:ui:coverage`
+- `npm run check:ui:runtime`
+- `npx vitest run tests/unit/creator-bookings-route.spec.ts tests/unit/creator-subscriptions-route.spec.ts tests/unit/ui-continuity.spec.ts tests/unit/creator-experiences-panel.spec.tsx tests/unit/creator-workspace-panel.spec.tsx`
+- `npm run agent:index`
+- `npm run check:agent-intelligence`
+- `npm run check:agent-context`
+- `npm run agent:build-task-context -- --task="Harden creator booking and subscription UI continuity" --mode=ui --file=src/app/creators/[username]/CreatorProfileClient.tsx --file=src/components/Dashboard/CreatorWorkspacePanel.tsx --file=src/app/api/creator/bookings/route.ts --file=src/app/api/creator/subscriptions/route.ts`
+- `npm run check:ui:audits`
+- `npm run check:ui:lighthouse`
+- `npm run check:ui:continuity`
+- `npm run check:generated-artifacts`
+- `npm run check:continuity`
+
+Implementation Results:
+- Added a generated UI continuity ledger at `agent/index/ui-surface-coverage.json` plus `agent/schemas/ui-surface-coverage.schema.json`, `scripts/agent/build-ui-surface-coverage.ts`, `scripts/agent/check-ui-surface-coverage.ts`, and `scripts/agent/build-ui-runtime-audit.ts`.
+- Extended the repo intelligence fabric so `agent:index`, schema validation, task-context generation, observability extraction, and AGENTS/workflow rules understand blocking UI coverage and hydration continuity.
+- Replaced the tiny hardcoded Playwright target list with generated/shared targets consumed by `tests/ui-audits/runtime.spec.ts`, `tests/ui-audits/accessibility.spec.ts`, and `tests/ui-audits/visual-regression.spec.ts`.
+- Added `src/lib/ui-continuity.ts` and `src/components/ui/UiContinuityNotice.tsx`, then wired the first hardening wave into:
+  - `src/app/creators/[username]/CreatorProfileClient.tsx`
+  - `src/components/Dashboard/CreatorWorkspacePanel.tsx`
+- The creator public profile now hydrates relationship, subscription, message, booking, and broadcast modules independently with response validation and visible degraded-state warnings instead of a single `Promise.all(...)` collapse path.
+- The creator workspace now hydrates `/api/creator/subscriptions` directly and exposes a visible subscriber-management module with empty, hydrated, and failure states.
+- `src/components/Creators/CreatorExperiencesPanel.tsx` now renders continuity warnings and clearer booking/subscription state, including server-backed latest-booking pricing/discount visibility.
+- `src/app/api/creator/bookings/route.ts` now validates availability windows against the creator's stored `availabilityTimezone` instead of raw UTC.
+- `src/app/api/creator/subscriptions/route.ts` now treats creator/admin callers as eligible for creator-side inbound subscriber views.
+- Added focused regression coverage for the new lane and the creator flow fixes:
+  - `tests/unit/creator-bookings-route.spec.ts`
+  - `tests/unit/creator-subscriptions-route.spec.ts`
+  - `tests/unit/ui-continuity.spec.ts`
+  - `tests/unit/creator-experiences-panel.spec.tsx`
+  - `tests/unit/creator-workspace-panel.spec.tsx`
+
+Warnings and non-blocking notes:
+- `npm run check:ui:audits` and `npm run check:ui:continuity` now pass after:
+  - committing the generated visual baselines for the new public blocking surfaces
+  - increasing accessibility timeout for the heavier creator apply/waitlist pages
+  - deduplicating the generated Playwright target registry and excluding auth-required surfaces from the guest audit lane
+- The passing browser/build runs still emit the non-blocking Next.js web-server warning `TypeError: controller[kState].transformAlgorithm is not a function`.
+- `npm run check:ui:lighthouse` passed, but it emitted Windows temp-directory cleanup warnings (`EPERM`) while removing Lighthouse Chrome temp folders.
+- The dynamic public creator-profile route is indexed and hardened in code/tests, but it is not yet a blocking guest Playwright target because the repo does not currently provide a deterministic audited public creator fixture route.
+
+Cleanup:
+- `agent/index/ui-surface-coverage.json` regenerated intentionally as a committed artifact.
+- `tests/ui-audits/visual-regression.spec.ts-snapshots/*.png` added intentionally as the committed visual baseline set for the generated public blocking targets.
+- Removed post-verification generated artifacts:
+  - `.next`
+  - `test-results`
+  - `playwright-report`
+  - `output/lhci`
+- Confirmed cleanup with `npm run check:generated-artifacts`.
+- Lighthouse temp-folder leftovers are outside the repo workspace temp directory and were only reported as cleanup warnings.
+
+## [2026-04-17 #13] Booking and Subscription Surface Audit
+
+Scope for this pass:
+- Audit creator/user booking, video-call booking, and subscription flows end to end across the public creator profile, creator dashboard/workspace surfaces, and the server routes/helpers that back those experiences, with emphasis on UI hydration, visible tracking surfaces, and creator/user state continuity.
+
+Startup protocol executed:
+- Read `FULL_SCALE_CODEBASE_AUDIT.md`.
+- Read `REPO_MEMORY_LEDGER.md`.
+- Read `EVERY_FILE_FUNCTION_CHECKLIST.md`.
+- Ran `git status --short`.
+- Identified touched/audited surfaces around:
+  - `src/app/api/creator/bookings/route.ts`
+  - `src/app/api/creator/subscriptions/route.ts`
+  - `src/app/creators/[username]/CreatorProfileClient.tsx`
+  - `src/components/Creators/CreatorExperiencesPanel.tsx`
+  - `src/components/Dashboard/CreatorWorkspacePanel.tsx`
+  - related helpers under `src/lib/creator-experiences.ts` and `src/lib/server/creator-experiences.ts`
+  - related unit tests under `tests/unit/creator-bookings-route.spec.ts`, `tests/unit/creator-public-pages.spec.ts`, and `tests/unit/process-creator-subscriptions-bench.spec.ts`
+- Ran adjacency review for the main audited route and UI surfaces before deeper inspection.
+
+Root Causes:
+- `src/app/api/creator/bookings/route.ts` validates booking windows in raw UTC (`getUTCDay`, `getUTCHours`, `getUTCMinutes`) even though creator settings carry `availabilityTimezone`. That means the booking gate can reject valid local creator slots or accept invalid ones whenever the creator is not effectively operating in UTC.
+- `src/app/creators/[username]/CreatorProfileClient.tsx` hydrates relationships, messages, bookings, and broadcasts through one `Promise.all(...)` block and then reads each body without checking `response.ok`. A single route failure or non-2xx response can collapse the entire user-side experiences hydration into a warning-only path with stale/empty booking and subscription state.
+- `src/app/api/creator/subscriptions/route.ts` exposes creator-facing inbound subscription data (`subscribers`) and user-facing outbound data (`subscriptions`), but the current repo code only consumes the POST action from the public profile. The creator workspace does not hydrate `/api/creator/subscriptions`, so creator-side subscription management is reduced to the aggregate `activeSubscribers` count from `creator/settings`.
+
+Verification Commands Run:
+- `git status --short`
+- `Get-ChildItem src,tests -Recurse -File | Select-String -Pattern 'creator_call_bookings|creator_subscriptions|video call|video booking|subscription' | Select-Object Path,LineNumber,Line`
+- `Get-ChildItem src,tests -Recurse -File | Where-Object { $_.FullName -match 'creator|booking|subscription|call|video|dashboard|creators' } | Select-Object -ExpandProperty FullName`
+- `npm run trace:adjacent -- src/app/api/creator/bookings/route.ts`
+- `npm run trace:adjacent -- src/app/api/creator/subscriptions/route.ts`
+- `npm run trace:adjacent -- "src/app/creators/[username]/CreatorProfileClient.tsx"`
+- `npm run trace:adjacent -- src/components/Creators/CreatorExperiencesPanel.tsx`
+- `npm run trace:adjacent -- src/components/Dashboard/CreatorWorkspacePanel.tsx`
+- `Get-Content src/app/api/creator/bookings/route.ts`
+- `Get-Content src/app/api/creator/subscriptions/route.ts`
+- `Get-Content -LiteralPath 'src/app/creators/[username]/CreatorProfileClient.tsx'`
+- `Get-Content src/components/Creators/CreatorExperiencesPanel.tsx`
+- `Get-Content src/components/Dashboard/CreatorWorkspacePanel.tsx`
+- `Get-Content src/lib/creator-public-pages.ts`
+- `Get-Content tests/unit/creator-bookings-route.spec.ts`
+- `Get-Content tests/unit/creator-public-pages.spec.ts`
+- `Get-Content tests/unit/process-creator-subscriptions-bench.spec.ts`
+- `Get-Content src/lib/server/creator-experiences.ts`
+- `Get-Content -LiteralPath 'src/app/api/creators/[username]/route.ts'`
+- `Get-Content src/components/Creators/CreatorProfileHeader.tsx`
+- `Get-Content src/app/api/creator/broadcasts/route.ts`
+- `Get-Content src/app/api/creator/relationships/route.ts`
+- `Get-ChildItem src,tests -Recurse -File | Select-String -Pattern '/api/creator/subscriptions|creator/subscriptions' | Select-Object Path,LineNumber,Line`
+- `Get-ChildItem src,tests -Recurse -File | Select-String -Pattern 'bookingStartAt|datetime-local|subscriptionActive|bookings\\]' | Select-Object Path,LineNumber,Line`
+- `Get-ChildItem src,tests -Recurse -File | Select-String -Pattern 'availabilityTimezone|availabilityWindows|dayOfWeek|videoSubscriberDiscountPercent' | Select-Object Path,LineNumber,Line`
+- `npx vitest run tests/unit/creator-bookings-route.spec.ts tests/unit/creator-public-pages.spec.ts tests/unit/process-creator-subscriptions-bench.spec.ts`
+- `npm run typecheck`
+
+Implementation Results:
+- This pass intentionally stopped at audit findings rather than mixing fixes into the same review.
+- Existing targeted coverage passed:
+  - `tests/unit/creator-bookings-route.spec.ts`
+  - `tests/unit/creator-public-pages.spec.ts`
+  - `tests/unit/process-creator-subscriptions-bench.spec.ts`
+  - repo-wide `npm run typecheck`
+- Verified current flow posture:
+  - user-side public profile does render subscription and booking UI through `CreatorExperiencesPanel`
+  - creator-side workspace does hydrate booking and request data plus aggregate subscription counts
+  - creator-side detailed subscriptions data path exists server-side but is not currently consumed by a creator UI surface in the repo
+- Verified coverage gap:
+  - no dedicated unit route spec currently targets `src/app/api/creator/subscriptions/route.ts`
+
+Warnings and non-blocking notes:
+- No runtime code was changed during this audit pass beyond updating this continuity ledger entry.
+- The targeted tests that currently exist are green, so the findings above are structural/runtime-path issues not presently covered by failing automation.
+- The creator-side subscription visibility gap may be an intentional product omission rather than an accidental regression, but from a repo-audit perspective it means subscriptions are not hydrated for creators all the way through to a detailed UI surface.
+
+Cleanup:
+- No build or test noise required cleanup after this audit pass.
+
 ## [2026-04-17 #12] Creator Settings Silent Error Handling Follow-up
 
 Scope for this pass:

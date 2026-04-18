@@ -7,12 +7,14 @@ import { Megaphone, Send, Users, Eye, Activity, Phone, DollarSign, MessageCircle
 import { toast } from "sonner";
 
 import { Button } from "@/components/ui/Button";
+import { UiContinuityNotice } from "@/components/ui/UiContinuityNotice";
 import { authFetch } from "@/lib/authFetch";
 import { reportClientIssue } from "@/lib/client-error-reporting";
 import {
     describeCreatorFacingOnboardingBlockingReason,
     getCreatorOnboardingStatusSummary,
 } from "@/lib/creator-onboarding";
+import { loadUiContinuityModules, readUiJson, type UiContinuityModuleState } from "@/lib/ui-continuity";
 import type { CreatorApplication, UserProfile } from "@/types/db";
 
 type CreatorStats = {
@@ -60,17 +62,36 @@ type CreatorThreadRecord = {
     counterpartPhotoURL?: string | null;
 };
 
+type CreatorSubscriptionRecord = {
+    id: string;
+    userId?: string;
+    status?: string;
+    priceGd?: number;
+    renewAt?: number;
+    autoRenew?: boolean;
+};
+
 type ModuleKey =
     | "settings"
     | "requests"
     | "bookings"
+    | "subscriptions"
     | "threads";
 
 const moduleLabels: Record<ModuleKey, string> = {
     settings: "creator settings",
     requests: "custom requests",
     bookings: "bookings",
+    subscriptions: "subscriptions",
     threads: "messages",
+};
+
+const DEFAULT_MODULE_STATE: Record<ModuleKey, UiContinuityModuleState> = {
+    settings: { key: "settings", label: "creator settings", critical: true, status: "success", warning: null, fallbackActive: false, responseOk: true },
+    requests: { key: "requests", label: "custom requests", critical: false, status: "success", warning: null, fallbackActive: false, responseOk: true },
+    bookings: { key: "bookings", label: "bookings", critical: true, status: "success", warning: null, fallbackActive: false, responseOk: true },
+    subscriptions: { key: "subscriptions", label: "subscriptions", critical: true, status: "success", warning: null, fallbackActive: false, responseOk: true },
+    threads: { key: "threads", label: "messages", critical: false, status: "success", warning: null, fallbackActive: false, responseOk: true },
 };
 
 function formatRelativeTime(timestamp?: number) {
@@ -124,15 +145,6 @@ function StatusPill({ label, tone = "neutral" }: { label: string; tone?: "good" 
     );
 }
 
-async function readJson<T>(url: string, init?: RequestInit): Promise<T> {
-    const response = await authFetch(url, init);
-    const body = await response.json().catch(() => ({})) as T & { error?: string };
-    if (!response.ok) {
-        throw new Error(typeof body.error === "string" ? body.error : `Request failed for ${url}`);
-    }
-    return body;
-}
-
 export function CreatorWorkspacePanel({ userProfile }: { userProfile: UserProfile }) {
     const creatorApplication = userProfile.creatorApplication as CreatorApplication | undefined;
     const isCreatorOperator = userProfile.role === "creator";
@@ -141,13 +153,16 @@ export function CreatorWorkspacePanel({ userProfile }: { userProfile: UserProfil
     const [creatorStats, setCreatorStats] = useState<CreatorStats | null>(null);
     const [requests, setRequests] = useState<CreatorRequestRecord[]>([]);
     const [bookings, setBookings] = useState<CreatorBookingRecord[]>([]);
+    const [subscriptions, setSubscriptions] = useState<CreatorSubscriptionRecord[]>([]);
     const [threads, setThreads] = useState<CreatorThreadRecord[]>([]);
     const [moduleErrors, setModuleErrors] = useState<Record<ModuleKey, string | null>>({
         settings: null,
         requests: null,
         bookings: null,
+        subscriptions: null,
         threads: null,
     });
+    const [moduleState, setModuleState] = useState<Record<ModuleKey, UiContinuityModuleState>>(DEFAULT_MODULE_STATE);
     const [busyAction, setBusyAction] = useState<string | null>(null);
     const [broadcastDraft, setBroadcastDraft] = useState("");
 
@@ -185,66 +200,95 @@ export function CreatorWorkspacePanel({ userProfile }: { userProfile: UserProfil
             settings: null,
             requests: null,
             bookings: null,
+            subscriptions: null,
             threads: null,
         };
 
-        const results = await Promise.allSettled([
-            readJson<{
-                stats?: CreatorStats | null;
-            }>("/api/creator/settings"),
-            readJson<{ requests?: CreatorRequestRecord[] }>("/api/creator/requests"),
-            readJson<{ bookings?: CreatorBookingRecord[] }>("/api/creator/bookings"),
-            readJson<{ threads?: CreatorThreadRecord[] }>("/api/chat/threads"),
-        ]);
-
-        const logFailure = (module: ModuleKey, issue: unknown) => {
-            const message = issue instanceof Error ? issue.message : "Request failed";
-            nextErrors[module] = message;
-            reportClientIssue({
-                channel: "runtime",
-                severity: "warn",
-                message: "Creator workspace module load failed",
-                error: issue,
-                detail: {
-                    module,
-                    route: moduleLabels[module],
+        const results = await loadUiContinuityModules({
+            surface: "creator_workspace",
+            diagnosticsChannel: "ui",
+            modules: [
+                {
+                    key: "settings",
+                    label: "creator settings",
+                    critical: true,
+                    load: async () => readUiJson<{
+                        stats?: CreatorStats | null;
+                    }>(
+                        await authFetch("/api/creator/settings"),
+                        { moduleLabel: "creator settings", url: "/api/creator/settings" },
+                    ),
                 },
-                consoleLabel: `[CreatorWorkspace] ${module} load failed`,
-            });
-        };
+                {
+                    key: "requests",
+                    label: "creator requests",
+                    load: async () => readUiJson<{ requests?: CreatorRequestRecord[] }>(
+                        await authFetch("/api/creator/requests"),
+                        { moduleLabel: "creator requests", url: "/api/creator/requests" },
+                    ),
+                    fallbackValue: { requests: [] },
+                },
+                {
+                    key: "bookings",
+                    label: "creator bookings",
+                    critical: true,
+                    load: async () => readUiJson<{ bookings?: CreatorBookingRecord[] }>(
+                        await authFetch("/api/creator/bookings"),
+                        { moduleLabel: "creator bookings", url: "/api/creator/bookings" },
+                    ),
+                    fallbackValue: { bookings: [] },
+                },
+                {
+                    key: "subscriptions",
+                    label: "creator subscriptions",
+                    critical: true,
+                    load: async () => readUiJson<{ subscribers?: CreatorSubscriptionRecord[] }>(
+                        await authFetch("/api/creator/subscriptions"),
+                        { moduleLabel: "creator subscriptions", url: "/api/creator/subscriptions" },
+                    ),
+                    fallbackValue: { subscribers: [] },
+                },
+                {
+                    key: "threads",
+                    label: "creator messages",
+                    load: async () => readUiJson<{ threads?: CreatorThreadRecord[] }>(
+                        await authFetch("/api/chat/threads"),
+                        { moduleLabel: "creator messages", url: "/api/chat/threads" },
+                    ),
+                    fallbackValue: { threads: [] },
+                },
+            ],
+        });
 
-        const [
-            settingsResult,
-            requestsResult,
-            bookingsResult,
-            threadsResult,
-        ] = results;
-
-        if (settingsResult.status === "fulfilled") {
-            setCreatorStats(settingsResult.value.stats ?? null);
-        } else {
-            logFailure("settings", settingsResult.reason);
-        }
-
-        if (requestsResult.status === "fulfilled") {
-            setRequests(Array.isArray(requestsResult.value.requests) ? requestsResult.value.requests : []);
-        } else {
-            logFailure("requests", requestsResult.reason);
-        }
-
-        if (bookingsResult.status === "fulfilled") {
-            setBookings(Array.isArray(bookingsResult.value.bookings) ? bookingsResult.value.bookings : []);
-        } else {
-            logFailure("bookings", bookingsResult.reason);
-        }
-
-        if (threadsResult.status === "fulfilled") {
-            setThreads(Array.isArray(threadsResult.value.threads) ? threadsResult.value.threads : []);
-        } else {
-            logFailure("threads", threadsResult.reason);
+        const nextModuleState = { ...DEFAULT_MODULE_STATE };
+        for (const result of results) {
+            nextModuleState[result.state.key as ModuleKey] = result.state;
+            if (result.state.warning) {
+                nextErrors[result.state.key as ModuleKey] = result.state.warning;
+            }
+            if (result.state.key === "settings" && result.value && typeof result.value === "object") {
+                setCreatorStats((result.value as { stats?: CreatorStats | null }).stats ?? null);
+            }
+            if (result.state.key === "requests" && result.value && typeof result.value === "object") {
+                const requestsResult = result.value as { requests?: CreatorRequestRecord[] };
+                setRequests(Array.isArray(requestsResult.requests) ? requestsResult.requests : []);
+            }
+            if (result.state.key === "bookings" && result.value && typeof result.value === "object") {
+                const bookingsResult = result.value as { bookings?: CreatorBookingRecord[] };
+                setBookings(Array.isArray(bookingsResult.bookings) ? bookingsResult.bookings : []);
+            }
+            if (result.state.key === "subscriptions" && result.value && typeof result.value === "object") {
+                const subscriptionsResult = result.value as { subscribers?: CreatorSubscriptionRecord[] };
+                setSubscriptions(Array.isArray(subscriptionsResult.subscribers) ? subscriptionsResult.subscribers : []);
+            }
+            if (result.state.key === "threads" && result.value && typeof result.value === "object") {
+                const threadsResult = result.value as { threads?: CreatorThreadRecord[] };
+                setThreads(Array.isArray(threadsResult.threads) ? threadsResult.threads : []);
+            }
         }
 
         setModuleErrors(nextErrors);
+        setModuleState(nextModuleState);
     }, [isCreatorOperator]);
 
     useEffect(() => {
@@ -277,10 +321,13 @@ export function CreatorWorkspacePanel({ userProfile }: { userProfile: UserProfil
 
     const handleRequestAction = useCallback((requestId: string, action: "accept" | "decline" | "fulfill") => {
         void runAction(`request:${requestId}:${action}`, async () => {
-            await readJson("/api/creator/requests", {
-                method: "PUT",
-                body: JSON.stringify({ requestId, action }),
-            });
+            await readUiJson(
+                await authFetch("/api/creator/requests", {
+                    method: "PUT",
+                    body: JSON.stringify({ requestId, action }),
+                }),
+                { moduleLabel: "creator requests", url: "/api/creator/requests" },
+            );
             toast.success(`Request ${action}ed.`);
             await loadWorkspace();
         }, "We could not update that request.");
@@ -288,10 +335,13 @@ export function CreatorWorkspacePanel({ userProfile }: { userProfile: UserProfil
 
     const handleBookingAction = useCallback((bookingId: string, action: "complete" | "cancel") => {
         void runAction(`booking:${bookingId}:${action}`, async () => {
-            await readJson("/api/creator/bookings", {
-                method: "PUT",
-                body: JSON.stringify({ bookingId, action }),
-            });
+            await readUiJson(
+                await authFetch("/api/creator/bookings", {
+                    method: "PUT",
+                    body: JSON.stringify({ bookingId, action }),
+                }),
+                { moduleLabel: "creator bookings", url: "/api/creator/bookings" },
+            );
             toast.success(action === "complete" ? "Booking completed." : "Booking canceled.");
             await loadWorkspace();
         }, "We could not update that booking.");
@@ -303,10 +353,13 @@ export function CreatorWorkspacePanel({ userProfile }: { userProfile: UserProfil
         }
 
         void runAction("broadcast:send", async () => {
-            await readJson("/api/creator/broadcasts", {
-                method: "POST",
-                body: JSON.stringify({ message: broadcastDraft.trim() }),
-            });
+            await readUiJson(
+                await authFetch("/api/creator/broadcasts", {
+                    method: "POST",
+                    body: JSON.stringify({ message: broadcastDraft.trim() }),
+                }),
+                { moduleLabel: "creator broadcasts", url: "/api/creator/broadcasts" },
+            );
             setBroadcastDraft("");
             toast.success("Broadcast sent.");
         }, "We could not send that broadcast.");
@@ -534,12 +587,12 @@ export function CreatorWorkspacePanel({ userProfile }: { userProfile: UserProfil
                             )}
 
                             {bookings.length > 0 && (
-                                <div className="rounded-[1.4rem] border border-white/10 bg-black/35 p-4">
+                                <div className="rounded-[1.4rem] border border-white/10 bg-black/35 p-4" data-testid="creator-workspace-bookings">
                                     <h3 className="text-xs font-bold uppercase tracking-wider text-gray-400">Active Bookings</h3>
                                     <div className="mt-3 space-y-2">
                                         {bookings.slice(0, 3).map((b) => (
                                             <div key={b.id} className="flex items-center justify-between rounded-xl bg-white/5 px-3 py-2">
-                                                <p className="truncate text-sm font-semibold text-white">{formatStatusLabel(b.serviceType)} Call</p>
+                                                <p className="truncate text-sm font-semibold text-white">{formatStatusLabel(b.serviceType)} Call - {formatStatusLabel(b.status)}</p>
                                                 <div className="flex shrink-0 gap-1">
                                                     {b.status === "booked" && (
                                                         <button onClick={() => handleBookingAction(b.id, "complete")} disabled={busyAction !== null} className="rounded-lg bg-emerald-500/20 px-2 py-1 text-[10px] font-bold text-emerald-300 transition-colors hover:bg-emerald-500/30">Mark done</button>
@@ -548,6 +601,53 @@ export function CreatorWorkspacePanel({ userProfile }: { userProfile: UserProfil
                                             </div>
                                         ))}
                                     </div>
+                                </div>
+                            )}
+
+                            {moduleErrors.bookings ? (
+                                <UiContinuityNotice
+                                    title="Bookings module degraded"
+                                    body={moduleErrors.bookings}
+                                    tone="warning"
+                                    data-testid="creator-workspace-bookings-warning"
+                                />
+                            ) : moduleState.bookings.status === "success" && bookings.length === 0 ? (
+                                <div className="rounded-[1.4rem] border border-dashed border-white/10 bg-black/25 p-4 text-sm text-gray-300" data-testid="creator-workspace-bookings-empty">
+                                    No active phone or video bookings are hydrated right now.
+                                </div>
+                            ) : null}
+
+                            {moduleErrors.subscriptions ? (
+                                <UiContinuityNotice
+                                    title="Subscriptions module degraded"
+                                    body={moduleErrors.subscriptions}
+                                    tone="warning"
+                                    data-testid="creator-workspace-subscriptions-warning"
+                                />
+                            ) : (
+                                <div className="rounded-[1.4rem] border border-white/10 bg-black/35 p-4" data-testid="creator-workspace-subscriptions">
+                                    <h3 className="text-xs font-bold uppercase tracking-wider text-gray-400">Subscribers</h3>
+                                    {subscriptions.length > 0 ? (
+                                        <div className="mt-3 space-y-2">
+                                            {subscriptions.slice(0, 4).map((subscription) => (
+                                                <div key={subscription.id} className="rounded-xl bg-white/5 px-3 py-2">
+                                                    <div className="flex items-center justify-between gap-3">
+                                                        <p className="truncate text-sm font-semibold text-white">{subscription.userId || subscription.id}</p>
+                                                        <StatusPill label={formatStatusLabel(subscription.status)} tone={subscription.status === "active" ? "good" : "neutral"} />
+                                                    </div>
+                                                    <p className="mt-1 text-xs text-gray-400">
+                                                        {typeof subscription.priceGd === "number" ? `${subscription.priceGd} GD` : "Price unavailable"}
+                                                        {typeof subscription.renewAt === "number" ? ` • renews ${formatRelativeTime(subscription.renewAt)}` : ""}
+                                                        {subscription.autoRenew === false ? " • auto-renew off" : " • auto-renew on"}
+                                                    </p>
+                                                </div>
+                                            ))}
+                                        </div>
+                                    ) : (
+                                        <div className="mt-3 rounded-xl border border-dashed border-white/10 bg-white/5 px-3 py-3 text-sm text-gray-300">
+                                            No subscriber rows are active yet.
+                                        </div>
+                                    )}
                                 </div>
                             )}
                         </div>

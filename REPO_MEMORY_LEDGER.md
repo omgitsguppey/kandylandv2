@@ -24,6 +24,30 @@ This file is not a changelog. It is the concise ledger for durable decisions tha
 
 ## Decision Entries
 
+### 1z. UI signoff is now driven by the generated UI surface coverage ledger and runtime continuity checks
+
+- Approximate date: Recorded explicitly on 2026-04-17 from the Repo-Wide UI Continuity Fabric pass
+- Status: Active canonical UI verification rule
+- Problem/context: UI continuity knowledge was fragmented across a small hardcoded Playwright target list, partial component-level diagnostics, and ad hoc prompt context. That allowed hydration-sensitive creator/admin surfaces to drift without a machine-readable signoff contract.
+- Decision made: Add `agent/index/ui-surface-coverage.json` as the canonical machine-readable UI coverage ledger, generate it from repo truth, and require UI-sensitive work to use the generated coverage/runtime lanes before signoff.
+- What became canonical:
+  - `agent/index/ui-surface-coverage.json` is the repo-native record of concrete UI surfaces, coverage ownership, hydration mode, runtime canary state, and blocking audit eligibility
+  - `npm run agent:ui-index`, `npm run check:ui:coverage`, and `npm run check:ui:runtime` are required UI continuity lanes alongside existing `check:ui:audits` and `check:ui:lighthouse`
+  - blocking public UI surfaces must have generated audit ownership, and missing coverage is a signoff failure
+  - the first hardening wave uses `src/lib/ui-continuity.ts` and `src/components/ui/UiContinuityNotice.tsx` for per-module settled loading, visible warnings, and client diagnostics instead of silent all-or-nothing hydration
+- Truth lives in:
+  - `agent/index/ui-surface-coverage.json`
+  - `scripts/agent/build-ui-surface-coverage.ts`
+  - `scripts/agent/check-ui-surface-coverage.ts`
+  - `scripts/agent/build-ui-runtime-audit.ts`
+  - `src/lib/ui-continuity.ts`
+  - `src/components/ui/UiContinuityNotice.tsx`
+  - `AGENTS.md`
+- What is now disallowed or deprecated:
+  - relying on hardcoded tiny UI audit target lists as the only UI continuity source
+  - shipping hydration-sensitive creator/admin surfaces without generated runtime canary metadata or visible degraded-state handling
+  - signing off on broad UI work without the generated UI coverage lane
+
 ### 1y. `/agent/` is the committed machine-readable context layer; `/.agent/` remains workflow tooling, and the SQL mirror is secondary
 
 - Approximate date: Recorded explicitly on 2026-04-17 from the Repo Intelligence Fabric pass

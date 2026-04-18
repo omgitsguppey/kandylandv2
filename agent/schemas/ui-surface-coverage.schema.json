@@ -1,0 +1,41 @@
+{
+  "type": "object",
+  "required": ["generatedAt", "truthOrder", "source", "surfaces"],
+  "properties": {
+    "generatedAt": { "type": "string" },
+    "truthOrder": { "type": "array", "items": { "type": "string" } },
+    "source": { "type": "array", "items": { "type": "string" } },
+    "surfaces": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "required": ["stable_id", "route_or_component", "surface_type", "audience", "runtime_dependencies", "hydration_mode", "criticality", "playwright_owner", "lighthouse_required", "existing_tests", "known_gap", "blocking_required", "runtime_canary", "audit_target", "coverage_notes"],
+        "properties": {
+          "stable_id": { "type": "string" },
+          "route_or_component": { "type": "string" },
+          "surface_type": { "type": "string" },
+          "audience": { "type": "array", "items": { "type": "string" } },
+          "runtime_dependencies": { "type": "array", "items": { "type": "string" } },
+          "hydration_mode": { "type": "string" },
+          "criticality": { "type": "string" },
+          "playwright_owner": {},
+          "lighthouse_required": { "type": "boolean" },
+          "existing_tests": { "type": "array", "items": { "type": "string" } },
+          "known_gap": {},
+          "blocking_required": { "type": "boolean" },
+          "runtime_canary": {
+            "type": "object",
+            "required": ["protected", "helper_paths", "observability_lanes"],
+            "properties": {
+              "protected": { "type": "boolean" },
+              "helper_paths": { "type": "array", "items": { "type": "string" } },
+              "observability_lanes": { "type": "array", "items": { "type": "string" } }
+            }
+          },
+          "audit_target": {},
+          "coverage_notes": { "type": "array", "items": { "type": "string" } }
+        }
+      }
+    }
+  }
+}

@@ -13,6 +13,7 @@ import { DropGrid } from "@/components/DropGrid";
 import { CreatorExperiencesPanel } from "@/components/Creators/CreatorExperiencesPanel";
 import { CreatorProfileHeader } from "@/components/Creators/CreatorProfileHeader";
 import { CreatorUpdatesFeed } from "@/components/Creators/CreatorUpdatesFeed";
+import { UiContinuityNotice } from "@/components/ui/UiContinuityNotice";
 import { useAuth } from "@/context/AuthContext";
 import { useUI } from "@/context/UIContext";
 import { authFetch } from "@/lib/authFetch";
@@ -22,10 +23,20 @@ import {
 } from "@/lib/creator-experiences";
 import { resolveCreatorPublicExperienceState } from "@/lib/creator-public-pages";
 import { trackEvent } from "@/lib/telemetry";
+import { loadUiContinuityModules, readUiJson, type UiContinuityModuleState } from "@/lib/ui-continuity";
 import { cn } from "@/lib/utils";
 import { Drop, UserProfile } from "@/types/db";
 
 type CreatorExperienceView = "subscriptions" | "messages" | "requests" | "bookings";
+type ExperienceModuleKey = "relationship" | "subscriptions" | "messages" | "bookings" | "broadcasts";
+
+const DEFAULT_MODULE_STATE: Record<ExperienceModuleKey, UiContinuityModuleState> = {
+    relationship: { key: "relationship", label: "relationship", critical: false, status: "success", warning: null, fallbackActive: false, responseOk: true },
+    subscriptions: { key: "subscriptions", label: "subscriptions", critical: true, status: "success", warning: null, fallbackActive: false, responseOk: true },
+    messages: { key: "messages", label: "messages", critical: false, status: "success", warning: null, fallbackActive: false, responseOk: true },
+    bookings: { key: "bookings", label: "bookings", critical: true, status: "success", warning: null, fallbackActive: false, responseOk: true },
+    broadcasts: { key: "broadcasts", label: "broadcasts", critical: false, status: "success", warning: null, fallbackActive: false, responseOk: true },
+};
 
 export default function CreatorProfileClient() {
     const params = useParams();
@@ -55,6 +66,7 @@ export default function CreatorProfileClient() {
     const [bookingDurationMinutes, setBookingDurationMinutes] = useState(CREATOR_BOOKING_MIN_MINUTES);
     const [bookingServiceType, setBookingServiceType] = useState<"phone" | "video">("phone");
     const [creatingBooking, setCreatingBooking] = useState(false);
+    const [moduleState, setModuleState] = useState<Record<ExperienceModuleKey, UiContinuityModuleState>>(DEFAULT_MODULE_STATE);
     const lastTrackedBroadcastKeyRef = useRef<string>("");
 
     useEffect(() => {
@@ -119,6 +131,7 @@ export default function CreatorProfileClient() {
             setBookings([]);
             setBroadcasts([]);
             setSubscriptionActive(false);
+            setModuleState(DEFAULT_MODULE_STATE);
             return;
         }
 
@@ -127,39 +140,105 @@ export default function CreatorProfileClient() {
 
         async function hydrateCreatorRelationshipState() {
             try {
-                const [relationshipResponse, messageResponse, bookingResponse, broadcastResponse] = await Promise.all([
-                    authFetch(`/api/creator/relationships?creatorId=${encodeURIComponent(creatorId)}`),
-                    authFetch(`/api/creator/messages?creatorId=${encodeURIComponent(creatorId)}`),
-                    authFetch(`/api/creator/bookings?creatorId=${encodeURIComponent(creatorId)}`),
-                    authFetch(`/api/creator/broadcasts?creatorId=${encodeURIComponent(creatorId)}`),
-                ]);
-                const relationshipResult = await relationshipResponse.json() as {
-                    relationship?: Record<string, unknown> | null;
-                    subscription?: Record<string, unknown> | null;
-                };
-                const messageResult = await messageResponse.json() as {
-                    messages?: Array<Record<string, unknown>>;
-                };
-                const bookingResult = await bookingResponse.json() as {
-                    bookings?: Array<Record<string, unknown>>;
-                    subscriptionActive?: boolean;
-                };
-                const broadcastResult = await broadcastResponse.json() as {
-                    broadcasts?: Array<Record<string, unknown>>;
-                };
+                const results = await loadUiContinuityModules({
+                    surface: "creator_public_profile",
+                    diagnosticsChannel: "ui",
+                    modules: [
+                        {
+                            key: "relationship",
+                            label: "creator relationship",
+                            load: async () => readUiJson<{
+                                relationship?: Record<string, unknown> | null;
+                            }>(
+                                await authFetch(`/api/creator/relationships?creatorId=${encodeURIComponent(creatorId)}`),
+                                { moduleLabel: "creator relationship", url: "/api/creator/relationships" },
+                            ),
+                        },
+                        {
+                            key: "subscriptions",
+                            label: "creator subscriptions",
+                            critical: true,
+                            load: async () => readUiJson<{
+                                subscription?: Record<string, unknown> | null;
+                            }>(
+                                await authFetch(`/api/creator/subscriptions?creatorId=${encodeURIComponent(creatorId)}`),
+                                { moduleLabel: "creator subscriptions", url: "/api/creator/subscriptions" },
+                            ),
+                        },
+                        {
+                            key: "messages",
+                            label: "creator messages",
+                            load: async () => readUiJson<{
+                                messages?: Array<Record<string, unknown>>;
+                            }>(
+                                await authFetch(`/api/creator/messages?creatorId=${encodeURIComponent(creatorId)}`),
+                                { moduleLabel: "creator messages", url: "/api/creator/messages" },
+                            ),
+                            fallbackValue: { messages: [] },
+                        },
+                        {
+                            key: "bookings",
+                            label: "creator bookings",
+                            critical: true,
+                            load: async () => readUiJson<{
+                                bookings?: Array<Record<string, unknown>>;
+                            }>(
+                                await authFetch(`/api/creator/bookings?creatorId=${encodeURIComponent(creatorId)}`),
+                                { moduleLabel: "creator bookings", url: "/api/creator/bookings" },
+                            ),
+                            fallbackValue: { bookings: [] },
+                        },
+                        {
+                            key: "broadcasts",
+                            label: "creator broadcasts",
+                            load: async () => readUiJson<{
+                                broadcasts?: Array<Record<string, unknown>>;
+                            }>(
+                                await authFetch(`/api/creator/broadcasts?creatorId=${encodeURIComponent(creatorId)}`),
+                                { moduleLabel: "creator broadcasts", url: "/api/creator/broadcasts" },
+                            ),
+                            fallbackValue: { broadcasts: [] },
+                        },
+                    ],
+                });
 
                 if (cancelled) {
                     return;
                 }
 
-                if (relationshipResult.relationship) {
-                    setFollowing(relationshipResult.relationship.following === true);
-                    setNotificationsEnabled(relationshipResult.relationship.notificationsEnabled === true);
+                const nextModuleState = { ...DEFAULT_MODULE_STATE };
+                for (const result of results) {
+                    nextModuleState[result.state.key as ExperienceModuleKey] = result.state;
+
+                    if (result.state.key === "relationship" && result.value && typeof result.value === "object") {
+                        const relationshipResult = result.value as { relationship?: Record<string, unknown> | null };
+                        if (relationshipResult.relationship) {
+                            setFollowing(relationshipResult.relationship.following === true);
+                            setNotificationsEnabled(relationshipResult.relationship.notificationsEnabled === true);
+                        }
+                    }
+
+                    if (result.state.key === "subscriptions" && result.value && typeof result.value === "object") {
+                        const subscriptionResult = result.value as { subscription?: Record<string, unknown> | null };
+                        setSubscriptionActive(subscriptionResult.subscription?.status === "active");
+                    }
+
+                    if (result.state.key === "messages" && result.value && typeof result.value === "object") {
+                        const messageResult = result.value as { messages?: Array<Record<string, unknown>> };
+                        setMessages(Array.isArray(messageResult.messages) ? messageResult.messages : []);
+                    }
+
+                    if (result.state.key === "bookings" && result.value && typeof result.value === "object") {
+                        const bookingResult = result.value as { bookings?: Array<Record<string, unknown>> };
+                        setBookings(Array.isArray(bookingResult.bookings) ? bookingResult.bookings : []);
+                    }
+
+                    if (result.state.key === "broadcasts" && result.value && typeof result.value === "object") {
+                        const broadcastResult = result.value as { broadcasts?: Array<Record<string, unknown>> };
+                        setBroadcasts(Array.isArray(broadcastResult.broadcasts) ? broadcastResult.broadcasts : []);
+                    }
                 }
-                setSubscriptionActive(relationshipResult.subscription?.status === "active" || bookingResult.subscriptionActive === true);
-                setMessages(Array.isArray(messageResult.messages) ? messageResult.messages : []);
-                setBookings(Array.isArray(bookingResult.bookings) ? bookingResult.bookings : []);
-                setBroadcasts(Array.isArray(broadcastResult.broadcasts) ? broadcastResult.broadcasts : []);
+                setModuleState(nextModuleState);
             } catch (error) {
                 reportClientIssue({
                     channel: "runtime",
@@ -605,9 +684,14 @@ export default function CreatorProfileClient() {
 
     const latestBooking = bookings[0] ?? null;
     const visibleBroadcasts = broadcasts.slice(0, 4);
+    const experienceWarnings = [
+        moduleState.subscriptions.warning ? { key: "subscriptions", label: "Subscriptions", message: moduleState.subscriptions.warning } : null,
+        moduleState.bookings.warning ? { key: "bookings", label: "Bookings", message: moduleState.bookings.warning } : null,
+        moduleState.broadcasts.warning ? { key: "broadcasts", label: "Broadcasts", message: moduleState.broadcasts.warning } : null,
+    ].filter((entry): entry is { key: string; label: string; message: string } => Boolean(entry));
 
     return (
-        <div className="min-h-screen bg-black pb-20 pt-8 sm:pt-10">
+        <div className="min-h-screen bg-black pb-20 pt-8 sm:pt-10" data-testid="creator-profile-shell">
             <div className="relative z-10 mx-auto w-full max-w-6xl px-4 sm:px-6">
                 <CreatorProfileHeader
                     canMessageCreator={canMessageCreator}
@@ -673,6 +757,7 @@ export default function CreatorProfileClient() {
                             creatingBooking={creatingBooking}
                             creatingRequest={creatingRequest}
                             currentUser={currentUser}
+                            experienceWarnings={experienceWarnings}
                             latestBooking={latestBooking}
                             messages={messages}
                             onBookingDurationMinutesChange={setBookingDurationMinutes}
@@ -692,12 +777,21 @@ export default function CreatorProfileClient() {
                             setRequestCategoryId={setRequestCategoryId}
                             setRequestDetails={setRequestDetails}
                             subscriptionActive={subscriptionActive}
+                            subscriptionHydrated={!moduleState.subscriptions.warning}
                             subscribeLoading={subscribeLoading}
                         />
                     ) : null}
 
                     {activeTab === "drops" ? (
                         <div className="space-y-5 animate-in fade-in zoom-in-95 duration-300">
+                            {experienceWarnings.length > 0 ? (
+                                <UiContinuityNotice
+                                    title="Creator experience modules are partially degraded"
+                                    body={experienceWarnings.map((warning) => `${warning.label}: ${warning.message}`).join(" | ")}
+                                    tone="warning"
+                                    data-testid="creator-profile-module-warning"
+                                />
+                            ) : null}
                             <CreatorUpdatesFeed broadcasts={visibleBroadcasts} />
 
                             <section>

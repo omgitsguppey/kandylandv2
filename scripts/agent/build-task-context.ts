@@ -121,6 +121,13 @@ function buildTaskSignals(mode: TaskMode, taskTokens: string[]) {
     requiredCommands.add("npm run test:contracts");
   }
 
+  if (mode === "ui" || hasAny("ui", "hydration", "component", "page", "dashboard", "profile", "booking", "subscription")) {
+    requiredCommands.add("npm run check:ui:coverage");
+    requiredCommands.add("npm run check:ui:runtime");
+    requiredCommands.add("npm run check:ui:audits");
+    optionalCommands.add("npm run check:ui:lighthouse");
+  }
+
   if (hasAny("telemetry", "analytics", "event")) {
     ["telemetry", "analytics", "analytics-event-facts", "analytics-security-events", "analytics-task-events"].forEach((entry) => pathNeedles.add(entry));
     helperFamilyNeedles.add("telemetry_analytics_canon");
@@ -450,6 +457,7 @@ export function buildTaskContext() {
   const governanceTruth = readJsonFile<{ files: Array<{ path: string; consultMode: string }> }>("agent/index/governance-truth.json").files;
   const verificationCommands = readJsonFile<{ commands: Array<{ command: string; scopeType: string; requiredWhen: string[] }> }>("agent/index/verification-commands.json").commands;
   const dependencySummary = readJsonFile<{ highInboundFiles: Array<{ path: string }> }>("agent/index/dependency-graph.summary.json");
+  const uiCoverage = readJsonFile<{ surfaces: Array<{ route_or_component: string; audience: string[]; hydration_mode: string; criticality: string; runtime_dependencies: string[]; coverage_notes: string[] }> }>("agent/index/ui-surface-coverage.json").surfaces;
   const graph = buildLocalImportGraph();
   const entriesByPath = new Map(repoInventory.map((entry) => [entry.path, entry]));
   const highInboundPaths = new Set(dependencySummary.highInboundFiles.map((entry) => entry.path));
@@ -498,6 +506,18 @@ export function buildTaskContext() {
     .filter((entry) => entry.score > 0)
     .sort((left, right) => right.score - left.score || left.path.localeCompare(right.path))
     .slice(0, 8);
+  const relevantUiSurfaces = uiCoverage
+    .map((surface) => ({
+      ...surface,
+      score:
+        (signalTokens.some((token) => surface.route_or_component.toLowerCase().includes(token)) ? 28 : 0)
+        + (likelyTouchedFiles.some((entry) => entry.path === surface.route_or_component) ? 40 : 0)
+        + (signalTokens.some((token) => surface.audience.includes(token)) ? 12 : 0)
+        + ((mode === "ui" || mode === "admin" || mode === "creator") && surface.hydration_mode !== "static" ? 10 : 0),
+    }))
+    .filter((surface) => surface.score > 0)
+    .sort((left, right) => right.score - left.score || left.route_or_component.localeCompare(right.route_or_component))
+    .slice(0, 8);
 
   const relevantPitfalls = pitfalls.filter((pitfall) =>
     likelyTouchedFiles.some((entry) =>
@@ -524,6 +544,7 @@ export function buildTaskContext() {
       "agent/index/known-pitfalls.json",
       "agent/index/verification-commands.json",
       "agent/index/dependency-graph.summary.json",
+      "agent/index/ui-surface-coverage.json",
     ]),
     stable_id: toStableId("taskctx", `${mode}:${task}`),
     input: { task, mode, fileHints, tokenBudgetProfile: "standard" },
@@ -552,10 +573,12 @@ export function buildTaskContext() {
     confidenceNotes: [
       `Mode resolved as ${mode}.`,
       `Ranking considered ${repoInventory.length} repo files and ${helperEntries.length} canonical helper entries.`,
+      relevantUiSurfaces.length > 0 ? `UI coverage matched ${relevantUiSurfaces.length} indexed surfaces.` : "No indexed UI surfaces matched the current task keywords.",
     ],
     ambiguityNotes: compact([
       likelyTouchedFiles.length === 0 ? "No file scored above zero; task wording may be too broad." : null,
       fileHints.length === 0 ? "No explicit file hints were provided, so ranking depended on task keywords and repo history." : null,
+      mode === "ui" && relevantUiSurfaces.length === 0 ? "UI mode resolved without any indexed UI surface match." : null,
     ]),
     do_not_read_unless_needed: governanceTruth.filter((entry) => entry.consultMode === "historical_only").map((entry) => entry.path),
     do_not_touch_without_broad_signoff: likelyTouchedFiles.filter((entry) => entry.entry.likely_broad_signoff_relevant).map((entry) => entry.path).slice(0, 12),
@@ -566,6 +589,12 @@ export function buildTaskContext() {
       why_selected: entry.evidence.join(", "),
       weighted_components: entry.evidence,
       freshness_state: "fresh",
+    })),
+    relevantUiSurfaces: relevantUiSurfaces.map((surface) => ({
+      route_or_component: surface.route_or_component,
+      criticality: surface.criticality,
+      hydration_mode: surface.hydration_mode,
+      coverage_notes: surface.coverage_notes,
     })),
   };
 
