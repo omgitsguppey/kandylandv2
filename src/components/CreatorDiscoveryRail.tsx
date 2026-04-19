@@ -42,11 +42,13 @@ function initialsFor(name: string) {
         .join("") || "C";
 }
 
+const EMPTY_CREATORS: CreatorCard[] = [];
+
 export function CreatorDiscoveryRail({
     surface,
     title,
     compact = false,
-    initialCreators = [],
+    initialCreators = EMPTY_CREATORS,
 }: CreatorDiscoveryRailProps) {
     const { user, loading: authLoading } = useAuth();
     const [mounted, setMounted] = useState(false);
