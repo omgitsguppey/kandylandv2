@@ -5,6 +5,7 @@ import useEmblaCarousel from "embla-carousel-react";
 import NextImage from "next/image";
 import { useRouter } from "next/navigation";
 import { Images, Film } from "lucide-react";
+import { TitleMarquee } from "@/components/ui/TitleMarquee";
 
 import { useUI } from "@/context/UIContext";
 import { useAuthIdentity } from "@/context/AuthContext";
@@ -56,10 +57,6 @@ export const HomeActiveDropsCarousel = memo(function HomeActiveDropsCarousel({
         emblaApi?.reInit({ loop: activeDrops.length > 1, align: "start" });
     }, [activeDrops.length, emblaApi]);
 
-    // Hydration protection
-    const [mounted, setMounted] = useState(false);
-    useEffect(() => setMounted(true), []);
-
     useEffect(() => {
         if (!emblaApi || activeDrops.length <= 1 || autoPlayMs <= 0) return;
 
@@ -105,24 +102,6 @@ export const HomeActiveDropsCarousel = memo(function HomeActiveDropsCarousel({
             emblaApi.off("select", play);
         };
     }, [activeDrops.length, autoPlayMs, emblaApi]);
-
-    if (!mounted) {
-        return (
-            <div className="space-y-4">
-                <div className="overflow-hidden">
-                    <div className="flex">
-                        <div className="relative flex-[0_0_44%] min-w-0 sm:flex-[0_0_42.5%] md:flex-[0_0_37.5%] mr-4">
-                            <div className="w-full aspect-[4/5] sm:aspect-[16/9] animate-pulse rounded-[1.6rem] bg-white/5" />
-                            <div className="mt-4 px-1">
-                                <div className="h-3 w-24 bg-white/10 rounded animate-pulse mb-2" />
-                                <div className="h-6 w-3/4 bg-white/10 rounded animate-pulse" />
-                            </div>
-                        </div>
-                    </div>
-                </div>
-            </div>
-        );
-    }
 
     if (activeDrops.length === 0) {
         return (
@@ -196,9 +175,11 @@ export const HomeActiveDropsCarousel = memo(function HomeActiveDropsCarousel({
                                     <p className="text-[10px] font-black uppercase tracking-[0.16em] text-brand-purple/90">
                                         {isCreatorDrop ? "Creator Experience" : "Live Drop"}
                                     </p>
-                                    <h3 className="mt-1 text-lg sm:text-xl font-extrabold leading-tight text-white line-clamp-1 group-hover:text-brand-purple transition-colors">
-                                        {drop.title}
-                                    </h3>
+                                    <TitleMarquee
+                                        title={drop.title}
+                                        delaySeed={drop.id.charCodeAt(0) % 6}
+                                        className="mt-1 text-lg sm:text-xl font-extrabold leading-tight text-white group-hover:text-brand-purple transition-colors"
+                                    />
                                     <p className="mt-1 line-clamp-2 text-[13px] leading-5 text-gray-400">
                                         {drop.description}
                                     </p>

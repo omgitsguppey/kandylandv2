@@ -89,15 +89,17 @@ export function HowItWorks({ activeDrops }: HowItWorksProps) {
                                 <p className="text-[11px] font-black uppercase tracking-[0.22em] text-brand-purple mb-2">Daily experiences</p>
                                 <h3 className="text-2xl font-extrabold text-white sm:text-3xl">Experiences for you</h3>
                                 
-                                <div className="mt-4 flex flex-wrap gap-2">
-                                    <span className="inline-flex items-center gap-1.5 rounded-full border border-brand-purple/30 bg-brand-purple/10 px-2.5 py-1 text-[10px] font-bold text-white shadow-sm sm:px-3 sm:text-[11px]">
+                                <div className="mt-4 flex flex-wrap items-center gap-2 text-[10px] sm:text-[11px] font-bold">
+                                    <span className="inline-flex items-center gap-1.5 px-1 py-1 text-white">
                                         <div className="h-1.5 w-1.5 rounded-full bg-green-400 shadow-[0_0_8px_rgba(74,222,128,0.6)]" />
                                         Live Drops
                                     </span>
-                                    <span className="inline-flex items-center gap-1.5 rounded-full border border-white/10 bg-white/5 px-2.5 py-1 text-[10px] font-bold text-gray-300 sm:px-3 sm:text-[11px]">
+                                    <span className="text-white/20 select-none">•</span>
+                                    <span className="inline-flex items-center gap-1.5 px-1 py-1 text-gray-400">
                                         Creator Experiences
                                     </span>
-                                    <span className="inline-flex items-center gap-1.5 rounded-full border border-white/10 bg-white/5 px-2.5 py-1 text-[10px] font-bold text-gray-300 sm:px-3 sm:text-[11px]">
+                                    <span className="text-white/20 select-none">•</span>
+                                    <span className="inline-flex items-center gap-1.5 px-1 py-1 text-gray-400">
                                         Daily Tasks
                                     </span>
                                 </div>
