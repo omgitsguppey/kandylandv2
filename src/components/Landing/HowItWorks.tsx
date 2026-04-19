@@ -56,24 +56,24 @@ export function HowItWorks({ activeDrops }: HowItWorksProps) {
                     <h2 className="mb-4 text-3xl font-extrabold text-white sm:mb-5 sm:text-4xl md:text-5xl">Keep what you unwrap forever</h2>
                 </div>
 
-                <div className="mb-6 grid grid-cols-3 gap-2 sm:mb-8 sm:gap-5">
+                <div className="-mx-4 px-4 flex overflow-x-auto snap-x snap-mandatory gap-3 pb-6 sm:mx-0 sm:px-0 sm:mb-8 sm:grid sm:grid-cols-3 sm:gap-5 sm:overflow-visible sm:pb-0 [scrollbar-width:none] [&::-webkit-scrollbar]:hidden">
                     {features.map((feature, index) => (
-                        <div key={index} className="group aspect-square rounded-[1.2rem] border border-white/5 bg-zinc-950 p-3 transition-colors hover:bg-zinc-900 sm:rounded-3xl sm:p-6 lg:p-8">
+                        <div key={index} className="shrink-0 w-[75vw] max-w-[280px] snap-center sm:w-auto sm:max-w-none group rounded-[1.7rem] border border-white/5 bg-zinc-950 p-6 transition-colors hover:bg-zinc-900 sm:aspect-square sm:rounded-3xl sm:p-6 lg:p-8 flex flex-col justify-center">
                             <div className="flex h-full flex-col items-center justify-center text-center">
-                                <div className="mb-4 flex h-10 w-10 items-center justify-center rounded-2xl border border-brand-purple/20 bg-brand-purple/10 transition-transform group-hover:scale-110 sm:h-14 sm:w-14 lg:h-16 lg:w-16">
+                                <div className="mb-4 flex h-12 w-12 items-center justify-center rounded-2xl border border-brand-purple/20 bg-brand-purple/10 transition-transform group-hover:scale-110 sm:h-14 sm:w-14 lg:h-16 lg:w-16">
                                     {feature.icon}
                                 </div>
-                                <h3 className="mb-1 text-sm font-bold text-white sm:mb-2 sm:text-lg lg:text-xl">{feature.title}</h3>
-                                <p className="text-[11px] leading-4 text-gray-400 sm:text-sm sm:leading-6">{feature.description}</p>
+                                <h3 className="mb-2 text-base font-bold text-white sm:text-lg lg:text-xl">{feature.title}</h3>
+                                <p className="text-[13px] leading-5 text-gray-400 sm:text-sm sm:leading-6">{feature.description}</p>
                             </div>
                         </div>
                     ))}
                 </div>
 
-                <div className="mb-10 flex justify-center sm:mb-16">
+                <div className="mb-14 flex justify-center sm:mb-20">
                     <button
                         onClick={() => handleLandingCta("landing_how_it_works")}
-                        className="w-full rounded-2xl bg-gradient-to-r from-brand-purple to-purple-500 px-6 py-3.5 font-extrabold text-white shadow-lg shadow-brand-purple/20 transition-colors hover:opacity-95 sm:w-auto sm:px-8 sm:py-4"
+                        className="w-full rounded-full bg-gradient-to-r from-brand-purple to-purple-500 px-6 py-3.5 font-extrabold text-white shadow-[0_0_20px_rgba(164,118,255,0.25)] transition-all hover:opacity-95 hover:shadow-[0_0_30px_rgba(164,118,255,0.4)] sm:w-auto sm:px-8 sm:py-4"
                     >
                         Unwrap your Kandy Drops
                     </button>
@@ -91,7 +91,7 @@ export function HowItWorks({ activeDrops }: HowItWorksProps) {
                             </div>
                             <button
                                 onClick={() => handleLandingCta("landing_showcase")}
-                                className="w-full rounded-2xl bg-gradient-to-r from-brand-purple to-purple-500 px-6 py-3 font-extrabold text-white shadow-lg shadow-brand-purple/20 transition-colors hover:opacity-95 sm:w-auto sm:px-7"
+                                className="w-full rounded-full bg-gradient-to-r from-brand-purple to-purple-500 px-6 py-3 font-extrabold text-white shadow-[0_0_20px_rgba(164,118,255,0.25)] transition-all hover:opacity-95 hover:shadow-[0_0_30px_rgba(164,118,255,0.4)] sm:w-auto sm:px-7"
                             >
                                 {SECONDARY_UNWRAP_CTA}
                             </button>
