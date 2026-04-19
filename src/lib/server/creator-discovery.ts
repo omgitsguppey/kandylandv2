@@ -31,32 +31,10 @@ export async function listCreatorDiscoveryProfiles(
     const usersReader = typeof usersCollection.select === "function"
         ? usersCollection.select("role", "status", "displayName", "username", "photoURL", "bio", "isVerified", "creatorApplication")
         : usersCollection;
-    const relationshipsReader = typeof relationshipsCollection.select === "function"
-        ? relationshipsCollection.select("creatorId", "following", "notificationsEnabled")
-        : relationshipsCollection;
-    const [usersSnap, dropsSnap, relationshipsSnap] = await Promise.all([
+    const [usersSnap, dropsSnap] = await Promise.all([
         usersReader.get(),
         dropsCollection.get(),
-        relationshipsReader.get(),
     ]);
-
-    const relationshipCounts = new Map<string, { followers: number; notifications: number }>();
-    for (const doc of relationshipsSnap.docs) {
-        const data = doc.data() as Record<string, unknown>;
-        const creatorId = typeof data.creatorId === "string" ? data.creatorId : "";
-        if (!creatorId) {
-            continue;
-        }
-
-        const current = relationshipCounts.get(creatorId) ?? { followers: 0, notifications: 0 };
-        if (data.following === true) {
-            current.followers += 1;
-        }
-        if (data.notificationsEnabled === true) {
-            current.notifications += 1;
-        }
-        relationshipCounts.set(creatorId, current);
-    }
 
     const activeDropCounts = new Map<string, number>();
     for (const doc of dropsSnap.docs) {
@@ -68,14 +46,34 @@ export async function listCreatorDiscoveryProfiles(
         activeDropCounts.set(normalized.creatorId, (activeDropCounts.get(normalized.creatorId) ?? 0) + 1);
     }
 
-    const creators = usersSnap.docs
+    const eligibleDocs = usersSnap.docs
         .map((doc) => ({ uid: doc.id, ...(doc.data() as Record<string, unknown>) }) as DiscoveryCreatorRecord)
         .filter((entry) => isCreatorVisibleInDiscovery({
             role: entry.role,
             status: entry.status,
             creatorApplication: entry.creatorApplication,
             activeDropCount: activeDropCounts.get(entry.uid) ?? 0,
-        }))
+        }));
+
+    const relationshipCounts = new Map<string, { followers: number; notifications: number }>();
+    await Promise.all(eligibleDocs.map(async (entry) => {
+        const query = relationshipsCollection
+            .where("creatorId", "==", entry.uid)
+            .where("following", "==", true);
+            
+        let followers = 0;
+        if (typeof query.count === "function") {
+            const snapshot = await query.count().get();
+            followers = Number(snapshot.data().count) || 0;
+        } else {
+            const snapshot = await query.get();
+            followers = snapshot.size || snapshot.docs.length || 0;
+        }
+        
+        relationshipCounts.set(entry.uid, { followers, notifications: 0 });
+    }));
+
+    const creators = eligibleDocs
         .map((entry) => {
             const counts = relationshipCounts.get(entry.uid) ?? { followers: 0, notifications: 0 };
             return {
