@@ -49,7 +49,9 @@ export function CreatorDiscoveryRail({
     initialCreators = [],
 }: CreatorDiscoveryRailProps) {
     const { user, loading: authLoading } = useAuth();
-    const authSettled = !authLoading;
+    const [mounted, setMounted] = useState(false);
+    useEffect(() => { setMounted(true); }, []);
+    const authSettled = mounted && !authLoading;
     const { openAuthModal } = useUI();
     const [recommendedCreators, setRecommendedCreators] = useState<CreatorCard[]>(initialCreators);
     const [followedCreators, setFollowedCreators] = useState<CreatorCard[]>([]);
@@ -62,10 +64,7 @@ export function CreatorDiscoveryRail({
 
         async function loadCreators() {
             if (!authSettled) {
-                if (hasSeededCreators && !cancelled) {
-                    setRailLoading(false);
-                }
-                return;
+                return; // Wait for completely settled auth state to avoid fetching on intermediate states
             }
 
             try {
@@ -249,8 +248,46 @@ export function CreatorDiscoveryRail({
         }
     };
 
-    if ((!authSettled && primaryCreators.length === 0) || railLoading) {
-        return null;
+    if (!mounted || railLoading) {
+        return (
+            <section className={cn(
+                "glass-panel rounded-[1.7rem] border border-white/10 p-2.5 sm:rounded-[2rem] sm:p-4",
+                compact ? "space-y-2" : "space-y-3",
+            )}>
+                <div className="flex items-start justify-between gap-3">
+                    <div>
+                        <div className="inline-flex items-center gap-2 rounded-full border border-brand-purple/25 bg-brand-purple/15 px-3 py-1 text-[10px] font-bold uppercase tracking-[0.16em] text-white">
+                            <Sparkles className="h-3.5 w-3.5" />
+                            Creator spotlight
+                        </div>
+                        <div className="mt-3 h-4 w-48 animate-pulse rounded bg-white/10" />
+                    </div>
+                </div>
+
+                <div className="mt-2 overflow-x-auto pb-1">
+                    <div className={cn("flex min-w-max gap-3", compact ? "pr-2" : "pr-4")}>
+                        {Array.from({ length: 4 }).map((_, i) => (
+                            <div
+                                key={i}
+                                className={cn(
+                                    "flex flex-col items-center justify-between rounded-[1.45rem] border border-white/5 bg-white/5 animate-pulse",
+                                    compact
+                                        ? "aspect-square w-[7.25rem] px-2.5 py-4"
+                                        : "aspect-square w-[8.75rem] px-3 py-5",
+                                )}
+                            >
+                                <div className={cn("rounded-full bg-white/10", compact ? "h-[3.65rem] w-[3.65rem]" : "h-[4.15rem] w-[4.15rem]")} />
+                                <div className="mt-auto flex flex-col items-center gap-2 w-full">
+                                    <div className="h-3 w-16 bg-white/10 rounded" />
+                                    <div className="h-2 w-12 bg-white/10 rounded" />
+                                </div>
+                                <div className="mt-2 rounded-full bg-white/10 w-16 h-7" />
+                            </div>
+                        ))}
+                    </div>
+                </div>
+            </section>
+        );
     }
 
     const support = title || (followedCreators.length > 0

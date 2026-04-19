@@ -22,7 +22,7 @@ export default function Hero({ activeDrops }: HeroProps) {
     const activeDropsCount = activeDrops.length;
 
     return (
-        <section ref={ref} className="relative flex min-h-[68vh] w-full flex-col justify-center overflow-hidden pb-[calc(7.5rem+env(safe-area-inset-bottom))] pt-[2.9rem] max-[360px]:min-h-[64vh] max-[360px]:pb-[calc(7.8rem+env(safe-area-inset-bottom))] max-[360px]:pt-[2.7rem] sm:min-h-[90vh] sm:pb-12 sm:pt-24 landscape:min-h-0 landscape:justify-start landscape:pb-[calc(6.8rem+env(safe-area-inset-bottom))] landscape:pt-10">
+        <section ref={ref} className="relative flex min-h-[68vh] w-full flex-col justify-center overflow-hidden pb-10 pt-[2.9rem] max-[360px]:min-h-[64vh] max-[360px]:pb-8 max-[360px]:pt-[2.7rem] sm:min-h-[90vh] sm:pb-12 sm:pt-24 landscape:min-h-0 landscape:justify-start landscape:pb-8 landscape:pt-10">
             <div className="absolute inset-0 z-0 opacity-40">
                 <div className="absolute top-1/4 left-1/4 w-[500px] h-[500px] bg-brand-purple/20 rounded-full blur-[120px] mix-blend-screen animate-pulse" style={{ animationDuration: "4s" }} />
                 <div className="absolute bottom-1/4 right-1/4 w-[400px] h-[400px] bg-brand-purple/10 rounded-full blur-[100px] mix-blend-screen animate-pulse" style={{ animationDuration: "7s" }} />

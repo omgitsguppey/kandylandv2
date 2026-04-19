@@ -56,41 +56,73 @@ export const HomeActiveDropsCarousel = memo(function HomeActiveDropsCarousel({
         emblaApi?.reInit({ loop: activeDrops.length > 1, align: "start" });
     }, [activeDrops.length, emblaApi]);
 
+    // Hydration protection
+    const [mounted, setMounted] = useState(false);
+    useEffect(() => setMounted(true), []);
+
     useEffect(() => {
-        if (!emblaApi || activeDrops.length <= 1 || autoPlayMs <= 0) {
-            return;
-        }
+        if (!emblaApi || activeDrops.length <= 1 || autoPlayMs <= 0) return;
 
         let timeoutId: number | null = null;
+        let isInteracting = false;
 
-        const scheduleNext = () => {
+        const clear = () => {
             if (timeoutId) {
                 window.clearTimeout(timeoutId);
+                timeoutId = null;
             }
-
-            timeoutId = window.setTimeout(() => {
-                if (emblaApi.canScrollNext()) {
-                    emblaApi.scrollNext();
-                } else {
-                    emblaApi.scrollTo(0);
-                }
-            }, autoPlayMs);
         };
 
-        scheduleNext();
-        emblaApi.on("select", scheduleNext);
-        emblaApi.on("pointerDown", scheduleNext);
-        emblaApi.on("settle", scheduleNext);
+        const play = () => {
+            clear();
+            if (!isInteracting) {
+                timeoutId = window.setTimeout(() => {
+                    if (emblaApi.canScrollNext()) emblaApi.scrollNext();
+                    else emblaApi.scrollTo(0);
+                }, autoPlayMs);
+            }
+        };
+
+        const onPointerDown = () => {
+            isInteracting = true;
+            clear();
+        };
+
+        const onPointerUp = () => {
+            isInteracting = false;
+            play();
+        };
+
+        play();
+        emblaApi.on("pointerDown", onPointerDown);
+        emblaApi.on("pointerUp", onPointerUp);
+        emblaApi.on("select", play);
 
         return () => {
-            if (timeoutId) {
-                window.clearTimeout(timeoutId);
-            }
-            emblaApi.off("select", scheduleNext);
-            emblaApi.off("pointerDown", scheduleNext);
-            emblaApi.off("settle", scheduleNext);
+            clear();
+            emblaApi.off("pointerDown", onPointerDown);
+            emblaApi.off("pointerUp", onPointerUp);
+            emblaApi.off("select", play);
         };
     }, [activeDrops.length, autoPlayMs, emblaApi]);
+
+    if (!mounted) {
+        return (
+            <div className="space-y-4">
+                <div className="overflow-hidden">
+                    <div className="flex">
+                        <div className="relative flex-[0_0_88%] min-w-0 sm:flex-[0_0_85%] md:flex-[0_0_75%] mr-4">
+                            <div className="w-full aspect-[4/5] sm:aspect-[16/9] animate-pulse rounded-[1.6rem] bg-white/5" />
+                            <div className="mt-4 px-1">
+                                <div className="h-3 w-24 bg-white/10 rounded animate-pulse mb-2" />
+                                <div className="h-6 w-3/4 bg-white/10 rounded animate-pulse" />
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        );
+    }
 
     if (activeDrops.length === 0) {
         return (
@@ -104,14 +136,15 @@ export const HomeActiveDropsCarousel = memo(function HomeActiveDropsCarousel({
         <div className="space-y-4">
             <div
                 ref={emblaRef}
-                className="overflow-hidden rounded-[1.6rem] border border-white/10 bg-zinc-950"
+                className="overflow-hidden"
             >
-                <div className="flex">
+                <div className="flex [touch-action:pan-y]">
                     {activeDrops.map((drop, index) => {
                         const images = drop.mediaCounts?.images ?? 0;
                         const videos = drop.mediaCounts?.videos ?? 0;
                         const isActive = index === selectedIndex;
                         const aspectRatio = getSupportedDropAspectRatio(drop);
+                        const isCreatorDrop = !!drop.creatorId;
 
                         return (
                             <button
@@ -131,40 +164,42 @@ export const HomeActiveDropsCarousel = memo(function HomeActiveDropsCarousel({
 
                                     openAuthModal("signup");
                                 }}
-                                className="relative flex-[0_0_100%] min-w-0"
-                                style={{ aspectRatio: aspectRatio.replace(":", " / ") }}
+                                className="relative flex-[0_0_88%] min-w-0 sm:flex-[0_0_85%] md:flex-[0_0_75%] mr-4 group flex flex-col text-left focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand-purple rounded-3xl"
                             >
-                                <NextImage
-                                    src={drop.imageUrl}
-                                    alt={drop.title}
-                                    fill
-                                    sizes="(max-width: 768px) 100vw, 720px"
-                                    unoptimized={isFirebaseStorageMediaUrl(drop.imageUrl)}
-                                    className={cn(
-                                        "object-cover object-center transition-transform duration-500",
-                                        isActive ? "scale-100" : "scale-[0.985]",
-                                    )}
-                                />
-                                <div className="absolute inset-0 bg-gradient-to-t from-black via-black/30 to-transparent" />
+                                <div 
+                                    className={cn("relative w-full overflow-hidden rounded-[1.6rem] border border-white/5 bg-zinc-950 shadow-lg transition-transform duration-500", !isActive && "scale-[0.98]")}
+                                    style={{ aspectRatio: aspectRatio.replace(":", " / ") }}
+                                >
+                                    <NextImage
+                                        src={drop.imageUrl}
+                                        alt={drop.title}
+                                        fill
+                                        sizes="(max-width: 768px) 100vw, 720px"
+                                        unoptimized={isFirebaseStorageMediaUrl(drop.imageUrl)}
+                                        draggable={false}
+                                        className="object-cover object-center group-hover:scale-105 transition-transform duration-700 select-none"
+                                    />
+                                    <div className="absolute inset-x-0 bottom-0 h-1/2 bg-gradient-to-t from-black/60 to-transparent pointer-events-none" />
 
-                                <div className="absolute left-3 top-3 flex flex-wrap gap-2">
-                                    {(images > 0 || videos > 0) ? (
-                                        <div className="rounded-full border border-white/10 bg-black/60 px-2.5 py-1 text-[10px] font-bold text-white backdrop-blur-md">
-                                            {images > 0 ? <Images className="mr-1 inline h-3.5 w-3.5 text-brand-purple" /> : null}
-                                            {videos > 0 ? <Film className="mr-1 inline h-3.5 w-3.5 text-brand-purple" /> : null}
-                                            {images + videos} files
-                                        </div>
-                                    ) : null}
+                                    <div className="absolute left-3 bottom-3 flex flex-wrap gap-2 pointer-events-none">
+                                        {(images > 0 || videos > 0) ? (
+                                            <div className="rounded-full border border-white/10 bg-black/60 px-2.5 py-1 text-[10px] font-bold text-white backdrop-blur-md shadow-sm">
+                                                {images > 0 ? <Images className="mr-1 inline h-3.5 w-3.5 text-brand-purple" /> : null}
+                                                {videos > 0 ? <Film className="mr-1 inline h-3.5 w-3.5 text-brand-purple" /> : null}
+                                                {images + videos} files
+                                            </div>
+                                        ) : null}
+                                    </div>
                                 </div>
-
-                                <div className="absolute inset-x-0 bottom-0 p-4 text-left sm:p-5">
-                                    <p className="text-[11px] font-black uppercase tracking-[0.18em] text-brand-purple">
-                                        Featured KandyDrop
+                                
+                                <div className="mt-4 px-1">
+                                    <p className="text-[10px] font-black uppercase tracking-[0.16em] text-brand-purple/90">
+                                        {isCreatorDrop ? "Creator Experience" : "Live Drop"}
                                     </p>
-                                    <h3 className="mt-1 text-xl font-extrabold leading-tight text-white sm:text-2xl">
+                                    <h3 className="mt-1 text-lg sm:text-xl font-extrabold leading-tight text-white line-clamp-1 group-hover:text-brand-purple transition-colors">
                                         {drop.title}
                                     </h3>
-                                    <p className="mt-2 line-clamp-2 text-sm leading-6 text-gray-300">
+                                    <p className="mt-1 line-clamp-2 text-[13px] leading-5 text-gray-400">
                                         {drop.description}
                                     </p>
                                 </div>

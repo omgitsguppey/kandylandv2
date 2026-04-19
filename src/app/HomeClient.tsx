@@ -54,7 +54,7 @@ export default function HomeClient({ initialActiveDrops }: HomeClientProps) {
             ) : null}
             <Hero activeDrops={activeDrops} />
             
-            <div className="mx-auto w-full max-w-7xl px-4 sm:px-6 lg:px-8 mb-16 sm:mb-24">
+            <div className="mx-auto w-full max-w-7xl px-4 sm:px-6 lg:px-8 mb-10 sm:mb-16">
                 <CreatorDiscoveryRail surface="home" />
             </div>
 
