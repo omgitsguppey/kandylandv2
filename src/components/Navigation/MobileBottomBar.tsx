@@ -3,7 +3,7 @@
 import { Suspense } from "react";
 import { Home, Candy, Sparkles, LayoutDashboard, MessageSquare, Wallet } from "lucide-react";
 import Link from "next/link";
-import { usePathname, useSearchParams } from "next/navigation";
+import { usePathname } from "next/navigation";
 import { useAuth } from "@/context/AuthContext";
 import { useUI } from "@/context/UIContext";
 import { useChatUnreadStatus } from "@/hooks/useChatUnreadStatus";
@@ -40,14 +40,22 @@ function triggerHaptic() {
 
 function MobileBottomBarInner() {
     const pathname = usePathname();
-    const searchParams = useSearchParams();
     const { user, userProfile, loading } = useAuth();
     const { openPurchaseModal } = useUI();
     const { hasUnreadMessages } = useChatUnreadStatus();
     const authSettled = !loading;
 
-    if (pathname?.startsWith("/admin") || !authSettled) {
+    if (pathname?.startsWith("/admin")) {
         return null;
+    }
+
+    if (!authSettled) {
+        return (
+            <div
+                className="pointer-events-none fixed inset-x-0 z-40 px-3 md:hidden sm:px-4 opacity-0"
+                style={{ bottom: "calc(env(safe-area-inset-bottom) + 0.85rem)", height: "3.5rem" }}
+            />
+        );
     }
 
     const isSignedIn = !!user;
