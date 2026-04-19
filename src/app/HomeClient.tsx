@@ -5,6 +5,7 @@ import { useRouter } from "next/navigation";
 
 import Hero from "@/components/Hero";
 import { HowItWorks } from "@/components/Landing/HowItWorks";
+import { CreatorDiscoveryRail } from "@/components/CreatorDiscoveryRail";
 import { useAuth } from "@/context/AuthContext";
 import { useDrops } from "@/hooks/useDrops";
 import { getPreferredAuthenticatedPathForProfile } from "@/lib/creator-application";
@@ -52,6 +53,11 @@ export default function HomeClient({ initialActiveDrops }: HomeClientProps) {
                 </div>
             ) : null}
             <Hero activeDrops={activeDrops} />
+            
+            <div className="mx-auto w-full max-w-7xl px-4 sm:px-6 lg:px-8 mb-16 sm:mb-24">
+                <CreatorDiscoveryRail surface="home" />
+            </div>
+
             <HowItWorks activeDrops={activeDrops} />
 
             <footer className="border-t border-white/10 px-4 py-12 text-center text-sm text-gray-500">

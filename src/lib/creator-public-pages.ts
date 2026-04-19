@@ -9,7 +9,7 @@ import {
 } from "@/lib/creator-experiences";
 import { normalizeCreatorOnboardingApprovalStatus } from "@/lib/creator-onboarding";
 
-export type CreatorDiscoverySurface = "dashboard" | "drops" | "experiences";
+export type CreatorDiscoverySurface = "dashboard" | "drops" | "experiences" | "home";
 
 export type CreatorPublicExperienceKey =
     | "drops"

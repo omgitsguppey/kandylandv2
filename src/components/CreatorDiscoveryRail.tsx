@@ -26,7 +26,7 @@ type CreatorCard = CreatorDiscoveryProfile & {
 };
 
 interface CreatorDiscoveryRailProps {
-    surface: "dashboard" | "drops" | "experiences";
+    surface: "dashboard" | "drops" | "experiences" | "home";
     title?: string;
     compact?: boolean;
     initialCreators?: CreatorDiscoveryProfile[];
@@ -260,12 +260,16 @@ export function CreatorDiscoveryRail({
         ? "Creator spotlight opens as creators go live"
         : surface === "drops"
             ? "No creator spotlights are active here yet"
-            : "No creator experiences are ready here yet";
+            : surface === "home"
+                ? "Creator spotlight"
+                : "No creator experiences are ready here yet";
     const emptySupport = surface === "dashboard"
         ? "As approved creator profiles come online, the dashboard will pin the ones you follow first and then recommend the rest."
         : surface === "drops"
             ? "As creator drops go live, this rail will surface the creators behind them without mixing admin tooling into fan discovery."
-            : "Creator experiences only appear here once the underlying profile and fan actions are ready.";
+            : surface === "home"
+                ? "Discover top creators and their exclusive experiences right here."
+                : "Creator experiences only appear here once the underlying profile and fan actions are ready.";
 
     if (primaryCreators.length === 0) {
         return (
