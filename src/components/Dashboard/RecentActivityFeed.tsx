@@ -294,6 +294,7 @@ function RecentActivitySummary({ item }: { item: ActivityItem }) {
 interface ExpandedActivityViewProps {
     activities: ActivityItem[];
     currentPage: number;
+    historyError: boolean;
     loadingHistory: boolean;
     onNextPage: () => void;
     onPreviousPage: () => void;
@@ -305,6 +306,7 @@ interface ExpandedActivityViewProps {
 function ExpandedActivityView({
     activities,
     currentPage,
+    historyError,
     loadingHistory,
     onNextPage,
     onPreviousPage,
@@ -333,6 +335,11 @@ function ExpandedActivityView({
             {loadingHistory ? (
                 <div className="flex items-center justify-center py-8">
                     <Loader2 className="h-6 w-6 animate-spin text-brand-purple/50" />
+                </div>
+            ) : historyError && activities.length === 0 ? (
+                <div className="rounded-2xl border border-white/5 bg-white/5 px-4 py-8 text-center text-sm text-gray-400">
+                    <TriangleAlert className="mx-auto mb-2 h-6 w-6 opacity-60" />
+                    We couldn't load your full history right now.
                 </div>
             ) : activities.length === 0 ? (
                 <div className="rounded-2xl border border-white/5 bg-white/5 px-4 py-8 text-center text-sm text-gray-400">
@@ -377,12 +384,13 @@ function ExpandedActivityView({
     );
 }
 
-function useRecentActivityState(user: AuthenticatedUser, userId: string | null, expanded: boolean): RecentActivityState {
+function useRecentActivityState(user: AuthenticatedUser, userId: string | null, expanded: boolean): RecentActivityState & { historyError: boolean } {
     const [summaryActivity, setSummaryActivity] = useState<ActivityItem | null>(null);
     const [historyActivities, setHistoryActivities] = useState<ActivityItem[]>([]);
     const [loadingSummary, setLoadingSummary] = useState(true);
     const [loadingHistory, setLoadingHistory] = useState(false);
     const [historyLoaded, setHistoryLoaded] = useState(false);
+    const [historyError, setHistoryError] = useState(false);
     const [loadedForUserId, setLoadedForUserId] = useState<string | null>(null);
     const [searchValue, setSearchValue] = useState("");
     const [currentPage, setCurrentPage] = useState(1);
@@ -391,6 +399,10 @@ function useRecentActivityState(user: AuthenticatedUser, userId: string | null, 
     const summaryInFlightRef = useRef(false);
     const historyInFlightRef = useRef(false);
     const trackedSummaryViewRef = useRef<string | null>(null);
+    const expandedRef = useRef(expanded);
+    expandedRef.current = expanded;
+    const historyLoadedRef = useRef(historyLoaded);
+    historyLoadedRef.current = historyLoaded;
 
     useEffect(() => {
         if (!userId) {
@@ -529,7 +541,7 @@ function useRecentActivityState(user: AuthenticatedUser, userId: string | null, 
 
         const refreshRecentActivity = () => {
             void refreshActivity("summary");
-            if (expanded || historyLoaded) {
+            if (expandedRef.current || historyLoadedRef.current) {
                 void refreshActivity("history");
             }
         };
@@ -552,15 +564,21 @@ function useRecentActivityState(user: AuthenticatedUser, userId: string | null, 
             document.removeEventListener("visibilitychange", handleVisibilityChange);
             unsubscribeUserRuntime?.();
         };
-    }, [expanded, historyLoaded, user, userId]);
+    }, [user, userId]);
 
     useEffect(() => {
-        if (!expanded || !user || !userId || historyLoaded || loadingHistory) {
+        if (!expanded || !user || !userId || historyLoaded) {
+            return;
+        }
+
+        if (historyInFlightRef.current) {
             return;
         }
 
         let cancelled = false;
         setLoadingHistory(true);
+        setHistoryError(false);
+        historyInFlightRef.current = true;
 
         void (async () => {
             try {
@@ -580,7 +598,9 @@ function useRecentActivityState(user: AuthenticatedUser, userId: string | null, 
                 setLoadedForUserId(userId);
             } catch (error) {
                 reportRecentActivityFailure("cache", "Recent activity history refresh failed", userId, error);
+                setHistoryError(true);
             } finally {
+                historyInFlightRef.current = false;
                 if (!cancelled) {
                     setLoadingHistory(false);
                 }
@@ -590,7 +610,7 @@ function useRecentActivityState(user: AuthenticatedUser, userId: string | null, 
         return () => {
             cancelled = true;
         };
-    }, [expanded, historyLoaded, loadingHistory, user, userId]);
+    }, [expanded, historyLoaded, user, userId]);
 
     useEffect(() => {
         if (!expanded) {
@@ -637,6 +657,7 @@ function useRecentActivityState(user: AuthenticatedUser, userId: string | null, 
     return {
         currentPage,
         historyActivities: scopedHistoryActivities,
+        historyError,
         loadingHistory,
         loadingSummary,
         paginatedActivities,
@@ -656,6 +677,7 @@ export function RecentActivityFeed() {
     const {
         currentPage,
         historyActivities,
+        historyError,
         loadingHistory,
         loadingSummary,
         paginatedActivities,
@@ -724,6 +746,7 @@ export function RecentActivityFeed() {
                         <ExpandedActivityView
                             activities={paginatedActivities}
                             currentPage={currentPage}
+                            historyError={historyError}
                             loadingHistory={loadingHistory && !historyActivities.length}
                             onNextPage={() => setCurrentPage((page) => Math.min(totalPages, page + 1))}
                             onPreviousPage={() => setCurrentPage((page) => Math.max(1, page - 1))}

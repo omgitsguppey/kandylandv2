@@ -177,23 +177,39 @@ export function DailyCheckIn() {
 
     if (!isMounted) {
         return (
-            <div className="glass-panel p-6 rounded-3xl relative overflow-hidden h-64 animate-pulse">
-                <div className="absolute top-0 right-0 w-32 h-32 bg-brand-purple/10 rounded-full blur-[50px] pointer-events-none" />
-                <div className="relative z-10 h-full flex flex-col justify-between">
-                    <div>
-                        <div className="h-8 w-48 bg-white/10 rounded-lg mb-2" />
-                        <div className="h-4 w-32 bg-white/5 rounded-md" />
-                    </div>
+        <div className="glass-panel p-4 sm:p-6 rounded-3xl relative overflow-hidden min-h-[20rem] animate-pulse">
+            <div className="absolute top-0 right-0 w-32 h-32 bg-brand-purple/10 rounded-full blur-[50px] pointer-events-none" />
+            <div className="relative z-10 h-full flex flex-col">
+                <div className="mb-5 sm:mb-6">
+                    <div className="h-8 w-3/4 sm:w-1/2 bg-white/10 rounded-lg mb-2" />
+                    <div className="h-4 w-1/2 sm:w-1/3 bg-white/5 rounded-md" />
+                </div>
+                <div className="mb-5 sm:mb-6 h-16 sm:h-20 w-full bg-white/5 rounded-2xl" />
+                <div className="h-6 w-1/3 bg-white/5 rounded-lg mb-4" />
+                <div className="flex justify-between gap-1">
+                    {[...Array(7)].map((_, i) => (
+                        <div key={i} className="flex-1 h-16 sm:h-20 bg-white/5 rounded-2xl" />
+                    ))}
                 </div>
             </div>
+        </div>
         );
     }
+
+    const firstName = userProfile?.displayName?.split(" ")[0] || "Collector";
 
     return (
         <div id="daily-reward" className="glass-panel p-4 sm:p-6 rounded-3xl relative overflow-hidden" data-onboarding-target="daily-reward">
             <div className="absolute top-0 right-0 w-32 h-32 bg-brand-purple/10 rounded-full blur-[50px] pointer-events-none" />
 
             <div className="relative z-10">
+                <header className="mb-5 sm:mb-6">
+                    <h1 className="text-xl md:text-2xl font-bold leading-tight tracking-tight text-white/90">
+                        Welcome back to the Kandy Shop, {firstName}
+                    </h1>
+                    <p className="mt-1 text-sm text-gray-400">Claim your streak and stay ready to unwrap</p>
+                </header>
+
                 <div className="mb-5 sm:mb-6 flex items-center justify-between rounded-2xl bg-black/20 p-3 sm:px-5 sm:py-3 border border-white/5 backdrop-blur-sm">
                     <div className="flex flex-col items-center">
                         <span className="text-[10px] font-bold uppercase tracking-widest text-gray-500">Gum Drops</span>
@@ -201,7 +217,7 @@ export function DailyCheckIn() {
                     </div>
                     <div className="h-8 w-px bg-white/10" />
                     <div className="flex flex-col items-center">
-                        <span className="text-[10px] font-bold uppercase tracking-widest text-gray-500">Unlocked</span>
+                        <span className="text-[10px] font-bold uppercase tracking-widest text-gray-500">Unwrapped</span>
                         <CompactNumber value={userProfile?.unlockedContent?.length || 0} className="text-lg sm:text-xl font-black text-white" />
                     </div>
                     <div className="h-8 w-px bg-white/10" />

@@ -73,16 +73,20 @@ export function OwnedDropGalleryCard({ drop, isUnlocked, onOpen }: OwnedDropGall
                     </div>
                 )}
 
-                <div className="absolute inset-x-0 bottom-0 bg-gradient-to-t from-black/85 via-black/40 to-transparent p-2.5 sm:p-2">
-                    <p className="text-[11px] sm:text-xs font-bold text-white line-clamp-2 sm:line-clamp-1 leading-tight">{drop.title}</p>
+                <div className="absolute inset-x-0 bottom-0 bg-gradient-to-t from-black/95 via-black/60 to-transparent p-2.5 sm:p-3">
+                    <div className="relative overflow-hidden group">
+                        <p className="text-[11px] sm:text-xs font-bold text-white leading-tight drop-shadow-[0_2px_2px_rgba(0,0,0,0.8)] truncate">
+                            {drop.title}
+                        </p>
+                    </div>
                     <span className={cn(
-                        "mt-1 inline-flex items-center gap-1 rounded-full px-2 py-0.5 text-[9px] sm:text-[10px] font-bold border",
+                        "mt-1 inline-flex items-center gap-1 rounded-full px-2 py-0.5 text-[9px] sm:text-[10px] font-bold border shadow-sm",
                         isUnlocked
-                            ? "bg-brand-purple/20 text-brand-purple border-brand-purple/30"
+                            ? "bg-white/20 text-white border-white/30"
                             : "bg-white/10 text-gray-300 border-white/20"
                     )}>
-                        {isUnlocked ? <Unlock className="w-3 h-3" /> : <Lock className="w-3 h-3" />}
-                        {isUnlocked ? "Owned" : "Locked"}
+                        {isUnlocked ? <Unlock className="w-3 h-3 drop-shadow-md" /> : <Lock className="w-3 h-3" />}
+                        {isUnlocked ? "Unwrapped" : "Locked"}
                     </span>
                 </div>
             </div>
