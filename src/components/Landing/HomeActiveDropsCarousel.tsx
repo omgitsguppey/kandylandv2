@@ -111,7 +111,7 @@ export const HomeActiveDropsCarousel = memo(function HomeActiveDropsCarousel({
             <div className="space-y-4">
                 <div className="overflow-hidden">
                     <div className="flex">
-                        <div className="relative flex-[0_0_88%] min-w-0 sm:flex-[0_0_85%] md:flex-[0_0_75%] mr-4">
+                        <div className="relative flex-[0_0_44%] min-w-0 sm:flex-[0_0_42.5%] md:flex-[0_0_37.5%] mr-4">
                             <div className="w-full aspect-[4/5] sm:aspect-[16/9] animate-pulse rounded-[1.6rem] bg-white/5" />
                             <div className="mt-4 px-1">
                                 <div className="h-3 w-24 bg-white/10 rounded animate-pulse mb-2" />
@@ -164,7 +164,7 @@ export const HomeActiveDropsCarousel = memo(function HomeActiveDropsCarousel({
 
                                     openAuthModal("signup");
                                 }}
-                                className="relative flex-[0_0_88%] min-w-0 sm:flex-[0_0_85%] md:flex-[0_0_75%] mr-4 group flex flex-col text-left focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand-purple rounded-3xl"
+                                className="relative flex-[0_0_44%] min-w-0 sm:flex-[0_0_42.5%] md:flex-[0_0_37.5%] mr-4 group flex flex-col text-left focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand-purple rounded-3xl"
                             >
                                 <div 
                                     className={cn("relative w-full overflow-hidden rounded-[1.6rem] border border-white/5 bg-zinc-950 shadow-lg transition-transform duration-500", !isActive && "scale-[0.98]")}
