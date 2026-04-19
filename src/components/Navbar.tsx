@@ -58,7 +58,7 @@ export function Navbar() {
                         onClick={() => {
                             trackEvent("navigation_click", { destination: homeHref, source: "navbar_logo" });
                         }}
-                        className="shrink-0 bg-gradient-to-r from-brand-purple to-brand-purple bg-clip-text text-base font-bold text-transparent sm:text-2xl"
+                        className="shrink-0 text-white text-base font-bold sm:text-2xl"
                     >
                         KandyDrops
                     </Link>
