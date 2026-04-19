@@ -116,6 +116,7 @@ export async function POST(request: NextRequest) {
             ...ANALYTICS_ROUTE_POLICIES.guestIngest,
             preAuthRateLimit: ANALYTICS_WRITE,
             rateLimit: ANALYTICS_WRITE,
+            requireTrustedOrigin: true,
         });
 
         const contentLength = Number(request.headers.get("content-length") || 0);
