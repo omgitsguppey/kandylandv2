@@ -88,11 +88,11 @@ export default function DashboardClient({ drops, creatorRailProfiles }: Dashboar
 
     return (
         <div id="dashboard-home" tabIndex={-1} className="mx-auto w-full max-w-7xl px-3 sm:px-4 outline-none" data-onboarding-page="dashboard">
-            <header className="mb-4 md:mb-6">
-                <h1 className={`mb-2 max-w-full whitespace-nowrap text-left font-bold leading-tight tracking-tight text-white ${greetingSizeClass}`}>
+            <header className="mb-4 md:mb-5">
+                <h1 className="text-lg md:text-xl font-bold leading-tight tracking-tight text-white/90">
                     {greeting}
                 </h1>
-                <p className="text-sm text-gray-400 sm:text-base">Taste your unwrapped KandyDrops and earn free Gum Drops!</p>
+                <p className="mt-1 text-sm text-gray-400">Claim your streak and stay ready to unwrap</p>
             </header>
 
             {(userProfile.role === "creator" || Boolean(userProfile.creatorApplication)) ? (
@@ -103,23 +103,6 @@ export default function DashboardClient({ drops, creatorRailProfiles }: Dashboar
                 <div className="space-y-6 md:space-y-8">
                     <DailyCheckIn />
                     <CreatorDiscoveryRail surface="dashboard" compact initialCreators={creatorRailProfiles} />
-
-                    <div className="glass-panel rounded-3xl p-4 md:p-5">
-                        <h3 className="mb-3 flex items-center gap-2 text-base font-bold text-white md:text-lg">
-                            <Star className="h-5 w-5 text-brand-purple" /> Your Stats
-                        </h3>
-
-                        <div className="grid grid-cols-2 gap-3">
-                            <div className="flex items-center justify-between gap-3 rounded-xl border border-white/5 bg-white/[0.06] px-3 py-3 md:rounded-2xl md:px-4 md:py-3.5">
-                                <span className="text-[11px] font-semibold uppercase tracking-[0.16em] text-gray-500 md:text-xs">Gum Drops</span>
-                                <span className="text-lg font-black text-brand-purple md:text-xl">{userProfile.gumDropsBalance || 0}</span>
-                            </div>
-                            <div className="flex items-center justify-between gap-3 rounded-xl border border-white/5 bg-white/[0.06] px-3 py-3 md:rounded-2xl md:px-4 md:py-3.5">
-                                <span className="text-[11px] font-semibold uppercase tracking-[0.16em] text-gray-500 md:text-xs">Unlocked</span>
-                                <span className="text-lg font-black text-brand-purple md:text-xl">{userProfile.unlockedContent?.length || 0}</span>
-                            </div>
-                        </div>
-                    </div>
 
                     <RecentActivityFeed />
                 </div>

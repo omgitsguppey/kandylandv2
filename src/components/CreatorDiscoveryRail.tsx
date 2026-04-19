@@ -13,6 +13,7 @@ import { buildCreatorDiscoveryNavigationParams, type CreatorDiscoveryProfile } f
 import { cn } from "@/lib/utils";
 import { trackEvent } from "@/lib/telemetry";
 import { TitleMarquee } from "@/components/ui/TitleMarquee";
+import { CompactNumber } from "@/components/ui/CompactNumber";
 
 type CreatorCard = CreatorDiscoveryProfile & {
     bio?: string;
@@ -166,7 +167,6 @@ export function CreatorDiscoveryRail({
         }
         return combined.filter((creator) => creator.uid !== user?.uid);
     }, [followedCreators, recommendedCreators, user?.uid]);
-    const followerFormatter = useMemo(() => new Intl.NumberFormat("en-US", { notation: "compact", maximumFractionDigits: 1 }), []);
 
     const handleFollowToggle = async (creator: CreatorCard) => {
         if (!user) {
@@ -365,7 +365,7 @@ export function CreatorDiscoveryRail({
                                         {creator.isVerified ? <CheckCircle2 className="h-3.5 w-3.5 shrink-0 text-brand-purple" /> : null}
                                     </div>
                                     <p className={cn("mt-1 text-gray-500", compact ? "text-[10px]" : "text-[11px]")}>
-                                        {followerFormatter.format(Math.max(creator.followerCount ?? 0, 0))} followers
+                                        <CompactNumber value={Math.max(creator.followerCount ?? 0, 0)} /> followers
                                     </p>
                                 </div>
                             </Link>

@@ -15,6 +15,7 @@ import { cn } from "@/lib/utils";
 import { dispatchActivitySync } from "@/lib/activity-sync";
 import { reportClientIssue } from "@/lib/client-error-reporting";
 import type { DailyTasksState } from "@/lib/tasks/task-catalog";
+import { CompactNumber } from "@/components/ui/CompactNumber";
 
 function formatCountdown(remainingMs: number): string {
     const totalSeconds = Math.max(0, Math.floor(remainingMs / 1000));
@@ -193,20 +194,29 @@ export function DailyCheckIn() {
             <div className="absolute top-0 right-0 w-32 h-32 bg-brand-purple/10 rounded-full blur-[50px] pointer-events-none" />
 
             <div className="relative z-10">
-                <div className="flex items-start justify-between gap-4 mb-5 sm:mb-6">
-                    <div>
-                        <h2 className="text-xl sm:text-2xl font-bold text-white flex items-center gap-2">
-                            <Gift className="w-5 h-5 sm:w-6 sm:h-6 text-brand-purple" /> Daily Rewards
-                        </h2>
-                        <p className="text-gray-400 text-sm">Check in daily to earn Gum Drops!</p>
+                <div className="mb-5 sm:mb-6 flex items-center justify-between rounded-2xl bg-black/20 p-3 sm:px-5 sm:py-3 border border-white/5 backdrop-blur-sm">
+                    <div className="flex flex-col items-center">
+                        <span className="text-[10px] font-bold uppercase tracking-widest text-gray-500">Gum Drops</span>
+                        <CompactNumber value={userProfile?.gumDropsBalance || 0} className="text-lg sm:text-xl font-black text-brand-purple" />
                     </div>
-                    <div className="text-right">
-                        <div className="text-2xl sm:text-3xl font-bold text-brand-purple">
-                            {displayedStreakCount}
-                            <span className="text-sm sm:text-base text-gray-500">/7</span>
+                    <div className="h-8 w-px bg-white/10" />
+                    <div className="flex flex-col items-center">
+                        <span className="text-[10px] font-bold uppercase tracking-widest text-gray-500">Unlocked</span>
+                        <CompactNumber value={userProfile?.unlockedContent?.length || 0} className="text-lg sm:text-xl font-black text-white" />
+                    </div>
+                    <div className="h-8 w-px bg-white/10" />
+                    <div className="flex flex-col items-center">
+                        <span className="text-[10px] font-bold uppercase tracking-widest text-gray-500">Day Streak</span>
+                        <div className="text-lg sm:text-xl font-black text-brand-purple">
+                            {displayedStreakCount}<span className="text-xs sm:text-sm font-semibold text-gray-500">/7</span>
                         </div>
-                        <div className="text-xs text-brand-purple font-bold uppercase tracking-wider">Day Streak</div>
                     </div>
+                </div>
+
+                <div className="mb-5 sm:mb-6">
+                    <h2 className="text-xl sm:text-2xl font-bold text-white flex items-center gap-2">
+                        <Gift className="w-5 h-5 sm:w-6 sm:h-6 text-brand-purple" /> Daily Rewards
+                    </h2>
                 </div>
 
                 <div className="flex justify-between gap-1 mb-4">
