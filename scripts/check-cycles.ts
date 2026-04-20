@@ -52,6 +52,12 @@ const TARGETS: Record<TargetName, CycleTargetConfig> = {
     input: "functions/src",
     tsConfig: "functions/tsconfig.json",
     extensions: ["ts"],
+    allowedSkipped: [
+      "firebase-functions/v2/firestore",
+      "firebase-functions",
+      "firebase-functions/v2/scheduler",
+      "firebase-functions/v2",
+    ],
   },
 };
 

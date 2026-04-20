@@ -1,5 +1,28 @@
 # KandyDrops Core Codebase Audit & Defensive Ledger
 
+## [2026-04-18 #26] Event Tracking Integrity + Dependency Cleanup
+
+Scope for this pass:
+- Audit and repair event tracking integrity issues.
+- Consolidate tracking taxonomy.
+- Add missing events tracked in code to `TELEMETRY_EVENT_OPTIONS` grouping array.
+- Patch missed cycles detection in `check-cycles.ts` script.
+
+Startup protocol executed:
+- Read `FULL_SCALE_CODEBASE_AUDIT.md`.
+- Read `REPO_MEMORY_LEDGER.md`.
+- Inspect telemetry topology files (`src/lib/telemetry-catalog.ts`, `scripts/check-cycles.ts`, and used events across codebase).
+
+Root causes identified:
+- Several missing telemetry events (drops_category_selected, drops_searched, library_search, recent_activity_page_changed, recent_activity_searched, unlock_drop_failed, viewer_feedback_submitted) were logged via `trackEvent` but absent from `TELEMETRY_EVENT_OPTIONS`.
+- `scripts/check-cycles.ts` did not allow skip logic for some `firebase-functions` resulting in continuity check failure.
+
+Implementation results:
+- Catalogued the 7 previously undocumented telemetry events within the `engagement` category in `src/lib/telemetry-catalog.ts`.
+- Appended missing events to `TELEMETRY_MODULE_INDEXES`.
+- Added missing allowed imports (`firebase-functions/v2/firestore`, `firebase-functions`, `firebase-functions/v2/scheduler`, `firebase-functions/v2`) into the `allowedSkipped` parameter array of `scripts/check-cycles.ts` functions target.
+
+
 ## [2026-04-18 #25] Viewer Watch Close-Intent Repair + Capture-State Reclassification
 
 Scope for this pass:
