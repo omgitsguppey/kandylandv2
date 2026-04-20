@@ -748,9 +748,20 @@ export function RecentActivityFeed() {
                             currentPage={currentPage}
                             historyError={historyError}
                             loadingHistory={loadingHistory && !historyActivities.length}
-                            onNextPage={() => setCurrentPage((page) => Math.min(totalPages, page + 1))}
-                            onPreviousPage={() => setCurrentPage((page) => Math.max(1, page - 1))}
-                            onSearchChange={setSearchValue}
+                            onNextPage={() => {
+                                trackEvent("recent_activity_page_changed", { direction: "next" });
+                                setCurrentPage((page) => Math.min(totalPages, page + 1));
+                            }}
+                            onPreviousPage={() => {
+                                trackEvent("recent_activity_page_changed", { direction: "previous" });
+                                setCurrentPage((page) => Math.max(1, page - 1));
+                            }}
+                            onSearchChange={(value) => {
+                                if (value.trim()) {
+                                    trackEvent("recent_activity_searched", { query_length: value.length });
+                                }
+                                setSearchValue(value);
+                            }}
                             searchValue={searchValue}
                             totalPages={totalPages}
                         />
