@@ -1,4 +1,8 @@
-"use client";
+import os
+
+PAGE_PATH = 'src/app/admin/ai/page.tsx'
+
+content = """"use client";
 
 import React from "react";
 import { Power, RefreshCw } from "lucide-react";
@@ -123,3 +127,9 @@ export default function AIAdminPage() {
 // Re-export types that other files might expect from this page
 export type { AdminAiDropCoverDashboard, AdminUiPreferencesResponse, AiModuleKey, ReviewFilter } from './hooks/useAdminAiState';
 export { MODULE_DEFAULTS } from './hooks/useAdminAiState';
+"""
+
+with open(PAGE_PATH, 'w', encoding='utf-8') as f:
+    f.write(content)
+
+print("Rewrote " + PAGE_PATH)

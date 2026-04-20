@@ -1,4 +1,8 @@
-"use client";
+import os
+
+PAGE_PATH = r'C:\Users\uylus\OneDrive\Documents\KandyDrops_Final\src\app\dashboard\profile\page.tsx'
+
+content = """"use client";
 
 import { useProfileState } from "./hooks/useProfileState";
 import { ProfileProfileSection } from "./components/ProfileProfileSection";
@@ -67,3 +71,9 @@ export default function ProfilePage() {
         </div>
     );
 }
+"""
+
+with open(PAGE_PATH, 'w', encoding='utf-8') as f:
+    f.write(content)
+
+print("page.tsx rewritten")
