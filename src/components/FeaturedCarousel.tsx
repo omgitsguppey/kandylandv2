@@ -5,7 +5,7 @@ import { useState, useRef, useEffect, useMemo, useCallback } from "react";
 import useEmblaCarousel from "embla-carousel-react";
 import { cn } from "@/lib/utils";
 import NextImage from "next/image";
-import { Clock, ChevronRight, Eye, Image as ImageIcon, Film } from "lucide-react";
+import { Clock, ChevronRight, Eye, Image as ImageIcon, Film, Lock, Unlock } from "lucide-react";
 import { getSupportedDropAspectRatio } from "@/lib/drop-presentation";
 
 import { useUserProfile } from "@/context/AuthContext";

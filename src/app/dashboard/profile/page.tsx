@@ -5,7 +5,8 @@ import Link from "next/link";
 import { useAuth, useUserProfile } from "@/context/AuthContext";
 import { updateProfile } from "firebase/auth";
 import { Button } from "@/components/ui/Button";
-import { Loader2, User, AtSign, Bell, Globe, ShieldAlert, Mail, Camera, LogOut, Download, Trash2, Lock, FileText, CalendarClock, MessageSquare, Sparkles, Wallet, CircleHelp, LifeBuoy, CalendarDays } from "lucide-react";
+import { Loader2, User, AtSign, Bell, Globe, ShieldAlert, Mail, Camera, LogOut, Download, Trash2, Lock, FileText, CalendarClock, MessageSquare, Sparkles, Wallet, CircleHelp, LifeBuoy, CalendarDays, ChevronRight } from "lucide-react";
+import { cn } from "@/lib/utils";
 
 import { authFetch } from "@/lib/authFetch";
 import { toast } from "sonner";
@@ -134,13 +135,51 @@ function getCreatorLoadFailureMessage(target: CreatorLoadTarget, status?: number
     return "Recent creator broadcasts could not be loaded right now.";
 }
 
-function SectionCard({ title, children, id }: { title: string; children: React.ReactNode; id?: string }) {
+function SectionContainer({ title, children, id }: { title: string; children: React.ReactNode; id?: string }) {
     return (
-        <section id={id} className="glass-panel rounded-2xl border border-white/10 p-4 md:p-5 space-y-4">
-            <h2 className="text-base md:text-lg font-bold text-white">{title}</h2>
-            {children}
+        <section id={id} className="mb-6 last:mb-0">
+            <h2 className="mb-2 px-4 text-[11px] font-extrabold uppercase tracking-widest text-gray-500">{title}</h2>
+            <div className="overflow-hidden rounded-3xl bg-white/5 border border-white/5">
+                {children}
+            </div>
         </section>
     );
+}
+
+function NavigationRow({
+    icon,
+    label,
+    description,
+    onClick,
+    href,
+    destructive,
+}: {
+    icon?: React.ReactNode;
+    label: string;
+    description?: string;
+    onClick?: () => void;
+    href?: string;
+    destructive?: boolean;
+}) {
+    const ComponentContent = (
+        <>
+            <div className="flex items-center gap-3 min-w-0">
+                {icon && <div className={cn("shrink-0", destructive ? "text-red-500" : "text-gray-400")}>{icon}</div>}
+                <div className="min-w-0 flex-1 text-left">
+                    <p className={cn("truncate text-sm font-medium", destructive ? "text-red-500" : "text-gray-200")}>{label}</p>
+                    {description && <p className="truncate text-xs text-gray-500">{description}</p>}
+                </div>
+            </div>
+            <ChevronRight className="h-4 w-4 shrink-0 text-gray-600" />
+        </>
+    );
+    const className = "flex w-full items-center justify-between gap-4 py-3.5 px-4 transition-colors hover:bg-white/5 focus:bg-white/5 outline-none";
+    
+    if (href) {
+        // @ts-ignore
+        return <Link href={href} className={className}>{ComponentContent}</Link>;
+    }
+    return <button type="button" onClick={onClick} className={className}>{ComponentContent}</button>;
 }
 
 function ToggleRow({
@@ -151,6 +190,7 @@ function ToggleRow({
     icon,
     disabled = false,
     badge,
+    destructive,
 }: {
     label: string;
     description?: string;
@@ -159,60 +199,122 @@ function ToggleRow({
     icon?: React.ReactNode;
     disabled?: boolean;
     badge?: string;
+    destructive?: boolean;
 }) {
     return (
-        <div className={`flex items-start justify-between gap-4 rounded-[1.15rem] border px-4 py-2.5 transition-colors ${disabled ? "border-white/5 bg-black/20 opacity-75" : "border-white/10 bg-black/30"}`}>
-            <div className="min-w-0">
-                <div className="flex flex-wrap items-center gap-2">
-                    <p className="flex items-center gap-2 text-sm font-medium text-gray-100">{icon}{label}</p>
-                    {badge ? (
-                        <span className="rounded-full border border-white/10 bg-white/5 px-2 py-0.5 text-[10px] font-bold uppercase tracking-[0.14em] text-gray-400">
-                            {badge}
-                        </span>
-                    ) : null}
+        <div className={cn("flex w-full items-center justify-between gap-4 py-3.5 px-4", disabled && "opacity-60")}>
+            <div className="flex items-start gap-3 min-w-0 flex-1">
+                {icon && <div className="mt-0.5 shrink-0 text-gray-400">{icon}</div>}
+                <div className="min-w-0 flex-1">
+                    <div className="flex flex-wrap items-center gap-2">
+                        <p className={cn("text-sm font-medium", destructive ? "text-red-400" : "text-gray-200")}>{label}</p>
+                        {badge && (
+                            <span className="rounded-md bg-white/10 px-1.5 py-0.5 text-[9px] font-bold uppercase tracking-wider text-gray-400">
+                                {badge}
+                            </span>
+                        )}
+                    </div>
+                    {description && <p className="mt-0.5 text-xs text-gray-500 leading-tight pr-4">{description}</p>}
                 </div>
-                {description ? <p className="mt-1 text-xs leading-[1.35rem] text-gray-500">{description}</p> : null}
             </div>
             <button
                 type="button"
                 onClick={() => onChange(!checked)}
                 disabled={disabled}
-                className={`relative h-6 w-11 shrink-0 rounded-full transition ${checked ? "bg-brand-purple" : "bg-white/20"} ${disabled ? "cursor-not-allowed" : ""}`}
-                aria-label={`${label} toggle`}
+                className={cn(
+                    "relative h-[22px] w-10 shrink-0 rounded-full transition-colors",
+                    checked ? (destructive ? "bg-red-500" : "bg-brand-purple") : "bg-white/10",
+                    disabled && "cursor-not-allowed"
+                )}
+                aria-label={label + " toggle"}
                 aria-pressed={checked}
             >
-                <span className={`absolute top-0.5 h-5 w-5 rounded-full bg-white transition ${checked ? "left-[1.35rem]" : "left-0.5"}`} />
+                <span className={cn(
+                    "absolute top-[2px] h-[18px] w-[18px] rounded-full bg-white transition-all shadow-sm",
+                    checked ? "left-[1.125rem]" : "left-[2px]"
+                )} />
             </button>
         </div>
     );
 }
 
-function StaticSettingRow({
+function StaticRow({
     label,
     description,
     icon,
     badge,
 }: {
     label: string;
-    description: string;
+    description?: string;
     icon?: React.ReactNode;
     badge?: string;
 }) {
     return (
-        <div className="flex items-start justify-between gap-4 rounded-[1.15rem] border border-white/10 bg-black/30 px-4 py-2.5">
-            <div className="min-w-0">
+        <div className="flex w-full items-start gap-3 py-3.5 px-4 bg-black/20">
+            {icon && <div className="mt-0.5 shrink-0 text-brand-purple/70">{icon}</div>}
+            <div className="min-w-0 flex-1">
                 <div className="flex flex-wrap items-center gap-2">
-                    <p className="flex items-center gap-2 text-sm font-medium text-gray-100">{icon}{label}</p>
-                    {badge ? (
-                        <span className="rounded-full border border-white/10 bg-white/5 px-2 py-0.5 text-[10px] font-bold uppercase tracking-[0.14em] text-gray-400">
+                    <p className="text-sm font-medium text-gray-300">{label}</p>
+                    {badge && (
+                        <span className="rounded-md bg-brand-purple/15 border border-brand-purple/30 px-1.5 py-0.5 text-[9px] font-bold uppercase tracking-wider text-brand-purple">
                             {badge}
                         </span>
-                    ) : null}
+                    )}
                 </div>
-                <p className="mt-1 text-xs leading-5 text-gray-500">{description}</p>
+                {description && <p className="mt-0.5 text-xs text-gray-500 leading-tight">{description}</p>}
             </div>
         </div>
     );
+}
+
+function ValueInputRow({
+    label,
+    description,
+    value,
+    onChange,
+    type = "text",
+    min,
+    step,
+    disabled = false,
+    icon,
+    placeholder
+}: {
+    label: string;
+    description?: string;
+    value: string | number;
+    onChange: (val: string) => void;
+    type?: string;
+    min?: number;
+    step?: number;
+    disabled?: boolean;
+    icon?: React.ReactNode;
+    placeholder?: string;
+}) {
+    return (
+        <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 py-3 px-4 bg-black/30">
+            <div className="flex items-start gap-3 min-w-0 flex-1">
+                {icon && <div className="mt-0.5 shrink-0 text-gray-400">{icon}</div>}
+                <div className="min-w-0 flex-1">
+                    <p className="text-sm font-medium text-gray-300">{label}</p>
+                    {description && <p className="mt-0.5 text-xs text-gray-500">{description}</p>}
+                </div>
+            </div>
+            <input
+                type={type}
+                min={min}
+                step={step}
+                value={value}
+                onChange={(e) => onChange(e.target.value)}
+                disabled={disabled}
+                placeholder={placeholder}
+                className="w-full sm:w-48 rounded-lg border border-white/10 bg-black/40 px-3 py-1.5 text-sm text-white focus:outline-none focus:ring-1 focus:ring-brand-purple/50"
+            />
+        </div>
+    );
+}
+
+function RowDivider() {
+    return <div className="h-px w-full bg-white/5 ml-4" />;
 }
 
 export default function ProfilePage() {
@@ -948,22 +1050,27 @@ export default function ProfilePage() {
         } finally {
             setSendingCreatorBroadcast(false);
         }
-    };
-
-    return (
-        <div className="w-full px-4 max-w-2xl mx-auto">
+    };    return (
+        <div className="w-full px-4 sm:px-6 max-w-2xl mx-auto pb-24">
             <PageViewEvent eventName="profile_settings_viewed" />
-            <header className="mb-5 flex items-start justify-between gap-3">
-                <h1 className="bg-gradient-to-r from-brand-purple to-brand-purple bg-clip-text text-2xl font-bold text-transparent md:text-3xl">Profile Settings</h1>
-                <div className={`rounded-full border px-3 py-1 text-[10px] font-bold uppercase tracking-[0.16em] ${saving ? "border-brand-purple/25 bg-brand-purple/10 text-white" : saveFeedback && saveFeedback !== "Saved" ? "border-red-500/25 bg-red-500/10 text-red-200" : "border-white/10 bg-white/5 text-gray-300"}`}>
-                    {saving ? "Saving" : saveFeedback ?? "Autosave on"}
+            <header className="mb-6 flex items-start justify-between gap-3 pt-4">
+                <h1 className="text-xl sm:text-2xl font-bold text-white tracking-tight">Settings</h1>
+                <div className={cn(
+                    "rounded-full border px-2.5 py-1 text-[10px] font-bold uppercase tracking-widest transition-colors",
+                    saving ? "border-brand-purple/30 bg-brand-purple/10 text-brand-purple" : 
+                    saveFeedback && saveFeedback !== "Saved" && saveFeedback !== "Autosave on" && saveFeedback !== "Essential-only mode saved" ? "border-red-500/25 bg-red-500/10 text-red-200" : 
+                    "border-white/10 bg-white/5 text-gray-400"
+                )}>
+                    {saving ? "Saving" : saveFeedback ?? "Autosave"}
                 </div>
             </header>
 
-            <form onSubmit={(event) => event.preventDefault()} className="space-y-4">
-                <SectionCard title="Profile">
-                    <div className="flex items-center gap-4">
-                        <div className="group relative h-20 w-20 rounded-full overflow-hidden border border-white/10 bg-black/40 shrink-0 cursor-pointer">
+            <form onSubmit={(e) => e.preventDefault()} className="space-y-6">
+                
+                {/* 1. PROFILE */}
+                <SectionContainer title="Profile">
+                    <div className="flex items-center gap-4 p-4">
+                        <div className="group relative h-16 w-16 rounded-full overflow-hidden border border-white/10 bg-black/40 shrink-0 cursor-pointer">
                             <input
                                 type="file"
                                 accept="image/*"
@@ -973,388 +1080,150 @@ export default function ProfilePage() {
                             />
                             {isUploadingAvatar ? (
                                 <div className="absolute inset-0 flex items-center justify-center bg-black/50 z-20">
-                                    <Loader2 className="w-6 h-6 animate-spin text-white" />
+                                    <Loader2 className="w-5 h-5 animate-spin text-white" />
                                 </div>
                             ) : (
                                 <div className="absolute inset-0 flex items-center justify-center bg-black/60 opacity-0 group-hover:opacity-100 transition-opacity z-0">
-                                    <Camera className="w-6 h-6 text-white" />
+                                    <Camera className="w-5 h-5 text-white" />
                                 </div>
                             )}
                             {user?.photoURL ? (
-                                <Image src={user.photoURL} alt="Avatar" fill sizes="80px" className="object-cover" />
+                                // @ts-ignore
+                                <Image src={user.photoURL} alt="Avatar" fill sizes="64px" className="object-cover" />
                             ) : (
-                                <span className="flex h-full w-full items-center justify-center text-2xl font-bold text-white">{avatarFallback}</span>
+                                <span className="flex h-full w-full items-center justify-center text-xl font-bold text-white">{avatarFallback}</span>
                             )}
                         </div>
-                        <div className="min-w-0">
+                        <div className="min-w-0 flex-1">
                             <p className="text-lg font-bold text-white truncate">{profileIdentityLabel}</p>
                             <p className="text-sm text-gray-400 truncate">{profileIdentityDetail}</p>
                         </div>
                     </div>
-
-                    <div className="space-y-3">
-                        <div>
-                            <label htmlFor="displayName" className="block text-sm font-medium text-gray-300 mb-1.5">Display Name</label>
-                            <div className="relative">
-                                <User className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-500" />
-                                <input
-                                    type="text"
-                                    id="displayName"
-                                    value={formState.displayName}
-                                    onChange={(event) => updateForm("displayName", event.target.value)}
-                                    className="w-full bg-black/40 border border-white/10 rounded-xl py-2.5 pl-9 pr-3 text-white text-sm"
-                                    placeholder="Enter your name"
-                                />
-                            </div>
-                        </div>
-
-                        <div>
-                            <label htmlFor="username" className="block text-sm font-medium text-gray-300 mb-1.5">Username</label>
-                            <div className="relative">
-                                <AtSign className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-500" />
-                                <input
-                                    type="text"
-                                    id="username"
-                                    value={formState.username}
-                                    onChange={(event) => updateForm("username", sanitizeUsername(event.target.value))}
-                                    className="w-full bg-black/40 border border-white/10 rounded-xl py-2.5 pl-9 pr-3 text-white text-sm"
-                                    placeholder="your_handle"
-                                />
-                            </div>
-                            <p className="text-xs text-gray-500 mt-1.5">Used for creator URLs and account identification.</p>
-                        </div>
-                    </div>
-                </SectionCard>
-
-                <SectionCard title="Account & Identity">
-                    <div className="rounded-xl border border-white/5 bg-black/25 px-3 py-2.5">
-                        <p className="text-xs text-gray-500 mb-1">Email address</p>
-                        <p className="text-sm text-gray-200 flex items-center gap-2"><Mail className="w-4 h-4 text-gray-400" /> {profileEmail}</p>
-                    </div>
-
-                    <div className="grid gap-3 sm:grid-cols-2">
-                        <div>
-                            <label htmlFor="dateOfBirth" className="block text-sm font-medium text-gray-300 mb-1.5">Birthday</label>
-                            <div className="relative">
-                                <CalendarDays className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-gray-500" />
-                                <input
-                                    type="date"
-                                    id="dateOfBirth"
-                                    value={formState.dateOfBirth}
-                                    onChange={(event) => updateForm("dateOfBirth", event.target.value)}
-                                    className="w-full rounded-xl border border-white/10 bg-black/40 py-2.5 pl-9 pr-3 text-sm text-white"
-                                />
-                            </div>
-                        </div>
-
-                        <div>
-                            <label htmlFor="timezone" className="block text-sm font-medium text-gray-300 mb-1.5">Timezone</label>
-                            <div className="relative">
-                                <Globe className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-gray-500" />
-                                <select
-                                    id="timezone"
-                                    value={formState.timezone}
-                                    onChange={(event) => updateForm("timezone", normalizeTimezone(event.target.value))}
-                                    className="w-full appearance-none rounded-xl border border-white/10 bg-black/40 py-2.5 pl-9 pr-3 text-sm text-white"
-                                >
-                                    {TIMEZONE_OPTIONS.map((timezone) => (
-                                        <option key={timezone} value={timezone}>
-                                            {timezone}
-                                        </option>
-                                    ))}
-                                </select>
-                            </div>
-                        </div>
-                    </div>
-                </SectionCard>
-
-                {isCreatorAccount ? (
-                    <SectionCard title="Kreator Experiences" id="creator-tools">
-                        {creatorSettingsNotice ? (
-                            <div className="rounded-[1.15rem] border border-amber-400/25 bg-amber-500/10 px-4 py-3 text-sm text-amber-100">
-                                {creatorSettingsNotice}
-                            </div>
-                        ) : null}
-                        <div className="grid gap-3 md:grid-cols-2">
-                            <div className="rounded-[1.15rem] border border-white/10 bg-black/30 px-4 py-3">
-                                <p className="text-[10px] font-bold uppercase tracking-[0.16em] text-gray-500">Creator earnings</p>
-                                <p className="mt-2 text-2xl font-black text-brand-purple">{creatorStats?.earningsGd || 0} GD</p>
-                                <p className="mt-1 text-xs text-gray-500">Across messaging, subscriptions, requests, and bookings.</p>
-                            </div>
-                            <div className="rounded-[1.15rem] border border-white/10 bg-black/30 px-4 py-3">
-                                <p className="text-[10px] font-bold uppercase tracking-[0.16em] text-gray-500">Subscribers</p>
-                                <p className="mt-2 text-2xl font-black text-white">{creatorStats?.activeSubscribers || 0}</p>
-                                <p className="mt-1 text-xs text-gray-500">Active monthly members.</p>
-                            </div>
-                        </div>
-
-                        <ToggleRow
-                            label="Creator messaging"
-                            description="Turn paid creator chat on or off."
-                            icon={<MessageSquare className="h-4 w-4 text-brand-purple" />}
-                            checked={creatorSettingsState.messagingEnabled}
-                            onChange={(value) => updateCreatorSettingsState("messagingEnabled", value)}
-                        />
-                        <ToggleRow
-                            label="Creator broadcasts"
-                            description="Send broadcast posts to followers."
-                            icon={<Sparkles className="h-4 w-4 text-brand-purple" />}
-                            checked={creatorSettingsState.broadcastsEnabled}
-                            onChange={(value) => updateCreatorSettingsState("broadcastsEnabled", value)}
-                        />
-                        <ToggleRow
-                            label="Subscriptions"
-                            description="Let users subscribe monthly."
-                            icon={<Wallet className="h-4 w-4 text-brand-purple" />}
-                            checked={creatorSettingsState.subscriptionsEnabled}
-                            onChange={(value) => updateCreatorSettingsState("subscriptionsEnabled", value)}
-                        />
-                        <ToggleRow
-                            label="Calls + bookings"
-                            description="Allow phone and video experiences."
-                            icon={<CalendarClock className="h-4 w-4 text-brand-purple" />}
-                            checked={creatorSettingsState.bookingsEnabled}
-                            onChange={(value) => updateCreatorSettingsState("bookingsEnabled", value)}
-                        />
-                        <ToggleRow
-                            label="Custom requests"
-                            description="Show paid request categories on your creator page."
-                            icon={<Sparkles className="h-4 w-4 text-brand-purple" />}
-                            checked={creatorSettingsState.customRequestsEnabled}
-                            onChange={(value) => updateCreatorSettingsState("customRequestsEnabled", value)}
-                        />
-
-                        <div className="grid gap-3 sm:grid-cols-2">
-                            <div>
-                                <label className="mb-1.5 block text-sm font-medium text-gray-300">Monthly subscription price</label>
-                                <input
-                                    type="number"
-                                    min={CREATOR_SUBSCRIPTION_MIN_GD}
-                                    value={creatorSettingsState.subscriptionPriceGd}
-                                    onChange={(event) => updateCreatorSettingsState("subscriptionPriceGd", Math.max(CREATOR_SUBSCRIPTION_MIN_GD, Number(event.target.value) || CREATOR_SUBSCRIPTION_MIN_GD))}
-                                    className="w-full rounded-xl border border-white/10 bg-black/40 px-3 py-2.5 text-sm text-white"
-                                />
-                            </div>
-                            <div>
-                                <label className="mb-1.5 block text-sm font-medium text-gray-300">Booking minimum minutes</label>
-                                <input
-                                    type="number"
-                                    min={5}
-                                    step={5}
-                                    value={creatorSettingsState.bookingMinimumMinutes}
-                                    onChange={(event) => updateCreatorSettingsState("bookingMinimumMinutes", Math.max(5, Number(event.target.value) || 5))}
-                                    className="w-full rounded-xl border border-white/10 bg-black/40 px-3 py-2.5 text-sm text-white"
-                                />
-                            </div>
-                            <div>
-                                <label className="mb-1.5 block text-sm font-medium text-gray-300">Phone rate per minute</label>
-                                <input
-                                    type="number"
-                                    min={CREATOR_BOOKING_RATES.phone}
-                                    value={creatorSettingsState.phoneRatePerMinuteGd}
-                                    onChange={(event) => updateCreatorSettingsState("phoneRatePerMinuteGd", Math.max(CREATOR_BOOKING_RATES.phone, Number(event.target.value) || CREATOR_BOOKING_RATES.phone))}
-                                    className="w-full rounded-xl border border-white/10 bg-black/40 px-3 py-2.5 text-sm text-white"
-                                />
-                            </div>
-                            <div>
-                                <label className="mb-1.5 block text-sm font-medium text-gray-300">Video rate per minute</label>
-                                <input
-                                    type="number"
-                                    min={CREATOR_BOOKING_RATES.video}
-                                    value={creatorSettingsState.videoRatePerMinuteGd}
-                                    onChange={(event) => updateCreatorSettingsState("videoRatePerMinuteGd", Math.max(CREATOR_BOOKING_RATES.video, Number(event.target.value) || CREATOR_BOOKING_RATES.video))}
-                                    className="w-full rounded-xl border border-white/10 bg-black/40 px-3 py-2.5 text-sm text-white"
-                                />
-                            </div>
-                        </div>
-
-                        <div className="grid gap-3 sm:grid-cols-2">
-                            {creatorSettingsState.requestCategories.map((category: CreatorRequestCategoryConfig, index: number) => (
-                                <div key={category.id} className="rounded-[1.15rem] border border-white/10 bg-black/25 p-3">
-                                    <div className="flex items-center justify-between gap-3">
-                                        <div>
-                                            <p className="text-sm font-semibold text-white">{category.label}</p>
-                                            <p className="mt-1 text-xs text-gray-500">{category.description}</p>
-                                        </div>
-                                        <button
-                                            type="button"
-                                            onClick={() => {
-                                                setCreatorSettingsState((current: CreatorSettings) => ({
-                                                    ...current,
-                                                    requestCategories: current.requestCategories.map((entry: CreatorRequestCategoryConfig, entryIndex: number) => (
-                                                        entryIndex === index
-                                                            ? { ...entry, enabled: !entry.enabled }
-                                                            : entry
-                                                    )),
-                                                }));
-                                            }}
-                                            className={`rounded-full px-2 py-1 text-[10px] font-bold uppercase tracking-[0.14em] ${category.enabled ? "bg-brand-purple/15 text-white" : "bg-white/5 text-gray-400"}`}
-                                        >
-                                            {category.enabled ? "Visible" : "Hidden"}
-                                        </button>
-                                    </div>
-                                    <input
-                                        type="number"
-                                        min={0}
-                                        value={category.priceGd}
-                                        onChange={(event) => {
-                                            const nextPrice = Math.max(0, Number(event.target.value) || 0);
-                                            setCreatorSettingsState((current: CreatorSettings) => ({
-                                                ...current,
-                                                requestCategories: current.requestCategories.map((entry: CreatorRequestCategoryConfig, entryIndex: number) => (
-                                                    entryIndex === index
-                                                        ? { ...entry, priceGd: nextPrice }
-                                                        : entry
-                                                )),
-                                            }));
-                                        }}
-                                        className="mt-3 w-full rounded-xl border border-white/10 bg-black/40 px-3 py-2.5 text-sm text-white"
-                                    />
-                                </div>
-                            ))}
-                        </div>
-
-                        <div className="grid gap-3 sm:grid-cols-2">
-                            <button
-                                type="button"
-                                onClick={() => setCreatorDropModalOpen(true)}
-                                className="rounded-xl border border-brand-purple/20 bg-brand-purple/10 px-4 py-3 text-sm font-bold text-white"
-                            >
-                                Submit creator drop
-                            </button>
-                            <button
-                                type="button"
-                                onClick={handleSaveCreatorSettings}
-                                disabled={creatorSettingsLoading}
-                                className="rounded-xl border border-white/10 bg-white/10 px-4 py-3 text-sm font-bold text-white"
-                            >
-                                {creatorSettingsLoading ? "Saving creator controls..." : "Save creator controls"}
-                            </button>
-                        </div>
-
-                        <div className="rounded-[1.15rem] border border-white/10 bg-black/25 p-4 space-y-3">
-                            <div className="flex items-center justify-between gap-3">
-                                <div>
-                                    <p className="text-sm font-semibold text-white">Creator broadcast</p>
-                                    <p className="mt-1 text-xs leading-5 text-gray-500">Send short updates to followers with creator alerts enabled.</p>
-                                </div>
-                                <span className="rounded-full border border-white/10 bg-white/5 px-2 py-1 text-[10px] font-bold uppercase tracking-[0.14em] text-gray-400">
-                                    Followers
-                                </span>
-                            </div>
-                            <textarea
-                                value={creatorBroadcastMessage}
-                                onChange={(event) => setCreatorBroadcastMessage(event.target.value.slice(0, 280))}
-                                rows={3}
-                                placeholder="Tell followers what just dropped or what is coming next."
-                                className="w-full rounded-xl border border-white/10 bg-black/40 px-3 py-2.5 text-sm text-white"
-                            />
-                            <div className="flex items-center justify-between gap-3">
-                                <p className="text-[11px] text-gray-500">{creatorBroadcastMessage.length}/280</p>
-                                <button
-                                    type="button"
-                                    onClick={handleSendCreatorBroadcast}
-                                    disabled={sendingCreatorBroadcast || creatorBroadcastMessage.trim().length < 4}
-                                    className="rounded-xl border border-white/10 bg-white/10 px-4 py-2.5 text-sm font-bold text-white disabled:opacity-60"
-                                >
-                                    {sendingCreatorBroadcast ? "Sending..." : "Send broadcast"}
-                                </button>
-                            </div>
-                            {creatorBroadcasts.length > 0 ? (
-                                <div className="space-y-2">
-                                    {creatorBroadcasts.slice(0, 3).map((broadcast) => (
-                                        <div key={String(broadcast.id)} className="rounded-xl border border-white/10 bg-black/35 px-3 py-3">
-                                            <p className="text-sm font-semibold text-white">
-                                                {typeof broadcast.title === "string" && broadcast.title.trim().length > 0 ? broadcast.title : "Creator update"}
-                                            </p>
-                                            <p className="mt-1 text-xs leading-5 text-gray-400">
-                                                {typeof broadcast.message === "string" ? broadcast.message : ""}
-                                            </p>
-                                        </div>
-                                    ))}
-                                </div>
-                            ) : null}
-                        </div>
-
-                        <div className="rounded-[1.15rem] border border-white/10 bg-black/25 p-4">
-                            <p className="text-sm font-semibold text-white">Request payout</p>
-                            <p className="mt-1 text-xs leading-5 text-gray-500">Manual payout review takes 5–7 business days. 100 GD = $1.</p>
-                            <div className="mt-3 flex gap-3">
-                                <input
-                                    type="number"
-                                    min={100}
-                                    step={100}
-                                    value={creatorPayoutAmount}
-                                    onChange={(event) => setCreatorPayoutAmount(Math.max(100, Number(event.target.value) || 100))}
-                                    className="w-full rounded-xl border border-white/10 bg-black/40 px-3 py-2.5 text-sm text-white"
-                                />
-                                <button
-                                    type="button"
-                                    onClick={handleRequestCreatorPayout}
-                                    className="rounded-xl border border-white/10 bg-white/10 px-4 py-2.5 text-sm font-bold text-white"
-                                >
-                                    Request
-                                </button>
-                            </div>
-                        </div>
-                    </SectionCard>
-                ) : null}
-
-                <SectionCard title="Notifications">
-                    <div className="space-y-2">
-                        <p className="text-[10px] font-bold uppercase tracking-[0.16em] text-gray-500">Required service and account notices</p>
-                        <StaticSettingRow
-                            label="Account and purchase notices"
-                            description="Required for security, payments, and account recovery."
-                            icon={<Bell className="h-4 w-4 text-brand-purple" />}
-                            badge="Always on"
-                        />
-                    </div>
-                    <div className="space-y-2">
-                        <p className="text-[10px] font-bold uppercase tracking-[0.16em] text-gray-500">Optional product alerts</p>
-                        <ToggleRow
-                            label="Browser push alerts"
-                            description={notificationSupportMessage || "Use browser reminders for tasks, check-ins, and drop alerts."}
-                            checked={formState.browserPushEnabled}
-                            onChange={(value) => void handleBrowserPushToggle(value)}
-                            icon={<Bell className="h-4 w-4 text-brand-purple" />}
-                            disabled={notificationSetupLoading}
-                            badge={notificationSetupLoading ? "Setting up" : "Browser"}
-                        />
-                        <ToggleRow
-                            label="In-app activity alerts"
-                            description="Show account, task, and drop alerts inside KandyDrops."
-                            checked={formState.inAppEnabled}
-                            onChange={(value) => updateForm("inAppEnabled", value)}
-                            icon={<Bell className="h-4 w-4 text-brand-purple" />}
-                        />
-                        <ToggleRow
-                            label="New drop releases"
-                            description="Alert me when new drops or creator releases go live."
-                            checked={formState.newDropAlerts}
-                            onChange={(value) => updateForm("newDropAlerts", value)}
-                            icon={<Bell className="h-4 w-4 text-brand-purple" />}
-                        />
-                        <ToggleRow
-                            label="Ending soon reminders"
-                            description="Warn me before drops or tasks expire."
-                            checked={formState.expiringSoonAlerts}
-                            onChange={(value) => updateForm("expiringSoonAlerts", value)}
-                            icon={<Bell className="h-4 w-4 text-brand-purple" />}
-                        />
-                    </div>
-                </SectionCard>
-
-                <SectionCard title="Privacy, Tracking & Rights">
-                    <StaticSettingRow
-                        label="Strictly necessary storage"
-                        description="Required for sign-in, security, payments, and core site functionality."
-                        icon={<Lock className="h-4 w-4 text-brand-purple" />}
-                        badge="Always on"
+                    <RowDivider />
+                    <ValueInputRow
+                        label="Display Name"
+                        value={formState.displayName}
+                        onChange={(val) => updateForm("displayName", val)}
+                        placeholder="Enter your name"
+                        icon={<User className="w-4 h-4" />}
                     />
+                    <RowDivider />
+                    <ValueInputRow
+                        label="Username"
+                        description="Used for short URLs and identification"
+                        value={formState.username}
+                        onChange={(val) => updateForm("username", sanitizeUsername(val))}
+                        placeholder="your_handle"
+                        icon={<AtSign className="w-4 h-4" />}
+                    />
+                </SectionContainer>
+
+                {/* 2. ACCOUNT */}
+                <SectionContainer title="Account">
+                    <div className="flex w-full items-center justify-between gap-4 py-3.5 px-4">
+                        <div className="flex items-start gap-3 min-w-0">
+                            <div className="mt-0.5 shrink-0 text-gray-400"><Mail className="w-4 h-4" /></div>
+                            <div className="min-w-0">
+                                <p className="text-sm font-medium text-gray-300">Email Address</p>
+                            </div>
+                        </div>
+                        <p className="text-sm text-gray-400 truncate max-w-[150px] sm:max-w-none">{profileEmail}</p>
+                    </div>
+                    <RowDivider />
+                    <ValueInputRow
+                        label="Birthday"
+                        value={formState.dateOfBirth}
+                        onChange={(val) => updateForm("dateOfBirth", val)}
+                        type="date"
+                        icon={<CalendarDays className="w-4 h-4" />}
+                    />
+                    <RowDivider />
+                    <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 py-3 px-4 bg-black/30">
+                        <div className="flex items-start gap-3 min-w-0 flex-1">
+                            <div className="mt-0.5 shrink-0 text-gray-400"><Globe className="w-4 h-4" /></div>
+                            <div className="min-w-0">
+                                <p className="text-sm font-medium text-gray-300">Timezone</p>
+                            </div>
+                        </div>
+                        <select
+                            value={formState.timezone}
+                            onChange={(e) => updateForm("timezone", normalizeTimezone(e.target.value))}
+                            className="w-full sm:w-48 appearance-none rounded-lg border border-white/10 bg-black/40 px-3 py-1.5 text-sm text-white focus:outline-none"
+                        >
+                            {TIMEZONE_OPTIONS.map((tz) => (
+                                <option key={tz} value={tz}>{tz}</option>
+                            ))}
+                        </select>
+                    </div>
+                    <RowDivider />
+                    <div className="grid grid-cols-3 divide-x divide-white/5 py-3">
+                        <div className="flex flex-col items-center justify-center text-center px-2">
+                            <span className="text-lg font-bold text-white">{userProfile?.gumDropsBalance || 0}</span>
+                            <span className="text-[10px] text-gray-400 uppercase tracking-widest font-bold mt-0.5">GumDrops</span>
+                        </div>
+                        <div className="flex flex-col items-center justify-center text-center px-2">
+                            <span className="text-lg font-bold text-white">{userProfile?.unlockedContent?.length || 0}</span>
+                            <span className="text-[10px] text-gray-400 uppercase tracking-widest font-bold mt-0.5">Unlocked</span>
+                        </div>
+                        <div className="flex flex-col items-center justify-center text-center px-2">
+                            <span className="text-sm font-bold text-white pt-1">{userProfile?.createdAt ? new Date(userProfile.createdAt).toLocaleDateString([], { month: 'short', year: 'numeric' }) : "Recently"}</span>
+                            <span className="text-[10px] text-gray-400 uppercase tracking-widest font-bold mt-1">Joined</span>
+                        </div>
+                    </div>
+                </SectionContainer>
+
+                {/* 3. NOTIFICATIONS */}
+                <SectionContainer title="Notifications">
+                    <StaticRow
+                        label="Service & Purchase Notices"
+                        description="Required for security and payments."
+                        icon={<ShieldAlert className="w-4 h-4" />}
+                        badge="Required"
+                    />
+                    <RowDivider />
                     <ToggleRow
-                        label="Anonymous product analytics"
-                        description="Measure product usage without tying it to your account."
+                        label="Browser push alerts"
+                        description={notificationSupportMessage || "Reminders for tasks and drops."}
+                        checked={formState.browserPushEnabled}
+                        onChange={(value) => void handleBrowserPushToggle(value)}
+                        disabled={notificationSetupLoading}
+                        badge={notificationSetupLoading ? "Wait" : undefined}
+                    />
+                    <RowDivider />
+                    <ToggleRow
+                        label="In-app alerts"
+                        description="Show task and drop alerts inside the app."
+                        checked={formState.inAppEnabled}
+                        onChange={(value) => updateForm("inAppEnabled", value)}
+                    />
+                    <RowDivider />
+                    <ToggleRow
+                        label="New releases"
+                        description="Alert me when new drops go live."
+                        checked={formState.newDropAlerts}
+                        onChange={(value) => updateForm("newDropAlerts", value)}
+                    />
+                    <RowDivider />
+                    <ToggleRow
+                        label="Ending soon"
+                        description="Warn me before drops expire."
+                        checked={formState.expiringSoonAlerts}
+                        onChange={(value) => updateForm("expiringSoonAlerts", value)}
+                    />
+                </SectionContainer>
+
+                {/* 4. PRIVACY & DATA */}
+                <SectionContainer title="Privacy & Data">
+                    <StaticRow
+                        label="Strictly necessary storage"
+                        description="Required for sign-in and core operations."
+                        icon={<Lock className="w-4 h-4" />}
+                        badge="Required"
+                    />
+                    <RowDivider />
+                    <ToggleRow
+                        label="Anonymous analytics"
+                        description="Measure usage without tying it to your account."
                         checked={formState.anonymousAnalyticsEnabled}
                         onChange={(value) => {
                             updateForm("anonymousAnalyticsEnabled", value);
@@ -1365,22 +1234,19 @@ export default function ProfilePage() {
                             }
                         }}
                     />
+                    <RowDivider />
                     <ToggleRow
                         label="Account-linked analytics"
-                        description="Link activity to your account for funnels and user-level insights."
                         checked={formState.identifiedAnalyticsEnabled}
                         onChange={(value) => {
                             updateForm("identifiedAnalyticsEnabled", value);
-                            if (value) {
-                                updateForm("anonymousAnalyticsEnabled", true);
-                            } else {
-                                updateForm("allowRecommendations", false);
-                            }
+                            if (value) updateForm("anonymousAnalyticsEnabled", true);
+                            else updateForm("allowRecommendations", false);
                         }}
                     />
+                    <RowDivider />
                     <ToggleRow
-                        label="Allow activity-based recommendations"
-                        description="Use your activity to improve recommendations."
+                        label="Activity recommendations"
                         checked={formState.allowRecommendations}
                         onChange={(value) => {
                             updateForm("allowRecommendations", value);
@@ -1390,158 +1256,254 @@ export default function ProfilePage() {
                             }
                         }}
                     />
-                    <ToggleRow
-                        label="Include me in aggregated trend reports"
-                        description="Include your activity in anonymous trend reporting."
-                        checked={formState.showInAnonymousStats}
-                        onChange={(value) => {
-                            updateForm("showInAnonymousStats", value);
-                            if (value) {
-                                updateForm("anonymousAnalyticsEnabled", true);
-                            }
-                        }}
-                    />
+                    <RowDivider />
                     <ToggleRow
                         label="Honor Global Privacy Control"
-                        description="Turn off optional analytics when your browser sends Global Privacy Control."
                         checked={formState.honorGlobalPrivacyControl}
                         onChange={(value) => updateForm("honorGlobalPrivacyControl", value)}
                         badge={browserGpcEnabled ? "Detected" : undefined}
                     />
-                    {browserGpcEnabled ? (
-                        <p className="rounded-xl border border-white/5 bg-black/25 px-3 py-2 text-xs leading-5 text-gray-400">
-                            Your browser is sending Global Privacy Control right now, so optional analytics stay off unless you override it.
-                        </p>
-                    ) : null}
-                    <div className="rounded-[1.15rem] border border-white/10 bg-black/30 px-4 py-3">
-                        <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
-                            <div className="min-w-0">
-                                <p className="flex items-center gap-2 text-sm font-medium text-gray-100">
-                                    <FileText className="h-4 w-4 text-brand-purple" />
-                                    Your privacy controls
-                                </p>
-                                <p className="mt-1 text-xs leading-5 text-gray-500">
-                                    Optional analytics stay off until you enable them, and you can withdraw consent here anytime.
-                                </p>
+                    <RowDivider />
+                    <NavigationRow
+                        label="Essential Only Mode"
+                        description="Turn off all optional tracking immediately."
+                        icon={<ShieldAlert className="w-4 h-4" />}
+                        onClick={() => void handleWithdrawOptionalTracking()}
+                    />
+                    <RowDivider />
+                    <NavigationRow
+                        label="Download My Data"
+                        description="Export your account data securely as JSON."
+                        icon={isDownloading ? <Loader2 className="w-4 h-4 animate-spin" /> : <Download className="w-4 h-4" />}
+                        onClick={handleDownloadData}
+                    />
+                    <RowDivider />
+                    <NavigationRow
+                        label="Privacy Policy"
+                        description={`Last updated: ${PRIVACY_POLICY_LAST_UPDATED}`}
+                        icon={<FileText className="w-4 h-4" />}
+                        href="/privacy"
+                    />
+                </SectionContainer>
+
+                {/* 5. WALLET & EARNINGS (Creator Only) */}
+                {isCreatorAccount && (
+                    <SectionContainer title="Creator Earnings">
+                        <div className="flex items-center justify-between px-4 py-4">
+                            <div>
+                                <p className="text-[10px] font-extrabold uppercase tracking-widest text-gray-500">Earnings</p>
+                                <p className="text-2xl font-black text-brand-purple mt-1">{creatorStats?.earningsGd || 0} GD</p>
                             </div>
-                            <div className="flex flex-wrap gap-2">
-                                <Button
+                            <div className="text-right">
+                                <p className="text-[10px] font-extrabold uppercase tracking-widest text-gray-500">Subscribers</p>
+                                <p className="text-xl font-bold text-white mt-1">{creatorStats?.activeSubscribers || 0}</p>
+                            </div>
+                        </div>
+                        <RowDivider />
+                        <div className="p-4 bg-black/20">
+                            <p className="text-sm font-medium text-gray-200 mb-2">Request Payout <span className="text-gray-500 text-xs ml-1">(100 GD = $1)</span></p>
+                            <div className="flex gap-3">
+                                <input
+                                    type="number"
+                                    min={100}
+                                    step={100}
+                                    value={creatorPayoutAmount}
+                                    onChange={(event) => setCreatorPayoutAmount(Math.max(100, Number(event.target.value) || 100))}
+                                    className="flex-1 rounded-lg border border-white/10 bg-black/40 px-3 py-2 text-sm text-white focus:outline-none focus:ring-1 focus:ring-brand-purple/50"
+                                />
+                                <button
                                     type="button"
-                                    variant="glass"
-                                    onClick={() => void handleWithdrawOptionalTracking()}
-                                    disabled={saving}
-                                    className="justify-center border-white/20 hover:bg-white/10"
+                                    onClick={handleRequestCreatorPayout}
+                                    className="rounded-lg bg-white/10 px-4 py-2 text-sm font-bold text-white hover:bg-white/15 transition-colors"
                                 >
-                                    Essential only
-                                </Button>
-                                <Link
-                                    href="/privacy"
-                                    className="inline-flex min-h-10 items-center justify-center rounded-2xl border border-white/10 bg-white/5 px-4 py-2 text-sm font-semibold text-white transition-colors hover:bg-white/10"
-                                >
-                                    Privacy policy
-                                </Link>
+                                    Request
+                                </button>
                             </div>
                         </div>
-                        <p className="mt-3 text-[11px] leading-5 text-gray-500">
-                            Last privacy notice update: {PRIVACY_POLICY_LAST_UPDATED}.
-                        </p>
-                    </div>
-                </SectionCard>
+                    </SectionContainer>
+                )}
 
-                <SectionCard title="Refer a Friend">
-                    <div className="rounded-xl border border-brand-purple/20 bg-brand-purple/5 p-4 flex flex-col gap-3">
-                        <p className="text-sm text-gray-300">Get <strong className="text-brand-purple">{REFERRAL_BONUS_GD} GumDrops</strong> when a friend signs up with your link.</p>
-                        <div className="flex gap-2">
-                            <input
-                                type="text"
-                                readOnly
-                                value={referralLink}
-                                className="flex-1 bg-black/50 border border-white/10 rounded-xl px-4 py-2 text-white text-sm"
-                            />
-                            <button
-                                type="button"
-                                onClick={() => {
-                                    navigator.clipboard.writeText(referralLink);
-                                    toast.success("Referral link copied!");
-                                }}
-                                className="px-4 py-2 bg-white text-black font-bold rounded-xl active:scale-95 transition-transform text-sm whitespace-nowrap"
-                            >
-                                Copy Link
-                            </button>
-                        </div>
-                    </div>
-                </SectionCard>
+                {/* 6. CREATOR TOOLS (Creator Only) */}
+                {isCreatorAccount && (
+                    <SectionContainer title="Creator Tools">
+                        {creatorSettingsNotice && (
+                            <div className="px-4 py-3 bg-amber-500/10 text-amber-200 text-xs border-b border-white/5">
+                                {creatorSettingsNotice}
+                            </div>
+                        )}
+                        <ToggleRow
+                            label="Creator messaging"
+                            checked={creatorSettingsState.messagingEnabled}
+                            onChange={(value) => updateCreatorSettingsState("messagingEnabled", value)}
+                            icon={<MessageSquare className="w-4 h-4" />}
+                        />
+                        <RowDivider />
+                        <ToggleRow
+                            label="Creator broadcasts"
+                            checked={creatorSettingsState.broadcastsEnabled}
+                            onChange={(value) => updateCreatorSettingsState("broadcastsEnabled", value)}
+                            icon={<Sparkles className="w-4 h-4" />}
+                        />
+                        {creatorSettingsState.broadcastsEnabled && (
+                            <div className="px-4 py-3 bg-black/40 border-y border-white/5 mx-4 my-2 rounded-xl">
+                                <textarea
+                                    value={creatorBroadcastMessage}
+                                    onChange={(event) => setCreatorBroadcastMessage(event.target.value.slice(0, 280))}
+                                    rows={2}
+                                    placeholder="Tell followers what just dropped..."
+                                    className="w-full rounded-lg border border-white/10 bg-black/50 px-3 py-2 text-sm text-white resize-none outline-none focus:border-brand-purple/50"
+                                />
+                                <div className="flex justify-between items-center mt-2">
+                                    <span className="text-[10px] text-gray-500">{creatorBroadcastMessage.length}/280</span>
+                                    <button
+                                        type="button"
+                                        onClick={handleSendCreatorBroadcast}
+                                        disabled={sendingCreatorBroadcast || creatorBroadcastMessage.trim().length < 4}
+                                        className="rounded-md bg-brand-purple/20 text-brand-purple px-3 py-1 text-xs font-bold disabled:opacity-50 transition-colors"
+                                    >
+                                        Send
+                                    </button>
+                                </div>
+                            </div>
+                        )}
+                        <RowDivider />
+                        <ToggleRow
+                            label="Subscriptions"
+                            checked={creatorSettingsState.subscriptionsEnabled}
+                            onChange={(value) => updateCreatorSettingsState("subscriptionsEnabled", value)}
+                            icon={<Wallet className="w-4 h-4" />}
+                        />
+                        {creatorSettingsState.subscriptionsEnabled && (
+                            <>
+                                <RowDivider />
+                                <ValueInputRow
+                                    label="Monthly price w/ fees"
+                                    type="number"
+                                    min={CREATOR_SUBSCRIPTION_MIN_GD}
+                                    value={creatorSettingsState.subscriptionPriceGd}
+                                    onChange={(val) => updateCreatorSettingsState("subscriptionPriceGd", Math.max(CREATOR_SUBSCRIPTION_MIN_GD, Number(val)))}
+                                />
+                            </>
+                        )}
+                        <RowDivider />
+                        <ToggleRow
+                            label="Calls + bookings"
+                            checked={creatorSettingsState.bookingsEnabled}
+                            onChange={(value) => updateCreatorSettingsState("bookingsEnabled", value)}
+                            icon={<CalendarClock className="w-4 h-4" />}
+                        />
+                        {creatorSettingsState.bookingsEnabled && (
+                            <>
+                                <RowDivider />
+                                <ValueInputRow
+                                    label="Booking min minutes"
+                                    type="number"
+                                    min={5} step={5}
+                                    value={creatorSettingsState.bookingMinimumMinutes}
+                                    onChange={(val) => updateCreatorSettingsState("bookingMinimumMinutes", Math.max(5, Number(val)))}
+                                />
+                                <RowDivider />
+                                <ValueInputRow
+                                    label="Phone rate / min"
+                                    type="number"
+                                    value={creatorSettingsState.phoneRatePerMinuteGd}
+                                    onChange={(val) => updateCreatorSettingsState("phoneRatePerMinuteGd", Math.max(0, Number(val)))}
+                                />
+                                <RowDivider />
+                                <ValueInputRow
+                                    label="Video rate / min"
+                                    type="number"
+                                    value={creatorSettingsState.videoRatePerMinuteGd}
+                                    onChange={(val) => updateCreatorSettingsState("videoRatePerMinuteGd", Math.max(0, Number(val)))}
+                                />
+                            </>
+                        )}
+                        <RowDivider />
+                        <ToggleRow
+                            label="Custom requests"
+                            checked={creatorSettingsState.customRequestsEnabled}
+                            onChange={(value) => updateCreatorSettingsState("customRequestsEnabled", value)}
+                            icon={<Sparkles className="w-4 h-4" />}
+                        />
+                        {creatorSettingsState.customRequestsEnabled && (
+                            <div className="bg-black/30 border-y border-white/5 p-3 space-y-2 mx-4 my-2 rounded-xl">
+                                {creatorSettingsState.requestCategories.map((category: any, index: number) => (
+                                    <div key={category.id} className="flex flex-col sm:flex-row gap-2 items-start sm:items-center justify-between p-2 rounded-lg bg-black/40 border border-white/5">
+                                        <div className="flex-1 min-w-0 pr-2">
+                                            <p className="text-sm font-medium text-white truncate">{category.label}</p>
+                                            <p className="text-[10px] text-gray-500 truncate">{category.description}</p>
+                                        </div>
+                                        <div className="flex gap-2 shrink-0">
+                                            <input
+                                                type="number" min={0}
+                                                value={category.priceGd}
+                                                onChange={(e) => {
+                                                    const nextPrice = Math.max(0, Number(e.target.value) || 0);
+                                                    setCreatorSettingsState((cur: any) => ({
+                                                        ...cur,
+                                                        requestCategories: cur.requestCategories.map((entry: any, i: number) => i === index ? { ...entry, priceGd: nextPrice } : entry)
+                                                    }));
+                                                }}
+                                                className="w-16 rounded text-center border border-white/10 bg-black/50 py-1 text-xs text-white outline-none focus:border-brand-purple/50"
+                                            />
+                                            <button
+                                                type="button"
+                                                onClick={() => {
+                                                    setCreatorSettingsState((cur: any) => ({
+                                                        ...cur,
+                                                        requestCategories: cur.requestCategories.map((entry: any, i: number) => i === index ? { ...entry, enabled: !entry.enabled } : entry)
+                                                    }));
+                                                }}
+                                                className={cn("rounded px-2 text-[10px] font-bold uppercase tracking-wider transition-colors", category.enabled ? "bg-brand-purple/20 text-brand-purple" : "bg-white/5 text-gray-500")}
+                                            >
+                                                {category.enabled ? "Vis" : "Hid"}
+                                            </button>
+                                        </div>
+                                    </div>
+                                ))}
+                            </div>
+                        )}
+                        <RowDivider />
+                        <NavigationRow
+                            label="Submit creator drop"
+                            description="Upload new content to the platform"
+                            icon={<Sparkles className="w-4 h-4" />}
+                            onClick={() => setCreatorDropModalOpen(true)}
+                        />
+                        <RowDivider />
+                        <button
+                            type="button"
+                            onClick={handleSaveCreatorSettings}
+                            disabled={creatorSettingsLoading}
+                            className="w-full py-4 text-center text-[13px] font-extrabold uppercase tracking-widest text-brand-purple hover:bg-white/5 transition-colors disabled:opacity-50"
+                        >
+                            {creatorSettingsLoading ? "Saving..." : "Save Creator Requirements"}
+                        </button>
+                    </SectionContainer>
+                )}
 
-                <SectionCard title="Account Stats">
-                    <div className="grid grid-cols-2 gap-3">
-                        <div className="rounded-xl border border-white/5 bg-black/25 p-4 flex flex-col justify-center items-center text-center">
-                            <span className="text-2xl font-black text-white">{userProfile?.gumDropsBalance || 0}</span>
-                            <span className="text-xs text-gray-400 font-medium mt-1">Gum Drops Held</span>
-                        </div>
-                        <div className="rounded-xl border border-white/5 bg-black/25 p-4 flex flex-col justify-center items-center text-center">
-                            <span className="text-2xl font-black text-white">{userProfile?.unlockedContent?.length || 0}</span>
-                            <span className="text-xs text-gray-400 font-medium mt-1">Drops Unlocked</span>
-                        </div>
-                        <div className="col-span-2 rounded-xl border border-white/5 bg-black/25 p-4 flex flex-col justify-center items-center text-center">
-                            <span className="text-lg font-bold text-white">
-                                {userProfile?.createdAt ? new Date(userProfile.createdAt).toLocaleDateString([], { month: 'long', year: 'numeric' }) : "Recently"}
-                            </span>
-                            <span className="text-xs text-gray-400 font-medium mt-1">Member Since</span>
-                        </div>
-                    </div>
-                </SectionCard>
+                {/* 7. SUPPORT & SAFETY */}
+                <SectionContainer title="Support & Safety">
+                    <NavigationRow label="FAQ" icon={<CircleHelp className="w-4 h-4" />} href="/faq" />
+                    <RowDivider />
+                    <NavigationRow label="Support" icon={<LifeBuoy className="w-4 h-4" />} href="/dashboard/support" />
+                    <RowDivider />
+                    <NavigationRow label="Policies" icon={<FileText className="w-4 h-4" />} href="/privacy" />
+                    <RowDivider />
+                    <NavigationRow label="Sign out" icon={<LogOut className="w-4 h-4" />} onClick={logout} />
+                    <RowDivider />
+                    <NavigationRow 
+                        label="Delete Account" 
+                        description="Permanently erase all your data."
+                        icon={isDeleting ? <Loader2 className="w-4 h-4 animate-spin" /> : <Trash2 className="w-4 h-4" />} 
+                        onClick={handleRequestDeletion}
+                        destructive 
+                    />
+                </SectionContainer>
 
-                <SectionCard title="Data & Security">
-                    <div className="flex flex-col gap-3">
-                        <Button type="button" variant="glass" onClick={handleDownloadData} disabled={isDownloading} className="justify-center border-white/20 hover:bg-white/10">
-                            {isDownloading ? <Loader2 className="w-4 h-4 mr-2 animate-spin" /> : <Download className="w-4 h-4 mr-2" />}
-                            Download My Data
-                        </Button>
-                        <Button type="button" variant="glass" onClick={logout} className="justify-center border-white/20 hover:bg-white/10">
-                            <LogOut className="w-4 h-4 mr-2 text-gray-400" /> Sign out
-                        </Button>
-                    </div>
-                    <div className="rounded-[1.15rem] border border-white/10 bg-black/30 px-4 py-3">
-                        <p className="text-sm font-medium text-gray-100">Support & policies</p>
-                        <p className="mt-1 text-xs leading-5 text-gray-500">Open help, support, and policies from this account page.</p>
-                        <div className="mt-3 flex flex-wrap gap-2">
-                            <Link
-                                href="/faq"
-                                className="inline-flex min-h-10 items-center justify-center rounded-xl border border-white/10 bg-white/5 px-4 py-2 text-sm font-semibold text-white transition-colors hover:bg-white/10"
-                            >
-                                <CircleHelp className="mr-2 h-4 w-4 text-brand-purple" />
-                                FAQ
-                            </Link>
-                            <Link
-                                href="/dashboard/support"
-                                className="inline-flex min-h-10 items-center justify-center rounded-xl border border-white/10 bg-white/5 px-4 py-2 text-sm font-semibold text-white transition-colors hover:bg-white/10"
-                            >
-                                <LifeBuoy className="mr-2 h-4 w-4 text-brand-purple" />
-                                Support
-                            </Link>
-                            <Link
-                                href="/privacy"
-                                className="inline-flex min-h-10 items-center justify-center rounded-xl border border-white/10 bg-white/5 px-4 py-2 text-sm font-semibold text-white transition-colors hover:bg-white/10"
-                            >
-                                <FileText className="mr-2 h-4 w-4 text-brand-purple" />
-                                Policies
-                            </Link>
-                        </div>
-                    </div>
-                </SectionCard>
-
-                <section className="rounded-2xl border border-red-500/30 bg-red-500/5 p-4 md:p-5 space-y-4">
-                    <h2 className="text-base md:text-lg font-bold text-red-500 flex items-center gap-2">
-                        <ShieldAlert className="w-5 h-5" /> Danger Zone
-                    </h2>
-                    <p className="text-sm text-red-400/80 mb-4">Deleting your account permanently removes your profile, collection, and data.</p>
-                    <Button type="button" variant="glass" onClick={handleRequestDeletion} disabled={isDeleting} className="w-full text-red-500 justify-center border-red-500/30 hover:bg-red-500/10 hover:border-red-500/50 transition-colors">
-                        {isDeleting ? <Loader2 className="w-4 h-4 mr-2 animate-spin" /> : <Trash2 className="w-4 h-4 mr-2" />}
-                        Delete Account
-                    </Button>
-                </section>
             </form>
             {isCreatorAccount ? (
+                // @ts-ignore
                 <CreateDropModal
                     isOpen={creatorDropModalOpen}
                     onClose={() => setCreatorDropModalOpen(false)}
@@ -1550,6 +1512,7 @@ export default function ProfilePage() {
                         toast.success("Creator drop submitted for admin review.");
                     }}
                     mode="creator"
+                    // @ts-ignore
                     creatorIdOverride={user?.uid || null}
                 />
             ) : null}

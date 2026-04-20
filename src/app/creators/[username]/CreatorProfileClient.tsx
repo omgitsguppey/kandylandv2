@@ -1,4 +1,4 @@
-﻿"use client";
+"use client";
 
 import { useParams, useRouter } from "next/navigation";
 import { useEffect, useMemo, useRef, useState } from "react";
@@ -440,8 +440,10 @@ export default function CreatorProfileClient() {
 
             if (nextFollowing) {
                 await refreshCreatorBroadcasts(creator.uid);
+                trackEvent("creator_followed", { creator_id: creator.uid, creator_username: creator.username });
             } else if (!subscriptionActive) {
                 setBroadcasts([]);
+                trackEvent("creator_unfollowed", { creator_id: creator.uid, creator_username: creator.username });
             }
             toast.success(nextFollowing ? `Following ${creator.displayName}!` : `Unfollowed ${creator.displayName}`);
         } catch (error: any) {
