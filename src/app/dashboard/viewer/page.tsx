@@ -1,5 +1,6 @@
-import { getDropRaw, getDrops, sanitizeDropForClient } from "@/lib/server/drops";
+import { getDropRaw, sanitizeDropForClient } from "@/lib/server/drops";
 import { ViewerClient } from "./ViewerClient";
+import { adminDb } from "@/lib/server/firebase-admin";
 
 interface PageProps {
     searchParams: Promise<{ [key: string]: string | string[] | undefined }>;
@@ -11,7 +12,21 @@ export default async function ViewerPage({ searchParams }: PageProps) {
 
     const rawDrop = id ? await getDropRaw(id) : null;
     const drop = rawDrop ? sanitizeDropForClient(rawDrop) : null;
-    const allDrops = await getDrops();
 
-    return <ViewerClient drop={drop} allDrops={allDrops} />;
+    let initialCreatorProfile = null;
+    if (drop?.creatorId && adminDb) {
+        const userDoc = await adminDb.collection("users").doc(drop.creatorId).get();
+        if (userDoc.exists) {
+            const data = userDoc.data();
+            initialCreatorProfile = {
+                uid: userDoc.id,
+                displayName: data?.displayName || "Creator",
+                username: data?.username || "",
+                photoURL: data?.photoURL || null,
+                isVerified: data?.isVerified === true,
+            };
+        }
+    }
+
+    return <ViewerClient drop={drop} initialCreatorProfile={initialCreatorProfile} />;
 }

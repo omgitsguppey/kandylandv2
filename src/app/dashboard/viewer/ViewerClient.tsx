@@ -4,7 +4,7 @@ import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { useRouter } from "next/navigation";
 import Link from "next/link";
 import { useAuth } from "@/context/AuthContext";
-import { ArrowLeft, Lock, ShieldCheck, Loader2, ShoppingBag, Download, Video, Images, Eye } from "lucide-react";
+import { ArrowLeft, Lock, ShieldCheck, Loader2, ShoppingBag, Download, Video, Images, Eye, ChevronLeft, ChevronRight, UserPlus, CheckCircle2, ThumbsUp, ThumbsDown } from "lucide-react";
 
 import { toast } from "sonner";
 import { Drop } from "@/types/db";
@@ -26,7 +26,13 @@ import { resolveViewerWatchSeconds } from "@/lib/viewer-watch-session";
 
 interface ViewerClientProps {
     drop: Drop | null;
-    allDrops?: Drop[];
+    initialCreatorProfile?: {
+        uid: string;
+        displayName: string;
+        username: string;
+        photoURL: string | null;
+        isVerified: boolean;
+    } | null;
 }
 
 type ContentKind = "video" | "audio" | "image" | "pdf" | "unknown";
@@ -371,7 +377,7 @@ function isEditableTarget(target: EventTarget | null) {
     return target.isContentEditable || ["INPUT", "TEXTAREA", "SELECT"].includes(target.tagName);
 }
 
-export function ViewerClient({ drop, allDrops }: ViewerClientProps) {
+export function ViewerClient({ drop, initialCreatorProfile }: ViewerClientProps) {
     const { user, userProfile, loading: authLoading } = useAuth();
     const { isConstrained, isVerySlow } = useNetworkConditions();
     const router = useRouter();
@@ -409,6 +415,81 @@ export function ViewerClient({ drop, allDrops }: ViewerClientProps) {
 
     const [isSecurityTriggered, setIsSecurityTriggered] = useState(false);
     const [securityWarning, setSecurityWarning] = useState<SecurityEventDescriptor | null>(null);
+
+    const [following, setFollowing] = useState(false);
+    const [submittingFollow, setSubmittingFollow] = useState(false);
+    const [feedbackComplete, setFeedbackComplete] = useState(false);
+    const [submittingFeedback, setSubmittingFeedback] = useState(false);
+    const [feedbackValue, setFeedbackValue] = useState<boolean | null>(null);
+    const [retentionDrops, setRetentionDrops] = useState<Drop[]>([]);
+
+    useEffect(() => {
+        if (!initialCreatorProfile?.uid || !isAuthorized) return;
+        authFetch(`/api/creator/relationships?creatorId=${initialCreatorProfile.uid}`)
+            .then(res => res.json())
+            .then(data => {
+                if (data.status === "active") setFollowing(true);
+            })
+            .catch(() => {});
+    }, [initialCreatorProfile?.uid, isAuthorized]);
+
+    useEffect(() => {
+        if (!drop || !isAuthorized) return;
+        authFetch(`/api/drops/retention?currentDropId=${drop.id}`)
+            .then(res => res.json())
+            .then(data => {
+                if (data.drops) setRetentionDrops(data.drops);
+            })
+            .catch(console.error);
+    }, [drop?.id, isAuthorized]);
+
+    const handleFollow = async () => {
+        if (!initialCreatorProfile?.uid || submittingFollow) return;
+        setSubmittingFollow(true);
+        try {
+            const res = await authFetch("/api/creator/relationships", {
+                method: "POST",
+                body: JSON.stringify({
+                    creatorId: initialCreatorProfile.uid,
+                    action: following ? "unfollow" : "follow"
+                })
+            });
+            if (res.ok) {
+                setFollowing(!following);
+                toast.success(following ? "Unfollowed creator" : "Following creator");
+            } else {
+                const err = await res.json().catch(()=>({}));
+                toast.error(err.error || "Failed to update follow status");
+            }
+        } catch {
+            toast.error("Failed to update follow status");
+        } finally {
+            setSubmittingFollow(false);
+        }
+    };
+
+    const handleFeedback = async (positive: boolean) => {
+        if (!drop || submittingFeedback || feedbackComplete) return;
+        setSubmittingFeedback(true);
+        setFeedbackValue(positive);
+        try {
+            const res = await authFetch("/api/drops/feedback", {
+                method: "POST",
+                body: JSON.stringify({ dropId: drop.id, positive })
+            });
+            if (res.ok) {
+                setFeedbackComplete(true);
+                toast.success("Thanks for the feedback! You earned 10 GumDrops 🍬");
+                trackEvent("viewer_feedback_submitted", { drop_id: drop.id, positive });
+            } else {
+                toast.error("Failed to submit feedback");
+            }
+        } catch {
+            toast.error("Failed to submit feedback");
+        } finally {
+            setSubmittingFeedback(false);
+        }
+    };
 
     const videoFallbackTypes = ["video/mp4", "video/webm", "video/ogg"];
     const audioFallbackTypes = ["audio/mpeg", "audio/mp4", "audio/wav", "audio/ogg", "audio/webm"];
@@ -1449,10 +1530,7 @@ export function ViewerClient({ drop, allDrops }: ViewerClientProps) {
         );
     }
 
-    // Calculate retention drops
-    const retentionDrops = (allDrops || [])
-        .filter((d) => unlockedDropIds.includes(d.id) && d.id !== drop.id)
-        .slice(0, 4);
+
 
     const hasThumbnailRail = assetCount > 1;
     const viewerStageHeight = hasThumbnailRail
@@ -1768,7 +1846,7 @@ export function ViewerClient({ drop, allDrops }: ViewerClientProps) {
 
                 {/* 1.5 Multi-File Thumbnail Slider */}
                 {hasThumbnailRail ? (
-                    <div className="shrink-0">
+                    <div className="shrink-0 group relative">
                         <div className="overflow-hidden px-2 pt-1" ref={emblaRef}>
                             <div className="flex gap-4 pb-2">
                                 {Array.from({ length: assetCount }).map((_, idx) => {
@@ -1814,9 +1892,28 @@ export function ViewerClient({ drop, allDrops }: ViewerClientProps) {
                                 })}
                             </div>
                         </div>
-                        <p className="text-center text-xs text-gray-500">
-                            {activeIndex + 1} of {assetCount} files
-                        </p>
+                        {/* Navigation Cues */}
+                        <div className="absolute top-1/2 -translate-y-1/2 left-0 right-0 flex justify-between px-1 pointer-events-none opacity-0 group-hover:opacity-100 transition-opacity duration-300">
+                            <button
+                                type="button"
+                                onClick={() => emblaApi?.scrollPrev()}
+                                disabled={activeIndex === 0}
+                                className="w-8 h-8 flex items-center justify-center bg-black/60 backdrop-blur-md rounded-full border border-white/20 text-white shadow-xl pointer-events-auto disabled:opacity-30 transition-all hover:scale-110 active:scale-95"
+                            >
+                                <ChevronLeft className="w-4 h-4" />
+                            </button>
+                            <button
+                                type="button"
+                                onClick={() => emblaApi?.scrollNext()}
+                                disabled={activeIndex === assetCount - 1}
+                                className="w-8 h-8 flex items-center justify-center bg-black/60 backdrop-blur-md rounded-full border border-white/20 text-white shadow-xl pointer-events-auto disabled:opacity-30 transition-all hover:scale-110 active:scale-95"
+                            >
+                                <ChevronRight className="w-4 h-4" />
+                            </button>
+                        </div>
+                        <div className="flex items-center justify-center gap-1 mt-1 text-gray-500">
+                            <span className="text-[10px] uppercase font-bold tracking-widest">{activeIndex + 1} of {assetCount}</span>
+                        </div>
                     </div>
                 ) : null}
             </section>
@@ -1827,6 +1924,38 @@ export function ViewerClient({ drop, allDrops }: ViewerClientProps) {
 
                     {/* Title & Metadata */}
                     <div className="flex-1">
+                        {/* Creator Context Block */}
+                        {initialCreatorProfile && (
+                            <div className="flex items-center gap-3 mb-4 p-3 bg-white/5 border border-white/10 rounded-2xl w-full max-w-sm">
+                                <NextImage
+                                    src={initialCreatorProfile.photoURL || "/avatars/default.png"}
+                                    alt={initialCreatorProfile.displayName}
+                                    width={40}
+                                    height={40}
+                                    className="rounded-full bg-black border border-white/20 object-cover w-10 h-10"
+                                    unoptimized
+                                />
+                                <div className="flex-1 min-w-0">
+                                    <div className="flex items-center gap-1">
+                                        <h3 className="text-sm font-bold text-white truncate">{initialCreatorProfile.displayName}</h3>
+                                        {initialCreatorProfile.isVerified && <CheckCircle2 className="w-3.5 h-3.5 text-brand-purple shrink-0" />}
+                                    </div>
+                                    <p className="text-xs text-gray-400 truncate">@{initialCreatorProfile.username}</p>
+                                </div>
+                                <button
+                                    onClick={handleFollow}
+                                    disabled={submittingFollow}
+                                    className={cn(
+                                        "px-3 py-1.5 rounded-full text-xs font-bold transition-all flex items-center gap-1 border",
+                                        following 
+                                            ? "bg-white/10 text-white border-white/20" 
+                                            : "bg-white text-black border-transparent hover:bg-gray-200"
+                                    )}
+                                >
+                                    {submittingFollow ? <Loader2 className="w-3 h-3 animate-spin"/> : following ? "Following" : "Follow"}
+                                </button>
+                            </div>
+                        )}
                         <div className="flex flex-wrap items-center gap-3 text-xs md:text-sm text-gray-400 mb-2">
                             <span className="px-2 py-0.5 rounded bg-white/10 border border-white/5 text-brand-purple font-mono uppercase tracking-wider">
                                 #{drop.id.slice(0, 4)}
@@ -1895,31 +2024,83 @@ export function ViewerClient({ drop, allDrops }: ViewerClientProps) {
                     </div>
                 </div>
 
-                {/* 5. Retention: More Like This */}
+                {/* 4. Feedback & Reward Loop */}
+                {user.uid !== drop.creatorId && (
+                    <div className="mt-8 md:mt-12 border border-white/10 rounded-2xl bg-gradient-to-br from-white/5 to-black p-6 flex flex-col sm:flex-row items-center justify-between gap-6 relative overflow-hidden shadow-2xl">
+                        <div className="absolute top-0 right-0 w-32 h-32 bg-brand-purple/10 blur-3xl rounded-full" />
+                        <div className="relative z-10 flex-1 text-center sm:text-left">
+                            <h3 className="text-lg font-bold text-white mb-1">Did you enjoy this KandyDrop?</h3>
+                            <p className="text-sm text-gray-400">Share feedback to earn <span className="font-bold text-brand-purple">10 GumDrops</span> 🍬</p>
+                        </div>
+                        <div className="relative z-10 flex items-center gap-3 w-full sm:w-auto">
+                            {feedbackComplete ? (
+                                <div className="w-full flex items-center justify-center gap-2 px-6 py-3 bg-brand-purple/20 border border-brand-purple/30 rounded-xl text-brand-purple font-bold">
+                                    <CheckCircle2 className="w-4 h-4" />
+                                    <span>Reward Claimed</span>
+                                </div>
+                            ) : (
+                                <>
+                                    <button
+                                        onClick={() => handleFeedback(true)}
+                                        disabled={submittingFeedback}
+                                        className={cn(
+                                            "flex-1 sm:flex-none flex items-center justify-center gap-2 px-6 py-3 rounded-xl border font-bold transition-all disabled:opacity-50",
+                                            feedbackValue === true ? "bg-white text-black border-white" : "bg-white/5 text-white border-white/10 hover:bg-white/10 hover:scale-105"
+                                        )}
+                                    >
+                                        <ThumbsUp className="w-4 h-4" />
+                                        <span>Yes</span>
+                                    </button>
+                                    <button
+                                        onClick={() => handleFeedback(false)}
+                                        disabled={submittingFeedback}
+                                        className={cn(
+                                            "flex-1 sm:flex-none flex items-center justify-center gap-2 px-6 py-3 rounded-xl border font-bold transition-all disabled:opacity-50",
+                                            feedbackValue === false ? "bg-white text-black border-white" : "bg-white/5 text-white border-white/10 hover:bg-white/10 hover:scale-105"
+                                        )}
+                                    >
+                                        <ThumbsDown className="w-4 h-4" />
+                                        <span>No</span>
+                                    </button>
+                                </>
+                            )}
+                        </div>
+                    </div>
+                )}
+
+                {/* 5. Retention: Horizontal Continuation Rail */}
                 {retentionDrops.length > 0 && (
-                    <div className="mt-12 md:mt-20 border-t border-white/5 pt-8">
-                        <h3 className="text-lg font-bold text-white mb-6">More from your collection</h3>
-                        <div className="grid grid-cols-2 lg:grid-cols-4 gap-4">
+                    <div className="mt-8 md:mt-12 border-t border-white/5 pt-8">
+                        <div className="flex items-center gap-3 mb-6">
+                            <h3 className="text-lg font-bold text-white">Continue Unwrapping</h3>
+                            <div className="h-px bg-white/10 flex-1" />
+                        </div>
+                        <div className="flex gap-4 overflow-x-auto pb-4 snap-x snap-mandatory hide-scrollbar -mx-4 px-4 md:mx-0 md:px-0">
                             {retentionDrops.map((retentionDrop) => (
                                 <Link
                                     key={retentionDrop.id}
                                     href={`/dashboard/viewer?id=${retentionDrop.id}`}
                                     onClick={() => handleRelatedDropClick(retentionDrop.id, "library_related")}
-                                    className="group block"
+                                    className="group block w-40 md:w-48 shrink-0 snap-start"
                                 >
-                                    <div className="aspect-square bg-zinc-900 rounded-xl border border-white/5 overflow-hidden relative mb-2">
+                                    <div className="aspect-[3/4] bg-zinc-900 rounded-xl border border-white/10 overflow-hidden relative mb-3 shadow-lg">
                                         {retentionDrop.imageUrl ? (
                                             <NextImage
                                                 src={retentionDrop.imageUrl}
                                                 alt={retentionDrop.title}
                                                 fill
-                                                className="object-contain bg-black group-hover:scale-105 transition-transform duration-500"
+                                                className="object-cover bg-black group-hover:scale-105 transition-transform duration-700 ease-out"
                                             />
                                         ) : (
                                             <div className="w-full h-full flex items-center justify-center text-3xl">🍬</div>
                                         )}
+                                        <div className="absolute inset-x-0 bottom-0 top-1/2 bg-gradient-to-t from-black via-black/40 to-transparent opacity-60 group-hover:opacity-80 transition-opacity" />
                                     </div>
-                                    <p className="text-sm font-bold text-white line-clamp-1 group-hover:text-brand-purple transition-colors">{retentionDrop.title}</p>
+                                    <p className="text-sm font-bold text-white line-clamp-1 group-hover:text-brand-purple transition-colors leading-tight drop-shadow-sm">{retentionDrop.title}</p>
+                                    <div className="flex items-center gap-1.5 mt-1 text-xs text-gray-400 font-medium">
+                                        <Eye className="w-3 h-3 text-brand-purple opacity-80" />
+                                        <span>{(retentionDrop.totalUnlocks || 0).toLocaleString()} unwrapped</span>
+                                    </div>
                                 </Link>
                             ))}
                         </div>
