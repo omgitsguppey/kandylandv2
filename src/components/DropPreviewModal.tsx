@@ -313,6 +313,14 @@ export function DropPreviewModal({ drop, onClose }: DropPreviewModalProps) {
       });
     } catch (err: unknown) {
       const message = err instanceof Error ? err.message : "Please try again later.";
+      const timedStats = consumeTimedFlow("drop_unlock");
+      trackEvent("unlock_drop_failed", {
+        drop_id: drop.id,
+        drop_category: drop.type,
+        unlock_cost: drop.unlockCost,
+        error_message: message,
+        ...(timedStats.mergedParams ?? {}),
+      });
       clearTimedFlow("drop_unlock");
       toast.error("Unwrap failed", { description: message });
     } finally {

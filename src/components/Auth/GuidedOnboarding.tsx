@@ -18,138 +18,17 @@ import { recordClientDiagnostic } from "@/lib/client-diagnostics";
 import { reportClientIssue } from "@/lib/client-error-reporting";
 import { shouldBypassFanOnboarding } from "@/lib/creator-application";
 
-type FlavorPreference = "Sweet" | "Spicy" | "RAW" | "";
-
-type StepDefinition = {
-    id: string;
-    title: string;
-    description: string;
-    path: string;
-};
-
-type OnboardingStepMetric = {
-    stepId: string;
-    stepIndex: number;
-    stepTitle: string;
-    stepPath: string;
-    startedAtMs: number;
-    completedAtMs: number;
-    durationMs: number;
-    completionReason: string;
-};
-
-const DASHBOARD_ONBOARDING_PATH = "/dashboard";
-
-const STEP_DEFINITIONS: StepDefinition[] = [
-    {
-        id: "flavor_preference",
-        title: "Start with your flavor",
-        description: "Pick the vibe you want to see first. You can change it any time in your profile.",
-        path: DASHBOARD_ONBOARDING_PATH,
-    },
-    {
-        id: "daily_check_in",
-        title: "Claim today’s Gum Drops",
-        description: "Lock in your streak now so your dashboard starts working for you right away.",
-        path: DASHBOARD_ONBOARDING_PATH,
-    },
-    {
-        id: "live_drops",
-        title: "Live drops move fast",
-        description: "When a live drop expires, it is gone. If you want it in your library, unwrap before the timer runs out.",
-        path: DASHBOARD_ONBOARDING_PATH,
-    },
-    {
-        id: "experiences",
-        title: "Daily experiences keep you stocked",
-        description: "Check in, clear your missions, and keep your Gum Drop balance ready for the next unwrap.",
-        path: DASHBOARD_ONBOARDING_PATH,
-    },
-    {
-        id: "notifications",
-        title: "Get the heads-up first",
-        description: "Turn on alerts and we’ll nudge you when drops go live or your daily loop resets.",
-        path: DASHBOARD_ONBOARDING_PATH,
-    },
-    {
-        id: "complete",
-        title: "You’re ready",
-        description: "Your dashboard is set. Start from here, keep your streak alive, and unwrap when you’re ready.",
-        path: DASHBOARD_ONBOARDING_PATH,
-    },
-];
-
-const FLAVOR_OPTIONS: Array<{
-    value: Exclude<FlavorPreference, "">;
-    label: string;
-    description: string;
-    icon: typeof Sparkles;
-    accentClass: string;
-    activeClass: string;
-    iconClass: string;
-}> = [
-    {
-        value: "Sweet",
-        label: "Sweet",
-        description: "Light, playful, and teasing.",
-        icon: Sparkles,
-        accentClass: "text-pink-400",
-        activeClass: "border-pink-400/60 bg-pink-500/10 shadow-[0_0_24px_rgba(236,72,153,0.16)]",
-        iconClass: "bg-pink-500 text-white",
-    },
-    {
-        value: "Spicy",
-        label: "Spicy",
-        description: "Bold, hot, and attention-grabbing.",
-        icon: Flame,
-        accentClass: "text-orange-400",
-        activeClass: "border-orange-400/60 bg-orange-500/10 shadow-[0_0_24px_rgba(249,115,22,0.16)]",
-        iconClass: "bg-orange-500 text-white",
-    },
-    {
-        value: "RAW",
-        label: "RAW",
-        description: "Direct, intense, and unfiltered.",
-        icon: Droplets,
-        accentClass: "text-brand-purple",
-        activeClass: "border-brand-purple/60 bg-brand-purple/10 shadow-[0_0_24px_rgba(168,85,247,0.16)]",
-        iconClass: "bg-brand-purple text-white",
-    },
-];
-
-function normalizeTimestamp(value: unknown): number {
-    if (!Number.isFinite(value)) {
-        return 0;
-    }
-
-    const timestamp = Number(value);
-    return timestamp > 0 ? Math.floor(timestamp) : 0;
-}
-
-function hasClaimedToday(value: unknown): boolean {
-    const lastCheckIn = normalizeTimestamp(value);
-    if (!lastCheckIn) {
-        return false;
-    }
-
-    const { startOfDay, endOfDay } = getCSTDayBoundaries(Date.now());
-    return lastCheckIn >= startOfDay && lastCheckIn < endOfDay;
-}
-
-function focusDashboardHome() {
-    if (typeof window === "undefined") {
-        return;
-    }
-
-    window.scrollTo({ top: 0, behavior: "smooth" });
-    window.requestAnimationFrame(() => {
-        const dashboardHome = document.getElementById("dashboard-home");
-        dashboardHome?.scrollIntoView({ block: "start", behavior: "smooth" });
-        if (dashboardHome instanceof HTMLElement) {
-            dashboardHome.focus({ preventScroll: true });
-        }
-    });
-}
+import {
+    type FlavorPreference,
+    type StepDefinition,
+    type OnboardingStepMetric,
+    DASHBOARD_ONBOARDING_PATH,
+    STEP_DEFINITIONS,
+    FLAVOR_OPTIONS,
+    normalizeTimestamp,
+    hasClaimedToday,
+    focusDashboardHome,
+} from "./OnboardingHelpers";
 
 export function GuidedOnboarding() {
     const { user, userProfile: profile, setUserProfile } = useAuth();

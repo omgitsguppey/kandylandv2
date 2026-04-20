@@ -300,9 +300,15 @@ export function DropsClient({ initialDrops, creatorRailProfiles }: DropsClientPr
                     <StickyFilterBar
                         categories={CATEGORIES}
                         selectedCategory={selectedCategory}
-                        onSelectCategory={setSelectedCategory}
+                        onSelectCategory={(cat) => {
+                            setSelectedCategory(cat);
+                            if (cat !== selectedCategory) trackEvent("drops_category_selected", { category: cat });
+                        }}
                         searchQuery={searchQuery}
-                        onSearchChange={setSearchQuery}
+                        onSearchChange={(q) => {
+                            setSearchQuery(q);
+                            if (q.trim().length > 2) trackEvent("drops_searched", { query: q.trim() });
+                        }}
                     />
                 </div>
 
