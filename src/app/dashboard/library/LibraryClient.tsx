@@ -1,7 +1,8 @@
 "use client";
 
-import { useEffect, useMemo } from "react";
+import { useEffect, useMemo, useState } from "react";
 import { useAuth } from "@/context/AuthContext";
+import StickyFilterBar from '@/components/StickyFilterBar';
 import { Lock } from "lucide-react";
 
 import { Button } from "@/components/ui/Button";
@@ -50,18 +51,11 @@ export function LibraryClient({ drops }: LibraryClientProps) {
         trackEvent("library_viewed");
     }, [userProfile]);
 
-    if (authLoading) {
-        return (
-            <div className="animate-pulse">
-                <div className="mb-6">
-                    <div className="h-10 w-64 bg-white/10 rounded mb-2" />
-                    <div className="h-5 w-72 bg-white/5 rounded" />
-                </div>
-                <div className="grid grid-cols-6 gap-3">
-                    {[1, 2, 3, 4].map((i) => (
-                        <div key={i} className="col-span-3 aspect-square bg-white/5 rounded-2xl" />
+    const [searchQuery, setSearchQuery] = useState("");
+    const [selectedCategory, setSelectedCategory] = useState("All");
+    const [gridCols, setGridCols] = useState<2 | 3>(2);
 
-    if (authLoading) {
+if (authLoading) {
         return (
             <div className="animate-pulse">
                 <div className="mb-6">
@@ -76,10 +70,6 @@ export function LibraryClient({ drops }: LibraryClientProps) {
             </div>
         );
     }
-
-    const [searchQuery, setSearchQuery] = useState("");
-    const [selectedCategory, setSelectedCategory] = useState("All");
-    const [gridCols, setGridCols] = useState<2 | 3>(2);
 
     const filteredDrops = useMemo(() => {
         let res = unlockedDrops;
@@ -141,7 +131,7 @@ export function LibraryClient({ drops }: LibraryClientProps) {
                             selectedCategory={selectedCategory}
                             onSelectCategory={setSelectedCategory}
                             searchQuery={searchQuery}
-                            onSearchChange={(q) => {
+                            onSearchChange={(q: string) => {
                                 // Analytics readiness: log search query explicitly here for later integration
                                 if (q.length > 2) trackEvent("library_search", { query: q });
                                 setSearchQuery(q);
@@ -195,3 +185,7 @@ export function LibraryClient({ drops }: LibraryClientProps) {
         </div>
     );
 }
+
+
+
+

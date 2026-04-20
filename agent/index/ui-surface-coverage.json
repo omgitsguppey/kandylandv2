@@ -1,5 +1,5 @@
 {
-  "generatedAt": "2026-04-19T23:22:55.338Z",
+  "generatedAt": "2026-04-20T01:28:07.452Z",
   "truthOrder": [
     "verified_runtime_code",
     "verified_configuration",
@@ -1619,7 +1619,8 @@
         "creator"
       ],
       "runtime_dependencies": [
-        "src/lib/server/drops.ts"
+        "src/lib/server/drops.ts",
+        "src/lib/server/firebase-admin.ts"
       ],
       "hydration_mode": "static",
       "criticality": "medium",

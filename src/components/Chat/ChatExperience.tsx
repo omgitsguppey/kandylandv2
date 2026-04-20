@@ -1835,50 +1835,49 @@ export function ChatExperience() {
                         <section className="flex h-full min-h-0 flex-col bg-[#000000]">
                         {selectedThread ? (
                             <>
-                                <div className="border-b border-white/10 px-4 pb-4 pt-5 sm:px-6">
-                                    <div className={cn("relative flex items-center", isCompactViewport ? "justify-center" : "justify-between")}>
+                                <div className="border-b border-white/10 px-4 pb-3 pt-4 sm:px-6">
+                                    <div className={cn("relative flex items-center justify-center")}>
                                         {isCompactViewport ? (
                                             <button
                                                 type="button"
                                                 onClick={returnToThreadList}
-                                                className="absolute left-0 inline-flex h-11 w-11 items-center justify-center rounded-full bg-[#161618] text-white transition hover:bg-[#202024]"
+                                                className="absolute left-0 inline-flex h-9 w-9 items-center justify-center rounded-full bg-[#161618] text-white transition hover:bg-[#202024]"
                                                 aria-label="Back to chat list"
                                             >
-                                                <ArrowLeft className="h-4 w-4" />
+                                                <ArrowLeft className="h-[18px] w-[18px]" />
                                             </button>
                                         ) : null}
-                                        <div className="flex items-center gap-3 rounded-full bg-[#141417] px-3 py-2 shadow-[0_12px_28px_rgba(0,0,0,0.3)] ring-1 ring-white/8">
-                                            <ChatAvatar
-                                                photoURL={selectedThread.counterpartPhotoURL}
-                                                label={selectedThread.counterpartDisplayName}
-                                                sizeClassName="h-12 w-12"
-                                                textClassName="text-sm"
-                                            />
-                                            <div className="min-w-0">
-                                                <p className="truncate text-sm font-semibold text-white">{selectedThread.counterpartDisplayName}</p>
-                                                <p className="truncate text-xs text-[#8f9097]">
-                                                    {selectedThread.counterpartUsername ? `@${selectedThread.counterpartUsername}` : "Direct chat"}
-                                                </p>
-                                            </div>
-                                        </div>
-                                        {!isCompactViewport ? (
-                                            <div className="text-right">
-                                                <p className="text-xs font-medium text-white">Realtime thread</p>
-                                                <TypingStatus
-                                                    presence={presence}
-                                                    fallback={selectedThread.lastMessageAt ? `Last message ${formatRelativeTime(selectedThread.lastMessageAt)}` : "No messages yet"}
+                                        {selectedThread.counterpartUsername ? (
+                                            <Link
+                                                href={`/${selectedThread.counterpartUsername}`}
+                                                className="flex items-center gap-2.5 rounded-full bg-[#141417] px-2 py-1.5 shadow-[0_12px_28px_rgba(0,0,0,0.3)] ring-1 ring-white/8 transition active:scale-[0.98] active:opacity-75"
+                                            >
+                                                <ChatAvatar
+                                                    photoURL={selectedThread.counterpartPhotoURL}
+                                                    label={selectedThread.counterpartDisplayName}
+                                                    sizeClassName="h-8 w-8"
+                                                    textClassName="text-[11px]"
                                                 />
+                                                <div className="min-w-0 pr-2">
+                                                    <p className="truncate text-xs font-semibold text-white">{selectedThread.counterpartDisplayName}</p>
+                                                    <p className="truncate text-[10px] text-[#8f9097]">@{selectedThread.counterpartUsername}</p>
+                                                </div>
+                                            </Link>
+                                        ) : (
+                                            <div className="flex items-center gap-2.5 rounded-full bg-[#141417] px-2 py-1.5 shadow-[0_12px_28px_rgba(0,0,0,0.3)] ring-1 ring-white/8">
+                                                <ChatAvatar
+                                                    photoURL={selectedThread.counterpartPhotoURL}
+                                                    label={selectedThread.counterpartDisplayName}
+                                                    sizeClassName="h-8 w-8"
+                                                    textClassName="text-[11px]"
+                                                />
+                                                <div className="min-w-0 pr-2">
+                                                    <p className="truncate text-xs font-semibold text-white">{selectedThread.counterpartDisplayName}</p>
+                                                    <p className="truncate text-[10px] text-[#8f9097]">Direct chat</p>
+                                                </div>
                                             </div>
-                                        ) : null}
+                                        )}
                                     </div>
-                                    {isCompactViewport ? (
-                                        <div className="mt-3 flex justify-center">
-                                            <TypingStatus
-                                                presence={presence}
-                                                fallback={selectedThread.lastMessageAt ? `Last message ${formatRelativeTime(selectedThread.lastMessageAt)}` : "No messages yet"}
-                                            />
-                                        </div>
-                                    ) : null}
                                 </div>
 
                                 <div
@@ -1905,7 +1904,7 @@ export function ChatExperience() {
                                             <div key={message.id} className={cn(index === 0 ? "" : "mt-1")}>
                                                 {showTimelineMarker ? (
                                                     <div className="mb-4 flex justify-center">
-                                                        <span className="rounded-full bg-[#141417] px-3 py-1 text-[11px] font-medium text-[#8f9097]">
+                                                        <span className="text-[10px] font-medium uppercase tracking-[0.06em] text-[#6b6c73]">
                                                             {formatTimelineLabel(message.createdAt)}
                                                         </span>
                                                     </div>
@@ -1913,9 +1912,9 @@ export function ChatExperience() {
                                                 <div className={cn("flex", isOutgoing ? "justify-end" : "justify-start")}>
                                                     <div className="max-w-[84%] sm:max-w-[72%]">
                                                         <div className={cn(
-                                                            "overflow-hidden px-4 py-3 text-[15px] leading-6 shadow-[0_12px_30px_rgba(0,0,0,0.22)]",
+                                                            "overflow-hidden px-4 py-2.5 text-[15px] leading-6 shadow-[0_12px_30px_rgba(0,0,0,0.22)]",
                                                             isOutgoing
-                                                                ? "rounded-[1.45rem] rounded-br-[0.5rem] bg-[linear-gradient(180deg,#8f6dff_0%,#6f3ff4_100%)] text-white"
+                                                                ? "rounded-[1.45rem] rounded-br-[0.5rem] bg-[linear-gradient(180deg,#8457ff_0%,#6d38f8_100%)] text-white"
                                                                 : "rounded-[1.45rem] rounded-bl-[0.5rem] bg-[#26262a] text-white",
                                                             message.assetUrl && !message.text ? "p-1.5" : "",
                                                             isOptimistic ? "opacity-75" : "",
@@ -2035,12 +2034,12 @@ export function ChatExperience() {
                                             <button
                                                 type="button"
                                                 onClick={() => setAttachmentMenuOpen((current) => !current)}
-                                                className="inline-flex h-10 w-10 items-center justify-center rounded-full bg-[#141417] text-white transition hover:bg-[#1a1b1f]"
+                                                className="inline-flex h-9 w-9 items-center justify-center rounded-full bg-[#141417] text-white transition hover:bg-[#1a1b1f]"
                                                 aria-label="Add attachment"
                                                 aria-expanded={attachmentMenuOpen}
                                                 aria-haspopup="menu"
                                             >
-                                                <Plus className="h-4 w-4" />
+                                                <Plus className="h-[18px] w-[18px]" />
                                             </button>
                                             {attachmentMenuOpen ? (
                                                 <div
@@ -2093,21 +2092,21 @@ export function ChatExperience() {
                                                 }}
                                             />
                                         </div>
-                                        <div className="flex min-h-10 flex-1 items-center gap-2 rounded-[1.75rem] bg-[#121214] px-4 py-2.5 ring-1 ring-white/8">
+                                        <div className="flex min-h-9 flex-1 items-center gap-3 rounded-[1.65rem] bg-[#121214] pl-4 pr-1.5 py-1.5 ring-1 ring-white/8">
                                             <textarea
                                                 value={composerText}
                                                 onChange={(event) => handleComposerTextChange(event.target.value.slice(0, 1200))}
                                                 onKeyDown={handleComposerKeyDown}
                                                 rows={1}
                                                 placeholder={selectedThread.viewerRole === "creator" ? "Reply..." : "Message"}
-                                                className="block max-h-32 min-h-[22px] w-full resize-none self-center bg-transparent py-0.5 text-base leading-5 text-white placeholder:text-[#6e7077] focus:outline-none sm:text-[15px]"
+                                                className="block max-h-32 min-h-[20px] w-full resize-none self-center bg-transparent py-0.5 text-[14px] leading-5 text-white placeholder:text-[#5d5e66] focus:outline-none sm:text-[13px]"
                                             />
                                             <button
                                                 type="button"
                                                 onClick={() => void handleSendMessage()}
                                                 disabled={sendingMessage}
                                                 className={cn(
-                                                    "inline-flex h-8 w-8 shrink-0 self-center items-center justify-center rounded-full transition",
+                                                    "inline-flex h-9 w-9 shrink-0 self-center items-center justify-center rounded-full transition",
                                                     sendingMessage
                                                         ? "bg-brand-purple/50 text-white/80"
                                                         : "bg-brand-purple text-white hover:bg-[#8457ff]",
@@ -2117,7 +2116,7 @@ export function ChatExperience() {
                                                 {sendingMessage ? (
                                                     <span className="h-4 w-4 animate-spin rounded-full border-2 border-white/30 border-t-white" />
                                                 ) : (
-                                                    <Send className="h-4 w-4" />
+                                                    <Send className="h-[18px] w-[18px] ml-0.5" />
                                                 )}
                                             </button>
                                         </div>
