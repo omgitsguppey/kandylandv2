@@ -17,7 +17,7 @@ import { trackEvent } from "@/lib/telemetry";
 
 const FeaturedCarousel = dynamic(() => import("@/components/FeaturedCarousel").then(mod => mod.FeaturedCarousel), {
     ssr: false,
-    loading: () => <div className="h-64 sm:h-80 md:h-[400px] w-full rounded-[2.5rem] bg-zinc-900/50 animate-pulse border border-white/10" />
+    loading: () => <div className="h-52 sm:h-64 md:h-[320px] w-full rounded-[2.5rem] bg-zinc-900/50 animate-pulse border border-white/10" />
 });
 
 const DropPreviewModal = dynamic(() => import("@/components/DropPreviewModal").then(mod => mod.DropPreviewModal), {
@@ -279,13 +279,13 @@ export function DropsClient({ initialDrops, creatorRailProfiles }: DropsClientPr
             <CreatorDiscoveryRail surface="drops" compact initialCreators={creatorRailProfiles} />
 
             {!searchQuery && selectedCategory === "All" && (
-                <div className="mt-6">
+                <div className="mt-4">
                     <FeaturedCarousel drops={sourceDrops} onSelectDrop={handleSelectDrop} />
                 </div>
             )}
 
-            <div id="live-drops" className="mt-8 min-h-[500px]">
-                <div className="flex flex-col md:flex-row md:items-center justify-between mb-6 px-4 md:px-0 gap-4 md:gap-3">
+            <div id="live-drops" className="mt-4 md:mt-6 min-h-[500px]">
+                <div className="flex flex-col md:flex-row md:items-center justify-between mb-4 md:mb-5 px-4 md:px-0 gap-3">
                     <div className="flex items-center gap-3">
                         <h2 className="text-2xl font-bold text-white tracking-tight">
                             {searchQuery ? `Search Results: "${searchQuery}"` : selectedCategory === "All" ? "All KandyDrops" : `${selectedCategory} Drops`}
@@ -296,7 +296,7 @@ export function DropsClient({ initialDrops, creatorRailProfiles }: DropsClientPr
                     </div>
                 </div>
                 
-                <div className="mb-6 -mx-4 md:mx-0 px-4 md:px-0">
+                <div className="mb-4">
                     <StickyFilterBar
                         categories={CATEGORIES}
                         selectedCategory={selectedCategory}

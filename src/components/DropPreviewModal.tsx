@@ -29,21 +29,63 @@ interface DropPreviewModalProps {
   onClose: () => void;
 }
 
-function getTimerLabel(validFrom: number, validUntil?: number): string {
-  const now = Date.now();
-  if (now < validFrom) {
-    return `Starts in ${formatDistanceToNow(validFrom)}`;
-  }
+function useModalTimer(validFrom: number, validUntil?: number) {
+    const [label, setLabel] = useState("");
+    const [urgencyState, setUrgencyState] = useState<"calm" | "warm" | "critical">("calm");
 
-  if (!validUntil) {
-    return "Always available";
-  }
+    useEffect(() => {
+        const updateTimer = () => {
+            const now = Date.now();
+            if (now < validFrom) {
+                setLabel(`Starts in ${formatDistanceToNow(validFrom)}`);
+                setUrgencyState("calm");
+                return;
+            }
 
-  if (now >= validUntil) {
-    return "Expired";
-  }
+            if (!validUntil) {
+                setLabel("Always available");
+                setUrgencyState("calm");
+                return;
+            }
 
-  return `${formatDistanceToNow(validUntil)} left`;
+            const msLeft = Math.max(0, validUntil - now);
+            const ONE_HOUR_MS = 60 * 60 * 1000;
+            const ONE_DAY_MS = 24 * ONE_HOUR_MS;
+
+            if (msLeft === 0) {
+                setLabel("Expired");
+                setUrgencyState("critical");
+                return;
+            }
+
+            if (msLeft <= 4 * ONE_HOUR_MS) {
+                setUrgencyState("critical");
+            } else if (msLeft <= ONE_DAY_MS) {
+                setUrgencyState("warm");
+            } else {
+                setUrgencyState("calm");
+            }
+
+            if (msLeft >= ONE_DAY_MS) {
+                const days = Math.ceil(msLeft / ONE_DAY_MS);
+                setLabel(`Ends in ${days} day${days === 1 ? "" : "s"}`);
+                return;
+            }
+
+            const totalSeconds = Math.floor(msLeft / 1000);
+            const hours = Math.floor(totalSeconds / 3600);
+            const minutes = Math.floor((totalSeconds % 3600) / 60);
+            const seconds = totalSeconds % 60;
+            const pad = (value: number) => value.toString().padStart(2, "0");
+            setLabel(`Ends in ${pad(hours)}:${pad(minutes)}:${pad(seconds)}`);
+        };
+
+        updateTimer();
+        const interval = window.setInterval(updateTimer, 1000);
+        return () => window.clearInterval(interval);
+    }, [validFrom, validUntil]);
+
+    return { label, urgencyState };
 }
 
 function FileCountBadge({ drop }: { drop: Drop }) {
@@ -132,7 +174,7 @@ export function DropPreviewModal({ drop, onClose }: DropPreviewModalProps) {
   }, [confirming]);
 
   const mediaSummary = useMemo(() => (drop ? getDropMediaSummary(drop) : { imageCount: 0, videoCount: 0 }), [drop]);
-  const timerLabel = useMemo(() => (drop ? getTimerLabel(drop.validFrom, drop.validUntil) : ""), [drop]);
+  const { label: timerLabel, urgencyState: timerUrgency } = useModalTimer(drop?.validFrom || 0, drop?.validUntil);
   const aspectRatio = useMemo(() => (drop ? getSupportedDropAspectRatio(drop) : "1:1"), [drop]);
   const ratioStyle = useMemo(() => ({ aspectRatio: getAspectRatioCssValue(aspectRatio) }), [aspectRatio]);
 
@@ -363,8 +405,14 @@ export function DropPreviewModal({ drop, onClose }: DropPreviewModalProps) {
                 </div>
 
                 <div className="mt-4 flex flex-wrap items-center gap-2 text-xs font-semibold">
-                  <span className="px-3 py-1 rounded-full bg-brand-purple/15 border border-brand-purple/30 text-brand-purple flex items-center gap-1.5">
-                    <Clock className="w-3.5 h-3.5" /> {timerLabel}
+                  <span className={cn(
+                      "px-3 py-1 rounded-full border flex items-center gap-1.5 transition-colors",
+                      timerUrgency === "critical" ? "bg-fuchsia-900/30 border-fuchsia-500/40 text-fuchsia-200 animate-pulse" :
+                      timerUrgency === "warm" ? "bg-[#b28cff]/15 border-[#b28cff]/30 text-[#e4d4ff]" :
+                      "bg-brand-purple/15 border-brand-purple/30 text-brand-purple"
+                  )}>
+                    <Clock className={cn("w-3.5 h-3.5", timerUrgency === "critical" ? "text-fuchsia-400" : timerUrgency === "warm" ? "text-[#b28cff]" : "text-brand-purple")} /> 
+                    {timerLabel || "Always available"}
                   </span>
                   <FileCountBadge drop={drop} />
                 </div>

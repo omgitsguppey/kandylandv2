@@ -97,8 +97,7 @@ const FileCountChip = ({ images, videos, compact = false }: FileCountChipProps) 
 
 function DropCardTimer({ validUntil }: { validUntil?: number }) {
     const [timeLeft, setTimeLeft] = useState("Ends soon");
-    const [isUrgent, setIsUrgent] = useState(false);
-    const [isCritical, setIsCritical] = useState(false);
+    const [urgencyState, setUrgencyState] = useState<"calm" | "warm" | "critical">("calm");
 
     useEffect(() => {
         const updateTimer = () => {
@@ -111,12 +110,18 @@ function DropCardTimer({ validUntil }: { validUntil?: number }) {
             const ONE_HOUR_MS = 60 * 60 * 1000;
             const ONE_DAY_MS = 24 * ONE_HOUR_MS;
 
-            setIsUrgent(msLeft > 0 && msLeft <= ONE_DAY_MS);
-            setIsCritical(msLeft > 0 && msLeft <= ONE_HOUR_MS);
-
             if (msLeft === 0) {
                 setTimeLeft("Expired");
+                setUrgencyState("critical");
                 return;
+            }
+
+            if (msLeft <= 4 * ONE_HOUR_MS) {
+                setUrgencyState("critical");
+            } else if (msLeft <= ONE_DAY_MS) {
+                setUrgencyState("warm");
+            } else {
+                setUrgencyState("calm");
             }
 
             if (msLeft >= ONE_DAY_MS) {
@@ -140,12 +145,12 @@ function DropCardTimer({ validUntil }: { validUntil?: number }) {
 
     return (
         <div className={cn(
-            "inline-flex items-center gap-1 rounded-lg border px-2.5 py-1 text-[10px] md:text-xs font-mono font-bold transition-colors",
-            isCritical ? "bg-red-500/10 border-red-500/30 text-red-500 animate-pulse" :
-                isUrgent ? "bg-orange-500/10 border-orange-500/30 text-orange-400" :
-                    "border-white/20 bg-black/60 text-white"
+            "inline-flex items-center gap-1 rounded-lg border px-2 py-0.5 md:px-2.5 md:py-1 text-[9px] md:text-[10px] font-mono font-bold transition-colors w-full justify-center max-w-[120px]",
+            urgencyState === "critical" ? "bg-fuchsia-900/30 border-fuchsia-500/40 text-fuchsia-200 animate-pulse" :
+                urgencyState === "warm" ? "bg-[#b28cff]/15 border-[#b28cff]/30 text-[#e4d4ff]" :
+                    "border-white/10 bg-black/40 text-gray-300"
         )}>
-            <Clock className={cn("h-3 w-3", isCritical ? "text-red-500" : isUrgent ? "text-orange-400" : "text-brand-purple")} />
+            <Clock className={cn("h-3 w-3", urgencyState === "critical" ? "text-fuchsia-400" : urgencyState === "warm" ? "text-[#b28cff]" : "text-gray-400")} />
             <span>{timeLeft}</span>
         </div>
     );
@@ -391,7 +396,7 @@ function DropCardBase({
         <Link
             href={`/dashboard/viewer?id=${drop.id}`}
             onClick={triggerHaptic}
-            className="flex w-full items-center justify-center gap-1.5 whitespace-nowrap rounded-lg border border-brand-purple bg-gradient-to-r from-brand-purple to-purple-500 px-3 py-1.5 text-[11px] font-bold text-white shadow-[0_0_15px_rgba(164,118,255,0.28)] transition-all active:scale-95 md:rounded-xl md:px-4 md:py-2 md:text-xs"
+            className="flex w-full items-center justify-center gap-1.5 whitespace-nowrap rounded-md border border-brand-purple bg-gradient-to-r from-brand-purple to-purple-500 px-3 py-1.5 text-[10px] font-bold text-white shadow-[0_0_15px_rgba(164,118,255,0.28)] transition-all active:scale-95 md:rounded-lg md:px-4 md:py-2 md:text-xs"
         >
             <Unlock className="w-3 h-3" />
             View Content
@@ -402,7 +407,7 @@ function DropCardBase({
             onClick={handleUnlock}
             disabled={unlocking}
             className={cn(
-                "px-3 py-1.5 md:px-4 md:py-2 rounded-lg md:rounded-xl font-bold text-[11px] md:text-xs flex items-center justify-center w-full whitespace-nowrap gap-1.5 border relative overflow-hidden transition-all active:scale-95 shadow-lg",
+                "px-3 py-1.5 md:px-4 md:py-2 rounded-md md:rounded-lg font-bold text-[10px] md:text-xs flex items-center justify-center w-full whitespace-nowrap gap-1.5 border relative overflow-hidden transition-all active:scale-95 shadow-lg",
                 !canAfford ? "bg-gradient-to-r from-brand-purple to-purple-500 text-white border-brand-purple shadow-[0_0_15px_rgba(164,118,255,0.3)] hover:opacity-95"
                     : confirming ? "bg-white text-black border-white shadow-[0_0_15px_rgba(255,255,255,0.22)]"
                         : "bg-gradient-to-r from-brand-purple to-purple-500 text-white border-brand-purple shadow-[0_0_15px_rgba(164,118,255,0.28)] hover:opacity-95",
@@ -498,7 +503,7 @@ function DropCardBase({
     }
 
     return (
-        <div ref={cardRef} className="group relative p-2 md:p-3 rounded-2xl md:rounded-3xl glass-panel overflow-hidden h-full flex flex-col">
+        <div ref={cardRef} className="group relative p-1.5 md:p-2.5 rounded-2xl md:rounded-3xl glass-panel overflow-hidden h-full flex flex-col justify-between">
             <div className="absolute inset-0 bg-gradient-to-br from-brand-purple/5 via-transparent to-brand-purple/5 pointer-events-none" />
 
             <button
@@ -506,7 +511,7 @@ function DropCardBase({
                 onClick={() => {
                     handlePreviewOpen();
                 }}
-                className="relative w-full bg-black/40 rounded-xl md:rounded-2xl mb-2 md:mb-3 overflow-hidden group/image shadow-inner border border-white/5 text-left flex-shrink-0"
+                className="relative w-full bg-black/40 rounded-xl md:rounded-2xl mb-1.5 md:mb-2 overflow-hidden group/image shadow-inner border border-white/5 text-left flex-shrink-0"
                 style={ratioStyle}
             >
                 {drop.imageUrl ? (
@@ -529,37 +534,36 @@ function DropCardBase({
                 ) : (
                     <div className="w-full h-full flex items-center justify-center text-5xl bg-zinc-900/50">🍬</div>
                 )}
-                <div className="absolute top-2 md:top-3 right-2 md:right-3 z-10 transition-transform group-hover/image:scale-110">
-                    <FileCountChip images={fileCounts.images} videos={fileCounts.videos} />
+                <div className="absolute top-1.5 md:top-2 right-1.5 md:right-2 z-10 transition-transform group-hover/image:scale-110">
+                    <FileCountChip images={fileCounts.images} videos={fileCounts.videos} compact />
                 </div>
             </button>
 
-            <div className="relative z-10 space-y-2 md:space-y-3">
-                {displayedTags.length > 0 ? <DropCardBadge label={displayedTags[0]} /> : null}
-                <DropCardTimer validUntil={drop.validUntil} />
-
-                <div>
-                    <div className="mb-0.5 md:mb-1 w-full max-w-full overflow-hidden">
-                        <TitleMarquee 
-                            title={drop.title} 
-                            delaySeed={drop.id.charCodeAt(0) % 6} 
-                            className="text-sm md:text-base font-bold text-white leading-tight tracking-tight" 
-                        />
-                    </div>
-                    <p className="text-[10px] md:text-xs text-gray-400 line-clamp-1 font-medium leading-relaxed">{drop.description}</p>
+            <div className="relative z-10 flex flex-col h-full space-y-1.5">
+                <div className="flex items-center justify-between w-full">
+                    {displayedTags.length > 0 ? <DropCardBadge label={displayedTags[0]} compact /> : <div />}
+                    <DropCardTimer validUntil={drop.validUntil} />
                 </div>
 
-                <div className="flex flex-col items-start gap-1.5 md:gap-2 mt-auto pt-1">
+                <div className="w-full max-w-full overflow-hidden flex-shrink-0">
+                    <TitleMarquee 
+                        title={drop.title} 
+                        delaySeed={drop.id.charCodeAt(0) % 6} 
+                        className="text-xs md:text-sm font-bold text-white leading-tight tracking-tight pt-0.5" 
+                    />
+                </div>
+
+                <div className="flex flex-col items-start gap-1.5 mt-auto pt-1 w-full">
                     <div className="flex items-center justify-between w-full">
-                        <div className="flex items-center gap-1 md:gap-2 px-2 py-1 bg-brand-purple/10 rounded-lg border border-brand-purple/20">
-                            <span className="text-brand-purple font-bold text-[10px] md:text-xs tracking-wide whitespace-nowrap">{drop.unlockCost} GD</span>
+                        <div className="flex items-center gap-1 md:gap-1.5 px-2 py-0.5 md:py-1 bg-brand-purple/10 rounded-md border border-brand-purple/20">
+                            <span className="text-brand-purple font-bold text-[10px] md:text-[11px] tracking-wide whitespace-nowrap">{drop.unlockCost} GD</span>
                         </div>
                         <div
                             className="flex items-center gap-1 opacity-60 text-[9px] font-medium text-white/80"
                             aria-label={`${totalViews.toLocaleString()} views`}
                             title={`${totalViews.toLocaleString()} views`}
                         >
-                            <Eye aria-hidden="true" className="w-2.5 h-2.5" />
+                            <Eye aria-hidden="true" className="w-[10px] h-[10px]" />
                             <span>{totalViews.toLocaleString()}</span>
                         </div>
                     </div>
@@ -569,8 +573,8 @@ function DropCardBase({
                 </div>
 
                 {error && (
-                    <div className="mt-2 md:mt-3 text-[10px] md:text-xs text-red-400 flex items-center justify-center gap-1.5 font-medium bg-red-500/10 py-1 rounded-md border border-red-500/10">
-                        <AlertCircle className="w-3 h-3" /> {error}
+                    <div className="mt-1 text-[9px] md:text-[10px] text-red-400 flex items-center justify-center gap-1 font-medium bg-red-500/10 py-1 rounded border border-red-500/10">
+                        <AlertCircle className="w-2.5 h-2.5" /> {error}
                     </div>
                 )}
             </div>

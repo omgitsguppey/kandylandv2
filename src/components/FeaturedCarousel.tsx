@@ -105,9 +105,9 @@ export function FeaturedCarousel({ drops, onSelectDrop }: FeaturedCarouselProps)
                 className={cn(
                     "w-full rounded-3xl relative overflow-hidden border border-white/10 group block mx-auto",
                     "shadow-[0_20px_50px_rgba(236,72,153,0.22)]",
-                    activeAspectRatio === "16:9" && "max-w-[720px]",
-                    activeAspectRatio === "1:1" && "max-w-[620px]",
-                    activeAspectRatio === "9:16" && "max-w-[420px]"
+                    activeAspectRatio === "16:9" && "max-w-[590px]",
+                    activeAspectRatio === "1:1" && "max-w-[500px]",
+                    activeAspectRatio === "9:16" && "max-w-[348px]"
                 )}
                 style={{ aspectRatio: activeAspectRatio.replace(":", " / ") }}
                 ref={emblaRef}
@@ -116,6 +116,9 @@ export function FeaturedCarousel({ drops, onSelectDrop }: FeaturedCarouselProps)
                     {featuredDrops.map((drop, index) => {
                         const isActive = index === activeIndex;
                         const totalUnwraps = typeof drop.totalUnlocks === "number" && Number.isFinite(drop.totalUnlocks) ? Math.max(0, Math.floor(drop.totalUnlocks)) : 0;
+                        const isUnlocked = userProfile?.unlockedContent?.includes(drop.id);
+                        const canAfford = typeof userProfile?.gumDropsBalance === "number" && userProfile.gumDropsBalance >= drop.unlockCost;
+
 
                         let images = 0;
                         let videos = 0;
@@ -198,17 +201,18 @@ export function FeaturedCarousel({ drops, onSelectDrop }: FeaturedCarouselProps)
                                             <span>{totalUnwraps.toLocaleString()} unwrapped</span>
                                         </div>
 
-                                        <div className="pt-1 flex items-center gap-3">
-                                            {userProfile?.unlockedContent?.includes(drop.id) ? (
-                                                <div className="px-3 py-1.5 bg-brand-purple/20 border border-brand-purple/30 rounded-lg text-brand-purple font-bold text-sm">View Content</div>
+                                        <div className="pt-2 w-full max-w-[260px]">
+                                            {isUnlocked ? (
+                                                <div className="w-full flex items-center justify-center gap-1.5 whitespace-nowrap rounded-xl border border-brand-purple bg-gradient-to-r from-brand-purple to-purple-500 px-4 py-2.5 text-xs md:text-sm font-bold text-white shadow-[0_0_15px_rgba(164,118,255,0.28)] transition-all">
+                                                    <Unlock className="w-3.5 h-3.5 md:w-4 md:h-4" />
+                                                    View Content
+                                                </div>
                                             ) : (
-                                                <div className="px-3 py-1.5 bg-brand-purple/20 border border-brand-purple/30 rounded-lg text-brand-purple font-bold text-sm">
-                                                    {drop.unlockCost} GD
+                                                <div className="w-full flex items-center justify-center gap-1.5 whitespace-nowrap rounded-xl border border-brand-purple bg-gradient-to-r from-brand-purple to-purple-500 px-4 py-2.5 text-xs md:text-sm font-bold text-white shadow-[0_0_15px_rgba(164,118,255,0.28)] transition-all">
+                                                    <Lock className="w-3.5 h-3.5 md:w-4 md:h-4" />
+                                                    {!userProfile ? "Create Profile to Unwrap" : (!canAfford ? "Get more GumDrops" : `Unwrap for ${drop.unlockCost} GD`)}
                                                 </div>
                                             )}
-                                            <div className="flex h-10 w-10 items-center justify-center rounded-full bg-gradient-to-r from-brand-purple to-purple-500 text-white shadow-[0_0_20px_rgba(164,118,255,0.4)]">
-                                                <ChevronRight className="w-5 h-5 ml-0.5" />
-                                            </div>
                                         </div>
                                     </div>
                                 </button>
@@ -237,31 +241,35 @@ export function FeaturedCarousel({ drops, onSelectDrop }: FeaturedCarouselProps)
 }
 
 function TimerWithProgress({ validFrom, validUntil }: { validFrom: number; validUntil?: number }) {
-    const { label, progressPercent, isUrgent } = useDropTiming(validFrom, validUntil);
+    const { label, progressPercent, urgencyState } = useDropTiming(validFrom, validUntil);
 
     return (
-        <div className="space-y-1.5 w-[160px]">
+        <div className="space-y-1 w-[140px] md:w-[160px]">
             <div
                 className={cn(
-                    "backdrop-blur-xl px-3 py-1.5 rounded-lg text-[12px] font-mono font-extrabold tracking-tight text-white border flex items-center gap-1.5 shadow-lg",
-                    isUrgent ? "bg-red-500/75 border-red-300/60" : "bg-black/65 border-white/20"
+                    "backdrop-blur-xl px-2.5 py-1 md:px-3 md:py-1.5 rounded-lg text-[11px] md:text-[12px] font-mono font-extrabold tracking-tight text-white border flex items-center gap-1.5 shadow-lg",
+                    urgencyState === "critical" ? "bg-fuchsia-900/40 border-fuchsia-500/50 text-fuchsia-100 animate-pulse" :
+                    urgencyState === "warm" ? "bg-[#b28cff]/20 border-[#b28cff]/40 text-[#dfcdff]" :
+                    "bg-black/65 border-white/20 text-white"
                 )}
             >
-                <Clock className="w-3.5 h-3.5 text-brand-purple" />
+                <Clock className={cn("w-3.5 h-3.5", urgencyState === "critical" ? "text-fuchsia-400" : urgencyState === "warm" ? "text-[#b28cff]" : "text-brand-purple")} />
                 <span>{label}</span>
             </div>
-            <LifetimeProgressBar progressPercent={progressPercent} isUrgent={isUrgent} />
+            <LifetimeProgressBar progressPercent={progressPercent} urgencyState={urgencyState} />
         </div>
     );
 }
 
-function LifetimeProgressBar({ progressPercent, isUrgent }: { progressPercent: number; isUrgent: boolean }) {
+function LifetimeProgressBar({ progressPercent, urgencyState }: { progressPercent: number; urgencyState: "calm" | "warm" | "critical" }) {
     return (
-        <div className="h-1.5 w-full rounded-full bg-white/20 overflow-hidden">
+        <div className="h-1 w-full rounded-full bg-white/20 overflow-hidden">
             <div
                 className={cn(
                     "h-full rounded-full transition-[width] duration-700 ease-out",
-                    isUrgent ? "bg-gradient-to-r from-brand-orange via-brand-purple to-red-400" : "bg-gradient-to-r from-brand-purple via-brand-purple to-brand-purple"
+                    urgencyState === "critical" ? "bg-gradient-to-r from-[#b28cff] via-fuchsia-500 to-pink-500" :
+                    urgencyState === "warm" ? "bg-gradient-to-r from-brand-purple via-[#b28cff] to-fuchsia-400" :
+                    "bg-gradient-to-r from-brand-purple to-brand-purple"
                 )}
                 style={{ width: `${progressPercent}%` }}
             />
@@ -302,14 +310,14 @@ function ActivityTicker({ count }: { count: number }) {
 
 function useDropTiming(validFrom: number, validUntil?: number) {
     const [label, setLabel] = useState("No end date");
-    const [isUrgent, setIsUrgent] = useState(false);
+    const [urgencyState, setUrgencyState] = useState<"calm" | "warm" | "critical">("calm");
     const [progressPercent, setProgressPercent] = useState(0);
 
     useEffect(() => {
         const updateTiming = () => {
             if (!validUntil) {
                 setLabel("No end date");
-                setIsUrgent(false);
+                setUrgencyState("calm");
                 setProgressPercent(0);
                 return;
             }
@@ -323,11 +331,17 @@ function useDropTiming(validFrom: number, validUntil?: number) {
 
             if (msLeft === 0) {
                 setLabel("Expired");
-                setIsUrgent(true);
+                setUrgencyState("critical");
                 return;
             }
 
-            setIsUrgent(msLeft < ONE_DAY_MS);
+            if (msLeft <= 4 * 60 * 60 * 1000) {
+                setUrgencyState("critical");
+            } else if (msLeft <= ONE_DAY_MS) {
+                setUrgencyState("warm");
+            } else {
+                setUrgencyState("calm");
+            }
 
             if (msLeft >= ONE_DAY_MS) {
                 const days = Math.ceil(msLeft / ONE_DAY_MS);
@@ -349,5 +363,5 @@ function useDropTiming(validFrom: number, validUntil?: number) {
         return () => window.clearInterval(interval);
     }, [validFrom, validUntil]);
 
-    return { label, isUrgent, progressPercent };
+    return { label, urgencyState, progressPercent };
 }
