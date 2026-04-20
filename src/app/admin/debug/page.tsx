@@ -16,6 +16,7 @@ import {
 import { toast } from "sonner";
 
 import { AdminPageHeader } from "@/components/Admin/AdminPageHeader";
+import { AdminTruthSurfaces } from '../AdminTruthSurfaces';
 import { PageViewEvent } from "@/components/Analytics/PageViewEvent";
 import { Button } from "@/components/ui/Button";
 import { useAuth } from "@/context/AuthContext";
@@ -661,6 +662,8 @@ export default function DebugConsole() {
                     </Button>
                 )}
             />
+
+            <AdminTruthSurfaces />
 
             {renderTabControls()}
 

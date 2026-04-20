@@ -165,3 +165,44 @@ This repo's default branch is `main`. If the local branch is `work`, push with:
 ```bash
 git push origin work:main
 ```
+
+## Legacy Code Handling & Classification
+All monolithic paths or legacy pipelines must be explicitly modeled.
+- **Active Canonical**: Core pathways verified to standard.
+- **Legacy Adapter**: Wrapped legacy code deemed too risky to rewrite wholesale.
+- **Deprecated**: Code designated for removal; must produce a system warning if hit.
+- **Dead/Deleted**: No ghost code. If safe to delete, delete it.
+When adapter-wrapping, write explicit migration notes. Do not duplicate pure source-of-truth.
+
+## Regression Gate Requirements
+A feature is NOT complete until all 4 core components are structurally safe:
+1. **UI Layer**: Hydration safe, A11y aligned.
+2. **Source State Layer**: No stale async overwrites, explicitly marked hot vs. cold.
+3. **Telemetry Layer**: Canonical events bind sequentially; no direct isolated side paths.
+4. **Admin/Audit Layer**: UI updates visibly feed reporting dashboards truthfully.
+
+**Violations**: No silent catch blocks. No fake \"pass\" states. No hidden fallbacks without visual source-state labels. No detached feature code bypassing canonical hydration.
+
+## File Size & Module Discipline (Mandatory)
+Massive monolithic un-maintainable files are forbidden. 
+- **View/UI Files**: < 300 lines limit. 
+- **Orchestration/Hook Pages**: < 500 lines limit.
+- **Decomposition Target Breakdown**: Always isolate logic into View components, State hooks, Telemetry/Diagnostic helpers, and Type definitions. 
+
+## Admin Truth UI Rules (SEO, A11y, Perf)
+Operational admin dashboards must explicitly convey exact data source states.
+Labels must be explicit: [live], [cached], [stale], [fallback], [partial], [failed], [unknown]. 
+If a check fails or lacks canonical telemetry hooks, the admin UI must strictly fail—NO fake fallback \"green/healthy\" blocks.
+
+## A/B Testing Readiness & Safety
+Anticipate structural iteration, but do it safely.
+- Code must securely centralize feature flags.
+- **DO NOT** scatter if (featureA) everywhere loosely. 
+- Exposure logging must seamlessly inject into Canonical Telemetry patterns.
+- **SAFE SURFACES**: CTA emphasis, visual merchandising, spotlight layouts, hero copy, onboarding flow text.
+- **STRICTLY UNSAFE SURFACES**: Wallet state, PayPal integrations, economy operations, Auth session logic.
+
+## AI Governance & Workflow Execution
+Antigravity must behave like a disciplined senior engineer. 
+**Cycle**: Inspect architecture -> Identify precise owners -> Patch -> Verify Parity -> Verify Regression Safety -> Report.
+Guessing logic, injecting blind patches, declaring success without check protocols, or modifying uninvestigated architecture is prohibited. 
