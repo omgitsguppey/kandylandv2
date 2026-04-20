@@ -1,5 +1,5 @@
 {
-  "generatedAt": "2026-04-18T22:39:27.949Z",
+  "generatedAt": "2026-04-20T03:44:41.892Z",
   "truthOrder": [
     "verified_runtime_code",
     "verified_configuration",
@@ -14,6 +14,58 @@
     "FULL_SCALE_CODEBASE_AUDIT.md"
   ],
   "passes": [
+    {
+      "stable_id": "pass__2026-04-18-viewer-watch-close-intent-repair-capture-state-reclassification",
+      "date": "2026-04-18",
+      "title": "Viewer Watch Close-Intent Repair + Capture-State Reclassification",
+      "scopeSummary": [
+        "Repair the live analytics continuity blockers created by historical close-missing watch sessions, preserve terminal close intent on retry failure, and reclassify closed-and-recovered watch sessions so they no longer remain permanently flush-degraded once the terminal close has been recorded."
+      ],
+      "touchedSurfaces": [
+        "npx vitest run tests/unit/viewer-watch-session.spec.ts tests/unit/admin-analytics-capture-health.spec.ts",
+        "scripts/check-analytics-continuity.ts",
+        "scripts/repair-viewer-watch-close-missing.ts",
+        "src/hooks/useViewerWatchSession.ts",
+        "src/lib/server/admin-analytics-capture-health.ts",
+        "src/lib/viewer-watch-session.ts"
+      ],
+      "canonicalHelpersReused": [],
+      "verificationCommandsRun": [],
+      "resultSummary": [],
+      "warnings": [],
+      "architecture_change": true,
+      "runtime_change": false,
+      "ui_change": false,
+      "security_change": false,
+      "maintenance_only": false,
+      "changeKinds": [
+        "admin",
+        "ui",
+        "tooling",
+        "architecture"
+      ]
+    },
+    {
+      "stable_id": "pass__2026-04-18-full-codebase-audit-sweep",
+      "date": "2026-04-18",
+      "title": "Full Codebase Audit Sweep",
+      "scopeSummary": [
+        "Perform a broad repository audit against the live codebase truth, including governance ledgers, repo-intelligence context, continuity checks, and broad-surface code inspection for stale states, parity drift, and missing signoff hygiene."
+      ],
+      "touchedSurfaces": [],
+      "canonicalHelpersReused": [],
+      "verificationCommandsRun": [],
+      "resultSummary": [],
+      "warnings": [],
+      "architecture_change": false,
+      "runtime_change": false,
+      "ui_change": false,
+      "security_change": false,
+      "maintenance_only": true,
+      "changeKinds": [
+        "maintenance"
+      ]
+    },
     {
       "stable_id": "pass__2026-04-18-viewer-unwrapped-watch-time-refactor",
       "date": "2026-04-18",
@@ -217,107 +269,6 @@
       "maintenance_only": false,
       "changeKinds": [
         "ui"
-      ]
-    },
-    {
-      "stable_id": "pass__2026-04-18-verification-blocker-remediation-runtime-continuity-truth-alignment",
-      "date": "2026-04-18",
-      "title": "Verification Blocker Remediation + Runtime Continuity Truth Alignment",
-      "scopeSummary": [
-        "Remove the remaining truthful verification blockers and stale warnings/non-blocking notes by aligning the runtime continuity checks with the repo's actual executable truth, fixing any queue/runtime continuity gaps that still fail local verification, and rerunning the affected signoff lanes."
-      ],
-      "touchedSurfaces": [
-        " package-manager overrides/lockfiles so ",
-        ".agent/workflows/auto-tasks.md",
-        "@google-cloud/firestore@8.5.0",
-        "functions/package.json",
-        "functions/src/index.ts",
-        "functions/src/queue-runtime.ts",
-        "functions/src/runtime-warning-store.ts",
-        "notifyActiveDropsRuntime({ executionLayer: \"scheduler\", surface: \"functions/notifyActiveDropsLifecycle/manual-remediation\", ... })",
-        "npm --prefix functions ls @google-cloud/firestore google-gax whatwg-url tr46",
-        "npm ls @google-cloud/firestore google-gax whatwg-url tr46",
-        "npm run trace:adjacent -- functions/src/index.ts",
-        "npm run trace:adjacent -- functions/src/queue-runtime.ts",
-        "npm run trace:adjacent -- scripts/check-runtime-continuity.ts",
-        "npm run trace:adjacent -- scripts/check-scheduler-freshness.ts",
-        "npm run trace:adjacent -- scripts/runtime-admin.ts",
-        "npm run trace:adjacent -- src/lib/server/runtime-warning-store.ts",
-        "npx vitest run tests/unit/check-scheduler-freshness.spec.ts tests/unit/process-queue-route.spec.ts tests/unit/notify-active-drops-route.spec.ts tests/unit/drop-queue-lifecycle.spec.ts tests/unit/admin-analytics-capture-health.spec.ts tests/unit/admin-analytics-realtime-route.spec.ts",
-        "processQueueLifecycleRuntime({ executionLayer: \"scheduler\", surface: \"functions/processQueueLifecycle/manual-remediation\", ... })",
-        "scripts/check-runtime-continuity.ts",
-        "scripts/check-scheduler-freshness.ts",
-        "scripts/runtime-admin.ts",
-        "shared/runtime/runtime-warning-contract.ts",
-        "src/lib/server/queue-runtime.ts",
-        "src/lib/server/runtime-warning-store.ts",
-        "tests/unit/check-scheduler-freshness.spec.ts"
-      ],
-      "canonicalHelpersReused": [],
-      "verificationCommandsRun": [],
-      "resultSummary": [],
-      "warnings": [],
-      "architecture_change": true,
-      "runtime_change": true,
-      "ui_change": false,
-      "security_change": false,
-      "maintenance_only": false,
-      "changeKinds": [
-        "admin",
-        "ui",
-        "runtime",
-        "tooling",
-        "architecture"
-      ]
-    },
-    {
-      "stable_id": "pass__2026-04-17-token-efficiency-fabric-hardening-watch__session-analytics-deepening",
-      "date": "2026-04-17",
-      "title": "Token-Efficiency Fabric Hardening + Watch/Session Analytics Deepening",
-      "scopeSummary": [
-        "Implement the research-driven token-efficiency and analytics hardening work inside the existing repo intelligence, runtime continuity, and admin analytics lanes: add stronger context compaction/exclusion/freshness metadata for agent task generation, deepen watch/session capture quality and replay confidence, add analytics continuity checks that surface silent capture degradation, and expose capture health in admin analytics."
-      ],
-      "touchedSurfaces": [
-        ".agent/workflows/auto-tasks.md",
-        "6/6",
-        "npm run trace:adjacent -- scripts/agent/build-task-context.ts",
-        "npm run trace:adjacent -- src/app/admin/analytics/page.tsx",
-        "npm run trace:adjacent -- src/app/api/viewer/watch-session/route.ts",
-        "npm run trace:adjacent -- src/hooks/useViewerWatchSession.ts",
-        "npx vitest run tests/unit/admin-analytics-capture-health.spec.ts tests/unit/admin-analytics-realtime-route.spec.ts tests/unit/useViewerWatchSession-bench.spec.ts tests/unit/analytics-ingest-route.spec.ts tests/unit/analytics-identifiers.spec.ts",
-        "scripts/agent/build-agent-indexes.ts",
-        "scripts/agent/build-task-context.ts",
-        "scripts/agent/extract-runtime-observability.ts",
-        "scripts/agent/run-evals.ts",
-        "scripts/check-analytics-continuity.ts",
-        "src/app/admin/analytics/page.tsx",
-        "src/app/api/admin/analytics/historical/route.ts",
-        "src/app/api/admin/analytics/realtime/route.ts",
-        "src/app/api/viewer/watch-session/route.ts",
-        "src/app/dashboard/viewer/ViewerClient.tsx",
-        "src/hooks/useViewerWatchSession.ts",
-        "src/lib/server/admin-analytics-capture-health.ts",
-        "src/lib/server/admin-analytics-historical-validation.ts",
-        "src/lib/viewer-watch-session.ts",
-        "src/types/admin-analytics.ts",
-        "tests/unit/admin-analytics-capture-health.spec.ts",
-        "tests/unit/admin-analytics-realtime-route.spec.ts"
-      ],
-      "canonicalHelpersReused": [],
-      "verificationCommandsRun": [],
-      "resultSummary": [],
-      "warnings": [],
-      "architecture_change": true,
-      "runtime_change": true,
-      "ui_change": true,
-      "security_change": false,
-      "maintenance_only": false,
-      "changeKinds": [
-        "admin",
-        "ui",
-        "runtime",
-        "tooling",
-        "architecture"
       ]
     }
   ]

@@ -1,5 +1,5 @@
 {
-  "generatedAt": "2026-04-18T22:39:27.913Z",
+  "generatedAt": "2026-04-20T03:44:41.837Z",
   "truthOrder": [
     "verified_runtime_code",
     "verified_configuration",
@@ -18,6 +18,56 @@
     ".vscode/*"
   ],
   "files": [
+    {
+      "stable_id": "workflow__agent__workflows__audit-hydration-md",
+      "path": ".agent/workflows/audit-hydration.md",
+      "purpose": "Workflow guidance for audit-hydration.",
+      "authorityLevel": "workflow_required",
+      "intendedAgents": [
+        "codex"
+      ],
+      "relatedPaths": []
+    },
+    {
+      "stable_id": "workflow__agent__workflows__audit-legacy-md",
+      "path": ".agent/workflows/audit-legacy.md",
+      "purpose": "Workflow guidance for audit-legacy.",
+      "authorityLevel": "workflow_required",
+      "intendedAgents": [
+        "codex"
+      ],
+      "relatedPaths": []
+    },
+    {
+      "stable_id": "workflow__agent__workflows__audit-performance-md",
+      "path": ".agent/workflows/audit-performance.md",
+      "purpose": "Workflow guidance for audit-performance.",
+      "authorityLevel": "workflow_advisory",
+      "intendedAgents": [
+        "codex"
+      ],
+      "relatedPaths": []
+    },
+    {
+      "stable_id": "workflow__agent__workflows__audit-realtime-md",
+      "path": ".agent/workflows/audit-realtime.md",
+      "purpose": "Workflow guidance for audit-realtime.",
+      "authorityLevel": "workflow_required",
+      "intendedAgents": [
+        "codex"
+      ],
+      "relatedPaths": []
+    },
+    {
+      "stable_id": "workflow__agent__workflows__audit-telemetry-md",
+      "path": ".agent/workflows/audit-telemetry.md",
+      "purpose": "Workflow guidance for audit-telemetry.",
+      "authorityLevel": "workflow_advisory",
+      "intendedAgents": [
+        "codex"
+      ],
+      "relatedPaths": []
+    },
     {
       "stable_id": "workflow__agent__workflows__auto-tasks-md",
       "path": ".agent/workflows/auto-tasks.md",
@@ -72,6 +122,16 @@
         "npx vitest run tests/unit/process-queue-route.spec.ts tests/unit/notify-active-drops-route.spec.ts tests/unit/drop-queue-lifecycle.spec.ts",
         "npx vitest run tests/unit/process-queue-route.spec.ts tests/unit/notify-active-drops-route.spec.ts tests/unit/drop-queue-lifecycle.spec.ts tests/unit/admin-analytics-capture-health.spec.ts tests/unit/admin-analytics-realtime-route.spec.ts"
       ]
+    },
+    {
+      "stable_id": "workflow__agent__workflows__kandydrops-guardrails-md",
+      "path": ".agent/workflows/kandydrops-guardrails.md",
+      "purpose": "Workflow guidance for kandydrops-guardrails.",
+      "authorityLevel": "workflow_required",
+      "intendedAgents": [
+        "codex"
+      ],
+      "relatedPaths": []
     },
     {
       "stable_id": "workflow__agent__workflows__pre-commit-md",

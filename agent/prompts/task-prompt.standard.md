@@ -7,15 +7,15 @@ Why scope: Touches repo-tooling, governance, or multiple broad-signoff surfaces.
 
 Likely touched files:
 - scripts/agent/build-agent-indexes.ts
-- scripts/agent/build-task-context.ts
 - scripts/agent/extract-runtime-observability.ts
-- scripts/agent/run-evals.ts
 - src/lib/gumdrop-ledger.ts
+- scripts/agent/build-task-context.ts
 - scripts/agent/build-ui-surface-coverage.ts
 - scripts/agent/check-agent-context.ts
 - scripts/agent/classify-repo-files.ts
 - scripts/agent/extract-canonical-helpers.ts
 - scripts/agent/extract-governance.ts
+- scripts/agent/extract-workflow.ts
 
 Canonical helpers to reuse:
 - src/lib/gumdrop-ledger.ts

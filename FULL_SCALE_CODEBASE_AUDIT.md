@@ -9399,3 +9399,4 @@ Follow-up opportunities:
 2. Add a ranked-reference preview endpoint keyed by `Creator | Flavor` so the admin page can inspect selection reasons for a specific future generation instead of the next generic run.
 3. Add more prompt-policy performance rollups beyond the current category bucket counts so acceptance rate by policy version is not limited to recent job history.
 4. Add attachment/reference storage rules coverage if the AI admin reference library starts accepting anything beyond image assets.
+

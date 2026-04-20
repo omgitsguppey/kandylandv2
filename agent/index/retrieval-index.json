@@ -1,5 +1,5 @@
 {
-  "generatedAt": "2026-04-18T22:39:42.012Z",
+  "generatedAt": "2026-04-20T03:44:54.089Z",
   "truthOrder": [
     "verified_runtime_code",
     "verified_configuration",
@@ -42,6 +42,136 @@
       "do_not_use_as_primary_truth": false
     },
     {
+      "stable_id": "file__agent__workflows__audit-hydration-md",
+      "source_type": "file",
+      "source_id": "file__agent__workflows__audit-hydration-md",
+      "searchable_terms": [
+        ".agent/workflows/audit-hydration.md",
+        "workflow_tooling",
+        "agent_workflow"
+      ],
+      "surface_tags": [
+        "agent_workflow",
+        "workflow_tooling"
+      ],
+      "helper_tags": [],
+      "risk_tags": [
+        "broad_signoff"
+      ],
+      "recency": "1776652704351:adcbbb03f22d",
+      "freshness": {
+        "local": "fresh",
+        "sql_mirror": "unknown"
+      },
+      "context_tier": "cold",
+      "exclusion_tags": [],
+      "do_not_use_as_primary_truth": false
+    },
+    {
+      "stable_id": "file__agent__workflows__audit-legacy-md",
+      "source_type": "file",
+      "source_id": "file__agent__workflows__audit-legacy-md",
+      "searchable_terms": [
+        ".agent/workflows/audit-legacy.md",
+        "workflow_tooling",
+        "agent_workflow"
+      ],
+      "surface_tags": [
+        "agent_workflow",
+        "workflow_tooling"
+      ],
+      "helper_tags": [],
+      "risk_tags": [
+        "broad_signoff"
+      ],
+      "recency": "1776652739976:35c53345fee0",
+      "freshness": {
+        "local": "fresh",
+        "sql_mirror": "unknown"
+      },
+      "context_tier": "cold",
+      "exclusion_tags": [],
+      "do_not_use_as_primary_truth": false
+    },
+    {
+      "stable_id": "file__agent__workflows__audit-performance-md",
+      "source_type": "file",
+      "source_id": "file__agent__workflows__audit-performance-md",
+      "searchable_terms": [
+        ".agent/workflows/audit-performance.md",
+        "workflow_tooling",
+        "agent_workflow"
+      ],
+      "surface_tags": [
+        "agent_workflow",
+        "workflow_tooling"
+      ],
+      "helper_tags": [],
+      "risk_tags": [
+        "broad_signoff"
+      ],
+      "recency": "1776652702328:f3d4bb8e22e3",
+      "freshness": {
+        "local": "fresh",
+        "sql_mirror": "unknown"
+      },
+      "context_tier": "cold",
+      "exclusion_tags": [],
+      "do_not_use_as_primary_truth": false
+    },
+    {
+      "stable_id": "file__agent__workflows__audit-realtime-md",
+      "source_type": "file",
+      "source_id": "file__agent__workflows__audit-realtime-md",
+      "searchable_terms": [
+        ".agent/workflows/audit-realtime.md",
+        "workflow_tooling",
+        "agent_workflow"
+      ],
+      "surface_tags": [
+        "agent_workflow",
+        "workflow_tooling"
+      ],
+      "helper_tags": [],
+      "risk_tags": [
+        "broad_signoff"
+      ],
+      "recency": "1776652723216:9cf4bd33b42e",
+      "freshness": {
+        "local": "fresh",
+        "sql_mirror": "unknown"
+      },
+      "context_tier": "cold",
+      "exclusion_tags": [],
+      "do_not_use_as_primary_truth": false
+    },
+    {
+      "stable_id": "file__agent__workflows__audit-telemetry-md",
+      "source_type": "file",
+      "source_id": "file__agent__workflows__audit-telemetry-md",
+      "searchable_terms": [
+        ".agent/workflows/audit-telemetry.md",
+        "workflow_tooling",
+        "analytics"
+      ],
+      "surface_tags": [
+        "analytics",
+        "workflow_tooling"
+      ],
+      "helper_tags": [],
+      "risk_tags": [
+        "broad_signoff"
+      ],
+      "recency": "1776652721190:dae4183bf3d6",
+      "freshness": {
+        "local": "fresh",
+        "sql_mirror": "unknown"
+      },
+      "context_tier": "cold",
+      "exclusion_tags": [],
+      "do_not_use_as_primary_truth": false
+    },
+    {
       "stable_id": "file__agent__workflows__auto-tasks-md",
       "source_type": "file",
       "source_id": "file__agent__workflows__auto-tasks-md",
@@ -59,6 +189,32 @@
         "broad_signoff"
       ],
       "recency": "1776535167795:cf8eabbcc5d9",
+      "freshness": {
+        "local": "fresh",
+        "sql_mirror": "unknown"
+      },
+      "context_tier": "cold",
+      "exclusion_tags": [],
+      "do_not_use_as_primary_truth": false
+    },
+    {
+      "stable_id": "file__agent__workflows__kandydrops-guardrails-md",
+      "source_type": "file",
+      "source_id": "file__agent__workflows__kandydrops-guardrails-md",
+      "searchable_terms": [
+        ".agent/workflows/kandydrops-guardrails.md",
+        "workflow_tooling",
+        "agent_workflow"
+      ],
+      "surface_tags": [
+        "agent_workflow",
+        "workflow_tooling"
+      ],
+      "helper_tags": [],
+      "risk_tags": [
+        "broad_signoff"
+      ],
+      "recency": "1776652683325:0e583d879594",
       "freshness": {
         "local": "fresh",
         "sql_mirror": "unknown"
@@ -454,7 +610,7 @@
       "risk_tags": [
         "broad_signoff"
       ],
-      "recency": "1776551699340:aac6b82565c4",
+      "recency": "1776553393139:f2a16e7d6697",
       "freshness": {
         "local": "fresh",
         "sql_mirror": "unknown"
@@ -482,7 +638,7 @@
       "risk_tags": [
         "broad_signoff"
       ],
-      "recency": "1776551824155:1ced27d90ed6",
+      "recency": "1776553372999:7380caa2e37c",
       "freshness": {
         "local": "fresh",
         "sql_mirror": "unknown"
@@ -510,7 +666,7 @@
       "risk_tags": [
         "broad_signoff"
       ],
-      "recency": "1776551831318:a3bac4d78592",
+      "recency": "1776553383613:83ace5c74014",
       "freshness": {
         "local": "fresh",
         "sql_mirror": "unknown"
@@ -564,7 +720,7 @@
       "risk_tags": [
         "broad_signoff"
       ],
-      "recency": "1776551958282:fbd42967fb0a",
+      "recency": "1776656674292:a0dcd2104718",
       "freshness": {
         "local": "fresh",
         "sql_mirror": "unknown"
@@ -592,7 +748,7 @@
       "risk_tags": [
         "broad_signoff"
       ],
-      "recency": "1776551958231:f3c71faf2fcc",
+      "recency": "1776656674221:9b5560611e15",
       "freshness": {
         "local": "fresh",
         "sql_mirror": "unknown"
@@ -620,7 +776,7 @@
       "risk_tags": [
         "broad_signoff"
       ],
-      "recency": "1776551958271:843496d79965",
+      "recency": "1776656674281:225b644d0062",
       "freshness": {
         "local": "fresh",
         "sql_mirror": "unknown"
@@ -648,7 +804,7 @@
       "risk_tags": [
         "broad_signoff"
       ],
-      "recency": "1776551958250:24db02949545",
+      "recency": "1776656674261:82284d597264",
       "freshness": {
         "local": "fresh",
         "sql_mirror": "unknown"
@@ -676,7 +832,7 @@
       "risk_tags": [
         "broad_signoff"
       ],
-      "recency": "1776551958253:df7ebdefde59",
+      "recency": "1776656674265:86d2b8f1ba25",
       "freshness": {
         "local": "fresh",
         "sql_mirror": "unknown"
@@ -704,7 +860,7 @@
       "risk_tags": [
         "broad_signoff"
       ],
-      "recency": "1776551958246:126f6cdc9c55",
+      "recency": "1776656674250:75290f7c07b6",
       "freshness": {
         "local": "fresh",
         "sql_mirror": "unknown"
@@ -732,7 +888,7 @@
       "risk_tags": [
         "broad_signoff"
       ],
-      "recency": "1776551958257:20247c2b1d30",
+      "recency": "1776656674269:606da3cf86ac",
       "freshness": {
         "local": "fresh",
         "sql_mirror": "unknown"
@@ -760,7 +916,7 @@
       "risk_tags": [
         "broad_signoff"
       ],
-      "recency": "1776551958207:bf59dd227396",
+      "recency": "1776656674196:656413e2401c",
       "freshness": {
         "local": "fresh",
         "sql_mirror": "unknown"
@@ -788,7 +944,7 @@
       "risk_tags": [
         "broad_signoff"
       ],
-      "recency": "1776551958301:5173f5f50ad6",
+      "recency": "1776656674369:5a47b1c8caf5",
       "freshness": {
         "local": "fresh",
         "sql_mirror": "unknown"
@@ -816,7 +972,7 @@
       "risk_tags": [
         "broad_signoff"
       ],
-      "recency": "1776551958261:6c023ed6a8b1",
+      "recency": "1776656674273:04a9a9ccd1d6",
       "freshness": {
         "local": "fresh",
         "sql_mirror": "unknown"
@@ -844,7 +1000,7 @@
       "risk_tags": [
         "broad_signoff"
       ],
-      "recency": "1776551958228:24a950af1ccd",
+      "recency": "1776656674216:d49888741ad4",
       "freshness": {
         "local": "fresh",
         "sql_mirror": "unknown"
@@ -872,7 +1028,7 @@
       "risk_tags": [
         "broad_signoff"
       ],
-      "recency": "1776551976268:2cd8af498b94",
+      "recency": "1776656689558:fc991c1aa638",
       "freshness": {
         "local": "fresh",
         "sql_mirror": "unknown"
@@ -900,7 +1056,7 @@
       "risk_tags": [
         "broad_signoff"
       ],
-      "recency": "1776551958238:2582da5c3f7c",
+      "recency": "1776656674226:c2c2fd25ec74",
       "freshness": {
         "local": "fresh",
         "sql_mirror": "unknown"
@@ -928,7 +1084,7 @@
       "risk_tags": [
         "broad_signoff"
       ],
-      "recency": "1776551958248:e8b2e050c3c3",
+      "recency": "1776656674257:0579cabae8dc",
       "freshness": {
         "local": "fresh",
         "sql_mirror": "unknown"
@@ -956,7 +1112,7 @@
       "risk_tags": [
         "broad_signoff"
       ],
-      "recency": "1776551966639:bb6e65a9176f",
+      "recency": "1776656680728:b2a90c479d9a",
       "freshness": {
         "local": "fresh",
         "sql_mirror": "unknown"
@@ -982,7 +1138,7 @@
       "risk_tags": [
         "broad_signoff"
       ],
-      "recency": "1776551966636:b20f370400bc",
+      "recency": "1776656680725:919bc34d7444",
       "freshness": {
         "local": "fresh",
         "sql_mirror": "unknown"
@@ -1008,7 +1164,7 @@
       "risk_tags": [
         "broad_signoff"
       ],
-      "recency": "1776551966638:4f7ccd9136c3",
+      "recency": "1776656680727:772c9eda2bcb",
       "freshness": {
         "local": "fresh",
         "sql_mirror": "unknown"
@@ -1634,7 +1790,7 @@
       "risk_tags": [
         "broad_signoff"
       ],
-      "recency": "1776535168066:224c675bad18",
+      "recency": "1776551982180:81206f13cc63",
       "freshness": {
         "local": "fresh",
         "sql_mirror": "unknown"
@@ -1662,7 +1818,7 @@
       "risk_tags": [
         "broad_signoff"
       ],
-      "recency": "1776535168079:e7c3892ed1f1",
+      "recency": "1776551982179:6aae19d7244e",
       "freshness": {
         "local": "fresh",
         "sql_mirror": "unknown"
@@ -1690,7 +1846,7 @@
       "risk_tags": [
         "broad_signoff"
       ],
-      "recency": "1776551966630:1cfc694ba59d",
+      "recency": "1776656680672:abc4fbe15903",
       "freshness": {
         "local": "fresh",
         "sql_mirror": "unknown"
@@ -4366,6 +4522,126 @@
       "do_not_use_as_primary_truth": true
     },
     {
+      "stable_id": "file__replace-dropcard-layout-mjs",
+      "source_type": "file",
+      "source_id": "file__replace-dropcard-layout-mjs",
+      "searchable_terms": [
+        "replace-dropcard-layout.mjs",
+        "root_misc",
+        "misc"
+      ],
+      "surface_tags": [
+        "misc",
+        "root_misc"
+      ],
+      "helper_tags": [],
+      "risk_tags": [],
+      "recency": "1776650580581:1620a9470414",
+      "freshness": {
+        "local": "fresh",
+        "sql_mirror": "unknown"
+      },
+      "context_tier": "warm",
+      "exclusion_tags": [],
+      "do_not_use_as_primary_truth": false
+    },
+    {
+      "stable_id": "file__replace-dropcard-layout2-mjs",
+      "source_type": "file",
+      "source_id": "file__replace-dropcard-layout2-mjs",
+      "searchable_terms": [
+        "replace-dropcard-layout2.mjs",
+        "root_misc",
+        "misc"
+      ],
+      "surface_tags": [
+        "misc",
+        "root_misc"
+      ],
+      "helper_tags": [],
+      "risk_tags": [],
+      "recency": "1776650621288:c0152361651e",
+      "freshness": {
+        "local": "fresh",
+        "sql_mirror": "unknown"
+      },
+      "context_tier": "warm",
+      "exclusion_tags": [],
+      "do_not_use_as_primary_truth": false
+    },
+    {
+      "stable_id": "file__replace-dropcard-timer-mjs",
+      "source_type": "file",
+      "source_id": "file__replace-dropcard-timer-mjs",
+      "searchable_terms": [
+        "replace-dropcard-timer.mjs",
+        "root_misc",
+        "misc"
+      ],
+      "surface_tags": [
+        "misc",
+        "root_misc"
+      ],
+      "helper_tags": [],
+      "risk_tags": [],
+      "recency": "1776650519338:58649556f302",
+      "freshness": {
+        "local": "fresh",
+        "sql_mirror": "unknown"
+      },
+      "context_tier": "warm",
+      "exclusion_tags": [],
+      "do_not_use_as_primary_truth": false
+    },
+    {
+      "stable_id": "file__replace-modal-timer-mjs",
+      "source_type": "file",
+      "source_id": "file__replace-modal-timer-mjs",
+      "searchable_terms": [
+        "replace-modal-timer.mjs",
+        "root_misc",
+        "misc"
+      ],
+      "surface_tags": [
+        "misc",
+        "root_misc"
+      ],
+      "helper_tags": [],
+      "risk_tags": [],
+      "recency": "1776650715381:1063cfa5e255",
+      "freshness": {
+        "local": "fresh",
+        "sql_mirror": "unknown"
+      },
+      "context_tier": "warm",
+      "exclusion_tags": [],
+      "do_not_use_as_primary_truth": false
+    },
+    {
+      "stable_id": "file__replace-profile-settings-js",
+      "source_type": "file",
+      "source_id": "file__replace-profile-settings-js",
+      "searchable_terms": [
+        "replace-profile-settings.js",
+        "root_misc",
+        "misc"
+      ],
+      "surface_tags": [
+        "misc",
+        "root_misc"
+      ],
+      "helper_tags": [],
+      "risk_tags": [],
+      "recency": "1776651849139:00bb30603116",
+      "freshness": {
+        "local": "fresh",
+        "sql_mirror": "unknown"
+      },
+      "context_tier": "warm",
+      "exclusion_tags": [],
+      "do_not_use_as_primary_truth": false
+    },
+    {
       "stable_id": "file__scripts__agent__build-agent-indexes-ts",
       "source_type": "file",
       "source_id": "file__scripts__agent__build-agent-indexes-ts",
@@ -4892,7 +5168,7 @@
       "risk_tags": [
         "broad_signoff"
       ],
-      "recency": "1776535168324:4cff19020f40",
+      "recency": "1776553406313:8b366714f8c6",
       "freshness": {
         "local": "fresh",
         "sql_mirror": "unknown"
@@ -5138,6 +5414,58 @@
       "do_not_use_as_primary_truth": false
     },
     {
+      "stable_id": "file__scripts__extractchathelpers-js",
+      "source_type": "file",
+      "source_id": "file__scripts__extractchathelpers-js",
+      "searchable_terms": [
+        "scripts/extractChatHelpers.js",
+        "repo_tooling",
+        "repo_scripts"
+      ],
+      "surface_tags": [
+        "repo_scripts",
+        "repo_tooling"
+      ],
+      "helper_tags": [],
+      "risk_tags": [
+        "broad_signoff"
+      ],
+      "recency": "1776653401174:75d9a63777b3",
+      "freshness": {
+        "local": "fresh",
+        "sql_mirror": "unknown"
+      },
+      "context_tier": "warm",
+      "exclusion_tags": [],
+      "do_not_use_as_primary_truth": false
+    },
+    {
+      "stable_id": "file__scripts__extractviewerhelpers-js",
+      "source_type": "file",
+      "source_id": "file__scripts__extractviewerhelpers-js",
+      "searchable_terms": [
+        "scripts/extractViewerHelpers.js",
+        "repo_tooling",
+        "repo_scripts"
+      ],
+      "surface_tags": [
+        "repo_scripts",
+        "repo_tooling"
+      ],
+      "helper_tags": [],
+      "risk_tags": [
+        "broad_signoff"
+      ],
+      "recency": "1776652995335:9ae6618305c1",
+      "freshness": {
+        "local": "fresh",
+        "sql_mirror": "unknown"
+      },
+      "context_tier": "warm",
+      "exclusion_tags": [],
+      "do_not_use_as_primary_truth": false
+    },
+    {
       "stable_id": "file__scripts__promote-admin-ts",
       "source_type": "file",
       "source_id": "file__scripts__promote-admin-ts",
@@ -5207,6 +5535,32 @@
         "broad_signoff"
       ],
       "recency": "1771643091624:70006626e363",
+      "freshness": {
+        "local": "fresh",
+        "sql_mirror": "unknown"
+      },
+      "context_tier": "warm",
+      "exclusion_tags": [],
+      "do_not_use_as_primary_truth": false
+    },
+    {
+      "stable_id": "file__scripts__repair-viewer-watch-close-missing-ts",
+      "source_type": "file",
+      "source_id": "file__scripts__repair-viewer-watch-close-missing-ts",
+      "searchable_terms": [
+        "scripts/repair-viewer-watch-close-missing.ts",
+        "repo_tooling",
+        "repo_scripts"
+      ],
+      "surface_tags": [
+        "repo_scripts",
+        "repo_tooling"
+      ],
+      "helper_tags": [],
+      "risk_tags": [
+        "broad_signoff"
+      ],
+      "recency": "1776553315863:3cc04e65d127",
       "freshness": {
         "local": "fresh",
         "sql_mirror": "unknown"
@@ -5740,7 +6094,33 @@
       "risk_tags": [
         "runtime_critical"
       ],
-      "recency": "1775716756285:fcdd949f7d77",
+      "recency": "1776625547921:3c125e5d73b0",
+      "freshness": {
+        "local": "fresh",
+        "sql_mirror": "unknown"
+      },
+      "context_tier": "hot",
+      "exclusion_tags": [],
+      "do_not_use_as_primary_truth": false
+    },
+    {
+      "stable_id": "file__src__app__admin__ai__aihelpers-tsx",
+      "source_type": "file",
+      "source_id": "file__src__app__admin__ai__aihelpers-tsx",
+      "searchable_terms": [
+        "src/app/admin/ai/AiHelpers.tsx",
+        "admin_surface",
+        "ai_admin_ui"
+      ],
+      "surface_tags": [
+        "ai_admin_ui",
+        "admin_surface"
+      ],
+      "helper_tags": [],
+      "risk_tags": [
+        "runtime_critical"
+      ],
+      "recency": "1776655133166:c5de2e50ac04",
       "freshness": {
         "local": "fresh",
         "sql_mirror": "unknown"
@@ -5766,7 +6146,33 @@
       "risk_tags": [
         "runtime_critical"
       ],
-      "recency": "1776535304800:fe5b765a055e",
+      "recency": "1776655756046:764ae095e9f8",
+      "freshness": {
+        "local": "fresh",
+        "sql_mirror": "unknown"
+      },
+      "context_tier": "hot",
+      "exclusion_tags": [],
+      "do_not_use_as_primary_truth": false
+    },
+    {
+      "stable_id": "file__src__app__admin__analytics__analyticshelpers-tsx",
+      "source_type": "file",
+      "source_id": "file__src__app__admin__analytics__analyticshelpers-tsx",
+      "searchable_terms": [
+        "src/app/admin/analytics/AnalyticsHelpers.tsx",
+        "admin_surface",
+        "admin_ui"
+      ],
+      "surface_tags": [
+        "admin_ui",
+        "admin_surface"
+      ],
+      "helper_tags": [],
+      "risk_tags": [
+        "runtime_critical"
+      ],
+      "recency": "1776655191529:90a14336114e",
       "freshness": {
         "local": "fresh",
         "sql_mirror": "unknown"
@@ -5792,7 +6198,7 @@
       "risk_tags": [
         "runtime_critical"
       ],
-      "recency": "1776535168364:7fb20c22d675",
+      "recency": "1776655193869:505fd6bfd4ed",
       "freshness": {
         "local": "fresh",
         "sql_mirror": "unknown"
@@ -8038,6 +8444,32 @@
       "do_not_use_as_primary_truth": false
     },
     {
+      "stable_id": "file__src__app__api__drops__feedback__route-ts",
+      "source_type": "file",
+      "source_id": "file__src__app__api__drops__feedback__route-ts",
+      "searchable_terms": [
+        "src/app/api/drops/feedback/route.ts",
+        "app_route",
+        "route_handler"
+      ],
+      "surface_tags": [
+        "route_handler",
+        "app_route"
+      ],
+      "helper_tags": [],
+      "risk_tags": [
+        "runtime_critical"
+      ],
+      "recency": "1776643584722:99980fad167c",
+      "freshness": {
+        "local": "fresh",
+        "sql_mirror": "unknown"
+      },
+      "context_tier": "hot",
+      "exclusion_tags": [],
+      "do_not_use_as_primary_truth": false
+    },
+    {
       "stable_id": "file__src__app__api__drops__impression__route-ts",
       "source_type": "file",
       "source_id": "file__src__app__api__drops__impression__route-ts",
@@ -8055,6 +8487,32 @@
         "runtime_critical"
       ],
       "recency": "1776389626711:4bfde8c044fa",
+      "freshness": {
+        "local": "fresh",
+        "sql_mirror": "unknown"
+      },
+      "context_tier": "hot",
+      "exclusion_tags": [],
+      "do_not_use_as_primary_truth": false
+    },
+    {
+      "stable_id": "file__src__app__api__drops__retention__route-ts",
+      "source_type": "file",
+      "source_id": "file__src__app__api__drops__retention__route-ts",
+      "searchable_terms": [
+        "src/app/api/drops/retention/route.ts",
+        "app_route",
+        "route_handler"
+      ],
+      "surface_tags": [
+        "route_handler",
+        "app_route"
+      ],
+      "helper_tags": [],
+      "risk_tags": [
+        "runtime_critical"
+      ],
+      "recency": "1776644098236:bbf1b2f16487",
       "freshness": {
         "local": "fresh",
         "sql_mirror": "unknown"
@@ -8792,6 +9250,32 @@
       "do_not_use_as_primary_truth": false
     },
     {
+      "stable_id": "file__src__app__api__wallet__packages__route-ts",
+      "source_type": "file",
+      "source_id": "file__src__app__api__wallet__packages__route-ts",
+      "searchable_terms": [
+        "src/app/api/wallet/packages/route.ts",
+        "app_route",
+        "route_handler"
+      ],
+      "surface_tags": [
+        "route_handler",
+        "app_route"
+      ],
+      "helper_tags": [],
+      "risk_tags": [
+        "runtime_critical"
+      ],
+      "recency": "1776644572395:2e39c9b18b40",
+      "freshness": {
+        "local": "fresh",
+        "sql_mirror": "unknown"
+      },
+      "context_tier": "hot",
+      "exclusion_tags": [],
+      "do_not_use_as_primary_truth": false
+    },
+    {
       "stable_id": "file__src__app__banned__page-tsx",
       "source_type": "file",
       "source_id": "file__src__app__banned__page-tsx",
@@ -8834,7 +9318,7 @@
       "risk_tags": [
         "runtime_critical"
       ],
-      "recency": "1776466720004:e58fd603cad3",
+      "recency": "1776653331125:6dd8bb0df5c0",
       "freshness": {
         "local": "fresh",
         "sql_mirror": "unknown"
@@ -8938,7 +9422,7 @@
       "risk_tags": [
         "runtime_critical"
       ],
-      "recency": "1775716825363:51e8a0b6637b",
+      "recency": "1776642188277:184a60137e84",
       "freshness": {
         "local": "fresh",
         "sql_mirror": "unknown"
@@ -8990,7 +9474,7 @@
       "risk_tags": [
         "runtime_critical"
       ],
-      "recency": "1776535168436:ce4c139a7068",
+      "recency": "1776647442007:41434d21e391",
       "freshness": {
         "local": "fresh",
         "sql_mirror": "unknown"
@@ -9042,7 +9526,7 @@
       "risk_tags": [
         "runtime_critical"
       ],
-      "recency": "1775087985534:6acd4e0bc288",
+      "recency": "1776645176366:296d60b4a499",
       "freshness": {
         "local": "fresh",
         "sql_mirror": "unknown"
@@ -9120,7 +9604,7 @@
       "risk_tags": [
         "runtime_critical"
       ],
-      "recency": "1776462192121:d3ee9e46e7f8",
+      "recency": "1776651921754:34318ec5368c",
       "freshness": {
         "local": "fresh",
         "sql_mirror": "unknown"
@@ -9172,7 +9656,33 @@
       "risk_tags": [
         "runtime_critical"
       ],
-      "recency": "1776551769968:e275325eb99b",
+      "recency": "1776653080043:d1c0433fa45c",
+      "freshness": {
+        "local": "fresh",
+        "sql_mirror": "unknown"
+      },
+      "context_tier": "hot",
+      "exclusion_tags": [],
+      "do_not_use_as_primary_truth": false
+    },
+    {
+      "stable_id": "file__src__app__dashboard__viewer__viewerhelpers-ts",
+      "source_type": "file",
+      "source_id": "file__src__app__dashboard__viewer__viewerhelpers-ts",
+      "searchable_terms": [
+        "src/app/dashboard/viewer/ViewerHelpers.ts",
+        "app_surface",
+        "app_ui"
+      ],
+      "surface_tags": [
+        "app_ui",
+        "app_surface"
+      ],
+      "helper_tags": [],
+      "risk_tags": [
+        "runtime_critical"
+      ],
+      "recency": "1776653009788:c9b73aaf2f6e",
       "freshness": {
         "local": "fresh",
         "sql_mirror": "unknown"
@@ -9198,7 +9708,7 @@
       "risk_tags": [
         "runtime_critical"
       ],
-      "recency": "1775712783771:36219cb47bb1",
+      "recency": "1776644111063:6dc56e7258c1",
       "freshness": {
         "local": "fresh",
         "sql_mirror": "unknown"
@@ -9224,7 +9734,7 @@
       "risk_tags": [
         "runtime_critical"
       ],
-      "recency": "1775716843761:ae2c7d97b10c",
+      "recency": "1776654184240:8696486722bf",
       "freshness": {
         "local": "fresh",
         "sql_mirror": "unknown"
@@ -10352,6 +10862,32 @@
       "do_not_use_as_primary_truth": false
     },
     {
+      "stable_id": "file__src__components__auth__authhelpers-ts",
+      "source_type": "file",
+      "source_id": "file__src__components__auth__authhelpers-ts",
+      "searchable_terms": [
+        "src/components/Auth/AuthHelpers.ts",
+        "component",
+        "ui_component"
+      ],
+      "surface_tags": [
+        "ui_component",
+        "component"
+      ],
+      "helper_tags": [],
+      "risk_tags": [
+        "runtime_critical"
+      ],
+      "recency": "1776654341271:6b9c0b48dabf",
+      "freshness": {
+        "local": "fresh",
+        "sql_mirror": "unknown"
+      },
+      "context_tier": "hot",
+      "exclusion_tags": [],
+      "do_not_use_as_primary_truth": false
+    },
+    {
       "stable_id": "file__src__components__auth__authmodal-tsx",
       "source_type": "file",
       "source_id": "file__src__components__auth__authmodal-tsx",
@@ -10368,7 +10904,7 @@
       "risk_tags": [
         "runtime_critical"
       ],
-      "recency": "1775678586205:0fc46dc61681",
+      "recency": "1776654422874:a13b3e6d5196",
       "freshness": {
         "local": "fresh",
         "sql_mirror": "unknown"
@@ -10420,7 +10956,33 @@
       "risk_tags": [
         "runtime_critical"
       ],
-      "recency": "1775174735968:458e843ca077",
+      "recency": "1776654564555:2f3eecba5ca5",
+      "freshness": {
+        "local": "fresh",
+        "sql_mirror": "unknown"
+      },
+      "context_tier": "hot",
+      "exclusion_tags": [],
+      "do_not_use_as_primary_truth": false
+    },
+    {
+      "stable_id": "file__src__components__auth__onboardinghelpers-ts",
+      "source_type": "file",
+      "source_id": "file__src__components__auth__onboardinghelpers-ts",
+      "searchable_terms": [
+        "src/components/Auth/OnboardingHelpers.ts",
+        "component",
+        "ui_component"
+      ],
+      "surface_tags": [
+        "ui_component",
+        "component"
+      ],
+      "helper_tags": [],
+      "risk_tags": [
+        "runtime_critical"
+      ],
+      "recency": "1776654505827:396c0235ea65",
       "freshness": {
         "local": "fresh",
         "sql_mirror": "unknown"
@@ -10446,7 +11008,7 @@
       "risk_tags": [
         "runtime_critical"
       ],
-      "recency": "1776535168473:ca521c2f3556",
+      "recency": "1776653686807:879e9f473780",
       "freshness": {
         "local": "fresh",
         "sql_mirror": "unknown"
@@ -10472,7 +11034,7 @@
       "risk_tags": [
         "runtime_critical"
       ],
-      "recency": "1776535168476:a444c35731bd",
+      "recency": "1776647569649:14e030b5085e",
       "freshness": {
         "local": "fresh",
         "sql_mirror": "unknown"
@@ -10576,7 +11138,7 @@
       "risk_tags": [
         "runtime_critical"
       ],
-      "recency": "1776034724478:98b2d48f7688",
+      "recency": "1776628170300:0a180789fafe",
       "freshness": {
         "local": "fresh",
         "sql_mirror": "unknown"
@@ -10602,7 +11164,7 @@
       "risk_tags": [
         "runtime_critical"
       ],
-      "recency": "1776466665823:83cf02c15468",
+      "recency": "1776652478947:45bbab03b0be",
       "freshness": {
         "local": "fresh",
         "sql_mirror": "unknown"
@@ -10732,7 +11294,7 @@
       "risk_tags": [
         "runtime_critical"
       ],
-      "recency": "1775408985929:75454c0edfa2",
+      "recency": "1776642202669:5496dd592775",
       "freshness": {
         "local": "fresh",
         "sql_mirror": "unknown"
@@ -10836,7 +11398,7 @@
       "risk_tags": [
         "runtime_critical"
       ],
-      "recency": "1774837110113:65a6d112809d",
+      "recency": "1776642888656:21dd07c737a4",
       "freshness": {
         "local": "fresh",
         "sql_mirror": "unknown"
@@ -10862,7 +11424,7 @@
       "risk_tags": [
         "runtime_critical"
       ],
-      "recency": "1775963577454:07e2b172b32d",
+      "recency": "1776654698435:60da0e504486",
       "freshness": {
         "local": "fresh",
         "sql_mirror": "unknown"
@@ -10940,7 +11502,7 @@
       "risk_tags": [
         "runtime_critical"
       ],
-      "recency": "1775493654389:7c6ac63e3157",
+      "recency": "1776650656336:f80a6a09aa65",
       "freshness": {
         "local": "fresh",
         "sql_mirror": "unknown"
@@ -10992,7 +11554,7 @@
       "risk_tags": [
         "runtime_critical"
       ],
-      "recency": "1775493654395:ff658bdbb72c",
+      "recency": "1776654200053:55c770df5c39",
       "freshness": {
         "local": "fresh",
         "sql_mirror": "unknown"
@@ -11044,7 +11606,7 @@
       "risk_tags": [
         "runtime_critical"
       ],
-      "recency": "1775396995902:e0b58455a125",
+      "recency": "1776651988567:735771a4b59d",
       "freshness": {
         "local": "fresh",
         "sql_mirror": "unknown"
@@ -11174,7 +11736,7 @@
       "risk_tags": [
         "runtime_critical"
       ],
-      "recency": "1776386112081:54c52aaf3bb6",
+      "recency": "1776639752859:b80517e4e0f6",
       "freshness": {
         "local": "fresh",
         "sql_mirror": "unknown"
@@ -11278,7 +11840,7 @@
       "risk_tags": [
         "runtime_critical"
       ],
-      "recency": "1776386112113:9ecff8d43f15",
+      "recency": "1776640848743:b11ae1af3311",
       "freshness": {
         "local": "fresh",
         "sql_mirror": "unknown"
@@ -11304,7 +11866,7 @@
       "risk_tags": [
         "runtime_critical"
       ],
-      "recency": "1775474442595:046bf5d196b1",
+      "recency": "1776640762112:6e7990964763",
       "freshness": {
         "local": "fresh",
         "sql_mirror": "unknown"
@@ -11356,7 +11918,7 @@
       "risk_tags": [
         "runtime_critical"
       ],
-      "recency": "1775707124196:301704797264",
+      "recency": "1776612714613:a130b9a23923",
       "freshness": {
         "local": "fresh",
         "sql_mirror": "unknown"
@@ -11460,7 +12022,7 @@
       "risk_tags": [
         "runtime_critical"
       ],
-      "recency": "1776131327592:ac081f30a3dc",
+      "recency": "1776630451210:53a14fe3dc52",
       "freshness": {
         "local": "fresh",
         "sql_mirror": "unknown"
@@ -11668,6 +12230,32 @@
       "risk_tags": [
         "runtime_critical"
       ],
+      "recency": "1776644672205:c81648bb5118",
+      "freshness": {
+        "local": "fresh",
+        "sql_mirror": "unknown"
+      },
+      "context_tier": "hot",
+      "exclusion_tags": [],
+      "do_not_use_as_primary_truth": false
+    },
+    {
+      "stable_id": "file__src__components__purchasemodal-tsx-bak",
+      "source_type": "file",
+      "source_id": "file__src__components__purchasemodal-tsx-bak",
+      "searchable_terms": [
+        "src/components/PurchaseModal.tsx.bak",
+        "component",
+        "ui_component"
+      ],
+      "surface_tags": [
+        "ui_component",
+        "component"
+      ],
+      "helper_tags": [],
+      "risk_tags": [
+        "runtime_critical"
+      ],
       "recency": "1775964302737:0d2b2e441982",
       "freshness": {
         "local": "fresh",
@@ -11825,6 +12413,32 @@
         "runtime_critical"
       ],
       "recency": "1773517886974:f61571f8a1f5",
+      "freshness": {
+        "local": "fresh",
+        "sql_mirror": "unknown"
+      },
+      "context_tier": "hot",
+      "exclusion_tags": [],
+      "do_not_use_as_primary_truth": false
+    },
+    {
+      "stable_id": "file__src__components__ui__compactnumber-tsx",
+      "source_type": "file",
+      "source_id": "file__src__components__ui__compactnumber-tsx",
+      "searchable_terms": [
+        "src/components/ui/CompactNumber.tsx",
+        "component",
+        "ui_component"
+      ],
+      "surface_tags": [
+        "ui_component",
+        "component"
+      ],
+      "helper_tags": [],
+      "risk_tags": [
+        "runtime_critical"
+      ],
+      "recency": "1776624166440:b4e22521b4e4",
       "freshness": {
         "local": "fresh",
         "sql_mirror": "unknown"
@@ -12403,7 +13017,7 @@
         "runtime_critical",
         "shared_helper"
       ],
-      "recency": "1776535168487:cb1d6974dcf2",
+      "recency": "1776552774297:d5cb5f782824",
       "freshness": {
         "local": "fresh",
         "sql_mirror": "unknown"
@@ -13803,7 +14417,7 @@
         "shared_helper",
         "broad_signoff"
       ],
-      "recency": "1775716617721:b13b4b4a4f53",
+      "recency": "1776623498203:05bd57c86545",
       "freshness": {
         "local": "fresh",
         "sql_mirror": "unknown"
@@ -15493,6 +16107,34 @@
       "do_not_use_as_primary_truth": false
     },
     {
+      "stable_id": "file__src__lib__server__ai-drop-covers-helpers-ts",
+      "source_type": "file",
+      "source_id": "file__src__lib__server__ai-drop-covers-helpers-ts",
+      "searchable_terms": [
+        "src/lib/server/ai-drop-covers-helpers.ts",
+        "server_helper",
+        "server_runtime"
+      ],
+      "surface_tags": [
+        "server_runtime",
+        "server_helper"
+      ],
+      "helper_tags": [],
+      "risk_tags": [
+        "runtime_critical",
+        "shared_helper",
+        "broad_signoff"
+      ],
+      "recency": "1776655562821:b9d9649111e3",
+      "freshness": {
+        "local": "fresh",
+        "sql_mirror": "unknown"
+      },
+      "context_tier": "hot",
+      "exclusion_tags": [],
+      "do_not_use_as_primary_truth": false
+    },
+    {
       "stable_id": "file__src__lib__server__ai-drop-covers-ts",
       "source_type": "file",
       "source_id": "file__src__lib__server__ai-drop-covers-ts",
@@ -15511,7 +16153,7 @@
         "shared_helper",
         "broad_signoff"
       ],
-      "recency": "1775875246404:46e492c38e68",
+      "recency": "1776655826368:871c4dff7eea",
       "freshness": {
         "local": "fresh",
         "sql_mirror": "unknown"
@@ -15847,7 +16489,7 @@
         "shared_helper",
         "broad_signoff"
       ],
-      "recency": "1775717194322:06f621782b3c",
+      "recency": "1776629453884:3d514aac88c2",
       "freshness": {
         "local": "fresh",
         "sql_mirror": "unknown"
@@ -17275,7 +17917,7 @@
         "shared_helper",
         "broad_signoff"
       ],
-      "recency": "1776547464789:ae639642a0ab",
+      "recency": "1776553264374:5a4e6df31c2c",
       "freshness": {
         "local": "fresh",
         "sql_mirror": "unknown"
@@ -19168,7 +19810,7 @@
       ],
       "helper_tags": [],
       "risk_tags": [],
-      "recency": "1776535168552:7c26c680e52d",
+      "recency": "1776553269255:e2aa927929f2",
       "freshness": {
         "local": "fresh",
         "sql_mirror": "unknown"
@@ -22360,7 +23002,7 @@
       ],
       "helper_tags": [],
       "risk_tags": [],
-      "recency": "1776547537801:8c53c13028a4",
+      "recency": "1776552781040:1a64d1ac956d",
       "freshness": {
         "local": "fresh",
         "sql_mirror": "unknown"
@@ -23686,6 +24328,65 @@
       "do_not_use_as_primary_truth": true
     },
     {
+      "stable_id": "retrieval__pass__2026-04-18-viewer-watch-close-intent-repair-capture-state-reclassification",
+      "source_type": "recent_pass",
+      "source_id": "pass__2026-04-18-viewer-watch-close-intent-repair-capture-state-reclassification",
+      "searchable_terms": [
+        "Viewer Watch Close-Intent Repair + Capture-State Reclassification",
+        "Repair the live analytics continuity blockers created by historical close-missing watch sessions, preserve terminal close intent on retry failure, and reclassify closed-and-recovered watch sessions so they no longer remain permanently flush-degraded once the terminal close has been recorded.",
+        "npx vitest run tests/unit/viewer-watch-session.spec.ts tests/unit/admin-analytics-capture-health.spec.ts",
+        "scripts/check-analytics-continuity.ts",
+        "scripts/repair-viewer-watch-close-missing.ts",
+        "src/hooks/useViewerWatchSession.ts",
+        "src/lib/server/admin-analytics-capture-health.ts",
+        "src/lib/viewer-watch-session.ts"
+      ],
+      "surface_tags": [
+        "admin",
+        "ui",
+        "tooling",
+        "architecture"
+      ],
+      "helper_tags": [],
+      "risk_tags": [
+        "architecture"
+      ],
+      "recency": "2026-04-18",
+      "freshness": {
+        "local": "fresh",
+        "sql_mirror": "unknown"
+      },
+      "context_tier": "cold",
+      "exclusion_tags": [
+        "secondary_truth"
+      ],
+      "do_not_use_as_primary_truth": true
+    },
+    {
+      "stable_id": "retrieval__pass__2026-04-18-full-codebase-audit-sweep",
+      "source_type": "recent_pass",
+      "source_id": "pass__2026-04-18-full-codebase-audit-sweep",
+      "searchable_terms": [
+        "Full Codebase Audit Sweep",
+        "Perform a broad repository audit against the live codebase truth, including governance ledgers, repo-intelligence context, continuity checks, and broad-surface code inspection for stale states, parity drift, and missing signoff hygiene."
+      ],
+      "surface_tags": [
+        "maintenance"
+      ],
+      "helper_tags": [],
+      "risk_tags": [],
+      "recency": "2026-04-18",
+      "freshness": {
+        "local": "fresh",
+        "sql_mirror": "unknown"
+      },
+      "context_tier": "cold",
+      "exclusion_tags": [
+        "secondary_truth"
+      ],
+      "do_not_use_as_primary_truth": true
+    },
+    {
       "stable_id": "retrieval__pass__2026-04-18-viewer-unwrapped-watch-time-refactor",
       "source_type": "recent_pass",
       "source_id": "pass__2026-04-18-viewer-unwrapped-watch-time-refactor",
@@ -23910,118 +24611,6 @@
         "ui"
       ],
       "recency": "2026-04-18",
-      "freshness": {
-        "local": "fresh",
-        "sql_mirror": "unknown"
-      },
-      "context_tier": "cold",
-      "exclusion_tags": [
-        "secondary_truth"
-      ],
-      "do_not_use_as_primary_truth": true
-    },
-    {
-      "stable_id": "retrieval__pass__2026-04-18-verification-blocker-remediation-runtime-continuity-truth-alignment",
-      "source_type": "recent_pass",
-      "source_id": "pass__2026-04-18-verification-blocker-remediation-runtime-continuity-truth-alignment",
-      "searchable_terms": [
-        "Verification Blocker Remediation + Runtime Continuity Truth Alignment",
-        "Remove the remaining truthful verification blockers and stale warnings/non-blocking notes by aligning the runtime continuity checks with the repo's actual executable truth, fixing any queue/runtime continuity gaps that still fail local verification, and rerunning the affected signoff lanes.",
-        " package-manager overrides/lockfiles so ",
-        ".agent/workflows/auto-tasks.md",
-        "@google-cloud/firestore@8.5.0",
-        "functions/package.json",
-        "functions/src/index.ts",
-        "functions/src/queue-runtime.ts",
-        "functions/src/runtime-warning-store.ts",
-        "notifyActiveDropsRuntime({ executionLayer: \"scheduler\", surface: \"functions/notifyActiveDropsLifecycle/manual-remediation\", ... })",
-        "npm --prefix functions ls @google-cloud/firestore google-gax whatwg-url tr46",
-        "npm ls @google-cloud/firestore google-gax whatwg-url tr46",
-        "npm run trace:adjacent -- functions/src/index.ts",
-        "npm run trace:adjacent -- functions/src/queue-runtime.ts",
-        "npm run trace:adjacent -- scripts/check-runtime-continuity.ts",
-        "npm run trace:adjacent -- scripts/check-scheduler-freshness.ts",
-        "npm run trace:adjacent -- scripts/runtime-admin.ts",
-        "npm run trace:adjacent -- src/lib/server/runtime-warning-store.ts",
-        "npx vitest run tests/unit/check-scheduler-freshness.spec.ts tests/unit/process-queue-route.spec.ts tests/unit/notify-active-drops-route.spec.ts tests/unit/drop-queue-lifecycle.spec.ts tests/unit/admin-analytics-capture-health.spec.ts tests/unit/admin-analytics-realtime-route.spec.ts",
-        "processQueueLifecycleRuntime({ executionLayer: \"scheduler\", surface: \"functions/processQueueLifecycle/manual-remediation\", ... })",
-        "scripts/check-runtime-continuity.ts",
-        "scripts/check-scheduler-freshness.ts",
-        "scripts/runtime-admin.ts",
-        "shared/runtime/runtime-warning-contract.ts",
-        "src/lib/server/queue-runtime.ts",
-        "src/lib/server/runtime-warning-store.ts",
-        "tests/unit/check-scheduler-freshness.spec.ts"
-      ],
-      "surface_tags": [
-        "admin",
-        "ui",
-        "runtime",
-        "tooling",
-        "architecture"
-      ],
-      "helper_tags": [],
-      "risk_tags": [
-        "architecture",
-        "runtime"
-      ],
-      "recency": "2026-04-18",
-      "freshness": {
-        "local": "fresh",
-        "sql_mirror": "unknown"
-      },
-      "context_tier": "cold",
-      "exclusion_tags": [
-        "secondary_truth"
-      ],
-      "do_not_use_as_primary_truth": true
-    },
-    {
-      "stable_id": "retrieval__pass__2026-04-17-token-efficiency-fabric-hardening-watch__session-analytics-deepening",
-      "source_type": "recent_pass",
-      "source_id": "pass__2026-04-17-token-efficiency-fabric-hardening-watch__session-analytics-deepening",
-      "searchable_terms": [
-        "Token-Efficiency Fabric Hardening + Watch/Session Analytics Deepening",
-        "Implement the research-driven token-efficiency and analytics hardening work inside the existing repo intelligence, runtime continuity, and admin analytics lanes: add stronger context compaction/exclusion/freshness metadata for agent task generation, deepen watch/session capture quality and replay confidence, add analytics continuity checks that surface silent capture degradation, and expose capture health in admin analytics.",
-        ".agent/workflows/auto-tasks.md",
-        "6/6",
-        "npm run trace:adjacent -- scripts/agent/build-task-context.ts",
-        "npm run trace:adjacent -- src/app/admin/analytics/page.tsx",
-        "npm run trace:adjacent -- src/app/api/viewer/watch-session/route.ts",
-        "npm run trace:adjacent -- src/hooks/useViewerWatchSession.ts",
-        "npx vitest run tests/unit/admin-analytics-capture-health.spec.ts tests/unit/admin-analytics-realtime-route.spec.ts tests/unit/useViewerWatchSession-bench.spec.ts tests/unit/analytics-ingest-route.spec.ts tests/unit/analytics-identifiers.spec.ts",
-        "scripts/agent/build-agent-indexes.ts",
-        "scripts/agent/build-task-context.ts",
-        "scripts/agent/extract-runtime-observability.ts",
-        "scripts/agent/run-evals.ts",
-        "scripts/check-analytics-continuity.ts",
-        "src/app/admin/analytics/page.tsx",
-        "src/app/api/admin/analytics/historical/route.ts",
-        "src/app/api/admin/analytics/realtime/route.ts",
-        "src/app/api/viewer/watch-session/route.ts",
-        "src/app/dashboard/viewer/ViewerClient.tsx",
-        "src/hooks/useViewerWatchSession.ts",
-        "src/lib/server/admin-analytics-capture-health.ts",
-        "src/lib/server/admin-analytics-historical-validation.ts",
-        "src/lib/viewer-watch-session.ts",
-        "src/types/admin-analytics.ts",
-        "tests/unit/admin-analytics-capture-health.spec.ts",
-        "tests/unit/admin-analytics-realtime-route.spec.ts"
-      ],
-      "surface_tags": [
-        "admin",
-        "ui",
-        "runtime",
-        "tooling",
-        "architecture"
-      ],
-      "helper_tags": [],
-      "risk_tags": [
-        "architecture",
-        "runtime",
-        "ui"
-      ],
-      "recency": "2026-04-17",
       "freshness": {
         "local": "fresh",
         "sql_mirror": "unknown"

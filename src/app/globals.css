@@ -8,6 +8,8 @@
   --color-brand-purple: #b28cff;
 }
 
+html { overscroll-behavior-y: none; }
+
 :root {
   --background: #000000;
   --foreground: #ffffff;
@@ -19,6 +21,7 @@ body {
   font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif, "Apple Color Emoji", "Segoe UI Emoji", "Segoe UI Symbol";
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
+  overscroll-behavior-y: none;
 }
 
 /* Glassmorphism Utility - Static & Fast */

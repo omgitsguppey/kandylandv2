@@ -1,5 +1,5 @@
 {
-  "generatedAt": "2026-04-20T01:56:55.721Z",
+  "generatedAt": "2026-04-20T03:57:01.307Z",
   "truthOrder": [
     "verified_runtime_code",
     "verified_configuration",
@@ -1551,7 +1551,8 @@
         "src/lib/platform-config.ts",
         "src/lib/privacy-consent.ts",
         "src/lib/site-origin.ts",
-        "src/lib/telemetry.ts"
+        "src/lib/telemetry.ts",
+        "src/lib/utils.ts"
       ],
       "hydration_mode": "auth_hydrated",
       "criticality": "medium",
