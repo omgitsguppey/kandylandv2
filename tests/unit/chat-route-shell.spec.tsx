@@ -78,23 +78,7 @@ describe("ChatRouteShell", () => {
         vi.restoreAllMocks();
     });
 
-    it("does not lock document scrolling on compact viewports", async () => {
-        installMatchMedia(true);
-        const { ChatRouteShell } = await import("@/components/Chat/ChatRouteShell");
-
-        act(() => {
-            root?.render(
-                <ChatRouteShell>
-                    <div>chat</div>
-                </ChatRouteShell>,
-            );
-        });
-
-        expect(document.documentElement.style.overflow).toBe("");
-        expect(document.body.style.overflow).toBe("");
-    });
-
-    it("locks document scrolling on non-compact viewports and restores on unmount", async () => {
+    it("locks document scrolling on all viewports and restores on unmount", async () => {
         installMatchMedia(false);
         const { ChatRouteShell } = await import("@/components/Chat/ChatRouteShell");
 

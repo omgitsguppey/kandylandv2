@@ -6,7 +6,7 @@ import { AdminPageHeader } from "@/components/Admin/AdminPageHeader";
 import { AdminAiDescriptionOperations } from "@/components/Admin/AdminAiDescriptionOperations";
 import { Button } from "@/components/ui/Button";
 import { PageViewEvent } from "@/components/Analytics/PageViewEvent";
-import { MetricCard, runtimeTone } from "./components/AiHelpers";
+import { MetricCard } from "./AiHelpers";
 import { useAdminAiState } from "./hooks/useAdminAiState";
 import { cn } from "@/lib/utils";
 
@@ -19,25 +19,26 @@ import { AdminAiOptimizerhealthSection } from "./components/AdminAiOptimizerheal
 import { AdminAiDiagnosticsSection } from "./components/AdminAiDiagnosticsSection";
 
 export default function AIAdminPage() {
-    const state = useAdminAiState();
+    const fullState = useAdminAiState();
+    const { libraryInputRef, primaryInputRef, ...state } = fullState;
 
     return (
         <div className="min-h-screen overflow-x-clip bg-black px-4 pb-[calc(2rem+env(safe-area-inset-bottom))] pt-4 sm:px-6 lg:px-8">
             <PageViewEvent eventName="admin_ai_viewed" eventParams={{ page: "admin-ai" }} />
             <input
-                ref={state.libraryInputRef}
+                ref={libraryInputRef}
                 type="file"
                 accept="image/*"
                 multiple
                 className="hidden"
-                onChange={state.handleLibraryUploadChange}
+                onChange={fullState.handleLibraryUploadChange}
             />
             <input
-                ref={state.primaryInputRef}
+                ref={primaryInputRef}
                 type="file"
                 accept="image/*"
                 className="hidden"
-                onChange={state.handlePrimaryUploadChange}
+                onChange={fullState.handlePrimaryUploadChange}
             />
 
             <div className="mx-auto min-w-0 max-w-7xl space-y-4 overflow-x-clip">
@@ -99,16 +100,16 @@ export default function AIAdminPage() {
 
                 <div className="grid min-w-0 gap-4 xl:grid-cols-12">
                     <div className="min-w-0 space-y-4 xl:col-span-7">
-                        <AdminAiRuntimestripSection state={state} />
-                        <AdminAiReferencelibrarySection state={state} />
-                        <AdminAiRecentgenerationsSection state={state} />
+                        <AdminAiRuntimestripSection state={fullState} />
+                        <AdminAiReferencelibrarySection state={fullState} />
+                        <AdminAiRecentgenerationsSection state={fullState} />
                     </div>
 
                     <div className="min-w-0 space-y-4 xl:col-span-5">
-                        <AdminAiPromptworkbenchSection state={state} />
-                        <AdminAiReviewgallerySection state={state} />
-                        <AdminAiOptimizerhealthSection state={state} />
-                        <AdminAiDiagnosticsSection state={state} />
+                        <AdminAiPromptworkbenchSection state={fullState} />
+                        <AdminAiReviewgallerySection state={fullState} />
+                        <AdminAiOptimizerhealthSection state={fullState} />
+                        <AdminAiDiagnosticsSection state={fullState} />
                     </div>
                 </div>
 

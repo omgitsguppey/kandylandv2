@@ -21,6 +21,7 @@ const NAV_ITEMS = [
   { href: "/admin/moderation", label: "Moderation", icon: ShieldAlert },
   { href: "/admin/content", label: "Content", icon: Package },
   { href: "/admin/economy", label: "Economy", icon: TrendingUp },
+  { href: "/admin/privacy", label: "Privacy", icon: ShieldAlert },
 ];
 
 export default function AdminLayout({ children }: { children: React.ReactNode }) {

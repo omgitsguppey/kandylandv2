@@ -3,7 +3,7 @@
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import { usePathname, useRouter } from "next/navigation";
-import { Sparkles, Flame, Droplets, Gift, BellRing, ChevronRight, Compass, CalendarCheck2 } from "lucide-react";
+import { Gift, BellRing, ChevronRight, Compass, CalendarCheck2 } from "lucide-react";
 import { doc, getDoc, setDoc } from "firebase/firestore";
 import { toast } from "sonner";
 
@@ -12,7 +12,6 @@ import { buildOnboardingCompletionStorageKey } from "@/hooks/client-runtime";
 import { db } from "@/lib/firebase-data";
 import { trackEvent } from "@/lib/telemetry";
 import { authFetch } from "@/lib/authFetch";
-import { getCSTDayBoundaries } from "@/lib/timezone";
 import { enableBrowserNotifications } from "@/lib/browser-notification-enrollment";
 import { recordClientDiagnostic } from "@/lib/client-diagnostics";
 import { reportClientIssue } from "@/lib/client-error-reporting";
@@ -20,12 +19,10 @@ import { shouldBypassFanOnboarding } from "@/lib/creator-application";
 
 import {
     type FlavorPreference,
-    type StepDefinition,
     type OnboardingStepMetric,
     DASHBOARD_ONBOARDING_PATH,
     STEP_DEFINITIONS,
     FLAVOR_OPTIONS,
-    normalizeTimestamp,
     hasClaimedToday,
     focusDashboardHome,
 } from "./OnboardingHelpers";

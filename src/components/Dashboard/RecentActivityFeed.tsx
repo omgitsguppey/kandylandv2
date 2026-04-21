@@ -339,7 +339,7 @@ function ExpandedActivityView({
             ) : historyError && activities.length === 0 ? (
                 <div className="rounded-2xl border border-white/5 bg-white/5 px-4 py-8 text-center text-sm text-gray-400">
                     <TriangleAlert className="mx-auto mb-2 h-6 w-6 opacity-60" />
-                    We couldn't load your full history right now.
+                    We couldn&apos;t load your full history right now.
                 </div>
             ) : activities.length === 0 ? (
                 <div className="rounded-2xl border border-white/5 bg-white/5 px-4 py-8 text-center text-sm text-gray-400">
@@ -506,7 +506,7 @@ function useRecentActivityState(user: AuthenticatedUser, userId: string | null, 
 
                 unsubscribeUserRuntime = onSnapshot(
                     doc(db, USER_RUNTIME_COLLECTION, user.uid),
-                    (snapshot) => {
+                    (snapshot: import("firebase/firestore").DocumentSnapshot) => {
                         if (!sawUserRuntimeSnapshot) {
                             sawUserRuntimeSnapshot = true;
                             return;
@@ -515,7 +515,7 @@ function useRecentActivityState(user: AuthenticatedUser, userId: string | null, 
                         const data = snapshot.data() as { activityVersion?: number; tasksVersion?: number } | undefined;
                         if (typeof data?.activityVersion === "number" || typeof data?.tasksVersion === "number") {
                             void refreshActivity("summary");
-                            if (expanded || historyLoaded) {
+                            if (expandedRef.current || historyLoadedRef.current) {
                                 void refreshActivity("history");
                             }
                         }

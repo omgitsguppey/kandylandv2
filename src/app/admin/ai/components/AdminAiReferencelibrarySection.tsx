@@ -1,13 +1,11 @@
 import React from 'react';
 import Image from "next/image";
-import { Activity, CheckCircle2, ChevronRight, Eye, FileWarning, Loader2, Pin, Power, RefreshCw, Sparkles, Trash2, Upload, WandSparkles } from "lucide-react";
+import { Eye, Pin, Sparkles, Trash2, Upload } from "lucide-react";
 import { AdminDashboardModule } from "@/components/Admin/AdminDashboardModule";
 import { Button } from "@/components/ui/Button";
-import { formatAdminAiUsd } from "@/lib/ai-drop-covers";
 import { cn } from "@/lib/utils";
-import { Badge, EmptyState, MetricCard, TextAreaBlock, diagnosticTone, formatCompactTimestamp, formatTimestamp, getReferenceSelectionReason, getReferenceSourceLabel, preflightTone, runtimeTone, statTone } from "./AiHelpers";
-import type { AdminAiState, ReviewFilter } from '../hooks/useAdminAiState';
-import { ADMIN_AI_DROP_COVER_ACTIVE_POLL_INTERVAL_MS, ADMIN_AI_DROP_COVER_IDLE_POLL_INTERVAL_MS } from "@/lib/ai-drop-covers";
+import { Badge, EmptyState, MetricCard, getReferenceSelectionReason, getReferenceSourceLabel, statTone } from "../AiHelpers";
+import type { AdminAiState } from '../hooks/useAdminAiState';
 
 export function AdminAiReferencelibrarySection({ state }: { state: AdminAiState }) {
     const {

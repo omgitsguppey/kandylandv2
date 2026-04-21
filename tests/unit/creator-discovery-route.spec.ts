@@ -17,7 +17,9 @@ const mockState = vi.hoisted(() => {
         getErrorMessage: vi.fn(),
         adminDb: {
             collection(name: string) {
-                return {
+                const queryMock: any = {
+                    where: () => queryMock,
+                    count: () => ({ get: async () => ({ data: () => ({ count: 0 }) }) }),
                     async get() {
                         const docs = (collections.get(name) ?? []).map((entry) => ({
                             id: entry.id,
@@ -31,6 +33,7 @@ const mockState = vi.hoisted(() => {
                         };
                     },
                 };
+                return queryMock;
             },
         },
         reset() {

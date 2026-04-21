@@ -42,7 +42,7 @@ export function useViewerFeedback({ drop, isAuthorized, initialCreatorProfile }:
                 if (data.drops) setRetentionDrops(data.drops);
             })
             .catch(console.error);
-    }, [drop?.id, isAuthorized]);
+    }, [drop, isAuthorized]);
 
     const handleFollow = async () => {
         if (!initialCreatorProfile?.uid || submittingFollow) return;
@@ -81,7 +81,7 @@ export function useViewerFeedback({ drop, isAuthorized, initialCreatorProfile }:
             if (res.ok) {
                 setFeedbackComplete(true);
                 toast.success("Thanks for the feedback! You earned 10 GumDrops 🍬");
-                trackEvent("viewer_feedback_submitted", { drop_id: drop.id, positive });
+                trackEvent("feedback_submitted", { drop_id: drop.id, positive });
             } else {
                 toast.error("Failed to submit feedback");
             }

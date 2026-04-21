@@ -1,12 +1,11 @@
-import React, { useMemo } from "react";
+import React from "react";
 import {
-  Activity, AlertTriangle, Candy, CheckCircle2, Clock3, DollarSign, Eye, FileText, Funnel, Loader2, MapPin, Monitor, PlayCircle, Route, Share2, ShoppingBag, Smartphone, Sparkles, Users, Wallet,
+  Activity, AlertTriangle, CheckCircle2, Clock3, Eye, Monitor, PlayCircle, Share2, ShoppingBag, Sparkles, Users, Wallet,
 } from "lucide-react";
-import { Area, AreaChart, Bar, BarChart, CartesianGrid, ResponsiveContainer, Tooltip, XAxis, YAxis, Pie, PieChart, Cell, Line, LineChart } from "recharts";
+import { Area, AreaChart, Bar, BarChart, CartesianGrid, ResponsiveContainer, Tooltip, XAxis, YAxis } from "recharts";
 import { AnalyticsTooltip, MetricCard, SectionCard } from "@/components/Admin/Analytics/AdminAnalyticsPrimitives";
 import { AdminOnboardingAnalyticsModules } from "@/components/Admin/Analytics/AdminOnboardingAnalyticsModules";
-import { PageViewEvent } from "@/components/Analytics/PageViewEvent";
-
+import { cn } from "@/lib/utils";
 export function AdminAnalyticsOperationsTab(props: any) {
   const {
     renderSectionRangeControl, liveResponse, historicalResponse, liveLoading, historicalLoading, nowMs, EVENT_LABELS,
@@ -36,7 +35,9 @@ export function AdminAnalyticsOperationsTab(props: any) {
     recentCommerceFeedRange, feedItems, describeEvent, formatAbsoluteDateTime,
     
     // Added remaining
-    clearAllFilters, clearViewerFilter, viewerUserFilter, formatMoney, activeViewerFilter
+    clearAllFilters, clearViewerFilter, viewerUserFilter, formatMoney, activeViewerFilter,
+    eventMixTopEvents, validationItems, topComponentContexts, eventMixTopComponentContexts,
+    liveInteractionEvents
   } = props;
 
   return (
@@ -178,7 +179,7 @@ export function AdminAnalyticsOperationsTab(props: any) {
                   </div>
                   <div className="space-y-3">
                     {liveSurfaceMix.length > 0 ? (
-                      liveSurfaceMix.map((item) => (
+                      liveSurfaceMix.map((item: any) => (
                         <div
                           key={item.key}
                           className="rounded-2xl border border-white/10 bg-white/[0.03] p-3"
@@ -230,7 +231,7 @@ export function AdminAnalyticsOperationsTab(props: any) {
                   </div>
                   <div className="space-y-3">
                     {liveActiveUsers.length > 0 ? (
-                      liveActiveUsers.map((item) => (
+                      liveActiveUsers.map((item: any) => (
                         <div
                           key={item.uid}
                           className="rounded-2xl border border-white/10 bg-white/[0.03] p-3"
@@ -573,7 +574,7 @@ export function AdminAnalyticsOperationsTab(props: any) {
 
                       <div className="space-y-3">
                         {authOutcomeHasData ? (
-                          authOutcomeChartItems.map((item) => {
+                          authOutcomeChartItems.map((item: any) => {
                             const unfinishedShare =
                               item.attempts > 0
                                 ? item.unfinished / Math.max(1, item.attempts)
@@ -711,7 +712,7 @@ export function AdminAnalyticsOperationsTab(props: any) {
 
                 <div className="mt-5 h-72 w-full">
                   {guestBounceQualityCards.some(
-                    (card) =>
+                    (card: any) =>
                       card.views > 0 || card.engaged > 0 || card.bounced > 0,
                   ) ? (
                     <ResponsiveContainer width="100%" height="100%">
@@ -829,7 +830,7 @@ export function AdminAnalyticsOperationsTab(props: any) {
                     </div>
                     <div className="space-y-3">
                       {eventMixTopComponentContexts.length > 0 ? (
-                        eventMixTopComponentContexts.map((item) => (
+                        eventMixTopComponentContexts.map((item: any) => (
                           <div
                             key={item.key}
                             className="rounded-2xl border border-white/10 bg-white/[0.03] p-3"
@@ -876,7 +877,7 @@ export function AdminAnalyticsOperationsTab(props: any) {
               >
                 <div className="space-y-3">
                   {liveInteractionEvents.length > 0 ? (
-                    liveInteractionEvents.slice(0, 8).map((event, index) => (
+                    liveInteractionEvents.slice(0, 8).map((event: any, index: any) => (
                       <div
                         key={`${event.timestamp}-${index}`}
                         className="rounded-[1.4rem] border border-white/10 bg-black/30 p-3.5"
@@ -931,7 +932,7 @@ export function AdminAnalyticsOperationsTab(props: any) {
               rightSlot={renderSectionRangeControl("dataValidation")}
             >
               <div className="grid gap-3 md:grid-cols-2 xl:grid-cols-3">
-                {validationItems.map((item) => (
+                {validationItems.map((item: any) => (
                   <div
                     key={item.label}
                     className="rounded-[1.5rem] border border-white/10 bg-black/30 p-4"

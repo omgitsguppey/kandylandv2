@@ -296,6 +296,12 @@ export const TELEMETRY_EVENT_OPTIONS: TelemetryEventOption[] = [
   { eventName: "security_devtools_attempted", label: "Developer tools attempt detected", category: "security", sources: DEFAULT_SERVER_SOURCES, modules: ["security", "viewer"] },
   { eventName: "security_source_view_attempted", label: "View source attempt detected", category: "security", sources: DEFAULT_SERVER_SOURCES, modules: ["security", "viewer"] },
   { eventName: "security_capture_pattern_detected", label: "Capture pattern detected", category: "security", sources: DEFAULT_SERVER_SOURCES, modules: ["security", "viewer"] },
+  { eventName: "library_search", label: "Library searched", category: "navigation", sources: DEFAULT_CLIENT_SOURCES, modules: ["navigation"] },
+  { eventName: "drops_category_selected", label: "Drops category selected", category: "navigation", sources: DEFAULT_CLIENT_SOURCES, modules: ["navigation"] },
+  { eventName: "drops_searched", label: "Drops searched", category: "navigation", sources: DEFAULT_CLIENT_SOURCES, modules: ["navigation"] },
+  { eventName: "recent_activity_page_changed", label: "Recent activity page changed", category: "engagement", sources: DEFAULT_CLIENT_SOURCES, modules: ["engagement"] },
+  { eventName: "recent_activity_searched", label: "Recent activity searched", category: "engagement", sources: DEFAULT_CLIENT_SOURCES, modules: ["engagement"] },
+  { eventName: "unlock_drop_failed", label: "Unlock drop failed", category: "commerce", sources: DEFAULT_CLIENT_SOURCES, modules: ["commerce"] },
 ];
 
 export const TELEMETRY_MODULE_INDEXES: TelemetryModuleIndex[] = [

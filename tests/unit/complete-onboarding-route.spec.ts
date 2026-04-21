@@ -24,12 +24,18 @@ const mockState = vi.hoisted(() => {
         };
     };
 
-    const buildCollectionRef = (path: string): MockCollectionRef => ({
+    const buildCollectionRef = (path: string): MockCollectionRef & { add: any } => ({
         path,
         doc(id?: string) {
             const resolvedId = id ?? `auto_${++autoId}`;
             return buildDocRef(`${path}/${resolvedId}`);
         },
+        add: vi.fn(async () => {
+            const resolvedId = `auto_${++autoId}`;
+            const docRef = buildDocRef(`${path}/${resolvedId}`);
+            operations.push({ type: "create", path: docRef.path });
+            return docRef;
+        }),
     });
 
     const buildDocRef = (path: string): MockDocRef => ({

@@ -1,0 +1,1328 @@
+extend type Mutation {
+  """
+  ✨ Insert a single `AgentActiveTask` into the table and return its key. Columns not specified in `data` will receive defaults (e.g. `null`).
+  """
+  agentActiveTask_insert(
+    """
+    Data object to insert into the table.
+    """
+    data: AgentActiveTask_Data!
+  ): AgentActiveTask_KeyOutput! @fdc_generated(from: "AgentActiveTask", purpose: INSERT_SINGLE)
+  """
+  ✨ Insert a single `AgentCanonicalHelper` into the table and return its key. Columns not specified in `data` will receive defaults (e.g. `null`).
+  """
+  agentCanonicalHelper_insert(
+    """
+    Data object to insert into the table.
+    """
+    data: AgentCanonicalHelper_Data!
+  ): AgentCanonicalHelper_KeyOutput! @fdc_generated(from: "AgentCanonicalHelper", purpose: INSERT_SINGLE)
+  """
+  ✨ Insert a single `AgentHandoff` into the table and return its key. Columns not specified in `data` will receive defaults (e.g. `null`).
+  """
+  agentHandoff_insert(
+    """
+    Data object to insert into the table.
+    """
+    data: AgentHandoff_Data!
+  ): AgentHandoff_KeyOutput! @fdc_generated(from: "AgentHandoff", purpose: INSERT_SINGLE)
+  """
+  ✨ Insert a single `AgentKnowledgeRecord` into the table and return its key. Columns not specified in `data` will receive defaults (e.g. `null`).
+  """
+  agentKnowledgeRecord_insert(
+    """
+    Data object to insert into the table.
+    """
+    data: AgentKnowledgeRecord_Data!
+  ): AgentKnowledgeRecord_KeyOutput! @fdc_generated(from: "AgentKnowledgeRecord", purpose: INSERT_SINGLE)
+  """
+  ✨ Insert a single `AgentRepoInventory` into the table and return its key. Columns not specified in `data` will receive defaults (e.g. `null`).
+  """
+  agentRepoInventory_insert(
+    """
+    Data object to insert into the table.
+    """
+    data: AgentRepoInventory_Data!
+  ): AgentRepoInventory_KeyOutput! @fdc_generated(from: "AgentRepoInventory", purpose: INSERT_SINGLE)
+  """
+  ✨ Insert a single `AgentRetrievalEdge` into the table and return its key. Columns not specified in `data` will receive defaults (e.g. `null`).
+  """
+  agentRetrievalEdge_insert(
+    """
+    Data object to insert into the table.
+    """
+    data: AgentRetrievalEdge_Data!
+  ): AgentRetrievalEdge_KeyOutput! @fdc_generated(from: "AgentRetrievalEdge", purpose: INSERT_SINGLE)
+  """
+  ✨ Insert a single `AgentSurfaceMap` into the table and return its key. Columns not specified in `data` will receive defaults (e.g. `null`).
+  """
+  agentSurfaceMap_insert(
+    """
+    Data object to insert into the table.
+    """
+    data: AgentSurfaceMap_Data!
+  ): AgentSurfaceMap_KeyOutput! @fdc_generated(from: "AgentSurfaceMap", purpose: INSERT_SINGLE)
+  """
+  ✨ Insert a single `AgentTaskContextRun` into the table and return its key. Columns not specified in `data` will receive defaults (e.g. `null`).
+  """
+  agentTaskContextRun_insert(
+    """
+    Data object to insert into the table.
+    """
+    data: AgentTaskContextRun_Data!
+  ): AgentTaskContextRun_KeyOutput! @fdc_generated(from: "AgentTaskContextRun", purpose: INSERT_SINGLE)
+  """
+  ✨ Insert a single `AgentVerificationCommand` into the table and return its key. Columns not specified in `data` will receive defaults (e.g. `null`).
+  """
+  agentVerificationCommand_insert(
+    """
+    Data object to insert into the table.
+    """
+    data: AgentVerificationCommand_Data!
+  ): AgentVerificationCommand_KeyOutput! @fdc_generated(from: "AgentVerificationCommand", purpose: INSERT_SINGLE)
+  """
+  ✨ Insert a single `CreatorAffinityVector` into the table and return its key. Columns not specified in `data` will receive defaults (e.g. `null`).
+  """
+  creatorAffinityVector_insert(
+    """
+    Data object to insert into the table.
+    """
+    data: CreatorAffinityVector_Data!
+  ): CreatorAffinityVector_KeyOutput! @fdc_generated(from: "CreatorAffinityVector", purpose: INSERT_SINGLE)
+  """
+  ✨ Insert a single `DropInterestVector` into the table and return its key. Columns not specified in `data` will receive defaults (e.g. `null`).
+  """
+  dropInterestVector_insert(
+    """
+    Data object to insert into the table.
+    """
+    data: DropInterestVector_Data!
+  ): DropInterestVector_KeyOutput! @fdc_generated(from: "DropInterestVector", purpose: INSERT_SINGLE)
+  """
+  ✨ Insert a single `GuestFeatureProfile` into the table and return its key. Columns not specified in `data` will receive defaults (e.g. `null`).
+  """
+  guestFeatureProfile_insert(
+    """
+    Data object to insert into the table.
+    """
+    data: GuestFeatureProfile_Data!
+  ): GuestFeatureProfile_KeyOutput! @fdc_generated(from: "GuestFeatureProfile", purpose: INSERT_SINGLE)
+  """
+  ✨ Insert a single `UserFeatureProfile` into the table and return its key. Columns not specified in `data` will receive defaults (e.g. `null`).
+  """
+  userFeatureProfile_insert(
+    """
+    Data object to insert into the table.
+    """
+    data: UserFeatureProfile_Data!
+  ): UserFeatureProfile_KeyOutput! @fdc_generated(from: "UserFeatureProfile", purpose: INSERT_SINGLE)
+  """
+  ✨ Insert `AgentActiveTask` objects into the table and return their keys. Columns not specified in `data` will receive defaults (e.g. `null`).
+  """
+  agentActiveTask_insertMany(
+    """
+    List of data objects to insert into the table.
+    """
+    data: [AgentActiveTask_Data!]!
+  ): [AgentActiveTask_KeyOutput!]! @fdc_generated(from: "AgentActiveTask", purpose: INSERT_MULTIPLE)
+  """
+  ✨ Insert `AgentCanonicalHelper` objects into the table and return their keys. Columns not specified in `data` will receive defaults (e.g. `null`).
+  """
+  agentCanonicalHelper_insertMany(
+    """
+    List of data objects to insert into the table.
+    """
+    data: [AgentCanonicalHelper_Data!]!
+  ): [AgentCanonicalHelper_KeyOutput!]! @fdc_generated(from: "AgentCanonicalHelper", purpose: INSERT_MULTIPLE)
+  """
+  ✨ Insert `AgentHandoff` objects into the table and return their keys. Columns not specified in `data` will receive defaults (e.g. `null`).
+  """
+  agentHandoff_insertMany(
+    """
+    List of data objects to insert into the table.
+    """
+    data: [AgentHandoff_Data!]!
+  ): [AgentHandoff_KeyOutput!]! @fdc_generated(from: "AgentHandoff", purpose: INSERT_MULTIPLE)
+  """
+  ✨ Insert `AgentKnowledgeRecord` objects into the table and return their keys. Columns not specified in `data` will receive defaults (e.g. `null`).
+  """
+  agentKnowledgeRecord_insertMany(
+    """
+    List of data objects to insert into the table.
+    """
+    data: [AgentKnowledgeRecord_Data!]!
+  ): [AgentKnowledgeRecord_KeyOutput!]! @fdc_generated(from: "AgentKnowledgeRecord", purpose: INSERT_MULTIPLE)
+  """
+  ✨ Insert `AgentRepoInventory` objects into the table and return their keys. Columns not specified in `data` will receive defaults (e.g. `null`).
+  """
+  agentRepoInventory_insertMany(
+    """
+    List of data objects to insert into the table.
+    """
+    data: [AgentRepoInventory_Data!]!
+  ): [AgentRepoInventory_KeyOutput!]! @fdc_generated(from: "AgentRepoInventory", purpose: INSERT_MULTIPLE)
+  """
+  ✨ Insert `AgentRetrievalEdge` objects into the table and return their keys. Columns not specified in `data` will receive defaults (e.g. `null`).
+  """
+  agentRetrievalEdge_insertMany(
+    """
+    List of data objects to insert into the table.
+    """
+    data: [AgentRetrievalEdge_Data!]!
+  ): [AgentRetrievalEdge_KeyOutput!]! @fdc_generated(from: "AgentRetrievalEdge", purpose: INSERT_MULTIPLE)
+  """
+  ✨ Insert `AgentSurfaceMap` objects into the table and return their keys. Columns not specified in `data` will receive defaults (e.g. `null`).
+  """
+  agentSurfaceMap_insertMany(
+    """
+    List of data objects to insert into the table.
+    """
+    data: [AgentSurfaceMap_Data!]!
+  ): [AgentSurfaceMap_KeyOutput!]! @fdc_generated(from: "AgentSurfaceMap", purpose: INSERT_MULTIPLE)
+  """
+  ✨ Insert `AgentTaskContextRun` objects into the table and return their keys. Columns not specified in `data` will receive defaults (e.g. `null`).
+  """
+  agentTaskContextRun_insertMany(
+    """
+    List of data objects to insert into the table.
+    """
+    data: [AgentTaskContextRun_Data!]!
+  ): [AgentTaskContextRun_KeyOutput!]! @fdc_generated(from: "AgentTaskContextRun", purpose: INSERT_MULTIPLE)
+  """
+  ✨ Insert `AgentVerificationCommand` objects into the table and return their keys. Columns not specified in `data` will receive defaults (e.g. `null`).
+  """
+  agentVerificationCommand_insertMany(
+    """
+    List of data objects to insert into the table.
+    """
+    data: [AgentVerificationCommand_Data!]!
+  ): [AgentVerificationCommand_KeyOutput!]! @fdc_generated(from: "AgentVerificationCommand", purpose: INSERT_MULTIPLE)
+  """
+  ✨ Insert `CreatorAffinityVector` objects into the table and return their keys. Columns not specified in `data` will receive defaults (e.g. `null`).
+  """
+  creatorAffinityVector_insertMany(
+    """
+    List of data objects to insert into the table.
+    """
+    data: [CreatorAffinityVector_Data!]!
+  ): [CreatorAffinityVector_KeyOutput!]! @fdc_generated(from: "CreatorAffinityVector", purpose: INSERT_MULTIPLE)
+  """
+  ✨ Insert `DropInterestVector` objects into the table and return their keys. Columns not specified in `data` will receive defaults (e.g. `null`).
+  """
+  dropInterestVector_insertMany(
+    """
+    List of data objects to insert into the table.
+    """
+    data: [DropInterestVector_Data!]!
+  ): [DropInterestVector_KeyOutput!]! @fdc_generated(from: "DropInterestVector", purpose: INSERT_MULTIPLE)
+  """
+  ✨ Insert `GuestFeatureProfile` objects into the table and return their keys. Columns not specified in `data` will receive defaults (e.g. `null`).
+  """
+  guestFeatureProfile_insertMany(
+    """
+    List of data objects to insert into the table.
+    """
+    data: [GuestFeatureProfile_Data!]!
+  ): [GuestFeatureProfile_KeyOutput!]! @fdc_generated(from: "GuestFeatureProfile", purpose: INSERT_MULTIPLE)
+  """
+  ✨ Insert `UserFeatureProfile` objects into the table and return their keys. Columns not specified in `data` will receive defaults (e.g. `null`).
+  """
+  userFeatureProfile_insertMany(
+    """
+    List of data objects to insert into the table.
+    """
+    data: [UserFeatureProfile_Data!]!
+  ): [UserFeatureProfile_KeyOutput!]! @fdc_generated(from: "UserFeatureProfile", purpose: INSERT_MULTIPLE)
+  """
+  ✨ Insert or update a single `AgentActiveTask` into the table, based on the primary key. Returns the key of the newly inserted or existing updated `AgentActiveTask`.
+  """
+  agentActiveTask_upsert(
+    """
+    Data object to insert or update if it already exists.
+    """
+    data: AgentActiveTask_Data!
+  ): AgentActiveTask_KeyOutput! @fdc_generated(from: "AgentActiveTask", purpose: UPSERT_SINGLE)
+  """
+  ✨ Insert or update a single `AgentCanonicalHelper` into the table, based on the primary key. Returns the key of the newly inserted or existing updated `AgentCanonicalHelper`.
+  """
+  agentCanonicalHelper_upsert(
+    """
+    Data object to insert or update if it already exists.
+    """
+    data: AgentCanonicalHelper_Data!
+  ): AgentCanonicalHelper_KeyOutput! @fdc_generated(from: "AgentCanonicalHelper", purpose: UPSERT_SINGLE)
+  """
+  ✨ Insert or update a single `AgentHandoff` into the table, based on the primary key. Returns the key of the newly inserted or existing updated `AgentHandoff`.
+  """
+  agentHandoff_upsert(
+    """
+    Data object to insert or update if it already exists.
+    """
+    data: AgentHandoff_Data!
+  ): AgentHandoff_KeyOutput! @fdc_generated(from: "AgentHandoff", purpose: UPSERT_SINGLE)
+  """
+  ✨ Insert or update a single `AgentKnowledgeRecord` into the table, based on the primary key. Returns the key of the newly inserted or existing updated `AgentKnowledgeRecord`.
+  """
+  agentKnowledgeRecord_upsert(
+    """
+    Data object to insert or update if it already exists.
+    """
+    data: AgentKnowledgeRecord_Data!
+  ): AgentKnowledgeRecord_KeyOutput! @fdc_generated(from: "AgentKnowledgeRecord", purpose: UPSERT_SINGLE)
+  """
+  ✨ Insert or update a single `AgentRepoInventory` into the table, based on the primary key. Returns the key of the newly inserted or existing updated `AgentRepoInventory`.
+  """
+  agentRepoInventory_upsert(
+    """
+    Data object to insert or update if it already exists.
+    """
+    data: AgentRepoInventory_Data!
+  ): AgentRepoInventory_KeyOutput! @fdc_generated(from: "AgentRepoInventory", purpose: UPSERT_SINGLE)
+  """
+  ✨ Insert or update a single `AgentRetrievalEdge` into the table, based on the primary key. Returns the key of the newly inserted or existing updated `AgentRetrievalEdge`.
+  """
+  agentRetrievalEdge_upsert(
+    """
+    Data object to insert or update if it already exists.
+    """
+    data: AgentRetrievalEdge_Data!
+  ): AgentRetrievalEdge_KeyOutput! @fdc_generated(from: "AgentRetrievalEdge", purpose: UPSERT_SINGLE)
+  """
+  ✨ Insert or update a single `AgentSurfaceMap` into the table, based on the primary key. Returns the key of the newly inserted or existing updated `AgentSurfaceMap`.
+  """
+  agentSurfaceMap_upsert(
+    """
+    Data object to insert or update if it already exists.
+    """
+    data: AgentSurfaceMap_Data!
+  ): AgentSurfaceMap_KeyOutput! @fdc_generated(from: "AgentSurfaceMap", purpose: UPSERT_SINGLE)
+  """
+  ✨ Insert or update a single `AgentTaskContextRun` into the table, based on the primary key. Returns the key of the newly inserted or existing updated `AgentTaskContextRun`.
+  """
+  agentTaskContextRun_upsert(
+    """
+    Data object to insert or update if it already exists.
+    """
+    data: AgentTaskContextRun_Data!
+  ): AgentTaskContextRun_KeyOutput! @fdc_generated(from: "AgentTaskContextRun", purpose: UPSERT_SINGLE)
+  """
+  ✨ Insert or update a single `AgentVerificationCommand` into the table, based on the primary key. Returns the key of the newly inserted or existing updated `AgentVerificationCommand`.
+  """
+  agentVerificationCommand_upsert(
+    """
+    Data object to insert or update if it already exists.
+    """
+    data: AgentVerificationCommand_Data!
+  ): AgentVerificationCommand_KeyOutput! @fdc_generated(from: "AgentVerificationCommand", purpose: UPSERT_SINGLE)
+  """
+  ✨ Insert or update a single `CreatorAffinityVector` into the table, based on the primary key. Returns the key of the newly inserted or existing updated `CreatorAffinityVector`.
+  """
+  creatorAffinityVector_upsert(
+    """
+    Data object to insert or update if it already exists.
+    """
+    data: CreatorAffinityVector_Data!
+  ): CreatorAffinityVector_KeyOutput! @fdc_generated(from: "CreatorAffinityVector", purpose: UPSERT_SINGLE)
+  """
+  ✨ Insert or update a single `DropInterestVector` into the table, based on the primary key. Returns the key of the newly inserted or existing updated `DropInterestVector`.
+  """
+  dropInterestVector_upsert(
+    """
+    Data object to insert or update if it already exists.
+    """
+    data: DropInterestVector_Data!
+  ): DropInterestVector_KeyOutput! @fdc_generated(from: "DropInterestVector", purpose: UPSERT_SINGLE)
+  """
+  ✨ Insert or update a single `GuestFeatureProfile` into the table, based on the primary key. Returns the key of the newly inserted or existing updated `GuestFeatureProfile`.
+  """
+  guestFeatureProfile_upsert(
+    """
+    Data object to insert or update if it already exists.
+    """
+    data: GuestFeatureProfile_Data!
+  ): GuestFeatureProfile_KeyOutput! @fdc_generated(from: "GuestFeatureProfile", purpose: UPSERT_SINGLE)
+  """
+  ✨ Insert or update a single `UserFeatureProfile` into the table, based on the primary key. Returns the key of the newly inserted or existing updated `UserFeatureProfile`.
+  """
+  userFeatureProfile_upsert(
+    """
+    Data object to insert or update if it already exists.
+    """
+    data: UserFeatureProfile_Data!
+  ): UserFeatureProfile_KeyOutput! @fdc_generated(from: "UserFeatureProfile", purpose: UPSERT_SINGLE)
+  """
+  ✨ Insert or update `AgentActiveTask` objects into the table, based on the primary key. Returns the key of the newly inserted or existing updated `AgentActiveTask`.
+  """
+  agentActiveTask_upsertMany(
+    """
+    List of data objects to insert or update if it already exists.
+    """
+    data: [AgentActiveTask_Data!]!
+  ): [AgentActiveTask_KeyOutput!]! @fdc_generated(from: "AgentActiveTask", purpose: UPSERT_MULTIPLE)
+  """
+  ✨ Insert or update `AgentCanonicalHelper` objects into the table, based on the primary key. Returns the key of the newly inserted or existing updated `AgentCanonicalHelper`.
+  """
+  agentCanonicalHelper_upsertMany(
+    """
+    List of data objects to insert or update if it already exists.
+    """
+    data: [AgentCanonicalHelper_Data!]!
+  ): [AgentCanonicalHelper_KeyOutput!]! @fdc_generated(from: "AgentCanonicalHelper", purpose: UPSERT_MULTIPLE)
+  """
+  ✨ Insert or update `AgentHandoff` objects into the table, based on the primary key. Returns the key of the newly inserted or existing updated `AgentHandoff`.
+  """
+  agentHandoff_upsertMany(
+    """
+    List of data objects to insert or update if it already exists.
+    """
+    data: [AgentHandoff_Data!]!
+  ): [AgentHandoff_KeyOutput!]! @fdc_generated(from: "AgentHandoff", purpose: UPSERT_MULTIPLE)
+  """
+  ✨ Insert or update `AgentKnowledgeRecord` objects into the table, based on the primary key. Returns the key of the newly inserted or existing updated `AgentKnowledgeRecord`.
+  """
+  agentKnowledgeRecord_upsertMany(
+    """
+    List of data objects to insert or update if it already exists.
+    """
+    data: [AgentKnowledgeRecord_Data!]!
+  ): [AgentKnowledgeRecord_KeyOutput!]! @fdc_generated(from: "AgentKnowledgeRecord", purpose: UPSERT_MULTIPLE)
+  """
+  ✨ Insert or update `AgentRepoInventory` objects into the table, based on the primary key. Returns the key of the newly inserted or existing updated `AgentRepoInventory`.
+  """
+  agentRepoInventory_upsertMany(
+    """
+    List of data objects to insert or update if it already exists.
+    """
+    data: [AgentRepoInventory_Data!]!
+  ): [AgentRepoInventory_KeyOutput!]! @fdc_generated(from: "AgentRepoInventory", purpose: UPSERT_MULTIPLE)
+  """
+  ✨ Insert or update `AgentRetrievalEdge` objects into the table, based on the primary key. Returns the key of the newly inserted or existing updated `AgentRetrievalEdge`.
+  """
+  agentRetrievalEdge_upsertMany(
+    """
+    List of data objects to insert or update if it already exists.
+    """
+    data: [AgentRetrievalEdge_Data!]!
+  ): [AgentRetrievalEdge_KeyOutput!]! @fdc_generated(from: "AgentRetrievalEdge", purpose: UPSERT_MULTIPLE)
+  """
+  ✨ Insert or update `AgentSurfaceMap` objects into the table, based on the primary key. Returns the key of the newly inserted or existing updated `AgentSurfaceMap`.
+  """
+  agentSurfaceMap_upsertMany(
+    """
+    List of data objects to insert or update if it already exists.
+    """
+    data: [AgentSurfaceMap_Data!]!
+  ): [AgentSurfaceMap_KeyOutput!]! @fdc_generated(from: "AgentSurfaceMap", purpose: UPSERT_MULTIPLE)
+  """
+  ✨ Insert or update `AgentTaskContextRun` objects into the table, based on the primary key. Returns the key of the newly inserted or existing updated `AgentTaskContextRun`.
+  """
+  agentTaskContextRun_upsertMany(
+    """
+    List of data objects to insert or update if it already exists.
+    """
+    data: [AgentTaskContextRun_Data!]!
+  ): [AgentTaskContextRun_KeyOutput!]! @fdc_generated(from: "AgentTaskContextRun", purpose: UPSERT_MULTIPLE)
+  """
+  ✨ Insert or update `AgentVerificationCommand` objects into the table, based on the primary key. Returns the key of the newly inserted or existing updated `AgentVerificationCommand`.
+  """
+  agentVerificationCommand_upsertMany(
+    """
+    List of data objects to insert or update if it already exists.
+    """
+    data: [AgentVerificationCommand_Data!]!
+  ): [AgentVerificationCommand_KeyOutput!]! @fdc_generated(from: "AgentVerificationCommand", purpose: UPSERT_MULTIPLE)
+  """
+  ✨ Insert or update `CreatorAffinityVector` objects into the table, based on the primary key. Returns the key of the newly inserted or existing updated `CreatorAffinityVector`.
+  """
+  creatorAffinityVector_upsertMany(
+    """
+    List of data objects to insert or update if it already exists.
+    """
+    data: [CreatorAffinityVector_Data!]!
+  ): [CreatorAffinityVector_KeyOutput!]! @fdc_generated(from: "CreatorAffinityVector", purpose: UPSERT_MULTIPLE)
+  """
+  ✨ Insert or update `DropInterestVector` objects into the table, based on the primary key. Returns the key of the newly inserted or existing updated `DropInterestVector`.
+  """
+  dropInterestVector_upsertMany(
+    """
+    List of data objects to insert or update if it already exists.
+    """
+    data: [DropInterestVector_Data!]!
+  ): [DropInterestVector_KeyOutput!]! @fdc_generated(from: "DropInterestVector", purpose: UPSERT_MULTIPLE)
+  """
+  ✨ Insert or update `GuestFeatureProfile` objects into the table, based on the primary key. Returns the key of the newly inserted or existing updated `GuestFeatureProfile`.
+  """
+  guestFeatureProfile_upsertMany(
+    """
+    List of data objects to insert or update if it already exists.
+    """
+    data: [GuestFeatureProfile_Data!]!
+  ): [GuestFeatureProfile_KeyOutput!]! @fdc_generated(from: "GuestFeatureProfile", purpose: UPSERT_MULTIPLE)
+  """
+  ✨ Insert or update `UserFeatureProfile` objects into the table, based on the primary key. Returns the key of the newly inserted or existing updated `UserFeatureProfile`.
+  """
+  userFeatureProfile_upsertMany(
+    """
+    List of data objects to insert or update if it already exists.
+    """
+    data: [UserFeatureProfile_Data!]!
+  ): [UserFeatureProfile_KeyOutput!]! @fdc_generated(from: "UserFeatureProfile", purpose: UPSERT_MULTIPLE)
+  """
+  ✨ Update a single `AgentActiveTask` based on `id`, `key` or `first`, setting columns specified in `data`. Returns the key of the updated `AgentActiveTask` or `null` if not found.
+  """
+  agentActiveTask_update(
+    """
+    The key used to identify the object.
+    """
+    key: AgentActiveTask_Key
+
+    """
+    Fetch the first row based on the filters and ordering.
+    """
+    first: AgentActiveTask_FirstRow
+
+    """
+    Data object containing fields to be updated.
+    """
+    data: AgentActiveTask_Data!
+  ): AgentActiveTask_KeyOutput @fdc_generated(from: "AgentActiveTask", purpose: UPDATE_SINGLE)
+  """
+  ✨ Update a single `AgentCanonicalHelper` based on `id`, `key` or `first`, setting columns specified in `data`. Returns the key of the updated `AgentCanonicalHelper` or `null` if not found.
+  """
+  agentCanonicalHelper_update(
+    """
+    The key used to identify the object.
+    """
+    key: AgentCanonicalHelper_Key
+
+    """
+    Fetch the first row based on the filters and ordering.
+    """
+    first: AgentCanonicalHelper_FirstRow
+
+    """
+    Data object containing fields to be updated.
+    """
+    data: AgentCanonicalHelper_Data!
+  ): AgentCanonicalHelper_KeyOutput @fdc_generated(from: "AgentCanonicalHelper", purpose: UPDATE_SINGLE)
+  """
+  ✨ Update a single `AgentHandoff` based on `id`, `key` or `first`, setting columns specified in `data`. Returns the key of the updated `AgentHandoff` or `null` if not found.
+  """
+  agentHandoff_update(
+    """
+    The key used to identify the object.
+    """
+    key: AgentHandoff_Key
+
+    """
+    Fetch the first row based on the filters and ordering.
+    """
+    first: AgentHandoff_FirstRow
+
+    """
+    Data object containing fields to be updated.
+    """
+    data: AgentHandoff_Data!
+  ): AgentHandoff_KeyOutput @fdc_generated(from: "AgentHandoff", purpose: UPDATE_SINGLE)
+  """
+  ✨ Update a single `AgentKnowledgeRecord` based on `id`, `key` or `first`, setting columns specified in `data`. Returns the key of the updated `AgentKnowledgeRecord` or `null` if not found.
+  """
+  agentKnowledgeRecord_update(
+    """
+    The key used to identify the object.
+    """
+    key: AgentKnowledgeRecord_Key
+
+    """
+    Fetch the first row based on the filters and ordering.
+    """
+    first: AgentKnowledgeRecord_FirstRow
+
+    """
+    Data object containing fields to be updated.
+    """
+    data: AgentKnowledgeRecord_Data!
+  ): AgentKnowledgeRecord_KeyOutput @fdc_generated(from: "AgentKnowledgeRecord", purpose: UPDATE_SINGLE)
+  """
+  ✨ Update a single `AgentRepoInventory` based on `id`, `key` or `first`, setting columns specified in `data`. Returns the key of the updated `AgentRepoInventory` or `null` if not found.
+  """
+  agentRepoInventory_update(
+    """
+    The key used to identify the object.
+    """
+    key: AgentRepoInventory_Key
+
+    """
+    Fetch the first row based on the filters and ordering.
+    """
+    first: AgentRepoInventory_FirstRow
+
+    """
+    Data object containing fields to be updated.
+    """
+    data: AgentRepoInventory_Data!
+  ): AgentRepoInventory_KeyOutput @fdc_generated(from: "AgentRepoInventory", purpose: UPDATE_SINGLE)
+  """
+  ✨ Update a single `AgentRetrievalEdge` based on `id`, `key` or `first`, setting columns specified in `data`. Returns the key of the updated `AgentRetrievalEdge` or `null` if not found.
+  """
+  agentRetrievalEdge_update(
+    """
+    The key used to identify the object.
+    """
+    key: AgentRetrievalEdge_Key
+
+    """
+    Fetch the first row based on the filters and ordering.
+    """
+    first: AgentRetrievalEdge_FirstRow
+
+    """
+    Data object containing fields to be updated.
+    """
+    data: AgentRetrievalEdge_Data!
+  ): AgentRetrievalEdge_KeyOutput @fdc_generated(from: "AgentRetrievalEdge", purpose: UPDATE_SINGLE)
+  """
+  ✨ Update a single `AgentSurfaceMap` based on `id`, `key` or `first`, setting columns specified in `data`. Returns the key of the updated `AgentSurfaceMap` or `null` if not found.
+  """
+  agentSurfaceMap_update(
+    """
+    The key used to identify the object.
+    """
+    key: AgentSurfaceMap_Key
+
+    """
+    Fetch the first row based on the filters and ordering.
+    """
+    first: AgentSurfaceMap_FirstRow
+
+    """
+    Data object containing fields to be updated.
+    """
+    data: AgentSurfaceMap_Data!
+  ): AgentSurfaceMap_KeyOutput @fdc_generated(from: "AgentSurfaceMap", purpose: UPDATE_SINGLE)
+  """
+  ✨ Update a single `AgentTaskContextRun` based on `id`, `key` or `first`, setting columns specified in `data`. Returns the key of the updated `AgentTaskContextRun` or `null` if not found.
+  """
+  agentTaskContextRun_update(
+    """
+    The key used to identify the object.
+    """
+    key: AgentTaskContextRun_Key
+
+    """
+    Fetch the first row based on the filters and ordering.
+    """
+    first: AgentTaskContextRun_FirstRow
+
+    """
+    Data object containing fields to be updated.
+    """
+    data: AgentTaskContextRun_Data!
+  ): AgentTaskContextRun_KeyOutput @fdc_generated(from: "AgentTaskContextRun", purpose: UPDATE_SINGLE)
+  """
+  ✨ Update a single `AgentVerificationCommand` based on `id`, `key` or `first`, setting columns specified in `data`. Returns the key of the updated `AgentVerificationCommand` or `null` if not found.
+  """
+  agentVerificationCommand_update(
+    """
+    The key used to identify the object.
+    """
+    key: AgentVerificationCommand_Key
+
+    """
+    Fetch the first row based on the filters and ordering.
+    """
+    first: AgentVerificationCommand_FirstRow
+
+    """
+    Data object containing fields to be updated.
+    """
+    data: AgentVerificationCommand_Data!
+  ): AgentVerificationCommand_KeyOutput @fdc_generated(from: "AgentVerificationCommand", purpose: UPDATE_SINGLE)
+  """
+  ✨ Update a single `CreatorAffinityVector` based on `id`, `key` or `first`, setting columns specified in `data`. Returns the key of the updated `CreatorAffinityVector` or `null` if not found.
+  """
+  creatorAffinityVector_update(
+    """
+    The key used to identify the object.
+    """
+    key: CreatorAffinityVector_Key
+
+    """
+    Fetch the first row based on the filters and ordering.
+    """
+    first: CreatorAffinityVector_FirstRow
+
+    """
+    Data object containing fields to be updated.
+    """
+    data: CreatorAffinityVector_Data!
+  ): CreatorAffinityVector_KeyOutput @fdc_generated(from: "CreatorAffinityVector", purpose: UPDATE_SINGLE)
+  """
+  ✨ Update a single `DropInterestVector` based on `id`, `key` or `first`, setting columns specified in `data`. Returns the key of the updated `DropInterestVector` or `null` if not found.
+  """
+  dropInterestVector_update(
+    """
+    The key used to identify the object.
+    """
+    key: DropInterestVector_Key
+
+    """
+    Fetch the first row based on the filters and ordering.
+    """
+    first: DropInterestVector_FirstRow
+
+    """
+    Data object containing fields to be updated.
+    """
+    data: DropInterestVector_Data!
+  ): DropInterestVector_KeyOutput @fdc_generated(from: "DropInterestVector", purpose: UPDATE_SINGLE)
+  """
+  ✨ Update a single `GuestFeatureProfile` based on `id`, `key` or `first`, setting columns specified in `data`. Returns the key of the updated `GuestFeatureProfile` or `null` if not found.
+  """
+  guestFeatureProfile_update(
+    """
+    The key used to identify the object.
+    """
+    key: GuestFeatureProfile_Key
+
+    """
+    Fetch the first row based on the filters and ordering.
+    """
+    first: GuestFeatureProfile_FirstRow
+
+    """
+    Data object containing fields to be updated.
+    """
+    data: GuestFeatureProfile_Data!
+  ): GuestFeatureProfile_KeyOutput @fdc_generated(from: "GuestFeatureProfile", purpose: UPDATE_SINGLE)
+  """
+  ✨ Update a single `UserFeatureProfile` based on `id`, `key` or `first`, setting columns specified in `data`. Returns the key of the updated `UserFeatureProfile` or `null` if not found.
+  """
+  userFeatureProfile_update(
+    """
+    The key used to identify the object.
+    """
+    key: UserFeatureProfile_Key
+
+    """
+    Fetch the first row based on the filters and ordering.
+    """
+    first: UserFeatureProfile_FirstRow
+
+    """
+    Data object containing fields to be updated.
+    """
+    data: UserFeatureProfile_Data!
+  ): UserFeatureProfile_KeyOutput @fdc_generated(from: "UserFeatureProfile", purpose: UPDATE_SINGLE)
+  """
+  ✨ Update `AgentActiveTask` objects matching `where` conditions (or `all`, if true) according to `data`. Returns the number of rows updated.
+  """
+  agentActiveTask_updateMany(
+    """
+    Filter condition to specify which rows to update.
+    """
+    where: AgentActiveTask_Filter
+
+    """
+    Set to true to update all rows.
+    """
+    all: Boolean = false
+
+    """
+    Data object containing fields to update.
+    """
+    data: AgentActiveTask_Data!
+  ): Int! @fdc_generated(from: "AgentActiveTask", purpose: UPDATE_MULTIPLE)
+  """
+  ✨ Update `AgentCanonicalHelper` objects matching `where` conditions (or `all`, if true) according to `data`. Returns the number of rows updated.
+  """
+  agentCanonicalHelper_updateMany(
+    """
+    Filter condition to specify which rows to update.
+    """
+    where: AgentCanonicalHelper_Filter
+
+    """
+    Set to true to update all rows.
+    """
+    all: Boolean = false
+
+    """
+    Data object containing fields to update.
+    """
+    data: AgentCanonicalHelper_Data!
+  ): Int! @fdc_generated(from: "AgentCanonicalHelper", purpose: UPDATE_MULTIPLE)
+  """
+  ✨ Update `AgentHandoff` objects matching `where` conditions (or `all`, if true) according to `data`. Returns the number of rows updated.
+  """
+  agentHandoff_updateMany(
+    """
+    Filter condition to specify which rows to update.
+    """
+    where: AgentHandoff_Filter
+
+    """
+    Set to true to update all rows.
+    """
+    all: Boolean = false
+
+    """
+    Data object containing fields to update.
+    """
+    data: AgentHandoff_Data!
+  ): Int! @fdc_generated(from: "AgentHandoff", purpose: UPDATE_MULTIPLE)
+  """
+  ✨ Update `AgentKnowledgeRecord` objects matching `where` conditions (or `all`, if true) according to `data`. Returns the number of rows updated.
+  """
+  agentKnowledgeRecord_updateMany(
+    """
+    Filter condition to specify which rows to update.
+    """
+    where: AgentKnowledgeRecord_Filter
+
+    """
+    Set to true to update all rows.
+    """
+    all: Boolean = false
+
+    """
+    Data object containing fields to update.
+    """
+    data: AgentKnowledgeRecord_Data!
+  ): Int! @fdc_generated(from: "AgentKnowledgeRecord", purpose: UPDATE_MULTIPLE)
+  """
+  ✨ Update `AgentRepoInventory` objects matching `where` conditions (or `all`, if true) according to `data`. Returns the number of rows updated.
+  """
+  agentRepoInventory_updateMany(
+    """
+    Filter condition to specify which rows to update.
+    """
+    where: AgentRepoInventory_Filter
+
+    """
+    Set to true to update all rows.
+    """
+    all: Boolean = false
+
+    """
+    Data object containing fields to update.
+    """
+    data: AgentRepoInventory_Data!
+  ): Int! @fdc_generated(from: "AgentRepoInventory", purpose: UPDATE_MULTIPLE)
+  """
+  ✨ Update `AgentRetrievalEdge` objects matching `where` conditions (or `all`, if true) according to `data`. Returns the number of rows updated.
+  """
+  agentRetrievalEdge_updateMany(
+    """
+    Filter condition to specify which rows to update.
+    """
+    where: AgentRetrievalEdge_Filter
+
+    """
+    Set to true to update all rows.
+    """
+    all: Boolean = false
+
+    """
+    Data object containing fields to update.
+    """
+    data: AgentRetrievalEdge_Data!
+  ): Int! @fdc_generated(from: "AgentRetrievalEdge", purpose: UPDATE_MULTIPLE)
+  """
+  ✨ Update `AgentSurfaceMap` objects matching `where` conditions (or `all`, if true) according to `data`. Returns the number of rows updated.
+  """
+  agentSurfaceMap_updateMany(
+    """
+    Filter condition to specify which rows to update.
+    """
+    where: AgentSurfaceMap_Filter
+
+    """
+    Set to true to update all rows.
+    """
+    all: Boolean = false
+
+    """
+    Data object containing fields to update.
+    """
+    data: AgentSurfaceMap_Data!
+  ): Int! @fdc_generated(from: "AgentSurfaceMap", purpose: UPDATE_MULTIPLE)
+  """
+  ✨ Update `AgentTaskContextRun` objects matching `where` conditions (or `all`, if true) according to `data`. Returns the number of rows updated.
+  """
+  agentTaskContextRun_updateMany(
+    """
+    Filter condition to specify which rows to update.
+    """
+    where: AgentTaskContextRun_Filter
+
+    """
+    Set to true to update all rows.
+    """
+    all: Boolean = false
+
+    """
+    Data object containing fields to update.
+    """
+    data: AgentTaskContextRun_Data!
+  ): Int! @fdc_generated(from: "AgentTaskContextRun", purpose: UPDATE_MULTIPLE)
+  """
+  ✨ Update `AgentVerificationCommand` objects matching `where` conditions (or `all`, if true) according to `data`. Returns the number of rows updated.
+  """
+  agentVerificationCommand_updateMany(
+    """
+    Filter condition to specify which rows to update.
+    """
+    where: AgentVerificationCommand_Filter
+
+    """
+    Set to true to update all rows.
+    """
+    all: Boolean = false
+
+    """
+    Data object containing fields to update.
+    """
+    data: AgentVerificationCommand_Data!
+  ): Int! @fdc_generated(from: "AgentVerificationCommand", purpose: UPDATE_MULTIPLE)
+  """
+  ✨ Update `CreatorAffinityVector` objects matching `where` conditions (or `all`, if true) according to `data`. Returns the number of rows updated.
+  """
+  creatorAffinityVector_updateMany(
+    """
+    Filter condition to specify which rows to update.
+    """
+    where: CreatorAffinityVector_Filter
+
+    """
+    Set to true to update all rows.
+    """
+    all: Boolean = false
+
+    """
+    Data object containing fields to update.
+    """
+    data: CreatorAffinityVector_Data!
+  ): Int! @fdc_generated(from: "CreatorAffinityVector", purpose: UPDATE_MULTIPLE)
+  """
+  ✨ Update `DropInterestVector` objects matching `where` conditions (or `all`, if true) according to `data`. Returns the number of rows updated.
+  """
+  dropInterestVector_updateMany(
+    """
+    Filter condition to specify which rows to update.
+    """
+    where: DropInterestVector_Filter
+
+    """
+    Set to true to update all rows.
+    """
+    all: Boolean = false
+
+    """
+    Data object containing fields to update.
+    """
+    data: DropInterestVector_Data!
+  ): Int! @fdc_generated(from: "DropInterestVector", purpose: UPDATE_MULTIPLE)
+  """
+  ✨ Update `GuestFeatureProfile` objects matching `where` conditions (or `all`, if true) according to `data`. Returns the number of rows updated.
+  """
+  guestFeatureProfile_updateMany(
+    """
+    Filter condition to specify which rows to update.
+    """
+    where: GuestFeatureProfile_Filter
+
+    """
+    Set to true to update all rows.
+    """
+    all: Boolean = false
+
+    """
+    Data object containing fields to update.
+    """
+    data: GuestFeatureProfile_Data!
+  ): Int! @fdc_generated(from: "GuestFeatureProfile", purpose: UPDATE_MULTIPLE)
+  """
+  ✨ Update `UserFeatureProfile` objects matching `where` conditions (or `all`, if true) according to `data`. Returns the number of rows updated.
+  """
+  userFeatureProfile_updateMany(
+    """
+    Filter condition to specify which rows to update.
+    """
+    where: UserFeatureProfile_Filter
+
+    """
+    Set to true to update all rows.
+    """
+    all: Boolean = false
+
+    """
+    Data object containing fields to update.
+    """
+    data: UserFeatureProfile_Data!
+  ): Int! @fdc_generated(from: "UserFeatureProfile", purpose: UPDATE_MULTIPLE)
+  """
+  ✨ Delete a single `AgentActiveTask` based on `id`, `key` or `first` and return its key (or `null` if not found).
+  """
+  agentActiveTask_delete(
+    """
+    The key used to identify the object.
+    """
+    key: AgentActiveTask_Key
+
+    """
+    Fetch the first row based on the filters and ordering.
+    """
+    first: AgentActiveTask_FirstRow
+  ): AgentActiveTask_KeyOutput @fdc_generated(from: "AgentActiveTask", purpose: DELETE_SINGLE)
+  """
+  ✨ Delete a single `AgentCanonicalHelper` based on `id`, `key` or `first` and return its key (or `null` if not found).
+  """
+  agentCanonicalHelper_delete(
+    """
+    The key used to identify the object.
+    """
+    key: AgentCanonicalHelper_Key
+
+    """
+    Fetch the first row based on the filters and ordering.
+    """
+    first: AgentCanonicalHelper_FirstRow
+  ): AgentCanonicalHelper_KeyOutput @fdc_generated(from: "AgentCanonicalHelper", purpose: DELETE_SINGLE)
+  """
+  ✨ Delete a single `AgentHandoff` based on `id`, `key` or `first` and return its key (or `null` if not found).
+  """
+  agentHandoff_delete(
+    """
+    The key used to identify the object.
+    """
+    key: AgentHandoff_Key
+
+    """
+    Fetch the first row based on the filters and ordering.
+    """
+    first: AgentHandoff_FirstRow
+  ): AgentHandoff_KeyOutput @fdc_generated(from: "AgentHandoff", purpose: DELETE_SINGLE)
+  """
+  ✨ Delete a single `AgentKnowledgeRecord` based on `id`, `key` or `first` and return its key (or `null` if not found).
+  """
+  agentKnowledgeRecord_delete(
+    """
+    The key used to identify the object.
+    """
+    key: AgentKnowledgeRecord_Key
+
+    """
+    Fetch the first row based on the filters and ordering.
+    """
+    first: AgentKnowledgeRecord_FirstRow
+  ): AgentKnowledgeRecord_KeyOutput @fdc_generated(from: "AgentKnowledgeRecord", purpose: DELETE_SINGLE)
+  """
+  ✨ Delete a single `AgentRepoInventory` based on `id`, `key` or `first` and return its key (or `null` if not found).
+  """
+  agentRepoInventory_delete(
+    """
+    The key used to identify the object.
+    """
+    key: AgentRepoInventory_Key
+
+    """
+    Fetch the first row based on the filters and ordering.
+    """
+    first: AgentRepoInventory_FirstRow
+  ): AgentRepoInventory_KeyOutput @fdc_generated(from: "AgentRepoInventory", purpose: DELETE_SINGLE)
+  """
+  ✨ Delete a single `AgentRetrievalEdge` based on `id`, `key` or `first` and return its key (or `null` if not found).
+  """
+  agentRetrievalEdge_delete(
+    """
+    The key used to identify the object.
+    """
+    key: AgentRetrievalEdge_Key
+
+    """
+    Fetch the first row based on the filters and ordering.
+    """
+    first: AgentRetrievalEdge_FirstRow
+  ): AgentRetrievalEdge_KeyOutput @fdc_generated(from: "AgentRetrievalEdge", purpose: DELETE_SINGLE)
+  """
+  ✨ Delete a single `AgentSurfaceMap` based on `id`, `key` or `first` and return its key (or `null` if not found).
+  """
+  agentSurfaceMap_delete(
+    """
+    The key used to identify the object.
+    """
+    key: AgentSurfaceMap_Key
+
+    """
+    Fetch the first row based on the filters and ordering.
+    """
+    first: AgentSurfaceMap_FirstRow
+  ): AgentSurfaceMap_KeyOutput @fdc_generated(from: "AgentSurfaceMap", purpose: DELETE_SINGLE)
+  """
+  ✨ Delete a single `AgentTaskContextRun` based on `id`, `key` or `first` and return its key (or `null` if not found).
+  """
+  agentTaskContextRun_delete(
+    """
+    The key used to identify the object.
+    """
+    key: AgentTaskContextRun_Key
+
+    """
+    Fetch the first row based on the filters and ordering.
+    """
+    first: AgentTaskContextRun_FirstRow
+  ): AgentTaskContextRun_KeyOutput @fdc_generated(from: "AgentTaskContextRun", purpose: DELETE_SINGLE)
+  """
+  ✨ Delete a single `AgentVerificationCommand` based on `id`, `key` or `first` and return its key (or `null` if not found).
+  """
+  agentVerificationCommand_delete(
+    """
+    The key used to identify the object.
+    """
+    key: AgentVerificationCommand_Key
+
+    """
+    Fetch the first row based on the filters and ordering.
+    """
+    first: AgentVerificationCommand_FirstRow
+  ): AgentVerificationCommand_KeyOutput @fdc_generated(from: "AgentVerificationCommand", purpose: DELETE_SINGLE)
+  """
+  ✨ Delete a single `CreatorAffinityVector` based on `id`, `key` or `first` and return its key (or `null` if not found).
+  """
+  creatorAffinityVector_delete(
+    """
+    The key used to identify the object.
+    """
+    key: CreatorAffinityVector_Key
+
+    """
+    Fetch the first row based on the filters and ordering.
+    """
+    first: CreatorAffinityVector_FirstRow
+  ): CreatorAffinityVector_KeyOutput @fdc_generated(from: "CreatorAffinityVector", purpose: DELETE_SINGLE)
+  """
+  ✨ Delete a single `DropInterestVector` based on `id`, `key` or `first` and return its key (or `null` if not found).
+  """
+  dropInterestVector_delete(
+    """
+    The key used to identify the object.
+    """
+    key: DropInterestVector_Key
+
+    """
+    Fetch the first row based on the filters and ordering.
+    """
+    first: DropInterestVector_FirstRow
+  ): DropInterestVector_KeyOutput @fdc_generated(from: "DropInterestVector", purpose: DELETE_SINGLE)
+  """
+  ✨ Delete a single `GuestFeatureProfile` based on `id`, `key` or `first` and return its key (or `null` if not found).
+  """
+  guestFeatureProfile_delete(
+    """
+    The key used to identify the object.
+    """
+    key: GuestFeatureProfile_Key
+
+    """
+    Fetch the first row based on the filters and ordering.
+    """
+    first: GuestFeatureProfile_FirstRow
+  ): GuestFeatureProfile_KeyOutput @fdc_generated(from: "GuestFeatureProfile", purpose: DELETE_SINGLE)
+  """
+  ✨ Delete a single `UserFeatureProfile` based on `id`, `key` or `first` and return its key (or `null` if not found).
+  """
+  userFeatureProfile_delete(
+    """
+    The key used to identify the object.
+    """
+    key: UserFeatureProfile_Key
+
+    """
+    Fetch the first row based on the filters and ordering.
+    """
+    first: UserFeatureProfile_FirstRow
+  ): UserFeatureProfile_KeyOutput @fdc_generated(from: "UserFeatureProfile", purpose: DELETE_SINGLE)
+  """
+  ✨ Delete `AgentActiveTask` objects matching `where` conditions (or `all`, if true). Returns the number of rows deleted.
+  """
+  agentActiveTask_deleteMany(
+    """
+    Filter condition to specify which rows to delete.
+    """
+    where: AgentActiveTask_Filter
+
+    """
+    Set to true to delete all rows.
+    """
+    all: Boolean = false
+  ): Int! @fdc_generated(from: "AgentActiveTask", purpose: DELETE_MULTIPLE)
+  """
+  ✨ Delete `AgentCanonicalHelper` objects matching `where` conditions (or `all`, if true). Returns the number of rows deleted.
+  """
+  agentCanonicalHelper_deleteMany(
+    """
+    Filter condition to specify which rows to delete.
+    """
+    where: AgentCanonicalHelper_Filter
+
+    """
+    Set to true to delete all rows.
+    """
+    all: Boolean = false
+  ): Int! @fdc_generated(from: "AgentCanonicalHelper", purpose: DELETE_MULTIPLE)
+  """
+  ✨ Delete `AgentHandoff` objects matching `where` conditions (or `all`, if true). Returns the number of rows deleted.
+  """
+  agentHandoff_deleteMany(
+    """
+    Filter condition to specify which rows to delete.
+    """
+    where: AgentHandoff_Filter
+
+    """
+    Set to true to delete all rows.
+    """
+    all: Boolean = false
+  ): Int! @fdc_generated(from: "AgentHandoff", purpose: DELETE_MULTIPLE)
+  """
+  ✨ Delete `AgentKnowledgeRecord` objects matching `where` conditions (or `all`, if true). Returns the number of rows deleted.
+  """
+  agentKnowledgeRecord_deleteMany(
+    """
+    Filter condition to specify which rows to delete.
+    """
+    where: AgentKnowledgeRecord_Filter
+
+    """
+    Set to true to delete all rows.
+    """
+    all: Boolean = false
+  ): Int! @fdc_generated(from: "AgentKnowledgeRecord", purpose: DELETE_MULTIPLE)
+  """
+  ✨ Delete `AgentRepoInventory` objects matching `where` conditions (or `all`, if true). Returns the number of rows deleted.
+  """
+  agentRepoInventory_deleteMany(
+    """
+    Filter condition to specify which rows to delete.
+    """
+    where: AgentRepoInventory_Filter
+
+    """
+    Set to true to delete all rows.
+    """
+    all: Boolean = false
+  ): Int! @fdc_generated(from: "AgentRepoInventory", purpose: DELETE_MULTIPLE)
+  """
+  ✨ Delete `AgentRetrievalEdge` objects matching `where` conditions (or `all`, if true). Returns the number of rows deleted.
+  """
+  agentRetrievalEdge_deleteMany(
+    """
+    Filter condition to specify which rows to delete.
+    """
+    where: AgentRetrievalEdge_Filter
+
+    """
+    Set to true to delete all rows.
+    """
+    all: Boolean = false
+  ): Int! @fdc_generated(from: "AgentRetrievalEdge", purpose: DELETE_MULTIPLE)
+  """
+  ✨ Delete `AgentSurfaceMap` objects matching `where` conditions (or `all`, if true). Returns the number of rows deleted.
+  """
+  agentSurfaceMap_deleteMany(
+    """
+    Filter condition to specify which rows to delete.
+    """
+    where: AgentSurfaceMap_Filter
+
+    """
+    Set to true to delete all rows.
+    """
+    all: Boolean = false
+  ): Int! @fdc_generated(from: "AgentSurfaceMap", purpose: DELETE_MULTIPLE)
+  """
+  ✨ Delete `AgentTaskContextRun` objects matching `where` conditions (or `all`, if true). Returns the number of rows deleted.
+  """
+  agentTaskContextRun_deleteMany(
+    """
+    Filter condition to specify which rows to delete.
+    """
+    where: AgentTaskContextRun_Filter
+
+    """
+    Set to true to delete all rows.
+    """
+    all: Boolean = false
+  ): Int! @fdc_generated(from: "AgentTaskContextRun", purpose: DELETE_MULTIPLE)
+  """
+  ✨ Delete `AgentVerificationCommand` objects matching `where` conditions (or `all`, if true). Returns the number of rows deleted.
+  """
+  agentVerificationCommand_deleteMany(
+    """
+    Filter condition to specify which rows to delete.
+    """
+    where: AgentVerificationCommand_Filter
+
+    """
+    Set to true to delete all rows.
+    """
+    all: Boolean = false
+  ): Int! @fdc_generated(from: "AgentVerificationCommand", purpose: DELETE_MULTIPLE)
+  """
+  ✨ Delete `CreatorAffinityVector` objects matching `where` conditions (or `all`, if true). Returns the number of rows deleted.
+  """
+  creatorAffinityVector_deleteMany(
+    """
+    Filter condition to specify which rows to delete.
+    """
+    where: CreatorAffinityVector_Filter
+
+    """
+    Set to true to delete all rows.
+    """
+    all: Boolean = false
+  ): Int! @fdc_generated(from: "CreatorAffinityVector", purpose: DELETE_MULTIPLE)
+  """
+  ✨ Delete `DropInterestVector` objects matching `where` conditions (or `all`, if true). Returns the number of rows deleted.
+  """
+  dropInterestVector_deleteMany(
+    """
+    Filter condition to specify which rows to delete.
+    """
+    where: DropInterestVector_Filter
+
+    """
+    Set to true to delete all rows.
+    """
+    all: Boolean = false
+  ): Int! @fdc_generated(from: "DropInterestVector", purpose: DELETE_MULTIPLE)
+  """
+  ✨ Delete `GuestFeatureProfile` objects matching `where` conditions (or `all`, if true). Returns the number of rows deleted.
+  """
+  guestFeatureProfile_deleteMany(
+    """
+    Filter condition to specify which rows to delete.
+    """
+    where: GuestFeatureProfile_Filter
+
+    """
+    Set to true to delete all rows.
+    """
+    all: Boolean = false
+  ): Int! @fdc_generated(from: "GuestFeatureProfile", purpose: DELETE_MULTIPLE)
+  """
+  ✨ Delete `UserFeatureProfile` objects matching `where` conditions (or `all`, if true). Returns the number of rows deleted.
+  """
+  userFeatureProfile_deleteMany(
+    """
+    Filter condition to specify which rows to delete.
+    """
+    where: UserFeatureProfile_Filter
+
+    """
+    Set to true to delete all rows.
+    """
+    all: Boolean = false
+  ): Int! @fdc_generated(from: "UserFeatureProfile", purpose: DELETE_MULTIPLE)
+}

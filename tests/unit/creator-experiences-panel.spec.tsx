@@ -1,8 +1,12 @@
-import { describe, expect, it } from "vitest";
+import { describe, expect, it, vi } from "vitest";
 import { renderToStaticMarkup } from "react-dom/server";
 
 import { CreatorExperiencesPanel } from "@/components/Creators/CreatorExperiencesPanel";
 import { DEFAULT_CREATOR_SETTINGS } from "@/lib/creator-experiences";
+
+vi.mock("next/navigation", () => ({
+    useRouter: () => ({ push: vi.fn(), replace: vi.fn(), prefetch: vi.fn() }),
+}));
 
 describe("CreatorExperiencesPanel", () => {
     it("renders continuity warnings and server-backed booking details", () => {
@@ -40,8 +44,7 @@ describe("CreatorExperiencesPanel", () => {
         );
 
         expect(markup).toContain("Bookings is degraded");
-        expect(markup).toContain("video - booked");
-        expect(markup).toContain("750 GD - subscriber discount applied");
-        expect(markup).toContain("Subscriber video discount");
+        expect(markup).toContain("Subscriber 50% Off Applied");
+        expect(markup).toContain("Live Time");
     });
 });

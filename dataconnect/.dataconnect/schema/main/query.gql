@@ -1,0 +1,626 @@
+extend type Query {
+  """
+  ✨ Look up a single `AgentActiveTask` based on `id`, `key` or `first` and return selected fields (or `null` if not found).
+  """
+  agentActiveTask(
+    """
+    The key used to identify the object.
+    """
+    key: AgentActiveTask_Key
+
+    """
+    Fetch the first row based on the filters and ordering.
+    """
+    first: AgentActiveTask_FirstRow
+  ): AgentActiveTask @fdc_generated(from: "AgentActiveTask", purpose: QUERY_SINGLE)
+  """
+  ✨ Look up a single `AgentCanonicalHelper` based on `id`, `key` or `first` and return selected fields (or `null` if not found).
+  """
+  agentCanonicalHelper(
+    """
+    The key used to identify the object.
+    """
+    key: AgentCanonicalHelper_Key
+
+    """
+    Fetch the first row based on the filters and ordering.
+    """
+    first: AgentCanonicalHelper_FirstRow
+  ): AgentCanonicalHelper @fdc_generated(from: "AgentCanonicalHelper", purpose: QUERY_SINGLE)
+  """
+  ✨ Look up a single `AgentHandoff` based on `id`, `key` or `first` and return selected fields (or `null` if not found).
+  """
+  agentHandoff(
+    """
+    The key used to identify the object.
+    """
+    key: AgentHandoff_Key
+
+    """
+    Fetch the first row based on the filters and ordering.
+    """
+    first: AgentHandoff_FirstRow
+  ): AgentHandoff @fdc_generated(from: "AgentHandoff", purpose: QUERY_SINGLE)
+  """
+  ✨ Look up a single `AgentKnowledgeRecord` based on `id`, `key` or `first` and return selected fields (or `null` if not found).
+  """
+  agentKnowledgeRecord(
+    """
+    The key used to identify the object.
+    """
+    key: AgentKnowledgeRecord_Key
+
+    """
+    Fetch the first row based on the filters and ordering.
+    """
+    first: AgentKnowledgeRecord_FirstRow
+  ): AgentKnowledgeRecord @fdc_generated(from: "AgentKnowledgeRecord", purpose: QUERY_SINGLE)
+  """
+  ✨ Look up a single `AgentRepoInventory` based on `id`, `key` or `first` and return selected fields (or `null` if not found).
+  """
+  agentRepoInventory(
+    """
+    The key used to identify the object.
+    """
+    key: AgentRepoInventory_Key
+
+    """
+    Fetch the first row based on the filters and ordering.
+    """
+    first: AgentRepoInventory_FirstRow
+  ): AgentRepoInventory @fdc_generated(from: "AgentRepoInventory", purpose: QUERY_SINGLE)
+  """
+  ✨ Look up a single `AgentRetrievalEdge` based on `id`, `key` or `first` and return selected fields (or `null` if not found).
+  """
+  agentRetrievalEdge(
+    """
+    The key used to identify the object.
+    """
+    key: AgentRetrievalEdge_Key
+
+    """
+    Fetch the first row based on the filters and ordering.
+    """
+    first: AgentRetrievalEdge_FirstRow
+  ): AgentRetrievalEdge @fdc_generated(from: "AgentRetrievalEdge", purpose: QUERY_SINGLE)
+  """
+  ✨ Look up a single `AgentSurfaceMap` based on `id`, `key` or `first` and return selected fields (or `null` if not found).
+  """
+  agentSurfaceMap(
+    """
+    The key used to identify the object.
+    """
+    key: AgentSurfaceMap_Key
+
+    """
+    Fetch the first row based on the filters and ordering.
+    """
+    first: AgentSurfaceMap_FirstRow
+  ): AgentSurfaceMap @fdc_generated(from: "AgentSurfaceMap", purpose: QUERY_SINGLE)
+  """
+  ✨ Look up a single `AgentTaskContextRun` based on `id`, `key` or `first` and return selected fields (or `null` if not found).
+  """
+  agentTaskContextRun(
+    """
+    The key used to identify the object.
+    """
+    key: AgentTaskContextRun_Key
+
+    """
+    Fetch the first row based on the filters and ordering.
+    """
+    first: AgentTaskContextRun_FirstRow
+  ): AgentTaskContextRun @fdc_generated(from: "AgentTaskContextRun", purpose: QUERY_SINGLE)
+  """
+  ✨ Look up a single `AgentVerificationCommand` based on `id`, `key` or `first` and return selected fields (or `null` if not found).
+  """
+  agentVerificationCommand(
+    """
+    The key used to identify the object.
+    """
+    key: AgentVerificationCommand_Key
+
+    """
+    Fetch the first row based on the filters and ordering.
+    """
+    first: AgentVerificationCommand_FirstRow
+  ): AgentVerificationCommand @fdc_generated(from: "AgentVerificationCommand", purpose: QUERY_SINGLE)
+  """
+  ✨ Look up a single `CreatorAffinityVector` based on `id`, `key` or `first` and return selected fields (or `null` if not found).
+  """
+  creatorAffinityVector(
+    """
+    The key used to identify the object.
+    """
+    key: CreatorAffinityVector_Key
+
+    """
+    Fetch the first row based on the filters and ordering.
+    """
+    first: CreatorAffinityVector_FirstRow
+  ): CreatorAffinityVector @fdc_generated(from: "CreatorAffinityVector", purpose: QUERY_SINGLE)
+  """
+  ✨ Look up a single `DropInterestVector` based on `id`, `key` or `first` and return selected fields (or `null` if not found).
+  """
+  dropInterestVector(
+    """
+    The key used to identify the object.
+    """
+    key: DropInterestVector_Key
+
+    """
+    Fetch the first row based on the filters and ordering.
+    """
+    first: DropInterestVector_FirstRow
+  ): DropInterestVector @fdc_generated(from: "DropInterestVector", purpose: QUERY_SINGLE)
+  """
+  ✨ Look up a single `GuestFeatureProfile` based on `id`, `key` or `first` and return selected fields (or `null` if not found).
+  """
+  guestFeatureProfile(
+    """
+    The key used to identify the object.
+    """
+    key: GuestFeatureProfile_Key
+
+    """
+    Fetch the first row based on the filters and ordering.
+    """
+    first: GuestFeatureProfile_FirstRow
+  ): GuestFeatureProfile @fdc_generated(from: "GuestFeatureProfile", purpose: QUERY_SINGLE)
+  """
+  ✨ Look up a single `UserFeatureProfile` based on `id`, `key` or `first` and return selected fields (or `null` if not found).
+  """
+  userFeatureProfile(
+    """
+    The key used to identify the object.
+    """
+    key: UserFeatureProfile_Key
+
+    """
+    Fetch the first row based on the filters and ordering.
+    """
+    first: UserFeatureProfile_FirstRow
+  ): UserFeatureProfile @fdc_generated(from: "UserFeatureProfile", purpose: QUERY_SINGLE)
+  """
+  ✨ List `AgentActiveTask` objects in the table and return selected fields, optionally filtered by `where` conditions
+  """
+  agentActiveTasks(
+    """
+    Filter condition to narrow down the query results.
+    """
+    where: AgentActiveTask_Filter
+
+    """
+    Order the query results by specific fields.
+    """
+    orderBy: [AgentActiveTask_Order!]
+
+    """
+    Number of rows to skip before starting to return the results.
+    """
+    offset: Int
+
+    """
+    Maximum number of rows to return (defaults to 100 rows).
+    """
+    limit: Int = 100
+
+    """
+    Set to true to return distinct results.
+    """
+    distinct: Boolean = false
+
+    """
+    Filter condition to apply to the groups of aggregate queries.
+    """
+    having: AgentActiveTask_Having
+  ): [AgentActiveTask!]! @fdc_generated(from: "AgentActiveTask", purpose: QUERY_MULTIPLE)
+  """
+  ✨ List `AgentCanonicalHelper` objects in the table and return selected fields, optionally filtered by `where` conditions
+  """
+  agentCanonicalHelpers(
+    """
+    Filter condition to narrow down the query results.
+    """
+    where: AgentCanonicalHelper_Filter
+
+    """
+    Order the query results by specific fields.
+    """
+    orderBy: [AgentCanonicalHelper_Order!]
+
+    """
+    Number of rows to skip before starting to return the results.
+    """
+    offset: Int
+
+    """
+    Maximum number of rows to return (defaults to 100 rows).
+    """
+    limit: Int = 100
+
+    """
+    Set to true to return distinct results.
+    """
+    distinct: Boolean = false
+
+    """
+    Filter condition to apply to the groups of aggregate queries.
+    """
+    having: AgentCanonicalHelper_Having
+  ): [AgentCanonicalHelper!]! @fdc_generated(from: "AgentCanonicalHelper", purpose: QUERY_MULTIPLE)
+  """
+  ✨ List `AgentHandoff` objects in the table and return selected fields, optionally filtered by `where` conditions
+  """
+  agentHandoffs(
+    """
+    Filter condition to narrow down the query results.
+    """
+    where: AgentHandoff_Filter
+
+    """
+    Order the query results by specific fields.
+    """
+    orderBy: [AgentHandoff_Order!]
+
+    """
+    Number of rows to skip before starting to return the results.
+    """
+    offset: Int
+
+    """
+    Maximum number of rows to return (defaults to 100 rows).
+    """
+    limit: Int = 100
+
+    """
+    Set to true to return distinct results.
+    """
+    distinct: Boolean = false
+
+    """
+    Filter condition to apply to the groups of aggregate queries.
+    """
+    having: AgentHandoff_Having
+  ): [AgentHandoff!]! @fdc_generated(from: "AgentHandoff", purpose: QUERY_MULTIPLE)
+  """
+  ✨ List `AgentKnowledgeRecord` objects in the table and return selected fields, optionally filtered by `where` conditions
+  """
+  agentKnowledgeRecords(
+    """
+    Filter condition to narrow down the query results.
+    """
+    where: AgentKnowledgeRecord_Filter
+
+    """
+    Order the query results by specific fields.
+    """
+    orderBy: [AgentKnowledgeRecord_Order!]
+
+    """
+    Number of rows to skip before starting to return the results.
+    """
+    offset: Int
+
+    """
+    Maximum number of rows to return (defaults to 100 rows).
+    """
+    limit: Int = 100
+
+    """
+    Set to true to return distinct results.
+    """
+    distinct: Boolean = false
+
+    """
+    Filter condition to apply to the groups of aggregate queries.
+    """
+    having: AgentKnowledgeRecord_Having
+  ): [AgentKnowledgeRecord!]! @fdc_generated(from: "AgentKnowledgeRecord", purpose: QUERY_MULTIPLE)
+  """
+  ✨ List `AgentRepoInventory` objects in the table and return selected fields, optionally filtered by `where` conditions
+  """
+  agentRepoInventories(
+    """
+    Filter condition to narrow down the query results.
+    """
+    where: AgentRepoInventory_Filter
+
+    """
+    Order the query results by specific fields.
+    """
+    orderBy: [AgentRepoInventory_Order!]
+
+    """
+    Number of rows to skip before starting to return the results.
+    """
+    offset: Int
+
+    """
+    Maximum number of rows to return (defaults to 100 rows).
+    """
+    limit: Int = 100
+
+    """
+    Set to true to return distinct results.
+    """
+    distinct: Boolean = false
+
+    """
+    Filter condition to apply to the groups of aggregate queries.
+    """
+    having: AgentRepoInventory_Having
+  ): [AgentRepoInventory!]! @fdc_generated(from: "AgentRepoInventory", purpose: QUERY_MULTIPLE)
+  """
+  ✨ List `AgentRetrievalEdge` objects in the table and return selected fields, optionally filtered by `where` conditions
+  """
+  agentRetrievalEdges(
+    """
+    Filter condition to narrow down the query results.
+    """
+    where: AgentRetrievalEdge_Filter
+
+    """
+    Order the query results by specific fields.
+    """
+    orderBy: [AgentRetrievalEdge_Order!]
+
+    """
+    Number of rows to skip before starting to return the results.
+    """
+    offset: Int
+
+    """
+    Maximum number of rows to return (defaults to 100 rows).
+    """
+    limit: Int = 100
+
+    """
+    Set to true to return distinct results.
+    """
+    distinct: Boolean = false
+
+    """
+    Filter condition to apply to the groups of aggregate queries.
+    """
+    having: AgentRetrievalEdge_Having
+  ): [AgentRetrievalEdge!]! @fdc_generated(from: "AgentRetrievalEdge", purpose: QUERY_MULTIPLE)
+  """
+  ✨ List `AgentSurfaceMap` objects in the table and return selected fields, optionally filtered by `where` conditions
+  """
+  agentSurfaceMaps(
+    """
+    Filter condition to narrow down the query results.
+    """
+    where: AgentSurfaceMap_Filter
+
+    """
+    Order the query results by specific fields.
+    """
+    orderBy: [AgentSurfaceMap_Order!]
+
+    """
+    Number of rows to skip before starting to return the results.
+    """
+    offset: Int
+
+    """
+    Maximum number of rows to return (defaults to 100 rows).
+    """
+    limit: Int = 100
+
+    """
+    Set to true to return distinct results.
+    """
+    distinct: Boolean = false
+
+    """
+    Filter condition to apply to the groups of aggregate queries.
+    """
+    having: AgentSurfaceMap_Having
+  ): [AgentSurfaceMap!]! @fdc_generated(from: "AgentSurfaceMap", purpose: QUERY_MULTIPLE)
+  """
+  ✨ List `AgentTaskContextRun` objects in the table and return selected fields, optionally filtered by `where` conditions
+  """
+  agentTaskContextRuns(
+    """
+    Filter condition to narrow down the query results.
+    """
+    where: AgentTaskContextRun_Filter
+
+    """
+    Order the query results by specific fields.
+    """
+    orderBy: [AgentTaskContextRun_Order!]
+
+    """
+    Number of rows to skip before starting to return the results.
+    """
+    offset: Int
+
+    """
+    Maximum number of rows to return (defaults to 100 rows).
+    """
+    limit: Int = 100
+
+    """
+    Set to true to return distinct results.
+    """
+    distinct: Boolean = false
+
+    """
+    Filter condition to apply to the groups of aggregate queries.
+    """
+    having: AgentTaskContextRun_Having
+  ): [AgentTaskContextRun!]! @fdc_generated(from: "AgentTaskContextRun", purpose: QUERY_MULTIPLE)
+  """
+  ✨ List `AgentVerificationCommand` objects in the table and return selected fields, optionally filtered by `where` conditions
+  """
+  agentVerificationCommands(
+    """
+    Filter condition to narrow down the query results.
+    """
+    where: AgentVerificationCommand_Filter
+
+    """
+    Order the query results by specific fields.
+    """
+    orderBy: [AgentVerificationCommand_Order!]
+
+    """
+    Number of rows to skip before starting to return the results.
+    """
+    offset: Int
+
+    """
+    Maximum number of rows to return (defaults to 100 rows).
+    """
+    limit: Int = 100
+
+    """
+    Set to true to return distinct results.
+    """
+    distinct: Boolean = false
+
+    """
+    Filter condition to apply to the groups of aggregate queries.
+    """
+    having: AgentVerificationCommand_Having
+  ): [AgentVerificationCommand!]! @fdc_generated(from: "AgentVerificationCommand", purpose: QUERY_MULTIPLE)
+  """
+  ✨ List `CreatorAffinityVector` objects in the table and return selected fields, optionally filtered by `where` conditions
+  """
+  creatorAffinityVectors(
+    """
+    Filter condition to narrow down the query results.
+    """
+    where: CreatorAffinityVector_Filter
+
+    """
+    Order the query results by specific fields.
+    """
+    orderBy: [CreatorAffinityVector_Order!]
+
+    """
+    Number of rows to skip before starting to return the results.
+    """
+    offset: Int
+
+    """
+    Maximum number of rows to return (defaults to 100 rows).
+    """
+    limit: Int = 100
+
+    """
+    Set to true to return distinct results.
+    """
+    distinct: Boolean = false
+
+    """
+    Filter condition to apply to the groups of aggregate queries.
+    """
+    having: CreatorAffinityVector_Having
+  ): [CreatorAffinityVector!]! @fdc_generated(from: "CreatorAffinityVector", purpose: QUERY_MULTIPLE)
+  """
+  ✨ List `DropInterestVector` objects in the table and return selected fields, optionally filtered by `where` conditions
+  """
+  dropInterestVectors(
+    """
+    Filter condition to narrow down the query results.
+    """
+    where: DropInterestVector_Filter
+
+    """
+    Order the query results by specific fields.
+    """
+    orderBy: [DropInterestVector_Order!]
+
+    """
+    Number of rows to skip before starting to return the results.
+    """
+    offset: Int
+
+    """
+    Maximum number of rows to return (defaults to 100 rows).
+    """
+    limit: Int = 100
+
+    """
+    Set to true to return distinct results.
+    """
+    distinct: Boolean = false
+
+    """
+    Filter condition to apply to the groups of aggregate queries.
+    """
+    having: DropInterestVector_Having
+  ): [DropInterestVector!]! @fdc_generated(from: "DropInterestVector", purpose: QUERY_MULTIPLE)
+  """
+  ✨ List `GuestFeatureProfile` objects in the table and return selected fields, optionally filtered by `where` conditions
+  """
+  guestFeatureProfiles(
+    """
+    Filter condition to narrow down the query results.
+    """
+    where: GuestFeatureProfile_Filter
+
+    """
+    Order the query results by specific fields.
+    """
+    orderBy: [GuestFeatureProfile_Order!]
+
+    """
+    Number of rows to skip before starting to return the results.
+    """
+    offset: Int
+
+    """
+    Maximum number of rows to return (defaults to 100 rows).
+    """
+    limit: Int = 100
+
+    """
+    Set to true to return distinct results.
+    """
+    distinct: Boolean = false
+
+    """
+    Filter condition to apply to the groups of aggregate queries.
+    """
+    having: GuestFeatureProfile_Having
+  ): [GuestFeatureProfile!]! @fdc_generated(from: "GuestFeatureProfile", purpose: QUERY_MULTIPLE)
+  """
+  ✨ List `UserFeatureProfile` objects in the table and return selected fields, optionally filtered by `where` conditions
+  """
+  userFeatureProfiles(
+    """
+    Filter condition to narrow down the query results.
+    """
+    where: UserFeatureProfile_Filter
+
+    """
+    Order the query results by specific fields.
+    """
+    orderBy: [UserFeatureProfile_Order!]
+
+    """
+    Number of rows to skip before starting to return the results.
+    """
+    offset: Int
+
+    """
+    Maximum number of rows to return (defaults to 100 rows).
+    """
+    limit: Int = 100
+
+    """
+    Set to true to return distinct results.
+    """
+    distinct: Boolean = false
+
+    """
+    Filter condition to apply to the groups of aggregate queries.
+    """
+    having: UserFeatureProfile_Having
+  ): [UserFeatureProfile!]! @fdc_generated(from: "UserFeatureProfile", purpose: QUERY_MULTIPLE)
+}

@@ -1,5 +1,23 @@
-# Agent Instructions
+﻿# Agent Instructions
 
+> [!CAUTION]
+> **MANDATORY CONTROL TOWER ROUTING:**
+> Before touching UI, copy, telemetry, state, admin truth, or Firebase architecture, you MUST start with /control-tower/00-START-HERE.md.
+> Do not bypass the control tower execution order.
+
+> [!CAUTION]
+> **STRICT DOCTRINE ENFORCEMENT:**
+> NO UI, copy, or product-facing adjustment is permitted without first consulting the doctrine files in /docs/doctrine/.
+> You are explicitly forbidden from freestyling, guessing, or making improvisational "improvements" to the UI or copy.
+> 
+> **MANDATORY PRE-REQUISITE:**
+> Before modifying any user-facing code, you MUST execute the doctrine-consultation.md skill and follow the ui-copy-refinement-workflow.md located in the /.agent/ directory.
+> 
+> **CONFLICT RESOLUTION:**
+> If the doctrine conflicts with your local LLM intuition or generic "best practices," **THE DOCTRINE WINS.** If the doctrine is insufficient, you must intentionally update the doctrine first before implementing the change.
+> 
+> **HOLISTIC ENGINEERING:**
+> Every touched feature must account for UI, State, Telemetry, and Audit paths.
 ## Truth Order
 
 Use this authority order for every task:
@@ -192,7 +210,7 @@ Massive monolithic un-maintainable files are forbidden.
 ## Admin Truth UI Rules (SEO, A11y, Perf)
 Operational admin dashboards must explicitly convey exact data source states.
 Labels must be explicit: [live], [cached], [stale], [fallback], [partial], [failed], [unknown]. 
-If a check fails or lacks canonical telemetry hooks, the admin UI must strictly fail�NO fake fallback \"green/healthy\" blocks.
+If a check fails or lacks canonical telemetry hooks, the admin UI must strictly fail—NO fake fallback \"green/healthy\" blocks.
 
 ## A/B Testing Readiness & Safety
 Anticipate structural iteration, but do it safely.
@@ -206,3 +224,5 @@ Anticipate structural iteration, but do it safely.
 Antigravity must behave like a disciplined senior engineer. 
 **Cycle**: Inspect architecture -> Identify precise owners -> Patch -> Verify Parity -> Verify Regression Safety -> Report.
 Guessing logic, injecting blind patches, declaring success without check protocols, or modifying uninvestigated architecture is prohibited. 
+
+

@@ -9,7 +9,7 @@ import { SITE_ORIGIN } from "@/lib/site-origin";
 import { mutate } from "swr";
 import { getBrowserNotificationState } from "@/lib/firebase-messaging";
 import { enableBrowserNotifications } from "@/lib/browser-notification-enrollment";
-import { CREATOR_BOOKING_RATES, CREATOR_SUBSCRIPTION_MIN_GD, DEFAULT_CREATOR_SETTINGS, type CreatorSettings } from "@/lib/creator-experiences";
+import { DEFAULT_CREATOR_SETTINGS, type CreatorSettings } from "@/lib/creator-experiences";
 import { getBrowserGlobalPrivacyControl, persistPrivacySettingsSnapshot } from "@/lib/privacy-consent";
 import { getClientErrorMessage, reportClientIssue } from "@/lib/client-error-reporting";
 import { trackEvent } from "@/lib/telemetry";

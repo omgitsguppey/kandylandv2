@@ -1,0 +1,66 @@
+# Task Routing & Classification
+# Dictates who owns what type of work and what prerequisites are required.
+
+FOUNDATION:
+  default_owner: "antigravity"
+  secondary_owner: "none"
+  requires_doctrine_consultation: true
+  requires_truth_map_consultation: true
+  requires_handoff: true
+  requires_postflight_verification: true
+
+ISOLATED_FIX:
+  default_owner: "jules"
+  secondary_owner: "antigravity"
+  requires_doctrine_consultation: true
+  requires_truth_map_consultation: false
+  requires_handoff: false
+  requires_postflight_verification: true
+
+AUDIT:
+  default_owner: "codex_or_gpt"
+  secondary_owner: "jules"
+  requires_doctrine_consultation: true
+  requires_truth_map_consultation: true
+  requires_handoff: true
+  requires_postflight_verification: false
+
+VERIFICATION:
+  default_owner: "codex_or_gpt"
+  secondary_owner: "none"
+  requires_doctrine_consultation: true
+  requires_truth_map_consultation: true
+  requires_handoff: true
+  requires_postflight_verification: false
+
+REFACTOR:
+  default_owner: "antigravity"
+  secondary_owner: "none"
+  requires_doctrine_consultation: true
+  requires_truth_map_consultation: true
+  requires_handoff: true
+  requires_postflight_verification: true
+
+DOCS_ONLY:
+  default_owner: "jules"
+  secondary_owner: "antigravity"
+  requires_doctrine_consultation: true
+  requires_truth_map_consultation: false
+  requires_handoff: false
+  requires_postflight_verification: false
+
+DOCTRINE_UPDATE:
+  default_owner: "antigravity"
+  secondary_owner: "none"
+  requires_doctrine_consultation: false
+  requires_truth_map_consultation: false
+  requires_handoff: true
+  requires_postflight_verification: true
+
+RECURRING_CHECK:
+  default_owner: "jules"
+  secondary_owner: "codex_or_gpt"
+  requires_doctrine_consultation: false
+  requires_truth_map_consultation: false
+  requires_handoff: false
+  requires_postflight_verification: false

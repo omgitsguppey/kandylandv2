@@ -10,8 +10,7 @@ import {
     ChevronRight,
     Star,
     Video,
-    Phone,
-    MoveRight
+    Phone
 } from "lucide-react";
 import { useRouter } from "next/navigation";
 
@@ -499,7 +498,7 @@ export function CreatorExperiencesPanel({
                     </div>
                     {hasAvailabilities && !latestBooking && (
                         <div className="mb-5 rounded-[1.2rem] border border-white/5 bg-white/5 p-3">
-                            <p className="text-xs text-gray-300 font-medium pb-2 text-center">Creator's Usual Hours</p>
+                            <p className="text-xs text-gray-300 font-medium pb-2 text-center">Creator&apos;s Usual Hours</p>
                             <div className="flex flex-wrap items-center justify-center gap-1.5">
                                 {availabilityWindows.slice(0, 3).map(w => (
                                     <span key={w.id} className="text-[10px] uppercase font-bold text-gray-400 bg-black/40 px-2 py-1 rounded-md">

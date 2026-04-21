@@ -322,7 +322,7 @@ export function useViewerWatchSession(options: UseViewerWatchSessionOptions) {
             replayRecoveredCount: 0,
         };
         setWatchSessionId(null);
-    }, []);
+    }, [clearCloseRetryTimeout]);
 
     const markSessionDirty = useCallback(() => {
         sessionRevisionRef.current += 1;
@@ -465,7 +465,7 @@ export function useViewerWatchSession(options: UseViewerWatchSessionOptions) {
             }
             asset.heartbeatCount += 1;
         });
-    }, [ensureAssetState, getCurrentAssetIdentity, updateAssetState]);
+    }, [ensureAssetState, getCurrentAssetIdentity, markSessionDirty, updateAssetState]);
 
     const buildSessionPayload = useCallback((reason: string, close: boolean, options?: FlushOptions) => {
         const activeWatchSessionId = watchSessionIdRef.current;
@@ -671,7 +671,7 @@ export function useViewerWatchSession(options: UseViewerWatchSessionOptions) {
         })();
 
         await flushInFlightRef.current;
-    }, [buildSessionPayload, resetSessionState]);
+    }, [buildSessionPayload, clearCloseRetryTimeout, resetSessionState, scheduleCloseRetry]);
 
     flushSessionRef.current = flushSession;
 

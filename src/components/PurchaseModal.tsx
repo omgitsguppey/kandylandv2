@@ -476,7 +476,7 @@ export function PurchaseModal({ isOpen, onClose }: PurchaseModalProps) {
                         </div>
                         {!networkOnline ? (
                           <div className="rounded-xl border border-orange-500/30 bg-orange-500/10 p-3 text-xs text-orange-200 text-center font-medium">
-                            It looks like you are offline. Please check your network to complete the purchase.
+                            You are offline. Please check your network to complete the purchase.
                           </div>
                         ) : !PAYPAL_READY ? (
                           <div className="rounded-xl border border-brand-purple/30 bg-brand-purple/10 p-3 text-xs text-brand-purple text-center">
@@ -484,7 +484,7 @@ export function PurchaseModal({ isOpen, onClose }: PurchaseModalProps) {
                           </div>
                         ) : paypalFailed ? (
                           <div className="rounded-xl border border-red-500/30 bg-red-500/10 p-3 text-xs text-red-200 text-center">
-                            We couldn't load the payment provider right now. Close and reopen Wallet to retry.
+                            We couldn&apos;t load the payment provider right now. Close and reopen Wallet to retry.
                           </div>
                         ) : !paypalReady || paypalLoading ? (
                           <div className="rounded-xl border border-white/10 bg-white/5 p-4">

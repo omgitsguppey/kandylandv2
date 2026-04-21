@@ -3,7 +3,6 @@
 import { useEffect, useMemo, useRef, useState, type FormEvent, type KeyboardEvent } from "react";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
-import * as z from "zod";
 import {
     AlertCircle,
     Calendar,
@@ -15,7 +14,6 @@ import {
     User,
     X,
 } from "lucide-react";
-import { differenceInYears, parseISO } from "date-fns";
 
 import { useAuth } from "@/context/AuthContext";
 import type { AuthModalEntryMode } from "@/context/UIContext";
@@ -26,9 +24,9 @@ import {
     resolveEmailAuthError,
 } from "@/lib/auth-errors";
 import { reportClientIssue } from "@/lib/client-error-reporting";
-import { CREATOR_REVIEW_TIMELINE_COPY, KREATOR_EXPERIENCES_DEFINITION } from "@/lib/creator-onboarding";
+import { KREATOR_EXPERIENCES_DEFINITION } from "@/lib/creator-onboarding";
 import { clearTimedFlow, consumeTimedFlow, startTimedFlow, trackEvent } from "@/lib/telemetry";
-import { SECONDARY_UNWRAP_CTA, SIGNUP_SUPPORT_COPY } from "@/lib/marketing-copy";
+import { SECONDARY_UNWRAP_CTA } from "@/lib/marketing-copy";
 
 import {
     CREATOR_SIGNUP_STEPS,
@@ -36,7 +34,6 @@ import {
     AUTH_SIGN_UP_FLOW,
     AUTH_GOOGLE_FLOW,
     CREATOR_PLATFORM_OPTIONS,
-    authFormSchema,
     type AuthFormData,
     type AuthMode,
     isSignupMode,

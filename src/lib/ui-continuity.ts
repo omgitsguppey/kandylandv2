@@ -77,17 +77,17 @@ export async function loadUiContinuityModules(input: {
   const diagnosticsChannel = input.diagnosticsChannel ?? "ui";
   recordClientDiagnostic(diagnosticsChannel, `${input.surface} hydration started`, {
     surface: input.surface,
-    modules: input.modules.map((module) => module.key),
+    modules: input.modules.map((moduleSpec) => moduleSpec.key),
   });
 
   const settled = await Promise.allSettled(
-    input.modules.map(async (module) => {
-      const value = await module.load();
+    input.modules.map(async (moduleSpec) => {
+      const value = await moduleSpec.load();
       return {
         state: {
-          key: module.key,
-          label: module.label,
-          critical: module.critical === true,
+          key: moduleSpec.key,
+          label: moduleSpec.label,
+          critical: moduleSpec.critical === true,
           status: "success" as const,
           warning: null,
           fallbackActive: false,
@@ -99,43 +99,43 @@ export async function loadUiContinuityModules(input: {
   );
 
   const results = settled.map((result, index) => {
-    const module = input.modules[index];
+    const moduleSpec = input.modules[index];
     if (result.status === "fulfilled") {
       recordClientDiagnostic(diagnosticsChannel, `${input.surface} module hydrated`, {
         surface: input.surface,
-        module: module.key,
-        critical: module.critical === true,
+        module: moduleSpec.key,
+        critical: moduleSpec.critical === true,
       });
       return result.value;
     }
 
-    const warning = normalizeErrorMessage(result.reason, `${module.label} failed to load`);
-    const fallbackActive = typeof module.fallbackValue !== "undefined";
+    const warning = normalizeErrorMessage(result.reason, `${moduleSpec.label} failed to load`);
+    const fallbackActive = typeof moduleSpec.fallbackValue !== "undefined";
     reportClientIssue({
       channel: diagnosticsChannel,
-      severity: module.critical === true ? "error" : "warn",
+      severity: moduleSpec.critical === true ? "error" : "warn",
       message: `${input.surface} module hydration failed`,
       error: result.reason,
       detail: {
         surface: input.surface,
-        module: module.key,
-        critical: module.critical === true,
+        module: moduleSpec.key,
+        critical: moduleSpec.critical === true,
         fallbackActive,
       },
-      consoleLabel: `[UIContinuity] ${input.surface}:${module.key}`,
+      consoleLabel: `[UIContinuity] ${input.surface}:${moduleSpec.key}`,
     });
 
     return {
       state: {
-        key: module.key,
-        label: module.label,
-        critical: module.critical === true,
+        key: moduleSpec.key,
+        label: moduleSpec.label,
+        critical: moduleSpec.critical === true,
         status: "error" as const,
         warning,
         fallbackActive,
         responseOk: false,
       },
-      value: typeof module.fallbackValue === "undefined" ? null : module.fallbackValue,
+      value: typeof moduleSpec.fallbackValue === "undefined" ? null : moduleSpec.fallbackValue,
     } satisfies UiContinuityResult;
   });
 

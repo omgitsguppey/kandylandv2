@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useEffect, useMemo } from "react";
 import { useRouter } from "next/navigation";
 import Link from "next/link";
 import { ArrowLeft, Lock, ShieldCheck } from "lucide-react";
@@ -32,15 +32,11 @@ export function ViewerClient({ drop, initialCreatorProfile }: ViewerClientProps)
     const { user, userProfile, loading: authLoading } = useAuth();
     const router = useRouter();
 
-    const [isAuthorized, setIsAuthorized] = useState(false);
-    useEffect(() => {
-        if (!drop || !user) {
-            setIsAuthorized(false);
-            return;
-        }
+    const isAuthorized = useMemo(() => {
+        if (!drop || !user) return false;
         const isCreator = user.uid === drop.creatorId;
         const hasUnlocked = userProfile?.unlockedContentTimestamps?.[drop.id] !== undefined;
-        setIsAuthorized(isCreator || hasUnlocked);
+        return isCreator || hasUnlocked;
     }, [user, userProfile, drop]);
 
     // 2. Telemetry mounting happens internally within useViewerTelemetry

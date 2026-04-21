@@ -55,22 +55,6 @@ export function LibraryClient({ drops }: LibraryClientProps) {
     const [selectedCategory, setSelectedCategory] = useState("All");
     const [gridCols, setGridCols] = useState<2 | 3>(2);
 
-if (authLoading) {
-        return (
-            <div className="animate-pulse">
-                <div className="mb-6">
-                    <div className="h-10 w-64 bg-white/10 rounded mb-2" />
-                    <div className="h-5 w-72 bg-white/5 rounded" />
-                </div>
-                <div className="grid grid-cols-6 gap-3">
-                    {[1, 2, 3, 4].map((i) => (
-                        <div key={i} className="col-span-3 aspect-square bg-white/5 rounded-2xl" />
-                    ))}
-                </div>
-            </div>
-        );
-    }
-
     const filteredDrops = useMemo(() => {
         let res = unlockedDrops;
         if (searchQuery) {
@@ -96,6 +80,23 @@ if (authLoading) {
         });
         return [...base, ...Array.from(creators).sort()];
     }, [unlockedDrops]);
+
+if (authLoading) {
+        return (
+            <div className="animate-pulse">
+                <div className="mb-6">
+                    <div className="h-10 w-64 bg-white/10 rounded mb-2" />
+                    <div className="h-5 w-72 bg-white/5 rounded" />
+                </div>
+                <div className="grid grid-cols-6 gap-3">
+                    {[1, 2, 3, 4].map((i) => (
+                        <div key={i} className="col-span-3 aspect-square bg-white/5 rounded-2xl" />
+                    ))}
+                </div>
+            </div>
+        );
+    }
+
 
     return (
         <div className="flex flex-col min-h-screen px-2 md:px-0">

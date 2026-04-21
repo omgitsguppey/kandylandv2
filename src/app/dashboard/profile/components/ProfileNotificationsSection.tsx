@@ -1,9 +1,7 @@
 import React from 'react';
-import { SectionContainer, NavigationRow, ToggleRow, StaticRow, ValueInputRow, RowDivider } from './ProfilePrimitives';
+import { SectionContainer, ToggleRow, StaticRow, RowDivider } from './ProfilePrimitives';
 import type { ProfileState } from '../page';
-import { Loader2, User, AtSign, Bell, Globe, ShieldAlert, Mail, Camera, LogOut, Download, Trash2, Lock, FileText, CalendarClock, MessageSquare, Sparkles, Wallet, CircleHelp, LifeBuoy, CalendarDays } from "lucide-react";
-import Image from "next/image";
-import { cn } from "@/lib/utils";
+import { ShieldAlert } from "lucide-react";
 
 export function ProfileNotificationsSection({ state }: { state: ProfileState }) {
     const {

@@ -1,11 +1,11 @@
-import React, { useMemo } from "react";
+import React from "react";
 import {
-  Activity, AlertTriangle, Candy, CheckCircle2, Clock3, DollarSign, Eye, FileText, Funnel, Loader2, MapPin, Monitor, PlayCircle, Route, Share2, ShoppingBag, Smartphone, Sparkles, Users, Wallet,
+  Activity, AlertTriangle, Candy, CheckCircle2, Clock3, DollarSign, Eye, Funnel, PlayCircle, Route, ShoppingBag, Sparkles, Users, Wallet,
 } from "lucide-react";
-import { Area, AreaChart, Bar, BarChart, CartesianGrid, ResponsiveContainer, Tooltip, XAxis, YAxis, Pie, PieChart, Cell, Line, LineChart } from "recharts";
+import { Bar, BarChart, CartesianGrid, ResponsiveContainer, Tooltip, XAxis, YAxis, Line, LineChart } from "recharts";
 import { AnalyticsTooltip, MetricCard, SectionCard } from "@/components/Admin/Analytics/AdminAnalyticsPrimitives";
-import { AdminOnboardingAnalyticsModules } from "@/components/Admin/Analytics/AdminOnboardingAnalyticsModules";
-import { PageViewEvent } from "@/components/Analytics/PageViewEvent";
+import { cn } from "@/lib/utils";
+import Image from "next/image";
 
 export function AdminAnalyticsCommerceTab(props: any) {
   const {
@@ -29,14 +29,21 @@ export function AdminAnalyticsCommerceTab(props: any) {
     regionsRange, geo,
 
     // Commerce Tab
-    commerceSnapshotRange, commerce,
-    packagePerformanceRange, packagePerformance,
-    PIE_COLORS, contentConversionRange, unlockCategoryMix, previewToUnlockRate, checkoutToPurchaseRate,
-    topDropConversionRange, topDrops,
-    recentCommerceFeedRange, feedItems, describeEvent, formatAbsoluteDateTime,
+    commerceSnapshotRange, commerceSnapshotCommerce, commerceSnapshotFunnel,
+    packagePerformanceRange, packagePerformanceItems,
+    PIE_COLORS, contentConversionRange, contentConversionItems,
+    topDropConversionRange, topDropConversionItems,
+    recentCommerceFeedRange, recentCommerceFeedItems, describeEvent, formatAbsoluteDateTime,
+    
+    // Viewer drilldown
+    viewerDrilldownFilter, viewerDrilldownOverview, viewerUserDraft, setViewerUserDraft, applyViewerFilter,
+    clearViewerFilter, viewerDrilldownUsers, setViewerUserFilter, viewerDrilldownCaptureHealth,
+    liveWatchCaptureHealth, viewerDrilldownJourneys,
     
     // Added remaining
-    clearAllFilters, clearViewerFilter, viewerUserFilter, formatMoney, activeViewerFilter
+    clearAllFilters, formatMoney, activeViewerFilter, viewerUserFilter,
+    getJourneyStateClasses, getJourneyStateLabel, topExperienceContexts, viewerDropChartData,
+    viewerDrilldownInsights, viewerJourneyItems, watchDepthTagBuckets, watchDepthTagDemand
   } = props;
 
   return (
@@ -159,7 +166,7 @@ export function AdminAnalyticsCommerceTab(props: any) {
                 </div>
 
                 <div className="mt-5 space-y-3">
-                  {packagePerformanceItems.slice(0, 5).map((item) => (
+                  {packagePerformanceItems.slice(0, 5).map((item: any) => (
                     <div
                       key={item.label}
                       className="rounded-[1.5rem] border border-white/10 bg-black/30 p-4"
@@ -235,7 +242,7 @@ export function AdminAnalyticsCommerceTab(props: any) {
                   </div>
 
                   <div className="space-y-3">
-                    {contentConversionItems.slice(0, 5).map((item) => (
+                    {contentConversionItems.slice(0, 5).map((item: any) => (
                       <div
                         key={item.label}
                         className="rounded-[1.5rem] border border-white/10 bg-black/30 p-4"
@@ -321,7 +328,7 @@ export function AdminAnalyticsCommerceTab(props: any) {
                 </div>
 
                 <div className="mt-5 space-y-3">
-                  {topDropConversionItems.slice(0, 6).map((drop) => {
+                  {topDropConversionItems.slice(0, 6).map((drop: any) => {
                     const rate = drop.views > 0 ? drop.unlocks / drop.views : 0;
                     return (
                       <div
@@ -362,7 +369,7 @@ export function AdminAnalyticsCommerceTab(props: any) {
               >
                 <div className="space-y-3">
                   {recentCommerceFeedItems.length > 0 ? (
-                    recentCommerceFeedItems.slice(0, 10).map((item) => (
+                    recentCommerceFeedItems.slice(0, 10).map((item: any) => (
                       <div
                         key={item.id}
                         className="rounded-[1.6rem] border border-white/10 bg-black/30 p-4"
@@ -453,10 +460,10 @@ export function AdminAnalyticsCommerceTab(props: any) {
                             <input
                               type="text"
                               value={viewerUserDraft}
-                              onChange={(event) =>
+                              onChange={(event: any) =>
                                 setViewerUserDraft(event.target.value)
                               }
-                              onKeyDown={(event) => {
+                              onKeyDown={(event: any) => {
                                 if (event.key === "Enter") {
                                   applyViewerFilter();
                                 }
@@ -485,7 +492,7 @@ export function AdminAnalyticsCommerceTab(props: any) {
 
                         {viewerDrilldownUsers.length > 0 ? (
                           <div className="mt-4 flex gap-2 overflow-x-auto pb-1">
-                            {viewerDrilldownUsers.map((item) => (
+                            {viewerDrilldownUsers.map((item: any) => (
                               <button
                                 key={item.uid}
                                 type="button"
@@ -657,7 +664,7 @@ export function AdminAnalyticsCommerceTab(props: any) {
 
                           <div className="mt-4 flex flex-wrap gap-2 text-[11px] text-gray-400">
                             {viewerDrilldownCaptureHealth.transportBreakdown.map(
-                              (item) => (
+                              (item: any) => (
                                 <span
                                   key={item.transport}
                                   className="rounded-full border border-white/10 bg-white/5 px-3 py-1"
@@ -691,7 +698,7 @@ export function AdminAnalyticsCommerceTab(props: any) {
                           {viewerDrilldownCaptureHealth.warnings.length > 0 ? (
                             <div className="mt-4 space-y-2">
                               {viewerDrilldownCaptureHealth.warnings.map(
-                                (warning) => (
+                                (warning: any) => (
                                   <div
                                     key={warning}
                                     className="rounded-2xl border border-amber-400/20 bg-amber-500/10 px-3 py-2 text-xs text-amber-100"
@@ -741,7 +748,7 @@ export function AdminAnalyticsCommerceTab(props: any) {
                                 label: "Close missing",
                                 value: liveWatchCaptureHealth.closeMissingCount,
                               },
-                            ].map((item) => (
+                            ].map((item: any) => (
                               <div key={item.label}>
                                 <div className="mb-2 flex items-center justify-between gap-3 text-sm">
                                   <span className="text-white">
@@ -793,7 +800,7 @@ export function AdminAnalyticsCommerceTab(props: any) {
                           </div>
                           <div className="space-y-3">
                             {viewerDrilldownJourneys.length > 0 ? (
-                              viewerDrilldownJourneys.map((item) => (
+                              viewerDrilldownJourneys.map((item: any) => (
                                 <div
                                   key={item.uid}
                                   className="rounded-2xl border border-white/10 bg-white/[0.03] p-3"
@@ -866,7 +873,7 @@ export function AdminAnalyticsCommerceTab(props: any) {
                           </div>
                           <div className="space-y-3">
                             {topExperienceContexts.length > 0 ? (
-                              topExperienceContexts.map((item) => (
+                              topExperienceContexts.map((item: any) => (
                                 <div
                                   key={item.key}
                                   className="rounded-2xl border border-white/10 bg-white/[0.03] p-3"
@@ -981,7 +988,7 @@ export function AdminAnalyticsCommerceTab(props: any) {
                         </div>
 
                         <div className="space-y-3">
-                          {viewerDrilldownInsights.slice(0, 5).map((item) => (
+                          {viewerDrilldownInsights.slice(0, 5).map((item: any) => (
                             <div
                               key={item.dropId}
                               className="rounded-[1.5rem] border border-white/10 bg-black/30 p-4"
@@ -1041,7 +1048,7 @@ export function AdminAnalyticsCommerceTab(props: any) {
                 icon={PlayCircle}
                 rightSlot={renderSectionRangeControl("viewerJourney")}
               >
-                {viewerJourneyItems.some((item) => item.count > 0) ? (
+                {viewerJourneyItems.some((item: any) => item.count > 0) ? (
                   <div className="h-64 w-full">
                     <ResponsiveContainer width="100%" height="100%">
                       <LineChart
@@ -1094,14 +1101,14 @@ export function AdminAnalyticsCommerceTab(props: any) {
                 icon={Eye}
                 rightSlot={renderSectionRangeControl("watchDepthTags")}
               >
-                {watchDepthTagBuckets.some((bucket) => bucket.count > 0) || watchDepthTagDemand.length > 0 ? (
+                {watchDepthTagBuckets.some((bucket: any) => bucket.count > 0) || watchDepthTagDemand.length > 0 ? (
                   <div className="grid gap-4 lg:grid-cols-[1fr_1fr]">
                     <div className="rounded-[1.5rem] border border-white/10 bg-black/30 p-4">
                       <p className="mb-4 text-xs font-semibold uppercase tracking-[0.14em] text-gray-500">
                         Watch depth
                       </p>
                       <div className="space-y-3">
-                        {watchDepthTagBuckets.map((bucket) => (
+                        {watchDepthTagBuckets.map((bucket: any) => (
                           <div key={bucket.label}>
                             <div className="mb-2 flex items-center justify-between gap-3 text-sm">
                               <span className="text-white">{bucket.label}</span>
@@ -1128,7 +1135,7 @@ export function AdminAnalyticsCommerceTab(props: any) {
                       </p>
                       <div className="flex flex-wrap gap-2">
                         {watchDepthTagDemand.length > 0 ? (
-                          watchDepthTagDemand.map((item) => (
+                          watchDepthTagDemand.map((item: any) => (
                             <span
                               key={item.tag}
                               className="rounded-full border border-brand-purple/25 bg-brand-purple/12 px-3 py-2 text-xs font-semibold text-white"

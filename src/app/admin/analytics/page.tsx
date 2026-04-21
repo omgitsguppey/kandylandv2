@@ -1,107 +1,37 @@
 // @ts-nocheck
 "use client";
 
-import { useEffect, useMemo, useState } from "react";
-import Image from "next/image";
 import {
   Activity,
   AlertTriangle,
-  Candy,
-  CheckCircle2,
-  Clock3,
   DollarSign,
-  Eye,
-  FileText,
   Funnel,
   Loader2,
-  MapPin,
-  Monitor,
-  PlayCircle,
-  Route,
-  Share2,
   ShoppingBag,
   Smartphone,
-  Sparkles,
-  Users,
-  Wallet,
 } from "lucide-react";
-import { toast } from "sonner";
-import {
-  Area,
-  AreaChart,
-  Bar,
-  BarChart,
-  Cell,
-  CartesianGrid,
-  Line,
-  LineChart,
-  Pie,
-  PieChart,
-  ResponsiveContainer,
-  Tooltip,
-  XAxis,
-  YAxis,
-} from "recharts";
-import { useAdminPollingSWR } from "@/hooks/useAdminPollingSWR";
-import { useAdminUiChartHealthReporter } from "@/hooks/useAdminUiChartHealthReporter";
-import { useNow } from "@/hooks/useNow";
-import { useAuth } from "@/context/AuthContext";
-import { authFetch } from "@/lib/authFetch";
-import { reportStorageIssue } from "@/lib/client-error-reporting";
-import {
-  buildAdminUiChartHealthItem,
-  summarizeAdminUiChartHealth,
-} from "@/lib/admin-ui-chart-health";
-import {
-  ADMIN_ANALYTICS_DEFAULT_RANGE,
-  ADMIN_ANALYTICS_RANGE_OPTIONS,
-  normalizeAdminAnalyticsModuleRangeMap,
-  type AdminAnalyticsModuleRangeMap,
-} from "@/lib/admin-analytics-preferences";
-import { buildAuthOutcomeChartModel } from "@/lib/admin-auth-outcome-chart";
-import { buildAdminNotificationFunnelModel } from "@/lib/admin-notification-funnel";
-import { buildAdminOnboardingVelocityModel } from "@/lib/admin-onboarding-velocity";
-import { buildAdminTaskPipelineModel } from "@/lib/admin-task-pipeline";
+
+
+
+
+
+
 import { cn } from "@/lib/utils";
 import { AdminPageHeader } from "@/components/Admin/AdminPageHeader";
-import { AdminOnboardingAnalyticsModules } from "@/components/Admin/Analytics/AdminOnboardingAnalyticsModules";
 import {
-  AnalyticsTooltip,
   MetricCard,
-  SectionCard,
 } from "@/components/Admin/Analytics/AdminAnalyticsPrimitives";
 import { AdminTaskAndNotificationModules } from "@/components/Admin/Analytics/AdminTaskAndNotificationModules";
 import { AdminTruthSurfaces } from '../AdminTruthSurfaces';
 import { PageViewEvent } from "@/components/Analytics/PageViewEvent";
 import { TELEMETRY_EVENT_LABELS } from "@/lib/telemetry-catalog";
 
-import type { ViewTab, RangeOption, HistoricalAnalyticsResponse, RealtimeAnalyticsResponse, AnalyticsPreferencesResponse, RawEventItem, UserJourneyItem, ValidationItem, OnboardingStepStatItem, CountBucketItem, WatchCaptureHealthItem } from "@/types/admin-analytics";
 
 import {
-  ANALYTICS_FILTER_STORAGE_KEY,
-  EMPTY_COUNT_BUCKETS,
-  EMPTY_ONBOARDING_STATS,
-  EMPTY_ONBOARDING_STEP_STATS,
-  EMPTY_WATCH_CAPTURE_HEALTH,
-  PIE_COLORS,
-  RANGE_OPTIONS,
-  SectionRangeControl,
   TAB_OPTIONS,
-  buildSectionHistoricalUrl,
-  describeEvent,
-  formatAbsoluteDateTime,
   formatCompactNumber,
-  formatDuration,
   formatMoney,
   formatPercent,
-  formatRelativeTime,
-  getDeviceIcon,
-  getJourneyStateClasses,
-  getJourneyStateLabel,
-  getValidationClasses,
-  isRecentViolation,
-  useHistoricalSectionOverride,
-  type TooltipValue,
 } from "./AnalyticsHelpers";
 
 const EVENT_LABELS: Record<string, string> = TELEMETRY_EVENT_LABELS;

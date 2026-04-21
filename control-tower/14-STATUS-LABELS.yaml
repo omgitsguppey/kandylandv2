@@ -1,0 +1,47 @@
+# Status Labels
+# Defines allowed system truth labels and their explicit meanings.
+
+live:
+  meaning: "Data is arriving via an active, unbroken realtime stream."
+  allowed_usage: "When Firestore onSnapshot or WebSocket is active."
+  forbidden_usage: "When polling or using cached data."
+
+realtime:
+  meaning: "Synonymous with [live]. Immediate event-driven updates."
+  allowed_usage: "Chat, feed, presence."
+  forbidden_usage: "Synthetic polling."
+
+polled:
+  meaning: "Data is actively refreshed, but via periodic pulls rather than push streams."
+  allowed_usage: "REST APIs, SWR with polling intervals."
+  forbidden_usage: "Do not label as [live]."
+
+cached:
+  meaning: "Data was fetched recently and is stored locally, but is not actively updating."
+  allowed_usage: "SWR baseline state, local storage."
+  forbidden_usage: "If cache is past TTL, must be labeled [stale]."
+
+fallback:
+  meaning: "Primary data source failed; using secondary synthetic or default data."
+  allowed_usage: "When an API throws 500 and a default object is returned."
+  forbidden_usage: "Do not label as [healthy] or hide the failure."
+
+partial:
+  meaning: "Only some of the required data was loaded."
+  allowed_usage: "Pagination incomplete, sparse arrays."
+  forbidden_usage: "When data is completely failed."
+
+stale:
+  meaning: "Data is older than the acceptable freshness threshold."
+  allowed_usage: "Offline mode, skipped refresh cycles."
+  forbidden_usage: "Do not pretend data is current."
+
+failed:
+  meaning: "Data could not be retrieved and no fallback exists."
+  allowed_usage: "Explicit error states."
+  forbidden_usage: "Silent catch blocks resulting in blank UI."
+
+unknown:
+  meaning: "The system cannot determine the state."
+  allowed_usage: "Diagnostic tools lacking telemetry."
+  forbidden_usage: "Do not guess. Honesty > Confidence."

@@ -58,10 +58,12 @@ export function useViewerState({ drop, isAuthorized, trackContentLoaded }: UseVi
     }, [assetCount]);
 
     useEffect(() => {
+        const assetCache = assetCacheRef.current;
+        const thumbnailCache = thumbnailCacheRef.current;
         return () => {
-            clearCachedAssets(assetCacheRef.current);
+            clearCachedAssets(assetCache);
             contentObjectUrlRef.current = null;
-            thumbnailCacheRef.current.clear();
+            thumbnailCache.clear();
         };
     }, []);
 

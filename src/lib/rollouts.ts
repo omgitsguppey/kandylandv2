@@ -178,18 +178,48 @@ function hashToUnitInterval(input: string) {
   return ((hash >>> 0) % 10_000) / 10_000;
 }
 
+import { getRemoteConfig, getValue, fetchAndActivate, isSupported } from "firebase/remote-config";
+import { app } from "./firebase";
+
+let remoteOverridesCache: RolloutOverrideMap = {};
+
+export async function initializeRemoteRollouts() {
+  if (typeof window === "undefined") return;
+  
+  try {
+    const supported = await isSupported();
+    if (!supported) return;
+
+    const remoteConfig = getRemoteConfig(app);
+    remoteConfig.settings.minimumFetchIntervalMillis = 3600000; // 1 hour cache
+    
+    await fetchAndActivate(remoteConfig);
+    const rawOverrides = getValue(remoteConfig, "rollout_overrides_json").asString();
+    
+    if (rawOverrides) {
+      const parsed = JSON.parse(rawOverrides);
+      if (parsed && typeof parsed === "object") {
+        remoteOverridesCache = parsed;
+      }
+    }
+  } catch (err) {
+    console.warn("Failed to initialize remote rollouts:", err);
+  }
+}
+
 function parseRolloutOverrides() {
   const rawOverrides = process.env.NEXT_PUBLIC_ROLLOUT_OVERRIDES_JSON?.trim();
-  if (!rawOverrides) {
-    return {} as RolloutOverrideMap;
-  }
+  const localOverrides = (() => {
+    if (!rawOverrides) return {} as RolloutOverrideMap;
+    try {
+      const parsed = JSON.parse(rawOverrides) as RolloutOverrideMap;
+      return parsed && typeof parsed === "object" ? parsed : {};
+    } catch {
+      return {};
+    }
+  })();
 
-  try {
-    const parsed = JSON.parse(rawOverrides) as RolloutOverrideMap;
-    return parsed && typeof parsed === "object" ? parsed : {};
-  } catch {
-    return {};
-  }
+  return { ...localOverrides, ...remoteOverridesCache };
 }
 
 function mergeRolloutDefinitions() {

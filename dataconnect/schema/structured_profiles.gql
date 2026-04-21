@@ -1,0 +1,66 @@
+# ----------------------------------------------------------------------------------------
+# Layer 4: Structured Profile / Feature Serving Layer (SQL / Data Connect)
+# ----------------------------------------------------------------------------------------
+# These tables provide a structured, ML-ready serving layer for behavioral analytics.
+# They are populated periodically by backend jobs reading from Layer 3 (Timelines),
+# entirely segregating telemetry and feature serving from the GumDrops Economy ledger.
+# ----------------------------------------------------------------------------------------
+
+type UserFeatureProfile @table(name: "user_feature_profiles", key: ["uid"]) {
+  uid: String!
+  # Global privacy control or identified consent modes explicitly attached to the profile
+  consentMode: String
+  globalPrivacyControl: Boolean
+  
+  # Structural engagement features
+  daysSinceLastActive: Int
+  totalSessionsCount: Int
+  totalWatchSeconds: Float
+  totalDropUnwraps: Int
+  
+  # ML-Ready vectors or embeddings (e.g. churn_risk_score, ltv_bucket)
+  churnRiskScore: Float
+  ltvBucket: String
+  
+  # Provenance tracking
+  updatedAt: Timestamp!
+  lastFeatureSource: String
+}
+
+type GuestFeatureProfile @table(name: "guest_feature_profiles", key: ["sessionId"]) {
+  sessionId: String!
+  consentMode: String
+  globalPrivacyControl: Boolean
+  
+  totalInteractions: Int
+  maxScrollDepth: Float
+  
+  updatedAt: Timestamp!
+}
+
+type CreatorAffinityVector @table(name: "creator_affinity_vectors", key: ["uid", "creatorId"]) {
+  uid: String!
+  creatorId: String!
+  
+  # Quantified relationship strength (0.0 to 1.0)
+  affinityScore: Float!
+  
+  # Number of drops unlocked from this creator
+  dropsUnlockedCount: Int
+  
+  # Total watch time on this creator's content
+  watchSeconds: Float
+  
+  updatedAt: Timestamp!
+}
+
+type DropInterestVector @table(name: "drop_interest_vectors", key: ["uid", "dropId"]) {
+  uid: String!
+  dropId: String!
+  
+  interestScore: Float!
+  watchSeconds: Float
+  didUnwrap: Boolean!
+  
+  updatedAt: Timestamp!
+}

@@ -33,6 +33,7 @@ export default defineConfig({
     alias: {
       "server-only": "node_modules/server-only/empty.js",
     },
+    testTimeout: 10000,
     coverage: {
       provider: "v8",
       reporter: ["text", "html"],

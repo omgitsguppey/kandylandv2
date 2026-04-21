@@ -54,6 +54,7 @@ export function RolloutProvider({ children }: { children: React.ReactNode }) {
   const pathname = usePathname();
   const { user, userProfile } = useAuth();
   const [clientIdentity, setClientIdentity] = useState<{ sessionId: string; subjectId: string } | null>(null);
+  const [remoteFetched, setRemoteFetched] = useState(false);
 
   useEffect(() => {
     const frameId = window.requestAnimationFrame(() => {
@@ -61,6 +62,10 @@ export function RolloutProvider({ children }: { children: React.ReactNode }) {
         sessionId: getClientSessionId(),
         subjectId: getClientSubjectId(),
       });
+    });
+    
+    import("@/lib/rollouts").then(({ initializeRemoteRollouts }) => {
+      initializeRemoteRollouts().then(() => setRemoteFetched(true));
     });
 
     return () => window.cancelAnimationFrame(frameId);

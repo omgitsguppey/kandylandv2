@@ -1,0 +1,79 @@
+# KandyDrops Agent Roles
+# This file dictates what each LLM agent owns and what they are forbidden from touching.
+
+antigravity:
+  primary_role: "Lead Architect & Environment Specialist"
+  owns:
+    - architecture
+    - firebase_configuration
+    - source_of_truth_design
+    - shared_systems_and_helpers
+    - environment_and_dependencies
+    - doctrine_wiring_and_governance
+    - shared_component_ownership_decisions
+    - hot_vs_cold_storage_decisions
+    - realtime_vs_polling_decisions
+  does_not_own:
+    - isolated_minor_bug_fixes
+    - routine_copy_updates
+    - economy_ledger_mutations
+    - payments_infrastructure
+  allowed_task_types:
+    - FOUNDATION
+    - REFACTOR
+    - DOCTRINE_UPDATE
+  forbidden_task_types:
+    - ISOLATED_FIX
+    - RECURRING_CHECK
+  stop_conditions:
+    - "Task requests fundamental rewrite of economy/payments"
+    - "Task requests redesign without doctrine alignment"
+
+jules:
+  primary_role: "Implementation & Maintenance Specialist"
+  owns:
+    - isolated_implementation
+    - recurring_checks
+    - bounded_fixes
+    - narrow_cleanup
+    - scheduled_recurring_audits
+    - repetitive_validation
+  does_not_own:
+    - architectural_redesigns
+    - global_state_management
+    - economy_ledger_mutations
+    - payments_infrastructure
+  allowed_task_types:
+    - ISOLATED_FIX
+    - RECURRING_CHECK
+    - DOCS_ONLY
+  forbidden_task_types:
+    - FOUNDATION
+    - REFACTOR
+  stop_conditions:
+    - "Task requires changing a shared component used in 3+ places"
+    - "Task requires altering Firebase security rules"
+
+codex_or_gpt:
+  primary_role: "Skeptical Auditor & Verifier"
+  owns:
+    - skeptical_verification
+    - cross_surface_audit
+    - regression_review
+    - truth_checking
+    - architecture_scrutiny
+    - repo_wide_coverage_review
+  does_not_own:
+    - writing_production_code
+    - deploying_infrastructure
+    - economy_ledger_mutations
+    - payments_infrastructure
+  allowed_task_types:
+    - AUDIT
+    - VERIFICATION
+  forbidden_task_types:
+    - FOUNDATION
+    - ISOLATED_FIX
+    - REFACTOR
+  stop_conditions:
+    - "Prompt asks to write new features"

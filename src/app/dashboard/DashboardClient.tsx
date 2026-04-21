@@ -2,7 +2,6 @@
 
 import dynamic from "next/dynamic";
 import { useEffect, useMemo } from "react";
-import { Star } from "lucide-react";
 
 import { CreatorDiscoveryRail } from "@/components/CreatorDiscoveryRail";
 import { useAuth } from "@/context/AuthContext";

@@ -38,6 +38,7 @@ describe("admin UI chart health helpers", () => {
             category: "audience",
             source: "historical_analytics",
             updatedAtMs: nowMs - 10 * 60 * 1000,
+            nowMs,
             staleAfterMs: 24 * 60 * 60 * 1000,
             hasLoaded: true,
             hasData: false,
@@ -62,6 +63,7 @@ describe("admin UI chart health helpers", () => {
             category: "overview",
             source: "realtime_analytics",
             updatedAtMs: nowMs - 2 * 60 * 1000,
+            nowMs,
             staleAfterMs: 24 * 60 * 60 * 1000,
             hasLoaded: true,
             hasData: true,
@@ -87,6 +89,7 @@ describe("admin UI chart health helpers", () => {
             category: "overview",
             source: "overview_snapshot",
             updatedAtMs: nowMs - 20 * 60 * 1000,
+            nowMs,
             hasLoaded: true,
             hasData: true,
             healthySummary: "Loaded.",
@@ -102,6 +105,7 @@ describe("admin UI chart health helpers", () => {
     });
 
     it("summarizes category counts from the reported chart items", () => {
+        const nowMs = Date.UTC(2026, 3, 18, 12, 0, 0);
         const summary = summarizeAdminUiChartHealth([
             buildAdminUiChartHealthItem({
                 key: "dashboard.platform_pulse",
@@ -110,6 +114,7 @@ describe("admin UI chart health helpers", () => {
                 category: "overview",
                 source: "overview_snapshot",
                 updatedAtMs: Date.UTC(2026, 3, 18, 11, 59, 0),
+                nowMs,
                 staleAfterMs: 24 * 60 * 60 * 1000,
                 hasLoaded: true,
                 hasData: true,
@@ -123,6 +128,7 @@ describe("admin UI chart health helpers", () => {
                 category: "operations",
                 source: "historical_analytics",
                 updatedAtMs: Date.UTC(2026, 3, 18, 11, 58, 0),
+                nowMs,
                 staleAfterMs: 24 * 60 * 60 * 1000,
                 hasLoaded: true,
                 hasData: false,

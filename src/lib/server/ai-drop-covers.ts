@@ -4,7 +4,6 @@ import { FieldValue } from "firebase-admin/firestore";
 import { GoogleAuth } from "google-auth-library";
 
 import {
-    type AdminAiDropCoverErrorCode,
     ADMIN_AI_DROP_COVER_DEFAULT_LOCATION,
     ADMIN_AI_DROP_COVER_JOBS_COLLECTION,
     ADMIN_AI_DROP_COVER_MODEL,
@@ -17,24 +16,14 @@ import {
     ADMIN_AI_DROP_COVER_SETTINGS_DOC,
     ADMIN_AI_DROP_COVER_SUMMARY_COLLECTION,
     ADMIN_AI_DROP_COVER_SUMMARY_DOC,
-    adminAiDropCoverPromptPolicyPerformanceSchema,
-    adminAiDropCoverPromptPolicyHistoryEntrySchema,
-    adminAiDropCoverPromptPolicySchema,
     adminAiDropCoverReviewGalleryItemSchema,
-    adminAiDropCoverReferenceAssetSchema,
-    adminAiDropCoverJobSchema,
-    adminAiDropCoverConsistencyRecipeSchema,
     adminAiDropCoverRuntimeSchema,
-    adminAiDropCoverSettingsSchema,
     adminAiDropCoverSummarySchema,
     buildAdminAiDropCoverConsistencyRecipe,
     buildAdminAiDropCoverPrompt,
     estimateAdminAiDropCoverCostUsd,
-    getAdminAiDropCoverGenerationMode,
     getAdminAiDropCoverMaxReferenceInputs,
     getAdminAiDropCoverModelOption,
-    getAdminAiDropCoverPriceBasis,
-    getAdminAiDropCoverPricePerGenerationUsd,
     getAdminAiDropCoverRecipeLabel,
     getAdminAiDropCoverSelectableModelOptions,
     getDefaultAdminAiDropCoverPromptPolicy,
@@ -54,7 +43,6 @@ import {
     type AdminAiDropCoverFeedbackAction,
     type AdminAiDropCoverGenerationMode,
     type AdminAiDropCoverJobRecord,
-    type AdminAiDropCoverJobStatus,
     type AdminAiDropCoverRuntimeDiagnostic,
     type AdminAiDropCoverSelectableModel,
     type AdminAiDropCoverConsistencyRecipe,
@@ -72,7 +60,6 @@ import { recordRouteWarning } from "@/lib/server/route-diagnostics";
 import { recordServerDiagnostic } from "@/lib/server/server-diagnostics";
 import {
     ensureFirebaseDownloadUrl,
-    sanitizeStorageFileName,
     type StorageObjectMetadata,
 } from "@/lib/server/storage-assets";
 
@@ -215,7 +202,6 @@ import {
     createStoragePath,
     createTemplateReferenceStoragePath,
     formatIsoTimestamp,
-    getGenerationModeDefaults,
     getString,
     normalizeJobRecord,
     normalizeLibraryAsset,

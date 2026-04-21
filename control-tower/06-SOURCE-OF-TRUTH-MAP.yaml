@@ -1,0 +1,155 @@
+# Source of Truth Map
+# Use this to locate canonical data. Do not hallucinate. If unknown, leave as unknown.
+
+auth_state:
+  owner_files_or_modules: "src/lib/auth.ts, src/hooks/useAuthSWR.ts"
+  canonical_source: "Firebase Auth"
+  hydration_path: "onAuthStateChanged -> SWR Context"
+  realtime_or_polled: "realtime"
+  fallback_behavior: "unauthenticated guest state"
+  admin_visibility: "live"
+  known_risks: "stale tokens if SWR revalidation fails"
+
+user_profile:
+  owner_files_or_modules: "unknown"
+  canonical_source: "Firestore (users collection)"
+  hydration_path: "unknown"
+  realtime_or_polled: "unknown"
+  fallback_behavior: "unknown"
+  admin_visibility: "unknown"
+  known_risks: "unknown"
+
+drop_catalog:
+  owner_files_or_modules: "src/hooks/useDrops.ts"
+  canonical_source: "Firestore (_runtime/feed)"
+  hydration_path: "onSnapshot -> useDrops hook"
+  realtime_or_polled: "realtime"
+  fallback_behavior: "empty array"
+  admin_visibility: "live"
+  known_risks: "hydration mismatch if SSR data differs from client Firebase data"
+
+drop_view_count:
+  owner_files_or_modules: "unknown"
+  canonical_source: "unknown"
+  hydration_path: "unknown"
+  realtime_or_polled: "unknown"
+  fallback_behavior: "unknown"
+  admin_visibility: "unknown"
+  known_risks: "potential for duplicate increments"
+
+drop_timer_state:
+  owner_files_or_modules: "src/hooks/useNow.ts"
+  canonical_source: "Client system clock synced with server offset"
+  hydration_path: "useNow hook triggering re-renders"
+  realtime_or_polled: "realtime"
+  fallback_behavior: "stale static time"
+  admin_visibility: "none"
+  known_risks: "client clock skew"
+
+creator_spotlight:
+  owner_files_or_modules: "unknown"
+  canonical_source: "unknown"
+  hydration_path: "unknown"
+  realtime_or_polled: "unknown"
+  fallback_behavior: "unknown"
+  admin_visibility: "unknown"
+  known_risks: "unknown"
+
+my_kandydrops_library:
+  owner_files_or_modules: "unknown"
+  canonical_source: "unknown"
+  hydration_path: "unknown"
+  realtime_or_polled: "unknown"
+  fallback_behavior: "unknown"
+  admin_visibility: "unknown"
+  known_risks: "unknown"
+
+viewer_watch_time:
+  owner_files_or_modules: "src/hooks/useViewerWatchSession.ts"
+  canonical_source: "Client telemetry beacon"
+  hydration_path: "Local state -> Beacon API / Cloud Function"
+  realtime_or_polled: "polled (beacon)"
+  fallback_behavior: "loss of telemetry"
+  admin_visibility: "partial"
+  known_risks: "beacon failure on rapid navigation"
+
+viewer_session:
+  owner_files_or_modules: "src/hooks/useViewerWatchSession.ts"
+  canonical_source: "Firestore / Realtime Database presence"
+  hydration_path: "unknown"
+  realtime_or_polled: "realtime"
+  fallback_behavior: "unknown"
+  admin_visibility: "unknown"
+  known_risks: "unknown"
+
+recent_activity:
+  owner_files_or_modules: "unknown"
+  canonical_source: "unknown"
+  hydration_path: "unknown"
+  realtime_or_polled: "unknown"
+  fallback_behavior: "unknown"
+  admin_visibility: "unknown"
+  known_risks: "unknown"
+
+notifications:
+  owner_files_or_modules: "src/hooks/useNotifications.ts"
+  canonical_source: "Firestore (user_notifications collection)"
+  hydration_path: "unknown"
+  realtime_or_polled: "realtime"
+  fallback_behavior: "unknown"
+  admin_visibility: "unknown"
+  known_risks: "unknown"
+
+settings:
+  owner_files_or_modules: "unknown"
+  canonical_source: "Firestore (user_settings)"
+  hydration_path: "unknown"
+  realtime_or_polled: "unknown"
+  fallback_behavior: "local storage fallback"
+  admin_visibility: "unknown"
+  known_risks: "unknown"
+
+support_threads:
+  owner_files_or_modules: "unknown"
+  canonical_source: "unknown"
+  hydration_path: "unknown"
+  realtime_or_polled: "unknown"
+  fallback_behavior: "unknown"
+  admin_visibility: "unknown"
+  known_risks: "unknown"
+
+admin_truth_surfaces:
+  owner_files_or_modules: "src/app/admin/AdminTruthSurfaces.tsx"
+  canonical_source: "Firestore (_system collection)"
+  hydration_path: "onSnapshot direct"
+  realtime_or_polled: "realtime"
+  fallback_behavior: "shows [stale] or [fallback] tags"
+  admin_visibility: "live"
+  known_risks: "requires active telemetry scanners"
+
+telemetry_canonical_events:
+  owner_files_or_modules: "unknown"
+  canonical_source: "Google Analytics / Custom Firebase Events"
+  hydration_path: "unknown"
+  realtime_or_polled: "polled"
+  fallback_behavior: "failed transmission logged to console"
+  admin_visibility: "delayed"
+  known_risks: "ad blockers preventing beacon transmission"
+
+hot_storage:
+  owner_files_or_modules: "unknown"
+  canonical_source: "Firebase Realtime Database / _runtime collections"
+  hydration_path: "unknown"
+  realtime_or_polled: "realtime"
+  fallback_behavior: "unknown"
+  admin_visibility: "unknown"
+  known_risks: "high read costs if not memoized"
+
+cold_storage:
+  owner_files_or_modules: "unknown"
+  canonical_source: "PostgreSQL / Data Connect"
+  hydration_path: "unknown"
+  realtime_or_polled: "polled"
+  fallback_behavior: "unknown"
+  admin_visibility: "unknown"
+  known_risks: "unknown"

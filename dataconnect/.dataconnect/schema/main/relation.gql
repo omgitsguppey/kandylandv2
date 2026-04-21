@@ -1,0 +1,2232 @@
+extend type AgentActiveTask {
+  """
+  Implicit metadata field that cannot be written. It provides extra information about query results.
+  """
+  _metadata: _Metadata @fdc_generated(from: "AgentActiveTask", purpose: METADATA_FIELD)
+  """
+  ✨ Count the number of rows in the `AgentActiveTask` table.
+  """
+  _count: Int! @fdc_generated(from: "AgentActiveTask.", purpose: QUERY_COUNT)
+  """
+  ✨ Count the number of rows in the `AgentActiveTask` table where the `agentName` field is non-null. Pass the `distinct` argument to instead count the number of distinct values.
+  """
+  agentName_count(
+    """
+    Set to true to count the number of distinct values.
+    """
+    distinct: Boolean = false
+  ): Int! @fdc_generated(from: "AgentActiveTask.agentName", purpose: QUERY_COUNT)
+  """
+  ✨ Count the number of rows in the `AgentActiveTask` table where the `expiresAt` field is non-null. Pass the `distinct` argument to instead count the number of distinct values.
+  """
+  expiresAt_count(
+    """
+    Set to true to count the number of distinct values.
+    """
+    distinct: Boolean = false
+  ): Int! @fdc_generated(from: "AgentActiveTask.expiresAt", purpose: QUERY_COUNT)
+  """
+  ✨ Count the number of rows in the `AgentActiveTask` table where the `generatedAt` field is non-null. Pass the `distinct` argument to instead count the number of distinct values.
+  """
+  generatedAt_count(
+    """
+    Set to true to count the number of distinct values.
+    """
+    distinct: Boolean = false
+  ): Int! @fdc_generated(from: "AgentActiveTask.generatedAt", purpose: QUERY_COUNT)
+  """
+  ✨ Count the number of rows in the `AgentActiveTask` table where the `likelyTouchedSurfacesJson` field is non-null. Pass the `distinct` argument to instead count the number of distinct values.
+  """
+  likelyTouchedSurfacesJson_count(
+    """
+    Set to true to count the number of distinct values.
+    """
+    distinct: Boolean = false
+  ): Int! @fdc_generated(from: "AgentActiveTask.likelyTouchedSurfacesJson", purpose: QUERY_COUNT)
+  """
+  ✨ Count the number of rows in the `AgentActiveTask` table where the `lockStrength` field is non-null. Pass the `distinct` argument to instead count the number of distinct values.
+  """
+  lockStrength_count(
+    """
+    Set to true to count the number of distinct values.
+    """
+    distinct: Boolean = false
+  ): Int! @fdc_generated(from: "AgentActiveTask.lockStrength", purpose: QUERY_COUNT)
+  """
+  ✨ Count the number of rows in the `AgentActiveTask` table where the `sourceHash` field is non-null. Pass the `distinct` argument to instead count the number of distinct values.
+  """
+  sourceHash_count(
+    """
+    Set to true to count the number of distinct values.
+    """
+    distinct: Boolean = false
+  ): Int! @fdc_generated(from: "AgentActiveTask.sourceHash", purpose: QUERY_COUNT)
+  """
+  ✨ Count the number of rows in the `AgentActiveTask` table where the `sourcePath` field is non-null. Pass the `distinct` argument to instead count the number of distinct values.
+  """
+  sourcePath_count(
+    """
+    Set to true to count the number of distinct values.
+    """
+    distinct: Boolean = false
+  ): Int! @fdc_generated(from: "AgentActiveTask.sourcePath", purpose: QUERY_COUNT)
+  """
+  ✨ Count the number of rows in the `AgentActiveTask` table where the `stale` field is non-null. Pass the `distinct` argument to instead count the number of distinct values.
+  """
+  stale_count(
+    """
+    Set to true to count the number of distinct values.
+    """
+    distinct: Boolean = false
+  ): Int! @fdc_generated(from: "AgentActiveTask.stale", purpose: QUERY_COUNT)
+  """
+  ✨ Count the number of rows in the `AgentActiveTask` table where the `startedAt` field is non-null. Pass the `distinct` argument to instead count the number of distinct values.
+  """
+  startedAt_count(
+    """
+    Set to true to count the number of distinct values.
+    """
+    distinct: Boolean = false
+  ): Int! @fdc_generated(from: "AgentActiveTask.startedAt", purpose: QUERY_COUNT)
+  """
+  ✨ Count the number of rows in the `AgentActiveTask` table where the `status` field is non-null. Pass the `distinct` argument to instead count the number of distinct values.
+  """
+  status_count(
+    """
+    Set to true to count the number of distinct values.
+    """
+    distinct: Boolean = false
+  ): Int! @fdc_generated(from: "AgentActiveTask.status", purpose: QUERY_COUNT)
+  """
+  ✨ Count the number of rows in the `AgentActiveTask` table where the `syncRevision` field is non-null. Pass the `distinct` argument to instead count the number of distinct values.
+  """
+  syncRevision_count(
+    """
+    Set to true to count the number of distinct values.
+    """
+    distinct: Boolean = false
+  ): Int! @fdc_generated(from: "AgentActiveTask.syncRevision", purpose: QUERY_COUNT)
+  """
+  ✨ Count the number of rows in the `AgentActiveTask` table where the `syncedAt` field is non-null. Pass the `distinct` argument to instead count the number of distinct values.
+  """
+  syncedAt_count(
+    """
+    Set to true to count the number of distinct values.
+    """
+    distinct: Boolean = false
+  ): Int! @fdc_generated(from: "AgentActiveTask.syncedAt", purpose: QUERY_COUNT)
+  """
+  ✨ Count the number of rows in the `AgentActiveTask` table where the `taskId` field is non-null. Pass the `distinct` argument to instead count the number of distinct values.
+  """
+  taskId_count(
+    """
+    Set to true to count the number of distinct values.
+    """
+    distinct: Boolean = false
+  ): Int! @fdc_generated(from: "AgentActiveTask.taskId", purpose: QUERY_COUNT)
+  """
+  ✨ Minimum of the `expiresAt` field in the `AgentActiveTask` table.
+  """
+  expiresAt_min: Date @fdc_generated(from: "AgentActiveTask.expiresAt", purpose: QUERY_MIN)
+  """
+  ✨ Minimum of the `generatedAt` field in the `AgentActiveTask` table.
+  """
+  generatedAt_min: Date @fdc_generated(from: "AgentActiveTask.generatedAt", purpose: QUERY_MIN)
+  """
+  ✨ Minimum of the `startedAt` field in the `AgentActiveTask` table.
+  """
+  startedAt_min: Date @fdc_generated(from: "AgentActiveTask.startedAt", purpose: QUERY_MIN)
+  """
+  ✨ Minimum of the `syncedAt` field in the `AgentActiveTask` table.
+  """
+  syncedAt_min: Date @fdc_generated(from: "AgentActiveTask.syncedAt", purpose: QUERY_MIN)
+  """
+  ✨ Maximum of the `expiresAt` field in the `AgentActiveTask` table.
+  """
+  expiresAt_max: Date @fdc_generated(from: "AgentActiveTask.expiresAt", purpose: QUERY_MAX)
+  """
+  ✨ Maximum of the `generatedAt` field in the `AgentActiveTask` table.
+  """
+  generatedAt_max: Date @fdc_generated(from: "AgentActiveTask.generatedAt", purpose: QUERY_MAX)
+  """
+  ✨ Maximum of the `startedAt` field in the `AgentActiveTask` table.
+  """
+  startedAt_max: Date @fdc_generated(from: "AgentActiveTask.startedAt", purpose: QUERY_MAX)
+  """
+  ✨ Maximum of the `syncedAt` field in the `AgentActiveTask` table.
+  """
+  syncedAt_max: Date @fdc_generated(from: "AgentActiveTask.syncedAt", purpose: QUERY_MAX)
+  """
+  A generated field that is used for caching results in SDKs.
+  """
+  _id: ID! @fdc_generated(from: "AgentActiveTask.taskId", purpose: ENTITY_ID)
+}
+extend type AgentCanonicalHelper {
+  """
+  Implicit metadata field that cannot be written. It provides extra information about query results.
+  """
+  _metadata: _Metadata @fdc_generated(from: "AgentCanonicalHelper", purpose: METADATA_FIELD)
+  """
+  ✨ Count the number of rows in the `AgentCanonicalHelper` table.
+  """
+  _count: Int! @fdc_generated(from: "AgentCanonicalHelper.", purpose: QUERY_COUNT)
+  """
+  ✨ Count the number of rows in the `AgentCanonicalHelper` table where the `broadSignoffLikely` field is non-null. Pass the `distinct` argument to instead count the number of distinct values.
+  """
+  broadSignoffLikely_count(
+    """
+    Set to true to count the number of distinct values.
+    """
+    distinct: Boolean = false
+  ): Int! @fdc_generated(from: "AgentCanonicalHelper.broadSignoffLikely", purpose: QUERY_COUNT)
+  """
+  ✨ Count the number of rows in the `AgentCanonicalHelper` table where the `generatedAt` field is non-null. Pass the `distinct` argument to instead count the number of distinct values.
+  """
+  generatedAt_count(
+    """
+    Set to true to count the number of distinct values.
+    """
+    distinct: Boolean = false
+  ): Int! @fdc_generated(from: "AgentCanonicalHelper.generatedAt", purpose: QUERY_COUNT)
+  """
+  ✨ Count the number of rows in the `AgentCanonicalHelper` table where the `helperFamily` field is non-null. Pass the `distinct` argument to instead count the number of distinct values.
+  """
+  helperFamily_count(
+    """
+    Set to true to count the number of distinct values.
+    """
+    distinct: Boolean = false
+  ): Int! @fdc_generated(from: "AgentCanonicalHelper.helperFamily", purpose: QUERY_COUNT)
+  """
+  ✨ Count the number of rows in the `AgentCanonicalHelper` table where the `path` field is non-null. Pass the `distinct` argument to instead count the number of distinct values.
+  """
+  path_count(
+    """
+    Set to true to count the number of distinct values.
+    """
+    distinct: Boolean = false
+  ): Int! @fdc_generated(from: "AgentCanonicalHelper.path", purpose: QUERY_COUNT)
+  """
+  ✨ Count the number of rows in the `AgentCanonicalHelper` table where the `purpose` field is non-null. Pass the `distinct` argument to instead count the number of distinct values.
+  """
+  purpose_count(
+    """
+    Set to true to count the number of distinct values.
+    """
+    distinct: Boolean = false
+  ): Int! @fdc_generated(from: "AgentCanonicalHelper.purpose", purpose: QUERY_COUNT)
+  """
+  ✨ Count the number of rows in the `AgentCanonicalHelper` table where the `reuseBeforeNew` field is non-null. Pass the `distinct` argument to instead count the number of distinct values.
+  """
+  reuseBeforeNew_count(
+    """
+    Set to true to count the number of distinct values.
+    """
+    distinct: Boolean = false
+  ): Int! @fdc_generated(from: "AgentCanonicalHelper.reuseBeforeNew", purpose: QUERY_COUNT)
+  """
+  ✨ Count the number of rows in the `AgentCanonicalHelper` table where the `riskIfChanged` field is non-null. Pass the `distinct` argument to instead count the number of distinct values.
+  """
+  riskIfChanged_count(
+    """
+    Set to true to count the number of distinct values.
+    """
+    distinct: Boolean = false
+  ): Int! @fdc_generated(from: "AgentCanonicalHelper.riskIfChanged", purpose: QUERY_COUNT)
+  """
+  ✨ Count the number of rows in the `AgentCanonicalHelper` table where the `sourceHash` field is non-null. Pass the `distinct` argument to instead count the number of distinct values.
+  """
+  sourceHash_count(
+    """
+    Set to true to count the number of distinct values.
+    """
+    distinct: Boolean = false
+  ): Int! @fdc_generated(from: "AgentCanonicalHelper.sourceHash", purpose: QUERY_COUNT)
+  """
+  ✨ Count the number of rows in the `AgentCanonicalHelper` table where the `sourcePath` field is non-null. Pass the `distinct` argument to instead count the number of distinct values.
+  """
+  sourcePath_count(
+    """
+    Set to true to count the number of distinct values.
+    """
+    distinct: Boolean = false
+  ): Int! @fdc_generated(from: "AgentCanonicalHelper.sourcePath", purpose: QUERY_COUNT)
+  """
+  ✨ Count the number of rows in the `AgentCanonicalHelper` table where the `stableId` field is non-null. Pass the `distinct` argument to instead count the number of distinct values.
+  """
+  stableId_count(
+    """
+    Set to true to count the number of distinct values.
+    """
+    distinct: Boolean = false
+  ): Int! @fdc_generated(from: "AgentCanonicalHelper.stableId", purpose: QUERY_COUNT)
+  """
+  ✨ Count the number of rows in the `AgentCanonicalHelper` table where the `stale` field is non-null. Pass the `distinct` argument to instead count the number of distinct values.
+  """
+  stale_count(
+    """
+    Set to true to count the number of distinct values.
+    """
+    distinct: Boolean = false
+  ): Int! @fdc_generated(from: "AgentCanonicalHelper.stale", purpose: QUERY_COUNT)
+  """
+  ✨ Count the number of rows in the `AgentCanonicalHelper` table where the `syncRevision` field is non-null. Pass the `distinct` argument to instead count the number of distinct values.
+  """
+  syncRevision_count(
+    """
+    Set to true to count the number of distinct values.
+    """
+    distinct: Boolean = false
+  ): Int! @fdc_generated(from: "AgentCanonicalHelper.syncRevision", purpose: QUERY_COUNT)
+  """
+  ✨ Count the number of rows in the `AgentCanonicalHelper` table where the `syncedAt` field is non-null. Pass the `distinct` argument to instead count the number of distinct values.
+  """
+  syncedAt_count(
+    """
+    Set to true to count the number of distinct values.
+    """
+    distinct: Boolean = false
+  ): Int! @fdc_generated(from: "AgentCanonicalHelper.syncedAt", purpose: QUERY_COUNT)
+  """
+  ✨ Count the number of rows in the `AgentCanonicalHelper` table where the `typicalCallersJson` field is non-null. Pass the `distinct` argument to instead count the number of distinct values.
+  """
+  typicalCallersJson_count(
+    """
+    Set to true to count the number of distinct values.
+    """
+    distinct: Boolean = false
+  ): Int! @fdc_generated(from: "AgentCanonicalHelper.typicalCallersJson", purpose: QUERY_COUNT)
+  """
+  ✨ Minimum of the `generatedAt` field in the `AgentCanonicalHelper` table.
+  """
+  generatedAt_min: Date @fdc_generated(from: "AgentCanonicalHelper.generatedAt", purpose: QUERY_MIN)
+  """
+  ✨ Minimum of the `syncedAt` field in the `AgentCanonicalHelper` table.
+  """
+  syncedAt_min: Date @fdc_generated(from: "AgentCanonicalHelper.syncedAt", purpose: QUERY_MIN)
+  """
+  ✨ Maximum of the `generatedAt` field in the `AgentCanonicalHelper` table.
+  """
+  generatedAt_max: Date @fdc_generated(from: "AgentCanonicalHelper.generatedAt", purpose: QUERY_MAX)
+  """
+  ✨ Maximum of the `syncedAt` field in the `AgentCanonicalHelper` table.
+  """
+  syncedAt_max: Date @fdc_generated(from: "AgentCanonicalHelper.syncedAt", purpose: QUERY_MAX)
+  """
+  A generated field that is used for caching results in SDKs.
+  """
+  _id: ID! @fdc_generated(from: "AgentCanonicalHelper.stableId", purpose: ENTITY_ID)
+}
+extend type AgentHandoff {
+  """
+  Implicit metadata field that cannot be written. It provides extra information about query results.
+  """
+  _metadata: _Metadata @fdc_generated(from: "AgentHandoff", purpose: METADATA_FIELD)
+  """
+  ✨ Count the number of rows in the `AgentHandoff` table.
+  """
+  _count: Int! @fdc_generated(from: "AgentHandoff.", purpose: QUERY_COUNT)
+  """
+  ✨ Count the number of rows in the `AgentHandoff` table where the `changedFilesJson` field is non-null. Pass the `distinct` argument to instead count the number of distinct values.
+  """
+  changedFilesJson_count(
+    """
+    Set to true to count the number of distinct values.
+    """
+    distinct: Boolean = false
+  ): Int! @fdc_generated(from: "AgentHandoff.changedFilesJson", purpose: QUERY_COUNT)
+  """
+  ✨ Count the number of rows in the `AgentHandoff` table where the `cleanupDoneJson` field is non-null. Pass the `distinct` argument to instead count the number of distinct values.
+  """
+  cleanupDoneJson_count(
+    """
+    Set to true to count the number of distinct values.
+    """
+    distinct: Boolean = false
+  ): Int! @fdc_generated(from: "AgentHandoff.cleanupDoneJson", purpose: QUERY_COUNT)
+  """
+  ✨ Count the number of rows in the `AgentHandoff` table where the `commandsNotRunJson` field is non-null. Pass the `distinct` argument to instead count the number of distinct values.
+  """
+  commandsNotRunJson_count(
+    """
+    Set to true to count the number of distinct values.
+    """
+    distinct: Boolean = false
+  ): Int! @fdc_generated(from: "AgentHandoff.commandsNotRunJson", purpose: QUERY_COUNT)
+  """
+  ✨ Count the number of rows in the `AgentHandoff` table where the `commandsRunJson` field is non-null. Pass the `distinct` argument to instead count the number of distinct values.
+  """
+  commandsRunJson_count(
+    """
+    Set to true to count the number of distinct values.
+    """
+    distinct: Boolean = false
+  ): Int! @fdc_generated(from: "AgentHandoff.commandsRunJson", purpose: QUERY_COUNT)
+  """
+  ✨ Count the number of rows in the `AgentHandoff` table where the `finalStatus` field is non-null. Pass the `distinct` argument to instead count the number of distinct values.
+  """
+  finalStatus_count(
+    """
+    Set to true to count the number of distinct values.
+    """
+    distinct: Boolean = false
+  ): Int! @fdc_generated(from: "AgentHandoff.finalStatus", purpose: QUERY_COUNT)
+  """
+  ✨ Count the number of rows in the `AgentHandoff` table where the `generatedAt` field is non-null. Pass the `distinct` argument to instead count the number of distinct values.
+  """
+  generatedAt_count(
+    """
+    Set to true to count the number of distinct values.
+    """
+    distinct: Boolean = false
+  ): Int! @fdc_generated(from: "AgentHandoff.generatedAt", purpose: QUERY_COUNT)
+  """
+  ✨ Count the number of rows in the `AgentHandoff` table where the `helperFamiliesReusedJson` field is non-null. Pass the `distinct` argument to instead count the number of distinct values.
+  """
+  helperFamiliesReusedJson_count(
+    """
+    Set to true to count the number of distinct values.
+    """
+    distinct: Boolean = false
+  ): Int! @fdc_generated(from: "AgentHandoff.helperFamiliesReusedJson", purpose: QUERY_COUNT)
+  """
+  ✨ Count the number of rows in the `AgentHandoff` table where the `nextBestInspectionPoint` field is non-null. Pass the `distinct` argument to instead count the number of distinct values.
+  """
+  nextBestInspectionPoint_count(
+    """
+    Set to true to count the number of distinct values.
+    """
+    distinct: Boolean = false
+  ): Int! @fdc_generated(from: "AgentHandoff.nextBestInspectionPoint", purpose: QUERY_COUNT)
+  """
+  ✨ Count the number of rows in the `AgentHandoff` table where the `sourceHash` field is non-null. Pass the `distinct` argument to instead count the number of distinct values.
+  """
+  sourceHash_count(
+    """
+    Set to true to count the number of distinct values.
+    """
+    distinct: Boolean = false
+  ): Int! @fdc_generated(from: "AgentHandoff.sourceHash", purpose: QUERY_COUNT)
+  """
+  ✨ Count the number of rows in the `AgentHandoff` table where the `sourcePath` field is non-null. Pass the `distinct` argument to instead count the number of distinct values.
+  """
+  sourcePath_count(
+    """
+    Set to true to count the number of distinct values.
+    """
+    distinct: Boolean = false
+  ): Int! @fdc_generated(from: "AgentHandoff.sourcePath", purpose: QUERY_COUNT)
+  """
+  ✨ Count the number of rows in the `AgentHandoff` table where the `stale` field is non-null. Pass the `distinct` argument to instead count the number of distinct values.
+  """
+  stale_count(
+    """
+    Set to true to count the number of distinct values.
+    """
+    distinct: Boolean = false
+  ): Int! @fdc_generated(from: "AgentHandoff.stale", purpose: QUERY_COUNT)
+  """
+  ✨ Count the number of rows in the `AgentHandoff` table where the `syncRevision` field is non-null. Pass the `distinct` argument to instead count the number of distinct values.
+  """
+  syncRevision_count(
+    """
+    Set to true to count the number of distinct values.
+    """
+    distinct: Boolean = false
+  ): Int! @fdc_generated(from: "AgentHandoff.syncRevision", purpose: QUERY_COUNT)
+  """
+  ✨ Count the number of rows in the `AgentHandoff` table where the `syncedAt` field is non-null. Pass the `distinct` argument to instead count the number of distinct values.
+  """
+  syncedAt_count(
+    """
+    Set to true to count the number of distinct values.
+    """
+    distinct: Boolean = false
+  ): Int! @fdc_generated(from: "AgentHandoff.syncedAt", purpose: QUERY_COUNT)
+  """
+  ✨ Count the number of rows in the `AgentHandoff` table where the `taskId` field is non-null. Pass the `distinct` argument to instead count the number of distinct values.
+  """
+  taskId_count(
+    """
+    Set to true to count the number of distinct values.
+    """
+    distinct: Boolean = false
+  ): Int! @fdc_generated(from: "AgentHandoff.taskId", purpose: QUERY_COUNT)
+  """
+  ✨ Count the number of rows in the `AgentHandoff` table where the `unresolvedSuspicionsJson` field is non-null. Pass the `distinct` argument to instead count the number of distinct values.
+  """
+  unresolvedSuspicionsJson_count(
+    """
+    Set to true to count the number of distinct values.
+    """
+    distinct: Boolean = false
+  ): Int! @fdc_generated(from: "AgentHandoff.unresolvedSuspicionsJson", purpose: QUERY_COUNT)
+  """
+  ✨ Minimum of the `generatedAt` field in the `AgentHandoff` table.
+  """
+  generatedAt_min: Date @fdc_generated(from: "AgentHandoff.generatedAt", purpose: QUERY_MIN)
+  """
+  ✨ Minimum of the `syncedAt` field in the `AgentHandoff` table.
+  """
+  syncedAt_min: Date @fdc_generated(from: "AgentHandoff.syncedAt", purpose: QUERY_MIN)
+  """
+  ✨ Maximum of the `generatedAt` field in the `AgentHandoff` table.
+  """
+  generatedAt_max: Date @fdc_generated(from: "AgentHandoff.generatedAt", purpose: QUERY_MAX)
+  """
+  ✨ Maximum of the `syncedAt` field in the `AgentHandoff` table.
+  """
+  syncedAt_max: Date @fdc_generated(from: "AgentHandoff.syncedAt", purpose: QUERY_MAX)
+  """
+  A generated field that is used for caching results in SDKs.
+  """
+  _id: ID! @fdc_generated(from: "AgentHandoff.taskId", purpose: ENTITY_ID)
+}
+extend type AgentKnowledgeRecord {
+  """
+  Implicit metadata field that cannot be written. It provides extra information about query results.
+  """
+  _metadata: _Metadata @fdc_generated(from: "AgentKnowledgeRecord", purpose: METADATA_FIELD)
+  """
+  ✨ Count the number of rows in the `AgentKnowledgeRecord` table.
+  """
+  _count: Int! @fdc_generated(from: "AgentKnowledgeRecord.", purpose: QUERY_COUNT)
+  """
+  ✨ Count the number of rows in the `AgentKnowledgeRecord` table where the `bodyJson` field is non-null. Pass the `distinct` argument to instead count the number of distinct values.
+  """
+  bodyJson_count(
+    """
+    Set to true to count the number of distinct values.
+    """
+    distinct: Boolean = false
+  ): Int! @fdc_generated(from: "AgentKnowledgeRecord.bodyJson", purpose: QUERY_COUNT)
+  """
+  ✨ Count the number of rows in the `AgentKnowledgeRecord` table where the `generatedAt` field is non-null. Pass the `distinct` argument to instead count the number of distinct values.
+  """
+  generatedAt_count(
+    """
+    Set to true to count the number of distinct values.
+    """
+    distinct: Boolean = false
+  ): Int! @fdc_generated(from: "AgentKnowledgeRecord.generatedAt", purpose: QUERY_COUNT)
+  """
+  ✨ Count the number of rows in the `AgentKnowledgeRecord` table where the `recordType` field is non-null. Pass the `distinct` argument to instead count the number of distinct values.
+  """
+  recordType_count(
+    """
+    Set to true to count the number of distinct values.
+    """
+    distinct: Boolean = false
+  ): Int! @fdc_generated(from: "AgentKnowledgeRecord.recordType", purpose: QUERY_COUNT)
+  """
+  ✨ Count the number of rows in the `AgentKnowledgeRecord` table where the `sourceHash` field is non-null. Pass the `distinct` argument to instead count the number of distinct values.
+  """
+  sourceHash_count(
+    """
+    Set to true to count the number of distinct values.
+    """
+    distinct: Boolean = false
+  ): Int! @fdc_generated(from: "AgentKnowledgeRecord.sourceHash", purpose: QUERY_COUNT)
+  """
+  ✨ Count the number of rows in the `AgentKnowledgeRecord` table where the `sourcePath` field is non-null. Pass the `distinct` argument to instead count the number of distinct values.
+  """
+  sourcePath_count(
+    """
+    Set to true to count the number of distinct values.
+    """
+    distinct: Boolean = false
+  ): Int! @fdc_generated(from: "AgentKnowledgeRecord.sourcePath", purpose: QUERY_COUNT)
+  """
+  ✨ Count the number of rows in the `AgentKnowledgeRecord` table where the `stableId` field is non-null. Pass the `distinct` argument to instead count the number of distinct values.
+  """
+  stableId_count(
+    """
+    Set to true to count the number of distinct values.
+    """
+    distinct: Boolean = false
+  ): Int! @fdc_generated(from: "AgentKnowledgeRecord.stableId", purpose: QUERY_COUNT)
+  """
+  ✨ Count the number of rows in the `AgentKnowledgeRecord` table where the `stale` field is non-null. Pass the `distinct` argument to instead count the number of distinct values.
+  """
+  stale_count(
+    """
+    Set to true to count the number of distinct values.
+    """
+    distinct: Boolean = false
+  ): Int! @fdc_generated(from: "AgentKnowledgeRecord.stale", purpose: QUERY_COUNT)
+  """
+  ✨ Count the number of rows in the `AgentKnowledgeRecord` table where the `syncRevision` field is non-null. Pass the `distinct` argument to instead count the number of distinct values.
+  """
+  syncRevision_count(
+    """
+    Set to true to count the number of distinct values.
+    """
+    distinct: Boolean = false
+  ): Int! @fdc_generated(from: "AgentKnowledgeRecord.syncRevision", purpose: QUERY_COUNT)
+  """
+  ✨ Count the number of rows in the `AgentKnowledgeRecord` table where the `syncedAt` field is non-null. Pass the `distinct` argument to instead count the number of distinct values.
+  """
+  syncedAt_count(
+    """
+    Set to true to count the number of distinct values.
+    """
+    distinct: Boolean = false
+  ): Int! @fdc_generated(from: "AgentKnowledgeRecord.syncedAt", purpose: QUERY_COUNT)
+  """
+  ✨ Count the number of rows in the `AgentKnowledgeRecord` table where the `title` field is non-null. Pass the `distinct` argument to instead count the number of distinct values.
+  """
+  title_count(
+    """
+    Set to true to count the number of distinct values.
+    """
+    distinct: Boolean = false
+  ): Int! @fdc_generated(from: "AgentKnowledgeRecord.title", purpose: QUERY_COUNT)
+  """
+  ✨ Minimum of the `generatedAt` field in the `AgentKnowledgeRecord` table.
+  """
+  generatedAt_min: Date @fdc_generated(from: "AgentKnowledgeRecord.generatedAt", purpose: QUERY_MIN)
+  """
+  ✨ Minimum of the `syncedAt` field in the `AgentKnowledgeRecord` table.
+  """
+  syncedAt_min: Date @fdc_generated(from: "AgentKnowledgeRecord.syncedAt", purpose: QUERY_MIN)
+  """
+  ✨ Maximum of the `generatedAt` field in the `AgentKnowledgeRecord` table.
+  """
+  generatedAt_max: Date @fdc_generated(from: "AgentKnowledgeRecord.generatedAt", purpose: QUERY_MAX)
+  """
+  ✨ Maximum of the `syncedAt` field in the `AgentKnowledgeRecord` table.
+  """
+  syncedAt_max: Date @fdc_generated(from: "AgentKnowledgeRecord.syncedAt", purpose: QUERY_MAX)
+  """
+  A generated field that is used for caching results in SDKs.
+  """
+  _id: ID! @fdc_generated(from: "AgentKnowledgeRecord.stableId", purpose: ENTITY_ID)
+}
+extend type AgentRepoInventory {
+  """
+  Implicit metadata field that cannot be written. It provides extra information about query results.
+  """
+  _metadata: _Metadata @fdc_generated(from: "AgentRepoInventory", purpose: METADATA_FIELD)
+  """
+  ✨ Count the number of rows in the `AgentRepoInventory` table.
+  """
+  _count: Int! @fdc_generated(from: "AgentRepoInventory.", purpose: QUERY_COUNT)
+  """
+  ✨ Count the number of rows in the `AgentRepoInventory` table where the `dataconnectRelated` field is non-null. Pass the `distinct` argument to instead count the number of distinct values.
+  """
+  dataconnectRelated_count(
+    """
+    Set to true to count the number of distinct values.
+    """
+    distinct: Boolean = false
+  ): Int! @fdc_generated(from: "AgentRepoInventory.dataconnectRelated", purpose: QUERY_COUNT)
+  """
+  ✨ Count the number of rows in the `AgentRepoInventory` table where the `evidenceOnly` field is non-null. Pass the `distinct` argument to instead count the number of distinct values.
+  """
+  evidenceOnly_count(
+    """
+    Set to true to count the number of distinct values.
+    """
+    distinct: Boolean = false
+  ): Int! @fdc_generated(from: "AgentRepoInventory.evidenceOnly", purpose: QUERY_COUNT)
+  """
+  ✨ Count the number of rows in the `AgentRepoInventory` table where the `fileClass` field is non-null. Pass the `distinct` argument to instead count the number of distinct values.
+  """
+  fileClass_count(
+    """
+    Set to true to count the number of distinct values.
+    """
+    distinct: Boolean = false
+  ): Int! @fdc_generated(from: "AgentRepoInventory.fileClass", purpose: QUERY_COUNT)
+  """
+  ✨ Count the number of rows in the `AgentRepoInventory` table where the `functionsRelated` field is non-null. Pass the `distinct` argument to instead count the number of distinct values.
+  """
+  functionsRelated_count(
+    """
+    Set to true to count the number of distinct values.
+    """
+    distinct: Boolean = false
+  ): Int! @fdc_generated(from: "AgentRepoInventory.functionsRelated", purpose: QUERY_COUNT)
+  """
+  ✨ Count the number of rows in the `AgentRepoInventory` table where the `generatedAt` field is non-null. Pass the `distinct` argument to instead count the number of distinct values.
+  """
+  generatedAt_count(
+    """
+    Set to true to count the number of distinct values.
+    """
+    distinct: Boolean = false
+  ): Int! @fdc_generated(from: "AgentRepoInventory.generatedAt", purpose: QUERY_COUNT)
+  """
+  ✨ Count the number of rows in the `AgentRepoInventory` table where the `generated` field is non-null. Pass the `distinct` argument to instead count the number of distinct values.
+  """
+  generated_count(
+    """
+    Set to true to count the number of distinct values.
+    """
+    distinct: Boolean = false
+  ): Int! @fdc_generated(from: "AgentRepoInventory.generated", purpose: QUERY_COUNT)
+  """
+  ✨ Count the number of rows in the `AgentRepoInventory` table where the `governanceArtifact` field is non-null. Pass the `distinct` argument to instead count the number of distinct values.
+  """
+  governanceArtifact_count(
+    """
+    Set to true to count the number of distinct values.
+    """
+    distinct: Boolean = false
+  ): Int! @fdc_generated(from: "AgentRepoInventory.governanceArtifact", purpose: QUERY_COUNT)
+  """
+  ✨ Count the number of rows in the `AgentRepoInventory` table where the `lastModifiedOrHash` field is non-null. Pass the `distinct` argument to instead count the number of distinct values.
+  """
+  lastModifiedOrHash_count(
+    """
+    Set to true to count the number of distinct values.
+    """
+    distinct: Boolean = false
+  ): Int! @fdc_generated(from: "AgentRepoInventory.lastModifiedOrHash", purpose: QUERY_COUNT)
+  """
+  ✨ Count the number of rows in the `AgentRepoInventory` table where the `likelyBroadSignoffRelevant` field is non-null. Pass the `distinct` argument to instead count the number of distinct values.
+  """
+  likelyBroadSignoffRelevant_count(
+    """
+    Set to true to count the number of distinct values.
+    """
+    distinct: Boolean = false
+  ): Int! @fdc_generated(from: "AgentRepoInventory.likelyBroadSignoffRelevant", purpose: QUERY_COUNT)
+  """
+  ✨ Count the number of rows in the `AgentRepoInventory` table where the `likelySharedHelper` field is non-null. Pass the `distinct` argument to instead count the number of distinct values.
+  """
+  likelySharedHelper_count(
+    """
+    Set to true to count the number of distinct values.
+    """
+    distinct: Boolean = false
+  ): Int! @fdc_generated(from: "AgentRepoInventory.likelySharedHelper", purpose: QUERY_COUNT)
+  """
+  ✨ Count the number of rows in the `AgentRepoInventory` table where the `path` field is non-null. Pass the `distinct` argument to instead count the number of distinct values.
+  """
+  path_count(
+    """
+    Set to true to count the number of distinct values.
+    """
+    distinct: Boolean = false
+  ): Int! @fdc_generated(from: "AgentRepoInventory.path", purpose: QUERY_COUNT)
+  """
+  ✨ Count the number of rows in the `AgentRepoInventory` table where the `runtimeCritical` field is non-null. Pass the `distinct` argument to instead count the number of distinct values.
+  """
+  runtimeCritical_count(
+    """
+    Set to true to count the number of distinct values.
+    """
+    distinct: Boolean = false
+  ): Int! @fdc_generated(from: "AgentRepoInventory.runtimeCritical", purpose: QUERY_COUNT)
+  """
+  ✨ Count the number of rows in the `AgentRepoInventory` table where the `sourceHash` field is non-null. Pass the `distinct` argument to instead count the number of distinct values.
+  """
+  sourceHash_count(
+    """
+    Set to true to count the number of distinct values.
+    """
+    distinct: Boolean = false
+  ): Int! @fdc_generated(from: "AgentRepoInventory.sourceHash", purpose: QUERY_COUNT)
+  """
+  ✨ Count the number of rows in the `AgentRepoInventory` table where the `sourcePath` field is non-null. Pass the `distinct` argument to instead count the number of distinct values.
+  """
+  sourcePath_count(
+    """
+    Set to true to count the number of distinct values.
+    """
+    distinct: Boolean = false
+  ): Int! @fdc_generated(from: "AgentRepoInventory.sourcePath", purpose: QUERY_COUNT)
+  """
+  ✨ Count the number of rows in the `AgentRepoInventory` table where the `stableId` field is non-null. Pass the `distinct` argument to instead count the number of distinct values.
+  """
+  stableId_count(
+    """
+    Set to true to count the number of distinct values.
+    """
+    distinct: Boolean = false
+  ): Int! @fdc_generated(from: "AgentRepoInventory.stableId", purpose: QUERY_COUNT)
+  """
+  ✨ Count the number of rows in the `AgentRepoInventory` table where the `stale` field is non-null. Pass the `distinct` argument to instead count the number of distinct values.
+  """
+  stale_count(
+    """
+    Set to true to count the number of distinct values.
+    """
+    distinct: Boolean = false
+  ): Int! @fdc_generated(from: "AgentRepoInventory.stale", purpose: QUERY_COUNT)
+  """
+  ✨ Count the number of rows in the `AgentRepoInventory` table where the `surfaceCategory` field is non-null. Pass the `distinct` argument to instead count the number of distinct values.
+  """
+  surfaceCategory_count(
+    """
+    Set to true to count the number of distinct values.
+    """
+    distinct: Boolean = false
+  ): Int! @fdc_generated(from: "AgentRepoInventory.surfaceCategory", purpose: QUERY_COUNT)
+  """
+  ✨ Count the number of rows in the `AgentRepoInventory` table where the `syncRevision` field is non-null. Pass the `distinct` argument to instead count the number of distinct values.
+  """
+  syncRevision_count(
+    """
+    Set to true to count the number of distinct values.
+    """
+    distinct: Boolean = false
+  ): Int! @fdc_generated(from: "AgentRepoInventory.syncRevision", purpose: QUERY_COUNT)
+  """
+  ✨ Count the number of rows in the `AgentRepoInventory` table where the `syncedAt` field is non-null. Pass the `distinct` argument to instead count the number of distinct values.
+  """
+  syncedAt_count(
+    """
+    Set to true to count the number of distinct values.
+    """
+    distinct: Boolean = false
+  ): Int! @fdc_generated(from: "AgentRepoInventory.syncedAt", purpose: QUERY_COUNT)
+  """
+  ✨ Count the number of rows in the `AgentRepoInventory` table where the `workflowGuidance` field is non-null. Pass the `distinct` argument to instead count the number of distinct values.
+  """
+  workflowGuidance_count(
+    """
+    Set to true to count the number of distinct values.
+    """
+    distinct: Boolean = false
+  ): Int! @fdc_generated(from: "AgentRepoInventory.workflowGuidance", purpose: QUERY_COUNT)
+  """
+  ✨ Minimum of the `generatedAt` field in the `AgentRepoInventory` table.
+  """
+  generatedAt_min: Date @fdc_generated(from: "AgentRepoInventory.generatedAt", purpose: QUERY_MIN)
+  """
+  ✨ Minimum of the `syncedAt` field in the `AgentRepoInventory` table.
+  """
+  syncedAt_min: Date @fdc_generated(from: "AgentRepoInventory.syncedAt", purpose: QUERY_MIN)
+  """
+  ✨ Maximum of the `generatedAt` field in the `AgentRepoInventory` table.
+  """
+  generatedAt_max: Date @fdc_generated(from: "AgentRepoInventory.generatedAt", purpose: QUERY_MAX)
+  """
+  ✨ Maximum of the `syncedAt` field in the `AgentRepoInventory` table.
+  """
+  syncedAt_max: Date @fdc_generated(from: "AgentRepoInventory.syncedAt", purpose: QUERY_MAX)
+  """
+  A generated field that is used for caching results in SDKs.
+  """
+  _id: ID! @fdc_generated(from: "AgentRepoInventory.stableId", purpose: ENTITY_ID)
+}
+extend type AgentRetrievalEdge {
+  """
+  Implicit metadata field that cannot be written. It provides extra information about query results.
+  """
+  _metadata: _Metadata @fdc_generated(from: "AgentRetrievalEdge", purpose: METADATA_FIELD)
+  """
+  ✨ Count the number of rows in the `AgentRetrievalEdge` table.
+  """
+  _count: Int! @fdc_generated(from: "AgentRetrievalEdge.", purpose: QUERY_COUNT)
+  """
+  ✨ Count the number of rows in the `AgentRetrievalEdge` table where the `edgeType` field is non-null. Pass the `distinct` argument to instead count the number of distinct values.
+  """
+  edgeType_count(
+    """
+    Set to true to count the number of distinct values.
+    """
+    distinct: Boolean = false
+  ): Int! @fdc_generated(from: "AgentRetrievalEdge.edgeType", purpose: QUERY_COUNT)
+  """
+  ✨ Count the number of rows in the `AgentRetrievalEdge` table where the `generatedAt` field is non-null. Pass the `distinct` argument to instead count the number of distinct values.
+  """
+  generatedAt_count(
+    """
+    Set to true to count the number of distinct values.
+    """
+    distinct: Boolean = false
+  ): Int! @fdc_generated(from: "AgentRetrievalEdge.generatedAt", purpose: QUERY_COUNT)
+  """
+  ✨ Count the number of rows in the `AgentRetrievalEdge` table where the `rationale` field is non-null. Pass the `distinct` argument to instead count the number of distinct values.
+  """
+  rationale_count(
+    """
+    Set to true to count the number of distinct values.
+    """
+    distinct: Boolean = false
+  ): Int! @fdc_generated(from: "AgentRetrievalEdge.rationale", purpose: QUERY_COUNT)
+  """
+  ✨ Count the number of rows in the `AgentRetrievalEdge` table where the `sourceHash` field is non-null. Pass the `distinct` argument to instead count the number of distinct values.
+  """
+  sourceHash_count(
+    """
+    Set to true to count the number of distinct values.
+    """
+    distinct: Boolean = false
+  ): Int! @fdc_generated(from: "AgentRetrievalEdge.sourceHash", purpose: QUERY_COUNT)
+  """
+  ✨ Count the number of rows in the `AgentRetrievalEdge` table where the `sourceId` field is non-null. Pass the `distinct` argument to instead count the number of distinct values.
+  """
+  sourceId_count(
+    """
+    Set to true to count the number of distinct values.
+    """
+    distinct: Boolean = false
+  ): Int! @fdc_generated(from: "AgentRetrievalEdge.sourceId", purpose: QUERY_COUNT)
+  """
+  ✨ Count the number of rows in the `AgentRetrievalEdge` table where the `sourcePath` field is non-null. Pass the `distinct` argument to instead count the number of distinct values.
+  """
+  sourcePath_count(
+    """
+    Set to true to count the number of distinct values.
+    """
+    distinct: Boolean = false
+  ): Int! @fdc_generated(from: "AgentRetrievalEdge.sourcePath", purpose: QUERY_COUNT)
+  """
+  ✨ Count the number of rows in the `AgentRetrievalEdge` table where the `stableId` field is non-null. Pass the `distinct` argument to instead count the number of distinct values.
+  """
+  stableId_count(
+    """
+    Set to true to count the number of distinct values.
+    """
+    distinct: Boolean = false
+  ): Int! @fdc_generated(from: "AgentRetrievalEdge.stableId", purpose: QUERY_COUNT)
+  """
+  ✨ Count the number of rows in the `AgentRetrievalEdge` table where the `stale` field is non-null. Pass the `distinct` argument to instead count the number of distinct values.
+  """
+  stale_count(
+    """
+    Set to true to count the number of distinct values.
+    """
+    distinct: Boolean = false
+  ): Int! @fdc_generated(from: "AgentRetrievalEdge.stale", purpose: QUERY_COUNT)
+  """
+  ✨ Count the number of rows in the `AgentRetrievalEdge` table where the `syncRevision` field is non-null. Pass the `distinct` argument to instead count the number of distinct values.
+  """
+  syncRevision_count(
+    """
+    Set to true to count the number of distinct values.
+    """
+    distinct: Boolean = false
+  ): Int! @fdc_generated(from: "AgentRetrievalEdge.syncRevision", purpose: QUERY_COUNT)
+  """
+  ✨ Count the number of rows in the `AgentRetrievalEdge` table where the `syncedAt` field is non-null. Pass the `distinct` argument to instead count the number of distinct values.
+  """
+  syncedAt_count(
+    """
+    Set to true to count the number of distinct values.
+    """
+    distinct: Boolean = false
+  ): Int! @fdc_generated(from: "AgentRetrievalEdge.syncedAt", purpose: QUERY_COUNT)
+  """
+  ✨ Count the number of rows in the `AgentRetrievalEdge` table where the `targetId` field is non-null. Pass the `distinct` argument to instead count the number of distinct values.
+  """
+  targetId_count(
+    """
+    Set to true to count the number of distinct values.
+    """
+    distinct: Boolean = false
+  ): Int! @fdc_generated(from: "AgentRetrievalEdge.targetId", purpose: QUERY_COUNT)
+  """
+  ✨ Count the number of rows in the `AgentRetrievalEdge` table where the `weight` field is non-null. Pass the `distinct` argument to instead count the number of distinct values.
+  """
+  weight_count(
+    """
+    Set to true to count the number of distinct values.
+    """
+    distinct: Boolean = false
+  ): Int! @fdc_generated(from: "AgentRetrievalEdge.weight", purpose: QUERY_COUNT)
+  """
+  ✨ Sum the `weight` field in the `AgentRetrievalEdge` table.
+  """
+  weight_sum(
+    """
+    Set to true to sum the distinct values.
+    """
+    distinct: Boolean = false
+  ): Int @fdc_generated(from: "AgentRetrievalEdge.weight", purpose: QUERY_SUM)
+  """
+  ✨ Average the `weight` field in the `AgentRetrievalEdge` table.
+  """
+  weight_avg(
+    """
+    Set to true to average the distinct values.
+    """
+    distinct: Boolean = false
+  ): Float @fdc_generated(from: "AgentRetrievalEdge.weight", purpose: QUERY_AVG)
+  """
+  ✨ Minimum of the `generatedAt` field in the `AgentRetrievalEdge` table.
+  """
+  generatedAt_min: Date @fdc_generated(from: "AgentRetrievalEdge.generatedAt", purpose: QUERY_MIN)
+  """
+  ✨ Minimum of the `syncedAt` field in the `AgentRetrievalEdge` table.
+  """
+  syncedAt_min: Date @fdc_generated(from: "AgentRetrievalEdge.syncedAt", purpose: QUERY_MIN)
+  """
+  ✨ Minimum of the `weight` field in the `AgentRetrievalEdge` table.
+  """
+  weight_min: Int @fdc_generated(from: "AgentRetrievalEdge.weight", purpose: QUERY_MIN)
+  """
+  ✨ Maximum of the `generatedAt` field in the `AgentRetrievalEdge` table.
+  """
+  generatedAt_max: Date @fdc_generated(from: "AgentRetrievalEdge.generatedAt", purpose: QUERY_MAX)
+  """
+  ✨ Maximum of the `syncedAt` field in the `AgentRetrievalEdge` table.
+  """
+  syncedAt_max: Date @fdc_generated(from: "AgentRetrievalEdge.syncedAt", purpose: QUERY_MAX)
+  """
+  ✨ Maximum of the `weight` field in the `AgentRetrievalEdge` table.
+  """
+  weight_max: Int @fdc_generated(from: "AgentRetrievalEdge.weight", purpose: QUERY_MAX)
+  """
+  A generated field that is used for caching results in SDKs.
+  """
+  _id: ID! @fdc_generated(from: "AgentRetrievalEdge.stableId", purpose: ENTITY_ID)
+}
+extend type AgentSurfaceMap {
+  """
+  Implicit metadata field that cannot be written. It provides extra information about query results.
+  """
+  _metadata: _Metadata @fdc_generated(from: "AgentSurfaceMap", purpose: METADATA_FIELD)
+  """
+  ✨ Count the number of rows in the `AgentSurfaceMap` table.
+  """
+  _count: Int! @fdc_generated(from: "AgentSurfaceMap.", purpose: QUERY_COUNT)
+  """
+  ✨ Count the number of rows in the `AgentSurfaceMap` table where the `broadWorkTrigger` field is non-null. Pass the `distinct` argument to instead count the number of distinct values.
+  """
+  broadWorkTrigger_count(
+    """
+    Set to true to count the number of distinct values.
+    """
+    distinct: Boolean = false
+  ): Int! @fdc_generated(from: "AgentSurfaceMap.broadWorkTrigger", purpose: QUERY_COUNT)
+  """
+  ✨ Count the number of rows in the `AgentSurfaceMap` table where the `dangerNotesJson` field is non-null. Pass the `distinct` argument to instead count the number of distinct values.
+  """
+  dangerNotesJson_count(
+    """
+    Set to true to count the number of distinct values.
+    """
+    distinct: Boolean = false
+  ): Int! @fdc_generated(from: "AgentSurfaceMap.dangerNotesJson", purpose: QUERY_COUNT)
+  """
+  ✨ Count the number of rows in the `AgentSurfaceMap` table where the `description` field is non-null. Pass the `distinct` argument to instead count the number of distinct values.
+  """
+  description_count(
+    """
+    Set to true to count the number of distinct values.
+    """
+    distinct: Boolean = false
+  ): Int! @fdc_generated(from: "AgentSurfaceMap.description", purpose: QUERY_COUNT)
+  """
+  ✨ Count the number of rows in the `AgentSurfaceMap` table where the `generatedAt` field is non-null. Pass the `distinct` argument to instead count the number of distinct values.
+  """
+  generatedAt_count(
+    """
+    Set to true to count the number of distinct values.
+    """
+    distinct: Boolean = false
+  ): Int! @fdc_generated(from: "AgentSurfaceMap.generatedAt", purpose: QUERY_COUNT)
+  """
+  ✨ Count the number of rows in the `AgentSurfaceMap` table where the `name` field is non-null. Pass the `distinct` argument to instead count the number of distinct values.
+  """
+  name_count(
+    """
+    Set to true to count the number of distinct values.
+    """
+    distinct: Boolean = false
+  ): Int! @fdc_generated(from: "AgentSurfaceMap.name", purpose: QUERY_COUNT)
+  """
+  ✨ Count the number of rows in the `AgentSurfaceMap` table where the `pathPrefixesJson` field is non-null. Pass the `distinct` argument to instead count the number of distinct values.
+  """
+  pathPrefixesJson_count(
+    """
+    Set to true to count the number of distinct values.
+    """
+    distinct: Boolean = false
+  ): Int! @fdc_generated(from: "AgentSurfaceMap.pathPrefixesJson", purpose: QUERY_COUNT)
+  """
+  ✨ Count the number of rows in the `AgentSurfaceMap` table where the `relatedDeployOrRulesSurfacesJson` field is non-null. Pass the `distinct` argument to instead count the number of distinct values.
+  """
+  relatedDeployOrRulesSurfacesJson_count(
+    """
+    Set to true to count the number of distinct values.
+    """
+    distinct: Boolean = false
+  ): Int! @fdc_generated(from: "AgentSurfaceMap.relatedDeployOrRulesSurfacesJson", purpose: QUERY_COUNT)
+  """
+  ✨ Count the number of rows in the `AgentSurfaceMap` table where the `relatedHelperFamiliesJson` field is non-null. Pass the `distinct` argument to instead count the number of distinct values.
+  """
+  relatedHelperFamiliesJson_count(
+    """
+    Set to true to count the number of distinct values.
+    """
+    distinct: Boolean = false
+  ): Int! @fdc_generated(from: "AgentSurfaceMap.relatedHelperFamiliesJson", purpose: QUERY_COUNT)
+  """
+  ✨ Count the number of rows in the `AgentSurfaceMap` table where the `relatedObservabilityLanesJson` field is non-null. Pass the `distinct` argument to instead count the number of distinct values.
+  """
+  relatedObservabilityLanesJson_count(
+    """
+    Set to true to count the number of distinct values.
+    """
+    distinct: Boolean = false
+  ): Int! @fdc_generated(from: "AgentSurfaceMap.relatedObservabilityLanesJson", purpose: QUERY_COUNT)
+  """
+  ✨ Count the number of rows in the `AgentSurfaceMap` table where the `relatedVerificationLanesJson` field is non-null. Pass the `distinct` argument to instead count the number of distinct values.
+  """
+  relatedVerificationLanesJson_count(
+    """
+    Set to true to count the number of distinct values.
+    """
+    distinct: Boolean = false
+  ): Int! @fdc_generated(from: "AgentSurfaceMap.relatedVerificationLanesJson", purpose: QUERY_COUNT)
+  """
+  ✨ Count the number of rows in the `AgentSurfaceMap` table where the `runtimeSensitivity` field is non-null. Pass the `distinct` argument to instead count the number of distinct values.
+  """
+  runtimeSensitivity_count(
+    """
+    Set to true to count the number of distinct values.
+    """
+    distinct: Boolean = false
+  ): Int! @fdc_generated(from: "AgentSurfaceMap.runtimeSensitivity", purpose: QUERY_COUNT)
+  """
+  ✨ Count the number of rows in the `AgentSurfaceMap` table where the `sourceHash` field is non-null. Pass the `distinct` argument to instead count the number of distinct values.
+  """
+  sourceHash_count(
+    """
+    Set to true to count the number of distinct values.
+    """
+    distinct: Boolean = false
+  ): Int! @fdc_generated(from: "AgentSurfaceMap.sourceHash", purpose: QUERY_COUNT)
+  """
+  ✨ Count the number of rows in the `AgentSurfaceMap` table where the `sourcePath` field is non-null. Pass the `distinct` argument to instead count the number of distinct values.
+  """
+  sourcePath_count(
+    """
+    Set to true to count the number of distinct values.
+    """
+    distinct: Boolean = false
+  ): Int! @fdc_generated(from: "AgentSurfaceMap.sourcePath", purpose: QUERY_COUNT)
+  """
+  ✨ Count the number of rows in the `AgentSurfaceMap` table where the `stableId` field is non-null. Pass the `distinct` argument to instead count the number of distinct values.
+  """
+  stableId_count(
+    """
+    Set to true to count the number of distinct values.
+    """
+    distinct: Boolean = false
+  ): Int! @fdc_generated(from: "AgentSurfaceMap.stableId", purpose: QUERY_COUNT)
+  """
+  ✨ Count the number of rows in the `AgentSurfaceMap` table where the `stale` field is non-null. Pass the `distinct` argument to instead count the number of distinct values.
+  """
+  stale_count(
+    """
+    Set to true to count the number of distinct values.
+    """
+    distinct: Boolean = false
+  ): Int! @fdc_generated(from: "AgentSurfaceMap.stale", purpose: QUERY_COUNT)
+  """
+  ✨ Count the number of rows in the `AgentSurfaceMap` table where the `syncRevision` field is non-null. Pass the `distinct` argument to instead count the number of distinct values.
+  """
+  syncRevision_count(
+    """
+    Set to true to count the number of distinct values.
+    """
+    distinct: Boolean = false
+  ): Int! @fdc_generated(from: "AgentSurfaceMap.syncRevision", purpose: QUERY_COUNT)
+  """
+  ✨ Count the number of rows in the `AgentSurfaceMap` table where the `syncedAt` field is non-null. Pass the `distinct` argument to instead count the number of distinct values.
+  """
+  syncedAt_count(
+    """
+    Set to true to count the number of distinct values.
+    """
+    distinct: Boolean = false
+  ): Int! @fdc_generated(from: "AgentSurfaceMap.syncedAt", purpose: QUERY_COUNT)
+  """
+  ✨ Minimum of the `generatedAt` field in the `AgentSurfaceMap` table.
+  """
+  generatedAt_min: Date @fdc_generated(from: "AgentSurfaceMap.generatedAt", purpose: QUERY_MIN)
+  """
+  ✨ Minimum of the `syncedAt` field in the `AgentSurfaceMap` table.
+  """
+  syncedAt_min: Date @fdc_generated(from: "AgentSurfaceMap.syncedAt", purpose: QUERY_MIN)
+  """
+  ✨ Maximum of the `generatedAt` field in the `AgentSurfaceMap` table.
+  """
+  generatedAt_max: Date @fdc_generated(from: "AgentSurfaceMap.generatedAt", purpose: QUERY_MAX)
+  """
+  ✨ Maximum of the `syncedAt` field in the `AgentSurfaceMap` table.
+  """
+  syncedAt_max: Date @fdc_generated(from: "AgentSurfaceMap.syncedAt", purpose: QUERY_MAX)
+  """
+  A generated field that is used for caching results in SDKs.
+  """
+  _id: ID! @fdc_generated(from: "AgentSurfaceMap.stableId", purpose: ENTITY_ID)
+}
+extend type AgentTaskContextRun {
+  """
+  Implicit metadata field that cannot be written. It provides extra information about query results.
+  """
+  _metadata: _Metadata @fdc_generated(from: "AgentTaskContextRun", purpose: METADATA_FIELD)
+  """
+  ✨ Count the number of rows in the `AgentTaskContextRun` table.
+  """
+  _count: Int! @fdc_generated(from: "AgentTaskContextRun.", purpose: QUERY_COUNT)
+  """
+  ✨ Count the number of rows in the `AgentTaskContextRun` table where the `canonicalHelpersJson` field is non-null. Pass the `distinct` argument to instead count the number of distinct values.
+  """
+  canonicalHelpersJson_count(
+    """
+    Set to true to count the number of distinct values.
+    """
+    distinct: Boolean = false
+  ): Int! @fdc_generated(from: "AgentTaskContextRun.canonicalHelpersJson", purpose: QUERY_COUNT)
+  """
+  ✨ Count the number of rows in the `AgentTaskContextRun` table where the `generatedAt` field is non-null. Pass the `distinct` argument to instead count the number of distinct values.
+  """
+  generatedAt_count(
+    """
+    Set to true to count the number of distinct values.
+    """
+    distinct: Boolean = false
+  ): Int! @fdc_generated(from: "AgentTaskContextRun.generatedAt", purpose: QUERY_COUNT)
+  """
+  ✨ Count the number of rows in the `AgentTaskContextRun` table where the `likelyAdjacentFilesJson` field is non-null. Pass the `distinct` argument to instead count the number of distinct values.
+  """
+  likelyAdjacentFilesJson_count(
+    """
+    Set to true to count the number of distinct values.
+    """
+    distinct: Boolean = false
+  ): Int! @fdc_generated(from: "AgentTaskContextRun.likelyAdjacentFilesJson", purpose: QUERY_COUNT)
+  """
+  ✨ Count the number of rows in the `AgentTaskContextRun` table where the `likelySurfaceCategory` field is non-null. Pass the `distinct` argument to instead count the number of distinct values.
+  """
+  likelySurfaceCategory_count(
+    """
+    Set to true to count the number of distinct values.
+    """
+    distinct: Boolean = false
+  ): Int! @fdc_generated(from: "AgentTaskContextRun.likelySurfaceCategory", purpose: QUERY_COUNT)
+  """
+  ✨ Count the number of rows in the `AgentTaskContextRun` table where the `likelyTouchedFilesJson` field is non-null. Pass the `distinct` argument to instead count the number of distinct values.
+  """
+  likelyTouchedFilesJson_count(
+    """
+    Set to true to count the number of distinct values.
+    """
+    distinct: Boolean = false
+  ): Int! @fdc_generated(from: "AgentTaskContextRun.likelyTouchedFilesJson", purpose: QUERY_COUNT)
+  """
+  ✨ Count the number of rows in the `AgentTaskContextRun` table where the `relevantKnownPitfallsJson` field is non-null. Pass the `distinct` argument to instead count the number of distinct values.
+  """
+  relevantKnownPitfallsJson_count(
+    """
+    Set to true to count the number of distinct values.
+    """
+    distinct: Boolean = false
+  ): Int! @fdc_generated(from: "AgentTaskContextRun.relevantKnownPitfallsJson", purpose: QUERY_COUNT)
+  """
+  ✨ Count the number of rows in the `AgentTaskContextRun` table where the `requiredVerificationCommandsJson` field is non-null. Pass the `distinct` argument to instead count the number of distinct values.
+  """
+  requiredVerificationCommandsJson_count(
+    """
+    Set to true to count the number of distinct values.
+    """
+    distinct: Boolean = false
+  ): Int! @fdc_generated(from: "AgentTaskContextRun.requiredVerificationCommandsJson", purpose: QUERY_COUNT)
+  """
+  ✨ Count the number of rows in the `AgentTaskContextRun` table where the `scopeClassification` field is non-null. Pass the `distinct` argument to instead count the number of distinct values.
+  """
+  scopeClassification_count(
+    """
+    Set to true to count the number of distinct values.
+    """
+    distinct: Boolean = false
+  ): Int! @fdc_generated(from: "AgentTaskContextRun.scopeClassification", purpose: QUERY_COUNT)
+  """
+  ✨ Count the number of rows in the `AgentTaskContextRun` table where the `sourceHash` field is non-null. Pass the `distinct` argument to instead count the number of distinct values.
+  """
+  sourceHash_count(
+    """
+    Set to true to count the number of distinct values.
+    """
+    distinct: Boolean = false
+  ): Int! @fdc_generated(from: "AgentTaskContextRun.sourceHash", purpose: QUERY_COUNT)
+  """
+  ✨ Count the number of rows in the `AgentTaskContextRun` table where the `sourcePath` field is non-null. Pass the `distinct` argument to instead count the number of distinct values.
+  """
+  sourcePath_count(
+    """
+    Set to true to count the number of distinct values.
+    """
+    distinct: Boolean = false
+  ): Int! @fdc_generated(from: "AgentTaskContextRun.sourcePath", purpose: QUERY_COUNT)
+  """
+  ✨ Count the number of rows in the `AgentTaskContextRun` table where the `sqlMirrorFreshnessState` field is non-null. Pass the `distinct` argument to instead count the number of distinct values.
+  """
+  sqlMirrorFreshnessState_count(
+    """
+    Set to true to count the number of distinct values.
+    """
+    distinct: Boolean = false
+  ): Int! @fdc_generated(from: "AgentTaskContextRun.sqlMirrorFreshnessState", purpose: QUERY_COUNT)
+  """
+  ✨ Count the number of rows in the `AgentTaskContextRun` table where the `stableId` field is non-null. Pass the `distinct` argument to instead count the number of distinct values.
+  """
+  stableId_count(
+    """
+    Set to true to count the number of distinct values.
+    """
+    distinct: Boolean = false
+  ): Int! @fdc_generated(from: "AgentTaskContextRun.stableId", purpose: QUERY_COUNT)
+  """
+  ✨ Count the number of rows in the `AgentTaskContextRun` table where the `stale` field is non-null. Pass the `distinct` argument to instead count the number of distinct values.
+  """
+  stale_count(
+    """
+    Set to true to count the number of distinct values.
+    """
+    distinct: Boolean = false
+  ): Int! @fdc_generated(from: "AgentTaskContextRun.stale", purpose: QUERY_COUNT)
+  """
+  ✨ Count the number of rows in the `AgentTaskContextRun` table where the `syncRevision` field is non-null. Pass the `distinct` argument to instead count the number of distinct values.
+  """
+  syncRevision_count(
+    """
+    Set to true to count the number of distinct values.
+    """
+    distinct: Boolean = false
+  ): Int! @fdc_generated(from: "AgentTaskContextRun.syncRevision", purpose: QUERY_COUNT)
+  """
+  ✨ Count the number of rows in the `AgentTaskContextRun` table where the `syncedAt` field is non-null. Pass the `distinct` argument to instead count the number of distinct values.
+  """
+  syncedAt_count(
+    """
+    Set to true to count the number of distinct values.
+    """
+    distinct: Boolean = false
+  ): Int! @fdc_generated(from: "AgentTaskContextRun.syncedAt", purpose: QUERY_COUNT)
+  """
+  ✨ Count the number of rows in the `AgentTaskContextRun` table where the `taskMode` field is non-null. Pass the `distinct` argument to instead count the number of distinct values.
+  """
+  taskMode_count(
+    """
+    Set to true to count the number of distinct values.
+    """
+    distinct: Boolean = false
+  ): Int! @fdc_generated(from: "AgentTaskContextRun.taskMode", purpose: QUERY_COUNT)
+  """
+  ✨ Count the number of rows in the `AgentTaskContextRun` table where the `taskSummary` field is non-null. Pass the `distinct` argument to instead count the number of distinct values.
+  """
+  taskSummary_count(
+    """
+    Set to true to count the number of distinct values.
+    """
+    distinct: Boolean = false
+  ): Int! @fdc_generated(from: "AgentTaskContextRun.taskSummary", purpose: QUERY_COUNT)
+  """
+  ✨ Minimum of the `generatedAt` field in the `AgentTaskContextRun` table.
+  """
+  generatedAt_min: Date @fdc_generated(from: "AgentTaskContextRun.generatedAt", purpose: QUERY_MIN)
+  """
+  ✨ Minimum of the `syncedAt` field in the `AgentTaskContextRun` table.
+  """
+  syncedAt_min: Date @fdc_generated(from: "AgentTaskContextRun.syncedAt", purpose: QUERY_MIN)
+  """
+  ✨ Maximum of the `generatedAt` field in the `AgentTaskContextRun` table.
+  """
+  generatedAt_max: Date @fdc_generated(from: "AgentTaskContextRun.generatedAt", purpose: QUERY_MAX)
+  """
+  ✨ Maximum of the `syncedAt` field in the `AgentTaskContextRun` table.
+  """
+  syncedAt_max: Date @fdc_generated(from: "AgentTaskContextRun.syncedAt", purpose: QUERY_MAX)
+  """
+  A generated field that is used for caching results in SDKs.
+  """
+  _id: ID! @fdc_generated(from: "AgentTaskContextRun.stableId", purpose: ENTITY_ID)
+}
+extend type AgentVerificationCommand {
+  """
+  Implicit metadata field that cannot be written. It provides extra information about query results.
+  """
+  _metadata: _Metadata @fdc_generated(from: "AgentVerificationCommand", purpose: METADATA_FIELD)
+  """
+  ✨ Count the number of rows in the `AgentVerificationCommand` table.
+  """
+  _count: Int! @fdc_generated(from: "AgentVerificationCommand.", purpose: QUERY_COUNT)
+  """
+  ✨ Count the number of rows in the `AgentVerificationCommand` table where the `broadSignoffWeight` field is non-null. Pass the `distinct` argument to instead count the number of distinct values.
+  """
+  broadSignoffWeight_count(
+    """
+    Set to true to count the number of distinct values.
+    """
+    distinct: Boolean = false
+  ): Int! @fdc_generated(from: "AgentVerificationCommand.broadSignoffWeight", purpose: QUERY_COUNT)
+  """
+  ✨ Count the number of rows in the `AgentVerificationCommand` table where the `cleanupExpectedJson` field is non-null. Pass the `distinct` argument to instead count the number of distinct values.
+  """
+  cleanupExpectedJson_count(
+    """
+    Set to true to count the number of distinct values.
+    """
+    distinct: Boolean = false
+  ): Int! @fdc_generated(from: "AgentVerificationCommand.cleanupExpectedJson", purpose: QUERY_COUNT)
+  """
+  ✨ Count the number of rows in the `AgentVerificationCommand` table where the `command` field is non-null. Pass the `distinct` argument to instead count the number of distinct values.
+  """
+  command_count(
+    """
+    Set to true to count the number of distinct values.
+    """
+    distinct: Boolean = false
+  ): Int! @fdc_generated(from: "AgentVerificationCommand.command", purpose: QUERY_COUNT)
+  """
+  ✨ Count the number of rows in the `AgentVerificationCommand` table where the `generatedAt` field is non-null. Pass the `distinct` argument to instead count the number of distinct values.
+  """
+  generatedAt_count(
+    """
+    Set to true to count the number of distinct values.
+    """
+    distinct: Boolean = false
+  ): Int! @fdc_generated(from: "AgentVerificationCommand.generatedAt", purpose: QUERY_COUNT)
+  """
+  ✨ Count the number of rows in the `AgentVerificationCommand` table where the `optionalWhenJson` field is non-null. Pass the `distinct` argument to instead count the number of distinct values.
+  """
+  optionalWhenJson_count(
+    """
+    Set to true to count the number of distinct values.
+    """
+    distinct: Boolean = false
+  ): Int! @fdc_generated(from: "AgentVerificationCommand.optionalWhenJson", purpose: QUERY_COUNT)
+  """
+  ✨ Count the number of rows in the `AgentVerificationCommand` table where the `requiredWhenJson` field is non-null. Pass the `distinct` argument to instead count the number of distinct values.
+  """
+  requiredWhenJson_count(
+    """
+    Set to true to count the number of distinct values.
+    """
+    distinct: Boolean = false
+  ): Int! @fdc_generated(from: "AgentVerificationCommand.requiredWhenJson", purpose: QUERY_COUNT)
+  """
+  ✨ Count the number of rows in the `AgentVerificationCommand` table where the `rootOrFunctions` field is non-null. Pass the `distinct` argument to instead count the number of distinct values.
+  """
+  rootOrFunctions_count(
+    """
+    Set to true to count the number of distinct values.
+    """
+    distinct: Boolean = false
+  ): Int! @fdc_generated(from: "AgentVerificationCommand.rootOrFunctions", purpose: QUERY_COUNT)
+  """
+  ✨ Count the number of rows in the `AgentVerificationCommand` table where the `scopeType` field is non-null. Pass the `distinct` argument to instead count the number of distinct values.
+  """
+  scopeType_count(
+    """
+    Set to true to count the number of distinct values.
+    """
+    distinct: Boolean = false
+  ): Int! @fdc_generated(from: "AgentVerificationCommand.scopeType", purpose: QUERY_COUNT)
+  """
+  ✨ Count the number of rows in the `AgentVerificationCommand` table where the `sourceHash` field is non-null. Pass the `distinct` argument to instead count the number of distinct values.
+  """
+  sourceHash_count(
+    """
+    Set to true to count the number of distinct values.
+    """
+    distinct: Boolean = false
+  ): Int! @fdc_generated(from: "AgentVerificationCommand.sourceHash", purpose: QUERY_COUNT)
+  """
+  ✨ Count the number of rows in the `AgentVerificationCommand` table where the `sourcePath` field is non-null. Pass the `distinct` argument to instead count the number of distinct values.
+  """
+  sourcePath_count(
+    """
+    Set to true to count the number of distinct values.
+    """
+    distinct: Boolean = false
+  ): Int! @fdc_generated(from: "AgentVerificationCommand.sourcePath", purpose: QUERY_COUNT)
+  """
+  ✨ Count the number of rows in the `AgentVerificationCommand` table where the `stableId` field is non-null. Pass the `distinct` argument to instead count the number of distinct values.
+  """
+  stableId_count(
+    """
+    Set to true to count the number of distinct values.
+    """
+    distinct: Boolean = false
+  ): Int! @fdc_generated(from: "AgentVerificationCommand.stableId", purpose: QUERY_COUNT)
+  """
+  ✨ Count the number of rows in the `AgentVerificationCommand` table where the `stale` field is non-null. Pass the `distinct` argument to instead count the number of distinct values.
+  """
+  stale_count(
+    """
+    Set to true to count the number of distinct values.
+    """
+    distinct: Boolean = false
+  ): Int! @fdc_generated(from: "AgentVerificationCommand.stale", purpose: QUERY_COUNT)
+  """
+  ✨ Count the number of rows in the `AgentVerificationCommand` table where the `syncRevision` field is non-null. Pass the `distinct` argument to instead count the number of distinct values.
+  """
+  syncRevision_count(
+    """
+    Set to true to count the number of distinct values.
+    """
+    distinct: Boolean = false
+  ): Int! @fdc_generated(from: "AgentVerificationCommand.syncRevision", purpose: QUERY_COUNT)
+  """
+  ✨ Count the number of rows in the `AgentVerificationCommand` table where the `syncedAt` field is non-null. Pass the `distinct` argument to instead count the number of distinct values.
+  """
+  syncedAt_count(
+    """
+    Set to true to count the number of distinct values.
+    """
+    distinct: Boolean = false
+  ): Int! @fdc_generated(from: "AgentVerificationCommand.syncedAt", purpose: QUERY_COUNT)
+  """
+  ✨ Count the number of rows in the `AgentVerificationCommand` table where the `verifiesContinuity` field is non-null. Pass the `distinct` argument to instead count the number of distinct values.
+  """
+  verifiesContinuity_count(
+    """
+    Set to true to count the number of distinct values.
+    """
+    distinct: Boolean = false
+  ): Int! @fdc_generated(from: "AgentVerificationCommand.verifiesContinuity", purpose: QUERY_COUNT)
+  """
+  ✨ Count the number of rows in the `AgentVerificationCommand` table where the `verifiesInventory` field is non-null. Pass the `distinct` argument to instead count the number of distinct values.
+  """
+  verifiesInventory_count(
+    """
+    Set to true to count the number of distinct values.
+    """
+    distinct: Boolean = false
+  ): Int! @fdc_generated(from: "AgentVerificationCommand.verifiesInventory", purpose: QUERY_COUNT)
+  """
+  ✨ Count the number of rows in the `AgentVerificationCommand` table where the `verifiesRules` field is non-null. Pass the `distinct` argument to instead count the number of distinct values.
+  """
+  verifiesRules_count(
+    """
+    Set to true to count the number of distinct values.
+    """
+    distinct: Boolean = false
+  ): Int! @fdc_generated(from: "AgentVerificationCommand.verifiesRules", purpose: QUERY_COUNT)
+  """
+  ✨ Count the number of rows in the `AgentVerificationCommand` table where the `verifiesRuntime` field is non-null. Pass the `distinct` argument to instead count the number of distinct values.
+  """
+  verifiesRuntime_count(
+    """
+    Set to true to count the number of distinct values.
+    """
+    distinct: Boolean = false
+  ): Int! @fdc_generated(from: "AgentVerificationCommand.verifiesRuntime", purpose: QUERY_COUNT)
+  """
+  ✨ Count the number of rows in the `AgentVerificationCommand` table where the `verifiesUi` field is non-null. Pass the `distinct` argument to instead count the number of distinct values.
+  """
+  verifiesUi_count(
+    """
+    Set to true to count the number of distinct values.
+    """
+    distinct: Boolean = false
+  ): Int! @fdc_generated(from: "AgentVerificationCommand.verifiesUi", purpose: QUERY_COUNT)
+  """
+  ✨ Sum the `broadSignoffWeight` field in the `AgentVerificationCommand` table.
+  """
+  broadSignoffWeight_sum(
+    """
+    Set to true to sum the distinct values.
+    """
+    distinct: Boolean = false
+  ): Int @fdc_generated(from: "AgentVerificationCommand.broadSignoffWeight", purpose: QUERY_SUM)
+  """
+  ✨ Average the `broadSignoffWeight` field in the `AgentVerificationCommand` table.
+  """
+  broadSignoffWeight_avg(
+    """
+    Set to true to average the distinct values.
+    """
+    distinct: Boolean = false
+  ): Float @fdc_generated(from: "AgentVerificationCommand.broadSignoffWeight", purpose: QUERY_AVG)
+  """
+  ✨ Minimum of the `broadSignoffWeight` field in the `AgentVerificationCommand` table.
+  """
+  broadSignoffWeight_min: Int @fdc_generated(from: "AgentVerificationCommand.broadSignoffWeight", purpose: QUERY_MIN)
+  """
+  ✨ Minimum of the `generatedAt` field in the `AgentVerificationCommand` table.
+  """
+  generatedAt_min: Date @fdc_generated(from: "AgentVerificationCommand.generatedAt", purpose: QUERY_MIN)
+  """
+  ✨ Minimum of the `syncedAt` field in the `AgentVerificationCommand` table.
+  """
+  syncedAt_min: Date @fdc_generated(from: "AgentVerificationCommand.syncedAt", purpose: QUERY_MIN)
+  """
+  ✨ Maximum of the `broadSignoffWeight` field in the `AgentVerificationCommand` table.
+  """
+  broadSignoffWeight_max: Int @fdc_generated(from: "AgentVerificationCommand.broadSignoffWeight", purpose: QUERY_MAX)
+  """
+  ✨ Maximum of the `generatedAt` field in the `AgentVerificationCommand` table.
+  """
+  generatedAt_max: Date @fdc_generated(from: "AgentVerificationCommand.generatedAt", purpose: QUERY_MAX)
+  """
+  ✨ Maximum of the `syncedAt` field in the `AgentVerificationCommand` table.
+  """
+  syncedAt_max: Date @fdc_generated(from: "AgentVerificationCommand.syncedAt", purpose: QUERY_MAX)
+  """
+  A generated field that is used for caching results in SDKs.
+  """
+  _id: ID! @fdc_generated(from: "AgentVerificationCommand.stableId", purpose: ENTITY_ID)
+}
+extend type CreatorAffinityVector {
+  """
+  Implicit metadata field that cannot be written. It provides extra information about query results.
+  """
+  _metadata: _Metadata @fdc_generated(from: "CreatorAffinityVector", purpose: METADATA_FIELD)
+  """
+  ✨ Count the number of rows in the `CreatorAffinityVector` table.
+  """
+  _count: Int! @fdc_generated(from: "CreatorAffinityVector.", purpose: QUERY_COUNT)
+  """
+  ✨ Count the number of rows in the `CreatorAffinityVector` table where the `affinityScore` field is non-null. Pass the `distinct` argument to instead count the number of distinct values.
+  """
+  affinityScore_count(
+    """
+    Set to true to count the number of distinct values.
+    """
+    distinct: Boolean = false
+  ): Int! @fdc_generated(from: "CreatorAffinityVector.affinityScore", purpose: QUERY_COUNT)
+  """
+  ✨ Count the number of rows in the `CreatorAffinityVector` table where the `creatorId` field is non-null. Pass the `distinct` argument to instead count the number of distinct values.
+  """
+  creatorId_count(
+    """
+    Set to true to count the number of distinct values.
+    """
+    distinct: Boolean = false
+  ): Int! @fdc_generated(from: "CreatorAffinityVector.creatorId", purpose: QUERY_COUNT)
+  """
+  ✨ Count the number of rows in the `CreatorAffinityVector` table where the `dropsUnlockedCount` field is non-null. Pass the `distinct` argument to instead count the number of distinct values.
+  """
+  dropsUnlockedCount_count(
+    """
+    Set to true to count the number of distinct values.
+    """
+    distinct: Boolean = false
+  ): Int! @fdc_generated(from: "CreatorAffinityVector.dropsUnlockedCount", purpose: QUERY_COUNT)
+  """
+  ✨ Count the number of rows in the `CreatorAffinityVector` table where the `uid` field is non-null. Pass the `distinct` argument to instead count the number of distinct values.
+  """
+  uid_count(
+    """
+    Set to true to count the number of distinct values.
+    """
+    distinct: Boolean = false
+  ): Int! @fdc_generated(from: "CreatorAffinityVector.uid", purpose: QUERY_COUNT)
+  """
+  ✨ Count the number of rows in the `CreatorAffinityVector` table where the `updatedAt` field is non-null. Pass the `distinct` argument to instead count the number of distinct values.
+  """
+  updatedAt_count(
+    """
+    Set to true to count the number of distinct values.
+    """
+    distinct: Boolean = false
+  ): Int! @fdc_generated(from: "CreatorAffinityVector.updatedAt", purpose: QUERY_COUNT)
+  """
+  ✨ Count the number of rows in the `CreatorAffinityVector` table where the `watchSeconds` field is non-null. Pass the `distinct` argument to instead count the number of distinct values.
+  """
+  watchSeconds_count(
+    """
+    Set to true to count the number of distinct values.
+    """
+    distinct: Boolean = false
+  ): Int! @fdc_generated(from: "CreatorAffinityVector.watchSeconds", purpose: QUERY_COUNT)
+  """
+  ✨ Sum the `affinityScore` field in the `CreatorAffinityVector` table.
+  """
+  affinityScore_sum(
+    """
+    Set to true to sum the distinct values.
+    """
+    distinct: Boolean = false
+  ): Float @fdc_generated(from: "CreatorAffinityVector.affinityScore", purpose: QUERY_SUM)
+  """
+  ✨ Sum the `dropsUnlockedCount` field in the `CreatorAffinityVector` table.
+  """
+  dropsUnlockedCount_sum(
+    """
+    Set to true to sum the distinct values.
+    """
+    distinct: Boolean = false
+  ): Int @fdc_generated(from: "CreatorAffinityVector.dropsUnlockedCount", purpose: QUERY_SUM)
+  """
+  ✨ Sum the `watchSeconds` field in the `CreatorAffinityVector` table.
+  """
+  watchSeconds_sum(
+    """
+    Set to true to sum the distinct values.
+    """
+    distinct: Boolean = false
+  ): Float @fdc_generated(from: "CreatorAffinityVector.watchSeconds", purpose: QUERY_SUM)
+  """
+  ✨ Average the `affinityScore` field in the `CreatorAffinityVector` table.
+  """
+  affinityScore_avg(
+    """
+    Set to true to average the distinct values.
+    """
+    distinct: Boolean = false
+  ): Float @fdc_generated(from: "CreatorAffinityVector.affinityScore", purpose: QUERY_AVG)
+  """
+  ✨ Average the `dropsUnlockedCount` field in the `CreatorAffinityVector` table.
+  """
+  dropsUnlockedCount_avg(
+    """
+    Set to true to average the distinct values.
+    """
+    distinct: Boolean = false
+  ): Float @fdc_generated(from: "CreatorAffinityVector.dropsUnlockedCount", purpose: QUERY_AVG)
+  """
+  ✨ Average the `watchSeconds` field in the `CreatorAffinityVector` table.
+  """
+  watchSeconds_avg(
+    """
+    Set to true to average the distinct values.
+    """
+    distinct: Boolean = false
+  ): Float @fdc_generated(from: "CreatorAffinityVector.watchSeconds", purpose: QUERY_AVG)
+  """
+  ✨ Minimum of the `affinityScore` field in the `CreatorAffinityVector` table.
+  """
+  affinityScore_min: Float @fdc_generated(from: "CreatorAffinityVector.affinityScore", purpose: QUERY_MIN)
+  """
+  ✨ Minimum of the `dropsUnlockedCount` field in the `CreatorAffinityVector` table.
+  """
+  dropsUnlockedCount_min: Int @fdc_generated(from: "CreatorAffinityVector.dropsUnlockedCount", purpose: QUERY_MIN)
+  """
+  ✨ Minimum of the `updatedAt` field in the `CreatorAffinityVector` table.
+  """
+  updatedAt_min: Timestamp @fdc_generated(from: "CreatorAffinityVector.updatedAt", purpose: QUERY_MIN)
+  """
+  ✨ Minimum of the `watchSeconds` field in the `CreatorAffinityVector` table.
+  """
+  watchSeconds_min: Float @fdc_generated(from: "CreatorAffinityVector.watchSeconds", purpose: QUERY_MIN)
+  """
+  ✨ Maximum of the `affinityScore` field in the `CreatorAffinityVector` table.
+  """
+  affinityScore_max: Float @fdc_generated(from: "CreatorAffinityVector.affinityScore", purpose: QUERY_MAX)
+  """
+  ✨ Maximum of the `dropsUnlockedCount` field in the `CreatorAffinityVector` table.
+  """
+  dropsUnlockedCount_max: Int @fdc_generated(from: "CreatorAffinityVector.dropsUnlockedCount", purpose: QUERY_MAX)
+  """
+  ✨ Maximum of the `updatedAt` field in the `CreatorAffinityVector` table.
+  """
+  updatedAt_max: Timestamp @fdc_generated(from: "CreatorAffinityVector.updatedAt", purpose: QUERY_MAX)
+  """
+  ✨ Maximum of the `watchSeconds` field in the `CreatorAffinityVector` table.
+  """
+  watchSeconds_max: Float @fdc_generated(from: "CreatorAffinityVector.watchSeconds", purpose: QUERY_MAX)
+  """
+  A generated field that is used for caching results in SDKs.
+  """
+  _id: ID! @fdc_generated(from: "CreatorAffinityVector.uid,creatorId", purpose: ENTITY_ID)
+}
+extend type DropInterestVector {
+  """
+  Implicit metadata field that cannot be written. It provides extra information about query results.
+  """
+  _metadata: _Metadata @fdc_generated(from: "DropInterestVector", purpose: METADATA_FIELD)
+  """
+  ✨ Count the number of rows in the `DropInterestVector` table.
+  """
+  _count: Int! @fdc_generated(from: "DropInterestVector.", purpose: QUERY_COUNT)
+  """
+  ✨ Count the number of rows in the `DropInterestVector` table where the `didUnwrap` field is non-null. Pass the `distinct` argument to instead count the number of distinct values.
+  """
+  didUnwrap_count(
+    """
+    Set to true to count the number of distinct values.
+    """
+    distinct: Boolean = false
+  ): Int! @fdc_generated(from: "DropInterestVector.didUnwrap", purpose: QUERY_COUNT)
+  """
+  ✨ Count the number of rows in the `DropInterestVector` table where the `dropId` field is non-null. Pass the `distinct` argument to instead count the number of distinct values.
+  """
+  dropId_count(
+    """
+    Set to true to count the number of distinct values.
+    """
+    distinct: Boolean = false
+  ): Int! @fdc_generated(from: "DropInterestVector.dropId", purpose: QUERY_COUNT)
+  """
+  ✨ Count the number of rows in the `DropInterestVector` table where the `interestScore` field is non-null. Pass the `distinct` argument to instead count the number of distinct values.
+  """
+  interestScore_count(
+    """
+    Set to true to count the number of distinct values.
+    """
+    distinct: Boolean = false
+  ): Int! @fdc_generated(from: "DropInterestVector.interestScore", purpose: QUERY_COUNT)
+  """
+  ✨ Count the number of rows in the `DropInterestVector` table where the `uid` field is non-null. Pass the `distinct` argument to instead count the number of distinct values.
+  """
+  uid_count(
+    """
+    Set to true to count the number of distinct values.
+    """
+    distinct: Boolean = false
+  ): Int! @fdc_generated(from: "DropInterestVector.uid", purpose: QUERY_COUNT)
+  """
+  ✨ Count the number of rows in the `DropInterestVector` table where the `updatedAt` field is non-null. Pass the `distinct` argument to instead count the number of distinct values.
+  """
+  updatedAt_count(
+    """
+    Set to true to count the number of distinct values.
+    """
+    distinct: Boolean = false
+  ): Int! @fdc_generated(from: "DropInterestVector.updatedAt", purpose: QUERY_COUNT)
+  """
+  ✨ Count the number of rows in the `DropInterestVector` table where the `watchSeconds` field is non-null. Pass the `distinct` argument to instead count the number of distinct values.
+  """
+  watchSeconds_count(
+    """
+    Set to true to count the number of distinct values.
+    """
+    distinct: Boolean = false
+  ): Int! @fdc_generated(from: "DropInterestVector.watchSeconds", purpose: QUERY_COUNT)
+  """
+  ✨ Sum the `interestScore` field in the `DropInterestVector` table.
+  """
+  interestScore_sum(
+    """
+    Set to true to sum the distinct values.
+    """
+    distinct: Boolean = false
+  ): Float @fdc_generated(from: "DropInterestVector.interestScore", purpose: QUERY_SUM)
+  """
+  ✨ Sum the `watchSeconds` field in the `DropInterestVector` table.
+  """
+  watchSeconds_sum(
+    """
+    Set to true to sum the distinct values.
+    """
+    distinct: Boolean = false
+  ): Float @fdc_generated(from: "DropInterestVector.watchSeconds", purpose: QUERY_SUM)
+  """
+  ✨ Average the `interestScore` field in the `DropInterestVector` table.
+  """
+  interestScore_avg(
+    """
+    Set to true to average the distinct values.
+    """
+    distinct: Boolean = false
+  ): Float @fdc_generated(from: "DropInterestVector.interestScore", purpose: QUERY_AVG)
+  """
+  ✨ Average the `watchSeconds` field in the `DropInterestVector` table.
+  """
+  watchSeconds_avg(
+    """
+    Set to true to average the distinct values.
+    """
+    distinct: Boolean = false
+  ): Float @fdc_generated(from: "DropInterestVector.watchSeconds", purpose: QUERY_AVG)
+  """
+  ✨ Minimum of the `interestScore` field in the `DropInterestVector` table.
+  """
+  interestScore_min: Float @fdc_generated(from: "DropInterestVector.interestScore", purpose: QUERY_MIN)
+  """
+  ✨ Minimum of the `updatedAt` field in the `DropInterestVector` table.
+  """
+  updatedAt_min: Timestamp @fdc_generated(from: "DropInterestVector.updatedAt", purpose: QUERY_MIN)
+  """
+  ✨ Minimum of the `watchSeconds` field in the `DropInterestVector` table.
+  """
+  watchSeconds_min: Float @fdc_generated(from: "DropInterestVector.watchSeconds", purpose: QUERY_MIN)
+  """
+  ✨ Maximum of the `interestScore` field in the `DropInterestVector` table.
+  """
+  interestScore_max: Float @fdc_generated(from: "DropInterestVector.interestScore", purpose: QUERY_MAX)
+  """
+  ✨ Maximum of the `updatedAt` field in the `DropInterestVector` table.
+  """
+  updatedAt_max: Timestamp @fdc_generated(from: "DropInterestVector.updatedAt", purpose: QUERY_MAX)
+  """
+  ✨ Maximum of the `watchSeconds` field in the `DropInterestVector` table.
+  """
+  watchSeconds_max: Float @fdc_generated(from: "DropInterestVector.watchSeconds", purpose: QUERY_MAX)
+  """
+  A generated field that is used for caching results in SDKs.
+  """
+  _id: ID! @fdc_generated(from: "DropInterestVector.uid,dropId", purpose: ENTITY_ID)
+}
+extend type GuestFeatureProfile {
+  """
+  Implicit metadata field that cannot be written. It provides extra information about query results.
+  """
+  _metadata: _Metadata @fdc_generated(from: "GuestFeatureProfile", purpose: METADATA_FIELD)
+  """
+  ✨ Count the number of rows in the `GuestFeatureProfile` table.
+  """
+  _count: Int! @fdc_generated(from: "GuestFeatureProfile.", purpose: QUERY_COUNT)
+  """
+  ✨ Count the number of rows in the `GuestFeatureProfile` table where the `consentMode` field is non-null. Pass the `distinct` argument to instead count the number of distinct values.
+  """
+  consentMode_count(
+    """
+    Set to true to count the number of distinct values.
+    """
+    distinct: Boolean = false
+  ): Int! @fdc_generated(from: "GuestFeatureProfile.consentMode", purpose: QUERY_COUNT)
+  """
+  ✨ Count the number of rows in the `GuestFeatureProfile` table where the `globalPrivacyControl` field is non-null. Pass the `distinct` argument to instead count the number of distinct values.
+  """
+  globalPrivacyControl_count(
+    """
+    Set to true to count the number of distinct values.
+    """
+    distinct: Boolean = false
+  ): Int! @fdc_generated(from: "GuestFeatureProfile.globalPrivacyControl", purpose: QUERY_COUNT)
+  """
+  ✨ Count the number of rows in the `GuestFeatureProfile` table where the `maxScrollDepth` field is non-null. Pass the `distinct` argument to instead count the number of distinct values.
+  """
+  maxScrollDepth_count(
+    """
+    Set to true to count the number of distinct values.
+    """
+    distinct: Boolean = false
+  ): Int! @fdc_generated(from: "GuestFeatureProfile.maxScrollDepth", purpose: QUERY_COUNT)
+  """
+  ✨ Count the number of rows in the `GuestFeatureProfile` table where the `sessionId` field is non-null. Pass the `distinct` argument to instead count the number of distinct values.
+  """
+  sessionId_count(
+    """
+    Set to true to count the number of distinct values.
+    """
+    distinct: Boolean = false
+  ): Int! @fdc_generated(from: "GuestFeatureProfile.sessionId", purpose: QUERY_COUNT)
+  """
+  ✨ Count the number of rows in the `GuestFeatureProfile` table where the `totalInteractions` field is non-null. Pass the `distinct` argument to instead count the number of distinct values.
+  """
+  totalInteractions_count(
+    """
+    Set to true to count the number of distinct values.
+    """
+    distinct: Boolean = false
+  ): Int! @fdc_generated(from: "GuestFeatureProfile.totalInteractions", purpose: QUERY_COUNT)
+  """
+  ✨ Count the number of rows in the `GuestFeatureProfile` table where the `updatedAt` field is non-null. Pass the `distinct` argument to instead count the number of distinct values.
+  """
+  updatedAt_count(
+    """
+    Set to true to count the number of distinct values.
+    """
+    distinct: Boolean = false
+  ): Int! @fdc_generated(from: "GuestFeatureProfile.updatedAt", purpose: QUERY_COUNT)
+  """
+  ✨ Sum the `maxScrollDepth` field in the `GuestFeatureProfile` table.
+  """
+  maxScrollDepth_sum(
+    """
+    Set to true to sum the distinct values.
+    """
+    distinct: Boolean = false
+  ): Float @fdc_generated(from: "GuestFeatureProfile.maxScrollDepth", purpose: QUERY_SUM)
+  """
+  ✨ Sum the `totalInteractions` field in the `GuestFeatureProfile` table.
+  """
+  totalInteractions_sum(
+    """
+    Set to true to sum the distinct values.
+    """
+    distinct: Boolean = false
+  ): Int @fdc_generated(from: "GuestFeatureProfile.totalInteractions", purpose: QUERY_SUM)
+  """
+  ✨ Average the `maxScrollDepth` field in the `GuestFeatureProfile` table.
+  """
+  maxScrollDepth_avg(
+    """
+    Set to true to average the distinct values.
+    """
+    distinct: Boolean = false
+  ): Float @fdc_generated(from: "GuestFeatureProfile.maxScrollDepth", purpose: QUERY_AVG)
+  """
+  ✨ Average the `totalInteractions` field in the `GuestFeatureProfile` table.
+  """
+  totalInteractions_avg(
+    """
+    Set to true to average the distinct values.
+    """
+    distinct: Boolean = false
+  ): Float @fdc_generated(from: "GuestFeatureProfile.totalInteractions", purpose: QUERY_AVG)
+  """
+  ✨ Minimum of the `maxScrollDepth` field in the `GuestFeatureProfile` table.
+  """
+  maxScrollDepth_min: Float @fdc_generated(from: "GuestFeatureProfile.maxScrollDepth", purpose: QUERY_MIN)
+  """
+  ✨ Minimum of the `totalInteractions` field in the `GuestFeatureProfile` table.
+  """
+  totalInteractions_min: Int @fdc_generated(from: "GuestFeatureProfile.totalInteractions", purpose: QUERY_MIN)
+  """
+  ✨ Minimum of the `updatedAt` field in the `GuestFeatureProfile` table.
+  """
+  updatedAt_min: Timestamp @fdc_generated(from: "GuestFeatureProfile.updatedAt", purpose: QUERY_MIN)
+  """
+  ✨ Maximum of the `maxScrollDepth` field in the `GuestFeatureProfile` table.
+  """
+  maxScrollDepth_max: Float @fdc_generated(from: "GuestFeatureProfile.maxScrollDepth", purpose: QUERY_MAX)
+  """
+  ✨ Maximum of the `totalInteractions` field in the `GuestFeatureProfile` table.
+  """
+  totalInteractions_max: Int @fdc_generated(from: "GuestFeatureProfile.totalInteractions", purpose: QUERY_MAX)
+  """
+  ✨ Maximum of the `updatedAt` field in the `GuestFeatureProfile` table.
+  """
+  updatedAt_max: Timestamp @fdc_generated(from: "GuestFeatureProfile.updatedAt", purpose: QUERY_MAX)
+  """
+  A generated field that is used for caching results in SDKs.
+  """
+  _id: ID! @fdc_generated(from: "GuestFeatureProfile.sessionId", purpose: ENTITY_ID)
+}
+extend type UserFeatureProfile {
+  """
+  Implicit metadata field that cannot be written. It provides extra information about query results.
+  """
+  _metadata: _Metadata @fdc_generated(from: "UserFeatureProfile", purpose: METADATA_FIELD)
+  """
+  ✨ Count the number of rows in the `UserFeatureProfile` table.
+  """
+  _count: Int! @fdc_generated(from: "UserFeatureProfile.", purpose: QUERY_COUNT)
+  """
+  ✨ Count the number of rows in the `UserFeatureProfile` table where the `churnRiskScore` field is non-null. Pass the `distinct` argument to instead count the number of distinct values.
+  """
+  churnRiskScore_count(
+    """
+    Set to true to count the number of distinct values.
+    """
+    distinct: Boolean = false
+  ): Int! @fdc_generated(from: "UserFeatureProfile.churnRiskScore", purpose: QUERY_COUNT)
+  """
+  ✨ Count the number of rows in the `UserFeatureProfile` table where the `consentMode` field is non-null. Pass the `distinct` argument to instead count the number of distinct values.
+  """
+  consentMode_count(
+    """
+    Set to true to count the number of distinct values.
+    """
+    distinct: Boolean = false
+  ): Int! @fdc_generated(from: "UserFeatureProfile.consentMode", purpose: QUERY_COUNT)
+  """
+  ✨ Count the number of rows in the `UserFeatureProfile` table where the `daysSinceLastActive` field is non-null. Pass the `distinct` argument to instead count the number of distinct values.
+  """
+  daysSinceLastActive_count(
+    """
+    Set to true to count the number of distinct values.
+    """
+    distinct: Boolean = false
+  ): Int! @fdc_generated(from: "UserFeatureProfile.daysSinceLastActive", purpose: QUERY_COUNT)
+  """
+  ✨ Count the number of rows in the `UserFeatureProfile` table where the `globalPrivacyControl` field is non-null. Pass the `distinct` argument to instead count the number of distinct values.
+  """
+  globalPrivacyControl_count(
+    """
+    Set to true to count the number of distinct values.
+    """
+    distinct: Boolean = false
+  ): Int! @fdc_generated(from: "UserFeatureProfile.globalPrivacyControl", purpose: QUERY_COUNT)
+  """
+  ✨ Count the number of rows in the `UserFeatureProfile` table where the `lastFeatureSource` field is non-null. Pass the `distinct` argument to instead count the number of distinct values.
+  """
+  lastFeatureSource_count(
+    """
+    Set to true to count the number of distinct values.
+    """
+    distinct: Boolean = false
+  ): Int! @fdc_generated(from: "UserFeatureProfile.lastFeatureSource", purpose: QUERY_COUNT)
+  """
+  ✨ Count the number of rows in the `UserFeatureProfile` table where the `ltvBucket` field is non-null. Pass the `distinct` argument to instead count the number of distinct values.
+  """
+  ltvBucket_count(
+    """
+    Set to true to count the number of distinct values.
+    """
+    distinct: Boolean = false
+  ): Int! @fdc_generated(from: "UserFeatureProfile.ltvBucket", purpose: QUERY_COUNT)
+  """
+  ✨ Count the number of rows in the `UserFeatureProfile` table where the `totalDropUnwraps` field is non-null. Pass the `distinct` argument to instead count the number of distinct values.
+  """
+  totalDropUnwraps_count(
+    """
+    Set to true to count the number of distinct values.
+    """
+    distinct: Boolean = false
+  ): Int! @fdc_generated(from: "UserFeatureProfile.totalDropUnwraps", purpose: QUERY_COUNT)
+  """
+  ✨ Count the number of rows in the `UserFeatureProfile` table where the `totalSessionsCount` field is non-null. Pass the `distinct` argument to instead count the number of distinct values.
+  """
+  totalSessionsCount_count(
+    """
+    Set to true to count the number of distinct values.
+    """
+    distinct: Boolean = false
+  ): Int! @fdc_generated(from: "UserFeatureProfile.totalSessionsCount", purpose: QUERY_COUNT)
+  """
+  ✨ Count the number of rows in the `UserFeatureProfile` table where the `totalWatchSeconds` field is non-null. Pass the `distinct` argument to instead count the number of distinct values.
+  """
+  totalWatchSeconds_count(
+    """
+    Set to true to count the number of distinct values.
+    """
+    distinct: Boolean = false
+  ): Int! @fdc_generated(from: "UserFeatureProfile.totalWatchSeconds", purpose: QUERY_COUNT)
+  """
+  ✨ Count the number of rows in the `UserFeatureProfile` table where the `uid` field is non-null. Pass the `distinct` argument to instead count the number of distinct values.
+  """
+  uid_count(
+    """
+    Set to true to count the number of distinct values.
+    """
+    distinct: Boolean = false
+  ): Int! @fdc_generated(from: "UserFeatureProfile.uid", purpose: QUERY_COUNT)
+  """
+  ✨ Count the number of rows in the `UserFeatureProfile` table where the `updatedAt` field is non-null. Pass the `distinct` argument to instead count the number of distinct values.
+  """
+  updatedAt_count(
+    """
+    Set to true to count the number of distinct values.
+    """
+    distinct: Boolean = false
+  ): Int! @fdc_generated(from: "UserFeatureProfile.updatedAt", purpose: QUERY_COUNT)
+  """
+  ✨ Sum the `churnRiskScore` field in the `UserFeatureProfile` table.
+  """
+  churnRiskScore_sum(
+    """
+    Set to true to sum the distinct values.
+    """
+    distinct: Boolean = false
+  ): Float @fdc_generated(from: "UserFeatureProfile.churnRiskScore", purpose: QUERY_SUM)
+  """
+  ✨ Sum the `daysSinceLastActive` field in the `UserFeatureProfile` table.
+  """
+  daysSinceLastActive_sum(
+    """
+    Set to true to sum the distinct values.
+    """
+    distinct: Boolean = false
+  ): Int @fdc_generated(from: "UserFeatureProfile.daysSinceLastActive", purpose: QUERY_SUM)
+  """
+  ✨ Sum the `totalDropUnwraps` field in the `UserFeatureProfile` table.
+  """
+  totalDropUnwraps_sum(
+    """
+    Set to true to sum the distinct values.
+    """
+    distinct: Boolean = false
+  ): Int @fdc_generated(from: "UserFeatureProfile.totalDropUnwraps", purpose: QUERY_SUM)
+  """
+  ✨ Sum the `totalSessionsCount` field in the `UserFeatureProfile` table.
+  """
+  totalSessionsCount_sum(
+    """
+    Set to true to sum the distinct values.
+    """
+    distinct: Boolean = false
+  ): Int @fdc_generated(from: "UserFeatureProfile.totalSessionsCount", purpose: QUERY_SUM)
+  """
+  ✨ Sum the `totalWatchSeconds` field in the `UserFeatureProfile` table.
+  """
+  totalWatchSeconds_sum(
+    """
+    Set to true to sum the distinct values.
+    """
+    distinct: Boolean = false
+  ): Float @fdc_generated(from: "UserFeatureProfile.totalWatchSeconds", purpose: QUERY_SUM)
+  """
+  ✨ Average the `churnRiskScore` field in the `UserFeatureProfile` table.
+  """
+  churnRiskScore_avg(
+    """
+    Set to true to average the distinct values.
+    """
+    distinct: Boolean = false
+  ): Float @fdc_generated(from: "UserFeatureProfile.churnRiskScore", purpose: QUERY_AVG)
+  """
+  ✨ Average the `daysSinceLastActive` field in the `UserFeatureProfile` table.
+  """
+  daysSinceLastActive_avg(
+    """
+    Set to true to average the distinct values.
+    """
+    distinct: Boolean = false
+  ): Float @fdc_generated(from: "UserFeatureProfile.daysSinceLastActive", purpose: QUERY_AVG)
+  """
+  ✨ Average the `totalDropUnwraps` field in the `UserFeatureProfile` table.
+  """
+  totalDropUnwraps_avg(
+    """
+    Set to true to average the distinct values.
+    """
+    distinct: Boolean = false
+  ): Float @fdc_generated(from: "UserFeatureProfile.totalDropUnwraps", purpose: QUERY_AVG)
+  """
+  ✨ Average the `totalSessionsCount` field in the `UserFeatureProfile` table.
+  """
+  totalSessionsCount_avg(
+    """
+    Set to true to average the distinct values.
+    """
+    distinct: Boolean = false
+  ): Float @fdc_generated(from: "UserFeatureProfile.totalSessionsCount", purpose: QUERY_AVG)
+  """
+  ✨ Average the `totalWatchSeconds` field in the `UserFeatureProfile` table.
+  """
+  totalWatchSeconds_avg(
+    """
+    Set to true to average the distinct values.
+    """
+    distinct: Boolean = false
+  ): Float @fdc_generated(from: "UserFeatureProfile.totalWatchSeconds", purpose: QUERY_AVG)
+  """
+  ✨ Minimum of the `churnRiskScore` field in the `UserFeatureProfile` table.
+  """
+  churnRiskScore_min: Float @fdc_generated(from: "UserFeatureProfile.churnRiskScore", purpose: QUERY_MIN)
+  """
+  ✨ Minimum of the `daysSinceLastActive` field in the `UserFeatureProfile` table.
+  """
+  daysSinceLastActive_min: Int @fdc_generated(from: "UserFeatureProfile.daysSinceLastActive", purpose: QUERY_MIN)
+  """
+  ✨ Minimum of the `totalDropUnwraps` field in the `UserFeatureProfile` table.
+  """
+  totalDropUnwraps_min: Int @fdc_generated(from: "UserFeatureProfile.totalDropUnwraps", purpose: QUERY_MIN)
+  """
+  ✨ Minimum of the `totalSessionsCount` field in the `UserFeatureProfile` table.
+  """
+  totalSessionsCount_min: Int @fdc_generated(from: "UserFeatureProfile.totalSessionsCount", purpose: QUERY_MIN)
+  """
+  ✨ Minimum of the `totalWatchSeconds` field in the `UserFeatureProfile` table.
+  """
+  totalWatchSeconds_min: Float @fdc_generated(from: "UserFeatureProfile.totalWatchSeconds", purpose: QUERY_MIN)
+  """
+  ✨ Minimum of the `updatedAt` field in the `UserFeatureProfile` table.
+  """
+  updatedAt_min: Timestamp @fdc_generated(from: "UserFeatureProfile.updatedAt", purpose: QUERY_MIN)
+  """
+  ✨ Maximum of the `churnRiskScore` field in the `UserFeatureProfile` table.
+  """
+  churnRiskScore_max: Float @fdc_generated(from: "UserFeatureProfile.churnRiskScore", purpose: QUERY_MAX)
+  """
+  ✨ Maximum of the `daysSinceLastActive` field in the `UserFeatureProfile` table.
+  """
+  daysSinceLastActive_max: Int @fdc_generated(from: "UserFeatureProfile.daysSinceLastActive", purpose: QUERY_MAX)
+  """
+  ✨ Maximum of the `totalDropUnwraps` field in the `UserFeatureProfile` table.
+  """
+  totalDropUnwraps_max: Int @fdc_generated(from: "UserFeatureProfile.totalDropUnwraps", purpose: QUERY_MAX)
+  """
+  ✨ Maximum of the `totalSessionsCount` field in the `UserFeatureProfile` table.
+  """
+  totalSessionsCount_max: Int @fdc_generated(from: "UserFeatureProfile.totalSessionsCount", purpose: QUERY_MAX)
+  """
+  ✨ Maximum of the `totalWatchSeconds` field in the `UserFeatureProfile` table.
+  """
+  totalWatchSeconds_max: Float @fdc_generated(from: "UserFeatureProfile.totalWatchSeconds", purpose: QUERY_MAX)
+  """
+  ✨ Maximum of the `updatedAt` field in the `UserFeatureProfile` table.
+  """
+  updatedAt_max: Timestamp @fdc_generated(from: "UserFeatureProfile.updatedAt", purpose: QUERY_MAX)
+  """
+  A generated field that is used for caching results in SDKs.
+  """
+  _id: ID! @fdc_generated(from: "UserFeatureProfile.uid", purpose: ENTITY_ID)
+}

@@ -64,6 +64,7 @@ type BuildAdminUiChartHealthItemInput = {
     category: AdminUiChartHealthCategory;
     source: AdminUiChartHealthSource;
     updatedAtMs?: number;
+    nowMs?: number;
     hasLoaded: boolean;
     loading?: boolean;
     hasData: boolean;
@@ -113,7 +114,7 @@ export function buildAdminUiChartHealthItem(input: BuildAdminUiChartHealthItemIn
     const updatedAtMs = input.updatedAtMs ?? 0;
     const freshness = getAdminUiChartHealthFreshness(
         { updatedAtMs },
-        Date.now(),
+        input.nowMs ?? Date.now(),
         input.staleAfterMs ?? 15 * 60_000,
     );
     const freshnessIssue =

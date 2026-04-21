@@ -1,0 +1,86 @@
+# Shared Component Ownership
+# Do not duplicate these components. If a UI need arises, modify the canonical component or request an architectural change.
+
+global_top_nav:
+  canonical_component_or_owner: "src/components/layout/TopNav.tsx"
+  allowed_variants: "none"
+  disallowed_drift: "creating a MobileTopNav.tsx"
+  notes: "Must remain responsive and single-source."
+
+bottom_nav:
+  canonical_component_or_owner: "src/components/layout/BottomNav.tsx"
+  allowed_variants: "none"
+  disallowed_drift: "duplicating for admin views"
+  notes: "Hidden on desktop viewports."
+
+search_bar:
+  canonical_component_or_owner: "src/components/ui/SearchBar.tsx"
+  allowed_variants: "size prop allowed (sm, md, lg)"
+  disallowed_drift: "creating CreatorSearchBar.tsx"
+  notes: "Must pipe to canonical search telemetry."
+
+chips_and_tabs:
+  canonical_component_or_owner: "src/components/ui/Tabs.tsx, src/components/ui/Chip.tsx"
+  allowed_variants: "active vs inactive states"
+  disallowed_drift: "decorative chips that cannot be tapped"
+  notes: "Fake tabs are explicitly banned."
+
+primary_cta_button:
+  canonical_component_or_owner: "src/components/ui/Button.tsx"
+  allowed_variants: "variant='primary'"
+  disallowed_drift: "hardcoding button styles inline"
+  notes: "Must support loading and disabled states natively."
+
+secondary_cta_button:
+  canonical_component_or_owner: "src/components/ui/Button.tsx"
+  allowed_variants: "variant='secondary' or variant='outline'"
+  disallowed_drift: "inline styling"
+  notes: "Used for graceful exits and alternative actions."
+
+timer_chip:
+  canonical_component_or_owner: "unknown"
+  allowed_variants: "unknown"
+  disallowed_drift: "flashing red countdowns"
+  notes: "Must use useNow.ts for sync."
+
+creator_spotlight:
+  canonical_component_or_owner: "unknown"
+  allowed_variants: "unknown"
+  disallowed_drift: "unknown"
+  notes: "Must accurately link to profile."
+
+settings_group_card:
+  canonical_component_or_owner: "unknown"
+  allowed_variants: "unknown"
+  disallowed_drift: "monolithic un-grouped lists"
+  notes: "Must follow iOS-style grouping UI doctrine."
+
+wallet_pack_card:
+  canonical_component_or_owner: "unknown"
+  allowed_variants: "unknown"
+  disallowed_drift: "unknown"
+  notes: "Prices must be explicitly clear."
+
+message_bubble:
+  canonical_component_or_owner: "unknown"
+  allowed_variants: "sender vs receiver"
+  disallowed_drift: "unknown"
+  notes: "Must support Markdown/emojis if enabled."
+
+recent_activity_card:
+  canonical_component_or_owner: "unknown"
+  allowed_variants: "unknown"
+  disallowed_drift: "unknown"
+  notes: "Must display accurate timestamp."
+
+drop_grid_card:
+  canonical_component_or_owner: "unknown"
+  allowed_variants: "locked vs unlocked states"
+  disallowed_drift: "unknown"
+  notes: "Must enforce GumDrop CTA rules."
+
+featured_drop_module:
+  canonical_component_or_owner: "unknown"
+  allowed_variants: "unknown"
+  disallowed_drift: "unknown"
+  notes: "Requires high-quality imagery."

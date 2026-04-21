@@ -27,6 +27,25 @@ const eslintConfig = [{
         "import/no-unresolved": ["error", { ignore: ["^@/"] }],
         "import/no-duplicates": "error",
         "unused-imports/no-unused-imports": "error",
+        "no-restricted-syntax": [
+            "error",
+            {
+                "selector": "JSXText[value=/\\\\b(oops)\\\\b/i]",
+                "message": "Banned rhetoric: Do not use 'Oops'. Use explicit declarative failure messages."
+            },
+            {
+                "selector": "JSXText[value=/\\\\b(credits|tokens|points)\\\\b/i]",
+                "message": "Banned vocabulary: Use 'GumDrops' instead of credits, tokens, or points."
+            },
+            {
+                "selector": "JSXText[value=/it looks like/i]",
+                "message": "Banned rhetoric: No guessing. State what is known."
+            },
+            {
+                "selector": "JSXText[value=/\\\\b(fake|simulated)\\\\b/i]",
+                "message": "Banned rhetoric: Do not leak simulated states into Truth panels."
+            }
+        ],
     },
     settings: {
         "import/resolver": {

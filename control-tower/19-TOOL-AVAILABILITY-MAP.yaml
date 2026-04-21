@@ -1,0 +1,39 @@
+# Tool Availability Map
+# Machine-readable config of local environment capabilities
+
+tools:
+  gemini_cli:
+    status: "missing"
+    evidence_notes: "`gemini --version` returned CommandNotFoundException."
+    owner_agent: "antigravity"
+    fallback_if_missing: "Use Firebase MCP or standard IDE extensions."
+
+  jules_path:
+    status: "missing"
+    evidence_notes: "No .jules configs, CLI binaries, or explicit local bridge paths found in repo search."
+    owner_agent: "jules"
+    fallback_if_missing: "Jules operates exclusively as an external async service/GitHub App. Not accessible via local shell."
+
+  firebase_cli:
+    status: "verified"
+    evidence_notes: "`firebase --version` returned 15.11.0 located at C:/Users/uylus/AppData/Roaming/npm/firebase.ps1."
+    owner_agent: "antigravity"
+    fallback_if_missing: "N/A"
+
+  firebase_mcp:
+    status: "verified"
+    evidence_notes: "firebase-mcp-server is active and callable in the current agent context."
+    owner_agent: "antigravity"
+    fallback_if_missing: "N/A"
+
+  firebase_agent_skills:
+    status: "verified"
+    evidence_notes: "Agent toolset includes mcp_firebase-mcp-server_developerknowledge_search_documents and others."
+    owner_agent: "antigravity"
+    fallback_if_missing: "N/A"
+
+  codex_gpt:
+    status: "external"
+    evidence_notes: "Skeptical verification relies on separate web-driven QA processes."
+    owner_agent: "codex_or_gpt"
+    fallback_if_missing: "Antigravity executes self-verification with explicit [NON-INDEPENDENT] labeling."

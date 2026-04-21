@@ -8,7 +8,13 @@ import {
   processQueueLifecycleRuntime,
 } from "./queue-runtime.js"
 
-export {onAnalyticsEventFactCreated} from "./analytics-event-facts.js"
+export {
+  onAnalyticsEventFactCreated,
+  ingestAnalyticsEvent
+} from "./analytics-event-facts.js"
+export {onAnalyticsEventFactTimeline} from "./analytics-timeline.js"
+export {buildMLFeatureProfiles} from "./profile-builder.js"
+export {onAnalyticsEventFactBigQueryExport} from "./analytics-bigquery-export.js"
 export {
   onAnalyticsEventFactOrchestrated,
   onCreatorBookingOrchestrated,

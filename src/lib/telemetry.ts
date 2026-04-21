@@ -1,5 +1,5 @@
-import { auth } from "./firebase";
-import { authFetch } from "./authFetch";
+import { app, auth } from "./firebase";
+import { getFunctions, httpsCallable } from "firebase/functions";
 import { prepareAnalyticsEvent } from "./analytics-client-engine";
 import { createAnalyticsEventId } from "./analytics-identifiers";
 import destr from "destr";
@@ -338,25 +338,22 @@ async function flushQueuedTelemetry(reason: "scheduled" | "immediate" | "pagehid
         return;
     }
 
-    telemetryFlushInFlight = authFetch("/api/telemetry/track", {
-        method: "POST",
-        keepalive: reason !== "scheduled",
-        body: JSON.stringify({ events: batch }),
-    }).then(async (response) => {
-        if (!response.ok) {
-            const result = await response.json().catch(() => ({}));
-            throw new Error(typeof result?.error === "string" ? result.error : "Telemetry batch failed");
+    telemetryFlushInFlight = (async () => {
+        try {
+            const functions = getFunctions(app);
+            const ingestFn = httpsCallable(functions, "ingestAnalyticsEvent");
+            await ingestFn({ events: batch });
+        } catch (error) {
+            telemetryQueue = [...batch, ...telemetryQueue].slice(-50);
+            persistTelemetryQueue();
+            recordClientDiagnostic("telemetry", "Identified telemetry batch failed", {
+                reason,
+                batchSize: batch.length,
+                message: error instanceof Error ? error.message : String(error),
+            });
+            console.error("[Telemetry] Failed to flush queued telemetry:", error);
         }
-    }).catch((error) => {
-        telemetryQueue = [...batch, ...telemetryQueue].slice(-50);
-        persistTelemetryQueue();
-        recordClientDiagnostic("telemetry", "Identified telemetry batch failed", {
-            reason,
-            batchSize: batch.length,
-            message: error instanceof Error ? error.message : String(error),
-        });
-        console.error("[Telemetry] Failed to flush queued telemetry:", error);
-    }).finally(() => {
+    })().finally(() => {
         telemetryFlushInFlight = null;
     });
 

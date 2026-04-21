@@ -18,8 +18,9 @@ import {
     type AdminAiDropCoverSelectableModel,
     type AdminAiDropCoverSettings,
     type AdminAiDropCoverVisualSignalSummary,
+    getAdminAiDropCoverModelOption,
 } from "@/lib/ai-drop-covers";
-import { parseMultilineInput } from "../components/AiHelpers";
+import { parseMultilineInput, formatCompactTimestamp, getReferenceSelectionReason } from "../AiHelpers";
 
 
 export type AdminAiDropCoverDashboard = {
@@ -593,7 +594,8 @@ export function useAdminAiState() {
         handleReferenceToggle, handleOptimizerEnabledChange,
         uploadReferences, handleLibraryUploadChange, handlePrimaryUploadChange,
         handleReferenceUpdate, handleReferenceDelete, handleLegacyTemplateDelete,
-        handlePromptPolicySave, handleReviewGalleryUpdate
+        handlePromptPolicySave, handleReviewGalleryUpdate,
+        MODULE_DEFAULTS
     };
 }
 

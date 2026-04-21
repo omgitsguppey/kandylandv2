@@ -14,6 +14,8 @@ import {db} from "./firebase-admin.js"
 import {REGION} from "./firebase-runtime.js"
 import {recordSemanticRollupFromEventFact} from "./analytics-semantics.js"
 import {touchAnalyticsRuntime} from "./analytics-runtime.js"
+import {enforcePrivacyConsentOnEvent} from "./privacy-consent-enforcement.js"
+import {onCall, HttpsError} from "firebase-functions/v2/https"
 
 function buildSessionFactId(event: AnalyticsEventFact) {
   const sessionKey = encodeKeyFragment(readString(event.sessionId) || readString(event.userId) || readString(event.minuteKey))
@@ -21,12 +23,67 @@ function buildSessionFactId(event: AnalyticsEventFact) {
   return `${sessionKey}_${dropKey}`
 }
 
+export const ingestAnalyticsEvent = onCall(
+  {region: REGION, enforceAppCheck: true},
+  async (request) => {
+    // 1. Enforce Authentication / App Check
+    if (!request.app) {
+      throw new HttpsError("failed-precondition", "The function must be called from an App Check verified app.")
+    }
+
+    const payload = request.data as Partial<AnalyticsEventFact>
+    if (!payload.eventName) {
+      throw new HttpsError("invalid-argument", "eventName is required.")
+    }
+
+    // 2. Validate and enforce privacy at the gateway
+    const enforcement = enforcePrivacyConsentOnEvent(payload as AnalyticsEventFact)
+    const sanitizedPayload = enforcement.anonymized ? enforcement.sanitizedFact : payload
+
+    const finalEvent: AnalyticsEventFact = {
+      ...sanitizedPayload,
+      eventName: readString(payload.eventName),
+      timestamp: readNumber(payload.timestamp) || Date.now(),
+      origin: "client", // Explicitly assign source of truth
+      validatedAt: Date.now(),
+    } as AnalyticsEventFact
+
+    // 3. Write to the canonical append-only collection
+    // This will trigger `onAnalyticsEventFactCreated` for downstream processing.
+    const ref = await db.collection("analytics_event_facts").add(finalEvent)
+
+    return {
+      status: "success",
+      eventId: ref.id,
+      anonymized: enforcement.anonymized,
+    }
+  }
+)
+
 export const onAnalyticsEventFactCreated = onDocumentCreated(
   {document: "analytics_event_facts/{eventId}", region: REGION},
   async (event) => {
     const data = event.data?.data() as AnalyticsEventFact | undefined
-    if (!data) {
+    if (!data) return
+    
+    // Explicit deduplication guard using a dedicated collection
+    const dedupeRef = db.collection("analytics_dedupe").doc(event.id)
+    const dedupeSnap = await dedupeRef.get()
+    if (dedupeSnap.exists) {
+      console.warn(`[Analytics] Duplicate event fact skipped: ${event.id}`)
       return
+    }
+
+    const enforcement = enforcePrivacyConsentOnEvent(data)
+    
+    let userId = readString(data.userId)
+    let username = readString(data.username)
+    let sessionId = readString(data.sessionId)
+    
+    if (enforcement.anonymized && enforcement.sanitizedFact) {
+      userId = readString(enforcement.sanitizedFact.userId)
+      username = readString(enforcement.sanitizedFact.username)
+      sessionId = readString(enforcement.sanitizedFact.sessionId)
     }
 
     const timestamp = readNumber(data.timestamp) || Date.now()
@@ -36,14 +93,11 @@ export const onAnalyticsEventFactCreated = onDocumentCreated(
       minuteKey: readString(data.minuteKey) || toTimeKeys(timestamp).minuteKey,
     }
     const eventName = readString(data.eventName)
-    const userId = readString(data.userId)
-    const username = readString(data.username)
     const pagePath = readString(data.pagePath)
     const dropId = readString(data.dropId)
     const dropTitle = readString(data.dropTitle) || dropId
-    const sessionId = readString(data.sessionId)
     const isMobileViewport = readBoolean(data.isMobileViewport)
-    const durationMs = readNumber(data.durationMs)
+    const durationMs = readNumber(data.durationMs, 0, 86400000)
     const watchSeconds = Math.max(
       readNumber(data.watchSeconds),
       readNumber(data.sessionWatchSeconds),
@@ -187,6 +241,12 @@ export const onAnalyticsEventFactCreated = onDocumentCreated(
         updatedAt: FieldValue.serverTimestamp(),
       }, {merge: true})
     }
+
+    batch.set(dedupeRef, {
+      processedAt: FieldValue.serverTimestamp(),
+      eventId: event.id,
+      timestamp,
+    })
 
     await batch.commit()
 

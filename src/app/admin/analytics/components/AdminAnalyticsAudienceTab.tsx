@@ -1,11 +1,9 @@
-import React, { useMemo } from "react";
+import React from "react";
 import {
-  Activity, AlertTriangle, Candy, CheckCircle2, Clock3, DollarSign, Eye, FileText, Funnel, Loader2, MapPin, Monitor, PlayCircle, Route, Share2, ShoppingBag, Smartphone, Sparkles, Users, Wallet,
+  Activity, Clock3, FileText, MapPin, Route, Smartphone, Sparkles, Users,
 } from "lucide-react";
-import { Area, AreaChart, Bar, BarChart, CartesianGrid, ResponsiveContainer, Tooltip, XAxis, YAxis, Pie, PieChart, Cell, Line, LineChart } from "recharts";
+import { Area, AreaChart, Bar, BarChart, CartesianGrid, ResponsiveContainer, Tooltip, XAxis, YAxis, Pie, PieChart, Cell } from "recharts";
 import { AnalyticsTooltip, MetricCard, SectionCard } from "@/components/Admin/Analytics/AdminAnalyticsPrimitives";
-import { AdminOnboardingAnalyticsModules } from "@/components/Admin/Analytics/AdminOnboardingAnalyticsModules";
-import { PageViewEvent } from "@/components/Analytics/PageViewEvent";
 
 export function AdminAnalyticsAudienceTab(props: any) {
   const {
@@ -27,6 +25,7 @@ export function AdminAnalyticsAudienceTab(props: any) {
     deviceMixRange, devices, getDeviceIcon,
     topPathsRange, pages,
     regionsRange, geo,
+    audienceTotals, audienceHistorySeries, returnCadenceSegments, navigationDestinationsMix, deviceMixDevices, deviceMixTotalUsers, topPathsPages, regionsGeo,
 
     // Commerce Tab
     commerceSnapshotRange, commerce,
@@ -197,7 +196,7 @@ export function AdminAnalyticsAudienceTab(props: any) {
                         <Pie
                           data={navigationDestinationsMix
                             .slice(0, 6)
-                            .map((item) => ({
+                            .map((item: any) => ({
                               name: item.destination,
                               value: item.count,
                             }))}
@@ -209,7 +208,7 @@ export function AdminAnalyticsAudienceTab(props: any) {
                         >
                           {navigationDestinationsMix
                             .slice(0, 6)
-                            .map((item, index) => (
+                            .map((item: any, index: any) => (
                               <Cell
                                 key={item.destination}
                                 fill={PIE_COLORS[index % PIE_COLORS.length]}
@@ -225,7 +224,7 @@ export function AdminAnalyticsAudienceTab(props: any) {
                     {navigationDestinationsMix.length > 0 ? (
                       navigationDestinationsMix
                         .slice(0, 6)
-                        .map((item, index) => (
+                        .map((item: any, index: any) => (
                           <div
                             key={item.destination}
                             className="rounded-[1.5rem] border border-white/10 bg-black/30 p-4"
@@ -277,7 +276,7 @@ export function AdminAnalyticsAudienceTab(props: any) {
               >
                 <div className="space-y-3">
                   {deviceMixDevices.length > 0 ? (
-                    deviceMixDevices.map((item) => {
+                    deviceMixDevices.map((item: any) => {
                       const Icon = getDeviceIcon(item.device);
                       const share =
                         deviceMixTotalUsers > 0
@@ -337,7 +336,7 @@ export function AdminAnalyticsAudienceTab(props: any) {
               >
                 <div className="space-y-3">
                   {topPathsPages.length > 0 ? (
-                    topPathsPages.slice(0, 8).map((page) => (
+                    topPathsPages.slice(0, 8).map((page: any) => (
                       <div
                         key={page.path}
                         className="rounded-[1.6rem] border border-white/10 bg-black/30 p-4"
@@ -375,7 +374,7 @@ export function AdminAnalyticsAudienceTab(props: any) {
             >
               <div className="space-y-3">
                 {regionsGeo.length > 0 ? (
-                  regionsGeo.slice(0, 10).map((item) => (
+                  regionsGeo.slice(0, 10).map((item: any) => (
                     <div
                       key={`${item.country}-${item.city}`}
                       className="rounded-[1.6rem] border border-white/10 bg-black/30 p-4"

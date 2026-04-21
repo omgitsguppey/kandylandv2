@@ -122,16 +122,18 @@ export function encodeKeyFragment(value: string) {
   return Buffer.from(value).toString("base64url").slice(0, 180) || "root"
 }
 
-export function readString(value: unknown) {
-  return typeof value === "string" ? value : ""
+export function readString(value: unknown, maxLength = 1000): string {
+  if (typeof value !== "string") return ""
+  return value.slice(0, maxLength)
 }
 
-export function readNumber(value: unknown) {
-  return typeof value === "number" && Number.isFinite(value) ? value : 0
+export function readNumber(value: unknown, min = -Number.MAX_VALUE, max = Number.MAX_VALUE): number {
+  if (typeof value !== "number" || !Number.isFinite(value)) return 0
+  return Math.max(min, Math.min(max, value))
 }
 
-export function readBoolean(value: unknown) {
-  return typeof value === "boolean" ? value : false
+export function readBoolean(value: unknown): boolean {
+  return value === true || value === "true"
 }
 
 export function sum(values: number[]) {

@@ -2,8 +2,7 @@ import { useCallback, useEffect, useRef } from "react";
 import { Drop } from "@/types/db";
 import { trackEvent } from "@/lib/telemetry";
 import { useViewerWatchSession } from "@/hooks/useViewerWatchSession";
-import { ContentKind, ResolvedContent } from "../ViewerHelpers";
-import { sumNumbers, roundSeconds, buildWatchTelemetryMetrics } from "../ViewerHelpers";
+import { ContentKind, ResolvedContent , sumNumbers, roundSeconds, buildWatchTelemetryMetrics } from "../ViewerHelpers";
 import { resolveViewerWatchSeconds } from "@/lib/viewer-watch-session";
 
 interface ViewerTelemetryAdapterProps {

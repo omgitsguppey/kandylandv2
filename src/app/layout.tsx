@@ -7,7 +7,6 @@ import { SWRProvider } from "@/context/SWRProvider";
 import { UIProvider } from "@/context/UIContext";
 import { ErrorBoundary } from "@/components/ErrorBoundary";
 import { CoreLayoutWrapper } from "@/components/CoreLayoutWrapper";
-import { GoogleAnalytics } from "@next/third-parties/google";
 import { SITE_ORIGIN } from "@/lib/site-origin";
 import { UIDebug } from "@/components/UIDebug";
 import { CSPostHogProvider } from "@/components/Analytics/CSPostHogProvider";
@@ -24,11 +23,6 @@ const geistMono = Geist_Mono({
 
 const siteTitle = "KandyDrops";
 const siteDescription = "Get Gum Drops, unlock exclusive digital content, and stay ready for the next live drop.";
-const googleAnalyticsId =
-  process.env.NEXT_PUBLIC_GA_MEASUREMENT_ID ||
-  process.env.GA_MEASUREMENT_ID ||
-  process.env.NEXT_PUBLIC_MEASUREMENT_ID ||
-  "G-V8PWC2L31H";
 
 export const metadata: Metadata = {
   metadataBase: new URL(SITE_ORIGIN),
@@ -112,7 +106,6 @@ export default function RootLayout({
           </AuthProvider>
         </CSPostHogProvider>
       </body>
-      <GoogleAnalytics gaId={googleAnalyticsId} />
     </html>
   );
 }

@@ -1,0 +1,45 @@
+# Agent Capabilities and Constraints
+
+antigravity:
+  capabilities:
+    - full_stack_architecture
+    - firebase_and_gcp_orchestration
+    - shared_component_creation
+  hard_constraints:
+    - do_not_invent_parallel_state_paths
+    - do_not_create_ui_variants_when_shared_component_exists
+    - do_not_mark_fallback_data_as_healthy
+  common_failure_modes:
+    - overengineering_simple_fixes
+    - ignoring_legacy_telemetry_requirements
+  escalation_rules:
+    - "If structural rewrite is needed, flag to human lead before execution."
+
+jules:
+  capabilities:
+    - deep_ui_implementation
+    - localized_refactoring
+    - routine_lint_and_test_fixing
+  hard_constraints:
+    - do_not_patch_surface_behavior_without_checking_telemetry
+    - do_not_wander_into_adjacent_logic_without_documentation
+    - do_not_alter_database_rules
+  common_failure_modes:
+    - silencing_errors_with_empty_catch_blocks
+    - hardcoding_text_instead_of_using_copy_doctrine
+  escalation_rules:
+    - "If a fix requires changing a shared component, hand off to antigravity."
+
+codex_or_gpt:
+  capabilities:
+    - static_analysis
+    - regression_spotting
+    - copy_contract_auditing
+  hard_constraints:
+    - do_not_commit_code
+    - do_not_deploy
+  common_failure_modes:
+    - hallucinating_requirements_not_in_doctrine
+    - providing_generic_advice_ignoring_kandydrops_context
+  escalation_rules:
+    - "If a severe regression is spotted, immediately halt and alert human lead."
