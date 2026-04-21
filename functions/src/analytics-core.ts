@@ -3,11 +3,18 @@ import {FieldValue} from "firebase-admin/firestore"
 export const ANALYTICS_TIMEZONE = "America/Chicago"
 
 export interface AnalyticsEventFact {
+  eventId?: string;
   eventName: string;
   userId?: string;
   username?: string;
   consentMode?: string;
   globalPrivacyControl?: boolean;
+  idempotencyKey?: string;
+  sourceSurface?: string;
+  sourceLayer?: string;
+  sequence?: number;
+  clientTimestamp?: number;
+  serverTimestamp?: number;
   timestamp?: number;
   params?: Record<string, unknown>;
   pagePath?: string;

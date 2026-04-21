@@ -23,6 +23,7 @@ export async function checkAnalyticsContinuity() {
     dropDailySnapshot,
     commerceDailySnapshot,
     guestBatchesSnapshot,
+    guestSessionsSnapshot,
     taskRollupSnapshot,
     commerceSummarySnapshot,
     transactionsSnapshot,
@@ -35,6 +36,7 @@ export async function checkAnalyticsContinuity() {
     adminDb.collection("analytics_drop_daily").get(),
     adminDb.collection("analytics_commerce_daily").get(),
     adminDb.collection("analytics_guest_batches").where("receivedAtMs", ">=", sinceMs).get(),
+    adminDb.collection("analytics_sessions").where("lastReceivedAtMs", ">=", sinceMs).get(),
     adminDb.collection("analytics_task_rollup").get(),
     adminDb.collection("analytics_commerce_rollup").doc("summary").get(),
     adminDb.collection("transactions").where("timestampMs", ">=", sinceMs).get(),
@@ -89,6 +91,7 @@ export async function checkAnalyticsContinuity() {
         lastSeenAt: readLatestSnapshotTimestamp(pageRollupsSnapshot.docs, ["lastEventAt", "updatedAt"]),
         required: false,
         legacyHistoricalSupport: true,
+        idleAllowed: guestSessionsSnapshot.docs.length === 0,
       },
       {
         key: "analytics_drop_daily",
@@ -111,6 +114,7 @@ export async function checkAnalyticsContinuity() {
         lastSeenAt: readLatestSnapshotTimestamp(guestBatchesSnapshot.docs, ["receivedAtMs", "createdAt", "updatedAt"]),
         required: false,
         legacyHistoricalSupport: true,
+        idleAllowed: guestSessionsSnapshot.docs.length === 0,
       },
       {
         key: "analytics_task_rollup",

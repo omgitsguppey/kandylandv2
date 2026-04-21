@@ -231,7 +231,7 @@ export function deriveViewerWatchCaptureState(input: {
 
     return {
         captureQuality,
-        degraded: captureQuality !== "full",
+        degraded: closeMissing || flushDegraded || gapDetected,
         replayRecovered,
         closeMissing,
         gapDetected,

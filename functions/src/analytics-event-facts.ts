@@ -17,10 +17,96 @@ import {touchAnalyticsRuntime} from "./analytics-runtime.js"
 import {enforcePrivacyConsentOnEvent} from "./privacy-consent-enforcement.js"
 import {onCall, HttpsError} from "firebase-functions/v2/https"
 
+type IdentifiedAnalyticsBatchEvent = {
+  eventId?: unknown;
+  eventTimestampMs?: unknown;
+  eventName?: unknown;
+  eventParams?: unknown;
+}
+
 function buildSessionFactId(event: AnalyticsEventFact) {
   const sessionKey = encodeKeyFragment(readString(event.sessionId) || readString(event.userId) || readString(event.minuteKey))
   const dropKey = encodeKeyFragment(readString(event.dropId) || "site")
   return `${sessionKey}_${dropKey}`
+}
+
+function buildFallbackEventId(userId: string, eventName: string) {
+  return `evt_${encodeKeyFragment(userId || "anonymous")}_${encodeKeyFragment(eventName || "event")}_${Date.now().toString(36)}_${crypto.randomUUID().replace(/-/gu, "").slice(0, 16)}`
+}
+
+function normalizeBatchEvents(data: unknown) {
+  if (Array.isArray((data as {events?: unknown})?.events)) {
+    return ((data as {events: unknown[]}).events || []) as unknown[]
+  }
+
+  return [data]
+}
+
+function normalizeAnalyticsEventFact(input: {
+  rawEvent: unknown
+  userId: string
+}): AnalyticsEventFact {
+  const rawEvent = (input.rawEvent || {}) as IdentifiedAnalyticsBatchEvent & Partial<AnalyticsEventFact>
+  if (
+    typeof rawEvent.eventName === "string"
+    && !("eventParams" in rawEvent)
+    && ("pagePath" in rawEvent || "sessionId" in rawEvent || "dropId" in rawEvent || "params" in rawEvent)
+  ) {
+    return {
+      ...(rawEvent as AnalyticsEventFact),
+      eventId: readString(rawEvent.eventId) || buildFallbackEventId(input.userId, readString(rawEvent.eventName)),
+      userId: input.userId,
+      consentMode: readString(rawEvent.consentMode) || "identified",
+      sourceLayer: readString(rawEvent.sourceLayer) || "observed",
+      sourceSurface: readString(rawEvent.sourceSurface) || "client",
+      clientTimestamp: readNumber(rawEvent.clientTimestamp) || readNumber(rawEvent.timestamp) || Date.now(),
+      serverTimestamp: Date.now(),
+      idempotencyKey: readString(rawEvent.idempotencyKey) || readString(rawEvent.eventId) || buildFallbackEventId(input.userId, readString(rawEvent.eventName)),
+      authState: "authenticated",
+    }
+  }
+  const params = rawEvent.eventParams && typeof rawEvent.eventParams === "object"
+    ? rawEvent.eventParams as Record<string, unknown>
+    : {}
+  const eventName = readString(rawEvent.eventName)
+  const timestamp = readNumber(rawEvent.eventTimestampMs) || Date.now()
+  const eventId = readString(rawEvent.eventId) || buildFallbackEventId(input.userId, eventName)
+
+  return {
+    eventId,
+    eventName,
+    timestamp,
+    clientTimestamp: timestamp,
+    serverTimestamp: Date.now(),
+    userId: input.userId,
+    username: "",
+    consentMode: "identified",
+    sourceLayer: "observed",
+    sourceSurface: readString(params.page_path) || readString(params.pagePath) || "client",
+    idempotencyKey: eventId,
+    sessionId: readString(params.session_id) || readString(params.sessionId),
+    pagePath: readString(params.page_path) || readString(params.pagePath),
+    dayKey: readString(params.day_key) || readString(params.dayKey),
+    hourKey: readString(params.hour_key) || readString(params.hourKey),
+    minuteKey: readString(params.minute_key) || readString(params.minuteKey),
+    dropId: readString(params.drop_id) || readString(params.dropId),
+    dropTitle: readString(params.drop_title) || readString(params.dropTitle),
+    dropCategory: readString(params.drop_category) || readString(params.dropCategory),
+    assetKey: readString(params.asset_key) || readString(params.assetKey),
+    assetIndex: readNumber(params.asset_index) || readNumber(params.assetIndex),
+    contentKind: readString(params.content_kind) || readString(params.contentKind),
+    destination: readString(params.destination),
+    destinationType: readString(params.destination_type) || readString(params.destinationType),
+    sessionWatchSeconds: readNumber(params.session_watch_seconds) || readNumber(params.sessionWatchSeconds),
+    watchSeconds: readNumber(params.watch_seconds) || readNumber(params.watchSeconds),
+    durationMs: readNumber(params.duration_ms) || readNumber(params.durationMs),
+    loadMs: readNumber(params.load_ms) || readNumber(params.loadMs),
+    viewportWidth: readNumber(params.viewport_width) || readNumber(params.viewportWidth),
+    viewportHeight: readNumber(params.viewport_height) || readNumber(params.viewportHeight),
+    isMobileViewport: readBoolean(params.is_mobile_viewport) || readBoolean(params.isMobileViewport),
+    authState: "authenticated",
+    params,
+  }
 }
 
 export const ingestAnalyticsEvent = onCall(
@@ -31,39 +117,62 @@ export const ingestAnalyticsEvent = onCall(
       throw new HttpsError("failed-precondition", "The function must be called from an App Check verified app.")
     }
 
-    const payload = request.data as Partial<AnalyticsEventFact>
-    if (!payload.eventName) {
+    const userId = request.auth?.uid || ""
+    if (!userId) {
+      throw new HttpsError("unauthenticated", "Authenticated telemetry requires a signed-in user.")
+    }
+
+    const rawEvents = normalizeBatchEvents(request.data)
+    if (rawEvents.length === 0) {
       throw new HttpsError("invalid-argument", "eventName is required.")
     }
 
-    // 2. Validate and enforce privacy at the gateway
-    const enforcement = enforcePrivacyConsentOnEvent(payload as AnalyticsEventFact)
-    if (!enforcement.allowed) {
-      return {
-        status: "ignored",
-        reason: enforcement.reason || "consent_denied",
-        anonymized: false,
+    const results = await Promise.all(rawEvents.map(async (rawEvent) => {
+      const normalizedEvent = normalizeAnalyticsEventFact({
+        rawEvent,
+        userId,
+      })
+      if (!normalizedEvent.eventName) {
+        throw new HttpsError("invalid-argument", "eventName is required.")
       }
-    }
 
-    const sanitizedPayload = enforcement.anonymized ? enforcement.sanitizedFact : payload
+      const enforcement = enforcePrivacyConsentOnEvent(normalizedEvent)
+      if (!enforcement.allowed) {
+        return {
+          eventId: normalizedEvent.eventId,
+          status: "ignored",
+          reason: enforcement.reason || "consent_denied",
+          anonymized: false,
+        }
+      }
 
-    const finalEvent: AnalyticsEventFact = {
-      ...sanitizedPayload,
-      eventName: readString(payload.eventName),
-      timestamp: readNumber(payload.timestamp) || Date.now(),
-      origin: "client", // Explicitly assign source of truth
-      validatedAt: Date.now(),
-    } as AnalyticsEventFact
+      const finalEvent: AnalyticsEventFact = {
+        ...normalizedEvent,
+        ...(enforcement.anonymized ? enforcement.sanitizedFact : {}),
+      }
+      const eventId = readString(finalEvent.eventId) || buildFallbackEventId(userId, finalEvent.eventName)
+      const ref = db.collection("analytics_event_facts").doc(eventId)
+      const snapshot = await ref.get()
+      if (snapshot.exists) {
+        return {
+          eventId,
+          status: "deduped",
+          anonymized: enforcement.anonymized,
+        }
+      }
 
-    // 3. Write to the canonical append-only collection
-    // This will trigger `onAnalyticsEventFactCreated` for downstream processing.
-    const ref = await db.collection("analytics_event_facts").add(finalEvent)
+      await ref.set(finalEvent, {merge: false})
+      return {
+        eventId,
+        status: "success",
+        anonymized: enforcement.anonymized,
+      }
+    }))
 
     return {
       status: "success",
-      eventId: ref.id,
-      anonymized: enforcement.anonymized,
+      processed: results.length,
+      results,
     }
   }
 )

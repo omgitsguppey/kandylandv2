@@ -1,6 +1,7 @@
 import { describe, expect, it } from "vitest";
 
 import {
+    deriveViewerWatchCaptureState,
     resolveViewerWatchSeconds,
     shouldRetryViewerWatchCloseFlush,
 } from "@/lib/viewer-watch-session";
@@ -49,5 +50,41 @@ describe("shouldRetryViewerWatchCloseFlush", () => {
             flushSucceeded: false,
             activeSessionMatches: true,
         })).toBe(false);
+    });
+});
+
+describe("deriveViewerWatchCaptureState", () => {
+    it("keeps replay-recovered sessions labeled without counting them as degraded", () => {
+        expect(deriveViewerWatchCaptureState({
+            replayRecovered: true,
+            replayRecoveredCount: 1,
+            gapCount: 0,
+            flushFailureCount: 0,
+            isClosed: true,
+            closeReason: "viewer_unmounted",
+        })).toMatchObject({
+            captureQuality: "replayed",
+            replayRecovered: true,
+            degraded: false,
+            closeMissing: false,
+            flushDegraded: false,
+            gapDetected: false,
+        });
+    });
+
+    it("keeps unresolved gap capture marked as degraded", () => {
+        expect(deriveViewerWatchCaptureState({
+            replayRecovered: true,
+            replayRecoveredCount: 2,
+            gapCount: 1,
+            flushFailureCount: 0,
+            isClosed: true,
+            closeReason: "page_exit",
+        })).toMatchObject({
+            captureQuality: "gap_detected",
+            replayRecovered: true,
+            degraded: true,
+            gapDetected: true,
+        });
     });
 });

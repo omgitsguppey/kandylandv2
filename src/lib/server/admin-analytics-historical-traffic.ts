@@ -256,6 +256,31 @@ export function buildHistoricalTrafficOverview(input: {
     avgSessionDuration: chartData.length > 0 ? chartData.reduce((acc: number, curr) => acc + curr.avgSessionDuration, 0) / chartData.length : 0,
     engagementRate: chartData.length > 0 ? chartData.reduce((acc: number, curr) => acc + curr.engagementRate, 0) / chartData.length : 0,
   };
+  const authenticatedViews = Array.from(authenticatedPageViewsByPath.values()).reduce((sum, value) => sum + value, 0);
+  const guestViewsExact = Array.from(rawGuestPageStatsByPath.values()).reduce((sum, value) => sum + value.views, 0);
+  const identifiedSessions = Array.from(sessionFactSessionsByDay.values()).reduce((sum, value) => sum + value, 0);
+  const guestSessionsExact = guestBatchDocs.length;
+  const estimatedGuestViews = Math.max(guestViewsExact, totals.views - authenticatedViews);
+  const estimatedGuestSessions = Math.max(guestSessionsExact, totals.sessions - identifiedSessions);
+  const guestTraffic = {
+    totalViews: totals.views,
+    totalSessions: totals.sessions,
+    identifiedViews: authenticatedViews,
+    identifiedSessions,
+    exactGuestViews: guestViewsExact,
+    exactGuestSessions: guestSessionsExact,
+    estimatedGuestViews,
+    estimatedGuestSessions,
+    truthLabel: guestViewsExact > 0 || guestSessionsExact > 0
+      ? "exact"
+      : estimatedGuestViews > 0 || estimatedGuestSessions > 0
+        ? "estimated"
+        : "unknown",
+    sourceLabel: guestViewsExact > 0 || guestSessionsExact > 0
+      ? "analytics_guest_batches"
+      : "ga_total_minus_identified_first_party",
+    qualityAvailable: guestViewsExact > 0,
+  } as const;
 
   const gaEventCounts = eventRows.reduce((acc: Record<string, number>, row) => {
     const eventName = row.dimensionValues?.[0]?.value || "unknown";
@@ -319,6 +344,7 @@ export function buildHistoricalTrafficOverview(input: {
   return {
     chartData,
     totals,
+    guestTraffic,
     gaEventCounts,
     geoData,
     devices,

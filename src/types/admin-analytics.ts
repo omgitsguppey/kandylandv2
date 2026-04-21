@@ -343,6 +343,19 @@ export interface HistoricalAnalyticsResponse {
     avgSessionDuration: number;
     engagementRate: number;
   };
+  guestTraffic?: {
+    totalViews: number;
+    totalSessions: number;
+    identifiedViews: number;
+    identifiedSessions: number;
+    exactGuestViews: number;
+    exactGuestSessions: number;
+    estimatedGuestViews: number;
+    estimatedGuestSessions: number;
+    truthLabel: "exact" | "estimated" | "unknown";
+    sourceLabel: string;
+    qualityAvailable: boolean;
+  };
   events?: Record<string, number>;
   eventBreakdown?: EventBreakdownItem[];
   devices?: DeviceMixItem[];
@@ -422,6 +435,10 @@ export interface RealtimeAnalyticsResponse {
   issues?: string[];
   totalActive?: number;
   deepTrackerActive?: number;
+  liveTruthLabel?: "live" | "fallback" | "partial" | "failed";
+  liveSourceLabel?: string;
+  activeUsersTruthLabel?: "live" | "fallback" | "partial" | "failed";
+  activeUsersSourceLabel?: string;
   data?: RealtimePoint[];
   activeUsers?: RealtimeActiveUserItem[];
   surfaceMix?: SurfaceMixItem[];

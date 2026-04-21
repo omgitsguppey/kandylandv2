@@ -8,6 +8,8 @@ const USER_PROFILE_COLLECTION = "behavioral_user_profiles";
 const GUEST_PROFILE_COLLECTION = "behavioral_guest_profiles";
 const DROP_INTELLIGENCE_COLLECTION = "behavioral_drop_intelligence";
 const SNAPSHOT_STATUS_COLLECTION = "behavioral_intelligence_status";
+const ANALYTICS_TRUTH_USER_COLLECTION = "analytics_truth_user_metrics";
+const ANALYTICS_TRUTH_DROP_COLLECTION = "analytics_truth_drop_metrics";
 
 type ScoreFactorKey =
   | "freshness"
@@ -83,7 +85,15 @@ type RankedDropRecommendation = {
   labels: string[];
   profileConfidence: number;
   profileFreshness: string;
+  telemetryQualityLabel: string;
+  telemetryConfidenceScore: number;
   factors: ScoreFactor[];
+};
+
+type AnalyticsTruthMetricDoc = {
+  qualityLabel?: string;
+  confidenceScore?: number;
+  repairedDataRatio?: number;
 };
 
 const SCORE_WEIGHTS: Record<ScoreFactorKey, number> = {
@@ -165,6 +175,18 @@ async function readDropIntelligenceMap() {
   return new Map(snapshot.docs.map((doc) => [doc.id, { ...(doc.data() as DropIntelligenceDoc), dropId: doc.id }]));
 }
 
+async function readAnalyticsTruthDropMap() {
+  if (!adminDb) return new Map<string, AnalyticsTruthMetricDoc>();
+  const snapshot = await adminDb.collection(ANALYTICS_TRUTH_DROP_COLLECTION).get();
+  return new Map(snapshot.docs.map((doc) => [doc.id, doc.data() as AnalyticsTruthMetricDoc]));
+}
+
+async function readAnalyticsTruthUser(userId?: string | null) {
+  if (!adminDb || !userId) return null;
+  const snapshot = await adminDb.collection(ANALYTICS_TRUTH_USER_COLLECTION).doc(userId).get();
+  return snapshot.exists ? snapshot.data() as AnalyticsTruthMetricDoc : null;
+}
+
 function buildFactor(key: ScoreFactorKey, raw: number, detail: string): ScoreFactor {
   const weight = SCORE_WEIGHTS[key];
   const contribution = round(clamp01(raw) * weight, 3);
@@ -225,10 +247,12 @@ export async function buildDeterministicDropRecommendations(input: {
 }) {
   const nowMs = Date.now();
   const limit = Math.max(1, Math.min(input.limit ?? 8, 24));
-  const [drops, profile, intelligenceMap] = await Promise.all([
+  const [drops, profile, intelligenceMap, truthDropMap, truthUser] = await Promise.all([
     getDrops(),
     input.userId ? getBehavioralUserProfile(input.userId) : Promise.resolve(null),
     readDropIntelligenceMap(),
+    readAnalyticsTruthDropMap(),
+    readAnalyticsTruthUser(input.userId),
   ]);
 
   const candidateIdSet = input.candidateDropIds ? new Set(input.candidateDropIds) : null;
@@ -249,9 +273,16 @@ export async function buildDeterministicDropRecommendations(input: {
         currentDropId: input.currentDropId,
       });
       const score = round(factors.reduce((sum, factor) => sum + factor.contribution, 0), 3);
+      const dropTruth = truthDropMap.get(drop.id);
+      const telemetryQualityLabel = dropTruth?.qualityLabel || truthUser?.qualityLabel || "unknown";
+      const telemetryConfidenceScore = round(Math.min(
+        typeof dropTruth?.confidenceScore === "number" ? dropTruth.confidenceScore : 1,
+        typeof truthUser?.confidenceScore === "number" ? truthUser.confidenceScore : 1,
+      ), 3);
       const labels = Array.from(new Set([
         intelligenceMap.get(drop.id)?.freshnessLabel || "unknown",
         mode,
+        telemetryQualityLabel,
       ]));
       return {
         drop,
@@ -260,6 +291,8 @@ export async function buildDeterministicDropRecommendations(input: {
         labels,
         profileConfidence,
         profileFreshness,
+        telemetryQualityLabel,
+        telemetryConfidenceScore,
         factors,
       } satisfies RankedDropRecommendation;
     })

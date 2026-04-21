@@ -558,11 +558,34 @@ const { user } = useAuth();
     (item) => item.key === "admin",
   );
   const dropSemantics = semanticCategories.find((item) => item.key === "drop");
+  const guestTraffic = historicalResponse?.guestTraffic;
+  const guestViewsDisplayCount =
+    guestTraffic?.truthLabel === "estimated"
+      ? guestTraffic.estimatedGuestViews
+      : guestTraffic?.exactGuestViews ?? globalSemantics?.viewCount ?? 0;
+  const guestViewsHint =
+    guestTraffic?.truthLabel === "estimated"
+      ? `Estimated from GA totals minus identified first-party traffic (${formatCompactNumber(guestTraffic.estimatedGuestViews)} views)`
+      : `${(globalSemantics?.clickCount ?? 0).toLocaleString()} tracked public clicks`;
+  const guestQualityUnavailable =
+    guestTraffic?.truthLabel === "estimated" && !guestTraffic.qualityAvailable;
   const guestBounceRate =
     globalSemantics && globalSemantics.viewCount > 0
       ? globalSemantics.bounceCount / Math.max(1, globalSemantics.viewCount)
       : 0;
   const guestEngagedRate = globalSemantics?.engagedRate ?? 0;
+  const guestBounceRateDisplay = guestQualityUnavailable
+    ? "Unknown"
+    : formatPercent(guestBounceRate);
+  const guestEngagedRateDisplay = guestQualityUnavailable
+    ? "Unknown"
+    : formatPercent(guestEngagedRate);
+  const guestBounceHint = guestQualityUnavailable
+    ? "Anonymous quality metrics are unavailable because consented guest semantic batches did not land in this window."
+    : `${(globalSemantics?.bounceCount ?? 0).toLocaleString()} bounced exits`;
+  const guestEngagedHint = guestQualityUnavailable
+    ? "Guest engagement quality is unavailable without consented guest semantic batches."
+    : `${(globalSemantics?.engagedViewCount ?? 0).toLocaleString()} engaged sessions`;
   const identifiedBounceRate =
     userSemantics && userSemantics.viewCount > 0
       ? userSemantics.bounceCount / Math.max(1, userSemantics.viewCount)
@@ -571,10 +594,11 @@ const { user } = useAuth();
     {
       key: "global",
       label: "Guest / Public",
-      views: globalSemantics?.viewCount ?? 0,
+      views: guestViewsDisplayCount,
       engaged: globalSemantics?.engagedViewCount ?? 0,
       bounced: globalSemantics?.bounceCount ?? 0,
       exits: globalSemantics?.exitCount ?? 0,
+      truthLabel: guestTraffic?.truthLabel ?? "unknown",
     },
     {
       key: "user",
@@ -704,6 +728,7 @@ const { user } = useAuth();
     guestBounceQualityRange === ADMIN_ANALYTICS_DEFAULT_RANGE
       ? historicalResponse
       : guestBounceQualityOverride.data;
+  const guestBounceTraffic = guestBounceQualityData?.guestTraffic ?? guestTraffic;
   const guestBounceSemantics =
     guestBounceQualityData?.semanticCategories ?? semanticCategories;
   const guestBounceGlobalSemantics = guestBounceSemantics.find(
@@ -733,14 +758,21 @@ const { user } = useAuth();
       ? guestBounceGlobalSemantics.engagedViewCount /
         Math.max(1, guestBounceGlobalSemantics.viewCount)
       : 0;
+  const guestBounceQualityUnavailable =
+    guestBounceTraffic?.truthLabel === "estimated"
+      && !guestBounceTraffic.qualityAvailable;
   const guestBounceQualityCards = [
     {
       key: "global",
       label: "Guest / Public",
-      views: guestBounceGlobalSemantics?.viewCount ?? 0,
+      views:
+        guestBounceTraffic?.truthLabel === "estimated"
+          ? guestBounceTraffic.estimatedGuestViews
+          : guestBounceGlobalSemantics?.viewCount ?? 0,
       engaged: guestBounceGlobalSemantics?.engagedViewCount ?? 0,
       bounced: guestBounceGlobalSemantics?.bounceCount ?? 0,
       exits: guestBounceGlobalSemantics?.exitCount ?? 0,
+      truthLabel: guestBounceTraffic?.truthLabel ?? "unknown",
     },
     {
       key: "user",
@@ -1662,6 +1694,7 @@ const { user } = useAuth();
     authOutcomeHasData, authOutcomeChartItems, authOutcomeTotals,
     authOnboardingDiscrepancies, onboardingVelocityHasData, onboardingVelocityBuckets, onboardingVelocityStartCount, onboardingVelocityCompletionCount, onboardingVelocityCompletionRate, onboardingVelocityDropOffCount, onboardingVelocityStats, onboardingVelocityStartSourceHint, onboardingStepFlowItems,
     guestBounceQualityCards, guestBounceGlobalSemantics, guestBounceGuestRate, guestBounceEngagedRate, guestBounceIdentifiedRate, guestBounceUserSemantics,
+    guestViewsDisplayCount, guestViewsHint, guestBounceRateDisplay, guestBounceHint, guestEngagedRateDisplay, guestEngagedHint, guestQualityUnavailable,
     topEvents, liveInteractionStreamRange, liveInteractionStreamData,
     validations, getValidationClasses, dataValidationRange,
     totalDeviceUsers, mobileUsers, mobileShare, audienceSnapshotRange, semanticQualityCards, guestBounceRate, identifiedBounceRate, guestEngagedRate,

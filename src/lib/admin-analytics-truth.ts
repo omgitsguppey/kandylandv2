@@ -7,6 +7,7 @@ export interface AnalyticsTruthSourceInput {
   lastSeenAt: number;
   required?: boolean;
   legacyHistoricalSupport?: boolean;
+  idleAllowed?: boolean;
   detail?: string;
 }
 
@@ -43,7 +44,12 @@ function getSourceStatus(input: {
   staleWarnMs: number;
   staleFailMs: number;
   required: boolean;
+  idleAllowed: boolean;
 }): AnalyticsTruthStatus {
+  if (input.idleAllowed && !input.required) {
+    return "healthy";
+  }
+
   if (input.count <= 0 && input.lastSeenAt <= 0) {
     return input.required ? "fail" : "warn";
   }
@@ -78,6 +84,7 @@ export function summarizeAnalyticsTruth(input: {
   const sources = input.sources.map((source) => {
     const required = source.required !== false;
     const legacyHistoricalSupport = source.legacyHistoricalSupport === true;
+    const idleAllowed = source.idleAllowed === true;
     const ageMs =
       source.lastSeenAt > 0 ? Math.max(0, nowMs - source.lastSeenAt) : null;
     const status = getSourceStatus({
@@ -87,6 +94,7 @@ export function summarizeAnalyticsTruth(input: {
       staleWarnMs,
       staleFailMs,
       required,
+      idleAllowed,
     });
 
     return {

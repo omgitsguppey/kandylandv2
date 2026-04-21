@@ -14,6 +14,7 @@ export {
 } from "./analytics-event-facts.js"
 export {onAnalyticsEventFactTimeline} from "./analytics-timeline.js"
 export {buildMLFeatureProfiles} from "./profile-builder.js"
+export {reconcileAnalyticsTruthLayers} from "./analytics-truth-schedule.js"
 export {onAnalyticsEventFactBigQueryExport} from "./analytics-bigquery-export.js"
 export {
   onAnalyticsEventFactOrchestrated,

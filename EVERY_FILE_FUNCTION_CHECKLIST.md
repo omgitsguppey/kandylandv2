@@ -13,6 +13,26 @@ Current repo-wide state snapshot: see [FULL_SCALE_CODEBASE_AUDIT.md](/Users/uylu
 
 ## 2026-04-21 Delta Coverage
 
+- Added analytics truth-recovery and telemetry hardening surfaces:
+  - `functions/src/analytics-truth-contract.ts`
+  - `functions/src/analytics-truth-runtime.ts`
+  - `functions/src/analytics-truth-schedule.ts`
+  - `src/lib/server/analytics-truth-recovery.ts`
+  - `scripts/rebuild-analytics-truth.ts`
+  - `scripts/debug-watch-capture-health.ts`
+- Extended raw telemetry ownership and append-only watch observation coverage:
+  - `functions/src/analytics-event-facts.ts`
+  - `src/app/api/viewer/watch-session/route.ts`
+  - `src/lib/server/analytics-governance.ts`
+  - `src/lib/server/analytics.ts`
+- Extended admin/debug and deterministic ranking telemetry-quality visibility:
+  - `src/app/api/admin/debug/route.ts`
+  - `src/app/admin/debug/page.tsx`
+  - `src/lib/server/behavioral-intelligence.ts`
+- Continuity note: telemetry truth now separates raw observed, validated, finalized, estimated, and serving/debug layers explicitly, and authenticated telemetry batching no longer drops identified event facts simply because the callable ingest contract only understood a single-event payload.
+- Follow-up note: replay-recovered watch sessions remain visible as `replayed`, but only unresolved `gap_detected`, `flush_degraded`, and `close_missing` states count against degraded watch-capture health.
+- Follow-up note: optional guest-history sources in `src/lib/admin-analytics-truth.ts` are now idle-aware, and admin realtime analytics now has a truthful first-party fallback in `src/app/api/admin/analytics/realtime/route.ts` instead of silently zeroing live cards when GA realtime or `analytics_active_users` is unavailable.
+
 - Added generated agent fast-start and verification-plan surfaces:
   - `scripts/agent/fast-start.ts`
   - `scripts/agent/verification-selector.ts`
@@ -12264,3 +12284,16 @@ Detected function-like implementations in this historical sweep: 3161
 
 - [x] File exists and is tracked.
 - [ ] Pending detailed function-level audit.
+
+### 2026-04-21 follow-up
+
+- `src/lib/server/admin-analytics-historical-traffic.ts`
+  - [x] Historical traffic builder now emits exact vs estimated guest/public traffic instead of treating consent-limited guest batches as whole-site truth.
+- `src/app/api/admin/analytics/historical/route.ts`
+  - [x] Historical admin route now returns `guestTraffic` metadata and raises an explicit issue when public traffic is estimated from GA minus identified first-party traffic.
+- `src/app/admin/analytics/hooks/useAdminAnalyticsState.tsx`
+  - [x] Guest/public admin state now derives display values and unknown-quality labels from `guestTraffic` truth metadata.
+- `src/app/admin/analytics/components/AdminAnalyticsOperationsTab.tsx`
+  - [x] Guest/public cards now show estimated volume truthfully and avoid fake zero bounce/engagement states when guest quality telemetry is unavailable.
+- `src/types/admin-analytics.ts`
+  - [x] Historical analytics response contract now includes guest/public truth metadata for admin consumers.

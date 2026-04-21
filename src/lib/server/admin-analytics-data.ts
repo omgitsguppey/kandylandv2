@@ -64,6 +64,7 @@ export async function fetchAdminHistoricalAnalyticsSources(input: {
     analyticsEventStatsSnapshot,
     securityEventsSnapshot,
     guestBatchesSnapshot,
+    guestSessionsSnapshot,
         commerceSummarySnapshot,
         serverDiagnosticsSnapshot,
         taskRollupSnapshot,
@@ -274,6 +275,26 @@ export async function fetchAdminHistoricalAnalyticsSources(input: {
           .orderBy("receivedAtMs", "desc")
           .get(),
       }),
+    period === "all"
+      ? safeQueryWithDiagnostics({
+        routeName: "admin/analytics/historical",
+        channel: "analytics",
+        label: "guest analytics sessions",
+        issues,
+        reader: () => adminDb.collection("analytics_sessions")
+          .orderBy("lastReceivedAtMs", "desc")
+          .get(),
+      })
+      : safeQueryWithDiagnostics({
+        routeName: "admin/analytics/historical",
+        channel: "analytics",
+        label: "guest analytics sessions",
+        issues,
+        reader: () => adminDb.collection("analytics_sessions")
+          .where("lastReceivedAtMs", ">=", startMs)
+          .orderBy("lastReceivedAtMs", "desc")
+          .get(),
+      }),
     safeDocumentWithDiagnostics({
       routeName: "admin/analytics/historical",
       channel: "commerce",
@@ -380,6 +401,26 @@ export async function fetchAdminHistoricalAnalyticsSources(input: {
     period === "all"
       ? safeQueryWithDiagnostics({
         routeName: "admin/analytics/historical",
+        channel: "analytics",
+        label: "guest analytics sessions",
+        issues,
+        reader: () => adminDb.collection("analytics_sessions")
+          .orderBy("lastReceivedAtMs", "desc")
+          .get(),
+      })
+      : safeQueryWithDiagnostics({
+        routeName: "admin/analytics/historical",
+        channel: "analytics",
+        label: "guest analytics sessions",
+        issues,
+        reader: () => adminDb.collection("analytics_sessions")
+          .where("lastReceivedAtMs", ">=", startMs)
+          .orderBy("lastReceivedAtMs", "desc")
+          .get(),
+      }),
+    period === "all"
+      ? safeQueryWithDiagnostics({
+        routeName: "admin/analytics/historical",
         channel: "commerce",
         label: "transactions",
         issues,
@@ -418,6 +459,7 @@ export async function fetchAdminHistoricalAnalyticsSources(input: {
     analyticsEventStatsSnapshot,
     securityEventsSnapshot,
     guestBatchesSnapshot,
+    guestSessionsSnapshot,
     commerceSummarySnapshot,
     serverDiagnosticsSnapshot,
     taskRollupSnapshot,

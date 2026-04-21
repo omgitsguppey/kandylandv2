@@ -158,6 +158,7 @@ export type AnalyticsReportRow = {
 
 export type AnalyticsReportResponse = {
   rows?: AnalyticsReportRow[];
+  fallbackUsed?: boolean;
 };
 
 export const AUTHENTICATED_PAGE_VIEW_EVENT_NAMES = new Set([
@@ -583,7 +584,7 @@ export async function safeRunReport(
     return response as AnalyticsReportResponse;
   } catch (error) {
     console.warn("GA runReport failed, falling back to first-party analytics:", error);
-    return { rows: [] };
+    return { rows: [], fallbackUsed: true };
   }
 }
 
@@ -596,6 +597,6 @@ export async function safeRunRealtimeReport(
     return response as AnalyticsReportResponse;
   } catch (error) {
     console.warn("GA realtime report failed, falling back to first-party analytics:", error);
-    return { rows: [] };
+    return { rows: [], fallbackUsed: true };
   }
 }

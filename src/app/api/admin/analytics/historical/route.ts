@@ -256,6 +256,7 @@ export async function GET(request: NextRequest) {
                 analyticsEventStatsSnapshot,
                 securityEventsSnapshot,
                 guestBatchesSnapshot,
+                guestSessionsSnapshot,
                 commerceSummarySnapshot,
                 serverDiagnosticsSnapshot,
                 taskRollupSnapshot,
@@ -279,6 +280,7 @@ export async function GET(request: NextRequest) {
             const {
                 chartData,
                 totals,
+                guestTraffic,
                 gaEventCounts,
                 geoData,
                 devices,
@@ -708,6 +710,15 @@ export async function GET(request: NextRequest) {
                 const data = doc.data() as Record<string, unknown>;
                 return total + toNumber(data.eventCount);
             }, 0);
+            const legacyGuestLaneIdle = guestSessionsSnapshot.docs.length === 0;
+            if (
+                guestTraffic.truthLabel === "estimated"
+                && guestTraffic.estimatedGuestViews > 0
+            ) {
+                issues.push(
+                    "Guest/public traffic is estimated from GA totals minus identified first-party traffic because anonymous first-party batches are absent in this window.",
+                );
+            }
             const analyticsTruth = summarizeAnalyticsTruth({
                 nowMs: Date.now(),
                 sources: [
@@ -733,7 +744,10 @@ export async function GET(request: NextRequest) {
                         lastSeenAt: readLatestSnapshotTimestamp(pageRollupsSnapshot.docs, ["lastEventAt", "updatedAt"]),
                         required: false,
                         legacyHistoricalSupport: true,
-                        detail: "Historical page-level trend and dwell support.",
+                        idleAllowed: legacyGuestLaneIdle,
+                        detail: legacyGuestLaneIdle
+                            ? "Historical page-level guest rollups are idle because no guest sessions landed in the selected window."
+                            : "Historical page-level trend and dwell support.",
                     },
                     {
                         key: "analytics_drop_daily",
@@ -770,7 +784,10 @@ export async function GET(request: NextRequest) {
                         lastSeenAt: readLatestSnapshotTimestamp(guestBatchesSnapshot.docs, ["receivedAtMs", "createdAt", "updatedAt"]),
                         required: false,
                         legacyHistoricalSupport: true,
-                        detail: "Anonymous browsing history support for legacy and guest traffic.",
+                        idleAllowed: legacyGuestLaneIdle,
+                        detail: legacyGuestLaneIdle
+                            ? "Anonymous browsing support is idle because no guest sessions landed in the selected window."
+                            : "Anonymous browsing history support for legacy and guest traffic.",
                     },
                     {
                         key: "analytics_watch_sessions",
@@ -874,6 +891,7 @@ export async function GET(request: NextRequest) {
                 generatedAtMs: Date.now(),
                 data: chartData,
                 totals,
+                guestTraffic,
                 events: eventsData,
                 eventBreakdown,
                 devices,

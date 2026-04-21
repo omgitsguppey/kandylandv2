@@ -77,7 +77,9 @@ export default function AdminAnalyticsPage() {
         <MetricCard
           label="Live GA"
           value={formatCompactNumber(liveResponse?.totalActive ?? 0)}
-          hint="Active in the last 30 mins"
+          hint={liveResponse?.liveTruthLabel === "fallback"
+            ? "Active in the last 30 mins from first-party fallback"
+            : "Active in the last 30 mins"}
           icon={Activity}
         />
         <MetricCard

@@ -178,6 +178,9 @@ export async function POST(request: NextRequest) {
         const sessionRef = adminDb
             .collection(ANALYTICS_CANONICAL_COLLECTIONS.watchSessions)
             .doc(parsedBody.watchSessionId);
+        const observationRef = adminDb
+            .collection(ANALYTICS_CANONICAL_COLLECTIONS.watchObservations)
+            .doc(createAnalyticsStorageKey("watch_observation", parsedBody.watchSessionId, String(parsedBody.sessionSequence)));
         const assetRefs = parsedBody.assets.map((asset) => ({
             asset,
             ref: adminDb
@@ -186,20 +189,24 @@ export async function POST(request: NextRequest) {
         }));
 
         const transactionResult = await adminDb.runTransaction(async (transaction) => {
-            const [existingSessionSnapshot, ...existingAssetSnapshots] = await Promise.all([
+            const [existingSessionSnapshot, existingObservationSnapshot, ...existingAssetSnapshots] = await Promise.all([
                 transaction.get(sessionRef),
+                transaction.get(observationRef),
                 ...assetRefs.map(({ ref }) => transaction.get(ref)),
             ]);
 
             const existingSession = existingSessionSnapshot.exists
                 ? existingSessionSnapshot.data() as Record<string, unknown>
                 : null;
+            if (existingObservationSnapshot.exists) {
+                return { accepted: false, stale: false, deduped: true };
+            }
             const existingSequence = typeof existingSession?.lastSequence === "number"
                 ? Number(existingSession.lastSequence)
                 : 0;
 
             if (existingSequence >= parsedBody.sessionSequence) {
-                return { accepted: false, stale: true };
+                return { accepted: false, stale: true, deduped: false };
             }
 
             const captureDerivedState = deriveViewerWatchCaptureState({
@@ -306,7 +313,63 @@ export async function POST(request: NextRequest) {
                 dropOffStage: sessionDerivedState.dropOffStage,
             };
 
+            const observedWatchDeltaMs = Math.max(
+                0,
+                Math.round((mergedSessionData.totalWatchSeconds - (typeof existingSession?.totalWatchSeconds === "number" ? Number(existingSession.totalWatchSeconds) : 0)) * 1000),
+            );
+            const observedVisibleDeltaMs = Math.max(
+                0,
+                Math.round((mergedSessionData.totalVisibleSeconds - (typeof existingSession?.totalVisibleSeconds === "number" ? Number(existingSession.totalVisibleSeconds) : 0)) * 1000),
+            );
+
             transaction.set(sessionRef, sessionData, { merge: true });
+            transaction.create(observationRef, {
+                observationId: observationRef.id,
+                sourceLayer: "observed",
+                truthLabel: parsedBody.isClosed ? "live" : "provisional",
+                provenance: "viewer_watch_session_flush",
+                watchSessionId: parsedBody.watchSessionId,
+                sessionSequence: parsedBody.sessionSequence,
+                clientSessionId: parsedBody.clientSessionId,
+                userId: caller.uid,
+                username,
+                dropId: parsedBody.dropId,
+                dropTitle: parsedBody.dropTitle || (typeof dropRecord.title === "string" ? dropRecord.title : parsedBody.dropId),
+                dropCategory: parsedBody.dropCategory || (typeof dropRecord.type === "string" ? dropRecord.type : ""),
+                pagePath: parsedBody.pagePath,
+                sessionStartedAtMs: parsedBody.sessionStartedAtMs,
+                observedAtMs: parsedBody.lastSeenAtMs,
+                closedAtMs: parsedBody.closedAtMs ?? null,
+                isClosed: parsedBody.isClosed,
+                closeReason: parsedBody.closeReason ?? null,
+                rawObservedWatchTimeMs: Math.round(parsedBody.totalWatchSeconds * 1000),
+                rawObservedVisibleTimeMs: Math.round(parsedBody.totalVisibleSeconds * 1000),
+                observedWatchDeltaMs,
+                observedVisibleDeltaMs,
+                viewedAssetCount: parsedBody.viewedAssetCount,
+                completedAssetCount: parsedBody.completedAssetCount,
+                consumedAssetCount: parsedBody.consumedAssetCount,
+                assetSwitchCount: parsedBody.assetSwitchCount,
+                captureQuality: captureDerivedState.captureQuality,
+                captureTransport: parsedBody.captureTransport ?? "unknown",
+                replayRecovered: captureDerivedState.replayRecovered,
+                gapDetected: captureDerivedState.gapDetected,
+                closeMissing: captureDerivedState.closeMissing,
+                flushDegraded: captureDerivedState.flushDegraded,
+                assets: parsedBody.assets.map((asset) => ({
+                    assetKey: asset.assetKey,
+                    assetIndex: asset.assetIndex,
+                    contentKind: asset.contentKind,
+                    totalWatchSeconds: asset.totalWatchSeconds,
+                    totalVisibleSeconds: asset.totalVisibleSeconds,
+                    maxProgressSeconds: asset.maxProgressSeconds,
+                    checkpointMaxSeconds: asset.checkpointMaxSeconds,
+                    durationSeconds: asset.durationSeconds ?? null,
+                    isConsumed: asset.isConsumed,
+                    isCompleted: asset.isCompleted,
+                })),
+                createdAt: admin.firestore.FieldValue.serverTimestamp(),
+            });
 
             assetRefs.forEach(({ asset, ref }, index) => {
                 const existingAssetSnapshot = existingAssetSnapshots[index];
@@ -391,13 +454,14 @@ export async function POST(request: NextRequest) {
                 }, { merge: true });
             });
 
-            return { accepted: true, stale: false };
+            return { accepted: true, stale: false, deduped: false };
         });
 
         return finalize(NextResponse.json({
             success: true,
             accepted: transactionResult.accepted,
             stale: transactionResult.stale,
+            deduped: transactionResult.deduped,
             assetCount: parsedBody.assets.length,
             watchSessionId: parsedBody.watchSessionId,
         }));

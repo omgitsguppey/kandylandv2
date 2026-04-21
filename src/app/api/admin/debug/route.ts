@@ -51,6 +51,7 @@ import {
 import { summarizeRouteRuntimeHealth } from "@/lib/route-runtime-health";
 import { QUEUE_RUNTIME_WARNING_CODES } from "../../../../../shared/runtime/runtime-warning-contract";
 import { getBehavioralSnapshotStatus, listDropIntelligence } from "@/lib/server/behavioral-intelligence";
+import { getAnalyticsTruthRecoverySummary, listAnalyticsTruthDrops, listAnalyticsTruthRepairs, listAnalyticsTruthUsers } from "@/lib/server/analytics-truth-recovery";
 
 const ONE_WEEK_MS = 7 * 24 * 60 * 60 * 1000;
 const TASK_GROUP_SET = new Set<string>(["visit", "notifications", "unwrap", "watch", "wallet", "purchase", "feedback", "share"]);
@@ -317,7 +318,7 @@ export async function GET(request: NextRequest) {
             adminDb.collection(CREATOR_REVIEW_QUEUE_COLLECTION).get(),
         ]);
 
-        const [analyticsChartHealth, routeRuntimeHealth, runtimeWarnings, queueJobHeartbeats, notificationDispatchOutcomes, behavioralSnapshotStatus, behavioralDrops] = await Promise.all([
+        const [analyticsChartHealth, routeRuntimeHealth, runtimeWarnings, queueJobHeartbeats, notificationDispatchOutcomes, behavioralSnapshotStatus, behavioralDrops, analyticsTruthRecovery, analyticsTruthDrops, analyticsTruthUsers, analyticsTruthRepairs] = await Promise.all([
             listAdminUiChartHealth(),
             listRouteRuntimeHealth(),
             listRuntimeWarnings(80),
@@ -325,6 +326,10 @@ export async function GET(request: NextRequest) {
             listNotificationDispatchOutcomes(80),
             getBehavioralSnapshotStatus(),
             listDropIntelligence(12),
+            getAnalyticsTruthRecoverySummary(),
+            listAnalyticsTruthDrops(12),
+            listAnalyticsTruthUsers(12),
+            listAnalyticsTruthRepairs(20),
         ]);
         const routeRuntimeHealthSummary = summarizeRouteRuntimeHealth(routeRuntimeHealth);
         const queueJobHeartbeatSummary = queueJobHeartbeats.reduce((summary, entry) => {
@@ -978,6 +983,9 @@ export async function GET(request: NextRequest) {
                 behavioralUserProfiles: Number(behavioralSnapshotStatus?.userProfileCount || 0),
                 behavioralGuestProfiles: Number(behavioralSnapshotStatus?.guestProfileCount || 0),
                 behavioralDropProfiles: Number(behavioralSnapshotStatus?.dropProfileCount || 0),
+                analyticsTruthDropMetrics: analyticsTruthDrops.length,
+                analyticsTruthUserMetrics: analyticsTruthUsers.length,
+                analyticsTruthRepairs: analyticsTruthRepairs.length,
             },
             coverage,
             taskInventorySummary,
@@ -1025,6 +1033,10 @@ export async function GET(request: NextRequest) {
             queueRuntimeSummary,
             behavioralSnapshotStatus,
             behavioralDrops,
+            analyticsTruthRecovery,
+            analyticsTruthDrops,
+            analyticsTruthUsers,
+            analyticsTruthRepairs,
         }));
     } catch (error) {
         return finalize(handleApiError(error, "Admin.Debug.GET"), error);

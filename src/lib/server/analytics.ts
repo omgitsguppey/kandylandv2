@@ -50,6 +50,11 @@ function readNumberParam(params: Record<string, string | number | boolean>, ...k
   return undefined;
 }
 
+function buildServerEventId(userId: string | undefined, eventName: string) {
+  const randomFragment = crypto.randomUUID().replace(/-/g, "").slice(0, 16);
+  return `srv_${(userId || "server").slice(0, 24)}_${eventName.slice(0, 32)}_${Date.now().toString(36)}_${randomFragment}`;
+}
+
 async function userAllowsServerAnalytics(userId?: string) {
   if (!userId || !adminDb) {
     return true;
@@ -98,14 +103,21 @@ export async function trackServerEvent(
 
   try {
     const timeKeys = buildAnalyticsTimeKeys(nowMs);
+    const eventId = buildServerEventId(userId, canonicalEventName);
     await Promise.all([
-      adminDb.collection("analytics_event_facts").add({
+      adminDb.collection("analytics_event_facts").doc(eventId).set({
+        eventId,
         source: userId ? "authenticated_server" : "server",
         consentMode: userId ? "identified" : "server",
         eventName: canonicalEventName,
+        idempotencyKey: eventId,
+        sourceLayer: "observed",
+        sourceSurface: "server",
         userId: userId || "",
         username: "",
         timestamp: nowMs,
+        clientTimestamp: nowMs,
+        serverTimestamp: nowMs,
         userAgent: "server",
         pagePath: readStringParam(enrichedParams, "page_path", "pagePath"),
         sessionId: readStringParam(enrichedParams, "session_id", "sessionId"),

@@ -15,6 +15,7 @@ export function AdminAnalyticsOperationsTab(props: any) {
     authOnboardingDiscrepancies, onboardingVelocityHasData, onboardingVelocityBuckets, onboardingVelocityStartCount, onboardingVelocityCompletionCount, onboardingVelocityCompletionRate, onboardingVelocityDropOffCount, onboardingVelocityStats, onboardingVelocityStartSourceHint, onboardingStepFlowItems,
     formatCompactNumber, formatDuration, formatPercent, formatRelativeTime,
     guestBounceQualityCards, guestBounceGlobalSemantics, guestBounceGuestRate, guestBounceEngagedRate, guestBounceIdentifiedRate, guestBounceUserSemantics,
+    guestViewsDisplayCount, guestViewsHint, guestBounceRateDisplay, guestBounceHint, guestEngagedRateDisplay, guestEngagedHint,
     topEvents,
     liveInteractionStreamRange, liveInteractionStreamData,
     validations, getValidationClasses, dataValidationRange,
@@ -54,7 +55,9 @@ export function AdminAnalyticsOperationsTab(props: any) {
                 <MetricCard
                   label="GA Active"
                   value={formatCompactNumber(liveResponse?.totalActive ?? 0)}
-                  hint="Google Analytics realtime"
+                  hint={liveResponse?.liveTruthLabel === "fallback"
+                    ? `First-party fallback (${liveResponse?.liveSourceLabel || "realtime fallback"})`
+                    : "Google Analytics realtime"}
                   icon={Users}
                 />
                 <MetricCard
@@ -62,7 +65,9 @@ export function AdminAnalyticsOperationsTab(props: any) {
                   value={formatCompactNumber(
                     liveResponse?.deepTrackerActive ?? 0,
                   )}
-                  hint="Authenticated users active in the last 30 minutes"
+                  hint={liveResponse?.activeUsersTruthLabel === "fallback"
+                    ? `Authenticated users reconstructed from ${liveResponse?.activeUsersSourceLabel || "first-party telemetry"}`
+                    : "Authenticated users active in the last 30 minutes"}
                   icon={Sparkles}
                 />
                 <MetricCard
@@ -684,22 +689,20 @@ export function AdminAnalyticsOperationsTab(props: any) {
                 <div className="grid grid-cols-2 gap-3 lg:grid-cols-4">
                   <MetricCard
                     label="Guest Views"
-                    value={formatCompactNumber(
-                      guestBounceGlobalSemantics?.viewCount ?? 0,
-                    )}
-                    hint={`${(guestBounceGlobalSemantics?.clickCount ?? 0).toLocaleString()} tracked public clicks`}
+                    value={formatCompactNumber(guestViewsDisplayCount ?? 0)}
+                    hint={guestViewsHint}
                     icon={Users}
                   />
                   <MetricCard
                     label="Guest Bounce"
-                    value={formatPercent(guestBounceGuestRate)}
-                    hint={`${(guestBounceGlobalSemantics?.bounceCount ?? 0).toLocaleString()} bounced exits`}
+                    value={guestBounceRateDisplay}
+                    hint={guestBounceHint}
                     icon={AlertTriangle}
                   />
                   <MetricCard
                     label="Guest Engaged"
-                    value={formatPercent(guestBounceEngagedRate)}
-                    hint={`${(guestBounceGlobalSemantics?.engagedViewCount ?? 0).toLocaleString()} engaged sessions`}
+                    value={guestEngagedRateDisplay}
+                    hint={guestEngagedHint}
                     icon={Sparkles}
                   />
                   <MetricCard
