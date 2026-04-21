@@ -9400,3 +9400,15 @@ Follow-up opportunities:
 3. Add more prompt-policy performance rollups beyond the current category bucket counts so acceptance rate by policy version is not limited to recent job history.
 4. Add attachment/reference storage rules coverage if the AI admin reference library starts accepting anything beyond image assets.
 
+
+## 2026-04-18 Read-Only GumDrop Package Metadata Audit
+
+Scope for this pass:
+- Perform a read-only audit of GumDrop package metadata, source-of-funds classification, and visible economic truth.
+
+Issues found and fixed:
+- **Visible value claim mismatch**: `src/components/PurchaseModal.tsx` was displaying the total credited GumDrops (`creditedDropsValue`) alongside the `bonusGumDrops`. This falsely implied to the user that the total drops received were the sum of both numbers (e.g., 550 GD + 50 bonus = 600 total).
+- Replaced `creditedDropsValue` with `selectedEconomics.paidGumDrops` in the UI to ensure the displayed base drops and bonus drops accurately sum to the total.
+
+Implementation results:
+- `src/components/PurchaseModal.tsx` now correctly separates paid drops and bonus drops visually to align with canonical ledger truth without over-claiming value.
