@@ -55,3 +55,14 @@ next-env.d.ts
 
 *storybook.log
 storybook-static
+
+# Agent & Analysis Noise
+*_temp.*
+eslint-*.txt
+eslint-*.json
+functions.txt
+functions_list.json
+test-results.txt
+ts_errors.txt
+firestore.ttl.json
+storage-lifecycle.json

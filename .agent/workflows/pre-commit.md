@@ -56,7 +56,11 @@ npm run build:debug
 
 This saves full output to `build.log`.
 
-6. Only commit if the required checks for the touched surfaces pass, and only after the audit file has been updated at the start and at the end.
+6. Verify no unauthorized temp/scratch files (e.g. `*_temp.*`, `*.log`) are in the working directory. Do NOT commit agent artifacts to the repo truth unless intended.
+
+7. Ensure all modified UI components have their accompanying test assertions updated if copy or layout was changed. DO NOT skip test suite failures.
+
+8. Only commit if the required checks for the touched surfaces pass, and only after the audit file has been updated at the start and at the end.
 
 ```bash
 git add -A
