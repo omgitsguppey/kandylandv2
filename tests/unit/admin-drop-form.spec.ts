@@ -121,4 +121,27 @@ describe("admin drop form helpers", () => {
         expect(dropData.ctaText).toBeNull();
         expect(dropData.accentColor).toBeNull();
     });
+
+    it("blocks protocol-relative open redirect URLs in actionUrl", () => {
+        const defaults = createDefaultDropFormValues();
+        expect(() => dropFormSchema.parse({
+            ...defaults,
+            title: "Open Redirect",
+            description: "This promo description is comfortably long enough.",
+            imageUrl: "https://example.com/cover.jpg",
+            type: "promo",
+            contentUrls: [],
+            actionUrl: "https://kandydrops.invalid//evil.com",
+        })).toThrowError(/Use a relative path or an http\/https URL/u);
+
+        expect(() => dropFormSchema.parse({
+            ...defaults,
+            title: "Open Redirect",
+            description: "This promo description is comfortably long enough.",
+            imageUrl: "https://example.com/cover.jpg",
+            type: "promo",
+            contentUrls: [],
+            actionUrl: "https://kandydrops.invalid/\\evil.com",
+        })).toThrowError(/Use a relative path or an http\/https URL/u);
+    });
 });

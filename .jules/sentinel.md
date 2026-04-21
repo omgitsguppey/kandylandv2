@@ -21,3 +21,8 @@
 **Vulnerability:** Open redirect risk in `getSafeUrl` via inputs like `//evil.com` or `/\evil.com` bypassing relative path validation when checked against a dummy base URL.
 **Learning:** Normalizing and parsing a user-provided URL against an internal base URL (e.g. `https://kandydrops.invalid`) preserves `//` at the start of the `pathname` property for certain inputs (e.g. `//evil.com`). If the origin matches but the pathname starts with `//`, returning it directly allows browsers to interpret it as a protocol-relative absolute URL (open redirect).
 **Prevention:** When extracting the relative path (`pathname + search + hash`) from a validated URL object, explicitly verify that `pathname` does not start with `//`.
+
+## 2026-05-15 - [Open Redirect via Protocol-Relative URLs in actionUrl]
+**Vulnerability:** Open redirect risk in `normalizeActionUrl` via inputs like `//evil.com` or `/\evil.com`.
+**Learning:** Checking that `parsed.origin === ADMIN_DROP_URL_BASE` is insufficient if the output simply appends `parsed.pathname`, because the URL constructor preserves `//` at the start of the `pathname` property for certain inputs.
+**Prevention:** Always verify that `pathname` does not start with `//` or `/\\` when extracting relative paths from user-provided URLs.

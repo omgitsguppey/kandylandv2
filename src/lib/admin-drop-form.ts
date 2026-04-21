@@ -52,9 +52,13 @@ function normalizeActionUrl(url: string | undefined): string | undefined {
             return undefined;
         }
 
-        return parsed.origin === ADMIN_DROP_URL_BASE
-            ? `${parsed.pathname}${parsed.search}${parsed.hash}`
-            : parsed.toString();
+        if (parsed.origin === ADMIN_DROP_URL_BASE) {
+            if (parsed.pathname.startsWith("//") || parsed.pathname.startsWith("/\\")) {
+                return undefined;
+            }
+            return `${parsed.pathname}${parsed.search}${parsed.hash}`;
+        }
+        return parsed.toString();
     } catch {
         return undefined;
     }
