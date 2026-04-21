@@ -22,9 +22,13 @@ Run these checks before every `git commit` and `git push` to catch build-breakin
 corepack pnpm run check
 ```
 
-3. Run the full test sweep for broad or cross-cutting changes.
+3. Run targeted tests for isolated changes, or the full test sweep for broad changes.
 
 ```bash
+# Fast: Runs only tests related to your modified file (< 2s)
+npm run agent:test <path>
+
+# Slow: Runs the full test sweep for cross-cutting changes (~60s)
 npx vitest run
 ```
 

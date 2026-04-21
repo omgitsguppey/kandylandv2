@@ -33,7 +33,7 @@ description: "Auto-run standard project commands"
    `npm run trace:adjacent -- <path>`
 
 10. Run targeted verification for touched analytics and admin surfaces:
-   `npx vitest run <test-paths>`
+   `npm run agent:test <path>`
    `npm --prefix functions run check`
 
 11. Run warning-focused dependency and tooling verification when cleanup touches packages or lockfiles:
