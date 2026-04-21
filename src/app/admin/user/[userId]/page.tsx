@@ -280,6 +280,8 @@ export default function AdminUserAnalyticsPage() {
     const [targetUser, setTargetUser] = useState<UserProfile | null>(null);
     const [transactions, setTransactions] = useState<Transaction[]>([]);
     const [analytics, setAnalytics] = useState<UserDetailAnalytics | null>(null);
+    const [behavioralProfile, setBehavioralProfile] = useState<any>(null);
+    const [recommendationDebug, setRecommendationDebug] = useState<any>(null);
     const [securityEvents, setSecurityEvents] = useState<SecurityEventItem[]>([]);
     const [securitySummary, setSecuritySummary] = useState<SecuritySummary | null>(null);
     const [supportReadiness, setSupportReadiness] = useState<SupportReadinessSnapshot | null>(null);
@@ -310,6 +312,8 @@ export default function AdminUserAnalyticsPage() {
                 creatorOnboardingHistory?: CreatorOnboardingHistoryEntry[];
                 transactions?: Transaction[];
                 analytics?: UserDetailAnalytics;
+                behavioralProfile?: any;
+                recommendationDebug?: any;
                 securitySummary?: SecuritySummary;
                 securityEvents?: SecurityEventItem[];
                 supportReadiness?: SupportReadinessSnapshot | null;
@@ -324,6 +328,8 @@ export default function AdminUserAnalyticsPage() {
             setTargetUser(result.user);
             setTransactions(result.transactions || []);
             setAnalytics(result.analytics || null);
+            setBehavioralProfile(result.behavioralProfile || null);
+            setRecommendationDebug(result.recommendationDebug || null);
             setSecuritySummary(result.securitySummary || null);
             setSecurityEvents(result.securityEvents || []);
             setSupportReadiness(result.supportReadiness || null);
@@ -347,6 +353,8 @@ export default function AdminUserAnalyticsPage() {
             setTargetUser(null);
             setTransactions([]);
             setAnalytics(null);
+            setBehavioralProfile(null);
+            setRecommendationDebug(null);
             setSecuritySummary(null);
             setSecurityEvents([]);
             setSupportReadiness(null);
@@ -671,6 +679,125 @@ export default function AdminUserAnalyticsPage() {
                                 );
                             })
                         )}
+                    </div>
+                </div>
+            </div>
+
+            <div className="glass-panel rounded-3xl border border-white/5 p-4 md:p-5">
+                <div className="flex flex-col gap-2 sm:flex-row sm:items-start sm:justify-between">
+                    <div>
+                        <h3 className="flex items-center gap-2 text-sm font-bold text-white">
+                            <Sparkles className="h-4 w-4 text-brand-purple" /> Behavioral Intelligence
+                        </h3>
+                        <p className="mt-1 text-xs leading-5 text-gray-400">
+                            Deterministic profile, freshness, and recommendation explanations for this account.
+                        </p>
+                    </div>
+                    <div className="flex flex-wrap gap-2">
+                        <span className={`inline-flex items-center rounded-full border px-3 py-1 text-[10px] font-bold uppercase tracking-[0.14em] ${behavioralProfile?.recommendationState === "profile-driven" ? "border-emerald-400/20 bg-emerald-400/10 text-emerald-200" : "border-amber-400/20 bg-amber-400/10 text-amber-200"}`}>
+                            {behavioralProfile?.recommendationState || "deterministic-fallback"}
+                        </span>
+                        <span className="inline-flex items-center rounded-full border border-white/10 bg-black/30 px-3 py-1 text-[10px] font-bold uppercase tracking-[0.14em] text-gray-200">
+                            {behavioralProfile?.freshnessLabel || "unknown"}
+                        </span>
+                        <span className="inline-flex items-center rounded-full border border-white/10 bg-black/30 px-3 py-1 text-[10px] font-bold uppercase tracking-[0.14em] text-gray-200">
+                            Confidence {Math.round((recommendationDebug?.profileConfidence || 0) * 100)}%
+                        </span>
+                    </div>
+                </div>
+
+                <div className="mt-5 grid gap-4 xl:grid-cols-[0.9fr_1.1fr]">
+                    <div className="space-y-4">
+                        <div className="grid gap-3 sm:grid-cols-2">
+                            <div className="rounded-[1.35rem] border border-white/10 bg-black/25 p-4">
+                                <p className="text-[10px] font-semibold uppercase tracking-[0.16em] text-gray-500">Eligibility</p>
+                                <p className="mt-2 text-lg font-black text-white">{behavioralProfile?.profilingEligibility?.eligible ? "profile-driven" : "deterministic-fallback"}</p>
+                                <p className="mt-1 text-xs text-gray-400">Recommendations only switch to profile-driven when identified analytics and recommendation consent are both enabled.</p>
+                            </div>
+                            <div className="rounded-[1.35rem] border border-white/10 bg-black/25 p-4">
+                                <p className="text-[10px] font-semibold uppercase tracking-[0.16em] text-gray-500">Fatigue band</p>
+                                <p className="mt-2 text-lg font-black text-white">{behavioralProfile?.fatigueState || "unknown"}</p>
+                                <p className="mt-1 text-xs text-gray-400">Fatigue score {Math.round((behavioralProfile?.fatigueScore || 0) * 100)}%.</p>
+                            </div>
+                            <div className="rounded-[1.35rem] border border-white/10 bg-black/25 p-4">
+                                <p className="text-[10px] font-semibold uppercase tracking-[0.16em] text-gray-500">Exploration vs loyalty</p>
+                                <p className="mt-2 text-lg font-black text-white">{Math.round((behavioralProfile?.explorationScore || 0) * 100)} / {Math.round((behavioralProfile?.loyaltyScore || 0) * 100)}</p>
+                                <p className="mt-1 text-xs text-gray-400">Exploration / loyalty balance derived from recent creators and repeat consumption.</p>
+                            </div>
+                            <div className="rounded-[1.35rem] border border-white/10 bg-black/25 p-4">
+                                <p className="text-[10px] font-semibold uppercase tracking-[0.16em] text-gray-500">Session depth</p>
+                                <p className="mt-2 text-lg font-black text-white">{behavioralProfile?.averageSessionDepth || 0}</p>
+                                <p className="mt-1 text-xs text-gray-400">{behavioralProfile?.watchSessionCount || 0} tracked watch sessions in the current profile window.</p>
+                            </div>
+                        </div>
+
+                        <div className="rounded-[1.35rem] border border-white/10 bg-black/25 p-4">
+                            <p className="text-[10px] font-semibold uppercase tracking-[0.16em] text-gray-500">Top creator affinity</p>
+                            <div className="mt-3 flex flex-wrap gap-2">
+                                {(behavioralProfile?.topCreators || []).slice(0, 6).map((entry: any) => (
+                                    <span key={entry.key} className="inline-flex items-center rounded-full border border-white/10 bg-white/5 px-3 py-1 text-[11px] font-semibold text-white">
+                                        {entry.key} · {entry.score}
+                                    </span>
+                                ))}
+                                {!(behavioralProfile?.topCreators || []).length ? <span className="text-xs text-gray-500">No creator affinity signal yet.</span> : null}
+                            </div>
+                        </div>
+
+                        <div className="rounded-[1.35rem] border border-white/10 bg-black/25 p-4">
+                            <p className="text-[10px] font-semibold uppercase tracking-[0.16em] text-gray-500">Top content themes</p>
+                            <div className="mt-3 flex flex-wrap gap-2">
+                                {(behavioralProfile?.topCategories || []).slice(0, 4).map((entry: any) => (
+                                    <span key={`category-${entry.key}`} className="inline-flex items-center rounded-full border border-white/10 bg-white/5 px-3 py-1 text-[11px] font-semibold text-white">
+                                        {entry.key} · {entry.score}
+                                    </span>
+                                ))}
+                                {(behavioralProfile?.topThemes || []).slice(0, 4).map((entry: any) => (
+                                    <span key={`theme-${entry.key}`} className="inline-flex items-center rounded-full border border-brand-purple/20 bg-brand-purple/10 px-3 py-1 text-[11px] font-semibold text-brand-purple">
+                                        {entry.key} · {entry.score}
+                                    </span>
+                                ))}
+                                {!(behavioralProfile?.topCategories || []).length && !(behavioralProfile?.topThemes || []).length ? <span className="text-xs text-gray-500">No category/theme signal yet.</span> : null}
+                            </div>
+                        </div>
+                    </div>
+
+                    <div className="space-y-3">
+                        <div className="rounded-[1.35rem] border border-white/10 bg-black/25 p-4">
+                            <p className="text-[10px] font-semibold uppercase tracking-[0.16em] text-gray-500">Recommended drops with explanations</p>
+                            <div className="mt-4 space-y-3">
+                                {(recommendationDebug?.drops || []).slice(0, 4).map((entry: any) => (
+                                    <div key={entry.dropId} className="rounded-[1.1rem] border border-white/10 bg-black/30 p-4">
+                                        <div className="flex flex-wrap items-start justify-between gap-3">
+                                            <div>
+                                                <p className="text-sm font-bold text-white">{entry.dropTitle}</p>
+                                                <p className="mt-1 text-xs text-gray-400">{entry.dropId} · {entry.dropCategory || "unknown"}</p>
+                                            </div>
+                                            <div className="flex flex-wrap gap-2">
+                                                <span className="inline-flex items-center rounded-full border border-white/10 bg-white/5 px-3 py-1 text-[10px] font-bold uppercase tracking-[0.14em] text-white">
+                                                    Score {entry.score}
+                                                </span>
+                                                {(entry.labels || []).map((label: string) => (
+                                                    <span key={`${entry.dropId}:${label}`} className="inline-flex items-center rounded-full border border-white/10 bg-black/35 px-3 py-1 text-[10px] font-bold uppercase tracking-[0.14em] text-gray-200">
+                                                        {label}
+                                                    </span>
+                                                ))}
+                                            </div>
+                                        </div>
+                                        <div className="mt-3 flex flex-wrap gap-2">
+                                            {(entry.factors || []).slice(0, 4).map((factor: any) => (
+                                                <span key={`${entry.dropId}:${factor.key}`} className="inline-flex items-center rounded-full border border-white/10 bg-white/5 px-3 py-1 text-[11px] font-semibold text-white">
+                                                    {factor.label} {factor.contribution}
+                                                </span>
+                                            ))}
+                                        </div>
+                                        {(entry.factors || []).slice(0, 2).map((factor: any) => (
+                                            <p key={`${entry.dropId}:${factor.key}:detail`} className="mt-2 text-xs leading-5 text-gray-400">{factor.detail}</p>
+                                        ))}
+                                    </div>
+                                ))}
+                                {!(recommendationDebug?.drops || []).length ? <p className="text-sm text-gray-500">No ranked drop candidates are available for this user yet.</p> : null}
+                            </div>
+                        </div>
                     </div>
                 </div>
             </div>

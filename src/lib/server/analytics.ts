@@ -6,6 +6,8 @@ import { adminDb } from "./firebase-admin";
 import { buildAnalyticsTimeKeys, resolveTrackedTelemetryEvent } from "./analytics-event-utils";
 import { recordRouteWarning } from "./route-diagnostics";
 import { buildAnalyticsSemanticParams } from "@/lib/analytics-semantics";
+import { profileAllowsIdentifiedAnalytics } from "@/lib/server/privacy-consent";
+import type { UserProfile } from "@/types/db";
 
 function sanitizeServerParams(params: Record<string, unknown>) {
   const sanitized: Record<string, string | number | boolean> = {};
@@ -48,6 +50,24 @@ function readNumberParam(params: Record<string, string | number | boolean>, ...k
   return undefined;
 }
 
+async function userAllowsServerAnalytics(userId?: string) {
+  if (!userId || !adminDb) {
+    return true;
+  }
+
+  try {
+    const snapshot = await adminDb.collection("users").doc(userId).get();
+    const profile = snapshot.exists ? snapshot.data() as UserProfile : null;
+    return profileAllowsIdentifiedAnalytics(profile);
+  } catch (error) {
+    recordRouteWarning("server/analytics", "Failed to resolve privacy settings for server event", error, {
+      channel: "analytics",
+      detail: { userId },
+    });
+    return false;
+  }
+}
+
 export async function trackServerEvent(
   rawEventName: string,
   params: Record<string, unknown>,
@@ -59,6 +79,9 @@ export async function trackServerEvent(
   const { canonicalEventName, option, metadataParams, isKnownEvent } = resolveTrackedTelemetryEvent(rawEventName);
   if (!isKnownEvent) {
     console.warn(`[Analytics] Ignored unsupported server event: ${rawEventName}`);
+    return;
+  }
+  if (!(await userAllowsServerAnalytics(userId))) {
     return;
   }
   const sanitizedParams = sanitizeServerParams(params);

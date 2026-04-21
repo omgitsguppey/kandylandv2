@@ -41,6 +41,18 @@ Generate a task context pack:
 npm run agent:task-context -- --task="tighten admin ai runtime health" --mode=admin --file=src/app/admin/ai/page.tsx
 ```
 
+Generate the full fast-start packet:
+
+```bash
+npm run agent:fast-start -- --task="tighten admin ai runtime health" --mode=admin --file=src/app/admin/ai/page.tsx
+```
+
+Generate a deterministic verification split for touched files:
+
+```bash
+npm run agent:verify -- --paths=src/app/admin/debug/page.tsx,scripts/agent/build-task-context.ts
+```
+
 Run the self-check:
 
 ```bash
@@ -55,8 +67,17 @@ npm run eval:agent-context
 
 Output locations:
 - `agent/state/task-context.generated.json`
+- `agent/state/fast-start.generated.json`
+- `agent/state/verification-plan.generated.json`
 - `agent/prompts/task-prompt.short.md`
 - `agent/prompts/task-prompt.standard.md`
 - `agent/prompts/task-prompt.deep.md`
+- `agent/prompts/task-issue-spec.generated.md`
+- `agent/prompts/verification-plan.generated.md`
 
 Use `agent/index/*` and the generated task context before falling back to large governance-doc prompt payloads.
+
+Fast-path rule:
+- Use `agent:fast-start` at the start of narrow or moderate implementation work.
+- Use `agent:verify` when the touched files are already known and you only need the fast vs signoff lane split.
+- Keep fast-loop verification narrow; reserve continuity, UI audits, and other broad lanes for signoff unless the selector marks them as required.

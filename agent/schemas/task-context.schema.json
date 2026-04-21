@@ -1,6 +1,6 @@
 {
   "type": "object",
-  "required": ["generatedAt", "truthOrder", "source", "input", "normalizedTaskSummary", "likelySurfaceCategory", "likelyTouchedFiles", "likelyAdjacentFiles", "likelyAdjacentHelpers", "governanceConsultFull", "governanceConsultSelective", "canonicalHelpersToReuse", "relevantKnownPitfalls", "requiredVerificationCommands", "optionalVerificationCommands", "cleanupExpectations", "broadSignoffAuditUpdateRequired", "confidenceNotes", "ambiguityNotes", "rankingEvidence"],
+  "required": ["generatedAt", "truthOrder", "source", "input", "normalizedTaskSummary", "likelySurfaceCategory", "likelyTouchedFiles", "likelyAdjacentFiles", "likelyAdjacentHelpers", "governanceConsultFull", "governanceConsultSelective", "canonicalHelpersToReuse", "relevantKnownPitfalls", "requiredVerificationCommands", "optionalVerificationCommands", "fastVerificationCommands", "signoffVerificationCommands", "verificationAdvisories", "forbiddenSurfaces", "cleanupExpectations", "broadSignoffAuditUpdateRequired", "confidenceNotes", "ambiguityNotes", "rankingEvidence"],
   "properties": {
     "generatedAt": { "type": "string" },
     "truthOrder": { "type": "array", "items": { "type": "string" } },
@@ -17,6 +17,10 @@
     "relevantKnownPitfalls": { "type": "array", "items": { "type": "string" } },
     "requiredVerificationCommands": { "type": "array", "items": { "type": "string" } },
     "optionalVerificationCommands": { "type": "array", "items": { "type": "string" } },
+    "fastVerificationCommands": { "type": "array", "items": { "type": "string" } },
+    "signoffVerificationCommands": { "type": "array", "items": { "type": "string" } },
+    "verificationAdvisories": { "type": "array", "items": { "type": "string" } },
+    "forbiddenSurfaces": { "type": "array", "items": { "type": "string" } },
     "cleanupExpectations": { "type": "array", "items": { "type": "string" } },
     "broadSignoffAuditUpdateRequired": { "type": "boolean" },
     "confidenceNotes": { "type": "array", "items": { "type": "string" } },

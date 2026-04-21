@@ -31,6 +31,10 @@ import {
     normalizeSupportThreadStatus,
     SUPPORT_COLLECTIONS,
 } from "@/lib/support-readiness";
+import {
+    buildDeterministicDropRecommendations,
+    getBehavioralUserProfile,
+} from "@/lib/server/behavioral-intelligence";
 
 function toTimestampNumber(value: unknown): number {
     if (typeof value === "number" && Number.isFinite(value)) {
@@ -783,6 +787,14 @@ export async function GET(
             }
         }
 
+        const [behavioralProfile, recommendedDrops] = await Promise.all([
+            getBehavioralUserProfile(userId),
+            buildDeterministicDropRecommendations({
+                userId,
+                limit: 6,
+            }),
+        ]);
+
         return NextResponse.json({
             success: true,
             user,
@@ -790,6 +802,21 @@ export async function GET(
             creatorOnboardingHistory,
             transactions,
             analytics,
+            behavioralProfile,
+            recommendationDebug: {
+                mode: recommendedDrops[0]?.mode || "deterministic-fallback",
+                profileFreshness: recommendedDrops[0]?.profileFreshness || "unknown",
+                profileConfidence: recommendedDrops[0]?.profileConfidence || 0,
+                drops: recommendedDrops.map((entry) => ({
+                    dropId: entry.drop.id,
+                    dropTitle: entry.drop.title,
+                    creatorId: entry.drop.creatorId,
+                    dropCategory: entry.drop.type,
+                    score: entry.score,
+                    labels: entry.labels,
+                    factors: entry.factors,
+                })),
+            },
             securitySummary,
             securityEvents,
             supportReadiness,

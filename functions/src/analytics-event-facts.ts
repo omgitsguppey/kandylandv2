@@ -38,6 +38,14 @@ export const ingestAnalyticsEvent = onCall(
 
     // 2. Validate and enforce privacy at the gateway
     const enforcement = enforcePrivacyConsentOnEvent(payload as AnalyticsEventFact)
+    if (!enforcement.allowed) {
+      return {
+        status: "ignored",
+        reason: enforcement.reason || "consent_denied",
+        anonymized: false,
+      }
+    }
+
     const sanitizedPayload = enforcement.anonymized ? enforcement.sanitizedFact : payload
 
     const finalEvent: AnalyticsEventFact = {
@@ -75,6 +83,15 @@ export const onAnalyticsEventFactCreated = onDocumentCreated(
     }
 
     const enforcement = enforcePrivacyConsentOnEvent(data)
+    if (!enforcement.allowed) {
+      await db.collection("analytics_dedupe").doc(event.id).set({
+        processedAt: FieldValue.serverTimestamp(),
+        eventId: event.id,
+        timestamp: readNumber(data.timestamp) || Date.now(),
+        skippedReason: enforcement.reason || "consent_denied",
+      }, {merge: true})
+      return
+    }
     
     let userId = readString(data.userId)
     let username = readString(data.username)

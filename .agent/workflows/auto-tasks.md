@@ -82,7 +82,11 @@ description: "Auto-run standard project commands"
    `npm run trace:adjacent -- scripts/export-dependency-graph.ts`
    `npm run trace:adjacent -- scripts/trace-adjacent-surfaces.ts`
    `npm run trace:adjacent -- scripts/agent/build-task-context.ts`
+   `npm run trace:adjacent -- scripts/agent/verification-selector.ts`
+   `npm run trace:adjacent -- scripts/agent/fast-start.ts`
    `npm run trace:adjacent -- scripts/agent/run-evals.ts`
+   `npm run agent:fast-start -- --task "<task description>" --mode=<mode> --file=<path>`
+   `npm run agent:verify -- --paths=<path1,path2>`
    `npm run agent:index`
    `npm run agent:refresh`
    `npm run check:agent-intelligence`

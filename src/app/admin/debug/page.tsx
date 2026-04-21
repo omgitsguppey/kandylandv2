@@ -2032,6 +2032,53 @@ export default function DebugConsole() {
                     </Section>
 
                     <Section
+                        title="Behavioral Intelligence"
+                        subtitle="Profile snapshot coverage plus drop-level ranking inputs used before any ML dependence."
+                        defaultOpen={false}
+                        summary={<><Pill label="User profiles" value={data?.stats?.behavioralUserProfiles ?? 0} /><Pill label="Drop profiles" value={data?.stats?.behavioralDropProfiles ?? 0} /><Pill label="Freshness" value={data?.behavioralSnapshotStatus?.freshnessLabel || "unknown"} tone={data?.behavioralSnapshotStatus?.freshnessLabel === "live" ? "good" : "warn"} /></>}
+                    >
+                        <div className="grid gap-4 xl:grid-cols-[0.78fr_1.22fr]">
+                            <div className="space-y-3">
+                                <div className="rounded-[1rem] border border-white/10 bg-white/[0.03] p-4">
+                                    <p className="text-[11px] uppercase tracking-[0.18em] text-gray-400">Snapshot status</p>
+                                    <div className="mt-3 flex flex-wrap gap-2">
+                                        <Pill label="Users" value={data?.stats?.behavioralUserProfiles ?? 0} />
+                                        <Pill label="Guests" value={data?.stats?.behavioralGuestProfiles ?? 0} />
+                                        <Pill label="Drops" value={data?.stats?.behavioralDropProfiles ?? 0} />
+                                    </div>
+                                    <p className="mt-3 text-sm text-gray-300">Latest rebuild {formatRelative(data?.behavioralSnapshotStatus?.updatedAtMs)}. Source window starts {formatTimestamp(data?.behavioralSnapshotStatus?.sourceWindowStartMs)}.</p>
+                                </div>
+                            </div>
+
+                            <ScrollWrap>
+                                <div className="divide-y divide-white/10 rounded-[1rem] border border-white/10 bg-white/[0.03]">
+                                    {(data?.behavioralDrops || []).length ? (data?.behavioralDrops || []).map((entry: any) => (
+                                        <div key={entry.dropId} className="space-y-2 px-4 py-3">
+                                            <div className="flex flex-wrap items-start justify-between gap-2">
+                                                <div>
+                                                    <p className="font-semibold text-white">{entry.dropTitle || entry.dropId}</p>
+                                                    <p className="text-xs text-gray-400">{entry.dropId} · {entry.dropCategory || "unknown"}</p>
+                                                </div>
+                                                <div className="flex flex-wrap gap-2">
+                                                    <Pill label="State" value={entry.freshnessLabel || "unknown"} tone={entry.freshnessLabel === "live" ? "good" : "warn"} />
+                                                    <Pill label="Confidence" value={`${Math.round((entry.confidenceScore || 0) * 100)}%`} />
+                                                </div>
+                                            </div>
+                                            <div className="flex flex-wrap gap-2">
+                                                <Pill label="Previews" value={entry.previewOpens ?? 0} />
+                                                <Pill label="Viewer opens" value={entry.viewerOpens ?? 0} />
+                                                <Pill label="Unlocks" value={entry.unlocks ?? 0} />
+                                                <Pill label="Completion" value={`${Math.round((entry.completionRate || 0) * 100)}%`} />
+                                                <Pill label="Negative" value={`${Math.round((entry.negativeSignalRate || 0) * 100)}%`} tone={(entry.negativeSignalRate || 0) > 0.25 ? "warn" : "good"} />
+                                            </div>
+                                        </div>
+                                    )) : <div className="px-4 py-4 text-sm text-amber-100">No behavioral drop-intelligence rows are available yet. Rebuild the snapshots or wait for the scheduled pass.</div>}
+                                </div>
+                            </ScrollWrap>
+                        </div>
+                    </Section>
+
+                    <Section
                         title="Experiment and rollout registry"
                         subtitle="Current experimentation footprint and sample actor resolution."
                         defaultOpen={false}

@@ -1,7 +1,7 @@
 # Repo Memory Ledger
 
 Status: Canonical repository-memory and architecture-decision ledger
-Last refreshed: 2026-04-18
+Last refreshed: 2026-04-21
 Repo: `C:\Users\uylus\OneDrive\Documents\KandyDrops_Final`
 
 ## Purpose
@@ -23,6 +23,32 @@ This file is not a changelog. It is the concise ledger for durable decisions tha
 4. When this file and runtime code disagree, runtime code plus verification wins and this file must be updated immediately.
 
 ## Decision Entries
+
+### 1ak. Agent implementation should start from a generated fast-start packet, and verification should be split into fast-loop versus signoff lanes
+
+- Approximate date: Recorded explicitly on 2026-04-21 from the Agent Fast-Path + Deterministic Verification Lane Split pass
+- Status: Active repo-intelligence workflow rule
+- Problem/context: The repo already had task-context generation and verification metadata, but agent implementation loops still tended to widen into broad checks too early because task-context output exposed one flattened verification list instead of a deterministic fast loop versus signoff split. That slowed narrow and moderate implementation work and made cloud/local agents more likely to run repo-wide sweeps than the touched surface justified.
+- Decision made: Agent work should start from `git status --short`, `agent:fast-start`, and the generated verification split before broad signoff. Verification is now modeled in two lanes: a fast implementation loop for targeted checks and a signoff loop for broad continuity, UI audits, rules, and runtime continuity when the touched surface actually requires them.
+- What became canonical:
+  - `scripts/agent/verification-selector.ts` derives `fastCommands` and `signoffCommands` from repo inventory, surface-map, UI coverage, and verification-command metadata
+  - `scripts/agent/fast-start.ts` bundles git status, task-context generation, adjacency tracing, verification selection, and an issue-style task spec
+  - `scripts/agent/build-task-context.ts` now emits `fastVerificationCommands`, `signoffVerificationCommands`, `verificationAdvisories`, and `forbiddenSurfaces`
+  - `AGENTS.md` and `agent/README.md` now document `agent:fast-start` and `agent:verify` as the default low-token implementation path
+  - `.github/instructions/*.instructions.md` and `.claude/agents/test-specialist.md` provide path-specific agent instructions for analytics, admin/debug, functions/runtime, and tests
+- Truth lives in:
+  - `scripts/agent/verification-selector.ts`
+  - `scripts/agent/fast-start.ts`
+  - `scripts/agent/build-task-context.ts`
+  - `scripts/agent/run-evals.ts`
+  - `AGENTS.md`
+  - `agent/README.md`
+  - `.github/copilot-instructions.md`
+- What is now disallowed or deprecated:
+  - defaulting narrow or moderate implementation tasks to `npm run check`, `npm run check:continuity`, or UI audits before running the targeted fast lane
+  - treating one flattened verification list as sufficient guidance for agent implementation
+  - skipping explicit forbidden-surface guidance when handing a task to an agent
+  - relying on generic agent prompting when the repo can generate an issue-style task spec and deterministic verification plan first
 
 ### 1aj. Viewer watch close intent must survive flush failure, and closed recovered sessions are not permanently flush-degraded
 

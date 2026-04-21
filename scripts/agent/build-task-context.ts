@@ -2,6 +2,7 @@ import { buildAgentIndexes } from "./build-agent-indexes";
 import type { RepoInventoryEntry } from "./classify-repo-files";
 import { buildLocalImportGraph } from "./summarize-dependency-graph";
 import { compact, createMetadata, readJsonFile, toStableId, tokenize, validateWithSchema, writeJsonFile, writeTextFile } from "./shared";
+import { selectVerificationPlan } from "./verification-selector";
 
 type TaskMode =
   | "ui"
@@ -38,6 +39,7 @@ const NOISE_TOKENS = new Set([
 type TaskSignals = {
   pathNeedles: string[];
   helperFamilyNeedles: string[];
+  forbiddenPathNeedles: string[];
   requiredCommands: string[];
   optionalCommands: string[];
 };
@@ -87,12 +89,28 @@ function inferMode(task: string): TaskMode {
   return "runtime";
 }
 
-function buildTaskSignals(mode: TaskMode, taskTokens: string[]) {
+function buildTaskSignals(mode: TaskMode, taskTokens: string[], taskText: string) {
   const hasAny = (...needles: string[]) => needles.some((needle) => taskTokens.includes(needle));
   const pathNeedles = new Set<string>();
   const helperFamilyNeedles = new Set<string>();
+  const forbiddenPathNeedles = new Set<string>();
   const requiredCommands = new Set<string>();
   const optionalCommands = new Set<string>();
+  const lowerTask = taskText.toLowerCase();
+
+  const forbidIfScopedOut = (keyword: string, ...needles: string[]) => {
+    if ((lowerTask.includes("without") || lowerTask.includes("do not") || lowerTask.includes("not touch")) && lowerTask.includes(keyword)) {
+      needles.forEach((needle) => forbiddenPathNeedles.add(needle));
+    }
+  };
+
+  forbidIfScopedOut("paypal", "paypal");
+  forbidIfScopedOut("payment", "paypal", "payment");
+  forbidIfScopedOut("payments", "paypal", "payment");
+  forbidIfScopedOut("ledger", "ledger", "gumdrop", "transaction");
+  forbidIfScopedOut("economy", "gumdrop", "economy", "transaction");
+  forbidIfScopedOut("wallet", "wallet");
+  forbidIfScopedOut("gumdrop", "gumdrop");
 
   if (mode === "chat" || hasAny("chat", "realtime", "thread", "message", "unread")) {
     ["chat", "chat-realtime", "thread", "message", "unread"].forEach((entry) => pathNeedles.add(entry));
@@ -137,6 +155,12 @@ function buildTaskSignals(mode: TaskMode, taskTokens: string[]) {
     optionalCommands.add("npm run test:contracts");
   }
 
+  if (hasAny("behavioral", "ranking", "profile", "recommendation", "recommendations")) {
+    ["behavioral", "ranking", "profile", "recommendation", "analytics"].forEach((entry) => pathNeedles.add(entry));
+    helperFamilyNeedles.add("telemetry_analytics_canon");
+    optionalCommands.add("npm run check:analytics-semantics");
+  }
+
   if (mode === "dependency" || mode === "functions" || hasAny("dependency", "deploy", "lockfile", "npm", "package", "pnpm")) {
     ["package", "package-lock", "pnpm-lock", "functions/package", "functions/pnpm-lock"].forEach((entry) => pathNeedles.add(entry));
     requiredCommands.add("npm run check:continuity");
@@ -160,6 +184,7 @@ function buildTaskSignals(mode: TaskMode, taskTokens: string[]) {
   return {
     pathNeedles: Array.from(pathNeedles).sort(),
     helperFamilyNeedles: Array.from(helperFamilyNeedles).sort(),
+    forbiddenPathNeedles: Array.from(forbiddenPathNeedles).sort(),
     requiredCommands: Array.from(requiredCommands).sort(),
     optionalCommands: Array.from(optionalCommands).sort(),
   } satisfies TaskSignals;
@@ -195,6 +220,11 @@ function scoreCandidate(input: {
   if (taskSignals.pathNeedles.some((needle) => entry.path.toLowerCase().includes(needle) || entry.surface_category.includes(needle) || entry.file_class.includes(needle))) {
     score += 30;
     evidence.push("task_signal_match");
+  }
+
+  if (taskSignals.forbiddenPathNeedles.some((needle) => entry.path.toLowerCase().includes(needle))) {
+    score -= 45;
+    evidence.push("forbidden_surface_penalty");
   }
 
   const fileName = entry.path.split("/").pop() ?? entry.path;
@@ -411,29 +441,46 @@ function buildPrompt(name: "short" | "standard" | "deep", context: Record<string
   const pitfalls = (context.relevantKnownPitfalls as string[]).slice(0, name === "short" ? 4 : 8);
   const required = context.requiredVerificationCommands as string[];
   const optional = context.optionalVerificationCommands as string[];
+  const fast = (context.fastVerificationCommands as string[]) ?? required;
+  const signoff = (context.signoffVerificationCommands as string[]) ?? optional;
+  const forbidden = ((context.forbiddenSurfaces as string[]) ?? []).slice(0, name === "short" ? 4 : 8);
   const lines = [
     `# ${name.toUpperCase()} Task Context`,
     ``,
-    `Task: ${context.normalizedTaskSummary as string}`,
+    "## Goal",
+    `${context.normalizedTaskSummary as string}`,
+    ``,
     `Mode: ${context.taskModeClassification as string}`,
     `Scope: ${context.scopeClassification as string}`,
     `Why scope: ${context.scopeWhy as string}`,
     ``,
-    `Likely touched files:`,
+    `## Likely Entrypoints`,
     ...touched.map((entry) => `- ${entry}`),
     ``,
-    `Canonical helpers to reuse:`,
+    `## Canonical Helpers To Reuse`,
     ...helpers.map((entry) => `- ${entry}`),
     ``,
-    `Relevant pitfalls:`,
+    `## Acceptance Criteria`,
+    "- Reuse the canonical helpers before introducing new ownership paths.",
+    "- Keep edits bounded to the likely entrypoints unless adjacency proves otherwise.",
+    "- Report any blocked or unverified lane explicitly instead of implying success.",
+    "",
+    "## Relevant Pitfalls",
     ...pitfalls.map((entry) => `- ${entry}`),
     ``,
-    `Required verification:`,
-    ...required.map((entry) => `- ${entry}`),
+    "## Forbidden Surfaces",
+    ...(forbidden.length > 0 ? forbidden.map((entry) => `- ${entry}`) : ["- None pre-classified."]),
+    "",
+    "## Fast Verification",
+    ...fast.map((entry) => `- ${entry}`),
   ];
 
-  if (name !== "short" && optional.length > 0) {
-    lines.push("", "Optional verification:", ...optional.map((entry) => `- ${entry}`));
+  if (signoff.length > 0) {
+    lines.push("", "## Signoff Verification", ...signoff.map((entry) => `- ${entry}`));
+  }
+
+  if (name !== "short" && required.length > 0 && optional.length > 0) {
+    lines.push("", "## Compatibility Verification Fields", ...required.map((entry) => `- required: ${entry}`), ...optional.map((entry) => `- optional: ${entry}`));
   }
 
   if (name === "deep") {
@@ -457,7 +504,7 @@ export function buildTaskContext() {
   const mode = rawMode ?? inferMode(task);
   const taskTokens = tokenize(task).concat(fileHints.flatMap((entry) => tokenize(entry)));
   const signalTokens = taskTokens.filter((token) => !NOISE_TOKENS.has(token));
-  const taskSignals = buildTaskSignals(mode, signalTokens);
+  const taskSignals = buildTaskSignals(mode, signalTokens, task);
   const repoInventory = readJsonFile<{ items: RepoInventoryEntry[] }>("agent/index/repo-inventory.json").items;
   const helperEntries = readJsonFile<{ entries: Array<{ path: string; family: string; purpose: string }> }>("agent/index/canonical-helpers.json").entries;
   const recentPasses = readJsonFile<{ passes: Array<{ title: string; touchedSurfaces: string[] }> }>("agent/index/recent-passes.json").passes;
@@ -535,6 +582,7 @@ export function buildTaskContext() {
 
   const broadSignoff = broadSignoffRequired(mode, likelyTouchedFiles);
   const scopeInfo = classifyScope(mode, likelyTouchedFiles, broadSignoff);
+  const verificationPlan = selectVerificationPlan({ paths: likelyTouchedFiles.map((entry) => entry.path) });
   const hotContextFiles = likelyTouchedFiles.slice(0, 5).map((entry) => entry.path);
   const warmContextFiles = likelyTouchedFiles.slice(5, 10).map((entry) => entry.path);
   const coldContextFiles = compact([
@@ -590,6 +638,10 @@ export function buildTaskContext() {
     relevantKnownPitfalls: relevantPitfalls.map((entry) => entry.title),
     requiredVerificationCommands: Array.from(new Set(verificationSelection.required)),
     optionalVerificationCommands: Array.from(new Set(verificationSelection.optional)),
+    fastVerificationCommands: Array.from(new Set(verificationPlan.fastCommands)),
+    signoffVerificationCommands: Array.from(new Set(verificationPlan.signoffCommands)),
+    verificationAdvisories: verificationPlan.signoffAdvisories,
+    forbiddenSurfaces: verificationPlan.forbiddenSurfaces,
     cleanupExpectations: [
       "Remove non-committed generated artifacts such as output/dependency-graph.json if created only for local verification.",
       "Clean .next, playwright-report, test-results, lighthouse-results, build.log, and emulator logs before signoff.",

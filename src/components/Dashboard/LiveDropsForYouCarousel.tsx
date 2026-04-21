@@ -1,6 +1,6 @@
 "use client";
 
-import { useMemo } from "react";
+import { useEffect, useMemo, useState } from "react";
 import { useRouter } from "next/navigation";
 import NextImage from "next/image";
 import { ArrowRight, Images, Sparkles } from "lucide-react";
@@ -19,10 +19,11 @@ export function LiveDropsForYouCarousel({ initialDrops }: LiveDropsForYouCarouse
   const router = useRouter();
   const { drops, loading } = useDrops(["active"], initialDrops);
   const nowMs = useNow({ intervalMs: 60_000 });
+  const [recommendedDrops, setRecommendedDrops] = useState<Drop[] | null>(null);
 
   const activeDrops = useMemo(
     () =>
-      drops
+      (recommendedDrops ?? drops)
         .filter((drop) => {
           if (drop.status !== "active") {
             return false;
@@ -43,8 +44,32 @@ export function LiveDropsForYouCarousel({ initialDrops }: LiveDropsForYouCarouse
           return true;
         })
         .slice(0, 8),
-    [drops, nowMs],
+    [drops, nowMs, recommendedDrops],
   );
+
+  useEffect(() => {
+    let cancelled = false;
+    void fetch("/api/drops/recommendations?limit=8", { cache: "no-store" })
+      .then(async (response) => {
+        if (!response.ok) {
+          return null;
+        }
+        return response.json() as Promise<{ drops?: Drop[] }>;
+      })
+      .then((payload) => {
+        if (cancelled || !Array.isArray(payload?.drops) || payload.drops.length === 0) {
+          return;
+        }
+        setRecommendedDrops(payload.drops);
+      })
+      .catch(() => {
+        // Keep the canonical drop feed fallback when recommendations are unavailable.
+      });
+
+    return () => {
+      cancelled = true;
+    };
+  }, []);
 
   if (!loading && activeDrops.length === 0) {
     return null;

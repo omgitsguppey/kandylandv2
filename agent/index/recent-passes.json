@@ -1,5 +1,5 @@
 {
-  "generatedAt": "2026-04-20T03:44:41.892Z",
+  "generatedAt": "2026-04-21T15:09:58.251Z",
   "truthOrder": [
     "verified_runtime_code",
     "verified_configuration",
@@ -14,6 +14,42 @@
     "FULL_SCALE_CODEBASE_AUDIT.md"
   ],
   "passes": [
+    {
+      "stable_id": "pass__2026-04-21-agent-fast-path-deterministic-verification-lane-split",
+      "date": "2026-04-21",
+      "title": "Agent Fast-Path + Deterministic Verification Lane Split",
+      "scopeSummary": [
+        "Speed up AI-agent implementation and verification for repo-tooling and runtime work by adding a generated fast-start packet, a deterministic fast-vs-signoff verification selector, path-specific agent instruction files, and eval coverage that checks for file precision, forbidden-surface avoidance, and over-broad verification drift."
+      ],
+      "touchedSurfaces": [
+        ".agent/workflows/auto-tasks.md",
+        ".claude/agents/test-specialist.md",
+        ".github/copilot-instructions.md",
+        ".github/instructions/*.instructions.md",
+        "agent/README.md",
+        "control-tower/00-START-HERE.md",
+        "npm run agent:fast-start -- --task=\"tighten agent verification selection\" --mode=governance --file=scripts/agent/build-task-context.ts",
+        "npx vitest run tests/unit/agent-verification-selector.spec.ts",
+        "scripts/agent/build-agent-indexes.ts",
+        "scripts/agent/build-task-context.ts",
+        "scripts/agent/fast-start.ts",
+        "scripts/agent/run-evals.ts",
+        "scripts/agent/verification-selector.ts"
+      ],
+      "canonicalHelpersReused": [],
+      "verificationCommandsRun": [],
+      "resultSummary": [],
+      "warnings": [],
+      "architecture_change": true,
+      "runtime_change": false,
+      "ui_change": false,
+      "security_change": false,
+      "maintenance_only": false,
+      "changeKinds": [
+        "ui",
+        "tooling"
+      ]
+    },
     {
       "stable_id": "pass__2026-04-18-viewer-watch-close-intent-repair-capture-state-reclassification",
       "date": "2026-04-18",
@@ -237,38 +273,6 @@
         "runtime",
         "tooling",
         "architecture"
-      ]
-    },
-    {
-      "stable_id": "pass__2026-04-18-mobile-messages-search-overlay-untappable-regression",
-      "date": "2026-04-18",
-      "title": "Mobile Messages Search Overlay Untappable Regression",
-      "scopeSummary": [
-        "Fix the mobile messages/chat regression where tapping the search bar and exiting the input leaves the site untappable until refresh by tracing the message search surface, identifying any stuck mobile fixed-layer or global overflow lock behavior, and patching the canonical chat UI path with targeted verification."
-      ],
-      "touchedSurfaces": [
-        ".agent/workflows/auto-tasks.md",
-        "npm run trace:adjacent -- src/app/dashboard/chat/layout.tsx",
-        "npm run trace:adjacent -- src/app/dashboard/chat/page.tsx",
-        "npm run trace:adjacent -- src/components/Chat/ChatExperience.tsx",
-        "npx vitest run tests/unit/chat-route-shell.spec.tsx tests/unit/use-chat-unread-status.spec.tsx",
-        "src/app/dashboard/chat/layout.tsx",
-        "src/app/dashboard/chat/page.tsx",
-        "src/components/Chat/ChatExperience.tsx",
-        "src/components/Chat/ChatRouteShell.tsx",
-        "tests/unit/chat-route-shell.spec.tsx"
-      ],
-      "canonicalHelpersReused": [],
-      "verificationCommandsRun": [],
-      "resultSummary": [],
-      "warnings": [],
-      "architecture_change": false,
-      "runtime_change": false,
-      "ui_change": true,
-      "security_change": false,
-      "maintenance_only": false,
-      "changeKinds": [
-        "ui"
       ]
     }
   ]

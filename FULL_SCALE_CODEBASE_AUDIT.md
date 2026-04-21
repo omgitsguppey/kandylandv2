@@ -1,5 +1,64 @@
 # KandyDrops Core Codebase Audit & Defensive Ledger
 
+## [2026-04-21 #26] Agent Fast-Path + Deterministic Verification Lane Split
+
+Scope for this pass:
+- Speed up AI-agent implementation and verification for repo-tooling and runtime work by adding a generated fast-start packet, a deterministic fast-vs-signoff verification selector, path-specific agent instruction files, and eval coverage that checks for file precision, forbidden-surface avoidance, and over-broad verification drift.
+
+Startup protocol executed:
+- Read `control-tower/00-START-HERE.md` through `05-CAPABILITIES-AND-CONSTRAINTS.yaml`.
+- Read `11-PREFLIGHT-CHECKLIST.md` and `12-POSTFLIGHT-CHECKLIST.md`.
+- Read `06-SOURCE-OF-TRUTH-MAP.yaml`.
+- Read `FULL_SCALE_CODEBASE_AUDIT.md`.
+- Read `REPO_MEMORY_LEDGER.md`.
+- Read `EVERY_FILE_FUNCTION_CHECKLIST.md`.
+- Ran `git status --short`.
+- Reviewed adjacency for:
+  - `scripts/agent/build-task-context.ts`
+  - `scripts/agent/run-evals.ts`
+  - `scripts/agent/build-agent-indexes.ts`
+
+Root problems identified:
+- The repo already had strong agent context generation, but implementation loops still defaulted too easily to broad verification sweeps.
+- Task-context output exposed one flattened verification list instead of a deterministic fast loop versus signoff split.
+- Repo-native evals checked general retrieval quality but did not explicitly score forbidden-surface avoidance or over-broad verification choices.
+
+Implementation results:
+- Added `scripts/agent/verification-selector.ts` and the public `npm run agent:verify -- --paths=<...>` command to derive fast and signoff verification lanes from repo inventory, surface-map, and verification-command metadata.
+- Added `scripts/agent/fast-start.ts` and the public `npm run agent:fast-start -- --task="..." --mode=... --file=...` command to bundle `git status`, task-context generation, adjacency tracing, verification selection, and an issue-style task spec.
+- Extended `scripts/agent/build-task-context.ts` so generated prompts and JSON now include `fastVerificationCommands`, `signoffVerificationCommands`, `verificationAdvisories`, and `forbiddenSurfaces`.
+- Extended `scripts/agent/run-evals.ts` so the eval harness now covers narrow route, telemetry-safe, admin-debug, functions-runtime, and behavioral-ranking task classes while logging structured failure categories for file precision, helper reuse, verification-lane drift, scope drift, and forbidden-surface selection.
+- Added portable instruction surfaces for cloud/local agents:
+  - `.github/copilot-instructions.md`
+  - `.github/instructions/*.instructions.md`
+  - `.claude/agents/test-specialist.md`
+- Updated `AGENTS.md`, `agent/README.md`, and `.agent/workflows/auto-tasks.md` so the generated fast-start packet becomes the documented default path for narrow and moderate implementation work.
+
+Verification commands queued:
+- `npx vitest run tests/unit/agent-verification-selector.spec.ts`
+- `npm run agent:fast-start -- --task="tighten agent verification selection" --mode=governance --file=scripts/agent/build-task-context.ts`
+- `npm run check:agent-context`
+- `npm run eval:agent-context`
+- `npm run typecheck`
+- `npm run check:inventory`
+- `npm run check:architecture`
+- `npm run check:continuity`
+
+Verification results:
+- `npx vitest run tests/unit/agent-verification-selector.spec.ts` passed.
+- `npm run agent:fast-start -- --task="tighten agent verification selection" --mode=governance --file=scripts/agent/build-task-context.ts` passed and generated the fast-start packet.
+- `npm run agent:verify -- --paths=scripts/agent/build-task-context.ts,src/app/admin/debug/page.tsx` passed and generated the fast/signoff lane split.
+- `npm run check:agent-context` passed after adding the missing `dataconnect/example/agent-context.gql` mirror example document.
+- `npm run eval:agent-context` passed (`5/5`).
+- `npm run check:agent-intelligence` passed.
+- `npm run typecheck` passed.
+- `npm run check:inventory` passed.
+- `npm run check:architecture` passed.
+- `npm run check:continuity` remains blocked by an unrelated pre-existing app cycle cluster under `src/app/dashboard/profile/*`. This pass did not touch those files.
+
+Warnings / follow-up:
+- The continuity blocker is outside the new agent-tooling surface and should be resolved in a separate profile-page cycle cleanup pass.
+
 ## [2026-04-18 #25] Viewer Watch Close-Intent Repair + Capture-State Reclassification
 
 Scope for this pass:

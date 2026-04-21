@@ -1,6 +1,6 @@
 import { NextRequest, NextResponse } from "next/server";
 import { adminDb } from "@/lib/server/firebase-admin";
-import { getDrops } from "@/lib/server/drops";
+import { buildDeterministicDropRecommendations } from "@/lib/server/behavioral-intelligence";
 import { guardApiRequest } from "@/lib/server/request-guard";
 import { STANDARD } from "@/lib/server/rate-limit";
 
@@ -32,12 +32,21 @@ export async function GET(request: NextRequest) {
             return NextResponse.json({ drops: [] });
         }
 
-        const allDrops = await getDrops();
-        const retentionDrops = allDrops
-            .filter((d) => unlockedDropIds.includes(d.id) && d.id !== currentDropId)
-            .slice(0, 4);
+        const retentionDrops = await buildDeterministicDropRecommendations({
+            userId: caller.uid,
+            currentDropId,
+            candidateDropIds: unlockedDropIds,
+            limit: 4,
+        });
 
-        return NextResponse.json({ drops: retentionDrops });
+        return NextResponse.json({
+            mode: retentionDrops[0]?.mode || "deterministic-fallback",
+            drops: retentionDrops.map((entry) => ({
+                ...entry.drop,
+                rankScore: entry.score,
+                rankLabels: entry.labels,
+            })),
+        });
     } catch (error) {
         console.error("Error fetching retention drops:", error);
         return NextResponse.json({ error: "Internal Server Error" }, { status: 500 });

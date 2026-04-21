@@ -1,8 +1,8 @@
 # EVERY FILE FUNCTION CHECKLIST
 
-**Last Updated:** 2026-04-18
-**Current Focus:** Repo Intelligence Fabric v1 remains active, and the 2026-04-18 delta now includes the generated UI continuity ledger, the self-debugging queue/runtime canonicalization lane, the open-PR reconciliation pass covering analytics truth gating, canonical admin username reservation, and admin asset-uploader accessibility labeling, plus the mobile chat untappable regression fix, compact interaction recovery hardening, analytics truth/freshness hardening, the viewer unwrapped/static watch-time refactor, the viewer watch close-intent repair, and the UI truthfulness / chart-health freshness downgrade pass.
-**Status:** In Progress. Historical exhaustive sweep remains valuable, and the 2026-04-18 continuity metadata now reflects the repo-intelligence layer, the UI continuity fabric, the creator-settings route regression coverage, the profile-page creator warning handling follow-up, the self-debugging queue/runtime canonicalization pass, the mobile chat local-overflow remediation pass, the compact interaction recovery guard rollout, the scheduler-heartbeat provenance remediation pass, the Firestore transport dependency remediation pass, the warning-free static verification baseline, the open-PR reconciliation pass, the watch-session capture-health / task-context tiering pass, the analytics truth/freshness hardening lane, the viewer unwrapped/static watch-time refactor, the viewer watch close-intent repair, and the UI truthfulness freshness downgrade lane.
+**Last Updated:** 2026-04-21
+**Current Focus:** Repo Intelligence Fabric v1 remains active, and the 2026-04-21 delta now includes the generated agent fast-start packet, deterministic verification-lane selection, path-specific cloud-agent instruction files, the test-specialist agent profile, and the expanded agent eval harness for file precision, forbidden-surface avoidance, and verification-lane drift.
+**Status:** In Progress. Historical exhaustive sweep remains valuable, and the 2026-04-21 continuity metadata now reflects the repo-intelligence layer, the fast-loop versus signoff verification split, the portable instruction surfaces, and the structured eval-failure review output in addition to the earlier UI continuity, runtime continuity, analytics truth, and viewer watch/session hardening lanes.
 Purpose: exhaustive no-skip audit checklist covering every repository file currently in scope and every detected function-like implementation.
 
 Scoring: all entries below are marked as included in the current validated sweep. Confidence reflects current repository-state confidence, not perfection or future-proofing.
@@ -10,6 +10,31 @@ Scoring: all entries below are marked as included in the current validated sweep
 Current repo-wide state snapshot: see [FULL_SCALE_CODEBASE_AUDIT.md](/Users/uylus/OneDrive/Documents/KandyDrops_Final/FULL_SCALE_CODEBASE_AUDIT.md) for the current live baseline, verification state, and continuity rules, and see [REPO_MEMORY_LEDGER.md](/Users/uylus/OneDrive/Documents/KandyDrops_Final/REPO_MEMORY_LEDGER.md) for major architectural and workflow decisions. The detailed file/function body below remains valuable historical evidence, but it has not been fully regenerated against the current 2026-04-18 inventory review yet.
 
 ## 2026-04-18 Delta Coverage
+
+## 2026-04-21 Delta Coverage
+
+- Added generated agent fast-start and verification-plan surfaces:
+  - `scripts/agent/fast-start.ts`
+  - `scripts/agent/verification-selector.ts`
+  - `agent/prompts/task-issue-spec.generated.md`
+  - `agent/prompts/verification-plan.generated.md`
+  - `agent/state/fast-start.generated.json`
+  - `agent/state/verification-plan.generated.json`
+- Extended task-context and eval surfaces:
+  - `scripts/agent/build-task-context.ts`
+  - `scripts/agent/run-evals.ts`
+  - `agent/schemas/task-context.schema.json`
+  - `agent/state/eval-failures.generated.json`
+- Added portable agent instruction surfaces:
+  - `.github/copilot-instructions.md`
+  - `.github/instructions/analytics.instructions.md`
+  - `.github/instructions/admin-debug.instructions.md`
+  - `.github/instructions/functions-runtime.instructions.md`
+  - `.github/instructions/tests.instructions.md`
+  - `.claude/agents/test-specialist.md`
+- Added focused verification-selector coverage:
+  - `tests/unit/agent-verification-selector.spec.ts`
+- Continuity note: agent startup should now prefer `agent:fast-start` and `agent:verify` before broad-signoff sweeps, and generated task prompts now separate fast-loop verification from signoff lanes explicitly.
 
 - Added repo-intelligence and cross-agent context surfaces:
   - `agent/README.md`

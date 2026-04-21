@@ -1,0 +1,74 @@
+{
+  "generatedAt": "2026-04-21T14:57:27.202Z",
+  "truthOrder": [
+    "verified_runtime_code",
+    "verified_configuration",
+    "verified_command_output",
+    "FULL_SCALE_CODEBASE_AUDIT.md",
+    "REPO_MEMORY_LEDGER.md",
+    "EVERY_FILE_FUNCTION_CHECKLIST.md",
+    "AGENTS.md_and_workflow_notes",
+    "prior_chat_context"
+  ],
+  "source": [
+    "scripts/agent/build-task-context.ts",
+    "scripts/agent/verification-selector.ts",
+    "scripts/trace-adjacent-surfaces.ts"
+  ],
+  "input": {
+    "task": "tighten agent verification selection",
+    "mode": "governance",
+    "files": [
+      "scripts/agent/build-task-context.ts"
+    ]
+  },
+  "gitStatus": "M .agent/workflows/auto-tasks.md\n M AGENTS.md\n M EVERY_FILE_FUNCTION_CHECKLIST.md\n M FULL_SCALE_CODEBASE_AUDIT.md\n M REPO_MEMORY_LEDGER.md\n M agent/README.md\n M agent/index/blast-radius.json\n M agent/index/canonical-helpers.json\n M agent/index/dependency-graph.summary.json\n M agent/index/governance-truth.json\n M agent/index/known-pitfalls.json\n M agent/index/package-manager-truth.json\n M agent/index/recent-passes.json\n M agent/index/repo-inventory.json\n M agent/index/retrieval-index.json\n M agent/index/runtime-observability.json\n M agent/index/surface-map.json\n M agent/index/ui-surface-coverage.json\n M agent/index/verification-commands.json\n M agent/index/workflow-guidance.json\n M agent/prompts/task-prompt.deep.md\n M agent/prompts/task-prompt.short.md\n M agent/prompts/task-prompt.standard.md\n M agent/schemas/task-context.schema.json\n M agent/state/eval-results.generated.json\n M agent/state/sql-mirror-status.generated.json\n M agent/state/sql-sync.payload.generated.json\n M agent/state/task-context.generated.json\n M functions/src/profile-builder.ts\n M package.json\n M scripts/agent/build-task-context.ts\n M scripts/agent/run-evals.ts\n M src/app/admin/debug/page.tsx\n M src/app/admin/user/[userId]/page.tsx\n M src/app/api/admin/debug/route.ts\n M src/app/api/admin/user/[userId]/route.ts\n M src/app/api/creator/relationships/route.ts\n M src/app/api/drops/retention/route.ts\n M src/components/Dashboard/LiveDropsForYouCarousel.tsx\n?? .claude/\n?? .github/\n?? agent/prompts/verification-plan.generated.md\n?? agent/state/eval-failures.generated.json\n?? agent/state/verification-plan.generated.json\n?? functions/src/behavioral-intelligence-runtime.ts\n?? scripts/agent/fast-start.ts\n?? scripts/agent/verification-selector.ts\n?? scripts/rebuild-behavioral-intelligence.ts\n?? src/app/api/drops/recommendations/\n?? src/lib/server/behavioral-intelligence.ts\n?? tests/unit/agent-verification-selector.spec.ts",
+  "taskContextStableId": "taskctx__governance-tighten-agent-verification-selection",
+  "likelyTouchedFiles": [
+    "scripts/agent/build-task-context.ts",
+    "scripts/agent/build-agent-indexes.ts",
+    "scripts/agent/fast-start.ts",
+    "scripts/agent/run-evals.ts",
+    "scripts/agent/verification-selector.ts",
+    "src/lib/gumdrop-ledger.ts",
+    "scripts/agent/check-agent-context.ts",
+    "scripts/agent/classify-repo-files.ts",
+    "scripts/agent/shared.ts",
+    "scripts/agent/summarize-dependency-graph.ts",
+    ".agent/workflows/auto-tasks.md",
+    "scripts/agent/extract-runtime-observability.ts"
+  ],
+  "canonicalHelpersToReuse": [
+    "src/lib/gumdrop-ledger.ts",
+    "src/lib/gumdrop-economics.ts",
+    "src/lib/server/auth.ts",
+    "src/lib/server/paypal.ts",
+    "src/lib/tasks/task-catalog.ts",
+    "src/lib/tasks/task-observability.ts"
+  ],
+  "fastVerificationCommands": [
+    "npm run typecheck",
+    "npm run agent:test -- scripts/agent/build-task-context.ts",
+    "npm run check:agent-context"
+  ],
+  "signoffVerificationCommands": [
+    "npm run check:inventory",
+    "npm run check:architecture",
+    "npm run check:agent-intelligence",
+    "npm run eval:agent-context",
+    "npm run check:continuity"
+  ],
+  "forbiddenSurfaces": [
+    "src/lib/gumdrop-ledger.ts",
+    "src/lib/gumdrop-economics.ts",
+    "src/lib/server/paypal.ts",
+    "src/app/api/paypal",
+    "functions/src/analytics-transactions.ts"
+  ],
+  "traceOutputs": [
+    {
+      "path": "scripts/agent/build-task-context.ts",
+      "output": "> kandydrops@0.1.0 trace:adjacent\n> tsx scripts/trace-adjacent-surfaces.ts scripts/agent/build-task-context.ts\n\n\nTarget: scripts/agent/build-task-context.ts\nSurface: script\nDirect imports:\n- scripts/agent/build-agent-indexes.ts\n- scripts/agent/classify-repo-files.ts\n- scripts/agent/shared.ts\n- scripts/agent/summarize-dependency-graph.ts\n- scripts/agent/verification-selector.ts\nImported by:\n- scripts/agent/check-agent-context.ts\n- scripts/agent/fast-start.ts\n- scripts/agent/run-evals.ts\nSame-directory siblings:\n- scripts/agent/build-agent-indexes.ts\n- scripts/agent/build-ui-runtime-audit.ts\n- scripts/agent/build-ui-surface-coverage.ts\n- scripts/agent/check-agent-context.ts\n- scripts/agent/check-ui-surface-coverage.ts\n- scripts/agent/classify-repo-files.ts\n- scripts/agent/extract-canonical-helpers.ts\n- scripts/agent/extract-governance.ts\n- scripts/agent/extract-runtime-observability.ts\n- scripts/agent/extract-workflow.ts\n- scripts/agent/fast-start.ts\n- scripts/agent/run-evals.ts\n- scripts/agent/shared.ts\n- scripts/agent/summarize-dependency-graph.ts\n- scripts/agent/sync-sql.ts\n- scripts/agent/validate-agent-indexes.ts\n- scripts/agent/verification-selector.ts\nPotential related tests:\n- tests/unit/agent-verification-selector.spec.ts\nCanonical helpers to review:\n- None detected"
+    }
+  ]
+}

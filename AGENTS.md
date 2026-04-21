@@ -92,6 +92,18 @@ Build a task context pack:
 npm run agent:task-context -- --task="tighten admin ai runtime health" --mode=admin --file=src/app/admin/ai/page.tsx
 ```
 
+Run the agent fast-start wrapper:
+
+```bash
+npm run agent:fast-start -- --task="tighten admin ai runtime health" --mode=admin --file=src/app/admin/ai/page.tsx
+```
+
+Resolve verification lanes for specific touched files:
+
+```bash
+npm run agent:verify -- --paths=src/app/admin/debug/page.tsx,scripts/agent/build-task-context.ts
+```
+
 Run the self-check:
 
 ```bash
@@ -105,6 +117,45 @@ npm run eval:agent-context
 ```
 
 Avoid giant freeform prompting when a generated task context pack already exists.
+
+## Agent Fast Path
+
+For narrow and moderate implementation work, prefer this startup sequence before reading large governance artifacts:
+
+1. `git status --short`
+2. `npm run agent:fast-start -- --task="<task>" --mode=<mode> --file=<entrypoint>`
+3. Review `agent/state/task-context.generated.json`
+4. Review `agent/state/verification-plan.generated.json`
+5. Use the fast verification lane during iteration
+6. Run the signoff lane only when the patch is ready for completion
+
+The fast-start wrapper is the canonical shortcut for:
+
+- current git status
+- generated task-context
+- adjacency tracing for the declared entrypoints
+- deterministic fast vs signoff verification selection from `agent/index/verification-commands.json`
+- an issue-style prompt scaffold in `agent/prompts/task-issue-spec.generated.md`
+
+Do not default to `npm run check`, `npm run check:continuity`, or UI audits as the first edit-loop command unless the selector classified the work as broad or signoff-only.
+
+## Issue-Style Task Spec
+
+When handing work to any coding agent, structure the request like a GitHub issue:
+
+- Goal
+- Acceptance criteria
+- Likely touched files or entrypoints
+- Forbidden surfaces
+- Exact fast verification lane
+- Exact signoff verification lane
+
+Prefer generated prompts over freeform prose when possible:
+
+- `agent/prompts/task-prompt.short.md`
+- `agent/prompts/task-prompt.standard.md`
+- `agent/prompts/task-prompt.deep.md`
+- `agent/prompts/task-issue-spec.generated.md`
 
 ## Governance Read Rules
 
@@ -140,6 +191,8 @@ Use existing repo lanes as required by the touched surface:
 
 Rules:
 
+- Fast-loop verification should stay targeted. Use `npm run agent:test -- <path>` before broad repo sweeps when the work is narrow.
+- Broad signoff checks should remain separate from the implementation loop. `check:continuity`, UI audits, scheduler/runtime continuity, and Firebase rules are signoff lanes unless the touched surface explicitly requires them during iteration.
 - UI/admin UI changes require `npm run check:ui:coverage`, `npm run check:ui:runtime`, and `npm run check:ui:audits`.
 - Missing coverage for a blocking UI surface is a signoff failure.
 - Broad UI work must use `agent/index/ui-surface-coverage.json` instead of ad hoc prompting or hand-maintained target lists.

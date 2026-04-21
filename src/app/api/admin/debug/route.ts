@@ -50,6 +50,7 @@ import {
 } from "@/lib/server/runtime-warning-store";
 import { summarizeRouteRuntimeHealth } from "@/lib/route-runtime-health";
 import { QUEUE_RUNTIME_WARNING_CODES } from "../../../../../shared/runtime/runtime-warning-contract";
+import { getBehavioralSnapshotStatus, listDropIntelligence } from "@/lib/server/behavioral-intelligence";
 
 const ONE_WEEK_MS = 7 * 24 * 60 * 60 * 1000;
 const TASK_GROUP_SET = new Set<string>(["visit", "notifications", "unwrap", "watch", "wallet", "purchase", "feedback", "share"]);
@@ -316,12 +317,14 @@ export async function GET(request: NextRequest) {
             adminDb.collection(CREATOR_REVIEW_QUEUE_COLLECTION).get(),
         ]);
 
-        const [analyticsChartHealth, routeRuntimeHealth, runtimeWarnings, queueJobHeartbeats, notificationDispatchOutcomes] = await Promise.all([
+        const [analyticsChartHealth, routeRuntimeHealth, runtimeWarnings, queueJobHeartbeats, notificationDispatchOutcomes, behavioralSnapshotStatus, behavioralDrops] = await Promise.all([
             listAdminUiChartHealth(),
             listRouteRuntimeHealth(),
             listRuntimeWarnings(80),
             listQueueJobHeartbeats(),
             listNotificationDispatchOutcomes(80),
+            getBehavioralSnapshotStatus(),
+            listDropIntelligence(12),
         ]);
         const routeRuntimeHealthSummary = summarizeRouteRuntimeHealth(routeRuntimeHealth);
         const queueJobHeartbeatSummary = queueJobHeartbeats.reduce((summary, entry) => {
@@ -972,6 +975,9 @@ export async function GET(request: NextRequest) {
                 runtimeWarningFailures: runtimeWarningSummary.failed,
                 runtimeLegacyAdapterUses: runtimeWarningSummary.legacyAdapterUses,
                 queueMissingNotificationOutcomes: queueRuntimeSummary.missingNotificationOutcomes,
+                behavioralUserProfiles: Number(behavioralSnapshotStatus?.userProfileCount || 0),
+                behavioralGuestProfiles: Number(behavioralSnapshotStatus?.guestProfileCount || 0),
+                behavioralDropProfiles: Number(behavioralSnapshotStatus?.dropProfileCount || 0),
             },
             coverage,
             taskInventorySummary,
@@ -1017,6 +1023,8 @@ export async function GET(request: NextRequest) {
             queueJobHeartbeats,
             notificationDispatchOutcomes,
             queueRuntimeSummary,
+            behavioralSnapshotStatus,
+            behavioralDrops,
         }));
     } catch (error) {
         return finalize(handleApiError(error, "Admin.Debug.GET"), error);

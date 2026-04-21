@@ -1,5 +1,5 @@
 {
-  "generatedAt": "2026-04-20T03:44:41.837Z",
+  "generatedAt": "2026-04-21T15:09:58.235Z",
   "truthOrder": [
     "verified_runtime_code",
     "verified_configuration",
@@ -84,7 +84,9 @@
         "npm run trace:adjacent -- scripts/agent/build-ui-runtime-audit.ts",
         "npm run trace:adjacent -- scripts/agent/build-ui-surface-coverage.ts",
         "npm run trace:adjacent -- scripts/agent/check-ui-surface-coverage.ts",
+        "npm run trace:adjacent -- scripts/agent/fast-start.ts",
         "npm run trace:adjacent -- scripts/agent/run-evals.ts",
+        "npm run trace:adjacent -- scripts/agent/verification-selector.ts",
         "npm run trace:adjacent -- scripts/check-analytics-continuity.ts",
         "npm run trace:adjacent -- scripts/check-runtime-continuity.ts",
         "npm run trace:adjacent -- scripts/check-scheduler-freshness.ts",
@@ -174,6 +176,18 @@
       "relatedPaths": []
     },
     {
+      "stable_id": "workflow__agent__workflows__ui-copy-refinement-workflow-md",
+      "path": ".agent/workflows/ui-copy-refinement-workflow.md",
+      "purpose": "Workflow guidance for ui-copy-refinement-workflow.",
+      "authorityLevel": "workflow_required",
+      "intendedAgents": [
+        "codex"
+      ],
+      "relatedPaths": [
+        "/docs/doctrine"
+      ]
+    },
+    {
       "stable_id": "workflow__jules__bolt-md",
       "path": ".jules/bolt.md",
       "purpose": "Workflow guidance for bolt.",
@@ -244,10 +258,13 @@
         "/agent/index/*",
         "agent/index/*.json",
         "agent/index/ui-surface-coverage.json",
+        "agent/index/verification-commands.json",
+        "agent/prompts/task-issue-spec.generated.md",
         "agent/prompts/task-prompt.deep.md",
         "agent/prompts/task-prompt.short.md",
         "agent/prompts/task-prompt.standard.md",
         "agent/state/task-context.generated.json",
+        "agent/state/verification-plan.generated.json",
         "output/dependency-graph.json"
       ]
     }

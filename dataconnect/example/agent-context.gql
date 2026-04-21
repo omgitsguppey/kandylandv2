@@ -1,0 +1,19 @@
+# Agent context mirror example document
+# This file exists so agent-context verification can prove the Data Connect mirror plane
+# has both a schema definition and a checked-in example/query document.
+
+query AgentContextMirrorStatus {
+  agentTaskContextRuns(first: 5) {
+    edges {
+      node {
+        stableId
+        taskSummary
+        taskMode
+        scopeClassification
+        generatedAt
+        syncedAt
+        stale
+      }
+    }
+  }
+}

@@ -13,6 +13,7 @@ import { guardApiRequest } from "@/lib/server/request-guard";
 import { getErrorMessage } from "@/lib/server/route-diagnostics";
 import { recordRouteRuntimeSample } from "@/lib/server/route-runtime-health";
 import { isDropHiddenFromPublic, normalizeAndApplyDropStatusOrNull } from "@/lib/drop-read-models";
+import { buildDeterministicCreatorRecommendations } from "@/lib/server/behavioral-intelligence";
 
 type CreatorRelationshipRecord = Record<string, unknown> & {
     id: string;
@@ -177,10 +178,19 @@ export async function GET(request: NextRequest) {
             }
         }
         
+        const creatorRanking = await buildDeterministicCreatorRecommendations({
+            userId: caller.uid,
+            creatorIds: validCreators.map((entry) => entry.uid),
+            activeDropCounts: Object.fromEntries(activeDropCounts.entries()),
+            limit: validCreators.length,
+        });
+        const creatorScoreMap = new Map(creatorRanking.map((entry) => [entry.creatorId, entry.score]));
         validCreators.sort((left, right) => {
+            const leftScore = creatorScoreMap.get(left.uid) ?? 0;
+            const rightScore = creatorScoreMap.get(right.uid) ?? 0;
             const leftDrops = activeDropCounts.get(left.uid) ?? 0;
             const rightDrops = activeDropCounts.get(right.uid) ?? 0;
-            return rightDrops - leftDrops || left.displayName.localeCompare(right.displayName);
+            return rightScore - leftScore || rightDrops - leftDrops || left.displayName.localeCompare(right.displayName);
         });
 
         const validCreatorsById = new Map(validCreators.map((entry) => [entry.uid, entry]));
