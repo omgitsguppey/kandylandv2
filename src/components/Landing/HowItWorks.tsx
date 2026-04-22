@@ -1,12 +1,6 @@
-"use client";
-
-import { useRouter } from "next/navigation";
-import { useUI } from "@/context/UIContext";
-import { useAuthIdentity } from "@/context/AuthContext";
 import { Lock, Eye, Heart } from "lucide-react";
-import { SECONDARY_UNWRAP_CTA } from "@/lib/marketing-copy";
 import { HomeActiveDropsCarousel } from "@/components/Landing/HomeActiveDropsCarousel";
-import { trackEvent } from "@/lib/telemetry";
+import { HomeHowItWorksActions } from "@/components/Landing/HomeHowItWorksActions";
 import type { Drop } from "@/types/db";
 
 interface HowItWorksProps {
@@ -14,20 +8,6 @@ interface HowItWorksProps {
 }
 
 export function HowItWorks({ activeDrops }: HowItWorksProps) {
-    const router = useRouter();
-    const { openAuthModal } = useUI();
-    const { user } = useAuthIdentity();
-
-    const handleLandingCta = (source: string) => {
-        if (user) {
-            trackEvent("navigation_click", { destination: "/drops", source });
-            router.push("/drops");
-            return;
-        }
-
-        openAuthModal("signup");
-    };
-
     const features = [
         {
             icon: <Lock className="w-8 h-8 text-brand-purple" />,
@@ -71,12 +51,7 @@ export function HowItWorks({ activeDrops }: HowItWorksProps) {
                 </div>
 
                 <div className="mb-14 flex justify-center sm:mb-20">
-                    <button
-                        onClick={() => handleLandingCta("landing_how_it_works")}
-                        className="w-full rounded-full bg-gradient-to-r from-brand-purple to-purple-500 px-6 py-3.5 font-extrabold text-white shadow-[0_0_20px_rgba(164,118,255,0.25)] transition-all hover:opacity-95 hover:shadow-[0_0_30px_rgba(164,118,255,0.4)] sm:w-auto sm:px-8 sm:py-4"
-                    >
-                        Unwrap your Kandy Drops
-                    </button>
+                    <HomeHowItWorksActions variant="primary" />
                 </div>
 
                 <div className="relative overflow-hidden rounded-[2rem] border border-brand-purple/10 bg-zinc-900 p-4 sm:rounded-[2.6rem] sm:p-6 md:p-8">
@@ -104,12 +79,7 @@ export function HowItWorks({ activeDrops }: HowItWorksProps) {
                                     </span>
                                 </div>
                             </div>
-                            <button
-                                onClick={() => handleLandingCta("landing_showcase")}
-                                className="w-full shrink-0 sm:w-auto rounded-full bg-white/5 border border-white/10 px-6 py-3 font-bold text-white transition-all hover:bg-white/10 hover:border-white/20 sm:px-7 mt-2 sm:mt-0"
-                            >
-                                {SECONDARY_UNWRAP_CTA}
-                            </button>
+                            <HomeHowItWorksActions variant="secondary" />
                         </div>
 
                         <HomeActiveDropsCarousel

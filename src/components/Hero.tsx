@@ -1,28 +1,18 @@
-"use client";
+import { Sparkles } from "lucide-react";
 
-import { useRef } from "react";
-import { Sparkles, ArrowRight } from "lucide-react";
-import Link from "next/link";
-
-import { Button } from "@/components/ui/Button";
-import { useAuthIdentity } from "@/context/AuthContext";
-import { useUI } from "@/context/UIContext";
 import { HomeDropTicker } from "@/components/HomeDropTicker";
+import { HomeHeroActions } from "@/components/Landing/HomeHeroActions";
 import type { Drop } from "@/types/db";
-import { trackEvent } from "@/lib/telemetry";
 
 interface HeroProps {
     activeDrops: Drop[];
 }
 
 export default function Hero({ activeDrops }: HeroProps) {
-    const { user } = useAuthIdentity();
-    const { openAuthModal } = useUI();
-    const ref = useRef(null);
     const activeDropsCount = activeDrops.length;
 
     return (
-        <section ref={ref} className="relative flex min-h-[68vh] w-full flex-col justify-center overflow-hidden pb-5 pt-[2.2rem] max-[360px]:min-h-[64vh] max-[360px]:pb-4 max-[360px]:pt-[2.0rem] sm:min-h-[90vh] sm:pb-12 sm:pt-24 landscape:min-h-0 landscape:justify-start landscape:pb-8 landscape:pt-10">
+        <section className="relative flex min-h-[68vh] w-full flex-col justify-center overflow-hidden pb-5 pt-[2.2rem] max-[360px]:min-h-[64vh] max-[360px]:pb-4 max-[360px]:pt-[2.0rem] sm:min-h-[90vh] sm:pb-12 sm:pt-24 landscape:min-h-0 landscape:justify-start landscape:pb-8 landscape:pt-10">
             <div className="absolute inset-0 z-0 opacity-40">
                 <div className="absolute top-1/4 left-1/4 w-[500px] h-[500px] bg-brand-purple/20 rounded-full blur-[120px] mix-blend-screen animate-pulse" style={{ animationDuration: "4s" }} />
                 <div className="absolute bottom-1/4 right-1/4 w-[400px] h-[400px] bg-brand-purple/10 rounded-full blur-[100px] mix-blend-screen animate-pulse" style={{ animationDuration: "7s" }} />
@@ -47,35 +37,7 @@ export default function Hero({ activeDrops }: HeroProps) {
                         Unwrap KandyDrops from your favorite creators before they disappear!
                     </p>
 
-                    <div className="flex w-full flex-col justify-center gap-2.5 pt-1 max-[360px]:gap-2 sm:w-auto sm:flex-row sm:gap-4 sm:pt-3">
-                        {user ? (
-                            <Link href="/dashboard" className="w-full sm:w-auto" onClick={() => trackEvent("hero_cta_clicked", { destination: "/dashboard" })}>
-                                <Button size="lg" variant="brand" className="w-full px-6 py-3.5 text-base font-bold shadow-[0_0_30px_rgba(178,140,255,0.4)] transition-all hover:shadow-[0_0_40px_rgba(178,140,255,0.6)] max-[360px]:py-3 md:px-10 md:py-6 md:text-lg">
-                                    Go to Dashboard <ArrowRight className="w-4 h-4 md:w-5 md:h-5 ml-2" />
-                                </Button>
-                            </Link>
-                        ) : (
-                            <Button
-                                onClick={() => {
-                                    trackEvent("hero_cta_clicked", { action: "open_signup" });
-                                    openAuthModal("signup");
-                                }}
-                                size="lg"
-                                variant="brand"
-                                className="w-full px-6 py-3.5 text-base font-bold shadow-[0_0_30px_rgba(178,140,255,0.4)] transition-all hover:shadow-[0_0_40px_rgba(178,140,255,0.6)] max-[360px]:py-3 sm:w-auto md:px-10 md:py-6 md:text-lg"
-                            >
-                                Unwrap Your KandyDrops <ArrowRight className="w-4 h-4 md:w-5 md:h-5 ml-2" />
-                            </Button>
-                        )}
-                    </div>
-
-                    <div className="flex w-full flex-col justify-center gap-2 sm:w-auto sm:flex-row sm:gap-3">
-                        <Link href="/faq" className="w-full sm:w-auto" onClick={() => trackEvent("hero_cta_clicked", { destination: "/faq" })}>
-                            <Button variant="outline" size="lg" className="w-full border border-white/10 bg-white/[0.04] px-6 py-3 text-sm font-bold text-white hover:bg-white/[0.08]">
-                                See How It Works
-                            </Button>
-                        </Link>
-                    </div>
+                    <HomeHeroActions />
 
                     <div
                         data-testid="hero-activity-ticker-mask"
