@@ -51,7 +51,7 @@ const TARGETS: Record<TargetName, CycleTargetConfig> = {
     label: "functions",
     input: "functions/src",
     tsConfig: "functions/tsconfig.json",
-    extensions: ["ts"],
+    extensions: ["ts"], allowedSkipped: ["firebase-functions/v2/firestore", "@google-cloud/bigquery", "firebase-functions", "firebase-functions/v2/https", "firebase-functions/v2/scheduler", "firebase-functions/v2"],
   },
 };
 

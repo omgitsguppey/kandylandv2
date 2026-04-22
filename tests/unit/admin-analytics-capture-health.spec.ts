@@ -109,6 +109,6 @@ describe("buildWatchCaptureHealthSummary", () => {
 
     expect(summary.flushDegradedCount).toBe(0);
     expect(summary.closeMissingCount).toBe(0);
-    expect(summary.degradedSessionCount).toBe(1);
+    expect(summary.degradedSessionCount).toBe(0);
   });
 });

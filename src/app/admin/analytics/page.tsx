@@ -54,7 +54,7 @@ const AdminTruthSurfaces = dynamic(
 );
 export default function AdminAnalyticsPage() {
     const state = useAdminAnalyticsState();
-  const { needsSetup, activeTab, setActiveTab, handleRefresh, liveLoading, historicalLoading, isPrimingAnalytics, formatAbsoluteDateTime, formatRelativeTime, liveResponse, clearAllFilters, hasActiveFilters, isExportLivePulseLoading, handleAdminAnalyticsExport, testAdminApiErrorTracking, backgroundAnalyticsIssues, analyticsSectionHealth, EVENT_LABELS } = state;
+  const { range, activeViewerFilter, mobileShare, mobileUsers, commerce, funnel, analyticsWarmState, liveSnapshotLabel, historicalSnapshotLabel, isBackgroundSyncing, analyticsSectionHealthSummary, needsSetup, activeTab, setActiveTab, handleRefresh, liveLoading, historicalLoading, isPrimingAnalytics, formatAbsoluteDateTime, formatRelativeTime, liveResponse, clearAllFilters, hasActiveFilters, isExportLivePulseLoading, handleAdminAnalyticsExport, testAdminApiErrorTracking, backgroundAnalyticsIssues, analyticsSectionHealth, EVENT_LABELS } = state;
 
   if (needsSetup) {
     return (

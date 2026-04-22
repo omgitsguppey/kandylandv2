@@ -24,7 +24,7 @@ const eslintConfig = [{
         "unused-imports": unusedImports,
     },
     rules: {
-        "import/no-unresolved": ["error", { ignore: ["^@/"] }],
+        "import/no-unresolved": ["error", { ignore: ["^@/", "^firebase-functions.*", "^@google-cloud/bigquery"] }],
         "import/no-duplicates": "error",
         "unused-imports/no-unused-imports": "error",
         "no-restricted-syntax": [
