@@ -474,8 +474,7 @@ const { user } = useAuth();
   const viewerUsers = historicalResponse?.viewerUsers ?? [];
   const watchCaptureHealth =
     historicalResponse?.watchCaptureHealth ?? EMPTY_WATCH_CAPTURE_HEALTH;
-  const activeViewerFilter =
-    historicalResponse?.viewerFilter ?? viewerUserFilter;
+  const activeViewerFilter = historicalResponse?.viewerFilter ?? viewerUserFilter;
   const semanticCategories = historicalResponse?.semanticCategories ?? [];
   const validations = historicalResponse?.validations ?? [];
   const componentContexts = historicalResponse?.componentContexts ?? [];
@@ -1695,15 +1694,12 @@ const { user } = useAuth();
   return {
     user, activeTab, setActiveTab: setActiveTabDeferred, range, nowMs, viewerUserDraft, setViewerUserDraft, viewerUserFilter, setViewerUserFilter,
     moduleRanges, setModuleRanges, savingSectionKey, setSavingSectionKey, analyticsFilterStorageKey,
-    activeSessionFilter, setActiveSessionFilter, activeDropFilter, setActiveDropFilter, activeSubFilter, setActiveSubFilter,
-    customDateRange, setCustomDateRange, handleRangeSelect, isCustomRangeDisabled,
-    hasActiveFilters, isExportLivePulseLoading, setIsExportLivePulseLoading,
     liveResponse, historicalResponse, liveError, historicalError, liveLoading, historicalLoading,
-    needsSetup, blockingAnalyticsError, isPrimingAnalytics, backgroundAnalyticsIssues, updateActiveSessionFilter,
-    updateActiveDropFilter, updateActiveSubFilter, handleRefresh, handleAdminAnalyticsExport, getSectionRange, renderSectionRangeControl,
+    needsSetup, blockingAnalyticsError, isPrimingAnalytics, backgroundAnalyticsIssues, getSectionRange, renderSectionRangeControl,
     EVENT_LABELS, funnel, onboardingStats, onboardingDurationBuckets, onboardingStepStats, authBreakdown, historySeries,
-    rawEvents, componentContexts, semanticCategories, devices, pages, geo, totals, commerce, activeViewerFilter, setActiveViewerFilter,
-    testAdminApiErrorTracking, clearAllFilters, clearViewerFilter,
+    rawEvents, componentContexts, semanticCategories, devices, pages, geo, totals, commerce, activeViewerFilter,
+    clearAllFilters, clearViewerFilter,
+    showHistoricalEmptyState, liveSnapshotLabel, historicalSnapshotLabel, analyticsWarmState, isBackgroundSyncing,
     authOutcomeHasData, authOutcomeChartItems, authOutcomeTotals,
     authOnboardingDiscrepancies, onboardingVelocityHasData, onboardingVelocityBuckets, onboardingVelocityStartCount, onboardingVelocityCompletionCount, onboardingVelocityCompletionRate, onboardingVelocityDropOffCount, onboardingVelocityStats, onboardingVelocityStartSourceHint, onboardingStepFlowItems,
     guestBounceQualityCards, guestBounceGlobalSemantics, guestBounceGuestRate, guestBounceEngagedRate, guestBounceIdentifiedRate, guestBounceUserSemantics,

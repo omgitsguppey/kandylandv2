@@ -23,6 +23,7 @@ import {
   MetricCard,
 } from "@/components/Admin/Analytics/AdminAnalyticsPrimitives";
 import { PageViewEvent } from "@/components/Analytics/PageViewEvent";
+import { reportClientIssue } from "@/lib/client-error-reporting";
 import { TELEMETRY_EVENT_LABELS } from "@/lib/telemetry-catalog";
 
 
@@ -54,7 +55,20 @@ const AdminTruthSurfaces = dynamic(
 );
 export default function AdminAnalyticsPage() {
     const state = useAdminAnalyticsState();
-  const { range, activeViewerFilter, mobileShare, mobileUsers, commerce, funnel, analyticsWarmState, liveSnapshotLabel, historicalSnapshotLabel, isBackgroundSyncing, analyticsSectionHealthSummary, needsSetup, activeTab, setActiveTab, handleRefresh, liveLoading, historicalLoading, isPrimingAnalytics, formatAbsoluteDateTime, formatRelativeTime, liveResponse, clearAllFilters, hasActiveFilters, isExportLivePulseLoading, handleAdminAnalyticsExport, testAdminApiErrorTracking, backgroundAnalyticsIssues, analyticsSectionHealth, EVENT_LABELS } = state;
+  const { range, activeViewerFilter, viewerUserFilter, showHistoricalEmptyState, blockingAnalyticsError, mobileShare, mobileUsers, commerce, funnel, analyticsWarmState, liveSnapshotLabel, historicalSnapshotLabel, isBackgroundSyncing, analyticsSectionHealthSummary, needsSetup, activeTab, setActiveTab, liveLoading, historicalLoading, isPrimingAnalytics, liveResponse, backgroundAnalyticsIssues, analyticsSectionHealth } = state;
+  const handleClearAllFilters = state.clearAllFilters ?? (() => {
+    reportClientIssue({
+      channel: "runtime",
+      severity: "error",
+      message: "Admin analytics missing clear-all filter handler",
+      detail: {
+        surface: "admin-analytics",
+        qualityLabel: "failed",
+      },
+      consoleLabel: "[Admin Analytics] Missing clear-all filter handler",
+    });
+  });
+  const handleClearViewerFilter = state.clearViewerFilter ?? handleClearAllFilters;
 
   if (needsSetup) {
     return (
@@ -199,7 +213,7 @@ export default function AdminAnalyticsPage() {
           </div>
           <button
             type="button"
-            onClick={clearAllFilters}
+            onClick={handleClearAllFilters}
             className="ml-auto shrink-0 rounded-full border border-white/15 bg-black/40 px-3 py-2 text-[10px] font-bold uppercase tracking-[0.14em] text-gray-300 transition-colors hover:border-brand-purple/40 hover:text-white"
           >
             Clear viewer filter
@@ -249,7 +263,7 @@ export default function AdminAnalyticsPage() {
               {viewerUserFilter ? (
                 <button
                   type="button"
-                  onClick={clearViewerFilter}
+                  onClick={handleClearViewerFilter}
                   className="rounded-full border border-white/15 bg-black/40 px-3 py-2 text-[10px] font-bold uppercase tracking-[0.14em] text-gray-300 transition-colors hover:border-white/30 hover:text-white"
                 >
                   Clear viewer filter
