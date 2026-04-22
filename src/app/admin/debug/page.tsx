@@ -20,6 +20,8 @@ import { AdminTruthSurfaces } from '../AdminTruthSurfaces';
 import { PageViewEvent } from "@/components/Analytics/PageViewEvent";
 import { Button } from "@/components/ui/Button";
 import { useAuth } from "@/context/AuthContext";
+import { AdminAiAssistantRealtimePanel } from "./components/AdminAiAssistantRealtimePanel";
+import { useAdminAiAssistantRealtime } from "./hooks/useAdminAiAssistantRealtime";
 import { useAdminOverview } from "@/hooks/useAdminOverview";
 import { useAdminUiChartHealthReporter } from "@/hooks/useAdminUiChartHealthReporter";
 import { useAdminPollingSWR } from "@/hooks/useAdminPollingSWR";
@@ -399,6 +401,7 @@ export default function DebugConsole() {
         setAiAssistantEnabled(aiDebugData.enabled !== false);
         setAiAssistantModel(aiDebugData.configured_model || aiDebugData.model || "gemini-2.5-flash-lite");
     }, [aiDebugData]);
+    const aiAssistantRealtime = useAdminAiAssistantRealtime(aiDebugData);
 
     const debugSurfaceHealth = useMemo(() => ([
         buildAdminUiChartHealthItem({
@@ -678,7 +681,7 @@ export default function DebugConsole() {
                 <StatCard label="Open actions" value={derivedActionCount} meta={`${data?.stats?.orchestrationActionableRepairs ?? 0} proposals + ${panelLogWarnCount + panelLogFailCount} panel log issues + ${analyticsChartHealthSummary.warn + analyticsChartHealthSummary.fail} chart issues + ${routeRuntimeHealthSummary.warn + routeRuntimeHealthSummary.fail + routeRuntimeHealthSummary.stale} route issues`} />
                 <StatCard label="Route health" value={routeRuntimeHealthSummary.total ? `${routeRuntimeHealthSummary.fail}/${routeRuntimeHealthSummary.warn}/${routeRuntimeHealthSummary.stale}` : "--"} meta={routeRuntimeHealthSummary.total ? `${routeRuntimeHealthSummary.total} tracked | ${observedRouteRuntimeCount} observed | ${routeRuntimeHealthSummary.unobserved} unseen (no sample yet)` : "no route rollups yet"} />
                 <StatCard label="Freshest loaded sample" value={freshestLoadedSignalAt ? formatRelative(freshestLoadedSignalAt) : "--"} meta="derived from loaded diagnostics, panel logs, UI hydration reports, transactions, and AI status" />
-                <StatCard label="AI assistant" value={aiStatusLabel} meta={aiDebugData ? `${aiDebugData.configured_model} configured | ${aiDebugData.runtime_ready ? "runtime ready" : "runtime unavailable"} | ${aiDebugData.latency_ms}ms` : aiDebugError ? "assistant unavailable" : "waiting for summary"} />
+                <StatCard label="AI assistant" value={aiStatusLabel} meta={aiDebugData ? `${aiDebugData.configured_model} configured | ${aiAssistantRealtime.feedStatus} preflight lane | ${aiDebugData.runtime_ready ? "runtime ready" : "runtime unavailable"} | ${aiDebugData.latency_ms}ms` : aiDebugError ? "assistant unavailable" : "waiting for summary"} />
             </div>
 
             {error ? <div className="rounded-[1.35rem] border border-red-400/20 bg-red-500/10 p-4 text-sm text-red-100">Debug data could not be loaded right now.</div> : null}
@@ -1472,7 +1475,7 @@ export default function DebugConsole() {
                         title="AI debug assistant"
                         subtitle="Advisory summary over bounded canonical signals with labeled fallbacks."
                         defaultOpen
-                        summary={<><Pill label="Status" value={aiStatusLabel} tone={aiStatusTone} /><Pill label="Enabled" value={aiDebugData?.enabled === false ? "No" : "Yes"} tone={aiDebugData?.enabled === false ? "warn" : "good"} /><Pill label="Configured model" value={aiDebugData?.configured_model || aiAssistantModel || "gemini-2.5-flash-lite"} /><Pill label="Runtime" value={aiDebugData?.runtime_ready ? "Ready" : "Unavailable"} tone={aiDebugData?.runtime_ready ? "good" : "bad"} /><Pill label="Last run" value={aiDebugData?.generated_at ? formatRelative(Date.parse(aiDebugData.generated_at)) : "Not recorded"} /><Pill label="Latency" value={aiDebugData ? `${aiDebugData.latency_ms}ms` : "--"} tone={aiDebugData && aiDebugData.latency_ms > 5000 ? "warn" : "neutral"} /></>}
+                        summary={<><Pill label="Status" value={aiStatusLabel} tone={aiStatusTone} /><Pill label="Enabled" value={aiDebugData?.enabled === false ? "No" : "Yes"} tone={aiDebugData?.enabled === false ? "warn" : "good"} /><Pill label="Configured model" value={aiDebugData?.configured_model || aiAssistantModel || "gemini-2.5-flash-lite"} /><Pill label="Runtime" value={aiDebugData?.runtime_ready ? "Ready" : "Unavailable"} tone={aiDebugData?.runtime_ready ? "good" : "bad"} /><Pill label="Live lane" value={aiAssistantRealtime.feedStatus} tone={aiAssistantRealtime.feedStatus === "realtime" ? "good" : aiAssistantRealtime.feedStatus === "failed" ? "bad" : "warn"} /><Pill label="Last run" value={aiDebugData?.generated_at ? formatRelative(Date.parse(aiDebugData.generated_at)) : "Not recorded"} /><Pill label="Latency" value={aiDebugData ? `${aiDebugData.latency_ms}ms` : "--"} tone={aiDebugData && aiDebugData.latency_ms > 5000 ? "warn" : "neutral"} /></>}
                     >
                         {aiDebugError ? (
                             <div className="rounded-[1rem] border border-red-400/20 bg-red-500/10 p-4 text-sm text-red-100">
@@ -1542,6 +1545,8 @@ export default function DebugConsole() {
                                 </div>
                             </div>
                         </div>
+
+                        <AdminAiAssistantRealtimePanel state={aiAssistantRealtime} />
 
                         {aiDebugData ? (
                             <div className="space-y-4">

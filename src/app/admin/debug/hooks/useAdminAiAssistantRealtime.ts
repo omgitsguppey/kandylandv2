@@ -1,0 +1,209 @@
+"use client";
+
+import { useEffect, useMemo, useState } from "react";
+import {
+    collection,
+    doc,
+    limit,
+    onSnapshot,
+    orderBy,
+    query,
+} from "firebase/firestore";
+
+import type { AdminAiDebugSummary } from "@/lib/ai-debug-assistant";
+import {
+    ADMIN_AI_DEBUG_ASSISTANT_SETTINGS_DOC,
+    ADMIN_AI_DEBUG_ROUTE_RUNTIME_HEALTH_COLLECTION,
+    ADMIN_AI_DEBUG_ROUTE_RUNTIME_KEYS,
+    ADMIN_AI_DEBUG_SERVER_DIAGNOSTICS_COLLECTION,
+    buildAdminAiDebugRealtimeSignals,
+    normalizeAdminAiDebugAssistantSettingsSnapshot,
+    normalizeAdminAiDebugRealtimeDiagnostic,
+    type AdminAiDebugRealtimeSignals,
+} from "@/lib/admin-ai-debug-runtime";
+import { db } from "@/lib/firebase-data";
+import { buildFirestoreClientFallbackMessage, buildFirestoreClientIssueDetail } from "@/lib/firestore-client-errors";
+import { reportClientIssue } from "@/lib/client-error-reporting";
+import { createAutoHealingObserver } from "@/lib/self-healing";
+import type { RouteRuntimeHealthItem } from "@/lib/route-runtime-health";
+
+type ListenerErrors = {
+    settingsFailed: boolean;
+    diagnosticsFailed: boolean;
+    routesFailed: boolean;
+};
+
+export function useAdminAiAssistantRealtime(summary: AdminAiDebugSummary | null | undefined): AdminAiDebugRealtimeSignals {
+    const [settings, setSettings] = useState(() => normalizeAdminAiDebugAssistantSettingsSnapshot(null, {
+        enabled: summary?.enabled,
+        model: summary?.configured_model,
+    }));
+    const [diagnostics, setDiagnostics] = useState<ReturnType<typeof normalizeAdminAiDebugRealtimeDiagnostic>[]>([]);
+    const [routeHealthByKey, setRouteHealthByKey] = useState<Partial<Record<(typeof ADMIN_AI_DEBUG_ROUTE_RUNTIME_KEYS)[keyof typeof ADMIN_AI_DEBUG_ROUTE_RUNTIME_KEYS], RouteRuntimeHealthItem | null>>>({});
+    const [listenerState, setListenerState] = useState({
+        settingsLoaded: false,
+        diagnosticsLoaded: false,
+        routesLoaded: false,
+    });
+    const [listenerErrors, setListenerErrors] = useState<ListenerErrors>({
+        settingsFailed: false,
+        diagnosticsFailed: false,
+        routesFailed: false,
+    });
+
+    useEffect(() => {
+        setSettings((current) => normalizeAdminAiDebugAssistantSettingsSnapshot(current, {
+            enabled: summary?.enabled,
+            model: summary?.configured_model,
+        }));
+    }, [summary?.configured_model, summary?.enabled]);
+
+    useEffect(() => {
+        const settingsControl = createAutoHealingObserver(() => onSnapshot(
+            doc(collection(db, "adminSettings"), ADMIN_AI_DEBUG_ASSISTANT_SETTINGS_DOC),
+            (snapshot) => {
+                setSettings(normalizeAdminAiDebugAssistantSettingsSnapshot(snapshot.exists() ? snapshot.data() : null, {
+                    enabled: summary?.enabled,
+                    model: summary?.configured_model,
+                }));
+                setListenerState((current) => ({ ...current, settingsLoaded: true }));
+                setListenerErrors((current) => ({ ...current, settingsFailed: false }));
+            },
+            (error) => {
+                setListenerErrors((current) => ({ ...current, settingsFailed: true }));
+                reportClientIssue({
+                    channel: "firebase",
+                    severity: "warn",
+                    message: "Admin AI debug settings realtime listener failed",
+                    error,
+                    detail: buildFirestoreClientIssueDetail(error, {
+                        listener: "admin_ai_debug_settings",
+                        scope: "admin debug assistant",
+                    }),
+                    consoleLabel: "[Admin AI Debug] settings listener failed",
+                });
+                settingsControl.triggerReconnect(error);
+            },
+        ));
+
+        const diagnosticsQuery = query(
+            collection(db, ADMIN_AI_DEBUG_SERVER_DIAGNOSTICS_COLLECTION),
+            orderBy("createdAtMs", "desc"),
+            limit(12),
+        );
+        const diagnosticsControl = createAutoHealingObserver(() => onSnapshot(
+            diagnosticsQuery,
+            (snapshot) => {
+                const nextDiagnostics = snapshot.docs
+                    .filter((entry) => entry.data()?.channel === "ai")
+                    .map((entry) => normalizeAdminAiDebugRealtimeDiagnostic(entry.id, entry.data()))
+                    .filter((entry): entry is NonNullable<typeof entry> => Boolean(entry));
+                setDiagnostics(nextDiagnostics);
+                setListenerState((current) => ({ ...current, diagnosticsLoaded: true }));
+                setListenerErrors((current) => ({ ...current, diagnosticsFailed: false }));
+            },
+            (error) => {
+                setListenerErrors((current) => ({ ...current, diagnosticsFailed: true }));
+                reportClientIssue({
+                    channel: "firebase",
+                    severity: "warn",
+                    message: "Admin AI diagnostics realtime listener failed",
+                    error,
+                    detail: buildFirestoreClientIssueDetail(error, {
+                        listener: "admin_ai_debug_diagnostics",
+                        scope: "admin debug assistant",
+                        fallbackMessage: buildFirestoreClientFallbackMessage("Admin AI diagnostics", error),
+                    }),
+                    consoleLabel: "[Admin AI Debug] diagnostics listener failed",
+                });
+                diagnosticsControl.triggerReconnect(error);
+            },
+        ));
+
+        const readRouteControl = createAutoHealingObserver(() => onSnapshot(
+            doc(collection(db, ADMIN_AI_DEBUG_ROUTE_RUNTIME_HEALTH_COLLECTION), ADMIN_AI_DEBUG_ROUTE_RUNTIME_KEYS.read),
+            (snapshot) => {
+                setRouteHealthByKey((current) => ({
+                    ...current,
+                    [ADMIN_AI_DEBUG_ROUTE_RUNTIME_KEYS.read]: snapshot.exists()
+                        ? snapshot.data() as RouteRuntimeHealthItem
+                        : null,
+                }));
+                setListenerState((current) => ({
+                    ...current,
+                    routesLoaded: Boolean(
+                        current.routesLoaded
+                        || routeHealthByKey[ADMIN_AI_DEBUG_ROUTE_RUNTIME_KEYS.write] !== undefined
+                        || snapshot.exists(),
+                    ),
+                }));
+                setListenerErrors((current) => ({ ...current, routesFailed: false }));
+            },
+            (error) => {
+                setListenerErrors((current) => ({ ...current, routesFailed: true }));
+                reportClientIssue({
+                    channel: "firebase",
+                    severity: "warn",
+                    message: "Admin AI assistant read-route realtime listener failed",
+                    error,
+                    detail: buildFirestoreClientIssueDetail(error, {
+                        listener: "admin_ai_debug_route_read",
+                        scope: "admin debug assistant",
+                    }),
+                    consoleLabel: "[Admin AI Debug] read-route listener failed",
+                });
+                readRouteControl.triggerReconnect(error);
+            },
+        ));
+
+        const writeRouteControl = createAutoHealingObserver(() => onSnapshot(
+            doc(collection(db, ADMIN_AI_DEBUG_ROUTE_RUNTIME_HEALTH_COLLECTION), ADMIN_AI_DEBUG_ROUTE_RUNTIME_KEYS.write),
+            (snapshot) => {
+                setRouteHealthByKey((current) => ({
+                    ...current,
+                    [ADMIN_AI_DEBUG_ROUTE_RUNTIME_KEYS.write]: snapshot.exists()
+                        ? snapshot.data() as RouteRuntimeHealthItem
+                        : null,
+                }));
+                setListenerState((current) => ({
+                    ...current,
+                    routesLoaded: true,
+                }));
+                setListenerErrors((current) => ({ ...current, routesFailed: false }));
+            },
+            (error) => {
+                setListenerErrors((current) => ({ ...current, routesFailed: true }));
+                reportClientIssue({
+                    channel: "firebase",
+                    severity: "warn",
+                    message: "Admin AI assistant write-route realtime listener failed",
+                    error,
+                    detail: buildFirestoreClientIssueDetail(error, {
+                        listener: "admin_ai_debug_route_write",
+                        scope: "admin debug assistant",
+                    }),
+                    consoleLabel: "[Admin AI Debug] write-route listener failed",
+                });
+                writeRouteControl.triggerReconnect(error);
+            },
+        ));
+
+        return () => {
+            settingsControl.cleanup();
+            diagnosticsControl.cleanup();
+            readRouteControl.cleanup();
+            writeRouteControl.cleanup();
+        };
+    }, [summary?.configured_model, summary?.enabled]);
+
+    return useMemo(() => buildAdminAiDebugRealtimeSignals({
+        summary,
+        settings,
+        diagnostics: diagnostics.filter((entry): entry is NonNullable<typeof entry> => Boolean(entry)),
+        routeHealth: routeHealthByKey,
+        listenerState: {
+            ...listenerState,
+            ...listenerErrors,
+        },
+    }), [diagnostics, listenerErrors, listenerState, routeHealthByKey, settings, summary]);
+}

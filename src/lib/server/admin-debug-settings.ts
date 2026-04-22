@@ -1,9 +1,9 @@
 import "server-only";
 
 import { AI_DEBUG_ASSISTANT_MODEL } from "@/lib/ai-debug-assistant";
+import { normalizeAdminAiModelAlias } from "@/lib/admin-ai-models";
+import { ADMIN_AI_DEBUG_ASSISTANT_SETTINGS_DOC } from "@/lib/admin-ai-debug-runtime";
 import { adminDb } from "@/lib/server/firebase-admin";
-
-export const ADMIN_AI_DEBUG_ASSISTANT_SETTINGS_DOC = "debugAssistant";
 
 export type AdminAiDebugAssistantSettings = {
     enabled: boolean;
@@ -31,7 +31,7 @@ function normalizeAdminAiDebugAssistantSettings(value: unknown): AdminAiDebugAss
 
     const source = value as Record<string, unknown>;
     const model = typeof source.model === "string" && source.model.trim().length > 0
-        ? source.model.trim()
+        ? normalizeAdminAiModelAlias(source.model.trim(), "debug_assistant")
         : defaults.model;
 
     return {
@@ -62,9 +62,7 @@ export async function saveAdminAiDebugAssistantSettings(input: {
 }) {
     const nextSettings = {
         enabled: input.enabled ?? true,
-        model: typeof input.model === "string" && input.model.trim().length > 0
-            ? input.model.trim()
-            : AI_DEBUG_ASSISTANT_MODEL,
+        model: normalizeAdminAiModelAlias(input.model, "debug_assistant") || AI_DEBUG_ASSISTANT_MODEL,
         updatedAtMs: Date.now(),
         updatedByUid: input.actorUid ?? "",
         updatedByEmail: input.actorEmail ?? null,
