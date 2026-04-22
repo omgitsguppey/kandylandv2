@@ -1,5 +1,5 @@
 {
-  "generatedAt": "2026-04-21T15:10:04.016Z",
+  "generatedAt": "2026-04-22T19:01:10.876Z",
   "truthOrder": [
     "verified_runtime_code",
     "verified_configuration",
@@ -190,6 +190,21 @@
       ]
     },
     {
+      "stable_id": "blast__src__lib__server__ephemeral-route-cache-ts",
+      "path": "src/lib/server/ephemeral-route-cache.ts",
+      "blast_radius_score": 90,
+      "shared_helper_risk": 25,
+      "route_boundary_risk": 20,
+      "runtime_criticality": 25,
+      "verification_burden": 20,
+      "deploy_or_lockfile_sensitivity": 0,
+      "why_score_was_assigned": [
+        "Likely shared helper.",
+        "Runtime-critical surface.",
+        "Broad signoff likely."
+      ]
+    },
+    {
       "stable_id": "blast__src__lib__server__firebase-admin-ts",
       "path": "src/lib/server/firebase-admin.ts",
       "blast_radius_score": 90,
@@ -319,6 +334,21 @@
     {
       "stable_id": "blast__src__lib__activity-sync-ts",
       "path": "src/lib/activity-sync.ts",
+      "blast_radius_score": 70,
+      "shared_helper_risk": 25,
+      "route_boundary_risk": 0,
+      "runtime_criticality": 25,
+      "verification_burden": 20,
+      "deploy_or_lockfile_sensitivity": 0,
+      "why_score_was_assigned": [
+        "Likely shared helper.",
+        "Runtime-critical surface.",
+        "Broad signoff likely."
+      ]
+    },
+    {
+      "stable_id": "blast__src__lib__admin-ai-debug-runtime-ts",
+      "path": "src/lib/admin-ai-debug-runtime.ts",
       "blast_radius_score": 70,
       "shared_helper_risk": 25,
       "route_boundary_risk": 0,
@@ -859,6 +889,21 @@
     {
       "stable_id": "blast__src__lib__chat-ts",
       "path": "src/lib/chat.ts",
+      "blast_radius_score": 70,
+      "shared_helper_risk": 25,
+      "route_boundary_risk": 0,
+      "runtime_criticality": 25,
+      "verification_burden": 20,
+      "deploy_or_lockfile_sensitivity": 0,
+      "why_score_was_assigned": [
+        "Likely shared helper.",
+        "Runtime-critical surface.",
+        "Broad signoff likely."
+      ]
+    },
+    {
+      "stable_id": "blast__src__lib__client-boot-diagnostics-ts",
+      "path": "src/lib/client-boot-diagnostics.ts",
       "blast_radius_score": 70,
       "shared_helper_risk": 25,
       "route_boundary_risk": 0,
@@ -1967,6 +2012,21 @@
       ]
     },
     {
+      "stable_id": "blast__src__lib__server__analytics-runtime-warning-ts",
+      "path": "src/lib/server/analytics-runtime-warning.ts",
+      "blast_radius_score": 70,
+      "shared_helper_risk": 25,
+      "route_boundary_risk": 0,
+      "runtime_criticality": 25,
+      "verification_burden": 20,
+      "deploy_or_lockfile_sensitivity": 0,
+      "why_score_was_assigned": [
+        "Likely shared helper.",
+        "Runtime-critical surface.",
+        "Broad signoff likely."
+      ]
+    },
+    {
       "stable_id": "blast__src__lib__server__analytics-runtime-ts",
       "path": "src/lib/server/analytics-runtime.ts",
       "blast_radius_score": 70,
@@ -1984,6 +2044,21 @@
     {
       "stable_id": "blast__src__lib__server__analytics-semantics-ts",
       "path": "src/lib/server/analytics-semantics.ts",
+      "blast_radius_score": 70,
+      "shared_helper_risk": 25,
+      "route_boundary_risk": 0,
+      "runtime_criticality": 25,
+      "verification_burden": 20,
+      "deploy_or_lockfile_sensitivity": 0,
+      "why_score_was_assigned": [
+        "Likely shared helper.",
+        "Runtime-critical surface.",
+        "Broad signoff likely."
+      ]
+    },
+    {
+      "stable_id": "blast__src__lib__server__analytics-truth-recovery-ts",
+      "path": "src/lib/server/analytics-truth-recovery.ts",
       "blast_radius_score": 70,
       "shared_helper_risk": 25,
       "route_boundary_risk": 0,
@@ -2224,6 +2299,21 @@
     {
       "stable_id": "blast__src__lib__server__firestore-sanitize-ts",
       "path": "src/lib/server/firestore-sanitize.ts",
+      "blast_radius_score": 70,
+      "shared_helper_risk": 25,
+      "route_boundary_risk": 0,
+      "runtime_criticality": 25,
+      "verification_burden": 20,
+      "deploy_or_lockfile_sensitivity": 0,
+      "why_score_was_assigned": [
+        "Likely shared helper.",
+        "Runtime-critical surface.",
+        "Broad signoff likely."
+      ]
+    },
+    {
+      "stable_id": "blast__src__lib__server__framework-request-diagnostics-ts",
+      "path": "src/lib/server/framework-request-diagnostics.ts",
       "blast_radius_score": 70,
       "shared_helper_risk": 25,
       "route_boundary_risk": 0,
@@ -3626,6 +3716,19 @@
       ]
     },
     {
+      "stable_id": "blast__src__app__api__creator__bookings__booking-timezone-ts",
+      "path": "src/app/api/creator/bookings/booking-timezone.ts",
+      "blast_radius_score": 55,
+      "shared_helper_risk": 0,
+      "route_boundary_risk": 20,
+      "runtime_criticality": 25,
+      "verification_burden": 10,
+      "deploy_or_lockfile_sensitivity": 0,
+      "why_score_was_assigned": [
+        "Runtime-critical surface."
+      ]
+    },
+    {
       "stable_id": "blast__src__app__api__creator__bookings__route-ts",
       "path": "src/app/api/creator/bookings/route.ts",
       "blast_radius_score": 55,
@@ -4135,6 +4238,19 @@
     {
       "stable_id": "blast__src__app__api__tasks__rotate__route-ts",
       "path": "src/app/api/tasks/rotate/route.ts",
+      "blast_radius_score": 55,
+      "shared_helper_risk": 0,
+      "route_boundary_risk": 20,
+      "runtime_criticality": 25,
+      "verification_burden": 10,
+      "deploy_or_lockfile_sensitivity": 0,
+      "why_score_was_assigned": [
+        "Runtime-critical surface."
+      ]
+    },
+    {
+      "stable_id": "blast__src__app__api__user__activity__activity-route-test-helpers-ts",
+      "path": "src/app/api/user/activity/activity-route-test-helpers.ts",
       "blast_radius_score": 55,
       "shared_helper_risk": 0,
       "route_boundary_risk": 20,
@@ -4769,6 +4885,71 @@
       ]
     },
     {
+      "stable_id": "blast__functions__src__analytics-truth-cli-ts",
+      "path": "functions/src/analytics-truth-cli.ts",
+      "blast_radius_score": 35,
+      "shared_helper_risk": 0,
+      "route_boundary_risk": 0,
+      "runtime_criticality": 25,
+      "verification_burden": 10,
+      "deploy_or_lockfile_sensitivity": 0,
+      "why_score_was_assigned": [
+        "Runtime-critical surface."
+      ]
+    },
+    {
+      "stable_id": "blast__functions__src__analytics-truth-contract-ts",
+      "path": "functions/src/analytics-truth-contract.ts",
+      "blast_radius_score": 35,
+      "shared_helper_risk": 0,
+      "route_boundary_risk": 0,
+      "runtime_criticality": 25,
+      "verification_burden": 10,
+      "deploy_or_lockfile_sensitivity": 0,
+      "why_score_was_assigned": [
+        "Runtime-critical surface."
+      ]
+    },
+    {
+      "stable_id": "blast__functions__src__analytics-truth-runtime-ts",
+      "path": "functions/src/analytics-truth-runtime.ts",
+      "blast_radius_score": 35,
+      "shared_helper_risk": 0,
+      "route_boundary_risk": 0,
+      "runtime_criticality": 25,
+      "verification_burden": 10,
+      "deploy_or_lockfile_sensitivity": 0,
+      "why_score_was_assigned": [
+        "Runtime-critical surface."
+      ]
+    },
+    {
+      "stable_id": "blast__functions__src__analytics-truth-schedule-ts",
+      "path": "functions/src/analytics-truth-schedule.ts",
+      "blast_radius_score": 35,
+      "shared_helper_risk": 0,
+      "route_boundary_risk": 0,
+      "runtime_criticality": 25,
+      "verification_burden": 10,
+      "deploy_or_lockfile_sensitivity": 0,
+      "why_score_was_assigned": [
+        "Runtime-critical surface."
+      ]
+    },
+    {
+      "stable_id": "blast__functions__src__behavioral-intelligence-cli-ts",
+      "path": "functions/src/behavioral-intelligence-cli.ts",
+      "blast_radius_score": 35,
+      "shared_helper_risk": 0,
+      "route_boundary_risk": 0,
+      "runtime_criticality": 25,
+      "verification_burden": 10,
+      "deploy_or_lockfile_sensitivity": 0,
+      "why_score_was_assigned": [
+        "Runtime-critical surface."
+      ]
+    },
+    {
       "stable_id": "blast__functions__src__behavioral-intelligence-runtime-ts",
       "path": "functions/src/behavioral-intelligence-runtime.ts",
       "blast_radius_score": 35,
@@ -5057,6 +5238,19 @@
     {
       "stable_id": "blast__src__app__admin__admintruthsurfaces-tsx",
       "path": "src/app/admin/AdminTruthSurfaces.tsx",
+      "blast_radius_score": 35,
+      "shared_helper_risk": 0,
+      "route_boundary_risk": 0,
+      "runtime_criticality": 25,
+      "verification_burden": 10,
+      "deploy_or_lockfile_sensitivity": 0,
+      "why_score_was_assigned": [
+        "Runtime-critical surface."
+      ]
+    },
+    {
+      "stable_id": "blast__src__app__admin__ai__admin-ai-state-exports-ts",
+      "path": "src/app/admin/ai/admin-ai-state-exports.ts",
       "blast_radius_score": 35,
       "shared_helper_risk": 0,
       "route_boundary_risk": 0,
@@ -5447,6 +5641,32 @@
     {
       "stable_id": "blast__src__app__admin__content__page-tsx",
       "path": "src/app/admin/content/page.tsx",
+      "blast_radius_score": 35,
+      "shared_helper_risk": 0,
+      "route_boundary_risk": 0,
+      "runtime_criticality": 25,
+      "verification_burden": 10,
+      "deploy_or_lockfile_sensitivity": 0,
+      "why_score_was_assigned": [
+        "Runtime-critical surface."
+      ]
+    },
+    {
+      "stable_id": "blast__src__app__admin__debug__components__adminaiassistantrealtimepanel-tsx",
+      "path": "src/app/admin/debug/components/AdminAiAssistantRealtimePanel.tsx",
+      "blast_radius_score": 35,
+      "shared_helper_risk": 0,
+      "route_boundary_risk": 0,
+      "runtime_criticality": 25,
+      "verification_burden": 10,
+      "deploy_or_lockfile_sensitivity": 0,
+      "why_score_was_assigned": [
+        "Runtime-critical surface."
+      ]
+    },
+    {
+      "stable_id": "blast__src__app__admin__debug__hooks__useadminaiassistantrealtime-ts",
+      "path": "src/app/admin/debug/hooks/useAdminAiAssistantRealtime.ts",
       "blast_radius_score": 35,
       "shared_helper_risk": 0,
       "route_boundary_risk": 0,
@@ -5915,6 +6135,19 @@
     {
       "stable_id": "blast__src__app__dashboard__profile__page-tsx",
       "path": "src/app/dashboard/profile/page.tsx",
+      "blast_radius_score": 35,
+      "shared_helper_risk": 0,
+      "route_boundary_risk": 0,
+      "runtime_criticality": 25,
+      "verification_burden": 10,
+      "deploy_or_lockfile_sensitivity": 0,
+      "why_score_was_assigned": [
+        "Runtime-critical surface."
+      ]
+    },
+    {
+      "stable_id": "blast__src__app__dashboard__profile__profile-page-types-ts",
+      "path": "src/app/dashboard/profile/profile-page-types.ts",
       "blast_radius_score": 35,
       "shared_helper_risk": 0,
       "route_boundary_risk": 0,
@@ -7109,6 +7342,19 @@
       ]
     },
     {
+      "stable_id": "blast__src__components__homepageruntimediagnostics-tsx",
+      "path": "src/components/HomepageRuntimeDiagnostics.tsx",
+      "blast_radius_score": 35,
+      "shared_helper_risk": 0,
+      "route_boundary_risk": 0,
+      "runtime_criticality": 25,
+      "verification_burden": 10,
+      "deploy_or_lockfile_sensitivity": 0,
+      "why_score_was_assigned": [
+        "Runtime-critical surface."
+      ]
+    },
+    {
       "stable_id": "blast__src__components__insufficientbalancemodal-tsx",
       "path": "src/components/InsufficientBalanceModal.tsx",
       "blast_radius_score": 35,
@@ -7137,6 +7383,32 @@
     {
       "stable_id": "blast__src__components__landing__homeactivedropscarousel-tsx",
       "path": "src/components/Landing/HomeActiveDropsCarousel.tsx",
+      "blast_radius_score": 35,
+      "shared_helper_risk": 0,
+      "route_boundary_risk": 0,
+      "runtime_criticality": 25,
+      "verification_burden": 10,
+      "deploy_or_lockfile_sensitivity": 0,
+      "why_score_was_assigned": [
+        "Runtime-critical surface."
+      ]
+    },
+    {
+      "stable_id": "blast__src__components__landing__homeheroactions-tsx",
+      "path": "src/components/Landing/HomeHeroActions.tsx",
+      "blast_radius_score": 35,
+      "shared_helper_risk": 0,
+      "route_boundary_risk": 0,
+      "runtime_criticality": 25,
+      "verification_burden": 10,
+      "deploy_or_lockfile_sensitivity": 0,
+      "why_score_was_assigned": [
+        "Runtime-critical surface."
+      ]
+    },
+    {
+      "stable_id": "blast__src__components__landing__homehowitworksactions-tsx",
+      "path": "src/components/Landing/HomeHowItWorksActions.tsx",
       "blast_radius_score": 35,
       "shared_helper_risk": 0,
       "route_boundary_risk": 0,
@@ -8669,6 +8941,19 @@
       ]
     },
     {
+      "stable_id": "blast__scripts__debug-watch-capture-health-ts",
+      "path": "scripts/debug-watch-capture-health.ts",
+      "blast_radius_score": 20,
+      "shared_helper_risk": 0,
+      "route_boundary_risk": 0,
+      "runtime_criticality": 0,
+      "verification_burden": 20,
+      "deploy_or_lockfile_sensitivity": 0,
+      "why_score_was_assigned": [
+        "Broad signoff likely."
+      ]
+    },
+    {
       "stable_id": "blast__scripts__export-dependency-graph-ts",
       "path": "scripts/export-dependency-graph.ts",
       "blast_radius_score": 20,
@@ -8710,6 +8995,19 @@
     {
       "stable_id": "blast__scripts__promote-admin-ts",
       "path": "scripts/promote-admin.ts",
+      "blast_radius_score": 20,
+      "shared_helper_risk": 0,
+      "route_boundary_risk": 0,
+      "runtime_criticality": 0,
+      "verification_burden": 20,
+      "deploy_or_lockfile_sensitivity": 0,
+      "why_score_was_assigned": [
+        "Broad signoff likely."
+      ]
+    },
+    {
+      "stable_id": "blast__scripts__rebuild-analytics-truth-ts",
+      "path": "scripts/rebuild-analytics-truth.ts",
       "blast_radius_score": 20,
       "shared_helper_risk": 0,
       "route_boundary_risk": 0,

@@ -1,5 +1,5 @@
 {
-  "generatedAt": "2026-04-21T15:10:08.129Z",
+  "generatedAt": "2026-04-22T19:00:16.539Z",
   "truthOrder": [
     "verified_runtime_code",
     "verified_configuration",
@@ -19,88 +19,74 @@
     "agent/index/dependency-graph.summary.json",
     "agent/index/ui-surface-coverage.json"
   ],
-  "stable_id": "taskctx__runtime-harden-deterministic-behavioral-ranking-data-without-touching-paypal-or-the-economy-ledger",
+  "stable_id": "taskctx__audit-validate-repo-intelligence-fabric-outputs",
   "input": {
-    "task": "harden deterministic behavioral ranking data without touching PayPal or the economy ledger",
-    "mode": "runtime",
+    "task": "validate repo intelligence fabric outputs",
+    "mode": "audit",
     "fileHints": [
-      "src/lib/server/behavioral-intelligence.ts"
+      "scripts/agent/build-agent-indexes.ts"
     ],
     "tokenBudgetProfile": "standard"
   },
-  "normalizedTaskSummary": "harden deterministic behavioral ranking data without touching PayPal or the economy ledger",
-  "taskModeClassification": "runtime",
+  "normalizedTaskSummary": "validate repo intelligence fabric outputs",
+  "taskModeClassification": "audit",
   "scopeClassification": "broad",
   "scopeWhy": "Touches repo-tooling, governance, or multiple broad-signoff surfaces.",
-  "likelySurfaceCategory": "server_runtime",
+  "likelySurfaceCategory": "repo_scripts",
   "likelySurfaces": [
-    "server_runtime",
-    "route_handler",
-    "analytics",
-    "admin_route",
-    "ui_component",
-    "admin_ui"
+    "repo_scripts"
   ],
   "hotContextFiles": [
-    "src/lib/server/behavioral-intelligence.ts",
-    "src/app/api/drops/recommendations/route.ts",
-    "src/lib/admin-analytics-truth.ts",
-    "src/lib/server/admin-analytics-capture-health.ts",
-    "src/lib/server/admin-analytics-historical-validation.ts"
+    "scripts/agent/build-agent-indexes.ts",
+    "scripts/agent/build-task-context.ts",
+    "scripts/agent/run-evals.ts",
+    "scripts/agent/build-ui-surface-coverage.ts",
+    "scripts/agent/check-agent-context.ts"
   ],
   "warmContextFiles": [
-    "src/app/api/admin/analytics/historical/route.ts",
-    "src/app/api/admin/analytics/realtime/route.ts",
-    "src/lib/telemetry.ts",
-    "src/components/Analytics/PageViewEvent.tsx",
-    "src/lib/server/analytics.ts"
+    "scripts/agent/classify-repo-files.ts",
+    "scripts/agent/extract-canonical-helpers.ts",
+    "scripts/agent/extract-governance.ts",
+    "scripts/agent/extract-runtime-observability.ts",
+    "scripts/agent/extract-workflow.ts"
   ],
   "coldContextFiles": [
     "FULL_SCALE_CODEBASE_AUDIT.md",
     "REPO_MEMORY_LEDGER.md",
     "EVERY_FILE_FUNCTION_CHECKLIST.md",
-    ".agent/workflows/auto-tasks.md",
-    ".claude/agents/test-specialist.md",
-    ".github/copilot-instructions.md",
-    ".github/instructions/*.instructions.md"
+    "admin/analytics/historical:GET",
+    "npm run trace:adjacent -- src/app/api/admin/analytics/historical/route.ts",
+    "npm run trace:adjacent -- src/app/api/admin/analytics/realtime/route.ts",
+    "npm run trace:adjacent -- src/app/api/user/activity/route.ts"
   ],
   "likelyTouchedFiles": [
-    "src/lib/server/behavioral-intelligence.ts",
-    "src/app/api/drops/recommendations/route.ts",
-    "src/lib/admin-analytics-truth.ts",
-    "src/lib/server/admin-analytics-capture-health.ts",
-    "src/lib/server/admin-analytics-historical-validation.ts",
-    "src/app/api/admin/analytics/historical/route.ts",
-    "src/app/api/admin/analytics/realtime/route.ts",
-    "src/lib/telemetry.ts",
-    "src/components/Analytics/PageViewEvent.tsx",
-    "src/lib/server/analytics.ts",
-    "scripts/check-analytics-continuity.ts",
-    "src/app/admin/analytics/page.tsx"
+    "scripts/agent/build-agent-indexes.ts",
+    "scripts/agent/build-task-context.ts",
+    "scripts/agent/run-evals.ts",
+    "scripts/agent/build-ui-surface-coverage.ts",
+    "scripts/agent/check-agent-context.ts",
+    "scripts/agent/classify-repo-files.ts",
+    "scripts/agent/extract-canonical-helpers.ts",
+    "scripts/agent/extract-governance.ts",
+    "scripts/agent/extract-runtime-observability.ts",
+    "scripts/agent/extract-workflow.ts",
+    "scripts/agent/shared.ts",
+    "scripts/agent/summarize-dependency-graph.ts"
   ],
   "likelyAdjacentFiles": [
-    "src/lib/server/firebase-admin.ts",
-    "src/lib/server/drops.ts",
-    "src/types/db.ts",
-    "src/app/api/admin/debug/route.ts",
-    "src/app/api/admin/user/[userId]/route.ts",
-    "src/app/api/creator/relationships/route.ts",
-    "src/app/api/drops/retention/route.ts",
-    "src/lib/server/rate-limit.ts",
-    "src/lib/server/request-guard.ts",
-    "src/lib/server/auth.ts",
-    "src/types/admin-analytics.ts",
-    "tests/unit/admin-analytics-truth.spec.ts"
+    "scripts/agent/sync-sql.ts",
+    "scripts/agent/verification-selector.ts",
+    "scripts/agent/fast-start.ts",
+    "scripts/agent/build-ui-runtime-audit.ts",
+    "scripts/agent/check-ui-surface-coverage.ts",
+    "scripts/agent/validate-agent-indexes.ts",
+    "scripts/check-runtime-continuity.ts",
+    "scripts/check-scheduler-freshness.ts"
   ],
   "likelyAdjacentHelpers": [
-    "src/lib/telemetry.ts",
-    "src/lib/telemetry-catalog.ts",
-    "src/lib/server/auth.ts",
-    "src/lib/server/request-guard.ts",
-    "src/lib/ai-drop-covers.ts",
-    "src/lib/chat-realtime.ts",
-    "src/lib/creator-onboarding.ts",
-    "src/lib/gumdrop-economics.ts"
+    "src/lib/gumdrop-economics.ts",
+    "src/lib/gumdrop-ledger.ts",
+    "src/lib/server/paypal.ts"
   ],
   "governanceConsultFull": [
     "FULL_SCALE_CODEBASE_AUDIT.md",
@@ -109,59 +95,35 @@
   ],
   "governanceConsultSelective": [],
   "canonicalHelpersToReuse": [
-    "src/lib/telemetry.ts",
-    "src/lib/telemetry-catalog.ts",
-    "src/lib/server/auth.ts",
-    "src/lib/server/request-guard.ts",
-    "src/lib/ai-drop-covers.ts",
-    "src/lib/chat-realtime.ts",
-    "src/lib/creator-onboarding.ts",
-    "src/lib/gumdrop-economics.ts"
+    "src/lib/gumdrop-economics.ts",
+    "src/lib/gumdrop-ledger.ts",
+    "src/lib/server/paypal.ts"
   ],
   "relevantKnownPitfalls": [
-    "stale_lockfile_drift",
     "diagnostics_serialization_crash",
-    "request_json_parse_falls_into_500",
-    "consumed_response_stream_fallback",
     "generated_artifact_cleanup_miss",
     "sidecar_truth_confusion",
-    "route_runtime_stale_vs_unseen_confusion",
     "legacy_queue_adapter_usage",
     "queue_activation_missing_notification_outcome",
-    "stale_queue_scheduler_heartbeat",
-    "creator_booking_timezone_drift",
-    "silent_ui_fallback_masking_failure",
-    "viewer_watch_capture_continuity_drift"
+    "creator_booking_timezone_drift"
   ],
   "requiredVerificationCommands": [
     "npm run check:agent-context",
     "npm run check:continuity",
     "npm run trace:adjacent -- <path>",
-    "npm run test:contracts",
-    "npm run check:ui:audits",
-    "npm run check:telemetry",
-    "npm run check:analytics-semantics",
     "npm run check:architecture",
     "npm run check:inventory"
   ],
-  "optionalVerificationCommands": [
-    "npm run check:analytics-semantics"
-  ],
+  "optionalVerificationCommands": [],
   "fastVerificationCommands": [
     "npm run typecheck",
-    "npm run agent:test -- src/lib/server/behavioral-intelligence.ts",
-    "npm run agent:test -- src/app/api/drops/recommendations/route.ts",
-    "npm run agent:test -- src/lib/admin-analytics-truth.ts",
-    "npm run agent:test -- src/lib/server/admin-analytics-capture-health.ts",
-    "npm run check:ui:coverage",
-    "npm run check:ui:runtime",
-    "npm run check:telemetry",
-    "npm run check:analytics-semantics",
+    "npm run agent:test -- scripts/agent/build-agent-indexes.ts",
+    "npm run agent:test -- scripts/agent/build-task-context.ts",
+    "npm run agent:test -- scripts/agent/run-evals.ts",
+    "npm run agent:test -- scripts/agent/build-ui-surface-coverage.ts",
     "npm run check:agent-context"
   ],
   "signoffVerificationCommands": [
-    "npm run check:ui:audits",
-    "npm run check:analytics:continuity",
     "npm run check:inventory",
     "npm run check:architecture",
     "npm run check:agent-intelligence",
@@ -169,7 +131,6 @@
     "npm run check:continuity"
   ],
   "verificationAdvisories": [
-    "Run `npm run check:ui:lighthouse` only if the touched UI change affects loading, rendering, or performance-sensitive behavior.",
     "Run `npm run trace:adjacent -- <path>` for the main touched files before broad signoff."
   ],
   "forbiddenSurfaces": [
@@ -187,44 +148,24 @@
   "broadWorkStartupProtocolRequired": true,
   "sqlMirrorFreshnessState": "unknown",
   "confidenceNotes": [
-    "Mode resolved as runtime.",
-    "Ranking considered 1009 repo files and 22 canonical helper entries.",
+    "Mode resolved as audit.",
+    "Ranking considered 1040 repo files and 22 canonical helper entries.",
     "UI coverage matched 8 indexed surfaces."
   ],
   "ambiguityNotes": [],
   "do_not_read_unless_needed": [],
   "excludedContext": [
     {
-      "path": "agent/index/repo-inventory.json",
-      "why_not_selected": "generated_penalty"
+      "path": "REPO_MEMORY_LEDGER.md",
+      "why_not_selected": "evidence_only"
     },
     {
-      "path": "agent/index/workflow-guidance.json",
+      "path": "agent/index/repo-inventory.json",
       "why_not_selected": "generated_penalty"
     },
     {
       "path": "agent/state/eval-results.generated.json",
       "why_not_selected": "generated_penalty"
-    },
-    {
-      "path": "agent/state/sql-mirror-status.generated.json",
-      "why_not_selected": "generated_penalty"
-    },
-    {
-      "path": "tests/ui-audits/visual-regression.spec.ts-snapshots/creator-apply-hero-chromium-win32.png",
-      "why_not_selected": "evidence_only"
-    },
-    {
-      "path": "tests/ui-audits/visual-regression.spec.ts-snapshots/creator-apply-hero-Mobile-Chrome-win32.png",
-      "why_not_selected": "evidence_only"
-    },
-    {
-      "path": "tests/ui-audits/visual-regression.spec.ts-snapshots/creator-waitlist-guest-hero-chromium-win32.png",
-      "why_not_selected": "evidence_only"
-    },
-    {
-      "path": "tests/ui-audits/visual-regression.spec.ts-snapshots/creator-waitlist-guest-hero-Mobile-Chrome-win32.png",
-      "why_not_selected": "evidence_only"
     },
     {
       "path": "tests/ui-audits/visual-regression.spec.ts-snapshots/ui-surface-src-app-creators-apply-page-tsx-chromium-win32.png",
@@ -233,231 +174,228 @@
     {
       "path": "tests/ui-audits/visual-regression.spec.ts-snapshots/ui-surface-src-app-creators-apply-page-tsx-Mobile-Chrome-win32.png",
       "why_not_selected": "evidence_only"
+    },
+    {
+      "path": "tests/ui-audits/visual-regression.spec.ts-snapshots/ui-surface-src-app-creators-waitlist-page-tsx-chromium-win32.png",
+      "why_not_selected": "evidence_only"
+    },
+    {
+      "path": "tests/ui-audits/visual-regression.spec.ts-snapshots/ui-surface-src-app-creators-waitlist-page-tsx-Mobile-Chrome-win32.png",
+      "why_not_selected": "evidence_only"
+    },
+    {
+      "path": "tests/ui-audits/visual-regression.spec.ts-snapshots/ui-surface-src-app-page-tsx-chromium-win32.png",
+      "why_not_selected": "evidence_only"
+    },
+    {
+      "path": "tests/ui-audits/visual-regression.spec.ts-snapshots/ui-surface-src-app-page-tsx-Mobile-Chrome-win32.png",
+      "why_not_selected": "evidence_only"
+    },
+    {
+      "path": "scripts/check-generated-artifacts.ts",
+      "why_not_selected": "generated_penalty"
     }
   ],
   "do_not_touch_without_broad_signoff": [
-    "src/lib/server/behavioral-intelligence.ts",
-    "src/lib/admin-analytics-truth.ts",
-    "src/lib/server/admin-analytics-capture-health.ts",
-    "src/lib/server/admin-analytics-historical-validation.ts",
-    "src/lib/telemetry.ts",
-    "src/lib/server/analytics.ts",
-    "scripts/check-analytics-continuity.ts"
+    "scripts/agent/build-agent-indexes.ts",
+    "scripts/agent/build-task-context.ts",
+    "scripts/agent/run-evals.ts",
+    "scripts/agent/build-ui-surface-coverage.ts",
+    "scripts/agent/check-agent-context.ts",
+    "scripts/agent/classify-repo-files.ts",
+    "scripts/agent/extract-canonical-helpers.ts",
+    "scripts/agent/extract-governance.ts",
+    "scripts/agent/extract-runtime-observability.ts",
+    "scripts/agent/extract-workflow.ts",
+    "scripts/agent/shared.ts",
+    "scripts/agent/summarize-dependency-graph.ts"
   ],
   "rankingEvidence": [
     {
-      "stable_id": "file__src__lib__server__behavioral-intelligence-ts",
-      "path": "src/lib/server/behavioral-intelligence.ts",
-      "score": 168,
-      "why_selected": "explicit_file_hint, path_domain_match, task_signal_match, filename_match, canonical_helper_relevance, pitfall_match, runtime_sensitivity, verification_lane_match",
+      "stable_id": "file__scripts__agent__build-agent-indexes-ts",
+      "path": "scripts/agent/build-agent-indexes.ts",
+      "score": 160,
+      "why_selected": "explicit_file_hint, path_domain_match, task_signal_match, filename_match, canonical_helper_relevance, recent_pass_match, verification_lane_match",
       "weighted_components": [
         "explicit_file_hint",
         "path_domain_match",
         "task_signal_match",
         "filename_match",
         "canonical_helper_relevance",
-        "pitfall_match",
-        "runtime_sensitivity",
+        "recent_pass_match",
         "verification_lane_match"
       ],
       "freshness_state": "fresh"
     },
     {
-      "stable_id": "file__src__app__api__drops__recommendations__route-ts",
-      "path": "src/app/api/drops/recommendations/route.ts",
-      "score": 144,
-      "why_selected": "path_domain_match, task_signal_match, filename_match, canonical_helper_relevance, adjacency_match, pitfall_match, runtime_sensitivity, verification_lane_match",
+      "stable_id": "file__scripts__agent__build-task-context-ts",
+      "path": "scripts/agent/build-task-context.ts",
+      "score": 136,
+      "why_selected": "path_domain_match, task_signal_match, filename_match, canonical_helper_relevance, adjacency_match, recent_pass_match, verification_lane_match",
       "weighted_components": [
         "path_domain_match",
         "task_signal_match",
         "filename_match",
         "canonical_helper_relevance",
         "adjacency_match",
-        "pitfall_match",
-        "runtime_sensitivity",
+        "recent_pass_match",
         "verification_lane_match"
       ],
       "freshness_state": "fresh"
     },
     {
-      "stable_id": "file__src__lib__admin-analytics-truth-ts",
-      "path": "src/lib/admin-analytics-truth.ts",
-      "score": 142,
-      "why_selected": "path_domain_match, task_signal_match, filename_match, canonical_helper_relevance, recent_pass_match, pitfall_match, runtime_sensitivity, verification_lane_match",
+      "stable_id": "file__scripts__agent__run-evals-ts",
+      "path": "scripts/agent/run-evals.ts",
+      "score": 136,
+      "why_selected": "path_domain_match, task_signal_match, filename_match, canonical_helper_relevance, adjacency_match, recent_pass_match, verification_lane_match",
       "weighted_components": [
         "path_domain_match",
         "task_signal_match",
         "filename_match",
         "canonical_helper_relevance",
+        "adjacency_match",
         "recent_pass_match",
-        "pitfall_match",
-        "runtime_sensitivity",
         "verification_lane_match"
       ],
       "freshness_state": "fresh"
     },
     {
-      "stable_id": "file__src__lib__server__admin-analytics-capture-health-ts",
-      "path": "src/lib/server/admin-analytics-capture-health.ts",
-      "score": 142,
-      "why_selected": "path_domain_match, task_signal_match, filename_match, canonical_helper_relevance, recent_pass_match, pitfall_match, runtime_sensitivity, verification_lane_match",
+      "stable_id": "file__scripts__agent__build-ui-surface-coverage-ts",
+      "path": "scripts/agent/build-ui-surface-coverage.ts",
+      "score": 122,
+      "why_selected": "path_domain_match, task_signal_match, filename_match, canonical_helper_relevance, adjacency_match, verification_lane_match",
       "weighted_components": [
         "path_domain_match",
         "task_signal_match",
         "filename_match",
         "canonical_helper_relevance",
-        "recent_pass_match",
-        "pitfall_match",
-        "runtime_sensitivity",
+        "adjacency_match",
         "verification_lane_match"
       ],
       "freshness_state": "fresh"
     },
     {
-      "stable_id": "file__src__lib__server__admin-analytics-historical-validation-ts",
-      "path": "src/lib/server/admin-analytics-historical-validation.ts",
-      "score": 142,
-      "why_selected": "path_domain_match, task_signal_match, filename_match, canonical_helper_relevance, recent_pass_match, pitfall_match, runtime_sensitivity, verification_lane_match",
+      "stable_id": "file__scripts__agent__check-agent-context-ts",
+      "path": "scripts/agent/check-agent-context.ts",
+      "score": 122,
+      "why_selected": "path_domain_match, task_signal_match, filename_match, canonical_helper_relevance, adjacency_match, verification_lane_match",
       "weighted_components": [
         "path_domain_match",
         "task_signal_match",
         "filename_match",
         "canonical_helper_relevance",
-        "recent_pass_match",
-        "pitfall_match",
-        "runtime_sensitivity",
+        "adjacency_match",
         "verification_lane_match"
       ],
       "freshness_state": "fresh"
     },
     {
-      "stable_id": "file__src__app__api__admin__analytics__historical__route-ts",
-      "path": "src/app/api/admin/analytics/historical/route.ts",
-      "score": 142,
-      "why_selected": "path_domain_match, task_signal_match, filename_match, canonical_helper_relevance, recent_pass_match, pitfall_match, runtime_sensitivity, verification_lane_match",
+      "stable_id": "file__scripts__agent__classify-repo-files-ts",
+      "path": "scripts/agent/classify-repo-files.ts",
+      "score": 122,
+      "why_selected": "path_domain_match, task_signal_match, filename_match, canonical_helper_relevance, adjacency_match, verification_lane_match",
       "weighted_components": [
         "path_domain_match",
         "task_signal_match",
         "filename_match",
         "canonical_helper_relevance",
-        "recent_pass_match",
-        "pitfall_match",
-        "runtime_sensitivity",
+        "adjacency_match",
         "verification_lane_match"
       ],
       "freshness_state": "fresh"
     },
     {
-      "stable_id": "file__src__app__api__admin__analytics__realtime__route-ts",
-      "path": "src/app/api/admin/analytics/realtime/route.ts",
-      "score": 142,
-      "why_selected": "path_domain_match, task_signal_match, filename_match, canonical_helper_relevance, recent_pass_match, pitfall_match, runtime_sensitivity, verification_lane_match",
+      "stable_id": "file__scripts__agent__extract-canonical-helpers-ts",
+      "path": "scripts/agent/extract-canonical-helpers.ts",
+      "score": 122,
+      "why_selected": "path_domain_match, task_signal_match, filename_match, canonical_helper_relevance, adjacency_match, verification_lane_match",
       "weighted_components": [
         "path_domain_match",
         "task_signal_match",
         "filename_match",
         "canonical_helper_relevance",
-        "recent_pass_match",
-        "pitfall_match",
-        "runtime_sensitivity",
+        "adjacency_match",
         "verification_lane_match"
       ],
       "freshness_state": "fresh"
     },
     {
-      "stable_id": "file__src__lib__telemetry-ts",
-      "path": "src/lib/telemetry.ts",
-      "score": 134,
-      "why_selected": "path_domain_match, task_signal_match, filename_match, canonical_helper_relevance, pitfall_match, runtime_sensitivity, verification_lane_match, high_inbound_bonus",
+      "stable_id": "file__scripts__agent__extract-governance-ts",
+      "path": "scripts/agent/extract-governance.ts",
+      "score": 122,
+      "why_selected": "path_domain_match, task_signal_match, filename_match, canonical_helper_relevance, adjacency_match, verification_lane_match",
       "weighted_components": [
         "path_domain_match",
         "task_signal_match",
         "filename_match",
         "canonical_helper_relevance",
-        "pitfall_match",
-        "runtime_sensitivity",
-        "verification_lane_match",
-        "high_inbound_bonus"
-      ],
-      "freshness_state": "fresh"
-    },
-    {
-      "stable_id": "file__src__components__analytics__pageviewevent-tsx",
-      "path": "src/components/Analytics/PageViewEvent.tsx",
-      "score": 134,
-      "why_selected": "path_domain_match, task_signal_match, filename_match, canonical_helper_relevance, pitfall_match, runtime_sensitivity, verification_lane_match, high_inbound_bonus",
-      "weighted_components": [
-        "path_domain_match",
-        "task_signal_match",
-        "filename_match",
-        "canonical_helper_relevance",
-        "pitfall_match",
-        "runtime_sensitivity",
-        "verification_lane_match",
-        "high_inbound_bonus"
-      ],
-      "freshness_state": "fresh"
-    },
-    {
-      "stable_id": "file__src__lib__server__analytics-ts",
-      "path": "src/lib/server/analytics.ts",
-      "score": 134,
-      "why_selected": "path_domain_match, task_signal_match, filename_match, canonical_helper_relevance, pitfall_match, runtime_sensitivity, verification_lane_match, high_inbound_bonus",
-      "weighted_components": [
-        "path_domain_match",
-        "task_signal_match",
-        "filename_match",
-        "canonical_helper_relevance",
-        "pitfall_match",
-        "runtime_sensitivity",
-        "verification_lane_match",
-        "high_inbound_bonus"
-      ],
-      "freshness_state": "fresh"
-    },
-    {
-      "stable_id": "file__scripts__check-analytics-continuity-ts",
-      "path": "scripts/check-analytics-continuity.ts",
-      "score": 132,
-      "why_selected": "path_domain_match, task_signal_match, filename_match, canonical_helper_relevance, recent_pass_match, pitfall_match, verification_lane_match",
-      "weighted_components": [
-        "path_domain_match",
-        "task_signal_match",
-        "filename_match",
-        "canonical_helper_relevance",
-        "recent_pass_match",
-        "pitfall_match",
+        "adjacency_match",
         "verification_lane_match"
       ],
       "freshness_state": "fresh"
     },
     {
-      "stable_id": "file__src__app__admin__analytics__page-tsx",
-      "path": "src/app/admin/analytics/page.tsx",
-      "score": 130,
-      "why_selected": "path_domain_match, task_signal_match, filename_match, canonical_helper_relevance, recent_pass_match, runtime_sensitivity, verification_lane_match",
+      "stable_id": "file__scripts__agent__extract-runtime-observability-ts",
+      "path": "scripts/agent/extract-runtime-observability.ts",
+      "score": 122,
+      "why_selected": "path_domain_match, task_signal_match, filename_match, canonical_helper_relevance, adjacency_match, verification_lane_match",
       "weighted_components": [
         "path_domain_match",
         "task_signal_match",
         "filename_match",
         "canonical_helper_relevance",
-        "recent_pass_match",
-        "runtime_sensitivity",
+        "adjacency_match",
+        "verification_lane_match"
+      ],
+      "freshness_state": "fresh"
+    },
+    {
+      "stable_id": "file__scripts__agent__extract-workflow-ts",
+      "path": "scripts/agent/extract-workflow.ts",
+      "score": 122,
+      "why_selected": "path_domain_match, task_signal_match, filename_match, canonical_helper_relevance, adjacency_match, verification_lane_match",
+      "weighted_components": [
+        "path_domain_match",
+        "task_signal_match",
+        "filename_match",
+        "canonical_helper_relevance",
+        "adjacency_match",
+        "verification_lane_match"
+      ],
+      "freshness_state": "fresh"
+    },
+    {
+      "stable_id": "file__scripts__agent__shared-ts",
+      "path": "scripts/agent/shared.ts",
+      "score": 122,
+      "why_selected": "path_domain_match, task_signal_match, filename_match, canonical_helper_relevance, adjacency_match, verification_lane_match",
+      "weighted_components": [
+        "path_domain_match",
+        "task_signal_match",
+        "filename_match",
+        "canonical_helper_relevance",
+        "adjacency_match",
+        "verification_lane_match"
+      ],
+      "freshness_state": "fresh"
+    },
+    {
+      "stable_id": "file__scripts__agent__summarize-dependency-graph-ts",
+      "path": "scripts/agent/summarize-dependency-graph.ts",
+      "score": 122,
+      "why_selected": "path_domain_match, task_signal_match, filename_match, canonical_helper_relevance, adjacency_match, verification_lane_match",
+      "weighted_components": [
+        "path_domain_match",
+        "task_signal_match",
+        "filename_match",
+        "canonical_helper_relevance",
+        "adjacency_match",
         "verification_lane_match"
       ],
       "freshness_state": "fresh"
     }
   ],
   "relevantUiSurfaces": [
-    {
-      "route_or_component": "src/app/admin/analytics/page.tsx",
-      "criticality": "high",
-      "hydration_mode": "static",
-      "coverage_notes": [
-        "Auth-required surface indexed with admin audit requirement.",
-        "Mapped to app_routes."
-      ]
-    },
     {
       "route_or_component": "src/app/(legal)/privacy/page.tsx",
       "criticality": "medium",
@@ -476,6 +414,15 @@
     },
     {
       "route_or_component": "src/app/admin/ai/page.tsx",
+      "criticality": "high",
+      "hydration_mode": "static",
+      "coverage_notes": [
+        "Auth-required surface indexed with admin audit requirement.",
+        "Mapped to app_routes."
+      ]
+    },
+    {
+      "route_or_component": "src/app/admin/analytics/page.tsx",
       "criticality": "high",
       "hydration_mode": "static",
       "coverage_notes": [

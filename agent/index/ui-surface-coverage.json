@@ -1,5 +1,5 @@
 {
-  "generatedAt": "2026-04-21T15:09:58.265Z",
+  "generatedAt": "2026-04-22T19:00:56.317Z",
   "truthOrder": [
     "verified_runtime_code",
     "verified_configuration",
@@ -94,6 +94,7 @@
       "lighthouse_required": false,
       "existing_tests": [
         "tests/ui-audits/runtime.spec.ts",
+        "tests/unit/admin-ai-debug-runtime.spec.ts",
         "tests/unit/admin-ai-drop-cover-catalog.spec.ts",
         "tests/unit/admin-ai-drop-covers-feedback-route.spec.ts",
         "tests/unit/admin-ai-drop-covers-generate-route.spec.ts",
@@ -104,7 +105,9 @@
         "tests/unit/admin-ai-models.spec.ts",
         "tests/unit/admin-analytics-capture-health.spec.ts",
         "tests/unit/admin-analytics-data.spec.ts",
+        "tests/unit/admin-analytics-historical-tasks.spec.ts",
         "tests/unit/admin-analytics-historical-users.spec.ts",
+        "tests/unit/admin-analytics-page.spec.tsx",
         "tests/unit/admin-analytics-realtime-route.spec.ts",
         "tests/unit/admin-analytics-truth.spec.ts",
         "tests/unit/admin-auth-outcome-chart.spec.ts",
@@ -168,6 +171,7 @@
         "admin"
       ],
       "runtime_dependencies": [
+        "src/lib/client-error-reporting.ts",
         "src/lib/telemetry-catalog.ts",
         "src/lib/utils.ts"
       ],
@@ -177,6 +181,7 @@
       "lighthouse_required": false,
       "existing_tests": [
         "tests/ui-audits/runtime.spec.ts",
+        "tests/unit/admin-ai-debug-runtime.spec.ts",
         "tests/unit/admin-ai-drop-cover-catalog.spec.ts",
         "tests/unit/admin-ai-drop-covers-feedback-route.spec.ts",
         "tests/unit/admin-ai-drop-covers-generate-route.spec.ts",
@@ -187,7 +192,9 @@
         "tests/unit/admin-ai-models.spec.ts",
         "tests/unit/admin-analytics-capture-health.spec.ts",
         "tests/unit/admin-analytics-data.spec.ts",
+        "tests/unit/admin-analytics-historical-tasks.spec.ts",
         "tests/unit/admin-analytics-historical-users.spec.ts",
+        "tests/unit/admin-analytics-page.spec.tsx",
         "tests/unit/admin-analytics-realtime-route.spec.ts",
         "tests/unit/admin-analytics-truth.spec.ts",
         "tests/unit/admin-auth-outcome-chart.spec.ts",
@@ -222,9 +229,13 @@
       "known_gap": "auth_required_surface_not_in_guest_playwright_lane",
       "blocking_required": false,
       "runtime_canary": {
-        "protected": false,
-        "helper_paths": [],
+        "protected": true,
+        "helper_paths": [
+          "src/app/admin/analytics/page.tsx"
+        ],
         "observability_lanes": [
+          "server_diagnostics",
+          "route_runtime_health",
           "admin_ui_chart_health"
         ]
       },
@@ -263,6 +274,7 @@
       "lighthouse_required": false,
       "existing_tests": [
         "tests/ui-audits/runtime.spec.ts",
+        "tests/unit/admin-ai-debug-runtime.spec.ts",
         "tests/unit/admin-ai-drop-cover-catalog.spec.ts",
         "tests/unit/admin-ai-drop-covers-feedback-route.spec.ts",
         "tests/unit/admin-ai-drop-covers-generate-route.spec.ts",
@@ -273,7 +285,9 @@
         "tests/unit/admin-ai-models.spec.ts",
         "tests/unit/admin-analytics-capture-health.spec.ts",
         "tests/unit/admin-analytics-data.spec.ts",
+        "tests/unit/admin-analytics-historical-tasks.spec.ts",
         "tests/unit/admin-analytics-historical-users.spec.ts",
+        "tests/unit/admin-analytics-page.spec.tsx",
         "tests/unit/admin-analytics-realtime-route.spec.ts",
         "tests/unit/admin-analytics-truth.spec.ts",
         "tests/unit/admin-auth-outcome-chart.spec.ts",
@@ -361,6 +375,7 @@
       "lighthouse_required": false,
       "existing_tests": [
         "tests/ui-audits/runtime.spec.ts",
+        "tests/unit/admin-ai-debug-runtime.spec.ts",
         "tests/unit/admin-ai-drop-cover-catalog.spec.ts",
         "tests/unit/admin-ai-drop-covers-feedback-route.spec.ts",
         "tests/unit/admin-ai-drop-covers-generate-route.spec.ts",
@@ -371,7 +386,9 @@
         "tests/unit/admin-ai-models.spec.ts",
         "tests/unit/admin-analytics-capture-health.spec.ts",
         "tests/unit/admin-analytics-data.spec.ts",
+        "tests/unit/admin-analytics-historical-tasks.spec.ts",
         "tests/unit/admin-analytics-historical-users.spec.ts",
+        "tests/unit/admin-analytics-page.spec.tsx",
         "tests/unit/admin-analytics-realtime-route.spec.ts",
         "tests/unit/admin-analytics-truth.spec.ts",
         "tests/unit/admin-auth-outcome-chart.spec.ts",
@@ -458,6 +475,7 @@
       "lighthouse_required": false,
       "existing_tests": [
         "tests/ui-audits/runtime.spec.ts",
+        "tests/unit/admin-ai-debug-runtime.spec.ts",
         "tests/unit/admin-ai-drop-cover-catalog.spec.ts",
         "tests/unit/admin-ai-drop-covers-feedback-route.spec.ts",
         "tests/unit/admin-ai-drop-covers-generate-route.spec.ts",
@@ -468,7 +486,9 @@
         "tests/unit/admin-ai-models.spec.ts",
         "tests/unit/admin-analytics-capture-health.spec.ts",
         "tests/unit/admin-analytics-data.spec.ts",
+        "tests/unit/admin-analytics-historical-tasks.spec.ts",
         "tests/unit/admin-analytics-historical-users.spec.ts",
+        "tests/unit/admin-analytics-page.spec.tsx",
         "tests/unit/admin-analytics-realtime-route.spec.ts",
         "tests/unit/admin-analytics-truth.spec.ts",
         "tests/unit/admin-auth-outcome-chart.spec.ts",
@@ -547,6 +567,7 @@
       "lighthouse_required": false,
       "existing_tests": [
         "tests/ui-audits/runtime.spec.ts",
+        "tests/unit/admin-ai-debug-runtime.spec.ts",
         "tests/unit/admin-ai-drop-cover-catalog.spec.ts",
         "tests/unit/admin-ai-drop-covers-feedback-route.spec.ts",
         "tests/unit/admin-ai-drop-covers-generate-route.spec.ts",
@@ -557,7 +578,9 @@
         "tests/unit/admin-ai-models.spec.ts",
         "tests/unit/admin-analytics-capture-health.spec.ts",
         "tests/unit/admin-analytics-data.spec.ts",
+        "tests/unit/admin-analytics-historical-tasks.spec.ts",
         "tests/unit/admin-analytics-historical-users.spec.ts",
+        "tests/unit/admin-analytics-page.spec.tsx",
         "tests/unit/admin-analytics-realtime-route.spec.ts",
         "tests/unit/admin-analytics-truth.spec.ts",
         "tests/unit/admin-auth-outcome-chart.spec.ts",
@@ -628,6 +651,7 @@
       "lighthouse_required": false,
       "existing_tests": [
         "tests/ui-audits/runtime.spec.ts",
+        "tests/unit/admin-ai-debug-runtime.spec.ts",
         "tests/unit/admin-ai-drop-cover-catalog.spec.ts",
         "tests/unit/admin-ai-drop-covers-feedback-route.spec.ts",
         "tests/unit/admin-ai-drop-covers-generate-route.spec.ts",
@@ -638,7 +662,9 @@
         "tests/unit/admin-ai-models.spec.ts",
         "tests/unit/admin-analytics-capture-health.spec.ts",
         "tests/unit/admin-analytics-data.spec.ts",
+        "tests/unit/admin-analytics-historical-tasks.spec.ts",
         "tests/unit/admin-analytics-historical-users.spec.ts",
+        "tests/unit/admin-analytics-page.spec.tsx",
         "tests/unit/admin-analytics-realtime-route.spec.ts",
         "tests/unit/admin-analytics-truth.spec.ts",
         "tests/unit/admin-auth-outcome-chart.spec.ts",
@@ -713,6 +739,7 @@
       "lighthouse_required": false,
       "existing_tests": [
         "tests/ui-audits/runtime.spec.ts",
+        "tests/unit/admin-ai-debug-runtime.spec.ts",
         "tests/unit/admin-ai-drop-cover-catalog.spec.ts",
         "tests/unit/admin-ai-drop-covers-feedback-route.spec.ts",
         "tests/unit/admin-ai-drop-covers-generate-route.spec.ts",
@@ -723,7 +750,9 @@
         "tests/unit/admin-ai-models.spec.ts",
         "tests/unit/admin-analytics-capture-health.spec.ts",
         "tests/unit/admin-analytics-data.spec.ts",
+        "tests/unit/admin-analytics-historical-tasks.spec.ts",
         "tests/unit/admin-analytics-historical-users.spec.ts",
+        "tests/unit/admin-analytics-page.spec.tsx",
         "tests/unit/admin-analytics-realtime-route.spec.ts",
         "tests/unit/admin-analytics-truth.spec.ts",
         "tests/unit/admin-auth-outcome-chart.spec.ts",
@@ -793,6 +822,7 @@
       "lighthouse_required": false,
       "existing_tests": [
         "tests/ui-audits/runtime.spec.ts",
+        "tests/unit/admin-ai-debug-runtime.spec.ts",
         "tests/unit/admin-ai-drop-cover-catalog.spec.ts",
         "tests/unit/admin-ai-drop-covers-feedback-route.spec.ts",
         "tests/unit/admin-ai-drop-covers-generate-route.spec.ts",
@@ -803,7 +833,9 @@
         "tests/unit/admin-ai-models.spec.ts",
         "tests/unit/admin-analytics-capture-health.spec.ts",
         "tests/unit/admin-analytics-data.spec.ts",
+        "tests/unit/admin-analytics-historical-tasks.spec.ts",
         "tests/unit/admin-analytics-historical-users.spec.ts",
+        "tests/unit/admin-analytics-page.spec.tsx",
         "tests/unit/admin-analytics-realtime-route.spec.ts",
         "tests/unit/admin-analytics-truth.spec.ts",
         "tests/unit/admin-auth-outcome-chart.spec.ts",
@@ -882,6 +914,7 @@
       "lighthouse_required": false,
       "existing_tests": [
         "tests/ui-audits/runtime.spec.ts",
+        "tests/unit/admin-ai-debug-runtime.spec.ts",
         "tests/unit/admin-ai-drop-cover-catalog.spec.ts",
         "tests/unit/admin-ai-drop-covers-feedback-route.spec.ts",
         "tests/unit/admin-ai-drop-covers-generate-route.spec.ts",
@@ -892,7 +925,9 @@
         "tests/unit/admin-ai-models.spec.ts",
         "tests/unit/admin-analytics-capture-health.spec.ts",
         "tests/unit/admin-analytics-data.spec.ts",
+        "tests/unit/admin-analytics-historical-tasks.spec.ts",
         "tests/unit/admin-analytics-historical-users.spec.ts",
+        "tests/unit/admin-analytics-page.spec.tsx",
         "tests/unit/admin-analytics-realtime-route.spec.ts",
         "tests/unit/admin-analytics-truth.spec.ts",
         "tests/unit/admin-auth-outcome-chart.spec.ts",
@@ -977,6 +1012,7 @@
       "lighthouse_required": false,
       "existing_tests": [
         "tests/ui-audits/runtime.spec.ts",
+        "tests/unit/admin-ai-debug-runtime.spec.ts",
         "tests/unit/admin-ai-drop-cover-catalog.spec.ts",
         "tests/unit/admin-ai-drop-covers-feedback-route.spec.ts",
         "tests/unit/admin-ai-drop-covers-generate-route.spec.ts",
@@ -987,7 +1023,9 @@
         "tests/unit/admin-ai-models.spec.ts",
         "tests/unit/admin-analytics-capture-health.spec.ts",
         "tests/unit/admin-analytics-data.spec.ts",
+        "tests/unit/admin-analytics-historical-tasks.spec.ts",
         "tests/unit/admin-analytics-historical-users.spec.ts",
+        "tests/unit/admin-analytics-page.spec.tsx",
         "tests/unit/admin-analytics-realtime-route.spec.ts",
         "tests/unit/admin-analytics-truth.spec.ts",
         "tests/unit/admin-auth-outcome-chart.spec.ts",
@@ -1061,6 +1099,7 @@
       "lighthouse_required": false,
       "existing_tests": [
         "tests/ui-audits/runtime.spec.ts",
+        "tests/unit/admin-ai-debug-runtime.spec.ts",
         "tests/unit/admin-ai-drop-cover-catalog.spec.ts",
         "tests/unit/admin-ai-drop-covers-feedback-route.spec.ts",
         "tests/unit/admin-ai-drop-covers-generate-route.spec.ts",
@@ -1071,7 +1110,9 @@
         "tests/unit/admin-ai-models.spec.ts",
         "tests/unit/admin-analytics-capture-health.spec.ts",
         "tests/unit/admin-analytics-data.spec.ts",
+        "tests/unit/admin-analytics-historical-tasks.spec.ts",
         "tests/unit/admin-analytics-historical-users.spec.ts",
+        "tests/unit/admin-analytics-page.spec.tsx",
         "tests/unit/admin-analytics-realtime-route.spec.ts",
         "tests/unit/admin-analytics-truth.spec.ts",
         "tests/unit/admin-auth-outcome-chart.spec.ts",
@@ -1150,6 +1191,7 @@
       "lighthouse_required": false,
       "existing_tests": [
         "tests/ui-audits/runtime.spec.ts",
+        "tests/unit/admin-ai-debug-runtime.spec.ts",
         "tests/unit/admin-ai-drop-cover-catalog.spec.ts",
         "tests/unit/admin-ai-drop-covers-feedback-route.spec.ts",
         "tests/unit/admin-ai-drop-covers-generate-route.spec.ts",
@@ -1160,7 +1202,9 @@
         "tests/unit/admin-ai-models.spec.ts",
         "tests/unit/admin-analytics-capture-health.spec.ts",
         "tests/unit/admin-analytics-data.spec.ts",
+        "tests/unit/admin-analytics-historical-tasks.spec.ts",
         "tests/unit/admin-analytics-historical-users.spec.ts",
+        "tests/unit/admin-analytics-page.spec.tsx",
         "tests/unit/admin-analytics-realtime-route.spec.ts",
         "tests/unit/admin-analytics-truth.spec.ts",
         "tests/unit/admin-auth-outcome-chart.spec.ts",
@@ -1244,6 +1288,7 @@
       "lighthouse_required": false,
       "existing_tests": [
         "tests/ui-audits/runtime.spec.ts",
+        "tests/unit/admin-ai-debug-runtime.spec.ts",
         "tests/unit/admin-ai-drop-cover-catalog.spec.ts",
         "tests/unit/admin-ai-drop-covers-feedback-route.spec.ts",
         "tests/unit/admin-ai-drop-covers-generate-route.spec.ts",
@@ -1254,7 +1299,9 @@
         "tests/unit/admin-ai-models.spec.ts",
         "tests/unit/admin-analytics-capture-health.spec.ts",
         "tests/unit/admin-analytics-data.spec.ts",
+        "tests/unit/admin-analytics-historical-tasks.spec.ts",
         "tests/unit/admin-analytics-historical-users.spec.ts",
+        "tests/unit/admin-analytics-page.spec.tsx",
         "tests/unit/admin-analytics-realtime-route.spec.ts",
         "tests/unit/admin-analytics-truth.spec.ts",
         "tests/unit/admin-auth-outcome-chart.spec.ts",
@@ -1822,6 +1869,7 @@
       ],
       "runtime_dependencies": [
         "src/lib/drop-status.ts",
+        "src/lib/server/creator-discovery.ts",
         "src/lib/server/drops.ts"
       ],
       "hydration_mode": "static",

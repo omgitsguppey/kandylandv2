@@ -1,5 +1,5 @@
 {
-  "generatedAt": "2026-04-21T15:09:58.221Z",
+  "generatedAt": "2026-04-22T19:00:56.217Z",
   "truthOrder": [
     "verified_runtime_code",
     "verified_configuration",
@@ -360,6 +360,23 @@
     {
       "stable_id": "command__root-behavioral-rebuild",
       "command": "npm run behavioral:rebuild",
+      "scopeType": "ui",
+      "root_or_functions": "root",
+      "requiredWhen": [],
+      "optionalWhen": [
+        "Run when the touched surface overlaps the command lane."
+      ],
+      "cleanupExpected": [],
+      "broadSignoffWeight": 1,
+      "verifies_runtime": false,
+      "verifies_ui": false,
+      "verifies_rules": false,
+      "verifies_inventory": false,
+      "verifies_continuity": false
+    },
+    {
+      "stable_id": "command__root-analytics-truth-rebuild",
+      "command": "npm run analytics:truth:rebuild",
       "scopeType": "ui",
       "root_or_functions": "root",
       "requiredWhen": [],
@@ -1307,6 +1324,40 @@
       "cleanupExpected": [],
       "broadSignoffWeight": 7,
       "verifies_runtime": true,
+      "verifies_ui": false,
+      "verifies_rules": false,
+      "verifies_inventory": false,
+      "verifies_continuity": false
+    },
+    {
+      "stable_id": "command__functions-rebuild-analytics-truth",
+      "command": "npm --prefix functions run rebuild:analytics-truth",
+      "scopeType": "functions",
+      "root_or_functions": "functions",
+      "requiredWhen": [],
+      "optionalWhen": [
+        "Functions-lane maintenance."
+      ],
+      "cleanupExpected": [],
+      "broadSignoffWeight": 1,
+      "verifies_runtime": false,
+      "verifies_ui": false,
+      "verifies_rules": false,
+      "verifies_inventory": false,
+      "verifies_continuity": false
+    },
+    {
+      "stable_id": "command__functions-rebuild-behavioral-intelligence",
+      "command": "npm --prefix functions run rebuild:behavioral-intelligence",
+      "scopeType": "functions",
+      "root_or_functions": "functions",
+      "requiredWhen": [],
+      "optionalWhen": [
+        "Functions-lane maintenance."
+      ],
+      "cleanupExpected": [],
+      "broadSignoffWeight": 1,
+      "verifies_runtime": false,
       "verifies_ui": false,
       "verifies_rules": false,
       "verifies_inventory": false,
