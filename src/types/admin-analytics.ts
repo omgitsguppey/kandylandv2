@@ -129,6 +129,10 @@ export interface RealtimeActiveUserItem {
   lastSemanticScopeLabel: string;
   lastComponentName: string;
   lastEventModules: string;
+  actorType?: "guest" | "identified";
+  sourceLabel?: string;
+  truthLabel?: "live" | "fallback";
+  sessionKey?: string;
 }
 
 export interface OnboardingStepStatItem {

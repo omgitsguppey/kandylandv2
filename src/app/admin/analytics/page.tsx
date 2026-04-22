@@ -55,7 +55,7 @@ const AdminTruthSurfaces = dynamic(
 );
 export default function AdminAnalyticsPage() {
     const state = useAdminAnalyticsState();
-  const { range, activeViewerFilter, viewerUserFilter, showHistoricalEmptyState, blockingAnalyticsError, mobileShare, mobileUsers, commerce, funnel, analyticsWarmState, liveSnapshotLabel, historicalSnapshotLabel, isBackgroundSyncing, analyticsSectionHealthSummary, needsSetup, activeTab, setActiveTab, liveLoading, historicalLoading, isPrimingAnalytics, liveResponse, backgroundAnalyticsIssues, analyticsSectionHealth } = state;
+  const { range, activeViewerFilter, viewerUserFilter, showHistoricalEmptyState, blockingAnalyticsError, mobileShare, mobileUsers, commerce, funnel, analyticsWarmState, liveSnapshotLabel, historicalSnapshotLabel, isBackgroundSyncing, analyticsSectionHealthSummary, needsSetup, activeTab, setActiveTab, liveLoading, historicalLoading, isPrimingAnalytics, liveResponse, backgroundAnalyticsIssues, analyticsSectionHealth, liveFeedStatus, liveFeedDetail, liveGuestActiveCount } = state;
   const handleClearAllFilters = state.clearAllFilters ?? (() => {
     reportClientIssue({
       channel: "runtime",
@@ -101,11 +101,13 @@ export default function AdminAnalyticsPage() {
 
       <div className="grid grid-cols-2 gap-2.5 md:grid-cols-4">
         <MetricCard
-          label="Live GA"
+          label="Live Active"
           value={formatCompactNumber(liveResponse?.totalActive ?? 0)}
-          hint={liveResponse?.liveTruthLabel === "fallback"
-            ? "Active in the last 30 mins from first-party fallback"
-            : "Active in the last 30 mins"}
+          hint={liveFeedStatus === "realtime"
+            ? `${formatCompactNumber(liveGuestActiveCount ?? 0)} guests visible from canonical Firestore realtime`
+            : liveResponse?.liveTruthLabel === "fallback"
+              ? "Active in the last 30 mins from first-party fallback"
+              : "Active in the last 30 mins"}
           icon={Activity}
         />
         <MetricCard
@@ -137,6 +139,9 @@ export default function AdminAnalyticsPage() {
             {analyticsWarmState}
           </span>
           <span className="rounded-full border border-white/10 bg-black/30 px-2 py-1 text-[10px] font-bold uppercase tracking-[0.14em] text-gray-300">
+            Realtime {liveFeedStatus}
+          </span>
+          <span className="rounded-full border border-white/10 bg-black/30 px-2 py-1 text-[10px] font-bold uppercase tracking-[0.14em] text-gray-300">
             Live {liveSnapshotLabel}
           </span>
           <span className="rounded-full border border-white/10 bg-black/30 px-2 py-1 text-[10px] font-bold uppercase tracking-[0.14em] text-gray-300">
@@ -148,6 +153,9 @@ export default function AdminAnalyticsPage() {
               Syncing
             </span>
           ) : null}
+          <span className="text-xs text-gray-400">
+            {liveFeedDetail}
+          </span>
         </div>
 
         <div className="flex flex-wrap items-center gap-2 rounded-2xl border border-white/10 bg-white/[0.03] px-3 py-2">

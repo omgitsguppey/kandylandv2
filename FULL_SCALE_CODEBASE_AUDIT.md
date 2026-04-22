@@ -1,5 +1,56 @@
 # KandyDrops Core Codebase Audit & Defensive Ledger
 
+## [2026-04-22 #31] Admin Analytics Realtime Presence Hardening
+
+Scope for this pass:
+- Stop treating admin analytics "realtime" as a 5-second polled summary when canonical first-party live collections already exist, and make guest presence visible in the live admin lane instead of implicitly disappearing behind GA and delayed history.
+
+Current-state findings before edits:
+- `src/app/admin/analytics/hooks/useAdminAnalyticsState.tsx` polled `/api/admin/analytics/realtime` every 5 seconds and used that payload as the effective live source.
+- `src/app/api/admin/analytics/realtime/route.ts` already mixed first-party Firestore truth with GA realtime, but that truth only arrived to the UI through a cached route response.
+- Guest activity was being captured canonically through:
+  - `src/app/api/analytics/ingest/route.ts`
+  - `analytics_guest_batches`
+  - `analytics_sessions`
+  but the admin live roster primarily framed live identities around authenticated-user lanes.
+- Guest browser capture was already near-live:
+  - `src/components/Analytics/DeepTracker.tsx` flushes on page view, visibility/pagehide, online recovery, and a 2.5s interval.
+- The main latency problem was admin consumption, not guest collection.
+
+Changes made:
+- Added `src/lib/admin-analytics-live-runtime.ts` to build a deterministic live roster, surface mix, and 30-minute live pulse from canonical first-party docs:
+  - `analytics_event_facts`
+  - `analytics_guest_batches`
+  - `analytics_sessions`
+  - `analytics_watch_sessions`
+- Added `src/app/admin/analytics/hooks/useAdminAnalyticsRealtime.ts` with Firestore `onSnapshot` listeners wrapped by `createAutoHealingObserver`, plus explicit client diagnostics when a live lane fails closed.
+- Hardened `src/app/admin/analytics/hooks/useAdminAnalyticsState.tsx` so:
+  - polling for `/api/admin/analytics/realtime` is demoted from 5s to 30s
+  - direct realtime listeners override the live pulse/identity/surface-mix lane when healthy
+  - the polled route remains a fallback and cold companion instead of the only live lane
+  - admin warm-state labels now distinguish realtime live, partial realtime, and fallback
+- Hardened admin surfaces to expose the shift truthfully:
+  - `src/app/admin/analytics/page.tsx`
+  - `src/app/admin/analytics/components/AdminAnalyticsOperationsTab.tsx`
+- Extended live identity typing in `src/types/admin-analytics.ts` and added targeted coverage in `tests/unit/admin-analytics-live-runtime.spec.ts`.
+
+Verification run:
+- `npm run typecheck`
+- `npx vitest run tests/unit/admin-analytics-live-runtime.spec.ts tests/unit/admin-analytics-page.spec.tsx`
+- `npm run check:ui:coverage`
+- `npm run check:ui:runtime`
+- `npm run check:telemetry`
+- `npm run check:analytics-semantics`
+- `npm run check:analytics:continuity`
+- `npm run check:ui:audits`
+- `npm run check:continuity`
+
+Truth status after edits:
+- Admin live analytics is no longer polling-first for current presence.
+- GA is no longer the only practical live source for "who is here now".
+- Guests now show up in the live identity lane when canonical guest telemetry is landing.
+- Polling still exists for fallback and historical/cached aggregates, but it is no longer the sole propagation path for the live admin roster.
+
 ## [2026-04-21 #30] Analytics Self-Snitching + Early Runtime Diagnostics Hardening
 
 Scope for this pass:

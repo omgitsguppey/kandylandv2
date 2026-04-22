@@ -67,7 +67,9 @@ export function AdminAnalyticsOperationsTab(props: any) {
                   )}
                   hint={liveResponse?.activeUsersTruthLabel === "fallback"
                     ? `Authenticated users reconstructed from ${liveResponse?.activeUsersSourceLabel || "first-party telemetry"}`
-                    : "Authenticated users active in the last 30 minutes"}
+                    : `${formatCompactNumber(
+                        liveActiveUsers.filter((item: any) => item.actorType === "guest").length,
+                      )} live guests plus authenticated users in the last 30 minutes`}
                   icon={Sparkles}
                 />
                 <MetricCard
@@ -231,7 +233,7 @@ export function AdminAnalyticsOperationsTab(props: any) {
                       </p>
                     </div>
                     <span className="rounded-full border border-white/10 bg-white/5 px-3 py-1 text-[11px] font-semibold text-gray-300">
-                      {liveActiveUsers.length} tracked
+                      {liveActiveUsers.length} live
                     </span>
                   </div>
                   <div className="space-y-3">
@@ -258,6 +260,19 @@ export function AdminAnalyticsOperationsTab(props: any) {
                             </span>
                           </div>
                           <div className="mt-3 flex flex-wrap gap-2">
+                            <span
+                              className={
+                                item.actorType === "guest"
+                                  ? "rounded-full border border-cyan-400/20 bg-cyan-500/10 px-2 py-1 text-[10px] font-semibold text-cyan-100"
+                                  : "rounded-full border border-white/10 bg-white/5 px-2 py-1 text-[10px] font-semibold text-gray-300"
+                              }
+                            >
+                              {item.actorType === "guest"
+                                ? item.sessionKey
+                                  ? `Guest ${item.sessionKey.slice(-6)}`
+                                  : "Guest"
+                                : "Authenticated"}
+                            </span>
                             <span className="rounded-full border border-white/10 bg-white/5 px-2 py-1 text-[10px] font-semibold text-gray-300">
                               {EVENT_LABELS[item.lastEventName] ||
                                 item.lastEventName ||

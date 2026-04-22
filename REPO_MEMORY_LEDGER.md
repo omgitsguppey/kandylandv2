@@ -24,6 +24,28 @@ This file is not a changelog. It is the concise ledger for durable decisions tha
 
 ## Decision Entries
 
+### 1ao. Admin analytics live presence must subscribe to canonical first-party telemetry and treat polling as fallback, not primary truth
+
+- Approximate date: Recorded explicitly on 2026-04-22 from the Admin Analytics Realtime Presence Hardening pass
+- Status: Active admin analytics serving rule
+- Problem/context: The repo already stored canonical live telemetry in Firestore (`analytics_event_facts`, `analytics_guest_batches`, `analytics_sessions`, `analytics_watch_sessions`), but `src/app/admin/analytics/hooks/useAdminAnalyticsState.tsx` still consumed "realtime" through a short-interval polled route snapshot. This made GA feel like the only practical live source and hid real guest presence behind delayed admin refresh cycles.
+- Decision made: For admin "who is here now / what are they doing now" surfaces, first-party Firestore listeners are the primary live lane. The server route remains a fallback and aggregate companion, not the only realtime transport.
+- What became canonical:
+  - `src/app/admin/analytics/hooks/useAdminAnalyticsRealtime.ts` owns the live Firestore subscription path
+  - `src/lib/admin-analytics-live-runtime.ts` deterministically derives the live roster, surface mix, and live pulse from canonical Firestore docs
+  - `src/app/admin/analytics/hooks/useAdminAnalyticsState.tsx` merges listener-driven live truth over the polled route only when the realtime lane is healthy or partially healthy
+  - guest presence is first-class in the live roster instead of being implied only by delayed history
+  - polling for `/api/admin/analytics/realtime` is reduced to a slower fallback cadence rather than a 5-second primary lane
+- Truth lives in:
+  - Firestore canonical collections for live activity
+  - `src/lib/admin-analytics-live-runtime.ts`
+  - `src/app/admin/analytics/hooks/useAdminAnalyticsRealtime.ts`
+  - `src/app/admin/analytics/hooks/useAdminAnalyticsState.tsx`
+- Consequence for future work:
+  - Do not build new admin live cards by shortening polling alone if a canonical live collection already exists.
+  - If a live lane fails, fail closed, self-snitch, and fall back explicitly.
+  - Keep GA as a useful companion for external analytics, not the sole operator truth for live on-site presence.
+
 ### 1an. Analytics/runtime truth should self-snitch at framework boot and on degraded serving paths, not only after delayed hydration or console inspection
 
 - Approximate date: Recorded explicitly on 2026-04-21 from the Analytics Self-Snitching + Early Runtime Diagnostics Hardening pass

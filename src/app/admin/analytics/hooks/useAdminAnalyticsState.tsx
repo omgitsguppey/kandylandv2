@@ -53,6 +53,7 @@ import {
   isRecentViolation,
   useHistoricalSectionOverride,
 } from "../AnalyticsHelpers";
+import { useAdminAnalyticsRealtime } from "./useAdminAnalyticsRealtime";
 
 const EVENT_LABELS: Record<string, string> = TELEMETRY_EVENT_LABELS;
 
@@ -225,9 +226,10 @@ const { user } = useAuth();
     isLoading: liveLoading,
   } = useAdminPollingSWR<RealtimeAnalyticsResponse>(
     "/api/admin/analytics/realtime",
-    5_000,
+    30_000,
     {
       keepPreviousData: true,
+      revalidateOnFocus: false,
     },
   );
 
@@ -373,14 +375,50 @@ const { user } = useAuth();
     "notificationFunnel",
     notificationFunnelRange,
   );
+  const liveRealtime = useAdminAnalyticsRealtime(nowMs);
+  const effectiveLiveResponse = useMemo<RealtimeAnalyticsResponse | undefined>(
+    () => {
+      if (
+        liveRealtime.feedStatus === "polled" ||
+        liveRealtime.feedStatus === "failed"
+      ) {
+        return liveResponse;
+      }
+
+      const base = liveResponse ?? { success: true };
+      return {
+        ...base,
+        generatedAtMs:
+          Math.max(base.generatedAtMs ?? 0, liveRealtime.generatedAtMs ?? 0) ||
+          base.generatedAtMs,
+        totalActive: liveRealtime.totalActive,
+        deepTrackerActive: liveRealtime.deepTrackerActive,
+        data: liveRealtime.data,
+        activeUsers: liveRealtime.activeUsers,
+        surfaceMix: liveRealtime.surfaceMix,
+        liveTruthLabel: liveRealtime.liveTruthLabel,
+        liveSourceLabel: liveRealtime.liveSourceLabel,
+        activeUsersTruthLabel: liveRealtime.activeUsersTruthLabel,
+        activeUsersSourceLabel: liveRealtime.activeUsersSourceLabel,
+        issues: [
+          ...(base.issues ?? []),
+          ...liveRealtime.issues,
+        ].filter(
+          (issue, index, array): issue is string =>
+            Boolean(issue) && array.indexOf(issue) === index,
+        ),
+      };
+    },
+    [liveRealtime, liveResponse],
+  );
 
   const liveSeries = useMemo(
     () =>
-      (liveResponse?.data ?? []).map((point) => ({
+      (effectiveLiveResponse?.data ?? []).map((point) => ({
         ...point,
         label: point.minute === 0 ? "Now" : `${point.minute}m`,
       })),
-    [liveResponse],
+    [effectiveLiveResponse],
   );
 
   const historySeries = historicalResponse?.data ?? [];
@@ -481,28 +519,31 @@ const { user } = useAuth();
   const userJourneys = historicalResponse?.userJourneys ?? [];
   const experienceContexts = historicalResponse?.experienceContexts ?? [];
   const securityReasons = historicalResponse?.securityReasons ?? [];
-  const liveActiveUsers = liveResponse?.activeUsers ?? [];
-  const liveSurfaceMix = liveResponse?.surfaceMix ?? [];
+  const liveActiveUsers = effectiveLiveResponse?.activeUsers ?? [];
+  const liveSurfaceMix = effectiveLiveResponse?.surfaceMix ?? [];
   const liveWatchCaptureHealth =
-    liveResponse?.watchCaptureHealth ?? EMPTY_WATCH_CAPTURE_HEALTH;
+    effectiveLiveResponse?.watchCaptureHealth ?? EMPTY_WATCH_CAPTURE_HEALTH;
 
   const needsSetup =
-    liveResponse?.requiresSetup ||
+    effectiveLiveResponse?.requiresSetup ||
     historicalResponse?.requiresSetup ||
     (liveError as { info?: { requiresSetup?: boolean } } | undefined)?.info
       ?.requiresSetup ||
     (historicalError as { info?: { requiresSetup?: boolean } } | undefined)
       ?.info?.requiresSetup;
   const backgroundAnalyticsIssues = [
-    liveResponse && liveError
+    effectiveLiveResponse && liveError
       ? `Realtime analytics: ${liveError.message || "Background refresh failed."}`
       : null,
     historicalResponse && historicalError
       ? `Historical analytics: ${historicalError.message || "Background refresh failed."}`
       : null,
-    ...(liveResponse?.issues || []).map(
+    ...(effectiveLiveResponse?.issues || []).map(
       (issue) => `Realtime analytics: ${issue}`,
     ),
+    ...(liveRealtime.feedStatus === "partial" || liveRealtime.feedStatus === "failed"
+      ? [`Realtime analytics: ${liveRealtime.feedDetail}`]
+      : []),
     ...(historicalResponse?.issues || []).map(
       (issue) => `Historical analytics: ${issue}`,
     ),
@@ -511,19 +552,30 @@ const { user } = useAuth();
       Boolean(issue) && array.indexOf(issue) === index,
   );
   const blockingAnalyticsError =
-    (!liveResponse && (liveError as Error | undefined)) ||
+    (!effectiveLiveResponse &&
+      ((liveError as Error | undefined) ||
+        (liveRealtime.feedStatus === "failed"
+          ? new Error(liveRealtime.feedDetail)
+          : undefined))) ||
     (!historicalResponse && (historicalError as Error | undefined)) ||
     null;
   const isPrimingAnalytics =
-    !liveResponse && !historicalResponse && (liveLoading || historicalLoading);
+    !effectiveLiveResponse &&
+    !historicalResponse &&
+    (liveLoading || historicalLoading);
   const isBackgroundSyncing =
-    (liveLoading || historicalLoading) &&
-    Boolean(liveResponse || historicalResponse);
+    historicalLoading && Boolean(effectiveLiveResponse || historicalResponse);
   const analyticsWarmState = isPrimingAnalytics
     ? "Fetching live data"
-    : isBackgroundSyncing
-      ? "Refreshing"
-      : "Polling enabled";
+    : liveRealtime.feedStatus === "realtime"
+      ? "Realtime live"
+      : liveRealtime.feedStatus === "partial"
+        ? "Realtime partial"
+        : liveRealtime.feedStatus === "failed"
+          ? "Realtime fallback"
+          : isBackgroundSyncing
+            ? "Refreshing"
+            : "Polled fallback";
 
   const totalDeviceUsers = devices.reduce((sum, item) => sum + item.users, 0);
   const mobileUsers =
@@ -641,8 +693,8 @@ const { user } = useAuth();
   const topUserJourneys = userJourneys.slice(0, 6);
   const topExperienceContexts = experienceContexts.slice(0, 6);
   const topSecurityReasons = securityReasons.slice(0, 8);
-  const liveSnapshotLabel = liveResponse?.generatedAtMs
-    ? formatRelativeTime(liveResponse.generatedAtMs, nowMs)
+  const liveSnapshotLabel = effectiveLiveResponse?.generatedAtMs
+    ? formatRelativeTime(effectiveLiveResponse.generatedAtMs, nowMs)
     : liveLoading
       ? "Fetching..."
       : "Awaiting snapshot";
@@ -1015,7 +1067,7 @@ const { user } = useAuth();
     !blockingAnalyticsError &&
     !historicalHasSignals;
   const liveBlockingIssues =
-    !liveResponse && liveError
+    !effectiveLiveResponse && liveError
       ? [liveError.message || "Realtime analytics request failed."]
       : [];
   const historicalBlockingIssues =
@@ -1023,12 +1075,15 @@ const { user } = useAuth();
       ? [historicalError.message || "Historical analytics request failed."]
       : [];
   const liveBackgroundIssues = [
-    liveResponse && liveError
+    effectiveLiveResponse && liveError
       ? `Realtime analytics refresh failed: ${liveError.message || "Background refresh failed."}`
       : null,
-    ...(liveResponse?.issues || []).map(
+    ...(effectiveLiveResponse?.issues || []).map(
       (issue) => `Realtime analytics issue: ${issue}`,
     ),
+    ...(liveRealtime.feedStatus === "partial" || liveRealtime.feedStatus === "failed"
+      ? [`Realtime analytics issue: ${liveRealtime.feedDetail}`]
+      : []),
   ].filter((issue): issue is string => Boolean(issue));
   const historicalBackgroundIssues = [
     historicalResponse && historicalError
@@ -1038,7 +1093,7 @@ const { user } = useAuth();
       (issue) => `Historical analytics issue: ${issue}`,
     ),
   ].filter((issue): issue is string => Boolean(issue));
-  const liveUpdatedAtMs = liveResponse?.generatedAtMs ?? 0;
+  const liveUpdatedAtMs = effectiveLiveResponse?.generatedAtMs ?? 0;
   const historicalUpdatedAtMs = historicalResponse?.generatedAtMs ?? 0;
   const buildHistoricalSectionState = (
     sectionLabel: string,
@@ -1215,15 +1270,15 @@ const { user } = useAuth();
       source: "mixed_client_live",
       updatedAtMs: Math.max(liveUpdatedAtMs, historicalUpdatedAtMs),
       hasLoaded:
-        Boolean(liveResponse) ||
+        Boolean(effectiveLiveResponse) ||
         Boolean(historicalResponse) ||
         Boolean(liveError) ||
         Boolean(historicalError),
       loading: liveLoading || historicalLoading,
       hasData:
         liveSeries.length > 0 ||
-        (liveResponse?.totalActive ?? 0) > 0 ||
-        (liveResponse?.deepTrackerActive ?? 0) > 0,
+        (effectiveLiveResponse?.totalActive ?? 0) > 0 ||
+        (effectiveLiveResponse?.deepTrackerActive ?? 0) > 0,
       blockingIssues: [...liveBlockingIssues, ...historicalBlockingIssues],
       backgroundIssues: [
         ...liveBackgroundIssues,
@@ -1336,7 +1391,7 @@ const { user } = useAuth();
         liveInteractionStreamState.updatedAtMs,
       ),
       hasLoaded:
-        Boolean(liveResponse) ||
+        Boolean(effectiveLiveResponse) ||
         liveInteractionStreamState.hasLoaded ||
         Boolean(liveError),
       loading: liveLoading || liveInteractionStreamState.loading,
@@ -1694,7 +1749,7 @@ const { user } = useAuth();
   return {
     user, activeTab, setActiveTab: setActiveTabDeferred, range, nowMs, viewerUserDraft, setViewerUserDraft, viewerUserFilter, setViewerUserFilter,
     moduleRanges, setModuleRanges, savingSectionKey, setSavingSectionKey, analyticsFilterStorageKey,
-    liveResponse, historicalResponse, liveError, historicalError, liveLoading, historicalLoading,
+    liveResponse: effectiveLiveResponse, historicalResponse, liveError, historicalError, liveLoading, historicalLoading,
     needsSetup, blockingAnalyticsError, isPrimingAnalytics, backgroundAnalyticsIssues, getSectionRange, renderSectionRangeControl,
     EVENT_LABELS, funnel, onboardingStats, onboardingDurationBuckets, onboardingStepStats, authBreakdown, historySeries,
     rawEvents, componentContexts, semanticCategories, devices, pages, geo, totals, commerce, activeViewerFilter,
@@ -1713,7 +1768,8 @@ const { user } = useAuth();
     PIE_COLORS, contentConversionRange, unlockCategoryMix, previewToUnlockRate, checkoutToPurchaseRate,
     topDropConversionRange, topDrops, recentCommerceFeedRange, feedItems, describeEvent, formatAbsoluteDateTime,
     formatMoney, formatCompactNumber, formatDuration, formatPercent, formatRelativeTime, analyticsSectionHealth,
-    liveSurfaceMix, liveActiveUsers, livePulseOnboardingStats, livePulseOnboardingStartCount, livePulseOnboardingCompletionRate, livePulseFunnel, liveSeries, journeyFunnelMetrics
+    liveSurfaceMix, liveActiveUsers, livePulseOnboardingStats, livePulseOnboardingStartCount, livePulseOnboardingCompletionRate, livePulseFunnel, liveSeries, journeyFunnelMetrics,
+    liveFeedStatus: liveRealtime.feedStatus, liveFeedDetail: liveRealtime.feedDetail, liveGuestActiveCount: liveRealtime.guestActive
 ,
     dailyTaskPipelineModel, taskCompletionSpeedBuckets, taskLeaderboardItems, activeNotificationFunnelPieData, notificationActionItems, maxNotificationActionValue, hasNotificationReminderReasons, notificationReminderReasons
   };

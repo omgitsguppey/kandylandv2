@@ -13,6 +13,20 @@ Current repo-wide state snapshot: see [FULL_SCALE_CODEBASE_AUDIT.md](/Users/uylu
 
 ## 2026-04-21 Delta Coverage
 
+## 2026-04-22 Delta Coverage
+
+- Added admin realtime-presence derivation and listener ownership surfaces:
+  - `src/lib/admin-analytics-live-runtime.ts`
+  - `src/app/admin/analytics/hooks/useAdminAnalyticsRealtime.ts`
+- Hardened admin analytics live-serving surfaces:
+  - `src/app/admin/analytics/hooks/useAdminAnalyticsState.tsx`
+  - `src/app/admin/analytics/page.tsx`
+  - `src/app/admin/analytics/components/AdminAnalyticsOperationsTab.tsx`
+  - `src/types/admin-analytics.ts`
+- Added targeted regression coverage:
+  - `tests/unit/admin-analytics-live-runtime.spec.ts`
+- Continuity note: admin "live" presence is now listener-driven from canonical first-party telemetry and only falls back to the polled route when realtime lanes fail or have not loaded yet.
+
 - Added framework-boot and self-snitching diagnostics surfaces:
   - `src/instrumentation.ts`
   - `src/instrumentation-client.ts`
