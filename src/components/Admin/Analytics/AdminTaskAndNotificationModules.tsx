@@ -33,6 +33,7 @@ type TaskLeaderboardItem = {
     assigned: number;
     started: number;
     completed: number;
+    failed: number;
     rewardTotal: number;
     avgDurationMs: number;
     completionRate: number;
@@ -187,7 +188,7 @@ export function AdminTaskAndNotificationModules(props: {
                                             {props.formatPercent(task.completionRate)}
                                         </span>
                                     </div>
-                                    <div className="grid grid-cols-3 gap-2 text-center text-xs">
+                                    <div className="grid grid-cols-4 gap-2 text-center text-xs">
                                         <div className="rounded-2xl border border-white/10 bg-white/5 px-2 py-2 text-gray-300">
                                             Assigned
                                             <br />
@@ -197,6 +198,11 @@ export function AdminTaskAndNotificationModules(props: {
                                             Started
                                             <br />
                                             {task.started}
+                                        </div>
+                                        <div className="rounded-2xl border border-white/10 bg-white/5 px-2 py-2 text-amber-100">
+                                            Failed
+                                            <br />
+                                            {task.failed}
                                         </div>
                                         <div className="rounded-2xl border border-white/10 bg-white/5 px-2 py-2 text-brand-purple">
                                             Reward

@@ -54,6 +54,8 @@ import { getBehavioralSnapshotStatus, listDropIntelligence } from "@/lib/server/
 import { getAnalyticsTruthRecoverySummary, listAnalyticsTruthDrops, listAnalyticsTruthRepairs, listAnalyticsTruthUsers } from "@/lib/server/analytics-truth-recovery";
 
 const ONE_WEEK_MS = 7 * 24 * 60 * 60 * 1000;
+const TASK_AUDIT_SAMPLE_LIMIT = 2_000;
+const TASK_DAILY_SERIES_LIMIT = 60;
 const TASK_GROUP_SET = new Set<string>(["visit", "notifications", "unwrap", "watch", "wallet", "purchase", "feedback", "share"]);
 const TASK_ACTION_SET = new Set<string>(DAILY_TASK_ACTION_OPTIONS.map((option) => option.value));
 const TASK_ICON_SET = new Set<string>(DAILY_TASK_ICON_OPTIONS.map((option) => option.value));
@@ -272,12 +274,20 @@ export async function GET(request: NextRequest) {
             creatorReviewQueueSnapshot,
         ] = await Promise.all([
             adminDb.collection("users").get(),
-            adminDb.collection("daily_task_events").orderBy("timestamp", "desc").limit(300).get(),
-            adminDb.collection("daily_task_event_receipts").orderBy("timestamp", "desc").limit(300).get(),
+            adminDb.collection("daily_task_events")
+                .where("timestamp", ">=", weekAgoMs)
+                .orderBy("timestamp", "desc")
+                .limit(TASK_AUDIT_SAMPLE_LIMIT)
+                .get(),
+            adminDb.collection("daily_task_event_receipts")
+                .where("timestamp", ">=", weekAgoMs)
+                .orderBy("timestamp", "desc")
+                .limit(TASK_AUDIT_SAMPLE_LIMIT)
+                .get(),
             adminDb.collection("analytics_event_stats").get(),
             adminDb.collection("transactions").orderBy("timestamp", "desc").limit(600).get(),
             adminDb.collection("analytics_task_rollup").get(),
-            adminDb.collection("analytics_task_daily").orderBy("lastEventAt", "desc").limit(30).get(),
+            adminDb.collection("analytics_task_daily").orderBy("lastEventAt", "desc").limit(TASK_DAILY_SERIES_LIMIT).get(),
             adminDb.collection("daily_task_definitions").get(),
             adminDb.collection("server_diagnostics")
                 .where("createdAtMs", ">=", weekAgoMs)
@@ -702,6 +712,15 @@ export async function GET(request: NextRequest) {
             mismatchDelta7d: completedEvents7d.length - rewardTransactions7d.length,
             checkInToday: taskParity.find((entry) => entry.taskId === "check_in_today") || null,
         };
+        const taskAuditSample = {
+            windowDays: 7,
+            taskEventsSampleCount: taskEventsSnapshot.size,
+            receiptsSampleCount: receiptsSnapshot.size,
+            taskEventsSampleLimit: TASK_AUDIT_SAMPLE_LIMIT,
+            receiptsSampleLimit: TASK_AUDIT_SAMPLE_LIMIT,
+            taskEventsPartial: taskEventsSnapshot.size >= TASK_AUDIT_SAMPLE_LIMIT,
+            receiptsPartial: receiptsSnapshot.size >= TASK_AUDIT_SAMPLE_LIMIT,
+        };
 
         const eventStats = eventStatsSnapshot.docs.map((doc) => {
             const data = doc.data() as Record<string, unknown>;
@@ -948,6 +967,8 @@ export async function GET(request: NextRequest) {
                 runtimeCustomTaskDrift: runtimeTaskAudit.summary.customDefinitionsWithDrift,
                 runtimeSharedEventMappings: runtimeTaskAudit.summary.sharedEventMappings,
                 telemetryAlignmentWarnings: runtimeTaskAudit.summary.telemetryAlignmentWarnings,
+                taskEventsSamplePartial: taskAuditSample.taskEventsPartial ? 1 : 0,
+                taskReceiptsSamplePartial: taskAuditSample.receiptsPartial ? 1 : 0,
                 receiptsLast7d: receiptEvents7d.length,
                 completedEventsLast7d: completedEvents7d.length,
                 rewardTransactionsLast7d: rewardTransactions7d.length,
@@ -994,6 +1015,7 @@ export async function GET(request: NextRequest) {
             assignmentIssues,
             taskParity,
             taskParitySummary,
+            taskAuditSample,
             recentTaskEvents: recentTaskEvents.slice(0, 80),
             recentReceipts: recentReceipts.slice(0, 80),
             receiptSummary,

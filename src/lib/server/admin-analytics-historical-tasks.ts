@@ -59,7 +59,7 @@ export function buildHistoricalTaskAnalytics(input: {
     completed: number;
     failed: number;
     rewardTotal: number;
-    durations: number[];
+    completionDurations: number[];
   }>();
 
   input.normalizedTaskEvents.forEach((event) => {
@@ -72,7 +72,7 @@ export function buildHistoricalTaskAnalytics(input: {
       completed: 0,
       failed: 0,
       rewardTotal: 0,
-      durations: [],
+      completionDurations: [],
     };
 
     if (event.type === "assigned") current.assigned += 1;
@@ -81,15 +81,10 @@ export function buildHistoricalTaskAnalytics(input: {
       current.completed += 1;
       current.rewardTotal += event.reward;
       if (event.durationMs && event.durationMs > 0) {
-        current.durations.push(event.durationMs);
+        current.completionDurations.push(event.durationMs);
       }
     }
-    if (event.type === "failed") {
-      current.failed += 1;
-      if (event.durationMs && event.durationMs > 0) {
-        current.durations.push(event.durationMs);
-      }
-    }
+    if (event.type === "failed") current.failed += 1;
 
     taskPerformanceMap.set(key, current);
   });
@@ -103,8 +98,8 @@ export function buildHistoricalTaskAnalytics(input: {
       completed: entry.completed,
       failed: entry.failed,
       rewardTotal: entry.rewardTotal,
-      avgDurationMs: entry.durations.length > 0
-        ? Math.round(entry.durations.reduce((sum, value) => sum + value, 0) / entry.durations.length)
+      avgDurationMs: entry.completionDurations.length > 0
+        ? Math.round(entry.completionDurations.reduce((sum, value) => sum + value, 0) / entry.completionDurations.length)
         : 0,
       completionRate: entry.assigned > 0 ? entry.completed / entry.assigned : 0,
     }))

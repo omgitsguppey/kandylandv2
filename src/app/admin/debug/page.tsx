@@ -1725,8 +1725,16 @@ export default function DebugConsole() {
                         title="Task parity and Gum Drop guardrails"
                         subtitle="Task assignment issues, reward parity, and creator-spend guardrails in one view."
                         defaultOpen={false}
-                        summary={<><Pill label="Affected users" value={data?.stats?.usersWithTaskIssues ?? 0} tone={data?.stats?.usersWithTaskIssues ? "warn" : "good"} /><Pill label="Reward delta 7d" value={data?.stats?.rewardEventDeltaLast7d ?? 0} tone={(data?.stats?.rewardEventDeltaLast7d ?? 0) === 0 ? "good" : "warn"} /><Pill label="Creator spend violations" value={data?.stats?.creatorSpendViolationsLast7d ?? 0} tone={(data?.stats?.creatorSpendViolationsLast7d ?? 0) === 0 ? "good" : "warn"} /></>}
+                        summary={<><Pill label="Affected users" value={data?.stats?.usersWithTaskIssues ?? 0} tone={data?.stats?.usersWithTaskIssues ? "warn" : "good"} /><Pill label="Reward delta 7d" value={data?.stats?.rewardEventDeltaLast7d ?? 0} tone={(data?.stats?.rewardEventDeltaLast7d ?? 0) === 0 ? "good" : "warn"} /><Pill label="Creator spend violations" value={data?.stats?.creatorSpendViolationsLast7d ?? 0} tone={(data?.stats?.creatorSpendViolationsLast7d ?? 0) === 0 ? "good" : "warn"} />{(data?.stats?.taskEventsSamplePartial ?? 0) > 0 || (data?.stats?.taskReceiptsSamplePartial ?? 0) > 0 ? <Pill label="Sample" value="partial" tone="warn" /> : null}</>}
                     >
+                        {(data?.stats?.taskEventsSamplePartial ?? 0) > 0 || (data?.stats?.taskReceiptsSamplePartial ?? 0) > 0 ? (
+                            <div className="mb-4 rounded-[1rem] border border-amber-400/20 bg-amber-500/10 p-4 text-sm text-amber-100">
+                                The 7-day task parity audit hit its bounded sample window.
+                                Event sample {data?.taskAuditSample?.taskEventsSampleCount ?? 0}/{data?.taskAuditSample?.taskEventsSampleLimit ?? 0},
+                                receipt sample {data?.taskAuditSample?.receiptsSampleCount ?? 0}/{data?.taskAuditSample?.receiptsSampleLimit ?? 0}.
+                                Treat mismatches here as partial until the deeper audit lane is run.
+                            </div>
+                        ) : null}
                         <div className="mb-4 grid gap-3 md:grid-cols-2">
                             <div className="rounded-[1rem] border border-white/10 bg-white/[0.03] p-4">
                                 <div className="flex flex-wrap gap-2">
@@ -1815,8 +1823,14 @@ export default function DebugConsole() {
                         title="Runtime task sample and custom-task drift"
                         subtitle="Sampled runtime state from assignments, task events, receipts, reward claims, and rollups."
                         defaultOpen={false}
-                        summary={<><Pill label="Sampled users" value={data?.runtimeTaskAudit?.summary?.sampledUsers ?? 0} /><Pill label="Assignments" value={data?.stats?.runtimeAssignedTasks ?? 0} /><Pill label="Custom assigned" value={data?.stats?.runtimeCustomAssignments ?? 0} tone={(data?.stats?.runtimeCustomAssignments ?? 0) > 0 ? "good" : "warn"} /><Pill label="Cooldown drift" value={data?.stats?.runtimeCooldownConflictUsers ?? 0} tone={(data?.stats?.runtimeCooldownConflictUsers ?? 0) === 0 ? "good" : "warn"} /><Pill label="Unsupported runtime" value={data?.stats?.runtimeUnsupportedTaskRecords ?? 0} tone={(data?.stats?.runtimeUnsupportedTaskRecords ?? 0) === 0 ? "good" : "warn"} /></>}
+                        summary={<><Pill label="Sampled users" value={data?.runtimeTaskAudit?.summary?.sampledUsers ?? 0} /><Pill label="Assignments" value={data?.stats?.runtimeAssignedTasks ?? 0} /><Pill label="Custom assigned" value={data?.stats?.runtimeCustomAssignments ?? 0} tone={(data?.stats?.runtimeCustomAssignments ?? 0) > 0 ? "good" : "warn"} /><Pill label="Cooldown drift" value={data?.stats?.runtimeCooldownConflictUsers ?? 0} tone={(data?.stats?.runtimeCooldownConflictUsers ?? 0) === 0 ? "good" : "warn"} /><Pill label="Unsupported runtime" value={data?.stats?.runtimeUnsupportedTaskRecords ?? 0} tone={(data?.stats?.runtimeUnsupportedTaskRecords ?? 0) === 0 ? "good" : "warn"} />{(data?.stats?.taskEventsSamplePartial ?? 0) > 0 || (data?.stats?.taskReceiptsSamplePartial ?? 0) > 0 ? <Pill label="Sample" value="partial" tone="warn" /> : null}</>}
                     >
+                        {(data?.stats?.taskEventsSamplePartial ?? 0) > 0 || (data?.stats?.taskReceiptsSamplePartial ?? 0) > 0 ? (
+                            <div className="mb-4 rounded-[1rem] border border-amber-400/20 bg-amber-500/10 p-4 text-sm text-amber-100">
+                                Runtime task drift is derived from a bounded 7-day sample, not a full-history sweep.
+                                Increase the audit depth before treating every warning as global truth.
+                            </div>
+                        ) : null}
                         <div className="grid gap-4 xl:grid-cols-[1.15fr_0.85fr]">
                             <ScrollWrap>
                                 <div className="divide-y divide-white/10">
@@ -1904,7 +1918,7 @@ export default function DebugConsole() {
                         title="Task telemetry mapping"
                         subtitle="Canonical task facts, telemetry event stats, and shared-event ambiguity."
                         defaultOpen={false}
-                        summary={<><Pill label="Alignment warnings" value={data?.stats?.telemetryAlignmentWarnings ?? 0} tone={(data?.stats?.telemetryAlignmentWarnings ?? 0) === 0 ? "good" : "warn"} /><Pill label="Shared events" value={data?.stats?.runtimeSharedEventMappings ?? 0} tone={(data?.stats?.runtimeSharedEventMappings ?? 0) === 0 ? "good" : "warn"} /><Pill label="Unsupported runtime" value={data?.stats?.runtimeUnsupportedTaskRecords ?? 0} tone={(data?.stats?.runtimeUnsupportedTaskRecords ?? 0) === 0 ? "good" : "warn"} /></>}
+                        summary={<><Pill label="Alignment warnings" value={data?.stats?.telemetryAlignmentWarnings ?? 0} tone={(data?.stats?.telemetryAlignmentWarnings ?? 0) === 0 ? "good" : "warn"} /><Pill label="Shared events" value={data?.stats?.runtimeSharedEventMappings ?? 0} tone={(data?.stats?.runtimeSharedEventMappings ?? 0) === 0 ? "good" : "warn"} /><Pill label="Unsupported runtime" value={data?.stats?.runtimeUnsupportedTaskRecords ?? 0} tone={(data?.stats?.runtimeUnsupportedTaskRecords ?? 0) === 0 ? "good" : "warn"} />{(data?.stats?.taskEventsSamplePartial ?? 0) > 0 || (data?.stats?.taskReceiptsSamplePartial ?? 0) > 0 ? <Pill label="Sample" value="partial" tone="warn" /> : null}</>}
                     >
                         <div className="grid gap-4 xl:grid-cols-[1fr_1fr]">
                             <ScrollWrap>

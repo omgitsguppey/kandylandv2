@@ -488,10 +488,17 @@ export async function fetchTelemetryLogs(
 }
 
 export function buildDurationBuckets(values: number[], bucketEdges: Array<{ label: string; max: number }>) {
-  return bucketEdges.map((bucket) => ({
-    label: bucket.label,
-    count: values.filter((value) => value > 0 && value <= bucket.max).length,
-  }));
+  let previousMax = 0;
+
+  return bucketEdges.map((bucket) => {
+    const count = values.filter((value) => value > previousMax && value <= bucket.max).length;
+    previousMax = bucket.max;
+
+    return {
+      label: bucket.label,
+      count,
+    };
+  });
 }
 
 export function formatTaskReason(reason: string) {
