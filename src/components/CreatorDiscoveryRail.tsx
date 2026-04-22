@@ -33,6 +33,8 @@ interface CreatorDiscoveryRailProps {
     initialCreators?: CreatorDiscoveryProfile[];
 }
 
+const EMPTY_CREATORS: CreatorCard[] = [];
+
 function initialsFor(name: string) {
     return name
         .split(" ")
@@ -42,7 +44,233 @@ function initialsFor(name: string) {
         .join("") || "C";
 }
 
-const EMPTY_CREATORS: CreatorCard[] = [];
+function CreatorDiscoveryRailSkeleton({ compact, surface }: { compact: boolean; surface: CreatorDiscoveryRailProps["surface"] }) {
+    return (
+        <section
+            data-home-section={surface === "home" ? "creator-spotlight" : undefined}
+            className={cn(
+                "glass-panel rounded-[1.7rem] border border-white/10 p-2.5 sm:rounded-[2rem] sm:p-4",
+                compact ? "space-y-2" : "space-y-3",
+            )}
+        >
+            <div className="flex items-start justify-between gap-3">
+                <div>
+                    <div className="inline-flex items-center gap-2 rounded-full border border-brand-purple/25 bg-brand-purple/15 px-3 py-1 text-[10px] font-bold uppercase tracking-[0.16em] text-white">
+                        <Sparkles className="h-3.5 w-3.5" />
+                        Creator spotlight
+                    </div>
+                    <div className="mt-3 h-4 w-48 animate-pulse rounded bg-white/10" />
+                </div>
+            </div>
+
+            <div className="mt-2 overflow-x-auto pb-1">
+                <div className={cn("flex min-w-max gap-3", compact ? "pr-2" : "pr-4")}>
+                    {Array.from({ length: 4 }).map((_, index) => (
+                        <div
+                            key={index}
+                            className={cn(
+                                "flex flex-col items-center justify-between rounded-[1.45rem] border border-white/5 bg-white/5 animate-pulse",
+                                compact
+                                    ? "aspect-square w-[7.25rem] px-2.5 py-4"
+                                    : "aspect-square w-[8.75rem] px-3 py-5",
+                            )}
+                        >
+                            <div className={cn("rounded-full bg-white/10", compact ? "h-[3.65rem] w-[3.65rem]" : "h-[4.15rem] w-[4.15rem]")} />
+                            <div className="mt-auto flex w-full flex-col items-center gap-2">
+                                <div className="h-3 w-16 rounded bg-white/10" />
+                                <div className="h-2 w-12 rounded bg-white/10" />
+                            </div>
+                            <div className="mt-2 h-7 w-16 rounded-full bg-white/10" />
+                        </div>
+                    ))}
+                </div>
+            </div>
+        </section>
+    );
+}
+
+function CreatorDiscoveryRailEmpty({
+    compact,
+    surface,
+    title,
+}: {
+    compact: boolean;
+    surface: CreatorDiscoveryRailProps["surface"];
+    title?: string;
+}) {
+    const emptyTitle = surface === "dashboard"
+        ? "Creator spotlight opens as creators go live"
+        : surface === "drops"
+            ? "No creator spotlights are active here yet"
+            : surface === "home"
+                ? "Creator spotlight"
+                : "No creator experiences are ready here yet";
+    const emptySupport = surface === "dashboard"
+        ? "As approved creator profiles come online, the dashboard will pin the ones you follow first and then recommend the rest."
+        : surface === "drops"
+            ? "As creator drops go live, this rail will surface the creators behind them without mixing admin tooling into fan discovery."
+            : surface === "home"
+                ? "Discover top creators and their exclusive experiences right here."
+                : "Creator experiences only appear here once the underlying profile and fan actions are ready.";
+
+    return (
+        <section
+            data-home-section={surface === "home" ? "creator-spotlight" : undefined}
+            className={cn(
+                "glass-panel rounded-[1.7rem] border border-white/10 p-2.5 sm:rounded-[2rem] sm:p-4",
+                compact ? "space-y-2" : "space-y-3",
+            )}
+        >
+            <div className="inline-flex items-center gap-2 rounded-full border border-brand-purple/25 bg-brand-purple/15 px-3 py-1 text-[10px] font-bold uppercase tracking-[0.16em] text-white">
+                <Sparkles className="h-3.5 w-3.5" />
+                {title || "Creator spotlight"}
+            </div>
+            <div className="rounded-[1.7rem] border border-dashed border-white/10 bg-black/25 px-4 py-6 text-center">
+                <div className="mx-auto flex h-14 w-14 items-center justify-center rounded-full border border-white/10 bg-white/5 text-gray-400">
+                    <Users className="h-6 w-6" />
+                </div>
+                <h3 className="mt-4 text-lg font-black text-white">{emptyTitle}</h3>
+                <p className="mt-2 text-sm leading-6 text-gray-400">{emptySupport}</p>
+            </div>
+        </section>
+    );
+}
+
+function CreatorDiscoveryRailView({
+    compact,
+    creators,
+    pendingCreatorId,
+    surface,
+    support,
+    title,
+    userId,
+    onFollowToggle,
+}: {
+    compact: boolean;
+    creators: CreatorCard[];
+    pendingCreatorId: string | null;
+    surface: CreatorDiscoveryRailProps["surface"];
+    support: string | null;
+    title?: string;
+    userId?: string;
+    onFollowToggle: (creator: CreatorCard) => void;
+}) {
+    return (
+        <section
+            data-home-section={surface === "home" ? "creator-spotlight" : undefined}
+            className={cn(
+                "glass-panel rounded-[1.7rem] border border-white/10 p-2.5 sm:rounded-[2rem] sm:p-4",
+                compact ? "space-y-2" : "space-y-3",
+            )}
+        >
+            <div className="flex items-start justify-between gap-3">
+                <div>
+                    <div className="inline-flex items-center gap-2 rounded-full border border-brand-purple/25 bg-brand-purple/15 px-3 py-1 text-[10px] font-bold uppercase tracking-[0.16em] text-white">
+                        <Sparkles className="h-3.5 w-3.5" />
+                        {title || "Creator spotlight"}
+                    </div>
+                    {support ? (
+                        <p className="mt-1.5 max-w-2xl text-sm leading-6 text-gray-400">{support}</p>
+                    ) : null}
+                </div>
+                <div className="hidden shrink-0 rounded-2xl border border-white/10 bg-black/30 px-3 py-2 text-right sm:block">
+                    <p className="text-[10px] font-bold uppercase tracking-[0.16em] text-gray-400">Surface</p>
+                    <p className="mt-1 text-sm font-semibold text-white">{surface}</p>
+                </div>
+            </div>
+
+            <div className="overflow-x-auto pb-1">
+                <div className={cn("flex min-w-max gap-3", compact ? "pr-2" : "pr-4")}>
+                    {creators.map((creator) => (
+                        <article
+                            key={creator.uid}
+                            className={cn(
+                                "group flex shrink-0 flex-col justify-between rounded-[1.45rem] border border-white/5 bg-white/[0.03] text-center",
+                                compact
+                                    ? "aspect-square w-[7.25rem] gap-2 px-2.5 py-2.5"
+                                    : "aspect-square w-[8.75rem] gap-2.5 px-3 py-3",
+                            )}
+                        >
+                            <Link
+                                href={creator.username ? `/creators/${creator.username}` : "#"}
+                                onClick={() => {
+                                    trackEvent("navigation_click", buildCreatorDiscoveryNavigationParams({
+                                        creatorId: creator.uid,
+                                        creatorUsername: creator.username,
+                                        surface,
+                                    }));
+                                }}
+                                className="flex w-full flex-col items-center gap-2"
+                            >
+                                <div
+                                    className={cn(
+                                        "rounded-full p-[2px] transition-transform group-hover:scale-105",
+                                        creator.following ? "bg-white/10" : "bg-gradient-to-tr from-brand-purple to-pink-500",
+                                    )}
+                                >
+                                    <div
+                                        className={cn(
+                                            "flex items-center justify-center overflow-hidden rounded-full border-[3px] border-black bg-zinc-900",
+                                            compact ? "h-[3.65rem] w-[3.65rem]" : "h-[4.15rem] w-[4.15rem]",
+                                        )}
+                                    >
+                                        {creator.photoURL ? (
+                                            <Image
+                                                src={creator.photoURL}
+                                                alt={creator.username || creator.displayName}
+                                                width={72}
+                                                height={72}
+                                                className="h-full w-full object-cover"
+                                            />
+                                        ) : (
+                                            <span className="text-sm font-black text-white">
+                                                {initialsFor(creator.username || creator.displayName)}
+                                            </span>
+                                        )}
+                                    </div>
+                                </div>
+
+                                <div className="flex w-full flex-col items-center">
+                                    <div className="flex max-w-full items-center justify-center gap-1">
+                                        <TitleMarquee
+                                            title={creator.username ? `@${creator.username.replace(/^@+/, "")}` : creator.displayName}
+                                            delaySeed={creator.uid.charCodeAt(0) % 6}
+                                            className={cn(
+                                                "max-w-full font-bold tracking-tight text-white",
+                                                compact ? "text-[11px]" : "text-[12px]",
+                                            )}
+                                        />
+                                        {creator.isVerified ? <CheckCircle2 className="h-3.5 w-3.5 shrink-0 text-brand-purple" /> : null}
+                                    </div>
+                                    <p className={cn("mt-1 text-gray-400", compact ? "text-[10px]" : "text-[11px]")}>
+                                        <CompactNumber value={Math.max(creator.followerCount ?? 0, 0)} /> followers
+                                    </p>
+                                </div>
+                            </Link>
+
+                            {userId === creator.uid ? null : (
+                                <button
+                                    type="button"
+                                    onClick={() => onFollowToggle(creator)}
+                                    disabled={pendingCreatorId === creator.uid}
+                                    className={cn(
+                                        "inline-flex items-center justify-center rounded-full border font-bold transition-colors",
+                                        compact ? "min-h-7 px-3 py-1.5 text-[10px]" : "min-h-8 px-3.5 py-1.5 text-[11px]",
+                                        creator.following
+                                            ? "border-brand-purple/60 bg-black text-brand-purple"
+                                            : "border-brand-purple/30 bg-brand-purple/15 text-white",
+                                    )}
+                                >
+                                    {pendingCreatorId === creator.uid ? <Loader2 className="h-3 w-3 animate-spin" /> : creator.following ? "following" : "Follow"}
+                                </button>
+                            )}
+                        </article>
+                    ))}
+                </div>
+            </div>
+        </section>
+    );
+}
 
 export function CreatorDiscoveryRail({
     surface,
@@ -51,14 +279,17 @@ export function CreatorDiscoveryRail({
     initialCreators = EMPTY_CREATORS,
 }: CreatorDiscoveryRailProps) {
     const { user, loading: authLoading } = useAuth();
-    const [mounted, setMounted] = useState(false);
-    useEffect(() => { setMounted(true); }, []);
-    const authSettled = mounted && !authLoading;
     const { openAuthModal } = useUI();
-    const [recommendedCreators, setRecommendedCreators] = useState<CreatorCard[]>(initialCreators);
-    const [followedCreators, setFollowedCreators] = useState<CreatorCard[]>([]);
+    const [recommendedCreators, setRecommendedCreators] = useState<CreatorCard[]>(() => initialCreators);
+    const [followedCreators, setFollowedCreators] = useState<CreatorCard[]>(EMPTY_CREATORS);
     const [railLoading, setRailLoading] = useState(initialCreators.length === 0);
     const [pendingCreatorId, setPendingCreatorId] = useState<string | null>(null);
+    const authSettled = !authLoading;
+
+    useEffect(() => {
+        setRecommendedCreators(initialCreators);
+        setRailLoading(initialCreators.length === 0);
+    }, [initialCreators]);
 
     useEffect(() => {
         let cancelled = false;
@@ -66,7 +297,7 @@ export function CreatorDiscoveryRail({
 
         async function loadCreators() {
             if (!authSettled) {
-                return; // Wait for completely settled auth state to avoid fetching on intermediate states
+                return;
             }
 
             try {
@@ -84,6 +315,7 @@ export function CreatorDiscoveryRail({
                     if (!hasSeededCreators) {
                         setRailLoading(true);
                     }
+
                     const relationshipResponse = await authFetch("/api/creator/relationships");
                     const relationshipResult = await relationshipResponse.json() as {
                         relationships?: Array<Record<string, unknown>>;
@@ -108,6 +340,7 @@ export function CreatorDiscoveryRail({
                             notificationsEnabled: relationship?.notificationsEnabled === true,
                         };
                     });
+
                     nextFollowed = relationshipResult.followedCreators || (relationshipResult.relationships || [])
                         .filter((entry) => entry.following === true && typeof entry.creatorId === "string")
                         .map((entry) => ({
@@ -139,14 +372,13 @@ export function CreatorDiscoveryRail({
                     error,
                     detail: {
                         surface,
-                    signedIn: Boolean(user),
-                },
-                consoleLabel: "[CreatorDiscoveryRail] load failed",
-            });
+                        signedIn: Boolean(user),
+                    },
+                    consoleLabel: "[CreatorDiscoveryRail] load failed",
+                });
+
                 if (!cancelled) {
-                    if (initialCreators.length > 0) {
-                        setRecommendedCreators(initialCreators);
-                    }
+                    setRecommendedCreators(initialCreators);
                     setRailLoading(false);
                 }
             }
@@ -160,12 +392,14 @@ export function CreatorDiscoveryRail({
 
     const primaryCreators = useMemo(() => {
         const combined = [...followedCreators];
-        const followedIds = new Set(followedCreators.map((c) => c.uid));
-        for (const rec of recommendedCreators) {
-            if (!followedIds.has(rec.uid)) {
-                combined.push(rec);
+        const followedIds = new Set(followedCreators.map((creator) => creator.uid));
+
+        for (const creator of recommendedCreators) {
+            if (!followedIds.has(creator.uid)) {
+                combined.push(creator);
             }
         }
+
         return combined.filter((creator) => creator.uid !== user?.uid);
     }, [followedCreators, recommendedCreators, user?.uid]);
 
@@ -198,6 +432,7 @@ export function CreatorDiscoveryRail({
                     followerCount?: number | null;
                 };
             };
+
             if (!response.ok || !result.relationship) {
                 throw new Error(result.error || "Could not update creator follow state.");
             }
@@ -207,17 +442,11 @@ export function CreatorDiscoveryRail({
                 ? result.relationship.followerCount
                 : creator.followerCount;
 
-            setRecommendedCreators((current) => {
-                const updated = current.map((entry) => (
-                    entry.uid === creator.uid
-                        ? { ...entry, following: nextFollowing, followerCount: nextFollowerCount }
-                        : entry
-                ));
-                if (!nextFollowing && !updated.some((entry) => entry.uid === creator.uid)) {
-                    return [{ ...creator, following: false, followerCount: nextFollowerCount }, ...updated];
-                }
-                return updated;
-            });
+            setRecommendedCreators((current) => current.map((entry) => (
+                entry.uid === creator.uid
+                    ? { ...entry, following: nextFollowing, followerCount: nextFollowerCount }
+                    : entry
+            )));
             setFollowedCreators((current) => {
                 const existingIndex = current.findIndex((entry) => entry.uid === creator.uid);
                 if (nextFollowing) {
@@ -250,185 +479,28 @@ export function CreatorDiscoveryRail({
         }
     };
 
-    if (!mounted || railLoading) {
-        return (
-            <section className={cn(
-                "glass-panel rounded-[1.7rem] border border-white/10 p-2.5 sm:rounded-[2rem] sm:p-4",
-                compact ? "space-y-2" : "space-y-3",
-            )}>
-                <div className="flex items-start justify-between gap-3">
-                    <div>
-                        <div className="inline-flex items-center gap-2 rounded-full border border-brand-purple/25 bg-brand-purple/15 px-3 py-1 text-[10px] font-bold uppercase tracking-[0.16em] text-white">
-                            <Sparkles className="h-3.5 w-3.5" />
-                            Creator spotlight
-                        </div>
-                        <div className="mt-3 h-4 w-48 animate-pulse rounded bg-white/10" />
-                    </div>
-                </div>
+    if (railLoading) {
+        return <CreatorDiscoveryRailSkeleton compact={compact} surface={surface} />;
+    }
 
-                <div className="mt-2 overflow-x-auto pb-1">
-                    <div className={cn("flex min-w-max gap-3", compact ? "pr-2" : "pr-4")}>
-                        {Array.from({ length: 4 }).map((_, i) => (
-                            <div
-                                key={i}
-                                className={cn(
-                                    "flex flex-col items-center justify-between rounded-[1.45rem] border border-white/5 bg-white/5 animate-pulse",
-                                    compact
-                                        ? "aspect-square w-[7.25rem] px-2.5 py-4"
-                                        : "aspect-square w-[8.75rem] px-3 py-5",
-                                )}
-                            >
-                                <div className={cn("rounded-full bg-white/10", compact ? "h-[3.65rem] w-[3.65rem]" : "h-[4.15rem] w-[4.15rem]")} />
-                                <div className="mt-auto flex flex-col items-center gap-2 w-full">
-                                    <div className="h-3 w-16 bg-white/10 rounded" />
-                                    <div className="h-2 w-12 bg-white/10 rounded" />
-                                </div>
-                                <div className="mt-2 rounded-full bg-white/10 w-16 h-7" />
-                            </div>
-                        ))}
-                    </div>
-                </div>
-            </section>
-        );
+    if (primaryCreators.length === 0) {
+        return <CreatorDiscoveryRailEmpty compact={compact} surface={surface} title={title} />;
     }
 
     const support = title || (followedCreators.length > 0
         ? null
         : "Follow creators to unlock drops and private requests.");
-    const emptyTitle = surface === "dashboard"
-        ? "Creator spotlight opens as creators go live"
-        : surface === "drops"
-            ? "No creator spotlights are active here yet"
-            : surface === "home"
-                ? "Creator spotlight"
-                : "No creator experiences are ready here yet";
-    const emptySupport = surface === "dashboard"
-        ? "As approved creator profiles come online, the dashboard will pin the ones you follow first and then recommend the rest."
-        : surface === "drops"
-            ? "As creator drops go live, this rail will surface the creators behind them without mixing admin tooling into fan discovery."
-            : surface === "home"
-                ? "Discover top creators and their exclusive experiences right here."
-                : "Creator experiences only appear here once the underlying profile and fan actions are ready.";
-
-    if (primaryCreators.length === 0) {
-        return (
-            <section className={cn(
-                "glass-panel rounded-[1.7rem] border border-white/10 p-2.5 sm:rounded-[2rem] sm:p-4",
-                compact ? "space-y-2" : "space-y-3",
-            )}>
-                <div className="inline-flex items-center gap-2 rounded-full border border-brand-purple/25 bg-brand-purple/15 px-3 py-1 text-[10px] font-bold uppercase tracking-[0.16em] text-white">
-                    <Sparkles className="h-3.5 w-3.5" />
-                    Creator spotlight
-                </div>
-                <div className="rounded-[1.7rem] border border-dashed border-white/10 bg-black/25 px-4 py-6 text-center">
-                    <div className="mx-auto flex h-14 w-14 items-center justify-center rounded-full border border-white/10 bg-white/5 text-gray-400">
-                        <Users className="h-6 w-6" />
-                    </div>
-                    <h3 className="mt-4 text-lg font-black text-white">{emptyTitle}</h3>
-                    <p className="mt-2 text-sm leading-6 text-gray-400">{emptySupport}</p>
-                </div>
-            </section>
-        );
-    }
 
     return (
-        <section className={cn(
-            "glass-panel rounded-[1.7rem] border border-white/10 p-2.5 sm:rounded-[2rem] sm:p-4",
-            compact ? "space-y-2" : "space-y-3",
-        )}>
-            <div className="flex items-start justify-between gap-3">
-                <div>
-                    <div className="inline-flex items-center gap-2 rounded-full border border-brand-purple/25 bg-brand-purple/15 px-3 py-1 text-[10px] font-bold uppercase tracking-[0.16em] text-white">
-                        <Sparkles className="h-3.5 w-3.5" />
-                        Creator spotlight
-                    </div>
-                    {support ? (
-                        <p className="mt-1.5 max-w-2xl text-sm leading-6 text-gray-400">{support}</p>
-                    ) : null}
-                </div>
-                <div className="hidden shrink-0 rounded-2xl border border-white/10 bg-black/30 px-3 py-2 text-right sm:block">
-                    <p className="text-[10px] font-bold uppercase tracking-[0.16em] text-gray-500">Surface</p>
-                    <p className="mt-1 text-sm font-semibold text-white">{surface}</p>
-                </div>
-            </div>
-
-            <div className="overflow-x-auto pb-1">
-                <div className={cn("flex min-w-max gap-3", compact ? "pr-2" : "pr-4")}>
-                    {primaryCreators.map((creator) => (
-                        <article
-                            key={creator.uid}
-                            className={cn(
-                                "group flex shrink-0 flex-col justify-between rounded-[1.45rem] border border-white/5 bg-white/[0.03] text-center",
-                                compact
-                                    ? "aspect-square w-[7.25rem] gap-2 px-2.5 py-2.5"
-                                    : "aspect-square w-[8.75rem] gap-2.5 px-3 py-3",
-                            )}
-                        >
-                            <Link
-                                href={creator.username ? `/creators/${creator.username}` : "#"}
-                                onClick={() => {
-                                    trackEvent("navigation_click", buildCreatorDiscoveryNavigationParams({
-                                        creatorId: creator.uid,
-                                        creatorUsername: creator.username,
-                                        surface,
-                                    }));
-                                }}
-                                className="flex w-full flex-col items-center gap-2"
-                            >
-                                <div className={cn(
-                                    "rounded-full p-[2px] transition-transform group-hover:scale-105",
-                                    creator.following ? "bg-white/10" : "bg-gradient-to-tr from-brand-purple to-pink-500"
-                                )}>
-                                    <div className={cn(
-                                        "flex items-center justify-center overflow-hidden rounded-full border-[3px] border-black bg-zinc-900",
-                                        compact ? "h-[3.65rem] w-[3.65rem]" : "h-[4.15rem] w-[4.15rem]",
-                                    )}>
-                                        {creator.photoURL ? (
-                                            <Image src={creator.photoURL} alt={creator.username || creator.displayName} width={72} height={72} className="h-full w-full object-cover" />
-                                        ) : (
-                                            <span className="text-sm font-black text-white">{initialsFor(creator.username || creator.displayName)}</span>
-                                        )}
-                                    </div>
-                                </div>
-
-                                <div className="flex w-full flex-col items-center">
-                                    <div className="flex max-w-full items-center justify-center gap-1">
-                                        <TitleMarquee
-                                            title={creator.username ? `@${creator.username.replace(/^@+/, "")}` : creator.displayName}
-                                            delaySeed={creator.uid.charCodeAt(0) % 6}
-                                            className={cn(
-                                                "max-w-full font-bold text-white tracking-tight",
-                                                compact ? "text-[11px]" : "text-[12px]",
-                                            )}
-                                        />
-                                        {creator.isVerified ? <CheckCircle2 className="h-3.5 w-3.5 shrink-0 text-brand-purple" /> : null}
-                                    </div>
-                                    <p className={cn("mt-1 text-gray-500", compact ? "text-[10px]" : "text-[11px]")}>
-                                        <CompactNumber value={Math.max(creator.followerCount ?? 0, 0)} /> followers
-                                    </p>
-                                </div>
-                            </Link>
-
-                            {user?.uid === creator.uid ? null : (
-                                <button
-                                    type="button"
-                                    onClick={() => void handleFollowToggle(creator)}
-                                    disabled={pendingCreatorId === creator.uid}
-                                    className={cn(
-                                        "inline-flex items-center justify-center rounded-full border font-bold transition-colors",
-                                        compact ? "min-h-7 px-3 py-1.5 text-[10px]" : "min-h-8 px-3.5 py-1.5 text-[11px]",
-                                        creator.following
-                                            ? "border-brand-purple/60 bg-black text-brand-purple"
-                                            : "border-brand-purple/30 bg-brand-purple/15 text-white",
-                                    )}
-                                >
-                                    {pendingCreatorId === creator.uid ? <Loader2 className="h-3 w-3 animate-spin" /> : creator.following ? "following" : "Follow"}
-                                </button>
-                            )}
-                        </article>
-                    ))}
-                </div>
-            </div>
-        </section>
+        <CreatorDiscoveryRailView
+            compact={compact}
+            creators={primaryCreators}
+            pendingCreatorId={pendingCreatorId}
+            surface={surface}
+            support={support}
+            title={title}
+            userId={user?.uid}
+            onFollowToggle={(creator) => void handleFollowToggle(creator)}
+        />
     );
 }

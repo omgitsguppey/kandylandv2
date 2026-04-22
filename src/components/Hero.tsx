@@ -12,7 +12,10 @@ export default function Hero({ activeDrops }: HeroProps) {
     const activeDropsCount = activeDrops.length;
 
     return (
-        <section className="relative flex min-h-[68vh] w-full flex-col justify-center overflow-hidden pb-5 pt-[2.2rem] max-[360px]:min-h-[64vh] max-[360px]:pb-4 max-[360px]:pt-[2.0rem] sm:min-h-[90vh] sm:pb-12 sm:pt-24 landscape:min-h-0 landscape:justify-start landscape:pb-8 landscape:pt-10">
+        <section
+            data-home-section="hero"
+            className="relative flex min-h-[calc(68vh+3.75rem)] w-full flex-col justify-center overflow-hidden pb-5 pt-[2.2rem] max-[360px]:min-h-[calc(64vh+3.75rem)] max-[360px]:pb-4 max-[360px]:pt-[2.0rem] sm:min-h-[90vh] sm:pb-12 sm:pt-24 landscape:min-h-0 landscape:justify-start landscape:pb-8 landscape:pt-10"
+        >
             <div className="absolute inset-0 z-0 opacity-40">
                 <div className="absolute top-1/4 left-1/4 w-[500px] h-[500px] bg-brand-purple/20 rounded-full blur-[120px] mix-blend-screen animate-pulse" style={{ animationDuration: "4s" }} />
                 <div className="absolute bottom-1/4 right-1/4 w-[400px] h-[400px] bg-brand-purple/10 rounded-full blur-[100px] mix-blend-screen animate-pulse" style={{ animationDuration: "7s" }} />

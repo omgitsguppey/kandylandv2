@@ -17,4 +17,29 @@ test.describe("UI continuity runtime audits", () => {
       await expect(page.getByText(/internal error/i)).toHaveCount(0);
     });
   }
+
+  test("homepage sections remain visible through scroll and hydration", async ({ page }) => {
+    await openAuditSurface(page, "/", "main");
+
+    const hero = page.locator("[data-home-section='hero']").first();
+    const creatorSpotlight = page.locator("[data-home-section='creator-spotlight']").first();
+    const howItWorks = page.locator("[data-home-section='how-it-works']").first();
+
+    await expect(hero).toBeVisible({ timeout: 15000 });
+
+    await creatorSpotlight.scrollIntoViewIfNeeded();
+    await expect(creatorSpotlight).toBeVisible({ timeout: 15000 });
+
+    await page.waitForTimeout(500);
+    await howItWorks.scrollIntoViewIfNeeded();
+    await expect(howItWorks).toBeVisible({ timeout: 15000 });
+
+    await page.waitForTimeout(500);
+    await hero.scrollIntoViewIfNeeded();
+    await expect(hero).toBeVisible({ timeout: 15000 });
+
+    await expect(hero).toHaveCount(1);
+    await expect(creatorSpotlight).toHaveCount(1);
+    await expect(howItWorks).toHaveCount(1);
+  });
 });

@@ -6,12 +6,7 @@ export type KnownAccessibilityBaseline = {
 };
 
 export const KNOWN_ACCESSIBILITY_BASELINE: Record<string, KnownAccessibilityBaseline[]> = {
-  home: [
-    {
-      id: "color-contrast",
-      expectedCounts: [1, 2],
-    },
-  ],
+  home: [],
   creatorApply: [
     { id: "landmark-main-is-top-level", expectedCount: 1 },
     { id: "landmark-no-duplicate-main", expectedCount: 1 },

@@ -1,22 +1,46 @@
 "use client";
 
-import { useEffect } from "react";
+import { useEffect, useRef } from "react";
 import { usePathname } from "next/navigation";
+
+import { recordClientDiagnostic } from "@/lib/client-diagnostics";
 
 export function AutoScrollToTop() {
     const pathname = usePathname();
+    const previousPathnameRef = useRef<string | null>(null);
 
     useEffect(() => {
-        // Next.js sometimes maintains scroll position between route pushes.
-        // This unequivocally forces the exact top of the page on any URL transition.
+        if (!pathname) {
+            return;
+        }
+
+        if (previousPathnameRef.current === null) {
+            previousPathnameRef.current = pathname;
+            return;
+        }
+
+        if (previousPathnameRef.current === pathname) {
+            return;
+        }
+
+        const previousPathname = previousPathnameRef.current;
+        previousPathnameRef.current = pathname;
+
         window.scrollTo({ top: 0, left: 0, behavior: "instant" as ScrollBehavior });
-
-        // A slight timeout catches React hydration delays where elements render post-mount
-        const timer = setTimeout(() => {
+        const frame = window.requestAnimationFrame(() => {
             window.scrollTo({ top: 0, left: 0, behavior: "instant" as ScrollBehavior });
-        }, 50);
+        });
 
-        return () => clearTimeout(timer);
+        if (pathname === "/") {
+            recordClientDiagnostic("ui", "Homepage scroll reset executed", {
+                surface: "home",
+                previousPathname,
+                pathname,
+                qualityLabel: "live",
+            });
+        }
+
+        return () => window.cancelAnimationFrame(frame);
     }, [pathname]);
 
     return null;

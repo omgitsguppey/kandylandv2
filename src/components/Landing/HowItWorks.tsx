@@ -27,7 +27,7 @@ export function HowItWorks({ activeDrops }: HowItWorksProps) {
     ];
 
     return (
-        <section className="relative border-t border-white/5 bg-black py-10 sm:py-20">
+        <section data-home-section="how-it-works" className="relative border-t border-white/5 bg-black py-10 sm:py-20">
             <div className="absolute inset-0 bg-[linear-gradient(to_right,#b28cff05_1px,transparent_1px),linear-gradient(to_bottom,#b28cff05_1px,transparent_1px)] bg-[size:4rem_4rem]" />
 
             <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 relative z-10 w-full">
@@ -36,7 +36,11 @@ export function HowItWorks({ activeDrops }: HowItWorksProps) {
                     <h2 className="mb-4 text-3xl font-extrabold text-white sm:mb-5 sm:text-4xl md:text-5xl">Keep what you unwrap forever</h2>
                 </div>
 
-                <div className="-mx-4 px-4 flex overflow-x-auto snap-x snap-mandatory gap-3 pb-6 sm:mx-0 sm:px-0 sm:mb-8 sm:grid sm:grid-cols-3 sm:gap-5 sm:overflow-visible sm:pb-0 [scrollbar-width:none] [&::-webkit-scrollbar]:hidden">
+                <div
+                    aria-label="How KandyDrops works steps"
+                    className="-mx-4 flex overflow-x-auto gap-3 px-4 pb-6 [touch-action:pan-x] snap-x snap-mandatory sm:mx-0 sm:mb-8 sm:grid sm:grid-cols-3 sm:gap-5 sm:overflow-visible sm:px-0 sm:pb-0 [scrollbar-width:none] [&::-webkit-scrollbar]:hidden"
+                    tabIndex={0}
+                >
                     {features.map((feature, index) => (
                         <div key={index} className="shrink-0 w-[75vw] max-w-[280px] snap-center sm:w-auto sm:max-w-none group rounded-[1.7rem] border border-white/5 bg-zinc-950 p-6 transition-colors hover:bg-zinc-900 sm:aspect-square sm:rounded-3xl sm:p-6 lg:p-8 flex flex-col justify-center">
                             <div className="flex h-full flex-col items-center justify-center text-center">

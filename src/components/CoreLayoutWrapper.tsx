@@ -50,6 +50,7 @@ export function CoreLayoutWrapper({ children }: { children: React.ReactNode }) {
         isPurchaseModalOpen,
     } = useUI();
     const pathname = usePathname();
+    const isHomeRoute = pathname === "/";
     const isAdminRoute = pathname?.startsWith("/admin") ?? false;
     const isLegalRoute = pathname === "/privacy" || pathname === "/terms";
     const authSettled = !loading;
@@ -68,6 +69,25 @@ export function CoreLayoutWrapper({ children }: { children: React.ReactNode }) {
     const runtimeReady = useDeferredClientReady();
     const afterPaintReady = useDeferredClientReady({ delayMs: 180 });
     const idleReady = useDeferredClientReady({ delayMs: 500, idle: true });
+    const homepageAfterPaintReady = useDeferredClientReady({
+        enabled: isHomeRoute,
+        delayMs: 700,
+    });
+    const homepageIdleReady = useDeferredClientReady({
+        enabled: isHomeRoute,
+        delayMs: 1400,
+        idle: true,
+    });
+    const homepageOverlayReady = useDeferredClientReady({
+        enabled: isHomeRoute,
+        delayMs: 3600,
+        idle: true,
+    });
+    const diagnosticsReady = isHomeRoute ? homepageAfterPaintReady : runtimeReady;
+    const telemetryReady = isHomeRoute ? homepageAfterPaintReady : afterPaintReady;
+    const enhancementReady = isHomeRoute ? homepageIdleReady : idleReady;
+    const overlayReady = isHomeRoute ? homepageOverlayReady : telemetryReady;
+    const scrollControlsReady = !isHomeRoute || homepageAfterPaintReady;
 
     useEffect(() => {
         if (typeof window !== "undefined") {
@@ -122,25 +142,25 @@ export function CoreLayoutWrapper({ children }: { children: React.ReactNode }) {
             <Navbar />
             {children}
             {shouldShowPublicChrome && !isLegalRoute ? <MobileBottomBar /> : null}
-            <ScrollToTop />
+            {scrollControlsReady ? <ScrollToTop /> : null}
             <AutoScrollToTop />
-            {runtimeReady ? <ClientDiagnosticsBridge /> : null}
-            {afterPaintReady && shouldTrackDeepAnalytics ? <DeepTracker /> : null}
-            {afterPaintReady && isUserShell ? <NotificationRuntimeBridge /> : null}
-            {afterPaintReady && shouldShowTaskGuidanceBanner ? <TaskGuidanceBanner /> : null}
-            {idleReady && shouldEnablePwaRuntime ? <PwaRuntimeBridge /> : null}
-            {idleReady && shouldShowBugReportTrigger ? <GlobalBugReportTrigger /> : null}
-            {afterPaintReady && shouldShowPurchaseUi && isPurchaseModalOpen ? (
+            {diagnosticsReady ? <ClientDiagnosticsBridge /> : null}
+            {telemetryReady && shouldTrackDeepAnalytics ? <DeepTracker /> : null}
+            {telemetryReady && isUserShell ? <NotificationRuntimeBridge /> : null}
+            {telemetryReady && shouldShowTaskGuidanceBanner ? <TaskGuidanceBanner /> : null}
+            {enhancementReady && shouldEnablePwaRuntime ? <PwaRuntimeBridge /> : null}
+            {overlayReady && shouldShowBugReportTrigger ? <GlobalBugReportTrigger /> : null}
+            {telemetryReady && shouldShowPurchaseUi && isPurchaseModalOpen ? (
                 <PayPalProvider>
                     <GlobalPurchaseModal />
                 </PayPalProvider>
             ) : null}
-            {afterPaintReady && isUserShell && isInsufficientBalanceModalOpen ? <InsufficientBalanceModal /> : null}
-            {afterPaintReady && shouldShowAuthUi && isAuthModalOpen ? <GlobalAuthModal /> : null}
-            {idleReady && shouldLoadOnboarding ? <GuidedOnboarding /> : null}
+            {telemetryReady && isUserShell && isInsufficientBalanceModalOpen ? <InsufficientBalanceModal /> : null}
+            {telemetryReady && shouldShowAuthUi && isAuthModalOpen ? <GlobalAuthModal /> : null}
+            {enhancementReady && shouldLoadOnboarding ? <GuidedOnboarding /> : null}
             <Toaster position="top-center" theme="dark" richColors closeButton />
-            {afterPaintReady && shouldShowCookieBanner ? <CookieBanner /> : null}
-            {afterPaintReady && shouldShowDebugBreakpoints ? <DebugBreakpoints /> : null}
+            {overlayReady && shouldShowCookieBanner ? <CookieBanner /> : null}
+            {telemetryReady && shouldShowDebugBreakpoints ? <DebugBreakpoints /> : null}
         </>
     );
 }
