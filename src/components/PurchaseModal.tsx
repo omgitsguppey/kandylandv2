@@ -573,7 +573,7 @@ export function PurchaseModal({ isOpen, onClose }: PurchaseModalProps) {
                         </p>
                         <div className="mt-5 flex flex-wrap items-center justify-center gap-2">
                           <span className="rounded-full border border-brand-purple/30 bg-brand-purple/15 px-3 py-1 text-xs font-bold text-white">
-                            +{creditedDropsValue} GD
+                            +{selectedEconomics.paidGumDrops} GD
                           </span>
                         {selectedEconomics.bonusGumDrops > 0 ? (
                           <span className="rounded-full border border-white/10 bg-white/5 px-3 py-1 text-xs font-bold text-gray-200">

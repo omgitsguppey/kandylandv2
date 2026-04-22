@@ -138,6 +138,7 @@ export async function POST(request: NextRequest) {
             ...ANALYTICS_ROUTE_POLICIES.viewerWatchSession,
             preAuthRateLimit: ANALYTICS_WRITE,
             rateLimit: ANALYTICS_WRITE,
+            requireTrustedOrigin: true,
         });
         if (!caller) {
             return finalize(NextResponse.json({ error: "Unauthorized" }, { status: 401 }));
