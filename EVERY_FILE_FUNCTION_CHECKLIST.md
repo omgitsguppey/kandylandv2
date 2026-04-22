@@ -13,6 +13,20 @@ Current repo-wide state snapshot: see [FULL_SCALE_CODEBASE_AUDIT.md](/Users/uylu
 
 ## 2026-04-21 Delta Coverage
 
+- Added deployment-hardening helper/type splits required by Next 16 App Router entry rules:
+  - `src/app/admin/ai/admin-ai-state-exports.ts`
+  - `src/app/api/creator/bookings/booking-timezone.ts`
+  - `src/app/api/user/activity/activity-route-test-helpers.ts`
+  - `src/app/dashboard/profile/profile-page-types.ts`
+- Updated App Router entry files to stop exporting non-entry symbols:
+  - `src/app/admin/ai/page.tsx`
+  - `src/app/api/creator/bookings/route.ts`
+  - `src/app/api/user/activity/route.ts`
+  - `src/app/dashboard/profile/page.tsx`
+- Updated adjacent tests and profile sections to consume the new helper/type modules:
+  - `tests/unit/user-activity-route.spec.ts`
+  - `tests/unit/creator-bookings-route.spec.ts`
+  - `src/app/dashboard/profile/components/*`
 - Added analytics truth-recovery and telemetry hardening surfaces:
   - `functions/src/analytics-truth-contract.ts`
   - `functions/src/analytics-truth-runtime.ts`

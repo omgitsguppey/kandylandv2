@@ -1,6 +1,6 @@
 import React from 'react';
 import { SectionContainer, ValueInputRow, RowDivider } from './ProfilePrimitives';
-import type { ProfileState } from '../page';
+import type { ProfileState } from '../profile-page-types';
 import { TIMEZONE_OPTIONS, normalizeTimezone } from '../hooks/useProfileState';
 import { Globe, Mail, CalendarDays } from "lucide-react";
 

@@ -1,6 +1,6 @@
 import React from 'react';
 import { SectionContainer, NavigationRow, RowDivider } from './ProfilePrimitives';
-import type { ProfileState } from '../page';
+import type { ProfileState } from '../profile-page-types';
 import { Loader2, LogOut, Trash2, FileText, CircleHelp, LifeBuoy } from "lucide-react";
 
 export function ProfileSupportSafetySection({ state }: { state: ProfileState }) {

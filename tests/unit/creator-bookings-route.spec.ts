@@ -97,7 +97,8 @@ vi.mock("@/lib/server/analytics", () => ({
     trackServerEvent: vi.fn(),
 }));
 
-import { GET, getTimeZoneParts, isWithinAnyWindow } from "@/app/api/creator/bookings/route";
+import { GET } from "@/app/api/creator/bookings/route";
+import { getTimeZoneParts, isWithinAnyWindow } from "@/app/api/creator/bookings/booking-timezone";
 
 describe("GET /api/creator/bookings", () => {
     beforeEach(() => {

@@ -24,6 +24,19 @@ This file is not a changelog. It is the concise ledger for durable decisions tha
 
 ## Decision Entries
 
+### 1am. Next App Router entry files must not export helper values, test hooks, or shared types
+
+- Approximate date: Recorded explicitly on 2026-04-21 from the deployment audit pass
+- Status: Active deployment/build rule
+- Problem/context: The repo had several App Router entry modules exporting helper symbols (`MODULE_DEFAULTS`, route helper functions, `__test`, and a shared page-level type). Next 16 rejects arbitrary exports from `page.tsx` and `route.ts` entry files during production type generation, which created a real build/deploy blocker even though the production backend itself was live.
+- Decision made: Entry modules may export only Next-supported route/page exports plus the route handlers themselves. Shared helpers, test helpers, and cross-file types must live in adjacent non-entry modules and be imported from there by both runtime code and tests.
+- What became canonical:
+  - `src/app/admin/ai/admin-ai-state-exports.ts`
+  - `src/app/api/creator/bookings/booking-timezone.ts`
+  - `src/app/api/user/activity/activity-route-test-helpers.ts`
+  - `src/app/dashboard/profile/profile-page-types.ts`
+- Enforcement implication: When a build fails on `.next/types/app/**` with an index-signature or invalid-entry-export error, audit the corresponding App Router entry file first before changing deployment infrastructure.
+
 ### 1al. Analytics truth is now modeled in explicit raw, validated, finalized, estimated, and serving/debug layers
 
 - Approximate date: Recorded explicitly on 2026-04-21 from the Analytics Truth Recovery + Telemetry Hardening pass

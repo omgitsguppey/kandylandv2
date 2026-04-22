@@ -1,6 +1,6 @@
 import React from 'react';
 import { SectionContainer, NavigationRow, ToggleRow, StaticRow, RowDivider } from './ProfilePrimitives';
-import type { ProfileState } from '../page';
+import type { ProfileState } from '../profile-page-types';
 import { Loader2, ShieldAlert, Download, Lock, FileText } from "lucide-react";
 import { PRIVACY_POLICY_LAST_UPDATED } from "@/lib/platform-config";
 

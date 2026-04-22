@@ -1,6 +1,6 @@
 import React from 'react';
 import { SectionContainer, ToggleRow, StaticRow, RowDivider } from './ProfilePrimitives';
-import type { ProfileState } from '../page';
+import type { ProfileState } from '../profile-page-types';
 import { ShieldAlert } from "lucide-react";
 
 export function ProfileNotificationsSection({ state }: { state: ProfileState }) {

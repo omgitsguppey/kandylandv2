@@ -1,6 +1,6 @@
 import React from 'react';
 import { SectionContainer, RowDivider } from './ProfilePrimitives';
-import type { ProfileState } from '../page';
+import type { ProfileState } from '../profile-page-types';
 
 export function ProfileCreatorEarningsSection({ state }: { state: ProfileState }) {
     const {

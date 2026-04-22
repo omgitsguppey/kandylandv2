@@ -1,6 +1,6 @@
 import React from 'react';
 import { SectionContainer, NavigationRow, ToggleRow, ValueInputRow, RowDivider } from './ProfilePrimitives';
-import type { ProfileState } from '../page';
+import type { ProfileState } from '../profile-page-types';
 import { CalendarClock, MessageSquare, Sparkles, Wallet } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { CREATOR_SUBSCRIPTION_MIN_GD } from "@/lib/creator-experiences";

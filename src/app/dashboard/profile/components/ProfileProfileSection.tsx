@@ -1,6 +1,6 @@
 import React from 'react';
 import { SectionContainer, ValueInputRow, RowDivider } from './ProfilePrimitives';
-import type { ProfileState } from '../page';
+import type { ProfileState } from '../profile-page-types';
 import { Loader2, User, AtSign, Camera } from "lucide-react";
 import Image from "next/image";
 import { sanitizeUsername } from "../hooks/useProfileState";

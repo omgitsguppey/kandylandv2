@@ -1,5 +1,54 @@
 # KandyDrops Core Codebase Audit & Defensive Ledger
 
+## [2026-04-21 #28] Deployment Audit + Next App-Entry Export Hardening
+
+Scope for this pass:
+- Perform a deployment-focused codebase audit and fix the concrete commit/deployment blocker in the Next.js App Router build path without touching PayPal, provider-secret plumbing, wallet truth, or the economy ledger.
+
+Startup protocol executed:
+- Read `FULL_SCALE_CODEBASE_AUDIT.md`.
+- Read `REPO_MEMORY_LEDGER.md`.
+- Read `EVERY_FILE_FUNCTION_CHECKLIST.md`.
+- Ran `git status --short`.
+- Verified deployment/auth tooling state with:
+  - `firebase --version`
+  - `gcloud --version`
+  - `firebase projects:list --json`
+  - `gcloud auth list --format=json`
+  - `firebase apphosting:backends:list --project kandydrops-by-ikandy`
+  - `firebase apphosting:backends:get kandydrops --project kandydrops-by-ikandy --json`
+  - `gcloud run services describe kandydrops --region us-central1 --project kandydrops-by-ikandy --format=json`
+
+Current-state findings:
+- Production hosting was already live; the primary deployment issue was not an unavailable backend.
+- The concrete reproducible blocker was the Next 16 App Router entry-module rule: entry files were exporting non-entry symbols, which breaks production type generation and compile.
+- Confirmed invalid app-entry exports existed in:
+  - `src/app/admin/ai/page.tsx`
+  - `src/app/api/creator/bookings/route.ts`
+  - `src/app/api/user/activity/route.ts`
+  - `src/app/dashboard/profile/page.tsx`
+- The default local full build remained expensive and could leave stale `.next/lock` / worker processes behind, so verification needed a clean webpack compile lane and targeted selective-build lane rather than blind repeated full builds.
+
+Implementation results:
+- Removed illegal re-exports from `src/app/admin/ai/page.tsx` and moved those exports into `src/app/admin/ai/admin-ai-state-exports.ts`.
+- Moved booking timezone/window helpers out of the route entry into `src/app/api/creator/bookings/booking-timezone.ts`.
+- Moved user activity route helper/test exports out of the route entry into `src/app/api/user/activity/activity-route-test-helpers.ts`.
+- Removed the exported `ProfileState` type from `src/app/dashboard/profile/page.tsx` and moved it into `src/app/dashboard/profile/profile-page-types.ts`.
+- Repointed dependent tests and profile-section imports to the new non-entry helper/type modules.
+
+Verification results:
+- `npm run typecheck` passed.
+- `npx vitest run tests/unit/user-activity-route.spec.ts tests/unit/creator-bookings-route.spec.ts` passed.
+- `npm run trace:adjacent -- src/app/api/user/activity/route.ts` passed.
+- `npm run trace:adjacent -- src/app/api/creator/bookings/route.ts` passed.
+- `npm run trace:adjacent -- src/app/admin/ai/page.tsx` passed.
+- `npm run trace:adjacent -- src/app/dashboard/profile/page.tsx` passed.
+- `npx next build --webpack --experimental-build-mode compile --experimental-app-only` passed.
+- `npx next build --webpack --debug-build-paths "src/app/admin/ai/page.tsx,src/app/api/user/activity/route.ts,src/app/api/creator/bookings/route.ts,src/app/dashboard/profile/page.tsx"` passed.
+
+Warnings / follow-up:
+- A full local `next build` on this Windows/OneDrive workspace is still substantially slower than the targeted compile lanes and can leave orphaned build workers if interrupted. The compile blocker is fixed, but future deployment troubleshooting should prefer explicit selective-build or compile-only lanes first.
+
 ## [2026-04-21 #27] Analytics Truth Recovery + Telemetry Hardening
 
 Scope for this pass:

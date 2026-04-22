@@ -22,13 +22,14 @@ vi.mock("@/lib/server/route-diagnostics", () => ({
     getErrorMessage: vi.fn(),
 }));
 
-import { GET, __test } from "@/app/api/user/activity/route";
+import { GET } from "@/app/api/user/activity/route";
+import { activityRouteTestHelpers } from "@/app/api/user/activity/activity-route-test-helpers";
 import { NextRequest } from "next/server";
 import { guardApiRequest } from "@/lib/server/request-guard";
 
 describe("user activity route helpers", () => {
     it("normalizes Firestore-like task timestamps", () => {
-        const taskEvent = __test.toTaskEvent({
+        const taskEvent = activityRouteTestHelpers.toTaskEvent({
             maxProgress: 5,
             progress: 1,
             reward: 15,
@@ -51,7 +52,7 @@ describe("user activity route helpers", () => {
     });
 
     it("keeps assigned, started, and reminder task events in the activity history", () => {
-        const items = __test.buildActivityItems(
+        const items = activityRouteTestHelpers.buildActivityItems(
             { docs: [] },
             {
                 docs: [

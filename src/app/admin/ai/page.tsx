@@ -120,7 +120,3 @@ export default function AIAdminPage() {
         </div>
     );
 }
-
-// Re-export types that other files might expect from this page
-export type { AdminAiDropCoverDashboard, AdminUiPreferencesResponse, AiModuleKey, ReviewFilter } from './hooks/useAdminAiState';
-export { MODULE_DEFAULTS } from './hooks/useAdminAiState';
