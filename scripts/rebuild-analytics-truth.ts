@@ -1,18 +1,31 @@
-import { initializeApp, getApps, applicationDefault } from "firebase-admin/app";
+import {spawn} from "node:child_process"
+import path from "node:path"
 
-if (getApps().length === 0) {
-  initializeApp({
-    credential: applicationDefault(),
-  });
+function runFunctionsCommand(scriptName: string) {
+  return new Promise<void>((resolve, reject) => {
+    const npmExecutable = process.platform === "win32" ? "npm.cmd" : "npm"
+    const child = spawn(
+      npmExecutable,
+      ["run", scriptName],
+      {
+        cwd: path.resolve(process.cwd(), "functions"),
+        stdio: "inherit",
+      },
+    )
+
+    child.on("error", reject)
+    child.on("close", (code) => {
+      if (code === 0) {
+        resolve()
+        return
+      }
+
+      reject(new Error(`functions ${scriptName} exited with code ${code ?? "unknown"}`))
+    })
+  })
 }
 
-async function main() {
-  const { rebuildAnalyticsTruthLayers } = await import("../functions/src/analytics-truth-runtime.js");
-  await rebuildAnalyticsTruthLayers();
-  console.log("Analytics truth layers rebuilt.");
-}
-
-main().catch((error) => {
-  console.error(error instanceof Error ? error.message : String(error));
-  process.exit(1);
-});
+void runFunctionsCommand("rebuild:analytics-truth").catch((error) => {
+  console.error(error instanceof Error ? error.message : String(error))
+  process.exit(1)
+})
