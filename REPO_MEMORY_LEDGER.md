@@ -24,6 +24,60 @@ This file is not a changelog. It is the concise ledger for durable decisions tha
 
 ## Decision Entries
 
+### 1an. Analytics/runtime truth should self-snitch at framework boot and on degraded serving paths, not only after delayed hydration or console inspection
+
+- Approximate date: Recorded explicitly on 2026-04-21 from the Analytics Self-Snitching + Early Runtime Diagnostics Hardening pass
+- Status: Active diagnostics and truth-surface rule
+- Problem/context: KandyDrops already had client diagnostics, route diagnostics, runtime warnings, and self-healing helpers, but critical failures could still hide in two places:
+  - early client boot or hydration windows before deferred diagnostics mounted
+  - analytics/runtime fallback paths that exposed `issues` in payloads but did not always escalate those degraded states into canonical runtime warnings
+- Decision made: Install diagnostics at framework boot using Next.js instrumentation hooks, and treat degraded analytics truth as a canonical warning lane rather than an operator-only interpretation problem.
+- What became canonical:
+  - `src/instrumentation-client.ts` and `src/lib/client-boot-diagnostics.ts` install client diagnostics before the app becomes interactive
+  - `src/instrumentation.ts` and `src/lib/server/framework-request-diagnostics.ts` bridge framework request errors into server diagnostics and runtime warning records
+  - analytics routes should escalate fallback/partial/failed truth into `runtime_warning_records` through `src/lib/server/analytics-runtime-warning.ts`
+  - user-activity query fallbacks now escalate into canonical runtime warnings instead of only warning diagnostics
+- Truth lives in:
+  - `src/instrumentation-client.ts`
+  - `src/lib/client-boot-diagnostics.ts`
+  - `src/instrumentation.ts`
+  - `src/lib/server/framework-request-diagnostics.ts`
+  - `src/lib/server/analytics-runtime-warning.ts`
+  - `src/lib/server/runtime-warning-store.ts`
+- Constraints:
+  - Do not mark fallback analytics as healthy
+  - Do not invent recovered precision; warnings should describe degraded truth, not mask it
+  - Keep diagnostics inside existing canonical stores instead of creating shadow dashboards
+
+### 1am. Heavy admin analytics/history reads should use short-lived server caching and slower cold-data polling instead of live-style refetch loops
+
+- Approximate date: Recorded explicitly on 2026-04-21 from the User/Admin Loading Audit + Analytics Historical Pull Tightening pass
+- Status: Active admin loading/performance rule
+- Problem/context: Admin analytics and debug surfaces were treating expensive historical and operational reads too much like realtime data. The historical analytics route already supported section-scoped responses, but the shared source helper still fanned out into the same broad GA + Firestore read set on every scoped request. Client polling also revalidated heavy historical/admin reads too frequently and on focus, which made hydration and repeat loads more expensive than the truth model required.
+- Decision made: Keep live pulse fast, but treat historical and operational admin reads as cold-ish data. Use short-lived server-side caching with in-flight dedupe for repeated heavy route payloads, slow heavy polling intervals, and avoid focus-triggered revalidation for those lanes. Client shells should also avoid hydrating large admin analytics tab modules before the operator actually opens them.
+- What became canonical:
+  - `src/lib/server/ephemeral-route-cache.ts` provides short-lived, in-flight-deduped route payload caching
+  - `src/lib/server/admin-analytics-data.ts` now caches expensive historical source bundles
+  - `src/app/api/admin/analytics/realtime/route.ts` now uses a short-lived cached payload window for repeated realtime/admin pulse reads
+  - `src/app/api/user/activity/route.ts` now uses a short-lived cached payload window for repeated recent-activity summary/history reads
+  - `src/app/admin/analytics/AnalyticsHelpers.tsx`, `src/app/admin/analytics/hooks/useAdminAnalyticsState.tsx`, `src/hooks/useAdminOverview.ts`, and `src/app/admin/debug/page.tsx` now use slower polling and disable focus-triggered revalidation on heavy historical/admin lanes
+  - `src/app/admin/analytics/page.tsx` now loads tab modules and heavy admin modules dynamically
+- Truth lives in:
+  - `src/lib/server/ephemeral-route-cache.ts`
+  - `src/lib/server/admin-analytics-data.ts`
+  - `src/app/api/admin/analytics/historical/route.ts`
+  - `src/app/api/admin/analytics/realtime/route.ts`
+  - `src/app/api/user/activity/route.ts`
+  - `src/app/admin/analytics/AnalyticsHelpers.tsx`
+  - `src/app/admin/analytics/hooks/useAdminAnalyticsState.tsx`
+  - `src/app/admin/analytics/page.tsx`
+  - `src/hooks/useAdminOverview.ts`
+  - `src/app/admin/debug/page.tsx`
+- What is now disallowed or deprecated:
+  - treating full historical analytics payloads as if they need 15-second polling plus focus revalidation
+  - forcing repeated admin historical/realtime rebuilds inside the same short operator window when a cached payload is still fresh
+  - eagerly hydrating every large admin analytics tab/module before the operator opens that tab
+
 ### 1am. Next App Router entry files must not export helper values, test hooks, or shared types
 
 - Approximate date: Recorded explicitly on 2026-04-21 from the deployment audit pass

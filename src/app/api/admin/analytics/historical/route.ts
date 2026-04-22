@@ -44,6 +44,9 @@ import {
 } from "@/lib/server/admin-analytics-shared";
 import { guardApiRequest } from "@/lib/server/request-guard";
 import { ADMIN_ANALYTICS } from "@/lib/server/rate-limit";
+import { getErrorMessage } from "@/lib/server/route-diagnostics";
+import { recordRouteRuntimeSample } from "@/lib/server/route-runtime-health";
+import { recordAnalyticsRuntimeWarning } from "@/lib/server/analytics-runtime-warning";
 
 const propertyId = getAdminAnalyticsPropertyId();
 const analyticsClient = createAdminAnalyticsDataClient();
@@ -210,6 +213,17 @@ function scopeHistoricalResponse(section: string | null, payload: Record<string,
 }
 
 export async function GET(request: NextRequest) {
+    const startedAt = Date.now();
+    const finalize = (response: NextResponse, error?: unknown) => {
+        void recordRouteRuntimeSample({
+            key: "admin/analytics/historical:GET",
+            durationMs: Date.now() - startedAt,
+            statusCode: response.status,
+            errorMessage: error ? getErrorMessage(error) : null,
+        });
+        return response;
+    };
+
     try {
         await guardApiRequest(request, {
             routeName: "admin/analytics/historical",
@@ -275,6 +289,7 @@ export async function GET(request: NextRequest) {
                 startMs,
                 period,
                 timelineBucket,
+                section,
             });
 
             const {
@@ -950,13 +965,23 @@ export async function GET(request: NextRequest) {
                 opsHealth,
             };
 
-            return NextResponse.json({
+            const jsonResponse = NextResponse.json({
                 success: true,
                 issues,
                 ...scopeHistoricalResponse(section, payload),
             });
+            await recordAnalyticsRuntimeWarning({
+                surface: "admin/analytics/historical",
+                routeName: "admin/analytics/historical",
+                truthLabel: analyticsTruth.fail > 0 ? "failed" : analyticsTruth.warn > 0 ? "partial" : "validated",
+                sourceLabel: "multi_source_historical",
+                issues,
+                moduleKey: section ?? "historical",
+            });
+
+            return finalize(jsonResponse);
 
     } catch (error) {
-        return handleApiError(error, "Admin.Analytics.Historical.GET");
+        return finalize(handleApiError(error, "Admin.Analytics.Historical.GET"), error);
     }
 }

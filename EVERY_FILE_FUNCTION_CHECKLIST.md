@@ -13,6 +13,33 @@ Current repo-wide state snapshot: see [FULL_SCALE_CODEBASE_AUDIT.md](/Users/uylu
 
 ## 2026-04-21 Delta Coverage
 
+- Added framework-boot and self-snitching diagnostics surfaces:
+  - `src/instrumentation.ts`
+  - `src/instrumentation-client.ts`
+  - `src/lib/client-boot-diagnostics.ts`
+  - `src/lib/server/framework-request-diagnostics.ts`
+  - `src/lib/server/analytics-runtime-warning.ts`
+- Hardened analytics/admin/user runtime truth escalation surfaces:
+  - `src/app/api/admin/analytics/realtime/route.ts`
+  - `src/app/api/admin/analytics/historical/route.ts`
+  - `src/app/api/user/activity/route.ts`
+  - `src/lib/route-runtime-health.ts`
+- Continuity note: early boot, framework request failures, analytics fallback truth, and user-activity query fallback paths now feed canonical diagnostics/runtime warning stores instead of relying on delayed client mount or console-only inspection.
+
+- Added user/admin loading-optimization cache and historical-pull hardening surfaces:
+  - `src/lib/server/ephemeral-route-cache.ts`
+  - `src/lib/server/admin-analytics-data.ts`
+  - `src/app/api/admin/analytics/historical/route.ts`
+  - `src/app/api/admin/analytics/realtime/route.ts`
+  - `src/app/api/user/activity/route.ts`
+- Tightened admin polling/hydration surfaces:
+  - `src/app/admin/analytics/AnalyticsHelpers.tsx`
+  - `src/app/admin/analytics/hooks/useAdminAnalyticsState.tsx`
+  - `src/app/admin/analytics/page.tsx`
+  - `src/app/admin/debug/page.tsx`
+  - `src/hooks/useAdminOverview.ts`
+- Continuity note: heavy admin historical and debug reads now use slower polling and short-lived cached payloads instead of repeated live-style reloads, while user recent-activity history can reuse a cached route payload during short repeat windows.
+
 - Added deployment-hardening helper/type splits required by Next 16 App Router entry rules:
   - `src/app/admin/ai/admin-ai-state-exports.ts`
   - `src/app/api/creator/bookings/booking-timezone.ts`

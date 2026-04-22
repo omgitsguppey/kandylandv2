@@ -1,5 +1,126 @@
 # KandyDrops Core Codebase Audit & Defensive Ledger
 
+## [2026-04-21 #30] Analytics Self-Snitching + Early Runtime Diagnostics Hardening
+
+Scope for this pass:
+- Harden the recent analytics/loading fixes with earlier client/runtime diagnostics, explicit analytics fallback warnings, and framework-level request-error capture so hydration/runtime failures become visible in canonical admin truth instead of hiding behind delayed boot or console-only noise.
+
+Research and verification basis:
+- Verified official Next.js instrumentation support for both `src/instrumentation.ts` server hooks and `src/instrumentation-client.ts` client boot hooks, including `onRequestError` and early client-side monitoring before interactivity.
+- Verified OpenTelemetry guidance that structured logs/telemetry should keep stable schema and correlation metadata instead of ad hoc strings.
+
+Current-state findings before edits:
+- The repo already had canonical diagnostics primitives:
+  - `src/lib/client-diagnostics.ts`
+  - `src/lib/server/route-diagnostics.ts`
+  - `src/lib/server/runtime-warning-store.ts`
+  - `src/lib/self-healing.ts`
+- The main gap was timing and escalation:
+  - client diagnostics were installed from `ClientDiagnosticsBridge`, but only after deferred client readiness
+  - framework-captured request failures were not bridged into canonical runtime warnings
+  - analytics routes exposed `issues` truthfully in payloads, but degraded/fallback truth was not always escalated into runtime warning records
+  - user activity query fallbacks self-reported via diagnostics, but not via canonical runtime warning records
+
+Changes made:
+- Added `src/instrumentation-client.ts` and `src/lib/client-boot-diagnostics.ts` so client diagnostics install at framework boot instead of waiting for delayed layout hydration.
+- Added early lifecycle and router-transition breadcrumbs plus long-task warnings for hydration/perf debugging.
+- Added `src/instrumentation.ts` and `src/lib/server/framework-request-diagnostics.ts` to bridge framework-level request errors into:
+  - canonical server diagnostics
+  - canonical runtime warning records
+- Added `src/lib/server/analytics-runtime-warning.ts` and wired analytics truth degradation into:
+  - `src/app/api/admin/analytics/realtime/route.ts`
+  - `src/app/api/admin/analytics/historical/route.ts`
+- Hardened `src/app/api/user/activity/route.ts` so query-sort fallbacks also emit canonical runtime warnings instead of only diagnostics.
+- Added route runtime coverage for `admin/analytics/historical:GET`.
+
+Verification run:
+- `npm run typecheck`
+- `npx vitest run tests/unit/client-boot-diagnostics.spec.ts tests/unit/framework-request-diagnostics.spec.ts tests/unit/admin-analytics-realtime-route.spec.ts tests/unit/user-activity-route.spec.ts tests/unit/route-runtime-health.spec.ts`
+- `npm run trace:adjacent -- src/app/api/admin/analytics/realtime/route.ts`
+- `npm run trace:adjacent -- src/app/api/admin/analytics/historical/route.ts`
+- `npm run trace:adjacent -- src/app/api/user/activity/route.ts`
+- `npm run trace:adjacent -- src/lib/server/framework-request-diagnostics.ts`
+- `npm run trace:adjacent -- src/lib/client-boot-diagnostics.ts`
+- `npm run check:telemetry`
+- `npm run check:analytics-semantics`
+- `npm run check:analytics:continuity`
+- `npm run check:ui:coverage`
+- `npm run check:ui:runtime`
+
+Verification notes:
+- `npm run check:ui:audits` did not complete within repeated extended local timeouts during this pass, so it remains unverified here rather than assumed clean.
+- The previously known homepage audit failures remain the expected likely blocker if the audit lane is rerun to completion:
+  - visual baseline mismatch on `/`
+  - footer text contrast issue on `/`
+  - `scrollable-region-focusable` issue on the `HowItWorks` rail
+
+## [2026-04-21 #29] User/Admin Loading Audit + Analytics Historical Pull Tightening
+
+Scope for this pass:
+- Perform a broad loading and speed audit across user/admin surfaces with focus on admin analytics hydration, heavy historical pulls, realtime polling behavior, and user-facing recent-activity history latency.
+
+Startup protocol executed:
+- Read `FULL_SCALE_CODEBASE_AUDIT.md`.
+- Read `REPO_MEMORY_LEDGER.md`.
+- Read `EVERY_FILE_FUNCTION_CHECKLIST.md`.
+- Ran `git status --short`.
+- Ran adjacency tracing for:
+  - `src/app/admin/analytics/page.tsx`
+  - `src/app/api/admin/analytics/historical/route.ts`
+  - `src/app/api/admin/analytics/realtime/route.ts`
+  - `src/app/admin/debug/page.tsx`
+  - `src/lib/server/admin-analytics-data.ts`
+  - `src/app/api/user/activity/route.ts`
+  - `src/app/admin/analytics/hooks/useAdminAnalyticsState.tsx`
+  - `src/hooks/useAdminOverview.ts`
+
+Current-state findings:
+- `src/app/api/admin/analytics/historical/route.ts` already exposed section-scoped responses, but the underlying helper `src/lib/server/admin-analytics-data.ts` still executed the same broad GA + Firestore fan-out for every scoped historical request.
+- Admin analytics/history polling was too aggressive for cold data:
+  - full historical snapshots every `15s`
+  - section override snapshots every `15s`
+  - focus-triggered revalidation on heavy historical/admin reads
+- Admin debug and admin overview were also polling on `5s` cadences even though they mostly surface operational state that tolerates a slower refresh.
+- `src/components/Dashboard/RecentActivityFeed.tsx` already used ETags, but the backing `/api/user/activity` route still paid full Firestore read cost on repeated summary/history requests within short windows.
+- `src/app/admin/analytics/page.tsx` still imported all tab modules and task modules eagerly, increasing initial admin analytics bundle and hydration weight even before a tab was used.
+
+Implementation results:
+- Added `src/lib/server/ephemeral-route-cache.ts` for short-lived, in-flight-deduped server payload caching.
+- Cached expensive admin analytics source fan-out inside `src/lib/server/admin-analytics-data.ts` so repeated historical pulls within the TTL reuse the already-fetched GA/Firestore source bundle instead of refetching every collection.
+- Passed the historical `section` key through `src/app/api/admin/analytics/historical/route.ts` to keep cache keys aligned with scoped historical requests.
+- Cached `/api/admin/analytics/realtime` payload construction for a short TTL to avoid rebuilding the same fallback/live pulse repeatedly within the same refresh window.
+- Cached `/api/user/activity` summary/history payloads for short windows so repeated recent-activity reads stop requerying transactions and task events unnecessarily.
+- Slowed heavy historical/admin polling to safer cadences:
+  - historical analytics and section overrides now refresh at `60s`
+  - admin analytics preferences now refresh at `30s`
+  - admin overview now refreshes at `15s`
+  - admin debug now refreshes at `15s`
+- Disabled focus-triggered revalidation on heavy historical/admin polling lanes so simply tabbing back into the app no longer forces broad analytics/debug reloads.
+- Wrapped admin analytics tab switches in `startTransition(...)` to keep non-urgent tab work from blocking interaction.
+- Switched admin analytics tab panels and task/truth modules to dynamic imports so the admin analytics shell stops hydrating every large tab module up front.
+
+Verification results:
+- `npm run typecheck` passed.
+- `npx vitest run tests/unit/admin-analytics-realtime-route.spec.ts tests/unit/user-activity-route.spec.ts tests/unit/admin-analytics-data.spec.ts` passed.
+- `npm run trace:adjacent -- src/lib/server/admin-analytics-data.ts` passed.
+- `npm run trace:adjacent -- src/app/api/admin/analytics/realtime/route.ts` passed.
+- `npm run trace:adjacent -- src/app/api/user/activity/route.ts` passed.
+- `npm run trace:adjacent -- src/app/admin/analytics/hooks/useAdminAnalyticsState.tsx` passed.
+- `npm run trace:adjacent -- src/app/admin/analytics/page.tsx` passed.
+- `npm run trace:adjacent -- src/app/admin/debug/page.tsx` passed.
+- `npm run trace:adjacent -- src/hooks/useAdminOverview.ts` passed.
+- `npm run check:ui:coverage` passed.
+- `npm run check:ui:runtime` passed.
+- `npm run check:ui:audits` still fails for pre-existing homepage issues unrelated to this pass:
+  - homepage hero visual-regression baseline mismatch
+  - homepage footer contrast issue
+  - homepage `scrollable-region-focusable` accessibility issue in the horizontally scrollable `HowItWorks` rail
+
+Warnings / follow-up:
+- The admin historical helper is now cached, but it still computes the full source bundle on a cold miss. A deeper follow-up could make the source fan-out truly section-aware instead of only cache-aware.
+- `src/app/admin/debug/page.tsx` remains a large client-heavy surface; this pass reduced polling pressure but did not fully decompose the page.
+- Homepage audit failures remain continuity blockers for a future home-surface signoff pass and were not introduced by this analytics-loading optimization work.
+
 ## [2026-04-21 #28] Deployment Audit + Next App-Entry Export Hardening
 
 Scope for this pass:

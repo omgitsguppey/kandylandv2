@@ -9,6 +9,8 @@ import type { normalizeTransactionRecord } from "@/lib/transaction-normalizers";
 import { guardApiRequest } from "@/lib/server/request-guard";
 import { getErrorMessage } from "@/lib/server/route-diagnostics";
 import { recordRouteRuntimeSample } from "@/lib/server/route-runtime-health";
+import { readThroughEphemeralRouteCache } from "@/lib/server/ephemeral-route-cache";
+import { recordRuntimeWarning } from "@/lib/server/runtime-warning-store";
 import { buildActivityItems, toTimestampNumber, type toTaskEvent } from "./activity-route-test-helpers";
 
 type ActivityItem =
@@ -26,6 +28,8 @@ type ActivityItem =
         label: string;
         taskEvent: ReturnType<typeof toTaskEvent>;
     };
+
+const USER_ACTIVITY_CACHE_TTL_MS = 20_000;
 
 async function fetchTransactions(uid: string, limitCount?: number) {
     try {
@@ -45,6 +49,20 @@ async function fetchTransactions(uid: string, limitCount?: number) {
                 route: "user/activity",
                 userId: uid,
                 collection: "transactions",
+                message: error instanceof Error ? error.message : String(error),
+            },
+        });
+        await recordRuntimeWarning({
+            code: "user_activity_query_fallback",
+            severity: "warn",
+            executionLayer: "next_route",
+            status: "fallback",
+            surface: "user/activity",
+            moduleKey: "transactions",
+            detail: {
+                routeName: "user/activity",
+                collection: "transactions",
+                userId: uid,
                 message: error instanceof Error ? error.message : String(error),
             },
         });
@@ -86,6 +104,20 @@ async function fetchTaskEvents(uid: string, limitCount?: number) {
                 route: "user/activity",
                 userId: uid,
                 collection: "daily_task_events",
+                message: error instanceof Error ? error.message : String(error),
+            },
+        });
+        await recordRuntimeWarning({
+            code: "user_activity_query_fallback",
+            severity: "warn",
+            executionLayer: "next_route",
+            status: "fallback",
+            surface: "user/activity",
+            moduleKey: "daily_task_events",
+            detail: {
+                routeName: "user/activity",
+                collection: "daily_task_events",
+                userId: uid,
                 message: error instanceof Error ? error.message : String(error),
             },
         });
@@ -137,18 +169,29 @@ export async function GET(request: NextRequest) {
         const view = request.nextUrl.searchParams.get("view") === "history" ? "history" : "summary";
         const itemLimit = view === "history" ? undefined : 1;
 
-        const [transactionsSnapshot, taskEventsSnapshot] = await Promise.all([
-            fetchTransactions(uid, itemLimit),
-            fetchTaskEvents(uid, itemLimit),
-        ]);
+        const payload = await readThroughEphemeralRouteCache({
+            key: `user-activity:${uid}:${view}`,
+            ttlMs: USER_ACTIVITY_CACHE_TTL_MS,
+            loader: async () => {
+                const [transactionsSnapshot, taskEventsSnapshot] = await Promise.all([
+                    fetchTransactions(uid, itemLimit),
+                    fetchTaskEvents(uid, itemLimit),
+                ]);
 
-        const activities = buildActivityItems(transactionsSnapshot, taskEventsSnapshot);
-        const transactions = activities.flatMap((item) => item.kind === "transaction" ? [item.transaction] : []);
-        const taskEvents = activities.flatMap((item) => item.kind === "task" && item.taskEvent ? [item.taskEvent] : []);
+                const activities = buildActivityItems(transactionsSnapshot, taskEventsSnapshot);
+                return {
+                    success: true,
+                    view,
+                    activities,
+                    transactions: activities.flatMap((item) => item.kind === "transaction" ? [item.transaction] : []),
+                    taskEvents: activities.flatMap((item) => item.kind === "task" && item.taskEvent ? [item.taskEvent] : []),
+                };
+            },
+        });
 
         const etag = buildWeakEtag({
             view,
-            activities: activities.map((item) => item.kind === "transaction"
+            activities: payload.activities.map((item) => item.kind === "transaction"
                 ? [item.id, item.timestamp, item.kind, item.transaction.amount, item.transaction.type, item.transaction.rewardSource ?? ""]
                 : [item.id, item.timestamp, item.kind, item.taskEvent?.type ?? "", item.taskEvent?.progress ?? 0, item.taskEvent?.maxProgress ?? 0]),
         });
@@ -157,13 +200,7 @@ export async function GET(request: NextRequest) {
             return finalize(buildNotModifiedResponse(etag, PRIVATE_REVALIDATE_CACHE_CONTROL));
         }
 
-        return finalize(NextResponse.json({
-            success: true,
-            view,
-            activities,
-            transactions,
-            taskEvents,
-        }, {
+        return finalize(NextResponse.json(payload, {
             headers: {
                 ETag: etag,
                 "Cache-Control": PRIVATE_REVALIDATE_CACHE_CONTROL,

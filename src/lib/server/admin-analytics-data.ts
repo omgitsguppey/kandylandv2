@@ -4,11 +4,14 @@ import { BetaAnalyticsDataClient } from "@google-analytics/data";
 
 import { adminDb } from "./firebase-admin";
 import { fetchTelemetryLogs, safeRunReport } from "./admin-analytics-shared";
+import { readThroughEphemeralRouteCache } from "./ephemeral-route-cache";
 import {
   safeDocumentWithDiagnostics,
   safeQueryWithDiagnostics,
 } from "./diagnostic-read-fallbacks";
 import { ADMIN_TELEMETRY_LOG_EVENT_NAMES, TELEMETRY_EVENT_QUERY_NAMES } from "@/lib/telemetry-catalog";
+
+const ADMIN_ANALYTICS_HISTORICAL_CACHE_TTL_MS = 30_000;
 
 export function getAdminAnalyticsPropertyId() {
   return process.env.GA_PROPERTY_ID || "";
@@ -40,37 +43,43 @@ export async function fetchAdminHistoricalAnalyticsSources(input: {
   startMs: number;
   period: string | null;
   timelineBucket: "day" | "hour";
+  section?: string | null;
 }) {
-  const { analyticsClient, propertyId, startDate, endDate, startDayKey, startMs, period, timelineBucket } = input;
-  const analyticsEventNames = TELEMETRY_EVENT_QUERY_NAMES;
-  const trafficDimensionName = timelineBucket === "hour" ? "dateHour" : "date";
-  const issues: string[] = [];
+  const { analyticsClient, propertyId, startDate, endDate, startDayKey, startMs, period, timelineBucket, section } = input;
 
-    const [
-        response,
-        eventsResponse,
-        geoResponse,
-        pagesResponse,
-    devicesResponse,
-    onboardingResponse,
-    dailyRollupsSnapshot,
-    pageRollupsSnapshot,
-    dropDailySnapshot,
-    taskDailySnapshot,
-    commerceDailySnapshot,
-    sessionFactsSnapshot,
-    pipelineHealthSnapshot,
-    analyticsEventFactsSnapshot,
-    analyticsEventStatsSnapshot,
-    securityEventsSnapshot,
-    guestBatchesSnapshot,
-    guestSessionsSnapshot,
-        commerceSummarySnapshot,
-        serverDiagnosticsSnapshot,
-        taskRollupSnapshot,
-        dropsSnapshot,
-        watchSessionsSnapshot,
-        watchAssetsSnapshot,
+  return readThroughEphemeralRouteCache({
+    key: `admin-historical-sources:${propertyId}:${startDate}:${endDate}:${startDayKey}:${startMs}:${period ?? "default"}:${timelineBucket}:${section ?? "all"}`,
+    ttlMs: ADMIN_ANALYTICS_HISTORICAL_CACHE_TTL_MS,
+    loader: async () => {
+      const analyticsEventNames = TELEMETRY_EVENT_QUERY_NAMES;
+      const trafficDimensionName = timelineBucket === "hour" ? "dateHour" : "date";
+      const issues: string[] = [];
+
+      const [
+          response,
+          eventsResponse,
+          geoResponse,
+          pagesResponse,
+      devicesResponse,
+      onboardingResponse,
+      dailyRollupsSnapshot,
+      pageRollupsSnapshot,
+      dropDailySnapshot,
+      taskDailySnapshot,
+      commerceDailySnapshot,
+      sessionFactsSnapshot,
+      pipelineHealthSnapshot,
+      analyticsEventFactsSnapshot,
+      analyticsEventStatsSnapshot,
+      securityEventsSnapshot,
+      guestBatchesSnapshot,
+      guestSessionsSnapshot,
+          commerceSummarySnapshot,
+          serverDiagnosticsSnapshot,
+          taskRollupSnapshot,
+          dropsSnapshot,
+          watchSessionsSnapshot,
+          watchAssetsSnapshot,
     ] = await Promise.all([
     safeRunReport(analyticsClient, {
       property: `properties/${propertyId}`,
@@ -382,92 +391,74 @@ export async function fetchAdminHistoricalAnalyticsSources(input: {
       }),
   ]);
 
-  const [
-    telemetryLogsByEvent,
-    taskEventsSnapshot,
-    transactionsInRangeSnapshot,
-  ] = await Promise.all([
-    fetchTelemetryLogs(ADMIN_TELEMETRY_LOG_EVENT_NAMES, startMs),
-    safeQueryWithDiagnostics({
-      routeName: "admin/analytics/historical",
-      channel: "analytics",
-      label: "daily task events",
-      issues,
-      reader: () => adminDb.collection("daily_task_events")
-        .where("timestamp", ">=", startMs)
-        .orderBy("timestamp", "desc")
-        .get(),
-    }),
-    period === "all"
-      ? safeQueryWithDiagnostics({
-        routeName: "admin/analytics/historical",
-        channel: "analytics",
-        label: "guest analytics sessions",
-        issues,
-        reader: () => adminDb.collection("analytics_sessions")
-          .orderBy("lastReceivedAtMs", "desc")
-          .get(),
-      })
-      : safeQueryWithDiagnostics({
-        routeName: "admin/analytics/historical",
-        channel: "analytics",
-        label: "guest analytics sessions",
-        issues,
-        reader: () => adminDb.collection("analytics_sessions")
-          .where("lastReceivedAtMs", ">=", startMs)
-          .orderBy("lastReceivedAtMs", "desc")
-          .get(),
-      }),
-    period === "all"
-      ? safeQueryWithDiagnostics({
-        routeName: "admin/analytics/historical",
-        channel: "commerce",
-        label: "transactions",
-        issues,
-        reader: () => adminDb.collection("transactions")
-          .orderBy("timestamp", "desc")
-          .get(),
-      })
-      : safeQueryWithDiagnostics({
-        routeName: "admin/analytics/historical",
-        channel: "commerce",
-        label: "transactions",
-        issues,
-        reader: () => adminDb.collection("transactions")
-          .where("timestampMs", ">=", startMs)
-          .orderBy("timestampMs", "desc")
-          .get(),
-      }),
-  ]);
+      const [
+        telemetryLogsByEvent,
+        taskEventsSnapshot,
+        transactionsInRangeSnapshot,
+      ] = await Promise.all([
+        fetchTelemetryLogs(ADMIN_TELEMETRY_LOG_EVENT_NAMES, startMs),
+        safeQueryWithDiagnostics({
+          routeName: "admin/analytics/historical",
+          channel: "analytics",
+          label: "daily task events",
+          issues,
+          reader: () => adminDb.collection("daily_task_events")
+            .where("timestamp", ">=", startMs)
+            .orderBy("timestamp", "desc")
+            .get(),
+        }),
+        period === "all"
+          ? safeQueryWithDiagnostics({
+            routeName: "admin/analytics/historical",
+            channel: "commerce",
+            label: "transactions",
+            issues,
+            reader: () => adminDb.collection("transactions")
+              .orderBy("timestamp", "desc")
+              .get(),
+          })
+          : safeQueryWithDiagnostics({
+            routeName: "admin/analytics/historical",
+            channel: "commerce",
+            label: "transactions",
+            issues,
+            reader: () => adminDb.collection("transactions")
+              .where("timestampMs", ">=", startMs)
+              .orderBy("timestampMs", "desc")
+              .get(),
+          }),
+      ]);
 
-  return {
-    issues,
-    response,
-    eventsResponse,
-    geoResponse,
-    pagesResponse,
-    devicesResponse,
-    onboardingResponse,
-    dailyRollupsSnapshot,
-    pageRollupsSnapshot,
-    dropDailySnapshot,
-    taskDailySnapshot,
-    commerceDailySnapshot,
-    sessionFactsSnapshot,
-    pipelineHealthSnapshot,
-    analyticsEventFactsSnapshot,
-    analyticsEventStatsSnapshot,
-    securityEventsSnapshot,
-    guestBatchesSnapshot,
-    guestSessionsSnapshot,
-    commerceSummarySnapshot,
-    serverDiagnosticsSnapshot,
-    taskRollupSnapshot,
-    dropsSnapshot,
-    watchSessionsSnapshot,
-    watchAssetsSnapshot,
-    telemetryLogsByEvent,
-    taskEventsSnapshot,
-    transactionsInRangeSnapshot,
-  };
+      return {
+        issues,
+        response,
+        eventsResponse,
+        geoResponse,
+        pagesResponse,
+        devicesResponse,
+        onboardingResponse,
+        dailyRollupsSnapshot,
+        pageRollupsSnapshot,
+        dropDailySnapshot,
+        taskDailySnapshot,
+        commerceDailySnapshot,
+        sessionFactsSnapshot,
+        pipelineHealthSnapshot,
+        analyticsEventFactsSnapshot,
+        analyticsEventStatsSnapshot,
+        securityEventsSnapshot,
+        guestBatchesSnapshot,
+        guestSessionsSnapshot,
+        commerceSummarySnapshot,
+        serverDiagnosticsSnapshot,
+        taskRollupSnapshot,
+        dropsSnapshot,
+        watchSessionsSnapshot,
+        watchAssetsSnapshot,
+        telemetryLogsByEvent,
+        taskEventsSnapshot,
+        transactionsInRangeSnapshot,
+      };
+    },
+  });
 }

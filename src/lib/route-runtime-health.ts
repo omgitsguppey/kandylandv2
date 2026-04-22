@@ -41,6 +41,12 @@ export const ROUTE_RUNTIME_HEALTH_TARGETS = {
         title: "Admin realtime analytics snapshot",
         slowThresholdMs: 4000,
     },
+    "admin/analytics/historical:GET": {
+        routeName: "admin/analytics/historical",
+        method: "GET",
+        title: "Admin historical analytics snapshot",
+        slowThresholdMs: 7000,
+    },
     "admin/ui-chart-health:GET": {
         routeName: "admin/ui-chart-health",
         method: "GET",

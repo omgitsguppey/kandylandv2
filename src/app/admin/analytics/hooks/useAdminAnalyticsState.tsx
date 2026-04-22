@@ -1,7 +1,7 @@
 // @ts-nocheck
 "use client";
 
-import { useEffect, useMemo, useState } from "react";
+import { startTransition, useEffect, useMemo, useState } from "react";
 
 
 import { toast } from "sonner";
@@ -140,9 +140,10 @@ const { user } = useAuth();
     mutate: mutateAnalyticsPreferences,
   } = useAdminPollingSWR<AnalyticsPreferencesResponse>(
     "/api/admin/analytics/preferences",
-    15_000,
+    30_000,
     {
       keepPreviousData: true,
+      revalidateOnFocus: false,
     },
   );
 
@@ -225,13 +226,19 @@ const { user } = useAuth();
   } = useAdminPollingSWR<RealtimeAnalyticsResponse>(
     "/api/admin/analytics/realtime",
     5_000,
+    {
+      keepPreviousData: true,
+    },
   );
 
   const {
     data: historicalResponse,
     error: historicalError,
     isLoading: historicalLoading,
-  } = useAdminPollingSWR<HistoricalAnalyticsResponse>(historicalUrl, 15_000);
+  } = useAdminPollingSWR<HistoricalAnalyticsResponse>(historicalUrl, 60_000, {
+    keepPreviousData: true,
+    revalidateOnFocus: false,
+  });
 
   const livePulseRange = getSectionRange("livePulse");
   const livePulseOverride = useHistoricalSectionOverride(
@@ -1678,9 +1685,15 @@ const { user } = useAuth();
     clearViewerFilter();
   };
 
+  const setActiveTabDeferred = (nextTab: ViewTab) => {
+    startTransition(() => {
+      setActiveTab(nextTab);
+    });
+  };
+
   
   return {
-    user, activeTab, setActiveTab, range, nowMs, viewerUserDraft, setViewerUserDraft, viewerUserFilter, setViewerUserFilter,
+    user, activeTab, setActiveTab: setActiveTabDeferred, range, nowMs, viewerUserDraft, setViewerUserDraft, viewerUserFilter, setViewerUserFilter,
     moduleRanges, setModuleRanges, savingSectionKey, setSavingSectionKey, analyticsFilterStorageKey,
     activeSessionFilter, setActiveSessionFilter, activeDropFilter, setActiveDropFilter, activeSubFilter, setActiveSubFilter,
     customDateRange, setCustomDateRange, handleRangeSelect, isCustomRangeDisabled,

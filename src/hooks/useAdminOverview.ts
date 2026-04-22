@@ -6,7 +6,9 @@ import { useAdminPollingSWR } from "@/hooks/useAdminPollingSWR";
 import type { AdminOverviewResponse } from "@/lib/admin-overview";
 
 export function useAdminOverview() {
-    const swr = useAdminPollingSWR<AdminOverviewResponse>("/api/admin/overview", 5_000);
+    const swr = useAdminPollingSWR<AdminOverviewResponse>("/api/admin/overview", 15_000, {
+        revalidateOnFocus: false,
+    });
     const { mutate } = swr;
 
     useEffect(() => {

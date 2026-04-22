@@ -184,14 +184,17 @@ export default function DebugConsole() {
     const [savingDebugPreferences, setSavingDebugPreferences] = useState(false);
     const debugPreferencesHydratedRef = useRef(false);
 
-    const { data, error, isLoading, mutate } = useAdminPollingSWR<any>("/api/admin/debug", 5000, {
-        keepPreviousData: false,
+    const { data, error, isLoading, mutate } = useAdminPollingSWR<any>("/api/admin/debug", 15000, {
+        keepPreviousData: true,
+        revalidateOnFocus: false,
     });
     const { data: debugPreferencesData, mutate: mutateDebugPreferences } = useAdminPollingSWR<any>("/api/admin/debug/preferences", 15000, {
         keepPreviousData: true,
+        revalidateOnFocus: false,
     });
     const { data: aiDebugData, error: aiDebugError, mutate: mutateAiDebug } = useAdminPollingSWR<AdminAiDebugSummary>("/api/admin/debug/assistant", 15000, {
         keepPreviousData: true,
+        revalidateOnFocus: false,
     });
     const { data: overviewData, isLoading: overviewLoading, mutate: mutateOverview } = useAdminOverview();
 

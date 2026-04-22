@@ -146,9 +146,10 @@ export function useHistoricalSectionOverride(
     shouldFetchOverride
       ? buildSectionHistoricalUrl(sectionKey, range, viewerUser)
       : null,
-    15_000,
+    60_000,
     {
       keepPreviousData: true,
+      revalidateOnFocus: false,
     },
   );
 }

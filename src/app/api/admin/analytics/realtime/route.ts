@@ -24,9 +24,12 @@ import { ANALYTICS_CANONICAL_COLLECTIONS, ANALYTICS_OPERATIONAL_COLLECTIONS } fr
 import { safeQueryWithDiagnostics } from "@/lib/server/diagnostic-read-fallbacks";
 import { getErrorMessage } from "@/lib/server/route-diagnostics";
 import { recordRouteRuntimeSample } from "@/lib/server/route-runtime-health";
+import { readThroughEphemeralRouteCache } from "@/lib/server/ephemeral-route-cache";
+import { recordAnalyticsRuntimeWarning } from "@/lib/server/analytics-runtime-warning";
 
 const propertyId = getAdminAnalyticsPropertyId();
 const analyticsClient = createAdminAnalyticsDataClient();
+const ADMIN_ANALYTICS_REALTIME_CACHE_TTL_MS = 10_000;
 
 type LiveBucket = {
   minute: number;
@@ -252,175 +255,189 @@ export async function GET(request: NextRequest) {
       scopeToCaller: true,
     });
 
-    const nowMs = Date.now();
-    const thirtyMinsAgo = nowMs - 30 * 60 * 1000;
-    const onboardingWindowStartMs = nowMs - 24 * 60 * 60 * 1000;
-    const issues: string[] = [];
+        const payload = await readThroughEphemeralRouteCache({
+      key: "admin-analytics-realtime:summary",
+      ttlMs: ADMIN_ANALYTICS_REALTIME_CACHE_TTL_MS,
+      loader: async () => {
+        const nowMs = Date.now();
+        const thirtyMinsAgo = nowMs - 30 * 60 * 1000;
+        const onboardingWindowStartMs = nowMs - 24 * 60 * 60 * 1000;
+        const issues: string[] = [];
 
-    const totalActiveResponse = propertyId
-      ? await safeRunRealtimeReport(analyticsClient, {
-        property: `properties/${propertyId}`,
-        metrics: [{ name: "activeUsers" }],
-      })
-      : { rows: [], fallbackUsed: true };
+        const totalActiveResponse = propertyId
+          ? await safeRunRealtimeReport(analyticsClient, {
+            property: `properties/${propertyId}`,
+            metrics: [{ name: "activeUsers" }],
+          })
+          : { rows: [], fallbackUsed: true };
 
-    const intervalResponse = propertyId
-      ? await safeRunRealtimeReport(analyticsClient, {
-        property: `properties/${propertyId}`,
-        metrics: [{ name: "activeUsers" }, { name: "screenPageViews" }],
-        dimensions: [{ name: "minutesAgo" }],
-      })
-      : { rows: [], fallbackUsed: true };
+        const intervalResponse = propertyId
+          ? await safeRunRealtimeReport(analyticsClient, {
+            property: `properties/${propertyId}`,
+            metrics: [{ name: "activeUsers" }, { name: "screenPageViews" }],
+            dimensions: [{ name: "minutesAgo" }],
+          })
+          : { rows: [], fallbackUsed: true };
 
-    if (!propertyId) {
-      issues.push("GA realtime is not configured; using first-party fallback only.");
-    } else if (totalActiveResponse.fallbackUsed || intervalResponse.fallbackUsed) {
-      issues.push("GA realtime request failed; using first-party fallback for live analytics.");
-    }
+        if (!propertyId) {
+          issues.push("GA realtime is not configured; using first-party fallback only.");
+        } else if (totalActiveResponse.fallbackUsed || intervalResponse.fallbackUsed) {
+          issues.push("GA realtime request failed; using first-party fallback for live analytics.");
+        }
 
-    const rows = intervalResponse.rows || [];
-    const gaLiveData = Array.from({ length: 30 }, (_, i) => ({
-      minute: i,
-      users: 0,
-      views: 0,
-    }));
+        const rows = intervalResponse.rows || [];
+        const gaLiveData = Array.from({ length: 30 }, (_, i) => ({
+          minute: i,
+          users: 0,
+          views: 0,
+        }));
 
-    rows.forEach((row: AnalyticsReportRow) => {
-      const minAgo = parseInt(row.dimensionValues?.[0]?.value || "0", 10);
-      const usersCount = parseInt(row.metricValues?.[0]?.value || "0", 10);
-      const viewsCount = parseInt(row.metricValues?.[1]?.value || "0", 10);
-      if (minAgo < 30) {
-        gaLiveData[minAgo].users = usersCount;
-        gaLiveData[minAgo].views = viewsCount;
-      }
-    });
+        rows.forEach((row: AnalyticsReportRow) => {
+          const minAgo = parseInt(row.dimensionValues?.[0]?.value || "0", 10);
+          const usersCount = parseInt(row.metricValues?.[0]?.value || "0", 10);
+          const viewsCount = parseInt(row.metricValues?.[1]?.value || "0", 10);
+          if (minAgo < 30) {
+            gaLiveData[minAgo].users = usersCount;
+            gaLiveData[minAgo].views = viewsCount;
+          }
+        });
 
-    const [
-      sessionsQuery,
-      onboardingFactsSnapshot,
-      recentEventFactsSnapshot,
-      recentGuestBatchesSnapshot,
-      watchSessionsSnapshot,
-      watchAssetsSnapshot,
-    ] = await Promise.all([
-      safeQueryWithDiagnostics({
-        routeName: "admin/analytics/realtime",
-        channel: "analytics",
-        label: "active user sessions",
-        issues,
-        reader: () => adminDb.collection(ANALYTICS_OPERATIONAL_COLLECTIONS.activeUsers)
-          .where("lastSeenAt", ">=", thirtyMinsAgo)
-          .get(),
-      }),
-      safeQueryWithDiagnostics({
-        routeName: "admin/analytics/realtime",
-        channel: "analytics",
-        label: "onboarding event facts",
-        issues,
-        reader: () => adminDb.collection(ANALYTICS_CANONICAL_COLLECTIONS.identifiedEventFacts)
-          .where("timestamp", ">=", onboardingWindowStartMs)
-          .get(),
-      }),
-      safeQueryWithDiagnostics({
-        routeName: "admin/analytics/realtime",
-        channel: "analytics",
-        label: "recent event facts",
-        issues,
-        reader: () => adminDb.collection(ANALYTICS_CANONICAL_COLLECTIONS.identifiedEventFacts)
-          .where("timestamp", ">=", thirtyMinsAgo)
-          .get(),
-      }),
-      safeQueryWithDiagnostics({
-        routeName: "admin/analytics/realtime",
-        channel: "analytics",
-        label: "recent guest batches",
-        issues,
-        reader: () => adminDb.collection(ANALYTICS_CANONICAL_COLLECTIONS.guestBatches)
-          .where("receivedAtMs", ">=", thirtyMinsAgo)
-          .get(),
-      }),
-      safeQueryWithDiagnostics({
-        routeName: "admin/analytics/realtime",
-        channel: "analytics",
-        label: "watch sessions",
-        issues,
-        reader: () => adminDb.collection(ANALYTICS_CANONICAL_COLLECTIONS.watchSessions)
-          .where("lastSeenAtMs", ">=", thirtyMinsAgo)
-          .get(),
-      }),
-      safeQueryWithDiagnostics({
-        routeName: "admin/analytics/realtime",
-        channel: "analytics",
-        label: "watch assets",
-        issues,
-        reader: () => adminDb.collection(ANALYTICS_CANONICAL_COLLECTIONS.watchAssets)
-          .where("lastSeenAtMs", ">=", thirtyMinsAgo)
-          .get(),
-      }),
-    ]);
+        const [
+          sessionsQuery,
+          onboardingFactsSnapshot,
+          recentEventFactsSnapshot,
+          recentGuestBatchesSnapshot,
+          watchSessionsSnapshot,
+          watchAssetsSnapshot,
+        ] = await Promise.all([
+          safeQueryWithDiagnostics({
+            routeName: "admin/analytics/realtime",
+            channel: "analytics",
+            label: "active user sessions",
+            issues,
+            reader: () => adminDb.collection(ANALYTICS_OPERATIONAL_COLLECTIONS.activeUsers)
+              .where("lastSeenAt", ">=", thirtyMinsAgo)
+              .get(),
+          }),
+          safeQueryWithDiagnostics({
+            routeName: "admin/analytics/realtime",
+            channel: "analytics",
+            label: "onboarding event facts",
+            issues,
+            reader: () => adminDb.collection(ANALYTICS_CANONICAL_COLLECTIONS.identifiedEventFacts)
+              .where("timestamp", ">=", onboardingWindowStartMs)
+              .get(),
+          }),
+          safeQueryWithDiagnostics({
+            routeName: "admin/analytics/realtime",
+            channel: "analytics",
+            label: "recent event facts",
+            issues,
+            reader: () => adminDb.collection(ANALYTICS_CANONICAL_COLLECTIONS.identifiedEventFacts)
+              .where("timestamp", ">=", thirtyMinsAgo)
+              .get(),
+          }),
+          safeQueryWithDiagnostics({
+            routeName: "admin/analytics/realtime",
+            channel: "analytics",
+            label: "recent guest batches",
+            issues,
+            reader: () => adminDb.collection(ANALYTICS_CANONICAL_COLLECTIONS.guestBatches)
+              .where("receivedAtMs", ">=", thirtyMinsAgo)
+              .get(),
+          }),
+          safeQueryWithDiagnostics({
+            routeName: "admin/analytics/realtime",
+            channel: "analytics",
+            label: "watch sessions",
+            issues,
+            reader: () => adminDb.collection(ANALYTICS_CANONICAL_COLLECTIONS.watchSessions)
+              .where("lastSeenAtMs", ">=", thirtyMinsAgo)
+              .get(),
+          }),
+          safeQueryWithDiagnostics({
+            routeName: "admin/analytics/realtime",
+            channel: "analytics",
+            label: "watch assets",
+            issues,
+            reader: () => adminDb.collection(ANALYTICS_CANONICAL_COLLECTIONS.watchAssets)
+              .where("lastSeenAtMs", ">=", thirtyMinsAgo)
+              .get(),
+          }),
+        ]);
 
-    const onboardingOverview = buildHistoricalOnboardingOverview({
-      onboardingRows: [],
-      analyticsEventFacts: onboardingFactsSnapshot.docs,
-      startMs: onboardingWindowStartMs,
-      eventsData: {},
-    });
-    const fallbackActiveUsers = buildFallbackActiveUsers({
-      activeUserDocs: sessionsQuery.docs,
-      eventFactDocs: recentEventFactsSnapshot.docs,
-      watchSessionDocs: watchSessionsSnapshot.docs,
-    });
-    const activeUsers = fallbackActiveUsers;
-    if (sessionsQuery.size === 0 && activeUsers.length > 0) {
-      issues.push("Live identity lane fell back from analytics_active_users to recent event facts and watch sessions.");
-    }
+        const onboardingOverview = buildHistoricalOnboardingOverview({
+          onboardingRows: [],
+          analyticsEventFacts: onboardingFactsSnapshot.docs,
+          startMs: onboardingWindowStartMs,
+          eventsData: {},
+        });
+        const fallbackActiveUsers = buildFallbackActiveUsers({
+          activeUserDocs: sessionsQuery.docs,
+          eventFactDocs: recentEventFactsSnapshot.docs,
+          watchSessionDocs: watchSessionsSnapshot.docs,
+        });
+        const activeUsers = fallbackActiveUsers;
+        if (sessionsQuery.size === 0 && activeUsers.length > 0) {
+          issues.push("Live identity lane fell back from analytics_active_users to recent event facts and watch sessions.");
+        }
 
-    const firstPartyLiveData = buildFirstPartyLiveData({
-      nowMs,
-      eventFactDocs: recentEventFactsSnapshot.docs,
-      guestBatchDocs: recentGuestBatchesSnapshot.docs,
-      watchSessionDocs: watchSessionsSnapshot.docs,
-    });
-    const gaTotalActive = parseInt(totalActiveResponse.rows?.[0]?.metricValues?.[0]?.value || "0", 10);
-    const useFirstPartyFallback = Boolean(totalActiveResponse.fallbackUsed || intervalResponse.fallbackUsed)
-      || (gaTotalActive <= 0 && activeUsers.length > 0);
-    if (!propertyId || totalActiveResponse.fallbackUsed || intervalResponse.fallbackUsed) {
-      // issue already recorded above
-    } else if (gaTotalActive <= 0 && activeUsers.length > 0) {
-      issues.push("GA realtime returned no active users; live pulse is using first-party fallback counts.");
-    }
+        const firstPartyLiveData = buildFirstPartyLiveData({
+          nowMs,
+          eventFactDocs: recentEventFactsSnapshot.docs,
+          guestBatchDocs: recentGuestBatchesSnapshot.docs,
+          watchSessionDocs: watchSessionsSnapshot.docs,
+        });
+        const gaTotalActive = parseInt(totalActiveResponse.rows?.[0]?.metricValues?.[0]?.value || "0", 10);
+        const useFirstPartyFallback = Boolean(totalActiveResponse.fallbackUsed || intervalResponse.fallbackUsed)
+          || (gaTotalActive <= 0 && activeUsers.length > 0);
+        if (gaTotalActive <= 0 && activeUsers.length > 0 && !totalActiveResponse.fallbackUsed && !intervalResponse.fallbackUsed && propertyId) {
+          issues.push("GA realtime returned no active users; live pulse is using first-party fallback counts.");
+        }
 
-    const totalActive = useFirstPartyFallback ? activeUsers.length : gaTotalActive;
-    const liveData = (useFirstPartyFallback ? firstPartyLiveData : gaLiveData)
-      .sort((a, b) => b.minute - a.minute);
-    const surfaceMix = buildRealtimeSurfaceMix({ activeUsers });
-    const watchCaptureHealth = buildWatchCaptureHealthSummary({
-      watchSessionDocs: watchSessionsSnapshot.docs,
-      watchAssetDocs: watchAssetsSnapshot.docs,
-    });
+        const totalActive = useFirstPartyFallback ? activeUsers.length : gaTotalActive;
+        const liveData = (useFirstPartyFallback ? firstPartyLiveData : gaLiveData)
+          .sort((a, b) => b.minute - a.minute);
+        const surfaceMix = buildRealtimeSurfaceMix({ activeUsers });
+        const watchCaptureHealth = buildWatchCaptureHealthSummary({
+          watchSessionDocs: watchSessionsSnapshot.docs,
+          watchAssetDocs: watchAssetsSnapshot.docs,
+        });
 
-    return finalize(NextResponse.json({
-      success: true,
-      generatedAtMs: nowMs,
-      issues,
-      totalActive,
-      deepTrackerActive: activeUsers.length,
-      liveTruthLabel: useFirstPartyFallback ? "fallback" : "live",
-      liveSourceLabel: useFirstPartyFallback ? "first_party_realtime" : "ga_realtime",
-      activeUsersTruthLabel: sessionsQuery.size > 0 ? "live" : (activeUsers.length > 0 ? "fallback" : "partial"),
-      activeUsersSourceLabel: sessionsQuery.size > 0 ? "analytics_active_users" : "analytics_event_facts + analytics_watch_sessions",
-      data: liveData,
-      activeUsers,
-      surfaceMix,
-      watchCaptureHealth,
-      onboardingStats: {
-        starts: onboardingOverview.onboardingStartCount,
-        completions: onboardingOverview.normalizedOnboardingCompletions,
-        avgDuration: onboardingOverview.avgOnboardingDuration,
-        completionRate: onboardingOverview.onboardingCompletionRate,
-        startSource: onboardingOverview.onboardingStartSource,
+        return {
+          success: true,
+          generatedAtMs: nowMs,
+          issues,
+          totalActive,
+          deepTrackerActive: activeUsers.length,
+          liveTruthLabel: useFirstPartyFallback ? "fallback" : "live",
+          liveSourceLabel: useFirstPartyFallback ? "first_party_realtime" : "ga_realtime",
+          activeUsersTruthLabel: sessionsQuery.size > 0 ? "live" : (activeUsers.length > 0 ? "fallback" : "partial"),
+          activeUsersSourceLabel: sessionsQuery.size > 0 ? "analytics_active_users" : "analytics_event_facts + analytics_watch_sessions",
+          data: liveData,
+          activeUsers,
+          surfaceMix,
+          watchCaptureHealth,
+          onboardingStats: {
+            starts: onboardingOverview.onboardingStartCount,
+            completions: onboardingOverview.normalizedOnboardingCompletions,
+            avgDuration: onboardingOverview.avgOnboardingDuration,
+            completionRate: onboardingOverview.onboardingCompletionRate,
+            startSource: onboardingOverview.onboardingStartSource,
+          },
+        };
       },
-    }));
+        });
+        await recordAnalyticsRuntimeWarning({
+          surface: "admin/analytics/realtime",
+          routeName: "admin/analytics/realtime",
+          truthLabel: payload.liveTruthLabel,
+          sourceLabel: payload.liveSourceLabel,
+          issues: payload.issues,
+          moduleKey: "realtime",
+        });
+
+    return finalize(NextResponse.json(payload));
   } catch (error) {
     return finalize(handleApiError(error, "Admin.Analytics.Realtime.GET"), error);
   }

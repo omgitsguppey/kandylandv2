@@ -1,6 +1,7 @@
 // @ts-nocheck
 "use client";
 
+import dynamic from "next/dynamic";
 import {
   Activity,
   AlertTriangle,
@@ -21,8 +22,6 @@ import { AdminPageHeader } from "@/components/Admin/AdminPageHeader";
 import {
   MetricCard,
 } from "@/components/Admin/Analytics/AdminAnalyticsPrimitives";
-import { AdminTaskAndNotificationModules } from "@/components/Admin/Analytics/AdminTaskAndNotificationModules";
-import { AdminTruthSurfaces } from '../AdminTruthSurfaces';
 import { PageViewEvent } from "@/components/Analytics/PageViewEvent";
 import { TELEMETRY_EVENT_LABELS } from "@/lib/telemetry-catalog";
 
@@ -37,9 +36,22 @@ import {
 const EVENT_LABELS: Record<string, string> = TELEMETRY_EVENT_LABELS;
 
 import { useAdminAnalyticsState } from "./hooks/useAdminAnalyticsState";
-import { AdminAnalyticsOperationsTab } from "./components/AdminAnalyticsOperationsTab";
-import { AdminAnalyticsAudienceTab } from "./components/AdminAnalyticsAudienceTab";
-import { AdminAnalyticsCommerceTab } from "./components/AdminAnalyticsCommerceTab";
+
+const AdminAnalyticsOperationsTab = dynamic(
+  () => import("./components/AdminAnalyticsOperationsTab").then((module) => module.AdminAnalyticsOperationsTab),
+);
+const AdminAnalyticsAudienceTab = dynamic(
+  () => import("./components/AdminAnalyticsAudienceTab").then((module) => module.AdminAnalyticsAudienceTab),
+);
+const AdminAnalyticsCommerceTab = dynamic(
+  () => import("./components/AdminAnalyticsCommerceTab").then((module) => module.AdminAnalyticsCommerceTab),
+);
+const AdminTaskAndNotificationModules = dynamic(
+  () => import("@/components/Admin/Analytics/AdminTaskAndNotificationModules").then((module) => ({ default: module.AdminTaskAndNotificationModules })),
+);
+const AdminTruthSurfaces = dynamic(
+  () => import("../AdminTruthSurfaces").then((module) => ({ default: module.AdminTruthSurfaces })),
+);
 export default function AdminAnalyticsPage() {
     const state = useAdminAnalyticsState();
   const { needsSetup, activeTab, setActiveTab, handleRefresh, liveLoading, historicalLoading, isPrimingAnalytics, formatAbsoluteDateTime, formatRelativeTime, liveResponse, clearAllFilters, hasActiveFilters, isExportLivePulseLoading, handleAdminAnalyticsExport, testAdminApiErrorTracking, backgroundAnalyticsIssues, analyticsSectionHealth, EVENT_LABELS } = state;
