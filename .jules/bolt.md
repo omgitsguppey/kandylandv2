@@ -21,3 +21,7 @@
 ## 2026-04-02 - Array/String Allocations in Cache Keys
 **Learning:** Creating cache keys using dynamic string concatenations of arrays (e.g., `drop.contentUrls?.join(",")`) defeats the purpose of caching by unconditionally allocating memory and adding garbage collection pressure on every call. This causes a net performance regression in hot paths compared to simple, non-allocating property checks.
 **Action:** Use lightweight, non-allocating cache keys. For entities where we know references do not mutate deeply without a new top-level reference (like `drop`), we can use the entity's ID or `WeakMap` on the entity itself to cache derived data, avoiding costly key generation strings entirely.
+
+## 2026-05-18 - Avoiding N+1 Queries in Queue Runtime Loops
+**Learning:** Sequential database lookups inside a `for...of` loop, such as iterating through `plan.activationNotifications` to find owners using `adminDb.collection("users")`, slow down server performance significantly due to N+1 query patterns. This increases execution time linearly with the number of notifications.
+**Action:** Extract unique identifiers (like `dropId`) first and perform the lookups concurrently using `Promise.all`. Apply `.select()` to retrieve only the necessary document IDs to optimize I/O. Store the results in a Map that captures both the data and any encountered errors, allowing the main loop to preserve its granular, per-iteration error handling (`recordRuntimeWarning`) without blocking sequentially.

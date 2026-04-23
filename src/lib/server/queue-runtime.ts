@@ -268,14 +268,32 @@ export async function notifyActiveDropsRuntime(input: {
 
     const warningCodes = plan.invariants.map((entry) => entry.code);
 
+    // ⚡ Bolt: Resolve N+1 query pattern by pre-fetching owners concurrently
+    const uniqueDropIds = Array.from(new Set(plan.activationNotifications.map(n => n.dropId)));
+    const ownersMap = new Map<string, { excludedUserIds: string[]; error?: unknown }>();
+
+    await Promise.all(
+      uniqueDropIds.map(async (dropId) => {
+        try {
+          const ownersSnap = await adminDb.collection("users")
+            .where("unlockedContent", "array-contains", dropId)
+            .select() // ⚡ Bolt: Optimize I/O by only returning document IDs
+            .get();
+
+          const excludedUserIds: string[] = [];
+          ownersSnap.forEach((userDoc) => excludedUserIds.push(userDoc.id));
+          ownersMap.set(dropId, { excludedUserIds });
+        } catch (error) {
+          ownersMap.set(dropId, { excludedUserIds: [], error });
+        }
+      })
+    );
+
     for (const notification of plan.activationNotifications) {
-      const excludedUserIds: string[] = [];
-      try {
-        const ownersSnap = await adminDb.collection("users")
-          .where("unlockedContent", "array-contains", notification.dropId)
-          .get();
-        ownersSnap.forEach((userDoc) => excludedUserIds.push(userDoc.id));
-      } catch (error) {
+      const lookup = ownersMap.get(notification.dropId) || { excludedUserIds: [] };
+      const excludedUserIds = lookup.excludedUserIds;
+
+      if (lookup.error) {
         warningCodes.push("owner_lookup_failed");
         await recordRuntimeWarning({
           code: "owner_lookup_failed",
@@ -286,7 +304,7 @@ export async function notifyActiveDropsRuntime(input: {
           status: "degraded",
           detail: {
             activationKey: notification.activationKey,
-            message: error instanceof Error ? error.message : String(error),
+            message: lookup.error instanceof Error ? lookup.error.message : String(lookup.error),
           },
         });
       }
