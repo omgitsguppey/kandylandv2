@@ -1,7 +1,7 @@
 "use client";
 
 import { useState, useEffect } from "react";
-import { Loader2, Upload, Trash2, Copy, FileIcon, ImageIcon, Video, RefreshCw } from "lucide-react";
+import { Loader2, Upload, Trash2, Copy, FileIcon, ImageIcon, Video, RefreshCw, ExternalLink } from "lucide-react";
 
 import { Button } from "@/components/ui/Button";
 import { AdminPageHeader } from "@/components/Admin/AdminPageHeader";
@@ -21,12 +21,42 @@ interface StorageFile {
     timeCreated?: string;
 }
 
+function formatBytes(bytes?: number, decimals = 1) {
+    if (bytes === undefined || bytes === null || bytes === 0) return '0 B';
+    const k = 1024;
+    const dm = decimals < 0 ? 0 : decimals;
+    const sizes = ['B', 'KB', 'MB', 'GB', 'TB', 'PB', 'EB', 'ZB', 'YB'];
+    const i = Math.floor(Math.log(bytes) / Math.log(k));
+    return parseFloat((bytes / Math.pow(k, i)).toFixed(dm)) + ' ' + sizes[i];
+}
+
+function truncatePath(path: string, maxLength = 35) {
+    if (path.length <= maxLength) return path;
+    const parts = path.split('/');
+    if (parts.length > 2) {
+        return `${parts[0]}/.../${parts[parts.length - 1]}`;
+    }
+    return `${path.substring(0, maxLength / 2)}...${path.substring(path.length - maxLength / 2)}`;
+}
+
+type FileCategory = "All" | "Covers" | "Images" | "Videos" | "Documents";
+
+function classifyFile(file: StorageFile): FileCategory {
+    const name = file.name.toLowerCase();
+    if (name.includes("cover") || name.includes("thumb") || name.includes("preview") || name.includes("header")) return "Covers";
+    const ext = name.split('.').pop() || '';
+    if (['jpg', 'jpeg', 'png', 'gif', 'webp', 'svg'].includes(ext)) return "Images";
+    if (['mp4', 'mov', 'webm', 'ogg', 'm4v'].includes(ext)) return "Videos";
+    return "Documents";
+}
+
 export default function ContentManagerPage() {
     const [files, setFiles] = useState<StorageFile[]>([]);
     const [loading, setLoading] = useState(true);
     const [uploading, setUploading] = useState(false);
     const [refreshTrigger, setRefreshTrigger] = useState(0);
     const [error, setError] = useState<string | null>(null);
+    const [activeTab, setActiveTab] = useState<FileCategory>("All");
 
     useEffect(() => {
         fetchFiles();
@@ -155,10 +185,13 @@ export default function ContentManagerPage() {
 
     const getFileIcon = (filename: string) => {
         const ext = filename.split('.').pop()?.toLowerCase();
-        if (['jpg', 'jpeg', 'png', 'gif', 'webp'].includes(ext || '')) return <ImageIcon className="w-5 h-5 text-brand-purple" />;
-        if (['mp4', 'mov', 'webm'].includes(ext || '')) return <Video className="w-5 h-5 text-brand-purple" />;
-        return <FileIcon className="w-5 h-5 text-gray-500" />;
+        if (['jpg', 'jpeg', 'png', 'gif', 'webp'].includes(ext || '')) return <ImageIcon className="w-6 h-6 text-brand-purple/70" />;
+        if (['mp4', 'mov', 'webm'].includes(ext || '')) return <Video className="w-6 h-6 text-brand-purple/70" />;
+        return <FileIcon className="w-6 h-6 text-gray-500" />;
     };
+
+    const filteredFiles = files.filter(f => activeTab === "All" || classifyFile(f) === activeTab);
+    const tabs: FileCategory[] = ["All", "Covers", "Images", "Videos", "Documents"];
 
     return (
         <div className="space-y-4 md:space-y-5">
@@ -195,71 +228,107 @@ export default function ContentManagerPage() {
                 </div>
             ) : null}
 
-            <div className="glass-panel rounded-2xl overflow-hidden border border-white/5">
-                <div className="overflow-x-auto">
-                    <table className="w-full text-left">
-                        <thead>
-                            <tr className="border-b border-white/5 bg-white/5 text-gray-400 text-xs uppercase tracking-wider">
-                                <th className="p-4 font-medium">Preview</th>
-                                <th className="p-4 font-medium">Filename</th>
-                                <th className="p-4 font-medium text-right">Actions</th>
-                            </tr>
-                        </thead>
-                        <tbody className="divide-y divide-white/5">
-                            {loading && files.length === 0 ? (
-                                <tr>
-                                    <td colSpan={3} className="p-8 text-center">
-                                        <Loader2 className="w-6 h-6 text-brand-purple animate-spin mx-auto" />
-                                    </td>
-                                </tr>
-                            ) : files.length === 0 ? (
-                                <tr>
-                                    <td colSpan={3} className="p-8 text-center text-gray-500">
-                                        No files found in &apos;drops&apos; folder.
-                                    </td>
-                                </tr>
-                            ) : (
-                                files.map((file) => (
-                                    <tr key={file.fullPath} className="transition-colors">
-                                        <td className="p-4 w-20">
-                                            <div className="w-12 h-12 rounded-lg bg-black/50 overflow-hidden flex items-center justify-center border border-white/10 relative">
-                                                {['jpg', 'jpeg', 'png', 'webp', 'gif'].some(ext => file.name.toLowerCase().endsWith(ext)) ? (
-                                                    <Image src={file.url} alt={file.name} fill sizes="48px" className="object-contain bg-black" />
-                                                ) : ['mp4', 'webm', 'ogg', 'mov'].some(ext => file.name.toLowerCase().endsWith(ext)) ? (
-                                                    <video src={file.url} className="w-full h-full object-contain bg-black" muted loop playsInline />
-                                                ) : (
-                                                    getFileIcon(file.name)
-                                                )}
-                                            </div>
-                                        </td>
-                                        <td className="p-4">
-                                            <div className="font-medium text-white truncate max-w-xs md:max-w-md">{file.name}</div>
-                                            <div className="text-xs text-gray-500 font-mono truncate max-w-xs">{file.fullPath}</div>
-                                        </td>
-                                        <td className="p-4 text-right">
-                                            <div className="flex items-center justify-end gap-2">
-                                                <button
-                                                    onClick={() => copyToClipboard(file.url)}
-                                                    className="p-2 rounded-lg text-gray-400 transition-colors"
-                                                    title="Copy URL"
-                                                >
-                                                    <Copy className="w-4 h-4" />
-                                                </button>
-                                                <button
-                                                    onClick={() => handleDelete(file.fullPath)}
-                                                    className="p-2 rounded-lg text-red-500 transition-colors"
-                                                    title="Delete File"
-                                                >
-                                                    <Trash2 className="w-4 h-4" />
-                                                </button>
-                                            </div>
-                                        </td>
-                                    </tr>
-                                ))
-                            )}
-                        </tbody>
-                    </table>
-                </div>
+            {/* Compact Filter Tabs */}
+            <div className="flex items-center gap-2 overflow-x-auto pb-1 scrollbar-none">
+                {tabs.map((tab) => {
+                    const count = tab === "All" ? files.length : files.filter(f => classifyFile(f) === tab).length;
+                    return (
+                        <button
+                            key={tab}
+                            onClick={() => setActiveTab(tab)}
+                            className={`flex items-center gap-1.5 whitespace-nowrap rounded-full px-3 py-1.5 text-xs font-semibold transition-colors ${
+                                activeTab === tab
+                                    ? "bg-white text-black"
+                                    : "bg-white/5 text-gray-400 hover:bg-white/10 hover:text-white"
+                            }`}
+                        >
+                            {tab}
+                            <span className={`rounded-full px-1.5 py-0.5 text-[10px] ${activeTab === tab ? "bg-black/10 text-black" : "bg-black/30 text-gray-300"}`}>
+                                {count}
+                            </span>
+                        </button>
+                    );
+                })}
+            </div>
+
+            {/* Asset List */}
+            <div className="space-y-3">
+                {loading && files.length === 0 ? (
+                    <div className="flex flex-col items-center justify-center py-12 text-gray-500">
+                        <Loader2 className="w-8 h-8 text-brand-purple animate-spin mb-4" />
+                        <p className="text-sm">Loading assets...</p>
+                    </div>
+                ) : files.length === 0 ? (
+                    <div className="rounded-2xl border border-dashed border-white/10 bg-black/20 p-8 text-center text-sm text-gray-500">
+                        No files found in &apos;drops&apos; folder.
+                    </div>
+                ) : filteredFiles.length === 0 ? (
+                    <div className="rounded-2xl border border-dashed border-white/10 bg-black/20 p-8 text-center text-sm text-gray-500">
+                        No files match the {activeTab} category.
+                    </div>
+                ) : (
+                    filteredFiles.map((file) => (
+                        <div key={file.fullPath} className="group relative flex flex-col sm:flex-row sm:items-center gap-3 md:gap-4 rounded-2xl border border-white/10 bg-black/35 p-3 md:p-4 transition-all hover:border-white/20 hover:bg-white/[0.03]">
+                            
+                            <div className="flex items-start gap-3 w-full sm:w-auto overflow-hidden">
+                                <div className="shrink-0 w-16 h-16 md:w-20 md:h-20 rounded-xl bg-black/50 overflow-hidden flex items-center justify-center border border-white/5 relative">
+                                    {['jpg', 'jpeg', 'png', 'webp', 'gif'].some(ext => file.name.toLowerCase().endsWith(ext)) ? (
+                                        <Image src={file.url} alt={file.name} fill sizes="(max-width: 768px) 64px, 80px" className="object-cover bg-black" />
+                                    ) : ['mp4', 'webm', 'ogg', 'mov'].some(ext => file.name.toLowerCase().endsWith(ext)) ? (
+                                        <video src={file.url} className="w-full h-full object-cover bg-black" muted loop playsInline />
+                                    ) : (
+                                        getFileIcon(file.name)
+                                    )}
+                                </div>
+                                <div className="min-w-0 flex-1 sm:hidden">
+                                    {/* Mobile layout title/metadata */}
+                                    <div className="font-semibold text-sm text-white truncate w-full" title={file.name}>{file.name}</div>
+                                    <div className="mt-1 text-[11px] text-gray-500 font-mono truncate" title={file.fullPath}>{truncatePath(file.fullPath, 35)}</div>
+                                    <div className="mt-1 flex flex-wrap gap-2 text-[10px] text-gray-400">
+                                        {file.size ? <span className="bg-white/5 px-1.5 py-0.5 rounded uppercase">{formatBytes(file.size)}</span> : null}
+                                        {file.timeCreated ? <span>{new Date(file.timeCreated).toLocaleDateString()}</span> : null}
+                                    </div>
+                                </div>
+                            </div>
+
+                            <div className="hidden sm:block min-w-0 flex-1">
+                                {/* Desktop layout title/metadata */}
+                                <div className="font-semibold text-sm text-white truncate max-w-lg" title={file.name}>{file.name}</div>
+                                <div className="mt-1 text-[11px] text-gray-500 font-mono truncate max-w-lg" title={file.fullPath}>{truncatePath(file.fullPath, 50)}</div>
+                                <div className="mt-1.5 flex flex-wrap items-center gap-2 text-xs text-gray-400">
+                                    {file.size ? <span className="bg-white/5 border border-white/5 px-1.5 py-0.5 rounded text-[10px] font-medium uppercase tracking-wider">{formatBytes(file.size)}</span> : null}
+                                    {file.timeCreated ? <span>{new Date(file.timeCreated).toLocaleDateString()}</span> : null}
+                                </div>
+                            </div>
+
+                            <div className="flex items-center gap-1.5 sm:gap-2 sm:shrink-0 pt-2 sm:pt-0 border-t border-white/5 sm:border-0 mt-1 sm:mt-0 justify-between sm:justify-end w-full sm:w-auto">
+                                <div className="flex items-center gap-1.5">
+                                    <button
+                                        onClick={() => window.open(file.url, '_blank')}
+                                        className="inline-flex items-center justify-center p-2 rounded-lg bg-white/5 text-gray-300 transition-colors hover:bg-white/10 hover:text-white"
+                                        title="View File"
+                                    >
+                                        <ExternalLink className="w-4 h-4" />
+                                    </button>
+                                    <button
+                                        onClick={() => copyToClipboard(file.url)}
+                                        className="inline-flex items-center justify-center p-2 rounded-lg bg-white/5 text-gray-300 transition-colors hover:bg-white/10 hover:text-white"
+                                        title="Copy URL"
+                                    >
+                                        <Copy className="w-4 h-4" />
+                                    </button>
+                                </div>
+                                <button
+                                    onClick={() => handleDelete(file.fullPath)}
+                                    className="inline-flex items-center justify-center p-2 rounded-lg bg-red-500/10 text-red-400 transition-colors hover:bg-red-500/20 hover:text-red-300"
+                                    title="Delete File"
+                                >
+                                    <Trash2 className="w-4 h-4" />
+                                </button>
+                            </div>
+                        </div>
+                    ))
+                )}
             </div>
         </div>
     );
