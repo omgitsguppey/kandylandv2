@@ -9796,3 +9796,26 @@ Results:
 - analytics continuity check passed
 - focused admin analytics realtime route test passed
 
+
+## 2026-04-22 - GumDrop Package Metadata and Source-of-Funds Truth Hardening
+
+Scope:
+- `src/components/PurchaseModal.tsx`
+- `src/lib/gumdrops-packages.ts`
+
+Problem fixed:
+- The package metadata in `FIXED_GUMDROP_PACKAGES` carried redundant `bonus` strings (e.g. `+500 Bonus`).
+- The `PurchaseModal` UI was directly rendering the *total* drops `pkg.drops` alongside the `bonus` label string, which caused a "double counting" visual mismatch where `2500` drops + `500 bonus` wrongly implied `3000` total drops to the user.
+- It failed to use the explicitly derived `paidGumDrops` vs `bonusGumDrops` source of funds logic to enforce clear separation.
+
+Hardening applied:
+- The `bonus` string has been removed from `FIXED_GUMDROP_PACKAGES`.
+- The `PurchaseModal` now computes `deriveGumdropEconomics` for each package and explicitly displays the separated `paidGumDrops` in the main UI and `bonusGumDrops` in the bonus tag to maintain clear source-of-funds truth.
+
+Verification:
+- `corepack pnpm tsc --noEmit`
+- `npm run check:continuity`
+
+Results:
+- UI now correctly surfaces purchased (paid) drops vs reward (bonus) drops.
+- No stale, manually maintained package metadata remains.
