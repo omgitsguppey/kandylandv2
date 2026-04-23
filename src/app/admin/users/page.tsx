@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useEffect } from "react";
+import { useCallback, useEffect, useRef, useState } from "react";
 import Link from "next/link";
 import { UserProfile } from "@/types/db";
 import { Loader2, Search, Shield, Ban, CheckCircle, AlertTriangle, Edit2, Lock, Plus, ScrollText, MessageSquare, DollarSign, TrendingUp, Users, Bell, Clock3, Activity } from "lucide-react";
@@ -51,6 +51,14 @@ type UserAnalytics = {
     unlockSpendGdTotal: number;
     lastPurchaseAt: number;
     bundleYieldRatio: number;
+    commerceTruthLabel?: "live" | "partial" | "stale" | "unknown";
+    commerceSourceLabel?: string;
+    commerceEmptyReason?: string | null;
+    metricTruthLabel?: "live" | "partial" | "stale" | "unknown";
+    metricSourceLabel?: string;
+    metricIntegrityFailures?: string[];
+    recoveredFromFacts?: boolean;
+    engagementScore?: number;
 };
 
 type UsersSummary = {
@@ -78,6 +86,9 @@ type UsersSummary = {
     averageOrderUsd: number;
     effectiveUsdPer100Gd: number;
     payingUsers: number;
+    commerceTruthLabel?: "live" | "partial" | "stale" | "unknown";
+    commerceSourceLabel?: string;
+    commerceEmptyReason?: string | null;
 };
 
 type DropReference = {
@@ -122,6 +133,7 @@ export default function UserManagementPage() {
     const [dropReferences, setDropReferences] = useState<Record<string, DropReference>>({});
     const [summary, setSummary] = useState<UsersSummary | null>(null);
     const [loading, setLoading] = useState(true);
+    const [realtimeState, setRealtimeState] = useState<"connecting" | "live" | "partial" | "failed">("connecting");
     const [searchQuery, setSearchQuery] = useState("");
     const [actionUser, setActionUser] = useState<UserProfile | null>(null);
     const [actionType, setActionType] = useState<'suspend' | 'ban' | 'activate' | null>(null);
@@ -142,12 +154,12 @@ export default function UserManagementPage() {
     const [editBalanceUser, setEditBalanceUser] = useState<UserProfile | null>(null);
     const [historyUser, setHistoryUser] = useState<UserProfile | null>(null);
 
-    useEffect(() => {
-        fetchUsers();
-    }, []);
+    const refreshDebounceRef = useRef<ReturnType<typeof setTimeout> | null>(null);
 
-    const fetchUsers = async () => {
-        setLoading(true);
+    const fetchUsers = useCallback(async (options: { silent?: boolean; reason?: string } = {}) => {
+        if (!options.silent) {
+            setLoading(true);
+        }
         try {
             const response = await authFetch("/api/admin/users");
             const result = await response.json() as AdminUsersResponse;
@@ -159,7 +171,13 @@ export default function UserManagementPage() {
             setUserAnalytics(result.analyticsByUser || {});
             setDropReferences(result.dropReferences || {});
             setSummary(result.summary || null);
+            if (options.reason) {
+                setRealtimeState("live");
+            }
         } catch (error) {
+            if (options.silent) {
+                setRealtimeState("partial");
+            }
             reportClientIssue({
                 channel: "ui",
                 message: "Admin users fetch failed",
@@ -172,9 +190,98 @@ export default function UserManagementPage() {
             });
             toast.error(error instanceof Error ? error.message : "Failed to load users");
         } finally {
-            setLoading(false);
+            if (!options.silent) {
+                setLoading(false);
+            }
         }
-    };
+    }, []);
+
+    useEffect(() => {
+        fetchUsers();
+    }, [fetchUsers]);
+
+    useEffect(() => {
+        let cancelled = false;
+        const controller = new AbortController();
+
+        const scheduleRefresh = (reason: string) => {
+            if (refreshDebounceRef.current) {
+                clearTimeout(refreshDebounceRef.current);
+            }
+            refreshDebounceRef.current = setTimeout(() => {
+                fetchUsers({ silent: true, reason });
+            }, 450);
+        };
+
+        const connect = async () => {
+            setRealtimeState("connecting");
+            try {
+                const response = await authFetch("/api/admin/users/realtime", {
+                    signal: controller.signal,
+                    headers: { Accept: "text/event-stream" },
+                });
+                if (!response.ok || !response.body) {
+                    throw new Error(`Realtime stream failed with ${response.status}`);
+                }
+
+                setRealtimeState("live");
+                const reader = response.body.getReader();
+                const decoder = new TextDecoder();
+                let buffer = "";
+
+                while (!cancelled) {
+                    const { value, done } = await reader.read();
+                    if (done) {
+                        break;
+                    }
+                    buffer += decoder.decode(value, { stream: true });
+                    const messages = buffer.split("\n\n");
+                    buffer = messages.pop() || "";
+                    messages.forEach((message) => {
+                        const line = message.split("\n").find((entry) => entry.startsWith("data: "));
+                        if (!line) {
+                            return;
+                        }
+                        try {
+                            const payload = JSON.parse(line.slice(6)) as { type?: string; source?: string };
+                            if (payload.type === "invalidate") {
+                                scheduleRefresh(payload.source || "admin_users_realtime");
+                            }
+                            if (payload.type === "failed") {
+                                setRealtimeState("partial");
+                            }
+                        } catch {
+                            setRealtimeState("partial");
+                        }
+                    });
+                }
+            } catch (error) {
+                if (!cancelled) {
+                    setRealtimeState("failed");
+                    reportClientIssue({
+                        channel: "ui",
+                        message: "Admin users realtime stream failed",
+                        error,
+                        detail: {
+                            adminView: "users",
+                            action: "realtime_stream",
+                        },
+                        consoleLabel: "[Admin Users] realtime stream failed",
+                    });
+                }
+            }
+        };
+
+        connect();
+
+        return () => {
+            cancelled = true;
+            controller.abort();
+            if (refreshDebounceRef.current) {
+                clearTimeout(refreshDebounceRef.current);
+            }
+        };
+    }, [fetchUsers]);
 
     const fetchFeedback = async () => {
         setLoadingFeedback(true);
@@ -218,6 +325,18 @@ export default function UserManagementPage() {
     const getUserAnalytics = (uid: string) => userAnalytics[uid];
     const formatMoney = (value?: number) => `$${(value || 0).toFixed(2)}`;
     const formatPercent = (value?: number) => `${Math.round((value || 0) * 100)}%`;
+    const formatCount = (value?: number, analytics?: UserAnalytics) =>
+        analytics?.metricTruthLabel === "unknown" ? "No source" : (value || 0).toLocaleString();
+    const formatJoined = (value: unknown) => {
+        const timestamp = typeof value === "number"
+            ? value
+            : value && typeof value === "object" && "toMillis" in value && typeof (value as { toMillis: () => number }).toMillis === "function"
+                ? (value as { toMillis: () => number }).toMillis()
+                : value instanceof Date
+                    ? value.getTime()
+                    : 0;
+        return timestamp > 0 ? format(new Date(timestamp), "MMM d, yyyy") : "Join date unknown";
+    };
     const getBounceRate = (analytics?: UserAnalytics) =>
         analytics && analytics.viewCount > 0 ? analytics.bounceCount / Math.max(1, analytics.viewCount) : 0;
     const getOnboardingBadge = (user: UserProfile, analytics?: UserAnalytics) =>
@@ -245,7 +364,7 @@ export default function UserManagementPage() {
         : null;
 
     const topTrackedUsers = [...filteredUsers]
-        .sort((left, right) => (getUserAnalytics(right.uid)?.eventCount || 0) - (getUserAnalytics(left.uid)?.eventCount || 0))
+        .sort((left, right) => (getUserAnalytics(right.uid)?.engagementScore || 0) - (getUserAnalytics(left.uid)?.engagementScore || 0))
         .slice(0, 3);
 
     const handleUpdateStatus = async () => {
@@ -507,22 +626,25 @@ export default function UserManagementPage() {
                             <p className="mt-1 text-xs text-gray-400">{summary?.onboardingCompletedUsers || 0} users completed onboarding</p>
                         </div>
                         <div className="glass-panel rounded-[1.7rem] border border-white/10 p-4">
-                            <p className="text-[11px] font-bold uppercase tracking-[0.16em] text-gray-500">Gross cash</p>
+                            <p className="text-[11px] font-bold uppercase tracking-[0.16em] text-gray-500">Monetization</p>
                             <p className="mt-2 text-3xl font-black text-white">{formatMoney(summary?.grossRevenueUsd)}</p>
-                            <p className="mt-1 text-xs text-gray-400">{summary?.payingUsers || 0} paying users</p>
+                            <p className="mt-1 text-xs text-gray-400">
+                                <span className="font-bold text-gray-200">[{summary?.commerceTruthLabel || "unknown"}]</span>{" "}
+                                {summary?.commerceEmptyReason || `${summary?.payingUsers || 0} paying users`}
+                            </p>
                         </div>
                         <div className="glass-panel rounded-[1.7rem] border border-white/10 p-4">
-                            <p className="text-[11px] font-bold uppercase tracking-[0.16em] text-gray-500">Adjusted profit</p>
+                            <p className="text-[11px] font-bold uppercase tracking-[0.16em] text-gray-500">Profit / bonus</p>
                             <p className="mt-2 text-3xl font-black text-white">{formatMoney(summary?.adjustedProfitUsd)}</p>
-                            <p className="mt-1 text-xs text-gray-400">{formatMoney(summary?.bonusValueUsd)} bonus value granted</p>
+                            <p className="mt-1 text-xs text-gray-400">{formatMoney(summary?.bonusValueUsd)} package-rate bonus value</p>
                         </div>
                         <div className="glass-panel rounded-[1.7rem] border border-white/10 p-4">
-                            <p className="text-[11px] font-bold uppercase tracking-[0.16em] text-gray-500">Delivered value</p>
+                            <p className="text-[11px] font-bold uppercase tracking-[0.16em] text-gray-500">Delivered / bonus</p>
                             <p className="mt-2 text-3xl font-black text-white">{(summary?.deliveredGumDrops || 0).toLocaleString()} GD</p>
                             <p className="mt-1 text-xs text-gray-400">{(summary?.bonusGumDrops || 0).toLocaleString()} GD bonus on top</p>
                         </div>
                         <div className="glass-panel rounded-[1.7rem] border border-white/10 p-4">
-                            <p className="text-[11px] font-bold uppercase tracking-[0.16em] text-gray-500">Bundle yield</p>
+                            <p className="text-[11px] font-bold uppercase tracking-[0.16em] text-gray-500">Effective rate</p>
                             <p className="mt-2 text-3xl font-black text-white">{formatMoney(summary?.effectiveUsdPer100Gd)}</p>
                             <p className="mt-1 text-xs text-gray-400">per 100 GD · avg order {formatMoney(summary?.averageOrderUsd)}</p>
                         </div>
@@ -541,9 +663,14 @@ export default function UserManagementPage() {
                         </div>
 
                         <div className="glass-panel rounded-[1.7rem] border border-white/10 p-4">
-                            <div className="flex items-center gap-2 text-sm font-bold text-white">
-                                <TrendingUp className="w-4 h-4 text-brand-purple" />
-                                Most engaged right now
+                            <div className="flex items-center justify-between gap-3">
+                                <div className="flex items-center gap-2 text-sm font-bold text-white">
+                                    <TrendingUp className="w-4 h-4 text-brand-purple" />
+                                    Most engaged right now
+                                </div>
+                                <span className="rounded-full border border-white/10 bg-black/30 px-2.5 py-1 text-[10px] font-bold uppercase tracking-[0.14em] text-gray-300">
+                                    [{realtimeState === "live" ? "live" : realtimeState}]
+                                </span>
                             </div>
                             <div className="mt-3 grid gap-2">
                                 {topTrackedUsers.length === 0 ? (
@@ -554,7 +681,7 @@ export default function UserManagementPage() {
                                             <div className="min-w-0">
                                                 <p className="truncate text-sm font-bold text-white">{user.username ? `@${user.username}` : user.displayName || user.email || user.uid}</p>
                                                 <p className="text-xs text-gray-500">
-                                                    {getUserAnalytics(user.uid)?.eventCount || 0} tracked actions · {formatMoney(getUserAnalytics(user.uid)?.grossRevenueUsd)} cash
+                                                    {getUserAnalytics(user.uid)?.eventCount || 0} tracked actions &middot; {formatMoney(getUserAnalytics(user.uid)?.grossRevenueUsd)} cash &middot; score {getUserAnalytics(user.uid)?.engagementScore || 0}
                                                 </p>
                                             </div>
                                             <Link href={`/admin/user/${user.uid}`} className="text-xs font-bold text-brand-purple hover:underline">
@@ -680,7 +807,7 @@ export default function UserManagementPage() {
                                                     </div>
                                                 </td>
                                                 <td className="p-4 text-gray-500 text-sm">
-                                                    {format((user.createdAt as any)?.toMillis?.() || user.createdAt || Date.now(), 'MMM d, yyyy')}
+                                                    {formatJoined(user.createdAt)}
                                                     <div className="mt-2 text-[10px] text-gray-500">{formatLastSeen(getUserAnalytics(user.uid)?.lastSeenAt)}</div>
                                                     <div className="mt-1 text-[10px] text-gray-500">{formatLastPurchase(getUserAnalytics(user.uid)?.lastPurchaseAt)}</div>
                                                 </td>

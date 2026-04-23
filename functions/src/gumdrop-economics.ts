@@ -24,6 +24,8 @@ export interface GumdropEconomics {
   effectiveUsdPer100Gd: number
   effectiveCentsPer100Gd: number
   effectiveYieldRatio: number
+  bonusValueBasis: "package_effective_rate"
+  retailAnchorUsdPer100Gd: number
 }
 
 function roundCurrency(value: number) {
@@ -63,16 +65,17 @@ export function deriveGumdropEconomics(
   const bonusGumDrops = Math.max(0, normalizedDrops - paidGumDrops)
   const retailValueUsd = roundCurrency(normalizedDrops / GUMDROPS_PER_USD)
   const retailValueCents = Math.round(retailValueUsd * 100)
-  const bonusValueUsd = roundCurrency(bonusGumDrops / GUMDROPS_PER_USD)
-  const bonusValueCents = Math.round(bonusValueUsd * 100)
-  const adjustedProfitUsd = roundCurrency(Math.max(0, netRevenueUsd - bonusValueUsd))
-  const adjustedProfitCents = Math.round(adjustedProfitUsd * 100)
   const discountUsd = roundCurrency(Math.max(0, retailValueUsd - normalizedRevenueUsd))
   const discountCents = Math.round(discountUsd * 100)
   const deliveredHundreds = normalizedDrops > 0 ? normalizedDrops / 100 : 0
-  const effectiveUsdPer100Gd = deliveredHundreds > 0 ? roundCurrency(normalizedRevenueUsd / deliveredHundreds) : 0
+  const exactUsdPer100Gd = deliveredHundreds > 0 ? normalizedRevenueUsd / deliveredHundreds : 0
+  const effectiveUsdPer100Gd = roundCurrency(exactUsdPer100Gd)
   const effectiveCentsPer100Gd = Math.round(effectiveUsdPer100Gd * 100)
   const effectiveYieldRatio = retailValueUsd > 0 ? Number((normalizedRevenueUsd / retailValueUsd).toFixed(4)) : 0
+  const bonusValueUsd = roundCurrency(bonusGumDrops * (exactUsdPer100Gd / GUMDROPS_PER_USD))
+  const bonusValueCents = Math.round(bonusValueUsd * 100)
+  const adjustedProfitUsd = roundCurrency(Math.max(0, netRevenueUsd - bonusValueUsd))
+  const adjustedProfitCents = Math.round(adjustedProfitUsd * 100)
 
   return {
     deliveredGumDrops: normalizedDrops,
@@ -95,5 +98,7 @@ export function deriveGumdropEconomics(
     effectiveUsdPer100Gd,
     effectiveCentsPer100Gd,
     effectiveYieldRatio,
+    bonusValueBasis: "package_effective_rate",
+    retailAnchorUsdPer100Gd: 1,
   }
 }

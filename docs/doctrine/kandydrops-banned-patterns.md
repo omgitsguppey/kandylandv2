@@ -21,3 +21,5 @@ The following UI, UX, and code patterns are explicitly **banned** from the Kandy
 * **Monolithic Settings:** Giant, un-grouped scrolling lists of settings. (Use iOS-style grouping instead).
 * **Detached Variants:** Creating `SearchBar2` because you didn't want to figure out how to pass a prop to the shared `SearchBar`.
 * **UI-Only Changes Ignoring Telemetry:** Changing a primary conversion flow visually but failing to update the associated analytics/telemetry event paths.
+* **Stacked Admin Zero Cards:** Repeating empty support, security, parity, or monetization cards in the main Admin User flow. Use compact summaries, truthful empty states, and linked/collapsed diagnostics.
+* **Page-Local GumDrops Yield Math:** Calculating bonus value, bundle yield, adjusted profit, or delivered value directly in UI pages. Admin commerce displays must use the canonical GumDrop economics helpers/read models.

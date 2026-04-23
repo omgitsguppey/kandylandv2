@@ -70,15 +70,17 @@ describe("deriveGumdropEconomics", () => {
     expect(result.bonusGumDrops).toBe(100); // 1100 - 1000
 
     expect(result.retailValueUsd).toBe(11.00);
-    expect(result.bonusValueUsd).toBe(1.00);
+    expect(result.bonusValueUsd).toBe(0.91);
+    expect(result.bonusValueBasis).toBe("package_effective_rate");
+    expect(result.retailAnchorUsdPer100Gd).toBe(1);
 
     // Net Revenue: 10.00 - Paypal Fee
     // Paypal Fee: (10.00 * 0.0349) + 0.49 = 0.349 + 0.49 = 0.839 -> 0.84
     // Net Revenue: 10.00 - 0.84 = 9.16
     expect(result.netRevenueUsd).toBe(9.16);
 
-    // Adjusted Profit: 9.16 - 1.00 = 8.16
-    expect(result.adjustedProfitUsd).toBe(8.16);
+    // Adjusted Profit: 9.16 - 0.91 package-rate bonus value = 8.25
+    expect(result.adjustedProfitUsd).toBe(8.25);
 
     // Discount: 11.00 - 10.00 = 1.00
     expect(result.discountUsd).toBe(1.00);
@@ -119,5 +121,24 @@ describe("deriveGumdropEconomics", () => {
 
     // Effective USD per 100 GD: 20.00 / (2500/100) = 20.00 / 25 = 0.8
     expect(result.effectiveUsdPer100Gd).toBe(0.8);
+
+    // Bonus value is package-rate impact, not flat retail value.
+    expect(result.bonusValueUsd).toBe(4.00);
+    expect(result.adjustedProfitUsd).toBe(14.81);
+  });
+
+  test("keeps app and functions economics helpers in parity for package bonus value", async () => {
+    const functionsEconomics = await import("../../../functions/src/gumdrop-economics");
+
+    [
+      [550, 5.00],
+      [1100, 10.00],
+      [2500, 20.00],
+      [0, 0],
+    ].forEach(([drops, revenue]) => {
+      expect(functionsEconomics.deriveGumdropEconomics(drops, revenue)).toEqual(
+        deriveGumdropEconomics(drops, revenue),
+      );
+    });
   });
 });

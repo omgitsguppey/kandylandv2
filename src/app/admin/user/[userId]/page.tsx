@@ -46,6 +46,10 @@ type UserDetailAnalytics = {
     watchSecondsTotal: number;
     watchHours: number;
     viewCount: number;
+    bounceCount: number;
+    authSuccessCount: number;
+    onboardingStartCount: number;
+    onboardingCompletionCount: number;
     downloadCount: number;
     relatedClickCount: number;
     avgLoadMs: number;
@@ -58,6 +62,15 @@ type UserDetailAnalytics = {
     bonusGumDrops: number;
     deliveredGumDrops: number;
     paidGumDrops: number;
+    effectiveUsdPer100Gd: number;
+    commerceTruthLabel?: "live" | "partial" | "stale" | "unknown";
+    commerceSourceLabel?: string;
+    commerceEmptyReason?: string | null;
+    metricTruthLabel?: "live" | "partial" | "stale" | "unknown";
+    metricSourceLabel?: string;
+    metricIntegrityFailures?: string[];
+    recoveredFromFacts?: boolean;
+    engagementScore?: number;
     unlockSpendGdTotal: number;
     topViewedDrops: Array<{ dropId: string; dropTitle: string; views: number; watchSeconds: number }>;
     parity: {
@@ -391,6 +404,7 @@ export default function AdminUserAnalyticsPage() {
     const paypalFeeUsd = analytics?.paypalFeeUsd ?? purchaseTransactions.reduce((sum, transaction) => sum + transaction.economics.paypalFeeUsd, 0);
     const netRevenueUsd = analytics?.netRevenueUsd ?? purchaseTransactions.reduce((sum, transaction) => sum + transaction.economics.netRevenueUsd, 0);
     const deliveredGumDrops = analytics?.deliveredGumDrops ?? purchaseTransactions.reduce((sum, transaction) => sum + transaction.economics.deliveredGumDrops, 0);
+    const effectiveUsdPer100Gd = analytics?.effectiveUsdPer100Gd ?? (deliveredGumDrops > 0 ? totalSpentUsd / (deliveredGumDrops / 100) : 0);
     const averageOrderUsd = (analytics?.purchaseCount || purchaseTransactions.length) > 0
         ? totalSpentUsd / (analytics?.purchaseCount || purchaseTransactions.length)
         : 0;
@@ -545,88 +559,39 @@ export default function AdminUserAnalyticsPage() {
             <div className="grid grid-cols-1 gap-4 md:grid-cols-2">
                 <div className="glass-panel rounded-3xl border border-white/5 p-4 md:p-5">
                     <h3 className="mb-4 flex items-center gap-2 text-sm font-bold text-white">
-                        <Activity className="h-4 w-4 text-brand-purple" /> Behavior Profile
+                        <Activity className="h-4 w-4 text-brand-purple" /> Account Summary
                     </h3>
 
-                    <div className="space-y-4">
-                        <div className="flex items-center justify-between border-b border-white/5 py-2">
-                            <span className="text-sm text-gray-400">Gross cash</span>
-                            <span className="text-sm font-bold text-brand-purple">${totalSpentUsd.toFixed(2)}</span>
-                        </div>
-                        <div className="flex items-center justify-between border-b border-white/5 py-2">
-                            <span className="text-sm text-gray-400">PayPal fees</span>
-                            <span className="text-sm font-bold text-white">${paypalFeeUsd.toFixed(2)}</span>
-                        </div>
-                        <div className="flex items-center justify-between border-b border-white/5 py-2">
-                            <span className="text-sm text-gray-400">Net cash</span>
-                            <span className="text-sm font-bold text-white">${netRevenueUsd.toFixed(2)}</span>
-                        </div>
-                        <div className="flex items-center justify-between border-b border-white/5 py-2">
-                            <span className="text-sm text-gray-400">Adjusted profit</span>
-                            <span className="text-sm font-bold text-white">${adjustedProfitUsd.toFixed(2)}</span>
-                        </div>
-                        <div className="flex items-center justify-between border-b border-white/5 py-2">
-                            <span className="text-sm text-gray-400">Bonus granted</span>
-                            <span className="text-sm font-bold text-white">{bonusGumDrops.toLocaleString()} GD</span>
-                        </div>
-                        <div className="flex items-center justify-between border-b border-white/5 py-2">
-                            <span className="text-sm text-gray-400">Bonus value</span>
-                            <span className="text-sm font-bold text-white">${bonusValueUsd.toFixed(2)}</span>
-                        </div>
-                        <div className="flex items-center justify-between border-b border-white/5 py-2">
-                            <span className="text-sm text-gray-400">Avg order</span>
-                            <span className="text-sm font-bold text-white">${averageOrderUsd.toFixed(2)}</span>
-                        </div>
-                        <div className="flex items-center justify-between border-b border-white/5 py-2">
-                            <span className="text-sm text-gray-400">Effective rate</span>
-                            <span className="text-sm font-bold text-white">
-                                ${deliveredGumDrops > 0 ? (totalSpentUsd / (deliveredGumDrops / 100)).toFixed(2) : "0.00"} / 100 GD
-                            </span>
-                        </div>
-                        <div className="flex items-center justify-between border-b border-white/5 py-2">
-                            <span className="text-sm text-gray-400">Failed transactions</span>
-                            <span className="text-sm font-bold text-red-400">{failedTxCount}</span>
-                        </div>
-                        <div className="flex items-center justify-between border-b border-white/5 py-2">
-                            <span className="text-sm text-gray-400">Tracked actions</span>
-                            <span className="text-sm font-bold text-white">{analytics?.eventCount || 0}</span>
-                        </div>
-                        <div className="flex items-center justify-between border-b border-white/5 py-2">
-                            <span className="text-sm text-gray-400">Unwraps</span>
-                            <span className="text-sm font-bold text-white">{analytics?.unwrapCount || 0}</span>
-                        </div>
-                        <div className="flex items-center justify-between border-b border-white/5 py-2">
-                            <span className="text-sm text-gray-400">Unlock spend</span>
-                            <span className="text-sm font-bold text-white">{analytics?.unlockSpendGdTotal || 0} GD</span>
-                        </div>
-                        <div className="flex items-center justify-between border-b border-white/5 py-2">
-                            <span className="text-sm text-gray-400">Viewer sessions</span>
-                            <span className="text-sm font-bold text-white">{analytics?.viewerSessionCount || 0}</span>
-                        </div>
-                        <div className="flex items-center justify-between border-b border-white/5 py-2">
-                            <span className="text-sm text-gray-400">Unique drops viewed</span>
-                            <span className="text-sm font-bold text-white">{analytics?.uniqueViewedDrops || 0}</span>
-                        </div>
-                        <div className="flex items-center justify-between border-b border-white/5 py-2">
-                            <span className="text-sm text-gray-400">Watch time</span>
-                            <span className="text-sm font-bold text-white">{watchTimeLabel}</span>
-                        </div>
-                        <div className="flex items-center justify-between border-b border-white/5 py-2">
-                            <span className="text-sm text-gray-400">Files started / completed</span>
-                            <span className="text-sm font-bold text-white">
-                                {analytics?.assetViewCount || 0} / {analytics?.assetCompletionCount || 0}
-                            </span>
-                        </div>
-                        <div className="flex items-center justify-between border-b border-white/5 py-2">
-                            <span className="text-sm text-gray-400">Avg load</span>
-                            <span className="text-sm font-bold text-white">{analytics?.avgLoadMs || 0}ms</span>
-                        </div>
-                        <div className="flex items-center justify-between py-2">
-                            <span className="text-sm text-gray-400">Last seen</span>
-                            <span className="text-sm font-bold text-white">
-                                {analytics?.lastSeenAt ? formatDistanceToNow(analytics.lastSeenAt, { addSuffix: true }) : "No activity yet"}
-                            </span>
-                        </div>
+                    <div className="grid gap-3 sm:grid-cols-3">
+                        {[
+                            { label: "Gross cash", value: `$${totalSpentUsd.toFixed(2)}`, tone: "text-brand-purple" },
+                            { label: "Adjusted profit", value: `$${adjustedProfitUsd.toFixed(2)}` },
+                            { label: "Bonus value", value: `$${bonusValueUsd.toFixed(2)}` },
+                            { label: "Delivered", value: `${deliveredGumDrops.toLocaleString()} GD` },
+                            { label: "Effective rate", value: `$${effectiveUsdPer100Gd.toFixed(2)} / 100 GD` },
+                            { label: "Avg order", value: `$${averageOrderUsd.toFixed(2)}` },
+                            { label: "Actions", value: (analytics?.eventCount || 0).toLocaleString() },
+                            { label: "Views", value: (analytics?.viewCount || 0).toLocaleString() },
+                            { label: "Bounce", value: analytics?.viewCount ? `${Math.round(((analytics?.bounceCount || 0) / Math.max(1, analytics.viewCount)) * 100)}%` : "No source" },
+                            { label: "Auth", value: (analytics?.authSuccessCount || 0).toLocaleString() },
+                            { label: "Watch time", value: watchTimeLabel },
+                            { label: "Last seen", value: analytics?.lastSeenAt ? formatDistanceToNow(analytics.lastSeenAt, { addSuffix: true }) : "No activity" },
+                        ].map((item) => (
+                            <div key={item.label} className="rounded-[1.25rem] border border-white/10 bg-black/30 px-3 py-3">
+                                <p className="text-[10px] font-bold uppercase tracking-[0.16em] text-gray-500">{item.label}</p>
+                                <p className={`mt-1 text-sm font-black ${item.tone || "text-white"}`}>{item.value}</p>
+                            </div>
+                        ))}
+                    </div>
+                    <div className="mt-4 rounded-[1.25rem] border border-white/10 bg-black/25 px-4 py-3 text-xs leading-5 text-gray-400">
+                        <span className="font-bold text-gray-200">[{analytics?.commerceTruthLabel || "unknown"}]</span>{" "}
+                        {analytics?.commerceEmptyReason || `${bonusGumDrops.toLocaleString()} bonus GD valued at the package effective rate from ${analytics?.commerceSourceLabel || "commerce rollups"}.`}
+                        {failedTxCount > 0 ? ` ${failedTxCount} failed transaction${failedTxCount === 1 ? "" : "s"} excluded from purchase yield.` : ""}
+                    </div>
+                    <div className="mt-3 rounded-[1.25rem] border border-white/10 bg-black/25 px-4 py-3 text-xs leading-5 text-gray-400">
+                        <span className="font-bold text-gray-200">[{analytics?.metricTruthLabel || "unknown"}]</span>{" "}
+                        {analytics?.metricSourceLabel || "No canonical user metrics source found."}
+                        {analytics?.metricIntegrityFailures?.length ? ` Issues: ${analytics.metricIntegrityFailures.join(", ")}.` : ""}
                     </div>
                 </div>
 
@@ -802,14 +767,14 @@ export default function AdminUserAnalyticsPage() {
                 </div>
             </div>
 
-            <div className="glass-panel rounded-3xl border border-white/5 p-4 md:p-5">
-                <div className="flex flex-col gap-2 sm:flex-row sm:items-start sm:justify-between">
+            <details className="glass-panel rounded-3xl border border-white/5 p-4 md:p-5">
+                <summary className="flex cursor-pointer list-none flex-col gap-2 sm:flex-row sm:items-start sm:justify-between">
                     <div>
                         <h3 className="flex items-center gap-2 text-sm font-bold text-white">
-                            <LifeBuoy className="h-4 w-4 text-brand-purple" /> Support Readiness
+                            <LifeBuoy className="h-4 w-4 text-brand-purple" /> Support handoff
                         </h3>
                             <p className="mt-1 text-xs leading-5 text-gray-400">
-                                Current in-site support threads and bug-report signals for this account.
+                                Support-specific thread and bug-report detail is collapsed here and linked to the support queue.
                             </p>
                     </div>
                     <div className="flex flex-wrap gap-2">
@@ -823,7 +788,7 @@ export default function AdminUserAnalyticsPage() {
                             Open support queue
                         </Link>
                     </div>
-                </div>
+                </summary>
 
                 <div className="mt-5 grid gap-4 xl:grid-cols-[0.92fr_1.08fr]">
                     <div className="space-y-4">
@@ -908,7 +873,7 @@ export default function AdminUserAnalyticsPage() {
                         </div>
                     </div>
                 </div>
-            </div>
+            </details>
 
             {(creatorApplication || isCreatorOpsUser) ? (
                 <div className="glass-panel rounded-3xl border border-white/5 p-4 md:p-5">
@@ -946,10 +911,15 @@ export default function AdminUserAnalyticsPage() {
 
 
 
-            <div className="glass-panel rounded-3xl border border-white/5 p-6">
-                <h3 className="mb-4 flex items-center gap-2 text-sm font-bold text-white">
-                    <Activity className="h-4 w-4 text-brand-purple" /> Parity Engine
-                </h3>
+            <details className="glass-panel rounded-3xl border border-white/5 p-6">
+                <summary className="flex cursor-pointer list-none items-center justify-between gap-3 text-sm font-bold text-white">
+                    <span className="flex items-center gap-2">
+                        <Activity className="h-4 w-4 text-brand-purple" /> Source diagnostics
+                    </span>
+                    <span className={`rounded-full border px-2.5 py-1 text-[10px] font-bold uppercase tracking-[0.14em] ${getValidationClasses(parity?.validations?.some((item) => item.status === "fail") ? "fail" : parity?.validations?.some((item) => item.status === "warn") ? "warn" : "pass")}`}>
+                        {parity?.score ?? 0}% parity
+                    </span>
+                </summary>
 
                 <div className="grid gap-3 md:grid-cols-3">
                     <div className="rounded-[1.4rem] border border-white/10 bg-black/30 p-4">
@@ -1048,7 +1018,7 @@ export default function AdminUserAnalyticsPage() {
                         </div>
                     ))}
                 </div>
-            </div>
+            </details>
 
             <div className="grid grid-cols-1 gap-6 md:grid-cols-2">
                 <div className="glass-panel rounded-3xl border border-white/5 p-6">
@@ -1084,10 +1054,15 @@ export default function AdminUserAnalyticsPage() {
                     </div>
                 </div>
 
-                <div className="glass-panel rounded-3xl border border-white/5 p-6">
-                    <h3 className="mb-4 flex items-center gap-2 text-sm font-bold text-white">
-                        <ShieldAlert className="h-4 w-4 text-brand-purple" /> Security Events
-                    </h3>
+                <details className="glass-panel rounded-3xl border border-white/5 p-6">
+                    <summary className="mb-4 flex cursor-pointer list-none items-center justify-between gap-3 text-sm font-bold text-white">
+                        <span className="flex items-center gap-2">
+                            <ShieldAlert className="h-4 w-4 text-brand-purple" /> Security handoff
+                        </span>
+                        <span className="rounded-full border border-white/10 bg-black/30 px-2.5 py-1 text-[10px] font-bold uppercase tracking-[0.14em] text-gray-300">
+                            {securitySummary?.allTimeCount ?? securityEvents.length} flags
+                        </span>
+                    </summary>
                     <div className="mb-4 grid gap-3 sm:grid-cols-3">
                         <div className="rounded-2xl border border-white/10 bg-black/30 px-4 py-3">
                             <p className="text-[10px] font-bold uppercase tracking-[0.16em] text-gray-500">All time flags</p>
@@ -1219,7 +1194,7 @@ export default function AdminUserAnalyticsPage() {
                             Showing {filteredSecurityEvents.length} of {securityEvents.length} stored security logs. Historical total on this account: {securitySummary?.allTimeCount ?? targetUser.securityFlags.ripAttempts}
                         </p>
                     ) : null}
-                </div>
+                </details>
             </div>
         </div>
     );

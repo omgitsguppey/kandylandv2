@@ -28,3 +28,8 @@ The UI must NEVER lie to the user or the admin about the state of the data.
 * **[stale]:** Must be explicitly labeled if the data is cached and older than acceptable thresholds.
 * **[fallback]:** Must be explicitly labeled if the primary data source failed and secondary/synthetic data is being shown.
 * **[failed]:** Must be explicitly indicated if data cannot be loaded. Never show an empty or "healthy" state on failed data. Silent catch blocks that result in blank UI are banned.
+
+## 6. Admin Commerce Density
+* Admin user monetization must summarize gross cash, adjusted profit, package-rate bonus value, delivered GumDrops, and effective rate from canonical commerce helpers.
+* Do not show repeated zero-value monetization, support, security, or parity cards by default. Use compact summaries and collapse or link out source diagnostics.
+* Bonus value must be labeled as package-rate impact when shown in admin views; the retail anchor remains $1 = 100 GumDrops.

@@ -1,0 +1,90 @@
+import { describe, expect, it } from "vitest";
+
+import {
+  buildAdminUserMetricIntegrity,
+  scoreAdminUserEngagement,
+  shouldRecoverAdminUserMetricsFromFacts,
+} from "@/lib/admin-user-metrics";
+
+describe("admin user metric source truth", () => {
+  it("flags capped rollup events for raw fact recovery", () => {
+    expect(shouldRecoverAdminUserMetricsFromFacts({
+      hasRollup: true,
+      hasDaily: false,
+      userOnboarded: true,
+      metrics: {
+        eventCount: 14,
+        sessionCount: 3,
+        viewCount: 0,
+        watchSecondsTotal: 120,
+        onboardingCompletionCount: 0,
+      },
+    })).toBe(true);
+  });
+
+  it("surfaces partial integrity instead of silent zeros", () => {
+    const integrity = buildAdminUserMetricIntegrity({
+      hasRollup: true,
+      hasDaily: false,
+      recoveredFromFacts: false,
+      userOnboarded: true,
+      userCreatedAt: Date.now() - 7 * 24 * 60 * 60 * 1000,
+      nowMs: Date.now(),
+      metrics: {
+        eventCount: 14,
+        sessionCount: 2,
+        viewCount: 0,
+        bounceCount: 0,
+        authSuccessCount: 0,
+        onboardingCompletionCount: 0,
+        watchSecondsTotal: 90,
+        unwrapCount: 0,
+        purchaseCount: 0,
+        grossRevenueUsd: 0,
+        unlockSpendGdTotal: 0,
+        lastSeenAt: Date.now() - 60_000,
+      },
+    });
+
+    expect(integrity.truthLabel).toBe("partial");
+    expect(integrity.failures).toEqual(expect.arrayContaining([
+      "event_count_suspected_capped",
+      "views_missing_despite_sessions_or_watch_time",
+      "auth_stats_missing_for_onboarded_user",
+    ]));
+  });
+
+  it("ranks spenders and recent historical activity above raw event spam", () => {
+    const nowMs = Date.now();
+    const spender = scoreAdminUserEngagement({
+      eventCount: 20,
+      sessionCount: 2,
+      viewCount: 5,
+      bounceCount: 0,
+      authSuccessCount: 1,
+      onboardingCompletionCount: 1,
+      watchSecondsTotal: 300,
+      unwrapCount: 2,
+      purchaseCount: 2,
+      grossRevenueUsd: 20,
+      unlockSpendGdTotal: 500,
+      lastSeenAt: nowMs - 10 * 60 * 1000,
+    }, nowMs);
+    const eventOnly = scoreAdminUserEngagement({
+      eventCount: 100,
+      sessionCount: 1,
+      viewCount: 2,
+      bounceCount: 0,
+      authSuccessCount: 0,
+      onboardingCompletionCount: 0,
+      watchSecondsTotal: 0,
+      unwrapCount: 0,
+      purchaseCount: 0,
+      grossRevenueUsd: 0,
+      unlockSpendGdTotal: 0,
+      lastSeenAt: nowMs - 6 * 60 * 60 * 1000,
+    }, nowMs);
+
+    expect(spender).toBeGreaterThan(eventOnly);
+  });
+});

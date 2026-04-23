@@ -13,6 +13,11 @@ import { recordRouteWarning } from "@/lib/server/route-diagnostics";
 import { buildModuleCoverageReport, buildParityInsight } from "@/lib/server/analytics-parity";
 import { guardApiRequest } from "@/lib/server/request-guard";
 import { CREATOR_COLLECTIONS, isCreatorRole } from "@/lib/creator-experiences";
+import { buildCommerceMetricsFromRollup } from "@/lib/admin-user-commerce";
+import {
+    buildAdminUserMetricIntegrity,
+    scoreAdminUserEngagement,
+} from "@/lib/admin-user-metrics";
 import {
     buildCreatorOnboardingCanonicalRecord,
     normalizeCreatorOnboardingCanonicalRecord,
@@ -252,6 +257,15 @@ export async function GET(
         const directDownloadCount = analyticsFacts.filter((event) => event.eventName === "viewer_source_downloaded").length;
         const directRelatedClickCount = analyticsFacts.filter((event) => event.eventName === "viewer_related_drop_clicked").length;
         const directUnwrapCount = analyticsFacts.filter((event) => event.eventName === "unlock_drop_success").length;
+        const directPageViewCount = analyticsFacts.filter((event) => event.eventName.endsWith("_page_viewed") || event.eventName === "semantic_page_viewed").length;
+        const directBounceCount = analyticsFacts.filter((event) => event.eventName === "semantic_page_bounced").length;
+        const directAuthSuccessCount = analyticsFacts.filter((event) => (
+            event.eventName === "auth_sign_in_success"
+            || event.eventName === "auth_google_sign_in_success"
+            || event.eventName === "auth_sign_up_success"
+        )).length;
+        const directOnboardingStartCount = analyticsFacts.filter((event) => event.eventName === "guided_onboarding_started").length;
+        const directOnboardingCompletionCount = analyticsFacts.filter((event) => event.eventName === "guided_onboarding_completed").length;
         const purchaseVerifiedFactCount = analyticsFacts.filter((event) => event.eventName === "purchase_verified").length;
         const purchaseCompletedFactCount = analyticsFacts.filter((event) => event.eventName === "gumdrops_purchase_completed").length;
         const directPurchaseCount = purchaseVerifiedFactCount > 0 ? purchaseVerifiedFactCount : purchaseCompletedFactCount;
@@ -277,6 +291,11 @@ export async function GET(
         const sessionFactLoadSampleCount = sessionFacts.reduce((sum, fact) => sum + fact.loadSampleCount, 0);
         const sessionFactLastSeenAt = sessionFacts.reduce((latest, fact) => Math.max(latest, fact.lastEventAt), 0);
         const dailyEventCount = userDaily.reduce((sum, day) => sum + readNumber(day.eventCount), 0);
+        const dailyViewCount = userDaily.reduce((sum, day) => sum + readNumber(day.viewCount), 0);
+        const dailyBounceCount = userDaily.reduce((sum, day) => sum + readNumber(day.bounceCount), 0);
+        const dailyAuthSuccessCount = userDaily.reduce((sum, day) => sum + Math.max(readNumber(day.authSuccessCount), readNumber(day.signInCount)), 0);
+        const dailyOnboardingStartCount = userDaily.reduce((sum, day) => sum + Math.max(readNumber(day.onboardingStartCount), readNumber(day.guidedOnboardingStartCount)), 0);
+        const dailyOnboardingCompletionCount = userDaily.reduce((sum, day) => sum + Math.max(readNumber(day.onboardingCompletionCount), readNumber(day.guidedOnboardingCompletionCount)), 0);
         const dailyUnwrapCount = userDaily.reduce((sum, day) => sum + Math.max(readNumber(day.unwrapCount), readNumber(day.unlockCount)), 0);
         const dailyPurchaseCount = userDaily.reduce((sum, day) => sum + Math.max(readNumber(day.purchaseCount), readNumber(day.purchaseTransactionCount)), 0);
         const dailyLastSeenAt = userDaily.reduce((latest, day) => Math.max(latest, toTimestampNumber(day.lastSeenAt), toTimestampNumber(day.lastSeenAtMs)), 0);
@@ -341,6 +360,35 @@ export async function GET(
         const transactionBonusGumDrops = purchaseTransactions.reduce((sum, transaction) => sum + transaction.economics.bonusGumDrops, 0);
         const transactionDeliveredGumDrops = purchaseTransactions.reduce((sum, transaction) => sum + transaction.economics.deliveredGumDrops, 0);
         const transactionPaidGumDrops = purchaseTransactions.reduce((sum, transaction) => sum + transaction.economics.paidGumDrops, 0);
+        const rollupCommerce = buildCommerceMetricsFromRollup(analyticsRollup, {
+            commerceSourceLabel: "analytics_users_rollup_recomputed_display",
+            commerceTruthLabel: "stale",
+        });
+        const transactionCommerce = {
+            grossRevenueUsd: transactionGrossRevenueUsd,
+            netRevenueUsd: transactionNetRevenueUsd,
+            paypalFeeUsd: transactionPaypalFeeUsd,
+            adjustedProfitUsd: transactionAdjustedProfitUsd,
+            bonusValueUsd: transactionBonusValueUsd,
+            bonusGumDrops: transactionBonusGumDrops,
+            deliveredGumDrops: transactionDeliveredGumDrops,
+            paidGumDrops: transactionPaidGumDrops,
+            effectiveUsdPer100Gd: transactionDeliveredGumDrops > 0
+                ? Math.round(((transactionGrossRevenueUsd / (transactionDeliveredGumDrops / 100)) + Number.EPSILON) * 100) / 100
+                : 0,
+            commerceTruthLabel: purchaseTransactions.length > 0 ? "live" as const : "unknown" as const,
+            commerceSourceLabel: purchaseTransactions.length > 0 ? "completed_transactions" : "none",
+            commerceEmptyReason: purchaseTransactions.length > 0 ? null : "No completed GumDrops purchases found.",
+        };
+        const commerceMetrics = transactionCommerce.grossRevenueUsd >= rollupCommerce.grossRevenueUsd
+            ? transactionCommerce
+            : {
+                ...rollupCommerce,
+                commerceTruthLabel: rollupCommerce.grossRevenueUsd > 0 ? "stale" as const : "unknown" as const,
+                commerceEmptyReason: rollupCommerce.grossRevenueUsd > 0
+                    ? "Historical rollup display math is recomputed from aggregate fields until transaction backfill runs."
+                    : "No completed GumDrops purchases found.",
+            };
         const unlockSpendGdTotal = transactions
             .filter((transaction) => transaction.status === "completed" && transaction.type === "unlock_content")
             .reduce((sum, transaction) => sum + transaction.amount, 0);
@@ -400,19 +448,65 @@ export async function GET(
         const normalizedUnlockCount = completedUnlockTransactions.length > 0
             ? completedUnlockTransactions.length
             : Math.max(rollupUnlockCount, dailyUnwrapCount, directUnwrapCount);
-
-        const analytics = {
-            eventCount: Math.max(readNumber(analyticsRollup.eventCount), directEventCount, dailyEventCount),
+        const normalizedEventCount = Math.max(readNumber(analyticsRollup.eventCount), directEventCount, dailyEventCount);
+        const normalizedViewCount = Math.max(
+            readNumber(analyticsRollup.viewCount),
+            dailyViewCount,
+            directPageViewCount,
+            directViewSessionCount || directViewerOpenedCount,
+            sessionFactViewCount,
+        );
+        const normalizedSessionCount = Math.max(readNumber(analyticsRollup.sessionCount), directViewSessionCount || directViewerOpenedCount, sessionFactViewCount);
+        const normalizedWatchSeconds = Math.max(rollupWatchSeconds, completedSessionWatchSeconds, sessionFactWatchSeconds);
+        const normalizedBounceCount = Math.max(readNumber(analyticsRollup.bounceCount), dailyBounceCount, directBounceCount);
+        const normalizedAuthSuccessCount = Math.max(readNumber(analyticsRollup.authSuccessCount), readNumber(analyticsRollup.signInCount), dailyAuthSuccessCount, directAuthSuccessCount);
+        const normalizedOnboardingCompletionCount = Math.max(
+            readNumber(analyticsRollup.onboardingCompletionCount),
+            readNumber(analyticsRollup.guidedOnboardingCompletionCount),
+            dailyOnboardingCompletionCount,
+            directOnboardingCompletionCount,
+            user.onboardingCompleted ? 1 : 0,
+        );
+        const metricSnapshot = {
+            eventCount: normalizedEventCount,
+            sessionCount: normalizedSessionCount,
+            viewCount: normalizedViewCount,
+            bounceCount: normalizedBounceCount,
+            authSuccessCount: normalizedAuthSuccessCount,
+            onboardingCompletionCount: normalizedOnboardingCompletionCount,
+            watchSecondsTotal: normalizedWatchSeconds,
             unwrapCount: normalizedUnlockCount,
             purchaseCount: normalizedPurchaseCount,
-            viewerSessionCount: Math.max(readNumber(analyticsRollup.sessionCount), directViewSessionCount || directViewerOpenedCount, sessionFactViewCount),
+            grossRevenueUsd: commerceMetrics.grossRevenueUsd,
+            unlockSpendGdTotal: Math.max(readNumber(analyticsRollup.spendGdTotal), readNumber(analyticsRollup.unlockSpendGdTotal), unlockSpendGdTotal),
+            lastSeenAt: Math.max(readNumber(analyticsRollup.lastSeenAt), readNumber(analyticsRollup.lastSeenAtMs), directLastSeenAt, sessionFactLastSeenAt, dailyLastSeenAt),
+        };
+        const metricIntegrity = buildAdminUserMetricIntegrity({
+            hasRollup: analyticsRollupSnap.exists,
+            hasDaily: userDaily.length > 0,
+            recoveredFromFacts: directEventCount > 0,
+            userOnboarded: user.onboardingCompleted === true,
+            userCreatedAt: toTimestampNumber(user.createdAt),
+            nowMs: Date.now(),
+            metrics: metricSnapshot,
+        });
+
+        const analytics = {
+            eventCount: normalizedEventCount,
+            unwrapCount: normalizedUnlockCount,
+            purchaseCount: normalizedPurchaseCount,
+            viewerSessionCount: normalizedSessionCount,
             viewerCompletionCount: Math.max(analyticsFacts.filter((event) => event.eventName === "viewer_session_completed").length, sessionFactCompletionCount),
             assetViewCount: directAssetViewCount,
             assetCompletionCount: directAssetCompletionCount,
             uniqueViewedDrops: viewedDrops.size,
-            watchSecondsTotal: Math.max(rollupWatchSeconds, completedSessionWatchSeconds, sessionFactWatchSeconds),
-            watchHours: roundToSingleDecimal(Math.max(rollupWatchSeconds, completedSessionWatchSeconds, sessionFactWatchSeconds) / 3600),
-            viewCount: Math.max(directViewSessionCount || directViewerOpenedCount, sessionFactViewCount),
+            watchSecondsTotal: normalizedWatchSeconds,
+            watchHours: roundToSingleDecimal(normalizedWatchSeconds / 3600),
+            viewCount: normalizedViewCount,
+            bounceCount: normalizedBounceCount,
+            authSuccessCount: normalizedAuthSuccessCount,
+            onboardingStartCount: Math.max(readNumber(analyticsRollup.onboardingStartCount), readNumber(analyticsRollup.guidedOnboardingStartCount), dailyOnboardingStartCount, directOnboardingStartCount),
+            onboardingCompletionCount: normalizedOnboardingCompletionCount,
             downloadCount: directDownloadCount,
             relatedClickCount: directRelatedClickCount,
             avgLoadMs: Math.max(
@@ -420,16 +514,25 @@ export async function GET(
                 directAvgLoadMs,
                 sessionFactLoadSampleCount > 0 ? Math.round(sessionFactLoadMsTotal / sessionFactLoadSampleCount) : 0,
             ),
-            lastSeenAt: Math.max(readNumber(analyticsRollup.lastSeenAt), readNumber(analyticsRollup.lastSeenAtMs), directLastSeenAt, sessionFactLastSeenAt, dailyLastSeenAt),
-            grossRevenueUsd: Math.max(readNumber(analyticsRollup.grossRevenueUsdTotal), transactionGrossRevenueUsd),
-            netRevenueUsd: Math.max(readNumber(analyticsRollup.netRevenueUsdTotal), transactionNetRevenueUsd),
-            paypalFeeUsd: Math.max(readNumber(analyticsRollup.paypalFeeUsdTotal), transactionPaypalFeeUsd),
-            adjustedProfitUsd: Math.max(readNumber(analyticsRollup.adjustedProfitUsdTotal), transactionAdjustedProfitUsd),
-            bonusValueUsd: Math.max(readNumber(analyticsRollup.bonusValueUsdTotal), transactionBonusValueUsd),
-            bonusGumDrops: Math.max(readNumber(analyticsRollup.bonusGumDropsTotal), transactionBonusGumDrops),
-            deliveredGumDrops: Math.max(readNumber(analyticsRollup.deliveredGumDropsTotal), transactionDeliveredGumDrops),
-            paidGumDrops: Math.max(readNumber(analyticsRollup.paidGumDropsTotal), transactionPaidGumDrops),
-            unlockSpendGdTotal: Math.max(readNumber(analyticsRollup.spendGdTotal), readNumber(analyticsRollup.unlockSpendGdTotal), unlockSpendGdTotal),
+            lastSeenAt: metricSnapshot.lastSeenAt,
+            grossRevenueUsd: commerceMetrics.grossRevenueUsd,
+            netRevenueUsd: commerceMetrics.netRevenueUsd,
+            paypalFeeUsd: commerceMetrics.paypalFeeUsd,
+            adjustedProfitUsd: commerceMetrics.adjustedProfitUsd,
+            bonusValueUsd: commerceMetrics.bonusValueUsd,
+            bonusGumDrops: commerceMetrics.bonusGumDrops,
+            deliveredGumDrops: commerceMetrics.deliveredGumDrops,
+            paidGumDrops: commerceMetrics.paidGumDrops,
+            effectiveUsdPer100Gd: commerceMetrics.effectiveUsdPer100Gd,
+            commerceTruthLabel: commerceMetrics.commerceTruthLabel,
+            commerceSourceLabel: commerceMetrics.commerceSourceLabel,
+            commerceEmptyReason: commerceMetrics.commerceEmptyReason,
+            unlockSpendGdTotal: metricSnapshot.unlockSpendGdTotal,
+            metricTruthLabel: metricIntegrity.truthLabel,
+            metricSourceLabel: metricIntegrity.sourceLabel,
+            metricIntegrityFailures: metricIntegrity.failures,
+            recoveredFromFacts: metricIntegrity.recoveredFromFacts,
+            engagementScore: scoreAdminUserEngagement(metricSnapshot, Date.now()),
             topViewedDrops: Array.from(viewedDrops.values())
                 .sort((left, right) => {
                     if (right.views !== left.views) {

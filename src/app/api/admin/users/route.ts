@@ -29,6 +29,15 @@ import {
 } from "@/lib/server/creator-onboarding";
 import { recordRouteWarning } from "@/lib/server/route-diagnostics";
 import { recordServerDiagnostic } from "@/lib/server/server-diagnostics";
+import {
+  buildCommerceMetricsFromRollup,
+  buildEmptyCommerceMetrics,
+} from "@/lib/admin-user-commerce";
+import {
+  buildAdminUserMetricIntegrity,
+  scoreAdminUserEngagement,
+  shouldRecoverAdminUserMetricsFromFacts,
+} from "@/lib/admin-user-metrics";
 
 function toTimestampNumber(value: unknown): number {
   if (typeof value === "number" && Number.isFinite(value)) {
@@ -42,6 +51,10 @@ function toTimestampNumber(value: unknown): number {
     && typeof (value as { toMillis: () => number }).toMillis === "function"
   ) {
     return (value as { toMillis: () => number }).toMillis();
+  }
+
+  if (value instanceof Date) {
+    return value.getTime();
   }
 
   return 0;
@@ -310,26 +323,6 @@ async function emitCreatorLifecycleTelemetry(
   }));
 }
 
-type UserCommerceMetrics = {
-  grossRevenueUsd: number;
-  grossRevenueCents: number;
-  paypalFeeUsd: number;
-  paypalFeeCents: number;
-  netRevenueUsd: number;
-  netRevenueCents: number;
-  adjustedProfitUsd: number;
-  adjustedProfitCents: number;
-  retailValueUsd: number;
-  bonusValueUsd: number;
-  bonusGumDrops: number;
-  deliveredGumDrops: number;
-  paidGumDrops: number;
-  averageOrderUsd: number;
-  effectiveUsdPer100Gd: number;
-  unlockSpendGdTotal: number;
-  lastPurchaseAt: number;
-};
-
 type CreatorOpsAggregate = {
   followerCount: number;
   notificationsEnabledCount: number;
@@ -377,66 +370,6 @@ function readMetric(raw: Record<string, unknown>, ...keys: string[]) {
   }
 
   return 0;
-}
-
-function buildEmptyCommerceMetrics(): UserCommerceMetrics {
-  return {
-    grossRevenueUsd: 0,
-    grossRevenueCents: 0,
-    paypalFeeUsd: 0,
-    paypalFeeCents: 0,
-    netRevenueUsd: 0,
-    netRevenueCents: 0,
-    adjustedProfitUsd: 0,
-    adjustedProfitCents: 0,
-    retailValueUsd: 0,
-    bonusValueUsd: 0,
-    bonusGumDrops: 0,
-    deliveredGumDrops: 0,
-    paidGumDrops: 0,
-    averageOrderUsd: 0,
-    effectiveUsdPer100Gd: 0,
-    unlockSpendGdTotal: 0,
-    lastPurchaseAt: 0,
-  };
-}
-
-function buildCommerceMetricsFromRollup(raw: Record<string, unknown>): UserCommerceMetrics {
-  const grossRevenueUsd = roundCurrency(readMetric(raw, "grossRevenueUsdTotal", "grossRevenueUsd"));
-  const grossRevenueCents = Math.round(readMetric(raw, "revenueCentsTotal", "grossRevenueCents"));
-  const paypalFeeUsd = roundCurrency(readMetric(raw, "paypalFeeUsdTotal", "paypalFeeUsd"));
-  const paypalFeeCents = Math.round(readMetric(raw, "paypalFeeCentsTotal", "paypalFeeCents"));
-  const netRevenueUsd = roundCurrency(readMetric(raw, "netRevenueUsdTotal", "netRevenueUsd"));
-  const netRevenueCents = Math.round(readMetric(raw, "netRevenueCentsTotal", "netRevenueCents"));
-  const adjustedProfitUsd = roundCurrency(readMetric(raw, "adjustedProfitUsdTotal", "adjustedProfitUsd"));
-  const adjustedProfitCents = Math.round(readMetric(raw, "adjustedProfitCentsTotal", "adjustedProfitCents"));
-  const retailValueUsd = roundCurrency(readMetric(raw, "retailValueUsdTotal", "retailValueUsd"));
-  const bonusValueUsd = roundCurrency(readMetric(raw, "bonusValueUsdTotal", "bonusValueUsd"));
-  const bonusGumDrops = Math.round(readMetric(raw, "bonusGumDropsTotal", "bonusGumDrops"));
-  const deliveredGumDrops = Math.round(readMetric(raw, "deliveredGumDropsTotal", "deliveredGumDrops"));
-  const paidGumDrops = Math.round(readMetric(raw, "paidGumDropsTotal", "paidGumDrops"));
-  const unlockSpendGdTotal = Math.round(readMetric(raw, "spendGdTotal", "unlockSpendGdTotal"));
-  const purchaseCount = Math.max(0, Math.round(readMetric(raw, "purchaseTransactionCount", "purchaseCount")));
-
-  return {
-    grossRevenueUsd,
-    grossRevenueCents,
-    paypalFeeUsd,
-    paypalFeeCents,
-    netRevenueUsd,
-    netRevenueCents,
-    adjustedProfitUsd,
-    adjustedProfitCents,
-    retailValueUsd,
-    bonusValueUsd,
-    bonusGumDrops,
-    deliveredGumDrops,
-    paidGumDrops,
-    averageOrderUsd: purchaseCount > 0 ? roundCurrency(grossRevenueUsd / purchaseCount) : 0,
-    effectiveUsdPer100Gd: deliveredGumDrops > 0 ? roundCurrency(grossRevenueUsd / (deliveredGumDrops / 100)) : 0,
-    unlockSpendGdTotal,
-    lastPurchaseAt: toTimestampNumber(raw.lastPurchaseAt),
-  };
 }
 
 function chunkValues<T>(values: T[], size: number): T[][] {
@@ -578,6 +511,7 @@ export async function GET(request: NextRequest) {
     ]);
 
     const users = usersSnapshot.docs.map((doc) => serializeUserDoc(doc.id, doc.data()));
+    const rollupUserIds = new Set(analyticsSnapshot.docs.map((doc) => doc.id));
     const creatorOpsByUser = new Map<string, CreatorOpsAggregate>();
 
     const readCreatorOps = (creatorId: string) => {
@@ -732,7 +666,8 @@ export async function GET(request: NextRequest) {
       dailyAnalyticsByUser.set(uid, current);
     });
 
-    const analyticsByUser = Object.fromEntries(
+    const dailyUserIds = new Set(dailyAnalyticsByUser.keys());
+    const analyticsByUser: Record<string, any> = Object.fromEntries(
       analyticsSnapshot.docs.map((doc) => {
         const raw = doc.data() as Record<string, unknown>;
         const dailyAggregate = dailyAnalyticsByUser.get(doc.id) ?? buildEmptyDailyAggregate();
@@ -819,6 +754,9 @@ export async function GET(request: NextRequest) {
           unlockSpendGdTotal: mergedCommerceMetrics.unlockSpendGdTotal,
           lastPurchaseAt: mergedCommerceMetrics.lastPurchaseAt,
           bundleYieldRatio,
+          commerceTruthLabel: mergedCommerceMetrics.commerceTruthLabel,
+          commerceSourceLabel: mergedCommerceMetrics.commerceSourceLabel,
+          commerceEmptyReason: mergedCommerceMetrics.commerceEmptyReason,
         }];
       }),
     );
@@ -828,16 +766,15 @@ export async function GET(request: NextRequest) {
       .map((user) => user.uid)
       .filter((uid) => {
         const analytics = analyticsByUser[uid];
-        return !analytics || (
-          (analytics.eventCount || 0) === 0
-          && (analytics.unwrapCount || 0) === 0
-          && (analytics.watchSecondsTotal || 0) === 0
-        ) || (
-          onboardingCompletedByUser.get(uid) === true
-          && (analytics?.onboardingCompletionCount || 0) === 0
-        );
+        return shouldRecoverAdminUserMetricsFromFacts({
+          hasRollup: rollupUserIds.has(uid),
+          hasDaily: dailyUserIds.has(uid),
+          userOnboarded: onboardingCompletedByUser.get(uid) === true,
+          metrics: analytics,
+        });
       });
 
+    const factRecoveredUserIds = new Set<string>();
     if (fallbackUserIds.length > 0) {
       const eventSnapshots = await Promise.all(
         chunkValues(fallbackUserIds, 30).map((uids) => adminDb.collection("analytics_event_facts")
@@ -942,6 +879,7 @@ export async function GET(request: NextRequest) {
       });
 
       fallbackStats.forEach((stats, uid) => {
+        factRecoveredUserIds.add(uid);
         const existing = analyticsByUser[uid] ?? {
           uid,
           username: users.find((user) => user.uid === uid)?.username || uid,
@@ -1041,8 +979,65 @@ export async function GET(request: NextRequest) {
         unlockSpendGdTotal: commerceMetrics.unlockSpendGdTotal,
         lastPurchaseAt: commerceMetrics.lastPurchaseAt,
         bundleYieldRatio: retailValueUsd > 0 ? Number((commerceMetrics.grossRevenueUsd / retailValueUsd).toFixed(4)) : 0,
+        commerceTruthLabel: commerceMetrics.commerceTruthLabel,
+        commerceSourceLabel: commerceMetrics.commerceSourceLabel,
+        commerceEmptyReason: commerceMetrics.commerceEmptyReason,
       };
     });
+
+    users.forEach((user) => {
+      const analytics = analyticsByUser[user.uid];
+      const metricSnapshot = {
+        eventCount: analytics.eventCount || 0,
+        sessionCount: analytics.sessionCount || 0,
+        viewCount: analytics.viewCount || 0,
+        bounceCount: analytics.bounceCount || 0,
+        authSuccessCount: analytics.authSuccessCount || 0,
+        onboardingCompletionCount: analytics.onboardingCompletionCount || 0,
+        watchSecondsTotal: analytics.watchSecondsTotal || 0,
+        unwrapCount: analytics.unwrapCount || 0,
+        purchaseCount: analytics.purchaseCount || 0,
+        grossRevenueUsd: analytics.grossRevenueUsd || 0,
+        unlockSpendGdTotal: analytics.unlockSpendGdTotal || 0,
+        lastSeenAt: analytics.lastSeenAt || 0,
+      };
+      const metricIntegrity = buildAdminUserMetricIntegrity({
+        hasRollup: rollupUserIds.has(user.uid),
+        hasDaily: dailyUserIds.has(user.uid),
+        recoveredFromFacts: factRecoveredUserIds.has(user.uid),
+        userOnboarded: user.onboardingCompleted === true,
+        userCreatedAt: toTimestampNumber(user.createdAt),
+        nowMs: Date.now(),
+        metrics: metricSnapshot,
+      });
+
+      analyticsByUser[user.uid] = {
+        ...analytics,
+        metricTruthLabel: metricIntegrity.truthLabel,
+        metricSourceLabel: metricIntegrity.sourceLabel,
+        metricIntegrityFailures: metricIntegrity.failures,
+        recoveredFromFacts: metricIntegrity.recoveredFromFacts,
+        engagementScore: scoreAdminUserEngagement(metricSnapshot, Date.now()),
+      };
+    });
+
+    const metricFailureUsers = Object.values(analyticsByUser).filter((entry) => (entry.metricIntegrityFailures || []).length > 0);
+    if (metricFailureUsers.length > 0) {
+      recordServerDiagnostic({
+        channel: "analytics",
+        severity: "warn",
+        message: "Admin user metrics contain partial source-of-truth coverage",
+        detail: {
+          route: "admin/users",
+          affectedUsers: metricFailureUsers.length,
+          recoveredFromFacts: Object.values(analyticsByUser).filter((entry) => entry.recoveredFromFacts === true).length,
+          sampleFailures: metricFailureUsers.slice(0, 5).map((entry) => ({
+            uid: entry.uid,
+            failures: entry.metricIntegrityFailures,
+          })),
+        },
+      }).catch(() => undefined);
+    }
 
     const unlockedDropIds = users.flatMap((user) => user.unlockedContent || []);
     const dropReferences = await getDropReferenceMap(unlockedDropIds);
@@ -1098,6 +1093,9 @@ export async function GET(request: NextRequest) {
           : 0;
       })(),
       payingUsers: Object.values(analyticsByUser).filter((entry) => (entry.purchaseCount || 0) > 0).length,
+      commerceTruthLabel: commerceSummaryMetrics.commerceTruthLabel,
+      commerceSourceLabel: commerceSummaryMetrics.commerceSourceLabel,
+      commerceEmptyReason: commerceSummaryMetrics.commerceEmptyReason,
       creatorOps: {
         creatorsWithFollowers: Array.from(creatorOpsByUser.values()).filter((entry) => entry.followerCount > 0).length,
         totalFollowers: Array.from(creatorOpsByUser.values()).reduce((sum, entry) => sum + entry.followerCount, 0),

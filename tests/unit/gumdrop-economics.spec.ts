@@ -87,7 +87,8 @@ describe("deriveGumdropEconomics", () => {
     const roundedPaypalFeeUsd = Math.round((expectedPaypalFee + Number.EPSILON) * 100) / 100;
     const netRevUsd = Math.round(((revenue - roundedPaypalFeeUsd) + Number.EPSILON) * 100) / 100;
     const retailValueUsd = 550 / GUMDROPS_PER_USD; // 5.50
-    const bonusValueUsd = 50 / GUMDROPS_PER_USD; // 0.50
+    const effectiveUsdPer100Gd = Math.round(((5 / 5.5) + Number.EPSILON) * 100) / 100;
+    const bonusValueUsd = 0.45; // 50 bonus GD valued at the package effective rate.
 
     expect(result.deliveredGumDrops).toBe(550);
     expect(result.grossRevenueUsd).toBe(5.00);
@@ -105,11 +106,33 @@ describe("deriveGumdropEconomics", () => {
 
     expect(result.bonusValueUsd).toBe(bonusValueUsd);
     expect(result.bonusValueCents).toBe(Math.round(bonusValueUsd * 100));
+    expect(result.bonusValueBasis).toBe("package_effective_rate");
+    expect(result.retailAnchorUsdPer100Gd).toBe(1);
 
     const adjProfitUsd = Math.round(((netRevUsd - bonusValueUsd) + Number.EPSILON) * 100) / 100;
     expect(result.adjustedProfitUsd).toBe(adjProfitUsd);
 
-    expect(result.effectiveUsdPer100Gd).toBe(Math.round(((5 / 5.5) + Number.EPSILON) * 100) / 100);
+    expect(result.effectiveUsdPer100Gd).toBe(effectiveUsdPer100Gd);
+  });
+
+  it("values bonus GumDrops at the package effective rate", () => {
+    expect(deriveGumdropEconomics(550, 5.00)).toMatchObject({
+      bonusGumDrops: 50,
+      bonusValueUsd: 0.45,
+      effectiveUsdPer100Gd: 0.91,
+    });
+    expect(deriveGumdropEconomics(1100, 10.00)).toMatchObject({
+      bonusGumDrops: 100,
+      bonusValueUsd: 0.91,
+      effectiveUsdPer100Gd: 0.91,
+      adjustedProfitUsd: 8.25,
+    });
+    expect(deriveGumdropEconomics(2500, 20.00)).toMatchObject({
+      bonusGumDrops: 500,
+      bonusValueUsd: 4.00,
+      effectiveUsdPer100Gd: 0.8,
+      adjustedProfitUsd: 14.81,
+    });
   });
 
   it("calculates international sale correctly with surcharge", () => {
@@ -134,8 +157,9 @@ describe("deriveGumdropEconomics", () => {
     expect(result.netRevenueUsd).toBe(4.00);
     expect(result.netRevenueCents).toBe(400);
 
-    const bonusValueUsd = 0.50; // 50 bonus drops
-    expect(result.adjustedProfitUsd).toBe(3.50); // 4.00 net - 0.50 bonus value
+    const bonusValueUsd = 0.45; // 50 bonus GD at the $5 / 550 GD package rate
+    expect(result.bonusValueUsd).toBe(bonusValueUsd);
+    expect(result.adjustedProfitUsd).toBe(3.55); // 4.00 net - 0.45 bonus value
   });
 
   it("handles zero values", () => {
