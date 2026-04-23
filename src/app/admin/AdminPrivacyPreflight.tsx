@@ -1,94 +1,136 @@
 "use client";
 
 import { useAdminPrivacyPreflight } from "@/hooks/useAdminPrivacyPreflight";
-import { ShieldCheck, ShieldAlert, Activity, Clock, Database } from "lucide-react";
+import { ShieldCheck, ShieldAlert, Activity, Clock, Database, Cloud } from "lucide-react";
 import { AdminStatusBadge } from "@/components/Admin/AdminStatusBadge";
 
 export function AdminPrivacyPreflight() {
   const status = useAdminPrivacyPreflight();
 
   return (
-    <div className="rounded-2xl border border-brand-purple/20 bg-brand-purple/5 p-6 mb-8">
-      <div className="flex items-center gap-3 mb-6">
+    <div className="space-y-4 mb-8">
+      <div className="flex items-center gap-3">
         <div className="w-10 h-10 rounded-xl bg-brand-purple/20 flex items-center justify-center border border-brand-purple/40">
           <ShieldCheck className="w-5 h-5 text-brand-purple" />
         </div>
         <div>
-          <h2 className="text-xl font-black text-white">Privacy & Consent Preflight</h2>
-          <p className="text-sm text-gray-400">Deterministic view of backend tracking health</p>
+          <h2 className="text-lg font-bold text-white">Privacy & Consent Preflight</h2>
+          <p className="text-xs text-gray-400">Live deterministic view of backend tracking health</p>
         </div>
       </div>
 
-      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-        <div className="p-4 rounded-xl border border-white/5 bg-black/40">
-          <div className="flex items-center justify-between mb-2">
-            <span className="text-xs font-semibold text-gray-400 uppercase tracking-widest flex items-center gap-2">
-              <Activity className="w-3 h-3" /> Event Pipeline
-            </span>
+      <div className="grid grid-cols-2 md:grid-cols-3 gap-3">
+        {/* Event Pipeline */}
+        <div className="glass-panel rounded-2xl p-4 flex flex-col justify-between border border-white/5 transition-colors hover:bg-white/[0.02]">
+          <div className="flex items-start justify-between mb-3">
+            <div className="flex items-center gap-2 text-gray-300">
+              <Activity className="w-4 h-4 text-emerald-400" />
+              <span className="text-sm font-semibold">Event Pipeline</span>
+            </div>
             <AdminStatusBadge state={status.eventsPipeline} />
           </div>
-          <div className="text-2xl font-black text-white mt-1">
-            {status.lastEventAgeMs < Infinity ? `${Math.round(status.lastEventAgeMs / 1000)}s ago` : "No data"}
+          <div>
+            <div className="text-xl font-bold text-white">
+              {status.lastEventAgeMs < Infinity ? `${Math.round(status.lastEventAgeMs / 1000)}s ago` : "No data"}
+            </div>
+            <div className="text-[10px] text-gray-500 mt-1 uppercase tracking-wider">
+              Latest Arrival
+            </div>
           </div>
         </div>
 
-        <div className="p-4 rounded-xl border border-white/5 bg-black/40">
-          <div className="flex items-center justify-between mb-2">
-            <span className="text-xs font-semibold text-gray-400 uppercase tracking-widest flex items-center gap-2">
-              <Database className="w-3 h-3" /> Deduplication
-            </span>
+        {/* Deduplication */}
+        <div className="glass-panel rounded-2xl p-4 flex flex-col justify-between border border-white/5 transition-colors hover:bg-white/[0.02]">
+          <div className="flex items-start justify-between mb-3">
+            <div className="flex items-center gap-2 text-gray-300">
+              <Database className="w-4 h-4 text-blue-400" />
+              <span className="text-sm font-semibold">Deduplication</span>
+            </div>
             <AdminStatusBadge state={status.dedupeHealth} />
           </div>
-          <div className="text-sm text-gray-400 mt-1">
-            Backend event uniqueness
+          <div>
+            <div className="text-sm font-medium text-white truncate">
+              {status.dedupeHealth === "live" ? "Enforced via doc ID" : "Invalid uniqueness rules"}
+            </div>
+            <div className="text-[10px] text-gray-500 mt-1 uppercase tracking-wider">
+              Event Uniqueness
+            </div>
           </div>
         </div>
 
-        <div className="p-4 rounded-xl border border-white/5 bg-black/40">
-          <div className="flex items-center justify-between mb-2">
-            <span className="text-xs font-semibold text-gray-400 uppercase tracking-widest flex items-center gap-2">
-              <ShieldAlert className="w-3 h-3" /> Consent Gating
-            </span>
+        {/* Consent Gating */}
+        <div className="glass-panel rounded-2xl p-4 flex flex-col justify-between border border-white/5 transition-colors hover:bg-white/[0.02]">
+          <div className="flex items-start justify-between mb-3">
+            <div className="flex items-center gap-2 text-gray-300">
+              <ShieldAlert className="w-4 h-4 text-amber-400" />
+              <span className="text-sm font-semibold">Consent Gating</span>
+            </div>
             <AdminStatusBadge state={status.consentGating} />
           </div>
-          <div className="text-2xl font-black text-white mt-1">
-            {status.consentRejections} <span className="text-sm font-medium text-gray-500">denied</span>
+          <div>
+            <div className="text-xl font-bold text-white">
+              {status.consentRejections} <span className="text-sm text-gray-400 font-normal">denied</span>
+            </div>
+            <div className="text-[10px] text-gray-500 mt-1 uppercase tracking-wider">
+              Privacy Enforcement
+            </div>
           </div>
         </div>
 
-        <div className="p-4 rounded-xl border border-white/5 bg-black/40">
-          <div className="flex items-center justify-between mb-2">
-            <span className="text-xs font-semibold text-gray-400 uppercase tracking-widest flex items-center gap-2">
-              <Clock className="w-3 h-3" /> Guest Tracking
-            </span>
+        {/* Guest Tracking */}
+        <div className="glass-panel rounded-2xl p-4 flex flex-col justify-between border border-white/5 transition-colors hover:bg-white/[0.02]">
+          <div className="flex items-start justify-between mb-3">
+            <div className="flex items-center gap-2 text-gray-300">
+              <Clock className="w-4 h-4 text-teal-400" />
+              <span className="text-sm font-semibold">Guest Tracking</span>
+            </div>
             <AdminStatusBadge state={status.globalGuestTracking} />
           </div>
-          <div className="text-sm text-gray-400 mt-1">
-            Anonymous ID adherence
+          <div>
+            <div className="text-sm font-medium text-white truncate">
+              {status.globalGuestTracking === "live" ? "Session ID adhered" : "Identifier missing"}
+            </div>
+            <div className="text-[10px] text-gray-500 mt-1 uppercase tracking-wider">
+              Anonymous Identity
+            </div>
           </div>
         </div>
 
-        <div className="p-4 rounded-xl border border-white/5 bg-black/40">
-          <div className="flex items-center justify-between mb-2">
-            <span className="text-xs font-semibold text-gray-400 uppercase tracking-widest flex items-center gap-2">
-              <ShieldCheck className="w-3 h-3 text-blue-400" /> Cloud Run Ingest
-            </span>
+        {/* Cloud Run Ingest */}
+        <div className="glass-panel rounded-2xl p-4 flex flex-col justify-between border border-white/5 transition-colors hover:bg-white/[0.02]">
+          <div className="flex items-start justify-between mb-3">
+            <div className="flex items-center gap-2 text-gray-300">
+              <Cloud className="w-4 h-4 text-purple-400" />
+              <span className="text-sm font-semibold">Cloud Run Ingest</span>
+            </div>
             <AdminStatusBadge state={status.cloudRunIngest} />
           </div>
-          <div className="text-sm text-gray-400 mt-1">
-            Canonical origin validation
+          <div>
+            <div className="text-sm font-medium text-white truncate">
+              {status.cloudRunIngest === "live" ? "Canonical origin verified" : "No server origins"}
+            </div>
+            <div className="text-[10px] text-gray-500 mt-1 uppercase tracking-wider">
+              Backend Origin
+            </div>
           </div>
         </div>
 
-        <div className="p-4 rounded-xl border border-white/5 bg-black/40">
-          <div className="flex items-center justify-between mb-2">
-            <span className="text-xs font-semibold text-gray-400 uppercase tracking-widest flex items-center gap-2">
-              <Database className="w-3 h-3 text-purple-400" /> BigQuery Export
-            </span>
+        {/* BigQuery Export */}
+        <div className="glass-panel rounded-2xl p-4 flex flex-col justify-between border border-white/5 transition-colors hover:bg-white/[0.02]">
+          <div className="flex items-start justify-between mb-3">
+            <div className="flex items-center gap-2 text-gray-300">
+              <Database className="w-4 h-4 text-indigo-400" />
+              <span className="text-sm font-semibold">BigQuery Export</span>
+            </div>
             <AdminStatusBadge state={status.bqExportHealth} />
           </div>
-          <div className="text-sm text-gray-400 mt-1">
-            Cold analytics stream
+          <div>
+            <div className="text-sm font-medium text-white line-clamp-2 leading-tight">
+              {status.bqExportReason}
+            </div>
+            <div className="text-[10px] text-gray-500 mt-1 uppercase tracking-wider">
+              Cold Stream Status
+            </div>
           </div>
         </div>
       </div>

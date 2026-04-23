@@ -1,5 +1,5 @@
 import { useState, useEffect } from "react";
-import { onSnapshot, collection, query, limit, orderBy, getDocs } from "firebase/firestore";
+import { onSnapshot, collection, query, limit, orderBy } from "firebase/firestore";
 import { db } from "@/lib/firebase-data";
 import type { AdminSurfaceState } from "@/lib/admin-parity";
 
@@ -12,6 +12,7 @@ export interface PrivacyPreflightStatus {
   consentGating: AdminSurfaceState;
   consentRejections: number;
   lastEventAgeMs: number;
+  bqExportReason: string;
 }
 
 export function useAdminPrivacyPreflight() {
@@ -24,6 +25,7 @@ export function useAdminPrivacyPreflight() {
     consentGating: "unavailable",
     consentRejections: 0,
     lastEventAgeMs: 0,
+    bqExportReason: "Waiting for pipeline data",
   });
 
   useEffect(() => {
@@ -40,6 +42,7 @@ export function useAdminPrivacyPreflight() {
       let canonicalOriginated = 0;
       let guestTaggedEvents = 0;
       let consentTaggedEvents = 0;
+      let validDedupeEvents = 0;
       
       snapshot.forEach(doc => {
         const data = doc.data();
@@ -52,11 +55,20 @@ export function useAdminPrivacyPreflight() {
         if (data.timestamp > lastTimestamp) {
           lastTimestamp = data.timestamp;
         }
-        if (data.origin === "canonical" || data.origin === "cloud_run" || data.source === "canonical") {
+        
+        // Server origin validation
+        if (data.trackingOrigin === "server" || (typeof data.source === "string" && data.source.includes("server"))) {
           canonicalOriginated++;
         }
-        if (typeof data.guestId === "string" || typeof data.anonymousId === "string") {
+        
+        // Guest tracking identifier validation
+        if (typeof data.sessionId === "string" && data.sessionId.length > 0) {
           guestTaggedEvents++;
+        }
+        
+        // Deduplication validation (idempotency key matches doc ID or exists properly)
+        if (typeof data.idempotencyKey === "string" && (data.idempotencyKey === doc.id || data.idempotencyKey.length > 0)) {
+          validDedupeEvents++;
         }
       });
 
@@ -68,11 +80,16 @@ export function useAdminPrivacyPreflight() {
         ...prev,
         eventsPipeline: !hasRecentEvents ? "unavailable" : isPipelineLive ? "live" : (ageMs < 3600000 ? "stale" : "failed"),
         cloudRunIngest: !hasRecentEvents ? "unavailable" : (canonicalOriginated > 0 ? "live" : "fallback"),
-        bqExportHealth: !hasRecentEvents ? "unavailable" : isPipelineLive ? "live" : (ageMs < 3600000 ? "stale" : "failed"),
+        
+        // BigQuery Export is a cold background extension; we can only infer it's degraded offline
+        bqExportHealth: !hasRecentEvents ? "unavailable" : "degraded",
+        bqExportReason: !hasRecentEvents ? "No local events to export" : "Offline cold stream unverifiable from client",
+        
         consentGating: !hasRecentEvents ? "unavailable" : (consentTaggedEvents > 0 ? "live" : "degraded"),
         lastEventAgeMs: ageMs,
         consentRejections: rejections,
         globalGuestTracking: !hasRecentEvents ? "unavailable" : guestTaggedEvents > 0 ? "live" : "degraded",
+        dedupeHealth: !hasRecentEvents ? "unavailable" : validDedupeEvents > 0 ? "live" : "failed",
       }));
     }, (error) => {
       console.error("[Preflight] Event pipeline listener failed", error);
@@ -81,22 +98,12 @@ export function useAdminPrivacyPreflight() {
         eventsPipeline: "failed",
         cloudRunIngest: "failed",
         bqExportHealth: "failed",
+        bqExportReason: "Pipeline listener failed",
         consentGating: "failed",
+        dedupeHealth: "failed",
+        globalGuestTracking: "failed",
       }));
     });
-
-    // One-off check for dedupe collection health
-    getDocs(query(collection(db, "analytics_dedupe"), limit(1)))
-      .then((snap) => {
-        setStatus(prev => ({
-          ...prev,
-          dedupeHealth: snap.empty ? "stale" : "live"
-        }));
-      })
-      .catch((err) => {
-        console.error("[Preflight] Dedupe health check failed", err);
-        setStatus(prev => ({ ...prev, dedupeHealth: "failed" }));
-      });
 
     return () => {
       unsubscribeEvents();

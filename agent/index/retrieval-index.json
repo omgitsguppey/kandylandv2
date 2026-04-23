@@ -1,5 +1,5 @@
 {
-  "generatedAt": "2026-04-23T21:15:02.080Z",
+  "generatedAt": "2026-04-23T21:25:07.607Z",
   "truthOrder": [
     "verified_runtime_code",
     "verified_configuration",
@@ -988,7 +988,7 @@
       "risk_tags": [
         "broad_signoff"
       ],
-      "recency": "1776978885301:10b6d792a3d3",
+      "recency": "1776979493898:8264d7718fa4",
       "freshness": {
         "local": "fresh",
         "sql_mirror": "unknown"
@@ -1016,7 +1016,7 @@
       "risk_tags": [
         "broad_signoff"
       ],
-      "recency": "1776978885263:14f83f8ee49f",
+      "recency": "1776979493871:38eec69d1702",
       "freshness": {
         "local": "fresh",
         "sql_mirror": "unknown"
@@ -1044,7 +1044,7 @@
       "risk_tags": [
         "broad_signoff"
       ],
-      "recency": "1776978885295:f9f403ed103c",
+      "recency": "1776979493895:6ecf65e574f0",
       "freshness": {
         "local": "fresh",
         "sql_mirror": "unknown"
@@ -1072,7 +1072,7 @@
       "risk_tags": [
         "broad_signoff"
       ],
-      "recency": "1776978885280:8415b6c1dae0",
+      "recency": "1776979493883:a86cd05a31cf",
       "freshness": {
         "local": "fresh",
         "sql_mirror": "unknown"
@@ -1100,7 +1100,7 @@
       "risk_tags": [
         "broad_signoff"
       ],
-      "recency": "1776978885283:bdd235570af1",
+      "recency": "1776979493884:f28db6f24cda",
       "freshness": {
         "local": "fresh",
         "sql_mirror": "unknown"
@@ -1128,7 +1128,7 @@
       "risk_tags": [
         "broad_signoff"
       ],
-      "recency": "1776978885270:bafcff9ae956",
+      "recency": "1776979493878:2640741e36d2",
       "freshness": {
         "local": "fresh",
         "sql_mirror": "unknown"
@@ -1156,7 +1156,7 @@
       "risk_tags": [
         "broad_signoff"
       ],
-      "recency": "1776978885286:202befc90c1b",
+      "recency": "1776979493887:2bf44469213d",
       "freshness": {
         "local": "fresh",
         "sql_mirror": "unknown"
@@ -1184,7 +1184,7 @@
       "risk_tags": [
         "broad_signoff"
       ],
-      "recency": "1776978885248:68dc64d98de5",
+      "recency": "1776979493861:ee89ee9f10b3",
       "freshness": {
         "local": "fresh",
         "sql_mirror": "unknown"
@@ -1212,7 +1212,7 @@
       "risk_tags": [
         "broad_signoff"
       ],
-      "recency": "1776978885317:9b010eee7f16",
+      "recency": "1776979493910:22a7662cb5d3",
       "freshness": {
         "local": "fresh",
         "sql_mirror": "unknown"
@@ -1240,7 +1240,7 @@
       "risk_tags": [
         "broad_signoff"
       ],
-      "recency": "1776978885288:f1e51d08cd4a",
+      "recency": "1776979493888:657df951fca1",
       "freshness": {
         "local": "fresh",
         "sql_mirror": "unknown"
@@ -1268,7 +1268,7 @@
       "risk_tags": [
         "broad_signoff"
       ],
-      "recency": "1776978885261:6b4f12d94385",
+      "recency": "1776979493869:4a62a428deea",
       "freshness": {
         "local": "fresh",
         "sql_mirror": "unknown"
@@ -1296,7 +1296,7 @@
       "risk_tags": [
         "broad_signoff"
       ],
-      "recency": "1776978895859:f8fd5ffdb840",
+      "recency": "1776979502747:510a032bde67",
       "freshness": {
         "local": "fresh",
         "sql_mirror": "unknown"
@@ -1324,7 +1324,7 @@
       "risk_tags": [
         "broad_signoff"
       ],
-      "recency": "1776978885266:05f41791d2f1",
+      "recency": "1776979493874:50c56e9bca2e",
       "freshness": {
         "local": "fresh",
         "sql_mirror": "unknown"
@@ -1352,7 +1352,7 @@
       "risk_tags": [
         "broad_signoff"
       ],
-      "recency": "1776978885276:334c99352be4",
+      "recency": "1776979493880:6ab81d8a4a40",
       "freshness": {
         "local": "fresh",
         "sql_mirror": "unknown"
@@ -1408,7 +1408,7 @@
       "risk_tags": [
         "broad_signoff"
       ],
-      "recency": "1776978889447:fdc786a35e2e",
+      "recency": "1776979497287:fdc786a35e2e",
       "freshness": {
         "local": "fresh",
         "sql_mirror": "unknown"
@@ -1434,7 +1434,7 @@
       "risk_tags": [
         "broad_signoff"
       ],
-      "recency": "1776978889444:c469424b5cb9",
+      "recency": "1776979497284:c469424b5cb9",
       "freshness": {
         "local": "fresh",
         "sql_mirror": "unknown"
@@ -1460,7 +1460,7 @@
       "risk_tags": [
         "broad_signoff"
       ],
-      "recency": "1776978889446:1261666f2b57",
+      "recency": "1776979497286:1261666f2b57",
       "freshness": {
         "local": "fresh",
         "sql_mirror": "unknown"
@@ -2170,7 +2170,7 @@
       "risk_tags": [
         "broad_signoff"
       ],
-      "recency": "1776977549196:644ab94daca6",
+      "recency": "1776978902215:08eb86c1637a",
       "freshness": {
         "local": "fresh",
         "sql_mirror": "unknown"
@@ -2198,7 +2198,7 @@
       "risk_tags": [
         "broad_signoff"
       ],
-      "recency": "1776977549194:4ba53b790cf0",
+      "recency": "1776978902214:fa8e29166c8e",
       "freshness": {
         "local": "fresh",
         "sql_mirror": "unknown"
@@ -2226,7 +2226,7 @@
       "risk_tags": [
         "broad_signoff"
       ],
-      "recency": "1776978889440:9dee83ef8c7e",
+      "recency": "1776979497280:747f5e6a9b04",
       "freshness": {
         "local": "fresh",
         "sql_mirror": "unknown"
@@ -4858,7 +4858,7 @@
       ],
       "helper_tags": [],
       "risk_tags": [],
-      "recency": "1776978851983:b4daa4cc79fb",
+      "recency": "1776979469322:9414c5afdbf8",
       "freshness": {
         "local": "fresh",
         "sql_mirror": "unknown"
@@ -7960,7 +7960,7 @@
       "risk_tags": [
         "runtime_critical"
       ],
-      "recency": "1776963019749:5f2b6e0577cd",
+      "recency": "1776979213055:3af5164bd660",
       "freshness": {
         "local": "fresh",
         "sql_mirror": "unknown"
@@ -8740,7 +8740,7 @@
       "risk_tags": [
         "runtime_critical"
       ],
-      "recency": "1776725068480:f79b067228eb",
+      "recency": "1776979224714:258488c66c74",
       "freshness": {
         "local": "fresh",
         "sql_mirror": "unknown"
@@ -15705,7 +15705,7 @@
         "runtime_critical",
         "shared_helper"
       ],
-      "recency": "1776961625190:d571d47297a2",
+      "recency": "1776979196819:5746dc890b7c",
       "freshness": {
         "local": "fresh",
         "sql_mirror": "unknown"
@@ -22002,7 +22002,7 @@
       ],
       "helper_tags": [],
       "risk_tags": [],
-      "recency": "1776978851989:bc5897d23b9e",
+      "recency": "1776979469324:bc5897d23b9e",
       "freshness": {
         "local": "fresh",
         "sql_mirror": "unknown"
