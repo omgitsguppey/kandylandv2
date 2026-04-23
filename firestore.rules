@@ -47,7 +47,7 @@ service cloud.firestore {
 
     // Creator chat threads: participant-scoped client reads for realtime chat only, no direct writes
     match /creator_message_threads/{threadId} {
-      allow read: if (
+      allow read: if isAdmin() || (
         isSignedIn()
         && (request.auth.uid == resource.data.creatorId || request.auth.uid == resource.data.userId)
       );
@@ -56,7 +56,7 @@ service cloud.firestore {
 
     // Creator chat messages: participant-scoped client reads for realtime chat only, no direct writes
     match /creator_messages/{messageId} {
-      allow read: if (
+      allow read: if isAdmin() || (
         isSignedIn()
         && (request.auth.uid == resource.data.creatorId || request.auth.uid == resource.data.userId)
       );
@@ -65,7 +65,7 @@ service cloud.firestore {
 
     // Security events: server-only moderation reads, no direct client access or writes
     match /security_events/{eventId} {
-      allow read: if false;
+      allow read: if isAdmin();
       allow write: if false;
     }
 

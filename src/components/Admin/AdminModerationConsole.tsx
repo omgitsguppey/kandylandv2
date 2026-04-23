@@ -2,16 +2,11 @@
 
 /* eslint-disable @next/next/no-img-element */
 import { useMemo, useState } from "react";
-import { FileText, Loader2, MessageSquare, RefreshCw } from "lucide-react";
+import { FileText, Loader2, MessageSquare, Activity } from "lucide-react";
 
 import { AdminPageHeader } from "@/components/Admin/AdminPageHeader";
 import { PageViewEvent } from "@/components/Analytics/PageViewEvent";
-import { useAdminPollingSWR } from "@/hooks/useAdminPollingSWR";
-import {
-    type AdminModerationSecurityAlertsResponse,
-    type AdminModerationThreadDetailResponse,
-    type AdminModerationThreadsResponse,
-} from "@/lib/admin-moderation";
+import { useAdminModerationRealtime } from "@/hooks/useAdminModerationRealtime";
 import { cn } from "@/lib/utils";
 
 function formatRelativeTime(timestamp?: number) {
@@ -50,197 +45,226 @@ function isVideoAsset(assetUrl?: string, assetMimeType?: string) {
 }
 
 function statusTone(severity: "low" | "medium" | "high") {
-    if (severity === "high") return "border-red-500/30 bg-red-500/10 text-red-100";
-    if (severity === "medium") return "border-amber-400/30 bg-amber-400/10 text-amber-100";
-    return "border-sky-400/30 bg-sky-400/10 text-sky-100";
+    if (severity === "high") return "border-red-500/30 bg-red-500/10 text-red-300";
+    if (severity === "medium") return "border-amber-400/30 bg-amber-400/10 text-amber-300";
+    return "border-sky-400/30 bg-sky-400/10 text-sky-300";
 }
 
 function confidenceTone(confidence: "confirmed" | "heuristic" | undefined) {
-    if (confidence === "confirmed") return "border-purple-500/40 bg-purple-500/15 text-purple-100";
-    return "border-gray-500/40 bg-gray-500/15 text-gray-300";
+    if (confidence === "confirmed") return "border-purple-500/40 bg-purple-500/15 text-purple-300";
+    return "border-gray-500/40 bg-gray-500/15 text-gray-400";
 }
 
 export function AdminModerationConsole() {
     const [selectedThreadIdOverride, setSelectedThreadIdOverride] = useState<string | null>(null);
-    const threadsRequest = useAdminPollingSWR<AdminModerationThreadsResponse>("/api/admin/moderation/threads", 10_000, {
-        keepPreviousData: true,
-    });
-    const threads = useMemo(() => threadsRequest.data?.threads ?? [], [threadsRequest.data?.threads]);
+    
+    // Wire up true realtime hooks
+    const {
+        threads,
+        messages,
+        alerts,
+        isLoadingThreads,
+        isLoadingMessages,
+        isLoadingAlerts,
+        threadsError,
+        messagesError,
+        alertsError,
+    } = useAdminModerationRealtime(selectedThreadIdOverride);
+
     const selectedThreadId = useMemo(() => {
         if (selectedThreadIdOverride && threads.some((thread) => thread.id === selectedThreadIdOverride)) {
             return selectedThreadIdOverride;
         }
-
         return threads[0]?.id ?? null;
     }, [selectedThreadIdOverride, threads]);
-    const detailRequest = useAdminPollingSWR<AdminModerationThreadDetailResponse>(
-        selectedThreadId ? `/api/admin/moderation/threads/${selectedThreadId}` : null,
-        selectedThreadId ? 3_000 : 5_000,
-        { keepPreviousData: true },
-    );
-    const alertsRequest = useAdminPollingSWR<AdminModerationSecurityAlertsResponse>("/api/admin/moderation/security-alerts", 12_000, {
-        keepPreviousData: true,
-    });
 
-    const alerts = useMemo(() => alertsRequest.data?.alerts ?? [], [alertsRequest.data?.alerts]);
-    const selectedThread = detailRequest.data?.thread ?? null;
-    const messages = useMemo(() => detailRequest.data?.messages ?? [], [detailRequest.data?.messages]);
+    const selectedThread = useMemo(() => threads.find(t => t.id === selectedThreadId) || null, [threads, selectedThreadId]);
     const attachments = useMemo(() => messages.filter((message) => Boolean(message.assetUrl)), [messages]);
     const highAlerts = useMemo(() => alerts.filter((alert) => alert.severity === "high").length, [alerts]);
 
-    const moderationHealthItems = useMemo(() => ([
-                            ]), [alerts.length, alertsRequest.data, alertsRequest.error, alertsRequest.isLoading, detailRequest.data, detailRequest.error, detailRequest.isLoading, messages.length, selectedThreadId, threads.length, threadsRequest.data, threadsRequest.error, threadsRequest.isLoading]);
-
-    const refreshNow = async () => {
-        await Promise.all([threadsRequest.mutate(), detailRequest.mutate(), alertsRequest.mutate()]);
-    };
-
     return (
-        <div className="space-y-4">
+        <div className="space-y-4 md:space-y-5">
             <PageViewEvent eventName="admin_moderation_viewed" />
             <AdminPageHeader
                 eyebrow="Admin Moderation"
-                title="Content Moderation"
-                subtitle="Server-backed creator chat oversight and security alerts with automatic polling."
+                title="Moderation Console"
+                subtitle="Realtime creator chat oversight and clustered security alerts."
                 compact
                 actions={(
                     <>
-                        <span className="rounded-full border border-white/10 bg-black/35 px-3 py-1.5 text-xs font-semibold text-white">{threads.length} threads</span>
-                        <span className="rounded-full border border-white/10 bg-black/35 px-3 py-1.5 text-xs font-semibold text-white">{alerts.length} alerts</span>
-                        <button type="button" onClick={refreshNow} className="inline-flex items-center gap-2 rounded-full border border-white/10 bg-white/5 px-3 py-1.5 text-xs font-semibold text-white transition-colors hover:border-white/20 hover:bg-white/10">
-                            <RefreshCw className="h-3.5 w-3.5" />
-                            Refresh now
-                        </button>
+                        <span className="rounded-full border border-white/10 bg-black/35 px-3 py-1 text-xs font-semibold text-white">{threads.length} threads</span>
+                        <span className="rounded-full border border-white/10 bg-black/35 px-3 py-1 text-xs font-semibold text-white">{alerts.length} alerts</span>
+                        <span className="inline-flex items-center gap-1.5 rounded-full border border-emerald-500/30 bg-emerald-500/10 px-3 py-1 text-xs font-bold uppercase tracking-wider text-emerald-400">
+                            <Activity className="h-3.5 w-3.5" />
+                            Live
+                        </span>
                     </>
                 )}
             />
 
-            <div className="grid gap-4 xl:grid-cols-[0.92fr_1.08fr]">
+            <div className="grid gap-4 xl:grid-cols-[0.8fr_1.2fr]">
                 <div className="space-y-4">
-                    <section className="rounded-[1.5rem] border border-white/10 bg-black/35 p-4">
-                        <div className="mb-4 flex items-start justify-between gap-3">
-                            <div>
-                                <h2 className="text-sm font-bold text-white">Chat threads</h2>
-                                <p className="mt-1 text-xs leading-5 text-gray-400">Server-backed thread list with unread counts and latest previews.</p>
-                            </div>
-                            <span className="rounded-full border border-white/10 bg-white/5 px-3 py-1 text-[11px] font-semibold text-gray-200">{threadsRequest.data?.generatedAtMs ? `Updated ${formatRelativeTime(threadsRequest.data.generatedAtMs)}` : "Waiting"}</span>
+                    {/* Chat Threads List */}
+                    <section className="glass-panel rounded-2xl p-4 flex flex-col h-full max-h-[40vh] xl:max-h-[50vh] overflow-hidden">
+                        <div className="mb-3 flex items-center justify-between">
+                            <h2 className="text-sm font-bold text-white">Queue</h2>
                         </div>
-                        <div className="space-y-3">
+                        <div className="space-y-2 overflow-y-auto pr-1">
                             {threads.map((thread) => {
                                 const unreadCount = Math.max(thread.unreadCountForCreator, thread.unreadCountForUser);
                                 return (
-                                    <button key={thread.id} type="button" onClick={() => setSelectedThreadIdOverride(thread.id)} className={cn("w-full rounded-[1.35rem] border p-3 text-left transition-colors", selectedThreadId === thread.id ? "border-brand-purple/40 bg-brand-purple/10" : "border-white/10 bg-white/[0.03]")}>
-                                        <div className="flex items-start justify-between gap-3">
-                                            <div className="min-w-0">
-                                                <p className="truncate text-sm font-semibold text-white">{buildThreadLabel(thread)}</p>
-                                                <p className="mt-1 truncate text-xs text-gray-400">{thread.lastMessagePreview || "No messages yet"}</p>
-                                            </div>
-                                            <div className="text-right">
-                                                <p className="text-[11px] text-gray-400">{formatRelativeTime(thread.lastMessageAt)}</p>
-                                                {unreadCount > 0 ? <span className="mt-1 inline-flex rounded-full border border-brand-purple/30 bg-brand-purple/12 px-2 py-0.5 text-[10px] font-bold text-brand-purple">{unreadCount} unread</span> : null}
-                                            </div>
+                                    <button 
+                                        key={thread.id} 
+                                        type="button" 
+                                        onClick={() => setSelectedThreadIdOverride(thread.id)} 
+                                        className={cn(
+                                            "w-full rounded-xl border p-2.5 text-left transition-colors flex items-center justify-between gap-3", 
+                                            selectedThreadId === thread.id 
+                                                ? "border-brand-purple/40 bg-brand-purple/10" 
+                                                : "border-white/5 bg-white/[0.02] hover:bg-white/[0.05]"
+                                        )}
+                                    >
+                                        <div className="min-w-0">
+                                            <p className="truncate text-xs font-semibold text-white">{buildThreadLabel(thread)}</p>
+                                            <p className="truncate text-[10px] text-gray-400 mt-0.5">{thread.lastMessagePreview || "No messages yet"}</p>
+                                        </div>
+                                        <div className="flex flex-col items-end shrink-0">
+                                            <span className="text-[10px] text-gray-500">{formatRelativeTime(thread.lastMessageAt)}</span>
+                                            {unreadCount > 0 ? (
+                                                <span className="mt-1 rounded border border-brand-purple/30 bg-brand-purple/12 px-1.5 py-0.5 text-[9px] font-bold text-brand-purple">
+                                                    {unreadCount} unread
+                                                </span>
+                                            ) : null}
                                         </div>
                                     </button>
                                 );
                             })}
-                            {threadsRequest.isLoading && !threadsRequest.data ? <div className="rounded-[1.35rem] border border-white/10 bg-white/[0.03] p-4 text-sm text-gray-400"><Loader2 className="mr-2 inline h-4 w-4 animate-spin" />Loading moderation threads...</div> : null}
-                            {!threadsRequest.isLoading && threads.length === 0 && !threadsRequest.error ? <div className="rounded-[1.35rem] border border-dashed border-white/10 bg-black/20 p-4 text-sm text-gray-500">No creator chat threads are visible yet.</div> : null}
-                            {threadsRequest.error ? <div className="rounded-[1.35rem] border border-red-500/30 bg-red-500/10 p-4 text-sm text-red-100">{threadsRequest.error instanceof Error ? threadsRequest.error.message : "Moderation thread reads failed."}</div> : null}
+                            {isLoadingThreads && threads.length === 0 ? <div className="p-3 text-xs text-gray-400"><Loader2 className="mr-2 inline h-3 w-3 animate-spin" />Loading queue...</div> : null}
+                            {!isLoadingThreads && threads.length === 0 && !threadsError ? <div className="rounded-xl border border-dashed border-white/10 bg-black/20 p-3 text-xs text-gray-500">No active chat threads.</div> : null}
+                            {threadsError ? <div className="rounded-xl border border-red-500/30 bg-red-500/10 p-3 text-xs text-red-200">Failed to load threads.</div> : null}
                         </div>
                     </section>
 
-                    <section className="rounded-[1.5rem] border border-white/10 bg-black/35 p-4">
-                        <div className="mb-4 flex items-start justify-between gap-3">
-                            <div>
-                                <h2 className="text-sm font-bold text-white">Security alerts</h2>
-                                <p className="mt-1 text-xs leading-5 text-gray-400">Primary operational surface for viewer-protection detections.</p>
-                            </div>
-                            <span className="rounded-full border border-white/10 bg-white/5 px-3 py-1 text-[11px] font-semibold text-gray-200">{highAlerts} high</span>
+                    {/* Security Alerts */}
+                    <section className="glass-panel rounded-2xl p-4 flex flex-col h-full max-h-[40vh] xl:max-h-[50vh] overflow-hidden">
+                        <div className="mb-3 flex items-center justify-between">
+                            <h2 className="text-sm font-bold text-white">Security Alerts</h2>
+                            {highAlerts > 0 && <span className="rounded border border-red-500/30 bg-red-500/10 px-2 py-0.5 text-[10px] font-bold text-red-400">{highAlerts} High</span>}
                         </div>
-                        <div className="space-y-3">
-                            {alerts.slice(0, 10).map((alert) => (
-                                <div key={alert.id} className="rounded-[1.35rem] border border-white/10 bg-white/[0.03] p-3.5">
-                                    <div className="flex items-start justify-between gap-3">
-                                        <div className="min-w-0">
-                                            <div className="flex flex-wrap items-center gap-2">
-                                                <p className="truncate text-sm font-semibold text-white">{alert.username}</p>
-                                                <span className={cn("rounded-full border px-2 py-0.5 text-[10px] font-bold uppercase tracking-[0.14em]", statusTone(alert.severity))}>{alert.severity}</span>
-                                                <span className={cn("rounded-full border px-2 py-0.5 text-[10px] font-bold uppercase tracking-[0.14em]", confidenceTone(alert.confidence))}>{alert.confidence === "confirmed" ? "Confirmed" : "Suspected"}</span>
-                                                {alert.repeatCount && alert.repeatCount > 1 ? (
-                                                    <span className="rounded-full border border-orange-500/40 bg-orange-500/15 px-2 py-0.5 text-[10px] font-bold uppercase tracking-[0.14em] text-orange-200">
-                                                        {alert.repeatCount}x Burst
-                                                    </span>
-                                                ) : null}
-                                            </div>
-                                            <p className="mt-1 text-sm font-medium text-white">{alert.label}</p>
-                                            <p className="mt-1 text-xs leading-5 text-gray-400">{alert.message}</p>
+                        <div className="space-y-2 overflow-y-auto pr-1">
+                            {alerts.slice(0, 20).map((alert) => (
+                                <div key={alert.id} className="rounded-xl border border-white/5 bg-white/[0.02] p-3 flex flex-col gap-1.5">
+                                    <div className="flex items-center justify-between gap-2">
+                                        <div className="flex items-center gap-2 min-w-0">
+                                            <p className="truncate text-xs font-bold text-white">{alert.username}</p>
+                                            {alert.repeatCount && alert.repeatCount > 1 ? (
+                                                <span className="rounded border border-orange-500/40 bg-orange-500/15 px-1.5 py-0.5 text-[9px] font-bold uppercase tracking-wider text-orange-300">
+                                                    {alert.repeatCount}x Burst
+                                                </span>
+                                            ) : null}
                                         </div>
-                                        <span className="shrink-0 text-right text-[11px] text-gray-400">{formatRelativeTime(alert.timestamp)}</span>
+                                        <span className="shrink-0 text-[10px] text-gray-500">{formatRelativeTime(alert.timestamp)}</span>
+                                    </div>
+                                    <div className="flex items-center gap-2">
+                                        <span className={cn("rounded border px-1.5 py-0.5 text-[9px] font-bold uppercase tracking-wider", statusTone(alert.severity))}>{alert.severity}</span>
+                                        <span className={cn("rounded border px-1.5 py-0.5 text-[9px] font-bold uppercase tracking-wider", confidenceTone(alert.confidence))}>{alert.confidence === "confirmed" ? "Confirmed" : "Suspected"}</span>
+                                        <span className="truncate text-[11px] text-gray-300">{alert.label}</span>
                                     </div>
                                 </div>
                             ))}
-                            {alertsRequest.isLoading && !alertsRequest.data ? <div className="rounded-[1.35rem] border border-white/10 bg-white/[0.03] p-4 text-sm text-gray-400"><Loader2 className="mr-2 inline h-4 w-4 animate-spin" />Loading security alerts...</div> : null}
-                            {alertsRequest.error ? <div className="rounded-[1.35rem] border border-red-500/30 bg-red-500/10 p-4 text-sm text-red-100">{alertsRequest.error instanceof Error ? alertsRequest.error.message : "Moderation security alerts failed."}</div> : null}
+                            {isLoadingAlerts && alerts.length === 0 ? <div className="p-3 text-xs text-gray-400"><Loader2 className="mr-2 inline h-3 w-3 animate-spin" />Loading alerts...</div> : null}
+                            {alertsError ? <div className="rounded-xl border border-red-500/30 bg-red-500/10 p-3 text-xs text-red-200">Alert stream failed.</div> : null}
                         </div>
                     </section>
                 </div>
 
-                <section className="rounded-[1.5rem] border border-white/10 bg-black/35 p-4">
-                    <div className="mb-4 flex items-start justify-between gap-3">
-                        <div>
-                            <h2 className="text-sm font-bold text-white">Selected thread</h2>
-                            <p className="mt-1 text-xs leading-5 text-gray-400">Transcript and exchanged files for the selected creator conversation.</p>
-                        </div>
-                        <span className="rounded-full border border-white/10 bg-white/5 px-3 py-1 text-[11px] font-semibold text-gray-200">{detailRequest.data?.generatedAtMs ? `Updated ${formatRelativeTime(detailRequest.data.generatedAtMs)}` : "Waiting"}</span>
+                {/* Selected Thread Workspace */}
+                <section className="glass-panel rounded-2xl flex flex-col h-[85vh] xl:h-[100vh] overflow-hidden">
+                    <div className="p-4 border-b border-white/5 flex items-center justify-between bg-white/[0.01]">
+                        <h2 className="text-sm font-bold text-white">Workspace</h2>
+                        {selectedThread && (
+                            <div className="flex gap-2 text-[10px] uppercase font-bold tracking-wider">
+                                <span className="rounded border border-white/10 bg-white/5 px-2 py-1 text-gray-300">Cr: {selectedThread.creatorUsername || selectedThread.creatorId.substring(0, 8)}</span>
+                                <span className="rounded border border-white/10 bg-white/5 px-2 py-1 text-gray-300">Usr: {selectedThread.userUsername || selectedThread.userId.substring(0, 8)}</span>
+                            </div>
+                        )}
                     </div>
+                    
                     {selectedThread ? (
-                        <div className="space-y-4">
-                            <div className="rounded-[1.35rem] border border-white/10 bg-white/[0.03] p-4">
-                                <div className="flex flex-wrap gap-2 text-[11px] text-white">
-                                    <span className="rounded-full border border-white/10 bg-white/5 px-3 py-1">Creator {selectedThread.creatorUsername ? `@${selectedThread.creatorUsername}` : selectedThread.creatorId}</span>
-                                    <span className="rounded-full border border-white/10 bg-white/5 px-3 py-1">User {selectedThread.userUsername ? `@${selectedThread.userUsername}` : selectedThread.userId}</span>
-                                    <span className="rounded-full border border-white/10 bg-white/5 px-3 py-1">{selectedThread.subscriberChatFree ? "Subscriber free chat on" : "Paid fan messages"}</span>
+                        <div className="flex-1 overflow-y-auto p-4 flex flex-col lg:flex-row gap-4">
+                            {/* Transcript */}
+                            <div className="flex-1 flex flex-col min-w-0">
+                                <div className="mb-2 flex items-center gap-2 text-[10px] font-bold uppercase tracking-wider text-brand-purple">
+                                    <MessageSquare className="h-3.5 w-3.5" />
+                                    Transcript
+                                </div>
+                                <div className="flex-1 space-y-2 overflow-y-auto pr-2">
+                                    {messages.map((message) => (
+                                        <div key={message.id} className={cn(
+                                            "rounded-xl border p-2.5", 
+                                            message.senderRole === "creator" ? "border-brand-purple/25 bg-brand-purple/5" 
+                                            : message.senderRole === "admin" ? "border-cyan-400/20 bg-cyan-400/5" 
+                                            : "border-white/5 bg-black/20"
+                                        )}>
+                                            <div className="mb-1 flex items-center justify-between gap-3">
+                                                <div className="flex items-center gap-1.5 text-[10px] font-bold uppercase tracking-wider">
+                                                    <span className="text-white">{message.senderRole}</span>
+                                                    <span className="text-gray-600">|</span>
+                                                    <span className="text-gray-400">{message.messageKind}</span>
+                                                </div>
+                                                <span className="text-[9px] text-gray-500">{formatAbsoluteTime(message.createdAt)}</span>
+                                            </div>
+                                            {message.text && <p className="text-xs leading-relaxed text-gray-200">{message.text}</p>}
+                                            {(message.costGd > 0 || message.assetMimeType) && (
+                                                <div className="mt-1.5 flex gap-2 text-[9px] font-medium text-gray-500">
+                                                    {message.costGd > 0 && <span>{message.costGd} GD</span>}
+                                                    {message.assetMimeType && <span>{message.assetMimeType}</span>}
+                                                </div>
+                                            )}
+                                        </div>
+                                    ))}
+                                    {isLoadingMessages && messages.length === 0 ? <div className="p-3 text-xs text-gray-400"><Loader2 className="mr-2 inline h-3 w-3 animate-spin" />Loading transcript...</div> : null}
+                                    {!isLoadingMessages && messages.length === 0 && !messagesError ? <div className="rounded-xl border border-dashed border-white/10 p-3 text-xs text-gray-500">No messages in this thread.</div> : null}
+                                    {messagesError ? <div className="rounded-xl border border-red-500/30 bg-red-500/10 p-3 text-xs text-red-200">Transcript feed failed.</div> : null}
                                 </div>
                             </div>
-                            <div className="grid gap-4 lg:grid-cols-[0.9fr_1.1fr]">
-                                <div className="rounded-[1.35rem] border border-white/10 bg-white/[0.03] p-4">
-                                    <div className="mb-3 flex items-center gap-2 text-xs font-semibold uppercase tracking-[0.14em] text-gray-400"><FileText className="h-4 w-4 text-brand-purple" />Files</div>
-                                    <div className="space-y-3">
-                                        {attachments.length > 0 ? attachments.map((message) => (
-                                            <div key={message.id} className="rounded-[1.2rem] border border-white/10 bg-black/25 p-3">
-                                                <div className="mb-2 flex items-center justify-between gap-3">
-                                                    <span className="text-xs font-semibold text-white">{message.senderRole}</span>
-                                                    <span className="text-[11px] text-gray-400">{formatRelativeTime(message.createdAt)}</span>
-                                                </div>
-                                                {isImageAsset(message.assetUrl, message.assetMimeType) && message.assetUrl ? <a href={message.assetUrl} target="_blank" rel="noreferrer" className="block overflow-hidden rounded-2xl border border-white/10"><img src={message.assetUrl} alt={message.assetName || "Shared image"} className="h-40 w-full object-cover" /></a> : null}
-                                                {isVideoAsset(message.assetUrl, message.assetMimeType) && message.assetUrl ? <video controls className="w-full rounded-2xl border border-white/10 bg-black/40"><source src={message.assetUrl} type={message.assetMimeType || undefined} /></video> : null}
-                                                {!isImageAsset(message.assetUrl, message.assetMimeType) && !isVideoAsset(message.assetUrl, message.assetMimeType) && message.assetUrl ? <a href={message.assetUrl} target="_blank" rel="noreferrer" className="inline-flex items-center gap-2 rounded-full border border-white/10 bg-white/5 px-3 py-2 text-xs font-semibold text-white"><FileText className="h-4 w-4 text-brand-purple" />{message.assetName || "Open file"}</a> : null}
-                                            </div>
-                                        )) : <div className="rounded-[1.2rem] border border-dashed border-white/10 bg-black/20 p-4 text-sm text-gray-500">No files have been exchanged in this thread yet.</div>}
-                                    </div>
+
+                            {/* Attachments */}
+                            <div className="lg:w-64 xl:w-72 flex flex-col shrink-0">
+                                <div className="mb-2 flex items-center gap-2 text-[10px] font-bold uppercase tracking-wider text-brand-purple">
+                                    <FileText className="h-3.5 w-3.5" />
+                                    Files
                                 </div>
-                                <div className="rounded-[1.35rem] border border-white/10 bg-white/[0.03] p-4">
-                                    <div className="mb-3 flex items-center gap-2 text-xs font-semibold uppercase tracking-[0.14em] text-gray-400"><MessageSquare className="h-4 w-4 text-brand-purple" />Transcript</div>
-                                    <div className="max-h-[42rem] space-y-3 overflow-auto pr-1">
-                                        {messages.map((message) => (
-                                            <div key={message.id} className={cn("rounded-[1.2rem] border p-3", message.senderRole === "creator" ? "border-brand-purple/25 bg-brand-purple/10" : message.senderRole === "admin" ? "border-cyan-400/20 bg-cyan-400/10" : "border-white/10 bg-black/25")}>
-                                                <div className="mb-2 flex items-center justify-between gap-3">
-                                                    <div className="flex items-center gap-2 text-xs font-semibold text-white"><span>{message.senderRole}</span><span className="text-gray-500">·</span><span className="text-gray-400">{message.messageKind}</span></div>
-                                                    <span className="text-[11px] text-gray-400">{formatAbsoluteTime(message.createdAt)}</span>
-                                                </div>
-                                                {message.text ? <p className="text-sm leading-6 text-white">{message.text}</p> : null}
-                                                <div className="mt-3 flex flex-wrap gap-2 text-[11px] text-gray-400">{message.costGd > 0 ? <span>{message.costGd} GD</span> : null}{message.assetMimeType ? <span>{message.assetMimeType}</span> : null}</div>
+                                <div className="flex-1 space-y-2 overflow-y-auto pr-1">
+                                    {attachments.length > 0 ? attachments.map((message) => (
+                                        <div key={message.id} className="rounded-xl border border-white/5 bg-black/20 p-2">
+                                            <div className="mb-1.5 flex justify-between items-center">
+                                                <span className="text-[9px] font-bold uppercase tracking-wider text-gray-400">{message.senderRole}</span>
                                             </div>
-                                        ))}
-                                        {detailRequest.isLoading && !detailRequest.data ? <div className="rounded-[1.2rem] border border-white/10 bg-black/20 p-4 text-sm text-gray-400"><Loader2 className="mr-2 inline h-4 w-4 animate-spin" />Loading thread detail...</div> : null}
-                                        {!detailRequest.isLoading && messages.length === 0 && !detailRequest.error ? <div className="rounded-[1.2rem] border border-dashed border-white/10 bg-black/20 p-4 text-sm text-gray-500">This thread exists but has no messages yet.</div> : null}
-                                        {detailRequest.error ? <div className="rounded-[1.2rem] border border-red-500/30 bg-red-500/10 p-4 text-sm text-red-100">{detailRequest.error instanceof Error ? detailRequest.error.message : "Moderation thread detail failed."}</div> : null}
-                                    </div>
+                                            {isImageAsset(message.assetUrl, message.assetMimeType) && message.assetUrl && (
+                                                <a href={message.assetUrl} target="_blank" rel="noreferrer" className="block overflow-hidden rounded-lg border border-white/5">
+                                                    <img src={message.assetUrl} alt="Shared image" className="h-24 w-full object-cover" />
+                                                </a>
+                                            )}
+                                            {isVideoAsset(message.assetUrl, message.assetMimeType) && message.assetUrl && (
+                                                <video controls className="w-full h-24 rounded-lg border border-white/5 bg-black/40">
+                                                    <source src={message.assetUrl} type={message.assetMimeType || undefined} />
+                                                </video>
+                                            )}
+                                            {!isImageAsset(message.assetUrl, message.assetMimeType) && !isVideoAsset(message.assetUrl, message.assetMimeType) && message.assetUrl && (
+                                                <a href={message.assetUrl} target="_blank" rel="noreferrer" className="inline-flex items-center gap-1.5 rounded bg-white/5 px-2 py-1.5 text-[10px] font-semibold text-gray-300 w-full justify-center">
+                                                    <FileText className="h-3 w-3" /> Open File
+                                                </a>
+                                            )}
+                                        </div>
+                                    )) : <div className="rounded-xl border border-dashed border-white/5 p-3 text-xs text-gray-600 text-center">No files shared.</div>}
                                 </div>
                             </div>
                         </div>
                     ) : (
-                        <div className="rounded-[1.35rem] border border-dashed border-white/10 bg-black/20 p-5 text-sm text-gray-500">Select a moderation thread to inspect its transcript and exchanged files.</div>
+                        <div className="flex-1 flex items-center justify-center p-6 text-xs text-gray-500">
+                            Select a thread from the queue to open the workspace.
+                        </div>
                     )}
                 </section>
             </div>

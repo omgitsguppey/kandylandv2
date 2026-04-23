@@ -1,0 +1,19 @@
+16:39:33.259 [NamespaceSystem-akka.actor.default-dispatcher-4] INFO akka.event.slf4j.Slf4jLogger - Slf4jLogger started
+16:39:34.553 [main] INFO com.firebase.server.forge.App$ - Listening at 127.0.0.1:9000
+16:39:38.224 [NamespaceSystem-akka.actor.default-dispatcher-4] INFO com.firebase.core.namespace.NamespaceActor - kandydrops-by-ikandy-default-rtdb successfully activated FBKV (SurveyIdle(0)) wait: 1570ms, init: 0ms
+16:39:39.105 [NamespaceSystem-blocking-namespace-operation-dispatcher-6] INFO com.firebase.core.namespace.StateManager - Namespace kandydrops-by-ikandy-default-rtdb status Active to Active
+16:39:46.836 [FirebaseWorkerPool-1-3] WARN com.firebase.core.persistence.backend.dummy.EmulatorMetadataPersistence - Multiple projectIds are not recommended in single project mode. Requested 
+namespace kandydrops-rules-test, but the emulator is configured for kandydrops-by-ikandy-default-rtdb. To 
+opt-out of single project mode add/set the singleProjectMode: false property in 
+the firebase.json emulators config. 
+16:39:46.874 [NamespaceSystem-akka.actor.default-dispatcher-5] INFO com.firebase.core.namespace.NamespaceActor - kandydrops-rules-test successfully activated FBKV (SurveyIdle(0)) wait: 15ms, init: 0ms
+16:39:47.021 [NamespaceSystem-blocking-namespace-operation-dispatcher-9] INFO com.firebase.core.namespace.StateManager - Namespace kandydrops-rules-test status Active to Active
+16:39:51.328 [FirebaseWorkerPool-1-1] WARN com.firebase.server.forge.App$ - Received service account token eyJh...X19., assuming ownership.
+16:39:52.302 [FirebaseWorkerPool-1-2] WARN com.firebase.server.forge.App$ - Received service account token eyJh...X19., assuming ownership.
+16:39:52.419 [FirebaseWorkerPool-1-3] WARN com.firebase.server.forge.App$ - Received service account token eyJh...9fQ., assuming ownership.
+16:39:52.561 [FirebaseWorkerPool-1-4] WARN com.firebase.server.forge.App$ - Received service account token eyJh...X19., assuming ownership.
+16:39:52.877 [FirebaseWorkerPool-1-1] WARN com.firebase.server.forge.App$ - Received service account token eyJh...X19., assuming ownership.
+16:39:53.032 [FirebaseWorkerPool-1-2] WARN com.firebase.server.forge.App$ - Received service account token eyJh...X19., assuming ownership.
+16:39:53.205 [FirebaseWorkerPool-1-3] WARN com.firebase.server.forge.App$ - Received service account token eyJh...X19., assuming ownership.
+16:39:53.456 [FirebaseWorkerPool-1-4] WARN com.firebase.server.forge.App$ - Received service account token eyJh...X19., assuming ownership.
+16:39:53.588 [FirebaseWorkerPool-1-1] WARN com.firebase.server.forge.App$ - Received service account token eyJh...X19., assuming ownership.
