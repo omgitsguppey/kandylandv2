@@ -175,7 +175,7 @@ export default function DebugConsole() {
     const [activeTab, setActiveTab] = useState<DebugTabId>(ADMIN_DEBUG_DEFAULT_TAB);
     const [routeRuntimeFilter, setRouteRuntimeFilter] = useState<AdminDebugRouteRuntimeFilter>("all");
     const [aiAssistantEnabled, setAiAssistantEnabled] = useState(true);
-    const [aiAssistantModel, setAiAssistantModel] = useState("gemini-2.5-flash");
+    const [aiAssistantModel, setAiAssistantModel] = useState("gemini-3.1-flash-lite-preview");
     const [savingAiAssistantSettings, setSavingAiAssistantSettings] = useState(false);
     const [savingDebugPreferences, setSavingDebugPreferences] = useState(false);
     const debugPreferencesHydratedRef = useRef(false);
@@ -382,7 +382,7 @@ export default function DebugConsole() {
         }
 
         setAiAssistantEnabled(aiDebugData.enabled !== false);
-        setAiAssistantModel(aiDebugData.configured_model || aiDebugData.model || "gemini-2.5-flash");
+        setAiAssistantModel(aiDebugData.configured_model || aiDebugData.model || "gemini-3.1-flash-lite-preview");
     }, [aiDebugData]);
     const aiAssistantRealtime = useAdminAiAssistantRealtime(aiDebugData);
 
@@ -506,7 +506,7 @@ export default function DebugConsole() {
                 method: "PUT",
                 body: JSON.stringify({
                     enabled: aiAssistantEnabled,
-                    model: aiAssistantModel.trim() || "gemini-2.5-flash",
+                    model: aiAssistantModel.trim() || "gemini-3.1-flash-lite-preview",
                 }),
             });
             const result = await response.json();
@@ -1368,7 +1368,7 @@ export default function DebugConsole() {
                         title="AI debug assistant"
                         subtitle="Advisory summary over bounded canonical signals with labeled fallbacks."
                         defaultOpen
-                        summary={<><Pill label="Status" value={aiStatusLabel} tone={aiStatusTone} /><Pill label="Enabled" value={aiDebugData?.enabled === false ? "No" : "Yes"} tone={aiDebugData?.enabled === false ? "warn" : "good"} /><Pill label="Configured model" value={aiDebugData?.configured_model || aiAssistantModel || "gemini-2.5-flash"} /><Pill label="Runtime" value={aiDebugData?.runtime_ready ? "Ready" : "Unavailable"} tone={aiDebugData?.runtime_ready ? "good" : "bad"} /><Pill label="Live lane" value={aiAssistantRealtime.feedStatus} tone={aiAssistantRealtime.feedStatus === "realtime" ? "good" : aiAssistantRealtime.feedStatus === "failed" ? "bad" : "warn"} /><Pill label="Last run" value={aiDebugData?.generated_at ? formatRelative(Date.parse(aiDebugData.generated_at)) : "Not recorded"} /><Pill label="Latency" value={aiDebugData ? `${aiDebugData.latency_ms}ms` : "--"} tone={aiDebugData && aiDebugData.latency_ms > 5000 ? "warn" : "neutral"} /></>}
+                        summary={<><Pill label="Status" value={aiStatusLabel} tone={aiStatusTone} /><Pill label="Enabled" value={aiDebugData?.enabled === false ? "No" : "Yes"} tone={aiDebugData?.enabled === false ? "warn" : "good"} /><Pill label="Configured model" value={aiDebugData?.configured_model || aiAssistantModel || "gemini-3.1-flash-lite-preview"} /><Pill label="Runtime" value={aiDebugData?.runtime_ready ? "Ready" : "Unavailable"} tone={aiDebugData?.runtime_ready ? "good" : "bad"} /><Pill label="Live lane" value={aiAssistantRealtime.feedStatus} tone={aiAssistantRealtime.feedStatus === "realtime" ? "good" : aiAssistantRealtime.feedStatus === "failed" ? "bad" : "warn"} /><Pill label="Last run" value={aiDebugData?.generated_at ? formatRelative(Date.parse(aiDebugData.generated_at)) : "Not recorded"} /><Pill label="Latency" value={aiDebugData ? `${aiDebugData.latency_ms}ms` : "--"} tone={aiDebugData && aiDebugData.latency_ms > 5000 ? "warn" : "neutral"} /></>}
                     >
                         {aiDebugError ? (
                             <div className="rounded-[1rem] border border-red-400/20 bg-red-500/10 p-4 text-sm text-red-100">
@@ -1383,12 +1383,12 @@ export default function DebugConsole() {
                                         <p className="text-[11px] uppercase tracking-[0.18em] text-gray-400">Runtime config</p>
                                         <p className="mt-2 text-sm text-gray-300">Admin settings are now the primary enablement control. Runtime readiness is still gated by Vertex project and credentials.</p>
                                     </div>
-                                    <Pill label="Resolved" value={aiDebugData?.model || aiAssistantModel || "gemini-2.5-flash"} tone={aiStatusTone} />
+                                    <Pill label="Resolved" value={aiDebugData?.model || aiAssistantModel || "gemini-3.1-flash-lite-preview"} tone={aiStatusTone} />
                                 </div>
                                 <div className="mt-4 grid gap-3 md:grid-cols-2">
                                     <div className="rounded-xl border border-white/10 bg-black/20 p-3">
                                         <p className="text-[11px] uppercase tracking-[0.18em] text-gray-400">Configured model</p>
-                                        <p className="mt-2 text-sm font-semibold text-white">{aiDebugData?.configured_model || aiAssistantModel || "gemini-2.5-flash"}</p>
+                                        <p className="mt-2 text-sm font-semibold text-white">{aiDebugData?.configured_model || aiAssistantModel || "gemini-3.1-flash-lite-preview"}</p>
                                     </div>
                                     <div className="rounded-xl border border-white/10 bg-black/20 p-3">
                                         <p className="text-[11px] uppercase tracking-[0.18em] text-gray-400">Runtime status</p>
