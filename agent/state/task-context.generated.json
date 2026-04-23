@@ -1,5 +1,5 @@
 {
-  "generatedAt": "2026-04-22T19:00:16.539Z",
+  "generatedAt": "2026-04-23T20:52:21.619Z",
   "truthOrder": [
     "verified_runtime_code",
     "verified_configuration",
@@ -54,10 +54,10 @@
     "FULL_SCALE_CODEBASE_AUDIT.md",
     "REPO_MEMORY_LEDGER.md",
     "EVERY_FILE_FUNCTION_CHECKLIST.md",
-    "admin/analytics/historical:GET",
-    "npm run trace:adjacent -- src/app/api/admin/analytics/historical/route.ts",
-    "npm run trace:adjacent -- src/app/api/admin/analytics/realtime/route.ts",
-    "npm run trace:adjacent -- src/app/api/user/activity/route.ts"
+    "connecting/partial/failed",
+    "healthy/warn/fail",
+    "realtime/polled",
+    "scripts/check-admin-parity.ts"
   ],
   "likelyTouchedFiles": [
     "scripts/agent/build-agent-indexes.ts",
@@ -149,7 +149,7 @@
   "sqlMirrorFreshnessState": "unknown",
   "confidenceNotes": [
     "Mode resolved as audit.",
-    "Ranking considered 1040 repo files and 22 canonical helper entries.",
+    "Ranking considered 1037 repo files and 20 canonical helper entries.",
     "UI coverage matched 8 indexed surfaces."
   ],
   "ambiguityNotes": [],

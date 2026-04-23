@@ -21,7 +21,7 @@ Why scope: Touches repo-tooling, governance, or multiple broad-signoff surfaces.
 - FULL_SCALE_CODEBASE_AUDIT.md
 - REPO_MEMORY_LEDGER.md
 - EVERY_FILE_FUNCTION_CHECKLIST.md
-- admin/analytics/historical:GET
+- connecting/partial/failed
 
 ## Canonical Helpers To Reuse
 - src/lib/gumdrop-economics.ts

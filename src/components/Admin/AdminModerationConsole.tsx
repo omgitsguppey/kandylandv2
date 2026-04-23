@@ -55,6 +55,11 @@ function statusTone(severity: "low" | "medium" | "high") {
     return "border-sky-400/30 bg-sky-400/10 text-sky-100";
 }
 
+function confidenceTone(confidence: "confirmed" | "heuristic" | undefined) {
+    if (confidence === "confirmed") return "border-purple-500/40 bg-purple-500/15 text-purple-100";
+    return "border-gray-500/40 bg-gray-500/15 text-gray-300";
+}
+
 export function AdminModerationConsole() {
     const [selectedThreadIdOverride, setSelectedThreadIdOverride] = useState<string | null>(null);
     const threadsRequest = useAdminPollingSWR<AdminModerationThreadsResponse>("/api/admin/moderation/threads", 10_000, {
@@ -160,11 +165,17 @@ export function AdminModerationConsole() {
                                             <div className="flex flex-wrap items-center gap-2">
                                                 <p className="truncate text-sm font-semibold text-white">{alert.username}</p>
                                                 <span className={cn("rounded-full border px-2 py-0.5 text-[10px] font-bold uppercase tracking-[0.14em]", statusTone(alert.severity))}>{alert.severity}</span>
+                                                <span className={cn("rounded-full border px-2 py-0.5 text-[10px] font-bold uppercase tracking-[0.14em]", confidenceTone(alert.confidence))}>{alert.confidence === "confirmed" ? "Confirmed" : "Suspected"}</span>
+                                                {alert.repeatCount && alert.repeatCount > 1 ? (
+                                                    <span className="rounded-full border border-orange-500/40 bg-orange-500/15 px-2 py-0.5 text-[10px] font-bold uppercase tracking-[0.14em] text-orange-200">
+                                                        {alert.repeatCount}x Burst
+                                                    </span>
+                                                ) : null}
                                             </div>
-                                            <p className="mt-1 text-sm text-white">{alert.label}</p>
+                                            <p className="mt-1 text-sm font-medium text-white">{alert.label}</p>
                                             <p className="mt-1 text-xs leading-5 text-gray-400">{alert.message}</p>
                                         </div>
-                                        <span className="text-[11px] text-gray-400">{formatRelativeTime(alert.timestamp)}</span>
+                                        <span className="shrink-0 text-right text-[11px] text-gray-400">{formatRelativeTime(alert.timestamp)}</span>
                                     </div>
                                 </div>
                             ))}

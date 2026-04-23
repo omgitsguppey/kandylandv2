@@ -45,6 +45,8 @@ export type AdminModerationSecurityAlert = {
     message: string;
     reason: string;
     severity: "low" | "medium" | "high";
+    confidence: "confirmed" | "heuristic";
+    repeatCount?: number;
     detectionKind: string;
     pagePath: string | null;
     dropId: string | null;

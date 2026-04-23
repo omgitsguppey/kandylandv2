@@ -377,6 +377,28 @@ export function summarizeSecurityReason(reason: string | null | undefined) {
     return "Protection warning";
   }
 
+  // Confirmed Platform Signals
+  if (reason === "confirmed_print_shortcut") return "Print attempt";
+  if (reason === "confirmed_save_shortcut") return "Save shortcut";
+  if (reason === "confirmed_copy_shortcut") return "Copy shortcut";
+  if (reason === "confirmed_cut_shortcut") return "Cut shortcut";
+  if (reason === "confirmed_selection_attempt") return "Selection attempt";
+  if (reason === "confirmed_drag_export_attempt") return "Drag export attempt";
+  if (reason === "confirmed_context_menu_attempt") return "Context menu attempt";
+
+  // Heuristic Signals
+  if (reason === "heuristic_screenshot_shortcut_mac_capture") return "macOS screenshot shortcut";
+  if (reason === "heuristic_screenshot_shortcut_mac_area") return "macOS area screenshot shortcut";
+  if (reason === "heuristic_screen_record_shortcut_mac_toolbar") return "macOS capture toolbar shortcut";
+  if (reason === "heuristic_screenshot_shortcut_windows_snip") return "Windows snipping shortcut";
+  if (reason === "heuristic_screenshot_shortcut_printscreen") return "Print Screen shortcut";
+  if (reason === "heuristic_screen_record_shortcut_windows_gamebar") return "Windows screen recording shortcut";
+  if (reason === "heuristic_devtools_shortcut") return "Developer tools shortcut";
+  if (reason === "heuristic_source_view_shortcut") return "View source shortcut";
+  if (reason === "heuristic_rapid_visibility_capture_pattern") return "Rapid capture pattern";
+  if (reason === "heuristic_rip_pattern") return "Repeated extraction pattern";
+
+  // Legacy mappings for safe fallback
   if (reason === "screenshot_hotkey") return "Screenshot shortcut";
   if (reason === "screenshot_shortcut_mac_capture") return "macOS screenshot";
   if (reason === "screenshot_shortcut_mac_area") return "macOS area screenshot";

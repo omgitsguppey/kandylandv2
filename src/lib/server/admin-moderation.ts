@@ -1,5 +1,7 @@
 import "server-only";
 
+import { describeSecurityEvent } from "@/lib/security-events";
+
 import { CHAT_COLLECTIONS } from "@/lib/chat";
 import type {
     AdminModerationMessageRecord,
@@ -102,6 +104,8 @@ function mapSecurityAlert(id: string, value: Record<string, unknown>): AdminMode
         message: toStringValue(value.message) || "Security event logged.",
         reason: toStringValue(value.reason) || "unknown",
         severity: normalizeSeverity(value.severity),
+        confidence: value.confidence === "confirmed" || value.confidence === "heuristic" ? value.confidence : describeSecurityEvent(toStringValue(value.reason)).confidence,
+        repeatCount: typeof value.repeatCount === "number" ? Math.max(1, value.repeatCount) : undefined,
         detectionKind: toStringValue(value.detectionKind) || "runtime",
         pagePath: toNullableString(value.pagePath),
         dropId: toNullableString(value.dropId),

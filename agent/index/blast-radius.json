@@ -1,5 +1,5 @@
 {
-  "generatedAt": "2026-04-23T20:23:19.154Z",
+  "generatedAt": "2026-04-23T20:52:28.246Z",
   "truthOrder": [
     "verified_runtime_code",
     "verified_configuration",
@@ -28,7 +28,7 @@
         "Likely shared helper.",
         "Runtime-critical surface.",
         "Broad signoff likely.",
-        "Inbound dependency count: 65."
+        "Inbound dependency count: 63."
       ]
     },
     {
@@ -44,7 +44,7 @@
         "Likely shared helper.",
         "Runtime-critical surface.",
         "Broad signoff likely.",
-        "Inbound dependency count: 44."
+        "Inbound dependency count: 43."
       ]
     },
     {
@@ -75,7 +75,7 @@
         "Likely shared helper.",
         "Runtime-critical surface.",
         "Broad signoff likely.",
-        "Inbound dependency count: 45."
+        "Inbound dependency count: 44."
       ]
     },
     {
@@ -91,7 +91,7 @@
         "Likely shared helper.",
         "Runtime-critical surface.",
         "Broad signoff likely.",
-        "Inbound dependency count: 43."
+        "Inbound dependency count: 42."
       ]
     },
     {
@@ -186,7 +186,7 @@
         "Likely shared helper.",
         "Runtime-critical surface.",
         "Broad signoff likely.",
-        "Inbound dependency count: 98."
+        "Inbound dependency count: 97."
       ]
     },
     {
@@ -217,7 +217,7 @@
         "Likely shared helper.",
         "Runtime-critical surface.",
         "Broad signoff likely.",
-        "Inbound dependency count: 104."
+        "Inbound dependency count: 103."
       ]
     },
     {
@@ -233,7 +233,7 @@
         "Likely shared helper.",
         "Runtime-critical surface.",
         "Broad signoff likely.",
-        "Inbound dependency count: 101."
+        "Inbound dependency count: 100."
       ]
     },
     {
@@ -249,7 +249,7 @@
         "Likely shared helper.",
         "Runtime-critical surface.",
         "Broad signoff likely.",
-        "Inbound dependency count: 99."
+        "Inbound dependency count: 98."
       ]
     },
     {

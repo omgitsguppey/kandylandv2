@@ -19,6 +19,7 @@ export function useViewerSecurity({ drop, isAuthorized, activeIndex, contentKind
     const securityLastSignalAtRef = useRef<Map<string, number>>(new Map());
     const securitySignalCountsRef = useRef<Map<string, number>>(new Map());
     const rapidVisibilityTimestampsRef = useRef<number[]>([]);
+    const ripPatternTimestampsRef = useRef<number[]>([]);
     const securityResetTimeoutRef = useRef<number | null>(null);
     const securityLogViolationRef = useRef<(reason: string, metadata?: Record<string, string | number | boolean>) => void>(() => undefined);
 
@@ -97,81 +98,95 @@ export function useViewerSecurity({ drop, isAuthorized, activeIndex, contentKind
 
             if (isMacScreenshotFull) {
                 e.preventDefault();
-                logViolation("screenshot_shortcut_mac_capture", { triggerSource: "keyboard", keyChord: "Cmd+Shift+3" });
+                logViolation("heuristic_screenshot_shortcut_mac_capture", { triggerSource: "keyboard", keyChord: "Cmd+Shift+3" });
                 return;
             }
             if (isMacScreenshotArea) {
                 e.preventDefault();
-                logViolation("screenshot_shortcut_mac_area", { triggerSource: "keyboard", keyChord: "Cmd+Shift+4" });
+                logViolation("heuristic_screenshot_shortcut_mac_area", { triggerSource: "keyboard", keyChord: "Cmd+Shift+4" });
                 return;
             }
             if (isMacCaptureToolbar) {
                 e.preventDefault();
-                logViolation("screen_record_shortcut_mac_toolbar", { triggerSource: "keyboard", keyChord: "Cmd+Shift+5" });
+                logViolation("heuristic_screen_record_shortcut_mac_toolbar", { triggerSource: "keyboard", keyChord: "Cmd+Shift+5" });
                 return;
             }
             if (isWindowsSnip) {
                 e.preventDefault();
-                logViolation("screenshot_shortcut_windows_snip", { triggerSource: "keyboard", keyChord: "Meta+Shift+S" });
+                logViolation("heuristic_screenshot_shortcut_windows_snip", { triggerSource: "keyboard", keyChord: "Meta+Shift+S" });
                 return;
             }
             if (isPrintScreen) {
-                logViolation("screenshot_shortcut_printscreen", { triggerSource: "keyboard", keyChord: "PrintScreen" });
+                logViolation("heuristic_screenshot_shortcut_printscreen", { triggerSource: "keyboard", keyChord: "PrintScreen" });
                 return;
             }
             if (isWindowsGameBarRecording) {
                 e.preventDefault();
-                logViolation("screen_record_shortcut_windows_gamebar", { triggerSource: "keyboard", keyChord: "Meta+Alt+R" });
+                logViolation("heuristic_screen_record_shortcut_windows_gamebar", { triggerSource: "keyboard", keyChord: "Meta+Alt+R" });
                 return;
             }
             if (isPrintShortcut) {
                 e.preventDefault();
-                logViolation("print_shortcut", { triggerSource: "keyboard", keyChord: `${modifierLabel}+P` });
+                logViolation("confirmed_print_shortcut", { triggerSource: "keyboard", keyChord: `${modifierLabel}+P` });
                 return;
             }
             if (isSaveShortcut) {
                 e.preventDefault();
-                logViolation("save_shortcut", { triggerSource: "keyboard", keyChord: `${modifierLabel}+S` });
+                logViolation("confirmed_save_shortcut", { triggerSource: "keyboard", keyChord: `${modifierLabel}+S` });
                 return;
             }
             if (isSourceViewShortcut) {
                 e.preventDefault();
-                logViolation("source_view_shortcut", { triggerSource: "keyboard", keyChord: `${modifierLabel}+U` });
+                logViolation("heuristic_source_view_shortcut", { triggerSource: "keyboard", keyChord: `${modifierLabel}+U` });
                 return;
             }
             if (isCopyShortcut) {
-                logViolation("copy_shortcut", { triggerSource: "keyboard", keyChord: `${modifierLabel}+C` });
+                logViolation("confirmed_copy_shortcut", { triggerSource: "keyboard", keyChord: `${modifierLabel}+C` });
                 return;
             }
             if (isDevToolsShortcut) {
                 e.preventDefault();
-                logViolation("devtools_shortcut", { triggerSource: "keyboard", keyChord: "DevTools" });
+                logViolation("heuristic_devtools_shortcut", { triggerSource: "keyboard", keyChord: "DevTools" });
             }
         };
 
-        const handleBeforePrint = () => { logViolation("print_shortcut", { triggerSource: "beforeprint", keyChord: "Print dialog" }); };
+        const trackRipPatternSignal = () => {
+            const now = Date.now();
+            const recent = ripPatternTimestampsRef.current.filter((timestamp) => now - timestamp <= 10000);
+            recent.push(now);
+            ripPatternTimestampsRef.current = recent;
+            if (recent.length >= 5) {
+                logViolation("heuristic_rip_pattern", { triggerSource: "rip_heuristic", repeatCount: recent.length });
+                ripPatternTimestampsRef.current = []; // Reset to prevent spam
+            }
+        };
+
+        const handleBeforePrint = () => { logViolation("confirmed_print_shortcut", { triggerSource: "beforeprint", keyChord: "Print dialog" }); };
 
         const handleCopy = (event: ClipboardEvent) => {
             if (isEditableTarget(event.target)) return;
             event.preventDefault();
-            logViolation("copy_shortcut", { triggerSource: "clipboard", keyChord: "Copy event" });
+            logViolation("confirmed_copy_shortcut", { triggerSource: "clipboard", keyChord: "Copy event" });
+            trackRipPatternSignal();
         };
 
         const handleCut = (event: ClipboardEvent) => {
             if (isEditableTarget(event.target)) return;
             event.preventDefault();
-            logViolation("copy_shortcut", { triggerSource: "clipboard", keyChord: "Cut event" });
+            logViolation("confirmed_cut_shortcut", { triggerSource: "clipboard", keyChord: "Cut event" });
+            trackRipPatternSignal();
         };
 
         const handleSelectStart = (event: Event) => {
             if (isEditableTarget(event.target)) return;
             event.preventDefault();
-            logViolation("selection_attempt", { triggerSource: "selection", keyChord: "Select start" });
+            logViolation("confirmed_selection_attempt", { triggerSource: "selection", keyChord: "Select start" });
+            trackRipPatternSignal();
         };
 
         const handleDragStart = (event: DragEvent) => {
             event.preventDefault();
-            logViolation("drag_export_attempt", { triggerSource: "drag", keyChord: "Drag start" });
+            logViolation("confirmed_drag_export_attempt", { triggerSource: "drag", keyChord: "Drag start" });
         };
 
         const handleVisibilitySignal = () => {
@@ -181,7 +196,7 @@ export function useViewerSecurity({ drop, isAuthorized, activeIndex, contentKind
             recent.push(now);
             rapidVisibilityTimestampsRef.current = recent;
             if (recent.length >= 3) {
-                logViolation("rapid_visibility_capture_pattern", {
+                logViolation("heuristic_rapid_visibility_capture_pattern", {
                     triggerSource: "visibilitychange",
                     detail: "Repeated hide/show transitions",
                     repeatCount: recent.length,
@@ -210,7 +225,7 @@ export function useViewerSecurity({ drop, isAuthorized, activeIndex, contentKind
 
     const preventContextMenu = (e: React.MouseEvent) => {
         e.preventDefault();
-        securityLogViolationRef.current("context_menu_attempt", {
+        securityLogViolationRef.current("confirmed_context_menu_attempt", {
             triggerSource: "contextmenu",
             keyChord: "Right click",
         });
