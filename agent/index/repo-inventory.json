@@ -1,5 +1,5 @@
 {
-  "generatedAt": "2026-04-22T19:00:56.137Z",
+  "generatedAt": "2026-04-23T20:23:12.727Z",
   "truthOrder": [
     "verified_runtime_code",
     "verified_configuration",
@@ -557,7 +557,7 @@
       "likely_broad_signoff_relevant": true,
       "dataconnect_related": false,
       "functions_related": false,
-      "last_modified_or_hash": "1776828026481:afab7bc0d60a"
+      "last_modified_or_hash": "1776962371071:3c0e4ce13223"
     },
     {
       "stable_id": "file__full_scale_codebase_audit-md",
@@ -573,7 +573,7 @@
       "likely_broad_signoff_relevant": true,
       "dataconnect_related": false,
       "functions_related": false,
-      "last_modified_or_hash": "1776828026404:eff64e1036ee"
+      "last_modified_or_hash": "1776962370934:cf6cfcf0a2af"
     },
     {
       "stable_id": "file__readme-md",
@@ -605,7 +605,7 @@
       "likely_broad_signoff_relevant": true,
       "dataconnect_related": false,
       "functions_related": false,
-      "last_modified_or_hash": "1776828026431:d28ea5432f0c"
+      "last_modified_or_hash": "1776962370995:a3a6a0fdbf3b"
     },
     {
       "stable_id": "file__agent__readme-md",
@@ -637,7 +637,7 @@
       "likely_broad_signoff_relevant": true,
       "dataconnect_related": false,
       "functions_related": false,
-      "last_modified_or_hash": "1776884425490:a722400e39be"
+      "last_modified_or_hash": "1776974890170:59479f2c4b53"
     },
     {
       "stable_id": "file__agent__index__canonical-helpers-json",
@@ -653,7 +653,7 @@
       "likely_broad_signoff_relevant": true,
       "dataconnect_related": false,
       "functions_related": false,
-      "last_modified_or_hash": "1776884425459:5ec6b1ca4093"
+      "last_modified_or_hash": "1776974890173:f89fe7670bb6"
     },
     {
       "stable_id": "file__agent__index__dependency-graph-summary-json",
@@ -669,7 +669,7 @@
       "likely_broad_signoff_relevant": true,
       "dataconnect_related": false,
       "functions_related": false,
-      "last_modified_or_hash": "1776884425483:0e0a5f972bc9"
+      "last_modified_or_hash": "1776974890176:54aa9365b3dc"
     },
     {
       "stable_id": "file__agent__index__governance-truth-json",
@@ -685,7 +685,7 @@
       "likely_broad_signoff_relevant": true,
       "dataconnect_related": false,
       "functions_related": false,
-      "last_modified_or_hash": "1776884425470:ee47ce4c2573"
+      "last_modified_or_hash": "1776974890179:b7b64db20ee1"
     },
     {
       "stable_id": "file__agent__index__known-pitfalls-json",
@@ -701,7 +701,7 @@
       "likely_broad_signoff_relevant": true,
       "dataconnect_related": false,
       "functions_related": false,
-      "last_modified_or_hash": "1776884425473:1446cdef8afd"
+      "last_modified_or_hash": "1776974890181:8e4ff4d2757b"
     },
     {
       "stable_id": "file__agent__index__package-manager-truth-json",
@@ -717,7 +717,7 @@
       "likely_broad_signoff_relevant": true,
       "dataconnect_related": false,
       "functions_related": false,
-      "last_modified_or_hash": "1776884425464:39c035c007b0"
+      "last_modified_or_hash": "1776974890184:98d4b3d13783"
     },
     {
       "stable_id": "file__agent__index__recent-passes-json",
@@ -733,7 +733,7 @@
       "likely_broad_signoff_relevant": true,
       "dataconnect_related": false,
       "functions_related": false,
-      "last_modified_or_hash": "1776884425475:07b48ce3bb5d"
+      "last_modified_or_hash": "1776974890187:26c438e13f85"
     },
     {
       "stable_id": "file__agent__index__repo-inventory-json",
@@ -749,7 +749,7 @@
       "likely_broad_signoff_relevant": true,
       "dataconnect_related": false,
       "functions_related": false,
-      "last_modified_or_hash": "1776884425447:f132978e391d"
+      "last_modified_or_hash": "1776974890194:81d4e4580886"
     },
     {
       "stable_id": "file__agent__index__retrieval-index-json",
@@ -765,7 +765,7 @@
       "likely_broad_signoff_relevant": true,
       "dataconnect_related": false,
       "functions_related": false,
-      "last_modified_or_hash": "1776884425507:8b9691deae91"
+      "last_modified_or_hash": "1776974890202:bc0f6b201816"
     },
     {
       "stable_id": "file__agent__index__runtime-observability-json",
@@ -781,7 +781,7 @@
       "likely_broad_signoff_relevant": true,
       "dataconnect_related": false,
       "functions_related": false,
-      "last_modified_or_hash": "1776884425477:4ca5a83d2962"
+      "last_modified_or_hash": "1776974890204:d8d595b774bc"
     },
     {
       "stable_id": "file__agent__index__surface-map-json",
@@ -797,7 +797,7 @@
       "likely_broad_signoff_relevant": true,
       "dataconnect_related": false,
       "functions_related": false,
-      "last_modified_or_hash": "1776884425457:18caa9c64263"
+      "last_modified_or_hash": "1776974890208:4bfa7cecee30"
     },
     {
       "stable_id": "file__agent__index__ui-surface-coverage-json",
@@ -813,7 +813,7 @@
       "likely_broad_signoff_relevant": true,
       "dataconnect_related": false,
       "functions_related": false,
-      "last_modified_or_hash": "1776884425480:d32f038de69d"
+      "last_modified_or_hash": "1776974890211:5864ce9f16d1"
     },
     {
       "stable_id": "file__agent__index__verification-commands-json",
@@ -829,7 +829,7 @@
       "likely_broad_signoff_relevant": true,
       "dataconnect_related": false,
       "functions_related": false,
-      "last_modified_or_hash": "1776884425461:f53d9c070fbf"
+      "last_modified_or_hash": "1776974890213:cd123341a7c7"
     },
     {
       "stable_id": "file__agent__index__workflow-guidance-json",
@@ -845,7 +845,7 @@
       "likely_broad_signoff_relevant": true,
       "dataconnect_related": false,
       "functions_related": false,
-      "last_modified_or_hash": "1776884425467:ae8894e312c0"
+      "last_modified_or_hash": "1776974890217:f8280d7566c4"
     },
     {
       "stable_id": "file__agent__prompts__task-issue-spec-generated-md",
@@ -861,7 +861,7 @@
       "likely_broad_signoff_relevant": true,
       "dataconnect_related": false,
       "functions_related": false,
-      "last_modified_or_hash": "1776783447206:a6b9806a602b"
+      "last_modified_or_hash": "1776974890220:7524d72dcdfa"
     },
     {
       "stable_id": "file__agent__prompts__task-prompt-deep-md",
@@ -877,7 +877,7 @@
       "likely_broad_signoff_relevant": true,
       "dataconnect_related": false,
       "functions_related": false,
-      "last_modified_or_hash": "1776884416549:9d5fdd962738"
+      "last_modified_or_hash": "1776974890222:0a73bee7d749"
     },
     {
       "stable_id": "file__agent__prompts__task-prompt-short-md",
@@ -893,7 +893,7 @@
       "likely_broad_signoff_relevant": true,
       "dataconnect_related": false,
       "functions_related": false,
-      "last_modified_or_hash": "1776884416547:c469424b5cb9"
+      "last_modified_or_hash": "1776974890225:3eff87ff7304"
     },
     {
       "stable_id": "file__agent__prompts__task-prompt-standard-md",
@@ -909,7 +909,7 @@
       "likely_broad_signoff_relevant": true,
       "dataconnect_related": false,
       "functions_related": false,
-      "last_modified_or_hash": "1776884416548:1261666f2b57"
+      "last_modified_or_hash": "1776974890228:8eea64a84b2e"
     },
     {
       "stable_id": "file__agent__prompts__verification-plan-generated-md",
@@ -925,7 +925,7 @@
       "likely_broad_signoff_relevant": true,
       "dataconnect_related": false,
       "functions_related": false,
-      "last_modified_or_hash": "1776784335690:52d53e695372"
+      "last_modified_or_hash": "1776974890229:7e7372a041c9"
     },
     {
       "stable_id": "file__agent__schemas__active-task-schema-json",
@@ -1293,7 +1293,7 @@
       "likely_broad_signoff_relevant": true,
       "dataconnect_related": false,
       "functions_related": false,
-      "last_modified_or_hash": "1776783447204:41cbd77eea90"
+      "last_modified_or_hash": "1776974890231:be0c09f85ab1"
     },
     {
       "stable_id": "file__agent__state__handoff-template-json",
@@ -1341,7 +1341,7 @@
       "likely_broad_signoff_relevant": true,
       "dataconnect_related": false,
       "functions_related": false,
-      "last_modified_or_hash": "1776884425560:86fa571bb3d2"
+      "last_modified_or_hash": "1776884472284:92c87da1e4e3"
     },
     {
       "stable_id": "file__agent__state__sql-sync-payload-generated-json",
@@ -1357,7 +1357,7 @@
       "likely_broad_signoff_relevant": true,
       "dataconnect_related": false,
       "functions_related": false,
-      "last_modified_or_hash": "1776884425559:32ddc7c90bf1"
+      "last_modified_or_hash": "1776884472282:efb02787e468"
     },
     {
       "stable_id": "file__agent__state__task-context-generated-json",
@@ -1373,7 +1373,7 @@
       "likely_broad_signoff_relevant": true,
       "dataconnect_related": false,
       "functions_related": false,
-      "last_modified_or_hash": "1776884416544:c768ba4a9443"
+      "last_modified_or_hash": "1776974890233:4cc6bc2446b1"
     },
     {
       "stable_id": "file__agent__state__task-context-template-json",
@@ -1405,7 +1405,7 @@
       "likely_broad_signoff_relevant": true,
       "dataconnect_related": false,
       "functions_related": false,
-      "last_modified_or_hash": "1776784335686:7661860de6d8"
+      "last_modified_or_hash": "1776974890235:aa84d504d86e"
     },
     {
       "stable_id": "file__apphosting-yaml",
@@ -1438,6 +1438,22 @@
       "dataconnect_related": false,
       "functions_related": false,
       "last_modified_or_hash": "1773972304258:70310c48cc8c"
+    },
+    {
+      "stable_id": "file__clean-analytics-import-v2-py",
+      "path": "clean-analytics-import-v2.py",
+      "file_class": "root_misc",
+      "surface_category": "analytics",
+      "generated": false,
+      "evidence_only": false,
+      "runtime_critical": false,
+      "workflow_guidance": false,
+      "governance_artifact": false,
+      "likely_shared_helper": false,
+      "likely_broad_signoff_relevant": false,
+      "dataconnect_related": false,
+      "functions_related": false,
+      "last_modified_or_hash": "1776974521436:9c4e582e8a6f"
     },
     {
       "stable_id": "file__control-tower__00-start-here-md",
@@ -2093,7 +2109,7 @@
       "likely_broad_signoff_relevant": false,
       "dataconnect_related": false,
       "functions_related": false,
-      "last_modified_or_hash": "1776723855291:27b77e62b1fb"
+      "last_modified_or_hash": "1776912677289:8954d74baede"
     },
     {
       "stable_id": "file__docs__doctrine__kandydrops-copy-doctrine-md",
@@ -2173,7 +2189,7 @@
       "likely_broad_signoff_relevant": false,
       "dataconnect_related": false,
       "functions_related": false,
-      "last_modified_or_hash": "1776723834798:8800ff3dbfec"
+      "last_modified_or_hash": "1776962371098:31ccadb3342f"
     },
     {
       "stable_id": "file__docs__doctrine__kandydrops-vocabulary-index-md",
@@ -2637,7 +2653,7 @@
       "likely_broad_signoff_relevant": false,
       "dataconnect_related": false,
       "functions_related": true,
-      "last_modified_or_hash": "1773531892905:86192635a819"
+      "last_modified_or_hash": "1776913118186:c7950d64f45e"
     },
     {
       "stable_id": "file__functions__src__index-ts",
@@ -3005,7 +3021,7 @@
       "likely_broad_signoff_relevant": true,
       "dataconnect_related": false,
       "functions_related": false,
-      "last_modified_or_hash": "1776798381636:c6e2dacd4afc"
+      "last_modified_or_hash": "1776975429321:8834f8e4d7ac"
     },
     {
       "stable_id": "file__playwright-config-ts",
@@ -3933,7 +3949,7 @@
       "likely_broad_signoff_relevant": true,
       "dataconnect_related": false,
       "functions_related": false,
-      "last_modified_or_hash": "1776402529941:b57a6c175a1f"
+      "last_modified_or_hash": "1776967616948:1d16f32c17ae"
     },
     {
       "stable_id": "file__scripts__agent__extract-canonical-helpers-ts",
@@ -4045,7 +4061,7 @@
       "likely_broad_signoff_relevant": true,
       "dataconnect_related": false,
       "functions_related": false,
-      "last_modified_or_hash": "1776403757368:c6e8111cd357"
+      "last_modified_or_hash": "1776967597001:50b4b0a22ed2"
     },
     {
       "stable_id": "file__scripts__agent__summarize-dependency-graph-ts",
@@ -4158,6 +4174,22 @@
       "dataconnect_related": false,
       "functions_related": false,
       "last_modified_or_hash": "1775152540498:e3f824692035"
+    },
+    {
+      "stable_id": "file__scripts__check-admin-parity-ts",
+      "path": "scripts/check-admin-parity.ts",
+      "file_class": "repo_tooling",
+      "surface_category": "repo_scripts",
+      "generated": false,
+      "evidence_only": false,
+      "runtime_critical": false,
+      "workflow_guidance": false,
+      "governance_artifact": false,
+      "likely_shared_helper": false,
+      "likely_broad_signoff_relevant": true,
+      "dataconnect_related": false,
+      "functions_related": false,
+      "last_modified_or_hash": "1776975492398:ccaf91e822cf"
     },
     {
       "stable_id": "file__scripts__check-analytics-continuity-ts",
@@ -4909,23 +4941,7 @@
       "likely_broad_signoff_relevant": false,
       "dataconnect_related": false,
       "functions_related": false,
-      "last_modified_or_hash": "1776727372036:4f4ba43caff6"
-    },
-    {
-      "stable_id": "file__src__app__admin__admintruthsurfaces-tsx",
-      "path": "src/app/admin/AdminTruthSurfaces.tsx",
-      "file_class": "admin_surface",
-      "surface_category": "admin_ui",
-      "generated": false,
-      "evidence_only": false,
-      "runtime_critical": true,
-      "workflow_guidance": false,
-      "governance_artifact": false,
-      "likely_shared_helper": false,
-      "likely_broad_signoff_relevant": false,
-      "dataconnect_related": false,
-      "functions_related": false,
-      "last_modified_or_hash": "1776773080755:1b8060dfdad6"
+      "last_modified_or_hash": "1776963019749:5f2b6e0577cd"
     },
     {
       "stable_id": "file__src__app__admin__ai__aihelpers-tsx",
@@ -5085,7 +5101,7 @@
       "likely_broad_signoff_relevant": false,
       "dataconnect_related": false,
       "functions_related": false,
-      "last_modified_or_hash": "1776734577675:0f2d26677c87"
+      "last_modified_or_hash": "1776974968682:3004d165c155"
     },
     {
       "stable_id": "file__src__app__admin__ai__page-tsx",
@@ -5101,7 +5117,7 @@
       "likely_broad_signoff_relevant": false,
       "dataconnect_related": false,
       "functions_related": false,
-      "last_modified_or_hash": "1776815949372:86d2637cd0ee"
+      "last_modified_or_hash": "1776974968658:048bf25d4ef2"
     },
     {
       "stable_id": "file__src__app__admin__analytics__analyticshelpers-tsx",
@@ -5120,22 +5136,6 @@
       "last_modified_or_hash": "1776824583749:b5ddfb46e5d8"
     },
     {
-      "stable_id": "file__src__app__admin__analytics__build_tabs-py",
-      "path": "src/app/admin/analytics/build_tabs.py",
-      "file_class": "admin_surface",
-      "surface_category": "admin_ui",
-      "generated": false,
-      "evidence_only": false,
-      "runtime_critical": true,
-      "workflow_guidance": false,
-      "governance_artifact": false,
-      "likely_shared_helper": false,
-      "likely_broad_signoff_relevant": false,
-      "dataconnect_related": false,
-      "functions_related": false,
-      "last_modified_or_hash": "1776706725921:775b293814b1"
-    },
-    {
       "stable_id": "file__src__app__admin__analytics__components__adminanalyticsaudiencetab-tsx",
       "path": "src/app/admin/analytics/components/AdminAnalyticsAudienceTab.tsx",
       "file_class": "admin_surface",
@@ -5149,7 +5149,7 @@
       "likely_broad_signoff_relevant": false,
       "dataconnect_related": false,
       "functions_related": false,
-      "last_modified_or_hash": "1776738381584:0f13ea631693"
+      "last_modified_or_hash": "1776966618956:9f672e78b423"
     },
     {
       "stable_id": "file__src__app__admin__analytics__components__adminanalyticscommercetab-tsx",
@@ -5165,7 +5165,7 @@
       "likely_broad_signoff_relevant": false,
       "dataconnect_related": false,
       "functions_related": false,
-      "last_modified_or_hash": "1776738381584:f887392f2c06"
+      "last_modified_or_hash": "1776966655607:2b353365b717"
     },
     {
       "stable_id": "file__src__app__admin__analytics__components__adminanalyticsoperationstab-tsx",
@@ -5181,11 +5181,11 @@
       "likely_broad_signoff_relevant": false,
       "dataconnect_related": false,
       "functions_related": false,
-      "last_modified_or_hash": "1776802973938:6c187b0b6df0"
+      "last_modified_or_hash": "1776967139220:1d43bd42d0ad"
     },
     {
-      "stable_id": "file__src__app__admin__analytics__extract-py",
-      "path": "src/app/admin/analytics/extract.py",
+      "stable_id": "file__src__app__admin__analytics__hooks__useadminanalyticsrealtime-ts",
+      "path": "src/app/admin/analytics/hooks/useAdminAnalyticsRealtime.ts",
       "file_class": "admin_surface",
       "surface_category": "admin_ui",
       "generated": false,
@@ -5197,135 +5197,7 @@
       "likely_broad_signoff_relevant": false,
       "dataconnect_related": false,
       "functions_related": false,
-      "last_modified_or_hash": "1776706598270:4e83fd7932c6"
-    },
-    {
-      "stable_id": "file__src__app__admin__analytics__extract_filters-py",
-      "path": "src/app/admin/analytics/extract_filters.py",
-      "file_class": "admin_surface",
-      "surface_category": "admin_ui",
-      "generated": false,
-      "evidence_only": false,
-      "runtime_critical": true,
-      "workflow_guidance": false,
-      "governance_artifact": false,
-      "likely_shared_helper": false,
-      "likely_broad_signoff_relevant": false,
-      "dataconnect_related": false,
-      "functions_related": false,
-      "last_modified_or_hash": "1776707034122:ca955eae2925"
-    },
-    {
-      "stable_id": "file__src__app__admin__analytics__extract_god_hook-py",
-      "path": "src/app/admin/analytics/extract_god_hook.py",
-      "file_class": "admin_surface",
-      "surface_category": "admin_ui",
-      "generated": false,
-      "evidence_only": false,
-      "runtime_critical": true,
-      "workflow_guidance": false,
-      "governance_artifact": false,
-      "likely_shared_helper": false,
-      "likely_broad_signoff_relevant": false,
-      "dataconnect_related": false,
-      "functions_related": false,
-      "last_modified_or_hash": "1776707176095:b8d20234846c"
-    },
-    {
-      "stable_id": "file__src__app__admin__analytics__fix_commerce-py",
-      "path": "src/app/admin/analytics/fix_commerce.py",
-      "file_class": "admin_surface",
-      "surface_category": "admin_ui",
-      "generated": false,
-      "evidence_only": false,
-      "runtime_critical": true,
-      "workflow_guidance": false,
-      "governance_artifact": false,
-      "likely_shared_helper": false,
-      "likely_broad_signoff_relevant": false,
-      "dataconnect_related": false,
-      "functions_related": false,
-      "last_modified_or_hash": "1776708182593:1190247399ea"
-    },
-    {
-      "stable_id": "file__src__app__admin__analytics__fix_commerce2-py",
-      "path": "src/app/admin/analytics/fix_commerce2.py",
-      "file_class": "admin_surface",
-      "surface_category": "admin_ui",
-      "generated": false,
-      "evidence_only": false,
-      "runtime_critical": true,
-      "workflow_guidance": false,
-      "governance_artifact": false,
-      "likely_shared_helper": false,
-      "likely_broad_signoff_relevant": false,
-      "dataconnect_related": false,
-      "functions_related": false,
-      "last_modified_or_hash": "1776708357664:d1b2871ae703"
-    },
-    {
-      "stable_id": "file__src__app__admin__analytics__fix_hook-py",
-      "path": "src/app/admin/analytics/fix_hook.py",
-      "file_class": "admin_surface",
-      "surface_category": "admin_ui",
-      "generated": false,
-      "evidence_only": false,
-      "runtime_critical": true,
-      "workflow_guidance": false,
-      "governance_artifact": false,
-      "likely_shared_helper": false,
-      "likely_broad_signoff_relevant": false,
-      "dataconnect_related": false,
-      "functions_related": false,
-      "last_modified_or_hash": "1776708324141:2737ef653541"
-    },
-    {
-      "stable_id": "file__src__app__admin__analytics__fix_main-py",
-      "path": "src/app/admin/analytics/fix_main.py",
-      "file_class": "admin_surface",
-      "surface_category": "admin_ui",
-      "generated": false,
-      "evidence_only": false,
-      "runtime_critical": true,
-      "workflow_guidance": false,
-      "governance_artifact": false,
-      "likely_shared_helper": false,
-      "likely_broad_signoff_relevant": false,
-      "dataconnect_related": false,
-      "functions_related": false,
-      "last_modified_or_hash": "1776708224498:2ea7327093b6"
-    },
-    {
-      "stable_id": "file__src__app__admin__analytics__fix_truth-py",
-      "path": "src/app/admin/analytics/fix_truth.py",
-      "file_class": "admin_surface",
-      "surface_category": "admin_ui",
-      "generated": false,
-      "evidence_only": false,
-      "runtime_critical": true,
-      "workflow_guidance": false,
-      "governance_artifact": false,
-      "likely_shared_helper": false,
-      "likely_broad_signoff_relevant": false,
-      "dataconnect_related": false,
-      "functions_related": false,
-      "last_modified_or_hash": "1776709173759:45db6dc418fd"
-    },
-    {
-      "stable_id": "file__src__app__admin__analytics__hooks__patch_hooks-py",
-      "path": "src/app/admin/analytics/hooks/patch_hooks.py",
-      "file_class": "admin_surface",
-      "surface_category": "admin_ui",
-      "generated": false,
-      "evidence_only": false,
-      "runtime_critical": true,
-      "workflow_guidance": false,
-      "governance_artifact": false,
-      "likely_shared_helper": false,
-      "likely_broad_signoff_relevant": false,
-      "dataconnect_related": false,
-      "functions_related": false,
-      "last_modified_or_hash": "1776707874776:1c29d26ce606"
+      "last_modified_or_hash": "1776885122731:02daac1c16a4"
     },
     {
       "stable_id": "file__src__app__admin__analytics__hooks__useadminanalyticsstate-tsx",
@@ -5341,23 +5213,7 @@
       "likely_broad_signoff_relevant": false,
       "dataconnect_related": false,
       "functions_related": false,
-      "last_modified_or_hash": "1776882028160:4b6ae00b6805"
-    },
-    {
-      "stable_id": "file__src__app__admin__analytics__hooks__useanalyticsfilters-ts",
-      "path": "src/app/admin/analytics/hooks/useAnalyticsFilters.ts",
-      "file_class": "admin_surface",
-      "surface_category": "admin_ui",
-      "generated": false,
-      "evidence_only": false,
-      "runtime_critical": true,
-      "workflow_guidance": false,
-      "governance_artifact": false,
-      "likely_shared_helper": false,
-      "likely_broad_signoff_relevant": false,
-      "dataconnect_related": false,
-      "functions_related": false,
-      "last_modified_or_hash": "1776712760675:cc2697049222"
+      "last_modified_or_hash": "1776974968835:227c4debee88"
     },
     {
       "stable_id": "file__src__app__admin__analytics__page-tsx",
@@ -5373,39 +5229,7 @@
       "likely_broad_signoff_relevant": false,
       "dataconnect_related": false,
       "functions_related": false,
-      "last_modified_or_hash": "1776881776490:fb0464e0a5c9"
-    },
-    {
-      "stable_id": "file__src__app__admin__analytics__patch_build-py",
-      "path": "src/app/admin/analytics/patch_build.py",
-      "file_class": "admin_surface",
-      "surface_category": "admin_ui",
-      "generated": false,
-      "evidence_only": false,
-      "runtime_critical": true,
-      "workflow_guidance": false,
-      "governance_artifact": false,
-      "likely_shared_helper": false,
-      "likely_broad_signoff_relevant": false,
-      "dataconnect_related": false,
-      "functions_related": false,
-      "last_modified_or_hash": "1776708689119:61181417cc96"
-    },
-    {
-      "stable_id": "file__src__app__admin__analytics__update_page-py",
-      "path": "src/app/admin/analytics/update_page.py",
-      "file_class": "admin_surface",
-      "surface_category": "admin_ui",
-      "generated": false,
-      "evidence_only": false,
-      "runtime_critical": true,
-      "workflow_guidance": false,
-      "governance_artifact": false,
-      "likely_shared_helper": false,
-      "likely_broad_signoff_relevant": false,
-      "dataconnect_related": false,
-      "functions_related": false,
-      "last_modified_or_hash": "1776706916025:ed36e14cc5c3"
+      "last_modified_or_hash": "1776975252560:88354010338d"
     },
     {
       "stable_id": "file__src__app__admin__content__page-tsx",
@@ -5453,7 +5277,7 @@
       "likely_broad_signoff_relevant": false,
       "dataconnect_related": false,
       "functions_related": false,
-      "last_modified_or_hash": "1776883818892:99e1f30f96b3"
+      "last_modified_or_hash": "1776974890253:63a9c6dd9f6d"
     },
     {
       "stable_id": "file__src__app__admin__debug__page-tsx",
@@ -5469,7 +5293,7 @@
       "likely_broad_signoff_relevant": false,
       "dataconnect_related": false,
       "functions_related": false,
-      "last_modified_or_hash": "1776883870512:03038dbb1c33"
+      "last_modified_or_hash": "1776975383259:76c5d174a0b2"
     },
     {
       "stable_id": "file__src__app__admin__drops__page-tsx",
@@ -5581,7 +5405,7 @@
       "likely_broad_signoff_relevant": false,
       "dataconnect_related": false,
       "functions_related": false,
-      "last_modified_or_hash": "1776535304807:4a06c4ca4212"
+      "last_modified_or_hash": "1776975252572:52808ce0a7da"
     },
     {
       "stable_id": "file__src__app__admin__privacy__page-tsx",
@@ -5661,7 +5485,7 @@
       "likely_broad_signoff_relevant": false,
       "dataconnect_related": false,
       "functions_related": false,
-      "last_modified_or_hash": "1776779705759:66fb53fd4d86"
+      "last_modified_or_hash": "1776915695542:058721e1f43d"
     },
     {
       "stable_id": "file__src__app__admin__users__page-tsx",
@@ -5677,7 +5501,7 @@
       "likely_broad_signoff_relevant": false,
       "dataconnect_related": false,
       "functions_related": false,
-      "last_modified_or_hash": "1776035059423:dbd36a7f1ba4"
+      "last_modified_or_hash": "1776974890266:eb8c8e570b36"
     },
     {
       "stable_id": "file__src__app__api__admin__ai__drop-covers__feedback__route-ts",
@@ -5773,7 +5597,7 @@
       "likely_broad_signoff_relevant": false,
       "dataconnect_related": false,
       "functions_related": false,
-      "last_modified_or_hash": "1775873729943:b4d0b9d2cbe3"
+      "last_modified_or_hash": "1776961111203:cac76e282302"
     },
     {
       "stable_id": "file__src__app__api__admin__ai__drop-covers__template__route-ts",
@@ -5901,7 +5725,7 @@
       "likely_broad_signoff_relevant": false,
       "dataconnect_related": false,
       "functions_related": false,
-      "last_modified_or_hash": "1776826713387:65b1f10153f0"
+      "last_modified_or_hash": "1776974968532:8a14607dc583"
     },
     {
       "stable_id": "file__src__app__api__admin__analytics__route-ts",
@@ -5949,7 +5773,7 @@
       "likely_broad_signoff_relevant": false,
       "dataconnect_related": false,
       "functions_related": false,
-      "last_modified_or_hash": "1775444850944:19df2bc45d7a"
+      "last_modified_or_hash": "1776961111194:7e6c9dcf4c1d"
     },
     {
       "stable_id": "file__src__app__api__admin__creator-options__route-ts",
@@ -6013,7 +5837,7 @@
       "likely_broad_signoff_relevant": false,
       "dataconnect_related": false,
       "functions_related": false,
-      "last_modified_or_hash": "1776882571241:748c1215f42e"
+      "last_modified_or_hash": "1776975252575:e74b61c3d8c7"
     },
     {
       "stable_id": "file__src__app__api__admin__drops__route-ts",
@@ -6061,7 +5885,7 @@
       "likely_broad_signoff_relevant": false,
       "dataconnect_related": false,
       "functions_related": false,
-      "last_modified_or_hash": "1775744289122:5052bf390234"
+      "last_modified_or_hash": "1776961111000:7f0ec1faed2f"
     },
     {
       "stable_id": "file__src__app__api__admin__moderation__threads__-threadid-__route-ts",
@@ -6125,7 +5949,7 @@
       "likely_broad_signoff_relevant": false,
       "dataconnect_related": false,
       "functions_related": false,
-      "last_modified_or_hash": "1776389825808:e52f5ea0128c"
+      "last_modified_or_hash": "1776961304536:bb565b021bb8"
     },
     {
       "stable_id": "file__src__app__api__admin__queue__route-ts",
@@ -6205,7 +6029,7 @@
       "likely_broad_signoff_relevant": false,
       "dataconnect_related": false,
       "functions_related": false,
-      "last_modified_or_hash": "1775720142758:12f4405b540e"
+      "last_modified_or_hash": "1776963596892:16d85adacf92"
     },
     {
       "stable_id": "file__src__app__api__admin__tasks__route-ts",
@@ -6222,22 +6046,6 @@
       "dataconnect_related": false,
       "functions_related": false,
       "last_modified_or_hash": "1775244174372:463715b613cf"
-    },
-    {
-      "stable_id": "file__src__app__api__admin__ui-chart-health__route-ts",
-      "path": "src/app/api/admin/ui-chart-health/route.ts",
-      "file_class": "app_route",
-      "surface_category": "admin_route",
-      "generated": false,
-      "evidence_only": false,
-      "runtime_critical": true,
-      "workflow_guidance": false,
-      "governance_artifact": false,
-      "likely_shared_helper": false,
-      "likely_broad_signoff_relevant": false,
-      "dataconnect_related": false,
-      "functions_related": false,
-      "last_modified_or_hash": "1775850277874:82d405140b81"
     },
     {
       "stable_id": "file__src__app__api__admin__ui__preferences__route-ts",
@@ -6285,7 +6093,7 @@
       "likely_broad_signoff_relevant": false,
       "dataconnect_related": false,
       "functions_related": false,
-      "last_modified_or_hash": "1776779538663:391f0a2ceda0"
+      "last_modified_or_hash": "1776961424821:41e3f563ac43"
     },
     {
       "stable_id": "file__src__app__api__admin__users__-userid-__username__route-ts",
@@ -6304,6 +6112,22 @@
       "last_modified_or_hash": "1776481191586:80558f40c368"
     },
     {
+      "stable_id": "file__src__app__api__admin__users__realtime__route-ts",
+      "path": "src/app/api/admin/users/realtime/route.ts",
+      "file_class": "app_route",
+      "surface_category": "admin_route",
+      "generated": false,
+      "evidence_only": false,
+      "runtime_critical": true,
+      "workflow_guidance": false,
+      "governance_artifact": false,
+      "likely_shared_helper": false,
+      "likely_broad_signoff_relevant": false,
+      "dataconnect_related": false,
+      "functions_related": false,
+      "last_modified_or_hash": "1776915469374:ff63653d9ab0"
+    },
+    {
       "stable_id": "file__src__app__api__admin__users__route-ts",
       "path": "src/app/api/admin/users/route.ts",
       "file_class": "app_route",
@@ -6317,7 +6141,7 @@
       "likely_broad_signoff_relevant": false,
       "dataconnect_related": false,
       "functions_related": false,
-      "last_modified_or_hash": "1775493805295:55c09694d49a"
+      "last_modified_or_hash": "1776961351461:0511f9b866b2"
     },
     {
       "stable_id": "file__src__app__api__analytics__ingest__route-ts",
@@ -8141,7 +7965,7 @@
       "likely_broad_signoff_relevant": false,
       "dataconnect_related": false,
       "functions_related": false,
-      "last_modified_or_hash": "1776657376669:aaf6b97d270c"
+      "last_modified_or_hash": "1776974890279:2dbf0c319286"
     },
     {
       "stable_id": "file__src__app__layout-tsx",
@@ -8157,7 +7981,7 @@
       "likely_broad_signoff_relevant": false,
       "dataconnect_related": false,
       "functions_related": false,
-      "last_modified_or_hash": "1776728608011:20f2e3743ddd"
+      "last_modified_or_hash": "1776974890280:30c797a068d0"
     },
     {
       "stable_id": "file__src__app__loading-tsx",
@@ -8221,7 +8045,7 @@
       "likely_broad_signoff_relevant": false,
       "dataconnect_related": false,
       "functions_related": false,
-      "last_modified_or_hash": "1776868065729:74c186bbda9b"
+      "last_modified_or_hash": "1776974890286:f56a0305128f"
     },
     {
       "stable_id": "file__src__app__robots-ts",
@@ -8269,7 +8093,7 @@
       "likely_broad_signoff_relevant": false,
       "dataconnect_related": false,
       "functions_related": false,
-      "last_modified_or_hash": "1775538692910:8d87dbaf22c4"
+      "last_modified_or_hash": "1776975132049:33991013f2a6"
     },
     {
       "stable_id": "file__src__components__admin__adminaidescriptionoperations-tsx",
@@ -8333,7 +8157,7 @@
       "likely_broad_signoff_relevant": false,
       "dataconnect_related": false,
       "functions_related": false,
-      "last_modified_or_hash": "1776535304811:9d6abcfdddca"
+      "last_modified_or_hash": "1776975326153:7127983441c9"
     },
     {
       "stable_id": "file__src__components__admin__adminmoderationconsole-tsx",
@@ -8349,7 +8173,23 @@
       "likely_broad_signoff_relevant": false,
       "dataconnect_related": false,
       "functions_related": false,
-      "last_modified_or_hash": "1775908589232:f08a61965bda"
+      "last_modified_or_hash": "1776975088458:c864d75f47c2"
+    },
+    {
+      "stable_id": "file__src__components__admin__adminmoduleverificationcard-tsx",
+      "path": "src/components/Admin/AdminModuleVerificationCard.tsx",
+      "file_class": "component",
+      "surface_category": "ui_component",
+      "generated": false,
+      "evidence_only": false,
+      "runtime_critical": true,
+      "workflow_guidance": false,
+      "governance_artifact": false,
+      "likely_shared_helper": false,
+      "likely_broad_signoff_relevant": false,
+      "dataconnect_related": false,
+      "functions_related": false,
+      "last_modified_or_hash": "1776972925527:289a221f745a"
     },
     {
       "stable_id": "file__src__components__admin__adminpageheader-tsx",
@@ -8384,6 +8224,22 @@
       "last_modified_or_hash": "1775450623226:b19f390720a3"
     },
     {
+      "stable_id": "file__src__components__admin__adminstatusbadge-tsx",
+      "path": "src/components/Admin/AdminStatusBadge.tsx",
+      "file_class": "component",
+      "surface_category": "ui_component",
+      "generated": false,
+      "evidence_only": false,
+      "runtime_critical": true,
+      "workflow_guidance": false,
+      "governance_artifact": false,
+      "likely_shared_helper": false,
+      "likely_broad_signoff_relevant": false,
+      "dataconnect_related": false,
+      "functions_related": false,
+      "last_modified_or_hash": "1776960944154:144be2921e82"
+    },
+    {
       "stable_id": "file__src__components__admin__adminsupportqueue-tsx",
       "path": "src/components/Admin/AdminSupportQueue.tsx",
       "file_class": "component",
@@ -8397,7 +8253,7 @@
       "likely_broad_signoff_relevant": false,
       "dataconnect_related": false,
       "functions_related": false,
-      "last_modified_or_hash": "1776535304816:fe3032ef8c43"
+      "last_modified_or_hash": "1776974890295:fe3032ef8c43"
     },
     {
       "stable_id": "file__src__components__admin__admintasksmanager-tsx",
@@ -8557,7 +8413,7 @@
       "likely_broad_signoff_relevant": false,
       "dataconnect_related": false,
       "functions_related": false,
-      "last_modified_or_hash": "1776535304821:933b984e4280"
+      "last_modified_or_hash": "1776975132147:741f24a81f39"
     },
     {
       "stable_id": "file__src__components__admin__topdropspanel-tsx",
@@ -8733,7 +8589,7 @@
       "likely_broad_signoff_relevant": false,
       "dataconnect_related": false,
       "functions_related": false,
-      "last_modified_or_hash": "1776653686807:879e9f473780"
+      "last_modified_or_hash": "1776974890299:879e9f473780"
     },
     {
       "stable_id": "file__src__components__chat__chatrouteshell-tsx",
@@ -8749,7 +8605,7 @@
       "likely_broad_signoff_relevant": false,
       "dataconnect_related": false,
       "functions_related": false,
-      "last_modified_or_hash": "1776647569649:14e030b5085e"
+      "last_modified_or_hash": "1776974890302:14e030b5085e"
     },
     {
       "stable_id": "file__src__components__clientdiagnosticsbridge-tsx",
@@ -8797,7 +8653,7 @@
       "likely_broad_signoff_relevant": false,
       "dataconnect_related": false,
       "functions_related": false,
-      "last_modified_or_hash": "1776868489871:0699b7096a0b"
+      "last_modified_or_hash": "1776974890306:4ca64973743b"
     },
     {
       "stable_id": "file__src__components__creatordiscoveryrail-tsx",
@@ -8829,7 +8685,7 @@
       "likely_broad_signoff_relevant": false,
       "dataconnect_related": false,
       "functions_related": false,
-      "last_modified_or_hash": "1776772424682:ec619ffe8999"
+      "last_modified_or_hash": "1776974890309:d1694f8c11b2"
     },
     {
       "stable_id": "file__src__components__creators__creatorprofileheader-tsx",
@@ -9181,7 +9037,7 @@
       "likely_broad_signoff_relevant": false,
       "dataconnect_related": false,
       "functions_related": false,
-      "last_modified_or_hash": "1776868021720:46654656885f"
+      "last_modified_or_hash": "1776974890315:a3b818b21cbb"
     },
     {
       "stable_id": "file__src__components__homedropticker-tsx",
@@ -9533,7 +9389,7 @@
       "likely_broad_signoff_relevant": false,
       "dataconnect_related": false,
       "functions_related": false,
-      "last_modified_or_hash": "1776862382932:f7da63cf6563"
+      "last_modified_or_hash": "1776974890320:92ce2f229756"
     },
     {
       "stable_id": "file__src__components__purchasemodal-tsx-bak",
@@ -9693,7 +9549,7 @@
       "likely_broad_signoff_relevant": false,
       "dataconnect_related": false,
       "functions_related": false,
-      "last_modified_or_hash": "1775756055389:3f8472956ac4"
+      "last_modified_or_hash": "1776974890325:3f8472956ac4"
     },
     {
       "stable_id": "file__src__components__ui__uicontinuitynotice-tsx",
@@ -9853,23 +9709,7 @@
       "likely_broad_signoff_relevant": false,
       "dataconnect_related": false,
       "functions_related": false,
-      "last_modified_or_hash": "1776734164415:e99e16af798b"
-    },
-    {
-      "stable_id": "file__src__hooks__useadminuicharthealthreporter-ts",
-      "path": "src/hooks/useAdminUiChartHealthReporter.ts",
-      "file_class": "hook",
-      "surface_category": "misc",
-      "generated": false,
-      "evidence_only": false,
-      "runtime_critical": true,
-      "workflow_guidance": false,
-      "governance_artifact": false,
-      "likely_shared_helper": true,
-      "likely_broad_signoff_relevant": false,
-      "dataconnect_related": false,
-      "functions_related": false,
-      "last_modified_or_hash": "1775538170786:1cccfe760f91"
+      "last_modified_or_hash": "1776961625190:d571d47297a2"
     },
     {
       "stable_id": "file__src__hooks__useauthswr-ts",
@@ -10112,6 +9952,22 @@
       "last_modified_or_hash": "1775924218519:35ea024d13fa"
     },
     {
+      "stable_id": "file__src__lib__admin-analytics-live-runtime-ts",
+      "path": "src/lib/admin-analytics-live-runtime.ts",
+      "file_class": "shared_helper",
+      "surface_category": "analytics",
+      "generated": false,
+      "evidence_only": false,
+      "runtime_critical": true,
+      "workflow_guidance": false,
+      "governance_artifact": false,
+      "likely_shared_helper": true,
+      "likely_broad_signoff_relevant": true,
+      "dataconnect_related": false,
+      "functions_related": false,
+      "last_modified_or_hash": "1776885393499:50ae221cf0fc"
+    },
+    {
       "stable_id": "file__src__lib__admin-analytics-preferences-ts",
       "path": "src/lib/admin-analytics-preferences.ts",
       "file_class": "shared_helper",
@@ -10126,6 +9982,22 @@
       "dataconnect_related": false,
       "functions_related": false,
       "last_modified_or_hash": "1775744189897:3d1e204867fa"
+    },
+    {
+      "stable_id": "file__src__lib__admin-analytics-return-cadence-ts",
+      "path": "src/lib/admin-analytics-return-cadence.ts",
+      "file_class": "shared_helper",
+      "surface_category": "analytics",
+      "generated": false,
+      "evidence_only": false,
+      "runtime_critical": true,
+      "workflow_guidance": false,
+      "governance_artifact": false,
+      "likely_shared_helper": true,
+      "likely_broad_signoff_relevant": true,
+      "dataconnect_related": false,
+      "functions_related": false,
+      "last_modified_or_hash": "1776966533570:2cf5a9860a36"
     },
     {
       "stable_id": "file__src__lib__admin-analytics-truth-ts",
@@ -10285,7 +10157,7 @@
       "likely_broad_signoff_relevant": true,
       "dataconnect_related": false,
       "functions_related": false,
-      "last_modified_or_hash": "1775744189898:b35cd290a3ab"
+      "last_modified_or_hash": "1776961110821:e81da031d691"
     },
     {
       "stable_id": "file__src__lib__admin-notification-funnel-ts",
@@ -10349,7 +10221,7 @@
       "likely_broad_signoff_relevant": true,
       "dataconnect_related": false,
       "functions_related": false,
-      "last_modified_or_hash": "1776389626712:8996ec623e46"
+      "last_modified_or_hash": "1776961835797:13c5faca4d75"
     },
     {
       "stable_id": "file__src__lib__admin-panel-system-logs-ts",
@@ -10368,6 +10240,22 @@
       "last_modified_or_hash": "1775538182679:49d43e29557b"
     },
     {
+      "stable_id": "file__src__lib__admin-parity-ts",
+      "path": "src/lib/admin-parity.ts",
+      "file_class": "shared_helper",
+      "surface_category": "shared_runtime",
+      "generated": false,
+      "evidence_only": false,
+      "runtime_critical": true,
+      "workflow_guidance": false,
+      "governance_artifact": false,
+      "likely_shared_helper": true,
+      "likely_broad_signoff_relevant": true,
+      "dataconnect_related": false,
+      "functions_related": false,
+      "last_modified_or_hash": "1776960944134:97f6037b4688"
+    },
+    {
       "stable_id": "file__src__lib__admin-task-pipeline-ts",
       "path": "src/lib/admin-task-pipeline.ts",
       "file_class": "shared_helper",
@@ -10384,8 +10272,8 @@
       "last_modified_or_hash": "1775769965681:58e1815386bb"
     },
     {
-      "stable_id": "file__src__lib__admin-ui-chart-health-ts",
-      "path": "src/lib/admin-ui-chart-health.ts",
+      "stable_id": "file__src__lib__admin-user-commerce-ts",
+      "path": "src/lib/admin-user-commerce.ts",
       "file_class": "shared_helper",
       "surface_category": "shared_runtime",
       "generated": false,
@@ -10397,7 +10285,23 @@
       "likely_broad_signoff_relevant": true,
       "dataconnect_related": false,
       "functions_related": false,
-      "last_modified_or_hash": "1776774620434:9fa132b516f5"
+      "last_modified_or_hash": "1776913139509:4d3044da00d6"
+    },
+    {
+      "stable_id": "file__src__lib__admin-user-metrics-ts",
+      "path": "src/lib/admin-user-metrics.ts",
+      "file_class": "shared_helper",
+      "surface_category": "shared_runtime",
+      "generated": false,
+      "evidence_only": false,
+      "runtime_critical": true,
+      "workflow_guidance": false,
+      "governance_artifact": false,
+      "likely_shared_helper": true,
+      "likely_broad_signoff_relevant": true,
+      "dataconnect_related": false,
+      "functions_related": false,
+      "last_modified_or_hash": "1776960964584:78dfbeee6bf7"
     },
     {
       "stable_id": "file__src__lib__ai-debug-assistant-ts",
@@ -11149,7 +11053,7 @@
       "likely_broad_signoff_relevant": true,
       "dataconnect_related": false,
       "functions_related": false,
-      "last_modified_or_hash": "1775660874643:1c0c4fdcbf32"
+      "last_modified_or_hash": "1776913097324:d8b87f26d17c"
     },
     {
       "stable_id": "file__src__lib__gumdrop-ledger-ts",
@@ -11309,7 +11213,7 @@
       "likely_broad_signoff_relevant": true,
       "dataconnect_related": false,
       "functions_related": false,
-      "last_modified_or_hash": "1775736554507:68725b08f4d6"
+      "last_modified_or_hash": "1776974890330:5fef9779566f"
     },
     {
       "stable_id": "file__src__lib__notifications-ts",
@@ -11421,7 +11325,7 @@
       "likely_broad_signoff_relevant": true,
       "dataconnect_related": false,
       "functions_related": false,
-      "last_modified_or_hash": "1776826713384:99a5e48e9d71"
+      "last_modified_or_hash": "1776974890334:c35b62968530"
     },
     {
       "stable_id": "file__src__lib__security-events-ts",
@@ -11549,7 +11453,7 @@
       "likely_broad_signoff_relevant": true,
       "dataconnect_related": false,
       "functions_related": false,
-      "last_modified_or_hash": "1774334817219:1c5bbaf8e486"
+      "last_modified_or_hash": "1776965055508:5b6125fdbd7d"
     },
     {
       "stable_id": "file__src__lib__server__admin-analytics-historical-onboarding-ts",
@@ -11725,7 +11629,7 @@
       "likely_broad_signoff_relevant": true,
       "dataconnect_related": false,
       "functions_related": false,
-      "last_modified_or_hash": "1776883779704:84a151eaf059"
+      "last_modified_or_hash": "1776974890340:b29b3486095b"
     },
     {
       "stable_id": "file__src__lib__server__admin-moderation-ts",
@@ -11773,7 +11677,7 @@
       "likely_broad_signoff_relevant": true,
       "dataconnect_related": false,
       "functions_related": false,
-      "last_modified_or_hash": "1774387766269:1050972bf473"
+      "last_modified_or_hash": "1776974890346:ad4289b25cb5"
     },
     {
       "stable_id": "file__src__lib__server__admin-overview-users-ts",
@@ -11805,11 +11709,11 @@
       "likely_broad_signoff_relevant": true,
       "dataconnect_related": false,
       "functions_related": false,
-      "last_modified_or_hash": "1775770838916:98eaf3e513f6"
+      "last_modified_or_hash": "1776975050626:fd596f9190fd"
     },
     {
-      "stable_id": "file__src__lib__server__admin-ui-chart-health-ts",
-      "path": "src/lib/server/admin-ui-chart-health.ts",
+      "stable_id": "file__src__lib__server__admin-source-verification-ts",
+      "path": "src/lib/server/admin-source-verification.ts",
       "file_class": "server_helper",
       "surface_category": "server_runtime",
       "generated": false,
@@ -11821,7 +11725,7 @@
       "likely_broad_signoff_relevant": true,
       "dataconnect_related": false,
       "functions_related": false,
-      "last_modified_or_hash": "1775538122697:82b2358a0d77"
+      "last_modified_or_hash": "1776960944145:166ce9a74a8d"
     },
     {
       "stable_id": "file__src__lib__server__admin-ui-preferences-ts",
@@ -11981,7 +11885,7 @@
       "likely_broad_signoff_relevant": true,
       "dataconnect_related": false,
       "functions_related": false,
-      "last_modified_or_hash": "1773858846417:317f20637ef8"
+      "last_modified_or_hash": "1776974890352:a43ae1aa867e"
     },
     {
       "stable_id": "file__src__lib__server__analytics-runtime-warning-ts",
@@ -12621,7 +12525,7 @@
       "likely_broad_signoff_relevant": true,
       "dataconnect_related": false,
       "functions_related": false,
-      "last_modified_or_hash": "1775719880957:5adddd4a8c72"
+      "last_modified_or_hash": "1776974890358:0b729e3a2b62"
     },
     {
       "stable_id": "file__src__lib__server__runtime-warning-store-ts",
@@ -12925,7 +12829,7 @@
       "likely_broad_signoff_relevant": true,
       "dataconnect_related": false,
       "functions_related": false,
-      "last_modified_or_hash": "1775421549981:a3e120d8e511"
+      "last_modified_or_hash": "1776960964591:f41282e55628"
     },
     {
       "stable_id": "file__src__lib__utils-ts",
@@ -13405,7 +13309,7 @@
       "likely_broad_signoff_relevant": false,
       "dataconnect_related": false,
       "functions_related": false,
-      "last_modified_or_hash": "1776802898023:d1754e5c0601"
+      "last_modified_or_hash": "1776974890362:df4545062ee3"
     },
     {
       "stable_id": "file__src__types__analytics-ts",
@@ -14173,7 +14077,7 @@
       "likely_broad_signoff_relevant": false,
       "dataconnect_related": false,
       "functions_related": false,
-      "last_modified_or_hash": "1775590786542:b1e2ef6f5901"
+      "last_modified_or_hash": "1776962296123:570b2bbf479e"
     },
     {
       "stable_id": "file__tests__unit__admin-ai-drop-covers-template-route-spec-ts",
@@ -14288,6 +14192,22 @@
       "last_modified_or_hash": "1775158222136:44bc787bb1fa"
     },
     {
+      "stable_id": "file__tests__unit__admin-analytics-live-runtime-spec-ts",
+      "path": "tests/unit/admin-analytics-live-runtime.spec.ts",
+      "file_class": "tests",
+      "surface_category": "analytics",
+      "generated": false,
+      "evidence_only": false,
+      "runtime_critical": false,
+      "workflow_guidance": false,
+      "governance_artifact": false,
+      "likely_shared_helper": false,
+      "likely_broad_signoff_relevant": false,
+      "dataconnect_related": false,
+      "functions_related": false,
+      "last_modified_or_hash": "1776885322841:bb6017610326"
+    },
+    {
       "stable_id": "file__tests__unit__admin-analytics-page-spec-tsx",
       "path": "tests/unit/admin-analytics-page.spec.tsx",
       "file_class": "tests",
@@ -14318,6 +14238,22 @@
       "dataconnect_related": false,
       "functions_related": false,
       "last_modified_or_hash": "1776535168556:7b3d0f6de15a"
+    },
+    {
+      "stable_id": "file__tests__unit__admin-analytics-return-cadence-spec-ts",
+      "path": "tests/unit/admin-analytics-return-cadence.spec.ts",
+      "file_class": "tests",
+      "surface_category": "analytics",
+      "generated": false,
+      "evidence_only": false,
+      "runtime_critical": false,
+      "workflow_guidance": false,
+      "governance_artifact": false,
+      "likely_shared_helper": false,
+      "likely_broad_signoff_relevant": false,
+      "dataconnect_related": false,
+      "functions_related": false,
+      "last_modified_or_hash": "1776966514431:e30261d84d5d"
     },
     {
       "stable_id": "file__tests__unit__admin-analytics-truth-spec-ts",
@@ -14397,7 +14333,7 @@
       "likely_broad_signoff_relevant": false,
       "dataconnect_related": false,
       "functions_related": false,
-      "last_modified_or_hash": "1775156720280:381a2ff77a5a"
+      "last_modified_or_hash": "1776962296111:b71d3adeb440"
     },
     {
       "stable_id": "file__tests__unit__admin-creator-id-document-route-spec-ts",
@@ -14509,7 +14445,7 @@
       "likely_broad_signoff_relevant": false,
       "dataconnect_related": false,
       "functions_related": false,
-      "last_modified_or_hash": "1775750479050:8857ddba5113"
+      "last_modified_or_hash": "1776962296087:7c80faa3b7cb"
     },
     {
       "stable_id": "file__tests__unit__admin-notification-funnel-spec-ts",
@@ -14573,7 +14509,7 @@
       "likely_broad_signoff_relevant": false,
       "dataconnect_related": false,
       "functions_related": false,
-      "last_modified_or_hash": "1776389664255:7860a87f1a04"
+      "last_modified_or_hash": "1776962171969:ed360a1c59ed"
     },
     {
       "stable_id": "file__tests__unit__admin-overview-users-spec-ts",
@@ -14621,7 +14557,23 @@
       "likely_broad_signoff_relevant": false,
       "dataconnect_related": false,
       "functions_related": false,
-      "last_modified_or_hash": "1776774664740:121774a24c79"
+      "last_modified_or_hash": "1776975088588:3b8c1d00b19c"
+    },
+    {
+      "stable_id": "file__tests__unit__admin-parity-spec-ts",
+      "path": "tests/unit/admin-parity.spec.ts",
+      "file_class": "tests",
+      "surface_category": "tests",
+      "generated": false,
+      "evidence_only": false,
+      "runtime_critical": false,
+      "workflow_guidance": false,
+      "governance_artifact": false,
+      "likely_shared_helper": false,
+      "likely_broad_signoff_relevant": false,
+      "dataconnect_related": false,
+      "functions_related": false,
+      "last_modified_or_hash": "1776962088557:d60b2b0dc6a0"
     },
     {
       "stable_id": "file__tests__unit__admin-roster-route-spec-ts",
@@ -14653,7 +14605,7 @@
       "likely_broad_signoff_relevant": false,
       "dataconnect_related": false,
       "functions_related": false,
-      "last_modified_or_hash": "1775720395506:9f228c02c49d"
+      "last_modified_or_hash": "1776962296075:edf8d9c264fe"
     },
     {
       "stable_id": "file__tests__unit__admin-task-pipeline-spec-ts",
@@ -14672,8 +14624,8 @@
       "last_modified_or_hash": "1775770658489:73a541bbb889"
     },
     {
-      "stable_id": "file__tests__unit__admin-ui-chart-health-route-spec-ts",
-      "path": "tests/unit/admin-ui-chart-health-route.spec.ts",
+      "stable_id": "file__tests__unit__admin-user-commerce-spec-ts",
+      "path": "tests/unit/admin-user-commerce.spec.ts",
       "file_class": "tests",
       "surface_category": "tests",
       "generated": false,
@@ -14685,11 +14637,11 @@
       "likely_broad_signoff_relevant": false,
       "dataconnect_related": false,
       "functions_related": false,
-      "last_modified_or_hash": "1775720379272:65c0be8dd256"
+      "last_modified_or_hash": "1776912711461:890611267f94"
     },
     {
-      "stable_id": "file__tests__unit__admin-ui-chart-health-spec-ts",
-      "path": "tests/unit/admin-ui-chart-health.spec.ts",
+      "stable_id": "file__tests__unit__admin-user-metrics-spec-ts",
+      "path": "tests/unit/admin-user-metrics.spec.ts",
       "file_class": "tests",
       "surface_category": "tests",
       "generated": false,
@@ -14701,7 +14653,7 @@
       "likely_broad_signoff_relevant": false,
       "dataconnect_related": false,
       "functions_related": false,
-      "last_modified_or_hash": "1776774645493:b1adcf9ce724"
+      "last_modified_or_hash": "1776962088576:8bee8a870fb7"
     },
     {
       "stable_id": "file__tests__unit__admin-user-username-route-spec-ts",
@@ -15645,7 +15597,7 @@
       "likely_broad_signoff_relevant": false,
       "dataconnect_related": false,
       "functions_related": false,
-      "last_modified_or_hash": "1775660874644:032c002c1116"
+      "last_modified_or_hash": "1776912210110:5be5c8cbf652"
     },
     {
       "stable_id": "file__tests__unit__gumdrop-ledger-spec-ts",
@@ -15741,7 +15693,7 @@
       "likely_broad_signoff_relevant": false,
       "dataconnect_related": false,
       "functions_related": false,
-      "last_modified_or_hash": "1774650971265:dbe882a3fc8f"
+      "last_modified_or_hash": "1776912226509:12f1608b0e14"
     },
     {
       "stable_id": "file__tests__unit__lib__telemetry-spec-ts",
@@ -16657,27 +16609,27 @@
     }
   ],
   "counts": {
-    "total": 1040,
+    "total": 1037,
     "byDomain": [
       {
         "domainClass": "tests",
-        "count": 193
+        "count": 196
       },
       {
         "domainClass": "other",
         "count": 123
       },
       {
+        "domainClass": "shared_helper",
+        "count": 107
+      },
+      {
         "domainClass": "app_route",
         "count": 106
       },
       {
-        "domainClass": "shared_helper",
-        "count": 103
-      },
-      {
         "domainClass": "component",
-        "count": 91
+        "count": 93
       },
       {
         "domainClass": "server_helper",
@@ -16688,12 +16640,12 @@
         "count": 60
       },
       {
-        "domainClass": "admin_surface",
-        "count": 49
+        "domainClass": "repo_tooling",
+        "count": 39
       },
       {
-        "domainClass": "repo_tooling",
-        "count": 38
+        "domainClass": "admin_surface",
+        "count": 36
       },
       {
         "domainClass": "functions_runtime",
@@ -16708,12 +16660,12 @@
         "count": 18
       },
       {
-        "domainClass": "hook",
+        "domainClass": "root_config",
         "count": 16
       },
       {
-        "domainClass": "root_config",
-        "count": 16
+        "domainClass": "hook",
+        "count": 15
       },
       {
         "domainClass": "agent_index",
@@ -16721,7 +16673,7 @@
       },
       {
         "domainClass": "root_misc",
-        "count": 13
+        "count": 14
       },
       {
         "domainClass": "agent_state",
@@ -16775,19 +16727,19 @@
     "byPrefix": [
       {
         "prefix": "src/app",
-        "count": 215
+        "count": 202
       },
       {
         "prefix": "src/components",
-        "count": 91
+        "count": 93
       },
       {
         "prefix": "src/hooks",
-        "count": 16
+        "count": 15
       },
       {
         "prefix": "src/lib",
-        "count": 182
+        "count": 186
       },
       {
         "prefix": "src/lib/server",
@@ -16799,11 +16751,11 @@
       },
       {
         "prefix": "scripts",
-        "count": 56
+        "count": 57
       },
       {
         "prefix": "tests",
-        "count": 193
+        "count": 196
       },
       {
         "prefix": "agent/index",

@@ -8,6 +8,7 @@ import {
     onSnapshot,
     orderBy,
     query,
+    where,
 } from "firebase/firestore";
 
 import type { AdminAiDebugSummary } from "@/lib/ai-debug-assistant";
@@ -88,6 +89,7 @@ export function useAdminAiAssistantRealtime(summary: AdminAiDebugSummary | null 
 
         const diagnosticsQuery = query(
             collection(db, ADMIN_AI_DEBUG_SERVER_DIAGNOSTICS_COLLECTION),
+            where("channel", "==", "ai"),
             orderBy("createdAtMs", "desc"),
             limit(12),
         );

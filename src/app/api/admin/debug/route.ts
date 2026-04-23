@@ -41,7 +41,6 @@ import { CREATOR_SPEND_TRANSACTION_TYPES, getTransactionBadgeLabel } from "@/lib
 import { buildAdminPanelSystemLogs, syncAdminPanelSystemLogs } from "@/lib/server/admin-panel-system-logs";
 import { buildCreatorOnboardingDiagnostics } from "@/lib/server/creator-onboarding-diagnostics";
 import { CREATOR_ONBOARDING_COLLECTION, CREATOR_REVIEW_QUEUE_COLLECTION } from "@/lib/server/creator-onboarding";
-import { listAdminUiChartHealth } from "@/lib/server/admin-ui-chart-health";
 import { listRouteRuntimeHealth, recordRouteRuntimeSample } from "@/lib/server/route-runtime-health";
 import {
     listNotificationDispatchOutcomes,
@@ -329,8 +328,7 @@ export async function GET(request: NextRequest) {
             adminDb.collection(CREATOR_REVIEW_QUEUE_COLLECTION).get(),
         ]);
 
-        const [analyticsChartHealth, routeRuntimeHealth, runtimeWarnings, queueJobHeartbeats, notificationDispatchOutcomes, behavioralSnapshotStatus, behavioralDrops, analyticsTruthRecovery, analyticsTruthDrops, analyticsTruthUsers, analyticsTruthRepairs] = await Promise.all([
-            listAdminUiChartHealth(),
+        const [routeRuntimeHealth, runtimeWarnings, queueJobHeartbeats, notificationDispatchOutcomes, behavioralSnapshotStatus, behavioralDrops, analyticsTruthRecovery, analyticsTruthDrops, analyticsTruthUsers, analyticsTruthRepairs] = await Promise.all([
             listRouteRuntimeHealth(),
             listRuntimeWarnings(80),
             listQueueJobHeartbeats(),
@@ -342,16 +340,7 @@ export async function GET(request: NextRequest) {
             listAnalyticsTruthUsers(12),
             listAnalyticsTruthRepairs(20),
         ]);
-        const analyticsChartHealthSummary = analyticsChartHealth.reduce((summary, item) => ({
-            total: summary.total + 1,
-            warn: summary.warn + (item.status === "warn" ? 1 : 0),
-            fail: summary.fail + (item.status === "fail" ? 1 : 0),
-        }), {
-            total: 0,
-            warn: 0,
-            fail: 0,
-        });
-        const routeRuntimeHealthSummary = summarizeRouteRuntimeHealth(routeRuntimeHealth);
+                const routeRuntimeHealthSummary = summarizeRouteRuntimeHealth(routeRuntimeHealth);
         const queueJobHeartbeatSummary = queueJobHeartbeats.reduce((summary, entry) => {
             const lastTouch = Math.max(
                 toNumber(entry.completedAt),
@@ -948,9 +937,7 @@ export async function GET(request: NextRequest) {
             creatorSpendViolationsLast7d: creatorSpendParity.restrictedSpendViolationCount,
             opsHealth,
             orchestration: orchestration.summary,
-            chartHealth: analyticsChartHealth,
-            routeRuntimeHealth,
-        });
+                    });
         await syncAdminPanelSystemLogs(panelSystemLogs);
 
         return finalize(NextResponse.json({
@@ -996,10 +983,7 @@ export async function GET(request: NextRequest) {
                 rolloutSamples: rolloutSamples.length,
                 rolloutSampleGeneratedAtMs: rolloutSampleSnapshot.generatedAtMs,
                 releaseEntries: changeLog.length,
-                adminUiChartsReported: analyticsChartHealth.length,
-                adminUiChartWarnings: analyticsChartHealth.filter((item) => item.status === "warn").length,
-                adminUiChartFailures: analyticsChartHealth.filter((item) => item.status === "fail").length,
-                routeRuntimeHealthTracked: routeRuntimeHealth.length,
+                                                                routeRuntimeHealthTracked: routeRuntimeHealth.length,
                 routeRuntimeHealthReported: Math.max(0, routeRuntimeHealth.length - routeRuntimeHealthSummary.unobserved),
                 routeRuntimeHealthWarnings: routeRuntimeHealthSummary.warn,
                 routeRuntimeHealthFailures: routeRuntimeHealthSummary.fail,
@@ -1057,7 +1041,6 @@ export async function GET(request: NextRequest) {
             opsHealth,
             orchestration,
             panelSystemLogs,
-            analyticsChartHealth,
             routeRuntimeHealth,
             runtimeWarnings,
             queueJobHeartbeats,
@@ -1075,18 +1058,15 @@ export async function GET(request: NextRequest) {
                 fallbackSource: "panel_system_logs",
                 freshnessTimestamp: Math.max(
                     routeRuntimeHealth.reduce((latest, item) => Math.max(latest, Number(item.updatedAtMs) || 0), 0),
-                    analyticsChartHealth.reduce((latest, item) => Math.max(latest, Number(item.updatedAtMs) || 0), 0),
-                ),
+                                    ),
                 degradedReason: routeRuntimeHealthSummary.fail > 0
                     ? `${routeRuntimeHealthSummary.fail} route runtime checks are failed`
-                    : analyticsChartHealthSummary.fail > 0
-                        ? `${analyticsChartHealthSummary.fail} admin chart health checks are failed`
-                        : runtimeWarningSummary.failed > 0
+                                            : runtimeWarningSummary.failed > 0
                             ? `${runtimeWarningSummary.failed} runtime warnings are failed`
                             : null,
-                status: routeRuntimeHealthSummary.fail > 0 || analyticsChartHealthSummary.fail > 0
+                status: routeRuntimeHealthSummary.fail > 0 
                     ? "failed"
-                    : routeRuntimeHealthSummary.warn > 0 || analyticsChartHealthSummary.warn > 0 || runtimeWarningSummary.failed > 0
+                    : routeRuntimeHealthSummary.warn > 0  || runtimeWarningSummary.failed > 0
                         ? "degraded"
                         : routeRuntimeHealthSummary.stale > 0
                             ? "stale"
@@ -1094,9 +1074,7 @@ export async function GET(request: NextRequest) {
                 countComposition: {
                     routeWarnings: routeRuntimeHealthSummary.warn,
                     routeFailures: routeRuntimeHealthSummary.fail,
-                    chartWarnings: analyticsChartHealthSummary.warn,
-                    chartFailures: analyticsChartHealthSummary.fail,
-                    runtimeWarnings: runtimeWarningSummary.total,
+                                                            runtimeWarnings: runtimeWarningSummary.total,
                 },
             }),
             adminVerification: [
@@ -1124,27 +1102,7 @@ export async function GET(request: NextRequest) {
                         stale: routeRuntimeHealthSummary.stale,
                     },
                 }),
-                buildServerAdminModuleVerification({
-                    module: "admin_debug_chart_health",
-                    canonicalSource: "admin_ui_chart_health",
-                    fallbackSource: "panel_system_logs",
-                    freshnessTimestamp: analyticsChartHealth.reduce((latest, item) => Math.max(latest, Number(item.updatedAtMs) || 0), 0),
-                    degradedReason: analyticsChartHealthSummary.fail > 0
-                        ? `${analyticsChartHealthSummary.fail} chart health surfaces are failed`
-                        : analyticsChartHealthSummary.warn > 0
-                            ? `${analyticsChartHealthSummary.warn} chart health surfaces are degraded`
-                            : null,
-                    status: analyticsChartHealthSummary.fail > 0
-                        ? "failed"
-                        : analyticsChartHealthSummary.warn > 0
-                            ? "degraded"
-                            : "live",
-                    countComposition: {
-                        tracked: analyticsChartHealth.length,
-                        warn: analyticsChartHealthSummary.warn,
-                        fail: analyticsChartHealthSummary.fail,
-                    },
-                }),
+                
             ],
         }));
     } catch (error) {

@@ -8,7 +8,6 @@ vi.mock("@/lib/server/route-diagnostics", () => ({
     recordRouteWarning: vi.fn(),
 }));
 
-import { buildAdminUiChartHealthItem } from "@/lib/admin-ui-chart-health";
 import { buildAdminPanelSystemLogs } from "@/lib/server/admin-panel-system-logs";
 import type { RouteRuntimeHealthItem } from "@/lib/route-runtime-health";
 
@@ -33,7 +32,7 @@ describe("buildAdminPanelSystemLogs", () => {
             releaseEntryCount: 3,
             creatorSpendViolationsLast7d: 0,
             opsHealth: {
-                score: 96,
+                canonicalState: { status: "Live" },
                 runtime: {
                     gaPropertyConfigured: true,
                     vapidConfigured: true,
@@ -81,34 +80,7 @@ describe("buildAdminPanelSystemLogs", () => {
                 lowConfidenceEvents: 0,
                 recommendationReady: 0,
             },
-            chartHealth: [
-                buildAdminUiChartHealthItem({
-                    key: "dashboard.platform_pulse",
-                    title: "Platform pulse",
-                    page: "dashboard",
-                    category: "overview",
-                    source: "overview_snapshot",
-                    updatedAtMs: NOW_MS - 1000,
-                    nowMs: NOW_MS,
-                    hasLoaded: true,
-                    hasData: true,
-                    healthySummary: "Loaded.",
-                    emptySummary: "Empty.",
-                }),
-                buildAdminUiChartHealthItem({
-                    key: "analytics.operations.live_pulse",
-                    title: "Live Pulse",
-                    page: "analytics",
-                    category: "operations",
-                    source: "mixed_client_live",
-                    updatedAtMs: NOW_MS - 1000,
-                    nowMs: NOW_MS,
-                    hasLoaded: true,
-                    hasData: false,
-                    healthySummary: "Loaded.",
-                    emptySummary: "No live pulse.",
-                }),
-            ],
+            
         });
 
         const overviewLog = logs.find((entry) => entry.id === "analytics.overview_chart_health");
@@ -197,7 +169,7 @@ describe("buildAdminPanelSystemLogs", () => {
             releaseEntryCount: 3,
             creatorSpendViolationsLast7d: 0,
             opsHealth: {
-                score: 96,
+                canonicalState: { status: "Live" },
                 runtime: {
                     gaPropertyConfigured: true,
                     vapidConfigured: true,
@@ -276,7 +248,7 @@ describe("buildAdminPanelSystemLogs", () => {
             releaseEntryCount: 3,
             creatorSpendViolationsLast7d: 0,
             opsHealth: {
-                score: 96,
+                canonicalState: { status: "Live" },
                 runtime: {
                     gaPropertyConfigured: true,
                     vapidConfigured: true,
@@ -375,7 +347,7 @@ describe("buildAdminPanelSystemLogs", () => {
             releaseEntryCount: 3,
             creatorSpendViolationsLast7d: 0,
             opsHealth: {
-                score: 96,
+                canonicalState: { status: "Live" },
                 runtime: {
                     gaPropertyConfigured: true,
                     vapidConfigured: true,

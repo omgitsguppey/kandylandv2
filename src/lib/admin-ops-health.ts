@@ -89,20 +89,17 @@ export interface AdminOpsHealthMaterializerSummary {
   fail: number;
 }
 
-export interface AdminOpsHealthScoreBreakdown {
-  runtimePenalty: number;
-  diagnosticPenalty: number;
-  pipelinePenalty: number;
-  materializerPenalty: number;
-  totalPenalty: number;
+export interface AdminOpsHealthCanonicalState {
+  status: "Live" | "Degraded" | "Partial" | "Unavailable";
+  reason?: string;
 }
 
 export interface AdminOpsHealth {
-  score: number;
+  canonicalState: AdminOpsHealthCanonicalState;
   runtime: AdminOpsHealthRuntime;
   diagnostics: AdminOpsHealthDiagnostics;
   pipeline: AdminOpsHealthPipeline;
   materializers: AdminOpsHealthMaterializerItem[];
   materializerSummary?: AdminOpsHealthMaterializerSummary;
-  scoreBreakdown?: AdminOpsHealthScoreBreakdown;
+  
 }

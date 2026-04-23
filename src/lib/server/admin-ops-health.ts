@@ -429,35 +429,6 @@ export function buildAdminOpsHealth(input: {
   const activeDiagnosticIssueClusterCount = countDiagnosticIssueClustersWithinWindow(diagnostics, nowMs, ACTIVE_DIAGNOSTIC_WINDOW_MS);
   const recentDiagnosticIssueClusterCount = countDiagnosticIssueClustersWithinWindow(diagnostics, nowMs, RECENT_DIAGNOSTIC_WINDOW_MS);
   const pipelineStatus = getPipelineStatus(nowMs, lastPipelineEntry?.lastFailureAtMs || 0);
-  const recentDiagnosticPenalty = Math.min(
-    20,
-    (activeDiagnosticIssueClusterCount * 2)
-      + Math.max(0, recentDiagnosticIssueClusterCount - activeDiagnosticIssueClusterCount),
-  );
-  const pipelinePenalty = pipelineStatus === "fail"
-    ? 10
-    : pipelineStatus === "warn"
-      ? 4
-      : 0;
-  const materializerPenalty = materializers.reduce((sum, materializer) => {
-    if (materializer.status === "fail") {
-      return sum + 6;
-    }
-    if (materializer.status === "warn") {
-      return sum + 2;
-    }
-    return sum;
-  }, 0);
-  const runtimePenalty = runtimeWarnings.length * 4;
-  const totalPenalty = runtimePenalty + pipelinePenalty + recentDiagnosticPenalty + materializerPenalty;
-
-  const score = Math.max(
-    0,
-    Math.min(
-      100,
-      100 - totalPenalty,
-    ),
-  );
   const materializerSummary = {
     total: materializers.length,
     healthy: materializers.filter((item) => item.status === "healthy").length,
@@ -465,8 +436,28 @@ export function buildAdminOpsHealth(input: {
     fail: materializers.filter((item) => item.status === "fail").length,
   };
 
+  let canonicalStatus: "Live" | "Degraded" | "Partial" | "Unavailable" = "Live";
+  let canonicalReason: string | undefined = undefined;
+
+  if (pipelineStatus === "fail" || materializerSummary.fail > 0 || runtimeWarnings.length > 2) {
+    canonicalStatus = "Degraded";
+    canonicalReason = `Pipeline failing, ${materializerSummary.fail} writers failed, or critical runtime warnings.`;
+  } else if (pipelineStatus === "warn" || materializerSummary.warn > 0 || activeDiagnosticIssueClusterCount > 5) {
+    canonicalStatus = "Partial";
+    canonicalReason = `Pipeline degraded, ${materializerSummary.warn} writers warning, or elevated active issues.`;
+  } else if (runtimeWarnings.length > 0) {
+    canonicalStatus = "Partial";
+    canonicalReason = `Minor runtime configuration warnings detected.`;
+  } else if (activeDiagnosticIssueClusterCount > 0) {
+    canonicalStatus = "Live";
+    canonicalReason = `Live with ${activeDiagnosticIssueClusterCount} active issue clusters.`;
+  }
+
   return {
-    score,
+    canonicalState: {
+      status: canonicalStatus,
+      reason: canonicalReason,
+    },
     runtime: {
       gaPropertyConfigured: Boolean(process.env.GA_PROPERTY_ID?.trim()),
       vapidConfigured: Boolean(runtimeSnapshot.vapidKey),
@@ -511,12 +502,5 @@ export function buildAdminOpsHealth(input: {
     },
     materializers,
     materializerSummary,
-    scoreBreakdown: {
-      runtimePenalty,
-      diagnosticPenalty: recentDiagnosticPenalty,
-      pipelinePenalty,
-      materializerPenalty,
-      totalPenalty,
-    },
   };
 }

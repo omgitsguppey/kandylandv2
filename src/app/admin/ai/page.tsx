@@ -3,6 +3,7 @@
 import React from "react";
 import { Power, RefreshCw } from "lucide-react";
 import { AdminPageHeader } from "@/components/Admin/AdminPageHeader";
+import { AdminModuleVerificationCard } from "@/components/Admin/AdminModuleVerificationCard";
 import { AdminAiDescriptionOperations } from "@/components/Admin/AdminAiDescriptionOperations";
 import { Button } from "@/components/ui/Button";
 import { PageViewEvent } from "@/components/Analytics/PageViewEvent";
@@ -66,6 +67,15 @@ export default function AIAdminPage() {
                     )}
                 />
 
+                {state.data?.verification ? (
+                    <div className="mb-4">
+                        <AdminModuleVerificationCard 
+                            verification={state.data.verification} 
+                            title="Cover Ops Verification" 
+                            description="Source-of-truth diagnostic for the AI Cover Ops pipeline."
+                        />
+                    </div>
+                ) : null}
                 <section className="grid gap-3 sm:grid-cols-2 xl:grid-cols-4">
                     <MetricCard
                         label="Runtime"

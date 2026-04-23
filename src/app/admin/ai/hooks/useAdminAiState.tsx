@@ -66,6 +66,7 @@ export type AdminAiDropCoverDashboard = {
     promptPolicy: AdminAiDropCoverPromptPolicy;
     promptPolicyHistory: AdminAiDropCoverPromptPolicyHistoryEntry[];
     reviewGallery: AdminAiDropCoverReviewGalleryItem[];
+    verification?: import("@/lib/admin-parity").AdminModuleVerification;
 };
 
 export type AdminUiPreferencesResponse = {

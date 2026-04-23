@@ -18,6 +18,7 @@ import {
 
 import { cn } from "@/lib/utils";
 import { AdminPageHeader } from "@/components/Admin/AdminPageHeader";
+import { AdminModuleVerificationCard } from "@/components/Admin/AdminModuleVerificationCard";
 import {
   MetricCard,
 } from "@/components/Admin/Analytics/AdminAnalyticsPrimitives";
@@ -49,12 +50,9 @@ const AdminAnalyticsCommerceTab = dynamic(
 const AdminTaskAndNotificationModules = dynamic(
   () => import("@/components/Admin/Analytics/AdminTaskAndNotificationModules").then((module) => ({ default: module.AdminTaskAndNotificationModules })),
 );
-const AdminTruthSurfaces = dynamic(
-  () => import("../AdminTruthSurfaces").then((module) => ({ default: module.AdminTruthSurfaces })),
-);
 export default function AdminAnalyticsPage() {
     const state = useAdminAnalyticsState();
-  const { range, activeViewerFilter, viewerUserFilter, showHistoricalEmptyState, blockingAnalyticsError, mobileShare, mobileUsers, commerce, funnel, analyticsWarmState, liveSnapshotLabel, historicalSnapshotLabel, isBackgroundSyncing, analyticsSectionHealthSummary, needsSetup, activeTab, setActiveTab, liveLoading, historicalLoading, isPrimingAnalytics, liveResponse, backgroundAnalyticsIssues, analyticsSectionHealth, liveFeedStatus, liveFeedDetail, liveGuestActiveCount } = state;
+  const { range, activeViewerFilter, viewerUserFilter, showHistoricalEmptyState, blockingAnalyticsError, mobileShare, mobileUsers, commerce, funnel, analyticsWarmState, liveSnapshotLabel, historicalSnapshotLabel, isBackgroundSyncing, needsSetup, activeTab, setActiveTab, liveLoading, historicalLoading, isPrimingAnalytics, liveResponse, backgroundAnalyticsIssues, liveFeedStatus, liveFeedDetail, liveGuestActiveCount } = state;
   const handleClearAllFilters = state.clearAllFilters ?? (() => {
     reportClientIssue({
       channel: "runtime",
@@ -130,55 +128,9 @@ export default function AdminAnalyticsPage() {
       </div>
 
       <div className="sticky top-[8.6rem] z-20 space-y-2.5 rounded-[1.4rem] border border-white/10 bg-black/65 p-2.5 backdrop-blur-xl md:top-24">
-        <div className="flex flex-wrap items-center gap-2 rounded-2xl border border-white/10 bg-white/[0.03] px-3 py-2">
-          <span className="text-[10px] font-bold uppercase tracking-[0.14em] text-gray-500">
-            Sync
-          </span>
-          <span className="text-xs font-semibold text-white">
-            {analyticsWarmState}
-          </span>
-          <span className="rounded-full border border-white/10 bg-black/30 px-2 py-1 text-[10px] font-bold uppercase tracking-[0.14em] text-gray-300">
-            Realtime {liveFeedStatus}
-          </span>
-          <span className="rounded-full border border-white/10 bg-black/30 px-2 py-1 text-[10px] font-bold uppercase tracking-[0.14em] text-gray-300">
-            Live {liveSnapshotLabel}
-          </span>
-          <span className="rounded-full border border-white/10 bg-black/30 px-2 py-1 text-[10px] font-bold uppercase tracking-[0.14em] text-gray-300">
-            History {historicalSnapshotLabel}
-          </span>
-          {isBackgroundSyncing ? (
-            <span className="inline-flex items-center gap-1 rounded-full border border-brand-purple/20 bg-brand-purple/10 px-2 py-1 text-[10px] font-bold uppercase tracking-[0.14em] text-brand-purple">
-              <Loader2 className="h-3 w-3 animate-spin" />
-              Syncing
-            </span>
-          ) : null}
-          <span className="text-xs text-gray-400">
-            {liveFeedDetail}
-          </span>
-        </div>
+        
 
-        <div className="flex flex-wrap items-center gap-2 rounded-2xl border border-white/10 bg-white/[0.03] px-3 py-2">
-          <span className="text-[10px] font-bold uppercase tracking-[0.14em] text-gray-500">
-            Chart health
-          </span>
-          <span className="rounded-full border border-emerald-400/15 bg-emerald-500/10 px-2 py-1 text-[10px] font-bold uppercase tracking-[0.14em] text-emerald-200">
-            {analyticsSectionHealthSummary.healthy} healthy
-          </span>
-          {analyticsSectionHealthSummary.warn > 0 ? (
-            <span className="rounded-full border border-amber-400/20 bg-amber-500/10 px-2 py-1 text-[10px] font-bold uppercase tracking-[0.14em] text-amber-100">
-              {analyticsSectionHealthSummary.warn} warn
-            </span>
-          ) : null}
-          {analyticsSectionHealthSummary.fail > 0 ? (
-            <span className="rounded-full border border-red-400/20 bg-red-500/10 px-2 py-1 text-[10px] font-bold uppercase tracking-[0.14em] text-red-100">
-              {analyticsSectionHealthSummary.fail} fail
-            </span>
-          ) : null}
-          <span className="text-xs text-gray-400">
-            {analyticsSectionHealthSummary.total} sections reporting from live
-            admin analytics UI
-          </span>
-        </div>
+        
 
         <div className="grid grid-cols-2 gap-2 md:grid-cols-4">
           {TAB_OPTIONS.map((tab) => {
@@ -310,8 +262,7 @@ export default function AdminAnalyticsPage() {
           formatPercent={state.formatPercent}
         />
 
-        <AdminTruthSurfaces />
-</main>
+        </main>
     </div>
   );
 }

@@ -6,8 +6,6 @@ import { collection, limit, onSnapshot, orderBy, query } from "firebase/firestor
 
 import type { AdminOverviewResponse, AdminOverviewTransactionRecord } from "@/lib/admin-overview";
 import { paginateOverviewItems } from "@/lib/admin-overview";
-import { buildAdminUiChartHealthItem } from "@/lib/admin-ui-chart-health";
-import { useAdminUiChartHealthReporter } from "@/hooks/useAdminUiChartHealthReporter";
 import { useNow } from "@/hooks/useNow";
 import { db } from "@/lib/firebase-data";
 import { getTransactionBadgeLabel, normalizeTransactionRecord } from "@/lib/transaction-normalizers";
@@ -75,29 +73,10 @@ export function RecentTransactionsPanel({ transactions: fallbackTransactions, tr
 
         return liveFeedErrorAtMs;
     }, [liveFeedErrorAtMs, transactions]);
-    const chartHealth = useMemo(() => buildAdminUiChartHealthItem({
-        key: "dashboard.recent_transactions",
-        title: "Recent transactions",
-        page: "dashboard",
-        category: "overview",
-        source: isLiveFeedActive ? "realtime_analytics" : "overview_snapshot",
-        updatedAtMs: chartUpdatedAtMs,
-        hasLoaded: fallbackTransactions.length > 0 || isLiveFeedActive || Boolean(liveFeedError),
-        hasData: transactions.length > 0,
-        blockingIssues: liveFeedError && transactions.length === 0 ? [liveFeedError] : [],
-        backgroundIssues: liveFeedError && transactions.length > 0 ? [liveFeedError] : [],
-        healthySummary: isLiveFeedActive
-            ? "Recent transactions are hydrating from the live Firestore feed."
-            : "Recent transactions are loaded from the overview fallback snapshot.",
-        emptySummary: "No recent transactions are available in the current admin window.",
-        degradedAction: "Review the transactions listener or the fallback overview route before trusting this feed as current.",
-    }), [chartUpdatedAtMs, fallbackTransactions.length, isLiveFeedActive, liveFeedError, transactions.length]);
-    const paginated = useMemo(
+        const paginated = useMemo(
         () => paginateOverviewItems(transactions, page, PAGE_SIZE),
         [page, transactions],
     );
-
-    useAdminUiChartHealthReporter([chartHealth]);
 
     useEffect(() => {
         const recentTransactionsQuery = query(
@@ -144,12 +123,7 @@ export function RecentTransactionsPanel({ transactions: fallbackTransactions, tr
                         Overview fallback, polled every 5s
                     </span>
                 )}
-                {chartHealth.status !== "healthy" ? (
-                    <span className={`rounded-full border px-2.5 py-1 ${chartHealth.status === "fail" ? "border-red-400/20 bg-red-500/10 text-red-100" : "border-amber-400/20 bg-amber-500/10 text-amber-100"}`}>
-                        {chartHealth.hydrationState === "failed" ? "Listener failed" : chartHealth.hydrationState === "empty" ? "Feed empty" : "Feed degraded"}
-                    </span>
-                ) : null}
-                <span className="text-xs text-gray-500">{truthNote}</span>
+                                <span className="text-xs text-gray-500">{truthNote}</span>
             </div>
 
             {transactions.length === 0 ? (

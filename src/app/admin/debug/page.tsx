@@ -16,22 +16,16 @@ import {
 import { toast } from "sonner";
 
 import { AdminPageHeader } from "@/components/Admin/AdminPageHeader";
-import { AdminTruthSurfaces } from '../AdminTruthSurfaces';
+import { AdminModuleVerificationCard } from "@/components/Admin/AdminModuleVerificationCard";
 import { PageViewEvent } from "@/components/Analytics/PageViewEvent";
 import { Button } from "@/components/ui/Button";
 import { useAuth } from "@/context/AuthContext";
 import { AdminAiAssistantRealtimePanel } from "./components/AdminAiAssistantRealtimePanel";
 import { useAdminAiAssistantRealtime } from "./hooks/useAdminAiAssistantRealtime";
 import { useAdminOverview } from "@/hooks/useAdminOverview";
-import { useAdminUiChartHealthReporter } from "@/hooks/useAdminUiChartHealthReporter";
 import { useAdminPollingSWR } from "@/hooks/useAdminPollingSWR";
 import { useCompactViewport } from "@/hooks/useCompactViewport";
 import type { AdminAiDebugSummary } from "@/lib/ai-debug-assistant";
-import {
-    buildAdminUiChartHealthItem,
-    getAdminUiChartHealthFreshness,
-    summarizeAdminUiChartHealth,
-} from "@/lib/admin-ui-chart-health";
 import {
     ADMIN_DEBUG_DEFAULT_TAB,
     ADMIN_DEBUG_ROUTE_RUNTIME_FILTER_OPTIONS,
@@ -123,9 +117,9 @@ function Pill({ label, value, tone = "neutral" }: { label: string; value: string
 
 function StatCard({ label, value, meta }: { label: string; value: string | number; meta?: string }) {
     return (
-        <div className="rounded-[1.1rem] border border-white/10 bg-white/[0.04] p-3.5">
+        <div className="rounded-[1.1rem] border border-white/10 bg-white/[0.04] p-2.5">
             <p className="text-[11px] uppercase tracking-[0.18em] text-gray-400">{label}</p>
-            <div className="mt-1.5 text-[1.7rem] font-black text-white">{value}</div>
+            <div className="mt-1 text-[1.4rem] font-black text-white">{value}</div>
             {meta ? <p className="mt-1 text-[11px] text-gray-400">{meta}</p> : null}
         </div>
     );
@@ -151,7 +145,7 @@ function Section({
             <button
                 type="button"
                 onClick={() => setOpen((current) => !current)}
-                className="flex w-full items-start justify-between gap-3 px-3.5 py-3.5 text-left md:px-4"
+                className="flex w-full items-start justify-between gap-3 px-3 py-2.5 text-left"
                 aria-expanded={open}
             >
                 <div className="min-w-0">
@@ -163,7 +157,7 @@ function Section({
                     {open ? <ChevronUp className="h-4 w-4" /> : <ChevronDown className="h-4 w-4" />}
                 </div>
             </button>
-            {open ? <div className="border-t border-white/10 px-3.5 py-3.5 md:px-4">{children}</div> : null}
+            {open ? <div className="border-t border-white/10 px-3 py-2.5">{children}</div> : null}
         </section>
     );
 }
@@ -181,7 +175,7 @@ export default function DebugConsole() {
     const [activeTab, setActiveTab] = useState<DebugTabId>(ADMIN_DEBUG_DEFAULT_TAB);
     const [routeRuntimeFilter, setRouteRuntimeFilter] = useState<AdminDebugRouteRuntimeFilter>("all");
     const [aiAssistantEnabled, setAiAssistantEnabled] = useState(true);
-    const [aiAssistantModel, setAiAssistantModel] = useState("gemini-2.5-flash-lite");
+    const [aiAssistantModel, setAiAssistantModel] = useState("gemini-2.5-flash");
     const [savingAiAssistantSettings, setSavingAiAssistantSettings] = useState(false);
     const [savingDebugPreferences, setSavingDebugPreferences] = useState(false);
     const debugPreferencesHydratedRef = useRef(false);
@@ -271,15 +265,7 @@ export default function DebugConsole() {
         () => (data?.panelSystemLogs || []).filter((entry: any) => entry.status === "fail").length,
         [data?.panelSystemLogs],
     );
-    const analyticsChartHealth = useMemo(
-        () => data?.analyticsChartHealth || [],
-        [data?.analyticsChartHealth],
-    );
-    const analyticsChartHealthSummary = useMemo(
-        () => summarizeAdminUiChartHealth(analyticsChartHealth),
-        [analyticsChartHealth],
-    );
-    const routeRuntimeHealth = useMemo(
+            const routeRuntimeHealth = useMemo(
         () => data?.routeRuntimeHealth || [],
         [data?.routeRuntimeHealth],
     );
@@ -341,8 +327,6 @@ export default function DebugConsole() {
             (data?.stats?.orchestrationActionableRepairs ?? 0)
             + panelLogWarnCount
             + panelLogFailCount
-            + analyticsChartHealthSummary.warn
-            + analyticsChartHealthSummary.fail
             + routeRuntimeHealthSummary.warn
             + routeRuntimeHealthSummary.fail
             + routeRuntimeHealthSummary.stale
@@ -350,13 +334,12 @@ export default function DebugConsole() {
             + queueRuntimeSummary.jobHeartbeats.failed
             + queueRuntimeSummary.missingNotificationOutcomes
         ),
-        [analyticsChartHealthSummary.fail, analyticsChartHealthSummary.warn, data?.stats?.orchestrationActionableRepairs, panelLogFailCount, panelLogWarnCount, queueRuntimeSummary.jobHeartbeats.failed, queueRuntimeSummary.jobHeartbeats.stale, queueRuntimeSummary.missingNotificationOutcomes, routeRuntimeHealthSummary.fail, routeRuntimeHealthSummary.stale, routeRuntimeHealthSummary.warn],
+        [data?.stats?.orchestrationActionableRepairs, panelLogFailCount, panelLogWarnCount, queueRuntimeSummary.jobHeartbeats.failed, queueRuntimeSummary.jobHeartbeats.stale, queueRuntimeSummary.missingNotificationOutcomes, routeRuntimeHealthSummary.fail, routeRuntimeHealthSummary.stale, routeRuntimeHealthSummary.warn],
     );
     const freshestLoadedSignalAt = useMemo(() => {
         const timestamps = [
             ...recentTransactions.map((entry) => (typeof entry.timestamp === "number" ? entry.timestamp : 0)),
             ...(data?.panelSystemLogs || []).map((entry: any) => typeof entry.updatedAtMs === "number" ? entry.updatedAtMs : 0),
-            ...analyticsChartHealth.map((entry: any) => typeof entry.updatedAtMs === "number" ? entry.updatedAtMs : 0),
             ...routeRuntimeHealth.map((entry: any) => typeof entry.updatedAtMs === "number" ? entry.updatedAtMs : 0),
             ...queueJobHeartbeats.map((entry: any) => typeof entry.updatedAt === "number" ? entry.updatedAt : 0),
             ...runtimeWarnings.map((entry: any) => typeof entry.lastSeenAt === "number" ? entry.lastSeenAt : 0),
@@ -366,7 +349,7 @@ export default function DebugConsole() {
         ].filter((value) => Number.isFinite(value) && value > 0);
 
         return timestamps.length > 0 ? Math.max(...timestamps) : 0;
-    }, [aiDebugData?.generated_at, analyticsChartHealth, data?.opsHealth?.diagnostics?.recent, data?.panelSystemLogs, notificationDispatchOutcomes, queueJobHeartbeats, recentTransactions, routeRuntimeHealth, runtimeWarnings]);
+    }, [aiDebugData?.generated_at, data?.opsHealth?.diagnostics?.recent, data?.panelSystemLogs, notificationDispatchOutcomes, queueJobHeartbeats, recentTransactions, routeRuntimeHealth, runtimeWarnings]);
     const overviewDependencyUpdatedAt = useMemo(() => {
         const timestamps = recentTransactions
             .map((entry) => (typeof entry.timestamp === "number" ? entry.timestamp : 0))
@@ -399,75 +382,15 @@ export default function DebugConsole() {
         }
 
         setAiAssistantEnabled(aiDebugData.enabled !== false);
-        setAiAssistantModel(aiDebugData.configured_model || aiDebugData.model || "gemini-2.5-flash-lite");
+        setAiAssistantModel(aiDebugData.configured_model || aiDebugData.model || "gemini-2.5-flash");
     }, [aiDebugData]);
     const aiAssistantRealtime = useAdminAiAssistantRealtime(aiDebugData);
 
     const debugSurfaceHealth = useMemo(() => ([
-        buildAdminUiChartHealthItem({
-            key: "debug.console_snapshot",
-            title: "Debug console snapshot",
-            page: "debug",
-            category: "overview",
-            source: "overview_snapshot",
-            updatedAtMs: freshestLoadedSignalAt,
-            hasLoaded: Boolean(data) || Boolean(error),
-            loading: isLoading,
-            hasData: Boolean(data),
-            blockingIssues: error ? [error instanceof Error ? error.message : "Debug console snapshot failed to load."] : [],
-            healthySummary: "Primary debug snapshot is loaded from the canonical admin debug route.",
-            emptySummary: "The primary debug snapshot has not returned data yet.",
-        }),
-        buildAdminUiChartHealthItem({
-            key: "debug.overview_dependency",
-            title: "Overview dependency",
-            page: "debug",
-            category: "overview",
-            source: "overview_snapshot",
-            updatedAtMs: overviewDependencyUpdatedAt,
-            hasLoaded: Boolean(overviewData) || !overviewLoading,
-            loading: overviewLoading,
-            hasData: Boolean(overviewData),
-            healthySummary: "Admin overview dependency is loaded for recent transaction context.",
-            emptySummary: "Admin overview dependency returned no data for the debug console.",
-        }),
-        buildAdminUiChartHealthItem({
-            key: "debug.ai_assistant_summary",
-            title: "AI assistant summary",
-            page: "debug",
-            category: "operations",
-            source: "mixed_client_live",
-            updatedAtMs: aiDebugData?.generated_at ? Date.parse(aiDebugData.generated_at) : 0,
-            hasLoaded: Boolean(aiDebugData) || Boolean(aiDebugError),
-            loading: !aiDebugData && !aiDebugError,
-            hasData: Boolean(aiDebugData),
-            blockingIssues: aiDebugError ? [aiDebugError instanceof Error ? aiDebugError.message : "AI debug assistant is unavailable."] : [],
-            healthySummary: aiDebugData?.fallback_used
-                ? "AI assistant summary is loaded through the deterministic fallback path."
-                : "AI assistant summary is loaded from the live model path.",
-            emptySummary: "AI assistant summary has not returned data yet.",
-        }),
-        buildAdminUiChartHealthItem({
-            key: "debug.route_runtime_lane",
-            title: "Route runtime lane",
-            page: "debug",
-            category: "operations",
-            source: "overview_snapshot",
-            updatedAtMs: routeRuntimeLaneUpdatedAt,
-            hasLoaded: Boolean(data) || Boolean(error),
-            loading: isLoading,
-            hasData: routeRuntimeHealth.length > 0,
-            backgroundIssues: [
-                unseenRouteRuntimeCount > 0
-                    ? `${unseenRouteRuntimeCount} tracked routes have not produced a runtime sample yet.`
-                    : null,
-                routeRuntimeHealthSummary.stale > 0
-                    ? `${routeRuntimeHealthSummary.stale} tracked routes are stale and need a fresh sample.`
-                    : null,
-            ].filter((issue): issue is string => Boolean(issue)),
-            healthySummary: `${routeRuntimeHealth.length} tracked routes are visible in the debug runtime lane.`,
-            emptySummary: "No tracked route runtime entries are loaded yet.",
-        }),
+        
+        
+        
+        
     ]), [
         aiDebugData,
         aiDebugError,
@@ -483,8 +406,7 @@ export default function DebugConsole() {
         routeRuntimeHealthSummary.stale,
         unseenRouteRuntimeCount,
     ]);
-    useAdminUiChartHealthReporter(debugSurfaceHealth);
-    const aiStatusLabel = aiDebugError
+        const aiStatusLabel = aiDebugError
         ? "Unavailable"
         : !aiDebugData
             ? "Loading"
@@ -584,7 +506,7 @@ export default function DebugConsole() {
                 method: "PUT",
                 body: JSON.stringify({
                     enabled: aiAssistantEnabled,
-                    model: aiAssistantModel.trim() || "gemini-2.5-flash-lite",
+                    model: aiAssistantModel.trim() || "gemini-2.5-flash",
                 }),
             });
             const result = await response.json();
@@ -614,24 +536,8 @@ export default function DebugConsole() {
     };
 
     const renderTabControls = () => {
-        if (isCompactViewport) {
-            return (
-                <div className="rounded-[1.2rem] border border-white/10 bg-black/25 p-3">
-                    <label className="mb-2 block text-[11px] uppercase tracking-[0.18em] text-gray-400">Operator lane</label>
-                    <select
-                        value={activeTab}
-                        onChange={(event) => handleActiveTabChange(event.target.value as DebugTabId)}
-                        className="min-h-11 w-full rounded-[1rem] border border-white/10 bg-black/40 px-3 text-sm font-semibold text-white"
-                    >
-                        {DEBUG_TABS.map((tab) => <option key={tab.id} value={tab.id}>{tab.label}</option>)}
-                    </select>
-                    {savingDebugPreferences ? <p className="mt-2 text-xs text-gray-500">Saving debug preference...</p> : null}
-                </div>
-            );
-        }
-
         return (
-            <div className="flex flex-wrap gap-2">
+            <div className="flex w-full items-center gap-2 overflow-x-auto pb-2 scrollbar-hide">
                 {DEBUG_TABS.map((tab) => {
                     const Icon = tab.icon;
                     const active = activeTab === tab.id;
@@ -641,11 +547,11 @@ export default function DebugConsole() {
                             type="button"
                             onClick={() => handleActiveTabChange(tab.id)}
                             className={cn(
-                                "inline-flex items-center gap-2 rounded-full border px-4 py-2 text-sm font-semibold",
-                                active ? "border-brand-purple/40 bg-brand-purple/20 text-white" : "border-white/10 bg-white/5 text-gray-300"
+                                "inline-flex shrink-0 items-center gap-2 rounded-full border px-3.5 py-1.5 text-[13px] font-semibold transition-colors",
+                                active ? "border-brand-purple/40 bg-brand-purple/20 text-white" : "border-white/10 bg-white/5 text-gray-400 hover:bg-white/10 hover:text-white"
                             )}
                         >
-                            <Icon className="h-4 w-4" />
+                            <Icon className="h-3.5 w-3.5" />
                             {tab.label}
                         </button>
                     );
@@ -669,16 +575,14 @@ export default function DebugConsole() {
                 )}
             />
 
-            <AdminTruthSurfaces />
-
             {renderTabControls()}
 
             <div className="grid grid-cols-2 gap-3 md:grid-cols-3 xl:grid-cols-8">
-                <StatCard label="Health score" value={data?.opsHealth ? `${data.opsHealth.score}%` : "--"} meta={`${data?.opsHealth?.diagnostics?.activeIssueClusterCount || 0} active issue clusters | ${getPipelineStatusLabel(data?.opsHealth?.pipeline?.status)} pipeline | ${data?.opsHealth?.materializerSummary?.warn ?? 0} warn / ${data?.opsHealth?.materializerSummary?.fail ?? 0} fail writers`} />
+                <StatCard label="System Truth" value={data?.opsHealth?.canonicalState?.status || "--"} meta={data?.opsHealth?.canonicalState?.reason || "Awaiting canonical state"} />
                 <StatCard label="Pipeline active" value={activePipelineFailureCount} meta={`recent ${recentPipelineFailureCount} | sample ${sampledPipelineFailureCount} | ${data?.opsHealth?.pipeline?.status === "healthy" ? `no current incident in ${formatWindowHours(data?.opsHealth?.pipeline?.activeWindowMs)}` : data?.opsHealth?.pipeline?.lastFailureAt ? `last ${formatRelative(data.opsHealth.pipeline.lastFailureAt)}` : "missing last-failure timestamp"}`} />
                 <StatCard label="Task-issue users" value={data?.stats?.usersWithTaskIssues ?? "--"} meta={`${data?.stats?.runtimeUsersWithRefreshIssues ?? 0} sampled refresh warnings`} />
                 <StatCard label="Creator issues" value={data?.stats?.creatorOnboardingIssues ?? "--"} meta={`${data?.creatorOnboardingDiagnostics?.summary?.missingQueueCount ?? 0} missing queue links`} />
-                <StatCard label="Open actions" value={derivedActionCount} meta={`${data?.stats?.orchestrationActionableRepairs ?? 0} proposals + ${panelLogWarnCount + panelLogFailCount} panel log issues + ${analyticsChartHealthSummary.warn + analyticsChartHealthSummary.fail} chart issues + ${routeRuntimeHealthSummary.warn + routeRuntimeHealthSummary.fail + routeRuntimeHealthSummary.stale} route issues`} />
+                <StatCard label="Open actions" value={derivedActionCount} meta={`${data?.stats?.orchestrationActionableRepairs ?? 0} proposals + ${panelLogWarnCount + panelLogFailCount} panel log issues + ${routeRuntimeHealthSummary.warn + routeRuntimeHealthSummary.fail + routeRuntimeHealthSummary.stale} route issues`} />
                 <StatCard label="Route health" value={routeRuntimeHealthSummary.total ? `${routeRuntimeHealthSummary.fail}/${routeRuntimeHealthSummary.warn}/${routeRuntimeHealthSummary.stale}` : "--"} meta={routeRuntimeHealthSummary.total ? `${routeRuntimeHealthSummary.total} tracked | ${observedRouteRuntimeCount} observed | ${routeRuntimeHealthSummary.unobserved} unseen (no sample yet)` : "no route rollups yet"} />
                 <StatCard label="Freshest loaded sample" value={freshestLoadedSignalAt ? formatRelative(freshestLoadedSignalAt) : "--"} meta="derived from loaded diagnostics, panel logs, UI hydration reports, transactions, and AI status" />
                 <StatCard label="AI assistant" value={aiStatusLabel} meta={aiDebugData ? `${aiDebugData.configured_model} configured | ${aiAssistantRealtime.feedStatus} preflight lane | ${aiDebugData.runtime_ready ? "runtime ready" : "runtime unavailable"} | ${aiDebugData.latency_ms}ms` : aiDebugError ? "assistant unavailable" : "waiting for summary"} />
@@ -691,7 +595,7 @@ export default function DebugConsole() {
                 <div className="space-y-4">
                     <Section
                         title="System health now"
-                        subtitle="Loaded health score, current diagnostics, and sampled pipeline freshness."
+                        subtitle="Live canonical system truth, current diagnostics, and sampled pipeline freshness."
                         defaultOpen
                         summary={<><Pill label="Score" value={`${data?.opsHealth?.score ?? 0}%`} tone={(data?.opsHealth?.score ?? 0) >= 90 ? "good" : (data?.opsHealth?.score ?? 0) >= 70 ? "warn" : "bad"} /><Pill label="Pipeline" value={getPipelineStatusLabel(data?.opsHealth?.pipeline?.status)} tone={data?.opsHealth?.pipeline?.status === "fail" ? "bad" : data?.opsHealth?.pipeline?.status === "warn" ? "warn" : "good"} /><Pill label="Active diagnostics" value={(data?.opsHealth?.diagnostics?.activeErrorCount ?? 0) + (data?.opsHealth?.diagnostics?.activeWarnCount ?? 0)} tone={((data?.opsHealth?.diagnostics?.activeErrorCount ?? 0) + (data?.opsHealth?.diagnostics?.activeWarnCount ?? 0)) > 0 ? "warn" : "good"} /><Pill label="Writers" value={`${data?.opsHealth?.materializerSummary?.warn ?? 0}/${data?.opsHealth?.materializerSummary?.fail ?? 0}`} tone={((data?.opsHealth?.materializerSummary?.warn ?? 0) + (data?.opsHealth?.materializerSummary?.fail ?? 0)) > 0 ? "warn" : "good"} /><Pill label="Freshest loaded signal" value={freshestLoadedSignalAt ? formatRelative(freshestLoadedSignalAt) : "Not loaded"} /></>}
                     >
@@ -949,6 +853,36 @@ export default function DebugConsole() {
 
             {activeTab === "actions" ? (
                 <div className="space-y-4">
+                    <Section
+                        title="Task Issues Attribution"
+                        subtitle="Detailed provenance for users flagged with task issues in the telemetry sample."
+                        defaultOpen={(data?.assignmentIssues || []).length > 0}
+                        summary={<><Pill label="Impacted Users" value={(data?.assignmentIssues || []).length} tone={(data?.assignmentIssues || []).length > 0 ? "warn" : "good"} /></>}
+                    >
+                        <ScrollWrap>
+                            <div className="divide-y divide-white/10">
+                                {(data?.assignmentIssues || []).map((issue: any) => (
+                                    <div key={issue.uid} className="space-y-2 px-4 py-3">
+                                        <div className="flex flex-wrap items-start justify-between gap-2">
+                                            <div>
+                                                <p className="font-semibold text-white">{issue.username}</p>
+                                                <p className="text-xs text-gray-400">{issue.uid}</p>
+                                            </div>
+                                            <Pill label="Issues" value={issue.issueCount} tone="warn" />
+                                        </div>
+                                        <div className="mt-2 flex flex-wrap gap-2">
+                                            {(issue.issues || []).map((desc: string, i: number) => (
+                                                <Pill key={i} label="Diagnostic" value={desc} />
+                                            ))}
+                                        </div>
+                                    </div>
+                                ))}
+                                {(data?.assignmentIssues || []).length === 0 ? (
+                                    <div className="px-4 py-4 text-sm text-gray-300">No task assignment issues detected in the current sample.</div>
+                                ) : null}
+                            </div>
+                        </ScrollWrap>
+                    </Section>
                     <Section
                         title="Repairs available now"
                         subtitle="Open repair proposals that can be applied or dismissed."
@@ -1267,48 +1201,7 @@ export default function DebugConsole() {
                         </div>
                     </Section>
 
-                    <Section
-                        title="Admin UI chart hydration"
-                        subtitle="Latest client-reported health for admin dashboard, analytics, moderation, and debug surfaces."
-                        defaultOpen={(analyticsChartHealthSummary.warn + analyticsChartHealthSummary.fail) > 0}
-                        summary={<><Pill label="Reported" value={analyticsChartHealthSummary.total} /><Pill label="Warn" value={analyticsChartHealthSummary.warn} tone={analyticsChartHealthSummary.warn > 0 ? "warn" : "good"} /><Pill label="Fail" value={analyticsChartHealthSummary.fail} tone={analyticsChartHealthSummary.fail > 0 ? "bad" : "good"} /></>}
-                    >
-                        {analyticsChartHealth.length > 0 ? (
-                            <ScrollWrap>
-                                <div className="divide-y divide-white/10">
-                                    {analyticsChartHealth.map((entry: any) => (
-                                        <div key={entry.key} className="space-y-2 px-4 py-3">
-                                            <div className="flex flex-wrap items-start justify-between gap-2">
-                                                <div>
-                                                    <p className="font-semibold text-white">{entry.title}</p>
-                                                    <p className="text-xs text-gray-400">{entry.page} | {entry.category} | {entry.source} | {formatRelative(entry.updatedAtMs)}</p>
-                                                </div>
-                                                <div className="flex flex-wrap gap-2">
-                                                    <Pill label="Status" value={entry.status} tone={getChartHealthStatusTone(entry.status)} />
-                                                    <Pill label="Freshness" value={getAdminUiChartHealthFreshness(entry)} tone={getFreshnessTone(getAdminUiChartHealthFreshness(entry))} />
-                                                    <Pill label="State" value={entry.hydrationState} tone={entry.hydrationState === "failed" ? "bad" : entry.hydrationState === "background_degraded" || entry.hydrationState === "empty" || entry.hydrationState === "loading" ? "warn" : "good"} />
-                                                    <Pill label="Data" value={entry.hasData ? "Yes" : "No"} tone={entry.hasData ? "good" : "warn"} />
-                                                </div>
-                                            </div>
-                                            <p className="text-sm text-gray-200">{entry.summary}</p>
-                                            <p className="text-xs text-gray-400">{entry.action}</p>
-                                            {Array.isArray(entry.issueMessages) && entry.issueMessages.length > 0 ? (
-                                                <div className="space-y-1 text-xs text-amber-100">
-                                                    {entry.issueMessages.slice(0, 3).map((issue: string) => (
-                                                        <div key={`${entry.key}:${issue}`}>- {issue}</div>
-                                                    ))}
-                                                </div>
-                                            ) : null}
-                                        </div>
-                                    ))}
-                                </div>
-                            </ScrollWrap>
-                        ) : (
-                            <div className="rounded-[1rem] border border-amber-400/20 bg-amber-500/10 p-4 text-sm text-amber-100">
-                                No admin UI chart reports are loaded yet. Open the admin overview and analytics pages to populate this lane with real client hydration state.
-                            </div>
-                        )}
-                    </Section>
+                    
 
                     <Section
                         title="Admin session and runtime prerequisites"
@@ -1475,7 +1368,7 @@ export default function DebugConsole() {
                         title="AI debug assistant"
                         subtitle="Advisory summary over bounded canonical signals with labeled fallbacks."
                         defaultOpen
-                        summary={<><Pill label="Status" value={aiStatusLabel} tone={aiStatusTone} /><Pill label="Enabled" value={aiDebugData?.enabled === false ? "No" : "Yes"} tone={aiDebugData?.enabled === false ? "warn" : "good"} /><Pill label="Configured model" value={aiDebugData?.configured_model || aiAssistantModel || "gemini-2.5-flash-lite"} /><Pill label="Runtime" value={aiDebugData?.runtime_ready ? "Ready" : "Unavailable"} tone={aiDebugData?.runtime_ready ? "good" : "bad"} /><Pill label="Live lane" value={aiAssistantRealtime.feedStatus} tone={aiAssistantRealtime.feedStatus === "realtime" ? "good" : aiAssistantRealtime.feedStatus === "failed" ? "bad" : "warn"} /><Pill label="Last run" value={aiDebugData?.generated_at ? formatRelative(Date.parse(aiDebugData.generated_at)) : "Not recorded"} /><Pill label="Latency" value={aiDebugData ? `${aiDebugData.latency_ms}ms` : "--"} tone={aiDebugData && aiDebugData.latency_ms > 5000 ? "warn" : "neutral"} /></>}
+                        summary={<><Pill label="Status" value={aiStatusLabel} tone={aiStatusTone} /><Pill label="Enabled" value={aiDebugData?.enabled === false ? "No" : "Yes"} tone={aiDebugData?.enabled === false ? "warn" : "good"} /><Pill label="Configured model" value={aiDebugData?.configured_model || aiAssistantModel || "gemini-2.5-flash"} /><Pill label="Runtime" value={aiDebugData?.runtime_ready ? "Ready" : "Unavailable"} tone={aiDebugData?.runtime_ready ? "good" : "bad"} /><Pill label="Live lane" value={aiAssistantRealtime.feedStatus} tone={aiAssistantRealtime.feedStatus === "realtime" ? "good" : aiAssistantRealtime.feedStatus === "failed" ? "bad" : "warn"} /><Pill label="Last run" value={aiDebugData?.generated_at ? formatRelative(Date.parse(aiDebugData.generated_at)) : "Not recorded"} /><Pill label="Latency" value={aiDebugData ? `${aiDebugData.latency_ms}ms` : "--"} tone={aiDebugData && aiDebugData.latency_ms > 5000 ? "warn" : "neutral"} /></>}
                     >
                         {aiDebugError ? (
                             <div className="rounded-[1rem] border border-red-400/20 bg-red-500/10 p-4 text-sm text-red-100">
@@ -1490,12 +1383,12 @@ export default function DebugConsole() {
                                         <p className="text-[11px] uppercase tracking-[0.18em] text-gray-400">Runtime config</p>
                                         <p className="mt-2 text-sm text-gray-300">Admin settings are now the primary enablement control. Runtime readiness is still gated by Vertex project and credentials.</p>
                                     </div>
-                                    <Pill label="Resolved" value={aiDebugData?.model || aiAssistantModel || "gemini-2.5-flash-lite"} tone={aiStatusTone} />
+                                    <Pill label="Resolved" value={aiDebugData?.model || aiAssistantModel || "gemini-2.5-flash"} tone={aiStatusTone} />
                                 </div>
                                 <div className="mt-4 grid gap-3 md:grid-cols-2">
                                     <div className="rounded-xl border border-white/10 bg-black/20 p-3">
                                         <p className="text-[11px] uppercase tracking-[0.18em] text-gray-400">Configured model</p>
-                                        <p className="mt-2 text-sm font-semibold text-white">{aiDebugData?.configured_model || aiAssistantModel || "gemini-2.5-flash-lite"}</p>
+                                        <p className="mt-2 text-sm font-semibold text-white">{aiDebugData?.configured_model || aiAssistantModel || "gemini-2.5-flash"}</p>
                                     </div>
                                     <div className="rounded-xl border border-white/10 bg-black/20 p-3">
                                         <p className="text-[11px] uppercase tracking-[0.18em] text-gray-400">Runtime status</p>

@@ -7,13 +7,11 @@ import { FileText, Loader2, MessageSquare, RefreshCw } from "lucide-react";
 import { AdminPageHeader } from "@/components/Admin/AdminPageHeader";
 import { PageViewEvent } from "@/components/Analytics/PageViewEvent";
 import { useAdminPollingSWR } from "@/hooks/useAdminPollingSWR";
-import { useAdminUiChartHealthReporter } from "@/hooks/useAdminUiChartHealthReporter";
 import {
     type AdminModerationSecurityAlertsResponse,
     type AdminModerationThreadDetailResponse,
     type AdminModerationThreadsResponse,
 } from "@/lib/admin-moderation";
-import { buildAdminUiChartHealthItem } from "@/lib/admin-ui-chart-health";
 import { cn } from "@/lib/utils";
 
 function formatRelativeTime(timestamp?: number) {
@@ -86,51 +84,7 @@ export function AdminModerationConsole() {
     const highAlerts = useMemo(() => alerts.filter((alert) => alert.severity === "high").length, [alerts]);
 
     const moderationHealthItems = useMemo(() => ([
-        buildAdminUiChartHealthItem({
-            key: "moderation.live_chat_threads",
-            title: "Moderation chat threads",
-            page: "moderation",
-            category: "operations",
-            source: "mixed_client_live",
-            updatedAtMs: threadsRequest.data?.generatedAtMs ?? 0,
-            hasLoaded: Boolean(threadsRequest.data) || Boolean(threadsRequest.error),
-            loading: threadsRequest.isLoading,
-            hasData: Boolean(threadsRequest.data),
-            blockingIssues: threadsRequest.error ? [threadsRequest.error instanceof Error ? threadsRequest.error.message : "Moderation threads failed."] : [],
-            healthySummary: `${threads.length} moderation threads loaded from the server-backed moderation API.`,
-            emptySummary: "No moderation threads are visible in the current server window.",
-        }),
-        buildAdminUiChartHealthItem({
-            key: "moderation.thread_detail",
-            title: "Moderation thread detail",
-            page: "moderation",
-            category: "operations",
-            source: "mixed_client_live",
-            updatedAtMs: detailRequest.data?.generatedAtMs ?? 0,
-            hasLoaded: !selectedThreadId || Boolean(detailRequest.data) || Boolean(detailRequest.error),
-            loading: Boolean(selectedThreadId) && detailRequest.isLoading,
-            hasData: !selectedThreadId || Boolean(detailRequest.data),
-            blockingIssues: detailRequest.error ? [detailRequest.error instanceof Error ? detailRequest.error.message : "Moderation thread detail failed."] : [],
-            healthySummary: selectedThreadId ? `${messages.length} moderation messages are loaded for the selected thread.` : "No moderation thread is selected yet.",
-            emptySummary: "The selected moderation thread returned no messages in this poll window.",
-        }),
-        buildAdminUiChartHealthItem({
-            key: "moderation.security_alerts",
-            title: "Moderation security alerts",
-            page: "moderation",
-            category: "security",
-            source: "mixed_client_live",
-            updatedAtMs: alertsRequest.data?.generatedAtMs ?? 0,
-            hasLoaded: Boolean(alertsRequest.data) || Boolean(alertsRequest.error),
-            loading: alertsRequest.isLoading,
-            hasData: Boolean(alertsRequest.data),
-            blockingIssues: alertsRequest.error ? [alertsRequest.error instanceof Error ? alertsRequest.error.message : "Moderation security alerts failed."] : [],
-            healthySummary: `${alerts.length} security alerts loaded from the moderation API.`,
-            emptySummary: "No security alerts are visible in the current moderation window.",
-        }),
-    ]), [alerts.length, alertsRequest.data, alertsRequest.error, alertsRequest.isLoading, detailRequest.data, detailRequest.error, detailRequest.isLoading, messages.length, selectedThreadId, threads.length, threadsRequest.data, threadsRequest.error, threadsRequest.isLoading]);
-
-    useAdminUiChartHealthReporter(moderationHealthItems);
+                            ]), [alerts.length, alertsRequest.data, alertsRequest.error, alertsRequest.isLoading, detailRequest.data, detailRequest.error, detailRequest.isLoading, messages.length, selectedThreadId, threads.length, threadsRequest.data, threadsRequest.error, threadsRequest.isLoading]);
 
     const refreshNow = async () => {
         await Promise.all([threadsRequest.mutate(), detailRequest.mutate(), alertsRequest.mutate()]);

@@ -20,11 +20,7 @@ const clientParityExpectations = [
     pattern: "AdminStatusBadge",
     message: "Privacy preflight must use the shared admin status badge.",
   },
-  {
-    file: "src/app/admin/AdminTruthSurfaces.tsx",
-    pattern: "AdminStatusBadge",
-    message: "Admin truth surfaces must use the shared admin status badge.",
-  },
+
   {
     file: "src/app/admin/users/page.tsx",
     pattern: "AdminSurfaceState",

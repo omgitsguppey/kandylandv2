@@ -186,7 +186,7 @@ export function buildAdminAiDebugRealtimeSignals(input: {
         feedDetail = "Realtime AI debug observers are warming up. Some lanes are live, but not every canonical signal has loaded yet.";
     } else if (failedCount > 0) {
         feedStatus = "failed";
-        feedDetail = "Realtime AI debug observers failed closed. Falling back to the polled assistant summary and canonical server diagnostics.";
+        feedDetail = "Realtime observers failed. Showing the polled assistant summary and server diagnostics.";
     }
 
     const readRouteStatus = readRoute ? getRouteRuntimeHealthStatus(readRoute, nowMs) : "stale";

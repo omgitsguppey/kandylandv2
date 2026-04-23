@@ -1,5 +1,5 @@
 {
-  "generatedAt": "2026-04-22T19:00:56.284Z",
+  "generatedAt": "2026-04-23T20:23:12.785Z",
   "truthOrder": [
     "verified_runtime_code",
     "verified_configuration",
@@ -14,6 +14,92 @@
     "FULL_SCALE_CODEBASE_AUDIT.md"
   ],
   "passes": [
+    {
+      "stable_id": "pass__2026-04-23-admin-parity-source-verification-hardening",
+      "date": "2026-04-23",
+      "title": "Admin Parity + Source Verification Hardening",
+      "scopeSummary": [
+        "Normalize admin truth semantics across overview, users, support, moderation, content, AI, debug, and privacy preflight surfaces before adding more admin UI logic, and make source-of-truth verification explicit instead of page-local or implied."
+      ],
+      "touchedSurfaces": [
+        "connecting/partial/failed",
+        "healthy/warn/fail",
+        "realtime/polled",
+        "scripts/check-admin-parity.ts",
+        "src/app/admin/AdminPrivacyPreflight.tsx",
+        "src/app/admin/AdminTruthSurfaces.tsx",
+        "src/app/admin/users/page.tsx",
+        "src/app/api/admin/ai/drop-covers/route.ts",
+        "src/app/api/admin/content/route.ts",
+        "src/app/api/admin/debug/route.ts",
+        "src/app/api/admin/moderation/security-alerts/route.ts",
+        "src/app/api/admin/overview/route.ts",
+        "src/app/api/admin/support/threads/route.ts",
+        "src/app/api/admin/user/[userId]/route.ts",
+        "src/app/api/admin/users/route.ts",
+        "src/components/admin/AdminStatusBadge.tsx",
+        "src/hooks/useAdminPrivacyPreflight.ts",
+        "src/lib/admin-parity.ts",
+        "src/lib/admin-user-metrics.ts",
+        "src/lib/server/admin-source-verification.ts",
+        "src/lib/user-utils.ts",
+        "tests/unit/admin-parity.spec.ts"
+      ],
+      "canonicalHelpersReused": [],
+      "verificationCommandsRun": [],
+      "resultSummary": [],
+      "warnings": [],
+      "architecture_change": true,
+      "runtime_change": true,
+      "ui_change": true,
+      "security_change": true,
+      "maintenance_only": false,
+      "changeKinds": [
+        "admin",
+        "ui",
+        "runtime",
+        "security",
+        "tooling",
+        "architecture"
+      ]
+    },
+    {
+      "stable_id": "pass__2026-04-22-admin-analytics-realtime-presence-hardening",
+      "date": "2026-04-22",
+      "title": "Admin Analytics Realtime Presence Hardening",
+      "scopeSummary": [
+        "Stop treating admin analytics \"realtime\" as a 5-second polled summary when canonical first-party live collections already exist, and make guest presence visible in the live admin lane instead of implicitly disappearing behind GA and delayed history."
+      ],
+      "touchedSurfaces": [
+        "/api/admin/analytics/realtime",
+        "npx vitest run tests/unit/admin-analytics-live-runtime.spec.ts tests/unit/admin-analytics-page.spec.tsx",
+        "src/app/admin/analytics/components/AdminAnalyticsOperationsTab.tsx",
+        "src/app/admin/analytics/hooks/useAdminAnalyticsRealtime.ts",
+        "src/app/admin/analytics/hooks/useAdminAnalyticsState.tsx",
+        "src/app/admin/analytics/page.tsx",
+        "src/app/api/admin/analytics/realtime/route.ts",
+        "src/app/api/analytics/ingest/route.ts",
+        "src/components/Analytics/DeepTracker.tsx",
+        "src/lib/admin-analytics-live-runtime.ts",
+        "src/types/admin-analytics.ts",
+        "tests/unit/admin-analytics-live-runtime.spec.ts"
+      ],
+      "canonicalHelpersReused": [],
+      "verificationCommandsRun": [],
+      "resultSummary": [],
+      "warnings": [],
+      "architecture_change": true,
+      "runtime_change": true,
+      "ui_change": true,
+      "security_change": false,
+      "maintenance_only": false,
+      "changeKinds": [
+        "admin",
+        "ui",
+        "runtime",
+        "architecture"
+      ]
+    },
     {
       "stable_id": "pass__2026-04-21-analytics-self-snitching-early-runtime-diagnostics-hardening",
       "date": "2026-04-21",
@@ -269,56 +355,6 @@
         "admin",
         "ui",
         "tooling",
-        "architecture"
-      ]
-    },
-    {
-      "stable_id": "pass__2026-04-18-full-codebase-audit-sweep",
-      "date": "2026-04-18",
-      "title": "Full Codebase Audit Sweep",
-      "scopeSummary": [
-        "Perform a broad repository audit against the live codebase truth, including governance ledgers, repo-intelligence context, continuity checks, and broad-surface code inspection for stale states, parity drift, and missing signoff hygiene."
-      ],
-      "touchedSurfaces": [],
-      "canonicalHelpersReused": [],
-      "verificationCommandsRun": [],
-      "resultSummary": [],
-      "warnings": [],
-      "architecture_change": false,
-      "runtime_change": false,
-      "ui_change": false,
-      "security_change": false,
-      "maintenance_only": true,
-      "changeKinds": [
-        "maintenance"
-      ]
-    },
-    {
-      "stable_id": "pass__2026-04-18-viewer-unwrapped-watch-time-refactor",
-      "date": "2026-04-18",
-      "title": "Viewer Unwrapped Watch-Time Refactor",
-      "scopeSummary": [
-        "Refactor viewer watch-time tracking so unwrapped/static drop assets accumulate truthful visible time instead of relying on the old fixed-duration bucket, while preserving playback-based media tracking and the existing viewer watch-session pipeline."
-      ],
-      "touchedSurfaces": [
-        "npx vitest run tests/unit/viewer-watch-session.spec.ts",
-        "src/app/api/viewer/watch-session/route.ts",
-        "src/app/dashboard/viewer/ViewerClient.tsx",
-        "src/hooks/useViewerWatchSession.ts",
-        "src/lib/viewer-watch-session.ts",
-        "tests/unit/viewer-watch-session.spec.ts"
-      ],
-      "canonicalHelpersReused": [],
-      "verificationCommandsRun": [],
-      "resultSummary": [],
-      "warnings": [],
-      "architecture_change": true,
-      "runtime_change": true,
-      "ui_change": true,
-      "security_change": false,
-      "maintenance_only": false,
-      "changeKinds": [
-        "runtime",
         "architecture"
       ]
     }

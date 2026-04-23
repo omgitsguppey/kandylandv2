@@ -1,5 +1,5 @@
 {
-  "generatedAt": "2026-04-22T19:00:56.199Z",
+  "generatedAt": "2026-04-23T20:23:12.752Z",
   "truthOrder": [
     "verified_runtime_code",
     "verified_configuration",
@@ -157,30 +157,6 @@
       "reuseBeforeNew": true,
       "adjacentUsageNotes": [
         "Route handlers should record samples through this lane instead of inventing new route-health sinks."
-      ],
-      "risk_if_changed": "High. Shared runtime or route contracts can drift across multiple surfaces.",
-      "broad_signoff_likely": true
-    },
-    {
-      "stable_id": "helper__src__lib__admin-ui-chart-health-ts",
-      "path": "src/lib/admin-ui-chart-health.ts",
-      "family": "runtime_health_admin_debug_observability",
-      "purpose": "Canonical client/admin chart-health item modeling and summary logic.",
-      "reuseBeforeNew": true,
-      "adjacentUsageNotes": [
-        "Admin chart hydration status should stay on this shared contract."
-      ],
-      "risk_if_changed": "High. Shared runtime or route contracts can drift across multiple surfaces.",
-      "broad_signoff_likely": true
-    },
-    {
-      "stable_id": "helper__src__lib__server__admin-ui-chart-health-ts",
-      "path": "src/lib/server/admin-ui-chart-health.ts",
-      "family": "runtime_health_admin_debug_observability",
-      "purpose": "Server persistence and reads for canonical admin UI chart health records.",
-      "reuseBeforeNew": true,
-      "adjacentUsageNotes": [
-        "Admin chart-health routes should reuse the shared server lane instead of ad hoc status storage."
       ],
       "risk_if_changed": "High. Shared runtime or route contracts can drift across multiple surfaces.",
       "broad_signoff_likely": true

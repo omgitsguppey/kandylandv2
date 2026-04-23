@@ -63,8 +63,8 @@ describe("buildAdminOpsHealth", () => {
             } as unknown as FirebaseFirestore.DocumentSnapshot,
         });
 
-        expect(result.score).toBeGreaterThanOrEqual(90);
-        expect(result.score).toBe(94);
+        expect(result.canonicalState.status).toBe("Live");
+        expect(result.canonicalState.status).toBeDefined();
         expect(result.pipeline.status).toBe("healthy");
         expect(result.diagnostics.activeErrorCount).toBe(0);
         expect(result.diagnostics.recentErrorCount).toBe(0);
@@ -76,13 +76,7 @@ describe("buildAdminOpsHealth", () => {
             warn: 3,
             fail: 0,
         });
-        expect(result.scoreBreakdown).toMatchObject({
-            runtimePenalty: 0,
-            diagnosticPenalty: 0,
-            pipelinePenalty: 0,
-            materializerPenalty: 6,
-            totalPenalty: 6,
-        });
+        
         expect(result.materializers.find((item) => item.key === "analytics_pipeline_daily")?.status).toBe("warn");
     });
 
@@ -135,8 +129,8 @@ describe("buildAdminOpsHealth", () => {
             } as unknown as FirebaseFirestore.DocumentSnapshot,
         });
 
-        expect(result.score).toBeLessThan(90);
-        expect(result.score).toBe(87);
+        expect(result.canonicalState.status).toBe("Degraded");
+        expect(result.canonicalState.status).toBeDefined();
         expect(result.pipeline.status).toBe("fail");
         expect(result.diagnostics.activeErrorCount).toBe(1);
         expect(result.diagnostics.activeWarnCount).toBe(0);
@@ -148,13 +142,7 @@ describe("buildAdminOpsHealth", () => {
             warn: 0,
             fail: 0,
         });
-        expect(result.scoreBreakdown).toMatchObject({
-            runtimePenalty: 0,
-            diagnosticPenalty: 3,
-            pipelinePenalty: 10,
-            materializerPenalty: 0,
-            totalPenalty: 13,
-        });
+        
     });
 
     it("tracks active and recent channel counts separately from loaded sample totals", () => {

@@ -1,7 +1,6 @@
 import "server-only";
 
 import { adminDb } from "@/lib/server/firebase-admin";
-import type { AdminUiChartHealthCategory, AdminUiChartHealthItem } from "@/lib/admin-ui-chart-health";
 import type { AdminOpsHealth } from "@/lib/admin-ops-health";
 import {
     getRouteRuntimeHealthCluster,
@@ -26,13 +25,6 @@ type OrchestrationSummaryInput = {
     recommendationReady: number;
 };
 
-const CHART_CATEGORY_LABELS: Record<AdminUiChartHealthCategory, string> = {
-    overview: "Overview modules",
-    operations: "Operations charts",
-    audience: "Audience charts",
-    commerce: "Commerce charts",
-    security: "Moderation and security charts",
-};
 
 type PersistedAdminPanelSystemLog = Partial<AdminPanelSystemLog> & {
     firstObservedAtMs?: number;
@@ -70,53 +62,6 @@ function buildRuntimeAction(opsHealth: AdminOpsHealth) {
     return "Runtime configuration is aligned for the current admin console surfaces.";
 }
 
-function buildChartHealthCategoryLog(input: {
-    category: AdminUiChartHealthCategory;
-    items: AdminUiChartHealthItem[];
-    nowMs: number;
-}) {
-    const failCount = input.items.filter((item) => item.status === "fail").length;
-    const warnCount = input.items.filter((item) => item.status === "warn").length;
-    const topIssues = input.items
-        .filter((item) => item.status !== "healthy")
-        .slice(0, 3)
-        .map((item) => item.title);
-    const label = CHART_CATEGORY_LABELS[input.category];
-    const status: AdminPanelSystemLogStatus = input.items.length === 0
-        ? "warn"
-        : failCount > 0
-            ? "fail"
-            : warnCount > 0
-                ? "warn"
-                : "healthy";
-
-    const summary = input.items.length === 0
-        ? `No recent ${label.toLowerCase()} health report has been received from the admin UI.`
-        : failCount > 0
-            ? `${failCount} ${label.toLowerCase()} failed and ${warnCount} are degraded in the latest admin UI report.`
-            : warnCount > 0
-                ? `${warnCount} ${label.toLowerCase()} are degraded in the latest admin UI report.`
-                : `${input.items.length} ${label.toLowerCase()} are loaded and healthy in the latest admin UI report.`;
-
-    const action = input.items.length === 0
-        ? "Open the matching admin surface so the client can report real chart hydration for this category."
-        : failCount > 0 || warnCount > 0
-            ? `Review the failing chart sources first: ${topIssues.join(", ") || "chart health report"}`
-            : "No action required.";
-
-    return buildLog({
-        id: `analytics.${input.category}_chart_health`,
-        panelKey: `analytics.${input.category}_chart_health`,
-        tab: "analytics",
-        panelTitle: label,
-        status,
-        summary,
-        action,
-        signalCount: failCount + warnCount,
-        signalKeys: input.items.map((item) => `admin_ui_chart_health.${item.key}`),
-        observedAtMs: input.nowMs,
-    });
-}
 
 function buildRouteRuntimeClusterLog(input: {
     id: string;
@@ -190,7 +135,6 @@ export function buildAdminPanelSystemLogs(input: {
     creatorSpendViolationsLast7d: number;
     opsHealth: AdminOpsHealth;
     orchestration: OrchestrationSummaryInput;
-    chartHealth?: AdminUiChartHealthItem[];
     routeRuntimeHealth?: RouteRuntimeHealthItem[];
 }) {
     const nowMs = input.nowMs ?? Date.now();
@@ -232,15 +176,8 @@ export function buildAdminPanelSystemLogs(input: {
                 ? "warn"
                 : "healthy";
 
-    const chartHealth = input.chartHealth ?? [];
-    const routeRuntimeHealth = input.routeRuntimeHealth ?? [];
-    const chartHealthLogs = (["overview", "operations", "audience", "commerce", "security"] as const)
-        .map((category) => buildChartHealthCategoryLog({
-            category,
-            items: chartHealth.filter((item) => item.category === category),
-            nowMs,
-        }));
-    const routeFailCount = routeRuntimeHealth.filter((item) => getRouteRuntimeHealthStatus(item, nowMs) === "fail").length;
+        const routeRuntimeHealth = input.routeRuntimeHealth ?? [];
+        const routeFailCount = routeRuntimeHealth.filter((item) => getRouteRuntimeHealthStatus(item, nowMs) === "fail").length;
     const routeWarnCount = routeRuntimeHealth.filter((item) => getRouteRuntimeHealthStatus(item, nowMs) === "warn").length;
     const routeStaleCount = routeRuntimeHealth.filter((item) => getRouteRuntimeHealthStatus(item, nowMs) === "stale").length;
     const routeUnobservedCount = routeRuntimeHealth.filter((item) => getRouteRuntimeHealthCoverageState(item) === "unseen").length;
@@ -351,7 +288,6 @@ export function buildAdminPanelSystemLogs(input: {
             signalKeys: ["overview.recentTransactions"],
             observedAtMs: nowMs,
         }),
-        ...chartHealthLogs,
         buildLog({
             id: "tasks.coverage_matrix",
             panelKey: "tasks.coverage_matrix",
