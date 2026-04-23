@@ -63,6 +63,18 @@ service cloud.firestore {
       allow write: if false;
     }
 
+    // Support threads: admin reads for realtime queue, user reads for their own threads, no direct client writes
+    match /support_threads/{threadId} {
+      allow read: if isAdmin() || (isSignedIn() && request.auth.uid == resource.data.userId);
+      allow write: if false;
+      
+      // Support messages: admin reads, user reads if they own the parent thread
+      match /support_messages/{messageId} {
+        allow read: if isAdmin() || (isSignedIn() && request.auth.uid == get(/databases/$(database)/documents/support_threads/$(threadId)).data.userId);
+        allow write: if false;
+      }
+    }
+
     // Security events: server-only moderation reads, no direct client access or writes
     match /security_events/{eventId} {
       allow read: if isAdmin();

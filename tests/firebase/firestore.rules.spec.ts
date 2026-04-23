@@ -36,6 +36,13 @@ async function seedFirestore() {
         userId: "bob",
         text: "Hi Bob",
       }),
+      setDoc(doc(db, "support_threads/thread-support"), {
+        userId: "alice",
+        subject: "Help me",
+      }),
+      setDoc(doc(db, "support_threads/thread-support/support_messages/msg-support"), {
+        body: "Hello",
+      }),
       setDoc(doc(db, "security_events/event-1"), {
         userId: "bob",
         username: "Bob",
@@ -124,6 +131,22 @@ describe("firestore.rules", () => {
     await assertSucceeds(getDoc(doc(db, "creator_message_threads/thread-alice-bob")));
     await assertSucceeds(getDoc(doc(db, "creator_messages/msg-alice-bob")));
     await assertSucceeds(getDoc(doc(db, "security_events/event-1")));
+    await assertSucceeds(getDoc(doc(db, "support_threads/thread-support")));
+    await assertSucceeds(getDoc(doc(db, "support_threads/thread-support/support_messages/msg-support")));
+  });
+
+  it("allows users to read their own support threads", async () => {
+    const db = testEnv.authenticatedContext("alice").firestore();
+      
+    await assertSucceeds(getDoc(doc(db, "support_threads/thread-support")));
+    await assertSucceeds(getDoc(doc(db, "support_threads/thread-support/support_messages/msg-support")));
+  });
+
+  it("blocks users from reading other users support threads", async () => {
+    const db = testEnv.authenticatedContext("bob").firestore();
+      
+    await assertFails(getDoc(doc(db, "support_threads/thread-support")));
+    await assertFails(getDoc(doc(db, "support_threads/thread-support/support_messages/msg-support")));
   });
 
   it("blocks direct client writes everywhere", async () => {
