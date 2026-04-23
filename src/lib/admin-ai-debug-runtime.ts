@@ -173,20 +173,20 @@ export function buildAdminAiDebugRealtimeSignals(input: {
         .reduce<number | null>((latest, value) => latest === null ? value : Math.max(latest, value), null);
 
     let feedStatus: AdminAiDebugRealtimeFeedStatus = "polled";
-    let feedDetail = "Realtime AI debug observers have not loaded yet. Showing the polled assistant summary.";
+    let feedDetail = "Polled";
 
     if (loadedCount === 3 && failedCount === 0) {
         feedStatus = "realtime";
-        feedDetail = "Realtime Firestore observers are active for assistant settings, AI diagnostics, and assistant route health.";
+        feedDetail = "Realtime active";
     } else if (loadedCount > 0 && failedCount > 0) {
         feedStatus = "partial";
-        feedDetail = "Realtime AI debug observers are only partially connected. Some preflight checks are still streaming, but at least one live lane failed.";
+        feedDetail = "Partially connected";
     } else if (loadedCount > 0) {
         feedStatus = "partial";
-        feedDetail = "Realtime AI debug observers are warming up. Some lanes are live, but not every canonical signal has loaded yet.";
+        feedDetail = "Connecting...";
     } else if (failedCount > 0) {
         feedStatus = "failed";
-        feedDetail = "Realtime observers failed. Showing the polled assistant summary and server diagnostics.";
+        feedDetail = "Observers failed";
     }
 
     const readRouteStatus = readRoute ? getRouteRuntimeHealthStatus(readRoute, nowMs) : "stale";
