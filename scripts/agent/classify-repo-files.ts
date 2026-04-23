@@ -1,6 +1,6 @@
 import path from "node:path";
 
-import { listRepoFiles, readFileModifiedMarker, toStableId } from "./shared";
+import { fileExists, listRepoFiles, readFileModifiedMarker, toStableId } from "./shared";
 
 export type RepoInventoryEntry = {
   stable_id: string;
@@ -200,7 +200,9 @@ export function classifyRepoFile(filePath: string): RepoInventoryEntry {
 }
 
 export function buildRepoInventory() {
-  return listRepoFiles().map((filePath) => classifyRepoFile(filePath));
+  return listRepoFiles()
+    .filter((filePath) => fileExists(filePath))
+    .map((filePath) => classifyRepoFile(filePath));
 }
 
 export function groupInventoryByDomain(entries: RepoInventoryEntry[]) {

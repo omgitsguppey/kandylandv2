@@ -4,8 +4,9 @@ import {
 } from "lucide-react";
 import { Area, AreaChart, Bar, BarChart, CartesianGrid, ResponsiveContainer, Tooltip, XAxis, YAxis, Pie, PieChart, Cell } from "recharts";
 import { AnalyticsTooltip, MetricCard, SectionCard } from "@/components/Admin/Analytics/AdminAnalyticsPrimitives";
+import type { AdminAnalyticsState } from "../hooks/useAdminAnalyticsState";
 
-export function AdminAnalyticsAudienceTab(props: any) {
+export function AdminAnalyticsAudienceTab(props: AdminAnalyticsState) {
   const {
     renderSectionRangeControl, liveResponse, historicalResponse, liveLoading, historicalLoading, nowMs, EVENT_LABELS,
     liveSurfaceMix, liveActiveUsers, livePulseOnboardingStats, livePulseOnboardingStartCount, livePulseOnboardingCompletionRate, livePulseFunnel, liveSeries,
@@ -15,12 +16,10 @@ export function AdminAnalyticsAudienceTab(props: any) {
     formatCompactNumber, formatDuration, formatPercent, formatRelativeTime,
     guestBounceQualityCards, guestBounceGlobalSemantics, guestBounceGuestRate, guestBounceEngagedRate, guestBounceIdentifiedRate, guestBounceUserSemantics,
     topEvents,
-    liveInteractionStreamRange, liveInteractionStreamData,
     validations, getValidationClasses, dataValidationRange,
     
     // Audience Tab
     totalDeviceUsers, mobileUsers, mobileShare, audienceSnapshotRange, semanticQualityCards, guestBounceRate, identifiedBounceRate, guestEngagedRate,
-    returnCadenceRange, returnCadenceData, repeatVisitSegments, uniqueReturners, returnerConversionRate,
     navigationDestinationsRange, destinationMix,
     deviceMixRange, devices, getDeviceIcon,
     topPathsRange, pages,
@@ -32,8 +31,6 @@ export function AdminAnalyticsAudienceTab(props: any) {
     packagePerformanceRange, packagePerformance,
     PIE_COLORS, contentConversionRange, unlockCategoryMix, previewToUnlockRate, checkoutToPurchaseRate,
     topDropConversionRange, topDrops,
-    recentCommerceFeedRange, feedItems, describeEvent, formatAbsoluteDateTime,
-    
     // Added remaining
     clearAllFilters, clearViewerFilter, viewerUserFilter, formatMoney, activeViewerFilter
   } = props;

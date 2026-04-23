@@ -1,4 +1,3 @@
-// @ts-nocheck
 "use client";
 
 import { startTransition, useEffect, useMemo, useState } from "react";
@@ -26,6 +25,10 @@ import { buildAuthOutcomeChartModel } from "@/lib/admin-auth-outcome-chart";
 import { buildAdminNotificationFunnelModel } from "@/lib/admin-notification-funnel";
 import { buildAdminOnboardingVelocityModel } from "@/lib/admin-onboarding-velocity";
 import { buildAdminTaskPipelineModel } from "@/lib/admin-task-pipeline";
+import {
+  buildAdminAnalyticsReturnCadenceSummary,
+  normalizeAdminAnalyticsReturnCadenceSegments,
+} from "@/lib/admin-analytics-return-cadence";
 
 
 import { TELEMETRY_EVENT_LABELS } from "@/lib/telemetry-catalog";
@@ -48,6 +51,8 @@ import {
   formatMoney,
   formatPercent,
   formatRelativeTime,
+  getJourneyStateClasses,
+  getJourneyStateLabel,
   getDeviceIcon,
   getValidationClasses,
   isRecentViolation,
@@ -470,7 +475,8 @@ const { user } = useAuth();
   const authBreakdown = historicalResponse?.authBreakdown ?? [];
   const onboardingDurationBuckets =
     historicalResponse?.onboardingDurationBuckets ?? EMPTY_COUNT_BUCKETS;
-  const repeatVisitSegments = historicalResponse?.repeatVisitSegments ?? [];
+  const repeatVisitSegments =
+    normalizeAdminAnalyticsReturnCadenceSegments(historicalResponse);
   const destinationMix = historicalResponse?.destinationMix ?? [];
   const notificationFunnel = useMemo(
     () => historicalResponse?.notificationFunnel ?? [],
@@ -892,8 +898,11 @@ const { user } = useAuth();
     returnCadenceRange === ADMIN_ANALYTICS_DEFAULT_RANGE
       ? historicalResponse
       : returnCadenceOverride.data;
-  const returnCadenceSegments =
-    returnCadenceData?.repeatVisitSegments ?? repeatVisitSegments;
+  const returnCadenceSegments = returnCadenceData
+    ? normalizeAdminAnalyticsReturnCadenceSegments(returnCadenceData)
+    : repeatVisitSegments;
+  const returnCadenceSummary =
+    buildAdminAnalyticsReturnCadenceSummary(returnCadenceSegments);
   const navigationDestinationsData =
     navigationDestinationsRange === ADMIN_ANALYTICS_DEFAULT_RANGE
       ? historicalResponse
@@ -1752,6 +1761,7 @@ const { user } = useAuth();
     moduleRanges, setModuleRanges, savingSectionKey, setSavingSectionKey, analyticsFilterStorageKey,
     liveResponse: effectiveLiveResponse, historicalResponse, liveError, historicalError, liveLoading, historicalLoading,
     needsSetup, blockingAnalyticsError, isPrimingAnalytics, backgroundAnalyticsIssues, getSectionRange, renderSectionRangeControl,
+    analyticsSectionHealthSummary,
     EVENT_LABELS, funnel, onboardingStats, onboardingDurationBuckets, onboardingStepStats, authBreakdown, historySeries,
     rawEvents, componentContexts, semanticCategories, devices, pages, geo, totals, commerce, activeViewerFilter,
     clearAllFilters, clearViewerFilter,
@@ -1760,19 +1770,24 @@ const { user } = useAuth();
     authOnboardingDiscrepancies, onboardingVelocityHasData, onboardingVelocityBuckets, onboardingVelocityStartCount, onboardingVelocityCompletionCount, onboardingVelocityCompletionRate, onboardingVelocityDropOffCount, onboardingVelocityStats, onboardingVelocityStartSourceHint, onboardingStepFlowItems,
     guestBounceQualityCards, guestBounceGlobalSemantics, guestBounceGuestRate, guestBounceEngagedRate, guestBounceIdentifiedRate, guestBounceUserSemantics,
     guestViewsDisplayCount, guestViewsHint, guestBounceRateDisplay, guestBounceHint, guestEngagedRateDisplay, guestEngagedHint, guestQualityUnavailable,
-    topEvents, liveInteractionStreamRange, liveInteractionStreamData,
-    validations, getValidationClasses, dataValidationRange,
+    topEvents, liveInteractionStreamRange, liveInteractionStreamData, liveInteractionEvents,
+    validations, validationItems, getValidationClasses, dataValidationRange,
     totalDeviceUsers, mobileUsers, mobileShare, audienceSnapshotRange, semanticQualityCards, guestBounceRate, identifiedBounceRate, guestEngagedRate,
-    returnCadenceRange, returnCadenceData, repeatVisitSegments, uniqueReturners, returnerConversionRate,
-    navigationDestinationsRange, destinationMix, deviceMixRange, getDeviceIcon, topPathsRange, regionsRange,
-    commerceSnapshotRange, packagePerformanceRange, packagePerformance,
-    PIE_COLORS, contentConversionRange, unlockCategoryMix, previewToUnlockRate, checkoutToPurchaseRate,
-    topDropConversionRange, topDrops, recentCommerceFeedRange, feedItems, describeEvent, formatAbsoluteDateTime,
+    audienceTotals, audienceHistorySeries,
+    returnCadenceRange, returnCadenceData, returnCadenceSegments, returnCadenceSummary,
+    navigationDestinationsRange, destinationMix, navigationDestinationsMix, deviceMixRange, getDeviceIcon, deviceMixDevices, deviceMixTotalUsers, topPathsRange, topPathsPages, regionsRange, regionsGeo,
+    commerceSnapshotRange, commerceSnapshotCommerce, commerceSnapshotFunnel, packagePerformanceRange, packagePerformance, packagePerformanceItems,
+    PIE_COLORS, contentConversionRange, unlockCategoryMix, contentConversionItems, previewToUnlockRate, checkoutToPurchaseRate,
+    topDropConversionRange, topDrops, topDropConversionItems, recentCommerceFeedRange, recentCommerceFeedItems, describeEvent, formatAbsoluteDateTime,
     formatMoney, formatCompactNumber, formatDuration, formatPercent, formatRelativeTime, analyticsSectionHealth,
     liveSurfaceMix, liveActiveUsers, livePulseOnboardingStats, livePulseOnboardingStartCount, livePulseOnboardingCompletionRate, livePulseFunnel, liveSeries, journeyFunnelMetrics,
     liveFeedStatus: liveRealtime.feedStatus, liveFeedDetail: liveRealtime.feedDetail, liveGuestActiveCount: liveRealtime.guestActive
 ,
+    viewerDrilldownFilter, viewerDrilldownOverview, applyViewerFilter, viewerDrilldownUsers, viewerDrilldownCaptureHealth, liveWatchCaptureHealth, viewerDrilldownJourneys, viewerDrilldownInsights, viewerDropChartData, viewerJourneyItems, watchDepthTagBuckets, watchDepthTagDemand,
+    getJourneyStateClasses, getJourneyStateLabel, topExperienceContexts, topComponentContexts, eventMixTopEvents, eventMixTopComponentContexts,
     dailyTaskPipelineModel, taskCompletionSpeedBuckets, taskLeaderboardItems, activeNotificationFunnelPieData, notificationActionItems, maxNotificationActionValue, hasNotificationReminderReasons, notificationReminderReasons
   };
 }
+
+export type AdminAnalyticsState = ReturnType<typeof useAdminAnalyticsState>;
 

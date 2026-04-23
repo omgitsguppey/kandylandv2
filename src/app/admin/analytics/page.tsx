@@ -1,4 +1,3 @@
-// @ts-nocheck
 "use client";
 
 import dynamic from "next/dynamic";
@@ -311,7 +310,7 @@ export default function AdminAnalyticsPage() {
           formatPercent={state.formatPercent}
         />
 
-        <AdminTruthSurfaces health={state.analyticsSectionHealth} />
+        <AdminTruthSurfaces />
 </main>
     </div>
   );

@@ -64,7 +64,12 @@ export function readFileHash(repoPath: string) {
 }
 
 export function readFileModifiedMarker(repoPath: string) {
-  const stats = statSync(toAbsoluteRepoPath(repoPath));
+  const absolutePath = toAbsoluteRepoPath(repoPath);
+  if (!existsSync(absolutePath)) {
+    return "missing";
+  }
+
+  const stats = statSync(absolutePath);
   return `${Math.round(stats.mtimeMs)}:${readFileHash(repoPath)}`;
 }
 

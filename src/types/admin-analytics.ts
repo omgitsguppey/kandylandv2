@@ -112,6 +112,10 @@ export interface CountBucketItem {
   count: number;
 }
 
+export interface ReturnCadenceSegment extends CountBucketItem {
+  users: number;
+}
+
 export interface SurfaceMixItem {
   key: string;
   label: string;
@@ -407,7 +411,7 @@ export interface HistoricalAnalyticsResponse {
   experienceContexts?: ExperienceContextItem[];
   authBreakdown?: AuthBreakdownItem[];
   onboardingDurationBuckets?: CountBucketItem[];
-  repeatVisitSegments?: CountBucketItem[];
+  repeatVisitSegments?: ReturnCadenceSegment[];
   destinationMix?: DestinationMixItem[];
   notificationFunnel?: CountBucketItem[];
   notificationActions?: Array<{ label: string; value: number }>;

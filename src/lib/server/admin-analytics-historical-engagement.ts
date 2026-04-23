@@ -6,6 +6,7 @@ import {
   TelemetryLogRecord,
   timestampToDayKey,
 } from "./admin-analytics-shared";
+import type { ReturnCadenceSegment } from "@/types/admin-analytics";
 
 export interface HistoricalEngagementAnalytics {
   authBreakdown: Array<{
@@ -17,7 +18,7 @@ export interface HistoricalEngagementAnalytics {
     successRate: number;
   }>;
   onboardingDurationBuckets: Array<{ label: string; count: number }>;
-  repeatVisitSegments: Array<{ label: string; users: number }>;
+  repeatVisitSegments: ReturnCadenceSegment[];
   destinationMix: Array<{ destination: string; count: number }>;
   notificationFunnel: Array<{ label: string; count: number }>;
   notificationActions: Array<{ label: string; value: number }>;
@@ -118,12 +119,15 @@ export function buildHistoricalEngagementAnalytics(input: {
     activeDaysByUser.get(record.userId)?.add(dayKey);
   });
   const activeDayCounts = Array.from(activeDaysByUser.values()).map((days) => days.size);
-  const repeatVisitSegments = [
+  const repeatVisitSegments: ReturnCadenceSegment[] = [
     { label: "1 day", users: activeDayCounts.filter((count) => count === 1).length },
     { label: "2 days", users: activeDayCounts.filter((count) => count === 2).length },
     { label: "3-4 days", users: activeDayCounts.filter((count) => count >= 3 && count <= 4).length },
     { label: "5+ days", users: activeDayCounts.filter((count) => count >= 5).length },
-  ];
+  ].map((segment) => ({
+    ...segment,
+    count: segment.users,
+  }));
 
   const destinationMap = new Map<string, number>();
   (input.telemetryLogsByEvent.navigation_click || []).forEach((record) => {

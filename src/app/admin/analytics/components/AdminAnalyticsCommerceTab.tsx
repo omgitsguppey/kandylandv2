@@ -6,8 +6,9 @@ import { Bar, BarChart, CartesianGrid, ResponsiveContainer, Tooltip, XAxis, YAxi
 import { AnalyticsTooltip, MetricCard, SectionCard } from "@/components/Admin/Analytics/AdminAnalyticsPrimitives";
 import { cn } from "@/lib/utils";
 import Image from "next/image";
+import type { AdminAnalyticsState } from "../hooks/useAdminAnalyticsState";
 
-export function AdminAnalyticsCommerceTab(props: any) {
+export function AdminAnalyticsCommerceTab(props: AdminAnalyticsState) {
   const {
     renderSectionRangeControl, liveResponse, historicalResponse, liveLoading, historicalLoading, nowMs, EVENT_LABELS,
     liveSurfaceMix, liveActiveUsers, livePulseOnboardingStats, livePulseOnboardingStartCount, livePulseOnboardingCompletionRate, livePulseFunnel, liveSeries,
@@ -17,12 +18,11 @@ export function AdminAnalyticsCommerceTab(props: any) {
     formatCompactNumber, formatDuration, formatPercent, formatRelativeTime,
     guestBounceQualityCards, guestBounceGlobalSemantics, guestBounceGuestRate, guestBounceEngagedRate, guestBounceIdentifiedRate, guestBounceUserSemantics,
     topEvents,
-    liveInteractionStreamRange, liveInteractionStreamData,
     validations, getValidationClasses, dataValidationRange,
     
     // Audience Tab
     totalDeviceUsers, mobileUsers, mobileShare, audienceSnapshotRange, semanticQualityCards, guestBounceRate, identifiedBounceRate, guestEngagedRate,
-    returnCadenceRange, returnCadenceData, repeatVisitSegments, uniqueReturners, returnerConversionRate,
+    returnCadenceSegments,
     navigationDestinationsRange, destinationMix,
     deviceMixRange, devices, getDeviceIcon,
     topPathsRange, pages,
@@ -33,7 +33,7 @@ export function AdminAnalyticsCommerceTab(props: any) {
     packagePerformanceRange, packagePerformanceItems,
     PIE_COLORS, contentConversionRange, contentConversionItems,
     topDropConversionRange, topDropConversionItems,
-    recentCommerceFeedRange, recentCommerceFeedItems, describeEvent, formatAbsoluteDateTime,
+    recentCommerceFeedItems, describeEvent, formatAbsoluteDateTime,
     
     // Viewer drilldown
     viewerDrilldownFilter, viewerDrilldownOverview, viewerUserDraft, setViewerUserDraft, applyViewerFilter,

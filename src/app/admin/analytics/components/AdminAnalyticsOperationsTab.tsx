@@ -6,7 +6,9 @@ import { Area, AreaChart, Bar, BarChart, CartesianGrid, ResponsiveContainer, Too
 import { AnalyticsTooltip, MetricCard, SectionCard } from "@/components/Admin/Analytics/AdminAnalyticsPrimitives";
 import { AdminOnboardingAnalyticsModules } from "@/components/Admin/Analytics/AdminOnboardingAnalyticsModules";
 import { cn } from "@/lib/utils";
-export function AdminAnalyticsOperationsTab(props: any) {
+import type { AdminAnalyticsState } from "../hooks/useAdminAnalyticsState";
+
+export function AdminAnalyticsOperationsTab(props: AdminAnalyticsState) {
   const {
     renderSectionRangeControl, liveResponse, historicalResponse, liveLoading, historicalLoading, nowMs, EVENT_LABELS,
     liveSurfaceMix, liveActiveUsers, livePulseOnboardingStats, livePulseOnboardingStartCount, livePulseOnboardingCompletionRate, livePulseFunnel, liveSeries,
@@ -17,12 +19,11 @@ export function AdminAnalyticsOperationsTab(props: any) {
     guestBounceQualityCards, guestBounceGlobalSemantics, guestBounceGuestRate, guestBounceEngagedRate, guestBounceIdentifiedRate, guestBounceUserSemantics,
     guestViewsDisplayCount, guestViewsHint, guestBounceRateDisplay, guestBounceHint, guestEngagedRateDisplay, guestEngagedHint,
     topEvents,
-    liveInteractionStreamRange, liveInteractionStreamData,
     validations, getValidationClasses, dataValidationRange,
     
     // Audience Tab
     totalDeviceUsers, mobileUsers, mobileShare, audienceSnapshotRange, semanticQualityCards, guestBounceRate, identifiedBounceRate, guestEngagedRate,
-    returnCadenceRange, returnCadenceData, repeatVisitSegments, uniqueReturners, returnerConversionRate,
+    returnCadenceSegments,
     navigationDestinationsRange, destinationMix,
     deviceMixRange, devices, getDeviceIcon,
     topPathsRange, pages,
@@ -33,7 +34,7 @@ export function AdminAnalyticsOperationsTab(props: any) {
     packagePerformanceRange, packagePerformance,
     PIE_COLORS, contentConversionRange, unlockCategoryMix, previewToUnlockRate, checkoutToPurchaseRate,
     topDropConversionRange, topDrops,
-    recentCommerceFeedRange, feedItems, describeEvent, formatAbsoluteDateTime,
+    describeEvent,
     
     // Added remaining
     clearAllFilters, clearViewerFilter, viewerUserFilter, formatMoney, activeViewerFilter,
