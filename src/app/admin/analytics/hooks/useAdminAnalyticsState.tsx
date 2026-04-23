@@ -874,6 +874,7 @@ const { user } = useAuth();
     liveInteractionStreamRange === ADMIN_ANALYTICS_DEFAULT_RANGE
       ? historicalResponse
       : liveInteractionStreamOverride.data;
+  const liveInteractionStreamData = liveInteractionData;
   const liveInteractionEvents = liveInteractionData?.rawEvents ?? rawEvents;
   const validationData =
     dataValidationRange === ADMIN_ANALYTICS_DEFAULT_RANGE
