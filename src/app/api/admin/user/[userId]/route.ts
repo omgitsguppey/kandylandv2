@@ -10,6 +10,7 @@ import { describeSecurityEvent } from "@/lib/security-events";
 import { getDropReferenceMap, resolveDropTitle } from "@/lib/server/drop-references";
 import { deriveGumdropEconomics } from "@/lib/gumdrop-economics";
 import { recordRouteWarning } from "@/lib/server/route-diagnostics";
+import { buildServerAdminModuleVerification } from "@/lib/server/admin-source-verification";
 import { buildModuleCoverageReport, buildParityInsight } from "@/lib/server/analytics-parity";
 import { guardApiRequest } from "@/lib/server/request-guard";
 import { CREATOR_COLLECTIONS, isCreatorRole } from "@/lib/creator-experiences";
@@ -488,6 +489,7 @@ export async function GET(
             userOnboarded: user.onboardingCompleted === true,
             userCreatedAt: toTimestampNumber(user.createdAt),
             nowMs: Date.now(),
+            lastSeenAt: metricSnapshot.lastSeenAt,
             metrics: metricSnapshot,
         });
 
@@ -529,8 +531,10 @@ export async function GET(
             commerceEmptyReason: commerceMetrics.commerceEmptyReason,
             unlockSpendGdTotal: metricSnapshot.unlockSpendGdTotal,
             metricTruthLabel: metricIntegrity.truthLabel,
+            metricVerificationState: metricIntegrity.verificationState,
             metricSourceLabel: metricIntegrity.sourceLabel,
             metricIntegrityFailures: metricIntegrity.failures,
+            metricFreshnessMs: metricIntegrity.freshnessMs,
             recoveredFromFacts: metricIntegrity.recoveredFromFacts,
             engagementScore: scoreAdminUserEngagement(metricSnapshot, Date.now()),
             topViewedDrops: Array.from(viewedDrops.values())
@@ -925,6 +929,31 @@ export async function GET(
             supportReadiness,
             creatorOps,
             dropReferences,
+            verification: buildServerAdminModuleVerification({
+                module: "admin_user_detail",
+                canonicalSource: "users+analytics_users_rollup+analytics_user_daily",
+                fallbackSource: directEventCount > 0 ? "analytics_event_facts+analytics_viewer_session_facts" : null,
+                freshnessTimestamp: metricSnapshot.lastSeenAt,
+                degradedReason: metricIntegrity.failures[0] ?? null,
+                status: metricIntegrity.verificationState === "degraded"
+                    ? "degraded"
+                    : metricIntegrity.verificationState === "stale"
+                        ? "stale"
+                        : metricIntegrity.verificationState === "unavailable"
+                            ? "unavailable"
+                            : directEventCount > 0 && !analyticsRollupSnap.exists
+                                ? "fallback"
+                                : "live",
+                countComposition: {
+                    eventCount: normalizedEventCount,
+                    viewCount: normalizedViewCount,
+                    bounceCount: normalizedBounceCount,
+                    authSuccessCount: normalizedAuthSuccessCount,
+                    watchSecondsTotal: normalizedWatchSeconds,
+                    purchaseCount: normalizedPurchaseCount,
+                    unlockCount: normalizedUnlockCount,
+                },
+            }),
         });
     } catch (error) {
         return handleApiError(error, "Admin.UserDetail.GET");

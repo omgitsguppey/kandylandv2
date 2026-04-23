@@ -23,13 +23,15 @@ describe("admin user metric source truth", () => {
   });
 
   it("surfaces partial integrity instead of silent zeros", () => {
+    const nowMs = Date.now();
     const integrity = buildAdminUserMetricIntegrity({
       hasRollup: true,
       hasDaily: false,
       recoveredFromFacts: false,
       userOnboarded: true,
-      userCreatedAt: Date.now() - 7 * 24 * 60 * 60 * 1000,
-      nowMs: Date.now(),
+      userCreatedAt: nowMs - 7 * 24 * 60 * 60 * 1000,
+      nowMs,
+      lastSeenAt: nowMs - 60_000,
       metrics: {
         eventCount: 14,
         sessionCount: 2,
@@ -42,16 +44,47 @@ describe("admin user metric source truth", () => {
         purchaseCount: 0,
         grossRevenueUsd: 0,
         unlockSpendGdTotal: 0,
-        lastSeenAt: Date.now() - 60_000,
+        lastSeenAt: nowMs - 60_000,
       },
     });
 
     expect(integrity.truthLabel).toBe("partial");
+    expect(integrity.verificationState).toBe("degraded");
     expect(integrity.failures).toEqual(expect.arrayContaining([
       "event_count_suspected_capped",
       "views_missing_despite_sessions_or_watch_time",
       "auth_stats_missing_for_onboarded_user",
     ]));
+  });
+
+  it("marks stale canonical metrics when freshness is too old", () => {
+    const nowMs = Date.now();
+    const integrity = buildAdminUserMetricIntegrity({
+      hasRollup: true,
+      hasDaily: true,
+      recoveredFromFacts: false,
+      userOnboarded: false,
+      userCreatedAt: nowMs - 30 * 24 * 60 * 60 * 1000,
+      nowMs,
+      lastSeenAt: nowMs - 8 * 24 * 60 * 60 * 1000,
+      metrics: {
+        eventCount: 20,
+        sessionCount: 5,
+        viewCount: 5,
+        bounceCount: 1,
+        authSuccessCount: 1,
+        onboardingCompletionCount: 0,
+        watchSecondsTotal: 120,
+        unwrapCount: 0,
+        purchaseCount: 0,
+        grossRevenueUsd: 0,
+        unlockSpendGdTotal: 0,
+        lastSeenAt: nowMs - 8 * 24 * 60 * 60 * 1000,
+      },
+    });
+
+    expect(integrity.truthLabel).toBe("stale");
+    expect(integrity.verificationState).toBe("stale");
   });
 
   it("ranks spenders and recent historical activity above raw event spam", () => {

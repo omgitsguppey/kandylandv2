@@ -142,6 +142,8 @@ describe("admin moderation routes", () => {
         expect(response.status).toBe(200);
         expect(body.alerts).toHaveLength(1);
         expect(body.alerts[0].severity).toBe("high");
+        expect(body.verification.module).toBe("admin_moderation_security_alerts");
+        expect(body.verification.status).toBe("live");
         expect(mockState.recordRouteRuntimeSample).toHaveBeenCalledWith(expect.objectContaining({
             key: "admin/moderation/security-alerts:GET",
             statusCode: 200,

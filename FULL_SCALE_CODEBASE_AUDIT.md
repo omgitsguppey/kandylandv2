@@ -1,5 +1,43 @@
 # KandyDrops Core Codebase Audit & Defensive Ledger
 
+## [2026-04-23 #32] Admin Parity + Source Verification Hardening
+
+Scope for this pass:
+- Normalize admin truth semantics across overview, users, support, moderation, content, AI, debug, and privacy preflight surfaces before adding more admin UI logic, and make source-of-truth verification explicit instead of page-local or implied.
+
+Current-state findings before edits:
+- Admin surfaces were still using mixed status vocabularies like `healthy/warn/fail`, `realtime/polled`, `connecting/partial/failed`, and hardcoded `[live]` badges.
+- Several admin routes returned useful data but no explicit canonical-source verification envelope, which made drift hard to spot and easy to overclaim.
+- Privacy preflight and core admin truth cards still contained hardcoded or weakly justified health labels.
+- The current repo check lanes were strong but not split cleanly for fast admin parity failure versus broader signoff.
+
+Changes made:
+- Added shared admin truth contracts:
+  - `src/lib/admin-parity.ts`
+  - `src/lib/server/admin-source-verification.ts`
+  - `src/components/admin/AdminStatusBadge.tsx`
+- Hardened admin routes to return explicit verification metadata:
+  - `src/app/api/admin/overview/route.ts`
+  - `src/app/api/admin/users/route.ts`
+  - `src/app/api/admin/user/[userId]/route.ts`
+  - `src/app/api/admin/support/threads/route.ts`
+  - `src/app/api/admin/moderation/security-alerts/route.ts`
+  - `src/app/api/admin/content/route.ts`
+  - `src/app/api/admin/ai/drop-covers/route.ts`
+  - `src/app/api/admin/debug/route.ts`
+- Hardened admin client truth surfaces to use shared status semantics and stop hardcoding live:
+  - `src/app/admin/AdminPrivacyPreflight.tsx`
+  - `src/hooks/useAdminPrivacyPreflight.ts`
+  - `src/app/admin/AdminTruthSurfaces.tsx`
+  - `src/app/admin/users/page.tsx`
+- Tightened user metric truth handling:
+  - `src/lib/admin-user-metrics.ts`
+  - `src/lib/user-utils.ts`
+- Added faster admin parity verification lanes and focused regression coverage:
+  - `scripts/check-admin-parity.ts`
+  - `tests/unit/admin-parity.spec.ts`
+  - updated admin route and metric tests
+
 ## [2026-04-22 #31] Admin Analytics Realtime Presence Hardening
 
 Scope for this pass:

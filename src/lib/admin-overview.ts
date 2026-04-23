@@ -1,4 +1,5 @@
 import type { Drop, Transaction } from "@/types/db";
+import type { AdminModuleVerification } from "@/lib/admin-parity";
 
 export type AdminOverviewDeltaDirection = "up" | "down" | "flat";
 
@@ -110,6 +111,7 @@ export interface AdminOverviewResponse {
     chartData: AdminOverviewDayPoint[];
     trendSummary: AdminOverviewWindowSummary;
     truthNotes: AdminOverviewTruthNotes;
+    verification?: AdminModuleVerification;
 }
 
 export function calculateOverviewMetricDelta(

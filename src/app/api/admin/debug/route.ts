@@ -52,6 +52,7 @@ import { summarizeRouteRuntimeHealth } from "@/lib/route-runtime-health";
 import { QUEUE_RUNTIME_WARNING_CODES } from "../../../../../shared/runtime/runtime-warning-contract";
 import { getBehavioralSnapshotStatus, listDropIntelligence } from "@/lib/server/behavioral-intelligence";
 import { getAnalyticsTruthRecoverySummary, listAnalyticsTruthDrops, listAnalyticsTruthRepairs, listAnalyticsTruthUsers } from "@/lib/server/analytics-truth-recovery";
+import { buildServerAdminModuleVerification } from "@/lib/server/admin-source-verification";
 
 const ONE_WEEK_MS = 7 * 24 * 60 * 60 * 1000;
 const TASK_AUDIT_SAMPLE_LIMIT = 2_000;
@@ -341,6 +342,15 @@ export async function GET(request: NextRequest) {
             listAnalyticsTruthUsers(12),
             listAnalyticsTruthRepairs(20),
         ]);
+        const analyticsChartHealthSummary = analyticsChartHealth.reduce((summary, item) => ({
+            total: summary.total + 1,
+            warn: summary.warn + (item.status === "warn" ? 1 : 0),
+            fail: summary.fail + (item.status === "fail" ? 1 : 0),
+        }), {
+            total: 0,
+            warn: 0,
+            fail: 0,
+        });
         const routeRuntimeHealthSummary = summarizeRouteRuntimeHealth(routeRuntimeHealth);
         const queueJobHeartbeatSummary = queueJobHeartbeats.reduce((summary, entry) => {
             const lastTouch = Math.max(
@@ -1059,6 +1069,83 @@ export async function GET(request: NextRequest) {
             analyticsTruthDrops,
             analyticsTruthUsers,
             analyticsTruthRepairs,
+            verification: buildServerAdminModuleVerification({
+                module: "admin_debug",
+                canonicalSource: "runtime_warning_records+route_runtime_health+admin_ui_chart_health",
+                fallbackSource: "panel_system_logs",
+                freshnessTimestamp: Math.max(
+                    routeRuntimeHealth.reduce((latest, item) => Math.max(latest, Number(item.updatedAtMs) || 0), 0),
+                    analyticsChartHealth.reduce((latest, item) => Math.max(latest, Number(item.updatedAtMs) || 0), 0),
+                ),
+                degradedReason: routeRuntimeHealthSummary.fail > 0
+                    ? `${routeRuntimeHealthSummary.fail} route runtime checks are failed`
+                    : analyticsChartHealthSummary.fail > 0
+                        ? `${analyticsChartHealthSummary.fail} admin chart health checks are failed`
+                        : runtimeWarningSummary.failed > 0
+                            ? `${runtimeWarningSummary.failed} runtime warnings are failed`
+                            : null,
+                status: routeRuntimeHealthSummary.fail > 0 || analyticsChartHealthSummary.fail > 0
+                    ? "failed"
+                    : routeRuntimeHealthSummary.warn > 0 || analyticsChartHealthSummary.warn > 0 || runtimeWarningSummary.failed > 0
+                        ? "degraded"
+                        : routeRuntimeHealthSummary.stale > 0
+                            ? "stale"
+                            : "live",
+                countComposition: {
+                    routeWarnings: routeRuntimeHealthSummary.warn,
+                    routeFailures: routeRuntimeHealthSummary.fail,
+                    chartWarnings: analyticsChartHealthSummary.warn,
+                    chartFailures: analyticsChartHealthSummary.fail,
+                    runtimeWarnings: runtimeWarningSummary.total,
+                },
+            }),
+            adminVerification: [
+                buildServerAdminModuleVerification({
+                    module: "admin_debug_route_runtime",
+                    canonicalSource: "route_runtime_health",
+                    fallbackSource: "runtime_warning_records",
+                    freshnessTimestamp: routeRuntimeHealth.reduce((latest, item) => Math.max(latest, Number(item.updatedAtMs) || 0), 0),
+                    degradedReason: routeRuntimeHealthSummary.fail > 0
+                        ? `${routeRuntimeHealthSummary.fail} route runtime checks are failed`
+                        : routeRuntimeHealthSummary.warn > 0
+                            ? `${routeRuntimeHealthSummary.warn} route runtime checks are degraded`
+                            : null,
+                    status: routeRuntimeHealthSummary.fail > 0
+                        ? "failed"
+                        : routeRuntimeHealthSummary.warn > 0
+                            ? "degraded"
+                            : routeRuntimeHealthSummary.stale > 0
+                                ? "stale"
+                                : "live",
+                    countComposition: {
+                        tracked: routeRuntimeHealth.length,
+                        warn: routeRuntimeHealthSummary.warn,
+                        fail: routeRuntimeHealthSummary.fail,
+                        stale: routeRuntimeHealthSummary.stale,
+                    },
+                }),
+                buildServerAdminModuleVerification({
+                    module: "admin_debug_chart_health",
+                    canonicalSource: "admin_ui_chart_health",
+                    fallbackSource: "panel_system_logs",
+                    freshnessTimestamp: analyticsChartHealth.reduce((latest, item) => Math.max(latest, Number(item.updatedAtMs) || 0), 0),
+                    degradedReason: analyticsChartHealthSummary.fail > 0
+                        ? `${analyticsChartHealthSummary.fail} chart health surfaces are failed`
+                        : analyticsChartHealthSummary.warn > 0
+                            ? `${analyticsChartHealthSummary.warn} chart health surfaces are degraded`
+                            : null,
+                    status: analyticsChartHealthSummary.fail > 0
+                        ? "failed"
+                        : analyticsChartHealthSummary.warn > 0
+                            ? "degraded"
+                            : "live",
+                    countComposition: {
+                        tracked: analyticsChartHealth.length,
+                        warn: analyticsChartHealthSummary.warn,
+                        fail: analyticsChartHealthSummary.fail,
+                    },
+                }),
+            ],
         }));
     } catch (error) {
         return finalize(handleApiError(error, "Admin.Debug.GET"), error);

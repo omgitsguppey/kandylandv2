@@ -15,6 +15,31 @@ Current repo-wide state snapshot: see [FULL_SCALE_CODEBASE_AUDIT.md](/Users/uylu
 
 ## 2026-04-22 Delta Coverage
 
+## 2026-04-23 Delta Coverage
+
+- Added shared admin parity and source-verification contracts:
+  - `src/lib/admin-parity.ts`
+  - `src/lib/server/admin-source-verification.ts`
+  - `src/components/admin/AdminStatusBadge.tsx`
+- Hardened admin source-truth route envelopes:
+  - `src/app/api/admin/overview/route.ts`
+  - `src/app/api/admin/users/route.ts`
+  - `src/app/api/admin/user/[userId]/route.ts`
+  - `src/app/api/admin/support/threads/route.ts`
+  - `src/app/api/admin/moderation/security-alerts/route.ts`
+  - `src/app/api/admin/content/route.ts`
+  - `src/app/api/admin/ai/drop-covers/route.ts`
+  - `src/app/api/admin/debug/route.ts`
+- Hardened admin client truth semantics:
+  - `src/hooks/useAdminPrivacyPreflight.ts`
+  - `src/app/admin/AdminPrivacyPreflight.tsx`
+  - `src/app/admin/AdminTruthSurfaces.tsx`
+  - `src/app/admin/users/page.tsx`
+- Added targeted admin parity verification tooling and regression coverage:
+  - `scripts/check-admin-parity.ts`
+  - `tests/unit/admin-parity.spec.ts`
+- Continuity note: admin surfaces must now reuse the shared status contract and route-level verification metadata instead of page-local labels or implied source truth.
+
 - Added admin realtime-presence derivation and listener ownership surfaces:
   - `src/lib/admin-analytics-live-runtime.ts`
   - `src/app/admin/analytics/hooks/useAdminAnalyticsRealtime.ts`

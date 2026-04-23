@@ -76,6 +76,8 @@ describe("admin support thread routes", () => {
         const body = await response.json();
 
         expect(response.status).toBe(200);
+        expect(body.verification.module).toBe("admin_support_threads");
+        expect(body.verification.status).toBe("live");
         expect(body.summary.openCount).toBe(1);
         expect(body.summary.waitingOnUserCount).toBe(1);
         expect(body.summary.resolvedCount).toBe(1);

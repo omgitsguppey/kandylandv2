@@ -13,6 +13,7 @@ import { getTransactionDisplayLabel, normalizeTransactionRecord } from "@/lib/tr
 import { handleApiError } from "@/lib/server/auth";
 import { fetchTelemetryLogs } from "@/lib/server/admin-analytics-shared";
 import { buildAdminOverviewUserNameMap } from "@/lib/server/admin-overview-users";
+import { buildServerAdminModuleVerification } from "@/lib/server/admin-source-verification";
 import {
     safeCountWithDiagnostics,
     safeDocumentWithDiagnostics,
@@ -555,6 +556,21 @@ export async function GET(request: NextRequest) {
                     : null,
             },
             truthNotes,
+            verification: buildServerAdminModuleVerification({
+                module: "admin_overview",
+                canonicalSource: "users+drops+transactions+analytics_event_facts",
+                fallbackSource: issues.length > 0 ? "diagnostic_read_fallbacks" : null,
+                freshnessTimestamp: Math.max(lastTransactionAt, lastAdminActivityAt, now),
+                degradedReason: issues.length > 0 ? issues[0] : null,
+                status: issues.length > 0 ? "degraded" : "live",
+                countComposition: {
+                    totalUsers: toNumber(usersCountSnapshot.data()?.count),
+                    liveDrops: drops.filter((drop) => drop.status === "active").length,
+                    totalDrops: drops.length,
+                    recentTransactions: recentTransactions.length,
+                    adminActivity: adminActivity.length,
+                },
+            }),
         }));
     } catch (error) {
         return finalize(handleApiError(error, "Admin.Overview.GET"), error);

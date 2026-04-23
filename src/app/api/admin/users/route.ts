@@ -28,6 +28,7 @@ import {
   syncCreatorOnboardingDocuments,
 } from "@/lib/server/creator-onboarding";
 import { recordRouteWarning } from "@/lib/server/route-diagnostics";
+import { buildServerAdminModuleVerification } from "@/lib/server/admin-source-verification";
 import { recordServerDiagnostic } from "@/lib/server/server-diagnostics";
 import {
   buildCommerceMetricsFromRollup,
@@ -1008,20 +1009,24 @@ export async function GET(request: NextRequest) {
         userOnboarded: user.onboardingCompleted === true,
         userCreatedAt: toTimestampNumber(user.createdAt),
         nowMs: Date.now(),
+        lastSeenAt: metricSnapshot.lastSeenAt,
         metrics: metricSnapshot,
       });
 
       analyticsByUser[user.uid] = {
         ...analytics,
         metricTruthLabel: metricIntegrity.truthLabel,
+        metricVerificationState: metricIntegrity.verificationState,
         metricSourceLabel: metricIntegrity.sourceLabel,
         metricIntegrityFailures: metricIntegrity.failures,
+        metricFreshnessMs: metricIntegrity.freshnessMs,
         recoveredFromFacts: metricIntegrity.recoveredFromFacts,
         engagementScore: scoreAdminUserEngagement(metricSnapshot, Date.now()),
       };
     });
 
     const metricFailureUsers = Object.values(analyticsByUser).filter((entry) => (entry.metricIntegrityFailures || []).length > 0);
+    const recoveredMetricUsers = Object.values(analyticsByUser).filter((entry) => entry.recoveredFromFacts === true).length;
     if (metricFailureUsers.length > 0) {
       recordServerDiagnostic({
         channel: "analytics",
@@ -1030,7 +1035,7 @@ export async function GET(request: NextRequest) {
         detail: {
           route: "admin/users",
           affectedUsers: metricFailureUsers.length,
-          recoveredFromFacts: Object.values(analyticsByUser).filter((entry) => entry.recoveredFromFacts === true).length,
+          recoveredFromFacts: recoveredMetricUsers,
           sampleFailures: metricFailureUsers.slice(0, 5).map((entry) => ({
             uid: entry.uid,
             failures: entry.metricIntegrityFailures,
@@ -1119,6 +1124,28 @@ export async function GET(request: NextRequest) {
       creatorOpsByUser: Object.fromEntries(creatorOpsByUser),
       dropReferences,
       summary,
+      verification: buildServerAdminModuleVerification({
+        module: "admin_users",
+        canonicalSource: "users+analytics_users_rollup+analytics_user_daily",
+        fallbackSource: factRecoveredUserIds.size > 0 ? "analytics_event_facts" : null,
+        freshnessTimestamp: Math.max(
+          Date.now(),
+          ...Object.values(analyticsByUser).map((entry) => Number(entry.lastSeenAt) || 0),
+        ),
+        degradedReason: metricFailureUsers.length > 0
+          ? `${metricFailureUsers.length} user metric snapshots are degraded`
+          : null,
+        status: metricFailureUsers.length > 0
+          ? "degraded"
+          : factRecoveredUserIds.size > 0
+            ? "fallback"
+            : "live",
+        countComposition: {
+          totalUsers: users.length,
+          degradedUsers: metricFailureUsers.length,
+          recoveredUsers: recoveredMetricUsers,
+        },
+      }),
     });
   } catch (error) {
     return handleApiError(error, "Admin.Users.GET");

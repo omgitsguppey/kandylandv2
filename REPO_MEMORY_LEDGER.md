@@ -24,6 +24,23 @@ This file is not a changelog. It is the concise ledger for durable decisions tha
 
 ## Decision Entries
 
+### 1ap. Admin truth surfaces must use one shared status contract and expose canonical source verification in route payloads
+
+- Approximate date: Recorded explicitly on 2026-04-23 from the Admin Parity + Source Verification Hardening pass
+- Status: Active admin truth and debugging rule
+- Problem/context: Admin surfaces were drifting between `live`, `realtime`, `healthy`, `warn`, `partial`, `connecting`, `polled`, and hardcoded badge states. Several routes returned useful data but no uniform proof of canonical source, fallback source, freshness, or degraded reason.
+- Decision made: Shared admin surfaces now standardize on `live`, `degraded`, `fallback`, `stale`, `unavailable`, and `failed`, and route payloads for key admin modules must return a verification envelope that names the canonical source, fallback source, freshness timestamp, degraded reason, and count composition when relevant.
+- What became canonical:
+  - `src/lib/admin-parity.ts`
+  - `src/lib/server/admin-source-verification.ts`
+  - `src/components/admin/AdminStatusBadge.tsx`
+  - route-level `verification` payloads on major admin endpoints
+  - `scripts/check-admin-parity.ts` as the fast structural gate for admin parity drift
+- Consequence for future work:
+  - Do not add new admin surfaces with bespoke status unions.
+  - Do not claim `[live]` without a canonical source path.
+  - If a module is fallback, stale, degraded, unavailable, or failed, the route and UI must say so explicitly.
+
 ### 1ao. Admin analytics live presence must subscribe to canonical first-party telemetry and treat polling as fallback, not primary truth
 
 - Approximate date: Recorded explicitly on 2026-04-22 from the Admin Analytics Realtime Presence Hardening pass

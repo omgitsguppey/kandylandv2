@@ -16,6 +16,7 @@ import { AdminPageHeader } from "@/components/Admin/AdminPageHeader";
 import { PageViewEvent } from "@/components/Analytics/PageViewEvent";
 import { AdminTasksManager } from "@/components/Admin/AdminTasksManager";
 import { reportClientIssue } from "@/lib/client-error-reporting";
+import type { AdminSurfaceState } from "@/lib/admin-parity";
 import { describeSecurityEvent } from "@/lib/security-events";
 import { toast } from "sonner";
 
@@ -133,7 +134,7 @@ export default function UserManagementPage() {
     const [dropReferences, setDropReferences] = useState<Record<string, DropReference>>({});
     const [summary, setSummary] = useState<UsersSummary | null>(null);
     const [loading, setLoading] = useState(true);
-    const [realtimeState, setRealtimeState] = useState<"connecting" | "live" | "partial" | "failed">("connecting");
+    const [realtimeState, setRealtimeState] = useState<AdminSurfaceState>("unavailable");
     const [searchQuery, setSearchQuery] = useState("");
     const [actionUser, setActionUser] = useState<UserProfile | null>(null);
     const [actionType, setActionType] = useState<'suspend' | 'ban' | 'activate' | null>(null);
@@ -176,7 +177,7 @@ export default function UserManagementPage() {
             }
         } catch (error) {
             if (options.silent) {
-                setRealtimeState("partial");
+                setRealtimeState("degraded");
             }
             reportClientIssue({
                 channel: "ui",
@@ -202,7 +203,9 @@ export default function UserManagementPage() {
 
     useEffect(() => {
         let cancelled = false;
-        const controller = new AbortController();
+        let controller = new AbortController();
+        let reconnectTimer: ReturnType<typeof setTimeout> | null = null;
+        let attempt = 0;
 
         const scheduleRefresh = (reason: string) => {
             if (refreshDebounceRef.current) {
@@ -214,7 +217,7 @@ export default function UserManagementPage() {
         };
 
         const connect = async () => {
-            setRealtimeState("connecting");
+            setRealtimeState((current) => current === "live" ? "degraded" : "unavailable");
             try {
                 const response = await authFetch("/api/admin/users/realtime", {
                     signal: controller.signal,
@@ -232,7 +235,15 @@ export default function UserManagementPage() {
                 while (!cancelled) {
                     const { value, done } = await reader.read();
                     if (done) {
-                        break;
+                        setRealtimeState("degraded");
+                        if (!cancelled) {
+                            reconnectTimer = setTimeout(() => {
+                                controller = new AbortController();
+                                attempt += 1;
+                                void connect();
+                            }, Math.min(10_000, 1_000 * (attempt + 1)));
+                        }
+                        return;
                     }
                     buffer += decoder.decode(value, { stream: true });
                     const messages = buffer.split("\n\n");
@@ -248,10 +259,10 @@ export default function UserManagementPage() {
                                 scheduleRefresh(payload.source || "admin_users_realtime");
                             }
                             if (payload.type === "failed") {
-                                setRealtimeState("partial");
+                                setRealtimeState("fallback");
                             }
                         } catch {
-                            setRealtimeState("partial");
+                            setRealtimeState("degraded");
                         }
                     });
                 }
@@ -268,6 +279,11 @@ export default function UserManagementPage() {
                         },
                         consoleLabel: "[Admin Users] realtime stream failed",
                     });
+                    reconnectTimer = setTimeout(() => {
+                        controller = new AbortController();
+                        attempt += 1;
+                        void connect();
+                    }, Math.min(15_000, 2_000 * (attempt + 1)));
                 }
             }
         };
@@ -279,6 +295,9 @@ export default function UserManagementPage() {
             controller.abort();
             if (refreshDebounceRef.current) {
                 clearTimeout(refreshDebounceRef.current);
+            }
+            if (reconnectTimer) {
+                clearTimeout(reconnectTimer);
             }
         };
     }, [fetchUsers]);
@@ -669,7 +688,7 @@ export default function UserManagementPage() {
                                     Most engaged right now
                                 </div>
                                 <span className="rounded-full border border-white/10 bg-black/30 px-2.5 py-1 text-[10px] font-bold uppercase tracking-[0.14em] text-gray-300">
-                                    [{realtimeState === "live" ? "live" : realtimeState}]
+                            [{realtimeState}]
                                 </span>
                             </div>
                             <div className="mt-3 grid gap-2">

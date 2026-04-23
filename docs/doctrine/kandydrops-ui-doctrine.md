@@ -25,9 +25,12 @@ This document dictates the interaction design and visual hierarchy rules for Kan
 ## 5. State Truth Labeling
 The UI must NEVER lie to the user or the admin about the state of the data.
 * **Live:** Default assumption if real-time telemetry is connected.
+* **Degraded:** Use when the canonical source exists but is incomplete, partially connected, or internally inconsistent.
 * **[stale]:** Must be explicitly labeled if the data is cached and older than acceptable thresholds.
 * **[fallback]:** Must be explicitly labeled if the primary data source failed and secondary/synthetic data is being shown.
+* **[unavailable]:** Must be explicitly labeled if no canonical source is wired or no verified snapshot exists yet.
 * **[failed]:** Must be explicitly indicated if data cannot be loaded. Never show an empty or "healthy" state on failed data. Silent catch blocks that result in blank UI are banned.
+* Admin truth surfaces must reuse the shared admin status contract rather than inventing page-local labels such as `healthy`, `partial`, `connecting`, or hardcoded `[live]`.
 
 ## 6. Admin Commerce Density
 * Admin user monetization must summarize gross cash, adjusted profit, package-rate bonus value, delivered GumDrops, and effective rate from canonical commerce helpers.

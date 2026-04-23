@@ -1,4 +1,5 @@
 import type { ChatMessageKind } from "@/lib/chat";
+import type { AdminModuleVerification } from "@/lib/admin-parity";
 
 export type AdminModerationThreadSummary = {
     id: string;
@@ -56,6 +57,7 @@ export type AdminModerationThreadsResponse = {
     generatedAtMs: number;
     freshnessMs: number;
     threads: AdminModerationThreadSummary[];
+    verification?: AdminModuleVerification;
 };
 
 export type AdminModerationThreadDetailResponse = {
@@ -64,6 +66,7 @@ export type AdminModerationThreadDetailResponse = {
     freshnessMs: number;
     thread: AdminModerationThreadSummary | null;
     messages: AdminModerationMessageRecord[];
+    verification?: AdminModuleVerification;
 };
 
 export type AdminModerationSecurityAlertsResponse = {
@@ -71,4 +74,5 @@ export type AdminModerationSecurityAlertsResponse = {
     generatedAtMs: number;
     freshnessMs: number;
     alerts: AdminModerationSecurityAlert[];
+    verification?: AdminModuleVerification;
 };

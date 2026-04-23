@@ -3,6 +3,7 @@ import { NextRequest, NextResponse } from "next/server";
 import { type AdminModerationSecurityAlertsResponse } from "@/lib/admin-moderation";
 import { listAdminModerationSecurityAlerts } from "@/lib/server/admin-moderation";
 import { handleApiError } from "@/lib/server/auth";
+import { buildServerAdminModuleVerification } from "@/lib/server/admin-source-verification";
 import { ADMIN, HEAVY_READ } from "@/lib/server/rate-limit";
 import { guardApiRequest } from "@/lib/server/request-guard";
 import { getErrorMessage } from "@/lib/server/route-diagnostics";
@@ -40,6 +41,12 @@ export async function GET(request: NextRequest) {
             generatedAtMs,
             freshnessMs: generatedAtMs,
             alerts: await listAdminModerationSecurityAlerts(),
+            verification: buildServerAdminModuleVerification({
+                module: "admin_moderation_security_alerts",
+                canonicalSource: "security_log",
+                fallbackSource: "route_runtime_health",
+                freshnessTimestamp: generatedAtMs,
+            }),
         };
 
         return finalize(NextResponse.json(body, {

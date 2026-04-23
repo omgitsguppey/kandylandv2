@@ -125,7 +125,7 @@ export function normalizeUserProfile(raw: unknown, user: User): UserProfile | nu
                     .map(([key, value]) => [key, Boolean(value)]),
             )
             : {},
-        createdAt: Number.isFinite(source.createdAt) ? Number(source.createdAt) : Date.now(),
+        createdAt: Number.isFinite(source.createdAt) ? Number(source.createdAt) : 0,
         lastCheckIn: Number.isFinite(source.lastCheckIn) ? Number(source.lastCheckIn) : undefined,
         streakCount: Number.isFinite(source.streakCount) ? Number(source.streakCount) : undefined,
         status: source.status === "active" || source.status === "suspended" || source.status === "banned" ? source.status : "active",

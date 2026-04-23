@@ -159,6 +159,8 @@ describe("GET/PUT /api/admin/ai/drop-covers", () => {
         expect(revalidate).toBe(0);
         expect(response.status).toBe(200);
         expect(response.headers.get("Cache-Control")).toContain("no-store");
+        expect(body.verification.module).toBe("admin_ai_drop_covers");
+        expect(body.verification.status).toBe("live");
         expect(body.aggregate.generationCount).toBe(4);
         expect(mockState.buildAdminAiDropCoverDashboard).toHaveBeenCalledTimes(1);
     });

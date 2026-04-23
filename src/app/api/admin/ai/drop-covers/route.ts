@@ -4,6 +4,7 @@ import { isAdminAiDropCoverSelectableModel } from "@/lib/ai-drop-covers";
 import type { RouteRuntimeHealthKey } from "@/lib/route-runtime-health";
 import { handleApiError } from "@/lib/server/auth";
 import { buildAdminAiDropCoverDashboard, saveAdminAiDropCoverSettings } from "@/lib/server/ai-drop-covers";
+import { buildServerAdminModuleVerification } from "@/lib/server/admin-source-verification";
 import { ADMIN_AI_CONTROL, ADMIN_AI_DASHBOARD_READ } from "@/lib/server/rate-limit";
 import { guardApiRequest } from "@/lib/server/request-guard";
 import { getErrorMessage } from "@/lib/server/route-diagnostics";
@@ -35,7 +36,32 @@ export async function GET(request: NextRequest) {
             scopeToCaller: true,
         });
 
-        return finalize(startedAt, "admin/ai/drop-covers:GET", NextResponse.json(await buildAdminAiDropCoverDashboard(), {
+        const dashboard = await buildAdminAiDropCoverDashboard();
+
+        return finalize(startedAt, "admin/ai/drop-covers:GET", NextResponse.json({
+            ...dashboard,
+            verification: buildServerAdminModuleVerification({
+                module: "admin_ai_drop_covers",
+                canonicalSource: "admin_ai_drop_cover_summary+admin_ai_drop_cover_jobs",
+                fallbackSource: "route_runtime_health",
+                freshnessTimestamp: Number(dashboard.refreshedAtMs) || Date.now(),
+                degradedReason: dashboard.runtime?.status && dashboard.runtime.status !== "ready"
+                    ? `runtime_${dashboard.runtime.status}`
+                    : null,
+                status: dashboard.runtime?.status === "ready"
+                    ? "live"
+                    : dashboard.runtime?.status === "disabled"
+                        ? "fallback"
+                        : dashboard.runtime?.status === "error"
+                            ? "failed"
+                            : "degraded",
+                countComposition: {
+                    generationCount: Number(dashboard.aggregate?.generationCount) || 0,
+                    successfulGenerationCount: Number(dashboard.aggregate?.successfulGenerationCount) || 0,
+                    failedGenerationCount: Number(dashboard.aggregate?.failedGenerationCount) || 0,
+                },
+            }),
+        }, {
             headers: {
                 "Cache-Control": "no-store, max-age=0",
             },

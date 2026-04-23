@@ -1,26 +1,27 @@
 import { useState, useEffect } from "react";
 import { onSnapshot, collection, query, limit, orderBy, getDocs } from "firebase/firestore";
 import { db } from "@/lib/firebase-data";
-
-export type PrivacyState = "live" | "stale" | "failed" | "fallback" | "unknown";
+import type { AdminSurfaceState } from "@/lib/admin-parity";
 
 export interface PrivacyPreflightStatus {
-  globalGuestTracking: PrivacyState;
-  eventsPipeline: PrivacyState;
-  dedupeHealth: PrivacyState;
-  cloudRunIngest: PrivacyState;
-  bqExportHealth: PrivacyState;
+  globalGuestTracking: AdminSurfaceState;
+  eventsPipeline: AdminSurfaceState;
+  dedupeHealth: AdminSurfaceState;
+  cloudRunIngest: AdminSurfaceState;
+  bqExportHealth: AdminSurfaceState;
+  consentGating: AdminSurfaceState;
   consentRejections: number;
   lastEventAgeMs: number;
 }
 
 export function useAdminPrivacyPreflight() {
   const [status, setStatus] = useState<PrivacyPreflightStatus>({
-    globalGuestTracking: "unknown",
-    eventsPipeline: "unknown",
-    dedupeHealth: "unknown",
-    cloudRunIngest: "unknown",
-    bqExportHealth: "unknown",
+    globalGuestTracking: "unavailable",
+    eventsPipeline: "unavailable",
+    dedupeHealth: "unavailable",
+    cloudRunIngest: "unavailable",
+    bqExportHealth: "unavailable",
+    consentGating: "unavailable",
     consentRejections: 0,
     lastEventAgeMs: 0,
   });
@@ -36,18 +37,26 @@ export function useAdminPrivacyPreflight() {
     const unsubscribeEvents = onSnapshot(eventsQuery, (snapshot) => {
       let rejections = 0;
       let lastTimestamp = 0;
-      let cloudRunOriginated = 0;
+      let canonicalOriginated = 0;
+      let guestTaggedEvents = 0;
+      let consentTaggedEvents = 0;
       
       snapshot.forEach(doc => {
         const data = doc.data();
         if (data.consentMode === "denied" || data.globalPrivacyControl) {
           rejections++;
         }
+        if (typeof data.consentMode === "string" || typeof data.globalPrivacyControl === "boolean") {
+          consentTaggedEvents++;
+        }
         if (data.timestamp > lastTimestamp) {
           lastTimestamp = data.timestamp;
         }
-        if (data.origin === "client") {
-          cloudRunOriginated++;
+        if (data.origin === "canonical" || data.origin === "cloud_run" || data.source === "canonical") {
+          canonicalOriginated++;
+        }
+        if (typeof data.guestId === "string" || typeof data.anonymousId === "string") {
+          guestTaggedEvents++;
         }
       });
 
@@ -57,16 +66,23 @@ export function useAdminPrivacyPreflight() {
       
       setStatus(prev => ({
         ...prev,
-        eventsPipeline: isPipelineLive ? "live" : (ageMs < 3600000 ? "stale" : "failed"),
-        cloudRunIngest: hasRecentEvents ? (cloudRunOriginated > 0 ? "live" : "fallback") : "unknown",
-        bqExportHealth: isPipelineLive ? "live" : (ageMs < 3600000 ? "stale" : "failed"), // Assumed healthy if pipeline is healthy
+        eventsPipeline: !hasRecentEvents ? "unavailable" : isPipelineLive ? "live" : (ageMs < 3600000 ? "stale" : "failed"),
+        cloudRunIngest: !hasRecentEvents ? "unavailable" : (canonicalOriginated > 0 ? "live" : "fallback"),
+        bqExportHealth: !hasRecentEvents ? "unavailable" : isPipelineLive ? "live" : (ageMs < 3600000 ? "stale" : "failed"),
+        consentGating: !hasRecentEvents ? "unavailable" : (consentTaggedEvents > 0 ? "live" : "degraded"),
         lastEventAgeMs: ageMs,
         consentRejections: rejections,
-        globalGuestTracking: "live" // Simplified guest tracking truth for preflight
+        globalGuestTracking: !hasRecentEvents ? "unavailable" : guestTaggedEvents > 0 ? "live" : "degraded",
       }));
     }, (error) => {
       console.error("[Preflight] Event pipeline listener failed", error);
-      setStatus(prev => ({ ...prev, eventsPipeline: "failed", cloudRunIngest: "failed", bqExportHealth: "failed" }));
+      setStatus(prev => ({
+        ...prev,
+        eventsPipeline: "failed",
+        cloudRunIngest: "failed",
+        bqExportHealth: "failed",
+        consentGating: "failed",
+      }));
     });
 
     // One-off check for dedupe collection health

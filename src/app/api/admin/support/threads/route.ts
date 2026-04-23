@@ -3,6 +3,7 @@ import { NextRequest, NextResponse } from "next/server";
 import { AuthError, handleApiError } from "@/lib/server/auth";
 import { ADMIN } from "@/lib/server/rate-limit";
 import { guardApiRequest } from "@/lib/server/request-guard";
+import { buildServerAdminModuleVerification } from "@/lib/server/admin-source-verification";
 import { getErrorMessage } from "@/lib/server/route-diagnostics";
 import { recordRouteRuntimeSample } from "@/lib/server/route-runtime-health";
 import { listSupportThreadsForAdmin } from "@/lib/server/support-threads";
@@ -54,6 +55,18 @@ export async function GET(request: NextRequest) {
                 waitingOnUserCount,
                 resolvedCount,
             },
+            verification: buildServerAdminModuleVerification({
+                module: "admin_support_threads",
+                canonicalSource: "support_threads",
+                fallbackSource: null,
+                freshnessTimestamp: Date.now(),
+                countComposition: {
+                    total: threads.length,
+                    openCount,
+                    waitingOnUserCount,
+                    resolvedCount,
+                },
+            }),
         }));
     } catch (error) {
         return finalize(handleApiError(error, "admin/support/threads"), error);

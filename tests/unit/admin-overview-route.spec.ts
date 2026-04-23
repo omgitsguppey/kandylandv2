@@ -382,6 +382,8 @@ describe("GET /api/admin/overview", () => {
         const payload = await response.json();
 
         expect(response.status).toBe(200);
+        expect(payload.verification.module).toBe("admin_overview");
+        expect(payload.verification.status).toBe("live");
         expect(payload.stats.totalUsers).toBe(2);
         expect(payload.stats.liveDrops).toBe(1);
         expect(payload.stats.grossRevenueCents).toBe(12050);
@@ -471,6 +473,7 @@ describe("GET /api/admin/overview", () => {
         const payload = await response.json();
 
         expect(response.status).toBe(200);
+        expect(payload.verification.status).toBe("live");
         expect(payload.stats.grossRevenueCents).toBe(500);
         expect(payload.stats.totalUnwraps).toBe(9);
         expect(payload.deltas.accounts.percentChange).toBeNull();

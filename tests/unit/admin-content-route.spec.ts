@@ -147,6 +147,8 @@ describe("admin content route", () => {
     expect(response.status).toBe(200);
     expect(response.headers.get("Cache-Control")).toBe("private, no-store");
     expect(payload.files).toHaveLength(1);
+    expect(payload.verification.module).toBe("admin_content_manager");
+    expect(payload.verification.countComposition.fileCount).toBe(1);
     expect(payload.files[0]).toMatchObject({
       name: "banner.png",
       fullPath: "drops/banner.png",

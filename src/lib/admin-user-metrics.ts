@@ -5,6 +5,8 @@ export type AdminUserMetricIntegrity = {
   sourceLabel: string;
   failures: string[];
   recoveredFromFacts: boolean;
+  verificationState: "live" | "degraded" | "stale" | "unavailable";
+  freshnessMs: number | null;
 };
 
 export type AdminUserMetricSnapshot = {
@@ -29,6 +31,7 @@ export type AdminUserMetricSourceInput = {
   userOnboarded: boolean;
   userCreatedAt: number;
   nowMs: number;
+  lastSeenAt?: number;
   metrics: AdminUserMetricSnapshot;
 };
 
@@ -92,15 +95,31 @@ export function buildAdminUserMetricIntegrity(input: AdminUserMetricSourceInput)
   }
 
   const userAgeMs = Math.max(0, input.nowMs - input.userCreatedAt);
+  const freshnessTimestamp = input.lastSeenAt ?? input.metrics.lastSeenAt ?? 0;
+  const freshnessMs = freshnessTimestamp > 0 ? Math.max(0, input.nowMs - freshnessTimestamp) : null;
   if (userAgeMs > 24 * 60 * 60 * 1000 && !input.hasRollup && !input.hasDaily && !input.recoveredFromFacts) {
     failures.push("no_canonical_metric_sources");
   }
 
+  const verificationState =
+    failures.length > 0 ? "degraded"
+      : sourceParts.length === 0 ? "unavailable"
+      : freshnessMs !== null && freshnessMs > 7 * 24 * 60 * 60 * 1000 ? "stale"
+      : "live";
+
   return {
-    truthLabel: failures.length > 0 ? "partial" : sourceParts.length > 0 ? "live" : "unknown",
+    truthLabel: verificationState === "degraded"
+      ? "partial"
+      : verificationState === "stale"
+        ? "stale"
+        : verificationState === "live"
+          ? "live"
+          : "unknown",
     sourceLabel: sourceParts.length > 0 ? sourceParts.join("+") : "no_canonical_metrics",
     failures,
     recoveredFromFacts: input.recoveredFromFacts,
+    verificationState,
+    freshnessMs,
   };
 }
 

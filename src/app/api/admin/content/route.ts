@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from "next/server";
 
 import { handleApiError } from "@/lib/server/auth";
+import { buildServerAdminModuleVerification } from "@/lib/server/admin-source-verification";
 import { adminStorage } from "@/lib/server/firebase-admin";
 import { ADMIN } from "@/lib/server/rate-limit";
 import { guardApiRequest } from "@/lib/server/request-guard";
@@ -39,7 +40,21 @@ export async function GET(request: NextRequest) {
 
         contentFiles.sort((left, right) => (right.timeCreated || "").localeCompare(left.timeCreated || ""));
 
-        return NextResponse.json({ files: contentFiles }, {
+        return NextResponse.json({
+            files: contentFiles,
+            verification: buildServerAdminModuleVerification({
+                module: "admin_content_manager",
+                canonicalSource: "firebase_storage:drops/",
+                fallbackSource: null,
+                freshnessTimestamp: contentFiles.reduce((latest, file) => {
+                    const createdAt = typeof file.timeCreated === "string" ? Date.parse(file.timeCreated) : 0;
+                    return Math.max(latest, Number.isFinite(createdAt) ? createdAt : 0);
+                }, 0) || Date.now(),
+                countComposition: {
+                    fileCount: contentFiles.length,
+                },
+            }),
+        }, {
             headers: {
                 "Cache-Control": "private, no-store",
             },
