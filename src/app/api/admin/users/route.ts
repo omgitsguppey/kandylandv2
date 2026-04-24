@@ -1,5 +1,6 @@
 import { NextRequest, NextResponse } from "next/server";
 import { FieldValue } from "firebase-admin/firestore";
+import type { AdminUsersResponse } from "@/types/admin-analytics";
 
 import { adminDb } from "@/lib/server/firebase-admin";
 import { handleApiError } from "@/lib/server/auth";
@@ -428,14 +429,14 @@ function serializeUserDoc(id: string, raw: Record<string, unknown>) {
     displayName: typeof raw.displayName === "string" || raw.displayName === null ? raw.displayName : null,
     username: typeof raw.username === "string" ? raw.username : "",
     photoURL: typeof raw.photoURL === "string" || raw.photoURL === null ? raw.photoURL : null,
-    role: raw.role === "admin" || raw.role === "creator" || raw.role === "user" ? raw.role : "user",
+    role: (raw.role === "admin" || raw.role === "creator" || raw.role === "user" ? raw.role : "user") as "user" | "creator" | "admin",
     isVerified: raw.isVerified === true,
     gumDropsBalance: typeof raw.gumDropsBalance === "number" ? raw.gumDropsBalance : 0,
     unlockedContent: toStringArray(raw.unlockedContent),
     createdAt: toTimestampNumber(raw.createdAt),
     lastCheckIn: toTimestampNumber(raw.lastCheckIn),
     streakCount: typeof raw.streakCount === "number" ? raw.streakCount : 0,
-    status: raw.status === "suspended" || raw.status === "banned" || raw.status === "active" ? raw.status : "active",
+    status: (raw.status === "suspended" || raw.status === "banned" || raw.status === "active" ? raw.status : "active") as "active" | "suspended" | "banned",
     statusReason: typeof raw.statusReason === "string" ? raw.statusReason : "",
     onboardingCompleted: raw.onboardingCompleted === true,
     notificationSettings: {
@@ -466,7 +467,7 @@ function serializeUserDoc(id: string, raw: Record<string, unknown>) {
       lastDeadlineReminderAt: toTimestampNumber(dailyTasksState.lastDeadlineReminderAt),
       completedTaskHistory:
         dailyTasksState.completedTaskHistory && typeof dailyTasksState.completedTaskHistory === "object"
-          ? dailyTasksState.completedTaskHistory
+          ? dailyTasksState.completedTaskHistory as Record<string, number>
           : {},
       retiredTaskIds: toStringArray(dailyTasksState.retiredTaskIds),
     },
@@ -1117,7 +1118,7 @@ export async function GET(request: NextRequest) {
       },
     };
 
-    return NextResponse.json({
+    const responseData: AdminUsersResponse = {
       success: true,
       users,
       analyticsByUser,
@@ -1146,7 +1147,9 @@ export async function GET(request: NextRequest) {
           recoveredUsers: recoveredMetricUsers,
         },
       }),
-    });
+    };
+
+    return NextResponse.json(responseData);
   } catch (error) {
     return handleApiError(error, "Admin.Users.GET");
   }

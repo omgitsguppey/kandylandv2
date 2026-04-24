@@ -24,7 +24,7 @@ export function AdminAnalyticsAudienceTab(props: AdminAnalyticsState) {
     deviceMixRange, devices, getDeviceIcon,
     topPathsRange, pages,
     regionsRange, geo,
-    audienceTotals, audienceHistorySeries, returnCadenceSegments, navigationDestinationsMix, deviceMixDevices, deviceMixTotalUsers, topPathsPages, regionsGeo,
+    audienceTotals, audienceHistorySeries, returnCadenceSegments, returnCadenceSummary, navigationDestinationsMix, deviceMixDevices, deviceMixTotalUsers, topPathsPages, regionsGeo,
 
     // Commerce Tab
     commerceSnapshotRange, commerce,
@@ -177,6 +177,20 @@ export function AdminAnalyticsAudienceTab(props: AdminAnalyticsState) {
                       />
                     </BarChart>
                   </ResponsiveContainer>
+                </div>
+                <div className="mt-4 grid grid-cols-2 gap-3 border-t border-white/5 pt-4">
+                  <MetricCard
+                    label="Unique Returners"
+                    value={formatCompactNumber(returnCadenceSummary?.uniqueReturners || 0)}
+                    hint="Multiple days active"
+                    icon={Users}
+                  />
+                  <MetricCard
+                    label="Conversion"
+                    value={formatPercent(returnCadenceSummary?.returnerConversionRate || 0)}
+                    hint={`${(returnCadenceSummary?.trackedUsers || 0).toLocaleString()} tracked users`}
+                    icon={Activity}
+                  />
                 </div>
               </SectionCard>
 

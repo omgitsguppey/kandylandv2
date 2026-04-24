@@ -6,6 +6,7 @@ import type {
   AnalyticsTruthSourceSummary,
   AnalyticsTruthSummary,
 } from "@/lib/admin-analytics-truth";
+import type { UserProfile } from "@/types/db";
 
 export type ViewTab = "operations" | "audience" | "commerce";
 export type RangeOption = AdminAnalyticsRangeOption;
@@ -459,3 +460,107 @@ export interface AnalyticsPreferencesResponse {
     moduleRanges?: AdminAnalyticsModuleRangeMap;
   };
 }
+
+export type UserAnalytics = {
+  uid: string;
+  username: string;
+  eventCount: number;
+  sessionCount: number;
+  viewCount: number;
+  engagedViewCount: number;
+  passiveViewCount: number;
+  bounceCount: number;
+  unwrapCount: number;
+  purchaseCount: number;
+  authSuccessCount: number;
+  onboardingStartCount: number;
+  onboardingCompletionCount: number;
+  watchSecondsTotal: number;
+  watchHours: number;
+  avgLoadMs: number;
+  lastSeenAt: number;
+  grossRevenueUsd: number;
+  grossRevenueCents: number;
+  adjustedProfitUsd: number;
+  adjustedProfitCents: number;
+  retailValueUsd: number;
+  bonusValueUsd: number;
+  bonusGumDrops: number;
+  deliveredGumDrops: number;
+  paidGumDrops: number;
+  averageOrderUsd: number;
+  effectiveUsdPer100Gd: number;
+  unlockSpendGdTotal: number;
+  lastPurchaseAt: number;
+  bundleYieldRatio: number;
+  commerceTruthLabel?: "live" | "partial" | "stale" | "unknown";
+  commerceSourceLabel?: string;
+  commerceEmptyReason?: string | null;
+  metricTruthLabel?: "live" | "partial" | "stale" | "unknown";
+  metricSourceLabel?: string;
+  metricIntegrityFailures?: string[];
+  recoveredFromFacts?: boolean;
+  engagementScore?: number;
+};
+
+export type UsersSummary = {
+  totalUsers: number;
+  totalCreators: number;
+  totalAdmins: number;
+  verifiedUsers: number;
+  activeUsers: number;
+  suspendedUsers: number;
+  bannedUsers: number;
+  notificationsEnabledUsers: number;
+  onboardingCompletedUsers: number;
+  activeLast7Days: number;
+  totalEvents: number;
+  totalUnwraps: number;
+  totalPurchases: number;
+  totalWatchHours: number;
+  grossRevenueUsd: number;
+  adjustedProfitUsd: number;
+  bonusValueUsd: number;
+  bonusGumDrops: number;
+  deliveredGumDrops: number;
+  paidGumDrops: number;
+  unlockSpendGdTotal: number;
+  averageOrderUsd: number;
+  effectiveUsdPer100Gd: number;
+  payingUsers: number;
+  commerceTruthLabel?: "live" | "partial" | "stale" | "unknown";
+  commerceSourceLabel?: string;
+  commerceEmptyReason?: string | null;
+  creatorOps?: {
+    creatorsWithFollowers: number;
+    totalFollowers: number;
+    totalAlertOptIns: number;
+    activeSubscriptions: number;
+    openRequests: number;
+    bookedCalls: number;
+    pendingPayouts: number;
+    openThreads: number;
+    pendingDropSubmissions: number;
+    totalAccruedGd: number;
+    pendingCashoutGd: number;
+  };
+};
+
+export type DropReference = {
+  id: string;
+  title: string;
+  status: string;
+  imageUrl?: string;
+};
+
+export type AdminUsersResponse = {
+  success: boolean;
+  users: UserProfile[];
+  analyticsByUser: Record<string, UserAnalytics>;
+  dropReferences: Record<string, DropReference>;
+  summary: UsersSummary;
+  creatorOpsByUser?: Record<string, any>;
+  verification?: any;
+  error?: string;
+};
+
