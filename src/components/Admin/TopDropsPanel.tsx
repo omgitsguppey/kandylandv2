@@ -2,18 +2,12 @@
 
 import type { AdminOverviewResponse } from "@/lib/admin-overview";
 
-type TopDropsPanelProps = {
-    topDrops: AdminOverviewResponse["topDrops"];
-    truthNote: string;
-};
-
-export function TopDropsPanel({ topDrops, truthNote }: TopDropsPanelProps) {
+export function TopDropsPanel({ topDrops }: { topDrops: AdminOverviewResponse["topDrops"] }) {
     return (
         <div className="space-y-3">
             {topDrops.length === 0 ? (
                 <div className="rounded-[1.35rem] border border-white/8 bg-black/25 px-4 py-8 text-center">
-                    <p className="text-sm font-semibold text-white">No drops are ranked yet.</p>
-                    <p className="mt-1 text-sm text-gray-400">{truthNote}</p>
+                    <p className="text-[11px] font-semibold text-gray-400">No drops are ranked yet.</p>
                 </div>
             ) : (
                 <div className="space-y-2">
@@ -46,7 +40,6 @@ export function TopDropsPanel({ topDrops, truthNote }: TopDropsPanelProps) {
                 </div>
             )}
 
-            <p className="text-xs text-gray-500">{truthNote}</p>
         </div>
     );
 }

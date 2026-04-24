@@ -66,8 +66,8 @@ export function AdminAiRuntimestripSection({ state }: { state: AdminAiState }) {
                                                 <div className="flex min-w-0 items-start justify-between gap-2">
                                                     <div className="min-w-0">
                                                         <div className="text-sm font-semibold text-white">{entry.label}</div>
-                                                        <div className="mt-1 break-words text-xs text-gray-400">
-                                                            {entry.maxReferenceInputs} refs • {formatAdminAiUsd(entry.pricePerGenerationUsd)}/run
+                                                        <div className="mt-1 break-words text-[11px] text-gray-400">
+                                                            {entry.maxReferenceInputs} refs • {formatAdminAiUsd(entry.pricePerGenerationUsd)}
                                                         </div>
                                                     </div>
                                                     <Badge className={cn("border", preflightTone(entry.preflightStatus))}>{entry.preflightStatus}</Badge>
@@ -98,8 +98,8 @@ export function AdminAiRuntimestripSection({ state }: { state: AdminAiState }) {
                                             )}
                                             disabled={savingReferenceSettings}
                                         >
-                                            <div className="text-sm font-semibold text-white">Primary style lock</div>
-                                            <div className="mt-1 text-xs text-gray-400">Keep typography and poster rhythm anchored to the chosen style reference.</div>
+                                            <div className="text-xs font-semibold text-white">Template lock</div>
+                                            <div className="mt-0.5 text-[10px] text-gray-400">Guide typography & style</div>
                                         </button>
                                         <button
                                             type="button"
@@ -110,8 +110,8 @@ export function AdminAiRuntimestripSection({ state }: { state: AdminAiState }) {
                                             )}
                                             disabled={savingReferenceSettings}
                                         >
-                                            <div className="text-sm font-semibold text-white">Catalog backfill</div>
-                                            <div className="mt-1 text-xs text-gray-400">Fill spare slots with best-fit catalog covers only after pinned and retained references.</div>
+                                            <div className="text-xs font-semibold text-white">Catalog backfill</div>
+                                            <div className="mt-0.5 text-[10px] text-gray-400">Fill spare refs</div>
                                         </button>
                                     </div>
                                 </div>

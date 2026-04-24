@@ -8,12 +8,11 @@ import { paginateOverviewItems } from "@/lib/admin-overview";
 
 type AdminActivityLogPanelProps = {
     activity: AdminOverviewResponse["adminActivity"];
-    truthNote: string;
 };
 
 const PAGE_SIZE = 5;
 
-export function AdminActivityLogPanel({ activity, truthNote }: AdminActivityLogPanelProps) {
+export function AdminActivityLogPanel({ activity }: AdminActivityLogPanelProps) {
     const [page, setPage] = useState(0);
     const chartUpdatedAtMs = useMemo(
         () => activity.reduce((latest, item) => Math.max(latest, item.timestamp), 0),
@@ -30,16 +29,11 @@ export function AdminActivityLogPanel({ activity, truthNote }: AdminActivityLogP
                 <span className="rounded-full border border-white/10 bg-black/30 px-2.5 py-1">
                     Admin-only feed
                 </span>
-                <span className="rounded-full border border-white/10 bg-black/30 px-2.5 py-1">
-                    5s polled snapshot
-                </span>
-                                <span className="text-xs text-gray-500">{truthNote}</span>
             </div>
 
             {activity.length === 0 ? (
                 <div className="rounded-[1.35rem] border border-white/8 bg-black/25 px-4 py-8 text-center">
-                    <p className="text-sm font-semibold text-white">No recent admin-only activity was found.</p>
-                    <p className="mt-1 text-sm text-gray-400">{truthNote}</p>
+                    <p className="text-[11px] font-semibold text-gray-400">No recent admin-only activity was found.</p>
                 </div>
             ) : (
                 <>

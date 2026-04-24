@@ -329,7 +329,7 @@ export function AiDropCoverGeneratorPanel({
     }
 
     return (
-        <div className="rounded-[1.4rem] border border-brand-purple/15 bg-brand-purple/[0.06] p-3 sm:p-4">
+        <div className="rounded-[1rem] border border-brand-purple/15 bg-brand-purple/[0.04] p-3">
             <div className="flex flex-col gap-3 sm:flex-row sm:items-start sm:justify-between">
                 <div className="min-w-0">
                     <div className="flex items-center gap-2 text-sm font-bold text-white">
@@ -431,12 +431,6 @@ export function AiDropCoverGeneratorPanel({
                     <span>{selectedModelOption.label}</span>
                     <span>|</span>
                     <span>{formatAdminAiUsd(selectedModelOption.pricePerGenerationUsd)} / image</span>
-                    {dashboard.runtime.note ? (
-                        <>
-                            <span>|</span>
-                            <span>{dashboard.runtime.note}</span>
-                        </>
-                    ) : null}
                 </div>
             ) : null}
 
@@ -547,11 +541,7 @@ export function AiDropCoverGeneratorPanel({
                         );
                     })}
                 </div>
-            ) : (
-                <div className="mt-4 rounded-[1rem] border border-dashed border-white/10 bg-black/25 p-4 text-sm text-gray-400">
-                    No AI cover jobs for this modal yet. Generate a cover from the current title to start the history.
-                </div>
-            )}
+            ) : null}
         </div>
     );
 }

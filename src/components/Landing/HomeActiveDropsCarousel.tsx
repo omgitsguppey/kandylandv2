@@ -105,7 +105,7 @@ export const HomeActiveDropsCarousel = memo(function HomeActiveDropsCarousel({
 
     if (activeDrops.length === 0) {
         return (
-            <div className="rounded-[1.6rem] border border-white/10 bg-zinc-950 px-5 py-12 text-center text-sm text-gray-500">
+            <div className="rounded-[1.6rem] border border-white/10 bg-zinc-950 px-5 py-12 text-center text-sm text-gray-400">
                 {emptyLabel}
             </div>
         );

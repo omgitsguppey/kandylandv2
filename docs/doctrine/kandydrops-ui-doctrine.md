@@ -36,3 +36,8 @@ The UI must NEVER lie to the user or the admin about the state of the data.
 * Admin user monetization must summarize gross cash, adjusted profit, package-rate bonus value, delivered GumDrops, and effective rate from canonical commerce helpers.
 * Do not show repeated zero-value monetization, support, security, or parity cards by default. Use compact summaries and collapse or link out source diagnostics.
 * Bonus value must be labeled as package-rate impact when shown in admin views; the retail anchor remains $1 = 100 GumDrops.
+
+## 7. Dashboards and Overview Surfaces
+* **No Polling Fallbacks:** Top-level dashboards must never use synthetic polling snapshots if true realtime canonical subscriptions (Firestore `onSnapshot`) are viable.
+* **Minimal Copy, Maximum Trust:** Ban paragraph-heavy explainer cards and verbose headers in overview surfaces. The UI must rely on strict numeric indicators and tight delta labels instead of "explaining" the backend process.
+* **No Fake Confidence:** Never blend stale analytics snapshots into live feed gaps to fake completeness. If a metric is broken, label it explicitly as `[Degraded]`.

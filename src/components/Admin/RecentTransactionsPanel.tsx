@@ -12,7 +12,6 @@ import { getTransactionBadgeLabel, normalizeTransactionRecord } from "@/lib/tran
 
 type RecentTransactionsPanelProps = {
     transactions: AdminOverviewResponse["recentTransactions"];
-    truthNote: string;
 };
 
 type DisplayTransaction = AdminOverviewTransactionRecord;
@@ -54,7 +53,7 @@ function toDisplayTransaction(
     };
 }
 
-export function RecentTransactionsPanel({ transactions: fallbackTransactions, truthNote }: RecentTransactionsPanelProps) {
+export function RecentTransactionsPanel({ transactions: fallbackTransactions }: RecentTransactionsPanelProps) {
     const nowMs = useNow({ intervalMs: 60_000 });
     const [liveTransactions, setLiveTransactions] = useState<DisplayTransaction[] | null>(null);
     const [liveFeedError, setLiveFeedError] = useState<string | null>(null);
@@ -123,13 +122,12 @@ export function RecentTransactionsPanel({ transactions: fallbackTransactions, tr
                         Overview fallback, polled every 5s
                     </span>
                 )}
-                                <span className="text-xs text-gray-500">{truthNote}</span>
+
             </div>
 
             {transactions.length === 0 ? (
                 <div className="rounded-[1.35rem] border border-white/8 bg-black/25 px-4 py-8 text-center">
-                    <p className="text-sm font-semibold text-white">No recent transactions are available.</p>
-                    <p className="mt-1 text-sm text-gray-400">{truthNote}</p>
+                    <p className="text-[11px] font-semibold text-gray-400">No recent transactions are available.</p>
                 </div>
             ) : (
                 <>

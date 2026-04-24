@@ -57,11 +57,11 @@ export function AdminAiRecentgenerationsSection({ state }: { state: AdminAiState
                                 <div className="grid min-w-0 gap-3 lg:grid-cols-2">
                                     {(data?.recentJobs || []).map((job) => (
                                         <div key={job.id} className="min-w-0 overflow-hidden rounded-[1.1rem] border border-white/10 bg-black/25">
-                                            <div className="relative aspect-square overflow-hidden bg-black/40">
+                                            <div className="relative aspect-video overflow-hidden bg-black/40">
                                                 {job.imageUrl ? (
                                                     <Image src={job.imageUrl} alt={job.title} fill className="object-cover" sizes="(min-width: 1280px) 360px, 100vw" />
                                                 ) : (
-                                                    <div className="flex h-full items-center justify-center text-sm text-gray-500">No image saved</div>
+                                                    <div className="flex h-full items-center justify-center text-xs text-gray-500">No image saved</div>
                                                 )}
                                             </div>
                                             <div className="space-y-3 p-3.5">
@@ -76,50 +76,50 @@ export function AdminAiRecentgenerationsSection({ state }: { state: AdminAiState
                                                     </div>
                                                 </div>
 
-                                                <div className="grid gap-2 sm:grid-cols-2">
-                                                    <MetricCard label="Refs used" value={job.referenceImageCount || 0} meta={`${job.referenceRequestCount || job.referenceImageCount || 0} requested`} />
-                                                    <MetricCard label="Anchoring risk" value={job.overAnchoringRisk || "low"} meta={job.referenceTruncated ? "Truncated to model cap" : "Within model cap"} />
+                                                <div className="grid grid-cols-2 gap-2">
+                                                    <MetricCard label="Refs used" value={job.referenceImageCount || 0} meta={`${job.referenceRequestCount || job.referenceImageCount || 0} req`} />
+                                                    <MetricCard label="Risk" value={job.overAnchoringRisk || "low"} meta={job.referenceTruncated ? "Cap hit" : "Within cap"} />
                                                 </div>
 
                                                 {job.validationWarnings && job.validationWarnings.length > 0 ? (
                                                     <div className="rounded-[0.95rem] border border-amber-400/20 bg-amber-500/10 px-3 py-2 text-xs text-amber-100 break-words">{job.validationWarnings.join(" | ")}</div>
                                                 ) : null}
 
-                                                <details className="overflow-hidden rounded-[0.95rem] border border-white/10 bg-white/[0.03] px-3 py-2">
-                                                    <summary className="cursor-pointer list-none text-sm font-semibold text-white">Prompt provenance</summary>
-                                                    <div className="mt-3 space-y-3 text-xs text-gray-300">
+                                                <details className="overflow-hidden rounded-[0.95rem] border border-white/10 bg-white/[0.03]">
+                                                    <summary className="cursor-pointer list-none px-3 py-2.5 text-xs font-semibold text-white hover:bg-white/[0.02]">Prompt provenance</summary>
+                                                    <div className="space-y-3 px-3 pb-3 text-[11px] text-gray-300 border-t border-white/10 pt-2">
                                                         <div>
-                                                            <div className="mb-1 font-semibold text-white">Working prompt</div>
-                                                            <pre className="whitespace-pre-wrap break-words font-sans">{job.workingPrompt || "Not recorded"}</pre>
+                                                            <div className="mb-0.5 font-semibold text-white">Working prompt</div>
+                                                            <pre className="whitespace-pre-wrap break-words font-sans text-gray-400">{job.workingPrompt || "Not recorded"}</pre>
                                                         </div>
                                                         {job.optimizerAdjustedPrompt ? (
                                                             <div>
-                                                                <div className="mb-1 font-semibold text-white">Optimizer-adjusted prompt</div>
-                                                                <pre className="whitespace-pre-wrap break-words font-sans">{job.optimizerAdjustedPrompt}</pre>
+                                                                <div className="mb-0.5 font-semibold text-white">Optimizer adjusted</div>
+                                                                <pre className="whitespace-pre-wrap break-words font-sans text-gray-400">{job.optimizerAdjustedPrompt}</pre>
                                                             </div>
                                                         ) : null}
                                                         {job.providerEnhancedPrompt ? (
                                                             <div>
-                                                                <div className="mb-1 font-semibold text-white">Provider-enhanced prompt</div>
-                                                                <pre className="whitespace-pre-wrap break-words font-sans">{job.providerEnhancedPrompt}</pre>
+                                                                <div className="mb-0.5 font-semibold text-white">Provider enhanced</div>
+                                                                <pre className="whitespace-pre-wrap break-words font-sans text-gray-400">{job.providerEnhancedPrompt}</pre>
                                                             </div>
                                                         ) : null}
                                                     </div>
                                                 </details>
 
-                                                <details className="overflow-hidden rounded-[0.95rem] border border-white/10 bg-white/[0.03] px-3 py-2">
-                                                    <summary className="cursor-pointer list-none text-sm font-semibold text-white">References used</summary>
-                                                    <div className="mt-3 space-y-2">
+                                                <details className="overflow-hidden rounded-[0.95rem] border border-white/10 bg-white/[0.03]">
+                                                    <summary className="cursor-pointer list-none px-3 py-2.5 text-xs font-semibold text-white hover:bg-white/[0.02]">References used</summary>
+                                                    <div className="space-y-2 px-3 pb-3 border-t border-white/10 pt-2">
                                                         {(job.referenceAssets || []).length === 0 ? (
-                                                            <p className="text-xs text-gray-400">No reference metadata stored on this job.</p>
+                                                            <p className="text-[11px] text-gray-400">No reference metadata stored on this job.</p>
                                                         ) : (job.referenceAssets || []).map((asset) => (
-                                                            <div key={`${job.id}-${asset.id}`} className="flex min-w-0 items-center gap-3 rounded-[0.9rem] border border-white/8 bg-black/25 p-2.5">
-                                                                <div className="relative h-12 w-12 shrink-0 overflow-hidden rounded-[0.8rem] border border-white/10 bg-black/30">
-                                                                    <Image src={asset.imageUrl} alt={asset.title || "Reference"} fill className="object-cover" sizes="48px" />
+                                                            <div key={`${job.id}-${asset.id}`} className="flex min-w-0 items-center gap-2 rounded-[0.8rem] border border-white/8 bg-black/25 p-2">
+                                                                <div className="relative h-8 w-8 shrink-0 overflow-hidden rounded-md border border-white/10 bg-black/30">
+                                                                    <Image src={asset.imageUrl} alt={asset.title || "Reference"} fill className="object-cover" sizes="32px" />
                                                                 </div>
                                                                 <div className="min-w-0">
-                                                                    <div className="truncate text-sm font-semibold text-white">{asset.title || asset.fileName || "Reference"}</div>
-                                                                    <div className="mt-1 text-xs text-gray-400">{getReferenceSourceLabel(asset)}</div>
+                                                                    <div className="truncate text-xs font-semibold text-white">{asset.title || asset.fileName || "Reference"}</div>
+                                                                    <div className="mt-0.5 text-[10px] text-gray-400">{getReferenceSourceLabel(asset)}</div>
                                                                 </div>
                                                             </div>
                                                         ))}

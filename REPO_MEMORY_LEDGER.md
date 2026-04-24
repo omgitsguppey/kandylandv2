@@ -1,7 +1,7 @@
 # Repo Memory Ledger
 
 Status: Canonical repository-memory and architecture-decision ledger
-Last refreshed: 2026-04-21
+Last refreshed: 2026-04-24
 Repo: `C:\Users\uylus\OneDrive\Documents\KandyDrops_Final`
 
 ## Purpose
@@ -23,6 +23,23 @@ This file is not a changelog. It is the concise ledger for durable decisions tha
 4. When this file and runtime code disagree, runtime code plus verification wins and this file must be updated immediately.
 
 ## Decision Entries
+
+### 1ar. Admin overview/debug/analytics hydration must not wait on cold polling when hot Firestore truth exists
+
+- Approximate date: Recorded explicitly on 2026-04-24 from the Admin Hydration + Realtime Janitorial Recovery pass
+- Status: Active admin truth and hydration rule
+- Problem/context: Admin overview and debug work had drifted toward short polling, incomplete refactor state, and one client hook importing server-only route-runtime health. Analytics had listener-derived live truth, but the merged response could still appear blocked behind the polled realtime route.
+- Decision made: Hot admin dashboards should hydrate from canonical Firestore listeners as soon as listener snapshots are available. Server routes remain rollup/fallback companions and must not be required before live/partial realtime truth can render.
+- What became canonical:
+  - `src/hooks/useAdminOverviewRealtime.ts` owns overview listener hydration and source-state labeling.
+  - `src/hooks/useAdminOverview.ts` delegates to the realtime overview hook.
+  - `src/app/admin/analytics/hooks/useAdminAnalyticsState.tsx` can return listener-derived live analytics without waiting for the polled realtime route.
+  - `src/lib/route-runtime-health.ts` exports the client-safe route runtime health collection key.
+  - `src/app/admin/debug/hooks/useAdminDebugRealtime.ts` reads debug realtime health without importing server-only modules.
+- Consequence for future work:
+  - Do not restore top-level admin dashboards to polling-only hydration when a canonical listener lane exists.
+  - Do not import `@/lib/server/*` from client hooks or UI.
+  - Admin UI may show `[Partial]`, `[Failed]`, or `[Fallback]`, but it must not claim `[Live]` unless the relevant listener state proves it.
 
 ### 1aq. Admin realtime client hooks must derive visible selection and subscription targets from the same source
 

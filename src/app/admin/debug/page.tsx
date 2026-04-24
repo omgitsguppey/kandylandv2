@@ -8,7 +8,6 @@ import {
     Loader2,
     Plus,
     Radio,
-    RefreshCw,
     ShieldAlert,
     Sparkles,
     Terminal,
@@ -16,12 +15,12 @@ import {
 import { toast } from "sonner";
 
 import { AdminPageHeader } from "@/components/Admin/AdminPageHeader";
-import { AdminModuleVerificationCard } from "@/components/Admin/AdminModuleVerificationCard";
 import { PageViewEvent } from "@/components/Analytics/PageViewEvent";
 import { Button } from "@/components/ui/Button";
 import { useAuth } from "@/context/AuthContext";
 import { AdminAiAssistantRealtimePanel } from "./components/AdminAiAssistantRealtimePanel";
 import { useAdminAiAssistantRealtime } from "./hooks/useAdminAiAssistantRealtime";
+import { useAdminDebugRealtime } from "./hooks/useAdminDebugRealtime";
 import { useAdminOverview } from "@/hooks/useAdminOverview";
 import { useAdminPollingSWR } from "@/hooks/useAdminPollingSWR";
 import { useCompactViewport } from "@/hooks/useCompactViewport";
@@ -180,10 +179,19 @@ export default function DebugConsole() {
     const [savingDebugPreferences, setSavingDebugPreferences] = useState(false);
     const debugPreferencesHydratedRef = useRef(false);
 
-    const { data, error, isLoading, mutate } = useAdminPollingSWR<any>("/api/admin/debug", 15000, {
+    const { data, error, isLoading, mutate } = useAdminPollingSWR<any>("/api/admin/debug", 60000, {
         keepPreviousData: true,
         revalidateOnFocus: false,
     });
+
+    const {
+        clusteredWarnings,
+        activeWarnings,
+        historicalWarnings,
+        routeHealth: realtimeRouteHealth,
+        repairProposals: realtimeRepairProposals,
+        queueHeartbeats: realtimeQueueHeartbeats
+    } = useAdminDebugRealtime();
     const { data: debugPreferencesData, mutate: mutateDebugPreferences } = useAdminPollingSWR<any>("/api/admin/debug/preferences", 15000, {
         keepPreviousData: true,
         revalidateOnFocus: false,
@@ -265,10 +273,7 @@ export default function DebugConsole() {
         () => (data?.panelSystemLogs || []).filter((entry: any) => entry.status === "fail").length,
         [data?.panelSystemLogs],
     );
-            const routeRuntimeHealth = useMemo(
-        () => data?.routeRuntimeHealth || [],
-        [data?.routeRuntimeHealth],
-    );
+            const routeRuntimeHealth = realtimeRouteHealth;
     const filteredRouteRuntimeHealth = useMemo(
         () => filterAdminDebugRouteRuntimeHealth(routeRuntimeHealth, routeRuntimeFilter),
         [routeRuntimeHealth, routeRuntimeFilter],
@@ -301,14 +306,8 @@ export default function DebugConsole() {
         () => buildAdminDebugRouteRuntimeRateSummary(compatibilityChatRouteRuntimeHealth),
         [compatibilityChatRouteRuntimeHealth],
     );
-    const queueJobHeartbeats = useMemo(
-        () => data?.queueJobHeartbeats || [],
-        [data?.queueJobHeartbeats],
-    );
-    const runtimeWarnings = useMemo(
-        () => data?.runtimeWarnings || [],
-        [data?.runtimeWarnings],
-    );
+    const queueJobHeartbeats = realtimeQueueHeartbeats;
+    const runtimeWarnings = activeWarnings;
     const notificationDispatchOutcomes = useMemo(
         () => data?.notificationDispatchOutcomes || [],
         [data?.notificationDispatchOutcomes],
@@ -386,27 +385,7 @@ export default function DebugConsole() {
     }, [aiDebugData]);
     const aiAssistantRealtime = useAdminAiAssistantRealtime(aiDebugData);
 
-    const debugSurfaceHealth = useMemo(() => ([
-        
-        
-        
-        
-    ]), [
-        aiDebugData,
-        aiDebugError,
-        data,
-        error,
-        freshestLoadedSignalAt,
-        isLoading,
-        overviewData,
-        overviewDependencyUpdatedAt,
-        overviewLoading,
-        routeRuntimeHealth.length,
-        routeRuntimeLaneUpdatedAt,
-        routeRuntimeHealthSummary.stale,
-        unseenRouteRuntimeCount,
-    ]);
-        const aiStatusLabel = aiDebugError
+    const aiStatusLabel = aiDebugError
         ? "Unavailable"
         : !aiDebugData
             ? "Loading"
@@ -568,10 +547,10 @@ export default function DebugConsole() {
                 title="Debug Console"
                 compact
                 actions={(
-                    <Button variant="glass" onClick={refreshAll}>
-                        <RefreshCw className="mr-2 h-4 w-4" />
-                        Refresh
-                    </Button>
+                    <div className="flex items-center gap-2">
+                        <div className="h-2 w-2 rounded-full bg-emerald-500 animate-pulse" />
+                        <span className="text-xs font-semibold text-emerald-500 uppercase tracking-widest">Live</span>
+                    </div>
                 )}
             />
 

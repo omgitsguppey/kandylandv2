@@ -20,7 +20,6 @@ import { trackEvent } from "@/lib/telemetry";
 type AdminAnalyticsChartsProps = {
     chartData: AdminOverviewResponse["chartData"];
     trendSummary: AdminOverviewResponse["trendSummary"];
-    truthNote: string;
     issueCount: number;
     loading?: boolean;
 };
@@ -44,7 +43,6 @@ function formatDeltaSummary(current: number, previous: number, suffix = "") {
 export function AdminAnalyticsCharts({
     chartData,
     trendSummary,
-    truthNote,
     issueCount,
     loading = false,
 }: AdminAnalyticsChartsProps) {
@@ -114,9 +112,6 @@ export function AdminAnalyticsCharts({
                     <span className="rounded-full border border-white/10 bg-black/30 px-2.5 py-1">
                         Last {trendSummary.windowDays} days
                     </span>
-                    <span className="rounded-full border border-white/10 bg-black/30 px-2.5 py-1">
-                        Polled overview data
-                    </span>
                     {issueCount > 0 ? (
                         <span className="rounded-full border border-amber-400/20 bg-amber-500/10 px-2.5 py-1 text-amber-200">
                             {issueCount} read issue{issueCount === 1 ? "" : "s"}
@@ -158,8 +153,7 @@ export function AdminAnalyticsCharts({
 
             {!chartHasData ? (
                 <div className="rounded-[1.35rem] border border-white/8 bg-black/25 px-4 py-8 text-center">
-                    <p className="text-sm font-semibold text-white">No overview trend data is available for this window.</p>
-                    <p className="mt-1 text-sm text-gray-400">{truthNote}</p>
+                    <p className="text-[11px] font-semibold text-gray-400">No overview trend data is available for this window.</p>
                 </div>
             ) : (
                 <div className="rounded-[1.45rem] border border-white/8 bg-black/30 p-3.5 md:p-4">
@@ -210,8 +204,6 @@ export function AdminAnalyticsCharts({
                     </div>
                 </div>
             )}
-
-            <p className="text-xs text-gray-500">{truthNote}</p>
         </div>
     );
 }

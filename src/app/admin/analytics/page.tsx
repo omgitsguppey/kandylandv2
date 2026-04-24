@@ -18,7 +18,6 @@ import {
 
 import { cn } from "@/lib/utils";
 import { AdminPageHeader } from "@/components/Admin/AdminPageHeader";
-import { AdminModuleVerificationCard } from "@/components/Admin/AdminModuleVerificationCard";
 import {
   MetricCard,
 } from "@/components/Admin/Analytics/AdminAnalyticsPrimitives";

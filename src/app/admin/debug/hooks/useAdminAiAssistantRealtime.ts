@@ -53,13 +53,6 @@ export function useAdminAiAssistantRealtime(summary: AdminAiDebugSummary | null 
     });
 
     useEffect(() => {
-        setSettings((current) => normalizeAdminAiDebugAssistantSettingsSnapshot(current, {
-            enabled: summary?.enabled,
-            model: summary?.configured_model,
-        }));
-    }, [summary?.configured_model, summary?.enabled]);
-
-    useEffect(() => {
         const settingsControl = createAutoHealingObserver(() => onSnapshot(
             doc(collection(db, "adminSettings"), ADMIN_AI_DEBUG_ASSISTANT_SETTINGS_DOC),
             (snapshot) => {
@@ -133,11 +126,7 @@ export function useAdminAiAssistantRealtime(summary: AdminAiDebugSummary | null 
                 }));
                 setListenerState((current) => ({
                     ...current,
-                    routesLoaded: Boolean(
-                        current.routesLoaded
-                        || routeHealthByKey[ADMIN_AI_DEBUG_ROUTE_RUNTIME_KEYS.write] !== undefined
-                        || snapshot.exists(),
-                    ),
+                    routesLoaded: current.routesLoaded || snapshot.exists(),
                 }));
                 setListenerErrors((current) => ({ ...current, routesFailed: false }));
             },
@@ -198,14 +187,22 @@ export function useAdminAiAssistantRealtime(summary: AdminAiDebugSummary | null 
         };
     }, [summary?.configured_model, summary?.enabled]);
 
+    const effectiveSettings = useMemo(
+        () => normalizeAdminAiDebugAssistantSettingsSnapshot(settings, {
+            enabled: summary?.enabled,
+            model: summary?.configured_model,
+        }),
+        [settings, summary?.configured_model, summary?.enabled],
+    );
+
     return useMemo(() => buildAdminAiDebugRealtimeSignals({
         summary,
-        settings,
+        settings: effectiveSettings,
         diagnostics: diagnostics.filter((entry): entry is NonNullable<typeof entry> => Boolean(entry)),
         routeHealth: routeHealthByKey,
         listenerState: {
             ...listenerState,
             ...listenerErrors,
         },
-    }), [diagnostics, listenerErrors, listenerState, routeHealthByKey, settings, summary]);
+    }), [diagnostics, effectiveSettings, listenerErrors, listenerState, routeHealthByKey, summary]);
 }

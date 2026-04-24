@@ -1,3 +1,5 @@
+export const ROUTE_RUNTIME_HEALTH_COLLECTION = "route_runtime_health";
+
 export const ROUTE_RUNTIME_HEALTH_TARGETS = {
     "admin/debug:GET": {
         routeName: "admin/debug",

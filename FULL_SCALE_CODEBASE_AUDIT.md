@@ -1,5 +1,68 @@
 # KandyDrops Core Codebase Audit & Defensive Ledger
 
+## [2026-04-24 #35] POST-IMPLEMENTATION: Admin Hydration + UI Audit Signoff
+
+Scope completed:
+- Hardened admin overview/debug/analytics realtime hydration after the pre-pass found client/server import drift, slow fallback dependence, incomplete refactor remnants, and generated-script noise.
+- Updated the UI audit lane to mask intentionally dynamic/auth-sensitive visual regions and fixed the homepage empty daily-experience contrast failure instead of baselining an accessibility violation.
+
+Implemented changes:
+- `src/hooks/useAdminOverviewRealtime.ts` now lets Firestore drops, commerce summary, and transactions hydrate the overview before the cold `/api/admin/overview` rollup returns, while marking the response `[Partial]`, `[Live]`, or `[Failed]` based on listener state.
+- `src/app/admin/analytics/hooks/useAdminAnalyticsState.tsx` no longer requires the polled realtime route before returning listener-derived live analytics data.
+- `src/app/admin/debug/hooks/useAdminDebugRealtime.ts` now imports the route-runtime collection key from a client-safe module.
+- `src/app/admin/debug/page.tsx`, `src/app/admin/page.tsx`, `src/app/admin/analytics/page.tsx`, `src/app/api/admin/analytics/realtime/route.ts`, `src/app/admin/ai/page.tsx`, `src/app/admin/debug/hooks/useAdminAiAssistantRealtime.ts`, and `src/hooks/useAdminSupportRealtime.ts` had incomplete refactor/lint blockers removed.
+- `src/components/Landing/HomeActiveDropsCarousel.tsx` raises empty-state text contrast from `text-gray-500` to `text-gray-400`.
+- `tests/ui-audits/visual-regression.spec.ts` now masks dynamic homepage live count/nav regions and auth-sensitive creator-apply CTAs so the audit checks stable layout instead of live account/drop state.
+
+Verification completed:
+- `npm run typecheck -- --pretty false` passed.
+- `npm run lint` passed with two pre-existing warnings (`opengraph-image` raw img and `AdminSupportQueue` hook dependency).
+- `npm run check:ui:coverage` passed.
+- `npm run check:ui:runtime` passed.
+- `npm run check:ui:audits` passed after production build and 20 Playwright UI audit tests.
+- `npm run test:gate:parity` passed.
+- `npm run check:continuity` passed after cleaning generated `.next`, `playwright-report`, and `test-results`.
+- `npm run check:generated-artifacts` passed.
+
+Residual observation:
+- The Playwright web server emitted post-test Next/Turbopack instrumentation noise (`controller[kState].transformAlgorithm is not a function` and `request.headers.get is not a function`) after the UI audit tests had already passed. This did not fail the command, but it remains worth tracking separately from this admin hydration pass.
+
+## [2026-04-24 #34] PRE-IMPLEMENTATION: Admin Hydration + Realtime Janitorial Recovery
+
+Scope for this pass:
+- Fix the janitorial findings left after the previous review remediation, then skeptically inspect admin overview/debug/analytics hydration as if current realtime lanes may already be broken, slow, or silently falling back.
+- Commit and push after verification.
+
+Startup protocol executed before implementation:
+- Read control tower startup and strict execution files `00-START-HERE.md` through `05-CAPABILITIES-AND-CONSTRAINTS.yaml`.
+- Executed doctrine consultation and UI/copy workflow prerequisites.
+- Read `FULL_SCALE_CODEBASE_AUDIT.md`, `REPO_MEMORY_LEDGER.md`, and `EVERY_FILE_FUNCTION_CHECKLIST.md`.
+- Ran `git status --short`.
+- Ran adjacency traces for:
+  - `src/app/admin/debug/page.tsx`
+  - `src/hooks/useAdminOverview.ts`
+  - `src/app/admin/analytics/hooks/useAdminAnalyticsState.tsx`
+
+Current-state findings before edits:
+- `src/app/admin/debug/hooks/useAdminDebugRealtime.ts` is a client hook importing `ROUTE_RUNTIME_HEALTH_COLLECTION` from a server-only module, pulling `firebase-admin`/Node APIs into the browser graph and breaking `next build`.
+- Dirty debug/overview realtime work has targeted lint failures:
+  - unused `where` in `useAdminDebugRealtime`
+  - unused `RefreshCw` and `AdminModuleVerificationCard` in `admin/debug/page.tsx`
+  - unused `Drop` in `useAdminOverviewRealtime`
+  - one debug-page hook dependency warning around the route runtime freshness memo
+- Root one-off scripts `refactor-debug.js`, `refactor-debug-hook.js`, and `refactor-debug-ui.js` are local janitorial hazards and should not be committed as production tooling.
+- `src/lib/admin-ai-models.ts` has AI model truth drift: optimizer aliases changed to `gemini-3.1-flash-lite-preview` while their pricing basis still points at `gemini-2.5-flash-lite`.
+- Admin overview is being moved from a 15s polled route to realtime Firestore overlays, but the new hook still contains `console.error` side paths and no explicit source-state status in the returned payload.
+- Admin analytics already has a canonical realtime hook, but hydration may still feel slow if direct listener truth waits behind historical route fetches. This pass must verify and, if needed, keep live listener truth independent from cold route hydration.
+
+Doctrine decision checklist before edits:
+- Surface primary job: Admin Overview/Admin Analytics/Admin Debug operational truth.
+- Source of truth: Firestore realtime listeners for hot admin truth; API routes remain cold/fallback companions.
+- Event path affected: no conversion telemetry events should change.
+- Admin/audit path: admin debug and analytics must visibly distinguish realtime, fallback, stale, degraded, and failed states.
+- Tone rules: operational, precise, no fake green or generic "live" claims when listeners are not proven.
+- Interaction rules: no dead generated scripts, no client imports of server-only truth, no silently hidden listener failures.
+
 ## [2026-04-24 #33] PRE-IMPLEMENTATION: Admin Realtime Truth Review-Finding Remediation
 
 Scope for this pass:

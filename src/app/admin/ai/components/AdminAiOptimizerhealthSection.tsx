@@ -72,11 +72,14 @@ export function AdminAiOptimizerhealthSection({ state }: { state: AdminAiState }
                                                 {entry.action}{entry.feedbackAction ? ` • ${entry.feedbackAction}` : ""}{entry.jobId ? ` • job ${entry.jobId}` : ""}
                                             </div>
                                             {entry.diff.length > 0 ? (
-                                                <div className="mt-2 flex flex-wrap gap-2">
-                                                    {entry.diff.map((line, index) => (
-                                                        <span key={`${entry.id}-${index}`} className="max-w-full break-all rounded-full border border-white/10 bg-white/5 px-2 py-1 text-[11px] text-gray-300">{line}</span>
-                                                    ))}
-                                                </div>
+                                                <details className="mt-2 text-[11px] text-gray-300">
+                                                    <summary className="cursor-pointer font-semibold opacity-80 hover:opacity-100">View Diffs ({entry.diff.length})</summary>
+                                                    <div className="mt-1 flex flex-wrap gap-1.5">
+                                                        {entry.diff.map((line, index) => (
+                                                            <span key={`${entry.id}-${index}`} className="max-w-full break-all rounded-md border border-white/10 bg-white/5 px-1.5 py-0.5">{line}</span>
+                                                        ))}
+                                                    </div>
+                                                </details>
                                             ) : null}
                                         </div>
                                     ))}

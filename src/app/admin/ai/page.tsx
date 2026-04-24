@@ -1,7 +1,7 @@
 "use client";
 
 import React from "react";
-import { Power, RefreshCw } from "lucide-react";
+import { Power } from "lucide-react";
 import { AdminPageHeader } from "@/components/Admin/AdminPageHeader";
 import { AdminModuleVerificationCard } from "@/components/Admin/AdminModuleVerificationCard";
 import { AdminAiDescriptionOperations } from "@/components/Admin/AdminAiDescriptionOperations";
@@ -9,8 +9,6 @@ import { Button } from "@/components/ui/Button";
 import { PageViewEvent } from "@/components/Analytics/PageViewEvent";
 import { MetricCard } from "./AiHelpers";
 import { useAdminAiState } from "./hooks/useAdminAiState";
-import { cn } from "@/lib/utils";
-
 import { AdminAiRuntimestripSection } from "./components/AdminAiRuntimestripSection";
 import { AdminAiReferencelibrarySection } from "./components/AdminAiReferencelibrarySection";
 import { AdminAiRecentgenerationsSection } from "./components/AdminAiRecentgenerationsSection";
@@ -50,10 +48,6 @@ export default function AIAdminPage() {
                     compact
                     actions={(
                         <>
-                            <Button variant="outline" size="sm" onClick={() => void state.mutate()} disabled={state.isLoading}>
-                                <RefreshCw className={cn("mr-2 h-3.5 w-3.5", state.isLoading ? "animate-spin" : "")} />
-                                Refresh
-                            </Button>
                             <Button
                                 variant={state.data?.settings.enabled ? "outline" : "brand"}
                                 size="sm"
@@ -76,7 +70,7 @@ export default function AIAdminPage() {
                         />
                     </div>
                 ) : null}
-                <section className="grid gap-3 sm:grid-cols-2 xl:grid-cols-4">
+                <section className="grid grid-cols-2 gap-2 xl:grid-cols-4">
                     <MetricCard
                         label="Runtime"
                         value={state.data?.runtime.status === "ready" ? "Ready" : state.data?.runtime.status || "Loading"}
@@ -86,19 +80,19 @@ export default function AIAdminPage() {
                     <MetricCard
                         label="Current Policy"
                         value={`v${state.data?.promptPolicy.version || 1}`}
-                        meta={`${state.currentVersionAcceptanceRate}% accept rate on recent jobs`}
+                        meta={`${state.currentVersionAcceptanceRate}% accept rate`}
                         tone={state.currentVersionAcceptanceRate >= 50 ? "good" : "neutral"}
                     />
                     <MetricCard
                         label="Reference Pool"
                         value={state.data?.visualSignals.totalReusableReferenceCount || 0}
-                        meta={`${state.referencePreview.length}/${state.referenceCap} queued for the next ranked set`}
+                        meta={`${state.referencePreview.length}/${state.referenceCap} queued`}
                         tone={state.referencePreview.length > 0 ? "good" : "warn"}
                     />
                     <MetricCard
                         label="Rejected Gallery"
                         value={state.data?.reviewGallery.length || 0}
-                        meta={state.data?.aggregate.generationCount ? `${Math.round(((state.data.aggregate.failedGenerationCount + state.data.reviewGallery.length) / Math.max(1, state.data.aggregate.generationCount)) * 100)}% not accepted yet` : "No generation history yet"}
+                        meta={state.data?.aggregate.generationCount ? `${Math.round(((state.data.aggregate.failedGenerationCount + state.data.reviewGallery.length) / Math.max(1, state.data.aggregate.generationCount)) * 100)}% not accepted` : "No history"}
                     />
                 </section>
 

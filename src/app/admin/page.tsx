@@ -1,6 +1,5 @@
 "use client";
 
-import { useMemo } from "react";
 import { formatDistanceToNow } from "date-fns";
 
 import { PageViewEvent } from "@/components/Analytics/PageViewEvent";
@@ -20,24 +19,6 @@ export default function AdminDashboardPage() {
     const lastCommerceLabel = data?.freshness.lastTransactionAt
         ? formatDistanceToNow(data.freshness.lastTransactionAt, { addSuffix: true })
         : "No recent transaction timestamp";
-    const overviewUpdatedAtMs = data?.generatedAt ?? 0;
-    const overviewHealthItems = useMemo(() => {
-        const overviewIssues = data?.issues ?? [];
-        const blockingOverviewIssues = !data && error ? [error.message || "Overview request failed."] : [];
-        const backgroundOverviewIssues = data && error
-            ? [`Overview refresh failed: ${error.message || "Background refresh failed."}`]
-            : [];
-
-        return [
-            
-            
-            
-        ];
-    }, [data, error, isLoading, overviewUpdatedAtMs]);
-    const overviewHealthSummary = useMemo(
-        () => ({ fail: 0, warn: 0, total: 0 }),
-        [overviewHealthItems],
-    );
 
     
     return (
@@ -49,15 +30,15 @@ export default function AdminDashboardPage() {
                 compact
                 actions={(
                     <>
-                        <span className="rounded-full border border-white/10 bg-black/35 px-3 py-1.5 text-xs font-semibold text-white">
-                            Overview snapshot, refreshed every 5s
+                        <span className="rounded-full border border-emerald-400/20 bg-emerald-500/10 px-3 py-1 text-[11px] font-bold uppercase tracking-[0.12em] text-emerald-400">
+                            [Live] Feed
                         </span>
-                        <span className="rounded-full border border-white/10 bg-black/35 px-3 py-1.5 text-xs font-semibold text-white">
-                            Last commerce activity {lastCommerceLabel}
+                        <span className="rounded-full border border-white/10 bg-black/35 px-3 py-1 text-[11px] font-bold text-gray-300">
+                            Last txn {lastCommerceLabel}
                         </span>
                         {issueCount > 0 ? (
-                            <span className="rounded-full border border-amber-400/20 bg-amber-500/10 px-3 py-1.5 text-xs font-semibold text-amber-200">
-                                {issueCount} overview issue{issueCount === 1 ? "" : "s"}
+                            <span className="rounded-full border border-amber-400/20 bg-amber-500/10 px-3 py-1 text-[11px] font-bold uppercase tracking-[0.12em] text-amber-400">
+                                [Degraded]
                             </span>
                         ) : null}
                     </>
@@ -71,7 +52,6 @@ export default function AdminDashboardPage() {
                             <AdminStatsBar
                                 stats={data.stats}
                                 deltas={data.deltas}
-                                truthNote={data.truthNotes.platformPulse}
                                 issueCount={issueCount}
                             />
                         ) : (
@@ -92,32 +72,31 @@ export default function AdminDashboardPage() {
 
                 <div className="xl:col-span-5">
                     <AdminDashboardModule title="Revenue trends" defaultOpen={true}>
-                        <AdminAnalyticsCharts
-                            chartData={data?.chartData || []}
-                            trendSummary={data?.trendSummary || {
-                                windowDays: 30,
-                                currentStartDayKey: "",
-                                currentEndDayKey: "",
-                                previousStartDayKey: "",
-                                previousEndDayKey: "",
-                                currentRevenueCents: 0,
-                                previousRevenueCents: 0,
-                                currentUnwraps: 0,
-                                previousUnwraps: 0,
-                                currentPurchases: 0,
-                                previousPurchases: 0,
-                                currentNewUsers: 0,
-                                previousNewUsers: 0,
-                                revenueActiveDays: 0,
-                                unwrapActiveDays: 0,
-                                bestRevenueDay: null,
-                                bestUnwrapDay: null,
-                                topUnlockDrop: null,
-                            }}
-                            truthNote={data?.truthNotes.revenue || "30-day revenue and unwrap trends are loading."}
-                            issueCount={issueCount}
-                            loading={isLoading && !data}
-                        />
+                            <AdminAnalyticsCharts
+                                chartData={data?.chartData || []}
+                                trendSummary={data?.trendSummary || {
+                                    windowDays: 30,
+                                    currentStartDayKey: "",
+                                    currentEndDayKey: "",
+                                    previousStartDayKey: "",
+                                    previousEndDayKey: "",
+                                    currentRevenueCents: 0,
+                                    previousRevenueCents: 0,
+                                    currentUnwraps: 0,
+                                    previousUnwraps: 0,
+                                    currentPurchases: 0,
+                                    previousPurchases: 0,
+                                    currentNewUsers: 0,
+                                    previousNewUsers: 0,
+                                    revenueActiveDays: 0,
+                                    unwrapActiveDays: 0,
+                                    bestRevenueDay: null,
+                                    bestUnwrapDay: null,
+                                    topUnlockDrop: null,
+                                }}
+                                issueCount={issueCount}
+                                loading={isLoading && !data}
+                            />
                     </AdminDashboardModule>
                 </div>
 
@@ -126,7 +105,6 @@ export default function AdminDashboardPage() {
                         {data ? (
                             <TopDropsPanel
                                 topDrops={data.topDrops}
-                                truthNote={data.truthNotes.topDrops}
                             />
                         ) : (
                             <div className="space-y-2">
@@ -143,7 +121,6 @@ export default function AdminDashboardPage() {
                         {data ? (
                             <RecentTransactionsPanel
                                 transactions={data.recentTransactions}
-                                truthNote={data.truthNotes.transactions}
                             />
                         ) : (
                             <div className="space-y-2">
@@ -160,7 +137,6 @@ export default function AdminDashboardPage() {
                         {data ? (
                             <AdminActivityLogPanel
                                 activity={data.adminActivity}
-                                truthNote={data.truthNotes.adminActivity}
                             />
                         ) : (
                             <div className="space-y-2">

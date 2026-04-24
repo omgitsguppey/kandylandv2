@@ -1,8 +1,13 @@
 import { useEffect, useState, useMemo } from "react";
-import { collection, query, orderBy, limit, onSnapshot, where } from "firebase/firestore";
+import { collection, query, orderBy, limit, onSnapshot } from "firebase/firestore";
 import { db } from "@/lib/firebase-data";
-import { SUPPORT_COLLECTIONS, type SupportThreadStatus, normalizeSupportThreadStatus, normalizeSupportThreadCategory } from "@/lib/support-readiness";
-import type { SupportMessageRecord, SupportThreadRecord } from "@/lib/support-readiness";
+import {
+    SUPPORT_COLLECTIONS,
+    normalizeSupportThreadStatus,
+    normalizeSupportThreadCategory,
+    type SupportMessageRecord,
+    type SupportThreadRecord,
+} from "@/lib/support-readiness";
 
 type AdminSupportThreadRecord = SupportThreadRecord;
 
@@ -96,13 +101,23 @@ export function useAdminSupportRealtime(selectedThreadId: string | null) {
 
     // Thread Messages Subscription
     useEffect(() => {
+        let cancelled = false;
         if (!selectedThreadId) {
-            setMessages([]);
-            setIsLoadingMessages(false);
-            return;
+            queueMicrotask(() => {
+                if (cancelled) return;
+                setMessages([]);
+                setIsLoadingMessages(false);
+            });
+            return () => {
+                cancelled = true;
+            };
         }
 
-        setIsLoadingMessages(true);
+        queueMicrotask(() => {
+            if (!cancelled) {
+                setIsLoadingMessages(true);
+            }
+        });
         // We only use where() here because ordering requires a composite index if used alongside where().
         // Messages are usually < 50 per thread, so client-side sorting is fast and doesn't require extra index.
         const q = query(
@@ -119,7 +134,10 @@ export function useAdminSupportRealtime(selectedThreadId: string | null) {
             setMessagesError(error as Error);
             setIsLoadingMessages(false);
         });
-        return unsubscribe;
+        return () => {
+            cancelled = true;
+            unsubscribe();
+        };
     }, [selectedThreadId]);
 
     const summary = useMemo<AdminSupportThreadListSummary>(() => {

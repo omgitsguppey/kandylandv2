@@ -8,7 +8,6 @@ import { cn } from "@/lib/utils";
 type AdminStatsBarProps = {
     stats: AdminOverviewResponse["stats"];
     deltas: AdminOverviewResponse["deltas"];
-    truthNote: string;
     issueCount: number;
 };
 
@@ -45,7 +44,7 @@ function DeltaBadge({ delta }: { delta: AdminOverviewMetricDelta }) {
     );
 }
 
-export function AdminStatsBar({ stats, deltas, truthNote, issueCount }: AdminStatsBarProps) {
+export function AdminStatsBar({ stats, deltas, issueCount }: AdminStatsBarProps) {
     return (
         <div className="space-y-3">
             <div className="grid grid-cols-2 gap-2.5 xl:grid-cols-4">
@@ -58,7 +57,7 @@ export function AdminStatsBar({ stats, deltas, truthNote, issueCount }: AdminSta
                         <p className="text-lg font-black text-white md:text-[1.45rem]">{stats.totalUsers.toLocaleString()}</p>
                         <DeltaBadge delta={deltas.accounts} />
                     </div>
-                    <p className="mt-2 text-xs text-gray-400">{stats.currentWindowNewUsers.toLocaleString()} new in the last 30 days</p>
+                    <p className="mt-2 text-[10px] text-gray-500">{stats.currentWindowNewUsers.toLocaleString()} new in 30d</p>
                 </div>
 
                 <div className="rounded-[1.35rem] border border-white/8 bg-black/35 px-3.5 py-3.5">
@@ -70,7 +69,7 @@ export function AdminStatsBar({ stats, deltas, truthNote, issueCount }: AdminSta
                         <p className="text-lg font-black text-white md:text-[1.45rem]">{stats.currentWindowPurchases.toLocaleString()}</p>
                         <DeltaBadge delta={deltas.purchases} />
                     </div>
-                    <p className="mt-2 text-xs text-gray-400">{stats.liveDrops} live of {stats.totalDrops} current drops</p>
+                    <p className="mt-2 text-[10px] text-gray-500">{stats.liveDrops} live of {stats.totalDrops} drops</p>
                 </div>
 
                 <div className="rounded-[1.35rem] border border-white/8 bg-black/35 px-3.5 py-3.5">
@@ -82,7 +81,7 @@ export function AdminStatsBar({ stats, deltas, truthNote, issueCount }: AdminSta
                         <p className="font-mono text-lg font-black text-white md:text-[1.45rem]">${(stats.grossRevenueCents / 100).toFixed(2)}</p>
                         <DeltaBadge delta={deltas.revenue} />
                     </div>
-                    <p className="mt-2 text-xs text-gray-400">Delta compares the last 30 days to the prior 30 days</p>
+                    <p className="mt-2 text-[10px] text-gray-500">vs. prior 30d</p>
                 </div>
 
                 <div className="rounded-[1.35rem] border border-white/8 bg-black/35 px-3.5 py-3.5">
@@ -94,21 +93,17 @@ export function AdminStatsBar({ stats, deltas, truthNote, issueCount }: AdminSta
                         <p className="text-lg font-black text-white md:text-[1.45rem]">{stats.totalUnwraps.toLocaleString()}</p>
                         <DeltaBadge delta={deltas.unwraps} />
                     </div>
-                    <p className="mt-2 text-xs text-gray-400">Merged from commerce history with current drop totals as fallback</p>
+                    <p className="mt-2 text-[10px] text-gray-500">vs. prior 30d</p>
                 </div>
             </div>
 
-            <div className="flex flex-wrap items-center gap-2 text-[11px] text-gray-400">
-                <span className="rounded-full border border-white/10 bg-black/30 px-2.5 py-1">
-                    5s polled snapshot
-                </span>
-                {issueCount > 0 ? (
+            {issueCount > 0 && (
+                <div className="flex flex-wrap items-center gap-2 text-[11px] text-gray-400">
                     <span className="rounded-full border border-amber-400/20 bg-amber-500/10 px-2.5 py-1 text-amber-200">
                         {issueCount} overview read issue{issueCount === 1 ? "" : "s"}
                     </span>
-                ) : null}
-                <span className="text-xs text-gray-500">{truthNote}</span>
-            </div>
+                </div>
+            )}
         </div>
     );
 }

@@ -1,5 +1,5 @@
 {
-  "generatedAt": "2026-04-23T21:24:58.463Z",
+  "generatedAt": "2026-04-24T04:01:55.923Z",
   "truthOrder": [
     "verified_runtime_code",
     "verified_configuration",
@@ -85,9 +85,7 @@
       "audience": [
         "admin"
       ],
-      "runtime_dependencies": [
-        "src/lib/utils.ts"
-      ],
+      "runtime_dependencies": [],
       "hydration_mode": "static",
       "criticality": "high",
       "playwright_owner": "tests/ui-audits/runtime.spec.ts",
@@ -163,6 +161,7 @@
       },
       "coverage_notes": [
         "Auth-required surface indexed with admin audit requirement.",
+        "No direct runtime dependency imports detected.",
         "Mapped to app_routes."
       ]
     },

@@ -76,10 +76,17 @@ export function AdminAiPromptworkbenchSection({ state }: { state: AdminAiState }
                                 </div>
 
                                 <div className="grid min-w-0 gap-3">
-                                    <TextAreaBlock label="Base style prompt" value={policyDraft.baseStylePrompt} onChange={(value) => { setPolicyDraft((current) => ({ ...current, baseStylePrompt: value })); setPolicyDirty(true); }} rows={4} helper="This stays constant across flavors." />
-                                    <TextAreaBlock label="Locked clauses" value={policyDraft.lockedClauses} onChange={(value) => { setPolicyDraft((current) => ({ ...current, lockedClauses: value })); setPolicyDirty(true); }} rows={6} helper="Keep one clause per line." />
-                                    <TextAreaBlock label="Mutable clauses" value={policyDraft.mutableClauses} onChange={(value) => { setPolicyDraft((current) => ({ ...current, mutableClauses: value })); setPolicyDirty(true); }} rows={5} helper="The optimizer can reshape these rules." />
-                                    <TextAreaBlock label="Current mutable prompt" value={policyDraft.currentMutablePrompt} onChange={(value) => { setPolicyDraft((current) => ({ ...current, currentMutablePrompt: value })); setPolicyDirty(true); }} rows={8} helper="This seeds the next run before flavor shaping." />
+                                    <TextAreaBlock label="Base style prompt" value={policyDraft.baseStylePrompt} onChange={(value) => { setPolicyDraft((current) => ({ ...current, baseStylePrompt: value })); setPolicyDirty(true); }} rows={3} helper="This stays constant across flavors." />
+                                    <details className="group border border-white/10 bg-black/20 rounded-xl overflow-hidden">
+                                        <summary className="cursor-pointer px-4 py-3 text-xs font-semibold text-white hover:bg-white/[0.02]">
+                                            Advanced Prompt Clauses
+                                        </summary>
+                                        <div className="p-4 space-y-3 border-t border-white/10">
+                                            <TextAreaBlock label="Locked clauses" value={policyDraft.lockedClauses} onChange={(value) => { setPolicyDraft((current) => ({ ...current, lockedClauses: value })); setPolicyDirty(true); }} rows={4} helper="Keep one clause per line." />
+                                            <TextAreaBlock label="Mutable clauses" value={policyDraft.mutableClauses} onChange={(value) => { setPolicyDraft((current) => ({ ...current, mutableClauses: value })); setPolicyDirty(true); }} rows={4} helper="The optimizer can reshape these rules." />
+                                            <TextAreaBlock label="Current mutable prompt" value={policyDraft.currentMutablePrompt} onChange={(value) => { setPolicyDraft((current) => ({ ...current, currentMutablePrompt: value })); setPolicyDirty(true); }} rows={4} helper="This seeds the next run before flavor shaping." />
+                                        </div>
+                                    </details>
                                 </div>
 
                                 <div className="min-w-0 flex flex-wrap gap-2">
@@ -100,8 +107,15 @@ export function AdminAiPromptworkbenchSection({ state }: { state: AdminAiState }
                                     </button>
                                 </div>
 
-                                <TextAreaBlock label="Latest optimizer proposal" value={data?.promptPolicy.optimizerProposal || "No optimizer proposal yet."} rows={5} readOnly />
-                                <TextAreaBlock label="Last auto-refinement diff" value={(data?.promptPolicy.lastAutoRefinementDiff || []).join("\n") || "No auto-refinement diff recorded yet."} rows={4} readOnly />
+                                <details className="group border border-white/10 bg-black/20 rounded-xl overflow-hidden mt-3">
+                                    <summary className="cursor-pointer px-4 py-3 text-xs font-semibold text-white hover:bg-white/[0.02]">
+                                        View Last Optimizer Run
+                                    </summary>
+                                    <div className="p-4 space-y-3 border-t border-white/10">
+                                        <TextAreaBlock label="Latest optimizer proposal" value={data?.promptPolicy.optimizerProposal || "No optimizer proposal yet."} rows={4} readOnly />
+                                        <TextAreaBlock label="Last auto-refinement diff" value={(data?.promptPolicy.lastAutoRefinementDiff || []).join("\n") || "No auto-refinement diff recorded yet."} rows={3} readOnly />
+                                    </div>
+                                </details>
                             </div>
                         </AdminDashboardModule>
     );

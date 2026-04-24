@@ -1,7 +1,7 @@
 # EVERY FILE FUNCTION CHECKLIST
 
-**Last Updated:** 2026-04-21
-**Current Focus:** Repo Intelligence Fabric v1 remains active, and the 2026-04-21 delta now includes the generated agent fast-start packet, deterministic verification-lane selection, path-specific cloud-agent instruction files, the test-specialist agent profile, and the expanded agent eval harness for file precision, forbidden-surface avoidance, and verification-lane drift.
+**Last Updated:** 2026-04-24
+**Current Focus:** Admin hydration and realtime truth recovery is now included alongside the Repo Intelligence Fabric v1 evidence. The latest delta covers admin overview realtime hydration, admin analytics listener-first merging, admin debug realtime client/server import cleanup, UI audit stabilization, and homepage empty-state accessibility repair.
 **Status:** In Progress. Historical exhaustive sweep remains valuable, and the 2026-04-21 continuity metadata now reflects the repo-intelligence layer, the fast-loop versus signoff verification split, the portable instruction surfaces, and the structured eval-failure review output in addition to the earlier UI continuity, runtime continuity, analytics truth, and viewer watch/session hardening lanes.
 Purpose: exhaustive no-skip audit checklist covering every repository file currently in scope and every detected function-like implementation.
 
@@ -16,6 +16,29 @@ Current repo-wide state snapshot: see [FULL_SCALE_CODEBASE_AUDIT.md](/Users/uylu
 ## 2026-04-22 Delta Coverage
 
 ## 2026-04-23 Delta Coverage
+
+- Admin hydration and realtime janitorial recovery coverage added on 2026-04-24:
+  - `src/hooks/useAdminOverviewRealtime.ts`
+    - [x] Hydrates overview stats, top drops, and recent transactions from Firestore listeners before the cold overview route returns.
+    - [x] Emits explicit `[Partial]`, `[Live]`, and `[Failed]` truth notes instead of silently claiming healthy fallback.
+    - [x] Reports realtime listener failures through client diagnostics instead of raw console-only side paths.
+  - `src/hooks/useAdminOverview.ts`
+    - [x] Delegates the public admin overview hook to the realtime overlay hook.
+  - `src/app/admin/analytics/hooks/useAdminAnalyticsState.tsx`
+    - [x] Allows listener-derived live analytics to render without waiting on the polled realtime API response.
+  - `src/lib/route-runtime-health.ts`
+    - [x] Owns the client-safe route runtime health collection constant.
+  - `src/app/admin/debug/hooks/useAdminDebugRealtime.ts`
+    - [x] Reads runtime warnings, route health, repair proposals, and queue heartbeats without importing server-only modules.
+  - `src/app/admin/debug/hooks/useAdminAiAssistantRealtime.ts`
+    - [x] Removes synchronous effect state reset and stale hook dependency around route health.
+  - `src/hooks/useAdminSupportRealtime.ts`
+    - [x] Removes duplicate/unused imports and avoids synchronous effect resets for empty support-thread selection.
+  - `tests/ui-audits/visual-regression.spec.ts`
+    - [x] Masks dynamic homepage live-count/nav and auth-sensitive creator-apply CTA regions.
+  - `src/components/Landing/HomeActiveDropsCarousel.tsx`
+    - [x] Fixes homepage empty daily-experience contrast.
+- Verification note: typecheck, lint, UI coverage, UI runtime, full UI audits, admin parity, continuity, and generated-artifact checks passed after cleaning `.next`, `playwright-report`, and `test-results`.
 
 - Admin realtime truth remediation coverage added on 2026-04-24:
   - `src/hooks/useAdminModerationRealtime.ts`

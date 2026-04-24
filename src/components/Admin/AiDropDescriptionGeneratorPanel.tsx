@@ -254,7 +254,7 @@ export function AiDropDescriptionGeneratorPanel({
     }
 
     return (
-        <div className="rounded-[1.2rem] border border-white/8 bg-black/30 p-3">
+        <div className="rounded-[1rem] border border-brand-purple/15 bg-brand-purple/[0.04] p-3">
             <div className="flex items-center justify-between gap-3">
                 <div className="flex min-w-0 items-center gap-2">
                     <Sparkles className="h-4 w-4 text-brand-purple" />
@@ -330,8 +330,8 @@ export function AiDropDescriptionGeneratorPanel({
                                     <div className="min-w-0">
                                         <p className="truncate text-xs font-semibold uppercase tracking-[0.14em] text-gray-400">{job.title}</p>
                                         <p className="mt-2 whitespace-pre-wrap text-sm text-white">{job.descriptionText || job.errorMessage || "Generating..."}</p>
-                                        <p className="mt-2 text-[11px] text-gray-500">
-                                            {job.model}{job.resolvedModel ? ` -> ${job.resolvedModel}` : " -> runtime version not exposed"} | {job.latencyMs ? `${job.latencyMs} ms` : "Pending"} | {formatAdminAiUsd(job.estimatedCostUsd || 0)}
+                                        <p className="mt-1 text-[11px] text-gray-500">
+                                            {job.model} | {job.latencyMs ? `${job.latencyMs} ms` : "Pending"} | {formatAdminAiUsd(job.estimatedCostUsd || 0)}
                                         </p>
                                     </div>
                                 </div>

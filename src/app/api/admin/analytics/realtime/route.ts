@@ -3,7 +3,6 @@ export const fetchCache = "force-no-store";
 export const revalidate = 0;
 
 import { NextRequest, NextResponse } from "next/server";
-import { buildServerAdminModuleVerification } from "@/lib/server/admin-source-verification";
 
 import { handleApiError } from "@/lib/server/auth";
 import { adminDb } from "@/lib/server/firebase-admin";

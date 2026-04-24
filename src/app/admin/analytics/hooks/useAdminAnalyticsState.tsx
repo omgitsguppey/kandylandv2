@@ -378,19 +378,20 @@ const { user } = useAuth();
   const liveRealtime = useAdminAnalyticsRealtime(nowMs);
   const effectiveLiveResponse = useMemo<RealtimeAnalyticsResponse | undefined>(
     () => {
-      if (
-        liveRealtime.feedStatus === "polled" ||
-        liveRealtime.feedStatus === "failed"
-      ) {
+      if (liveRealtime.feedStatus === "failed" && liveResponse) {
         return liveResponse;
       }
 
-      const base = liveResponse ?? { success: true };
+      const base = liveResponse ?? {
+        success: liveRealtime.feedStatus !== "failed",
+        issues: [liveRealtime.feedDetail],
+      };
       return {
         ...base,
         generatedAtMs:
           Math.max(base.generatedAtMs ?? 0, liveRealtime.generatedAtMs ?? 0) ||
-          base.generatedAtMs,
+          base.generatedAtMs ||
+          nowMs,
         totalActive: liveRealtime.totalActive,
         deepTrackerActive: liveRealtime.deepTrackerActive,
         data: liveRealtime.data,
@@ -409,7 +410,7 @@ const { user } = useAuth();
         ),
       };
     },
-    [liveRealtime, liveResponse],
+    [liveRealtime, liveResponse, nowMs],
   );
 
   const liveSeries = useMemo(

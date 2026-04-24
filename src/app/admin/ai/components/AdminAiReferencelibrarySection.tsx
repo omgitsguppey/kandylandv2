@@ -106,9 +106,9 @@ export function AdminAiReferencelibrarySection({ state }: { state: AdminAiState 
                                                 />
                                             ) : activeHouseReferences.map((asset) => (
                                                 <div key={asset.id} className="min-w-0 rounded-[1rem] border border-white/10 bg-white/[0.03] p-3">
-                                                    <div className="flex flex-col gap-3 sm:flex-row">
-                                                        <div className="relative h-24 w-full shrink-0 overflow-hidden rounded-[0.9rem] border border-white/10 bg-black/30 sm:h-24 sm:w-24">
-                                                            <Image src={asset.imageUrl} alt={asset.title || asset.fileName || "Reference"} fill className="object-cover" sizes="96px" />
+                                                    <div className="flex flex-col gap-3 sm:flex-row items-start">
+                                                        <div className="relative h-16 w-16 shrink-0 overflow-hidden rounded-xl border border-white/10 bg-black/30">
+                                                            <Image src={asset.imageUrl} alt={asset.title || asset.fileName || "Reference"} fill className="object-cover" sizes="64px" />
                                                         </div>
                                                         <div className="min-w-0 flex-1">
                                                             <div className="flex flex-wrap items-center gap-2">
@@ -117,12 +117,12 @@ export function AdminAiReferencelibrarySection({ state }: { state: AdminAiState 
                                                                 {asset.pinned ? <Badge className="border border-white/10 bg-white/5 text-gray-200">Pinned</Badge> : null}
                                                             </div>
                                                             <p className="mt-1 break-words text-xs text-gray-400">{getReferenceSelectionReason(asset)}</p>
-                                                            <div className="mt-2 flex flex-wrap gap-2 text-[11px] text-gray-500">
+                                                            <div className="mt-2 flex flex-wrap gap-2 text-[10px] text-gray-500">
                                                                 <span>{asset.usageCount || 0} reuse</span>
                                                                 <span>{asset.successfulReuseCount || 0} success</span>
                                                                 <span>{asset.positiveReuseCount || 0} positive</span>
                                                             </div>
-                                                            <div className="mt-3 flex flex-wrap gap-2">
+                                                            <div className="mt-2 flex flex-wrap gap-2">
                                                                 {!asset.primary ? (
                                                                     <Button variant="outline" size="sm" onClick={() => void handleReferenceUpdate(asset.id, { primary: true }, "Primary style reference updated")} isLoading={updatingReferenceId === asset.id}>
                                                                         <Sparkles className="mr-2 h-3.5 w-3.5" />
@@ -137,8 +137,8 @@ export function AdminAiReferencelibrarySection({ state }: { state: AdminAiState 
                                                                     <Pin className="mr-2 h-3.5 w-3.5" />
                                                                     {asset.pinned ? "Unpin" : "Pin"}
                                                                 </Button>
-                                                                <Button variant="danger" size="sm" onClick={() => void handleReferenceDelete(asset.id)} isLoading={removingReferenceId === asset.id}>
-                                                                    <Trash2 className="mr-2 h-3.5 w-3.5" />
+                                                                <Button variant="danger" size="sm" className="h-7 text-[10px] px-2" onClick={() => void handleReferenceDelete(asset.id)} isLoading={removingReferenceId === asset.id}>
+                                                                    <Trash2 className="mr-1.5 h-3 w-3" />
                                                                     Remove
                                                                 </Button>
                                                             </div>
@@ -175,14 +175,16 @@ export function AdminAiReferencelibrarySection({ state }: { state: AdminAiState 
                                             <MetricCard label="Reuse rate" value={`${referenceReuseRate}%`} />
                                         </div>
                                     </div>
-                                    <div className="min-w-0 rounded-[1.1rem] border border-white/10 bg-black/25 p-3.5">
-                                        <div className="text-sm font-semibold text-white">Why the next set looks different</div>
-                                        <div className="mt-2 space-y-2 text-sm text-gray-300">
+                                    <details className="min-w-0 rounded-xl border border-white/10 bg-black/20 overflow-hidden group">
+                                        <summary className="cursor-pointer px-4 py-3 text-xs font-semibold text-white hover:bg-white/[0.02]">
+                                            Why the next set looks different
+                                        </summary>
+                                        <div className="p-4 space-y-2 text-xs text-gray-300 border-t border-white/10">
                                             <p className="break-words">The style lock keeps typography, ribbon rhythm, and poster finish stable.</p>
                                             <p className="break-words">The subject lock now derives the hero object and palette from the flavor side of <span className="font-semibold text-white">Creator | Flavor</span>.</p>
                                             <p className="break-words">Anti-anchoring blocks the reference subject from dictating the next food form unless the requested flavor matches it.</p>
                                         </div>
-                                    </div>
+                                    </details>
                                 </div>
                             </div>
                         </AdminDashboardModule>
