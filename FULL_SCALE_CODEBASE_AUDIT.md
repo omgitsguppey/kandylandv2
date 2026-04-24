@@ -9930,3 +9930,6 @@ Results:
 - analytics continuity check passed
 - focused admin analytics realtime route test passed
 
+
+## Economics Metadata Fixes
+- Removed hardcoded string `bonus` properties from `FIXED_GUMDROP_PACKAGES` inside `src/lib/gumdrops-packages.ts`. Bonus display strings in `src/components/PurchaseModal.tsx` are now dynamically derived using `deriveGumdropEconomics` to ensure visual accuracy, aligning visible claims with the actual underlying package economics.
