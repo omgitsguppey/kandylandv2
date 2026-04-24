@@ -130,13 +130,20 @@ function clusterSecurityAlerts(alerts: AdminModerationSecurityAlert[]): AdminMod
 export function useAdminModerationRealtime(selectedThreadId: string | null) {
     const [threads, setThreads] = useState<AdminModerationThreadSummary[]>([]);
     const [messages, setMessages] = useState<AdminModerationMessageRecord[]>([]);
+    const [messagesThreadId, setMessagesThreadId] = useState<string | null>(null);
     const [rawAlerts, setRawAlerts] = useState<AdminModerationSecurityAlert[]>([]);
     const [isLoadingThreads, setIsLoadingThreads] = useState(true);
-    const [isLoadingMessages, setIsLoadingMessages] = useState(false);
     const [isLoadingAlerts, setIsLoadingAlerts] = useState(true);
     const [threadsError, setThreadsError] = useState<Error | null>(null);
     const [messagesError, setMessagesError] = useState<Error | null>(null);
     const [alertsError, setAlertsError] = useState<Error | null>(null);
+    const activeThreadId = useMemo(() => {
+        if (selectedThreadId && threads.some((thread) => thread.id === selectedThreadId)) {
+            return selectedThreadId;
+        }
+
+        return threads[0]?.id ?? null;
+    }, [selectedThreadId, threads]);
 
     // Threads Subscription
     useEffect(() => {
@@ -168,39 +175,41 @@ export function useAdminModerationRealtime(selectedThreadId: string | null) {
 
     // Thread Detail Subscription
     useEffect(() => {
-        if (!selectedThreadId) {
-            setMessages([]);
-            setIsLoadingMessages(false);
+        if (!activeThreadId) {
             return;
         }
 
-        setIsLoadingMessages(true);
-        const q = query(collection(db, CHAT_COLLECTIONS.messages), where("threadId", "==", selectedThreadId));
+        const q = query(collection(db, CHAT_COLLECTIONS.messages), where("threadId", "==", activeThreadId));
         const unsubscribe = onSnapshot(q, (snapshot) => {
             const mapped = snapshot.docs
                 .map(doc => mapMessageRecord(doc.id, doc.data() as Record<string, unknown>))
                 .sort((left, right) => left.createdAt - right.createdAt)
                 .slice(-MESSAGE_LIMIT);
+            setMessagesThreadId(activeThreadId);
             setMessages(mapped);
-            setIsLoadingMessages(false);
+            setMessagesError(null);
         }, (error) => {
+            setMessagesThreadId(activeThreadId);
             setMessagesError(error as Error);
-            setIsLoadingMessages(false);
         });
         return unsubscribe;
-    }, [selectedThreadId]);
+    }, [activeThreadId]);
 
     const alerts = useMemo(() => clusterSecurityAlerts(rawAlerts), [rawAlerts]);
+    const activeMessages = activeThreadId && messagesThreadId === activeThreadId ? messages : [];
+    const activeMessagesError = activeThreadId && messagesThreadId === activeThreadId ? messagesError : null;
+    const isLoadingMessages = Boolean(activeThreadId && messagesThreadId !== activeThreadId && !activeMessagesError);
 
     return {
         threads,
-        messages,
+        messages: activeMessages,
         alerts,
+        activeThreadId,
         isLoadingThreads,
         isLoadingMessages,
         isLoadingAlerts,
         threadsError,
-        messagesError,
+        messagesError: activeMessagesError,
         alertsError,
     };
 }

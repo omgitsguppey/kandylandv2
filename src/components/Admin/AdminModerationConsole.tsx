@@ -69,14 +69,10 @@ export function AdminModerationConsole() {
         threadsError,
         messagesError,
         alertsError,
+        activeThreadId,
     } = useAdminModerationRealtime(selectedThreadIdOverride);
 
-    const selectedThreadId = useMemo(() => {
-        if (selectedThreadIdOverride && threads.some((thread) => thread.id === selectedThreadIdOverride)) {
-            return selectedThreadIdOverride;
-        }
-        return threads[0]?.id ?? null;
-    }, [selectedThreadIdOverride, threads]);
+    const selectedThreadId = activeThreadId;
 
     const selectedThread = useMemo(() => threads.find(t => t.id === selectedThreadId) || null, [threads, selectedThreadId]);
     const attachments = useMemo(() => messages.filter((message) => Boolean(message.assetUrl)), [messages]);

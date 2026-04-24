@@ -1,5 +1,101 @@
 # KandyDrops Core Codebase Audit & Defensive Ledger
 
+## [2026-04-24 #33] PRE-IMPLEMENTATION: Admin Realtime Truth Review-Finding Remediation
+
+Scope for this pass:
+- Address review findings from recent commits before declaring the admin realtime/privacy changes safe:
+  - default moderation transcript subscription uses `threads[0]` visually but subscribes with `null`
+  - privacy preflight dedupe health can falsely report `[live]`
+  - privacy preflight initializes event recency as `0s ago`
+  - generated local artifacts were committed/churning (`database-debug.log`, `playwright-report/index.html`)
+
+Startup protocol executed before implementation:
+- Read `control-tower/00-START-HERE.md` through `05-CAPABILITIES-AND-CONSTRAINTS.yaml`.
+- Read `06-SOURCE-OF-TRUTH-MAP.yaml`, `07-SHARED-COMPONENT-OWNERSHIP.yaml`, and `08-DOCTRINE-INDEX.md`.
+- Read `FULL_SCALE_CODEBASE_AUDIT.md`, `REPO_MEMORY_LEDGER.md`, and `EVERY_FILE_FUNCTION_CHECKLIST.md`.
+- Ran `git status --short`.
+- Executed doctrine consultation and UI/copy workflow prerequisites by reading:
+  - `.agent/skills/doctrine-consultation.md`
+  - `.agent/workflows/ui-copy-refinement-workflow.md`
+  - `docs/doctrine/kandydrops-product-doctrine.md`
+  - `docs/doctrine/kandydrops-copy-doctrine.md`
+  - `docs/doctrine/kandydrops-ui-doctrine.md`
+  - `docs/doctrine/kandydrops-surface-matrix.md`
+  - `docs/doctrine/kandydrops-banned-patterns.md`
+  - `docs/doctrine/kandydrops-vocabulary-index.md`
+  - `docs/doctrine/kandydrops-decision-checklist.md`
+
+Current-state findings before edits:
+- The working tree is dirty from unrelated admin/AI/debug edits; this pass must not revert those user changes.
+- `src/components/Admin/AdminModerationConsole.tsx` computes a default selected thread after the realtime hook call, so the message listener does not subscribe to the default thread until manual selection.
+- `src/hooks/useAdminPrivacyPreflight.ts` derives dedupe health from any non-empty `idempotencyKey`, which can overclaim `[live]` if the key does not prove canonical uniqueness.
+- `src/hooks/useAdminPrivacyPreflight.ts` initializes `lastEventAgeMs` to `0`, allowing the UI to render fresh recency before Firestore emits a verified snapshot.
+- Generated artifacts from local verification are tracked/churning and should be removed from committed truth where safe.
+
+Adjacent surfaces reviewed:
+- `npm run trace:adjacent -- src/components/Admin/AdminModerationConsole.tsx` passed.
+- `npm run trace:adjacent -- src/hooks/useAdminPrivacyPreflight.ts` passed.
+- `npm run trace:adjacent -- scripts/check-generated-artifacts.ts` passed.
+- `npm run trace:adjacent -- firestore.rules` is unsupported because rules files are not traced internal modules; rules/artifact adjacency will be covered by generated-artifact checks and Firebase rules checks as needed.
+
+Doctrine decision checklist before edits:
+- Surface primary job: Admin operational truth and moderation oversight.
+- Source of truth: Firestore realtime snapshots for moderation/security/support/privacy event facts; generated artifacts are not repo truth.
+- Event path affected: no conversion telemetry event changes expected.
+- Admin/audit path: admin moderation console and privacy preflight must show exact live/degraded/stale/fallback/failed states.
+- Tone rules: precise operational copy, no fake healthy states, no hidden fallback.
+- Interaction rules: selected visible thread must match the subscribed transcript; state labels must not overclaim live.
+- Adjacent risk: listener selection, admin parity status semantics, generated artifact continuity checks, Firebase rules verification.
+
+Planned implementation:
+- Subscribe moderation detail to the resolved selected thread rather than the raw override.
+- Tighten privacy preflight initial recency and dedupe truth so `[live]` requires a stronger uniqueness signal.
+- Remove generated local artifacts from tracked scope if they are still tracked and not canonical.
+- Update this audit again after verification with exact outcomes.
+
+## [2026-04-24 #33] POST-IMPLEMENTATION: Admin Realtime Truth Review-Finding Remediation
+
+Changes made:
+- Fixed the moderation transcript subscription mismatch:
+  - `src/hooks/useAdminModerationRealtime.ts` now derives `activeThreadId` from the explicit selected thread when valid, otherwise the first realtime thread.
+  - The message listener subscribes to `activeThreadId`, and returned messages are keyed to that same thread so stale transcripts are hidden during thread switches.
+  - `src/components/Admin/AdminModerationConsole.tsx` now uses the hook-owned `activeThreadId` for selected-thread rendering.
+- Tightened privacy preflight truth:
+  - `src/hooks/useAdminPrivacyPreflight.ts` initializes `lastEventAgeMs` to `Infinity`, preventing a fake `0s ago` state before a verified snapshot lands.
+  - `dedupeHealth` only reports `live` when `idempotencyKey === doc.id`; otherwise recent event facts produce `degraded`, not a false live/failed overclaim.
+  - `src/app/admin/AdminPrivacyPreflight.tsx` copy now avoids claiming the whole preflight is live and labels unproven dedupe as canonical-key unproven.
+- Removed tracked generated artifacts and strengthened ignore coverage:
+  - deleted `database-debug.log`
+  - deleted `playwright-report/index.html`
+  - deleted `test-results/.last-run.json`
+  - added `.gitignore` entries for Playwright/test/lighthouse outputs and Firebase debug logs
+
+Verification run:
+- `npm run typecheck -- --pretty false` passed.
+- `npx eslint src/components/Admin/AdminModerationConsole.tsx src/hooks/useAdminModerationRealtime.ts src/hooks/useAdminPrivacyPreflight.ts src/app/admin/AdminPrivacyPreflight.tsx scripts/check-generated-artifacts.ts` passed.
+- `npm run test:gate:parity` passed.
+- `npm run check:generated-artifacts` passed after cleanup.
+- `npm run check:ui:coverage` passed.
+- `npm run check:ui:runtime` passed.
+- `npm run check:continuity` passed.
+- `npm run check:ui:audits` did not reach Playwright because `npm run build` failed in the current dirty worktree.
+
+UI audit blocker:
+- `npm run check:ui:audits` failed during `next build` with server-only imports entering a client component path through the pre-existing uncommitted admin debug hook:
+  - `src/app/admin/debug/hooks/useAdminDebugRealtime.ts`
+  - import path includes `src/lib/server/route-runtime-health.ts`, `src/lib/server/firebase-admin.ts`, and related `server-only` modules.
+- This admin debug hook was already untracked before this pass, so this remediation intentionally did not alter it.
+
+Truth status after edits:
+- The visible default moderation thread now matches the subscribed transcript source.
+- Privacy preflight no longer shows a fresh event age before Firestore proves one.
+- Dedupe health no longer claims `[live]` from a non-empty but unproven idempotency key.
+- Generated local verification artifacts are removed from tracked truth and ignored going forward.
+
+Remaining risks / follow-up:
+- The dirty admin/debug realtime refactor must be fixed before `npm run build` and `npm run check:ui:audits` can be used as signoff lanes in this worktree.
+- The broader dirty admin/AI overview worktree remains outside this pass and was not reverted.
+
 ## [2026-04-23 #32] Admin Parity + Source Verification Hardening
 
 Scope for this pass:

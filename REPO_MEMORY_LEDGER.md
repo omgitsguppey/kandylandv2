@@ -24,6 +24,21 @@ This file is not a changelog. It is the concise ledger for durable decisions tha
 
 ## Decision Entries
 
+### 1aq. Admin realtime client hooks must derive visible selection and subscription targets from the same source
+
+- Approximate date: Recorded explicitly on 2026-04-24 from the Admin Realtime Truth Review-Finding Remediation pass
+- Status: Active admin truth and realtime UI rule
+- Problem/context: The moderation console could visibly default to the first realtime thread while the transcript listener still subscribed with `null`, leaving the operator looking at a selected thread whose messages were not actually subscribed.
+- Decision made: Admin realtime hooks that expose a selected entity and a detail subscription must derive one active key and use that key for both detail subscription and visible selection. If an explicit selected key is missing or invalid, the hook may derive a first-item active key from the realtime list, but it must not render one key while subscribing to another.
+- What became canonical:
+  - `src/hooks/useAdminModerationRealtime.ts` owns `activeThreadId` derivation for moderation threads.
+  - `src/components/Admin/AdminModerationConsole.tsx` renders the selected moderation thread from that hook-owned active key.
+  - Privacy preflight dedupe health only claims `live` when canonical event IDs prove document-level uniqueness.
+- Consequence for future work:
+  - Do not wire admin detail panels to page-local fallback selection when the listener uses a different key.
+  - Do not report admin dedupe or source-state health as `live` unless the canonical key/source contract is proven.
+  - Generated verification artifacts such as Playwright reports, Firebase debug logs, and test-result state files must stay out of tracked repo truth.
+
 ### 1ap. Admin truth surfaces must use one shared status contract and expose canonical source verification in route payloads
 
 - Approximate date: Recorded explicitly on 2026-04-23 from the Admin Parity + Source Verification Hardening pass

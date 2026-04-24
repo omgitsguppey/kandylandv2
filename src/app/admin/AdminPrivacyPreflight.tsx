@@ -15,7 +15,7 @@ export function AdminPrivacyPreflight() {
         </div>
         <div>
           <h2 className="text-lg font-bold text-white">Privacy & Consent Preflight</h2>
-          <p className="text-xs text-gray-400">Live deterministic view of backend tracking health</p>
+          <p className="text-xs text-gray-400">Deterministic view of backend tracking health</p>
         </div>
       </div>
 
@@ -50,7 +50,7 @@ export function AdminPrivacyPreflight() {
           </div>
           <div>
             <div className="text-sm font-medium text-white truncate">
-              {status.dedupeHealth === "live" ? "Enforced via doc ID" : "Invalid uniqueness rules"}
+              {status.dedupeHealth === "live" ? "Enforced via doc ID" : "Canonical key not proven"}
             </div>
             <div className="text-[10px] text-gray-500 mt-1 uppercase tracking-wider">
               Event Uniqueness

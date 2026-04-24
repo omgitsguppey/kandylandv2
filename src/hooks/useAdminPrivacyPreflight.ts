@@ -24,7 +24,7 @@ export function useAdminPrivacyPreflight() {
     bqExportHealth: "unavailable",
     consentGating: "unavailable",
     consentRejections: 0,
-    lastEventAgeMs: 0,
+    lastEventAgeMs: Infinity,
     bqExportReason: "Waiting for pipeline data",
   });
 
@@ -66,8 +66,8 @@ export function useAdminPrivacyPreflight() {
           guestTaggedEvents++;
         }
         
-        // Deduplication validation (idempotency key matches doc ID or exists properly)
-        if (typeof data.idempotencyKey === "string" && (data.idempotencyKey === doc.id || data.idempotencyKey.length > 0)) {
+        // Deduplication validation requires the canonical event id to match the Firestore document id.
+        if (typeof data.idempotencyKey === "string" && data.idempotencyKey === doc.id) {
           validDedupeEvents++;
         }
       });
@@ -89,7 +89,7 @@ export function useAdminPrivacyPreflight() {
         lastEventAgeMs: ageMs,
         consentRejections: rejections,
         globalGuestTracking: !hasRecentEvents ? "unavailable" : guestTaggedEvents > 0 ? "live" : "degraded",
-        dedupeHealth: !hasRecentEvents ? "unavailable" : validDedupeEvents > 0 ? "live" : "failed",
+        dedupeHealth: !hasRecentEvents ? "unavailable" : validDedupeEvents > 0 ? "live" : "degraded",
       }));
     }, (error) => {
       console.error("[Preflight] Event pipeline listener failed", error);

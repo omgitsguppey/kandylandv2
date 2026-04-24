@@ -12,6 +12,9 @@
 
 # testing
 /coverage
+/playwright-report/
+/test-results/
+/lighthouse-results/
 
 # next.js
 /.next/
@@ -45,8 +48,10 @@ yarn-error.log*
 # firebase
 .firebase
 .firebaserc
+database-debug.log
 firebase-debug.log
 firestore-debug.log
+storage-debug.log
 service-account.json
 
 # typescript

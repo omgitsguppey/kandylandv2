@@ -17,6 +17,26 @@ Current repo-wide state snapshot: see [FULL_SCALE_CODEBASE_AUDIT.md](/Users/uylu
 
 ## 2026-04-23 Delta Coverage
 
+- Admin realtime truth remediation coverage added on 2026-04-24:
+  - `src/hooks/useAdminModerationRealtime.ts`
+    - [x] Derives `activeThreadId` from the valid explicit selection or first realtime thread.
+    - [x] Uses the same `activeThreadId` for message subscription and returned visible transcript state.
+    - [x] Hides stale message data when the active thread changes before the new snapshot lands.
+  - `src/components/Admin/AdminModerationConsole.tsx`
+    - [x] Uses hook-owned `activeThreadId` for selected-thread rendering.
+  - `src/hooks/useAdminPrivacyPreflight.ts`
+    - [x] Initializes event recency as unavailable instead of fresh.
+    - [x] Requires canonical `idempotencyKey === doc.id` proof before reporting dedupe health as `live`.
+  - `src/app/admin/AdminPrivacyPreflight.tsx`
+    - [x] Avoids overclaiming the entire preflight as live and uses operational truth copy for unproven dedupe.
+  - `.gitignore`
+    - [x] Ignores local Playwright, test-result, Lighthouse, and Firebase debug artifacts.
+  - Generated artifact cleanup:
+    - [x] `database-debug.log` removed from tracked truth.
+    - [x] `playwright-report/index.html` removed from tracked truth.
+    - [x] `test-results/.last-run.json` removed from tracked truth.
+- Verification note: typecheck, targeted ESLint, admin parity, generated-artifact check, UI coverage, UI runtime, and continuity passed. `check:ui:audits` is blocked in the dirty worktree by pre-existing uncommitted admin debug client/server import drift.
+
 - Added shared admin parity and source-verification contracts:
   - `src/lib/admin-parity.ts`
   - `src/lib/server/admin-source-verification.ts`
