@@ -469,6 +469,7 @@ export function DailyTasksModule() {
                       key={option.value}
                       type="button"
                       onClick={() => setFeedbackCategory(option.value)}
+                      aria-pressed={feedbackCategory === option.value}
                       className={cn(
                         "rounded-2xl border px-3 py-3 text-left text-sm font-semibold transition-colors",
                         feedbackCategory === option.value
@@ -490,6 +491,8 @@ export function DailyTasksModule() {
                       key={rating}
                       type="button"
                       onClick={() => setFeedbackRating(rating)}
+                      aria-pressed={feedbackRating === rating}
+                      aria-label={`Rate ${rating} out of 5 stars`}
                       className={cn(
                         "flex h-11 w-11 items-center justify-center rounded-2xl border text-sm font-bold transition-colors",
                         feedbackRating === rating
