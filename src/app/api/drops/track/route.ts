@@ -6,12 +6,13 @@ import { trackServerEvent } from "@/lib/server/analytics";
 import { STANDARD } from "@/lib/server/rate-limit";
 import { z } from "zod";
 import { guardApiRequest } from "@/lib/server/request-guard";
+import { withRouteRuntimeHealth } from "@/lib/server/route-runtime-health";
 
 const bodySchema = z.object({
     dropId: z.string().trim().min(1).max(128),
 });
 
-export async function POST(request: NextRequest) {
+async function POST_handler(request: NextRequest) {
     try {
         const caller = await guardApiRequest(request, {
             routeName: "drops/track",
@@ -45,3 +46,5 @@ export async function POST(request: NextRequest) {
         return handleApiError(error, "Drops.Track");
     }
 }
+
+export let POST = withRouteRuntimeHealth("drops/track:POST", POST_handler);

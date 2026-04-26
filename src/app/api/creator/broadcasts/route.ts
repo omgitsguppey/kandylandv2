@@ -8,6 +8,7 @@ import { STANDARD } from "@/lib/server/rate-limit";
 import { guardApiRequest } from "@/lib/server/request-guard";
 import { CREATOR_COLLECTIONS, isCreatorRole } from "@/lib/creator-experiences";
 import { markNotificationsRuntimeChanged } from "@/lib/server/notification-runtime";
+import { withRouteRuntimeHealth } from "@/lib/server/route-runtime-health";
 
 const createBroadcastSchema = z.object({
     title: z.string().trim().min(2).max(80).optional(),
@@ -39,7 +40,7 @@ async function canViewCreatorBroadcasts(callerUid: string, callerRole: unknown, 
     return relationshipData.following === true || subscriptionData.status === "active";
 }
 
-export async function GET(request: NextRequest) {
+async function GET_handler(request: NextRequest) {
     try {
         const caller = await guardApiRequest(request, {
             routeName: "creator/broadcasts",
@@ -89,7 +90,7 @@ export async function GET(request: NextRequest) {
     }
 }
 
-export async function POST(request: NextRequest) {
+async function POST_handler(request: NextRequest) {
     try {
         const caller = await guardApiRequest(request, {
             routeName: "creator/broadcasts",
@@ -200,7 +201,7 @@ export async function POST(request: NextRequest) {
     }
 }
 
-export async function DELETE(request: NextRequest) {
+async function DELETE_handler(request: NextRequest) {
     try {
         const caller = await guardApiRequest(request, {
             routeName: "creator/broadcasts",
@@ -243,3 +244,7 @@ export async function DELETE(request: NextRequest) {
         return handleApiError(error, "Creator.Broadcasts.DELETE");
     }
 }
+
+export let GET = withRouteRuntimeHealth("creator/broadcasts:GET", GET_handler);
+export let POST = withRouteRuntimeHealth("creator/broadcasts:POST", POST_handler);
+export let DELETE = withRouteRuntimeHealth("creator/broadcasts:DELETE", DELETE_handler);

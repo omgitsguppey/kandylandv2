@@ -4,12 +4,13 @@ import { STANDARD } from "@/lib/server/rate-limit";
 import { handleApiError } from "@/lib/server/auth";
 import { ANALYTICS_CONSENT_COOKIE } from "@/lib/privacy-consent";
 import { guardApiRequest } from "@/lib/server/request-guard";
+import { withRouteRuntimeHealth } from "@/lib/server/route-runtime-health";
 
 const ConsentSchema = z.object({
     anonymousAnalyticsEnabled: z.boolean(),
 });
 
-export async function POST(request: NextRequest) {
+async function POST_handler(request: NextRequest) {
     try {
         await guardApiRequest(request, {
             routeName: "privacy/consent",
@@ -39,3 +40,5 @@ export async function POST(request: NextRequest) {
         return handleApiError(error, "Privacy.Consent.POST");
     }
 }
+
+export let POST = withRouteRuntimeHealth("privacy/consent:POST", POST_handler);

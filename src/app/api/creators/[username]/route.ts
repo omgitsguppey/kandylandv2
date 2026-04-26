@@ -6,8 +6,9 @@ import { RELAXED } from "@/lib/server/rate-limit";
 import { isDropHiddenFromPublic, normalizeAndApplyDropStatusOrNull } from "@/lib/drop-read-models";
 import { guardApiRequest } from "@/lib/server/request-guard";
 import { isCreatorRole, normalizeCreatorSettings } from "@/lib/creator-experiences";
+import { withRouteRuntimeHealth } from "@/lib/server/route-runtime-health";
 
-export async function GET(
+async function GET_handler(
     request: NextRequest,
     context: { params: Promise<{ username: string }> },
 ) {
@@ -85,3 +86,5 @@ export async function GET(
         return handleApiError(error, "Creators.Profile.GET");
     }
 }
+
+export let GET = withRouteRuntimeHealth("creators/[username]:GET", GET_handler);

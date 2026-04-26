@@ -3,10 +3,11 @@ import { adminDb } from "@/lib/server/firebase-admin";
 import { buildDeterministicDropRecommendations } from "@/lib/server/behavioral-intelligence";
 import { guardApiRequest } from "@/lib/server/request-guard";
 import { STANDARD } from "@/lib/server/rate-limit";
+import { withRouteRuntimeHealth } from "@/lib/server/route-runtime-health";
 
 export const dynamic = "force-dynamic";
 
-export async function GET(request: NextRequest) {
+async function GET_handler(request: NextRequest) {
     try {
         const caller = await guardApiRequest(request, {
             routeName: "drops/retention",
@@ -52,3 +53,5 @@ export async function GET(request: NextRequest) {
         return NextResponse.json({ error: "Internal Server Error" }, { status: 500 });
     }
 }
+
+export let GET = withRouteRuntimeHealth("drops/retention:GET", GET_handler);

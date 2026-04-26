@@ -10,12 +10,13 @@ import {
     getCreatorOnboardingIdDocumentBySide,
     normalizeCreatorOnboardingCanonicalRecord,
 } from "@/lib/creator-onboarding";
+import { withRouteRuntimeHealth } from "@/lib/server/route-runtime-health";
 
 function sanitizeFileName(fileName: string) {
     return fileName.replace(/[^A-Za-z0-9._-]+/g, "_").slice(0, 80) || "creator-id";
 }
 
-export async function GET(
+async function GET_handler(
     request: NextRequest,
     context: { params: Promise<{ userId: string }> },
 ) {
@@ -76,3 +77,5 @@ export async function GET(
         return handleApiError(error, "Admin.User.CreatorOnboarding.IdDocument.GET");
     }
 }
+
+export let GET = withRouteRuntimeHealth("admin/user/[userId]/creator-onboarding/id-document:GET", GET_handler);

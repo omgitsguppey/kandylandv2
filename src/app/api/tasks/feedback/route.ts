@@ -7,6 +7,7 @@ import { z } from 'zod';
 import { recordCanonicalTaskEvent } from '@/lib/server/daily-tasks';
 import { guardApiRequest } from '@/lib/server/request-guard';
 import { BUG_REPORT_ISSUE_TYPES } from '@/lib/bug-reporting';
+import { withRouteRuntimeHealth } from "@/lib/server/route-runtime-health";
 
 const feedbackSchema = z.object({
     message: z.string().trim().max(2000).optional(),
@@ -62,7 +63,7 @@ const feedbackSchema = z.object({
     }).optional(),
 });
 
-export async function POST(req: NextRequest) {
+async function POST_handler(req: NextRequest) {
     try {
         const caller = await guardApiRequest(req, {
             routeName: "tasks_feedback",
@@ -129,3 +130,5 @@ export async function POST(req: NextRequest) {
         return handleApiError(error, "tasks/feedback");
     }
 }
+
+export let POST = withRouteRuntimeHealth("tasks/feedback:POST", POST_handler);

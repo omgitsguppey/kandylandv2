@@ -5,8 +5,9 @@ import { trackServerEvent } from "@/lib/server/analytics";
 import { verifyAuth } from "@/lib/server/auth";
 import { RELAXED } from "@/lib/server/rate-limit";
 import { guardApiRequest } from "@/lib/server/request-guard";
+import { withRouteRuntimeHealth } from "@/lib/server/route-runtime-health";
 
-export async function POST(
+async function POST_handler(
     request: NextRequest,
     context: { params: Promise<{ dropId: string }> }
 ) {
@@ -58,3 +59,5 @@ export async function POST(
         return NextResponse.json({ success: false, error: "Failed to track click" });
     }
 }
+
+export let POST = withRouteRuntimeHealth("drops/[dropId]/click:POST", POST_handler);

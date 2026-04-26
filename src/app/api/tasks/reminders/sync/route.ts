@@ -4,8 +4,9 @@ import { syncUserTaskReminder } from "@/lib/server/daily-tasks";
 import { handleApiError } from "@/lib/server/auth";
 import { STANDARD } from "@/lib/server/rate-limit";
 import { guardApiRequest } from "@/lib/server/request-guard";
+import { withRouteRuntimeHealth } from "@/lib/server/route-runtime-health";
 
-export async function POST(req: NextRequest) {
+async function POST_handler(req: NextRequest) {
   try {
     const caller = await guardApiRequest(req, {
       routeName: "tasks_reminder_sync",
@@ -26,3 +27,5 @@ export async function POST(req: NextRequest) {
     return handleApiError(error, "tasks/reminders/sync");
   }
 }
+
+export let POST = withRouteRuntimeHealth("tasks/reminders/sync:POST", POST_handler);

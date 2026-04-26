@@ -10,6 +10,7 @@ import {
     sanitizeStorageFileName,
     serializeStorageFile,
 } from "@/lib/server/storage-assets";
+import { withRouteRuntimeHealth } from "@/lib/server/route-runtime-health";
 
 const DROPS_CONTENT_PREFIX = "drops/";
 
@@ -20,7 +21,7 @@ function isSafeDropsContentPath(fullPath: string) {
         && !fullPath.endsWith("/");
 }
 
-export async function GET(request: NextRequest) {
+async function GET_handler(request: NextRequest) {
     try {
         await guardApiRequest(request, {
             routeName: "admin/content",
@@ -64,7 +65,7 @@ export async function GET(request: NextRequest) {
     }
 }
 
-export async function POST(request: NextRequest) {
+async function POST_handler(request: NextRequest) {
     try {
         await guardApiRequest(request, {
             routeName: "admin/content",
@@ -98,7 +99,7 @@ export async function POST(request: NextRequest) {
     }
 }
 
-export async function DELETE(request: NextRequest) {
+async function DELETE_handler(request: NextRequest) {
     try {
         await guardApiRequest(request, {
             routeName: "admin/content",
@@ -124,3 +125,7 @@ export async function DELETE(request: NextRequest) {
         return handleApiError(error, "Admin.Content.DELETE");
     }
 }
+
+export let GET = withRouteRuntimeHealth("admin/content:GET", GET_handler);
+export let POST = withRouteRuntimeHealth("admin/content:POST", POST_handler);
+export let DELETE = withRouteRuntimeHealth("admin/content:DELETE", DELETE_handler);

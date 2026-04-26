@@ -7,8 +7,9 @@ import { trackServerEvent } from "@/lib/server/analytics";
 import { handleApiError } from "@/lib/server/auth";
 import { guardApiRequest } from "@/lib/server/request-guard";
 import { buildAnalyticsTimeKeys } from "@/lib/server/analytics-event-utils";
+import { withRouteRuntimeHealth } from "@/lib/server/route-runtime-health";
 
-export async function POST(req: NextRequest) {
+async function POST_handler(req: NextRequest) {
     try {
         const caller = await guardApiRequest(req, {
             routeName: "security/log-attempt",
@@ -134,3 +135,5 @@ export async function POST(req: NextRequest) {
         return handleApiError(error, "SecurityLogAttempt.POST");
     }
 }
+
+export let POST = withRouteRuntimeHealth("security/log-attempt:POST", POST_handler);

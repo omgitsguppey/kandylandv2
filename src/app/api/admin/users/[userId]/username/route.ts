@@ -3,10 +3,11 @@ import { adminDb } from "@/lib/server/firebase-admin";
 import { guardApiRequest } from "@/lib/server/request-guard";
 import { ADMIN } from "@/lib/server/rate-limit";
 import { reserveUsernameForUser } from "@/lib/server/username-suggestions";
+import { withRouteRuntimeHealth } from "@/lib/server/route-runtime-health";
 
 const USERNAME_REGEX = /^[a-z0-9_]{3,20}$/;
 
-export async function PATCH(
+async function PATCH_handler(
   request: NextRequest,
   context: { params: Promise<{ userId: string }> }
 ) {
@@ -87,3 +88,5 @@ export async function PATCH(
     );
   }
 }
+
+export let PATCH = withRouteRuntimeHealth("admin/users/[userId]/username:PATCH", PATCH_handler);

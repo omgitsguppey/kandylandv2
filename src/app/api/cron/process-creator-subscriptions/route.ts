@@ -11,6 +11,7 @@ import { buildCompletedGumdropTransaction } from "@/lib/server/gumdrop-ledger";
 import { trackServerEvent } from "@/lib/server/analytics";
 import { markNotificationsRuntimeChanged } from "@/lib/server/notification-runtime";
 import { recordRouteWarning } from "@/lib/server/route-diagnostics";
+import { withRouteRuntimeHealth } from "@/lib/server/route-runtime-health";
 
 const SUBSCRIPTION_TERM_MS = 30 * 24 * 60 * 60 * 1000;
 const WARNING_WINDOW_MS = 7 * 24 * 60 * 60 * 1000;
@@ -22,7 +23,7 @@ type RenewalOutcome =
     | { status: "renewed"; creatorId: string; userId: string; amount: number; creatorAccrualId: string }
     | { status: "failed"; creatorId: string; userId: string; amount: number };
 
-export async function GET(request: NextRequest) {
+async function GET_handler(request: NextRequest) {
     try {
         await guardApiRequest(request, {
             routeName: "cron/process-creator-subscriptions",
@@ -324,3 +325,5 @@ export async function GET(request: NextRequest) {
         return handleApiError(error, "Cron.ProcessCreatorSubscriptions.GET");
     }
 }
+
+export let GET = withRouteRuntimeHealth("cron/process-creator-subscriptions:GET", GET_handler);

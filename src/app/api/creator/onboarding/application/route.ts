@@ -16,6 +16,7 @@ import { adminDb } from "@/lib/server/firebase-admin";
 import { STRICT } from "@/lib/server/rate-limit";
 import { guardApiRequest } from "@/lib/server/request-guard";
 import { recordServerDiagnostic } from "@/lib/server/server-diagnostics";
+import { withRouteRuntimeHealth } from "@/lib/server/route-runtime-health";
 
 const APPROVED_APPLICATION_EDIT_ERROR = "Approved creator applications must be managed through the standard creator profile tools.";
 
@@ -29,7 +30,7 @@ function readRole(value: unknown) {
         : "user";
 }
 
-export async function PUT(request: NextRequest) {
+async function PUT_handler(request: NextRequest) {
     try {
         const caller = await guardApiRequest(request, {
             routeName: "creator/onboarding/application",
@@ -191,3 +192,5 @@ export async function PUT(request: NextRequest) {
         return handleApiError(error, "Creator.Onboarding.Application");
     }
 }
+
+export let PUT = withRouteRuntimeHealth("creator/onboarding/application:PUT", PUT_handler);

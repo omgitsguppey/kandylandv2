@@ -10,6 +10,7 @@ import {
     toOnboardingNumber,
     toOnboardingString,
 } from "@/lib/server/onboarding-analytics";
+import { withRouteRuntimeHealth } from "@/lib/server/route-runtime-health";
 
 const ALLOWED_EVENT_NAMES = new Set([
     "guided_onboarding_started",
@@ -26,7 +27,7 @@ function isAlreadyExistsError(error: unknown) {
     return code === 6 || code === "already-exists" || code === "ALREADY_EXISTS";
 }
 
-export async function POST(request: NextRequest) {
+async function POST_handler(request: NextRequest) {
     try {
         const caller = await guardApiRequest(request, {
             routeName: "user/onboarding-progress",
@@ -136,3 +137,5 @@ export async function POST(request: NextRequest) {
         return handleApiError(error, "User.OnboardingProgress");
     }
 }
+
+export let POST = withRouteRuntimeHealth("user/onboarding-progress:POST", POST_handler);

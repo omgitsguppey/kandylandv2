@@ -6,13 +6,14 @@ import { adminDb } from "@/lib/server/firebase-admin";
 import { ORCHESTRATION_COLLECTIONS } from "@/lib/orchestration/contract";
 import { ADMIN } from "@/lib/server/rate-limit";
 import { guardApiRequest } from "@/lib/server/request-guard";
+import { withRouteRuntimeHealth } from "@/lib/server/route-runtime-health";
 
 const repairActionSchema = z.object({
     proposalId: z.string().trim().min(1),
     action: z.enum(["apply", "dismiss"]),
 });
 
-export async function POST(request: NextRequest) {
+async function POST_handler(request: NextRequest) {
     try {
         const caller = await guardApiRequest(request, {
             routeName: "admin/orchestration/repairs",
@@ -105,3 +106,5 @@ export async function POST(request: NextRequest) {
         return handleApiError(error, "Admin.OrchestrationRepairs.POST");
     }
 }
+
+export let POST = withRouteRuntimeHealth("admin/orchestration/repairs:POST", POST_handler);

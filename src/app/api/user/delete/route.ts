@@ -6,6 +6,7 @@ import { STRICT } from "@/lib/server/rate-limit";
 import { guardApiRequest } from "@/lib/server/request-guard";
 import { creatorDocumentCleanupWrites } from "@/lib/server/creator-experiences";
 import { releaseUsernameReservationForUser } from "@/lib/server/username-suggestions";
+import { withRouteRuntimeHealth } from "@/lib/server/route-runtime-health";
 
 type DeletedDataSummary = {
     userDocumentTree: number;
@@ -62,7 +63,7 @@ async function deleteQueryMatches(
     return snapshot.size;
 }
 
-export async function DELETE(request: NextRequest) {
+async function DELETE_handler(request: NextRequest) {
     try {
         const caller = await guardApiRequest(request, {
             routeName: "user/delete",
@@ -187,3 +188,5 @@ export async function DELETE(request: NextRequest) {
         return handleApiError(error, "User.Delete.DELETE");
     }
 }
+
+export let DELETE = withRouteRuntimeHealth("user/delete:DELETE", DELETE_handler);

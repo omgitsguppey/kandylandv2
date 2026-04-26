@@ -10,6 +10,7 @@ import { ADMIN, HEAVY_READ } from "@/lib/server/rate-limit";
 import { guardApiRequest } from "@/lib/server/request-guard";
 import { getErrorMessage } from "@/lib/server/route-diagnostics";
 import { recordRouteRuntimeSample } from "@/lib/server/route-runtime-health";
+import { withRouteRuntimeHealth } from "@/lib/server/route-runtime-health";
 
 export const dynamic = "force-dynamic";
 export const revalidate = 0;
@@ -24,7 +25,7 @@ function finalize(startedAt: number, key: RouteRuntimeHealthKey, response: NextR
     return response;
 }
 
-export async function GET(request: NextRequest) {
+async function GET_handler(request: NextRequest) {
     const startedAt = Date.now();
     try {
         const caller = await guardApiRequest(request, {
@@ -49,7 +50,7 @@ export async function GET(request: NextRequest) {
     }
 }
 
-export async function PUT(request: NextRequest) {
+async function PUT_handler(request: NextRequest) {
     const startedAt = Date.now();
     try {
         const caller = await guardApiRequest(request, {
@@ -87,3 +88,6 @@ export async function PUT(request: NextRequest) {
         return finalize(startedAt, "admin/ui/preferences:PUT", handleApiError(error, "admin/ui/preferences"), error);
     }
 }
+
+export let GET = withRouteRuntimeHealth("admin/ui/preferences:GET", GET_handler);
+export let PUT = withRouteRuntimeHealth("admin/ui/preferences:PUT", PUT_handler);

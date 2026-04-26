@@ -10,6 +10,7 @@ import { buildBookingSlotKey, buildCreatorAccrual, buildSourceAwareBalancePatch,
 import { buildCompletedGumdropTransaction } from "@/lib/server/gumdrop-ledger";
 import { trackServerEvent } from "@/lib/server/analytics";
 import { isWithinAnyWindow } from "./booking-timezone";
+import { withRouteRuntimeHealth } from "@/lib/server/route-runtime-health";
 
 const createBookingSchema = z.object({
     creatorId: z.string().trim().min(1),
@@ -23,7 +24,7 @@ const updateBookingSchema = z.object({
     action: z.enum(["complete", "cancel"]),
 });
 
-export async function GET(request: NextRequest) {
+async function GET_handler(request: NextRequest) {
     try {
         const caller = await guardApiRequest(request, {
             routeName: "creator/bookings",
@@ -76,7 +77,7 @@ export async function GET(request: NextRequest) {
     }
 }
 
-export async function POST(request: NextRequest) {
+async function POST_handler(request: NextRequest) {
     try {
         const caller = await guardApiRequest(request, {
             routeName: "creator/bookings",
@@ -239,7 +240,7 @@ export async function POST(request: NextRequest) {
     }
 }
 
-export async function PUT(request: NextRequest) {
+async function PUT_handler(request: NextRequest) {
     try {
         const caller = await guardApiRequest(request, {
             routeName: "creator/bookings",
@@ -288,3 +289,7 @@ export async function PUT(request: NextRequest) {
         return handleApiError(error, "Creator.Bookings.PUT");
     }
 }
+
+export let GET = withRouteRuntimeHealth("creator/bookings:GET", GET_handler);
+export let POST = withRouteRuntimeHealth("creator/bookings:POST", POST_handler);
+export let PUT = withRouteRuntimeHealth("creator/bookings:PUT", PUT_handler);

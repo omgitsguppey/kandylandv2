@@ -8,6 +8,7 @@ import { RELAXED } from "@/lib/server/rate-limit";
 import { getTrustedClientIp } from "@/lib/server/request-client-ip";
 import { getCSTDateKey } from "@/lib/timezone";
 import { guardApiRequest } from "@/lib/server/request-guard";
+import { withRouteRuntimeHealth } from "@/lib/server/route-runtime-health";
 
 const bodySchema = z.object({
   dropId: z.string().trim().min(1).max(128),
@@ -34,7 +35,7 @@ function buildImpressionReceiptId(dropId: string, dayKey: string, viewerKey: str
     .digest("hex");
 }
 
-export async function POST(request: NextRequest) {
+async function POST_handler(request: NextRequest) {
   try {
     await guardApiRequest(request, {
       routeName: "drops/impression",
@@ -101,3 +102,5 @@ export async function POST(request: NextRequest) {
     return NextResponse.json({ success: false, error: "Failed to record impression" }, { status: 500 });
   }
 }
+
+export let POST = withRouteRuntimeHealth("drops/impression:POST", POST_handler);

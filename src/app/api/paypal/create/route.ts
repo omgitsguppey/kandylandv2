@@ -6,12 +6,13 @@ import { guardApiRequest } from "@/lib/server/request-guard";
 import { resolveExpectedGumdropPrice } from "@/lib/gumdrops-packages";
 import { createPayPalOrder, getPayPalAccessToken } from "@/lib/server/paypal";
 import { recordRouteWarning } from "@/lib/server/route-diagnostics";
+import { withRouteRuntimeHealth } from "@/lib/server/route-runtime-health";
 
 const bodySchema = z.object({
     expectedDrops: z.number().int().positive(),
 });
 
-export async function POST(request: NextRequest) {
+async function POST_handler(request: NextRequest) {
     try {
         const caller = await guardApiRequest(request, {
             routeName: "paypal/create",
@@ -53,3 +54,5 @@ export async function POST(request: NextRequest) {
         return handleApiError(error, "PayPal.CreateOrder");
     }
 }
+
+export let POST = withRouteRuntimeHealth("paypal/create:POST", POST_handler);

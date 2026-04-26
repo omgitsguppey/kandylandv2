@@ -3,10 +3,11 @@ import { adminDb } from "@/lib/server/firebase-admin";
 import { RELAXED } from "@/lib/server/rate-limit";
 import { isAllowedLandingAssetKey } from "@/lib/landing-assets";
 import { guardApiRequest } from "@/lib/server/request-guard";
+import { withRouteRuntimeHealth } from "@/lib/server/route-runtime-health";
 
 export const dynamic = 'force-dynamic';
 
-export async function GET(request: NextRequest) {
+async function GET_handler(request: NextRequest) {
     try {
         await guardApiRequest(request, {
             routeName: "settings/landing",
@@ -37,3 +38,5 @@ export async function GET(request: NextRequest) {
         return NextResponse.json({ error: "Internal Server Error" }, { status: 500 });
     }
 }
+
+export let GET = withRouteRuntimeHealth("settings/landing:GET", GET_handler);

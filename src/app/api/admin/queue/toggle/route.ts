@@ -3,8 +3,9 @@ import { handleApiError } from "@/lib/server/auth";
 import { ADMIN } from "@/lib/server/rate-limit";
 import { getResolvedQueueConfig, setDropQueueMembership } from "@/lib/server/drop-queue";
 import { guardApiRequest } from "@/lib/server/request-guard";
+import { withRouteRuntimeHealth } from "@/lib/server/route-runtime-health";
 
-export async function POST(request: NextRequest) {
+async function POST_handler(request: NextRequest) {
     try {
         await guardApiRequest(request, {
             routeName: "admin/queue/toggle",
@@ -27,3 +28,5 @@ export async function POST(request: NextRequest) {
         return handleApiError(error, "Admin.Queue.Toggle");
     }
 }
+
+export let POST = withRouteRuntimeHealth("admin/queue/toggle:POST", POST_handler);

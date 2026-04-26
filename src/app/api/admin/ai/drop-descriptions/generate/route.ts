@@ -10,6 +10,7 @@ import { ADMIN_AI_CONTROL } from "@/lib/server/rate-limit";
 import { guardApiRequest } from "@/lib/server/request-guard";
 import { getErrorMessage } from "@/lib/server/route-diagnostics";
 import { recordRouteRuntimeSample } from "@/lib/server/route-runtime-health";
+import { withRouteRuntimeHealth } from "@/lib/server/route-runtime-health";
 
 export const dynamic = "force-dynamic";
 export const revalidate = 0;
@@ -24,7 +25,7 @@ function finalize(startedAt: number, key: RouteRuntimeHealthKey, response: NextR
     return response;
 }
 
-export async function POST(request: NextRequest) {
+async function POST_handler(request: NextRequest) {
     const startedAt = Date.now();
     try {
         const caller = await guardApiRequest(request, {
@@ -76,3 +77,5 @@ export async function POST(request: NextRequest) {
         return finalize(startedAt, "admin/ai/drop-descriptions/generate:POST", handleApiError(error, "admin/ai/drop-descriptions/generate"), error);
     }
 }
+
+export let POST = withRouteRuntimeHealth("admin/ai/drop-descriptions/generate:POST", POST_handler);

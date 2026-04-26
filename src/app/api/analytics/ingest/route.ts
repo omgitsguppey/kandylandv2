@@ -16,6 +16,7 @@ import {
     ANALYTICS_OPERATIONAL_COLLECTIONS,
     ANALYTICS_ROUTE_POLICIES,
 } from "@/lib/server/analytics-governance";
+import { withRouteRuntimeHealth } from "@/lib/server/route-runtime-health";
 
 export const dynamic = "force-dynamic";
 const SESSION_COOKIE_NAME = "kandydrops_sid";
@@ -110,7 +111,7 @@ async function reportAnalyticsIngestFailure(error: unknown) {
     ]);
 }
 
-export async function POST(request: NextRequest) {
+async function POST_handler(request: NextRequest) {
     try {
         await guardApiRequest(request, {
             ...ANALYTICS_ROUTE_POLICIES.guestIngest,
@@ -261,3 +262,5 @@ export async function POST(request: NextRequest) {
         return NextResponse.json({ success: false, retryable: true }, { status: 503 });
     }
 }
+
+export let POST = withRouteRuntimeHealth("analytics/ingest:POST", POST_handler);

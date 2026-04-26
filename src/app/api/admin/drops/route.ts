@@ -16,6 +16,7 @@ import { sendGlobalDropNotification } from "@/lib/server/push-notifications";
 import { guardApiRequest } from "@/lib/server/request-guard";
 import { ADMIN } from "@/lib/server/rate-limit";
 import { recordRouteWarning } from "@/lib/server/route-diagnostics";
+import { withRouteRuntimeHealth } from "@/lib/server/route-runtime-health";
 
 const ALLOWED_DROP_FIELDS = [
     "title", "description", "imageUrl", "contentUrl", "contentUrls", "unlockCost",
@@ -26,7 +27,7 @@ const ALLOWED_DROP_FIELDS = [
     "requiresActiveSubscription",
 ] as const;
 
-export async function POST(request: NextRequest) {
+async function POST_handler(request: NextRequest) {
     try {
         await guardApiRequest(request, {
             routeName: "admin/drops",
@@ -87,7 +88,7 @@ export async function POST(request: NextRequest) {
     }
 }
 
-export async function PUT(request: NextRequest) {
+async function PUT_handler(request: NextRequest) {
     try {
         await guardApiRequest(request, {
             routeName: "admin/drops",
@@ -155,7 +156,7 @@ export async function PUT(request: NextRequest) {
     }
 }
 
-export async function DELETE(request: NextRequest) {
+async function DELETE_handler(request: NextRequest) {
     try {
         await guardApiRequest(request, {
             routeName: "admin/drops",
@@ -187,3 +188,7 @@ export async function DELETE(request: NextRequest) {
         return handleApiError(error, "Admin.Drops.DELETE");
     }
 }
+
+export let POST = withRouteRuntimeHealth("admin/drops:POST", POST_handler);
+export let PUT = withRouteRuntimeHealth("admin/drops:PUT", PUT_handler);
+export let DELETE = withRouteRuntimeHealth("admin/drops:DELETE", DELETE_handler);

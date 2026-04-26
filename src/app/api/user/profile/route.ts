@@ -12,6 +12,7 @@ import { isCreatorRole, normalizeCreatorSettings } from "@/lib/creator-experienc
 import { getErrorMessage } from "@/lib/server/route-diagnostics";
 import { recordRouteRuntimeSample } from "@/lib/server/route-runtime-health";
 import { reserveUsernameForUser } from "@/lib/server/username-suggestions";
+import { withRouteRuntimeHealth } from "@/lib/server/route-runtime-health";
 
 const ALLOWED_TIMEZONES = new Set([
     "Auto",
@@ -147,7 +148,7 @@ async function reserveProfileUsername(input: {
     return reservation.normalizedUsername;
 }
 
-export async function PUT(request: NextRequest) {
+async function PUT_handler(request: NextRequest) {
     try {
         const caller = await guardApiRequest(request, {
             routeName: "user/profile",
@@ -350,7 +351,7 @@ export async function GET(request: NextRequest) {
     }
 }
 
-export async function POST(request: NextRequest) {
+async function POST_handler(request: NextRequest) {
     try {
         const caller = await guardApiRequest(request, {
             routeName: "user/profile",
@@ -424,3 +425,6 @@ export async function POST(request: NextRequest) {
         return handleApiError(error, "Profile.POST");
     }
 }
+
+export let PUT = withRouteRuntimeHealth("user/profile:PUT", PUT_handler);
+export let POST = withRouteRuntimeHealth("user/profile:POST", POST_handler);

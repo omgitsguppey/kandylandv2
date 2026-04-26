@@ -4,6 +4,7 @@ import { adminDb } from "@/lib/server/firebase-admin";
 import { ADMIN } from "@/lib/server/rate-limit";
 import { guardApiRequest } from "@/lib/server/request-guard";
 import { recordServerDiagnostic } from "@/lib/server/server-diagnostics";
+import { withRouteRuntimeHealth } from "@/lib/server/route-runtime-health";
 
 export const dynamic = "force-dynamic";
 export const runtime = "nodejs";
@@ -14,7 +15,7 @@ function encodeRealtimeMessage(payload: Record<string, unknown>) {
   return `data: ${JSON.stringify(payload)}\n\n`;
 }
 
-export async function GET(request: NextRequest) {
+async function GET_handler(request: NextRequest) {
   await guardApiRequest(request, {
     routeName: "admin/users/realtime",
     rateLimit: ADMIN,
@@ -101,3 +102,5 @@ export async function GET(request: NextRequest) {
     },
   });
 }
+
+export let GET = withRouteRuntimeHealth("admin/users/realtime:GET", GET_handler);

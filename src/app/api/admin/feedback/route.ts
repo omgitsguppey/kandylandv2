@@ -4,6 +4,7 @@ import { adminDb } from "@/lib/server/firebase-admin";
 import { handleApiError } from "@/lib/server/auth";
 import { ADMIN } from "@/lib/server/rate-limit";
 import { guardApiRequest } from "@/lib/server/request-guard";
+import { withRouteRuntimeHealth } from "@/lib/server/route-runtime-health";
 
 function toTimestampNumber(value: unknown): number {
     if (typeof value === "number" && Number.isFinite(value)) {
@@ -22,7 +23,7 @@ function toTimestampNumber(value: unknown): number {
     return 0;
 }
 
-export async function GET(request: NextRequest) {
+async function GET_handler(request: NextRequest) {
     try {
         await guardApiRequest(request, {
             routeName: "admin/feedback",
@@ -59,3 +60,5 @@ export async function GET(request: NextRequest) {
         return handleApiError(error, "Admin.Feedback.GET");
     }
 }
+
+export let GET = withRouteRuntimeHealth("admin/feedback:GET", GET_handler);

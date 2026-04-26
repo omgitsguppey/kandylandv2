@@ -41,6 +41,7 @@ import {
     buildDeterministicDropRecommendations,
     getBehavioralUserProfile,
 } from "@/lib/server/behavioral-intelligence";
+import { withRouteRuntimeHealth } from "@/lib/server/route-runtime-health";
 
 function toTimestampNumber(value: unknown): number {
     if (typeof value === "number" && Number.isFinite(value)) {
@@ -71,7 +72,7 @@ function roundToSingleDecimal(value: number) {
     return Math.round((value + Number.EPSILON) * 10) / 10;
 }
 
-export async function GET(
+async function GET_handler(
     request: NextRequest,
     context: { params: Promise<{ userId: string }> },
 ) {
@@ -959,3 +960,5 @@ export async function GET(
         return handleApiError(error, "Admin.UserDetail.GET");
     }
 }
+
+export let GET = withRouteRuntimeHealth("admin/user/[userId]:GET", GET_handler);

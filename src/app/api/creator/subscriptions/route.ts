@@ -9,6 +9,7 @@ import { CREATOR_COLLECTIONS, CREATOR_SUBSCRIPTION_MIN_GD, isCreatorOrAdminRole,
 import { buildCreatorAccrual, buildSourceAwareBalancePatch, readSourceAwareBalance, spendCreatorExperienceGumdrops } from "@/lib/server/creator-experiences";
 import { buildCompletedGumdropTransaction } from "@/lib/server/gumdrop-ledger";
 import { trackServerEvent } from "@/lib/server/analytics";
+import { withRouteRuntimeHealth } from "@/lib/server/route-runtime-health";
 
 const subscriptionActionSchema = z.object({
     creatorId: z.string().trim().min(1),
@@ -19,7 +20,7 @@ function buildSubscriptionId(userId: string, creatorId: string) {
     return `${userId}__${creatorId}`;
 }
 
-export async function GET(request: NextRequest) {
+async function GET_handler(request: NextRequest) {
     try {
         const caller = await guardApiRequest(request, {
             routeName: "creator/subscriptions",
@@ -59,7 +60,7 @@ export async function GET(request: NextRequest) {
     }
 }
 
-export async function POST(request: NextRequest) {
+async function POST_handler(request: NextRequest) {
     try {
         const caller = await guardApiRequest(request, {
             routeName: "creator/subscriptions",
@@ -208,3 +209,6 @@ export async function POST(request: NextRequest) {
         return handleApiError(error, "Creator.Subscriptions.POST");
     }
 }
+
+export let GET = withRouteRuntimeHealth("creator/subscriptions:GET", GET_handler);
+export let POST = withRouteRuntimeHealth("creator/subscriptions:POST", POST_handler);

@@ -11,6 +11,7 @@ import { ADMIN_AI_CONTROL, ADMIN_AI_DASHBOARD_READ } from "@/lib/server/rate-lim
 import { guardApiRequest } from "@/lib/server/request-guard";
 import { getErrorMessage } from "@/lib/server/route-diagnostics";
 import { recordRouteRuntimeSample } from "@/lib/server/route-runtime-health";
+import { withRouteRuntimeHealth } from "@/lib/server/route-runtime-health";
 
 export const dynamic = "force-dynamic";
 export const revalidate = 0;
@@ -25,7 +26,7 @@ function finalize(startedAt: number, key: RouteRuntimeHealthKey, response: NextR
     return response;
 }
 
-export async function GET(request: NextRequest) {
+async function GET_handler(request: NextRequest) {
     const startedAt = Date.now();
     try {
         await guardApiRequest(request, {
@@ -55,7 +56,7 @@ export async function GET(request: NextRequest) {
     }
 }
 
-export async function PUT(request: NextRequest) {
+async function PUT_handler(request: NextRequest) {
     const startedAt = Date.now();
     try {
         const caller = await guardApiRequest(request, {
@@ -100,3 +101,6 @@ export async function PUT(request: NextRequest) {
         return finalize(startedAt, "admin/ai/drop-covers/prompt-policy:PUT", handleApiError(error, "admin/ai/drop-covers/prompt-policy"), error);
     }
 }
+
+export let GET = withRouteRuntimeHealth("admin/ai/drop-covers/prompt-policy:GET", GET_handler);
+export let PUT = withRouteRuntimeHealth("admin/ai/drop-covers/prompt-policy:PUT", PUT_handler);

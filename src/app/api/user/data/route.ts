@@ -5,6 +5,7 @@ import { CREATOR_COLLECTIONS } from "@/lib/creator-experiences";
 import { adminDb } from "@/lib/server/firebase-admin";
 import { RELAXED } from "@/lib/server/rate-limit";
 import { guardApiRequest } from "@/lib/server/request-guard";
+import { withRouteRuntimeHealth } from "@/lib/server/route-runtime-health";
 
 function serializeForExport(value: unknown): unknown {
     if (value === null || value === undefined) {
@@ -44,7 +45,7 @@ async function exportQueryDocs(query: FirebaseFirestore.Query<FirebaseFirestore.
     }));
 }
 
-export async function GET(request: NextRequest) {
+async function GET_handler(request: NextRequest) {
     try {
         const caller = await guardApiRequest(request, {
             routeName: "user/data",
@@ -212,3 +213,5 @@ export async function GET(request: NextRequest) {
         return handleApiError(error, "User.Data.GET");
     }
 }
+
+export let GET = withRouteRuntimeHealth("user/data:GET", GET_handler);

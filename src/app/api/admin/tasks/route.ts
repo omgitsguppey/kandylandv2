@@ -17,6 +17,7 @@ import { adminDb } from "@/lib/server/firebase-admin";
 import { ADMIN } from "@/lib/server/rate-limit";
 import { handleApiError } from "@/lib/server/auth";
 import { guardApiRequest } from "@/lib/server/request-guard";
+import { withRouteRuntimeHealth } from "@/lib/server/route-runtime-health";
 
 const scalarValueSchema = z.union([z.string().min(1).max(120), z.number().finite(), z.boolean()]);
 const criteriaSchema = z.object({
@@ -60,7 +61,7 @@ const updateSchema = z.object({
   active: z.boolean(),
 });
 
-export async function GET(request: NextRequest) {
+async function GET_handler(request: NextRequest) {
   try {
     await guardApiRequest(request, {
       routeName: "admin/tasks",
@@ -110,7 +111,7 @@ export async function GET(request: NextRequest) {
   }
 }
 
-export async function POST(request: NextRequest) {
+async function POST_handler(request: NextRequest) {
   try {
     const adminUser = await guardApiRequest(request, {
       routeName: "admin/tasks",
@@ -161,7 +162,7 @@ export async function POST(request: NextRequest) {
   }
 }
 
-export async function PUT(request: NextRequest) {
+async function PUT_handler(request: NextRequest) {
   try {
     await guardApiRequest(request, {
       routeName: "admin/tasks",
@@ -181,3 +182,7 @@ export async function PUT(request: NextRequest) {
     return handleApiError(error, "admin/tasks.PUT");
   }
 }
+
+export let GET = withRouteRuntimeHealth("admin/tasks:GET", GET_handler);
+export let POST = withRouteRuntimeHealth("admin/tasks:POST", POST_handler);
+export let PUT = withRouteRuntimeHealth("admin/tasks:PUT", PUT_handler);

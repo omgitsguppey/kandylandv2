@@ -4,8 +4,9 @@ import { rotateUserTasks } from "@/lib/server/daily-tasks";
 import { handleApiError } from "@/lib/server/auth";
 import { STANDARD } from "@/lib/server/rate-limit";
 import { guardApiRequest } from "@/lib/server/request-guard";
+import { withRouteRuntimeHealth } from "@/lib/server/route-runtime-health";
 
-export async function POST(req: NextRequest) {
+async function POST_handler(req: NextRequest) {
   try {
     const caller = await guardApiRequest(req, {
       routeName: "tasks_rotate",
@@ -28,3 +29,5 @@ export async function POST(req: NextRequest) {
     return handleApiError(error, "tasks/rotate");
   }
 }
+
+export let POST = withRouteRuntimeHealth("tasks/rotate:POST", POST_handler);

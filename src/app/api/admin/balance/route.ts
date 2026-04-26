@@ -8,6 +8,7 @@ import { guardApiRequest } from "@/lib/server/request-guard";
 import { buildSourceAwareBalancePatch, creditSourceAwareGumdrops, normalizeGumdropBalance, readSourceAwareBalance, spendSourceAwareGumdrops } from "@/lib/gumdrop-ledger";
 import { buildCompletedGumdropTransaction } from "@/lib/server/gumdrop-ledger";
 import { touchUserRuntime } from "@/lib/server/user-runtime";
+import { withRouteRuntimeHealth } from "@/lib/server/route-runtime-health";
 
 const bodySchema = z.object({
     userId: z.string().trim().min(1).max(128),
@@ -17,7 +18,7 @@ const bodySchema = z.object({
     reason: z.string().trim().min(2).max(160),
 });
 
-export async function POST(request: NextRequest) {
+async function POST_handler(request: NextRequest) {
     try {
         const caller = await guardApiRequest(request, {
             routeName: "admin/balance",
@@ -102,3 +103,5 @@ export async function POST(request: NextRequest) {
         return handleApiError(error, "Admin.Balance");
     }
 }
+
+export let POST = withRouteRuntimeHealth("admin/balance:POST", POST_handler);

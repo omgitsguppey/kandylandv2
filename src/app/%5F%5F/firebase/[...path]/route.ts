@@ -2,6 +2,7 @@ import { NextRequest } from "next/server";
 
 import { FIREBASE_PROJECT_ID } from "@/lib/firebase-runtime";
 import { recordServerDiagnostic } from "@/lib/server/server-diagnostics";
+import { withRouteRuntimeHealth } from "@/lib/server/route-runtime-health";
 
 function buildFirebaseHelperUrl(pathSegments: string[], search: string) {
     const projectId = FIREBASE_PROJECT_ID?.trim();
@@ -81,16 +82,19 @@ async function proxyFirebaseHelper(
     });
 }
 
-export async function GET(
+async function GET_handler(
     request: NextRequest,
     context: { params: Promise<{ path: string[] }> },
 ) {
     return proxyFirebaseHelper(request, context);
 }
 
-export async function HEAD(
+async function HEAD_handler(
     request: NextRequest,
     context: { params: Promise<{ path: string[] }> },
 ) {
     return proxyFirebaseHelper(request, context);
 }
+
+export let GET = withRouteRuntimeHealth("__/firebase/[...path]:GET", GET_handler);
+export let HEAD = withRouteRuntimeHealth("__/firebase/[...path]:HEAD", HEAD_handler);

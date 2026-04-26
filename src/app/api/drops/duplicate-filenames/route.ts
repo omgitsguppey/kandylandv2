@@ -5,6 +5,7 @@ import { adminDb } from "@/lib/server/firebase-admin";
 import { handleApiError } from "@/lib/server/auth";
 import { STANDARD } from "@/lib/server/rate-limit";
 import { guardApiRequest } from "@/lib/server/request-guard";
+import { withRouteRuntimeHealth } from "@/lib/server/route-runtime-health";
 
 const duplicateFilenameSchema = z.object({
     fileNames: z.array(z.string().trim().min(1)).min(1),
@@ -15,7 +16,7 @@ function normalizeFileName(value: string) {
     return value.trim().toLowerCase();
 }
 
-export async function POST(request: NextRequest) {
+async function POST_handler(request: NextRequest) {
     try {
         const caller = await guardApiRequest(request, {
             routeName: "drops/duplicate-filenames",
@@ -69,3 +70,5 @@ export async function POST(request: NextRequest) {
         return handleApiError(error, "Drops.DuplicateFilenames.POST");
     }
 }
+
+export let POST = withRouteRuntimeHealth("drops/duplicate-filenames:POST", POST_handler);

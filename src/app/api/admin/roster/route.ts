@@ -31,6 +31,7 @@ import { ADMIN } from "@/lib/server/rate-limit";
 import { guardApiRequest } from "@/lib/server/request-guard";
 import { recordServerDiagnostic } from "@/lib/server/server-diagnostics";
 import { generateUniqueUsernameSuggestion } from "@/lib/server/username-suggestions";
+import { withRouteRuntimeHealth } from "@/lib/server/route-runtime-health";
 
 type RosterRole = "user" | "creator" | "admin";
 type RosterStatus = "active" | "suspended" | "banned";
@@ -296,7 +297,7 @@ function matchesQuery(entry: RosterEntry, query: string) {
         || entry.uid.toLowerCase().includes(normalizedQuery);
 }
 
-export async function GET(request: NextRequest) {
+async function GET_handler(request: NextRequest) {
     try {
         await guardApiRequest(request, {
             routeName: "admin/roster",
@@ -581,7 +582,7 @@ function readRoleLabel(value: unknown) {
     return typeof value === "string" && value.trim().length > 0 ? value.trim() : "Admin";
 }
 
-export async function POST(request: NextRequest) {
+async function POST_handler(request: NextRequest) {
     try {
         const caller = await guardApiRequest(request, {
             routeName: "admin/roster",
@@ -787,3 +788,6 @@ export async function POST(request: NextRequest) {
         return handleApiError(error, "Admin.Roster.POST");
     }
 }
+
+export let GET = withRouteRuntimeHealth("admin/roster:GET", GET_handler);
+export let POST = withRouteRuntimeHealth("admin/roster:POST", POST_handler);

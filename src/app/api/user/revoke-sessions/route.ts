@@ -3,8 +3,9 @@ import { handleApiError } from "@/lib/server/auth";
 import { STRICT } from "@/lib/server/rate-limit";
 import { adminAuth, adminDb } from "@/lib/server/firebase-admin";
 import { guardApiRequest } from "@/lib/server/request-guard";
+import { withRouteRuntimeHealth } from "@/lib/server/route-runtime-health";
 
-export async function POST(request: NextRequest) {
+async function POST_handler(request: NextRequest) {
     try {
         const caller = await guardApiRequest(request, {
             routeName: "user/revoke-sessions",
@@ -30,3 +31,5 @@ export async function POST(request: NextRequest) {
         return handleApiError(error, "User.RevokeSessions");
     }
 }
+
+export let POST = withRouteRuntimeHealth("user/revoke-sessions:POST", POST_handler);

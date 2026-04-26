@@ -4,8 +4,9 @@ import { RELAXED } from "@/lib/server/rate-limit";
 import { handleApiError } from "@/lib/server/auth";
 import { checkUsernameAvailability, generateUniqueUsernameSuggestion } from "@/lib/server/username-suggestions";
 import { guardApiRequest } from "@/lib/server/request-guard";
+import { withRouteRuntimeHealth } from "@/lib/server/route-runtime-health";
 
-export async function GET(request: NextRequest) {
+async function GET_handler(request: NextRequest) {
     try {
         await guardApiRequest(request, {
             routeName: "user/check-username",
@@ -40,3 +41,5 @@ export async function GET(request: NextRequest) {
         return handleApiError(error, "User.CheckUsername");
     }
 }
+
+export let GET = withRouteRuntimeHealth("user/check-username:GET", GET_handler);

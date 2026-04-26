@@ -14,6 +14,7 @@ import {
 } from "@/lib/server/drop-mutations";
 import { guardApiRequest } from "@/lib/server/request-guard";
 import { STANDARD } from "@/lib/server/rate-limit";
+import { withRouteRuntimeHealth } from "@/lib/server/route-runtime-health";
 
 const ALLOWED_DROP_FIELDS = [
     "title", "description", "imageUrl", "contentUrl", "contentUrls", "unlockCost",
@@ -47,7 +48,7 @@ async function requireCreator(uid: string) {
     return data;
 }
 
-export async function POST(request: NextRequest) {
+async function POST_handler(request: NextRequest) {
     try {
         const caller = await guardApiRequest(request, {
             routeName: "creator/drops",
@@ -95,7 +96,7 @@ export async function POST(request: NextRequest) {
     }
 }
 
-export async function PUT(request: NextRequest) {
+async function PUT_handler(request: NextRequest) {
     try {
         const caller = await guardApiRequest(request, {
             routeName: "creator/drops",
@@ -144,3 +145,6 @@ export async function PUT(request: NextRequest) {
         return handleApiError(error, "Creator.Drops.PUT");
     }
 }
+
+export let POST = withRouteRuntimeHealth("creator/drops:POST", POST_handler);
+export let PUT = withRouteRuntimeHealth("creator/drops:PUT", PUT_handler);

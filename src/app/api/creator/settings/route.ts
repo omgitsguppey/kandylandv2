@@ -7,6 +7,7 @@ import { adminDb } from "@/lib/server/firebase-admin";
 import { guardApiRequest } from "@/lib/server/request-guard";
 import { isCreatorOrAdminRole } from "@/lib/creator-experiences";
 import { buildCreatorUpdateMerge, sanitizeCreatorRestrictionsUpdate, sanitizeCreatorSettingsUpdate } from "@/lib/server/creator-experiences";
+import { withRouteRuntimeHealth } from "@/lib/server/route-runtime-health";
 
 async function requireCreator(uid: string) {
     if (!adminDb) {
@@ -26,7 +27,7 @@ async function requireCreator(uid: string) {
     return { snap: userSnap, data };
 }
 
-export async function GET(request: NextRequest) {
+async function GET_handler(request: NextRequest) {
     try {
         const caller = await guardApiRequest(request, {
             routeName: "creator/settings",
@@ -111,7 +112,7 @@ export async function GET(request: NextRequest) {
     }
 }
 
-export async function PUT(request: NextRequest) {
+async function PUT_handler(request: NextRequest) {
     try {
         const caller = await guardApiRequest(request, {
             routeName: "creator/settings",
@@ -153,3 +154,6 @@ export async function PUT(request: NextRequest) {
         return handleApiError(error, "Creator.Settings.PUT");
     }
 }
+
+export let GET = withRouteRuntimeHealth("creator/settings:GET", GET_handler);
+export let PUT = withRouteRuntimeHealth("creator/settings:PUT", PUT_handler);

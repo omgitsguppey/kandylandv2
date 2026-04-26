@@ -8,13 +8,14 @@ import { guardApiRequest } from "@/lib/server/request-guard";
 import { buildCreatorRelationshipId, isCreatorRole } from "@/lib/creator-experiences";
 import { buildRelationshipPatch } from "@/lib/server/creator-experiences";
 import { trackServerEvent } from "@/lib/server/analytics";
+import { withRouteRuntimeHealth } from "@/lib/server/route-runtime-health";
 
 const followRequestSchema = z.object({
     targetUserId: z.string().trim().min(1).max(128),
     action: z.enum(["follow", "unfollow"]),
 });
 
-export async function POST(request: NextRequest) {
+async function POST_handler(request: NextRequest) {
     try {
         const caller = await guardApiRequest(request, {
             routeName: "user/follow",
@@ -88,3 +89,5 @@ export async function POST(request: NextRequest) {
         return handleApiError(error, "User.Follow");
     }
 }
+
+export let POST = withRouteRuntimeHealth("user/follow:POST", POST_handler);

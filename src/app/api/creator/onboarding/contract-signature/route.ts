@@ -16,6 +16,7 @@ import { adminDb } from "@/lib/server/firebase-admin";
 import { STRICT } from "@/lib/server/rate-limit";
 import { guardApiRequest } from "@/lib/server/request-guard";
 import { recordServerDiagnostic } from "@/lib/server/server-diagnostics";
+import { withRouteRuntimeHealth } from "@/lib/server/route-runtime-health";
 
 function buildErrorResponse(status: number, message: string) {
     return NextResponse.json({ error: message }, { status });
@@ -40,7 +41,7 @@ function readRequestIp(request: NextRequest) {
     return request.headers.get("x-real-ip")?.trim() || undefined;
 }
 
-export async function POST(request: NextRequest) {
+async function POST_handler(request: NextRequest) {
     try {
         const caller = await guardApiRequest(request, {
             routeName: "creator/onboarding/contract-signature",
@@ -186,3 +187,5 @@ export async function POST(request: NextRequest) {
         return handleApiError(error, "Creator.Onboarding.ContractSignature");
     }
 }
+
+export let POST = withRouteRuntimeHealth("creator/onboarding/contract-signature:POST", POST_handler);

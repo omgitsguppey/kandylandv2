@@ -7,6 +7,7 @@ import { guardApiRequest } from "@/lib/server/request-guard";
 import { recordRouteWarning } from "@/lib/server/route-diagnostics";
 import { recordRuntimeWarning } from "@/lib/server/runtime-warning-store";
 import { QUEUE_RUNTIME_WARNING_CODES } from "../../../../../shared/runtime/runtime-warning-contract";
+import { withRouteRuntimeHealth } from "@/lib/server/route-runtime-health";
 
 const ROUTE_NAME = "cron/notify-active-drops";
 const STALE_AFTER_MS = 20 * 60 * 1000;
@@ -31,7 +32,7 @@ async function recordLegacyAdapterUse() {
     });
 }
 
-export async function GET(request: NextRequest) {
+async function GET_handler(request: NextRequest) {
     try {
         await guardApiRequest(request, {
             routeName: ROUTE_NAME,
@@ -64,3 +65,5 @@ export async function GET(request: NextRequest) {
         return handleApiError(error, "Cron.NotifyActiveDrops.GET");
     }
 }
+
+export let GET = withRouteRuntimeHealth("cron/notify-active-drops:GET", GET_handler);

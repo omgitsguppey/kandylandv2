@@ -1,4 +1,5 @@
 import "server-only";
+import { NextRequest, NextResponse } from "next/server";
 
 import { adminDb } from "@/lib/server/firebase-admin";
 import { recordRouteWarning } from "@/lib/server/route-diagnostics";
@@ -162,4 +163,31 @@ export async function listRouteRuntimeHealth(limitCount = Object.keys(ROUTE_RUNT
             .slice(0, limitCount)
             .map((key) => buildDefaultRouteRuntimeHealthItem(key));
     }
+}
+
+
+export function withRouteRuntimeHealth(
+  routeKey: RouteRuntimeHealthKey,
+  handler: (request: NextRequest, ...args: any[]) => Promise<Response> | Response
+) {
+  return async (request: NextRequest, ...args: any[]) => {
+    const startTime = Date.now();
+    try {
+      const response = await handler(request, ...args);
+      await recordRouteRuntimeSample({
+        key: routeKey,
+        durationMs: Date.now() - startTime,
+        statusCode: response.status,
+      }).catch(console.error);
+      return response;
+    } catch (e: any) {
+      await recordRouteRuntimeSample({
+        key: routeKey,
+        durationMs: Date.now() - startTime,
+        statusCode: 500,
+        errorMessage: e instanceof Error ? e.message : String(e),
+      }).catch(console.error);
+      throw e;
+    }
+  };
 }

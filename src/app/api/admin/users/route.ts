@@ -40,6 +40,7 @@ import {
   scoreAdminUserEngagement,
   shouldRecoverAdminUserMetricsFromFacts,
 } from "@/lib/admin-user-metrics";
+import { withRouteRuntimeHealth } from "@/lib/server/route-runtime-health";
 
 function toTimestampNumber(value: unknown): number {
   if (typeof value === "number" && Number.isFinite(value)) {
@@ -475,7 +476,7 @@ function serializeUserDoc(id: string, raw: Record<string, unknown>) {
   };
 }
 
-export async function GET(request: NextRequest) {
+async function GET_handler(request: NextRequest) {
   try {
     await guardApiRequest(request, {
       routeName: "admin/users",
@@ -1155,7 +1156,7 @@ export async function GET(request: NextRequest) {
   }
 }
 
-export async function PUT(request: NextRequest) {
+async function PUT_handler(request: NextRequest) {
   try {
     const authResult = await guardApiRequest(request, {
       routeName: "admin/users",
@@ -1540,7 +1541,7 @@ export async function PUT(request: NextRequest) {
   }
 }
 
-export async function POST(request: NextRequest) {
+async function POST_handler(request: NextRequest) {
   try {
     await guardApiRequest(request, {
       routeName: "admin/users",
@@ -1722,3 +1723,7 @@ function buildEmptyDailyAggregate(): UserDailyAggregate {
     lastPurchaseAt: 0,
   };
 }
+
+export let GET = withRouteRuntimeHealth("admin/users:GET", GET_handler);
+export let PUT = withRouteRuntimeHealth("admin/users:PUT", PUT_handler);
+export let POST = withRouteRuntimeHealth("admin/users:POST", POST_handler);

@@ -6,13 +6,14 @@ import { FieldValue } from "firebase-admin/firestore";
 import { guardApiRequest } from "@/lib/server/request-guard";
 import { buildCompletedGumdropTransaction } from "@/lib/server/gumdrop-ledger";
 import { readSourceAwareBalance, creditSourceAwareGumdrops, buildSourceAwareBalancePatch } from "@/lib/gumdrop-ledger";
+import { withRouteRuntimeHealth } from "@/lib/server/route-runtime-health";
 
 const feedbackSchema = z.object({
   dropId: z.string().min(1),
   positive: z.boolean(),
 });
 
-export async function POST(request: NextRequest) {
+async function POST_handler(request: NextRequest) {
   try {
     const caller = await guardApiRequest(request, {
       routeName: "drops/feedback",
@@ -80,3 +81,5 @@ export async function POST(request: NextRequest) {
     return handleApiError(error, "Drops.Feedback");
   }
 }
+
+export let POST = withRouteRuntimeHealth("drops/feedback:POST", POST_handler);

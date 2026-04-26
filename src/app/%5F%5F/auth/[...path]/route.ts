@@ -2,6 +2,7 @@ import { NextRequest } from "next/server";
 
 import { FIREBASE_PROJECT_ID } from "@/lib/firebase-runtime";
 import { recordServerDiagnostic } from "@/lib/server/server-diagnostics";
+import { withRouteRuntimeHealth } from "@/lib/server/route-runtime-health";
 
 const FIREBASE_AUTH_HELPER_ASSET_VERSION = "20260319c";
 
@@ -86,7 +87,7 @@ async function proxyAuthHelper(request: NextRequest, pathSegments: string[]) {
     });
 }
 
-export async function GET(
+async function GET_handler(
     request: NextRequest,
     context: { params: Promise<{ path: string[] }> },
 ) {
@@ -94,7 +95,7 @@ export async function GET(
     return proxyAuthHelper(request, path);
 }
 
-export async function POST(
+async function POST_handler(
     request: NextRequest,
     context: { params: Promise<{ path: string[] }> },
 ) {
@@ -102,10 +103,14 @@ export async function POST(
     return proxyAuthHelper(request, path);
 }
 
-export async function HEAD(
+async function HEAD_handler(
     request: NextRequest,
     context: { params: Promise<{ path: string[] }> },
 ) {
     const { path } = await context.params;
     return proxyAuthHelper(request, path);
 }
+
+export let GET = withRouteRuntimeHealth("__/auth/[...path]:GET", GET_handler);
+export let POST = withRouteRuntimeHealth("__/auth/[...path]:POST", POST_handler);
+export let HEAD = withRouteRuntimeHealth("__/auth/[...path]:HEAD", HEAD_handler);

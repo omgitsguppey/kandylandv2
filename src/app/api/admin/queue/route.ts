@@ -3,8 +3,9 @@ import { handleApiError } from "@/lib/server/auth";
 import { ADMIN } from "@/lib/server/rate-limit";
 import { getResolvedQueueConfig, saveResolvedQueueConfig } from "@/lib/server/drop-queue";
 import { guardApiRequest } from "@/lib/server/request-guard";
+import { withRouteRuntimeHealth } from "@/lib/server/route-runtime-health";
 
-export async function GET(request: NextRequest) {
+async function GET_handler(request: NextRequest) {
     try {
         await guardApiRequest(request, {
             routeName: "admin/queue",
@@ -18,7 +19,7 @@ export async function GET(request: NextRequest) {
     }
 }
 
-export async function PUT(request: NextRequest) {
+async function PUT_handler(request: NextRequest) {
     try {
         await guardApiRequest(request, {
             routeName: "admin/queue",
@@ -32,3 +33,6 @@ export async function PUT(request: NextRequest) {
         return handleApiError(error, "Admin.Queue.PUT");
     }
 }
+
+export let GET = withRouteRuntimeHealth("admin/queue:GET", GET_handler);
+export let PUT = withRouteRuntimeHealth("admin/queue:PUT", PUT_handler);

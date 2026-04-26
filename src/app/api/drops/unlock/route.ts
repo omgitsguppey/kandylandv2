@@ -12,6 +12,7 @@ import { CREATOR_COLLECTIONS } from "@/lib/creator-experiences";
 import { trackServerEvent } from "@/lib/server/analytics";
 import { buildSourceAwareBalancePatch, readSourceAwareBalance, spendSourceAwareGumdrops } from "@/lib/gumdrop-ledger";
 import { touchUserRuntime } from "@/lib/server/user-runtime";
+import { withRouteRuntimeHealth } from "@/lib/server/route-runtime-health";
 
 const unlockRequestSchema = z.object({
   dropId: z
@@ -21,7 +22,7 @@ const unlockRequestSchema = z.object({
     .regex(/^[A-Za-z0-9_-]+$/u, "Invalid dropId format"),
 });
 
-export async function POST(request: NextRequest) {
+async function POST_handler(request: NextRequest) {
   try {
     const caller = await guardApiRequest(request, {
       routeName: "drops/unlock",
@@ -211,3 +212,5 @@ export async function POST(request: NextRequest) {
     return handleApiError(error, "Drops.Unlock");
   }
 }
+
+export let POST = withRouteRuntimeHealth("drops/unlock:POST", POST_handler);

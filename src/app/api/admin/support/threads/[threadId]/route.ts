@@ -8,6 +8,7 @@ import { getErrorMessage } from "@/lib/server/route-diagnostics";
 import { recordRouteRuntimeSample } from "@/lib/server/route-runtime-health";
 import { addSupportMessage, getSupportThreadForAdmin, updateSupportThreadStatus } from "@/lib/server/support-threads";
 import { normalizeSupportThreadStatus } from "@/lib/support-readiness";
+import { withRouteRuntimeHealth } from "@/lib/server/route-runtime-health";
 
 const adminReplySchema = z.object({
     message: z.string().trim().min(1).max(2_000),
@@ -36,7 +37,7 @@ function finalizeAdminSupportThreadRoute(
     return response;
 }
 
-export async function GET(request: NextRequest, context: RouteContext) {
+async function GET_handler(request: NextRequest, context: RouteContext) {
     const startedAt = Date.now();
 
     try {
@@ -67,7 +68,7 @@ export async function GET(request: NextRequest, context: RouteContext) {
     }
 }
 
-export async function POST(request: NextRequest, context: RouteContext) {
+async function POST_handler(request: NextRequest, context: RouteContext) {
     const startedAt = Date.now();
 
     try {
@@ -108,7 +109,7 @@ export async function POST(request: NextRequest, context: RouteContext) {
     }
 }
 
-export async function PATCH(request: NextRequest, context: RouteContext) {
+async function PATCH_handler(request: NextRequest, context: RouteContext) {
     const startedAt = Date.now();
 
     try {
@@ -142,3 +143,7 @@ export async function PATCH(request: NextRequest, context: RouteContext) {
         return finalizeAdminSupportThreadRoute("admin/support/thread:PATCH", startedAt, handleApiError(error, "admin/support/thread"), error);
     }
 }
+
+export let GET = withRouteRuntimeHealth("admin/support/threads/[threadId]:GET", GET_handler);
+export let POST = withRouteRuntimeHealth("admin/support/threads/[threadId]:POST", POST_handler);
+export let PATCH = withRouteRuntimeHealth("admin/support/threads/[threadId]:PATCH", PATCH_handler);

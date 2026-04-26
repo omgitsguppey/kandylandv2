@@ -14,13 +14,14 @@ import {
 import { buildSourceAwareBalancePatch, creditSourceAwareGumdrops, normalizeGumdropBalance, readSourceAwareBalance } from "@/lib/gumdrop-ledger";
 import { buildCompletedGumdropTransaction } from "@/lib/server/gumdrop-ledger";
 import { recordRouteWarning } from "@/lib/server/route-diagnostics";
+import { withRouteRuntimeHealth } from "@/lib/server/route-runtime-health";
 
 type OnboardingFactWrite = {
     key: string;
     data: FirebaseFirestore.DocumentData;
 };
 
-export async function POST(req: NextRequest) {
+async function POST_handler(req: NextRequest) {
     try {
         const caller = await guardApiRequest(req, {
             routeName: "user/complete-onboarding",
@@ -287,3 +288,5 @@ export async function POST(req: NextRequest) {
         return handleApiError(error, "User.CompleteOnboarding");
     }
 }
+
+export let POST = withRouteRuntimeHealth("user/complete-onboarding:POST", POST_handler);

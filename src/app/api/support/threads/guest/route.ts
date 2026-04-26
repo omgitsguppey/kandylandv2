@@ -6,6 +6,7 @@ import { guardApiRequest } from "@/lib/server/request-guard";
 import { STRICT } from "@/lib/server/rate-limit";
 import { createSupportThread } from "@/lib/server/support-threads";
 import { SUPPORT_THREAD_CATEGORIES } from "@/lib/support-readiness";
+import { withRouteRuntimeHealth } from "@/lib/server/route-runtime-health";
 
 const guestSupportSchema = z.object({
     email: z.string().trim().email().max(240),
@@ -20,7 +21,7 @@ const guestSupportSchema = z.object({
  * Guest support intake — allows unauthenticated visitors to submit
  * a public support ticket without signing in. Rate-limited by IP.
  */
-export async function POST(request: NextRequest) {
+async function POST_handler(request: NextRequest) {
     try {
         // Pre-auth rate limit by IP — no auth required
         await guardApiRequest(request, {
@@ -54,3 +55,5 @@ export async function POST(request: NextRequest) {
         return handleApiError(error, "support/threads/guest");
     }
 }
+
+export let POST = withRouteRuntimeHealth("support/threads/guest:POST", POST_handler);

@@ -4,6 +4,7 @@ import { handleApiError } from "@/lib/server/auth";
 import { ADMIN } from "@/lib/server/rate-limit";
 import { isAllowedLandingAssetKey } from "@/lib/landing-assets";
 import { guardApiRequest } from "@/lib/server/request-guard";
+import { withRouteRuntimeHealth } from "@/lib/server/route-runtime-health";
 
 function isImageFormat(mimeType: string) {
     return ["image/jpeg", "image/png", "image/gif", "image/webp"].includes(mimeType);
@@ -28,7 +29,7 @@ function extractStorageObjectPath(downloadUrl: string, bucketName: string) {
     }
 }
 
-export async function POST(request: NextRequest) {
+async function POST_handler(request: NextRequest) {
     try {
         await guardApiRequest(request, {
             routeName: "settings/landing/upload",
@@ -114,3 +115,5 @@ export async function POST(request: NextRequest) {
         return handleApiError(error, "Settings.Landing.Upload");
     }
 }
+
+export let POST = withRouteRuntimeHealth("settings/landing/upload:POST", POST_handler);

@@ -17,6 +17,7 @@ import {
     getCreatorOnboardingIdDocumentSummary,
     normalizeCreatorOnboardingCanonicalRecord,
 } from "@/lib/creator-onboarding";
+import { withRouteRuntimeHealth } from "@/lib/server/route-runtime-health";
 
 const MAX_ID_UPLOAD_BYTES = 15 * 1024 * 1024;
 const ALLOWED_ID_CONTENT_TYPES = new Set([
@@ -49,7 +50,7 @@ function buildErrorResponse(status: number, message: string) {
     return NextResponse.json({ error: message }, { status });
 }
 
-export async function POST(request: NextRequest) {
+async function POST_handler(request: NextRequest) {
     let uploadedStoragePath: string | null = null;
     let uploadedSlot: "front" | "back" | "face_with_id" | "video_with_id" = "front";
 
@@ -289,3 +290,5 @@ export async function POST(request: NextRequest) {
         return handleApiError(routeError, "Creator.Onboarding.IdSubmission");
     }
 }
+
+export let POST = withRouteRuntimeHealth("creator/onboarding/id-submission:POST", POST_handler);

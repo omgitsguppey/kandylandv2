@@ -16,6 +16,7 @@ import type { UserProfile } from "@/types/db";
 import { touchUserRuntime } from "@/lib/server/user-runtime";
 import { capturePayPalOrder } from "@/lib/server/paypal";
 import { recordRouteWarning } from "@/lib/server/route-diagnostics";
+import { withRouteRuntimeHealth } from "@/lib/server/route-runtime-health";
 
 const bodySchema = z.object({
   orderId: z.string().min(1),
@@ -47,7 +48,7 @@ async function logFailedTransaction(userId: string, orderId: string, expectedDro
   }
 }
 
-export async function POST(request: NextRequest) {
+async function POST_handler(request: NextRequest) {
   try {
     const caller = await guardApiRequest(request, {
       routeName: "paypal/capture",
@@ -324,3 +325,5 @@ export async function POST(request: NextRequest) {
     return handleApiError(error, "PayPal.Capture");
   }
 }
+
+export let POST = withRouteRuntimeHealth("paypal/capture:POST", POST_handler);

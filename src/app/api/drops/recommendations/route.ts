@@ -4,10 +4,11 @@ import { STANDARD } from "@/lib/server/rate-limit";
 import { buildDeterministicDropRecommendations } from "@/lib/server/behavioral-intelligence";
 import { guardApiRequest } from "@/lib/server/request-guard";
 import { handleApiError } from "@/lib/server/auth";
+import { withRouteRuntimeHealth } from "@/lib/server/route-runtime-health";
 
 export const dynamic = "force-dynamic";
 
-export async function GET(request: NextRequest) {
+async function GET_handler(request: NextRequest) {
   try {
     const caller = await guardApiRequest(request, {
       routeName: "drops/recommendations",
@@ -33,3 +34,5 @@ export async function GET(request: NextRequest) {
     return handleApiError(error, "Drops.Recommendations.GET");
   }
 }
+
+export let GET = withRouteRuntimeHealth("drops/recommendations:GET", GET_handler);

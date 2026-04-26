@@ -19,6 +19,13 @@ Current repo-wide state snapshot: see [FULL_SCALE_CODEBASE_AUDIT.md](/Users/uylu
 
 ## 2026-04-26 Delta Coverage
 
+- Real-time Runtime Health Proxy Tracking added on 2026-04-26:
+  - `src/app/__/auth/[...path]/route.ts`
+    - [x] Wrapped `GET`, `POST`, and `HEAD` proxy handlers with `withRouteRuntimeHealth` for realtime observability.
+  - `src/app/__/firebase/[...path]/route.ts`
+    - [x] Wrapped `GET` and `HEAD` proxy handlers with `withRouteRuntimeHealth` for realtime observability.
+- Verification note: Verified all other `src/app` API routes are fully wrapped. Typecheck, targeted architecture checks, and continuity checks passed successfully.
+
 - Admin Analytics Resilience added on 2026-04-26:
   - `src/app/admin/analytics/page.tsx`
     - [x] Fixed TS1127/TS1381 corruptions and restored Tabs mapping/module filters.

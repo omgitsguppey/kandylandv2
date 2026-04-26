@@ -9,6 +9,7 @@ import { CREATOR_COLLECTIONS, isCreatorRole } from "@/lib/creator-experiences";
 import { buildCreatorAccrual, buildSourceAwareBalancePatch, readSourceAwareBalance, spendCreatorExperienceGumdrops } from "@/lib/server/creator-experiences";
 import { buildCompletedGumdropTransaction } from "@/lib/server/gumdrop-ledger";
 import { trackServerEvent } from "@/lib/server/analytics";
+import { withRouteRuntimeHealth } from "@/lib/server/route-runtime-health";
 
 type CreatorRequestRecord = Record<string, unknown> & {
     id: string;
@@ -27,7 +28,7 @@ const updateRequestSchema = z.object({
     responseNote: z.string().trim().max(600).optional(),
 });
 
-export async function GET(request: NextRequest) {
+async function GET_handler(request: NextRequest) {
     try {
         const caller = await guardApiRequest(request, {
             routeName: "creator/requests",
@@ -62,7 +63,7 @@ export async function GET(request: NextRequest) {
     }
 }
 
-export async function POST(request: NextRequest) {
+async function POST_handler(request: NextRequest) {
     try {
         const caller = await guardApiRequest(request, {
             routeName: "creator/requests",
@@ -196,7 +197,7 @@ export async function POST(request: NextRequest) {
     }
 }
 
-export async function PUT(request: NextRequest) {
+async function PUT_handler(request: NextRequest) {
     try {
         const caller = await guardApiRequest(request, {
             routeName: "creator/requests",
@@ -246,3 +247,7 @@ export async function PUT(request: NextRequest) {
         return handleApiError(error, "Creator.Requests.PUT");
     }
 }
+
+export let GET = withRouteRuntimeHealth("creator/requests:GET", GET_handler);
+export let POST = withRouteRuntimeHealth("creator/requests:POST", POST_handler);
+export let PUT = withRouteRuntimeHealth("creator/requests:PUT", PUT_handler);

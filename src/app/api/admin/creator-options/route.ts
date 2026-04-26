@@ -5,6 +5,7 @@ import { handleApiError } from "@/lib/server/auth";
 import { ADMIN } from "@/lib/server/rate-limit";
 import { guardApiRequest } from "@/lib/server/request-guard";
 import { isCreatorRole } from "@/lib/creator-experiences";
+import { withRouteRuntimeHealth } from "@/lib/server/route-runtime-health";
 
 type CreatorOptionRecord = Record<string, unknown> & {
     uid: string;
@@ -16,7 +17,7 @@ type CreatorOptionRecord = Record<string, unknown> & {
     photoURL?: unknown;
 };
 
-export async function GET(request: NextRequest) {
+async function GET_handler(request: NextRequest) {
     try {
         await guardApiRequest(request, {
             routeName: "admin/creator-options",
@@ -55,3 +56,5 @@ export async function GET(request: NextRequest) {
         return handleApiError(error, "Admin.CreatorOptions.GET");
     }
 }
+
+export let GET = withRouteRuntimeHealth("admin/creator-options:GET", GET_handler);

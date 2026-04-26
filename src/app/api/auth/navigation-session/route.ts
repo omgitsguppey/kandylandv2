@@ -8,8 +8,9 @@ import { adminDb } from "@/lib/server/firebase-admin";
 import { RELAXED } from "@/lib/server/rate-limit";
 import { guardApiRequest } from "@/lib/server/request-guard";
 import { recordServerDiagnostic } from "@/lib/server/server-diagnostics";
+import { withRouteRuntimeHealth } from "@/lib/server/route-runtime-health";
 
-export async function POST(request: NextRequest) {
+async function POST_handler(request: NextRequest) {
   try {
     const caller = await guardApiRequest(request, {
       routeName: "auth/navigation-session",
@@ -68,7 +69,7 @@ export async function POST(request: NextRequest) {
   }
 }
 
-export async function DELETE(request: NextRequest) {
+async function DELETE_handler(request: NextRequest) {
   try {
     await guardApiRequest(request, {
       routeName: "auth/navigation-session",
@@ -92,3 +93,6 @@ export async function DELETE(request: NextRequest) {
     return handleApiError(error, "auth/navigation-session");
   }
 }
+
+export let POST = withRouteRuntimeHealth("auth/navigation-session:POST", POST_handler);
+export let DELETE = withRouteRuntimeHealth("auth/navigation-session:DELETE", DELETE_handler);

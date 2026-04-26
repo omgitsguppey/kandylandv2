@@ -5,6 +5,7 @@ import { AuthError, handleApiError } from "@/lib/server/auth";
 import { STANDARD } from "@/lib/server/rate-limit";
 import { guardApiRequest } from "@/lib/server/request-guard";
 import { addSupportMessage, getSupportThreadForUser, updateSupportThreadStatus } from "@/lib/server/support-threads";
+import { withRouteRuntimeHealth } from "@/lib/server/route-runtime-health";
 
 const supportMessageSchema = z.object({
     message: z.string().trim().min(1).max(2_000),
@@ -18,7 +19,7 @@ type RouteContext = {
     params: Promise<{ threadId: string }>;
 };
 
-export async function GET(request: NextRequest, context: RouteContext) {
+async function GET_handler(request: NextRequest, context: RouteContext) {
     try {
         const caller = await guardApiRequest(request, {
             routeName: "support/thread",
@@ -48,7 +49,7 @@ export async function GET(request: NextRequest, context: RouteContext) {
     }
 }
 
-export async function POST(request: NextRequest, context: RouteContext) {
+async function POST_handler(request: NextRequest, context: RouteContext) {
     try {
         const caller = await guardApiRequest(request, {
             routeName: "support/thread",
@@ -87,7 +88,7 @@ export async function POST(request: NextRequest, context: RouteContext) {
     }
 }
 
-export async function PATCH(request: NextRequest, context: RouteContext) {
+async function PATCH_handler(request: NextRequest, context: RouteContext) {
     try {
         const caller = await guardApiRequest(request, {
             routeName: "support/thread",
@@ -120,3 +121,7 @@ export async function PATCH(request: NextRequest, context: RouteContext) {
         return handleApiError(error, "support/thread");
     }
 }
+
+export let GET = withRouteRuntimeHealth("support/threads/[threadId]:GET", GET_handler);
+export let POST = withRouteRuntimeHealth("support/threads/[threadId]:POST", POST_handler);
+export let PATCH = withRouteRuntimeHealth("support/threads/[threadId]:PATCH", PATCH_handler);

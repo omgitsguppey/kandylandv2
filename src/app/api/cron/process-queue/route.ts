@@ -7,6 +7,7 @@ import { guardApiRequest } from "@/lib/server/request-guard";
 import { recordRouteWarning } from "@/lib/server/route-diagnostics";
 import { recordRuntimeWarning } from "@/lib/server/runtime-warning-store";
 import { QUEUE_RUNTIME_WARNING_CODES } from "../../../../../shared/runtime/runtime-warning-contract";
+import { withRouteRuntimeHealth } from "@/lib/server/route-runtime-health";
 
 const ROUTE_NAME = "cron/process-queue";
 const STALE_AFTER_MS = 60 * 60 * 1000;
@@ -31,7 +32,7 @@ async function recordLegacyAdapterUse() {
     });
 }
 
-export async function GET(request: NextRequest) {
+async function GET_handler(request: NextRequest) {
     try {
         await guardApiRequest(request, {
             routeName: ROUTE_NAME,
@@ -64,3 +65,5 @@ export async function GET(request: NextRequest) {
         return handleApiError(error, "Cron.ProcessQueue.GET");
     }
 }
+
+export let GET = withRouteRuntimeHealth("cron/process-queue:GET", GET_handler);
