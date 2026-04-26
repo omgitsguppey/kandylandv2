@@ -158,11 +158,13 @@ export function createCompactInteractionRecoveryGuard(input: {
 export function createAutoHealingObserver(
     setupObserver: () => (() => void) | null | undefined | void,
     onDisconnectNotify?: (error: unknown) => void,
-    retryDelayMs: number = 5000
+    retryDelayMs: number = 5000,
+    maxDelayMs: number = 60000
 ): AutoHealingObserverControl {
     let unsubscribe: (() => void) | null | undefined | void = null;
     let timeoutId: number | undefined;
     let active = true;
+    let retryCount = 0;
 
     const connect = () => {
         if (!active) {
@@ -170,6 +172,8 @@ export function createAutoHealingObserver(
         }
         try {
             unsubscribe = setupObserver();
+            // Reset retry count on successful connection attempt setup
+            retryCount = 0;
         } catch (error) {
             if (active) {
                 triggerReconnect(error);
@@ -199,7 +203,10 @@ export function createAutoHealingObserver(
             window.clearTimeout(timeoutId);
         }
 
-        timeoutId = window.setTimeout(connect, retryDelayMs);
+        const delay = Math.min(retryDelayMs * Math.pow(2, retryCount), maxDelayMs);
+        retryCount++;
+
+        timeoutId = window.setTimeout(connect, delay);
     };
 
     connect();

@@ -1,7 +1,7 @@
 # EVERY FILE FUNCTION CHECKLIST
 
-**Last Updated:** 2026-04-24
-**Current Focus:** Admin hydration and realtime truth recovery is now included alongside the Repo Intelligence Fabric v1 evidence. The latest delta covers admin overview realtime hydration, admin analytics listener-first merging, admin debug realtime client/server import cleanup, UI audit stabilization, and homepage empty-state accessibility repair.
+**Last Updated:** 2026-04-26
+**Current Focus:** Admin analytics resilience, eliminating thundering herd reads on the realtime endpoints, and fixing syntax regressions in the admin UI.
 **Status:** In Progress. Historical exhaustive sweep remains valuable, and the 2026-04-21 continuity metadata now reflects the repo-intelligence layer, the fast-loop versus signoff verification split, the portable instruction surfaces, and the structured eval-failure review output in addition to the earlier UI continuity, runtime continuity, analytics truth, and viewer watch/session hardening lanes.
 Purpose: exhaustive no-skip audit checklist covering every repository file currently in scope and every detected function-like implementation.
 
@@ -16,6 +16,20 @@ Current repo-wide state snapshot: see [FULL_SCALE_CODEBASE_AUDIT.md](/Users/uylu
 ## 2026-04-22 Delta Coverage
 
 ## 2026-04-23 Delta Coverage
+
+## 2026-04-26 Delta Coverage
+
+- Admin Analytics Resilience added on 2026-04-26:
+  - `src/app/admin/analytics/page.tsx`
+    - [x] Fixed TS1127/TS1381 corruptions and restored Tabs mapping/module filters.
+  - `src/app/api/admin/analytics/realtime/route.ts`
+    - [x] Wraps historical/aggregated polling reads in a 5-minute Firestore cache (`analytics_aggregate_stats`) with `liveTruthLabel` passing.
+  - `src/lib/self-healing.ts`
+    - [x] Provides backoff strategies for automatic observer reconnection.
+  - `src/lib/server/analytics-governance.ts`
+    - [x] Includes caching considerations for aggregations.
+  - `apphosting.yaml`
+    - [x] Defined `minInstances: 1` to bypass Admin cold starts.
 
 - Admin hydration and realtime janitorial recovery coverage added on 2026-04-24:
   - `src/hooks/useAdminOverviewRealtime.ts`

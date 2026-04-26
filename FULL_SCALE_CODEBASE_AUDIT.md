@@ -1,5 +1,25 @@
 # KandyDrops Core Codebase Audit & Defensive Ledger
 
+## [2026-04-26 #36] Admin Analytics Syntax Repair & Caching Resilience
+
+Scope completed:
+- Repaired severe syntax corruption (`TS1127`, `TS1381`) in `src/app/admin/analytics/page.tsx` where Tabs mapping and Module filters were accidentally deleted.
+- Hardened realtime analytics polling endpoint (`/api/admin/analytics/realtime`) by introducing a 5-minute Firestore cache (`analytics_aggregate_stats`) to reduce redundant queries and Thundering Herd risks.
+- Added exponential backoff to `src/lib/self-healing.ts` (`createAutoHealingObserver`) for reconnect logic.
+- Configured `apphosting.yaml` with `minInstances: 1` to eliminate admin surface cold starts.
+
+Implemented changes:
+- `src/app/admin/analytics/page.tsx` logic restored for UI rendering without template literal breaks.
+- `src/app/api/admin/analytics/realtime/route.ts` implements cached logic with `liveTruthLabel` passing.
+- `src/lib/self-healing.ts` extended with reconnect backoff.
+- `src/lib/server/analytics-governance.ts` updated to account for new caching patterns.
+- `apphosting.yaml` updated for `minInstances: 1`.
+
+Verification completed:
+- `npx tsc --noEmit` passed.
+- `npm run check:agent-context` run.
+- Changes are compliant with Admin Truth UI Rules and Regression Gates.
+
 ## [2026-04-24 #35] POST-IMPLEMENTATION: Admin Hydration + UI Audit Signoff
 
 Scope completed:

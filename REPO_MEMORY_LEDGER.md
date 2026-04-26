@@ -24,6 +24,19 @@ This file is not a changelog. It is the concise ledger for durable decisions tha
 
 ## Decision Entries
 
+### 1as. Admin analytics polling endpoints must implement ephemeral caching for read efficiency
+
+- Approximate date: Recorded explicitly on 2026-04-26 from the Admin Analytics Resilience pass
+- Status: Active admin performance/resilience rule
+- Problem/context: Realtime analytics endpoints (`/api/admin/analytics/realtime`) were reading heavily from raw GA and Firestore aggregations on every poll. This introduced Thundering Herd risks and excessive reads when multiple admin instances or re-connections occurred simultaneously.
+- Decision made: Expensive realtime aggregation reads must utilize a 5-minute server-side cache (`analytics_aggregate_stats`) to serve recent truth while protecting backend quotas. The cache must carry a `liveTruthLabel` so the UI knows if it is displaying `live` or `fallback` data.
+- What became canonical:
+  - `src/app/api/admin/analytics/realtime/route.ts` wraps its expensive reads in caching logic.
+  - `analytics_aggregate_stats` is the designated cache collection.
+- Consequence for future work:
+  - Do not build uncached, heavy aggregation queries on endpoints intended for polling.
+  - Always maintain UI awareness of data freshness via explicit `fallback` or `live` labels.
+
 ### 1ar. Admin overview/debug/analytics hydration must not wait on cold polling when hot Firestore truth exists
 
 - Approximate date: Recorded explicitly on 2026-04-24 from the Admin Hydration + Realtime Janitorial Recovery pass

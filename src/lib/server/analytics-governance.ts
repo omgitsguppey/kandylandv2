@@ -12,6 +12,7 @@ export const ANALYTICS_CANONICAL_COLLECTIONS = {
 export const ANALYTICS_OPERATIONAL_COLLECTIONS = {
   guestSessions: "analytics_sessions",
   activeUsers: "analytics_active_users",
+  aggregateStats: "analytics_aggregate_stats",
 } as const;
 
 export const ANALYTICS_ROUTE_POLICIES = {

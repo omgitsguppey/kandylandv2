@@ -264,6 +264,31 @@ export async function GET(request: NextRequest) {
         const onboardingWindowStartMs = nowMs - 24 * 60 * 60 * 1000;
         const issues: string[] = [];
 
+        try {
+          const aggregateDoc = await adminDb
+            .collection(ANALYTICS_OPERATIONAL_COLLECTIONS.aggregateStats)
+            .doc("realtime_summary")
+            .get();
+          
+          if (aggregateDoc.exists) {
+            const aggData = aggregateDoc.data() as Record<string, any>;
+            const generatedAtMs = toNumber(aggData.generatedAtMs);
+            
+            // Check if the aggregate is fresh (within the last 5 minutes)
+            if (generatedAtMs && nowMs - generatedAtMs < 5 * 60 * 1000) {
+              return {
+                success: true,
+                ...aggData,
+                issues: [...issues, ...(Array.isArray(aggData.issues) ? aggData.issues : [])],
+              };
+            } else {
+              issues.push("Aggregate summary is stale. Falling back to raw queries.");
+            }
+          }
+        } catch (error) {
+          issues.push(`Failed to read aggregate summary: ${getErrorMessage(error)}. Falling back to raw queries.`);
+        }
+
         const totalActiveResponse = propertyId
           ? await safeRunRealtimeReport(analyticsClient, {
             property: `properties/${propertyId}`,
