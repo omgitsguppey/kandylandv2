@@ -1,5 +1,5 @@
 {
-  "generatedAt": "2026-04-23T21:24:58.425Z",
+  "generatedAt": "2026-04-26T15:04:48.559Z",
   "truthOrder": [
     "verified_runtime_code",
     "verified_configuration",
@@ -947,6 +947,23 @@
       "broadSignoffWeight": 5,
       "verifies_runtime": false,
       "verifies_ui": true,
+      "verifies_rules": false,
+      "verifies_inventory": false,
+      "verifies_continuity": false
+    },
+    {
+      "stable_id": "command__root-check-dependency-truth",
+      "command": "npm run check:dependency-truth",
+      "scopeType": "repo",
+      "root_or_functions": "root",
+      "requiredWhen": [],
+      "optionalWhen": [
+        "Run when the touched surface overlaps the command lane."
+      ],
+      "cleanupExpected": [],
+      "broadSignoffWeight": 1,
+      "verifies_runtime": false,
+      "verifies_ui": false,
       "verifies_rules": false,
       "verifies_inventory": false,
       "verifies_continuity": false

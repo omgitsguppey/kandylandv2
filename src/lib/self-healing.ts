@@ -158,7 +158,7 @@ export function createCompactInteractionRecoveryGuard(input: {
 export function createAutoHealingObserver(
     setupObserver: () => (() => void) | null | undefined | void,
     onDisconnectNotify?: (error: unknown) => void,
-    retryDelayMs: number = 5000,
+    retryDelayMs: number = 2000,
     maxDelayMs: number = 60000
 ): AutoHealingObserverControl {
     let unsubscribe: (() => void) | null | undefined | void = null;

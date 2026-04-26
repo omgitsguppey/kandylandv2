@@ -1,5 +1,5 @@
 {
-  "generatedAt": "2026-04-21T15:12:15.675Z",
+  "generatedAt": "2026-04-26T15:05:02.505Z",
   "truthOrder": [
     "verified_runtime_code",
     "verified_configuration",
@@ -16,35 +16,29 @@
     "agent/index/surface-map.json",
     "agent/index/ui-surface-coverage.json"
   ],
-  "stable_id": "verifyplan__scripts__agent__build-task-context-ts-src__app__admin__debug__page-tsx",
+  "stable_id": "verifyplan__src__app__admin__analytics__hooks__useadminanalyticsstate-tsx",
   "inputPaths": [
-    "scripts/agent/build-task-context.ts",
-    "src/app/admin/debug/page.tsx"
+    "src/app/admin/analytics/hooks/useAdminAnalyticsState.tsx"
   ],
   "matchedRepoPaths": [
-    "scripts/agent/build-task-context.ts",
-    "src/app/admin/debug/page.tsx"
+    "src/app/admin/analytics/hooks/useAdminAnalyticsState.tsx"
   ],
   "unmatchedPaths": [],
   "touchedDomains": [
     "admin_ops",
-    "app_routes",
-    "repo_tooling"
+    "app_routes"
   ],
   "fastCommands": [
     "npm run typecheck",
-    "npm run agent:test -- scripts/agent/build-task-context.ts",
-    "npm run agent:test -- src/app/admin/debug/page.tsx",
+    "npm run agent:test -- src/app/admin/analytics/hooks/useAdminAnalyticsState.tsx",
     "npm run check:ui:coverage",
     "npm run check:ui:runtime",
-    "npm run check:agent-context"
+    "npm run check:telemetry",
+    "npm run check:analytics-semantics"
   ],
   "signoffCommands": [
     "npm run check:ui:audits",
-    "npm run check:inventory",
-    "npm run check:architecture",
-    "npm run check:agent-intelligence",
-    "npm run eval:agent-context",
+    "npm run check:analytics:continuity",
     "npm run check:continuity"
   ],
   "fastSelections": [
@@ -56,14 +50,7 @@
       "lane": "fast"
     },
     {
-      "command": "npm run agent:test -- scripts/agent/build-task-context.ts",
-      "why": [
-        "Run the narrowest related contract/unit tests first."
-      ],
-      "lane": "fast"
-    },
-    {
-      "command": "npm run agent:test -- src/app/admin/debug/page.tsx",
+      "command": "npm run agent:test -- src/app/admin/analytics/hooks/useAdminAnalyticsState.tsx",
       "why": [
         "Run the narrowest related contract/unit tests first."
       ],
@@ -84,9 +71,16 @@
       "lane": "fast"
     },
     {
-      "command": "npm run check:agent-context",
+      "command": "npm run check:telemetry",
       "why": [
-        "Repo intelligence outputs should stay internally valid."
+        "Telemetry or analytics semantics changed."
+      ],
+      "lane": "fast"
+    },
+    {
+      "command": "npm run check:analytics-semantics",
+      "why": [
+        "Canonical analytics naming/schema must remain aligned."
       ],
       "lane": "fast"
     }
@@ -100,30 +94,9 @@
       "lane": "signoff"
     },
     {
-      "command": "npm run check:inventory",
+      "command": "npm run check:analytics:continuity",
       "why": [
-        "Repo-tooling changes must preserve inventory truth."
-      ],
-      "lane": "signoff"
-    },
-    {
-      "command": "npm run check:architecture",
-      "why": [
-        "Repo-tooling/shared-helper changes need architecture validation."
-      ],
-      "lane": "signoff"
-    },
-    {
-      "command": "npm run check:agent-intelligence",
-      "why": [
-        "Agent indexes and helper extraction must stay coherent."
-      ],
-      "lane": "signoff"
-    },
-    {
-      "command": "npm run eval:agent-context",
-      "why": [
-        "Task-context retrieval/eval fixtures changed."
+        "Analytics continuity needs explicit signoff for behavioral/runtime changes."
       ],
       "lane": "signoff"
     },
@@ -148,6 +121,6 @@
   ],
   "broadWork": true,
   "reasoning": [
-    "Matched 2 repo-tracked paths."
+    "Matched 1 repo-tracked paths."
   ]
 }

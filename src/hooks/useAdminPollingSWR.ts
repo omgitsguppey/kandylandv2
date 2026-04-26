@@ -8,6 +8,9 @@ export function createAdminPollingConfig<T>(refreshInterval: number, config?: SW
     return {
         keepPreviousData: true,
         revalidateOnFocus: true,
+        revalidateOnReconnect: true,
+        errorRetryCount: 3,
+        errorRetryInterval: 5000,
         refreshInterval,
         ...config,
     } satisfies SWRConfiguration<T>;

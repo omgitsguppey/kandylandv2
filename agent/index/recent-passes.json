@@ -1,5 +1,5 @@
 {
-  "generatedAt": "2026-04-23T21:24:58.451Z",
+  "generatedAt": "2026-04-26T15:04:48.592Z",
   "truthOrder": [
     "verified_runtime_code",
     "verified_configuration",
@@ -14,6 +14,202 @@
     "FULL_SCALE_CODEBASE_AUDIT.md"
   ],
   "passes": [
+    {
+      "stable_id": "pass__2026-04-26-dependency-and-infrastructure-observability-rollout",
+      "date": "2026-04-26",
+      "title": "Dependency and Infrastructure Observability Rollout",
+      "scopeSummary": [],
+      "touchedSurfaces": [
+        ".agent/workflows/dependency-truth.md",
+        "/api/admin/debug",
+        "scripts/agent/check-infrastructure-truth.ts",
+        "src/app/admin/debug/page.tsx",
+        "src/app/api/admin/debug/route.ts"
+      ],
+      "canonicalHelpersReused": [],
+      "verificationCommandsRun": [],
+      "resultSummary": [],
+      "warnings": [],
+      "architecture_change": true,
+      "runtime_change": true,
+      "ui_change": true,
+      "security_change": false,
+      "maintenance_only": false,
+      "changeKinds": [
+        "admin",
+        "runtime",
+        "tooling"
+      ]
+    },
+    {
+      "stable_id": "pass__2026-04-26-admin-analytics-syntax-repair-caching-resilience",
+      "date": "2026-04-26",
+      "title": "Admin Analytics Syntax Repair & Caching Resilience",
+      "scopeSummary": [],
+      "touchedSurfaces": [
+        "/api/admin/analytics/realtime",
+        "src/app/admin/analytics/page.tsx",
+        "src/app/api/admin/analytics/realtime/route.ts",
+        "src/lib/self-healing.ts",
+        "src/lib/server/analytics-governance.ts"
+      ],
+      "canonicalHelpersReused": [],
+      "verificationCommandsRun": [],
+      "resultSummary": [],
+      "warnings": [],
+      "architecture_change": true,
+      "runtime_change": true,
+      "ui_change": true,
+      "security_change": false,
+      "maintenance_only": false,
+      "changeKinds": [
+        "admin",
+        "runtime",
+        "architecture"
+      ]
+    },
+    {
+      "stable_id": "pass__2026-04-24-post-implementation-admin-hydration-ui-audit-signoff",
+      "date": "2026-04-24",
+      "title": "POST-IMPLEMENTATION: Admin Hydration + UI Audit Signoff",
+      "scopeSummary": [],
+      "touchedSurfaces": [
+        "/api/admin/overview",
+        "src/app/admin/ai/page.tsx",
+        "src/app/admin/analytics/hooks/useAdminAnalyticsState.tsx",
+        "src/app/admin/analytics/page.tsx",
+        "src/app/admin/debug/hooks/useAdminAiAssistantRealtime.ts",
+        "src/app/admin/debug/hooks/useAdminDebugRealtime.ts",
+        "src/app/admin/debug/page.tsx",
+        "src/app/admin/page.tsx",
+        "src/app/api/admin/analytics/realtime/route.ts",
+        "src/components/Landing/HomeActiveDropsCarousel.tsx",
+        "src/hooks/useAdminOverviewRealtime.ts",
+        "src/hooks/useAdminSupportRealtime.ts",
+        "tests/ui-audits/visual-regression.spec.ts"
+      ],
+      "canonicalHelpersReused": [],
+      "verificationCommandsRun": [],
+      "resultSummary": [],
+      "warnings": [],
+      "architecture_change": false,
+      "runtime_change": true,
+      "ui_change": true,
+      "security_change": false,
+      "maintenance_only": false,
+      "changeKinds": [
+        "admin",
+        "ui",
+        "runtime"
+      ]
+    },
+    {
+      "stable_id": "pass__2026-04-24-pre-implementation-admin-hydration-realtime-janitorial-recovery",
+      "date": "2026-04-24",
+      "title": "PRE-IMPLEMENTATION: Admin Hydration + Realtime Janitorial Recovery",
+      "scopeSummary": [
+        "Fix the janitorial findings left after the previous review remediation, then skeptically inspect admin overview/debug/analytics hydration as if current realtime lanes may already be broken, slow, or silently falling back.",
+        "Commit and push after verification."
+      ],
+      "touchedSurfaces": [
+        "admin/debug/page.tsx",
+        "src/app/admin/analytics/hooks/useAdminAnalyticsState.tsx",
+        "src/app/admin/debug/hooks/useAdminDebugRealtime.ts",
+        "src/app/admin/debug/page.tsx",
+        "src/hooks/useAdminOverview.ts",
+        "src/lib/admin-ai-models.ts"
+      ],
+      "canonicalHelpersReused": [],
+      "verificationCommandsRun": [],
+      "resultSummary": [],
+      "warnings": [],
+      "architecture_change": true,
+      "runtime_change": false,
+      "ui_change": true,
+      "security_change": false,
+      "maintenance_only": false,
+      "changeKinds": [
+        "admin",
+        "architecture"
+      ]
+    },
+    {
+      "stable_id": "pass__2026-04-24-pre-implementation-admin-realtime-truth-review-finding-remediation",
+      "date": "2026-04-24",
+      "title": "PRE-IMPLEMENTATION: Admin Realtime Truth Review-Finding Remediation",
+      "scopeSummary": [
+        "Address review findings from recent commits before declaring the admin realtime/privacy changes safe:",
+        "default moderation transcript subscription uses `threads[0]` visually but subscribes with `null`",
+        "privacy preflight dedupe health can falsely report `[live]`",
+        "privacy preflight initializes event recency as `0s ago`",
+        "generated local artifacts were committed/churning (`database-debug.log`, `playwright-report/index.html`)"
+      ],
+      "touchedSurfaces": [
+        ".agent/skills/doctrine-consultation.md",
+        ".agent/workflows/ui-copy-refinement-workflow.md",
+        "control-tower/00-START-HERE.md",
+        "docs/doctrine/kandydrops-banned-patterns.md",
+        "docs/doctrine/kandydrops-copy-doctrine.md",
+        "docs/doctrine/kandydrops-decision-checklist.md",
+        "docs/doctrine/kandydrops-product-doctrine.md",
+        "docs/doctrine/kandydrops-surface-matrix.md",
+        "docs/doctrine/kandydrops-ui-doctrine.md",
+        "docs/doctrine/kandydrops-vocabulary-index.md",
+        "npm run trace:adjacent -- scripts/check-generated-artifacts.ts",
+        "npm run trace:adjacent -- src/components/Admin/AdminModerationConsole.tsx",
+        "npm run trace:adjacent -- src/hooks/useAdminPrivacyPreflight.ts",
+        "playwright-report/index.html",
+        "src/components/Admin/AdminModerationConsole.tsx",
+        "src/hooks/useAdminPrivacyPreflight.ts"
+      ],
+      "canonicalHelpersReused": [],
+      "verificationCommandsRun": [],
+      "resultSummary": [],
+      "warnings": [],
+      "architecture_change": false,
+      "runtime_change": false,
+      "ui_change": true,
+      "security_change": false,
+      "maintenance_only": false,
+      "changeKinds": [
+        "ui"
+      ]
+    },
+    {
+      "stable_id": "pass__2026-04-24-post-implementation-admin-realtime-truth-review-finding-remediation",
+      "date": "2026-04-24",
+      "title": "POST-IMPLEMENTATION: Admin Realtime Truth Review-Finding Remediation",
+      "scopeSummary": [],
+      "touchedSurfaces": [
+        "npx eslint src/components/Admin/AdminModerationConsole.tsx src/hooks/useAdminModerationRealtime.ts src/hooks/useAdminPrivacyPreflight.ts src/app/admin/AdminPrivacyPreflight.tsx scripts/check-generated-artifacts.ts",
+        "playwright-report/index.html",
+        "src/app/admin/AdminPrivacyPreflight.tsx",
+        "src/app/admin/debug/hooks/useAdminDebugRealtime.ts",
+        "src/components/Admin/AdminModerationConsole.tsx",
+        "src/hooks/useAdminModerationRealtime.ts",
+        "src/hooks/useAdminPrivacyPreflight.ts",
+        "src/lib/server/firebase-admin.ts",
+        "src/lib/server/route-runtime-health.ts",
+        "test-results/.last-run.json"
+      ],
+      "canonicalHelpersReused": [
+        "src/lib/server/route-runtime-health.ts"
+      ],
+      "verificationCommandsRun": [],
+      "resultSummary": [],
+      "warnings": [],
+      "architecture_change": true,
+      "runtime_change": false,
+      "ui_change": true,
+      "security_change": false,
+      "maintenance_only": false,
+      "changeKinds": [
+        "admin",
+        "ui",
+        "runtime",
+        "architecture"
+      ]
+    },
     {
       "stable_id": "pass__2026-04-23-admin-parity-source-verification-hardening",
       "date": "2026-04-23",
@@ -97,264 +293,6 @@
         "admin",
         "ui",
         "runtime",
-        "architecture"
-      ]
-    },
-    {
-      "stable_id": "pass__2026-04-21-analytics-self-snitching-early-runtime-diagnostics-hardening",
-      "date": "2026-04-21",
-      "title": "Analytics Self-Snitching + Early Runtime Diagnostics Hardening",
-      "scopeSummary": [
-        "Harden the recent analytics/loading fixes with earlier client/runtime diagnostics, explicit analytics fallback warnings, and framework-level request-error capture so hydration/runtime failures become visible in canonical admin truth instead of hiding behind delayed boot or console-only noise."
-      ],
-      "touchedSurfaces": [
-        "admin/analytics/historical:GET",
-        "npm run trace:adjacent -- src/app/api/admin/analytics/historical/route.ts",
-        "npm run trace:adjacent -- src/app/api/admin/analytics/realtime/route.ts",
-        "npm run trace:adjacent -- src/app/api/user/activity/route.ts",
-        "npm run trace:adjacent -- src/lib/client-boot-diagnostics.ts",
-        "npm run trace:adjacent -- src/lib/server/framework-request-diagnostics.ts",
-        "npx vitest run tests/unit/client-boot-diagnostics.spec.ts tests/unit/framework-request-diagnostics.spec.ts tests/unit/admin-analytics-realtime-route.spec.ts tests/unit/user-activity-route.spec.ts tests/unit/route-runtime-health.spec.ts",
-        "src/app/api/admin/analytics/historical/route.ts",
-        "src/app/api/admin/analytics/realtime/route.ts",
-        "src/app/api/user/activity/route.ts",
-        "src/instrumentation-client.ts",
-        "src/instrumentation.ts",
-        "src/lib/client-boot-diagnostics.ts",
-        "src/lib/client-diagnostics.ts",
-        "src/lib/self-healing.ts",
-        "src/lib/server/analytics-runtime-warning.ts",
-        "src/lib/server/framework-request-diagnostics.ts",
-        "src/lib/server/route-diagnostics.ts",
-        "src/lib/server/runtime-warning-store.ts"
-      ],
-      "canonicalHelpersReused": [
-        "src/lib/server/route-diagnostics.ts"
-      ],
-      "verificationCommandsRun": [],
-      "resultSummary": [],
-      "warnings": [],
-      "architecture_change": true,
-      "runtime_change": true,
-      "ui_change": true,
-      "security_change": false,
-      "maintenance_only": false,
-      "changeKinds": [
-        "admin",
-        "runtime",
-        "architecture"
-      ]
-    },
-    {
-      "stable_id": "pass__2026-04-21-user__admin-loading-audit-analytics-historical-pull-tightening",
-      "date": "2026-04-21",
-      "title": "User/Admin Loading Audit + Analytics Historical Pull Tightening",
-      "scopeSummary": [
-        "Perform a broad loading and speed audit across user/admin surfaces with focus on admin analytics hydration, heavy historical pulls, realtime polling behavior, and user-facing recent-activity history latency."
-      ],
-      "touchedSurfaces": [
-        "/api/admin/analytics/realtime",
-        "/api/user/activity",
-        "npm run trace:adjacent -- src/app/admin/analytics/hooks/useAdminAnalyticsState.tsx",
-        "npm run trace:adjacent -- src/app/admin/analytics/page.tsx",
-        "npm run trace:adjacent -- src/app/admin/debug/page.tsx",
-        "npm run trace:adjacent -- src/app/api/admin/analytics/realtime/route.ts",
-        "npm run trace:adjacent -- src/app/api/user/activity/route.ts",
-        "npm run trace:adjacent -- src/hooks/useAdminOverview.ts",
-        "npm run trace:adjacent -- src/lib/server/admin-analytics-data.ts",
-        "npx vitest run tests/unit/admin-analytics-realtime-route.spec.ts tests/unit/user-activity-route.spec.ts tests/unit/admin-analytics-data.spec.ts",
-        "src/app/admin/analytics/hooks/useAdminAnalyticsState.tsx",
-        "src/app/admin/analytics/page.tsx",
-        "src/app/admin/debug/page.tsx",
-        "src/app/api/admin/analytics/historical/route.ts",
-        "src/app/api/admin/analytics/realtime/route.ts",
-        "src/app/api/user/activity/route.ts",
-        "src/components/Dashboard/RecentActivityFeed.tsx",
-        "src/hooks/useAdminOverview.ts",
-        "src/lib/server/admin-analytics-data.ts",
-        "src/lib/server/ephemeral-route-cache.ts"
-      ],
-      "canonicalHelpersReused": [],
-      "verificationCommandsRun": [],
-      "resultSummary": [],
-      "warnings": [],
-      "architecture_change": true,
-      "runtime_change": true,
-      "ui_change": true,
-      "security_change": false,
-      "maintenance_only": false,
-      "changeKinds": [
-        "admin",
-        "ui",
-        "runtime",
-        "architecture"
-      ]
-    },
-    {
-      "stable_id": "pass__2026-04-21-deployment-audit-next-app-entry-export-hardening",
-      "date": "2026-04-21",
-      "title": "Deployment Audit + Next App-Entry Export Hardening",
-      "scopeSummary": [
-        "Perform a deployment-focused codebase audit and fix the concrete commit/deployment blocker in the Next.js App Router build path without touching PayPal, provider-secret plumbing, wallet truth, or the economy ledger."
-      ],
-      "touchedSurfaces": [
-        ".next/lock",
-        "npm run trace:adjacent -- src/app/admin/ai/page.tsx",
-        "npm run trace:adjacent -- src/app/api/creator/bookings/route.ts",
-        "npm run trace:adjacent -- src/app/api/user/activity/route.ts",
-        "npm run trace:adjacent -- src/app/dashboard/profile/page.tsx",
-        "npx next build --webpack --debug-build-paths \"src/app/admin/ai/page.tsx,src/app/api/user/activity/route.ts,src/app/api/creator/bookings/route.ts,src/app/dashboard/profile/page.tsx\"",
-        "npx vitest run tests/unit/user-activity-route.spec.ts tests/unit/creator-bookings-route.spec.ts",
-        "src/app/admin/ai/admin-ai-state-exports.ts",
-        "src/app/admin/ai/page.tsx",
-        "src/app/api/creator/bookings/booking-timezone.ts",
-        "src/app/api/creator/bookings/route.ts",
-        "src/app/api/user/activity/activity-route-test-helpers.ts",
-        "src/app/api/user/activity/route.ts",
-        "src/app/dashboard/profile/page.tsx",
-        "src/app/dashboard/profile/profile-page-types.ts"
-      ],
-      "canonicalHelpersReused": [],
-      "verificationCommandsRun": [],
-      "resultSummary": [],
-      "warnings": [],
-      "architecture_change": false,
-      "runtime_change": true,
-      "ui_change": true,
-      "security_change": false,
-      "maintenance_only": false,
-      "changeKinds": [
-        "admin",
-        "ui",
-        "runtime"
-      ]
-    },
-    {
-      "stable_id": "pass__2026-04-21-analytics-truth-recovery-telemetry-hardening",
-      "date": "2026-04-21",
-      "title": "Analytics Truth Recovery + Telemetry Hardening",
-      "scopeSummary": [
-        "Build and verify a YouTube-style analytics truth-recovery layer so KandyDrops can separate raw observed telemetry from validated, finalized, and estimated metrics for watch time, views, sessions, timelines, and downstream behavioral inputs."
-      ],
-      "touchedSurfaces": [
-        ", and viewer watch/session state existed through mutable ",
-        "control-tower/00-START-HERE.md",
-        "functions/src/analytics-event-facts.ts",
-        "functions/src/analytics-truth-contract.ts",
-        "functions/src/analytics-truth-runtime.ts",
-        "functions/src/analytics-truth-schedule.ts",
-        "npm run trace:adjacent -- functions/src/analytics-event-facts.ts",
-        "npm run trace:adjacent -- functions/src/analytics-truth-runtime.ts",
-        "npm run trace:adjacent -- src/app/api/admin/analytics/historical/route.ts",
-        "npm run trace:adjacent -- src/app/api/admin/analytics/realtime/route.ts",
-        "npm run trace:adjacent -- src/app/api/admin/debug/route.ts",
-        "npm run trace:adjacent -- src/app/api/viewer/watch-session/route.ts",
-        "npm run trace:adjacent -- src/lib/admin-analytics-truth.ts",
-        "npm run trace:adjacent -- src/lib/viewer-watch-session.ts",
-        "npx tsc -p functions/tsconfig.json --noEmit --pretty false",
-        "npx tsx scripts/debug-watch-capture-health.ts",
-        "npx vitest run tests/unit/admin-analytics-truth.spec.ts tests/unit/admin-analytics-realtime-route.spec.ts",
-        "npx vitest run tests/unit/viewer-watch-session.spec.ts",
-        "scripts/check-analytics-continuity.ts",
-        "scripts/rebuild-analytics-truth.ts",
-        "src/app/admin/analytics/components/AdminAnalyticsOperationsTab.tsx",
-        "src/app/admin/analytics/page.tsx",
-        "src/app/admin/debug/page.tsx",
-        "src/app/api/admin/analytics/historical/route.ts",
-        "src/app/api/admin/analytics/realtime/route.ts",
-        "src/app/api/admin/debug/route.ts",
-        "src/app/api/viewer/watch-session/route.ts",
-        "src/lib/admin-analytics-truth.ts",
-        "src/lib/server/analytics-truth-recovery.ts",
-        "src/lib/server/behavioral-intelligence.ts",
-        "src/lib/viewer-watch-session.ts"
-      ],
-      "canonicalHelpersReused": [],
-      "verificationCommandsRun": [],
-      "resultSummary": [],
-      "warnings": [],
-      "architecture_change": true,
-      "runtime_change": true,
-      "ui_change": true,
-      "security_change": false,
-      "maintenance_only": false,
-      "changeKinds": [
-        "admin",
-        "ui",
-        "runtime",
-        "tooling",
-        "architecture"
-      ]
-    },
-    {
-      "stable_id": "pass__2026-04-21-agent-fast-path-deterministic-verification-lane-split",
-      "date": "2026-04-21",
-      "title": "Agent Fast-Path + Deterministic Verification Lane Split",
-      "scopeSummary": [
-        "Speed up AI-agent implementation and verification for repo-tooling and runtime work by adding a generated fast-start packet, a deterministic fast-vs-signoff verification selector, path-specific agent instruction files, and eval coverage that checks for file precision, forbidden-surface avoidance, and over-broad verification drift."
-      ],
-      "touchedSurfaces": [
-        ".agent/workflows/auto-tasks.md",
-        ".claude/agents/test-specialist.md",
-        ".github/copilot-instructions.md",
-        ".github/instructions/*.instructions.md",
-        "5/5",
-        "agent/README.md",
-        "control-tower/00-START-HERE.md",
-        "dataconnect/example/agent-context.gql",
-        "npm run agent:fast-start -- --task=\"tighten agent verification selection\" --mode=governance --file=scripts/agent/build-task-context.ts",
-        "npm run agent:verify -- --paths=scripts/agent/build-task-context.ts,src/app/admin/debug/page.tsx",
-        "npx vitest run tests/unit/agent-verification-selector.spec.ts",
-        "scripts/agent/build-agent-indexes.ts",
-        "scripts/agent/build-task-context.ts",
-        "scripts/agent/fast-start.ts",
-        "scripts/agent/run-evals.ts",
-        "scripts/agent/verification-selector.ts",
-        "src/app/dashboard/profile/*"
-      ],
-      "canonicalHelpersReused": [],
-      "verificationCommandsRun": [],
-      "resultSummary": [],
-      "warnings": [],
-      "architecture_change": true,
-      "runtime_change": false,
-      "ui_change": true,
-      "security_change": false,
-      "maintenance_only": false,
-      "changeKinds": [
-        "admin",
-        "ui",
-        "tooling"
-      ]
-    },
-    {
-      "stable_id": "pass__2026-04-18-viewer-watch-close-intent-repair-capture-state-reclassification",
-      "date": "2026-04-18",
-      "title": "Viewer Watch Close-Intent Repair + Capture-State Reclassification",
-      "scopeSummary": [
-        "Repair the live analytics continuity blockers created by historical close-missing watch sessions, preserve terminal close intent on retry failure, and reclassify closed-and-recovered watch sessions so they no longer remain permanently flush-degraded once the terminal close has been recorded."
-      ],
-      "touchedSurfaces": [
-        "npx vitest run tests/unit/viewer-watch-session.spec.ts tests/unit/admin-analytics-capture-health.spec.ts",
-        "scripts/check-analytics-continuity.ts",
-        "scripts/repair-viewer-watch-close-missing.ts",
-        "src/hooks/useViewerWatchSession.ts",
-        "src/lib/server/admin-analytics-capture-health.ts",
-        "src/lib/viewer-watch-session.ts"
-      ],
-      "canonicalHelpersReused": [],
-      "verificationCommandsRun": [],
-      "resultSummary": [],
-      "warnings": [],
-      "architecture_change": true,
-      "runtime_change": false,
-      "ui_change": false,
-      "security_change": false,
-      "maintenance_only": false,
-      "changeKinds": [
-        "admin",
-        "ui",
-        "tooling",
         "architecture"
       ]
     }

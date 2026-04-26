@@ -1,5 +1,5 @@
 {
-  "generatedAt": "2026-04-23T21:25:06.468Z",
+  "generatedAt": "2026-04-26T15:04:57.225Z",
   "truthOrder": [
     "verified_runtime_code",
     "verified_configuration",
@@ -2876,8 +2876,36 @@
       ]
     },
     {
+      "stable_id": "blast__src__hooks__useadminmoderationrealtime-ts",
+      "path": "src/hooks/useAdminModerationRealtime.ts",
+      "blast_radius_score": 60,
+      "shared_helper_risk": 25,
+      "route_boundary_risk": 0,
+      "runtime_criticality": 25,
+      "verification_burden": 10,
+      "deploy_or_lockfile_sensitivity": 0,
+      "why_score_was_assigned": [
+        "Likely shared helper.",
+        "Runtime-critical surface."
+      ]
+    },
+    {
       "stable_id": "blast__src__hooks__useadminoverview-ts",
       "path": "src/hooks/useAdminOverview.ts",
+      "blast_radius_score": 60,
+      "shared_helper_risk": 25,
+      "route_boundary_risk": 0,
+      "runtime_criticality": 25,
+      "verification_burden": 10,
+      "deploy_or_lockfile_sensitivity": 0,
+      "why_score_was_assigned": [
+        "Likely shared helper.",
+        "Runtime-critical surface."
+      ]
+    },
+    {
+      "stable_id": "blast__src__hooks__useadminoverviewrealtime-ts",
+      "path": "src/hooks/useAdminOverviewRealtime.ts",
       "blast_radius_score": 60,
       "shared_helper_risk": 25,
       "route_boundary_risk": 0,
@@ -2906,6 +2934,20 @@
     {
       "stable_id": "blast__src__hooks__useadminprivacypreflight-ts",
       "path": "src/hooks/useAdminPrivacyPreflight.ts",
+      "blast_radius_score": 60,
+      "shared_helper_risk": 25,
+      "route_boundary_risk": 0,
+      "runtime_criticality": 25,
+      "verification_burden": 10,
+      "deploy_or_lockfile_sensitivity": 0,
+      "why_score_was_assigned": [
+        "Likely shared helper.",
+        "Runtime-critical surface."
+      ]
+    },
+    {
+      "stable_id": "blast__src__hooks__useadminsupportrealtime-ts",
+      "path": "src/hooks/useAdminSupportRealtime.ts",
       "blast_radius_score": 60,
       "shared_helper_risk": 25,
       "route_boundary_risk": 0,
@@ -4605,6 +4647,34 @@
       ]
     },
     {
+      "stable_id": "blast__scripts__agent__check-dependency-truth-ts",
+      "path": "scripts/agent/check-dependency-truth.ts",
+      "blast_radius_score": 45,
+      "shared_helper_risk": 25,
+      "route_boundary_risk": 0,
+      "runtime_criticality": 0,
+      "verification_burden": 20,
+      "deploy_or_lockfile_sensitivity": 0,
+      "why_score_was_assigned": [
+        "Likely shared helper.",
+        "Broad signoff likely."
+      ]
+    },
+    {
+      "stable_id": "blast__scripts__agent__check-infrastructure-truth-ts",
+      "path": "scripts/agent/check-infrastructure-truth.ts",
+      "blast_radius_score": 45,
+      "shared_helper_risk": 25,
+      "route_boundary_risk": 0,
+      "runtime_criticality": 0,
+      "verification_burden": 20,
+      "deploy_or_lockfile_sensitivity": 0,
+      "why_score_was_assigned": [
+        "Likely shared helper.",
+        "Broad signoff likely."
+      ]
+    },
+    {
       "stable_id": "blast__scripts__agent__check-ui-surface-coverage-ts",
       "path": "scripts/agent/check-ui-surface-coverage.ts",
       "blast_radius_score": 45,
@@ -5544,6 +5614,19 @@
     {
       "stable_id": "blast__src__app__admin__debug__hooks__useadminaiassistantrealtime-ts",
       "path": "src/app/admin/debug/hooks/useAdminAiAssistantRealtime.ts",
+      "blast_radius_score": 35,
+      "shared_helper_risk": 0,
+      "route_boundary_risk": 0,
+      "runtime_criticality": 25,
+      "verification_burden": 10,
+      "deploy_or_lockfile_sensitivity": 0,
+      "why_score_was_assigned": [
+        "Runtime-critical surface."
+      ]
+    },
+    {
+      "stable_id": "blast__src__app__admin__debug__hooks__useadmindebugrealtime-ts",
+      "path": "src/app/admin/debug/hooks/useAdminDebugRealtime.ts",
       "blast_radius_score": 35,
       "shared_helper_risk": 0,
       "route_boundary_risk": 0,
@@ -7819,6 +7902,32 @@
     {
       "stable_id": "blast__agent__workflows__auto-tasks-md",
       "path": ".agent/workflows/auto-tasks.md",
+      "blast_radius_score": 20,
+      "shared_helper_risk": 0,
+      "route_boundary_risk": 0,
+      "runtime_criticality": 0,
+      "verification_burden": 20,
+      "deploy_or_lockfile_sensitivity": 0,
+      "why_score_was_assigned": [
+        "Broad signoff likely."
+      ]
+    },
+    {
+      "stable_id": "blast__agent__workflows__dependency-audit-md",
+      "path": ".agent/workflows/dependency-audit.md",
+      "blast_radius_score": 20,
+      "shared_helper_risk": 0,
+      "route_boundary_risk": 0,
+      "runtime_criticality": 0,
+      "verification_burden": 20,
+      "deploy_or_lockfile_sensitivity": 0,
+      "why_score_was_assigned": [
+        "Broad signoff likely."
+      ]
+    },
+    {
+      "stable_id": "blast__agent__workflows__dependency-truth-md",
+      "path": ".agent/workflows/dependency-truth.md",
       "blast_radius_score": 20,
       "shared_helper_risk": 0,
       "route_boundary_risk": 0,

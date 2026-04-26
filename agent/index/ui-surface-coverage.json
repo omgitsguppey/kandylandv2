@@ -1,5 +1,5 @@
 {
-  "generatedAt": "2026-04-24T04:01:55.923Z",
+  "generatedAt": "2026-04-26T15:13:21.723Z",
   "truthOrder": [
     "verified_runtime_code",
     "verified_configuration",
@@ -747,7 +747,8 @@
         "admin"
       ],
       "runtime_dependencies": [
-        "src/hooks/useAdminOverview.ts"
+        "src/hooks/useAdminOverview.ts",
+        "src/lib/utils.ts"
       ],
       "hydration_mode": "static",
       "criticality": "high",

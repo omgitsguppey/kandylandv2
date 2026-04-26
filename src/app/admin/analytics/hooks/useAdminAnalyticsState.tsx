@@ -144,7 +144,7 @@ const { user } = useAuth();
     30_000,
     {
       keepPreviousData: true,
-      revalidateOnFocus: false,
+      revalidateOnFocus: true,
     },
   );
 
@@ -229,7 +229,7 @@ const { user } = useAuth();
     30_000,
     {
       keepPreviousData: true,
-      revalidateOnFocus: false,
+      revalidateOnFocus: true,
     },
   );
 
@@ -239,7 +239,7 @@ const { user } = useAuth();
     isLoading: historicalLoading,
   } = useAdminPollingSWR<HistoricalAnalyticsResponse>(historicalUrl, 60_000, {
     keepPreviousData: true,
-    revalidateOnFocus: false,
+    revalidateOnFocus: true,
   });
 
   const livePulseRange = getSectionRange("livePulse");
@@ -379,7 +379,11 @@ const { user } = useAuth();
   const effectiveLiveResponse = useMemo<RealtimeAnalyticsResponse | undefined>(
     () => {
       if (liveRealtime.feedStatus === "failed" && liveResponse) {
-        return liveResponse;
+        return {
+          ...liveResponse,
+          liveTruthLabel: "fallback",
+          liveSourceLabel: "Stale (Polled)",
+        };
       }
 
       const base = liveResponse ?? {

@@ -1,5 +1,5 @@
 {
-  "generatedAt": "2026-04-23T21:25:07.607Z",
+  "generatedAt": "2026-04-26T15:04:58.327Z",
   "truthOrder": [
     "verified_runtime_code",
     "verified_configuration",
@@ -215,6 +215,58 @@
         "broad_signoff"
       ],
       "recency": "1776782905737:bc755fa0433b",
+      "freshness": {
+        "local": "fresh",
+        "sql_mirror": "unknown"
+      },
+      "context_tier": "cold",
+      "exclusion_tags": [],
+      "do_not_use_as_primary_truth": false
+    },
+    {
+      "stable_id": "file__agent__workflows__dependency-audit-md",
+      "source_type": "file",
+      "source_id": "file__agent__workflows__dependency-audit-md",
+      "searchable_terms": [
+        ".agent/workflows/dependency-audit.md",
+        "workflow_tooling",
+        "agent_workflow"
+      ],
+      "surface_tags": [
+        "agent_workflow",
+        "workflow_tooling"
+      ],
+      "helper_tags": [],
+      "risk_tags": [
+        "broad_signoff"
+      ],
+      "recency": "1777172009239:9f27b8c30942",
+      "freshness": {
+        "local": "fresh",
+        "sql_mirror": "unknown"
+      },
+      "context_tier": "cold",
+      "exclusion_tags": [],
+      "do_not_use_as_primary_truth": false
+    },
+    {
+      "stable_id": "file__agent__workflows__dependency-truth-md",
+      "source_type": "file",
+      "source_id": "file__agent__workflows__dependency-truth-md",
+      "searchable_terms": [
+        ".agent/workflows/dependency-truth.md",
+        "workflow_tooling",
+        "agent_workflow"
+      ],
+      "surface_tags": [
+        "agent_workflow",
+        "workflow_tooling"
+      ],
+      "helper_tags": [],
+      "risk_tags": [
+        "broad_signoff"
+      ],
+      "recency": "1777175078785:91894b2fa98f",
       "freshness": {
         "local": "fresh",
         "sql_mirror": "unknown"
@@ -538,7 +590,7 @@
       ],
       "helper_tags": [],
       "risk_tags": [],
-      "recency": "1776776670254:4d0b6f0273f1",
+      "recency": "1777000403501:2df24a149c11",
       "freshness": {
         "local": "fresh",
         "sql_mirror": "unknown"
@@ -854,7 +906,7 @@
       "risk_tags": [
         "broad_signoff"
       ],
-      "recency": "1776962371071:3c0e4ce13223",
+      "recency": "1777212948489:fe4f40015f12",
       "freshness": {
         "local": "fresh",
         "sql_mirror": "unknown"
@@ -882,7 +934,7 @@
       "risk_tags": [
         "broad_signoff"
       ],
-      "recency": "1776962370934:cf6cfcf0a2af",
+      "recency": "1777203202565:8dcb37c69014",
       "freshness": {
         "local": "fresh",
         "sql_mirror": "unknown"
@@ -934,7 +986,7 @@
       "risk_tags": [
         "broad_signoff"
       ],
-      "recency": "1776962370995:a3a6a0fdbf3b",
+      "recency": "1777170298030:19214d54b5cf",
       "freshness": {
         "local": "fresh",
         "sql_mirror": "unknown"
@@ -988,7 +1040,7 @@
       "risk_tags": [
         "broad_signoff"
       ],
-      "recency": "1776979493898:8264d7718fa4",
+      "recency": "1777215792890:ab452673ac4e",
       "freshness": {
         "local": "fresh",
         "sql_mirror": "unknown"
@@ -1016,7 +1068,7 @@
       "risk_tags": [
         "broad_signoff"
       ],
-      "recency": "1776979493871:38eec69d1702",
+      "recency": "1777215792870:7d1b6bc7ee81",
       "freshness": {
         "local": "fresh",
         "sql_mirror": "unknown"
@@ -1044,7 +1096,7 @@
       "risk_tags": [
         "broad_signoff"
       ],
-      "recency": "1776979493895:6ecf65e574f0",
+      "recency": "1777215792888:43bacb1393e8",
       "freshness": {
         "local": "fresh",
         "sql_mirror": "unknown"
@@ -1072,7 +1124,7 @@
       "risk_tags": [
         "broad_signoff"
       ],
-      "recency": "1776979493883:a86cd05a31cf",
+      "recency": "1777215792880:b1daeb1bd032",
       "freshness": {
         "local": "fresh",
         "sql_mirror": "unknown"
@@ -1100,7 +1152,7 @@
       "risk_tags": [
         "broad_signoff"
       ],
-      "recency": "1776979493884:f28db6f24cda",
+      "recency": "1777215792881:968163f74e69",
       "freshness": {
         "local": "fresh",
         "sql_mirror": "unknown"
@@ -1128,7 +1180,7 @@
       "risk_tags": [
         "broad_signoff"
       ],
-      "recency": "1776979493878:2640741e36d2",
+      "recency": "1777215792876:9f221f1df4a5",
       "freshness": {
         "local": "fresh",
         "sql_mirror": "unknown"
@@ -1156,7 +1208,7 @@
       "risk_tags": [
         "broad_signoff"
       ],
-      "recency": "1776979493887:2bf44469213d",
+      "recency": "1777215792882:45c9b8800433",
       "freshness": {
         "local": "fresh",
         "sql_mirror": "unknown"
@@ -1184,7 +1236,7 @@
       "risk_tags": [
         "broad_signoff"
       ],
-      "recency": "1776979493861:ee89ee9f10b3",
+      "recency": "1777215792859:2454b80110bf",
       "freshness": {
         "local": "fresh",
         "sql_mirror": "unknown"
@@ -1212,7 +1264,7 @@
       "risk_tags": [
         "broad_signoff"
       ],
-      "recency": "1776979493910:22a7662cb5d3",
+      "recency": "1777215792898:0dbaae3b6519",
       "freshness": {
         "local": "fresh",
         "sql_mirror": "unknown"
@@ -1240,7 +1292,7 @@
       "risk_tags": [
         "broad_signoff"
       ],
-      "recency": "1776979493888:657df951fca1",
+      "recency": "1777215792883:4c4a7fc40e35",
       "freshness": {
         "local": "fresh",
         "sql_mirror": "unknown"
@@ -1268,7 +1320,7 @@
       "risk_tags": [
         "broad_signoff"
       ],
-      "recency": "1776979493869:4a62a428deea",
+      "recency": "1777215792867:be253021756f",
       "freshness": {
         "local": "fresh",
         "sql_mirror": "unknown"
@@ -1296,7 +1348,7 @@
       "risk_tags": [
         "broad_signoff"
       ],
-      "recency": "1776979502747:510a032bde67",
+      "recency": "1777215893343:13e62db66fa4",
       "freshness": {
         "local": "fresh",
         "sql_mirror": "unknown"
@@ -1324,7 +1376,7 @@
       "risk_tags": [
         "broad_signoff"
       ],
-      "recency": "1776979493874:50c56e9bca2e",
+      "recency": "1777215792873:618fa446d502",
       "freshness": {
         "local": "fresh",
         "sql_mirror": "unknown"
@@ -1352,7 +1404,7 @@
       "risk_tags": [
         "broad_signoff"
       ],
-      "recency": "1776979493880:6ab81d8a4a40",
+      "recency": "1777215792878:af634fff98f2",
       "freshness": {
         "local": "fresh",
         "sql_mirror": "unknown"
@@ -1380,7 +1432,7 @@
       "risk_tags": [
         "broad_signoff"
       ],
-      "recency": "1776974890220:7524d72dcdfa",
+      "recency": "1777215804020:48f72defee01",
       "freshness": {
         "local": "fresh",
         "sql_mirror": "unknown"
@@ -1408,7 +1460,7 @@
       "risk_tags": [
         "broad_signoff"
       ],
-      "recency": "1776979497287:fdc786a35e2e",
+      "recency": "1777215795914:47974b10f80d",
       "freshness": {
         "local": "fresh",
         "sql_mirror": "unknown"
@@ -1434,7 +1486,7 @@
       "risk_tags": [
         "broad_signoff"
       ],
-      "recency": "1776979497284:c469424b5cb9",
+      "recency": "1777215795910:5837b5d0be57",
       "freshness": {
         "local": "fresh",
         "sql_mirror": "unknown"
@@ -1460,7 +1512,7 @@
       "risk_tags": [
         "broad_signoff"
       ],
-      "recency": "1776979497286:1261666f2b57",
+      "recency": "1777215795911:3b79b83ef855",
       "freshness": {
         "local": "fresh",
         "sql_mirror": "unknown"
@@ -1486,7 +1538,7 @@
       "risk_tags": [
         "broad_signoff"
       ],
-      "recency": "1776974890229:7e7372a041c9",
+      "recency": "1777215795924:03ee9dd91c72",
       "freshness": {
         "local": "fresh",
         "sql_mirror": "unknown"
@@ -2090,7 +2142,7 @@
       "risk_tags": [
         "broad_signoff"
       ],
-      "recency": "1776974890231:be0c09f85ab1",
+      "recency": "1777215804017:db1299ff9498",
       "freshness": {
         "local": "fresh",
         "sql_mirror": "unknown"
@@ -2170,7 +2222,7 @@
       "risk_tags": [
         "broad_signoff"
       ],
-      "recency": "1776978902215:08eb86c1637a",
+      "recency": "1776979507702:5b31e156a79d",
       "freshness": {
         "local": "fresh",
         "sql_mirror": "unknown"
@@ -2198,7 +2250,7 @@
       "risk_tags": [
         "broad_signoff"
       ],
-      "recency": "1776978902214:fa8e29166c8e",
+      "recency": "1776979507701:75fb6962c554",
       "freshness": {
         "local": "fresh",
         "sql_mirror": "unknown"
@@ -2226,7 +2278,7 @@
       "risk_tags": [
         "broad_signoff"
       ],
-      "recency": "1776979497280:747f5e6a9b04",
+      "recency": "1777215795908:3341e9771f8d",
       "freshness": {
         "local": "fresh",
         "sql_mirror": "unknown"
@@ -2280,7 +2332,7 @@
       "risk_tags": [
         "broad_signoff"
       ],
-      "recency": "1776974890235:aa84d504d86e",
+      "recency": "1777215795923:f196cf4573a3",
       "freshness": {
         "local": "fresh",
         "sql_mirror": "unknown"
@@ -2308,7 +2360,7 @@
       "risk_tags": [
         "broad_signoff"
       ],
-      "recency": "1775221451826:d65ee8aafa1c",
+      "recency": "1777081446445:a5e6f7ab5606",
       "freshness": {
         "local": "fresh",
         "sql_mirror": "unknown"
@@ -3105,7 +3157,7 @@
       "risk_tags": [
         "dataconnect"
       ],
-      "recency": "1776729218923:0e0e5c1ea2e5",
+      "recency": "1777169932424:0e0e5c1ea2e5",
       "freshness": {
         "local": "fresh",
         "sql_mirror": "unknown"
@@ -3131,7 +3183,7 @@
       "risk_tags": [
         "dataconnect"
       ],
-      "recency": "1776729218920:8afccb6cd861",
+      "recency": "1777169932391:8afccb6cd861",
       "freshness": {
         "local": "fresh",
         "sql_mirror": "unknown"
@@ -3157,7 +3209,7 @@
       "risk_tags": [
         "dataconnect"
       ],
-      "recency": "1776729218920:6b4538c1ba9c",
+      "recency": "1777169932385:6b4538c1ba9c",
       "freshness": {
         "local": "fresh",
         "sql_mirror": "unknown"
@@ -3183,7 +3235,7 @@
       "risk_tags": [
         "dataconnect"
       ],
-      "recency": "1776729218919:7d8f16490ae9",
+      "recency": "1777169932459:7d8f16490ae9",
       "freshness": {
         "local": "fresh",
         "sql_mirror": "unknown"
@@ -3209,7 +3261,7 @@
       "risk_tags": [
         "dataconnect"
       ],
-      "recency": "1776729218922:45fbeca4968f",
+      "recency": "1777169932394:45fbeca4968f",
       "freshness": {
         "local": "fresh",
         "sql_mirror": "unknown"
@@ -3340,6 +3392,30 @@
         "dataconnect"
       ],
       "recency": "1776724975647:f541adfcb563",
+      "freshness": {
+        "local": "fresh",
+        "sql_mirror": "unknown"
+      },
+      "context_tier": "warm",
+      "exclusion_tags": [],
+      "do_not_use_as_primary_truth": false
+    },
+    {
+      "stable_id": "file__debug-output-json",
+      "source_type": "file",
+      "source_id": "file__debug-output-json",
+      "searchable_terms": [
+        "debug-output.json",
+        "root_misc",
+        "misc"
+      ],
+      "surface_tags": [
+        "misc",
+        "root_misc"
+      ],
+      "helper_tags": [],
+      "risk_tags": [],
+      "recency": "1777176365204:da39a3ee5e6b",
       "freshness": {
         "local": "fresh",
         "sql_mirror": "unknown"
@@ -3483,7 +3559,7 @@
       ],
       "helper_tags": [],
       "risk_tags": [],
-      "recency": "1776962371098:31ccadb3342f",
+      "recency": "1776985478414:4644cbdc8eaf",
       "freshness": {
         "local": "fresh",
         "sql_mirror": "unknown"
@@ -3612,7 +3688,7 @@
         "runtime_critical",
         "broad_signoff"
       ],
-      "recency": "1775962114391:8c2de1d77ebc",
+      "recency": "1776981528331:061514c19bcc",
       "freshness": {
         "local": "fresh",
         "sql_mirror": "unknown"
@@ -4808,7 +4884,7 @@
       "risk_tags": [
         "broad_signoff"
       ],
-      "recency": "1776862332760:cb967398517e",
+      "recency": "1777208353051:581bfbb9236d",
       "freshness": {
         "local": "fresh",
         "sql_mirror": "unknown"
@@ -4834,31 +4910,7 @@
       "risk_tags": [
         "broad_signoff"
       ],
-      "recency": "1776975429321:8834f8e4d7ac",
-      "freshness": {
-        "local": "fresh",
-        "sql_mirror": "unknown"
-      },
-      "context_tier": "warm",
-      "exclusion_tags": [],
-      "do_not_use_as_primary_truth": false
-    },
-    {
-      "stable_id": "file__playwright-report__index-html",
-      "source_type": "file",
-      "source_id": "file__playwright-report__index-html",
-      "searchable_terms": [
-        "playwright-report/index.html",
-        "other",
-        "misc"
-      ],
-      "surface_tags": [
-        "misc",
-        "other"
-      ],
-      "helper_tags": [],
-      "risk_tags": [],
-      "recency": "1776979469322:9414c5afdbf8",
+      "recency": "1777208350719:cd89ffaadb58",
       "freshness": {
         "local": "fresh",
         "sql_mirror": "unknown"
@@ -6168,6 +6220,102 @@
       "do_not_use_as_primary_truth": false
     },
     {
+      "stable_id": "file__scratch__find-untracked-ts",
+      "source_type": "file",
+      "source_id": "file__scratch__find-untracked-ts",
+      "searchable_terms": [
+        "scratch/find-untracked.ts",
+        "other",
+        "misc"
+      ],
+      "surface_tags": [
+        "misc",
+        "other"
+      ],
+      "helper_tags": [],
+      "risk_tags": [],
+      "recency": "1777209263379:04b234413ae1",
+      "freshness": {
+        "local": "fresh",
+        "sql_mirror": "unknown"
+      },
+      "context_tier": "warm",
+      "exclusion_tags": [],
+      "do_not_use_as_primary_truth": false
+    },
+    {
+      "stable_id": "file__scratch__inject-targets-ts",
+      "source_type": "file",
+      "source_id": "file__scratch__inject-targets-ts",
+      "searchable_terms": [
+        "scratch/inject-targets.ts",
+        "other",
+        "misc"
+      ],
+      "surface_tags": [
+        "misc",
+        "other"
+      ],
+      "helper_tags": [],
+      "risk_tags": [],
+      "recency": "1777209653150:6dc4d7bf7d29",
+      "freshness": {
+        "local": "fresh",
+        "sql_mirror": "unknown"
+      },
+      "context_tier": "warm",
+      "exclusion_tags": [],
+      "do_not_use_as_primary_truth": false
+    },
+    {
+      "stable_id": "file__scratch__untracked-routes-json",
+      "source_type": "file",
+      "source_id": "file__scratch__untracked-routes-json",
+      "searchable_terms": [
+        "scratch/untracked-routes.json",
+        "other",
+        "misc"
+      ],
+      "surface_tags": [
+        "misc",
+        "other"
+      ],
+      "helper_tags": [],
+      "risk_tags": [],
+      "recency": "1777209211021:97d170e1550e",
+      "freshness": {
+        "local": "fresh",
+        "sql_mirror": "unknown"
+      },
+      "context_tier": "warm",
+      "exclusion_tags": [],
+      "do_not_use_as_primary_truth": false
+    },
+    {
+      "stable_id": "file__scratch__wrap-routes-ts",
+      "source_type": "file",
+      "source_id": "file__scratch__wrap-routes-ts",
+      "searchable_terms": [
+        "scratch/wrap-routes.ts",
+        "other",
+        "misc"
+      ],
+      "surface_tags": [
+        "misc",
+        "other"
+      ],
+      "helper_tags": [],
+      "risk_tags": [],
+      "recency": "1777209591008:931230017aa3",
+      "freshness": {
+        "local": "fresh",
+        "sql_mirror": "unknown"
+      },
+      "context_tier": "warm",
+      "exclusion_tags": [],
+      "do_not_use_as_primary_truth": false
+    },
+    {
       "stable_id": "file__scripts__agent__build-agent-indexes-ts",
       "source_type": "file",
       "source_id": "file__scripts__agent__build-agent-indexes-ts",
@@ -6294,6 +6442,60 @@
         "broad_signoff"
       ],
       "recency": "1776404623899:50af8bbce8e6",
+      "freshness": {
+        "local": "fresh",
+        "sql_mirror": "unknown"
+      },
+      "context_tier": "hot",
+      "exclusion_tags": [],
+      "do_not_use_as_primary_truth": false
+    },
+    {
+      "stable_id": "file__scripts__agent__check-dependency-truth-ts",
+      "source_type": "file",
+      "source_id": "file__scripts__agent__check-dependency-truth-ts",
+      "searchable_terms": [
+        "scripts/agent/check-dependency-truth.ts",
+        "repo_intelligence_tooling",
+        "repo_scripts"
+      ],
+      "surface_tags": [
+        "repo_scripts",
+        "repo_intelligence_tooling"
+      ],
+      "helper_tags": [],
+      "risk_tags": [
+        "shared_helper",
+        "broad_signoff"
+      ],
+      "recency": "1777171922558:e5fb19dd47b4",
+      "freshness": {
+        "local": "fresh",
+        "sql_mirror": "unknown"
+      },
+      "context_tier": "hot",
+      "exclusion_tags": [],
+      "do_not_use_as_primary_truth": false
+    },
+    {
+      "stable_id": "file__scripts__agent__check-infrastructure-truth-ts",
+      "source_type": "file",
+      "source_id": "file__scripts__agent__check-infrastructure-truth-ts",
+      "searchable_terms": [
+        "scripts/agent/check-infrastructure-truth.ts",
+        "repo_intelligence_tooling",
+        "repo_scripts"
+      ],
+      "surface_tags": [
+        "repo_scripts",
+        "repo_intelligence_tooling"
+      ],
+      "helper_tags": [],
+      "risk_tags": [
+        "shared_helper",
+        "broad_signoff"
+      ],
+      "recency": "1777175828234:3097177b6bea",
       "freshness": {
         "local": "fresh",
         "sql_mirror": "unknown"
@@ -7830,7 +8032,7 @@
       "risk_tags": [
         "runtime_critical"
       ],
-      "recency": "1774341748552:0ce80d991765",
+      "recency": "1777209839923:67d9f01a1bab",
       "freshness": {
         "local": "fresh",
         "sql_mirror": "unknown"
@@ -7856,7 +8058,7 @@
       "risk_tags": [
         "runtime_critical"
       ],
-      "recency": "1774341737064:bd851fd1e1fa",
+      "recency": "1777209742902:e2178f80f319",
       "freshness": {
         "local": "fresh",
         "sql_mirror": "unknown"
@@ -7960,7 +8162,7 @@
       "risk_tags": [
         "runtime_critical"
       ],
-      "recency": "1776979213055:3af5164bd660",
+      "recency": "1777000380390:0d8608c63f2b",
       "freshness": {
         "local": "fresh",
         "sql_mirror": "unknown"
@@ -8064,7 +8266,7 @@
       "risk_tags": [
         "runtime_critical"
       ],
-      "recency": "1776738381584:9999a8374355",
+      "recency": "1776982212639:4a5f56594bee",
       "freshness": {
         "local": "fresh",
         "sql_mirror": "unknown"
@@ -8090,7 +8292,7 @@
       "risk_tags": [
         "runtime_critical"
       ],
-      "recency": "1776738381584:5199fa22804d",
+      "recency": "1776982204044:a925c0fc9089",
       "freshness": {
         "local": "fresh",
         "sql_mirror": "unknown"
@@ -8116,7 +8318,7 @@
       "risk_tags": [
         "runtime_critical"
       ],
-      "recency": "1776738381584:744da7caf756",
+      "recency": "1776982259231:210d13d44dc7",
       "freshness": {
         "local": "fresh",
         "sql_mirror": "unknown"
@@ -8142,7 +8344,7 @@
       "risk_tags": [
         "runtime_critical"
       ],
-      "recency": "1776738381584:db95b2000f90",
+      "recency": "1776982234668:d41f09d47f41",
       "freshness": {
         "local": "fresh",
         "sql_mirror": "unknown"
@@ -8194,7 +8396,7 @@
       "risk_tags": [
         "runtime_critical"
       ],
-      "recency": "1776738381584:6fcf7b447653",
+      "recency": "1776982191247:32811288b8bc",
       "freshness": {
         "local": "fresh",
         "sql_mirror": "unknown"
@@ -8246,7 +8448,7 @@
       "risk_tags": [
         "runtime_critical"
       ],
-      "recency": "1776974968658:048bf25d4ef2",
+      "recency": "1777003040752:f22dd69e5372",
       "freshness": {
         "local": "fresh",
         "sql_mirror": "unknown"
@@ -8298,7 +8500,7 @@
       "risk_tags": [
         "runtime_critical"
       ],
-      "recency": "1776966618956:9f672e78b423",
+      "recency": "1776990104694:a9fad823de5b",
       "freshness": {
         "local": "fresh",
         "sql_mirror": "unknown"
@@ -8350,7 +8552,7 @@
       "risk_tags": [
         "runtime_critical"
       ],
-      "recency": "1776967139220:1d43bd42d0ad",
+      "recency": "1777213612907:004e066b06e0",
       "freshness": {
         "local": "fresh",
         "sql_mirror": "unknown"
@@ -8402,7 +8604,7 @@
       "risk_tags": [
         "runtime_critical"
       ],
-      "recency": "1776974968835:227c4debee88",
+      "recency": "1777002828893:a44c28b5c8f5",
       "freshness": {
         "local": "fresh",
         "sql_mirror": "unknown"
@@ -8428,7 +8630,7 @@
       "risk_tags": [
         "runtime_critical"
       ],
-      "recency": "1776975252560:88354010338d",
+      "recency": "1777213612915:cc6d0f5eae8b",
       "freshness": {
         "local": "fresh",
         "sql_mirror": "unknown"
@@ -8506,7 +8708,33 @@
       "risk_tags": [
         "runtime_critical"
       ],
-      "recency": "1776976372651:677de32ac4ee",
+      "recency": "1777003040758:9562a94f30bf",
+      "freshness": {
+        "local": "fresh",
+        "sql_mirror": "unknown"
+      },
+      "context_tier": "hot",
+      "exclusion_tags": [],
+      "do_not_use_as_primary_truth": false
+    },
+    {
+      "stable_id": "file__src__app__admin__debug__hooks__useadmindebugrealtime-ts",
+      "source_type": "file",
+      "source_id": "file__src__app__admin__debug__hooks__useadmindebugrealtime-ts",
+      "searchable_terms": [
+        "src/app/admin/debug/hooks/useAdminDebugRealtime.ts",
+        "admin_surface",
+        "admin_ui"
+      ],
+      "surface_tags": [
+        "admin_ui",
+        "admin_surface"
+      ],
+      "helper_tags": [],
+      "risk_tags": [
+        "runtime_critical"
+      ],
+      "recency": "1777007493535:aa8790ad6371",
       "freshness": {
         "local": "fresh",
         "sql_mirror": "unknown"
@@ -8532,7 +8760,7 @@
       "risk_tags": [
         "runtime_critical"
       ],
-      "recency": "1776976652016:5192ff90081e",
+      "recency": "1777205040125:2cc04c6850a6",
       "freshness": {
         "local": "fresh",
         "sql_mirror": "unknown"
@@ -8714,7 +8942,7 @@
       "risk_tags": [
         "runtime_critical"
       ],
-      "recency": "1776975252572:52808ce0a7da",
+      "recency": "1777213612922:73f001b6026e",
       "freshness": {
         "local": "fresh",
         "sql_mirror": "unknown"
@@ -8870,7 +9098,7 @@
       "risk_tags": [
         "runtime_critical"
       ],
-      "recency": "1776974890266:eb8c8e570b36",
+      "recency": "1776989937475:211816593a2f",
       "freshness": {
         "local": "fresh",
         "sql_mirror": "unknown"
@@ -8896,7 +9124,7 @@
       "risk_tags": [
         "runtime_critical"
       ],
-      "recency": "1775873749565:2b414352415f",
+      "recency": "1777208965497:24c9009e4f2a",
       "freshness": {
         "local": "fresh",
         "sql_mirror": "unknown"
@@ -8948,7 +9176,7 @@
       "risk_tags": [
         "runtime_critical"
       ],
-      "recency": "1775873436455:54a37a719f03",
+      "recency": "1777208966391:2f4be0302ef0",
       "freshness": {
         "local": "fresh",
         "sql_mirror": "unknown"
@@ -8974,7 +9202,7 @@
       "risk_tags": [
         "runtime_critical"
       ],
-      "recency": "1775873426371:3b6eb31513ad",
+      "recency": "1777208967650:dd13e54cb3e7",
       "freshness": {
         "local": "fresh",
         "sql_mirror": "unknown"
@@ -9000,7 +9228,7 @@
       "risk_tags": [
         "runtime_critical"
       ],
-      "recency": "1775873445677:ddfed15ea9a2",
+      "recency": "1777208968451:f0e779bcca22",
       "freshness": {
         "local": "fresh",
         "sql_mirror": "unknown"
@@ -9026,7 +9254,7 @@
       "risk_tags": [
         "runtime_critical"
       ],
-      "recency": "1776961111203:cac76e282302",
+      "recency": "1777208952461:e33e5a0ccfa0",
       "freshness": {
         "local": "fresh",
         "sql_mirror": "unknown"
@@ -9052,7 +9280,7 @@
       "risk_tags": [
         "runtime_critical"
       ],
-      "recency": "1775873777296:ffb99420bcb3",
+      "recency": "1777208969514:565c29032a75",
       "freshness": {
         "local": "fresh",
         "sql_mirror": "unknown"
@@ -9078,7 +9306,7 @@
       "risk_tags": [
         "runtime_critical"
       ],
-      "recency": "1775924915587:748a95cd6b7a",
+      "recency": "1777208970725:34ad6631182c",
       "freshness": {
         "local": "fresh",
         "sql_mirror": "unknown"
@@ -9104,7 +9332,7 @@
       "risk_tags": [
         "runtime_critical"
       ],
-      "recency": "1775924890155:61c1c17a15a3",
+      "recency": "1777208972256:7366ea9723e1",
       "freshness": {
         "local": "fresh",
         "sql_mirror": "unknown"
@@ -9130,7 +9358,7 @@
       "risk_tags": [
         "runtime_critical"
       ],
-      "recency": "1775924939081:25b0d3b0ea98",
+      "recency": "1777208972884:a903cb9f8b4b",
       "freshness": {
         "local": "fresh",
         "sql_mirror": "unknown"
@@ -9156,7 +9384,7 @@
       "risk_tags": [
         "runtime_critical"
       ],
-      "recency": "1775924865198:6f4ecda5ea5e",
+      "recency": "1777208953264:d65be28dcaeb",
       "freshness": {
         "local": "fresh",
         "sql_mirror": "unknown"
@@ -9234,7 +9462,7 @@
       "risk_tags": [
         "runtime_critical"
       ],
-      "recency": "1776974968532:8a14607dc583",
+      "recency": "1777215667716:c73adafd47f3",
       "freshness": {
         "local": "fresh",
         "sql_mirror": "unknown"
@@ -9260,7 +9488,7 @@
       "risk_tags": [
         "runtime_critical"
       ],
-      "recency": "1773845018414:cf4624599490",
+      "recency": "1777208904936:7292d6624acf",
       "freshness": {
         "local": "fresh",
         "sql_mirror": "unknown"
@@ -9286,7 +9514,7 @@
       "risk_tags": [
         "runtime_critical"
       ],
-      "recency": "1775586420296:bb62d793fde6",
+      "recency": "1777208905583:fd1c9ff0ae87",
       "freshness": {
         "local": "fresh",
         "sql_mirror": "unknown"
@@ -9312,7 +9540,7 @@
       "risk_tags": [
         "runtime_critical"
       ],
-      "recency": "1776961111194:7e6c9dcf4c1d",
+      "recency": "1777208906721:846d9ff5eb34",
       "freshness": {
         "local": "fresh",
         "sql_mirror": "unknown"
@@ -9338,7 +9566,7 @@
       "risk_tags": [
         "runtime_critical"
       ],
-      "recency": "1775062501966:35c847a6f7a8",
+      "recency": "1777208907937:b2ddd2243ddf",
       "freshness": {
         "local": "fresh",
         "sql_mirror": "unknown"
@@ -9416,7 +9644,7 @@
       "risk_tags": [
         "runtime_critical"
       ],
-      "recency": "1776975252575:e74b61c3d8c7",
+      "recency": "1777172773569:62ed776464cc",
       "freshness": {
         "local": "fresh",
         "sql_mirror": "unknown"
@@ -9442,7 +9670,7 @@
       "risk_tags": [
         "runtime_critical"
       ],
-      "recency": "1775175144940:81c5a206e264",
+      "recency": "1777208910018:8e0508ef11be",
       "freshness": {
         "local": "fresh",
         "sql_mirror": "unknown"
@@ -9468,7 +9696,7 @@
       "risk_tags": [
         "runtime_critical"
       ],
-      "recency": "1773885232282:1a1a05639ca6",
+      "recency": "1777208910813:1017a3e8cedb",
       "freshness": {
         "local": "fresh",
         "sql_mirror": "unknown"
@@ -9572,7 +9800,7 @@
       "risk_tags": [
         "runtime_critical"
       ],
-      "recency": "1774388611374:36d77cbf1097",
+      "recency": "1777208953942:91d071b289c2",
       "freshness": {
         "local": "fresh",
         "sql_mirror": "unknown"
@@ -9624,7 +9852,7 @@
       "risk_tags": [
         "runtime_critical"
       ],
-      "recency": "1774341041811:7d82e712d53c",
+      "recency": "1777208911920:43bf937b59d5",
       "freshness": {
         "local": "fresh",
         "sql_mirror": "unknown"
@@ -9650,7 +9878,7 @@
       "risk_tags": [
         "runtime_critical"
       ],
-      "recency": "1774340963002:eae1de72f9e9",
+      "recency": "1777208960925:b56414e76726",
       "freshness": {
         "local": "fresh",
         "sql_mirror": "unknown"
@@ -9676,7 +9904,7 @@
       "risk_tags": [
         "runtime_critical"
       ],
-      "recency": "1775422784659:058a24df0384",
+      "recency": "1777208913398:30dd67e73f10",
       "freshness": {
         "local": "fresh",
         "sql_mirror": "unknown"
@@ -9702,7 +9930,7 @@
       "risk_tags": [
         "runtime_critical"
       ],
-      "recency": "1775720169756:9b191b66c591",
+      "recency": "1777208973976:b021bcd9b9ff",
       "freshness": {
         "local": "fresh",
         "sql_mirror": "unknown"
@@ -9754,7 +9982,7 @@
       "risk_tags": [
         "runtime_critical"
       ],
-      "recency": "1775244174372:463715b613cf",
+      "recency": "1777208914789:364ee3b77fb3",
       "freshness": {
         "local": "fresh",
         "sql_mirror": "unknown"
@@ -9780,7 +10008,7 @@
       "risk_tags": [
         "runtime_critical"
       ],
-      "recency": "1775873855209:09197967a2e3",
+      "recency": "1777208954925:13551cf314c1",
       "freshness": {
         "local": "fresh",
         "sql_mirror": "unknown"
@@ -9806,7 +10034,7 @@
       "risk_tags": [
         "runtime_critical"
       ],
-      "recency": "1775151669371:24ea33162718",
+      "recency": "1777208975688:138c9cc7f281",
       "freshness": {
         "local": "fresh",
         "sql_mirror": "unknown"
@@ -9832,7 +10060,7 @@
       "risk_tags": [
         "runtime_critical"
       ],
-      "recency": "1776961424821:41e3f563ac43",
+      "recency": "1777213673737:9f4d7136916e",
       "freshness": {
         "local": "fresh",
         "sql_mirror": "unknown"
@@ -9858,7 +10086,7 @@
       "risk_tags": [
         "runtime_critical"
       ],
-      "recency": "1776481191586:80558f40c368",
+      "recency": "1777208974826:e1239a180251",
       "freshness": {
         "local": "fresh",
         "sql_mirror": "unknown"
@@ -9884,7 +10112,7 @@
       "risk_tags": [
         "runtime_critical"
       ],
-      "recency": "1776915469374:ff63653d9ab0",
+      "recency": "1777208961633:31c70697678c",
       "freshness": {
         "local": "fresh",
         "sql_mirror": "unknown"
@@ -9910,7 +10138,7 @@
       "risk_tags": [
         "runtime_critical"
       ],
-      "recency": "1776961351461:0511f9b866b2",
+      "recency": "1777208916964:1ecfb3a1e5f7",
       "freshness": {
         "local": "fresh",
         "sql_mirror": "unknown"
@@ -9936,7 +10164,7 @@
       "risk_tags": [
         "runtime_critical"
       ],
-      "recency": "1776862382920:4f8d3053ef4e",
+      "recency": "1777208917579:678fb75ab76e",
       "freshness": {
         "local": "fresh",
         "sql_mirror": "unknown"
@@ -9988,7 +10216,7 @@
       "risk_tags": [
         "runtime_critical"
       ],
-      "recency": "1775085902782:f66f77a52cad",
+      "recency": "1777208918492:44d9b98d82c2",
       "freshness": {
         "local": "fresh",
         "sql_mirror": "unknown"
@@ -10248,7 +10476,7 @@
       "risk_tags": [
         "runtime_critical"
       ],
-      "recency": "1776815949374:0344f4e4b052",
+      "recency": "1777208920215:7060b47e9217",
       "freshness": {
         "local": "fresh",
         "sql_mirror": "unknown"
@@ -10274,7 +10502,7 @@
       "risk_tags": [
         "runtime_critical"
       ],
-      "recency": "1775736334243:84019305d597",
+      "recency": "1777208921220:abd4fea1f703",
       "freshness": {
         "local": "fresh",
         "sql_mirror": "unknown"
@@ -10326,7 +10554,7 @@
       "risk_tags": [
         "runtime_critical"
       ],
-      "recency": "1775171384115:985e2adfe4f3",
+      "recency": "1777208922083:7b9162d521d8",
       "freshness": {
         "local": "fresh",
         "sql_mirror": "unknown"
@@ -10378,7 +10606,7 @@
       "risk_tags": [
         "runtime_critical"
       ],
-      "recency": "1775187743176:6007c9810165",
+      "recency": "1777208956505:56b738f8ca0e",
       "freshness": {
         "local": "fresh",
         "sql_mirror": "unknown"
@@ -10404,7 +10632,7 @@
       "risk_tags": [
         "runtime_critical"
       ],
-      "recency": "1775274998075:c91869289a5b",
+      "recency": "1777208958094:8c3c0ab1bf72",
       "freshness": {
         "local": "fresh",
         "sql_mirror": "unknown"
@@ -10430,7 +10658,7 @@
       "risk_tags": [
         "runtime_critical"
       ],
-      "recency": "1775275013979:21daa751b968",
+      "recency": "1777208958875:2b7c3838ae1d",
       "freshness": {
         "local": "fresh",
         "sql_mirror": "unknown"
@@ -10456,7 +10684,7 @@
       "risk_tags": [
         "runtime_critical"
       ],
-      "recency": "1775274959369:46cd6c1afa3a",
+      "recency": "1777208959710:3515e9165e73",
       "freshness": {
         "local": "fresh",
         "sql_mirror": "unknown"
@@ -10482,7 +10710,7 @@
       "risk_tags": [
         "runtime_critical"
       ],
-      "recency": "1774364657277:9fc88f7676db",
+      "recency": "1777208923323:2b7cce1713f6",
       "freshness": {
         "local": "fresh",
         "sql_mirror": "unknown"
@@ -10534,7 +10762,7 @@
       "risk_tags": [
         "runtime_critical"
       ],
-      "recency": "1774452346910:6b0e1355d35c",
+      "recency": "1777208924538:26f69c908f68",
       "freshness": {
         "local": "fresh",
         "sql_mirror": "unknown"
@@ -10560,7 +10788,7 @@
       "risk_tags": [
         "runtime_critical"
       ],
-      "recency": "1776461493911:daf1df44144d",
+      "recency": "1777208925466:98d4dde6a158",
       "freshness": {
         "local": "fresh",
         "sql_mirror": "unknown"
@@ -10586,7 +10814,7 @@
       "risk_tags": [
         "runtime_critical"
       ],
-      "recency": "1776466837438:88ca043bbb07",
+      "recency": "1777208926459:523cc48fe81c",
       "freshness": {
         "local": "fresh",
         "sql_mirror": "unknown"
@@ -10612,7 +10840,7 @@
       "risk_tags": [
         "runtime_critical"
       ],
-      "recency": "1776140985875:4b0a9896c018",
+      "recency": "1777208927132:67690796397a",
       "freshness": {
         "local": "fresh",
         "sql_mirror": "unknown"
@@ -10638,7 +10866,7 @@
       "risk_tags": [
         "runtime_critical"
       ],
-      "recency": "1776479721980:f7e1241fdb61",
+      "recency": "1777208927739:944e5a9e152a",
       "freshness": {
         "local": "fresh",
         "sql_mirror": "unknown"
@@ -10664,7 +10892,7 @@
       "risk_tags": [
         "runtime_critical"
       ],
-      "recency": "1775756083460:d1f4eae042b7",
+      "recency": "1777208928420:9384a546b64d",
       "freshness": {
         "local": "fresh",
         "sql_mirror": "unknown"
@@ -10690,7 +10918,7 @@
       "risk_tags": [
         "runtime_critical"
       ],
-      "recency": "1776479705345:1d24a14130aa",
+      "recency": "1777208929106:c525f5dec940",
       "freshness": {
         "local": "fresh",
         "sql_mirror": "unknown"
@@ -10716,7 +10944,7 @@
       "risk_tags": [
         "runtime_critical"
       ],
-      "recency": "1775146962950:b261f2e4e37d",
+      "recency": "1777208964844:7da92298a023",
       "freshness": {
         "local": "fresh",
         "sql_mirror": "unknown"
@@ -10768,7 +10996,7 @@
       "risk_tags": [
         "runtime_critical"
       ],
-      "recency": "1775493654382:5e1552f8394d",
+      "recency": "1777208943911:a42041ad1491",
       "freshness": {
         "local": "fresh",
         "sql_mirror": "unknown"
@@ -10794,7 +11022,7 @@
       "risk_tags": [
         "runtime_critical"
       ],
-      "recency": "1776643584722:99980fad167c",
+      "recency": "1777208944724:a7f159020143",
       "freshness": {
         "local": "fresh",
         "sql_mirror": "unknown"
@@ -10820,7 +11048,7 @@
       "risk_tags": [
         "runtime_critical"
       ],
-      "recency": "1776389626711:4bfde8c044fa",
+      "recency": "1777208945523:3e7629772706",
       "freshness": {
         "local": "fresh",
         "sql_mirror": "unknown"
@@ -10846,7 +11074,7 @@
       "risk_tags": [
         "runtime_critical"
       ],
-      "recency": "1776780318517:dbcc1aec5824",
+      "recency": "1777208946316:9e2fb900058d",
       "freshness": {
         "local": "fresh",
         "sql_mirror": "unknown"
@@ -10872,7 +11100,7 @@
       "risk_tags": [
         "runtime_critical"
       ],
-      "recency": "1776779404647:b70cf986c08d",
+      "recency": "1777208947721:34cc33f5156f",
       "freshness": {
         "local": "fresh",
         "sql_mirror": "unknown"
@@ -10924,7 +11152,7 @@
       "risk_tags": [
         "runtime_critical"
       ],
-      "recency": "1773786492534:fc4cf06c20a1",
+      "recency": "1777208950337:cfbd1376e93b",
       "freshness": {
         "local": "fresh",
         "sql_mirror": "unknown"
@@ -10950,7 +11178,7 @@
       "risk_tags": [
         "runtime_critical"
       ],
-      "recency": "1774417352690:7d530956fc58",
+      "recency": "1777208951440:72e92642a296",
       "freshness": {
         "local": "fresh",
         "sql_mirror": "unknown"
@@ -11002,7 +11230,7 @@
       "risk_tags": [
         "runtime_critical"
       ],
-      "recency": "1775493654386:b085b0199169",
+      "recency": "1777208929850:a075916ddba3",
       "freshness": {
         "local": "fresh",
         "sql_mirror": "unknown"
@@ -11028,7 +11256,7 @@
       "risk_tags": [
         "runtime_critical"
       ],
-      "recency": "1775174146418:34626dd1744e",
+      "recency": "1777208930555:dd2a5351b485",
       "freshness": {
         "local": "fresh",
         "sql_mirror": "unknown"
@@ -11054,7 +11282,7 @@
       "risk_tags": [
         "runtime_critical"
       ],
-      "recency": "1773786005341:8cb77d7170b5",
+      "recency": "1777208931506:83cc6213d785",
       "freshness": {
         "local": "fresh",
         "sql_mirror": "unknown"
@@ -11080,7 +11308,7 @@
       "risk_tags": [
         "runtime_critical"
       ],
-      "recency": "1775661899602:800e48747199",
+      "recency": "1777208932564:7da4fbb7f914",
       "freshness": {
         "local": "fresh",
         "sql_mirror": "unknown"
@@ -11106,7 +11334,7 @@
       "risk_tags": [
         "runtime_critical"
       ],
-      "recency": "1773786005374:d6604b17093b",
+      "recency": "1777208933362:cb3cc7e6de19",
       "freshness": {
         "local": "fresh",
         "sql_mirror": "unknown"
@@ -11132,7 +11360,7 @@
       "risk_tags": [
         "runtime_critical"
       ],
-      "recency": "1774340981456:8d987a131d5e",
+      "recency": "1777208962192:bdc606ed6f13",
       "freshness": {
         "local": "fresh",
         "sql_mirror": "unknown"
@@ -11158,7 +11386,7 @@
       "risk_tags": [
         "runtime_critical"
       ],
-      "recency": "1775549459842:dbef317ff60b",
+      "recency": "1777208963104:42d8da460ca3",
       "freshness": {
         "local": "fresh",
         "sql_mirror": "unknown"
@@ -11184,7 +11412,7 @@
       "risk_tags": [
         "runtime_critical"
       ],
-      "recency": "1775957633845:c96b09dac467",
+      "recency": "1777208964055:5e87892ede7c",
       "freshness": {
         "local": "fresh",
         "sql_mirror": "unknown"
@@ -11236,7 +11464,7 @@
       "risk_tags": [
         "runtime_critical"
       ],
-      "recency": "1773884207641:3080cf46bc24",
+      "recency": "1777208934059:bd3e1b12df49",
       "freshness": {
         "local": "fresh",
         "sql_mirror": "unknown"
@@ -11262,7 +11490,7 @@
       "risk_tags": [
         "runtime_critical"
       ],
-      "recency": "1773784811738:89ef3d1f7944",
+      "recency": "1777208960290:72c68f83fd43",
       "freshness": {
         "local": "fresh",
         "sql_mirror": "unknown"
@@ -11288,7 +11516,7 @@
       "risk_tags": [
         "runtime_critical"
       ],
-      "recency": "1773784811739:451aaf5c4004",
+      "recency": "1777208934691:d08007ce0b1f",
       "freshness": {
         "local": "fresh",
         "sql_mirror": "unknown"
@@ -11366,7 +11594,7 @@
       "risk_tags": [
         "runtime_critical"
       ],
-      "recency": "1773786005451:bba50d6af274",
+      "recency": "1777208935205:2e059bc9a526",
       "freshness": {
         "local": "fresh",
         "sql_mirror": "unknown"
@@ -11392,7 +11620,7 @@
       "risk_tags": [
         "runtime_critical"
       ],
-      "recency": "1775175972028:ee916d24a24d",
+      "recency": "1777208935788:352178161c05",
       "freshness": {
         "local": "fresh",
         "sql_mirror": "unknown"
@@ -11418,7 +11646,7 @@
       "risk_tags": [
         "runtime_critical"
       ],
-      "recency": "1774366805638:d6f6fee4d1cc",
+      "recency": "1777208936392:1cdfe911756f",
       "freshness": {
         "local": "fresh",
         "sql_mirror": "unknown"
@@ -11444,7 +11672,7 @@
       "risk_tags": [
         "runtime_critical"
       ],
-      "recency": "1775680928574:6a6f961308f8",
+      "recency": "1777208936963:d179e6db91fb",
       "freshness": {
         "local": "fresh",
         "sql_mirror": "unknown"
@@ -11470,7 +11698,7 @@
       "risk_tags": [
         "runtime_critical"
       ],
-      "recency": "1774364835242:8fb26804aa3b",
+      "recency": "1777208937656:a0b3aa51b90d",
       "freshness": {
         "local": "fresh",
         "sql_mirror": "unknown"
@@ -11496,7 +11724,7 @@
       "risk_tags": [
         "runtime_critical"
       ],
-      "recency": "1774072017191:906e9d4d4c27",
+      "recency": "1777208938542:ad9fae83b0c6",
       "freshness": {
         "local": "fresh",
         "sql_mirror": "unknown"
@@ -11522,7 +11750,7 @@
       "risk_tags": [
         "runtime_critical"
       ],
-      "recency": "1775963577363:78296551a988",
+      "recency": "1777208940142:14550f9b0151",
       "freshness": {
         "local": "fresh",
         "sql_mirror": "unknown"
@@ -11574,7 +11802,7 @@
       "risk_tags": [
         "runtime_critical"
       ],
-      "recency": "1773786005466:544748d14a83",
+      "recency": "1777208941534:b054168bedf7",
       "freshness": {
         "local": "fresh",
         "sql_mirror": "unknown"
@@ -11626,7 +11854,7 @@
       "risk_tags": [
         "runtime_critical"
       ],
-      "recency": "1776644572395:2e39c9b18b40",
+      "recency": "1777208942600:df4322d20e63",
       "freshness": {
         "local": "fresh",
         "sql_mirror": "unknown"
@@ -13004,7 +13232,7 @@
       "risk_tags": [
         "runtime_critical"
       ],
-      "recency": "1776974890286:f56a0305128f",
+      "recency": "1777205192356:0692e31e0a6c",
       "freshness": {
         "local": "fresh",
         "sql_mirror": "unknown"
@@ -13082,7 +13310,7 @@
       "risk_tags": [
         "runtime_critical"
       ],
-      "recency": "1776975132049:33991013f2a6",
+      "recency": "1776985417418:2440d268b196",
       "freshness": {
         "local": "fresh",
         "sql_mirror": "unknown"
@@ -13134,7 +13362,7 @@
       "risk_tags": [
         "runtime_critical"
       ],
-      "recency": "1775451316849:6f634934d080",
+      "recency": "1776985672400:9f1735d351ff",
       "freshness": {
         "local": "fresh",
         "sql_mirror": "unknown"
@@ -13212,7 +13440,7 @@
       "risk_tags": [
         "runtime_critical"
       ],
-      "recency": "1776977449558:dd97f8f36c1c",
+      "recency": "1777000514773:8085f2095992",
       "freshness": {
         "local": "fresh",
         "sql_mirror": "unknown"
@@ -13290,7 +13518,7 @@
       "risk_tags": [
         "runtime_critical"
       ],
-      "recency": "1775450623226:b19f390720a3",
+      "recency": "1776985434177:1f379c1e5d3b",
       "freshness": {
         "local": "fresh",
         "sql_mirror": "unknown"
@@ -13342,7 +13570,7 @@
       "risk_tags": [
         "runtime_critical"
       ],
-      "recency": "1776974890295:fe3032ef8c43",
+      "recency": "1776981677424:ec8b3f1d5ca8",
       "freshness": {
         "local": "fresh",
         "sql_mirror": "unknown"
@@ -13394,7 +13622,7 @@
       "risk_tags": [
         "runtime_critical"
       ],
-      "recency": "1775926185595:890eeb58ac2c",
+      "recency": "1776984731705:7c767da61f2e",
       "freshness": {
         "local": "fresh",
         "sql_mirror": "unknown"
@@ -13420,7 +13648,7 @@
       "risk_tags": [
         "runtime_critical"
       ],
-      "recency": "1775925190212:d7d64a18a816",
+      "recency": "1776984739266:fcdd85a847eb",
       "freshness": {
         "local": "fresh",
         "sql_mirror": "unknown"
@@ -13446,7 +13674,7 @@
       "risk_tags": [
         "runtime_critical"
       ],
-      "recency": "1775908273781:644af94e23ab",
+      "recency": "1777213612928:66dca7ab7b6a",
       "freshness": {
         "local": "fresh",
         "sql_mirror": "unknown"
@@ -13602,7 +13830,7 @@
       "risk_tags": [
         "runtime_critical"
       ],
-      "recency": "1776975132147:741f24a81f39",
+      "recency": "1776985348255:32a81e9d68d9",
       "freshness": {
         "local": "fresh",
         "sql_mirror": "unknown"
@@ -13628,7 +13856,7 @@
       "risk_tags": [
         "runtime_critical"
       ],
-      "recency": "1775450699750:12061c9149bd",
+      "recency": "1776985318478:3c556ab885f2",
       "freshness": {
         "local": "fresh",
         "sql_mirror": "unknown"
@@ -14044,7 +14272,7 @@
       "risk_tags": [
         "runtime_critical"
       ],
-      "recency": "1776974890309:d1694f8c11b2",
+      "recency": "1777213613154:b016b4165415",
       "freshness": {
         "local": "fresh",
         "sql_mirror": "unknown"
@@ -14200,7 +14428,7 @@
       "risk_tags": [
         "runtime_critical"
       ],
-      "recency": "1775912355181:0e23552399d4",
+      "recency": "1777213613261:7ad7aa41ca0b",
       "freshness": {
         "local": "fresh",
         "sql_mirror": "unknown"
@@ -14434,7 +14662,7 @@
       "risk_tags": [
         "runtime_critical"
       ],
-      "recency": "1776654200053:55c770df5c39",
+      "recency": "1777213613033:db05d747d5ac",
       "freshness": {
         "local": "fresh",
         "sql_mirror": "unknown"
@@ -14564,7 +14792,7 @@
       "risk_tags": [
         "runtime_critical"
       ],
-      "recency": "1775062502022:5f19f8b08fb9",
+      "recency": "1777213613035:e724492f3f80",
       "freshness": {
         "local": "fresh",
         "sql_mirror": "unknown"
@@ -14746,7 +14974,7 @@
       "risk_tags": [
         "runtime_critical"
       ],
-      "recency": "1776640848743:b11ae1af3311",
+      "recency": "1777006641865:aafd4e3ee75b",
       "freshness": {
         "local": "fresh",
         "sql_mirror": "unknown"
@@ -14824,7 +15052,7 @@
       "risk_tags": [
         "runtime_critical"
       ],
-      "recency": "1776868038129:6bc06d4c3f01",
+      "recency": "1777205200859:c6f62b65dc51",
       "freshness": {
         "local": "fresh",
         "sql_mirror": "unknown"
@@ -15188,7 +15416,7 @@
       "risk_tags": [
         "runtime_critical"
       ],
-      "recency": "1776974890320:92ce2f229756",
+      "recency": "1777213612679:6144b1805756",
       "freshness": {
         "local": "fresh",
         "sql_mirror": "unknown"
@@ -15634,6 +15862,33 @@
       "do_not_use_as_primary_truth": false
     },
     {
+      "stable_id": "file__src__hooks__useadminmoderationrealtime-ts",
+      "source_type": "file",
+      "source_id": "file__src__hooks__useadminmoderationrealtime-ts",
+      "searchable_terms": [
+        "src/hooks/useAdminModerationRealtime.ts",
+        "hook",
+        "misc"
+      ],
+      "surface_tags": [
+        "misc",
+        "hook"
+      ],
+      "helper_tags": [],
+      "risk_tags": [
+        "runtime_critical",
+        "shared_helper"
+      ],
+      "recency": "1777000669549:1a7fe91ef79b",
+      "freshness": {
+        "local": "fresh",
+        "sql_mirror": "unknown"
+      },
+      "context_tier": "hot",
+      "exclusion_tags": [],
+      "do_not_use_as_primary_truth": false
+    },
+    {
       "stable_id": "file__src__hooks__useadminoverview-ts",
       "source_type": "file",
       "source_id": "file__src__hooks__useadminoverview-ts",
@@ -15651,7 +15906,34 @@
         "runtime_critical",
         "shared_helper"
       ],
-      "recency": "1776824583751:cc2632a37c28",
+      "recency": "1776985291078:040ed1b6273e",
+      "freshness": {
+        "local": "fresh",
+        "sql_mirror": "unknown"
+      },
+      "context_tier": "hot",
+      "exclusion_tags": [],
+      "do_not_use_as_primary_truth": false
+    },
+    {
+      "stable_id": "file__src__hooks__useadminoverviewrealtime-ts",
+      "source_type": "file",
+      "source_id": "file__src__hooks__useadminoverviewrealtime-ts",
+      "searchable_terms": [
+        "src/hooks/useAdminOverviewRealtime.ts",
+        "hook",
+        "misc"
+      ],
+      "surface_tags": [
+        "misc",
+        "hook"
+      ],
+      "helper_tags": [],
+      "risk_tags": [
+        "runtime_critical",
+        "shared_helper"
+      ],
+      "recency": "1777007493538:54701ffabe4a",
       "freshness": {
         "local": "fresh",
         "sql_mirror": "unknown"
@@ -15705,7 +15987,34 @@
         "runtime_critical",
         "shared_helper"
       ],
-      "recency": "1776979196819:5746dc890b7c",
+      "recency": "1777000363221:28a28e1d3422",
+      "freshness": {
+        "local": "fresh",
+        "sql_mirror": "unknown"
+      },
+      "context_tier": "hot",
+      "exclusion_tags": [],
+      "do_not_use_as_primary_truth": false
+    },
+    {
+      "stable_id": "file__src__hooks__useadminsupportrealtime-ts",
+      "source_type": "file",
+      "source_id": "file__src__hooks__useadminsupportrealtime-ts",
+      "searchable_terms": [
+        "src/hooks/useAdminSupportRealtime.ts",
+        "hook",
+        "misc"
+      ],
+      "surface_tags": [
+        "misc",
+        "hook"
+      ],
+      "helper_tags": [],
+      "risk_tags": [
+        "runtime_critical",
+        "shared_helper"
+      ],
+      "recency": "1777003040760:d82e17d2d04d",
       "freshness": {
         "local": "fresh",
         "sql_mirror": "unknown"
@@ -16079,7 +16388,7 @@
         "shared_helper",
         "broad_signoff"
       ],
-      "recency": "1776976372829:8de77e52ee59",
+      "recency": "1776980659642:247176acdae9",
       "freshness": {
         "local": "fresh",
         "sql_mirror": "unknown"
@@ -16107,7 +16416,7 @@
         "shared_helper",
         "broad_signoff"
       ],
-      "recency": "1776976651959:d2e867baf4c1",
+      "recency": "1777002752849:03cd2fad0027",
       "freshness": {
         "local": "fresh",
         "sql_mirror": "unknown"
@@ -16275,7 +16584,7 @@
         "shared_helper",
         "broad_signoff"
       ],
-      "recency": "1775777760157:7f5ab6d0c008",
+      "recency": "1777171199647:508b8ff12437",
       "freshness": {
         "local": "fresh",
         "sql_mirror": "unknown"
@@ -18095,7 +18404,7 @@
         "shared_helper",
         "broad_signoff"
       ],
-      "recency": "1775401990298:f43d1bea2778",
+      "recency": "1777213612686:fd05abb9ea10",
       "freshness": {
         "local": "fresh",
         "sql_mirror": "unknown"
@@ -18515,7 +18824,7 @@
         "shared_helper",
         "broad_signoff"
       ],
-      "recency": "1776974890334:c35b62968530",
+      "recency": "1777209784216:1fb923146446",
       "freshness": {
         "local": "fresh",
         "sql_mirror": "unknown"
@@ -18571,7 +18880,7 @@
         "shared_helper",
         "broad_signoff"
       ],
-      "recency": "1776535168505:174fdfb5c326",
+      "recency": "1777215713402:c004ecc2e468",
       "freshness": {
         "local": "fresh",
         "sql_mirror": "unknown"
@@ -19327,7 +19636,7 @@
         "shared_helper",
         "broad_signoff"
       ],
-      "recency": "1776738381588:70a1f444c480",
+      "recency": "1776982320075:70a1f444c480",
       "freshness": {
         "local": "fresh",
         "sql_mirror": "unknown"
@@ -19411,7 +19720,7 @@
         "shared_helper",
         "broad_signoff"
       ],
-      "recency": "1776797169576:de0e404642ec",
+      "recency": "1777081489584:2fbd5f5ad948",
       "freshness": {
         "local": "fresh",
         "sql_mirror": "unknown"
@@ -20447,7 +20756,7 @@
         "shared_helper",
         "broad_signoff"
       ],
-      "recency": "1776535168527:f24521548fbf",
+      "recency": "1777213612796:2ec8dda138c2",
       "freshness": {
         "local": "fresh",
         "sql_mirror": "unknown"
@@ -20615,7 +20924,7 @@
         "shared_helper",
         "broad_signoff"
       ],
-      "recency": "1776974890358:0b729e3a2b62",
+      "recency": "1777209032377:4a5506b3c4bb",
       "freshness": {
         "local": "fresh",
         "sql_mirror": "unknown"
@@ -20951,7 +21260,7 @@
         "shared_helper",
         "broad_signoff"
       ],
-      "recency": "1776977325572:560a8871e5ce",
+      "recency": "1777213613045:57852a502739",
       "freshness": {
         "local": "fresh",
         "sql_mirror": "unknown"
@@ -21879,7 +22188,7 @@
       ],
       "helper_tags": [],
       "risk_tags": [],
-      "recency": "1776974890362:df4545062ee3",
+      "recency": "1776989926479:9f3fe269dbf3",
       "freshness": {
         "local": "fresh",
         "sql_mirror": "unknown"
@@ -21984,30 +22293,6 @@
         "sql_mirror": "unknown"
       },
       "context_tier": "hot",
-      "exclusion_tags": [],
-      "do_not_use_as_primary_truth": false
-    },
-    {
-      "stable_id": "file__test-results__-last-run-json",
-      "source_type": "file",
-      "source_id": "file__test-results__-last-run-json",
-      "searchable_terms": [
-        "test-results/.last-run.json",
-        "other",
-        "misc"
-      ],
-      "surface_tags": [
-        "misc",
-        "other"
-      ],
-      "helper_tags": [],
-      "risk_tags": [],
-      "recency": "1776979469324:bc5897d23b9e",
-      "freshness": {
-        "local": "fresh",
-        "sql_mirror": "unknown"
-      },
-      "context_tier": "warm",
       "exclusion_tags": [],
       "do_not_use_as_primary_truth": false
     },
@@ -22146,7 +22431,7 @@
       ],
       "helper_tags": [],
       "risk_tags": [],
-      "recency": "1775868148958:9ffa2c556688",
+      "recency": "1776981543665:f5de6e46dae8",
       "freshness": {
         "local": "fresh",
         "sql_mirror": "unknown"
@@ -22578,7 +22863,7 @@
       ],
       "helper_tags": [],
       "risk_tags": [],
-      "recency": "1776466443395:0ab8f0d8ef02",
+      "recency": "1777005850064:8fb3ddf335c3",
       "freshness": {
         "local": "fresh",
         "sql_mirror": "unknown"
@@ -22818,7 +23103,7 @@
       ],
       "helper_tags": [],
       "risk_tags": [],
-      "recency": "1776468862369:e80c5d23c561",
+      "recency": "1777005496623:64071b6af793",
       "freshness": {
         "local": "fresh",
         "sql_mirror": "unknown"
@@ -22845,7 +23130,7 @@
       ],
       "helper_tags": [],
       "risk_tags": [],
-      "recency": "1776468768352:d614da010acf",
+      "recency": "1777005478328:1fa16983e5f7",
       "freshness": {
         "local": "fresh",
         "sql_mirror": "unknown"
@@ -22926,7 +23211,7 @@
       ],
       "helper_tags": [],
       "risk_tags": [],
-      "recency": "1776874216646:ec39f4ebabb7",
+      "recency": "1777005903224:2331e70f4819",
       "freshness": {
         "local": "fresh",
         "sql_mirror": "unknown"
@@ -22953,7 +23238,7 @@
       ],
       "helper_tags": [],
       "risk_tags": [],
-      "recency": "1776874260898:7afed2e653d3",
+      "recency": "1777205500702:0b2ad8d0beae",
       "freshness": {
         "local": "fresh",
         "sql_mirror": "unknown"
@@ -27924,6 +28209,237 @@
       "do_not_use_as_primary_truth": true
     },
     {
+      "stable_id": "retrieval__pass__2026-04-26-dependency-and-infrastructure-observability-rollout",
+      "source_type": "recent_pass",
+      "source_id": "pass__2026-04-26-dependency-and-infrastructure-observability-rollout",
+      "searchable_terms": [
+        "Dependency and Infrastructure Observability Rollout",
+        ".agent/workflows/dependency-truth.md",
+        "/api/admin/debug",
+        "scripts/agent/check-infrastructure-truth.ts",
+        "src/app/admin/debug/page.tsx",
+        "src/app/api/admin/debug/route.ts"
+      ],
+      "surface_tags": [
+        "admin",
+        "runtime",
+        "tooling"
+      ],
+      "helper_tags": [],
+      "risk_tags": [
+        "architecture",
+        "runtime",
+        "ui"
+      ],
+      "recency": "2026-04-26",
+      "freshness": {
+        "local": "fresh",
+        "sql_mirror": "unknown"
+      },
+      "context_tier": "cold",
+      "exclusion_tags": [
+        "secondary_truth"
+      ],
+      "do_not_use_as_primary_truth": true
+    },
+    {
+      "stable_id": "retrieval__pass__2026-04-26-admin-analytics-syntax-repair-caching-resilience",
+      "source_type": "recent_pass",
+      "source_id": "pass__2026-04-26-admin-analytics-syntax-repair-caching-resilience",
+      "searchable_terms": [
+        "Admin Analytics Syntax Repair & Caching Resilience",
+        "/api/admin/analytics/realtime",
+        "src/app/admin/analytics/page.tsx",
+        "src/app/api/admin/analytics/realtime/route.ts",
+        "src/lib/self-healing.ts",
+        "src/lib/server/analytics-governance.ts"
+      ],
+      "surface_tags": [
+        "admin",
+        "runtime",
+        "architecture"
+      ],
+      "helper_tags": [],
+      "risk_tags": [
+        "architecture",
+        "runtime",
+        "ui"
+      ],
+      "recency": "2026-04-26",
+      "freshness": {
+        "local": "fresh",
+        "sql_mirror": "unknown"
+      },
+      "context_tier": "cold",
+      "exclusion_tags": [
+        "secondary_truth"
+      ],
+      "do_not_use_as_primary_truth": true
+    },
+    {
+      "stable_id": "retrieval__pass__2026-04-24-post-implementation-admin-hydration-ui-audit-signoff",
+      "source_type": "recent_pass",
+      "source_id": "pass__2026-04-24-post-implementation-admin-hydration-ui-audit-signoff",
+      "searchable_terms": [
+        "POST-IMPLEMENTATION: Admin Hydration + UI Audit Signoff",
+        "/api/admin/overview",
+        "src/app/admin/ai/page.tsx",
+        "src/app/admin/analytics/hooks/useAdminAnalyticsState.tsx",
+        "src/app/admin/analytics/page.tsx",
+        "src/app/admin/debug/hooks/useAdminAiAssistantRealtime.ts",
+        "src/app/admin/debug/hooks/useAdminDebugRealtime.ts",
+        "src/app/admin/debug/page.tsx",
+        "src/app/admin/page.tsx",
+        "src/app/api/admin/analytics/realtime/route.ts",
+        "src/components/Landing/HomeActiveDropsCarousel.tsx",
+        "src/hooks/useAdminOverviewRealtime.ts",
+        "src/hooks/useAdminSupportRealtime.ts",
+        "tests/ui-audits/visual-regression.spec.ts"
+      ],
+      "surface_tags": [
+        "admin",
+        "ui",
+        "runtime"
+      ],
+      "helper_tags": [],
+      "risk_tags": [
+        "runtime",
+        "ui"
+      ],
+      "recency": "2026-04-24",
+      "freshness": {
+        "local": "fresh",
+        "sql_mirror": "unknown"
+      },
+      "context_tier": "cold",
+      "exclusion_tags": [
+        "secondary_truth"
+      ],
+      "do_not_use_as_primary_truth": true
+    },
+    {
+      "stable_id": "retrieval__pass__2026-04-24-pre-implementation-admin-hydration-realtime-janitorial-recovery",
+      "source_type": "recent_pass",
+      "source_id": "pass__2026-04-24-pre-implementation-admin-hydration-realtime-janitorial-recovery",
+      "searchable_terms": [
+        "PRE-IMPLEMENTATION: Admin Hydration + Realtime Janitorial Recovery",
+        "Fix the janitorial findings left after the previous review remediation, then skeptically inspect admin overview/debug/analytics hydration as if current realtime lanes may already be broken, slow, or silently falling back.",
+        "Commit and push after verification.",
+        "admin/debug/page.tsx",
+        "src/app/admin/analytics/hooks/useAdminAnalyticsState.tsx",
+        "src/app/admin/debug/hooks/useAdminDebugRealtime.ts",
+        "src/app/admin/debug/page.tsx",
+        "src/hooks/useAdminOverview.ts",
+        "src/lib/admin-ai-models.ts"
+      ],
+      "surface_tags": [
+        "admin",
+        "architecture"
+      ],
+      "helper_tags": [],
+      "risk_tags": [
+        "architecture",
+        "ui"
+      ],
+      "recency": "2026-04-24",
+      "freshness": {
+        "local": "fresh",
+        "sql_mirror": "unknown"
+      },
+      "context_tier": "cold",
+      "exclusion_tags": [
+        "secondary_truth"
+      ],
+      "do_not_use_as_primary_truth": true
+    },
+    {
+      "stable_id": "retrieval__pass__2026-04-24-pre-implementation-admin-realtime-truth-review-finding-remediation",
+      "source_type": "recent_pass",
+      "source_id": "pass__2026-04-24-pre-implementation-admin-realtime-truth-review-finding-remediation",
+      "searchable_terms": [
+        "PRE-IMPLEMENTATION: Admin Realtime Truth Review-Finding Remediation",
+        "Address review findings from recent commits before declaring the admin realtime/privacy changes safe:",
+        "default moderation transcript subscription uses `threads[0]` visually but subscribes with `null`",
+        "privacy preflight dedupe health can falsely report `[live]`",
+        "privacy preflight initializes event recency as `0s ago`",
+        "generated local artifacts were committed/churning (`database-debug.log`, `playwright-report/index.html`)",
+        ".agent/skills/doctrine-consultation.md",
+        ".agent/workflows/ui-copy-refinement-workflow.md",
+        "control-tower/00-START-HERE.md",
+        "docs/doctrine/kandydrops-banned-patterns.md",
+        "docs/doctrine/kandydrops-copy-doctrine.md",
+        "docs/doctrine/kandydrops-decision-checklist.md",
+        "docs/doctrine/kandydrops-product-doctrine.md",
+        "docs/doctrine/kandydrops-surface-matrix.md",
+        "docs/doctrine/kandydrops-ui-doctrine.md",
+        "docs/doctrine/kandydrops-vocabulary-index.md",
+        "npm run trace:adjacent -- scripts/check-generated-artifacts.ts",
+        "npm run trace:adjacent -- src/components/Admin/AdminModerationConsole.tsx",
+        "npm run trace:adjacent -- src/hooks/useAdminPrivacyPreflight.ts",
+        "playwright-report/index.html",
+        "src/components/Admin/AdminModerationConsole.tsx",
+        "src/hooks/useAdminPrivacyPreflight.ts"
+      ],
+      "surface_tags": [
+        "ui"
+      ],
+      "helper_tags": [],
+      "risk_tags": [
+        "ui"
+      ],
+      "recency": "2026-04-24",
+      "freshness": {
+        "local": "fresh",
+        "sql_mirror": "unknown"
+      },
+      "context_tier": "cold",
+      "exclusion_tags": [
+        "secondary_truth"
+      ],
+      "do_not_use_as_primary_truth": true
+    },
+    {
+      "stable_id": "retrieval__pass__2026-04-24-post-implementation-admin-realtime-truth-review-finding-remediation",
+      "source_type": "recent_pass",
+      "source_id": "pass__2026-04-24-post-implementation-admin-realtime-truth-review-finding-remediation",
+      "searchable_terms": [
+        "POST-IMPLEMENTATION: Admin Realtime Truth Review-Finding Remediation",
+        "npx eslint src/components/Admin/AdminModerationConsole.tsx src/hooks/useAdminModerationRealtime.ts src/hooks/useAdminPrivacyPreflight.ts src/app/admin/AdminPrivacyPreflight.tsx scripts/check-generated-artifacts.ts",
+        "playwright-report/index.html",
+        "src/app/admin/AdminPrivacyPreflight.tsx",
+        "src/app/admin/debug/hooks/useAdminDebugRealtime.ts",
+        "src/components/Admin/AdminModerationConsole.tsx",
+        "src/hooks/useAdminModerationRealtime.ts",
+        "src/hooks/useAdminPrivacyPreflight.ts",
+        "src/lib/server/firebase-admin.ts",
+        "src/lib/server/route-runtime-health.ts",
+        "test-results/.last-run.json"
+      ],
+      "surface_tags": [
+        "admin",
+        "ui",
+        "runtime",
+        "architecture"
+      ],
+      "helper_tags": [
+        "src/lib/server/route-runtime-health.ts"
+      ],
+      "risk_tags": [
+        "architecture",
+        "ui"
+      ],
+      "recency": "2026-04-24",
+      "freshness": {
+        "local": "fresh",
+        "sql_mirror": "unknown"
+      },
+      "context_tier": "cold",
+      "exclusion_tags": [
+        "secondary_truth"
+      ],
+      "do_not_use_as_primary_truth": true
+    },
+    {
       "stable_id": "retrieval__pass__2026-04-23-admin-parity-source-verification-hardening",
       "source_type": "recent_pass",
       "source_id": "pass__2026-04-23-admin-parity-source-verification-hardening",
@@ -28012,296 +28528,6 @@
         "ui"
       ],
       "recency": "2026-04-22",
-      "freshness": {
-        "local": "fresh",
-        "sql_mirror": "unknown"
-      },
-      "context_tier": "cold",
-      "exclusion_tags": [
-        "secondary_truth"
-      ],
-      "do_not_use_as_primary_truth": true
-    },
-    {
-      "stable_id": "retrieval__pass__2026-04-21-analytics-self-snitching-early-runtime-diagnostics-hardening",
-      "source_type": "recent_pass",
-      "source_id": "pass__2026-04-21-analytics-self-snitching-early-runtime-diagnostics-hardening",
-      "searchable_terms": [
-        "Analytics Self-Snitching + Early Runtime Diagnostics Hardening",
-        "Harden the recent analytics/loading fixes with earlier client/runtime diagnostics, explicit analytics fallback warnings, and framework-level request-error capture so hydration/runtime failures become visible in canonical admin truth instead of hiding behind delayed boot or console-only noise.",
-        "admin/analytics/historical:GET",
-        "npm run trace:adjacent -- src/app/api/admin/analytics/historical/route.ts",
-        "npm run trace:adjacent -- src/app/api/admin/analytics/realtime/route.ts",
-        "npm run trace:adjacent -- src/app/api/user/activity/route.ts",
-        "npm run trace:adjacent -- src/lib/client-boot-diagnostics.ts",
-        "npm run trace:adjacent -- src/lib/server/framework-request-diagnostics.ts",
-        "npx vitest run tests/unit/client-boot-diagnostics.spec.ts tests/unit/framework-request-diagnostics.spec.ts tests/unit/admin-analytics-realtime-route.spec.ts tests/unit/user-activity-route.spec.ts tests/unit/route-runtime-health.spec.ts",
-        "src/app/api/admin/analytics/historical/route.ts",
-        "src/app/api/admin/analytics/realtime/route.ts",
-        "src/app/api/user/activity/route.ts",
-        "src/instrumentation-client.ts",
-        "src/instrumentation.ts",
-        "src/lib/client-boot-diagnostics.ts",
-        "src/lib/client-diagnostics.ts",
-        "src/lib/self-healing.ts",
-        "src/lib/server/analytics-runtime-warning.ts",
-        "src/lib/server/framework-request-diagnostics.ts",
-        "src/lib/server/route-diagnostics.ts",
-        "src/lib/server/runtime-warning-store.ts"
-      ],
-      "surface_tags": [
-        "admin",
-        "runtime",
-        "architecture"
-      ],
-      "helper_tags": [
-        "src/lib/server/route-diagnostics.ts"
-      ],
-      "risk_tags": [
-        "architecture",
-        "runtime",
-        "ui"
-      ],
-      "recency": "2026-04-21",
-      "freshness": {
-        "local": "fresh",
-        "sql_mirror": "unknown"
-      },
-      "context_tier": "cold",
-      "exclusion_tags": [
-        "secondary_truth"
-      ],
-      "do_not_use_as_primary_truth": true
-    },
-    {
-      "stable_id": "retrieval__pass__2026-04-21-user__admin-loading-audit-analytics-historical-pull-tightening",
-      "source_type": "recent_pass",
-      "source_id": "pass__2026-04-21-user__admin-loading-audit-analytics-historical-pull-tightening",
-      "searchable_terms": [
-        "User/Admin Loading Audit + Analytics Historical Pull Tightening",
-        "Perform a broad loading and speed audit across user/admin surfaces with focus on admin analytics hydration, heavy historical pulls, realtime polling behavior, and user-facing recent-activity history latency.",
-        "/api/admin/analytics/realtime",
-        "/api/user/activity",
-        "npm run trace:adjacent -- src/app/admin/analytics/hooks/useAdminAnalyticsState.tsx",
-        "npm run trace:adjacent -- src/app/admin/analytics/page.tsx",
-        "npm run trace:adjacent -- src/app/admin/debug/page.tsx",
-        "npm run trace:adjacent -- src/app/api/admin/analytics/realtime/route.ts",
-        "npm run trace:adjacent -- src/app/api/user/activity/route.ts",
-        "npm run trace:adjacent -- src/hooks/useAdminOverview.ts",
-        "npm run trace:adjacent -- src/lib/server/admin-analytics-data.ts",
-        "npx vitest run tests/unit/admin-analytics-realtime-route.spec.ts tests/unit/user-activity-route.spec.ts tests/unit/admin-analytics-data.spec.ts",
-        "src/app/admin/analytics/hooks/useAdminAnalyticsState.tsx",
-        "src/app/admin/analytics/page.tsx",
-        "src/app/admin/debug/page.tsx",
-        "src/app/api/admin/analytics/historical/route.ts",
-        "src/app/api/admin/analytics/realtime/route.ts",
-        "src/app/api/user/activity/route.ts",
-        "src/components/Dashboard/RecentActivityFeed.tsx",
-        "src/hooks/useAdminOverview.ts",
-        "src/lib/server/admin-analytics-data.ts",
-        "src/lib/server/ephemeral-route-cache.ts"
-      ],
-      "surface_tags": [
-        "admin",
-        "ui",
-        "runtime",
-        "architecture"
-      ],
-      "helper_tags": [],
-      "risk_tags": [
-        "architecture",
-        "runtime",
-        "ui"
-      ],
-      "recency": "2026-04-21",
-      "freshness": {
-        "local": "fresh",
-        "sql_mirror": "unknown"
-      },
-      "context_tier": "cold",
-      "exclusion_tags": [
-        "secondary_truth"
-      ],
-      "do_not_use_as_primary_truth": true
-    },
-    {
-      "stable_id": "retrieval__pass__2026-04-21-deployment-audit-next-app-entry-export-hardening",
-      "source_type": "recent_pass",
-      "source_id": "pass__2026-04-21-deployment-audit-next-app-entry-export-hardening",
-      "searchable_terms": [
-        "Deployment Audit + Next App-Entry Export Hardening",
-        "Perform a deployment-focused codebase audit and fix the concrete commit/deployment blocker in the Next.js App Router build path without touching PayPal, provider-secret plumbing, wallet truth, or the economy ledger.",
-        ".next/lock",
-        "npm run trace:adjacent -- src/app/admin/ai/page.tsx",
-        "npm run trace:adjacent -- src/app/api/creator/bookings/route.ts",
-        "npm run trace:adjacent -- src/app/api/user/activity/route.ts",
-        "npm run trace:adjacent -- src/app/dashboard/profile/page.tsx",
-        "npx next build --webpack --debug-build-paths \"src/app/admin/ai/page.tsx,src/app/api/user/activity/route.ts,src/app/api/creator/bookings/route.ts,src/app/dashboard/profile/page.tsx\"",
-        "npx vitest run tests/unit/user-activity-route.spec.ts tests/unit/creator-bookings-route.spec.ts",
-        "src/app/admin/ai/admin-ai-state-exports.ts",
-        "src/app/admin/ai/page.tsx",
-        "src/app/api/creator/bookings/booking-timezone.ts",
-        "src/app/api/creator/bookings/route.ts",
-        "src/app/api/user/activity/activity-route-test-helpers.ts",
-        "src/app/api/user/activity/route.ts",
-        "src/app/dashboard/profile/page.tsx",
-        "src/app/dashboard/profile/profile-page-types.ts"
-      ],
-      "surface_tags": [
-        "admin",
-        "ui",
-        "runtime"
-      ],
-      "helper_tags": [],
-      "risk_tags": [
-        "runtime",
-        "ui"
-      ],
-      "recency": "2026-04-21",
-      "freshness": {
-        "local": "fresh",
-        "sql_mirror": "unknown"
-      },
-      "context_tier": "cold",
-      "exclusion_tags": [
-        "secondary_truth"
-      ],
-      "do_not_use_as_primary_truth": true
-    },
-    {
-      "stable_id": "retrieval__pass__2026-04-21-analytics-truth-recovery-telemetry-hardening",
-      "source_type": "recent_pass",
-      "source_id": "pass__2026-04-21-analytics-truth-recovery-telemetry-hardening",
-      "searchable_terms": [
-        "Analytics Truth Recovery + Telemetry Hardening",
-        "Build and verify a YouTube-style analytics truth-recovery layer so KandyDrops can separate raw observed telemetry from validated, finalized, and estimated metrics for watch time, views, sessions, timelines, and downstream behavioral inputs.",
-        ", and viewer watch/session state existed through mutable ",
-        "control-tower/00-START-HERE.md",
-        "functions/src/analytics-event-facts.ts",
-        "functions/src/analytics-truth-contract.ts",
-        "functions/src/analytics-truth-runtime.ts",
-        "functions/src/analytics-truth-schedule.ts",
-        "npm run trace:adjacent -- functions/src/analytics-event-facts.ts",
-        "npm run trace:adjacent -- functions/src/analytics-truth-runtime.ts",
-        "npm run trace:adjacent -- src/app/api/admin/analytics/historical/route.ts",
-        "npm run trace:adjacent -- src/app/api/admin/analytics/realtime/route.ts",
-        "npm run trace:adjacent -- src/app/api/admin/debug/route.ts",
-        "npm run trace:adjacent -- src/app/api/viewer/watch-session/route.ts",
-        "npm run trace:adjacent -- src/lib/admin-analytics-truth.ts",
-        "npm run trace:adjacent -- src/lib/viewer-watch-session.ts",
-        "npx tsc -p functions/tsconfig.json --noEmit --pretty false",
-        "npx tsx scripts/debug-watch-capture-health.ts",
-        "npx vitest run tests/unit/admin-analytics-truth.spec.ts tests/unit/admin-analytics-realtime-route.spec.ts",
-        "npx vitest run tests/unit/viewer-watch-session.spec.ts",
-        "scripts/check-analytics-continuity.ts",
-        "scripts/rebuild-analytics-truth.ts",
-        "src/app/admin/analytics/components/AdminAnalyticsOperationsTab.tsx",
-        "src/app/admin/analytics/page.tsx",
-        "src/app/admin/debug/page.tsx",
-        "src/app/api/admin/analytics/historical/route.ts",
-        "src/app/api/admin/analytics/realtime/route.ts",
-        "src/app/api/admin/debug/route.ts",
-        "src/app/api/viewer/watch-session/route.ts",
-        "src/lib/admin-analytics-truth.ts",
-        "src/lib/server/analytics-truth-recovery.ts",
-        "src/lib/server/behavioral-intelligence.ts",
-        "src/lib/viewer-watch-session.ts"
-      ],
-      "surface_tags": [
-        "admin",
-        "ui",
-        "runtime",
-        "tooling",
-        "architecture"
-      ],
-      "helper_tags": [],
-      "risk_tags": [
-        "architecture",
-        "runtime",
-        "ui"
-      ],
-      "recency": "2026-04-21",
-      "freshness": {
-        "local": "fresh",
-        "sql_mirror": "unknown"
-      },
-      "context_tier": "cold",
-      "exclusion_tags": [
-        "secondary_truth"
-      ],
-      "do_not_use_as_primary_truth": true
-    },
-    {
-      "stable_id": "retrieval__pass__2026-04-21-agent-fast-path-deterministic-verification-lane-split",
-      "source_type": "recent_pass",
-      "source_id": "pass__2026-04-21-agent-fast-path-deterministic-verification-lane-split",
-      "searchable_terms": [
-        "Agent Fast-Path + Deterministic Verification Lane Split",
-        "Speed up AI-agent implementation and verification for repo-tooling and runtime work by adding a generated fast-start packet, a deterministic fast-vs-signoff verification selector, path-specific agent instruction files, and eval coverage that checks for file precision, forbidden-surface avoidance, and over-broad verification drift.",
-        ".agent/workflows/auto-tasks.md",
-        ".claude/agents/test-specialist.md",
-        ".github/copilot-instructions.md",
-        ".github/instructions/*.instructions.md",
-        "5/5",
-        "agent/README.md",
-        "control-tower/00-START-HERE.md",
-        "dataconnect/example/agent-context.gql",
-        "npm run agent:fast-start -- --task=\"tighten agent verification selection\" --mode=governance --file=scripts/agent/build-task-context.ts",
-        "npm run agent:verify -- --paths=scripts/agent/build-task-context.ts,src/app/admin/debug/page.tsx",
-        "npx vitest run tests/unit/agent-verification-selector.spec.ts",
-        "scripts/agent/build-agent-indexes.ts",
-        "scripts/agent/build-task-context.ts",
-        "scripts/agent/fast-start.ts",
-        "scripts/agent/run-evals.ts",
-        "scripts/agent/verification-selector.ts",
-        "src/app/dashboard/profile/*"
-      ],
-      "surface_tags": [
-        "admin",
-        "ui",
-        "tooling"
-      ],
-      "helper_tags": [],
-      "risk_tags": [
-        "architecture",
-        "ui"
-      ],
-      "recency": "2026-04-21",
-      "freshness": {
-        "local": "fresh",
-        "sql_mirror": "unknown"
-      },
-      "context_tier": "cold",
-      "exclusion_tags": [
-        "secondary_truth"
-      ],
-      "do_not_use_as_primary_truth": true
-    },
-    {
-      "stable_id": "retrieval__pass__2026-04-18-viewer-watch-close-intent-repair-capture-state-reclassification",
-      "source_type": "recent_pass",
-      "source_id": "pass__2026-04-18-viewer-watch-close-intent-repair-capture-state-reclassification",
-      "searchable_terms": [
-        "Viewer Watch Close-Intent Repair + Capture-State Reclassification",
-        "Repair the live analytics continuity blockers created by historical close-missing watch sessions, preserve terminal close intent on retry failure, and reclassify closed-and-recovered watch sessions so they no longer remain permanently flush-degraded once the terminal close has been recorded.",
-        "npx vitest run tests/unit/viewer-watch-session.spec.ts tests/unit/admin-analytics-capture-health.spec.ts",
-        "scripts/check-analytics-continuity.ts",
-        "scripts/repair-viewer-watch-close-missing.ts",
-        "src/hooks/useViewerWatchSession.ts",
-        "src/lib/server/admin-analytics-capture-health.ts",
-        "src/lib/viewer-watch-session.ts"
-      ],
-      "surface_tags": [
-        "admin",
-        "ui",
-        "tooling",
-        "architecture"
-      ],
-      "helper_tags": [],
-      "risk_tags": [
-        "architecture"
-      ],
-      "recency": "2026-04-18",
       "freshness": {
         "local": "fresh",
         "sql_mirror": "unknown"

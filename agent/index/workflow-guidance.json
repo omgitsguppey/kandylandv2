@@ -1,5 +1,5 @@
 {
-  "generatedAt": "2026-04-23T21:24:58.437Z",
+  "generatedAt": "2026-04-26T15:04:48.574Z",
   "truthOrder": [
     "verified_runtime_code",
     "verified_configuration",
@@ -124,6 +124,29 @@
         "npx vitest run tests/unit/process-queue-route.spec.ts tests/unit/notify-active-drops-route.spec.ts tests/unit/drop-queue-lifecycle.spec.ts",
         "npx vitest run tests/unit/process-queue-route.spec.ts tests/unit/notify-active-drops-route.spec.ts tests/unit/drop-queue-lifecycle.spec.ts tests/unit/admin-analytics-capture-health.spec.ts tests/unit/admin-analytics-realtime-route.spec.ts"
       ]
+    },
+    {
+      "stable_id": "workflow__agent__workflows__dependency-audit-md",
+      "path": ".agent/workflows/dependency-audit.md",
+      "purpose": "Workflow guidance for dependency-audit.",
+      "authorityLevel": "workflow_required",
+      "intendedAgents": [
+        "codex"
+      ],
+      "relatedPaths": [
+        "@google-cloud/vertexai",
+        "src/app/api/admin/debug/route.ts"
+      ]
+    },
+    {
+      "stable_id": "workflow__agent__workflows__dependency-truth-md",
+      "path": ".agent/workflows/dependency-truth.md",
+      "purpose": "Workflow guidance for dependency-truth.",
+      "authorityLevel": "workflow_advisory",
+      "intendedAgents": [
+        "codex"
+      ],
+      "relatedPaths": []
     },
     {
       "stable_id": "workflow__agent__workflows__kandydrops-guardrails-md",

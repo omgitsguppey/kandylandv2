@@ -56,6 +56,7 @@ export async function authFetch(url: string, options: RequestInit = {}): Promise
         const response = await fetch(safeUrl, {
             ...options,
             headers,
+            cache: options.cache ?? "no-store",
         });
 
         if (!response.ok) {

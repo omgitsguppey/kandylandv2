@@ -1,23 +1,20 @@
 Verification plan
 
-Matched paths: scripts/agent/build-task-context.ts, src/app/admin/debug/page.tsx
+Matched paths: src/app/admin/analytics/hooks/useAdminAnalyticsState.tsx
 Broad work: yes
-Touched domains: admin_ops, app_routes, repo_tooling
+Touched domains: admin_ops, app_routes
 
 Fast loop:
 - npm run typecheck  # TypeScript or runtime code changed.
-- npm run agent:test -- scripts/agent/build-task-context.ts  # Run the narrowest related contract/unit tests first.
-- npm run agent:test -- src/app/admin/debug/page.tsx  # Run the narrowest related contract/unit tests first.
+- npm run agent:test -- src/app/admin/analytics/hooks/useAdminAnalyticsState.tsx  # Run the narrowest related contract/unit tests first.
 - npm run check:ui:coverage  # Indexed UI/admin surfaces changed.
 - npm run check:ui:runtime  # Hydration/runtime UI continuity should stay truthful.
-- npm run check:agent-context  # Repo intelligence outputs should stay internally valid.
+- npm run check:telemetry  # Telemetry or analytics semantics changed.
+- npm run check:analytics-semantics  # Canonical analytics naming/schema must remain aligned.
 
 Signoff loop:
 - npm run check:ui:audits  # UI/admin signoff requires Playwright audit coverage.
-- npm run check:inventory  # Repo-tooling changes must preserve inventory truth.
-- npm run check:architecture  # Repo-tooling/shared-helper changes need architecture validation.
-- npm run check:agent-intelligence  # Agent indexes and helper extraction must stay coherent.
-- npm run eval:agent-context  # Task-context retrieval/eval fixtures changed.
+- npm run check:analytics:continuity  # Analytics continuity needs explicit signoff for behavioral/runtime changes.
 - npm run check:continuity  # Broad/shared/helper/tooling work requires continuity signoff.
 
 Advisories:
