@@ -4,6 +4,7 @@ export const ADMIN_DEBUG_TAB_OPTIONS = [
     "now",
     "actions",
     "monitoring",
+    "infrastructure",
     "ai",
     "advanced",
 ] as const;

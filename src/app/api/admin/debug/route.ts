@@ -1,4 +1,6 @@
 import { NextRequest, NextResponse } from "next/server";
+import fs from "fs";
+import path from "path";
 
 import { adminDb } from "@/lib/server/firebase-admin";
 import { handleApiError } from "@/lib/server/auth";
@@ -220,6 +222,49 @@ function hasInvalidRefreshMetadata(state: Record<string, unknown> | undefined, n
     }
 
     return lastResetMs > 0 && nextRefreshMs <= lastResetMs;
+}
+
+async function readInfrastructureDependencies() {
+    try {
+        const pkgPath = path.join(process.cwd(), "package.json");
+        let pkg: any = { dependencies: {}, devDependencies: {} };
+        if (fs.existsSync(pkgPath)) {
+            pkg = JSON.parse(fs.readFileSync(pkgPath, "utf-8"));
+        }
+        
+        // Lightweight connection pings
+        let firestorePing = "unverified";
+        try {
+            await adminDb.collection("server_diagnostics").limit(1).get();
+            firestorePing = "live";
+        } catch (e) {
+            firestorePing = "failed";
+        }
+
+        return {
+            timestamp: Date.now(),
+            dependencies: {
+                firebase: pkg.dependencies?.firebase || "unknown",
+                "firebase-admin": pkg.dependencies?.["firebase-admin"] || "unknown",
+                next: pkg.dependencies?.next || "unknown",
+                react: pkg.dependencies?.react || "unknown",
+                "@google-cloud/pubsub": pkg.dependencies?.["@google-cloud/pubsub"] || "unknown",
+                "@google-cloud/storage": pkg.dependencies?.["@google-cloud/storage"] || "unknown",
+            },
+            devDependencies: {
+                typescript: pkg.devDependencies?.typescript || "unknown",
+                eslint: pkg.devDependencies?.eslint || "unknown",
+                tailwindcss: pkg.devDependencies?.tailwindcss || "unknown",
+            },
+            nodeVersion: process.version,
+            pings: {
+                firestore: firestorePing,
+            }
+        };
+    } catch (e) {
+        console.error("Failed to read package.json for infrastructure dependencies", e);
+    }
+    return { error: "Failed to read infrastructure dependencies", timestamp: Date.now() };
 }
 
 export async function GET(request: NextRequest) {
@@ -1077,6 +1122,8 @@ export async function GET(request: NextRequest) {
                                                             runtimeWarnings: runtimeWarningSummary.total,
                 },
             }),
+            infrastructure: await readInfrastructureDependencies(),
+
             adminVerification: [
                 buildServerAdminModuleVerification({
                     module: "admin_debug_route_runtime",

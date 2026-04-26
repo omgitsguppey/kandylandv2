@@ -5,6 +5,7 @@ import {
     Activity,
     ChevronDown,
     ChevronUp,
+    Database,
     Loader2,
     Plus,
     Radio,
@@ -50,6 +51,7 @@ const DEBUG_TABS: Array<{ id: DebugTabId; label: string; icon: typeof Activity }
     { id: "now", label: "Right now", icon: Activity },
     { id: "actions", label: "Action lane", icon: ShieldAlert },
     { id: "monitoring", label: "Monitoring", icon: Radio },
+    { id: "infrastructure", label: "Infrastructure", icon: Database },
     { id: "ai", label: "AI", icon: Sparkles },
     { id: "advanced", label: "Advanced", icon: Terminal },
 ];
