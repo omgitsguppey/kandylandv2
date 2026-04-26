@@ -1,6 +1,7 @@
 "use client";
 
 import { formatDistanceToNow } from "date-fns";
+import { cn } from "@/lib/utils";
 
 import { PageViewEvent } from "@/components/Analytics/PageViewEvent";
 import { AdminActivityLogPanel } from "@/components/Admin/AdminActivityLogPanel";
@@ -30,9 +31,24 @@ export default function AdminDashboardPage() {
                 compact
                 actions={(
                     <>
-                        <span className="rounded-full border border-emerald-400/20 bg-emerald-500/10 px-3 py-1 text-[11px] font-bold uppercase tracking-[0.12em] text-emerald-400">
-                            [Live] Feed
-                        </span>
+                        {data?.truthNotes?.overview ? (
+                            <span className={cn(
+                                "rounded-full border px-3 py-1 text-[11px] font-bold uppercase tracking-[0.12em]",
+                                data.truthNotes.overview.startsWith("[Live]")
+                                    ? "border-emerald-400/20 bg-emerald-500/10 text-emerald-400"
+                                    : data.truthNotes.overview.startsWith("[Partial]")
+                                        ? "border-amber-400/20 bg-amber-500/10 text-amber-400"
+                                        : data.truthNotes.overview.startsWith("[Failed]") || data.truthNotes.overview.startsWith("[Degraded]")
+                                            ? "border-red-400/20 bg-red-500/10 text-red-400"
+                                            : "border-gray-400/20 bg-gray-500/10 text-gray-400"
+                            )}>
+                                {data.truthNotes.overview.split(" ")[0]} Feed
+                            </span>
+                        ) : (
+                            <span className="rounded-full border border-gray-400/20 bg-gray-500/10 px-3 py-1 text-[11px] font-bold uppercase tracking-[0.12em] text-gray-400">
+                                [Unknown] Feed
+                            </span>
+                        )}
                         <span className="rounded-full border border-white/10 bg-black/35 px-3 py-1 text-[11px] font-bold text-gray-300">
                             Last txn {lastCommerceLabel}
                         </span>

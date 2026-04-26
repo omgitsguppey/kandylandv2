@@ -105,6 +105,7 @@ export default function AdminAnalyticsPage() {
               ? "Active in the last 30 mins from first-party fallback"
               : "Active in the last 30 mins"}
           icon={Activity}
+          truthState={liveResponse?.liveTruthLabel ?? (liveFeedStatus === "realtime" ? "live" : undefined)}
         />
         <MetricCard
           label="Mobile Share"

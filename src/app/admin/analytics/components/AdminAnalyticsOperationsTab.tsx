@@ -60,6 +60,7 @@ export function AdminAnalyticsOperationsTab(props: AdminAnalyticsState) {
                     ? `First-party fallback (${liveResponse?.liveSourceLabel || "realtime fallback"})`
                     : "Google Analytics realtime"}
                   icon={Users}
+                  truthState={liveResponse?.liveTruthLabel}
                 />
                 <MetricCard
                   label="Tracked Users"
@@ -72,6 +73,7 @@ export function AdminAnalyticsOperationsTab(props: AdminAnalyticsState) {
                         liveActiveUsers.filter((item: any) => item.actorType === "guest").length,
                       )} live guests plus authenticated users in the last 30 minutes`}
                   icon={Sparkles}
+                  truthState={liveResponse?.activeUsersTruthLabel}
                 />
                 <MetricCard
                   label="Onboarding"

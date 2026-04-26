@@ -38,6 +38,7 @@ export interface MetricCardProps {
     icon: LucideIcon;
     className?: string;
     valueClassName?: string;
+    truthState?: "live" | "fallback" | "partial" | "failed" | "cached";
 }
 
 export function AnalyticsTooltip({
@@ -141,6 +142,7 @@ export function MetricCard({
     icon: Icon,
     className,
     valueClassName,
+    truthState,
 }: MetricCardProps) {
     return (
         <div
@@ -149,9 +151,23 @@ export function MetricCard({
                 className,
             )}
         >
-            <div className="mb-2.5 flex items-center gap-2 text-[11px] font-semibold uppercase tracking-[0.14em] text-gray-500">
-                <Icon className="h-3.5 w-3.5 text-brand-purple" />
-                <span>{label}</span>
+            <div className="mb-2.5 flex items-center justify-between gap-2 text-[11px] font-semibold uppercase tracking-[0.14em] text-gray-500">
+                <div className="flex items-center gap-2">
+                    <Icon className="h-3.5 w-3.5 text-brand-purple" />
+                    <span>{label}</span>
+                </div>
+                {truthState ? (
+                    <span className={cn(
+                        "rounded px-1.5 py-0.5 text-[9px] font-bold uppercase tracking-[0.1em]",
+                        truthState === "live" ? "bg-emerald-500/10 text-emerald-400 border border-emerald-400/20" :
+                        truthState === "fallback" ? "bg-amber-500/10 text-amber-400 border border-amber-400/20" :
+                        truthState === "partial" ? "bg-amber-500/10 text-amber-400 border border-amber-400/20" :
+                        truthState === "failed" ? "bg-red-500/10 text-red-400 border border-red-400/20" :
+                        truthState === "cached" ? "bg-blue-500/10 text-blue-400 border border-blue-400/20" : ""
+                    )}>
+                        {truthState}
+                    </span>
+                ) : null}
             </div>
             <div
                 className={cn(
