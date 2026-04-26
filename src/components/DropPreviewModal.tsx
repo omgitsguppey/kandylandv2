@@ -226,6 +226,11 @@ export function DropPreviewModal({ drop, onClose }: DropPreviewModalProps) {
 
     const balance = userProfile?.gumDropsBalance ?? 0;
     if (balance < drop.unlockCost) {
+      trackEvent("drop_unwrap_intent_blocked_by_funds", {
+        drop_id: drop.id,
+        unlock_cost: drop.unlockCost,
+        current_balance: balance
+      });
       onClose();
       openPurchaseModal(Math.max(1, drop.unlockCost - balance));
       return;
@@ -344,7 +349,14 @@ export function DropPreviewModal({ drop, onClose }: DropPreviewModalProps) {
   };
 
   return (
-    <Dialog.Root open={!!drop} onOpenChange={(open) => !open && onClose()}>
+    <Dialog.Root open={!!drop} onOpenChange={(open) => {
+      if (!open) {
+        if (!isUnlocked && drop) {
+          trackEvent("drop_preview_closed_incomplete", { drop_id: drop.id });
+        }
+        onClose();
+      }
+    }}>
       <Dialog.Portal>
         <Dialog.Overlay className="fixed inset-0 z-[120] bg-black/75 backdrop-blur-md" />
         <div className="fixed inset-x-0 bottom-0 top-12 sm:top-8 z-[120] flex items-end justify-center px-2 sm:px-4 pointer-events-none">

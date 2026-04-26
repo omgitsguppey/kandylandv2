@@ -4,6 +4,7 @@ import dynamic from "next/dynamic";
 
 import { useUI } from "@/context/UIContext";
 import { authFetch } from "@/lib/authFetch";
+import { trackEvent } from "@/lib/telemetry";
 
 const AuthModal = dynamic(
     () => import("@/components/Auth/AuthModal").then((mod) => mod.AuthModal),
@@ -18,6 +19,7 @@ export function GlobalAuthModal({ onDismiss }: GlobalAuthModalProps) {
     const { isAuthModalOpen, authModalMode, closeAuthModal } = useUI();
 
     const handleGuestDismiss = async () => {
+        trackEvent("auth_modal_closed_incomplete", { mode: authModalMode });
         if (onDismiss) onDismiss();
         closeAuthModal();
 

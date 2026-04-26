@@ -25,13 +25,12 @@ interface PurchaseModalProps {
   onClose: () => void;
 }
 
-type PurchasePackage = { drops: number; price: number; label: string; bonus?: string; isPopular?: boolean };
+type PurchasePackage = { drops: number; price: number; label: string; isPopular?: boolean };
 
 const PACKAGES: PurchasePackage[] = FIXED_GUMDROP_PACKAGES.map((entry) => ({
   drops: entry.drops,
   price: entry.priceUsd,
   label: entry.label,
-  bonus: entry.bonus,
 }));
 
 const PAYPAL_READY = (process.env.NEXT_PUBLIC_PAYPAL_CLIENT_ID_LIVE?.trim()?.length ?? 0) > 0;
@@ -80,7 +79,6 @@ export function PurchaseModal({ isOpen, onClose }: PurchaseModalProps) {
                  drops: entry.drops,
                  price: entry.priceUsd,
                  label: entry.label,
-                 bonus: entry.bonus,
              }));
              setPackagesList(loaded);
              if (!loaded.find((p: any) => p.drops === selectedPackage.drops)) {
@@ -342,12 +340,12 @@ export function PurchaseModal({ isOpen, onClose }: PurchaseModalProps) {
                       <div className="flex flex-col gap-2 mb-4">
                         {packagesList.map((pkg, index) => {
                           const isSelected = selectedPackage.drops === pkg.drops;
+                          const pkgEconomics = deriveGumdropEconomics(pkg.drops, pkg.price);
                           return (
                             <button
                               key={pkg.drops}
                               onClick={() => {
                                 setSelectedPackage(pkg);
-                                const pkgEconomics = deriveGumdropEconomics(pkg.drops, pkg.price);
                                 trackEvent("purchase_package_selected", {
                                   package_label: pkg.label,
                                   package_drops: pkg.drops,
@@ -371,9 +369,9 @@ export function PurchaseModal({ isOpen, onClose }: PurchaseModalProps) {
                                   <div className="flex items-center gap-1.5">
                                     <span className="text-[15px] font-bold text-white leading-none">{pkg.drops.toLocaleString()}</span>
                                     <span className="text-[9px] uppercase font-bold tracking-widest text-gray-500 leading-none mt-0.5">GumDrops</span>
-                                    {pkg.bonus && (
+                                    {pkgEconomics.bonusGumDrops > 0 && (
                                       <span className="inline-flex items-center ml-1 rounded border border-emerald-400/20 bg-emerald-400/10 px-1.5 py-0.5 text-[8px] font-bold tracking-wider text-emerald-300">
-                                        {pkg.bonus}
+                                        +{pkgEconomics.bonusGumDrops} Bonus
                                       </span>
                                     )}
                                   </div>

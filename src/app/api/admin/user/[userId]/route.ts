@@ -354,14 +354,45 @@ async function GET_handler(
         const rollupLoadSampleCount = readNumber(analyticsRollup.loadSampleCount);
         const rollupLoadMsTotal = readNumber(analyticsRollup.loadMsTotal);
         const rollupAvgLoadMs = rollupLoadSampleCount > 0 ? Math.round(rollupLoadMsTotal / rollupLoadSampleCount) : 0;
-        const transactionGrossRevenueUsd = purchaseTransactions.reduce((sum, transaction) => sum + transaction.economics.grossRevenueUsd, 0);
-        const transactionNetRevenueUsd = purchaseTransactions.reduce((sum, transaction) => sum + transaction.economics.netRevenueUsd, 0);
-        const transactionPaypalFeeUsd = purchaseTransactions.reduce((sum, transaction) => sum + transaction.economics.paypalFeeUsd, 0);
-        const transactionAdjustedProfitUsd = purchaseTransactions.reduce((sum, transaction) => sum + transaction.economics.adjustedProfitUsd, 0);
-        const transactionBonusValueUsd = purchaseTransactions.reduce((sum, transaction) => sum + transaction.economics.bonusValueUsd, 0);
-        const transactionBonusGumDrops = purchaseTransactions.reduce((sum, transaction) => sum + transaction.economics.bonusGumDrops, 0);
-        const transactionDeliveredGumDrops = purchaseTransactions.reduce((sum, transaction) => sum + transaction.economics.deliveredGumDrops, 0);
-        const transactionPaidGumDrops = purchaseTransactions.reduce((sum, transaction) => sum + transaction.economics.paidGumDrops, 0);
+        const {
+            transactionGrossRevenueUsd,
+            transactionNetRevenueUsd,
+            transactionPaypalFeeUsd,
+            transactionAdjustedProfitUsd,
+            transactionBonusValueUsd,
+            transactionBonusGumDrops,
+            transactionDeliveredGumDrops,
+            transactionPaidGumDrops,
+        } = purchaseTransactions.reduce(
+            (acc, transaction) => {
+                acc.transactionGrossRevenueUsd += transaction.economics.grossRevenueUsd;
+                acc.transactionNetRevenueUsd += transaction.economics.netRevenueUsd;
+                acc.transactionPaypalFeeUsd += transaction.economics.paypalFeeUsd;
+                acc.transactionAdjustedProfitUsd += transaction.economics.adjustedProfitUsd;
+                acc.transactionBonusValueUsd += transaction.economics.bonusValueUsd;
+                acc.transactionBonusGumDrops += transaction.economics.bonusGumDrops;
+                acc.transactionDeliveredGumDrops += transaction.economics.deliveredGumDrops;
+                acc.transactionPaidGumDrops += transaction.economics.paidGumDrops;
+                return acc;
+            },
+            {
+                transactionGrossRevenueUsd: 0,
+                transactionNetRevenueUsd: 0,
+                transactionPaypalFeeUsd: 0,
+                transactionAdjustedProfitUsd: 0,
+                transactionBonusValueUsd: 0,
+                transactionBonusGumDrops: 0,
+                transactionDeliveredGumDrops: 0,
+                transactionPaidGumDrops: 0,
+            }
+        );
+
+
+
+
+
+
+
         const rollupCommerce = buildCommerceMetricsFromRollup(analyticsRollup, {
             commerceSourceLabel: "analytics_users_rollup_recomputed_display",
             commerceTruthLabel: "stale",
