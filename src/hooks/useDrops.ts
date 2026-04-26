@@ -191,43 +191,42 @@ export function useDrops(
     };
   }, [isConstrained, refreshDrops]);
 
-  useEffect(() => {
-    const upcomingExpirations: number[] = [];
-    for (const drop of swrDrops) {
-      const status = resolveDropStatusFromTiming(drop, sweepNowMs);
-      if (status === "active" && drop.validUntil && drop.validUntil > sweepNowMs) {
-        upcomingExpirations.push(drop.validUntil);
-      }
-    }
-
-    if (upcomingExpirations.length === 0) {
-      return;
-    }
-
-    const nextExpiryMs = Math.min(...upcomingExpirations);
-    const timeoutMs = Math.max(250, nextExpiryMs - Date.now() + EXPIRY_REFRESH_BUFFER_MS);
-    const timeoutId = window.setTimeout(() => {
-      refreshDrops(0);
-    }, timeoutMs);
-
-    return () => {
-      window.clearTimeout(timeoutId);
-    };
-  }, [refreshDrops, sweepNowMs, swrDrops]);
-
-  const clientDrops = useMemo(() => {
-    // Single-pass filtering avoids cloning drops that will be discarded immediately.
+  const { clientDrops, nextExpiryMs } = useMemo(() => {
     const nextDrops: Drop[] = [];
+    let earliestExpiry = Number.POSITIVE_INFINITY;
 
     for (const drop of swrDrops) {
       const status = resolveDropStatusFromTiming(drop, sweepNowMs);
+
+      // Calculate next expiry if active
+      if (status === "active" && drop.validUntil && drop.validUntil > sweepNowMs) {
+        if (drop.validUntil < earliestExpiry) {
+          earliestExpiry = drop.validUntil;
+        }
+      }
+
+      // Filter and apply status
       if (!statusFilter || statusFilter.includes(status)) {
         nextDrops.push(applyDropStatus(drop, sweepNowMs));
       }
     }
 
-    return nextDrops;
+    return {
+      clientDrops: nextDrops,
+      nextExpiryMs: earliestExpiry === Number.POSITIVE_INFINITY ? null : earliestExpiry
+    };
   }, [statusFilter, sweepNowMs, swrDrops]);
+
+  useEffect(() => {
+    if (!nextExpiryMs) return;
+
+    const timeoutMs = Math.max(250, nextExpiryMs - Date.now() + EXPIRY_REFRESH_BUFFER_MS);
+    const timeoutId = window.setTimeout(() => {
+      refreshDrops(0);
+    }, timeoutMs);
+
+    return () => window.clearTimeout(timeoutId);
+  }, [nextExpiryMs, refreshDrops]);
 
 
   const isLoadingInitialData = !data && !error;
