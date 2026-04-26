@@ -4,6 +4,7 @@ import { guardApiRequest } from "@/lib/server/request-guard";
 import { ADMIN } from "@/lib/server/rate-limit";
 import { reserveUsernameForUser } from "@/lib/server/username-suggestions";
 import { withRouteRuntimeHealth } from "@/lib/server/route-runtime-health";
+import { recordRouteWarning } from "@/lib/server/route-diagnostics";
 
 const USERNAME_REGEX = /^[a-z0-9_]{3,20}$/;
 
@@ -81,7 +82,7 @@ async function PATCH_handler(
 
     return NextResponse.json({ success: true, username: reservation.normalizedUsername });
   } catch (error: any) {
-    console.error("[Admin Username Update API Error]:", error);
+    recordRouteWarning("admin/users/username", "Admin username update failed", error);
     return NextResponse.json(
       { success: false, error: error.message || "Internal server error" },
       { status: 500 }

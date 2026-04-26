@@ -4,6 +4,7 @@ import { buildDeterministicDropRecommendations } from "@/lib/server/behavioral-i
 import { guardApiRequest } from "@/lib/server/request-guard";
 import { STANDARD } from "@/lib/server/rate-limit";
 import { withRouteRuntimeHealth } from "@/lib/server/route-runtime-health";
+import { recordRouteWarning } from "@/lib/server/route-diagnostics";
 
 export const dynamic = "force-dynamic";
 
@@ -49,7 +50,7 @@ async function GET_handler(request: NextRequest) {
             })),
         });
     } catch (error) {
-        console.error("Error fetching retention drops:", error);
+        recordRouteWarning("drops/retention", "Error fetching retention drops", error);
         return NextResponse.json({ error: "Internal Server Error" }, { status: 500 });
     }
 }

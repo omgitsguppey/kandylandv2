@@ -3,6 +3,7 @@ import { guardApiRequest } from "@/lib/server/request-guard";
 import { STANDARD } from "@/lib/server/rate-limit";
 import { FIXED_GUMDROP_PACKAGES } from "@/lib/gumdrops-packages";
 import { withRouteRuntimeHealth } from "@/lib/server/route-runtime-health";
+import { recordRouteWarning } from "@/lib/server/route-diagnostics";
 
 export const dynamic = "force-dynamic";
 
@@ -26,7 +27,7 @@ async function GET_handler(request: NextRequest) {
             timestamp: Date.now()
         });
     } catch (error) {
-        console.error("Error fetching packages:", error);
+        recordRouteWarning("wallet/packages", "Error fetching packages", error);
         return NextResponse.json({ error: "Failed to fetch packages" }, { status: 500 });
     }
 }

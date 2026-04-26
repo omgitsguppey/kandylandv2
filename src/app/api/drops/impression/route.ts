@@ -9,6 +9,7 @@ import { getTrustedClientIp } from "@/lib/server/request-client-ip";
 import { getCSTDateKey } from "@/lib/timezone";
 import { guardApiRequest } from "@/lib/server/request-guard";
 import { withRouteRuntimeHealth } from "@/lib/server/route-runtime-health";
+import { recordRouteWarning } from "@/lib/server/route-diagnostics";
 
 const bodySchema = z.object({
   dropId: z.string().trim().min(1).max(128),
@@ -98,7 +99,7 @@ async function POST_handler(request: NextRequest) {
 
     return NextResponse.json({ success: true, duplicate });
   } catch (error) {
-    console.error("Failed to record drop impression:", error);
+    recordRouteWarning("drops/impression", "Failed to record drop impression", error);
     return NextResponse.json({ success: false, error: "Failed to record impression" }, { status: 500 });
   }
 }

@@ -3,6 +3,7 @@ import type { MetadataRoute } from "next";
 import { PRIVACY_POLICY_VERSION, TERMS_LAST_UPDATED } from "@/lib/platform-config";
 import { SITE_ORIGIN } from "@/lib/site-origin";
 import { adminDb } from "@/lib/server/firebase-admin";
+import { recordRouteWarning } from "@/lib/server/route-diagnostics";
 
 const FALLBACK_PUBLIC_LAST_MODIFIED = new Date("2026-02-12T00:00:00.000Z");
 
@@ -24,7 +25,7 @@ async function getLatestPublicDropTimestamp() {
       return new Date(Math.min(latestValidFrom, Date.now()));
     }
   } catch (error) {
-    console.error("Failed to resolve sitemap public timestamp:", error);
+    recordRouteWarning("sitemap", "Failed to resolve sitemap public timestamp", error);
   }
 
   return FALLBACK_PUBLIC_LAST_MODIFIED;

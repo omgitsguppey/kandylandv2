@@ -6,6 +6,7 @@ import { verifyAuth } from "@/lib/server/auth";
 import { RELAXED } from "@/lib/server/rate-limit";
 import { guardApiRequest } from "@/lib/server/request-guard";
 import { withRouteRuntimeHealth } from "@/lib/server/route-runtime-health";
+import { recordRouteWarning } from "@/lib/server/route-diagnostics";
 
 async function POST_handler(
     request: NextRequest,
@@ -54,7 +55,7 @@ async function POST_handler(
 
         return NextResponse.json({ success: true });
     } catch (error) {
-        console.error("Failed to increment drop clicks:", error);
+        recordRouteWarning("drops/click", "Failed to increment drop clicks", error);
         // We return 200 even on expected failures so we don't block the client UI just for analytics.
         return NextResponse.json({ success: false, error: "Failed to track click" });
     }

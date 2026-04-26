@@ -5,6 +5,7 @@ import { ADMIN } from "@/lib/server/rate-limit";
 import { isAllowedLandingAssetKey } from "@/lib/landing-assets";
 import { guardApiRequest } from "@/lib/server/request-guard";
 import { withRouteRuntimeHealth } from "@/lib/server/route-runtime-health";
+import { recordRouteWarning } from "@/lib/server/route-diagnostics";
 
 function isImageFormat(mimeType: string) {
     return ["image/jpeg", "image/png", "image/gif", "image/webp"].includes(mimeType);
@@ -96,7 +97,7 @@ async function POST_handler(request: NextRequest) {
             }, { merge: true });
         } catch (error) {
             await fileRef.delete({ ignoreNotFound: true }).catch((deleteError) => {
-                console.error("Failed to clean up newly uploaded landing asset", deleteError);
+                recordRouteWarning("settings/landing/upload", "Failed to clean up newly uploaded landing asset", deleteError);
             });
             throw error;
         }
@@ -106,7 +107,7 @@ async function POST_handler(request: NextRequest) {
             : null;
         if (previousObjectPath && previousObjectPath !== fileName) {
             await bucket.file(previousObjectPath).delete({ ignoreNotFound: true }).catch((error) => {
-                console.error("Failed to remove replaced landing asset", error);
+                recordRouteWarning("settings/landing/upload", "Failed to remove replaced landing asset", error);
             });
         }
 

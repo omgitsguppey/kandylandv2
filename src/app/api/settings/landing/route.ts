@@ -4,6 +4,7 @@ import { RELAXED } from "@/lib/server/rate-limit";
 import { isAllowedLandingAssetKey } from "@/lib/landing-assets";
 import { guardApiRequest } from "@/lib/server/request-guard";
 import { withRouteRuntimeHealth } from "@/lib/server/route-runtime-health";
+import { recordRouteWarning } from "@/lib/server/route-diagnostics";
 
 export const dynamic = 'force-dynamic';
 
@@ -34,7 +35,7 @@ async function GET_handler(request: NextRequest) {
 
         return NextResponse.json({ url: null });
     } catch (error: any) {
-        console.error("Failed to fetch landing custom image:", error);
+        recordRouteWarning("settings/landing", "Failed to fetch landing custom image", error);
         return NextResponse.json({ error: "Internal Server Error" }, { status: 500 });
     }
 }

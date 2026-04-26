@@ -93,7 +93,6 @@ export function useAdminPrivacyPreflight() {
         dedupeHealth: !hasRecentEvents ? "unavailable" : validDedupeEvents > 0 ? "live" : "degraded",
       }));
     }, (error) => {
-      console.error("[Preflight] Event pipeline listener failed", error);
       reportRealtimeIssue("Admin privacy preflight pipeline", error, { listener: "admin_privacy_preflight_events" });
       setStatus(prev => ({
         ...prev,

@@ -7,6 +7,7 @@ import { guardApiRequest } from "@/lib/server/request-guard";
 import { creatorDocumentCleanupWrites } from "@/lib/server/creator-experiences";
 import { releaseUsernameReservationForUser } from "@/lib/server/username-suggestions";
 import { withRouteRuntimeHealth } from "@/lib/server/route-runtime-health";
+import { recordRouteWarning } from "@/lib/server/route-diagnostics";
 
 type DeletedDataSummary = {
     userDocumentTree: number;
@@ -88,7 +89,7 @@ async function DELETE_handler(request: NextRequest) {
             : null;
         const bulkWriter = adminDb.bulkWriter();
         bulkWriter.onWriteError((error) => {
-            console.error("User delete bulk-writer error", error);
+            recordRouteWarning("user/delete", "User delete bulk-writer error", error);
             return error.failedAttempts < 3;
         });
 
@@ -133,7 +134,7 @@ async function DELETE_handler(request: NextRequest) {
                 username: existingUsername,
             });
         } catch (error) {
-            console.error("Account cleanup completed but username reservation release is pending", error);
+            recordRouteWarning("user/delete", "Account cleanup completed but username reservation release is pending", error);
             return NextResponse.json({
                 success: false,
                 message: "Account data was removed, but username release is still pending.",
@@ -164,7 +165,7 @@ async function DELETE_handler(request: NextRequest) {
             try {
                 await adminAuth.deleteUser(uid);
             } catch (error) {
-                console.error("Account cleanup completed but auth deletion is pending", error);
+                recordRouteWarning("user/delete", "Account cleanup completed but auth deletion is pending", error);
                 return NextResponse.json({
                     success: false,
                     message: "Account data was removed and login was disabled, but final auth deletion is still pending.",
