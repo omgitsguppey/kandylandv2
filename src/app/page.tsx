@@ -34,7 +34,7 @@ export default async function HomePage() {
                     <HowItWorks activeDrops={initialActiveDrops} />
                 </div>
 
-                <footer className="border-t border-white/10 px-4 py-12 text-center text-sm text-gray-400">
+                <footer className="border-t border-white/10 px-4 py-12 text-center text-sm text-gray-300">
                     <p>&copy; {new Date().getFullYear()} KandyDrops. All rights reserved.</p>
                 </footer>
             </div>

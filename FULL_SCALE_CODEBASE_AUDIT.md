@@ -1,5 +1,24 @@
 # KandyDrops Core Codebase Audit & Defensive Ledger
 
+## [2026-04-26 #37] Dependency and Infrastructure Observability Rollout
+
+Scope completed:
+- Hardened `package.json` with minor updates for core dependencies.
+- Added `infrastructureHealth` object in `/api/admin/debug` to expose accurate versions of critical libraries by reading `package.json` at runtime.
+- Built a mobile-friendly layout for `src/app/admin/debug/page.tsx`, removing hardcoded `xl:grid-cols` values in favor of flexible stacked views.
+- Added an "Infrastructure" view under the Admin Debug page to visually label "live", "failed", "cached", or "unverified" metrics (e.g. Firestore pings, Node versions).
+- Added `scripts/agent/check-infrastructure-truth.ts` and workflow `.agent/workflows/dependency-truth.md` for deterministic dependency governance.
+
+Implemeted changes:
+- `src/app/admin/debug/page.tsx`
+- `src/app/api/admin/debug/route.ts`
+- `scripts/agent/check-infrastructure-truth.ts`
+- `.agent/workflows/dependency-truth.md`
+
+Verification completed:
+- Run `npm run check:continuity`.
+- Manual verification of Admin Debug UI.
+
 ## [2026-04-26 #36] Admin Analytics Syntax Repair & Caching Resilience
 
 Scope completed:

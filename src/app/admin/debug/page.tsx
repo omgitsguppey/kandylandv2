@@ -25,6 +25,7 @@ import { useAdminDebugRealtime } from "./hooks/useAdminDebugRealtime";
 import { useAdminOverview } from "@/hooks/useAdminOverview";
 import { useAdminPollingSWR } from "@/hooks/useAdminPollingSWR";
 import { useCompactViewport } from "@/hooks/useCompactViewport";
+import { AdminStatusBadge } from "@/components/Admin/AdminStatusBadge";
 import type { AdminAiDebugSummary } from "@/lib/ai-debug-assistant";
 import {
     ADMIN_DEBUG_DEFAULT_TAB,
@@ -558,7 +559,7 @@ export default function DebugConsole() {
 
             {renderTabControls()}
 
-            <div className="grid grid-cols-2 gap-3 md:grid-cols-3 xl:grid-cols-8">
+            <div className="grid grid-cols-2 gap-3 md:grid-cols-3 lg:grid-cols-1">
                 <StatCard label="System Truth" value={data?.opsHealth?.canonicalState?.status || "--"} meta={data?.opsHealth?.canonicalState?.reason || "Awaiting canonical state"} />
                 <StatCard label="Pipeline active" value={activePipelineFailureCount} meta={`recent ${recentPipelineFailureCount} | sample ${sampledPipelineFailureCount} | ${data?.opsHealth?.pipeline?.status === "healthy" ? `no current incident in ${formatWindowHours(data?.opsHealth?.pipeline?.activeWindowMs)}` : data?.opsHealth?.pipeline?.lastFailureAt ? `last ${formatRelative(data.opsHealth.pipeline.lastFailureAt)}` : "missing last-failure timestamp"}`} />
                 <StatCard label="Task-issue users" value={data?.stats?.usersWithTaskIssues ?? "--"} meta={`${data?.stats?.runtimeUsersWithRefreshIssues ?? 0} sampled refresh warnings`} />
@@ -580,8 +581,8 @@ export default function DebugConsole() {
                         defaultOpen
                         summary={<><Pill label="Score" value={`${data?.opsHealth?.score ?? 0}%`} tone={(data?.opsHealth?.score ?? 0) >= 90 ? "good" : (data?.opsHealth?.score ?? 0) >= 70 ? "warn" : "bad"} /><Pill label="Pipeline" value={getPipelineStatusLabel(data?.opsHealth?.pipeline?.status)} tone={data?.opsHealth?.pipeline?.status === "fail" ? "bad" : data?.opsHealth?.pipeline?.status === "warn" ? "warn" : "good"} /><Pill label="Active diagnostics" value={(data?.opsHealth?.diagnostics?.activeErrorCount ?? 0) + (data?.opsHealth?.diagnostics?.activeWarnCount ?? 0)} tone={((data?.opsHealth?.diagnostics?.activeErrorCount ?? 0) + (data?.opsHealth?.diagnostics?.activeWarnCount ?? 0)) > 0 ? "warn" : "good"} /><Pill label="Writers" value={`${data?.opsHealth?.materializerSummary?.warn ?? 0}/${data?.opsHealth?.materializerSummary?.fail ?? 0}`} tone={((data?.opsHealth?.materializerSummary?.warn ?? 0) + (data?.opsHealth?.materializerSummary?.fail ?? 0)) > 0 ? "warn" : "good"} /><Pill label="Freshest loaded signal" value={freshestLoadedSignalAt ? formatRelative(freshestLoadedSignalAt) : "Not loaded"} /></>}
                     >
-                        <div className="grid gap-4 xl:grid-cols-[0.95fr_1.05fr]">
-                            <div className="grid gap-3 md:grid-cols-2 xl:grid-cols-1">
+                        <div className="grid gap-4 lg:grid-cols-1">
+                            <div className="grid gap-3 md:grid-cols-2 lg:grid-cols-1">
                                 <div className="rounded-[1rem] border border-white/10 bg-white/[0.03] p-4">
                                     <p className="text-[11px] uppercase tracking-[0.18em] text-gray-400">Pipeline</p>
                                     <p className="mt-2 text-xl font-black text-white">{getPipelineStatusLabel(data?.opsHealth?.pipeline?.status)}</p>
@@ -721,7 +722,7 @@ export default function DebugConsole() {
                         defaultOpen={!isCompactViewport && ((data?.opsHealth?.diagnostics?.errorCount ?? 0) > 0 || (data?.opsHealth?.pipeline?.failureCount ?? 0) > 0)}
                         summary={<><Pill label="Channels" value={(data?.opsHealth?.diagnostics?.channels || []).length} /><Pill label="Recent diagnostics" value={(data?.opsHealth?.diagnostics?.recent || []).length} /><Pill label="Routes" value={(data?.opsHealth?.pipeline?.routes || []).length} /></>}
                     >
-                        <div className="grid gap-4 xl:grid-cols-[0.9fr_1.1fr]">
+                        <div className="grid gap-4 lg:grid-cols-1">
                             <ScrollWrap>
                                 <div className="divide-y divide-white/10">
                                     {(data?.opsHealth?.diagnostics?.channels || []).map((channel: any) => (
@@ -973,7 +974,7 @@ export default function DebugConsole() {
                         defaultOpen={routeRuntimeHealthSummary.fail > 0 || routeRuntimeHealthSummary.warn > 0 || routeRuntimeHealthSummary.stale > 0}
                         summary={<><Pill label="Tracked" value={routeRuntimeHealthSummary.total} /><Pill label="Filter" value={routeRuntimeFilter.replace("_", " ")} tone={routeRuntimeFilter === "all" ? "neutral" : "warn"} /><Pill label="Unseen" value={routeRuntimeHealthSummary.unobserved} tone={routeRuntimeHealthSummary.unobserved > 0 ? "warn" : "good"} /><Pill label="Stale" value={routeRuntimeHealthSummary.stale} tone={routeRuntimeHealthSummary.stale > 0 ? "warn" : "good"} /><Pill label="Warn" value={routeRuntimeHealthSummary.warn} tone={routeRuntimeHealthSummary.warn > 0 ? "warn" : "good"} /><Pill label="Fail" value={routeRuntimeHealthSummary.fail} tone={routeRuntimeHealthSummary.fail > 0 ? "bad" : "good"} /><Pill label="Slow samples" value={routeRuntimeHealthSummary.slow} tone={routeRuntimeHealthSummary.slow > 0 ? "warn" : "good"} /><Pill label="Native chat" value={`${nativeChatRouteRuntimeSummary.fail}/${nativeChatRouteRuntimeSummary.warn}/${nativeChatRouteRuntimeSummary.stale}`} tone={nativeChatRouteRuntimeSummary.fail > 0 ? "bad" : nativeChatRouteRuntimeSummary.warn > 0 || nativeChatRouteRuntimeSummary.stale > 0 ? "warn" : "good"} /><Pill label="Compat chat" value={`${compatibilityChatRouteRuntimeSummary.fail}/${compatibilityChatRouteRuntimeSummary.warn}/${compatibilityChatRouteRuntimeSummary.stale}`} tone={compatibilityChatRouteRuntimeSummary.fail > 0 ? "bad" : compatibilityChatRouteRuntimeSummary.warn > 0 || compatibilityChatRouteRuntimeSummary.stale > 0 ? "warn" : "good"} /></>}
                     >
-                        <div className="mb-4 grid gap-3 xl:grid-cols-[1fr_1fr_0.8fr]">
+                        <div className="mb-4 grid gap-3 lg:grid-cols-1">
                             <div className="rounded-[1rem] border border-white/10 bg-white/[0.03] p-4">
                                 <div className="flex flex-wrap items-center gap-2">
                                     <Pill label="Native chat error rate" value={nativeChatRouteRuntimeRates.errorRateLabel} tone={nativeChatRouteRuntimeRates.errorSamples > 0 ? "warn" : "good"} />
@@ -1097,7 +1098,7 @@ export default function DebugConsole() {
                         defaultOpen={queueRuntimeSummary.jobHeartbeats.stale > 0 || queueRuntimeSummary.jobHeartbeats.failed > 0 || queueRuntimeSummary.missingNotificationOutcomes > 0 || queueRuntimeSummary.warnings.failed > 0}
                         summary={<><Pill label="Jobs" value={queueRuntimeSummary.jobHeartbeats.total} /><Pill label="Stale" value={queueRuntimeSummary.jobHeartbeats.stale} tone={queueRuntimeSummary.jobHeartbeats.stale > 0 ? "warn" : "good"} /><Pill label="Failed" value={queueRuntimeSummary.jobHeartbeats.failed} tone={queueRuntimeSummary.jobHeartbeats.failed > 0 ? "bad" : "good"} /><Pill label="Legacy adapter" value={queueRuntimeSummary.warnings.legacyAdapterUses} tone={queueRuntimeSummary.warnings.legacyAdapterUses > 0 ? "bad" : "good"} /><Pill label="Missing outcomes" value={queueRuntimeSummary.missingNotificationOutcomes} tone={queueRuntimeSummary.missingNotificationOutcomes > 0 ? "bad" : "good"} /></>}
                     >
-                        <div className="grid gap-4 xl:grid-cols-[0.9fr_1.1fr]">
+                        <div className="grid gap-4 lg:grid-cols-1">
                             <div className="space-y-4">
                                 <ScrollWrap>
                                     <div className="divide-y divide-white/10">
@@ -1192,7 +1193,7 @@ export default function DebugConsole() {
                     >
                         <div className="rounded-[1rem] border border-white/10 bg-white/[0.03] p-4">
                             <p className="mb-4 text-sm text-gray-300">These checks describe the current admin session and a few runtime prerequisites used by debug/admin flows. They do not prove that all runtime dependencies are healthy everywhere else.</p>
-                            <div className="grid gap-4 lg:grid-cols-[1fr_1.2fr]">
+                            <div className="grid gap-4 lg:grid-cols-1">
                                 <div className="rounded-[1rem] border border-white/10 bg-black/20 p-4 text-sm text-gray-300">
                                     <div className="flex justify-between gap-3 border-b border-white/10 py-2"><span className="text-gray-400">User ID</span><span className="truncate font-mono text-xs text-white">{user?.uid || "--"}</span></div>
                                     <div className="flex justify-between gap-3 border-b border-white/10 py-2"><span className="text-gray-400">Email</span><span className="truncate text-white">{user?.email || "--"}</span></div>
@@ -1248,7 +1249,7 @@ export default function DebugConsole() {
                         defaultOpen={false}
                         summary={<><Pill label="Recent events" value={(data?.recentTaskEvents || []).length} /><Pill label="Rollups" value={(data?.taskRollups || []).length} /><Pill label="Daily points" value={(data?.dailyTaskSeries || []).length} /></>}
                     >
-                        <div className="grid gap-4 xl:grid-cols-[1.1fr_0.9fr]">
+                        <div className="grid gap-4 lg:grid-cols-1">
                             <ScrollWrap>
                                 <div className="divide-y divide-white/10">
                                     {(data?.recentTaskEvents || []).map((event: any) => (
@@ -1308,7 +1309,7 @@ export default function DebugConsole() {
                         defaultOpen={false}
                         summary={<><Pill label="Receipts 7d" value={data?.stats?.receiptsLast7d ?? 0} /><Pill label="Recent" value={(data?.recentReceipts || []).length} /></>}
                     >
-                        <div className="grid gap-4 xl:grid-cols-[0.9fr_1.1fr]">
+                        <div className="grid gap-4 lg:grid-cols-1">
                             <ScrollWrap>
                                 <div className="divide-y divide-white/10">
                                     {(data?.receiptSummary || []).map((receipt: any) => (
@@ -1343,6 +1344,76 @@ export default function DebugConsole() {
                 </div>
             ) : null}
 
+            {activeTab === "infrastructure" ? (
+                <div className="space-y-4">
+                    <Section
+                        title="Infrastructure Health & Dependencies"
+                        subtitle="Runtime telemetry showing actual module versions and connection state."
+                        defaultOpen={true}
+                    >
+                        {data?.infrastructure ? (
+                            data.infrastructure.error ? (
+                                <div className="text-red-400 p-4 bg-red-900/10 border border-red-500/20 rounded font-mono text-xs">
+                                    [FAILED] {data.infrastructure.error}
+                                </div>
+                            ) : (
+                                <div className="space-y-6">
+                                    <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                                        <div className="bg-black/20 p-4 rounded border border-white/5">
+                                            <h3 className="text-xs uppercase tracking-wider text-white/50 mb-3 border-b border-white/5 pb-2">Environment & Pings</h3>
+                                            <div className="space-y-2">
+                                                <div className="flex items-center justify-between">
+                                                    <span className="text-xs text-white/70">Node Version</span>
+                                                    <span className="text-xs font-mono text-cyan-400">{data.infrastructure.nodeVersion}</span>
+                                                </div>
+                                                <div className="flex items-center justify-between">
+                                                    <span className="text-xs text-white/70">Firestore Connectivity</span>
+                                                    <AdminStatusBadge 
+                                                        state={data.infrastructure.pings?.firestore === "live" ? "live" : "failed"} 
+                                                    />
+                                                </div>
+                                                <div className="flex items-center justify-between">
+                                                    <span className="text-xs text-white/70">Last Telemetry Ping</span>
+                                                    <span className="text-xs font-mono text-white/50">{new Date(data.infrastructure.timestamp || 0).toLocaleTimeString()}</span>
+                                                </div>
+                                            </div>
+                                        </div>
+
+                                        <div className="bg-black/20 p-4 rounded border border-white/5">
+                                            <h3 className="text-xs uppercase tracking-wider text-white/50 mb-3 border-b border-white/5 pb-2">Core Dependencies</h3>
+                                            <div className="space-y-2">
+                                                {Object.entries(data.infrastructure.dependencies || {}).map(([pkg, version]) => (
+                                                    <div key={pkg} className="flex items-center justify-between">
+                                                        <span className="text-xs text-white/70">{pkg}</span>
+                                                        <span className="text-xs font-mono text-green-400">{String(version)}</span>
+                                                    </div>
+                                                ))}
+                                            </div>
+                                        </div>
+
+                                        <div className="bg-black/20 p-4 rounded border border-white/5">
+                                            <h3 className="text-xs uppercase tracking-wider text-white/50 mb-3 border-b border-white/5 pb-2">Dev Dependencies</h3>
+                                            <div className="space-y-2">
+                                                {Object.entries(data.infrastructure.devDependencies || {}).map(([pkg, version]) => (
+                                                    <div key={pkg} className="flex items-center justify-between">
+                                                        <span className="text-xs text-white/70">{pkg}</span>
+                                                        <span className="text-xs font-mono text-purple-400">{String(version)}</span>
+                                                    </div>
+                                                ))}
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            )
+                        ) : (
+                            <div className="text-white/40 text-sm py-8 text-center italic">
+                                Loading infrastructure telemetry...
+                            </div>
+                        )}
+                    </Section>
+                </div>
+            ) : null}
+
             {activeTab === "ai" ? (
                 <div className="space-y-4">
                     <Section
@@ -1357,7 +1428,7 @@ export default function DebugConsole() {
                             </div>
                         ) : null}
 
-                        <div className="grid gap-4 lg:grid-cols-[0.95fr_1.05fr]">
+                        <div className="grid gap-4 lg:grid-cols-1">
                             <div className="rounded-[1rem] border border-white/10 bg-white/[0.03] p-4">
                                 <div className="flex items-start justify-between gap-3">
                                     <div>
@@ -1424,7 +1495,7 @@ export default function DebugConsole() {
 
                         {aiDebugData ? (
                             <div className="space-y-4">
-                                <div className="grid gap-4 lg:grid-cols-[1.2fr_0.8fr]">
+                                <div className="grid gap-4 lg:grid-cols-1">
                                     <div className="rounded-[1rem] border border-white/10 bg-white/[0.03] p-4">
                                         <p className="text-[11px] uppercase tracking-[0.18em] text-gray-400">What it found</p>
                                         <p className="mt-3 text-sm leading-6 text-gray-200">{aiDebugData.summary}</p>
@@ -1488,7 +1559,7 @@ export default function DebugConsole() {
                         defaultOpen={false}
                         summary={<><Pill label="Health" value={`${data?.orchestration?.summary?.score ?? 0}%`} tone={(data?.orchestration?.summary?.score ?? 0) >= 90 ? "good" : (data?.orchestration?.summary?.score ?? 0) >= 70 ? "warn" : "bad"} /><Pill label="Open findings" value={data?.orchestration?.summary?.openFindings ?? 0} tone={(data?.orchestration?.summary?.openFindings ?? 0) ? "warn" : "good"} /><Pill label="Actionable repairs" value={data?.orchestration?.summary?.actionableProposals ?? 0} tone={(data?.orchestration?.summary?.actionableProposals ?? 0) ? "warn" : "good"} /><Pill label="Low confidence" value={data?.orchestration?.summary?.lowConfidenceEvents ?? 0} tone={(data?.orchestration?.summary?.lowConfidenceEvents ?? 0) ? "warn" : "good"} /></>}
                     >
-                        <div className="grid gap-4 xl:grid-cols-[1fr_1fr]">
+                        <div className="grid gap-4 lg:grid-cols-1">
                             <div className="space-y-3">
                                 <div className="grid grid-cols-2 gap-3">
                                     <StatCard label="Normalized events" value={data?.orchestration?.summary?.eventCount ?? 0} meta="Recent derived event sample" />
@@ -1638,7 +1709,7 @@ export default function DebugConsole() {
                                 </p>
                             </div>
                         </div>
-                        <div className="grid gap-4 xl:grid-cols-[1fr_1fr]">
+                        <div className="grid gap-4 lg:grid-cols-1">
                             <ScrollWrap>
                                 <div className="divide-y divide-white/10">
                                     {(data?.assignmentIssues || []).length ? (data?.assignmentIssues || []).map((issue: any) => (
@@ -1710,7 +1781,7 @@ export default function DebugConsole() {
                                 Increase the audit depth before treating every warning as global truth.
                             </div>
                         ) : null}
-                        <div className="grid gap-4 xl:grid-cols-[1.15fr_0.85fr]">
+                        <div className="grid gap-4 lg:grid-cols-1">
                             <ScrollWrap>
                                 <div className="divide-y divide-white/10">
                                     {(data?.runtimeTaskAudit?.distribution || []).slice(0, 24).map((entry: any) => (
@@ -1799,7 +1870,7 @@ export default function DebugConsole() {
                         defaultOpen={false}
                         summary={<><Pill label="Alignment warnings" value={data?.stats?.telemetryAlignmentWarnings ?? 0} tone={(data?.stats?.telemetryAlignmentWarnings ?? 0) === 0 ? "good" : "warn"} /><Pill label="Shared events" value={data?.stats?.runtimeSharedEventMappings ?? 0} tone={(data?.stats?.runtimeSharedEventMappings ?? 0) === 0 ? "good" : "warn"} /><Pill label="Unsupported runtime" value={data?.stats?.runtimeUnsupportedTaskRecords ?? 0} tone={(data?.stats?.runtimeUnsupportedTaskRecords ?? 0) === 0 ? "good" : "warn"} />{(data?.stats?.taskEventsSamplePartial ?? 0) > 0 || (data?.stats?.taskReceiptsSamplePartial ?? 0) > 0 ? <Pill label="Sample" value="partial" tone="warn" /> : null}</>}
                     >
-                        <div className="grid gap-4 xl:grid-cols-[1fr_1fr]">
+                        <div className="grid gap-4 lg:grid-cols-1">
                             <ScrollWrap>
                                 <div className="divide-y divide-white/10">
                                     {(data?.runtimeTaskAudit?.telemetryAlignment || []).slice(0, 24).map((entry: any) => (
@@ -1933,7 +2004,7 @@ export default function DebugConsole() {
                         defaultOpen={false}
                         summary={<><Pill label="User profiles" value={data?.stats?.behavioralUserProfiles ?? 0} /><Pill label="Drop profiles" value={data?.stats?.behavioralDropProfiles ?? 0} /><Pill label="Freshness" value={data?.behavioralSnapshotStatus?.freshnessLabel || "unknown"} tone={data?.behavioralSnapshotStatus?.freshnessLabel === "live" ? "good" : "warn"} /></>}
                     >
-                        <div className="grid gap-4 xl:grid-cols-[0.78fr_1.22fr]">
+                        <div className="grid gap-4 lg:grid-cols-1">
                             <div className="space-y-3">
                                 <div className="rounded-[1rem] border border-white/10 bg-white/[0.03] p-4">
                                     <p className="text-[11px] uppercase tracking-[0.18em] text-gray-400">Snapshot status</p>
@@ -1980,7 +2051,7 @@ export default function DebugConsole() {
                         defaultOpen={false}
                         summary={<><Pill label="Drop metrics" value={data?.stats?.analyticsTruthDropMetrics ?? 0} /><Pill label="User metrics" value={data?.stats?.analyticsTruthUserMetrics ?? 0} /><Pill label="Repairs" value={data?.stats?.analyticsTruthRepairs ?? 0} tone={(data?.stats?.analyticsTruthRepairs ?? 0) > 0 ? "warn" : "good"} /><Pill label="Quality" value={data?.analyticsTruthRecovery?.global?.qualityLabel || "unknown"} tone={data?.analyticsTruthRecovery?.global?.qualityLabel === "exact" ? "good" : data?.analyticsTruthRecovery?.global?.qualityLabel === "estimated" ? "warn" : "neutral"} /></>}
                     >
-                        <div className="grid gap-4 xl:grid-cols-[0.82fr_1.18fr]">
+                        <div className="grid gap-4 lg:grid-cols-1">
                             <div className="space-y-3">
                                 <div className="rounded-[1rem] border border-white/10 bg-white/[0.03] p-4">
                                     <p className="text-[11px] uppercase tracking-[0.18em] text-gray-400">Global truth summary</p>

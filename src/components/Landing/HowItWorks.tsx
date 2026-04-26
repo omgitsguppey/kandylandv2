@@ -37,6 +37,7 @@ export function HowItWorks({ activeDrops }: HowItWorksProps) {
                 </div>
 
                 <div
+                    role="region"
                     aria-label="How KandyDrops works steps"
                     className="-mx-4 flex overflow-x-auto gap-3 px-4 pb-6 [touch-action:pan-x] snap-x snap-mandatory sm:mx-0 sm:mb-8 sm:grid sm:grid-cols-3 sm:gap-5 sm:overflow-visible sm:px-0 sm:pb-0 [scrollbar-width:none] [&::-webkit-scrollbar]:hidden"
                     tabIndex={0}
