@@ -63,6 +63,8 @@ export function useAdminAnalyticsRealtime(nowMs: number): AdminAnalyticsLiveSign
   });
 
   useEffect(() => {
+    let cancelled = false;
+
     const eventFactsControl = createAutoHealingObserver(() =>
       onSnapshot(
         query(
@@ -71,6 +73,7 @@ export function useAdminAnalyticsRealtime(nowMs: number): AdminAnalyticsLiveSign
           limit(80),
         ),
         (snapshot) => {
+          if (cancelled) return;
           setEventFacts(toSnapshotEntries(snapshot));
           setListenerState((current) => ({
             ...current,
@@ -79,6 +82,7 @@ export function useAdminAnalyticsRealtime(nowMs: number): AdminAnalyticsLiveSign
           }));
         },
         (error) => {
+          if (cancelled) return;
           setListenerState((current) => ({
             ...current,
             eventFactsFailed: true,
@@ -112,6 +116,7 @@ export function useAdminAnalyticsRealtime(nowMs: number): AdminAnalyticsLiveSign
           limit(50),
         ),
         (snapshot) => {
+          if (cancelled) return;
           setGuestBatches(toSnapshotEntries(snapshot));
           setListenerState((current) => ({
             ...current,
@@ -120,6 +125,7 @@ export function useAdminAnalyticsRealtime(nowMs: number): AdminAnalyticsLiveSign
           }));
         },
         (error) => {
+          if (cancelled) return;
           setListenerState((current) => ({
             ...current,
             guestBatchesFailed: true,
@@ -153,6 +159,7 @@ export function useAdminAnalyticsRealtime(nowMs: number): AdminAnalyticsLiveSign
           limit(50),
         ),
         (snapshot) => {
+          if (cancelled) return;
           setGuestSessions(toSnapshotEntries(snapshot));
           setListenerState((current) => ({
             ...current,
@@ -161,6 +168,7 @@ export function useAdminAnalyticsRealtime(nowMs: number): AdminAnalyticsLiveSign
           }));
         },
         (error) => {
+          if (cancelled) return;
           setListenerState((current) => ({
             ...current,
             guestSessionsFailed: true,
@@ -194,6 +202,7 @@ export function useAdminAnalyticsRealtime(nowMs: number): AdminAnalyticsLiveSign
           limit(50),
         ),
         (snapshot) => {
+          if (cancelled) return;
           setWatchSessions(toSnapshotEntries(snapshot));
           setListenerState((current) => ({
             ...current,
@@ -202,6 +211,7 @@ export function useAdminAnalyticsRealtime(nowMs: number): AdminAnalyticsLiveSign
           }));
         },
         (error) => {
+          if (cancelled) return;
           setListenerState((current) => ({
             ...current,
             watchSessionsFailed: true,
@@ -228,6 +238,7 @@ export function useAdminAnalyticsRealtime(nowMs: number): AdminAnalyticsLiveSign
     );
 
     return () => {
+      cancelled = true;
       eventFactsControl.cleanup();
       guestBatchesControl.cleanup();
       guestSessionsControl.cleanup();

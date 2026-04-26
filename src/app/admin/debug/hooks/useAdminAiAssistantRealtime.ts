@@ -53,9 +53,12 @@ export function useAdminAiAssistantRealtime(summary: AdminAiDebugSummary | null 
     });
 
     useEffect(() => {
+        let cancelled = false;
+
         const settingsControl = createAutoHealingObserver(() => onSnapshot(
             doc(collection(db, "adminSettings"), ADMIN_AI_DEBUG_ASSISTANT_SETTINGS_DOC),
             (snapshot) => {
+                if (cancelled) return;
                 setSettings(normalizeAdminAiDebugAssistantSettingsSnapshot(snapshot.exists() ? snapshot.data() : null, {
                     enabled: summary?.enabled,
                     model: summary?.configured_model,
@@ -64,6 +67,7 @@ export function useAdminAiAssistantRealtime(summary: AdminAiDebugSummary | null 
                 setListenerErrors((current) => ({ ...current, settingsFailed: false }));
             },
             (error) => {
+                if (cancelled) return;
                 setListenerErrors((current) => ({ ...current, settingsFailed: true }));
                 reportClientIssue({
                     channel: "firebase",
@@ -89,6 +93,7 @@ export function useAdminAiAssistantRealtime(summary: AdminAiDebugSummary | null 
         const diagnosticsControl = createAutoHealingObserver(() => onSnapshot(
             diagnosticsQuery,
             (snapshot) => {
+                if (cancelled) return;
                 const nextDiagnostics = snapshot.docs
                     .filter((entry) => entry.data()?.channel === "ai")
                     .map((entry) => normalizeAdminAiDebugRealtimeDiagnostic(entry.id, entry.data()))
@@ -98,6 +103,7 @@ export function useAdminAiAssistantRealtime(summary: AdminAiDebugSummary | null 
                 setListenerErrors((current) => ({ ...current, diagnosticsFailed: false }));
             },
             (error) => {
+                if (cancelled) return;
                 setListenerErrors((current) => ({ ...current, diagnosticsFailed: true }));
                 reportClientIssue({
                     channel: "firebase",
@@ -118,6 +124,7 @@ export function useAdminAiAssistantRealtime(summary: AdminAiDebugSummary | null 
         const readRouteControl = createAutoHealingObserver(() => onSnapshot(
             doc(collection(db, ADMIN_AI_DEBUG_ROUTE_RUNTIME_HEALTH_COLLECTION), ADMIN_AI_DEBUG_ROUTE_RUNTIME_KEYS.read),
             (snapshot) => {
+                if (cancelled) return;
                 setRouteHealthByKey((current) => ({
                     ...current,
                     [ADMIN_AI_DEBUG_ROUTE_RUNTIME_KEYS.read]: snapshot.exists()
@@ -126,11 +133,12 @@ export function useAdminAiAssistantRealtime(summary: AdminAiDebugSummary | null 
                 }));
                 setListenerState((current) => ({
                     ...current,
-                    routesLoaded: current.routesLoaded || snapshot.exists(),
+                    routesLoaded: true,
                 }));
                 setListenerErrors((current) => ({ ...current, routesFailed: false }));
             },
             (error) => {
+                if (cancelled) return;
                 setListenerErrors((current) => ({ ...current, routesFailed: true }));
                 reportClientIssue({
                     channel: "firebase",
@@ -150,6 +158,7 @@ export function useAdminAiAssistantRealtime(summary: AdminAiDebugSummary | null 
         const writeRouteControl = createAutoHealingObserver(() => onSnapshot(
             doc(collection(db, ADMIN_AI_DEBUG_ROUTE_RUNTIME_HEALTH_COLLECTION), ADMIN_AI_DEBUG_ROUTE_RUNTIME_KEYS.write),
             (snapshot) => {
+                if (cancelled) return;
                 setRouteHealthByKey((current) => ({
                     ...current,
                     [ADMIN_AI_DEBUG_ROUTE_RUNTIME_KEYS.write]: snapshot.exists()
@@ -163,6 +172,7 @@ export function useAdminAiAssistantRealtime(summary: AdminAiDebugSummary | null 
                 setListenerErrors((current) => ({ ...current, routesFailed: false }));
             },
             (error) => {
+                if (cancelled) return;
                 setListenerErrors((current) => ({ ...current, routesFailed: true }));
                 reportClientIssue({
                     channel: "firebase",
@@ -180,6 +190,7 @@ export function useAdminAiAssistantRealtime(summary: AdminAiDebugSummary | null 
         ));
 
         return () => {
+            cancelled = true;
             settingsControl.cleanup();
             diagnosticsControl.cleanup();
             readRouteControl.cleanup();

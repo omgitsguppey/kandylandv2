@@ -19,7 +19,8 @@ import { formatDistanceToNow } from "date-fns";
 
 import { useAuth } from "@/context/AuthContext";
 import { ReportBugButton } from "@/components/Feedback/ReportBugButton";
-import { recordClientDiagnostic } from "@/lib/client-diagnostics";
+import { reportClientIssue, buildFirestoreClientIssueDetail } from "@/lib/client-error-reporting";
+import { createAutoHealingObserver } from "@/lib/firestore-core-observer";
 import { trackEvent } from "@/lib/telemetry";
 import type { Transaction } from "@/types/db";
 import { authFetch } from "@/lib/authFetch";
@@ -160,12 +161,14 @@ function reportRecentActivityFailure(
     error: unknown,
     extra: Record<string, string> = {},
 ) {
-    const errorMessage = error instanceof Error ? error.message : String(error);
-
-    recordClientDiagnostic(category, message, {
-        userId,
-        message: errorMessage,
-        ...extra,
+    reportClientIssue({
+        channel: category,
+        message,
+        error,
+        detail: {
+            userId,
+            ...extra,
+        },
     });
 }
 
@@ -434,7 +437,7 @@ function useRecentActivityState(user: AuthenticatedUser, userId: string | null, 
 
         const currentUserId = userId;
         setLoadingSummary(true);
-        let mounted = true;
+        let cancelled = false;
         let unsubscribeUserRuntime: (() => void) | undefined;
         let sawUserRuntimeSnapshot = false;
 
@@ -449,7 +452,7 @@ function useRecentActivityState(user: AuthenticatedUser, userId: string | null, 
             inFlightRef.current = true;
             try {
                 const result = await fetchRecentActivity(view, etagRef.current);
-                if (!mounted) {
+                if (cancelled) {
                     return;
                 }
 
@@ -477,7 +480,7 @@ function useRecentActivityState(user: AuthenticatedUser, userId: string | null, 
                 });
             } finally {
                 inFlightRef.current = false;
-                if (!mounted) {
+                if (cancelled) {
                     return;
                 }
 
@@ -496,35 +499,47 @@ function useRecentActivityState(user: AuthenticatedUser, userId: string | null, 
                     import("@/lib/firebase-data"),
                 ]);
 
-                if (!mounted) {
+                if (cancelled) {
                     return;
                 }
 
-                unsubscribeUserRuntime = onSnapshot(
-                    doc(db, USER_RUNTIME_COLLECTION, user.uid),
-                    (snapshot: import("firebase/firestore").DocumentSnapshot) => {
-                        if (!sawUserRuntimeSnapshot) {
-                            sawUserRuntimeSnapshot = true;
-                            return;
-                        }
-
-                        const data = snapshot.data() as { activityVersion?: number; tasksVersion?: number } | undefined;
-                        if (typeof data?.activityVersion === "number" || typeof data?.tasksVersion === "number") {
-                            void refreshActivity("summary");
-                            if (expandedRef.current || historyLoadedRef.current) {
-                                void refreshActivity("history");
+                const observerControl = createAutoHealingObserver(() => {
+                    return onSnapshot(
+                        doc(db, USER_RUNTIME_COLLECTION, user.uid),
+                        (snapshot: import("firebase/firestore").DocumentSnapshot) => {
+                            if (cancelled) return;
+                            if (!sawUserRuntimeSnapshot) {
+                                sawUserRuntimeSnapshot = true;
+                                return;
                             }
-                        }
-                    },
-                    (error) => {
-                        reportRecentActivityFailure(
-                            "realtime",
-                            "Recent activity runtime subscription failed",
-                            currentUserId,
-                            error,
-                        );
-                    },
-                );
+
+                            const data = snapshot.data() as { activityVersion?: number; tasksVersion?: number } | undefined;
+                            if (typeof data?.activityVersion === "number" || typeof data?.tasksVersion === "number") {
+                                void refreshActivity("summary");
+                                if (expandedRef.current || historyLoadedRef.current) {
+                                    void refreshActivity("history");
+                                }
+                            }
+                        },
+                        (error) => {
+                            if (cancelled) return;
+                            observerControl.triggerReconnect(error);
+                        },
+                    );
+                }, (error) => {
+                    if (cancelled) return;
+                    reportRecentActivityFailure(
+                        "realtime",
+                        "Recent activity runtime subscription failed",
+                        currentUserId,
+                        error,
+                        buildFirestoreClientIssueDetail(error, {
+                            path: `${USER_RUNTIME_COLLECTION}/${currentUserId}`
+                        }) as Record<string, string>
+                    );
+                });
+
+                unsubscribeUserRuntime = () => observerControl.cleanup();
             } catch (error) {
                 reportRecentActivityFailure(
                     "firebase",
@@ -554,7 +569,7 @@ function useRecentActivityState(user: AuthenticatedUser, userId: string | null, 
         document.addEventListener("visibilitychange", handleVisibilityChange);
 
         return () => {
-            mounted = false;
+            cancelled = true;
             window.removeEventListener("focus", refreshRecentActivity);
             window.removeEventListener(ACTIVITY_SYNC_EVENT, refreshRecentActivity);
             document.removeEventListener("visibilitychange", handleVisibilityChange);

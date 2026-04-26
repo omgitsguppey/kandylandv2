@@ -51,24 +51,32 @@ export function AdminAnalyticsAudienceTab(props: AdminAnalyticsState) {
                   value={formatCompactNumber(audienceTotals.users)}
                   hint={`${audienceTotals.newUsers.toLocaleString()} new users`}
                   icon={Users}
+                  truthState={props.historicalTruthLabel || "cached"}
+                  dictionaryTooltip="Distinct users identified in the selected range. Includes both authenticated users and anonymous guests."
                 />
                 <MetricCard
                   label="Sessions"
                   value={formatCompactNumber(audienceTotals.sessions)}
                   hint={`${audienceTotals.views.toLocaleString()} views`}
                   icon={Activity}
+                  truthState={props.historicalTruthLabel || "cached"}
+                  dictionaryTooltip="Total number of discrete sessions initiated. A session usually expires after 30 minutes of inactivity."
                 />
                 <MetricCard
                   label="Avg Session"
                   value={formatDuration(audienceTotals.avgSessionDuration)}
                   hint="Average time per visit"
                   icon={Clock3}
+                  truthState={props.historicalTruthLabel || "cached"}
+                  dictionaryTooltip="Average length of time a user remains engaged with the app during a single session."
                 />
                 <MetricCard
                   label="Engagement"
                   value={formatPercent(audienceTotals.engagementRate)}
                   hint="GA engagement rate"
                   icon={Sparkles}
+                  truthState={props.historicalTruthLabel || "cached"}
+                  dictionaryTooltip="Percentage of sessions that lasted longer than 10 seconds, had a conversion event, or had 2+ screen views."
                 />
               </div>
 
@@ -184,12 +192,16 @@ export function AdminAnalyticsAudienceTab(props: AdminAnalyticsState) {
                     value={formatCompactNumber(returnCadenceSummary?.uniqueReturners || 0)}
                     hint="Multiple days active"
                     icon={Users}
+                    truthState={props.historicalTruthLabel || "cached"}
+                    dictionaryTooltip="Count of authenticated users who have logged in on multiple distinct days within the selected time window."
                   />
                   <MetricCard
                     label="Conversion"
                     value={formatPercent(returnCadenceSummary?.returnerConversionRate || 0)}
                     hint={`${(returnCadenceSummary?.trackedUsers || 0).toLocaleString()} tracked users`}
                     icon={Activity}
+                    truthState={props.historicalTruthLabel || "cached"}
+                    dictionaryTooltip="The percentage of all tracked authenticated users in this window who returned on multiple days."
                   />
                 </div>
               </SectionCard>

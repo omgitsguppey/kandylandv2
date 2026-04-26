@@ -1,6 +1,7 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
+import { reportClientIssue } from "@/lib/client-error-reporting";
 
 type EffectiveConnectionType = "slow-2g" | "2g" | "3g" | "4g" | null;
 
@@ -80,6 +81,25 @@ export function useNetworkConditions() {
     const [conditions, setConditions] = useState<NetworkConditions>(() => (
         typeof window === "undefined" ? DEFAULT_NETWORK_CONDITIONS : readNetworkConditions()
     ));
+    const reportedConstrainedRef = useRef(false);
+
+    useEffect(() => {
+        if (conditions.isConstrained && !reportedConstrainedRef.current) {
+            reportedConstrainedRef.current = true;
+            reportClientIssue({
+                channel: "network",
+                severity: "info",
+                message: "Constrained network detected",
+                detail: {
+                    downlinkMbps: conditions.downlinkMbps,
+                    effectiveType: conditions.effectiveType,
+                    isVerySlow: conditions.isVerySlow,
+                    saveData: conditions.saveData,
+                },
+                consoleLabel: "[Network] Constrained conditions detected",
+            });
+        }
+    }, [conditions]);
 
     useEffect(() => {
         const runtimeNavigator = navigator as Navigator & {

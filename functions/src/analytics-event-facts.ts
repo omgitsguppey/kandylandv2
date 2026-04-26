@@ -127,7 +127,21 @@ export const ingestAnalyticsEvent = onCall(
       throw new HttpsError("invalid-argument", "eventName is required.")
     }
 
-    const results = await Promise.all(rawEvents.map(async (rawEvent) => {
+    // Ensure within-batch idempotency to prevent race conditions during parallel processing
+    const uniqueEvents = new Map<string, unknown>();
+    for (const rawEvent of rawEvents) {
+      const eId = readString((rawEvent as any)?.eventId);
+      if (eId) {
+        if (!uniqueEvents.has(eId)) {
+          uniqueEvents.set(eId, rawEvent);
+        }
+      } else {
+        uniqueEvents.set(crypto.randomUUID(), rawEvent);
+      }
+    }
+    const deduplicatedEvents = Array.from(uniqueEvents.values());
+
+    const results = await Promise.all(deduplicatedEvents.map(async (rawEvent) => {
       const normalizedEvent = normalizeAnalyticsEventFact({
         rawEvent,
         userId,

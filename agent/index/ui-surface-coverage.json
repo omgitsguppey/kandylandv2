@@ -1,5 +1,5 @@
 {
-  "generatedAt": "2026-04-26T15:13:21.723Z",
+  "generatedAt": "2026-04-26T20:28:31.106Z",
   "truthOrder": [
     "verified_runtime_code",
     "verified_configuration",
@@ -1439,6 +1439,7 @@
       "runtime_dependencies": [
         "src/lib/creator-experiences.ts",
         "src/lib/server/firebase-admin.ts",
+        "src/lib/server/route-diagnostics.ts",
         "src/lib/site-origin.ts"
       ],
       "hydration_mode": "static",

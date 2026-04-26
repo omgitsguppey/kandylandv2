@@ -1,7 +1,8 @@
 import { useEffect, useState, useMemo } from "react";
 import { collection, query, orderBy, limit, onSnapshot, where } from "firebase/firestore";
 import { db } from "@/lib/firebase-data";
-import { reportRealtimeIssue } from "@/lib/client-error-reporting";
+import { reportRealtimeIssue, buildFirestoreClientIssueDetail } from "@/lib/client-error-reporting";
+import { createAutoHealingObserver } from "@/lib/self-healing";
 import { CHAT_COLLECTIONS } from "@/lib/chat";
 import { buildChatSoftSealScope, softOpenChatValue } from "@/lib/chat-soft-seal";
 import { describeSecurityEvent } from "@/lib/security-events";
@@ -66,7 +67,9 @@ function mapMessageRecord(id: string, value: Record<string, unknown>): AdminMode
         userId: toStringValue(value.userId),
         senderRole: value.senderRole === "creator" || value.senderRole === "admin" ? value.senderRole : "user",
         messageKind: value.messageKind === "image" || value.messageKind === "video" || value.messageKind === "broadcast" ? value.messageKind : "text",
-        text: toNullableString(softOpenChatValue(buildChatSoftSealScope(threadId, "text"), toNullableString(value.text))) ?? undefined,
+        text: toNullableString(value.text) && !toNullableString(softOpenChatValue(buildChatSoftSealScope(threadId, "text"), toNullableString(value.text))) 
+            ? "[Decryption Failed]" 
+            : toNullableString(softOpenChatValue(buildChatSoftSealScope(threadId, "text"), toNullableString(value.text))) ?? undefined,
         assetUrl: toNullableString(softOpenChatValue(buildChatSoftSealScope(threadId, "assetUrl"), toNullableString(value.assetUrl))) ?? undefined,
         assetName: toNullableString(softOpenChatValue(buildChatSoftSealScope(threadId, "assetName"), toNullableString(value.assetName))) ?? undefined,
         assetMimeType: toNullableString(value.assetMimeType) ?? undefined,
@@ -104,23 +107,19 @@ function clusterSecurityAlerts(alerts: AdminModerationSecurityAlert[]): AdminMod
     const sorted = [...alerts].sort((a, b) => a.timestamp - b.timestamp);
     
     for (const alert of sorted) {
-        // Create a canonical issue signature: user + reason
-        const signature = `${alert.userId}:${alert.reason}`;
+        // Create a canonical issue signature: user + reason + UTC day bucket (prevents infinite sliding window)
+        const dayBucket = Math.floor(alert.timestamp / 86400000);
+        const signature = `${alert.userId}:${alert.reason}:${dayBucket}`;
         
         if (clustered.has(signature)) {
             const existing = clustered.get(signature)!;
-            // Only cluster if they occurred within a rolling 24 hour window
-            if (alert.timestamp - existing.timestamp < 24 * 60 * 60 * 1000) {
-                clustered.set(signature, {
-                    ...alert, // take latest properties
-                    repeatCount: (existing.repeatCount || 1) + (alert.repeatCount || 1),
-                });
-            } else {
-                // If it's outside the window, just overwrite it as a new rolling window start
-                // Or modify signature to include time slice. We will just take the latest.
-                clustered.set(signature, alert);
-            }
+            clustered.set(signature, {
+                ...alert, // take latest properties
+                repeatCount: (existing.repeatCount || 1) + (alert.repeatCount || 1),
+            });
         } else {
+            // If it's outside the window, just overwrite it as a new rolling window start
+            // Or modify signature to include time slice. We will just take the latest.
             clustered.set(signature, alert);
         }
     }
@@ -139,7 +138,7 @@ export function useAdminModerationRealtime(selectedThreadId: string | null) {
     const [messagesError, setMessagesError] = useState<Error | null>(null);
     const [alertsError, setAlertsError] = useState<Error | null>(null);
     const activeThreadId = useMemo(() => {
-        if (selectedThreadId && threads.some((thread) => thread.id === selectedThreadId)) {
+        if (selectedThreadId) {
             return selectedThreadId;
         }
 
@@ -148,32 +147,50 @@ export function useAdminModerationRealtime(selectedThreadId: string | null) {
 
     // Threads Subscription
     useEffect(() => {
+        let cancelled = false;
         const q = query(collection(db, CHAT_COLLECTIONS.threads), orderBy("lastMessageAt", "desc"), limit(THREAD_LIMIT));
-        const unsubscribe = onSnapshot(q, (snapshot) => {
+        const control = createAutoHealingObserver(() => onSnapshot(q, (snapshot) => {
+            if (cancelled) return;
             const mapped = snapshot.docs.map(doc => mapThreadSummary(doc.id, doc.data() as Record<string, unknown>));
             setThreads(mapped);
             setIsLoadingThreads(false);
+            setThreadsError(null);
         }, (error) => {
+            if (cancelled) return;
             setThreadsError(error as Error);
             setIsLoadingThreads(false);
-            reportRealtimeIssue("Admin moderation threads", error, { listener: "admin_moderation_threads" });
+            control.triggerReconnect(error);
+        }), (error) => {
+            reportRealtimeIssue("Admin moderation threads", buildFirestoreClientIssueDetail(error), { listener: "admin_moderation_threads" });
         });
-        return unsubscribe;
+        return () => {
+            cancelled = true;
+            control.cleanup();
+        };
     }, []);
 
     // Security Alerts Subscription
     useEffect(() => {
+        let cancelled = false;
         const q = query(collection(db, "security_events"), orderBy("timestamp", "desc"), limit(SECURITY_LIMIT));
-        const unsubscribe = onSnapshot(q, (snapshot) => {
+        const control = createAutoHealingObserver(() => onSnapshot(q, (snapshot) => {
+            if (cancelled) return;
             const mapped = snapshot.docs.map(doc => mapSecurityAlert(doc.id, doc.data() as Record<string, unknown>));
             setRawAlerts(mapped);
             setIsLoadingAlerts(false);
+            setAlertsError(null);
         }, (error) => {
+            if (cancelled) return;
             setAlertsError(error as Error);
             setIsLoadingAlerts(false);
-            reportRealtimeIssue("Admin moderation security alerts", error, { listener: "admin_moderation_security_alerts" });
+            control.triggerReconnect(error);
+        }), (error) => {
+            reportRealtimeIssue("Admin moderation security alerts", buildFirestoreClientIssueDetail(error), { listener: "admin_moderation_security_alerts" });
         });
-        return unsubscribe;
+        return () => {
+            cancelled = true;
+            control.cleanup();
+        };
     }, []);
 
     // Thread Detail Subscription
@@ -182,8 +199,10 @@ export function useAdminModerationRealtime(selectedThreadId: string | null) {
             return;
         }
 
+        let cancelled = false;
         const q = query(collection(db, CHAT_COLLECTIONS.messages), where("threadId", "==", activeThreadId));
-        const unsubscribe = onSnapshot(q, (snapshot) => {
+        const control = createAutoHealingObserver(() => onSnapshot(q, (snapshot) => {
+            if (cancelled) return;
             const mapped = snapshot.docs
                 .map(doc => mapMessageRecord(doc.id, doc.data() as Record<string, unknown>))
                 .sort((left, right) => left.createdAt - right.createdAt)
@@ -192,11 +211,17 @@ export function useAdminModerationRealtime(selectedThreadId: string | null) {
             setMessages(mapped);
             setMessagesError(null);
         }, (error) => {
+            if (cancelled) return;
             setMessagesThreadId(activeThreadId);
             setMessagesError(error as Error);
-            reportRealtimeIssue("Admin moderation messages", error, { listener: "admin_moderation_messages", threadId: activeThreadId });
+            control.triggerReconnect(error);
+        }), (error) => {
+            reportRealtimeIssue("Admin moderation messages", buildFirestoreClientIssueDetail(error), { listener: "admin_moderation_messages", threadId: activeThreadId });
         });
-        return unsubscribe;
+        return () => {
+            cancelled = true;
+            control.cleanup();
+        };
     }, [activeThreadId]);
 
     const alerts = useMemo(() => clusterSecurityAlerts(rawAlerts), [rawAlerts]);

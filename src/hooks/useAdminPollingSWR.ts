@@ -3,6 +3,7 @@
 import type { SWRConfiguration, SWRResponse } from "swr";
 
 import { useAuthSWR } from "@/hooks/useAuthSWR";
+import { reportClientIssue } from "@/lib/client-error-reporting";
 
 export function createAdminPollingConfig<T>(refreshInterval: number, config?: SWRConfiguration<T>) {
     return {
@@ -12,6 +13,16 @@ export function createAdminPollingConfig<T>(refreshInterval: number, config?: SW
         errorRetryCount: 3,
         errorRetryInterval: 5000,
         refreshInterval,
+        onError: (error: Error, key: string) => {
+            reportClientIssue({
+                channel: "swr",
+                severity: "warn",
+                message: `Admin polling SWR error on ${key}`,
+                error,
+                detail: { key, refreshInterval },
+                consoleLabel: `[AdminPollingSWR] ${key} failed`,
+            });
+        },
         ...config,
     } satisfies SWRConfiguration<T>;
 }

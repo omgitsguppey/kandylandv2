@@ -3,10 +3,12 @@
 import { useEffect, useState } from "react";
 import { collection, onSnapshot, orderBy, query } from "firebase/firestore";
 
-import { reportRealtimeIssue } from "@/lib/client-error-reporting";
+import { reportClientIssue } from "@/lib/client-error-reporting";
 import { db } from "@/lib/firebase-data";
 import { normalizeDropRecordOrFallback } from "@/lib/drop-read-models";
 import type { Drop } from "@/types/db";
+import { createAutoHealingObserver } from "@/lib/self-healing";
+import { buildFirestoreClientFallbackMessage, buildFirestoreClientIssueDetail } from "@/lib/firestore-client-errors";
 
 export function useAdminDropsFeed() {
     const [drops, setDrops] = useState<Drop[]>([]);
@@ -15,8 +17,11 @@ export function useAdminDropsFeed() {
     const [loadError, setLoadError] = useState<string | null>(null);
 
     useEffect(() => {
+        let cancelled = false;
         const dropsQuery = query(collection(db, "drops"), orderBy("validFrom", "desc"));
-        const unsubscribe = onSnapshot(dropsQuery, (snapshot) => {
+        
+        const control = createAutoHealingObserver(() => onSnapshot(dropsQuery, (snapshot) => {
+            if (cancelled) return;
             const nextDrops: Drop[] = [];
             const nextLegacyQueueIds = new Set<string>();
 
@@ -35,14 +40,28 @@ export function useAdminDropsFeed() {
             setLoadError(null);
             setLoading(false);
         }, (error) => {
-            reportRealtimeIssue("admin drops feed", error, {
-                scope: "admin_drops_subscription",
+            if (cancelled) return;
+            reportClientIssue({
+                channel: "firebase",
+                severity: "warn",
+                message: "Admin drops feed realtime listener failed",
+                error,
+                detail: buildFirestoreClientIssueDetail(error, {
+                    listener: "admin_drops_feed",
+                    scope: "admin_drops_subscription",
+                    fallbackMessage: buildFirestoreClientFallbackMessage("Admin drops feed", error),
+                }),
+                consoleLabel: "[Admin Drops Feed] realtime listener failed",
             });
-            setLoadError(error instanceof Error ? error.message : "Failed to load drops.");
+            setLoadError(buildFirestoreClientFallbackMessage("Admin drops feed", error));
             setLoading(false);
-        });
+            control.triggerReconnect(error);
+        }));
 
-        return () => unsubscribe();
+        return () => {
+            cancelled = true;
+            control.cleanup();
+        };
     }, []);
 
     return {

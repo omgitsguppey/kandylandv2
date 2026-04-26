@@ -9,6 +9,8 @@ import { paginateOverviewItems } from "@/lib/admin-overview";
 import { useNow } from "@/hooks/useNow";
 import { db } from "@/lib/firebase-data";
 import { getTransactionBadgeLabel, normalizeTransactionRecord } from "@/lib/transaction-normalizers";
+import { reportRealtimeIssue, buildFirestoreClientIssueDetail } from "@/lib/client-error-reporting";
+import { createAutoHealingObserver } from "@/lib/self-healing";
 
 type RecentTransactionsPanelProps = {
     transactions: AdminOverviewResponse["recentTransactions"];
@@ -78,15 +80,17 @@ export function RecentTransactionsPanel({ transactions: fallbackTransactions }: 
     );
 
     useEffect(() => {
+        let cancelled = false;
         const recentTransactionsQuery = query(
             collection(db, "transactions"),
             orderBy("timestamp", "desc"),
             limit(20),
         );
 
-        return onSnapshot(
+        const control = createAutoHealingObserver(() => onSnapshot(
             recentTransactionsQuery,
             (snapshot) => {
+                if (cancelled) return;
                 setLiveFeedError(null);
                 setLiveFeedErrorAtMs(0);
                 const nextTransactions = snapshot.docs.flatMap((doc) => {
@@ -103,11 +107,20 @@ export function RecentTransactionsPanel({ transactions: fallbackTransactions }: 
                 setLiveTransactions(nextTransactions);
             },
             (error) => {
+                if (cancelled) return;
                 setLiveFeedError(error instanceof Error ? error.message : "Live transaction listener failed.");
                 setLiveFeedErrorAtMs(Date.now());
                 setLiveTransactions(null);
+                control.triggerReconnect(error);
             },
-        );
+        ), (error) => {
+            reportRealtimeIssue("Admin recent transactions panel", buildFirestoreClientIssueDetail(error), { listener: "admin_recent_transactions_panel" });
+        });
+
+        return () => {
+            cancelled = true;
+            control.cleanup();
+        };
     }, [fallbackById]);
 
     return (

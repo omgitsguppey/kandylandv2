@@ -1,5 +1,5 @@
 {
-  "generatedAt": "2026-04-26T15:05:02.505Z",
+  "generatedAt": "2026-04-26T20:45:50.017Z",
   "truthOrder": [
     "verified_runtime_code",
     "verified_configuration",
@@ -16,102 +16,20 @@
     "agent/index/surface-map.json",
     "agent/index/ui-surface-coverage.json"
   ],
-  "stable_id": "verifyplan__src__app__admin__analytics__hooks__useadminanalyticsstate-tsx",
+  "stable_id": "verifyplan__src__hooks",
   "inputPaths": [
-    "src/app/admin/analytics/hooks/useAdminAnalyticsState.tsx"
+    "src/hooks"
   ],
-  "matchedRepoPaths": [
-    "src/app/admin/analytics/hooks/useAdminAnalyticsState.tsx"
+  "matchedRepoPaths": [],
+  "unmatchedPaths": [
+    "src/hooks"
   ],
-  "unmatchedPaths": [],
-  "touchedDomains": [
-    "admin_ops",
-    "app_routes"
-  ],
-  "fastCommands": [
-    "npm run typecheck",
-    "npm run agent:test -- src/app/admin/analytics/hooks/useAdminAnalyticsState.tsx",
-    "npm run check:ui:coverage",
-    "npm run check:ui:runtime",
-    "npm run check:telemetry",
-    "npm run check:analytics-semantics"
-  ],
-  "signoffCommands": [
-    "npm run check:ui:audits",
-    "npm run check:analytics:continuity",
-    "npm run check:continuity"
-  ],
-  "fastSelections": [
-    {
-      "command": "npm run typecheck",
-      "why": [
-        "TypeScript or runtime code changed."
-      ],
-      "lane": "fast"
-    },
-    {
-      "command": "npm run agent:test -- src/app/admin/analytics/hooks/useAdminAnalyticsState.tsx",
-      "why": [
-        "Run the narrowest related contract/unit tests first."
-      ],
-      "lane": "fast"
-    },
-    {
-      "command": "npm run check:ui:coverage",
-      "why": [
-        "Indexed UI/admin surfaces changed."
-      ],
-      "lane": "fast"
-    },
-    {
-      "command": "npm run check:ui:runtime",
-      "why": [
-        "Hydration/runtime UI continuity should stay truthful."
-      ],
-      "lane": "fast"
-    },
-    {
-      "command": "npm run check:telemetry",
-      "why": [
-        "Telemetry or analytics semantics changed."
-      ],
-      "lane": "fast"
-    },
-    {
-      "command": "npm run check:analytics-semantics",
-      "why": [
-        "Canonical analytics naming/schema must remain aligned."
-      ],
-      "lane": "fast"
-    }
-  ],
-  "signoffSelections": [
-    {
-      "command": "npm run check:ui:audits",
-      "why": [
-        "UI/admin signoff requires Playwright audit coverage."
-      ],
-      "lane": "signoff"
-    },
-    {
-      "command": "npm run check:analytics:continuity",
-      "why": [
-        "Analytics continuity needs explicit signoff for behavioral/runtime changes."
-      ],
-      "lane": "signoff"
-    },
-    {
-      "command": "npm run check:continuity",
-      "why": [
-        "Broad/shared/helper/tooling work requires continuity signoff."
-      ],
-      "lane": "signoff"
-    }
-  ],
-  "signoffAdvisories": [
-    "Run `npm run check:ui:lighthouse` only if the touched UI change affects loading, rendering, or performance-sensitive behavior.",
-    "Run `npm run trace:adjacent -- <path>` for the main touched files before broad signoff."
-  ],
+  "touchedDomains": [],
+  "fastCommands": [],
+  "signoffCommands": [],
+  "fastSelections": [],
+  "signoffSelections": [],
+  "signoffAdvisories": [],
   "forbiddenSurfaces": [
     "src/lib/gumdrop-ledger.ts",
     "src/lib/gumdrop-economics.ts",
@@ -119,8 +37,8 @@
     "src/app/api/paypal",
     "functions/src/analytics-transactions.ts"
   ],
-  "broadWork": true,
+  "broadWork": false,
   "reasoning": [
-    "Matched 1 repo-tracked paths."
+    "No repo-tracked paths matched exactly; verification falls back to generic lanes only."
   ]
 }

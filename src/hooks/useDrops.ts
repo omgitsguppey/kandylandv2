@@ -3,6 +3,8 @@
 import { useState, useEffect, useMemo, useRef, useCallback } from "react";
 import useSWRInfinite from "swr/infinite";
 import { reportClientIssue, reportRealtimeIssue } from "@/lib/client-error-reporting";
+import { buildFirestoreClientIssueDetail } from "@/lib/firestore-client-errors";
+import { createAutoHealingObserver } from "@/lib/firestore-core-observer";
 import { Drop } from "@/types/db";
 import { applyDropStatus, resolveDropStatusFromTiming } from "@/lib/drop-status";
 import { SYSTEM_RUNTIME_COLLECTION, DROP_RUNTIME_DOC_ID } from "@/lib/platform-config";
@@ -96,6 +98,15 @@ export function useDrops(
     revalidateOnFocus: false,
     refreshInterval: refreshIntervalMs,
     refreshWhenHidden: false,
+    onError: (err) => {
+      reportClientIssue({
+        channel: "swr",
+        severity: "warn",
+        message: "Drops SWR fetch error",
+        error: err,
+        consoleLabel: "[Drops] SWR fetch failed",
+      });
+    },
   });
 
   const refreshDrops = useCallback((throttleMs: number) => {
@@ -149,22 +160,35 @@ export function useDrops(
           return;
         }
 
-        unsubscribe = onSnapshot(
-          doc(db, SYSTEM_RUNTIME_COLLECTION, DROP_RUNTIME_DOC_ID),
-          () => {
-            if (!sawInitialSnapshot) {
-              sawInitialSnapshot = true;
-              return;
-            }
+        const observerControl = createAutoHealingObserver(() => {
+          return onSnapshot(
+            doc(db, SYSTEM_RUNTIME_COLLECTION, DROP_RUNTIME_DOC_ID),
+            () => {
+              if (cancelled) return;
+              if (!sawInitialSnapshot) {
+                sawInitialSnapshot = true;
+                return;
+              }
 
-            refreshDrops(isConstrained ? 6_000 : 1_500);
-          },
-          (error) => {
-            reportRealtimeIssue("drop runtime subscription", error, {
-              message: error.message,
-            });
-          },
-        );
+              refreshDrops(isConstrained ? 6_000 : 1_500);
+            },
+            (error) => {
+              if (cancelled) return;
+              observerControl.triggerReconnect(error);
+            },
+          );
+        }, (error) => {
+          if (cancelled) return;
+          reportRealtimeIssue(
+            "drop runtime subscription",
+            error,
+            buildFirestoreClientIssueDetail(error, {
+              path: `${SYSTEM_RUNTIME_COLLECTION}/${DROP_RUNTIME_DOC_ID}`,
+            }) as Record<string, unknown>
+          );
+        });
+
+        unsubscribe = () => observerControl.cleanup();
       } catch (error) {
         if (!cancelled) {
           reportClientIssue({

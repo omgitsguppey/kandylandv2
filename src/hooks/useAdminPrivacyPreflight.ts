@@ -2,6 +2,8 @@ import { useState, useEffect } from "react";
 import { onSnapshot, collection, query, limit, orderBy } from "firebase/firestore";
 import { db } from "@/lib/firebase-data";
 import { reportRealtimeIssue } from "@/lib/client-error-reporting";
+import { buildFirestoreClientIssueDetail } from "@/lib/firestore-client-errors";
+import { createAutoHealingObserver } from "@/lib/self-healing";
 import type { AdminSurfaceState } from "@/lib/admin-parity";
 
 export interface PrivacyPreflightStatus {
@@ -30,6 +32,8 @@ export function useAdminPrivacyPreflight() {
   });
 
   useEffect(() => {
+    let cancelled = false;
+
     // Listen to recent events to measure pipeline health
     const eventsQuery = query(
       collection(db, "analytics_event_facts"),
@@ -37,7 +41,8 @@ export function useAdminPrivacyPreflight() {
       limit(10)
     );
 
-    const unsubscribeEvents = onSnapshot(eventsQuery, (snapshot) => {
+    const control = createAutoHealingObserver(() => onSnapshot(eventsQuery, (snapshot) => {
+      if (cancelled) return;
       let rejections = 0;
       let lastTimestamp = 0;
       let canonicalOriginated = 0;
@@ -93,7 +98,7 @@ export function useAdminPrivacyPreflight() {
         dedupeHealth: !hasRecentEvents ? "unavailable" : validDedupeEvents > 0 ? "live" : "degraded",
       }));
     }, (error) => {
-      reportRealtimeIssue("Admin privacy preflight pipeline", error, { listener: "admin_privacy_preflight_events" });
+      if (cancelled) return;
       setStatus(prev => ({
         ...prev,
         eventsPipeline: "failed",
@@ -104,10 +109,15 @@ export function useAdminPrivacyPreflight() {
         dedupeHealth: "failed",
         globalGuestTracking: "failed",
       }));
+      control.triggerReconnect(error);
+    }), (error) => {
+      const issueDetail = buildFirestoreClientIssueDetail(error);
+      reportRealtimeIssue(`Admin privacy preflight pipeline: ${issueDetail}`, error, { listener: "admin_privacy_preflight_events" });
     });
 
     return () => {
-      unsubscribeEvents();
+      cancelled = true;
+      control.cleanup();
     };
   }, []);
 

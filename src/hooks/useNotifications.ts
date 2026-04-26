@@ -26,6 +26,7 @@ export function useNotifications({ enabled = true }: UseNotificationsOptions = {
     const [loadedForUserId, setLoadedForUserId] = useState<string | null>(null);
     const [loadError, setLoadError] = useState<string | null>(null);
     const etagRef = useRef<string | null>(null);
+    const consecutiveFailuresRef = useRef<number>(0);
 
     useEffect(() => {
         if (!userId) {
@@ -33,6 +34,7 @@ export function useNotifications({ enabled = true }: UseNotificationsOptions = {
             setLoadedForUserId(null);
             setLoadError(null);
             etagRef.current = null;
+            consecutiveFailuresRef.current = 0;
             return;
         }
         if (!enabled) {
@@ -53,6 +55,7 @@ export function useNotifications({ enabled = true }: UseNotificationsOptions = {
                     if (!cancelled) {
                         setLoadError(null);
                         setLoadedForUserId(currentUserId);
+                        consecutiveFailuresRef.current = 0;
                     }
                     return;
                 }
@@ -80,15 +83,21 @@ export function useNotifications({ enabled = true }: UseNotificationsOptions = {
                         : null,
                 })) as Notification[];
 
+                consecutiveFailuresRef.current = 0;
                 etagRef.current = response.headers.get("etag");
                 setNotificationsState(scopedNotifications);
                 setLoadedForUserId(currentUserId);
                 setLoadError(null);
             } catch (error) {
+                consecutiveFailuresRef.current += 1;
+                const failureCount = consecutiveFailuresRef.current;
+                const isConsecutive = failureCount > 1;
                 const message = error instanceof Error ? error.message : String(error);
                 reportRealtimeIssue("notifications fetch", error, {
                     userId: currentUserId,
                     message,
+                    failureCount: failureCount.toString(),
+                    escalated: isConsecutive.toString(),
                 });
                 if (!cancelled) {
                     setLoadError(message);

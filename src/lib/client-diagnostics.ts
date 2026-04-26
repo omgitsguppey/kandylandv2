@@ -24,7 +24,8 @@ export type ClientDiagnosticChannel =
   | "ui"
   | "error"
   | "feedback"
-  | "rollout";
+  | "rollout"
+  | "swr";
 
 export type ClientDiagnosticSeverity = "info" | "warn" | "error";
 export type ClientBreadcrumbCategory = "route" | "interaction" | "network" | "error" | "state";

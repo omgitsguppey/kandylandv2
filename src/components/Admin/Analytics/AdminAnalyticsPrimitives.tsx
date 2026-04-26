@@ -38,7 +38,8 @@ export interface MetricCardProps {
     icon: LucideIcon;
     className?: string;
     valueClassName?: string;
-    truthState?: "live" | "fallback" | "partial" | "failed" | "cached";
+    truthState?: "live" | "fallback" | "partial" | "failed" | "cached" | "stale" | "unknown";
+    dictionaryTooltip?: string;
 }
 
 export function AnalyticsTooltip({
@@ -135,6 +136,8 @@ export function SectionCard({
     );
 }
 
+import { Info } from "lucide-react";
+
 export function MetricCard({
     label,
     value,
@@ -143,6 +146,7 @@ export function MetricCard({
     className,
     valueClassName,
     truthState,
+    dictionaryTooltip,
 }: MetricCardProps) {
     return (
         <div
@@ -152,19 +156,35 @@ export function MetricCard({
             )}
         >
             <div className="mb-2.5 flex items-center justify-between gap-2 text-[11px] font-semibold uppercase tracking-[0.14em] text-gray-500">
-                <div className="flex items-center gap-2">
+                <div className="flex items-center gap-1.5">
                     <Icon className="h-3.5 w-3.5 text-brand-purple" />
                     <span>{label}</span>
+                    {dictionaryTooltip && (
+                        <div className="group relative ml-1 flex items-center">
+                            <Info className="h-3 w-3 text-gray-400 hover:text-white transition-colors cursor-help" />
+                            <div className="pointer-events-none absolute bottom-full left-1/2 z-50 mb-2 w-48 -translate-x-1/2 opacity-0 transition-opacity group-hover:opacity-100">
+                                <div className="rounded-lg border border-white/10 bg-black/95 p-2 text-[10px] font-medium normal-case leading-tight text-gray-300 shadow-xl backdrop-blur-md">
+                                    {dictionaryTooltip}
+                                </div>
+                                <div className="absolute left-1/2 top-full -mt-1 -translate-x-1/2 border-4 border-transparent border-t-black/95" />
+                            </div>
+                        </div>
+                    )}
                 </div>
                 {truthState ? (
-                    <span className={cn(
-                        "rounded px-1.5 py-0.5 text-[9px] font-bold uppercase tracking-[0.1em]",
-                        truthState === "live" ? "bg-emerald-500/10 text-emerald-400 border border-emerald-400/20" :
-                        truthState === "fallback" ? "bg-amber-500/10 text-amber-400 border border-amber-400/20" :
-                        truthState === "partial" ? "bg-amber-500/10 text-amber-400 border border-amber-400/20" :
-                        truthState === "failed" ? "bg-red-500/10 text-red-400 border border-red-400/20" :
-                        truthState === "cached" ? "bg-blue-500/10 text-blue-400 border border-blue-400/20" : ""
-                    )}>
+                    <span 
+                        title={`Data state: ${truthState}`}
+                        className={cn(
+                            "cursor-help rounded px-1.5 py-0.5 text-[9px] font-bold uppercase tracking-[0.1em]",
+                            truthState === "live" ? "bg-emerald-500/10 text-emerald-400 border border-emerald-400/20" :
+                            truthState === "fallback" ? "bg-amber-500/10 text-amber-400 border border-amber-400/20" :
+                            truthState === "partial" ? "bg-amber-500/10 text-amber-400 border border-amber-400/20" :
+                            truthState === "failed" ? "bg-red-500/10 text-red-400 border border-red-400/20" :
+                            truthState === "cached" ? "bg-blue-500/10 text-blue-400 border border-blue-400/20" :
+                            truthState === "stale" ? "bg-orange-500/10 text-orange-400 border border-orange-400/20" :
+                            "bg-gray-500/10 text-gray-400 border border-gray-400/20"
+                        )}
+                    >
                         {truthState}
                     </span>
                 ) : null}

@@ -61,6 +61,8 @@ export function AdminAnalyticsCommerceTab(props: AdminAnalyticsState) {
                   value={formatMoney(commerceSnapshotCommerce.revenueUsd)}
                   hint="Completed currency purchases"
                   icon={DollarSign}
+                  truthState={props.commerceTruthLabel}
+                  dictionaryTooltip="Total USD revenue collected from all completed purchases."
                 />
                 <MetricCard
                   label="Adj. Profit"
@@ -69,6 +71,8 @@ export function AdminAnalyticsCommerceTab(props: AdminAnalyticsState) {
                   )}
                   hint={`${formatMoney(commerceSnapshotCommerce.bonusValueUsd ?? 0)} promo value granted`}
                   icon={Wallet}
+                  truthState={props.commerceTruthLabel}
+                  dictionaryTooltip="Net profit after accounting for platform fees and promotional value granted."
                 />
                 <MetricCard
                   label="Yield / 100 GD"
@@ -77,12 +81,16 @@ export function AdminAnalyticsCommerceTab(props: AdminAnalyticsState) {
                   )}
                   hint={`${formatCompactNumber(commerceSnapshotCommerce.deliveredGumDrops ?? 0)} GD delivered`}
                   icon={Sparkles}
+                  truthState={props.commerceTruthLabel}
+                  dictionaryTooltip="Effective USD revenue earned per 100 GumDrops delivered."
                 />
                 <MetricCard
                   label="GD Spent"
                   value={formatCompactNumber(commerceSnapshotCommerce.gdSpent)}
                   hint={`${formatCompactNumber(commerceSnapshotCommerce.bonusGumDrops ?? 0)} bonus GD granted`}
                   icon={ShoppingBag}
+                  truthState={props.commerceTruthLabel}
+                  dictionaryTooltip="Total volume of GumDrops spent by users across all experiences."
                 />
               </div>
 

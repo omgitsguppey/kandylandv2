@@ -106,24 +106,31 @@ export default function AdminAnalyticsPage() {
               : "Active in the last 30 mins"}
           icon={Activity}
           truthState={liveResponse?.liveTruthLabel ?? (liveFeedStatus === "realtime" ? "live" : undefined)}
+          dictionaryTooltip="Current active users on the platform. Can be live via canonical realtime tracking or fall back to historical tracking over 30 mins."
         />
         <MetricCard
           label="Mobile Share"
           value={formatPercent(mobileShare)}
           hint={`${mobileUsers.toLocaleString()} mobile users in range`}
           icon={Smartphone}
+          truthState={state.historicalTruthLabel || "cached"}
+          dictionaryTooltip="Percentage of visitors in this time range who are on mobile devices. Essential for guiding responsive design priority."
         />
         <MetricCard
           label="Revenue"
           value={formatMoney(commerce.revenueUsd)}
           hint={`${range.toUpperCase()} tracked revenue`}
           icon={DollarSign}
+          truthState={state.commerceTruthLabel || "cached"}
+          dictionaryTooltip="Total top-line revenue measured in USD across all confirmed transactions within the range. Does not subtract platform fees."
         />
         <MetricCard
           label="Purchases"
           value={formatCompactNumber(funnel.purchases)}
           hint={`${funnel.checkoutStarts.toLocaleString()} checkout starts`}
           icon={ShoppingBag}
+          truthState={state.commerceTruthLabel || "cached"}
+          dictionaryTooltip="Number of distinct successful purchases completed. Compare to checkout starts to monitor conversion dropout."
         />
       </div>
 

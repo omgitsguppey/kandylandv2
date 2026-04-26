@@ -67,7 +67,7 @@ function readJsonStorage<T>(storageKey: string): T | null {
     }
 
     try {
-        const raw = window.sessionStorage.getItem(storageKey);
+        const raw = window.localStorage.getItem(storageKey);
         return raw ? destr<T>(raw) : null;
     } catch {
         return null;
@@ -80,7 +80,7 @@ function writeJsonStorage(storageKey: string, value: unknown) {
     }
 
     try {
-        window.sessionStorage.setItem(storageKey, JSON.stringify(value));
+        window.localStorage.setItem(storageKey, JSON.stringify(value));
     } catch {
         // Ignore storage write failures in private browsing / restricted contexts.
     }
@@ -128,7 +128,7 @@ function clearPersistedTelemetryQueue() {
     }
 
     try {
-        window.sessionStorage.removeItem(IDENTIFIED_QUEUE_STORAGE_KEY);
+        window.localStorage.removeItem(IDENTIFIED_QUEUE_STORAGE_KEY);
     } catch {
         // Ignore storage failures in restricted contexts.
     }
@@ -340,9 +340,22 @@ async function flushQueuedTelemetry(reason: "scheduled" | "immediate" | "pagehid
 
     telemetryFlushInFlight = (async () => {
         try {
-            const functions = getFunctions(app);
-            const ingestFn = httpsCallable(functions, "ingestAnalyticsEvent");
-            await ingestFn({ events: batch });
+            if ((reason === "pagehide" || reason === "visibility") && typeof navigator !== "undefined" && navigator.sendBeacon) {
+                // Use sendBeacon for unload events to ensure 100% accuracy during tab closure
+                const beaconPayload = new Blob([JSON.stringify({ data: { events: batch } })], { type: "application/json" });
+                // We use the same URL the httpsCallable uses
+                const region = "us-central1"; 
+                const projectId = app.options.projectId;
+                const endpoint = `https://${region}-${projectId}.cloudfunctions.net/ingestAnalyticsEvent`;
+                const success = navigator.sendBeacon(endpoint, beaconPayload);
+                if (!success) {
+                   throw new Error("sendBeacon returned false");
+                }
+            } else {
+                const functions = getFunctions(app);
+                const ingestFn = httpsCallable(functions, "ingestAnalyticsEvent");
+                await ingestFn({ events: batch });
+            }
         } catch (error) {
             telemetryQueue = [...batch, ...telemetryQueue].slice(-50);
             persistTelemetryQueue();

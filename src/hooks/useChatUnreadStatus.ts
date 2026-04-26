@@ -12,7 +12,7 @@ import {
 import { buildFirestoreClientFallbackMessage, buildFirestoreClientIssueDetail } from "@/lib/firestore-client-errors";
 import { db } from "@/lib/firebase-data";
 import { reportRealtimeIssue } from "@/lib/client-error-reporting";
-import { createAutoHealingObserver } from "@/lib/self-healing";
+import { createAutoHealingObserver } from "@/lib/firestore-core-observer";
 
 export function useChatUnreadStatus() {
     const { user, userProfile } = useAuth();
@@ -37,12 +37,14 @@ export function useChatUnreadStatus() {
         }
 
         const viewerField = viewerRole === "creator" ? "creatorId" : "userId";
+        let cancelled = false;
         
         const observerControl = createAutoHealingObserver(
             () => {
                 return onSnapshot(
                     query(collection(db, CHAT_COLLECTIONS.threads), where(viewerField, "==", user.uid)),
                     (snapshot) => {
+                        if (cancelled) return;
                         let unreadCount = 0;
                         for (const docSnapshot of snapshot.docs) {
                             const raw = docSnapshot.data() as ChatThreadRecord;
@@ -56,11 +58,13 @@ export function useChatUnreadStatus() {
                         });
                     },
                     (error) => {
+                        if (cancelled) return;
                         observerControl.triggerReconnect(error);
                     }
                 );
             },
             (error) => {
+                if (cancelled) return;
                 const now = Date.now();
                 if (!realtimeIssueReportedAtRef.current || now - realtimeIssueReportedAtRef.current > 30000) {
                     realtimeIssueReportedAtRef.current = now;
@@ -68,7 +72,8 @@ export function useChatUnreadStatus() {
                         userId: user.uid,
                         ...buildFirestoreClientIssueDetail(error, {
                             fallbackMessage: buildFirestoreClientFallbackMessage("Chat unread badge", error),
-                        }),
+                            path: `${CHAT_COLLECTIONS.threads}`
+                        }) as Record<string, string>,
                     });
                 }
             },
@@ -76,6 +81,7 @@ export function useChatUnreadStatus() {
         );
 
         return () => {
+            cancelled = true;
             observerControl.cleanup();
         };
     }, [subscriptionKey, user, viewerRole]);

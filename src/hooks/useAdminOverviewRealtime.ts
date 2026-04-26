@@ -6,7 +6,9 @@ import useSWR from "swr";
 
 import { authFetch } from "@/lib/authFetch";
 import { reportRealtimeIssue } from "@/lib/client-error-reporting";
+import { buildFirestoreClientIssueDetail } from "@/lib/firestore-client-errors";
 import { db } from "@/lib/firebase-data";
+import { createAutoHealingObserver } from "@/lib/self-healing";
 import type { AdminOverviewResponse, AdminOverviewTransactionRecord } from "@/lib/admin-overview";
 import { normalizeTransactionRecord } from "@/lib/transaction-normalizers";
 import { isDropHiddenFromPublic, normalizeAndApplyDropStatusOrNull } from "@/lib/drop-read-models";
@@ -122,6 +124,7 @@ export function useAdminOverviewRealtime() {
         summaryFailed: false,
         transactionsFailed: false,
     });
+    const dropsLoadedRef = useRef(false);
 
     useEffect(() => {
         serverDataRef.current = serverData;
@@ -130,8 +133,11 @@ export function useAdminOverviewRealtime() {
     useEffect(() => {
         if (typeof window === "undefined") return;
 
+        let cancelled = false;
+
         // Subscribe to Drops
-        const unsubscribeDrops = onSnapshot(collection(db, "drops"), (snapshot) => {
+        const dropsControl = createAutoHealingObserver(() => onSnapshot(collection(db, "drops"), (snapshot) => {
+            if (cancelled) return;
             const now = Date.now();
             const drops = snapshot.docs.flatMap(doc => {
                 const normalized = normalizeAndApplyDropStatusOrNull(doc.data(), doc.id, now);
@@ -147,19 +153,25 @@ export function useAdminOverviewRealtime() {
                 stats: {
                     ...prev.stats,
                     ...(latestServerData?.stats || {}),
-                    liveDrops: drops.filter(d => d.status === "active").length,
+                    liveDrops: drops.filter(d => d.status === "active" && !isDropHiddenFromPublic(d)).length,
                     totalDrops: drops.length,
-                    totalUnwraps: Math.max(prev.stats?.totalUnwraps || 0, latestServerData?.stats?.totalUnwraps || 0, drops.reduce((sum, d) => sum + (d.totalUnlocks || 0), 0))
+                    totalUnwraps: drops.reduce((sum, d) => sum + (d.totalUnlocks || 0), 0)
                 } as AdminOverviewResponse["stats"]
             }));
+            dropsLoadedRef.current = true;
             setListenerState((current) => ({ ...current, dropsLoaded: true, dropsFailed: false }));
         }, (err) => {
+            if (cancelled) return;
             setListenerState((current) => ({ ...current, dropsFailed: true }));
-            reportRealtimeIssue("Admin overview drops", err, { listener: "admin_overview_drops" });
+            dropsControl.triggerReconnect(err);
+        }), (error) => {
+            const issueDetail = buildFirestoreClientIssueDetail(error);
+            reportRealtimeIssue(`Admin overview drops: ${issueDetail}`, error, { listener: "admin_overview_drops" });
         });
 
         // Subscribe to Commerce Rollup Summary
-        const unsubscribeSummary = onSnapshot(doc(db, "analytics_commerce_rollup", "summary"), (snapshot) => {
+        const summaryControl = createAutoHealingObserver(() => onSnapshot(doc(db, "analytics_commerce_rollup", "summary"), (snapshot) => {
+            if (cancelled) return;
             if (snapshot.exists()) {
                 const raw = snapshot.data();
                 const grossRevenueUsdTotal = Number(raw.grossRevenueUsdTotal || 0);
@@ -174,27 +186,39 @@ export function useAdminOverviewRealtime() {
                         ...prev.stats,
                         ...(latestServerData?.stats || {}),
                         grossRevenueCents: Math.max(grossRevenueCents, prev.stats?.grossRevenueCents || 0, latestServerData?.stats?.grossRevenueCents || 0),
-                        totalUnwraps: Math.max(unlockCount, prev.stats?.totalUnwraps || 0, latestServerData?.stats?.totalUnwraps || 0)
+                        totalUnwraps: dropsLoadedRef.current ? (prev.stats?.totalUnwraps || 0) : Math.max(unlockCount, prev.stats?.totalUnwraps || 0, latestServerData?.stats?.totalUnwraps || 0)
                     } as AdminOverviewResponse["stats"]
                 }));
             }
             setListenerState((current) => ({ ...current, summaryLoaded: true, summaryFailed: false }));
         }, (err) => {
+            if (cancelled) return;
             setListenerState((current) => ({ ...current, summaryFailed: true }));
-            reportRealtimeIssue("Admin overview commerce summary", err, { listener: "admin_overview_commerce_summary" });
+            summaryControl.triggerReconnect(err);
+        }), (error) => {
+            const issueDetail = buildFirestoreClientIssueDetail(error);
+            reportRealtimeIssue(`Admin overview commerce summary: ${issueDetail}`, error, { listener: "admin_overview_commerce_summary" });
         });
 
         // Subscribe to Recent Transactions
         const txQuery = query(collection(db, "transactions"), orderBy("timestamp", "desc"), limit(20));
-        const unsubscribeTx = onSnapshot(txQuery, (snapshot) => {
+        const txControl = createAutoHealingObserver(() => onSnapshot(txQuery, (snapshot) => {
+            if (cancelled) return;
             const latestServerData = serverDataRef.current;
             const txs = snapshot.docs.map(doc => {
-                const raw = normalizeTransactionRecord(doc.data(), doc.id);
-                // We won't have usernames eagerly fetched in pure realtime, but we can preserve server ones if matched
+                const rawDoc = doc.data() as Record<string, unknown>;
+                const raw = normalizeTransactionRecord(rawDoc, doc.id);
+                // We won't have usernames eagerly fetched in pure realtime, but we can preserve server ones if matched or extract raw
                 const serverMatch = latestServerData?.recentTransactions?.find(s => s.id === doc.id);
+                
+                let fallbackUsername = "Pending lookup";
+                if (typeof rawDoc.username === "string" && rawDoc.username.trim()) fallbackUsername = rawDoc.username;
+                else if (typeof rawDoc.userHandle === "string" && rawDoc.userHandle.trim()) fallbackUsername = rawDoc.userHandle;
+                else if (typeof rawDoc.userDisplayName === "string" && rawDoc.userDisplayName.trim()) fallbackUsername = rawDoc.userDisplayName;
+
                 return {
                     ...raw,
-                    username: serverMatch?.username,
+                    username: serverMatch?.username || fallbackUsername,
                     timestamp: typeof raw.timestamp === "number" ? raw.timestamp : (raw.timestamp as any)?.toMillis?.() || 0,
                     sourceScope: "realtime_firestore" as const
                 } as AdminOverviewTransactionRecord;
@@ -206,14 +230,19 @@ export function useAdminOverviewRealtime() {
             }));
             setListenerState((current) => ({ ...current, transactionsLoaded: true, transactionsFailed: false }));
         }, (err) => {
+            if (cancelled) return;
             setListenerState((current) => ({ ...current, transactionsFailed: true }));
-            reportRealtimeIssue("Admin overview transactions", err, { listener: "admin_overview_transactions" });
+            txControl.triggerReconnect(err);
+        }), (error) => {
+            const issueDetail = buildFirestoreClientIssueDetail(error);
+            reportRealtimeIssue(`Admin overview transactions: ${issueDetail}`, error, { listener: "admin_overview_transactions" });
         });
 
         return () => {
-            unsubscribeDrops();
-            unsubscribeSummary();
-            unsubscribeTx();
+            cancelled = true;
+            dropsControl.cleanup();
+            summaryControl.cleanup();
+            txControl.cleanup();
         };
     }, []);
 
