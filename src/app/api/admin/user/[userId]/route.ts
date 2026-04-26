@@ -285,21 +285,67 @@ export async function GET(
         const directAvgLoadMs = loadSamples.length > 0
             ? Math.round(loadSamples.reduce((sum, value) => sum + value, 0) / loadSamples.length)
             : 0;
-        const sessionFactViewCount = sessionFacts.reduce((sum, fact) => sum + fact.startedCount, 0);
-        const sessionFactCompletionCount = sessionFacts.reduce((sum, fact) => sum + fact.completedCount, 0);
-        const sessionFactWatchSeconds = sessionFacts.reduce((sum, fact) => sum + fact.watchSecondsTotal, 0);
-        const sessionFactLoadMsTotal = sessionFacts.reduce((sum, fact) => sum + fact.loadMsTotal, 0);
-        const sessionFactLoadSampleCount = sessionFacts.reduce((sum, fact) => sum + fact.loadSampleCount, 0);
-        const sessionFactLastSeenAt = sessionFacts.reduce((latest, fact) => Math.max(latest, fact.lastEventAt), 0);
-        const dailyEventCount = userDaily.reduce((sum, day) => sum + readNumber(day.eventCount), 0);
-        const dailyViewCount = userDaily.reduce((sum, day) => sum + readNumber(day.viewCount), 0);
-        const dailyBounceCount = userDaily.reduce((sum, day) => sum + readNumber(day.bounceCount), 0);
-        const dailyAuthSuccessCount = userDaily.reduce((sum, day) => sum + Math.max(readNumber(day.authSuccessCount), readNumber(day.signInCount)), 0);
-        const dailyOnboardingStartCount = userDaily.reduce((sum, day) => sum + Math.max(readNumber(day.onboardingStartCount), readNumber(day.guidedOnboardingStartCount)), 0);
-        const dailyOnboardingCompletionCount = userDaily.reduce((sum, day) => sum + Math.max(readNumber(day.onboardingCompletionCount), readNumber(day.guidedOnboardingCompletionCount)), 0);
-        const dailyUnwrapCount = userDaily.reduce((sum, day) => sum + Math.max(readNumber(day.unwrapCount), readNumber(day.unlockCount)), 0);
-        const dailyPurchaseCount = userDaily.reduce((sum, day) => sum + Math.max(readNumber(day.purchaseCount), readNumber(day.purchaseTransactionCount)), 0);
-        const dailyLastSeenAt = userDaily.reduce((latest, day) => Math.max(latest, toTimestampNumber(day.lastSeenAt), toTimestampNumber(day.lastSeenAtMs)), 0);
+        const {
+            sessionFactViewCount,
+            sessionFactCompletionCount,
+            sessionFactWatchSeconds,
+            sessionFactLoadMsTotal,
+            sessionFactLoadSampleCount,
+            sessionFactLastSeenAt,
+        } = sessionFacts.reduce(
+            (acc, fact) => {
+                acc.sessionFactViewCount += fact.startedCount;
+                acc.sessionFactCompletionCount += fact.completedCount;
+                acc.sessionFactWatchSeconds += fact.watchSecondsTotal;
+                acc.sessionFactLoadMsTotal += fact.loadMsTotal;
+                acc.sessionFactLoadSampleCount += fact.loadSampleCount;
+                acc.sessionFactLastSeenAt = Math.max(acc.sessionFactLastSeenAt, fact.lastEventAt);
+                return acc;
+            },
+            {
+                sessionFactViewCount: 0,
+                sessionFactCompletionCount: 0,
+                sessionFactWatchSeconds: 0,
+                sessionFactLoadMsTotal: 0,
+                sessionFactLoadSampleCount: 0,
+                sessionFactLastSeenAt: 0,
+            }
+        );
+        const {
+            dailyEventCount,
+            dailyViewCount,
+            dailyBounceCount,
+            dailyAuthSuccessCount,
+            dailyOnboardingStartCount,
+            dailyOnboardingCompletionCount,
+            dailyUnwrapCount,
+            dailyPurchaseCount,
+            dailyLastSeenAt,
+        } = userDaily.reduce(
+            (acc, day) => {
+                acc.dailyEventCount += readNumber(day.eventCount);
+                acc.dailyViewCount += readNumber(day.viewCount);
+                acc.dailyBounceCount += readNumber(day.bounceCount);
+                acc.dailyAuthSuccessCount += Math.max(readNumber(day.authSuccessCount), readNumber(day.signInCount));
+                acc.dailyOnboardingStartCount += Math.max(readNumber(day.onboardingStartCount), readNumber(day.guidedOnboardingStartCount));
+                acc.dailyOnboardingCompletionCount += Math.max(readNumber(day.onboardingCompletionCount), readNumber(day.guidedOnboardingCompletionCount));
+                acc.dailyUnwrapCount += Math.max(readNumber(day.unwrapCount), readNumber(day.unlockCount));
+                acc.dailyPurchaseCount += Math.max(readNumber(day.purchaseCount), readNumber(day.purchaseTransactionCount));
+                acc.dailyLastSeenAt = Math.max(acc.dailyLastSeenAt, toTimestampNumber(day.lastSeenAt), toTimestampNumber(day.lastSeenAtMs));
+                return acc;
+            },
+            {
+                dailyEventCount: 0,
+                dailyViewCount: 0,
+                dailyBounceCount: 0,
+                dailyAuthSuccessCount: 0,
+                dailyOnboardingStartCount: 0,
+                dailyOnboardingCompletionCount: 0,
+                dailyUnwrapCount: 0,
+                dailyPurchaseCount: 0,
+                dailyLastSeenAt: 0,
+            }
+        );
         const rollupPurchaseCount = Math.max(readNumber(analyticsRollup.purchaseCount), readNumber(analyticsRollup.purchaseTransactionCount));
         const rollupUnlockCount = Math.max(readNumber(analyticsRollup.unwrapCount), readNumber(analyticsRollup.unlockCount));
 
@@ -353,14 +399,38 @@ export async function GET(
         const rollupLoadSampleCount = readNumber(analyticsRollup.loadSampleCount);
         const rollupLoadMsTotal = readNumber(analyticsRollup.loadMsTotal);
         const rollupAvgLoadMs = rollupLoadSampleCount > 0 ? Math.round(rollupLoadMsTotal / rollupLoadSampleCount) : 0;
-        const transactionGrossRevenueUsd = purchaseTransactions.reduce((sum, transaction) => sum + transaction.economics.grossRevenueUsd, 0);
-        const transactionNetRevenueUsd = purchaseTransactions.reduce((sum, transaction) => sum + transaction.economics.netRevenueUsd, 0);
-        const transactionPaypalFeeUsd = purchaseTransactions.reduce((sum, transaction) => sum + transaction.economics.paypalFeeUsd, 0);
-        const transactionAdjustedProfitUsd = purchaseTransactions.reduce((sum, transaction) => sum + transaction.economics.adjustedProfitUsd, 0);
-        const transactionBonusValueUsd = purchaseTransactions.reduce((sum, transaction) => sum + transaction.economics.bonusValueUsd, 0);
-        const transactionBonusGumDrops = purchaseTransactions.reduce((sum, transaction) => sum + transaction.economics.bonusGumDrops, 0);
-        const transactionDeliveredGumDrops = purchaseTransactions.reduce((sum, transaction) => sum + transaction.economics.deliveredGumDrops, 0);
-        const transactionPaidGumDrops = purchaseTransactions.reduce((sum, transaction) => sum + transaction.economics.paidGumDrops, 0);
+        const {
+            transactionGrossRevenueUsd,
+            transactionNetRevenueUsd,
+            transactionPaypalFeeUsd,
+            transactionAdjustedProfitUsd,
+            transactionBonusValueUsd,
+            transactionBonusGumDrops,
+            transactionDeliveredGumDrops,
+            transactionPaidGumDrops,
+        } = purchaseTransactions.reduce(
+            (acc, transaction) => {
+                acc.transactionGrossRevenueUsd += transaction.economics.grossRevenueUsd;
+                acc.transactionNetRevenueUsd += transaction.economics.netRevenueUsd;
+                acc.transactionPaypalFeeUsd += transaction.economics.paypalFeeUsd;
+                acc.transactionAdjustedProfitUsd += transaction.economics.adjustedProfitUsd;
+                acc.transactionBonusValueUsd += transaction.economics.bonusValueUsd;
+                acc.transactionBonusGumDrops += transaction.economics.bonusGumDrops;
+                acc.transactionDeliveredGumDrops += transaction.economics.deliveredGumDrops;
+                acc.transactionPaidGumDrops += transaction.economics.paidGumDrops;
+                return acc;
+            },
+            {
+                transactionGrossRevenueUsd: 0,
+                transactionNetRevenueUsd: 0,
+                transactionPaypalFeeUsd: 0,
+                transactionAdjustedProfitUsd: 0,
+                transactionBonusValueUsd: 0,
+                transactionBonusGumDrops: 0,
+                transactionDeliveredGumDrops: 0,
+                transactionPaidGumDrops: 0,
+            }
+        );
         const rollupCommerce = buildCommerceMetricsFromRollup(analyticsRollup, {
             commerceSourceLabel: "analytics_users_rollup_recomputed_display",
             commerceTruthLabel: "stale",
