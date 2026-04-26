@@ -10013,3 +10013,4 @@ Results:
 - analytics continuity check passed
 - focused admin analytics realtime route test passed
 
+- Updated `src/lib/gumdrops-packages.ts` and `src/components/PurchaseModal.tsx` to remove hardcoded bonus string metadata from `FIXED_GUMDROP_PACKAGES`. Bonuses are now exclusively computed dynamically via `deriveGumdropEconomics`.
