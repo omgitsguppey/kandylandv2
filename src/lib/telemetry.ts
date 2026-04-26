@@ -351,7 +351,6 @@ async function flushQueuedTelemetry(reason: "scheduled" | "immediate" | "pagehid
                 batchSize: batch.length,
                 message: error instanceof Error ? error.message : String(error),
             });
-            console.error("[Telemetry] Failed to flush queued telemetry:", error);
         }
     })().finally(() => {
         telemetryFlushInFlight = null;

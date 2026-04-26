@@ -9,6 +9,7 @@ import { useDrops } from "@/hooks/useDrops";
 import { useNow } from "@/hooks/useNow";
 import { getSupportedDropAspectRatio } from "@/lib/drop-presentation";
 import { trackEvent } from "@/lib/telemetry";
+import { reportClientIssue } from "@/lib/client-error-reporting";
 import type { Drop } from "@/types/db";
 
 interface LiveDropsForYouCarouselProps {
@@ -62,8 +63,15 @@ export function LiveDropsForYouCarousel({ initialDrops }: LiveDropsForYouCarouse
         }
         setRecommendedDrops(payload.drops);
       })
-      .catch(() => {
+      .catch((err) => {
         // Keep the canonical drop feed fallback when recommendations are unavailable.
+        reportClientIssue({
+          channel: "runtime",
+          severity: "warn",
+          message: "Recommendations fetch failed, using canonical feed fallback",
+          error: err,
+          consoleLabel: "[LiveDrops] Recommendations fetch failed",
+        });
       });
 
     return () => {

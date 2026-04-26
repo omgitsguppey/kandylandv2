@@ -2,6 +2,7 @@ import { useState, useEffect } from "react";
 import { toast } from "sonner";
 import { authFetch } from "@/lib/authFetch";
 import { trackEvent } from "@/lib/telemetry";
+import { reportClientIssue } from "@/lib/client-error-reporting";
 import { Drop } from "@/types/db";
 
 interface UseViewerFeedbackProps {
@@ -31,7 +32,13 @@ export function useViewerFeedback({ drop, isAuthorized, initialCreatorProfile }:
             .then(data => {
                 if (data.status === "active") setFollowing(true);
             })
-            .catch(() => {});
+            .catch((err) => reportClientIssue({
+                channel: "runtime",
+                severity: "warn",
+                message: "Creator relationship status fetch failed",
+                error: err,
+                consoleLabel: "[ViewerFeedback] Relationship status fetch failed",
+            }));
     }, [initialCreatorProfile?.uid, isAuthorized]);
 
     useEffect(() => {
@@ -41,7 +48,13 @@ export function useViewerFeedback({ drop, isAuthorized, initialCreatorProfile }:
             .then(data => {
                 if (data.drops) setRetentionDrops(data.drops);
             })
-            .catch(console.error);
+            .catch((err) => reportClientIssue({
+                channel: "runtime",
+                severity: "warn",
+                message: "Retention drops fetch failed",
+                error: err,
+                consoleLabel: "[ViewerFeedback] Retention drops fetch failed",
+            }));
     }, [drop, isAuthorized]);
 
     const handleFollow = async () => {

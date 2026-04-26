@@ -3,6 +3,7 @@
 import { useEffect } from "react";
 import { CopyX } from "lucide-react";
 import { Button } from "@/components/ui/Button";
+import { reportClientIssue } from "@/lib/client-error-reporting";
 
 export default function AdminError({
   error,
@@ -12,7 +13,14 @@ export default function AdminError({
   reset: () => void;
 }) {
   useEffect(() => {
-    console.error("Admin layout error:", error);
+    reportClientIssue({
+      channel: "error",
+      severity: "error",
+      message: "Admin layout error boundary triggered",
+      error,
+      detail: { digest: error.digest },
+      consoleLabel: "Admin layout error:",
+    });
   }, [error]);
 
   return (

@@ -59,7 +59,6 @@ export async function registerAppServiceWorker() {
         recordClientDiagnostic("firebase", "Service worker registration failed", {
             message: error instanceof Error ? error.message : String(error),
         });
-        console.error("Failed to register app service worker:", error);
         return null;
     }
 }
@@ -142,7 +141,6 @@ export async function requestBrowserNotificationAccess(): Promise<BrowserNotific
         recordClientDiagnostic("firebase", "Browser notification setup failed", {
             message: error instanceof Error ? error.message : String(error),
         });
-        console.error("Failed to finish browser notification setup:", error);
         return {
             granted: true,
             token: null,
@@ -172,7 +170,6 @@ export async function showBrowserNotification(title: string, body: string, url: 
         recordClientDiagnostic("firebase", "Browser notification display fallback triggered", {
             message: error instanceof Error ? error.message : String(error),
         });
-        console.error("Service worker notification failed, falling back to window notification:", error);
     }
 
     const notification = new Notification(title, options);
@@ -200,7 +197,6 @@ export const onNotificationMessage = (callback: (payload: unknown) => void) => {
         recordClientDiagnostic("firebase", "Foreground notification listener setup failed", {
             message: error instanceof Error ? error.message : String(error),
         });
-        console.error("Foreground notification listener setup failed:", error);
     });
 
     return () => {

@@ -21,6 +21,7 @@ import { showUnwrapSuccessToast } from "@/components/Toasts/UnwrapSuccessToast";
 import { getDropViewCount } from "@/lib/drop-engagement";
 import { dispatchActivitySync } from "@/lib/activity-sync";
 import { TitleMarquee } from "@/components/ui/TitleMarquee";
+import { reportClientIssue } from "@/lib/client-error-reporting";
 
 
 interface DropCardProps {
@@ -382,7 +383,13 @@ function DropCardBase({
                 },
             });
         } catch (err: any) {
-            console.error("Unwrap failed:", err);
+            reportClientIssue({
+                channel: "payments",
+                message: "Drop unwrap failed",
+                error: err,
+                detail: { dropId: drop.id, unlockCost: drop.unlockCost },
+                consoleLabel: "[DropCard] Unwrap failed",
+            });
             toast.error("Unwrap failed", {
                 description: err.message || "Please try again later.",
             });

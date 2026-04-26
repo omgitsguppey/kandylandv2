@@ -5,6 +5,7 @@ import dynamic from "next/dynamic";
 import { useUI } from "@/context/UIContext";
 import { authFetch } from "@/lib/authFetch";
 import { trackEvent } from "@/lib/telemetry";
+import { reportClientIssue } from "@/lib/client-error-reporting";
 
 const AuthModal = dynamic(
     () => import("@/components/Auth/AuthModal").then((mod) => mod.AuthModal),
@@ -28,7 +29,13 @@ export function GlobalAuthModal({ onDismiss }: GlobalAuthModalProps) {
                 method: "POST",
             });
         } catch (error) {
-            console.error("Failed to track guest dismissal:", error);
+            reportClientIssue({
+                channel: "runtime",
+                severity: "warn",
+                message: "Guest dismissal tracking failed",
+                error,
+                consoleLabel: "[Auth] Failed to track guest dismissal",
+            });
         }
     };
 

@@ -15,8 +15,6 @@ export default function Error({
     reset: () => void;
 }) {
     useEffect(() => {
-        // Log the error to an error reporting service
-        console.error(error);
         recordClientError(error, { source: "app_error_boundary" });
     }, [error]);
 

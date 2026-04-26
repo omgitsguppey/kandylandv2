@@ -162,10 +162,6 @@ function reportRecentActivityFailure(
 ) {
     const errorMessage = error instanceof Error ? error.message : String(error);
 
-    if (category === "cache") {
-        console.error(message, error);
-    }
-
     recordClientDiagnostic(category, message, {
         userId,
         message: errorMessage,

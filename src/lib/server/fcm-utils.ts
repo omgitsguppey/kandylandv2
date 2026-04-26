@@ -1,5 +1,6 @@
 import "server-only";
 import { adminDb } from "./firebase-admin";
+import { recordRouteWarning } from "./route-diagnostics";
 import * as admin from "firebase-admin";
 
 export type NotificationBroadcastType = "new_drop" | "expiring_soon" | "system_alert" | "general";
@@ -72,7 +73,7 @@ export async function broadcastFCM(
                         batchCount++;
                     }
                     if (batchCount > 0) {
-                        await batch.commit().catch(e => console.error("FCM Token Cleanup Error:", e));
+                        await batch.commit().catch(e => recordRouteWarning("fcm-token-cleanup", "FCM Token Cleanup Error", e));
                     }
                 }
             }
@@ -120,7 +121,7 @@ export async function broadcastFCM(
 
         if (tokensSent) {
             if (failureCount > 0) {
-                console.error(`FCM Multicast Dispatch Partial Failure. Success: ${successCount}, Failed: ${failureCount}`);
+                recordRouteWarning("fcm-multicast", `FCM Multicast Dispatch Partial Failure. Success: ${successCount}, Failed: ${failureCount}`);
                 return false;
             }
 
@@ -130,7 +131,7 @@ export async function broadcastFCM(
 
         return true; 
     } catch (err) {
-        console.error("FCM broadcast multicasting failed:", err);
+        recordRouteWarning("fcm-broadcast", "FCM broadcast multicasting failed", err);
         return false;
     }
 }

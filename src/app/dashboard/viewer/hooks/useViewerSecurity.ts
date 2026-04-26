@@ -3,6 +3,7 @@ import { Drop } from "@/types/db";
 import { describeSecurityEvent, type SecurityEventDescriptor } from "@/lib/security-events";
 import { authFetch } from "@/lib/authFetch";
 import { getClientSessionId } from "@/lib/client-session";
+import { reportClientIssue } from "@/lib/client-error-reporting";
 import { isEditableTarget, ContentKind } from "../ViewerHelpers";
 
 interface UseViewerSecurityProps {
@@ -65,9 +66,23 @@ export function useViewerSecurity({ drop, isAuthorized, activeIndex, contentKind
                         visibilityState: typeof document !== "undefined" ? document.visibilityState : "unknown",
                         ...metadata,
                     }),
-                }).catch(console.error);
+                }).catch((err) => reportClientIssue({
+                    channel: "runtime",
+                    severity: "warn",
+                    message: "Security violation log delivery failed",
+                    error: err,
+                    detail: { dropId: drop.id, reason, contentKind },
+                    consoleLabel: "[ViewerSecurity] Security log POST failed",
+                }));
             } catch (error) {
-                console.error(error);
+                reportClientIssue({
+                    channel: "runtime",
+                    severity: "warn",
+                    message: "Security violation log construction failed",
+                    error,
+                    detail: { dropId: drop.id, reason },
+                    consoleLabel: "[ViewerSecurity] Security log construction failed",
+                });
             }
 
             if (securityResetTimeoutRef.current !== null) {

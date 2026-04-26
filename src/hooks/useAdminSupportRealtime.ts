@@ -1,6 +1,7 @@
 import { useEffect, useState, useMemo } from "react";
 import { collection, query, orderBy, limit, onSnapshot } from "firebase/firestore";
 import { db } from "@/lib/firebase-data";
+import { reportRealtimeIssue } from "@/lib/client-error-reporting";
 import {
     SUPPORT_COLLECTIONS,
     normalizeSupportThreadStatus,
@@ -95,6 +96,7 @@ export function useAdminSupportRealtime(selectedThreadId: string | null) {
         }, (error) => {
             setThreadsError(error as Error);
             setIsLoadingThreads(false);
+            reportRealtimeIssue("Admin support threads", error, { listener: "admin_support_threads" });
         });
         return unsubscribe;
     }, []);
@@ -133,6 +135,7 @@ export function useAdminSupportRealtime(selectedThreadId: string | null) {
         }, (error) => {
             setMessagesError(error as Error);
             setIsLoadingMessages(false);
+            reportRealtimeIssue("Admin support messages", error, { listener: "admin_support_messages", threadId: selectedThreadId });
         });
         return () => {
             cancelled = true;

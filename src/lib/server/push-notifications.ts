@@ -6,6 +6,7 @@ import { adminDb } from "./firebase-admin";
 import { broadcastFCM } from "./fcm-utils";
 import { touchNotificationsRuntime } from "./notification-runtime";
 import { recordNotificationDispatchOutcome } from "./runtime-warning-store";
+import { recordRouteWarning } from "./route-diagnostics";
 import type { NotificationDispatchOutcomeStatus } from "../../../shared/runtime/runtime-warning-contract";
 
 const DROP_COLLECTION_LINK = "/drops";
@@ -148,7 +149,7 @@ export async function sendGlobalDropNotification(
         );
         inAppQueued = true;
     } catch (err) {
-        console.error("In-app notification failed", err);
+        recordRouteWarning("notification-global", "In-app notification queue failed", err);
         return finalizeDispatchResult({
             activationKey: activationKey ?? null,
             dropId,
@@ -221,7 +222,7 @@ export async function sendTargetedDropNotification(
         await queueDropNotificationDoc(dropTitle, dropId, imageUrl, title, message, excludedUserIds);
         inAppQueued = true;
     } catch (err) {
-        console.error("In-app targeted notification failed", err);
+        recordRouteWarning("notification-targeted", "In-app targeted notification queue failed", err);
         return finalizeDispatchResult({
             activationKey: activationKey ?? null,
             dropId,

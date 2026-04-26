@@ -1,6 +1,7 @@
 import "server-only";
 import * as admin from "firebase-admin";
 import { FIREBASE_DATABASE_URL, FIREBASE_PROJECT_ID, FIREBASE_STORAGE_BUCKET } from "@/lib/firebase-runtime";
+import { recordRouteFailure } from "@/lib/server/route-diagnostics";
 
 if (!admin.apps.length) {
     try {
@@ -31,7 +32,10 @@ if (!admin.apps.length) {
             });
         }
     } catch (error) {
-        console.error("Firebase Admin Initialization Error", error);
+        recordRouteFailure("firebase-admin-init", error, {
+            channel: "firebase",
+            message: "Firebase Admin Initialization Error",
+        });
         throw error;
     }
 }

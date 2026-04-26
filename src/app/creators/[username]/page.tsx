@@ -2,6 +2,7 @@ import type { Metadata } from "next";
 
 import { SITE_ORIGIN } from "@/lib/site-origin";
 import { adminDb } from "@/lib/server/firebase-admin";
+import { recordRouteWarning } from "@/lib/server/route-diagnostics";
 import { isCreatorRole } from "@/lib/creator-experiences";
 
 import CreatorProfileClient from "./CreatorProfileClient";
@@ -47,7 +48,7 @@ async function getCreatorMetadataRecord(username: string): Promise<CreatorMetada
             photoURL: typeof data.photoURL === "string" ? data.photoURL : undefined,
         };
     } catch (error) {
-        console.error("Failed to resolve creator metadata:", error);
+        recordRouteWarning("creator-metadata", "Failed to resolve creator metadata", error);
         return null;
     }
 }

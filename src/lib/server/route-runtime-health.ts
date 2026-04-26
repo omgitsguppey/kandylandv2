@@ -178,7 +178,10 @@ export function withRouteRuntimeHealth(
         key: routeKey,
         durationMs: Date.now() - startTime,
         statusCode: response.status,
-      }).catch(console.error);
+      }).catch((err) => recordRouteWarning("withRouteRuntimeHealth", "Route runtime health sample recording failed (success path)", err, {
+        channel: "runtime",
+        detail: { routeKey, statusCode: response.status },
+      }));
       return response;
     } catch (e: any) {
       await recordRouteRuntimeSample({
@@ -186,7 +189,10 @@ export function withRouteRuntimeHealth(
         durationMs: Date.now() - startTime,
         statusCode: 500,
         errorMessage: e instanceof Error ? e.message : String(e),
-      }).catch(console.error);
+      }).catch((err) => recordRouteWarning("withRouteRuntimeHealth", "Route runtime health sample recording failed (error path)", err, {
+        channel: "runtime",
+        detail: { routeKey, statusCode: 500 },
+      }));
       throw e;
     }
   };

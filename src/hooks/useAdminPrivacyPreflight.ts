@@ -1,6 +1,7 @@
 import { useState, useEffect } from "react";
 import { onSnapshot, collection, query, limit, orderBy } from "firebase/firestore";
 import { db } from "@/lib/firebase-data";
+import { reportRealtimeIssue } from "@/lib/client-error-reporting";
 import type { AdminSurfaceState } from "@/lib/admin-parity";
 
 export interface PrivacyPreflightStatus {
@@ -93,6 +94,7 @@ export function useAdminPrivacyPreflight() {
       }));
     }, (error) => {
       console.error("[Preflight] Event pipeline listener failed", error);
+      reportRealtimeIssue("Admin privacy preflight pipeline", error, { listener: "admin_privacy_preflight_events" });
       setStatus(prev => ({
         ...prev,
         eventsPipeline: "failed",

@@ -4,6 +4,7 @@ import { cache } from "react";
 
 import { isDropHiddenFromPublic, normalizeAndApplyDropStatusOrNull } from "@/lib/drop-read-models";
 import { adminDb } from "@/lib/server/firebase-admin";
+import { recordRouteWarning } from "@/lib/server/route-diagnostics";
 import type { Drop } from "@/types/db";
 
 export function sanitizeDropForClient(drop: Drop): Drop {
@@ -26,7 +27,7 @@ export const getDrops = cache(async (): Promise<Drop[]> => {
 
         for (const doc of snapshot.docs) {
             const resolved = normalizeAndApplyDropStatusOrNull(doc.data(), doc.id, now, (error) => {
-                console.error(`Skipping invalid drop document ${doc.id}`, error);
+                recordRouteWarning("drops-list", `Skipping invalid drop document ${doc.id}`, error);
             });
             if (!resolved) {
                 continue;
@@ -41,7 +42,7 @@ export const getDrops = cache(async (): Promise<Drop[]> => {
 
         return drops;
     } catch (error) {
-        console.error("Error fetching drops:", error);
+        recordRouteWarning("drops-list", "Error fetching drops", error);
         return [];
     }
 });
@@ -60,7 +61,7 @@ export const getDrop = cache(async (id: string): Promise<Drop | null> => {
 
         return sanitizeDropForClient(resolved);
     } catch (error) {
-        console.error("Error fetching drop:", error);
+        recordRouteWarning("drops-single", "Error fetching drop", error);
         return null;
     }
 });
@@ -77,7 +78,7 @@ export async function getDropRaw(id: string): Promise<Drop | null> {
 
         return normalizeAndApplyDropStatusOrNull(docSnap.data(), docSnap.id, Date.now());
     } catch (error) {
-        console.error("Error fetching raw drop:", error);
+        recordRouteWarning("drops-raw", "Error fetching raw drop", error);
         return null;
     }
 }

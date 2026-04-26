@@ -86,7 +86,13 @@ export function PurchaseModal({ isOpen, onClose }: PurchaseModalProps) {
              }
          }
       })
-      .catch((err) => console.error("Failed to load dynamic packages", err))
+      .catch((err) => reportClientIssue({
+        channel: "payments",
+        severity: "warn",
+        message: "Failed to load dynamic wallet packages",
+        error: err,
+        consoleLabel: "[Wallet] Failed to load dynamic packages",
+      }))
       .finally(() => setPackagesLoaded(true));
   }, [isOpen, packagesLoaded, selectedPackage.drops]);
   const isBundleSelected = selectedPackage.label === "King Size Bundle";

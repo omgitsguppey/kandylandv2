@@ -1,6 +1,7 @@
 import { useEffect, useState, useMemo } from "react";
 import { collection, query, orderBy, limit, onSnapshot, where } from "firebase/firestore";
 import { db } from "@/lib/firebase-data";
+import { reportRealtimeIssue } from "@/lib/client-error-reporting";
 import { CHAT_COLLECTIONS } from "@/lib/chat";
 import { buildChatSoftSealScope, softOpenChatValue } from "@/lib/chat-soft-seal";
 import { describeSecurityEvent } from "@/lib/security-events";
@@ -155,6 +156,7 @@ export function useAdminModerationRealtime(selectedThreadId: string | null) {
         }, (error) => {
             setThreadsError(error as Error);
             setIsLoadingThreads(false);
+            reportRealtimeIssue("Admin moderation threads", error, { listener: "admin_moderation_threads" });
         });
         return unsubscribe;
     }, []);
@@ -169,6 +171,7 @@ export function useAdminModerationRealtime(selectedThreadId: string | null) {
         }, (error) => {
             setAlertsError(error as Error);
             setIsLoadingAlerts(false);
+            reportRealtimeIssue("Admin moderation security alerts", error, { listener: "admin_moderation_security_alerts" });
         });
         return unsubscribe;
     }, []);
@@ -191,6 +194,7 @@ export function useAdminModerationRealtime(selectedThreadId: string | null) {
         }, (error) => {
             setMessagesThreadId(activeThreadId);
             setMessagesError(error as Error);
+            reportRealtimeIssue("Admin moderation messages", error, { listener: "admin_moderation_messages", threadId: activeThreadId });
         });
         return unsubscribe;
     }, [activeThreadId]);
