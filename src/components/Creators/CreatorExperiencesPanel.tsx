@@ -233,7 +233,7 @@ export function CreatorExperiencesPanel({
             {/* Subscriptions Module */}
             {selectedExperience === "subscriptions" && settings.subscriptionsEnabled && (
                 <section className="animate-in slide-in-from-top-2 fade-in duration-300 glass-panel relative overflow-hidden rounded-[1.8rem] border border-brand-purple/20 bg-gradient-to-b from-brand-purple/10 to-transparent p-5 sm:p-6">
-                    <button onClick={() => onSelectedExperienceChange(null)} className="absolute left-4 top-4 flex h-8 w-8 items-center justify-center rounded-full bg-white/5 text-gray-400 opacity-80 transition-all hover:bg-white/10 hover:text-white">
+                    <button aria-label="Go back" title="Go back" onClick={() => onSelectedExperienceChange(null)} className="absolute left-4 top-4 flex h-8 w-8 items-center justify-center rounded-full bg-white/5 text-gray-400 opacity-80 transition-all hover:bg-white/10 hover:text-white">
                         <ChevronLeft className="h-4 w-4" />
                     </button>
                     
@@ -295,7 +295,7 @@ export function CreatorExperiencesPanel({
             {/* Messaging Module */}
             {selectedExperience === "messages" && settings.messagingEnabled && (
                 <section className="animate-in slide-in-from-top-2 fade-in duration-300 glass-panel relative overflow-hidden rounded-[1.8rem] border border-white/10 bg-black/40 p-5 sm:p-6">
-                    <button onClick={() => onSelectedExperienceChange(null)} className="absolute left-4 top-4 flex h-8 w-8 items-center justify-center rounded-full bg-white/5 text-gray-400 opacity-80 transition-all hover:bg-white/10 hover:text-white">
+                    <button aria-label="Go back" title="Go back" onClick={() => onSelectedExperienceChange(null)} className="absolute left-4 top-4 flex h-8 w-8 items-center justify-center rounded-full bg-white/5 text-gray-400 opacity-80 transition-all hover:bg-white/10 hover:text-white">
                         <ChevronLeft className="h-4 w-4" />
                     </button>
                     
@@ -358,7 +358,7 @@ export function CreatorExperiencesPanel({
             {/* Custom Requests Module */}
             {selectedExperience === "requests" && settings.customRequestsEnabled && requestCategories.length > 0 && (
                 <section className="animate-in slide-in-from-top-2 fade-in duration-300 glass-panel relative overflow-hidden rounded-[1.8rem] border border-white/10 bg-black/40 p-5 sm:p-6">
-                    <button onClick={() => onSelectedExperienceChange(null)} className="absolute left-4 top-4 flex h-8 w-8 items-center justify-center rounded-full bg-white/5 text-gray-400 opacity-80 transition-all hover:bg-white/10 hover:text-white">
+                    <button aria-label="Go back" title="Go back" onClick={() => onSelectedExperienceChange(null)} className="absolute left-4 top-4 flex h-8 w-8 items-center justify-center rounded-full bg-white/5 text-gray-400 opacity-80 transition-all hover:bg-white/10 hover:text-white">
                         <ChevronLeft className="h-4 w-4" />
                     </button>
                     
@@ -414,7 +414,7 @@ export function CreatorExperiencesPanel({
             {/* Bookings Module */}
             {selectedExperience === "bookings" && settings.bookingsEnabled && (
                 <section className="animate-in slide-in-from-top-2 fade-in duration-300 glass-panel relative overflow-hidden rounded-[1.8rem] border border-white/10 bg-black/40 p-5 sm:p-6">
-                    <button onClick={() => onSelectedExperienceChange(null)} className="absolute left-4 top-4 flex h-8 w-8 items-center justify-center rounded-full bg-white/5 text-gray-400 opacity-80 transition-all hover:bg-white/10 hover:text-white">
+                    <button aria-label="Go back" title="Go back" onClick={() => onSelectedExperienceChange(null)} className="absolute left-4 top-4 flex h-8 w-8 items-center justify-center rounded-full bg-white/5 text-gray-400 opacity-80 transition-all hover:bg-white/10 hover:text-white">
                         <ChevronLeft className="h-4 w-4" />
                     </button>
                     
