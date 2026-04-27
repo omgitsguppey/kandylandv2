@@ -113,7 +113,7 @@ export default function AdminAnalyticsPage() {
           value={formatPercent(mobileShare)}
           hint={`${mobileUsers.toLocaleString()} mobile users in range`}
           icon={Smartphone}
-          truthState={state.historicalTruthLabel || "cached"}
+          truthState={"cached"}
           dictionaryTooltip="Percentage of visitors in this time range who are on mobile devices. Essential for guiding responsive design priority."
         />
         <MetricCard
@@ -121,7 +121,7 @@ export default function AdminAnalyticsPage() {
           value={formatMoney(commerce.revenueUsd)}
           hint={`${range.toUpperCase()} tracked revenue`}
           icon={DollarSign}
-          truthState={state.commerceTruthLabel || "cached"}
+          truthState={"cached"}
           dictionaryTooltip="Total top-line revenue measured in USD across all confirmed transactions within the range. Does not subtract platform fees."
         />
         <MetricCard
@@ -129,7 +129,7 @@ export default function AdminAnalyticsPage() {
           value={formatCompactNumber(funnel.purchases)}
           hint={`${funnel.checkoutStarts.toLocaleString()} checkout starts`}
           icon={ShoppingBag}
-          truthState={state.commerceTruthLabel || "cached"}
+          truthState={"cached"}
           dictionaryTooltip="Number of distinct successful purchases completed. Compare to checkout starts to monitor conversion dropout."
         />
       </div>

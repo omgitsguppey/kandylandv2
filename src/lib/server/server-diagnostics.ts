@@ -2,7 +2,7 @@ import "server-only";
 
 import { FieldValue } from "firebase-admin/firestore";
 
-import { adminDb } from "./firebase-admin";
+
 
 export type ServerDiagnosticChannel =
   | "ai"
@@ -57,6 +57,14 @@ function sanitizeDetail(detail: Record<string, unknown> | undefined) {
 }
 
 export async function recordServerDiagnostic(input: ServerDiagnosticInput) {
+  let adminDb;
+  try {
+    const mod = await import("./firebase-admin");
+    adminDb = mod.adminDb;
+  } catch (err) {
+    return;
+  }
+
   if (!adminDb) {
     return;
   }

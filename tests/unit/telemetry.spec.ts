@@ -38,7 +38,7 @@ vi.mock("@/lib/client-diagnostics", async () => {
 });
 
 describe("telemetry flow logic", () => {
-    let mockSessionStorage: Record<string, string> = {};
+    let mockLocalStorage: Record<string, string> = {};
     let telemetry: typeof import("@/lib/telemetry");
     let privacyConsent: typeof import("@/lib/privacy-consent");
     let analyticsClientEngine: typeof import("@/lib/analytics-client-engine");
@@ -48,15 +48,15 @@ describe("telemetry flow logic", () => {
 
     beforeEach(async () => {
         vi.resetModules();
-        mockSessionStorage = {};
+        mockLocalStorage = {};
         vi.stubGlobal("window", {
-            sessionStorage: {
-                getItem: vi.fn((key: string) => mockSessionStorage[key] || null),
+            localStorage: {
+                getItem: vi.fn((key: string) => mockLocalStorage[key] || null),
                 setItem: vi.fn((key: string, value: string) => {
-                    mockSessionStorage[key] = value;
+                    mockLocalStorage[key] = value;
                 }),
                 removeItem: vi.fn((key: string) => {
-                    delete mockSessionStorage[key];
+                    delete mockLocalStorage[key];
                 }),
             },
             innerWidth: 1024,
@@ -96,13 +96,13 @@ describe("telemetry flow logic", () => {
         it("does nothing when window is undefined", () => {
             vi.stubGlobal("window", undefined);
             telemetry.startTimedFlow("test_flow", { some_param: "value" });
-            expect(mockSessionStorage[FLOW_STORAGE_KEY]).toBeUndefined();
+            expect(mockLocalStorage[FLOW_STORAGE_KEY]).toBeUndefined();
         });
 
-        it("starts a timed flow and saves it to sessionStorage", () => {
+        it("starts a timed flow and saves it to localStorage", () => {
             telemetry.startTimedFlow("test_flow", { some_param: "value" });
 
-            const stored = JSON.parse(mockSessionStorage[FLOW_STORAGE_KEY]);
+            const stored = JSON.parse(mockLocalStorage[FLOW_STORAGE_KEY]);
             expect(stored).toBeDefined();
             expect(stored["test_flow"]).toBeDefined();
             expect(stored["test_flow"].startedAt).toBe(1767225600000); // 2026-01-01T00:00:00Z
@@ -121,7 +121,7 @@ describe("telemetry flow logic", () => {
                 invalid_null: null
             });
 
-            const stored = JSON.parse(mockSessionStorage[FLOW_STORAGE_KEY]);
+            const stored = JSON.parse(mockLocalStorage[FLOW_STORAGE_KEY]);
             expect(stored["test_flow"].params).toEqual({
                 valid_str: "str",
                 valid_num: 123,
@@ -134,24 +134,24 @@ describe("telemetry flow logic", () => {
 
     describe("clearTimedFlow", () => {
         it("does nothing when window is undefined", () => {
-            mockSessionStorage[FLOW_STORAGE_KEY] = JSON.stringify({
+            mockLocalStorage[FLOW_STORAGE_KEY] = JSON.stringify({
                 "test_flow": { startedAt: 123 }
             });
             vi.stubGlobal("window", undefined);
             telemetry.clearTimedFlow("test_flow");
 
-            expect(mockSessionStorage[FLOW_STORAGE_KEY]).toBeDefined();
+            expect(mockLocalStorage[FLOW_STORAGE_KEY]).toBeDefined();
         });
 
         it("clears an existing flow", () => {
-            mockSessionStorage[FLOW_STORAGE_KEY] = JSON.stringify({
+            mockLocalStorage[FLOW_STORAGE_KEY] = JSON.stringify({
                 "test_flow": { startedAt: 123 },
                 "other_flow": { startedAt: 456 }
             });
 
             telemetry.clearTimedFlow("test_flow");
 
-            const stored = JSON.parse(mockSessionStorage[FLOW_STORAGE_KEY]);
+            const stored = JSON.parse(mockLocalStorage[FLOW_STORAGE_KEY]);
             expect(stored["test_flow"]).toBeUndefined();
             expect(stored["other_flow"]).toBeDefined();
         });
@@ -170,7 +170,7 @@ describe("telemetry flow logic", () => {
 
         it("calculates duration, merges params, and clears flow from storage", () => {
             const startMs = 1767225600000;
-            mockSessionStorage[FLOW_STORAGE_KEY] = JSON.stringify({
+            mockLocalStorage[FLOW_STORAGE_KEY] = JSON.stringify({
                 "test_flow": {
                     startedAt: startMs,
                     params: { original_param: "old" }
@@ -191,46 +191,46 @@ describe("telemetry flow logic", () => {
                 duration_seconds: 6
             });
 
-            const stored = JSON.parse(mockSessionStorage[FLOW_STORAGE_KEY]);
+            const stored = JSON.parse(mockLocalStorage[FLOW_STORAGE_KEY]);
             expect(stored["test_flow"]).toBeUndefined();
         });
     });
 
     describe("syncIdentifiedTelemetryOwnership", () => {
         it("clears telemetry queue when userId is null", () => {
-            mockSessionStorage[IDENTIFIED_QUEUE_STORAGE_KEY] = JSON.stringify({
+            mockLocalStorage[IDENTIFIED_QUEUE_STORAGE_KEY] = JSON.stringify({
                 userId: "old_user",
                 events: [{ eventId: "1", eventName: "test", eventTimestampMs: 123, eventParams: {} }]
             });
 
             telemetry.syncIdentifiedTelemetryOwnership(null);
 
-            expect(mockSessionStorage[IDENTIFIED_QUEUE_STORAGE_KEY]).toBeUndefined();
+            expect(mockLocalStorage[IDENTIFIED_QUEUE_STORAGE_KEY]).toBeUndefined();
         });
 
         it("clears telemetry queue when userId changes", () => {
-            mockSessionStorage[IDENTIFIED_QUEUE_STORAGE_KEY] = JSON.stringify({
+            mockLocalStorage[IDENTIFIED_QUEUE_STORAGE_KEY] = JSON.stringify({
                 userId: "old_user",
                 events: [{ eventId: "1", eventName: "test", eventTimestampMs: 123, eventParams: {} }]
             });
 
             telemetry.syncIdentifiedTelemetryOwnership("new_user");
 
-            const stored = JSON.parse(mockSessionStorage[IDENTIFIED_QUEUE_STORAGE_KEY]);
+            const stored = JSON.parse(mockLocalStorage[IDENTIFIED_QUEUE_STORAGE_KEY]);
             expect(stored.userId).toBe("new_user");
             expect(stored.events).toEqual([]);
         });
 
         it("keeps telemetry queue when userId is the same", () => {
             const events = [{ eventId: "1", eventName: "test", eventTimestampMs: 123, eventParams: {} }];
-            mockSessionStorage[IDENTIFIED_QUEUE_STORAGE_KEY] = JSON.stringify({
+            mockLocalStorage[IDENTIFIED_QUEUE_STORAGE_KEY] = JSON.stringify({
                 userId: "same_user",
                 events
             });
 
             telemetry.syncIdentifiedTelemetryOwnership("same_user");
 
-            const stored = JSON.parse(mockSessionStorage[IDENTIFIED_QUEUE_STORAGE_KEY]);
+            const stored = JSON.parse(mockLocalStorage[IDENTIFIED_QUEUE_STORAGE_KEY]);
             expect(stored.userId).toBe("same_user");
             expect(stored.events).toEqual(events);
         });
@@ -262,7 +262,7 @@ describe("telemetry flow logic", () => {
             telemetry.trackEvent("test_event");
 
             expect(window.gtag).not.toHaveBeenCalled();
-            expect(mockSessionStorage[IDENTIFIED_QUEUE_STORAGE_KEY]).toBeUndefined();
+            expect(mockLocalStorage[IDENTIFIED_QUEUE_STORAGE_KEY]).toBeUndefined();
         });
 
         it("records client diagnostic on trackEvent error", () => {
@@ -312,7 +312,7 @@ describe("telemetry flow logic", () => {
         it("enqueues identified analytics", () => {
             telemetry.trackEvent("known_event");
 
-            const stored = JSON.parse(mockSessionStorage[IDENTIFIED_QUEUE_STORAGE_KEY]);
+            const stored = JSON.parse(mockLocalStorage[IDENTIFIED_QUEUE_STORAGE_KEY]);
             expect(stored.userId).toBe("user123");
             expect(stored.events.length).toBe(1);
             expect(stored.events[0].eventName).toBe("known_event");

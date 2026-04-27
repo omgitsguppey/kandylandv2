@@ -6,7 +6,7 @@ const FLOW_STORAGE_KEY = "kandydrops.telemetry.flows";
 describe("telemetry", () => {
     beforeEach(() => {
         vi.stubGlobal("window", {
-            sessionStorage: {
+            localStorage: {
                 getItem: vi.fn(),
                 setItem: vi.fn(),
             },
@@ -35,7 +35,7 @@ describe("telemetry", () => {
                 },
             };
 
-            vi.mocked(window.sessionStorage.getItem).mockReturnValue(JSON.stringify(mockStorage));
+            vi.mocked(window.localStorage.getItem).mockReturnValue(JSON.stringify(mockStorage));
 
             const result = consumeTimedFlow(flowKey);
 
@@ -43,12 +43,12 @@ describe("telemetry", () => {
             expect((result.mergedParams as any)?.some_param).toBe("value");
         });
 
-        it("should prevent prototype pollution from malicious JSON in sessionStorage", () => {
+        it("should prevent prototype pollution from malicious JSON in localStorage", () => {
             const flowKey = "test_flow";
             // A malicious payload that targets __proto__
             const maliciousPayload = `{"__proto__": {"polluted": true}, "${flowKey}": {"startedAt": 100, "params": {}}}`;
 
-            vi.mocked(window.sessionStorage.getItem).mockReturnValue(maliciousPayload);
+            vi.mocked(window.localStorage.getItem).mockReturnValue(maliciousPayload);
 
             // Should not throw and should safely ignore prototype modifications
             const result = consumeTimedFlow(flowKey);
@@ -63,7 +63,7 @@ describe("telemetry", () => {
 
         it("handles invalid JSON safely", () => {
             const flowKey = "test_flow";
-            vi.mocked(window.sessionStorage.getItem).mockReturnValue("invalid json here");
+            vi.mocked(window.localStorage.getItem).mockReturnValue("invalid json here");
 
             const result = consumeTimedFlow(flowKey);
 
@@ -74,7 +74,7 @@ describe("telemetry", () => {
 
         it("handles empty storage safely", () => {
             const flowKey = "test_flow";
-            vi.mocked(window.sessionStorage.getItem).mockReturnValue(null);
+            vi.mocked(window.localStorage.getItem).mockReturnValue(null);
 
             const result = consumeTimedFlow(flowKey);
 

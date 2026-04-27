@@ -12,7 +12,7 @@ import {
 import { buildFirestoreClientFallbackMessage, buildFirestoreClientIssueDetail } from "@/lib/firestore-client-errors";
 import { db } from "@/lib/firebase-data";
 import { reportRealtimeIssue } from "@/lib/client-error-reporting";
-import { createAutoHealingObserver } from "@/lib/firestore-core-observer";
+import { createAutoHealingObserver } from "@/lib/self-healing";
 
 export function useChatUnreadStatus() {
     const { user, userProfile } = useAuth();
@@ -63,7 +63,7 @@ export function useChatUnreadStatus() {
                     }
                 );
             },
-            (error) => {
+            (error: unknown) => {
                 if (cancelled) return;
                 const now = Date.now();
                 if (!realtimeIssueReportedAtRef.current || now - realtimeIssueReportedAtRef.current > 30000) {

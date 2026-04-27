@@ -1,5 +1,4 @@
 import { Project, SyntaxKind, FunctionDeclaration } from "ts-morph";
-import fs from "fs";
 import path from "path";
 
 const project = new Project();

@@ -53,6 +53,9 @@ const eslintConfig = [{
                 alwaysTryTypes: true,
             },
         },
+        react: {
+            version: "19.2.5",
+        },
     },
 }, {
     files: ["tests/ui-audits/**/*.spec.{ts,tsx}"],

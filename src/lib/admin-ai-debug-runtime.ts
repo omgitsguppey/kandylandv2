@@ -12,6 +12,7 @@ export const ADMIN_AI_DEBUG_ROUTE_RUNTIME_HEALTH_COLLECTION = "route_runtime_hea
 export const ADMIN_AI_DEBUG_ROUTE_RUNTIME_KEYS = {
     read: "admin/debug/assistant:GET",
     write: "admin/debug/assistant:PUT",
+    fix: "admin/debug/assistant/fix:POST",
 } as const;
 
 export type AdminAiDebugRealtimeFeedStatus =
@@ -54,6 +55,7 @@ export interface AdminAiDebugRealtimeSignals {
     routeHealth: {
         read: RouteRuntimeHealthItem | null;
         write: RouteRuntimeHealthItem | null;
+        fix: RouteRuntimeHealthItem | null;
     };
     preflightChecks: AdminAiDebugPreflightCheck[];
 }
@@ -148,6 +150,7 @@ export function buildAdminAiDebugRealtimeSignals(input: {
         .slice(0, 12);
     const readRoute = input.routeHealth?.[ADMIN_AI_DEBUG_ROUTE_RUNTIME_KEYS.read] ?? null;
     const writeRoute = input.routeHealth?.[ADMIN_AI_DEBUG_ROUTE_RUNTIME_KEYS.write] ?? null;
+    const fixRoute = input.routeHealth?.[ADMIN_AI_DEBUG_ROUTE_RUNTIME_KEYS.fix] ?? null;
     const listenerState: ListenerState = {
         settingsLoaded: input.listenerState?.settingsLoaded === true,
         diagnosticsLoaded: input.listenerState?.diagnosticsLoaded === true,
@@ -167,6 +170,7 @@ export function buildAdminAiDebugRealtimeSignals(input: {
         ...diagnostics.map((entry) => entry.createdAtMs),
         typeof readRoute?.updatedAtMs === "number" ? readRoute.updatedAtMs : 0,
         typeof writeRoute?.updatedAtMs === "number" ? writeRoute.updatedAtMs : 0,
+        typeof fixRoute?.updatedAtMs === "number" ? fixRoute.updatedAtMs : 0,
         summary?.generated_at ? Date.parse(summary.generated_at) : 0,
     ]
         .filter((value) => Number.isFinite(value) && value > 0)
@@ -191,6 +195,7 @@ export function buildAdminAiDebugRealtimeSignals(input: {
 
     const readRouteStatus = readRoute ? getRouteRuntimeHealthStatus(readRoute, nowMs) : "stale";
     const writeRouteStatus = writeRoute ? getRouteRuntimeHealthStatus(writeRoute, nowMs) : "stale";
+    const fixRouteStatus = fixRoute ? getRouteRuntimeHealthStatus(fixRoute, nowMs) : "stale";
     const diagnosticErrorCount = diagnostics.filter((entry) => entry.severity === "error").length;
     const diagnosticWarnCount = diagnostics.filter((entry) => entry.severity === "warn").length;
     const latestDiagnostic = diagnostics[0] ?? null;
@@ -250,6 +255,16 @@ export function buildAdminAiDebugRealtimeSignals(input: {
             sourceLabel: listenerState.routesLoaded ? "realtime" : "polled",
         },
         {
+            key: "assistant_fix_route",
+            label: "Assistant fix route",
+            status: mapRouteStatusToPreflight(fixRouteStatus),
+            detail: fixRoute
+                ? `Fix route health is ${fixRouteStatus}. Last result: ${fixRoute.lastResult.replace("_", " ")} at ${new Date(fixRoute.updatedAtMs).toLocaleString()}.`
+                : "No canonical route runtime sample has been observed yet for the assistant fix route.",
+            updatedAtMs: typeof fixRoute?.updatedAtMs === "number" ? fixRoute.updatedAtMs : null,
+            sourceLabel: listenerState.routesLoaded ? "realtime" : "polled",
+        },
+        {
             key: "recent_ai_diagnostics",
             label: "Recent AI diagnostics",
             status: diagnosticErrorCount > 0 ? "fail" : diagnosticWarnCount > 0 ? "warn" : "pass",
@@ -272,6 +287,7 @@ export function buildAdminAiDebugRealtimeSignals(input: {
         routeHealth: {
             read: readRoute,
             write: writeRoute,
+            fix: fixRoute,
         },
         preflightChecks,
     };

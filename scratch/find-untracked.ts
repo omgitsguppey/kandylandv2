@@ -1,5 +1,4 @@
 import { Project, SyntaxKind } from "ts-morph";
-import fs from "fs";
 
 const project = new Project();
 project.addSourceFilesAtPaths("src/app/**/route.ts");

@@ -10,9 +10,8 @@ import { guardApiRequest } from "@/lib/server/request-guard";
 import { parseAdultDateOfBirth } from "@/lib/user-profile-validation";
 import { isCreatorRole, normalizeCreatorSettings } from "@/lib/creator-experiences";
 import { getErrorMessage } from "@/lib/server/route-diagnostics";
-import { recordRouteRuntimeSample } from "@/lib/server/route-runtime-health";
+import { recordRouteRuntimeSample , withRouteRuntimeHealth } from "@/lib/server/route-runtime-health";
 import { reserveUsernameForUser } from "@/lib/server/username-suggestions";
-import { withRouteRuntimeHealth } from "@/lib/server/route-runtime-health";
 
 const ALLOWED_TIMEZONES = new Set([
     "Auto",

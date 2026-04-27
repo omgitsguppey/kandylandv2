@@ -115,7 +115,7 @@ export function AdminSupportQueue() {
         if (!selectedThreadId || !filteredThreads.some((thread) => thread.id === selectedThreadId)) {
             setSelectedThreadId(filteredThreads[0].id);
         }
-    }, [selectedThreadId, filteredThreads, threads.length]);
+    }, [selectedThreadId, filteredThreads, threads]);
 
     const selectedThread = useMemo(() => {
         return threads.find(t => t.id === selectedThreadId) || null;

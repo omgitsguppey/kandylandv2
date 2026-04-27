@@ -3,7 +3,7 @@
 import { useState } from "react";
 import type { ReactNode } from "react";
 import type { LucideIcon } from "lucide-react";
-import { Activity } from "lucide-react";
+import { Activity , Info } from "lucide-react";
 
 import { cn } from "@/lib/utils";
 
@@ -136,7 +136,7 @@ export function SectionCard({
     );
 }
 
-import { Info } from "lucide-react";
+
 
 export function MetricCard({
     label,

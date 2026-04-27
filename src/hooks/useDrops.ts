@@ -4,7 +4,7 @@ import { useState, useEffect, useMemo, useRef, useCallback } from "react";
 import useSWRInfinite from "swr/infinite";
 import { reportClientIssue, reportRealtimeIssue } from "@/lib/client-error-reporting";
 import { buildFirestoreClientIssueDetail } from "@/lib/firestore-client-errors";
-import { createAutoHealingObserver } from "@/lib/firestore-core-observer";
+import { createAutoHealingObserver } from "@/lib/self-healing";
 import { Drop } from "@/types/db";
 import { applyDropStatus, resolveDropStatusFromTiming } from "@/lib/drop-status";
 import { SYSTEM_RUNTIME_COLLECTION, DROP_RUNTIME_DOC_ID } from "@/lib/platform-config";
@@ -177,7 +177,7 @@ export function useDrops(
               observerControl.triggerReconnect(error);
             },
           );
-        }, (error) => {
+        }, (error: unknown) => {
           if (cancelled) return;
           reportRealtimeIssue(
             "drop runtime subscription",

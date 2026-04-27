@@ -43,6 +43,12 @@ export const ROUTE_RUNTIME_HEALTH_TARGETS = {
         title: "Admin debug assistant summary",
         slowThresholdMs: 5000,
     },
+    "admin/debug/assistant/fix:POST": {
+        routeName: "admin/debug/assistant/fix",
+        method: "POST",
+        title: "Admin debug assistant auto-fix",
+        slowThresholdMs: 15000,
+    },
     "admin/debug/assistant:PUT": {
         routeName: "admin/debug/assistant",
         method: "PUT",
@@ -563,6 +569,12 @@ export const ROUTE_RUNTIME_HEALTH_TARGETS = {
                 routeName: "analytics/ingest",
                 method: "POST",
                 title: "Auto-generated for analytics/ingest",
+                slowThresholdMs: 1200,
+            },
+    "analytics/ingest-identified:POST": {
+                routeName: "analytics/ingest-identified",
+                method: "POST",
+                title: "Auto-generated for analytics/ingest-identified",
                 slowThresholdMs: 1200,
             },
     "auth/navigation-session:POST": {

@@ -20,7 +20,7 @@ import { formatDistanceToNow } from "date-fns";
 import { useAuth } from "@/context/AuthContext";
 import { ReportBugButton } from "@/components/Feedback/ReportBugButton";
 import { reportClientIssue, buildFirestoreClientIssueDetail } from "@/lib/client-error-reporting";
-import { createAutoHealingObserver } from "@/lib/firestore-core-observer";
+import { createAutoHealingObserver } from "@/lib/self-healing";
 import { trackEvent } from "@/lib/telemetry";
 import type { Transaction } from "@/types/db";
 import { authFetch } from "@/lib/authFetch";
@@ -521,12 +521,12 @@ function useRecentActivityState(user: AuthenticatedUser, userId: string | null, 
                                 }
                             }
                         },
-                        (error) => {
+                        (error: unknown) => {
                             if (cancelled) return;
                             observerControl.triggerReconnect(error);
                         },
                     );
-                }, (error) => {
+                }, (error: unknown) => {
                     if (cancelled) return;
                     reportRecentActivityFailure(
                         "realtime",

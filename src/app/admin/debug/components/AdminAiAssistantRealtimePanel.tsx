@@ -1,8 +1,9 @@
 "use client";
 
 import { Activity, CheckCircle2, FileWarning, Radio } from "lucide-react";
+import { useState } from "react";
 
-import type { AdminAiDebugRealtimeSignals } from "@/lib/admin-ai-debug-runtime";
+import type { AdminAiDebugRealtimeSignals, AdminAiDebugRealtimeDiagnostic } from "@/lib/admin-ai-debug-runtime";
 import { cn } from "@/lib/utils";
 
 function toneClasses(tone: "good" | "warn" | "bad" | "neutral") {
@@ -40,6 +41,34 @@ function formatSignalAge(timestamp?: number | null) {
 }
 
 export function AdminAiAssistantRealtimePanel({ state }: { state: AdminAiDebugRealtimeSignals }) {
+    const [fixingIds, setFixingIds] = useState<Record<string, boolean>>({});
+    const [patches, setPatches] = useState<Record<string, string>>({});
+    const [errors, setErrors] = useState<Record<string, string>>({});
+
+    const handleFix = async (diagnostic: AdminAiDebugRealtimeDiagnostic) => {
+        setFixingIds((prev) => ({ ...prev, [diagnostic.id]: true }));
+        setErrors((prev) => ({ ...prev, [diagnostic.id]: "" }));
+        
+        try {
+            const res = await fetch("/api/admin/debug/assistant/fix", {
+                method: "POST",
+                headers: { "Content-Type": "application/json" },
+                body: JSON.stringify({
+                    diagnosticMessage: diagnostic.message,
+                    diagnosticDetail: diagnostic.detailPreview
+                })
+            });
+            const data = await res.json();
+            if (!res.ok) throw new Error(data.error || "Failed to generate fix");
+            
+            setPatches((prev) => ({ ...prev, [diagnostic.id]: data.patch }));
+        } catch (err: any) {
+            setErrors((prev) => ({ ...prev, [diagnostic.id]: err.message }));
+        } finally {
+            setFixingIds((prev) => ({ ...prev, [diagnostic.id]: false }));
+        }
+    };
+
     return (
         <div className="space-y-4">
             <div className="rounded-[1rem] border border-white/10 bg-white/[0.03] p-4">
@@ -91,6 +120,64 @@ export function AdminAiAssistantRealtimePanel({ state }: { state: AdminAiDebugRe
                     </div>
                 ))}
             </div>
+
+            {state.diagnostics.length > 0 && (
+                <div className="mt-8 space-y-4">
+                    <h3 className="text-[11px] uppercase tracking-[0.18em] text-gray-400">Live Diagnostics & AI Auto-Fix</h3>
+                    <div className="grid gap-3">
+                        {state.diagnostics.map((diag) => (
+                            <div key={diag.id} className="rounded-[1rem] border border-white/10 bg-white/[0.03] p-4 space-y-3">
+                                <div className="flex flex-col md:flex-row md:items-start justify-between gap-4">
+                                    <div>
+                                        <div className="flex items-center gap-2">
+                                            <span className={cn("px-2 py-0.5 rounded-full text-[10px] uppercase tracking-wider font-bold", 
+                                                diag.severity === "error" ? "bg-red-500/20 text-red-300" : 
+                                                diag.severity === "warn" ? "bg-amber-500/20 text-amber-300" : 
+                                                "bg-blue-500/20 text-blue-300"
+                                            )}>
+                                                {diag.severity}
+                                            </span>
+                                            <p className="text-sm font-semibold text-white">{diag.message}</p>
+                                        </div>
+                                        {diag.detailPreview && (
+                                            <p className="mt-2 text-xs text-gray-400 font-mono whitespace-pre-wrap">{diag.detailPreview}</p>
+                                        )}
+                                        <p className="mt-2 text-[10px] text-gray-500">{formatSignalAge(diag.createdAtMs)}</p>
+                                    </div>
+                                    <button 
+                                        onClick={() => handleFix(diag)}
+                                        disabled={fixingIds[diag.id]}
+                                        className="shrink-0 px-3 py-1.5 rounded-lg bg-brand-purple/20 hover:bg-brand-purple/30 border border-brand-purple/50 text-xs font-semibold text-white disabled:opacity-50 transition-colors"
+                                    >
+                                        {fixingIds[diag.id] ? "Generating Fix..." : "AI Auto-Fix"}
+                                    </button>
+                                </div>
+                                {errors[diag.id] && (
+                                    <div className="p-3 rounded-lg bg-red-500/10 border border-red-500/20 text-xs text-red-300">
+                                        {errors[diag.id]}
+                                    </div>
+                                )}
+                                {patches[diag.id] && (
+                                    <div className="mt-3 p-3 rounded-xl bg-black/40 border border-white/10">
+                                        <div className="flex items-center justify-between mb-2">
+                                            <p className="text-[11px] uppercase tracking-[0.18em] text-gray-400">Proposed Patch (.patch)</p>
+                                            <button 
+                                                onClick={() => navigator.clipboard.writeText(patches[diag.id])}
+                                                className="text-[10px] uppercase tracking-wider text-brand-purple hover:text-white transition-colors"
+                                            >
+                                                Copy Patch
+                                            </button>
+                                        </div>
+                                        <pre className="text-[11px] text-gray-300 font-mono overflow-x-auto whitespace-pre-wrap selection:bg-brand-purple/30">
+                                            {patches[diag.id]}
+                                        </pre>
+                                    </div>
+                                )}
+                            </div>
+                        ))}
+                    </div>
+                </div>
+            )}
         </div>
     );
 }

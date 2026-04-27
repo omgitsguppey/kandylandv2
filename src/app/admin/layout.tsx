@@ -7,6 +7,7 @@ import { useEffect } from "react";
 import Link from "next/link";
 import { LayoutDashboard, Package, Users, Terminal, ListChecks, TrendingUp, LifeBuoy, ShieldAlert } from "lucide-react";
 import { cn } from "@/lib/utils";
+import { AdminErrorCatcher } from "@/components/AdminErrorCatcher";
 
 
 const NAV_ITEMS = [
@@ -103,6 +104,7 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
               </div>
             </div>
           </div>
+          <AdminErrorCatcher />
           {children}
         </div>
       </main>

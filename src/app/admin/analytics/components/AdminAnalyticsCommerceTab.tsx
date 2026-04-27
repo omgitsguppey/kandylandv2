@@ -61,7 +61,7 @@ export function AdminAnalyticsCommerceTab(props: AdminAnalyticsState) {
                   value={formatMoney(commerceSnapshotCommerce.revenueUsd)}
                   hint="Completed currency purchases"
                   icon={DollarSign}
-                  truthState={props.commerceTruthLabel}
+                  truthState={"cached"}
                   dictionaryTooltip="Total USD revenue collected from all completed purchases."
                 />
                 <MetricCard
@@ -71,7 +71,7 @@ export function AdminAnalyticsCommerceTab(props: AdminAnalyticsState) {
                   )}
                   hint={`${formatMoney(commerceSnapshotCommerce.bonusValueUsd ?? 0)} promo value granted`}
                   icon={Wallet}
-                  truthState={props.commerceTruthLabel}
+                  truthState={"cached"}
                   dictionaryTooltip="Net profit after accounting for platform fees and promotional value granted."
                 />
                 <MetricCard
@@ -81,7 +81,7 @@ export function AdminAnalyticsCommerceTab(props: AdminAnalyticsState) {
                   )}
                   hint={`${formatCompactNumber(commerceSnapshotCommerce.deliveredGumDrops ?? 0)} GD delivered`}
                   icon={Sparkles}
-                  truthState={props.commerceTruthLabel}
+                  truthState={"cached"}
                   dictionaryTooltip="Effective USD revenue earned per 100 GumDrops delivered."
                 />
                 <MetricCard
@@ -89,7 +89,7 @@ export function AdminAnalyticsCommerceTab(props: AdminAnalyticsState) {
                   value={formatCompactNumber(commerceSnapshotCommerce.gdSpent)}
                   hint={`${formatCompactNumber(commerceSnapshotCommerce.bonusGumDrops ?? 0)} bonus GD granted`}
                   icon={ShoppingBag}
-                  truthState={props.commerceTruthLabel}
+                  truthState={"cached"}
                   dictionaryTooltip="Total volume of GumDrops spent by users across all experiences."
                 />
               </div>

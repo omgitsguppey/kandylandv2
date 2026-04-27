@@ -3,7 +3,8 @@ import { beforeEach, describe, expect, it, vi } from "vitest";
 const mockState = vi.hoisted(() => {
     const get = vi.fn();
     const orderBy = vi.fn(() => ({ get }));
-    const collection = vi.fn(() => ({ orderBy }));
+    const add = vi.fn();
+    const collection = vi.fn(() => ({ orderBy, add }));
 
     return {
         adminDb: {

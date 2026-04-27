@@ -16,6 +16,7 @@ type MockDocRef = {
 type MockCollectionRef = {
     path: string;
     doc: (id: string) => MockDocRef;
+    add: (data: Record<string, unknown>) => Promise<MockDocRef>;
 };
 
 function assertNoUndefinedDeep(value: unknown, path = "root") {
@@ -47,6 +48,12 @@ const mockState = vi.hoisted(() => {
         doc(id: string) {
             return buildDocRef(`${path}/${id}`);
         },
+        async add(data: Record<string, unknown>) {
+            const id = Math.random().toString(36).substring(2);
+            const docRef = buildDocRef(`${path}/${id}`);
+            await docRef.update(data);
+            return docRef;
+        }
     });
 
     const buildDocRef = (path: string): MockDocRef => ({

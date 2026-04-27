@@ -6,6 +6,7 @@ import {
   type ClientDiagnosticSeverity,
 } from "@/lib/client-diagnostics";
 import { analyzeFirestoreClientIssue, buildFirestoreClientIssueDetail } from "@/lib/firestore-client-errors";
+export { buildFirestoreClientIssueDetail };
 
 export function getClientErrorMessage(error: unknown, fallback = "Unexpected client error") {
   if (error instanceof Error && error.message.trim().length > 0) {

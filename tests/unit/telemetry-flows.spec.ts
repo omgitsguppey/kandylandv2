@@ -4,23 +4,23 @@ import { startTimedFlow, clearTimedFlow, consumeTimedFlow } from "@/lib/telemetr
 const FLOW_STORAGE_KEY = "kandydrops.telemetry.flows";
 
 describe("telemetry flow functions", () => {
-    let sessionStorageStore: Record<string, string> = {};
+    let localStorageStore: Record<string, string> = {};
 
     beforeEach(() => {
-        sessionStorageStore = {};
+        localStorageStore = {};
 
-        const mockSessionStorage = {
-            getItem: vi.fn((key: string) => sessionStorageStore[key] || null),
+        const mockLocalStorage = {
+            getItem: vi.fn((key: string) => localStorageStore[key] || null),
             setItem: vi.fn((key: string, value: string) => {
-                sessionStorageStore[key] = value;
+                localStorageStore[key] = value;
             }),
             removeItem: vi.fn((key: string) => {
-                delete sessionStorageStore[key];
+                delete localStorageStore[key];
             }),
         };
 
         vi.stubGlobal("window", {
-            sessionStorage: mockSessionStorage,
+            localStorage: mockLocalStorage,
         });
 
         vi.useFakeTimers();
@@ -39,12 +39,12 @@ describe("telemetry flow functions", () => {
             startTimedFlow("test_flow", { some_param: "value" });
 
             // Should not throw
-            expect(Object.keys(sessionStorageStore).length).toBe(0);
+            expect(Object.keys(localStorageStore).length).toBe(0);
         });
 
-        it("gracefully handles sessionStorage errors (e.g. private mode)", () => {
+        it("gracefully handles localStorage errors (e.g. private mode)", () => {
             vi.stubGlobal("window", {
-                sessionStorage: {
+                localStorage: {
                     getItem: () => { throw new Error("SecurityError"); },
                     setItem: () => { throw new Error("SecurityError"); },
                 }
@@ -56,10 +56,10 @@ describe("telemetry flow functions", () => {
             expect(true).toBe(true);
         });
 
-        it("creates a new flow entry in sessionStorage", () => {
+        it("creates a new flow entry in localStorage", () => {
             startTimedFlow("onboarding_flow", { step: 1 });
 
-            const storedRaw = sessionStorageStore[FLOW_STORAGE_KEY];
+            const storedRaw = localStorageStore[FLOW_STORAGE_KEY];
             expect(storedRaw).toBeDefined();
 
             const stored = JSON.parse(storedRaw);
@@ -83,7 +83,7 @@ describe("telemetry flow functions", () => {
 
             startTimedFlow("test_flow", complexParams);
 
-            const stored = JSON.parse(sessionStorageStore[FLOW_STORAGE_KEY]);
+            const stored = JSON.parse(localStorageStore[FLOW_STORAGE_KEY]);
             expect(stored["test_flow"].params).toEqual({
                 validString: "string",
                 validNumber: 42,
@@ -96,7 +96,7 @@ describe("telemetry flow functions", () => {
         it("handles missing eventParams", () => {
             startTimedFlow("empty_flow");
 
-            const stored = JSON.parse(sessionStorageStore[FLOW_STORAGE_KEY]);
+            const stored = JSON.parse(localStorageStore[FLOW_STORAGE_KEY]);
             expect(stored["empty_flow"].params).toEqual({
                 event_schema_version: "v2",
             });
@@ -105,7 +105,7 @@ describe("telemetry flow functions", () => {
 
     describe("clearTimedFlow", () => {
         it("gracefully exits when window is undefined", () => {
-            sessionStorageStore[FLOW_STORAGE_KEY] = JSON.stringify({
+            localStorageStore[FLOW_STORAGE_KEY] = JSON.stringify({
                 "test_flow": { startedAt: 1000 }
             });
 
@@ -117,9 +117,9 @@ describe("telemetry flow functions", () => {
             expect(true).toBe(true);
         });
 
-        it("gracefully handles sessionStorage errors", () => {
+        it("gracefully handles localStorage errors", () => {
             vi.stubGlobal("window", {
-                sessionStorage: {
+                localStorage: {
                     getItem: () => { throw new Error("SecurityError"); },
                     setItem: () => { throw new Error("SecurityError"); },
                 }
@@ -131,27 +131,27 @@ describe("telemetry flow functions", () => {
             expect(true).toBe(true);
         });
 
-        it("removes an existing flow entry from sessionStorage", () => {
-            sessionStorageStore[FLOW_STORAGE_KEY] = JSON.stringify({
+        it("removes an existing flow entry from localStorage", () => {
+            localStorageStore[FLOW_STORAGE_KEY] = JSON.stringify({
                 "flow_to_clear": { startedAt: 1000 },
                 "other_flow": { startedAt: 2000 }
             });
 
             clearTimedFlow("flow_to_clear");
 
-            const stored = JSON.parse(sessionStorageStore[FLOW_STORAGE_KEY]);
+            const stored = JSON.parse(localStorageStore[FLOW_STORAGE_KEY]);
             expect(stored["flow_to_clear"]).toBeUndefined();
             expect(stored["other_flow"]).toBeDefined();
         });
 
         it("does nothing if flow key does not exist", () => {
-            sessionStorageStore[FLOW_STORAGE_KEY] = JSON.stringify({
+            localStorageStore[FLOW_STORAGE_KEY] = JSON.stringify({
                 "existing_flow": { startedAt: 1000 }
             });
 
             clearTimedFlow("non_existent_flow");
 
-            const stored = JSON.parse(sessionStorageStore[FLOW_STORAGE_KEY]);
+            const stored = JSON.parse(localStorageStore[FLOW_STORAGE_KEY]);
             expect(stored["existing_flow"]).toBeDefined();
         });
     });
@@ -159,7 +159,7 @@ describe("telemetry flow functions", () => {
     describe("consumeTimedFlow", () => {
         it("calculates duration and merges params correctly", () => {
             const startTime = Date.now();
-            sessionStorageStore[FLOW_STORAGE_KEY] = JSON.stringify({
+            localStorageStore[FLOW_STORAGE_KEY] = JSON.stringify({
                 "test_flow": {
                     startedAt: startTime,
                     params: { initial: "value" }
@@ -182,14 +182,14 @@ describe("telemetry flow functions", () => {
             });
         });
 
-        it("removes the flow from sessionStorage after consumption", () => {
-            sessionStorageStore[FLOW_STORAGE_KEY] = JSON.stringify({
+        it("removes the flow from localStorage after consumption", () => {
+            localStorageStore[FLOW_STORAGE_KEY] = JSON.stringify({
                 "test_flow": { startedAt: Date.now() }
             });
 
             consumeTimedFlow("test_flow");
 
-            const stored = JSON.parse(sessionStorageStore[FLOW_STORAGE_KEY]);
+            const stored = JSON.parse(localStorageStore[FLOW_STORAGE_KEY]);
             expect(stored["test_flow"]).toBeUndefined();
         });
 
@@ -217,9 +217,9 @@ describe("telemetry flow functions", () => {
             });
         });
 
-        it("gracefully handles sessionStorage errors", () => {
+        it("gracefully handles localStorage errors", () => {
             vi.stubGlobal("window", {
-                sessionStorage: {
+                localStorage: {
                     getItem: () => { throw new Error("SecurityError"); },
                     setItem: () => { throw new Error("SecurityError"); },
                 }
@@ -237,7 +237,7 @@ describe("telemetry flow functions", () => {
 
         it("ensures durationMs is not negative", () => {
             const startTime = Date.now();
-            sessionStorageStore[FLOW_STORAGE_KEY] = JSON.stringify({
+            localStorageStore[FLOW_STORAGE_KEY] = JSON.stringify({
                 "test_flow": { startedAt: startTime }
             });
 

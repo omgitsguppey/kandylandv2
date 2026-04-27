@@ -1,5 +1,4 @@
-import { app, auth } from "./firebase";
-import { getFunctions, httpsCallable } from "firebase/functions";
+import { auth } from "./firebase";
 import { prepareAnalyticsEvent } from "./analytics-client-engine";
 import { createAnalyticsEventId } from "./analytics-identifiers";
 import destr from "destr";
@@ -20,7 +19,6 @@ import {
  * Sends analytics to GA when available and mirrors them to the backend for authenticated users.
  */
 const FLOW_STORAGE_KEY = "kandydrops.telemetry.flows";
-const IDENTIFIED_QUEUE_STORAGE_KEY = "kandydrops.telemetry.identified-queue";
 
 type SanitizedEventParams = SanitizedTelemetryParams;
 const TASK_PROGRESS_EVENT_NAMES = new Set(BUILT_IN_DAILY_TASKS.map((task) => task.eventName));
@@ -53,7 +51,6 @@ let telemetryFlushTimeout: number | null = null;
 let telemetryFlushInFlight: Promise<void> | null = null;
 let lifecycleFlushInstalled = false;
 let telemetryQueueUserId: string | null = null;
-let telemetryQueueLoaded = false;
 let telemetryRolloutContext: RolloutTelemetryContext | null = null;
 let telemetryReleaseContext: SanitizedEventParams | null = null;
 
@@ -87,51 +84,15 @@ function writeJsonStorage(storageKey: string, value: unknown) {
 }
 
 function ensureTelemetryQueueLoaded() {
-    if (telemetryQueueLoaded || typeof window === "undefined") {
-        return;
-    }
-
-    telemetryQueueLoaded = true;
-    const persistedState = readJsonStorage<{
-        userId: string | null;
-        events: IdentifiedTelemetryEvent[];
-    } | IdentifiedTelemetryEvent[]>(IDENTIFIED_QUEUE_STORAGE_KEY);
-    if (!persistedState) {
-        telemetryQueue = [];
-        return;
-    }
-
-    const persistedQueue = Array.isArray(persistedState) ? persistedState : persistedState.events;
-    telemetryQueueUserId = Array.isArray(persistedState) ? null : (persistedState.userId ?? null);
-    telemetryQueue = persistedQueue.filter((entry) => (
-        typeof entry?.eventId === "string"
-        && typeof entry?.eventName === "string"
-        && typeof entry?.eventTimestampMs === "number"
-        && Number.isFinite(entry.eventTimestampMs)
-    )).slice(-50);
+    // No-op, queue is now purely in-memory
 }
 
 function persistTelemetryQueue() {
-    if (typeof window === "undefined") {
-        return;
-    }
-
-    writeJsonStorage(IDENTIFIED_QUEUE_STORAGE_KEY, {
-        userId: telemetryQueueUserId,
-        events: telemetryQueue,
-    });
+    // No-op, queue is now purely in-memory
 }
 
 function clearPersistedTelemetryQueue() {
-    if (typeof window === "undefined") {
-        return;
-    }
-
-    try {
-        window.localStorage.removeItem(IDENTIFIED_QUEUE_STORAGE_KEY);
-    } catch {
-        // Ignore storage failures in restricted contexts.
-    }
+    // No-op, queue is now purely in-memory
 }
 
 export function syncIdentifiedTelemetryOwnership(userId: string | null) {
@@ -342,19 +303,23 @@ async function flushQueuedTelemetry(reason: "scheduled" | "immediate" | "pagehid
         try {
             if ((reason === "pagehide" || reason === "visibility") && typeof navigator !== "undefined" && navigator.sendBeacon) {
                 // Use sendBeacon for unload events to ensure 100% accuracy during tab closure
-                const beaconPayload = new Blob([JSON.stringify({ data: { events: batch } })], { type: "application/json" });
-                // We use the same URL the httpsCallable uses
-                const region = "us-central1"; 
-                const projectId = app.options.projectId;
-                const endpoint = `https://${region}-${projectId}.cloudfunctions.net/ingestAnalyticsEvent`;
+                const beaconPayload = new Blob([JSON.stringify({ events: batch })], { type: "application/json" });
+                const endpoint = "/api/analytics/ingest-identified";
                 const success = navigator.sendBeacon(endpoint, beaconPayload);
                 if (!success) {
                    throw new Error("sendBeacon returned false");
                 }
             } else {
-                const functions = getFunctions(app);
-                const ingestFn = httpsCallable(functions, "ingestAnalyticsEvent");
-                await ingestFn({ events: batch });
+                const endpoint = "/api/analytics/ingest-identified";
+                const response = await fetch(endpoint, {
+                    method: "POST",
+                    headers: { "Content-Type": "application/json" },
+                    body: JSON.stringify({ events: batch }),
+                    keepalive: true,
+                });
+                if (!response.ok) {
+                    throw new Error(`fetch failed with status ${response.status}`);
+                }
             }
         } catch (error) {
             telemetryQueue = [...batch, ...telemetryQueue].slice(-50);

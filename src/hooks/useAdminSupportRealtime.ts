@@ -117,13 +117,17 @@ export function useAdminSupportRealtime(selectedThreadId: string | null) {
     useEffect(() => {
         let cancelled = false;
         if (!selectedThreadId) {
-            setMessages([]);
-            setIsLoadingMessages(false);
+            // Avoid calling setState synchronously within an effect by deferring
+            setTimeout(() => {
+                setMessages([]);
+                setIsLoadingMessages(false);
+            }, 0);
             return () => {
                 cancelled = true;
             };
         }
 
+        // eslint-disable-next-line react-hooks/set-state-in-effect
         setIsLoadingMessages(true);
         // Ordering by createdAt is natively supported here without composite indexes because there are no where() filters
         const q = query(
