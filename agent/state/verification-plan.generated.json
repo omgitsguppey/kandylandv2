@@ -1,5 +1,5 @@
 {
-  "generatedAt": "2026-04-26T20:45:50.017Z",
+  "generatedAt": "2026-04-27T02:32:00.881Z",
   "truthOrder": [
     "verified_runtime_code",
     "verified_configuration",
@@ -16,20 +16,52 @@
     "agent/index/surface-map.json",
     "agent/index/ui-surface-coverage.json"
   ],
-  "stable_id": "verifyplan__src__hooks",
+  "stable_id": "verifyplan__src__lib__server__server-diagnostics-ts",
   "inputPaths": [
-    "src/hooks"
+    "src/lib/server/server-diagnostics.ts"
   ],
-  "matchedRepoPaths": [],
-  "unmatchedPaths": [
-    "src/hooks"
+  "matchedRepoPaths": [
+    "src/lib/server/server-diagnostics.ts"
   ],
-  "touchedDomains": [],
-  "fastCommands": [],
-  "signoffCommands": [],
-  "fastSelections": [],
-  "signoffSelections": [],
-  "signoffAdvisories": [],
+  "unmatchedPaths": [],
+  "touchedDomains": [
+    "shared_server_helpers"
+  ],
+  "fastCommands": [
+    "npm run typecheck",
+    "npm run agent:test -- src/lib/server/server-diagnostics.ts"
+  ],
+  "signoffCommands": [
+    "npm run check:continuity"
+  ],
+  "fastSelections": [
+    {
+      "command": "npm run typecheck",
+      "why": [
+        "TypeScript or runtime code changed."
+      ],
+      "lane": "fast"
+    },
+    {
+      "command": "npm run agent:test -- src/lib/server/server-diagnostics.ts",
+      "why": [
+        "Run the narrowest related contract/unit tests first."
+      ],
+      "lane": "fast"
+    }
+  ],
+  "signoffSelections": [
+    {
+      "command": "npm run check:continuity",
+      "why": [
+        "Broad/shared/helper/tooling work requires continuity signoff."
+      ],
+      "lane": "signoff"
+    }
+  ],
+  "signoffAdvisories": [
+    "Run `npm run trace:adjacent -- <path>` for the main touched files before broad signoff."
+  ],
   "forbiddenSurfaces": [
     "src/lib/gumdrop-ledger.ts",
     "src/lib/gumdrop-economics.ts",
@@ -37,8 +69,8 @@
     "src/app/api/paypal",
     "functions/src/analytics-transactions.ts"
   ],
-  "broadWork": false,
+  "broadWork": true,
   "reasoning": [
-    "No repo-tracked paths matched exactly; verification falls back to generic lanes only."
+    "Matched 1 repo-tracked paths."
   ]
 }

@@ -25,6 +25,10 @@ vi.mock("@/lib/server/firebase-admin", () => ({
     adminDb: mockState.adminDb,
 }));
 
+vi.mock("@/lib/server/route-diagnostics", () => ({
+    recordRouteWarning: vi.fn(),
+}));
+
 import { getDrops } from "@/lib/server/drops";
 
 describe("getDrops", () => {
@@ -71,11 +75,11 @@ describe("getDrops", () => {
             id: "valid_drop",
             title: "Valid Drop",
         });
-        expect(consoleErrorSpy).toHaveBeenCalledWith(
+        const { recordRouteWarning } = await import("@/lib/server/route-diagnostics");
+        expect(recordRouteWarning).toHaveBeenCalledWith(
+            "drops-list",
             "Skipping invalid drop document broken_drop",
             expect.anything(),
         );
-
-        consoleErrorSpy.mockRestore();
     }, 10_000);
 });

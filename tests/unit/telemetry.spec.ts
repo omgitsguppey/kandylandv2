@@ -198,39 +198,30 @@ describe("telemetry flow logic", () => {
 
     describe("syncIdentifiedTelemetryOwnership", () => {
         it("clears telemetry queue when userId is null", () => {
-            mockLocalStorage[IDENTIFIED_QUEUE_STORAGE_KEY] = JSON.stringify({
-                userId: "old_user",
-                events: [{ eventId: "1", eventName: "test", eventTimestampMs: 123, eventParams: {} }]
-            });
+            telemetry.__setTelemetryStateForTesting("old_user", [{ eventId: "1", eventName: "test", eventTimestampMs: 123, eventParams: {} }]);
 
             telemetry.syncIdentifiedTelemetryOwnership(null);
 
-            expect(mockLocalStorage[IDENTIFIED_QUEUE_STORAGE_KEY]).toBeUndefined();
+            expect(telemetry.__getTelemetryStateForTesting().userId).toBeNull();
         });
 
         it("clears telemetry queue when userId changes", () => {
-            mockLocalStorage[IDENTIFIED_QUEUE_STORAGE_KEY] = JSON.stringify({
-                userId: "old_user",
-                events: [{ eventId: "1", eventName: "test", eventTimestampMs: 123, eventParams: {} }]
-            });
+            telemetry.__setTelemetryStateForTesting("old_user", [{ eventId: "1", eventName: "test", eventTimestampMs: 123, eventParams: {} }]);
 
             telemetry.syncIdentifiedTelemetryOwnership("new_user");
 
-            const stored = JSON.parse(mockLocalStorage[IDENTIFIED_QUEUE_STORAGE_KEY]);
+            const stored = telemetry.__getTelemetryStateForTesting();
             expect(stored.userId).toBe("new_user");
             expect(stored.events).toEqual([]);
         });
 
         it("keeps telemetry queue when userId is the same", () => {
             const events = [{ eventId: "1", eventName: "test", eventTimestampMs: 123, eventParams: {} }];
-            mockLocalStorage[IDENTIFIED_QUEUE_STORAGE_KEY] = JSON.stringify({
-                userId: "same_user",
-                events
-            });
+            telemetry.__setTelemetryStateForTesting("same_user", events);
 
             telemetry.syncIdentifiedTelemetryOwnership("same_user");
 
-            const stored = JSON.parse(mockLocalStorage[IDENTIFIED_QUEUE_STORAGE_KEY]);
+            const stored = telemetry.__getTelemetryStateForTesting();
             expect(stored.userId).toBe("same_user");
             expect(stored.events).toEqual(events);
         });
@@ -262,7 +253,7 @@ describe("telemetry flow logic", () => {
             telemetry.trackEvent("test_event");
 
             expect(window.gtag).not.toHaveBeenCalled();
-            expect(mockLocalStorage[IDENTIFIED_QUEUE_STORAGE_KEY]).toBeUndefined();
+            expect(telemetry.__getTelemetryStateForTesting().events.length).toBe(0);
         });
 
         it("records client diagnostic on trackEvent error", () => {
@@ -312,7 +303,7 @@ describe("telemetry flow logic", () => {
         it("enqueues identified analytics", () => {
             telemetry.trackEvent("known_event");
 
-            const stored = JSON.parse(mockLocalStorage[IDENTIFIED_QUEUE_STORAGE_KEY]);
+            const stored = telemetry.__getTelemetryStateForTesting();
             expect(stored.userId).toBe("user123");
             expect(stored.events.length).toBe(1);
             expect(stored.events[0].eventName).toBe("known_event");

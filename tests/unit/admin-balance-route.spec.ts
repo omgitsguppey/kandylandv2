@@ -41,6 +41,17 @@ const mockState = vi.hoisted(() => {
                     };
                 }
 
+                if (name === "server_diagnostics") {
+                    return {
+                        add: vi.fn(),
+                        doc() {
+                            return {
+                                set: vi.fn(),
+                            };
+                        },
+                    };
+                }
+
                 throw new Error(`Unexpected collection: ${name}`);
             },
             async runTransaction<T>(callback: (transaction: {

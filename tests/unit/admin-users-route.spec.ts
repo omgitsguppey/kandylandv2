@@ -80,10 +80,17 @@ const mockState = vi.hoisted(() => {
             return buildCollectionRef(name);
         },
         runTransaction: vi.fn(async (callback: (transaction: {
+            get: (ref: MockDocRef) => Promise<{ exists: boolean; data: () => Record<string, unknown> | undefined }>;
             getAll: (...refs: Array<MockDocRef>) => Promise<Array<{ exists: boolean; data: () => Record<string, unknown> | undefined }>>;
             set: (ref: MockDocRef, data: unknown, options?: { merge?: boolean }) => void;
         }) => Promise<unknown>) => {
             const transaction = {
+                async get(ref: MockDocRef) {
+                    return {
+                        exists: documents.has(ref.path),
+                        data: () => documents.get(ref.path),
+                    };
+                },
                 async getAll(...refs: Array<MockDocRef>) {
                     return refs.map((ref) => ({
                         exists: documents.has(ref.path),
@@ -111,6 +118,7 @@ const mockState = vi.hoisted(() => {
         handleApiError: vi.fn(),
         trackServerEvent: vi.fn(async () => undefined),
         recordServerDiagnostic: vi.fn(async () => undefined),
+        recordRouteRuntimeSample: vi.fn(async () => undefined),
         reset() {
             documents.clear();
             adminDb.runTransaction.mockClear();
@@ -118,6 +126,7 @@ const mockState = vi.hoisted(() => {
             this.handleApiError.mockReset();
             this.trackServerEvent.mockReset();
             this.recordServerDiagnostic.mockReset();
+            this.recordRouteRuntimeSample.mockReset();
         },
     };
 });
@@ -178,6 +187,14 @@ vi.mock("@/lib/server/creator-experiences", () => ({
 vi.mock("@/lib/server/server-diagnostics", () => ({
     recordServerDiagnostic: mockState.recordServerDiagnostic,
 }));
+
+vi.mock("@/lib/server/route-runtime-health", async (importOriginal) => {
+    const actual = await importOriginal<typeof import("@/lib/server/route-runtime-health")>();
+    return {
+        ...actual,
+        recordRouteRuntimeSample: mockState.recordRouteRuntimeSample,
+    };
+});
 
 import { PUT } from "@/app/api/admin/users/route";
 

@@ -50,7 +50,11 @@ function sanitizeDetail(detail: Record<string, unknown> | undefined) {
         return;
       }
 
-      entries.push([normalizedKey, JSON.stringify(value).slice(0, 500)]);
+      try {
+        entries.push([normalizedKey, JSON.stringify(value).slice(0, 500)]);
+      } catch (err) {
+        entries.push([normalizedKey, String(value).slice(0, 500)]);
+      }
     });
 
   return Object.fromEntries(entries);

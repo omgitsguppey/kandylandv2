@@ -23,6 +23,14 @@ vi.mock("next/dynamic", () => ({
     },
 }));
 
+vi.mock("@/lib/telemetry", () => ({
+    trackEvent: vi.fn(),
+}));
+
+vi.mock("@/lib/client-error-reporting", () => ({
+    reportClientIssue: vi.fn(),
+}));
+
 describe("GlobalAuthModal handleGuestDismiss behavior", () => {
     let authFetchModule: any;
     let uiContextModule: any;
@@ -69,9 +77,12 @@ describe("GlobalAuthModal handleGuestDismiss behavior", () => {
         expect(onDismiss).toHaveBeenCalled();
         expect(closeAuthModal).toHaveBeenCalled();
         expect(authFetchModule.authFetch).toHaveBeenCalledWith("/api/user/guest-dismissal", { method: "POST" });
-        expect(consoleSpy).toHaveBeenCalledWith("Failed to track guest dismissal:", expect.any(Error));
-
-        consoleSpy.mockRestore();
+        
+        const { reportClientIssue } = await import("@/lib/client-error-reporting");
+        expect(reportClientIssue).toHaveBeenCalledWith(expect.objectContaining({
+            message: "Guest dismissal tracking failed",
+            consoleLabel: "[Auth] Failed to track guest dismissal",
+        }));
     });
 
     it("closes the modal and calls onDismiss on success", async () => {

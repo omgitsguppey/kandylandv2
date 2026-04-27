@@ -32,6 +32,19 @@ const mockState = vi.hoisted(() => {
             const clauses: QueryClause[] = [];
 
             return {
+                doc(id?: string) {
+                    return {
+                        async get() {
+                            const docs = collections.get(name) ?? [];
+                            const doc = id ? docs.find((d) => d.id === id) : undefined;
+                            return {
+                                exists: !!doc,
+                                id: doc?.id ?? id ?? "new_id",
+                                data: () => doc?.data() ?? undefined,
+                            };
+                        }
+                    };
+                },
                 where(field: string, operator: string, value: unknown) {
                     clauses.push({ field, operator, value });
                     return this;
@@ -216,6 +229,7 @@ describe("GET /api/admin/analytics/realtime", () => {
         const request = new NextRequest("http://localhost/api/admin/analytics/realtime");
         const response = await GET(request);
         const payload = await response.json();
+        console.log("PAYLOAD ERROR:", payload);
 
         expect(response.status).toBe(200);
         expect(payload).toMatchObject({

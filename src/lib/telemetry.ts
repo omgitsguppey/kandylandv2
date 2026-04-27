@@ -454,3 +454,15 @@ export function trackEvent(eventName: string, eventParams?: Record<string, unkno
         eventParams: enrichedParams,
     }, shouldFlushIdentifiedTelemetryImmediately(preparedEvent.canonicalEventName, enrichedParams, shouldSyncTaskProgress));
 }
+
+export function __getTelemetryStateForTesting() {
+    return {
+        userId: telemetryQueueUserId,
+        events: [...telemetryQueue],
+    };
+}
+
+export function __setTelemetryStateForTesting(userId: string | null, events: any[]) {
+    telemetryQueueUserId = userId;
+    telemetryQueue = [...events];
+}

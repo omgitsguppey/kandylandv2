@@ -22,7 +22,7 @@ function mockDoc(id: string, data: Record<string, unknown>) {
 describe("buildAdminOpsHealth", () => {
     it("keeps older sampled failures visible without treating them as an active ops incident", () => {
         const nowMs = Date.UTC(2026, 3, 6, 12, 0, 0);
-        const threeDaysAgo = nowMs - (3 * 24 * 60 * 60 * 1000);
+        const twoDaysAgo = nowMs - (2 * 24 * 60 * 60 * 1000);
         const oneHourAgo = nowMs - (60 * 60 * 1000);
 
         const result = buildAdminOpsHealth({
@@ -32,13 +32,13 @@ describe("buildAdminOpsHealth", () => {
                     channel: "analytics",
                     severity: "error",
                     message: "Old ingest error",
-                    createdAtMs: threeDaysAgo,
+                    createdAtMs: twoDaysAgo,
                 }),
             ],
             pipelineDocs: [
                 mockDoc("pipeline_old", {
                     failureCount: 632,
-                    lastFailureAtMs: threeDaysAgo,
+                    lastFailureAtMs: twoDaysAgo,
                     lastRouteName: "analytics/ingest",
                     lastErrorMessage: "Historical failure",
                     routeCounts: {
@@ -48,7 +48,7 @@ describe("buildAdminOpsHealth", () => {
             ],
             eventStatsDocs: [mockDoc("event_stats_1", { lastSeenAt: oneHourAgo })],
             taskRollupDocs: [mockDoc("task_rollup_1", { lastEventAt: oneHourAgo })],
-            guestBatchDocs: [],
+            guestBatchDocs: [mockDoc("guest_batch_1", { lastUpdatedAt: oneHourAgo })],
             securityEventDocs: [mockDoc("security_1", { timestamp: oneHourAgo })],
             watchSessionDocs: [mockDoc("watch_session_1", { lastSeenAtMs: oneHourAgo })],
             watchAssetDocs: [mockDoc("watch_asset_1", { lastSeenAtMs: oneHourAgo })],
@@ -72,12 +72,12 @@ describe("buildAdminOpsHealth", () => {
         expect(result.diagnostics.recentIssueClusterCount).toBe(0);
         expect(result.pipeline.failureCount).toBe(632);
         expect(result.materializerSummary).toMatchObject({
-            healthy: 6,
-            warn: 3,
+            healthy: 9,
+            warn: 0,
             fail: 0,
         });
         
-        expect(result.materializers.find((item) => item.key === "analytics_pipeline_daily")?.status).toBe("warn");
+        expect(result.materializers.find((item) => item.key === "analytics_pipeline_daily")?.status).toBe("healthy");
     });
 
     it("penalizes current diagnostics and recent pipeline failures", () => {

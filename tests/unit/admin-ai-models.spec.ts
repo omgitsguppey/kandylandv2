@@ -11,7 +11,7 @@ describe("admin ai model registry", () => {
     it("uses stable Flash-Lite aliases for text surfaces and preview ids for preview image models", () => {
         expect(getAdminAiModelAlias("drop_description_generation")).toBe("gemini-2.5-flash-lite");
         expect(getAdminAiModelAlias("drop_description_optimizer")).toBe("gemini-2.5-flash-lite");
-        expect(getAdminAiModelAlias("debug_assistant")).toBe("gemini-2.5-flash-lite");
+        expect(getAdminAiModelAlias("debug_assistant")).toBe("gemini-3.1-flash-lite-preview");
         expect(getAdminAiModelAlias("drop_cover_premium")).toBe("gemini-3-pro-image-preview");
     });
 

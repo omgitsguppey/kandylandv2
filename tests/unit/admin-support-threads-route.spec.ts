@@ -46,9 +46,13 @@ vi.mock("@/lib/server/support-threads", () => ({
     addSupportMessage: mockState.addSupportMessage,
     updateSupportThreadStatus: mockState.updateSupportThreadStatus,
 }));
-vi.mock("@/lib/server/route-runtime-health", () => ({
-    recordRouteRuntimeSample: mockState.recordRouteRuntimeSample,
-}));
+vi.mock("@/lib/server/route-runtime-health", async (importOriginal) => {
+    const actual = await importOriginal<typeof import("@/lib/server/route-runtime-health")>();
+    return {
+        ...actual,
+        recordRouteRuntimeSample: mockState.recordRouteRuntimeSample,
+    };
+});
 
 import { GET as getAdminThreads } from "@/app/api/admin/support/threads/route";
 import { GET as getAdminThread, PATCH as patchAdminThread, POST as postAdminReply } from "@/app/api/admin/support/threads/[threadId]/route";
