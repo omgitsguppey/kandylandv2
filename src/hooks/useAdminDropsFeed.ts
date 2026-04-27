@@ -15,6 +15,8 @@ export function useAdminDropsFeed() {
     const [legacyQueueIds, setLegacyQueueIds] = useState<Set<string>>(new Set());
     const [loading, setLoading] = useState(true);
     const [loadError, setLoadError] = useState<string | null>(null);
+    /** True until the first server-confirmed snapshot arrives (fromCache === false). */
+    const [fromCache, setFromCache] = useState(true);
 
     useEffect(() => {
         let cancelled = false;
@@ -37,6 +39,7 @@ export function useAdminDropsFeed() {
 
             setDrops(nextDrops);
             setLegacyQueueIds(nextLegacyQueueIds);
+            setFromCache(snapshot.metadata.fromCache);
             setLoadError(null);
             setLoading(false);
         }, (error) => {
@@ -69,5 +72,7 @@ export function useAdminDropsFeed() {
         legacyQueueIds,
         loading,
         loadError,
+        /** Whether the most recent snapshot came from the Firestore client cache (not server-confirmed). */
+        fromCache,
     };
 }

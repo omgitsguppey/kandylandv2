@@ -95,13 +95,13 @@ export default function AdminDashboardPage() {
                 </div>
 
                 <div className="xl:col-span-7">
-                    <AdminDashboardModule title="Drops at a glance" defaultOpen={true}>
+                    <AdminDashboardModule title="Drops at a glance" defaultOpen={false}>
                         <AdminDropsAtGlancePanel />
                     </AdminDashboardModule>
                 </div>
 
                 <div className="xl:col-span-5">
-                    <AdminDashboardModule title="Revenue trends" defaultOpen={true}>
+                    <AdminDashboardModule title="Revenue trends" defaultOpen={false}>
                             <AdminAnalyticsCharts
                                 chartData={data?.chartData || []}
                                 trendSummary={data?.trendSummary || {
@@ -131,7 +131,7 @@ export default function AdminDashboardPage() {
                 </div>
 
                 <div className="xl:col-span-5">
-                    <AdminDashboardModule title="Top performing drops" defaultOpen={true}>
+                    <AdminDashboardModule title="Top performing drops" defaultOpen={false}>
                         {data ? (
                             <TopDropsPanel
                                 topDrops={data.topDrops}
@@ -147,7 +147,7 @@ export default function AdminDashboardPage() {
                 </div>
 
                 <div className="xl:col-span-7">
-                    <AdminDashboardModule title="Recent transactions" defaultOpen={true}>
+                    <AdminDashboardModule title="Recent transactions" defaultOpen={false}>
                         {data ? (
                             <RecentTransactionsPanel
                                 transactions={data.recentTransactions}
@@ -163,7 +163,7 @@ export default function AdminDashboardPage() {
                 </div>
 
                 <div className="xl:col-span-12">
-                    <AdminDashboardModule title="Admin activity" defaultOpen={true}>
+                    <AdminDashboardModule title="Admin activity" defaultOpen={false}>
                         {data ? (
                             <AdminActivityLogPanel
                                 activity={data.adminActivity}
