@@ -43,6 +43,10 @@ type ListenerState = {
   guestBatchesFailed: boolean;
   guestSessionsFailed: boolean;
   watchSessionsFailed: boolean;
+  eventFactsFromCache: boolean;
+  guestBatchesFromCache: boolean;
+  guestSessionsFromCache: boolean;
+  watchSessionsFromCache: boolean;
 };
 
 type SnapshotDoc = {
@@ -280,6 +284,10 @@ export function buildAdminAnalyticsLiveSignals(input: {
     guestBatchesFailed: input.listenerState?.guestBatchesFailed === true,
     guestSessionsFailed: input.listenerState?.guestSessionsFailed === true,
     watchSessionsFailed: input.listenerState?.watchSessionsFailed === true,
+    eventFactsFromCache: input.listenerState?.eventFactsFromCache ?? true,
+    guestBatchesFromCache: input.listenerState?.guestBatchesFromCache ?? true,
+    guestSessionsFromCache: input.listenerState?.guestSessionsFromCache ?? true,
+    watchSessionsFromCache: input.listenerState?.watchSessionsFromCache ?? true,
   };
 
   const loadedCount = [

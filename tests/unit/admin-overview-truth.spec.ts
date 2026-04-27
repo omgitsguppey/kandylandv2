@@ -313,7 +313,7 @@ describe("drops truth label resolver", () => {
    Revenue + Unwraps module source-code contracts
    ======================================================================== */
 
-import { readFileSync } from "fs";
+import { readFileSync, existsSync } from "fs";
 import { join } from "path";
 
 const CHART_SOURCE = readFileSync(
@@ -854,5 +854,204 @@ describe("admin activity truth contracts", () => {
 
     it("shows meaningful empty state message", () => {
         expect(ADMIN_ACTIVITY_SOURCE).toContain("No admin actions found");
+    });
+});
+
+/* ═══════════════════════════════════════════════════════════════════════
+   ADMIN ANALYTICS OVERVIEW TRUTH
+   ═══════════════════════════════════════════════════════════════════════ */
+
+
+
+const ANALYTICS_PAGE_SOURCE = readFileSync(
+    join(__dirname, "../../src/app/admin/analytics/page.tsx"),
+    "utf-8",
+);
+const ANALYTICS_STATE_SOURCE = readFileSync(
+    join(__dirname, "../../src/app/admin/analytics/hooks/useAdminAnalyticsState.tsx"),
+    "utf-8",
+);
+const ANALYTICS_REALTIME_SOURCE = readFileSync(
+    join(__dirname, "../../src/app/admin/analytics/hooks/useAdminAnalyticsRealtime.ts"),
+    "utf-8",
+);
+const ANALYTICS_PRIMITIVES_SOURCE = readFileSync(
+    join(__dirname, "../../src/components/Admin/Analytics/AdminAnalyticsPrimitives.tsx"),
+    "utf-8",
+);
+const ANALYTICS_RUNTIME_SOURCE = readFileSync(
+    join(__dirname, "../../src/lib/admin-analytics-live-runtime.ts"),
+    "utf-8",
+);
+
+describe("admin analytics overview truth", () => {
+    /* ── Fake-zero prevention ───────────────────────────────────────── */
+
+    it("state hook produces fake-zero-protected revenueDisplay", () => {
+        expect(ANALYTICS_STATE_SOURCE).toContain("revenueDisplay");
+        // Must use em dash when historicalResponse is unavailable
+        expect(ANALYTICS_STATE_SOURCE).toContain("\"—\"");
+    });
+
+    it("state hook produces fake-zero-protected purchasesDisplay", () => {
+        expect(ANALYTICS_STATE_SOURCE).toContain("purchasesDisplay");
+    });
+
+    it("state hook produces fake-zero-protected mobileShareDisplay", () => {
+        expect(ANALYTICS_STATE_SOURCE).toContain("mobileShareDisplay");
+    });
+
+    it("state hook produces fake-zero-protected liveActiveDisplay", () => {
+        expect(ANALYTICS_STATE_SOURCE).toContain("liveActiveDisplay");
+    });
+
+    it("page uses liveActiveDisplay instead of raw totalActive", () => {
+        expect(ANALYTICS_PAGE_SOURCE).toContain("liveActiveDisplay");
+        expect(ANALYTICS_PAGE_SOURCE).not.toContain("liveResponse?.totalActive ?? 0)");
+    });
+
+    it("page uses revenueDisplay instead of formatMoney(commerce.revenueUsd)", () => {
+        expect(ANALYTICS_PAGE_SOURCE).toContain("revenueDisplay");
+        expect(ANALYTICS_PAGE_SOURCE).not.toContain("formatMoney(commerce.revenueUsd)");
+    });
+
+    it("page uses purchasesDisplay instead of formatCompactNumber(funnel.purchases)", () => {
+        expect(ANALYTICS_PAGE_SOURCE).toContain("purchasesDisplay");
+        expect(ANALYTICS_PAGE_SOURCE).not.toContain("formatCompactNumber(funnel.purchases)");
+    });
+
+    /* ── Truth state computation ────────────────────────────────────── */
+
+    it("state hook computes historicalOverviewTruthState", () => {
+        expect(ANALYTICS_STATE_SOURCE).toContain("historicalOverviewTruthState");
+    });
+
+    it("state hook computes liveActiveTruthState", () => {
+        expect(ANALYTICS_STATE_SOURCE).toContain("liveActiveTruthState");
+    });
+
+    it("historicalOverviewTruthState includes unavailable variant", () => {
+        expect(ANALYTICS_STATE_SOURCE).toContain("\"unavailable\"");
+    });
+
+    /* ── Debug meta registry ────────────────────────────────────────── */
+
+    it("state hook exposes analyticsOverviewDebugMeta", () => {
+        expect(ANALYTICS_STATE_SOURCE).toContain("analyticsOverviewDebugMeta");
+    });
+
+    it("debug meta contains canonicalSource per metric", () => {
+        expect(ANALYTICS_STATE_SOURCE).toContain("canonicalSource");
+    });
+
+    it("debug meta contains isFakeZero per metric", () => {
+        expect(ANALYTICS_STATE_SOURCE).toContain("isFakeZero");
+    });
+
+    it("debug meta includes realtimeListenerDebug", () => {
+        expect(ANALYTICS_STATE_SOURCE).toContain("realtimeListenerDebug");
+    });
+
+    /* ── fromCache tracking ─────────────────────────────────────────── */
+
+    it("realtime hook uses includeMetadataChanges", () => {
+        expect(ANALYTICS_REALTIME_SOURCE).toContain("includeMetadataChanges: true");
+    });
+
+    it("realtime hook tracks fromCache per listener", () => {
+        expect(ANALYTICS_REALTIME_SOURCE).toContain("eventFactsFromCache");
+        expect(ANALYTICS_REALTIME_SOURCE).toContain("guestBatchesFromCache");
+        expect(ANALYTICS_REALTIME_SOURCE).toContain("guestSessionsFromCache");
+        expect(ANALYTICS_REALTIME_SOURCE).toContain("watchSessionsFromCache");
+    });
+
+    it("runtime ListenerState type includes fromCache fields", () => {
+        expect(ANALYTICS_RUNTIME_SOURCE).toContain("eventFactsFromCache");
+        expect(ANALYTICS_RUNTIME_SOURCE).toContain("guestBatchesFromCache");
+        expect(ANALYTICS_RUNTIME_SOURCE).toContain("guestSessionsFromCache");
+        expect(ANALYTICS_RUNTIME_SOURCE).toContain("watchSessionsFromCache");
+    });
+
+    it("realtime hook reads snapshot.metadata.fromCache", () => {
+        expect(ANALYTICS_REALTIME_SOURCE).toContain("snapshot.metadata.fromCache");
+    });
+
+    it("realtime hook exports AnalyticsRealtimeDebugMeta type", () => {
+        expect(ANALYTICS_REALTIME_SOURCE).toContain("export type AnalyticsRealtimeDebugMeta");
+    });
+
+    it("realtime hook tracks lastServerConfirmedAtMs", () => {
+        expect(ANALYTICS_REALTIME_SOURCE).toContain("lastServerConfirmedAtMs");
+    });
+
+    /* ── MetricCard unavailable state ───────────────────────────────── */
+
+    it("MetricCard supports unavailable truth state", () => {
+        expect(ANALYTICS_PRIMITIVES_SOURCE).toContain("\"unavailable\"");
+    });
+
+    /* ── Module filter purge ────────────────────────────────────────── */
+
+    it("page does NOT contain Module filters explanation", () => {
+        expect(ANALYTICS_PAGE_SOURCE).not.toContain("Module filters");
+        expect(ANALYTICS_PAGE_SOURCE).not.toContain("Each card owns its own time range");
+    });
+
+    /* ── Compact tab nav ────────────────────────────────────────────── */
+
+    it("tab buttons use compact inline layout not tile grid", () => {
+        expect(ANALYTICS_PAGE_SOURCE).toContain("inline-flex items-center gap-1.5");
+        expect(ANALYTICS_PAGE_SOURCE).not.toContain("py-3 text-left");
+    });
+
+    /* ── Compact alert banner ───────────────────────────────────────── */
+
+    it("alert banner uses single-line degraded format", () => {
+        expect(ANALYTICS_PAGE_SOURCE).toContain("Degraded:");
+        expect(ANALYTICS_PAGE_SOURCE).not.toContain("recovering in the background");
+    });
+
+    /* ── Branding purge ─────────────────────────────────────────────── */
+
+    it("page does NOT reference Mobile Monitoring Station", () => {
+        expect(ANALYTICS_PAGE_SOURCE).not.toContain("Mobile Monitoring Station");
+    });
+
+    it("page title is Analytics Overview", () => {
+        expect(ANALYTICS_PAGE_SOURCE).toContain("Analytics Overview");
+    });
+
+    /* ── Agent truth doc ────────────────────────────────────────────── */
+
+    it("admin-analytics-overview.md truth doc exists", () => {
+        const docPath = join(__dirname, "../../docs/agent-truth/admin-analytics-overview.md");
+        expect(existsSync(docPath)).toBe(true);
+    });
+
+    it("truth doc documents fake-zero prevention", () => {
+        const docPath = join(__dirname, "../../docs/agent-truth/admin-analytics-overview.md");
+        const doc = readFileSync(docPath, "utf-8");
+        expect(doc).toContain("Fake-Zero Prevention");
+    });
+
+    it("truth doc documents prohibited patterns", () => {
+        const docPath = join(__dirname, "../../docs/agent-truth/admin-analytics-overview.md");
+        const doc = readFileSync(docPath, "utf-8");
+        expect(doc).toContain("Prohibited Patterns");
+    });
+
+    /* ── Density contract ───────────────────────────────────────────── */
+
+    it("MetricCard uses compact padding p-2.5", () => {
+        expect(ANALYTICS_PRIMITIVES_SOURCE).toContain("p-2.5");
+    });
+
+    it("MetricCard uses compact font text-[1.45rem]", () => {
+        expect(ANALYTICS_PRIMITIVES_SOURCE).toContain("text-[1.45rem]");
+    });
+
+    it("loading spinner uses min-h-[20vh] not min-h-[40vh]", () => {
+        expect(ANALYTICS_PAGE_SOURCE).toContain("min-h-[20vh]");
+        expect(ANALYTICS_PAGE_SOURCE).not.toContain("min-h-[40vh]");
     });
 });

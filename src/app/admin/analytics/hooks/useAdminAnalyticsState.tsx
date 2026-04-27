@@ -53,7 +53,7 @@ import {
   isRecentViolation,
   useHistoricalSectionOverride,
 } from "../AnalyticsHelpers";
-import { useAdminAnalyticsRealtime } from "./useAdminAnalyticsRealtime";
+import { useAdminAnalyticsRealtime, type AnalyticsRealtimeDebugMeta } from "./useAdminAnalyticsRealtime";
 
 const EVENT_LABELS: Record<string, string> = TELEMETRY_EVENT_LABELS;
 
@@ -583,10 +583,96 @@ const { user } = useAuth();
             ? "Refreshing"
             : "Polled fallback";
 
+  // Honest truth state for historical-sourced overview cards (Revenue, Purchases, Mobile Share)
+  const historicalTruthState: "live" | "stale" | "failed" | undefined =
+    historicalResponse && !historicalError
+      ? "live"        // Server-confirmed data for this range
+      : historicalResponse && historicalError
+        ? "stale"     // Serving previous response while revalidation failed
+        : historicalLoading
+          ? undefined  // Still loading, no data yet — show no chip
+          : "failed";  // No data and not loading — genuine failure
+
+  const historicalSourceLabel =
+    historicalResponse && !historicalError
+      ? `Server-confirmed ${range.toUpperCase()} snapshot`
+      : historicalResponse && historicalError
+        ? `Previous ${range.toUpperCase()} snapshot (revalidation failed)`
+        : historicalLoading
+          ? "Loading..."
+          : "Historical data unavailable";
+
   const totalDeviceUsers = devices.reduce((sum, item) => sum + item.users, 0);
   const mobileUsers =
     devices.find((item) => item.device.toLowerCase() === "mobile")?.users ?? 0;
   const mobileShare = totalDeviceUsers > 0 ? mobileUsers / totalDeviceUsers : 0;
+
+  // Fake-zero protected display values — show "—" when data source is unavailable
+  const revenueDisplay = historicalResponse
+    ? formatMoney(commerce.revenueUsd)
+    : "—";
+  const purchasesDisplay = historicalResponse
+    ? formatCompactNumber(funnel.purchases)
+    : "—";
+  const mobileShareDisplay = historicalResponse
+    ? formatPercent(mobileShare)
+    : "—";
+  const liveActiveDisplay = effectiveLiveResponse
+    ? formatCompactNumber(effectiveLiveResponse.totalActive ?? 0)
+    : "—";
+  const liveActiveTruthState: "live" | "fallback" | "partial" | "failed" | "unavailable" | undefined =
+    effectiveLiveResponse?.liveTruthLabel === "live" ? "live"
+    : effectiveLiveResponse?.liveTruthLabel === "fallback" ? "fallback"
+    : effectiveLiveResponse?.liveTruthLabel === "partial" ? "partial"
+    : effectiveLiveResponse?.liveTruthLabel === "failed" ? "failed"
+    : !effectiveLiveResponse && (liveRealtime.feedStatus === "realtime" || liveRealtime.feedStatus === "partial") ? "live"
+    : !effectiveLiveResponse ? "unavailable"
+    : undefined;
+  const historicalOverviewTruthState: "live" | "stale" | "failed" | "unavailable" | undefined =
+    historicalTruthState === "live" ? "live"
+    : historicalTruthState === "stale" ? "stale"
+    : historicalTruthState === "failed" ? "failed"
+    : historicalLoading ? undefined
+    : "unavailable";
+
+  // Debug meta registry for admin instrumentation
+  const analyticsOverviewDebugMeta = {
+    metrics: {
+      liveActive: {
+        canonicalSource: "Firestore realtime + API /api/admin/analytics/realtime",
+        currentSource: liveRealtime.feedStatus === "realtime" ? "firestore_realtime" : liveRealtime.feedStatus === "partial" ? "firestore_partial" : "api_polling",
+        truthState: liveActiveTruthState ?? "waiting",
+        value: effectiveLiveResponse?.totalActive ?? null,
+        isFakeZero: !effectiveLiveResponse,
+      },
+      mobileShare: {
+        canonicalSource: "API /api/admin/analytics/historical (devices breakdown)",
+        currentSource: historicalResponse ? "server_confirmed" : "unavailable",
+        truthState: historicalOverviewTruthState ?? "waiting",
+        value: historicalResponse ? mobileShare : null,
+        isFakeZero: !historicalResponse,
+      },
+      revenue: {
+        canonicalSource: "API /api/admin/analytics/historical (commerce.revenueUsd)",
+        currentSource: historicalResponse ? "server_confirmed" : "unavailable",
+        truthState: historicalOverviewTruthState ?? "waiting",
+        value: historicalResponse ? commerce.revenueUsd : null,
+        isFakeZero: !historicalResponse,
+      },
+      purchases: {
+        canonicalSource: "API /api/admin/analytics/historical (funnel.purchases)",
+        currentSource: historicalResponse ? "server_confirmed" : "unavailable",
+        truthState: historicalOverviewTruthState ?? "waiting",
+        value: historicalResponse ? funnel.purchases : null,
+        isFakeZero: !historicalResponse,
+      },
+    },
+    realtimeListenerDebug: liveRealtime.listenerDebugMeta ?? null,
+    historicalTruthState: historicalOverviewTruthState,
+    historicalSourceLabel,
+    backgroundIssueCount: backgroundAnalyticsIssues.length,
+    analyticsWarmState,
+  } as const;
   const previewToUnlockRate =
     funnel.previewOpens > 0 ? funnel.unlocks / funnel.previewOpens : 0;
   const checkoutToPurchaseRate =
@@ -1300,7 +1386,7 @@ const { user } = useAuth();
     EVENT_LABELS, funnel, onboardingStats, onboardingDurationBuckets, onboardingStepStats, authBreakdown, historySeries,
     rawEvents, componentContexts, semanticCategories, devices, pages, geo, totals, commerce, activeViewerFilter,
     clearAllFilters, clearViewerFilter,
-    showHistoricalEmptyState, liveSnapshotLabel, historicalSnapshotLabel, analyticsWarmState, isBackgroundSyncing,
+    showHistoricalEmptyState, liveSnapshotLabel, historicalSnapshotLabel, analyticsWarmState, isBackgroundSyncing, historicalTruthState, historicalSourceLabel,
     authOutcomeHasData, authOutcomeChartItems, authOutcomeTotals,
     authOnboardingDiscrepancies, onboardingVelocityHasData, onboardingVelocityBuckets, onboardingVelocityStartCount, onboardingVelocityCompletionCount, onboardingVelocityCompletionRate, onboardingVelocityDropOffCount, onboardingVelocityStats, onboardingVelocityStartSourceHint, onboardingStepFlowItems,
     guestBounceQualityCards, guestBounceGlobalSemantics, guestBounceGuestRate, guestBounceEngagedRate, guestBounceIdentifiedRate, guestBounceUserSemantics,
@@ -1318,6 +1404,7 @@ const { user } = useAuth();
     liveSurfaceMix, liveActiveUsers, livePulseOnboardingStats, livePulseOnboardingStartCount, livePulseOnboardingCompletionRate, livePulseFunnel, liveSeries, journeyFunnelMetrics,
     liveFeedStatus: liveRealtime.feedStatus, liveFeedDetail: liveRealtime.feedDetail, liveGuestActiveCount: liveRealtime.guestActive
 ,
+    revenueDisplay, purchasesDisplay, mobileShareDisplay, liveActiveDisplay, liveActiveTruthState, historicalOverviewTruthState, analyticsOverviewDebugMeta,
     viewerDrilldownFilter, viewerDrilldownOverview, applyViewerFilter, viewerDrilldownUsers, viewerDrilldownCaptureHealth, liveWatchCaptureHealth, viewerDrilldownJourneys, viewerDrilldownInsights, viewerDropChartData, viewerJourneyItems, watchDepthTagBuckets, watchDepthTagDemand,
     getJourneyStateClasses, getJourneyStateLabel, topExperienceContexts, topComponentContexts, eventMixTopEvents, eventMixTopComponentContexts,
     dailyTaskPipelineModel, taskCompletionSpeedBuckets, taskLeaderboardItems, activeNotificationFunnelPieData, notificationActionItems, maxNotificationActionValue, hasNotificationReminderReasons, notificationReminderReasons

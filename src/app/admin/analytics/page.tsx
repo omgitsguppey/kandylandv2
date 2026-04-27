@@ -5,7 +5,6 @@ import {
   Activity,
   AlertTriangle,
   DollarSign,
-  Funnel,
   Loader2,
   ShoppingBag,
   Smartphone,
@@ -29,8 +28,6 @@ import { TELEMETRY_EVENT_LABELS } from "@/lib/telemetry-catalog";
 import {
   TAB_OPTIONS,
   formatCompactNumber,
-  formatMoney,
-  formatPercent,
 } from "./AnalyticsHelpers";
 
 const EVENT_LABELS: Record<string, string> = TELEMETRY_EVENT_LABELS;
@@ -51,7 +48,7 @@ const AdminTaskAndNotificationModules = dynamic(
 );
 export default function AdminAnalyticsPage() {
     const state = useAdminAnalyticsState();
-  const { range, activeViewerFilter, viewerUserFilter, showHistoricalEmptyState, blockingAnalyticsError, mobileShare, mobileUsers, commerce, funnel, analyticsWarmState, liveSnapshotLabel, historicalSnapshotLabel, isBackgroundSyncing, needsSetup, activeTab, setActiveTab, liveLoading, historicalLoading, isPrimingAnalytics, liveResponse, backgroundAnalyticsIssues, liveFeedStatus, liveFeedDetail, liveGuestActiveCount } = state;
+  const { range, activeViewerFilter, viewerUserFilter, showHistoricalEmptyState, blockingAnalyticsError, mobileUsers, commerce, funnel, analyticsWarmState, liveSnapshotLabel, historicalSnapshotLabel, isBackgroundSyncing, needsSetup, activeTab, setActiveTab, liveLoading, historicalLoading, isPrimingAnalytics, liveResponse, backgroundAnalyticsIssues, liveFeedStatus, liveFeedDetail, liveGuestActiveCount, historicalTruthState, historicalSourceLabel, revenueDisplay, purchasesDisplay, mobileShareDisplay, liveActiveDisplay, liveActiveTruthState, historicalOverviewTruthState } = state;
   const handleClearAllFilters = state.clearAllFilters ?? (() => {
     reportClientIssue({
       channel: "runtime",
@@ -90,46 +87,46 @@ export default function AdminAnalyticsPage() {
       <PageViewEvent eventName="admin_analytics_viewed" />
       <AdminPageHeader
         eyebrow="Admin Analytics"
-        title="Mobile Monitoring Station"
-        subtitle="Live pulse, funnels, revenue, and retention tuned for mobile-first admin monitoring."
+        title="Analytics Overview"
+        subtitle="Server-confirmed activity, revenue, and mobile usage."
         compact
       />
 
-      <div className="grid grid-cols-2 gap-2.5 md:grid-cols-4">
+      <div className="grid grid-cols-2 gap-2 md:grid-cols-4">
         <MetricCard
           label="Live Active"
-          value={formatCompactNumber(liveResponse?.totalActive ?? 0)}
+          value={liveActiveDisplay}
           hint={liveFeedStatus === "realtime"
-            ? `${formatCompactNumber(liveGuestActiveCount ?? 0)} guests visible from canonical Firestore realtime`
+            ? `${formatCompactNumber(liveGuestActiveCount ?? 0)} guests · Firestore realtime`
             : liveResponse?.liveTruthLabel === "fallback"
-              ? "Active in the last 30 mins from first-party fallback"
-              : "Active in the last 30 mins"}
+              ? "30 min window · polled fallback"
+              : "30 min window"}
           icon={Activity}
-          truthState={liveResponse?.liveTruthLabel ?? (liveFeedStatus === "realtime" ? "live" : undefined)}
+          truthState={liveActiveTruthState}
           dictionaryTooltip="Current active users on the platform. Can be live via canonical realtime tracking or fall back to historical tracking over 30 mins."
         />
         <MetricCard
           label="Mobile Share"
-          value={formatPercent(mobileShare)}
-          hint={`${mobileUsers.toLocaleString()} mobile users in range`}
+          value={mobileShareDisplay}
+          hint={historicalOverviewTruthState !== "unavailable" ? `${mobileUsers.toLocaleString()} mobile users in range` : historicalSourceLabel}
           icon={Smartphone}
-          truthState={"cached"}
+          truthState={historicalOverviewTruthState}
           dictionaryTooltip="Percentage of visitors in this time range who are on mobile devices. Essential for guiding responsive design priority."
         />
         <MetricCard
           label="Revenue"
-          value={formatMoney(commerce.revenueUsd)}
-          hint={`${range.toUpperCase()} tracked revenue`}
+          value={revenueDisplay}
+          hint={historicalSourceLabel}
           icon={DollarSign}
-          truthState={"cached"}
+          truthState={historicalOverviewTruthState}
           dictionaryTooltip="Total top-line revenue measured in USD across all confirmed transactions within the range. Does not subtract platform fees."
         />
         <MetricCard
           label="Purchases"
-          value={formatCompactNumber(funnel.purchases)}
-          hint={`${funnel.checkoutStarts.toLocaleString()} checkout starts`}
+          value={purchasesDisplay}
+          hint={historicalOverviewTruthState !== "unavailable" ? `${funnel.checkoutStarts.toLocaleString()} checkout starts · ${historicalSourceLabel}` : historicalSourceLabel}
           icon={ShoppingBag}
-          truthState={"cached"}
+          truthState={historicalOverviewTruthState}
           dictionaryTooltip="Number of distinct successful purchases completed. Compare to checkout starts to monitor conversion dropout."
         />
       </div>
@@ -139,7 +136,7 @@ export default function AdminAnalyticsPage() {
 
         
 
-        <div className="grid grid-cols-2 gap-2 md:grid-cols-4">
+        <div className="flex flex-wrap gap-1.5">
           {TAB_OPTIONS.map((tab) => {
             const Icon = tab.icon;
             const active = activeTab === tab.id;
@@ -149,42 +146,33 @@ export default function AdminAnalyticsPage() {
                 type="button"
                 onClick={() => setActiveTab(tab.id)}
                 className={cn(
-                  "rounded-2xl border px-3 py-3 text-left transition-colors",
+                  "inline-flex items-center gap-1.5 rounded-xl border px-3 py-1.5 text-xs font-bold transition-colors",
                   active
                     ? "border-brand-purple/40 bg-brand-purple/15 text-white"
-                    : "border-white/10 bg-white/5 text-gray-300",
+                    : "border-white/10 bg-white/5 text-gray-300 hover:border-white/20 hover:text-white",
                 )}
               >
                 <Icon
                   className={cn(
-                    "mb-2 h-4 w-4",
+                    "h-3.5 w-3.5",
                     active ? "text-brand-purple" : "text-gray-500",
                   )}
                 />
-                <div className="text-sm font-bold">{tab.label}</div>
+                {tab.label}
               </button>
             );
           })}
         </div>
 
-        <div className="flex items-center gap-2">
-          <div className="flex min-w-0 flex-1 items-center gap-2 rounded-2xl border border-white/10 bg-white/[0.03] px-3 py-2">
-            <Funnel className="h-4 w-4 shrink-0 text-gray-500" />
-            <span className="text-[10px] font-bold uppercase tracking-[0.14em] text-gray-500">
-              Module filters
-            </span>
-            <span className="text-xs text-gray-400">
-              Each card owns its own time range, and only viewer drilldown stays page-level.
-            </span>
-          </div>
+        {viewerUserFilter ? (
           <button
             type="button"
             onClick={handleClearAllFilters}
-            className="ml-auto shrink-0 rounded-full border border-white/15 bg-black/40 px-3 py-2 text-[10px] font-bold uppercase tracking-[0.14em] text-gray-300 transition-colors hover:border-brand-purple/40 hover:text-white"
+            className="rounded-full border border-white/15 bg-black/40 px-3 py-1.5 text-[10px] font-bold uppercase tracking-[0.14em] text-gray-300 transition-colors hover:border-brand-purple/40 hover:text-white"
           >
-            Clear viewer filter
+            Clear filter
           </button>
-        </div>
+        ) : null}
       </div>
 
       {blockingAnalyticsError && (
@@ -196,15 +184,11 @@ export default function AdminAnalyticsPage() {
       )}
 
       {backgroundAnalyticsIssues.length > 0 && !blockingAnalyticsError ? (
-        <div className="rounded-[1.8rem] border border-amber-500/20 bg-amber-500/10 p-4">
-          <p className="text-sm font-medium text-amber-200">
-            Analytics is showing the last good snapshot while a background
-            refresh recovers.
-          </p>
-          <div className="mt-2 space-y-1 text-xs text-amber-100/90">
-            {backgroundAnalyticsIssues.map((issue) => (
-              <p key={issue}>{issue}</p>
-            ))}
+        <div className="flex items-start gap-2 rounded-2xl border border-amber-500/20 bg-amber-500/10 px-3 py-2">
+          <AlertTriangle className="mt-0.5 h-3.5 w-3.5 shrink-0 text-amber-400" />
+          <div className="min-w-0 text-xs text-amber-200">
+            <span className="font-semibold">Degraded:</span>{" "}
+            {backgroundAnalyticsIssues.join(" · ")}
           </div>
         </div>
       ) : null}
@@ -241,7 +225,7 @@ export default function AdminAnalyticsPage() {
       ) : null}
 
       {isPrimingAnalytics ? (
-        <div className="flex min-h-[40vh] items-center justify-center">
+        <div className="flex min-h-[20vh] items-center justify-center">
           <div className="flex flex-col items-center gap-3">
             <Loader2 className="h-8 w-8 animate-spin text-brand-purple" />
             <p className="text-sm text-gray-500">Syncing analytics...</p>

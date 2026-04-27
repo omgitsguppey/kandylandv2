@@ -38,7 +38,7 @@ export interface MetricCardProps {
     icon: LucideIcon;
     className?: string;
     valueClassName?: string;
-    truthState?: "live" | "fallback" | "partial" | "failed" | "cached" | "stale" | "unknown";
+    truthState?: "live" | "fallback" | "partial" | "failed" | "cached" | "stale" | "unavailable" | "unknown";
     dictionaryTooltip?: string;
 }
 
@@ -151,11 +151,11 @@ export function MetricCard({
     return (
         <div
             className={cn(
-                "rounded-[1.4rem] border border-white/10 bg-black/30 p-3.5",
+                "rounded-[1.4rem] border border-white/10 bg-black/30 p-2.5",
                 className,
             )}
         >
-            <div className="mb-2.5 flex items-center justify-between gap-2 text-[11px] font-semibold uppercase tracking-[0.14em] text-gray-500">
+            <div className="mb-1.5 flex items-center justify-between gap-2 text-[11px] font-semibold uppercase tracking-[0.14em] text-gray-500">
                 <div className="flex items-center gap-1.5">
                     <Icon className="h-3.5 w-3.5 text-brand-purple" />
                     <span>{label}</span>
@@ -182,6 +182,7 @@ export function MetricCard({
                             truthState === "failed" ? "bg-red-500/10 text-red-400 border border-red-400/20" :
                             truthState === "cached" ? "bg-blue-500/10 text-blue-400 border border-blue-400/20" :
                             truthState === "stale" ? "bg-orange-500/10 text-orange-400 border border-orange-400/20" :
+                            truthState === "unavailable" ? "bg-gray-500/10 text-gray-500 border border-gray-500/15" :
                             "bg-gray-500/10 text-gray-400 border border-gray-400/20"
                         )}
                     >
@@ -191,13 +192,13 @@ export function MetricCard({
             </div>
             <div
                 className={cn(
-                    "text-[1.7rem] font-black tracking-tight text-white",
+                    "text-[1.45rem] font-black tracking-tight text-white",
                     valueClassName,
                 )}
             >
                 {value}
             </div>
-            {hint ? <p className="mt-1.5 text-[11px] text-gray-400">{hint}</p> : null}
+            {hint ? <p className="mt-1 text-[11px] text-gray-400">{hint}</p> : null}
         </div>
     );
 }
