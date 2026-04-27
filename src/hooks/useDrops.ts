@@ -215,20 +215,35 @@ export function useDrops(
     };
   }, [isConstrained, refreshDrops]);
 
-  useEffect(() => {
-    const upcomingExpirations: number[] = [];
+  // ⚡ Bolt: Consolidate client drops filtering and expiry timestamp calculation
+  // Impact: Reduces redundant O(N) array iterations and garbage collection by combining
+  // status resolution and filtering into a single pass.
+  const { clientDrops, nextExpiryMs } = useMemo(() => {
+    const nextDrops: Drop[] = [];
+    let expiryMs = Number.POSITIVE_INFINITY;
+
     for (const drop of swrDrops) {
       const status = resolveDropStatusFromTiming(drop, sweepNowMs);
+
       if (status === "active" && drop.validUntil && drop.validUntil > sweepNowMs) {
-        upcomingExpirations.push(drop.validUntil);
+        if (drop.validUntil < expiryMs) {
+          expiryMs = drop.validUntil;
+        }
+      }
+
+      if (!statusFilter || statusFilter.includes(status)) {
+        nextDrops.push(applyDropStatus(drop, sweepNowMs));
       }
     }
 
-    if (upcomingExpirations.length === 0) {
+    return { clientDrops: nextDrops, nextExpiryMs: expiryMs };
+  }, [statusFilter, sweepNowMs, swrDrops]);
+
+  useEffect(() => {
+    if (nextExpiryMs === Number.POSITIVE_INFINITY) {
       return;
     }
 
-    const nextExpiryMs = Math.min(...upcomingExpirations);
     const timeoutMs = Math.max(250, nextExpiryMs - Date.now() + EXPIRY_REFRESH_BUFFER_MS);
     const timeoutId = window.setTimeout(() => {
       refreshDrops(0);
@@ -237,21 +252,7 @@ export function useDrops(
     return () => {
       window.clearTimeout(timeoutId);
     };
-  }, [refreshDrops, sweepNowMs, swrDrops]);
-
-  const clientDrops = useMemo(() => {
-    // Single-pass filtering avoids cloning drops that will be discarded immediately.
-    const nextDrops: Drop[] = [];
-
-    for (const drop of swrDrops) {
-      const status = resolveDropStatusFromTiming(drop, sweepNowMs);
-      if (!statusFilter || statusFilter.includes(status)) {
-        nextDrops.push(applyDropStatus(drop, sweepNowMs));
-      }
-    }
-
-    return nextDrops;
-  }, [statusFilter, sweepNowMs, swrDrops]);
+  }, [nextExpiryMs, refreshDrops]);
 
 
   const isLoadingInitialData = !data && !error;

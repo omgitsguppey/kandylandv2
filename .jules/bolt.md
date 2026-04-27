@@ -21,3 +21,7 @@
 ## 2026-04-02 - Array/String Allocations in Cache Keys
 **Learning:** Creating cache keys using dynamic string concatenations of arrays (e.g., `drop.contentUrls?.join(",")`) defeats the purpose of caching by unconditionally allocating memory and adding garbage collection pressure on every call. This causes a net performance regression in hot paths compared to simple, non-allocating property checks.
 **Action:** Use lightweight, non-allocating cache keys. For entities where we know references do not mutate deeply without a new top-level reference (like `drop`), we can use the entity's ID or `WeakMap` on the entity itself to cache derived data, avoiding costly key generation strings entirely.
+
+## 2026-04-10 - Consolidating React filtering and metadata calculations
+**Learning:** In highly-used React hooks like `useDrops`, chaining multiple array passes or using multiple separate loops to calculate primitive properties (like `nextExpiryMs`) and map object references (`nextDrops.push(...)`) increases execution time and garbage collection pressure linearly with the array length. Doing these concurrently inside a single block inside a single `useMemo` avoids this.
+**Action:** Consolidate array loop operations when calculating memoized UI state, minimizing the number of times `swrDrops` and similar data arrays are traversed.
