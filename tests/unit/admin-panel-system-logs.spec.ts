@@ -81,6 +81,7 @@ describe("buildAdminPanelSystemLogs", () => {
             releaseEntryCount: 3,
             creatorSpendViolationsLast7d: 0,
             opsHealth: {
+                score: 100,
                 canonicalState: { status: "Live" },
                 runtime: {
                     gaPropertyConfigured: true,
@@ -160,6 +161,7 @@ describe("buildAdminPanelSystemLogs", () => {
             releaseEntryCount: 3,
             creatorSpendViolationsLast7d: 0,
             opsHealth: {
+                score: 100,
                 canonicalState: { status: "Live" },
                 runtime: {
                     gaPropertyConfigured: true,
@@ -259,6 +261,7 @@ describe("buildAdminPanelSystemLogs", () => {
             releaseEntryCount: 3,
             creatorSpendViolationsLast7d: 0,
             opsHealth: {
+                score: 100,
                 canonicalState: { status: "Live" },
                 runtime: {
                     gaPropertyConfigured: true,

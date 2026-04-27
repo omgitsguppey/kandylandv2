@@ -161,6 +161,7 @@ describe("admin AI debug assistant", () => {
         const signal = buildAdminAiDebugSignalInput({
             generatedAt: "2026-04-03T16:45:00.000Z",
             opsHealth: {
+                score: 72,
                 canonicalState: { status: "Live" },
                 runtime: {
                     gaPropertyConfigured: true,

@@ -58,6 +58,7 @@
         "test:ui:puppeteer": "tsx tests/puppeteer/sample.ts",
         "check:ui:lighthouse": "npm run build && node scripts/run-lighthouse-audits.mjs",
         "check:dependency-truth": "tsx scripts/agent/check-dependency-truth.ts",
+        "check:deployment": "tsx scripts/verify-deployment.ts",
         "check:continuity": "npm run check:architecture && npm run check:inventory && npm run check:cycles && npm run check:generated-artifacts && npm run check:dependency-truth",
         "check:functions": "npm --prefix functions run check",
         "test:contracts": "vitest run --config vitest.contracts.config.ts",

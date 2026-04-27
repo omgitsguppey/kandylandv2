@@ -453,7 +453,37 @@ export function buildAdminOpsHealth(input: {
     canonicalReason = `Live with ${activeDiagnosticIssueClusterCount} active issue clusters.`;
   }
 
+  // ---------------------------------------------------------------------------
+  // Canonical Ops Health Score (0–100)
+  // ---------------------------------------------------------------------------
+  // This is the single source of truth for the dashboard "Score" pill and the
+  // AI debug assistant.  It is computed from the same signals that determine
+  // canonicalStatus, materializerSummary, and active diagnostics.
+  // ---------------------------------------------------------------------------
+  let score = 100;
+
+  // Pipeline penalties
+  if (pipelineStatus === "fail") score -= 30;
+  else if (pipelineStatus === "warn") score -= 15;
+
+  // Materializer penalties (per writer)
+  score -= materializerSummary.fail * 10;
+  score -= materializerSummary.warn * 5;
+
+  // Active diagnostic penalties (capped at -20)
+  score -= Math.min(20, activeDiagnosticsErrorCount * 2 + activeDiagnosticsWarnCount);
+
+  // Runtime warning penalties (capped at -15)
+  score -= Math.min(15, runtimeWarnings.length * 5);
+
+  // Enforce canonical status ceiling to prevent false-green
+  if (canonicalStatus === "Degraded") score = Math.min(score, 40);
+  else if (canonicalStatus === "Partial") score = Math.min(score, 80);
+
+  score = Math.max(0, Math.min(100, score));
+
   return {
+    score,
     canonicalState: {
       status: canonicalStatus,
       reason: canonicalReason,

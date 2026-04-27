@@ -160,7 +160,7 @@ export function buildAdminAiDebugSignalInput(input: {
     return {
         generatedAt: input.generatedAt || new Date().toISOString(),
         ops: {
-            score: input.opsHealth.canonicalState.status === "Live" ? 100 : input.opsHealth.canonicalState.status === "Partial" ? 80 : 0,
+            score: input.opsHealth.score,
             pipelineFailureCount: input.opsHealth.pipeline.failureCount,
             lastPipelineFailureAt: input.opsHealth.pipeline.lastFailureAt,
             topRoutes: (input.opsHealth.pipeline.routes || []).slice(0, 5).map((entry) => ({

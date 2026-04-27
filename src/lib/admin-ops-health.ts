@@ -95,11 +95,11 @@ export interface AdminOpsHealthCanonicalState {
 }
 
 export interface AdminOpsHealth {
+  score: number;
   canonicalState: AdminOpsHealthCanonicalState;
   runtime: AdminOpsHealthRuntime;
   diagnostics: AdminOpsHealthDiagnostics;
   pipeline: AdminOpsHealthPipeline;
   materializers: AdminOpsHealthMaterializerItem[];
   materializerSummary?: AdminOpsHealthMaterializerSummary;
-  
 }
