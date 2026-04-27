@@ -13,48 +13,62 @@ import { AdminStatsBar } from "@/components/Admin/AdminStatsBar";
 import { RecentTransactionsPanel } from "@/components/Admin/RecentTransactionsPanel";
 import { TopDropsPanel } from "@/components/Admin/TopDropsPanel";
 import { useAdminOverview } from "@/hooks/useAdminOverview";
+import { resolveTruthChipVariant } from "@/hooks/useAdminOverviewRealtime";
 
 export default function AdminDashboardPage() {
     const { data, error, isLoading } = useAdminOverview();
     const issueCount = data?.issues?.length ?? 0;
-    const lastCommerceLabel = data?.freshness.lastTransactionAt
-        ? formatDistanceToNow(data.freshness.lastTransactionAt, { addSuffix: true })
-        : "No recent transaction timestamp";
+
+    /* Last server-confirmed update label.
+       Uses realtimeDebugMeta.lastServerConfirmedAt when available (actual Firestore
+       server-confirmed snapshot timestamp), otherwise falls back to freshness.lastTransactionAt
+       which comes from the server rollup. We label the source explicitly. */
+    const lastServerConfirmedAt = data?.realtimeDebugMeta?.lastServerConfirmedAt;
+    const lastTransactionAt = data?.freshness.lastTransactionAt;
+    const serverUpdateLabel = lastServerConfirmedAt && lastServerConfirmedAt > 0
+        ? `Last server update ${formatDistanceToNow(lastServerConfirmedAt, { addSuffix: true })}`
+        : lastTransactionAt && lastTransactionAt > 0
+            ? `Last server update ${formatDistanceToNow(lastTransactionAt, { addSuffix: true })}`
+            : "No server update yet";
+
+    /* Truth chip: concise human-readable admin truth state */
+    const truthLabel = data?.truthNotes?.overview ?? "Waiting for server truth";
+    const truthVariant = resolveTruthChipVariant(truthLabel);
+
+    const TRUTH_CHIP_STYLES: Record<typeof truthVariant, string> = {
+        live: "border-emerald-400/20 bg-emerald-500/10 text-emerald-400",
+        cached: "border-amber-400/20 bg-amber-500/10 text-amber-400",
+        fallback: "border-red-400/20 bg-red-500/10 text-red-400",
+        waiting: "border-gray-400/20 bg-gray-500/10 text-gray-400",
+    };
+
+    /* Issue chip: only show when there are active listener or read issues */
+    const issueChipLabel = issueCount > 0
+        ? `${issueCount} issue${issueCount === 1 ? "" : "s"} active`
+        : null;
 
     
     return (
         <div className="space-y-3 md:space-y-4">
-            <PageViewEvent eventName="admin_dashboard_viewed" />
+            <PageViewEvent eventName="admin_overview_viewed" />
             <AdminPageHeader
-                eyebrow="Control Room"
-                title="Admin Dashboard"
+                eyebrow={null}
+                title="Admin Overview"
                 compact
                 actions={(
                     <>
-                        {data?.truthNotes?.overview ? (
-                            <span className={cn(
-                                "rounded-full border px-3 py-1 text-[11px] font-bold uppercase tracking-[0.12em]",
-                                data.truthNotes.overview.startsWith("[Live]")
-                                    ? "border-emerald-400/20 bg-emerald-500/10 text-emerald-400"
-                                    : data.truthNotes.overview.startsWith("[Partial]")
-                                        ? "border-amber-400/20 bg-amber-500/10 text-amber-400"
-                                        : data.truthNotes.overview.startsWith("[Failed]") || data.truthNotes.overview.startsWith("[Degraded]")
-                                            ? "border-red-400/20 bg-red-500/10 text-red-400"
-                                            : "border-gray-400/20 bg-gray-500/10 text-gray-400"
-                            )}>
-                                {data.truthNotes.overview.split(" ")[0]} Feed
-                            </span>
-                        ) : (
-                            <span className="rounded-full border border-gray-400/20 bg-gray-500/10 px-3 py-1 text-[11px] font-bold uppercase tracking-[0.12em] text-gray-400">
-                                [Unknown] Feed
-                            </span>
-                        )}
-                        <span className="rounded-full border border-white/10 bg-black/35 px-3 py-1 text-[11px] font-bold text-gray-300">
-                            Last txn {lastCommerceLabel}
+                        <span className={cn(
+                            "rounded-full border px-3 py-1 text-[11px] font-bold uppercase tracking-[0.12em]",
+                            TRUTH_CHIP_STYLES[truthVariant],
+                        )}>
+                            {truthLabel}
                         </span>
-                        {issueCount > 0 ? (
+                        <span className="rounded-full border border-white/10 bg-black/35 px-3 py-1 text-[11px] font-bold text-gray-300">
+                            {serverUpdateLabel}
+                        </span>
+                        {issueChipLabel ? (
                             <span className="rounded-full border border-amber-400/20 bg-amber-500/10 px-3 py-1 text-[11px] font-bold uppercase tracking-[0.12em] text-amber-400">
-                                [Degraded]
+                                {issueChipLabel}
                             </span>
                         ) : null}
                     </>

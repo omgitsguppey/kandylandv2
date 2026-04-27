@@ -1,7 +1,7 @@
 # Agent Task Spec
 
 ## Goal
-improve analytics error handling, retries, and stale UI, ensure no caching on admin surfaces, make site-wide speed enhancements
+tighten admin ai runtime health
 
 ## Acceptance Criteria
 - Stay within the touched entrypoints unless adjacency proves a shared helper must move with them.
@@ -10,7 +10,7 @@ improve analytics error handling, retries, and stale UI, ensure no caching on ad
 - Keep broad signoff lanes separate from the fast loop.
 
 ## Likely Entrypoints
-- src/app/admin/analytics/hooks/useAdminAnalyticsState.tsx
+- src/app/admin/debug/page.tsx
 
 ## Forbidden Surfaces
 - src/lib/gumdrop-ledger.ts
@@ -21,15 +21,12 @@ improve analytics error handling, retries, and stale UI, ensure no caching on ad
 
 ## Fast Verification
 - npm run typecheck
-- npm run agent:test -- src/app/admin/analytics/hooks/useAdminAnalyticsState.tsx
+- npm run agent:test -- src/app/admin/debug/page.tsx
 - npm run check:ui:coverage
 - npm run check:ui:runtime
-- npm run check:telemetry
-- npm run check:analytics-semantics
 
 ## Signoff Verification
 - npm run check:ui:audits
-- npm run check:analytics:continuity
 - npm run check:continuity
 
 ## Notes

@@ -1,24 +1,24 @@
 # SHORT Task Context
 
 ## Goal
-improve analytics error handling, retries, and stale UI, ensure no caching on admin surfaces, make site-wide speed enhancements
+tighten admin ai runtime health
 
 Mode: admin
 Scope: moderate
 Why scope: Touches several files or shared helper surfaces with non-trivial adjacency.
 
 ## Likely Entrypoints
-- src/app/admin/analytics/hooks/useAdminAnalyticsState.tsx
+- src/app/admin/debug/page.tsx
 - src/lib/server/firebase-admin.ts
-- src/app/admin/analytics/page.tsx
-- src/app/admin/analytics/components/AdminAnalyticsOperationsTab.tsx
-- src/app/admin/analytics/hooks/useAdminAnalyticsRealtime.ts
+- src/hooks/useAdminOverview.ts
+- src/app/admin/debug/hooks/useAdminAiAssistantRealtime.ts
+- src/app/admin/debug/hooks/useAdminDebugRealtime.ts
 
 ## Canonical Helpers To Reuse
-- src/lib/telemetry-catalog.ts
 - src/lib/route-runtime-health.ts
+- src/lib/ai-drop-covers.ts
 - src/lib/server/admin-panel-system-logs.ts
-- src/lib/server/auth.ts
+- src/lib/server/ai-drop-covers.ts
 
 ## Acceptance Criteria
 - Reuse the canonical helpers before introducing new ownership paths.
@@ -26,10 +26,10 @@ Why scope: Touches several files or shared helper surfaces with non-trivial adja
 - Report any blocked or unverified lane explicitly instead of implying success.
 
 ## Relevant Pitfalls
-- stale_lockfile_drift
-- diagnostics_serialization_crash
-- request_json_parse_falls_into_500
 - consumed_response_stream_fallback
+- legacy_queue_adapter_usage
+- stale_queue_scheduler_heartbeat
+- unchecked_response_ok_ui_hydration
 
 ## Forbidden Surfaces
 - src/lib/gumdrop-ledger.ts
@@ -39,10 +39,10 @@ Why scope: Touches several files or shared helper surfaces with non-trivial adja
 
 ## Fast Verification
 - npm run typecheck
-- npm run agent:test -- src/app/admin/analytics/hooks/useAdminAnalyticsState.tsx
+- npm run agent:test -- src/app/admin/debug/page.tsx
 - npm run agent:test -- src/lib/server/firebase-admin.ts
-- npm run agent:test -- src/app/admin/analytics/page.tsx
-- npm run agent:test -- src/app/admin/analytics/components/AdminAnalyticsOperationsTab.tsx
+- npm run agent:test -- src/hooks/useAdminOverview.ts
+- npm run agent:test -- src/app/admin/debug/hooks/useAdminAiAssistantRealtime.ts
 - npm run check:ui:coverage
 - npm run check:ui:runtime
 - npm run check:telemetry

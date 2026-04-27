@@ -1,5 +1,5 @@
 {
-  "generatedAt": "2026-04-26T15:04:53.346Z",
+  "generatedAt": "2026-04-27T04:09:43.866Z",
   "truthOrder": [
     "verified_runtime_code",
     "verified_configuration",
@@ -465,19 +465,6 @@
         "src/lib/server/rate-limit.ts",
         "src/lib/server/request-guard.ts",
         "src/lib/server/server-diagnostics.ts"
-      ]
-    },
-    {
-      "route": "src/app/api/chat/threads/route.ts",
-      "helperPaths": [
-        "src/lib/chat.ts",
-        "src/lib/server/auth.ts",
-        "src/lib/server/chat.ts",
-        "src/lib/server/firebase-admin.ts",
-        "src/lib/server/rate-limit.ts",
-        "src/lib/server/request-guard.ts",
-        "src/lib/server/route-diagnostics.ts",
-        "src/lib/server/route-runtime-health.ts"
       ]
     }
   ],

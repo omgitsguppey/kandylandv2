@@ -112,7 +112,22 @@ export interface AdminOverviewResponse {
     trendSummary: AdminOverviewWindowSummary;
     truthNotes: AdminOverviewTruthNotes;
     verification?: AdminModuleVerification;
+    /** Debug metadata surfaced from the realtime layer for admin debug panel visibility.
+     *  Only populated on the client when Firestore snapshot listeners are active. */
+    realtimeDebugMeta?: AdminOverviewRealtimeDebugMeta;
 }
+
+/** Per-listener metadata for admin debug panel truth visibility. */
+export type AdminOverviewRealtimeDebugMeta = {
+    dropsFromCache: boolean;
+    summaryFromCache: boolean;
+    transactionsFromCache: boolean;
+    lastServerConfirmedAt: number;
+    lastClientSnapshotAt: number;
+    pollingActive: boolean;
+    pollingIntervalMs: number;
+    legacyDataMapped: boolean;
+};
 
 export function calculateOverviewMetricDelta(
     current: number,

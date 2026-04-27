@@ -13,6 +13,12 @@ html { overscroll-behavior-y: none; }
 :root {
   --background: #000000;
   --foreground: #ffffff;
+
+  /* Admin surface top spacing tokens — see docs/agent-truth/admin-overview.md
+     These control the gap between the top chrome/navbar and the admin console grid.
+     Mobile is intentionally tighter to reduce vertical dead space on small viewports. */
+  --admin-top-spacing: 1rem;       /* 16px — mobile */
+  --admin-top-spacing-md: 1.5rem;  /* 24px — desktop (md: breakpoint) */
 }
 
 body {

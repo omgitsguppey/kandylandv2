@@ -1,5 +1,5 @@
 {
-  "generatedAt": "2026-04-27T02:32:00.881Z",
+  "generatedAt": "2026-04-27T04:09:54.656Z",
   "truthOrder": [
     "verified_runtime_code",
     "verified_configuration",
@@ -16,22 +16,26 @@
     "agent/index/surface-map.json",
     "agent/index/ui-surface-coverage.json"
   ],
-  "stable_id": "verifyplan__src__lib__server__server-diagnostics-ts",
+  "stable_id": "verifyplan__src__app__admin__debug__page-tsx",
   "inputPaths": [
-    "src/lib/server/server-diagnostics.ts"
+    "src/app/admin/debug/page.tsx"
   ],
   "matchedRepoPaths": [
-    "src/lib/server/server-diagnostics.ts"
+    "src/app/admin/debug/page.tsx"
   ],
   "unmatchedPaths": [],
   "touchedDomains": [
-    "shared_server_helpers"
+    "admin_ops",
+    "app_routes"
   ],
   "fastCommands": [
     "npm run typecheck",
-    "npm run agent:test -- src/lib/server/server-diagnostics.ts"
+    "npm run agent:test -- src/app/admin/debug/page.tsx",
+    "npm run check:ui:coverage",
+    "npm run check:ui:runtime"
   ],
   "signoffCommands": [
+    "npm run check:ui:audits",
     "npm run check:continuity"
   ],
   "fastSelections": [
@@ -43,14 +47,35 @@
       "lane": "fast"
     },
     {
-      "command": "npm run agent:test -- src/lib/server/server-diagnostics.ts",
+      "command": "npm run agent:test -- src/app/admin/debug/page.tsx",
       "why": [
         "Run the narrowest related contract/unit tests first."
+      ],
+      "lane": "fast"
+    },
+    {
+      "command": "npm run check:ui:coverage",
+      "why": [
+        "Indexed UI/admin surfaces changed."
+      ],
+      "lane": "fast"
+    },
+    {
+      "command": "npm run check:ui:runtime",
+      "why": [
+        "Hydration/runtime UI continuity should stay truthful."
       ],
       "lane": "fast"
     }
   ],
   "signoffSelections": [
+    {
+      "command": "npm run check:ui:audits",
+      "why": [
+        "UI/admin signoff requires Playwright audit coverage."
+      ],
+      "lane": "signoff"
+    },
     {
       "command": "npm run check:continuity",
       "why": [
@@ -60,6 +85,7 @@
     }
   ],
   "signoffAdvisories": [
+    "Run `npm run check:ui:lighthouse` only if the touched UI change affects loading, rendering, or performance-sensitive behavior.",
     "Run `npm run trace:adjacent -- <path>` for the main touched files before broad signoff."
   ],
   "forbiddenSurfaces": [

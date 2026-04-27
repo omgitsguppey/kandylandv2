@@ -1,5 +1,5 @@
 {
-  "generatedAt": "2026-04-26T15:04:57.225Z",
+  "generatedAt": "2026-04-27T04:09:48.893Z",
   "truthOrder": [
     "verified_runtime_code",
     "verified_configuration",
@@ -3375,6 +3375,19 @@
       ]
     },
     {
+      "stable_id": "blast__src__app__api__admin__debug__assistant__fix__route-ts",
+      "path": "src/app/api/admin/debug/assistant/fix/route.ts",
+      "blast_radius_score": 55,
+      "shared_helper_risk": 0,
+      "route_boundary_risk": 20,
+      "runtime_criticality": 25,
+      "verification_burden": 10,
+      "deploy_or_lockfile_sensitivity": 0,
+      "why_score_was_assigned": [
+        "Runtime-critical surface."
+      ]
+    },
+    {
       "stable_id": "blast__src__app__api__admin__debug__assistant__route-ts",
       "path": "src/app/api/admin/debug/assistant/route.ts",
       "blast_radius_score": 55,
@@ -3650,6 +3663,19 @@
     {
       "stable_id": "blast__src__app__api__admin__users__route-ts",
       "path": "src/app/api/admin/users/route.ts",
+      "blast_radius_score": 55,
+      "shared_helper_risk": 0,
+      "route_boundary_risk": 20,
+      "runtime_criticality": 25,
+      "verification_burden": 10,
+      "deploy_or_lockfile_sensitivity": 0,
+      "why_score_was_assigned": [
+        "Runtime-critical surface."
+      ]
+    },
+    {
+      "stable_id": "blast__src__app__api__analytics__ingest-identified__route-ts",
+      "path": "src/app/api/analytics/ingest-identified/route.ts",
       "blast_radius_score": 55,
       "shared_helper_risk": 0,
       "route_boundary_risk": 20,
@@ -4157,6 +4183,19 @@
     {
       "stable_id": "blast__src__app__api__drops__track__route-ts",
       "path": "src/app/api/drops/track/route.ts",
+      "blast_radius_score": 55,
+      "shared_helper_risk": 0,
+      "route_boundary_risk": 20,
+      "runtime_criticality": 25,
+      "verification_burden": 10,
+      "deploy_or_lockfile_sensitivity": 0,
+      "why_score_was_assigned": [
+        "Runtime-critical surface."
+      ]
+    },
+    {
+      "stable_id": "blast__src__app__api__health__route-ts",
+      "path": "src/app/api/health/route.ts",
       "blast_radius_score": 55,
       "shared_helper_risk": 0,
       "route_boundary_risk": 20,
@@ -6847,6 +6886,19 @@
       ]
     },
     {
+      "stable_id": "blast__src__components__adminerrorcatcher-tsx",
+      "path": "src/components/AdminErrorCatcher.tsx",
+      "blast_radius_score": 35,
+      "shared_helper_risk": 0,
+      "route_boundary_risk": 0,
+      "runtime_criticality": 25,
+      "verification_burden": 10,
+      "deploy_or_lockfile_sensitivity": 0,
+      "why_score_was_assigned": [
+        "Runtime-critical surface."
+      ]
+    },
+    {
       "stable_id": "blast__src__components__analytics__csposthogprovider-tsx",
       "path": "src/components/Analytics/CSPostHogProvider.tsx",
       "blast_radius_score": 35,
@@ -9293,6 +9345,19 @@
     {
       "stable_id": "blast__scripts__trace-adjacent-surfaces-ts",
       "path": "scripts/trace-adjacent-surfaces.ts",
+      "blast_radius_score": 20,
+      "shared_helper_risk": 0,
+      "route_boundary_risk": 0,
+      "runtime_criticality": 0,
+      "verification_burden": 20,
+      "deploy_or_lockfile_sensitivity": 0,
+      "why_score_was_assigned": [
+        "Broad signoff likely."
+      ]
+    },
+    {
+      "stable_id": "blast__scripts__verify-deployment-ts",
+      "path": "scripts/verify-deployment.ts",
       "blast_radius_score": 20,
       "shared_helper_risk": 0,
       "route_boundary_risk": 0,

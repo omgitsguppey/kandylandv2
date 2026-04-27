@@ -9,7 +9,7 @@ import { reportRealtimeIssue } from "@/lib/client-error-reporting";
 import { buildFirestoreClientIssueDetail } from "@/lib/firestore-client-errors";
 import { db } from "@/lib/firebase-data";
 import { createAutoHealingObserver } from "@/lib/self-healing";
-import type { AdminOverviewResponse, AdminOverviewTransactionRecord } from "@/lib/admin-overview";
+import type { AdminOverviewResponse, AdminOverviewTransactionRecord, AdminOverviewRealtimeDebugMeta } from "@/lib/admin-overview";
 import { normalizeTransactionRecord } from "@/lib/transaction-normalizers";
 import { isDropHiddenFromPublic, normalizeAndApplyDropStatusOrNull } from "@/lib/drop-read-models";
 
@@ -20,6 +20,16 @@ type OverviewRealtimeListenerState = {
     dropsFailed: boolean;
     summaryFailed: boolean;
     transactionsFailed: boolean;
+    /** true when the most recent drops snapshot came from Firestore client cache, not the server. */
+    dropsFromCache: boolean;
+    /** true when the most recent commerce summary snapshot came from Firestore client cache. */
+    summaryFromCache: boolean;
+    /** true when the most recent transactions snapshot came from Firestore client cache. */
+    transactionsFromCache: boolean;
+    /** Epoch ms of the most recent server-confirmed (non-cache) snapshot across any listener. */
+    lastServerConfirmedAt: number;
+    /** Epoch ms of the most recent client snapshot (cache or server) across any listener. */
+    lastClientSnapshotAt: number;
 };
 
 const EMPTY_DELTA = {
@@ -29,6 +39,65 @@ const EMPTY_DELTA = {
     direction: "flat" as const,
     scopeLabel: "vs prior 30d",
 };
+
+/** SWR polling interval for the server rollup endpoint (charts, deltas, activity).
+ *  Realtime listeners cover the hot-path data. This polling remains intentionally
+ *  for chart/trend data that doesn't need sub-minute freshness. */
+const SERVER_ROLLUP_POLL_INTERVAL_MS = 60_000;
+
+/**
+ * Resolve a human-readable truth chip label from the listener state.
+ *
+ * Vocabulary:
+ * - "Live server truth"                        — all listeners loaded, none from cache
+ * - "Cached snapshot"                          — all listeners loaded, but some data from cache
+ * - "Waiting for server truth"                 — no realtime data yet
+ * - "Fallback active — N listener(s) degraded" — at least one listener has failed
+ * - "Realtime warming up"                      — partial listeners loaded, none failed
+ */
+export function resolveTruthChipLabel(
+    state: Pick<OverviewRealtimeListenerState,
+        "dropsLoaded" | "summaryLoaded" | "transactionsLoaded" |
+        "dropsFailed" | "summaryFailed" | "transactionsFailed" |
+        "dropsFromCache" | "summaryFromCache" | "transactionsFromCache"
+    >,
+    hasServerData: boolean,
+): string {
+    const failedCount = [state.dropsFailed, state.summaryFailed, state.transactionsFailed].filter(Boolean).length;
+    const allLoaded = state.dropsLoaded && state.summaryLoaded && state.transactionsLoaded;
+    const anyLoaded = state.dropsLoaded || state.summaryLoaded || state.transactionsLoaded;
+    const anyFromCache = state.dropsFromCache || state.summaryFromCache || state.transactionsFromCache;
+
+    if (failedCount > 0) {
+        return `Fallback active — ${failedCount} listener${failedCount === 1 ? "" : "s"} degraded`;
+    }
+
+    if (allLoaded && !anyFromCache) {
+        return "Live server truth";
+    }
+
+    if (allLoaded && anyFromCache) {
+        return "Cached snapshot";
+    }
+
+    if (anyLoaded) {
+        return "Realtime warming up";
+    }
+
+    if (hasServerData) {
+        return "Server rollup only";
+    }
+
+    return "Waiting for server truth";
+}
+
+/** Map a truth chip label to a CSS chip style variant. */
+export function resolveTruthChipVariant(label: string): "live" | "cached" | "fallback" | "waiting" {
+    if (label === "Live server truth") return "live";
+    if (label === "Cached snapshot" || label === "Realtime warming up" || label === "Server rollup only") return "cached";
+    if (label.startsWith("Fallback active")) return "fallback";
+    return "waiting";
+}
 
 function buildRealtimeOnlyOverview(
     realtimeData: Partial<AdminOverviewResponse>,
@@ -40,6 +109,8 @@ function buildRealtimeOnlyOverview(
         listenerState.summaryFailed ? "Commerce summary realtime listener failed." : null,
         listenerState.transactionsFailed ? "Transaction realtime listener failed." : null,
     ].filter((issue): issue is string => Boolean(issue));
+
+    const overviewLabel = resolveTruthChipLabel(listenerState, false);
 
     return {
         success: issues.length === 0,
@@ -90,13 +161,25 @@ function buildRealtimeOnlyOverview(
             topUnlockDrop: null,
         },
         truthNotes: {
-            overview: "[Partial] Firestore realtime subscriptions hydrated before the server rollup snapshot.",
-            platformPulse: "[Partial] Realtime drops, commerce summary, and transactions are live; rollup-only metrics are pending.",
-            drops: listenerState.dropsFailed ? "[Failed] Firestore drops listener failed." : "[Live] Firestore drops listener.",
-            revenue: listenerState.summaryFailed ? "[Failed] Firestore commerce summary listener failed." : "[Live] Firestore commerce rollup listener.",
-            topDrops: listenerState.dropsFailed ? "[Failed] Firestore drops listener failed." : "[Live] Firestore drops listener.",
-            transactions: listenerState.transactionsFailed ? "[Failed] Firestore transactions listener failed." : "[Live] Firestore transactions listener.",
-            adminActivity: "[Unknown] Admin activity requires the server overview rollup snapshot.",
+            overview: overviewLabel,
+            platformPulse: listenerState.dropsLoaded || listenerState.summaryLoaded
+                ? "Realtime drops and commerce data active; rollup-only metrics pending server snapshot."
+                : "Waiting for realtime listeners to initialize.",
+            drops: listenerState.dropsFailed ? "Drops listener failed." : listenerState.dropsLoaded ? "Firestore drops listener active." : "Drops listener initializing.",
+            revenue: listenerState.summaryFailed ? "Commerce summary listener failed." : listenerState.summaryLoaded ? "Commerce rollup listener active." : "Commerce listener initializing.",
+            topDrops: listenerState.dropsFailed ? "Drops listener failed." : listenerState.dropsLoaded ? "Drops listener active." : "Drops listener initializing.",
+            transactions: listenerState.transactionsFailed ? "Transactions listener failed." : listenerState.transactionsLoaded ? "Transactions listener active." : "Transactions listener initializing.",
+            adminActivity: "Admin activity requires the server overview rollup snapshot.",
+        },
+        realtimeDebugMeta: {
+            dropsFromCache: listenerState.dropsFromCache,
+            summaryFromCache: listenerState.summaryFromCache,
+            transactionsFromCache: listenerState.transactionsFromCache,
+            lastServerConfirmedAt: listenerState.lastServerConfirmedAt,
+            lastClientSnapshotAt: listenerState.lastClientSnapshotAt,
+            pollingActive: true,
+            pollingIntervalMs: SERVER_ROLLUP_POLL_INTERVAL_MS,
+            legacyDataMapped: false,
         },
     };
 }
@@ -111,7 +194,7 @@ export function useAdminOverviewRealtime() {
     const { data: serverData, error, isLoading, mutate } = useSWR<AdminOverviewResponse>(
         "/api/admin/overview",
         fetcher,
-        { refreshInterval: 60000, revalidateOnFocus: false } // Refresh massive backend charts only every minute
+        { refreshInterval: SERVER_ROLLUP_POLL_INTERVAL_MS, revalidateOnFocus: false }
     );
 
     const serverDataRef = useRef<AdminOverviewResponse | undefined>(undefined);
@@ -123,6 +206,11 @@ export function useAdminOverviewRealtime() {
         dropsFailed: false,
         summaryFailed: false,
         transactionsFailed: false,
+        dropsFromCache: false,
+        summaryFromCache: false,
+        transactionsFromCache: false,
+        lastServerConfirmedAt: 0,
+        lastClientSnapshotAt: 0,
     });
     const dropsLoadedRef = useRef(false);
 
@@ -139,6 +227,7 @@ export function useAdminOverviewRealtime() {
         const dropsControl = createAutoHealingObserver(() => onSnapshot(collection(db, "drops"), (snapshot) => {
             if (cancelled) return;
             const now = Date.now();
+            const fromCache = snapshot.metadata.fromCache;
             const drops = snapshot.docs.flatMap(doc => {
                 const normalized = normalizeAndApplyDropStatusOrNull(doc.data(), doc.id, now);
                 return normalized && !isDropHiddenFromPublic(normalized) ? [normalized] : [];
@@ -159,7 +248,14 @@ export function useAdminOverviewRealtime() {
                 } as AdminOverviewResponse["stats"]
             }));
             dropsLoadedRef.current = true;
-            setListenerState((current) => ({ ...current, dropsLoaded: true, dropsFailed: false }));
+            setListenerState((current) => ({
+                ...current,
+                dropsLoaded: true,
+                dropsFailed: false,
+                dropsFromCache: fromCache,
+                lastClientSnapshotAt: now,
+                ...(!fromCache ? { lastServerConfirmedAt: Math.max(current.lastServerConfirmedAt, now) } : {}),
+            }));
         }, (err) => {
             if (cancelled) return;
             setListenerState((current) => ({ ...current, dropsFailed: true }));
@@ -172,6 +268,8 @@ export function useAdminOverviewRealtime() {
         // Subscribe to Commerce Rollup Summary
         const summaryControl = createAutoHealingObserver(() => onSnapshot(doc(db, "analytics_commerce_rollup", "summary"), (snapshot) => {
             if (cancelled) return;
+            const now = Date.now();
+            const fromCache = snapshot.metadata.fromCache;
             if (snapshot.exists()) {
                 const raw = snapshot.data();
                 const grossRevenueUsdTotal = Number(raw.grossRevenueUsdTotal || 0);
@@ -181,7 +279,7 @@ export function useAdminOverviewRealtime() {
 
                 setRealtimeData(prev => ({
                     ...prev,
-                    generatedAt: Date.now(),
+                    generatedAt: now,
                     stats: {
                         ...prev.stats,
                         ...(latestServerData?.stats || {}),
@@ -190,7 +288,14 @@ export function useAdminOverviewRealtime() {
                     } as AdminOverviewResponse["stats"]
                 }));
             }
-            setListenerState((current) => ({ ...current, summaryLoaded: true, summaryFailed: false }));
+            setListenerState((current) => ({
+                ...current,
+                summaryLoaded: true,
+                summaryFailed: false,
+                summaryFromCache: fromCache,
+                lastClientSnapshotAt: now,
+                ...(!fromCache ? { lastServerConfirmedAt: Math.max(current.lastServerConfirmedAt, now) } : {}),
+            }));
         }, (err) => {
             if (cancelled) return;
             setListenerState((current) => ({ ...current, summaryFailed: true }));
@@ -204,6 +309,8 @@ export function useAdminOverviewRealtime() {
         const txQuery = query(collection(db, "transactions"), orderBy("timestamp", "desc"), limit(20));
         const txControl = createAutoHealingObserver(() => onSnapshot(txQuery, (snapshot) => {
             if (cancelled) return;
+            const now = Date.now();
+            const fromCache = snapshot.metadata.fromCache;
             const latestServerData = serverDataRef.current;
             const txs = snapshot.docs.map(doc => {
                 const rawDoc = doc.data() as Record<string, unknown>;
@@ -225,10 +332,17 @@ export function useAdminOverviewRealtime() {
             });
             setRealtimeData(prev => ({
                 ...prev,
-                generatedAt: Date.now(),
+                generatedAt: now,
                 recentTransactions: txs
             }));
-            setListenerState((current) => ({ ...current, transactionsLoaded: true, transactionsFailed: false }));
+            setListenerState((current) => ({
+                ...current,
+                transactionsLoaded: true,
+                transactionsFailed: false,
+                transactionsFromCache: fromCache,
+                lastClientSnapshotAt: now,
+                ...(!fromCache ? { lastServerConfirmedAt: Math.max(current.lastServerConfirmedAt, now) } : {}),
+            }));
         }, (err) => {
             if (cancelled) return;
             setListenerState((current) => ({ ...current, transactionsFailed: true }));
@@ -252,11 +366,26 @@ export function useAdminOverviewRealtime() {
         listenerState.dropsFailed || listenerState.summaryFailed || listenerState.transactionsFailed;
     const allRealtimeLoaded =
         listenerState.dropsLoaded && listenerState.summaryLoaded && listenerState.transactionsLoaded;
+    const anyFromCache =
+        listenerState.dropsFromCache || listenerState.summaryFromCache || listenerState.transactionsFromCache;
 
     const mergedData = useMemo(() => {
         if (!serverData && !hasRealtimeSnapshot) {
             return undefined;
         }
+
+        const overviewLabel = resolveTruthChipLabel(listenerState, !!serverData);
+
+        const debugMeta: AdminOverviewRealtimeDebugMeta = {
+            dropsFromCache: listenerState.dropsFromCache,
+            summaryFromCache: listenerState.summaryFromCache,
+            transactionsFromCache: listenerState.transactionsFromCache,
+            lastServerConfirmedAt: listenerState.lastServerConfirmedAt,
+            lastClientSnapshotAt: listenerState.lastClientSnapshotAt,
+            pollingActive: true,
+            pollingIntervalMs: SERVER_ROLLUP_POLL_INTERVAL_MS,
+            legacyDataMapped: false,
+        };
 
         if (!serverData) {
             return buildRealtimeOnlyOverview(realtimeData, listenerState);
@@ -283,14 +412,11 @@ export function useAdminOverviewRealtime() {
             ],
             truthNotes: {
                 ...serverData.truthNotes,
-                overview: hasRealtimeFailure
-                    ? "[Partial] Firestore realtime subscriptions are overlaying the server rollup, but at least one listener is degraded."
-                    : allRealtimeLoaded
-                        ? "[Live] Canonical Firestore realtime subscriptions overlaying 60s background rollup caches."
-                        : "[Partial] Firestore realtime subscriptions are warming up over the server rollup snapshot."
-            }
+                overview: overviewLabel,
+            },
+            realtimeDebugMeta: debugMeta,
         } as AdminOverviewResponse;
-    }, [allRealtimeLoaded, hasRealtimeFailure, hasRealtimeSnapshot, listenerState, realtimeData, serverData]);
+    }, [allRealtimeLoaded, anyFromCache, hasRealtimeFailure, hasRealtimeSnapshot, listenerState, realtimeData, serverData]);
 
     return {
         data: mergedData,

@@ -478,16 +478,16 @@ export async function GET(request: NextRequest) {
 
         const truthNotes = {
             overview: issues.length > 0
-                ? `5s polled overview snapshot with ${issues.length} read fallback${issues.length === 1 ? "" : "s"}.`
-                : "5s polled overview snapshot with deterministic server reads.",
+                ? `Server snapshot via API poll (${Math.round(60)}s interval) — ${issues.length} read fallback${issues.length === 1 ? "" : "s"} active`
+                : "Server snapshot via API poll (60s interval) — all reads successful",
             platformPulse: commerceSummary
                 ? "Lifetime revenue and unwrap totals merge analytics rollup history with live drop-record fallbacks where needed. Deltas compare the last 30 days to the previous 30 days."
                 : "Lifetime revenue and unwrap totals are scoped to currently available overview reads because the lifetime commerce summary was unavailable.",
-            drops: "Realtime Firestore drop feed with current drop-record lifecycle status. Counts do not invent hidden queue state outside the canonical drop helpers.",
-            revenue: "30-day chart is built from analytics_commerce_daily and compared against the prior 30-day window. It is polled, not realtime.",
-            topDrops: "Ranked from current drop records by total unwrap count. This is a compact leaderboard, not a historical export.",
-            transactions: "Recent transactions hydrate from the live Firestore transactions collection. The overview shell still refreshes on a 5s poll.",
-            adminActivity: "Admin activity combines admin balance adjustments with recent canonical admin event facts only. It does not claim to be a full cross-domain actor history.",
+            drops: "Firestore drop collection with current lifecycle status applied.",
+            revenue: "30-day chart built from analytics_commerce_daily, compared against prior 30-day window. Polled via server API, not realtime.",
+            topDrops: "Ranked from current drop records by total unwrap count.",
+            transactions: "Recent transactions from Firestore transactions collection via server API poll.",
+            adminActivity: "Admin activity combines admin balance adjustments with recent canonical admin telemetry event facts.",
         };
 
         return finalize(NextResponse.json({
