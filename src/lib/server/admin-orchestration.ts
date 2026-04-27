@@ -210,13 +210,20 @@ export function buildAdminOrchestrationSnapshot(input: {
         creatorContextMissingCount: events.filter((entry) => entry.dependencyReadiness.missing.includes("creator_context")).length,
     };
 
-    const score = Math.max(0, Math.round(
-        100
-        - (criticalFindings.length * 14)
-        - ((openFindings.length - criticalFindings.length) * 6)
-        - (contaminationRisks * 8)
-        - (lowConfidenceEvents * 2),
+    // Capped penalties — each category is bounded so high-volume signals
+    // degrade the score proportionally instead of zeroing it out.
+    const criticalPenalty = Math.min(criticalFindings.length * 5, 30);
+    const nonCriticalPenalty = Math.min((openFindings.length - criticalFindings.length) * 1, 25);
+    const contaminationPenalty = Math.min(contaminationRisks * 3, 15);
+    const lowConfidencePenalty = Math.min(Math.round(lowConfidenceEvents * 0.5), 20);
+
+    let score = Math.max(0, Math.round(
+        100 - criticalPenalty - nonCriticalPenalty - contaminationPenalty - lowConfidencePenalty,
     ));
+
+    // Ceiling rules — prevent false-green when structural issues exist
+    if (criticalFindings.length > 0) score = Math.min(score, 60);
+    if (openFindings.length >= 20) score = Math.min(score, 70);
 
     return {
         summary: {
