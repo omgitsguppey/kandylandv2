@@ -304,3 +304,131 @@ describe("drops truth label resolver", () => {
     });
 });
 
+/* ========================================================================
+   Revenue + Unwraps module source-code contracts
+   ======================================================================== */
+
+import { readFileSync } from "fs";
+import { join } from "path";
+
+const CHART_SOURCE = readFileSync(
+    join(__dirname, "../../src/components/Admin/AdminAnalyticsCharts.tsx"),
+    "utf-8",
+);
+
+const ADMIN_PAGE_SOURCE = readFileSync(
+    join(__dirname, "../../src/app/admin/page.tsx"),
+    "utf-8",
+);
+
+import { calculateOverviewMetricDelta } from "@/lib/admin-overview";
+
+describe("revenue + unwraps module: source-code contracts", () => {
+    it("uses canonical purple #b28cff", () => {
+        expect(CHART_SOURCE).toContain("#b28cff");
+    });
+
+    it("uses lighter purple tint #d8b4fe for unwraps", () => {
+        expect(CHART_SOURCE).toContain("#d8b4fe");
+    });
+
+    it("does NOT use pink #d946ef (fuchsia-500)", () => {
+        expect(CHART_SOURCE).not.toContain("#d946ef");
+    });
+
+    it("does NOT use pink #f472b6 (pink-400)", () => {
+        expect(CHART_SOURCE).not.toContain("#f472b6");
+    });
+
+    it("exposes all 5 time-range options", () => {
+        expect(CHART_SOURCE).toContain('"24h"');
+        expect(CHART_SOURCE).toContain('"7d"');
+        expect(CHART_SOURCE).toContain('"14d"');
+        expect(CHART_SOURCE).toContain('"30d"');
+        expect(CHART_SOURCE).toContain('"all"');
+    });
+
+    it("does NOT contain '1 read issue' text", () => {
+        expect(CHART_SOURCE.toLowerCase()).not.toContain("read issue");
+    });
+
+    it("does NOT contain 'issueCount' prop", () => {
+        expect(CHART_SOURCE).not.toContain("issueCount");
+    });
+
+    it("does NOT contain 'Revenue view' / 'Unwrap view' tab labels", () => {
+        expect(CHART_SOURCE).not.toContain("Revenue view");
+        expect(CHART_SOURCE).not.toContain("Unwrap view");
+    });
+
+    it("uses 'Days with sales' instead of 'Active days'", () => {
+        expect(CHART_SOURCE).toContain("Days with sales");
+        expect(CHART_SOURCE).not.toContain("Active days");
+    });
+
+    it("renders both revenue and unwraps data in the same chart", () => {
+        expect(CHART_SOURCE).toContain('dataKey="revenue"');
+        expect(CHART_SOURCE).toContain('dataKey="unwraps"');
+    });
+
+    it("uses ComposedChart (not separate AreaChart/BarChart)", () => {
+        expect(CHART_SOURCE).toContain("ComposedChart");
+    });
+
+    it("passes truthLabel/truthVariant instead of issueCount to AdminAnalyticsCharts", () => {
+        expect(ADMIN_PAGE_SOURCE).toContain("truthLabel={truthLabel}");
+        expect(ADMIN_PAGE_SOURCE).toContain("truthVariant={truthVariant}");
+        // AdminAnalyticsCharts must not receive issueCount.
+        // Note: AdminStatsBar still legitimately receives issueCount, so we check the chart block specifically.
+        // Extract lines between <AdminAnalyticsCharts and the next closing />
+        const startIdx = ADMIN_PAGE_SOURCE.indexOf("<AdminAnalyticsCharts");
+        expect(startIdx).toBeGreaterThan(-1);
+        const endIdx = ADMIN_PAGE_SOURCE.indexOf("/>", startIdx);
+        expect(endIdx).toBeGreaterThan(startIdx);
+        const chartBlock = ADMIN_PAGE_SOURCE.slice(startIdx, endIdx + 2);
+        expect(chartBlock).not.toContain("issueCount");
+    });
+
+    it("admin page accordion is titled 'Revenue + Unwraps' not 'Revenue trends'", () => {
+        expect(ADMIN_PAGE_SOURCE).toContain('title="Revenue + Unwraps"');
+        expect(ADMIN_PAGE_SOURCE).not.toContain('title="Revenue trends"');
+    });
+});
+
+describe("revenue + unwraps module: delta safety", () => {
+    it("returns null percentChange when previous is 0", () => {
+        const result = calculateOverviewMetricDelta(100, 0);
+        expect(result.percentChange).toBeNull();
+    });
+
+    it("returns 0 percentChange when both are equal and nonzero", () => {
+        const result = calculateOverviewMetricDelta(50, 50);
+        expect(result.percentChange).toBe(0);
+    });
+
+    it("returns positive percentChange when current > previous", () => {
+        const result = calculateOverviewMetricDelta(150, 100);
+        expect(result.percentChange).toBeGreaterThan(0);
+    });
+
+    it("returns negative percentChange when current < previous", () => {
+        const result = calculateOverviewMetricDelta(50, 100);
+        expect(result.percentChange).toBeLessThan(0);
+    });
+
+    it("never produces NaN or Infinity", () => {
+        const testCases = [
+            [0, 0],
+            [100, 0],
+            [0, 100],
+            [1, 1000000],
+            [1000000, 1],
+        ];
+        for (const [current, previous] of testCases) {
+            const result = calculateOverviewMetricDelta(current, previous);
+            if (result.percentChange !== null) {
+                expect(Number.isFinite(result.percentChange)).toBe(true);
+            }
+        }
+    });
+});

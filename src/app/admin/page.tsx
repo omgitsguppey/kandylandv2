@@ -101,7 +101,7 @@ export default function AdminDashboardPage() {
                 </div>
 
                 <div className="xl:col-span-5">
-                    <AdminDashboardModule title="Revenue trends" defaultOpen={false}>
+                    <AdminDashboardModule title="Revenue + Unwraps" defaultOpen={false}>
                             <AdminAnalyticsCharts
                                 chartData={data?.chartData || []}
                                 trendSummary={data?.trendSummary || {
@@ -124,7 +124,8 @@ export default function AdminDashboardPage() {
                                     bestUnwrapDay: null,
                                     topUnlockDrop: null,
                                 }}
-                                issueCount={issueCount}
+                                truthLabel={truthLabel}
+                                truthVariant={truthVariant}
                                 loading={isLoading && !data}
                             />
                     </AdminDashboardModule>
