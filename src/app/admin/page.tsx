@@ -11,7 +11,6 @@ import { AdminDropsAtGlancePanel } from "@/components/Admin/AdminDropsAtGlancePa
 import { AdminPageHeader } from "@/components/Admin/AdminPageHeader";
 import { AdminStatsBar } from "@/components/Admin/AdminStatsBar";
 import { RecentTransactionsPanel } from "@/components/Admin/RecentTransactionsPanel";
-import { TopDropsPanel } from "@/components/Admin/TopDropsPanel";
 import { useAdminOverview } from "@/hooks/useAdminOverview";
 import { resolveTruthChipVariant } from "@/hooks/useAdminOverviewRealtime";
 
@@ -100,7 +99,7 @@ export default function AdminDashboardPage() {
                     </AdminDashboardModule>
                 </div>
 
-                <div className="xl:col-span-5">
+                <div className="xl:col-span-7">
                     <AdminDashboardModule title="Revenue + Unwraps" defaultOpen={false}>
                             <AdminAnalyticsCharts
                                 chartData={data?.chartData || []}
@@ -124,6 +123,7 @@ export default function AdminDashboardPage() {
                                     bestUnwrapDay: null,
                                     topUnlockDrop: null,
                                 }}
+                                topDrops={data?.topDrops || []}
                                 truthLabel={truthLabel}
                                 truthVariant={truthVariant}
                                 loading={isLoading && !data}
@@ -132,22 +132,6 @@ export default function AdminDashboardPage() {
                 </div>
 
                 <div className="xl:col-span-5">
-                    <AdminDashboardModule title="Top performing drops" defaultOpen={false}>
-                        {data ? (
-                            <TopDropsPanel
-                                topDrops={data.topDrops}
-                            />
-                        ) : (
-                            <div className="space-y-2">
-                                {Array.from({ length: 5 }).map((_, index) => (
-                                    <div key={index} className="h-16 animate-pulse rounded-[1.2rem] border border-white/8 bg-white/5" />
-                                ))}
-                            </div>
-                        )}
-                    </AdminDashboardModule>
-                </div>
-
-                <div className="xl:col-span-7">
                     <AdminDashboardModule title="Recent transactions" defaultOpen={false}>
                         {data ? (
                             <RecentTransactionsPanel

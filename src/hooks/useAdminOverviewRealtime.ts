@@ -232,7 +232,7 @@ export function useAdminOverviewRealtime() {
                 const normalized = normalizeAndApplyDropStatusOrNull(doc.data(), doc.id, now);
                 return normalized && !isDropHiddenFromPublic(normalized) ? [normalized] : [];
             });
-            const topDrops = [...drops].sort((a, b) => (b.totalUnlocks || 0) - (a.totalUnlocks || 0)).slice(0, 6);
+            const topDrops = [...drops].sort((a, b) => (b.totalUnlocks || 0) - (a.totalUnlocks || 0)).slice(0, 20);
             const latestServerData = serverDataRef.current;
 
             setRealtimeData(prev => ({

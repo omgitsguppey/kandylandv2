@@ -11,6 +11,9 @@ The "Revenue + Unwraps" section is an accordion module within the Admin Overview
 2. **Truth chip**: dot + label showing the combined overview listener state
 3. **Metric cards**: Revenue total, Unwraps total, Best revenue day, Best unwrap day, Days with sales, Top drop — in a compact 3×2 grid
 4. **Combined chart**: dual-axis ComposedChart with revenue area (left Y-axis, $) + unwrap bars (right Y-axis, count)
+5. **Top drops table**: compact searchable/paginated list of top-ranked drops — see [admin-revenue-top-drops.md](admin-revenue-top-drops.md) for full details
+
+> The "Top performing drops" standalone accordion was removed and merged into this module to reduce vertical sprawl.
 
 ## Why this replaces the old "Revenue trends" module
 

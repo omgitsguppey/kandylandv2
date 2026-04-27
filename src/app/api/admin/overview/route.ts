@@ -284,7 +284,7 @@ export async function GET(request: NextRequest) {
         const dropUnlockTotals = drops.reduce((sum, drop) => sum + (drop.totalUnlocks || 0), 0);
         const topDrops = [...drops]
             .sort((left, right) => (right.totalUnlocks || 0) - (left.totalUnlocks || 0))
-            .slice(0, 6);
+            .slice(0, 20);
 
         const recentTransactionsSource = recentTransactionsSnapshot.docs.flatMap((doc) => {
             try {

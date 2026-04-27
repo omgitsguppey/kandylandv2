@@ -432,3 +432,132 @@ describe("revenue + unwraps module: delta safety", () => {
         }
     });
 });
+
+/* ========================================================================
+   Top drops table: source-code contracts
+   ======================================================================== */
+
+const TOP_DROPS_TABLE_SOURCE = readFileSync(
+    join(__dirname, "../../src/components/Admin/TopDropsTable.tsx"),
+    "utf-8",
+);
+
+describe("top drops table: source-code contracts", () => {
+    it("standalone 'Top performing drops' accordion is removed from admin page", () => {
+        expect(ADMIN_PAGE_SOURCE).not.toContain('title="Top performing drops"');
+    });
+
+    it("TopDropsPanel import is removed from admin page", () => {
+        expect(ADMIN_PAGE_SOURCE).not.toContain("TopDropsPanel");
+    });
+
+    it("admin page passes topDrops prop to AdminAnalyticsCharts", () => {
+        expect(ADMIN_PAGE_SOURCE).toContain("topDrops={data?.topDrops");
+    });
+
+    it("AdminAnalyticsCharts accepts topDrops prop", () => {
+        expect(CHART_SOURCE).toContain("topDrops");
+        expect(CHART_SOURCE).toContain("TopDropsTable");
+    });
+
+    it("top drops table has a search input", () => {
+        expect(TOP_DROPS_TABLE_SOURCE).toContain("Search drops");
+        expect(TOP_DROPS_TABLE_SOURCE).toContain("<input");
+    });
+
+    it("top drops table has pagination controls (Prev/Next/Showing)", () => {
+        expect(TOP_DROPS_TABLE_SOURCE).toContain("Showing");
+        expect(TOP_DROPS_TABLE_SOURCE).toContain("ChevronLeft");
+        expect(TOP_DROPS_TABLE_SOURCE).toContain("ChevronRight");
+    });
+
+    it("top drops table uses compact row layout with thumbnail", () => {
+        expect(TOP_DROPS_TABLE_SOURCE).toContain("imageUrl");
+        expect(TOP_DROPS_TABLE_SOURCE).toContain("object-cover");
+    });
+
+    it("time range key is passed to top drops table", () => {
+        expect(CHART_SOURCE).toContain("timeRangeKey={timeRange}");
+    });
+
+    it("pagination resets on time-range change", () => {
+        expect(TOP_DROPS_TABLE_SOURCE).toContain("setCurrentPage(0)");
+        expect(TOP_DROPS_TABLE_SOURCE).toContain("timeRangeKey");
+    });
+
+    it("does not use offset pagination for Firestore", () => {
+        expect(TOP_DROPS_TABLE_SOURCE).not.toContain(".offset(");
+        expect(TOP_DROPS_TABLE_SOURCE).not.toContain("offset:");
+    });
+
+    it("declares ranking source in debug metadata", () => {
+        expect(TOP_DROPS_TABLE_SOURCE).toContain("totalUnlocks");
+        expect(TOP_DROPS_TABLE_SOURCE).toContain("rankingSource");
+    });
+
+    it("declares drop metadata source in debug metadata", () => {
+        expect(TOP_DROPS_TABLE_SOURCE).toContain("dropMetadataSource");
+    });
+
+    it("does NOT use pink colors", () => {
+        expect(TOP_DROPS_TABLE_SOURCE).not.toContain("#d946ef");
+        expect(TOP_DROPS_TABLE_SOURCE).not.toContain("#f472b6");
+    });
+
+    it("does not produce duplicate status labels", () => {
+        // Each status maps to exactly one label in STATUS_LABEL
+        const statusMatches = TOP_DROPS_TABLE_SOURCE.match(/STATUS_LABEL/g);
+        expect(statusMatches).toBeTruthy();
+        // Verify clean labels are present
+        expect(TOP_DROPS_TABLE_SOURCE).toContain('"Live"');
+        expect(TOP_DROPS_TABLE_SOURCE).toContain('"Scheduled"');
+        expect(TOP_DROPS_TABLE_SOURCE).toContain('"Expired"');
+    });
+
+    it("uses debounced search input (not instant)", () => {
+        expect(TOP_DROPS_TABLE_SOURCE).toContain("SEARCH_DEBOUNCE_MS");
+        expect(TOP_DROPS_TABLE_SOURCE).toContain("setTimeout");
+    });
+
+    it("search does not require full catalog hydration", () => {
+        // Search operates on props.drops, not a Firestore query
+        expect(TOP_DROPS_TABLE_SOURCE).not.toContain("collection(");
+        expect(TOP_DROPS_TABLE_SOURCE).not.toContain("getDocs");
+        expect(TOP_DROPS_TABLE_SOURCE).not.toContain("onSnapshot");
+    });
+
+    it("exposes timing instrumentation in debug metadata", () => {
+        expect(TOP_DROPS_TABLE_SOURCE).toContain("firstRenderMs");
+        expect(TOP_DROPS_TABLE_SOURCE).toContain("searchReadyMs");
+        expect(TOP_DROPS_TABLE_SOURCE).toContain("pageChangeMs");
+    });
+
+    it("server sends up to 20 drops (not 6)", () => {
+        const serverSource = readFileSync(
+            join(__dirname, "../../src/app/api/admin/overview/route.ts"),
+            "utf-8",
+        );
+        expect(serverSource).toContain(".slice(0, 20)");
+        expect(serverSource).not.toContain(".slice(0, 6)");
+    });
+
+    it("realtime listener sends up to 20 drops (not 6)", () => {
+        const realtimeSource = readFileSync(
+            join(__dirname, "../../src/hooks/useAdminOverviewRealtime.ts"),
+            "utf-8",
+        );
+        expect(realtimeSource).toContain(".slice(0, 20)");
+        expect(realtimeSource).not.toContain(".slice(0, 6)");
+    });
+
+    it("shows empty state messages", () => {
+        expect(TOP_DROPS_TABLE_SOURCE).toContain("No drop activity in this range");
+        expect(TOP_DROPS_TABLE_SOURCE).toContain("No drops match this search");
+    });
+
+    it("TopDropsPanel.tsx file no longer exists", () => {
+        const { existsSync } = require("fs");
+        const oldFile = join(__dirname, "../../src/components/Admin/TopDropsPanel.tsx");
+        expect(existsSync(oldFile)).toBe(false);
+    });
+});

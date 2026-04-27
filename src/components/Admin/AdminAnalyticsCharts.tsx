@@ -13,9 +13,11 @@ import {
     YAxis,
 } from "recharts";
 
+import type { Drop } from "@/types/db";
 import type { AdminOverviewResponse } from "@/lib/admin-overview";
 import { calculateOverviewMetricDelta } from "@/lib/admin-overview";
 import { trackEvent } from "@/lib/telemetry";
+import { TopDropsTable } from "./TopDropsTable";
 
 /* ── Canonical color tokens ─────────────────────────────────────────────── */
 
@@ -41,6 +43,7 @@ const TIME_RANGE_OPTIONS: { key: TimeRangeKey; label: string; shortLabel: string
 type AdminAnalyticsChartsProps = {
     chartData: AdminOverviewResponse["chartData"];
     trendSummary: AdminOverviewResponse["trendSummary"];
+    topDrops: Drop[];
     truthLabel: string;
     truthVariant: "live" | "cached" | "fallback" | "waiting";
     loading?: boolean;
@@ -139,6 +142,7 @@ const TRUTH_DOT_STYLES: Record<string, string> = {
 export function AdminAnalyticsCharts({
     chartData,
     trendSummary,
+    topDrops,
     truthLabel,
     truthVariant,
     loading = false,
@@ -355,6 +359,12 @@ export function AdminAnalyticsCharts({
                     </div>
                 </div>
             )}
+
+            {/* ── Top drops table ─────────────────────────────────── */}
+            <TopDropsTable
+                drops={topDrops}
+                timeRangeKey={timeRange}
+            />
         </div>
     );
 }
