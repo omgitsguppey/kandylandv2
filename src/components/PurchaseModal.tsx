@@ -373,7 +373,7 @@ export function PurchaseModal({ isOpen, onClose }: PurchaseModalProps) {
                                 </div>
                                 <div>
                                   <div className="flex items-center gap-1.5">
-                                    <span className="text-[15px] font-bold text-white leading-none">{pkg.drops.toLocaleString()}</span>
+                                    <span className="text-[15px] font-bold text-white leading-none">{pkgEconomics.paidGumDrops.toLocaleString()}</span>
                                     <span className="text-[9px] uppercase font-bold tracking-widest text-gray-500 leading-none mt-0.5">GumDrops</span>
                                     {pkgEconomics.bonusGumDrops > 0 && (
                                       <span className="inline-flex items-center ml-1 rounded border border-emerald-400/20 bg-emerald-400/10 px-1.5 py-0.5 text-[8px] font-bold tracking-wider text-emerald-300">
@@ -418,7 +418,7 @@ export function PurchaseModal({ isOpen, onClose }: PurchaseModalProps) {
                                 </div>
                                 <div>
                                   <div className="flex items-center gap-1.5 flex-wrap">
-                                    <span className="text-[15px] font-bold text-white leading-none">{customDrops.toLocaleString()}</span>
+                                    <span className="text-[15px] font-bold text-white leading-none">{(deriveGumdropEconomics(customDrops, (customDrops / 1000) * 5).paidGumDrops).toLocaleString()}</span>
                                     <span className="text-[9px] uppercase font-bold tracking-widest text-gray-500 leading-none mt-0.5">GumDrops</span>
                                     <span className="inline-flex items-center ml-0 sm:ml-1 rounded border border-emerald-400/20 bg-emerald-400/10 px-1.5 py-0.5 text-[8px] font-bold tracking-wider text-emerald-300">
                                       {customDrops >= 5000 ? "100% EXTRA" : "BONUS"}

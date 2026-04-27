@@ -1,5 +1,18 @@
 # KandyDrops Core Codebase Audit & Defensive Ledger
 
+## [2026-04-26 #38] Package Metadata & UI Truth Alignment
+
+Scope completed:
+- Performed read-only audit of GumDrop package metadata and source-of-funds classification.
+- Identified visible UI claim mismatch in `PurchaseModal` where base and bonus amounts were combined confusingly.
+- Ensured total `paidGumDrops` vs `bonusGumDrops` are separately displayed to prevent false-equivalence "double counting" visual presentation.
+
+Implemented changes:
+- `src/components/PurchaseModal.tsx`: updated package UI mapping to display `pkgEconomics.paidGumDrops` explicitly alongside the bonus instead of total package drops.
+
+Verification completed:
+- `npm run check:continuity` and visual component test passed.
+
 ## [2026-04-26 #37] Dependency and Infrastructure Observability Rollout
 
 Scope completed:
