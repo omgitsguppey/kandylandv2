@@ -1,7 +1,7 @@
 "use client";
 
 import { useEffect, useMemo, useRef, useState } from "react";
-import { collection, doc, limit, onSnapshot, orderBy, query } from "firebase/firestore";
+import { collection, doc, limit, onSnapshot, orderBy, query, where } from "firebase/firestore";
 import useSWR from "swr";
 
 import { authFetch } from "@/lib/authFetch";
@@ -9,23 +9,27 @@ import { reportRealtimeIssue } from "@/lib/client-error-reporting";
 import { buildFirestoreClientIssueDetail } from "@/lib/firestore-client-errors";
 import { db } from "@/lib/firebase-data";
 import { createAutoHealingObserver } from "@/lib/self-healing";
-import type { AdminOverviewResponse, AdminOverviewTransactionRecord, AdminOverviewRealtimeDebugMeta } from "@/lib/admin-overview";
-import { normalizeTransactionRecord } from "@/lib/transaction-normalizers";
+import type { AdminOverviewResponse, AdminOverviewTransactionRecord, AdminOverviewActivityItem, AdminOverviewRealtimeDebugMeta } from "@/lib/admin-overview";
+import { normalizeTransactionRecord, getTransactionDisplayLabel } from "@/lib/transaction-normalizers";
 import { isDropHiddenFromPublic, normalizeAndApplyDropStatusOrNull } from "@/lib/drop-read-models";
 
 type OverviewRealtimeListenerState = {
     dropsLoaded: boolean;
     summaryLoaded: boolean;
     transactionsLoaded: boolean;
+    adminActivityLoaded: boolean;
     dropsFailed: boolean;
     summaryFailed: boolean;
     transactionsFailed: boolean;
+    adminActivityFailed: boolean;
     /** true when the most recent drops snapshot came from Firestore client cache, not the server. */
     dropsFromCache: boolean;
     /** true when the most recent commerce summary snapshot came from Firestore client cache. */
     summaryFromCache: boolean;
     /** true when the most recent transactions snapshot came from Firestore client cache. */
     transactionsFromCache: boolean;
+    /** true when the most recent admin activity snapshot came from Firestore client cache. */
+    adminActivityFromCache: boolean;
     /** Epoch ms of the most recent server-confirmed (non-cache) snapshot across any listener. */
     lastServerConfirmedAt: number;
     /** Epoch ms of the most recent client snapshot (cache or server) across any listener. */
@@ -57,16 +61,16 @@ const SERVER_ROLLUP_POLL_INTERVAL_MS = 60_000;
  */
 export function resolveTruthChipLabel(
     state: Pick<OverviewRealtimeListenerState,
-        "dropsLoaded" | "summaryLoaded" | "transactionsLoaded" |
-        "dropsFailed" | "summaryFailed" | "transactionsFailed" |
-        "dropsFromCache" | "summaryFromCache" | "transactionsFromCache"
+        "dropsLoaded" | "summaryLoaded" | "transactionsLoaded" | "adminActivityLoaded" |
+        "dropsFailed" | "summaryFailed" | "transactionsFailed" | "adminActivityFailed" |
+        "dropsFromCache" | "summaryFromCache" | "transactionsFromCache" | "adminActivityFromCache"
     >,
     hasServerData: boolean,
 ): string {
-    const failedCount = [state.dropsFailed, state.summaryFailed, state.transactionsFailed].filter(Boolean).length;
-    const allLoaded = state.dropsLoaded && state.summaryLoaded && state.transactionsLoaded;
-    const anyLoaded = state.dropsLoaded || state.summaryLoaded || state.transactionsLoaded;
-    const anyFromCache = state.dropsFromCache || state.summaryFromCache || state.transactionsFromCache;
+    const failedCount = [state.dropsFailed, state.summaryFailed, state.transactionsFailed, state.adminActivityFailed].filter(Boolean).length;
+    const allLoaded = state.dropsLoaded && state.summaryLoaded && state.transactionsLoaded && state.adminActivityLoaded;
+    const anyLoaded = state.dropsLoaded || state.summaryLoaded || state.transactionsLoaded || state.adminActivityLoaded;
+    const anyFromCache = state.dropsFromCache || state.summaryFromCache || state.transactionsFromCache || state.adminActivityFromCache;
 
     if (failedCount > 0) {
         return `Fallback active — ${failedCount} listener${failedCount === 1 ? "" : "s"} degraded`;
@@ -118,7 +122,7 @@ function buildRealtimeOnlyOverview(
         generatedAt,
         freshness: {
             lastTransactionAt: realtimeData.recentTransactions?.[0]?.timestamp ?? 0,
-            lastAdminActivityAt: 0,
+            lastAdminActivityAt: realtimeData.adminActivity?.[0]?.timestamp ?? 0,
         },
         stats: {
             totalUsers: 0,
@@ -137,7 +141,7 @@ function buildRealtimeOnlyOverview(
             unwraps: EMPTY_DELTA,
         },
         recentTransactions: realtimeData.recentTransactions ?? [],
-        adminActivity: [],
+        adminActivity: realtimeData.adminActivity ?? [],
         topDrops: realtimeData.topDrops ?? [],
         chartData: [],
         trendSummary: {
@@ -169,12 +173,13 @@ function buildRealtimeOnlyOverview(
             revenue: listenerState.summaryFailed ? "Commerce summary listener failed." : listenerState.summaryLoaded ? "Commerce rollup listener active." : "Commerce listener initializing.",
             topDrops: listenerState.dropsFailed ? "Drops listener failed." : listenerState.dropsLoaded ? "Drops listener active." : "Drops listener initializing.",
             transactions: listenerState.transactionsFailed ? "Transactions listener failed." : listenerState.transactionsLoaded ? "Transactions listener active." : "Transactions listener initializing.",
-            adminActivity: "Admin activity requires the server overview rollup snapshot.",
+            adminActivity: listenerState.adminActivityFailed ? "Admin activity listener failed." : listenerState.adminActivityLoaded ? "Admin activity listener active." : "Admin activity listener initializing.",
         },
         realtimeDebugMeta: {
             dropsFromCache: listenerState.dropsFromCache,
             summaryFromCache: listenerState.summaryFromCache,
             transactionsFromCache: listenerState.transactionsFromCache,
+            adminActivityFromCache: listenerState.adminActivityFromCache,
             lastServerConfirmedAt: listenerState.lastServerConfirmedAt,
             lastClientSnapshotAt: listenerState.lastClientSnapshotAt,
             pollingActive: true,
@@ -203,12 +208,15 @@ export function useAdminOverviewRealtime() {
         dropsLoaded: false,
         summaryLoaded: false,
         transactionsLoaded: false,
+        adminActivityLoaded: false,
         dropsFailed: false,
         summaryFailed: false,
         transactionsFailed: false,
+        adminActivityFailed: false,
         dropsFromCache: false,
         summaryFromCache: false,
         transactionsFromCache: false,
+        adminActivityFromCache: false,
         lastServerConfirmedAt: 0,
         lastClientSnapshotAt: 0,
     });
@@ -307,7 +315,7 @@ export function useAdminOverviewRealtime() {
 
         // Subscribe to Recent Transactions
         const txQuery = query(collection(db, "transactions"), orderBy("timestamp", "desc"), limit(20));
-        const txControl = createAutoHealingObserver(() => onSnapshot(txQuery, (snapshot) => {
+        const txControl = createAutoHealingObserver(() => onSnapshot(txQuery, { includeMetadataChanges: true }, (snapshot) => {
             if (cancelled) return;
             const now = Date.now();
             const fromCache = snapshot.metadata.fromCache;
@@ -315,17 +323,19 @@ export function useAdminOverviewRealtime() {
             const txs = snapshot.docs.map(doc => {
                 const rawDoc = doc.data() as Record<string, unknown>;
                 const raw = normalizeTransactionRecord(rawDoc, doc.id);
-                // We won't have usernames eagerly fetched in pure realtime, but we can preserve server ones if matched or extract raw
+                // Prefer server-resolved username (batch-fetched from users collection)
                 const serverMatch = latestServerData?.recentTransactions?.find(s => s.id === doc.id);
-                
-                let fallbackUsername = "Pending lookup";
-                if (typeof rawDoc.username === "string" && rawDoc.username.trim()) fallbackUsername = rawDoc.username;
-                else if (typeof rawDoc.userHandle === "string" && rawDoc.userHandle.trim()) fallbackUsername = rawDoc.userHandle;
-                else if (typeof rawDoc.userDisplayName === "string" && rawDoc.userDisplayName.trim()) fallbackUsername = rawDoc.userDisplayName;
+
+                // Try embedded fields on the transaction doc (rare but possible on some records)
+                let embeddedUsername: string | undefined;
+                if (typeof rawDoc.username === "string" && rawDoc.username.trim()) embeddedUsername = rawDoc.username;
+                else if (typeof rawDoc.userHandle === "string" && rawDoc.userHandle.trim()) embeddedUsername = rawDoc.userHandle;
+                else if (typeof rawDoc.userDisplayName === "string" && rawDoc.userDisplayName.trim()) embeddedUsername = rawDoc.userDisplayName;
 
                 return {
                     ...raw,
-                    username: serverMatch?.username || fallbackUsername,
+                    // Server-resolved > embedded > undefined (panel resolves progressively)
+                    username: serverMatch?.username || embeddedUsername || undefined,
                     timestamp: typeof raw.timestamp === "number" ? raw.timestamp : (raw.timestamp as any)?.toMillis?.() || 0,
                     sourceScope: "realtime_firestore" as const
                 } as AdminOverviewTransactionRecord;
@@ -352,22 +362,99 @@ export function useAdminOverviewRealtime() {
             reportRealtimeIssue(`Admin overview transactions: ${issueDetail}`, error, { listener: "admin_overview_transactions" });
         });
 
+        // Subscribe to Admin Activity (admin_adjustment transactions)
+        const adminActivityQuery = query(
+            collection(db, "transactions"),
+            where("type", "==", "admin_adjustment"),
+            orderBy("timestamp", "desc"),
+            limit(20),
+        );
+        const adminActivityControl = createAutoHealingObserver(() => onSnapshot(adminActivityQuery, { includeMetadataChanges: true }, (snapshot) => {
+            if (cancelled) return;
+            const now = Date.now();
+            const fromCache = snapshot.metadata.fromCache;
+            const latestServerData = serverDataRef.current;
+
+            const items: AdminOverviewActivityItem[] = snapshot.docs.map((docSnap) => {
+                const rawDoc = docSnap.data() as Record<string, unknown>;
+                const normalized = normalizeTransactionRecord(rawDoc, docSnap.id);
+                const timestamp = typeof normalized.timestamp === "number"
+                    ? normalized.timestamp
+                    : (normalized.timestamp as any)?.toMillis?.() || 0;
+
+                // Actor: admin who performed the adjustment
+                const adjustedBy = typeof rawDoc.adjustedBy === "string" && rawDoc.adjustedBy.trim().length > 0
+                    ? rawDoc.adjustedBy.trim()
+                    : undefined;
+
+                // Target: user affected by the adjustment
+                // Try server-resolved username first, then fall back to embedded fields
+                const serverMatch = latestServerData?.adminActivity?.find(s => s.id === docSnap.id);
+                const targetUsername = serverMatch?.username
+                    || (typeof rawDoc.username === "string" && rawDoc.username.trim() ? rawDoc.username.trim() : undefined)
+                    || (typeof rawDoc.userHandle === "string" && rawDoc.userHandle.trim() ? rawDoc.userHandle.trim() : undefined);
+                const targetUserId = normalized.userId || undefined;
+                const targetLabel = targetUsername
+                    ? `@${targetUsername}`
+                    : targetUserId
+                        ? targetUserId.slice(0, 8)
+                        : undefined;
+
+                return {
+                    id: docSnap.id,
+                    domain: "admin" as const,
+                    source: "transactions" as const,
+                    type: normalized.type,
+                    label: "Balance adjusted",
+                    detail: getTransactionDisplayLabel(normalized),
+                    actorLabel: adjustedBy ?? "Unknown operator",
+                    targetLabel: targetLabel ? `target ${targetLabel}` : undefined,
+                    targetUserId,
+                    username: targetUsername,
+                    userId: targetUserId,
+                    timestamp,
+                };
+            });
+
+            setRealtimeData(prev => ({
+                ...prev,
+                generatedAt: now,
+                adminActivity: items,
+            }));
+            setListenerState((current) => ({
+                ...current,
+                adminActivityLoaded: true,
+                adminActivityFailed: false,
+                adminActivityFromCache: fromCache,
+                lastClientSnapshotAt: now,
+                ...(!fromCache ? { lastServerConfirmedAt: Math.max(current.lastServerConfirmedAt, now) } : {}),
+            }));
+        }, (err) => {
+            if (cancelled) return;
+            setListenerState((current) => ({ ...current, adminActivityFailed: true }));
+            adminActivityControl.triggerReconnect(err);
+        }), (error) => {
+            const issueDetail = buildFirestoreClientIssueDetail(error);
+            reportRealtimeIssue(`Admin overview admin activity: ${issueDetail}`, error, { listener: "admin_overview_admin_activity" });
+        });
+
         return () => {
             cancelled = true;
             dropsControl.cleanup();
             summaryControl.cleanup();
             txControl.cleanup();
+            adminActivityControl.cleanup();
         };
     }, []);
 
     const hasRealtimeSnapshot =
-        listenerState.dropsLoaded || listenerState.summaryLoaded || listenerState.transactionsLoaded;
+        listenerState.dropsLoaded || listenerState.summaryLoaded || listenerState.transactionsLoaded || listenerState.adminActivityLoaded;
     const hasRealtimeFailure =
-        listenerState.dropsFailed || listenerState.summaryFailed || listenerState.transactionsFailed;
+        listenerState.dropsFailed || listenerState.summaryFailed || listenerState.transactionsFailed || listenerState.adminActivityFailed;
     const allRealtimeLoaded =
-        listenerState.dropsLoaded && listenerState.summaryLoaded && listenerState.transactionsLoaded;
+        listenerState.dropsLoaded && listenerState.summaryLoaded && listenerState.transactionsLoaded && listenerState.adminActivityLoaded;
     const anyFromCache =
-        listenerState.dropsFromCache || listenerState.summaryFromCache || listenerState.transactionsFromCache;
+        listenerState.dropsFromCache || listenerState.summaryFromCache || listenerState.transactionsFromCache || listenerState.adminActivityFromCache;
 
     const mergedData = useMemo(() => {
         if (!serverData && !hasRealtimeSnapshot) {
@@ -380,6 +467,7 @@ export function useAdminOverviewRealtime() {
             dropsFromCache: listenerState.dropsFromCache,
             summaryFromCache: listenerState.summaryFromCache,
             transactionsFromCache: listenerState.transactionsFromCache,
+            adminActivityFromCache: listenerState.adminActivityFromCache,
             lastServerConfirmedAt: listenerState.lastServerConfirmedAt,
             lastClientSnapshotAt: listenerState.lastClientSnapshotAt,
             pollingActive: true,
@@ -391,6 +479,21 @@ export function useAdminOverviewRealtime() {
             return buildRealtimeOnlyOverview(realtimeData, listenerState);
         }
 
+        // Merge admin activity: realtime adjustments override server adjustment items,
+        // server telemetry items (analytics_event_facts) remain from server poll.
+        const mergedAdminActivity = (() => {
+            const realtimeItems = realtimeData.adminActivity ?? [];
+            const serverTelemetryItems = (serverData.adminActivity ?? []).filter(item => item.source === "analytics_event_facts");
+            if (realtimeItems.length > 0) {
+                // Realtime adjustments + server telemetry, sorted by timestamp desc
+                return [...realtimeItems, ...serverTelemetryItems]
+                    .sort((a, b) => b.timestamp - a.timestamp)
+                    .slice(0, 20);
+            }
+            // No realtime adjustments yet: use full server data
+            return serverData.adminActivity ?? [];
+        })();
+
         return {
             ...serverData,
             ...realtimeData,
@@ -401,7 +504,12 @@ export function useAdminOverviewRealtime() {
                     serverData.freshness.lastTransactionAt,
                     realtimeData.recentTransactions?.[0]?.timestamp ?? 0,
                 ),
+                lastAdminActivityAt: Math.max(
+                    serverData.freshness.lastAdminActivityAt,
+                    mergedAdminActivity[0]?.timestamp ?? 0,
+                ),
             },
+            adminActivity: mergedAdminActivity,
             stats: {
                 ...serverData.stats,
                 ...(realtimeData.stats || {})

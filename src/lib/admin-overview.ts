@@ -74,6 +74,10 @@ export type AdminOverviewActivityItem = {
     label: string;
     detail: string;
     actorLabel: string;
+    /** Target user display label (e.g. "@username" or truncated userId). */
+    targetLabel?: string;
+    /** Target user ID affected by the admin action. */
+    targetUserId?: string;
     username?: string;
     userId?: string;
     timestamp: number;
@@ -122,6 +126,7 @@ export type AdminOverviewRealtimeDebugMeta = {
     dropsFromCache: boolean;
     summaryFromCache: boolean;
     transactionsFromCache: boolean;
+    adminActivityFromCache: boolean;
     lastServerConfirmedAt: number;
     lastClientSnapshotAt: number;
     pollingActive: boolean;

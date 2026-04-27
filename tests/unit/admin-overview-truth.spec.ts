@@ -21,12 +21,15 @@ describe("admin overview truth chips", () => {
         dropsLoaded: true,
         summaryLoaded: true,
         transactionsLoaded: true,
+        adminActivityLoaded: true,
         dropsFailed: false,
         summaryFailed: false,
         transactionsFailed: false,
+        adminActivityFailed: false,
         dropsFromCache: false,
         summaryFromCache: false,
         transactionsFromCache: false,
+        adminActivityFromCache: false,
     };
 
     it("returns 'Live server truth' when all listeners loaded and none from cache", () => {
@@ -48,9 +51,9 @@ describe("admin overview truth chips", () => {
 
     it("returns 'Waiting for server truth' when nothing has loaded", () => {
         const empty = {
-            dropsLoaded: false, summaryLoaded: false, transactionsLoaded: false,
-            dropsFailed: false, summaryFailed: false, transactionsFailed: false,
-            dropsFromCache: false, summaryFromCache: false, transactionsFromCache: false,
+            dropsLoaded: false, summaryLoaded: false, transactionsLoaded: false, adminActivityLoaded: false,
+            dropsFailed: false, summaryFailed: false, transactionsFailed: false, adminActivityFailed: false,
+            dropsFromCache: false, summaryFromCache: false, transactionsFromCache: false, adminActivityFromCache: false,
         };
         expect(resolveTruthChipLabel(empty, false)).toBe("Waiting for server truth");
     });
@@ -62,9 +65,9 @@ describe("admin overview truth chips", () => {
 
     it("returns 'Server rollup only' when no realtime but server data exists", () => {
         const noRealtime = {
-            dropsLoaded: false, summaryLoaded: false, transactionsLoaded: false,
-            dropsFailed: false, summaryFailed: false, transactionsFailed: false,
-            dropsFromCache: false, summaryFromCache: false, transactionsFromCache: false,
+            dropsLoaded: false, summaryLoaded: false, transactionsLoaded: false, adminActivityLoaded: false,
+            dropsFailed: false, summaryFailed: false, transactionsFailed: false, adminActivityFailed: false,
+            dropsFromCache: false, summaryFromCache: false, transactionsFromCache: false, adminActivityFromCache: false,
         };
         expect(resolveTruthChipLabel(noRealtime, true)).toBe("Server rollup only");
     });
@@ -76,9 +79,9 @@ describe("admin overview truth chips", () => {
             resolveTruthChipLabel({ ...allLoaded, dropsFailed: true }, true),
             resolveTruthChipLabel({ ...allLoaded, summaryLoaded: false }, true),
             resolveTruthChipLabel({
-                dropsLoaded: false, summaryLoaded: false, transactionsLoaded: false,
-                dropsFailed: false, summaryFailed: false, transactionsFailed: false,
-                dropsFromCache: false, summaryFromCache: false, transactionsFromCache: false,
+                dropsLoaded: false, summaryLoaded: false, transactionsLoaded: false, adminActivityLoaded: false,
+                dropsFailed: false, summaryFailed: false, transactionsFailed: false, adminActivityFailed: false,
+                dropsFromCache: false, summaryFromCache: false, transactionsFromCache: false, adminActivityFromCache: false,
             }, false),
         ];
 
@@ -117,6 +120,7 @@ describe("admin overview debug meta type contract", () => {
             dropsFromCache: false,
             summaryFromCache: false,
             transactionsFromCache: true,
+            adminActivityFromCache: false,
             lastServerConfirmedAt: Date.now(),
             lastClientSnapshotAt: Date.now(),
             pollingActive: true,
@@ -127,6 +131,7 @@ describe("admin overview debug meta type contract", () => {
         expect(meta).toHaveProperty("dropsFromCache");
         expect(meta).toHaveProperty("summaryFromCache");
         expect(meta).toHaveProperty("transactionsFromCache");
+        expect(meta).toHaveProperty("adminActivityFromCache");
         expect(meta).toHaveProperty("lastServerConfirmedAt");
         expect(meta).toHaveProperty("lastClientSnapshotAt");
         expect(meta).toHaveProperty("pollingActive");
@@ -559,5 +564,295 @@ describe("top drops table: source-code contracts", () => {
         const { existsSync } = require("fs");
         const oldFile = join(__dirname, "../../src/components/Admin/TopDropsPanel.tsx");
         expect(existsSync(oldFile)).toBe(false);
+    });
+});
+
+/* ═══════════════════════════════════════════════════════════════════════════
+   Recent Transactions Panel — contract tests
+   ═══════════════════════════════════════════════════════════════════════════ */
+
+describe("admin overview recent transactions contract", () => {
+    const RECENT_TRANSACTIONS_SOURCE = readFileSync(
+        join(__dirname, "../../src/components/Admin/RecentTransactionsPanel.tsx"),
+        "utf-8",
+    );
+
+    const REALTIME_HOOK_SOURCE = readFileSync(
+        join(__dirname, "../../src/hooks/useAdminOverviewRealtime.ts"),
+        "utf-8",
+    );
+
+    /* ── Identity resolution ──────────────────────────────────────────── */
+
+    it("does NOT assign 'Pending lookup' as a display label", () => {
+        // "Pending lookup" may appear in a guard/rejection check (!== "Pending lookup"),
+        // but must NOT appear as an assignment/default value.
+        // Count occurrences: every instance must be in a !== context.
+        const allOccurrences = RECENT_TRANSACTIONS_SOURCE.split('"Pending lookup"').length - 1;
+        const guardOccurrences = RECENT_TRANSACTIONS_SOURCE.split('!== "Pending lookup"').length - 1;
+        expect(allOccurrences).toBe(guardOccurrences);
+        // Must not be used as a string literal label
+        expect(RECENT_TRANSACTIONS_SOURCE).not.toMatch(/label:\s*"Pending lookup"/);
+        expect(RECENT_TRANSACTIONS_SOURCE).not.toMatch(/fallback\w*\s*=\s*"Pending lookup"/);
+    });
+
+    it("realtime hook does NOT produce 'Pending lookup' fallback", () => {
+        expect(REALTIME_HOOK_SOURCE).not.toContain('"Pending lookup"');
+        expect(REALTIME_HOOK_SOURCE).not.toContain("'Pending lookup'");
+    });
+
+    it("uses batch user identity resolution from users collection", () => {
+        // Must batch-fetch from the users collection
+        expect(RECENT_TRANSACTIONS_SOURCE).toContain('collection(db, "users")');
+        // Must use documentId() in-query pattern
+        expect(RECENT_TRANSACTIONS_SOURCE).toContain("documentId()");
+        expect(RECENT_TRANSACTIONS_SOURCE).toContain('"in"');
+    });
+
+    it("shows 'Unknown user' for resolved-but-unnamed users", () => {
+        expect(RECENT_TRANSACTIONS_SOURCE).toContain("Unknown user");
+    });
+
+    it("shows 'Guest activity' for missing actor", () => {
+        expect(RECENT_TRANSACTIONS_SOURCE).toContain("Guest activity");
+    });
+
+    it("never shows '@Pending lookup' in identity resolution", () => {
+        expect(RECENT_TRANSACTIONS_SOURCE).not.toContain("@Pending lookup");
+    });
+
+    it("rejects 'Pending lookup' in resolveDisplayName function", () => {
+        expect(RECENT_TRANSACTIONS_SOURCE).toContain('!== "Pending lookup"');
+    });
+
+    /* ── Truth chip ───────────────────────────────────────────────────── */
+
+    it("has correct truth chip labels", () => {
+        expect(RECENT_TRANSACTIONS_SOURCE).toContain("Live server feed");
+        expect(RECENT_TRANSACTIONS_SOURCE).toContain("Cached feed shown");
+        expect(RECENT_TRANSACTIONS_SOURCE).toContain("Waiting for server feed");
+        expect(RECENT_TRANSACTIONS_SOURCE).toContain("Fallback feed active");
+        expect(RECENT_TRANSACTIONS_SOURCE).toContain("Identity lookup degraded");
+    });
+
+    it("does NOT use bracket-jargon labels", () => {
+        expect(RECENT_TRANSACTIONS_SOURCE).not.toContain("[live]");
+        expect(RECENT_TRANSACTIONS_SOURCE).not.toContain("[cached]");
+        expect(RECENT_TRANSACTIONS_SOURCE).not.toContain("[fallback]");
+    });
+
+    /* ── includeMetadataChanges ────────────────────────────────────────── */
+
+    it("uses includeMetadataChanges on transactions listener in realtime hook", () => {
+        expect(REALTIME_HOOK_SOURCE).toContain("includeMetadataChanges: true");
+    });
+
+    it("uses includeMetadataChanges in the panel's own listener", () => {
+        expect(RECENT_TRANSACTIONS_SOURCE).toContain("includeMetadataChanges: true");
+    });
+
+    /* ── Compact layout ───────────────────────────────────────────────── */
+
+    it("does NOT use oversized card styling per row", () => {
+        expect(RECENT_TRANSACTIONS_SOURCE).not.toContain("rounded-[1.15rem]");
+    });
+
+    it("uses hairline dividers instead of card gaps", () => {
+        expect(RECENT_TRANSACTIONS_SOURCE).toContain("divide-y divide-white/6");
+    });
+
+    it("uses compact row height (min-h-[36px])", () => {
+        expect(RECENT_TRANSACTIONS_SOURCE).toContain("min-h-[36px]");
+    });
+
+    /* ── Debug metadata ───────────────────────────────────────────────── */
+
+    it("exposes RecentTransactionsDebugMeta type with required fields", () => {
+        expect(RECENT_TRANSACTIONS_SOURCE).toContain("transactionSource");
+        expect(RECENT_TRANSACTIONS_SOURCE).toContain("identitySource");
+        expect(RECENT_TRANSACTIONS_SOURCE).toContain("listenerStatus");
+        expect(RECENT_TRANSACTIONS_SOURCE).toContain("snapshotSource");
+        expect(RECENT_TRANSACTIONS_SOURCE).toContain("lastServerFeedMs");
+        expect(RECENT_TRANSACTIONS_SOURCE).toContain("lastClientSnapshotMs");
+        expect(RECENT_TRANSACTIONS_SOURCE).toContain("resolvedUserCount");
+        expect(RECENT_TRANSACTIONS_SOURCE).toContain("pendingLookupCount");
+        expect(RECENT_TRANSACTIONS_SOURCE).toContain("missingActorCount");
+        expect(RECENT_TRANSACTIONS_SOURCE).toContain("identityLookupLatencyMs");
+        expect(RECENT_TRANSACTIONS_SOURCE).toContain("identityLookupFailures");
+        expect(RECENT_TRANSACTIONS_SOURCE).toContain("embeddedUsernameUsed");
+        expect(RECENT_TRANSACTIONS_SOURCE).toContain("firstFeedRenderMs");
+        expect(RECENT_TRANSACTIONS_SOURCE).toContain("identityResolutionCompleteMs");
+    });
+
+    /* ── Color contract ───────────────────────────────────────────────── */
+
+    it("does NOT use pink accent colors", () => {
+        expect(RECENT_TRANSACTIONS_SOURCE).not.toContain("pink-");
+        expect(RECENT_TRANSACTIONS_SOURCE).not.toContain("fuchsia-");
+    });
+
+    /* ── Empty state ──────────────────────────────────────────────────── */
+
+    it("shows meaningful empty state message", () => {
+        expect(RECENT_TRANSACTIONS_SOURCE).toContain("No recent transactions available");
+    });
+});
+
+/* ═════════════════════════════════════════════════════════════════════════
+   Admin Activity Truth Contracts
+   ═════════════════════════════════════════════════════════════════════════ */
+
+const ADMIN_ACTIVITY_SOURCE = readFileSync(
+    join(__dirname, "../../src/components/Admin/AdminActivityLogPanel.tsx"),
+    "utf-8",
+);
+
+const ADMIN_ACTIVITY_HOOK_SOURCE = readFileSync(
+    join(__dirname, "../../src/hooks/useAdminOverviewRealtime.ts"),
+    "utf-8",
+);
+
+const ADMIN_ACTIVITY_TYPES_SOURCE = readFileSync(
+    join(__dirname, "../../src/lib/admin-overview.ts"),
+    "utf-8",
+);
+
+describe("admin activity truth contracts", () => {
+
+    /* ── Source separation ────────────────────────────────────────────── */
+
+    it("admin activity listener filters on type == admin_adjustment", () => {
+        expect(ADMIN_ACTIVITY_HOOK_SOURCE).toContain('where("type", "==", "admin_adjustment")');
+    });
+
+    it("realtime hook has a dedicated admin activity listener (not shared with transactions)", () => {
+        const listenerOccurrences = (ADMIN_ACTIVITY_HOOK_SOURCE.match(/admin_overview_admin_activity/g) || []).length;
+        expect(listenerOccurrences).toBeGreaterThanOrEqual(1);
+    });
+
+    it("merge logic preserves server telemetry items alongside realtime adjustments", () => {
+        expect(ADMIN_ACTIVITY_HOOK_SOURCE).toContain('item.source === "analytics_event_facts"');
+    });
+
+    /* ── Actor / target separation ────────────────────────────────────── */
+
+    it("AdminOverviewActivityItem type has targetLabel field", () => {
+        expect(ADMIN_ACTIVITY_TYPES_SOURCE).toContain("targetLabel?:");
+    });
+
+    it("AdminOverviewActivityItem type has targetUserId field", () => {
+        expect(ADMIN_ACTIVITY_TYPES_SOURCE).toContain("targetUserId?:");
+    });
+
+    it("panel renders actor label and target label separately", () => {
+        expect(ADMIN_ACTIVITY_SOURCE).toContain("item.actorLabel");
+        expect(ADMIN_ACTIVITY_SOURCE).toContain("item.targetLabel");
+    });
+
+    it("does NOT concatenate actor and target into detail string", () => {
+        // The detail field should not contain 'target' concatenation — that's done by dedicated targetLabel
+        expect(ADMIN_ACTIVITY_SOURCE).not.toMatch(/item\.detail.*target/);
+    });
+
+    /* ── Actor fallback rules ─────────────────────────────────────────── */
+
+    it("uses 'Unknown operator' as fallback actor, not 'Admin'", () => {
+        expect(ADMIN_ACTIVITY_HOOK_SOURCE).toContain('"Unknown operator"');
+        // 'Admin' as a generic fallback is forbidden
+        const fallbackAdminLines = ADMIN_ACTIVITY_HOOK_SOURCE.split("\n").filter(
+            (line) => line.includes('?? "Admin"') || line.includes(': "Admin"'),
+        );
+        expect(fallbackAdminLines.length).toBe(0);
+    });
+
+    /* ── Truth chip vocabulary ─────────────────────────────────────────── */
+
+    it("truth chip has proper vocabulary including no_recent_activity and legacy_only", () => {
+        expect(ADMIN_ACTIVITY_SOURCE).toContain("no_recent_activity");
+        expect(ADMIN_ACTIVITY_SOURCE).toContain("legacy_only");
+        expect(ADMIN_ACTIVITY_SOURCE).toContain("live_server");
+        expect(ADMIN_ACTIVITY_SOURCE).toContain("cached");
+        expect(ADMIN_ACTIVITY_SOURCE).toContain("fallback");
+        expect(ADMIN_ACTIVITY_SOURCE).toContain("waiting");
+    });
+
+    it("does NOT use 'Admin-only feed' as the sole truth indicator", () => {
+        expect(ADMIN_ACTIVITY_SOURCE).not.toContain("Admin-only feed");
+    });
+
+    it("does NOT produce vague labels like [PARTIAL] or [DEGRADED]", () => {
+        const truthChipSection = ADMIN_ACTIVITY_SOURCE.match(/TRUTH_CHIP_LABELS[\s\S]*?};/)?.[0] ?? "";
+        expect(truthChipSection).not.toContain("[PARTIAL]");
+        expect(truthChipSection).not.toContain("[DEGRADED]");
+    });
+
+    /* ── Freshness context ────────────────────────────────────────────── */
+
+    it("shows freshness context with 'Latest admin action:' label", () => {
+        expect(ADMIN_ACTIVITY_SOURCE).toContain("Latest admin action:");
+    });
+
+    it("uses amber coloring for stale freshness", () => {
+        expect(ADMIN_ACTIVITY_SOURCE).toContain("amber-400");
+    });
+
+    /* ── Compact layout ──────────────────────────────────────────────── */
+
+    it("uses compact rows with min-h-[36px], not oversized cards", () => {
+        expect(ADMIN_ACTIVITY_SOURCE).toContain("min-h-[36px]");
+        expect(ADMIN_ACTIVITY_SOURCE).not.toContain("rounded-[1.15rem]");
+    });
+
+    it("uses hairline dividers (divide-y divide-white/6)", () => {
+        expect(ADMIN_ACTIVITY_SOURCE).toContain("divide-y divide-white/6");
+    });
+
+    it("does NOT use per-row bg-black/30 card layout", () => {
+        // Per-row bg-black/30 is the old oversized card pattern
+        // The new pattern uses a single rounded-xl container with divide-y
+        const rowMatches = ADMIN_ACTIVITY_SOURCE.match(/min-h-\[36px\].*?bg-black\/30/g);
+        expect(rowMatches).toBeNull();
+    });
+
+    /* ── Debug metadata ──────────────────────────────────────────────── */
+
+    it("exposes debug metadata as data-debug-admin-activity", () => {
+        expect(ADMIN_ACTIVITY_SOURCE).toContain("data-debug-admin-activity");
+    });
+
+    it("debug metadata includes source separation fields", () => {
+        expect(ADMIN_ACTIVITY_SOURCE).toContain("adjustmentItems");
+        expect(ADMIN_ACTIVITY_SOURCE).toContain("telemetryItems");
+    });
+
+    it("debug metadata includes actor/target resolution counts", () => {
+        expect(ADMIN_ACTIVITY_SOURCE).toContain("actorResolved");
+        expect(ADMIN_ACTIVITY_SOURCE).toContain("actorUnresolved");
+        expect(ADMIN_ACTIVITY_SOURCE).toContain("targetResolved");
+        expect(ADMIN_ACTIVITY_SOURCE).toContain("targetUnresolved");
+    });
+
+    /* ── Listener state ──────────────────────────────────────────────── */
+
+    it("listener state includes adminActivityLoaded and adminActivityFailed", () => {
+        expect(ADMIN_ACTIVITY_HOOK_SOURCE).toContain("adminActivityLoaded");
+        expect(ADMIN_ACTIVITY_HOOK_SOURCE).toContain("adminActivityFailed");
+    });
+
+    it("debug meta type includes adminActivityFromCache", () => {
+        expect(ADMIN_ACTIVITY_TYPES_SOURCE).toContain("adminActivityFromCache");
+    });
+
+    /* ── Color contract ──────────────────────────────────────────────── */
+
+    it("does NOT use pink accent colors in admin activity panel", () => {
+        expect(ADMIN_ACTIVITY_SOURCE).not.toContain("pink-");
+        expect(ADMIN_ACTIVITY_SOURCE).not.toContain("fuchsia-");
+    });
+
+    /* ── Empty state ─────────────────────────────────────────────────── */
+
+    it("shows meaningful empty state message", () => {
+        expect(ADMIN_ACTIVITY_SOURCE).toContain("No admin actions found");
     });
 });

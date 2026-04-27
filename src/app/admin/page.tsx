@@ -152,6 +152,8 @@ export default function AdminDashboardPage() {
                         {data ? (
                             <AdminActivityLogPanel
                                 activity={data.adminActivity}
+                                lastAdminActivityAt={data.freshness.lastAdminActivityAt}
+                                truthNote={data.truthNotes?.adminActivity}
                             />
                         ) : (
                             <div className="space-y-2">

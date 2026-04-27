@@ -350,7 +350,7 @@ export async function GET(request: NextRequest) {
                 : toTimestampNumber(transaction.normalized.timestamp);
             const adjustedBy = typeof transaction.raw.adjustedBy === "string" && transaction.raw.adjustedBy.trim().length > 0
                 ? transaction.raw.adjustedBy.trim()
-                : "Admin";
+                : undefined;
             const targetLabel = buildActorLabel({
                 username,
                 userId: transaction.normalized.userId,
@@ -362,8 +362,10 @@ export async function GET(request: NextRequest) {
                 source: "transactions",
                 type: transaction.normalized.type,
                 label: "Balance adjusted",
-                detail: `${getTransactionDisplayLabel(transaction.normalized)} · target ${targetLabel}`,
-                actorLabel: adjustedBy,
+                detail: getTransactionDisplayLabel(transaction.normalized),
+                actorLabel: adjustedBy ?? "Unknown operator",
+                targetLabel: `target ${targetLabel}`,
+                targetUserId: transaction.normalized.userId || undefined,
                 username,
                 userId: transaction.normalized.userId,
                 timestamp,
