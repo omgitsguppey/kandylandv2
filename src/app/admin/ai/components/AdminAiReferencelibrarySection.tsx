@@ -2,9 +2,10 @@ import React from 'react';
 import Image from "next/image";
 import { Eye, Pin, Sparkles, Trash2, Upload } from "lucide-react";
 import { AdminDashboardModule } from "@/components/Admin/AdminDashboardModule";
+import { AdminStatusBadge } from "@/components/Admin/AdminStatusBadge";
 import { Button } from "@/components/ui/Button";
 import { cn } from "@/lib/utils";
-import { Badge, EmptyState, MetricCard, getReferenceSelectionReason, getReferenceSourceLabel, statTone } from "../AiHelpers";
+import { Badge, EmptyState, MetricCard, formatAdminAiNullableNumber, getReferenceSelectionReason, getReferenceSourceLabel, resolveAdminAiDataState, statTone } from "../AiHelpers";
 import type { AdminAiState } from '../hooks/useAdminAiState';
 
 export function AdminAiReferencelibrarySection({ state }: { state: AdminAiState }) {
@@ -35,6 +36,8 @@ export function AdminAiReferencelibrarySection({ state }: { state: AdminAiState 
         handleReferenceUpdate, handleReferenceDelete, handleLegacyTemplateDelete,
         handlePromptPolicySave, handleReviewGalleryUpdate
     } = state;
+
+    const sectionTruthState = resolveAdminAiDataState({ data, error, isLoading });
 
     return (
         <AdminDashboardModule
@@ -118,9 +121,9 @@ export function AdminAiReferencelibrarySection({ state }: { state: AdminAiState 
                                                             </div>
                                                             <p className="mt-1 break-words text-xs text-gray-400">{getReferenceSelectionReason(asset)}</p>
                                                             <div className="mt-2 flex flex-wrap gap-2 text-[10px] text-gray-500">
-                                                                <span>{asset.usageCount || 0} reuse</span>
-                                                                <span>{asset.successfulReuseCount || 0} success</span>
-                                                                <span>{asset.positiveReuseCount || 0} positive</span>
+                                                                <span>{formatAdminAiNullableNumber(asset.usageCount)} reuse <AdminStatusBadge state={sectionTruthState} className="ml-1 py-0.5" /></span>
+                                                                <span>{formatAdminAiNullableNumber(asset.successfulReuseCount)} success</span>
+                                                                <span>{formatAdminAiNullableNumber(asset.positiveReuseCount)} positive</span>
                                                             </div>
                                                             <div className="mt-2 flex flex-wrap gap-2">
                                                                 {!asset.primary ? (
@@ -169,10 +172,10 @@ export function AdminAiReferencelibrarySection({ state }: { state: AdminAiState 
                                     <div className="min-w-0 rounded-[1.1rem] border border-white/10 bg-black/25 p-3.5">
                                         <div className="text-sm font-semibold text-white">Reference health</div>
                                         <div className="mt-3 grid min-w-0 gap-3 sm:grid-cols-2">
-                                            <MetricCard label="House refs" value={data?.visualSignals.houseReferenceCount || 0} />
-                                            <MetricCard label="Retained positive" value={data?.visualSignals.acceptedRetainedCount || 0} />
-                                            <MetricCard label="Catalog fallback" value={data?.referenceAssets.catalogDropCovers.length || 0} />
-                                            <MetricCard label="Reuse rate" value={`${referenceReuseRate}%`} />
+                                            <MetricCard label="House refs" value={formatAdminAiNullableNumber(data?.visualSignals.houseReferenceCount)} truthState={sectionTruthState} />
+                                            <MetricCard label="Retained positive" value={formatAdminAiNullableNumber(data?.visualSignals.acceptedRetainedCount)} truthState={sectionTruthState} />
+                                            <MetricCard label="Catalog fallback" value={formatAdminAiNullableNumber(data?.referenceAssets.catalogDropCovers.length)} truthState={sectionTruthState} />
+                                            <MetricCard label="Reuse rate" value={data ? `${referenceReuseRate}%` : "[unavailable]"} truthState={sectionTruthState} />
                                         </div>
                                     </div>
                                     <details className="min-w-0 rounded-xl border border-white/10 bg-black/20 overflow-hidden group">

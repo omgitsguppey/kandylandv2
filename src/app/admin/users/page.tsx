@@ -13,10 +13,11 @@ import { authFetch } from "@/lib/authFetch";
 import Image from "next/image";
 import { cn } from "@/lib/utils";
 import { AdminPageHeader } from "@/components/Admin/AdminPageHeader";
+import { AdminStatusBadge } from "@/components/Admin/AdminStatusBadge";
 import { PageViewEvent } from "@/components/Analytics/PageViewEvent";
 import { AdminTasksManager } from "@/components/Admin/AdminTasksManager";
 import { reportClientIssue } from "@/lib/client-error-reporting";
-import type { AdminSurfaceState } from "@/lib/admin-parity";
+import { coerceAdminSurfaceState, type AdminSurfaceState } from "@/lib/admin-parity";
 import { describeSecurityEvent } from "@/lib/security-events";
 import { toast } from "sonner";
 import type { 
@@ -260,10 +261,12 @@ export default function UserManagementPage() {
     );
 
     const getUserAnalytics = (uid: string) => userAnalytics[uid];
-    const formatMoney = (value?: number) => `$${(value || 0).toFixed(2)}`;
-    const formatPercent = (value?: number) => `${Math.round((value || 0) * 100)}%`;
+    const formatMoney = (value?: number) => typeof value === "number" && Number.isFinite(value) ? `$${value.toFixed(2)}` : "[unavailable]";
+    const formatPercent = (value?: number) => typeof value === "number" && Number.isFinite(value) ? `${Math.round(value * 100)}%` : "[unavailable]";
     const formatCount = (value?: number, analytics?: UserAnalytics) =>
-        analytics?.metricTruthLabel === "unknown" ? "No source" : (value || 0).toLocaleString();
+        !analytics || analytics.metricTruthLabel === "unknown" ? "[unavailable]" : (value ?? 0).toLocaleString();
+    const formatSummaryCount = (value?: number) => summary ? (value ?? 0).toLocaleString() : "[unavailable]";
+    const summaryTruthState: AdminSurfaceState = summary ? realtimeState : loading ? "unavailable" : "failed";
     const formatJoined = (value: unknown) => {
         const timestamp = typeof value === "number"
             ? value
@@ -544,29 +547,33 @@ export default function UserManagementPage() {
                     <div className="grid gap-3 sm:grid-cols-2 xl:grid-cols-4">
                         <div className="glass-panel rounded-[1.7rem] border border-white/10 p-4">
                             <p className="text-[11px] font-bold uppercase tracking-[0.16em] text-gray-500">User base</p>
-                            <p className="mt-2 text-3xl font-black text-white">{summary?.totalUsers || 0}</p>
-                            <p className="mt-1 text-xs text-gray-400">{summary?.activeUsers || 0} active, {summary?.verifiedUsers || 0} verified</p>
+                            <div className="mt-1"><AdminStatusBadge state={summaryTruthState} /></div>
+                            <p className="mt-2 text-3xl font-black text-white">{formatSummaryCount(summary?.totalUsers)}</p>
+                            <p className="mt-1 text-xs text-gray-400">{formatSummaryCount(summary?.activeUsers)} active, {formatSummaryCount(summary?.verifiedUsers)} verified</p>
                         </div>
                         <div className="glass-panel rounded-[1.7rem] border border-white/10 p-4">
                             <p className="text-[11px] font-bold uppercase tracking-[0.16em] text-gray-500">7 day returners</p>
-                            <p className="mt-2 text-3xl font-black text-white">{summary?.activeLast7Days || 0}</p>
-                            <p className="mt-1 text-xs text-gray-400">{summary?.notificationsEnabledUsers || 0} with notifications on</p>
+                            <div className="mt-1"><AdminStatusBadge state={summaryTruthState} /></div>
+                            <p className="mt-2 text-3xl font-black text-white">{formatSummaryCount(summary?.activeLast7Days)}</p>
+                            <p className="mt-1 text-xs text-gray-400">{formatSummaryCount(summary?.notificationsEnabledUsers)} with notifications on</p>
                         </div>
                         <div className="glass-panel rounded-[1.7rem] border border-white/10 p-4">
                             <p className="text-[11px] font-bold uppercase tracking-[0.16em] text-gray-500">Tracked unwraps</p>
-                            <p className="mt-2 text-3xl font-black text-white">{summary?.totalUnwraps || 0}</p>
-                            <p className="mt-1 text-xs text-gray-400">{summary?.totalPurchases || 0} tracked purchases</p>
+                            <div className="mt-1"><AdminStatusBadge state={summaryTruthState} /></div>
+                            <p className="mt-2 text-3xl font-black text-white">{formatSummaryCount(summary?.totalUnwraps)}</p>
+                            <p className="mt-1 text-xs text-gray-400">{formatSummaryCount(summary?.totalPurchases)} tracked purchases</p>
                         </div>
                         <div className="glass-panel rounded-[1.7rem] border border-white/10 p-4">
                             <p className="text-[11px] font-bold uppercase tracking-[0.16em] text-gray-500">Watch time</p>
-                            <p className="mt-2 text-3xl font-black text-white">{summary?.totalWatchHours || 0}h</p>
-                            <p className="mt-1 text-xs text-gray-400">{summary?.onboardingCompletedUsers || 0} users completed onboarding</p>
+                            <div className="mt-1"><AdminStatusBadge state={summaryTruthState} /></div>
+                            <p className="mt-2 text-3xl font-black text-white">{summary ? `${summary.totalWatchHours ?? 0}h` : "[unavailable]"}</p>
+                            <p className="mt-1 text-xs text-gray-400">{formatSummaryCount(summary?.onboardingCompletedUsers)} users completed onboarding</p>
                         </div>
                         <div className="glass-panel rounded-[1.7rem] border border-white/10 p-4">
                             <p className="text-[11px] font-bold uppercase tracking-[0.16em] text-gray-500">Monetization</p>
                             <p className="mt-2 text-3xl font-black text-white">{formatMoney(summary?.grossRevenueUsd)}</p>
                             <p className="mt-1 text-xs text-gray-400">
-                                <span className="font-bold text-gray-200">[{summary?.commerceTruthLabel || "unknown"}]</span>{" "}
+                                <AdminStatusBadge state={coerceAdminSurfaceState(summary?.commerceTruthLabel)} className="mr-1 py-0.5" />
                                 {summary?.commerceEmptyReason || `${summary?.payingUsers || 0} paying users`}
                             </p>
                         </div>
@@ -577,8 +584,8 @@ export default function UserManagementPage() {
                         </div>
                         <div className="glass-panel rounded-[1.7rem] border border-white/10 p-4">
                             <p className="text-[11px] font-bold uppercase tracking-[0.16em] text-gray-500">Delivered / bonus</p>
-                            <p className="mt-2 text-3xl font-black text-white">{(summary?.deliveredGumDrops || 0).toLocaleString()} GD</p>
-                            <p className="mt-1 text-xs text-gray-400">{(summary?.bonusGumDrops || 0).toLocaleString()} GD bonus on top</p>
+                            <p className="mt-2 text-3xl font-black text-white">{summary ? (summary.deliveredGumDrops ?? 0).toLocaleString() : "[unavailable]"} GD</p>
+                            <p className="mt-1 text-xs text-gray-400">{summary ? (summary.bonusGumDrops ?? 0).toLocaleString() : "[unavailable]"} GD bonus on top</p>
                         </div>
                         <div className="glass-panel rounded-[1.7rem] border border-white/10 p-4">
                             <p className="text-[11px] font-bold uppercase tracking-[0.16em] text-gray-500">Effective rate</p>
@@ -605,9 +612,7 @@ export default function UserManagementPage() {
                                     <TrendingUp className="w-4 h-4 text-brand-purple" />
                                     Most engaged right now
                                 </div>
-                                <span className="rounded-full border border-white/10 bg-black/30 px-2.5 py-1 text-[10px] font-bold uppercase tracking-[0.14em] text-gray-300">
-                            [{realtimeState}]
-                                </span>
+                                <AdminStatusBadge state={realtimeState} />
                             </div>
                             <div className="mt-3 grid gap-2">
                                 {topTrackedUsers.length === 0 ? (

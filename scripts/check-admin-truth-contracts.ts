@@ -38,6 +38,9 @@ for (const file of uiFiles) {
     /type\s+\w*TruthState\s*=\s*"live_server"/,
     /TRUTH_CHIP_STYLES/,
     /TRUTH_DOT_STYLES/,
+    /resolveDropsTruthLabel/,
+    /truthState:\s*[^,\n]*"waiting"/,
+    /STATE_COLORS:\s*Record<AdminSurfaceState/,
   ];
 
   localTruthVocabulary.forEach((pattern) => {
@@ -53,6 +56,25 @@ for (const file of uiFiles) {
   ) {
     failures.push(`${rel}: MetricCard has a zero fallback without an explicit truthState`);
   }
+
+  if (
+    rel.endsWith(join("src", "app", "admin", "debug", "components", "DebugPrimitives.tsx")) &&
+    (!source.includes("AdminStatusBadge") || !source.includes("truthState?: AdminSurfaceState"))
+  ) {
+    failures.push(`${rel}: debug primitives must expose AdminStatusBadge-backed truthState props`);
+  }
+}
+
+const routeRuntimeHealthPath = join(repoRoot, "src", "lib", "server", "route-runtime-health.ts");
+const routeRuntimeHealthSource = readFileSync(routeRuntimeHealthPath, "utf8");
+if (routeRuntimeHealthSource.includes("payload.success !== true")) {
+  failures.push("src/lib/server/route-runtime-health.ts: admin verification injection must not require success: true");
+}
+if (/freshnessTimestamp:\s*Date\.now\(\)/.test(routeRuntimeHealthSource)) {
+  failures.push("src/lib/server/route-runtime-health.ts: admin verification freshness must come from payload evidence, not response time");
+}
+if (!routeRuntimeHealthSource.includes("Admin route verification injection failed")) {
+  failures.push("src/lib/server/route-runtime-health.ts: admin verification injection failures must be recorded");
 }
 
 for (const file of routeFiles) {

@@ -62,6 +62,21 @@ export function statTone(success: boolean) {
         : "border-white/10 bg-white/5 text-gray-200";
 }
 
+export function resolveAdminAiDataState(input: {
+    data?: unknown;
+    error?: unknown;
+    isLoading?: boolean;
+}): AdminSurfaceState {
+    if (input.error) return "failed";
+    if (input.data) return "live";
+    if (input.isLoading) return "unavailable";
+    return "unavailable";
+}
+
+export function formatAdminAiNullableNumber(value: number | null | undefined) {
+    return typeof value === "number" && Number.isFinite(value) ? value.toLocaleString() : "[unavailable]";
+}
+
 export function parseMultilineInput(value: string) {
     return value
         .split("\n")

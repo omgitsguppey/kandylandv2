@@ -9,6 +9,23 @@ Scoring: all entries below are marked as included in the current validated sweep
 
 Current repo-wide state snapshot: see [FULL_SCALE_CODEBASE_AUDIT.md](/Users/uylus/OneDrive/Documents/KandyDrops_Final/FULL_SCALE_CODEBASE_AUDIT.md) for the current live baseline, verification state, and continuity rules, and see [REPO_MEMORY_LEDGER.md](/Users/uylus/OneDrive/Documents/KandyDrops_Final/REPO_MEMORY_LEDGER.md) for major architectural and workflow decisions. The detailed file/function body below remains valuable historical evidence, but it has not been fully regenerated against the current 2026-04-18 inventory review yet.
 
+## 2026-04-28 Second Admin Truth Remediation Coverage
+
+- [x] `src/lib/server/route-runtime-health.ts` now injects admin route verification from payload evidence rather than requiring `success: true`, records injection failures, and avoids response-time fake freshness.
+- [x] `scripts/check-admin-truth-contracts.ts` now blocks route verification regressions and debug/admin truth local-state drift patterns from this remediation.
+- [x] `src/app/admin/ai/AiHelpers.tsx` adds Admin AI source-state helpers for nullable metrics and dashboard data state.
+- [x] `src/app/admin/ai/components/AdminAiRecentgenerationsSection.tsx` labels recent job source state and removes fake reference/risk/prompt defaults.
+- [x] `src/app/admin/ai/components/AdminAiReferencelibrarySection.tsx` labels reference-library metrics and removes fake reuse/reference-health zeros.
+- [x] `src/app/admin/ai/components/AdminAiRuntimestripSection.tsx` labels runtime/model/preflight/settings truth and blocks settings toggles until settings are verified.
+- [x] `src/app/admin/analytics/components/AdminAnalyticsAudienceTab.tsx` removes fake return-cadence zeros when the source is unavailable.
+- [x] `src/app/admin/analytics/components/AdminAnalyticsCommerceTab.tsx` removes fake commerce/capture zeros and labels live capture source state.
+- [x] `src/app/admin/analytics/hooks/useAdminAnalyticsState.tsx` removes noncanonical `waiting` from admin debug metadata.
+- [x] `src/app/admin/debug/components/DebugPrimitives.tsx` now renders canonical admin truth badges in shared debug pills and stat cards.
+- [x] `src/app/admin/users/page.tsx` labels summary/realtime/commerce state and removes fake summary/user metric zeros for unavailable sources.
+- [x] `src/app/admin/user/[userId]/page.tsx` coerces user detail commerce/metric/coverage/parity/support states through canonical admin truth labels.
+- [x] `src/components/Admin/AdminDropsAtGlancePanel.tsx` replaces the local listener truth chip with `AdminStatusBadge`.
+- [x] `src/components/Admin/AdminModuleVerificationCard.tsx` replaces local status color rendering with canonical admin truth badges.
+
 ## 2026-04-18 Delta Coverage
 
 ## 2026-04-21 Delta Coverage

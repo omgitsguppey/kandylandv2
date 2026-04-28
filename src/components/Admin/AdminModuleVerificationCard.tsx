@@ -4,7 +4,8 @@ import React from "react";
 import { formatDistanceToNow } from "date-fns";
 import { CheckCircle2, Clock, AlertTriangle, XCircle, Database, HelpCircle } from "lucide-react";
 import { cn } from "@/lib/utils";
-import type { AdminModuleVerification, AdminSurfaceState } from "@/lib/admin-parity";
+import { AdminStatusBadge } from "@/components/Admin/AdminStatusBadge";
+import { formatAdminSurfaceStateLabel, type AdminModuleVerification, type AdminSurfaceState } from "@/lib/admin-parity";
 
 interface AdminModuleVerificationCardProps {
     verification: AdminModuleVerification;
@@ -12,15 +13,6 @@ interface AdminModuleVerificationCardProps {
     description?: string;
     className?: string;
 }
-
-const STATE_COLORS: Record<AdminSurfaceState, string> = {
-    live: "text-emerald-400 border-emerald-400/20 bg-emerald-400/10",
-    fallback: "text-blue-400 border-blue-400/20 bg-blue-400/10",
-    stale: "text-amber-400 border-amber-400/20 bg-amber-400/10",
-    degraded: "text-orange-400 border-orange-400/20 bg-orange-400/10",
-    failed: "text-rose-400 border-rose-400/20 bg-rose-400/10",
-    unavailable: "text-gray-400 border-gray-400/20 bg-gray-400/10",
-};
 
 const STATE_ICONS: Record<AdminSurfaceState, React.ElementType> = {
     live: CheckCircle2,
@@ -48,9 +40,9 @@ export function AdminModuleVerificationCard({
                         <p className="mt-1 text-sm text-gray-400">{description}</p>
                     )}
                 </div>
-                <div className={cn("flex shrink-0 items-center gap-1.5 rounded-full border px-2.5 py-1 text-[11px] font-bold uppercase tracking-wider", STATE_COLORS[verification.status])}>
+                <div className="flex shrink-0 items-center gap-1.5">
                     <StatusIcon className="h-3 w-3" />
-                    <span>{verification.status}</span>
+                    <AdminStatusBadge state={verification.status} />
                 </div>
             </div>
 
@@ -60,7 +52,7 @@ export function AdminModuleVerificationCard({
                     <span className="text-gray-200 font-mono text-xs break-all">
                         {verification.canonicalSource}
                         {verification.verificationState === "canonical" && (
-                            <span className="ml-2 inline-flex rounded-full bg-emerald-500/20 px-1.5 text-[10px] text-emerald-300">active</span>
+                            <span className="ml-2 text-[10px] text-emerald-300">{formatAdminSurfaceStateLabel("live")}</span>
                         )}
                     </span>
                 </div>
@@ -69,10 +61,10 @@ export function AdminModuleVerificationCard({
                     <div className="grid grid-cols-2 gap-2 sm:grid-cols-[140px_1fr]">
                         <span className="text-gray-500 font-medium">Fallback Source</span>
                         <span className="text-gray-200 font-mono text-xs break-all">
-                            {verification.fallbackSource}
-                            {verification.verificationState === "fallback" && (
-                                <span className="ml-2 inline-flex rounded-full bg-blue-500/20 px-1.5 text-[10px] text-blue-300">active</span>
-                            )}
+                        {verification.fallbackSource}
+                        {verification.verificationState === "fallback" && (
+                                <span className="ml-2 text-[10px] text-orange-300">{formatAdminSurfaceStateLabel("fallback")}</span>
+                        )}
                         </span>
                     </div>
                 )}

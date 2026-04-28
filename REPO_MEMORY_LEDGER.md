@@ -24,6 +24,20 @@ This file is not a changelog. It is the concise ledger for durable decisions tha
 
 ## Decision Entries
 
+### 1at. Admin route verification must be evidence-based, not success-flag based
+
+- Approximate date: Recorded explicitly on 2026-04-28 from the Second Admin Truth Remediation pass
+- Status: Active admin route/debugging rule
+- Problem/context: Route runtime verification could miss successful admin JSON payloads that did not include `success: true`, could stamp freshness from response time rather than payload evidence, and could return the original response quietly if verification injection failed.
+- Decision made: Admin route verification must run for eligible admin JSON objects without depending on `success: true`, derive freshness from payload fields when present, degrade payloads that lack source-state evidence, and record injection failures through route diagnostics.
+- What became canonical:
+  - `src/lib/server/route-runtime-health.ts` owns evidence-based admin route verification injection.
+  - `scripts/check-admin-truth-contracts.ts` blocks `success: true` gating, response-time freshness, and silent injection failure regressions.
+- Consequence for future work:
+  - Do not mark an admin route `[live]` only because HTTP returned 200.
+  - Do not fabricate freshness with `Date.now()` inside verification envelopes.
+  - Do not add admin JSON routes that bypass source-state evidence or runtime health recording.
+
 ### 1as. Admin analytics polling endpoints must implement ephemeral caching for read efficiency
 
 - Approximate date: Recorded explicitly on 2026-04-26 from the Admin Analytics Resilience pass

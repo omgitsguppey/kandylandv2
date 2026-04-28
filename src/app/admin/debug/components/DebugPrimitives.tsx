@@ -2,13 +2,22 @@
 
 import { useState } from "react";
 import { ChevronDown, ChevronUp } from "lucide-react";
+import { AdminStatusBadge } from "@/components/Admin/AdminStatusBadge";
+import type { AdminSurfaceState } from "@/lib/admin-parity";
 import { cn } from "@/lib/utils";
 
 /* ─── Shared Tone Type ─── */
 export type PillTone = "neutral" | "good" | "warn" | "bad";
 
+function stateFromTone(tone: PillTone): AdminSurfaceState {
+    if (tone === "good") return "live";
+    if (tone === "warn") return "degraded";
+    if (tone === "bad") return "failed";
+    return "unavailable";
+}
+
 /* ─── Pill ─── */
-export function Pill({ label, value, tone = "neutral" }: { label: string; value: string | number; tone?: PillTone }) {
+export function Pill({ label, value, tone = "neutral", truthState }: { label: string; value: string | number; tone?: PillTone; truthState?: AdminSurfaceState }) {
     const toneClassName = tone === "good"
         ? "border-emerald-400/20 bg-emerald-500/10 text-emerald-100"
         : tone === "warn"
@@ -19,6 +28,7 @@ export function Pill({ label, value, tone = "neutral" }: { label: string; value:
 
     return (
         <div className={cn("inline-flex items-center gap-2 rounded-full border px-3 py-1 text-xs", toneClassName)}>
+            <AdminStatusBadge state={truthState ?? stateFromTone(tone)} className="py-0 text-[8px]" />
             <span className="text-gray-400">{label}</span>
             <span className="font-semibold text-white">{value}</span>
         </div>
@@ -26,10 +36,13 @@ export function Pill({ label, value, tone = "neutral" }: { label: string; value:
 }
 
 /* ─── StatCard ─── */
-export function StatCard({ label, value, meta }: { label: string; value: string | number; meta?: string }) {
+export function StatCard({ label, value, meta, truthState = "unavailable" }: { label: string; value: string | number; meta?: string; truthState?: AdminSurfaceState }) {
     return (
         <div className="rounded-[1.1rem] border border-white/10 bg-white/[0.04] p-2.5">
-            <p className="text-[11px] uppercase tracking-[0.18em] text-gray-400">{label}</p>
+            <div className="flex items-center justify-between gap-2">
+                <p className="text-[11px] uppercase tracking-[0.18em] text-gray-400">{label}</p>
+                <AdminStatusBadge state={truthState} className="py-0 text-[8px]" />
+            </div>
             <div className="mt-1 text-[1.4rem] font-black text-white">{value}</div>
             {meta ? <p className="mt-1 text-[11px] text-gray-400">{meta}</p> : null}
         </div>

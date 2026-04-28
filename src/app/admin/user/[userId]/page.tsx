@@ -21,7 +21,9 @@ import {
 
 import { useAuth } from "@/context/AuthContext";
 import { AdminPageHeader } from "@/components/Admin/AdminPageHeader";
+import { AdminStatusBadge } from "@/components/Admin/AdminStatusBadge";
 import { PageViewEvent } from "@/components/Analytics/PageViewEvent";
+import { coerceAdminSurfaceState, type AdminSurfaceState } from "@/lib/admin-parity";
 import { deriveGumdropEconomics } from "@/lib/gumdrop-economics";
 import { Transaction, UserProfile } from "@/types/db";
 import { authFetch } from "@/lib/authFetch";
@@ -63,10 +65,10 @@ type UserDetailAnalytics = {
     deliveredGumDrops: number;
     paidGumDrops: number;
     effectiveUsdPer100Gd: number;
-    commerceTruthLabel?: "live" | "partial" | "stale" | "unknown";
+    commerceTruthLabel?: AdminSurfaceState | "partial" | "unknown";
     commerceSourceLabel?: string;
     commerceEmptyReason?: string | null;
-    metricTruthLabel?: "live" | "partial" | "stale" | "unknown";
+    metricTruthLabel?: AdminSurfaceState | "partial" | "unknown";
     metricSourceLabel?: string;
     metricIntegrityFailures?: string[];
     recoveredFromFacts?: boolean;
@@ -101,7 +103,7 @@ type UserDetailParityInsight = {
 type UserDetailCoverageItem = {
     key: string;
     label: string;
-    status: "healthy" | "partial" | "empty";
+    status: AdminSurfaceState | "healthy" | "partial" | "empty";
     score: number;
     total: number;
     populatedSources: number;
@@ -233,16 +235,23 @@ function getValidationClasses(status: "pass" | "warn" | "fail") {
     return "border-amber-400/20 bg-amber-400/10 text-amber-200";
 }
 
-function getCoverageClasses(status: "healthy" | "partial" | "empty") {
-    if (status === "healthy") {
+function getCoverageClasses(status: AdminSurfaceState | "healthy" | "partial" | "empty") {
+    const state = coerceUserDetailTruthState(status);
+    if (state === "live") {
         return "border-emerald-400/20 bg-emerald-400/10 text-emerald-200";
     }
 
-    if (status === "empty") {
+    if (state === "failed" || state === "unavailable") {
         return "border-red-500/20 bg-red-500/10 text-red-200";
     }
 
     return "border-amber-400/20 bg-amber-400/10 text-amber-200";
+}
+
+function coerceUserDetailTruthState(value: unknown): AdminSurfaceState {
+    if (value === "healthy") return "live";
+    if (value === "empty") return "unavailable";
+    return coerceAdminSurfaceState(value);
 }
 
 function formatRelativeTimestamp(value: unknown) {
@@ -584,12 +593,12 @@ export default function AdminUserAnalyticsPage() {
                         ))}
                     </div>
                     <div className="mt-4 rounded-[1.25rem] border border-white/10 bg-black/25 px-4 py-3 text-xs leading-5 text-gray-400">
-                        <span className="font-bold text-gray-200">[{analytics?.commerceTruthLabel || "unknown"}]</span>{" "}
+                        <AdminStatusBadge state={coerceUserDetailTruthState(analytics?.commerceTruthLabel)} className="mr-1 py-0.5" />{" "}
                         {analytics?.commerceEmptyReason || `${bonusGumDrops.toLocaleString()} bonus GD valued at the package effective rate from ${analytics?.commerceSourceLabel || "commerce rollups"}.`}
                         {failedTxCount > 0 ? ` ${failedTxCount} failed transaction${failedTxCount === 1 ? "" : "s"} excluded from purchase yield.` : ""}
                     </div>
                     <div className="mt-3 rounded-[1.25rem] border border-white/10 bg-black/25 px-4 py-3 text-xs leading-5 text-gray-400">
-                        <span className="font-bold text-gray-200">[{analytics?.metricTruthLabel || "unknown"}]</span>{" "}
+                        <AdminStatusBadge state={coerceUserDetailTruthState(analytics?.metricTruthLabel)} className="mr-1 py-0.5" />{" "}
                         {analytics?.metricSourceLabel || "No canonical user metrics source found."}
                         {analytics?.metricIntegrityFailures?.length ? ` Issues: ${analytics.metricIntegrityFailures.join(", ")}.` : ""}
                     </div>
@@ -805,12 +814,14 @@ export default function AdminUserAnalyticsPage() {
                             </div>
                             <div className="rounded-[1.35rem] border border-white/10 bg-black/25 p-4">
                                 <p className="text-[10px] font-semibold uppercase tracking-[0.16em] text-gray-500">Open support threads</p>
-                                <p className="mt-2 text-2xl font-black text-white">{supportReadiness?.summary.openThreads ?? 0}</p>
-                                <p className="mt-1 text-xs text-gray-400">{supportReadiness?.summary.totalThreads ?? 0} historical threads.</p>
+                                <div className="mt-1"><AdminStatusBadge state={supportReadiness ? "live" : "unavailable"} /></div>
+                                <p className="mt-2 text-2xl font-black text-white">{supportReadiness ? supportReadiness.summary.openThreads : "[unavailable]"}</p>
+                                <p className="mt-1 text-xs text-gray-400">{supportReadiness ? supportReadiness.summary.totalThreads : "[unavailable]"} historical threads.</p>
                             </div>
                             <div className="rounded-[1.35rem] border border-white/10 bg-black/25 p-4">
                                 <p className="text-[10px] font-semibold uppercase tracking-[0.16em] text-gray-500">Support signals</p>
-                                <p className="mt-2 text-2xl font-black text-white">{supportReadiness?.summary.bugReportCount ?? 0}</p>
+                                <div className="mt-1"><AdminStatusBadge state={supportReadiness ? "live" : "unavailable"} /></div>
+                                <p className="mt-2 text-2xl font-black text-white">{supportReadiness ? supportReadiness.summary.bugReportCount : "[unavailable]"}</p>
                                 <p className="mt-1 text-xs text-gray-400">Bug reports still surface here as support intake signals.</p>
                             </div>
                         </div>
@@ -845,7 +856,7 @@ export default function AdminUserAnalyticsPage() {
                                 </p>
                             </div>
                             <span className="rounded-full border border-white/10 bg-black/30 px-3 py-1 text-[10px] font-bold uppercase tracking-[0.14em] text-gray-300">
-                                {supportReadiness?.signals.length ?? 0} loaded
+                                {supportReadiness ? `${supportReadiness.signals.length} loaded` : "[unavailable]"}
                             </span>
                         </div>
 
@@ -917,22 +928,23 @@ export default function AdminUserAnalyticsPage() {
                         <Activity className="h-4 w-4 text-brand-purple" /> Source diagnostics
                     </span>
                     <span className={`rounded-full border px-2.5 py-1 text-[10px] font-bold uppercase tracking-[0.14em] ${getValidationClasses(parity?.validations?.some((item) => item.status === "fail") ? "fail" : parity?.validations?.some((item) => item.status === "warn") ? "warn" : "pass")}`}>
-                        {parity?.score ?? 0}% parity
+                        {parity ? `${parity.score}% parity` : "[unavailable] parity"}
                     </span>
                 </summary>
 
                 <div className="grid gap-3 md:grid-cols-3">
                     <div className="rounded-[1.4rem] border border-white/10 bg-black/30 p-4">
                         <p className="text-[11px] font-semibold uppercase tracking-[0.16em] text-gray-500">Overall Confidence</p>
-                        <p className="mt-2 text-3xl font-black text-white">{parity?.score ?? 0}%</p>
+                        <div className="mt-1"><AdminStatusBadge state={parity ? "live" : "unavailable"} /></div>
+                        <p className="mt-2 text-3xl font-black text-white">{parity ? `${parity.score}%` : "[unavailable]"}</p>
                         <p className="mt-1 text-xs text-gray-400">Purchase and unlock analytics aligned across indexed sources.</p>
                     </div>
                     <div className="rounded-[1.4rem] border border-white/10 bg-black/30 p-4">
                         <div className="flex items-start justify-between gap-3">
                             <div>
                                 <p className="text-[11px] font-semibold uppercase tracking-[0.16em] text-gray-500">Purchase Parity</p>
-                                <p className="mt-2 text-3xl font-black text-white">{parity?.purchase.canonicalCount ?? 0}</p>
-                                <p className="mt-1 text-xs text-gray-400">{parity?.purchase.populatedSources ?? 0} populated sources</p>
+                                <p className="mt-2 text-3xl font-black text-white">{parity ? parity.purchase.canonicalCount : "[unavailable]"}</p>
+                                <p className="mt-1 text-xs text-gray-400">{parity ? parity.purchase.populatedSources : "[unavailable]"} populated sources</p>
                             </div>
                             <span className={`rounded-full border px-2.5 py-1 text-[10px] font-bold uppercase tracking-[0.14em] ${getValidationClasses(parity?.purchase.status ?? "fail")}`}>
                                 {parity?.purchase.status ?? "fail"}
@@ -943,8 +955,8 @@ export default function AdminUserAnalyticsPage() {
                         <div className="flex items-start justify-between gap-3">
                             <div>
                                 <p className="text-[11px] font-semibold uppercase tracking-[0.16em] text-gray-500">Unlock Parity</p>
-                                <p className="mt-2 text-3xl font-black text-white">{parity?.unlock.canonicalCount ?? 0}</p>
-                                <p className="mt-1 text-xs text-gray-400">{parity?.unlock.populatedSources ?? 0} populated sources</p>
+                                <p className="mt-2 text-3xl font-black text-white">{parity ? parity.unlock.canonicalCount : "[unavailable]"}</p>
+                                <p className="mt-1 text-xs text-gray-400">{parity ? parity.unlock.populatedSources : "[unavailable]"} populated sources</p>
                             </div>
                             <span className={`rounded-full border px-2.5 py-1 text-[10px] font-bold uppercase tracking-[0.14em] ${getValidationClasses(parity?.unlock.status ?? "fail")}`}>
                                 {parity?.unlock.status ?? "fail"}
@@ -963,7 +975,7 @@ export default function AdminUserAnalyticsPage() {
                                 <div>
                                     <p className="text-sm font-semibold text-white">{entry.label}</p>
                                     <p className="mt-1 text-xs text-gray-400">
-                                        Confidence {entry.insight?.score ?? 0}% with a source spread of {entry.insight?.spread ?? 0}.
+                                        {entry.insight ? `Confidence ${entry.insight.score}% with a source spread of ${entry.insight.spread}.` : "Parity insight unavailable."}
                                     </p>
                                 </div>
                                 <span className={`rounded-full border px-2.5 py-1 text-[10px] font-bold uppercase tracking-[0.14em] ${getValidationClasses(entry.insight?.status ?? "fail")}`}>
@@ -990,9 +1002,7 @@ export default function AdminUserAnalyticsPage() {
                                     <p className="text-sm font-semibold text-white">{module.label}</p>
                                     <p className="mt-1 text-xs leading-6 text-gray-400">{module.detail}</p>
                                 </div>
-                                <span className={`rounded-full border px-2.5 py-1 text-[10px] font-bold uppercase tracking-[0.14em] ${getCoverageClasses(module.status)}`}>
-                                    {module.status}
-                                </span>
+                                <AdminStatusBadge state={coerceUserDetailTruthState(module.status)} />
                             </div>
                             <div className="mt-3 flex flex-wrap gap-2 text-[11px] text-gray-400">
                                 {module.sources.map((source) => (

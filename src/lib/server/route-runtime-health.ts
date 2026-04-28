@@ -9,7 +9,7 @@ import {
     type RouteRuntimeHealthKey,
     type RouteRuntimeHealthLastResult,
 } from "@/lib/route-runtime-health";
-import { buildAdminModuleVerification } from "@/lib/admin-parity";
+import { buildAdminModuleVerification, coerceAdminSurfaceState, type AdminSurfaceState } from "@/lib/admin-parity";
 
 export const ROUTE_RUNTIME_HEALTH_COLLECTION = "route_runtime_health";
 
@@ -182,12 +182,49 @@ async function injectAdminRouteVerification(routeKey: RouteRuntimeHealthKey, res
       !payload ||
       typeof payload !== "object" ||
       Array.isArray(payload) ||
-      payload.verification ||
-      payload.success !== true
+      payload.verification
     ) {
       return response;
     }
 
+    const record = payload as Record<string, unknown>;
+    const freshnessTimestamp =
+      toNumber(record.refreshedAtMs) ||
+      toNumber(record.updatedAtMs) ||
+      toNumber(record.generatedAtMs) ||
+      toNumber(record.fetchedAtMs) ||
+      toNumber(record.timestamp) ||
+      null;
+    const explicitState =
+      record.liveTruthLabel ??
+      record.activeUsersTruthLabel ??
+      record.truthState ??
+      record.truthLabel ??
+      record.sourceState;
+    const issues = Array.isArray(record.issues) ? record.issues.filter(Boolean) : [];
+    const hasSourceEvidence =
+      typeof explicitState === "string" ||
+      freshnessTimestamp !== null ||
+      typeof record.sourceLabel === "string" ||
+      typeof record.liveSourceLabel === "string" ||
+      typeof record.activeUsersSourceLabel === "string" ||
+      typeof record.canonicalSource === "string";
+    const status: AdminSurfaceState = !response.ok || record.success === false || typeof record.error === "string"
+      ? "failed"
+      : typeof explicitState === "string"
+        ? coerceAdminSurfaceState(explicitState)
+        : issues.length > 0
+          ? "degraded"
+          : hasSourceEvidence
+            ? "live"
+            : "degraded";
+    const degradedReason = status === "failed"
+      ? (typeof record.error === "string" ? record.error : `HTTP ${response.status}`)
+      : status === "degraded" && !hasSourceEvidence
+        ? "Route returned JSON without explicit source-state evidence."
+        : issues.length > 0
+          ? String(issues[0]).slice(0, 240)
+          : null;
     const headers = new Headers(response.headers);
     headers.delete("content-length");
     return NextResponse.json({
@@ -195,16 +232,17 @@ async function injectAdminRouteVerification(routeKey: RouteRuntimeHealthKey, res
       verification: buildAdminModuleVerification({
         module: String(routeKey).replace(/[:/[\]]+/g, "_"),
         canonicalSource: String(routeKey),
-        fallbackSource: null,
-        freshnessTimestamp: Date.now(),
-        status: response.ok ? "live" : "failed",
-        degradedReason: response.ok ? null : `HTTP ${response.status}`,
+        fallbackSource: status === "fallback" ? "route_payload_fallback" : null,
+        freshnessTimestamp,
+        status,
+        degradedReason,
         sources: [{
           key: String(routeKey),
           label: String(routeKey),
           role: "canonical",
-          status: response.ok ? "live" : "failed",
-          freshnessTimestamp: Date.now(),
+          status,
+          freshnessTimestamp,
+          detail: hasSourceEvidence ? null : "No explicit source-state evidence in payload.",
         }],
       }),
     }, {
@@ -212,7 +250,14 @@ async function injectAdminRouteVerification(routeKey: RouteRuntimeHealthKey, res
       statusText: response.statusText,
       headers,
     });
-  } catch {
+  } catch (error) {
+    recordRouteWarning("route-runtime-health", "Admin route verification injection failed", error, {
+      channel: "runtime",
+      detail: {
+        routeKey,
+        statusCode: response.status,
+      },
+    });
     return response;
   }
 }

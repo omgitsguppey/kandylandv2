@@ -4,6 +4,8 @@ import {
 } from "lucide-react";
 import { Bar, BarChart, CartesianGrid, ResponsiveContainer, Tooltip, XAxis, YAxis, Line, LineChart } from "recharts";
 import { AnalyticsTooltip, MetricCard, SectionCard } from "@/components/Admin/Analytics/AdminAnalyticsPrimitives";
+import { AdminStatusBadge } from "@/components/Admin/AdminStatusBadge";
+import { coerceAdminSurfaceState } from "@/lib/admin-parity";
 import { cn } from "@/lib/utils";
 import Image from "next/image";
 import type { AdminAnalyticsState } from "../hooks/useAdminAnalyticsState";
@@ -45,6 +47,12 @@ export function AdminAnalyticsCommerceTab(props: AdminAnalyticsState) {
     getJourneyStateClasses, getJourneyStateLabel, topExperienceContexts, viewerDropChartData,
     viewerDrilldownInsights, viewerJourneyItems, watchDepthTagBuckets, watchDepthTagDemand
   } = props;
+  const commerceTruthState = historicalOverviewTruthState ?? "unavailable";
+  const liveCaptureTruthState = liveResponse?.liveTruthLabel
+    ? coerceAdminSurfaceState(liveResponse.liveTruthLabel)
+    : "unavailable";
+  const formatCommerceMetric = (value: number | null | undefined, formatter: (next: number) => string) =>
+    typeof value === "number" && Number.isFinite(value) ? formatter(value) : "[unavailable]";
 
   return (
     <>
@@ -66,30 +74,26 @@ export function AdminAnalyticsCommerceTab(props: AdminAnalyticsState) {
                 />
                 <MetricCard
                   label="Adj. Profit"
-                  value={formatMoney(
-                    commerceSnapshotCommerce.adjustedProfitUsd ?? 0,
-                  )}
-                  hint={`${formatMoney(commerceSnapshotCommerce.bonusValueUsd ?? 0)} promo value granted`}
+                  value={formatCommerceMetric(commerceSnapshotCommerce.adjustedProfitUsd, formatMoney)}
+                  hint={`${formatCommerceMetric(commerceSnapshotCommerce.bonusValueUsd, formatMoney)} promo value granted`}
                   icon={Wallet}
-                  truthState={historicalOverviewTruthState ?? "unavailable"}
+                  truthState={commerceSnapshotCommerce.adjustedProfitUsd === undefined ? "unavailable" : commerceTruthState}
                   dictionaryTooltip="Net profit after accounting for platform fees and promotional value granted."
                 />
                 <MetricCard
                   label="Yield / 100 GD"
-                  value={formatMoney(
-                    commerceSnapshotCommerce.effectiveUsdPer100Gd ?? 0,
-                  )}
-                  hint={`${formatCompactNumber(commerceSnapshotCommerce.deliveredGumDrops ?? 0)} GD delivered`}
+                  value={formatCommerceMetric(commerceSnapshotCommerce.effectiveUsdPer100Gd, formatMoney)}
+                  hint={`${formatCommerceMetric(commerceSnapshotCommerce.deliveredGumDrops, formatCompactNumber)} GD delivered`}
                   icon={Sparkles}
-                  truthState={historicalOverviewTruthState ?? "unavailable"}
+                  truthState={commerceSnapshotCommerce.effectiveUsdPer100Gd === undefined ? "unavailable" : commerceTruthState}
                   dictionaryTooltip="Effective USD revenue earned per 100 GumDrops delivered."
                 />
                 <MetricCard
                   label="GD Spent"
                   value={formatCompactNumber(commerceSnapshotCommerce.gdSpent)}
-                  hint={`${formatCompactNumber(commerceSnapshotCommerce.bonusGumDrops ?? 0)} bonus GD granted`}
+                  hint={`${formatCommerceMetric(commerceSnapshotCommerce.bonusGumDrops, formatCompactNumber)} bonus GD granted`}
                   icon={ShoppingBag}
-                  truthState={historicalOverviewTruthState ?? "unavailable"}
+                  truthState={commerceSnapshotCommerce.bonusGumDrops === undefined ? "unavailable" : commerceTruthState}
                   dictionaryTooltip="Total volume of GumDrops spent by users across all experiences."
                 />
               </div>
@@ -402,7 +406,7 @@ export function AdminAnalyticsCommerceTab(props: AdminAnalyticsState) {
                             <p className="mt-1 text-xs text-gray-500">
                               {item.username
                                 ? `@${item.username}`
-                                : "Unknown user"}{" "}
+                                : "[unavailable] user identity"}{" "}
                               ·{" "}
                               {item.timestamp
                                 ? formatRelativeTime(item.timestamp, nowMs)
@@ -731,30 +735,33 @@ export function AdminAnalyticsCommerceTab(props: AdminAnalyticsState) {
                                 historical range.
                               </p>
                             </div>
-                            <span className="rounded-full border border-white/10 bg-white/5 px-3 py-1 text-[11px] font-semibold text-gray-300">
-                              {liveWatchCaptureHealth.sessionCount.toLocaleString()}{" "}
-                              recent
-                            </span>
+                            <div className="flex flex-wrap items-center gap-2">
+                              <AdminStatusBadge state={liveCaptureTruthState} />
+                              <span className="rounded-full border border-white/10 bg-white/5 px-3 py-1 text-[11px] font-semibold text-gray-300">
+                                {liveCaptureTruthState === "unavailable" ? "[unavailable]" : liveWatchCaptureHealth.sessionCount.toLocaleString()}{" "}
+                                recent
+                              </span>
+                            </div>
                           </div>
 
                           <div className="space-y-3">
                             {[
                               {
                                 label: "Full capture",
-                                value: liveWatchCaptureHealth.fullCaptureCount,
+                                value: liveCaptureTruthState === "unavailable" ? null : liveWatchCaptureHealth.fullCaptureCount,
                               },
                               {
                                 label: "Replay recovered",
                                 value:
-                                  liveWatchCaptureHealth.replayRecoveredCount,
+                                  liveCaptureTruthState === "unavailable" ? null : liveWatchCaptureHealth.replayRecoveredCount,
                               },
                               {
                                 label: "Gap detected",
-                                value: liveWatchCaptureHealth.gapDetectedCount,
+                                value: liveCaptureTruthState === "unavailable" ? null : liveWatchCaptureHealth.gapDetectedCount,
                               },
                               {
                                 label: "Close missing",
-                                value: liveWatchCaptureHealth.closeMissingCount,
+                                value: liveCaptureTruthState === "unavailable" ? null : liveWatchCaptureHealth.closeMissingCount,
                               },
                             ].map((item: any) => (
                               <div key={item.label}>
@@ -763,7 +770,7 @@ export function AdminAnalyticsCommerceTab(props: AdminAnalyticsState) {
                                     {item.label}
                                   </span>
                                   <span className="font-semibold text-brand-purple">
-                                    {item.value.toLocaleString()}
+                                    {item.value === null ? "[unavailable]" : item.value.toLocaleString()}
                                   </span>
                                 </div>
                                 <div className="h-2 overflow-hidden rounded-full bg-white/10">
@@ -772,7 +779,7 @@ export function AdminAnalyticsCommerceTab(props: AdminAnalyticsState) {
                                     style={{
                                       width: `${Math.max(
                                         6,
-                                        (item.value /
+                                        ((item.value ?? 0) /
                                           Math.max(
                                             1,
                                             liveWatchCaptureHealth

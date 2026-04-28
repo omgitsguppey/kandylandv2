@@ -1,5 +1,50 @@
 # KandyDrops Core Codebase Audit & Defensive Ledger
 
+## [2026-04-28 #41] PRE: Second Admin Truth Remediation and Debug Hardening
+
+Scope started:
+- Remediate the second 50-finding audit across Admin AI, Analytics, Debug, Users, Admin Module Verification, Drops-at-glance, and route runtime verification.
+- Replace page-local truth labels and fake-zero defaults with canonical `AdminSurfaceState` handling where the touched surfaces display source-sensitive operational data.
+- Strengthen debugging/guard coverage so local `healthy/partial/unknown/Live` vocabularies and unverified admin route payloads cannot quietly regress.
+
+Startup protocol completed:
+- Read control tower startup and strict execution files `00-START-HERE.md` through `05-CAPABILITIES-AND-CONSTRAINTS.yaml`.
+- Read source-of-truth and shared component ownership maps.
+- Executed doctrine consultation workflow by reading the product, copy, UI, surface matrix, banned patterns, vocabulary, and decision checklist files.
+- Read `FULL_SCALE_CODEBASE_AUDIT.md`, `REPO_MEMORY_LEDGER.md`, and `EVERY_FILE_FUNCTION_CHECKLIST.md`.
+- Ran `git status --short`; the tree was clean after the prior pushed remediation.
+- Ran adjacency traces for `src/app/admin/ai/page.tsx`, `src/app/admin/analytics/hooks/useAdminAnalyticsState.tsx`, `src/app/admin/debug/page.tsx`, `src/app/admin/users/page.tsx`, and `src/lib/server/route-runtime-health.ts`.
+
+Doctrine decision checklist before edits:
+- Surface primary job: Admin operational truth and diagnostics.
+- Source of truth: Firestore/admin route payloads with canonical source verification; hot listener data remains live only when explicitly proven.
+- Event path affected: no conversion telemetry event semantics should change; route/runtime diagnostic visibility is being hardened.
+- Admin/audit path: admin AI, analytics, debug, users, module verification, drops-at-glance, and route runtime health must display fallback/stale/failed/unavailable states explicitly.
+- Tone rules: brutal operational clarity; no fake green, fake zero, or generic "Live" claims.
+- Interaction rules: avoid decorative truth chips where shared `AdminStatusBadge` can render canonical source state.
+- Forbidden surfaces: economy ledger and payments remain untouched.
+
+## [2026-04-28 #41] POST: Second Admin Truth Remediation and Debug Hardening
+
+Changes made:
+- Hardened admin route verification injection so successful admin JSON payloads no longer need `success: true` before receiving a source verification envelope.
+- Route verification now derives freshness from payload evidence, labels payloads without source-state evidence as degraded, and records injection failures through route diagnostics instead of silently returning the original response.
+- Replaced fake-zero and raw-status display paths across Admin AI recent generations, reference library, runtime strip, analytics audience/commerce cards, admin users, user detail parity/support, drops-at-glance, module verification, and debug primitives.
+- Added canonical `AdminStatusBadge` rendering to the shared debug `Pill` and `StatCard` primitives so debug tabs inherit source-state labeling.
+- Strengthened `scripts/check-admin-truth-contracts.ts` to block route verification regressions such as `success: true` gating, response-time freshness, silent injection failures, local drops truth resolvers, and debug primitives without canonical truth props.
+
+Verification completed:
+- `npm run check:admin-truth` passed.
+- `npm run typecheck -- --pretty false` passed.
+- Targeted ESLint over touched admin/route/guard files passed.
+- `corepack pnpm exec vitest run tests/unit/route-runtime-health.spec.ts tests/unit/admin-debug-route-runtime.spec.ts` passed.
+- `npm run check:ui:coverage` passed.
+- `npm run check:ui:runtime` passed.
+- `npm run check:generated-artifacts` passed after cleaning `.next`, `playwright-report`, and `test-results`.
+
+Known signoff blocker outside this remediation:
+- `npm run check:ui:audits` built successfully and passed 17/20 tests, but Mobile Chrome still failed on `/` navigation timeouts and `/creators/apply` visual snapshot height drift. The rerun reproduced the same non-admin failures while the web server logged upstream image timeouts. No creator-apply or homepage source files were touched in this pass.
+
 ## [2026-04-28 #40] POST: Admin Truth Remediation and Global Contract Gate
 
 Scope completed:

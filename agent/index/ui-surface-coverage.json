@@ -1,5 +1,5 @@
 {
-  "generatedAt": "2026-04-28T16:57:21.566Z",
+  "generatedAt": "2026-04-28T18:19:00.575Z",
   "truthOrder": [
     "verified_runtime_code",
     "verified_configuration",
@@ -754,8 +754,7 @@
       ],
       "runtime_dependencies": [
         "src/hooks/useAdminOverview.ts",
-        "src/hooks/useAdminOverviewRealtime.ts",
-        "src/lib/utils.ts"
+        "src/hooks/useAdminOverviewRealtime.ts"
       ],
       "hydration_mode": "static",
       "criticality": "high",
@@ -1223,6 +1222,7 @@
         "admin"
       ],
       "runtime_dependencies": [
+        "src/lib/admin-parity.ts",
         "src/lib/authFetch.ts",
         "src/lib/client-error-reporting.ts",
         "src/lib/creator-onboarding.ts",

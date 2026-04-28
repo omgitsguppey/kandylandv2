@@ -34,6 +34,7 @@ export function AdminAnalyticsAudienceTab(props: AdminAnalyticsState) {
     // Added remaining
     clearAllFilters, clearViewerFilter, viewerUserFilter, formatMoney, activeViewerFilter
   } = props;
+  const returnCadenceTruthState = returnCadenceSummary ? (historicalOverviewTruthState ?? "unavailable") : "unavailable";
 
   return (
     <>
@@ -189,18 +190,18 @@ export function AdminAnalyticsAudienceTab(props: AdminAnalyticsState) {
                 <div className="mt-4 grid grid-cols-2 gap-3 border-t border-white/5 pt-4">
                   <MetricCard
                     label="Unique Returners"
-                    value={formatCompactNumber(returnCadenceSummary?.uniqueReturners || 0)}
-                    hint="Multiple days active"
+                    value={returnCadenceSummary ? formatCompactNumber(returnCadenceSummary.uniqueReturners) : "[unavailable]"}
+                    hint={returnCadenceSummary ? "Multiple days active" : "Return cadence source unavailable"}
                     icon={Users}
-                    truthState={historicalOverviewTruthState ?? "unavailable"}
+                    truthState={returnCadenceTruthState}
                     dictionaryTooltip="Count of authenticated users who have logged in on multiple distinct days within the selected time window."
                   />
                   <MetricCard
                     label="Conversion"
-                    value={formatPercent(returnCadenceSummary?.returnerConversionRate || 0)}
-                    hint={`${(returnCadenceSummary?.trackedUsers || 0).toLocaleString()} tracked users`}
+                    value={returnCadenceSummary ? formatPercent(returnCadenceSummary.returnerConversionRate) : "[unavailable]"}
+                    hint={returnCadenceSummary ? `${returnCadenceSummary.trackedUsers.toLocaleString()} tracked users` : "Tracked user source unavailable"}
                     icon={Activity}
-                    truthState={historicalOverviewTruthState ?? "unavailable"}
+                    truthState={returnCadenceTruthState}
                     dictionaryTooltip="The percentage of all tracked authenticated users in this window who returned on multiple days."
                   />
                 </div>

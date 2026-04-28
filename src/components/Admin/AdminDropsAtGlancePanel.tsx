@@ -7,6 +7,7 @@ import { Edit, Loader2, Package, PlusCircle, Repeat, Search, Settings2 } from "l
 import { toast } from "sonner";
 
 import { CreateDropModal } from "@/components/Admin/CreateDropModal";
+import { AdminStatusBadge } from "@/components/Admin/AdminStatusBadge";
 import { TitleMarquee } from "@/components/ui/TitleMarquee";
 import { paginateOverviewItems } from "@/lib/admin-overview";
 import { dispatchAdminOverviewSync } from "@/hooks/client-runtime";
@@ -19,6 +20,7 @@ import { buildAdminQueueProjection, type AdminDropQueueConfig } from "@/lib/admi
 import { authFetch } from "@/lib/authFetch";
 import { reportClientIssue } from "@/lib/client-error-reporting";
 import { cn } from "@/lib/utils";
+import type { AdminSurfaceState } from "@/lib/admin-parity";
 import type { Drop } from "@/types/db";
 
 type DropRow = {
@@ -97,12 +99,11 @@ function getDelaySeed(id: string) {
     return id.split("").reduce((sum, char) => sum + char.charCodeAt(0), 0) % 7;
 }
 
-/** Resolve the truth source label for the drops listener state. */
-function resolveDropsTruthLabel(state: { loading: boolean; loadError: string | null; fromCache: boolean }) {
-    if (state.loadError) return { label: "Error", dotClass: "bg-red-400" };
-    if (state.loading) return { label: "Loading…", dotClass: "bg-gray-400 animate-pulse" };
-    if (state.fromCache) return { label: "Cached", dotClass: "bg-amber-400" };
-    return { label: "Live", dotClass: "bg-emerald-400" };
+function resolveDropsTruthState(state: { loading: boolean; loadError: string | null; fromCache: boolean }): AdminSurfaceState {
+    if (state.loadError) return "failed";
+    if (state.loading) return "unavailable";
+    if (state.fromCache) return "fallback";
+    return "live";
 }
 
 export function AdminDropsAtGlancePanel() {
@@ -205,7 +206,7 @@ export function AdminDropsAtGlancePanel() {
         setPage(0);
     }, [filteredRows.length]);
 
-    const truthState = resolveDropsTruthLabel({ loading, loadError, fromCache });
+    const truthState = resolveDropsTruthState({ loading, loadError, fromCache });
     const isFiltered = searchText.trim().length > 0;
     const sourceLabel = isFiltered ? "filtered" : (fromCache ? "cached" : "live");
 
@@ -293,7 +294,7 @@ export function AdminDropsAtGlancePanel() {
                     </Link>
                 </div>
 
-                {/* Search bar + truth chip */}
+                {/* Search bar + source state */}
                 <div className="flex items-center gap-2">
                     <div className="relative flex-1 min-w-0">
                         <Search className="pointer-events-none absolute left-3 top-1/2 h-3.5 w-3.5 -translate-y-1/2 text-gray-500" />
@@ -305,10 +306,7 @@ export function AdminDropsAtGlancePanel() {
                             className="h-9 w-full rounded-full border border-white/8 bg-black/40 pl-8 pr-3 text-xs text-white placeholder:text-gray-500 focus:border-brand-purple/40 focus:outline-none focus:ring-1 focus:ring-brand-purple/30"
                         />
                     </div>
-                    <div className="flex items-center gap-1.5 rounded-full border border-white/8 bg-black/30 px-2.5 py-1.5">
-                        <span className={cn("h-1.5 w-1.5 rounded-full", truthState.dotClass)} />
-                        <span className="text-[10px] font-semibold text-gray-400">{truthState.label}</span>
-                    </div>
+                    <AdminStatusBadge state={truthState} />
                 </div>
 
                 {/* Search result count */}
@@ -330,7 +328,7 @@ export function AdminDropsAtGlancePanel() {
                         <div key={item.label} className="rounded-xl border border-white/8 bg-black/30 px-2 py-2 text-center">
                             <p className="text-[9px] font-semibold uppercase tracking-[0.14em] text-gray-500">{item.label}</p>
                             <p className="mt-0.5 text-sm font-black text-white">{item.value}</p>
-                            <p className="text-[8px] font-medium text-gray-600">[{sourceLabel}]</p>
+                            <p className="text-[8px] font-medium text-gray-600">{sourceLabel === "filtered" ? "[filtered]" : null} <AdminStatusBadge state={truthState} className="mt-1 py-0 text-[8px]" /></p>
                         </div>
                     ))}
                 </div>
