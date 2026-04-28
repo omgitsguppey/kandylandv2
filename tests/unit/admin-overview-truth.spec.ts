@@ -168,6 +168,68 @@ describe("admin top spacing tokens", () => {
         expect(ADMIN_SPACING_TOKENS[0]).toBe("--admin-top-spacing");
         expect(ADMIN_SPACING_TOKENS[1]).toBe("--admin-top-spacing-md");
     });
+
+    it("mobile token is 0.25rem (4px), not 1rem (16px)", () => {
+        const globalsCss = readFileSync(
+            join(__dirname, "../../src/app/globals.css"),
+            "utf-8",
+        );
+        expect(globalsCss).toContain("--admin-top-spacing: 0.25rem");
+        expect(globalsCss).not.toMatch(/--admin-top-spacing:\s*1rem/);
+    });
+
+    it("desktop token is 0.75rem (12px), not 1.5rem (24px)", () => {
+        const globalsCss = readFileSync(
+            join(__dirname, "../../src/app/globals.css"),
+            "utf-8",
+        );
+        expect(globalsCss).toContain("--admin-top-spacing-md: 0.75rem");
+        expect(globalsCss).not.toMatch(/--admin-top-spacing-md:\s*1\.5rem/);
+    });
+
+    it("admin layout has negative top margin to counteract root pt-24", () => {
+        const adminLayout = readFileSync(
+            join(__dirname, "../../src/app/admin/layout.tsx"),
+            "utf-8",
+        );
+        expect(adminLayout).toContain("mt-[-2rem]");
+        expect(adminLayout).toContain("md:mt-[-1.5rem]");
+    });
+});
+
+describe("hero truth display rule", () => {
+    it("hero has exactly one chip (truth chip), not multiple", () => {
+        // The AdminPageHeader actions slot must contain a single <span> chip.
+        // Extract the actions prop block from <AdminPageHeader ... />
+        const startIdx = ADMIN_PAGE_SOURCE.indexOf("<AdminPageHeader");
+        expect(startIdx).toBeGreaterThan(-1);
+        const endIdx = ADMIN_PAGE_SOURCE.indexOf("/>", startIdx);
+        expect(endIdx).toBeGreaterThan(startIdx);
+        const headerBlock = ADMIN_PAGE_SOURCE.slice(startIdx, endIdx + 2);
+
+        // Must NOT contain a Fragment wrapper (<> ... </>), which indicates multiple chips
+        expect(headerBlock).not.toContain("<>");
+        expect(headerBlock).not.toContain("</>");
+
+        // Must contain exactly one truth chip span
+        expect(headerBlock).toContain("truthLabel");
+        expect(headerBlock).toContain("TRUTH_CHIP_STYLES");
+    });
+
+    it("serverUpdateLabel is passed as subtitle, not as a standalone chip", () => {
+        expect(ADMIN_PAGE_SOURCE).toContain("subtitle={serverUpdateLabel}");
+        // Must NOT have a standalone chip with serverUpdateLabel
+        expect(ADMIN_PAGE_SOURCE).not.toContain(">{serverUpdateLabel}</span>");
+    });
+
+    it("issue chip is NOT in the hero", () => {
+        // issueChipLabel should not be rendered in AdminPageHeader
+        expect(ADMIN_PAGE_SOURCE).not.toContain("issueChipLabel");
+    });
+
+    it("issue count remains in AdminStatsBar", () => {
+        expect(ADMIN_PAGE_SOURCE).toContain("issueCount={issueCount}");
+    });
 });
 
 // ─── Drops at a Glance panel contracts ────────────────────────────────────────

@@ -59,7 +59,7 @@ function readLatestTimestamp(
 
 function getMaterializerStatus(nowMs: number, count: number, lastSeenAt: number): AdminOpsHealthStatus {
   if (count <= 0 && lastSeenAt <= 0) {
-    return "warn";
+    return "healthy";
   }
 
   if (lastSeenAt > 0) {

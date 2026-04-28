@@ -95,10 +95,21 @@ The original implementation used bracket-prefixed developer jargon (`[PARTIAL] F
 
 ## Admin top spacing rule
 
-- CSS custom properties `--admin-top-spacing` (16px mobile) and `--admin-top-spacing-md` (24px desktop) are defined in `src/app/globals.css`.
+- CSS custom properties `--admin-top-spacing` (4px mobile) and `--admin-top-spacing-md` (12px desktop) are defined in `src/app/globals.css`.
 - The admin layout (`src/app/admin/layout.tsx`) consumes these via `pt-[var(--admin-top-spacing)]`.
+- The admin layout also applies `mt-[-2rem] md:mt-[-1.5rem]` to counteract the root layout's `pt-24` (96px), pulling the admin console grid closer to the navbar without touching the root layout.
 - Do NOT add ad-hoc `pt-*` values to admin pages. Use the tokens.
+- Do NOT increase `--admin-top-spacing` without also adjusting the negative margin — they are paired.
 - The sticky admin console nav grid handles its own offset from the top navbar via `top-[calc(3.5rem+env(safe-area-inset-top))]`.
+
+## Hero truth display rule
+
+- The Admin Overview hero (`AdminPageHeader` actions slot) must contain **exactly one chip**: the truth chip.
+- The truth chip displays the canonical truth label from `resolveTruthChipLabel()`.
+- Server update freshness info goes in the `subtitle` prop as inline text, NOT as a separate chip.
+- Issue counts remain in `AdminStatsBar`, NOT as standalone hero chips.
+- Do NOT add additional status chips, server update chips, or issue chips to the hero actions slot.
+- Rationale: Multiple chips wrap on mobile and create vertical sprawl that pushes the console grid downward.
 
 ## Deferred work (do NOT touch in Admin Overview tasks)
 
@@ -109,12 +120,13 @@ The original implementation used bracket-prefixed developer jargon (`[PARTIAL] F
 
 | File | Role |
 |---|---|
-| `src/app/admin/page.tsx` | Admin Overview UI (renders title, chips, modules) |
-| `src/app/admin/layout.tsx` | Admin layout (top spacing, nav grid) |
+| `src/app/admin/page.tsx` | Admin Overview UI (renders title, single truth chip, modules) |
+| `src/app/admin/layout.tsx` | Admin layout (top spacing, negative margin override, nav grid) |
 | `src/hooks/useAdminOverview.ts` | Thin wrapper → delegates to realtime hook |
 | `src/hooks/useAdminOverviewRealtime.ts` | Realtime hook (Firestore listeners + SWR poll + truth state) |
 | `src/lib/admin-overview.ts` | Shared types (AdminOverviewResponse, AdminOverviewRealtimeDebugMeta) |
 | `src/app/api/admin/overview/route.ts` | Server API rollup (charts, deltas, activity, truth notes) |
-| `src/components/Admin/AdminPageHeader.tsx` | Shared admin page header (eyebrow, title, actions) |
+| `src/components/Admin/AdminPageHeader.tsx` | Shared admin page header (eyebrow, title, subtitle, actions) |
 | `src/app/globals.css` | Admin spacing CSS tokens |
 | `tests/unit/admin-overview-truth.spec.ts` | Targeted validation for truth chips, copy, and type contracts |
+

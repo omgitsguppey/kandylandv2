@@ -41,36 +41,22 @@ export default function AdminDashboardPage() {
         waiting: "border-gray-400/20 bg-gray-500/10 text-gray-400",
     };
 
-    /* Issue chip: only show when there are active listener or read issues */
-    const issueChipLabel = issueCount > 0
-        ? `${issueCount} issue${issueCount === 1 ? "" : "s"} active`
-        : null;
 
-    
     return (
         <div className="space-y-3 md:space-y-4">
             <PageViewEvent eventName="admin_overview_viewed" />
             <AdminPageHeader
                 eyebrow={null}
                 title="Admin Overview"
+                subtitle={serverUpdateLabel}
                 compact
                 actions={(
-                    <>
-                        <span className={cn(
-                            "rounded-full border px-3 py-1 text-[11px] font-bold uppercase tracking-[0.12em]",
-                            TRUTH_CHIP_STYLES[truthVariant],
-                        )}>
-                            {truthLabel}
-                        </span>
-                        <span className="rounded-full border border-white/10 bg-black/35 px-3 py-1 text-[11px] font-bold text-gray-300">
-                            {serverUpdateLabel}
-                        </span>
-                        {issueChipLabel ? (
-                            <span className="rounded-full border border-amber-400/20 bg-amber-500/10 px-3 py-1 text-[11px] font-bold uppercase tracking-[0.12em] text-amber-400">
-                                {issueChipLabel}
-                            </span>
-                        ) : null}
-                    </>
+                    <span className={cn(
+                        "rounded-full border px-3 py-1 text-[11px] font-bold uppercase tracking-[0.12em]",
+                        TRUTH_CHIP_STYLES[truthVariant],
+                    )}>
+                        {truthLabel}
+                    </span>
                 )}
             />
 

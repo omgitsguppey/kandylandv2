@@ -1,3 +1,4 @@
+/* eslint-disable @next/next/no-img-element */
 "use client";
 
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
@@ -67,9 +68,15 @@ export function TopDropsTable({ drops, timeRangeKey, onDebugMeta }: TopDropsTabl
     const [searchInput, setSearchInput] = useState("");
     const [debouncedQuery, setDebouncedQuery] = useState("");
     const [currentPage, setCurrentPage] = useState(0);
+    const [prevTimeRangeKey, setPrevTimeRangeKey] = useState(timeRangeKey);
+
+    if (timeRangeKey !== prevTimeRangeKey) {
+        setPrevTimeRangeKey(timeRangeKey);
+        setCurrentPage(0);
+    }
 
     /* Timing instrumentation */
-    const mountTime = useRef(performance.now());
+    const [mountTime] = useState(() => performance.now());
     const firstRenderMs = useRef<number | null>(null);
     const searchReadyMs = useRef<number | null>(null);
     const pageChangeMs = useRef<number | null>(null);
@@ -77,14 +84,11 @@ export function TopDropsTable({ drops, timeRangeKey, onDebugMeta }: TopDropsTabl
     /* Mark first render */
     useEffect(() => {
         if (firstRenderMs.current === null) {
-            firstRenderMs.current = performance.now() - mountTime.current;
+            firstRenderMs.current = performance.now() - mountTime;
         }
-    }, []);
+    }, [mountTime]);
 
-    /* Reset page on time-range change */
-    useEffect(() => {
-        setCurrentPage(0);
-    }, [timeRangeKey]);
+
 
     /* Debounce search */
     useEffect(() => {

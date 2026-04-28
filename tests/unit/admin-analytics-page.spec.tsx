@@ -138,6 +138,7 @@ describe("AdminAnalyticsPage", () => {
     mockState.analyticsState = {
       ...mockState.analyticsState,
       clearAllFilters,
+      viewerUserFilter: "test_user",
     };
 
     await act(async () => {
@@ -145,7 +146,7 @@ describe("AdminAnalyticsPage", () => {
     });
 
     const button = Array.from(container.querySelectorAll("button")).find((item) =>
-      item.textContent?.includes("Clear viewer filter"),
+      item.textContent?.includes("Clear filter"),
     );
 
     expect(button).toBeTruthy();
@@ -163,6 +164,7 @@ describe("AdminAnalyticsPage", () => {
       ...mockState.analyticsState,
       clearAllFilters: undefined,
       clearViewerFilter: undefined,
+      viewerUserFilter: "test_user",
     };
 
     await act(async () => {
@@ -170,7 +172,7 @@ describe("AdminAnalyticsPage", () => {
     });
 
     const button = Array.from(container.querySelectorAll("button")).find((item) =>
-      item.textContent?.includes("Clear viewer filter"),
+      item.textContent?.includes("Clear filter"),
     );
 
     expect(button).toBeTruthy();

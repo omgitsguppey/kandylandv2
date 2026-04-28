@@ -55,10 +55,11 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
   }
 
   return (
-    <div className="flex-1 w-full bg-transparent">
+    <div className="flex-1 w-full bg-transparent mt-[-2rem] md:mt-[-1.5rem]">
       {/* Admin top spacing uses --admin-top-spacing tokens from globals.css.
-          The sticky admin console nav grid handles its own offset from the top navbar,
-          so we only need minimal padding here to avoid double-stacking vertical space. */}
+          The negative top margin (mt-[-2rem]) counteracts part of the root layout's
+          pt-24 (96px) which is designed for user pages. Admin needs the console grid
+          closer to the navbar, so we pull upward here rather than touching root layout. */}
         <main className="w-full px-3 pb-8 pt-[var(--admin-top-spacing)] md:px-8 md:pb-10 md:pt-[var(--admin-top-spacing-md)]">
         <div className="max-w-7xl mx-auto">
           <div className="sticky top-[calc(3.5rem+env(safe-area-inset-top))] z-30 mb-4 md:top-[4.1rem] md:mb-6">

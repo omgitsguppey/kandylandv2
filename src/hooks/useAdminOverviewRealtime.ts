@@ -524,7 +524,7 @@ export function useAdminOverviewRealtime() {
             },
             realtimeDebugMeta: debugMeta,
         } as AdminOverviewResponse;
-    }, [allRealtimeLoaded, anyFromCache, hasRealtimeFailure, hasRealtimeSnapshot, listenerState, realtimeData, serverData]);
+    }, [hasRealtimeFailure, hasRealtimeSnapshot, listenerState, realtimeData, serverData]);
 
     return {
         data: mergedData,

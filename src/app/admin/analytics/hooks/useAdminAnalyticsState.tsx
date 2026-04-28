@@ -53,7 +53,7 @@ import {
   isRecentViolation,
   useHistoricalSectionOverride,
 } from "../AnalyticsHelpers";
-import { useAdminAnalyticsRealtime, type AnalyticsRealtimeDebugMeta } from "./useAdminAnalyticsRealtime";
+import { useAdminAnalyticsRealtime } from "./useAdminAnalyticsRealtime";
 
 const EVENT_LABELS: Record<string, string> = TELEMETRY_EVENT_LABELS;
 

@@ -77,7 +77,7 @@ function buildRouteRuntimeClusterLog(input: {
         ? "warn"
         : failCount > 0
             ? "fail"
-            : warnCount > 0 || staleCount > 0 || unseenCount > 0
+            : warnCount > 0 || staleCount > 0
                 ? "warn"
                 : "healthy";
 

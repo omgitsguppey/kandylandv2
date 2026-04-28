@@ -16,9 +16,10 @@ html { overscroll-behavior-y: none; }
 
   /* Admin surface top spacing tokens — see docs/agent-truth/admin-overview.md
      These control the gap between the top chrome/navbar and the admin console grid.
-     Mobile is intentionally tighter to reduce vertical dead space on small viewports. */
-  --admin-top-spacing: 1rem;       /* 16px — mobile */
-  --admin-top-spacing-md: 1.5rem;  /* 24px — desktop (md: breakpoint) */
+     The root layout already provides pt-24 (96px) to clear the fixed navbar,
+     so admin needs only minimal additional spacing before the console grid. */
+  --admin-top-spacing: 0.25rem;    /* 4px — mobile (tight to reduce dead space) */
+  --admin-top-spacing-md: 0.75rem; /* 12px — desktop (md: breakpoint) */
 }
 
 body {

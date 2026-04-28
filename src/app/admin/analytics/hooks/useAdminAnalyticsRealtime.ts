@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useMemo, useRef, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import {
   collection,
   limit,
@@ -21,6 +21,12 @@ import {
 } from "@/lib/firestore-client-errors";
 import { createAutoHealingObserver } from "@/lib/self-healing";
 
+type ListenerDetails = {
+  lastEventAtMs: number | null;
+  lastServerConfirmedAtMs: number | null;
+  errorMessage: string | null;
+};
+
 type ListenerState = {
   eventFactsLoaded: boolean;
   guestBatchesLoaded: boolean;
@@ -34,6 +40,12 @@ type ListenerState = {
   guestBatchesFromCache: boolean;
   guestSessionsFromCache: boolean;
   watchSessionsFromCache: boolean;
+  details: {
+    eventFacts: ListenerDetails;
+    guestBatches: ListenerDetails;
+    guestSessions: ListenerDetails;
+    watchSessions: ListenerDetails;
+  };
 };
 
 type SnapshotEntry = {
@@ -87,24 +99,20 @@ export function useAdminAnalyticsRealtime(nowMs: number): AdminAnalyticsRealtime
     guestBatchesFromCache: true,
     guestSessionsFromCache: true,
     watchSessionsFromCache: true,
+    details: {
+      eventFacts: { lastEventAtMs: null, lastServerConfirmedAtMs: null, errorMessage: null },
+      guestBatches: { lastEventAtMs: null, lastServerConfirmedAtMs: null, errorMessage: null },
+      guestSessions: { lastEventAtMs: null, lastServerConfirmedAtMs: null, errorMessage: null },
+      watchSessions: { lastEventAtMs: null, lastServerConfirmedAtMs: null, errorMessage: null },
+    },
   });
 
-  // Per-listener timing refs (not reactive — exposed via debug meta)
-  const mountedAtRef = useRef<number | null>(null);
-  const timingRef = useRef<Record<string, {
-    lastEventAtMs: number | null;
-    lastServerConfirmedAtMs: number | null;
-    errorMessage: string | null;
-  }>>({
-    eventFacts: { lastEventAtMs: null, lastServerConfirmedAtMs: null, errorMessage: null },
-    guestBatches: { lastEventAtMs: null, lastServerConfirmedAtMs: null, errorMessage: null },
-    guestSessions: { lastEventAtMs: null, lastServerConfirmedAtMs: null, errorMessage: null },
-    watchSessions: { lastEventAtMs: null, lastServerConfirmedAtMs: null, errorMessage: null },
+  const [mountedAtMs] = useState<number | null>(() => {
+    return typeof window !== "undefined" ? Date.now() : null;
   });
 
   useEffect(() => {
     let cancelled = false;
-    mountedAtRef.current = Date.now();
 
     const eventFactsControl = createAutoHealingObserver(() =>
       onSnapshot(
@@ -118,22 +126,33 @@ export function useAdminAnalyticsRealtime(nowMs: number): AdminAnalyticsRealtime
           if (cancelled) return;
           const fromCache = snapshot.metadata.fromCache;
           setEventFacts(toSnapshotEntries(snapshot));
-          timingRef.current.eventFacts.lastEventAtMs = Date.now();
-          if (!fromCache) timingRef.current.eventFacts.lastServerConfirmedAtMs = Date.now();
-          timingRef.current.eventFacts.errorMessage = null;
           setListenerState((current) => ({
             ...current,
             eventFactsLoaded: true,
             eventFactsFailed: false,
             eventFactsFromCache: fromCache,
+            details: {
+              ...current.details,
+              eventFacts: {
+                lastEventAtMs: Date.now(),
+                lastServerConfirmedAtMs: fromCache ? current.details.eventFacts.lastServerConfirmedAtMs : Date.now(),
+                errorMessage: null,
+              },
+            },
           }));
         },
         (error) => {
           if (cancelled) return;
-          timingRef.current.eventFacts.errorMessage = error?.message ?? "Unknown error";
           setListenerState((current) => ({
             ...current,
             eventFactsFailed: true,
+            details: {
+              ...current.details,
+              eventFacts: {
+                ...current.details.eventFacts,
+                errorMessage: error?.message ?? "Unknown error",
+              },
+            },
           }));
           reportClientIssue({
             channel: "firebase",
@@ -168,22 +187,33 @@ export function useAdminAnalyticsRealtime(nowMs: number): AdminAnalyticsRealtime
           if (cancelled) return;
           const fromCache = snapshot.metadata.fromCache;
           setGuestBatches(toSnapshotEntries(snapshot));
-          timingRef.current.guestBatches.lastEventAtMs = Date.now();
-          if (!fromCache) timingRef.current.guestBatches.lastServerConfirmedAtMs = Date.now();
-          timingRef.current.guestBatches.errorMessage = null;
           setListenerState((current) => ({
             ...current,
             guestBatchesLoaded: true,
             guestBatchesFailed: false,
             guestBatchesFromCache: fromCache,
+            details: {
+              ...current.details,
+              guestBatches: {
+                lastEventAtMs: Date.now(),
+                lastServerConfirmedAtMs: fromCache ? current.details.guestBatches.lastServerConfirmedAtMs : Date.now(),
+                errorMessage: null,
+              },
+            },
           }));
         },
         (error) => {
           if (cancelled) return;
-          timingRef.current.guestBatches.errorMessage = error?.message ?? "Unknown error";
           setListenerState((current) => ({
             ...current,
             guestBatchesFailed: true,
+            details: {
+              ...current.details,
+              guestBatches: {
+                ...current.details.guestBatches,
+                errorMessage: error?.message ?? "Unknown error",
+              },
+            },
           }));
           reportClientIssue({
             channel: "firebase",
@@ -218,22 +248,33 @@ export function useAdminAnalyticsRealtime(nowMs: number): AdminAnalyticsRealtime
           if (cancelled) return;
           const fromCache = snapshot.metadata.fromCache;
           setGuestSessions(toSnapshotEntries(snapshot));
-          timingRef.current.guestSessions.lastEventAtMs = Date.now();
-          if (!fromCache) timingRef.current.guestSessions.lastServerConfirmedAtMs = Date.now();
-          timingRef.current.guestSessions.errorMessage = null;
           setListenerState((current) => ({
             ...current,
             guestSessionsLoaded: true,
             guestSessionsFailed: false,
             guestSessionsFromCache: fromCache,
+            details: {
+              ...current.details,
+              guestSessions: {
+                lastEventAtMs: Date.now(),
+                lastServerConfirmedAtMs: fromCache ? current.details.guestSessions.lastServerConfirmedAtMs : Date.now(),
+                errorMessage: null,
+              },
+            },
           }));
         },
         (error) => {
           if (cancelled) return;
-          timingRef.current.guestSessions.errorMessage = error?.message ?? "Unknown error";
           setListenerState((current) => ({
             ...current,
             guestSessionsFailed: true,
+            details: {
+              ...current.details,
+              guestSessions: {
+                ...current.details.guestSessions,
+                errorMessage: error?.message ?? "Unknown error",
+              },
+            },
           }));
           reportClientIssue({
             channel: "firebase",
@@ -268,22 +309,33 @@ export function useAdminAnalyticsRealtime(nowMs: number): AdminAnalyticsRealtime
           if (cancelled) return;
           const fromCache = snapshot.metadata.fromCache;
           setWatchSessions(toSnapshotEntries(snapshot));
-          timingRef.current.watchSessions.lastEventAtMs = Date.now();
-          if (!fromCache) timingRef.current.watchSessions.lastServerConfirmedAtMs = Date.now();
-          timingRef.current.watchSessions.errorMessage = null;
           setListenerState((current) => ({
             ...current,
             watchSessionsLoaded: true,
             watchSessionsFailed: false,
             watchSessionsFromCache: fromCache,
+            details: {
+              ...current.details,
+              watchSessions: {
+                lastEventAtMs: Date.now(),
+                lastServerConfirmedAtMs: fromCache ? current.details.watchSessions.lastServerConfirmedAtMs : Date.now(),
+                errorMessage: null,
+              },
+            },
           }));
         },
         (error) => {
           if (cancelled) return;
-          timingRef.current.watchSessions.errorMessage = error?.message ?? "Unknown error";
           setListenerState((current) => ({
             ...current,
             watchSessionsFailed: true,
+            details: {
+              ...current.details,
+              watchSessions: {
+                ...current.details.watchSessions,
+                errorMessage: error?.message ?? "Unknown error",
+              },
+            },
           }));
           reportClientIssue({
             channel: "firebase",
@@ -342,7 +394,7 @@ export function useAdminAnalyticsRealtime(nowMs: number): AdminAnalyticsRealtime
 
   const listenerDebugMeta: AnalyticsRealtimeDebugMeta = useMemo(() => {
     const buildEntry = (
-      name: string,
+      name: keyof ListenerState["details"],
       collectionPath: string,
       loaded: boolean,
       failed: boolean,
@@ -351,10 +403,10 @@ export function useAdminAnalyticsRealtime(nowMs: number): AdminAnalyticsRealtime
       collection: collectionPath,
       status: failed ? "failed" : loaded ? "loaded" : "waiting",
       fromCache,
-      mountedAtMs: mountedAtRef.current,
-      lastEventAtMs: timingRef.current[name]?.lastEventAtMs ?? null,
-      lastServerConfirmedAtMs: timingRef.current[name]?.lastServerConfirmedAtMs ?? null,
-      errorMessage: timingRef.current[name]?.errorMessage ?? null,
+      mountedAtMs,
+      lastEventAtMs: listenerState.details[name].lastEventAtMs,
+      lastServerConfirmedAtMs: listenerState.details[name].lastServerConfirmedAtMs,
+      errorMessage: listenerState.details[name].errorMessage,
     });
 
     return {
@@ -364,9 +416,9 @@ export function useAdminAnalyticsRealtime(nowMs: number): AdminAnalyticsRealtime
         guestSessions: buildEntry("guestSessions", "analytics_sessions", listenerState.guestSessionsLoaded, listenerState.guestSessionsFailed, listenerState.guestSessionsFromCache),
         watchSessions: buildEntry("watchSessions", "analytics_watch_sessions", listenerState.watchSessionsLoaded, listenerState.watchSessionsFailed, listenerState.watchSessionsFromCache),
       },
-      mountedAtMs: mountedAtRef.current,
+      mountedAtMs,
     };
-  }, [listenerState]);
+  }, [listenerState, mountedAtMs]);
 
   return useMemo(
     () => ({ ...liveSignals, listenerDebugMeta }),
