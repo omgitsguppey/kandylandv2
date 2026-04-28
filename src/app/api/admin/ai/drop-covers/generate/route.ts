@@ -10,12 +10,12 @@ import { handleApiError } from "@/lib/server/auth";
 import { ADMIN_AI_GENERATE } from "@/lib/server/rate-limit";
 import { guardApiRequest } from "@/lib/server/request-guard";
 import { getErrorMessage } from "@/lib/server/route-diagnostics";
-import { recordRouteRuntimeSample } from "@/lib/server/route-runtime-health";
+import { recordRouteRuntimeSample, withRouteRuntimeHealth } from "@/lib/server/route-runtime-health";
 
 export const dynamic = "force-dynamic";
 export const revalidate = 0;
 
-export async function POST(request: NextRequest) {
+async function POST_handler(request: NextRequest) {
     const startedAt = Date.now();
     const finalize = (response: NextResponse, error?: unknown) => {
         void recordRouteRuntimeSample({
@@ -114,3 +114,5 @@ export async function POST(request: NextRequest) {
         return finalize(handleApiError(error, "admin/ai/drop-covers/generate"), error);
     }
 }
+
+export let POST = withRouteRuntimeHealth("admin/ai/drop-covers/generate:POST", POST_handler);

@@ -12,12 +12,12 @@ import { handleApiError } from "@/lib/server/auth";
 import { ADMIN, HEAVY_READ } from "@/lib/server/rate-limit";
 import { guardApiRequest } from "@/lib/server/request-guard";
 import { getErrorMessage } from "@/lib/server/route-diagnostics";
-import { recordRouteRuntimeSample } from "@/lib/server/route-runtime-health";
+import { recordRouteRuntimeSample, withRouteRuntimeHealth } from "@/lib/server/route-runtime-health";
 
 export const dynamic = "force-dynamic";
 export const revalidate = 0;
 
-export async function GET(request: NextRequest) {
+async function GET_handler(request: NextRequest) {
     const startedAt = Date.now();
     const finalize = (response: NextResponse, error?: unknown) => {
         void recordRouteRuntimeSample({
@@ -52,7 +52,7 @@ export async function GET(request: NextRequest) {
     }
 }
 
-export async function PUT(request: NextRequest) {
+async function PUT_handler(request: NextRequest) {
     const startedAt = Date.now();
     const finalize = (response: NextResponse, error?: unknown) => {
         void recordRouteRuntimeSample({
@@ -102,3 +102,6 @@ export async function PUT(request: NextRequest) {
         return finalize(handleApiError(error, "admin/analytics/preferences"), error);
     }
 }
+
+export let GET = withRouteRuntimeHealth("admin/analytics/preferences:GET", GET_handler);
+export let PUT = withRouteRuntimeHealth("admin/analytics/preferences:PUT", PUT_handler);

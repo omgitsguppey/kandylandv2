@@ -15,7 +15,7 @@ import { ORCHESTRATION_COLLECTIONS } from "@/lib/orchestration/contract";
 import { ADMIN_DEBUG_ASSISTANT } from "@/lib/server/rate-limit";
 import { guardApiRequest } from "@/lib/server/request-guard";
 import { getErrorMessage } from "@/lib/server/route-diagnostics";
-import { recordRouteRuntimeSample } from "@/lib/server/route-runtime-health";
+import { recordRouteRuntimeSample, withRouteRuntimeHealth } from "@/lib/server/route-runtime-health";
 import { CREATOR_ONBOARDING_COLLECTION, CREATOR_REVIEW_QUEUE_COLLECTION } from "@/lib/server/creator-onboarding";
 import { getCSTDateKey } from "@/lib/timezone";
 
@@ -24,7 +24,7 @@ const ONE_WEEK_MS = 7 * 24 * 60 * 60 * 1000;
 export const dynamic = "force-dynamic";
 export const revalidate = 0;
 
-export async function GET(request: NextRequest) {
+async function GET_handler(request: NextRequest) {
     const startedAt = Date.now();
     const finalize = (response: NextResponse, error?: unknown) => {
         void recordRouteRuntimeSample({
@@ -159,7 +159,7 @@ export async function GET(request: NextRequest) {
     }
 }
 
-export async function PUT(request: NextRequest) {
+async function PUT_handler(request: NextRequest) {
     const startedAt = Date.now();
     const finalize = (response: NextResponse, error?: unknown) => {
         void recordRouteRuntimeSample({
@@ -219,3 +219,6 @@ export async function PUT(request: NextRequest) {
         return finalize(handleApiError(error, "admin/debug/assistant"), error);
     }
 }
+
+export let GET = withRouteRuntimeHealth("admin/debug/assistant:GET", GET_handler);
+export let PUT = withRouteRuntimeHealth("admin/debug/assistant:PUT", PUT_handler);

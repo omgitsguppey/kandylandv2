@@ -45,8 +45,9 @@ import {
 import { guardApiRequest } from "@/lib/server/request-guard";
 import { ADMIN_ANALYTICS } from "@/lib/server/rate-limit";
 import { getErrorMessage } from "@/lib/server/route-diagnostics";
-import { recordRouteRuntimeSample } from "@/lib/server/route-runtime-health";
+import { recordRouteRuntimeSample, withRouteRuntimeHealth } from "@/lib/server/route-runtime-health";
 import { recordAnalyticsRuntimeWarning } from "@/lib/server/analytics-runtime-warning";
+import { buildServerAdminModuleVerification } from "@/lib/server/admin-source-verification";
 
 const propertyId = getAdminAnalyticsPropertyId();
 const analyticsClient = createAdminAnalyticsDataClient();
@@ -212,7 +213,7 @@ function scopeHistoricalResponse(section: string | null, payload: Record<string,
     }
 }
 
-export async function GET(request: NextRequest) {
+async function GET_handler(request: NextRequest) {
     const startedAt = Date.now();
     const finalize = (response: NextResponse, error?: unknown) => {
         void recordRouteRuntimeSample({
@@ -968,6 +969,20 @@ export async function GET(request: NextRequest) {
             const jsonResponse = NextResponse.json({
                 success: true,
                 issues,
+                verification: buildServerAdminModuleVerification({
+                    module: "admin_analytics_historical",
+                    canonicalSource: "ga4+analytics_event_facts+analytics_rollups_daily",
+                    fallbackSource: issues.length > 0 ? "first_party_firestore_rollups" : null,
+                    freshnessTimestamp: Date.now(),
+                    status: analyticsTruth.fail > 0 ? "failed" : analyticsTruth.warn > 0 ? "degraded" : "live",
+                    degradedReason: issues[0] ?? null,
+                    countComposition: {
+                        sources: analyticsTruth.sources.length,
+                        healthy: analyticsTruth.healthy,
+                        warn: analyticsTruth.warn,
+                        fail: analyticsTruth.fail,
+                    },
+                }),
                 ...scopeHistoricalResponse(section, payload),
             });
             await recordAnalyticsRuntimeWarning({
@@ -985,3 +1000,5 @@ export async function GET(request: NextRequest) {
         return finalize(handleApiError(error, "Admin.Analytics.Historical.GET"), error);
     }
 }
+
+export let GET = withRouteRuntimeHealth("admin/analytics/historical:GET", GET_handler);

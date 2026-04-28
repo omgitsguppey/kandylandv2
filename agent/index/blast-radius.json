@@ -1,5 +1,5 @@
 {
-  "generatedAt": "2026-04-27T04:09:48.893Z",
+  "generatedAt": "2026-04-28T16:57:31.211Z",
   "truthOrder": [
     "verified_runtime_code",
     "verified_configuration",
@@ -5651,6 +5651,188 @@
       ]
     },
     {
+      "stable_id": "blast__src__app__admin__debug__components__debugadvancedbehavior-tsx",
+      "path": "src/app/admin/debug/components/DebugAdvancedBehavior.tsx",
+      "blast_radius_score": 35,
+      "shared_helper_risk": 0,
+      "route_boundary_risk": 0,
+      "runtime_criticality": 25,
+      "verification_burden": 10,
+      "deploy_or_lockfile_sensitivity": 0,
+      "why_score_was_assigned": [
+        "Runtime-critical surface."
+      ]
+    },
+    {
+      "stable_id": "blast__src__app__admin__debug__components__debugadvanceddrift-tsx",
+      "path": "src/app/admin/debug/components/DebugAdvancedDrift.tsx",
+      "blast_radius_score": 35,
+      "shared_helper_risk": 0,
+      "route_boundary_risk": 0,
+      "runtime_criticality": 25,
+      "verification_burden": 10,
+      "deploy_or_lockfile_sensitivity": 0,
+      "why_score_was_assigned": [
+        "Runtime-critical surface."
+      ]
+    },
+    {
+      "stable_id": "blast__src__app__admin__debug__components__debugadvancedexperiments-tsx",
+      "path": "src/app/admin/debug/components/DebugAdvancedExperiments.tsx",
+      "blast_radius_score": 35,
+      "shared_helper_risk": 0,
+      "route_boundary_risk": 0,
+      "runtime_criticality": 25,
+      "verification_burden": 10,
+      "deploy_or_lockfile_sensitivity": 0,
+      "why_score_was_assigned": [
+        "Runtime-critical surface."
+      ]
+    },
+    {
+      "stable_id": "blast__src__app__admin__debug__components__debugadvancedtelemetry-tsx",
+      "path": "src/app/admin/debug/components/DebugAdvancedTelemetry.tsx",
+      "blast_radius_score": 35,
+      "shared_helper_risk": 0,
+      "route_boundary_risk": 0,
+      "runtime_criticality": 25,
+      "verification_burden": 10,
+      "deploy_or_lockfile_sensitivity": 0,
+      "why_score_was_assigned": [
+        "Runtime-critical surface."
+      ]
+    },
+    {
+      "stable_id": "blast__src__app__admin__debug__components__debugadvancedtruth-tsx",
+      "path": "src/app/admin/debug/components/DebugAdvancedTruth.tsx",
+      "blast_radius_score": 35,
+      "shared_helper_risk": 0,
+      "route_boundary_risk": 0,
+      "runtime_criticality": 25,
+      "verification_burden": 10,
+      "deploy_or_lockfile_sensitivity": 0,
+      "why_score_was_assigned": [
+        "Runtime-critical surface."
+      ]
+    },
+    {
+      "stable_id": "blast__src__app__admin__debug__components__debugmonitoringroutes-tsx",
+      "path": "src/app/admin/debug/components/DebugMonitoringRoutes.tsx",
+      "blast_radius_score": 35,
+      "shared_helper_risk": 0,
+      "route_boundary_risk": 0,
+      "runtime_criticality": 25,
+      "verification_burden": 10,
+      "deploy_or_lockfile_sensitivity": 0,
+      "why_score_was_assigned": [
+        "Runtime-critical surface."
+      ]
+    },
+    {
+      "stable_id": "blast__src__app__admin__debug__components__debugnowdiagnostics-tsx",
+      "path": "src/app/admin/debug/components/DebugNowDiagnostics.tsx",
+      "blast_radius_score": 35,
+      "shared_helper_risk": 0,
+      "route_boundary_risk": 0,
+      "runtime_criticality": 25,
+      "verification_burden": 10,
+      "deploy_or_lockfile_sensitivity": 0,
+      "why_score_was_assigned": [
+        "Runtime-critical surface."
+      ]
+    },
+    {
+      "stable_id": "blast__src__app__admin__debug__components__debugprimitives-tsx",
+      "path": "src/app/admin/debug/components/DebugPrimitives.tsx",
+      "blast_radius_score": 35,
+      "shared_helper_risk": 0,
+      "route_boundary_risk": 0,
+      "runtime_criticality": 25,
+      "verification_burden": 10,
+      "deploy_or_lockfile_sensitivity": 0,
+      "why_score_was_assigned": [
+        "Runtime-critical surface."
+      ]
+    },
+    {
+      "stable_id": "blast__src__app__admin__debug__components__debugtabactions-tsx",
+      "path": "src/app/admin/debug/components/DebugTabActions.tsx",
+      "blast_radius_score": 35,
+      "shared_helper_risk": 0,
+      "route_boundary_risk": 0,
+      "runtime_criticality": 25,
+      "verification_burden": 10,
+      "deploy_or_lockfile_sensitivity": 0,
+      "why_score_was_assigned": [
+        "Runtime-critical surface."
+      ]
+    },
+    {
+      "stable_id": "blast__src__app__admin__debug__components__debugtabadvanced-tsx",
+      "path": "src/app/admin/debug/components/DebugTabAdvanced.tsx",
+      "blast_radius_score": 35,
+      "shared_helper_risk": 0,
+      "route_boundary_risk": 0,
+      "runtime_criticality": 25,
+      "verification_burden": 10,
+      "deploy_or_lockfile_sensitivity": 0,
+      "why_score_was_assigned": [
+        "Runtime-critical surface."
+      ]
+    },
+    {
+      "stable_id": "blast__src__app__admin__debug__components__debugtabai-tsx",
+      "path": "src/app/admin/debug/components/DebugTabAi.tsx",
+      "blast_radius_score": 35,
+      "shared_helper_risk": 0,
+      "route_boundary_risk": 0,
+      "runtime_criticality": 25,
+      "verification_burden": 10,
+      "deploy_or_lockfile_sensitivity": 0,
+      "why_score_was_assigned": [
+        "Runtime-critical surface."
+      ]
+    },
+    {
+      "stable_id": "blast__src__app__admin__debug__components__debugtabinfrastructure-tsx",
+      "path": "src/app/admin/debug/components/DebugTabInfrastructure.tsx",
+      "blast_radius_score": 35,
+      "shared_helper_risk": 0,
+      "route_boundary_risk": 0,
+      "runtime_criticality": 25,
+      "verification_burden": 10,
+      "deploy_or_lockfile_sensitivity": 0,
+      "why_score_was_assigned": [
+        "Runtime-critical surface."
+      ]
+    },
+    {
+      "stable_id": "blast__src__app__admin__debug__components__debugtabmonitoring-tsx",
+      "path": "src/app/admin/debug/components/DebugTabMonitoring.tsx",
+      "blast_radius_score": 35,
+      "shared_helper_risk": 0,
+      "route_boundary_risk": 0,
+      "runtime_criticality": 25,
+      "verification_burden": 10,
+      "deploy_or_lockfile_sensitivity": 0,
+      "why_score_was_assigned": [
+        "Runtime-critical surface."
+      ]
+    },
+    {
+      "stable_id": "blast__src__app__admin__debug__components__debugtabnow-tsx",
+      "path": "src/app/admin/debug/components/DebugTabNow.tsx",
+      "blast_radius_score": 35,
+      "shared_helper_risk": 0,
+      "route_boundary_risk": 0,
+      "runtime_criticality": 25,
+      "verification_burden": 10,
+      "deploy_or_lockfile_sensitivity": 0,
+      "why_score_was_assigned": [
+        "Runtime-critical surface."
+      ]
+    },
+    {
       "stable_id": "blast__src__app__admin__debug__hooks__useadminaiassistantrealtime-ts",
       "path": "src/app/admin/debug/hooks/useAdminAiAssistantRealtime.ts",
       "blast_radius_score": 35,
@@ -6860,8 +7042,8 @@
       ]
     },
     {
-      "stable_id": "blast__src__components__admin__topdropspanel-tsx",
-      "path": "src/components/Admin/TopDropsPanel.tsx",
+      "stable_id": "blast__src__components__admin__topdropstable-tsx",
+      "path": "src/components/Admin/TopDropsTable.tsx",
       "blast_radius_score": 35,
       "shared_helper_risk": 0,
       "route_boundary_risk": 0,

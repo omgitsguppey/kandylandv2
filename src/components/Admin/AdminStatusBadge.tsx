@@ -1,6 +1,10 @@
 "use client";
 
-import type { AdminSurfaceState } from "@/lib/admin-parity";
+import {
+  ADMIN_SURFACE_STATE_DETAIL,
+  formatAdminSurfaceStateLabel,
+  type AdminSurfaceState,
+} from "@/lib/admin-parity";
 import { cn } from "@/lib/utils";
 
 const STATE_STYLES: Record<AdminSurfaceState, string> = {
@@ -15,19 +19,22 @@ const STATE_STYLES: Record<AdminSurfaceState, string> = {
 export function AdminStatusBadge({
   state,
   className,
+  title,
 }: {
   state: AdminSurfaceState;
   className?: string;
+  title?: string;
 }) {
   return (
     <span
+      title={title ?? ADMIN_SURFACE_STATE_DETAIL[state]}
       className={cn(
         "inline-flex rounded-md border px-2 py-1 text-[10px] font-bold uppercase tracking-wider",
         STATE_STYLES[state],
         className,
       )}
     >
-      [{state}]
+      {formatAdminSurfaceStateLabel(state)}
     </span>
   );
 }

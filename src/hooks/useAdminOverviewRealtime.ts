@@ -9,6 +9,7 @@ import { reportRealtimeIssue } from "@/lib/client-error-reporting";
 import { buildFirestoreClientIssueDetail } from "@/lib/firestore-client-errors";
 import { db } from "@/lib/firebase-data";
 import { createAutoHealingObserver } from "@/lib/self-healing";
+import type { AdminSurfaceState } from "@/lib/admin-parity";
 import type { AdminOverviewResponse, AdminOverviewTransactionRecord, AdminOverviewActivityItem, AdminOverviewRealtimeDebugMeta } from "@/lib/admin-overview";
 import { normalizeTransactionRecord, getTransactionDisplayLabel } from "@/lib/transaction-normalizers";
 import { isDropHiddenFromPublic, normalizeAndApplyDropStatusOrNull } from "@/lib/drop-read-models";
@@ -96,11 +97,12 @@ export function resolveTruthChipLabel(
 }
 
 /** Map a truth chip label to a CSS chip style variant. */
-export function resolveTruthChipVariant(label: string): "live" | "cached" | "fallback" | "waiting" {
+export function resolveTruthChipVariant(label: string): AdminSurfaceState {
     if (label === "Live server truth") return "live";
-    if (label === "Cached snapshot" || label === "Realtime warming up" || label === "Server rollup only") return "cached";
+    if (label === "Cached snapshot") return "stale";
+    if (label === "Realtime warming up" || label === "Server rollup only") return "degraded";
     if (label.startsWith("Fallback active")) return "fallback";
-    return "waiting";
+    return "unavailable";
 }
 
 function buildRealtimeOnlyOverview(
@@ -112,12 +114,13 @@ function buildRealtimeOnlyOverview(
         listenerState.dropsFailed ? "Drops realtime listener failed." : null,
         listenerState.summaryFailed ? "Commerce summary realtime listener failed." : null,
         listenerState.transactionsFailed ? "Transaction realtime listener failed." : null,
+        listenerState.adminActivityFailed ? "Admin activity realtime listener failed." : null,
     ].filter((issue): issue is string => Boolean(issue));
 
     const overviewLabel = resolveTruthChipLabel(listenerState, false);
 
     return {
-        success: issues.length === 0,
+        success: false,
         issues,
         generatedAt,
         freshness: {
@@ -125,13 +128,13 @@ function buildRealtimeOnlyOverview(
             lastAdminActivityAt: realtimeData.adminActivity?.[0]?.timestamp ?? 0,
         },
         stats: {
-            totalUsers: 0,
-            liveDrops: 0,
-            totalDrops: 0,
-            grossRevenueCents: 0,
-            totalUnwraps: 0,
-            currentWindowPurchases: 0,
-            currentWindowNewUsers: 0,
+            totalUsers: realtimeData.stats?.totalUsers ?? 0,
+            liveDrops: realtimeData.stats?.liveDrops ?? 0,
+            totalDrops: realtimeData.stats?.totalDrops ?? 0,
+            grossRevenueCents: realtimeData.stats?.grossRevenueCents ?? 0,
+            totalUnwraps: realtimeData.stats?.totalUnwraps ?? 0,
+            currentWindowPurchases: realtimeData.stats?.currentWindowPurchases ?? 0,
+            currentWindowNewUsers: realtimeData.stats?.currentWindowNewUsers ?? 0,
             ...(realtimeData.stats ?? {}),
         },
         deltas: {
@@ -192,7 +195,10 @@ function buildRealtimeOnlyOverview(
 export function useAdminOverviewRealtime() {
     const fetcher = async (url: string) => {
         const response = await authFetch(url);
-        if (!response.ok) throw new Error("Failed to load overview");
+        if (!response.ok) {
+            const detail = await response.text().catch(() => "");
+            throw new Error(`Failed to load overview (${response.status})${detail ? `: ${detail.slice(0, 240)}` : ""}`);
+        }
         return response.json() as Promise<AdminOverviewResponse>;
     };
 
@@ -232,7 +238,7 @@ export function useAdminOverviewRealtime() {
         let cancelled = false;
 
         // Subscribe to Drops
-        const dropsControl = createAutoHealingObserver(() => onSnapshot(collection(db, "drops"), (snapshot) => {
+        const dropsControl = createAutoHealingObserver(() => onSnapshot(collection(db, "drops"), { includeMetadataChanges: true }, (snapshot) => {
             if (cancelled) return;
             const now = Date.now();
             const fromCache = snapshot.metadata.fromCache;
@@ -516,7 +522,10 @@ export function useAdminOverviewRealtime() {
             },
             issues: [
                 ...(serverData.issues ?? []),
-                ...(hasRealtimeFailure ? ["One or more overview realtime listeners are degraded."] : []),
+                ...(listenerState.dropsFailed ? ["Drops realtime listener is degraded."] : []),
+                ...(listenerState.summaryFailed ? ["Commerce summary realtime listener is degraded."] : []),
+                ...(listenerState.transactionsFailed ? ["Transactions realtime listener is degraded."] : []),
+                ...(listenerState.adminActivityFailed ? ["Admin activity realtime listener is degraded."] : []),
             ],
             truthNotes: {
                 ...serverData.truthNotes,

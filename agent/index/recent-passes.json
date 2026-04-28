@@ -1,5 +1,5 @@
 {
-  "generatedAt": "2026-04-27T04:09:37.318Z",
+  "generatedAt": "2026-04-28T16:57:21.550Z",
   "truthOrder": [
     "verified_runtime_code",
     "verified_configuration",
@@ -14,6 +14,35 @@
     "FULL_SCALE_CODEBASE_AUDIT.md"
   ],
   "passes": [
+    {
+      "stable_id": "pass__2026-04-28-pre__post-every-file-checklist-tracking-reconciliation",
+      "date": "2026-04-28",
+      "title": "PRE/POST: Every-File Checklist Tracking Reconciliation",
+      "scopeSummary": [],
+      "touchedSurfaces": [
+        "agent/index/repo-inventory.json",
+        "src/lib/server/analytics-pipeline-health.ts",
+        "src/lib/server/firebase-admin.ts",
+        "src/lib/server/route-diagnostics.ts",
+        "src/lib/server/server-diagnostics.ts"
+      ],
+      "canonicalHelpersReused": [
+        "src/lib/server/route-diagnostics.ts",
+        "src/lib/server/server-diagnostics.ts"
+      ],
+      "verificationCommandsRun": [],
+      "resultSummary": [],
+      "warnings": [],
+      "architecture_change": true,
+      "runtime_change": false,
+      "ui_change": false,
+      "security_change": false,
+      "maintenance_only": false,
+      "changeKinds": [
+        "admin",
+        "architecture"
+      ]
+    },
     {
       "stable_id": "pass__2026-04-26-dependency-and-infrastructure-observability-rollout",
       "date": "2026-04-26",
@@ -256,43 +285,6 @@
         "runtime",
         "security",
         "tooling",
-        "architecture"
-      ]
-    },
-    {
-      "stable_id": "pass__2026-04-22-admin-analytics-realtime-presence-hardening",
-      "date": "2026-04-22",
-      "title": "Admin Analytics Realtime Presence Hardening",
-      "scopeSummary": [
-        "Stop treating admin analytics \"realtime\" as a 5-second polled summary when canonical first-party live collections already exist, and make guest presence visible in the live admin lane instead of implicitly disappearing behind GA and delayed history."
-      ],
-      "touchedSurfaces": [
-        "/api/admin/analytics/realtime",
-        "npx vitest run tests/unit/admin-analytics-live-runtime.spec.ts tests/unit/admin-analytics-page.spec.tsx",
-        "src/app/admin/analytics/components/AdminAnalyticsOperationsTab.tsx",
-        "src/app/admin/analytics/hooks/useAdminAnalyticsRealtime.ts",
-        "src/app/admin/analytics/hooks/useAdminAnalyticsState.tsx",
-        "src/app/admin/analytics/page.tsx",
-        "src/app/api/admin/analytics/realtime/route.ts",
-        "src/app/api/analytics/ingest/route.ts",
-        "src/components/Analytics/DeepTracker.tsx",
-        "src/lib/admin-analytics-live-runtime.ts",
-        "src/types/admin-analytics.ts",
-        "tests/unit/admin-analytics-live-runtime.spec.ts"
-      ],
-      "canonicalHelpersReused": [],
-      "verificationCommandsRun": [],
-      "resultSummary": [],
-      "warnings": [],
-      "architecture_change": true,
-      "runtime_change": true,
-      "ui_change": true,
-      "security_change": false,
-      "maintenance_only": false,
-      "changeKinds": [
-        "admin",
-        "ui",
-        "runtime",
         "architecture"
       ]
     }

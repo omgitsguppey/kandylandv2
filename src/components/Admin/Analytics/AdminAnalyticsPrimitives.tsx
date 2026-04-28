@@ -5,6 +5,8 @@ import type { ReactNode } from "react";
 import type { LucideIcon } from "lucide-react";
 import { Activity , Info } from "lucide-react";
 
+import { AdminStatusBadge } from "@/components/Admin/AdminStatusBadge";
+import { coerceAdminSurfaceState, type AdminSurfaceState } from "@/lib/admin-parity";
 import { cn } from "@/lib/utils";
 
 type TooltipValue = {
@@ -38,7 +40,7 @@ export interface MetricCardProps {
     icon: LucideIcon;
     className?: string;
     valueClassName?: string;
-    truthState?: "live" | "fallback" | "partial" | "failed" | "cached" | "stale" | "unavailable" | "unknown";
+    truthState?: AdminSurfaceState;
     dictionaryTooltip?: string;
 }
 
@@ -148,6 +150,8 @@ export function MetricCard({
     truthState,
     dictionaryTooltip,
 }: MetricCardProps) {
+    const resolvedTruthState = truthState ? coerceAdminSurfaceState(truthState) : undefined;
+
     return (
         <div
             className={cn(
@@ -171,23 +175,8 @@ export function MetricCard({
                         </div>
                     )}
                 </div>
-                {truthState ? (
-                    <span 
-                        title={`Data state: ${truthState}`}
-                        className={cn(
-                            "cursor-help rounded px-1.5 py-0.5 text-[9px] font-bold uppercase tracking-[0.1em]",
-                            truthState === "live" ? "bg-emerald-500/10 text-emerald-400 border border-emerald-400/20" :
-                            truthState === "fallback" ? "bg-amber-500/10 text-amber-400 border border-amber-400/20" :
-                            truthState === "partial" ? "bg-amber-500/10 text-amber-400 border border-amber-400/20" :
-                            truthState === "failed" ? "bg-red-500/10 text-red-400 border border-red-400/20" :
-                            truthState === "cached" ? "bg-blue-500/10 text-blue-400 border border-blue-400/20" :
-                            truthState === "stale" ? "bg-orange-500/10 text-orange-400 border border-orange-400/20" :
-                            truthState === "unavailable" ? "bg-gray-500/10 text-gray-500 border border-gray-500/15" :
-                            "bg-gray-500/10 text-gray-400 border border-gray-400/20"
-                        )}
-                    >
-                        {truthState}
-                    </span>
+                {resolvedTruthState ? (
+                    <AdminStatusBadge state={resolvedTruthState} className="rounded px-1.5 py-0.5 text-[9px]" />
                 ) : null}
             </div>
             <div

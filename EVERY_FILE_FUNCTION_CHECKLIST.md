@@ -1,8 +1,8 @@
 # EVERY FILE FUNCTION CHECKLIST
 
-**Last Updated:** 2026-04-26
-**Current Focus:** Admin analytics resilience, eliminating thundering herd reads on the realtime endpoints, and fixing syntax regressions in the admin UI.
-**Status:** In Progress. Historical exhaustive sweep remains valuable, and the 2026-04-21 continuity metadata now reflects the repo-intelligence layer, the fast-loop versus signoff verification split, the portable instruction surfaces, and the structured eval-failure review output in addition to the earlier UI continuity, runtime continuity, analytics truth, and viewer watch/session hardening lanes.
+**Last Updated:** 2026-04-28
+**Current Focus:** Every-file tracked inventory reconciliation against live git truth and regenerated agent indexes.
+**Status:** In Progress. Current tracked-file coverage is reconciled as of 2026-04-28: every `git ls-files` entry has a current checklist heading, while detailed function-level audits remain pending for many historical and newly reconciled files.
 Purpose: exhaustive no-skip audit checklist covering every repository file currently in scope and every detected function-like implementation.
 
 Scoring: all entries below are marked as included in the current validated sweep. Confidence reflects current repository-state confidence, not perfection or future-proofing.
@@ -16,6 +16,2077 @@ Current repo-wide state snapshot: see [FULL_SCALE_CODEBASE_AUDIT.md](/Users/uylu
 ## 2026-04-22 Delta Coverage
 
 ## 2026-04-23 Delta Coverage
+
+## 2026-04-28 Tracked File Reconciliation
+
+- Verification source: `git ls-files`, `npm run check:inventory`, `npm run agent:index`, and checklist-heading reconciliation.
+- Live tracked file count: `1082`.
+- Newly added current checklist headings in this pass: `410`.
+- Historical checklist headings marked as no longer tracked: `8`.
+- Scope note: this pass confirms repository tracking coverage. It does not claim every listed file has completed detailed function-level review.
+
+### Historical headings no longer tracked
+
+- [x] `src/app/api/admin/ui-chart-health/route.ts` is no longer present in `git ls-files`; retained only as historical checklist evidence.
+- [x] `src/app/api/telemetry/track/route.ts` is no longer present in `git ls-files`; retained only as historical checklist evidence.
+- [x] `src/components/Admin/TopDropsPanel.tsx` is no longer present in `git ls-files`; retained only as historical checklist evidence.
+- [x] `src/hooks/useAdminUiChartHealthReporter.ts` is no longer present in `git ls-files`; retained only as historical checklist evidence.
+- [x] `src/lib/admin-ui-chart-health.ts` is no longer present in `git ls-files`; retained only as historical checklist evidence.
+- [x] `src/lib/server/admin-ui-chart-health.ts` is no longer present in `git ls-files`; retained only as historical checklist evidence.
+- [x] `tests/unit/admin-ui-chart-health-route.spec.ts` is no longer present in `git ls-files`; retained only as historical checklist evidence.
+- [x] `tests/unit/admin-ui-chart-health.spec.ts` is no longer present in `git ls-files`; retained only as historical checklist evidence.
+
+### Newly reconciled current tracked files
+
+### `.Jules/palette.md`
+
+- [x] File exists and is tracked as of the 2026-04-28 reconciliation pass.
+- [ ] Pending detailed function-level audit.
+
+### `.agent/skills/doctrine-consultation.md`
+
+- [x] File exists and is tracked as of the 2026-04-28 reconciliation pass.
+- [ ] Pending detailed function-level audit.
+
+### `.agent/workflows/audit-hydration.md`
+
+- [x] File exists and is tracked as of the 2026-04-28 reconciliation pass.
+- [ ] Pending detailed function-level audit.
+
+### `.agent/workflows/audit-legacy.md`
+
+- [x] File exists and is tracked as of the 2026-04-28 reconciliation pass.
+- [ ] Pending detailed function-level audit.
+
+### `.agent/workflows/audit-performance.md`
+
+- [x] File exists and is tracked as of the 2026-04-28 reconciliation pass.
+- [ ] Pending detailed function-level audit.
+
+### `.agent/workflows/audit-realtime.md`
+
+- [x] File exists and is tracked as of the 2026-04-28 reconciliation pass.
+- [ ] Pending detailed function-level audit.
+
+### `.agent/workflows/audit-telemetry.md`
+
+- [x] File exists and is tracked as of the 2026-04-28 reconciliation pass.
+- [ ] Pending detailed function-level audit.
+
+### `.agent/workflows/auto-tasks.md`
+
+- [x] File exists and is tracked as of the 2026-04-28 reconciliation pass.
+- [ ] Pending detailed function-level audit.
+
+### `.agent/workflows/dependency-audit.md`
+
+- [x] File exists and is tracked as of the 2026-04-28 reconciliation pass.
+- [ ] Pending detailed function-level audit.
+
+### `.agent/workflows/dependency-truth.md`
+
+- [x] File exists and is tracked as of the 2026-04-28 reconciliation pass.
+- [ ] Pending detailed function-level audit.
+
+### `.agent/workflows/kandydrops-guardrails.md`
+
+- [x] File exists and is tracked as of the 2026-04-28 reconciliation pass.
+- [ ] Pending detailed function-level audit.
+
+### `.agent/workflows/pre-commit.md`
+
+- [x] File exists and is tracked as of the 2026-04-28 reconciliation pass.
+- [ ] Pending detailed function-level audit.
+
+### `.agent/workflows/simulate-ui.md`
+
+- [x] File exists and is tracked as of the 2026-04-28 reconciliation pass.
+- [ ] Pending detailed function-level audit.
+
+### `.agent/workflows/sync-ledgers.md`
+
+- [x] File exists and is tracked as of the 2026-04-28 reconciliation pass.
+- [ ] Pending detailed function-level audit.
+
+### `.agent/workflows/ui-copy-refinement-workflow.md`
+
+- [x] File exists and is tracked as of the 2026-04-28 reconciliation pass.
+- [ ] Pending detailed function-level audit.
+
+### `.claude/agents/test-specialist.md`
+
+- [x] File exists and is tracked as of the 2026-04-28 reconciliation pass.
+- [ ] Pending detailed function-level audit.
+
+### `.dependency-cruiser.cjs`
+
+- [x] File exists and is tracked as of the 2026-04-28 reconciliation pass.
+- [ ] Pending detailed function-level audit.
+
+### `.github/copilot-instructions.md`
+
+- [x] File exists and is tracked as of the 2026-04-28 reconciliation pass.
+- [ ] Pending detailed function-level audit.
+
+### `.github/instructions/admin-debug.instructions.md`
+
+- [x] File exists and is tracked as of the 2026-04-28 reconciliation pass.
+- [ ] Pending detailed function-level audit.
+
+### `.github/instructions/analytics.instructions.md`
+
+- [x] File exists and is tracked as of the 2026-04-28 reconciliation pass.
+- [ ] Pending detailed function-level audit.
+
+### `.github/instructions/functions-runtime.instructions.md`
+
+- [x] File exists and is tracked as of the 2026-04-28 reconciliation pass.
+- [ ] Pending detailed function-level audit.
+
+### `.github/instructions/tests.instructions.md`
+
+- [x] File exists and is tracked as of the 2026-04-28 reconciliation pass.
+- [ ] Pending detailed function-level audit.
+
+### `.gitignore`
+
+- [x] File exists and is tracked as of the 2026-04-28 reconciliation pass.
+- [ ] Pending detailed function-level audit.
+
+### `.idx/dev.nix`
+
+- [x] File exists and is tracked as of the 2026-04-28 reconciliation pass.
+- [ ] Pending detailed function-level audit.
+
+### `.jules/bolt.md`
+
+- [x] File exists and is tracked as of the 2026-04-28 reconciliation pass.
+- [ ] Pending detailed function-level audit.
+
+### `.jules/sentinel.md`
+
+- [x] File exists and is tracked as of the 2026-04-28 reconciliation pass.
+- [ ] Pending detailed function-level audit.
+
+### `.lighthouserc.json`
+
+- [x] File exists and is tracked as of the 2026-04-28 reconciliation pass.
+- [ ] Pending detailed function-level audit.
+
+### `.ncurc.json`
+
+- [x] File exists and is tracked as of the 2026-04-28 reconciliation pass.
+- [ ] Pending detailed function-level audit.
+
+### `.npmrc`
+
+- [x] File exists and is tracked as of the 2026-04-28 reconciliation pass.
+- [ ] Pending detailed function-level audit.
+
+### `.vscode/settings.json`
+
+- [x] File exists and is tracked as of the 2026-04-28 reconciliation pass.
+- [ ] Pending detailed function-level audit.
+
+### `.vscode/tailwind.json`
+
+- [x] File exists and is tracked as of the 2026-04-28 reconciliation pass.
+- [ ] Pending detailed function-level audit.
+
+### `AGENTS.md`
+
+- [x] File exists and is tracked as of the 2026-04-28 reconciliation pass.
+- [ ] Pending detailed function-level audit.
+
+### `COPY_CONTRACT.md`
+
+- [x] File exists and is tracked as of the 2026-04-28 reconciliation pass.
+- [ ] Pending detailed function-level audit.
+
+### `EVERY_FILE_FUNCTION_CHECKLIST.md`
+
+- [x] File exists and is tracked as of the 2026-04-28 reconciliation pass.
+- [ ] Pending detailed function-level audit.
+
+### `FULL_SCALE_CODEBASE_AUDIT.md`
+
+- [x] File exists and is tracked as of the 2026-04-28 reconciliation pass.
+- [ ] Pending detailed function-level audit.
+
+### `README.md`
+
+- [x] File exists and is tracked as of the 2026-04-28 reconciliation pass.
+- [ ] Pending detailed function-level audit.
+
+### `REPO_MEMORY_LEDGER.md`
+
+- [x] File exists and is tracked as of the 2026-04-28 reconciliation pass.
+- [ ] Pending detailed function-level audit.
+
+### `agent/README.md`
+
+- [x] File exists and is tracked as of the 2026-04-28 reconciliation pass.
+- [ ] Pending detailed function-level audit.
+
+### `agent/index/blast-radius.json`
+
+- [x] File exists and is tracked as of the 2026-04-28 reconciliation pass.
+- [ ] Pending detailed function-level audit.
+
+### `agent/index/canonical-helpers.json`
+
+- [x] File exists and is tracked as of the 2026-04-28 reconciliation pass.
+- [ ] Pending detailed function-level audit.
+
+### `agent/index/dependency-graph.summary.json`
+
+- [x] File exists and is tracked as of the 2026-04-28 reconciliation pass.
+- [ ] Pending detailed function-level audit.
+
+### `agent/index/governance-truth.json`
+
+- [x] File exists and is tracked as of the 2026-04-28 reconciliation pass.
+- [ ] Pending detailed function-level audit.
+
+### `agent/index/known-pitfalls.json`
+
+- [x] File exists and is tracked as of the 2026-04-28 reconciliation pass.
+- [ ] Pending detailed function-level audit.
+
+### `agent/index/package-manager-truth.json`
+
+- [x] File exists and is tracked as of the 2026-04-28 reconciliation pass.
+- [ ] Pending detailed function-level audit.
+
+### `agent/index/recent-passes.json`
+
+- [x] File exists and is tracked as of the 2026-04-28 reconciliation pass.
+- [ ] Pending detailed function-level audit.
+
+### `agent/index/repo-inventory.json`
+
+- [x] File exists and is tracked as of the 2026-04-28 reconciliation pass.
+- [ ] Pending detailed function-level audit.
+
+### `agent/index/retrieval-index.json`
+
+- [x] File exists and is tracked as of the 2026-04-28 reconciliation pass.
+- [ ] Pending detailed function-level audit.
+
+### `agent/index/runtime-observability.json`
+
+- [x] File exists and is tracked as of the 2026-04-28 reconciliation pass.
+- [ ] Pending detailed function-level audit.
+
+### `agent/index/surface-map.json`
+
+- [x] File exists and is tracked as of the 2026-04-28 reconciliation pass.
+- [ ] Pending detailed function-level audit.
+
+### `agent/index/ui-surface-coverage.json`
+
+- [x] File exists and is tracked as of the 2026-04-28 reconciliation pass.
+- [ ] Pending detailed function-level audit.
+
+### `agent/index/verification-commands.json`
+
+- [x] File exists and is tracked as of the 2026-04-28 reconciliation pass.
+- [ ] Pending detailed function-level audit.
+
+### `agent/index/workflow-guidance.json`
+
+- [x] File exists and is tracked as of the 2026-04-28 reconciliation pass.
+- [ ] Pending detailed function-level audit.
+
+### `agent/prompts/task-issue-spec.generated.md`
+
+- [x] File exists and is tracked as of the 2026-04-28 reconciliation pass.
+- [ ] Pending detailed function-level audit.
+
+### `agent/prompts/task-prompt.deep.md`
+
+- [x] File exists and is tracked as of the 2026-04-28 reconciliation pass.
+- [ ] Pending detailed function-level audit.
+
+### `agent/prompts/task-prompt.short.md`
+
+- [x] File exists and is tracked as of the 2026-04-28 reconciliation pass.
+- [ ] Pending detailed function-level audit.
+
+### `agent/prompts/task-prompt.standard.md`
+
+- [x] File exists and is tracked as of the 2026-04-28 reconciliation pass.
+- [ ] Pending detailed function-level audit.
+
+### `agent/prompts/verification-plan.generated.md`
+
+- [x] File exists and is tracked as of the 2026-04-28 reconciliation pass.
+- [ ] Pending detailed function-level audit.
+
+### `agent/schemas/active-task.schema.json`
+
+- [x] File exists and is tracked as of the 2026-04-28 reconciliation pass.
+- [ ] Pending detailed function-level audit.
+
+### `agent/schemas/blast-radius.schema.json`
+
+- [x] File exists and is tracked as of the 2026-04-28 reconciliation pass.
+- [ ] Pending detailed function-level audit.
+
+### `agent/schemas/canonical-helpers.schema.json`
+
+- [x] File exists and is tracked as of the 2026-04-28 reconciliation pass.
+- [ ] Pending detailed function-level audit.
+
+### `agent/schemas/dependency-graph.summary.schema.json`
+
+- [x] File exists and is tracked as of the 2026-04-28 reconciliation pass.
+- [ ] Pending detailed function-level audit.
+
+### `agent/schemas/governance-truth.schema.json`
+
+- [x] File exists and is tracked as of the 2026-04-28 reconciliation pass.
+- [ ] Pending detailed function-level audit.
+
+### `agent/schemas/handoff.schema.json`
+
+- [x] File exists and is tracked as of the 2026-04-28 reconciliation pass.
+- [ ] Pending detailed function-level audit.
+
+### `agent/schemas/known-pitfalls.schema.json`
+
+- [x] File exists and is tracked as of the 2026-04-28 reconciliation pass.
+- [ ] Pending detailed function-level audit.
+
+### `agent/schemas/last-change.schema.json`
+
+- [x] File exists and is tracked as of the 2026-04-28 reconciliation pass.
+- [ ] Pending detailed function-level audit.
+
+### `agent/schemas/package-manager-truth.schema.json`
+
+- [x] File exists and is tracked as of the 2026-04-28 reconciliation pass.
+- [ ] Pending detailed function-level audit.
+
+### `agent/schemas/recent-passes.schema.json`
+
+- [x] File exists and is tracked as of the 2026-04-28 reconciliation pass.
+- [ ] Pending detailed function-level audit.
+
+### `agent/schemas/repo-inventory.schema.json`
+
+- [x] File exists and is tracked as of the 2026-04-28 reconciliation pass.
+- [ ] Pending detailed function-level audit.
+
+### `agent/schemas/retrieval-index.schema.json`
+
+- [x] File exists and is tracked as of the 2026-04-28 reconciliation pass.
+- [ ] Pending detailed function-level audit.
+
+### `agent/schemas/runtime-observability.schema.json`
+
+- [x] File exists and is tracked as of the 2026-04-28 reconciliation pass.
+- [ ] Pending detailed function-level audit.
+
+### `agent/schemas/surface-map.schema.json`
+
+- [x] File exists and is tracked as of the 2026-04-28 reconciliation pass.
+- [ ] Pending detailed function-level audit.
+
+### `agent/schemas/task-context.schema.json`
+
+- [x] File exists and is tracked as of the 2026-04-28 reconciliation pass.
+- [ ] Pending detailed function-level audit.
+
+### `agent/schemas/ui-surface-coverage.schema.json`
+
+- [x] File exists and is tracked as of the 2026-04-28 reconciliation pass.
+- [ ] Pending detailed function-level audit.
+
+### `agent/schemas/verification-commands.schema.json`
+
+- [x] File exists and is tracked as of the 2026-04-28 reconciliation pass.
+- [ ] Pending detailed function-level audit.
+
+### `agent/schemas/workflow-guidance.schema.json`
+
+- [x] File exists and is tracked as of the 2026-04-28 reconciliation pass.
+- [ ] Pending detailed function-level audit.
+
+### `agent/state/active-task.template.json`
+
+- [x] File exists and is tracked as of the 2026-04-28 reconciliation pass.
+- [ ] Pending detailed function-level audit.
+
+### `agent/state/current-task.template.json`
+
+- [x] File exists and is tracked as of the 2026-04-28 reconciliation pass.
+- [ ] Pending detailed function-level audit.
+
+### `agent/state/eval-failures.generated.json`
+
+- [x] File exists and is tracked as of the 2026-04-28 reconciliation pass.
+- [ ] Pending detailed function-level audit.
+
+### `agent/state/eval-results.generated.json`
+
+- [x] File exists and is tracked as of the 2026-04-28 reconciliation pass.
+- [ ] Pending detailed function-level audit.
+
+### `agent/state/fast-start.generated.json`
+
+- [x] File exists and is tracked as of the 2026-04-28 reconciliation pass.
+- [ ] Pending detailed function-level audit.
+
+### `agent/state/handoff.template.json`
+
+- [x] File exists and is tracked as of the 2026-04-28 reconciliation pass.
+- [ ] Pending detailed function-level audit.
+
+### `agent/state/last-change.template.json`
+
+- [x] File exists and is tracked as of the 2026-04-28 reconciliation pass.
+- [ ] Pending detailed function-level audit.
+
+### `agent/state/sql-mirror-status.generated.json`
+
+- [x] File exists and is tracked as of the 2026-04-28 reconciliation pass.
+- [ ] Pending detailed function-level audit.
+
+### `agent/state/sql-sync.payload.generated.json`
+
+- [x] File exists and is tracked as of the 2026-04-28 reconciliation pass.
+- [ ] Pending detailed function-level audit.
+
+### `agent/state/task-context.generated.json`
+
+- [x] File exists and is tracked as of the 2026-04-28 reconciliation pass.
+- [ ] Pending detailed function-level audit.
+
+### `agent/state/task-context.template.json`
+
+- [x] File exists and is tracked as of the 2026-04-28 reconciliation pass.
+- [ ] Pending detailed function-level audit.
+
+### `agent/state/verification-plan.generated.json`
+
+- [x] File exists and is tracked as of the 2026-04-28 reconciliation pass.
+- [ ] Pending detailed function-level audit.
+
+### `apphosting.yaml`
+
+- [x] File exists and is tracked as of the 2026-04-28 reconciliation pass.
+- [ ] Pending detailed function-level audit.
+
+### `backends.json`
+
+- [x] File exists and is tracked as of the 2026-04-28 reconciliation pass.
+- [ ] Pending detailed function-level audit.
+
+### `clean-analytics-import-v2.py`
+
+- [x] File exists and is tracked as of the 2026-04-28 reconciliation pass.
+- [ ] Pending detailed function-level audit.
+
+### `control-tower/00-START-HERE.md`
+
+- [x] File exists and is tracked as of the 2026-04-28 reconciliation pass.
+- [ ] Pending detailed function-level audit.
+
+### `control-tower/01-MISSION.md`
+
+- [x] File exists and is tracked as of the 2026-04-28 reconciliation pass.
+- [ ] Pending detailed function-level audit.
+
+### `control-tower/02-AGENT-ROLES.yaml`
+
+- [x] File exists and is tracked as of the 2026-04-28 reconciliation pass.
+- [ ] Pending detailed function-level audit.
+
+### `control-tower/03-TASK-ROUTING.yaml`
+
+- [x] File exists and is tracked as of the 2026-04-28 reconciliation pass.
+- [ ] Pending detailed function-level audit.
+
+### `control-tower/04-EXECUTION-ORDER.md`
+
+- [x] File exists and is tracked as of the 2026-04-28 reconciliation pass.
+- [ ] Pending detailed function-level audit.
+
+### `control-tower/05-CAPABILITIES-AND-CONSTRAINTS.yaml`
+
+- [x] File exists and is tracked as of the 2026-04-28 reconciliation pass.
+- [ ] Pending detailed function-level audit.
+
+### `control-tower/06-SOURCE-OF-TRUTH-MAP.yaml`
+
+- [x] File exists and is tracked as of the 2026-04-28 reconciliation pass.
+- [ ] Pending detailed function-level audit.
+
+### `control-tower/07-SHARED-COMPONENT-OWNERSHIP.yaml`
+
+- [x] File exists and is tracked as of the 2026-04-28 reconciliation pass.
+- [ ] Pending detailed function-level audit.
+
+### `control-tower/08-DOCTRINE-INDEX.md`
+
+- [x] File exists and is tracked as of the 2026-04-28 reconciliation pass.
+- [ ] Pending detailed function-level audit.
+
+### `control-tower/09-HANDOFFS.md`
+
+- [x] File exists and is tracked as of the 2026-04-28 reconciliation pass.
+- [ ] Pending detailed function-level audit.
+
+### `control-tower/10-BANNED-PATTERNS.md`
+
+- [x] File exists and is tracked as of the 2026-04-28 reconciliation pass.
+- [ ] Pending detailed function-level audit.
+
+### `control-tower/11-PREFLIGHT-CHECKLIST.md`
+
+- [x] File exists and is tracked as of the 2026-04-28 reconciliation pass.
+- [ ] Pending detailed function-level audit.
+
+### `control-tower/12-POSTFLIGHT-CHECKLIST.md`
+
+- [x] File exists and is tracked as of the 2026-04-28 reconciliation pass.
+- [ ] Pending detailed function-level audit.
+
+### `control-tower/13-TASK-TEMPLATE.md`
+
+- [x] File exists and is tracked as of the 2026-04-28 reconciliation pass.
+- [ ] Pending detailed function-level audit.
+
+### `control-tower/14-STATUS-LABELS.yaml`
+
+- [x] File exists and is tracked as of the 2026-04-28 reconciliation pass.
+- [ ] Pending detailed function-level audit.
+
+### `control-tower/15-QUICK-ROUTING.md`
+
+- [x] File exists and is tracked as of the 2026-04-28 reconciliation pass.
+- [ ] Pending detailed function-level audit.
+
+### `control-tower/16-AGENT-OPERATING-BLUEPRINT.md`
+
+- [x] File exists and is tracked as of the 2026-04-28 reconciliation pass.
+- [ ] Pending detailed function-level audit.
+
+### `control-tower/17-AGENT-HANDOFF-SEQUENCE.md`
+
+- [x] File exists and is tracked as of the 2026-04-28 reconciliation pass.
+- [ ] Pending detailed function-level audit.
+
+### `control-tower/18-JULES-RECURRING-TASKS.md`
+
+- [x] File exists and is tracked as of the 2026-04-28 reconciliation pass.
+- [ ] Pending detailed function-level audit.
+
+### `control-tower/19-TOOL-AVAILABILITY-MAP.yaml`
+
+- [x] File exists and is tracked as of the 2026-04-28 reconciliation pass.
+- [ ] Pending detailed function-level audit.
+
+### `control-tower/20-AGENT-ROUTING-RECIPES.md`
+
+- [x] File exists and is tracked as of the 2026-04-28 reconciliation pass.
+- [ ] Pending detailed function-level audit.
+
+### `creator-playbooks/jessi-ray/README.md`
+
+- [x] File exists and is tracked as of the 2026-04-28 reconciliation pass.
+- [ ] Pending detailed function-level audit.
+
+### `creator-playbooks/jessi-ray/jessi-ray-confusion-tags.md`
+
+- [x] File exists and is tracked as of the 2026-04-28 reconciliation pass.
+- [ ] Pending detailed function-level audit.
+
+### `creator-playbooks/jessi-ray/jessi-ray-dm-script-sheet.md`
+
+- [x] File exists and is tracked as of the 2026-04-28 reconciliation pass.
+- [ ] Pending detailed function-level audit.
+
+### `creator-playbooks/jessi-ray/jessi-ray-feedback-prompt-card.md`
+
+- [x] File exists and is tracked as of the 2026-04-28 reconciliation pass.
+- [ ] Pending detailed function-level audit.
+
+### `creator-playbooks/jessi-ray/jessi-ray-walkthrough-card.md`
+
+- [x] File exists and is tracked as of the 2026-04-28 reconciliation pass.
+- [ ] Pending detailed function-level audit.
+
+### `creator-playbooks/jessi-ray/jessi-ray-weekly-scorecard-template.csv`
+
+- [x] File exists and is tracked as of the 2026-04-28 reconciliation pass.
+- [ ] Pending detailed function-level audit.
+
+### `cypress/tsconfig.json`
+
+- [x] File exists and is tracked as of the 2026-04-28 reconciliation pass.
+- [ ] Pending detailed function-level audit.
+
+### `database.rules.json`
+
+- [x] File exists and is tracked as of the 2026-04-28 reconciliation pass.
+- [ ] Pending detailed function-level audit.
+
+### `dataconnect/.dataconnect/schema/main/input.gql`
+
+- [x] File exists and is tracked as of the 2026-04-28 reconciliation pass.
+- [ ] Pending detailed function-level audit.
+
+### `dataconnect/.dataconnect/schema/main/mutation.gql`
+
+- [x] File exists and is tracked as of the 2026-04-28 reconciliation pass.
+- [ ] Pending detailed function-level audit.
+
+### `dataconnect/.dataconnect/schema/main/query.gql`
+
+- [x] File exists and is tracked as of the 2026-04-28 reconciliation pass.
+- [ ] Pending detailed function-level audit.
+
+### `dataconnect/.dataconnect/schema/main/relation.gql`
+
+- [x] File exists and is tracked as of the 2026-04-28 reconciliation pass.
+- [ ] Pending detailed function-level audit.
+
+### `dataconnect/.dataconnect/schema/prelude.gql`
+
+- [x] File exists and is tracked as of the 2026-04-28 reconciliation pass.
+- [ ] Pending detailed function-level audit.
+
+### `dataconnect/dataconnect.yaml`
+
+- [x] File exists and is tracked as of the 2026-04-28 reconciliation pass.
+- [ ] Pending detailed function-level audit.
+
+### `dataconnect/example/agent-context.gql`
+
+- [x] File exists and is tracked as of the 2026-04-28 reconciliation pass.
+- [ ] Pending detailed function-level audit.
+
+### `dataconnect/example/connector.yaml`
+
+- [x] File exists and is tracked as of the 2026-04-28 reconciliation pass.
+- [ ] Pending detailed function-level audit.
+
+### `dataconnect/schema/agent-context.gql`
+
+- [x] File exists and is tracked as of the 2026-04-28 reconciliation pass.
+- [ ] Pending detailed function-level audit.
+
+### `dataconnect/schema/structured_profiles.gql`
+
+- [x] File exists and is tracked as of the 2026-04-28 reconciliation pass.
+- [ ] Pending detailed function-level audit.
+
+### `debug-output.json`
+
+- [x] File exists and is tracked as of the 2026-04-28 reconciliation pass.
+- [ ] Pending detailed function-level audit.
+
+### `docs/agent-truth/admin-activity.md`
+
+- [x] File exists and is tracked as of the 2026-04-28 reconciliation pass.
+- [ ] Pending detailed function-level audit.
+
+### `docs/agent-truth/admin-analytics-overview.md`
+
+- [x] File exists and is tracked as of the 2026-04-28 reconciliation pass.
+- [ ] Pending detailed function-level audit.
+
+### `docs/agent-truth/admin-drops-at-a-glance.md`
+
+- [x] File exists and is tracked as of the 2026-04-28 reconciliation pass.
+- [ ] Pending detailed function-level audit.
+
+### `docs/agent-truth/admin-overview.md`
+
+- [x] File exists and is tracked as of the 2026-04-28 reconciliation pass.
+- [ ] Pending detailed function-level audit.
+
+### `docs/agent-truth/admin-recent-transactions.md`
+
+- [x] File exists and is tracked as of the 2026-04-28 reconciliation pass.
+- [ ] Pending detailed function-level audit.
+
+### `docs/agent-truth/admin-revenue-top-drops.md`
+
+- [x] File exists and is tracked as of the 2026-04-28 reconciliation pass.
+- [ ] Pending detailed function-level audit.
+
+### `docs/agent-truth/admin-revenue-trends.md`
+
+- [x] File exists and is tracked as of the 2026-04-28 reconciliation pass.
+- [ ] Pending detailed function-level audit.
+
+### `docs/doctrine/kandydrops-banned-patterns.md`
+
+- [x] File exists and is tracked as of the 2026-04-28 reconciliation pass.
+- [ ] Pending detailed function-level audit.
+
+### `docs/doctrine/kandydrops-copy-doctrine.md`
+
+- [x] File exists and is tracked as of the 2026-04-28 reconciliation pass.
+- [ ] Pending detailed function-level audit.
+
+### `docs/doctrine/kandydrops-decision-checklist.md`
+
+- [x] File exists and is tracked as of the 2026-04-28 reconciliation pass.
+- [ ] Pending detailed function-level audit.
+
+### `docs/doctrine/kandydrops-product-doctrine.md`
+
+- [x] File exists and is tracked as of the 2026-04-28 reconciliation pass.
+- [ ] Pending detailed function-level audit.
+
+### `docs/doctrine/kandydrops-surface-matrix.md`
+
+- [x] File exists and is tracked as of the 2026-04-28 reconciliation pass.
+- [ ] Pending detailed function-level audit.
+
+### `docs/doctrine/kandydrops-ui-doctrine.md`
+
+- [x] File exists and is tracked as of the 2026-04-28 reconciliation pass.
+- [ ] Pending detailed function-level audit.
+
+### `docs/doctrine/kandydrops-vocabulary-index.md`
+
+- [x] File exists and is tracked as of the 2026-04-28 reconciliation pass.
+- [ ] Pending detailed function-level audit.
+
+### `eslint-errors.log`
+
+- [x] File exists and is tracked as of the 2026-04-28 reconciliation pass.
+- [ ] Pending detailed function-level audit.
+
+### `eslint.config.mjs`
+
+- [x] File exists and is tracked as of the 2026-04-28 reconciliation pass.
+- [ ] Pending detailed function-level audit.
+
+### `firebase.json`
+
+- [x] File exists and is tracked as of the 2026-04-28 reconciliation pass.
+- [ ] Pending detailed function-level audit.
+
+### `firestore.indexes.json`
+
+- [x] File exists and is tracked as of the 2026-04-28 reconciliation pass.
+- [ ] Pending detailed function-level audit.
+
+### `firestore.rules`
+
+- [x] File exists and is tracked as of the 2026-04-28 reconciliation pass.
+- [ ] Pending detailed function-level audit.
+
+### `functions/.gitignore`
+
+- [x] File exists and is tracked as of the 2026-04-28 reconciliation pass.
+- [ ] Pending detailed function-level audit.
+
+### `functions/package-lock.json`
+
+- [x] File exists and is tracked as of the 2026-04-28 reconciliation pass.
+- [ ] Pending detailed function-level audit.
+
+### `functions/package.json`
+
+- [x] File exists and is tracked as of the 2026-04-28 reconciliation pass.
+- [ ] Pending detailed function-level audit.
+
+### `functions/pnpm-lock.yaml`
+
+- [x] File exists and is tracked as of the 2026-04-28 reconciliation pass.
+- [ ] Pending detailed function-level audit.
+
+### `functions/src/analytics-bigquery-export.ts`
+
+- [x] File exists and is tracked as of the 2026-04-28 reconciliation pass.
+- [ ] Pending detailed function-level audit.
+
+### `functions/src/analytics-timeline.ts`
+
+- [x] File exists and is tracked as of the 2026-04-28 reconciliation pass.
+- [ ] Pending detailed function-level audit.
+
+### `functions/src/analytics-truth-cli.ts`
+
+- [x] File exists and is tracked as of the 2026-04-28 reconciliation pass.
+- [ ] Pending detailed function-level audit.
+
+### `functions/src/analytics-truth-contract.ts`
+
+- [x] File exists and is tracked as of the 2026-04-28 reconciliation pass.
+- [ ] Pending detailed function-level audit.
+
+### `functions/src/analytics-truth-runtime.ts`
+
+- [x] File exists and is tracked as of the 2026-04-28 reconciliation pass.
+- [ ] Pending detailed function-level audit.
+
+### `functions/src/analytics-truth-schedule.ts`
+
+- [x] File exists and is tracked as of the 2026-04-28 reconciliation pass.
+- [ ] Pending detailed function-level audit.
+
+### `functions/src/behavioral-intelligence-cli.ts`
+
+- [x] File exists and is tracked as of the 2026-04-28 reconciliation pass.
+- [ ] Pending detailed function-level audit.
+
+### `functions/src/behavioral-intelligence-runtime.ts`
+
+- [x] File exists and is tracked as of the 2026-04-28 reconciliation pass.
+- [ ] Pending detailed function-level audit.
+
+### `functions/src/ml-feature-registry.ts`
+
+- [x] File exists and is tracked as of the 2026-04-28 reconciliation pass.
+- [ ] Pending detailed function-level audit.
+
+### `functions/src/privacy-consent-enforcement.ts`
+
+- [x] File exists and is tracked as of the 2026-04-28 reconciliation pass.
+- [ ] Pending detailed function-level audit.
+
+### `functions/src/profile-builder.ts`
+
+- [x] File exists and is tracked as of the 2026-04-28 reconciliation pass.
+- [ ] Pending detailed function-level audit.
+
+### `functions/tsconfig.dev.json`
+
+- [x] File exists and is tracked as of the 2026-04-28 reconciliation pass.
+- [ ] Pending detailed function-level audit.
+
+### `functions/tsconfig.json`
+
+- [x] File exists and is tracked as of the 2026-04-28 reconciliation pass.
+- [ ] Pending detailed function-level audit.
+
+### `git_diff.txt`
+
+- [x] File exists and is tracked as of the 2026-04-28 reconciliation pass.
+- [ ] Pending detailed function-level audit.
+
+### `git_log_output.txt`
+
+- [x] File exists and is tracked as of the 2026-04-28 reconciliation pass.
+- [ ] Pending detailed function-level audit.
+
+### `knip.json`
+
+- [x] File exists and is tracked as of the 2026-04-28 reconciliation pass.
+- [ ] Pending detailed function-level audit.
+
+### `package-lock.json`
+
+- [x] File exists and is tracked as of the 2026-04-28 reconciliation pass.
+- [ ] Pending detailed function-level audit.
+
+### `package.json`
+
+- [x] File exists and is tracked as of the 2026-04-28 reconciliation pass.
+- [ ] Pending detailed function-level audit.
+
+### `postcss.config.mjs`
+
+- [x] File exists and is tracked as of the 2026-04-28 reconciliation pass.
+- [ ] Pending detailed function-level audit.
+
+### `public/candy-3d-glass.png`
+
+- [x] File exists and is tracked as of the 2026-04-28 reconciliation pass.
+- [ ] Pending detailed function-level audit.
+
+### `public/candy-main.svg`
+
+- [x] File exists and is tracked as of the 2026-04-28 reconciliation pass.
+- [ ] Pending detailed function-level audit.
+
+### `public/file.svg`
+
+- [x] File exists and is tracked as of the 2026-04-28 reconciliation pass.
+- [ ] Pending detailed function-level audit.
+
+### `public/globe.svg`
+
+- [x] File exists and is tracked as of the 2026-04-28 reconciliation pass.
+- [ ] Pending detailed function-level audit.
+
+### `public/icon-192x192.png`
+
+- [x] File exists and is tracked as of the 2026-04-28 reconciliation pass.
+- [ ] Pending detailed function-level audit.
+
+### `public/icon-512x512.png`
+
+- [x] File exists and is tracked as of the 2026-04-28 reconciliation pass.
+- [ ] Pending detailed function-level audit.
+
+### `public/manifest.json`
+
+- [x] File exists and is tracked as of the 2026-04-28 reconciliation pass.
+- [ ] Pending detailed function-level audit.
+
+### `public/next.svg`
+
+- [x] File exists and is tracked as of the 2026-04-28 reconciliation pass.
+- [ ] Pending detailed function-level audit.
+
+### `public/vercel.svg`
+
+- [x] File exists and is tracked as of the 2026-04-28 reconciliation pass.
+- [ ] Pending detailed function-level audit.
+
+### `public/window.svg`
+
+- [x] File exists and is tracked as of the 2026-04-28 reconciliation pass.
+- [ ] Pending detailed function-level audit.
+
+### `qa-screenshots/desktop-admin-create-full.png`
+
+- [x] File exists and is tracked as of the 2026-04-28 reconciliation pass.
+- [ ] Pending detailed function-level audit.
+
+### `qa-screenshots/desktop-admin-create-viewport.png`
+
+- [x] File exists and is tracked as of the 2026-04-28 reconciliation pass.
+- [ ] Pending detailed function-level audit.
+
+### `qa-screenshots/desktop-admin-drops-full.png`
+
+- [x] File exists and is tracked as of the 2026-04-28 reconciliation pass.
+- [ ] Pending detailed function-level audit.
+
+### `qa-screenshots/desktop-admin-drops-viewport.png`
+
+- [x] File exists and is tracked as of the 2026-04-28 reconciliation pass.
+- [ ] Pending detailed function-level audit.
+
+### `qa-screenshots/desktop-admin-full.png`
+
+- [x] File exists and is tracked as of the 2026-04-28 reconciliation pass.
+- [ ] Pending detailed function-level audit.
+
+### `qa-screenshots/desktop-admin-viewport.png`
+
+- [x] File exists and is tracked as of the 2026-04-28 reconciliation pass.
+- [ ] Pending detailed function-level audit.
+
+### `qa-screenshots/desktop-dashboard-full.png`
+
+- [x] File exists and is tracked as of the 2026-04-28 reconciliation pass.
+- [ ] Pending detailed function-level audit.
+
+### `qa-screenshots/desktop-dashboard-viewport.png`
+
+- [x] File exists and is tracked as of the 2026-04-28 reconciliation pass.
+- [ ] Pending detailed function-level audit.
+
+### `qa-screenshots/desktop-drops-full.png`
+
+- [x] File exists and is tracked as of the 2026-04-28 reconciliation pass.
+- [ ] Pending detailed function-level audit.
+
+### `qa-screenshots/desktop-drops-viewport.png`
+
+- [x] File exists and is tracked as of the 2026-04-28 reconciliation pass.
+- [ ] Pending detailed function-level audit.
+
+### `qa-screenshots/desktop-experiences-full.png`
+
+- [x] File exists and is tracked as of the 2026-04-28 reconciliation pass.
+- [ ] Pending detailed function-level audit.
+
+### `qa-screenshots/desktop-experiences-viewport.png`
+
+- [x] File exists and is tracked as of the 2026-04-28 reconciliation pass.
+- [ ] Pending detailed function-level audit.
+
+### `qa-screenshots/desktop-experiences.png`
+
+- [x] File exists and is tracked as of the 2026-04-28 reconciliation pass.
+- [ ] Pending detailed function-level audit.
+
+### `qa-screenshots/desktop-home-full.png`
+
+- [x] File exists and is tracked as of the 2026-04-28 reconciliation pass.
+- [ ] Pending detailed function-level audit.
+
+### `qa-screenshots/desktop-home-viewport.png`
+
+- [x] File exists and is tracked as of the 2026-04-28 reconciliation pass.
+- [ ] Pending detailed function-level audit.
+
+### `qa-screenshots/desktop-home.png`
+
+- [x] File exists and is tracked as of the 2026-04-28 reconciliation pass.
+- [ ] Pending detailed function-level audit.
+
+### `qa-screenshots/mobile-admin-create-full.png`
+
+- [x] File exists and is tracked as of the 2026-04-28 reconciliation pass.
+- [ ] Pending detailed function-level audit.
+
+### `qa-screenshots/mobile-admin-create-viewport.png`
+
+- [x] File exists and is tracked as of the 2026-04-28 reconciliation pass.
+- [ ] Pending detailed function-level audit.
+
+### `qa-screenshots/mobile-admin-drops-full.png`
+
+- [x] File exists and is tracked as of the 2026-04-28 reconciliation pass.
+- [ ] Pending detailed function-level audit.
+
+### `qa-screenshots/mobile-admin-drops-viewport.png`
+
+- [x] File exists and is tracked as of the 2026-04-28 reconciliation pass.
+- [ ] Pending detailed function-level audit.
+
+### `qa-screenshots/mobile-admin-full.png`
+
+- [x] File exists and is tracked as of the 2026-04-28 reconciliation pass.
+- [ ] Pending detailed function-level audit.
+
+### `qa-screenshots/mobile-admin-viewport.png`
+
+- [x] File exists and is tracked as of the 2026-04-28 reconciliation pass.
+- [ ] Pending detailed function-level audit.
+
+### `qa-screenshots/mobile-dashboard-full.png`
+
+- [x] File exists and is tracked as of the 2026-04-28 reconciliation pass.
+- [ ] Pending detailed function-level audit.
+
+### `qa-screenshots/mobile-dashboard-viewport.png`
+
+- [x] File exists and is tracked as of the 2026-04-28 reconciliation pass.
+- [ ] Pending detailed function-level audit.
+
+### `qa-screenshots/mobile-drops-full.png`
+
+- [x] File exists and is tracked as of the 2026-04-28 reconciliation pass.
+- [ ] Pending detailed function-level audit.
+
+### `qa-screenshots/mobile-drops-viewport.png`
+
+- [x] File exists and is tracked as of the 2026-04-28 reconciliation pass.
+- [ ] Pending detailed function-level audit.
+
+### `qa-screenshots/mobile-experiences-full.png`
+
+- [x] File exists and is tracked as of the 2026-04-28 reconciliation pass.
+- [ ] Pending detailed function-level audit.
+
+### `qa-screenshots/mobile-experiences-viewport.png`
+
+- [x] File exists and is tracked as of the 2026-04-28 reconciliation pass.
+- [ ] Pending detailed function-level audit.
+
+### `qa-screenshots/mobile-experiences.png`
+
+- [x] File exists and is tracked as of the 2026-04-28 reconciliation pass.
+- [ ] Pending detailed function-level audit.
+
+### `qa-screenshots/mobile-home-full.png`
+
+- [x] File exists and is tracked as of the 2026-04-28 reconciliation pass.
+- [ ] Pending detailed function-level audit.
+
+### `qa-screenshots/mobile-home-viewport.png`
+
+- [x] File exists and is tracked as of the 2026-04-28 reconciliation pass.
+- [ ] Pending detailed function-level audit.
+
+### `qa-screenshots/mobile-home.png`
+
+- [x] File exists and is tracked as of the 2026-04-28 reconciliation pass.
+- [ ] Pending detailed function-level audit.
+
+### `qa-screenshots/tablet-dashboard-full.png`
+
+- [x] File exists and is tracked as of the 2026-04-28 reconciliation pass.
+- [ ] Pending detailed function-level audit.
+
+### `qa-screenshots/tablet-drops-full.png`
+
+- [x] File exists and is tracked as of the 2026-04-28 reconciliation pass.
+- [ ] Pending detailed function-level audit.
+
+### `qa-screenshots/tablet-experiences.png`
+
+- [x] File exists and is tracked as of the 2026-04-28 reconciliation pass.
+- [ ] Pending detailed function-level audit.
+
+### `qa-screenshots/tablet-home-full.png`
+
+- [x] File exists and is tracked as of the 2026-04-28 reconciliation pass.
+- [ ] Pending detailed function-level audit.
+
+### `qa-screenshots/tablet-home.png`
+
+- [x] File exists and is tracked as of the 2026-04-28 reconciliation pass.
+- [ ] Pending detailed function-level audit.
+
+### `replace-dropcard-layout2.mjs`
+
+- [x] File exists and is tracked as of the 2026-04-28 reconciliation pass.
+- [ ] Pending detailed function-level audit.
+
+### `scratch/find-untracked.ts`
+
+- [x] File exists and is tracked as of the 2026-04-28 reconciliation pass.
+- [ ] Pending detailed function-level audit.
+
+### `scratch/inject-targets.ts`
+
+- [x] File exists and is tracked as of the 2026-04-28 reconciliation pass.
+- [ ] Pending detailed function-level audit.
+
+### `scratch/untracked-routes.json`
+
+- [x] File exists and is tracked as of the 2026-04-28 reconciliation pass.
+- [ ] Pending detailed function-level audit.
+
+### `scratch/wrap-routes.ts`
+
+- [x] File exists and is tracked as of the 2026-04-28 reconciliation pass.
+- [ ] Pending detailed function-level audit.
+
+### `scripts/agent/check-dependency-truth.ts`
+
+- [x] File exists and is tracked as of the 2026-04-28 reconciliation pass.
+- [ ] Pending detailed function-level audit.
+
+### `scripts/agent/check-infrastructure-truth.ts`
+
+- [x] File exists and is tracked as of the 2026-04-28 reconciliation pass.
+- [ ] Pending detailed function-level audit.
+
+### `scripts/agent/fast-start.ts`
+
+- [x] File exists and is tracked as of the 2026-04-28 reconciliation pass.
+- [ ] Pending detailed function-level audit.
+
+### `scripts/agent/verification-selector.ts`
+
+- [x] File exists and is tracked as of the 2026-04-28 reconciliation pass.
+- [ ] Pending detailed function-level audit.
+
+### `scripts/check-admin-parity.ts`
+
+- [x] File exists and is tracked as of the 2026-04-28 reconciliation pass.
+- [ ] Pending detailed function-level audit.
+
+### `scripts/check-analytics-continuity.ts`
+
+- [x] File exists and is tracked as of the 2026-04-28 reconciliation pass.
+- [ ] Pending detailed function-level audit.
+
+### `scripts/debug-watch-capture-health.ts`
+
+- [x] File exists and is tracked as of the 2026-04-28 reconciliation pass.
+- [ ] Pending detailed function-level audit.
+
+### `scripts/extractChatHelpers.js`
+
+- [x] File exists and is tracked as of the 2026-04-28 reconciliation pass.
+- [ ] Pending detailed function-level audit.
+
+### `scripts/extractViewerHelpers.js`
+
+- [x] File exists and is tracked as of the 2026-04-28 reconciliation pass.
+- [ ] Pending detailed function-level audit.
+
+### `scripts/rebuild-analytics-truth.ts`
+
+- [x] File exists and is tracked as of the 2026-04-28 reconciliation pass.
+- [ ] Pending detailed function-level audit.
+
+### `scripts/rebuild-behavioral-intelligence.ts`
+
+- [x] File exists and is tracked as of the 2026-04-28 reconciliation pass.
+- [ ] Pending detailed function-level audit.
+
+### `scripts/remove-hovers.mjs`
+
+- [x] File exists and is tracked as of the 2026-04-28 reconciliation pass.
+- [ ] Pending detailed function-level audit.
+
+### `scripts/repair-viewer-watch-close-missing.ts`
+
+- [x] File exists and is tracked as of the 2026-04-28 reconciliation pass.
+- [ ] Pending detailed function-level audit.
+
+### `scripts/replace-icons.mjs`
+
+- [x] File exists and is tracked as of the 2026-04-28 reconciliation pass.
+- [ ] Pending detailed function-level audit.
+
+### `scripts/rewrite_ai_page.py`
+
+- [x] File exists and is tracked as of the 2026-04-28 reconciliation pass.
+- [ ] Pending detailed function-level audit.
+
+### `scripts/rewrite_profile_page.py`
+
+- [x] File exists and is tracked as of the 2026-04-28 reconciliation pass.
+- [ ] Pending detailed function-level audit.
+
+### `scripts/run-lighthouse-audits.mjs`
+
+- [x] File exists and is tracked as of the 2026-04-28 reconciliation pass.
+- [ ] Pending detailed function-level audit.
+
+### `scripts/shred_ai.py`
+
+- [x] File exists and is tracked as of the 2026-04-28 reconciliation pass.
+- [ ] Pending detailed function-level audit.
+
+### `scripts/shred_ai_components.py`
+
+- [x] File exists and is tracked as of the 2026-04-28 reconciliation pass.
+- [ ] Pending detailed function-level audit.
+
+### `scripts/shred_profile.py`
+
+- [x] File exists and is tracked as of the 2026-04-28 reconciliation pass.
+- [ ] Pending detailed function-level audit.
+
+### `scripts/shred_profile_components.py`
+
+- [x] File exists and is tracked as of the 2026-04-28 reconciliation pass.
+- [ ] Pending detailed function-level audit.
+
+### `scripts/verify-deployment.ts`
+
+- [x] File exists and is tracked as of the 2026-04-28 reconciliation pass.
+- [ ] Pending detailed function-level audit.
+
+### `src/app/admin/AdminPrivacyPreflight.tsx`
+
+- [x] File exists and is tracked as of the 2026-04-28 reconciliation pass.
+- [ ] Pending detailed function-level audit.
+
+### `src/app/admin/ai/AiHelpers.tsx`
+
+- [x] File exists and is tracked as of the 2026-04-28 reconciliation pass.
+- [ ] Pending detailed function-level audit.
+
+### `src/app/admin/ai/admin-ai-state-exports.ts`
+
+- [x] File exists and is tracked as of the 2026-04-28 reconciliation pass.
+- [ ] Pending detailed function-level audit.
+
+### `src/app/admin/ai/components/AdminAiDiagnosticsSection.tsx`
+
+- [x] File exists and is tracked as of the 2026-04-28 reconciliation pass.
+- [ ] Pending detailed function-level audit.
+
+### `src/app/admin/ai/components/AdminAiOptimizerhealthSection.tsx`
+
+- [x] File exists and is tracked as of the 2026-04-28 reconciliation pass.
+- [ ] Pending detailed function-level audit.
+
+### `src/app/admin/ai/components/AdminAiPromptworkbenchSection.tsx`
+
+- [x] File exists and is tracked as of the 2026-04-28 reconciliation pass.
+- [ ] Pending detailed function-level audit.
+
+### `src/app/admin/ai/components/AdminAiRecentgenerationsSection.tsx`
+
+- [x] File exists and is tracked as of the 2026-04-28 reconciliation pass.
+- [ ] Pending detailed function-level audit.
+
+### `src/app/admin/ai/components/AdminAiReferencelibrarySection.tsx`
+
+- [x] File exists and is tracked as of the 2026-04-28 reconciliation pass.
+- [ ] Pending detailed function-level audit.
+
+### `src/app/admin/ai/components/AdminAiReviewgallerySection.tsx`
+
+- [x] File exists and is tracked as of the 2026-04-28 reconciliation pass.
+- [ ] Pending detailed function-level audit.
+
+### `src/app/admin/ai/components/AdminAiRuntimestripSection.tsx`
+
+- [x] File exists and is tracked as of the 2026-04-28 reconciliation pass.
+- [ ] Pending detailed function-level audit.
+
+### `src/app/admin/ai/hooks/useAdminAiState.tsx`
+
+- [x] File exists and is tracked as of the 2026-04-28 reconciliation pass.
+- [ ] Pending detailed function-level audit.
+
+### `src/app/admin/analytics/AnalyticsHelpers.tsx`
+
+- [x] File exists and is tracked as of the 2026-04-28 reconciliation pass.
+- [ ] Pending detailed function-level audit.
+
+### `src/app/admin/analytics/components/AdminAnalyticsAudienceTab.tsx`
+
+- [x] File exists and is tracked as of the 2026-04-28 reconciliation pass.
+- [ ] Pending detailed function-level audit.
+
+### `src/app/admin/analytics/components/AdminAnalyticsCommerceTab.tsx`
+
+- [x] File exists and is tracked as of the 2026-04-28 reconciliation pass.
+- [ ] Pending detailed function-level audit.
+
+### `src/app/admin/analytics/components/AdminAnalyticsOperationsTab.tsx`
+
+- [x] File exists and is tracked as of the 2026-04-28 reconciliation pass.
+- [ ] Pending detailed function-level audit.
+
+### `src/app/admin/analytics/hooks/useAdminAnalyticsRealtime.ts`
+
+- [x] File exists and is tracked as of the 2026-04-28 reconciliation pass.
+- [ ] Pending detailed function-level audit.
+
+### `src/app/admin/analytics/hooks/useAdminAnalyticsState.tsx`
+
+- [x] File exists and is tracked as of the 2026-04-28 reconciliation pass.
+- [ ] Pending detailed function-level audit.
+
+### `src/app/admin/debug/components/AdminAiAssistantRealtimePanel.tsx`
+
+- [x] File exists and is tracked as of the 2026-04-28 reconciliation pass.
+- [ ] Pending detailed function-level audit.
+
+### `src/app/admin/debug/components/DebugAdvancedBehavior.tsx`
+
+- [x] File exists and is tracked as of the 2026-04-28 reconciliation pass.
+- [ ] Pending detailed function-level audit.
+
+### `src/app/admin/debug/components/DebugAdvancedDrift.tsx`
+
+- [x] File exists and is tracked as of the 2026-04-28 reconciliation pass.
+- [ ] Pending detailed function-level audit.
+
+### `src/app/admin/debug/components/DebugAdvancedExperiments.tsx`
+
+- [x] File exists and is tracked as of the 2026-04-28 reconciliation pass.
+- [ ] Pending detailed function-level audit.
+
+### `src/app/admin/debug/components/DebugAdvancedTelemetry.tsx`
+
+- [x] File exists and is tracked as of the 2026-04-28 reconciliation pass.
+- [ ] Pending detailed function-level audit.
+
+### `src/app/admin/debug/components/DebugAdvancedTruth.tsx`
+
+- [x] File exists and is tracked as of the 2026-04-28 reconciliation pass.
+- [ ] Pending detailed function-level audit.
+
+### `src/app/admin/debug/components/DebugMonitoringRoutes.tsx`
+
+- [x] File exists and is tracked as of the 2026-04-28 reconciliation pass.
+- [ ] Pending detailed function-level audit.
+
+### `src/app/admin/debug/components/DebugNowDiagnostics.tsx`
+
+- [x] File exists and is tracked as of the 2026-04-28 reconciliation pass.
+- [ ] Pending detailed function-level audit.
+
+### `src/app/admin/debug/components/DebugPrimitives.tsx`
+
+- [x] File exists and is tracked as of the 2026-04-28 reconciliation pass.
+- [ ] Pending detailed function-level audit.
+
+### `src/app/admin/debug/components/DebugTabActions.tsx`
+
+- [x] File exists and is tracked as of the 2026-04-28 reconciliation pass.
+- [ ] Pending detailed function-level audit.
+
+### `src/app/admin/debug/components/DebugTabAdvanced.tsx`
+
+- [x] File exists and is tracked as of the 2026-04-28 reconciliation pass.
+- [ ] Pending detailed function-level audit.
+
+### `src/app/admin/debug/components/DebugTabAi.tsx`
+
+- [x] File exists and is tracked as of the 2026-04-28 reconciliation pass.
+- [ ] Pending detailed function-level audit.
+
+### `src/app/admin/debug/components/DebugTabInfrastructure.tsx`
+
+- [x] File exists and is tracked as of the 2026-04-28 reconciliation pass.
+- [ ] Pending detailed function-level audit.
+
+### `src/app/admin/debug/components/DebugTabMonitoring.tsx`
+
+- [x] File exists and is tracked as of the 2026-04-28 reconciliation pass.
+- [ ] Pending detailed function-level audit.
+
+### `src/app/admin/debug/components/DebugTabNow.tsx`
+
+- [x] File exists and is tracked as of the 2026-04-28 reconciliation pass.
+- [ ] Pending detailed function-level audit.
+
+### `src/app/admin/debug/hooks/useAdminAiAssistantRealtime.ts`
+
+- [x] File exists and is tracked as of the 2026-04-28 reconciliation pass.
+- [ ] Pending detailed function-level audit.
+
+### `src/app/admin/debug/hooks/useAdminDebugRealtime.ts`
+
+- [x] File exists and is tracked as of the 2026-04-28 reconciliation pass.
+- [ ] Pending detailed function-level audit.
+
+### `src/app/admin/privacy/page.tsx`
+
+- [x] File exists and is tracked as of the 2026-04-28 reconciliation pass.
+- [ ] Pending detailed function-level audit.
+
+### `src/app/api/admin/debug/assistant/fix/route.ts`
+
+- [x] File exists and is tracked as of the 2026-04-28 reconciliation pass.
+- [ ] Pending detailed function-level audit.
+
+### `src/app/api/admin/users/realtime/route.ts`
+
+- [x] File exists and is tracked as of the 2026-04-28 reconciliation pass.
+- [ ] Pending detailed function-level audit.
+
+### `src/app/api/analytics/ingest-identified/route.ts`
+
+- [x] File exists and is tracked as of the 2026-04-28 reconciliation pass.
+- [ ] Pending detailed function-level audit.
+
+### `src/app/api/creator/bookings/booking-timezone.ts`
+
+- [x] File exists and is tracked as of the 2026-04-28 reconciliation pass.
+- [ ] Pending detailed function-level audit.
+
+### `src/app/api/drops/feedback/route.ts`
+
+- [x] File exists and is tracked as of the 2026-04-28 reconciliation pass.
+- [ ] Pending detailed function-level audit.
+
+### `src/app/api/drops/recommendations/route.ts`
+
+- [x] File exists and is tracked as of the 2026-04-28 reconciliation pass.
+- [ ] Pending detailed function-level audit.
+
+### `src/app/api/drops/retention/route.ts`
+
+- [x] File exists and is tracked as of the 2026-04-28 reconciliation pass.
+- [ ] Pending detailed function-level audit.
+
+### `src/app/api/health/route.ts`
+
+- [x] File exists and is tracked as of the 2026-04-28 reconciliation pass.
+- [ ] Pending detailed function-level audit.
+
+### `src/app/api/user/activity/activity-route-test-helpers.ts`
+
+- [x] File exists and is tracked as of the 2026-04-28 reconciliation pass.
+- [ ] Pending detailed function-level audit.
+
+### `src/app/api/wallet/packages/route.ts`
+
+- [x] File exists and is tracked as of the 2026-04-28 reconciliation pass.
+- [ ] Pending detailed function-level audit.
+
+### `src/app/dashboard/profile/components/ProfileAccountSection.tsx`
+
+- [x] File exists and is tracked as of the 2026-04-28 reconciliation pass.
+- [ ] Pending detailed function-level audit.
+
+### `src/app/dashboard/profile/components/ProfileCreatorEarningsSection.tsx`
+
+- [x] File exists and is tracked as of the 2026-04-28 reconciliation pass.
+- [ ] Pending detailed function-level audit.
+
+### `src/app/dashboard/profile/components/ProfileCreatorToolsSection.tsx`
+
+- [x] File exists and is tracked as of the 2026-04-28 reconciliation pass.
+- [ ] Pending detailed function-level audit.
+
+### `src/app/dashboard/profile/components/ProfileNotificationsSection.tsx`
+
+- [x] File exists and is tracked as of the 2026-04-28 reconciliation pass.
+- [ ] Pending detailed function-level audit.
+
+### `src/app/dashboard/profile/components/ProfilePrimitives.tsx`
+
+- [x] File exists and is tracked as of the 2026-04-28 reconciliation pass.
+- [ ] Pending detailed function-level audit.
+
+### `src/app/dashboard/profile/components/ProfilePrivacyDataSection.tsx`
+
+- [x] File exists and is tracked as of the 2026-04-28 reconciliation pass.
+- [ ] Pending detailed function-level audit.
+
+### `src/app/dashboard/profile/components/ProfileProfileSection.tsx`
+
+- [x] File exists and is tracked as of the 2026-04-28 reconciliation pass.
+- [ ] Pending detailed function-level audit.
+
+### `src/app/dashboard/profile/components/ProfileSupportSafetySection.tsx`
+
+- [x] File exists and is tracked as of the 2026-04-28 reconciliation pass.
+- [ ] Pending detailed function-level audit.
+
+### `src/app/dashboard/profile/hooks/useProfileState.tsx`
+
+- [x] File exists and is tracked as of the 2026-04-28 reconciliation pass.
+- [ ] Pending detailed function-level audit.
+
+### `src/app/dashboard/profile/profile-page-types.ts`
+
+- [x] File exists and is tracked as of the 2026-04-28 reconciliation pass.
+- [ ] Pending detailed function-level audit.
+
+### `src/app/dashboard/viewer/ViewerHelpers.ts`
+
+- [x] File exists and is tracked as of the 2026-04-28 reconciliation pass.
+- [ ] Pending detailed function-level audit.
+
+### `src/app/dashboard/viewer/adapters/ViewerTelemetryAdapter.ts`
+
+- [x] File exists and is tracked as of the 2026-04-28 reconciliation pass.
+- [ ] Pending detailed function-level audit.
+
+### `src/app/dashboard/viewer/components/DropInfoOverlay.tsx`
+
+- [x] File exists and is tracked as of the 2026-04-28 reconciliation pass.
+- [ ] Pending detailed function-level audit.
+
+### `src/app/dashboard/viewer/components/MediaViewer.tsx`
+
+- [x] File exists and is tracked as of the 2026-04-28 reconciliation pass.
+- [ ] Pending detailed function-level audit.
+
+### `src/app/dashboard/viewer/components/ThumbnailsSlider.tsx`
+
+- [x] File exists and is tracked as of the 2026-04-28 reconciliation pass.
+- [ ] Pending detailed function-level audit.
+
+### `src/app/dashboard/viewer/components/ViewerSkeleton.tsx`
+
+- [x] File exists and is tracked as of the 2026-04-28 reconciliation pass.
+- [ ] Pending detailed function-level audit.
+
+### `src/app/dashboard/viewer/hooks/useViewerFeedback.ts`
+
+- [x] File exists and is tracked as of the 2026-04-28 reconciliation pass.
+- [ ] Pending detailed function-level audit.
+
+### `src/app/dashboard/viewer/hooks/useViewerSecurity.ts`
+
+- [x] File exists and is tracked as of the 2026-04-28 reconciliation pass.
+- [ ] Pending detailed function-level audit.
+
+### `src/app/dashboard/viewer/hooks/useViewerState.ts`
+
+- [x] File exists and is tracked as of the 2026-04-28 reconciliation pass.
+- [ ] Pending detailed function-level audit.
+
+### `src/app/favicon.ico`
+
+- [x] File exists and is tracked as of the 2026-04-28 reconciliation pass.
+- [ ] Pending detailed function-level audit.
+
+### `src/app/globals.css`
+
+- [x] File exists and is tracked as of the 2026-04-28 reconciliation pass.
+- [ ] Pending detailed function-level audit.
+
+### `src/components/Admin/AdminModuleVerificationCard.tsx`
+
+- [x] File exists and is tracked as of the 2026-04-28 reconciliation pass.
+- [ ] Pending detailed function-level audit.
+
+### `src/components/Admin/AdminStatusBadge.tsx`
+
+- [x] File exists and is tracked as of the 2026-04-28 reconciliation pass.
+- [ ] Pending detailed function-level audit.
+
+### `src/components/Admin/TopDropsTable.tsx`
+
+- [x] File exists and is tracked as of the 2026-04-28 reconciliation pass.
+- [ ] Pending detailed function-level audit.
+
+### `src/components/AdminErrorCatcher.tsx`
+
+- [x] File exists and is tracked as of the 2026-04-28 reconciliation pass.
+- [ ] Pending detailed function-level audit.
+
+### `src/components/Auth/AuthHelpers.ts`
+
+- [x] File exists and is tracked as of the 2026-04-28 reconciliation pass.
+- [ ] Pending detailed function-level audit.
+
+### `src/components/Auth/OnboardingHelpers.ts`
+
+- [x] File exists and is tracked as of the 2026-04-28 reconciliation pass.
+- [ ] Pending detailed function-level audit.
+
+### `src/components/HomepageRuntimeDiagnostics.tsx`
+
+- [x] File exists and is tracked as of the 2026-04-28 reconciliation pass.
+- [ ] Pending detailed function-level audit.
+
+### `src/components/Landing/HomeHeroActions.tsx`
+
+- [x] File exists and is tracked as of the 2026-04-28 reconciliation pass.
+- [ ] Pending detailed function-level audit.
+
+### `src/components/Landing/HomeHowItWorksActions.tsx`
+
+- [x] File exists and is tracked as of the 2026-04-28 reconciliation pass.
+- [ ] Pending detailed function-level audit.
+
+### `src/components/PurchaseModal.tsx.bak`
+
+- [x] File exists and is tracked as of the 2026-04-28 reconciliation pass.
+- [ ] Pending detailed function-level audit.
+
+### `src/components/ui/CompactNumber.tsx`
+
+- [x] File exists and is tracked as of the 2026-04-28 reconciliation pass.
+- [ ] Pending detailed function-level audit.
+
+### `src/hooks/useAdminModerationRealtime.ts`
+
+- [x] File exists and is tracked as of the 2026-04-28 reconciliation pass.
+- [ ] Pending detailed function-level audit.
+
+### `src/hooks/useAdminOverviewRealtime.ts`
+
+- [x] File exists and is tracked as of the 2026-04-28 reconciliation pass.
+- [ ] Pending detailed function-level audit.
+
+### `src/hooks/useAdminPrivacyPreflight.ts`
+
+- [x] File exists and is tracked as of the 2026-04-28 reconciliation pass.
+- [ ] Pending detailed function-level audit.
+
+### `src/hooks/useAdminSupportRealtime.ts`
+
+- [x] File exists and is tracked as of the 2026-04-28 reconciliation pass.
+- [ ] Pending detailed function-level audit.
+
+### `src/instrumentation-client.ts`
+
+- [x] File exists and is tracked as of the 2026-04-28 reconciliation pass.
+- [ ] Pending detailed function-level audit.
+
+### `src/instrumentation.ts`
+
+- [x] File exists and is tracked as of the 2026-04-28 reconciliation pass.
+- [ ] Pending detailed function-level audit.
+
+### `src/lib/admin-ai-debug-runtime.ts`
+
+- [x] File exists and is tracked as of the 2026-04-28 reconciliation pass.
+- [ ] Pending detailed function-level audit.
+
+### `src/lib/admin-analytics-live-runtime.ts`
+
+- [x] File exists and is tracked as of the 2026-04-28 reconciliation pass.
+- [ ] Pending detailed function-level audit.
+
+### `src/lib/admin-analytics-return-cadence.ts`
+
+- [x] File exists and is tracked as of the 2026-04-28 reconciliation pass.
+- [ ] Pending detailed function-level audit.
+
+### `src/lib/admin-analytics-truth.ts`
+
+- [x] File exists and is tracked as of the 2026-04-28 reconciliation pass.
+- [ ] Pending detailed function-level audit.
+
+### `src/lib/admin-parity.ts`
+
+- [x] File exists and is tracked as of the 2026-04-28 reconciliation pass.
+- [ ] Pending detailed function-level audit.
+
+### `src/lib/admin-user-commerce.ts`
+
+- [x] File exists and is tracked as of the 2026-04-28 reconciliation pass.
+- [ ] Pending detailed function-level audit.
+
+### `src/lib/admin-user-metrics.ts`
+
+- [x] File exists and is tracked as of the 2026-04-28 reconciliation pass.
+- [ ] Pending detailed function-level audit.
+
+### `src/lib/client-boot-diagnostics.ts`
+
+- [x] File exists and is tracked as of the 2026-04-28 reconciliation pass.
+- [ ] Pending detailed function-level audit.
+
+### `src/lib/server/admin-analytics-capture-health.ts`
+
+- [x] File exists and is tracked as of the 2026-04-28 reconciliation pass.
+- [ ] Pending detailed function-level audit.
+
+### `src/lib/server/admin-source-verification.ts`
+
+- [x] File exists and is tracked as of the 2026-04-28 reconciliation pass.
+- [ ] Pending detailed function-level audit.
+
+### `src/lib/server/ai-drop-covers-helpers.ts`
+
+- [x] File exists and is tracked as of the 2026-04-28 reconciliation pass.
+- [ ] Pending detailed function-level audit.
+
+### `src/lib/server/analytics-runtime-warning.ts`
+
+- [x] File exists and is tracked as of the 2026-04-28 reconciliation pass.
+- [ ] Pending detailed function-level audit.
+
+### `src/lib/server/analytics-truth-recovery.ts`
+
+- [x] File exists and is tracked as of the 2026-04-28 reconciliation pass.
+- [ ] Pending detailed function-level audit.
+
+### `src/lib/server/behavioral-intelligence.ts`
+
+- [x] File exists and is tracked as of the 2026-04-28 reconciliation pass.
+- [ ] Pending detailed function-level audit.
+
+### `src/lib/server/ephemeral-route-cache.ts`
+
+- [x] File exists and is tracked as of the 2026-04-28 reconciliation pass.
+- [ ] Pending detailed function-level audit.
+
+### `src/lib/server/framework-request-diagnostics.ts`
+
+- [x] File exists and is tracked as of the 2026-04-28 reconciliation pass.
+- [ ] Pending detailed function-level audit.
+
+### `src/stories/Configure.mdx`
+
+- [x] File exists and is tracked as of the 2026-04-28 reconciliation pass.
+- [ ] Pending detailed function-level audit.
+
+### `src/stories/assets/accessibility.png`
+
+- [x] File exists and is tracked as of the 2026-04-28 reconciliation pass.
+- [ ] Pending detailed function-level audit.
+
+### `src/stories/assets/accessibility.svg`
+
+- [x] File exists and is tracked as of the 2026-04-28 reconciliation pass.
+- [ ] Pending detailed function-level audit.
+
+### `src/stories/assets/addon-library.png`
+
+- [x] File exists and is tracked as of the 2026-04-28 reconciliation pass.
+- [ ] Pending detailed function-level audit.
+
+### `src/stories/assets/assets.png`
+
+- [x] File exists and is tracked as of the 2026-04-28 reconciliation pass.
+- [ ] Pending detailed function-level audit.
+
+### `src/stories/assets/avif-test-image.avif`
+
+- [x] File exists and is tracked as of the 2026-04-28 reconciliation pass.
+- [ ] Pending detailed function-level audit.
+
+### `src/stories/assets/context.png`
+
+- [x] File exists and is tracked as of the 2026-04-28 reconciliation pass.
+- [ ] Pending detailed function-level audit.
+
+### `src/stories/assets/discord.svg`
+
+- [x] File exists and is tracked as of the 2026-04-28 reconciliation pass.
+- [ ] Pending detailed function-level audit.
+
+### `src/stories/assets/docs.png`
+
+- [x] File exists and is tracked as of the 2026-04-28 reconciliation pass.
+- [ ] Pending detailed function-level audit.
+
+### `src/stories/assets/figma-plugin.png`
+
+- [x] File exists and is tracked as of the 2026-04-28 reconciliation pass.
+- [ ] Pending detailed function-level audit.
+
+### `src/stories/assets/github.svg`
+
+- [x] File exists and is tracked as of the 2026-04-28 reconciliation pass.
+- [ ] Pending detailed function-level audit.
+
+### `src/stories/assets/share.png`
+
+- [x] File exists and is tracked as of the 2026-04-28 reconciliation pass.
+- [ ] Pending detailed function-level audit.
+
+### `src/stories/assets/styling.png`
+
+- [x] File exists and is tracked as of the 2026-04-28 reconciliation pass.
+- [ ] Pending detailed function-level audit.
+
+### `src/stories/assets/testing.png`
+
+- [x] File exists and is tracked as of the 2026-04-28 reconciliation pass.
+- [ ] Pending detailed function-level audit.
+
+### `src/stories/assets/theming.png`
+
+- [x] File exists and is tracked as of the 2026-04-28 reconciliation pass.
+- [ ] Pending detailed function-level audit.
+
+### `src/stories/assets/tutorials.svg`
+
+- [x] File exists and is tracked as of the 2026-04-28 reconciliation pass.
+- [ ] Pending detailed function-level audit.
+
+### `src/stories/assets/youtube.svg`
+
+- [x] File exists and is tracked as of the 2026-04-28 reconciliation pass.
+- [ ] Pending detailed function-level audit.
+
+### `src/stories/button.css`
+
+- [x] File exists and is tracked as of the 2026-04-28 reconciliation pass.
+- [ ] Pending detailed function-level audit.
+
+### `src/stories/header.css`
+
+- [x] File exists and is tracked as of the 2026-04-28 reconciliation pass.
+- [ ] Pending detailed function-level audit.
+
+### `src/stories/page.css`
+
+- [x] File exists and is tracked as of the 2026-04-28 reconciliation pass.
+- [ ] Pending detailed function-level audit.
+
+### `storage.rules`
+
+- [x] File exists and is tracked as of the 2026-04-28 reconciliation pass.
+- [ ] Pending detailed function-level audit.
+
+### `test-failures.log`
+
+- [x] File exists and is tracked as of the 2026-04-28 reconciliation pass.
+- [ ] Pending detailed function-level audit.
+
+### `tests/puppeteer/tsconfig.json`
+
+- [x] File exists and is tracked as of the 2026-04-28 reconciliation pass.
+- [ ] Pending detailed function-level audit.
+
+### `tests/setup/deterministic-mocks.ts`
+
+- [x] File exists and is tracked as of the 2026-04-28 reconciliation pass.
+- [ ] Pending detailed function-level audit.
+
+### `tests/ui-audits/visual-regression.spec.ts-snapshots/creator-apply-hero-Mobile-Chrome-win32.png`
+
+- [x] File exists and is tracked as of the 2026-04-28 reconciliation pass.
+- [ ] Pending detailed function-level audit.
+
+### `tests/ui-audits/visual-regression.spec.ts-snapshots/creator-apply-hero-chromium-win32.png`
+
+- [x] File exists and is tracked as of the 2026-04-28 reconciliation pass.
+- [ ] Pending detailed function-level audit.
+
+### `tests/ui-audits/visual-regression.spec.ts-snapshots/creator-waitlist-guest-hero-Mobile-Chrome-win32.png`
+
+- [x] File exists and is tracked as of the 2026-04-28 reconciliation pass.
+- [ ] Pending detailed function-level audit.
+
+### `tests/ui-audits/visual-regression.spec.ts-snapshots/creator-waitlist-guest-hero-chromium-win32.png`
+
+- [x] File exists and is tracked as of the 2026-04-28 reconciliation pass.
+- [ ] Pending detailed function-level audit.
+
+### `tests/ui-audits/visual-regression.spec.ts-snapshots/home-hero-Mobile-Chrome-win32.png`
+
+- [x] File exists and is tracked as of the 2026-04-28 reconciliation pass.
+- [ ] Pending detailed function-level audit.
+
+### `tests/ui-audits/visual-regression.spec.ts-snapshots/home-hero-chromium-win32.png`
+
+- [x] File exists and is tracked as of the 2026-04-28 reconciliation pass.
+- [ ] Pending detailed function-level audit.
+
+### `tests/ui-audits/visual-regression.spec.ts-snapshots/privacy-page-Mobile-Chrome-win32.png`
+
+- [x] File exists and is tracked as of the 2026-04-28 reconciliation pass.
+- [ ] Pending detailed function-level audit.
+
+### `tests/ui-audits/visual-regression.spec.ts-snapshots/privacy-page-chromium-win32.png`
+
+- [x] File exists and is tracked as of the 2026-04-28 reconciliation pass.
+- [ ] Pending detailed function-level audit.
+
+### `tests/ui-audits/visual-regression.spec.ts-snapshots/ui-surface-src-app-creators-apply-page-tsx-Mobile-Chrome-win32.png`
+
+- [x] File exists and is tracked as of the 2026-04-28 reconciliation pass.
+- [ ] Pending detailed function-level audit.
+
+### `tests/ui-audits/visual-regression.spec.ts-snapshots/ui-surface-src-app-creators-apply-page-tsx-chromium-win32.png`
+
+- [x] File exists and is tracked as of the 2026-04-28 reconciliation pass.
+- [ ] Pending detailed function-level audit.
+
+### `tests/ui-audits/visual-regression.spec.ts-snapshots/ui-surface-src-app-creators-waitlist-page-tsx-Mobile-Chrome-win32.png`
+
+- [x] File exists and is tracked as of the 2026-04-28 reconciliation pass.
+- [ ] Pending detailed function-level audit.
+
+### `tests/ui-audits/visual-regression.spec.ts-snapshots/ui-surface-src-app-creators-waitlist-page-tsx-chromium-win32.png`
+
+- [x] File exists and is tracked as of the 2026-04-28 reconciliation pass.
+- [ ] Pending detailed function-level audit.
+
+### `tests/ui-audits/visual-regression.spec.ts-snapshots/ui-surface-src-app-page-tsx-Mobile-Chrome-win32.png`
+
+- [x] File exists and is tracked as of the 2026-04-28 reconciliation pass.
+- [ ] Pending detailed function-level audit.
+
+### `tests/ui-audits/visual-regression.spec.ts-snapshots/ui-surface-src-app-page-tsx-chromium-win32.png`
+
+- [x] File exists and is tracked as of the 2026-04-28 reconciliation pass.
+- [ ] Pending detailed function-level audit.
+
+### `tests/unit/admin-ai-debug-runtime.spec.ts`
+
+- [x] File exists and is tracked as of the 2026-04-28 reconciliation pass.
+- [ ] Pending detailed function-level audit.
+
+### `tests/unit/admin-analytics-capture-health.spec.ts`
+
+- [x] File exists and is tracked as of the 2026-04-28 reconciliation pass.
+- [ ] Pending detailed function-level audit.
+
+### `tests/unit/admin-analytics-historical-tasks.spec.ts`
+
+- [x] File exists and is tracked as of the 2026-04-28 reconciliation pass.
+- [ ] Pending detailed function-level audit.
+
+### `tests/unit/admin-analytics-live-runtime.spec.ts`
+
+- [x] File exists and is tracked as of the 2026-04-28 reconciliation pass.
+- [ ] Pending detailed function-level audit.
+
+### `tests/unit/admin-analytics-page.spec.tsx`
+
+- [x] File exists and is tracked as of the 2026-04-28 reconciliation pass.
+- [ ] Pending detailed function-level audit.
+
+### `tests/unit/admin-analytics-return-cadence.spec.ts`
+
+- [x] File exists and is tracked as of the 2026-04-28 reconciliation pass.
+- [ ] Pending detailed function-level audit.
+
+### `tests/unit/admin-analytics-truth.spec.ts`
+
+- [x] File exists and is tracked as of the 2026-04-28 reconciliation pass.
+- [ ] Pending detailed function-level audit.
+
+### `tests/unit/admin-overview-truth.spec.ts`
+
+- [x] File exists and is tracked as of the 2026-04-28 reconciliation pass.
+- [ ] Pending detailed function-level audit.
+
+### `tests/unit/admin-parity.spec.ts`
+
+- [x] File exists and is tracked as of the 2026-04-28 reconciliation pass.
+- [ ] Pending detailed function-level audit.
+
+### `tests/unit/admin-user-commerce.spec.ts`
+
+- [x] File exists and is tracked as of the 2026-04-28 reconciliation pass.
+- [ ] Pending detailed function-level audit.
+
+### `tests/unit/admin-user-metrics.spec.ts`
+
+- [x] File exists and is tracked as of the 2026-04-28 reconciliation pass.
+- [ ] Pending detailed function-level audit.
+
+### `tests/unit/agent-verification-selector.spec.ts`
+
+- [x] File exists and is tracked as of the 2026-04-28 reconciliation pass.
+- [ ] Pending detailed function-level audit.
+
+### `tests/unit/auto-scroll-to-top.spec.tsx`
+
+- [x] File exists and is tracked as of the 2026-04-28 reconciliation pass.
+- [ ] Pending detailed function-level audit.
+
+### `tests/unit/chat-route-shell.spec.tsx`
+
+- [x] File exists and is tracked as of the 2026-04-28 reconciliation pass.
+- [ ] Pending detailed function-level audit.
+
+### `tests/unit/check-scheduler-freshness.spec.ts`
+
+- [x] File exists and is tracked as of the 2026-04-28 reconciliation pass.
+- [ ] Pending detailed function-level audit.
+
+### `tests/unit/client-boot-diagnostics.spec.ts`
+
+- [x] File exists and is tracked as of the 2026-04-28 reconciliation pass.
+- [ ] Pending detailed function-level audit.
+
+### `tests/unit/framework-request-diagnostics.spec.ts`
+
+- [x] File exists and is tracked as of the 2026-04-28 reconciliation pass.
+- [ ] Pending detailed function-level audit.
+
+### `tests/unit/home-client.spec.tsx`
+
+- [x] File exists and is tracked as of the 2026-04-28 reconciliation pass.
+- [ ] Pending detailed function-level audit.
+
+### `tests/unit/self-healing.spec.ts`
+
+- [x] File exists and is tracked as of the 2026-04-28 reconciliation pass.
+- [ ] Pending detailed function-level audit.
+
+### `tests/unit/viewer-watch-session.spec.ts`
+
+- [x] File exists and is tracked as of the 2026-04-28 reconciliation pass.
+- [ ] Pending detailed function-level audit.
+
+### `tests/visual.spec.ts-snapshots/admin-login-chromium-win32.png`
+
+- [x] File exists and is tracked as of the 2026-04-28 reconciliation pass.
+- [ ] Pending detailed function-level audit.
+
+### `tests/visual.spec.ts-snapshots/drops-grid-chromium-win32.png`
+
+- [x] File exists and is tracked as of the 2026-04-28 reconciliation pass.
+- [ ] Pending detailed function-level audit.
+
+### `tests/visual.spec.ts-snapshots/home-hero-Mobile-Chrome-win32.png`
+
+- [x] File exists and is tracked as of the 2026-04-28 reconciliation pass.
+- [ ] Pending detailed function-level audit.
+
+### `tests/visual.spec.ts-snapshots/home-hero-chromium-win32.png`
+
+- [x] File exists and is tracked as of the 2026-04-28 reconciliation pass.
+- [ ] Pending detailed function-level audit.
+
+### `tsc-errors.log`
+
+- [x] File exists and is tracked as of the 2026-04-28 reconciliation pass.
+- [ ] Pending detailed function-level audit.
+
+### `tsconfig.json`
+
+- [x] File exists and is tracked as of the 2026-04-28 reconciliation pass.
+- [ ] Pending detailed function-level audit.
+
+### `update-emulators.js`
+
+- [x] File exists and is tracked as of the 2026-04-28 reconciliation pass.
+- [ ] Pending detailed function-level audit.
 
 ## 2026-04-26 Delta Coverage
 
@@ -9684,7 +11755,7 @@ Detected function-like implementations in this historical sweep: 3161
 - [x] File exists and is tracked.
 - [ ] Pending detailed function-level audit.
 
-### `src/app/api/admin/ui-chart-health/route.ts`
+### Historical checklist entry (no longer tracked): `src/app/api/admin/ui-chart-health/route.ts`
 
 - [x] File exists and is tracked.
 - [ ] Pending detailed function-level audit.
@@ -9959,7 +12030,7 @@ Detected function-like implementations in this historical sweep: 3161
 - [x] File exists and is tracked.
 - [ ] Pending detailed function-level audit.
 
-### `src/app/api/telemetry/track/route.ts`
+### Historical checklist entry (no longer tracked): `src/app/api/telemetry/track/route.ts`
 
 - [x] File exists and is tracked.
 - [ ] Pending detailed function-level audit.
@@ -10284,7 +12355,7 @@ Detected function-like implementations in this historical sweep: 3161
 - [x] File exists and is tracked.
 - [ ] Pending detailed function-level audit.
 
-### `src/components/Admin/TopDropsPanel.tsx`
+### Historical checklist entry (no longer tracked): `src/components/Admin/TopDropsPanel.tsx`
 
 - [x] File exists and is tracked.
 - [ ] Pending detailed function-level audit.
@@ -10649,7 +12720,7 @@ Detected function-like implementations in this historical sweep: 3161
 - [x] File exists and is tracked.
 - [ ] Pending detailed function-level audit.
 
-### `src/hooks/useAdminUiChartHealthReporter.ts`
+### Historical checklist entry (no longer tracked): `src/hooks/useAdminUiChartHealthReporter.ts`
 
 - [x] File exists and is tracked.
 - [ ] Pending detailed function-level audit.
@@ -10794,7 +12865,7 @@ Detected function-like implementations in this historical sweep: 3161
 - [x] File exists and is tracked.
 - [ ] Pending detailed function-level audit.
 
-### `src/lib/admin-ui-chart-health.ts`
+### Historical checklist entry (no longer tracked): `src/lib/admin-ui-chart-health.ts`
 
 - [x] File exists and is tracked.
 - [ ] Pending detailed function-level audit.
@@ -11229,7 +13300,7 @@ Detected function-like implementations in this historical sweep: 3161
 - [x] File exists and is tracked.
 - [ ] Pending detailed function-level audit.
 
-### `src/lib/server/admin-ui-chart-health.ts`
+### Historical checklist entry (no longer tracked): `src/lib/server/admin-ui-chart-health.ts`
 
 - [x] File exists and is tracked.
 - [ ] Pending detailed function-level audit.
@@ -11884,12 +13955,12 @@ Detected function-like implementations in this historical sweep: 3161
 - [x] File exists and is tracked.
 - [ ] Pending detailed function-level audit.
 
-### `tests/unit/admin-ui-chart-health-route.spec.ts`
+### Historical checklist entry (no longer tracked): `tests/unit/admin-ui-chart-health-route.spec.ts`
 
 - [x] File exists and is tracked.
 - [ ] Pending detailed function-level audit.
 
-### `tests/unit/admin-ui-chart-health.spec.ts`
+### Historical checklist entry (no longer tracked): `tests/unit/admin-ui-chart-health.spec.ts`
 
 - [x] File exists and is tracked.
 - [ ] Pending detailed function-level audit.

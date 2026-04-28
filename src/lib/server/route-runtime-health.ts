@@ -1,5 +1,5 @@
 import "server-only";
-import { NextRequest } from "next/server";
+import { NextRequest, NextResponse } from "next/server";
 
 import { adminDb } from "@/lib/server/firebase-admin";
 import { recordRouteWarning } from "@/lib/server/route-diagnostics";
@@ -9,6 +9,7 @@ import {
     type RouteRuntimeHealthKey,
     type RouteRuntimeHealthLastResult,
 } from "@/lib/route-runtime-health";
+import { buildAdminModuleVerification } from "@/lib/admin-parity";
 
 export const ROUTE_RUNTIME_HEALTH_COLLECTION = "route_runtime_health";
 
@@ -165,6 +166,56 @@ export async function listRouteRuntimeHealth(limitCount = Object.keys(ROUTE_RUNT
     }
 }
 
+async function injectAdminRouteVerification(routeKey: RouteRuntimeHealthKey, response: Response) {
+  if (!String(routeKey).startsWith("admin/")) {
+    return response;
+  }
+
+  const contentType = response.headers.get("content-type") ?? "";
+  if (!contentType.includes("application/json")) {
+    return response;
+  }
+
+  try {
+    const payload = await response.clone().json();
+    if (
+      !payload ||
+      typeof payload !== "object" ||
+      Array.isArray(payload) ||
+      payload.verification ||
+      payload.success !== true
+    ) {
+      return response;
+    }
+
+    const headers = new Headers(response.headers);
+    headers.delete("content-length");
+    return NextResponse.json({
+      ...payload,
+      verification: buildAdminModuleVerification({
+        module: String(routeKey).replace(/[:/[\]]+/g, "_"),
+        canonicalSource: String(routeKey),
+        fallbackSource: null,
+        freshnessTimestamp: Date.now(),
+        status: response.ok ? "live" : "failed",
+        degradedReason: response.ok ? null : `HTTP ${response.status}`,
+        sources: [{
+          key: String(routeKey),
+          label: String(routeKey),
+          role: "canonical",
+          status: response.ok ? "live" : "failed",
+          freshnessTimestamp: Date.now(),
+        }],
+      }),
+    }, {
+      status: response.status,
+      statusText: response.statusText,
+      headers,
+    });
+  } catch {
+    return response;
+  }
+}
 
 export function withRouteRuntimeHealth(
   routeKey: RouteRuntimeHealthKey,
@@ -174,15 +225,16 @@ export function withRouteRuntimeHealth(
     const startTime = Date.now();
     try {
       const response = await handler(request, ...args);
+      const verifiedResponse = await injectAdminRouteVerification(routeKey, response);
       await recordRouteRuntimeSample({
         key: routeKey,
         durationMs: Date.now() - startTime,
-        statusCode: response.status,
+        statusCode: verifiedResponse.status,
       }).catch((err) => recordRouteWarning("withRouteRuntimeHealth", "Route runtime health sample recording failed (success path)", err, {
         channel: "runtime",
-        detail: { routeKey, statusCode: response.status },
+        detail: { routeKey, statusCode: verifiedResponse.status },
       }));
-      return response;
+      return verifiedResponse;
     } catch (e: any) {
       await recordRouteRuntimeSample({
         key: routeKey,

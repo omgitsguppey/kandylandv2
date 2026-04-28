@@ -23,7 +23,7 @@ import { adminDb } from "@/lib/server/firebase-admin";
 import { ADMIN, HEAVY_READ } from "@/lib/server/rate-limit";
 import { guardApiRequest } from "@/lib/server/request-guard";
 import { getErrorMessage } from "@/lib/server/route-diagnostics";
-import { recordRouteRuntimeSample } from "@/lib/server/route-runtime-health";
+import { recordRouteRuntimeSample, withRouteRuntimeHealth } from "@/lib/server/route-runtime-health";
 
 const OVERVIEW_WINDOW_DAYS = 30;
 const RECENT_TRANSACTION_LIMIT = 20;
@@ -157,7 +157,7 @@ function buildAdminTelemetryActivityItems(input: {
     return items;
 }
 
-export async function GET(request: NextRequest) {
+async function GET_handler(request: NextRequest) {
     const startedAt = Date.now();
     const finalize = (response: NextResponse, error?: unknown) => {
         void recordRouteRuntimeSample({
@@ -578,3 +578,5 @@ export async function GET(request: NextRequest) {
         return finalize(handleApiError(error, "Admin.Overview.GET"), error);
     }
 }
+
+export let GET = withRouteRuntimeHealth("admin/overview:GET", GET_handler);

@@ -5,6 +5,8 @@ import {
 import { Area, AreaChart, Bar, BarChart, CartesianGrid, ResponsiveContainer, Tooltip, XAxis, YAxis } from "recharts";
 import { AnalyticsTooltip, MetricCard, SectionCard } from "@/components/Admin/Analytics/AdminAnalyticsPrimitives";
 import { AdminOnboardingAnalyticsModules } from "@/components/Admin/Analytics/AdminOnboardingAnalyticsModules";
+import { AdminStatusBadge } from "@/components/Admin/AdminStatusBadge";
+import { coerceAdminSurfaceState, type AdminSurfaceState } from "@/lib/admin-parity";
 import { cn } from "@/lib/utils";
 import type { AdminAnalyticsState } from "../hooks/useAdminAnalyticsState";
 
@@ -12,6 +14,7 @@ export function AdminAnalyticsOperationsTab(props: AdminAnalyticsState) {
   const {
     renderSectionRangeControl, liveResponse, historicalResponse, liveLoading, historicalLoading, nowMs, EVENT_LABELS,
     liveSurfaceMix, liveActiveUsers, livePulseOnboardingStats, livePulseOnboardingStartCount, livePulseOnboardingCompletionRate, livePulseFunnel, liveSeries,
+    liveActiveTruthState, historicalOverviewTruthState,
     journeyFunnelMetrics,
     authOutcomeHasData, authOutcomeChartItems, authOutcomeTotals,
     authOnboardingDiscrepancies, onboardingVelocityHasData, onboardingVelocityBuckets, onboardingVelocityStartCount, onboardingVelocityCompletionCount, onboardingVelocityCompletionRate, onboardingVelocityDropOffCount, onboardingVelocityStats, onboardingVelocityStartSourceHint, onboardingStepFlowItems,
@@ -42,6 +45,12 @@ export function AdminAnalyticsOperationsTab(props: AdminAnalyticsState) {
     liveInteractionEvents
   } = props;
 
+  const livePulseTruthState: AdminSurfaceState = liveActiveTruthState ?? (liveLoading ? "unavailable" : "failed");
+  const historicalMetricTruthState: AdminSurfaceState = historicalOverviewTruthState ?? (historicalLoading ? "unavailable" : "failed");
+  const activeUsersTruthState: AdminSurfaceState = liveResponse?.activeUsersTruthLabel
+    ? coerceAdminSurfaceState(liveResponse.activeUsersTruthLabel)
+    : livePulseTruthState;
+
   return (
     <>
 <>
@@ -55,37 +64,37 @@ export function AdminAnalyticsOperationsTab(props: AdminAnalyticsState) {
               <div className="grid grid-cols-2 gap-3 lg:grid-cols-4">
                 <MetricCard
                   label="GA Active"
-                  value={formatCompactNumber(liveResponse?.totalActive ?? 0)}
+                  value={liveResponse ? formatCompactNumber(liveResponse.totalActive ?? 0) : "—"}
                   hint={liveResponse?.liveTruthLabel === "fallback"
                     ? `First-party fallback (${liveResponse?.liveSourceLabel || "realtime fallback"})`
                     : "Google Analytics realtime"}
                   icon={Users}
-                  truthState={liveResponse?.liveTruthLabel}
+                  truthState={livePulseTruthState}
                 />
                 <MetricCard
                   label="Tracked Users"
-                  value={formatCompactNumber(
-                    liveResponse?.deepTrackerActive ?? 0,
-                  )}
+                  value={liveResponse ? formatCompactNumber(liveResponse.deepTrackerActive ?? 0) : "—"}
                   hint={liveResponse?.activeUsersTruthLabel === "fallback"
                     ? `Authenticated users reconstructed from ${liveResponse?.activeUsersSourceLabel || "first-party telemetry"}`
                     : `${formatCompactNumber(
                         liveActiveUsers.filter((item: any) => item.actorType === "guest").length,
                       )} live guests plus authenticated users in the last 30 minutes`}
                   icon={Sparkles}
-                  truthState={liveResponse?.activeUsersTruthLabel}
+                  truthState={activeUsersTruthState}
                 />
                 <MetricCard
                   label="Onboarding"
                   value={livePulseOnboardingStats.completions.toLocaleString()}
                   hint={`${livePulseOnboardingStartCount.toLocaleString()} starts · ${formatPercent(livePulseOnboardingCompletionRate)}`}
                   icon={PlayCircle}
+                  truthState={historicalMetricTruthState}
                 />
                 <MetricCard
                   label="Purchases"
                   value={livePulseFunnel.purchases.toLocaleString()}
                   hint={`${formatPercent(livePulseFunnel.checkoutStarts > 0 ? livePulseFunnel.purchases / Math.max(1, livePulseFunnel.checkoutStarts) : 0)} of checkout starts`}
                   icon={ShoppingBag}
+                  truthState={historicalMetricTruthState}
                 />
               </div>
 
@@ -217,6 +226,7 @@ export function AdminAnalyticsOperationsTab(props: AdminAnalyticsState) {
                       ))
                     ) : (
                       <div className="rounded-[1.4rem] border border-dashed border-white/10 bg-black/20 p-4 text-sm text-gray-500">
+                        <AdminStatusBadge state={livePulseTruthState} className="mb-2" />
                         Realtime surface mix will populate as active-user
                         snapshots land.
                       </div>
@@ -236,7 +246,7 @@ export function AdminAnalyticsOperationsTab(props: AdminAnalyticsState) {
                       </p>
                     </div>
                     <span className="rounded-full border border-white/10 bg-white/5 px-3 py-1 text-[11px] font-semibold text-gray-300">
-                      {liveActiveUsers.length} live
+                      {liveActiveUsers.length} {livePulseTruthState === "live" ? "live" : livePulseTruthState}
                     </span>
                   </div>
                   <div className="space-y-3">
@@ -291,6 +301,7 @@ export function AdminAnalyticsOperationsTab(props: AdminAnalyticsState) {
                       ))
                     ) : (
                       <div className="rounded-[1.4rem] border border-dashed border-white/10 bg-black/20 p-4 text-sm text-gray-500">
+                        <AdminStatusBadge state={activeUsersTruthState} className="mb-2" />
                         No active identity details are available in the current
                         realtime snapshot.
                       </div>
@@ -373,10 +384,10 @@ export function AdminAnalyticsOperationsTab(props: AdminAnalyticsState) {
                     >
                       <div className="mb-3 flex items-center justify-between gap-3">
                         <div className="flex items-center gap-2">
-                          <div className="flex h-9 w-9 items-center justify-center rounded-2xl bg-white/5 text-brand-purple">
-                            <Icon className="h-4 w-4" />
-                          </div>
-                          <div>
+                        <div className="flex h-9 w-9 items-center justify-center rounded-2xl bg-white/5 text-brand-purple">
+                              <Icon className="h-4 w-4" />
+                            </div>
+                            <div>
                             <p className="text-sm font-semibold text-white">
                               {step.label}
                             </p>
@@ -390,6 +401,7 @@ export function AdminAnalyticsOperationsTab(props: AdminAnalyticsState) {
                             ? "Base"
                             : formatPercent(step.ratio)}
                         </span>
+                        <AdminStatusBadge state={historicalMetricTruthState} className="shrink-0" />
                       </div>
                       <div className="h-2 overflow-hidden rounded-full bg-white/10">
                         <div
@@ -410,12 +422,14 @@ export function AdminAnalyticsOperationsTab(props: AdminAnalyticsState) {
                   value={journeyFunnelMetrics.shares.toLocaleString()}
                   hint="Copied invite/share actions"
                   icon={Share2}
+                  truthState={historicalMetricTruthState}
                 />
                 <MetricCard
                   label="Daily Check-ins"
                   value={journeyFunnelMetrics.checkIns.toLocaleString()}
                   hint="Reward claims in range"
                   icon={CheckCircle2}
+                  truthState={historicalMetricTruthState}
                 />
               </div>
             </SectionCard>
@@ -556,18 +570,21 @@ export function AdminAnalyticsOperationsTab(props: AdminAnalyticsState) {
                         value={formatCompactNumber(authOutcomeTotals.attempts)}
                         hint={`${authOutcomeTotals.unfinished.toLocaleString()} unfinished in range`}
                         icon={Users}
+                        truthState={historicalMetricTruthState}
                       />
                       <MetricCard
                         label="Success Rate"
                         value={formatPercent(authOutcomeTotals.successRate)}
                         hint={`${authOutcomeTotals.successes.toLocaleString()} successful completions`}
                         icon={Sparkles}
+                        truthState={historicalMetricTruthState}
                       />
                       <MetricCard
                         label="Failures"
                         value={formatCompactNumber(authOutcomeTotals.failures)}
                         hint="Tracked failed auth outcomes"
                         icon={AlertTriangle}
+                        truthState={historicalMetricTruthState}
                       />
                       <MetricCard
                         label="Avg Finish"
@@ -576,6 +593,7 @@ export function AdminAnalyticsOperationsTab(props: AdminAnalyticsState) {
                         )}
                         hint="Weighted by successful completions"
                         icon={Clock3}
+                        truthState={historicalMetricTruthState}
                       />
                     </div>
 
@@ -710,24 +728,28 @@ export function AdminAnalyticsOperationsTab(props: AdminAnalyticsState) {
                     value={formatCompactNumber(guestViewsDisplayCount ?? 0)}
                     hint={guestViewsHint}
                     icon={Users}
+                    truthState={historicalMetricTruthState}
                   />
                   <MetricCard
                     label="Guest Bounce"
                     value={guestBounceRateDisplay}
                     hint={guestBounceHint}
                     icon={AlertTriangle}
+                    truthState={historicalMetricTruthState}
                   />
                   <MetricCard
                     label="Guest Engaged"
                     value={guestEngagedRateDisplay}
                     hint={guestEngagedHint}
                     icon={Sparkles}
+                    truthState={historicalMetricTruthState}
                   />
                   <MetricCard
                     label="Signed-in Bounce"
                     value={formatPercent(guestBounceIdentifiedRate)}
                     hint={`${(guestBounceUserSemantics?.bounceCount ?? 0).toLocaleString()} bounced signed-in visits`}
                     icon={Activity}
+                    truthState={historicalMetricTruthState}
                   />
                 </div>
 
@@ -781,7 +803,10 @@ export function AdminAnalyticsOperationsTab(props: AdminAnalyticsState) {
                     </ResponsiveContainer>
                   ) : (
                     <div className="flex h-full items-center justify-center rounded-[1.6rem] border border-dashed border-white/10 bg-black/20 p-5 text-sm text-gray-500">
-                      No quality analytics data in this range.
+                      <div className="text-center">
+                        <AdminStatusBadge state={historicalMetricTruthState} className="mb-2" />
+                        <div>No quality analytics data in this range.</div>
+                      </div>
                     </div>
                   )}
                 </div>

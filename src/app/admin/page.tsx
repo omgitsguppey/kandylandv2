@@ -1,14 +1,13 @@
 "use client";
 
 import { formatDistanceToNow } from "date-fns";
-import { cn } from "@/lib/utils";
-
 import { PageViewEvent } from "@/components/Analytics/PageViewEvent";
 import { AdminActivityLogPanel } from "@/components/Admin/AdminActivityLogPanel";
 import { AdminAnalyticsCharts } from "@/components/Admin/AdminAnalyticsCharts";
 import { AdminDashboardModule } from "@/components/Admin/AdminDashboardModule";
 import { AdminDropsAtGlancePanel } from "@/components/Admin/AdminDropsAtGlancePanel";
 import { AdminPageHeader } from "@/components/Admin/AdminPageHeader";
+import { AdminStatusBadge } from "@/components/Admin/AdminStatusBadge";
 import { AdminStatsBar } from "@/components/Admin/AdminStatsBar";
 import { RecentTransactionsPanel } from "@/components/Admin/RecentTransactionsPanel";
 import { useAdminOverview } from "@/hooks/useAdminOverview";
@@ -34,13 +33,6 @@ export default function AdminDashboardPage() {
     const truthLabel = data?.truthNotes?.overview ?? "Waiting for server truth";
     const truthVariant = resolveTruthChipVariant(truthLabel);
 
-    const TRUTH_CHIP_STYLES: Record<typeof truthVariant, string> = {
-        live: "border-emerald-400/20 bg-emerald-500/10 text-emerald-400",
-        cached: "border-amber-400/20 bg-amber-500/10 text-amber-400",
-        fallback: "border-red-400/20 bg-red-500/10 text-red-400",
-        waiting: "border-gray-400/20 bg-gray-500/10 text-gray-400",
-    };
-
 
     return (
         <div className="space-y-3 md:space-y-4">
@@ -51,12 +43,10 @@ export default function AdminDashboardPage() {
                 subtitle={serverUpdateLabel}
                 compact
                 actions={(
-                    <span className={cn(
-                        "rounded-full border px-3 py-1 text-[11px] font-bold uppercase tracking-[0.12em]",
-                        TRUTH_CHIP_STYLES[truthVariant],
-                    )}>
-                        {truthLabel}
-                    </span>
+                    <div className="flex items-center gap-2">
+                        <AdminStatusBadge state={truthVariant} />
+                        <span className="text-[11px] font-semibold text-gray-400">{truthLabel}</span>
+                    </div>
                 )}
             />
 
@@ -68,12 +58,12 @@ export default function AdminDashboardPage() {
                                 stats={data.stats}
                                 deltas={data.deltas}
                                 issueCount={issueCount}
+                                truthState={truthVariant}
                             />
                         ) : (
-                            <div className="grid grid-cols-2 gap-2.5 xl:grid-cols-4">
-                                {Array.from({ length: 4 }).map((_, index) => (
-                                    <div key={index} className="h-28 animate-pulse rounded-[1.35rem] border border-white/8 bg-white/5" />
-                                ))}
+                            <div className="rounded-[1.35rem] border border-red-400/20 bg-red-500/10 px-4 py-4 text-sm text-red-100">
+                                <AdminStatusBadge state={error ? "failed" : "unavailable"} className="mb-2" />
+                                <div>{error?.message ?? "Overview snapshot is not available yet."}</div>
                             </div>
                         )}
                     </AdminDashboardModule>
@@ -87,33 +77,21 @@ export default function AdminDashboardPage() {
 
                 <div className="xl:col-span-7">
                     <AdminDashboardModule title="Revenue + Unwraps" defaultOpen={false}>
+                        {data ? (
                             <AdminAnalyticsCharts
                                 chartData={data?.chartData || []}
-                                trendSummary={data?.trendSummary || {
-                                    windowDays: 30,
-                                    currentStartDayKey: "",
-                                    currentEndDayKey: "",
-                                    previousStartDayKey: "",
-                                    previousEndDayKey: "",
-                                    currentRevenueCents: 0,
-                                    previousRevenueCents: 0,
-                                    currentUnwraps: 0,
-                                    previousUnwraps: 0,
-                                    currentPurchases: 0,
-                                    previousPurchases: 0,
-                                    currentNewUsers: 0,
-                                    previousNewUsers: 0,
-                                    revenueActiveDays: 0,
-                                    unwrapActiveDays: 0,
-                                    bestRevenueDay: null,
-                                    bestUnwrapDay: null,
-                                    topUnlockDrop: null,
-                                }}
+                                trendSummary={data.trendSummary}
                                 topDrops={data?.topDrops || []}
                                 truthLabel={truthLabel}
                                 truthVariant={truthVariant}
                                 loading={isLoading && !data}
                             />
+                        ) : (
+                            <div className="rounded-xl border border-red-400/20 bg-red-500/10 px-4 py-6 text-sm text-red-100">
+                                <AdminStatusBadge state={error ? "failed" : "unavailable"} className="mb-2" />
+                                <div>{error?.message ?? "Revenue chart source is unavailable."}</div>
+                            </div>
+                        )}
                     </AdminDashboardModule>
                 </div>
 
@@ -124,10 +102,9 @@ export default function AdminDashboardPage() {
                                 transactions={data.recentTransactions}
                             />
                         ) : (
-                            <div className="space-y-2">
-                                {Array.from({ length: 5 }).map((_, index) => (
-                                    <div key={index} className="h-16 animate-pulse rounded-[1.2rem] border border-white/8 bg-white/5" />
-                                ))}
+                            <div className="rounded-xl border border-red-400/20 bg-red-500/10 px-4 py-4 text-sm text-red-100">
+                                <AdminStatusBadge state={error ? "failed" : "unavailable"} className="mb-2" />
+                                <div>{error?.message ?? "Recent transactions source is unavailable."}</div>
                             </div>
                         )}
                     </AdminDashboardModule>
@@ -142,10 +119,9 @@ export default function AdminDashboardPage() {
                                 truthNote={data.truthNotes?.adminActivity}
                             />
                         ) : (
-                            <div className="space-y-2">
-                                {Array.from({ length: 5 }).map((_, index) => (
-                                    <div key={index} className="h-16 animate-pulse rounded-[1.2rem] border border-white/8 bg-white/5" />
-                                ))}
+                            <div className="rounded-xl border border-red-400/20 bg-red-500/10 px-4 py-4 text-sm text-red-100">
+                                <AdminStatusBadge state={error ? "failed" : "unavailable"} className="mb-2" />
+                                <div>{error?.message ?? "Admin activity source is unavailable."}</div>
                             </div>
                         )}
                     </AdminDashboardModule>

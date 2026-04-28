@@ -1,0 +1,86 @@
+import { readdirSync, readFileSync, statSync } from "node:fs";
+import { join, relative } from "node:path";
+
+const repoRoot = process.cwd();
+const adminUiRoots = [
+  join(repoRoot, "src", "app", "admin"),
+  join(repoRoot, "src", "components", "Admin"),
+];
+const adminApiRoot = join(repoRoot, "src", "app", "api", "admin");
+
+function walk(dir: string, predicate: (path: string) => boolean, files: string[] = []) {
+  for (const entry of readdirSync(dir)) {
+    const fullPath = join(dir, entry);
+    const stats = statSync(fullPath);
+    if (stats.isDirectory()) {
+      walk(fullPath, predicate, files);
+    } else if (predicate(fullPath)) {
+      files.push(fullPath);
+    }
+  }
+  return files;
+}
+
+const uiFiles = adminUiRoots.flatMap((root) =>
+  walk(root, (path) => /\.(tsx|ts)$/.test(path)),
+);
+const routeFiles = walk(adminApiRoot, (path) => path.endsWith("route.ts"));
+
+const failures: string[] = [];
+
+for (const file of uiFiles) {
+  const source = readFileSync(file, "utf8");
+  const rel = relative(repoRoot, file);
+  const localTruthVocabulary = [
+    /truthState=\{"cached"\}/,
+    /truthState=\{"partial"\}/,
+    /truthVariant:\s*"live"\s*\|\s*"cached"/,
+    /type\s+\w*TruthState\s*=\s*"live_server"/,
+    /TRUTH_CHIP_STYLES/,
+    /TRUTH_DOT_STYLES/,
+  ];
+
+  localTruthVocabulary.forEach((pattern) => {
+    if (pattern.test(source)) {
+      failures.push(`${rel}: local admin truth vocabulary matches ${pattern}`);
+    }
+  });
+
+  if (
+    source.includes("MetricCard") &&
+    /value=\{[^}]*\?\?\s*0\}/.test(source) &&
+    !source.includes("truthState=")
+  ) {
+    failures.push(`${rel}: MetricCard has a zero fallback without an explicit truthState`);
+  }
+}
+
+for (const file of routeFiles) {
+  const source = readFileSync(file, "utf8");
+  const rel = relative(repoRoot, file);
+  const exportsMethod = /export\s+(async\s+function|let|const)\s+(GET|POST|PUT|PATCH|DELETE)/.test(source);
+  if (!exportsMethod) {
+    continue;
+  }
+
+  if (!source.includes("withRouteRuntimeHealth") && !source.includes("recordRouteRuntimeSample")) {
+    failures.push(`${rel}: admin API route exports a handler without runtime health recording`);
+  }
+
+  if (
+    /NextResponse\.json\(\s*\{[\s\S]*success:\s*true/.test(source) &&
+    !source.includes("buildServerAdminModuleVerification") &&
+    !source.includes("verification:") &&
+    !source.includes("withRouteRuntimeHealth")
+  ) {
+    failures.push(`${rel}: successful admin API response lacks source verification payload`);
+  }
+}
+
+if (failures.length > 0) {
+  console.error("Admin truth contract check failed:");
+  failures.forEach((failure) => console.error(`- ${failure}`));
+  process.exit(1);
+}
+
+console.log(`Admin truth contract check passed (${uiFiles.length} UI files, ${routeFiles.length} admin routes).`);

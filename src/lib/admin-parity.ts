@@ -94,6 +94,19 @@ export function coerceAdminSurfaceState(value: unknown): AdminSurfaceState {
   return "unavailable";
 }
 
+export function formatAdminSurfaceStateLabel(state: AdminSurfaceState): string {
+  return `[${state}]`;
+}
+
+export const ADMIN_SURFACE_STATE_DETAIL: Record<AdminSurfaceState, string> = {
+  live: "Canonical source is current.",
+  degraded: "Canonical source is connected but incomplete.",
+  fallback: "Primary source failed or is absent; secondary data is displayed.",
+  stale: "Last verified data is older than the allowed freshness window.",
+  unavailable: "No verified source snapshot is available yet.",
+  failed: "Data could not be loaded.",
+};
+
 export function resolveAdminSurfaceState(input: {
   hasCanonical: boolean;
   hasFallback: boolean;

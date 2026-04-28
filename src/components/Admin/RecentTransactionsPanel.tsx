@@ -21,6 +21,8 @@ import { db } from "@/lib/firebase-data";
 import { normalizeTransactionRecord, getTransactionBadgeLabel } from "@/lib/transaction-normalizers";
 import { reportRealtimeIssue } from "@/lib/client-error-reporting";
 import { createAutoHealingObserver } from "@/lib/self-healing";
+import { AdminStatusBadge } from "@/components/Admin/AdminStatusBadge";
+import type { AdminSurfaceState } from "@/lib/admin-parity";
 
 /* ── Constants ──────────────────────────────────────────────────────────── */
 
@@ -34,8 +36,6 @@ type RecentTransactionsPanelProps = {
 };
 
 type DisplayTransaction = AdminOverviewTransactionRecord;
-
-type FeedTruthState = "live_server" | "cached" | "waiting" | "fallback" | "identity_degraded";
 
 type RecentTransactionsDebugMeta = {
     transactionSource: string;
@@ -60,22 +60,6 @@ type RecentTransactionsDebugMeta = {
 };
 
 /* ── Truth chip helpers ─────────────────────────────────────────────────── */
-
-const TRUTH_CHIP_LABELS: Record<FeedTruthState, string> = {
-    live_server: "Live server feed",
-    cached: "Cached feed shown",
-    waiting: "Waiting for server feed",
-    fallback: "Fallback feed active",
-    identity_degraded: "Identity lookup degraded",
-};
-
-const TRUTH_CHIP_STYLES: Record<FeedTruthState, string> = {
-    live_server: "border-emerald-400/15 bg-emerald-500/10 text-emerald-200",
-    cached: "border-amber-400/15 bg-amber-500/10 text-amber-200",
-    waiting: "border-white/10 bg-black/30 text-gray-400",
-    fallback: "border-rose-400/15 bg-rose-500/10 text-rose-200",
-    identity_degraded: "border-amber-400/15 bg-amber-500/10 text-amber-200",
-};
 
 /* ── Badge colors by type ───────────────────────────────────────────────── */
 
@@ -204,12 +188,12 @@ export function RecentTransactionsPanel({ transactions: fallbackTransactions }: 
     const isLiveFeedActive = liveTransactions !== null;
 
     /* ── Determine truth state ──────────────────────────────────────────── */
-    const truthState: FeedTruthState = useMemo(() => {
+    const truthState: AdminSurfaceState = useMemo(() => {
         if (liveFeedError) return "fallback";
-        if (!isLiveFeedActive) return "waiting";
-        if (snapshotFromCache) return "cached";
-        if (identityLookupFailures > 0) return "identity_degraded";
-        return "live_server";
+        if (!isLiveFeedActive) return "unavailable";
+        if (snapshotFromCache) return "stale";
+        if (identityLookupFailures > 0) return "degraded";
+        return "live";
     }, [isLiveFeedActive, liveFeedError, snapshotFromCache, identityLookupFailures]);
 
     /* ── Pagination ─────────────────────────────────────────────────────── */
@@ -401,11 +385,7 @@ export function RecentTransactionsPanel({ transactions: fallbackTransactions }: 
         <div className="space-y-2">
             {/* ── Truth chip ──────────────────────────────────────────── */}
             <div className="flex flex-wrap items-center gap-2 text-[11px] text-gray-400">
-                <span
-                    className={`rounded-full border px-2.5 py-0.5 ${TRUTH_CHIP_STYLES[truthState]}`}
-                >
-                    {TRUTH_CHIP_LABELS[truthState]}
-                </span>
+                <AdminStatusBadge state={truthState} />
                 {debugMeta.resolvedUserCount > 0 && (
                     <span className="text-[10px] text-gray-500">
                         {debugMeta.resolvedUserCount}/{transactions.length} users resolved

@@ -27,6 +27,7 @@ import {
 
 
 import { TELEMETRY_EVENT_LABELS } from "@/lib/telemetry-catalog";
+import { coerceAdminSurfaceState, type AdminSurfaceState } from "@/lib/admin-parity";
 
 import type { ViewTab, RangeOption, HistoricalAnalyticsResponse, RealtimeAnalyticsResponse, AnalyticsPreferencesResponse } from "@/types/admin-analytics";
 
@@ -144,7 +145,7 @@ const { user } = useAuth();
     30_000,
     {
       keepPreviousData: true,
-      revalidateOnFocus: true,
+      revalidateOnFocus: false,
     },
   );
 
@@ -229,7 +230,7 @@ const { user } = useAuth();
     30_000,
     {
       keepPreviousData: true,
-      revalidateOnFocus: true,
+      revalidateOnFocus: false,
     },
   );
 
@@ -239,7 +240,7 @@ const { user } = useAuth();
     isLoading: historicalLoading,
   } = useAdminPollingSWR<HistoricalAnalyticsResponse>(historicalUrl, 60_000, {
     keepPreviousData: true,
-    revalidateOnFocus: true,
+    revalidateOnFocus: false,
   });
 
   const livePulseRange = getSectionRange("livePulse");
@@ -383,6 +384,14 @@ const { user } = useAuth();
           ...liveResponse,
           liveTruthLabel: "fallback",
           liveSourceLabel: "Stale (Polled)",
+          issues: [
+            ...(liveResponse.issues ?? []),
+            ...liveRealtime.issues,
+            liveRealtime.feedDetail,
+          ].filter(
+            (issue, index, array): issue is string =>
+              Boolean(issue) && array.indexOf(issue) === index,
+          ),
         };
       }
 
@@ -584,14 +593,14 @@ const { user } = useAuth();
             : "Polled fallback";
 
   // Honest truth state for historical-sourced overview cards (Revenue, Purchases, Mobile Share)
-  const historicalTruthState: "live" | "stale" | "failed" | undefined =
-    historicalResponse && !historicalError
-      ? "live"        // Server-confirmed data for this range
-      : historicalResponse && historicalError
-        ? "stale"     // Serving previous response while revalidation failed
-        : historicalLoading
-          ? undefined  // Still loading, no data yet — show no chip
-          : "failed";  // No data and not loading — genuine failure
+  const historicalTruthState: AdminSurfaceState | undefined =
+    historicalResponse && historicalError
+      ? "stale"
+      : historicalResponse?.truthState?.fail
+        ? "failed"
+        : historicalResponse?.truthState?.warn || (historicalResponse?.issues?.length ?? 0) > 0
+          ? "degraded"
+          : historicalResponse ? "live" : historicalLoading ? undefined : "failed";
 
   const historicalSourceLabel =
     historicalResponse && !historicalError
@@ -620,16 +629,13 @@ const { user } = useAuth();
   const liveActiveDisplay = effectiveLiveResponse
     ? formatCompactNumber(effectiveLiveResponse.totalActive ?? 0)
     : "—";
-  const liveActiveTruthState: "live" | "fallback" | "partial" | "failed" | "unavailable" | undefined =
-    effectiveLiveResponse?.liveTruthLabel === "live" ? "live"
-    : effectiveLiveResponse?.liveTruthLabel === "fallback" ? "fallback"
-    : effectiveLiveResponse?.liveTruthLabel === "partial" ? "partial"
-    : effectiveLiveResponse?.liveTruthLabel === "failed" ? "failed"
-    : !effectiveLiveResponse && (liveRealtime.feedStatus === "realtime" || liveRealtime.feedStatus === "partial") ? "live"
+  const liveActiveTruthState: AdminSurfaceState | undefined =
+    effectiveLiveResponse?.liveTruthLabel ? coerceAdminSurfaceState(effectiveLiveResponse.liveTruthLabel)
     : !effectiveLiveResponse ? "unavailable"
     : undefined;
-  const historicalOverviewTruthState: "live" | "stale" | "failed" | "unavailable" | undefined =
+  const historicalOverviewTruthState: AdminSurfaceState | undefined =
     historicalTruthState === "live" ? "live"
+    : historicalTruthState === "degraded" ? "degraded"
     : historicalTruthState === "stale" ? "stale"
     : historicalTruthState === "failed" ? "failed"
     : historicalLoading ? undefined

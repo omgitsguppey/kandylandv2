@@ -1,4 +1,6 @@
 import { cn } from "@/lib/utils";
+import { AdminStatusBadge } from "@/components/Admin/AdminStatusBadge";
+import type { AdminSurfaceState } from "@/lib/admin-parity";
 import {
     type AdminAiDropCoverPreflightCheck,
     type AdminAiDropCoverReferenceAsset,
@@ -67,11 +69,12 @@ export function parseMultilineInput(value: string) {
         .filter((line) => line.length > 0);
 }
 
-export function MetricCard({ label, value, meta, tone = "neutral" }: {
+export function MetricCard({ label, value, meta, tone = "neutral", truthState }: {
     label: string;
     value: string | number;
     meta?: string;
     tone?: "neutral" | "good" | "warn";
+    truthState?: AdminSurfaceState;
 }) {
     const toneClassName = tone === "good"
         ? "border-emerald-400/20 bg-emerald-500/10"
@@ -81,7 +84,10 @@ export function MetricCard({ label, value, meta, tone = "neutral" }: {
 
     return (
         <div className={cn("min-w-0 overflow-hidden rounded-[1.1rem] border p-3", toneClassName)}>
-            <p className="text-[11px] uppercase tracking-[0.18em] text-gray-400">{label}</p>
+            <div className="flex items-center justify-between gap-2">
+                <p className="text-[11px] uppercase tracking-[0.18em] text-gray-400">{label}</p>
+                <AdminStatusBadge state={truthState ?? "unavailable"} className="py-0.5" />
+            </div>
             <div className="mt-1.5 break-words text-xl font-black text-white md:text-2xl">{value}</div>
             {meta ? <p className="mt-1 break-words text-xs text-gray-400">{meta}</p> : null}
         </div>

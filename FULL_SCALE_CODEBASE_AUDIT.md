@@ -1,5 +1,56 @@
 # KandyDrops Core Codebase Audit & Defensive Ledger
 
+## [2026-04-28 #40] POST: Admin Truth Remediation and Global Contract Gate
+
+Scope completed:
+- Replaced local admin truth chip vocabularies with canonical `AdminSurfaceState` rendering across admin overview, analytics, AI admin cards, recent transactions, and admin activity.
+- Removed fake-zero display paths from key admin analytics/overview cards by showing unavailable/failed states when the source payload is absent.
+- Added route-wrapper source verification injection for successful admin JSON responses and wrapped the high-risk analytics, overview, AI generation, debug assistant, and preference routes that were manually recording runtime health.
+- Added `scripts/check-admin-truth-contracts.ts` and wired `npm run check:admin-truth` into `npm run check` so local admin truth vocabularies, untracked admin API runtime health, and unverified successful admin route payloads fail deterministically.
+
+Verification completed:
+- `npm run check:admin-truth` passed.
+- `npm run typecheck -- --pretty false` passed.
+- `npm run test:gate:parity` passed.
+
+Known carry-forward:
+- `npm run check:continuity` was not rerun in this pass; prior app cycle blocker through server diagnostics remains the known broad signoff risk.
+
+## [2026-04-28 #39] PRE: Admin Parity, Telemetry, and Display Tracking Audit
+
+Scope completed:
+- Completed audit-only control-tower and doctrine startup for admin UI, telemetry, state, and parity surfaces.
+- Inspected admin overview, admin analytics, AI admin cards, realtime listener hooks, admin activity display, analytics primitives, and admin API route observability coverage.
+- Identified 50 distinct parity, telemetry, or admin UI display/tracking issues for follow-up remediation.
+
+Verification completed:
+- `git status --short` reviewed before the pass; existing dirty governance/index files were from the prior every-file checklist reconciliation.
+- Targeted PowerShell scans found admin API routes missing direct `withRouteRuntimeHealth` wrapping and routes without explicit source-verification payload text.
+- Targeted telemetry scans found no direct string-literal `trackEvent(...)` or `PageViewEvent eventName="..."` catalog misses in the inspected code path.
+
+Signoff blocker outside this audit-only pass:
+- `npm run check:continuity` was not rerun for this audit-only pass; the prior known app cycle blocker remains unresolved.
+
+## [2026-04-28 #38] PRE/POST: Every-File Checklist Tracking Reconciliation
+
+Scope completed:
+- Reconciled `EVERY_FILE_FUNCTION_CHECKLIST.md` against live `git ls-files` output to ensure every tracked repository file has an explicit checklist entry.
+- Regenerated the agent index layer so `agent/index/repo-inventory.json` and related retrieval surfaces reflect the current tracked-file inventory.
+- Marked stale checklist headings for files that are no longer tracked as historical, not current coverage.
+
+Verification completed:
+- `git status --short` was clean before this governance pass.
+- `npm run check:inventory` reported `1082` tracked files.
+- `npm run agent:index` regenerated and validated agent indexes.
+- A PowerShell reconciliation compared `git ls-files` against checklist headings before and after the update.
+- `npm run check:agent-intelligence` passed.
+- `npm run check:generated-artifacts` passed after removing local `.next` and `build.log` output.
+- `npm run check:dependency-truth` passed.
+- `npm run check:cycles:functions` passed.
+
+Signoff blocker outside this checklist pass:
+- `npm run check:continuity` still fails in `npm run check:cycles:app` because the current source graph contains cycles through `src/lib/server/firebase-admin.ts`, `src/lib/server/route-diagnostics.ts`, `src/lib/server/analytics-pipeline-health.ts`, and `src/lib/server/server-diagnostics.ts`.
+
 ## [2026-04-26 #37] Dependency and Infrastructure Observability Rollout
 
 Scope completed:

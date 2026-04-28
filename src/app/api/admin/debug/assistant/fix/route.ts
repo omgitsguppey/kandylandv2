@@ -4,13 +4,13 @@ import { handleApiError } from "@/lib/server/auth";
 import { ADMIN_DEBUG_ASSISTANT } from "@/lib/server/rate-limit";
 import { guardApiRequest } from "@/lib/server/request-guard";
 import { getErrorMessage } from "@/lib/server/route-diagnostics";
-import { recordRouteRuntimeSample } from "@/lib/server/route-runtime-health";
+import { recordRouteRuntimeSample, withRouteRuntimeHealth } from "@/lib/server/route-runtime-health";
 import { getAdminAiDebugAssistantSettings } from "@/lib/server/admin-debug-settings";
 import { resolveAdminAiDebugVertexRuntime, generateVertexAiDebugText } from "@/lib/server/ai-debug-assistant";
 
 export const dynamic = "force-dynamic";
 
-export async function POST(request: NextRequest) {
+async function POST_handler(request: NextRequest) {
     const startedAt = Date.now();
     const finalize = (response: NextResponse, error?: unknown) => {
         void recordRouteRuntimeSample({
@@ -86,3 +86,5 @@ export async function POST(request: NextRequest) {
         return finalize(handleApiError(error, "admin/debug/assistant/fix"), error);
     }
 }
+
+export let POST = withRouteRuntimeHealth("admin/debug/assistant/fix:POST", POST_handler);

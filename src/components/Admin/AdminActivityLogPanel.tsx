@@ -6,6 +6,8 @@ import { ChevronLeft, ChevronRight } from "lucide-react";
 
 import type { AdminOverviewActivityItem, AdminOverviewResponse } from "@/lib/admin-overview";
 import { paginateOverviewItems } from "@/lib/admin-overview";
+import { AdminStatusBadge } from "@/components/Admin/AdminStatusBadge";
+import type { AdminSurfaceState } from "@/lib/admin-parity";
 
 /* ── Constants ──────────────────────────────────────────────────────────── */
 
@@ -22,14 +24,6 @@ type AdminActivityLogPanelProps = {
     /** Truth note from the server or realtime hook. */
     truthNote?: string;
 };
-
-type ActivityFeedTruthState =
-    | "live_server"
-    | "cached"
-    | "waiting"
-    | "fallback"
-    | "no_recent_activity"
-    | "legacy_only";
 
 type AdminActivityDebugMeta = {
     feedSource: string;
@@ -53,39 +47,23 @@ type AdminActivityDebugMeta = {
 function resolveActivityTruthState(
     activity: AdminOverviewActivityItem[],
     truthNote?: string,
-): ActivityFeedTruthState {
-    if (truthNote?.includes("failed")) return "fallback";
-    if (truthNote?.includes("initializing")) return "waiting";
-    if (activity.length === 0) return "no_recent_activity";
+): AdminSurfaceState {
+    const normalizedNote = truthNote?.toLowerCase() ?? "";
+    if (normalizedNote.includes("failed")) return "failed";
+    if (normalizedNote.includes("degraded") || normalizedNote.includes("fallback")) return "fallback";
+    if (normalizedNote.includes("initializing") || normalizedNote.includes("waiting")) return "unavailable";
+    if (activity.length === 0) return "unavailable";
 
     const allLegacy = activity.every(
         (item) => item.actorLabel === "Unknown operator" || item.actorLabel === "Legacy admin record",
     );
-    if (allLegacy) return "legacy_only";
+    if (allLegacy) return "degraded";
 
-    if (truthNote?.includes("active")) return "live_server";
-    if (truthNote?.includes("cached") || truthNote?.includes("Cached")) return "cached";
+    if (normalizedNote.includes("active")) return "live";
+    if (normalizedNote.includes("cached")) return "stale";
 
-    return "live_server";
+    return "unavailable";
 }
-
-const TRUTH_CHIP_LABELS: Record<ActivityFeedTruthState, string> = {
-    live_server: "Live admin feed",
-    cached: "Cached admin feed",
-    waiting: "Waiting for admin feed",
-    fallback: "Admin feed degraded",
-    no_recent_activity: "No recent admin activity",
-    legacy_only: "Legacy records only",
-};
-
-const TRUTH_CHIP_STYLES: Record<ActivityFeedTruthState, string> = {
-    live_server: "border-emerald-400/15 bg-emerald-500/10 text-emerald-200",
-    cached: "border-amber-400/15 bg-amber-500/10 text-amber-200",
-    waiting: "border-white/10 bg-black/30 text-gray-400",
-    fallback: "border-rose-400/15 bg-rose-500/10 text-rose-200",
-    no_recent_activity: "border-white/10 bg-black/30 text-gray-400",
-    legacy_only: "border-amber-400/15 bg-amber-500/10 text-amber-200",
-};
 
 /* ── Badge colors by source ─────────────────────────────────────────────── */
 
@@ -171,11 +149,7 @@ export function AdminActivityLogPanel({
         <div className="space-y-2" data-debug-admin-activity={JSON.stringify(debugMeta)}>
             {/* ── Truth chip + freshness ──────────────────────────────── */}
             <div className="flex flex-wrap items-center gap-2 text-[11px] text-gray-400">
-                <span
-                    className={`rounded-full border px-2.5 py-0.5 ${TRUTH_CHIP_STYLES[truthState]}`}
-                >
-                    {TRUTH_CHIP_LABELS[truthState]}
-                </span>
+                <AdminStatusBadge state={truthState} />
                 {freshnessLabel && (
                     <span className={`text-[10px] ${freshnessLabel.stale ? "text-amber-400/70" : "text-gray-500"}`}>
                         {freshnessLabel.text}

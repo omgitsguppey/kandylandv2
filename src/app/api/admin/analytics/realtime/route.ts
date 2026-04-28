@@ -23,9 +23,10 @@ import { guardApiRequest } from "@/lib/server/request-guard";
 import { ANALYTICS_CANONICAL_COLLECTIONS, ANALYTICS_OPERATIONAL_COLLECTIONS } from "@/lib/server/analytics-governance";
 import { safeQueryWithDiagnostics } from "@/lib/server/diagnostic-read-fallbacks";
 import { getErrorMessage } from "@/lib/server/route-diagnostics";
-import { recordRouteRuntimeSample } from "@/lib/server/route-runtime-health";
+import { recordRouteRuntimeSample, withRouteRuntimeHealth } from "@/lib/server/route-runtime-health";
 import { readThroughEphemeralRouteCache } from "@/lib/server/ephemeral-route-cache";
 import { recordAnalyticsRuntimeWarning } from "@/lib/server/analytics-runtime-warning";
+import { buildServerAdminModuleVerification } from "@/lib/server/admin-source-verification";
 
 const propertyId = getAdminAnalyticsPropertyId();
 const analyticsClient = createAdminAnalyticsDataClient();
@@ -233,7 +234,7 @@ function buildFallbackActiveUsers(input: {
     .slice(0, 8);
 }
 
-export async function GET(request: NextRequest) {
+async function GET_handler(request: NextRequest) {
   const startedAt = Date.now();
   const finalize = (response: NextResponse, error?: unknown) => {
     void recordRouteRuntimeSample({
@@ -462,8 +463,26 @@ export async function GET(request: NextRequest) {
           moduleKey: "realtime",
         });
 
-    return finalize(NextResponse.json(payload));
+    return finalize(NextResponse.json({
+      ...payload,
+      verification: buildServerAdminModuleVerification({
+        module: "admin_analytics_realtime",
+        canonicalSource: "ga4_realtime+analytics_active_users+analytics_event_facts",
+        fallbackSource: payload.liveTruthLabel === "fallback" ? "first_party_realtime" : null,
+        freshnessTimestamp: payload.generatedAtMs ?? Date.now(),
+        status: payload.liveTruthLabel === "failed" ? "failed" : payload.liveTruthLabel === "partial" ? "degraded" : payload.liveTruthLabel === "fallback" ? "fallback" : "live",
+        degradedReason: payload.issues?.[0] ?? null,
+        countComposition: {
+          totalActive: Number(payload.totalActive ?? 0),
+          deepTrackerActive: Number(payload.deepTrackerActive ?? 0),
+          activeUsers: Array.isArray(payload.activeUsers) ? payload.activeUsers.length : 0,
+          issues: Array.isArray(payload.issues) ? payload.issues.length : 0,
+        },
+      }),
+    }));
   } catch (error) {
     return finalize(handleApiError(error, "Admin.Analytics.Realtime.GET"), error);
   }
 }
+
+export let GET = withRouteRuntimeHealth("admin/analytics/realtime:GET", GET_handler);

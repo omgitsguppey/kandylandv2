@@ -1,5 +1,5 @@
 {
-  "generatedAt": "2026-04-27T04:09:50.559Z",
+  "generatedAt": "2026-04-28T16:57:32.355Z",
   "truthOrder": [
     "verified_runtime_code",
     "verified_configuration",
@@ -906,7 +906,7 @@
       "risk_tags": [
         "broad_signoff"
       ],
-      "recency": "1777212948489:fe4f40015f12",
+      "recency": "1777394960525:a76bf372d5a1",
       "freshness": {
         "local": "fresh",
         "sql_mirror": "unknown"
@@ -934,7 +934,7 @@
       "risk_tags": [
         "broad_signoff"
       ],
-      "recency": "1777203202565:8dcb37c69014",
+      "recency": "1777395426899:47cd0e058d52",
       "freshness": {
         "local": "fresh",
         "sql_mirror": "unknown"
@@ -1040,7 +1040,7 @@
       "risk_tags": [
         "broad_signoff"
       ],
-      "recency": "1777262890624:8b9d385d4541",
+      "recency": "1777395222093:439c1d6bb071",
       "freshness": {
         "local": "fresh",
         "sql_mirror": "unknown"
@@ -1068,7 +1068,7 @@
       "risk_tags": [
         "broad_signoff"
       ],
-      "recency": "1777262890545:ea599adc25ff",
+      "recency": "1777395222030:8b2d36244f05",
       "freshness": {
         "local": "fresh",
         "sql_mirror": "unknown"
@@ -1096,7 +1096,7 @@
       "risk_tags": [
         "broad_signoff"
       ],
-      "recency": "1777262890607:e59fe7e76032",
+      "recency": "1777395222081:af23101d3678",
       "freshness": {
         "local": "fresh",
         "sql_mirror": "unknown"
@@ -1124,7 +1124,7 @@
       "risk_tags": [
         "broad_signoff"
       ],
-      "recency": "1777262890575:611fc591c97b",
+      "recency": "1777395222056:15427969f424",
       "freshness": {
         "local": "fresh",
         "sql_mirror": "unknown"
@@ -1152,7 +1152,7 @@
       "risk_tags": [
         "broad_signoff"
       ],
-      "recency": "1777262890579:3a074410f17b",
+      "recency": "1777395222061:318740fe4a29",
       "freshness": {
         "local": "fresh",
         "sql_mirror": "unknown"
@@ -1180,7 +1180,7 @@
       "risk_tags": [
         "broad_signoff"
       ],
-      "recency": "1777262890558:cd706f5397f0",
+      "recency": "1777395222045:29f434ae26fd",
       "freshness": {
         "local": "fresh",
         "sql_mirror": "unknown"
@@ -1208,7 +1208,7 @@
       "risk_tags": [
         "broad_signoff"
       ],
-      "recency": "1777262890593:fee7a2d737ff",
+      "recency": "1777395222065:a41700feead4",
       "freshness": {
         "local": "fresh",
         "sql_mirror": "unknown"
@@ -1236,7 +1236,7 @@
       "risk_tags": [
         "broad_signoff"
       ],
-      "recency": "1777262890528:0689f6c3fef1",
+      "recency": "1777395222001:4a8d23333499",
       "freshness": {
         "local": "fresh",
         "sql_mirror": "unknown"
@@ -1264,7 +1264,7 @@
       "risk_tags": [
         "broad_signoff"
       ],
-      "recency": "1777262890648:28530befb25b",
+      "recency": "1777395222115:05acfac31d69",
       "freshness": {
         "local": "fresh",
         "sql_mirror": "unknown"
@@ -1292,7 +1292,7 @@
       "risk_tags": [
         "broad_signoff"
       ],
-      "recency": "1777262890596:bb572e7316b6",
+      "recency": "1777395222070:8e6826a8a609",
       "freshness": {
         "local": "fresh",
         "sql_mirror": "unknown"
@@ -1320,7 +1320,7 @@
       "risk_tags": [
         "broad_signoff"
       ],
-      "recency": "1777262890542:a102fedd5d9e",
+      "recency": "1777395222027:02454a4c67d3",
       "freshness": {
         "local": "fresh",
         "sql_mirror": "unknown"
@@ -1348,7 +1348,7 @@
       "risk_tags": [
         "broad_signoff"
       ],
-      "recency": "1777262983862:30bf3581f5e9",
+      "recency": "1777395446901:3177780492b5",
       "freshness": {
         "local": "fresh",
         "sql_mirror": "unknown"
@@ -1376,7 +1376,7 @@
       "risk_tags": [
         "broad_signoff"
       ],
-      "recency": "1777262890552:ce7a3f8e5940",
+      "recency": "1777395222037:cdc140fc57ba",
       "freshness": {
         "local": "fresh",
         "sql_mirror": "unknown"
@@ -1404,7 +1404,7 @@
       "risk_tags": [
         "broad_signoff"
       ],
-      "recency": "1777262890568:a13639eef0d6",
+      "recency": "1777395222050:736467d98bc8",
       "freshness": {
         "local": "fresh",
         "sql_mirror": "unknown"
@@ -1432,7 +1432,7 @@
       "risk_tags": [
         "broad_signoff"
       ],
-      "recency": "1777262905876:667741a4676d",
+      "recency": "1777263003863:4e48aad982e6",
       "freshness": {
         "local": "fresh",
         "sql_mirror": "unknown"
@@ -1460,7 +1460,7 @@
       "risk_tags": [
         "broad_signoff"
       ],
-      "recency": "1777262895721:228d3b4e9f28",
+      "recency": "1777262994642:85dbd521d482",
       "freshness": {
         "local": "fresh",
         "sql_mirror": "unknown"
@@ -1486,7 +1486,7 @@
       "risk_tags": [
         "broad_signoff"
       ],
-      "recency": "1777262895716:9acf0111bd83",
+      "recency": "1777262994638:89a17eaa7c82",
       "freshness": {
         "local": "fresh",
         "sql_mirror": "unknown"
@@ -1512,7 +1512,7 @@
       "risk_tags": [
         "broad_signoff"
       ],
-      "recency": "1777262895718:5e89c4482f18",
+      "recency": "1777262994640:f21ee0e3fddb",
       "freshness": {
         "local": "fresh",
         "sql_mirror": "unknown"
@@ -1538,7 +1538,7 @@
       "risk_tags": [
         "broad_signoff"
       ],
-      "recency": "1777262895735:f4f1b64d392e",
+      "recency": "1777262994662:637174b8d083",
       "freshness": {
         "local": "fresh",
         "sql_mirror": "unknown"
@@ -2142,7 +2142,7 @@
       "risk_tags": [
         "broad_signoff"
       ],
-      "recency": "1777262905873:03ab3459d85b",
+      "recency": "1777263003858:3e6001161a3c",
       "freshness": {
         "local": "fresh",
         "sql_mirror": "unknown"
@@ -2278,7 +2278,7 @@
       "risk_tags": [
         "broad_signoff"
       ],
-      "recency": "1777262895712:1cc40378df16",
+      "recency": "1777262994632:d16779cd29a2",
       "freshness": {
         "local": "fresh",
         "sql_mirror": "unknown"
@@ -2332,7 +2332,7 @@
       "risk_tags": [
         "broad_signoff"
       ],
-      "recency": "1777262895731:e71e24d36045",
+      "recency": "1777262994659:5660bb86b3bd",
       "freshness": {
         "local": "fresh",
         "sql_mirror": "unknown"
@@ -3425,6 +3425,174 @@
       "do_not_use_as_primary_truth": false
     },
     {
+      "stable_id": "file__docs__agent-truth__admin-activity-md",
+      "source_type": "file",
+      "source_id": "file__docs__agent-truth__admin-activity-md",
+      "searchable_terms": [
+        "docs/agent-truth/admin-activity.md",
+        "other",
+        "documentation"
+      ],
+      "surface_tags": [
+        "documentation",
+        "other"
+      ],
+      "helper_tags": [],
+      "risk_tags": [],
+      "recency": "1777309508990:9721fca75dcb",
+      "freshness": {
+        "local": "fresh",
+        "sql_mirror": "unknown"
+      },
+      "context_tier": "warm",
+      "exclusion_tags": [],
+      "do_not_use_as_primary_truth": false
+    },
+    {
+      "stable_id": "file__docs__agent-truth__admin-analytics-overview-md",
+      "source_type": "file",
+      "source_id": "file__docs__agent-truth__admin-analytics-overview-md",
+      "searchable_terms": [
+        "docs/agent-truth/admin-analytics-overview.md",
+        "other",
+        "analytics"
+      ],
+      "surface_tags": [
+        "analytics",
+        "other"
+      ],
+      "helper_tags": [],
+      "risk_tags": [],
+      "recency": "1777316619119:493186923dd6",
+      "freshness": {
+        "local": "fresh",
+        "sql_mirror": "unknown"
+      },
+      "context_tier": "warm",
+      "exclusion_tags": [],
+      "do_not_use_as_primary_truth": false
+    },
+    {
+      "stable_id": "file__docs__agent-truth__admin-drops-at-a-glance-md",
+      "source_type": "file",
+      "source_id": "file__docs__agent-truth__admin-drops-at-a-glance-md",
+      "searchable_terms": [
+        "docs/agent-truth/admin-drops-at-a-glance.md",
+        "other",
+        "documentation"
+      ],
+      "surface_tags": [
+        "documentation",
+        "other"
+      ],
+      "helper_tags": [],
+      "risk_tags": [],
+      "recency": "1777300464510:40427b69f9a4",
+      "freshness": {
+        "local": "fresh",
+        "sql_mirror": "unknown"
+      },
+      "context_tier": "warm",
+      "exclusion_tags": [],
+      "do_not_use_as_primary_truth": false
+    },
+    {
+      "stable_id": "file__docs__agent-truth__admin-overview-md",
+      "source_type": "file",
+      "source_id": "file__docs__agent-truth__admin-overview-md",
+      "searchable_terms": [
+        "docs/agent-truth/admin-overview.md",
+        "other",
+        "documentation"
+      ],
+      "surface_tags": [
+        "documentation",
+        "other"
+      ],
+      "helper_tags": [],
+      "risk_tags": [],
+      "recency": "1777343259612:fdb044cc065e",
+      "freshness": {
+        "local": "fresh",
+        "sql_mirror": "unknown"
+      },
+      "context_tier": "warm",
+      "exclusion_tags": [],
+      "do_not_use_as_primary_truth": false
+    },
+    {
+      "stable_id": "file__docs__agent-truth__admin-recent-transactions-md",
+      "source_type": "file",
+      "source_id": "file__docs__agent-truth__admin-recent-transactions-md",
+      "searchable_terms": [
+        "docs/agent-truth/admin-recent-transactions.md",
+        "other",
+        "economics"
+      ],
+      "surface_tags": [
+        "economics",
+        "other"
+      ],
+      "helper_tags": [],
+      "risk_tags": [],
+      "recency": "1777306273123:34a3e1785a7c",
+      "freshness": {
+        "local": "fresh",
+        "sql_mirror": "unknown"
+      },
+      "context_tier": "warm",
+      "exclusion_tags": [],
+      "do_not_use_as_primary_truth": false
+    },
+    {
+      "stable_id": "file__docs__agent-truth__admin-revenue-top-drops-md",
+      "source_type": "file",
+      "source_id": "file__docs__agent-truth__admin-revenue-top-drops-md",
+      "searchable_terms": [
+        "docs/agent-truth/admin-revenue-top-drops.md",
+        "other",
+        "documentation"
+      ],
+      "surface_tags": [
+        "documentation",
+        "other"
+      ],
+      "helper_tags": [],
+      "risk_tags": [],
+      "recency": "1777304001633:cf2d4e0a6074",
+      "freshness": {
+        "local": "fresh",
+        "sql_mirror": "unknown"
+      },
+      "context_tier": "warm",
+      "exclusion_tags": [],
+      "do_not_use_as_primary_truth": false
+    },
+    {
+      "stable_id": "file__docs__agent-truth__admin-revenue-trends-md",
+      "source_type": "file",
+      "source_id": "file__docs__agent-truth__admin-revenue-trends-md",
+      "searchable_terms": [
+        "docs/agent-truth/admin-revenue-trends.md",
+        "other",
+        "documentation"
+      ],
+      "surface_tags": [
+        "documentation",
+        "other"
+      ],
+      "helper_tags": [],
+      "risk_tags": [],
+      "recency": "1777304023287:e551a889b67d",
+      "freshness": {
+        "local": "fresh",
+        "sql_mirror": "unknown"
+      },
+      "context_tier": "warm",
+      "exclusion_tags": [],
+      "do_not_use_as_primary_truth": false
+    },
+    {
       "stable_id": "file__docs__doctrine__kandydrops-banned-patterns-md",
       "source_type": "file",
       "source_id": "file__docs__doctrine__kandydrops-banned-patterns-md",
@@ -3584,6 +3752,30 @@
       "helper_tags": [],
       "risk_tags": [],
       "recency": "1776723858497:8dc2d87706ec",
+      "freshness": {
+        "local": "fresh",
+        "sql_mirror": "unknown"
+      },
+      "context_tier": "warm",
+      "exclusion_tags": [],
+      "do_not_use_as_primary_truth": false
+    },
+    {
+      "stable_id": "file__eslint-errors-log",
+      "source_type": "file",
+      "source_id": "file__eslint-errors-log",
+      "searchable_terms": [
+        "eslint-errors.log",
+        "root_misc",
+        "misc"
+      ],
+      "surface_tags": [
+        "misc",
+        "root_misc"
+      ],
+      "helper_tags": [],
+      "risk_tags": [],
+      "recency": "1777346210547:8caa0911b587",
       "freshness": {
         "local": "fresh",
         "sql_mirror": "unknown"
@@ -8652,7 +8844,7 @@
       "risk_tags": [
         "runtime_critical"
       ],
-      "recency": "1777239767964:adf70211c46a",
+      "recency": "1777347032590:75ba59245b0d",
       "freshness": {
         "local": "fresh",
         "sql_mirror": "unknown"
@@ -8678,7 +8870,7 @@
       "risk_tags": [
         "runtime_critical"
       ],
-      "recency": "1777239760760:c9379519b589",
+      "recency": "1777346394931:01ab51b188c0",
       "freshness": {
         "local": "fresh",
         "sql_mirror": "unknown"
@@ -8704,7 +8896,7 @@
       "risk_tags": [
         "runtime_critical"
       ],
-      "recency": "1777240484815:7133fada48ac",
+      "recency": "1777316426955:dc7dc1dedfbe",
       "freshness": {
         "local": "fresh",
         "sql_mirror": "unknown"
@@ -8757,6 +8949,370 @@
         "runtime_critical"
       ],
       "recency": "1777242692557:2f89612c5032",
+      "freshness": {
+        "local": "fresh",
+        "sql_mirror": "unknown"
+      },
+      "context_tier": "hot",
+      "exclusion_tags": [],
+      "do_not_use_as_primary_truth": false
+    },
+    {
+      "stable_id": "file__src__app__admin__debug__components__debugadvancedbehavior-tsx",
+      "source_type": "file",
+      "source_id": "file__src__app__admin__debug__components__debugadvancedbehavior-tsx",
+      "searchable_terms": [
+        "src/app/admin/debug/components/DebugAdvancedBehavior.tsx",
+        "admin_surface",
+        "admin_ui"
+      ],
+      "surface_tags": [
+        "admin_ui",
+        "admin_surface"
+      ],
+      "helper_tags": [],
+      "risk_tags": [
+        "runtime_critical"
+      ],
+      "recency": "1777328247821:b67f4fa2d7c5",
+      "freshness": {
+        "local": "fresh",
+        "sql_mirror": "unknown"
+      },
+      "context_tier": "hot",
+      "exclusion_tags": [],
+      "do_not_use_as_primary_truth": false
+    },
+    {
+      "stable_id": "file__src__app__admin__debug__components__debugadvanceddrift-tsx",
+      "source_type": "file",
+      "source_id": "file__src__app__admin__debug__components__debugadvanceddrift-tsx",
+      "searchable_terms": [
+        "src/app/admin/debug/components/DebugAdvancedDrift.tsx",
+        "admin_surface",
+        "admin_ui"
+      ],
+      "surface_tags": [
+        "admin_ui",
+        "admin_surface"
+      ],
+      "helper_tags": [],
+      "risk_tags": [
+        "runtime_critical"
+      ],
+      "recency": "1777328101200:d10d00e5ffee",
+      "freshness": {
+        "local": "fresh",
+        "sql_mirror": "unknown"
+      },
+      "context_tier": "hot",
+      "exclusion_tags": [],
+      "do_not_use_as_primary_truth": false
+    },
+    {
+      "stable_id": "file__src__app__admin__debug__components__debugadvancedexperiments-tsx",
+      "source_type": "file",
+      "source_id": "file__src__app__admin__debug__components__debugadvancedexperiments-tsx",
+      "searchable_terms": [
+        "src/app/admin/debug/components/DebugAdvancedExperiments.tsx",
+        "admin_surface",
+        "admin_ui"
+      ],
+      "surface_tags": [
+        "admin_ui",
+        "admin_surface"
+      ],
+      "helper_tags": [],
+      "risk_tags": [
+        "runtime_critical"
+      ],
+      "recency": "1777327945904:1dd457fc404a",
+      "freshness": {
+        "local": "fresh",
+        "sql_mirror": "unknown"
+      },
+      "context_tier": "hot",
+      "exclusion_tags": [],
+      "do_not_use_as_primary_truth": false
+    },
+    {
+      "stable_id": "file__src__app__admin__debug__components__debugadvancedtelemetry-tsx",
+      "source_type": "file",
+      "source_id": "file__src__app__admin__debug__components__debugadvancedtelemetry-tsx",
+      "searchable_terms": [
+        "src/app/admin/debug/components/DebugAdvancedTelemetry.tsx",
+        "admin_surface",
+        "admin_ui"
+      ],
+      "surface_tags": [
+        "admin_ui",
+        "admin_surface"
+      ],
+      "helper_tags": [],
+      "risk_tags": [
+        "runtime_critical"
+      ],
+      "recency": "1777346394931:264fb6a30070",
+      "freshness": {
+        "local": "fresh",
+        "sql_mirror": "unknown"
+      },
+      "context_tier": "hot",
+      "exclusion_tags": [],
+      "do_not_use_as_primary_truth": false
+    },
+    {
+      "stable_id": "file__src__app__admin__debug__components__debugadvancedtruth-tsx",
+      "source_type": "file",
+      "source_id": "file__src__app__admin__debug__components__debugadvancedtruth-tsx",
+      "searchable_terms": [
+        "src/app/admin/debug/components/DebugAdvancedTruth.tsx",
+        "admin_surface",
+        "admin_ui"
+      ],
+      "surface_tags": [
+        "admin_ui",
+        "admin_surface"
+      ],
+      "helper_tags": [],
+      "risk_tags": [
+        "runtime_critical"
+      ],
+      "recency": "1777328170875:2c6ce8e8e710",
+      "freshness": {
+        "local": "fresh",
+        "sql_mirror": "unknown"
+      },
+      "context_tier": "hot",
+      "exclusion_tags": [],
+      "do_not_use_as_primary_truth": false
+    },
+    {
+      "stable_id": "file__src__app__admin__debug__components__debugmonitoringroutes-tsx",
+      "source_type": "file",
+      "source_id": "file__src__app__admin__debug__components__debugmonitoringroutes-tsx",
+      "searchable_terms": [
+        "src/app/admin/debug/components/DebugMonitoringRoutes.tsx",
+        "admin_surface",
+        "admin_ui"
+      ],
+      "surface_tags": [
+        "admin_ui",
+        "admin_surface"
+      ],
+      "helper_tags": [],
+      "risk_tags": [
+        "runtime_critical"
+      ],
+      "recency": "1777327309744:b16e404a9bc1",
+      "freshness": {
+        "local": "fresh",
+        "sql_mirror": "unknown"
+      },
+      "context_tier": "hot",
+      "exclusion_tags": [],
+      "do_not_use_as_primary_truth": false
+    },
+    {
+      "stable_id": "file__src__app__admin__debug__components__debugnowdiagnostics-tsx",
+      "source_type": "file",
+      "source_id": "file__src__app__admin__debug__components__debugnowdiagnostics-tsx",
+      "searchable_terms": [
+        "src/app/admin/debug/components/DebugNowDiagnostics.tsx",
+        "admin_surface",
+        "admin_ui"
+      ],
+      "surface_tags": [
+        "admin_ui",
+        "admin_surface"
+      ],
+      "helper_tags": [],
+      "risk_tags": [
+        "runtime_critical"
+      ],
+      "recency": "1777328435569:8e44debf7925",
+      "freshness": {
+        "local": "fresh",
+        "sql_mirror": "unknown"
+      },
+      "context_tier": "hot",
+      "exclusion_tags": [],
+      "do_not_use_as_primary_truth": false
+    },
+    {
+      "stable_id": "file__src__app__admin__debug__components__debugprimitives-tsx",
+      "source_type": "file",
+      "source_id": "file__src__app__admin__debug__components__debugprimitives-tsx",
+      "searchable_terms": [
+        "src/app/admin/debug/components/DebugPrimitives.tsx",
+        "admin_surface",
+        "admin_ui"
+      ],
+      "surface_tags": [
+        "admin_ui",
+        "admin_surface"
+      ],
+      "helper_tags": [],
+      "risk_tags": [
+        "runtime_critical"
+      ],
+      "recency": "1777326911088:f0195d06e807",
+      "freshness": {
+        "local": "fresh",
+        "sql_mirror": "unknown"
+      },
+      "context_tier": "hot",
+      "exclusion_tags": [],
+      "do_not_use_as_primary_truth": false
+    },
+    {
+      "stable_id": "file__src__app__admin__debug__components__debugtabactions-tsx",
+      "source_type": "file",
+      "source_id": "file__src__app__admin__debug__components__debugtabactions-tsx",
+      "searchable_terms": [
+        "src/app/admin/debug/components/DebugTabActions.tsx",
+        "admin_surface",
+        "admin_ui"
+      ],
+      "surface_tags": [
+        "admin_ui",
+        "admin_surface"
+      ],
+      "helper_tags": [],
+      "risk_tags": [
+        "runtime_critical"
+      ],
+      "recency": "1777327047684:40dd93c18376",
+      "freshness": {
+        "local": "fresh",
+        "sql_mirror": "unknown"
+      },
+      "context_tier": "hot",
+      "exclusion_tags": [],
+      "do_not_use_as_primary_truth": false
+    },
+    {
+      "stable_id": "file__src__app__admin__debug__components__debugtabadvanced-tsx",
+      "source_type": "file",
+      "source_id": "file__src__app__admin__debug__components__debugtabadvanced-tsx",
+      "searchable_terms": [
+        "src/app/admin/debug/components/DebugTabAdvanced.tsx",
+        "admin_surface",
+        "admin_ui"
+      ],
+      "surface_tags": [
+        "admin_ui",
+        "admin_surface"
+      ],
+      "helper_tags": [],
+      "risk_tags": [
+        "runtime_critical"
+      ],
+      "recency": "1777328337039:898160261be5",
+      "freshness": {
+        "local": "fresh",
+        "sql_mirror": "unknown"
+      },
+      "context_tier": "hot",
+      "exclusion_tags": [],
+      "do_not_use_as_primary_truth": false
+    },
+    {
+      "stable_id": "file__src__app__admin__debug__components__debugtabai-tsx",
+      "source_type": "file",
+      "source_id": "file__src__app__admin__debug__components__debugtabai-tsx",
+      "searchable_terms": [
+        "src/app/admin/debug/components/DebugTabAi.tsx",
+        "admin_surface",
+        "admin_ui"
+      ],
+      "surface_tags": [
+        "admin_ui",
+        "admin_surface"
+      ],
+      "helper_tags": [],
+      "risk_tags": [
+        "runtime_critical"
+      ],
+      "recency": "1777327566935:7cc3d789ba86",
+      "freshness": {
+        "local": "fresh",
+        "sql_mirror": "unknown"
+      },
+      "context_tier": "hot",
+      "exclusion_tags": [],
+      "do_not_use_as_primary_truth": false
+    },
+    {
+      "stable_id": "file__src__app__admin__debug__components__debugtabinfrastructure-tsx",
+      "source_type": "file",
+      "source_id": "file__src__app__admin__debug__components__debugtabinfrastructure-tsx",
+      "searchable_terms": [
+        "src/app/admin/debug/components/DebugTabInfrastructure.tsx",
+        "admin_surface",
+        "admin_ui"
+      ],
+      "surface_tags": [
+        "admin_ui",
+        "admin_surface"
+      ],
+      "helper_tags": [],
+      "risk_tags": [
+        "runtime_critical"
+      ],
+      "recency": "1777327506203:0afb7cf7d895",
+      "freshness": {
+        "local": "fresh",
+        "sql_mirror": "unknown"
+      },
+      "context_tier": "hot",
+      "exclusion_tags": [],
+      "do_not_use_as_primary_truth": false
+    },
+    {
+      "stable_id": "file__src__app__admin__debug__components__debugtabmonitoring-tsx",
+      "source_type": "file",
+      "source_id": "file__src__app__admin__debug__components__debugtabmonitoring-tsx",
+      "searchable_terms": [
+        "src/app/admin/debug/components/DebugTabMonitoring.tsx",
+        "admin_surface",
+        "admin_ui"
+      ],
+      "surface_tags": [
+        "admin_ui",
+        "admin_surface"
+      ],
+      "helper_tags": [],
+      "risk_tags": [
+        "runtime_critical"
+      ],
+      "recency": "1777346394931:473c8e8988dd",
+      "freshness": {
+        "local": "fresh",
+        "sql_mirror": "unknown"
+      },
+      "context_tier": "hot",
+      "exclusion_tags": [],
+      "do_not_use_as_primary_truth": false
+    },
+    {
+      "stable_id": "file__src__app__admin__debug__components__debugtabnow-tsx",
+      "source_type": "file",
+      "source_id": "file__src__app__admin__debug__components__debugtabnow-tsx",
+      "searchable_terms": [
+        "src/app/admin/debug/components/DebugTabNow.tsx",
+        "admin_surface",
+        "admin_ui"
+      ],
+      "surface_tags": [
+        "admin_ui",
+        "admin_surface"
+      ],
+      "helper_tags": [],
+      "risk_tags": [
+        "runtime_critical"
+      ],
+      "recency": "1777339791803:80148fe5f59e",
       "freshness": {
         "local": "fresh",
         "sql_mirror": "unknown"
@@ -8834,7 +9390,7 @@
       "risk_tags": [
         "runtime_critical"
       ],
-      "recency": "1777205040125:2cc04c6850a6",
+      "recency": "1777341092853:3a83fb5212b9",
       "freshness": {
         "local": "fresh",
         "sql_mirror": "unknown"
@@ -8938,7 +9494,7 @@
       "risk_tags": [
         "runtime_critical"
       ],
-      "recency": "1777241033776:ba4bfbd64bd3",
+      "recency": "1777343138260:77447a8211f3",
       "freshness": {
         "local": "fresh",
         "sql_mirror": "unknown"
@@ -9016,7 +9572,7 @@
       "risk_tags": [
         "runtime_critical"
       ],
-      "recency": "1777239760765:73f001b6026e",
+      "recency": "1777343185069:aae84efe2607",
       "freshness": {
         "local": "fresh",
         "sql_mirror": "unknown"
@@ -9926,7 +10482,7 @@
       "risk_tags": [
         "runtime_critical"
       ],
-      "recency": "1776961304536:bb565b021bb8",
+      "recency": "1777309189396:2c04bf5a1ed1",
       "freshness": {
         "local": "fresh",
         "sql_mirror": "unknown"
@@ -13254,7 +13810,7 @@
       "risk_tags": [
         "runtime_critical"
       ],
-      "recency": "1776974890279:2dbf0c319286",
+      "recency": "1777343124170:a5dc889ae43a",
       "freshness": {
         "local": "fresh",
         "sql_mirror": "unknown"
@@ -13462,7 +14018,7 @@
       "risk_tags": [
         "runtime_critical"
       ],
-      "recency": "1776985417418:2440d268b196",
+      "recency": "1777309416678:2294e6038a72",
       "freshness": {
         "local": "fresh",
         "sql_mirror": "unknown"
@@ -13514,7 +14070,7 @@
       "risk_tags": [
         "runtime_critical"
       ],
-      "recency": "1776985672400:9f1735d351ff",
+      "recency": "1777303872721:ad63fd061a32",
       "freshness": {
         "local": "fresh",
         "sql_mirror": "unknown"
@@ -13566,7 +14122,7 @@
       "risk_tags": [
         "runtime_critical"
       ],
-      "recency": "1776975326153:7127983441c9",
+      "recency": "1777300399356:1a805384fa77",
       "freshness": {
         "local": "fresh",
         "sql_mirror": "unknown"
@@ -13826,7 +14382,7 @@
       "risk_tags": [
         "runtime_critical"
       ],
-      "recency": "1777243550598:2d235d3c6bbb",
+      "recency": "1777316100459:ccedc88b3731",
       "freshness": {
         "local": "fresh",
         "sql_mirror": "unknown"
@@ -13982,7 +14538,7 @@
       "risk_tags": [
         "runtime_critical"
       ],
-      "recency": "1777239767978:de873e89a4eb",
+      "recency": "1777305912939:075ec5a38233",
       "freshness": {
         "local": "fresh",
         "sql_mirror": "unknown"
@@ -13992,11 +14548,11 @@
       "do_not_use_as_primary_truth": false
     },
     {
-      "stable_id": "file__src__components__admin__topdropspanel-tsx",
+      "stable_id": "file__src__components__admin__topdropstable-tsx",
       "source_type": "file",
-      "source_id": "file__src__components__admin__topdropspanel-tsx",
+      "source_id": "file__src__components__admin__topdropstable-tsx",
       "searchable_terms": [
-        "src/components/Admin/TopDropsPanel.tsx",
+        "src/components/Admin/TopDropsTable.tsx",
         "component",
         "ui_component"
       ],
@@ -14008,7 +14564,7 @@
       "risk_tags": [
         "runtime_critical"
       ],
-      "recency": "1776985318478:3c556ab885f2",
+      "recency": "1777346609759:1d37698442ba",
       "freshness": {
         "local": "fresh",
         "sql_mirror": "unknown"
@@ -16030,7 +16586,7 @@
         "runtime_critical",
         "shared_helper"
       ],
-      "recency": "1777239767984:b6d0e9ca6a02",
+      "recency": "1777300288103:049b8308b924",
       "freshness": {
         "local": "fresh",
         "sql_mirror": "unknown"
@@ -16111,7 +16667,7 @@
         "runtime_critical",
         "shared_helper"
       ],
-      "recency": "1777239767989:797fd7669638",
+      "recency": "1777346412764:a6acbe3833ad",
       "freshness": {
         "local": "fresh",
         "sql_mirror": "unknown"
@@ -16622,7 +17178,7 @@
         "shared_helper",
         "broad_signoff"
       ],
-      "recency": "1776885393499:50ae221cf0fc",
+      "recency": "1777315911524:0cb7142a3a60",
       "freshness": {
         "local": "fresh",
         "sql_mirror": "unknown"
@@ -17070,7 +17626,7 @@
         "shared_helper",
         "broad_signoff"
       ],
-      "recency": "1776961835797:13c5faca4d75",
+      "recency": "1777309166738:7e3f49f159f3",
       "freshness": {
         "local": "fresh",
         "sql_mirror": "unknown"
@@ -19590,7 +20146,7 @@
         "shared_helper",
         "broad_signoff"
       ],
-      "recency": "1777260385092:6bcdf42f49b6",
+      "recency": "1777345044194:b98c5d72bc0f",
       "freshness": {
         "local": "fresh",
         "sql_mirror": "unknown"
@@ -19618,7 +20174,7 @@
         "shared_helper",
         "broad_signoff"
       ],
-      "recency": "1776974890346:ad4289b25cb5",
+      "recency": "1777285591317:01c5725ac11b",
       "freshness": {
         "local": "fresh",
         "sql_mirror": "unknown"
@@ -19674,7 +20230,7 @@
         "shared_helper",
         "broad_signoff"
       ],
-      "recency": "1776975050626:fd596f9190fd",
+      "recency": "1777345058018:f1cde0663bf1",
       "freshness": {
         "local": "fresh",
         "sql_mirror": "unknown"
@@ -21438,7 +21994,7 @@
         "shared_helper",
         "broad_signoff"
       ],
-      "recency": "1777239760866:57852a502739",
+      "recency": "1777347253545:335e09bf8e21",
       "freshness": {
         "local": "fresh",
         "sql_mirror": "unknown"
@@ -23803,7 +24359,7 @@
       ],
       "helper_tags": [],
       "risk_tags": [],
-      "recency": "1776881814034:5e39bb6a8990",
+      "recency": "1777392386869:4bcc814efb21",
       "freshness": {
         "local": "fresh",
         "sql_mirror": "unknown"
@@ -24236,6 +24792,30 @@
       "helper_tags": [],
       "risk_tags": [],
       "recency": "1776962171969:ed360a1c59ed",
+      "freshness": {
+        "local": "fresh",
+        "sql_mirror": "unknown"
+      },
+      "context_tier": "warm",
+      "exclusion_tags": [],
+      "do_not_use_as_primary_truth": false
+    },
+    {
+      "stable_id": "file__tests__unit__admin-overview-truth-spec-ts",
+      "source_type": "file",
+      "source_id": "file__tests__unit__admin-overview-truth-spec-ts",
+      "searchable_terms": [
+        "tests/unit/admin-overview-truth.spec.ts",
+        "tests",
+        "tests"
+      ],
+      "surface_tags": [
+        "tests",
+        "tests"
+      ],
+      "helper_tags": [],
+      "risk_tags": [],
+      "recency": "1777343348133:9236f3d5266c",
       "freshness": {
         "local": "fresh",
         "sql_mirror": "unknown"
@@ -27257,6 +27837,30 @@
       "do_not_use_as_primary_truth": true
     },
     {
+      "stable_id": "file__tsc-errors-log",
+      "source_type": "file",
+      "source_id": "file__tsc-errors-log",
+      "searchable_terms": [
+        "tsc-errors.log",
+        "root_misc",
+        "misc"
+      ],
+      "surface_tags": [
+        "misc",
+        "root_misc"
+      ],
+      "helper_tags": [],
+      "risk_tags": [],
+      "recency": "1777346211432:da39a3ee5e6b",
+      "freshness": {
+        "local": "fresh",
+        "sql_mirror": "unknown"
+      },
+      "context_tier": "warm",
+      "exclusion_tags": [],
+      "do_not_use_as_primary_truth": false
+    },
+    {
       "stable_id": "file__tsconfig-json",
       "source_type": "file",
       "source_id": "file__tsconfig-json",
@@ -28411,6 +29015,40 @@
       "do_not_use_as_primary_truth": true
     },
     {
+      "stable_id": "retrieval__pass__2026-04-28-pre__post-every-file-checklist-tracking-reconciliation",
+      "source_type": "recent_pass",
+      "source_id": "pass__2026-04-28-pre__post-every-file-checklist-tracking-reconciliation",
+      "searchable_terms": [
+        "PRE/POST: Every-File Checklist Tracking Reconciliation",
+        "agent/index/repo-inventory.json",
+        "src/lib/server/analytics-pipeline-health.ts",
+        "src/lib/server/firebase-admin.ts",
+        "src/lib/server/route-diagnostics.ts",
+        "src/lib/server/server-diagnostics.ts"
+      ],
+      "surface_tags": [
+        "admin",
+        "architecture"
+      ],
+      "helper_tags": [
+        "src/lib/server/route-diagnostics.ts",
+        "src/lib/server/server-diagnostics.ts"
+      ],
+      "risk_tags": [
+        "architecture"
+      ],
+      "recency": "2026-04-28",
+      "freshness": {
+        "local": "fresh",
+        "sql_mirror": "unknown"
+      },
+      "context_tier": "cold",
+      "exclusion_tags": [
+        "secondary_truth"
+      ],
+      "do_not_use_as_primary_truth": true
+    },
+    {
       "stable_id": "retrieval__pass__2026-04-26-dependency-and-infrastructure-observability-rollout",
       "source_type": "recent_pass",
       "source_id": "pass__2026-04-26-dependency-and-infrastructure-observability-rollout",
@@ -28687,49 +29325,6 @@
         "security"
       ],
       "recency": "2026-04-23",
-      "freshness": {
-        "local": "fresh",
-        "sql_mirror": "unknown"
-      },
-      "context_tier": "cold",
-      "exclusion_tags": [
-        "secondary_truth"
-      ],
-      "do_not_use_as_primary_truth": true
-    },
-    {
-      "stable_id": "retrieval__pass__2026-04-22-admin-analytics-realtime-presence-hardening",
-      "source_type": "recent_pass",
-      "source_id": "pass__2026-04-22-admin-analytics-realtime-presence-hardening",
-      "searchable_terms": [
-        "Admin Analytics Realtime Presence Hardening",
-        "Stop treating admin analytics \"realtime\" as a 5-second polled summary when canonical first-party live collections already exist, and make guest presence visible in the live admin lane instead of implicitly disappearing behind GA and delayed history.",
-        "/api/admin/analytics/realtime",
-        "npx vitest run tests/unit/admin-analytics-live-runtime.spec.ts tests/unit/admin-analytics-page.spec.tsx",
-        "src/app/admin/analytics/components/AdminAnalyticsOperationsTab.tsx",
-        "src/app/admin/analytics/hooks/useAdminAnalyticsRealtime.ts",
-        "src/app/admin/analytics/hooks/useAdminAnalyticsState.tsx",
-        "src/app/admin/analytics/page.tsx",
-        "src/app/api/admin/analytics/realtime/route.ts",
-        "src/app/api/analytics/ingest/route.ts",
-        "src/components/Analytics/DeepTracker.tsx",
-        "src/lib/admin-analytics-live-runtime.ts",
-        "src/types/admin-analytics.ts",
-        "tests/unit/admin-analytics-live-runtime.spec.ts"
-      ],
-      "surface_tags": [
-        "admin",
-        "ui",
-        "runtime",
-        "architecture"
-      ],
-      "helper_tags": [],
-      "risk_tags": [
-        "architecture",
-        "runtime",
-        "ui"
-      ],
-      "recency": "2026-04-22",
       "freshness": {
         "local": "fresh",
         "sql_mirror": "unknown"

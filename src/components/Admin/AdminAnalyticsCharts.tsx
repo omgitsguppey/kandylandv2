@@ -17,6 +17,8 @@ import type { Drop } from "@/types/db";
 import type { AdminOverviewResponse } from "@/lib/admin-overview";
 import { calculateOverviewMetricDelta } from "@/lib/admin-overview";
 import { trackEvent } from "@/lib/telemetry";
+import { AdminStatusBadge } from "@/components/Admin/AdminStatusBadge";
+import type { AdminSurfaceState } from "@/lib/admin-parity";
 import { TopDropsTable } from "./TopDropsTable";
 
 /* ── Canonical color tokens ─────────────────────────────────────────────── */
@@ -45,7 +47,7 @@ type AdminAnalyticsChartsProps = {
     trendSummary: AdminOverviewResponse["trendSummary"];
     topDrops: Drop[];
     truthLabel: string;
-    truthVariant: "live" | "cached" | "fallback" | "waiting";
+    truthVariant: AdminSurfaceState;
     loading?: boolean;
 };
 
@@ -130,13 +132,6 @@ function aggregatePreviousWindow(
 
 /* ── Truth chip styles ───────────────────────────────────────────────────── */
 
-const TRUTH_DOT_STYLES: Record<string, string> = {
-    live: "bg-emerald-400",
-    cached: "bg-amber-400",
-    fallback: "bg-red-400",
-    waiting: "bg-gray-400 animate-pulse",
-};
-
 /* ── Component ───────────────────────────────────────────────────────────── */
 
 export function AdminAnalyticsCharts({
@@ -169,7 +164,7 @@ export function AdminAnalyticsCharts({
 
     /* For the full 30d range, prefer the server-computed trendSummary (canonical). 
        For shorter ranges, use the client-side re-aggregation. */
-    const isFullWindow = timeRange === "30d" || timeRange === "all";
+    const isFullWindow = timeRange === "30d";
     const revenueTotal = isFullWindow
         ? `$${(trendSummary.currentRevenueCents / 100).toFixed(2)}`
         : `$${(currentAgg.revenueCents / 100).toFixed(2)}`;
@@ -207,7 +202,7 @@ export function AdminAnalyticsCharts({
         ? `${trendSummary.revenueActiveDays} of ${trendSummary.windowDays}`
         : `${currentAgg.revenueActiveDays} of ${filteredChart.length}`;
 
-    const windowLabel = timeRange === "all" ? "All recorded activity · last 30 days" : selectedOption.label;
+    const windowLabel = timeRange === "all" ? "All available chart rows" : selectedOption.label;
 
     const metricCards = [
         { label: "Revenue", value: revenueTotal, sub: revenueDelta },
@@ -255,7 +250,7 @@ export function AdminAnalyticsCharts({
                 </div>
 
                 <div className="flex items-center gap-1.5 text-[10px] text-gray-400">
-                    <span className={`inline-block h-1.5 w-1.5 rounded-full ${TRUTH_DOT_STYLES[truthVariant] || "bg-gray-400"}`} />
+                    <AdminStatusBadge state={truthVariant} className="py-0.5" />
                     <span>{truthLabel}</span>
                 </div>
             </div>
@@ -279,7 +274,10 @@ export function AdminAnalyticsCharts({
             {/* ── Combined chart ────────────────────────────────────── */}
             {!chartHasData ? (
                 <div className="rounded-xl border border-white/8 bg-black/25 px-4 py-6 text-center">
-                    <p className="text-[11px] font-semibold text-gray-400">No revenue or unwrap activity in this window.</p>
+                    <div className="flex flex-col items-center gap-2 text-[11px] font-semibold text-gray-400">
+                        <AdminStatusBadge state={truthVariant} />
+                        <span>No revenue or unwrap activity in this window.</span>
+                    </div>
                 </div>
             ) : (
                 <div className="rounded-xl border border-white/8 bg-black/30 p-3 md:p-3.5">
