@@ -217,7 +217,9 @@ export function AuthProvider({ children }: { children: ReactNode }) {
                         void fetch("/api/auth/navigation-session", {
                             method: "DELETE",
                             keepalive: true,
-                        }).catch(() => { });
+                        }).catch((error) => {
+                            reportRealtimeIssue("auth navigation session delete failed", error);
+                        });
                     }
 
                     setUser(currentUser);
@@ -235,7 +237,8 @@ export function AuthProvider({ children }: { children: ReactNode }) {
                         setLoading(false);
                     }
                 });
-            } catch {
+            } catch (error) {
+                reportRealtimeIssue("auth initialization failed", error);
                 if (!cancelled) {
                     setAuthStateResolved(true);
                     setLoading(false);
@@ -338,7 +341,8 @@ export function AuthProvider({ children }: { children: ReactNode }) {
                                 autoRegisterInFlight.delete(currentUserId);
                                 setLoading(false);
                             }
-                        } catch {
+                        } catch (error) {
+                            reportRealtimeIssue("auth profile bootstrap failed", error);
                             if (!cancelled) {
                                 autoRegisterInFlight.delete(currentUserId);
                                 setLoading(false);
@@ -375,7 +379,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
             autoRegisterInFlight.delete(currentUserId);
             observerControl.cleanup();
         };
-    }, [authStateResolved, pathname, router, user]);
+    }, [authStateResolved, router, user]);
 
     useEffect(() => {
         if (!user) {
@@ -392,7 +396,8 @@ export function AuthProvider({ children }: { children: ReactNode }) {
             navigationSessionSyncKeyRef.current = syncKey;
             void authFetch("/api/auth/navigation-session", {
                 method: "POST",
-            }).catch(() => {
+            }).catch((error) => {
+                reportRealtimeIssue("auth navigation session sync failed", error);
                 navigationSessionSyncKeyRef.current = null;
             });
         }
@@ -506,10 +511,11 @@ export function AuthProvider({ children }: { children: ReactNode }) {
                 try {
                     await deleteUser(createdUser);
                 } catch (cleanupError) {
+                    reportRealtimeIssue("auth signup rollback delete failed", cleanupError);
                     try {
                         await signOut(auth);
-                    } catch {
-                        // Best effort fallback after delete failure.
+                    } catch (signOutError) {
+                        reportRealtimeIssue("auth signup rollback sign-out failed", signOutError);
                     }
                 }
             }
@@ -539,7 +545,9 @@ export function AuthProvider({ children }: { children: ReactNode }) {
         await fetch("/api/auth/navigation-session", {
             method: "DELETE",
             keepalive: true,
-        }).catch(() => { });
+        }).catch((error) => {
+            reportRealtimeIssue("auth logout navigation session delete failed", error);
+        });
 
         if (!auth) {
             router.replace("/");
@@ -612,6 +620,12 @@ export const useAuthIdentity = () => {
 export const useUserProfile = () => {
     const context = useContext(UserProfileContext);
     if (!context) throw new Error("useUserProfile must be used within AuthProvider");
+    return context;
+};
+
+export const useAuthLoading = () => {
+    const context = useContext(AuthLoadingContext);
+    if (!context) throw new Error("useAuthLoading must be used within AuthProvider");
     return context;
 };
 

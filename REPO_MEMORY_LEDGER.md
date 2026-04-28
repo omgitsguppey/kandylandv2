@@ -24,6 +24,19 @@ This file is not a changelog. It is the concise ledger for durable decisions tha
 
 ## Decision Entries
 
+### 1au. Homepage hydration work must be idle-aware, abortable, and guard-backed
+
+- Approximate date: Recorded explicitly on 2026-04-28 from the Homepage Performance and Hydration Hardening pass
+- Status: Active homepage performance/runtime rule
+- Problem/context: Homepage scroll jank came from several small sources stacking together: eager deep telemetry, always-on carousel autoplay, immediate diagnostic observers, per-card resize observers, broad auth/UI context subscriptions, duplicate seeded creator loads, and server discovery relationship-count fan-out.
+- Decision made: Homepage client work must subscribe narrowly, defer non-critical telemetry/diagnostics until idle, pause animation/timers when offscreen or hidden, abort stale discovery fetches, and keep regression checks in `npm run check:home-hydration`.
+- What became canonical:
+  - `src/components/HomepageRuntimeDiagnostics.tsx` owns idle-scheduled homepage layout/input/long-task diagnostics.
+  - `src/components/Landing/HomeActiveDropsCarousel.tsx` owns visibility-aware carousel autoplay.
+  - `src/components/CreatorDiscoveryRail.tsx` owns abortable/deferred creator rail hydration.
+  - `src/context/UIContext.tsx` exposes `useUIActions()` so CTA surfaces can avoid modal-state rerenders.
+  - `scripts/check-home-hydration-performance.ts` blocks regressions across these paths.
+
 ### 1at. Admin route verification must be evidence-based, not success-flag based
 
 - Approximate date: Recorded explicitly on 2026-04-28 from the Second Admin Truth Remediation pass

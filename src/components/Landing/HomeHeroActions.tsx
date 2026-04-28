@@ -5,12 +5,12 @@ import { ArrowRight } from "lucide-react";
 
 import { Button } from "@/components/ui/Button";
 import { useAuthIdentity } from "@/context/AuthContext";
-import { useUI } from "@/context/UIContext";
+import { useUIActions } from "@/context/UIContext";
 import { trackEvent } from "@/lib/telemetry";
 
 export function HomeHeroActions() {
     const { user } = useAuthIdentity();
-    const { openAuthModal } = useUI();
+    const { openAuthModal } = useUIActions();
 
     return (
         <>

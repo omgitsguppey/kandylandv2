@@ -8,7 +8,7 @@ import MobileBottomBar from "@/components/Navigation/MobileBottomBar";
 import dynamic from "next/dynamic";
 import { useEffect } from "react";
 import { usePathname } from "next/navigation";
-import { useAuth } from "@/context/AuthContext";
+import { useAuthIdentity, useAuthLoading, useUserProfile } from "@/context/AuthContext";
 import { useUI } from "@/context/UIContext";
 import { CLIENT_RUNTIME_STORAGE_KEYS, writeSessionStorageValue } from "@/hooks/client-runtime";
 import { useDeferredClientReady } from "@/hooks/useDeferredClientReady";
@@ -43,7 +43,9 @@ const GlobalBugReportTrigger = dynamic(
 );
 
 export function CoreLayoutWrapper({ children }: { children: React.ReactNode }) {
-    const { user, userProfile, loading } = useAuth();
+    const { user } = useAuthIdentity();
+    const { userProfile } = useUserProfile();
+    const { loading } = useAuthLoading();
     const {
         isAuthModalOpen,
         isInsufficientBalanceModalOpen,
@@ -84,7 +86,7 @@ export function CoreLayoutWrapper({ children }: { children: React.ReactNode }) {
         idle: true,
     });
     const diagnosticsReady = isHomeRoute ? homepageAfterPaintReady : runtimeReady;
-    const telemetryReady = isHomeRoute ? homepageAfterPaintReady : afterPaintReady;
+    const telemetryReady = isHomeRoute ? homepageIdleReady : afterPaintReady;
     const enhancementReady = isHomeRoute ? homepageIdleReady : idleReady;
     const overlayReady = isHomeRoute ? homepageOverlayReady : telemetryReady;
     const scrollControlsReady = !isHomeRoute || homepageAfterPaintReady;

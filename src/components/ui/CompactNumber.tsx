@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useEffect, useRef } from "react";
+import { memo, useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { cn } from "@/lib/utils";
 
 interface CompactNumberProps {
@@ -18,31 +18,39 @@ export function formatCompactNumber(value: number): string {
     return m % 1 === 0 ? `${m}M` : `${m.toFixed(1)}M`;
 }
 
-export function CompactNumber({ value, className }: CompactNumberProps) {
+export const CompactNumber = memo(function CompactNumber({ value, className }: CompactNumberProps) {
     const [isRevealed, setIsRevealed] = useState(false);
-    const holdTimer = useRef<NodeJS.Timeout | null>(null);
+    const holdTimer = useRef<number | null>(null);
 
-    const handlePointerDown = () => {
-        holdTimer.current = setTimeout(() => {
+    const handlePointerDown = useCallback(() => {
+        if (holdTimer.current) {
+            window.clearTimeout(holdTimer.current);
+        }
+        holdTimer.current = window.setTimeout(() => {
             setIsRevealed(true);
         }, 5000);
-    };
+    }, []);
 
-    const handlePointerUpOrLeave = () => {
+    const handlePointerUpOrLeave = useCallback(() => {
         if (holdTimer.current) {
-            clearTimeout(holdTimer.current);
+            window.clearTimeout(holdTimer.current);
             holdTimer.current = null;
         }
-        setIsRevealed(false);
-    };
+        setIsRevealed((current) => (current ? false : current));
+    }, []);
 
     useEffect(() => {
         return () => {
-            if (holdTimer.current) clearTimeout(holdTimer.current);
+            if (holdTimer.current) {
+                window.clearTimeout(holdTimer.current);
+            }
         };
     }, []);
 
-    const displayValue = isRevealed ? value.toLocaleString() : formatCompactNumber(value);
+    const displayValue = useMemo(
+        () => (isRevealed ? value.toLocaleString() : formatCompactNumber(value)),
+        [isRevealed, value],
+    );
 
     return (
         <span
@@ -55,4 +63,4 @@ export function CompactNumber({ value, className }: CompactNumberProps) {
             {displayValue}
         </span>
     );
-}
+});

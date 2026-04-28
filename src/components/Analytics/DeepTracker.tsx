@@ -210,6 +210,7 @@ export function DeepTracker() {
         let currentHoverKey: string | null = null;
         let finalized = false;
         const shouldCaptureAnonymousBatch = true;
+        let queuePersistTimeout: number | null = null;
 
         pageEnteredAt.current = Date.now();
         lastScrollDepth.current = 0;
@@ -272,6 +273,17 @@ export function DeepTracker() {
             await guestFlushInFlightRef.current;
         };
 
+        const persistQueueSoon = () => {
+            if (queuePersistTimeout !== null) {
+                return;
+            }
+
+            queuePersistTimeout = window.setTimeout(() => {
+                queuePersistTimeout = null;
+                persistGuestQueue(eventQueue.current);
+            }, 250);
+        };
+
         const pushEvent = (event: TelemetryEvent) => {
             if (!trackingAllowed || !shouldCaptureAnonymousBatch) {
                 return;
@@ -285,7 +297,7 @@ export function DeepTracker() {
             }
 
             eventQueue.current.push(event);
-            persistGuestQueue(eventQueue.current);
+            persistQueueSoon();
         };
 
         const emitPageSummary = (reason: "pagehide" | "cleanup" | "visibility") => {
@@ -521,6 +533,9 @@ export function DeepTracker() {
         window.addEventListener("online", handleOnline);
 
         trackingInterval = window.setInterval(() => {
+            if (document.visibilityState !== "visible") {
+                return;
+            }
             void flushQueue("interval");
         }, GUEST_ANALYTICS_FLUSH_INTERVAL_MS);
 
@@ -534,6 +549,11 @@ export function DeepTracker() {
             window.removeEventListener("online", handleOnline);
             if (trackingInterval) {
                 window.clearInterval(trackingInterval);
+            }
+            if (queuePersistTimeout !== null) {
+                window.clearTimeout(queuePersistTimeout);
+                queuePersistTimeout = null;
+                persistGuestQueue(eventQueue.current);
             }
             emitPageSummary("cleanup");
         };

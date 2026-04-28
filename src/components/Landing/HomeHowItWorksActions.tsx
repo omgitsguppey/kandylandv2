@@ -1,8 +1,9 @@
 "use client";
 
+import { startTransition } from "react";
 import { useRouter } from "next/navigation";
 
-import { useUI } from "@/context/UIContext";
+import { useUIActions } from "@/context/UIContext";
 import { useAuthIdentity } from "@/context/AuthContext";
 import { SECONDARY_UNWRAP_CTA } from "@/lib/marketing-copy";
 import { trackEvent } from "@/lib/telemetry";
@@ -13,14 +14,16 @@ type HomeHowItWorksActionsProps = {
 
 export function HomeHowItWorksActions({ variant }: HomeHowItWorksActionsProps) {
     const router = useRouter();
-    const { openAuthModal } = useUI();
+    const { openAuthModal } = useUIActions();
     const { user } = useAuthIdentity();
 
     const handleLandingCta = () => {
         const source = variant === "primary" ? "landing_how_it_works" : "landing_showcase";
         if (user) {
             trackEvent("navigation_click", { destination: "/drops", source });
-            router.push("/drops");
+            startTransition(() => {
+                router.push("/drops");
+            });
             return;
         }
 

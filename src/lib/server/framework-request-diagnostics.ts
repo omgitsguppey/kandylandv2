@@ -39,6 +39,26 @@ function buildFrameworkSurface(request: { url?: string } | undefined, context: R
   );
 }
 
+function readHeader(headers: unknown, name: string) {
+  if (!headers || typeof headers !== "object") {
+    return undefined;
+  }
+
+  if ("get" in headers && typeof headers.get === "function") {
+    const value = headers.get(name);
+    return typeof value === "string" && value.trim().length > 0 ? value : undefined;
+  }
+
+  const record = headers as Record<string, unknown>;
+  const directValue = record[name] ?? record[name.toLowerCase()];
+  if (Array.isArray(directValue)) {
+    const firstValue = directValue.find((entry) => typeof entry === "string" && entry.trim().length > 0);
+    return typeof firstValue === "string" ? firstValue : undefined;
+  }
+
+  return typeof directValue === "string" && directValue.trim().length > 0 ? directValue : undefined;
+}
+
 export async function recordFrameworkRequestError(input: {
   error: unknown;
   request?: {
@@ -51,8 +71,8 @@ export async function recordFrameworkRequestError(input: {
   const surface = buildFrameworkSurface(input.request, input.context);
   const method = sanitizeText(input.request?.method, "UNKNOWN");
   const routeContext = `next/request-error:${surface}`;
-  const traceId = input.request?.headers?.get("x-request-id")
-    || input.request?.headers?.get("x-cloud-trace-context")
+  const traceId = readHeader(input.request?.headers, "x-request-id")
+    || readHeader(input.request?.headers, "x-cloud-trace-context")
     || undefined;
 
   recordRouteFailure(routeContext, input.error, {

@@ -7,27 +7,27 @@ interface HowItWorksProps {
     activeDrops: Drop[];
 }
 
-export function HowItWorks({ activeDrops }: HowItWorksProps) {
-    const features = [
-        {
-            icon: <Lock className="w-8 h-8 text-brand-purple" />,
-            title: "Join Free",
-            description: "Create a free profile so your stash and library stay synced."
-        },
-        {
-            icon: <Eye className="w-8 h-8 text-brand-purple" />,
-            title: "Unwrap",
-            description: "Check the timer and file count, then unwrap before the window ends."
-        },
-        {
-            icon: <Heart className="w-8 h-8 text-brand-purple" />,
-            title: "Keep Access",
-            description: "Unwrap while it is live and keep it in your library after expiry."
-        }
-    ];
+const HOW_IT_WORKS_FEATURES = [
+    {
+        icon: <Lock className="h-8 w-8 text-brand-purple" />,
+        title: "Join Free",
+        description: "Create a free profile so your stash and library stay synced.",
+    },
+    {
+        icon: <Eye className="h-8 w-8 text-brand-purple" />,
+        title: "Unwrap",
+        description: "Check the timer and file count, then unwrap before the window ends.",
+    },
+    {
+        icon: <Heart className="h-8 w-8 text-brand-purple" />,
+        title: "Keep Access",
+        description: "Unwrap while it is live and keep it in your library after expiry.",
+    },
+];
 
+export function HowItWorks({ activeDrops }: HowItWorksProps) {
     return (
-        <section data-home-section="how-it-works" className="relative border-t border-white/5 bg-black py-10 sm:py-20">
+        <section data-home-section="how-it-works" className="relative border-t border-white/5 bg-black py-10 [content-visibility:auto] [contain-intrinsic-size:1100px] sm:py-20">
             <div className="absolute inset-0 bg-[linear-gradient(to_right,#b28cff05_1px,transparent_1px),linear-gradient(to_bottom,#b28cff05_1px,transparent_1px)] bg-[size:4rem_4rem]" />
 
             <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 relative z-10 w-full">
@@ -39,10 +39,10 @@ export function HowItWorks({ activeDrops }: HowItWorksProps) {
                 <div
                     role="region"
                     aria-label="How KandyDrops works steps"
-                    className="-mx-4 flex overflow-x-auto gap-3 px-4 pb-6 [touch-action:pan-x] snap-x snap-mandatory sm:mx-0 sm:mb-8 sm:grid sm:grid-cols-3 sm:gap-5 sm:overflow-visible sm:px-0 sm:pb-0 [scrollbar-width:none] [&::-webkit-scrollbar]:hidden"
+                    className="-mx-4 flex snap-x snap-mandatory gap-3 overflow-x-auto overscroll-x-contain px-4 pb-6 [touch-action:pan-x] sm:mx-0 sm:mb-8 sm:grid sm:grid-cols-3 sm:gap-5 sm:overflow-visible sm:px-0 sm:pb-0 [scrollbar-width:none] [&::-webkit-scrollbar]:hidden"
                     tabIndex={0}
                 >
-                    {features.map((feature, index) => (
+                    {HOW_IT_WORKS_FEATURES.map((feature, index) => (
                         <div key={index} className="shrink-0 w-[75vw] max-w-[280px] snap-center sm:w-auto sm:max-w-none group rounded-[1.7rem] border border-white/5 bg-zinc-950 p-6 transition-colors hover:bg-zinc-900 sm:aspect-square sm:rounded-3xl sm:p-6 lg:p-8 flex flex-col justify-center">
                             <div className="flex h-full flex-col items-center justify-center text-center">
                                 <div className="mb-4 flex h-12 w-12 items-center justify-center rounded-2xl border border-brand-purple/20 bg-brand-purple/10 transition-transform group-hover:scale-110 sm:h-14 sm:w-14 lg:h-16 lg:w-16">
@@ -60,8 +60,8 @@ export function HowItWorks({ activeDrops }: HowItWorksProps) {
                 </div>
 
                 <div className="relative overflow-hidden rounded-[2rem] border border-brand-purple/10 bg-zinc-900 p-4 sm:rounded-[2.6rem] sm:p-6 md:p-8">
-                    <div className="absolute top-0 right-0 w-96 h-96 bg-brand-purple/10 blur-[100px] rounded-full" />
-                    <div className="absolute bottom-0 left-0 w-96 h-96 bg-brand-purple/5 blur-[100px] rounded-full" />
+                    <div className="pointer-events-none absolute right-0 top-0 h-72 w-72 rounded-full bg-brand-purple/8 blur-[68px] motion-reduce:hidden" aria-hidden="true" />
+                    <div className="pointer-events-none absolute bottom-0 left-0 h-72 w-72 rounded-full bg-brand-purple/5 blur-[68px] motion-reduce:hidden" aria-hidden="true" />
 
                     <div className="relative z-10 space-y-5">
                         <div className="flex flex-col gap-4 sm:flex-row sm:items-end sm:justify-between">

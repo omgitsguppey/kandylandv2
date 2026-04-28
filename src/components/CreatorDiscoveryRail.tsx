@@ -1,12 +1,12 @@
 "use client";
 
-import { useEffect, useMemo, useState } from "react";
+import { useCallback, useEffect, useMemo, useState, useTransition } from "react";
 import Image from "next/image";
 import Link from "next/link";
 import { CheckCircle2, Loader2, Sparkles, Users } from "lucide-react";
 
-import { useAuth } from "@/context/AuthContext";
-import { useUI } from "@/context/UIContext";
+import { useAuthIdentity, useAuthLoading } from "@/context/AuthContext";
+import { useUIActions } from "@/context/UIContext";
 import { authFetch } from "@/lib/authFetch";
 import { reportClientIssue } from "@/lib/client-error-reporting";
 import { buildCreatorDiscoveryNavigationParams, type CreatorDiscoveryProfile } from "@/lib/creator-public-pages";
@@ -34,6 +34,7 @@ interface CreatorDiscoveryRailProps {
 }
 
 const EMPTY_CREATORS: CreatorCard[] = [];
+const HOME_RELATIONSHIP_IDLE_DELAY_MS = 650;
 
 function initialsFor(name: string) {
     return name
@@ -49,7 +50,7 @@ function CreatorDiscoveryRailSkeleton({ compact, surface }: { compact: boolean; 
         <section
             data-home-section={surface === "home" ? "creator-spotlight" : undefined}
             className={cn(
-                "glass-panel rounded-[1.7rem] border border-white/10 p-2.5 sm:rounded-[2rem] sm:p-4",
+                "glass-panel rounded-[1.7rem] border border-white/10 p-2.5 [content-visibility:auto] [contain-intrinsic-size:260px] sm:rounded-[2rem] sm:p-4",
                 compact ? "space-y-2" : "space-y-3",
             )}
         >
@@ -69,7 +70,7 @@ function CreatorDiscoveryRailSkeleton({ compact, surface }: { compact: boolean; 
                         <div
                             key={index}
                             className={cn(
-                                "flex flex-col items-center justify-between rounded-[1.45rem] border border-white/5 bg-white/5 animate-pulse",
+                                "flex flex-col items-center justify-between rounded-[1.45rem] border border-white/5 bg-white/5 animate-pulse motion-reduce:animate-none",
                                 compact
                                     ? "aspect-square w-[7.25rem] px-2.5 py-4"
                                     : "aspect-square w-[8.75rem] px-3 py-5",
@@ -117,7 +118,7 @@ function CreatorDiscoveryRailEmpty({
         <section
             data-home-section={surface === "home" ? "creator-spotlight" : undefined}
             className={cn(
-                "glass-panel rounded-[1.7rem] border border-white/10 p-2.5 sm:rounded-[2rem] sm:p-4",
+                "glass-panel rounded-[1.7rem] border border-white/10 p-2.5 [content-visibility:auto] [contain-intrinsic-size:260px] sm:rounded-[2rem] sm:p-4",
                 compact ? "space-y-2" : "space-y-3",
             )}
         >
@@ -159,7 +160,7 @@ function CreatorDiscoveryRailView({
         <section
             data-home-section={surface === "home" ? "creator-spotlight" : undefined}
             className={cn(
-                "glass-panel rounded-[1.7rem] border border-white/10 p-2.5 sm:rounded-[2rem] sm:p-4",
+                "glass-panel rounded-[1.7rem] border border-white/10 p-2.5 [content-visibility:auto] [contain-intrinsic-size:300px] sm:rounded-[2rem] sm:p-4",
                 compact ? "space-y-2" : "space-y-3",
             )}
         >
@@ -220,6 +221,8 @@ function CreatorDiscoveryRailView({
                                                 alt={creator.username || creator.displayName}
                                                 width={72}
                                                 height={72}
+                                                sizes="72px"
+                                                decoding="async"
                                                 className="h-full w-full object-cover"
                                             />
                                         ) : (
@@ -278,21 +281,31 @@ export function CreatorDiscoveryRail({
     compact = false,
     initialCreators = EMPTY_CREATORS,
 }: CreatorDiscoveryRailProps) {
-    const { user, loading: authLoading } = useAuth();
-    const { openAuthModal } = useUI();
+    const { user } = useAuthIdentity();
+    const { loading: authLoading } = useAuthLoading();
+    const { openAuthModal } = useUIActions();
     const [recommendedCreators, setRecommendedCreators] = useState<CreatorCard[]>(() => initialCreators);
     const [followedCreators, setFollowedCreators] = useState<CreatorCard[]>(EMPTY_CREATORS);
     const [railLoading, setRailLoading] = useState(initialCreators.length === 0);
     const [pendingCreatorId, setPendingCreatorId] = useState<string | null>(null);
+    const [, startCreatorsTransition] = useTransition();
     const authSettled = !authLoading;
+    const initialCreatorKey = useMemo(
+        () => initialCreators.map((creator) => creator.uid).join("|"),
+        [initialCreators],
+    );
 
     useEffect(() => {
-        setRecommendedCreators(initialCreators);
-        setRailLoading(initialCreators.length === 0);
-    }, [initialCreators]);
+        startCreatorsTransition(() => {
+            setRecommendedCreators(initialCreators);
+            setRailLoading(initialCreators.length === 0);
+        });
+    }, [initialCreatorKey, initialCreators]);
 
     useEffect(() => {
         let cancelled = false;
+        const abortController = new AbortController();
+        let idleCleanup: (() => void) | null = null;
         const hasSeededCreators = initialCreators.length > 0;
 
         async function loadCreators() {
@@ -305,12 +318,23 @@ export function CreatorDiscoveryRail({
                 let nextFollowed: CreatorCard[] = [];
 
                 if (!user) {
-                    if (!hasSeededCreators) {
-                        setRailLoading(true);
-                        const discoveryResponse = await fetch(`/api/creator/discovery?surface=${surface}`, { cache: "no-store" });
-                        const discoveryResult = await discoveryResponse.json() as { creators?: CreatorCard[] };
-                        nextRecommended = discoveryResult.creators || [];
+                    if (hasSeededCreators) {
+                        if (!cancelled) {
+                            startCreatorsTransition(() => {
+                                setFollowedCreators(EMPTY_CREATORS);
+                                setRailLoading(false);
+                            });
+                        }
+                        return;
                     }
+
+                    setRailLoading(true);
+                    const discoveryResponse = await fetch(`/api/creator/discovery?surface=${surface}`, {
+                        cache: "no-store",
+                        signal: abortController.signal,
+                    });
+                    const discoveryResult = await discoveryResponse.json() as { creators?: CreatorCard[] };
+                    nextRecommended = discoveryResult.creators || [];
                 } else {
                     if (!hasSeededCreators) {
                         setRailLoading(true);
@@ -360,11 +384,17 @@ export function CreatorDiscoveryRail({
                 }
 
                 if (!cancelled) {
-                    setRecommendedCreators(nextRecommended);
-                    setFollowedCreators(nextFollowed);
-                    setRailLoading(false);
+                    startCreatorsTransition(() => {
+                        setRecommendedCreators(nextRecommended);
+                        setFollowedCreators(nextFollowed);
+                        setRailLoading(false);
+                    });
                 }
             } catch (error) {
+                if (abortController.signal.aborted) {
+                    return;
+                }
+
                 reportClientIssue({
                     channel: "ui",
                     severity: "warn",
@@ -378,17 +408,32 @@ export function CreatorDiscoveryRail({
                 });
 
                 if (!cancelled) {
-                    setRecommendedCreators(initialCreators);
-                    setRailLoading(false);
+                    startCreatorsTransition(() => {
+                        setRecommendedCreators(initialCreators);
+                        setRailLoading(false);
+                    });
                 }
             }
         }
 
-        void loadCreators();
+        if (surface === "home" && user) {
+            if (typeof window !== "undefined" && "requestIdleCallback" in window) {
+                const idleId = window.requestIdleCallback(() => void loadCreators(), { timeout: HOME_RELATIONSHIP_IDLE_DELAY_MS * 2 });
+                idleCleanup = () => window.cancelIdleCallback(idleId);
+            } else {
+                const timeoutId = globalThis.setTimeout(() => void loadCreators(), HOME_RELATIONSHIP_IDLE_DELAY_MS);
+                idleCleanup = () => globalThis.clearTimeout(timeoutId);
+            }
+        } else {
+            void loadCreators();
+        }
+
         return () => {
             cancelled = true;
+            abortController.abort();
+            idleCleanup?.();
         };
-    }, [authSettled, initialCreators, surface, user]);
+    }, [authSettled, initialCreatorKey, initialCreators, surface, user]);
 
     const primaryCreators = useMemo(() => {
         const combined = [...followedCreators];
@@ -403,7 +448,7 @@ export function CreatorDiscoveryRail({
         return combined.filter((creator) => creator.uid !== user?.uid);
     }, [followedCreators, recommendedCreators, user?.uid]);
 
-    const handleFollowToggle = async (creator: CreatorCard) => {
+    const handleFollowToggle = useCallback(async (creator: CreatorCard) => {
         if (!user) {
             openAuthModal("signup");
             return;
@@ -477,7 +522,7 @@ export function CreatorDiscoveryRail({
         } finally {
             setPendingCreatorId(null);
         }
-    };
+    }, [openAuthModal, pendingCreatorId, surface, user]);
 
     if (railLoading) {
         return <CreatorDiscoveryRailSkeleton compact={compact} surface={surface} />;
@@ -500,7 +545,7 @@ export function CreatorDiscoveryRail({
             support={support}
             title={title}
             userId={user?.uid}
-            onFollowToggle={(creator) => void handleFollowToggle(creator)}
+            onFollowToggle={handleFollowToggle}
         />
     );
 }

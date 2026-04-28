@@ -11,11 +11,12 @@ interface HomeDropTickerProps {
 
 export const HomeDropTicker = memo(function HomeDropTicker({ drops }: HomeDropTickerProps) {
   const tickerDrops = useMemo(() => drops.slice(0, 8), [drops]);
+  const duplicatedTickerDrops = useMemo(() => [...tickerDrops, ...tickerDrops], [tickerDrops]);
   if (tickerDrops.length === 0) return null;
 
   const renderTrack = () => (
-    <div className="flex gap-3 md:gap-4 animate-[ticker_24s_linear_infinite]">
-      {[...tickerDrops, ...tickerDrops].map((drop, idx) => (
+    <div className="flex gap-3 will-change-transform motion-reduce:animate-none md:gap-4 animate-[ticker_24s_linear_infinite]">
+      {duplicatedTickerDrops.map((drop, idx) => (
         <div key={`${drop.id}-${idx}`} className="w-36 md:w-44 shrink-0 rounded-2xl overflow-hidden border border-white/10 bg-black/60">
           <div className="relative w-full h-24 md:h-28 bg-black">
             <Image
@@ -24,6 +25,7 @@ export const HomeDropTicker = memo(function HomeDropTicker({ drops }: HomeDropTi
               fill
               sizes="180px"
               className="object-contain"
+              decoding="async"
               unoptimized={isFirebaseStorageMediaUrl(drop.imageUrl)}
             />
           </div>
@@ -37,8 +39,8 @@ export const HomeDropTicker = memo(function HomeDropTicker({ drops }: HomeDropTi
   );
 
   return (
-    <div className="mt-6 md:mt-8">
-      <div className="overflow-hidden rounded-2xl border border-white/10 bg-black/40 p-3 relative">
+    <div className="mt-6 [content-visibility:auto] [contain-intrinsic-size:180px] md:mt-8">
+      <div className="relative overflow-hidden rounded-2xl border border-white/10 bg-black/40 p-3">
         {renderTrack()}
       </div>
       <style jsx>{`

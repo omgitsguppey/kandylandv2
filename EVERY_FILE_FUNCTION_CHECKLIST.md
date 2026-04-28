@@ -9,6 +9,20 @@ Scoring: all entries below are marked as included in the current validated sweep
 
 Current repo-wide state snapshot: see [FULL_SCALE_CODEBASE_AUDIT.md](/Users/uylus/OneDrive/Documents/KandyDrops_Final/FULL_SCALE_CODEBASE_AUDIT.md) for the current live baseline, verification state, and continuity rules, and see [REPO_MEMORY_LEDGER.md](/Users/uylus/OneDrive/Documents/KandyDrops_Final/REPO_MEMORY_LEDGER.md) for major architectural and workflow decisions. The detailed file/function body below remains valuable historical evidence, but it has not been fully regenerated against the current 2026-04-18 inventory review yet.
 
+## 2026-04-28 Homepage Performance and Hydration Hardening Coverage
+
+- [x] `src/app/HomeClient.tsx` now uses split auth contexts and idempotent page-view/redirect guards.
+- [x] `src/context/UIContext.tsx` now exposes stable modal action context through `useUIActions`.
+- [x] `src/components/CoreLayoutWrapper.tsx` delays homepage deep telemetry until homepage idle readiness.
+- [x] `src/components/HomepageRuntimeDiagnostics.tsx` now idle-schedules section/layout/input/long-task observers with deduped diagnostics.
+- [x] `src/components/Landing/HomeActiveDropsCarousel.tsx` pauses autoplay offscreen/hidden/reduced-motion and uses narrower image sizing.
+- [x] `src/components/CreatorDiscoveryRail.tsx` now uses split auth/action contexts, abortable fetches, deferred home relationship hydration, seeded guest short-circuiting, and transition-wrapped bulk state updates.
+- [x] `src/components/ui/TitleMarquee.tsx` and `src/components/ui/CompactNumber.tsx` reduce card-level rerenders and resize work.
+- [x] `src/components/Hero.tsx`, `src/components/HomeDropTicker.tsx`, and `src/components/Landing/HowItWorks.tsx` reduce scroll-time paint/animation cost and contain below-fold rendering.
+- [x] `src/lib/server/creator-discovery.ts` bounds relationship-count fan-out and records candidate-limit diagnostics.
+- [x] `src/lib/server/framework-request-diagnostics.ts` tolerates non-`Headers` request metadata from framework error hooks.
+- [x] `scripts/check-home-hydration-performance.ts` adds 55 regression checks for the hardened paths.
+
 ## 2026-04-28 Second Admin Truth Remediation Coverage
 
 - [x] `src/lib/server/route-runtime-health.ts` now injects admin route verification from payload evidence rather than requiring `success: true`, records injection failures, and avoids response-time fake freshness.

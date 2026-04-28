@@ -1,5 +1,84 @@
 # KandyDrops Core Codebase Audit & Defensive Ledger
 
+## [2026-04-28 #42] PRE: Homepage Performance and Hydration Hardening
+
+Scope started:
+- Audit and remediate homepage scroll jank, repeated hydration/rerender triggers, slow loading, race conditions, runtime diagnostics parity, and debugging guardrails.
+- Primary owners identified: `src/app/page.tsx`, `src/app/HomeClient.tsx`, `src/components/Hero.tsx`, `src/components/CreatorDiscoveryRail.tsx`, `src/components/Landing/HowItWorks.tsx`, `src/components/Landing/HomeActiveDropsCarousel.tsx`, `src/components/HomepageRuntimeDiagnostics.tsx`, shared auth/UI contexts, title/number primitives, layout runtime bridges, deep telemetry, and server discovery helpers.
+- Initial remediation target: 50 concrete fixes across scroll timers, abortable async loads, observer deferral/dedupe, context blast-radius reduction, redirect/page-view idempotence, server discovery fan-out, animation/blur paint cost, image sizing, and automated performance guard coverage.
+
+Startup protocol completed:
+- Read control tower startup and strict execution files, source-of-truth maps, shared ownership, preflight/postflight, doctrine consultation, and UI copy refinement workflow.
+- Read product/copy/UI doctrine, surface matrix, banned patterns, vocabulary, and decision checklist.
+- Read `FULL_SCALE_CODEBASE_AUDIT.md`, `REPO_MEMORY_LEDGER.md`, and `EVERY_FILE_FUNCTION_CHECKLIST.md`.
+- Ran `git status --short`; the tree was clean before this pass.
+- Ran `npm run trace:adjacent -- src/app/page.tsx`; homepage adjacency surfaced the expected client, rail, hero, diagnostics, landing, and server data owners.
+
+## [2026-04-28 #42] POST: Homepage Performance and Hydration Hardening
+
+50 findings fixed:
+- Home page-view telemetry could re-emit after auth/profile transitions; guarded with one-shot tracking.
+- Signed-in homepage redirects could reschedule repeatedly; guarded with destination idempotence and route transition scheduling.
+- Homepage client subscribed to the full auth context; split identity/profile/loading hooks now reduce rerender blast radius.
+- Core shell subscribed to the full auth context; split hooks now reduce global rerenders.
+- Homepage deep telemetry loaded at after-paint timing; delayed to homepage idle readiness.
+- UI modal actions forced CTA consumers to subscribe to modal state; stable `useUIActions()` now isolates action-only consumers.
+- DeepTracker wrote sessionStorage on every captured interaction; guest queue persistence is now batched.
+- DeepTracker interval flushed while the document was hidden; interval now pauses when hidden.
+- Homepage diagnostics started DOM observers immediately; observers now start after idle.
+- Section collapse ResizeObserver could do repeated synchronous work; entries are RAF-batched.
+- Section collapse diagnostics could repeat for the same section; section reports are deduped.
+- Layout-shift diagnostics could report repeated threshold crossings; cumulative shift is deduped.
+- Unsupported diagnostic observers failed quietly; observer gaps now record partial diagnostics.
+- Homepage long tasks were not tracked; long-task observer now reports budget breaches.
+- Homepage input delay was not tracked; Event Timing observer now reports slow interactions.
+- Nested diagnostic RAF cleanup missed the second frame; both frames are now canceled.
+- Active drops carousel autoplay ran offscreen; IntersectionObserver pauses it.
+- Active drops carousel autoplay ran while the document was hidden; visibility state pauses it.
+- Active drops carousel ignored reduced motion; reduced-motion media query disables autoplay and hover scale.
+- Carousel select events set state even for the same index; selected-index updates are deduped.
+- Carousel route navigation ran urgently; navigation is now scheduled as a transition.
+- Carousel images requested oversized resources; responsive `sizes` now match card widths.
+- Carousel below-fold paint was unconstrained; content visibility/intrinsic size now contain it.
+- Creator rail subscribed to full auth and UI contexts; split auth/action hooks reduce rerenders.
+- Seeded guest creator rail still performed duplicate load work; seeded guests now short-circuit.
+- Creator rail public discovery fetch was not abortable; AbortController now cancels stale loads.
+- Creator rail home relationship enrichment competed with scroll hydration; signed-in home enrichment is deferred.
+- Creator rail bulk async updates were urgent; bulk state changes are transitions.
+- Creator rail skeleton animation ignored reduced motion; skeletons now honor reduced motion.
+- Creator rail paint was unconstrained; content visibility/intrinsic size now contain it.
+- Creator avatar images lacked fixed `sizes`; avatar requests are now bounded.
+- Follow-toggle handlers changed identity on every render; handler is now callback-stable.
+- Title marquee measured immediately and on every observer event; measurement is RAF scheduled.
+- Title marquee updated state with identical overflow values; overflow updates are deduped.
+- Title marquee observed both frame and text nodes per title; observer scope is reduced to the frame.
+- CompactNumber rerendered with unstable handlers; component and pointer handlers are memoized.
+- CompactNumber reset state even when already compact; reveal reset is state-deduped.
+- Auth profile listener reconnected on pathname changes; pathname is no longer a listener dependency.
+- Auth initialization failures were silent; realtime diagnostics now record initialization failures.
+- Auth profile bootstrap failures were silent; diagnostics now record bootstrap failures.
+- Auth navigation-session sync/delete failures were silent; diagnostics now record sync/delete failures.
+- Signup rollback cleanup failures were partially hidden; delete/sign-out rollback failures are reported.
+- Hero used large animated blur blobs; expensive animated blurs were reduced and made reduced-motion safe.
+- Hero activity ping ignored reduced motion; animation now respects reduced motion.
+- Home drop ticker rebuilt duplicated tracks every render; duplicated track is memoized.
+- Home drop ticker always contributed unconstrained paint work; content visibility now contains it.
+- How-it-works feature config was rebuilt in render; feature data is hoisted.
+- Mobile how-it-works horizontal scroller could bleed cross-axis scroll; overscroll is contained.
+- Daily experiences decorative blur paint was expensive; blur size/opacity were reduced and reduced-motion safe.
+- Server creator discovery counted relationships for every eligible creator; count fan-out is bounded and diagnostic when candidate-limited.
+- Framework request diagnostics assumed `Headers.get`; non-`Headers` metadata is now handled safely.
+- Regression coverage was missing for these homepage hydration patterns; `npm run check:home-hydration` now enforces 55 checks.
+
+Verification completed:
+- `npm run trace:adjacent -- src/app/page.tsx` passed.
+- `npm run check:home-hydration` passed with 55 checks.
+- `npm run typecheck -- --pretty false` passed.
+- Targeted ESLint over touched homepage, context, diagnostics, server, and guard files passed.
+- `npm run check:ui:coverage` passed.
+- `npm run check:ui:runtime` passed.
+- `npm run check:ui:audits` built successfully and passed runtime/accessibility plus 18/20 visual/runtime checks after the homepage mobile snapshot update. Remaining blockers: Chromium `/` visual test timed out once after producing an attachment, and the pre-existing Mobile Chrome `/creators/apply` 6px visual height drift still fails outside this homepage patch scope.
+
 ## [2026-04-28 #41] PRE: Second Admin Truth Remediation and Debug Hardening
 
 Scope started:

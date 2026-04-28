@@ -4,6 +4,7 @@ import type { CreatorDiscoveryProfile, CreatorDiscoverySurface } from "@/lib/cre
 import { isCreatorVisibleInDiscovery } from "@/lib/creator-public-pages";
 import { isDropHiddenFromPublic, normalizeAndApplyDropStatusOrNull } from "@/lib/drop-read-models";
 import { adminDb } from "@/lib/server/firebase-admin";
+import { recordRouteWarning } from "@/lib/server/route-diagnostics";
 
 type DiscoveryCreatorRecord = Record<string, unknown> & {
     uid: string;
@@ -16,6 +17,8 @@ type DiscoveryCreatorRecord = Record<string, unknown> & {
     isVerified?: unknown;
     creatorApplication?: unknown;
 };
+
+const CREATOR_DISCOVERY_RELATIONSHIP_COUNT_LIMIT = 36;
 
 export async function listCreatorDiscoveryProfiles(
     surface: CreatorDiscoverySurface,
@@ -55,8 +58,25 @@ export async function listCreatorDiscoveryProfiles(
             activeDropCount: activeDropCounts.get(entry.uid) ?? 0,
         }));
 
+    const relationshipCandidates = eligibleDocs
+        .sort((left, right) => {
+            const leftActiveDrops = activeDropCounts.get(left.uid) ?? 0;
+            const rightActiveDrops = activeDropCounts.get(right.uid) ?? 0;
+            return rightActiveDrops - leftActiveDrops
+                || String(left.displayName ?? "").localeCompare(String(right.displayName ?? ""));
+        })
+        .slice(0, CREATOR_DISCOVERY_RELATIONSHIP_COUNT_LIMIT);
+
+    if (eligibleDocs.length > relationshipCandidates.length) {
+        recordRouteWarning("creator-discovery", "Creator discovery relationship counts were candidate-limited", {
+            surface,
+            eligibleCreators: eligibleDocs.length,
+            countedCreators: relationshipCandidates.length,
+        });
+    }
+
     const relationshipCounts = new Map<string, { followers: number; notifications: number }>();
-    await Promise.all(eligibleDocs.map(async (entry) => {
+    await Promise.all(relationshipCandidates.map(async (entry) => {
         const query = relationshipsCollection
             .where("creatorId", "==", entry.uid)
             .where("following", "==", true);
@@ -73,7 +93,7 @@ export async function listCreatorDiscoveryProfiles(
         relationshipCounts.set(entry.uid, { followers, notifications: 0 });
     }));
 
-    const creators = eligibleDocs
+    const creators = relationshipCandidates
         .map((entry) => {
             const counts = relationshipCounts.get(entry.uid) ?? { followers: 0, notifications: 0 };
             return {

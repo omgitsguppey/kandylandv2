@@ -1,13 +1,13 @@
 "use client";
 
-import { useEffect, useMemo, useState, memo } from "react";
+import { memo, startTransition, useEffect, useMemo, useRef, useState } from "react";
 import useEmblaCarousel from "embla-carousel-react";
 import NextImage from "next/image";
 import { useRouter } from "next/navigation";
 import { Images, Film } from "lucide-react";
 import { TitleMarquee } from "@/components/ui/TitleMarquee";
 
-import { useUI } from "@/context/UIContext";
+import { useUIActions } from "@/context/UIContext";
 import { useAuthIdentity } from "@/context/AuthContext";
 import { cn } from "@/lib/utils";
 import { getSupportedDropAspectRatio } from "@/lib/drop-presentation";
@@ -28,9 +28,15 @@ export const HomeActiveDropsCarousel = memo(function HomeActiveDropsCarousel({
 }: HomeActiveDropsCarouselProps) {
     const router = useRouter();
     const { user } = useAuthIdentity();
-    const { openAuthModal } = useUI();
+    const { openAuthModal } = useUIActions();
     const activeDrops = useMemo(() => drops.slice(0, 8), [drops]);
     const [activeIndex, setActiveIndex] = useState(0);
+    const [isCarouselVisible, setIsCarouselVisible] = useState(
+        () => typeof IntersectionObserver === "undefined",
+    );
+    const [isDocumentVisible, setIsDocumentVisible] = useState(true);
+    const [prefersReducedMotion, setPrefersReducedMotion] = useState(false);
+    const rootRef = useRef<HTMLDivElement | null>(null);
     const [emblaRef, emblaApi] = useEmblaCarousel({ loop: activeDrops.length > 1, align: "start" });
     const selectedIndex = Math.min(activeIndex, Math.max(activeDrops.length - 1, 0));
 
@@ -40,7 +46,8 @@ export const HomeActiveDropsCarousel = memo(function HomeActiveDropsCarousel({
         }
 
         const syncSelected = () => {
-            setActiveIndex(emblaApi.selectedScrollSnap());
+            const nextIndex = emblaApi.selectedScrollSnap();
+            setActiveIndex((currentIndex) => (currentIndex === nextIndex ? currentIndex : nextIndex));
         };
 
         syncSelected();
@@ -58,7 +65,54 @@ export const HomeActiveDropsCarousel = memo(function HomeActiveDropsCarousel({
     }, [activeDrops.length, emblaApi]);
 
     useEffect(() => {
-        if (!emblaApi || activeDrops.length <= 1 || autoPlayMs <= 0) return;
+        if (typeof window === "undefined") {
+            return;
+        }
+
+        const mediaQuery = window.matchMedia("(prefers-reduced-motion: reduce)");
+        const updateMotionPreference = () => setPrefersReducedMotion(mediaQuery.matches);
+        updateMotionPreference();
+        mediaQuery.addEventListener("change", updateMotionPreference);
+
+        return () => mediaQuery.removeEventListener("change", updateMotionPreference);
+    }, []);
+
+    useEffect(() => {
+        if (typeof document === "undefined") {
+            return;
+        }
+
+        const updateVisibility = () => setIsDocumentVisible(document.visibilityState === "visible");
+        updateVisibility();
+        document.addEventListener("visibilitychange", updateVisibility);
+
+        return () => document.removeEventListener("visibilitychange", updateVisibility);
+    }, []);
+
+    useEffect(() => {
+        if (typeof IntersectionObserver === "undefined" || !rootRef.current) {
+            return;
+        }
+
+        const observer = new IntersectionObserver(([entry]) => {
+            setIsCarouselVisible(entry?.isIntersecting === true);
+        }, { rootMargin: "160px 0px", threshold: 0.05 });
+        observer.observe(rootRef.current);
+
+        return () => observer.disconnect();
+    }, []);
+
+    useEffect(() => {
+        if (
+            !emblaApi
+            || activeDrops.length <= 1
+            || autoPlayMs <= 0
+            || prefersReducedMotion
+            || !isCarouselVisible
+            || !isDocumentVisible
+        ) {
+            return;
+        }
 
         let timeoutId: number | null = null;
         let isInteracting = false;
@@ -101,7 +155,7 @@ export const HomeActiveDropsCarousel = memo(function HomeActiveDropsCarousel({
             emblaApi.off("pointerUp", onPointerUp);
             emblaApi.off("select", play);
         };
-    }, [activeDrops.length, autoPlayMs, emblaApi]);
+    }, [activeDrops.length, autoPlayMs, emblaApi, isCarouselVisible, isDocumentVisible, prefersReducedMotion]);
 
     if (activeDrops.length === 0) {
         return (
@@ -112,7 +166,7 @@ export const HomeActiveDropsCarousel = memo(function HomeActiveDropsCarousel({
     }
 
     return (
-        <div className="space-y-4">
+        <div ref={rootRef} className="space-y-4 [content-visibility:auto] [contain-intrinsic-size:520px]">
             <div
                 ref={emblaRef}
                 className="overflow-hidden"
@@ -133,11 +187,13 @@ export const HomeActiveDropsCarousel = memo(function HomeActiveDropsCarousel({
                                     setActiveIndex(index);
                                     if (user) {
                                         trackEvent("navigation_click", {
-                                            destination: "/drops",
-                                            source: "landing_active_drop_card",
-                                            drop_id: drop.id,
+                                        destination: "/drops",
+                                        source: "landing_active_drop_card",
+                                        drop_id: drop.id,
+                                    });
+                                        startTransition(() => {
+                                            router.push("/drops");
                                         });
-                                        router.push("/drops");
                                         return;
                                     }
 
@@ -153,10 +209,11 @@ export const HomeActiveDropsCarousel = memo(function HomeActiveDropsCarousel({
                                         src={drop.imageUrl}
                                         alt={drop.title}
                                         fill
-                                        sizes="(max-width: 768px) 100vw, 720px"
+                                        sizes="(max-width: 640px) 46vw, (max-width: 1024px) 38vw, 360px"
                                         unoptimized={isFirebaseStorageMediaUrl(drop.imageUrl)}
+                                        decoding="async"
                                         draggable={false}
-                                        className="object-cover object-center group-hover:scale-105 transition-transform duration-700 select-none"
+                                        className="object-cover object-center transition-transform duration-700 select-none group-hover:scale-105 motion-reduce:transition-none motion-reduce:group-hover:scale-100"
                                     />
                                     <div className="absolute inset-x-0 bottom-0 h-1/2 bg-gradient-to-t from-black/60 to-transparent pointer-events-none" />
 

@@ -16,6 +16,7 @@ export function TitleMarquee({
 }: TitleMarqueeProps) {
     const frameRef = useRef<HTMLDivElement | null>(null);
     const textRef = useRef<HTMLParagraphElement | null>(null);
+    const overflowRef = useRef(0);
     const [overflowPx, setOverflowPx] = useState(0);
 
     const marqueeStyle = overflowPx > 0 ? ({
@@ -24,6 +25,7 @@ export function TitleMarquee({
     } satisfies CSSProperties) : undefined;
 
     useEffect(() => {
+        let frameId: number | null = null;
         const measure = () => {
             const frame = frameRef.current;
             const text = textRef.current;
@@ -32,25 +34,46 @@ export function TitleMarquee({
             }
 
             const nextOverflow = Math.ceil(text.scrollWidth - frame.clientWidth);
-            setOverflowPx(nextOverflow > 20 ? nextOverflow : 0);
+            const normalizedOverflow = nextOverflow > 20 ? nextOverflow : 0;
+            if (overflowRef.current !== normalizedOverflow) {
+                overflowRef.current = normalizedOverflow;
+                setOverflowPx(normalizedOverflow);
+            }
+        };
+        const scheduleMeasure = () => {
+            if (frameId !== null) {
+                return;
+            }
+
+            frameId = window.requestAnimationFrame(() => {
+                frameId = null;
+                measure();
+            });
         };
 
-        measure();
+        scheduleMeasure();
 
         if (typeof ResizeObserver === "undefined") {
-            window.addEventListener("resize", measure);
-            return () => window.removeEventListener("resize", measure);
+            window.addEventListener("resize", scheduleMeasure);
+            return () => {
+                if (frameId !== null) {
+                    window.cancelAnimationFrame(frameId);
+                }
+                window.removeEventListener("resize", scheduleMeasure);
+            };
         }
 
-        const observer = new ResizeObserver(() => measure());
+        const observer = new ResizeObserver(() => scheduleMeasure());
         if (frameRef.current) {
             observer.observe(frameRef.current);
         }
-        if (textRef.current) {
-            observer.observe(textRef.current);
-        }
 
-        return () => observer.disconnect();
+        return () => {
+            if (frameId !== null) {
+                window.cancelAnimationFrame(frameId);
+            }
+            observer.disconnect();
+        };
     }, [title]);
 
     return (

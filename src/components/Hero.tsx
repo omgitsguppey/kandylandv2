@@ -16,9 +16,9 @@ export default function Hero({ activeDrops }: HeroProps) {
             data-home-section="hero"
             className="relative flex min-h-[calc(68vh+3.75rem)] w-full flex-col justify-center overflow-hidden pb-5 pt-[2.2rem] max-[360px]:min-h-[calc(64vh+3.75rem)] max-[360px]:pb-4 max-[360px]:pt-[2.0rem] sm:min-h-[90vh] sm:pb-12 sm:pt-24 landscape:min-h-0 landscape:justify-start landscape:pb-8 landscape:pt-10"
         >
-            <div className="absolute inset-0 z-0 opacity-40">
-                <div className="absolute top-1/4 left-1/4 w-[500px] h-[500px] bg-brand-purple/20 rounded-full blur-[120px] mix-blend-screen animate-pulse" style={{ animationDuration: "4s" }} />
-                <div className="absolute bottom-1/4 right-1/4 w-[400px] h-[400px] bg-brand-purple/10 rounded-full blur-[100px] mix-blend-screen animate-pulse" style={{ animationDuration: "7s" }} />
+            <div className="pointer-events-none absolute inset-0 z-0 opacity-30 motion-reduce:hidden" aria-hidden="true">
+                <div className="absolute left-1/4 top-1/4 h-[360px] w-[360px] rounded-full bg-brand-purple/16 blur-[80px] mix-blend-screen" />
+                <div className="absolute bottom-1/4 right-1/4 h-[320px] w-[320px] rounded-full bg-brand-purple/10 blur-[72px] mix-blend-screen" />
             </div>
 
             <div className="relative z-10 w-full max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 flex flex-col items-center text-center">
@@ -63,7 +63,7 @@ function ActivityTicker({ count }: { count: number }) {
     return (
         <div className="inline-flex max-w-[95vw] items-center gap-2 overflow-hidden rounded-full border border-white/10 bg-white/5 px-3 py-1.5 shadow-lg backdrop-blur-md max-[360px]:px-2.5 max-[360px]:py-1 sm:gap-3 sm:px-4 sm:py-2">
             <div className="relative flex h-2 w-2 shrink-0">
-                <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-brand-purple opacity-75"></span>
+                <span className="absolute inline-flex h-full w-full animate-ping rounded-full bg-brand-purple opacity-75 motion-reduce:animate-none"></span>
                 <span className="relative inline-flex rounded-full h-2 w-2 bg-brand-purple"></span>
             </div>
             <span className="overflow-hidden text-ellipsis whitespace-nowrap text-[10px] font-semibold text-white/90 max-[360px]:text-[9px] sm:text-sm">

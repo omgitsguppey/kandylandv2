@@ -1,16 +1,20 @@
 "use client";
 
-import { useEffect } from "react";
+import { startTransition, useEffect, useRef } from "react";
 import { useRouter } from "next/navigation";
 
-import { useAuth } from "@/context/AuthContext";
+import { useAuthIdentity, useAuthLoading, useUserProfile } from "@/context/AuthContext";
 import { useDeferredClientReady } from "@/hooks/useDeferredClientReady";
 import { getPreferredAuthenticatedPathForProfile } from "@/lib/creator-application";
 import { trackEvent } from "@/lib/telemetry";
 
 export default function HomeClient() {
-    const { user, userProfile, loading } = useAuth();
+    const { user } = useAuthIdentity();
+    const { userProfile } = useUserProfile();
+    const { loading } = useAuthLoading();
     const router = useRouter();
+    const trackedHomeViewRef = useRef(false);
+    const redirectPathRef = useRef<string | null>(null);
     const isAdmin = userProfile?.role === "admin";
     const shouldRedirectSignedInUser =
         !loading &&
@@ -23,14 +27,23 @@ export default function HomeClient() {
     });
 
     useEffect(() => {
-        if (!loading && (!user || isAdmin)) {
+        if (!loading && (!user || isAdmin) && !trackedHomeViewRef.current) {
+            trackedHomeViewRef.current = true;
             trackEvent("home_page_viewed");
         }
     }, [isAdmin, loading, user]);
 
     useEffect(() => {
         if (!loading && user && userProfile && !isAdmin) {
-            router.replace(getPreferredAuthenticatedPathForProfile(userProfile, user.uid));
+            const nextPath = getPreferredAuthenticatedPathForProfile(userProfile, user.uid);
+            if (redirectPathRef.current === nextPath) {
+                return;
+            }
+
+            redirectPathRef.current = nextPath;
+            startTransition(() => {
+                router.replace(nextPath);
+            });
         }
     }, [isAdmin, loading, router, user, userProfile]);
 

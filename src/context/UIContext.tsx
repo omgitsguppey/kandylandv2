@@ -1,28 +1,34 @@
 "use client";
 
-import { createContext, useContext, useState, ReactNode, useMemo } from "react";
+import { createContext, useCallback, useContext, useMemo, useState, type ReactNode } from "react";
 
 export type AuthModalEntryMode = "signin" | "signup" | "creator_signup";
 
-interface UIContextType {
+interface UIStateContextType {
     isPurchaseModalOpen: boolean;
     preferredPurchaseDrops: number | null;
-    openPurchaseModal: (preferredDrops?: number) => void;
-    closePurchaseModal: () => void;
     isAuthModalOpen: boolean;
     authModalMode: AuthModalEntryMode;
-    openAuthModal: (mode?: AuthModalEntryMode) => void;
-    closeAuthModal: () => void;
     isInsufficientBalanceModalOpen: boolean;
     requiredCost: number;
+    isProfileSidebarOpen: boolean;
+}
+
+interface UIActionsContextType {
+    openPurchaseModal: (preferredDrops?: number) => void;
+    closePurchaseModal: () => void;
+    openAuthModal: (mode?: AuthModalEntryMode) => void;
+    closeAuthModal: () => void;
     openInsufficientBalanceModal: (cost: number) => void;
     closeInsufficientBalanceModal: () => void;
-    isProfileSidebarOpen: boolean;
     openProfileSidebar: () => void;
     closeProfileSidebar: () => void;
 }
 
-const UIContext = createContext<UIContextType | undefined>(undefined);
+type UIContextType = UIStateContextType & UIActionsContextType;
+
+const UIContext = createContext<UIStateContextType | undefined>(undefined);
+const UIActionsContext = createContext<UIActionsContextType | undefined>(undefined);
 
 export function UIProvider({ children }: { children: ReactNode }) {
     const [isPurchaseModalOpen, setIsPurchaseModalOpen] = useState(false);
@@ -33,61 +39,96 @@ export function UIProvider({ children }: { children: ReactNode }) {
     const [requiredCost, setRequiredCost] = useState(0);
     const [isProfileSidebarOpen, setIsProfileSidebarOpen] = useState(false);
 
-    const openPurchaseModal = (preferredDrops?: number) => {
+    const openPurchaseModal = useCallback((preferredDrops?: number) => {
         setPreferredPurchaseDrops(
             Number.isFinite(preferredDrops) && Number(preferredDrops) > 0
                 ? Math.floor(Number(preferredDrops))
-                : null
+                : null,
         );
         setIsPurchaseModalOpen(true);
-    };
-    const closePurchaseModal = () => {
+    }, []);
+
+    const closePurchaseModal = useCallback(() => {
         setIsPurchaseModalOpen(false);
         setPreferredPurchaseDrops(null);
-    };
-    const openAuthModal = (mode: AuthModalEntryMode = "signin") => {
+    }, []);
+
+    const openAuthModal = useCallback((mode: AuthModalEntryMode = "signin") => {
         setAuthModalMode(mode);
         setIsAuthModalOpen(true);
-    };
-    const closeAuthModal = () => setIsAuthModalOpen(false);
+    }, []);
 
-    const openInsufficientBalanceModal = (cost: number) => {
+    const closeAuthModal = useCallback(() => setIsAuthModalOpen(false), []);
+
+    const openInsufficientBalanceModal = useCallback((cost: number) => {
         setRequiredCost(cost);
         setIsInsufficientBalanceModalOpen(true);
-    };
-    const closeInsufficientBalanceModal = () => setIsInsufficientBalanceModalOpen(false);
-    const openProfileSidebar = () => setIsProfileSidebarOpen(true);
-    const closeProfileSidebar = () => setIsProfileSidebarOpen(false);
+    }, []);
 
-    const contextValue = useMemo(() => ({
-        isPurchaseModalOpen, openPurchaseModal, closePurchaseModal,
-        preferredPurchaseDrops,
-        isAuthModalOpen, authModalMode, openAuthModal, closeAuthModal,
-        isInsufficientBalanceModalOpen, requiredCost,
-        openInsufficientBalanceModal, closeInsufficientBalanceModal,
-        isProfileSidebarOpen, openProfileSidebar, closeProfileSidebar
-    }), [
+    const closeInsufficientBalanceModal = useCallback(() => setIsInsufficientBalanceModalOpen(false), []);
+    const openProfileSidebar = useCallback(() => setIsProfileSidebarOpen(true), []);
+    const closeProfileSidebar = useCallback(() => setIsProfileSidebarOpen(false), []);
+
+    const stateValue = useMemo(() => ({
         isPurchaseModalOpen,
         preferredPurchaseDrops,
         isAuthModalOpen,
         authModalMode,
         isInsufficientBalanceModalOpen,
         requiredCost,
-        isProfileSidebarOpen
+        isProfileSidebarOpen,
+    }), [
+        authModalMode,
+        isAuthModalOpen,
+        isInsufficientBalanceModalOpen,
+        isProfileSidebarOpen,
+        isPurchaseModalOpen,
+        preferredPurchaseDrops,
+        requiredCost,
+    ]);
+
+    const actionsValue = useMemo(() => ({
+        openPurchaseModal,
+        closePurchaseModal,
+        openAuthModal,
+        closeAuthModal,
+        openInsufficientBalanceModal,
+        closeInsufficientBalanceModal,
+        openProfileSidebar,
+        closeProfileSidebar,
+    }), [
+        closeAuthModal,
+        closeInsufficientBalanceModal,
+        closeProfileSidebar,
+        closePurchaseModal,
+        openAuthModal,
+        openInsufficientBalanceModal,
+        openProfileSidebar,
+        openPurchaseModal,
     ]);
 
     return (
-        <UIContext.Provider value={contextValue}>
-            {children}
+        <UIContext.Provider value={stateValue}>
+            <UIActionsContext.Provider value={actionsValue}>
+                {children}
+            </UIActionsContext.Provider>
         </UIContext.Provider>
     );
 }
 
-
-export function useUI() {
-    const context = useContext(UIContext);
-    if (context === undefined) {
+export function useUI(): UIContextType {
+    const state = useContext(UIContext);
+    const actions = useContext(UIActionsContext);
+    if (state === undefined || actions === undefined) {
         throw new Error("useUI must be used within a UIProvider");
     }
-    return context;
+    return { ...state, ...actions };
+}
+
+export function useUIActions(): UIActionsContextType {
+    const actions = useContext(UIActionsContext);
+    if (actions === undefined) {
+        throw new Error("useUIActions must be used within a UIProvider");
+    }
+    return actions;
 }
