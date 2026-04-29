@@ -37,8 +37,8 @@ export function AdminAiPromptworkbenchSection({ state }: { state: AdminAiState }
 
     return (
         <AdminDashboardModule
-                            title="Prompt workbench"
-                            description="Locked style stays fixed while mutable prompt rules adapt."
+                            title="Prompt"
+                            description="Layout stays locked. Flavor comes from the title."
                             defaultOpen={MODULE_DEFAULTS["admin_ai.prompt"]}
                             open={moduleOpenState["admin_ai.prompt"]}
                             onOpenChange={(nextOpen) => persistModuleState("admin_ai.prompt", nextOpen)}
@@ -76,15 +76,15 @@ export function AdminAiPromptworkbenchSection({ state }: { state: AdminAiState }
                                 </div>
 
                                 <div className="grid min-w-0 gap-3">
-                                    <TextAreaBlock label="Base style prompt" value={policyDraft.baseStylePrompt} onChange={(value) => { setPolicyDraft((current) => ({ ...current, baseStylePrompt: value })); setPolicyDirty(true); }} rows={3} helper="This stays constant across flavors." />
+                                    <TextAreaBlock label="Base prompt" value={policyDraft.baseStylePrompt} onChange={(value) => { setPolicyDraft((current) => ({ ...current, baseStylePrompt: value })); setPolicyDirty(true); }} rows={3} helper="Creator name and flavor title drive each run." />
                                     <details className="group border border-white/10 bg-black/20 rounded-xl overflow-hidden">
                                         <summary className="cursor-pointer px-4 py-3 text-xs font-semibold text-white hover:bg-white/[0.02]">
-                                            Advanced Prompt Clauses
+                                            Advanced clauses
                                         </summary>
                                         <div className="p-4 space-y-3 border-t border-white/10">
-                                            <TextAreaBlock label="Locked clauses" value={policyDraft.lockedClauses} onChange={(value) => { setPolicyDraft((current) => ({ ...current, lockedClauses: value })); setPolicyDirty(true); }} rows={4} helper="Keep one clause per line." />
-                                            <TextAreaBlock label="Mutable clauses" value={policyDraft.mutableClauses} onChange={(value) => { setPolicyDraft((current) => ({ ...current, mutableClauses: value })); setPolicyDirty(true); }} rows={4} helper="The optimizer can reshape these rules." />
-                                            <TextAreaBlock label="Current mutable prompt" value={policyDraft.currentMutablePrompt} onChange={(value) => { setPolicyDraft((current) => ({ ...current, currentMutablePrompt: value })); setPolicyDirty(true); }} rows={4} helper="This seeds the next run before flavor shaping." />
+                                            <TextAreaBlock label="Layout lock" value={policyDraft.lockedClauses} onChange={(value) => { setPolicyDraft((current) => ({ ...current, lockedClauses: value })); setPolicyDirty(true); }} rows={4} helper="One clause per line." />
+                                            <TextAreaBlock label="Flavor rule" value={policyDraft.mutableClauses} onChange={(value) => { setPolicyDraft((current) => ({ ...current, mutableClauses: value })); setPolicyDirty(true); }} rows={4} helper="Keeps references from carrying flavor." />
+                                            <TextAreaBlock label="Negative prompt" value={policyDraft.currentMutablePrompt} onChange={(value) => { setPolicyDraft((current) => ({ ...current, currentMutablePrompt: value })); setPolicyDirty(true); }} rows={4} helper="Blocks copied props and flavor leakage." />
                                         </div>
                                     </details>
                                 </div>

@@ -1,5 +1,5 @@
 {
-  "generatedAt": "2026-04-27T04:09:54.656Z",
+  "generatedAt": "2026-04-29T00:59:25.946Z",
   "truthOrder": [
     "verified_runtime_code",
     "verified_configuration",
@@ -16,21 +16,36 @@
     "agent/index/surface-map.json",
     "agent/index/ui-surface-coverage.json"
   ],
-  "stable_id": "verifyplan__src__app__admin__debug__page-tsx",
+  "stable_id": "verifyplan__src__lib__ai-drop-covers-ts-src__lib__server__ai-drop-covers-ts-src__components__admin__aidropcovergeneratorpanel-tsx-src__components__admin__createdropmodal-tsx-src__app__admin__ai__page-tsx-src__lib__server__ai-drop-descriptions-ts",
   "inputPaths": [
-    "src/app/admin/debug/page.tsx"
+    "src/lib/ai-drop-covers.ts",
+    "src/lib/server/ai-drop-covers.ts",
+    "src/components/Admin/AiDropCoverGeneratorPanel.tsx",
+    "src/components/Admin/CreateDropModal.tsx",
+    "src/app/admin/ai/page.tsx",
+    "src/lib/server/ai-drop-descriptions.ts"
   ],
   "matchedRepoPaths": [
-    "src/app/admin/debug/page.tsx"
+    "src/lib/ai-drop-covers.ts",
+    "src/lib/server/ai-drop-covers.ts",
+    "src/components/Admin/AiDropCoverGeneratorPanel.tsx",
+    "src/components/Admin/CreateDropModal.tsx",
+    "src/app/admin/ai/page.tsx",
+    "src/lib/server/ai-drop-descriptions.ts"
   ],
   "unmatchedPaths": [],
   "touchedDomains": [
     "admin_ops",
-    "app_routes"
+    "ai_admin",
+    "app_routes",
+    "shared_server_helpers"
   ],
   "fastCommands": [
     "npm run typecheck",
-    "npm run agent:test -- src/app/admin/debug/page.tsx",
+    "npm run agent:test -- src/lib/ai-drop-covers.ts",
+    "npm run agent:test -- src/lib/server/ai-drop-covers.ts",
+    "npm run agent:test -- src/components/Admin/AiDropCoverGeneratorPanel.tsx",
+    "npm run agent:test -- src/components/Admin/CreateDropModal.tsx",
     "npm run check:ui:coverage",
     "npm run check:ui:runtime"
   ],
@@ -47,7 +62,28 @@
       "lane": "fast"
     },
     {
-      "command": "npm run agent:test -- src/app/admin/debug/page.tsx",
+      "command": "npm run agent:test -- src/lib/ai-drop-covers.ts",
+      "why": [
+        "Run the narrowest related contract/unit tests first."
+      ],
+      "lane": "fast"
+    },
+    {
+      "command": "npm run agent:test -- src/lib/server/ai-drop-covers.ts",
+      "why": [
+        "Run the narrowest related contract/unit tests first."
+      ],
+      "lane": "fast"
+    },
+    {
+      "command": "npm run agent:test -- src/components/Admin/AiDropCoverGeneratorPanel.tsx",
+      "why": [
+        "Run the narrowest related contract/unit tests first."
+      ],
+      "lane": "fast"
+    },
+    {
+      "command": "npm run agent:test -- src/components/Admin/CreateDropModal.tsx",
       "why": [
         "Run the narrowest related contract/unit tests first."
       ],
@@ -97,6 +133,6 @@
   ],
   "broadWork": true,
   "reasoning": [
-    "Matched 1 repo-tracked paths."
+    "Matched 6 repo-tracked paths."
   ]
 }

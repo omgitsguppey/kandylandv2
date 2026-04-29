@@ -178,7 +178,7 @@ function buildGalleryDescription(item: AdminAiDropDescriptionDashboard["reviewGa
     return item.descriptionText || "No description text stored.";
 }
 
-export function AdminAiDescriptionOperations() {
+export function AdminAiDescriptionOperations({ compact = false }: { compact?: boolean } = {}) {
     const [refreshIntervalMs, setRefreshIntervalMs] = useState(ADMIN_AI_DROP_DESCRIPTION_IDLE_POLL_INTERVAL_MS);
     const [galleryFilter, setGalleryFilter] = useState<GalleryFilter>("all");
     const [moduleOpenState, setModuleOpenState] = useState<Record<ModuleKey, boolean>>(MODULE_DEFAULTS);
@@ -398,7 +398,7 @@ export function AdminAiDescriptionOperations() {
 
     return (
         <div className="space-y-4">
-            <div className="sticky top-[calc(env(safe-area-inset-top)+0.75rem)] z-10 overflow-hidden rounded-[1.2rem] border border-white/10 bg-black/70 px-3 py-3 backdrop-blur">
+            <div className={cn("overflow-hidden rounded-[1.2rem] border border-white/10 bg-black/70 px-3 py-3 backdrop-blur", compact ? "" : "sticky top-[calc(env(safe-area-inset-top)+0.75rem)] z-10")}>
                 <div className="flex flex-col gap-3 md:flex-row md:items-center md:justify-between">
                     <div className="min-w-0">
                         <div className="flex items-center gap-2 text-sm font-bold text-white">

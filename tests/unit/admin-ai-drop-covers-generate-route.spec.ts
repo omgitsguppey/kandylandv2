@@ -31,6 +31,10 @@ vi.mock("@/lib/server/ai-drop-covers", () => ({
 vi.mock("@/lib/server/rate-limit", () => ({
     ADMIN_AI_GENERATE: {},
 }));
+vi.mock("@/lib/server/route-runtime-health", () => ({
+    recordRouteRuntimeSample: vi.fn(),
+    withRouteRuntimeHealth: (_key: string, handler: unknown) => handler,
+}));
 
 import { POST, dynamic, revalidate } from "@/app/api/admin/ai/drop-covers/generate/route";
 
@@ -94,8 +98,9 @@ describe("POST /api/admin/ai/drop-covers/generate", () => {
                 creatorId: "creator_1",
                 dropId: "drop_1",
                 dropType: "content",
-                tags: ["Sweet"],
-                requestedModel: "gemini-3-pro-image-preview",
+            tags: ["Sweet"],
+            clientRequestId: "client-123",
+            requestedModel: "gemini-3-pro-image-preview",
             }),
             headers: { "Content-Type": "application/json" },
         }));
@@ -113,6 +118,7 @@ describe("POST /api/admin/ai/drop-covers/generate", () => {
             dropType: "content",
             tags: ["Sweet"],
             previousJobId: null,
+            clientRequestId: "client-123",
             requestedModel: "gemini-3-pro-image-preview",
             requestedByUid: "admin_1",
             requestedByEmail: "admin@example.com",
@@ -164,6 +170,7 @@ describe("POST /api/admin/ai/drop-covers/generate", () => {
             dropType: "content",
             tags: [],
             previousJobId: null,
+            clientRequestId: null,
             requestedModel: null,
             requestedByUid: "admin_1",
             requestedByEmail: "admin@example.com",

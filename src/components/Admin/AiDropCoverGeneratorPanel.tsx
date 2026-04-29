@@ -17,6 +17,7 @@ import {
     type AdminAiDropCoverSelectableModel,
 } from "@/lib/ai-drop-covers";
 import { authFetch } from "@/lib/authFetch";
+import { generateSecureClientId } from "@/lib/client-random";
 import { reportClientIssue } from "@/lib/client-error-reporting";
 import { trackEvent } from "@/lib/telemetry";
 import { cn } from "@/lib/utils";
@@ -38,6 +39,12 @@ type AdminAiDropCoverDashboard = {
         generationMode: "standard" | "reference_guided";
     };
     recentJobs: AdminAiDropCoverJobRecord[];
+};
+
+type GenerationProgress = {
+    clientRequestId: string;
+    startedAtMs: number;
+    stage: "request_sent" | "running" | "saving";
 };
 
 interface AiDropCoverGeneratorPanelProps {
@@ -109,6 +116,13 @@ function StatusPill({ status }: { status: AdminAiDropCoverJobRecord["status"] })
     );
 }
 
+function formatElapsed(ms: number) {
+    const seconds = Math.max(0, Math.floor(ms / 1000));
+    const minutes = Math.floor(seconds / 60);
+    const remainder = seconds % 60;
+    return minutes > 0 ? `${minutes}m ${String(remainder).padStart(2, "0")}s` : `${remainder}s`;
+}
+
 export function AiDropCoverGeneratorPanel({
     visible,
     title,
@@ -130,6 +144,8 @@ export function AiDropCoverGeneratorPanel({
     const [generationError, setGenerationError] = useState<string | null>(null);
     const [selectedModel, setSelectedModel] = useState<AdminAiDropCoverSelectableModel>(ADMIN_AI_DROP_COVER_MODEL);
     const [clearedBeforeMs, setClearedBeforeMs] = useState<number | null>(null);
+    const [activeProgress, setActiveProgress] = useState<GenerationProgress | null>(null);
+    const [elapsedNowMs, setElapsedNowMs] = useState(() => Date.now());
 
     const titleReady = title.trim().length >= 3;
     const featureEnabled = dashboard?.settings.enabled === true;
@@ -143,6 +159,14 @@ export function AiDropCoverGeneratorPanel({
         () => getAdminAiDropCoverModelOption(selectedModel) || modelOptions[0],
         [modelOptions, selectedModel],
     );
+    const activeRunningJob = useMemo(() => {
+        if (!activeProgress) {
+            return null;
+        }
+        return jobs.find((job) => job.clientRequestId === activeProgress.clientRequestId)
+            || jobs.find((job) => job.status === "running" && job.requestedAtMs >= activeProgress.startedAtMs - 2_000)
+            || null;
+    }, [activeProgress, jobs]);
 
     const refreshDashboard = useCallback(async () => {
         if (!visible) {
@@ -202,6 +226,19 @@ export function AiDropCoverGeneratorPanel({
         }
     }, [visible]);
 
+    useEffect(() => {
+        if (!activeProgress) {
+            return;
+        }
+
+        const intervalId = window.setInterval(() => {
+            setElapsedNowMs(Date.now());
+            void refreshDashboard();
+        }, 1_000);
+
+        return () => window.clearInterval(intervalId);
+    }, [activeProgress, refreshDashboard]);
+
     const handleGenerate = useCallback(async (previousJobId?: string | null) => {
         if (!titleReady || generating) {
             return;
@@ -209,6 +246,12 @@ export function AiDropCoverGeneratorPanel({
 
         setGenerating(true);
         setGenerationError(null);
+        const clientRequestId = `cover-${Date.now()}-${generateSecureClientId()}`;
+        setActiveProgress({
+            clientRequestId,
+            startedAtMs: Date.now(),
+            stage: "request_sent",
+        });
         try {
             const response = await authFetch("/api/admin/ai/drop-covers/generate", {
                 method: "POST",
@@ -221,9 +264,13 @@ export function AiDropCoverGeneratorPanel({
                     dropType,
                     tags,
                     previousJobId: previousJobId || undefined,
+                    clientRequestId,
                     requestedModel: selectedModel,
                 }),
             });
+            setActiveProgress((current) => current?.clientRequestId === clientRequestId
+                ? { ...current, stage: "saving" }
+                : current);
             const result = await response.json() as {
                 error?: string;
                 errorCode?: AdminAiDropCoverErrorCode;
@@ -256,6 +303,7 @@ export function AiDropCoverGeneratorPanel({
             toast.error(message);
         } finally {
             setGenerating(false);
+            setActiveProgress(null);
         }
     }, [creatorId, creatorName, draftSessionId, dropId, dropType, generating, refreshDashboard, selectedModel, tags, title, titleReady]);
 
@@ -443,12 +491,22 @@ export function AiDropCoverGeneratorPanel({
                 </div>
             ) : null}
 
-            {generating ? (
+            {activeProgress ? (
                 <div className="mt-3 rounded-[1rem] border border-cyan-400/20 bg-cyan-500/10 p-3 text-sm text-cyan-100">
-                    <div className="flex items-center gap-2">
+                    <div className="flex flex-wrap items-center gap-2">
                         <Loader2 className="h-4 w-4 animate-spin" />
-                        Generating a new cover with {selectedModelOption.label} from the current drop title...
+                        <span>
+                            {activeRunningJob?.status === "running"
+                                ? "Running"
+                                : activeProgress.stage === "saving"
+                                    ? "Saving"
+                                    : "Request sent"}
+                        </span>
+                        <span className="text-cyan-100/70">Elapsed {formatElapsed(elapsedNowMs - activeProgress.startedAtMs)}</span>
                     </div>
+                    <p className="mt-1 text-xs text-cyan-100/70">
+                        {activeRunningJob ? `Job ${activeRunningJob.id}` : "Waiting for the job record to appear."}
+                    </p>
                 </div>
             ) : null}
 

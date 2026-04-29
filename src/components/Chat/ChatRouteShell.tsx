@@ -16,6 +16,9 @@ export function ChatRouteShell({ children }: { children: React.ReactNode }) {
         const previousBodyOverscrollY = body.style.overscrollBehaviorY;
         const previousMainOverflow = mainElement?.style.overflow ?? "";
         const previousMainOverscrollY = mainElement?.style.overscrollBehaviorY ?? "";
+        const previousMainHeight = mainElement?.style.height ?? "";
+        const previousMainMaxHeight = mainElement?.style.maxHeight ?? "";
+        const previousMainMinHeight = mainElement?.style.minHeight ?? "";
 
         documentElement.style.overflow = "hidden";
         documentElement.style.overscrollBehaviorY = "none";
@@ -25,6 +28,9 @@ export function ChatRouteShell({ children }: { children: React.ReactNode }) {
         if (mainElement) {
             mainElement.style.overflow = "hidden";
             mainElement.style.overscrollBehaviorY = "none";
+            mainElement.style.height = "100dvh";
+            mainElement.style.maxHeight = "100dvh";
+            mainElement.style.minHeight = "0";
         }
 
         return () => {
@@ -36,6 +42,9 @@ export function ChatRouteShell({ children }: { children: React.ReactNode }) {
             if (mainElement) {
                 mainElement.style.overflow = previousMainOverflow;
                 mainElement.style.overscrollBehaviorY = previousMainOverscrollY;
+                mainElement.style.height = previousMainHeight;
+                mainElement.style.maxHeight = previousMainMaxHeight;
+                mainElement.style.minHeight = previousMainMinHeight;
             }
         };
     }, []);

@@ -6,6 +6,7 @@ import { toast } from "sonner";
 import {
     ADMIN_AI_DROP_COVER_ACTIVE_POLL_INTERVAL_MS,
     ADMIN_AI_DROP_COVER_IDLE_POLL_INTERVAL_MS,
+    ADMIN_AI_DROP_COVER_LAYOUT_REFERENCE_LIMIT,
     type AdminAiDropCoverJobRecord,
     type AdminAiDropCoverModelHealth,
     type AdminAiDropCoverPreflightCheck,
@@ -169,7 +170,7 @@ export function useAdminAiState() {
     );
     const referenceCap = selectedModelHealth?.maxReferenceInputs
         || getAdminAiDropCoverModelOption(data?.settings.model || "")?.maxReferenceInputs
-        || 6;
+        || ADMIN_AI_DROP_COVER_LAYOUT_REFERENCE_LIMIT;
     const activeHouseReferences = useMemo(
         () => (data?.referenceAssets.houseReferences || []).filter((asset) => asset.active !== false),
         [data?.referenceAssets.houseReferences],
@@ -196,9 +197,11 @@ export function useAdminAiState() {
         activeHouseReferences.filter((asset) => !asset.primary && asset.pinned).forEach(pushAsset);
         (data?.referenceAssets.retainedAiCovers || [])
             .filter((asset) => asset.retentionReason === "accepted" || asset.accepted)
+            .filter((asset) => asset.feedback !== "disliked" && (asset.negativeReuseCount || 0) === 0)
             .forEach(pushAsset);
         (data?.referenceAssets.retainedAiCovers || [])
             .filter((asset) => asset.retentionReason !== "accepted" && asset.reusable !== false)
+            .filter((asset) => asset.feedback !== "disliked" && (asset.negativeReuseCount || 0) === 0)
             .forEach(pushAsset);
         (data?.referenceAssets.catalogDropCovers || []).forEach(pushAsset);
 

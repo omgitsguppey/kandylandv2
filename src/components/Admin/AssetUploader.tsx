@@ -155,17 +155,28 @@ export function AssetUploader({
   accept,
   disableCrop = false,
 }: AssetUploaderProps) {
-  const [assets, setAssets] = useState<AssetDraft[]>(() => createInitialAssets(initialAssets, initialUrl, initialType));
-  const inputRef = useRef<HTMLInputElement>(null);
+    const [assets, setAssets] = useState<AssetDraft[]>(() => createInitialAssets(initialAssets, initialUrl, initialType));
+    const inputRef = useRef<HTMLInputElement>(null);
+    const initialSignatureRef = useRef("");
 
   const [crop, setCrop] = useState(DEFAULT_CROP);
   const [zoom, setZoom] = useState(DEFAULT_ZOOM);
 
   useEffect(() => {
-    if ((!initialUrl || initialUrl.length === 0) && (!initialAssets || initialAssets.length === 0)) return;
+    const signature = JSON.stringify({
+      assets: (initialAssets || []).map((asset) => ({ id: asset.id, url: asset.url, type: asset.type, fileName: asset.fileName })),
+      url: initialUrl || "",
+      type: initialType || "",
+    });
+    if ((!initialUrl || initialUrl.length === 0) && (!initialAssets || initialAssets.length === 0)) {
+      initialSignatureRef.current = signature;
+      return;
+    }
+    if (initialSignatureRef.current === signature) return;
 
     const syncInitialAsset = window.setTimeout(() => {
-      setAssets((current) => current.length > 0 ? current : createInitialAssets(initialAssets, initialUrl, initialType));
+      initialSignatureRef.current = signature;
+      setAssets(createInitialAssets(initialAssets, initialUrl, initialType));
     }, 0);
 
     return () => window.clearTimeout(syncInitialAsset);

@@ -3,6 +3,7 @@ import { describe, expect, it } from "vitest";
 import {
     ADMIN_AI_DROP_COVER_DEFAULT_LOCATION,
     ADMIN_AI_DROP_COVER_MODEL,
+    ADMIN_AI_DROP_COVER_LAYOUT_REFERENCE_LIMIT,
     ADMIN_AI_DROP_COVER_PREMIUM_MODEL,
     ADMIN_AI_DROP_COVER_PRICE_BASIS,
     buildAdminAiDropCoverConsistencyRecipe,
@@ -11,6 +12,7 @@ import {
     getAdminAiDropCoverRecipeLabel,
     getDefaultAdminAiDropCoverSettings,
     getAdminAiDropCoverPriceBasis,
+    getAdminAiDropCoverMaxReferenceInputs,
     normalizeAdminAiDropCoverLocation,
     normalizeAdminAiDropCoverModel,
     selectAdminAiDropCoverReferenceAssets,
@@ -40,8 +42,9 @@ describe("ai drop cover shared contract", () => {
             referenceGuided: true,
         });
 
-        expect(prompt).toContain("Use the provided reference image and maintain the same style system, focusing this time on \"Jessi Ray's Strawberry Shortcake\"");
-        expect(prompt).toContain("ensuring the colors are easy to distinguish and the subject matches the flavor instead of copying the reference subject");
+        expect(prompt).toContain("Use the provided reference images as layout anchors only");
+        expect(prompt).toContain("ignore every reference flavor, ingredient, candy, chocolate, fruit, drink, garnish, prop, background object, and palette");
+        expect(prompt).toContain("Match the reference layout closely; do not borrow the reference flavor");
         expect(prompt).toContain("Render the main title \"Strawberry Shortcake\" clearly and legibly in the cover.");
     });
 
@@ -80,6 +83,8 @@ describe("ai drop cover shared contract", () => {
         expect(normalizeAdminAiDropCoverModel("", "reference_guided")).toBe(ADMIN_AI_DROP_COVER_MODEL);
         expect(normalizeAdminAiDropCoverLocation("", ADMIN_AI_DROP_COVER_MODEL, "reference_guided")).toBe(ADMIN_AI_DROP_COVER_DEFAULT_LOCATION);
         expect(estimateAdminAiDropCoverCostUsd(ADMIN_AI_DROP_COVER_PREMIUM_MODEL, 1)).toBe(0.134);
+        expect(getAdminAiDropCoverMaxReferenceInputs(ADMIN_AI_DROP_COVER_MODEL)).toBe(ADMIN_AI_DROP_COVER_LAYOUT_REFERENCE_LIMIT);
+        expect(getAdminAiDropCoverMaxReferenceInputs(ADMIN_AI_DROP_COVER_PREMIUM_MODEL)).toBe(ADMIN_AI_DROP_COVER_LAYOUT_REFERENCE_LIMIT);
     });
 
     it("builds a consistency recipe from the drop title instead of relying on rendered model text", () => {
@@ -94,7 +99,7 @@ describe("ai drop cover shared contract", () => {
         expect(getAdminAiDropCoverRecipeLabel(recipe)).toContain("apple spice");
     });
 
-    it("ranks the house template and closest positive references ahead of weaker fallback references", () => {
+    it("ranks the house template and positive layout references ahead of weaker fallback references", () => {
         const recipe = buildAdminAiDropCoverConsistencyRecipe({
             title: "Blueberry Slush",
             creatorName: "Jessi Ray",
@@ -115,6 +120,15 @@ describe("ai drop cover shared contract", () => {
                 retentionReason: "liked",
             },
             {
+                id: "disliked-layout",
+                source: "retained_ai_cover",
+                imageUrl: "https://example.com/disliked.png",
+                title: "Blueberry Slush",
+                creatorName: "Jessi Ray",
+                retentionReason: "liked",
+                negativeReuseCount: 1,
+            },
+            {
                 id: "fallback",
                 source: "catalog_drop_cover",
                 imageUrl: "https://example.com/caramel.png",
@@ -124,6 +138,7 @@ describe("ai drop cover shared contract", () => {
 
         expect(ranked[0]?.id).toBe("template");
         expect(ranked[1]?.id).toBe("liked-blueberry");
-        expect(ranked[1]?.selectionReasons).toContain("same creator context");
+        expect(ranked[1]?.selectionReasons).toContain("same creator layout context");
+        expect(ranked.map((asset) => asset.id)).not.toContain("disliked-layout");
     });
 });

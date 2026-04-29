@@ -443,6 +443,7 @@ export function normalizeJobRecord(id: string, raw: unknown): AdminAiDropCoverJo
         creatorName: typeof data.creatorName === "string" ? data.creatorName : null,
         dropId: typeof data.dropId === "string" ? data.dropId : null,
         draftSessionId: typeof data.draftSessionId === "string" ? data.draftSessionId : null,
+        clientRequestId: typeof data.clientRequestId === "string" ? data.clientRequestId : null,
         model: getString(data.model) || ADMIN_AI_DROP_COVER_MODEL,
         location: getString(data.location) || ADMIN_AI_DROP_COVER_DEFAULT_LOCATION,
         generationMode: data.generationMode === "reference_guided" ? "reference_guided" : "standard",

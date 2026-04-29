@@ -53,6 +53,7 @@ async function POST_handler(request: NextRequest) {
             dropType?: unknown;
             tags?: unknown;
             previousJobId?: unknown;
+            clientRequestId?: unknown;
             requestedModel?: unknown;
         };
         const title = typeof body.title === "string" ? body.title.trim() : "";
@@ -92,6 +93,7 @@ async function POST_handler(request: NextRequest) {
             dropType: typeof body.dropType === "string" ? body.dropType : null,
             tags: Array.isArray(body.tags) ? body.tags.filter((value): value is string => typeof value === "string") : [],
             previousJobId: typeof body.previousJobId === "string" ? body.previousJobId : null,
+            clientRequestId: typeof body.clientRequestId === "string" ? body.clientRequestId.slice(0, 80) : null,
             requestedModel: boundedRequestedModel,
             requestedByUid: caller?.uid || "",
             requestedByEmail: caller?.email,

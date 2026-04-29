@@ -1,5 +1,87 @@
 # KandyDrops Core Codebase Audit & Defensive Ledger
 
+## [2026-04-28 #44] PRE: Doctrine Audit, Chat Mobile Scroll, and Mobile UI Runtime Guarding
+
+Scope started:
+- Run a doctrine-focused audit across UI/UX, telemetry, parity, and debug-health accuracy with emphasis on mobile scroll ownership, admin truth labels, and silent state drift.
+- Primary immediate discrepancy: `/dashboard/chat` compact inbox/search state used a looser page-height contract than the selected-thread state, allowing the message list/search module to become too tall before a thread was opened.
+- Primary owners identified: `src/components/Chat/ChatRouteShell.tsx`, `src/components/Chat/ChatExperience.tsx`, `src/lib/self-healing.ts`, `scripts/check-mobile-ui-doctrine.ts`, and the UI runtime verification lane in `package.json`.
+
+Startup protocol completed:
+- Used the previously completed control tower and doctrine consultation for UI/copy/telemetry/admin truth work in this session, then re-ran `git status --short`.
+- Ran `npm run trace:adjacent -- src/app/dashboard/chat/page.tsx`; chat adjacency mapped the route shell, chat experience, thread routes, unread status, attachments, send realtime, and soft-seal tests.
+- Confirmed the selected-thread message pane already had the intended `h-full min-h-0 overflow-y-auto` nested-scroll contract, while the compact inbox path needed the same bounded owner and runtime diagnostic coverage.
+
+## [2026-04-28 #44] POST: Doctrine Audit, Chat Mobile Scroll, and Mobile UI Runtime Guarding
+
+Material discrepancies fixed and hardened:
+- Compact chat inbox/search could outgrow the app viewport before a thread was selected; the chat route now bounds `main` to `100dvh`.
+- Compact chat inbox/search relied on a less explicit shell than the selected-thread pane; it now uses named fixed-height shell/list-scroll contracts.
+- Compact chat list scrolling could leak to the document; the list now has one ref-backed nested `overflow-y-auto` owner.
+- Chat route scroll locks could be misclassified by compact recovery as stale locks; recovery now preserves expected route-owned locks.
+- Compact search focus recovery still releases focused inputs, but no longer clears intentional chat route locks.
+- Compact list viewport drift had no runtime signal; it now reports a structured `chat_compact_thread_list` UI diagnostic with shell, panel, scroll, and document-scroll measurements.
+- The mobile doctrine regression had no automated guard; `scripts/check-mobile-ui-doctrine.ts` now blocks the chat height/scroll-owner class of regressions.
+- The guard was not in the canonical UI runtime lane; `npm run check:ui:runtime` now includes `check:ui:mobile-doctrine`.
+- Firebase Admin bootstrap imported route diagnostics during initialization, creating a server dependency cycle; initialization failures now emit direct bootstrap error logging instead of recursively importing diagnostic writers before Admin exists.
+
+100-point doctrine audit inventory covered by this pass:
+- UI/UX mobile shell: bounded route height, restored route styles, max-height shell, min-height propagation, document scroll lock, body scroll lock, main scroll lock, safe-area bottom reserve, nested list scroll, and selected-thread/list parity.
+- UI/UX compact chat: search bar overlay clearance, compose button clearance, edit mode action clearance, list item truncation, no raw `h-screen`, no `min-h-screen`, no raw `100vh`, one scroll owner, scroll ref diagnostics, and no document-behind-module scrolling.
+- State/race safety: selected-thread transition focus release, compact recovery cleanup, request-id guarded thread detail loading, selected detail reset on deselect, stale load suppression, observer cleanup, upload cleanup, typing timer cleanup, attachment menu cleanup, and route query sync without page scroll.
+- Telemetry/debug: compact layout violation diagnostics, compact recovery diagnostics, runtime channel classification, non-duplicated diagnostic report keys, scroll leak measurements, shell overflow measurements, panel overflow measurements, scroll-owner measurements, main style measurements, and console labels for local debugging.
+- Admin AI cover generation: 2-reference cap, reference layout-only use, dislike exclusion, negative reuse counts, liked layout promotion, no flavor carryover from references, prompt simplification, client request id, real elapsed progress, and generation stage labels.
+- Admin AI prompt/reference UI: mobile task tabs, prompt tab fields, concise copy, reference cap visibility, no long explanatory copy in default tab, diagnostics separation, history separation, references separation, prompt reset path, and compact description operations.
+- Description AI/debug health: Vertex REST path alignment, auth preflight, missing-auth state, project/location/model snapshot, provider failure payloads, disabled-config state, visible runtime status, no vague non-working state, route runtime wrapping, and route test coverage.
+- Drop cover preview parity: AI-applied cover asset metadata, uploaded cover thumbnail sync, MIME/type propagation, initial asset re-sync, edit mode cover asset hydration, duplicate mode cover hydration, close reset, image preview instead of archive fallback, content asset behavior preserved, and tests aligned to route payloads.
+- Backend/admin truth: route runtime health wrapping for touched AI routes, source-state preserving description failures, diagnostic event detail, reference feedback persistence, negative suppression persistence, no fake progress percent, no fake ETA, no silent description provider fallback, no silent feedback suppression, and admin truth check pass.
+- Verification/global enforcement: mobile doctrine check, chat route shell test, self-healing expected-lock test, cover reference tests, generation route tests, description route tests, typecheck, targeted lint, admin truth check, UI coverage, and UI runtime check.
+
+Verification completed:
+- `npm run check:ui:mobile-doctrine`
+- `npx vitest run --config vitest.contracts.config.ts tests/unit/chat-route-shell.spec.tsx tests/unit/self-healing.spec.ts`
+- `npm run agent:test -- src/components/Chat/ChatRouteShell.tsx`
+- `npm run typecheck -- --pretty false`
+- `npm run check:admin-truth`
+- `npm run check:ui:coverage`
+- `npm run check:ui:runtime`
+- `npm run check:continuity`
+- `npm run build`
+- `npm run check:generated-artifacts`
+- `git diff --check`
+
+## [2026-04-28 #43] PRE: AI Cover Generation, Prompt, Admin Mobile, and Drop Preview Hardening
+
+Scope started:
+- Implement the approved KandyDrops AI cover plan: cap cover references at 2 total, make references layout-only, wire like/dislike feedback into future reference selection, simplify editable cover prompting, tighten mobile AI Admin task layout, repair description runtime diagnostics, add truthful generation progress, and show cover thumbnails in Create Drop.
+- Primary owners identified: `src/lib/ai-drop-covers.ts`, `src/lib/server/ai-drop-covers.ts`, cover/description admin API routes, `src/components/Admin/AiDropCoverGeneratorPanel.tsx`, `src/app/admin/ai/page.tsx`, `src/app/admin/ai/hooks/useAdminAiState.tsx`, `src/components/Admin/AdminAiDescriptionOperations.tsx`, `src/components/Admin/CreateDropModal.tsx`, and `src/components/Admin/AssetUploader.tsx`.
+
+Startup protocol completed:
+- Read control tower, doctrine consultation, UI copy workflow, product/copy/UI doctrine, surface matrix, banned patterns, vocabulary, and decision checklist before UI/copy/admin changes.
+- Read `FULL_SCALE_CODEBASE_AUDIT.md`, `REPO_MEMORY_LEDGER.md`, and `EVERY_FILE_FUNCTION_CHECKLIST.md`.
+- Ran `git status --short`; the tree was clean before this pass.
+- Ran adjacency traces for `src/app/admin/ai/page.tsx`, `src/components/Admin/CreateDropModal.tsx`, `src/lib/server/ai-drop-covers.ts`, and `src/lib/server/ai-drop-descriptions.ts`.
+
+## [2026-04-28 #43] POST: AI Cover Generation, Prompt, Admin Mobile, and Drop Preview Hardening
+
+Implemented:
+- Cover generation now caps effective references at 2, treats references as layout anchors only, suppresses disliked/negative-reuse references, carries `clientRequestId`, and records reference/feedback telemetry.
+- Admin AI now exposes mobile-first Generate, Prompt, References, History, and Diagnostics task tabs with shorter operational labels.
+- Description generation now uses the same Vertex REST/auth pattern as cover generation and surfaces project/location/model/auth preflight truth.
+- Cover generation progress now shows real stages and elapsed time only.
+- Create Drop now renders the applied/uploaded cover as an image thumbnail by passing cover asset metadata through the cover uploader path.
+
+Verification completed:
+- `npm run typecheck -- --pretty false`
+- `npm run agent:test -- src/lib/ai-drop-covers.ts`
+- `npm run agent:test -- src/lib/server/ai-drop-covers.ts`
+- `npm run agent:test -- src/lib/server/ai-drop-descriptions.ts`
+- `npm run check:admin-truth`
+- `npm run check:ui:coverage`
+- `npm run check:ui:runtime`
+- Targeted ESLint for touched AI/admin/drop files
+- `npm run build`
+
 ## [2026-04-28 #42] PRE: Homepage Performance and Hydration Hardening
 
 Scope started:

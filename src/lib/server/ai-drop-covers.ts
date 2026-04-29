@@ -151,6 +151,7 @@ type AdminAiDropCoverGenerationInput = {
     dropType?: "content" | "promo" | "external" | string | null;
     tags?: string[] | null;
     previousJobId?: string | null;
+    clientRequestId?: string | null;
     requestedModel?: AdminAiDropCoverSelectableModel | null;
     requestedByUid: string;
     requestedByEmail?: string | undefined;
@@ -433,6 +434,7 @@ function applyReferenceUsageStats(
         positiveReuseCount: number;
         acceptedReuseCount: number;
         likedReuseCount: number;
+        negativeReuseCount: number;
     }>();
 
     for (const job of jobs) {
@@ -443,6 +445,7 @@ function applyReferenceUsageStats(
             const likedReuseCount = job.feedback === "liked" ? 1 : 0;
             const acceptedReuseCount = job.accepted ? 1 : 0;
             const positiveReuseCount = likedReuseCount || acceptedReuseCount ? 1 : 0;
+            const negativeReuseCount = job.feedback === "disliked" ? 1 : 0;
             usageMap.set(asset.id, {
                 usageCount: (current?.usageCount || 0) + 1,
                 lastUsedAtMs: Math.max(current?.lastUsedAtMs || 0, requestedAtMs),
@@ -450,6 +453,7 @@ function applyReferenceUsageStats(
                 positiveReuseCount: (current?.positiveReuseCount || 0) + positiveReuseCount,
                 acceptedReuseCount: (current?.acceptedReuseCount || 0) + acceptedReuseCount,
                 likedReuseCount: (current?.likedReuseCount || 0) + likedReuseCount,
+                negativeReuseCount: (current?.negativeReuseCount || 0) + negativeReuseCount,
             });
         }
     }
@@ -463,6 +467,7 @@ function applyReferenceUsageStats(
             positiveReuseCount: usage?.positiveReuseCount || 0,
             acceptedReuseCount: usage?.acceptedReuseCount || 0,
             likedReuseCount: usage?.likedReuseCount || 0,
+            negativeReuseCount: usage?.negativeReuseCount || 0,
             lastUsedAtMs: usage?.lastUsedAtMs || null,
         });
     });
@@ -659,9 +664,12 @@ async function buildReferenceContext(
             ? await listCatalogDropCoverReferenceAssets(dropId, DROP_COVER_CATALOG_CANDIDATE_LIMIT)
             : []),
     ];
+    const recentReferenceJobs = await listRecentAdminAiDropCoverJobs(48);
+    const scoredCandidateAssets = applyReferenceUsageStats(candidateAssets, recentReferenceJobs)
+        .filter((asset) => (asset.negativeReuseCount || 0) === 0 || (asset.positiveReuseCount || 0) > (asset.negativeReuseCount || 0));
     const requestedReferenceCount = candidateAssets.length + referenceImages.length;
     const selectedCandidateAssets = selectAdminAiDropCoverReferenceAssets(
-        candidateAssets,
+        scoredCandidateAssets,
         recipe,
         Math.max(0, maxReferenceInputs - referenceImages.length),
     );
@@ -2268,6 +2276,7 @@ export async function generateAdminAiDropCover(input: AdminAiDropCoverGeneration
             creatorId: input.creatorId || null,
             dropId: input.dropId || null,
             draftSessionId: draftSessionId || null,
+            clientRequestId: input.clientRequestId?.trim() || null,
             model: runtime.model,
             location: runtime.location,
             generationMode: referenceContext.generationMode,
@@ -2413,6 +2422,7 @@ export async function generateAdminAiDropCover(input: AdminAiDropCoverGeneration
             message: "Admin AI drop cover generated",
             detail: {
                 jobId: jobRef.id,
+                clientRequestId: input.clientRequestId || "",
                 dropId: input.dropId || "",
                 model: runtime.model,
                 generationMode: referenceContext.generationMode,
@@ -2434,6 +2444,7 @@ export async function generateAdminAiDropCover(input: AdminAiDropCoverGeneration
         void trackServerEvent("admin_ai_cover_generate_succeeded", {
             ai_feature: "drop_cover_generation",
             ai_job_id: jobRef.id,
+            ai_client_request_id: input.clientRequestId || "",
             ai_model: runtime.model,
             ai_generation_mode: referenceContext.generationMode,
             ai_recipe_family: recipe.family,
@@ -2474,6 +2485,7 @@ export async function generateAdminAiDropCover(input: AdminAiDropCoverGeneration
             latencyMs,
             completedAtMs,
             draftSessionId: draftSessionId || null,
+            clientRequestId: input.clientRequestId?.trim() || null,
             generationMode: referenceContext.generationMode,
             recipeLabel,
             consistencyRecipe: recipe,
@@ -2523,6 +2535,7 @@ export async function generateAdminAiDropCover(input: AdminAiDropCoverGeneration
                 channel: "ai",
                 detail: {
                     jobId: jobRef.id,
+                    clientRequestId: input.clientRequestId || "",
                     failureCode: classifiedError.code,
                 },
             });
@@ -2538,6 +2551,7 @@ export async function generateAdminAiDropCover(input: AdminAiDropCoverGeneration
             channel: "ai",
             detail: {
                 jobId: jobRef.id,
+                clientRequestId: input.clientRequestId || "",
                 dropId: input.dropId || "",
                 draftSessionId,
                 model: runtime.model,
@@ -2558,6 +2572,7 @@ export async function generateAdminAiDropCover(input: AdminAiDropCoverGeneration
         void trackServerEvent("admin_ai_cover_generate_failed", {
             ai_feature: "drop_cover_generation",
             ai_job_id: jobRef.id,
+            ai_client_request_id: input.clientRequestId || "",
             ai_model: runtime.model,
             ai_generation_mode: referenceContext.generationMode,
             ai_recipe_family: recipe.family,
@@ -2614,6 +2629,7 @@ export async function updateAdminAiDropCoverFeedback(input: AdminAiDropCoverFeed
     } else if (input.action === "dislike") {
         if (existing.feedback !== "disliked") {
             updates.feedback = "disliked";
+            updates.manualReuseApproved = false;
             if (existing.feedback === "liked") {
                 summaryDelta.likedCount = -1;
             }
@@ -2663,7 +2679,22 @@ export async function updateAdminAiDropCoverFeedback(input: AdminAiDropCoverFeed
             ai_model: existing.model,
             ai_prompt_version: existing.promptVersion,
             drop_id: input.dropId || existing.dropId || existing.acceptedForDropId || "",
+            ai_reference_ids: (existing.referenceAssets || []).map((asset) => asset.id).join(","),
         }, input.actorUid);
+    }
+
+    if (input.action === "dislike" && (existing.referenceAssets || []).length > 0) {
+        await recordServerDiagnostic({
+            channel: "ai",
+            severity: "warn",
+            message: "AI cover reference reuse suppressed after dislike",
+            detail: {
+                jobId: input.jobId,
+                actorUid: input.actorUid,
+                referenceIds: (existing.referenceAssets || []).map((asset) => asset.id),
+                referenceCount: (existing.referenceAssets || []).length,
+            },
+        });
     }
 
     try {

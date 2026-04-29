@@ -41,8 +41,8 @@ export function AdminAiReferencelibrarySection({ state }: { state: AdminAiState 
 
     return (
         <AdminDashboardModule
-                            title="Reference library"
-                            description="Primary style refs lead, then pinned, retained, and catalog support refs."
+                            title="References"
+                            description="Two layout anchors max."
                             defaultOpen={MODULE_DEFAULTS["admin_ai.references"]}
                             open={moduleOpenState["admin_ai.references"]}
                             onOpenChange={(nextOpen) => persistModuleState("admin_ai.references", nextOpen)}
@@ -65,7 +65,7 @@ export function AdminAiReferencelibrarySection({ state }: { state: AdminAiState 
                                         <div className="flex min-w-0 items-center justify-between gap-3">
                                             <div className="min-w-0">
                                                 <div className="text-sm font-semibold text-white">Current ranked set</div>
-                                                <div className="mt-1 break-words text-xs text-gray-400">{referencePreview.length}/{referenceCap} references queued for the next generation.</div>
+                                                <div className="mt-1 break-words text-xs text-gray-400">{referencePreview.length}/{referenceCap} layout anchors queued.</div>
                                             </div>
                                             <Badge className={cn("border", statTone(referencePreview.length > 0))}>
                                                 <Eye className="h-3.5 w-3.5" />
@@ -99,7 +99,7 @@ export function AdminAiReferencelibrarySection({ state }: { state: AdminAiState 
 
                                     <div className="min-w-0 rounded-[1.1rem] border border-white/10 bg-black/25 p-3.5">
                                         <div className="text-sm font-semibold text-white">Uploaded house references</div>
-                                        <div className="mt-1 break-words text-xs text-gray-400">Gemini 3 Pro Preview uses up to 14 refs, and the ranked set stops at that cap.</div>
+                                        <div className="mt-1 break-words text-xs text-gray-400">Generation uses 2 layout anchors max.</div>
 
                                         <div className="mt-3 space-y-3">
                                             {activeHouseReferences.length === 0 ? (

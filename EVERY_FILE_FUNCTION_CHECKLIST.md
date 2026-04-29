@@ -9,6 +9,17 @@ Scoring: all entries below are marked as included in the current validated sweep
 
 Current repo-wide state snapshot: see [FULL_SCALE_CODEBASE_AUDIT.md](/Users/uylus/OneDrive/Documents/KandyDrops_Final/FULL_SCALE_CODEBASE_AUDIT.md) for the current live baseline, verification state, and continuity rules, and see [REPO_MEMORY_LEDGER.md](/Users/uylus/OneDrive/Documents/KandyDrops_Final/REPO_MEMORY_LEDGER.md) for major architectural and workflow decisions. The detailed file/function body below remains valuable historical evidence, but it has not been fully regenerated against the current 2026-04-18 inventory review yet.
 
+## 2026-04-28 Doctrine Audit, Chat Mobile Scroll, and Mobile UI Runtime Guarding Coverage
+
+- [x] `src/components/Chat/ChatRouteShell.tsx` now bounds the chat route `main` element to `100dvh`, locks route overflow, and restores all touched inline styles on unmount.
+- [x] `src/components/Chat/ChatExperience.tsx` now gives the compact inbox/search state the same fixed-height nested-scroll contract as the entered thread view and emits runtime diagnostics if the compact list leaks outside the viewport.
+- [x] `src/lib/self-healing.ts` now distinguishes stale compact interaction locks from expected route-owned scroll locks.
+- [x] `scripts/check-mobile-ui-doctrine.ts` blocks compact chat/mobile scroll-owner regressions.
+- [x] `package.json` now includes `check:ui:mobile-doctrine` in `check:ui:runtime`.
+- [x] `src/lib/server/firebase-admin.ts` now avoids importing Firestore-backed route diagnostics during Admin SDK bootstrap, removing the app dependency cycle while preserving direct bootstrap error visibility.
+- [x] `tests/unit/chat-route-shell.spec.tsx` verifies chat route scroll locking/restoration.
+- [x] `tests/unit/self-healing.spec.ts` verifies expected route-owned locks are preserved while compact focused inputs are released.
+
 ## 2026-04-28 Homepage Performance and Hydration Hardening Coverage
 
 - [x] `src/app/HomeClient.tsx` now uses split auth contexts and idempotent page-view/redirect guards.

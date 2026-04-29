@@ -64,6 +64,7 @@ export function createCompactInteractionRecoveryGuard(input: {
     isEnabled: () => boolean;
     getTarget: () => HTMLElement | null;
     isOverlayOpen?: () => boolean;
+    isDocumentScrollLockExpected?: () => boolean;
     onRecovered?: (snapshot: CompactInteractionRecoverySnapshot) => void;
     delayMs?: number;
 }): CompactInteractionRecoveryControl {
@@ -82,12 +83,13 @@ export function createCompactInteractionRecoveryGuard(input: {
 
         const target = input.getTarget();
         const snapshot = buildCompactInteractionRecoverySnapshot(target);
-        const hasUnexpectedLock = snapshot.htmlOverflow === "hidden"
+        const documentScrollLockExpected = input.isDocumentScrollLockExpected?.() === true;
+        const hasUnexpectedLock = !documentScrollLockExpected && (snapshot.htmlOverflow === "hidden"
             || snapshot.bodyOverflow === "hidden"
             || snapshot.mainOverflow === "hidden"
             || snapshot.htmlOverscrollBehaviorY === "none"
             || snapshot.bodyOverscrollBehaviorY === "none"
-            || snapshot.mainOverscrollBehaviorY === "none";
+            || snapshot.mainOverscrollBehaviorY === "none");
 
         if (!snapshot.targetFocused && !hasUnexpectedLock) {
             return false;
@@ -97,25 +99,25 @@ export function createCompactInteractionRecoveryGuard(input: {
             target?.blur();
         }
 
-        if (snapshot.htmlOverflow === "hidden") {
+        if (!documentScrollLockExpected && snapshot.htmlOverflow === "hidden") {
             document.documentElement.style.overflow = "";
         }
-        if (snapshot.bodyOverflow === "hidden") {
+        if (!documentScrollLockExpected && snapshot.bodyOverflow === "hidden") {
             document.body.style.overflow = "";
         }
 
         const main = document.querySelector("main");
-        if (main instanceof HTMLElement && main.style.overflow === "hidden") {
+        if (!documentScrollLockExpected && main instanceof HTMLElement && main.style.overflow === "hidden") {
             main.style.overflow = "";
         }
 
-        if (snapshot.htmlOverscrollBehaviorY === "none") {
+        if (!documentScrollLockExpected && snapshot.htmlOverscrollBehaviorY === "none") {
             document.documentElement.style.overscrollBehaviorY = "";
         }
-        if (snapshot.bodyOverscrollBehaviorY === "none") {
+        if (!documentScrollLockExpected && snapshot.bodyOverscrollBehaviorY === "none") {
             document.body.style.overscrollBehaviorY = "";
         }
-        if (main instanceof HTMLElement && main.style.overscrollBehaviorY === "none") {
+        if (!documentScrollLockExpected && main instanceof HTMLElement && main.style.overscrollBehaviorY === "none") {
             main.style.overscrollBehaviorY = "";
         }
 

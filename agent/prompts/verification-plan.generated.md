@@ -1,12 +1,15 @@
 Verification plan
 
-Matched paths: src/app/admin/debug/page.tsx
+Matched paths: src/lib/ai-drop-covers.ts, src/lib/server/ai-drop-covers.ts, src/components/Admin/AiDropCoverGeneratorPanel.tsx, src/components/Admin/CreateDropModal.tsx, src/app/admin/ai/page.tsx, src/lib/server/ai-drop-descriptions.ts
 Broad work: yes
-Touched domains: admin_ops, app_routes
+Touched domains: admin_ops, ai_admin, app_routes, shared_server_helpers
 
 Fast loop:
 - npm run typecheck  # TypeScript or runtime code changed.
-- npm run agent:test -- src/app/admin/debug/page.tsx  # Run the narrowest related contract/unit tests first.
+- npm run agent:test -- src/lib/ai-drop-covers.ts  # Run the narrowest related contract/unit tests first.
+- npm run agent:test -- src/lib/server/ai-drop-covers.ts  # Run the narrowest related contract/unit tests first.
+- npm run agent:test -- src/components/Admin/AiDropCoverGeneratorPanel.tsx  # Run the narrowest related contract/unit tests first.
+- npm run agent:test -- src/components/Admin/CreateDropModal.tsx  # Run the narrowest related contract/unit tests first.
 - npm run check:ui:coverage  # Indexed UI/admin surfaces changed.
 - npm run check:ui:runtime  # Hydration/runtime UI continuity should stay truthful.
 

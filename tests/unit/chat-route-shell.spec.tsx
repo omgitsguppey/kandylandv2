@@ -49,6 +49,9 @@ function installMatchMedia(initialMatches: boolean): MatchMediaController {
 describe("ChatRouteShell", () => {
     const originalBodyOverflow = document.body.style.overflow;
     const originalDocumentOverflow = document.documentElement.style.overflow;
+    const originalMainHeight = document.querySelector("main") instanceof HTMLElement
+        ? (document.querySelector("main") as HTMLElement).style.height
+        : "";
     let container: HTMLDivElement | null = null;
     let root: Root | null = null;
 
@@ -92,6 +95,8 @@ describe("ChatRouteShell", () => {
 
         expect(document.documentElement.style.overflow).toBe("hidden");
         expect(document.body.style.overflow).toBe("hidden");
+        const main = document.querySelector("main") as HTMLElement | null;
+        expect(main?.style.minHeight).toBe("0");
 
         act(() => {
             root?.unmount();
@@ -100,5 +105,6 @@ describe("ChatRouteShell", () => {
 
         expect(document.documentElement.style.overflow).toBe("");
         expect(document.body.style.overflow).toBe("");
+        expect(main?.style.height).toBe(originalMainHeight);
     });
 });

@@ -92,6 +92,7 @@ interface FilesAndAssetsSectionProps {
     onCoverAspectRatioChange: (ratio: UploadAspectRatio) => void;
     onContentAspectRatioChange: (ratio: UploadAspectRatio) => void;
     imageUrl: string;
+    initialCoverAssets: UploadedAsset[];
     contentUrl: string;
     contentType?: string;
     initialContentAssets: UploadedAsset[];
@@ -145,6 +146,7 @@ const FilesAndAssetsSection = memo(function FilesAndAssetsSection({
     onCoverAspectRatioChange,
     onContentAspectRatioChange,
     imageUrl,
+    initialCoverAssets,
     contentUrl,
     contentType,
     initialContentAssets,
@@ -187,7 +189,9 @@ const FilesAndAssetsSection = memo(function FilesAndAssetsSection({
                         helperText="Supports JPG, PNG, WEBP, HEIC, GIF, MP4"
                         aspectRatio={coverAspectRatio}
                         onAspectRatioChange={onCoverAspectRatioChange}
+                        initialAssets={initialCoverAssets}
                         initialUrl={imageUrl}
+                        initialType="image/png"
                         onChange={onCoverAssetsChange}
                     />
                     {errors.imageUrl && <p className="text-red-400 text-xs">{errors.imageUrl.message}</p>}
@@ -229,6 +233,7 @@ export function CreateDropModal({ isOpen, onClose, dropId, duplicateFromId, onSu
     const isEditMode = !!dropId;
     const [fetching, setFetching] = useState(isEditMode);
     const [contentAssets, setContentAssets] = useState<UploadedAsset[]>([]);
+    const [coverAssets, setCoverAssets] = useState<UploadedAsset[]>([]);
     const [creatorOptions, setCreatorOptions] = useState<CreatorOption[]>([]);
     const [duplicateWarnings, setDuplicateWarnings] = useState<Array<{ dropId: string; title: string; duplicateFileNames: string[]; approvalStatus: string }>>([]);
     const [checkingDuplicateNames, setCheckingDuplicateNames] = useState(false);
@@ -361,6 +366,7 @@ export function CreateDropModal({ isOpen, onClose, dropId, duplicateFromId, onSu
     useEffect(() => {
         if (!isOpen) {
             setContentAssets([]);
+            setCoverAssets([]);
             setOpenSection(null);
             setSelectedAiCoverJobId(null);
             setSelectedAiDescriptionJobId(null);
@@ -393,6 +399,13 @@ export function CreateDropModal({ isOpen, onClose, dropId, duplicateFromId, onSu
                     });
                     reset(prepared.values);
                     setContentAssets(prepared.contentAssets);
+                    setCoverAssets(prepared.values.imageUrl ? [{
+                        id: `cover-${docSnap.id}`,
+                        url: prepared.values.imageUrl,
+                        type: "image/png",
+                        size: 0,
+                        fileName: prepared.values.coverFileName || "cover.png",
+                    }] : []);
                 } else {
                     toast.error("Drop not found!");
                     onClose();
@@ -426,9 +439,10 @@ export function CreateDropModal({ isOpen, onClose, dropId, duplicateFromId, onSu
 
     const handleCoverAssetsChange = useCallback((assets: UploadedAsset[]) => {
         const primary = assets[0];
+        setCoverAssets(assets);
         setValue("imageUrl", primary?.url || "", { shouldValidate: true });
         setValue("coverFileName", primary?.fileName || "", { shouldValidate: false });
-        setSelectedAiCoverJobId(null);
+        setSelectedAiCoverJobId((current) => primary?.id === current ? current : null);
     }, [setValue]);
 
     const handleApplyAiDescription = useCallback((job: { id: string; descriptionText?: string | null }) => {
@@ -443,6 +457,14 @@ export function CreateDropModal({ isOpen, onClose, dropId, duplicateFromId, onSu
     }, [setValue]);
 
     const handleApplyAiCover = useCallback((job: AdminAiDropCoverJobRecord) => {
+        const coverAsset = job.imageUrl ? [{
+            id: job.id,
+            url: job.imageUrl,
+            type: job.mimeType || "image/png",
+            size: 0,
+            fileName: job.fileName || "ai-cover.png",
+        }] : [];
+        setCoverAssets(coverAsset);
         setValue("imageUrl", job.imageUrl || "", { shouldValidate: true });
         setValue("coverFileName", job.fileName || "", { shouldValidate: false });
         setSelectedAiCoverJobId(job.id);
@@ -842,6 +864,7 @@ export function CreateDropModal({ isOpen, onClose, dropId, duplicateFromId, onSu
                                         onCoverAspectRatioChange={setCoverAspectRatio}
                                         onContentAspectRatioChange={setContentAspectRatio}
                                         imageUrl={imageUrl}
+                                        initialCoverAssets={coverAssets}
                                         contentUrl={contentUrl}
                                         contentType={fileMetadata?.type}
                                         initialContentAssets={contentAssets}

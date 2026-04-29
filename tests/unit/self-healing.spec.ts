@@ -62,6 +62,39 @@ describe("createCompactInteractionRecoveryGuard", () => {
         expect(onRecovered).toHaveBeenCalledTimes(1);
     });
 
+    it("keeps expected route-owned locks while releasing focused compact inputs", () => {
+        const target = document.getElementById("target") as HTMLInputElement;
+        const main = document.querySelector("main") as HTMLElement;
+        const onRecovered = vi.fn();
+
+        document.documentElement.style.overflow = "hidden";
+        document.documentElement.style.overscrollBehaviorY = "none";
+        document.body.style.overflow = "hidden";
+        document.body.style.overscrollBehaviorY = "none";
+        main.style.overflow = "hidden";
+        main.style.overscrollBehaviorY = "none";
+        target.focus();
+
+        const guard = createCompactInteractionRecoveryGuard({
+            isEnabled: () => true,
+            getTarget: () => target,
+            onRecovered,
+            isOverlayOpen: () => false,
+            isDocumentScrollLockExpected: () => true,
+        });
+
+        guard.runCheck();
+
+        expect(document.documentElement.style.overflow).toBe("hidden");
+        expect(document.body.style.overflow).toBe("hidden");
+        expect(main.style.overflow).toBe("hidden");
+        expect(document.documentElement.style.overscrollBehaviorY).toBe("none");
+        expect(document.body.style.overscrollBehaviorY).toBe("none");
+        expect(main.style.overscrollBehaviorY).toBe("none");
+        expect(document.activeElement).not.toBe(target);
+        expect(onRecovered).toHaveBeenCalledTimes(1);
+    });
+
     it("does nothing when a dialog is open", () => {
         const target = document.getElementById("target") as HTMLInputElement;
         const modal = document.createElement("div");

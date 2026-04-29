@@ -74,6 +74,13 @@ type FollowedCreatorEntry = {
     following: boolean;
 };
 
+export const CHAT_VIEWPORT_SHELL_CLASSNAME =
+    "mx-auto flex h-full max-h-full min-h-0 w-full max-w-6xl flex-1 overflow-hidden px-0 sm:px-4";
+export const CHAT_COMPACT_THREAD_LIST_PANEL_CLASSNAME =
+    "flex h-full max-h-full min-h-0 flex-col overflow-hidden";
+export const CHAT_COMPACT_THREAD_LIST_SCROLL_CLASSNAME =
+    "min-h-0 flex-1 overflow-y-auto overscroll-y-contain px-5 pb-[calc(7.25rem+env(safe-area-inset-bottom))]";
+
 type CreatorRelationshipsListResponse = {
     followedCreators?: FollowedCreatorEntry[];
 };
@@ -406,6 +413,10 @@ export function ChatExperience() {
     const typingResetTimerRef = useRef<number | null>(null);
     const messageListRef = useRef<HTMLDivElement | null>(null);
     const shouldStickToBottomRef = useRef(true);
+    const chatViewportShellRef = useRef<HTMLDivElement | null>(null);
+    const compactThreadListPanelRef = useRef<HTMLElement | null>(null);
+    const compactThreadListScrollRef = useRef<HTMLDivElement | null>(null);
+    const compactThreadListLayoutReportKeyRef = useRef<string | null>(null);
     const attachmentMenuRef = useRef<HTMLDivElement | null>(null);
     const imageInputRef = useRef<HTMLInputElement | null>(null);
     const videoInputRef = useRef<HTMLInputElement | null>(null);
@@ -472,6 +483,7 @@ export function ChatExperience() {
             isEnabled: () => isCompactViewport,
             getTarget: () => target ?? threadSearchInputRef.current,
             isOverlayOpen: () => composePickerOpen,
+            isDocumentScrollLockExpected: () => true,
             onRecovered: (snapshot) => {
                 reportClientIssue({
                     channel: "ui",
@@ -514,6 +526,7 @@ export function ChatExperience() {
             isEnabled: () => isCompactViewport,
             getTarget: () => threadSearchInputRef.current,
             isOverlayOpen: () => composePickerOpen,
+            isDocumentScrollLockExpected: () => true,
             onRecovered: (snapshot) => {
                 reportClientIssue({
                     channel: "ui",
@@ -530,6 +543,86 @@ export function ChatExperience() {
         recoveryGuard.runCheck();
         recoveryGuard.cleanup();
     }, [composePickerOpen, isCompactViewport, releaseThreadSearchFocus]);
+
+    useEffect(() => {
+        if (!showCompactThreadListOnly || typeof window === "undefined" || typeof document === "undefined") {
+            compactThreadListLayoutReportKeyRef.current = null;
+            return;
+        }
+
+        const frameId = window.requestAnimationFrame(() => {
+            const shell = chatViewportShellRef.current;
+            const panel = compactThreadListPanelRef.current;
+            const scrollArea = compactThreadListScrollRef.current;
+            if (!shell || !panel || !scrollArea) {
+                return;
+            }
+
+            const viewportHeight = window.visualViewport?.height ?? window.innerHeight;
+            const shellRect = shell.getBoundingClientRect();
+            const panelRect = panel.getBoundingClientRect();
+            const main = document.querySelector("main");
+            const mainElement = main instanceof HTMLElement ? main : null;
+            const scrollStyle = window.getComputedStyle(scrollArea);
+            const documentScrollLeak = Math.max(
+                document.documentElement.scrollHeight,
+                document.body.scrollHeight,
+            ) > viewportHeight + 2;
+            const shellBottomOverflowPx = Math.max(0, Math.round(shellRect.bottom - viewportHeight));
+            const panelBottomOverflowPx = Math.max(0, Math.round(panelRect.bottom - viewportHeight));
+            const scrollAreaTooShort = scrollArea.clientHeight < 160 && filteredThreads.length > 0;
+            const scrollAreaOwnsOverflow = scrollStyle.overflowY === "auto" || scrollStyle.overflowY === "scroll";
+
+            if (
+                shellBottomOverflowPx === 0
+                && panelBottomOverflowPx === 0
+                && !documentScrollLeak
+                && !scrollAreaTooShort
+                && scrollAreaOwnsOverflow
+            ) {
+                compactThreadListLayoutReportKeyRef.current = null;
+                return;
+            }
+
+            const reportKey = [
+                shellBottomOverflowPx,
+                panelBottomOverflowPx,
+                documentScrollLeak ? "document-scroll" : "document-locked",
+                scrollAreaTooShort ? "short-scroll-area" : "scroll-area-ok",
+                scrollAreaOwnsOverflow ? "own-scroll" : "missing-scroll-owner",
+            ].join(":");
+
+            if (compactThreadListLayoutReportKeyRef.current === reportKey) {
+                return;
+            }
+            compactThreadListLayoutReportKeyRef.current = reportKey;
+
+            reportClientIssue({
+                channel: "ui",
+                severity: "warn",
+                message: "Compact chat list layout violated viewport bounds",
+                detail: {
+                    scope: "chat_compact_thread_list",
+                    viewportHeight,
+                    shellHeight: Math.round(shellRect.height),
+                    shellBottomOverflowPx,
+                    panelHeight: Math.round(panelRect.height),
+                    panelBottomOverflowPx,
+                    scrollClientHeight: scrollArea.clientHeight,
+                    scrollHeight: scrollArea.scrollHeight,
+                    scrollOverflowY: scrollStyle.overflowY,
+                    documentScrollLeak,
+                    mainHeight: mainElement?.style.height || null,
+                    mainOverflow: mainElement?.style.overflow || null,
+                },
+                consoleLabel: "[Chat] compact thread list layout bounds failed",
+            });
+        });
+
+        return () => {
+            window.cancelAnimationFrame(frameId);
+        };
+    }, [filteredThreads.length, showCompactThreadListOnly, threadSelectionMode, threadsLoading]);
 
 
     const loadThreads = useCallback(async (options?: LoadThreadsOptions) => {
@@ -1543,18 +1636,18 @@ export function ChatExperience() {
     }
 
     return (
-        <div className="mx-auto flex h-full min-h-0 w-full max-w-6xl flex-1 overflow-hidden px-0 sm:px-4">
+        <div ref={chatViewportShellRef} className={CHAT_VIEWPORT_SHELL_CLASSNAME}>
             <div className="flex h-full min-h-0 w-full flex-col overflow-hidden rounded-[2rem] border border-white/10 bg-black shadow-[0_26px_80px_rgba(0,0,0,0.55)]">
                 <div className="grid h-full min-h-0 lg:grid-cols-[320px_minmax(0,1fr)]">
                     {(!isCompactViewport || !selectedThreadId) ? (
-                        <aside className={cn(
+                        <aside ref={compactThreadListPanelRef} className={cn(
                             "min-h-0 bg-[#050505]",
                             showCompactThreadListOnly
                                 ? "relative h-full overflow-hidden"
                                 : "flex min-h-0 flex-col border-b border-white/10 lg:border-b-0 lg:border-r lg:border-r-white/10",
                         )}>
                             {showCompactThreadListOnly ? (
-                                <div className="flex h-full min-h-0 flex-col overflow-hidden">
+                                <div className={CHAT_COMPACT_THREAD_LIST_PANEL_CLASSNAME}>
                                     <div className="px-5 pb-4 pt-6">
                                         <div className="flex items-center justify-between">
                                             <div ref={threadEditMenuRef} className="relative">
@@ -1607,7 +1700,7 @@ export function ChatExperience() {
                                         </div>
                                     </div>
 
-                                    <div className="min-h-0 flex-1 overflow-y-auto overscroll-y-contain px-5 pb-[calc(8.5rem+env(safe-area-inset-bottom))]">
+                                    <div ref={compactThreadListScrollRef} className={CHAT_COMPACT_THREAD_LIST_SCROLL_CLASSNAME}>
                                         {filteredThreads.length > 0 ? (
                                             <div className="space-y-1">
                                                 {filteredThreads.map((thread) => (

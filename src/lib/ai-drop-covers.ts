@@ -26,6 +26,7 @@ export const ADMIN_AI_DROP_COVER_PRICE_SOURCE_URL = ADMIN_AI_MODEL_PRICE_SOURCE_
 export const ADMIN_AI_DROP_COVER_OUTPUT_MIME_TYPE = "image/png";
 export const ADMIN_AI_DROP_COVER_ACTIVE_POLL_INTERVAL_MS = 2_500;
 export const ADMIN_AI_DROP_COVER_IDLE_POLL_INTERVAL_MS = 10_000;
+export const ADMIN_AI_DROP_COVER_LAYOUT_REFERENCE_LIMIT = 2;
 
 export type AdminAiDropCoverSelectableModel =
     | typeof ADMIN_AI_DROP_COVER_MODEL
@@ -44,7 +45,7 @@ export const ADMIN_AI_DROP_COVER_MODEL_OPTIONS = [
         pricePerGenerationUsd: 0.0387,
         priceBasis: ADMIN_AI_DROP_COVER_PRICE_BASIS,
         location: ADMIN_AI_DROP_COVER_DEFAULT_LOCATION,
-        maxReferenceInputs: 6,
+        maxReferenceInputs: ADMIN_AI_DROP_COVER_LAYOUT_REFERENCE_LIMIT,
         supportsReferenceLibrary: true,
         supportsPromptOptimization: true,
     },
@@ -57,7 +58,7 @@ export const ADMIN_AI_DROP_COVER_MODEL_OPTIONS = [
         pricePerGenerationUsd: 0.134,
         priceBasis: ADMIN_AI_DROP_COVER_PREMIUM_PRICE_BASIS,
         location: ADMIN_AI_DROP_COVER_DEFAULT_LOCATION,
-        maxReferenceInputs: 14,
+        maxReferenceInputs: ADMIN_AI_DROP_COVER_LAYOUT_REFERENCE_LIMIT,
         supportsReferenceLibrary: true,
         supportsPromptOptimization: true,
     },
@@ -225,6 +226,7 @@ export interface AdminAiDropCoverJobRecord {
     creatorName?: string | null;
     dropId?: string | null;
     draftSessionId?: string | null;
+    clientRequestId?: string | null;
     model: string;
     location: string;
     generationMode: AdminAiDropCoverGenerationMode;
@@ -291,6 +293,7 @@ export interface AdminAiDropCoverReferenceAsset {
     positiveReuseCount?: number;
     acceptedReuseCount?: number;
     likedReuseCount?: number;
+    negativeReuseCount?: number;
     lastUsedAtMs?: number | null;
     selectionScore?: number;
     selectionReasons?: string[];
@@ -412,6 +415,7 @@ export const adminAiDropCoverJobSchema = z.object({
     creatorName: z.string().nullable().optional(),
     dropId: z.string().nullable().optional(),
     draftSessionId: z.string().nullable().optional(),
+    clientRequestId: z.string().nullable().optional(),
     model: z.string(),
     location: z.string(),
     generationMode: z.enum(["standard", "reference_guided"]),
@@ -575,6 +579,7 @@ export const adminAiDropCoverReferenceAssetSchema = z.object({
     positiveReuseCount: z.number().optional(),
     acceptedReuseCount: z.number().optional(),
     likedReuseCount: z.number().optional(),
+    negativeReuseCount: z.number().optional(),
     lastUsedAtMs: z.number().nullable().optional(),
     selectionScore: z.number().optional(),
     selectionReasons: z.array(z.string()).optional(),
@@ -791,15 +796,18 @@ const COLOR_DIRECTION_RULES: Array<{
     { keywords: ["chocolate", "coffee", "mocha", "cocoa"], direction: "Anchor the palette in dark cocoa, roast, and caramel tones with polished metallic highlights." },
 ];
 const DEFAULT_STYLE_LOCKED_CLAUSES = [
-    "Keep the KandyDrops premium candy-poster design language with a centered hero, a smaller creator-name treatment above the title, a bold main flavor title, and a lower ribbon band that is easy to separate from the hero image.",
-    "Keep the typography hierarchy, ribbon treatment, glossy finish, and premium poster composition aligned to the established KandyDrops style system.",
-    "Preserve strong title readability, clear subject isolation, and thumbnail-safe contrast.",
+    "Use approved references only for layout, typography hierarchy, centered framing, title placement, and lower ribbon structure.",
+    "Keep the creator-name treatment above the main flavor title when a creator name is available.",
+    "Keep the main flavor title bold, legible, and thumbnail-safe.",
+    "Keep one centered hero and one distinct lower ribbon or CTA band.",
+    "Preserve the KandyDrops square poster system without copying reference ingredients, props, palette, or flavor objects.",
 ];
 const DEFAULT_MUTABLE_CLAUSES = [
-    "Match the hero object, palette, and atmosphere to the requested flavor instead of copying the literal object from the reference image.",
-    "Keep each flavor visually distinct so adjacent covers are easy to tell apart at a glance.",
+    "Build the hero, palette, and atmosphere only from the requested title flavor.",
+    "Ignore reference flavor, food, garnish, candy, drink, chocolate, fruit, marshmallow, cream, and prop details unless those words appear in the current title.",
+    "Make the new flavor visually distinct while keeping the approved layout system.",
 ];
-const DEFAULT_BASE_STYLE_PROMPT = "Create premium square cover art for a KandyDrops drop that feels like luxury candy packaging meets a polished poster.";
+const DEFAULT_BASE_STYLE_PROMPT = "Create premium square KandyDrops cover art from the creator name and requested flavor title.";
 
 function normalizeTag(label: string) {
     return label.trim().toLowerCase();
@@ -945,30 +953,20 @@ export function buildAdminAiDropCoverConsistencyRecipe(input: AdminAiDropCoverPr
         normalizedFlavorTitle,
         subjectCategory,
         focusTerms,
-        heroSubject: `Center one unmistakable ${subjectLabel} inspired by ${normalizedFlavorTitle}. Choose the object that best expresses this flavor, make it large and immediately readable, and only use pie, cake, pastry, or another baked form when the requested flavor explicitly names that format.`,
+        heroSubject: `Center one unmistakable ${subjectLabel} inspired only by "${normalizedFlavorTitle}". Choose the object that best expresses this requested flavor, make it large and immediately readable, and only use pie, cake, pastry, candy, chocolate, drink, fruit, marshmallow, cream, or other ingredient forms when the requested title explicitly names them.`,
         paletteDirection: `${familyRule?.paletteDirection || "Use one dominant flavor palette with premium contrast, glossy highlights, and restrained accent color drift."} ${getColorDirection(focusTerms)}`,
         lightingDirection: familyRule?.lightingDirection || "Use polished product lighting with tactile highlights, depth, and a premium editorial finish.",
         backgroundDirection: familyRule?.backgroundDirection || "Create a soft glowing bokeh background with flavor-led atmosphere, depth, and minimal distracting props.",
         compositionDirection: "Keep a square poster composition with one centered hero, clear upper title space, and a distinct lower ribbon band so the hero, title, and CTA treatment stay easy to distinguish.",
         overlayDirection: "Render the creator name as a smaller top treatment when available, keep the main flavor title prominent and legible, and make the lower ribbon or CTA band visually distinct from the background.",
-        antiAnchoringDirection: "Do not replicate the exact food form, garnish, or prop arrangement from the reference unless the requested flavor explicitly matches it. Keep the design language, but redesign the hero object and palette for this specific flavor.",
+        antiAnchoringDirection: "Treat all references as layout-only. Do not copy their food form, garnish, candy pieces, flavor cues, color palette, prop arrangement, or background objects unless the current requested title explicitly names the same detail.",
     };
 }
 
 export function scoreAdminAiDropCoverReferenceAsset(
-    asset: Pick<AdminAiDropCoverReferenceAsset, "id" | "source" | "title" | "creatorId" | "creatorName" | "retentionReason">,
+    asset: Pick<AdminAiDropCoverReferenceAsset, "id" | "source" | "title" | "creatorId" | "creatorName" | "retentionReason" | "negativeReuseCount">,
     recipe: AdminAiDropCoverConsistencyRecipe,
 ) {
-    const assetTitle = asset.title?.trim() || "";
-    const assetFocusTerms = getAdminAiDropCoverFocusTerms(assetTitle, asset.creatorName);
-    const assetFamily = assetTitle
-        ? inferAdminAiDropCoverFlavorFamily({
-            title: assetTitle,
-            creatorName: asset.creatorName,
-        })
-        : "neutral";
-    const sharedTerms = recipe.focusTerms.filter((term) => assetFocusTerms.includes(term));
-
     let score = 0;
     const reasons: string[] = [];
 
@@ -977,27 +975,17 @@ export function scoreAdminAiDropCoverReferenceAsset(
         reasons.push("uploaded house template anchor");
     }
 
-    if (sharedTerms.length > 0) {
-        score += sharedTerms.length * 12;
-        reasons.push(`shared flavor terms: ${sharedTerms.join(", ")}`);
-    }
-
-    if (assetFamily !== "neutral" && assetFamily === recipe.family) {
-        score += 18;
-        reasons.push(`${assetFamily.replace(/_/g, " ")} family match`);
-    }
-
     if (asset.source === "retained_ai_cover") {
         if (asset.retentionReason === "accepted") {
-            score += 24;
-            reasons.push("accepted by operator");
+            score += 36;
+            reasons.push("accepted layout by operator");
         } else if (asset.retentionReason === "liked") {
-            score += 16;
-            reasons.push("liked by operator");
+            score += 28;
+            reasons.push("liked layout by operator");
         }
     } else if (asset.source === "catalog_drop_cover" || asset.source === "recent_drop_cover") {
-        score += 8;
-        reasons.push("published drop cover");
+        score += 3;
+        reasons.push("published layout fallback");
     }
 
     if (
@@ -1005,15 +993,21 @@ export function scoreAdminAiDropCoverReferenceAsset(
         && recipe.creatorId
         && asset.creatorId.trim().toLowerCase() === recipe.creatorId.trim().toLowerCase()
     ) {
-        score += 8;
-        reasons.push("same creator id");
+        score += 4;
+        reasons.push("same creator layout context");
     } else if (
         asset.creatorName
         && recipe.creatorName
         && asset.creatorName.trim().toLowerCase() === recipe.creatorName.trim().toLowerCase()
     ) {
-        score += 6;
-        reasons.push("same creator context");
+        score += 3;
+        reasons.push("same creator layout context");
+    }
+
+    const negativeReuseCount = typeof asset.negativeReuseCount === "number" ? asset.negativeReuseCount : 0;
+    if (negativeReuseCount > 0) {
+        score -= negativeReuseCount * 40;
+        reasons.push(`${negativeReuseCount} disliked reuse${negativeReuseCount === 1 ? "" : "s"}`);
     }
 
     if (reasons.length === 0) {
@@ -1032,6 +1026,7 @@ export function selectAdminAiDropCoverReferenceAssets(
     limit: number,
 ) {
     return assets
+        .filter((asset) => asset.feedback !== "disliked" && asset.reusable !== false)
         .map((asset) => {
             const selection = scoreAdminAiDropCoverReferenceAsset(asset, recipe);
             return {
@@ -1078,7 +1073,7 @@ export function buildAdminAiDropCoverPrompt(
         || promptPolicy.currentMutablePrompt.trim()
         || promptPolicy.mutableClauses.join(" ");
     const referenceInstruction = options?.referenceGuided
-        ? `Use the provided reference image and maintain the same style system, focusing this time on "${requestedTitle}", ensuring the colors are easy to distinguish and the subject matches the flavor instead of copying the reference subject.`
+        ? `Use the provided reference images as layout anchors only for framing, title hierarchy, typography placement, and lower ribbon structure. For "${requestedTitle}", ignore every reference flavor, ingredient, candy, chocolate, fruit, drink, garnish, prop, background object, and palette unless that exact idea appears in the current title.`
         : `Focus this cover on "${requestedTitle}", ensuring the color matches the title theme and the colors are easy to distinguish.`;
 
     return [
@@ -1096,15 +1091,15 @@ export function buildAdminAiDropCoverPrompt(
         recipe.overlayDirection,
         recipe.antiAnchoringDirection,
         mutablePrompt,
-        "The image must feel like luxury candy packaging meets a premium poster.",
+        "The image must feel like KandyDrops luxury candy packaging meets a premium poster, but the edible or flavor subject must come only from the current title.",
         options?.referenceGuided
-            ? "Keep the result aligned to the reference image typography layout, title hierarchy, and candy-poster presentation while still making this specific flavor clearly distinct."
+            ? "Match the reference layout closely; do not borrow the reference flavor, colorway, ingredients, garnish, candy pieces, or props."
             : "",
         "Use depth, gloss, tactile lighting, and a flavor-led visual identity.",
         `Render the main title "${title}" clearly and legibly in the cover.`,
         creatorName ? "Keep the creator-name treatment smaller than the main title and visually separate from it." : "",
         "Keep the hero subject, title treatment, and lower ribbon treatment easy to distinguish at a glance.",
-        "Do not crop the hero subject awkwardly. Avoid logos, watermarks, UI, split panels, collage grids, busy backgrounds, extra props, or generic stock-photo composition.",
+        "Do not crop the hero subject awkwardly. Avoid logos, watermarks, UI, split panels, collage grids, busy backgrounds, extra props, copied reference ingredients, or generic stock-photo composition.",
         "Return a complete 1:1 square cover composition.",
     ].filter((line) => line.length > 0).join(" ");
 }
@@ -1181,7 +1176,7 @@ export function getAdminAiDropCoverGenerationMode(input: Pick<AdminAiDropCoverSe
 export function getAdminAiDropCoverMaxReferenceInputs(model = ADMIN_AI_DROP_COVER_MODEL) {
     return getAdminAiDropCoverModelOption(model)?.maxReferenceInputs
         ?? getAdminAiDropCoverModelOption(ADMIN_AI_DROP_COVER_MODEL)?.maxReferenceInputs
-        ?? 6;
+        ?? ADMIN_AI_DROP_COVER_LAYOUT_REFERENCE_LIMIT;
 }
 
 export function getDefaultAdminAiDropCoverSettings(): AdminAiDropCoverSettings {

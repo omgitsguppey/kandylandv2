@@ -24,6 +24,35 @@ This file is not a changelog. It is the concise ledger for durable decisions tha
 
 ## Decision Entries
 
+### 1av. Chat routes own viewport height and compact inbox scrolling
+
+- Approximate date: Recorded explicitly on 2026-04-28 from the Doctrine Audit, Chat Mobile Scroll, and Mobile UI Runtime Guarding pass
+- Status: Active mobile UI/runtime rule
+- Problem/context: The compact chat inbox/search state could grow taller than the visible app area before a thread was opened, while the selected-thread message view stayed correct because it already used a bounded internal scroll owner.
+- Decision made: `/dashboard/chat` must bound `main` to `100dvh`, keep document/body/main overflow locked for the route, and give the compact thread list exactly one nested `overflow-y-auto` owner. Compact input recovery must treat the chat route scroll lock as expected, not as a stale lock to clear.
+- What became canonical:
+  - `src/components/Chat/ChatRouteShell.tsx` owns route-level height/overflow locking and restoration.
+  - `src/components/Chat/ChatExperience.tsx` owns compact inbox/list refs, bounded class contracts, and runtime layout diagnostics through `reportClientIssue`.
+  - `src/lib/self-healing.ts` supports expected route-owned scroll locks through `isDocumentScrollLockExpected`.
+  - `scripts/check-mobile-ui-doctrine.ts` blocks regressions and is part of `npm run check:ui:runtime`.
+- Consequence for future work:
+  - Do not add `h-screen`, `min-h-screen`, or raw `100vh` to chat inbox/list surfaces.
+  - Do not clear chat-route document/main scroll locks from compact recovery code.
+  - Any mobile fixed-shell surface with top/bottom chrome must name its scroll owner and make overflow diagnostics visible.
+
+### 1aw. Firebase Admin bootstrap must not import Firestore-backed diagnostics
+
+- Approximate date: Recorded explicitly on 2026-04-28 from the Doctrine Audit, Chat Mobile Scroll, and Mobile UI Runtime Guarding pass
+- Status: Active server dependency rule
+- Problem/context: `src/lib/server/firebase-admin.ts` imported route diagnostics while Firebase Admin was still initializing. Route diagnostics can reach Firestore-backed diagnostic writers, which import Firebase Admin, forming a dependency cycle and making bootstrap failure reporting recursively dependent on the failing bootstrap path.
+- Decision made: Firebase Admin initialization failures must use direct bootstrap logging at that layer. Firestore-backed diagnostics are valid only after Admin initialization succeeds.
+- What became canonical:
+  - `src/lib/server/firebase-admin.ts` logs initialization failures directly with the `[firebase-admin-init]` label and rethrows.
+  - `npm run check:continuity` and `npm run check:cycles` must remain clean after server diagnostic changes.
+- Consequence for future work:
+  - Do not import `route-diagnostics`, `server-diagnostics`, or other Firestore-backed writers into Firebase Admin bootstrap code.
+  - If bootstrap diagnostics need durable storage later, write them through an external sink that does not depend on the Admin SDK instance being initialized.
+
 ### 1au. Homepage hydration work must be idle-aware, abortable, and guard-backed
 
 - Approximate date: Recorded explicitly on 2026-04-28 from the Homepage Performance and Hydration Hardening pass

@@ -1,6 +1,6 @@
 import "server-only";
 
-import { VertexAI } from "@google-cloud/vertexai";
+import { GoogleAuth } from "google-auth-library";
 
 import {
     ADMIN_AI_DROP_DESCRIPTION_DEFAULT_LOCATION,
@@ -45,6 +45,7 @@ import { recordRouteWarning } from "@/lib/server/route-diagnostics";
 import { recordServerDiagnostic } from "@/lib/server/server-diagnostics";
 
 const DEFAULT_VERTEX_LOCATION = ADMIN_AI_DROP_DESCRIPTION_DEFAULT_LOCATION;
+const VERTEX_SCOPE = "https://www.googleapis.com/auth/cloud-platform";
 const RECENT_JOB_LIMIT = 18;
 const PROMPT_POLICY_HISTORY_LIMIT = 20;
 const REVIEW_GALLERY_LIMIT = 24;
@@ -60,6 +61,8 @@ type AdminAiDropDescriptionRuntime = {
 type AdminAiDropDescriptionRuntimeSnapshot = {
     settings: AdminAiDropDescriptionSettings;
     runtime: AdminAiDropDescriptionRuntime;
+    authReady: boolean;
+    authError: unknown;
 };
 
 type GenerateTextInput = {
@@ -73,6 +76,23 @@ type GenerateTextResult = {
     text: string;
     usageMetadata: AdminAiDropDescriptionUsageMetadata | null;
     resolvedModel: string | null;
+};
+
+type GeminiTextPart = {
+    text?: string;
+};
+
+type GeminiGenerateContentResponse = {
+    candidates?: Array<{
+        content?: {
+            parts?: GeminiTextPart[];
+        };
+    }>;
+    usageMetadata?: AdminAiDropDescriptionUsageMetadata;
+    modelVersion?: string;
+    error?: {
+        message?: string;
+    };
 };
 
 type SummaryDelta = Partial<{
@@ -263,27 +283,50 @@ function resolveRuntime(configuredModel?: string) {
 }
 
 async function generateText(input: GenerateTextInput): Promise<GenerateTextResult> {
-    const vertex = new VertexAI({
-        project: input.project,
-        location: input.location,
+    const auth = new GoogleAuth({
+        scopes: [VERTEX_SCOPE],
+        projectId: input.project || undefined,
     });
-    const model = vertex.getGenerativeModel({
-        model: input.model,
-        generationConfig: {
-            temperature: 0.6,
-            topP: 0.9,
-            maxOutputTokens: 220,
-        },
-    });
+    const client = await auth.getClient();
+    const accessTokenResult = await client.getAccessToken();
+    const accessToken = typeof accessTokenResult === "string"
+        ? accessTokenResult
+        : accessTokenResult?.token || "";
 
-    const result = await model.generateContent({
-        contents: [{ role: "user", parts: [{ text: input.prompt }] }],
+    if (!accessToken) {
+        throw new Error("Could not load the default credentials.");
+    }
+
+    const hostname = input.location === "global"
+        ? "aiplatform.googleapis.com"
+        : `${input.location}-aiplatform.googleapis.com`;
+    const endpoint = `https://${hostname}/v1/projects/${input.project}/locations/${input.location}/publishers/google/models/${input.model}:generateContent`;
+    const response = await fetch(endpoint, {
+        method: "POST",
+        headers: {
+            Authorization: `Bearer ${accessToken}`,
+            "Content-Type": "application/json; charset=utf-8",
+        },
+        body: JSON.stringify({
+            contents: {
+                role: "USER",
+                parts: [{ text: input.prompt }],
+            },
+            generationConfig: {
+                temperature: 0.6,
+                topP: 0.9,
+                maxOutputTokens: 220,
+                responseModalities: ["TEXT"],
+            },
+        }),
+    }).then(async (result) => {
+        const json = await result.json().catch(() => null) as GeminiGenerateContentResponse | null;
+        if (!result.ok) {
+            throw new Error(json?.error?.message || `Vertex text generation failed with status ${result.status}`);
+        }
+        return json;
     });
-    const response = result.response as unknown as {
-        usageMetadata?: AdminAiDropDescriptionUsageMetadata;
-        modelVersion?: string;
-    };
-    const text = extractResponseText(result.response);
+    const text = extractResponseText(response);
 
     if (!text) {
         throw new Error("Vertex AI returned an empty description response.");
@@ -298,9 +341,30 @@ async function generateText(input: GenerateTextInput): Promise<GenerateTextResul
 
 async function getSettingsSnapshot(): Promise<AdminAiDropDescriptionRuntimeSnapshot> {
     const settings = await getAdminAiDropDescriptionSettings();
+    const runtime = resolveRuntime(settings.model);
+    let authReady = false;
+    let authError: unknown = null;
+    if (runtime.project) {
+        try {
+            const auth = new GoogleAuth({
+                scopes: [VERTEX_SCOPE],
+                projectId: runtime.project,
+            });
+            const client = await auth.getClient();
+            const accessTokenResult = await client.getAccessToken();
+            const accessToken = typeof accessTokenResult === "string"
+                ? accessTokenResult
+                : accessTokenResult?.token || "";
+            authReady = accessToken.length > 0;
+        } catch (error) {
+            authError = error;
+        }
+    }
     return {
         settings,
-        runtime: resolveRuntime(settings.model),
+        runtime,
+        authReady,
+        authError,
     };
 }
 
@@ -344,6 +408,11 @@ function buildRuntimeStatus(snapshot: AdminAiDropDescriptionRuntimeSnapshot) {
     } else if (!snapshot.runtime.project) {
         status = "missing_project";
         note = "AI description generation is missing a Google Cloud project.";
+    } else if (!snapshot.authReady) {
+        status = "auth_missing";
+        note = summarizeAvailabilityIssue(snapshot.authError || new Error("Description Vertex credentials are unavailable."));
+    } else {
+        note = `Credential and model checks passed for ${snapshot.runtime.model} in ${snapshot.runtime.location}. Final access is proven by a successful description generation.`;
     }
 
     return adminAiDropDescriptionRuntimeSchema.parse({

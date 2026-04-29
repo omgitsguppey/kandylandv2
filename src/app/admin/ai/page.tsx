@@ -1,7 +1,7 @@
 "use client";
 
-import React from "react";
-import { Power } from "lucide-react";
+import React, { useMemo, useState } from "react";
+import { Activity, ClipboardList, History, Power, SlidersHorizontal, WandSparkles } from "lucide-react";
 import { AdminPageHeader } from "@/components/Admin/AdminPageHeader";
 import { AdminModuleVerificationCard } from "@/components/Admin/AdminModuleVerificationCard";
 import { AdminAiDescriptionOperations } from "@/components/Admin/AdminAiDescriptionOperations";
@@ -17,9 +17,24 @@ import { AdminAiReviewgallerySection } from "./components/AdminAiReviewgallerySe
 import { AdminAiOptimizerhealthSection } from "./components/AdminAiOptimizerhealthSection";
 import { AdminAiDiagnosticsSection } from "./components/AdminAiDiagnosticsSection";
 
+type AdminAiTaskTab = "generate" | "prompt" | "references" | "history" | "diagnostics";
+
+const ADMIN_AI_TASK_TABS: Array<{ id: AdminAiTaskTab; label: string; icon: React.ComponentType<{ className?: string }> }> = [
+    { id: "generate", label: "Generate", icon: WandSparkles },
+    { id: "prompt", label: "Prompt", icon: SlidersHorizontal },
+    { id: "references", label: "References", icon: ClipboardList },
+    { id: "history", label: "History", icon: History },
+    { id: "diagnostics", label: "Diagnostics", icon: Activity },
+];
+
 export default function AIAdminPage() {
     const fullState = useAdminAiState();
     const { libraryInputRef, primaryInputRef, ...state } = fullState;
+    const [activeTab, setActiveTab] = useState<AdminAiTaskTab>("generate");
+    const activeTabMeta = useMemo(
+        () => ADMIN_AI_TASK_TABS.find((tab) => tab.id === activeTab) || ADMIN_AI_TASK_TABS[0],
+        [activeTab],
+    );
 
     return (
         <div className="min-h-screen overflow-x-clip bg-black px-4 pb-[calc(2rem+env(safe-area-inset-bottom))] pt-4 sm:px-6 lg:px-8">
@@ -60,6 +75,27 @@ export default function AIAdminPage() {
                         </>
                     )}
                 />
+
+                <nav className="sticky top-[calc(env(safe-area-inset-top)+0.5rem)] z-20 -mx-1 overflow-x-auto border-b border-white/10 bg-black/90 px-1 py-2 backdrop-blur md:static md:mx-0 md:rounded-[1rem] md:border md:bg-white/[0.03]">
+                    <div className="flex min-w-max gap-1 md:min-w-0 md:flex-wrap">
+                        {ADMIN_AI_TASK_TABS.map((tab) => {
+                            const Icon = tab.icon;
+                            const isActive = activeTab === tab.id;
+                            return (
+                                <button
+                                    key={tab.id}
+                                    type="button"
+                                    onClick={() => setActiveTab(tab.id)}
+                                    aria-pressed={isActive}
+                                    className={`inline-flex min-h-10 items-center gap-2 rounded-full border px-3 text-sm font-semibold transition ${isActive ? "border-brand-purple/40 bg-brand-purple/15 text-white" : "border-white/10 bg-black/35 text-gray-300 hover:bg-white/5"}`}
+                                >
+                                    <Icon className="h-4 w-4" />
+                                    {tab.label}
+                                </button>
+                            );
+                        })}
+                    </div>
+                </nav>
 
                 {state.data?.verification ? (
                     <div className="mb-4">
@@ -106,24 +142,30 @@ export default function AIAdminPage() {
                     </div>
                 ) : null}
 
-                <div className="grid min-w-0 gap-4 xl:grid-cols-12">
-                    <div className="min-w-0 space-y-4 xl:col-span-7">
-                        <AdminAiRuntimestripSection state={fullState} />
+                <section className="min-w-0 space-y-4" aria-label={`${activeTabMeta.label} AI operations`}>
+                    {activeTab === "generate" ? (
+                        <>
+                            <AdminAiRuntimestripSection state={fullState} />
+                            <AdminAiRecentgenerationsSection state={fullState} />
+                            <AdminAiDescriptionOperations compact />
+                        </>
+                    ) : null}
+                    {activeTab === "prompt" ? (
+                        <>
+                            <AdminAiPromptworkbenchSection state={fullState} />
+                            <AdminAiOptimizerhealthSection state={fullState} />
+                        </>
+                    ) : null}
+                    {activeTab === "references" ? (
                         <AdminAiReferencelibrarySection state={fullState} />
-                        <AdminAiRecentgenerationsSection state={fullState} />
-                    </div>
-
-                    <div className="min-w-0 space-y-4 xl:col-span-5">
-                        <AdminAiPromptworkbenchSection state={fullState} />
+                    ) : null}
+                    {activeTab === "history" ? (
                         <AdminAiReviewgallerySection state={fullState} />
-                        <AdminAiOptimizerhealthSection state={fullState} />
+                    ) : null}
+                    {activeTab === "diagnostics" ? (
                         <AdminAiDiagnosticsSection state={fullState} />
-                    </div>
-                </div>
-
-                <div className="mt-4 border-t border-white/10 pt-4">
-                    <AdminAiDescriptionOperations />
-                </div>
+                    ) : null}
+                </section>
             </div>
         </div>
     );
