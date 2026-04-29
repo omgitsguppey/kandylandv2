@@ -24,6 +24,21 @@ This file is not a changelog. It is the concise ledger for durable decisions tha
 
 ## Decision Entries
 
+### 1bc. Client Firestore listeners require explicit read-only rules
+
+- Approximate date: Recorded explicitly on 2026-04-29 from the Global Client Firestore Connectivity Audit
+- Status: Active Firebase/admin hydration rule
+- Problem/context: Admin analytics, overview, drops/queue, transactions, and debug panels had client Firestore listeners or reads for collections that were denied by `firestore.rules`, so panels could fail to hydrate even when backend API routes were healthy.
+- Decision made: Every client-side Firestore collection read must have an explicit matching read-only rule, and admin dashboard collections must allow `isAdmin()` reads while keeping direct client writes denied.
+- What became canonical:
+  - `firestore.rules` grants admin read-only access to the admin UI telemetry/diagnostic/read-model collections already used by client listeners.
+  - `tests/firebase/firestore.rules.spec.ts` proves admin read success, non-admin denial, and write denial for these admin realtime lanes.
+  - `scripts/check-client-firestore-connectivity.ts` scans client Firestore usage and fails `npm run check:analytics:continuity` when a client collection lacks an explicit read-only rule.
+- Consequence for future work:
+  - Do not add `collection(db, ...)`, `doc(db, ...)`, `onSnapshot`, `getDocs`, or `getDoc` client reads without updating Firestore rules and emulator tests.
+  - Keep all direct client writes denied unless a separate security review explicitly changes that contract.
+  - For public user-facing data, prefer server readers/API routes unless an existing doctrine-backed realtime client contract exists.
+
 ### 1bb. Admin loading is a first-class truth state, not unavailable
 
 - Approximate date: Recorded explicitly on 2026-04-29 from the Admin Loading Truth and Analytics Hydration Audit

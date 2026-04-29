@@ -1,5 +1,26 @@
 # KandyDrops Core Codebase Audit & Defensive Ledger
 
+## [2026-04-29 #50] PRE/POST: Global Client Firestore Connectivity Audit
+
+Scope completed:
+- Audited the same hydration failure pattern globally after finding admin analytics realtime listeners without matching Firestore rules.
+- Static scan found 15 client Firestore collection contracts across admin analytics, admin overview, admin drops/queue, recent transactions, admin debug, moderation, privacy preflight, onboarding/auth profile, and self-owned user runtime surfaces.
+- Primary mismatches fixed: admin realtime reads for `drops`, `users`, `transactions`, `analytics_commerce_rollup`, `adminSettings`, `server_diagnostics`, `route_runtime_health`, `runtime_warning_records`, `queue_job_heartbeats`, `orchestration_repair_proposals`, and analytics realtime lanes were not consistently represented in `firestore.rules`.
+
+Findings fixed:
+- Added explicit admin read-only Firestore rules for admin UI realtime/listener collections while preserving server-only/client-denied writes.
+- Preserved self-scoped user rules for normal users and extended admin read access only where admin panels already depend on direct client reads.
+- Added Firestore emulator tests proving admin read success, non-admin denial, and direct client write denial for the newly wired admin telemetry/diagnostic collections.
+- Added `scripts/check-client-firestore-connectivity.ts` and wired it into `npm run check:analytics:continuity`, so future client Firestore listeners fail continuity checks unless a matching read-only rule exists.
+
+Verification completed:
+- `npm run check:analytics:continuity`
+- `npm run test:rules:firestore`
+- `npm run check:firebase:rules`
+- `npm run check:admin-truth`
+- `npm run typecheck -- --pretty false`
+- `git diff --check`
+
 ## [2026-04-29 #49] PRE: Admin Loading Truth and Analytics Hydration Audit
 
 Scope started:

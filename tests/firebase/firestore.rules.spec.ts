@@ -49,6 +49,44 @@ async function seedFirestore() {
         label: "Screenshot attempt",
         timestamp: 1710000000000,
       }),
+      setDoc(doc(db, "analytics_event_facts/event-1"), {
+        eventName: "home_page_viewed",
+        timestamp: 1710000000000,
+      }),
+      setDoc(doc(db, "analytics_guest_batches/batch-1"), {
+        sessionKey: "guest-1",
+        receivedAtMs: 1710000000000,
+      }),
+      setDoc(doc(db, "analytics_sessions/session-1"), {
+        sessionKey: "guest-1",
+        lastReceivedAtMs: 1710000000000,
+      }),
+      setDoc(doc(db, "analytics_watch_sessions/watch-1"), {
+        userId: "alice",
+        lastSeenAtMs: 1710000000000,
+      }),
+      setDoc(doc(db, "adminSettings/debugAssistant"), {
+        enabled: true,
+      }),
+      setDoc(doc(db, "analytics_commerce_rollup/summary"), {
+        grossRevenueUsdTotal: 12,
+      }),
+      setDoc(doc(db, "server_diagnostics/diagnostic-1"), {
+        channel: "ai",
+        createdAtMs: 1710000000000,
+      }),
+      setDoc(doc(db, "route_runtime_health/route-1"), {
+        updatedAtMs: 1710000000000,
+      }),
+      setDoc(doc(db, "runtime_warning_records/warning-1"), {
+        lastSeenAt: 1710000000000,
+      }),
+      setDoc(doc(db, "queue_job_heartbeats/job-1"), {
+        updatedAtMs: 1710000000000,
+      }),
+      setDoc(doc(db, "orchestration_repair_proposals/proposal-1"), {
+        updatedAtMs: 1710000000000,
+      }),
     ]);
   });
 }
@@ -84,6 +122,13 @@ describe("firestore.rules", () => {
     await assertFails(getDocs(query(collection(db, "drops"))));
   });
 
+  it("allows admins to read drops for admin realtime panels", async () => {
+    const db = testEnv.authenticatedContext("admin").firestore();
+
+    await assertSucceeds(getDoc(doc(db, "drops/test-drop")));
+    await assertSucceeds(getDocs(query(collection(db, "drops"))));
+  });
+
   it("blocks unauthenticated reads for users", async () => {
     const db = testEnv.unauthenticatedContext().firestore();
     await assertFails(getDoc(doc(db, "users/alice")));
@@ -99,6 +144,12 @@ describe("firestore.rules", () => {
     await assertFails(getDoc(doc(db, "users/bob")));
   });
 
+  it("allows admins to read user profiles for admin identity resolution", async () => {
+    const db = testEnv.authenticatedContext("admin").firestore();
+    await assertSucceeds(getDoc(doc(db, "users/bob")));
+    await assertSucceeds(getDocs(query(collection(db, "users"))));
+  });
+
   it("allows users to read their own transactions and notifications only", async () => {
     const db = testEnv.authenticatedContext("alice").firestore();
 
@@ -106,6 +157,13 @@ describe("firestore.rules", () => {
     await assertSucceeds(getDoc(doc(db, "notifications/notif-alice")));
     await assertFails(getDoc(doc(db, "transactions/tx-bob")));
     await assertFails(getDoc(doc(db, "notifications/notif-bob")));
+  });
+
+  it("allows admins to read transactions for admin commerce feeds", async () => {
+    const db = testEnv.authenticatedContext("admin").firestore();
+
+    await assertSucceeds(getDoc(doc(db, "transactions/tx-bob")));
+    await assertSucceeds(getDocs(query(collection(db, "transactions"))));
   });
 
   it("allows chat participants to read their thread and messages", async () => {
@@ -135,6 +193,48 @@ describe("firestore.rules", () => {
     await assertSucceeds(getDoc(doc(db, "support_threads/thread-support/support_messages/msg-support")));
   });
 
+  it("allows admins to read analytics realtime lanes in the client", async () => {
+    const db = testEnv.authenticatedContext("admin").firestore();
+
+    await assertSucceeds(getDocs(query(collection(db, "analytics_event_facts"))));
+    await assertSucceeds(getDocs(query(collection(db, "analytics_guest_batches"))));
+    await assertSucceeds(getDocs(query(collection(db, "analytics_sessions"))));
+    await assertSucceeds(getDocs(query(collection(db, "analytics_watch_sessions"))));
+  });
+
+  it("blocks non-admin analytics realtime lane reads", async () => {
+    const db = testEnv.authenticatedContext("alice").firestore();
+
+    await assertFails(getDoc(doc(db, "analytics_event_facts/event-1")));
+    await assertFails(getDocs(query(collection(db, "analytics_guest_batches"))));
+    await assertFails(getDoc(doc(db, "analytics_sessions/session-1")));
+    await assertFails(getDocs(query(collection(db, "analytics_watch_sessions"))));
+  });
+
+  it("allows admins to read admin diagnostics and rollups in realtime panels", async () => {
+    const db = testEnv.authenticatedContext("admin").firestore();
+
+    await assertSucceeds(getDoc(doc(db, "adminSettings/debugAssistant")));
+    await assertSucceeds(getDoc(doc(db, "analytics_commerce_rollup/summary")));
+    await assertSucceeds(getDocs(query(collection(db, "server_diagnostics"))));
+    await assertSucceeds(getDocs(query(collection(db, "route_runtime_health"))));
+    await assertSucceeds(getDocs(query(collection(db, "runtime_warning_records"))));
+    await assertSucceeds(getDocs(query(collection(db, "queue_job_heartbeats"))));
+    await assertSucceeds(getDocs(query(collection(db, "orchestration_repair_proposals"))));
+  });
+
+  it("blocks non-admin reads for admin diagnostics and rollups", async () => {
+    const db = testEnv.authenticatedContext("alice").firestore();
+
+    await assertFails(getDoc(doc(db, "adminSettings/debugAssistant")));
+    await assertFails(getDoc(doc(db, "analytics_commerce_rollup/summary")));
+    await assertFails(getDocs(query(collection(db, "server_diagnostics"))));
+    await assertFails(getDocs(query(collection(db, "route_runtime_health"))));
+    await assertFails(getDocs(query(collection(db, "runtime_warning_records"))));
+    await assertFails(getDocs(query(collection(db, "queue_job_heartbeats"))));
+    await assertFails(getDocs(query(collection(db, "orchestration_repair_proposals"))));
+  });
+
   it("allows users to read their own support threads", async () => {
     const db = testEnv.authenticatedContext("alice").firestore();
       
@@ -154,5 +254,8 @@ describe("firestore.rules", () => {
 
     await assertFails(setDoc(doc(db, "drops/new-drop"), { title: "Nope" }));
     await assertFails(setDoc(doc(db, "users/alice"), { displayName: "Changed" }));
+    await assertFails(setDoc(doc(db, "analytics_event_facts/event-new"), { eventName: "nope" }));
+    await assertFails(setDoc(doc(db, "adminSettings/debugAssistant"), { enabled: false }));
+    await assertFails(setDoc(doc(db, "runtime_warning_records/warning-new"), { lastSeenAt: 1710000000000 }));
   });
 });

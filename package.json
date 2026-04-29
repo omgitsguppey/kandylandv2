@@ -27,7 +27,7 @@
         "analytics:truth:rebuild": "tsx scripts/rebuild-analytics-truth.ts",
         "check:telemetry": "tsx scripts/audit-telemetry.ts && tsx scripts/check-telemetry-parity-contracts.ts",
         "check:analytics-semantics": "tsx scripts/check-analytics-semantics.ts",
-        "check:analytics:continuity": "tsx scripts/check-analytics-continuity.ts",
+        "check:analytics:continuity": "tsx scripts/check-analytics-continuity.ts && tsx scripts/check-client-firestore-connectivity.ts",
         "test:gate:parity": "tsx scripts/check-admin-parity.ts",
         "check:admin-truth": "tsx scripts/check-admin-truth-contracts.ts",
         "test:gate:fast": "npm run typecheck && npm run test:gate:parity",

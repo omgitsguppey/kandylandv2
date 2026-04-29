@@ -9,6 +9,15 @@ Scoring: all entries below are marked as included in the current validated sweep
 
 Current repo-wide state snapshot: see [FULL_SCALE_CODEBASE_AUDIT.md](/Users/uylus/OneDrive/Documents/KandyDrops_Final/FULL_SCALE_CODEBASE_AUDIT.md) for the current live baseline, verification state, and continuity rules, and see [REPO_MEMORY_LEDGER.md](/Users/uylus/OneDrive/Documents/KandyDrops_Final/REPO_MEMORY_LEDGER.md) for major architectural and workflow decisions. The detailed file/function body below remains valuable historical evidence, but it has not been fully regenerated against the current 2026-04-18 inventory review yet.
 
+## 2026-04-29 Global Client Firestore Connectivity Coverage
+
+- [x] `firestore.rules` now explicitly matches all client Firestore collection contracts discovered by the global scan.
+- [x] Admin realtime reads for `drops`, `users`, `transactions`, `analytics_event_facts`, `analytics_guest_batches`, `analytics_sessions`, `analytics_watch_sessions`, `adminSettings`, `analytics_commerce_rollup`, `server_diagnostics`, `route_runtime_health`, `runtime_warning_records`, `queue_job_heartbeats`, and `orchestration_repair_proposals` are read-only and `isAdmin()` gated.
+- [x] Existing self-scoped reads for users, transactions, notifications, and user runtime remain intact for non-admin users.
+- [x] Direct client writes remain denied for the newly wired admin telemetry/diagnostic/read-model collections.
+- [x] `tests/firebase/firestore.rules.spec.ts` covers admin success, non-admin denial, and write denial for admin realtime collections.
+- [x] `scripts/check-client-firestore-connectivity.ts` scans client Firestore usage and blocks missing rules in `npm run check:analytics:continuity`.
+
 ## 2026-04-29 Admin Loading Truth and Analytics Hydration Coverage
 
 - [x] `src/lib/admin-parity.ts` now treats `loading` as a canonical admin surface state.
