@@ -181,6 +181,7 @@ export function buildAdminPanelSystemLogs(input: {
     const routeWarnCount = routeRuntimeHealth.filter((item) => getRouteRuntimeHealthStatus(item, nowMs) === "warn").length;
     const routeStaleCount = routeRuntimeHealth.filter((item) => getRouteRuntimeHealthStatus(item, nowMs) === "stale").length;
     const routeUnobservedCount = routeRuntimeHealth.filter((item) => getRouteRuntimeHealthCoverageState(item) === "unseen").length;
+    const routeObservedWarnCount = Math.max(0, routeWarnCount - routeUnobservedCount);
     const nativeChatRouteHealth = routeRuntimeHealth.filter((item) => getRouteRuntimeHealthCluster(item.key) === "native_chat");
     const compatibilityChatRouteHealth = routeRuntimeHealth.filter((item) => getRouteRuntimeHealthCluster(item.key) === "compatibility_chat");
     const routeHealthLog = buildLog({
@@ -211,7 +212,7 @@ export function buildAdminPanelSystemLogs(input: {
             : routeFailCount > 0 || routeWarnCount > 0 || routeStaleCount > 0
                 ? `Inspect the highest-risk or never-observed routes first: ${routeRuntimeHealth.filter((item) => getRouteRuntimeHealthStatus(item, nowMs) !== "healthy").slice(0, 3).map((item) => item.title).join(", ") || "tracked route runtime"}`
                 : "No action required.",
-        signalCount: routeFailCount + routeWarnCount + routeStaleCount + routeUnobservedCount,
+        signalCount: routeFailCount + routeObservedWarnCount + routeStaleCount + routeUnobservedCount,
         signalKeys: routeRuntimeHealth.map((item) => `route_runtime_health.${item.key}`),
         observedAtMs: nowMs,
     });

@@ -45,17 +45,30 @@ describe("route runtime health", () => {
         }), BASE_NOW_MS)).toBe("fail");
     });
 
-    it("treats historical slow or client-error history as warn", () => {
+    it("treats the latest slow or client-error sample as warn", () => {
         expect(getRouteRuntimeHealthStatus(buildItem({
             clientErrorCount: 2,
-            lastResult: "success",
-            lastStatusCode: 200,
+            lastResult: "client_error",
+            lastStatusCode: 404,
+            lastClientErrorAtMs: BASE_NOW_MS - 500,
         }), BASE_NOW_MS)).toBe("warn");
         expect(getRouteRuntimeHealthStatus(buildItem({
             slowCount: 1,
+            lastLatencyMs: 900,
             lastResult: "success",
             lastStatusCode: 200,
         }), BASE_NOW_MS)).toBe("warn");
+    });
+
+    it("treats recovered historical slow or error samples as healthy", () => {
+        expect(getRouteRuntimeHealthStatus(buildItem({
+            clientErrorCount: 2,
+            slowCount: 1,
+            lastResult: "success",
+            lastStatusCode: 200,
+            lastLatencyMs: 120,
+            lastClientErrorAtMs: BASE_NOW_MS - 30_000,
+        }), BASE_NOW_MS)).toBe("healthy");
     });
 
     it("treats never-observed routes as warn so missing coverage stays visible", () => {
@@ -86,6 +99,9 @@ describe("route runtime health", () => {
                 method: "POST",
                 title: "Support ticket creation",
                 clientErrorCount: 1,
+                lastResult: "client_error",
+                lastStatusCode: 404,
+                lastClientErrorAtMs: BASE_NOW_MS - 500,
             }),
             buildItem({
                 key: "admin/ai/drop-covers/generate:POST",

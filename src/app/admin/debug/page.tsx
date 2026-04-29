@@ -247,7 +247,7 @@ export default function DebugConsole() {
             proposalCount: data?.stats?.orchestrationActionableRepairs ?? 0,
             panelWarnCount: panelLogWarnCount,
             panelFailCount: panelLogFailCount,
-            routeWarnCount: routeRuntimeHealthSummary.warn,
+            routeWarnCount: Math.max(0, routeRuntimeHealthSummary.warn - routeRuntimeHealthSummary.unobserved),
             routeFailCount: routeRuntimeHealthSummary.fail,
             routeStaleCount: routeRuntimeHealthSummary.stale,
             queueStaleCount: queueRuntimeSummary.jobHeartbeats.stale,
@@ -256,7 +256,7 @@ export default function DebugConsole() {
             isLoading: !data && isLoading,
             hasError: Boolean(error),
         }),
-        [data, error, isLoading, panelLogFailCount, panelLogWarnCount, queueRuntimeSummary.jobHeartbeats.failed, queueRuntimeSummary.jobHeartbeats.stale, queueRuntimeSummary.missingNotificationOutcomes, routeRuntimeHealthSummary.fail, routeRuntimeHealthSummary.stale, routeRuntimeHealthSummary.warn],
+        [data, error, isLoading, panelLogFailCount, panelLogWarnCount, queueRuntimeSummary.jobHeartbeats.failed, queueRuntimeSummary.jobHeartbeats.stale, queueRuntimeSummary.missingNotificationOutcomes, routeRuntimeHealthSummary.fail, routeRuntimeHealthSummary.stale, routeRuntimeHealthSummary.unobserved, routeRuntimeHealthSummary.warn],
     );
     const freshestLoadedSignalAt = useMemo(() => {
         const timestamps = [

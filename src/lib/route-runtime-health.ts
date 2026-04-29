@@ -1019,7 +1019,7 @@ export function getRouteRuntimeHealthCluster(key: RouteRuntimeHealthKey | string
 }
 
 export function getRouteRuntimeHealthStatus(
-    item: Pick<RouteRuntimeHealthItem, "updatedAtMs" | "lastResult" | "clientErrorCount" | "serverErrorCount" | "slowCount" | "lastServerErrorAtMs">,
+    item: Pick<RouteRuntimeHealthItem, "updatedAtMs" | "lastResult" | "clientErrorCount" | "serverErrorCount" | "slowCount" | "lastServerErrorAtMs" | "lastLatencyMs" | "slowThresholdMs">,
     nowMs = Date.now(),
 ): RouteRuntimeHealthStatus {
     const freshness = getRouteRuntimeHealthFreshness(item, nowMs);
@@ -1038,7 +1038,11 @@ export function getRouteRuntimeHealthStatus(
         return "fail";
     }
 
-    if (item.clientErrorCount > 0 || item.serverErrorCount > 0 || item.slowCount > 0) {
+    if (
+        item.lastResult === "client_error"
+        || item.lastResult === "server_error"
+        || (toNumber(item.lastLatencyMs) >= toNumber(item.slowThresholdMs) && toNumber(item.slowThresholdMs) > 0)
+    ) {
         return "warn";
     }
 

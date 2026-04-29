@@ -142,7 +142,10 @@ export async function listRouteRuntimeHealth(limitCount = Object.keys(ROUTE_RUNT
 
         const persistedByKey = snapshot.docs.reduce<Map<RouteRuntimeHealthKey, RouteRuntimeHealthItem>>((map, doc) => {
             const item = doc.data() as RouteRuntimeHealthItem;
-            map.set(item.key, item);
+            const existing = map.get(item.key);
+            if (!existing || toNumber(item.updatedAtMs) > toNumber(existing.updatedAtMs)) {
+                map.set(item.key, item);
+            }
             return map;
         }, new Map<RouteRuntimeHealthKey, RouteRuntimeHealthItem>());
 
