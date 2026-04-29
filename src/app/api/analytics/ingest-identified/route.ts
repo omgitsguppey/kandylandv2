@@ -1,7 +1,8 @@
 import { NextRequest, NextResponse } from "next/server";
 import { adminDb } from "@/lib/server/firebase-admin";
 import { z } from "zod";
-import { ANALYTICS_WRITE } from "@/lib/server/rate-limit";
+import { handleApiError, AuthError } from "@/lib/server/auth";
+import { ANALYTICS_WRITE, RateLimitError } from "@/lib/server/rate-limit";
 import { guardApiRequest } from "@/lib/server/request-guard";
 import { recordRouteWarning } from "@/lib/server/route-diagnostics";
 import { recordServerDiagnostic } from "@/lib/server/server-diagnostics";
@@ -198,6 +199,10 @@ async function POST_handler(request: NextRequest) {
 
         return NextResponse.json({ success: true, processed });
     } catch (error) {
+        if (error instanceof AuthError || error instanceof RateLimitError) {
+            return handleApiError(error, "Analytics.IngestIdentified.POST");
+        }
+
         const errorMessage = getAnalyticsIngestErrorMessage(error);
         await recordServerDiagnostic({
             channel: "analytics",

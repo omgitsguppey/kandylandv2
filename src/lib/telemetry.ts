@@ -5,6 +5,7 @@ import destr from "destr";
 import { buildAnalyticsSemanticParams } from "./analytics-semantics";
 import { getClientSessionId } from "./client-session";
 import { recordClientDiagnostic } from "./client-diagnostics";
+import { authFetch } from "./authFetch";
 import { canUseAnonymousAnalytics, canUseIdentifiedAnalytics, readPrivacySettingsSnapshot } from "./privacy-consent";
 import { BUILT_IN_DAILY_TASKS } from "./tasks/task-catalog";
 import type { RolloutTelemetryContext } from "./rollouts";
@@ -301,25 +302,13 @@ async function flushQueuedTelemetry(reason: "scheduled" | "immediate" | "pagehid
 
     telemetryFlushInFlight = (async () => {
         try {
-            if ((reason === "pagehide" || reason === "visibility") && typeof navigator !== "undefined" && navigator.sendBeacon) {
-                // Use sendBeacon for unload events to ensure 100% accuracy during tab closure
-                const beaconPayload = new Blob([JSON.stringify({ events: batch })], { type: "application/json" });
-                const endpoint = "/api/analytics/ingest-identified";
-                const success = navigator.sendBeacon(endpoint, beaconPayload);
-                if (!success) {
-                   throw new Error("sendBeacon returned false");
-                }
-            } else {
-                const endpoint = "/api/analytics/ingest-identified";
-                const response = await fetch(endpoint, {
-                    method: "POST",
-                    headers: { "Content-Type": "application/json" },
-                    body: JSON.stringify({ events: batch }),
-                    keepalive: true,
-                });
-                if (!response.ok) {
-                    throw new Error(`fetch failed with status ${response.status}`);
-                }
+            const response = await authFetch("/api/analytics/ingest-identified", {
+                method: "POST",
+                body: JSON.stringify({ events: batch }),
+                keepalive: reason === "pagehide" || reason === "visibility",
+            });
+            if (!response.ok) {
+                throw new Error(`fetch failed with status ${response.status}`);
             }
         } catch (error) {
             telemetryQueue = [...batch, ...telemetryQueue].slice(-50);

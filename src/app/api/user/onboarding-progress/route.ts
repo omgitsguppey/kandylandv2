@@ -2,7 +2,7 @@ import { NextRequest, NextResponse } from "next/server";
 
 import { adminDb } from "@/lib/server/firebase-admin";
 import { handleApiError } from "@/lib/server/auth";
-import { STRICT } from "@/lib/server/rate-limit";
+import { RELAXED } from "@/lib/server/rate-limit";
 import { guardApiRequest } from "@/lib/server/request-guard";
 import {
     buildOnboardingAnalyticsEventFact,
@@ -32,7 +32,7 @@ async function POST_handler(request: NextRequest) {
     try {
         const caller = await guardApiRequest(request, {
             routeName: "user/onboarding-progress",
-            rateLimit: STRICT,
+            rateLimit: RELAXED,
             requireTrustedOrigin: true,
             auth: "user",
             scopeToCaller: true,

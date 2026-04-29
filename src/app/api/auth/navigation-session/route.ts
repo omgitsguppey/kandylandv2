@@ -40,7 +40,7 @@ async function POST_handler(request: NextRequest) {
     if (!cookieValue) {
       await recordServerDiagnostic({
         channel: "auth",
-        severity: "error",
+        severity: "warn",
         message: "Navigation session signing unavailable",
         detail: {
           route: "auth/navigation-session",
@@ -49,7 +49,11 @@ async function POST_handler(request: NextRequest) {
           state: creatorNavigationState ?? "default",
         },
       });
-      return NextResponse.json({ error: "Navigation session unavailable" }, { status: 503 });
+      return NextResponse.json({
+        success: false,
+        sourceState: "unavailable",
+        reason: "navigation_session_signing_unavailable",
+      });
     }
 
     const response = NextResponse.json({ success: true, role, state: creatorNavigationState ?? "default" });
