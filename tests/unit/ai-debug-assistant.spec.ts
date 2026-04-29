@@ -18,6 +18,7 @@ import {
     buildAdminAiDebugPrompt,
     buildAdminAiDebugSignalInput,
     generateAdminAiDebugSummary,
+    resolveAdminAiDebugVertexRuntime,
 } from "@/lib/server/ai-debug-assistant";
 
 function createSignal(overrides?: Partial<AdminAiDebugSignalInput>) : AdminAiDebugSignalInput {
@@ -59,6 +60,7 @@ function createSignal(overrides?: Partial<AdminAiDebugSignalInput>) : AdminAiDeb
 
 describe("admin AI debug assistant", () => {
     beforeEach(() => {
+        vi.unstubAllEnvs();
         vi.clearAllMocks();
     });
 
@@ -88,6 +90,17 @@ describe("admin AI debug assistant", () => {
         expect(result.prompt_version).toBe(AI_DEBUG_ASSISTANT_PROMPT_VERSION);
         expect(result.availability_note).toContain("disabled in admin settings");
         expect(result.likely_root_causes.length).toBeGreaterThan(0);
+    });
+
+    it("uses the configured model location when Vertex location env vars are absent", () => {
+        vi.stubEnv("VERTEX_AI_LOCATION", "");
+        vi.stubEnv("GOOGLE_CLOUD_LOCATION", "");
+        vi.stubEnv("GCLOUD_LOCATION", "");
+
+        expect(resolveAdminAiDebugVertexRuntime(AI_DEBUG_ASSISTANT_MODEL)).toMatchObject({
+            model: AI_DEBUG_ASSISTANT_MODEL,
+            location: "global",
+        });
     });
 
     it("returns a live structured summary when the model responds with valid JSON", async () => {

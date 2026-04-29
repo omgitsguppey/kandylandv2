@@ -10,6 +10,7 @@ import {
     type AdminAiDebugSignalInput,
     type AdminAiDebugSummary,
 } from "@/lib/ai-debug-assistant";
+import { getAdminAiModelDefinitionByAlias } from "@/lib/admin-ai-models";
 import type { AdminOpsHealth } from "@/lib/admin-ops-health";
 import { FIREBASE_PROJECT_ID } from "@/lib/firebase-runtime";
 import {
@@ -126,6 +127,8 @@ export function isAdminAiDebugAssistantEnabled(settings?: Pick<AdminAiDebugAssis
 }
 
 export function resolveAdminAiDebugVertexRuntime(configuredModel?: string) {
+    const model = configuredModel?.trim() || AI_DEBUG_ASSISTANT_MODEL;
+    const modelDefinition = getAdminAiModelDefinitionByAlias(model);
     const project = (
         process.env.GOOGLE_CLOUD_PROJECT
         || process.env.GCLOUD_PROJECT
@@ -138,13 +141,14 @@ export function resolveAdminAiDebugVertexRuntime(configuredModel?: string) {
         process.env.VERTEX_AI_LOCATION
         || process.env.GOOGLE_CLOUD_LOCATION
         || process.env.GCLOUD_LOCATION
+        || modelDefinition?.location
         || DEFAULT_VERTEX_LOCATION
     ).trim();
 
     return {
         project,
         location: location || DEFAULT_VERTEX_LOCATION,
-        model: configuredModel?.trim() || AI_DEBUG_ASSISTANT_MODEL,
+        model,
     };
 }
 

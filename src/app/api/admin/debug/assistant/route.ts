@@ -14,8 +14,7 @@ import {
 import { ORCHESTRATION_COLLECTIONS } from "@/lib/orchestration/contract";
 import { ADMIN_DEBUG_ASSISTANT } from "@/lib/server/rate-limit";
 import { guardApiRequest } from "@/lib/server/request-guard";
-import { getErrorMessage } from "@/lib/server/route-diagnostics";
-import { recordRouteRuntimeSample, withRouteRuntimeHealth } from "@/lib/server/route-runtime-health";
+import { withRouteRuntimeHealth } from "@/lib/server/route-runtime-health";
 import { CREATOR_ONBOARDING_COLLECTION, CREATOR_REVIEW_QUEUE_COLLECTION } from "@/lib/server/creator-onboarding";
 import { getCSTDateKey } from "@/lib/timezone";
 
@@ -25,17 +24,6 @@ export const dynamic = "force-dynamic";
 export const revalidate = 0;
 
 async function GET_handler(request: NextRequest) {
-    const startedAt = Date.now();
-    const finalize = (response: NextResponse, error?: unknown) => {
-        void recordRouteRuntimeSample({
-            key: "admin/debug/assistant:GET",
-            durationMs: Date.now() - startedAt,
-            statusCode: response.status,
-            errorMessage: error ? getErrorMessage(error) : null,
-        });
-        return response;
-    };
-
     try {
         await guardApiRequest(request, {
             routeName: "admin/debug/assistant",
@@ -148,29 +136,18 @@ async function GET_handler(request: NextRequest) {
             settings,
         });
 
-        return finalize(NextResponse.json(summary, {
+        return NextResponse.json(summary, {
             status: 200,
             headers: {
                 "Cache-Control": "no-store, max-age=0",
             },
-        }));
+        });
     } catch (error) {
-        return finalize(handleApiError(error, "admin/debug/assistant"), error);
+        return handleApiError(error, "admin/debug/assistant");
     }
 }
 
 async function PUT_handler(request: NextRequest) {
-    const startedAt = Date.now();
-    const finalize = (response: NextResponse, error?: unknown) => {
-        void recordRouteRuntimeSample({
-            key: "admin/debug/assistant:PUT",
-            durationMs: Date.now() - startedAt,
-            statusCode: response.status,
-            errorMessage: error ? getErrorMessage(error) : null,
-        });
-        return response;
-    };
-
     try {
         const caller = await guardApiRequest(request, {
             routeName: "admin/debug/assistant",
@@ -180,7 +157,7 @@ async function PUT_handler(request: NextRequest) {
             scopeToCaller: true,
         });
         if (!caller) {
-            return finalize(NextResponse.json({ error: "Unauthorized" }, { status: 401 }));
+            return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
         }
 
         const body = await request.json() as {
@@ -201,7 +178,7 @@ async function PUT_handler(request: NextRequest) {
         }
 
         if (updates.enabled === undefined && !updates.model) {
-            return finalize(NextResponse.json({ error: "Missing AI debug assistant update fields" }, { status: 400 }));
+            return NextResponse.json({ error: "Missing AI debug assistant update fields" }, { status: 400 });
         }
 
         const settings = await saveAdminAiDebugAssistantSettings({
@@ -211,12 +188,12 @@ async function PUT_handler(request: NextRequest) {
             actorEmail: caller.email,
         });
 
-        return finalize(NextResponse.json({
+        return NextResponse.json({
             success: true,
             settings,
-        }));
+        });
     } catch (error) {
-        return finalize(handleApiError(error, "admin/debug/assistant"), error);
+        return handleApiError(error, "admin/debug/assistant");
     }
 }
 

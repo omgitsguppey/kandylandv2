@@ -976,6 +976,7 @@ export async function GET(request: NextRequest) {
             creatorSpendViolationsLast7d: creatorSpendParity.restrictedSpendViolationCount,
             opsHealth,
             orchestration: orchestration.summary,
+            routeRuntimeHealth,
                     });
         await syncAdminPanelSystemLogs(panelSystemLogs);
 

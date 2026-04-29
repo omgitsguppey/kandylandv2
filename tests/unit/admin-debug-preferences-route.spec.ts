@@ -35,6 +35,7 @@ vi.mock("@/lib/server/rate-limit", () => ({
 }));
 vi.mock("@/lib/server/route-runtime-health", () => ({
     recordRouteRuntimeSample: mockState.recordRouteRuntimeSample,
+    withRouteRuntimeHealth: (_key: string, handler: unknown) => handler,
 }));
 vi.mock("@/lib/server/route-diagnostics", () => ({
     getErrorMessage: mockState.getErrorMessage,

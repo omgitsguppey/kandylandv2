@@ -13,6 +13,10 @@ import { buildAdminModuleVerification, coerceAdminSurfaceState, type AdminSurfac
 
 export const ROUTE_RUNTIME_HEALTH_COLLECTION = "route_runtime_health";
 
+function toRouteRuntimeHealthDocId(key: RouteRuntimeHealthKey) {
+    return encodeURIComponent(key);
+}
+
 function toNumber(value: unknown) {
     return typeof value === "number" && Number.isFinite(value) ? value : 0;
 }
@@ -77,7 +81,7 @@ export async function recordRouteRuntimeSample(input: {
     const isSlow = durationMs >= target.slowThresholdMs;
 
     try {
-        const ref = adminDb.collection(ROUTE_RUNTIME_HEALTH_COLLECTION).doc(input.key);
+        const ref = adminDb.collection(ROUTE_RUNTIME_HEALTH_COLLECTION).doc(toRouteRuntimeHealthDocId(input.key));
         await adminDb.runTransaction(async (transaction) => {
             const snapshot = await transaction.get(ref);
             const existing = snapshot.exists ? snapshot.data() as Partial<RouteRuntimeHealthItem> : {};

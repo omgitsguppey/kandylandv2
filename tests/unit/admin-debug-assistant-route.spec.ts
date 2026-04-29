@@ -103,6 +103,7 @@ vi.mock("@/lib/server/ai-debug-assistant", () => ({
 }));
 vi.mock("@/lib/server/route-runtime-health", () => ({
     recordRouteRuntimeSample: mockState.recordRouteRuntimeSample,
+    withRouteRuntimeHealth: (_key: string, handler: unknown) => handler,
 }));
 
 import { GET, dynamic, revalidate } from "@/app/api/admin/debug/assistant/route";
