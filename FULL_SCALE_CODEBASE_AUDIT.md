@@ -1,5 +1,30 @@
 # KandyDrops Core Codebase Audit & Defensive Ledger
 
+## [2026-04-29 #52] PRE/POST: Admin Debug Task Refresh Truth Fix
+
+Scope completed:
+- Investigated the Admin Debug “Task-issue users” card showing `[loading]` while also displaying a concrete count and “sampled refresh warnings.”
+- Root cause 1: shared debug `StatCard` defaulted omitted truth states to `loading`, so loaded debug metrics could still render a loading badge.
+- Root cause 2: task refresh audit paths accepted only plain numeric `nextRefreshMs`/`lastResetMs`; Firestore Timestamp-shaped task metadata could be counted as invalid even when the underlying refresh window was valid.
+
+Findings fixed:
+- Added `src/lib/tasks/task-timestamps.ts` as the shared timestamp reader and refresh-metadata classifier for daily task state.
+- Updated server task rotation/reminder normalization and user profile normalization to accept numeric, string, Date, and Firestore Timestamp-shaped task refresh values.
+- Updated `/api/admin/debug` to report exact refresh issue codes instead of a generic refresh warning.
+- Required every debug `StatCard` to provide an explicit `truthState`; the “Task-issue users” card now shows loading only before data exists, degraded when real task/refresh issues exist, live when clean, and failed on route failure.
+- Hardened `scripts/check-admin-truth-contracts.ts` to fail debug stat cards that omit `truthState` or try to default loaded metrics to loading.
+- Added unit coverage for task timestamp normalization and true invalid refresh states.
+
+Verification completed:
+- `npx vitest run tests/unit/task-timestamps.spec.ts tests/unit/task-observability.spec.ts`
+- `npm run typecheck -- --pretty false`
+- `npm run check:admin-truth`
+- `npm run check:telemetry`
+- `npm run check:ui:coverage`
+- `npm run check:ui:runtime`
+- `npm run check:ui:audits`
+- `git diff --check`
+
 ## [2026-04-29 #51] PRE/POST: Admin Analytics Realtime Fallback Root-Cause Fix
 
 Scope completed:

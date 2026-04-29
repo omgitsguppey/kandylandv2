@@ -24,6 +24,34 @@ This file is not a changelog. It is the concise ledger for durable decisions tha
 
 ## Decision Entries
 
+### 1bf. Debug stat cards must declare loaded truth states explicitly
+
+- Approximate date: Recorded explicitly on 2026-04-29 from the Admin Debug Task Refresh Truth Fix
+- Status: Active admin truth UI rule
+- Problem/context: Admin Debug stat cards could display concrete metric values while still showing `[loading]` because `StatCard` defaulted missing `truthState` props to loading.
+- Decision made: Debug stat cards must pass an explicit `AdminSurfaceState`; loading is valid only while the source request is still in flight.
+- What became canonical:
+  - `src/app/admin/debug/components/DebugPrimitives.tsx` requires `truthState` for `StatCard`.
+  - `src/app/admin/debug/page.tsx`, `DebugAdvancedBehavior.tsx`, and `DebugAdvancedTruth.tsx` declare loaded, degraded, failed, or unavailable states per metric.
+  - `scripts/check-admin-truth-contracts.ts` blocks debug `StatCard` usages without explicit truth states and blocks reintroducing a loading default.
+- Consequence for future work:
+  - Do not rely on component defaults for admin truth badges when a metric is loaded.
+  - If a debug metric has a number, its badge must describe the metric source state, not the component lifecycle.
+
+### 1bg. Daily task refresh timestamps use a shared timestamp reader
+
+- Approximate date: Recorded explicitly on 2026-04-29 from the Admin Debug Task Refresh Truth Fix
+- Status: Active daily task telemetry/debug rule
+- Problem/context: Task refresh audits and some profile normalization paths treated only plain numbers as valid refresh timestamps, so Firestore Timestamp-shaped `nextRefreshMs` and `lastResetMs` values could be flagged as sampled refresh warnings.
+- Decision made: Daily task refresh metadata must be normalized through `readTaskTimestampMs` before validation or comparison.
+- What became canonical:
+  - `src/lib/tasks/task-timestamps.ts` handles number, numeric string, Date, Firestore Admin/client `toMillis()`, and seconds/nanoseconds timestamp shapes.
+  - `src/lib/server/daily-tasks.ts`, `src/lib/user-utils.ts`, and `/api/admin/debug` use the shared reader for daily task refresh metadata.
+  - `/api/admin/debug` emits exact refresh issue codes so real task state problems remain visible.
+- Consequence for future work:
+  - Do not use `Number(...)` or `Number.isFinite(...)` directly on daily task timestamp fields.
+  - Refresh warnings must distinguish malformed data from valid Firestore timestamp shapes.
+
 ### 1be. Historical guest/public analytics must prefer first-party rollups before GA estimation
 
 - Approximate date: Recorded explicitly on 2026-04-29 from the Admin Analytics Realtime Fallback Root-Cause Fix

@@ -65,9 +65,21 @@ for (const file of uiFiles) {
 
   if (
     rel.endsWith(join("src", "app", "admin", "debug", "components", "DebugPrimitives.tsx")) &&
-    (!source.includes("AdminStatusBadge") || !source.includes("truthState?: AdminSurfaceState"))
+    (!source.includes("AdminStatusBadge") || !source.includes("truthState: AdminSurfaceState"))
   ) {
     failures.push(`${rel}: debug primitives must expose AdminStatusBadge-backed truthState props`);
+  }
+
+  if (
+    rel.endsWith(join("src", "app", "admin", "debug", "components", "DebugPrimitives.tsx")) &&
+    /function\s+StatCard\([\s\S]*?truthState\s*=\s*"loading"/.test(source)
+  ) {
+    failures.push(`${rel}: StatCard must not default loaded debug metrics to loading`);
+  }
+
+  const statCardMatches = source.match(/<StatCard\b(?![^>]*truthState=)/g) ?? [];
+  if (statCardMatches.length > 0) {
+    failures.push(`${rel}: ${statCardMatches.length} StatCard usage(s) missing explicit truthState`);
   }
 }
 

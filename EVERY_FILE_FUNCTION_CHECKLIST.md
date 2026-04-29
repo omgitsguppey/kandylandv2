@@ -9,6 +9,17 @@ Scoring: all entries below are marked as included in the current validated sweep
 
 Current repo-wide state snapshot: see [FULL_SCALE_CODEBASE_AUDIT.md](/Users/uylus/OneDrive/Documents/KandyDrops_Final/FULL_SCALE_CODEBASE_AUDIT.md) for the current live baseline, verification state, and continuity rules, and see [REPO_MEMORY_LEDGER.md](/Users/uylus/OneDrive/Documents/KandyDrops_Final/REPO_MEMORY_LEDGER.md) for major architectural and workflow decisions. The detailed file/function body below remains valuable historical evidence, but it has not been fully regenerated against the current 2026-04-18 inventory review yet.
 
+## 2026-04-29 Admin Debug Task Refresh Truth Coverage
+
+- [x] `src/app/admin/debug/components/DebugPrimitives.tsx` requires explicit `truthState` on `StatCard` and no longer defaults loaded metrics to `[loading]`.
+- [x] `src/app/admin/debug/page.tsx` gives the “Task-issue users” card a source-aware truth state: loading before data, failed on route failure, degraded for real task/refresh issues, and live when clean.
+- [x] `src/app/admin/debug/components/DebugAdvancedBehavior.tsx` and `DebugAdvancedTruth.tsx` declare explicit truth states for debug metric cards.
+- [x] `src/lib/tasks/task-timestamps.ts` normalizes numeric, string, Date, and Firestore Timestamp-shaped daily task timestamps.
+- [x] `src/lib/server/daily-tasks.ts`, `src/lib/user-utils.ts`, and `src/app/api/admin/debug/route.ts` use shared task timestamp normalization.
+- [x] `/api/admin/debug` reports exact daily task refresh metadata issue codes instead of generic sampled refresh warnings.
+- [x] `scripts/check-admin-truth-contracts.ts` blocks missing debug `StatCard` truth states and loading defaults.
+- [x] `tests/unit/task-timestamps.spec.ts` verifies Firestore timestamp shapes do not create false refresh warnings while real invalid states remain visible.
+
 ## 2026-04-29 Admin Analytics Realtime Fallback Coverage
 
 - [x] `src/app/api/analytics/ingest-identified/route.ts` mirrors identified client events into `analytics_active_users`.

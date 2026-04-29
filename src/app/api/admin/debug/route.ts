@@ -54,6 +54,7 @@ import { QUEUE_RUNTIME_WARNING_CODES } from "../../../../../shared/runtime/runti
 import { getBehavioralSnapshotStatus, listDropIntelligence } from "@/lib/server/behavioral-intelligence";
 import { getAnalyticsTruthRecoverySummary, listAnalyticsTruthDrops, listAnalyticsTruthRepairs, listAnalyticsTruthUsers } from "@/lib/server/analytics-truth-recovery";
 import { buildServerAdminModuleVerification } from "@/lib/server/admin-source-verification";
+import { getDailyTaskRefreshMetadataIssue } from "@/lib/tasks/task-timestamps";
 
 const ONE_WEEK_MS = 7 * 24 * 60 * 60 * 1000;
 const TASK_AUDIT_SAMPLE_LIMIT = 2_000;
@@ -207,21 +208,6 @@ function normalizeCustomTaskDefinition(id: string, rawValue: Record<string, unkn
         } satisfies DailyTaskDefinition,
         issues,
     };
-}
-
-function hasInvalidRefreshMetadata(state: Record<string, unknown> | undefined, nowMs: number) {
-    const nextRefreshMs = toNumber(state?.nextRefreshMs);
-    const lastResetMs = toNumber(state?.lastResetMs);
-
-    if (nextRefreshMs <= 0) {
-        return true;
-    }
-
-    if (lastResetMs > nowMs) {
-        return true;
-    }
-
-    return lastResetMs > 0 && nextRefreshMs <= lastResetMs;
 }
 
 async function readInfrastructureDependencies() {
@@ -469,6 +455,9 @@ export async function GET(request: NextRequest) {
             const username = toStringValue(data.username) || toStringValue(data.displayName) || doc.id;
             const dailyTasksState = data.dailyTasksState as Record<string, unknown> | undefined;
             const tasks = normalizeTaskIds(dailyTasksState?.tasks);
+            const refreshMetadataIssue = tasks.length > 0
+                ? getDailyTaskRefreshMetadataIssue(dailyTasksState, nowMs)
+                : null;
             const issues: string[] = [];
             const ids = tasks.map((task) => task.id);
             const duplicateIds = ids.filter((id, index) => ids.indexOf(id) !== index);
@@ -488,8 +477,8 @@ export async function GET(request: NextRequest) {
             if (tasks.some((task) => task.progress > 0 && !task.assignedAt)) {
                 issues.push("Progressed task missing assignedAt");
             }
-            if (tasks.length > 0 && hasInvalidRefreshMetadata(dailyTasksState, nowMs)) {
-                issues.push("Invalid refresh metadata for assigned tasks");
+            if (refreshMetadataIssue) {
+                issues.push(`Invalid refresh metadata for assigned tasks: ${refreshMetadataIssue}`);
             }
 
             if (issues.length === 0) {
@@ -585,13 +574,18 @@ export async function GET(request: NextRequest) {
             const data = doc.data() as Record<string, unknown>;
             const username = toStringValue(data.username) || toStringValue(data.displayName) || doc.id;
             const dailyTasksState = data.dailyTasksState as Record<string, unknown> | undefined;
+            const tasks = normalizeTaskIds(dailyTasksState?.tasks);
+            const refreshMetadataIssue = tasks.length > 0
+                ? getDailyTaskRefreshMetadataIssue(dailyTasksState, nowMs)
+                : null;
             return {
                 uid: doc.id,
                 username,
-                tasks: normalizeTaskIds(dailyTasksState?.tasks),
+                tasks,
                 completedTaskHistory: normalizeHistory(dailyTasksState?.completedTaskHistory),
                 retiredTaskIds: normalizeStringArray(dailyTasksState?.retiredTaskIds),
-                hasInvalidRefreshMetadata: hasInvalidRefreshMetadata(dailyTasksState, nowMs),
+                hasInvalidRefreshMetadata: refreshMetadataIssue !== null,
+                refreshMetadataIssue: refreshMetadataIssue ?? undefined,
             };
         });
 

@@ -26,8 +26,8 @@ export function DebugAdvancedTruth({ data }: DebugAdvancedTruthProps) {
                 <div className="grid gap-4 lg:grid-cols-1">
                     <div className="space-y-3">
                         <div className="grid grid-cols-2 gap-3">
-                            <StatCard label="Normalized events" value={data?.orchestration?.summary?.eventCount ?? 0} meta="Recent derived event sample" />
-                            <StatCard label="Eval eligible" value={data?.orchestration?.summary?.trainingEligible ?? 0} meta={`${data?.orchestration?.summary?.lowConfidenceEvents ?? 0} low-confidence events`} />
+                            <StatCard label="Normalized events" value={data?.orchestration?.summary?.eventCount ?? 0} meta="Recent derived event sample" truthState={data?.orchestration ? "live" : "unavailable"} />
+                            <StatCard label="Eval eligible" value={data?.orchestration?.summary?.trainingEligible ?? 0} meta={`${data?.orchestration?.summary?.lowConfidenceEvents ?? 0} low-confidence events`} truthState={(data?.orchestration?.summary?.lowConfidenceEvents ?? 0) > 0 ? "degraded" : data?.orchestration ? "live" : "unavailable"} />
                         </div>
                         <div className="rounded-[1rem] border border-white/10 bg-white/[0.03] p-4">
                             <p className="text-[11px] uppercase tracking-[0.18em] text-gray-400">Dependency gaps</p>

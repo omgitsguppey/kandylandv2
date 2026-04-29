@@ -86,10 +86,10 @@ export function DebugAdvancedBehavior({ data }: DebugAdvancedBehaviorProps) {
                         <div className="rounded-[1rem] border border-white/10 bg-white/[0.03] p-4">
                             <p className="text-[11px] uppercase tracking-[0.18em] text-gray-400">Global truth summary</p>
                             <div className="mt-3 grid grid-cols-2 gap-3">
-                                <StatCard label="Raw views" value={data?.analyticsTruthRecovery?.global?.truthLayers?.raw?.raw_view_count ?? 0} meta="Observed viewer-open/session-start events" />
-                                <StatCard label="Validated views" value={data?.analyticsTruthRecovery?.global?.truthLayers?.validated?.deduped_view_count ?? 0} meta="Duplicate hydration/remount noise collapsed" />
-                                <StatCard label="Finalized views" value={data?.analyticsTruthRecovery?.global?.truthLayers?.finalized?.finalized_view_count ?? 0} meta="Historical reporting truth after reconciliation" />
-                                <StatCard label="Estimated ratio" value={`${Math.round(((data?.analyticsTruthRecovery?.global?.truthLayers?.estimated?.estimated_data_ratio ?? 0) as number) * 100)}%`} meta="Recovered or inferred share of finalized metrics" />
+                                <StatCard label="Raw views" value={data?.analyticsTruthRecovery?.global?.truthLayers?.raw?.raw_view_count ?? 0} meta="Observed viewer-open/session-start events" truthState={data?.analyticsTruthRecovery ? "live" : "unavailable"} />
+                                <StatCard label="Validated views" value={data?.analyticsTruthRecovery?.global?.truthLayers?.validated?.deduped_view_count ?? 0} meta="Duplicate hydration/remount noise collapsed" truthState={data?.analyticsTruthRecovery ? "live" : "unavailable"} />
+                                <StatCard label="Finalized views" value={data?.analyticsTruthRecovery?.global?.truthLayers?.finalized?.finalized_view_count ?? 0} meta="Historical reporting truth after reconciliation" truthState={data?.analyticsTruthRecovery ? "live" : "unavailable"} />
+                                <StatCard label="Estimated ratio" value={`${Math.round(((data?.analyticsTruthRecovery?.global?.truthLayers?.estimated?.estimated_data_ratio ?? 0) as number) * 100)}%`} meta="Recovered or inferred share of finalized metrics" truthState={data?.analyticsTruthRecovery?.global?.qualityLabel === "estimated" ? "fallback" : data?.analyticsTruthRecovery ? "live" : "unavailable"} />
                             </div>
                             <div className="mt-3 flex flex-wrap gap-2">
                                 <Pill label="Confidence" value={`${Math.round(((data?.analyticsTruthRecovery?.global?.confidenceScore ?? 0) as number) * 100)}%`} />

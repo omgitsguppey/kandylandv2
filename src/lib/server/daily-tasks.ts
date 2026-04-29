@@ -23,6 +23,7 @@ import {
   type DailyTasksState,
   resolveDailyTaskReward,
 } from "@/lib/tasks/task-catalog";
+import { readTaskTimestampMs } from "@/lib/tasks/task-timestamps";
 import { isDropActiveNow } from "@/lib/drop-status";
 import { getCSTDayBoundaries, isSameCSTDay } from "@/lib/timezone";
 import {
@@ -564,15 +565,13 @@ function normalizeTaskState(
     : [];
 
   return {
-    lastResetMs: Number.isFinite(currentState?.lastResetMs) ? Number(currentState?.lastResetMs) : 0,
-    nextRefreshMs: Number.isFinite(currentState?.nextRefreshMs) ? Number(currentState?.nextRefreshMs) : 0,
+    lastResetMs: readTaskTimestampMs(currentState?.lastResetMs),
+    nextRefreshMs: readTaskTimestampMs(currentState?.nextRefreshMs),
     tasks,
     retiredTaskIds: normalizeStringArray(currentState?.retiredTaskIds),
     completedTaskHistory: normalizeHistory(currentState?.completedTaskHistory),
-    lastProgressAt: Number.isFinite(currentState?.lastProgressAt) ? Number(currentState?.lastProgressAt) : 0,
-    lastDeadlineReminderAt: Number.isFinite(currentState?.lastDeadlineReminderAt)
-      ? Number(currentState?.lastDeadlineReminderAt)
-      : 0,
+    lastProgressAt: readTaskTimestampMs(currentState?.lastProgressAt),
+    lastDeadlineReminderAt: readTaskTimestampMs(currentState?.lastDeadlineReminderAt),
   };
 }
 
@@ -1347,7 +1346,7 @@ export async function syncUserTaskReminder(uid: string) {
       }
       : result.state;
 
-    if (result.rotated || shouldSendReminder || (result.state.nextRefreshMs !== (userData.dailyTasksState?.nextRefreshMs ?? 0))) {
+    if (result.rotated || shouldSendReminder || (result.state.nextRefreshMs !== readTaskTimestampMs(userData.dailyTasksState?.nextRefreshMs))) {
       transaction.update(userRef, {
         dailyTasksState: stripUndefinedDeep(nextState),
       });

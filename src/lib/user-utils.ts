@@ -1,6 +1,7 @@
 import { User } from "firebase/auth";
 import { UserProfile } from "@/types/db";
 import { BUILT_IN_DAILY_TASK_MAP, type DailyTaskAssignment } from "@/lib/tasks/task-catalog";
+import { readTaskTimestampMs } from "@/lib/tasks/task-timestamps";
 import { normalizeCreatorRestrictions, normalizeCreatorSettings } from "@/lib/creator-experiences";
 import { normalizeCreatorApplication } from "@/lib/creator-application";
 
@@ -161,10 +162,10 @@ export function normalizeUserProfile(raw: unknown, user: User): UserProfile | nu
                 : "Auto",
         },
         dailyTasksState: source.dailyTasksState ? {
-            lastResetMs: Number(source.dailyTasksState.lastResetMs) || 0,
-            nextRefreshMs: Number(source.dailyTasksState.nextRefreshMs) || 0,
-            lastProgressAt: Number(source.dailyTasksState.lastProgressAt) || 0,
-            lastDeadlineReminderAt: Number(source.dailyTasksState.lastDeadlineReminderAt) || 0,
+            lastResetMs: readTaskTimestampMs(source.dailyTasksState.lastResetMs),
+            nextRefreshMs: readTaskTimestampMs(source.dailyTasksState.nextRefreshMs),
+            lastProgressAt: readTaskTimestampMs(source.dailyTasksState.lastProgressAt),
+            lastDeadlineReminderAt: readTaskTimestampMs(source.dailyTasksState.lastDeadlineReminderAt),
             tasks: Array.isArray(source.dailyTasksState.tasks)
                 ? source.dailyTasksState.tasks.reduce<DailyTaskAssignment[]>((acc, task: any) => {
                         if (!task || typeof task !== "object") {
