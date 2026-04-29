@@ -45,8 +45,8 @@ export function AdminAnalyticsOperationsTab(props: AdminAnalyticsState) {
     liveInteractionEvents
   } = props;
 
-  const livePulseTruthState: AdminSurfaceState = liveActiveTruthState ?? (liveLoading ? "unavailable" : "failed");
-  const historicalMetricTruthState: AdminSurfaceState = historicalOverviewTruthState ?? (historicalLoading ? "unavailable" : "failed");
+  const livePulseTruthState: AdminSurfaceState = liveActiveTruthState ?? (liveLoading ? "loading" : "failed");
+  const historicalMetricTruthState: AdminSurfaceState = historicalOverviewTruthState ?? (historicalLoading ? "loading" : "failed");
   const activeUsersTruthState: AdminSurfaceState = liveResponse?.activeUsersTruthLabel
     ? coerceAdminSurfaceState(liveResponse.activeUsersTruthLabel)
     : livePulseTruthState;

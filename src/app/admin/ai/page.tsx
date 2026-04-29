@@ -31,6 +31,7 @@ export default function AIAdminPage() {
     const fullState = useAdminAiState();
     const { libraryInputRef, primaryInputRef, ...state } = fullState;
     const [activeTab, setActiveTab] = useState<AdminAiTaskTab>("generate");
+    const dashboardTruthState = state.data ? "live" : state.error ? "failed" : state.isLoading ? "loading" : "unavailable";
     const activeTabMeta = useMemo(
         () => ADMIN_AI_TASK_TABS.find((tab) => tab.id === activeTab) || ADMIN_AI_TASK_TABS[0],
         [activeTab],
@@ -112,27 +113,27 @@ export default function AIAdminPage() {
                         value={state.data?.runtime.status === "ready" ? "Ready" : state.data?.runtime.status || "Loading"}
                         meta={state.latestDiagnostic?.summary || state.data?.runtime.note || "Waiting for runtime snapshot"}
                         tone={state.data?.runtime.status === "ready" ? "good" : "warn"}
-                        truthState={state.data ? (state.data.runtime.status === "ready" ? "live" : "degraded") : state.error ? "failed" : "unavailable"}
+                        truthState={state.data ? (state.data.runtime.status === "ready" ? "live" : "degraded") : dashboardTruthState}
                     />
                     <MetricCard
                         label="Current Policy"
                         value={`v${state.data?.promptPolicy.version || 1}`}
                         meta={`${state.currentVersionAcceptanceRate}% accept rate`}
                         tone={state.currentVersionAcceptanceRate >= 50 ? "good" : "neutral"}
-                        truthState={state.data ? "live" : state.error ? "failed" : "unavailable"}
+                        truthState={dashboardTruthState}
                     />
                     <MetricCard
                         label="Reference Pool"
                         value={state.data?.visualSignals.totalReusableReferenceCount || 0}
                         meta={`${state.referencePreview.length}/${state.referenceCap} queued`}
                         tone={state.referencePreview.length > 0 ? "good" : "warn"}
-                        truthState={state.data ? "live" : state.error ? "failed" : "unavailable"}
+                        truthState={dashboardTruthState}
                     />
                     <MetricCard
                         label="Rejected Gallery"
                         value={state.data?.reviewGallery.length || 0}
                         meta={state.data?.aggregate.generationCount ? `${Math.round(((state.data.aggregate.failedGenerationCount + state.data.reviewGallery.length) / Math.max(1, state.data.aggregate.generationCount)) * 100)}% not accepted` : "No history"}
-                        truthState={state.data ? "live" : state.error ? "failed" : "unavailable"}
+                        truthState={dashboardTruthState}
                     />
                 </section>
 

@@ -24,6 +24,21 @@ This file is not a changelog. It is the concise ledger for durable decisions tha
 
 ## Decision Entries
 
+### 1bb. Admin loading is a first-class truth state, not unavailable
+
+- Approximate date: Recorded explicitly on 2026-04-29 from the Admin Loading Truth and Analytics Hydration Audit
+- Status: Active admin UI/backend analytics truth rule
+- Problem/context: Hydrating admin panels were using `[unavailable]` before the first verified snapshot arrived, making live user and analytics surfaces look unwired instead of still loading.
+- Decision made: `loading` is a canonical `AdminSurfaceState`. Admin UI must use `[loading]` for in-flight source requests and reserve `[unavailable]` for no verified source snapshot after loading has resolved.
+- What became canonical:
+  - `src/lib/admin-parity.ts` includes `loading` and coerces `waiting`, `pending`, `hydrating`, and `connecting` to it.
+  - `AdminStatusBadge` renders `[loading]`.
+  - `scripts/check-admin-truth-contracts.ts` blocks loading-to-unavailable mappings in admin UI files.
+- Consequence for future work:
+  - Do not map `isLoading`, `loading`, `hydrating`, or reconnect states to `"unavailable"`.
+  - Use `currentSource: "hydrating"` or a clear loading truth state for backend analytics debug metadata while requests are in flight.
+  - Only show `[unavailable]` when a source is not wired or no verified snapshot exists after loading completes.
+
 ### 1ba. Telemetry module indexes derive from catalog event metadata
 
 - Approximate date: Recorded explicitly on 2026-04-29 from the Telemetry Module Index Parity Audit

@@ -9,6 +9,8 @@ describe("admin parity contracts", () => {
   it("normalizes legacy admin states into the canonical status set", () => {
     expect(coerceAdminSurfaceState("realtime")).toBe("live");
     expect(coerceAdminSurfaceState("partial")).toBe("degraded");
+    expect(coerceAdminSurfaceState("connecting")).toBe("loading");
+    expect(coerceAdminSurfaceState("hydrating")).toBe("loading");
     expect(coerceAdminSurfaceState("polled")).toBe("fallback");
     expect(coerceAdminSurfaceState("unknown")).toBe("unavailable");
   });

@@ -69,7 +69,7 @@ export function resolveAdminAiDataState(input: {
 }): AdminSurfaceState {
     if (input.error) return "failed";
     if (input.data) return "live";
-    if (input.isLoading) return "unavailable";
+    if (input.isLoading) return "loading";
     return "unavailable";
 }
 
@@ -101,7 +101,7 @@ export function MetricCard({ label, value, meta, tone = "neutral", truthState }:
         <div className={cn("min-w-0 overflow-hidden rounded-[1.1rem] border p-3", toneClassName)}>
             <div className="flex items-center justify-between gap-2">
                 <p className="text-[11px] uppercase tracking-[0.18em] text-gray-400">{label}</p>
-                <AdminStatusBadge state={truthState ?? "unavailable"} className="py-0.5" />
+                <AdminStatusBadge state={truthState ?? "loading"} className="py-0.5" />
             </div>
             <div className="mt-1.5 break-words text-xl font-black text-white md:text-2xl">{value}</div>
             {meta ? <p className="mt-1 break-words text-xs text-gray-400">{meta}</p> : null}

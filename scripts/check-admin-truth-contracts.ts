@@ -34,6 +34,12 @@ for (const file of uiFiles) {
   const localTruthVocabulary = [
     /truthState=\{"cached"\}/,
     /truthState=\{"partial"\}/,
+    /loading\s*\?\s*"unavailable"/,
+    /isLoading\s*\)\s*return\s*"unavailable"/,
+    /isLoading\s*\?\s*"unavailable"/,
+    /setRealtimeState\([^)]*"unavailable"[^)]*\)/,
+    /truthState\s*=\s*"unavailable"/,
+    /return\s+"unavailable";\s*\/\/\s*default/i,
     /truthVariant:\s*"live"\s*\|\s*"cached"/,
     /type\s+\w*TruthState\s*=\s*"live_server"/,
     /TRUTH_CHIP_STYLES/,

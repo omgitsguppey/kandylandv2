@@ -13,7 +13,7 @@ function stateFromTone(tone: PillTone): AdminSurfaceState {
     if (tone === "good") return "live";
     if (tone === "warn") return "degraded";
     if (tone === "bad") return "failed";
-    return "unavailable";
+    return "loading";
 }
 
 /* ─── Pill ─── */
@@ -36,7 +36,7 @@ export function Pill({ label, value, tone = "neutral", truthState }: { label: st
 }
 
 /* ─── StatCard ─── */
-export function StatCard({ label, value, meta, truthState = "unavailable" }: { label: string; value: string | number; meta?: string; truthState?: AdminSurfaceState }) {
+export function StatCard({ label, value, meta, truthState = "loading" }: { label: string; value: string | number; meta?: string; truthState?: AdminSurfaceState }) {
     return (
         <div className="rounded-[1.1rem] border border-white/10 bg-white/[0.04] p-2.5">
             <div className="flex items-center justify-between gap-2">

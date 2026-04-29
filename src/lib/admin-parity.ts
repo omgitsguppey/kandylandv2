@@ -1,4 +1,5 @@
 export const ADMIN_SURFACE_STATES = [
+  "loading",
   "live",
   "degraded",
   "fallback",
@@ -75,7 +76,11 @@ export function coerceAdminSurfaceState(value: unknown): AdminSurfaceState {
     return value;
   }
 
-  if (value === "partial" || value === "warn" || value === "connecting") {
+  if (value === "loading" || value === "waiting" || value === "pending" || value === "hydrating" || value === "connecting") {
+    return "loading";
+  }
+
+  if (value === "partial" || value === "warn") {
     return "degraded";
   }
 
@@ -99,6 +104,7 @@ export function formatAdminSurfaceStateLabel(state: AdminSurfaceState): string {
 }
 
 export const ADMIN_SURFACE_STATE_DETAIL: Record<AdminSurfaceState, string> = {
+  loading: "Canonical source request is still hydrating.",
   live: "Canonical source is current.",
   degraded: "Canonical source is connected but incomplete.",
   fallback: "Primary source failed or is absent; secondary data is displayed.",
@@ -184,7 +190,8 @@ export function buildAdminModuleVerification(
   });
 
   const verificationState: AdminVerificationState =
-    status === "live" ? "canonical"
+    status === "loading" ? "unavailable"
+      : status === "live" ? "canonical"
       : status === "degraded" ? "degraded"
       : status === "fallback" ? "fallback"
       : status === "stale" ? "stale"

@@ -9,6 +9,19 @@ Scoring: all entries below are marked as included in the current validated sweep
 
 Current repo-wide state snapshot: see [FULL_SCALE_CODEBASE_AUDIT.md](/Users/uylus/OneDrive/Documents/KandyDrops_Final/FULL_SCALE_CODEBASE_AUDIT.md) for the current live baseline, verification state, and continuity rules, and see [REPO_MEMORY_LEDGER.md](/Users/uylus/OneDrive/Documents/KandyDrops_Final/REPO_MEMORY_LEDGER.md) for major architectural and workflow decisions. The detailed file/function body below remains valuable historical evidence, but it has not been fully regenerated against the current 2026-04-18 inventory review yet.
 
+## 2026-04-29 Admin Loading Truth and Analytics Hydration Coverage
+
+- [x] `src/lib/admin-parity.ts` now treats `loading` as a canonical admin surface state.
+- [x] `src/components/Admin/AdminStatusBadge.tsx` renders `[loading]` distinctly from `[unavailable]`.
+- [x] `src/components/Admin/AdminModuleVerificationCard.tsx` supports loading module verification state.
+- [x] `src/app/admin/page.tsx`, `src/components/Admin/AdminDropsAtGlancePanel.tsx`, `src/components/Admin/RecentTransactionsPanel.tsx`, and `src/components/Admin/AdminActivityLogPanel.tsx` no longer show unavailable while initial data is still hydrating.
+- [x] `src/app/admin/analytics/hooks/useAdminAnalyticsState.tsx` reports hydrating source metadata while live/historical analytics requests are in flight.
+- [x] `src/app/admin/analytics/components/AdminAnalyticsOperationsTab.tsx`, `AdminAnalyticsAudienceTab.tsx`, and `AdminAnalyticsCommerceTab.tsx` use loading truth states for hydrating metrics.
+- [x] `src/app/admin/users/page.tsx` uses loading state for initial live user management hydration and reconnect attempts.
+- [x] `src/app/admin/ai/AiHelpers.tsx`, `src/app/admin/ai/page.tsx`, and `src/app/admin/debug/components/DebugPrimitives.tsx` no longer default hydrating cards to unavailable.
+- [x] `scripts/check-admin-truth-contracts.ts` blocks loading-to-unavailable regressions across admin UI files.
+- [x] `tests/unit/admin-parity.spec.ts` covers loading coercion for connecting/hydrating legacy labels.
+
 ## 2026-04-29 Telemetry Module Index Parity Coverage
 
 - [x] `src/lib/telemetry-catalog.ts` now derives module index event names from `TELEMETRY_EVENT_OPTIONS.modules`.

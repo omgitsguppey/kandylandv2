@@ -16,6 +16,12 @@ import { resolveTruthChipVariant } from "@/hooks/useAdminOverviewRealtime";
 export default function AdminDashboardPage() {
     const { data, error, isLoading } = useAdminOverview();
     const issueCount = data?.issues?.length ?? 0;
+    const overviewLoadState = error ? "failed" : isLoading ? "loading" : "unavailable";
+    const overviewFallbackClassName = overviewLoadState === "failed"
+        ? "rounded-xl border border-red-400/20 bg-red-500/10 px-4 py-4 text-sm text-red-100"
+        : overviewLoadState === "loading"
+            ? "rounded-xl border border-sky-400/20 bg-sky-500/10 px-4 py-4 text-sm text-sky-100"
+            : "rounded-xl border border-slate-400/20 bg-slate-500/10 px-4 py-4 text-sm text-slate-100";
 
     /* Last server-confirmed update label.
        Uses realtimeDebugMeta.lastServerConfirmedAt when available (actual Firestore
@@ -62,9 +68,9 @@ export default function AdminDashboardPage() {
                                 truthState={truthVariant}
                             />
                         ) : (
-                            <div className="rounded-[1.35rem] border border-red-400/20 bg-red-500/10 px-4 py-4 text-sm text-red-100">
-                                <AdminStatusBadge state={error ? "failed" : "unavailable"} className="mb-2" />
-                                <div>{error?.message ?? "Overview snapshot is not available yet."}</div>
+                            <div className={overviewFallbackClassName}>
+                                <AdminStatusBadge state={overviewLoadState} className="mb-2" />
+                                <div>{error?.message ?? (isLoading ? "Loading overview snapshot." : "Overview snapshot has no verified source yet.")}</div>
                             </div>
                         )}
                     </AdminDashboardModule>
@@ -88,9 +94,9 @@ export default function AdminDashboardPage() {
                                 loading={isLoading && !data}
                             />
                         ) : (
-                            <div className="rounded-xl border border-red-400/20 bg-red-500/10 px-4 py-6 text-sm text-red-100">
-                                <AdminStatusBadge state={error ? "failed" : "unavailable"} className="mb-2" />
-                                <div>{error?.message ?? "Revenue chart source is unavailable."}</div>
+                            <div className={overviewFallbackClassName}>
+                                <AdminStatusBadge state={overviewLoadState} className="mb-2" />
+                                <div>{error?.message ?? (isLoading ? "Loading revenue chart source." : "Revenue chart source has no verified snapshot yet.")}</div>
                             </div>
                         )}
                     </AdminDashboardModule>
@@ -103,9 +109,9 @@ export default function AdminDashboardPage() {
                                 transactions={data.recentTransactions}
                             />
                         ) : (
-                            <div className="rounded-xl border border-red-400/20 bg-red-500/10 px-4 py-4 text-sm text-red-100">
-                                <AdminStatusBadge state={error ? "failed" : "unavailable"} className="mb-2" />
-                                <div>{error?.message ?? "Recent transactions source is unavailable."}</div>
+                            <div className={overviewFallbackClassName}>
+                                <AdminStatusBadge state={overviewLoadState} className="mb-2" />
+                                <div>{error?.message ?? (isLoading ? "Loading recent transactions source." : "Recent transactions source has no verified snapshot yet.")}</div>
                             </div>
                         )}
                     </AdminDashboardModule>
@@ -120,9 +126,9 @@ export default function AdminDashboardPage() {
                                 truthNote={data.truthNotes?.adminActivity}
                             />
                         ) : (
-                            <div className="rounded-xl border border-red-400/20 bg-red-500/10 px-4 py-4 text-sm text-red-100">
-                                <AdminStatusBadge state={error ? "failed" : "unavailable"} className="mb-2" />
-                                <div>{error?.message ?? "Admin activity source is unavailable."}</div>
+                            <div className={overviewFallbackClassName}>
+                                <AdminStatusBadge state={overviewLoadState} className="mb-2" />
+                                <div>{error?.message ?? (isLoading ? "Loading admin activity source." : "Admin activity source has no verified snapshot yet.")}</div>
                             </div>
                         )}
                     </AdminDashboardModule>

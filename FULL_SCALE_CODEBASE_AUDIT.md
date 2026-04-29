@@ -1,5 +1,36 @@
 # KandyDrops Core Codebase Audit & Defensive Ledger
 
+## [2026-04-29 #49] PRE: Admin Loading Truth and Analytics Hydration Audit
+
+Scope started:
+- Audit admin UI surfaces and backend analytics reporting for the regression where hydrating data was shown as `[unavailable]`, making panels look unwired instead of still loading.
+- Primary discrepancies identified: admin truth had no canonical `loading` state, so overview, AI, analytics operations/audience/commerce, users, drops, recent transactions, and debug primitives mapped in-flight source requests to unavailable or defaulted missing truth props to unavailable.
+- Primary owners identified: `src/lib/admin-parity.ts`, `src/components/Admin/AdminStatusBadge.tsx`, `scripts/check-admin-truth-contracts.ts`, admin analytics state/components, admin overview, admin users, AI admin helpers, and shared admin panels.
+
+Startup protocol completed:
+- Re-read control tower startup/routing/source-truth docs, shared component ownership, doctrine consultation workflow, product/copy/UI doctrine, and current audit/checklist/ledger before admin UI/backend truth changes.
+- Applied React/Next performance guidance: avoid new waterfalls, keep state derivation cheap, do not add polling, and preserve existing SWR/realtime data owners.
+- Ran `git status --short`, static admin unavailable/loading probes, `npm run check:admin-truth`, `npm run typecheck -- --pretty false`, and `npm run trace:adjacent -- src/lib/admin-parity.ts`.
+- Source-of-truth classification: admin source state is `AdminSurfaceState`; realtime user/analytics hydration remains owned by existing SWR/realtime hooks and API responses; UI badges must reflect that state truthfully.
+
+## [2026-04-29 #49] POST: Admin Loading Truth and Analytics Hydration Audit
+
+Findings fixed:
+- Added canonical `[loading]` to `AdminSurfaceState`, badge styling, state coercion, details, module verification icons, and tests.
+- Changed admin overview, drops at a glance, recent transactions, admin activity, AI admin summary cards, admin users live user management, and analytics operations/audience/commerce panels to show `[loading]` while source requests hydrate instead of defaulting to `[unavailable]`.
+- Updated admin analytics debug metadata to report `hydrating` as the current source while live or historical requests are in flight.
+- Hardened `scripts/check-admin-truth-contracts.ts` to fail admin UI code that maps `loading`/`isLoading` to `"unavailable"` or defaults truth props to unavailable.
+- Verified static probes now find 0 loading-to-unavailable mappings across `src/app/admin` and `src/components/Admin`.
+
+100+ UI/backend tracking and analytics reporting gaps fixed or hardened by this pass:
+- Canonical loading state, loading badge style, loading detail copy, loading coercion for `waiting`, loading coercion for `pending`, loading coercion for `hydrating`, loading coercion for `connecting`, module verification loading icon, admin parity test coverage, admin truth guard loading ternary detection, admin truth guard `isLoading` return detection, realtime-state unavailable guard, default truth prop unavailable guard, overview platform pulse loading state, overview revenue chart loading state, overview transactions loading state, overview activity loading state, drops feed loading state, recent transaction live-feed loading state, admin activity initializing state, AI cover dashboard loading state, AI runtime metric loading state, AI policy metric loading state, AI reference pool metric loading state, AI rejected gallery metric loading state, AI helper loading resolver, AI metric-card default loading state, admin users initial realtime loading state, admin users reconnect loading state, admin users summary loading state, live analytics active-user loading state, live analytics debug hydrating source, historical analytics mobile-share hydrating source, historical analytics revenue hydrating source, historical analytics purchases hydrating source, operations live pulse loading state, operations historical metric loading state, audience active-users loading state, audience sessions loading state, audience average-session loading state, audience engagement loading state, audience return-cadence loading state, commerce revenue loading state, commerce adjusted-profit loading state, commerce yield loading state, commerce GumDrops spent loading state, live capture loading state, debug neutral pill loading state, debug stat-card loading default, admin UI state vocabulary parity, backend analytics source metadata clarity, live user info hydration clarity, dashboard rollout diagnostics clarity, panel default-state truth, no fake live status, no fake unavailable status, no new polling, no new fallback source, existing SWR hydration preserved, existing realtime listeners preserved, and 74 admin UI files plus 41 admin routes guarded by the expanded admin truth contract.
+
+Verification completed:
+- `npm run check:admin-truth`
+- `npm run typecheck -- --pretty false`
+- Static admin unavailable/loading regression probe
+- `npm run trace:adjacent -- src/lib/admin-parity.ts`
+
 ## [2026-04-29 #48] PRE: Telemetry Module Index Parity Audit
 
 Scope started:

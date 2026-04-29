@@ -190,7 +190,7 @@ export function RecentTransactionsPanel({ transactions: fallbackTransactions }: 
     /* ── Determine truth state ──────────────────────────────────────────── */
     const truthState: AdminSurfaceState = useMemo(() => {
         if (liveFeedError) return "fallback";
-        if (!isLiveFeedActive) return "unavailable";
+        if (!isLiveFeedActive) return "loading";
         if (snapshotFromCache) return "stale";
         if (identityLookupFailures > 0) return "degraded";
         return "live";

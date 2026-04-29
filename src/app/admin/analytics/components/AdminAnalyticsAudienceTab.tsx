@@ -34,7 +34,8 @@ export function AdminAnalyticsAudienceTab(props: AdminAnalyticsState) {
     // Added remaining
     clearAllFilters, clearViewerFilter, viewerUserFilter, formatMoney, activeViewerFilter
   } = props;
-  const returnCadenceTruthState = returnCadenceSummary ? (historicalOverviewTruthState ?? "unavailable") : "unavailable";
+  const historicalPanelTruthState = historicalOverviewTruthState ?? (historicalLoading ? "loading" : "unavailable");
+  const returnCadenceTruthState = returnCadenceSummary ? historicalPanelTruthState : historicalLoading ? "loading" : "unavailable";
 
   return (
     <>
@@ -52,7 +53,7 @@ export function AdminAnalyticsAudienceTab(props: AdminAnalyticsState) {
                   value={formatCompactNumber(audienceTotals.users)}
                   hint={`${audienceTotals.newUsers.toLocaleString()} new users`}
                   icon={Users}
-                  truthState={historicalOverviewTruthState ?? "unavailable"}
+                  truthState={historicalPanelTruthState}
                   dictionaryTooltip="Distinct users identified in the selected range. Includes both authenticated users and anonymous guests."
                 />
                 <MetricCard
@@ -60,7 +61,7 @@ export function AdminAnalyticsAudienceTab(props: AdminAnalyticsState) {
                   value={formatCompactNumber(audienceTotals.sessions)}
                   hint={`${audienceTotals.views.toLocaleString()} views`}
                   icon={Activity}
-                  truthState={historicalOverviewTruthState ?? "unavailable"}
+                  truthState={historicalPanelTruthState}
                   dictionaryTooltip="Total number of discrete sessions initiated. A session usually expires after 30 minutes of inactivity."
                 />
                 <MetricCard
@@ -68,7 +69,7 @@ export function AdminAnalyticsAudienceTab(props: AdminAnalyticsState) {
                   value={formatDuration(audienceTotals.avgSessionDuration)}
                   hint="Average time per visit"
                   icon={Clock3}
-                  truthState={historicalOverviewTruthState ?? "unavailable"}
+                  truthState={historicalPanelTruthState}
                   dictionaryTooltip="Average length of time a user remains engaged with the app during a single session."
                 />
                 <MetricCard
@@ -76,7 +77,7 @@ export function AdminAnalyticsAudienceTab(props: AdminAnalyticsState) {
                   value={formatPercent(audienceTotals.engagementRate)}
                   hint="GA engagement rate"
                   icon={Sparkles}
-                  truthState={historicalOverviewTruthState ?? "unavailable"}
+                  truthState={historicalPanelTruthState}
                   dictionaryTooltip="Percentage of sessions that lasted longer than 10 seconds, had a conversion event, or had 2+ screen views."
                 />
               </div>

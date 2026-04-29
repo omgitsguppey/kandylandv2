@@ -51,7 +51,7 @@ function resolveActivityTruthState(
     const normalizedNote = truthNote?.toLowerCase() ?? "";
     if (normalizedNote.includes("failed")) return "failed";
     if (normalizedNote.includes("degraded") || normalizedNote.includes("fallback")) return "fallback";
-    if (normalizedNote.includes("initializing") || normalizedNote.includes("waiting")) return "unavailable";
+    if (normalizedNote.includes("initializing") || normalizedNote.includes("waiting")) return "loading";
     if (activity.length === 0) return "unavailable";
 
     const allLegacy = activity.every(

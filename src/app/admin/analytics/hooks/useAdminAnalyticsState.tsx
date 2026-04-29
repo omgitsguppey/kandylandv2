@@ -631,6 +631,7 @@ const { user } = useAuth();
     : "—";
   const liveActiveTruthState: AdminSurfaceState | undefined =
     effectiveLiveResponse?.liveTruthLabel ? coerceAdminSurfaceState(effectiveLiveResponse.liveTruthLabel)
+    : liveLoading ? "loading"
     : !effectiveLiveResponse ? "unavailable"
     : undefined;
   const historicalOverviewTruthState: AdminSurfaceState | undefined =
@@ -646,29 +647,29 @@ const { user } = useAuth();
     metrics: {
       liveActive: {
         canonicalSource: "Firestore realtime + API /api/admin/analytics/realtime",
-        currentSource: liveRealtime.feedStatus === "realtime" ? "firestore_realtime" : liveRealtime.feedStatus === "partial" ? "firestore_partial" : "api_polling",
-        truthState: liveActiveTruthState ?? "unavailable",
+        currentSource: liveRealtime.feedStatus === "realtime" ? "firestore_realtime" : liveRealtime.feedStatus === "partial" ? "firestore_partial" : liveLoading ? "hydrating" : "api_polling",
+        truthState: liveActiveTruthState ?? (liveLoading ? "loading" : "unavailable"),
         value: effectiveLiveResponse?.totalActive ?? null,
         isFakeZero: !effectiveLiveResponse,
       },
       mobileShare: {
         canonicalSource: "API /api/admin/analytics/historical (devices breakdown)",
-        currentSource: historicalResponse ? "server_confirmed" : "unavailable",
-        truthState: historicalOverviewTruthState ?? "unavailable",
+        currentSource: historicalResponse ? "server_confirmed" : historicalLoading ? "hydrating" : "unavailable",
+        truthState: historicalOverviewTruthState ?? (historicalLoading ? "loading" : "unavailable"),
         value: historicalResponse ? mobileShare : null,
         isFakeZero: !historicalResponse,
       },
       revenue: {
         canonicalSource: "API /api/admin/analytics/historical (commerce.revenueUsd)",
-        currentSource: historicalResponse ? "server_confirmed" : "unavailable",
-        truthState: historicalOverviewTruthState ?? "unavailable",
+        currentSource: historicalResponse ? "server_confirmed" : historicalLoading ? "hydrating" : "unavailable",
+        truthState: historicalOverviewTruthState ?? (historicalLoading ? "loading" : "unavailable"),
         value: historicalResponse ? commerce.revenueUsd : null,
         isFakeZero: !historicalResponse,
       },
       purchases: {
         canonicalSource: "API /api/admin/analytics/historical (funnel.purchases)",
-        currentSource: historicalResponse ? "server_confirmed" : "unavailable",
-        truthState: historicalOverviewTruthState ?? "unavailable",
+        currentSource: historicalResponse ? "server_confirmed" : historicalLoading ? "hydrating" : "unavailable",
+        truthState: historicalOverviewTruthState ?? (historicalLoading ? "loading" : "unavailable"),
         value: historicalResponse ? funnel.purchases : null,
         isFakeZero: !historicalResponse,
       },

@@ -53,7 +53,7 @@ export default function UserManagementPage() {
     const [dropReferences, setDropReferences] = useState<Record<string, DropReference>>({});
     const [summary, setSummary] = useState<UsersSummary | null>(null);
     const [loading, setLoading] = useState(true);
-    const [realtimeState, setRealtimeState] = useState<AdminSurfaceState>("unavailable");
+    const [realtimeState, setRealtimeState] = useState<AdminSurfaceState>("loading");
     const [searchQuery, setSearchQuery] = useState("");
     const [actionUser, setActionUser] = useState<UserProfile | null>(null);
     const [actionType, setActionType] = useState<'suspend' | 'ban' | 'activate' | null>(null);
@@ -136,7 +136,7 @@ export default function UserManagementPage() {
         };
 
         const connect = async () => {
-            setRealtimeState((current) => current === "live" ? "degraded" : "unavailable");
+            setRealtimeState((current) => current === "live" ? "degraded" : "loading");
             try {
                 const response = await authFetch("/api/admin/users/realtime", {
                     signal: controller.signal,
@@ -266,7 +266,7 @@ export default function UserManagementPage() {
     const formatCount = (value?: number, analytics?: UserAnalytics) =>
         !analytics || analytics.metricTruthLabel === "unknown" ? "[unavailable]" : (value ?? 0).toLocaleString();
     const formatSummaryCount = (value?: number) => summary ? (value ?? 0).toLocaleString() : "[unavailable]";
-    const summaryTruthState: AdminSurfaceState = summary ? realtimeState : loading ? "unavailable" : "failed";
+    const summaryTruthState: AdminSurfaceState = summary ? realtimeState : loading ? "loading" : "failed";
     const formatJoined = (value: unknown) => {
         const timestamp = typeof value === "number"
             ? value

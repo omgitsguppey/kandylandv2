@@ -47,10 +47,10 @@ export function AdminAnalyticsCommerceTab(props: AdminAnalyticsState) {
     getJourneyStateClasses, getJourneyStateLabel, topExperienceContexts, viewerDropChartData,
     viewerDrilldownInsights, viewerJourneyItems, watchDepthTagBuckets, watchDepthTagDemand
   } = props;
-  const commerceTruthState = historicalOverviewTruthState ?? "unavailable";
+  const commerceTruthState = historicalOverviewTruthState ?? (historicalLoading ? "loading" : "unavailable");
   const liveCaptureTruthState = liveResponse?.liveTruthLabel
     ? coerceAdminSurfaceState(liveResponse.liveTruthLabel)
-    : "unavailable";
+    : liveLoading ? "loading" : "unavailable";
   const formatCommerceMetric = (value: number | null | undefined, formatter: (next: number) => string) =>
     typeof value === "number" && Number.isFinite(value) ? formatter(value) : "[unavailable]";
 
@@ -69,7 +69,7 @@ export function AdminAnalyticsCommerceTab(props: AdminAnalyticsState) {
                   value={formatMoney(commerceSnapshotCommerce.revenueUsd)}
                   hint="Completed currency purchases"
                   icon={DollarSign}
-                  truthState={historicalOverviewTruthState ?? "unavailable"}
+                  truthState={commerceTruthState}
                   dictionaryTooltip="Total USD revenue collected from all completed purchases."
                 />
                 <MetricCard
@@ -77,7 +77,7 @@ export function AdminAnalyticsCommerceTab(props: AdminAnalyticsState) {
                   value={formatCommerceMetric(commerceSnapshotCommerce.adjustedProfitUsd, formatMoney)}
                   hint={`${formatCommerceMetric(commerceSnapshotCommerce.bonusValueUsd, formatMoney)} promo value granted`}
                   icon={Wallet}
-                  truthState={commerceSnapshotCommerce.adjustedProfitUsd === undefined ? "unavailable" : commerceTruthState}
+                  truthState={commerceTruthState}
                   dictionaryTooltip="Net profit after accounting for platform fees and promotional value granted."
                 />
                 <MetricCard
@@ -85,7 +85,7 @@ export function AdminAnalyticsCommerceTab(props: AdminAnalyticsState) {
                   value={formatCommerceMetric(commerceSnapshotCommerce.effectiveUsdPer100Gd, formatMoney)}
                   hint={`${formatCommerceMetric(commerceSnapshotCommerce.deliveredGumDrops, formatCompactNumber)} GD delivered`}
                   icon={Sparkles}
-                  truthState={commerceSnapshotCommerce.effectiveUsdPer100Gd === undefined ? "unavailable" : commerceTruthState}
+                  truthState={commerceTruthState}
                   dictionaryTooltip="Effective USD revenue earned per 100 GumDrops delivered."
                 />
                 <MetricCard
@@ -93,7 +93,7 @@ export function AdminAnalyticsCommerceTab(props: AdminAnalyticsState) {
                   value={formatCompactNumber(commerceSnapshotCommerce.gdSpent)}
                   hint={`${formatCommerceMetric(commerceSnapshotCommerce.bonusGumDrops, formatCompactNumber)} bonus GD granted`}
                   icon={ShoppingBag}
-                  truthState={commerceSnapshotCommerce.bonusGumDrops === undefined ? "unavailable" : commerceTruthState}
+                  truthState={commerceTruthState}
                   dictionaryTooltip="Total volume of GumDrops spent by users across all experiences."
                 />
               </div>
