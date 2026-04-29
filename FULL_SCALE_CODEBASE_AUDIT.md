@@ -10362,3 +10362,9 @@ Results:
 - analytics continuity check passed
 - focused admin analytics realtime route test passed
 
+
+## [2026-04-30 #47] POST: Onboarding Friction Tracking Fix
+Findings fixed:
+- Critical early-session technical rescue signals (e.g. `wallet_opened`, `drop_preview_opened`, `auth_sign_up_success`) could be lost to batching if a user immediately bounced. These are now added to the `IMMEDIATE_IDENTIFIED_EVENT_NAMES` flush bypass.
+- Dropping out of the wallet without purchasing is now explicitly tracked via `wallet_closed_incomplete` along with package state.
+- Friction points where users abandon the Drop Preview (due to lack of funds or simple aborts) now explicitly categorize the drop-off as `Price-resistance blocker` or `Intent-alignment blocker`.

@@ -229,7 +229,8 @@ export function DropPreviewModal({ drop, onClose }: DropPreviewModalProps) {
       trackEvent("drop_unwrap_intent_blocked_by_funds", {
         drop_id: drop.id,
         unlock_cost: drop.unlockCost,
-        current_balance: balance
+        current_balance: balance,
+        friction_classification: "Price-resistance blocker"
       });
       onClose();
       openPurchaseModal(Math.max(1, drop.unlockCost - balance));
@@ -352,7 +353,10 @@ export function DropPreviewModal({ drop, onClose }: DropPreviewModalProps) {
     <Dialog.Root open={!!drop} onOpenChange={(open) => {
       if (!open) {
         if (!isUnlocked && drop) {
-          trackEvent("drop_preview_closed_incomplete", { drop_id: drop.id });
+          trackEvent("drop_preview_closed_incomplete", {
+            drop_id: drop.id,
+            friction_classification: "Intent-alignment blocker"
+          });
         }
         onClose();
       }

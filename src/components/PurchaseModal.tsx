@@ -107,12 +107,21 @@ export function PurchaseModal({ isOpen, onClose }: PurchaseModalProps) {
   }, [isOpen]);
 
   const closeModal = useCallback(() => {
+    if (!success && isOpen) {
+        trackEvent("wallet_closed_incomplete", {
+            package_label: selectedPackage?.label ?? "unknown",
+            package_price: selectedPackage?.price ?? 0,
+            package_drops: selectedPackage?.drops ?? 0,
+            friction_classification: "Intent-alignment blocker"
+        });
+    }
+
     setSuccess(false);
     setError(null);
     setCreditedDrops(null);
     clearTimedFlow(CHECKOUT_FLOW_KEY);
     requestAnimationFrame(onClose);
-  }, [onClose]);
+  }, [onClose, success, isOpen, selectedPackage]);
 
   const continueFromSuccess = useCallback((destination: string, source: string) => {
     trackEvent("navigation_click", {

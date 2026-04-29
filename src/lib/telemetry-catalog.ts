@@ -152,6 +152,7 @@ export const TELEMETRY_EVENT_OPTIONS: TelemetryEventOption[] = [
     { eventName: "experience_hub_viewed", label: "Experiences viewed", category: "engagement", sources: DEFAULT_CLIENT_SOURCES, modules: ["engagement", "tasks"] },
   { eventName: "daily_check_in_claim", label: "Daily check-in claimed", category: "tasks", sources: DEFAULT_CLIENT_SOURCES, modules: ["tasks"] },
   { eventName: "wallet_opened", label: "Wallet opened", category: "commerce", sources: DEFAULT_CLIENT_SOURCES, modules: ["commerce"] },
+  { eventName: "wallet_closed_incomplete", label: "Wallet closed without purchase", category: "commerce", sources: DEFAULT_CLIENT_SOURCES, modules: ["commerce"] },
   { eventName: "purchase_package_selected", label: "Wallet package selected", category: "commerce", sources: DEFAULT_CLIENT_SOURCES, modules: ["commerce"] },
   { eventName: "begin_checkout", label: "Checkout started", category: "commerce", sources: DEFAULT_CLIENT_SOURCES, modules: ["commerce"] },
   { eventName: "purchase", label: "Purchase completed (GA)", category: "commerce", sources: DEFAULT_GA_ONLY_SOURCES, modules: ["commerce"] },
@@ -421,6 +422,7 @@ export const TELEMETRY_MODULE_INDEXES: TelemetryModuleIndex[] = [
     label: "Commerce",
     eventNames: [
       "wallet_opened",
+      "wallet_closed_incomplete",
       "purchase_package_selected",
       "insufficient_balance_modal_closed",
       "insufficient_balance_get_more_clicked",

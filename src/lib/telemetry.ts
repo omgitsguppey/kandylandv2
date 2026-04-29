@@ -35,6 +35,12 @@ const IMMEDIATE_IDENTIFIED_EVENT_NAMES = new Set([
     "viewer_session_started",
     "viewer_session_completed",
     "feedback_submitted",
+    "wallet_opened",
+    "wallet_closed_incomplete",
+    "drop_preview_opened",
+    "auth_sign_up_success",
+    "creator_followed",
+    "viewer_opened",
 ]);
 const IDENTIFIED_TELEMETRY_BATCH_LIMIT = 12;
 const IDENTIFIED_TELEMETRY_BATCH_WINDOW_MS = 1_500;

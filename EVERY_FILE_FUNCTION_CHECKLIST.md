@@ -14577,3 +14577,10 @@ Detected function-like implementations in this historical sweep: 3161
   - [x] Guest/public cards now show estimated volume truthfully and avoid fake zero bounce/engagement states when guest quality telemetry is unavailable.
 - `src/types/admin-analytics.ts`
   - [x] Historical analytics response contract now includes guest/public truth metadata for admin consumers.
+
+## 2026-04-30 Onboarding Friction Telemetry Coverage
+- [x] `src/lib/telemetry.ts` added `wallet_opened`, `wallet_closed_incomplete`, `drop_preview_opened`, `auth_sign_up_success`, `creator_followed`, and `viewer_opened` to immediate flush bypass.
+- [x] `src/components/PurchaseModal.tsx` now tracks `wallet_closed_incomplete` on early close with `Intent-alignment blocker` classification.
+- [x] `src/components/DropPreviewModal.tsx` now adds `Price-resistance blocker` classification to `drop_unwrap_intent_blocked_by_funds`.
+- [x] `src/components/DropPreviewModal.tsx` now adds `Intent-alignment blocker` classification to `drop_preview_closed_incomplete`.
+- [x] `src/lib/telemetry-catalog.ts` registers `wallet_closed_incomplete` in the commerce event catalog.
