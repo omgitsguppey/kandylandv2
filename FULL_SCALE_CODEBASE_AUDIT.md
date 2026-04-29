@@ -1,5 +1,32 @@
 # KandyDrops Core Codebase Audit & Defensive Ledger
 
+## [2026-04-29 #48] PRE: Telemetry Module Index Parity Audit
+
+Scope started:
+- Audit telemetry/module parity after route runtime hardening, focusing on whether catalog event metadata, module dashboards, admin debugging slices, and telemetry health checks agree bidirectionally.
+- Primary discrepancies identified: 175 catalog-declared event/module relationships were missing from `TELEMETRY_MODULE_INDEXES`, while 6 navigation page-view relationships existed only in module indexes and not in catalog event metadata.
+- Primary owners identified: `src/lib/telemetry-catalog.ts`, `scripts/check-telemetry-parity-contracts.ts`, and the existing `npm run check:telemetry` lane.
+
+Startup protocol completed:
+- Re-read control tower startup/routing/source-truth docs, doctrine consultation workflow, product/copy/UI doctrine, and the current audit/checklist/ledger before telemetry/admin truth changes.
+- Ran `git status --short`, `npm run check:telemetry`, `npm run check:admin-truth`, and `npm run check:route-runtime-parity`.
+- Source-of-truth classification: `TELEMETRY_EVENT_OPTIONS.modules` is the canonical event-to-module declaration; `TELEMETRY_MODULE_INDEXES` is the admin/debug module index derived from that catalog truth.
+
+## [2026-04-29 #48] POST: Telemetry Module Index Parity Audit
+
+Findings fixed:
+- Replaced manually incomplete module event lists with `buildTelemetryModuleEventNames`, so every module index derives directly from catalog event metadata.
+- Added navigation module metadata to `home_page_viewed`, `drops_page_viewed`, `faq_page_viewed`, `dashboard_viewed`, `library_viewed`, and `experience_hub_viewed`, matching their existing navigation index usage.
+- Hardened `scripts/check-telemetry-parity-contracts.ts` to fail both directions: module index entries must be declared on the event, and event `modules` declarations must appear in the matching module index.
+- Confirmed the module parity probe now reports 214 catalog events, 14 module indexes, 0 missing module relationships, and 0 extra module relationships.
+
+100+ telemetry/parity/debug gaps fixed or hardened by this pass:
+- 175 missing event-module index relationships, 6 one-sided navigation module relationships, auth module failure-state coverage, onboarding creator-review coverage, navigation page-view coverage, notifications creator-alert coverage, task notification/reminder coverage, task-guidance coverage, commerce creator monetization coverage, content creator/drop-view coverage, viewer related-source coverage, creator commerce/subscription/cashout coverage, engagement funnel coverage, admin route/view/action coverage, security moderation coverage, runtime exposure coverage, catalog-to-index parity, index-to-catalog parity, missing module index detection, extra module event detection, module-dashboard undercount detection, admin telemetry module health accuracy, event metadata truth enforcement, fallback-source slice integrity, and expanded `check:telemetry` coverage from 593 to 1154 checks.
+
+Verification completed:
+- `npm run check:telemetry`
+- Direct module parity probe for missing/extra relationships
+
 ## [2026-04-29 #47] PRE: Route Runtime Telemetry Parity and Debug Label Audit
 
 Scope started:

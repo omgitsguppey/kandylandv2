@@ -9,6 +9,15 @@ Scoring: all entries below are marked as included in the current validated sweep
 
 Current repo-wide state snapshot: see [FULL_SCALE_CODEBASE_AUDIT.md](/Users/uylus/OneDrive/Documents/KandyDrops_Final/FULL_SCALE_CODEBASE_AUDIT.md) for the current live baseline, verification state, and continuity rules, and see [REPO_MEMORY_LEDGER.md](/Users/uylus/OneDrive/Documents/KandyDrops_Final/REPO_MEMORY_LEDGER.md) for major architectural and workflow decisions. The detailed file/function body below remains valuable historical evidence, but it has not been fully regenerated against the current 2026-04-18 inventory review yet.
 
+## 2026-04-29 Telemetry Module Index Parity Coverage
+
+- [x] `src/lib/telemetry-catalog.ts` now derives module index event names from `TELEMETRY_EVENT_OPTIONS.modules`.
+- [x] 175 missing catalog-to-module-index relationships were closed through derived module indexes.
+- [x] Navigation page-view events now declare navigation metadata when they appear in the navigation module index.
+- [x] `scripts/check-telemetry-parity-contracts.ts` blocks module index entries that are not declared on the event metadata.
+- [x] `scripts/check-telemetry-parity-contracts.ts` blocks event `modules` declarations that are missing from the matching module index.
+- [x] `npm run check:telemetry` now enforces 1154 telemetry parity checks for catalog, emitter, semantic, admin-log, and module-index truth.
+
 ## 2026-04-29 Route Runtime Telemetry Parity and Debug Label Coverage
 
 - [x] `src/lib/route-runtime-health.ts` no longer contains stale runtime targets for deleted/legacy route keys.

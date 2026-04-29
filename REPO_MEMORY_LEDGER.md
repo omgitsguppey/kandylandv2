@@ -24,6 +24,21 @@ This file is not a changelog. It is the concise ledger for durable decisions tha
 
 ## Decision Entries
 
+### 1ba. Telemetry module indexes derive from catalog event metadata
+
+- Approximate date: Recorded explicitly on 2026-04-29 from the Telemetry Module Index Parity Audit
+- Status: Active telemetry/admin debug rule
+- Problem/context: `TELEMETRY_EVENT_OPTIONS.modules` and `TELEMETRY_MODULE_INDEXES.eventNames` could drift independently, causing admin/debug module slices to under-report cataloged events or include relationships the event metadata did not declare.
+- Decision made: event `modules` metadata is the source of truth for module membership, and module index event lists must be derived from that metadata.
+- What became canonical:
+  - `src/lib/telemetry-catalog.ts` builds module index event names through `buildTelemetryModuleEventNames`.
+  - `scripts/check-telemetry-parity-contracts.ts` enforces bidirectional event-module parity.
+  - `npm run check:telemetry` blocks missing or extra event-module relationships.
+- Consequence for future work:
+  - Do not hand-maintain partial module event lists.
+  - When adding a telemetry event, set `modules` truthfully; module dashboards inherit from that declaration.
+  - If a module dashboard should include an event, update the event metadata instead of only editing the index.
+
 ### 1az. Route runtime targets must match live handlers and carry operational labels
 
 - Approximate date: Recorded explicitly on 2026-04-29 from the Route Runtime Telemetry Parity and Debug Label Audit

@@ -64,6 +64,28 @@ for (const moduleIndex of TELEMETRY_MODULE_INDEXES) {
     checks += 1;
     if (!TELEMETRY_EVENT_NAME_SET.has(eventName)) {
       failures.push(`Module index ${moduleIndex.key} references uncataloged event ${eventName}`);
+      continue;
+    }
+
+    const modules = TELEMETRY_EVENT_OPTIONS.find((event) => event.eventName === eventName)?.modules ?? [];
+    if (!modules.includes(moduleIndex.key)) {
+      failures.push(`Module index ${moduleIndex.key} references ${eventName}, but the catalog event does not list that module`);
+    }
+  }
+}
+
+const moduleIndexesByKey = new Map(TELEMETRY_MODULE_INDEXES.map((moduleIndex) => [moduleIndex.key, moduleIndex]));
+for (const event of TELEMETRY_EVENT_OPTIONS) {
+  for (const moduleKey of event.modules ?? []) {
+    checks += 1;
+    const moduleIndex = moduleIndexesByKey.get(moduleKey);
+    if (!moduleIndex) {
+      failures.push(`Catalog event ${event.eventName} references missing module index ${moduleKey}`);
+      continue;
+    }
+
+    if (!moduleIndex.eventNames.includes(event.eventName)) {
+      failures.push(`Catalog event ${event.eventName} lists module ${moduleKey}, but the module index omits the event`);
     }
   }
 }
