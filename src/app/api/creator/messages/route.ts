@@ -15,6 +15,7 @@ import { STANDARD } from "@/lib/server/rate-limit";
 import { guardApiRequest } from "@/lib/server/request-guard";
 import { getErrorMessage } from "@/lib/server/route-diagnostics";
 import { recordRouteRuntimeSample } from "@/lib/server/route-runtime-health";
+import { buildNotFoundResponse } from "@/lib/server/not-found";
 
 function withCompatibilityHeaders(response: NextResponse) {
     const headers = buildCreatorMessagesCompatibilityHeaders();
@@ -224,7 +225,7 @@ export async function DELETE(request: NextRequest) {
         const messageRef = adminDb.collection(CHAT_COLLECTIONS.messages).doc(messageId);
         const messageSnap = await messageRef.get();
         if (!messageSnap.exists) {
-            return finalize(withCompatibilityHeaders(NextResponse.json({ error: "Message not found" }, { status: 404 })));
+            return finalize(withCompatibilityHeaders(buildNotFoundResponse("message", "Message not found")));
         }
 
         const messageData = messageSnap.data() as Record<string, unknown>;

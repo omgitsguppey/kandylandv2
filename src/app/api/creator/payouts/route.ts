@@ -9,6 +9,7 @@ import { CREATOR_COLLECTIONS, isCreatorRole } from "@/lib/creator-experiences";
 import { calculateCreatorCashoutUsd } from "@/lib/server/creator-experiences";
 import { trackServerEvent } from "@/lib/server/analytics";
 import { withRouteRuntimeHealth } from "@/lib/server/route-runtime-health";
+import { buildNotFoundResponse } from "@/lib/server/not-found";
 
 const createPayoutSchema = z.object({
     requestedGd: z.number().int().min(100),
@@ -152,7 +153,7 @@ async function PUT_handler(request: NextRequest) {
         const payoutRef = adminDb.collection(CREATOR_COLLECTIONS.payoutRequests).doc(payoutRequestId);
         const payoutSnap = await payoutRef.get();
         if (!payoutSnap.exists) {
-            return NextResponse.json({ error: "Payout request not found" }, { status: 404 });
+            return buildNotFoundResponse("request", "Payout request not found");
         }
 
         const payoutData = payoutSnap.data() as Record<string, unknown>;

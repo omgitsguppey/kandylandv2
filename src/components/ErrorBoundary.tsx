@@ -40,9 +40,9 @@ export class ErrorBoundary extends Component<Props, State> {
                         <div className="inline-flex items-center justify-center w-16 h-16 rounded-full bg-red-500/10 mb-6">
                             <AlertCircle className="w-8 h-8 text-red-500" />
                         </div>
-                        <h1 className="text-2xl font-bold mb-2">Something went wrong</h1>
+                        <h1 className="mb-2 text-2xl font-bold">Page Error</h1>
                         <p className="text-gray-400 mb-6">
-                            We encountered an unexpected error. Please try reloading.
+                            This view failed to render. Reload the page to request a fresh state.
                         </p>
 
                         {this.state.error && (

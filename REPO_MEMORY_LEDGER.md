@@ -24,6 +24,22 @@ This file is not a changelog. It is the concise ledger for durable decisions tha
 
 ## Decision Entries
 
+### 1ax. 404 and error surfaces must use shared truth-first contracts
+
+- Approximate date: Recorded explicitly on 2026-04-29 from the Final Consistency Audit and 404 Unification pass
+- Status: Active route/error UI and API rule
+- Problem/context: Global 404, creator-missing UI, and API 404 payloads drifted into one-off copy and response shapes. The global 404 also used banned "Looks like" phrasing.
+- Decision made: Page-level 404s and entity-missing user surfaces use `NotFoundSurface`; API not-found responses use `buildNotFoundResponse` or `AuthError(..., 404, resource)` through `handleApiError`.
+- What became canonical:
+  - `src/components/ui/NotFoundSurface.tsx` owns user-facing 404 layout/copy.
+  - `src/lib/server/not-found.ts` owns API not-found payload shape.
+  - `scripts/check-not-found-contracts.ts` blocks banned 404/error copy, selected API helper drift, and direct `src/app/api` `status: 404` responses.
+  - `npm run check:ui:runtime` runs `check:not-found`.
+- Consequence for future work:
+  - Do not add "Looks like", "Oops", "Page Not Found", or "Something went wrong" to user-facing route/error surfaces.
+  - Do not hand-roll new API 404 JSON responses when the canonical helper or `AuthError` can express the missing resource; the static contract check scans `src/app/api`.
+  - Preserve existing domain error codes only when a client or test already depends on them.
+
 ### 1av. Chat routes own viewport height and compact inbox scrolling
 
 - Approximate date: Recorded explicitly on 2026-04-28 from the Doctrine Audit, Chat Mobile Scroll, and Mobile UI Runtime Guarding pass

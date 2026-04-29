@@ -91,7 +91,7 @@ test.describe("404 Page", () => {
         await page.goto("/this-route-does-not-exist");
         await page.waitForLoadState("domcontentloaded");
         await expect(page.getByText("404")).toBeVisible({ timeout: 10_000 });
-        await expect(page.getByText(/Page Not Found/i)).toBeVisible();
+        await expect(page.getByText(/Page Unavailable/i)).toBeVisible();
         await expect(page.getByRole("link", { name: /return home/i })).toBeVisible();
     });
 });

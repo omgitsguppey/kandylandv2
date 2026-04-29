@@ -10,6 +10,7 @@ import { getCSTDateKey } from "@/lib/timezone";
 import { guardApiRequest } from "@/lib/server/request-guard";
 import { withRouteRuntimeHealth } from "@/lib/server/route-runtime-health";
 import { recordRouteWarning } from "@/lib/server/route-diagnostics";
+import { buildNotFoundResponse } from "@/lib/server/not-found";
 
 const bodySchema = z.object({
   dropId: z.string().trim().min(1).max(128),
@@ -59,7 +60,7 @@ async function POST_handler(request: NextRequest) {
     const rollupRef = adminDb.collection("analytics_drop_daily").doc(`${dayKey}_${dropId}`);
     const dropSnapshot = await dropRef.get();
     if (!dropSnapshot.exists) {
-      return NextResponse.json({ error: "Drop not found" }, { status: 404 });
+      return buildNotFoundResponse("drop", "Drop not found");
     }
 
     const duplicate = await adminDb.runTransaction(async (transaction) => {

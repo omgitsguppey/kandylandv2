@@ -41,6 +41,7 @@ import {
   shouldRecoverAdminUserMetricsFromFacts,
 } from "@/lib/admin-user-metrics";
 import { withRouteRuntimeHealth } from "@/lib/server/route-runtime-health";
+import { buildNotFoundResponse } from "@/lib/server/not-found";
 
 function toTimestampNumber(value: unknown): number {
   if (typeof value === "number" && Number.isFinite(value)) {
@@ -1405,7 +1406,7 @@ async function PUT_handler(request: NextRequest) {
         ]);
 
         if (!userSnap.exists) {
-          return NextResponse.json({ error: "User not found" }, { status: 404 });
+          return buildNotFoundResponse("user", "User not found");
         }
 
         const userData = (userSnap.data() as Record<string, unknown> | undefined) ?? {};
@@ -1560,7 +1561,7 @@ async function POST_handler(request: NextRequest) {
     const dropReferences = await getDropReferenceMap([normalizedDropId]);
     const dropReference = dropReferences[normalizedDropId];
     if (!dropReference) {
-      return NextResponse.json({ error: "Drop not found" }, { status: 404 });
+      return buildNotFoundResponse("drop", "Drop not found");
     }
 
     const userRef = adminDb.collection("users").doc(userId);
@@ -1657,7 +1658,7 @@ async function POST_handler(request: NextRequest) {
     return NextResponse.json({ success: true, dropReference, changed: result.changed });
   } catch (error) {
     if (error instanceof Error && error.message === "User not found") {
-      return NextResponse.json({ error: "User not found" }, { status: 404 });
+      return buildNotFoundResponse("user", "User not found");
     }
     return handleApiError(error, "Admin.Users.POST");
   }

@@ -138,7 +138,7 @@ export default function AIAdminPage() {
 
                 {state.error && !state.data ? (
                     <div className="rounded-[1.2rem] border border-red-400/20 bg-red-500/10 px-4 py-4 text-sm text-red-100">
-                        Failed to load AI cover operations. {state.error.message || "Unknown error."}
+                        Failed to load AI cover operations. {state.error.message || "Error details unavailable."}
                     </div>
                 ) : null}
 

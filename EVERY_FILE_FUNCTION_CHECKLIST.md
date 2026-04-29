@@ -9,6 +9,18 @@ Scoring: all entries below are marked as included in the current validated sweep
 
 Current repo-wide state snapshot: see [FULL_SCALE_CODEBASE_AUDIT.md](/Users/uylus/OneDrive/Documents/KandyDrops_Final/FULL_SCALE_CODEBASE_AUDIT.md) for the current live baseline, verification state, and continuity rules, and see [REPO_MEMORY_LEDGER.md](/Users/uylus/OneDrive/Documents/KandyDrops_Final/REPO_MEMORY_LEDGER.md) for major architectural and workflow decisions. The detailed file/function body below remains valuable historical evidence, but it has not been fully regenerated against the current 2026-04-18 inventory review yet.
 
+## 2026-04-29 Final Consistency Audit and 404 Unification Coverage
+
+- [x] `src/components/ui/NotFoundSurface.tsx` is the shared user-facing 404/missing-resource surface.
+- [x] `src/app/not-found.tsx` now delegates to the shared 404 surface.
+- [x] `src/app/creators/[username]/CreatorProfileClient.tsx` now uses the shared missing-resource surface for unavailable creators.
+- [x] `src/app/error.tsx`, `src/app/admin/error.tsx`, and `src/components/ErrorBoundary.tsx` now use declarative error copy rather than vague/banned fallback phrasing.
+- [x] `src/lib/server/not-found.ts` owns canonical API not-found payload construction.
+- [x] `src/lib/server/auth.ts` routes `AuthError` 404s through the canonical not-found payload helper.
+- [x] All direct `src/app/api` 404 responses now use the canonical not-found helper or `AuthError` path.
+- [x] `src/app/api/chat/threads/[threadId]/route.ts`, `src/app/api/chat/attachments/*/route.ts`, `src/app/api/notifications/route.ts`, `src/app/api/creator/settings/route.ts`, and `src/app/api/creators/[username]/route.ts` preserve audited domain 404 codes through canonical not-found paths.
+- [x] `scripts/check-not-found-contracts.ts` and `check:not-found` guard the shared 404/error contracts and scan `src/app/api` for direct 404 regressions.
+
 ## 2026-04-28 Doctrine Audit, Chat Mobile Scroll, and Mobile UI Runtime Guarding Coverage
 
 - [x] `src/components/Chat/ChatRouteShell.tsx` now bounds the chat route `main` element to `100dvh`, locks route overflow, and restores all touched inline styles on unmount.

@@ -13,6 +13,7 @@ import { trackServerEvent } from "@/lib/server/analytics";
 import { buildSourceAwareBalancePatch, readSourceAwareBalance, spendSourceAwareGumdrops } from "@/lib/gumdrop-ledger";
 import { touchUserRuntime } from "@/lib/server/user-runtime";
 import { withRouteRuntimeHealth } from "@/lib/server/route-runtime-health";
+import { buildNotFoundResponse } from "@/lib/server/not-found";
 
 const unlockRequestSchema = z.object({
   dropId: z
@@ -206,7 +207,7 @@ async function POST_handler(request: NextRequest) {
     }
 
     if (message === "User not found") {
-      return NextResponse.json({ error: "User not found" }, { status: 404 });
+      return buildNotFoundResponse("user", "User not found");
     }
 
     return handleApiError(error, "Drops.Unlock");

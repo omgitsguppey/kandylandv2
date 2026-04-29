@@ -10,6 +10,7 @@ import { buildCreatorAccrual, buildSourceAwareBalancePatch, readSourceAwareBalan
 import { buildCompletedGumdropTransaction } from "@/lib/server/gumdrop-ledger";
 import { trackServerEvent } from "@/lib/server/analytics";
 import { withRouteRuntimeHealth } from "@/lib/server/route-runtime-health";
+import { buildNotFoundResponse } from "@/lib/server/not-found";
 
 type CreatorRequestRecord = Record<string, unknown> & {
     id: string;
@@ -218,7 +219,7 @@ async function PUT_handler(request: NextRequest) {
         const requestRef = adminDb.collection(CREATOR_COLLECTIONS.requests).doc(requestId);
         const requestSnap = await requestRef.get();
         if (!requestSnap.exists) {
-            return NextResponse.json({ error: "Request not found" }, { status: 404 });
+            return buildNotFoundResponse("request", "Request not found");
         }
 
         const requestData = requestSnap.data() as Record<string, unknown>;

@@ -9,6 +9,7 @@ import { guardApiRequest } from "@/lib/server/request-guard";
 import { CREATOR_COLLECTIONS, isCreatorRole } from "@/lib/creator-experiences";
 import { markNotificationsRuntimeChanged } from "@/lib/server/notification-runtime";
 import { withRouteRuntimeHealth } from "@/lib/server/route-runtime-health";
+import { buildNotFoundResponse } from "@/lib/server/not-found";
 
 const createBroadcastSchema = z.object({
     title: z.string().trim().min(2).max(80).optional(),
@@ -105,7 +106,7 @@ async function POST_handler(request: NextRequest) {
 
         const callerSnap = await adminDb.collection("users").doc(caller.uid).get();
         if (!callerSnap.exists) {
-            return NextResponse.json({ error: "Creator not found" }, { status: 404 });
+            return buildNotFoundResponse("creator", "Creator not found");
         }
 
         const callerData = callerSnap.data() as Record<string, unknown>;
@@ -224,7 +225,7 @@ async function DELETE_handler(request: NextRequest) {
             adminDb.collection(CREATOR_COLLECTIONS.broadcasts).doc(broadcastId).get(),
         ]);
         if (!broadcastSnap.exists) {
-            return NextResponse.json({ error: "Broadcast not found" }, { status: 404 });
+            return buildNotFoundResponse("broadcast", "Broadcast not found");
         }
 
         const callerData = callerSnap.data() as Record<string, unknown> | undefined;

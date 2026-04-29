@@ -11,6 +11,7 @@ import { buildCompletedGumdropTransaction } from "@/lib/server/gumdrop-ledger";
 import { trackServerEvent } from "@/lib/server/analytics";
 import { isWithinAnyWindow } from "./booking-timezone";
 import { withRouteRuntimeHealth } from "@/lib/server/route-runtime-health";
+import { buildNotFoundResponse } from "@/lib/server/not-found";
 
 const createBookingSchema = z.object({
     creatorId: z.string().trim().min(1),
@@ -261,7 +262,7 @@ async function PUT_handler(request: NextRequest) {
         const bookingRef = adminDb.collection(CREATOR_COLLECTIONS.bookings).doc(bookingId);
         const bookingSnap = await bookingRef.get();
         if (!bookingSnap.exists) {
-            return NextResponse.json({ error: "Booking not found" }, { status: 404 });
+            return buildNotFoundResponse("booking", "Booking not found");
         }
 
         const bookingData = bookingSnap.data() as Record<string, unknown>;

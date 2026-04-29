@@ -24,14 +24,14 @@ export default function Error({
                 <AlertCircle className="w-8 h-8 text-red-500" />
             </div>
 
-            <h2 className="text-2xl font-bold text-white mb-4">Something went wrong!</h2>
+            <h2 className="mb-4 text-2xl font-bold text-white">Page Error</h2>
             <p className="text-gray-400 max-w-md mb-4">
-                We encountered an unexpected issue. Please try refreshing the page.
+                This page failed to render. Refresh the page or retry the last action.
             </p>
 
             <div className="bg-black/50 p-4 rounded-lg text-left mb-8 overflow-auto max-h-40 border border-white/5 w-full max-w-md">
                 <p className="font-mono text-xs text-red-400 break-all">
-                    {error.message || "Unknown Error"}
+                    {error.message || "Error details unavailable"}
                 </p>
             </div>
 

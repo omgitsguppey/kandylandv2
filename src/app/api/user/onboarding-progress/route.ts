@@ -11,6 +11,7 @@ import {
     toOnboardingString,
 } from "@/lib/server/onboarding-analytics";
 import { withRouteRuntimeHealth } from "@/lib/server/route-runtime-health";
+import { buildNotFoundResponse } from "@/lib/server/not-found";
 
 const ALLOWED_EVENT_NAMES = new Set([
     "guided_onboarding_started",
@@ -49,7 +50,7 @@ async function POST_handler(request: NextRequest) {
         const userRef = adminDb.collection("users").doc(caller.uid);
         const userSnapshot = await userRef.get();
         if (!userSnapshot.exists) {
-            return NextResponse.json({ error: "User not found" }, { status: 404 });
+            return buildNotFoundResponse("user", "User not found");
         }
 
         const userData = userSnapshot.data() || {};

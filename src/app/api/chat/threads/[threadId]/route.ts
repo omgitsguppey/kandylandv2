@@ -5,6 +5,7 @@ import { handleApiError } from "@/lib/server/auth";
 import { adminDb } from "@/lib/server/firebase-admin";
 import { STANDARD } from "@/lib/server/rate-limit";
 import { guardApiRequest } from "@/lib/server/request-guard";
+import { buildNotFoundResponse } from "@/lib/server/not-found";
 import { getErrorMessage } from "@/lib/server/route-diagnostics";
 import { recordRouteRuntimeSample } from "@/lib/server/route-runtime-health";
 
@@ -49,10 +50,7 @@ export async function GET(request: NextRequest, context: RouteContext) {
             threadId,
         });
         if (!detail) {
-            return finalize(NextResponse.json({
-                error: "Chat thread not found.",
-                errorCode: "thread_not_found",
-            }, { status: 404 }));
+            return finalize(buildNotFoundResponse("thread", "Chat thread not found.", "thread_not_found"));
         }
 
         return finalize(NextResponse.json({

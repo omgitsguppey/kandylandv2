@@ -5,6 +5,8 @@ import { handleApiError } from "@/lib/server/auth";
 import { RELAXED } from "@/lib/server/rate-limit";
 import { isDropHiddenFromPublic, normalizeAndApplyDropStatusOrNull } from "@/lib/drop-read-models";
 import { guardApiRequest } from "@/lib/server/request-guard";
+import { buildNotFoundResponse } from "@/lib/server/not-found";
+import { recordRouteWarning } from "@/lib/server/route-diagnostics";
 import { isCreatorRole, normalizeCreatorSettings } from "@/lib/creator-experiences";
 import { withRouteRuntimeHealth } from "@/lib/server/route-runtime-health";
 
@@ -34,7 +36,7 @@ async function GET_handler(
             .get();
 
         if (creatorSnapshot.empty) {
-            return NextResponse.json({ error: "Creator not found" }, { status: 404 });
+            return buildNotFoundResponse("creator", "Creator not found");
         }
 
         const creatorDoc = creatorSnapshot.docs[0];
@@ -44,7 +46,7 @@ async function GET_handler(
         const isPublicStatus = creatorStatus === undefined || creatorStatus === "active";
 
         if (!isPublicCreator || !isPublicStatus) {
-            return NextResponse.json({ error: "Creator not found" }, { status: 404 });
+            return buildNotFoundResponse("creator", "Creator not found");
         }
 
         const followersSnapshot = await adminDb.collection("creator_relationships")
@@ -79,7 +81,14 @@ async function GET_handler(
 
         // Intentionally decouple and swallow the view-count increment to prevent blocking or failing the read path.
         const { FieldValue } = await import("firebase-admin/firestore");
-        creatorDoc.ref.update({ profileViewsCount: FieldValue.increment(1) }).catch(() => { /* Safe fail */ });
+        creatorDoc.ref.update({ profileViewsCount: FieldValue.increment(1) }).catch((error) => {
+            recordRouteWarning("creators/profile", "Creator profile view count update failed", error, {
+                channel: "creator_onboarding",
+                detail: {
+                    creatorId: creator.uid,
+                },
+            });
+        });
 
         return NextResponse.json({ success: true, creator, drops });
     } catch (error) {

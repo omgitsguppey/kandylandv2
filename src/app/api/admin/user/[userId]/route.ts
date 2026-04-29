@@ -42,6 +42,7 @@ import {
     getBehavioralUserProfile,
 } from "@/lib/server/behavioral-intelligence";
 import { withRouteRuntimeHealth } from "@/lib/server/route-runtime-health";
+import { buildNotFoundResponse } from "@/lib/server/not-found";
 
 function toTimestampNumber(value: unknown): number {
     if (typeof value === "number" && Number.isFinite(value)) {
@@ -133,7 +134,7 @@ async function GET_handler(
         ]);
 
         if (!userSnap.exists) {
-            return NextResponse.json({ error: "User not found" }, { status: 404 });
+            return buildNotFoundResponse("user", "User not found");
         }
 
         const rawUser = userSnap.data() as Record<string, unknown>;

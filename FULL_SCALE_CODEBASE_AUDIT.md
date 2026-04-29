@@ -1,5 +1,38 @@
 # KandyDrops Core Codebase Audit & Defensive Ledger
 
+## [2026-04-29 #45] PRE: Final Consistency Audit and 404 Unification
+
+Scope started:
+- Audit unfinished/inconsistent error and 404 handling across route UI, creator profile missing states, API 404 payloads, and regression guards.
+- Primary discrepancies identified: global 404 copy used banned "Looks like" phrasing, creator profile rendered a detached not-found surface, API 404 JSON responses were hand-rolled in several routes, and no static check prevented 404 copy/API drift.
+- Primary owners identified: `src/app/not-found.tsx`, `src/app/error.tsx`, `src/app/admin/error.tsx`, `src/app/creators/[username]/CreatorProfileClient.tsx`, `src/components/ui/NotFoundSurface.tsx`, `src/lib/server/auth.ts`, `scripts/check-not-found-contracts.ts`, and 404-facing tests.
+
+Startup protocol completed:
+- Read control tower startup/routing/source-truth/shared ownership and doctrine/product/copy/UI/surface/banned/vocabulary/checklist files before user-facing error-copy changes.
+- Read `FULL_SCALE_CODEBASE_AUDIT.md`, `REPO_MEMORY_LEDGER.md`, and `EVERY_FILE_FUNCTION_CHECKLIST.md`; ran `git status --short` and `npm run trace:adjacent -- src/app/not-found.tsx`.
+- Source-of-truth classification: page-level 404 is route truth from Next.js, creator missing state is Firestore creator profile absence, API 404 is route handler source absence.
+
+## [2026-04-29 #45] POST: Final Consistency Audit and 404 Unification
+
+Findings fixed:
+- Global route 404 used banned "Looks like" copy and a one-off layout; replaced with shared `NotFoundSurface`.
+- Creator profile missing state used a detached "Creator Not Found" UI; replaced with shared `NotFoundSurface` and direct creator-unavailable copy.
+- Root/admin error boundaries used vague "Something went wrong" / "Unknown Error" copy; replaced with declarative error states and unavailable-detail fallback.
+- Create Drop used an exclamatory "Drop not found!" toast; replaced with calm operational copy.
+- Every direct `src/app/api` 404 response now uses or flows through `buildNotFoundResponse` or `AuthError(..., 404, resource)`, preserving existing domain error codes where clients already depend on them.
+- Creator profile view-count write failure used a silent catch; replaced with route warning diagnostics.
+- Added `scripts/check-not-found-contracts.ts` and wired `npm run check:not-found` into `npm run check:ui:runtime` to block future 404/error copy drift and direct API `status: 404` regressions.
+
+Verification completed:
+- `npm run check:not-found`
+- `npx vitest run --config vitest.contracts.config.ts tests/unit/auth-handle-api-error.spec.ts tests/unit/chat-thread-route.spec.ts tests/unit/notifications-route.spec.ts tests/unit/creator-settings-route.spec.ts`
+- targeted ESLint for touched 404/error/API files
+- `npm run typecheck -- --pretty false`
+- `npm run check:ui:runtime`
+- `npm run check:continuity`
+- `npm run build`
+- `git diff --check`
+
 ## [2026-04-28 #44] PRE: Doctrine Audit, Chat Mobile Scroll, and Mobile UI Runtime Guarding
 
 Scope started:

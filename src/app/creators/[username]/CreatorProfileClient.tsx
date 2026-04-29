@@ -3,7 +3,6 @@
 import { useParams, useRouter } from "next/navigation";
 import { useEffect, useMemo, useRef, useState } from "react";
 import {
-    Ghost,
     Loader2,
     Lock,
 } from "lucide-react";
@@ -13,6 +12,7 @@ import { DropGrid } from "@/components/DropGrid";
 import { CreatorExperiencesPanel } from "@/components/Creators/CreatorExperiencesPanel";
 import { CreatorProfileHeader } from "@/components/Creators/CreatorProfileHeader";
 import { CreatorUpdatesFeed } from "@/components/Creators/CreatorUpdatesFeed";
+import { NotFoundSurface } from "@/components/ui/NotFoundSurface";
 import { UiContinuityNotice } from "@/components/ui/UiContinuityNotice";
 import { useAuth } from "@/context/AuthContext";
 import { useUI } from "@/context/UIContext";
@@ -674,13 +674,12 @@ export default function CreatorProfileClient() {
 
     if (!creator) {
         return (
-            <div className="flex min-h-[50vh] flex-col items-center justify-center p-8 text-center">
-                <div className="mb-4 flex h-20 w-20 items-center justify-center rounded-full border border-white/10 bg-white/5 text-brand-purple">
-                    <Ghost className="h-10 w-10" />
-                </div>
-                <h1 className="mb-2 text-2xl font-bold text-white">Creator Not Found</h1>
-                <p className="text-gray-400">The user @{username} does not exist or has been removed.</p>
-            </div>
+            <NotFoundSurface
+                eyebrow="Creator"
+                title="Creator Unavailable"
+                detail={`@${username} is not available on KandyDrops.`}
+                className="min-h-[50vh]"
+            />
         );
     }
 

@@ -7,6 +7,7 @@ import { ORCHESTRATION_COLLECTIONS } from "@/lib/orchestration/contract";
 import { ADMIN } from "@/lib/server/rate-limit";
 import { guardApiRequest } from "@/lib/server/request-guard";
 import { withRouteRuntimeHealth } from "@/lib/server/route-runtime-health";
+import { buildNotFoundResponse } from "@/lib/server/not-found";
 
 const repairActionSchema = z.object({
     proposalId: z.string().trim().min(1),
@@ -32,7 +33,7 @@ async function POST_handler(request: NextRequest) {
         const proposalRef = adminDb.collection(ORCHESTRATION_COLLECTIONS.repairProposals).doc(proposalId);
         const proposalSnap = await proposalRef.get();
         if (!proposalSnap.exists) {
-            return NextResponse.json({ error: "Repair proposal not found" }, { status: 404 });
+            return buildNotFoundResponse("repair_proposal", "Repair proposal not found");
         }
 
         const proposal = proposalSnap.data() as Record<string, unknown>;

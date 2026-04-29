@@ -15,6 +15,7 @@ import { buildSourceAwareBalancePatch, creditSourceAwareGumdrops, normalizeGumdr
 import { buildCompletedGumdropTransaction } from "@/lib/server/gumdrop-ledger";
 import { recordRouteWarning } from "@/lib/server/route-diagnostics";
 import { withRouteRuntimeHealth } from "@/lib/server/route-runtime-health";
+import { buildNotFoundResponse } from "@/lib/server/not-found";
 
 type OnboardingFactWrite = {
     key: string;
@@ -259,7 +260,7 @@ async function POST_handler(req: NextRequest) {
         });
 
         if (result.status === "missing_user") {
-            return NextResponse.json({ error: "User not found" }, { status: 404 });
+            return buildNotFoundResponse("user", "User not found");
         }
 
         if (result.status === "already_completed") {

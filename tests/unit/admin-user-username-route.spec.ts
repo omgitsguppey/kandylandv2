@@ -70,7 +70,7 @@ describe("PATCH /api/admin/users/[userId]/username", () => {
         const payload = await response.json();
 
         expect(response.status).toBe(200);
-        expect(payload).toEqual({
+        expect(payload).toMatchObject({
             success: true,
             username: "new_name",
         });
@@ -97,7 +97,7 @@ describe("PATCH /api/admin/users/[userId]/username", () => {
         const payload = await response.json();
 
         expect(response.status).toBe(200);
-        expect(payload).toEqual({
+        expect(payload).toMatchObject({
             success: true,
             message: "Username is unchanged",
         });
@@ -124,7 +124,7 @@ describe("PATCH /api/admin/users/[userId]/username", () => {
         const payload = await response.json();
 
         expect(response.status).toBe(409);
-        expect(payload).toEqual({
+        expect(payload).toMatchObject({
             success: false,
             error: "Username is already taken",
         });
@@ -150,9 +150,35 @@ describe("PATCH /api/admin/users/[userId]/username", () => {
         const payload = await response.json();
 
         expect(response.status).toBe(400);
-        expect(payload).toEqual({
+        expect(payload).toMatchObject({
             success: false,
             error: "Invalid username format",
+        });
+    });
+
+    it("returns a canonical not-found payload when the target user is unavailable", async () => {
+        mockState.getDoc.mockResolvedValueOnce({
+            exists: false,
+            data: () => undefined,
+        });
+
+        const request = new NextRequest("http://localhost/api/admin/users/user_404/username", {
+            method: "PATCH",
+            body: JSON.stringify({
+                username: "new_name",
+            }),
+        });
+
+        const response = await PATCH(request, {
+            params: Promise.resolve({ userId: "user_404" }),
+        });
+        const payload = await response.json();
+
+        expect(response.status).toBe(404);
+        expect(payload).toMatchObject({
+            error: "User not found",
+            errorCode: "not_found",
+            resource: "user",
         });
     });
 });

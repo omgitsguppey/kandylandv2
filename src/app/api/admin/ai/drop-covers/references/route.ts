@@ -13,6 +13,7 @@ import { ADMIN_AI_CONTROL, ADMIN_AI_DASHBOARD_READ } from "@/lib/server/rate-lim
 import { guardApiRequest } from "@/lib/server/request-guard";
 import { getErrorMessage } from "@/lib/server/route-diagnostics";
 import { recordRouteRuntimeSample , withRouteRuntimeHealth } from "@/lib/server/route-runtime-health";
+import { buildNotFoundResponse } from "@/lib/server/not-found";
 
 export const dynamic = "force-dynamic";
 export const revalidate = 0;
@@ -141,7 +142,7 @@ async function PUT_handler(request: NextRequest) {
             active: typeof body.active === "boolean" ? body.active : undefined,
         });
         if (!asset) {
-            return finalize(startedAt, "admin/ai/drop-covers/references:PUT", NextResponse.json({ error: "Reference not found" }, { status: 404 }));
+            return finalize(startedAt, "admin/ai/drop-covers/references:PUT", buildNotFoundResponse("reference", "Reference not found"));
         }
 
         return finalize(startedAt, "admin/ai/drop-covers/references:PUT", NextResponse.json({
@@ -182,7 +183,7 @@ async function DELETE_handler(request: NextRequest) {
             actorEmail: caller?.email,
         });
         if (!removed) {
-            return finalize(startedAt, "admin/ai/drop-covers/references:DELETE", NextResponse.json({ error: "Reference not found" }, { status: 404 }));
+            return finalize(startedAt, "admin/ai/drop-covers/references:DELETE", buildNotFoundResponse("reference", "Reference not found"));
         }
 
         return finalize(startedAt, "admin/ai/drop-covers/references:DELETE", NextResponse.json({ success: true }));

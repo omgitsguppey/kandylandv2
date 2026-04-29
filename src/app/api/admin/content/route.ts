@@ -11,6 +11,7 @@ import {
     serializeStorageFile,
 } from "@/lib/server/storage-assets";
 import { withRouteRuntimeHealth } from "@/lib/server/route-runtime-health";
+import { buildNotFoundResponse } from "@/lib/server/not-found";
 
 const DROPS_CONTENT_PREFIX = "drops/";
 
@@ -116,7 +117,7 @@ async function DELETE_handler(request: NextRequest) {
         const storageFile = adminStorage.bucket().file(fullPath);
         const [exists] = await storageFile.exists();
         if (!exists) {
-            return NextResponse.json({ error: "File not found" }, { status: 404 });
+            return buildNotFoundResponse("file", "File not found");
         }
 
         await storageFile.delete();

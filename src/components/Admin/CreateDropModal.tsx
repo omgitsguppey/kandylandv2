@@ -407,7 +407,7 @@ export function CreateDropModal({ isOpen, onClose, dropId, duplicateFromId, onSu
                         fileName: prepared.values.coverFileName || "cover.png",
                     }] : []);
                 } else {
-                    toast.error("Drop not found!");
+                    toast.error("Drop unavailable.");
                     onClose();
                 }
             } catch (err) {

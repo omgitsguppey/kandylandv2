@@ -17,6 +17,7 @@ import {
     ANALYTICS_CANONICAL_COLLECTIONS,
     ANALYTICS_ROUTE_POLICIES,
 } from "@/lib/server/analytics-governance";
+import { buildNotFoundResponse } from "@/lib/server/not-found";
 import {
     VIEWER_WATCH_CAPTURE_QUALITIES,
     VIEWER_WATCH_CAPTURE_TRANSPORTS,
@@ -155,11 +156,11 @@ export async function POST(request: NextRequest) {
         const [userSnapshot, dropSnapshot] = await Promise.all([userRef.get(), dropRef.get()]);
 
         if (!userSnapshot.exists) {
-            return finalize(NextResponse.json({ error: "User not found" }, { status: 404 }));
+            return finalize(buildNotFoundResponse("user", "User not found"));
         }
 
         if (!dropSnapshot.exists) {
-            return finalize(NextResponse.json({ error: "Drop not found" }, { status: 404 }));
+            return finalize(buildNotFoundResponse("drop", "Drop not found"));
         }
 
         const userProfile = (userSnapshot.data() as UserProfile | undefined) ?? null;

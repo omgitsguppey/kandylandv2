@@ -16,7 +16,7 @@ async function requireCreator(uid: string) {
 
     const userSnap = await adminDb.collection("users").doc(uid).get();
     if (!userSnap.exists) {
-        throw new AuthError("Creator profile not found", 404);
+        throw new AuthError("Creator profile not found", 404, "creator");
     }
 
     const data = userSnap.data() as Record<string, unknown>;

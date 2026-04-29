@@ -10,7 +10,7 @@ vi.mock("@/lib/server/rate-limit", () => ({
     buildRateLimitResponse: vi.fn(),
 }));
 
-import { handleApiError } from "@/lib/server/auth";
+import { AuthError, handleApiError } from "@/lib/server/auth";
 
 describe("handleApiError", () => {
     beforeEach(() => {
@@ -39,5 +39,17 @@ describe("handleApiError", () => {
         });
         expect(logPayload).not.toHaveProperty("stack");
         expect(logPayload).not.toHaveProperty("raw");
+    });
+
+    it("returns canonical not-found payloads for AuthError 404s", async () => {
+        const response = handleApiError(new AuthError("Creator profile not found", 404, "creator"), "Creator.Settings.GET");
+        const body = await response.json();
+
+        expect(response.status).toBe(404);
+        expect(body).toEqual({
+            error: "Creator profile not found",
+            errorCode: "not_found",
+            resource: "creator",
+        });
     });
 });

@@ -1,6 +1,7 @@
 import "server-only";
 import { NextRequest, NextResponse } from "next/server";
 import { adminAuth, adminDb } from "./firebase-admin";
+import { buildNotFoundResponse, type ApiNotFoundResource } from "./not-found";
 import { RateLimitError, buildRateLimitResponse } from "./rate-limit";
 import { inferDiagnosticChannel, recordRouteFailure } from "./route-diagnostics";
 
@@ -85,6 +86,9 @@ export function handleApiError(error: unknown, context: string) {
         return buildRateLimitResponse(error);
     }
     if (error instanceof AuthError) {
+        if (error.status === 404) {
+            return buildNotFoundResponse(error.resource ?? "resource", error.message);
+        }
         return NextResponse.json({ error: error.message }, { status: error.status });
     }
     const diagnosticChannel = inferDiagnosticChannel(context);
@@ -110,9 +114,11 @@ export function handleApiError(error: unknown, context: string) {
  */
 export class AuthError extends Error {
     status: number;
-    constructor(message: string, status: number) {
+    resource?: ApiNotFoundResource;
+    constructor(message: string, status: number, resource?: ApiNotFoundResource) {
         super(message);
         this.name = "AuthError";
         this.status = status;
+        this.resource = resource;
     }
 }

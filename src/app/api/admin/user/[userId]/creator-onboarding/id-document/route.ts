@@ -11,6 +11,7 @@ import {
     normalizeCreatorOnboardingCanonicalRecord,
 } from "@/lib/creator-onboarding";
 import { withRouteRuntimeHealth } from "@/lib/server/route-runtime-health";
+import { buildNotFoundResponse } from "@/lib/server/not-found";
 
 function sanitizeFileName(fileName: string) {
     return fileName.replace(/[^A-Za-z0-9._-]+/g, "_").slice(0, 80) || "creator-id";
@@ -44,7 +45,7 @@ async function GET_handler(
                 ? canonical?.idDocument
                 : undefined);
         if (!idDocument) {
-            return NextResponse.json({ error: `No submitted ${requestedSide} ID document found` }, { status: 404 });
+            return buildNotFoundResponse("asset", `No submitted ${requestedSide} ID document found`);
         }
 
         const fileRef = adminStorage.bucket().file(idDocument.storagePath);
@@ -61,7 +62,7 @@ async function GET_handler(
                     storagePath: idDocument.storagePath,
                 },
             });
-            return NextResponse.json({ error: "Submitted ID file is missing from storage" }, { status: 404 });
+            return buildNotFoundResponse("asset", "Submitted ID file is missing from storage");
         }
 
         const [buffer] = await fileRef.download();

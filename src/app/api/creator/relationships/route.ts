@@ -14,6 +14,7 @@ import { getErrorMessage } from "@/lib/server/route-diagnostics";
 import { recordRouteRuntimeSample } from "@/lib/server/route-runtime-health";
 import { isDropHiddenFromPublic, normalizeAndApplyDropStatusOrNull } from "@/lib/drop-read-models";
 import { buildDeterministicCreatorRecommendations } from "@/lib/server/behavioral-intelligence";
+import { buildNotFoundResponse } from "@/lib/server/not-found";
 
 type CreatorRelationshipRecord = Record<string, unknown> & {
     id: string;
@@ -299,7 +300,7 @@ export async function POST(request: NextRequest) {
 
         const creator = await getCreatorRecord(creatorId);
         if (!creator) {
-            return finalize(NextResponse.json({ error: "Creator not found" }, { status: 404 }));
+            return finalize(buildNotFoundResponse("creator", "Creator not found"));
         }
 
         const relationshipRef = adminDb.collection(CREATOR_COLLECTIONS.relationships).doc(buildCreatorRelationshipId(caller.uid, creatorId));

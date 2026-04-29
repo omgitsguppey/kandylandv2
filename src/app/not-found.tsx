@@ -1,21 +1,5 @@
-import { CandyIcon } from "@/components/ui/Icon";
-import { LegalBackLink } from "@/components/Legal/LegalBackLink";
+import { NotFoundSurface } from "@/components/ui/NotFoundSurface";
 
 export default function NotFound() {
-    return (
-        <div className="min-h-screen bg-black flex flex-col items-center justify-center p-4 text-center">
-            <div className="mb-8 relative">
-                <div className="absolute inset-0 bg-brand-purple/20 blur-3xl rounded-full"></div>
-                <CandyIcon className="w-24 h-24 text-gray-500 opacity-50 relative z-10" />
-            </div>
-
-            <h1 className="text-6xl font-bold text-transparent bg-clip-text bg-gradient-to-b from-white to-gray-600 mb-4">404</h1>
-            <h2 className="text-2xl font-bold text-white mb-6">Page Not Found</h2>
-            <p className="text-gray-400 max-w-md mb-8">
-                Looks like this drop has melted away. The page you are looking for does not exist.
-            </p>
-
-            <LegalBackLink variant="button" signedInLabel="Return to App" signedOutLabel="Return Home" />
-        </div>
-    );
+    return <NotFoundSurface />;
 }

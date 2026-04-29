@@ -12,6 +12,7 @@ import { buildNotModifiedResponse, PRIVATE_REVALIDATE_CACHE_CONTROL, requestMatc
 import { markNotificationsRuntimeChanged, touchNotificationsRuntime } from "@/lib/server/notification-runtime";
 import { HEAVY_READ, STANDARD } from "@/lib/server/rate-limit";
 import { guardApiRequest } from "@/lib/server/request-guard";
+import { buildNotFoundResponse } from "@/lib/server/not-found";
 import { getErrorMessage, recordRouteWarning } from "@/lib/server/route-diagnostics";
 import { sanitizeFirestorePayload } from "@/lib/server/firestore-sanitize";
 import { recordRouteRuntimeSample } from "@/lib/server/route-runtime-health";
@@ -286,7 +287,7 @@ export async function PUT(request: NextRequest) {
     });
 
     if (successfulIds.length === 0 && uniqueIds.length === 1) {
-      return finalize(NextResponse.json({ error: "Notification not available" }, { status: 404 }));
+      return finalize(buildNotFoundResponse("notification", "Notification not available"));
     }
 
     if (successfulIds.length > 0) {

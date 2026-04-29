@@ -8,6 +8,7 @@ import { isAllowedRemoteMediaUrl } from "@/lib/media-hosts";
 import { guardApiRequest } from "@/lib/server/request-guard";
 import { getErrorMessage } from "@/lib/server/route-diagnostics";
 import { recordRouteRuntimeSample } from "@/lib/server/route-runtime-health";
+import { buildNotFoundResponse } from "@/lib/server/not-found";
 
 const userContentSchema = z.object({
   unlockedContent: z.array(z.string()).default([]),
@@ -64,11 +65,11 @@ export async function GET(request: NextRequest) {
     const [userSnap, dropSnap] = await Promise.all([userRef.get(), dropRef.get()]);
 
     if (!userSnap.exists) {
-      return finalize(NextResponse.json({ error: "User not found" }, { status: 404 }));
+      return finalize(buildNotFoundResponse("user", "User not found"));
     }
 
     if (!dropSnap.exists) {
-      return finalize(NextResponse.json({ error: "Drop not found" }, { status: 404 }));
+      return finalize(buildNotFoundResponse("drop", "Drop not found"));
     }
 
     const userData = userContentSchema.parse(userSnap.data());
@@ -80,7 +81,7 @@ export async function GET(request: NextRequest) {
     try {
       dropRecord = normalizeDropRecord(dropSnap.data(), dropId);
     } catch {
-      return finalize(NextResponse.json({ error: "No content available" }, { status: 404 }));
+      return finalize(buildNotFoundResponse("content", "No content available"));
     }
 
     const availableUrls = Array.isArray(dropRecord.contentUrls) && dropRecord.contentUrls.length > 0
@@ -90,7 +91,7 @@ export async function GET(request: NextRequest) {
     const targetUrl = availableUrls[mediaIndex];
 
     if (!targetUrl) {
-      return finalize(NextResponse.json({ error: "Content index out of bounds" }, { status: 404 }));
+      return finalize(buildNotFoundResponse("content", "Content index out of bounds"));
     }
     if (!isAllowedRemoteMediaUrl(targetUrl)) {
       return finalize(NextResponse.json({ error: "Content URL is not allowed" }, { status: 400 }));

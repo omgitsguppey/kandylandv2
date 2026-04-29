@@ -4,6 +4,7 @@ import { z } from "zod";
 import { safeGetChatThreadDetailForViewer, toChatClientError } from "@/lib/server/chat";
 import { handleApiError } from "@/lib/server/auth";
 import { adminDb, adminStorage } from "@/lib/server/firebase-admin";
+import { buildNotFoundResponse } from "@/lib/server/not-found";
 import { STANDARD } from "@/lib/server/rate-limit";
 import { guardApiRequest } from "@/lib/server/request-guard";
 import { getErrorMessage } from "@/lib/server/route-diagnostics";
@@ -57,10 +58,7 @@ export async function POST(request: NextRequest) {
             threadId: payload.threadId,
         });
         if (!detail) {
-            return finalize(NextResponse.json({
-                error: "Chat thread not found.",
-                errorCode: "thread_not_found",
-            }, { status: 404 }));
+            return finalize(buildNotFoundResponse("thread", "Chat thread not found.", "thread_not_found"));
         }
 
         const expectedPrefix = `creator/messages/${caller.uid}/${payload.threadId}/`;

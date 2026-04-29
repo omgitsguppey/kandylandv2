@@ -5,6 +5,7 @@ import { ADMIN } from "@/lib/server/rate-limit";
 import { reserveUsernameForUser } from "@/lib/server/username-suggestions";
 import { withRouteRuntimeHealth } from "@/lib/server/route-runtime-health";
 import { recordRouteWarning } from "@/lib/server/route-diagnostics";
+import { buildNotFoundResponse } from "@/lib/server/not-found";
 
 const USERNAME_REGEX = /^[a-z0-9_]{3,20}$/;
 
@@ -47,7 +48,7 @@ async function PATCH_handler(
     const userDoc = await userRef.get();
 
     if (!userDoc.exists) {
-      return NextResponse.json({ success: false, error: "User not found" }, { status: 404 });
+      return buildNotFoundResponse("user", "User not found");
     }
 
     const userData = userDoc.data();

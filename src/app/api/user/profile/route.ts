@@ -12,6 +12,7 @@ import { isCreatorRole, normalizeCreatorSettings } from "@/lib/creator-experienc
 import { getErrorMessage } from "@/lib/server/route-diagnostics";
 import { recordRouteRuntimeSample , withRouteRuntimeHealth } from "@/lib/server/route-runtime-health";
 import { reserveUsernameForUser } from "@/lib/server/username-suggestions";
+import { buildNotFoundResponse } from "@/lib/server/not-found";
 
 const ALLOWED_TIMEZONES = new Set([
     "Auto",
@@ -230,7 +231,7 @@ async function PUT_handler(request: NextRequest) {
         const userRef = adminDb.collection("users").doc(caller.uid);
         const userSnap = await userRef.get();
         if (!userSnap.exists) {
-            return NextResponse.json({ error: "User not found" }, { status: 404 });
+            return buildNotFoundResponse("user", "User not found");
         }
 
         const existingUserData = userSnap.data() ?? {};
@@ -338,7 +339,7 @@ export async function GET(request: NextRequest) {
 
         const userSnapshot = await adminDb.collection("users").doc(caller.uid).get();
         if (!userSnapshot.exists) {
-            return finalize(NextResponse.json({ error: "User not found" }, { status: 404 }));
+            return finalize(buildNotFoundResponse("user", "User not found"));
         }
 
         return finalize(NextResponse.json({

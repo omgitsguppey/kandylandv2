@@ -9,6 +9,7 @@ import { buildCreatorRelationshipId, isCreatorRole } from "@/lib/creator-experie
 import { buildRelationshipPatch } from "@/lib/server/creator-experiences";
 import { trackServerEvent } from "@/lib/server/analytics";
 import { withRouteRuntimeHealth } from "@/lib/server/route-runtime-health";
+import { buildNotFoundResponse } from "@/lib/server/not-found";
 
 const followRequestSchema = z.object({
     targetUserId: z.string().trim().min(1).max(128),
@@ -45,7 +46,7 @@ async function POST_handler(request: NextRequest) {
         const targetSnap = await targetRef.get();
 
         if (!targetSnap.exists) {
-            return NextResponse.json({ error: "Creator not found" }, { status: 404 });
+            return buildNotFoundResponse("creator", "Creator not found");
         }
 
         const targetData = targetSnap.data() ?? {};

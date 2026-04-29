@@ -15,6 +15,7 @@ import {
 import { guardApiRequest } from "@/lib/server/request-guard";
 import { STANDARD } from "@/lib/server/rate-limit";
 import { withRouteRuntimeHealth } from "@/lib/server/route-runtime-health";
+import { buildNotFoundResponse } from "@/lib/server/not-found";
 
 const ALLOWED_DROP_FIELDS = [
     "title", "description", "imageUrl", "contentUrl", "contentUrls", "unlockCost",
@@ -118,7 +119,7 @@ async function PUT_handler(request: NextRequest) {
         const dropRef = adminDb.collection("drops").doc(dropId);
         const dropSnap = await dropRef.get();
         if (!dropSnap.exists) {
-            return NextResponse.json({ error: "Drop not found" }, { status: 404 });
+            return buildNotFoundResponse("drop", "Drop not found");
         }
 
         const existingDrop = normalizeDropRecord(dropSnap.data(), dropId);
