@@ -29,6 +29,8 @@ const routeFiles = walk(adminApiRoot, (path) => path.endsWith("route.ts"));
 const failures: string[] = [];
 const adminDebugPagePath = join(repoRoot, "src", "app", "admin", "debug", "page.tsx");
 const adminDebugPageSource = readFileSync(adminDebugPagePath, "utf8");
+const adminDebugNowPath = join(repoRoot, "src", "app", "admin", "debug", "components", "DebugTabNow.tsx");
+const adminDebugNowSource = readFileSync(adminDebugNowPath, "utf8");
 
 for (const file of uiFiles) {
   const source = readFileSync(file, "utf8");
@@ -102,6 +104,15 @@ if (!adminDebugPageSource.includes("buildAdminDebugAiAssistantCard")) {
 }
 if (/StatCard label="AI assistant"[\s\S]*runtime_ready\s*\?\s*"live"/.test(adminDebugPageSource)) {
   failures.push("src/app/admin/debug/page.tsx: AI assistant stat card must not mark runtime_ready as live when fallback or preflight failures are present");
+}
+if (adminDebugNowSource.includes("Active ${") || adminDebugNowSource.includes("recent ${") || adminDebugNowSource.includes("sample ${")) {
+  failures.push("src/app/admin/debug/components/DebugTabNow.tsx: JSX text must not use template-string dollar markers outside a real template literal");
+}
+if (adminDebugNowSource.includes('value={getPipelineStatusLabel') || adminDebugNowSource.includes('return "Clear";')) {
+  failures.push("src/app/admin/debug/components/DebugTabNow.tsx: route pipeline sample must not display generic Clear while diagnostics can be degraded");
+}
+if (!adminDebugNowSource.includes("buildAdminDebugSystemHealthNowModel")) {
+  failures.push("src/app/admin/debug/components/DebugTabNow.tsx: system health rollups must use the tested summary helper");
 }
 
 const routeRuntimeHealthPath = join(repoRoot, "src", "lib", "server", "route-runtime-health.ts");

@@ -4,6 +4,7 @@ import {
     buildAdminDebugAiAssistantCard,
     buildAdminDebugOpenActionsCard,
     buildAdminDebugRouteHealthCard,
+    buildAdminDebugSystemHealthNowModel,
     type AdminDebugRouteRuntimeSummary,
 } from "@/lib/admin-debug-summary-cards";
 
@@ -120,5 +121,30 @@ describe("admin debug summary cards", () => {
         expect(card.value).toBe("Fallback");
         expect(card.meta).toContain("realtime preflight lane");
         expect(card.truthState).toBe("fallback");
+    });
+
+    it("does not call the route pipeline clear when active diagnostics are degraded", () => {
+        const model = buildAdminDebugSystemHealthNowModel({
+            activePipelineFailureCount: 0,
+            recentPipelineFailureCount: 0,
+            sampledPipelineFailureCount: 0,
+            activePipelineWindowMs: 60 * 60 * 1000,
+            activeDiagnosticCount: 116,
+            recentDiagnosticCount: 120,
+            sampledDiagnosticCount: 120,
+            activeIssueClusterCount: 5,
+            routeFailureCount: 0,
+            writerSampleCount: 9,
+            writerWarnCount: 0,
+            writerFailCount: 0,
+            runtimeWarningCount: 0,
+        });
+
+        expect(model.pipeline.value).toBe("No route failures");
+        expect(model.pipeline.truthState).toBe("degraded");
+        expect(model.pipeline.detail).toContain("Diagnostics remain degraded: 116 active across 5 clusters.");
+        expect(model.pipeline.detail).not.toContain("$0");
+        expect(model.routeFailures.emptyDetail).toContain("Active diagnostics are still degraded outside the route-failure lane.");
+        expect(model.writers.detail).toContain("This does not prove untracked writers are healthy.");
     });
 });

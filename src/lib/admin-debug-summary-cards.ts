@@ -19,6 +19,110 @@ export type AdminDebugRouteListenerState = {
     routeHealthLoaded?: boolean;
 };
 
+function formatWindowHours(windowMs?: number) {
+    if (!windowMs) return "current window";
+    return `${Math.max(1, Math.round(windowMs / 3_600_000))}h`;
+}
+
+function formatRelative(timestamp?: number, nowMs = Date.now()) {
+    if (!timestamp) return "not recorded";
+    const deltaMs = Math.max(0, nowMs - timestamp);
+    const minutes = Math.floor(deltaMs / 60_000);
+    if (minutes < 1) return "just now";
+    if (minutes < 60) return `${minutes}m ago`;
+    const hours = Math.floor(minutes / 60);
+    if (hours < 24) return `${hours}h ago`;
+    return `${Math.floor(hours / 24)}d ago`;
+}
+
+export function buildAdminDebugSystemHealthNowModel(input: {
+    pipelineStatus?: string;
+    activePipelineFailureCount: number;
+    recentPipelineFailureCount: number;
+    sampledPipelineFailureCount: number;
+    activePipelineWindowMs?: number;
+    lastPipelineFailureAt?: number;
+    activeDiagnosticCount: number;
+    recentDiagnosticCount: number;
+    sampledDiagnosticCount: number;
+    activeIssueClusterCount: number;
+    routeFailureCount: number;
+    writerSampleCount: number;
+    writerWarnCount: number;
+    writerFailCount: number;
+    runtimeWarningCount: number;
+    nowMs?: number;
+}) {
+    const nowMs = input.nowMs ?? Date.now();
+    const diagnosticsDegraded = input.activeDiagnosticCount > 0 || input.activeIssueClusterCount > 0;
+    const pipelineHasFailures = input.activePipelineFailureCount > 0 || input.recentPipelineFailureCount > 0 || input.sampledPipelineFailureCount > 0;
+    const pipelineValue = input.activePipelineFailureCount > 0
+        ? "Active route failures"
+        : input.recentPipelineFailureCount > 0 || input.sampledPipelineFailureCount > 0
+            ? "Recent route failures"
+            : "No route failures";
+    const pipelineTruthState: AdminSurfaceState = input.activePipelineFailureCount > 0
+        ? "failed"
+        : input.recentPipelineFailureCount > 0 || input.sampledPipelineFailureCount > 0 || diagnosticsDegraded
+            ? "degraded"
+            : "live";
+    const pipelineDetail = pipelineHasFailures
+        ? `Route pipeline sample last failed ${formatRelative(input.lastPipelineFailureAt, nowMs)}. Active ${input.activePipelineFailureCount}, recent ${input.recentPipelineFailureCount}, sample ${input.sampledPipelineFailureCount}.`
+        : `Route pipeline sample has no failures in the last ${formatWindowHours(input.activePipelineWindowMs)}. Active ${input.activePipelineFailureCount}, recent ${input.recentPipelineFailureCount}, sample ${input.sampledPipelineFailureCount}.`;
+    const diagnosticDetail = diagnosticsDegraded
+        ? `${input.activeIssueClusterCount} current issue clusters. Active ${input.activeDiagnosticCount}, recent ${input.recentDiagnosticCount}, sample ${input.sampledDiagnosticCount}.`
+        : `No active diagnostic clusters. Active ${input.activeDiagnosticCount}, recent ${input.recentDiagnosticCount}, sample ${input.sampledDiagnosticCount}.`;
+    const writerTruthState: AdminSurfaceState = input.writerSampleCount > 0
+        ? input.writerFailCount > 0
+            ? "failed"
+            : input.writerWarnCount > 0
+                ? "degraded"
+                : "live"
+        : "unavailable";
+
+    return {
+        pipeline: {
+            value: pipelineValue,
+            truthState: pipelineTruthState,
+            tone: pipelineTruthState === "failed" ? "bad" as const : pipelineTruthState === "live" ? "good" as const : "warn" as const,
+            detail: diagnosticsDegraded
+                ? `${pipelineDetail} Diagnostics remain degraded: ${input.activeDiagnosticCount} active across ${input.activeIssueClusterCount} clusters.`
+                : pipelineDetail,
+        },
+        diagnostics: {
+            value: input.activeDiagnosticCount,
+            truthState: diagnosticsDegraded ? "degraded" as AdminSurfaceState : "live" as AdminSurfaceState,
+            tone: diagnosticsDegraded ? "warn" as const : "good" as const,
+            detail: diagnosticDetail,
+        },
+        writers: {
+            value: input.writerSampleCount > 0 ? input.writerSampleCount : "No sample",
+            summaryValue: input.writerSampleCount > 0 ? `${input.writerWarnCount}/${input.writerFailCount}` : "No sample",
+            truthState: writerTruthState,
+            tone: writerTruthState === "failed" ? "bad" as const : writerTruthState === "degraded" ? "warn" as const : writerTruthState === "live" ? "good" as const : "neutral" as const,
+            detail: input.writerSampleCount > 0
+                ? `${input.writerSampleCount} tracked materializers. Warn ${input.writerWarnCount}, fail ${input.writerFailCount}. This does not prove untracked writers are healthy.`
+                : "No downstream materializer sample is loaded for this health slice.",
+        },
+        runtimeWarnings: {
+            value: input.runtimeWarningCount,
+            truthState: input.runtimeWarningCount > 0 ? "degraded" as AdminSurfaceState : "live" as AdminSurfaceState,
+            tone: input.runtimeWarningCount > 0 ? "warn" as const : "good" as const,
+            detail: input.runtimeWarningCount > 0
+                ? `${input.runtimeWarningCount} runtime configuration warnings are active.`
+                : "No runtime configuration warnings are active in this backend check.",
+        },
+        routeFailures: {
+            value: input.routeFailureCount,
+            truthState: input.routeFailureCount > 0 ? "degraded" as AdminSurfaceState : "live" as AdminSurfaceState,
+            tone: input.routeFailureCount > 0 ? "warn" as const : "good" as const,
+            emptyDetail: diagnosticsDegraded
+                ? "No route failures are present in the pipeline sample. Active diagnostics are still degraded outside the route-failure lane."
+                : "No route failures are present in the loaded pipeline sample.",
+        },
+    };
+}
+
 export function buildAdminDebugRouteHealthCard(input: {
     summary: AdminDebugRouteRuntimeSummary;
     observedCount: number;

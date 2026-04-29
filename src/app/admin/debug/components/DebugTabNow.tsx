@@ -1,5 +1,6 @@
 "use client";
 
+import { buildAdminDebugSystemHealthNowModel } from "@/lib/admin-debug-summary-cards";
 import { Pill, Section } from "./DebugPrimitives";
 import { DebugNowDiagnostics } from "./DebugNowDiagnostics";
 
@@ -13,17 +14,6 @@ function formatRelative(timestamp?: number) {
     const hours = Math.floor(minutes / 60);
     if (hours < 24) return `${hours}h ago`;
     return `${Math.floor(hours / 24)}d ago`;
-}
-
-function formatWindowHours(windowMs?: number) {
-    if (!windowMs) return "current";
-    return `${Math.max(1, Math.round(windowMs / 3_600_000))}h`;
-}
-
-function getPipelineStatusLabel(status?: string) {
-    if (status === "fail") return "Active";
-    if (status === "warn") return "Recent";
-    return "Clear";
 }
 
 /* ─── Props ─── */
@@ -58,14 +48,24 @@ export function DebugTabNow({
     const writerWarnCount = data?.opsHealth?.materializerSummary?.warn ?? 0;
     const writerFailCount = data?.opsHealth?.materializerSummary?.fail ?? 0;
     const writerSampleCount = (data?.opsHealth?.materializers || []).length;
-    const writerTruthState = writerSampleCount > 0
-        ? writerFailCount > 0
-            ? "failed"
-            : writerWarnCount > 0
-                ? "degraded"
-                : "live"
-        : "unavailable";
     const freshestLoadedSignalTruthState = freshestLoadedSignalAt ? "live" : "unavailable";
+    const systemHealthNow = buildAdminDebugSystemHealthNowModel({
+        pipelineStatus: data?.opsHealth?.pipeline?.status,
+        activePipelineFailureCount,
+        recentPipelineFailureCount,
+        sampledPipelineFailureCount,
+        activePipelineWindowMs: data?.opsHealth?.pipeline?.activeWindowMs,
+        lastPipelineFailureAt: data?.opsHealth?.pipeline?.lastFailureAt,
+        activeDiagnosticCount,
+        recentDiagnosticCount,
+        sampledDiagnosticCount,
+        activeIssueClusterCount: data?.opsHealth?.diagnostics?.activeIssueClusterCount ?? 0,
+        routeFailureCount: (data?.opsHealth?.pipeline?.routes || []).length,
+        writerSampleCount,
+        writerWarnCount,
+        writerFailCount,
+        runtimeWarningCount: (data?.opsHealth?.runtime?.warnings || []).length,
+    });
 
     return (
         <div className="space-y-4">
@@ -73,39 +73,39 @@ export function DebugTabNow({
                         title="System health now"
                         subtitle="Canonical system truth, current diagnostics, and sampled pipeline freshness."
                         defaultOpen
-                        summary={<><Pill label="Score" value={`${data?.opsHealth?.score ?? 0}%`} tone={(data?.opsHealth?.score ?? 0) >= 90 ? "good" : (data?.opsHealth?.score ?? 0) >= 70 ? "warn" : "bad"} /><Pill label="Pipeline" value={getPipelineStatusLabel(data?.opsHealth?.pipeline?.status)} tone={data?.opsHealth?.pipeline?.status === "fail" ? "bad" : data?.opsHealth?.pipeline?.status === "warn" ? "warn" : "good"} /><Pill label="Active diagnostics" value={(data?.opsHealth?.diagnostics?.activeErrorCount ?? 0) + (data?.opsHealth?.diagnostics?.activeWarnCount ?? 0)} tone={((data?.opsHealth?.diagnostics?.activeErrorCount ?? 0) + (data?.opsHealth?.diagnostics?.activeWarnCount ?? 0)) > 0 ? "warn" : "good"} /><Pill label="Writers" value={writerSampleCount > 0 ? `${writerWarnCount}/${writerFailCount}` : "No sample"} tone={writerFailCount > 0 ? "bad" : writerWarnCount > 0 ? "warn" : writerSampleCount > 0 ? "good" : "neutral"} truthState={writerTruthState} /><Pill label="Freshest loaded signal" value={freshestLoadedSignalAt ? formatRelative(freshestLoadedSignalAt) : "Not loaded"} tone={freshestLoadedSignalAt ? "good" : "neutral"} truthState={freshestLoadedSignalTruthState} /></>}
+                        summary={<><Pill label="Score" value={`${data?.opsHealth?.score ?? 0}%`} tone={(data?.opsHealth?.score ?? 0) >= 90 ? "good" : (data?.opsHealth?.score ?? 0) >= 70 ? "warn" : "bad"} /><Pill label="Pipeline sample" value={systemHealthNow.pipeline.value} tone={systemHealthNow.pipeline.tone} truthState={systemHealthNow.pipeline.truthState} /><Pill label="Active diagnostics" value={systemHealthNow.diagnostics.value} tone={systemHealthNow.diagnostics.tone} truthState={systemHealthNow.diagnostics.truthState} /><Pill label="Writers" value={systemHealthNow.writers.summaryValue} tone={systemHealthNow.writers.tone} truthState={systemHealthNow.writers.truthState} /><Pill label="Freshest loaded signal" value={freshestLoadedSignalAt ? formatRelative(freshestLoadedSignalAt) : "Not loaded"} tone={freshestLoadedSignalAt ? "good" : "neutral"} truthState={freshestLoadedSignalTruthState} /></>}
                     >
                         <div className="grid gap-4 lg:grid-cols-1">
                             <div className="grid gap-3 md:grid-cols-2 lg:grid-cols-1">
                                 <div className="rounded-[1rem] border border-white/10 bg-white/[0.03] p-4">
-                                    <p className="text-[11px] uppercase tracking-[0.18em] text-gray-400">Pipeline</p>
-                                    <p className="mt-2 text-xl font-black text-white">{getPipelineStatusLabel(data?.opsHealth?.pipeline?.status)}</p>
-                                    <p className="mt-1 text-sm text-gray-400">{data?.opsHealth?.pipeline?.status === "healthy" ? `No active incident in the last ${formatWindowHours(data?.opsHealth?.pipeline?.activeWindowMs)}.` : `Last failure ${formatRelative(data?.opsHealth?.pipeline?.lastFailureAt)}.`} Active ${activePipelineFailureCount}, recent ${recentPipelineFailureCount}, sample ${sampledPipelineFailureCount}.</p>
+                                    <p className="text-[11px] uppercase tracking-[0.18em] text-gray-400">Route pipeline sample</p>
+                                    <p className="mt-2 text-xl font-black text-white">{systemHealthNow.pipeline.value}</p>
+                                    <p className="mt-1 text-sm text-gray-400">{systemHealthNow.pipeline.detail}</p>
                                 </div>
                                 <div className="rounded-[1rem] border border-white/10 bg-white/[0.03] p-4">
                                     <p className="text-[11px] uppercase tracking-[0.18em] text-gray-400">Diagnostics</p>
-                                    <p className="mt-2 text-xl font-black text-white">{activeDiagnosticCount}</p>
-                                    <p className="mt-1 text-sm text-gray-400">{data?.opsHealth?.diagnostics?.activeIssueClusterCount ?? 0} current issue clusters. Active {activeDiagnosticCount}, recent {recentDiagnosticCount}, sample {sampledDiagnosticCount}.</p>
+                                    <p className="mt-2 text-xl font-black text-white">{systemHealthNow.diagnostics.value}</p>
+                                    <p className="mt-1 text-sm text-gray-400">{systemHealthNow.diagnostics.detail}</p>
                                 </div>
                                 <div className="rounded-[1rem] border border-white/10 bg-white/[0.03] p-4">
                                     <p className="text-[11px] uppercase tracking-[0.18em] text-gray-400">Downstream writers</p>
-                                    <p className="mt-2 text-xl font-black text-white">{(data?.opsHealth?.materializers || []).length}</p>
-                                    <p className="mt-1 text-sm text-gray-400">Materializers tracked in this health slice. Warn {data?.opsHealth?.materializerSummary?.warn ?? 0}, fail {data?.opsHealth?.materializerSummary?.fail ?? 0}. Missing writers outside this slice are still possible.</p>
+                                    <p className="mt-2 text-xl font-black text-white">{systemHealthNow.writers.value}</p>
+                                    <p className="mt-1 text-sm text-gray-400">{systemHealthNow.writers.detail}</p>
                                 </div>
                                 <div className="rounded-[1rem] border border-white/10 bg-white/[0.03] p-4">
                                     <p className="text-[11px] uppercase tracking-[0.18em] text-gray-400">Runtime warnings</p>
-                                    <p className="mt-2 text-xl font-black text-white">{(data?.opsHealth?.runtime?.warnings || []).length}</p>
-                                    <p className="mt-1 text-sm text-gray-400">Environment and runtime warnings from the current backend configuration check.</p>
+                                    <p className="mt-2 text-xl font-black text-white">{systemHealthNow.runtimeWarnings.value}</p>
+                                    <p className="mt-1 text-sm text-gray-400">{systemHealthNow.runtimeWarnings.detail}</p>
                                 </div>
                             </div>
                             <div className="space-y-4">
                                 <div className="rounded-[1rem] border border-white/10 bg-white/[0.03] p-4">
                                     <div className="flex items-start justify-between gap-3">
                                         <div>
-                                            <p className="font-semibold text-white">Top failing routes</p>
-                                            <p className="mt-1 text-xs text-gray-400">Recent route failures from the loaded pipeline sample.</p>
+                                            <p className="font-semibold text-white">Route failure sample</p>
+                                            <p className="mt-1 text-xs text-gray-400">Recent route failures from the loaded pipeline lane only.</p>
                                         </div>
-                                        <Pill label="Routes" value={(data?.opsHealth?.pipeline?.routes || []).length} tone={(data?.opsHealth?.pipeline?.routes || []).length ? "warn" : "good"} />
+                                        <Pill label="Route failures" value={systemHealthNow.routeFailures.value} tone={systemHealthNow.routeFailures.tone} truthState={systemHealthNow.routeFailures.truthState} />
                                     </div>
                                     {(data?.opsHealth?.pipeline?.routes || []).length ? (
                                         <div className="mt-4 space-y-2">
@@ -120,7 +120,7 @@ export function DebugTabNow({
                                             ))}
                                         </div>
                                     ) : (
-                                        <p className="mt-4 text-sm text-emerald-100">No route failures are present in the loaded pipeline sample.</p>
+                                        <p className="mt-4 text-sm text-gray-300">{systemHealthNow.routeFailures.emptyDetail}</p>
                                     )}
                                 </div>
                                 <div className="rounded-[1rem] border border-white/10 bg-white/[0.03] p-4">
