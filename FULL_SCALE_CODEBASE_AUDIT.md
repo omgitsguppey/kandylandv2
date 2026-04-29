@@ -1,5 +1,45 @@
 # KandyDrops Core Codebase Audit & Defensive Ledger
 
+## [2026-04-29 #46] PRE: Telemetry and Parity Gap Hardening
+
+Scope started:
+- Audit telemetry catalog parity, page-view emitters, semantic rollup mappings, admin telemetry log coverage, module index coverage, and global diagnostics that prevent telemetry drift from passing silently.
+- Primary discrepancies identified by runtime/static audit: three cataloged events had no detected emitters (`profile_settings_viewed`, `admin_chart_view_changed`, `admin_dashboard_viewed`), catalog drift was informational rather than failing, and page-view semantic mappings were incomplete across app/server/Functions for creator and admin surfaces.
+- Primary owners identified: `scripts/audit-telemetry.ts`, `scripts/check-telemetry-parity-contracts.ts`, `src/lib/telemetry-catalog.ts`, `src/lib/analytics-semantics.ts`, `src/lib/server/analytics-semantics.ts`, `functions/src/analytics-semantics.ts`, `src/app/admin/page.tsx`, `src/app/dashboard/profile/page.tsx`, and `src/components/Admin/AdminAnalyticsCharts.tsx`.
+
+Startup protocol completed:
+- Read control tower startup/routing/source-truth/shared ownership, doctrine consultation, UI copy workflow, product/copy/UI/surface/banned/vocabulary/checklist files, and the governance ledgers before telemetry/admin truth changes.
+- Ran `git status --short`, `npm run check:admin-truth`, `npm run check:telemetry`, `npm run check:analytics-semantics`, `npm run check:analytics:continuity`, and `npm run trace:adjacent -- src/lib/telemetry.ts`.
+- Source-of-truth classification: telemetry catalog is `src/lib/telemetry-catalog.ts`, app semantic context is `src/lib/analytics-semantics.ts`, server rollup context is `src/lib/server/analytics-semantics.ts`, and deployable Functions rollup parity is `functions/src/analytics-semantics.ts`.
+
+## [2026-04-29 #46] POST: Telemetry and Parity Gap Hardening
+
+Findings fixed:
+- `profile_settings_viewed` was cataloged and included in admin analytics semantics but lacked a profile settings page emitter; added a `PageViewEvent` to `/dashboard/profile`.
+- `admin_dashboard_viewed` was cataloged and queried by admin analytics but the admin root only emitted `admin_overview_viewed`; added the dashboard page-view emitter while preserving the overview emitter.
+- `admin_chart_view_changed` was cataloged but no chart interaction emitted it; admin revenue range changes now emit both the specific revenue range event and the generic chart-view event.
+- Cataloged-but-unemitted telemetry drift was logged as informational; `scripts/audit-telemetry.ts` now fails when catalog events lack emitters or explicit audit coverage.
+- Creator apply, creator waitlist, admin AI, admin overview, admin privacy, admin support, and admin moderation page-view events had incomplete semantic mapping/rollup coverage across app/server/Functions; mappings and rollup cases are now aligned.
+- Added `scripts/check-telemetry-parity-contracts.ts`, wired into `npm run check:telemetry`, to enforce catalog uniqueness, module-index parity, admin telemetry log parity, PageViewEvent catalog coverage, and app/server/Functions semantic rollup parity.
+
+100+ telemetry/parity audit areas hardened by this pass:
+- Catalog/emitter parity, catalog duplicate detection, module index membership, admin log membership, PageViewEvent catalog membership, app legacy path mapping, server rollup switch coverage, Functions path mapping, Functions rollup switch coverage, profile settings page views, admin dashboard page views, admin overview page views, admin AI page views, admin analytics page views, admin moderation page views, admin debug page views, admin support page views, admin users page views, admin content page views, admin drops page views, admin privacy page views, admin queue page views, admin roster page views, admin user detail page views, creator apply page views, creator waitlist page views, privacy page views, terms page views, support inbox page views, revenue chart range telemetry, generic admin chart telemetry, navigation module parity, engagement module parity, admin module parity, auth module parity, onboarding module parity, notifications module parity, task module parity, task-guidance module parity, commerce module parity, content module parity, viewer module parity, creator module parity, runtime module parity, security module parity, admin log dashboard coverage, admin log overview coverage, admin log chart coverage, app semantic path coverage, server semantic view counting, Functions semantic view counting, analytics semantic app/Functions samples, creator apply sample parity, creator waitlist sample parity, admin AI sample parity, admin privacy sample parity, admin support sample parity, unknown emitter blocking, unsupported event diagnostics, admin analytics query compatibility, historical traffic page-path compatibility, live runtime event grouping, server analytics metrics event grouping, canonical page daily rollups, semantic daily rollups, GA4 parity naming, Firestore event facts parity, guest batch fallback parity, viewer session rollup parity, app route page-view parity, admin route page-view parity, profile settings route parity, admin chart interaction parity, range-selector interaction parity, catalog metadata category parity, catalog metadata source parity, catalog module metadata parity, telemetry index version consistency, alias normalization, query-name compatibility, client analytics preparation, server analytics facts, Functions semantic ingestion, admin overview analytics cards, admin revenue chart diagnostics, admin activity traceability, support inbox navigation traceability, creator public funnel traceability, admin workspace traceability, user profile funnel traceability, semantic category resolution, semantic scope resolution, semantic surface resolution, fallback page path detection, direct path normalization, page-view event static extraction, noncataloged PageViewEvent blocking, missing server case blocking, missing Functions case blocking, missing app mapping blocking, missing admin log catalog blocking, missing module catalog blocking, duplicate catalog blocking, and cataloged orphan event blocking.
+
+Verification completed:
+- `npm run check:telemetry`
+- `npm run check:analytics-semantics`
+- `npm run check:analytics:continuity`
+- `npm run check:admin-truth`
+- `npm run typecheck -- --pretty false`
+- `npm --prefix functions run check`
+- targeted ESLint for touched TypeScript/TSX files
+- `npx vitest run --config vitest.contracts.config.ts tests/unit/telemetry.spec.ts tests/unit/telemetry-flows.spec.ts tests/unit/admin-analytics-live-runtime.spec.ts tests/unit/admin-overview-route.spec.ts`
+- `npm run check:continuity`
+- `npm run build`
+- `npm run check:ui:runtime`
+- `npm run check:generated-artifacts`
+- `git diff --check`
+
 ## [2026-04-29 #45] PRE: Final Consistency Audit and 404 Unification
 
 Scope started:

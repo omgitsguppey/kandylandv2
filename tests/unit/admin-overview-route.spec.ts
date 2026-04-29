@@ -169,6 +169,7 @@ vi.mock("@/lib/server/request-guard", () => ({
 }));
 vi.mock("@/lib/server/route-runtime-health", () => ({
     recordRouteRuntimeSample: mockState.recordRouteRuntimeSample,
+    withRouteRuntimeHealth: (_key: string, handler: unknown) => handler,
 }));
 
 vi.mock("@/lib/server/auth", () => ({

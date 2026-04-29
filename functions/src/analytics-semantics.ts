@@ -48,20 +48,28 @@ function humanizeAnalyticsKey(value: string | null | undefined) {
 
 const LEGACY_PAGE_EVENT_PATHS: Record<string, string> = {
   home_page_viewed: "/",
+  creator_apply_viewed: "/creators/apply",
+  creator_waitlist_viewed: "/creators/waitlist",
   privacy_page_viewed: "/privacy",
   terms_page_viewed: "/terms",
   dashboard_viewed: "/dashboard",
   library_viewed: "/dashboard/library",
   profile_settings_viewed: "/dashboard/profile",
+  support_inbox_viewed: "/dashboard/support",
   experience_hub_viewed: "/experiences",
   drops_page_viewed: "/drops",
   faq_page_viewed: "/faq",
   admin_dashboard_viewed: "/admin",
+  admin_overview_viewed: "/admin",
+  admin_ai_viewed: "/admin/ai",
   admin_analytics_viewed: "/admin/analytics",
+  admin_moderation_viewed: "/admin/moderation",
   admin_debug_viewed: "/admin/debug",
+  admin_support_viewed: "/admin/support",
   admin_users_viewed: "/admin/users",
   admin_content_viewed: "/admin/content",
   admin_drops_viewed: "/admin/drops",
+  admin_privacy_viewed: "/admin/privacy",
   admin_queue_viewed: "/admin/queue",
   admin_roster_viewed: "/admin/roster",
   admin_user_detail_viewed: "/admin/user",
@@ -309,6 +317,34 @@ function buildTelemetrySemanticDelta(input: {
 
   switch (eventName) {
   case "semantic_page_viewed":
+    return {viewCount: 1, pagePath}
+  case "home_page_viewed":
+  case "creator_apply_viewed":
+  case "creator_waitlist_viewed":
+  case "privacy_page_viewed":
+  case "terms_page_viewed":
+  case "dashboard_viewed":
+  case "library_viewed":
+  case "profile_settings_viewed":
+  case "support_inbox_viewed":
+  case "experience_hub_viewed":
+  case "drops_page_viewed":
+  case "faq_page_viewed":
+  case "admin_dashboard_viewed":
+  case "admin_overview_viewed":
+  case "admin_ai_viewed":
+  case "admin_analytics_viewed":
+  case "admin_moderation_viewed":
+  case "admin_debug_viewed":
+  case "admin_support_viewed":
+  case "admin_users_viewed":
+  case "admin_content_viewed":
+  case "admin_drops_viewed":
+  case "admin_privacy_viewed":
+  case "admin_queue_viewed":
+  case "admin_roster_viewed":
+  case "admin_user_detail_viewed":
+  case "viewer_opened":
     return {viewCount: 1, pagePath}
   case "semantic_page_engaged":
     return {

@@ -9,6 +9,17 @@ Scoring: all entries below are marked as included in the current validated sweep
 
 Current repo-wide state snapshot: see [FULL_SCALE_CODEBASE_AUDIT.md](/Users/uylus/OneDrive/Documents/KandyDrops_Final/FULL_SCALE_CODEBASE_AUDIT.md) for the current live baseline, verification state, and continuity rules, and see [REPO_MEMORY_LEDGER.md](/Users/uylus/OneDrive/Documents/KandyDrops_Final/REPO_MEMORY_LEDGER.md) for major architectural and workflow decisions. The detailed file/function body below remains valuable historical evidence, but it has not been fully regenerated against the current 2026-04-18 inventory review yet.
 
+## 2026-04-29 Telemetry and Parity Gap Hardening Coverage
+
+- [x] `scripts/audit-telemetry.ts` now fails cataloged telemetry events with no detected emitter or explicit audit coverage.
+- [x] `scripts/check-telemetry-parity-contracts.ts` enforces catalog uniqueness, module-index coverage, admin-log coverage, PageViewEvent catalog coverage, and app/server/Functions semantic parity.
+- [x] `src/app/dashboard/profile/page.tsx` emits `profile_settings_viewed`.
+- [x] `src/app/admin/page.tsx` emits `admin_dashboard_viewed` while preserving `admin_overview_viewed`.
+- [x] `src/components/Admin/AdminAnalyticsCharts.tsx` emits `admin_chart_view_changed` for chart range changes.
+- [x] `src/lib/analytics-semantics.ts`, `src/lib/server/analytics-semantics.ts`, and `functions/src/analytics-semantics.ts` now align page-view semantic paths and rollup cases for creator/admin/profile/support surfaces.
+- [x] `scripts/check-analytics-semantics.ts` now samples creator apply, creator waitlist, admin AI, admin privacy, and admin support parity.
+- [x] `npm run check:telemetry` now runs both emitter and parity guards.
+
 ## 2026-04-29 Final Consistency Audit and 404 Unification Coverage
 
 - [x] `src/components/ui/NotFoundSurface.tsx` is the shared user-facing 404/missing-resource surface.

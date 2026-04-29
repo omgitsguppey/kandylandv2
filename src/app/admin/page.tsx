@@ -36,6 +36,7 @@ export default function AdminDashboardPage() {
 
     return (
         <div className="space-y-3 md:space-y-4">
+            <PageViewEvent eventName="admin_dashboard_viewed" />
             <PageViewEvent eventName="admin_overview_viewed" />
             <AdminPageHeader
                 eyebrow={null}

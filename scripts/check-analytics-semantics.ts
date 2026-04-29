@@ -16,6 +16,8 @@ type SemanticSample = {
 
 const SAMPLES: SemanticSample[] = [
   { label: "home", pagePath: "/" },
+  { label: "creator apply", pagePath: "/creators/apply" },
+  { label: "creator waitlist", pagePath: "/creators/waitlist" },
   { label: "faq", pagePath: "/faq" },
   { label: "dashboard", pagePath: "/dashboard" },
   { label: "library", pagePath: "/dashboard/library" },
@@ -23,6 +25,9 @@ const SAMPLES: SemanticSample[] = [
   { label: "drops catalog", pagePath: "/drops" },
   { label: "drop viewer", pagePath: "/dashboard/viewer", dropId: "drop_123" },
   { label: "admin analytics", pagePath: "/admin/analytics" },
+  { label: "admin ai", pagePath: "/admin/ai" },
+  { label: "admin privacy", pagePath: "/admin/privacy" },
+  { label: "admin support", pagePath: "/admin/support" },
   { label: "admin roster", pagePath: "/admin/users" },
   {
     label: "stamped semantic context",

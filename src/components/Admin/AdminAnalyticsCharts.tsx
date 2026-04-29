@@ -237,6 +237,10 @@ export function AdminAnalyticsCharts({
                             onClick={() => {
                                 setTimeRange(opt.key);
                                 trackEvent("admin_revenue_range_changed", { range: opt.key });
+                                trackEvent("admin_chart_view_changed", {
+                                    chart: "revenue_unwraps",
+                                    range: opt.key,
+                                });
                             }}
                             className={`rounded-full px-2.5 py-1 text-[10px] font-semibold transition-colors ${
                                 timeRange === opt.key

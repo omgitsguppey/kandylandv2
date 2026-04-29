@@ -24,6 +24,21 @@ This file is not a changelog. It is the concise ledger for durable decisions tha
 
 ## Decision Entries
 
+### 1ay. Telemetry catalog events must have emitters and semantic parity
+
+- Approximate date: Recorded explicitly on 2026-04-29 from the Telemetry and Parity Gap Hardening pass
+- Status: Active telemetry/admin truth rule
+- Problem/context: Telemetry catalog entries could drift without emitters, and page-view events could exist in UI/admin analytics without matching app/server/Functions semantic rollup handling.
+- Decision made: `npm run check:telemetry` must fail on cataloged events without emitters or explicit audit coverage, and must enforce PageViewEvent catalog/path/rollup parity across app, server, and Functions.
+- What became canonical:
+  - `scripts/audit-telemetry.ts` blocks orphan catalog events.
+  - `scripts/check-telemetry-parity-contracts.ts` blocks module-index, admin-log, PageViewEvent, and semantic rollup drift.
+  - `src/lib/analytics-semantics.ts`, `src/lib/server/analytics-semantics.ts`, and `functions/src/analytics-semantics.ts` must stay aligned for page-view rollups.
+- Consequence for future work:
+  - Do not add telemetry catalog events without a concrete emitter or explicit `auditCoveredBy` relationship.
+  - Do not add a `PageViewEvent` without catalog coverage and semantic rollup coverage in app/server/Functions.
+  - Admin chart interactions must emit both specific chart controls and generic chart-view telemetry when the catalog expects both.
+
 ### 1ax. 404 and error surfaces must use shared truth-first contracts
 
 - Approximate date: Recorded explicitly on 2026-04-29 from the Final Consistency Audit and 404 Unification pass

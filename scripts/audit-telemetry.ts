@@ -300,5 +300,9 @@ const catalogedButUnemitted = TELEMETRY_EVENT_OPTIONS
 console.log(`Telemetry audit passed. ${matches.length} literal or resolvable emitters checked across ${files.length} files.`);
 console.log(`Cataloged events with no detected emitters: ${catalogedButUnemitted.length}`);
 if (catalogedButUnemitted.length > 0) {
-  console.log(catalogedButUnemitted.join(", "));
+  console.error("Telemetry audit failed. Cataloged events have no detected emitters or explicit audit coverage:");
+  catalogedButUnemitted.forEach((eventName) => {
+    console.error(`- ${eventName}`);
+  });
+  process.exit(1);
 }

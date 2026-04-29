@@ -9,6 +9,7 @@ import { ProfileCreatorEarningsSection } from "./components/ProfileCreatorEarnin
 import { ProfileCreatorToolsSection } from "./components/ProfileCreatorToolsSection";
 import { ProfileSupportSafetySection } from "./components/ProfileSupportSafetySection";
 import { CreateDropModal } from "@/components/Admin/CreateDropModal";
+import { PageViewEvent } from "@/components/Analytics/PageViewEvent";
 import { toast } from "sonner";
 import { Loader2 } from "lucide-react";
 
@@ -25,6 +26,7 @@ export default function ProfilePage() {
 
     return (
         <div className="mx-auto w-full max-w-lg bg-black min-h-screen pb-32">
+            <PageViewEvent eventName="profile_settings_viewed" />
             {/* Header omitted or simplified */}
             <div className="sticky top-0 z-10 flex items-center justify-between border-b border-white/10 bg-black/80 px-4 py-3 backdrop-blur-md">
                 <div className="flex items-center gap-3">

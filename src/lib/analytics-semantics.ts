@@ -139,6 +139,8 @@ export const ANALYTICS_SEMANTIC_STRATEGIES: AnalyticsSemanticStrategy[] = [
 
 const LEGACY_PAGE_EVENT_PATHS: Record<string, string> = {
   home_page_viewed: "/",
+  creator_apply_viewed: "/creators/apply",
+  creator_waitlist_viewed: "/creators/waitlist",
   privacy_page_viewed: "/privacy",
   terms_page_viewed: "/terms",
     dashboard_viewed: "/dashboard",
@@ -149,6 +151,8 @@ const LEGACY_PAGE_EVENT_PATHS: Record<string, string> = {
   drops_page_viewed: "/drops",
   faq_page_viewed: "/faq",
   admin_dashboard_viewed: "/admin",
+  admin_overview_viewed: "/admin",
+  admin_ai_viewed: "/admin/ai",
     admin_analytics_viewed: "/admin/analytics",
     admin_moderation_viewed: "/admin/moderation",
     admin_debug_viewed: "/admin/debug",
@@ -156,6 +160,7 @@ const LEGACY_PAGE_EVENT_PATHS: Record<string, string> = {
     admin_users_viewed: "/admin/users",
   admin_content_viewed: "/admin/content",
   admin_drops_viewed: "/admin/drops",
+  admin_privacy_viewed: "/admin/privacy",
   admin_queue_viewed: "/admin/queue",
   admin_roster_viewed: "/admin/roster",
   admin_user_detail_viewed: "/admin/user",
