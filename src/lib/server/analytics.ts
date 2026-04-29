@@ -6,6 +6,7 @@ import { adminDb } from "./firebase-admin";
 import { buildAnalyticsTimeKeys, resolveTrackedTelemetryEvent } from "./analytics-event-utils";
 import { recordRouteWarning } from "./route-diagnostics";
 import { buildAnalyticsSemanticParams } from "@/lib/analytics-semantics";
+import { ANALYTICS_OPERATIONAL_COLLECTIONS } from "@/lib/server/analytics-governance";
 import { profileAllowsIdentifiedAnalytics } from "@/lib/server/privacy-consent";
 import type { UserProfile } from "@/types/db";
 
@@ -53,6 +54,28 @@ function readNumberParam(params: Record<string, string | number | boolean>, ...k
 function buildServerEventId(userId: string | undefined, eventName: string) {
   const randomFragment = crypto.randomUUID().replace(/-/g, "").slice(0, 16);
   return `srv_${(userId || "server").slice(0, 24)}_${eventName.slice(0, 32)}_${Date.now().toString(36)}_${randomFragment}`;
+}
+
+function buildActiveUserPatch(input: {
+  userId: string;
+  canonicalEventName: string;
+  nowMs: number;
+  params: Record<string, string | number | boolean>;
+  eventModules: readonly string[];
+}) {
+  return {
+    uid: input.userId,
+    username: readStringParam(input.params, "username", "user_name", "display_name", "displayName"),
+    lastSeenAt: input.nowMs,
+    lastEventName: input.canonicalEventName,
+    lastPagePath: readStringParam(input.params, "page_path", "pagePath"),
+    lastDropTitle: readStringParam(input.params, "drop_title", "dropTitle"),
+    lastSemanticScopeLabel: readStringParam(input.params, "semantic_scope_label", "semanticScopeLabel"),
+    lastComponentName: readStringParam(input.params, "component_name", "componentName"),
+    lastEventModules: input.eventModules.join(", "),
+    source: "identified_server_event",
+    updatedAt: admin.firestore.FieldValue.serverTimestamp(),
+  };
 }
 
 async function userAllowsServerAnalytics(userId?: string) {
@@ -104,7 +127,7 @@ export async function trackServerEvent(
   try {
     const timeKeys = buildAnalyticsTimeKeys(nowMs);
     const eventId = buildServerEventId(userId, canonicalEventName);
-    await Promise.all([
+    const writes: Array<Promise<unknown>> = [
       adminDb.collection("analytics_event_facts").doc(eventId).set({
         eventId,
         source: userId ? "authenticated_server" : "server",
@@ -154,7 +177,27 @@ export async function trackServerEvent(
         params: enrichedParams,
         createdAt: admin.firestore.FieldValue.serverTimestamp(),
       }),
-    ]);
+    ];
+
+    if (userId) {
+      writes.push(
+        adminDb
+          .collection(ANALYTICS_OPERATIONAL_COLLECTIONS.activeUsers)
+          .doc(userId)
+          .set(
+            buildActiveUserPatch({
+              userId,
+              canonicalEventName,
+              nowMs,
+              params: enrichedParams,
+              eventModules: option?.modules || [],
+            }),
+            { merge: true },
+          ),
+      );
+    }
+
+    await Promise.all(writes);
   } catch (error) {
     recordRouteWarning("server/analytics", "Failed to mirror server event into analytics facts", error, {
       channel: "analytics",

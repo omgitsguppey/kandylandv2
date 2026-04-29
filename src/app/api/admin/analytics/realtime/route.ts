@@ -125,11 +125,19 @@ function readEventModules(value: unknown) {
 
 function buildFirstPartyLiveData(input: {
   nowMs: number;
+  activeUserDocs: FirebaseFirestore.QueryDocumentSnapshot[];
   eventFactDocs: FirebaseFirestore.QueryDocumentSnapshot[];
   guestBatchDocs: FirebaseFirestore.QueryDocumentSnapshot[];
   watchSessionDocs: FirebaseFirestore.QueryDocumentSnapshot[];
 }) {
   const buckets = buildEmptyLiveBuckets();
+
+  input.activeUserDocs.forEach((doc) => {
+    const data = doc.data() as Record<string, unknown>;
+    const timestamp = toNumber(data.lastSeenAt);
+    const minute = resolveMinutesAgo(input.nowMs, timestamp);
+    applyRealtimePresence(buckets, minute, `user:${doc.id}`);
+  });
 
   input.eventFactDocs.forEach((doc) => {
     const data = doc.data() as Record<string, unknown>;
@@ -410,6 +418,7 @@ async function GET_handler(request: NextRequest) {
 
         const firstPartyLiveData = buildFirstPartyLiveData({
           nowMs,
+          activeUserDocs: sessionsQuery.docs,
           eventFactDocs: recentEventFactsSnapshot.docs,
           guestBatchDocs: recentGuestBatchesSnapshot.docs,
           watchSessionDocs: watchSessionsSnapshot.docs,
@@ -417,9 +426,7 @@ async function GET_handler(request: NextRequest) {
         const gaTotalActive = parseInt(totalActiveResponse.rows?.[0]?.metricValues?.[0]?.value || "0", 10);
         const useFirstPartyFallback = Boolean(totalActiveResponse.fallbackUsed || intervalResponse.fallbackUsed)
           || (gaTotalActive <= 0 && activeUsers.length > 0);
-        if (gaTotalActive <= 0 && activeUsers.length > 0 && !totalActiveResponse.fallbackUsed && !intervalResponse.fallbackUsed && propertyId) {
-          issues.push("GA realtime returned no active users; live pulse is using first-party fallback counts.");
-        }
+        const activeUsersSourceIsPrimary = sessionsQuery.size > 0;
 
         const totalActive = useFirstPartyFallback ? activeUsers.length : gaTotalActive;
         const liveData = (useFirstPartyFallback ? firstPartyLiveData : gaLiveData)
@@ -436,8 +443,12 @@ async function GET_handler(request: NextRequest) {
           issues,
           totalActive,
           deepTrackerActive: activeUsers.length,
-          liveTruthLabel: useFirstPartyFallback ? "fallback" : "live",
-          liveSourceLabel: useFirstPartyFallback ? "first_party_realtime" : "ga_realtime",
+          liveTruthLabel: activeUsersSourceIsPrimary || !useFirstPartyFallback ? "live" : "fallback",
+          liveSourceLabel: useFirstPartyFallback
+            ? activeUsersSourceIsPrimary
+              ? "analytics_active_users"
+              : "first_party_realtime"
+            : "ga_realtime",
           activeUsersTruthLabel: sessionsQuery.size > 0 ? "live" : (activeUsers.length > 0 ? "fallback" : "partial"),
           activeUsersSourceLabel: sessionsQuery.size > 0 ? "analytics_active_users" : "analytics_event_facts + analytics_watch_sessions",
           data: liveData,

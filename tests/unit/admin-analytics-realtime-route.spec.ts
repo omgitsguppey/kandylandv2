@@ -133,6 +133,10 @@ vi.mock("@/lib/server/admin-analytics-data", () => ({
     getAdminAnalyticsPropertyId: mockState.getAdminAnalyticsPropertyId,
 }));
 
+vi.mock("@/lib/server/ephemeral-route-cache", () => ({
+    readThroughEphemeralRouteCache: async (input: { loader: () => Promise<unknown> }) => input.loader(),
+}));
+
 import { GET } from "@/app/api/admin/analytics/realtime/route";
 
 describe("GET /api/admin/analytics/realtime", () => {
@@ -250,5 +254,41 @@ describe("GET /api/admin/analytics/realtime", () => {
             },
         });
         expect(mockState.handleApiError).not.toHaveBeenCalled();
+    });
+
+    it("treats analytics_active_users as the primary live lane when GA realtime is empty", async () => {
+        const nowMs = Date.now();
+        mockState.safeRunRealtimeReport.mockReset();
+        mockState.safeRunRealtimeReport
+            .mockResolvedValueOnce({
+                rows: [{ metricValues: [{ value: "0" }] }],
+            })
+            .mockResolvedValueOnce({
+                rows: [],
+            });
+        mockState.collections.set("analytics_active_users", [
+            {
+                id: "fan_1",
+                data: () => ({
+                    username: "fan_1",
+                    lastSeenAt: nowMs - 5_000,
+                    lastEventName: "home_page_viewed",
+                    lastPagePath: "/",
+                }),
+            },
+        ]);
+
+        const request = new NextRequest("http://localhost/api/admin/analytics/realtime");
+        const response = await GET(request);
+        const payload = await response.json();
+
+        expect(response.status).toBe(200);
+        expect(payload.liveTruthLabel).toBe("live");
+        expect(payload.liveSourceLabel).toBe("analytics_active_users");
+        expect(payload.activeUsersTruthLabel).toBe("live");
+        expect(payload.activeUsersSourceLabel).toBe("analytics_active_users");
+        expect(payload.issues).not.toContain("Live identity lane fell back from analytics_active_users to recent event facts and watch sessions.");
+        expect(payload.issues).not.toContain("GA realtime returned no active users; live pulse is using first-party fallback counts.");
+        expect(payload.data.find((point: { minute: number; users: number }) => point.minute === 0)?.users).toBe(1);
     });
 });

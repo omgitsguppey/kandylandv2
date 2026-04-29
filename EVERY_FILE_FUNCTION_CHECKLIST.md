@@ -9,6 +9,20 @@ Scoring: all entries below are marked as included in the current validated sweep
 
 Current repo-wide state snapshot: see [FULL_SCALE_CODEBASE_AUDIT.md](/Users/uylus/OneDrive/Documents/KandyDrops_Final/FULL_SCALE_CODEBASE_AUDIT.md) for the current live baseline, verification state, and continuity rules, and see [REPO_MEMORY_LEDGER.md](/Users/uylus/OneDrive/Documents/KandyDrops_Final/REPO_MEMORY_LEDGER.md) for major architectural and workflow decisions. The detailed file/function body below remains valuable historical evidence, but it has not been fully regenerated against the current 2026-04-18 inventory review yet.
 
+## 2026-04-29 Admin Analytics Realtime Fallback Coverage
+
+- [x] `src/app/api/analytics/ingest-identified/route.ts` mirrors identified client events into `analytics_active_users`.
+- [x] `src/lib/server/analytics.ts` mirrors identified server events into `analytics_active_users`.
+- [x] `src/app/api/admin/analytics/realtime/route.ts` includes `analytics_active_users` documents in first-party live buckets.
+- [x] `src/app/api/admin/analytics/realtime/route.ts` treats current `analytics_active_users` data as live even when GA4 realtime returns zero active users.
+- [x] `src/app/api/admin/analytics/historical/route.ts` passes `analytics_sessions` docs into historical guest/public traffic.
+- [x] `src/lib/server/admin-analytics-historical-traffic.ts` uses `analytics_page_daily` and `analytics_sessions` as exact first-party guest/public evidence before GA-minus-identified estimation.
+- [x] `src/components/CoreLayoutWrapper.tsx` mounts first-party guest telemetry after paint on the homepage so anonymous page-view batches are not delayed until idle.
+- [x] `tests/unit/server-analytics-active-users.spec.ts` verifies identified server telemetry creates the active-user mirror and server-only telemetry does not.
+- [x] `tests/unit/admin-analytics-realtime-route.spec.ts` verifies the realtime route does not degrade when the first-party active-user lane is current and GA4 is empty.
+- [x] `tests/unit/admin-analytics-historical-traffic.spec.ts` verifies historical guest/public traffic recovers exact first-party data from page rollups and sessions without estimating.
+- [x] `scripts/check-analytics-continuity.ts` blocks future active-user reader/writer drift and historical guest/public first-party source drift.
+
 ## 2026-04-29 Global Client Firestore Connectivity Coverage
 
 - [x] `firestore.rules` now explicitly matches all client Firestore collection contracts discovered by the global scan.

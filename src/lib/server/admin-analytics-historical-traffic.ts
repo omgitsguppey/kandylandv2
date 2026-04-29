@@ -25,6 +25,7 @@ export function buildHistoricalTrafficOverview(input: {
   pageRollups: FirebaseFirestore.QueryDocumentSnapshot[];
   analyticsEventFacts: FirebaseFirestore.QueryDocumentSnapshot[];
   guestBatchDocs: FirebaseFirestore.QueryDocumentSnapshot[];
+  guestSessionDocs: FirebaseFirestore.QueryDocumentSnapshot[];
   sessionFacts: FirebaseFirestore.QueryDocumentSnapshot[];
   startMs: number;
   endMs: number;
@@ -43,6 +44,7 @@ export function buildHistoricalTrafficOverview(input: {
     pageRollups,
     analyticsEventFacts,
     guestBatchDocs,
+    guestSessionDocs,
     sessionFacts,
     startMs,
     endMs,
@@ -190,6 +192,37 @@ export function buildHistoricalTrafficOverview(input: {
     sessionFactSessionsByHour.set(hourKey, (sessionFactSessionsByHour.get(hourKey) || 0) + startedCount);
   });
 
+  const guestSessionKeys = new Set<string>();
+  const guestSessionSessionsByDay = new Map<string, Set<string>>();
+  const guestSessionSessionsByHour = new Map<string, Set<string>>();
+  guestSessionDocs.forEach((doc) => {
+    const data = doc.data() as Record<string, unknown>;
+    const anchorTimestamp = toNumber(data.lastReceivedAtMs)
+      || toNumber(data.firstEventAtMs)
+      || toNumber(data.lastEventAt)
+      || toNumber(data.updatedAt);
+    if (anchorTimestamp > 0 && (anchorTimestamp < startMs || anchorTimestamp > endMs)) {
+      return;
+    }
+
+    const sessionKey = toStringValue(data.sessionKey)
+      || toStringValue(data.clientSessionId)
+      || doc.id.replace(/_\d{12}$/u, "");
+    if (!sessionKey) {
+      return;
+    }
+
+    const dayKey = toStringValue(data.dayKey) || (anchorTimestamp > 0 ? timestampToDayKey(anchorTimestamp) : startDayKey);
+    const hourKey = toStringValue(data.hourKey) || (anchorTimestamp > 0 ? timestampToHourKey(anchorTimestamp) : `${dayKey}T00`);
+    guestSessionKeys.add(sessionKey);
+    const daySet = guestSessionSessionsByDay.get(dayKey) || new Set<string>();
+    daySet.add(sessionKey);
+    guestSessionSessionsByDay.set(dayKey, daySet);
+    const hourSet = guestSessionSessionsByHour.get(hourKey) || new Set<string>();
+    hourSet.add(sessionKey);
+    guestSessionSessionsByHour.set(hourKey, hourSet);
+  });
+
   const gaChartMap = new Map<string, {
     users: number;
     views: number;
@@ -229,11 +262,16 @@ export function buildHistoricalTrafficOverview(input: {
       ? (guestPageViewsByHour.get(bucketKey) || 0) + (authenticatedPageViewsByHour.get(bucketKey) || 0)
       : Math.max(pageViewsByDay.get(bucketKey) || 0, guestPageViewsByDay.get(bucketKey) || 0) + (authenticatedPageViewsByDay.get(bucketKey) || 0);
     const firstPartySessions = isHourly
-      ? Math.max(viewerSessionsByHour.get(bucketKey) || 0, sessionFactSessionsByHour.get(bucketKey) || 0)
+      ? Math.max(
+          viewerSessionsByHour.get(bucketKey) || 0,
+          sessionFactSessionsByHour.get(bucketKey) || 0,
+          guestSessionSessionsByHour.get(bucketKey)?.size || 0,
+        )
       : Math.max(
           rollup?.viewerSessions ?? 0,
           viewerSessionsByDay.get(bucketKey) || 0,
           sessionFactSessionsByDay.get(bucketKey) || 0,
+          guestSessionSessionsByDay.get(bucketKey)?.size || 0,
         );
 
     return {
@@ -257,11 +295,20 @@ export function buildHistoricalTrafficOverview(input: {
     engagementRate: chartData.length > 0 ? chartData.reduce((acc: number, curr) => acc + curr.engagementRate, 0) / chartData.length : 0,
   };
   const authenticatedViews = Array.from(authenticatedPageViewsByPath.values()).reduce((sum, value) => sum + value, 0);
-  const guestViewsExact = Array.from(rawGuestPageStatsByPath.values()).reduce((sum, value) => sum + value.views, 0);
+  const guestBatchPageViewsExact = Array.from(rawGuestPageStatsByPath.values()).reduce((sum, value) => sum + value.views, 0);
+  const guestRollupPageViewsExact = Array.from(pageRollupMap.values()).reduce((sum, value) => sum + value.views, 0);
+  const guestViewsExact = Math.max(guestBatchPageViewsExact, guestRollupPageViewsExact);
   const identifiedSessions = Array.from(sessionFactSessionsByDay.values()).reduce((sum, value) => sum + value, 0);
-  const guestSessionsExact = guestBatchDocs.length;
+  const guestSessionsExact = Math.max(guestBatchDocs.length, guestSessionKeys.size);
   const estimatedGuestViews = Math.max(guestViewsExact, totals.views - authenticatedViews);
   const estimatedGuestSessions = Math.max(guestSessionsExact, totals.sessions - identifiedSessions);
+  const hasExactGuestViews = guestViewsExact > 0;
+  const hasExactGuestSessions = guestSessionsExact > 0;
+  const guestSourceLabels = [
+    guestBatchPageViewsExact > 0 ? "analytics_guest_batches" : null,
+    guestRollupPageViewsExact > 0 ? "analytics_page_daily" : null,
+    guestSessionKeys.size > 0 ? "analytics_sessions" : null,
+  ].filter((value): value is string => Boolean(value));
   const guestTraffic = {
     totalViews: totals.views,
     totalSessions: totals.sessions,
@@ -271,15 +318,15 @@ export function buildHistoricalTrafficOverview(input: {
     exactGuestSessions: guestSessionsExact,
     estimatedGuestViews,
     estimatedGuestSessions,
-    truthLabel: guestViewsExact > 0 || guestSessionsExact > 0
+    truthLabel: hasExactGuestViews || hasExactGuestSessions
       ? "exact"
       : estimatedGuestViews > 0 || estimatedGuestSessions > 0
         ? "estimated"
         : "unknown",
-    sourceLabel: guestViewsExact > 0 || guestSessionsExact > 0
-      ? "analytics_guest_batches"
+    sourceLabel: guestSourceLabels.length > 0
+      ? guestSourceLabels.join(" + ")
       : "ga_total_minus_identified_first_party",
-    qualityAvailable: guestViewsExact > 0,
+    qualityAvailable: hasExactGuestViews,
   } as const;
 
   const gaEventCounts = eventRows.reduce((acc: Record<string, number>, row) => {

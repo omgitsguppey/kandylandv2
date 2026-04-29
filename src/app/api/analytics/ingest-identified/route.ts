@@ -5,7 +5,7 @@ import { ANALYTICS_WRITE } from "@/lib/server/rate-limit";
 import { guardApiRequest } from "@/lib/server/request-guard";
 import { recordRouteWarning } from "@/lib/server/route-diagnostics";
 import { recordServerDiagnostic } from "@/lib/server/server-diagnostics";
-import { ANALYTICS_CANONICAL_COLLECTIONS, ANALYTICS_ROUTE_POLICIES } from "@/lib/server/analytics-governance";
+import { ANALYTICS_CANONICAL_COLLECTIONS, ANALYTICS_OPERATIONAL_COLLECTIONS, ANALYTICS_ROUTE_POLICIES } from "@/lib/server/analytics-governance";
 import { withRouteRuntimeHealth } from "@/lib/server/route-runtime-health";
 
 export const dynamic = "force-dynamic";
@@ -29,6 +29,26 @@ function getAnalyticsIngestErrorMessage(error: unknown) {
 
 function buildFallbackEventId(userId: string, eventName: string) {
     return `evt_${encodeURIComponent(userId || "anonymous")}_${encodeURIComponent(eventName || "event")}_${Date.now().toString(36)}_${crypto.randomUUID().replace(/-/g, "").slice(0, 16)}`;
+}
+
+function readStringParam(params: Record<string, unknown>, ...keys: string[]) {
+    for (const key of keys) {
+        const value = params[key];
+        if (typeof value === "string" && value.trim().length > 0) {
+            return value.trim();
+        }
+    }
+
+    return "";
+}
+
+function readEventModules(params: Record<string, unknown>) {
+    const value = params.event_modules ?? params.eventModules;
+    if (Array.isArray(value)) {
+        return value.filter((entry): entry is string => typeof entry === "string" && entry.trim().length > 0).join(", ");
+    }
+
+    return typeof value === "string" ? value.trim() : "";
 }
 
 async function POST_handler(request: NextRequest) {
@@ -81,6 +101,7 @@ async function POST_handler(request: NextRequest) {
 
         const batch = adminDb.batch();
         let processed = 0;
+        let latestActiveUserPatch: Record<string, unknown> | null = null;
 
         for (const rawEvent of deduplicatedEvents) {
             const eventId = rawEvent.eventId || buildFallbackEventId(caller.uid, rawEvent.eventName);
@@ -129,6 +150,22 @@ async function POST_handler(request: NextRequest) {
             batch.set(ref, finalEvent, { merge: false });
             processed++;
 
+            if (!latestActiveUserPatch || timestamp >= Number(latestActiveUserPatch.lastSeenAt || 0)) {
+                latestActiveUserPatch = {
+                    uid: caller.uid,
+                    username: readStringParam(params, "username", "user_name", "display_name", "displayName"),
+                    lastSeenAt: timestamp,
+                    lastEventName: rawEvent.eventName,
+                    lastPagePath: finalEvent.pagePath,
+                    lastDropTitle: finalEvent.dropTitle,
+                    lastSemanticScopeLabel: readStringParam(params, "semantic_scope_label", "semanticScopeLabel"),
+                    lastComponentName: readStringParam(params, "component_name", "componentName"),
+                    lastEventModules: readEventModules(params),
+                    source: "identified_client_ingest",
+                    updatedAt: Date.now(),
+                };
+            }
+
             if (rawEvent.eventName === "admin_ui_error") {
                 const errorMsg = String(params.message || "Unknown client error");
                 const stackTrace = typeof params.stack === "string" ? params.stack : "";
@@ -149,7 +186,14 @@ async function POST_handler(request: NextRequest) {
         }
 
         if (processed > 0) {
-             await batch.commit();
+            if (latestActiveUserPatch) {
+                batch.set(
+                    adminDb.collection(ANALYTICS_OPERATIONAL_COLLECTIONS.activeUsers).doc(caller.uid),
+                    latestActiveUserPatch,
+                    { merge: true },
+                );
+            }
+            await batch.commit();
         }
 
         return NextResponse.json({ success: true, processed });

@@ -86,7 +86,7 @@ export function CoreLayoutWrapper({ children }: { children: React.ReactNode }) {
         idle: true,
     });
     const diagnosticsReady = isHomeRoute ? homepageAfterPaintReady : runtimeReady;
-    const telemetryReady = isHomeRoute ? homepageIdleReady : afterPaintReady;
+    const telemetryReady = afterPaintReady;
     const enhancementReady = isHomeRoute ? homepageIdleReady : idleReady;
     const overlayReady = isHomeRoute ? homepageOverlayReady : telemetryReady;
     const scrollControlsReady = !isHomeRoute || homepageAfterPaintReady;

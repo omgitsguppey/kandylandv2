@@ -312,6 +312,7 @@ async function GET_handler(request: NextRequest) {
                 pageRollups: pageRollupsSnapshot.docs,
                 analyticsEventFacts: analyticsEventFactsSnapshot.docs,
                 guestBatchDocs: guestBatchesSnapshot.docs,
+                guestSessionDocs: guestSessionsSnapshot.docs,
                 sessionFacts: sessionFactsSnapshot.docs,
                 startMs,
                 endMs,

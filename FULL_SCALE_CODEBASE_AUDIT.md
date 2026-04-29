@@ -1,5 +1,36 @@
 # KandyDrops Core Codebase Audit & Defensive Ledger
 
+## [2026-04-29 #51] PRE/POST: Admin Analytics Realtime Fallback Root-Cause Fix
+
+Scope completed:
+- Researched the repeated admin analytics degraded banner against Google/Firebase documentation for Firestore realtime listeners, listener error handling, metadata freshness, Firestore security rules, and GA4 Realtime reporting.
+- Root cause 1: client Firestore analytics observers could fail closed when deployed rules did not permit their direct reads.
+- Root cause 2: `/api/admin/analytics/realtime` treated `analytics_active_users` as the primary live identity lane, but identified telemetry ingestion did not write that collection, so the route frequently fell back to event facts and watch sessions.
+- Root cause 3: historical guest/public analytics only treated raw `analytics_guest_batches` as exact, so already-rolled-up `analytics_page_daily` and active `analytics_sessions` were ignored and the panel estimated from GA totals minus identified first-party traffic.
+- Root cause 4: the homepage delayed the first-party guest tracker until idle, allowing GA4 to record short homepage visits before KandyDrops wrote anonymous first-party batches.
+
+Findings fixed:
+- Identified client telemetry ingestion now mirrors the latest user event into `analytics_active_users`.
+- Server-side `trackServerEvent` now mirrors identified server events into `analytics_active_users`.
+- Admin realtime analytics buckets now include `analytics_active_users` documents directly, so live pulse charts can hydrate from the primary first-party lane.
+- GA4 realtime returning zero active users no longer marks the route degraded when `analytics_active_users` has current first-party live data; the first-party lane is treated as live, not a fallback.
+- Historical guest/public traffic now uses `analytics_page_daily` and `analytics_sessions` as exact first-party sources when raw guest batches are absent or already rolled up.
+- The global layout starts `DeepTracker` after paint on the homepage instead of waiting for idle, preserving anonymous first-party page-view batches without reintroducing blocking SSR work.
+- Added unit coverage for active-user mirroring and the realtime route's primary-lane behavior.
+- Added unit coverage for historical guest/public rollup recovery from `analytics_page_daily` plus `analytics_sessions`.
+- Hardened `scripts/check-analytics-continuity.ts` so the realtime route cannot keep reading `analytics_active_users` unless both identified ingest and server analytics write it, and historical analytics cannot drop first-party guest rollup/session sources before GA estimation.
+
+Verification completed:
+- `npx vitest run tests/unit/admin-analytics-realtime-route.spec.ts tests/unit/server-analytics-active-users.spec.ts tests/unit/admin-analytics-live-runtime.spec.ts`
+- `npx vitest run tests/unit/admin-analytics-historical-traffic.spec.ts tests/unit/admin-analytics-realtime-route.spec.ts tests/unit/server-analytics-active-users.spec.ts tests/unit/admin-analytics-live-runtime.spec.ts`
+- `npm run typecheck -- --pretty false`
+- `npm run check:analytics:continuity`
+- `npm run check:telemetry`
+- `npm run check:admin-truth`
+- `npm run check:ui:coverage`
+- `npm run check:ui:runtime`
+- `npm run check:ui:audits`
+
 ## [2026-04-29 #50] PRE/POST: Global Client Firestore Connectivity Audit
 
 Scope completed:

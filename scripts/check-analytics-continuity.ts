@@ -2,6 +2,8 @@ import { summarizeAnalyticsTruth } from "@/lib/admin-analytics-truth";
 import { classifyGumdropTransaction } from "@/lib/gumdrop-ledger";
 import { buildWatchCaptureHealthSummary } from "@/lib/server/admin-analytics-capture-health";
 import { deriveViewerWatchCaptureState } from "@/lib/viewer-watch-session";
+import { readFileSync } from "node:fs";
+import { resolve } from "node:path";
 import { getRuntimeAdminDb } from "./runtime-admin";
 
 function assert(condition: unknown, message: string) {
@@ -11,6 +13,9 @@ function assert(condition: unknown, message: string) {
 }
 
 export async function checkAnalyticsContinuity() {
+  assertActiveUserMirrorWriters();
+  assertHistoricalGuestFirstPartySources();
+
   const adminDb = getRuntimeAdminDb();
   const sinceMs = Date.now() - 7 * 24 * 60 * 60 * 1000;
 
@@ -201,6 +206,44 @@ export async function checkAnalyticsContinuity() {
   assert(
     creatorParity.creatorRestrictedSpendViolationCount === 0,
     `Analytics continuity failed: ${creatorParity.creatorRestrictedSpendViolationCount} creator spend transaction(s) spent restricted creator balance from reward sources in the last 7 days.`,
+  );
+}
+
+function assertActiveUserMirrorWriters() {
+  const serverAnalyticsSource = readFileSync(resolve(process.cwd(), "src/lib/server/analytics.ts"), "utf8");
+  const identifiedIngestSource = readFileSync(resolve(process.cwd(), "src/app/api/analytics/ingest-identified/route.ts"), "utf8");
+  const realtimeRouteSource = readFileSync(resolve(process.cwd(), "src/app/api/admin/analytics/realtime/route.ts"), "utf8");
+
+  assert(
+    realtimeRouteSource.includes("ANALYTICS_OPERATIONAL_COLLECTIONS.activeUsers"),
+    "Analytics continuity failed: realtime admin analytics route no longer reads analytics_active_users.",
+  );
+  assert(
+    serverAnalyticsSource.includes("ANALYTICS_OPERATIONAL_COLLECTIONS.activeUsers"),
+    "Analytics continuity failed: server analytics events no longer mirror identified activity into analytics_active_users.",
+  );
+  assert(
+    identifiedIngestSource.includes("ANALYTICS_OPERATIONAL_COLLECTIONS.activeUsers"),
+    "Analytics continuity failed: identified client ingestion no longer mirrors activity into analytics_active_users.",
+  );
+}
+
+function assertHistoricalGuestFirstPartySources() {
+  const historicalRouteSource = readFileSync(resolve(process.cwd(), "src/app/api/admin/analytics/historical/route.ts"), "utf8");
+  const historicalTrafficSource = readFileSync(resolve(process.cwd(), "src/lib/server/admin-analytics-historical-traffic.ts"), "utf8");
+  const coreLayoutSource = readFileSync(resolve(process.cwd(), "src/components/CoreLayoutWrapper.tsx"), "utf8");
+
+  assert(
+    historicalRouteSource.includes("guestSessionDocs: guestSessionsSnapshot.docs"),
+    "Analytics continuity failed: historical admin analytics no longer feeds analytics_sessions into guest/public traffic.",
+  );
+  assert(
+    historicalTrafficSource.includes("guestRollupPageViewsExact") && historicalTrafficSource.includes("guestSessionKeys"),
+    "Analytics continuity failed: historical guest/public traffic no longer uses analytics_page_daily and analytics_sessions before GA estimation.",
+  );
+  assert(
+    coreLayoutSource.includes("const telemetryReady = afterPaintReady"),
+    "Analytics continuity failed: first-party guest telemetry is delayed past after-paint and can lose homepage visits before analytics_guest_batches writes.",
   );
 }
 

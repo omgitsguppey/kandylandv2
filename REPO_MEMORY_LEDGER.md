@@ -24,6 +24,38 @@ This file is not a changelog. It is the concise ledger for durable decisions tha
 
 ## Decision Entries
 
+### 1be. Historical guest/public analytics must prefer first-party rollups before GA estimation
+
+- Approximate date: Recorded explicitly on 2026-04-29 from the Admin Analytics Realtime Fallback Root-Cause Fix
+- Status: Active admin analytics historical rule
+- Problem/context: Historical analytics could label guest/public traffic as estimated from GA totals minus identified first-party traffic even when KandyDrops had exact anonymous first-party evidence in `analytics_page_daily` or `analytics_sessions`.
+- Decision made: Historical guest/public traffic must use raw `analytics_guest_batches`, persisted `analytics_page_daily` page rollups, and `analytics_sessions` session docs before using GA-minus-identified estimation.
+- What became canonical:
+  - `src/lib/server/admin-analytics-historical-traffic.ts` treats `analytics_page_daily` page views and unique `analytics_sessions` keys as exact guest/public evidence.
+  - `src/app/api/admin/analytics/historical/route.ts` passes `guestSessionsSnapshot.docs` into the historical traffic builder.
+  - `src/components/CoreLayoutWrapper.tsx` starts `DeepTracker` after paint so the homepage writes first-party anonymous page-view batches early enough to align with GA4.
+  - `scripts/check-analytics-continuity.ts` blocks removing the first-party guest rollup/session inputs before GA estimation.
+- Consequence for future work:
+  - Do not show GA-minus-identified guest/public estimates when first-party guest rollups or anonymous sessions are present.
+  - Keep homepage first-party telemetry early and non-visual; defer heavier overlays, not the initial analytics collector.
+  - If guest-session storage changes, update historical analytics, realtime analytics, continuity guards, and tests together.
+
+### 1bd. `analytics_active_users` is a written first-party live lane
+
+- Approximate date: Recorded explicitly on 2026-04-29 from the Admin Analytics Realtime Fallback Root-Cause Fix
+- Status: Active admin analytics realtime rule
+- Problem/context: `/api/admin/analytics/realtime` read `analytics_active_users` as its primary live identity source, but no canonical telemetry path wrote that collection. Admin analytics therefore fell back to event facts and watch sessions even when identified users were active.
+- Decision made: Identified client ingestion and identified server analytics events must mirror latest user activity into `analytics_active_users`, and the admin realtime route treats that first-party lane as live when present.
+- What became canonical:
+  - `src/app/api/analytics/ingest-identified/route.ts` writes the latest event per payload to `analytics_active_users`.
+  - `src/lib/server/analytics.ts` writes identified server events to `analytics_active_users`.
+  - `src/app/api/admin/analytics/realtime/route.ts` uses `analytics_active_users` in first-party live buckets and does not degrade merely because GA4 realtime is empty while first-party live data exists.
+  - `scripts/check-analytics-continuity.ts` blocks drift where the realtime route reads `analytics_active_users` without corresponding writers.
+- Consequence for future work:
+  - Do not add primary admin analytics read lanes without a verified writer path.
+  - GA4 realtime can supplement the live panel, but first-party Firestore live activity is the source that must keep admin hydration stable.
+  - If the active-user schema changes, update the identified ingest writer, server analytics writer, realtime route reader, and continuity guard together.
+
 ### 1bc. Client Firestore listeners require explicit read-only rules
 
 - Approximate date: Recorded explicitly on 2026-04-29 from the Global Client Firestore Connectivity Audit
