@@ -10,6 +10,7 @@ import { cn } from "@/lib/utils";
 const STATE_STYLES: Record<AdminSurfaceState, string> = {
   loading: "border-sky-500/30 bg-sky-500/10 text-sky-200",
   live: "border-emerald-500/30 bg-emerald-500/10 text-emerald-300",
+  cached: "border-cyan-500/30 bg-cyan-500/10 text-cyan-200",
   degraded: "border-amber-500/30 bg-amber-500/10 text-amber-300",
   fallback: "border-orange-500/30 bg-orange-500/10 text-orange-300",
   stale: "border-yellow-500/30 bg-yellow-500/10 text-yellow-300",

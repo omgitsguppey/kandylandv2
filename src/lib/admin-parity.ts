@@ -1,6 +1,7 @@
 export const ADMIN_SURFACE_STATES = [
   "loading",
   "live",
+  "cached",
   "degraded",
   "fallback",
   "stale",
@@ -12,6 +13,7 @@ export type AdminSurfaceState = (typeof ADMIN_SURFACE_STATES)[number];
 
 export type AdminVerificationState =
   | "canonical"
+  | "cached"
   | "degraded"
   | "fallback"
   | "stale"
@@ -88,7 +90,11 @@ export function coerceAdminSurfaceState(value: unknown): AdminSurfaceState {
     return "live";
   }
 
-  if (value === "polled" || value === "cached") {
+  if (value === "cached") {
+    return "cached";
+  }
+
+  if (value === "polled") {
     return "fallback";
   }
 
@@ -106,6 +112,7 @@ export function formatAdminSurfaceStateLabel(state: AdminSurfaceState): string {
 export const ADMIN_SURFACE_STATE_DETAIL: Record<AdminSurfaceState, string> = {
   loading: "Canonical source request is still hydrating.",
   live: "Canonical source is current.",
+  cached: "Validated backend cache is serving the current panel request.",
   degraded: "Canonical source is connected but incomplete.",
   fallback: "Primary source failed or is absent; secondary data is displayed.",
   stale: "Last verified data is older than the allowed freshness window.",
@@ -192,6 +199,7 @@ export function buildAdminModuleVerification(
   const verificationState: AdminVerificationState =
     status === "loading" ? "unavailable"
       : status === "live" ? "canonical"
+      : status === "cached" ? "cached"
       : status === "degraded" ? "degraded"
       : status === "fallback" ? "fallback"
       : status === "stale" ? "stale"

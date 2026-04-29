@@ -9,6 +9,17 @@ Scoring: all entries below are marked as included in the current validated sweep
 
 Current repo-wide state snapshot: see [FULL_SCALE_CODEBASE_AUDIT.md](/Users/uylus/OneDrive/Documents/KandyDrops_Final/FULL_SCALE_CODEBASE_AUDIT.md) for the current live baseline, verification state, and continuity rules, and see [REPO_MEMORY_LEDGER.md](/Users/uylus/OneDrive/Documents/KandyDrops_Final/REPO_MEMORY_LEDGER.md) for major architectural and workflow decisions. The detailed file/function body below remains valuable historical evidence, but it has not been fully regenerated against the current 2026-04-18 inventory review yet.
 
+## 2026-04-29 Admin Analytics Historical Cache and Legacy Validation Coverage
+
+- [x] `src/lib/server/ephemeral-route-cache.ts` provides validated stale-while-revalidate route caching with in-flight refresh deduping.
+- [x] `src/app/api/admin/analytics/historical/route.ts` wraps historical admin analytics responses in validated backend cache metadata and marks fresh, cached, and stale states explicitly.
+- [x] `src/types/admin-analytics.ts` exposes historical cache state, cache age, cache source label, validation issues, and refresh state.
+- [x] `src/lib/admin-parity.ts`, `src/components/Admin/AdminStatusBadge.tsx`, and `src/components/Admin/AdminModuleVerificationCard.tsx` support `[cached]` as a distinct admin truth state.
+- [x] `src/app/admin/analytics/hooks/useAdminAnalyticsState.tsx` maps healthy fresh cache hits to `[cached]` and stale cache hits to `[stale]` for overview/debug metadata.
+- [x] `src/lib/server/admin-analytics-historical-traffic.ts` recovers legacy page rollup day keys from document ids and reads legacy view fields before estimating historical guest/public traffic.
+- [x] `tests/unit/ephemeral-route-cache.spec.ts` covers fresh cache hits, stale async refresh, and invalid-cache reload behavior.
+- [x] `tests/unit/admin-analytics-historical-traffic.spec.ts` covers legacy page rollup date and view recovery.
+
 ## 2026-04-29 Admin Debug Task Refresh Truth Coverage
 
 - [x] `src/app/admin/debug/components/DebugPrimitives.tsx` requires explicit `truthState` on `StatCard` and no longer defaults loaded metrics to `[loading]`.

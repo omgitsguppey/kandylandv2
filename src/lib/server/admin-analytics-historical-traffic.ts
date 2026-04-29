@@ -15,6 +15,27 @@ import {
   toStringValue,
 } from "./admin-analytics-shared";
 
+const DAY_KEY_PREFIX_PATTERN = /^(\d{4}-\d{2}-\d{2})/u;
+
+function readRollupDayKey(doc: FirebaseFirestore.QueryDocumentSnapshot, data: Record<string, unknown>, fallbackDayKey: string) {
+  const explicitDayKey = toStringValue(data.dayKey);
+  if (explicitDayKey) {
+    return explicitDayKey;
+  }
+
+  const idMatch = DAY_KEY_PREFIX_PATTERN.exec(doc.id);
+  return idMatch?.[1] || fallbackDayKey;
+}
+
+function readPageRollupViews(data: Record<string, unknown>) {
+  return Math.max(
+    toNumber(data.pageViews),
+    toNumber(data.viewCount),
+    toNumber(data.views),
+    toNumber(data.eventCount),
+  );
+}
+
 export function buildHistoricalTrafficOverview(input: {
   responseRows: AnalyticsReportRow[];
   eventRows: AnalyticsReportRow[];
@@ -70,15 +91,16 @@ export function buildHistoricalTrafficOverview(input: {
   const pageRollupMap = new Map<string, { views: number; clicks: number; dwellMsTotal: number; dwellSamples: number }>();
   pageRollups.forEach((doc) => {
     const data = doc.data() as Record<string, unknown>;
-    const dayKey = toStringValue(data.dayKey) || startDayKey;
+    const dayKey = readRollupDayKey(doc, data, startDayKey);
     const path = toStringValue(data.pagePath) || "/";
+    const pageViews = readPageRollupViews(data);
     const entry = pageRollupMap.get(path) || { views: 0, clicks: 0, dwellMsTotal: 0, dwellSamples: 0 };
-    entry.views += toNumber(data.pageViews);
+    entry.views += pageViews;
     entry.clicks += toNumber(data.clickCount);
     entry.dwellMsTotal += toNumber(data.dwellMsTotal);
     entry.dwellSamples += toNumber(data.dwellSampleCount);
     pageRollupMap.set(path, entry);
-    pageViewsByDay.set(dayKey, (pageViewsByDay.get(dayKey) || 0) + toNumber(data.pageViews));
+    pageViewsByDay.set(dayKey, (pageViewsByDay.get(dayKey) || 0) + pageViews);
   });
 
   const authenticatedPagePathFallbacks: Record<string, string> = {

@@ -17,6 +17,7 @@ interface AdminModuleVerificationCardProps {
 const STATE_ICONS: Record<AdminSurfaceState, React.ElementType> = {
     loading: Clock,
     live: CheckCircle2,
+    cached: Database,
     fallback: Database,
     stale: Clock,
     degraded: AlertTriangle,

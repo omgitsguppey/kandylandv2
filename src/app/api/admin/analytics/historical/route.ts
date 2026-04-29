@@ -48,9 +48,16 @@ import { getErrorMessage } from "@/lib/server/route-diagnostics";
 import { recordRouteRuntimeSample, withRouteRuntimeHealth } from "@/lib/server/route-runtime-health";
 import { recordAnalyticsRuntimeWarning } from "@/lib/server/analytics-runtime-warning";
 import { buildServerAdminModuleVerification } from "@/lib/server/admin-source-verification";
+import {
+    readThroughStaleWhileRevalidateEphemeralRouteCache,
+    type StaleWhileRevalidateCacheResult,
+} from "@/lib/server/ephemeral-route-cache";
+import type { HistoricalAnalyticsResponse } from "@/types/admin-analytics";
 
 const propertyId = getAdminAnalyticsPropertyId();
 const analyticsClient = createAdminAnalyticsDataClient();
+const ADMIN_ANALYTICS_HISTORICAL_RESPONSE_CACHE_TTL_MS = 45_000;
+const ADMIN_ANALYTICS_HISTORICAL_RESPONSE_STALE_TTL_MS = 5 * 60_000;
 
 function toTimestampNumber(value: unknown) {
     if (typeof value === "number" && Number.isFinite(value)) {
@@ -82,6 +89,81 @@ function readLatestSnapshotTimestamp(
         const timestamp = keys.reduce((current, key) => current || toTimestampNumber(data[key]), 0);
         return Math.max(latest, timestamp);
     }, 0);
+}
+
+function buildHistoricalResponseCacheKey(input: {
+    period: string | null;
+    section: string | null;
+    viewerUser: string;
+}) {
+    return [
+        "admin-analytics-historical-response",
+        propertyId,
+        input.period ?? "default",
+        input.section ?? "all",
+        input.viewerUser || "all-viewers",
+    ].join(":");
+}
+
+function validateHistoricalAnalyticsCachePayload(value: HistoricalAnalyticsResponse) {
+    const issues: string[] = [];
+    if (!value || typeof value !== "object") {
+        return ["Historical analytics cache payload is not an object."];
+    }
+
+    if (value.success !== true) {
+        issues.push("Historical analytics cache payload is not a successful response.");
+    }
+
+    if (typeof value.generatedAtMs !== "number" || !Number.isFinite(value.generatedAtMs) || value.generatedAtMs <= 0) {
+        issues.push("Historical analytics cache payload is missing generatedAtMs.");
+    }
+
+    const payloadKeys = [
+        "data",
+        "totals",
+        "devices",
+        "funnel",
+        "commerce",
+        "truthState",
+        "validations",
+        "rawEvents",
+        "viewerOverview",
+        "taskPipeline",
+    ] as const;
+    if (!payloadKeys.some((key) => value[key] !== undefined)) {
+        issues.push("Historical analytics cache payload has no scoped analytic fields.");
+    }
+
+    return issues;
+}
+
+function annotateHistoricalCacheState(
+    result: StaleWhileRevalidateCacheResult<HistoricalAnalyticsResponse>,
+) {
+    const cacheSourceLabel =
+        result.cacheStatus === "stale"
+            ? "Stale validated backend cache; async refresh in progress"
+            : result.cacheStatus === "fresh"
+                ? "Validated backend cache"
+                : "Fresh backend computation";
+    const cacheIssue = result.cacheStatus === "stale"
+        ? "Serving stale validated historical analytics cache while backend refresh runs."
+        : null;
+
+    return {
+        ...result.value,
+        cacheState: result.cacheStatus,
+        cacheAgeMs: result.cacheAgeMs,
+        cacheSourceLabel,
+        cacheValidationIssues: result.validationIssues,
+        cacheRevalidating: result.revalidating,
+        issues: [
+            ...(result.value.issues ?? []),
+            ...(cacheIssue ? [cacheIssue] : []),
+            ...result.validationIssues,
+        ],
+    } satisfies HistoricalAnalyticsResponse;
 }
 
 function scopeHistoricalResponse(section: string | null, payload: Record<string, unknown>) {
@@ -249,6 +331,12 @@ async function GET_handler(request: NextRequest) {
 
         // Removed old !analyticsClient check since ADC is supported on App Hosting
 
+        const cacheResult = await readThroughStaleWhileRevalidateEphemeralRouteCache<HistoricalAnalyticsResponse>({
+            key: buildHistoricalResponseCacheKey({ period, section, viewerUser }),
+            ttlMs: ADMIN_ANALYTICS_HISTORICAL_RESPONSE_CACHE_TTL_MS,
+            staleTtlMs: ADMIN_ANALYTICS_HISTORICAL_RESPONSE_STALE_TTL_MS,
+            validate: validateHistoricalAnalyticsCachePayload,
+            loader: async () => {
             const { startDate, endDate, startMs, endMs, startDayKey, endDayKey, timelineBucket } = getRangeWindow(period);
             const dropReferences = await getAllDropReferenceMap();
 
@@ -967,7 +1055,8 @@ async function GET_handler(request: NextRequest) {
                 opsHealth,
             };
 
-            const jsonResponse = NextResponse.json({
+            const scopedPayload = scopeHistoricalResponse(section, payload) as Partial<HistoricalAnalyticsResponse>;
+            const responseBody = {
                 success: true,
                 issues,
                 verification: buildServerAdminModuleVerification({
@@ -984,8 +1073,8 @@ async function GET_handler(request: NextRequest) {
                         fail: analyticsTruth.fail,
                     },
                 }),
-                ...scopeHistoricalResponse(section, payload),
-            });
+                ...scopedPayload,
+            } satisfies HistoricalAnalyticsResponse;
             await recordAnalyticsRuntimeWarning({
                 surface: "admin/analytics/historical",
                 routeName: "admin/analytics/historical",
@@ -995,7 +1084,11 @@ async function GET_handler(request: NextRequest) {
                 moduleKey: section ?? "historical",
             });
 
-            return finalize(jsonResponse);
+            return responseBody;
+            },
+        });
+
+        return finalize(NextResponse.json(annotateHistoricalCacheState(cacheResult)));
 
     } catch (error) {
         return finalize(handleApiError(error, "Admin.Analytics.Historical.GET"), error);

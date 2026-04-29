@@ -340,9 +340,15 @@ export interface SecurityReasonItem {
 export interface HistoricalAnalyticsResponse {
   success: boolean;
   generatedAtMs?: number;
+  cacheState?: "miss" | "fresh" | "stale";
+  cacheAgeMs?: number;
+  cacheSourceLabel?: string;
+  cacheValidationIssues?: string[];
+  cacheRevalidating?: boolean;
   requiresSetup?: boolean;
   error?: string;
   issues?: string[];
+  verification?: unknown;
   data?: HistoricalPoint[];
   totals?: {
     users: number;

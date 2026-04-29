@@ -1,6 +1,6 @@
 import "server-only";
 
-import { recordRouteFailure } from "@/lib/server/route-diagnostics";
+import { recordRouteFailure, recordRouteWarning } from "@/lib/server/route-diagnostics";
 import { recordRuntimeWarning } from "@/lib/server/runtime-warning-store";
 
 type RequestErrorContext = {
@@ -59,6 +59,11 @@ function readHeader(headers: unknown, name: string) {
   return typeof directValue === "string" && directValue.trim().length > 0 ? directValue : undefined;
 }
 
+function isKnownFrameworkStreamWarning(error: unknown) {
+  const message = error instanceof Error ? error.message : String(error);
+  return message.includes("controller[kState].transformAlgorithm is not a function");
+}
+
 export async function recordFrameworkRequestError(input: {
   error: unknown;
   request?: {
@@ -74,27 +79,39 @@ export async function recordFrameworkRequestError(input: {
   const traceId = readHeader(input.request?.headers, "x-request-id")
     || readHeader(input.request?.headers, "x-cloud-trace-context")
     || undefined;
+  const knownStreamWarning = isKnownFrameworkStreamWarning(input.error);
 
-  recordRouteFailure(routeContext, input.error, {
-    channel: "runtime",
-    message: `Framework request error at ${surface}`,
-    traceId,
-    moduleKey: sanitizeText(input.context?.routeType, "request"),
-    detail: {
-      method,
-      urlPath: toUrlPath(input.request?.url),
-      routerKind: sanitizeText(input.context?.routerKind, "unknown"),
-      routeType: sanitizeText(input.context?.routeType, "unknown"),
-      renderSource: sanitizeText(input.context?.renderSource, "unknown"),
-      renderType: sanitizeText(input.context?.renderType, "unknown"),
-    },
-  });
+  const diagnosticDetail = {
+    method,
+    urlPath: toUrlPath(input.request?.url),
+    routerKind: sanitizeText(input.context?.routerKind, "unknown"),
+    routeType: sanitizeText(input.context?.routeType, "unknown"),
+    renderSource: sanitizeText(input.context?.renderSource, "unknown"),
+    renderType: sanitizeText(input.context?.renderType, "unknown"),
+  };
+
+  if (knownStreamWarning) {
+    recordRouteWarning(routeContext, `Framework stream degraded at ${surface}`, input.error, {
+      channel: "runtime",
+      traceId,
+      moduleKey: sanitizeText(input.context?.routeType, "request"),
+      detail: diagnosticDetail,
+    });
+  } else {
+    recordRouteFailure(routeContext, input.error, {
+      channel: "runtime",
+      message: `Framework request error at ${surface}`,
+      traceId,
+      moduleKey: sanitizeText(input.context?.routeType, "request"),
+      detail: diagnosticDetail,
+    });
+  }
 
   await recordRuntimeWarning({
     code: "framework_request_error",
-    severity: "error",
+    severity: knownStreamWarning ? "warn" : "error",
     executionLayer: "next_route",
-    status: "failed",
+    status: knownStreamWarning ? "degraded" : "failed",
     surface,
     moduleKey: sanitizeText(input.context?.routeType, "request"),
     detail: {

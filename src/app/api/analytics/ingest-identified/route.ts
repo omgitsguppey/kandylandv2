@@ -204,6 +204,10 @@ async function POST_handler(request: NextRequest) {
         }
 
         const errorMessage = getAnalyticsIngestErrorMessage(error);
+        if (errorMessage === "Missing or invalid token" || errorMessage === "Invalid or expired token") {
+            return NextResponse.json({ error: errorMessage }, { status: 401 });
+        }
+
         await recordServerDiagnostic({
             channel: "analytics",
             severity: "error",

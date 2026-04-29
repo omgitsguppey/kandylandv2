@@ -72,4 +72,39 @@ describe("buildHistoricalTrafficOverview", () => {
     expect(overview.guestTraffic.exactGuestSessions).toBe(1);
     expect(overview.guestTraffic.qualityAvailable).toBe(true);
   });
+
+  it("recovers legacy page rollup dates and view counts from document ids and old fields", () => {
+    const overview = buildHistoricalTrafficOverview({
+      responseRows: [],
+      eventRows: [],
+      geoRows: [],
+      deviceRows: [],
+      pageRows: [],
+      dailyRollups: [],
+      pageRollups: [
+        doc("2026-04-01__home", {
+          pagePath: "/",
+          viewCount: 4,
+        }),
+        doc("2026-04-02__home", {
+          pagePath: "/",
+          views: 6,
+        }),
+      ],
+      analyticsEventFacts: [],
+      guestBatchDocs: [],
+      guestSessionDocs: [],
+      sessionFacts: [],
+      startMs: Date.UTC(2026, 3, 1, 0, 0, 0),
+      endMs: Date.UTC(2026, 3, 2, 23, 59, 59),
+      startDayKey: "2026-04-01",
+      endDayKey: "2026-04-02",
+      timelineBucket: "day",
+      authenticatedPageViewEventNames: new Set(["home_page_viewed"]),
+    });
+
+    expect(overview.chartData.map((point) => point.views)).toEqual([4, 6]);
+    expect(overview.guestTraffic.exactGuestViews).toBe(10);
+    expect(overview.guestTraffic.truthLabel).toBe("exact");
+  });
 });

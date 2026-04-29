@@ -1,5 +1,26 @@
 # KandyDrops Core Codebase Audit & Defensive Ledger
 
+## [2026-04-29 #53] PRE/POST: Admin Analytics Historical Cache and Legacy Validation
+
+Scope completed:
+- Auditing admin analytics historical hydration and legacy-data handling under control tower routing.
+- Added validated stale-while-revalidate backend route caching for `/api/admin/analytics/historical` responses. Fresh cache hits are explicitly labeled `[cached]`; stale hits are explicitly labeled `[stale]` and report that async refresh is running.
+- Extended admin truth state support with a first-class `cached` state instead of coercing cached data to live or generic fallback.
+- Recovered legacy `analytics_page_daily` page rollups that omit `dayKey` by deriving the day from document ids, and accepted older page view field names (`viewCount`, `views`, `eventCount`) before GA-minus-identified estimation.
+- Preserving admin truth doctrine: no synthetic healthy states, no hidden stale data, and no payment/economy mutation paths.
+
+Verification completed:
+- `npx vitest run tests/unit/ephemeral-route-cache.spec.ts tests/unit/admin-analytics-data.spec.ts tests/unit/admin-analytics-historical-traffic.spec.ts tests/unit/admin-analytics-page.spec.tsx`
+- `npm run typecheck -- --pretty false`
+- `npm run check:admin-truth`
+- `npm run check:analytics:continuity`
+- `npm run check:telemetry`
+- `npm run check:ui:coverage`
+- `npm run check:ui:runtime`
+- `npm --prefix functions run check`
+- `npm run check:continuity`
+- `npm run check:ui:audits`
+
 ## [2026-04-29 #52] PRE/POST: Admin Debug Task Refresh Truth Fix
 
 Scope completed:

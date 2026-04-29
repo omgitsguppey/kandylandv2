@@ -2,6 +2,27 @@
 
 import { useEffect } from "react";
 import { useAuth } from "@/context/AuthContext";
+import { authFetch } from "@/lib/authFetch";
+
+function reportAdminUiError(errorInfo: Record<string, unknown>) {
+    void authFetch("/api/analytics/ingest-identified", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+            events: [
+                {
+                    eventId: crypto.randomUUID(),
+                    eventName: "admin_ui_error",
+                    eventTimestampMs: Date.now(),
+                    eventParams: errorInfo,
+                },
+            ],
+        }),
+        keepalive: true,
+    }).catch((error) => {
+        console.warn("[AdminErrorCatcher] Admin UI error report failed", error);
+    });
+}
 
 export function AdminErrorCatcher() {
     const { userProfile } = useAuth();
@@ -20,24 +41,8 @@ export function AdminErrorCatcher() {
                 colno: event.colno,
                 stack: event.error?.stack || "",
             };
-            
-            fetch("/api/analytics/ingest-identified", {
-                method: "POST",
-                headers: { "Content-Type": "application/json" },
-                body: JSON.stringify({
-                    events: [
-                        {
-                            eventId: crypto.randomUUID(),
-                            eventName: "admin_ui_error",
-                            eventTimestampMs: Date.now(),
-                            eventParams: errorInfo,
-                        }
-                    ]
-                }),
-                keepalive: true,
-            }).catch(() => {
-                // Ignore failure in error handler
-            });
+
+            reportAdminUiError(errorInfo);
         };
 
         const handleRejection = (event: PromiseRejectionEvent) => {
@@ -46,23 +51,7 @@ export function AdminErrorCatcher() {
                 stack: event.reason?.stack || "",
             };
 
-            fetch("/api/analytics/ingest-identified", {
-                method: "POST",
-                headers: { "Content-Type": "application/json" },
-                body: JSON.stringify({
-                    events: [
-                        {
-                            eventId: crypto.randomUUID(),
-                            eventName: "admin_ui_error",
-                            eventTimestampMs: Date.now(),
-                            eventParams: errorInfo,
-                        }
-                    ]
-                }),
-                keepalive: true,
-            }).catch(() => {
-                // Ignore failure in error handler
-            });
+            reportAdminUiError(errorInfo);
         };
 
         window.addEventListener("error", handleError);

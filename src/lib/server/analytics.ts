@@ -51,6 +51,10 @@ function readNumberParam(params: Record<string, string | number | boolean>, ...k
   return undefined;
 }
 
+function readNullableNumberParam(params: Record<string, string | number | boolean>, ...keys: string[]) {
+  return readNumberParam(params, ...keys) ?? null;
+}
+
 function buildServerEventId(userId: string | undefined, eventName: string) {
   const randomFragment = crypto.randomUUID().replace(/-/g, "").slice(0, 16);
   return `srv_${(userId || "server").slice(0, 24)}_${eventName.slice(0, 32)}_${Date.now().toString(36)}_${randomFragment}`;
@@ -151,17 +155,17 @@ export async function trackServerEvent(
         dropTitle: readStringParam(enrichedParams, "drop_title", "dropTitle"),
         dropCategory: readStringParam(enrichedParams, "drop_category", "dropCategory"),
         assetKey: readStringParam(enrichedParams, "asset_key", "assetKey"),
-        assetIndex: readNumberParam(enrichedParams, "asset_index", "assetIndex"),
+        assetIndex: readNullableNumberParam(enrichedParams, "asset_index", "assetIndex"),
         contentKind: readStringParam(enrichedParams, "content_kind", "contentKind"),
         destination: readStringParam(enrichedParams, "destination"),
         destinationType: readStringParam(enrichedParams, "destination_type", "destinationType"),
-        sessionWatchSeconds: readNumberParam(enrichedParams, "session_watch_seconds", "sessionWatchSeconds"),
-        watchSeconds: readNumberParam(enrichedParams, "watch_seconds", "watchSeconds"),
-        durationMs: readNumberParam(enrichedParams, "duration_ms", "durationMs"),
-        loadMs: readNumberParam(enrichedParams, "load_ms", "loadMs"),
-        viewportWidth: undefined,
-        viewportHeight: undefined,
-        isMobileViewport: undefined,
+        sessionWatchSeconds: readNullableNumberParam(enrichedParams, "session_watch_seconds", "sessionWatchSeconds"),
+        watchSeconds: readNullableNumberParam(enrichedParams, "watch_seconds", "watchSeconds"),
+        durationMs: readNullableNumberParam(enrichedParams, "duration_ms", "durationMs"),
+        loadMs: readNullableNumberParam(enrichedParams, "load_ms", "loadMs"),
+        viewportWidth: null,
+        viewportHeight: null,
+        isMobileViewport: null,
         authState: userId ? "authenticated" : "server",
         semanticCategory: readStringParam(enrichedParams, "semantic_category"),
         semanticCategoryLabel: readStringParam(enrichedParams, "semantic_category_label"),

@@ -596,15 +596,21 @@ const { user } = useAuth();
   const historicalTruthState: AdminSurfaceState | undefined =
     historicalResponse && historicalError
       ? "stale"
+      : historicalResponse?.cacheState === "stale"
+        ? "stale"
       : historicalResponse?.truthState?.fail
         ? "failed"
         : historicalResponse?.truthState?.warn || (historicalResponse?.issues?.length ?? 0) > 0
           ? "degraded"
+          : historicalResponse?.cacheState === "fresh"
+            ? "cached"
           : historicalResponse ? "live" : historicalLoading ? undefined : "failed";
 
   const historicalSourceLabel =
     historicalResponse && !historicalError
-      ? `Server-confirmed ${range.toUpperCase()} snapshot`
+      ? historicalResponse.cacheSourceLabel
+        ? `${range.toUpperCase()} ${historicalResponse.cacheSourceLabel}`
+        : `Server-confirmed ${range.toUpperCase()} snapshot`
       : historicalResponse && historicalError
         ? `Previous ${range.toUpperCase()} snapshot (revalidation failed)`
         : historicalLoading
@@ -636,6 +642,7 @@ const { user } = useAuth();
     : undefined;
   const historicalOverviewTruthState: AdminSurfaceState | undefined =
     historicalTruthState === "live" ? "live"
+    : historicalTruthState === "cached" ? "cached"
     : historicalTruthState === "degraded" ? "degraded"
     : historicalTruthState === "stale" ? "stale"
     : historicalTruthState === "failed" ? "failed"
@@ -654,21 +661,27 @@ const { user } = useAuth();
       },
       mobileShare: {
         canonicalSource: "API /api/admin/analytics/historical (devices breakdown)",
-        currentSource: historicalResponse ? "server_confirmed" : historicalLoading ? "hydrating" : "unavailable",
+        currentSource: historicalResponse?.cacheState === "fresh" ? "server_cache"
+          : historicalResponse?.cacheState === "stale" ? "stale_server_cache"
+          : historicalResponse ? "server_confirmed" : historicalLoading ? "hydrating" : "unavailable",
         truthState: historicalOverviewTruthState ?? (historicalLoading ? "loading" : "unavailable"),
         value: historicalResponse ? mobileShare : null,
         isFakeZero: !historicalResponse,
       },
       revenue: {
         canonicalSource: "API /api/admin/analytics/historical (commerce.revenueUsd)",
-        currentSource: historicalResponse ? "server_confirmed" : historicalLoading ? "hydrating" : "unavailable",
+        currentSource: historicalResponse?.cacheState === "fresh" ? "server_cache"
+          : historicalResponse?.cacheState === "stale" ? "stale_server_cache"
+          : historicalResponse ? "server_confirmed" : historicalLoading ? "hydrating" : "unavailable",
         truthState: historicalOverviewTruthState ?? (historicalLoading ? "loading" : "unavailable"),
         value: historicalResponse ? commerce.revenueUsd : null,
         isFakeZero: !historicalResponse,
       },
       purchases: {
         canonicalSource: "API /api/admin/analytics/historical (funnel.purchases)",
-        currentSource: historicalResponse ? "server_confirmed" : historicalLoading ? "hydrating" : "unavailable",
+        currentSource: historicalResponse?.cacheState === "fresh" ? "server_cache"
+          : historicalResponse?.cacheState === "stale" ? "stale_server_cache"
+          : historicalResponse ? "server_confirmed" : historicalLoading ? "hydrating" : "unavailable",
         truthState: historicalOverviewTruthState ?? (historicalLoading ? "loading" : "unavailable"),
         value: historicalResponse ? funnel.purchases : null,
         isFakeZero: !historicalResponse,

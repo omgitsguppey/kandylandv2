@@ -24,6 +24,35 @@ This file is not a changelog. It is the concise ledger for durable decisions tha
 
 ## Decision Entries
 
+### 1bh. Admin historical analytics cached snapshots must be explicit
+
+- Approximate date: Recorded explicitly on 2026-04-29 from the Admin Analytics Historical Cache and Legacy Validation pass
+- Status: Active admin analytics hydration rule
+- Problem/context: Historical admin analytics can be expensive to hydrate because the route combines GA4, Firestore rollups, telemetry facts, commerce summaries, diagnostics, and section-specific payload shaping. Serving cached data without a distinct label would violate admin truth doctrine.
+- Decision made: Historical analytics response caching is allowed only when the response is validated and the admin UI receives explicit cache metadata.
+- What became canonical:
+  - `src/lib/server/ephemeral-route-cache.ts` provides a stale-while-revalidate route cache with validation and in-flight refresh deduping.
+  - `/api/admin/analytics/historical` wraps scoped historical responses in that validated backend cache and returns `cacheState`, `cacheAgeMs`, `cacheSourceLabel`, validation issues, and refresh state.
+  - `src/lib/admin-parity.ts`, `AdminStatusBadge`, and `AdminModuleVerificationCard` recognize `[cached]` as distinct from `[live]`, `[fallback]`, and `[stale]`.
+  - `src/app/admin/analytics/hooks/useAdminAnalyticsState.tsx` surfaces healthy fresh cache hits as `[cached]` and stale cache hits as `[stale]`.
+- Consequence for future work:
+  - Do not label cached historical analytics as live.
+  - Any new admin backend cache must validate payload shape and expose source state to the UI.
+  - Stale-while-revalidate behavior is acceptable only when stale state and refresh status remain visible to admins.
+
+### 1bi. Legacy page rollups must recover date and view fields before estimation
+
+- Approximate date: Recorded explicitly on 2026-04-29 from the Admin Analytics Historical Cache and Legacy Validation pass
+- Status: Active historical analytics compatibility rule
+- Problem/context: Older `analytics_page_daily` documents may omit `dayKey` or use legacy view fields such as `viewCount` or `views`. Treating those docs as missing causes long-range historical analytics to fall back toward GA estimation or bucket views into the request start day.
+- Decision made: Historical traffic must derive the rollup date from the document id when `dayKey` is absent and must accept legacy numeric view field names before estimating guest/public traffic.
+- What became canonical:
+  - `src/lib/server/admin-analytics-historical-traffic.ts` derives `YYYY-MM-DD` from page rollup document ids and reads page views from `pageViews`, `viewCount`, `views`, or `eventCount`.
+  - `tests/unit/admin-analytics-historical-traffic.spec.ts` covers legacy rollup date and view recovery.
+- Consequence for future work:
+  - Keep historical analytics tolerant of old rollup shapes while clearly labeling source quality.
+  - Prefer adding explicit compatibility readers over silently dropping historical documents.
+
 ### 1bf. Debug stat cards must declare loaded truth states explicitly
 
 - Approximate date: Recorded explicitly on 2026-04-29 from the Admin Debug Task Refresh Truth Fix
