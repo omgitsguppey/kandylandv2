@@ -18,7 +18,7 @@ export async function POST(request: NextRequest, context: RouteContext) {
     const startedAt = Date.now();
     const finalize = (response: NextResponse, error?: unknown) => {
         void recordRouteRuntimeSample({
-            key: "chat/read:POST",
+            key: "chat/threads/[threadId]/read:POST",
             durationMs: Date.now() - startedAt,
             statusCode: response.status,
             errorMessage: error ? getErrorMessage(error) : null,

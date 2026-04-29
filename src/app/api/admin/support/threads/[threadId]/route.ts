@@ -22,7 +22,7 @@ type RouteContext = {
 };
 
 function finalizeAdminSupportThreadRoute(
-    key: "admin/support/thread:GET" | "admin/support/thread:POST" | "admin/support/thread:PATCH",
+    key: "admin/support/threads/[threadId]:GET" | "admin/support/threads/[threadId]:POST" | "admin/support/threads/[threadId]:PATCH",
     startedAt: number,
     response: NextResponse,
     error?: unknown,
@@ -55,15 +55,15 @@ async function GET_handler(request: NextRequest, context: RouteContext) {
         const { threadId } = await context.params;
         const thread = await getSupportThreadForAdmin(threadId);
         if (!thread) {
-            return finalizeAdminSupportThreadRoute("admin/support/thread:GET", startedAt, NextResponse.json({ success: true, thread: null, messages: [] }));
+            return finalizeAdminSupportThreadRoute("admin/support/threads/[threadId]:GET", startedAt, NextResponse.json({ success: true, thread: null, messages: [] }));
         }
 
-        return finalizeAdminSupportThreadRoute("admin/support/thread:GET", startedAt, NextResponse.json({
+        return finalizeAdminSupportThreadRoute("admin/support/threads/[threadId]:GET", startedAt, NextResponse.json({
             success: true,
             ...thread,
         }));
     } catch (error) {
-        return finalizeAdminSupportThreadRoute("admin/support/thread:GET", startedAt, handleApiError(error, "admin/support/thread"), error);
+        return finalizeAdminSupportThreadRoute("admin/support/threads/[threadId]:GET", startedAt, handleApiError(error, "admin/support/thread"), error);
     }
 }
 
@@ -99,12 +99,12 @@ async function POST_handler(request: NextRequest, context: RouteContext) {
         });
 
         const refreshed = await getSupportThreadForAdmin(threadId, { markRead: false });
-        return finalizeAdminSupportThreadRoute("admin/support/thread:POST", startedAt, NextResponse.json({
+        return finalizeAdminSupportThreadRoute("admin/support/threads/[threadId]:POST", startedAt, NextResponse.json({
             success: true,
             ...refreshed,
         }));
     } catch (error) {
-        return finalizeAdminSupportThreadRoute("admin/support/thread:POST", startedAt, handleApiError(error, "admin/support/thread"), error);
+        return finalizeAdminSupportThreadRoute("admin/support/threads/[threadId]:POST", startedAt, handleApiError(error, "admin/support/thread"), error);
     }
 }
 
@@ -134,12 +134,12 @@ async function PATCH_handler(request: NextRequest, context: RouteContext) {
         await updateSupportThreadStatus(threadId, normalizeSupportThreadStatus(status));
         const refreshed = await getSupportThreadForAdmin(threadId, { markRead: false });
 
-        return finalizeAdminSupportThreadRoute("admin/support/thread:PATCH", startedAt, NextResponse.json({
+        return finalizeAdminSupportThreadRoute("admin/support/threads/[threadId]:PATCH", startedAt, NextResponse.json({
             success: true,
             ...refreshed,
         }));
     } catch (error) {
-        return finalizeAdminSupportThreadRoute("admin/support/thread:PATCH", startedAt, handleApiError(error, "admin/support/thread"), error);
+        return finalizeAdminSupportThreadRoute("admin/support/threads/[threadId]:PATCH", startedAt, handleApiError(error, "admin/support/thread"), error);
     }
 }
 

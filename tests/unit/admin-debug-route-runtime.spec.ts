@@ -67,8 +67,8 @@ describe("admin debug route runtime helpers", () => {
     it("builds separate native error-rate summaries", () => {
         const items: RouteRuntimeHealthItem[] = [
             buildItem({
-                key: "chat/messages:POST",
-                routeName: "/api/chat/messages",
+                key: "chat/threads/[threadId]/messages:POST",
+                routeName: "/api/chat/threads/[threadId]/messages",
                 successCount: 7,
                 clientErrorCount: 1,
                 serverErrorCount: 1,

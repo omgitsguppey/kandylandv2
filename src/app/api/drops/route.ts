@@ -12,7 +12,7 @@ import { guardApiRequest } from "@/lib/server/request-guard";
 export const dynamic = "force-dynamic";
 
 const DEFAULT_DROPS_LIMIT = 12;
-const DROPS_FEED_ROUTE_NAME = "drops/feed";
+const DROPS_FEED_ROUTE_NAME = "drops";
 const DROPS_LIST_ERROR_CONTEXT = "Drops.List";
 
 function compareDropFeedOrder(left: Drop, right: Drop) {
@@ -55,7 +55,7 @@ export async function GET(request: NextRequest) {
     const startedAt = Date.now();
     const finalize = (response: NextResponse, error?: unknown) => {
         void recordRouteRuntimeSample({
-            key: "drops/feed:GET",
+            key: "drops:GET",
             durationMs: Date.now() - startedAt,
             statusCode: response.status,
             errorMessage: error ? getErrorMessage(error) : null,

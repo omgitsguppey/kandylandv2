@@ -24,6 +24,21 @@ This file is not a changelog. It is the concise ledger for durable decisions tha
 
 ## Decision Entries
 
+### 1az. Route runtime targets must match live handlers and carry operational labels
+
+- Approximate date: Recorded explicitly on 2026-04-29 from the Route Runtime Telemetry Parity and Debug Label Audit
+- Status: Active runtime telemetry/admin debug rule
+- Problem/context: Route runtime health still contained legacy/deleted target keys and many vague generated titles, which could make admin health dashboards show routes that no longer exist or labels that do not help triage.
+- Decision made: `ROUTE_RUNTIME_HEALTH_TARGETS` must be a one-to-one registry for live API/proxy route handlers, except the intentionally untracked `/api/health` route. Runtime titles must be operational, not generated placeholders.
+- What became canonical:
+  - `scripts/check-route-runtime-parity.ts` compares route handlers with runtime targets and blocks stale/missing entries.
+  - `npm run check:continuity` runs `check:route-runtime-parity`.
+  - Route handlers must emit the same key as their concrete route path unless a documented exception is added to the parity script.
+- Consequence for future work:
+  - Do not add or rename API routes without keeping `ROUTE_RUNTIME_HEALTH_TARGETS` in sync.
+  - Do not leave `Auto-generated for ...` runtime labels in admin diagnostics.
+  - Do not preserve legacy runtime aliases once the concrete route key exists.
+
 ### 1ay. Telemetry catalog events must have emitters and semantic parity
 
 - Approximate date: Recorded explicitly on 2026-04-29 from the Telemetry and Parity Gap Hardening pass

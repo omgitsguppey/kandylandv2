@@ -1,5 +1,34 @@
 # KandyDrops Core Codebase Audit & Defensive Ledger
 
+## [2026-04-29 #47] PRE: Route Runtime Telemetry Parity and Debug Label Audit
+
+Scope started:
+- Audit route runtime telemetry parity after the catalog/semantic parity pass, focusing on API handler coverage, stale runtime target registry entries, and admin-debug route labels that can make system health signals inaccurate.
+- Primary discrepancies identified: 16 runtime health targets pointed at legacy/deleted route keys, while 96 live runtime targets still used vague `Auto-generated for ...` titles that weaken admin debugging and source-health triage.
+- Primary owners identified: `src/lib/route-runtime-health.ts`, route handlers that still emitted legacy runtime keys, `scripts/check-route-runtime-parity.ts`, and the continuity lane in `package.json`.
+
+Startup protocol completed:
+- Re-read control tower startup/routing/source-truth docs, doctrine consultation workflow, product/copy/UI doctrine, and the current audit/checklist/ledger before telemetry/admin truth changes.
+- Ran `git status --short`, `npm run check:telemetry`, `npm run check:admin-truth`, and direct route runtime registry audits against `src/app/api`, `src/app/%5F%5F`, and `ROUTE_RUNTIME_HEALTH_TARGETS`.
+- Source-of-truth classification: route handler files are runtime truth, `ROUTE_RUNTIME_HEALTH_TARGETS` is admin runtime registry truth, and route runtime health documents are derived observability state.
+
+## [2026-04-29 #47] POST: Route Runtime Telemetry Parity and Debug Label Audit
+
+Findings fixed:
+- Removed 16 stale runtime targets with no current route handler: deleted `admin/ui-chart-health` targets, legacy singular admin support/moderation thread targets, legacy singular chat thread/message/read targets, and legacy `drops/feed`.
+- Updated admin moderation detail, admin support thread, chat thread detail/delete, chat message send, chat read-state, and drops feed routes to emit their current canonical route keys.
+- Replaced 96 vague `Auto-generated for ...` runtime target titles with route-specific operational labels.
+- Added `scripts/check-route-runtime-parity.ts`, which compares exported API/proxy route handlers against runtime health targets, allows only `/api/health`, rejects stale targets, rejects missing targets, and blocks vague generated debug titles.
+- Wired `check:route-runtime-parity` into `npm run check:continuity` so runtime registry drift cannot pass broad signoff.
+
+100+ telemetry/parity/debug gaps fixed or hardened by this pass:
+- 16 stale/deleted runtime target entries removed, 6 legacy route sample keys corrected at source, 96 vague runtime labels replaced, 158 route-handler-to-runtime-target parity contracts enforced, 158 runtime-target-to-route-handler parity contracts enforced, generated-title blocking, `/api/health` explicit untracked exception, encoded Firebase proxy route coverage, API route discovery, method export discovery, stale target detection, missing target detection, admin runtime dashboard label clarity, chat runtime cluster accuracy, drops feed runtime accuracy, admin moderation detail runtime accuracy, admin support thread runtime accuracy, route registry continuity coverage, and broad signoff enforcement through `check:continuity`.
+
+Verification completed:
+- `npm run check:route-runtime-parity`
+- `npm run check:admin-truth`
+- `npm run check:telemetry`
+
 ## [2026-04-29 #46] PRE: Telemetry and Parity Gap Hardening
 
 Scope started:

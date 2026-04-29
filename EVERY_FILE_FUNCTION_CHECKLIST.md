@@ -9,6 +9,18 @@ Scoring: all entries below are marked as included in the current validated sweep
 
 Current repo-wide state snapshot: see [FULL_SCALE_CODEBASE_AUDIT.md](/Users/uylus/OneDrive/Documents/KandyDrops_Final/FULL_SCALE_CODEBASE_AUDIT.md) for the current live baseline, verification state, and continuity rules, and see [REPO_MEMORY_LEDGER.md](/Users/uylus/OneDrive/Documents/KandyDrops_Final/REPO_MEMORY_LEDGER.md) for major architectural and workflow decisions. The detailed file/function body below remains valuable historical evidence, but it has not been fully regenerated against the current 2026-04-18 inventory review yet.
 
+## 2026-04-29 Route Runtime Telemetry Parity and Debug Label Coverage
+
+- [x] `src/lib/route-runtime-health.ts` no longer contains stale runtime targets for deleted/legacy route keys.
+- [x] Runtime targets now match 158 live route handlers, excluding only `/api/health`.
+- [x] `src/app/api/admin/moderation/threads/[threadId]/route.ts` emits the concrete moderation detail runtime key.
+- [x] `src/app/api/admin/support/threads/[threadId]/route.ts` emits concrete support thread runtime keys for GET/POST/PATCH.
+- [x] `src/app/api/chat/threads/[threadId]/route.ts`, `src/app/api/chat/threads/[threadId]/messages/route.ts`, and `src/app/api/chat/threads/[threadId]/read/route.ts` emit concrete chat route keys.
+- [x] `src/app/api/drops/route.ts` emits `drops:GET` instead of the legacy `drops/feed:GET` key.
+- [x] 96 generated runtime target titles were replaced with route-specific operational labels.
+- [x] `scripts/check-route-runtime-parity.ts` blocks stale targets, missing targets, and generated placeholder labels.
+- [x] `npm run check:continuity` now includes `check:route-runtime-parity`.
+
 ## 2026-04-29 Telemetry and Parity Gap Hardening Coverage
 
 - [x] `scripts/audit-telemetry.ts` now fails cataloged telemetry events with no detected emitter or explicit audit coverage.

@@ -19,7 +19,7 @@ export async function GET(request: NextRequest, context: RouteContext) {
     const startedAt = Date.now();
     const finalize = (response: NextResponse, error?: unknown) => {
         void recordRouteRuntimeSample({
-            key: "chat/thread:GET",
+            key: "chat/threads/[threadId]:GET",
             durationMs: Date.now() - startedAt,
             statusCode: response.status,
             errorMessage: error ? getErrorMessage(error) : null,
@@ -71,7 +71,7 @@ export async function DELETE(request: NextRequest, context: RouteContext) {
     const startedAt = Date.now();
     const finalize = (response: NextResponse, error?: unknown) => {
         void recordRouteRuntimeSample({
-            key: "chat/thread:DELETE",
+            key: "chat/threads/[threadId]:DELETE",
             durationMs: Date.now() - startedAt,
             statusCode: response.status,
             errorMessage: error ? getErrorMessage(error) : null,

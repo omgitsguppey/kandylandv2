@@ -21,7 +21,7 @@ export async function GET(request: NextRequest, context: RouteContext) {
     const startedAt = Date.now();
     const finalize = (response: NextResponse, error?: unknown) => {
         void recordRouteRuntimeSample({
-            key: "admin/moderation/thread:GET",
+            key: "admin/moderation/threads/[threadId]:GET",
             durationMs: Date.now() - startedAt,
             statusCode: response.status,
             errorMessage: error ? getErrorMessage(error) : null,

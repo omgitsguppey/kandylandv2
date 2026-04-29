@@ -312,8 +312,8 @@ describe("buildAdminPanelSystemLogs", () => {
             },
             routeRuntimeHealth: [
                 {
-                    key: "chat/messages:POST",
-                    routeName: "chat/messages",
+                    key: "chat/threads/[threadId]/messages:POST",
+                    routeName: "chat/threads/[threadId]/messages",
                     method: "POST",
                     title: "Chat message sends",
                     slowThresholdMs: 1600,
