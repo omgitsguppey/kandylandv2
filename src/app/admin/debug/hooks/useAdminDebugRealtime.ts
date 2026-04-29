@@ -9,9 +9,13 @@ import { ORCHESTRATION_COLLECTIONS, type OrchestrationRepairProposalRecord } fro
 
 export type DebugListenerErrors = {
     warningsFailed: boolean;
+    warningsLoaded: boolean;
     routeHealthFailed: boolean;
+    routeHealthLoaded: boolean;
     repairProposalsFailed: boolean;
+    repairProposalsLoaded: boolean;
     heartbeatsFailed: boolean;
+    heartbeatsLoaded: boolean;
 };
 
 export type ClusteredRuntimeWarning = {
@@ -35,9 +39,13 @@ export function useAdminDebugRealtime() {
     const [queueHeartbeats, setQueueHeartbeats] = useState<QueueJobHeartbeat[]>([]);
     const [listenerErrors, setListenerErrors] = useState<DebugListenerErrors>({
         warningsFailed: false,
+        warningsLoaded: false,
         routeHealthFailed: false,
+        routeHealthLoaded: false,
         repairProposalsFailed: false,
+        repairProposalsLoaded: false,
         heartbeatsFailed: false,
+        heartbeatsLoaded: false,
     });
 
     useEffect(() => {
@@ -51,7 +59,7 @@ export function useAdminDebugRealtime() {
             if (warningsCancelled) return;
             const records = snapshot.docs.map(doc => doc.data() as RuntimeWarningRecord);
             setWarnings(records);
-            setListenerErrors((current) => ({ ...current, warningsFailed: false }));
+            setListenerErrors((current) => ({ ...current, warningsFailed: false, warningsLoaded: true }));
         }, (error) => {
             if (warningsCancelled) return;
             setListenerErrors((current) => ({ ...current, warningsFailed: true }));
@@ -70,7 +78,7 @@ export function useAdminDebugRealtime() {
             if (routeHealthCancelled) return;
             const records = snapshot.docs.map(doc => doc.data() as RouteRuntimeHealthItem);
             setRouteHealth(records);
-            setListenerErrors((current) => ({ ...current, routeHealthFailed: false }));
+            setListenerErrors((current) => ({ ...current, routeHealthFailed: false, routeHealthLoaded: true }));
         }, (error) => {
             if (routeHealthCancelled) return;
             setListenerErrors((current) => ({ ...current, routeHealthFailed: true }));
@@ -89,7 +97,7 @@ export function useAdminDebugRealtime() {
             if (repairProposalsCancelled) return;
             const records = snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() } as unknown as OrchestrationRepairProposalRecord));
             setRepairProposals(records);
-            setListenerErrors((current) => ({ ...current, repairProposalsFailed: false }));
+            setListenerErrors((current) => ({ ...current, repairProposalsFailed: false, repairProposalsLoaded: true }));
         }, (error) => {
             if (repairProposalsCancelled) return;
             setListenerErrors((current) => ({ ...current, repairProposalsFailed: true }));
@@ -107,7 +115,7 @@ export function useAdminDebugRealtime() {
             if (heartbeatsCancelled) return;
             const records = snapshot.docs.map(doc => doc.data() as QueueJobHeartbeat);
             setQueueHeartbeats(records);
-            setListenerErrors((current) => ({ ...current, heartbeatsFailed: false }));
+            setListenerErrors((current) => ({ ...current, heartbeatsFailed: false, heartbeatsLoaded: true }));
         }, (error) => {
             if (heartbeatsCancelled) return;
             setListenerErrors((current) => ({ ...current, heartbeatsFailed: true }));

@@ -35,6 +35,10 @@ import {
     type AdminDebugRouteRuntimeFilter,
     type AdminDebugTabOption,
 } from "@/lib/admin-debug-preferences";
+import {
+    buildAdminDebugOpenActionsCard,
+    buildAdminDebugRouteHealthCard,
+} from "@/lib/admin-debug-summary-cards";
 import { filterAdminDebugRouteRuntimeHealth, buildAdminDebugRouteRuntimeRateSummary } from "@/lib/admin-debug-route-runtime";
 
 import {
@@ -98,7 +102,8 @@ export default function DebugConsole() {
         historicalWarnings,
         routeHealth: realtimeRouteHealth,
         repairProposals: realtimeRepairProposals,
-        queueHeartbeats: realtimeQueueHeartbeats
+        queueHeartbeats: realtimeQueueHeartbeats,
+        listenerErrors: debugRealtimeState,
     } = useAdminDebugRealtime();
     const { data: debugPreferencesData, mutate: mutateDebugPreferences } = useAdminPollingSWR<any>("/api/admin/debug/preferences", 15000, {
         keepPreviousData: true,
@@ -181,7 +186,14 @@ export default function DebugConsole() {
         () => (data?.panelSystemLogs || []).filter((entry: any) => entry.status === "fail").length,
         [data?.panelSystemLogs],
     );
-            const routeRuntimeHealth = realtimeRouteHealth;
+    const routeSnapshotHealth = useMemo(
+        () => (Array.isArray(data?.routeRuntimeHealth) ? data.routeRuntimeHealth : []),
+        [data?.routeRuntimeHealth],
+    );
+    const routeRuntimeHealth = useMemo(
+        () => (realtimeRouteHealth.length > 0 ? realtimeRouteHealth : routeSnapshotHealth),
+        [realtimeRouteHealth, routeSnapshotHealth],
+    );
     const filteredRouteRuntimeHealth = useMemo(
         () => filterAdminDebugRouteRuntimeHealth(routeRuntimeHealth, routeRuntimeFilter),
         [routeRuntimeHealth, routeRuntimeFilter],
@@ -229,19 +241,21 @@ export default function DebugConsole() {
         },
         [data?.queueRuntimeSummary],
     );
-    const derivedActionCount = useMemo(
-        () => (
-            (data?.stats?.orchestrationActionableRepairs ?? 0)
-            + panelLogWarnCount
-            + panelLogFailCount
-            + routeRuntimeHealthSummary.warn
-            + routeRuntimeHealthSummary.fail
-            + routeRuntimeHealthSummary.stale
-            + queueRuntimeSummary.jobHeartbeats.stale
-            + queueRuntimeSummary.jobHeartbeats.failed
-            + queueRuntimeSummary.missingNotificationOutcomes
-        ),
-        [data?.stats?.orchestrationActionableRepairs, panelLogFailCount, panelLogWarnCount, queueRuntimeSummary.jobHeartbeats.failed, queueRuntimeSummary.jobHeartbeats.stale, queueRuntimeSummary.missingNotificationOutcomes, routeRuntimeHealthSummary.fail, routeRuntimeHealthSummary.stale, routeRuntimeHealthSummary.warn],
+    const openActionsCard = useMemo(
+        () => buildAdminDebugOpenActionsCard({
+            proposalCount: data?.stats?.orchestrationActionableRepairs ?? 0,
+            panelWarnCount: panelLogWarnCount,
+            panelFailCount: panelLogFailCount,
+            routeWarnCount: routeRuntimeHealthSummary.warn,
+            routeFailCount: routeRuntimeHealthSummary.fail,
+            routeStaleCount: routeRuntimeHealthSummary.stale,
+            queueStaleCount: queueRuntimeSummary.jobHeartbeats.stale,
+            queueFailedCount: queueRuntimeSummary.jobHeartbeats.failed,
+            missingNotificationOutcomes: queueRuntimeSummary.missingNotificationOutcomes,
+            isLoading: !data && isLoading,
+            hasError: Boolean(error),
+        }),
+        [data, error, isLoading, panelLogFailCount, panelLogWarnCount, queueRuntimeSummary.jobHeartbeats.failed, queueRuntimeSummary.jobHeartbeats.stale, queueRuntimeSummary.missingNotificationOutcomes, routeRuntimeHealthSummary.fail, routeRuntimeHealthSummary.stale, routeRuntimeHealthSummary.warn],
     );
     const freshestLoadedSignalAt = useMemo(() => {
         const timestamps = [
@@ -276,6 +290,18 @@ export default function DebugConsole() {
         [routeRuntimeHealth],
     );
     const observedRouteRuntimeCount = Math.max(0, routeRuntimeHealthSummary.total - routeRuntimeHealthSummary.unobserved);
+    const routeHealthCard = useMemo(
+        () => buildAdminDebugRouteHealthCard({
+            summary: routeRuntimeHealthSummary,
+            observedCount: observedRouteRuntimeCount,
+            hasRealtimeRows: realtimeRouteHealth.length > 0,
+            hasSnapshotRows: routeSnapshotHealth.length > 0,
+            listenerState: debugRealtimeState,
+            isLoading: !data && isLoading,
+            hasError: Boolean(error),
+        }),
+        [data, debugRealtimeState, error, isLoading, observedRouteRuntimeCount, realtimeRouteHealth.length, routeRuntimeHealthSummary, routeSnapshotHealth.length],
+    );
     const activePipelineFailureCount = data?.opsHealth?.pipeline?.activeFailureCount ?? 0;
     const recentPipelineFailureCount = data?.opsHealth?.pipeline?.recentFailureCount ?? 0;
     const sampledPipelineFailureCount = data?.opsHealth?.pipeline?.sampleFailureCount ?? data?.opsHealth?.pipeline?.failureCount ?? 0;
@@ -469,8 +495,8 @@ export default function DebugConsole() {
                 <StatCard label="Pipeline active" value={activePipelineFailureCount} meta={`recent ${recentPipelineFailureCount} | sample ${sampledPipelineFailureCount} | ${data?.opsHealth?.pipeline?.status === "healthy" ? `no current incident in ${formatWindowHours(data?.opsHealth?.pipeline?.activeWindowMs)}` : data?.opsHealth?.pipeline?.lastFailureAt ? `last ${formatRelative(data.opsHealth.pipeline.lastFailureAt)}` : "missing last-failure timestamp"}`} truthState={!data && isLoading ? "loading" : error ? "failed" : activePipelineFailureCount > 0 ? "failed" : recentPipelineFailureCount > 0 || sampledPipelineFailureCount > 0 ? "degraded" : "live"} />
                 <StatCard label="Task-issue users" value={data?.stats?.usersWithTaskIssues ?? "--"} meta={`${data?.stats?.runtimeUsersWithRefreshIssues ?? 0} sampled refresh warnings`} truthState={!data && isLoading ? "loading" : error ? "failed" : (data?.stats?.usersWithTaskIssues ?? 0) > 0 || (data?.stats?.runtimeUsersWithRefreshIssues ?? 0) > 0 ? "degraded" : "live"} />
                 <StatCard label="Creator issues" value={data?.stats?.creatorOnboardingIssues ?? "--"} meta={`${data?.creatorOnboardingDiagnostics?.summary?.missingQueueCount ?? 0} missing queue links`} truthState={!data && isLoading ? "loading" : error ? "failed" : (data?.stats?.creatorOnboardingIssues ?? 0) > 0 ? "degraded" : "live"} />
-                <StatCard label="Open actions" value={derivedActionCount} meta={`${data?.stats?.orchestrationActionableRepairs ?? 0} proposals + ${panelLogWarnCount + panelLogFailCount} panel log issues + ${routeRuntimeHealthSummary.warn + routeRuntimeHealthSummary.fail + routeRuntimeHealthSummary.stale} route issues + ${queueRuntimeSummary.jobHeartbeats.stale + queueRuntimeSummary.jobHeartbeats.failed + queueRuntimeSummary.missingNotificationOutcomes} queue issues`} truthState={!data && isLoading ? "loading" : error ? "failed" : derivedActionCount > 0 ? "degraded" : "live"} />
-                <StatCard label="Route health" value={routeRuntimeHealthSummary.total ? `${routeRuntimeHealthSummary.fail}/${routeRuntimeHealthSummary.warn}/${routeRuntimeHealthSummary.stale}` : "--"} meta={routeRuntimeHealthSummary.total ? `${routeRuntimeHealthSummary.total} tracked | ${observedRouteRuntimeCount} observed | ${routeRuntimeHealthSummary.unobserved} unseen (no sample yet)` : "no route rollups yet"} truthState={!data && isLoading ? "loading" : error ? "failed" : routeRuntimeHealthSummary.fail > 0 ? "failed" : routeRuntimeHealthSummary.warn > 0 || routeRuntimeHealthSummary.stale > 0 ? "degraded" : routeRuntimeHealthSummary.total > 0 ? "live" : "unavailable"} />
+                <StatCard label="Open actions" value={openActionsCard.count} meta={openActionsCard.meta} truthState={openActionsCard.truthState} />
+                <StatCard label="Route health" value={routeHealthCard.value} meta={routeHealthCard.meta} truthState={routeHealthCard.truthState} />
                 <StatCard label="Freshest loaded sample" value={freshestLoadedSignalAt ? formatRelative(freshestLoadedSignalAt) : "--"} meta="derived from loaded diagnostics, panel logs, UI hydration reports, transactions, and AI status" truthState={!data && isLoading ? "loading" : error ? "failed" : freshestLoadedSignalAt ? "live" : "unavailable"} />
                 <StatCard label="AI assistant" value={aiStatusLabel} meta={aiDebugData ? `${aiDebugData.configured_model} configured | ${aiAssistantRealtime.feedStatus} preflight lane | ${aiDebugData.runtime_ready ? "runtime ready" : "runtime unavailable"} | ${aiDebugData.latency_ms}ms` : aiDebugError ? "assistant unavailable" : "waiting for summary"} truthState={aiDebugData ? aiDebugData.runtime_ready ? "live" : "degraded" : aiDebugError ? "failed" : "loading"} />
             </div>

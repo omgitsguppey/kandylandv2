@@ -27,6 +27,8 @@ const uiFiles = adminUiRoots.flatMap((root) =>
 const routeFiles = walk(adminApiRoot, (path) => path.endsWith("route.ts"));
 
 const failures: string[] = [];
+const adminDebugPagePath = join(repoRoot, "src", "app", "admin", "debug", "page.tsx");
+const adminDebugPageSource = readFileSync(adminDebugPagePath, "utf8");
 
 for (const file of uiFiles) {
   const source = readFileSync(file, "utf8");
@@ -81,6 +83,19 @@ for (const file of uiFiles) {
   if (statCardMatches.length > 0) {
     failures.push(`${rel}: ${statCardMatches.length} StatCard usage(s) missing explicit truthState`);
   }
+}
+
+if (adminDebugPageSource.includes("const routeRuntimeHealth = realtimeRouteHealth;")) {
+  failures.push("src/app/admin/debug/page.tsx: route health card must merge realtime listener rows with the admin debug API snapshot");
+}
+if (adminDebugPageSource.includes("no route rollups yet")) {
+  failures.push("src/app/admin/debug/page.tsx: route health empty state must name the unavailable source instead of hiding behind generic no-rollup copy");
+}
+if (adminDebugPageSource.includes("panel log issues +")) {
+  failures.push("src/app/admin/debug/page.tsx: open actions card must use bucketed source detail instead of generic plus-count copy");
+}
+if (!adminDebugPageSource.includes("buildAdminDebugRouteHealthCard") || !adminDebugPageSource.includes("buildAdminDebugOpenActionsCard")) {
+  failures.push("src/app/admin/debug/page.tsx: admin debug rollup cards must use tested summary helpers");
 }
 
 const routeRuntimeHealthPath = join(repoRoot, "src", "lib", "server", "route-runtime-health.ts");
