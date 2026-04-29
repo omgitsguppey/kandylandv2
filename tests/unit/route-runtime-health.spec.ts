@@ -112,6 +112,7 @@ describe("route runtime health", () => {
                 lastResult: "server_error",
                 lastStatusCode: 500,
                 slowCount: 2,
+                lastLatencyMs: 12_500,
                 lastServerErrorAtMs: BASE_NOW_MS - 500,
             }),
             buildItem({
@@ -135,7 +136,7 @@ describe("route runtime health", () => {
             unobserved: 1,
             clientErrors: 1,
             serverErrors: 1,
-            slow: 2,
+            slow: 1,
         });
     });
 });

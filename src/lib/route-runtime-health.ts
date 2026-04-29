@@ -1050,6 +1050,12 @@ export function getRouteRuntimeHealthStatus(
 }
 
 export function summarizeRouteRuntimeHealth(items: readonly RouteRuntimeHealthItem[], nowMs = Date.now()) {
+    const isCurrentSlow = (item: RouteRuntimeHealthItem) =>
+        toNumber(item.updatedAtMs) > 0
+        && toNumber(item.slowThresholdMs) > 0
+        && toNumber(item.lastLatencyMs) >= toNumber(item.slowThresholdMs)
+        && getRouteRuntimeHealthFreshness(item, nowMs) === "fresh";
+
     return {
         total: items.length,
         healthy: items.filter((item) => getRouteRuntimeHealthStatus(item, nowMs) === "healthy").length,
@@ -1057,8 +1063,8 @@ export function summarizeRouteRuntimeHealth(items: readonly RouteRuntimeHealthIt
         fail: items.filter((item) => getRouteRuntimeHealthStatus(item, nowMs) === "fail").length,
         stale: items.filter((item) => getRouteRuntimeHealthStatus(item, nowMs) === "stale").length,
         unobserved: items.filter((item) => getRouteRuntimeHealthCoverageState(item) === "unseen").length,
-        slow: items.reduce((sum, item) => sum + toNumber(item.slowCount), 0),
-        serverErrors: items.reduce((sum, item) => sum + toNumber(item.serverErrorCount), 0),
-        clientErrors: items.reduce((sum, item) => sum + toNumber(item.clientErrorCount), 0),
+        slow: items.filter(isCurrentSlow).length,
+        serverErrors: items.filter((item) => item.lastResult === "server_error").length,
+        clientErrors: items.filter((item) => item.lastResult === "client_error").length,
     };
 }

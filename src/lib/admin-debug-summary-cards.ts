@@ -133,7 +133,8 @@ export function buildAdminDebugRouteHealthCard(input: {
     hasError: boolean;
 }) {
     const { summary, observedCount, hasRealtimeRows, hasSnapshotRows, listenerState, isLoading, hasError } = input;
-    const issueCount = summary.warn + summary.fail + summary.stale;
+    const observedWarnCount = Math.max(0, summary.warn - summary.unobserved);
+    const issueCount = observedWarnCount + summary.fail + summary.stale;
     const sourceLabel = hasRealtimeRows
         ? "[live] route listener"
         : hasSnapshotRows && listenerState.routeHealthFailed

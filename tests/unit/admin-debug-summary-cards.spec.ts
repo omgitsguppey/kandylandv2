@@ -42,9 +42,35 @@ describe("admin debug summary cards", () => {
             hasError: false,
         });
 
-        expect(card.value).toBe("3 ok / 1 action / 0 fail");
+        expect(card.value).toBe("3 ok / 0 action / 0 fail");
         expect(card.meta).toContain("[partial] API snapshot; route listener hydrating");
         expect(card.meta).toContain("4 tracked, 3 observed, 1 unseen");
+        expect(card.truthState).toBe("degraded");
+    });
+
+    it("keeps unseen route coverage out of the actionable route count", () => {
+        const card = buildAdminDebugRouteHealthCard({
+            summary: {
+                total: 158,
+                healthy: 5,
+                warn: 153,
+                fail: 0,
+                stale: 0,
+                unobserved: 149,
+                slow: 10,
+                serverErrors: 0,
+                clientErrors: 0,
+            },
+            observedCount: 9,
+            hasRealtimeRows: false,
+            hasSnapshotRows: true,
+            listenerState: { routeHealthLoaded: false, routeHealthFailed: true },
+            isLoading: false,
+            hasError: false,
+        });
+
+        expect(card.value).toBe("5 ok / 4 action / 0 fail");
+        expect(card.meta).toContain("158 tracked, 9 observed, 149 unseen");
         expect(card.truthState).toBe("degraded");
     });
 
