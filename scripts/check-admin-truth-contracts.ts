@@ -97,6 +97,12 @@ if (adminDebugPageSource.includes("panel log issues +")) {
 if (!adminDebugPageSource.includes("buildAdminDebugRouteHealthCard") || !adminDebugPageSource.includes("buildAdminDebugOpenActionsCard")) {
   failures.push("src/app/admin/debug/page.tsx: admin debug rollup cards must use tested summary helpers");
 }
+if (!adminDebugPageSource.includes("buildAdminDebugAiAssistantCard")) {
+  failures.push("src/app/admin/debug/page.tsx: AI assistant stat card must use the tested helper so runtime, fallback, and preflight truth states cannot diverge");
+}
+if (/StatCard label="AI assistant"[\s\S]*runtime_ready\s*\?\s*"live"/.test(adminDebugPageSource)) {
+  failures.push("src/app/admin/debug/page.tsx: AI assistant stat card must not mark runtime_ready as live when fallback or preflight failures are present");
+}
 
 const routeRuntimeHealthPath = join(repoRoot, "src", "lib", "server", "route-runtime-health.ts");
 const routeRuntimeHealthSource = readFileSync(routeRuntimeHealthPath, "utf8");

@@ -1,5 +1,7 @@
 import type { AdminSurfaceState } from "@/lib/admin-parity";
 
+export type AdminDebugAiFeedStatus = "realtime" | "partial" | "polled" | "failed";
+
 export type AdminDebugRouteRuntimeSummary = {
     total: number;
     healthy: number;
@@ -131,5 +133,95 @@ export function buildAdminDebugOpenActionsCard(input: {
             : "No actionable debug lanes in current snapshot",
         truthState,
         buckets,
+    };
+}
+
+export function buildAdminDebugAiAssistantCard(input: {
+    hasSummary: boolean;
+    hasError: boolean;
+    enabled?: boolean;
+    runtimeReady?: boolean;
+    fallbackUsed?: boolean;
+    configuredModel?: string | null;
+    feedStatus?: AdminDebugAiFeedStatus | string | null;
+    latencyMs?: number | null;
+}) {
+    const feedStatus = input.feedStatus || "polled";
+    const configuredModel = input.configuredModel || "unknown model";
+    const latency = typeof input.latencyMs === "number" && Number.isFinite(input.latencyMs)
+        ? `${Math.max(0, Math.trunc(input.latencyMs))}ms`
+        : "latency unknown";
+
+    if (input.hasError) {
+        return {
+            value: "Unavailable",
+            meta: "assistant summary route failed",
+            truthState: "failed" as AdminSurfaceState,
+        };
+    }
+
+    if (!input.hasSummary) {
+        return {
+            value: "Loading",
+            meta: "waiting for assistant summary",
+            truthState: "loading" as AdminSurfaceState,
+        };
+    }
+
+    const runtimeLabel = input.runtimeReady ? "runtime ready" : "runtime unavailable";
+    const sourceLabel = input.fallbackUsed ? "deterministic fallback output" : "live model output";
+
+    if (input.enabled === false) {
+        return {
+            value: "Disabled",
+            meta: `${configuredModel} configured | ${runtimeLabel} | ${sourceLabel} | ${latency}`,
+            truthState: "degraded" as AdminSurfaceState,
+        };
+    }
+
+    if (feedStatus === "failed") {
+        return {
+            value: "Preflight failed",
+            meta: `${configuredModel} configured | preflight failed | ${runtimeLabel} | ${sourceLabel} | ${latency}`,
+            truthState: "failed" as AdminSurfaceState,
+        };
+    }
+
+    if (input.runtimeReady === false) {
+        return {
+            value: "Runtime unavailable",
+            meta: `${configuredModel} configured | ${feedStatus} preflight lane | ${sourceLabel} | ${latency}`,
+            truthState: "failed" as AdminSurfaceState,
+        };
+    }
+
+    if (input.fallbackUsed) {
+        return {
+            value: "Fallback",
+            meta: `${configuredModel} configured | ${feedStatus} preflight lane | ${runtimeLabel} | deterministic fallback output | ${latency}`,
+            truthState: "fallback" as AdminSurfaceState,
+        };
+    }
+
+    if (feedStatus === "partial") {
+        return {
+            value: "Partial",
+            meta: `${configuredModel} configured | partial preflight lane | ${runtimeLabel} | live model output | ${latency}`,
+            truthState: "degraded" as AdminSurfaceState,
+        };
+    }
+
+    if (feedStatus === "polled") {
+        return {
+            value: "Polled",
+            meta: `${configuredModel} configured | polled preflight lane | ${runtimeLabel} | live model output | ${latency}`,
+            truthState: "fallback" as AdminSurfaceState,
+        };
+    }
+
+    return {
+        value: "Live",
+        meta: `${configuredModel} configured | realtime preflight lane | ${runtimeLabel} | live model output | ${latency}`,
+        truthState: "live" as AdminSurfaceState,
     };
 }

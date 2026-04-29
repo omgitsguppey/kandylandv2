@@ -36,6 +36,7 @@ import {
     type AdminDebugTabOption,
 } from "@/lib/admin-debug-preferences";
 import {
+    buildAdminDebugAiAssistantCard,
     buildAdminDebugOpenActionsCard,
     buildAdminDebugRouteHealthCard,
 } from "@/lib/admin-debug-summary-cards";
@@ -341,6 +342,19 @@ export default function DebugConsole() {
                     : aiDebugData.fallback_used
                 ? "warn"
                 : "good";
+    const aiAssistantCard = useMemo(
+        () => buildAdminDebugAiAssistantCard({
+            hasSummary: Boolean(aiDebugData),
+            hasError: Boolean(aiDebugError),
+            enabled: aiDebugData?.enabled,
+            runtimeReady: aiDebugData?.runtime_ready,
+            fallbackUsed: aiDebugData?.fallback_used,
+            configuredModel: aiDebugData?.configured_model,
+            feedStatus: aiAssistantRealtime.feedStatus,
+            latencyMs: aiDebugData?.latency_ms,
+        }),
+        [aiAssistantRealtime.feedStatus, aiDebugData, aiDebugError],
+    );
 
     const refreshAll = async () => {
         await Promise.all([mutate(), mutateOverview(), mutateAiDebug()]);
@@ -498,7 +512,7 @@ export default function DebugConsole() {
                 <StatCard label="Open actions" value={openActionsCard.count} meta={openActionsCard.meta} truthState={openActionsCard.truthState} />
                 <StatCard label="Route health" value={routeHealthCard.value} meta={routeHealthCard.meta} truthState={routeHealthCard.truthState} />
                 <StatCard label="Freshest loaded sample" value={freshestLoadedSignalAt ? formatRelative(freshestLoadedSignalAt) : "--"} meta="derived from loaded diagnostics, panel logs, UI hydration reports, transactions, and AI status" truthState={!data && isLoading ? "loading" : error ? "failed" : freshestLoadedSignalAt ? "live" : "unavailable"} />
-                <StatCard label="AI assistant" value={aiStatusLabel} meta={aiDebugData ? `${aiDebugData.configured_model} configured | ${aiAssistantRealtime.feedStatus} preflight lane | ${aiDebugData.runtime_ready ? "runtime ready" : "runtime unavailable"} | ${aiDebugData.latency_ms}ms` : aiDebugError ? "assistant unavailable" : "waiting for summary"} truthState={aiDebugData ? aiDebugData.runtime_ready ? "live" : "degraded" : aiDebugError ? "failed" : "loading"} />
+                <StatCard label="AI assistant" value={aiAssistantCard.value} meta={aiAssistantCard.meta} truthState={aiAssistantCard.truthState} />
             </div>
 
             {error ? <div className="rounded-[1.35rem] border border-red-400/20 bg-red-500/10 p-4 text-sm text-red-100">Debug data could not be loaded right now.</div> : null}

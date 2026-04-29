@@ -55,13 +55,25 @@ export function DebugTabNow({
     panelLogWarnCount,
     panelLogFailCount,
 }: DebugTabNowProps) {
+    const writerWarnCount = data?.opsHealth?.materializerSummary?.warn ?? 0;
+    const writerFailCount = data?.opsHealth?.materializerSummary?.fail ?? 0;
+    const writerSampleCount = (data?.opsHealth?.materializers || []).length;
+    const writerTruthState = writerSampleCount > 0
+        ? writerFailCount > 0
+            ? "failed"
+            : writerWarnCount > 0
+                ? "degraded"
+                : "live"
+        : "unavailable";
+    const freshestLoadedSignalTruthState = freshestLoadedSignalAt ? "live" : "unavailable";
+
     return (
         <div className="space-y-4">
                     <Section
                         title="System health now"
-                        subtitle="Live canonical system truth, current diagnostics, and sampled pipeline freshness."
+                        subtitle="Canonical system truth, current diagnostics, and sampled pipeline freshness."
                         defaultOpen
-                        summary={<><Pill label="Score" value={`${data?.opsHealth?.score ?? 0}%`} tone={(data?.opsHealth?.score ?? 0) >= 90 ? "good" : (data?.opsHealth?.score ?? 0) >= 70 ? "warn" : "bad"} /><Pill label="Pipeline" value={getPipelineStatusLabel(data?.opsHealth?.pipeline?.status)} tone={data?.opsHealth?.pipeline?.status === "fail" ? "bad" : data?.opsHealth?.pipeline?.status === "warn" ? "warn" : "good"} /><Pill label="Active diagnostics" value={(data?.opsHealth?.diagnostics?.activeErrorCount ?? 0) + (data?.opsHealth?.diagnostics?.activeWarnCount ?? 0)} tone={((data?.opsHealth?.diagnostics?.activeErrorCount ?? 0) + (data?.opsHealth?.diagnostics?.activeWarnCount ?? 0)) > 0 ? "warn" : "good"} /><Pill label="Writers" value={`${data?.opsHealth?.materializerSummary?.warn ?? 0}/${data?.opsHealth?.materializerSummary?.fail ?? 0}`} tone={((data?.opsHealth?.materializerSummary?.warn ?? 0) + (data?.opsHealth?.materializerSummary?.fail ?? 0)) > 0 ? "warn" : "good"} /><Pill label="Freshest loaded signal" value={freshestLoadedSignalAt ? formatRelative(freshestLoadedSignalAt) : "Not loaded"} /></>}
+                        summary={<><Pill label="Score" value={`${data?.opsHealth?.score ?? 0}%`} tone={(data?.opsHealth?.score ?? 0) >= 90 ? "good" : (data?.opsHealth?.score ?? 0) >= 70 ? "warn" : "bad"} /><Pill label="Pipeline" value={getPipelineStatusLabel(data?.opsHealth?.pipeline?.status)} tone={data?.opsHealth?.pipeline?.status === "fail" ? "bad" : data?.opsHealth?.pipeline?.status === "warn" ? "warn" : "good"} /><Pill label="Active diagnostics" value={(data?.opsHealth?.diagnostics?.activeErrorCount ?? 0) + (data?.opsHealth?.diagnostics?.activeWarnCount ?? 0)} tone={((data?.opsHealth?.diagnostics?.activeErrorCount ?? 0) + (data?.opsHealth?.diagnostics?.activeWarnCount ?? 0)) > 0 ? "warn" : "good"} /><Pill label="Writers" value={writerSampleCount > 0 ? `${writerWarnCount}/${writerFailCount}` : "No sample"} tone={writerFailCount > 0 ? "bad" : writerWarnCount > 0 ? "warn" : writerSampleCount > 0 ? "good" : "neutral"} truthState={writerTruthState} /><Pill label="Freshest loaded signal" value={freshestLoadedSignalAt ? formatRelative(freshestLoadedSignalAt) : "Not loaded"} tone={freshestLoadedSignalAt ? "good" : "neutral"} truthState={freshestLoadedSignalTruthState} /></>}
                     >
                         <div className="grid gap-4 lg:grid-cols-1">
                             <div className="grid gap-3 md:grid-cols-2 lg:grid-cols-1">

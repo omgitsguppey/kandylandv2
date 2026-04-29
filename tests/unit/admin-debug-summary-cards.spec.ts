@@ -1,6 +1,7 @@
 import { describe, expect, it } from "vitest";
 
 import {
+    buildAdminDebugAiAssistantCard,
     buildAdminDebugOpenActionsCard,
     buildAdminDebugRouteHealthCard,
     type AdminDebugRouteRuntimeSummary,
@@ -83,5 +84,41 @@ describe("admin debug summary cards", () => {
         expect(card.meta).not.toContain("0 route");
         expect(card.meta).toContain("2 queue runtime (0 failed jobs, 1 stale jobs, 1 missing outcomes)");
         expect(card.truthState).toBe("failed");
+    });
+
+    it("fails the AI assistant card when the preflight lane is failed even if runtime is ready", () => {
+        const card = buildAdminDebugAiAssistantCard({
+            hasSummary: true,
+            hasError: false,
+            enabled: true,
+            runtimeReady: true,
+            fallbackUsed: true,
+            configuredModel: "gemini-3.1-flash-lite-preview",
+            feedStatus: "failed",
+            latencyMs: 97,
+        });
+
+        expect(card.value).toBe("Preflight failed");
+        expect(card.meta).toContain("preflight failed");
+        expect(card.meta).toContain("runtime ready");
+        expect(card.meta).toContain("deterministic fallback output");
+        expect(card.truthState).toBe("failed");
+    });
+
+    it("labels AI assistant fallback output as fallback when preflight is connected", () => {
+        const card = buildAdminDebugAiAssistantCard({
+            hasSummary: true,
+            hasError: false,
+            enabled: true,
+            runtimeReady: true,
+            fallbackUsed: true,
+            configuredModel: "gemini-3.1-flash-lite-preview",
+            feedStatus: "realtime",
+            latencyMs: 97,
+        });
+
+        expect(card.value).toBe("Fallback");
+        expect(card.meta).toContain("realtime preflight lane");
+        expect(card.truthState).toBe("fallback");
     });
 });
