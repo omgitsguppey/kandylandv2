@@ -566,11 +566,6 @@ const { user } = useAuth();
     "dailyTaskPipeline",
     dailyTaskPipelineRange,
   );
-  const taskLeaderboardRange = getSectionRange("taskLeaderboard");
-  const taskLeaderboardOverride = useHistoricalSectionOverride(
-    "taskLeaderboard",
-    taskLeaderboardRange,
-  );
   const notificationFunnelRange = getSectionRange("notificationFunnel");
   const notificationFunnelOverride = useHistoricalSectionOverride(
     "notificationFunnel",
@@ -1605,12 +1600,6 @@ const { user } = useAuth();
       historicalOverviewTruthState,
     ],
   );
-  const taskLeaderboardData =
-    taskLeaderboardRange === ADMIN_ANALYTICS_DEFAULT_RANGE
-      ? historicalResponse
-      : taskLeaderboardOverride.data;
-  const taskLeaderboardItems =
-    taskLeaderboardData?.taskLeaderboard ?? taskLeaderboard;
   const notificationFunnelData =
     notificationFunnelRange === ADMIN_ANALYTICS_DEFAULT_RANGE
       ? historicalResponse
@@ -1868,11 +1857,6 @@ const { user } = useAuth();
     dailyTaskPipelineRange,
     dailyTaskPipelineOverride,
   );
-  const taskLeaderboardState = buildHistoricalSectionState(
-    "Task leaderboard",
-    taskLeaderboardRange,
-    taskLeaderboardOverride,
-  );
   const notificationFunnelState = buildHistoricalSectionState(
     "Notification funnel",
     notificationFunnelRange,
@@ -1927,7 +1911,7 @@ const { user } = useAuth();
     revenueDisplay, purchasesDisplay, mobileShareDisplay, liveActiveDisplay, liveActiveTruthState, historicalOverviewTruthState, analyticsOverviewDebugMeta, overviewCheckoutStarts,
     viewerDrilldownFilter, viewerDrilldownOverview, applyViewerFilter, viewerDrilldownUsers, viewerDrilldownCaptureHealth, liveWatchCaptureHealth, viewerDrilldownJourneys, viewerDrilldownInsights, viewerDropChartData, viewerJourneyItems, watchDepthTagBuckets, watchDepthTagDemand,
     getJourneyStateClasses, getJourneyStateLabel, topExperienceContexts, topComponentContexts, eventMixTopEvents, eventMixTopComponentContexts, eventMixModel,
-    dailyTaskPipelineModel, taskLeaderboardItems, activeNotificationFunnelPieData, notificationActionItems, maxNotificationActionValue, hasNotificationReminderReasons, notificationReminderReasons
+    dailyTaskPipelineModel, activeNotificationFunnelPieData, notificationActionItems, maxNotificationActionValue, hasNotificationReminderReasons, notificationReminderReasons
   };
 }
 

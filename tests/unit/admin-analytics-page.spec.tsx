@@ -41,7 +41,6 @@ const mockState = vi.hoisted(() => {
       clearViewerFilter: vi.fn(),
       renderSectionRangeControl: vi.fn(() => null),
       dailyTaskPipelineModel: { items: [], hasData: false },
-      taskLeaderboardItems: [],
       activeNotificationFunnelPieData: [],
       notificationActionItems: [],
       maxNotificationActionValue: 0,

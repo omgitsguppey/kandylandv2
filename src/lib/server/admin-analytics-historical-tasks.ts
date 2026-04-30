@@ -23,6 +23,7 @@ export interface HistoricalTaskAnalytics {
     failed: number;
     rewardTotal: number;
     avgDurationMs: number;
+    timedCompletionCount: number;
     completionRate: number;
   }>;
   taskDurationBuckets: Array<{ label: string; count: number }>;
@@ -101,6 +102,7 @@ export function buildHistoricalTaskAnalytics(input: {
       avgDurationMs: entry.completionDurations.length > 0
         ? Math.round(entry.completionDurations.reduce((sum, value) => sum + value, 0) / entry.completionDurations.length)
         : 0,
+      timedCompletionCount: entry.completionDurations.length,
       completionRate: entry.assigned > 0 ? entry.completed / entry.assigned : 0,
     }))
     .sort((left, right) => right.completed - left.completed || right.rewardTotal - left.rewardTotal)

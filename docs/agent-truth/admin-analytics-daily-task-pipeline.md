@@ -21,8 +21,16 @@ Speed buckets count timed completions only. Total completed tasks and timed comp
 
 The compact speed view should use brand/semantic colors: brand purple for completed timing, muted slate for empty/unavailable buckets, and restrained warning or error colors for slow/problem states. Bright cyan is not the semantic color for task completion speed unless doctrine later documents it for this exact use. Do not use a large vertical speed bar chart on mobile; use a compact inline histogram or summary inside Daily Task Pipeline.
 
+Task Leaderboard also belongs inside Daily Task Pipeline because its rows are per-task slices of the same lifecycle truth. A standalone Task Leaderboard module is forbidden unless a future product decision explicitly reintroduces it with a new source contract. The leaderboard must use compact inline rows with pagination instead of giant task cards.
+
+Leaderboard rows must declare their ranking mode. The default mode is completions. Completion rate is `completed / assigned` unless a future model explicitly exposes another denominator. Failed counts come from failed lifecycle logs; if failed exceeds started, the row must be flagged instead of displayed as normal. Mixed, stale, fallback, or telemetry-derived rows must be labeled.
+
+Reward totals are not final business truth unless they reconcile against task catalog reward definitions. Built-in task rewards can be checked against the catalog. Custom task rewards must be treated as unverified until custom catalog data is included in the analytics payload. Do not display unverified reward totals as final; put raw reward totals and reconciliation deltas in Debug.
+
+Leaderboard totals must reconcile with Daily Task Pipeline totals or expose `leaderboardPipelineDelta`. Leaderboard timing must reconcile with the completion-speed timing model or expose `speedTimingDelta`. Average task time requires linked durations and must expose timing coverage when only some completions have durations.
+
 Do not render zero unless the source is loaded and server-confirmed. If the payload is missing, show waiting or unavailable. Stale cache must be labeled stale.
 
 Firebase Analytics events can be batched in normal use. Firestore listeners can emit cached/local-write data; expose `fromCache` and `hasPendingWrites` if Firestore becomes the source. GA4 intraday is incomplete; GA4 daily export is the stable completed-day source.
 
-Mobile density rule: use compact lifecycle tiles, a small horizontal progression, a guidance signal row, and compact completion-speed timing. Future agents must not reintroduce the unhelpful vertical bar chart, standalone Task Completion Speed chart, or mix guide views into lifecycle states without labeling.
+Mobile density rule: use compact lifecycle tiles, a small horizontal progression, a guidance signal row, compact completion-speed timing, and inline paginated leaderboard rows. Future agents must not reintroduce the unhelpful vertical bar chart, standalone Task Completion Speed chart, giant Task Leaderboard cards, unverified reward totals, or mix guide views into lifecycle states without labeling.

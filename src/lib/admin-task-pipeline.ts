@@ -1,4 +1,5 @@
 import type { AdminSurfaceState } from "@/lib/admin-parity";
+import { buildTaskLeaderboardRows, type AdminTaskLeaderboardRow } from "@/lib/admin-task-leaderboard";
 import type { CountBucketItem, HistoricalAnalyticsResponse, RangeOption, TaskLeaderboardItem } from "@/types/admin-analytics";
 
 export interface AdminTaskPipelineItemInput {
@@ -62,6 +63,22 @@ export interface AdminTaskPipelineModel {
         guideTaps: number;
         mismatches: number;
     }>;
+    taskLeaderboardConsolidated: boolean;
+    standaloneTaskLeaderboardRemoved: boolean;
+    leaderboardMode: "completions";
+    taskCatalogSource: string;
+    taskLeaderboardRows: AdminTaskLeaderboardRow[];
+    taskLeaderboardPageSize: number;
+    topCompletedTask: string | null;
+    topRewardTask: string | null;
+    topFailingTask: string | null;
+    worstCompletionRateTask: string | null;
+    largestAssignedNotStartedTask: string | null;
+    rewardMismatchCount: number;
+    lifecycleMismatchCount: number;
+    timingPartialCount: number;
+    leaderboardPipelineDelta: number | null;
+    speedTimingDelta: number | null;
     completionSpeedConsolidated: boolean;
     standaloneTaskCompletionSpeedRemoved: boolean;
     speedSource: string;
@@ -306,6 +323,32 @@ export function buildAdminTaskPipelineModel(input: {
     const durationRejectedCount = speedBucketReconciliationDelta === null
         ? null
         : Math.max(0, speedBucketReconciliationDelta);
+    const taskLeaderboardRows = buildTaskLeaderboardRows({
+        tasks: input.taskLeaderboard,
+        fakeZeroPrevented,
+        stale,
+        truthState,
+    });
+    const leaderboardCompletedTotal = taskLeaderboardRows.reduce((total, task) => total + (task.completed ?? 0), 0);
+    const leaderboardTimedTotal = taskLeaderboardRows.reduce((total, task) => total + (task.timedCompletionCount ?? 0), 0);
+    const leaderboardPipelineDelta = lifecycleValues.completed === null ? null : leaderboardCompletedTotal - lifecycleValues.completed;
+    const speedTimingDelta = timedCompletionCount === null ? null : leaderboardTimedTotal - timedCompletionCount;
+    const rewardMismatchCount = taskLeaderboardRows.filter((task) => !task.rewardVerified).length;
+    const lifecycleMismatchCount = taskLeaderboardRows.filter((task) => task.mismatches.some((mismatch) => mismatch !== "catalog_reward_unavailable" && mismatch !== "timing_partial")).length;
+    const timingPartialCount = taskLeaderboardRows.filter((task) => task.mismatches.includes("timing_partial")).length;
+    const topCompletedTask = taskLeaderboardRows[0]?.label ?? null;
+    const topRewardTask = taskLeaderboardRows
+        .filter((task) => task.rewardTotal !== null)
+        .slice()
+        .sort((left, right) => (right.rewardTotal ?? 0) - (left.rewardTotal ?? 0))[0]?.label ?? null;
+    const topFailingTask = taskLeaderboardRows.slice().sort((left, right) => (right.failed ?? 0) - (left.failed ?? 0))[0];
+    const worstCompletionRateTask = taskLeaderboardRows
+        .filter((task) => (task.assigned ?? 0) > 0)
+        .slice()
+        .sort((left, right) => (left.completionRate ?? 1) - (right.completionRate ?? 1))[0]?.label ?? null;
+    const largestAssignedNotStartedTask = taskLeaderboardRows
+        .slice()
+        .sort((left, right) => (right.assignedNotStarted ?? 0) - (left.assignedNotStarted ?? 0))[0]?.label ?? null;
     const perTaskBreakdown = input.taskLeaderboard.map((task) => ({
         taskId: task.taskId,
         label: task.title,
@@ -363,6 +406,22 @@ export function buildAdminTaskPipelineModel(input: {
         topFailingTaskType: topFailingTaskType && topFailingTaskType.failed > 0 ? topFailingTaskType.label : null,
         topLeakingStage,
         perTaskBreakdown,
+        taskLeaderboardConsolidated: true,
+        standaloneTaskLeaderboardRemoved: true,
+        leaderboardMode: "completions",
+        taskCatalogSource: "built-in task catalog; custom catalog unavailable in analytics payload",
+        taskLeaderboardRows,
+        taskLeaderboardPageSize: 5,
+        topCompletedTask,
+        topRewardTask,
+        topFailingTask: topFailingTask && (topFailingTask.failed ?? 0) > 0 ? topFailingTask.label : null,
+        worstCompletionRateTask,
+        largestAssignedNotStartedTask,
+        rewardMismatchCount,
+        lifecycleMismatchCount,
+        timingPartialCount,
+        leaderboardPipelineDelta,
+        speedTimingDelta,
         completionSpeedConsolidated: true,
         standaloneTaskCompletionSpeedRemoved: true,
         speedSource: timedCompletionCount && timedCompletionCount > 0 ? "linked task lifecycle duration buckets" : "unavailable",

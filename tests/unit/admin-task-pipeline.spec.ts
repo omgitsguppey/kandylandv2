@@ -68,13 +68,14 @@ describe("buildAdminTaskPipelineModel", () => {
       taskLeaderboard: [
         {
           taskId: "task-a",
-          title: "Watch 2 unlocked files",
+          title: "Legacy unmatched task",
           assigned: 1,
           started: 2,
           completed: 3,
-          failed: 1,
+          failed: 3,
           rewardTotal: 20,
           avgDurationMs: 1000,
+          timedCompletionCount: 2,
           completionRate: 3,
         },
       ],
@@ -88,6 +89,19 @@ describe("buildAdminTaskPipelineModel", () => {
       taskId: "task-a",
       mismatches: 2,
     });
+    expect(model.taskLeaderboardConsolidated).toBe(true);
+    expect(model.standaloneTaskLeaderboardRemoved).toBe(true);
+    expect(model.leaderboardMode).toBe("completions");
+    expect(model.taskLeaderboardRows[0]).toMatchObject({
+      taskId: "task-a",
+      completionRateFormula: "completed / assigned",
+      rewardFormula: "completed * catalog reward",
+    });
+    expect(model.taskLeaderboardRows[0].mismatches).toContain("failed_exceeds_started");
+    expect(model.taskLeaderboardRows[0].mismatches).toContain("catalog_reward_unavailable");
+    expect(model.rewardMismatchCount).toBe(1);
+    expect(model.lifecycleMismatchCount).toBe(1);
+    expect(model.leaderboardPipelineDelta).toBe(-12);
     expect(model.speedBucketReconciliationDelta).toBe(5);
     expect(model.missingStartTimestampCount).toBe(5);
   });
@@ -105,6 +119,7 @@ describe("buildAdminTaskPipelineModel", () => {
     expect(model.startRate.value).toBeNull();
     expect(model.timedCompletionCount).toBeNull();
     expect(model.avgCompletionSeconds).toBeNull();
+    expect(model.taskLeaderboardRows).toEqual([]);
     expect(model.fakeZeroPrevented).toBe(true);
     expect(model.badgeLabel).toBe("WAIT");
   });
@@ -138,5 +153,49 @@ describe("buildAdminTaskPipelineModel", () => {
     expect(model.durationRejectedCount).toBe(3);
     expect(model.timingRecommendation).toContain("Timing partial");
     expect(model.speedSource).toBe("linked task lifecycle duration buckets");
+  });
+
+  it("verifies built-in leaderboard reward math and timing coverage", () => {
+    const model = buildAdminTaskPipelineModel({
+      selectedRange: "30d",
+      response: response(),
+      loading: false,
+      overviewTruthState: "live",
+      items: [
+        { label: "Assigned", count: 10 },
+        { label: "Started", count: 8 },
+        { label: "Completed", count: 4 },
+        { label: "Failed", count: 1 },
+      ],
+      taskDurationBuckets: [
+        { label: "<1m", count: 3 },
+        { label: "1-5m", count: 1 },
+      ],
+      taskLeaderboard: [
+        {
+          taskId: "open_dashboard",
+          title: "Open your dashboard",
+          assigned: 10,
+          started: 8,
+          completed: 4,
+          failed: 1,
+          rewardTotal: 4 * 48,
+          avgDurationMs: 30_000,
+          timedCompletionCount: 3,
+          completionRate: 0.4,
+        },
+      ],
+    });
+
+    expect(model.taskLeaderboardRows[0]).toMatchObject({
+      rewardVerified: true,
+      rewardTotal: 192,
+      rewardPerCompletion: 48,
+      rewardReconciliationDelta: 0,
+      timingCoveragePercent: 0.75,
+    });
+    expect(model.taskLeaderboardRows[0].avgCompletionTime).toBe(30);
+    expect(model.timingPartialCount).toBe(1);
+    expect(model.speedTimingDelta).toBe(-1);
   });
 });

@@ -184,6 +184,7 @@ export interface TaskLeaderboardItem {
   failed: number;
   rewardTotal: number;
   avgDurationMs: number;
+  timedCompletionCount?: number;
   completionRate: number;
 }
 
