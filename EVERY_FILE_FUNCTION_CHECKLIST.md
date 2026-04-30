@@ -9,6 +9,13 @@ Scoring: all entries below are marked as included in the current validated sweep
 
 Current repo-wide state snapshot: see [FULL_SCALE_CODEBASE_AUDIT.md](/Users/uylus/OneDrive/Documents/KandyDrops_Final/FULL_SCALE_CODEBASE_AUDIT.md) for the current live baseline, verification state, and continuity rules, and see [REPO_MEMORY_LEDGER.md](/Users/uylus/OneDrive/Documents/KandyDrops_Final/REPO_MEMORY_LEDGER.md) for major architectural and workflow decisions. The detailed file/function body below remains valuable historical evidence, but it has not been fully regenerated against the current 2026-04-18 inventory review yet.
 
+## 2026-04-30 Firebase CLI Toolchain and Windows Symlink Readiness Coverage
+
+- [x] `package.json` updates root deploy tooling to `firebase-tools@^15.16.0` and adds direct `esbuild@^0.27.7` so Firebase framework packaging uses current CLI dependencies and satisfies Vite's esbuild peer range.
+- [x] `package-lock.json` records the updated Firebase CLI and esbuild dependency graph.
+- [x] `FULL_SCALE_CODEBASE_AUDIT.md` records the verified residual Windows symlink privilege blocker separately from dependency installation.
+- [x] `REPO_MEMORY_LEDGER.md` records that classic local Firebase Hosting framework deploys require a passing symlink smoke test, Windows Developer Mode, an elevated shell, or an alternate App Hosting/Cloud Shell/CI deploy path.
+
 ## 2026-04-30 Google Analytics, Cloud, SQL Connect, and Admin Analytics Hot-Truth Coverage
 
 - [x] `docs/doctrine/kandydrops-google-analytics-cloud-doctrine.md` documents official Google/Firebase capability boundaries, required env/secrets, setup examples, hot summary expectations, BigQuery export heartbeat rules, and SQL Connect/Cloud SQL limitations.

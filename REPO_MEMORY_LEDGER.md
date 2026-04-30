@@ -24,6 +24,20 @@ This file is not a changelog. It is the concise ledger for durable decisions tha
 
 ## Decision Entries
 
+### 1bm. Firebase framework deploys need both current CLI deps and Windows symlink privilege
+
+- Approximate date: Recorded explicitly on 2026-04-30 from the Firebase CLI toolchain and Windows symlink readiness pass
+- Status: Active deploy-tooling rule
+- Problem/context: Local `firebase deploy --only hosting` for the Next.js/Firebase framework path built the app but failed while packaging the SSR function because Windows denied symlink creation under `.firebase/.../.next/node_modules`.
+- Decision made: Keep Firebase CLI dependencies current and satisfy framework bundler peers, but do not treat dependency updates as sufficient proof that classic local Hosting deploys can run on Windows.
+- What became canonical:
+  - Root `firebase-tools` is pinned to `^15.16.0`, matching the globally installed Firebase CLI used by `firebase`.
+  - Root `esbuild` is a direct dev dependency at `^0.27.7`, satisfying `vite@8.0.8`'s peer range and removing the stale framework-packaging warning.
+  - Local Windows symlink readiness must be tested separately before relying on classic local Hosting deploys.
+- Consequence for future work:
+  - If the symlink smoke test fails with `Administrator privilege required for this operation.`, deploy SSR/admin UI through Firebase App Hosting rollouts, Cloud Shell, CI, Windows Developer Mode, or an elevated trusted shell.
+  - Do not misclassify the symlink failure as a Firebase package-install failure after dependency truth passes.
+
 ### 1bk. Admin realtime analytics must be hot-materialized before cold provider reads
 
 - Approximate date: Recorded explicitly on 2026-04-30 from the Google Analytics, Cloud, SQL Connect, and Admin Analytics Hot-Truth Hardening pass

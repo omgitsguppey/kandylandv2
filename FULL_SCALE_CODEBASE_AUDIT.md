@@ -1,5 +1,23 @@
 # KandyDrops Core Codebase Audit & Defensive Ledger
 
+## [2026-04-30 #57] PRE/POST: Firebase CLI Toolchain and Windows Symlink Readiness
+
+Scope completed:
+- Updated root Firebase CLI tooling from `firebase-tools@15.15.0` to `firebase-tools@15.16.0` and installed the same version globally so `firebase` and `npx firebase` resolve to the current CLI.
+- Added a direct root `esbuild@^0.27.7` dev dependency so `vite@8.0.8` no longer reports the stale `esbuild@0.25.12` peer mismatch seen during Firebase framework packaging.
+- Verified this fixes the dependency side of Firebase framework deploy readiness, but not the Windows filesystem policy block.
+
+Truthful residual:
+- Classic local `firebase deploy --only hosting` framework packaging can still fail from this Windows account because the shell lacks `SeCreateSymbolicLinkPrivilege`. Microsoft documents symlink creation as requiring the Create symbolic links user right by default, or unprivileged symlink creation when Developer Mode is enabled and the caller uses that API path. This is an OS privilege/policy issue, not a missing Firebase npm dependency.
+
+Verification completed:
+- `firebase --version`
+- `npx firebase --version`
+- `npm ls firebase-tools esbuild --depth=0`
+- `npm run check:dependency-truth`
+- `npm run check:versions`
+- Windows symlink smoke test: still fails with `Administrator privilege required for this operation.`
+
 ## [2026-04-30 #56] PRE: Google Analytics, Cloud, SQL Connect, and Admin Analytics Hot-Truth Hardening
 
 Scope started:
