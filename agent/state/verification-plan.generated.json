@@ -1,5 +1,5 @@
 {
-  "generatedAt": "2026-04-29T00:59:25.946Z",
+  "generatedAt": "2026-04-30T02:03:06.212Z",
   "truthOrder": [
     "verified_runtime_code",
     "verified_configuration",
@@ -16,36 +16,28 @@
     "agent/index/surface-map.json",
     "agent/index/ui-surface-coverage.json"
   ],
-  "stable_id": "verifyplan__src__lib__ai-drop-covers-ts-src__lib__server__ai-drop-covers-ts-src__components__admin__aidropcovergeneratorpanel-tsx-src__components__admin__createdropmodal-tsx-src__app__admin__ai__page-tsx-src__lib__server__ai-drop-descriptions-ts",
+  "stable_id": "verifyplan__src__lib__server__admin-panel-system-logs-ts-src__app__api__admin__debug__route-ts-tests__unit__admin-panel-system-logs-spec-ts",
   "inputPaths": [
-    "src/lib/ai-drop-covers.ts",
-    "src/lib/server/ai-drop-covers.ts",
-    "src/components/Admin/AiDropCoverGeneratorPanel.tsx",
-    "src/components/Admin/CreateDropModal.tsx",
-    "src/app/admin/ai/page.tsx",
-    "src/lib/server/ai-drop-descriptions.ts"
+    "src/lib/server/admin-panel-system-logs.ts",
+    "src/app/api/admin/debug/route.ts",
+    "tests/unit/admin-panel-system-logs.spec.ts"
   ],
   "matchedRepoPaths": [
-    "src/lib/ai-drop-covers.ts",
-    "src/lib/server/ai-drop-covers.ts",
-    "src/components/Admin/AiDropCoverGeneratorPanel.tsx",
-    "src/components/Admin/CreateDropModal.tsx",
-    "src/app/admin/ai/page.tsx",
-    "src/lib/server/ai-drop-descriptions.ts"
+    "src/lib/server/admin-panel-system-logs.ts",
+    "src/app/api/admin/debug/route.ts",
+    "tests/unit/admin-panel-system-logs.spec.ts"
   ],
   "unmatchedPaths": [],
   "touchedDomains": [
     "admin_ops",
-    "ai_admin",
     "app_routes",
     "shared_server_helpers"
   ],
   "fastCommands": [
     "npm run typecheck",
-    "npm run agent:test -- src/lib/ai-drop-covers.ts",
-    "npm run agent:test -- src/lib/server/ai-drop-covers.ts",
-    "npm run agent:test -- src/components/Admin/AiDropCoverGeneratorPanel.tsx",
-    "npm run agent:test -- src/components/Admin/CreateDropModal.tsx",
+    "npm run agent:test -- src/lib/server/admin-panel-system-logs.ts",
+    "npm run agent:test -- src/app/api/admin/debug/route.ts",
+    "npm run agent:test -- tests/unit/admin-panel-system-logs.spec.ts",
     "npm run check:ui:coverage",
     "npm run check:ui:runtime"
   ],
@@ -62,28 +54,21 @@
       "lane": "fast"
     },
     {
-      "command": "npm run agent:test -- src/lib/ai-drop-covers.ts",
+      "command": "npm run agent:test -- src/lib/server/admin-panel-system-logs.ts",
       "why": [
         "Run the narrowest related contract/unit tests first."
       ],
       "lane": "fast"
     },
     {
-      "command": "npm run agent:test -- src/lib/server/ai-drop-covers.ts",
+      "command": "npm run agent:test -- src/app/api/admin/debug/route.ts",
       "why": [
         "Run the narrowest related contract/unit tests first."
       ],
       "lane": "fast"
     },
     {
-      "command": "npm run agent:test -- src/components/Admin/AiDropCoverGeneratorPanel.tsx",
-      "why": [
-        "Run the narrowest related contract/unit tests first."
-      ],
-      "lane": "fast"
-    },
-    {
-      "command": "npm run agent:test -- src/components/Admin/CreateDropModal.tsx",
+      "command": "npm run agent:test -- tests/unit/admin-panel-system-logs.spec.ts",
       "why": [
         "Run the narrowest related contract/unit tests first."
       ],
@@ -121,7 +106,6 @@
     }
   ],
   "signoffAdvisories": [
-    "Run `npm run check:ui:lighthouse` only if the touched UI change affects loading, rendering, or performance-sensitive behavior.",
     "Run `npm run trace:adjacent -- <path>` for the main touched files before broad signoff."
   ],
   "forbiddenSurfaces": [
@@ -133,6 +117,6 @@
   ],
   "broadWork": true,
   "reasoning": [
-    "Matched 6 repo-tracked paths."
+    "Matched 3 repo-tracked paths."
   ]
 }

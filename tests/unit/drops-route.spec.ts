@@ -101,7 +101,7 @@ describe("GET /api/drops", () => {
 
         expect(response.status).toBe(200);
         expect(mockState.guardApiRequest).toHaveBeenCalledWith(request, expect.objectContaining({
-            routeName: "drops/feed",
+            routeName: "drops",
         }));
         expect(payload).toEqual({
             drops: [

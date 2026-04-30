@@ -10,4 +10,5 @@ The KandyDrops Doctrine is the strict governance system for all copy, design, an
 *   **Surface Roles:** `/docs/doctrine/kandydrops-surface-matrix.md`
 *   **Vocabulary:** `/docs/doctrine/kandydrops-vocabulary-index.md`
 *   **Anti-Patterns:** `/docs/doctrine/kandydrops-banned-patterns.md`
+*   **Google Analytics & Cloud Truth:** `/docs/doctrine/kandydrops-google-analytics-cloud-doctrine.md`
 *   **Mandatory Checklist:** `/docs/doctrine/kandydrops-decision-checklist.md`

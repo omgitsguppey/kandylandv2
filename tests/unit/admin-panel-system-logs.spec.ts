@@ -97,6 +97,140 @@ describe("buildAdminPanelSystemLogs", () => {
         expect(taskIntegrityLog?.action).toContain("Reconcile reward delta");
     });
 
+    it("only lists active orchestration signal keys and avoids queued repair copy when none are actionable", () => {
+        const logs = buildAdminPanelSystemLogs({
+            nowMs: NOW_MS,
+            recentTransactionsCount: 20,
+            unsupportedTasks: 0,
+            telemetryValidatedTasks: 12,
+            usersWithTaskIssues: 0,
+            completedEventsLast7d: 5,
+            receiptsLast7d: 5,
+            rewardEventDeltaLast7d: 0,
+            legacyRewardVersionCount: 0,
+            trackedTelemetryEvents: 40,
+            orphanedTelemetryEvents: 0,
+            bugReportsLast7d: 0,
+            rolloutCount: 2,
+            releaseEntryCount: 3,
+            creatorSpendViolationsLast7d: 0,
+            opsHealth: healthyOpsHealth,
+            orchestration: {
+                score: 40,
+                openFindings: 78,
+                actionableProposals: 0,
+                lowConfidenceEvents: 7,
+                recommendationReady: 0,
+            },
+            routeRuntimeHealth: [],
+        });
+
+        const orchestrationLog = logs.find((entry) => entry.id === "overview.behavior_orchestration");
+
+        expect(orchestrationLog).toMatchObject({
+            status: "fail",
+            signalCount: 85,
+            signalKeys: ["orchestration.openFindings", "orchestration.lowConfidenceEvents"],
+        });
+        expect(orchestrationLog?.action).toContain("create repair proposals");
+        expect(orchestrationLog?.action).not.toContain("queued repairs");
+    });
+
+    it("lists only missing runtime configuration signals", () => {
+        const logs = buildAdminPanelSystemLogs({
+            nowMs: NOW_MS,
+            recentTransactionsCount: 20,
+            unsupportedTasks: 0,
+            telemetryValidatedTasks: 12,
+            usersWithTaskIssues: 0,
+            completedEventsLast7d: 5,
+            receiptsLast7d: 5,
+            rewardEventDeltaLast7d: 0,
+            legacyRewardVersionCount: 0,
+            trackedTelemetryEvents: 40,
+            orphanedTelemetryEvents: 0,
+            bugReportsLast7d: 0,
+            rolloutCount: 2,
+            releaseEntryCount: 3,
+            creatorSpendViolationsLast7d: 0,
+            opsHealth: {
+                ...healthyOpsHealth,
+                runtime: {
+                    ...healthyOpsHealth.runtime,
+                    navigationSessionSigningReady: false,
+                },
+            },
+            orchestration: healthyOrchestration,
+            routeRuntimeHealth: [],
+        });
+
+        const runtimeLog = logs.find((entry) => entry.id === "overview.session_runtime");
+
+        expect(runtimeLog).toMatchObject({
+            status: "warn",
+            signalCount: 1,
+            signalKeys: ["runtime.navigationSessionSigningReady"],
+        });
+    });
+
+    it("does not count healthy recent transaction samples as issue signals", () => {
+        const logs = buildAdminPanelSystemLogs({
+            nowMs: NOW_MS,
+            recentTransactionsCount: 20,
+            unsupportedTasks: 0,
+            telemetryValidatedTasks: 12,
+            usersWithTaskIssues: 0,
+            completedEventsLast7d: 5,
+            receiptsLast7d: 5,
+            rewardEventDeltaLast7d: 0,
+            legacyRewardVersionCount: 0,
+            trackedTelemetryEvents: 40,
+            orphanedTelemetryEvents: 0,
+            bugReportsLast7d: 0,
+            rolloutCount: 2,
+            releaseEntryCount: 3,
+            creatorSpendViolationsLast7d: 0,
+            opsHealth: healthyOpsHealth,
+            orchestration: healthyOrchestration,
+            routeRuntimeHealth: [],
+        });
+
+        expect(logs.find((entry) => entry.id === "overview.recent_transactions")).toMatchObject({
+            status: "healthy",
+            signalCount: 0,
+            signalKeys: [],
+        });
+    });
+
+    it("raises one recent transaction feed signal only when the sample is empty", () => {
+        const logs = buildAdminPanelSystemLogs({
+            nowMs: NOW_MS,
+            recentTransactionsCount: 0,
+            unsupportedTasks: 0,
+            telemetryValidatedTasks: 12,
+            usersWithTaskIssues: 0,
+            completedEventsLast7d: 5,
+            receiptsLast7d: 5,
+            rewardEventDeltaLast7d: 0,
+            legacyRewardVersionCount: 0,
+            trackedTelemetryEvents: 40,
+            orphanedTelemetryEvents: 0,
+            bugReportsLast7d: 0,
+            rolloutCount: 2,
+            releaseEntryCount: 3,
+            creatorSpendViolationsLast7d: 0,
+            opsHealth: healthyOpsHealth,
+            orchestration: healthyOrchestration,
+            routeRuntimeHealth: [],
+        });
+
+        expect(logs.find((entry) => entry.id === "overview.recent_transactions")).toMatchObject({
+            status: "warn",
+            signalCount: 1,
+            signalKeys: ["overview.recentTransactions"],
+        });
+    });
+
 
     it("adds tracked route runtime summary logs", () => {
         const routeRuntimeHealth: RouteRuntimeHealthItem[] = [

@@ -3,6 +3,7 @@ export const fetchCache = "force-no-store";
 export const revalidate = 0;
 
 import { NextRequest, NextResponse } from "next/server";
+import { FieldValue } from "firebase-admin/firestore";
 
 import { handleApiError } from "@/lib/server/auth";
 import { adminDb } from "@/lib/server/firebase-admin";
@@ -22,15 +23,21 @@ import { buildHistoricalOnboardingOverview } from "@/lib/server/admin-analytics-
 import { guardApiRequest } from "@/lib/server/request-guard";
 import { ANALYTICS_CANONICAL_COLLECTIONS, ANALYTICS_OPERATIONAL_COLLECTIONS } from "@/lib/server/analytics-governance";
 import { safeQueryWithDiagnostics } from "@/lib/server/diagnostic-read-fallbacks";
-import { getErrorMessage } from "@/lib/server/route-diagnostics";
+import { getErrorMessage, recordRouteWarning } from "@/lib/server/route-diagnostics";
 import { recordRouteRuntimeSample, withRouteRuntimeHealth } from "@/lib/server/route-runtime-health";
 import { readThroughEphemeralRouteCache } from "@/lib/server/ephemeral-route-cache";
 import { recordAnalyticsRuntimeWarning } from "@/lib/server/analytics-runtime-warning";
 import { buildServerAdminModuleVerification } from "@/lib/server/admin-source-verification";
+import type { RealtimeAnalyticsResponse } from "@/types/admin-analytics";
 
 const propertyId = getAdminAnalyticsPropertyId();
 const analyticsClient = createAdminAnalyticsDataClient();
 const ADMIN_ANALYTICS_REALTIME_CACHE_TTL_MS = 10_000;
+const ADMIN_ANALYTICS_REALTIME_HOT_CACHE_FRESH_MS = 5 * 60_000;
+const ADMIN_ANALYTICS_REALTIME_HOT_CACHE_STALE_MS = 30 * 60_000;
+const ADMIN_ANALYTICS_REALTIME_HOT_CACHE_DOC_ID = "realtime_summary";
+
+type AdminRealtimePayload = RealtimeAnalyticsResponse & Record<string, unknown>;
 
 type LiveBucket = {
   minute: number;
@@ -242,6 +249,70 @@ function buildFallbackActiveUsers(input: {
     .slice(0, 8);
 }
 
+function readIssueList(value: unknown) {
+  return Array.isArray(value)
+    ? value.filter((issue): issue is string => typeof issue === "string" && issue.trim().length > 0)
+    : [];
+}
+
+function normalizeRealtimeTruthLabel(
+  value: unknown,
+  fallback: NonNullable<RealtimeAnalyticsResponse["liveTruthLabel"]>,
+) {
+  const candidate = toStringValue(value);
+  return candidate === "live"
+    || candidate === "cached"
+    || candidate === "stale"
+    || candidate === "fallback"
+    || candidate === "partial"
+    || candidate === "failed"
+    ? candidate
+    : fallback;
+}
+
+function buildHotCachePayload(input: {
+  aggregateData: Record<string, unknown>;
+  generatedAtMs: number;
+  nowMs: number;
+  issues: string[];
+}): AdminRealtimePayload {
+  const cacheAgeMs = Math.max(0, input.nowMs - input.generatedAtMs);
+  const cacheState: NonNullable<RealtimeAnalyticsResponse["cacheState"]> =
+    cacheAgeMs < ADMIN_ANALYTICS_REALTIME_HOT_CACHE_FRESH_MS ? "fresh" : "stale";
+  const aggregateIssues = readIssueList(input.aggregateData.issues);
+  const staleIssue = cacheState === "stale"
+    ? ["Serving stale admin realtime analytics hot cache while the scheduled materializer catches up."]
+    : [];
+
+  return {
+    success: true,
+    ...input.aggregateData,
+    generatedAtMs: input.generatedAtMs,
+    cacheState,
+    cacheAgeMs,
+    cacheSourceLabel: "analytics_aggregate_stats/realtime_summary",
+    liveTruthLabel: cacheState === "stale"
+      ? "stale"
+      : normalizeRealtimeTruthLabel(input.aggregateData.liveTruthLabel, "live"),
+    activeUsersTruthLabel: cacheState === "stale"
+      ? "stale"
+      : normalizeRealtimeTruthLabel(input.aggregateData.activeUsersTruthLabel, "live"),
+    issues: [...input.issues, ...aggregateIssues, ...staleIssue],
+  };
+}
+
+async function persistRealtimeHotSummary(payload: AdminRealtimePayload) {
+  await adminDb
+    .collection(ANALYTICS_OPERATIONAL_COLLECTIONS.aggregateStats)
+    .doc(ADMIN_ANALYTICS_REALTIME_HOT_CACHE_DOC_ID)
+    .set({
+      ...payload,
+      writer: "admin/analytics/realtime:GET",
+      cacheSourceLabel: "analytics_aggregate_stats/realtime_summary",
+      updatedAt: FieldValue.serverTimestamp(),
+    }, { merge: true });
+}
+
 async function GET_handler(request: NextRequest) {
   const startedAt = Date.now();
   const finalize = (response: NextResponse, error?: unknown) => {
@@ -264,7 +335,7 @@ async function GET_handler(request: NextRequest) {
       scopeToCaller: true,
     });
 
-        const payload = await readThroughEphemeralRouteCache({
+    const payload = await readThroughEphemeralRouteCache<AdminRealtimePayload>({
       key: "admin-analytics-realtime:summary",
       ttlMs: ADMIN_ANALYTICS_REALTIME_CACHE_TTL_MS,
       loader: async () => {
@@ -276,26 +347,26 @@ async function GET_handler(request: NextRequest) {
         try {
           const aggregateDoc = await adminDb
             .collection(ANALYTICS_OPERATIONAL_COLLECTIONS.aggregateStats)
-            .doc("realtime_summary")
+            .doc(ADMIN_ANALYTICS_REALTIME_HOT_CACHE_DOC_ID)
             .get();
-          
+
           if (aggregateDoc.exists) {
-            const aggData = aggregateDoc.data() as Record<string, any>;
+            const aggData = aggregateDoc.data() as Record<string, unknown>;
             const generatedAtMs = toNumber(aggData.generatedAtMs);
-            
-            // Check if the aggregate is fresh (within the last 5 minutes)
-            if (generatedAtMs && nowMs - generatedAtMs < 5 * 60 * 1000) {
-              return {
-                success: true,
-                ...aggData,
-                issues: [...issues, ...(Array.isArray(aggData.issues) ? aggData.issues : [])],
-              };
+
+            if (generatedAtMs && nowMs - generatedAtMs < ADMIN_ANALYTICS_REALTIME_HOT_CACHE_STALE_MS) {
+              return buildHotCachePayload({
+                aggregateData: aggData,
+                generatedAtMs,
+                nowMs,
+                issues,
+              });
             } else {
-              issues.push("Aggregate summary is stale. Falling back to raw queries.");
+              issues.push("Realtime hot cache is expired; rebuilding from GA4 and first-party sources.");
             }
           }
         } catch (error) {
-          issues.push(`Failed to read aggregate summary: ${getErrorMessage(error)}. Falling back to raw queries.`);
+          issues.push(`Failed to read realtime hot cache: ${getErrorMessage(error)}. Falling back to cold reads.`);
         }
 
         const totalActiveResponse = propertyId
@@ -437,9 +508,12 @@ async function GET_handler(request: NextRequest) {
           watchAssetDocs: watchAssetsSnapshot.docs,
         });
 
-        return {
+        const coldPayload: AdminRealtimePayload = {
           success: true,
           generatedAtMs: nowMs,
+          cacheState: "miss",
+          cacheAgeMs: 0,
+          cacheSourceLabel: "cold_route_refresh",
           issues,
           totalActive,
           deepTrackerActive: activeUsers.length,
@@ -463,16 +537,27 @@ async function GET_handler(request: NextRequest) {
             startSource: onboardingOverview.onboardingStartSource,
           },
         };
+
+        void persistRealtimeHotSummary(coldPayload).catch((error) => {
+          recordRouteWarning(
+            "admin/analytics/realtime",
+            "Failed to persist realtime hot cache.",
+            error,
+            { channel: "analytics", moduleKey: "realtime" },
+          );
+        });
+
+        return coldPayload;
       },
-        });
-        await recordAnalyticsRuntimeWarning({
-          surface: "admin/analytics/realtime",
-          routeName: "admin/analytics/realtime",
-          truthLabel: payload.liveTruthLabel,
-          sourceLabel: payload.liveSourceLabel,
-          issues: payload.issues,
-          moduleKey: "realtime",
-        });
+    });
+    await recordAnalyticsRuntimeWarning({
+      surface: "admin/analytics/realtime",
+      routeName: "admin/analytics/realtime",
+      truthLabel: payload.liveTruthLabel,
+      sourceLabel: payload.liveSourceLabel,
+      issues: payload.issues,
+      moduleKey: "realtime",
+    });
 
     return finalize(NextResponse.json({
       ...payload,
@@ -481,7 +566,13 @@ async function GET_handler(request: NextRequest) {
         canonicalSource: "ga4_realtime+analytics_active_users+analytics_event_facts",
         fallbackSource: payload.liveTruthLabel === "fallback" ? "first_party_realtime" : null,
         freshnessTimestamp: payload.generatedAtMs ?? Date.now(),
-        status: payload.liveTruthLabel === "failed" ? "failed" : payload.liveTruthLabel === "partial" ? "degraded" : payload.liveTruthLabel === "fallback" ? "fallback" : "live",
+        status: payload.liveTruthLabel === "failed"
+          ? "failed"
+          : payload.liveTruthLabel === "stale"
+            ? "stale"
+            : payload.liveTruthLabel === "partial"
+              ? "degraded"
+              : payload.liveTruthLabel === "fallback" ? "fallback" : "live",
         degradedReason: payload.issues?.[0] ?? null,
         countComposition: {
           totalActive: Number(payload.totalActive ?? 0),

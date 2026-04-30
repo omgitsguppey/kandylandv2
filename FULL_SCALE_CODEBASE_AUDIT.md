@@ -1,5 +1,63 @@
 # KandyDrops Core Codebase Audit & Defensive Ledger
 
+## [2026-04-30 #56] PRE: Google Analytics, Cloud, SQL Connect, and Admin Analytics Hot-Truth Hardening
+
+Scope started:
+- Official Google/Firebase documentation review for GA4 Measurement Protocol, GA4 Data API quotas, GA4 BigQuery export, BigQuery cache/materialized view behavior, Cloud Run minimum instances, Firestore aggregation/index behavior, scheduled Firebase functions, and Firebase SQL Connect/Cloud SQL boundaries.
+- Updating doctrine with concrete Google dependency setup rules and examples so future analytics/admin work does not treat GA4, BigQuery, SQL Connect, or Firestore caches as interchangeable truth.
+- Hardening admin analytics so realtime admin loading can use a scheduled hot backend summary instead of falling through to cold GA4/Data API and raw Firestore reads, while keeping stale/fallback/failed states visible.
+- Auditing individual user analytics ordering and current dependency checks without mutating GumDrops ledger, PayPal, or economy source-of-truth code.
+
+Startup protocol:
+- Re-read control tower startup, mission, role routing, execution order, constraints, source-of-truth map, doctrine consultation workflow, product/copy/UI doctrine, surface matrix, banned patterns, vocabulary index, decision checklist, and preflight checklist.
+- Re-read `FULL_SCALE_CODEBASE_AUDIT.md`, `REPO_MEMORY_LEDGER.md`, `EVERY_FILE_FUNCTION_CHECKLIST.md`, current analytics agent truth docs, `apphosting.yaml`, Firebase/SQL Connect config, package scripts, indexes, admin analytics routes/hooks, and Functions analytics materializers.
+- Verified active working-tree state after the interrupted audit/build pass and stopped only stale Node verification workers started during that interrupted window.
+
+## [2026-04-30 #56] POST: Google Analytics, Cloud, SQL Connect, and Admin Analytics Hot-Truth Hardening
+
+Findings fixed:
+- Added official Google/Firebase analytics doctrine covering GA4 Measurement Protocol limits, GA4 Data API quotas, GA4 BigQuery export failure modes, BigQuery cache/materialized view boundaries, Cloud Run warm-instance expectations, Firestore aggregation/index guidance, scheduled Functions, and Firebase SQL Connect/Cloud SQL setup.
+- Added `functions/src/analytics-realtime-summary.ts`, a one-minute scheduled Functions materializer for `analytics_aggregate_stats/realtime_summary`, using first-party active users, event facts, guest batches, watch sessions, and watch assets.
+- Updated `/api/admin/analytics/realtime` to serve fresh hot cache immediately, serve under-30-minute stale hot cache truthfully as `[stale]`, persist cold rebuilds back to the hot summary, and use GA4/Data API/raw Firestore reads only when the hot summary is missing or expired.
+- Updated the admin analytics UI state so cached route truth is not overwritten into generic fallback when direct realtime listeners fail. The operations card is now `Active Now` and shows hot-cache/stale/fallback source hints instead of implying GA4 is always the source.
+- Ordered per-user analytics fact recovery reads by the existing indexed recency fields: `analytics_event_facts.timestamp`, `analytics_session_facts.lastEventAt`, and `analytics_user_daily.dayKey`.
+- Expanded dependency truth checks to cover root GA4/Data API/auth packages and Functions BigQuery/Firebase packages.
+- Fixed stale contract tests and a pre-existing admin overview hook dependency warning that blocked the repo-wide zero-warning gate.
+
+Truthful residuals:
+- This pass cannot recover provider-side historical data by itself from a local checkout. Full historical recovery still requires deployed Functions, valid Google credentials/service accounts, GA4 BigQuery export linkage, BigQuery dataset/table availability, and any needed backfill jobs run against production data.
+- SQL/Data Connect remains a derived retrieval plane. It was documented and dependency-checked, but not promoted to production analytics source-of-truth.
+- The new realtime hot materializer must be deployed before production admin loading benefits from the one-minute scheduled cache.
+
+Verification completed:
+- `npx vitest run tests/unit/admin-analytics-realtime-route.spec.ts tests/unit/admin-panel-system-logs.spec.ts`
+- `npm run typecheck -- --pretty false`
+- `npm --prefix functions run check`
+- `npm run check:dependency-truth`
+- `npm run check:admin-truth`
+- `npm run check:analytics:continuity`
+- `npm run check:telemetry`
+- `npm run check:ui:coverage`
+- `npm run check:ui:runtime`
+- `npm run check:continuity`
+- `npm run check:ui:audits`
+- `npm run check:ui:lighthouse`
+- `npm run test:contracts`
+- `npm run check`
+- `npm run check:generated-artifacts`
+- `git diff --check`
+
+## [2026-04-29 #55] PRE: Admin Panel Orchestration, Runtime, Transaction, and Task Parity Hardening
+
+Scope started:
+- Auditing Admin Debug panel logs for behavior orchestration, session/runtime, recent transactions, and task integrity/parity.
+- Investigating signal count/key truth defects, runtime dependency coverage, orchestration repair visibility, and task reward delta semantics without mutating GumDrops ledger or payment data.
+- Checking dependency truth and functions/app verification lanes because this touches admin truth, orchestration diagnostics, and telemetry/parity reporting.
+
+Startup protocol:
+- Read control tower startup, mission, role routing, execution order, constraints, source-of-truth map, doctrine consultation workflow, product/copy/UI doctrine, surface matrix, banned patterns, vocabulary index, and decision checklist.
+- Read current full audit, memory ledger, file/function checklist, and confirmed working tree was clean at startup.
+
 ## [2026-04-29 #54] PRE: Telemetry Export, GA4, SQL Mirror, and Parity Audit
 
 Scope started:

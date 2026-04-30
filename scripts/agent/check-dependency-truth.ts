@@ -2,54 +2,103 @@ import fs from "node:fs/promises";
 import path from "node:path";
 import { execSync } from "node:child_process";
 
-async function main() {
-    const cwd = process.cwd();
-    const packageJsonPath = path.join(cwd, "package.json");
-    
-    let pkg: any;
-    try {
-        const content = await fs.readFile(packageJsonPath, "utf-8");
-        pkg = JSON.parse(content);
-    } catch (e) {
-        console.error("Failed to read package.json");
-        process.exit(1);
+type PackageJson = {
+    dependencies?: Record<string, string>;
+    devDependencies?: Record<string, string>;
+};
+
+type DependencyScope = {
+    label: string;
+    packageJsonPath: string;
+    npmPrefix?: string;
+    dependencies: string[];
+};
+
+async function readPackageJson(packageJsonPath: string): Promise<PackageJson> {
+    const content = await fs.readFile(packageJsonPath, "utf-8");
+    return JSON.parse(content) as PackageJson;
+}
+
+function runNpmLs(dep: string, npmPrefix?: string) {
+    const prefix = npmPrefix ? `--prefix ${npmPrefix} ` : "";
+    return execSync(`npm ${prefix}ls ${dep} --json --depth=0`, { encoding: "utf-8" });
+}
+
+function verifyDependency(input: {
+    dep: string;
+    deps: Record<string, string>;
+    npmPrefix?: string;
+    label: string;
+}) {
+    if (!input.deps[input.dep]) {
+        console.warn(`WARNING: Critical dependency missing from ${input.label} package.json: ${input.dep}`);
+        return 1;
     }
 
-    const deps = { ...pkg.dependencies, ...pkg.devDependencies };
-    const criticalDeps = [
-        "firebase",
-        "firebase-admin",
-        "@google-cloud/vertexai",
-        "next",
-        "react"
+    try {
+        const lsOutput = runNpmLs(input.dep, input.npmPrefix);
+        const lsParsed = JSON.parse(lsOutput);
+        const installedVersion = lsParsed.dependencies?.[input.dep]?.version;
+        const expectedRange = input.deps[input.dep];
+
+        if (!installedVersion) {
+            console.warn(`WARNING: ${input.dep} is in ${input.label} package.json but not installed correctly.`);
+            return 1;
+        }
+
+        console.log(`[PASS] ${input.label}:${input.dep} expected ${expectedRange}, installed ${installedVersion}`);
+        return 0;
+    } catch {
+        console.warn(`WARNING: Error checking ${input.label}:${input.dep}. It might not be properly installed or has peer dependency issues.`);
+        return 1;
+    }
+}
+
+async function main() {
+    const cwd = process.cwd();
+    const scopes: DependencyScope[] = [
+        {
+            label: "root",
+            packageJsonPath: path.join(cwd, "package.json"),
+            dependencies: [
+                "firebase",
+                "firebase-admin",
+                "@google-analytics/data",
+                "google-auth-library",
+                "@google-cloud/vertexai",
+                "next",
+                "react",
+            ],
+        },
+        {
+            label: "functions",
+            packageJsonPath: path.join(cwd, "functions", "package.json"),
+            npmPrefix: "functions",
+            dependencies: [
+                "firebase-admin",
+                "firebase-functions",
+                "@google-cloud/bigquery",
+            ],
+        },
     ];
 
     console.log("Dependency Truth Audit Start...");
     let warnings = 0;
 
-    for (const dep of criticalDeps) {
-        if (!deps[dep]) {
-            console.warn(`WARNING: Critical dependency missing from package.json: ${dep}`);
-            warnings++;
-            continue;
-        }
-
+    for (const scope of scopes) {
         try {
-            // Using npm ls to verify installed version matches package.json
-            const lsOutput = execSync(`npm ls ${dep} --json --depth=0`, { encoding: "utf-8" });
-            const lsParsed = JSON.parse(lsOutput);
-            
-            const installedVersion = lsParsed.dependencies?.[dep]?.version;
-            const expectedRange = deps[dep];
-
-            if (!installedVersion) {
-                console.warn(`WARNING: ${dep} is in package.json but not installed correctly.`);
-                warnings++;
-            } else {
-                console.log(`[PASS] ${dep} expected ${expectedRange}, installed ${installedVersion}`);
-            }
-        } catch (e) {
-            console.warn(`WARNING: Error checking ${dep}. It might not be properly installed or has peer dependency issues.`);
+            const pkg = await readPackageJson(scope.packageJsonPath);
+            const deps = { ...pkg.dependencies, ...pkg.devDependencies };
+            scope.dependencies.forEach((dep) => {
+                warnings += verifyDependency({
+                    dep,
+                    deps,
+                    npmPrefix: scope.npmPrefix,
+                    label: scope.label,
+                });
+            });
+        } catch {
+            console.warn(`WARNING: Failed to read ${scope.label} package.json for dependency truth.`);
             warnings++;
         }
     }

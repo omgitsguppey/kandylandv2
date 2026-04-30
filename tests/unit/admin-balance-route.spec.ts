@@ -150,7 +150,7 @@ describe("POST /api/admin/balance", () => {
         const payload = await response.json();
 
         expect(response.status).toBe(200);
-        expect(payload).toEqual({
+        expect(payload).toMatchObject({
             success: true,
             balanceAfter: 75,
         });

@@ -382,8 +382,8 @@ const { user } = useAuth();
       if (liveRealtime.feedStatus === "failed" && liveResponse) {
         return {
           ...liveResponse,
-          liveTruthLabel: "fallback",
-          liveSourceLabel: "Stale (Polled)",
+          liveTruthLabel: liveResponse.liveTruthLabel ?? "stale",
+          liveSourceLabel: liveResponse.cacheSourceLabel ?? liveResponse.liveSourceLabel ?? "api_polling",
           issues: [
             ...(liveResponse.issues ?? []),
             ...liveRealtime.issues,
@@ -414,6 +414,10 @@ const { user } = useAuth();
         liveSourceLabel: liveRealtime.liveSourceLabel,
         activeUsersTruthLabel: liveRealtime.activeUsersTruthLabel,
         activeUsersSourceLabel: liveRealtime.activeUsersSourceLabel,
+        cacheState: base.cacheState,
+        cacheAgeMs: base.cacheAgeMs,
+        cacheSourceLabel: base.cacheSourceLabel,
+        cacheRevalidating: base.cacheRevalidating,
         issues: [
           ...(base.issues ?? []),
           ...liveRealtime.issues,

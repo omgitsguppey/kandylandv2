@@ -11,14 +11,65 @@ const DATASET_ID = process.env.BQ_ANALYTICS_DATASET_ID || process.env.BIGQUERY_A
 const TABLE_ID = process.env.BQ_ANALYTICS_RAW_EVENTS_TABLE_ID || process.env.BIGQUERY_ANALYTICS_RAW_EVENTS_TABLE_ID || "raw_events"
 const EXPORT_STATUS_COLLECTION = "analytics_export_status"
 const EXPORT_STATUS_DOC_ID = "bigquery_raw_events"
+const DATASET_LOCATION = process.env.BQ_ANALYTICS_LOCATION || process.env.BIGQUERY_ANALYTICS_LOCATION || "US"
+const RAW_EVENTS_TABLE_SCHEMA = [
+  {name: "eventId", type: "STRING", mode: "REQUIRED"},
+  {name: "eventName", type: "STRING", mode: "NULLABLE"},
+  {name: "timestamp", type: "TIMESTAMP", mode: "NULLABLE"},
+  {name: "userId", type: "STRING", mode: "NULLABLE"},
+  {name: "sessionId", type: "STRING", mode: "NULLABLE"},
+  {name: "pagePath", type: "STRING", mode: "NULLABLE"},
+  {name: "dropId", type: "STRING", mode: "NULLABLE"},
+  {name: "isMobileViewport", type: "BOOLEAN", mode: "NULLABLE"},
+  {name: "origin", type: "STRING", mode: "NULLABLE"},
+  {name: "params", type: "STRING", mode: "NULLABLE"},
+]
 
 let bqInstance: BigQuery | undefined
+let rawEventsTableReady: Promise<void> | undefined
 
 function getBQ() {
   if (!bqInstance) {
     bqInstance = new BigQuery()
   }
   return bqInstance
+}
+
+async function ensureRawEventsTableReady() {
+  const bq = getBQ()
+  const dataset = bq.dataset(DATASET_ID)
+  const [datasetExists] = await dataset.exists()
+  if (!datasetExists) {
+    await bq.createDataset(DATASET_ID, {location: DATASET_LOCATION})
+  }
+
+  const table = dataset.table(TABLE_ID)
+  const [tableExists] = await table.exists()
+  if (tableExists) return
+
+  try {
+    await dataset.createTable(TABLE_ID, {
+      schema: RAW_EVENTS_TABLE_SCHEMA,
+      timePartitioning: {
+        type: "DAY",
+        field: "timestamp",
+      },
+      clustering: {
+        fields: ["eventName", "origin"],
+      },
+    })
+  } catch (error) {
+    if ((error as {code?: number}).code === 409) return
+    throw error
+  }
+}
+
+function getRawEventsTableReady() {
+  rawEventsTableReady ||= ensureRawEventsTableReady().catch((error) => {
+    rawEventsTableReady = undefined
+    throw error
+  })
+  return rawEventsTableReady
 }
 
 async function recordBigQueryExportStatus(input: {
@@ -67,8 +118,7 @@ export const onAnalyticsEventFactBigQueryExport = onDocumentCreated(
     try {
       const bq = getBQ()
       const dataset = bq.dataset(DATASET_ID)
-      // Check if dataset exists, if not, this would fail gracefully until provisioned.
-      // In production, terraform or setup scripts create the dataset.
+      await getRawEventsTableReady()
       
       const row = {
         eventId: event.id,

@@ -24,6 +24,37 @@ This file is not a changelog. It is the concise ledger for durable decisions tha
 
 ## Decision Entries
 
+### 1bk. Admin realtime analytics must be hot-materialized before cold provider reads
+
+- Approximate date: Recorded explicitly on 2026-04-30 from the Google Analytics, Cloud, SQL Connect, and Admin Analytics Hot-Truth Hardening pass
+- Status: Active admin analytics hydration rule
+- Problem/context: `/api/admin/analytics/realtime` could read `analytics_aggregate_stats/realtime_summary`, but no Functions writer kept that document current. When the cache was missing or slightly stale, the admin panel could block on cold GA4 Data API calls and raw Firestore reads, then show degraded/fallback state even when first-party facts existed.
+- Decision made: Realtime admin analytics must have a scheduled backend hot-summary materializer and the route must serve fresh or stale hot truth immediately with explicit source labels before attempting cold reads.
+- What became canonical:
+  - `functions/src/analytics-realtime-summary.ts` materializes `analytics_aggregate_stats/realtime_summary` every minute from first-party active users, event facts, guest batches, watch sessions, and watch assets.
+  - `/api/admin/analytics/realtime` treats hot cache under 5 minutes as `fresh`, cache under 30 minutes as `stale`, and only falls through to GA4/Data API plus raw Firestore reads when the hot cache is missing or expired.
+  - Cold route rebuilds persist the hot summary asynchronously, and admin UI labels the card `Active Now` with hot-cache/stale/fallback source hints instead of implying GA4 is always the source.
+  - Per-user admin analytics fact reads must order by the indexed timestamp fields so user detail recovery uses the latest canonical facts first.
+- Consequence for future work:
+  - Do not add admin analytics surfaces that cold-query GA4, BigQuery, SQL Connect, or large Firestore scans before a validated hot read model.
+  - Stale hot cache is acceptable only with `[stale]` truth labels and visible source details.
+  - First-party Firestore facts remain canonical for product/user behavior; GA4 and BigQuery are comparison/export layers unless a reconciliation job proves parity.
+
+### 1bl. Google analytics and cloud dependencies have explicit doctrine
+
+- Approximate date: Recorded explicitly on 2026-04-30 from official Google/Firebase documentation review
+- Status: Active setup and dependency rule
+- Problem/context: GA4 Measurement Protocol, GA4 Data API, GA4 BigQuery export, BigQuery cached/materialized reads, Cloud Run warm instances, Firestore indexes/aggregations, scheduled Functions, and Firebase SQL Connect were being discussed as if they were interchangeable analytics truth sources.
+- Decision made: Google/Firebase analytics dependencies must be documented as explicit capabilities with setup examples and limits before future admin truth changes are made.
+- What became canonical:
+  - `docs/doctrine/kandydrops-google-analytics-cloud-doctrine.md` defines required env vars, Secret Manager values, App Hosting min-instance expectations, scheduled hot summary patterns, BigQuery export heartbeat expectations, and Firebase SQL Connect/Cloud SQL boundaries.
+  - `control-tower/08-DOCTRINE-INDEX.md` points analytics/cloud work to that doctrine.
+  - `scripts/agent/check-dependency-truth.ts` now verifies root GA4/Data API/auth dependencies and Functions BigQuery/Firebase dependencies.
+- Consequence for future work:
+  - Provider docs and verified config outrank assumptions about GA4 or Google Cloud behavior.
+  - Measurement Protocol 2xx responses are not delivery proof; admin truth must use first-party facts and explicit delivery heartbeats.
+  - SQL/Data Connect remains a derived retrieval plane unless explicitly promoted by schema, writer, and reconciliation evidence.
+
 ### 1bj. BigQuery warehouse export must have an admin-visible heartbeat
 
 - Approximate date: Recorded explicitly on 2026-04-29 from the Telemetry Export, GA4, SQL Mirror, and Parity Audit

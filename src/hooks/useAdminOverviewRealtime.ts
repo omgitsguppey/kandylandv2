@@ -533,7 +533,7 @@ export function useAdminOverviewRealtime() {
             },
             realtimeDebugMeta: debugMeta,
         } as AdminOverviewResponse;
-    }, [hasRealtimeFailure, hasRealtimeSnapshot, listenerState, realtimeData, serverData]);
+    }, [hasRealtimeSnapshot, listenerState, realtimeData, serverData]);
 
     return {
         data: mergedData,

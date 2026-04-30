@@ -104,13 +104,16 @@ async function GET_handler(
             adminDb.collection("analytics_users_rollup").doc(userId).get(),
             adminDb.collection("analytics_event_facts")
                 .where("userId", "==", userId)
+                .orderBy("timestamp", "desc")
                 .limit(400)
                 .get(),
             adminDb.collection("analytics_session_facts")
                 .where("userId", "==", userId)
+                .orderBy("lastEventAt", "desc")
                 .get(),
             adminDb.collection("analytics_user_daily")
                 .where("uid", "==", userId)
+                .orderBy("dayKey", "desc")
                 .get(),
             adminDb.collection("security_events")
                 .where("userId", "==", userId)

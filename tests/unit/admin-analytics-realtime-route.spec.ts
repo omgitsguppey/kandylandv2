@@ -42,6 +42,22 @@ const mockState = vi.hoisted(() => {
                                 id: doc?.id ?? id ?? "new_id",
                                 data: () => doc?.data() ?? undefined,
                             };
+                        },
+                        async set(value: Record<string, unknown>, options?: { merge?: boolean }) {
+                            const docs = collections.get(name) ?? [];
+                            const existingIndex = id ? docs.findIndex((d) => d.id === id) : -1;
+                            const existing = existingIndex >= 0 ? docs[existingIndex]?.data() ?? {} : {};
+                            const nextData = options?.merge ? { ...existing, ...value } : value;
+                            const nextDoc = {
+                                id: id ?? "new_id",
+                                data: () => nextData,
+                            };
+                            if (existingIndex >= 0) {
+                                docs[existingIndex] = nextDoc;
+                            } else {
+                                docs.push(nextDoc);
+                            }
+                            collections.set(name, docs);
                         }
                     };
                 },
@@ -137,6 +153,10 @@ vi.mock("@/lib/server/ephemeral-route-cache", () => ({
     readThroughEphemeralRouteCache: async (input: { loader: () => Promise<unknown> }) => input.loader(),
 }));
 
+vi.mock("@/lib/server/analytics-runtime-warning", () => ({
+    recordAnalyticsRuntimeWarning: vi.fn(),
+}));
+
 import { GET } from "@/app/api/admin/analytics/realtime/route";
 
 describe("GET /api/admin/analytics/realtime", () => {
@@ -157,6 +177,88 @@ describe("GET /api/admin/analytics/realtime", () => {
             .mockResolvedValueOnce({
                 rows: [],
             });
+    });
+
+    it("serves fresh realtime hot cache without cold GA or Firestore reads", async () => {
+        const generatedAtMs = Date.now() - 1_000;
+        mockState.collections.set("analytics_aggregate_stats", [
+            {
+                id: "realtime_summary",
+                data: () => ({
+                    success: true,
+                    generatedAtMs,
+                    totalActive: 12,
+                    deepTrackerActive: 8,
+                    liveTruthLabel: "live",
+                    liveSourceLabel: "analytics_aggregate_stats/realtime_summary",
+                    activeUsersTruthLabel: "live",
+                    activeUsersSourceLabel: "analytics_active_users",
+                    data: [],
+                    activeUsers: [],
+                    surfaceMix: [],
+                    watchCaptureHealth: { sessionCount: 0, warnings: [] },
+                    issues: [],
+                }),
+            },
+        ]);
+
+        const request = new NextRequest("http://localhost/api/admin/analytics/realtime");
+        const response = await GET(request);
+        const payload = await response.json();
+
+        expect(response.status).toBe(200);
+        expect(payload).toMatchObject({
+            success: true,
+            generatedAtMs,
+            cacheState: "fresh",
+            cacheSourceLabel: "analytics_aggregate_stats/realtime_summary",
+            totalActive: 12,
+            deepTrackerActive: 8,
+            liveTruthLabel: "live",
+        });
+        expect(mockState.safeRunRealtimeReport).not.toHaveBeenCalled();
+    });
+
+    it("serves stale realtime hot cache truthfully instead of blocking on cold reads", async () => {
+        const generatedAtMs = Date.now() - 10 * 60_000;
+        mockState.collections.set("analytics_aggregate_stats", [
+            {
+                id: "realtime_summary",
+                data: () => ({
+                    success: true,
+                    generatedAtMs,
+                    totalActive: 4,
+                    deepTrackerActive: 3,
+                    liveTruthLabel: "live",
+                    liveSourceLabel: "analytics_aggregate_stats/realtime_summary",
+                    activeUsersTruthLabel: "live",
+                    activeUsersSourceLabel: "analytics_active_users",
+                    data: [],
+                    activeUsers: [],
+                    surfaceMix: [],
+                    watchCaptureHealth: { sessionCount: 0, warnings: [] },
+                    issues: [],
+                }),
+            },
+        ]);
+
+        const request = new NextRequest("http://localhost/api/admin/analytics/realtime");
+        const response = await GET(request);
+        const payload = await response.json();
+
+        expect(response.status).toBe(200);
+        expect(payload).toMatchObject({
+            success: true,
+            generatedAtMs,
+            cacheState: "stale",
+            totalActive: 4,
+            deepTrackerActive: 3,
+            liveTruthLabel: "stale",
+            activeUsersTruthLabel: "stale",
+        });
+        expect(payload.issues).toContain("Serving stale admin realtime analytics hot cache while the scheduled materializer catches up.");
+        expect(payload.verification.status).toBe("stale");
+        expect(mockState.safeRunRealtimeReport).not.toHaveBeenCalled();
     });
 
     it("loads realtime onboarding stats without the index-sensitive event-name filter", async () => {
@@ -233,7 +335,6 @@ describe("GET /api/admin/analytics/realtime", () => {
         const request = new NextRequest("http://localhost/api/admin/analytics/realtime");
         const response = await GET(request);
         const payload = await response.json();
-        console.log("PAYLOAD ERROR:", payload);
 
         expect(response.status).toBe(200);
         expect(payload).toMatchObject({

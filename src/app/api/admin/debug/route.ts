@@ -90,6 +90,19 @@ function toTimestampNumber(value: unknown) {
     return 0;
 }
 
+function isDailyTaskRewardTransaction(entry: Record<string, unknown> & { timestampMs: number }, weekAgoMs: number) {
+    if (toStringValue(entry.type) !== "daily_reward" || toNumber(entry.timestampMs) < weekAgoMs) {
+        return false;
+    }
+
+    const rewardSource = toStringValue(entry.rewardSource);
+    if (rewardSource === "task") {
+        return true;
+    }
+
+    return rewardSource === "" && toStringValue(entry.description).startsWith("Daily Task: ");
+}
+
 function inferTrackingSource(eventName: string) {
     if (CANONICAL_TASK_EVENT_NAMES.has(eventName)) {
         return "canonical";
@@ -605,7 +618,7 @@ export async function GET(request: NextRequest) {
         }) as Array<Record<string, unknown> & { id: string; timestampMs: number }>;
 
         const rewardTransactions7d = transactionEntries
-            .filter((entry) => toStringValue(entry.type) === "daily_reward" && toNumber(entry.timestampMs) >= weekAgoMs);
+            .filter((entry) => isDailyTaskRewardTransaction(entry, weekAgoMs));
         const completedEvents7d = recentTaskEvents.filter((event) => event.type === "completed" && event.timestamp >= weekAgoMs);
         const receiptEvents7d = recentReceipts.filter((entry) => entry.timestamp >= weekAgoMs);
         const rewardClaimNormalizationIssues: Array<{

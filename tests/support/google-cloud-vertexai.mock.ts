@@ -1,5 +1,14 @@
 import { vi } from "vitest";
 
+export const SchemaType = {
+  STRING: "STRING",
+  NUMBER: "NUMBER",
+  INTEGER: "INTEGER",
+  BOOLEAN: "BOOLEAN",
+  ARRAY: "ARRAY",
+  OBJECT: "OBJECT",
+} as const;
+
 type GenerateContentInput = {
   contents?: Array<{
     role?: string;

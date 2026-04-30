@@ -41,3 +41,4 @@ The UI must NEVER lie to the user or the admin about the state of the data.
 * **No Polling Fallbacks:** Top-level dashboards must never use synthetic polling snapshots if true realtime canonical subscriptions (Firestore `onSnapshot`) are viable.
 * **Minimal Copy, Maximum Trust:** Ban paragraph-heavy explainer cards and verbose headers in overview surfaces. The UI must rely on strict numeric indicators and tight delta labels instead of "explaining" the backend process.
 * **No Fake Confidence:** Never blend stale analytics snapshots into live feed gaps to fake completeness. If a metric is broken, label it explicitly as `[Degraded]`.
+* **Hot Analytics First:** Admin analytics must read validated hot summaries or backend caches before cold GA4/Data API, BigQuery, SQL Connect, or raw Firestore scans. Cold reads are allowed for async refresh and explicit drill-down only, and their source state must remain visible.

@@ -1,4 +1,10 @@
-import { describe, expect, it } from "vitest";
+import { describe, expect, it, vi } from "vitest";
+
+vi.mock("@/lib/firebase-data", () => ({
+    db: {},
+    rtdb: {},
+    storage: {},
+}));
 
 import { resolveTruthChipLabel, resolveTruthChipVariant } from "@/hooks/useAdminOverviewRealtime";
 import type { AdminOverviewRealtimeDebugMeta } from "@/lib/admin-overview";
@@ -101,15 +107,15 @@ describe("admin overview truth chips", () => {
 describe("admin overview truth chip variants", () => {
     it("maps known labels to correct CSS variants", () => {
         expect(resolveTruthChipVariant("Live server truth")).toBe("live");
-        expect(resolveTruthChipVariant("Cached snapshot")).toBe("cached");
-        expect(resolveTruthChipVariant("Realtime warming up")).toBe("cached");
-        expect(resolveTruthChipVariant("Server rollup only")).toBe("cached");
+        expect(resolveTruthChipVariant("Cached snapshot")).toBe("stale");
+        expect(resolveTruthChipVariant("Realtime warming up")).toBe("degraded");
+        expect(resolveTruthChipVariant("Server rollup only")).toBe("degraded");
         expect(resolveTruthChipVariant("Fallback active — 1 listener degraded")).toBe("fallback");
-        expect(resolveTruthChipVariant("Waiting for server truth")).toBe("waiting");
+        expect(resolveTruthChipVariant("Waiting for server truth")).toBe("unavailable");
     });
 
     it("returns waiting for unknown labels", () => {
-        expect(resolveTruthChipVariant("something unknown")).toBe("waiting");
+        expect(resolveTruthChipVariant("something unknown")).toBe("unavailable");
     });
 });
 
@@ -211,9 +217,10 @@ describe("hero truth display rule", () => {
         expect(headerBlock).not.toContain("<>");
         expect(headerBlock).not.toContain("</>");
 
-        // Must contain exactly one truth chip span
-        expect(headerBlock).toContain("truthLabel");
-        expect(headerBlock).toContain("TRUTH_CHIP_STYLES");
+        // Must contain the single source-state badge plus the exact truth label text.
+        expect(ADMIN_PAGE_SOURCE).toContain("const truthLabel");
+        expect(headerBlock).toContain("<AdminStatusBadge state={truthVariant}");
+        expect(ADMIN_PAGE_SOURCE).toContain("{truthLabel}</span>");
     });
 
     it("serverUpdateLabel is passed as subtitle, not as a standalone chip", () => {
@@ -690,11 +697,12 @@ describe("admin overview recent transactions contract", () => {
     /* ── Truth chip ───────────────────────────────────────────────────── */
 
     it("has correct truth chip labels", () => {
-        expect(RECENT_TRANSACTIONS_SOURCE).toContain("Live server feed");
-        expect(RECENT_TRANSACTIONS_SOURCE).toContain("Cached feed shown");
-        expect(RECENT_TRANSACTIONS_SOURCE).toContain("Waiting for server feed");
-        expect(RECENT_TRANSACTIONS_SOURCE).toContain("Fallback feed active");
-        expect(RECENT_TRANSACTIONS_SOURCE).toContain("Identity lookup degraded");
+        expect(RECENT_TRANSACTIONS_SOURCE).toContain("<AdminStatusBadge state={truthState}");
+        expect(RECENT_TRANSACTIONS_SOURCE).toContain("if (liveFeedError) return \"fallback\"");
+        expect(RECENT_TRANSACTIONS_SOURCE).toContain("if (!isLiveFeedActive) return \"loading\"");
+        expect(RECENT_TRANSACTIONS_SOURCE).toContain("if (snapshotFromCache) return \"stale\"");
+        expect(RECENT_TRANSACTIONS_SOURCE).toContain("if (identityLookupFailures > 0) return \"degraded\"");
+        expect(RECENT_TRANSACTIONS_SOURCE).toContain("return \"live\"");
     });
 
     it("does NOT use bracket-jargon labels", () => {
@@ -829,13 +837,16 @@ describe("admin activity truth contracts", () => {
 
     /* ── Truth chip vocabulary ─────────────────────────────────────────── */
 
-    it("truth chip has proper vocabulary including no_recent_activity and legacy_only", () => {
-        expect(ADMIN_ACTIVITY_SOURCE).toContain("no_recent_activity");
-        expect(ADMIN_ACTIVITY_SOURCE).toContain("legacy_only");
-        expect(ADMIN_ACTIVITY_SOURCE).toContain("live_server");
-        expect(ADMIN_ACTIVITY_SOURCE).toContain("cached");
+    it("truth chip has proper source-state vocabulary for activity recovery", () => {
+        expect(ADMIN_ACTIVITY_SOURCE).toContain("<AdminStatusBadge state={truthState}");
+        expect(ADMIN_ACTIVITY_SOURCE).toContain("Unknown operator");
+        expect(ADMIN_ACTIVITY_SOURCE).toContain("Legacy admin record");
+        expect(ADMIN_ACTIVITY_SOURCE).toContain("live");
+        expect(ADMIN_ACTIVITY_SOURCE).toContain("stale");
+        expect(ADMIN_ACTIVITY_SOURCE).toContain("degraded");
         expect(ADMIN_ACTIVITY_SOURCE).toContain("fallback");
-        expect(ADMIN_ACTIVITY_SOURCE).toContain("waiting");
+        expect(ADMIN_ACTIVITY_SOURCE).toContain("loading");
+        expect(ADMIN_ACTIVITY_SOURCE).toContain("unavailable");
     });
 
     it("does NOT use 'Admin-only feed' as the sole truth indicator", () => {
@@ -1049,7 +1060,8 @@ describe("admin analytics overview truth", () => {
     /* ── MetricCard unavailable state ───────────────────────────────── */
 
     it("MetricCard supports unavailable truth state", () => {
-        expect(ANALYTICS_PRIMITIVES_SOURCE).toContain("\"unavailable\"");
+        expect(ANALYTICS_PRIMITIVES_SOURCE).toContain("truthState?: AdminSurfaceState");
+        expect(ANALYTICS_PRIMITIVES_SOURCE).toContain("coerceAdminSurfaceState(truthState)");
     });
 
     /* ── Module filter purge ────────────────────────────────────────── */

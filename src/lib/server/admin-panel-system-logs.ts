@@ -173,6 +173,24 @@ export function buildAdminPanelSystemLogs(input: {
             : input.rewardEventDeltaLast7d !== 0 || input.legacyRewardVersionCount > 0
                 ? "warn"
                 : "healthy";
+    const orchestrationSignalKeys = [
+        input.orchestration.openFindings > 0 ? "orchestration.openFindings" : null,
+        input.orchestration.actionableProposals > 0 ? "orchestration.actionableProposals" : null,
+        input.orchestration.lowConfidenceEvents > 0 ? "orchestration.lowConfidenceEvents" : null,
+    ].filter((value): value is string => Boolean(value));
+    const orchestrationAction = input.orchestration.actionableProposals > 0
+        ? "Review the open orchestration findings and confirm or dismiss the queued repairs."
+        : input.orchestration.openFindings > 0
+            ? "Review open orchestration findings and create repair proposals only where owner and fix confidence are clear."
+            : input.orchestration.lowConfidenceEvents > 0
+                ? "Tighten event ownership for the low-confidence orchestration samples before expanding automation."
+                : "No action required.";
+    const runtimeSignalKeys = [
+        runtimeWarningCount > 0 ? "runtime.warnings" : null,
+        input.opsHealth.runtime.gaPropertyConfigured !== true ? "runtime.gaPropertyConfigured" : null,
+        input.opsHealth.runtime.navigationSessionSigningReady !== true ? "runtime.navigationSessionSigningReady" : null,
+    ].filter((value): value is string => Boolean(value));
+    const recentTransactionsMissing = input.recentTransactionsCount <= 0;
     const telemetryCoverageStatus: AdminPanelSystemLogStatus =
         input.orphanedTelemetryEvents > 0 ? "warn" : "healthy";
     const pipelineStatus: AdminPanelSystemLogStatus = input.opsHealth.pipeline.status;
@@ -236,13 +254,9 @@ export function buildAdminPanelSystemLogs(input: {
                 : input.orchestration.lowConfidenceEvents > 0
                     ? `${input.orchestration.lowConfidenceEvents} low-confidence orchestration events still need review.`
                     : "Orchestration health is aligned with current canonical signals.",
-            action: input.orchestration.openFindings > 0 || input.orchestration.actionableProposals > 0
-                ? "Review the open orchestration findings and confirm or dismiss the queued repairs."
-                : input.orchestration.lowConfidenceEvents > 0
-                    ? "Tighten event ownership for the low-confidence orchestration samples before expanding automation."
-                    : "No action required.",
+            action: orchestrationAction,
             signalCount: input.orchestration.openFindings + input.orchestration.actionableProposals + input.orchestration.lowConfidenceEvents,
-            signalKeys: ["orchestration.openFindings", "orchestration.actionableProposals", "orchestration.lowConfidenceEvents"],
+            signalKeys: orchestrationSignalKeys,
             observedAtMs: nowMs,
         }),
         buildLog({
@@ -277,7 +291,7 @@ export function buildAdminPanelSystemLogs(input: {
                 runtimeWarningCount
                 + (input.opsHealth.runtime.gaPropertyConfigured !== true ? 1 : 0)
                 + (input.opsHealth.runtime.navigationSessionSigningReady !== true ? 1 : 0),
-            signalKeys: ["runtime.warnings", "runtime.gaPropertyConfigured", "runtime.navigationSessionSigningReady"],
+            signalKeys: runtimeSignalKeys,
             observedAtMs: nowMs,
         }),
         buildLog({
@@ -285,15 +299,15 @@ export function buildAdminPanelSystemLogs(input: {
             panelKey: "overview.recent_transactions",
             tab: "overview",
             panelTitle: "Recent transactions",
-            status: input.recentTransactionsCount > 0 ? "healthy" : "warn",
-            summary: input.recentTransactionsCount > 0
-                ? `${input.recentTransactionsCount} recent transactions are available for inline review.`
-                : "No recent transaction entries were available in the sampled admin feed.",
-            action: input.recentTransactionsCount > 0
-                ? "No action required."
-                : "Verify the overview transaction feed is still subscribed and not masked by stale runtime state.",
-            signalCount: input.recentTransactionsCount,
-            signalKeys: ["overview.recentTransactions"],
+            status: recentTransactionsMissing ? "warn" : "healthy",
+            summary: recentTransactionsMissing
+                ? "No recent transaction entries were available in the sampled admin feed."
+                : `${input.recentTransactionsCount} recent transactions are available for inline review.`,
+            action: recentTransactionsMissing
+                ? "Verify the overview transaction feed is still subscribed and not masked by stale runtime state."
+                : "No action required.",
+            signalCount: recentTransactionsMissing ? 1 : 0,
+            signalKeys: recentTransactionsMissing ? ["overview.recentTransactions"] : [],
             observedAtMs: nowMs,
         }),
         buildLog({

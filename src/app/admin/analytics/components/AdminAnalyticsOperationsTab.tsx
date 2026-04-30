@@ -50,6 +50,14 @@ export function AdminAnalyticsOperationsTab(props: AdminAnalyticsState) {
   const activeUsersTruthState: AdminSurfaceState = liveResponse?.activeUsersTruthLabel
     ? coerceAdminSurfaceState(liveResponse.activeUsersTruthLabel)
     : livePulseTruthState;
+  const realtimeCacheSource = liveResponse?.cacheSourceLabel || liveResponse?.liveSourceLabel || "admin realtime hot cache";
+  const realtimeCacheHint = liveResponse?.liveTruthLabel === "stale"
+    ? `Stale hot cache (${realtimeCacheSource})`
+    : liveResponse?.cacheState === "fresh"
+      ? `Hot cache (${realtimeCacheSource})`
+      : liveResponse?.liveTruthLabel === "fallback"
+        ? `First-party fallback (${liveResponse?.liveSourceLabel || "realtime fallback"})`
+        : "Google Analytics realtime";
 
   return (
     <>
@@ -63,20 +71,20 @@ export function AdminAnalyticsOperationsTab(props: AdminAnalyticsState) {
             >
               <div className="grid grid-cols-2 gap-3 lg:grid-cols-4">
                 <MetricCard
-                  label="GA Active"
+                  label="Active Now"
                   value={liveResponse ? formatCompactNumber(liveResponse.totalActive ?? 0) : "—"}
-                  hint={liveResponse?.liveTruthLabel === "fallback"
-                    ? `First-party fallback (${liveResponse?.liveSourceLabel || "realtime fallback"})`
-                    : "Google Analytics realtime"}
+                  hint={realtimeCacheHint}
                   icon={Users}
                   truthState={livePulseTruthState}
                 />
                 <MetricCard
                   label="Tracked Users"
                   value={liveResponse ? formatCompactNumber(liveResponse.deepTrackerActive ?? 0) : "—"}
-                  hint={liveResponse?.activeUsersTruthLabel === "fallback"
-                    ? `Authenticated users reconstructed from ${liveResponse?.activeUsersSourceLabel || "first-party telemetry"}`
-                    : `${formatCompactNumber(
+                  hint={liveResponse?.activeUsersTruthLabel === "stale"
+                    ? `Stale active-user hot cache (${liveResponse?.activeUsersSourceLabel || realtimeCacheSource})`
+                    : liveResponse?.activeUsersTruthLabel === "fallback"
+                      ? `Authenticated users reconstructed from ${liveResponse?.activeUsersSourceLabel || "first-party telemetry"}`
+                      : `${formatCompactNumber(
                         liveActiveUsers.filter((item: any) => item.actorType === "guest").length,
                       )} live guests plus authenticated users in the last 30 minutes`}
                   icon={Sparkles}

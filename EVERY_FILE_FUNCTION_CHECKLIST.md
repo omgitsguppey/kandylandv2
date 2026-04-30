@@ -9,6 +9,22 @@ Scoring: all entries below are marked as included in the current validated sweep
 
 Current repo-wide state snapshot: see [FULL_SCALE_CODEBASE_AUDIT.md](/Users/uylus/OneDrive/Documents/KandyDrops_Final/FULL_SCALE_CODEBASE_AUDIT.md) for the current live baseline, verification state, and continuity rules, and see [REPO_MEMORY_LEDGER.md](/Users/uylus/OneDrive/Documents/KandyDrops_Final/REPO_MEMORY_LEDGER.md) for major architectural and workflow decisions. The detailed file/function body below remains valuable historical evidence, but it has not been fully regenerated against the current 2026-04-18 inventory review yet.
 
+## 2026-04-30 Google Analytics, Cloud, SQL Connect, and Admin Analytics Hot-Truth Coverage
+
+- [x] `docs/doctrine/kandydrops-google-analytics-cloud-doctrine.md` documents official Google/Firebase capability boundaries, required env/secrets, setup examples, hot summary expectations, BigQuery export heartbeat rules, and SQL Connect/Cloud SQL limitations.
+- [x] `control-tower/08-DOCTRINE-INDEX.md` includes the Google Analytics and Cloud Truth doctrine in the mandatory doctrine lookup path.
+- [x] `docs/doctrine/kandydrops-ui-doctrine.md` now requires admin analytics to read validated hot summaries or backend caches before cold GA4/Data API, BigQuery, SQL Connect, or raw Firestore scans.
+- [x] `functions/src/analytics-realtime-summary.ts` materializes `analytics_aggregate_stats/realtime_summary` every minute from first-party active users, event facts, guest batches, watch sessions, and watch assets.
+- [x] `functions/src/index.ts` exports `refreshAdminAnalyticsRealtimeSummary` for deployment.
+- [x] `src/app/api/admin/analytics/realtime/route.ts` serves fresh/stale hot cache truth immediately, records explicit cache metadata, persists cold rebuilds back to the hot summary, and only cold-reads GA4/Firestore when the hot cache is missing or expired.
+- [x] `src/types/admin-analytics.ts` exposes realtime cache state, cache age, cache source, and stale/cached truth labels.
+- [x] `src/app/admin/analytics/hooks/useAdminAnalyticsState.tsx` preserves backend cache metadata and no longer rewrites a polled cached response to a generic fallback when realtime listeners fail.
+- [x] `src/app/admin/analytics/components/AdminAnalyticsOperationsTab.tsx` labels the metric `Active Now` and shows hot-cache/stale/fallback source hints instead of claiming GA4 as the source for every response.
+- [x] `src/app/api/admin/user/[userId]/route.ts` orders per-user event facts, session facts, and user-daily facts by their indexed recency fields so individual user analytics recover the newest facts first.
+- [x] `scripts/agent/check-dependency-truth.ts` verifies root GA4/Data API/auth dependencies and Functions Firebase/BigQuery dependencies.
+- [x] `tests/unit/admin-analytics-realtime-route.spec.ts` covers fresh hot-cache and stale hot-cache responses that avoid cold GA4 reads.
+- [x] `tests/unit/admin-panel-system-logs.spec.ts` covers the active-only orchestration/runtime signal cleanup and recent-transaction healthy sample handling from the same admin truth pass.
+
 ## 2026-04-29 Telemetry Export, GA4, SQL Mirror, and Parity Audit Coverage
 
 - [x] `functions/src/analytics-bigquery-export.ts` exports first-party `analytics_event_facts` to BigQuery and now records success/failure heartbeats in `analytics_export_status/bigquery_raw_events`.

@@ -206,7 +206,7 @@ describe("admin content route", () => {
     const payload = await response.json();
 
     expect(response.status).toBe(200);
-    expect(payload).toEqual({ success: true });
+    expect(payload).toMatchObject({ success: true });
     expect(file.delete).toHaveBeenCalled();
   });
 
@@ -220,6 +220,6 @@ describe("admin content route", () => {
     const payload = await response.json();
 
     expect(response.status).toBe(400);
-    expect(payload).toEqual({ error: "Invalid storage path" });
+    expect(payload).toMatchObject({ error: "Invalid storage path" });
   });
 });

@@ -28,6 +28,9 @@ vi.mock("next/navigation", () => ({
 
 vi.mock("@/context/AuthContext", () => ({
     useAuth: () => mockState.authValue,
+    useAuthIdentity: () => ({ user: mockState.authValue.user }),
+    useUserProfile: () => ({ userProfile: mockState.authValue.userProfile }),
+    useAuthLoading: () => ({ loading: mockState.authValue.loading }),
 }));
 
 vi.mock("@/hooks/useDeferredClientReady", () => ({

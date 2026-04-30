@@ -115,7 +115,7 @@ describe("admin moderation routes", () => {
         expect(body.thread?.id).toBe("thread_1");
         expect(body.messages[0].assetUrl).toBe("https://cdn.example.com/file.png");
         expect(mockState.recordRouteRuntimeSample).toHaveBeenCalledWith(expect.objectContaining({
-            key: "admin/moderation/thread:GET",
+            key: "admin/moderation/threads/[threadId]:GET",
             statusCode: 200,
         }));
     });

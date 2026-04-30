@@ -450,9 +450,13 @@ export interface RealtimeAnalyticsResponse {
   issues?: string[];
   totalActive?: number;
   deepTrackerActive?: number;
-  liveTruthLabel?: "live" | "fallback" | "partial" | "failed";
+  cacheState?: "miss" | "fresh" | "stale";
+  cacheAgeMs?: number;
+  cacheSourceLabel?: string;
+  cacheRevalidating?: boolean;
+  liveTruthLabel?: "live" | "cached" | "stale" | "fallback" | "partial" | "failed";
   liveSourceLabel?: string;
-  activeUsersTruthLabel?: "live" | "fallback" | "partial" | "failed";
+  activeUsersTruthLabel?: "live" | "cached" | "stale" | "fallback" | "partial" | "failed";
   activeUsersSourceLabel?: string;
   data?: RealtimePoint[];
   activeUsers?: RealtimeActiveUserItem[];
