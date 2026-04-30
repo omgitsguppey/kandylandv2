@@ -24,6 +24,24 @@ This file is not a changelog. It is the concise ledger for durable decisions tha
 
 ## Decision Entries
 
+### 1bp. Analytics Truth Layer v2 event contract separates identity lanes before UI refactors
+
+- Approximate date: Recorded explicitly on 2026-04-30 from the Analytics Truth Layer v2 Phase 2 event contract and identity-lane pass
+- Status: Active analytics event contract doctrine
+- Problem/context: Phase 1 established hot-cache-first analytics doctrine, but later module refactors needed a typed event and identity spine so guest, anonymous session, authenticated user, creator, admin, and system activity are not mixed.
+- Decision made: Phase 2 adds `src/lib/analytics/analytics-event-contract.ts`, `src/lib/analytics/legacy-event-mapping.ts`, and client-session identity helpers before refactoring Admin Analytics modules. The canonical event shape includes actor ids, source lane, consent state, dedupe key, object context, legacy mapping fields, and Debug metadata.
+- What became canonical:
+  - `identity_linked` is the only sanctioned bridge from guest/session lineage to authenticated user history; it preserves guest history instead of rewriting it.
+  - Admin and system events are excluded from user/guest behavior lanes by helper contract, while global event tracking can include every actor type with classification preserved.
+  - Creator events remain creator lane by default and are not ordinary fan behavior.
+  - Legacy records can be shaped into canonical candidates only with `legacySource`, `legacyConfidence`, and `mappingWarnings`; they remain directional until a verified backfill promotes them.
+  - Event catalog compatibility aliases cover the Phase 2 required names without renaming existing live events.
+- Consequence for future work:
+  - Wire future telemetry emitters, hot-cache materializers, validators, and Debug surfaces through this contract instead of creating parallel actor/source classifiers.
+  - Do not merge guest and user history without `identity_linked`.
+  - Do not count admin/system/unknown actor records in user behavior lanes.
+  - Do not use legacy mapper output as server-confirmed product truth without a later dry-run, parity, and versioned backfill.
+
 ### 1bo. Analytics Truth Layer v2 starts from verified hot cache, not realtime-only loading
 
 - Approximate date: Recorded explicitly on 2026-04-30 from the Analytics Truth Layer v2 Phase 1 doctrine, file inventory, module map, and validation pass

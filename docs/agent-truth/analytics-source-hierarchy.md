@@ -106,3 +106,23 @@ A weaker source can support a module only when the UI and Debug metadata name th
 7. fake-zero prevention
 
 Without those seven items, the source remains partial, fallback, estimated, or unavailable.
+
+## Phase 2 Canonical Contract Placement
+
+`src/lib/analytics/analytics-event-contract.ts` is the contract boundary between raw product facts and later display snapshots. It does not make a source stronger by itself; it gives every event a consistent shape, actor lane, dedupe key, consent state, source lane, and Debug explanation.
+
+Canonical event contract facts can be produced from:
+
+- current first-party event writers
+- server-side business records
+- hot-cache materializers
+- realtime listener upgrade processors
+- legacy mappers
+
+Only the first two are product truth by default. Hot caches are fast display truth, realtime listeners are upgrades with metadata, BigQuery/GA4 are validation lanes, and legacy mappers are recovery candidates until a backfill parity run promotes them.
+
+## Phase 2 Dedupe and Idempotency Rule
+
+Every current or future canonical writer needs a deterministic `dedupeKey`. The key should include the event name, actor lane/id, source lane, object type/id, and a safe time bucket or business id. Random browser ids can remain `eventId`, but they must not be the only idempotency control for business facts such as purchases, unlocks, tasks, notifications, or identity links.
+
+Legacy records mapped into canonical shape must keep `legacySource` and `legacyId` so they cannot silently mix with server-confirmed current events.

@@ -126,3 +126,36 @@ Later phases should expose these fields where actor classification matters:
 - unknownActorCount
 - guestInclusive true/false
 - authenticatedOnly true/false
+
+## Phase 2 Helper Contract
+
+The typed helper lives at `src/lib/analytics/analytics-event-contract.ts`.
+
+Actor types are:
+
+- `guest`
+- `user`
+- `creator`
+- `admin`
+- `system`
+- `unknown`
+
+Actor lanes additionally name `anonymous_visitor` and `session` so Debug can explain when an event has public identity evidence without a signed-in user.
+
+The helper rules are:
+
+1. Admin classification wins over user classification. A record with `userId` and an admin route/role remains admin and must not count as user behavior.
+2. System events remain system even when they affect user-facing objects.
+3. Creator events remain creator lane and must not be merged into fan behavior by default.
+4. Unknown is never upgraded to authenticated user.
+5. Guest and user history may be connected only through `identity_linked`; old guest events remain guest events.
+6. Global events can include all actor types, but actor classification must be preserved.
+
+The client identity helper extension in `src/lib/client-session.ts` owns:
+
+- `anonymousVisitorId` as the durable anonymous subject when consent allows persistence
+- `sessionId` as the current session key
+- consent-aware identity snapshots
+- a local identity-link record for future login/signup wiring
+
+This is a spine only. Future phases must wire product emitters into it without duplicating identity storage.

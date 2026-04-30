@@ -158,6 +158,45 @@ Admin Debug is the validation surface. It should show source hierarchy, raw coun
 
 Long audit lists, raw backend lane names, and detailed parity failures belong in Debug. Analytics can show a compact health or truth summary that links to Debug.
 
+## Phase 2 Canonical Event Spine
+
+Phase 2 adds the typed event spine without rewriting every emitter. The canonical contract lives at `src/lib/analytics/analytics-event-contract.ts` and every future analytics writer, cache materializer, validator, and Debug surface should converge on it.
+
+A canonical event must carry:
+
+- `eventId`, `eventName`, `eventVersion`, `schemaVersion`
+- `occurredAt` and `receivedAt`
+- actor fields: `actorType`, `anonymousVisitorId`, `sessionId`, `userId`, `creatorId`, `adminId`
+- surface fields: `surface`, `route`, `component`
+- object fields: `objectType`, `objectId`
+- source fields: `source`, `consentState`, `dedupeKey`
+- legacy fields: `legacySource`, `legacyId`, `legacyConfidence`, `mappingWarnings`
+
+The contract separates global event tracking from user behavior. Global events may include guest, user, creator, admin, system, and unknown actor lanes, but they must preserve actor classification. User behavior lanes must exclude admin and system events, and creator events must stay in the creator lane unless a module explicitly and visibly compares lanes.
+
+`identity_linked` is the required bridge from anonymous/session history to authenticated user history. It records the anonymous visitor id, session id, user id, link timestamp, method, eligible past sessions when safe, source, and confidence. It does not rewrite old guest events into user events.
+
+## Phase 2 Debug Contract
+
+Event-level Debug metadata should be able to show:
+
+- actor classification and reasons
+- source lane
+- guest/user/creator/admin/system separation
+- inclusion or exclusion reason
+- dedupe key
+- identity linkage state
+- legacy mapping confidence
+- fake-zero prevention rule
+
+This metadata belongs in Admin Debug and validation helpers first. Admin Analytics modules can consume it later after their hot-cache snapshots are refactored.
+
+## Phase 2 Legacy Recovery
+
+Legacy recovery is documented in `docs/agent-truth/analytics-legacy-recovery.md` and implemented as a mapper skeleton in `src/lib/analytics/legacy-event-mapping.ts`. The mapper creates canonical event-shaped candidates from old sources and marks them with `legacySource`, `legacyConfidence`, and `mappingWarnings`.
+
+Legacy-derived records are not server-confirmed current events. They are directional until a future backfill dry run, parity check, and versioned write path proves otherwise.
+
 ## Phase Plan
 
 Phase 1 creates doctrine, file inventory, source hierarchy, actor taxonomy, module map, machine-readable index, and a targeted validation guard. It must not rewrite production analytics behavior.

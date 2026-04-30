@@ -9,6 +9,18 @@ Scoring: all entries below are marked as included in the current validated sweep
 
 Current repo-wide state snapshot: see [FULL_SCALE_CODEBASE_AUDIT.md](/Users/uylus/OneDrive/Documents/KandyDrops_Final/FULL_SCALE_CODEBASE_AUDIT.md) for the current live baseline, verification state, and continuity rules, and see [REPO_MEMORY_LEDGER.md](/Users/uylus/OneDrive/Documents/KandyDrops_Final/REPO_MEMORY_LEDGER.md) for major architectural and workflow decisions. The detailed file/function body below remains valuable historical evidence, but it has not been fully regenerated against the current 2026-04-18 inventory review yet.
 
+## 2026-04-30 Analytics Truth Layer v2 Phase 2 Event Contract Coverage
+
+- [x] `src/lib/analytics/analytics-event-contract.ts` defines the canonical v2 analytics event shape, actor types, actor lanes, source lanes, consent states, dedupe keys, identity-link event creation, inclusion/exclusion helpers, and Debug metadata.
+- [x] `src/lib/client-session.ts` extends the existing session helper with consent-aware anonymous visitor identity snapshots and local identity-link record helpers without duplicating session storage.
+- [x] `src/lib/analytics/legacy-event-mapping.ts` maps legacy records into canonical event-shaped candidates with `legacySource`, `legacyConfidence`, `mappingWarnings`, unmapped output, and a `legacy_directional_only` mixing policy.
+- [x] `src/lib/telemetry-catalog.ts` adds Phase 2 required event names or compatibility aliases without renaming existing live events.
+- [x] `docs/agent-truth/analytics-legacy-recovery.md` inventories legacy recoverable sources and documents confidence, limitations, and backfill boundaries.
+- [x] `docs/agent-truth/analytics-truth-layer-v2.md`, `docs/agent-truth/analytics-actor-taxonomy.md`, and `docs/agent-truth/analytics-source-hierarchy.md` document the Phase 2 contract, identity-link rule, actor separation, dedupe, and legacy recovery boundaries.
+- [x] `scripts/agent/validate-analytics-event-contract.ts` and `package.json` add `npm run check:analytics-event-contract` as the fast Phase 2 validation guard.
+- [x] `tests/unit/analytics-event-contract.spec.ts` and `tests/unit/analytics-legacy-event-mapping.spec.ts` cover actor classification, admin/system exclusion, identity-link event shape, dedupe, and legacy mapping confidence/unmapped handling.
+- [x] This Phase 2 pass intentionally does not run a destructive backfill, refactor Admin Analytics UI modules, rewrite all telemetry emitters, or delete old event names.
+
 ## 2026-04-30 Analytics Truth Layer v2 Phase 1 Coverage
 
 - [x] `docs/agent-truth/analytics-truth-layer-v2.md` documents verified hot-cache-first analytics, realtime upgrade, manual refresh, legacy recovery, fake-zero prevention, actor separation, and Admin Analytics vs Admin Debug boundaries.

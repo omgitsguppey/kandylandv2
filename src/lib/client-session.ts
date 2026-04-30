@@ -1,9 +1,12 @@
 "use client";
 
+import type { AnalyticsConsentState, AnalyticsEventSourceLane } from "@/lib/analytics/analytics-event-contract";
+
 const CLIENT_SESSION_STORAGE_KEY = "kandy_session_id";
 const LEGACY_CLIENT_SESSION_STORAGE_KEY = "kandydrops.clientSession";
 const CLIENT_SESSION_OWNER_STORAGE_KEY = "kandydrops.clientSessionOwner";
 const CLIENT_SUBJECT_STORAGE_KEY = "kandydrops.clientSubject";
+const CLIENT_IDENTITY_LINK_STORAGE_KEY = "kandydrops.identityLink";
 
 function buildSecureRandomFragment() {
   if (typeof crypto !== "undefined" && typeof crypto.randomUUID === "function") {
@@ -148,4 +151,94 @@ export function getClientSubjectId() {
   writeStorageValue(CLIENT_SUBJECT_STORAGE_KEY, nextValue, true);
   writeStorageValue(CLIENT_SUBJECT_STORAGE_KEY, nextValue, false);
   return nextValue;
+}
+
+export function canPersistAnalyticsIdentity(consentState: AnalyticsConsentState | null | undefined) {
+  return consentState !== "denied";
+}
+
+export function getAnonymousVisitorId(consentState: AnalyticsConsentState = "unknown") {
+  if (!canPersistAnalyticsIdentity(consentState)) {
+    return null;
+  }
+
+  return getClientSubjectId();
+}
+
+export interface ClientAnalyticsIdentitySnapshot {
+  anonymousVisitorId: string | null;
+  sessionId: string;
+  consentState: AnalyticsConsentState;
+  identityPersistenceAllowed: boolean;
+}
+
+export function getClientAnalyticsIdentitySnapshot(
+  consentState: AnalyticsConsentState = "unknown",
+): ClientAnalyticsIdentitySnapshot {
+  const identityPersistenceAllowed = canPersistAnalyticsIdentity(consentState);
+
+  return {
+    anonymousVisitorId: identityPersistenceAllowed ? getAnonymousVisitorId(consentState) : null,
+    sessionId: getClientSessionId(),
+    consentState,
+    identityPersistenceAllowed,
+  };
+}
+
+export interface ClientIdentityLinkRecord {
+  anonymousVisitorId: string | null;
+  sessionId: string;
+  userId: string;
+  linkedAt: string;
+  method: "login" | "signup" | "session_restore" | "admin_link" | "import" | "unknown";
+  eligiblePastSessionIds: string[];
+  source: AnalyticsEventSourceLane;
+  consentState: AnalyticsConsentState;
+  persisted: boolean;
+}
+
+export function buildClientIdentityLinkRecord(input: {
+  userId: string;
+  method: ClientIdentityLinkRecord["method"];
+  consentState?: AnalyticsConsentState;
+  linkedAt?: string;
+  eligiblePastSessionIds?: string[];
+  source?: AnalyticsEventSourceLane;
+}): ClientIdentityLinkRecord {
+  const consentState = input.consentState ?? "unknown";
+  const identity = getClientAnalyticsIdentitySnapshot(consentState);
+
+  return {
+    anonymousVisitorId: identity.anonymousVisitorId,
+    sessionId: identity.sessionId,
+    userId: input.userId,
+    linkedAt: input.linkedAt ?? new Date().toISOString(),
+    method: input.method,
+    eligiblePastSessionIds: input.eligiblePastSessionIds ?? [identity.sessionId],
+    source: input.source ?? "client",
+    consentState,
+    persisted: identity.identityPersistenceAllowed,
+  };
+}
+
+export function rememberClientIdentityLink(record: ClientIdentityLinkRecord) {
+  if (typeof window === "undefined" || !record.persisted) {
+    return;
+  }
+
+  writeStorageValue(CLIENT_IDENTITY_LINK_STORAGE_KEY, JSON.stringify(record), false);
+}
+
+export function readClientIdentityLinkRecord(): ClientIdentityLinkRecord | null {
+  const stored = readStorageValue(CLIENT_IDENTITY_LINK_STORAGE_KEY, false);
+  if (!stored) {
+    return null;
+  }
+
+  try {
+    const parsed = JSON.parse(stored) as ClientIdentityLinkRecord;
+    return parsed && typeof parsed.userId === "string" && typeof parsed.sessionId === "string" ? parsed : null;
+  } catch {
+    return null;
+  }
 }

@@ -1,5 +1,22 @@
 # KandyDrops Core Codebase Audit & Defensive Ledger
 
+## [2026-04-30 #60] PRE/POST: Analytics Truth Layer v2 Phase 2 Event Contract and Identity Lanes
+
+Scope completed:
+- Implementing the Phase 2 canonical analytics event contract, actor/session identity taxonomy helpers, admin/system exclusion rules, legacy mapping skeleton, event-catalog compatibility aliases, validation, tests, and docs.
+- Keeping this pass to the analytics truth spine only; no Admin Analytics UI module refactors, destructive backfills, live event renames, or dashboard rendering changes.
+
+Startup protocol:
+- Read the control tower startup, mission, routing, execution order, source-of-truth map, doctrine consultation workflow, product/copy/UI doctrine, Google Analytics/Firebase doctrine, and Phase 1 analytics truth docs.
+- Read the broad governance baselines from `FULL_SCALE_CODEBASE_AUDIT.md`, `REPO_MEMORY_LEDGER.md`, and `EVERY_FILE_FUNCTION_CHECKLIST.md`.
+- Ran adjacency tracing for `src/lib/telemetry.ts`, `src/lib/analytics-identifiers.ts`, `src/lib/telemetry-catalog.ts`, and `src/lib/server/analytics.ts`.
+
+Verification completed:
+- `npm run check:analytics-event-contract`
+- `npx vitest run tests/unit/analytics-event-contract.spec.ts tests/unit/analytics-legacy-event-mapping.spec.ts`
+- `npm run typecheck -- --pretty false`
+- `npm run check:telemetry`
+
 ## [2026-04-30 #59] PRE/POST: Analytics Truth Layer v2 Phase 1 Doctrine and Blast-Radius Map
 
 Scope completed:
