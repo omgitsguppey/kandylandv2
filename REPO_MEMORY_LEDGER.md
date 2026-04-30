@@ -24,6 +24,20 @@ This file is not a changelog. It is the concise ledger for durable decisions tha
 
 ## Decision Entries
 
+### 1bt. Drop notification idempotency must suppress both in-app creation and FCM dispatch
+
+- Approximate date: Recorded explicitly on 2026-04-30 from the last-20-commit full-scale truth audit
+- Status: Active notification pipeline truth rule
+- Problem/context: The notification pipeline used deterministic idempotency keys to prevent duplicate in-app notification documents, but the dispatch path still attempted the matching FCM push when that duplicate document already existed.
+- Decision made: `src/lib/server/push-notifications.ts` now treats duplicate deterministic notification documents as a full duplicate-send result for drop-live and queued-drop-return-live dispatches. It returns duplicate prevention metadata and does not call `broadcastFCM` for that already-created notification event.
+- What became canonical:
+  - Idempotent drop notification creation and push dispatch are one truth boundary.
+  - `duplicateCreatedPrevented=true` with no newly queued in-app notification must also mean `duplicatePushPrevented=true`, `duplicateBrowserDisplayPrevented=true`, and `fcmDelivered=false`.
+  - Queued drops returning live use the same duplicate suppression rule as normal global drop-live notifications.
+- Consequence for future work:
+  - Do not treat browser notification tags as the only duplicate defense; backend dispatch must avoid sending duplicate FCM payloads for the same deterministic notification event.
+  - Any new notification type with an idempotency key must define whether duplicate creation suppresses push, replaces display, or intentionally re-sends, and that rule must be tested.
+
 ### 1bs. Admin Analytics uses snapshot-first migration metadata before realtime upgrades
 
 - Approximate date: Recorded explicitly on 2026-04-30 from the Analytics Truth Layer v2 Phase 5 Admin Analytics snapshot migration pass

@@ -1,5 +1,60 @@
 # KandyDrops Core Codebase Audit & Defensive Ledger
 
+## [2026-04-30 #64] PRE: Last-20-Commit Truth and Cleanup Audit
+
+Scope started:
+- Full-scale skeptical audit of the last 20 commits for missed truthful fixes, regressions, stale/fallback labeling gaps, UI/layout overlap risks, telemetry/admin truth drift, cleanup leftovers, and validation gaps.
+- Reviewing commit history, changed files, high-risk analytics/chat/admin/notification/task/config surfaces, generated artifacts, and targeted validation coverage before deciding whether any patch is warranted.
+
+Startup protocol:
+- Read control tower startup, mission, role routing, execution order, capability constraints, source-of-truth map, shared component ownership, preflight/postflight checklists, product/copy/UI/surface/banned/vocabulary/GA-cloud doctrine, and current governance baselines.
+- Confirmed `.agent/doctrine-consultation.md` and `.agent/ui-copy-refinement-workflow.md` are absent in this checkout; used available control-tower and doctrine sources directly.
+- Confirmed the worktree was clean at startup.
+
+Scope completed:
+- Audited the last 20 commits from `38a7fbe` through `cba49ef`, covering Admin Analytics truth modules, Analytics Truth Layer v2 phases 1-5, Admin Debug, notification pipeline, admin shell spacing, user chat shell/profile routing, and not-found behavior.
+- Fixed a missed notification truth bug where an idempotent existing drop notification document prevented duplicate in-app creation but still allowed the matching FCM push to be sent.
+- Added unit coverage proving duplicate global and queued-drop-return-live notification documents suppress duplicate FCM dispatch and report duplicate prevention metadata.
+- Updated stale launch QA expectations so the global not-found return action is validated as `Return to App`, matching the current not-found contract.
+
+Residual risks requiring separate scoped follow-up:
+- Several active files still exceed the repo's module-size doctrine, including `src/components/Chat/ChatExperience.tsx`, `src/app/admin/analytics/hooks/useAdminAnalyticsState.tsx`, `src/app/api/admin/debug/route.ts`, `src/app/admin/analytics/components/AdminAnalyticsCommerceTab.tsx`, and `src/app/api/admin/analytics/historical/route.ts`. They remain functionally verified in this audit, but should be split only through dedicated low-risk refactors.
+- Phase 5 snapshot migration is structurally validated, but many Admin Analytics materializer entries still truthfully return unavailable/placeholder metadata instead of full per-module verified value snapshots. This is not a regression in this audit, but it remains the next truth-layer completion risk.
+
+Verification completed:
+- `npm run check:notification-pipeline`
+- `npx vitest run tests/unit/push-notifications.spec.ts tests/unit/fcm-utils.spec.ts tests/unit/notifications-route.spec.ts tests/unit/notify-active-drops-route.spec.ts`
+- `npm run check:user-chat-shell-routing`
+- `npm run check:not-found`
+- `npm run check:admin-shell-spacing`
+- `npm run check:analytics-event-contract`
+- `npm run check:analytics-truth-layer-v2`
+- `npm run check:admin-analytics-hot-cache`
+- `npm run check:analytics-legacy-recovery`
+- `npm run check:admin-analytics-snapshot-migration`
+- `npm run check:admin-analytics-live-pulse`
+- `npm run check:admin-analytics-journey-funnel`
+- `npm run check:admin-analytics-auth-outcome-split`
+- `npm run check:admin-analytics-onboarding-performance`
+- `npm run check:admin-analytics-guest-bounce-quality`
+- `npm run check:admin-analytics-event-mix`
+- `npm run check:admin-analytics-live-interaction-stream`
+- `npm run check:admin-data-validation-relocation`
+- `npm run check:admin-analytics-daily-task-pipeline`
+- `npm run check:admin-analytics-audience-snapshot`
+- `npm run check:admin-analytics-commerce-snapshot`
+- `npm run check:admin-analytics-overview`
+- `npx vitest run tests/unit/admin-analytics-refresh-route.spec.ts tests/unit/admin-analytics-page.spec.tsx tests/unit/admin-analytics-audience-snapshot.spec.ts tests/unit/admin-analytics-commerce-snapshot.spec.ts tests/unit/admin-analytics-live-pulse.spec.ts tests/unit/admin-analytics-journey-funnel.spec.ts tests/unit/admin-analytics-auth-outcome-split.spec.ts tests/unit/admin-analytics-event-mix.spec.ts tests/unit/admin-analytics-live-interaction-stream.spec.ts tests/unit/admin-task-pipeline.spec.ts tests/unit/admin-notification-funnel.spec.ts tests/unit/admin-metric-snapshot.spec.ts tests/unit/analytics-event-contract.spec.ts tests/unit/analytics-legacy-event-mapping.spec.ts tests/unit/analytics-legacy-recovery-contract.spec.ts tests/unit/analytics-ecosystem-parity.spec.ts tests/unit/chat-route-shell.spec.tsx tests/unit/creator-public-pages.spec.ts tests/unit/not-found-surface.spec.tsx tests/unit/push-notifications.spec.ts`
+- `npm run typecheck -- --pretty false`
+- `git diff --check`
+- `npm run check:ui:coverage`
+- `npm run check:ui:runtime`
+- `npm run check:ui:audits`
+- `npm run check:architecture`
+- `npm run check:inventory`
+- `npm run check:agent-context`
+- `npm run check:continuity` after cleaning `.next`, `playwright-report`, and `test-results`
+
 ## [2026-04-30 #63] PRE: Analytics Truth Layer v2 Phase 5 Snapshot-First Admin Analytics Migration
 
 Scope started:

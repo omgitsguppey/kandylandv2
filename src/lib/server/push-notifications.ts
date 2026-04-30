@@ -237,6 +237,24 @@ export async function sendGlobalDropNotification(
         });
     }
 
+    if (duplicateCreatedPrevented && !inAppQueued) {
+        return finalizeDispatchResult({
+            activationKey: activationKey ?? null,
+            dropId,
+            status: "duplicate",
+            errorCode: null,
+            detail: {
+                ...buildBaseDispatchDetail({ dropTitle, imageUrl, identity }),
+                inAppQueued,
+                fcmDelivered: false,
+                notificationId,
+                duplicateCreatedPrevented,
+                duplicatePushPrevented: true,
+                duplicateBrowserDisplayPrevented: true,
+            },
+        });
+    }
+
     const fcmDelivered = await broadcastFCM(
         "Kandy Drops",
         `${dropTitle} just went live! Don't miss out!`,
@@ -336,6 +354,24 @@ export async function sendTargetedDropNotification(
                 inAppQueued,
                 duplicateCreatedPrevented,
                 errorMessage: err instanceof Error ? err.message : String(err),
+            },
+        });
+    }
+
+    if (duplicateCreatedPrevented && !inAppQueued) {
+        return finalizeDispatchResult({
+            activationKey: activationKey ?? null,
+            dropId,
+            status: "duplicate",
+            errorCode: null,
+            detail: {
+                ...buildBaseDispatchDetail({ dropTitle, imageUrl, isReturn, excludedUserIds, identity }),
+                inAppQueued,
+                fcmDelivered: false,
+                notificationId,
+                duplicateCreatedPrevented,
+                duplicatePushPrevented: true,
+                duplicateBrowserDisplayPrevented: true,
             },
         });
     }

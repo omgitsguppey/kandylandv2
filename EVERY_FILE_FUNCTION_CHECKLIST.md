@@ -1,13 +1,20 @@
 # EVERY FILE FUNCTION CHECKLIST
 
-**Last Updated:** 2026-04-28
-**Current Focus:** Every-file tracked inventory reconciliation against live git truth and regenerated agent indexes.
+**Last Updated:** 2026-04-30
+**Current Focus:** Last-20-commit truth audit, notification duplicate dispatch cleanup, and every-file tracked inventory reconciliation against live git truth and regenerated agent indexes.
 **Status:** In Progress. Current tracked-file coverage is reconciled as of 2026-04-28: every `git ls-files` entry has a current checklist heading, while detailed function-level audits remain pending for many historical and newly reconciled files.
 Purpose: exhaustive no-skip audit checklist covering every repository file currently in scope and every detected function-like implementation.
 
 Scoring: all entries below are marked as included in the current validated sweep. Confidence reflects current repository-state confidence, not perfection or future-proofing.
 
 Current repo-wide state snapshot: see [FULL_SCALE_CODEBASE_AUDIT.md](/Users/uylus/OneDrive/Documents/KandyDrops_Final/FULL_SCALE_CODEBASE_AUDIT.md) for the current live baseline, verification state, and continuity rules, and see [REPO_MEMORY_LEDGER.md](/Users/uylus/OneDrive/Documents/KandyDrops_Final/REPO_MEMORY_LEDGER.md) for major architectural and workflow decisions. The detailed file/function body below remains valuable historical evidence, but it has not been fully regenerated against the current 2026-04-18 inventory review yet.
+
+## 2026-04-30 Last-20-Commit Truth Audit Cleanup Coverage
+
+- [x] `src/lib/server/push-notifications.ts` now treats duplicate deterministic drop notification documents as full duplicate dispatch suppression, preventing matching FCM sends for global drop-live and queued-drop-return-live notifications.
+- [x] `tests/unit/push-notifications.spec.ts` covers duplicate global and return-live notification documents suppressing FCM dispatch and reporting duplicate push/browser-display prevention metadata.
+- [x] `tests/launch-qa.spec.ts` validates the current global not-found return action label, `Return to App`, instead of the stale `Return Home` copy.
+- [x] `FULL_SCALE_CODEBASE_AUDIT.md` and `REPO_MEMORY_LEDGER.md` record the last-20-commit audit result, concrete fixes, verification coverage, and remaining monolith/snapshot-materializer risks.
 
 ## 2026-04-30 Analytics Truth Layer v2 Phase 5 Admin Analytics Snapshot Migration Coverage
 
