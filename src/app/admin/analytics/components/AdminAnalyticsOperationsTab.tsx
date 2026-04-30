@@ -17,7 +17,7 @@ export function AdminAnalyticsOperationsTab(props: AdminAnalyticsState) {
     liveActiveTruthState, historicalOverviewTruthState,
     journeyFunnelMetrics,
     authOutcomeModel,
-    authOnboardingDiscrepancies, onboardingVelocityHasData, onboardingVelocityBuckets, onboardingVelocityStartCount, onboardingVelocityCompletionCount, onboardingVelocityCompletionRate, onboardingVelocityDropOffCount, onboardingVelocityStats, onboardingVelocityStartSourceHint, onboardingStepFlowItems,
+    authOnboardingDiscrepancies, onboardingVelocityModel, onboardingVelocityHasData, onboardingVelocityBuckets, onboardingVelocityStartCount, onboardingVelocityCompletionCount, onboardingVelocityCompletionRate, onboardingVelocityDropOffCount, onboardingVelocityStats, onboardingVelocityStartSourceHint, onboardingStepFlowItems,
     formatCompactNumber, formatDuration, formatPercent, formatRelativeTime,
     guestBounceQualityCards, guestBounceGlobalSemantics, guestBounceGuestRate, guestBounceEngagedRate, guestBounceIdentifiedRate, guestBounceUserSemantics,
     guestViewsDisplayCount, guestViewsHint, guestBounceRateDisplay, guestBounceHint, guestEngagedRateDisplay, guestEngagedHint,
@@ -594,6 +594,7 @@ export function AdminAnalyticsOperationsTab(props: AdminAnalyticsState) {
               <AdminOnboardingAnalyticsModules
                 renderSectionRangeControl={renderSectionRangeControl}
                 discrepancies={authOnboardingDiscrepancies}
+                onboardingVelocityModel={onboardingVelocityModel}
                 onboardingVelocityHasData={onboardingVelocityHasData}
                 onboardingVelocityBuckets={onboardingVelocityBuckets}
                 onboardingVelocityStartCount={onboardingVelocityStartCount}

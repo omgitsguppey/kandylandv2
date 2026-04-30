@@ -1249,12 +1249,33 @@ const { user } = useAuth();
   const onboardingVelocityModel = useMemo(
     () =>
       buildAdminOnboardingVelocityModel({
+        selectedRange: onboardingVelocityRange,
+        response: onboardingVelocityData,
         stats: onboardingVelocityStats,
         durationBuckets: onboardingVelocityBuckets,
         steps: onboardingStepFlowStats,
         authSignUps: journeyFunnelMetrics.authSignUps,
+        loading: onboardingVelocityRange === ADMIN_ANALYTICS_DEFAULT_RANGE
+          ? historicalLoading
+          : onboardingVelocityOverride.isLoading,
+        error: (onboardingVelocityRange === ADMIN_ANALYTICS_DEFAULT_RANGE
+          ? historicalError
+          : onboardingVelocityOverride.error) ?? undefined,
+        overviewTruthState: historicalOverviewTruthState,
       }),
-    [journeyFunnelMetrics.authSignUps, onboardingStepFlowStats, onboardingVelocityBuckets, onboardingVelocityStats],
+    [
+      historicalError,
+      historicalLoading,
+      historicalOverviewTruthState,
+      journeyFunnelMetrics.authSignUps,
+      onboardingStepFlowStats,
+      onboardingVelocityBuckets,
+      onboardingVelocityData,
+      onboardingVelocityOverride.error,
+      onboardingVelocityOverride.isLoading,
+      onboardingVelocityRange,
+      onboardingVelocityStats,
+    ],
   );
   const onboardingStepFlowModel = useMemo(
     () =>
@@ -1813,7 +1834,7 @@ const { user } = useAuth();
     clearAllFilters, clearViewerFilter,
     showHistoricalEmptyState, liveSnapshotLabel, historicalSnapshotLabel, analyticsWarmState, isBackgroundSyncing, historicalTruthState, historicalSourceLabel, historicalOverviewSourceLabel, visibleDegradedCopy,
     authOutcomeHasData, authOutcomeChartItems, authOutcomeTotals, authOutcomeModel,
-    authOnboardingDiscrepancies, onboardingVelocityHasData, onboardingVelocityBuckets, onboardingVelocityStartCount, onboardingVelocityCompletionCount, onboardingVelocityCompletionRate, onboardingVelocityDropOffCount, onboardingVelocityStats, onboardingVelocityStartSourceHint, onboardingStepFlowItems,
+    authOnboardingDiscrepancies, onboardingVelocityModel, onboardingVelocityHasData, onboardingVelocityBuckets, onboardingVelocityStartCount, onboardingVelocityCompletionCount, onboardingVelocityCompletionRate, onboardingVelocityDropOffCount, onboardingVelocityStats, onboardingVelocityStartSourceHint, onboardingStepFlowItems,
     guestBounceQualityCards, guestBounceGlobalSemantics, guestBounceGuestRate, guestBounceEngagedRate, guestBounceIdentifiedRate, guestBounceUserSemantics,
     guestViewsDisplayCount, guestViewsHint, guestBounceRateDisplay, guestBounceHint, guestEngagedRateDisplay, guestEngagedHint, guestQualityUnavailable,
     topEvents, liveInteractionStreamRange, liveInteractionStreamData, liveInteractionEvents,
