@@ -2,7 +2,7 @@ import React from "react";
 import {
   Activity, AlertTriangle, CheckCircle2, Clock3, Eye, Monitor, Route, Share2, Sparkles, Users,
 } from "lucide-react";
-import { Area, AreaChart, Bar, BarChart, CartesianGrid, ResponsiveContainer, Tooltip, XAxis, YAxis } from "recharts";
+import { Area, AreaChart, CartesianGrid, ResponsiveContainer, Tooltip, XAxis, YAxis } from "recharts";
 import { AnalyticsTooltip, MetricCard, SectionCard } from "@/components/Admin/Analytics/AdminAnalyticsPrimitives";
 import { AdminOnboardingAnalyticsModules } from "@/components/Admin/Analytics/AdminOnboardingAnalyticsModules";
 import { AdminStatusBadge } from "@/components/Admin/AdminStatusBadge";
@@ -41,7 +41,7 @@ export function AdminAnalyticsOperationsTab(props: AdminAnalyticsState) {
     
     // Added remaining
     clearAllFilters, clearViewerFilter, viewerUserFilter, formatMoney, activeViewerFilter,
-    eventMixTopEvents, validationItems, topComponentContexts, eventMixTopComponentContexts,
+    eventMixTopEvents, eventMixTopComponentContexts, eventMixModel, validationItems, topComponentContexts,
     liveInteractionEvents
   } = props;
 
@@ -145,6 +145,20 @@ export function AdminAnalyticsOperationsTab(props: AdminAnalyticsState) {
       __KANDYDROPS_ADMIN_ANALYTICS_GUEST_BOUNCE_QUALITY_DEBUG__?: typeof guestBounceQualityModel;
     }).__KANDYDROPS_ADMIN_ANALYTICS_GUEST_BOUNCE_QUALITY_DEBUG__ = guestBounceQualityModel;
   }, [guestBounceQualityModel]);
+  const eventMixCountLabel = (value: number | null) =>
+    value === null ? "Waiting" : formatCompactNumber(value);
+  const eventMixShareLabel = (value: number | null) =>
+    value === null ? "Share unavailable" : formatPercent(value);
+
+  React.useEffect(() => {
+    if (typeof window === "undefined") {
+      return;
+    }
+
+    (window as typeof window & {
+      __KANDYDROPS_ADMIN_ANALYTICS_EVENT_MIX_DEBUG__?: typeof eventMixModel;
+    }).__KANDYDROPS_ADMIN_ANALYTICS_EVENT_MIX_DEBUG__ = eventMixModel;
+  }, [eventMixModel]);
 
   return (
     <>
@@ -689,101 +703,96 @@ export function AdminAnalyticsOperationsTab(props: AdminAnalyticsState) {
             <div className="grid gap-5 xl:grid-cols-[1.15fr_0.85fr]">
               <SectionCard
                 title="Event Mix"
-                subtitle="The strongest custom GA events in the selected window."
+                subtitle="Top raw events with source and surface context."
                 icon={Sparkles}
                 rightSlot={renderSectionRangeControl("eventMix")}
               >
-                <div className="grid gap-4 lg:grid-cols-[1fr_0.92fr]">
-                  <div className="h-64 w-full md:h-72">
-                    <ResponsiveContainer width="100%" height="100%">
-                      <BarChart
-                        data={eventMixTopEvents}
-                        margin={{ top: 8, right: 0, left: -18, bottom: 0 }}
-                      >
-                        <CartesianGrid
-                          stroke="rgba(255,255,255,0.06)"
-                          vertical={false}
-                        />
-                        <XAxis
-                          dataKey="label"
-                          stroke="#6b7280"
-                          fontSize={10}
-                          tickLine={false}
-                          axisLine={false}
-                          interval={0}
-                          angle={-18}
-                          textAnchor="end"
-                          height={56}
-                        />
-                        <YAxis
-                          stroke="#6b7280"
-                          fontSize={11}
-                          tickLine={false}
-                          axisLine={false}
-                        />
-                        <Tooltip content={<AnalyticsTooltip />} />
-                        <Bar
-                          dataKey="count"
-                          name="Events"
-                          fill="#b28cff"
-                          radius={[10, 10, 0, 0]}
-                        />
-                      </BarChart>
-                    </ResponsiveContainer>
+                <div className="grid gap-2.5">
+                  <div className="flex flex-col gap-2 rounded-[1rem] border border-white/10 bg-white/[0.035] px-3 py-2 text-[11px] leading-5 text-gray-300 md:flex-row md:items-center md:justify-between">
+                    <span>{eventMixModel.visibleCopy}</span>
+                    <AdminStatusBadge
+                      state={eventMixModel.truthState}
+                      label={eventMixModel.badgeLabel}
+                      className="max-w-[6.25rem] truncate whitespace-nowrap px-1.5 py-0.5 text-[9px]"
+                    />
                   </div>
 
-                  <div className="rounded-[1.5rem] border border-white/10 bg-black/30 p-4">
-                    <div className="mb-3 flex items-center justify-between gap-3">
-                      <div>
-                        <p className="text-xs font-semibold uppercase tracking-[0.14em] text-gray-500">
-                          Component context
-                        </p>
-                        <p className="mt-1 text-sm text-gray-400">
-                          Which product surfaces are actually generating the
-                          event load.
-                        </p>
-                      </div>
-                      <span className="rounded-full border border-white/10 bg-white/5 px-3 py-1 text-[11px] font-semibold text-gray-300">
-                        {topComponentContexts.length} surfaces
+                  <div className="grid gap-2 rounded-[1rem] border border-white/10 bg-black/25 px-3 py-2 text-[11px] leading-5 text-gray-300 md:grid-cols-3">
+                    <span>
+                      <span className="font-semibold text-white">Total:</span>{" "}
+                      {eventMixCountLabel(eventMixModel.totalEventsInRange)} raw events
+                    </span>
+                    <span>
+                      <span className="font-semibold text-white">Top:</span>{" "}
+                      {eventMixModel.topEvent?.displayLabel ?? "Waiting"}
+                    </span>
+                    <span>
+                      <span className="font-semibold text-white">Surfaces:</span>{" "}
+                      {eventMixModel.mappedSurfaceCount === null ? "context unavailable" : eventMixModel.mappedSurfaceCount}
+                    </span>
+                  </div>
+
+                  <div className="rounded-[1rem] border border-white/10 bg-black/30 p-3">
+                    <div className="mb-2 flex items-center justify-between gap-3">
+                      <p className="text-[10px] font-semibold uppercase tracking-[0.14em] text-gray-500">
+                        Ranked raw events
+                      </p>
+                      <span className="text-[10px] text-gray-500">
+                        event count / total counted events
                       </span>
                     </div>
-                    <div className="space-y-3">
-                      {eventMixTopComponentContexts.length > 0 ? (
-                        eventMixTopComponentContexts.map((item: any) => (
+                    <div className="space-y-1.5">
+                      {eventMixModel.eventRows.length > 0 ? (
+                        eventMixModel.eventRows.map((item) => (
                           <div
-                            key={item.key}
-                            className="rounded-2xl border border-white/10 bg-white/[0.03] p-3"
+                            key={item.eventKey}
+                            className="rounded-[0.9rem] border border-white/10 bg-white/[0.03] px-3 py-2"
                           >
-                            <div className="mb-2 flex items-center justify-between gap-3">
-                              <p className="text-sm font-semibold text-white">
-                                {item.label}
-                              </p>
-                              <span className="text-sm font-bold text-brand-purple">
-                                {item.count.toLocaleString()}
+                            <div className="grid grid-cols-[auto_minmax(0,1fr)_auto] items-center gap-2">
+                              <span className="flex h-6 w-6 items-center justify-center rounded-full border border-white/10 bg-white/5 text-[10px] font-semibold text-gray-300">
+                                {item.rank}
                               </span>
+                              <div className="min-w-0">
+                                <p className="truncate text-xs font-semibold text-white">
+                                  {item.displayLabel}
+                                </p>
+                                <p className="mt-0.5 truncate text-[10px] text-gray-500">
+                                  {item.mappedSurface ?? "Surface context unavailable"} / {item.mappingSource === "component_context" ? "mapped" : item.mappingSource === "fallback_event_catalog" ? "catalog" : "unmapped"}
+                                </p>
+                              </div>
+                              <div className="text-right">
+                                <p className="text-xs font-bold text-brand-purple">
+                                  {eventMixCountLabel(item.rawCount)}
+                                </p>
+                                <p className="text-[10px] text-gray-500">
+                                  {eventMixShareLabel(item.share)}
+                                </p>
+                              </div>
                             </div>
-                            <div className="flex flex-wrap gap-2 text-[11px] text-gray-400">
-                              <span>
-                                {item.uniqueUsers.toLocaleString()} users
-                              </span>
-                              <span>
-                                {item.experienceCount.toLocaleString()}{" "}
-                                experiences
-                              </span>
-                              <span>
-                                {EVENT_LABELS[item.exampleEvent] ||
-                                  item.exampleEvent}
-                              </span>
+                            <div className="mt-2 h-1.5 overflow-hidden rounded-full bg-white/10">
+                              <div
+                                className="h-full rounded-full bg-brand-purple"
+                                style={{
+                                  width: `${Math.max(4, Math.min(100, (item.share ?? 0) * 100))}%`,
+                                }}
+                              />
                             </div>
                           </div>
                         ))
                       ) : (
-                        <div className="rounded-[1.4rem] border border-dashed border-white/10 bg-black/20 p-4 text-sm text-gray-500">
-                          Component context will populate once enough telemetry
-                          lanes resolve against the selected range.
+                        <div className="rounded-[0.9rem] border border-dashed border-white/10 bg-black/20 p-3 text-xs text-gray-500">
+                          Event mix is waiting for raw event counts.
                         </div>
                       )}
                     </div>
+                  </div>
+
+                  <div className="rounded-[1rem] border border-white/10 bg-black/25 px-3 py-2 text-[11px] leading-5 text-gray-300">
+                    <span className="font-semibold text-white">Context:</span>{" "}
+                    {eventMixModel.componentContextStatus === "available"
+                      ? `${eventMixModel.mappedSurfaceCount ?? 0} mapped surfaces`
+                      : "Surface context unavailable for this range."}
+                    {eventMixModel.unmappedEventCount ? ` ${eventMixModel.unmappedEventCount} events need mapping.` : ""}
                   </div>
                 </div>
               </SectionCard>

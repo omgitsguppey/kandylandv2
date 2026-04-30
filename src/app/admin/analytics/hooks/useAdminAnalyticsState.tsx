@@ -30,6 +30,7 @@ import { buildAdminAnalyticsLivePulseModel } from "@/lib/admin-analytics-live-pu
 import { buildAdminAnalyticsJourneyFunnelModel } from "@/lib/admin-analytics-journey-funnel";
 import { buildAdminAnalyticsAuthOutcomeModel } from "@/lib/admin-analytics-auth-outcome-split";
 import { buildAdminAnalyticsGuestBounceQualityModel } from "@/lib/admin-analytics-guest-bounce-quality";
+import { buildAdminAnalyticsEventMixModel } from "@/lib/admin-analytics-event-mix";
 
 
 import { TELEMETRY_EVENT_LABELS } from "@/lib/telemetry-catalog";
@@ -1415,6 +1416,33 @@ const { user } = useAuth();
       EVENT_LABELS[entry.eventName] || entry.eventName.replaceAll("_", " "),
   }));
   const eventMixTopComponentContexts = eventMixComponentContexts.slice(0, 6);
+  const eventMixModel = useMemo(
+    () => buildAdminAnalyticsEventMixModel({
+      selectedRange: eventMixRange,
+      response: eventMixData,
+      eventBreakdown: eventMixBreakdown,
+      componentContexts: eventMixComponentContexts,
+      eventLabels: EVENT_LABELS,
+      loading: eventMixRange === ADMIN_ANALYTICS_DEFAULT_RANGE
+        ? historicalLoading
+        : eventMixOverride.isLoading,
+      error: (eventMixRange === ADMIN_ANALYTICS_DEFAULT_RANGE
+        ? historicalError
+        : eventMixOverride.error) ?? undefined,
+      overviewTruthState: historicalOverviewTruthState,
+    }),
+    [
+      eventMixRange,
+      eventMixData,
+      eventMixBreakdown,
+      eventMixComponentContexts,
+      historicalLoading,
+      eventMixOverride.isLoading,
+      historicalError,
+      eventMixOverride.error,
+      historicalOverviewTruthState,
+    ],
+  );
   const liveInteractionData =
     liveInteractionStreamRange === ADMIN_ANALYTICS_DEFAULT_RANGE
       ? historicalResponse
@@ -1879,7 +1907,7 @@ const { user } = useAuth();
 ,
     revenueDisplay, purchasesDisplay, mobileShareDisplay, liveActiveDisplay, liveActiveTruthState, historicalOverviewTruthState, analyticsOverviewDebugMeta, overviewCheckoutStarts,
     viewerDrilldownFilter, viewerDrilldownOverview, applyViewerFilter, viewerDrilldownUsers, viewerDrilldownCaptureHealth, liveWatchCaptureHealth, viewerDrilldownJourneys, viewerDrilldownInsights, viewerDropChartData, viewerJourneyItems, watchDepthTagBuckets, watchDepthTagDemand,
-    getJourneyStateClasses, getJourneyStateLabel, topExperienceContexts, topComponentContexts, eventMixTopEvents, eventMixTopComponentContexts,
+    getJourneyStateClasses, getJourneyStateLabel, topExperienceContexts, topComponentContexts, eventMixTopEvents, eventMixTopComponentContexts, eventMixModel,
     dailyTaskPipelineModel, taskCompletionSpeedBuckets, taskLeaderboardItems, activeNotificationFunnelPieData, notificationActionItems, maxNotificationActionValue, hasNotificationReminderReasons, notificationReminderReasons
   };
 }
