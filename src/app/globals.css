@@ -11,12 +11,12 @@
 html { overscroll-behavior-y: none; }
 
 .admin-shell-route {
-  --root-shell-top-spacing: calc(4rem + var(--admin-shell-gap));
+  --root-shell-top-spacing: 4rem;
 }
 
 @media (min-width: 768px) {
   .admin-shell-route {
-    --root-shell-top-spacing: calc(4.75rem + var(--admin-shell-gap-md));
+    --root-shell-top-spacing: 4.75rem;
   }
 }
 

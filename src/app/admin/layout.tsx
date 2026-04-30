@@ -9,10 +9,11 @@ import { LayoutDashboard, Package, Users, Terminal, ListChecks, TrendingUp, Life
 import { cn } from "@/lib/utils";
 import { AdminErrorCatcher } from "@/components/AdminErrorCatcher";
 import {
-  ADMIN_CONSOLE_STICKY_TOP_CLASS,
+  ADMIN_CONSOLE_FLOW_CLASS,
   ADMIN_CONSOLE_TO_CONTENT_GAP_CLASS,
   ADMIN_SHELL_GAP_MD_TOKEN,
   ADMIN_SHELL_GAP_TOKEN,
+  ADMIN_TOP_TO_CONSOLE_GAP_CLASS,
 } from "@/lib/admin-shell-spacing";
 
 
@@ -71,9 +72,10 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
       >
         <div className="max-w-7xl mx-auto">
           <div
-            className={cn("sticky z-30", ADMIN_CONSOLE_STICKY_TOP_CLASS, ADMIN_CONSOLE_TO_CONTENT_GAP_CLASS)}
+            className={cn(ADMIN_CONSOLE_FLOW_CLASS, ADMIN_TOP_TO_CONSOLE_GAP_CLASS)}
             data-admin-console-nav="true"
-            data-admin-shell-gap-class={ADMIN_CONSOLE_TO_CONTENT_GAP_CLASS}
+            data-admin-console-flow="normal"
+            data-admin-shell-top-gap-class={ADMIN_TOP_TO_CONSOLE_GAP_CLASS}
           >
             <div className="rounded-[1.75rem] border border-white/10 bg-black/75 p-2.5 backdrop-blur-xl shadow-xl shadow-black/25">
               <div className="mb-2 px-1 md:hidden">
@@ -120,8 +122,14 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
               </div>
             </div>
           </div>
-          <AdminErrorCatcher />
-          {children}
+          <div
+            className={ADMIN_CONSOLE_TO_CONTENT_GAP_CLASS}
+            data-admin-page-content="true"
+            data-admin-shell-below-console-gap-class={ADMIN_CONSOLE_TO_CONTENT_GAP_CLASS}
+          >
+            <AdminErrorCatcher />
+            {children}
+          </div>
         </div>
       </main>
     </div>
