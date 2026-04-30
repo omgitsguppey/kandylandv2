@@ -1616,13 +1616,10 @@ const { user } = useAuth();
         funnelItems: notificationFunnelItems,
         actionItems: notificationActionItems,
         reminderReasons: notificationReminderReasons,
+        selectedRange: notificationFunnelRange,
       }),
-    [notificationActionItems, notificationFunnelItems, notificationReminderReasons],
+    [notificationActionItems, notificationFunnelItems, notificationReminderReasons, notificationFunnelRange],
   );
-  const activeNotificationFunnel = notificationFunnelModel.activeFunnelItems;
-  const activeNotificationFunnelPieData = notificationFunnelModel.pieData;
-  const maxNotificationActionValue = notificationFunnelModel.maxActionValue;
-  const hasNotificationReminderReasons = notificationFunnelModel.reminderReasonCount > 0;
   const deviceMixTotalUsers = deviceMixDevices.reduce(
     (sum, item) => sum + item.users,
     0,
@@ -1911,7 +1908,7 @@ const { user } = useAuth();
     revenueDisplay, purchasesDisplay, mobileShareDisplay, liveActiveDisplay, liveActiveTruthState, historicalOverviewTruthState, analyticsOverviewDebugMeta, overviewCheckoutStarts,
     viewerDrilldownFilter, viewerDrilldownOverview, applyViewerFilter, viewerDrilldownUsers, viewerDrilldownCaptureHealth, liveWatchCaptureHealth, viewerDrilldownJourneys, viewerDrilldownInsights, viewerDropChartData, viewerJourneyItems, watchDepthTagBuckets, watchDepthTagDemand,
     getJourneyStateClasses, getJourneyStateLabel, topExperienceContexts, topComponentContexts, eventMixTopEvents, eventMixTopComponentContexts, eventMixModel,
-    dailyTaskPipelineModel, activeNotificationFunnelPieData, notificationActionItems, maxNotificationActionValue, hasNotificationReminderReasons, notificationReminderReasons
+    dailyTaskPipelineModel, notificationFunnelModel
   };
 }
 

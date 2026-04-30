@@ -17,6 +17,7 @@ import { getErrorMessage, recordRouteWarning } from "@/lib/server/route-diagnost
 import { sanitizeFirestorePayload } from "@/lib/server/firestore-sanitize";
 import { recordRouteRuntimeSample } from "@/lib/server/route-runtime-health";
 import { touchUserRuntime } from "@/lib/server/user-runtime";
+import { buildBrowserNotificationTag, buildNotificationIdempotencyKey } from "@/lib/notification-identity";
 
 const DUPLICATE_NOTIFICATION_WINDOW_MS = 2 * 60 * 1000;
 
@@ -145,6 +146,13 @@ export async function POST(request: NextRequest) {
     }
 
     const dispatchFingerprint = buildDispatchFingerprint(payload);
+    const idempotencyKey = buildNotificationIdempotencyKey({
+      type: payload.type,
+      notificationId: dispatchFingerprint,
+      lifecycleEvent: "admin_created",
+      audience: payload.target.global ? "global" : "targeted",
+    });
+    const browserTag = buildBrowserNotificationTag(idempotencyKey);
     const dispatchRef = adminDb.collection("notificationDispatchLocks").doc(dispatchFingerprint);
     const notificationRef = adminDb.collection("notifications").doc();
     const nowMs = Date.now();
@@ -171,6 +179,9 @@ export async function POST(request: NextRequest) {
         createdAtMs: nowMs,
         readBy: [],
         dispatchFingerprint,
+        idempotencyKey,
+        dedupeKey: idempotencyKey,
+        browserTag,
       }));
       transaction.set(dispatchRef, sanitizeFirestorePayload({
         dispatchedAtMs: nowMs,
@@ -188,7 +199,13 @@ export async function POST(request: NextRequest) {
 
     if (payload.target.global) {
       try {
-        await broadcastFCM(payload.title, payload.message, payload.link || "/drops", "general");
+        await broadcastFCM(payload.title, payload.message, payload.link || "/drops", "general", {
+          notificationId: notificationRef.id,
+          idempotencyKey,
+          browserTag,
+          lifecycleEvent: "admin_created",
+          audience: "global",
+        });
       } catch (error) {
         recordRouteWarning("notifications", "Notification broadcast failed after persistence", {
           routeName: "notifications",
@@ -282,7 +299,12 @@ export async function PUT(request: NextRequest) {
 
       successfulIds.push(notificationId);
       if (!normalized.readBy.includes(caller?.uid ?? "")) {
-        batch.update(snapshot.ref, { readBy: FieldValue.arrayUnion(caller?.uid ?? "") });
+        const readAtMs = Date.now();
+        batch.update(snapshot.ref, {
+          readBy: FieldValue.arrayUnion(caller?.uid ?? ""),
+          readAtMs,
+          lastReadBy: caller?.uid ?? "",
+        });
       }
     });
 

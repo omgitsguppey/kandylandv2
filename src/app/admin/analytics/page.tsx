@@ -254,11 +254,7 @@ export default function AdminAnalyticsPage() {
         <AdminTaskAndNotificationModules
           renderSectionRangeControl={state.renderSectionRangeControl}
           dailyTaskPipelineModel={state.dailyTaskPipelineModel}
-          activeNotificationFunnelPieData={state.activeNotificationFunnelPieData}
-          notificationActionItems={state.notificationActionItems}
-          maxNotificationActionValue={state.maxNotificationActionValue}
-          hasNotificationReminderReasons={state.hasNotificationReminderReasons}
-          notificationReminderReasons={state.notificationReminderReasons}
+          notificationFunnelModel={state.notificationFunnelModel}
           formatDuration={state.formatDuration}
           formatPercent={state.formatPercent}
         />

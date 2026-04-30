@@ -3,7 +3,7 @@ import { describe, expect, it } from "vitest";
 import { buildAdminNotificationFunnelModel } from "@/lib/admin-notification-funnel";
 
 describe("admin notification funnel model", () => {
-    it("filters zero-count funnel items and preserves action scaling inputs", () => {
+    it("normalizes compact funnel metrics without fake delivery zeros", () => {
         const model = buildAdminNotificationFunnelModel({
             funnelItems: [
                 { label: "Prompted", count: 24 },
@@ -20,15 +20,12 @@ describe("admin notification funnel model", () => {
         });
 
         expect(model.hasData).toBe(true);
-        expect(model.activeFunnelItems).toEqual([
-            { label: "Prompted", count: 24 },
-            { label: "Opened", count: 11 },
-        ]);
-        expect(model.pieData).toEqual([
-            { name: "Prompted", value: 24 },
-            { name: "Opened", value: 11 },
-        ]);
-        expect(model.maxActionValue).toBe(30);
-        expect(model.reminderReasonCount).toBe(1);
+        expect(model.truthLabel).toBe("PARTIAL");
+        expect(model.metrics.find((metric) => metric.key === "prompted")?.value).toBe(24);
+        expect(model.metrics.find((metric) => metric.key === "enabled")?.value).toBe(0);
+        expect(model.metrics.find((metric) => metric.key === "sent")?.value).toBeNull();
+        expect(model.metrics.find((metric) => metric.key === "sent")?.fakeZeroPrevented).toBe(true);
+        expect(model.reminderReasonSummary).toContain("Time ran out: 4");
+        expect(model.debug.duplicateBrowserDisplayPreventedCount).toBeNull();
     });
 });

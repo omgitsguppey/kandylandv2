@@ -164,6 +164,11 @@ describe("PUT /api/notifications", () => {
         expect(body.failedCount).toBe(0);
         expect(body.notificationIds).toEqual(["note_1", "note_2"]);
         expect(mockState.batchUpdate).toHaveBeenCalledTimes(2);
+        expect(mockState.batchUpdate).toHaveBeenCalledWith(expect.anything(), expect.objectContaining({
+            readBy: { op: "arrayUnion", value: "user_1" },
+            lastReadBy: "user_1",
+            readAtMs: expect.any(Number),
+        }));
         expect(mockState.touchUserRuntime).toHaveBeenCalledWith("user_1", { notifications: true });
         expect(mockState.recordRouteRuntimeSample).toHaveBeenCalledWith(expect.objectContaining({
             key: "notifications:PUT",

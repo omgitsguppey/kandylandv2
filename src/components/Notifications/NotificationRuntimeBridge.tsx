@@ -11,6 +11,7 @@ import { authFetch } from "@/lib/authFetch";
 import { reportRealtimeIssue } from "@/lib/client-error-reporting";
 import { getCSTDayBoundaries, isSameCSTDay } from "@/lib/timezone";
 import { onNotificationMessage, showBrowserNotification } from "@/lib/firebase-messaging";
+import { markNotificationsAsRead } from "@/lib/notifications";
 import { trackEvent } from "@/lib/telemetry";
 
 const ONE_HOUR_MS = 60 * 60 * 1000;
@@ -53,19 +54,63 @@ export function NotificationRuntimeBridge() {
     const reminderToastKeyRef = useRef<string | null>(null);
 
     useEffect(() => {
+        if (!user || typeof navigator === "undefined" || !("serviceWorker" in navigator)) {
+            return;
+        }
+
+        const handleServiceWorkerMessage = (event: MessageEvent) => {
+            const message = event.data as {
+                type?: string;
+                notificationId?: string | null;
+                idempotencyKey?: string | null;
+                tag?: string | null;
+                url?: string | null;
+            } | null;
+
+            if (message?.type !== "KANDYDROPS_NOTIFICATION_CLICK") {
+                return;
+            }
+
+            trackEvent("notification_opened", {
+                source: "service_worker_notificationclick",
+                notification_id: message.notificationId ?? "unknown",
+                tag: message.tag ?? "unknown",
+                destination: message.url ?? "/experiences",
+            });
+
+            if (message.notificationId) {
+                void markNotificationsAsRead([message.notificationId]).then((result) => {
+                    if (result.successCount > 0) {
+                        dispatchClientRuntimeEvent(CLIENT_RUNTIME_EVENTS.notificationsSync, true);
+                    }
+                });
+            }
+        };
+
+        navigator.serviceWorker.addEventListener("message", handleServiceWorkerMessage);
+        return () => navigator.serviceWorker.removeEventListener("message", handleServiceWorkerMessage);
+    }, [user]);
+
+    useEffect(() => {
         if (!user || !userProfile || userProfile.notificationSettings?.browserPushEnabled !== true) {
             return;
         }
 
         const unsubscribe = onNotificationMessage((payload: any) => {
-            const title = payload?.notification?.title;
-            const body = payload?.notification?.body;
+            const data = payload?.data || {};
+            const title = data.title || payload?.notification?.title;
+            const body = data.body || payload?.notification?.body;
             if (!title || !body) {
                 return;
             }
 
             dispatchClientRuntimeEvent(CLIENT_RUNTIME_EVENTS.notificationsSync);
-            void showBrowserNotification(title, body, payload?.data?.url || "/dashboard");
+            void showBrowserNotification(title, body, data.url || "/dashboard", {
+                notificationId: data.notificationId ?? null,
+                idempotencyKey: data.idempotencyKey ?? null,
+                tag: data.tag ?? null,
+                type: data.type ?? null,
+            });
         });
 
         return () => {
@@ -204,7 +249,11 @@ export function NotificationRuntimeBridge() {
             dispatchClientRuntimeEvent(CLIENT_RUNTIME_EVENTS.notificationsSync);
             showInAppReminder();
             if (userProfile.notificationSettings?.browserPushEnabled === true) {
-                await showBrowserNotification(REMINDER_TITLE, REMINDER_MESSAGE, "/experiences");
+                await showBrowserNotification(REMINDER_TITLE, REMINDER_MESSAGE, "/experiences", {
+                    idempotencyKey: `task_deadline_reminder:${reminderKey}`,
+                    tag: `kandydrops:task_deadline_reminder:${reminderKey}`,
+                    type: "task_reminder",
+                });
                 trackEvent("daily_deadline_browser_notification_shown", {
                     unfinished_tasks: unfinishedTasks.length,
                     pending_checkin: pendingCheckIn,

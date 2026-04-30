@@ -154,17 +154,9 @@ export function useNotifications({ enabled = true }: UseNotificationsOptions = {
             return true;
         }
 
-        const result = await markNotificationsAsRead([id]);
-        if (result.successCount === 0) {
-            return false;
-        }
-
+        const previousNotifications = notificationsState;
         setNotificationsState((prev) => prev.map((notification) => {
-            if (notification.id !== id) {
-                return notification;
-            }
-
-            if (notification.readBy.includes(userId)) {
+            if (notification.id !== id || notification.readBy.includes(userId)) {
                 return notification;
             }
 
@@ -173,8 +165,16 @@ export function useNotifications({ enabled = true }: UseNotificationsOptions = {
                 readBy: [...notification.readBy, userId],
             };
         }));
+
+        const result = await markNotificationsAsRead([id]);
+        if (result.successCount === 0) {
+            setNotificationsState(previousNotifications);
+            dispatchClientRuntimeEvent(CLIENT_RUNTIME_EVENTS.notificationsSync, true);
+            return false;
+        }
         trackEvent("notification_marked_read", {
             notification_id: id,
+            optimistic: true,
         });
 
         if (!options?.preserveVisible) {
@@ -201,11 +201,30 @@ export function useNotifications({ enabled = true }: UseNotificationsOptions = {
             unread_count: unreadIds.length,
         });
 
+        const previousNotifications = notificationsState;
+        setNotificationsState((prev) => prev.map((notification) => (
+            unreadIds.includes(notification.id) && !notification.readBy.includes(userId)
+                ? {
+                    ...notification,
+                    readBy: [...notification.readBy, userId],
+                }
+                : notification
+        )));
+
         const result = await markNotificationsAsRead(unreadIds);
         const failedCount = result.failedCount;
         const succeededIds = result.notificationIds;
 
-        if (succeededIds.length > 0) {
+        if (succeededIds.length === 0 && failedCount > 0) {
+            setNotificationsState(previousNotifications);
+            dispatchClientRuntimeEvent(CLIENT_RUNTIME_EVENTS.notificationsSync, true);
+            return {
+                successCount: 0,
+                failedCount,
+            };
+        }
+
+        if (succeededIds.length > 0 && failedCount > 0) {
             setNotificationsState((prev) => prev.map((notification) => (
                 succeededIds.includes(notification.id)
                     ? {

@@ -38,6 +38,35 @@ function resolveSafeNotificationUrl(rawUrl) {
     }
 }
 
+function normalizeNotificationPart(value, fallback) {
+    const cleaned = String(value || "")
+        .trim()
+        .toLowerCase()
+        .replace(/[^a-z0-9:_-]+/g, "_")
+        .replace(/_+/g, "_")
+        .replace(/^_+|_+$/g, "");
+
+    return cleaned || fallback;
+}
+
+function resolveNotificationTag(data) {
+    if (data?.tag) {
+        return String(data.tag);
+    }
+
+    if (data?.idempotencyKey) {
+        return `kandydrops:${normalizeNotificationPart(data.idempotencyKey, "notification")}`;
+    }
+
+    if (data?.notificationId) {
+        return `kandydrops:notification:${normalizeNotificationPart(data.notificationId, "unknown")}`;
+    }
+
+    const type = normalizeNotificationPart(data?.type, "general");
+    const dropId = normalizeNotificationPart(data?.dropId, "unknown");
+    return `kandydrops:${type}:${dropId}`;
+}
+
 firebase.initializeApp(firebaseConfig);
 
 const messaging = firebase.messaging();
@@ -142,16 +171,28 @@ self.addEventListener("fetch", (event) => {
 messaging.onBackgroundMessage((payload) => {
     console.log("[firebase-messaging-sw.js] Received background message", payload);
 
-    const title = payload?.notification?.title || payload?.data?.title || "KandyDrops";
-    const body = payload?.notification?.body || payload?.data?.body || "You have a fresh update waiting.";
-    const url = payload?.data?.url || "/experiences";
+    const data = payload?.data || {};
+    const autoDisplayedByFcm = Boolean(payload?.notification) && data.pwaDisplayMode !== "manual-service-worker";
+    if (autoDisplayedByFcm) {
+        console.log("[firebase-messaging-sw.js] FCM notification payload can auto-display; manual display suppressed.");
+        return;
+    }
+
+    const title = data.title || payload?.notification?.title || "KandyDrops";
+    const body = data.body || payload?.notification?.body || "You have a fresh update waiting.";
+    const url = data.url || "/experiences";
+    const tag = resolveNotificationTag(data);
 
     const notificationOptions = {
         body,
         icon: NOTIFICATION_ICON,
+        tag,
+        renotify: false,
         data: {
-            ...(payload?.data || {}),
+            ...data,
             url,
+            tag,
+            browserDisplayMode: "manual-service-worker",
         },
     };
 
@@ -164,10 +205,18 @@ self.addEventListener("notificationclick", (event) => {
     const rawTargetUrl = event.notification?.data?.url || "/experiences";
     event.waitUntil((async () => {
         const targetUrl = resolveSafeNotificationUrl(rawTargetUrl);
+        const clickPayload = {
+            type: "KANDYDROPS_NOTIFICATION_CLICK",
+            notificationId: event.notification?.data?.notificationId || null,
+            idempotencyKey: event.notification?.data?.idempotencyKey || null,
+            tag: event.notification?.data?.tag || event.notification?.tag || null,
+            url: targetUrl.toString(),
+        };
         const allClients = await clients.matchAll({ type: "window", includeUncontrolled: true });
         const exactClient = allClients.find((client) => client.url === targetUrl.toString());
 
         if (exactClient) {
+            exactClient.postMessage(clickPayload);
             await exactClient.focus();
             return;
         }
@@ -181,6 +230,7 @@ self.addEventListener("notificationclick", (event) => {
         });
 
         if (matchingPathClient) {
+            matchingPathClient.postMessage(clickPayload);
             await matchingPathClient.focus();
             if (typeof matchingPathClient.navigate === "function") {
                 await matchingPathClient.navigate(targetUrl.toString());
@@ -188,6 +238,9 @@ self.addEventListener("notificationclick", (event) => {
             return;
         }
 
-        await clients.openWindow(targetUrl.toString());
+        const openedClient = await clients.openWindow(targetUrl.toString());
+        if (openedClient) {
+            openedClient.postMessage(clickPayload);
+        }
     })());
 });

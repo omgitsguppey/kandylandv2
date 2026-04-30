@@ -7,6 +7,13 @@ import { FIREBASE_MESSAGING_CONFIG, FIREBASE_VAPID_KEY } from "./firebase-runtim
 
 const APP_NOTIFICATION_ICON = "/icon-192x192.png";
 
+type BrowserNotificationOptions = {
+    notificationId?: string | null;
+    idempotencyKey?: string | null;
+    tag?: string | null;
+    type?: string | null;
+};
+
 interface BrowserNotificationState {
     browserCapable: boolean;
     messagingSupported: boolean;
@@ -46,6 +53,33 @@ function buildServiceWorkerUrl() {
 
 function getAppServiceWorkerUrl() {
     return buildServiceWorkerUrl();
+}
+
+function cleanNotificationTagPart(value: string | null | undefined, fallback: string) {
+    const cleaned = String(value ?? "")
+        .trim()
+        .toLowerCase()
+        .replace(/[^a-z0-9:_-]+/g, "_")
+        .replace(/_+/g, "_")
+        .replace(/^_+|_+$/g, "");
+
+    return cleaned || fallback;
+}
+
+function resolveBrowserNotificationTag(options: BrowserNotificationOptions, url: string) {
+    if (options.tag) {
+        return options.tag;
+    }
+
+    if (options.idempotencyKey) {
+        return `kandydrops:${cleanNotificationTagPart(options.idempotencyKey, "notification")}`;
+    }
+
+    if (options.notificationId) {
+        return `kandydrops:notification:${cleanNotificationTagPart(options.notificationId, "unknown")}`;
+    }
+
+    return `kandydrops:${cleanNotificationTagPart(options.type, "general")}:${cleanNotificationTagPart(url, "route")}`;
 }
 
 export async function registerAppServiceWorker() {
@@ -149,21 +183,35 @@ export async function requestBrowserNotificationAccess(): Promise<BrowserNotific
     }
 }
 
-export async function showBrowserNotification(title: string, body: string, url: string = "/experiences") {
+export async function showBrowserNotification(
+    title: string,
+    body: string,
+    url: string = "/experiences",
+    options: BrowserNotificationOptions = {},
+) {
     if (typeof window === "undefined" || !("Notification" in window) || Notification.permission !== "granted") {
         return false;
     }
 
-    const options = {
+    const tag = resolveBrowserNotificationTag(options, url);
+    const notificationOptions = {
+        tag,
+        renotify: false,
         body,
         icon: APP_NOTIFICATION_ICON,
-        data: { url },
+        data: {
+            url,
+            notificationId: options.notificationId ?? null,
+            idempotencyKey: options.idempotencyKey ?? null,
+            tag,
+            browserDisplayMode: "foreground-client",
+        },
     };
 
     try {
         if ("serviceWorker" in navigator) {
             const registration = await registerAppServiceWorker() ?? await navigator.serviceWorker.ready;
-            await registration.showNotification(title, options);
+            await registration.showNotification(title, notificationOptions);
             return true;
         }
     } catch (error) {
@@ -172,7 +220,7 @@ export async function showBrowserNotification(title: string, body: string, url: 
         });
     }
 
-    const notification = new Notification(title, options);
+    const notification = new Notification(title, notificationOptions);
     notification.onclick = () => {
         window.focus();
         window.location.assign(resolveSafeNotificationUrl(url));
