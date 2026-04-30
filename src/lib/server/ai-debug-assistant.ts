@@ -1,6 +1,6 @@
 import "server-only";
 
-import { VertexAI } from "@google-cloud/vertexai";
+import { SchemaType, VertexAI, type ResponseSchema } from "@google-cloud/vertexai";
 
 import {
     AI_DEBUG_ASSISTANT_MODEL,
@@ -23,6 +23,35 @@ import { recordServerDiagnostic } from "@/lib/server/server-diagnostics";
 
 const DEFAULT_VERTEX_LOCATION = "us-central1";
 const DEFAULT_TIMEOUT_MS = 8000;
+const ADMIN_AI_DEBUG_RESPONSE_SCHEMA: ResponseSchema = {
+    type: SchemaType.OBJECT,
+    properties: {
+        summary: { type: SchemaType.STRING },
+        likely_root_causes: {
+            type: SchemaType.ARRAY,
+            items: { type: SchemaType.STRING },
+        },
+        affected_systems: {
+            type: SchemaType.ARRAY,
+            items: { type: SchemaType.STRING },
+        },
+        confidence_notes: {
+            type: SchemaType.ARRAY,
+            items: { type: SchemaType.STRING },
+        },
+        suggested_next_checks: {
+            type: SchemaType.ARRAY,
+            items: { type: SchemaType.STRING },
+        },
+    },
+    required: [
+        "summary",
+        "likely_root_causes",
+        "affected_systems",
+        "confidence_notes",
+        "suggested_next_checks",
+    ],
+};
 
 type AdminOrchestrationSnapshot = ReturnType<typeof import("@/lib/server/admin-orchestration").buildAdminOrchestrationSnapshot>;
 
@@ -317,6 +346,8 @@ export async function generateVertexAiDebugText(input: GenerateTextInput) {
             temperature: 0.2,
             topP: 0.8,
             maxOutputTokens: 700,
+            responseMimeType: "application/json",
+            responseSchema: ADMIN_AI_DEBUG_RESPONSE_SCHEMA,
         },
     });
 

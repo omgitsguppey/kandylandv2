@@ -286,14 +286,6 @@ export function buildAdminDebugAiAssistantCard(input: {
         };
     }
 
-    if (feedStatus === "failed") {
-        return {
-            value: "Preflight failed",
-            meta: `${configuredModel} configured | preflight failed | ${runtimeLabel} | ${sourceLabel} | ${latency}`,
-            truthState: "failed" as AdminSurfaceState,
-        };
-    }
-
     if (input.runtimeReady === false) {
         return {
             value: "Runtime unavailable",
@@ -305,8 +297,16 @@ export function buildAdminDebugAiAssistantCard(input: {
     if (input.fallbackUsed) {
         return {
             value: "Fallback",
-            meta: `${configuredModel} configured | ${feedStatus} preflight lane | ${runtimeLabel} | deterministic fallback output | ${latency}`,
+            meta: `${configuredModel} configured | ${feedStatus === "failed" ? "preflight observers failed" : `${feedStatus} preflight lane`} | ${runtimeLabel} | deterministic fallback output | ${latency}`,
             truthState: "fallback" as AdminSurfaceState,
+        };
+    }
+
+    if (feedStatus === "failed") {
+        return {
+            value: "Polled",
+            meta: `${configuredModel} configured | preflight observers failed | ${runtimeLabel} | live model output | ${latency}`,
+            truthState: "degraded" as AdminSurfaceState,
         };
     }
 

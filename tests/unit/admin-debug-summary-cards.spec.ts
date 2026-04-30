@@ -166,7 +166,7 @@ describe("admin debug summary cards", () => {
         expect(card.truthState).toBe("failed");
     });
 
-    it("fails the AI assistant card when the preflight lane is failed even if runtime is ready", () => {
+    it("labels AI assistant fallback output as fallback when preflight observers fail but runtime is ready", () => {
         const card = buildAdminDebugAiAssistantCard({
             hasSummary: true,
             hasError: false,
@@ -178,11 +178,11 @@ describe("admin debug summary cards", () => {
             latencyMs: 97,
         });
 
-        expect(card.value).toBe("Preflight failed");
-        expect(card.meta).toContain("preflight failed");
+        expect(card.value).toBe("Fallback");
+        expect(card.meta).toContain("preflight observers failed");
         expect(card.meta).toContain("runtime ready");
         expect(card.meta).toContain("deterministic fallback output");
-        expect(card.truthState).toBe("failed");
+        expect(card.truthState).toBe("fallback");
     });
 
     it("labels AI assistant fallback output as fallback when preflight is connected", () => {

@@ -29,7 +29,7 @@ import { DebugTabMonitoring } from "./components/DebugTabMonitoring";
 import { DebugTabInfrastructure } from "./components/DebugTabInfrastructure";
 import { DebugTabAi } from "./components/DebugTabAi";
 import { DebugTabAdvanced } from "./components/DebugTabAdvanced";
-import type { AdminAiDebugSummary } from "@/lib/ai-debug-assistant";
+import { AI_DEBUG_ASSISTANT_MODEL, type AdminAiDebugSummary } from "@/lib/ai-debug-assistant";
 import {
     ADMIN_DEBUG_DEFAULT_TAB,
     type AdminDebugRouteRuntimeFilter,
@@ -91,7 +91,7 @@ export default function DebugConsole() {
     const [activeTab, setActiveTab] = useState<DebugTabId>(ADMIN_DEBUG_DEFAULT_TAB);
     const [routeRuntimeFilter, setRouteRuntimeFilter] = useState<AdminDebugRouteRuntimeFilter>("all");
     const [aiAssistantEnabled, setAiAssistantEnabled] = useState(true);
-    const [aiAssistantModel, setAiAssistantModel] = useState("gemini-3.1-flash-lite-preview");
+    const [aiAssistantModel, setAiAssistantModel] = useState(AI_DEBUG_ASSISTANT_MODEL);
     const [savingAiAssistantSettings, setSavingAiAssistantSettings] = useState(false);
     const [savingDebugPreferences, setSavingDebugPreferences] = useState(false);
     const debugPreferencesHydratedRef = useRef(false);
@@ -323,7 +323,7 @@ export default function DebugConsole() {
         }
 
         setAiAssistantEnabled(aiDebugData.enabled !== false);
-        setAiAssistantModel(aiDebugData.configured_model || aiDebugData.model || "gemini-3.1-flash-lite-preview");
+        setAiAssistantModel(aiDebugData.configured_model || aiDebugData.model || AI_DEBUG_ASSISTANT_MODEL);
     }, [aiDebugData]);
     const aiAssistantRealtime = useAdminAiAssistantRealtime(aiDebugData);
 
@@ -440,7 +440,7 @@ export default function DebugConsole() {
                 method: "PUT",
                 body: JSON.stringify({
                     enabled: aiAssistantEnabled,
-                    model: aiAssistantModel.trim() || "gemini-3.1-flash-lite-preview",
+                    model: aiAssistantModel.trim() || AI_DEBUG_ASSISTANT_MODEL,
                 }),
             });
             const result = await response.json();
