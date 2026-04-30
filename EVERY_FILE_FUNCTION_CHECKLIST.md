@@ -9,6 +9,14 @@ Scoring: all entries below are marked as included in the current validated sweep
 
 Current repo-wide state snapshot: see [FULL_SCALE_CODEBASE_AUDIT.md](/Users/uylus/OneDrive/Documents/KandyDrops_Final/FULL_SCALE_CODEBASE_AUDIT.md) for the current live baseline, verification state, and continuity rules, and see [REPO_MEMORY_LEDGER.md](/Users/uylus/OneDrive/Documents/KandyDrops_Final/REPO_MEMORY_LEDGER.md) for major architectural and workflow decisions. The detailed file/function body below remains valuable historical evidence, but it has not been fully regenerated against the current 2026-04-18 inventory review yet.
 
+## 2026-04-30 App Hosting Origin, Navigation Secret, and Realtime Database Rules Coverage
+
+- [x] `apphosting.yaml` uses `https://kandydrops.com` as the canonical App Hosting origin because that is the resolving production domain.
+- [x] `apphosting.yaml` declares `NAVIGATION_COOKIE_SECRET` under `env` with `secret: NAVIGATION_COOKIE_SECRET` so App Hosting can mount it during rollout.
+- [x] `src/lib/site-origin.ts` uses the apex domain as the fallback canonical origin and canonical host.
+- [x] `database.rules.json` remains the canonical local Realtime Database rules source for `chat_presence` deployment.
+- [x] `FULL_SCALE_CODEBASE_AUDIT.md` and `REPO_MEMORY_LEDGER.md` record that PayPal App Hosting config is intentionally untouched and `www.kandydrops.com` remains alias-only until DNS/domain mapping is verified.
+
 ## 2026-04-30 Firebase CLI Toolchain and Windows Symlink Readiness Coverage
 
 - [x] `package.json` updates root deploy tooling to `firebase-tools@^15.16.0` and adds direct `esbuild@^0.27.7` so Firebase framework packaging uses current CLI dependencies and satisfies Vite's esbuild peer range.

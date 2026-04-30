@@ -24,6 +24,20 @@ This file is not a changelog. It is the concise ledger for durable decisions tha
 
 ## Decision Entries
 
+### 1bn. App Hosting uses apex domain as canonical origin and secrets under `env`
+
+- Approximate date: Recorded explicitly on 2026-04-30 from the App Hosting origin, navigation secret, and Realtime Database rules deploy gap closure pass
+- Status: Active production-config rule
+- Problem/context: Production App Hosting was healthy at `https://kandydrops.com`, but `www.kandydrops.com` did not resolve while both `apphosting.yaml` and `src/lib/site-origin.ts` treated `www` as canonical. Also, `NAVIGATION_COOKIE_SECRET` existed in Secret Manager but was not mounted into the App Hosting runtime because it lived under a top-level `secrets:` block instead of the documented App Hosting `env` secret reference form.
+- Decision made: The apex domain is canonical until `www` DNS/domain mapping is confirmed, and App Hosting secrets that the runtime needs must be declared under `env` with `secret:`.
+- What became canonical:
+  - `NEXT_PUBLIC_SITE_ORIGIN`, `SITE_ORIGIN`, and `PRIMARY_SITE_ORIGIN` use `https://kandydrops.com`.
+  - `https://www.kandydrops.com` remains an alias only, not the redirect target.
+  - `NAVIGATION_COOKIE_SECRET` is an App Hosting `env` secret reference; PayPal App Hosting config remains out of scope until a payment-specific pass.
+- Consequence for future work:
+  - Do not reintroduce `www` as canonical until DNS and App Hosting/custom-domain mapping prove it serves the same backend.
+  - Do not rely on top-level App Hosting `secrets:` entries for runtime variables; use the documented `env` secret form.
+
 ### 1bm. Firebase framework deploys need both current CLI deps and Windows symlink privilege
 
 - Approximate date: Recorded explicitly on 2026-04-30 from the Firebase CLI toolchain and Windows symlink readiness pass

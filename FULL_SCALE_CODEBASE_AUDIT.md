@@ -1,5 +1,25 @@
 # KandyDrops Core Codebase Audit & Defensive Ledger
 
+## [2026-04-30 #58] PRE/POST: App Hosting Origin, Navigation Secret, and Realtime Database Rules Deploy Gap Closure
+
+Scope completed:
+- Rechecked official Firebase App Hosting, App Hosting rollout, and Firebase Security Rules deployment docs before changing production config.
+- Moved `NAVIGATION_COOKIE_SECRET` into the documented App Hosting `env` secret reference lane without changing PayPal App Hosting entries.
+- Changed the canonical app origin from unresolved `https://www.kandydrops.com` to resolving `https://kandydrops.com`; kept `www` as an alias for future DNS/domain mapping.
+- Prepared Realtime Database rules deployment so the repository `chat_presence` rule is no longer absent from production.
+
+Truthful residual:
+- PayPal App Hosting override/secret cleanup remains intentionally untouched in this pass.
+- `www.kandydrops.com` still requires DNS/domain mapping if it should serve traffic directly.
+
+Verification completed:
+- `npm run trace:adjacent -- src/lib/site-origin.ts`
+- `npm run trace:adjacent -- src/lib/navigation-session.ts`
+- `npm run typecheck -- --pretty false`
+- `npm run agent:test -- src/lib/site-origin.ts`
+- `npm run check:firebase:rules`
+- App Hosting YAML parse check confirmed `NAVIGATION_COOKIE_SECRET` is under `env` and `SITE_ORIGIN` is `https://kandydrops.com`.
+
 ## [2026-04-30 #57] PRE/POST: Firebase CLI Toolchain and Windows Symlink Readiness
 
 Scope completed:

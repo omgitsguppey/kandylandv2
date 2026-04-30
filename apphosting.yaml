@@ -7,13 +7,13 @@ runConfig:
 
 env:
   - variable: NEXT_PUBLIC_SITE_ORIGIN
-    value: https://www.kandydrops.com
+    value: https://kandydrops.com
   - variable: SITE_ORIGIN
-    value: https://www.kandydrops.com
+    value: https://kandydrops.com
   - variable: NEXT_PUBLIC_SITE_ORIGIN_ALIASES
-    value: https://kandydrops.com,https://kandydrops--kandydrops-by-ikandy.us-central1.hosted.app
+    value: https://www.kandydrops.com,https://kandydrops--kandydrops-by-ikandy.us-central1.hosted.app
   - variable: SITE_ORIGIN_ALIASES
-    value: https://kandydrops.com,https://kandydrops--kandydrops-by-ikandy.us-central1.hosted.app
+    value: https://www.kandydrops.com,https://kandydrops--kandydrops-by-ikandy.us-central1.hosted.app
   - variable: NEXT_PUBLIC_FIREBASE_API_KEY
     value: AIzaSyAgaplGHL_q1IHWEkTNbvHI343V5fFEVvY
   - variable: NEXT_PUBLIC_FIREBASE_AUTH_DOMAIN
@@ -37,10 +37,10 @@ env:
     value: G-V8PWC2L31H
   - variable: GA_API_SECRET
     secret: GA_API_SECRET
-
-secrets:
   - variable: NAVIGATION_COOKIE_SECRET
     secret: NAVIGATION_COOKIE_SECRET
+
+secrets:
   - variable: NEXT_PUBLIC_PAYPAL_CLIENT_ID_LIVE
     secret: NEXT_PUBLIC_PAYPAL_CLIENT_ID_LIVE
   - variable: PAYPAL_CLIENT_SECRET_LIVE
