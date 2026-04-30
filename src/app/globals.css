@@ -10,16 +10,22 @@
 
 html { overscroll-behavior-y: none; }
 
+.admin-shell-route {
+  --root-shell-top-spacing: calc(4rem + var(--admin-shell-gap));
+}
+
+@media (min-width: 768px) {
+  .admin-shell-route {
+    --root-shell-top-spacing: calc(4.75rem + var(--admin-shell-gap-md));
+  }
+}
+
 :root {
   --background: #000000;
   --foreground: #ffffff;
+  --admin-shell-gap: 1rem;
+  --admin-shell-gap-md: 1.25rem;
 
-  /* Admin surface top spacing tokens — see docs/agent-truth/admin-overview.md
-     These control the gap between the top chrome/navbar and the admin console grid.
-     The root layout already provides pt-24 (96px) to clear the fixed navbar,
-     so admin needs only minimal additional spacing before the console grid. */
-  --admin-top-spacing: 0.25rem;    /* 4px — mobile (tight to reduce dead space) */
-  --admin-top-spacing-md: 0.75rem; /* 12px — desktop (md: breakpoint) */
 }
 
 body {

@@ -8,6 +8,12 @@ import Link from "next/link";
 import { LayoutDashboard, Package, Users, Terminal, ListChecks, TrendingUp, LifeBuoy, ShieldAlert } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { AdminErrorCatcher } from "@/components/AdminErrorCatcher";
+import {
+  ADMIN_CONSOLE_STICKY_TOP_CLASS,
+  ADMIN_CONSOLE_TO_CONTENT_GAP_CLASS,
+  ADMIN_SHELL_GAP_MD_TOKEN,
+  ADMIN_SHELL_GAP_TOKEN,
+} from "@/lib/admin-shell-spacing";
 
 
 const NAV_ITEMS = [
@@ -55,14 +61,20 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
   }
 
   return (
-    <div className="flex-1 w-full bg-transparent mt-[-2rem] md:mt-[-1.5rem]">
-      {/* Admin top spacing uses --admin-top-spacing tokens from globals.css.
-          The negative top margin (mt-[-2rem]) counteracts part of the root layout's
-          pt-24 (96px) which is designed for user pages. Admin needs the console grid
-          closer to the navbar, so we pull upward here rather than touching root layout. */}
-        <main className="w-full px-3 pb-8 pt-[var(--admin-top-spacing)] md:px-8 md:pb-10 md:pt-[var(--admin-top-spacing-md)]">
+    <div className="flex-1 w-full bg-transparent">
+      <main
+        className="w-full px-3 pb-8 md:px-8 md:pb-10"
+        data-admin-shell-spacing="shared"
+        data-admin-top-to-console-gap={ADMIN_SHELL_GAP_TOKEN}
+        data-admin-console-to-content-gap={ADMIN_SHELL_GAP_TOKEN}
+        data-admin-console-to-content-gap-md={ADMIN_SHELL_GAP_MD_TOKEN}
+      >
         <div className="max-w-7xl mx-auto">
-          <div className="sticky top-[calc(3.5rem+env(safe-area-inset-top))] z-30 mb-4 md:top-[4.1rem] md:mb-6">
+          <div
+            className={cn("sticky z-30", ADMIN_CONSOLE_STICKY_TOP_CLASS, ADMIN_CONSOLE_TO_CONTENT_GAP_CLASS)}
+            data-admin-console-nav="true"
+            data-admin-shell-gap-class={ADMIN_CONSOLE_TO_CONTENT_GAP_CLASS}
+          >
             <div className="rounded-[1.75rem] border border-white/10 bg-black/75 p-2.5 backdrop-blur-xl shadow-xl shadow-black/25">
               <div className="mb-2 px-1 md:hidden">
                 <p className="text-[11px] font-semibold uppercase tracking-[0.18em] text-gray-500">Admin Console</p>

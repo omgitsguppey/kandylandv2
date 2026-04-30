@@ -56,6 +56,7 @@ import { getAnalyticsTruthRecoverySummary, listAnalyticsTruthDrops, listAnalytic
 import { buildServerAdminModuleVerification } from "@/lib/server/admin-source-verification";
 import { ANALYTICS_OPERATIONAL_COLLECTIONS } from "@/lib/server/analytics-governance";
 import { getDailyTaskRefreshMetadataIssue } from "@/lib/tasks/task-timestamps";
+import { buildAdminShellLayoutDebugMetadata } from "@/lib/admin-shell-spacing";
 
 const ONE_WEEK_MS = 7 * 24 * 60 * 60 * 1000;
 const TASK_AUDIT_SAMPLE_LIMIT = 2_000;
@@ -1109,6 +1110,7 @@ export async function GET(request: NextRequest) {
             analyticsTruthDrops,
             analyticsTruthUsers,
             analyticsTruthRepairs,
+            adminShellLayout: buildAdminShellLayoutDebugMetadata(request.nextUrl.pathname),
             verification: buildServerAdminModuleVerification({
                 module: "admin_debug",
                 canonicalSource: "runtime_warning_records+route_runtime_health+admin_ui_chart_health",

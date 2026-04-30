@@ -15,6 +15,7 @@ import { useDeferredClientReady } from "@/hooks/useDeferredClientReady";
 import { shouldBypassFanOnboarding } from "@/lib/creator-application";
 import { applyAnalyticsConsentToGtag, persistPrivacySettingsSnapshot, readPrivacySettingsSnapshot } from "@/lib/privacy-consent";
 import { writeLastVisitedPath } from "@/lib/navigation-persistence";
+import { ADMIN_SHELL_ROUTE_CLASS } from "@/lib/admin-shell-spacing";
 
 const GlobalPurchaseModal = dynamic(() => import("@/components/GlobalPurchaseModal").then((mod) => mod.GlobalPurchaseModal));
 const GlobalAuthModal = dynamic(() => import("@/components/GlobalAuthModal").then((mod) => mod.GlobalAuthModal));
@@ -139,10 +140,16 @@ export function CoreLayoutWrapper({ children }: { children: React.ReactNode }) {
         writeLastVisitedPath(nextPath, user?.uid ?? null);
     }, [pathname, user?.uid]);
 
+    const routedChildren = isAdminRoute ? (
+        <div className={ADMIN_SHELL_ROUTE_CLASS} data-admin-shell-route="true">
+            {children}
+        </div>
+    ) : children;
+
     return (
         <>
             <Navbar />
-            {children}
+            {routedChildren}
             {shouldShowPublicChrome && !isLegalRoute ? <MobileBottomBar /> : null}
             {scrollControlsReady ? <ScrollToTop /> : null}
             <AutoScrollToTop />
