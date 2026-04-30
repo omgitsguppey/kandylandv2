@@ -1,6 +1,6 @@
 "use client";
 
-import { startTransition, useEffect, useMemo, useState } from "react";
+import { startTransition, useEffect, useMemo, useRef, useState } from "react";
 
 
 import { toast } from "sonner";
@@ -58,9 +58,156 @@ import { useAdminAnalyticsRealtime } from "./useAdminAnalyticsRealtime";
 
 const EVENT_LABELS: Record<string, string> = TELEMETRY_EVENT_LABELS;
 
+const ADMIN_ANALYTICS_OVERVIEW_HYDRATION_BUDGET_MS = 3_000;
+const ADMIN_ANALYTICS_OVERVIEW_SNAPSHOT_STORAGE_PREFIX =
+  "kandydrops.admin.analytics.overview.lastValidatedBackendSnapshot";
+
+type AdminAnalyticsOverviewMetricKey =
+  | "liveActive"
+  | "mobileShare"
+  | "revenue"
+  | "purchases";
+
+type AnalyticsOverviewHydrationMarks = {
+  shellRenderMs: number | null;
+  firstMetricCardRenderMs: number | null;
+  lastValidatedSnapshotRenderMs: number | null;
+  firstRealtimeServerConfirmedUpdateMs: number | null;
+  backendRefreshStartMs: number | null;
+  backendRefreshCompleteMs: number | null;
+  backendRefreshFailMs: number | null;
+};
+
+const EMPTY_ANALYTICS_OVERVIEW_HYDRATION_MARKS: AnalyticsOverviewHydrationMarks = {
+  shellRenderMs: null,
+  firstMetricCardRenderMs: null,
+  lastValidatedSnapshotRenderMs: null,
+  firstRealtimeServerConfirmedUpdateMs: null,
+  backendRefreshStartMs: null,
+  backendRefreshCompleteMs: null,
+  backendRefreshFailMs: null,
+};
+
+const ANALYTICS_OVERVIEW_BADGE_LABELS: Record<AdminSurfaceState, string> = {
+  loading: "WAITING",
+  live: "LIVE",
+  cached: "CACHE",
+  degraded: "STALE",
+  fallback: "FALLBACK",
+  stale: "STALE",
+  unavailable: "UNAVAILABLE",
+  failed: "ERROR",
+};
+
+function getClientPerformanceMs() {
+  if (typeof performance !== "undefined" && typeof performance.now === "function") {
+    return performance.now();
+  }
+
+  return Date.now();
+}
+
+function buildOverviewSnapshotStorageKey(url: string) {
+  return `${ADMIN_ANALYTICS_OVERVIEW_SNAPSHOT_STORAGE_PREFIX}:${url}`;
+}
+
+function hasOverviewSnapshotValue(response: HistoricalAnalyticsResponse | undefined) {
+  return Boolean(
+    response &&
+      (
+        (response.devices?.length ?? 0) > 0 ||
+        response.commerce ||
+        response.funnel
+      ),
+  );
+}
+
+function compactHistoricalOverviewSnapshot(
+  response: HistoricalAnalyticsResponse,
+): HistoricalAnalyticsResponse {
+  return {
+    success: response.success,
+    generatedAtMs: response.generatedAtMs,
+    cacheState: "stale",
+    cacheAgeMs: response.generatedAtMs
+      ? Math.max(0, Date.now() - response.generatedAtMs)
+      : response.cacheAgeMs,
+    cacheSourceLabel: "Last validated backend snapshot",
+    cacheRevalidating: true,
+    devices: response.devices,
+    funnel: response.funnel,
+    commerce: response.commerce,
+    totals: response.totals,
+    truthState: response.truthState,
+    issues: [],
+  };
+}
+
+function readStoredHistoricalOverviewSnapshot(
+  url: string,
+): HistoricalAnalyticsResponse | undefined {
+  if (typeof window === "undefined") {
+    return undefined;
+  }
+
+  try {
+    const raw = window.sessionStorage.getItem(buildOverviewSnapshotStorageKey(url));
+    if (!raw) {
+      return undefined;
+    }
+
+    const parsed = JSON.parse(raw) as { response?: HistoricalAnalyticsResponse };
+    if (!hasOverviewSnapshotValue(parsed.response)) {
+      return undefined;
+    }
+
+    return compactHistoricalOverviewSnapshot(parsed.response as HistoricalAnalyticsResponse);
+  } catch (error) {
+    reportStorageIssue("admin analytics overview snapshot read", error, {
+      storageKey: buildOverviewSnapshotStorageKey(url),
+    });
+    return undefined;
+  }
+}
+
+function writeStoredHistoricalOverviewSnapshot(
+  url: string,
+  response: HistoricalAnalyticsResponse | undefined,
+) {
+  if (typeof window === "undefined" || !hasOverviewSnapshotValue(response)) {
+    return;
+  }
+
+  try {
+    window.sessionStorage.setItem(
+      buildOverviewSnapshotStorageKey(url),
+      JSON.stringify({
+        savedAtMs: Date.now(),
+        response: compactHistoricalOverviewSnapshot(response as HistoricalAnalyticsResponse),
+      }),
+    );
+  } catch (error) {
+    reportStorageIssue("admin analytics overview snapshot write", error, {
+      storageKey: buildOverviewSnapshotStorageKey(url),
+    });
+  }
+}
+
+function getHistoricalEstimationReason(issues: string[]) {
+  return issues.find((issue) =>
+    issue.toLowerCase().includes("guest/public traffic is estimated"),
+  ) ?? null;
+}
 
 
 export function useAdminAnalyticsState() {
+  const hydrationStartedAtRef = useRef(getClientPerformanceMs());
+  const [analyticsOverviewHydrationMarks, setAnalyticsOverviewHydrationMarks] =
+    useState<AnalyticsOverviewHydrationMarks>(() => ({
+      ...EMPTY_ANALYTICS_OVERVIEW_HYDRATION_MARKS,
+      shellRenderMs: 0,
+      firstMetricCardRenderMs: 0,
+    }));
 const { user } = useAuth();
   const [activeTab, setActiveTab] = useState<ViewTab>("operations");
   const range: RangeOption = ADMIN_ANALYTICS_DEFAULT_RANGE;
@@ -242,6 +389,61 @@ const { user } = useAuth();
     keepPreviousData: true,
     revalidateOnFocus: false,
   });
+  const [seededHistoricalOverviewResponse, setSeededHistoricalOverviewResponse] =
+    useState<HistoricalAnalyticsResponse | undefined>(() =>
+      readStoredHistoricalOverviewSnapshot(historicalUrl),
+    );
+  const historicalOverviewResponse =
+    historicalResponse ?? seededHistoricalOverviewResponse;
+  const usedHistoricalOverviewFallbackSnapshot =
+    !historicalResponse && Boolean(seededHistoricalOverviewResponse);
+  const markAnalyticsOverviewHydration = (
+    key: keyof AnalyticsOverviewHydrationMarks,
+  ) => {
+    setAnalyticsOverviewHydrationMarks((current) => {
+      if (current[key] !== null) {
+        return current;
+      }
+
+      return {
+        ...current,
+        [key]: Math.round(getClientPerformanceMs() - hydrationStartedAtRef.current),
+      };
+    });
+  };
+
+  useEffect(() => {
+    if (!historicalResponse) {
+      return;
+    }
+
+    writeStoredHistoricalOverviewSnapshot(historicalUrl, historicalResponse);
+    setSeededHistoricalOverviewResponse(undefined);
+  }, [historicalResponse, historicalUrl]);
+
+  useEffect(() => {
+    if (usedHistoricalOverviewFallbackSnapshot) {
+      markAnalyticsOverviewHydration("lastValidatedSnapshotRenderMs");
+    }
+  }, [usedHistoricalOverviewFallbackSnapshot]);
+
+  useEffect(() => {
+    if (historicalLoading) {
+      markAnalyticsOverviewHydration("backendRefreshStartMs");
+    }
+  }, [historicalLoading]);
+
+  useEffect(() => {
+    if (historicalResponse) {
+      markAnalyticsOverviewHydration("backendRefreshCompleteMs");
+    }
+  }, [historicalResponse]);
+
+  useEffect(() => {
+    if (historicalError) {
+      markAnalyticsOverviewHydration("backendRefreshFailMs");
+    }
+  }, [historicalError]);
 
   const livePulseRange = getSectionRange("livePulse");
   const livePulseOverride = useHistoricalSectionOverride(
@@ -430,6 +632,12 @@ const { user } = useAuth();
     [liveRealtime, liveResponse, nowMs],
   );
 
+  useEffect(() => {
+    if (effectiveLiveResponse && effectiveLiveResponse.liveTruthLabel !== "fallback") {
+      markAnalyticsOverviewHydration("firstRealtimeServerConfirmedUpdateMs");
+    }
+  }, [effectiveLiveResponse]);
+
   const liveSeries = useMemo(
     () =>
       (effectiveLiveResponse?.data ?? []).map((point) => ({
@@ -596,49 +804,63 @@ const { user } = useAuth();
             ? "Refreshing"
             : "Polled fallback";
 
+  const historicalOverviewIssues = historicalOverviewResponse?.issues ?? [];
+  const historicalEstimationReason =
+    getHistoricalEstimationReason(historicalOverviewIssues);
+
   // Honest truth state for historical-sourced overview cards (Revenue, Purchases, Mobile Share)
   const historicalTruthState: AdminSurfaceState | undefined =
-    historicalResponse && historicalError
+    historicalOverviewResponse && historicalError
       ? "stale"
-      : historicalResponse?.cacheState === "stale"
+      : historicalOverviewResponse?.cacheState === "stale"
         ? "stale"
-      : historicalResponse?.truthState?.fail
+      : historicalOverviewResponse?.truthState?.fail
         ? "failed"
-        : historicalResponse?.truthState?.warn || (historicalResponse?.issues?.length ?? 0) > 0
+        : historicalOverviewResponse?.truthState?.warn || historicalOverviewIssues.length > 0
           ? "degraded"
-          : historicalResponse?.cacheState === "fresh"
+          : historicalOverviewResponse?.cacheState === "fresh"
             ? "cached"
-          : historicalResponse ? "live" : historicalLoading ? undefined : "failed";
+          : historicalOverviewResponse ? "live" : historicalLoading ? "loading" : "failed";
 
   const historicalSourceLabel =
-    historicalResponse && !historicalError
-      ? historicalResponse.cacheSourceLabel
-        ? `${range.toUpperCase()} ${historicalResponse.cacheSourceLabel}`
+    historicalOverviewResponse && !historicalError
+      ? historicalOverviewResponse.cacheSourceLabel
+        ? `${range.toUpperCase()} ${historicalOverviewResponse.cacheSourceLabel}`
         : `Server-confirmed ${range.toUpperCase()} snapshot`
-      : historicalResponse && historicalError
+      : historicalOverviewResponse && historicalError
         ? `Previous ${range.toUpperCase()} snapshot (revalidation failed)`
         : historicalLoading
-          ? "Loading..."
+          ? "Waiting for analytics"
           : "Historical data unavailable";
+  const historicalOverviewSourceLabel =
+    usedHistoricalOverviewFallbackSnapshot
+      ? "Last validated snapshot; refresh in progress"
+      : historicalSourceLabel;
 
-  const totalDeviceUsers = devices.reduce((sum, item) => sum + item.users, 0);
+  const overviewDevices = historicalOverviewResponse?.devices ?? [];
+  const overviewCommerce = historicalOverviewResponse?.commerce ?? commerce;
+  const overviewFunnel = historicalOverviewResponse?.funnel ?? funnel;
+  const overviewCheckoutStarts = overviewFunnel.checkoutStarts;
+  const totalDeviceUsers = overviewDevices.reduce((sum, item) => sum + item.users, 0);
   const mobileUsers =
-    devices.find((item) => item.device.toLowerCase() === "mobile")?.users ?? 0;
+    overviewDevices.find((item) => item.device.toLowerCase() === "mobile")?.users ?? 0;
   const mobileShare = totalDeviceUsers > 0 ? mobileUsers / totalDeviceUsers : 0;
 
-  // Fake-zero protected display values — show "—" when data source is unavailable
-  const revenueDisplay = historicalResponse
-    ? formatMoney(commerce.revenueUsd)
-    : "—";
-  const purchasesDisplay = historicalResponse
-    ? formatCompactNumber(funnel.purchases)
-    : "—";
-  const mobileShareDisplay = historicalResponse
+  // Fake-zero protected display values: show truthful waiting/unavailable states when data source is unavailable.
+  const historicalOverviewWaitingLabel = historicalLoading ? "Waiting" : "Unavailable";
+
+  const revenueDisplay = historicalOverviewResponse
+    ? formatMoney(overviewCommerce.revenueUsd)
+    : historicalOverviewWaitingLabel;
+  const purchasesDisplay = historicalOverviewResponse
+    ? formatCompactNumber(overviewFunnel.purchases)
+    : historicalOverviewWaitingLabel;
+  const mobileShareDisplay = historicalOverviewResponse
     ? formatPercent(mobileShare)
-    : "—";
+    : historicalOverviewWaitingLabel;
   const liveActiveDisplay = effectiveLiveResponse
     ? formatCompactNumber(effectiveLiveResponse.totalActive ?? 0)
-    : "—";
+    : liveLoading ? "Waiting" : "Unavailable";
   const liveActiveTruthState: AdminSurfaceState | undefined =
     effectiveLiveResponse?.liveTruthLabel ? coerceAdminSurfaceState(effectiveLiveResponse.liveTruthLabel)
     : liveLoading ? "loading"
@@ -650,50 +872,152 @@ const { user } = useAuth();
     : historicalTruthState === "degraded" ? "degraded"
     : historicalTruthState === "stale" ? "stale"
     : historicalTruthState === "failed" ? "failed"
-    : historicalLoading ? undefined
+    : historicalLoading ? "loading"
     : "unavailable";
+
+  const firstHistoricalOverviewValueMs =
+    analyticsOverviewHydrationMarks.lastValidatedSnapshotRenderMs ??
+    analyticsOverviewHydrationMarks.backendRefreshCompleteMs ??
+    null;
+  const overviewMetricHydrationMs: Record<AdminAnalyticsOverviewMetricKey, number | null> = {
+    liveActive:
+      analyticsOverviewHydrationMarks.firstRealtimeServerConfirmedUpdateMs ??
+      analyticsOverviewHydrationMarks.backendRefreshCompleteMs ??
+      null,
+    mobileShare: firstHistoricalOverviewValueMs,
+    revenue: firstHistoricalOverviewValueMs,
+    purchases: firstHistoricalOverviewValueMs,
+  };
+  const overviewRefreshDeduped =
+    historicalOverviewResponse?.cacheRevalidating === true && historicalLoading;
+  const visibleDegradedMainCopy =
+    backgroundAnalyticsIssues.length > 0
+      ? "Realtime analytics is delayed. Showing the last validated backend snapshot while refresh runs."
+      : "";
+  const visibleHistoricalEstimationCopy = historicalEstimationReason
+    ? "Some guest traffic is estimated until anonymous batches arrive."
+    : "";
+  const visibleDegradedCopy = [
+    visibleDegradedMainCopy,
+    visibleHistoricalEstimationCopy,
+  ].filter(Boolean);
+
+  const buildOverviewMetricDebugMeta = ({
+    metricKey,
+    visibleValue,
+    value,
+    valueSource,
+    truthState,
+    realtimeLaneStatus,
+  }: {
+    metricKey: AdminAnalyticsOverviewMetricKey;
+    visibleValue: string;
+    value: number | null;
+    valueSource: string;
+    truthState: AdminSurfaceState;
+    realtimeLaneStatus: string | null;
+  }) => {
+    const hydrationMs = overviewMetricHydrationMs[metricKey];
+    const sourceUnavailable = value === null;
+
+    return {
+      metricKey,
+      visibleValue,
+      value,
+      valueSource,
+      truthState,
+      badgeLabel: ANALYTICS_OVERVIEW_BADGE_LABELS[truthState],
+      fullStatusLabel: metricKey === "liveActive" ? liveRealtime.feedDetail : historicalOverviewSourceLabel,
+      fromCache: metricKey === "liveActive" ? null : historicalOverviewResponse?.cacheState !== undefined,
+      serverConfirmed: metricKey === "liveActive"
+        ? Boolean(effectiveLiveResponse && effectiveLiveResponse.liveTruthLabel !== "fallback")
+        : Boolean(historicalResponse),
+      stale: truthState === "stale" || usedHistoricalOverviewFallbackSnapshot,
+      lastValidatedAt: metricKey === "liveActive"
+        ? effectiveLiveResponse?.generatedAtMs ?? null
+        : historicalOverviewResponse?.generatedAtMs ?? null,
+      realtimeLaneStatus,
+      backendSnapshotStatus: metricKey === "liveActive"
+        ? liveResponse?.cacheState ?? null
+        : historicalOverviewResponse?.cacheState ?? null,
+      backendRefreshStatus: historicalLoading
+        ? "running"
+        : historicalError
+          ? "failed"
+          : historicalResponse
+            ? "complete"
+            : "waiting",
+      hydrationMs,
+      firstTruthyValueMs: hydrationMs,
+      exceededHydrationBudget:
+        Boolean(usedHistoricalOverviewFallbackSnapshot) &&
+        (hydrationMs ?? Number.POSITIVE_INFINITY) > ADMIN_ANALYTICS_OVERVIEW_HYDRATION_BUDGET_MS,
+      usedFallbackSnapshot: metricKey !== "liveActive" && usedHistoricalOverviewFallbackSnapshot,
+      fakeZeroPrevented: sourceUnavailable,
+    };
+  };
 
   // Debug meta registry for admin instrumentation
   const analyticsOverviewDebugMeta = {
     metrics: {
-      liveActive: {
-        canonicalSource: "Firestore realtime + API /api/admin/analytics/realtime",
-        currentSource: liveRealtime.feedStatus === "realtime" ? "firestore_realtime" : liveRealtime.feedStatus === "partial" ? "firestore_partial" : liveLoading ? "hydrating" : "api_polling",
-        truthState: liveActiveTruthState ?? (liveLoading ? "loading" : "unavailable"),
+      liveActive: buildOverviewMetricDebugMeta({
+        metricKey: "liveActive",
+        visibleValue: liveActiveDisplay,
         value: effectiveLiveResponse?.totalActive ?? null,
-        isFakeZero: !effectiveLiveResponse,
-      },
-      mobileShare: {
-        canonicalSource: "API /api/admin/analytics/historical (devices breakdown)",
-        currentSource: historicalResponse?.cacheState === "fresh" ? "server_cache"
-          : historicalResponse?.cacheState === "stale" ? "stale_server_cache"
+        valueSource: liveRealtime.feedStatus === "realtime" ? "firestore_realtime" : liveRealtime.feedStatus === "partial" ? "firestore_partial" : liveLoading ? "hydrating" : "api_polling",
+        truthState: liveActiveTruthState ?? (liveLoading ? "loading" : "unavailable"),
+        realtimeLaneStatus: liveRealtime.feedStatus,
+      }),
+      mobileShare: buildOverviewMetricDebugMeta({
+        metricKey: "mobileShare",
+        visibleValue: mobileShareDisplay,
+        value: historicalOverviewResponse ? mobileShare : null,
+        valueSource: historicalOverviewResponse?.cacheState === "fresh" ? "server_cache"
+          : historicalOverviewResponse?.cacheState === "stale" ? "stale_server_cache"
           : historicalResponse ? "server_confirmed" : historicalLoading ? "hydrating" : "unavailable",
         truthState: historicalOverviewTruthState ?? (historicalLoading ? "loading" : "unavailable"),
-        value: historicalResponse ? mobileShare : null,
-        isFakeZero: !historicalResponse,
-      },
-      revenue: {
-        canonicalSource: "API /api/admin/analytics/historical (commerce.revenueUsd)",
-        currentSource: historicalResponse?.cacheState === "fresh" ? "server_cache"
-          : historicalResponse?.cacheState === "stale" ? "stale_server_cache"
+        realtimeLaneStatus: null,
+      }),
+      revenue: buildOverviewMetricDebugMeta({
+        metricKey: "revenue",
+        visibleValue: revenueDisplay,
+        value: historicalOverviewResponse ? overviewCommerce.revenueUsd : null,
+        valueSource: historicalOverviewResponse?.cacheState === "fresh" ? "server_cache"
+          : historicalOverviewResponse?.cacheState === "stale" ? "stale_server_cache"
           : historicalResponse ? "server_confirmed" : historicalLoading ? "hydrating" : "unavailable",
         truthState: historicalOverviewTruthState ?? (historicalLoading ? "loading" : "unavailable"),
-        value: historicalResponse ? commerce.revenueUsd : null,
-        isFakeZero: !historicalResponse,
-      },
-      purchases: {
-        canonicalSource: "API /api/admin/analytics/historical (funnel.purchases)",
-        currentSource: historicalResponse?.cacheState === "fresh" ? "server_cache"
-          : historicalResponse?.cacheState === "stale" ? "stale_server_cache"
+        realtimeLaneStatus: null,
+      }),
+      purchases: buildOverviewMetricDebugMeta({
+        metricKey: "purchases",
+        visibleValue: purchasesDisplay,
+        value: historicalOverviewResponse ? overviewFunnel.purchases : null,
+        valueSource: historicalOverviewResponse?.cacheState === "fresh" ? "server_cache"
+          : historicalOverviewResponse?.cacheState === "stale" ? "stale_server_cache"
           : historicalResponse ? "server_confirmed" : historicalLoading ? "hydrating" : "unavailable",
         truthState: historicalOverviewTruthState ?? (historicalLoading ? "loading" : "unavailable"),
-        value: historicalResponse ? funnel.purchases : null,
-        isFakeZero: !historicalResponse,
-      },
+        realtimeLaneStatus: null,
+      }),
     },
     realtimeListenerDebug: liveRealtime.listenerDebugMeta ?? null,
+    realtimeLaneFailures: backgroundAnalyticsIssues.filter((issue) =>
+      issue.toLowerCase().includes("realtime analytics"),
+    ),
+    historicalEstimationReason,
+    visibleDegradedCopy,
+    fullDegradedReasons: backgroundAnalyticsIssues,
+    refreshDeduped: overviewRefreshDeduped,
+    duplicateRefreshPrevented: overviewRefreshDeduped,
+    hydrationBudgetMs: ADMIN_ANALYTICS_OVERVIEW_HYDRATION_BUDGET_MS,
+    hydrationMarks: analyticsOverviewHydrationMarks,
+    totalHydrationMs: Math.max(
+      ...Object.values(analyticsOverviewHydrationMarks).filter(
+        (value): value is number => typeof value === "number",
+      ),
+      0,
+    ),
     historicalTruthState: historicalOverviewTruthState,
-    historicalSourceLabel,
+    historicalSourceLabel: historicalOverviewSourceLabel,
     backgroundIssueCount: backgroundAnalyticsIssues.length,
     analyticsWarmState,
   } as const;
@@ -1410,7 +1734,7 @@ const { user } = useAuth();
     EVENT_LABELS, funnel, onboardingStats, onboardingDurationBuckets, onboardingStepStats, authBreakdown, historySeries,
     rawEvents, componentContexts, semanticCategories, devices, pages, geo, totals, commerce, activeViewerFilter,
     clearAllFilters, clearViewerFilter,
-    showHistoricalEmptyState, liveSnapshotLabel, historicalSnapshotLabel, analyticsWarmState, isBackgroundSyncing, historicalTruthState, historicalSourceLabel,
+    showHistoricalEmptyState, liveSnapshotLabel, historicalSnapshotLabel, analyticsWarmState, isBackgroundSyncing, historicalTruthState, historicalSourceLabel, historicalOverviewSourceLabel, visibleDegradedCopy,
     authOutcomeHasData, authOutcomeChartItems, authOutcomeTotals,
     authOnboardingDiscrepancies, onboardingVelocityHasData, onboardingVelocityBuckets, onboardingVelocityStartCount, onboardingVelocityCompletionCount, onboardingVelocityCompletionRate, onboardingVelocityDropOffCount, onboardingVelocityStats, onboardingVelocityStartSourceHint, onboardingStepFlowItems,
     guestBounceQualityCards, guestBounceGlobalSemantics, guestBounceGuestRate, guestBounceEngagedRate, guestBounceIdentifiedRate, guestBounceUserSemantics,
@@ -1428,7 +1752,7 @@ const { user } = useAuth();
     liveSurfaceMix, liveActiveUsers, livePulseOnboardingStats, livePulseOnboardingStartCount, livePulseOnboardingCompletionRate, livePulseFunnel, liveSeries, journeyFunnelMetrics,
     liveFeedStatus: liveRealtime.feedStatus, liveFeedDetail: liveRealtime.feedDetail, liveGuestActiveCount: liveRealtime.guestActive
 ,
-    revenueDisplay, purchasesDisplay, mobileShareDisplay, liveActiveDisplay, liveActiveTruthState, historicalOverviewTruthState, analyticsOverviewDebugMeta,
+    revenueDisplay, purchasesDisplay, mobileShareDisplay, liveActiveDisplay, liveActiveTruthState, historicalOverviewTruthState, analyticsOverviewDebugMeta, overviewCheckoutStarts,
     viewerDrilldownFilter, viewerDrilldownOverview, applyViewerFilter, viewerDrilldownUsers, viewerDrilldownCaptureHealth, liveWatchCaptureHealth, viewerDrilldownJourneys, viewerDrilldownInsights, viewerDropChartData, viewerJourneyItems, watchDepthTagBuckets, watchDepthTagDemand,
     getJourneyStateClasses, getJourneyStateLabel, topExperienceContexts, topComponentContexts, eventMixTopEvents, eventMixTopComponentContexts,
     dailyTaskPipelineModel, taskCompletionSpeedBuckets, taskLeaderboardItems, activeNotificationFunnelPieData, notificationActionItems, maxNotificationActionValue, hasNotificationReminderReasons, notificationReminderReasons
@@ -1436,4 +1760,3 @@ const { user } = useAuth();
 }
 
 export type AdminAnalyticsState = ReturnType<typeof useAdminAnalyticsState>;
-

@@ -22,21 +22,27 @@ export function AdminStatusBadge({
   state,
   className,
   title,
+  label,
 }: {
   state: AdminSurfaceState;
   className?: string;
   title?: string;
+  label?: string;
 }) {
+  const fullLabel = formatAdminSurfaceStateLabel(state);
+  const accessibleLabel = label ? `${fullLabel} ${ADMIN_SURFACE_STATE_DETAIL[state]}` : `${fullLabel} ${ADMIN_SURFACE_STATE_DETAIL[state]}`;
+
   return (
     <span
       title={title ?? ADMIN_SURFACE_STATE_DETAIL[state]}
+      aria-label={accessibleLabel}
       className={cn(
         "inline-flex rounded-md border px-2 py-1 text-[10px] font-bold uppercase tracking-wider",
         STATE_STYLES[state],
         className,
       )}
     >
-      {formatAdminSurfaceStateLabel(state)}
+      {label ?? fullLabel}
     </span>
   );
 }

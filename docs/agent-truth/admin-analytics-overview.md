@@ -1,124 +1,74 @@
-# Admin Analytics Overview — Agent Truth
+# Admin Analytics Overview
 
-> **Surface**: Admin Analytics top overview grid
-> **Path**: `src/app/admin/analytics/page.tsx`
-> **State hook**: `src/app/admin/analytics/hooks/useAdminAnalyticsState.tsx`
-> **Realtime hook**: `src/app/admin/analytics/hooks/useAdminAnalyticsRealtime.ts`
-> **Runtime**: `src/lib/admin-analytics-live-runtime.ts`
+Surface: `src/app/admin/analytics/page.tsx`
 
----
+State owner: `src/app/admin/analytics/hooks/useAdminAnalyticsState.tsx`
 
-## Why the Old Design Was Purged
+Card primitive: `src/components/Admin/Analytics/AdminAnalyticsPrimitives.tsx`
 
-The previous "Mobile Monitoring Station" surface violated the truth-first doctrine:
+## Badge Containment Rule
 
-- **Fake zeros**: Revenue showed `$0.00` and Purchases showed `0` when the historical API had not responded. These were default values from `commerce.revenueUsd` and `funnel.purchases`, not actual data.
-- **Vague labels**: Truth chips showed generic "Cached" or "Fallback" instead of honest per-metric provenance.
-- **Vertical sprawl**: Giant tile-based tab nav, a multi-paragraph module filter explanation card, and multi-paragraph alert banners consumed excessive scroll depth before any analytical content.
-- **No `fromCache` tracking**: Firestore listeners did not use `includeMetadataChanges`, so cache vs server truth was unknowable.
-- **No debug instrumentation**: No mechanism for operator tooling to inspect metric provenance at runtime.
+Metric card badges must never overflow card containers. The card header owns a two-column layout: flexible label content with `min-w-0`, and a constrained badge slot with a max width.
 
----
+Visible badge labels stay short:
 
-## Canonical Source Hierarchy
+- LIVE
+- STALE
+- CACHE
+- WAITING
+- FALLBACK
+- ERROR
+- UNAVAILABLE
 
-| Priority | Source | Description |
-|----------|--------|-------------|
-| 1 | **Firestore realtime** | Live `onSnapshot` with `includeMetadataChanges: true` across 4 collections |
-| 2 | **Server-confirmed API** | `/api/admin/analytics/historical` and `/api/admin/analytics/realtime` |
-| 3 | **Polled fallback** | API polling when realtime listeners fail |
-| 4 | **Unavailable** | No data source has responded; display `"—"` with `unavailable` truth chip |
+Full status detail belongs in `title`, `aria-label`, and Admin Debug metadata. Do not place long source descriptions inside the visible badge.
 
----
+## Analytics Hydration Rule
 
-## Metric Registry
+Admin Analytics overview cards must render immediately. If fresh realtime or historical data is not ready, the shell shows a truthful state instead of waiting for the slowest analytics lane.
 
-| Metric | Canonical Source | Fake-Zero Protected |
-|--------|-----------------|---------------------|
-| **Live Active** | Firestore realtime → API polling fallback | Yes — `"—"` when `effectiveLiveResponse` is null |
-| **Mobile Share** | `/api/admin/analytics/historical` devices breakdown | Yes — `"—"` when `historicalResponse` is null |
-| **Revenue** | `/api/admin/analytics/historical` commerce.revenueUsd | Yes — `"—"` when `historicalResponse` is null |
-| **Purchases** | `/api/admin/analytics/historical` funnel.purchases | Yes — `"—"` when `historicalResponse` is null |
+The last validated backend overview snapshot should render quickly from session storage while `/api/admin/analytics/historical` refreshes in the background. When server-confirmed data arrives, it replaces the snapshot. If refresh fails, the snapshot remains visible and is labeled stale/cache.
 
----
+Fake zeros are forbidden unless zero is server-confirmed. Revenue, purchases, and mobile share show `Waiting` or `Unavailable` when no validated snapshot exists. Loading longer than 3 seconds while a snapshot exists is a hydration regression and must be reported in debug metadata.
 
-## Truth Chip Vocabulary
+## Degraded Copy Rule
 
-| Chip | Meaning | When |
-|------|---------|------|
-| `live` | Server-confirmed, fresh data | API responded with no errors |
-| `stale` | Serving previous response; revalidation failed | `historicalResponse` exists but `historicalError` also exists |
-| `failed` | No data and not loading | No response and not in loading state |
-| `unavailable` | Source has not loaded yet | Response is null, displayed as `"—"` |
-| `fallback` | Realtime failed, using polled data | Live feed fell back to API polling |
-| No chip | Still loading | `historicalLoading === true` |
+The main UI gets one short plain-English degraded sentence:
 
----
+`Realtime analytics is delayed. Showing the last validated backend snapshot while refresh runs.`
 
-## Fake-Zero Prevention Policy
+If historical guest traffic is estimated, a second short line is allowed:
 
-**Rule**: If a data source has not responded, display `"—"` (em dash) instead of a computed value. Never display `$0.00`, `0`, or `0%` as if they are real data when the source is unavailable.
+`Some guest traffic is estimated until anonymous batches arrive.`
 
-**Implementation**:
-```typescript
-const revenueDisplay = historicalResponse ? formatMoney(commerce.revenueUsd) : "—";
-const purchasesDisplay = historicalResponse ? formatCompactNumber(funnel.purchases) : "—";
-const mobileShareDisplay = historicalResponse ? formatPercent(mobileShare) : "—";
-const liveActiveDisplay = effectiveLiveResponse ? formatCompactNumber(effectiveLiveResponse.totalActive ?? 0) : "—";
-```
+Detailed lane failures belong in Admin Debug. Avoid jargon such as `identified event realtime lane`, `guest batch realtime lane`, `viewer watch-session realtime lane`, `failed closed`, and `polled route snapshot` in the main visible UI.
 
----
+## Debug Metadata
 
-## Realtime Observer Architecture
+The page exposes `window.__KANDYDROPS_ADMIN_ANALYTICS_OVERVIEW_DEBUG__` with per-metric fields:
 
-Four Firestore listeners, each with `includeMetadataChanges: true`:
+- `metricKey`
+- `visibleValue`
+- `valueSource`
+- `truthState`
+- `badgeLabel`
+- `fullStatusLabel`
+- `fromCache`
+- `serverConfirmed`
+- `stale`
+- `lastValidatedAt`
+- `realtimeLaneStatus`
+- `backendSnapshotStatus`
+- `backendRefreshStatus`
+- `hydrationMs`
+- `firstTruthyValueMs`
+- `exceededHydrationBudget`
+- `usedFallbackSnapshot`
+- `fakeZeroPrevented`
 
-| Listener | Collection | Order Field |
-|----------|-----------|-------------|
-| eventFacts | `analytics_event_facts` | `timestamp` desc |
-| guestBatches | `analytics_guest_batches` | `receivedAtMs` desc |
-| guestSessions | `analytics_sessions` | `lastReceivedAtMs` desc |
-| watchSessions | `analytics_watch_sessions` | `lastSeenAtMs` desc |
+The Admin Debug route also exposes an `adminAnalyticsOverview` contract pointer so agents know where to inspect the client-side runtime metadata.
 
-Each listener tracks:
-- `loaded` / `failed` / `fromCache` state
-- `mountedAtMs` — when the listener was mounted
-- `lastEventAtMs` — last time any snapshot was received
-- `lastServerConfirmedAtMs` — last time a `fromCache === false` snapshot was received
-- `errorMessage` — last error message if failed
+## Official Source Basis
 
-All exposed via `listenerDebugMeta` in the hook return for admin debug panels.
-
----
-
-## Debug Meta Registry
-
-The hook exports `analyticsOverviewDebugMeta` with:
-- Per-metric: `canonicalSource`, `currentSource`, `truthState`, `value`, `isFakeZero`
-- `realtimeListenerDebug` — full listener health
-- `historicalTruthState` / `historicalSourceLabel`
-- `backgroundIssueCount`
-- `analyticsWarmState`
-
----
-
-## Layout Density Rules
-
-- MetricCard padding: `p-2.5` (not `p-3.5`)
-- Value font: `text-[1.45rem]` (not `text-[1.7rem]`)
-- Tab nav: inline segmented controls (`flex flex-wrap gap-1.5`) with `py-1.5 px-3 text-xs`, not tile grid
-- Module filter explanation: **purged entirely** — replaced with conditional clear-filter button
-- Alert banner: single-line compact (`px-3 py-2`, icon + inline text), not multi-paragraph
-- Loading spinner min-height: `20vh` (not `40vh`)
-
----
-
-## Prohibited Patterns
-
-1. **"Mobile Monitoring Station"** branding — purged, do not reintroduce
-2. **"Cached" as a normal state** — use `live` / `stale` / `unavailable` instead
-3. **Fake zero display** — always use `"—"` when source is unavailable
-4. **Multi-paragraph alert banners** — use single-line `"Degraded: issue1 · issue2"`
-5. **Module filter explanation cards** — documentation belongs in docs, not in the UI
-6. **Tile-based tab nav** — use compact inline segmented controls
-7. **`onSnapshot` without `includeMetadataChanges`** — required for `fromCache` tracking
+- Firestore listeners need `includeMetadataChanges` when UI logic depends on cache/server metadata: https://firebase.google.com/docs/firestore/query-data/listen
+- Firestore `SnapshotMetadata.fromCache` distinguishes cached snapshots from server-current snapshots: https://firebase.google.com/docs/firestore/manage-data/enable-offline
+- GA4 BigQuery daily tables are the completed export surface, while `events_intraday_YYYYMMDD` is continuously populated and removed after the daily table is complete: https://support.google.com/analytics/answer/7029846

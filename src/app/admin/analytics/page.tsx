@@ -1,6 +1,7 @@
 "use client";
 
 import dynamic from "next/dynamic";
+import { useEffect } from "react";
 import {
   Activity,
   AlertTriangle,
@@ -48,7 +49,13 @@ const AdminTaskAndNotificationModules = dynamic(
 );
 export default function AdminAnalyticsPage() {
     const state = useAdminAnalyticsState();
-  const { range, activeViewerFilter, viewerUserFilter, showHistoricalEmptyState, blockingAnalyticsError, mobileUsers, commerce, funnel, analyticsWarmState, liveSnapshotLabel, historicalSnapshotLabel, isBackgroundSyncing, needsSetup, activeTab, setActiveTab, liveLoading, historicalLoading, isPrimingAnalytics, liveResponse, backgroundAnalyticsIssues, liveFeedStatus, liveFeedDetail, liveGuestActiveCount, historicalTruthState, historicalSourceLabel, revenueDisplay, purchasesDisplay, mobileShareDisplay, liveActiveDisplay, liveActiveTruthState, historicalOverviewTruthState } = state;
+  const { range, activeViewerFilter, viewerUserFilter, showHistoricalEmptyState, blockingAnalyticsError, mobileUsers, commerce, funnel, analyticsWarmState, liveSnapshotLabel, historicalSnapshotLabel, isBackgroundSyncing, needsSetup, activeTab, setActiveTab, liveLoading, historicalLoading, isPrimingAnalytics, liveResponse, backgroundAnalyticsIssues, visibleDegradedCopy, liveFeedStatus, liveFeedDetail, liveGuestActiveCount, historicalTruthState, historicalSourceLabel, historicalOverviewSourceLabel, revenueDisplay, purchasesDisplay, mobileShareDisplay, liveActiveDisplay, liveActiveTruthState, historicalOverviewTruthState, overviewCheckoutStarts = 0 } = state;
+  useEffect(() => {
+    (window as typeof window & {
+      __KANDYDROPS_ADMIN_ANALYTICS_OVERVIEW_DEBUG__?: unknown;
+    }).__KANDYDROPS_ADMIN_ANALYTICS_OVERVIEW_DEBUG__ =
+      state.analyticsOverviewDebugMeta;
+  }, [state.analyticsOverviewDebugMeta]);
   const handleClearAllFilters = state.clearAllFilters ?? (() => {
     reportClientIssue({
       channel: "runtime",
@@ -108,7 +115,7 @@ export default function AdminAnalyticsPage() {
         <MetricCard
           label="Mobile Share"
           value={mobileShareDisplay}
-          hint={historicalOverviewTruthState !== "unavailable" ? `${mobileUsers.toLocaleString()} mobile users in range` : historicalSourceLabel}
+          hint={historicalOverviewTruthState !== "unavailable" ? `${mobileUsers.toLocaleString()} mobile users in range` : historicalOverviewSourceLabel}
           icon={Smartphone}
           truthState={historicalOverviewTruthState}
           dictionaryTooltip="Percentage of visitors in this time range who are on mobile devices. Essential for guiding responsive design priority."
@@ -116,7 +123,7 @@ export default function AdminAnalyticsPage() {
         <MetricCard
           label="Revenue"
           value={revenueDisplay}
-          hint={historicalSourceLabel}
+          hint={historicalOverviewSourceLabel}
           icon={DollarSign}
           truthState={historicalOverviewTruthState}
           dictionaryTooltip="Total top-line revenue measured in USD across all confirmed transactions within the range. Does not subtract platform fees."
@@ -124,7 +131,7 @@ export default function AdminAnalyticsPage() {
         <MetricCard
           label="Purchases"
           value={purchasesDisplay}
-          hint={historicalOverviewTruthState !== "unavailable" ? `${funnel.checkoutStarts.toLocaleString()} checkout starts · ${historicalSourceLabel}` : historicalSourceLabel}
+          hint={historicalOverviewTruthState !== "unavailable" ? `${overviewCheckoutStarts.toLocaleString()} checkout starts · ${historicalOverviewSourceLabel}` : historicalOverviewSourceLabel}
           icon={ShoppingBag}
           truthState={historicalOverviewTruthState}
           dictionaryTooltip="Number of distinct successful purchases completed. Compare to checkout starts to monitor conversion dropout."
@@ -186,9 +193,15 @@ export default function AdminAnalyticsPage() {
       {backgroundAnalyticsIssues.length > 0 && !blockingAnalyticsError ? (
         <div className="flex items-start gap-2 rounded-2xl border border-amber-500/20 bg-amber-500/10 px-3 py-2">
           <AlertTriangle className="mt-0.5 h-3.5 w-3.5 shrink-0 text-amber-400" />
-          <div className="min-w-0 text-xs text-amber-200">
-            <span className="font-semibold">Degraded:</span>{" "}
-            {backgroundAnalyticsIssues.join(" · ")}
+          <div
+            className="min-w-0 space-y-0.5 text-xs text-amber-200"
+            title={backgroundAnalyticsIssues.join(" | ")}
+          >
+            <p>
+              <span className="font-semibold">Degraded:</span>{" "}
+              {visibleDegradedCopy[0] ?? "Analytics is delayed. Showing the last validated snapshot."}
+            </p>
+            {visibleDegradedCopy[1] ? <p>{visibleDegradedCopy[1]}</p> : null}
           </div>
         </div>
       ) : null}

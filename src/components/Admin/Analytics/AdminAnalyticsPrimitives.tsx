@@ -44,6 +44,17 @@ export interface MetricCardProps {
     dictionaryTooltip?: string;
 }
 
+const ANALYTICS_METRIC_BADGE_LABELS: Record<AdminSurfaceState, string> = {
+    loading: "WAITING",
+    live: "LIVE",
+    cached: "CACHE",
+    degraded: "STALE",
+    fallback: "FALLBACK",
+    stale: "STALE",
+    unavailable: "UNAVAILABLE",
+    failed: "ERROR",
+};
+
 export function AnalyticsTooltip({
     active,
     payload,
@@ -155,16 +166,16 @@ export function MetricCard({
     return (
         <div
             className={cn(
-                "rounded-[1.4rem] border border-white/10 bg-black/30 p-2.5",
+                "overflow-hidden rounded-[1.4rem] border border-white/10 bg-black/30 p-2.5",
                 className,
             )}
         >
-            <div className="mb-1.5 flex items-center justify-between gap-2 text-[11px] font-semibold uppercase tracking-[0.14em] text-gray-500">
-                <div className="flex items-center gap-1.5">
-                    <Icon className="h-3.5 w-3.5 text-brand-purple" />
-                    <span>{label}</span>
+            <div className="mb-1.5 grid grid-cols-[minmax(0,1fr)_auto] items-start gap-2 text-[11px] font-semibold uppercase tracking-[0.14em] text-gray-500">
+                <div className="flex min-w-0 items-center gap-1.5 overflow-hidden">
+                    <Icon className="h-3.5 w-3.5 shrink-0 text-brand-purple" />
+                    <span className="min-w-0 truncate">{label}</span>
                     {dictionaryTooltip && (
-                        <div className="group relative ml-1 flex items-center">
+                        <div className="group relative ml-1 flex shrink-0 items-center">
                             <Info className="h-3 w-3 text-gray-400 hover:text-white transition-colors cursor-help" />
                             <div className="pointer-events-none absolute bottom-full left-1/2 z-50 mb-2 w-48 -translate-x-1/2 opacity-0 transition-opacity group-hover:opacity-100">
                                 <div className="rounded-lg border border-white/10 bg-black/95 p-2 text-[10px] font-medium normal-case leading-tight text-gray-300 shadow-xl backdrop-blur-md">
@@ -176,7 +187,13 @@ export function MetricCard({
                     )}
                 </div>
                 {resolvedTruthState ? (
-                    <AdminStatusBadge state={resolvedTruthState} className="rounded px-1.5 py-0.5 text-[9px]" />
+                    <div className="min-w-0 max-w-[5.75rem] justify-self-end overflow-hidden">
+                        <AdminStatusBadge
+                            state={resolvedTruthState}
+                            label={ANALYTICS_METRIC_BADGE_LABELS[resolvedTruthState]}
+                            className="max-w-full min-w-0 truncate whitespace-nowrap rounded px-1.5 py-0.5 text-[9px] leading-4 tracking-[0.08em]"
+                        />
+                    </div>
                 ) : null}
             </div>
             <div

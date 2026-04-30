@@ -30,6 +30,7 @@
         "check:analytics:continuity": "tsx scripts/check-analytics-continuity.ts && tsx scripts/check-client-firestore-connectivity.ts",
         "test:gate:parity": "tsx scripts/check-admin-parity.ts",
         "check:admin-truth": "tsx scripts/check-admin-truth-contracts.ts",
+        "check:admin-analytics-overview": "tsx scripts/check-admin-analytics-overview.ts",
         "check:admin-shell-spacing": "tsx scripts/check-admin-shell-spacing.ts",
         "test:gate:fast": "npm run typecheck && npm run test:gate:parity",
         "test:gate:targeted": "vitest run tests/unit/admin-parity.spec.ts tests/unit/admin-user-metrics.spec.ts tests/unit/admin-overview-route.spec.ts tests/unit/admin-support-threads-route.spec.ts tests/unit/admin-moderation-routes.spec.ts tests/unit/admin-content-route.spec.ts tests/unit/admin-ai-drop-covers-route.spec.ts",

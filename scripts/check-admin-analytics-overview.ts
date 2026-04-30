@@ -1,0 +1,100 @@
+import fs from "fs";
+import path from "path";
+
+const ROOT = process.cwd();
+const APPROVED_BADGES = ["LIVE", "STALE", "CACHE", "WAITING", "FALLBACK", "ERROR", "UNAVAILABLE"];
+const BANNED_VISIBLE_COPY = [
+  "identified event realtime lane",
+  "guest batch realtime lane",
+  "viewer watch-session realtime lane",
+  "failed closed",
+  "polled route snapshot",
+];
+
+function read(relativePath: string) {
+  return fs.readFileSync(path.join(ROOT, relativePath), "utf8");
+}
+
+function fail(message: string) {
+  console.error(`[admin-analytics-overview] ${message}`);
+  process.exitCode = 1;
+}
+
+function assertIncludes(file: string, source: string, expected: string) {
+  if (!source.includes(expected)) {
+    fail(`${file} is missing ${expected}`);
+  }
+}
+
+function assertNotIncludes(file: string, source: string, unexpected: string) {
+  if (source.includes(unexpected)) {
+    fail(`${file} still contains ${unexpected}`);
+  }
+}
+
+const page = read("src/app/admin/analytics/page.tsx");
+const hook = read("src/app/admin/analytics/hooks/useAdminAnalyticsState.tsx");
+const primitives = read("src/components/Admin/Analytics/AdminAnalyticsPrimitives.tsx");
+const statusBadge = read("src/components/Admin/AdminStatusBadge.tsx");
+const debugRoute = read("src/app/api/admin/debug/route.ts");
+const doc = read("docs/agent-truth/admin-analytics-overview.md");
+
+assertIncludes("AdminAnalyticsPrimitives", primitives, "ANALYTICS_METRIC_BADGE_LABELS");
+for (const badge of APPROVED_BADGES) {
+  assertIncludes("AdminAnalyticsPrimitives", primitives, badge);
+}
+assertIncludes("AdminAnalyticsPrimitives", primitives, "grid grid-cols-[minmax(0,1fr)_auto]");
+assertIncludes("AdminAnalyticsPrimitives", primitives, "min-w-0");
+assertIncludes("AdminAnalyticsPrimitives", primitives, "max-w-[5.75rem]");
+assertIncludes("AdminAnalyticsPrimitives", primitives, "truncate whitespace-nowrap");
+assertIncludes("AdminStatusBadge", statusBadge, "aria-label");
+assertIncludes("AdminStatusBadge", statusBadge, "label?: string");
+
+assertIncludes("AdminAnalyticsPage", page, "visibleDegradedCopy");
+assertIncludes("AdminAnalyticsPage", page, "title={backgroundAnalyticsIssues.join(\" | \")}");
+assertNotIncludes("AdminAnalyticsPage", page, "backgroundAnalyticsIssues.join(\" · \")");
+for (const phrase of BANNED_VISIBLE_COPY) {
+  assertNotIncludes("AdminAnalyticsPage", page.toLowerCase(), phrase);
+}
+
+const degradedCopyMatch = hook.match(/Realtime analytics is delayed\. Showing the last validated backend snapshot while refresh runs\./);
+if (!degradedCopyMatch) {
+  fail("short degraded copy is missing from the analytics state hook");
+}
+const degradedCopy = degradedCopyMatch?.[0] ?? "";
+if (degradedCopy.length > 160) {
+  fail(`visible degraded copy exceeds 160 characters: ${degradedCopy.length}`);
+}
+for (const phrase of BANNED_VISIBLE_COPY) {
+  assertNotIncludes("useAdminAnalyticsState visible copy", degradedCopy.toLowerCase(), phrase);
+}
+
+assertIncludes("useAdminAnalyticsState", hook, "readStoredHistoricalOverviewSnapshot");
+assertIncludes("useAdminAnalyticsState", hook, "writeStoredHistoricalOverviewSnapshot");
+assertIncludes("useAdminAnalyticsState", hook, "ADMIN_ANALYTICS_OVERVIEW_HYDRATION_BUDGET_MS = 3_000");
+assertIncludes("useAdminAnalyticsState", hook, "historicalOverviewWaitingLabel");
+assertIncludes("useAdminAnalyticsState", hook, "Waiting");
+assertIncludes("useAdminAnalyticsState", hook, "Unavailable");
+assertIncludes("useAdminAnalyticsState", hook, "fakeZeroPrevented");
+assertIncludes("useAdminAnalyticsState", hook, "exceededHydrationBudget");
+assertIncludes("useAdminAnalyticsState", hook, "firstTruthyValueMs");
+assertIncludes("useAdminAnalyticsState", hook, "usedFallbackSnapshot");
+assertIncludes("useAdminAnalyticsState", hook, "visibleDegradedCopy");
+assertIncludes("useAdminAnalyticsState", hook, "fullDegradedReasons");
+assertIncludes("useAdminAnalyticsState", hook, "realtimeLaneFailures");
+assertNotIncludes("useAdminAnalyticsState", hook, "isFakeZero");
+
+assertIncludes("AdminDebugRoute", debugRoute, "adminAnalyticsOverview");
+assertIncludes("AdminDebugRoute", debugRoute, "hydrationBudgetMs: 3000");
+assertIncludes("AdminDebugRoute", debugRoute, "fullDegradedReasonsSource");
+
+assertIncludes("agent truth doc", doc, "Badge Containment Rule");
+assertIncludes("agent truth doc", doc, "Analytics Hydration Rule");
+assertIncludes("agent truth doc", doc, "Degraded Copy Rule");
+assertIncludes("agent truth doc", doc, "Fake zeros are forbidden");
+
+if (process.exitCode) {
+  process.exit(process.exitCode);
+}
+
+console.log("Admin Analytics overview contract check passed.");

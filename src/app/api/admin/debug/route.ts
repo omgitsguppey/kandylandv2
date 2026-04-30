@@ -1110,6 +1110,20 @@ export async function GET(request: NextRequest) {
             analyticsTruthDrops,
             analyticsTruthUsers,
             analyticsTruthRepairs,
+            adminAnalyticsOverview: {
+                surface: "admin-analytics-overview",
+                pageId: "admin/analytics",
+                badgeLabels: ["LIVE", "STALE", "CACHE", "WAITING", "FALLBACK", "ERROR", "UNAVAILABLE"],
+                visibleDegradedCopy: [
+                    "Realtime analytics is delayed. Showing the last validated backend snapshot while refresh runs.",
+                    "Some guest traffic is estimated until anonymous batches arrive.",
+                ],
+                fullDegradedReasonsSource: "window.__KANDYDROPS_ADMIN_ANALYTICS_OVERVIEW_DEBUG__.fullDegradedReasons",
+                metricsSource: "window.__KANDYDROPS_ADMIN_ANALYTICS_OVERVIEW_DEBUG__.metrics",
+                hydrationBudgetMs: 3000,
+                detailedLaneFailuresLocation: "Admin Analytics client debug metadata",
+                fakeZeroPolicy: "Overview cards show Waiting or Unavailable until a server-confirmed or last validated snapshot value exists.",
+            },
             adminShellLayout: buildAdminShellLayoutDebugMetadata(request.nextUrl.pathname),
             verification: buildServerAdminModuleVerification({
                 module: "admin_debug",
