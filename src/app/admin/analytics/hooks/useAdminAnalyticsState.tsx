@@ -28,6 +28,7 @@ import { buildAdminAnalyticsAudienceSnapshotModel } from "@/lib/admin-analytics-
 import { buildAdminAnalyticsCommerceSnapshotModel } from "@/lib/admin-analytics-commerce-snapshot";
 import { buildAdminAnalyticsLivePulseModel } from "@/lib/admin-analytics-live-pulse";
 import { buildAdminAnalyticsJourneyFunnelModel } from "@/lib/admin-analytics-journey-funnel";
+import { buildAdminAnalyticsAuthOutcomeModel } from "@/lib/admin-analytics-auth-outcome-split";
 
 
 import { TELEMETRY_EVENT_LABELS } from "@/lib/telemetry-catalog";
@@ -1203,6 +1204,30 @@ const { user } = useAuth();
     () => buildAuthOutcomeChartModel(authOutcomeBreakdown),
     [authOutcomeBreakdown],
   );
+  const authOutcomeModel = useMemo(
+    () => buildAdminAnalyticsAuthOutcomeModel({
+      selectedRange: authOutcomeSplitRange,
+      response: authOutcomeData,
+      authBreakdown: authOutcomeBreakdown,
+      loading: authOutcomeSplitRange === ADMIN_ANALYTICS_DEFAULT_RANGE
+        ? historicalLoading
+        : authOutcomeSplitOverride.isLoading,
+      error: (authOutcomeSplitRange === ADMIN_ANALYTICS_DEFAULT_RANGE
+        ? historicalError
+        : authOutcomeSplitOverride.error) ?? undefined,
+      overviewTruthState: historicalOverviewTruthState,
+    }),
+    [
+      authOutcomeBreakdown,
+      authOutcomeData,
+      authOutcomeSplitOverride.error,
+      authOutcomeSplitOverride.isLoading,
+      authOutcomeSplitRange,
+      historicalError,
+      historicalLoading,
+      historicalOverviewTruthState,
+    ],
+  );
   const authOutcomeChartItems = authOutcomeChartModel.items;
   const authOutcomeTotals = authOutcomeChartModel.totals;
   const authOutcomeHasData = authOutcomeChartModel.hasData;
@@ -1787,7 +1812,7 @@ const { user } = useAuth();
     rawEvents, componentContexts, semanticCategories, devices, pages, geo, totals, commerce, activeViewerFilter,
     clearAllFilters, clearViewerFilter,
     showHistoricalEmptyState, liveSnapshotLabel, historicalSnapshotLabel, analyticsWarmState, isBackgroundSyncing, historicalTruthState, historicalSourceLabel, historicalOverviewSourceLabel, visibleDegradedCopy,
-    authOutcomeHasData, authOutcomeChartItems, authOutcomeTotals,
+    authOutcomeHasData, authOutcomeChartItems, authOutcomeTotals, authOutcomeModel,
     authOnboardingDiscrepancies, onboardingVelocityHasData, onboardingVelocityBuckets, onboardingVelocityStartCount, onboardingVelocityCompletionCount, onboardingVelocityCompletionRate, onboardingVelocityDropOffCount, onboardingVelocityStats, onboardingVelocityStartSourceHint, onboardingStepFlowItems,
     guestBounceQualityCards, guestBounceGlobalSemantics, guestBounceGuestRate, guestBounceEngagedRate, guestBounceIdentifiedRate, guestBounceUserSemantics,
     guestViewsDisplayCount, guestViewsHint, guestBounceRateDisplay, guestBounceHint, guestEngagedRateDisplay, guestEngagedHint, guestQualityUnavailable,

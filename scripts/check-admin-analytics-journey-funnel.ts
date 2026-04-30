@@ -38,7 +38,7 @@ const primitives = read("src/components/Admin/Analytics/AdminAnalyticsPrimitives
 const doc = read("docs/agent-truth/admin-analytics-journey-funnel.md");
 const section = component.slice(
   component.indexOf("journeyFunnelModel.visibleTitle"),
-  component.indexOf('title="Auth Outcome Split"'),
+  component.indexOf('title="Auth Outcomes"'),
 );
 
 assertIncludes("AdminAnalyticsOperationsTab", component, "journeyFunnelModel");
