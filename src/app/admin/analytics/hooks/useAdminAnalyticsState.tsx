@@ -25,6 +25,7 @@ import {
   normalizeAdminAnalyticsReturnCadenceSegments,
 } from "@/lib/admin-analytics-return-cadence";
 import { buildAdminAnalyticsAudienceSnapshotModel } from "@/lib/admin-analytics-audience-snapshot";
+import { buildAdminAnalyticsCommerceSnapshotModel } from "@/lib/admin-analytics-commerce-snapshot";
 
 
 import { TELEMETRY_EVENT_LABELS } from "@/lib/telemetry-catalog";
@@ -1660,6 +1661,17 @@ const { user } = useAuth();
     commerceSnapshotRange,
     commerceSnapshotOverride,
   );
+  const commerceSnapshotModel = buildAdminAnalyticsCommerceSnapshotModel({
+    selectedRange: commerceSnapshotRange,
+    response: commerceSnapshotData,
+    commerce: commerceSnapshotCommerce,
+    funnel: commerceSnapshotFunnel,
+    loading: commerceSnapshotState.loading,
+    error: commerceSnapshotRange === ADMIN_ANALYTICS_DEFAULT_RANGE
+      ? historicalError
+      : commerceSnapshotOverride.error,
+    overviewTruthState: historicalOverviewTruthState,
+  });
   const packagePerformanceState = buildHistoricalSectionState(
     "Package performance",
     packagePerformanceRange,
@@ -1755,7 +1767,7 @@ const { user } = useAuth();
     audienceTotals, audienceHistorySeries, audienceSnapshotModel,
     returnCadenceRange, returnCadenceData, returnCadenceSegments, returnCadenceSummary,
     navigationDestinationsRange, destinationMix, navigationDestinationsMix, deviceMixRange, getDeviceIcon, deviceMixDevices, deviceMixTotalUsers, topPathsRange, topPathsPages, regionsRange, regionsGeo,
-    commerceSnapshotRange, commerceSnapshotCommerce, commerceSnapshotFunnel, packagePerformanceRange, packagePerformance, packagePerformanceItems,
+    commerceSnapshotRange, commerceSnapshotCommerce, commerceSnapshotFunnel, commerceSnapshotModel, packagePerformanceRange, packagePerformance, packagePerformanceItems,
     PIE_COLORS, contentConversionRange, unlockCategoryMix, contentConversionItems, previewToUnlockRate, checkoutToPurchaseRate,
     topDropConversionRange, topDrops, topDropConversionItems, recentCommerceFeedRange, recentCommerceFeedItems, describeEvent, formatAbsoluteDateTime,
     formatMoney, formatCompactNumber, formatDuration, formatPercent, formatRelativeTime,
