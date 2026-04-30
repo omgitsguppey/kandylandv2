@@ -1,6 +1,6 @@
 # Analytics Legacy Recovery
 
-Status: Phase 2 recovery plan
+Status: Phase 4 executable dry-run recovery plan
 Last updated: 2026-04-30
 
 ## Purpose
@@ -8,6 +8,15 @@ Last updated: 2026-04-30
 Legacy recovery lets KandyDrops read older analytics and business records back to first deployment without pretending they are current first-party event facts. Recovery is allowed for parity, historical continuity, and Admin Debug context. It must not overwrite stronger product truth, hide missing actor data, or merge guest history into users without an `identity_linked` event.
 
 The mapper contract lives in `src/lib/analytics/legacy-event-mapping.ts`. It emits canonical event-shaped candidates with `legacySource`, `legacyId`, `legacyConfidence`, and `mappingWarnings`. It does not run a backfill, write Firestore, or mix legacy records into server-confirmed current events.
+
+Phase 4 adds executable dry-run tooling around that contract:
+
+- `scripts/analytics/inventory-legacy-sources.ts` writes `agent/state/analytics-legacy-source-inventory.generated.json`.
+- `scripts/analytics/map-legacy-events.ts` writes `agent/state/analytics-legacy-mapping-report.generated.json`.
+- `scripts/analytics/check-analytics-ecosystem-parity.ts` writes `agent/state/analytics-ecosystem-parity.generated.json`.
+- `scripts/agent/validate-analytics-legacy-recovery.ts` validates the scripts, generated reports, Debug metadata, and doctrine.
+
+These scripts are non-destructive by default. They are allowed to inspect configured source definitions and safe fixture-shaped samples. They are not allowed to overwrite current analytics, run a production migration, or mark legacy records as server-confirmed.
 
 ## Recovery Inventory
 
@@ -40,9 +49,28 @@ The mapper contract lives in `src/lib/analytics/legacy-event-mapping.ts`. It emi
 6. Do not merge guest/session history into a user unless an `identity_linked` event exists.
 7. Do not count admin/system events in user/guest behavior; expose exclusion counts in Debug.
 
+Every recovered event record must carry these fields before it can be reviewed for any snapshot:
+
+- `legacySource`
+- `legacyId`
+- `legacyTimestamp`
+- `mappedEventName`
+- `mappingConfidence`
+- `mappingWarnings`
+- `recoveredAt`
+- `actorConfidence`
+- `objectConfidence`
+- `sourceMode = legacy_mapped`
+- `includedInSnapshot`
+- `excludedReason` when not included
+
+Legacy mapped records are never server-confirmed current truth. They are evidence with confidence labels. A recovered event can be included in a verified snapshot only when its source-specific mapping, dedupe, and parity checks pass. Directional or unknown records stay visible in Debug and remain excluded from Analytics values.
+
 ## Backfill Policy
 
-This phase does not run a backfill. A future destructive or write-heavy migration must:
+This phase does not run a backfill. The default command behavior is dry-run. Write mode requires both an explicit `--write` flag and a separate environment gate. The current target is the typed recovery collection `analytics_legacy_recovered_events`, but production writes remain disabled until a reviewed migration plan enables them.
+
+A future destructive or write-heavy migration must:
 
 - use a dry run first
 - write to a new canonical ledger or a clearly versioned backfill collection
@@ -50,6 +78,16 @@ This phase does not run a backfill. A future destructive or write-heavy migratio
 - preserve selected ranges and timestamps
 - expose confidence and skipped/unmapped counts
 - keep legacy-derived facts separate from server-confirmed current facts until parity passes
+
+## Phase 4 Report Responsibilities
+
+The inventory report lists each configured legacy source, its source type, path/table, timestamp fields, actor fields, object fields, recoverability, confidence, and risks. It does not claim record counts unless counts were cheap and safe to query.
+
+The mapping report lists scanned, mapped, skipped, duplicate, failed, and low-confidence counts. It includes recovered event samples and unmapped records. Duplicate records are suppressed by deterministic duplicate keys and remain visible in the report.
+
+The parity report compares ecosystem lanes and produces snapshot-compatible parity rows. It must include purchases, unlocks, tasks, notifications, onboarding, guest/auth separation, admin exclusion, creator separation, hot cache snapshots, legacy mapping, and Debug validation relocation.
+
+Admin Debug owns the detailed “Analytics Legacy + Parity” surface. Admin Analytics should never show raw legacy audit rows or long parity diagnostics. Analytics may consume a verified hot-cache value later only after Debug parity makes the source state clear.
 
 ## Directional-Only Sources
 

@@ -117,6 +117,99 @@ function inferTrackingSource(eventName: string) {
     return "unsupported";
 }
 
+function readGeneratedAnalyticsStateFile(fileName: string): Record<string, unknown> | null {
+    const filePath = path.join(process.cwd(), "agent", "state", fileName);
+    if (!fs.existsSync(filePath)) {
+        return null;
+    }
+
+    try {
+        return JSON.parse(fs.readFileSync(filePath, "utf8")) as Record<string, unknown>;
+    } catch (error) {
+        return {
+            readError: getErrorMessage(error),
+            fileName,
+        };
+    }
+}
+
+function toRecordArray(value: unknown): Array<Record<string, unknown>> {
+    return Array.isArray(value) ? value.filter((item): item is Record<string, unknown> => Boolean(item) && typeof item === "object") : [];
+}
+
+function buildAnalyticsLegacyParityDebugMetadata() {
+    const inventory = readGeneratedAnalyticsStateFile("analytics-legacy-source-inventory.generated.json");
+    const mapping = readGeneratedAnalyticsStateFile("analytics-legacy-mapping-report.generated.json");
+    const parity = readGeneratedAnalyticsStateFile("analytics-ecosystem-parity.generated.json");
+    const inventorySources = toRecordArray(inventory?.sources);
+    const recoveredEvents = toRecordArray(mapping?.recoveredEvents);
+    const parityLanes = toRecordArray(parity?.lanes);
+    const manualReviewItems = toRecordArray(parity?.manualReviewItems);
+    const recoveredTimestamps = recoveredEvents
+        .map((event) => Date.parse(String(event.legacyTimestamp ?? "")))
+        .filter((timestamp) => Number.isFinite(timestamp));
+    const failedParity = parityLanes.filter((lane) => lane.severity === "fail");
+    const warnParity = parityLanes.filter((lane) => lane.severity === "warn");
+
+    return {
+        surface: "analytics-legacy-parity",
+        debugGroupTitle: "Analytics Legacy + Parity",
+        inventoryStatus: inventory ? "available" : "missing_report",
+        mappingStatus: mapping ? "available" : "missing_report",
+        parityStatus: parity ? "available" : "missing_report",
+        writeModeEnabled: mapping?.writeModeEnabled === true,
+        writeTarget: mapping?.targetCollection ?? "analytics_legacy_recovered_events",
+        dryRunDefault: mapping ? mapping.dryRun !== false : true,
+        lastLegacyInventoryRun: inventory?.generatedAt ?? null,
+        lastLegacyDryRun: mapping?.generatedAt ?? null,
+        lastParityRun: parity?.generatedAt ?? null,
+        legacySourceCount: inventorySources.length,
+        earliestRecoveredDate: recoveredTimestamps.length > 0 ? new Date(Math.min(...recoveredTimestamps)).toISOString() : null,
+        latestRecoveredDate: recoveredTimestamps.length > 0 ? new Date(Math.max(...recoveredTimestamps)).toISOString() : null,
+        mappedRecordCount: toNumber(mapping?.mapped),
+        skippedRecordCount: toNumber(mapping?.skipped),
+        duplicateRecordCount: toNumber(mapping?.duplicate),
+        lowConfidenceCount: toNumber(mapping?.lowConfidence),
+        parityLaneCount: parityLanes.length,
+        highestSeverity: parity?.highestSeverity ?? "unknown",
+        highestSeverityMismatches: toRecordArray(parity?.highestSeverityMismatches).map((lane) => ({
+            lane: lane.lane,
+            severity: lane.severity,
+            recommendedFix: lane.recommendedFix,
+        })),
+        manualReviewItems: manualReviewItems.map((lane) => ({
+            lane: lane.lane,
+            severity: lane.severity,
+            recommendedFix: lane.recommendedFix,
+        })),
+        failedParityLaneCount: failedParity.length,
+        warnParityLaneCount: warnParity.length,
+        debugFields: [
+            "legacySourceCount",
+            "mappedRecordCount",
+            "skippedRecordCount",
+            "duplicateRecordCount",
+            "lowConfidenceCount",
+            "parityLaneCount",
+            "highestSeverity",
+            "manualReviewItems",
+            "writeModeEnabled",
+            "lastLegacyDryRun",
+            "lastParityRun",
+        ],
+        reports: {
+            inventory: "agent/state/analytics-legacy-source-inventory.generated.json",
+            mapping: "agent/state/analytics-legacy-mapping-report.generated.json",
+            parity: "agent/state/analytics-ecosystem-parity.generated.json",
+        },
+        truthRules: [
+            "Legacy mapped records are never server-confirmed current truth.",
+            "Legacy data is included in snapshots only when source-specific confidence and parity allow it.",
+            "Parity jobs update Debug metadata asynchronously and do not block Admin Analytics rendering.",
+        ],
+    };
+}
+
 function normalizeTaskIds(rawTasks: unknown) {
     if (!Array.isArray(rawTasks)) {
         return [];
@@ -1145,6 +1238,7 @@ export async function GET(request: NextRequest) {
                 noBlankLoadingRule: "Admin Analytics must render the latest verified snapshot first when one exists; realtime is an upgrade, not a loading dependency.",
                 fakeZeroRule: "Snapshot values use null/unavailable with fakeZeroPrevented=true when a source is missing; missing values must not be coerced to zero.",
             },
+            adminAnalyticsLegacyParity: buildAnalyticsLegacyParityDebugMetadata(),
             adminAnalyticsOverview: {
                 surface: "admin-analytics-overview",
                 pageId: "admin/analytics",

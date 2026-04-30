@@ -24,6 +24,24 @@ This file is not a changelog. It is the concise ledger for durable decisions tha
 
 ## Decision Entries
 
+### 1br. Analytics legacy recovery remains dry-run until parity proves source truth
+
+- Approximate date: Recorded explicitly on 2026-04-30 from the Analytics Truth Layer v2 Phase 4 legacy recovery and ecosystem parity pass
+- Status: Active analytics recovery and parity doctrine
+- Problem/context: Phase 2 defined legacy event mapping and Phase 3 defined hot-cache snapshots, but the repo still needed executable dry-run recovery, generated reports, parity lanes, and Debug metadata before old analytics/business records could be safely considered for snapshots.
+- Decision made: Phase 4 adds `src/lib/analytics/legacy-recovery-contract.ts`, `scripts/analytics/inventory-legacy-sources.ts`, `scripts/analytics/map-legacy-events.ts`, `scripts/analytics/check-analytics-ecosystem-parity.ts`, `scripts/agent/validate-analytics-legacy-recovery.ts`, generated report outputs under `agent/state/`, and Admin Debug `adminAnalyticsLegacyParity` metadata.
+- What became canonical:
+  - Legacy inventory and mapping are dry-run by default.
+  - Write mode requires an explicit `--write` flag and `ANALYTICS_LEGACY_WRITE_ENABLED=true`; the typed target is `analytics_legacy_recovered_events`, but production writes remain disabled.
+  - Recovered records carry `legacySource`, `legacyId`, `legacyTimestamp`, `mappedEventName`, `mappingConfidence`, `mappingWarnings`, `recoveredAt`, actor/object confidence, `sourceMode=legacy_mapped`, snapshot inclusion state, and server-confirmed false.
+  - Ecosystem parity lanes include purchases, unlocks, tasks, notifications, onboarding, guest/auth separation, admin exclusion, creator separation, snapshots, legacy mapping, GA4/BigQuery comparison, and Debug validation relocation.
+  - Parity updates Debug/snapshot metadata asynchronously and must not block Admin Analytics rendering.
+- Consequence for future work:
+  - Do not run destructive legacy backfills until dry-run reports, duplicate checks, and parity lanes pass for the selected source.
+  - Do not mix legacy mapped rows into live/server-confirmed truth.
+  - Do not hide low-confidence or unmapped records; keep them in Admin Debug.
+  - Do not use old GA4 intraday, stale snapshots, authenticated-only totals, or raw task/funnel events as verified Analytics values without explicit labels and parity.
+
 ### 1bq. Admin Analytics snapshots are the Phase 3 display cache contract
 
 - Approximate date: Recorded explicitly on 2026-04-30 from the Analytics Truth Layer v2 Phase 3 verified hot-cache snapshot pass

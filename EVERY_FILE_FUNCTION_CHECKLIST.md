@@ -9,6 +9,18 @@ Scoring: all entries below are marked as included in the current validated sweep
 
 Current repo-wide state snapshot: see [FULL_SCALE_CODEBASE_AUDIT.md](/Users/uylus/OneDrive/Documents/KandyDrops_Final/FULL_SCALE_CODEBASE_AUDIT.md) for the current live baseline, verification state, and continuity rules, and see [REPO_MEMORY_LEDGER.md](/Users/uylus/OneDrive/Documents/KandyDrops_Final/REPO_MEMORY_LEDGER.md) for major architectural and workflow decisions. The detailed file/function body below remains valuable historical evidence, but it has not been fully regenerated against the current 2026-04-18 inventory review yet.
 
+## 2026-04-30 Analytics Truth Layer v2 Phase 4 Legacy Recovery and Ecosystem Parity Coverage
+
+- [x] `src/lib/analytics/legacy-recovery-contract.ts` defines recovered legacy event records, source inventory reports, mapping reports, ecosystem parity results, dry-run CLI parsing, duplicate keys, snapshot inclusion rules, and snapshot-compatible parity rows.
+- [x] `scripts/analytics/inventory-legacy-sources.ts` generates `agent/state/analytics-legacy-source-inventory.generated.json` for Firestore, RTDB, GA4/BigQuery, hot-cache, telemetry, task, notification, commerce, onboarding, identity/session, presence, and admin audit sources without live scanning by default.
+- [x] `scripts/analytics/map-legacy-events.ts` maps safe fixture-shaped legacy records into canonical event candidates, dedupes repeated records, reports skipped/unmapped/low-confidence rows, and keeps write mode disabled unless `--write` plus `ANALYTICS_LEGACY_WRITE_ENABLED=true` are present.
+- [x] `scripts/analytics/check-analytics-ecosystem-parity.ts` generates `agent/state/analytics-ecosystem-parity.generated.json` with parity lanes for raw ledger vs hot cache, GA4/BigQuery, purchases, unlocks, tasks, notifications, onboarding, guest/auth separation, admin exclusion, creator separation, snapshots, legacy mapping, and Debug validation.
+- [x] `src/app/api/admin/debug/route.ts` exposes `adminAnalyticsLegacyParity` metadata for the Analytics Legacy + Parity Debug group, including report status, mapped/skipped/low-confidence counts, parity severity, manual-review items, last run timestamps, and write-mode state.
+- [x] `docs/agent-truth/analytics-legacy-recovery.md` and `docs/agent-truth/analytics-ecosystem-parity.md` document the dry-run policy, required legacy record fields, parity lanes, confidence scoring, fake-zero regression rules, Debug responsibilities, and self-healing boundaries.
+- [x] `scripts/agent/validate-analytics-legacy-recovery.ts` and `package.json` add `npm run check:analytics-legacy-recovery` plus generator scripts for inventory, mapping, and parity.
+- [x] `tests/unit/analytics-legacy-recovery-contract.spec.ts` and `tests/unit/analytics-ecosystem-parity.spec.ts` cover recovered record shape, confidence labels, dry-run parsing, duplicate suppression, parity deltas, admin exclusion leakage, guest estimate fake-zero prevention, and snapshot parity shape.
+- [x] This Phase 4 pass intentionally does not run destructive backfill, write recovered events to production, overwrite current analytics, block Admin Analytics rendering on parity jobs, or promote legacy data to server-confirmed truth.
+
 ## 2026-04-30 Analytics Truth Layer v2 Phase 3 Hot-Cache Snapshot Coverage
 
 - [x] `src/lib/analytics/admin-metric-snapshot.ts` defines the canonical Admin Analytics snapshot schema, ranges, source modes, truth states, refresh states, warnings, parity results, fake-zero validation, stale-cache resolution, and duplicate-refresh lock logic.

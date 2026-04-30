@@ -1,0 +1,772 @@
+{
+  "generatedAt": "2026-04-30T17:30:27.124Z",
+  "selectedRange": "all",
+  "lanes": [
+    {
+      "lane": "raw_ledger_vs_hot_cache_snapshots",
+      "sourceA": "canonical first-party event ledger",
+      "sourceB": "analytics_admin_metric_snapshots parity",
+      "expectedRelationship": "Snapshot values should be derived from verified ledger/business records or expose drift.",
+      "actualValues": {
+        "sourceA": 10,
+        "sourceB": 7
+      },
+      "delta": 3,
+      "confidence": "directional",
+      "severity": "fail",
+      "recommendedFix": "Run real source materializers and attach this parity row to snapshot debug metadata after the dry-run mapping has a reviewed write target.",
+      "canSelfHeal": false,
+      "requiresManualReview": true,
+      "snapshotParity": {
+        "key": "raw_ledger_vs_hot_cache_snapshots",
+        "label": "Snapshot values should be derived from verified ledger/business records or expose drift.",
+        "status": "fail",
+        "expectedSource": "canonical first-party event ledger",
+        "comparedSource": "analytics_admin_metric_snapshots parity",
+        "expectedValue": 10,
+        "comparedValue": 7,
+        "drift": 3,
+        "fakeZeroPrevented": false,
+        "details": "Run real source materializers and attach this parity row to snapshot debug metadata after the dry-run mapping has a reviewed write target."
+      }
+    },
+    {
+      "lane": "first_party_vs_ga4_bigquery",
+      "sourceA": "first-party recovered event candidates",
+      "sourceB": "GA4 daily/intraday exports",
+      "expectedRelationship": "GA4 validates directional event volume but never replaces product truth.",
+      "actualValues": {
+        "sourceA": 10,
+        "sourceB": null
+      },
+      "delta": null,
+      "confidence": "unknown",
+      "severity": "fail",
+      "recommendedFix": "Configure GA4 daily and intraday extract checks before treating GA parity as available.",
+      "canSelfHeal": false,
+      "requiresManualReview": true,
+      "snapshotParity": {
+        "key": "first_party_vs_ga4_bigquery",
+        "label": "GA4 validates directional event volume but never replaces product truth.",
+        "status": "fail",
+        "expectedSource": "first-party recovered event candidates",
+        "comparedSource": "GA4 daily/intraday exports",
+        "expectedValue": 10,
+        "comparedValue": null,
+        "drift": null,
+        "fakeZeroPrevented": true,
+        "details": "Configure GA4 daily and intraday extract checks before treating GA parity as available."
+      }
+    },
+    {
+      "lane": "purchases",
+      "sourceA": "transactions/payment records",
+      "sourceB": "purchase telemetry/GA commerce events",
+      "expectedRelationship": "Completed purchases should reconcile with internal transactions before commerce snapshots include legacy rows.",
+      "actualValues": {
+        "sourceA": 1,
+        "sourceB": null
+      },
+      "delta": null,
+      "confidence": "directional",
+      "severity": "fail",
+      "recommendedFix": "Compare recovered purchase events against payment provider/internal transaction records and GA commerce events.",
+      "canSelfHeal": false,
+      "requiresManualReview": true,
+      "snapshotParity": {
+        "key": "purchases",
+        "label": "Completed purchases should reconcile with internal transactions before commerce snapshots include legacy rows.",
+        "status": "fail",
+        "expectedSource": "transactions/payment records",
+        "comparedSource": "purchase telemetry/GA commerce events",
+        "expectedValue": 1,
+        "comparedValue": null,
+        "drift": null,
+        "fakeZeroPrevented": true,
+        "details": "Compare recovered purchase events against payment provider/internal transaction records and GA commerce events."
+      }
+    },
+    {
+      "lane": "unlocks",
+      "sourceA": "unlock records",
+      "sourceB": "viewer/watch and unlock telemetry",
+      "expectedRelationship": "Unlock records should reconcile with unlock telemetry and downstream viewer access.",
+      "actualValues": {
+        "sourceA": 1,
+        "sourceB": null
+      },
+      "delta": null,
+      "confidence": "directional",
+      "severity": "fail",
+      "recommendedFix": "Compare recovered unlock rows with canonical unlock rollups and viewer/watch facts.",
+      "canSelfHeal": false,
+      "requiresManualReview": true,
+      "snapshotParity": {
+        "key": "unlocks",
+        "label": "Unlock records should reconcile with unlock telemetry and downstream viewer access.",
+        "status": "fail",
+        "expectedSource": "unlock records",
+        "comparedSource": "viewer/watch and unlock telemetry",
+        "expectedValue": 1,
+        "comparedValue": null,
+        "drift": null,
+        "fakeZeroPrevented": true,
+        "details": "Compare recovered unlock rows with canonical unlock rollups and viewer/watch facts."
+      }
+    },
+    {
+      "lane": "tasks",
+      "sourceA": "user task state/lifecycle logs",
+      "sourceB": "task telemetry events",
+      "expectedRelationship": "Task lifecycle truth should prefer user task state and reconcile telemetry deltas.",
+      "actualValues": {
+        "sourceA": 2,
+        "sourceB": null
+      },
+      "delta": null,
+      "confidence": "directional",
+      "severity": "fail",
+      "recommendedFix": "Run per-task lifecycle reconciliation before using raw task events as pipeline truth.",
+      "canSelfHeal": false,
+      "requiresManualReview": true,
+      "snapshotParity": {
+        "key": "tasks",
+        "label": "Task lifecycle truth should prefer user task state and reconcile telemetry deltas.",
+        "status": "fail",
+        "expectedSource": "user task state/lifecycle logs",
+        "comparedSource": "task telemetry events",
+        "expectedValue": 2,
+        "comparedValue": null,
+        "drift": null,
+        "fakeZeroPrevented": true,
+        "details": "Run per-task lifecycle reconciliation before using raw task events as pipeline truth."
+      }
+    },
+    {
+      "lane": "notifications",
+      "sourceA": "notification records",
+      "sourceB": "push/send/open/read/clear telemetry",
+      "expectedRelationship": "Notification records should reconcile with push attempt and read/open telemetry, with web delivery unknowns labeled.",
+      "actualValues": {
+        "sourceA": 1,
+        "sourceB": null
+      },
+      "delta": null,
+      "confidence": "directional",
+      "severity": "fail",
+      "recommendedFix": "Compare notification record lifecycle with push dispatch outcomes and client read/open events.",
+      "canSelfHeal": false,
+      "requiresManualReview": true,
+      "snapshotParity": {
+        "key": "notifications",
+        "label": "Notification records should reconcile with push attempt and read/open telemetry, with web delivery unknowns labeled.",
+        "status": "fail",
+        "expectedSource": "notification records",
+        "comparedSource": "push/send/open/read/clear telemetry",
+        "expectedValue": 1,
+        "comparedValue": null,
+        "drift": null,
+        "fakeZeroPrevented": true,
+        "details": "Compare notification record lifecycle with push dispatch outcomes and client read/open events."
+      }
+    },
+    {
+      "lane": "onboarding",
+      "sourceA": "onboarding step flow",
+      "sourceB": "auth signups",
+      "expectedRelationship": "Onboarding starts and auth signups are different events; mismatch is expected and must be labeled.",
+      "actualValues": {
+        "sourceA": 1,
+        "sourceB": null
+      },
+      "delta": null,
+      "confidence": "directional",
+      "severity": "warn",
+      "recommendedFix": "Keep auth signup comparison in Debug only and use onboarding step facts for onboarding performance.",
+      "canSelfHeal": true,
+      "requiresManualReview": false,
+      "snapshotParity": {
+        "key": "onboarding",
+        "label": "Onboarding starts and auth signups are different events; mismatch is expected and must be labeled.",
+        "status": "warn",
+        "expectedSource": "onboarding step flow",
+        "comparedSource": "auth signups",
+        "expectedValue": 1,
+        "comparedValue": null,
+        "drift": null,
+        "fakeZeroPrevented": true,
+        "details": "Keep auth signup comparison in Debug only and use onboarding step facts for onboarding performance."
+      }
+    },
+    {
+      "lane": "guest_auth",
+      "sourceA": "guest/anonymous lane",
+      "sourceB": "authenticated user lane",
+      "expectedRelationship": "Guest and authenticated history stay separate unless identity_linked joins them.",
+      "actualValues": {
+        "sourceA": 1,
+        "sourceB": 6
+      },
+      "delta": -5,
+      "confidence": "directional",
+      "severity": "warn",
+      "recommendedFix": "Use identity_linked records to correlate guest sessions without erasing guest history.",
+      "canSelfHeal": true,
+      "requiresManualReview": false,
+      "snapshotParity": {
+        "key": "guest_auth",
+        "label": "Guest and authenticated history stay separate unless identity_linked joins them.",
+        "status": "warn",
+        "expectedSource": "guest/anonymous lane",
+        "comparedSource": "authenticated user lane",
+        "expectedValue": 1,
+        "comparedValue": 6,
+        "drift": -5,
+        "fakeZeroPrevented": false,
+        "details": "Use identity_linked records to correlate guest sessions without erasing guest history."
+      }
+    },
+    {
+      "lane": "admin_exclusion",
+      "sourceA": "admin/system events found in user/guest lane",
+      "sourceB": "expected admin/system user-lane leakage",
+      "expectedRelationship": "Admin/system events must be excluded from user and guest behavior analytics.",
+      "actualValues": {
+        "sourceA": 0,
+        "sourceB": 0
+      },
+      "delta": 0,
+      "confidence": "high",
+      "severity": "pass",
+      "recommendedFix": "Admin/system candidates are classified separately and excluded from user behavior. Classified admin candidates: 1.",
+      "canSelfHeal": true,
+      "requiresManualReview": false,
+      "snapshotParity": {
+        "key": "admin_exclusion",
+        "label": "Admin/system events must be excluded from user and guest behavior analytics.",
+        "status": "pass",
+        "expectedSource": "admin/system events found in user/guest lane",
+        "comparedSource": "expected admin/system user-lane leakage",
+        "expectedValue": 0,
+        "comparedValue": 0,
+        "drift": 0,
+        "fakeZeroPrevented": false,
+        "details": "Admin/system candidates are classified separately and excluded from user behavior. Classified admin candidates: 1."
+      }
+    },
+    {
+      "lane": "creator_separation",
+      "sourceA": "creator events",
+      "sourceB": "admin/system/user lanes",
+      "expectedRelationship": "Creator activity must stay in a creator lane unless a module explicitly compares it.",
+      "actualValues": {
+        "sourceA": 0,
+        "sourceB": null
+      },
+      "delta": null,
+      "confidence": "unknown",
+      "severity": "warn",
+      "recommendedFix": "Add creator-specific legacy samples before validating creator/user/admin separation.",
+      "canSelfHeal": false,
+      "requiresManualReview": false,
+      "snapshotParity": {
+        "key": "creator_separation",
+        "label": "Creator activity must stay in a creator lane unless a module explicitly compares it.",
+        "status": "warn",
+        "expectedSource": "creator events",
+        "comparedSource": "admin/system/user lanes",
+        "expectedValue": 0,
+        "comparedValue": null,
+        "drift": null,
+        "fakeZeroPrevented": true,
+        "details": "Add creator-specific legacy samples before validating creator/user/admin separation."
+      }
+    },
+    {
+      "lane": "snapshots",
+      "sourceA": "hot cache snapshots",
+      "sourceB": "ecosystem parity report",
+      "expectedRelationship": "Parity jobs update Debug metadata asynchronously and must not block Analytics rendering.",
+      "actualValues": {
+        "sourceA": 7,
+        "sourceB": 10
+      },
+      "delta": -3,
+      "confidence": "directional",
+      "severity": "warn",
+      "recommendedFix": "Attach completed parity results to snapshot debug metadata after source-specific materializers run.",
+      "canSelfHeal": false,
+      "requiresManualReview": false,
+      "snapshotParity": {
+        "key": "snapshots",
+        "label": "Parity jobs update Debug metadata asynchronously and must not block Analytics rendering.",
+        "status": "warn",
+        "expectedSource": "hot cache snapshots",
+        "comparedSource": "ecosystem parity report",
+        "expectedValue": 7,
+        "comparedValue": 10,
+        "drift": -3,
+        "fakeZeroPrevented": false,
+        "details": "Attach completed parity results to snapshot debug metadata after source-specific materializers run."
+      }
+    },
+    {
+      "lane": "legacy_mapping",
+      "sourceA": "legacy scanned records",
+      "sourceB": "canonical recovered event candidates",
+      "expectedRelationship": "Legacy recovery maps records into canonical shape with confidence and warnings, or exposes unmapped rows.",
+      "actualValues": {
+        "sourceA": 12,
+        "sourceB": 10
+      },
+      "delta": 2,
+      "confidence": "directional",
+      "severity": "fail",
+      "recommendedFix": "Review skipped, duplicate, and low-confidence records before enabling any write target or snapshot inclusion.",
+      "canSelfHeal": false,
+      "requiresManualReview": true,
+      "snapshotParity": {
+        "key": "legacy_mapping",
+        "label": "Legacy recovery maps records into canonical shape with confidence and warnings, or exposes unmapped rows.",
+        "status": "fail",
+        "expectedSource": "legacy scanned records",
+        "comparedSource": "canonical recovered event candidates",
+        "expectedValue": 12,
+        "comparedValue": 10,
+        "drift": 2,
+        "fakeZeroPrevented": false,
+        "details": "Review skipped, duplicate, and low-confidence records before enabling any write target or snapshot inclusion."
+      }
+    },
+    {
+      "lane": "data_validation_debug",
+      "sourceA": "Debug data validation",
+      "sourceB": "Admin Analytics modules",
+      "expectedRelationship": "Validation failures belong in Admin Debug, not as full Analytics modules.",
+      "actualValues": {
+        "sourceA": 3,
+        "sourceB": 0
+      },
+      "delta": 3,
+      "confidence": "medium",
+      "severity": "pass",
+      "recommendedFix": "Keep low-confidence legacy and parity failures in Debug until source-specific reconciliation is complete.",
+      "canSelfHeal": true,
+      "requiresManualReview": false,
+      "snapshotParity": {
+        "key": "data_validation_debug",
+        "label": "Validation failures belong in Admin Debug, not as full Analytics modules.",
+        "status": "pass",
+        "expectedSource": "Debug data validation",
+        "comparedSource": "Admin Analytics modules",
+        "expectedValue": 3,
+        "comparedValue": 0,
+        "drift": 3,
+        "fakeZeroPrevented": false,
+        "details": "Keep low-confidence legacy and parity failures in Debug until source-specific reconciliation is complete."
+      }
+    }
+  ],
+  "highestSeverity": "fail",
+  "highestSeverityMismatches": [
+    {
+      "lane": "raw_ledger_vs_hot_cache_snapshots",
+      "sourceA": "canonical first-party event ledger",
+      "sourceB": "analytics_admin_metric_snapshots parity",
+      "expectedRelationship": "Snapshot values should be derived from verified ledger/business records or expose drift.",
+      "actualValues": {
+        "sourceA": 10,
+        "sourceB": 7
+      },
+      "delta": 3,
+      "confidence": "directional",
+      "severity": "fail",
+      "recommendedFix": "Run real source materializers and attach this parity row to snapshot debug metadata after the dry-run mapping has a reviewed write target.",
+      "canSelfHeal": false,
+      "requiresManualReview": true,
+      "snapshotParity": {
+        "key": "raw_ledger_vs_hot_cache_snapshots",
+        "label": "Snapshot values should be derived from verified ledger/business records or expose drift.",
+        "status": "fail",
+        "expectedSource": "canonical first-party event ledger",
+        "comparedSource": "analytics_admin_metric_snapshots parity",
+        "expectedValue": 10,
+        "comparedValue": 7,
+        "drift": 3,
+        "fakeZeroPrevented": false,
+        "details": "Run real source materializers and attach this parity row to snapshot debug metadata after the dry-run mapping has a reviewed write target."
+      }
+    },
+    {
+      "lane": "first_party_vs_ga4_bigquery",
+      "sourceA": "first-party recovered event candidates",
+      "sourceB": "GA4 daily/intraday exports",
+      "expectedRelationship": "GA4 validates directional event volume but never replaces product truth.",
+      "actualValues": {
+        "sourceA": 10,
+        "sourceB": null
+      },
+      "delta": null,
+      "confidence": "unknown",
+      "severity": "fail",
+      "recommendedFix": "Configure GA4 daily and intraday extract checks before treating GA parity as available.",
+      "canSelfHeal": false,
+      "requiresManualReview": true,
+      "snapshotParity": {
+        "key": "first_party_vs_ga4_bigquery",
+        "label": "GA4 validates directional event volume but never replaces product truth.",
+        "status": "fail",
+        "expectedSource": "first-party recovered event candidates",
+        "comparedSource": "GA4 daily/intraday exports",
+        "expectedValue": 10,
+        "comparedValue": null,
+        "drift": null,
+        "fakeZeroPrevented": true,
+        "details": "Configure GA4 daily and intraday extract checks before treating GA parity as available."
+      }
+    },
+    {
+      "lane": "purchases",
+      "sourceA": "transactions/payment records",
+      "sourceB": "purchase telemetry/GA commerce events",
+      "expectedRelationship": "Completed purchases should reconcile with internal transactions before commerce snapshots include legacy rows.",
+      "actualValues": {
+        "sourceA": 1,
+        "sourceB": null
+      },
+      "delta": null,
+      "confidence": "directional",
+      "severity": "fail",
+      "recommendedFix": "Compare recovered purchase events against payment provider/internal transaction records and GA commerce events.",
+      "canSelfHeal": false,
+      "requiresManualReview": true,
+      "snapshotParity": {
+        "key": "purchases",
+        "label": "Completed purchases should reconcile with internal transactions before commerce snapshots include legacy rows.",
+        "status": "fail",
+        "expectedSource": "transactions/payment records",
+        "comparedSource": "purchase telemetry/GA commerce events",
+        "expectedValue": 1,
+        "comparedValue": null,
+        "drift": null,
+        "fakeZeroPrevented": true,
+        "details": "Compare recovered purchase events against payment provider/internal transaction records and GA commerce events."
+      }
+    },
+    {
+      "lane": "unlocks",
+      "sourceA": "unlock records",
+      "sourceB": "viewer/watch and unlock telemetry",
+      "expectedRelationship": "Unlock records should reconcile with unlock telemetry and downstream viewer access.",
+      "actualValues": {
+        "sourceA": 1,
+        "sourceB": null
+      },
+      "delta": null,
+      "confidence": "directional",
+      "severity": "fail",
+      "recommendedFix": "Compare recovered unlock rows with canonical unlock rollups and viewer/watch facts.",
+      "canSelfHeal": false,
+      "requiresManualReview": true,
+      "snapshotParity": {
+        "key": "unlocks",
+        "label": "Unlock records should reconcile with unlock telemetry and downstream viewer access.",
+        "status": "fail",
+        "expectedSource": "unlock records",
+        "comparedSource": "viewer/watch and unlock telemetry",
+        "expectedValue": 1,
+        "comparedValue": null,
+        "drift": null,
+        "fakeZeroPrevented": true,
+        "details": "Compare recovered unlock rows with canonical unlock rollups and viewer/watch facts."
+      }
+    },
+    {
+      "lane": "tasks",
+      "sourceA": "user task state/lifecycle logs",
+      "sourceB": "task telemetry events",
+      "expectedRelationship": "Task lifecycle truth should prefer user task state and reconcile telemetry deltas.",
+      "actualValues": {
+        "sourceA": 2,
+        "sourceB": null
+      },
+      "delta": null,
+      "confidence": "directional",
+      "severity": "fail",
+      "recommendedFix": "Run per-task lifecycle reconciliation before using raw task events as pipeline truth.",
+      "canSelfHeal": false,
+      "requiresManualReview": true,
+      "snapshotParity": {
+        "key": "tasks",
+        "label": "Task lifecycle truth should prefer user task state and reconcile telemetry deltas.",
+        "status": "fail",
+        "expectedSource": "user task state/lifecycle logs",
+        "comparedSource": "task telemetry events",
+        "expectedValue": 2,
+        "comparedValue": null,
+        "drift": null,
+        "fakeZeroPrevented": true,
+        "details": "Run per-task lifecycle reconciliation before using raw task events as pipeline truth."
+      }
+    },
+    {
+      "lane": "notifications",
+      "sourceA": "notification records",
+      "sourceB": "push/send/open/read/clear telemetry",
+      "expectedRelationship": "Notification records should reconcile with push attempt and read/open telemetry, with web delivery unknowns labeled.",
+      "actualValues": {
+        "sourceA": 1,
+        "sourceB": null
+      },
+      "delta": null,
+      "confidence": "directional",
+      "severity": "fail",
+      "recommendedFix": "Compare notification record lifecycle with push dispatch outcomes and client read/open events.",
+      "canSelfHeal": false,
+      "requiresManualReview": true,
+      "snapshotParity": {
+        "key": "notifications",
+        "label": "Notification records should reconcile with push attempt and read/open telemetry, with web delivery unknowns labeled.",
+        "status": "fail",
+        "expectedSource": "notification records",
+        "comparedSource": "push/send/open/read/clear telemetry",
+        "expectedValue": 1,
+        "comparedValue": null,
+        "drift": null,
+        "fakeZeroPrevented": true,
+        "details": "Compare notification record lifecycle with push dispatch outcomes and client read/open events."
+      }
+    },
+    {
+      "lane": "legacy_mapping",
+      "sourceA": "legacy scanned records",
+      "sourceB": "canonical recovered event candidates",
+      "expectedRelationship": "Legacy recovery maps records into canonical shape with confidence and warnings, or exposes unmapped rows.",
+      "actualValues": {
+        "sourceA": 12,
+        "sourceB": 10
+      },
+      "delta": 2,
+      "confidence": "directional",
+      "severity": "fail",
+      "recommendedFix": "Review skipped, duplicate, and low-confidence records before enabling any write target or snapshot inclusion.",
+      "canSelfHeal": false,
+      "requiresManualReview": true,
+      "snapshotParity": {
+        "key": "legacy_mapping",
+        "label": "Legacy recovery maps records into canonical shape with confidence and warnings, or exposes unmapped rows.",
+        "status": "fail",
+        "expectedSource": "legacy scanned records",
+        "comparedSource": "canonical recovered event candidates",
+        "expectedValue": 12,
+        "comparedValue": 10,
+        "drift": 2,
+        "fakeZeroPrevented": false,
+        "details": "Review skipped, duplicate, and low-confidence records before enabling any write target or snapshot inclusion."
+      }
+    }
+  ],
+  "manualReviewItems": [
+    {
+      "lane": "raw_ledger_vs_hot_cache_snapshots",
+      "sourceA": "canonical first-party event ledger",
+      "sourceB": "analytics_admin_metric_snapshots parity",
+      "expectedRelationship": "Snapshot values should be derived from verified ledger/business records or expose drift.",
+      "actualValues": {
+        "sourceA": 10,
+        "sourceB": 7
+      },
+      "delta": 3,
+      "confidence": "directional",
+      "severity": "fail",
+      "recommendedFix": "Run real source materializers and attach this parity row to snapshot debug metadata after the dry-run mapping has a reviewed write target.",
+      "canSelfHeal": false,
+      "requiresManualReview": true,
+      "snapshotParity": {
+        "key": "raw_ledger_vs_hot_cache_snapshots",
+        "label": "Snapshot values should be derived from verified ledger/business records or expose drift.",
+        "status": "fail",
+        "expectedSource": "canonical first-party event ledger",
+        "comparedSource": "analytics_admin_metric_snapshots parity",
+        "expectedValue": 10,
+        "comparedValue": 7,
+        "drift": 3,
+        "fakeZeroPrevented": false,
+        "details": "Run real source materializers and attach this parity row to snapshot debug metadata after the dry-run mapping has a reviewed write target."
+      }
+    },
+    {
+      "lane": "first_party_vs_ga4_bigquery",
+      "sourceA": "first-party recovered event candidates",
+      "sourceB": "GA4 daily/intraday exports",
+      "expectedRelationship": "GA4 validates directional event volume but never replaces product truth.",
+      "actualValues": {
+        "sourceA": 10,
+        "sourceB": null
+      },
+      "delta": null,
+      "confidence": "unknown",
+      "severity": "fail",
+      "recommendedFix": "Configure GA4 daily and intraday extract checks before treating GA parity as available.",
+      "canSelfHeal": false,
+      "requiresManualReview": true,
+      "snapshotParity": {
+        "key": "first_party_vs_ga4_bigquery",
+        "label": "GA4 validates directional event volume but never replaces product truth.",
+        "status": "fail",
+        "expectedSource": "first-party recovered event candidates",
+        "comparedSource": "GA4 daily/intraday exports",
+        "expectedValue": 10,
+        "comparedValue": null,
+        "drift": null,
+        "fakeZeroPrevented": true,
+        "details": "Configure GA4 daily and intraday extract checks before treating GA parity as available."
+      }
+    },
+    {
+      "lane": "purchases",
+      "sourceA": "transactions/payment records",
+      "sourceB": "purchase telemetry/GA commerce events",
+      "expectedRelationship": "Completed purchases should reconcile with internal transactions before commerce snapshots include legacy rows.",
+      "actualValues": {
+        "sourceA": 1,
+        "sourceB": null
+      },
+      "delta": null,
+      "confidence": "directional",
+      "severity": "fail",
+      "recommendedFix": "Compare recovered purchase events against payment provider/internal transaction records and GA commerce events.",
+      "canSelfHeal": false,
+      "requiresManualReview": true,
+      "snapshotParity": {
+        "key": "purchases",
+        "label": "Completed purchases should reconcile with internal transactions before commerce snapshots include legacy rows.",
+        "status": "fail",
+        "expectedSource": "transactions/payment records",
+        "comparedSource": "purchase telemetry/GA commerce events",
+        "expectedValue": 1,
+        "comparedValue": null,
+        "drift": null,
+        "fakeZeroPrevented": true,
+        "details": "Compare recovered purchase events against payment provider/internal transaction records and GA commerce events."
+      }
+    },
+    {
+      "lane": "unlocks",
+      "sourceA": "unlock records",
+      "sourceB": "viewer/watch and unlock telemetry",
+      "expectedRelationship": "Unlock records should reconcile with unlock telemetry and downstream viewer access.",
+      "actualValues": {
+        "sourceA": 1,
+        "sourceB": null
+      },
+      "delta": null,
+      "confidence": "directional",
+      "severity": "fail",
+      "recommendedFix": "Compare recovered unlock rows with canonical unlock rollups and viewer/watch facts.",
+      "canSelfHeal": false,
+      "requiresManualReview": true,
+      "snapshotParity": {
+        "key": "unlocks",
+        "label": "Unlock records should reconcile with unlock telemetry and downstream viewer access.",
+        "status": "fail",
+        "expectedSource": "unlock records",
+        "comparedSource": "viewer/watch and unlock telemetry",
+        "expectedValue": 1,
+        "comparedValue": null,
+        "drift": null,
+        "fakeZeroPrevented": true,
+        "details": "Compare recovered unlock rows with canonical unlock rollups and viewer/watch facts."
+      }
+    },
+    {
+      "lane": "tasks",
+      "sourceA": "user task state/lifecycle logs",
+      "sourceB": "task telemetry events",
+      "expectedRelationship": "Task lifecycle truth should prefer user task state and reconcile telemetry deltas.",
+      "actualValues": {
+        "sourceA": 2,
+        "sourceB": null
+      },
+      "delta": null,
+      "confidence": "directional",
+      "severity": "fail",
+      "recommendedFix": "Run per-task lifecycle reconciliation before using raw task events as pipeline truth.",
+      "canSelfHeal": false,
+      "requiresManualReview": true,
+      "snapshotParity": {
+        "key": "tasks",
+        "label": "Task lifecycle truth should prefer user task state and reconcile telemetry deltas.",
+        "status": "fail",
+        "expectedSource": "user task state/lifecycle logs",
+        "comparedSource": "task telemetry events",
+        "expectedValue": 2,
+        "comparedValue": null,
+        "drift": null,
+        "fakeZeroPrevented": true,
+        "details": "Run per-task lifecycle reconciliation before using raw task events as pipeline truth."
+      }
+    },
+    {
+      "lane": "notifications",
+      "sourceA": "notification records",
+      "sourceB": "push/send/open/read/clear telemetry",
+      "expectedRelationship": "Notification records should reconcile with push attempt and read/open telemetry, with web delivery unknowns labeled.",
+      "actualValues": {
+        "sourceA": 1,
+        "sourceB": null
+      },
+      "delta": null,
+      "confidence": "directional",
+      "severity": "fail",
+      "recommendedFix": "Compare notification record lifecycle with push dispatch outcomes and client read/open events.",
+      "canSelfHeal": false,
+      "requiresManualReview": true,
+      "snapshotParity": {
+        "key": "notifications",
+        "label": "Notification records should reconcile with push attempt and read/open telemetry, with web delivery unknowns labeled.",
+        "status": "fail",
+        "expectedSource": "notification records",
+        "comparedSource": "push/send/open/read/clear telemetry",
+        "expectedValue": 1,
+        "comparedValue": null,
+        "drift": null,
+        "fakeZeroPrevented": true,
+        "details": "Compare notification record lifecycle with push dispatch outcomes and client read/open events."
+      }
+    },
+    {
+      "lane": "legacy_mapping",
+      "sourceA": "legacy scanned records",
+      "sourceB": "canonical recovered event candidates",
+      "expectedRelationship": "Legacy recovery maps records into canonical shape with confidence and warnings, or exposes unmapped rows.",
+      "actualValues": {
+        "sourceA": 12,
+        "sourceB": 10
+      },
+      "delta": 2,
+      "confidence": "directional",
+      "severity": "fail",
+      "recommendedFix": "Review skipped, duplicate, and low-confidence records before enabling any write target or snapshot inclusion.",
+      "canSelfHeal": false,
+      "requiresManualReview": true,
+      "snapshotParity": {
+        "key": "legacy_mapping",
+        "label": "Legacy recovery maps records into canonical shape with confidence and warnings, or exposes unmapped rows.",
+        "status": "fail",
+        "expectedSource": "legacy scanned records",
+        "comparedSource": "canonical recovered event candidates",
+        "expectedValue": 12,
+        "comparedValue": 10,
+        "drift": 2,
+        "fakeZeroPrevented": false,
+        "details": "Review skipped, duplicate, and low-confidence records before enabling any write target or snapshot inclusion."
+      }
+    }
+  ],
+  "snapshotParityIntegration": {
+    "updatesSnapshotDebugMetadata": true,
+    "blocksUiRendering": false,
+    "parityResultCount": 13
+  }
+}

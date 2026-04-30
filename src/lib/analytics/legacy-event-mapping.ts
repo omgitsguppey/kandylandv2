@@ -103,6 +103,14 @@ function timestampValue(record: Record<string, unknown>, keys: string[]) {
 function inferEventName(input: LegacyAnalyticsRecordInput) {
   const source = input.legacySource;
   const record = input.record;
+
+  if (source === "notifications") {
+    if (record.clearedAt) return "notification_cleared";
+    if (record.readAt) return "notification_read";
+    if (record.openedAt || record.clickedAt) return "notification_opened";
+    return "notification_sent";
+  }
+
   const directEvent = stringValue(record, ["eventName", "event_name", "name", "type", "event"]);
   if (directEvent) {
     return directEvent;
@@ -128,12 +136,6 @@ function inferEventName(input: LegacyAnalyticsRecordInput) {
     if (lifecycleState?.includes("complete")) return "daily_task_completed";
     if (lifecycleState?.includes("fail") || lifecycleState?.includes("expire")) return "daily_task_failed";
     return "daily_task_started";
-  }
-
-  if (source === "notifications") {
-    if (record.readAt) return "notification_marked_read";
-    if (record.openedAt || record.clickedAt) return "notification_opened";
-    return "notification_sent";
   }
 
   if (source === "onboarding_steps") {

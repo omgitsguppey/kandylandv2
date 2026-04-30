@@ -1,5 +1,23 @@
 # KandyDrops Core Codebase Audit & Defensive Ledger
 
+## [2026-04-30 #62] PRE/POST: Analytics Truth Layer v2 Phase 4 Legacy Recovery and Ecosystem Parity
+
+Scope completed:
+- Implementing dry-run legacy source inventory, legacy event mapping reports, ecosystem parity checks, Debug metadata, regression validation, tests, and docs.
+- Keeping write mode disabled by default; no destructive backfill, no overwriting current analytics, no UI module rewrite, and no promotion of legacy data to server-confirmed truth.
+
+Startup protocol:
+- Read control tower startup, mission, routing, execution order, source-of-truth map, preflight checklist, product doctrine, Google Analytics/Cloud doctrine, Phase 2 legacy recovery docs, Phase 3 hot-cache docs, and current governance baselines.
+- Confirmed the worktree was clean at startup.
+
+Verification completed:
+- `npm run analytics:legacy:inventory`
+- `npm run analytics:legacy:map`
+- `npm run analytics:ecosystem:parity`
+- `npm run check:analytics-legacy-recovery`
+- `npx vitest run tests/unit/analytics-legacy-recovery-contract.spec.ts tests/unit/analytics-ecosystem-parity.spec.ts tests/unit/analytics-legacy-event-mapping.spec.ts`
+- `npm run typecheck -- --pretty false`
+
 ## [2026-04-30 #61] PRE/POST: Analytics Truth Layer v2 Phase 3 Verified Hot-Cache Snapshots
 
 Scope completed:
