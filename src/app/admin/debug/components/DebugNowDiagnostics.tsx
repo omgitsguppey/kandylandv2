@@ -21,6 +21,12 @@ function formatWindowHours(windowMs?: number) {
     if (!windowMs) return "current";
     return `${Math.max(1, Math.round(windowMs / 3_600_000))}h`;
 }
+function toneForPanelStatus(status?: string) {
+    if (status === "healthy") return "good" as const;
+    if (status === "warn") return "warn" as const;
+    if (status === "fail") return "bad" as const;
+    return "neutral" as const;
+}
 
 /* ─── Props ─── */
 export interface DebugNowDiagnosticsProps {
@@ -141,9 +147,9 @@ export function DebugNowDiagnostics({
                                 <p className="text-xs text-gray-400">{entry.action}</p>
                                 <div className="flex flex-wrap gap-2">
                                     <Pill label="Signals" value={entry.signalCount ?? 0} tone={(entry.signalCount ?? 0) > 0 ? (entry.status === "fail" ? "bad" : "warn") : "good"} />
-                                    {(entry.signalKeys || []).slice(0, 3).map((signalKey: string) => (
-                                        <Pill key={`${entry.id}:${signalKey}`} label="Signal" value={signalKey} />
-                                    ))}
+                                    {(entry.signalCount ?? 0) > 0 ? (entry.signalKeys || []).slice(0, 3).map((signalKey: string) => (
+                                        <Pill key={`${entry.id}:${signalKey}`} label="Signal" value={signalKey} tone={toneForPanelStatus(entry.status)} />
+                                    )) : null}
                                 </div>
                             </div>
                         ))}

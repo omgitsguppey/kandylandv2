@@ -9,11 +9,93 @@ vi.mock("@/lib/server/route-diagnostics", () => ({
 }));
 
 import { buildAdminPanelSystemLogs } from "@/lib/server/admin-panel-system-logs";
+import type { AdminOpsHealth } from "@/lib/admin-ops-health";
 import type { RouteRuntimeHealthItem } from "@/lib/route-runtime-health";
 
 describe("buildAdminPanelSystemLogs", () => {
     const NOW_MS = Date.UTC(2026, 3, 8, 12, 0, 0);
+    const healthyOpsHealth: AdminOpsHealth = {
+        score: 100,
+        canonicalState: { status: "Live" },
+        runtime: {
+            gaPropertyConfigured: true,
+            vapidConfigured: true,
+            databaseUrlConfigured: true,
+            projectId: "kandydrops-by-ikandy",
+            navigationSessionSigningReady: true,
+            warnings: [],
+        },
+        diagnostics: {
+            total: 0,
+            errorCount: 0,
+            warnCount: 0,
+            infoCount: 0,
+            activeErrorCount: 0,
+            activeWarnCount: 0,
+            recentErrorCount: 0,
+            recentWarnCount: 0,
+            activeIssueClusterCount: 0,
+            recentIssueClusterCount: 0,
+            activeWindowMs: 3_600_000,
+            recentWindowMs: 14_400_000,
+            lastDiagnosticAt: 0,
+            channels: [],
+            recent: [],
+        },
+        pipeline: {
+            status: "healthy",
+            failureCount: 0,
+            activeFailureCount: 0,
+            recentFailureCount: 0,
+            sampleFailureCount: 0,
+            lastFailureAt: 0,
+            lastRouteName: "",
+            lastErrorMessage: "",
+            activeWindowMs: 3_600_000,
+            recentWindowMs: 14_400_000,
+            routes: [],
+        },
+        materializers: [],
+    };
+    const healthyOrchestration = {
+        score: 92,
+        openFindings: 0,
+        actionableProposals: 0,
+        lowConfidenceEvents: 0,
+        recommendationReady: 0,
+    };
 
+    it("counts negative reward deltas as active task integrity signals", () => {
+        const logs = buildAdminPanelSystemLogs({
+            nowMs: NOW_MS,
+            recentTransactionsCount: 5,
+            unsupportedTasks: 0,
+            telemetryValidatedTasks: 12,
+            usersWithTaskIssues: 0,
+            completedEventsLast7d: 4,
+            receiptsLast7d: 4,
+            rewardEventDeltaLast7d: -2,
+            legacyRewardVersionCount: 0,
+            trackedTelemetryEvents: 40,
+            orphanedTelemetryEvents: 0,
+            bugReportsLast7d: 0,
+            rolloutCount: 2,
+            releaseEntryCount: 3,
+            creatorSpendViolationsLast7d: 0,
+            opsHealth: healthyOpsHealth,
+            orchestration: healthyOrchestration,
+            routeRuntimeHealth: [],
+        });
+
+        const taskIntegrityLog = logs.find((entry) => entry.id === "tasks.integrity_and_parity");
+
+        expect(taskIntegrityLog).toMatchObject({
+            status: "warn",
+            signalCount: 2,
+            signalKeys: ["tasks.rewardDelta"],
+        });
+        expect(taskIntegrityLog?.action).toContain("Reconcile reward delta");
+    });
 
 
     it("adds tracked route runtime summary logs", () => {

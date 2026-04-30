@@ -155,11 +155,18 @@ export function buildAdminPanelSystemLogs(input: {
                 ? "warn"
                 : "healthy";
 
+    const taskRewardDeltaSignalCount = Math.abs(input.rewardEventDeltaLast7d);
     const taskIntegritySignalCount =
         input.usersWithTaskIssues
-        + Math.max(0, input.rewardEventDeltaLast7d)
+        + taskRewardDeltaSignalCount
         + input.creatorSpendViolationsLast7d
         + input.legacyRewardVersionCount;
+    const taskIntegritySignalKeys = [
+        input.usersWithTaskIssues > 0 ? "tasks.usersWithIssues" : null,
+        input.rewardEventDeltaLast7d !== 0 ? "tasks.rewardDelta" : null,
+        input.legacyRewardVersionCount > 0 ? "tasks.legacyRewardVersionCount" : null,
+        input.creatorSpendViolationsLast7d > 0 ? "tasks.creatorSpendViolations" : null,
+    ].filter((value): value is string => Boolean(value));
     const taskIntegrityStatus: AdminPanelSystemLogStatus =
         input.creatorSpendViolationsLast7d > 0 || input.usersWithTaskIssues > 0
             ? "fail"
@@ -322,7 +329,7 @@ export function buildAdminPanelSystemLogs(input: {
                         ? "Reconcile reward delta and legacy reward versions before treating task economy reporting as final."
                         : "No action required.",
             signalCount: taskIntegritySignalCount,
-            signalKeys: ["tasks.usersWithIssues", "tasks.rewardDelta", "tasks.legacyRewardVersionCount", "tasks.creatorSpendViolations"],
+            signalKeys: taskIntegritySignalKeys,
             observedAtMs: nowMs,
         }),
         buildLog({
