@@ -40,7 +40,11 @@ import {
     buildAdminDebugOpenActionsCard,
     buildAdminDebugRouteHealthCard,
 } from "@/lib/admin-debug-summary-cards";
-import { filterAdminDebugRouteRuntimeHealth, buildAdminDebugRouteRuntimeRateSummary } from "@/lib/admin-debug-route-runtime";
+import {
+    buildAdminDebugRouteRuntimeRateSummary,
+    filterAdminDebugRouteRuntimeHealth,
+    mergeAdminDebugRouteRuntimeHealth,
+} from "@/lib/admin-debug-route-runtime";
 
 import {
     getRouteRuntimeHealthCluster,
@@ -192,7 +196,10 @@ export default function DebugConsole() {
         [data?.routeRuntimeHealth],
     );
     const routeRuntimeHealth = useMemo(
-        () => (realtimeRouteHealth.length > 0 ? realtimeRouteHealth : routeSnapshotHealth),
+        () => mergeAdminDebugRouteRuntimeHealth({
+            snapshotItems: routeSnapshotHealth,
+            realtimeItems: realtimeRouteHealth,
+        }),
         [realtimeRouteHealth, routeSnapshotHealth],
     );
     const filteredRouteRuntimeHealth = useMemo(

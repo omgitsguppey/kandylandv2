@@ -48,6 +48,59 @@ describe("admin debug summary cards", () => {
         expect(card.truthState).toBe("degraded");
     });
 
+    it("labels merged API and listener route health as live source coverage", () => {
+        const card = buildAdminDebugRouteHealthCard({
+            summary: {
+                total: 158,
+                healthy: 38,
+                warn: 120,
+                fail: 0,
+                stale: 0,
+                unobserved: 120,
+                slow: 0,
+                serverErrors: 0,
+                clientErrors: 0,
+            },
+            observedCount: 38,
+            hasRealtimeRows: true,
+            hasSnapshotRows: true,
+            listenerState: { routeHealthLoaded: true, routeHealthFailed: false },
+            isLoading: false,
+            hasError: false,
+        });
+
+        expect(card.meta).toContain("[live] API snapshot + route listener");
+        expect(card.meta).toContain("158 tracked, 38 observed, 120 unseen");
+        expect(card.truthState).toBe("live");
+    });
+
+    it("does not call the complete API route registry a fallback when the listener fails", () => {
+        const card = buildAdminDebugRouteHealthCard({
+            summary: {
+                total: 158,
+                healthy: 32,
+                warn: 125,
+                fail: 1,
+                stale: 0,
+                unobserved: 120,
+                slow: 3,
+                serverErrors: 1,
+                clientErrors: 2,
+            },
+            observedCount: 38,
+            hasRealtimeRows: false,
+            hasSnapshotRows: true,
+            listenerState: { routeHealthLoaded: false, routeHealthFailed: true },
+            isLoading: false,
+            hasError: false,
+        });
+
+        expect(card.value).toBe("32 ok / 6 action / 1 fail");
+        expect(card.meta).toContain("[degraded] API snapshot; route listener failed");
+        expect(card.meta).not.toContain("[fallback]");
+        expect(card.truthState).toBe("failed");
+    });
+
     it("keeps unseen route coverage out of the actionable route count", () => {
         const card = buildAdminDebugRouteHealthCard({
             summary: {

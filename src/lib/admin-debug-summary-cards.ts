@@ -135,19 +135,21 @@ export function buildAdminDebugRouteHealthCard(input: {
     const { summary, observedCount, hasRealtimeRows, hasSnapshotRows, listenerState, isLoading, hasError } = input;
     const observedWarnCount = Math.max(0, summary.warn - summary.unobserved);
     const issueCount = observedWarnCount + summary.fail + summary.stale;
-    const sourceLabel = hasRealtimeRows
-        ? "[live] route listener"
+    const sourceLabel = hasSnapshotRows && hasRealtimeRows
+        ? "[live] API snapshot + route listener"
         : hasSnapshotRows && listenerState.routeHealthFailed
-            ? "[fallback] API snapshot; route listener failed"
-            : hasSnapshotRows && !listenerState.routeHealthLoaded
-                ? "[partial] API snapshot; route listener hydrating"
-                : hasSnapshotRows
-                    ? "[fallback] API snapshot; live listener empty"
-                    : listenerState.routeHealthFailed
-                        ? "[failed] route listener and API snapshot empty"
-                        : isLoading
-                            ? "[loading] route sources"
-                            : "[unavailable] no route runtime records";
+            ? "[degraded] API snapshot; route listener failed"
+        : hasSnapshotRows && !listenerState.routeHealthLoaded
+            ? "[partial] API snapshot; route listener hydrating"
+        : hasSnapshotRows
+            ? "[live] API snapshot"
+            : hasRealtimeRows
+                ? "[partial] route listener; API snapshot empty"
+                : listenerState.routeHealthFailed
+                    ? "[failed] route listener and API snapshot empty"
+                    : isLoading
+                        ? "[loading] route sources"
+                        : "[unavailable] no route runtime records";
 
     const truthState: AdminSurfaceState = isLoading && summary.total === 0
         ? "loading"
@@ -155,7 +157,7 @@ export function buildAdminDebugRouteHealthCard(input: {
             ? "failed"
             : summary.fail > 0
                 ? "failed"
-                : listenerState.routeHealthFailed || summary.warn > 0 || summary.stale > 0
+        : listenerState.routeHealthFailed || (!hasRealtimeRows && !listenerState.routeHealthLoaded) || observedWarnCount > 0 || summary.stale > 0
                     ? "degraded"
                     : summary.total > 0
                         ? "live"

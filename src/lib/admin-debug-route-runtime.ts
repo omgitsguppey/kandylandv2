@@ -28,6 +28,29 @@ export function filterAdminDebugRouteRuntimeHealth(
     }
 }
 
+export function mergeAdminDebugRouteRuntimeHealth(input: {
+    snapshotItems: readonly RouteRuntimeHealthItem[];
+    realtimeItems: readonly RouteRuntimeHealthItem[];
+}) {
+    if (input.snapshotItems.length === 0) {
+        return [...input.realtimeItems];
+    }
+
+    const realtimeByKey = new Map(input.realtimeItems.map((item) => [item.key, item]));
+    const merged = input.snapshotItems.map((snapshotItem) => realtimeByKey.get(snapshotItem.key) ?? snapshotItem);
+    const snapshotKeys = new Set(input.snapshotItems.map((item) => item.key));
+    const realtimeOnly = input.realtimeItems.filter((item) => !snapshotKeys.has(item.key));
+
+    return [...merged, ...realtimeOnly].sort((left, right) => {
+        const updatedDelta = Math.max(0, right.updatedAtMs) - Math.max(0, left.updatedAtMs);
+        if (updatedDelta !== 0) {
+            return updatedDelta;
+        }
+
+        return left.title.localeCompare(right.title);
+    });
+}
+
 function toTotalSamples(item: Pick<RouteRuntimeHealthItem, "successCount" | "clientErrorCount" | "serverErrorCount">) {
     return Math.max(0, item.successCount) + Math.max(0, item.clientErrorCount) + Math.max(0, item.serverErrorCount);
 }

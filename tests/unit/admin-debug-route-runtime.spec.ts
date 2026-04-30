@@ -3,6 +3,7 @@ import { describe, expect, it } from "vitest";
 import {
     buildAdminDebugRouteRuntimeRateSummary,
     filterAdminDebugRouteRuntimeHealth,
+    mergeAdminDebugRouteRuntimeHealth,
 } from "@/lib/admin-debug-route-runtime";
 import type { RouteRuntimeHealthItem } from "@/lib/route-runtime-health";
 
@@ -35,6 +36,39 @@ function buildItem(overrides: Partial<RouteRuntimeHealthItem>): RouteRuntimeHeal
 }
 
 describe("admin debug route runtime helpers", () => {
+    it("keeps the API snapshot as the coverage baseline and overlays realtime rows", () => {
+        const snapshotItems: RouteRuntimeHealthItem[] = [
+            buildItem({
+                key: "admin/debug:GET",
+                title: "Admin debug snapshot",
+                updatedAtMs: NOW_MS - 60_000,
+                lastLatencyMs: 100,
+            }),
+            buildItem({
+                key: "creator/messages:POST",
+                title: "Legacy creator-message sends",
+                updatedAtMs: 0,
+                firstObservedAtMs: 0,
+                lastSuccessAtMs: 0,
+                lastStatusCode: 0,
+            }),
+        ];
+        const realtimeItems: RouteRuntimeHealthItem[] = [
+            buildItem({
+                key: "admin/debug:GET",
+                title: "Admin debug snapshot",
+                updatedAtMs: NOW_MS - 5_000,
+                lastLatencyMs: 250,
+            }),
+        ];
+
+        const merged = mergeAdminDebugRouteRuntimeHealth({ snapshotItems, realtimeItems });
+
+        expect(merged).toHaveLength(2);
+        expect(merged.find((item) => item.key === "admin/debug:GET")?.lastLatencyMs).toBe(250);
+        expect(merged.find((item) => item.key === "creator/messages:POST")?.updatedAtMs).toBe(0);
+    });
+
     it("filters stale and unseen routes distinctly", () => {
         const items: RouteRuntimeHealthItem[] = [
             buildItem({
