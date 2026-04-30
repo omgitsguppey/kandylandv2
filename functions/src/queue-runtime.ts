@@ -12,13 +12,13 @@ import {
   buildProcessQueueLifecyclePlan,
   type ActivationDropRuntime,
   type QueuedDropRuntime,
-} from "@shared/runtime/queue-runtime"
+} from "../../shared/runtime/queue-runtime"
 import {
   QUEUE_RUNTIME_WARNING_CODES,
   type NotificationDispatchOutcomeStatus,
   type RuntimeWarningExecutionLayer,
-} from "@shared/runtime/runtime-warning-contract"
-import {getFiniteDropTimestamp} from "@shared/runtime/drop-status"
+} from "../../shared/runtime/runtime-warning-contract"
+import {getFiniteDropTimestamp} from "../../shared/runtime/drop-status"
 
 const DROP_COLLECTION_LINK = "/drops"
 const SYSTEM_RUNTIME_COLLECTION = "systemRuntime"

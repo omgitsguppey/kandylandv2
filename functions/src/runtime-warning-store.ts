@@ -15,7 +15,7 @@ import {
   type RuntimeWarningExecutionLayer,
   type RuntimeWarningSeverity,
   type RuntimeWarningStatus,
-} from "@shared/runtime/runtime-warning-contract"
+} from "../../shared/runtime/runtime-warning-contract"
 
 function sanitizeDetail(detail: Record<string, unknown> | undefined) {
   if (!detail) {

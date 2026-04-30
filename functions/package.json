@@ -2,10 +2,10 @@
   "name": "functions",
   "scripts": {
     "lint": "eslint src",
-    "build": "tsc",
+    "build": "node -e \"require('fs').rmSync('lib',{recursive:true,force:true})\" && tsc",
     "check": "npm run lint && npm run build",
-    "rebuild:analytics-truth": "npm run build && node lib/analytics-truth-cli.js",
-    "rebuild:behavioral-intelligence": "npm run build && node lib/behavioral-intelligence-cli.js",
+    "rebuild:analytics-truth": "npm run build && node lib/functions/src/analytics-truth-cli.js",
+    "rebuild:behavioral-intelligence": "npm run build && node lib/functions/src/behavioral-intelligence-cli.js",
     "build:watch": "tsc --watch",
     "serve": "npm run build && firebase emulators:start --only functions",
     "shell": "npm run build && firebase functions:shell",
@@ -16,7 +16,7 @@
   "engines": {
     "node": "22"
   },
-  "main": "lib/index.js",
+  "main": "lib/functions/src/index.js",
   "dependencies": {
     "@google-cloud/bigquery": "^8.1.1",
     "@google-cloud/functions-framework": "^5.0.2",
