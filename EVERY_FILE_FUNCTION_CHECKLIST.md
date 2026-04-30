@@ -9,6 +9,17 @@ Scoring: all entries below are marked as included in the current validated sweep
 
 Current repo-wide state snapshot: see [FULL_SCALE_CODEBASE_AUDIT.md](/Users/uylus/OneDrive/Documents/KandyDrops_Final/FULL_SCALE_CODEBASE_AUDIT.md) for the current live baseline, verification state, and continuity rules, and see [REPO_MEMORY_LEDGER.md](/Users/uylus/OneDrive/Documents/KandyDrops_Final/REPO_MEMORY_LEDGER.md) for major architectural and workflow decisions. The detailed file/function body below remains valuable historical evidence, but it has not been fully regenerated against the current 2026-04-18 inventory review yet.
 
+## 2026-04-30 Analytics Truth Layer v2 Phase 1 Coverage
+
+- [x] `docs/agent-truth/analytics-truth-layer-v2.md` documents verified hot-cache-first analytics, realtime upgrade, manual refresh, legacy recovery, fake-zero prevention, actor separation, and Admin Analytics vs Admin Debug boundaries.
+- [x] `docs/agent-truth/analytics-source-hierarchy.md` defines product truth, verified hot cache snapshots, realtime listener upgrades, GA4/BigQuery daily verification, GA4 intraday directional data, Debug parity, and sources that must never be canonical.
+- [x] `docs/agent-truth/analytics-actor-taxonomy.md` defines guest, anonymous visitor, session, authenticated user, creator, admin, system, unknown, identity links, guest-to-user merge rules, and admin exclusion rules.
+- [x] `docs/agent-truth/analytics-module-map.md` maps Admin Analytics and Admin Debug modules, desired canonical sources, snapshot keys, refresh behavior, debug parity, risks, and surface placement.
+- [x] `docs/agent-truth/analytics-file-inventory.md` records the Phase 1 blast-radius inventory for analytics UI, Debug, routes, telemetry, tasks, notifications, purchases/unlocks, onboarding, identity/session, Functions, config/rules, tests, scripts, and agent indexes.
+- [x] `agent/index/analytics-truth-layer-v2.json` provides the machine-readable doctrine, modules, file groups, risks, and phase plan.
+- [x] `scripts/agent/validate-analytics-truth-layer-v2.ts` and `package.json` add `npm run check:analytics-truth-layer-v2` as the fast targeted validation guard.
+- [x] This Phase 1 pass intentionally does not refactor production analytics behavior, rename events, delete legacy code, or change dashboard rendering.
+
 ## 2026-04-30 App Hosting Origin, Navigation Secret, and Realtime Database Rules Coverage
 
 - [x] `apphosting.yaml` uses `https://kandydrops.com` as the canonical App Hosting origin because that is the resolving production domain.

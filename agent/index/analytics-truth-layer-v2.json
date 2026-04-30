@@ -1,0 +1,358 @@
+{
+  "generatedAt": "2026-04-30T00:00:00.000Z",
+  "phase": "phase_1_doctrine_inventory_contracts",
+  "status": "discovery_only_no_behavior_refactor",
+  "sourceDocuments": [
+    "docs/agent-truth/analytics-truth-layer-v2.md",
+    "docs/agent-truth/analytics-file-inventory.md",
+    "docs/agent-truth/analytics-source-hierarchy.md",
+    "docs/agent-truth/analytics-actor-taxonomy.md",
+    "docs/agent-truth/analytics-module-map.md"
+  ],
+  "doctrine": {
+    "hotCacheFirst": true,
+    "realtimeUpgradeSecond": true,
+    "manualRefreshAllowed": true,
+    "blankLoadingForbiddenWhenVerifiedSnapshotExists": true,
+    "fakeZerosForbidden": true,
+    "realtimeOnlyLoadingDependencyDeprecated": true,
+    "adminAnalyticsVsDebug": {
+      "analytics": "compact source-labeled operator insight",
+      "debug": "source formulas parity drift recovery and validation detail"
+    }
+  },
+  "sourceHierarchy": [
+    {
+      "rank": 1,
+      "name": "product_truth",
+      "description": "first-party event ledger and business records",
+      "examples": [
+        "analytics_event_facts",
+        "analytics_guest_batches",
+        "analytics_sessions",
+        "task lifecycle logs",
+        "notification records",
+        "purchase and unlock records",
+        "onboarding step facts"
+      ]
+    },
+    {
+      "rank": 2,
+      "name": "verified_hot_cache_snapshot",
+      "description": "server-built read model used for fast admin first paint",
+      "examples": [
+        "analytics_aggregate_stats/realtime_summary",
+        "validated historical route cache"
+      ]
+    },
+    {
+      "rank": 3,
+      "name": "realtime_listener_upgrade",
+      "description": "Firestore or RTDB upgrade after cache render with metadata",
+      "requiredMetadata": [
+        "fromCache",
+        "hasPendingWrites",
+        "serverConfirmed",
+        "selectedRange",
+        "actorLane"
+      ]
+    },
+    {
+      "rank": 4,
+      "name": "historical_verification",
+      "description": "GA4 BigQuery daily export and provider verification for completed days",
+      "examples": [
+        "events_YYYYMMDD"
+      ]
+    },
+    {
+      "rank": 5,
+      "name": "current_day_directional",
+      "description": "GA4 intraday/current-day live-ish data that must be labeled incomplete",
+      "examples": [
+        "events_intraday_YYYYMMDD",
+        "GA4 realtime reports"
+      ]
+    },
+    {
+      "rank": 6,
+      "name": "debug_truth",
+      "description": "parity across all sources with formulas drift and freshness"
+    }
+  ],
+  "neverCanonical": [
+    "AI/model summaries",
+    "stale route snapshots without stale labels",
+    "local-only UI state",
+    "unlabeled fallback",
+    "unlabeled stale cache",
+    "fake zeros",
+    "raw GA event counts without definitions"
+  ],
+  "actors": [
+    "guest",
+    "anonymous visitor",
+    "session",
+    "authenticated user",
+    "creator",
+    "admin",
+    "system",
+    "unknown"
+  ],
+  "modules": [
+    {
+      "name": "Platform Pulse",
+      "surface": "analytics",
+      "currentSource": "useAdminAnalyticsState plus realtime and historical API routes",
+      "desiredSource": "verified hot cache snapshot with realtime upgrade",
+      "risk": "high"
+    },
+    {
+      "name": "Audience Snapshot",
+      "surface": "analytics",
+      "currentSource": "historical traffic payload plus GA totals and first-party rollups",
+      "desiredSource": "first-party audience snapshot with GA4 validation",
+      "risk": "high"
+    },
+    {
+      "name": "Commerce Snapshot",
+      "surface": "analytics",
+      "currentSource": "historical commerce and funnel payloads",
+      "desiredSource": "payment/internal purchase records plus GumDrops ledger",
+      "risk": "high"
+    },
+    {
+      "name": "Live Pulse",
+      "surface": "analytics",
+      "currentSource": "realtime route hot cache and first-party active lanes",
+      "desiredSource": "first-party presence read model plus listener metadata",
+      "risk": "high"
+    },
+    {
+      "name": "Journey Funnel",
+      "surface": "analytics",
+      "currentSource": "historical funnel and event counts",
+      "desiredSource": "ordered journey facts or explicitly labeled raw event chain",
+      "risk": "high"
+    },
+    {
+      "name": "Auth Outcomes",
+      "surface": "analytics",
+      "currentSource": "auth breakdown events and registered user facts",
+      "desiredSource": "auth attempt/result facts with timing and method classification",
+      "risk": "medium"
+    },
+    {
+      "name": "Onboarding Performance",
+      "surface": "analytics",
+      "currentSource": "historical onboarding stats and step stats",
+      "desiredSource": "canonical onboarding step facts with auth signup comparison in Debug",
+      "risk": "high"
+    },
+    {
+      "name": "Daily Task Pipeline",
+      "surface": "analytics",
+      "currentSource": "task pipeline duration buckets and leaderboard historical payload",
+      "desiredSource": "user task state and lifecycle logs with telemetry parity",
+      "risk": "high"
+    },
+    {
+      "name": "Notification Funnel",
+      "surface": "analytics",
+      "currentSource": "notification funnel actions and reminder reasons",
+      "desiredSource": "notification inbox/runtime records and push/read/dedupe telemetry",
+      "risk": "high"
+    },
+    {
+      "name": "Event Mix",
+      "surface": "analytics",
+      "currentSource": "event breakdown and catalog context mapping",
+      "desiredSource": "first-party event facts with surface mapping and provider validation",
+      "risk": "medium"
+    },
+    {
+      "name": "Live Interaction Stream",
+      "surface": "analytics",
+      "currentSource": "raw event stream model",
+      "desiredSource": "non-admin first-party interaction stream with actor classification",
+      "risk": "high"
+    },
+    {
+      "name": "Data Validation",
+      "surface": "debug",
+      "currentSource": "historical validation route section",
+      "desiredSource": "Admin Debug validation group with pass blocking and freshness",
+      "risk": "high"
+    },
+    {
+      "name": "Admin Debug",
+      "surface": "debug",
+      "currentSource": "debug route and debug realtime hook",
+      "desiredSource": "central parity validation and source metadata surface",
+      "risk": "high"
+    }
+  ],
+  "fileGroups": {
+    "adminAnalyticsUi": [
+      "src/app/admin/analytics/page.tsx",
+      "src/app/admin/analytics/hooks/useAdminAnalyticsState.tsx",
+      "src/app/admin/analytics/hooks/useAdminAnalyticsRealtime.ts",
+      "src/app/admin/analytics/components/AdminAnalyticsOperationsTab.tsx",
+      "src/app/admin/analytics/components/AdminAnalyticsAudienceTab.tsx",
+      "src/app/admin/analytics/components/AdminAnalyticsCommerceTab.tsx",
+      "src/components/Admin/Analytics/AdminDailyTaskPipelineModule.tsx",
+      "src/components/Admin/Analytics/AdminTaskAndNotificationModules.tsx",
+      "src/components/Admin/Analytics/AdminOnboardingAnalyticsModules.tsx"
+    ],
+    "adminDebug": [
+      "src/app/admin/debug/page.tsx",
+      "src/app/admin/debug/components/DebugAdvancedDataValidation.tsx",
+      "src/app/api/admin/debug/route.ts"
+    ],
+    "apiRoutes": [
+      "src/app/api/admin/analytics/historical/route.ts",
+      "src/app/api/admin/analytics/realtime/route.ts",
+      "src/app/api/analytics/ingest/route.ts",
+      "src/app/api/analytics/ingest-identified/route.ts",
+      "src/app/api/notifications/route.ts",
+      "src/app/api/paypal/capture/route.ts",
+      "src/app/api/drops/unlock/route.ts",
+      "src/app/api/user/onboarding-progress/route.ts",
+      "src/app/api/viewer/watch-session/route.ts"
+    ],
+    "serverUtilities": [
+      "src/lib/server/admin-analytics-data.ts",
+      "src/lib/server/admin-analytics-historical-traffic.ts",
+      "src/lib/server/admin-analytics-historical-tasks.ts",
+      "src/lib/server/admin-analytics-historical-validation.ts",
+      "src/lib/server/analytics.ts",
+      "src/lib/server/analytics-governance.ts",
+      "src/lib/server/ephemeral-route-cache.ts"
+    ],
+    "clientTelemetry": [
+      "src/lib/telemetry.ts",
+      "src/lib/telemetry-catalog.ts",
+      "src/lib/analytics-identifiers.ts",
+      "src/components/Analytics/PageViewEvent.tsx",
+      "src/components/Analytics/DeepTracker.tsx"
+    ],
+    "tasks": [
+      "src/lib/admin-task-pipeline.ts",
+      "src/lib/tasks/task-catalog.ts",
+      "src/lib/tasks/task-observability.ts",
+      "src/lib/server/daily-tasks.ts",
+      "functions/src/analytics-task-events.ts"
+    ],
+    "notifications": [
+      "src/lib/admin-notification-funnel.ts",
+      "src/lib/notification-contracts.ts",
+      "src/lib/server/push-notifications.ts",
+      "src/hooks/useNotifications.ts",
+      "public/firebase-messaging-sw.js"
+    ],
+    "commerceUnlocks": [
+      "src/lib/admin-analytics-commerce-snapshot.ts",
+      "src/lib/gumdrop-ledger.ts",
+      "src/lib/gumdrop-economics.ts",
+      "src/lib/transaction-normalizers.ts",
+      "src/app/api/paypal/capture/route.ts",
+      "src/app/api/drops/unlock/route.ts"
+    ],
+    "onboarding": [
+      "src/lib/admin-onboarding-velocity.ts",
+      "src/lib/server/onboarding-analytics.ts",
+      "src/components/Auth/GuidedOnboarding.tsx",
+      "src/app/api/user/complete-onboarding/route.ts",
+      "src/app/api/user/onboarding-progress/route.ts"
+    ],
+    "identitySession": [
+      "src/context/AuthContext.tsx",
+      "src/lib/client-session.ts",
+      "src/lib/analytics-identifiers.ts",
+      "src/lib/navigation-session.ts",
+      "src/app/api/auth/navigation-session/route.ts"
+    ],
+    "configRules": [
+      "firebase.json",
+      "firestore.rules",
+      "database.rules.json",
+      "storage.rules",
+      "apphosting.yaml",
+      "functions/package.json",
+      "package.json"
+    ],
+    "tests": [
+      "tests/unit/admin-analytics-realtime-route.spec.ts",
+      "tests/unit/admin-analytics-truth.spec.ts",
+      "tests/unit/admin-task-pipeline.spec.ts",
+      "tests/unit/admin-notification-funnel.spec.ts",
+      "tests/unit/analytics-ingest-route.spec.ts",
+      "tests/unit/notification-contracts.spec.ts",
+      "tests/firebase/firestore.rules.spec.ts"
+    ],
+    "scripts": [
+      "scripts/check-analytics-continuity.ts",
+      "scripts/check-admin-truth-contracts.ts",
+      "scripts/check-telemetry-parity-contracts.ts",
+      "scripts/check-notification-pipeline.ts",
+      "scripts/agent/validate-analytics-truth-layer-v2.ts"
+    ]
+  },
+  "risks": [
+    "Admin Analytics still consumes broad historical and realtime route payloads before every module has a dedicated verified snapshot contract.",
+    "Some module normalizers carry source classification locally instead of through one shared source metadata helper.",
+    "GA4 intraday and realtime provider data can be mistaken for stable final truth if labels are missing.",
+    "Firestore cached snapshots can be shown before server confirmation if listener metadata is not surfaced.",
+    "Guest-to-user identity linkage must preserve guest history and exclude admin/system events from user analytics.",
+    "Legacy route snapshots and local session storage snapshots must be labeled as stale/cache, never live."
+  ],
+  "phasePlan": [
+    {
+      "phase": 1,
+      "name": "doctrine_inventory_contracts",
+      "allowedChanges": [
+        "docs",
+        "agent index",
+        "targeted validation"
+      ],
+      "forbiddenChanges": [
+        "production analytics behavior",
+        "event renames",
+        "UI rewrites"
+      ]
+    },
+    {
+      "phase": 2,
+      "name": "shared_snapshot_contracts",
+      "goal": "create shared snapshot/source metadata contracts and module adapter plan"
+    },
+    {
+      "phase": 3,
+      "name": "hot_cache_first_hydration",
+      "goal": "move modules to verified cache first, realtime upgrade second, manual refresh third"
+    },
+    {
+      "phase": 4,
+      "name": "debug_parity_validation",
+      "goal": "centralize source parity, legacy recovery, and pass blocking in Admin Debug"
+    },
+    {
+      "phase": 5,
+      "name": "legacy_cleanup",
+      "goal": "remove obsolete realtime-only fallback paths after parity proof"
+    }
+  ],
+  "validation": {
+    "script": "scripts/agent/validate-analytics-truth-layer-v2.ts",
+    "npmScript": "check:analytics-truth-layer-v2",
+    "checks": [
+      "required docs exist",
+      "module map includes known modules",
+      "actor taxonomy includes all actor lanes",
+      "source hierarchy forbids fake zeros and unlabeled stale/fallback data",
+      "file inventory includes required concern groups",
+      "doctrine allows verified hot cache and manual refresh",
+      "doctrine deprecates realtime-only loading dependency"
+    ]
+  }
+}

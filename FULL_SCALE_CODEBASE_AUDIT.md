@@ -1,5 +1,24 @@
 # KandyDrops Core Codebase Audit & Defensive Ledger
 
+## [2026-04-30 #59] PRE/POST: Analytics Truth Layer v2 Phase 1 Doctrine and Blast-Radius Map
+
+Scope completed:
+- Creating the Phase 1 doctrine and discovery layer for Analytics Truth Layer v2 without changing production analytics behavior.
+- Mapping Admin Analytics, Admin Debug, telemetry, task, notification, commerce, onboarding, identity/session, Functions, Firebase rules/config, scripts, tests, and agent indexes that touch analytics truth.
+- Establishing verified hot-cache-first analytics doctrine with realtime upgrade, manual refresh, legacy recovery, parity validation, actor separation, and fake-zero prevention.
+- Added the machine-readable `agent/index/analytics-truth-layer-v2.json` and targeted guard `scripts/agent/validate-analytics-truth-layer-v2.ts`.
+
+Startup protocol:
+- Read control tower startup, mission, routing, execution order, source-of-truth map, shared component ownership, doctrine files, banned patterns, vocabulary, decision checklist, and the UI/copy workflow.
+- Read the broad governance baselines from `FULL_SCALE_CODEBASE_AUDIT.md`, `REPO_MEMORY_LEDGER.md`, and `EVERY_FILE_FUNCTION_CHECKLIST.md`.
+- Ran adjacency tracing for `src/app/admin/analytics/page.tsx` and `src/app/admin/debug/page.tsx`.
+
+Verification completed:
+- `npm run check:analytics-truth-layer-v2`
+- `npm run typecheck -- --pretty false`
+- `npm run check:agent-context`
+- `git diff --check`
+
 ## [2026-04-30 #58] PRE/POST: App Hosting Origin, Navigation Secret, and Realtime Database Rules Deploy Gap Closure
 
 Scope completed:

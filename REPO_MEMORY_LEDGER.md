@@ -24,6 +24,24 @@ This file is not a changelog. It is the concise ledger for durable decisions tha
 
 ## Decision Entries
 
+### 1bo. Analytics Truth Layer v2 starts from verified hot cache, not realtime-only loading
+
+- Approximate date: Recorded explicitly on 2026-04-30 from the Analytics Truth Layer v2 Phase 1 doctrine, file inventory, module map, and validation pass
+- Status: Active admin analytics architecture doctrine
+- Problem/context: Admin Analytics had accumulated module-by-module fixes but still needed one repo-wide source-of-truth contract for hot cache, realtime upgrade, manual refresh, legacy recovery, actor separation, Debug parity, and fake-zero prevention.
+- Decision made: Phase 1 establishes the doctrine and blast-radius map before production behavior changes. Admin Analytics should render verified hot cache snapshots first, upgrade with realtime only when metadata proves truth, allow manual refresh, and route detailed parity validation to Admin Debug.
+- What became canonical:
+  - `docs/agent-truth/analytics-truth-layer-v2.md` owns the top-level doctrine.
+  - `docs/agent-truth/analytics-source-hierarchy.md` defines product truth, hot cache, realtime upgrade, GA4/BigQuery daily verification, GA4 intraday directional data, and Debug parity.
+  - `docs/agent-truth/analytics-actor-taxonomy.md` separates guest, anonymous visitor, session, authenticated user, creator, admin, system, and unknown lanes.
+  - `docs/agent-truth/analytics-module-map.md` maps Admin Analytics and Admin Debug modules, including whether each stays in Analytics or belongs in Debug.
+  - `docs/agent-truth/analytics-file-inventory.md` maps the repo-wide analytics blast radius.
+  - `agent/index/analytics-truth-layer-v2.json` gives future agents a machine-readable summary, and `scripts/agent/validate-analytics-truth-layer-v2.ts` guards the contract.
+- Consequence for future work:
+  - Do not implement later analytics behavior refactors without starting from the Phase 1 docs and index.
+  - Do not reintroduce realtime-only dashboard loading, unlabeled stale/fallback states, fake zeros, or admin/system events mixed into user/guest analytics.
+  - GA4 intraday/current-day data remains directional; GA4 daily/BigQuery export remains verification unless reconciled against first-party facts.
+
 ### 1bn. App Hosting uses apex domain as canonical origin and secrets under `env`
 
 - Approximate date: Recorded explicitly on 2026-04-30 from the App Hosting origin, navigation secret, and Realtime Database rules deploy gap closure pass
