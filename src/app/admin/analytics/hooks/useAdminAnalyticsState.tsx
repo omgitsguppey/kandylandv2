@@ -566,11 +566,6 @@ const { user } = useAuth();
     "dailyTaskPipeline",
     dailyTaskPipelineRange,
   );
-  const taskCompletionSpeedRange = getSectionRange("taskCompletionSpeed");
-  const taskCompletionSpeedOverride = useHistoricalSectionOverride(
-    "taskCompletionSpeed",
-    taskCompletionSpeedRange,
-  );
   const taskLeaderboardRange = getSectionRange("taskLeaderboard");
   const taskLeaderboardOverride = useHistoricalSectionOverride(
     "taskLeaderboard",
@@ -1580,11 +1575,14 @@ const { user } = useAuth();
       : dailyTaskPipelineOverride.data;
   const dailyTaskPipelineItems =
     dailyTaskPipelineData?.taskPipeline ?? taskPipeline;
+  const dailyTaskPipelineDurationBuckets =
+    dailyTaskPipelineData?.taskDurationBuckets ?? taskDurationBuckets;
   const dailyTaskPipelineModel = useMemo(
     () => buildAdminTaskPipelineModel({
       selectedRange: dailyTaskPipelineRange,
       response: dailyTaskPipelineData,
       items: dailyTaskPipelineItems,
+      taskDurationBuckets: dailyTaskPipelineDurationBuckets,
       taskLeaderboard: dailyTaskPipelineData?.taskLeaderboard ?? taskLeaderboard,
       loading: dailyTaskPipelineRange === ADMIN_ANALYTICS_DEFAULT_RANGE
         ? historicalLoading
@@ -1598,6 +1596,7 @@ const { user } = useAuth();
       dailyTaskPipelineRange,
       dailyTaskPipelineData,
       dailyTaskPipelineItems,
+      dailyTaskPipelineDurationBuckets,
       taskLeaderboard,
       historicalLoading,
       dailyTaskPipelineOverride.isLoading,
@@ -1606,12 +1605,6 @@ const { user } = useAuth();
       historicalOverviewTruthState,
     ],
   );
-  const taskCompletionSpeedData =
-    taskCompletionSpeedRange === ADMIN_ANALYTICS_DEFAULT_RANGE
-      ? historicalResponse
-      : taskCompletionSpeedOverride.data;
-  const taskCompletionSpeedBuckets =
-    taskCompletionSpeedData?.taskDurationBuckets ?? taskDurationBuckets;
   const taskLeaderboardData =
     taskLeaderboardRange === ADMIN_ANALYTICS_DEFAULT_RANGE
       ? historicalResponse
@@ -1875,11 +1868,6 @@ const { user } = useAuth();
     dailyTaskPipelineRange,
     dailyTaskPipelineOverride,
   );
-  const taskCompletionSpeedState = buildHistoricalSectionState(
-    "Task completion speed",
-    taskCompletionSpeedRange,
-    taskCompletionSpeedOverride,
-  );
   const taskLeaderboardState = buildHistoricalSectionState(
     "Task leaderboard",
     taskLeaderboardRange,
@@ -1939,7 +1927,7 @@ const { user } = useAuth();
     revenueDisplay, purchasesDisplay, mobileShareDisplay, liveActiveDisplay, liveActiveTruthState, historicalOverviewTruthState, analyticsOverviewDebugMeta, overviewCheckoutStarts,
     viewerDrilldownFilter, viewerDrilldownOverview, applyViewerFilter, viewerDrilldownUsers, viewerDrilldownCaptureHealth, liveWatchCaptureHealth, viewerDrilldownJourneys, viewerDrilldownInsights, viewerDropChartData, viewerJourneyItems, watchDepthTagBuckets, watchDepthTagDemand,
     getJourneyStateClasses, getJourneyStateLabel, topExperienceContexts, topComponentContexts, eventMixTopEvents, eventMixTopComponentContexts, eventMixModel,
-    dailyTaskPipelineModel, taskCompletionSpeedBuckets, taskLeaderboardItems, activeNotificationFunnelPieData, notificationActionItems, maxNotificationActionValue, hasNotificationReminderReasons, notificationReminderReasons
+    dailyTaskPipelineModel, taskLeaderboardItems, activeNotificationFunnelPieData, notificationActionItems, maxNotificationActionValue, hasNotificationReminderReasons, notificationReminderReasons
   };
 }
 

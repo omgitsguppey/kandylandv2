@@ -28,13 +28,16 @@ const debugRoute = read("src/app/api/admin/debug/route.ts");
 const historicalRoute = read("src/app/api/admin/analytics/historical/route.ts");
 const doc = read("docs/agent-truth/admin-analytics-daily-task-pipeline.md");
 
-const section = component.slice(
-  component.indexOf('title="Daily Task Pipeline"'),
-  component.indexOf('title="Task Completion Speed"'),
-);
+const sectionStart = component.indexOf('title="Daily Task Pipeline"');
+const sectionEnd = component.indexOf('title="Task Leaderboard"');
+const section = component.slice(sectionStart, sectionEnd);
 
 assertIncludes("AdminTaskAndNotificationModules", section, "dailyTaskPipelineModel.lifecycleMetrics");
 assertIncludes("AdminTaskAndNotificationModules", section, "dailyTaskPipelineModel.guidanceMetrics");
+assertIncludes("AdminTaskAndNotificationModules", section, "Completion speed");
+assertIncludes("AdminTaskAndNotificationModules", section, "dailyTaskPipelineModel.speedBuckets");
+assertIncludes("AdminTaskAndNotificationModules", section, "timingCoveragePercent");
+assertIncludes("AdminTaskAndNotificationModules", section, "timingRecommendation");
 assertIncludes("AdminTaskAndNotificationModules", section, "Start rate uses");
 assertIncludes("AdminTaskAndNotificationModules", section, "stuckAssignedCount");
 assertIncludes("AdminTaskAndNotificationModules", section, "orphanCompletedCount");
@@ -42,6 +45,14 @@ assertIncludes("AdminTaskAndNotificationModules", component, "__KANDYDROPS_ADMIN
 assertNotIncludes("Daily Task Pipeline section", section, "<BarChart");
 assertNotIncludes("Daily Task Pipeline section", section, "Guides shown\" count");
 assertNotIncludes("Daily Task Pipeline section", section, "h-64 w-full");
+assertNotIncludes("AdminTaskAndNotificationModules", component, 'title="Task Completion Speed"');
+assertNotIncludes("AdminTaskAndNotificationModules", component, 'renderSectionRangeControl("taskCompletionSpeed")');
+assertNotIncludes("AdminTaskAndNotificationModules", component, 'name="Completions"');
+assertNotIncludes("AdminTaskAndNotificationModules", component, 'fill="#22d3ee"');
+assertNotIncludes("admin analytics page", page, "taskCompletionSpeedBuckets");
+assertNotIncludes("useAdminAnalyticsState", hook, "taskCompletionSpeedRange");
+assertNotIncludes("useAdminAnalyticsState", hook, "taskCompletionSpeedOverride");
+assertNotIncludes("useAdminAnalyticsState", hook, "taskCompletionSpeedBuckets");
 
 for (const required of [
   "pipelineMode",
@@ -65,22 +76,51 @@ for (const required of [
   "telemetryStateMismatchCount",
   "stateTelemetryMissingCount",
   "perTaskBreakdown",
+  "completionSpeedConsolidated",
+  "standaloneTaskCompletionSpeedRemoved",
+  "speedSource",
+  "totalCompletedCount",
+  "timedCompletionCount",
+  "timingCoveragePercent",
+  "avgCompletionSeconds",
+  "medianCompletionSeconds",
+  "speedBuckets",
+  "fastestBucket",
+  "slowestBucket",
+  "slowTaskCount",
+  "slowThresholdSeconds",
+  "missingStartTimestampCount",
+  "missingCompletionTimestampCount",
+  "durationRejectedCount",
+  "speedBucketReconciliationDelta",
+  "sourceReconciliation",
+  "timingRecommendation",
   "fakeZeroPrevented",
 ]) {
   assertIncludes("admin-task-pipeline model", model, required);
 }
 
 assertIncludes("useAdminAnalyticsState", hook, "buildAdminTaskPipelineModel({");
+assertIncludes("useAdminAnalyticsState", hook, "taskDurationBuckets: dailyTaskPipelineDurationBuckets");
 assertIncludes("useAdminAnalyticsState", hook, "taskLeaderboard: dailyTaskPipelineData?.taskLeaderboard ?? taskLeaderboard");
 assertIncludes("admin analytics page", page, "dailyTaskPipelineModel={state.dailyTaskPipelineModel}");
+assertIncludes("historical route", historicalRoute, "taskDurationBuckets: payload.taskDurationBuckets");
 assertIncludes("historical route", historicalRoute, "taskLeaderboard: payload.taskLeaderboard");
 assertIncludes("AdminDebugRoute", debugRoute, "adminAnalyticsDailyTaskPipeline");
 assertIncludes("AdminDebugRoute", debugRoute, "pipelineMode");
 assertIncludes("AdminDebugRoute", debugRoute, "strictPipelineRule");
 assertIncludes("AdminDebugRoute", debugRoute, "telemetryStateMismatchCount");
+assertIncludes("AdminDebugRoute", debugRoute, "completionSpeedConsolidated");
+assertIncludes("AdminDebugRoute", debugRoute, "standaloneTaskCompletionSpeedRemoved");
+assertIncludes("AdminDebugRoute", debugRoute, "speedBuckets");
+assertIncludes("AdminDebugRoute", debugRoute, "completionSpeedRule");
 
 assertIncludes("agent truth doc", doc, "Lifecycle states are assigned, started, completed, failed");
 assertIncludes("agent truth doc", doc, "Guidance signals");
+assertIncludes("agent truth doc", doc, "Task Completion Speed belongs inside Daily Task Pipeline");
+assertIncludes("agent truth doc", doc, "standalone Task Completion Speed module is forbidden");
+assertIncludes("agent truth doc", doc, "Speed buckets count timed completions only");
+assertIncludes("agent truth doc", doc, "Bright cyan is not the semantic color");
 assertIncludes("agent truth doc", doc, "`started / assigned`");
 assertIncludes("agent truth doc", doc, "Future agents must not reintroduce the unhelpful vertical bar chart");
 

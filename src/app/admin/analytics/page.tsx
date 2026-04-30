@@ -254,7 +254,6 @@ export default function AdminAnalyticsPage() {
         <AdminTaskAndNotificationModules
           renderSectionRangeControl={state.renderSectionRangeControl}
           dailyTaskPipelineModel={state.dailyTaskPipelineModel}
-          taskCompletionSpeedBuckets={state.taskCompletionSpeedBuckets}
           taskLeaderboardItems={state.taskLeaderboardItems}
           activeNotificationFunnelPieData={state.activeNotificationFunnelPieData}
           notificationActionItems={state.notificationActionItems}

@@ -1,18 +1,13 @@
 "use client";
 
 import { useEffect, type ReactNode } from "react";
-import { BellRing, Clock3, Funnel, Sparkles } from "lucide-react";
+import { BellRing, Funnel, Sparkles } from "lucide-react";
 import {
-    Bar,
-    BarChart,
-    CartesianGrid,
     Cell,
     Pie,
     PieChart,
     ResponsiveContainer,
     Tooltip,
-    XAxis,
-    YAxis,
 } from "recharts";
 
 import {
@@ -23,11 +18,6 @@ import { AdminStatusBadge } from "@/components/Admin/AdminStatusBadge";
 import type { AdminTaskPipelineModel, AdminTaskPipelineMetric } from "@/lib/admin-task-pipeline";
 
 const PIE_COLORS = ["#b28cff", "#22d3ee", "#fb7185", "#f59e0b", "#34d399", "#60a5fa"];
-
-type CountBucketItem = {
-    label: string;
-    count: number;
-};
 
 type TaskLeaderboardItem = {
     taskId: string;
@@ -59,7 +49,6 @@ type NotificationPieItem = {
 export function AdminTaskAndNotificationModules(props: {
     renderSectionRangeControl: (sectionKey: string) => ReactNode;
     dailyTaskPipelineModel: AdminTaskPipelineModel;
-    taskCompletionSpeedBuckets: CountBucketItem[];
     taskLeaderboardItems: TaskLeaderboardItem[];
     activeNotificationFunnelPieData: NotificationPieItem[];
     notificationActionItems: NotificationActionItem[];
@@ -78,14 +67,22 @@ export function AdminTaskAndNotificationModules(props: {
 
     const formatCount = (value: number | null) => value === null ? "Waiting" : value.toLocaleString();
     const formatRate = (value: number | null) => value === null ? "Unavailable" : props.formatPercent(value);
+    const formatSpeed = (value: number | null) => value === null ? "Unavailable" : props.formatDuration(value);
     const lifecycleProgressWidth = (metric: AdminTaskPipelineMetric) => {
         const peak = Math.max(1, props.dailyTaskPipelineModel.peakCount);
         return `${Math.max(4, Math.min(100, ((metric.value ?? 0) / peak) * 100))}%`;
     };
+    const speedPeak = Math.max(1, ...props.dailyTaskPipelineModel.speedBuckets.map((bucket) => bucket.count ?? 0));
+    const speedBarClass = (label: string, count: number | null) => {
+        if ((count ?? 0) <= 0) return "bg-slate-700";
+        if (label.includes("60m+")) return "bg-rose-400";
+        if (label.includes("15-60m")) return "bg-amber-400";
+        return "bg-brand-purple";
+    };
 
     return (
         <>
-            <div className="grid gap-5 xl:grid-cols-[1fr_1fr]">
+            <div className="grid gap-5">
                 <SectionCard
                     title="Daily Task Pipeline"
                     subtitle="Assigned, started, completed, and failed tasks in one progression view."
@@ -159,47 +156,52 @@ export function AdminTaskAndNotificationModules(props: {
                                 <span>Orphan completions: <span className="text-white">{formatCount(props.dailyTaskPipelineModel.orphanCompletedCount)}</span></span>
                             </div>
                         </div>
-                    </div>
-                </SectionCard>
 
-                <SectionCard
-                    title="Task Completion Speed"
-                    subtitle="How fast completed tasks close."
-                    icon={Clock3}
-                    rightSlot={props.renderSectionRangeControl("taskCompletionSpeed")}
-                >
-                    <div className="h-64 w-full">
-                        <ResponsiveContainer width="100%" height="100%">
-                            <BarChart
-                                data={props.taskCompletionSpeedBuckets}
-                                margin={{ top: 8, right: 0, left: -18, bottom: 0 }}
-                            >
-                                <CartesianGrid
-                                    stroke="rgba(255,255,255,0.06)"
-                                    vertical={false}
-                                />
-                                <XAxis
-                                    dataKey="label"
-                                    stroke="#6b7280"
-                                    fontSize={11}
-                                    tickLine={false}
-                                    axisLine={false}
-                                />
-                                <YAxis
-                                    stroke="#6b7280"
-                                    fontSize={11}
-                                    tickLine={false}
-                                    axisLine={false}
-                                />
-                                <Tooltip content={<AnalyticsTooltip />} />
-                                <Bar
-                                    dataKey="count"
-                                    name="Completions"
-                                    fill="#22d3ee"
-                                    radius={[10, 10, 0, 0]}
-                                />
-                            </BarChart>
-                        </ResponsiveContainer>
+                        <div className="rounded-[1rem] border border-white/10 bg-black/25 p-3">
+                            <div className="mb-2 flex flex-col gap-1 sm:flex-row sm:items-center sm:justify-between">
+                                <div className="min-w-0">
+                                    <p className="text-xs font-semibold text-white">Completion speed</p>
+                                    <p className="mt-0.5 text-[11px] leading-4 text-gray-500">
+                                        {props.dailyTaskPipelineModel.timingRecommendation}
+                                    </p>
+                                </div>
+                                <span className="shrink-0 text-[10px] font-semibold uppercase tracking-[0.12em] text-gray-500">
+                                    {props.dailyTaskPipelineModel.speedSource}
+                                </span>
+                            </div>
+                            <div className="grid grid-cols-2 gap-1.5 sm:grid-cols-4">
+                                <div className="rounded-[0.8rem] bg-white/[0.04] px-2 py-1.5">
+                                    <p className="truncate text-[10px] text-gray-500">Avg finish</p>
+                                    <p className="font-semibold text-white">{formatSpeed(props.dailyTaskPipelineModel.avgCompletionSeconds)}</p>
+                                </div>
+                                <div className="rounded-[0.8rem] bg-white/[0.04] px-2 py-1.5">
+                                    <p className="truncate text-[10px] text-gray-500">Median</p>
+                                    <p className="font-semibold text-white">{formatSpeed(props.dailyTaskPipelineModel.medianCompletionSeconds)}</p>
+                                </div>
+                                <div className="rounded-[0.8rem] bg-white/[0.04] px-2 py-1.5">
+                                    <p className="truncate text-[10px] text-gray-500">Timed</p>
+                                    <p className="font-semibold text-white">{formatCount(props.dailyTaskPipelineModel.timedCompletionCount)}</p>
+                                </div>
+                                <div className="rounded-[0.8rem] bg-white/[0.04] px-2 py-1.5">
+                                    <p className="truncate text-[10px] text-gray-500">Coverage</p>
+                                    <p className="font-semibold text-white">{formatRate(props.dailyTaskPipelineModel.timingCoveragePercent)}</p>
+                                </div>
+                            </div>
+                            <div className="mt-2 space-y-1.5">
+                                {props.dailyTaskPipelineModel.speedBuckets.map((bucket) => (
+                                    <div key={bucket.bucketKey} className="grid grid-cols-[3.8rem_minmax(0,1fr)_2.8rem] items-center gap-2 text-[10px]">
+                                        <span className="truncate text-gray-500">{bucket.label}</span>
+                                        <div className="h-1.5 overflow-hidden rounded-full bg-white/10">
+                                            <div
+                                                className={`h-full rounded-full ${speedBarClass(bucket.label, bucket.count)}`}
+                                                style={{ width: `${Math.max(4, Math.min(100, ((bucket.count ?? 0) / speedPeak) * 100))}%` }}
+                                            />
+                                        </div>
+                                        <span className="text-right font-semibold text-gray-300">{formatCount(bucket.count)}</span>
+                                    </div>
+                                ))}
+                            </div>
+                        </div>
                     </div>
                 </SectionCard>
             </div>

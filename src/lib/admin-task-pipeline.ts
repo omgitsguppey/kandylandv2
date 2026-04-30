@@ -62,6 +62,35 @@ export interface AdminTaskPipelineModel {
         guideTaps: number;
         mismatches: number;
     }>;
+    completionSpeedConsolidated: boolean;
+    standaloneTaskCompletionSpeedRemoved: boolean;
+    speedSource: string;
+    totalCompletedCount: number | null;
+    timedCompletionCount: number | null;
+    timingCoveragePercent: number | null;
+    avgCompletionSeconds: number | null;
+    medianCompletionSeconds: number | null;
+    speedBuckets: Array<{
+        bucketKey: string;
+        label: string;
+        count: number | null;
+        percentOfTimedCompletions: number | null;
+    }>;
+    fastestBucket: string | null;
+    slowestBucket: string | null;
+    slowTaskCount: number | null;
+    slowThresholdSeconds: number;
+    missingStartTimestampCount: number | null;
+    missingCompletionTimestampCount: number | null;
+    durationRejectedCount: number | null;
+    speedBucketReconciliationDelta: number | null;
+    sourceReconciliation: {
+        lifecycleLogCount: number | null;
+        userTaskStateCount: number | null;
+        telemetryCompletionCount: number | null;
+        mismatchCount: number | null;
+    };
+    timingRecommendation: string;
     stale: boolean;
     cache: boolean;
     serverConfirmed: boolean;
@@ -94,6 +123,53 @@ function rate(numerator: number | null, denominator: number | null) {
     return numerator / denominator;
 }
 
+function bucketMaxSeconds(label: string) {
+    if (label.includes("<1m")) return 60;
+    if (label.includes("1-5m")) return 300;
+    if (label.includes("5-15m")) return 900;
+    if (label.includes("15-60m")) return 3600;
+    return Number.POSITIVE_INFINITY;
+}
+
+function bucketMidpointSeconds(label: string) {
+    if (label.includes("<1m")) return 30;
+    if (label.includes("1-5m")) return 180;
+    if (label.includes("5-15m")) return 600;
+    if (label.includes("15-60m")) return 2250;
+    return 3600;
+}
+
+function normalizeBucketKey(label: string) {
+    return label.toLowerCase().replace(/[^a-z0-9]+/g, "_").replace(/^_|_$/g, "") || "unknown";
+}
+
+function weightedMedianBucketSeconds(buckets: CountBucketItem[], total: number) {
+    if (total <= 0) return null;
+    let running = 0;
+    const target = total / 2;
+    for (const bucket of buckets) {
+        running += Math.max(0, bucket.count);
+        if (running >= target) return bucketMidpointSeconds(bucket.label);
+    }
+    return null;
+}
+
+function buildTimingRecommendation(input: {
+    timedCompletionCount: number | null;
+    totalCompletedCount: number | null;
+    fastestBucket: string | null;
+    slowTaskCount: number | null;
+    timingCoveragePercent: number | null;
+}) {
+    if (input.timedCompletionCount === null) return "Timing unavailable until linked task durations load.";
+    if (input.timedCompletionCount <= 0) return "Timing unavailable because no linked start/completion durations landed.";
+    if ((input.timingCoveragePercent ?? 1) < 0.8) {
+        return `Timing partial: ${input.timedCompletionCount.toLocaleString()} of ${(input.totalCompletedCount ?? 0).toLocaleString()} completions have linked durations.`;
+    }
+    if ((input.slowTaskCount ?? 0) > 0) return `${input.slowTaskCount?.toLocaleString()} timed completions are over 15 minutes.`;
+    return input.fastestBucket ? `Most timed completions land in ${input.fastestBucket}.` : "Completion speed is available.";
+}
+
 function buildRecommendation(input: {
     assigned: number | null;
     started: number | null;
@@ -115,6 +191,7 @@ export function buildAdminTaskPipelineModel(input: {
     selectedRange: RangeOption;
     response?: HistoricalAnalyticsResponse;
     items: CountBucketItem[];
+    taskDurationBuckets: CountBucketItem[];
     taskLeaderboard: TaskLeaderboardItem[];
     loading: boolean;
     error?: Error;
@@ -139,6 +216,43 @@ export function buildAdminTaskPipelineModel(input: {
         guideShown: fakeZeroPrevented ? null : findCount(input.items, "Guides shown"),
         guideTap: fakeZeroPrevented ? null : findCount(input.items, "Guide taps"),
     };
+    const totalCompletedCount = lifecycleValues.completed;
+    const timedCompletionCount = fakeZeroPrevented
+        ? null
+        : input.taskDurationBuckets.reduce((total, bucket) => total + Math.max(0, bucket.count), 0);
+    const timingCoveragePercent = totalCompletedCount !== null && totalCompletedCount > 0 && timedCompletionCount !== null
+        ? timedCompletionCount / totalCompletedCount
+        : null;
+    const speedBucketReconciliationDelta = totalCompletedCount === null || timedCompletionCount === null
+        ? null
+        : totalCompletedCount - timedCompletionCount;
+    const weightedSecondsTotal = input.taskDurationBuckets.reduce(
+        (total, bucket) => total + Math.max(0, bucket.count) * bucketMidpointSeconds(bucket.label),
+        0,
+    );
+    const avgCompletionSeconds = timedCompletionCount && timedCompletionCount > 0
+        ? Math.round(weightedSecondsTotal / timedCompletionCount)
+        : null;
+    const medianCompletionSeconds = timedCompletionCount && timedCompletionCount > 0
+        ? weightedMedianBucketSeconds(input.taskDurationBuckets, timedCompletionCount)
+        : null;
+    const speedBuckets = input.taskDurationBuckets.map((bucket) => ({
+        bucketKey: normalizeBucketKey(bucket.label),
+        label: bucket.label,
+        count: fakeZeroPrevented ? null : bucket.count,
+        percentOfTimedCompletions: timedCompletionCount && timedCompletionCount > 0
+            ? bucket.count / timedCompletionCount
+            : null,
+    }));
+    const populatedSpeedBuckets = speedBuckets.filter((bucket) => (bucket.count ?? 0) > 0);
+    const fastestBucket = populatedSpeedBuckets[0]?.label ?? null;
+    const slowestBucket = populatedSpeedBuckets[populatedSpeedBuckets.length - 1]?.label ?? null;
+    const slowThresholdSeconds = 900;
+    const slowTaskCount = fakeZeroPrevented
+        ? null
+        : input.taskDurationBuckets
+            .filter((bucket) => bucketMaxSeconds(bucket.label) > slowThresholdSeconds)
+            .reduce((total, bucket) => total + Math.max(0, bucket.count), 0);
     const hasLifecycle = [lifecycleValues.assigned, lifecycleValues.started, lifecycleValues.completed, lifecycleValues.failed]
         .some((value) => (value ?? 0) > 0);
     const hasGuidance = [lifecycleValues.guideShown, lifecycleValues.guideTap, lifecycleValues.reminded]
@@ -185,6 +299,13 @@ export function buildAdminTaskPipelineModel(input: {
     const startedNotCompletedCount = lifecycleValues.started === null || lifecycleValues.completed === null
         ? null
         : Math.max(0, lifecycleValues.started - lifecycleValues.completed);
+    const missingStartTimestampCount = speedBucketReconciliationDelta === null
+        ? null
+        : Math.max(0, speedBucketReconciliationDelta);
+    const missingCompletionTimestampCount = startedNotCompletedCount;
+    const durationRejectedCount = speedBucketReconciliationDelta === null
+        ? null
+        : Math.max(0, speedBucketReconciliationDelta);
     const perTaskBreakdown = input.taskLeaderboard.map((task) => ({
         taskId: task.taskId,
         label: task.title,
@@ -242,6 +363,36 @@ export function buildAdminTaskPipelineModel(input: {
         topFailingTaskType: topFailingTaskType && topFailingTaskType.failed > 0 ? topFailingTaskType.label : null,
         topLeakingStage,
         perTaskBreakdown,
+        completionSpeedConsolidated: true,
+        standaloneTaskCompletionSpeedRemoved: true,
+        speedSource: timedCompletionCount && timedCompletionCount > 0 ? "linked task lifecycle duration buckets" : "unavailable",
+        totalCompletedCount,
+        timedCompletionCount,
+        timingCoveragePercent,
+        avgCompletionSeconds,
+        medianCompletionSeconds,
+        speedBuckets,
+        fastestBucket,
+        slowestBucket,
+        slowTaskCount,
+        slowThresholdSeconds,
+        missingStartTimestampCount,
+        missingCompletionTimestampCount,
+        durationRejectedCount,
+        speedBucketReconciliationDelta,
+        sourceReconciliation: {
+            lifecycleLogCount: input.items.reduce((total, item) => total + Math.max(0, item.count), 0),
+            userTaskStateCount: null,
+            telemetryCompletionCount: lifecycleValues.completed,
+            mismatchCount: (orphanStartedCount ?? 0) + (orphanCompletedCount ?? 0) + (durationRejectedCount ?? 0),
+        },
+        timingRecommendation: buildTimingRecommendation({
+            timedCompletionCount,
+            totalCompletedCount,
+            fastestBucket,
+            slowTaskCount,
+            timingCoveragePercent,
+        }),
         stale,
         cache,
         serverConfirmed: hasResponse && !input.error,

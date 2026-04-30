@@ -15,8 +15,14 @@ Rates must expose denominators:
 
 Orphan started means started count exceeds assigned count. Orphan completed means completed count exceeds started count. Stuck assigned means assigned count exceeds started count. Started open means started count exceeds completed count. These are aggregate warnings until per-user task state is joined.
 
+Task Completion Speed belongs inside Daily Task Pipeline because it depends on the same lifecycle truth. A standalone Task Completion Speed module is forbidden unless a future product decision explicitly reintroduces it with a new source contract. Completion speed requires linked start and completion timestamps for the same user/task lifecycle; raw completion events alone are not enough.
+
+Speed buckets count timed completions only. Total completed tasks and timed completions may differ, so the UI and debug metadata must expose timing coverage. If completion timestamps exist but start timestamps are missing, do not calculate a duration; expose missing timestamp counts in Debug. Fake `0s` timing is forbidden when timestamps are missing or defaulted.
+
+The compact speed view should use brand/semantic colors: brand purple for completed timing, muted slate for empty/unavailable buckets, and restrained warning or error colors for slow/problem states. Bright cyan is not the semantic color for task completion speed unless doctrine later documents it for this exact use. Do not use a large vertical speed bar chart on mobile; use a compact inline histogram or summary inside Daily Task Pipeline.
+
 Do not render zero unless the source is loaded and server-confirmed. If the payload is missing, show waiting or unavailable. Stale cache must be labeled stale.
 
 Firebase Analytics events can be batched in normal use. Firestore listeners can emit cached/local-write data; expose `fromCache` and `hasPendingWrites` if Firestore becomes the source. GA4 intraday is incomplete; GA4 daily export is the stable completed-day source.
 
-Mobile density rule: use compact lifecycle tiles, a small horizontal progression, and a guidance signal row. Future agents must not reintroduce the unhelpful vertical bar chart or mix guide views into lifecycle states without labeling.
+Mobile density rule: use compact lifecycle tiles, a small horizontal progression, a guidance signal row, and compact completion-speed timing. Future agents must not reintroduce the unhelpful vertical bar chart, standalone Task Completion Speed chart, or mix guide views into lifecycle states without labeling.
