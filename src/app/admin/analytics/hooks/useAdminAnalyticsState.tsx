@@ -27,6 +27,7 @@ import {
 import { buildAdminAnalyticsAudienceSnapshotModel } from "@/lib/admin-analytics-audience-snapshot";
 import { buildAdminAnalyticsCommerceSnapshotModel } from "@/lib/admin-analytics-commerce-snapshot";
 import { buildAdminAnalyticsLivePulseModel } from "@/lib/admin-analytics-live-pulse";
+import { buildAdminAnalyticsJourneyFunnelModel } from "@/lib/admin-analytics-journey-funnel";
 
 
 import { TELEMETRY_EVENT_LABELS } from "@/lib/telemetry-catalog";
@@ -1180,6 +1181,19 @@ const { user } = useAuth();
       ? historicalResponse
       : journeyFunnelOverride.data;
   const journeyFunnelMetrics = journeyFunnelData?.funnel ?? funnel;
+  const journeyFunnelModel = buildAdminAnalyticsJourneyFunnelModel({
+    selectedRange: journeyFunnelRange,
+    response: journeyFunnelData,
+    funnel: journeyFunnelMetrics,
+    onboardingStats: journeyFunnelData?.onboardingStats ?? onboardingStats,
+    loading: journeyFunnelRange === ADMIN_ANALYTICS_DEFAULT_RANGE
+      ? historicalLoading
+      : journeyFunnelOverride.isLoading,
+    error: journeyFunnelRange === ADMIN_ANALYTICS_DEFAULT_RANGE
+      ? historicalError
+      : journeyFunnelOverride.error,
+    overviewTruthState: historicalOverviewTruthState,
+  });
   const authOutcomeData =
     authOutcomeSplitRange === ADMIN_ANALYTICS_DEFAULT_RANGE
       ? historicalResponse
@@ -1787,7 +1801,7 @@ const { user } = useAuth();
     PIE_COLORS, contentConversionRange, unlockCategoryMix, contentConversionItems, previewToUnlockRate, checkoutToPurchaseRate,
     topDropConversionRange, topDrops, topDropConversionItems, recentCommerceFeedRange, recentCommerceFeedItems, describeEvent, formatAbsoluteDateTime,
     formatMoney, formatCompactNumber, formatDuration, formatPercent, formatRelativeTime,
-    liveSurfaceMix, liveActiveUsers, livePulseOnboardingStats, livePulseOnboardingStartCount, livePulseOnboardingCompletionRate, livePulseFunnel, liveSeries, livePulseModel, journeyFunnelMetrics,
+    liveSurfaceMix, liveActiveUsers, livePulseOnboardingStats, livePulseOnboardingStartCount, livePulseOnboardingCompletionRate, livePulseFunnel, liveSeries, livePulseModel, journeyFunnelMetrics, journeyFunnelModel,
     liveFeedStatus: liveRealtime.feedStatus, liveFeedDetail: liveRealtime.feedDetail, liveGuestActiveCount: liveRealtime.guestActive
 ,
     revenueDisplay, purchasesDisplay, mobileShareDisplay, liveActiveDisplay, liveActiveTruthState, historicalOverviewTruthState, analyticsOverviewDebugMeta, overviewCheckoutStarts,

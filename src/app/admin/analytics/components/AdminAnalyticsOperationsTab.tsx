@@ -1,6 +1,6 @@
 import React from "react";
 import {
-  Activity, AlertTriangle, CheckCircle2, Clock3, Eye, Monitor, PlayCircle, Share2, ShoppingBag, Sparkles, Users, Wallet,
+  Activity, AlertTriangle, CheckCircle2, Clock3, Eye, Monitor, PlayCircle, Route, Share2, ShoppingBag, Sparkles, Users, Wallet,
 } from "lucide-react";
 import { Area, AreaChart, Bar, BarChart, CartesianGrid, ResponsiveContainer, Tooltip, XAxis, YAxis } from "recharts";
 import { AnalyticsTooltip, MetricCard, SectionCard } from "@/components/Admin/Analytics/AdminAnalyticsPrimitives";
@@ -13,7 +13,7 @@ import type { AdminAnalyticsState } from "../hooks/useAdminAnalyticsState";
 export function AdminAnalyticsOperationsTab(props: AdminAnalyticsState) {
   const {
     renderSectionRangeControl, liveResponse, historicalResponse, liveLoading, historicalLoading, nowMs, EVENT_LABELS,
-    liveSurfaceMix, liveActiveUsers, livePulseOnboardingStats, livePulseOnboardingStartCount, livePulseOnboardingCompletionRate, livePulseFunnel, liveSeries, livePulseModel,
+    liveSurfaceMix, liveActiveUsers, livePulseOnboardingStats, livePulseOnboardingStartCount, livePulseOnboardingCompletionRate, livePulseFunnel, liveSeries, livePulseModel, journeyFunnelModel,
     liveActiveTruthState, historicalOverviewTruthState,
     journeyFunnelMetrics,
     authOutcomeHasData, authOutcomeChartItems, authOutcomeTotals,
@@ -91,6 +91,25 @@ export function AdminAnalyticsOperationsTab(props: AdminAnalyticsState) {
       __KANDYDROPS_ADMIN_ANALYTICS_LIVE_PULSE_DEBUG__?: typeof livePulseModel;
     }).__KANDYDROPS_ADMIN_ANALYTICS_LIVE_PULSE_DEBUG__ = livePulseModel;
   }, [livePulseModel]);
+  const journeyFunnelBadgeLabel = journeyFunnelModel.modeLabel;
+  const journeyPercentLabel = (value: number | null) =>
+    value === null ? "Waiting" : formatPercent(value);
+  const journeyCountLabel = (value: number | null) =>
+    value === null ? "Waiting" : formatCompactNumber(value);
+  const biggestDropoffLabel =
+    journeyFunnelModel.biggestDropoffStep && journeyFunnelModel.biggestDropoffPercent !== null
+      ? `${journeyFunnelModel.biggestDropoffStep} ${formatPercent(journeyFunnelModel.biggestDropoffPercent)}`
+      : "Unavailable";
+
+  React.useEffect(() => {
+    if (typeof window === "undefined") {
+      return;
+    }
+
+    (window as typeof window & {
+      __KANDYDROPS_ADMIN_ANALYTICS_JOURNEY_FUNNEL_DEBUG__?: typeof journeyFunnelModel;
+    }).__KANDYDROPS_ADMIN_ANALYTICS_JOURNEY_FUNNEL_DEBUG__ = journeyFunnelModel;
+  }, [journeyFunnelModel]);
 
   return (
     <>
@@ -289,103 +308,107 @@ export function AdminAnalyticsOperationsTab(props: AdminAnalyticsState) {
             </SectionCard>
 
             <SectionCard
-              title="Journey Funnel"
-              subtitle="The custom event chain shows where users enter, preview, unlock, and pay."
+              title={journeyFunnelModel.visibleTitle}
+              subtitle="Raw event chain with source and denominator truth."
               icon={Eye}
               rightSlot={renderSectionRangeControl("journeyFunnel")}
             >
-              <div className="grid gap-3">
-                {[
-                  {
-                    label: "Auth modal opens",
-                    count: journeyFunnelMetrics.authModalOpens,
-                    ratio: 1,
-                    icon: Users,
-                  },
-                  {
-                    label: "Drop previews",
-                    count: journeyFunnelMetrics.previewOpens,
-                    ratio:
-                      journeyFunnelMetrics.authModalOpens > 0
-                        ? journeyFunnelMetrics.previewOpens /
-                          Math.max(1, journeyFunnelMetrics.authModalOpens)
-                        : 0,
-                    icon: Eye,
-                  },
-                  {
-                    label: "Viewer opens",
-                    count: journeyFunnelMetrics.viewerOpens,
-                    ratio:
-                      journeyFunnelMetrics.previewOpens > 0
-                        ? journeyFunnelMetrics.viewerOpens /
-                          Math.max(1, journeyFunnelMetrics.previewOpens)
-                        : 0,
-                    icon: PlayCircle,
-                  },
-                  {
-                    label: "Unlocks",
-                    count: journeyFunnelMetrics.unlocks,
-                    ratio:
-                      journeyFunnelMetrics.previewOpens > 0
-                        ? journeyFunnelMetrics.unlocks /
-                          Math.max(1, journeyFunnelMetrics.previewOpens)
-                        : 0,
-                    icon: Sparkles,
-                  },
-                  {
-                    label: "Checkout starts",
-                    count: journeyFunnelMetrics.checkoutStarts,
-                    ratio:
-                      journeyFunnelMetrics.unlocks > 0
-                        ? journeyFunnelMetrics.checkoutStarts /
-                          Math.max(1, journeyFunnelMetrics.unlocks)
-                        : 0,
-                    icon: Wallet,
-                  },
-                  {
-                    label: "Purchases",
-                    count: journeyFunnelMetrics.purchases,
-                    ratio:
-                      journeyFunnelMetrics.checkoutStarts > 0
-                        ? journeyFunnelMetrics.purchases /
-                          Math.max(1, journeyFunnelMetrics.checkoutStarts)
-                        : 0,
-                    icon: ShoppingBag,
-                  },
-                ].map((step) => {
-                  const Icon = step.icon;
+              <div className="mb-2.5 flex flex-col gap-2 rounded-[1rem] border border-white/10 bg-white/[0.035] px-3 py-2 text-[11px] leading-5 text-gray-300 md:flex-row md:items-center md:justify-between">
+                <span>{journeyFunnelModel.visibleHelperCopy}</span>
+                <AdminStatusBadge
+                  state={historicalMetricTruthState}
+                  label={journeyFunnelBadgeLabel}
+                  className="max-w-[5.75rem] truncate whitespace-nowrap px-1.5 py-0.5 text-[9px]"
+                />
+              </div>
+
+              <div className="grid grid-cols-2 gap-2 lg:grid-cols-4">
+                <MetricCard
+                  label="Mode"
+                  value={journeyFunnelModel.modeLabel}
+                  hint={journeyFunnelModel.denominatorMode}
+                  icon={Route}
+                  truthState={historicalMetricTruthState}
+                  statusBadgeLabel={journeyFunnelBadgeLabel}
+                  className="rounded-[1rem] p-2"
+                  valueClassName="text-lg leading-6 md:text-xl"
+                />
+                <MetricCard
+                  label="Base"
+                  value={journeyCountLabel(journeyFunnelModel.steps[0]?.displayedCount ?? null)}
+                  hint="Auth modal raw events"
+                  icon={Users}
+                  truthState={historicalMetricTruthState}
+                  statusBadgeLabel={journeyFunnelBadgeLabel}
+                  className="rounded-[1rem] p-2"
+                  valueClassName="text-lg leading-6 md:text-xl"
+                />
+                <MetricCard
+                  label="Biggest Drop"
+                  value={biggestDropoffLabel}
+                  hint="Prior-step raw ratio"
+                  icon={AlertTriangle}
+                  truthState={historicalMetricTruthState}
+                  statusBadgeLabel={journeyFunnelBadgeLabel}
+                  className="rounded-[1rem] p-2"
+                  valueClassName="truncate text-base leading-6 md:text-lg"
+                />
+                <MetricCard
+                  label="Attention"
+                  value={journeyFunnelModel.nonSequentialSteps.length.toLocaleString()}
+                  hint="Non-sequential steps"
+                  icon={CheckCircle2}
+                  truthState={historicalMetricTruthState}
+                  statusBadgeLabel={journeyFunnelBadgeLabel}
+                  className="rounded-[1rem] p-2"
+                  valueClassName="text-lg leading-6 md:text-xl"
+                />
+              </div>
+
+              {journeyFunnelModel.visibleDegradedCopy ? (
+                <p className="mt-2 rounded-[1rem] border border-white/10 bg-black/25 px-3 py-2 text-[11px] leading-5 text-gray-300">
+                  {journeyFunnelModel.visibleDegradedCopy}
+                </p>
+              ) : null}
+
+              <div className="mt-2 space-y-1.5">
+                {journeyFunnelModel.steps.map((step) => {
+                  const percentLabel = step.denominatorStep ? journeyPercentLabel(step.displayedPercent) : "Base";
+                  const barWidth = step.displayedPercent === null
+                    ? 0
+                    : Math.max(6, Math.min(100, step.displayedPercent * 100));
+                  const rowDiffers = journeyFunnelModel.sourceMismatchSteps.includes(step.stepKey);
                   return (
                     <div
-                      key={step.label}
-                      className="rounded-[1.6rem] border border-white/10 bg-black/30 p-4"
+                      key={step.stepKey}
+                      className="rounded-[0.9rem] border border-white/10 bg-black/30 px-3 py-2"
                     >
-                      <div className="mb-3 flex items-center justify-between gap-3">
-                        <div className="flex items-center gap-2">
-                        <div className="flex h-9 w-9 items-center justify-center rounded-2xl bg-white/5 text-brand-purple">
-                              <Icon className="h-4 w-4" />
-                            </div>
-                            <div>
-                            <p className="text-sm font-semibold text-white">
-                              {step.label}
-                            </p>
-                            <p className="text-xs text-gray-500">
-                              {step.count.toLocaleString()} events
-                            </p>
-                          </div>
+                      <div className="mb-1.5 grid grid-cols-[minmax(0,1fr)_auto] items-center gap-2">
+                        <div className="min-w-0">
+                          <p className="truncate text-xs font-semibold text-white">
+                            {step.visibleLabel}
+                          </p>
+                          <p className="mt-0.5 truncate text-[10px] text-gray-500">
+                            {journeyCountLabel(step.displayedCount)} raw events - {step.denominatorLabel}
+                          </p>
                         </div>
-                        <span className="text-sm font-bold text-white">
-                          {step.label === "Auth modal opens"
-                            ? "Base"
-                            : formatPercent(step.ratio)}
-                        </span>
-                        <AdminStatusBadge state={historicalMetricTruthState} className="shrink-0" />
+                        <div className="flex items-center gap-1.5">
+                          <span className="rounded-full border border-white/10 bg-white/5 px-2 py-1 text-[10px] font-bold text-gray-200">
+                            {percentLabel}
+                          </span>
+                          {rowDiffers ? (
+                            <AdminStatusBadge
+                              state="degraded"
+                              label="MIXED"
+                              className="max-w-[4.5rem] truncate whitespace-nowrap px-1.5 py-0.5 text-[9px]"
+                            />
+                          ) : null}
+                        </div>
                       </div>
-                      <div className="h-2 overflow-hidden rounded-full bg-white/10">
+                      <div className="h-1.5 overflow-hidden rounded-full bg-white/10">
                         <div
                           className="h-full rounded-full bg-gradient-to-r from-brand-purple to-cyan-400"
-                          style={{
-                            width: `${Math.max(6, Math.min(100, step.ratio * 100 || 0))}%`,
-                          }}
+                          style={{ width: `${barWidth}%` }}
                         />
                       </div>
                     </div>
@@ -393,22 +416,25 @@ export function AdminAnalyticsOperationsTab(props: AdminAnalyticsState) {
                 })}
               </div>
 
-              <div className="mt-5 grid grid-cols-2 gap-3">
-                <MetricCard
-                  label="Shares"
-                  value={journeyFunnelMetrics.shares.toLocaleString()}
-                  hint="Copied invite/share actions"
-                  icon={Share2}
-                  truthState={historicalMetricTruthState}
-                />
-                <MetricCard
-                  label="Daily Check-ins"
-                  value={journeyFunnelMetrics.checkIns.toLocaleString()}
-                  hint="Reward claims in range"
-                  icon={CheckCircle2}
-                  truthState={historicalMetricTruthState}
-                />
+              <div className="mt-2 grid grid-cols-2 gap-2">
+                {journeyFunnelModel.supportingMetrics.map((item) => (
+                  <MetricCard
+                    key={item.stepKey}
+                    label={item.visibleLabel}
+                    value={journeyCountLabel(item.displayedCount)}
+                    hint="Supporting raw events"
+                    icon={item.stepKey === "shares" ? Share2 : CheckCircle2}
+                    truthState={historicalMetricTruthState}
+                    statusBadgeLabel={journeyFunnelBadgeLabel}
+                    className="rounded-[1rem] p-2"
+                    valueClassName="text-lg leading-6 md:text-xl"
+                  />
+                ))}
               </div>
+
+              <p className="mt-2 rounded-[1rem] border border-white/10 bg-black/25 px-3 py-2 text-[11px] leading-5 text-gray-300">
+                {journeyFunnelModel.recommendation}
+              </p>
             </SectionCard>
 
             <div className="grid gap-5 xl:grid-cols-[1fr_1fr]">
