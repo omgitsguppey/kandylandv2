@@ -1,6 +1,6 @@
 # Admin Analytics Onboarding Velocity
 
-Onboarding Velocity shows how many users start guided onboarding, how many finish it, and how long completed onboarding takes for the selected range.
+Onboarding Velocity now renders inside the consolidated Onboarding Performance module. It shows how many users start guided onboarding, how many finish it, and how long completed onboarding takes for the selected range, alongside the Step Flow rows.
 
 ## Source Meaning
 
@@ -30,9 +30,9 @@ Firebase Analytics events can be batched in normal use, and DebugView is only ne
 
 ## UI Rule
 
-The mobile layout must be compact: four small KPI tiles, one short discrepancy row, a compact source/drop-off row, and a reduced-height bucket chart. Use KandyDrops visual style and source-state labels. Fake zeros are forbidden.
+The mobile layout must be compact: four small KPI tiles, one short discrepancy row, a compact source/drop-off row, a small duration histogram, and dense step rows. Use KandyDrops visual style and source-state labels. Fake zeros are forbidden.
 
-Future agents must not reintroduce giant discrepancy warning cards or treat auth sign-ups as onboarding starts.
+Future agents must not reintroduce giant discrepancy warning cards, separate giant Onboarding Velocity and Onboarding Step Flow modules, or treat auth sign-ups as onboarding starts.
 
 Official references:
 - [Firebase Analytics events](https://firebase.google.com/docs/analytics/events)

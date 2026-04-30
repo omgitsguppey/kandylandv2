@@ -22,6 +22,16 @@ export interface AdminOnboardingStepModel extends AdminOnboardingStepStatInput {
     completionRate: number;
     dropOffCount: number;
     shortLabel: string;
+    stepNumber: number;
+    avgSeconds: number | null;
+    timingAvailable: boolean;
+    source: "first_party_onboarding_step_telemetry";
+    truthState: AdminSurfaceState;
+    stale: boolean;
+    cache: boolean;
+    serverConfirmed: boolean;
+    fallback: boolean;
+    estimated: boolean;
 }
 
 export interface AdminOnboardingVelocityModel {
@@ -66,6 +76,16 @@ export interface AdminOnboardingVelocityModel {
     dropOffCount: number;
     hasVelocityData: boolean;
     steps: AdminOnboardingStepModel[];
+    perStep: AdminOnboardingStepModel[];
+    biggestDropoffStep: AdminOnboardingStepModel | null;
+    biggestDropoffCount: number | null;
+    slowestStep: AdminOnboardingStepModel | null;
+    slowestStepAvgSeconds: number | null;
+    fastestStep: AdminOnboardingStepModel | null;
+    stepConversionFormula: "step completions / step starts";
+    stepDropoffFormula: "step starts - step completions";
+    recommendation: string;
+    consolidatedModuleEnabled: true;
     discrepancies: string[];
 }
 
@@ -88,32 +108,50 @@ export function buildAdminOnboardingVelocityModel(input: {
             ? input.stats.completions / Math.max(1, starts)
             : 0
     );
-    const dropOffCount = Math.max(0, starts - input.stats.completions);
-    const steps = input.steps.map((step) => ({
-        ...step,
-        completionRate: step.starts > 0 ? step.completions / Math.max(1, step.starts) : 0,
-        dropOffCount: Math.max(0, step.starts - step.completions),
-        shortLabel: step.stepTitle.length > 18 ? `${step.stepTitle.slice(0, 18)}...` : step.stepTitle,
-    }));
-    const finalStep = steps.reduce<AdminOnboardingStepModel | null>((current, step) => {
-        if (!current || step.stepIndex > current.stepIndex) {
-            return step;
-        }
-        return current;
-    }, null);
     const durationBucketTotal = input.durationBuckets.reduce((sum, bucket) => sum + Math.max(0, bucket.count), 0);
     const bucketReconciliationDelta = hasValidatedSource
         ? durationBucketTotal - input.stats.completions
         : null;
     const timingMissing = input.stats.completions > 0 && input.stats.avgDuration <= 0;
-    const onboardingStepFlowStarts = steps[0]?.starts ?? null;
-    const authStartDelta = input.authSignUps - starts;
     const startSource = input.stats.startSource ?? "none";
     const onboardingStartSource = startSource === "tracked"
         ? "canonical_onboarding_start_events"
         : startSource === "completion_fallback"
             ? "completion_backfill"
             : "unavailable";
+    const stale = Boolean(input.response && (input.error || input.response.cacheState === "stale"));
+    const truthState: AdminSurfaceState = !hasValidatedSource
+        ? input.loading ? "loading" : "unavailable"
+        : stale
+            ? "stale"
+            : input.overviewTruthState ?? "live";
+    const dropOffCount = Math.max(0, starts - input.stats.completions);
+    const steps = input.steps.map((step) => {
+        const stepTimingAvailable = step.avgDurationMs > 0;
+        return {
+            ...step,
+            completionRate: step.starts > 0 ? step.completions / Math.max(1, step.starts) : 0,
+            dropOffCount: Math.max(0, step.starts - step.completions),
+            shortLabel: step.stepTitle.length > 18 ? `${step.stepTitle.slice(0, 18)}...` : step.stepTitle,
+            stepNumber: step.stepIndex + 1,
+            avgSeconds: stepTimingAvailable ? step.avgDurationMs / 1000 : null,
+            timingAvailable: stepTimingAvailable,
+            source: "first_party_onboarding_step_telemetry" as const,
+            truthState,
+            stale,
+            cache: Boolean(input.response?.cacheState && input.response.cacheState !== "miss"),
+            serverConfirmed: hasValidatedSource && !input.error,
+            fallback: Boolean(input.error || input.response?.cacheRevalidating),
+            estimated: false,
+        };
+    });
+    const finalStep = steps.reduce<AdminOnboardingStepModel | null>((current, step) => {
+        if (!current || step.stepIndex > current.stepIndex) {
+            return step;
+        }
+        return current;
+    }, null);
+    const onboardingStepFlowStarts = steps[0]?.starts ?? null;
     const discrepancyDetails = [
         input.authSignUps !== starts
             ? `Auth sign-ups ${input.authSignUps} do not match onboarding starts ${starts}.`
@@ -143,12 +181,17 @@ export function buildAdminOnboardingVelocityModel(input: {
             : input.authSignUps !== starts
                 ? "Onboarding starts exceed auth sign-ups in this range. Details in Debug."
                 : "Discrepancy detected between onboarding sources. Details in Debug.";
-    const stale = Boolean(input.response && (input.error || input.response.cacheState === "stale"));
-    const truthState: AdminSurfaceState = !hasValidatedSource
-        ? input.loading ? "loading" : "unavailable"
-        : stale
-            ? "stale"
-            : input.overviewTruthState ?? "live";
+    const biggestDropoffStep = steps
+        .filter((step) => step.dropOffCount > 0)
+        .sort((left, right) => right.dropOffCount - left.dropOffCount)[0] ?? null;
+    const timedSteps = steps.filter((step) => step.avgSeconds !== null);
+    const slowestStep = timedSteps.slice().sort((left, right) => (right.avgSeconds ?? 0) - (left.avgSeconds ?? 0))[0] ?? null;
+    const fastestStep = timedSteps.slice().sort((left, right) => (left.avgSeconds ?? 0) - (right.avgSeconds ?? 0))[0] ?? null;
+    const recommendation = biggestDropoffStep
+        ? `Most drop-off happens at ${biggestDropoffStep.stepTitle}.`
+        : slowestStep
+            ? `Slowest step is ${slowestStep.stepTitle}.`
+            : discrepancySummary ?? "Onboarding flow is steady in this range.";
 
     return {
         selectedRange: input.selectedRange ?? "unknown",
@@ -221,6 +264,16 @@ export function buildAdminOnboardingVelocityModel(input: {
         dropOffCount,
         hasVelocityData: input.durationBuckets.some((bucket) => bucket.count > 0),
         steps,
+        perStep: steps,
+        biggestDropoffStep,
+        biggestDropoffCount: biggestDropoffStep?.dropOffCount ?? null,
+        slowestStep,
+        slowestStepAvgSeconds: slowestStep?.avgSeconds ?? null,
+        fastestStep,
+        stepConversionFormula: "step completions / step starts",
+        stepDropoffFormula: "step starts - step completions",
+        recommendation,
+        consolidatedModuleEnabled: true,
         discrepancies: discrepancyDetails,
     };
 }

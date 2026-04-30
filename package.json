@@ -37,6 +37,7 @@
         "check:admin-analytics-journey-funnel": "tsx scripts/check-admin-analytics-journey-funnel.ts",
         "check:admin-analytics-auth-outcome-split": "tsx scripts/check-admin-analytics-auth-outcome-split.ts",
         "check:admin-analytics-onboarding-velocity": "tsx scripts/check-admin-analytics-onboarding-velocity.ts",
+        "check:admin-analytics-onboarding-performance": "tsx scripts/check-admin-analytics-onboarding-performance.ts",
         "check:admin-shell-spacing": "tsx scripts/check-admin-shell-spacing.ts",
         "test:gate:fast": "npm run typecheck && npm run test:gate:parity",
         "test:gate:targeted": "vitest run tests/unit/admin-parity.spec.ts tests/unit/admin-user-metrics.spec.ts tests/unit/admin-overview-route.spec.ts tests/unit/admin-support-threads-route.spec.ts tests/unit/admin-moderation-routes.spec.ts tests/unit/admin-content-route.spec.ts tests/unit/admin-ai-drop-covers-route.spec.ts",

@@ -55,6 +55,20 @@ describe("admin onboarding velocity model", () => {
         expect(model.durationBucketTotal).toBe(8);
         expect(model.bucketReconciliationDelta).toBe(0);
         expect(model.avgCompletionTime.value).toBe(84);
+        expect(model.consolidatedModuleEnabled).toBe(true);
+        expect(model.stepConversionFormula).toBe("step completions / step starts");
+        expect(model.stepDropoffFormula).toBe("step starts - step completions");
+        expect(model.biggestDropoffStep?.stepTitle).toBe("Finish onboarding");
+        expect(model.biggestDropoffCount).toBe(2);
+        expect(model.slowestStep?.stepTitle).toBe("Finish onboarding");
+        expect(model.slowestStepAvgSeconds).toBe(2.4);
+        expect(model.fastestStep?.stepTitle).toBe("Welcome");
+        expect(model.perStep[0]).toMatchObject({
+            stepNumber: 1,
+            avgSeconds: 1.2,
+            timingAvailable: true,
+            source: "first_party_onboarding_step_telemetry",
+        });
     });
 
     it("does not expose fake zero timing when completion durations are missing", () => {

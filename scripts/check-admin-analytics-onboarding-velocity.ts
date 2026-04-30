@@ -38,21 +38,22 @@ const helper = read("src/lib/admin-onboarding-velocity.ts");
 const debugRoute = read("src/app/api/admin/debug/route.ts");
 const doc = read("docs/agent-truth/admin-analytics-onboarding-velocity.md");
 const section = component.slice(
-  component.indexOf('title="Onboarding Velocity"'),
-  component.indexOf('title="Onboarding Step Flow"'),
+  component.indexOf('title="Onboarding Performance"'),
+  component.indexOf("</SectionCard>"),
 );
 
 assertIncludes("AdminOnboardingAnalyticsModules", component, "onboardingVelocityModel");
 assertIncludes("AdminOnboardingAnalyticsModules", component, "__KANDYDROPS_ADMIN_ANALYTICS_ONBOARDING_VELOCITY_DEBUG__");
 assertIncludes("Onboarding Velocity section", section, "Using canonical onboarding starts.");
 assertIncludes("AdminOnboardingAnalyticsModules", component, "Details in Debug");
-assertIncludes("Onboarding Velocity section", section, "h-36 w-full md:h-52");
 assertIncludes("Onboarding Velocity section", section, "bucketReconciliationDelta");
 assertIncludes("Onboarding Velocity section", section, "Timing unavailable");
 assertIncludes("Onboarding Velocity section", section, "rounded-[1rem] p-2");
+assertIncludes("Onboarding Velocity section", section, "Step flow");
 assertNotIncludes("Onboarding Velocity section", section, "rounded-[1.35rem] border border-amber-400/20 bg-amber-500/10 p-4");
 assertNotIncludes("Onboarding Velocity section", section, "h-64 w-full");
 assertNotIncludes("Onboarding Velocity section", section, "props.formatDuration(props.onboardingVelocityAvgDurationSeconds)");
+assertNotIncludes("AdminOnboardingAnalyticsModules", component, 'title="Onboarding Step Flow"');
 
 for (const phrase of BANNED_VISIBLE_COPY) {
   assertNotIncludes("visible Onboarding Velocity copy", section, phrase);
