@@ -2,7 +2,7 @@
 
 import Link from "next/link";
 import { useRouter, useSearchParams } from "next/navigation";
-import { startTransition, useCallback, useEffect, useMemo, useRef, useState, type KeyboardEvent } from "react";
+import { startTransition, useCallback, useEffect, useMemo, useRef, useState, type CSSProperties, type KeyboardEvent } from "react";
 import { createAutoHealingObserver, createCompactInteractionRecoveryGuard } from "@/lib/self-healing";
 import {
     ArrowLeft,
@@ -53,11 +53,17 @@ import {
     buildChatSendWarningMessage,
     type ChatSendWarning,
 } from "@/lib/chat-send-feedback";
+import { buildCreatorProfileHref } from "@/lib/creator-public-pages";
 import { reportClientIssue, reportRealtimeIssue, reportStorageIssue } from "@/lib/client-error-reporting";
 import { storage, db, rtdb } from "@/lib/firebase-data";
 import { useCompactViewport } from "@/hooks/useCompactViewport";
 import { cn } from "@/lib/utils";
 import { ref as storageRef, uploadBytes } from "firebase/storage";
+import {
+    CHAT_LIST_CONTROLS_BOTTOM_OFFSET,
+    CHAT_LIST_SCROLL_PADDING_BOTTOM,
+    USER_MOBILE_BOTTOM_NAV_RESERVED_HEIGHT,
+} from "@/lib/user-mobile-shell";
 
 type ThreadListResponse = {
     threads?: ChatThreadRecord[];
@@ -75,11 +81,11 @@ type FollowedCreatorEntry = {
 };
 
 export const CHAT_VIEWPORT_SHELL_CLASSNAME =
-    "mx-auto flex h-full max-h-full min-h-0 w-full max-w-6xl flex-1 overflow-hidden px-0 sm:px-4";
+    "mx-auto box-border flex h-full max-h-full min-h-0 w-full max-w-6xl flex-1 overflow-hidden px-0 sm:px-4";
 export const CHAT_COMPACT_THREAD_LIST_PANEL_CLASSNAME =
     "flex h-full max-h-full min-h-0 flex-col overflow-hidden";
 export const CHAT_COMPACT_THREAD_LIST_SCROLL_CLASSNAME =
-    "min-h-0 flex-1 overflow-y-auto overscroll-y-contain px-5 pb-[calc(7.25rem+env(safe-area-inset-bottom))]";
+    "min-h-0 flex-1 overflow-y-auto overscroll-y-contain px-5";
 
 type CreatorRelationshipsListResponse = {
     followedCreators?: FollowedCreatorEntry[];
@@ -437,6 +443,15 @@ export function ChatExperience() {
         () => visibleThreads.find((thread) => thread.id === selectedThreadId) ?? selectedDetail?.thread ?? null,
         [selectedDetail?.thread, selectedThreadId, visibleThreads],
     );
+    const selectedThreadCreatorProfileHref = useMemo(() => {
+        if (!selectedThread || selectedThread.viewerRole === "creator") {
+            return null;
+        }
+
+        return buildCreatorProfileHref({
+            creatorUsername: selectedThread.counterpartUsername,
+        });
+    }, [selectedThread]);
     const normalizedThreadSearch = threadSearch.trim().toLowerCase();
     const filteredThreads = useMemo(() => {
         if (!normalizedThreadSearch) {
@@ -458,6 +473,16 @@ export function ChatExperience() {
     }, [normalizedThreadSearch, visibleThreads]);
     const showCompactThreadListOnly = isCompactViewport && !selectedThreadId;
     const canComposeFromFollowedCreators = followedCreators.length > 0;
+    const chatViewportShellStyle = useMemo(() => ({
+        paddingBottom: showCompactThreadListOnly ? USER_MOBILE_BOTTOM_NAV_RESERVED_HEIGHT : undefined,
+    }) satisfies CSSProperties, [showCompactThreadListOnly]);
+    const compactThreadListScrollStyle = useMemo(() => ({
+        paddingBottom: CHAT_LIST_SCROLL_PADDING_BOTTOM,
+        scrollPaddingBottom: CHAT_LIST_SCROLL_PADDING_BOTTOM,
+    }) satisfies CSSProperties, []);
+    const compactThreadListControlsStyle = useMemo(() => ({
+        bottom: CHAT_LIST_CONTROLS_BOTTOM_OFFSET,
+    }) satisfies CSSProperties, []);
     const selectedThreadIdSet = useMemo(() => new Set(selectedThreadIds), [selectedThreadIds]);
     const liveViewerRole = useMemo(() => resolveChatViewerRole({
         viewerUid: user?.uid || "",
@@ -623,6 +648,30 @@ export function ChatExperience() {
             window.cancelAnimationFrame(frameId);
         };
     }, [filteredThreads.length, showCompactThreadListOnly, threadSelectionMode, threadsLoading]);
+
+    useEffect(() => {
+        if (typeof window === "undefined") {
+            return;
+        }
+
+        const missingProfileHrefReason = selectedThread && selectedThread.viewerRole !== "creator" && !selectedThreadCreatorProfileHref
+            ? "creator_username_missing_or_invalid"
+            : null;
+
+        (window as typeof window & {
+            __KANDYDROPS_CHAT_SHELL_ROUTING_DEBUG__?: unknown;
+        }).__KANDYDROPS_CHAT_SHELL_ROUTING_DEBUG__ = {
+            messagesListUsesChatShellSizing: true,
+            bottomNavReservedHeight: USER_MOBILE_BOTTOM_NAV_RESERVED_HEIGHT,
+            safeAreaBottomApplied: true,
+            duplicateSafeAreaBottomDetected: false,
+            messagesSearchVisible: showCompactThreadListOnly,
+            newThreadControlVisible: showCompactThreadListOnly ? canComposeFromFollowedCreators : true,
+            chatThreadProfileHref: selectedThreadCreatorProfileHref,
+            chatThreadProfileHrefValid: Boolean(selectedThreadCreatorProfileHref),
+            missingProfileHrefReason,
+        };
+    }, [canComposeFromFollowedCreators, selectedThread, selectedThreadCreatorProfileHref, showCompactThreadListOnly]);
 
 
     const loadThreads = useCallback(async (options?: LoadThreadsOptions) => {
@@ -1636,7 +1685,7 @@ export function ChatExperience() {
     }
 
     return (
-        <div ref={chatViewportShellRef} className={CHAT_VIEWPORT_SHELL_CLASSNAME}>
+        <div ref={chatViewportShellRef} className={CHAT_VIEWPORT_SHELL_CLASSNAME} style={chatViewportShellStyle}>
             <div className="flex h-full min-h-0 w-full flex-col overflow-hidden rounded-[2rem] border border-white/10 bg-black shadow-[0_26px_80px_rgba(0,0,0,0.55)]">
                 <div className="grid h-full min-h-0 lg:grid-cols-[320px_minmax(0,1fr)]">
                     {(!isCompactViewport || !selectedThreadId) ? (
@@ -1700,7 +1749,11 @@ export function ChatExperience() {
                                         </div>
                                     </div>
 
-                                    <div ref={compactThreadListScrollRef} className={CHAT_COMPACT_THREAD_LIST_SCROLL_CLASSNAME}>
+                                    <div
+                                        ref={compactThreadListScrollRef}
+                                        className={CHAT_COMPACT_THREAD_LIST_SCROLL_CLASSNAME}
+                                        style={compactThreadListScrollStyle}
+                                    >
                                         {filteredThreads.length > 0 ? (
                                             <div className="space-y-1">
                                                 {filteredThreads.map((thread) => (
@@ -1801,7 +1854,7 @@ export function ChatExperience() {
                                     </div>
 
                                     {threadSelectionMode ? (
-                                        <div className="pointer-events-none absolute inset-x-0 bottom-0 px-5 pb-[calc(1.25rem+env(safe-area-inset-bottom))]">
+                                        <div className="pointer-events-none absolute inset-x-0 px-5" style={compactThreadListControlsStyle}>
                                             <div className="pointer-events-auto flex items-center justify-between">
                                                 <button
                                                     type="button"
@@ -1833,7 +1886,7 @@ export function ChatExperience() {
                                             </div>
                                         </div>
                                     ) : (
-                                        <div className="pointer-events-none absolute inset-x-0 bottom-0 px-5 pb-[calc(1.25rem+env(safe-area-inset-bottom))]">
+                                        <div className="pointer-events-none absolute inset-x-0 px-5" style={compactThreadListControlsStyle}>
                                             <div className="pointer-events-auto mx-auto max-w-md rounded-full bg-[#121214] px-4 py-3 ring-1 ring-white/8">
                                                 <div className="flex items-center gap-3">
                                                     <Search className="h-4 w-4 text-[#6e7077]" />
@@ -1859,7 +1912,8 @@ export function ChatExperience() {
                                                 <button
                                                     type="button"
                                                     onClick={() => setComposePickerOpen(true)}
-                                                    className="pointer-events-auto absolute bottom-[calc(1.25rem+env(safe-area-inset-bottom))] right-5 inline-flex h-14 w-14 items-center justify-center rounded-full bg-brand-purple text-white shadow-[0_18px_36px_rgba(111,63,244,0.36)] transition hover:bg-[#8457ff]"
+                                                    className="pointer-events-auto absolute right-5 inline-flex h-14 w-14 items-center justify-center rounded-full bg-brand-purple text-white shadow-[0_18px_36px_rgba(111,63,244,0.36)] transition hover:bg-[#8457ff]"
+                                                    style={compactThreadListControlsStyle}
                                                     aria-label="Compose message"
                                                 >
                                                     <SquarePen className="h-5 w-5" />
@@ -1940,9 +1994,9 @@ export function ChatExperience() {
                                                 <ArrowLeft className="h-[18px] w-[18px]" />
                                             </button>
                                         ) : null}
-                                        {selectedThread.counterpartUsername ? (
+                                        {selectedThreadCreatorProfileHref ? (
                                             <Link
-                                                href={`/${selectedThread.counterpartUsername}`}
+                                                href={selectedThreadCreatorProfileHref}
                                                 className="flex items-center gap-2.5 rounded-full bg-[#141417] px-2 py-1.5 shadow-[0_12px_28px_rgba(0,0,0,0.3)] ring-1 ring-white/8 transition active:scale-[0.98] active:opacity-75"
                                             >
                                                 <ChatAvatar

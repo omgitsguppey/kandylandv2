@@ -45,6 +45,7 @@
         "check:admin-data-validation-relocation": "tsx scripts/check-admin-data-validation-relocation.ts",
         "check:notification-pipeline": "tsx scripts/check-notification-pipeline.ts",
         "check:admin-shell-spacing": "tsx scripts/check-admin-shell-spacing.ts",
+        "check:user-chat-shell-routing": "tsx scripts/agent/validate-user-chat-shell-routing.ts",
         "check:analytics-truth-layer-v2": "tsx scripts/agent/validate-analytics-truth-layer-v2.ts",
         "check:analytics-event-contract": "tsx scripts/agent/validate-analytics-event-contract.ts",
         "check:admin-analytics-hot-cache": "tsx scripts/agent/validate-admin-analytics-hot-cache.ts",

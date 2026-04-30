@@ -1,5 +1,5 @@
-import { CandyIcon } from "@/components/ui/Icon";
-import { LegalBackLink } from "@/components/Legal/LegalBackLink";
+import Link from "next/link";
+
 import { cn } from "@/lib/utils";
 import type { ReactNode } from "react";
 
@@ -14,8 +14,9 @@ type NotFoundSurfaceProps = {
 export const NOT_FOUND_COPY = {
     eyebrow: "404",
     title: "Page Unavailable",
-    detail: "This route is not available. Return to KandyDrops or use navigation to continue.",
+    detail: "This page is unavailable. Return to KandyDrops to continue.",
 };
+export const NOT_FOUND_RETURN_HREF = "/dashboard";
 
 export function NotFoundSurface({
     eyebrow = NOT_FOUND_COPY.eyebrow,
@@ -25,24 +26,22 @@ export function NotFoundSurface({
     action,
 }: NotFoundSurfaceProps) {
     return (
-        <div className={cn("flex min-h-[calc(100dvh-8rem)] flex-col items-center justify-center bg-black px-4 py-12 text-center", className)}>
-            <div className="relative mb-7">
-                <div className="absolute inset-0 rounded-full bg-brand-purple/15 blur-3xl" aria-hidden="true" />
-                <div className="relative z-10 flex h-24 w-24 items-center justify-center rounded-full border border-white/10 bg-white/[0.03]">
-                    <CandyIcon className="h-12 w-12 text-brand-purple/70" />
-                </div>
-            </div>
-
+        <div
+            className={cn("flex min-h-[calc(100dvh-8rem)] flex-col items-center justify-center bg-black px-4 py-12 text-center", className)}
+            data-not-found-return-href={NOT_FOUND_RETURN_HREF}
+            data-old-not-found-logo-removed="true"
+        >
             <p className="mb-3 text-xs font-semibold uppercase tracking-[0.22em] text-brand-purple/80">{eyebrow}</p>
             <h1 className="mb-4 text-3xl font-black text-white sm:text-5xl">{title}</h1>
             <p className="mb-8 max-w-md text-sm leading-6 text-gray-400 sm:text-base">{detail}</p>
 
             {action ?? (
-                <LegalBackLink
-                    variant="button"
-                    signedInLabel="Return to App"
-                    signedOutLabel="Return Home"
-                />
+                <Link
+                    href={NOT_FOUND_RETURN_HREF}
+                    className="inline-flex items-center justify-center rounded-full bg-brand-purple px-8 py-4 text-sm font-bold text-white shadow-lg shadow-brand-purple/20 transition-all active:scale-95 hover:text-white"
+                >
+                    Return to App
+                </Link>
             )}
         </div>
     );

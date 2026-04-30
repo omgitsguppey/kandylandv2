@@ -38,13 +38,27 @@ export type CreatorDiscoveryProfile = {
     notificationsEnabledCount?: number;
 };
 
+function normalizeCreatorUsernameForHref(username: string | null | undefined) {
+    const normalized = (username || "").trim().replace(/^@+/, "").toLowerCase();
+    return normalized && !normalized.includes("/") ? normalized : "";
+}
+
+export function buildCreatorProfileHref(input: {
+    creatorUsername?: string | null;
+}) {
+    const username = normalizeCreatorUsernameForHref(input.creatorUsername);
+    return username ? `/creators/${encodeURIComponent(username)}` : null;
+}
+
 export function buildCreatorDiscoveryNavigationParams(input: {
     creatorId: string;
     creatorUsername?: string;
     surface: CreatorDiscoverySurface;
 }) {
+    const destination = buildCreatorProfileHref({ creatorUsername: input.creatorUsername }) ?? "/creators";
+
     return {
-        destination: input.creatorUsername ? `/creators/${input.creatorUsername}` : "/creators",
+        destination,
         source: `creator_discovery_${input.surface}`,
         action: "open_creator_profile",
         creator_id: input.creatorId,

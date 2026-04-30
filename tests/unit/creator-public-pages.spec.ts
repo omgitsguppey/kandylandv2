@@ -1,12 +1,20 @@
 import { describe, expect, it } from "vitest";
 
 import {
+    buildCreatorProfileHref,
     buildCreatorDiscoveryNavigationParams,
     isCreatorVisibleInDiscovery,
     resolveCreatorPublicExperienceState,
 } from "@/lib/creator-public-pages";
 
 describe("creator-public-pages", () => {
+    it("builds canonical creator profile hrefs and rejects missing profile slugs", () => {
+        expect(buildCreatorProfileHref({ creatorUsername: "Jessi" })).toBe("/creators/jessi");
+        expect(buildCreatorProfileHref({ creatorUsername: "@candylane" })).toBe("/creators/candylane");
+        expect(buildCreatorProfileHref({ creatorUsername: "" })).toBeNull();
+        expect(buildCreatorProfileHref({ creatorUsername: "bad/path" })).toBeNull();
+    });
+
     it("builds creator discovery navigation telemetry params", () => {
         expect(buildCreatorDiscoveryNavigationParams({
             creatorId: "creator_123",
