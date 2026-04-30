@@ -1,5 +1,42 @@
 # KandyDrops Core Codebase Audit & Defensive Ledger
 
+## [2026-04-29 #54] PRE: Telemetry Export, GA4, SQL Mirror, and Parity Audit
+
+Scope started:
+- Full codebase audit of telemetry delivery and receiving paths that feed admin analytics, GA4, Google Cloud analytics inputs, SQL/Data Connect mirror retrieval, BigQuery/export assumptions, route diagnostics, materializer parity, and behavior orchestration findings.
+- Investigating current Admin Debug symptoms: AI assistant fallback due to failed preflight observers, failed system health from active route failures/diagnostics, zero writer warnings hiding untracked writer uncertainty, and behavior orchestration reporting many open findings.
+- Boundaries: no payment/economy ledger mutations, no cosmetic UI redesign, and no fabricated healthy states. Any fixes must preserve admin truth labels and source-state visibility.
+
+Startup protocol:
+- Read control tower startup, mission, role routing, execution order, constraints, source-of-truth map, shared component ownership, doctrine consultation workflow, product/copy/UI doctrine, surface matrix, banned patterns, vocabulary index, and decision checklist.
+- Read current audit, memory ledger, and file/function checklist before implementation. Working tree was clean at startup.
+
+## [2026-04-29 #54] POST: Telemetry Export, GA4, SQL Mirror, and Parity Audit
+
+Audit findings:
+- GA4 read/write paths are wired through the expected owners: client `gtag`, server Measurement Protocol, `@google-analytics/data` reads, first-party Firestore analytics facts, realtime active-user mirrors, and historical first-party rollups.
+- SQL/Data Connect is a secondary repo-intelligence mirror, not production analytics truth. `npm run agent:sync-sql` regenerated the mirror payload and status; repo truth remains authoritative over the SQL mirror.
+- BigQuery export was the concrete blind spot: `functions/src/analytics-bigquery-export.ts` exported Firestore `analytics_event_facts` to BigQuery but only logged success/failure to Functions logs. Admin Debug and continuity checks could not prove whether raw event delivery to the warehouse was working.
+
+Findings fixed:
+- BigQuery raw-event export now supports configurable dataset/table ids through `BQ_ANALYTICS_DATASET_ID` / `BIGQUERY_ANALYTICS_DATASET_ID` and `BQ_ANALYTICS_RAW_EVENTS_TABLE_ID` / `BIGQUERY_ANALYTICS_RAW_EVENTS_TABLE_ID`, while preserving the existing defaults.
+- BigQuery export now writes an `analytics_export_status/bigquery_raw_events` heartbeat on success and failure without introducing endless retries for schema/provisioning errors.
+- Admin Debug loads analytics export-status documents and Admin Ops Health now tracks `analytics_bigquery_raw_events` as a first-class downstream materializer. Missing heartbeat is `[degraded]`; recent exporter failure is `[failed]`.
+- `scripts/check-analytics-continuity.ts` now fails if BigQuery export visibility drifts: function export, heartbeat write, governance collection, Admin Debug read, or ops materializer tracking.
+- Runtime observability and the SQL mirror index now model `analytics_export_status` as the warehouse-delivery status lane.
+
+Verification completed:
+- `npx vitest run tests/unit/admin-ops-health.spec.ts`
+- `npm --prefix functions run check`
+- `npm run typecheck -- --pretty false`
+- `npm run check:telemetry`
+- `npm run check:analytics:continuity`
+- `npm run check:admin-truth`
+- `npm run check:agent-context`
+- `npm run check:continuity`
+- `npm run trace:adjacent -- src/lib/server/admin-ops-health.ts`
+- `npm run agent:sync-sql`
+
 ## [2026-04-29 #53] PRE/POST: Admin Analytics Historical Cache and Legacy Validation
 
 Scope completed:

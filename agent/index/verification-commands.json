@@ -1,5 +1,5 @@
 {
-  "generatedAt": "2026-04-28T16:57:21.516Z",
+  "generatedAt": "2026-04-30T01:11:41.820Z",
   "truthOrder": [
     "verified_runtime_code",
     "verified_configuration",
@@ -462,6 +462,23 @@
       "verifies_continuity": false
     },
     {
+      "stable_id": "command__root-check-admin-truth",
+      "command": "npm run check:admin-truth",
+      "scopeType": "repo",
+      "root_or_functions": "root",
+      "requiredWhen": [],
+      "optionalWhen": [
+        "Run when the touched surface overlaps the command lane."
+      ],
+      "cleanupExpected": [],
+      "broadSignoffWeight": 1,
+      "verifies_runtime": false,
+      "verifies_ui": false,
+      "verifies_rules": false,
+      "verifies_inventory": false,
+      "verifies_continuity": false
+    },
+    {
       "stable_id": "command__root-test-gate-fast",
       "command": "npm run test:gate:fast",
       "scopeType": "repo",
@@ -562,6 +579,23 @@
       "verifies_rules": false,
       "verifies_inventory": true,
       "verifies_continuity": true
+    },
+    {
+      "stable_id": "command__root-check-route-runtime-parity",
+      "command": "npm run check:route-runtime-parity",
+      "scopeType": "repo",
+      "root_or_functions": "root",
+      "requiredWhen": [],
+      "optionalWhen": [
+        "Run when the touched surface overlaps the command lane."
+      ],
+      "cleanupExpected": [],
+      "broadSignoffWeight": 1,
+      "verifies_runtime": false,
+      "verifies_ui": false,
+      "verifies_rules": false,
+      "verifies_inventory": false,
+      "verifies_continuity": false
     },
     {
       "stable_id": "command__root-check-queue-runtime",
@@ -810,6 +844,23 @@
       "verifies_continuity": false
     },
     {
+      "stable_id": "command__root-check-home-hydration",
+      "command": "npm run check:home-hydration",
+      "scopeType": "repo",
+      "root_or_functions": "root",
+      "requiredWhen": [],
+      "optionalWhen": [
+        "Run when the touched surface overlaps the command lane."
+      ],
+      "cleanupExpected": [],
+      "broadSignoffWeight": 1,
+      "verifies_runtime": false,
+      "verifies_ui": false,
+      "verifies_rules": false,
+      "verifies_inventory": false,
+      "verifies_continuity": false
+    },
+    {
       "stable_id": "command__root-check-ui-coverage",
       "command": "npm run check:ui:coverage",
       "scopeType": "ui",
@@ -824,6 +875,40 @@
       "verifies_ui": true,
       "verifies_rules": false,
       "verifies_inventory": true,
+      "verifies_continuity": false
+    },
+    {
+      "stable_id": "command__root-check-ui-mobile-doctrine",
+      "command": "npm run check:ui:mobile-doctrine",
+      "scopeType": "ui",
+      "root_or_functions": "root",
+      "requiredWhen": [],
+      "optionalWhen": [
+        "Run when the touched surface overlaps the command lane."
+      ],
+      "cleanupExpected": [],
+      "broadSignoffWeight": 1,
+      "verifies_runtime": false,
+      "verifies_ui": false,
+      "verifies_rules": false,
+      "verifies_inventory": false,
+      "verifies_continuity": false
+    },
+    {
+      "stable_id": "command__root-check-not-found",
+      "command": "npm run check:not-found",
+      "scopeType": "repo",
+      "root_or_functions": "root",
+      "requiredWhen": [],
+      "optionalWhen": [
+        "Run when the touched surface overlaps the command lane."
+      ],
+      "cleanupExpected": [],
+      "broadSignoffWeight": 1,
+      "verifies_runtime": false,
+      "verifies_ui": false,
+      "verifies_rules": false,
+      "verifies_inventory": false,
       "verifies_continuity": false
     },
     {

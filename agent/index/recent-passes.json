@@ -1,5 +1,5 @@
 {
-  "generatedAt": "2026-04-28T16:57:21.550Z",
+  "generatedAt": "2026-04-30T01:11:41.863Z",
   "truthOrder": [
     "verified_runtime_code",
     "verified_configuration",
@@ -15,21 +15,58 @@
   ],
   "passes": [
     {
-      "stable_id": "pass__2026-04-28-pre__post-every-file-checklist-tracking-reconciliation",
-      "date": "2026-04-28",
-      "title": "PRE/POST: Every-File Checklist Tracking Reconciliation",
+      "stable_id": "pass__2026-04-29-pre-telemetry-export-ga4-sql-mirror-and-parity-audit",
+      "date": "2026-04-29",
+      "title": "PRE: Telemetry Export, GA4, SQL Mirror, and Parity Audit",
+      "scopeSummary": [],
+      "touchedSurfaces": [],
+      "canonicalHelpersReused": [],
+      "verificationCommandsRun": [],
+      "resultSummary": [],
+      "warnings": [],
+      "architecture_change": false,
+      "runtime_change": false,
+      "ui_change": false,
+      "security_change": false,
+      "maintenance_only": true,
+      "changeKinds": [
+        "maintenance"
+      ]
+    },
+    {
+      "stable_id": "pass__2026-04-29-pre__post-admin-analytics-historical-cache-and-legacy-validation",
+      "date": "2026-04-29",
+      "title": "PRE/POST: Admin Analytics Historical Cache and Legacy Validation",
       "scopeSummary": [],
       "touchedSurfaces": [
-        "agent/index/repo-inventory.json",
-        "src/lib/server/analytics-pipeline-health.ts",
-        "src/lib/server/firebase-admin.ts",
-        "src/lib/server/route-diagnostics.ts",
-        "src/lib/server/server-diagnostics.ts"
+        "/api/admin/analytics/historical",
+        "npx vitest run tests/unit/ephemeral-route-cache.spec.ts tests/unit/admin-analytics-data.spec.ts tests/unit/admin-analytics-historical-traffic.spec.ts tests/unit/admin-analytics-page.spec.tsx"
       ],
-      "canonicalHelpersReused": [
-        "src/lib/server/route-diagnostics.ts",
-        "src/lib/server/server-diagnostics.ts"
+      "canonicalHelpersReused": [],
+      "verificationCommandsRun": [],
+      "resultSummary": [],
+      "warnings": [],
+      "architecture_change": false,
+      "runtime_change": false,
+      "ui_change": false,
+      "security_change": false,
+      "maintenance_only": false,
+      "changeKinds": [
+        "admin"
+      ]
+    },
+    {
+      "stable_id": "pass__2026-04-29-pre__post-admin-debug-task-refresh-truth-fix",
+      "date": "2026-04-29",
+      "title": "PRE/POST: Admin Debug Task Refresh Truth Fix",
+      "scopeSummary": [],
+      "touchedSurfaces": [
+        "/api/admin/debug",
+        "npx vitest run tests/unit/task-timestamps.spec.ts tests/unit/task-observability.spec.ts",
+        "scripts/check-admin-truth-contracts.ts",
+        "src/lib/tasks/task-timestamps.ts"
       ],
+      "canonicalHelpersReused": [],
       "verificationCommandsRun": [],
       "resultSummary": [],
       "warnings": [],
@@ -40,113 +77,96 @@
       "maintenance_only": false,
       "changeKinds": [
         "admin",
+        "tooling",
         "architecture"
       ]
     },
     {
-      "stable_id": "pass__2026-04-26-dependency-and-infrastructure-observability-rollout",
-      "date": "2026-04-26",
-      "title": "Dependency and Infrastructure Observability Rollout",
+      "stable_id": "pass__2026-04-29-pre__post-admin-analytics-realtime-fallback-root-cause-fix",
+      "date": "2026-04-29",
+      "title": "PRE/POST: Admin Analytics Realtime Fallback Root-Cause Fix",
       "scopeSummary": [],
       "touchedSurfaces": [
-        ".agent/workflows/dependency-truth.md",
-        "/api/admin/debug",
-        "scripts/agent/check-infrastructure-truth.ts",
-        "src/app/admin/debug/page.tsx",
-        "src/app/api/admin/debug/route.ts"
+        "/api/admin/analytics/realtime",
+        "npx vitest run tests/unit/admin-analytics-historical-traffic.spec.ts tests/unit/admin-analytics-realtime-route.spec.ts tests/unit/server-analytics-active-users.spec.ts tests/unit/admin-analytics-live-runtime.spec.ts",
+        "npx vitest run tests/unit/admin-analytics-realtime-route.spec.ts tests/unit/server-analytics-active-users.spec.ts tests/unit/admin-analytics-live-runtime.spec.ts",
+        "scripts/check-analytics-continuity.ts"
       ],
       "canonicalHelpersReused": [],
       "verificationCommandsRun": [],
       "resultSummary": [],
       "warnings": [],
       "architecture_change": true,
-      "runtime_change": true,
-      "ui_change": true,
+      "runtime_change": false,
+      "ui_change": false,
       "security_change": false,
       "maintenance_only": false,
       "changeKinds": [
         "admin",
+        "ui",
         "runtime",
         "tooling"
       ]
     },
     {
-      "stable_id": "pass__2026-04-26-admin-analytics-syntax-repair-caching-resilience",
-      "date": "2026-04-26",
-      "title": "Admin Analytics Syntax Repair & Caching Resilience",
+      "stable_id": "pass__2026-04-29-pre__post-global-client-firestore-connectivity-audit",
+      "date": "2026-04-29",
+      "title": "PRE/POST: Global Client Firestore Connectivity Audit",
       "scopeSummary": [],
       "touchedSurfaces": [
-        "/api/admin/analytics/realtime",
-        "src/app/admin/analytics/page.tsx",
-        "src/app/api/admin/analytics/realtime/route.ts",
-        "src/lib/self-healing.ts",
-        "src/lib/server/analytics-governance.ts"
+        "scripts/check-client-firestore-connectivity.ts"
       ],
       "canonicalHelpersReused": [],
       "verificationCommandsRun": [],
       "resultSummary": [],
       "warnings": [],
       "architecture_change": true,
-      "runtime_change": true,
-      "ui_change": true,
+      "runtime_change": false,
+      "ui_change": false,
       "security_change": false,
       "maintenance_only": false,
       "changeKinds": [
-        "admin",
-        "runtime",
-        "architecture"
+        "tooling"
       ]
     },
     {
-      "stable_id": "pass__2026-04-24-post-implementation-admin-hydration-ui-audit-signoff",
-      "date": "2026-04-24",
-      "title": "POST-IMPLEMENTATION: Admin Hydration + UI Audit Signoff",
+      "stable_id": "pass__2026-04-29-pre-admin-loading-truth-and-analytics-hydration-audit",
+      "date": "2026-04-29",
+      "title": "PRE: Admin Loading Truth and Analytics Hydration Audit",
       "scopeSummary": [],
       "touchedSurfaces": [
-        "/api/admin/overview",
-        "src/app/admin/ai/page.tsx",
-        "src/app/admin/analytics/hooks/useAdminAnalyticsState.tsx",
-        "src/app/admin/analytics/page.tsx",
-        "src/app/admin/debug/hooks/useAdminAiAssistantRealtime.ts",
-        "src/app/admin/debug/hooks/useAdminDebugRealtime.ts",
-        "src/app/admin/debug/page.tsx",
-        "src/app/admin/page.tsx",
-        "src/app/api/admin/analytics/realtime/route.ts",
-        "src/components/Landing/HomeActiveDropsCarousel.tsx",
-        "src/hooks/useAdminOverviewRealtime.ts",
-        "src/hooks/useAdminSupportRealtime.ts",
-        "tests/ui-audits/visual-regression.spec.ts"
+        ", static admin unavailable/loading probes, ",
+        "npm run trace:adjacent -- src/lib/admin-parity.ts",
+        "scripts/check-admin-truth-contracts.ts",
+        "src/components/Admin/AdminStatusBadge.tsx",
+        "src/lib/admin-parity.ts"
       ],
       "canonicalHelpersReused": [],
       "verificationCommandsRun": [],
       "resultSummary": [],
       "warnings": [],
-      "architecture_change": false,
-      "runtime_change": true,
+      "architecture_change": true,
+      "runtime_change": false,
       "ui_change": true,
       "security_change": false,
       "maintenance_only": false,
       "changeKinds": [
         "admin",
         "ui",
-        "runtime"
+        "tooling",
+        "architecture"
       ]
     },
     {
-      "stable_id": "pass__2026-04-24-pre-implementation-admin-hydration-realtime-janitorial-recovery",
-      "date": "2026-04-24",
-      "title": "PRE-IMPLEMENTATION: Admin Hydration + Realtime Janitorial Recovery",
-      "scopeSummary": [
-        "Fix the janitorial findings left after the previous review remediation, then skeptically inspect admin overview/debug/analytics hydration as if current realtime lanes may already be broken, slow, or silently falling back.",
-        "Commit and push after verification."
-      ],
+      "stable_id": "pass__2026-04-29-post-admin-loading-truth-and-analytics-hydration-audit",
+      "date": "2026-04-29",
+      "title": "POST: Admin Loading Truth and Analytics Hydration Audit",
+      "scopeSummary": [],
       "touchedSurfaces": [
-        "admin/debug/page.tsx",
-        "src/app/admin/analytics/hooks/useAdminAnalyticsState.tsx",
-        "src/app/admin/debug/hooks/useAdminDebugRealtime.ts",
-        "src/app/admin/debug/page.tsx",
-        "src/hooks/useAdminOverview.ts",
-        "src/lib/admin-ai-models.ts"
+        "npm run trace:adjacent -- src/lib/admin-parity.ts",
+        "scripts/check-admin-truth-contracts.ts",
+        "src/app/admin",
+        "src/components/Admin"
       ],
       "canonicalHelpersReused": [],
       "verificationCommandsRun": [],
@@ -159,131 +179,31 @@
       "maintenance_only": false,
       "changeKinds": [
         "admin",
-        "architecture"
+        "ui",
+        "tooling"
       ]
     },
     {
-      "stable_id": "pass__2026-04-24-pre-implementation-admin-realtime-truth-review-finding-remediation",
-      "date": "2026-04-24",
-      "title": "PRE-IMPLEMENTATION: Admin Realtime Truth Review-Finding Remediation",
-      "scopeSummary": [
-        "Address review findings from recent commits before declaring the admin realtime/privacy changes safe:",
-        "default moderation transcript subscription uses `threads[0]` visually but subscribes with `null`",
-        "privacy preflight dedupe health can falsely report `[live]`",
-        "privacy preflight initializes event recency as `0s ago`",
-        "generated local artifacts were committed/churning (`database-debug.log`, `playwright-report/index.html`)"
-      ],
-      "touchedSurfaces": [
-        ".agent/skills/doctrine-consultation.md",
-        ".agent/workflows/ui-copy-refinement-workflow.md",
-        "control-tower/00-START-HERE.md",
-        "docs/doctrine/kandydrops-banned-patterns.md",
-        "docs/doctrine/kandydrops-copy-doctrine.md",
-        "docs/doctrine/kandydrops-decision-checklist.md",
-        "docs/doctrine/kandydrops-product-doctrine.md",
-        "docs/doctrine/kandydrops-surface-matrix.md",
-        "docs/doctrine/kandydrops-ui-doctrine.md",
-        "docs/doctrine/kandydrops-vocabulary-index.md",
-        "npm run trace:adjacent -- scripts/check-generated-artifacts.ts",
-        "npm run trace:adjacent -- src/components/Admin/AdminModerationConsole.tsx",
-        "npm run trace:adjacent -- src/hooks/useAdminPrivacyPreflight.ts",
-        "playwright-report/index.html",
-        "src/components/Admin/AdminModerationConsole.tsx",
-        "src/hooks/useAdminPrivacyPreflight.ts"
-      ],
-      "canonicalHelpersReused": [],
-      "verificationCommandsRun": [],
-      "resultSummary": [],
-      "warnings": [],
-      "architecture_change": false,
-      "runtime_change": false,
-      "ui_change": true,
-      "security_change": false,
-      "maintenance_only": false,
-      "changeKinds": [
-        "ui"
-      ]
-    },
-    {
-      "stable_id": "pass__2026-04-24-post-implementation-admin-realtime-truth-review-finding-remediation",
-      "date": "2026-04-24",
-      "title": "POST-IMPLEMENTATION: Admin Realtime Truth Review-Finding Remediation",
+      "stable_id": "pass__2026-04-29-pre-telemetry-module-index-parity-audit",
+      "date": "2026-04-29",
+      "title": "PRE: Telemetry Module Index Parity Audit",
       "scopeSummary": [],
       "touchedSurfaces": [
-        "npx eslint src/components/Admin/AdminModerationConsole.tsx src/hooks/useAdminModerationRealtime.ts src/hooks/useAdminPrivacyPreflight.ts src/app/admin/AdminPrivacyPreflight.tsx scripts/check-generated-artifacts.ts",
-        "playwright-report/index.html",
-        "src/app/admin/AdminPrivacyPreflight.tsx",
-        "src/app/admin/debug/hooks/useAdminDebugRealtime.ts",
-        "src/components/Admin/AdminModerationConsole.tsx",
-        "src/hooks/useAdminModerationRealtime.ts",
-        "src/hooks/useAdminPrivacyPreflight.ts",
-        "src/lib/server/firebase-admin.ts",
-        "src/lib/server/route-runtime-health.ts",
-        "test-results/.last-run.json"
+        "scripts/check-telemetry-parity-contracts.ts",
+        "src/lib/telemetry-catalog.ts"
       ],
       "canonicalHelpersReused": [
-        "src/lib/server/route-runtime-health.ts"
+        "src/lib/telemetry-catalog.ts"
       ],
       "verificationCommandsRun": [],
       "resultSummary": [],
       "warnings": [],
       "architecture_change": true,
       "runtime_change": false,
-      "ui_change": true,
+      "ui_change": false,
       "security_change": false,
       "maintenance_only": false,
       "changeKinds": [
-        "admin",
-        "ui",
-        "runtime",
-        "architecture"
-      ]
-    },
-    {
-      "stable_id": "pass__2026-04-23-admin-parity-source-verification-hardening",
-      "date": "2026-04-23",
-      "title": "Admin Parity + Source Verification Hardening",
-      "scopeSummary": [
-        "Normalize admin truth semantics across overview, users, support, moderation, content, AI, debug, and privacy preflight surfaces before adding more admin UI logic, and make source-of-truth verification explicit instead of page-local or implied."
-      ],
-      "touchedSurfaces": [
-        "connecting/partial/failed",
-        "healthy/warn/fail",
-        "realtime/polled",
-        "scripts/check-admin-parity.ts",
-        "src/app/admin/AdminPrivacyPreflight.tsx",
-        "src/app/admin/AdminTruthSurfaces.tsx",
-        "src/app/admin/users/page.tsx",
-        "src/app/api/admin/ai/drop-covers/route.ts",
-        "src/app/api/admin/content/route.ts",
-        "src/app/api/admin/debug/route.ts",
-        "src/app/api/admin/moderation/security-alerts/route.ts",
-        "src/app/api/admin/overview/route.ts",
-        "src/app/api/admin/support/threads/route.ts",
-        "src/app/api/admin/user/[userId]/route.ts",
-        "src/app/api/admin/users/route.ts",
-        "src/components/admin/AdminStatusBadge.tsx",
-        "src/hooks/useAdminPrivacyPreflight.ts",
-        "src/lib/admin-parity.ts",
-        "src/lib/admin-user-metrics.ts",
-        "src/lib/server/admin-source-verification.ts",
-        "src/lib/user-utils.ts",
-        "tests/unit/admin-parity.spec.ts"
-      ],
-      "canonicalHelpersReused": [],
-      "verificationCommandsRun": [],
-      "resultSummary": [],
-      "warnings": [],
-      "architecture_change": true,
-      "runtime_change": true,
-      "ui_change": true,
-      "security_change": true,
-      "maintenance_only": false,
-      "changeKinds": [
-        "admin",
-        "ui",
-        "runtime",
-        "security",
         "tooling",
         "architecture"
       ]

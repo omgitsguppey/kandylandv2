@@ -54,6 +54,7 @@ import { QUEUE_RUNTIME_WARNING_CODES } from "../../../../../shared/runtime/runti
 import { getBehavioralSnapshotStatus, listDropIntelligence } from "@/lib/server/behavioral-intelligence";
 import { getAnalyticsTruthRecoverySummary, listAnalyticsTruthDrops, listAnalyticsTruthRepairs, listAnalyticsTruthUsers } from "@/lib/server/analytics-truth-recovery";
 import { buildServerAdminModuleVerification } from "@/lib/server/admin-source-verification";
+import { ANALYTICS_OPERATIONAL_COLLECTIONS } from "@/lib/server/analytics-governance";
 import { getDailyTaskRefreshMetadataIssue } from "@/lib/tasks/task-timestamps";
 
 const ONE_WEEK_MS = 7 * 24 * 60 * 60 * 1000;
@@ -294,6 +295,7 @@ export async function GET(request: NextRequest) {
             securityEventsSnapshot,
             watchSessionsSnapshot,
             watchAssetsSnapshot,
+            analyticsExportStatusSnapshot,
             commerceSummarySnapshot,
             feedbackSnapshot,
             orchestrationEventsSnapshot,
@@ -348,6 +350,7 @@ export async function GET(request: NextRequest) {
                 .orderBy("lastSeenAtMs", "desc")
                 .limit(200)
                 .get(),
+            adminDb.collection(ANALYTICS_OPERATIONAL_COLLECTIONS.exportStatus).get(),
             adminDb.collection("analytics_commerce_rollup").doc("summary").get(),
             adminDb.collection("platform_feedback").orderBy("timestamp", "desc").limit(160).get(),
             adminDb.collection(ORCHESTRATION_COLLECTIONS.events).orderBy("observedAtMs", "desc").limit(120).get(),
@@ -432,6 +435,7 @@ export async function GET(request: NextRequest) {
             securityEventDocs: securityEventsSnapshot.docs,
             watchSessionDocs: watchSessionsSnapshot.docs,
             watchAssetDocs: watchAssetsSnapshot.docs,
+            exportStatusDocs: analyticsExportStatusSnapshot.docs,
             commerceSummaryDoc: commerceSummarySnapshot,
         });
         const creatorOnboardingDiagnostics = buildCreatorOnboardingDiagnostics({

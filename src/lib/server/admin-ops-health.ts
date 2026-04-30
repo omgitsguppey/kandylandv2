@@ -210,6 +210,7 @@ export function buildAdminOpsHealth(input: {
   securityEventDocs: Array<FirebaseFirestore.QueryDocumentSnapshot | FirebaseFirestore.DocumentSnapshot>;
   watchSessionDocs?: Array<FirebaseFirestore.QueryDocumentSnapshot | FirebaseFirestore.DocumentSnapshot>;
   watchAssetDocs?: Array<FirebaseFirestore.QueryDocumentSnapshot | FirebaseFirestore.DocumentSnapshot>;
+  exportStatusDocs?: Array<FirebaseFirestore.QueryDocumentSnapshot | FirebaseFirestore.DocumentSnapshot>;
   commerceSummaryDoc?: FirebaseFirestore.DocumentSnapshot | null;
 }) : AdminOpsHealth {
   const nowMs = input.nowMs ?? Date.now();
@@ -325,6 +326,23 @@ export function buildAdminOpsHealth(input: {
   const watchSessionLastSeenAt = readLatestTimestamp(watchSessionDocs, ["lastSeenAtMs", "updatedAt", "createdAt"]);
   const watchAssetCount = watchAssetDocs.length;
   const watchAssetLastSeenAt = readLatestTimestamp(watchAssetDocs, ["lastSeenAtMs", "updatedAt", "createdAt"]);
+  const bigQueryExportData = (input.exportStatusDocs ?? [])
+    .map((doc) => getDocData(doc))
+    .find((data) => toStringValue(data.writer).includes("BigQueryExport") || toStringValue(data.datasetId) || toStringValue(data.tableId))
+    ?? {};
+  const bigQueryLastExportedAt = toNumber(bigQueryExportData.lastExportedAtMs) || toTimestampNumber(bigQueryExportData.updatedAt);
+  const bigQueryLastFailedAt = toNumber(bigQueryExportData.lastFailedAtMs);
+  const bigQueryStatusValue = toStringValue(bigQueryExportData.status);
+  const bigQueryExportStatus: AdminOpsHealthStatus = Object.keys(bigQueryExportData).length === 0
+    ? "warn"
+    : bigQueryStatusValue === "fail" && bigQueryLastFailedAt > bigQueryLastExportedAt
+      ? (bigQueryLastFailedAt >= nowMs - STALE_FAIL_MS ? "fail" : "warn")
+      : getMaterializerStatus(nowMs, toNumber(bigQueryExportData.successCount), bigQueryLastExportedAt);
+  const bigQueryExportDetail = Object.keys(bigQueryExportData).length === 0
+    ? "BigQuery raw-event export is configured but no exporter heartbeat is loaded, so warehouse delivery is not evidenced."
+    : bigQueryExportStatus === "fail"
+      ? `BigQuery raw-event export last failed: ${toStringValue(bigQueryExportData.lastErrorMessage) || "no error detail recorded"}.`
+      : "BigQuery raw-event export heartbeat confirms first-party analytics facts are reaching the warehouse lane.";
   const guestBatchesStatus: AdminOpsHealthStatus = guestBatchCount > 0
     ? getMaterializerStatus(nowMs, guestBatchCount, guestBatchLastSeenAt)
     : guestIngestFailureCount > 0
@@ -418,6 +436,16 @@ export function buildAdminOpsHealth(input: {
       lastSeenAt: lastPipelineEntry?.lastFailureAtMs || 0,
       detail: "Pipeline health captures route failures that would otherwise disappear behind soft analytics responses.",
     }),
+    {
+      key: "analytics_bigquery_raw_events",
+      label: "BigQuery Raw Events",
+      engine: "functions",
+      status: bigQueryExportStatus,
+      count: toNumber(bigQueryExportData.successCount),
+      lastSeenAt: bigQueryLastExportedAt,
+      ageMs: bigQueryLastExportedAt > 0 ? Math.max(0, nowMs - bigQueryLastExportedAt) : null,
+      detail: bigQueryExportDetail,
+    },
   ];
 
   const diagnosticsErrorCount = diagnostics.filter((entry) => entry.severity === "error").length;

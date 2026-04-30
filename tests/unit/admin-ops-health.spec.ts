@@ -52,6 +52,14 @@ describe("buildAdminOpsHealth", () => {
             securityEventDocs: [mockDoc("security_1", { timestamp: oneHourAgo })],
             watchSessionDocs: [mockDoc("watch_session_1", { lastSeenAtMs: oneHourAgo })],
             watchAssetDocs: [mockDoc("watch_asset_1", { lastSeenAtMs: oneHourAgo })],
+            exportStatusDocs: [mockDoc("bigquery_raw_events", {
+                writer: "functions/onAnalyticsEventFactBigQueryExport",
+                status: "healthy",
+                datasetId: "kandydrops_canonical_analytics",
+                tableId: "raw_events",
+                successCount: 12,
+                lastExportedAtMs: oneHourAgo,
+            })],
             commerceSummaryDoc: {
                 exists: true,
                 data: () => ({
@@ -72,12 +80,16 @@ describe("buildAdminOpsHealth", () => {
         expect(result.diagnostics.recentIssueClusterCount).toBe(0);
         expect(result.pipeline.failureCount).toBe(632);
         expect(result.materializerSummary).toMatchObject({
-            healthy: 9,
+            healthy: 10,
             warn: 0,
             fail: 0,
         });
         
         expect(result.materializers.find((item) => item.key === "analytics_pipeline_daily")?.status).toBe("healthy");
+        expect(result.materializers.find((item) => item.key === "analytics_bigquery_raw_events")).toMatchObject({
+            status: "healthy",
+            count: 12,
+        });
     });
 
     it("penalizes current diagnostics and recent pipeline failures", () => {
@@ -118,6 +130,12 @@ describe("buildAdminOpsHealth", () => {
             securityEventDocs: [mockDoc("security_1", { timestamp: oneHourAgo })],
             watchSessionDocs: [mockDoc("watch_session_1", { lastSeenAtMs: oneHourAgo })],
             watchAssetDocs: [mockDoc("watch_asset_1", { lastSeenAtMs: oneHourAgo })],
+            exportStatusDocs: [mockDoc("bigquery_raw_events", {
+                writer: "functions/onAnalyticsEventFactBigQueryExport",
+                status: "healthy",
+                successCount: 12,
+                lastExportedAtMs: oneHourAgo,
+            })],
             commerceSummaryDoc: {
                 exists: true,
                 data: () => ({
@@ -138,11 +156,71 @@ describe("buildAdminOpsHealth", () => {
         expect(result.diagnostics.activeIssueClusterCount).toBe(1);
         expect(result.diagnostics.recentIssueClusterCount).toBe(2);
         expect(result.materializerSummary).toMatchObject({
-            healthy: 9,
+            healthy: 10,
             warn: 0,
             fail: 0,
         });
         
+    });
+
+    it("keeps the BigQuery export writer visible when no export heartbeat is loaded", () => {
+        const nowMs = Date.UTC(2026, 3, 6, 12, 0, 0);
+
+        const result = buildAdminOpsHealth({
+            nowMs,
+            diagnosticsDocs: [],
+            pipelineDocs: [],
+            eventStatsDocs: [],
+            taskRollupDocs: [],
+            guestBatchDocs: [],
+            securityEventDocs: [],
+            watchSessionDocs: [],
+            watchAssetDocs: [],
+            exportStatusDocs: [],
+            commerceSummaryDoc: null,
+        });
+
+        expect(result.materializerSummary).toMatchObject({
+            warn: 1,
+            fail: 0,
+        });
+        expect(result.materializers.find((item) => item.key === "analytics_bigquery_raw_events")).toMatchObject({
+            status: "warn",
+            count: 0,
+        });
+    });
+
+    it("fails the BigQuery export writer when the latest exporter heartbeat failed", () => {
+        const nowMs = Date.UTC(2026, 3, 6, 12, 0, 0);
+        const thirtyMinutesAgo = nowMs - (30 * 60 * 1000);
+        const oneDayAgo = nowMs - (24 * 60 * 60 * 1000);
+
+        const result = buildAdminOpsHealth({
+            nowMs,
+            diagnosticsDocs: [],
+            pipelineDocs: [],
+            eventStatsDocs: [],
+            taskRollupDocs: [],
+            guestBatchDocs: [],
+            securityEventDocs: [],
+            watchSessionDocs: [],
+            watchAssetDocs: [],
+            exportStatusDocs: [mockDoc("bigquery_raw_events", {
+                writer: "functions/onAnalyticsEventFactBigQueryExport",
+                status: "fail",
+                successCount: 10,
+                lastExportedAtMs: oneDayAgo,
+                lastFailedAtMs: thirtyMinutesAgo,
+                lastErrorMessage: "Dataset not found",
+            })],
+            commerceSummaryDoc: null,
+        });
+
+        expect(result.materializerSummary?.fail).toBe(1);
+        expect(result.materializers.find((item) => item.key === "analytics_bigquery_raw_events")).toMatchObject({
+            status: "fail",
+            count: 10,
+        });
     });
 
     it("tracks active and recent channel counts separately from loaded sample totals", () => {

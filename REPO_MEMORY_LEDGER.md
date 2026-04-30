@@ -24,6 +24,23 @@ This file is not a changelog. It is the concise ledger for durable decisions tha
 
 ## Decision Entries
 
+### 1bj. BigQuery warehouse export must have an admin-visible heartbeat
+
+- Approximate date: Recorded explicitly on 2026-04-29 from the Telemetry Export, GA4, SQL Mirror, and Parity Audit
+- Status: Active analytics export observability rule
+- Problem/context: The Cloud Functions BigQuery export trigger for `analytics_event_facts` could succeed or fail only in Functions logs. Admin Debug materializer health, analytics continuity, and the SQL/Data Connect retrieval plane could not prove whether first-party event facts were reaching the downstream warehouse.
+- Decision made: BigQuery raw-event export remains downstream from canonical Firestore `analytics_event_facts`, but its delivery status must be visible as an admin truth signal.
+- What became canonical:
+  - `functions/src/analytics-bigquery-export.ts` writes `analytics_export_status/bigquery_raw_events` on success and failure, with dataset/table id, last event id, last exported/failed timestamps, counts, and last error detail.
+  - The BigQuery dataset/table ids may be configured with `BQ_ANALYTICS_DATASET_ID` / `BIGQUERY_ANALYTICS_DATASET_ID` and `BQ_ANALYTICS_RAW_EVENTS_TABLE_ID` / `BIGQUERY_ANALYTICS_RAW_EVENTS_TABLE_ID`; defaults remain `kandydrops_canonical_analytics.raw_events`.
+  - `/api/admin/debug` loads `analytics_export_status`, and `buildAdminOpsHealth` tracks `analytics_bigquery_raw_events` as a downstream materializer.
+  - `scripts/check-analytics-continuity.ts` blocks regressions where the exporter, heartbeat, governance collection, admin read, or ops materializer drift apart.
+  - `scripts/agent/extract-runtime-observability.ts` models `analytics_export_status` so the SQL/Data Connect mirror can retrieve the export-health lane.
+- Consequence for future work:
+  - Do not add warehouse/export jobs that only log to provider consoles; every export must publish a visible source-state heartbeat.
+  - Do not treat BigQuery as stronger truth than first-party Firestore facts unless a separate reconciliation job proves parity.
+  - Missing export heartbeat must stay degraded, not live.
+
 ### 1bh. Admin historical analytics cached snapshots must be explicit
 
 - Approximate date: Recorded explicitly on 2026-04-29 from the Admin Analytics Historical Cache and Legacy Validation pass

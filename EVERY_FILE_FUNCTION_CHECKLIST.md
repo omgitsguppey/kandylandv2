@@ -9,6 +9,17 @@ Scoring: all entries below are marked as included in the current validated sweep
 
 Current repo-wide state snapshot: see [FULL_SCALE_CODEBASE_AUDIT.md](/Users/uylus/OneDrive/Documents/KandyDrops_Final/FULL_SCALE_CODEBASE_AUDIT.md) for the current live baseline, verification state, and continuity rules, and see [REPO_MEMORY_LEDGER.md](/Users/uylus/OneDrive/Documents/KandyDrops_Final/REPO_MEMORY_LEDGER.md) for major architectural and workflow decisions. The detailed file/function body below remains valuable historical evidence, but it has not been fully regenerated against the current 2026-04-18 inventory review yet.
 
+## 2026-04-29 Telemetry Export, GA4, SQL Mirror, and Parity Audit Coverage
+
+- [x] `functions/src/analytics-bigquery-export.ts` exports first-party `analytics_event_facts` to BigQuery and now records success/failure heartbeats in `analytics_export_status/bigquery_raw_events`.
+- [x] `src/lib/server/analytics-governance.ts` names `analytics_export_status` as an operational analytics collection.
+- [x] `src/app/api/admin/debug/route.ts` loads analytics export-status documents into the Admin Debug ops-health sample.
+- [x] `src/lib/server/admin-ops-health.ts` tracks `analytics_bigquery_raw_events` as a downstream materializer; missing heartbeat is degraded and latest failure is failed.
+- [x] `scripts/check-analytics-continuity.ts` blocks BigQuery export visibility drift across Functions export, heartbeat write, governance naming, Admin Debug read, and ops-health materializer tracking.
+- [x] `scripts/agent/extract-runtime-observability.ts` models `analytics_export_status` for the agent SQL/Data Connect mirror.
+- [x] `agent/index/runtime-observability.json`, `agent/state/sql-sync.payload.generated.json`, and `agent/state/sql-mirror-status.generated.json` were regenerated with `npm run agent:sync-sql` after adding the export-status lane.
+- [x] `tests/unit/admin-ops-health.spec.ts` covers healthy BigQuery export heartbeat, missing heartbeat degradation, and failed exporter heartbeat.
+
 ## 2026-04-29 Admin Analytics Historical Cache and Legacy Validation Coverage
 
 - [x] `src/lib/server/ephemeral-route-cache.ts` provides validated stale-while-revalidate route caching with in-flight refresh deduping.

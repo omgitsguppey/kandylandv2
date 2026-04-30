@@ -15,6 +15,7 @@ function assert(condition: unknown, message: string) {
 export async function checkAnalyticsContinuity() {
   assertActiveUserMirrorWriters();
   assertHistoricalGuestFirstPartySources();
+  assertBigQueryExportVisibility();
 
   const adminDb = getRuntimeAdminDb();
   const sinceMs = Date.now() - 7 * 24 * 60 * 60 * 1000;
@@ -206,6 +207,35 @@ export async function checkAnalyticsContinuity() {
   assert(
     creatorParity.creatorRestrictedSpendViolationCount === 0,
     `Analytics continuity failed: ${creatorParity.creatorRestrictedSpendViolationCount} creator spend transaction(s) spent restricted creator balance from reward sources in the last 7 days.`,
+  );
+}
+
+function assertBigQueryExportVisibility() {
+  const functionsIndexSource = readFileSync(resolve(process.cwd(), "functions/src/index.ts"), "utf8");
+  const bigQueryExportSource = readFileSync(resolve(process.cwd(), "functions/src/analytics-bigquery-export.ts"), "utf8");
+  const adminDebugRouteSource = readFileSync(resolve(process.cwd(), "src/app/api/admin/debug/route.ts"), "utf8");
+  const adminOpsHealthSource = readFileSync(resolve(process.cwd(), "src/lib/server/admin-ops-health.ts"), "utf8");
+  const analyticsGovernanceSource = readFileSync(resolve(process.cwd(), "src/lib/server/analytics-governance.ts"), "utf8");
+
+  assert(
+    functionsIndexSource.includes("onAnalyticsEventFactBigQueryExport"),
+    "Analytics continuity failed: BigQuery analytics export function is no longer exported from functions/src/index.ts.",
+  );
+  assert(
+    bigQueryExportSource.includes("analytics_export_status") && bigQueryExportSource.includes("recordBigQueryExportStatus"),
+    "Analytics continuity failed: BigQuery analytics export no longer writes a visible export-status heartbeat.",
+  );
+  assert(
+    analyticsGovernanceSource.includes("exportStatus: \"analytics_export_status\""),
+    "Analytics continuity failed: analytics export-status collection is missing from analytics governance.",
+  );
+  assert(
+    adminDebugRouteSource.includes("ANALYTICS_OPERATIONAL_COLLECTIONS.exportStatus"),
+    "Analytics continuity failed: Admin Debug no longer loads analytics export-status documents.",
+  );
+  assert(
+    adminOpsHealthSource.includes("analytics_bigquery_raw_events"),
+    "Analytics continuity failed: Admin Ops Health no longer tracks the BigQuery raw-events materializer.",
   );
 }
 
