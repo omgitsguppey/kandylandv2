@@ -278,6 +278,7 @@ function scopeHistoricalResponse(section: string | null, payload: Record<string,
             return withSharedFields({
                 taskGuidance: payload.taskGuidance,
                 taskPipeline: payload.taskPipeline,
+                taskLeaderboard: payload.taskLeaderboard,
             });
         case "taskCompletionSpeed":
             return withSharedFields({ taskDurationBuckets: payload.taskDurationBuckets });

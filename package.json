@@ -41,6 +41,7 @@
         "check:admin-analytics-guest-bounce-quality": "tsx scripts/check-admin-analytics-guest-bounce-quality.ts",
         "check:admin-analytics-event-mix": "tsx scripts/check-admin-analytics-event-mix.ts",
         "check:admin-analytics-live-interaction-stream": "tsx scripts/check-admin-analytics-live-interaction-stream.ts",
+        "check:admin-analytics-daily-task-pipeline": "tsx scripts/check-admin-analytics-daily-task-pipeline.ts",
         "check:admin-data-validation-relocation": "tsx scripts/check-admin-data-validation-relocation.ts",
         "check:admin-shell-spacing": "tsx scripts/check-admin-shell-spacing.ts",
         "test:gate:fast": "npm run typecheck && npm run test:gate:parity",

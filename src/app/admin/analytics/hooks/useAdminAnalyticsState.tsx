@@ -37,7 +37,7 @@ import { buildAdminAnalyticsLiveInteractionStreamModel } from "@/lib/admin-analy
 import { TELEMETRY_EVENT_LABELS } from "@/lib/telemetry-catalog";
 import { coerceAdminSurfaceState, type AdminSurfaceState } from "@/lib/admin-parity";
 
-import type { ViewTab, RangeOption, HistoricalAnalyticsResponse, RealtimeAnalyticsResponse, AnalyticsPreferencesResponse } from "@/types/admin-analytics";
+import type { ViewTab, RangeOption, HistoricalAnalyticsResponse, RealtimeAnalyticsResponse, AnalyticsPreferencesResponse, TaskLeaderboardItem } from "@/types/admin-analytics";
 
 import {
   ANALYTICS_FILTER_STORAGE_KEY,
@@ -68,6 +68,7 @@ const EVENT_LABELS: Record<string, string> = TELEMETRY_EVENT_LABELS;
 const ADMIN_ANALYTICS_OVERVIEW_HYDRATION_BUDGET_MS = 3_000;
 const ADMIN_ANALYTICS_OVERVIEW_SNAPSHOT_STORAGE_PREFIX =
   "kandydrops.admin.analytics.overview.lastValidatedBackendSnapshot";
+const EMPTY_TASK_LEADERBOARD: TaskLeaderboardItem[] = [];
 
 type AdminAnalyticsOverviewMetricKey =
   | "liveActive"
@@ -707,7 +708,7 @@ const { user } = useAuth();
   );
   const notificationActions = historicalResponse?.notificationActions ?? [];
   const taskPipeline = historicalResponse?.taskPipeline ?? [];
-  const taskLeaderboard = historicalResponse?.taskLeaderboard ?? [];
+  const taskLeaderboard = historicalResponse?.taskLeaderboard ?? EMPTY_TASK_LEADERBOARD;
   const taskDurationBuckets = historicalResponse?.taskDurationBuckets ?? [];
   const reminderReasons = historicalResponse?.reminderReasons ?? [];
   const packagePerformance = historicalResponse?.packagePerformance ?? [];
@@ -1580,8 +1581,30 @@ const { user } = useAuth();
   const dailyTaskPipelineItems =
     dailyTaskPipelineData?.taskPipeline ?? taskPipeline;
   const dailyTaskPipelineModel = useMemo(
-    () => buildAdminTaskPipelineModel(dailyTaskPipelineItems),
-    [dailyTaskPipelineItems],
+    () => buildAdminTaskPipelineModel({
+      selectedRange: dailyTaskPipelineRange,
+      response: dailyTaskPipelineData,
+      items: dailyTaskPipelineItems,
+      taskLeaderboard: dailyTaskPipelineData?.taskLeaderboard ?? taskLeaderboard,
+      loading: dailyTaskPipelineRange === ADMIN_ANALYTICS_DEFAULT_RANGE
+        ? historicalLoading
+        : dailyTaskPipelineOverride.isLoading,
+      error: (dailyTaskPipelineRange === ADMIN_ANALYTICS_DEFAULT_RANGE
+        ? historicalError
+        : dailyTaskPipelineOverride.error) ?? undefined,
+      overviewTruthState: historicalOverviewTruthState,
+    }),
+    [
+      dailyTaskPipelineRange,
+      dailyTaskPipelineData,
+      dailyTaskPipelineItems,
+      taskLeaderboard,
+      historicalLoading,
+      dailyTaskPipelineOverride.isLoading,
+      historicalError,
+      dailyTaskPipelineOverride.error,
+      historicalOverviewTruthState,
+    ],
   );
   const taskCompletionSpeedData =
     taskCompletionSpeedRange === ADMIN_ANALYTICS_DEFAULT_RANGE

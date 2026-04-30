@@ -1,6 +1,6 @@
 "use client";
 
-import type { ReactNode } from "react";
+import { useEffect, type ReactNode } from "react";
 import { BellRing, Clock3, Funnel, Sparkles } from "lucide-react";
 import {
     Bar,
@@ -19,6 +19,8 @@ import {
     AnalyticsTooltip,
     SectionCard,
 } from "@/components/Admin/Analytics/AdminAnalyticsPrimitives";
+import { AdminStatusBadge } from "@/components/Admin/AdminStatusBadge";
+import type { AdminTaskPipelineModel, AdminTaskPipelineMetric } from "@/lib/admin-task-pipeline";
 
 const PIE_COLORS = ["#b28cff", "#22d3ee", "#fb7185", "#f59e0b", "#34d399", "#60a5fa"];
 
@@ -56,8 +58,7 @@ type NotificationPieItem = {
 
 export function AdminTaskAndNotificationModules(props: {
     renderSectionRangeControl: (sectionKey: string) => ReactNode;
-    dailyTaskPipelineItems: CountBucketItem[];
-    dailyTaskPipelineHasData: boolean;
+    dailyTaskPipelineModel: AdminTaskPipelineModel;
     taskCompletionSpeedBuckets: CountBucketItem[];
     taskLeaderboardItems: TaskLeaderboardItem[];
     activeNotificationFunnelPieData: NotificationPieItem[];
@@ -68,6 +69,20 @@ export function AdminTaskAndNotificationModules(props: {
     formatDuration: (seconds: number) => string;
     formatPercent: (value: number) => string;
 }) {
+    useEffect(() => {
+        if (typeof window === "undefined") return;
+        (window as typeof window & {
+            __KANDYDROPS_ADMIN_ANALYTICS_DAILY_TASK_PIPELINE_DEBUG__?: AdminTaskPipelineModel;
+        }).__KANDYDROPS_ADMIN_ANALYTICS_DAILY_TASK_PIPELINE_DEBUG__ = props.dailyTaskPipelineModel;
+    }, [props.dailyTaskPipelineModel]);
+
+    const formatCount = (value: number | null) => value === null ? "Waiting" : value.toLocaleString();
+    const formatRate = (value: number | null) => value === null ? "Unavailable" : props.formatPercent(value);
+    const lifecycleProgressWidth = (metric: AdminTaskPipelineMetric) => {
+        const peak = Math.max(1, props.dailyTaskPipelineModel.peakCount);
+        return `${Math.max(4, Math.min(100, ((metric.value ?? 0) / peak) * 100))}%`;
+    };
+
     return (
         <>
             <div className="grid gap-5 xl:grid-cols-[1fr_1fr]">
@@ -77,44 +92,73 @@ export function AdminTaskAndNotificationModules(props: {
                     icon={Funnel}
                     rightSlot={props.renderSectionRangeControl("dailyTaskPipeline")}
                 >
-                    <div className="h-64 w-full">
-                        {props.dailyTaskPipelineHasData ? (
-                            <ResponsiveContainer width="100%" height="100%">
-                                <BarChart
-                                    data={props.dailyTaskPipelineItems}
-                                    margin={{ top: 8, right: 0, left: -18, bottom: 0 }}
-                                >
-                                    <CartesianGrid
-                                        stroke="rgba(255,255,255,0.06)"
-                                        vertical={false}
-                                    />
-                                    <XAxis
-                                        dataKey="label"
-                                        stroke="#6b7280"
-                                        fontSize={11}
-                                        tickLine={false}
-                                        axisLine={false}
-                                    />
-                                    <YAxis
-                                        stroke="#6b7280"
-                                        fontSize={11}
-                                        tickLine={false}
-                                        axisLine={false}
-                                    />
-                                    <Tooltip content={<AnalyticsTooltip />} />
-                                    <Bar
-                                        dataKey="count"
-                                        name="Events"
-                                        fill="#b28cff"
-                                        radius={[10, 10, 0, 0]}
-                                    />
-                                </BarChart>
-                            </ResponsiveContainer>
+                    <div className="space-y-2.5">
+                        <div className="flex flex-col gap-2 rounded-[1rem] border border-white/10 bg-white/[0.035] px-3 py-2 text-[11px] leading-5 text-gray-300 sm:flex-row sm:items-center sm:justify-between">
+                            <span>{props.dailyTaskPipelineModel.recommendation}</span>
+                            <AdminStatusBadge
+                                state={props.dailyTaskPipelineModel.truthState}
+                                label={props.dailyTaskPipelineModel.badgeLabel}
+                                className="max-w-[5.5rem] shrink-0 truncate whitespace-nowrap px-1.5 py-0.5 text-[9px]"
+                            />
+                        </div>
+
+                        <div className="grid grid-cols-2 gap-1.5 sm:grid-cols-4">
+                            {props.dailyTaskPipelineModel.lifecycleMetrics.map((metric) => (
+                                <div key={metric.key} className="rounded-[0.9rem] border border-white/10 bg-black/25 px-3 py-2">
+                                    <p className="text-[10px] font-semibold uppercase tracking-[0.12em] text-gray-500">{metric.label}</p>
+                                    <p className="mt-1 text-lg font-black text-white">{formatCount(metric.value)}</p>
+                                    <p className="mt-0.5 truncate text-[10px] text-gray-500">{metric.source.replace("_", " ")}</p>
+                                </div>
+                            ))}
+                        </div>
+
+                        {props.dailyTaskPipelineModel.hasData ? (
+                            <div className="rounded-[1rem] border border-white/10 bg-black/25 p-3">
+                                <div className="mb-2 grid grid-cols-3 gap-2 text-[10px] text-gray-400">
+                                    <span>Start rate: <span className="text-white">{formatRate(props.dailyTaskPipelineModel.startRate.value)}</span></span>
+                                    <span>Complete: <span className="text-white">{formatRate(props.dailyTaskPipelineModel.completionRate.value)}</span></span>
+                                    <span>Fail: <span className="text-white">{formatRate(props.dailyTaskPipelineModel.failRate.value)}</span></span>
+                                </div>
+                                <div className="space-y-1.5">
+                                    {props.dailyTaskPipelineModel.lifecycleMetrics.map((metric) => (
+                                        <div key={metric.key} className="grid grid-cols-[5.2rem_minmax(0,1fr)_3rem] items-center gap-2 text-[11px]">
+                                            <span className="truncate text-gray-400">{metric.label}</span>
+                                            <div className="h-1.5 overflow-hidden rounded-full bg-white/10">
+                                                <div
+                                                    className={metric.key === "failed" ? "h-full rounded-full bg-rose-400" : metric.key === "completed" ? "h-full rounded-full bg-brand-purple" : "h-full rounded-full bg-slate-400"}
+                                                    style={{ width: lifecycleProgressWidth(metric) }}
+                                                />
+                                            </div>
+                                            <span className="text-right font-semibold text-white">{formatCount(metric.value)}</span>
+                                        </div>
+                                    ))}
+                                </div>
+                            </div>
                         ) : (
-                            <div className="flex h-full items-center justify-center rounded-[1.6rem] border border-dashed border-white/10 bg-black/20 p-5 text-sm text-gray-500">
-                                No daily task pipeline data in this range.
+                            <div className="rounded-[0.9rem] border border-dashed border-white/10 bg-black/20 p-3 text-xs text-gray-500">
+                                Task pipeline is waiting for lifecycle signals.
                             </div>
                         )}
+
+                        <div className="grid gap-2 rounded-[1rem] border border-white/10 bg-white/[0.03] p-3 text-[11px] text-gray-300">
+                            <div className="grid grid-cols-3 gap-1.5">
+                                {props.dailyTaskPipelineModel.guidanceMetrics.map((metric) => (
+                                    <div key={metric.key} className="rounded-[0.8rem] bg-black/25 px-2 py-1.5">
+                                        <p className="truncate text-[10px] text-gray-500">{metric.label}</p>
+                                        <p className="font-semibold text-white">{formatCount(metric.value)}</p>
+                                    </div>
+                                ))}
+                            </div>
+                            <p className="leading-5 text-gray-400">
+                                {props.dailyTaskPipelineModel.visibleCopy} Start rate uses {props.dailyTaskPipelineModel.startRate.formula}; completion and fail rates use started tasks.
+                            </p>
+                            <div className="grid grid-cols-2 gap-1.5 text-[10px] text-gray-400">
+                                <span>Stuck assigned: <span className="text-white">{formatCount(props.dailyTaskPipelineModel.stuckAssignedCount)}</span></span>
+                                <span>Started open: <span className="text-white">{formatCount(props.dailyTaskPipelineModel.startedNotCompletedCount)}</span></span>
+                                <span>Orphan starts: <span className="text-white">{formatCount(props.dailyTaskPipelineModel.orphanStartedCount)}</span></span>
+                                <span>Orphan completions: <span className="text-white">{formatCount(props.dailyTaskPipelineModel.orphanCompletedCount)}</span></span>
+                            </div>
+                        </div>
                     </div>
                 </SectionCard>
 
