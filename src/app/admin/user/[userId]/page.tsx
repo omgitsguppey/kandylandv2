@@ -103,7 +103,7 @@ type UserDetailParityInsight = {
 type UserDetailCoverageItem = {
     key: string;
     label: string;
-    status: AdminSurfaceState | "healthy" | "partial" | "empty";
+    status: AdminSurfaceState | "live" | "partial" | "empty";
     score: number;
     total: number;
     populatedSources: number;
@@ -235,7 +235,7 @@ function getValidationClasses(status: "pass" | "warn" | "fail") {
     return "border-amber-400/20 bg-amber-400/10 text-amber-200";
 }
 
-function getCoverageClasses(status: AdminSurfaceState | "healthy" | "partial" | "empty") {
+function getCoverageClasses(status: AdminSurfaceState | "live" | "partial" | "empty") {
     const state = coerceUserDetailTruthState(status);
     if (state === "live") {
         return "border-emerald-400/20 bg-emerald-400/10 text-emerald-200";
@@ -249,7 +249,7 @@ function getCoverageClasses(status: AdminSurfaceState | "healthy" | "partial" | 
 }
 
 function coerceUserDetailTruthState(value: unknown): AdminSurfaceState {
-    if (value === "healthy") return "live";
+    if (value === "healthy" || value === "live") return "live";
     if (value === "empty") return "unavailable";
     return coerceAdminSurfaceState(value);
 }

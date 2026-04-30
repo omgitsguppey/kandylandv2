@@ -112,7 +112,7 @@ export function DebugNowDiagnostics({
                                             <p className="font-semibold text-white">{materializer.label}</p>
                                             <p className="text-xs text-gray-400">{materializer.engine}</p>
                                         </div>
-                                        <Pill label="Status" value={materializer.status} tone={materializer.status === "healthy" ? "good" : materializer.status === "warn" ? "warn" : "bad"} />
+                                        <Pill label="Status" value={materializer.status === "healthy" ? "live" : materializer.status} tone={materializer.status === "healthy" ? "good" : materializer.status === "warn" ? "warn" : "bad"} />
                                     </div>
                                     <div className="flex flex-wrap gap-2">
                                         <Pill label="Count" value={materializer.count} />
@@ -141,7 +141,7 @@ export function DebugNowDiagnostics({
                                         <p className="font-semibold text-white">{entry.panelTitle}</p>
                                         <p className="text-xs text-gray-400">{entry.tab} | {formatRelative(entry.updatedAtMs)}</p>
                                     </div>
-                                    <Pill label="Status" value={entry.status} tone={entry.status === "healthy" ? "good" : entry.status === "warn" ? "warn" : "bad"} />
+                                    <Pill label="Status" value={entry.status === "healthy" ? "live" : entry.status} tone={entry.status === "healthy" ? "good" : entry.status === "warn" ? "warn" : "bad"} />
                                 </div>
                                 <p className="text-sm text-gray-200">{entry.summary}</p>
                                 <p className="text-xs text-gray-400">{entry.action}</p>

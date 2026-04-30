@@ -104,7 +104,7 @@ export function DebugMonitoringRoutes({
                                             <p className="text-xs text-gray-400">{entry.routeName} | {entry.method} | {formatRelative(entry.updatedAtMs)}</p>
                                         </div>
                                         <div className="flex flex-wrap gap-2">
-                                            <Pill label="Status" value={status} tone={status === "healthy" ? "good" : status === "fail" ? "bad" : "warn"} />
+                                            <Pill label="Status" value={status === "healthy" ? "live" : status} tone={status === "healthy" ? "good" : status === "fail" ? "bad" : "warn"} />
                                             <Pill label="Coverage" value={coverageState} tone={coverageState === "observed" ? "good" : "warn"} />
                                             <Pill label="Freshness" value={freshness} tone={freshness === "fresh" ? "good" : freshness === "stale" ? "warn" : "neutral"} />
                                             <Pill label="Cluster" value={getRouteRuntimeHealthCluster(entry.key) === "native_chat" ? "native chat" : getRouteRuntimeHealthCluster(entry.key) === "compatibility_chat" ? "compatibility" : "other"} tone={getRouteRuntimeHealthCluster(entry.key) === "other" ? "neutral" : "warn"} />

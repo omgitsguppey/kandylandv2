@@ -49,12 +49,9 @@ const trackedDropCardImpressions = new Set<string>();
 const DropCardBadge = ({ label, compact = false }: DropCardBadgeProps) => (
     <div
         className={cn(
-            "backdrop-blur-md rounded-full font-bold text-white shadow-lg border w-fit",
-            compact ? "px-2 py-0.5 text-[9px]" : "px-2 py-0.5 md:px-3 md:py-1 text-[10px] md:text-xs",
-            "bg-brand-purple/80 border-white/10",
-            label === "Sweet" && "bg-brand-purple/90",
-            label === "Spicy" && "bg-white/20 border-white/20",
-            label === "RAW" && "bg-zinc-800/80 border-white/20"
+            "font-bold text-white shadow-sm w-fit",
+            compact ? "text-[10px]" : "text-[11px] md:text-xs",
+            "text-brand-purple",
         )}
     >
         {label}
@@ -77,8 +74,8 @@ const FileCountChip = ({ images, videos, compact = false }: FileCountChipProps) 
 
     return (
         <div className={cn(
-            "backdrop-blur-md rounded-full font-bold text-white shadow-xl border border-white/20 flex items-center gap-2 bg-black/60 z-30",
-            compact ? "px-2 py-0.5 text-[9px] gap-1.5" : "px-3 py-1 text-[10px] md:text-xs"
+            "font-bold text-white z-30 flex items-center gap-2",
+            compact ? "text-[10px] gap-1.5" : "text-[11px] md:text-xs"
         )} aria-label={fileCountLabel} title={fileCountLabel}>
             {images > 0 && (
                 <div className="flex items-center gap-1">
