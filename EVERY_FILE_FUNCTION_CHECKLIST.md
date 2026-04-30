@@ -9,6 +9,19 @@ Scoring: all entries below are marked as included in the current validated sweep
 
 Current repo-wide state snapshot: see [FULL_SCALE_CODEBASE_AUDIT.md](/Users/uylus/OneDrive/Documents/KandyDrops_Final/FULL_SCALE_CODEBASE_AUDIT.md) for the current live baseline, verification state, and continuity rules, and see [REPO_MEMORY_LEDGER.md](/Users/uylus/OneDrive/Documents/KandyDrops_Final/REPO_MEMORY_LEDGER.md) for major architectural and workflow decisions. The detailed file/function body below remains valuable historical evidence, but it has not been fully regenerated against the current 2026-04-18 inventory review yet.
 
+## 2026-04-30 Analytics Truth Layer v2 Phase 3 Hot-Cache Snapshot Coverage
+
+- [x] `src/lib/analytics/admin-metric-snapshot.ts` defines the canonical Admin Analytics snapshot schema, ranges, source modes, truth states, refresh states, warnings, parity results, fake-zero validation, stale-cache resolution, and duplicate-refresh lock logic.
+- [x] `src/lib/server/admin-analytics-snapshots.ts` reads/writes persisted snapshots in `analytics_admin_metric_snapshots`, exposes latest verified snapshots, records refresh started/completed/failed states, returns Debug metadata, and dedupes in-flight refreshes.
+- [x] `src/lib/server/admin-analytics-materializers.ts` registers `platform_pulse`, `audience_snapshot`, `commerce_snapshot`, `live_pulse`, `journey_funnel`, `auth_outcomes`, `onboarding_performance`, `daily_task_pipeline`, `notification_funnel`, `event_mix`, `live_interaction_stream`, and `data_health_summary`.
+- [x] `src/app/api/admin/analytics/refresh/route.ts` provides admin-gated snapshot metadata reads and manual refresh with duplicate-refresh prevention and metadata response payloads.
+- [x] `src/hooks/useAdminAnalyticsSnapshot.ts` provides a snapshot-first client helper with `firstSnapshotMs`, `refreshStatus`, `sourceMode`, manual refresh, and optional refresh-on-mount.
+- [x] `src/app/api/admin/debug/route.ts` exposes `adminAnalyticsHotCache` metadata for persisted snapshots, source modes, truth states, refresh status, parity, formulas, source breakdown, and unavailable reasons.
+- [x] `docs/agent-truth/admin-analytics-hot-cache.md`, `analytics-truth-layer-v2.md`, and `analytics-source-hierarchy.md` document the Phase 3 hot-cache-first doctrine.
+- [x] `scripts/agent/validate-admin-analytics-hot-cache.ts` and `package.json` add `npm run check:admin-analytics-hot-cache`.
+- [x] `tests/unit/admin-metric-snapshot.spec.ts` and `tests/unit/admin-analytics-refresh-route.spec.ts` cover snapshot states, fake-zero prevention, stale fallback, refresh dedupe, unavailable materializers, registry completeness, and route metadata.
+- [x] This Phase 3 pass intentionally does not refactor all Admin Analytics UI modules, remove old realtime routes, auto-run cold provider queries, or mark unavailable materializers as verified.
+
 ## 2026-04-30 Analytics Truth Layer v2 Phase 2 Event Contract Coverage
 
 - [x] `src/lib/analytics/analytics-event-contract.ts` defines the canonical v2 analytics event shape, actor types, actor lanes, source lanes, consent states, dedupe keys, identity-link event creation, inclusion/exclusion helpers, and Debug metadata.

@@ -57,6 +57,7 @@ import { buildServerAdminModuleVerification } from "@/lib/server/admin-source-ve
 import { ANALYTICS_OPERATIONAL_COLLECTIONS } from "@/lib/server/analytics-governance";
 import { getDailyTaskRefreshMetadataIssue } from "@/lib/tasks/task-timestamps";
 import { buildAdminShellLayoutDebugMetadata } from "@/lib/admin-shell-spacing";
+import { listAdminMetricSnapshotDebugMetadata } from "@/lib/server/admin-analytics-snapshots";
 
 const ONE_WEEK_MS = 7 * 24 * 60 * 60 * 1000;
 const TASK_AUDIT_SAMPLE_LIMIT = 2_000;
@@ -376,7 +377,7 @@ export async function GET(request: NextRequest) {
             adminDb.collection(CREATOR_REVIEW_QUEUE_COLLECTION).get(),
         ]);
 
-        const [routeRuntimeHealth, runtimeWarnings, queueJobHeartbeats, notificationDispatchOutcomes, behavioralSnapshotStatus, behavioralDrops, analyticsTruthRecovery, analyticsTruthDrops, analyticsTruthUsers, analyticsTruthRepairs] = await Promise.all([
+        const [routeRuntimeHealth, runtimeWarnings, queueJobHeartbeats, notificationDispatchOutcomes, behavioralSnapshotStatus, behavioralDrops, analyticsTruthRecovery, analyticsTruthDrops, analyticsTruthUsers, analyticsTruthRepairs, adminMetricSnapshots] = await Promise.all([
             listRouteRuntimeHealth(),
             listRuntimeWarnings(80),
             listQueueJobHeartbeats(),
@@ -387,6 +388,7 @@ export async function GET(request: NextRequest) {
             listAnalyticsTruthDrops(12),
             listAnalyticsTruthUsers(12),
             listAnalyticsTruthRepairs(20),
+            listAdminMetricSnapshotDebugMetadata({ limit: 120 }),
         ]);
                 const routeRuntimeHealthSummary = summarizeRouteRuntimeHealth(routeRuntimeHealth);
         const queueJobHeartbeatSummary = queueJobHeartbeats.reduce((summary, entry) => {
@@ -1110,6 +1112,39 @@ export async function GET(request: NextRequest) {
             analyticsTruthDrops,
             analyticsTruthUsers,
             analyticsTruthRepairs,
+            adminAnalyticsHotCache: {
+                surface: "admin-analytics-hot-cache",
+                dataSource: "analytics_admin_metric_snapshots",
+                snapshotMetadata: adminMetricSnapshots,
+                sourceModes: ["live", "verified_cache", "stale_cache", "intraday", "estimated", "fallback", "unavailable", "mixed"],
+                truthStates: ["verified", "stale", "partial", "unavailable", "failed", "refreshing"],
+                refreshStatuses: ["idle", "queued", "refreshing", "completed", "failed", "duplicate_prevented", "unavailable"],
+                refreshRoute: "/api/admin/analytics/refresh",
+                duplicateRefreshPrevented: adminMetricSnapshots.some((snapshot) => snapshot.duplicateRefreshPrevented === true),
+                debugFields: [
+                    "moduleKey",
+                    "rangeKey",
+                    "sourceMode",
+                    "truthState",
+                    "lastVerifiedAt",
+                    "generatedAt",
+                    "refreshStatus",
+                    "refreshStartedAt",
+                    "refreshCompletedAt",
+                    "duplicateRefreshPrevented",
+                    "values",
+                    "formulas",
+                    "sourceBreakdown",
+                    "warnings",
+                    "parity",
+                    "legacyIncluded",
+                    "confidence",
+                    "staleReason",
+                    "unavailableReason",
+                ],
+                noBlankLoadingRule: "Admin Analytics must render the latest verified snapshot first when one exists; realtime is an upgrade, not a loading dependency.",
+                fakeZeroRule: "Snapshot values use null/unavailable with fakeZeroPrevented=true when a source is missing; missing values must not be coerced to zero.",
+            },
             adminAnalyticsOverview: {
                 surface: "admin-analytics-overview",
                 pageId: "admin/analytics",

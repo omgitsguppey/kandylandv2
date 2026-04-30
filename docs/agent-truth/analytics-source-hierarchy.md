@@ -126,3 +126,19 @@ Only the first two are product truth by default. Hot caches are fast display tru
 Every current or future canonical writer needs a deterministic `dedupeKey`. The key should include the event name, actor lane/id, source lane, object type/id, and a safe time bucket or business id. Random browser ids can remain `eventId`, but they must not be the only idempotency control for business facts such as purchases, unlocks, tasks, notifications, or identity links.
 
 Legacy records mapped into canonical shape must keep `legacySource` and `legacyId` so they cannot silently mix with server-confirmed current events.
+
+## Phase 3 Hot-Cache Snapshot Placement
+
+Admin Analytics hot-cache snapshots are fast display truth, not product truth. They live below first-party product records and above realtime upgrades for initial dashboard paint.
+
+The Phase 3 files are:
+
+- `src/lib/analytics/admin-metric-snapshot.ts` for the snapshot contract
+- `src/lib/server/admin-analytics-snapshots.ts` for persisted snapshot storage and refresh state
+- `src/lib/server/admin-analytics-materializers.ts` for module registry ownership
+- `/api/admin/analytics/refresh` for admin-triggered refresh
+- `src/hooks/useAdminAnalyticsSnapshot.ts` for snapshot-first client consumption
+
+A snapshot can be `verified_cache` only when it was produced by a materializer that checked its source lane and wrote `lastVerifiedAt`. A stale verified snapshot becomes `stale_cache`; it does not become live. Unavailable materializers must return `unavailable` and explain the reason in Debug.
+
+Do not auto-run cold BigQuery, GA4, or broad Firestore scans on every Admin Analytics page load. Those reads belong in materializers, scheduled jobs, explicit refresh, or Debug drill-down.

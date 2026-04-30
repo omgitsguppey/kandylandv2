@@ -24,6 +24,25 @@ This file is not a changelog. It is the concise ledger for durable decisions tha
 
 ## Decision Entries
 
+### 1bq. Admin Analytics snapshots are the Phase 3 display cache contract
+
+- Approximate date: Recorded explicitly on 2026-04-30 from the Analytics Truth Layer v2 Phase 3 verified hot-cache snapshot pass
+- Status: Active admin analytics hot-cache doctrine
+- Problem/context: Admin Analytics had hot-cache doctrine and some route-local cache behavior, but no canonical persisted per-module/per-range snapshot model or manual refresh contract.
+- Decision made: Phase 3 adds `src/lib/analytics/admin-metric-snapshot.ts`, `src/lib/server/admin-analytics-snapshots.ts`, `src/lib/server/admin-analytics-materializers.ts`, `/api/admin/analytics/refresh`, and `src/hooks/useAdminAnalyticsSnapshot.ts`. The persisted storage lane is `analytics_admin_metric_snapshots`.
+- What became canonical:
+  - Source modes are `live`, `verified_cache`, `stale_cache`, `intraday`, `estimated`, `fallback`, `unavailable`, and `mixed`.
+  - Snapshot ranges are `24h`, `7d`, `14d`, `30d`, and `all`.
+  - Snapshots must carry values, formulas, source breakdown, confidence, truth state, refresh lifecycle fields, warnings, parity, legacy metadata, and Debug path.
+  - Manual refresh requires admin auth, dedupes refresh storms, returns metadata, and keeps the last verified snapshot visible if refresh fails.
+  - A module with no safe materializer must return `unavailable` with a reason; it must not invent values or mark a snapshot verified.
+  - Admin Debug exposes snapshot metadata from `analytics_admin_metric_snapshots`.
+- Consequence for future work:
+  - Migrate Admin Analytics modules to read `useAdminAnalyticsSnapshot` first, then upgrade from realtime/server-confirmed data.
+  - Do not auto-run cold GA4/BigQuery/Data API or broad Firestore reads on page load when a verified snapshot exists.
+  - Do not coerce unavailable metrics to zero; snapshot values must use `null` plus `fakeZeroPrevented=true`.
+  - Do not delete old realtime/historical routes until module-by-module snapshot parity proves replacement coverage.
+
 ### 1bp. Analytics Truth Layer v2 event contract separates identity lanes before UI refactors
 
 - Approximate date: Recorded explicitly on 2026-04-30 from the Analytics Truth Layer v2 Phase 2 event contract and identity-lane pass

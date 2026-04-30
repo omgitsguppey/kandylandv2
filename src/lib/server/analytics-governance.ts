@@ -14,6 +14,7 @@ export const ANALYTICS_OPERATIONAL_COLLECTIONS = {
   activeUsers: "analytics_active_users",
   aggregateStats: "analytics_aggregate_stats",
   exportStatus: "analytics_export_status",
+  adminMetricSnapshots: "analytics_admin_metric_snapshots",
 } as const;
 
 export const ANALYTICS_ROUTE_POLICIES = {

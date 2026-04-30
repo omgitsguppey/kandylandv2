@@ -85,6 +85,18 @@ export const ROUTE_RUNTIME_HEALTH_TARGETS = {
         title: "Admin historical analytics snapshot",
         slowThresholdMs: 7000,
     },
+    "admin/analytics/refresh:GET": {
+        routeName: "admin/analytics/refresh",
+        method: "GET",
+        title: "Admin analytics snapshot refresh metadata",
+        slowThresholdMs: 1500,
+    },
+    "admin/analytics/refresh:POST": {
+        routeName: "admin/analytics/refresh",
+        method: "POST",
+        title: "Admin analytics snapshot manual refresh",
+        slowThresholdMs: 7000,
+    },
     "admin/support/threads:GET": {
         routeName: "admin/support/threads",
         method: "GET",

@@ -197,13 +197,23 @@ Legacy recovery is documented in `docs/agent-truth/analytics-legacy-recovery.md`
 
 Legacy-derived records are not server-confirmed current events. They are directional until a future backfill dry run, parity check, and versioned write path proves otherwise.
 
+## Phase 3 Verified Hot-Cache Snapshots
+
+Phase 3 adds the Admin Analytics snapshot layer. The snapshot contract lives at `src/lib/analytics/admin-metric-snapshot.ts`, storage and refresh state live at `src/lib/server/admin-analytics-snapshots.ts`, and module registry ownership lives at `src/lib/server/admin-analytics-materializers.ts`.
+
+Snapshots are persisted in `analytics_admin_metric_snapshots`. Admin Analytics should read the latest verified snapshot first through the safe client helper in `src/hooks/useAdminAnalyticsSnapshot.ts`, then use `/api/admin/analytics/refresh` for manual or background refresh. Existing realtime and historical routes are not deleted in this phase; they remain old data paths until module-by-module migration proves parity.
+
+Phase 3 source modes are `live`, `verified_cache`, `stale_cache`, `intraday`, `estimated`, `fallback`, `unavailable`, and `mixed`. A snapshot cannot be called verified without `lastVerifiedAt`, formulas/source metadata, and fake-zero protection. If a materializer is not ready, it must return an unavailable snapshot with the reason and Debug parity metadata.
+
+Admin Debug exposes snapshot metadata so operators and future agents can inspect module/range freshness, refresh status, duplicate refresh prevention, source breakdown, formulas, warnings, parity, legacy confidence, stale reasons, and unavailable reasons.
+
 ## Phase Plan
 
 Phase 1 creates doctrine, file inventory, source hierarchy, actor taxonomy, module map, machine-readable index, and a targeted validation guard. It must not rewrite production analytics behavior.
 
-Phase 2 should add shared snapshot contracts and module normalizers without changing UI scale beyond the targeted module work already approved.
+Phase 2 adds the canonical event contract, actor/session identity lanes, exclusion helpers, identity link event, legacy recovery plan, and legacy mapper skeleton.
 
-Phase 3 should move module hydration to verified hot cache first, realtime upgrade second, and manual refresh third.
+Phase 3 adds the verified hot-cache snapshot contract, storage helper, refresh route, materializer registry, snapshot-first client helper, and Admin Debug metadata.
 
 Phase 4 should centralize Admin Debug parity validation and legacy recovery reporting.
 

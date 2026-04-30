@@ -1,5 +1,21 @@
 # KandyDrops Core Codebase Audit & Defensive Ledger
 
+## [2026-04-30 #61] PRE/POST: Analytics Truth Layer v2 Phase 3 Verified Hot-Cache Snapshots
+
+Scope completed:
+- Implementing the Admin Analytics verified hot-cache snapshot contract, persisted snapshot helper, materializer registry, manual refresh route, snapshot-first client helper, Admin Debug snapshot metadata, validation, tests, and docs.
+- Keeping this phase to infrastructure and safe consumption helpers; no broad Admin Analytics UI module refactor, no deletion of realtime routes, no expensive provider queries on page load, and no fake verified snapshots.
+
+Startup protocol:
+- Read control tower startup, mission, routing, execution order, source-of-truth map, doctrine index, preflight checklist, product/UI/Google Analytics doctrine, Phase 1 and Phase 2 analytics truth docs, and current governance baselines.
+- Ran adjacency tracing for `src/app/admin/analytics/hooks/useAdminAnalyticsState.tsx`, `/api/admin/analytics/historical`, `/api/admin/analytics/realtime`, and `/api/admin/debug`.
+
+Verification completed:
+- `npm run check:admin-analytics-hot-cache`
+- `npx vitest run tests/unit/admin-metric-snapshot.spec.ts tests/unit/admin-analytics-refresh-route.spec.ts tests/unit/admin-analytics-realtime-route.spec.ts tests/unit/admin-debug-route-runtime.spec.ts`
+- `npm run check:route-runtime-parity`
+- `npm run typecheck -- --pretty false`
+
 ## [2026-04-30 #60] PRE/POST: Analytics Truth Layer v2 Phase 2 Event Contract and Identity Lanes
 
 Scope completed:
