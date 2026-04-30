@@ -42,6 +42,10 @@ Live Pulse should be compact on mobile. Use a small metric strip, compact chart 
 
 Approved visible status labels are LIVE, STALE, SNAP, WAIT, ERROR, GUEST, and AUTH. Full source explanations belong in Admin Debug.
 
+## Phase 5 Snapshot Migration
+
+Live Pulse reads the Admin Analytics snapshot registry first, then allows realtime presence to upgrade the view when server-confirmed source metadata supports it. Backend or polled data remains snapshot/stale truth, not fake live. Raw actor IDs stay out of primary labels, and graph hydration mismatches, actor/session classification, source freshness, and fake-zero prevention go to Admin Debug.
+
 Official references:
 - [Firebase Realtime Database offline and presence](https://firebase.google.com/docs/database/web/offline-capabilities)
 - [Firebase OnDisconnect JavaScript API](https://firebase.google.com/docs/reference/js/database.ondisconnect)

@@ -36,6 +36,13 @@ const mockState = vi.hoisted(() => {
       isPrimingAnalytics: false,
       liveResponse: { totalActive: 12, liveTruthLabel: "live" },
       backgroundAnalyticsIssues: [],
+      analyticsOverviewDebugMeta: { metrics: [] },
+      analyticsSnapshotMigrationDebug: {
+        snapshotFirstMigrationEnabled: true,
+        verifiedSnapshotFirstRenderPath: true,
+        manualRefreshEnabled: true,
+        modules: [],
+      },
       analyticsSectionHealth: [],
       clearAllFilters: vi.fn(),
       clearViewerFilter: vi.fn(),
@@ -122,6 +129,13 @@ describe("AdminAnalyticsPage", () => {
       backgroundAnalyticsIssues: [],
     };
     mockState.reportClientIssue.mockReset();
+    delete (window as typeof window & {
+      __KANDYDROPS_ADMIN_ANALYTICS_OVERVIEW_DEBUG__?: unknown;
+      __KANDYDROPS_ADMIN_ANALYTICS_SNAPSHOT_MIGRATION_DEBUG__?: unknown;
+    }).__KANDYDROPS_ADMIN_ANALYTICS_OVERVIEW_DEBUG__;
+    delete (window as typeof window & {
+      __KANDYDROPS_ADMIN_ANALYTICS_SNAPSHOT_MIGRATION_DEBUG__?: unknown;
+    }).__KANDYDROPS_ADMIN_ANALYTICS_SNAPSHOT_MIGRATION_DEBUG__;
   });
 
   afterEach(() => {
@@ -183,6 +197,26 @@ describe("AdminAnalyticsPage", () => {
       expect.objectContaining({
         channel: "runtime",
         message: "Admin analytics missing clear-all filter handler",
+      }),
+    );
+  });
+
+  it("publishes snapshot migration debug metadata for Admin Debug parity", async () => {
+    await act(async () => {
+      root.render(<AdminAnalyticsPage />);
+    });
+
+    expect(
+      (window as typeof window & {
+        __KANDYDROPS_ADMIN_ANALYTICS_SNAPSHOT_MIGRATION_DEBUG__?: {
+          snapshotFirstMigrationEnabled?: boolean;
+          manualRefreshEnabled?: boolean;
+        };
+      }).__KANDYDROPS_ADMIN_ANALYTICS_SNAPSHOT_MIGRATION_DEBUG__,
+    ).toEqual(
+      expect.objectContaining({
+        snapshotFirstMigrationEnabled: true,
+        manualRefreshEnabled: true,
       }),
     );
   });

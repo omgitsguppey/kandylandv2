@@ -146,3 +146,11 @@ Long parity failures and unavailable materializer reasons belong in Debug, not l
 ## Future-Agent Rule
 
 Future agents must not reintroduce realtime-only loading, page-load BigQuery/GA4 cold reads, fake zeros, unlabeled stale snapshots, or a module-specific cache shape that bypasses this contract.
+
+## Phase 5 Admin Analytics Migration
+
+Phase 5 applies this contract to Admin Analytics UI and Admin Debug. Each Analytics module reads the snapshot registry, renders the latest verified snapshot immediately when one exists, exposes a compact manual refresh control, and sends detailed proof to Debug through its snapshot `debugPath`.
+
+Realtime, historical route cache, and module-specific fetches are upgrade or compatibility lanes. They must not create a 30 second blank page when a verified snapshot exists. If no snapshot exists, the module shows a compact waiting or unavailable state instead of fake zeros.
+
+Admin Debug owns the long-form snapshot proof: source mode, truth state, last verified time, generated time, refresh status, duplicate refresh prevention, values, formulas, source breakdown, warnings, parity, legacy inclusion, confidence, and unavailable reasons.

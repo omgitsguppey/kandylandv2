@@ -27,6 +27,10 @@ Leaderboard rows must declare their ranking mode. The default mode is completion
 
 Reward totals are not final business truth unless they reconcile against task catalog reward definitions. Built-in task rewards can be checked against the catalog. Custom task rewards must be treated as unverified until custom catalog data is included in the analytics payload. Do not display unverified reward totals as final; put raw reward totals and reconciliation deltas in Debug.
 
+## Phase 5 Snapshot Migration
+
+Daily Task Pipeline reads the Admin Analytics snapshot registry first and is the single home for lifecycle flow, completion speed, and task leaderboard. Standalone Task Completion Speed and Task Leaderboard modules remain forbidden. The compact module must keep lifecycle states separate from guidance/reminder signals, include inline leaderboard pagination, and send reward, timing, source, and pipeline parity details to Admin Debug.
+
 Leaderboard totals must reconcile with Daily Task Pipeline totals or expose `leaderboardPipelineDelta`. Leaderboard timing must reconcile with the completion-speed timing model or expose `speedTimingDelta`. Average task time requires linked durations and must expose timing coverage when only some completions have durations.
 
 Do not render zero unless the source is loaded and server-confirmed. If the payload is missing, show waiting or unavailable. Stale cache must be labeled stale.

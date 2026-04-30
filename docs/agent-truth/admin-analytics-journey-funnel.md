@@ -34,6 +34,10 @@ Future agents must not display raw event ratios as ordered conversion.
 
 Official references:
 - [Firebase Analytics DebugView](https://firebase.google.com/docs/analytics/debugview)
+
+## Phase 5 Snapshot Migration
+
+Journey Funnel/Event Chain reads the Admin Analytics snapshot registry first and labels its count mode before showing percentages. Ordered, unique user, unique session, raw event, and mixed/degraded modes must not be conflated. If later steps exceed earlier steps, the visible UI must classify the module as raw or mixed, while Debug stores denominators, non-sequential steps, source mismatches, and parity proof.
 - [Firestore realtime listeners](https://firebase.google.com/docs/firestore/query-data/listen)
 - [Firestore offline metadata](https://firebase.google.com/docs/firestore/manage-data/enable-offline)
 - [GA4 BigQuery export](https://support.google.com/analytics/answer/9358801)

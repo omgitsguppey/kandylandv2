@@ -33,5 +33,9 @@ Future agents must not reintroduce the giant slanted-label bar chart or giant em
 Official references:
 - [Firebase Analytics events](https://firebase.google.com/docs/analytics/events)
 - [Firebase Analytics DebugView](https://firebase.google.com/docs/analytics/debugview)
+
+## Phase 5 Snapshot Migration
+
+Event Mix reads the Admin Analytics snapshot registry first and uses compact ranked raw-event rows rather than a giant bar chart. Surface context may show a short unavailable state, but `0 surfaces` is forbidden unless mapping actually ran. Admin Debug owns raw keys, share denominators, mapping source, missing mappings, context hydration state, source freshness, and fake-zero prevention.
 - [GA4 BigQuery export setup](https://support.google.com/analytics/answer/9358801)
 - [GA4 BigQuery export schema](https://support.google.com/analytics/answer/7029846)

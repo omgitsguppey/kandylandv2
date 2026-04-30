@@ -41,6 +41,10 @@ Future agents must not reintroduce separate giant onboarding modules or treat au
 Official references:
 - [Firebase Analytics events](https://firebase.google.com/docs/analytics/events)
 - [Firebase Analytics DebugView](https://firebase.google.com/docs/analytics/debugview)
+
+## Phase 5 Snapshot Migration
+
+Onboarding Performance reads the Admin Analytics snapshot registry first and remains the single consolidated module for onboarding velocity and step flow. The compact UI can show starts, completions, completion rate, timing, biggest drop-off, slowest step, and a short discrepancy label. Admin Debug owns full source comparisons, bucket reconciliation, auth-signup mismatch details, formulas, and snapshot parity.
 - [Firestore realtime listeners](https://firebase.google.com/docs/firestore/query-data/listen)
 - [Firestore offline metadata](https://firebase.google.com/docs/firestore/manage-data/enable-offline)
 - [GA4 BigQuery export setup](https://support.google.com/analytics/answer/9358801)

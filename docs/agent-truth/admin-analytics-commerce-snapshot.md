@@ -49,4 +49,8 @@ Do not show raw backend lane jargon such as "polled route snapshot", "failed clo
 
 Status badges must stay inside metric containers. Visible labels should be short: LIVE, STALE, CACHE, EST, WAIT, ERROR. Full status detail belongs in title, aria, or Admin Debug.
 
+## Phase 5 Snapshot Migration
+
+Commerce Snapshot reads the Admin Analytics snapshot registry first and keeps the latest verified snapshot visible while refresh runs. Revenue, purchases, checkout starts, GD spent, adjusted profit, and yield must expose formulas and source breakdown in Admin Debug. Promo, bonus, and admin grants must not be counted as revenue unless a verified commerce source explicitly classifies them that way.
+
 Future agents must not reintroduce giant card sprawl, vague degraded copy, fake zeros, or revenue numbers that include promo/admin/bonus value.

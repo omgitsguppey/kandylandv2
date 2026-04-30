@@ -1,7 +1,7 @@
 {
   "generatedAt": "2026-04-30T00:00:00.000Z",
-  "phase": "phase_1_doctrine_inventory_contracts",
-  "status": "discovery_only_no_behavior_refactor",
+  "phase": "phase_5_snapshot_migration",
+  "status": "admin_analytics_snapshot_first_migration_in_progress",
   "sourceDocuments": [
     "docs/agent-truth/analytics-truth-layer-v2.md",
     "docs/agent-truth/analytics-file-inventory.md",
@@ -295,7 +295,8 @@
       "scripts/check-admin-truth-contracts.ts",
       "scripts/check-telemetry-parity-contracts.ts",
       "scripts/check-notification-pipeline.ts",
-      "scripts/agent/validate-analytics-truth-layer-v2.ts"
+      "scripts/agent/validate-analytics-truth-layer-v2.ts",
+      "scripts/agent/validate-admin-analytics-snapshot-migration.ts"
     ]
   },
   "risks": [
@@ -306,6 +307,33 @@
     "Guest-to-user identity linkage must preserve guest history and exclude admin/system events from user analytics.",
     "Legacy route snapshots and local session storage snapshots must be labeled as stale/cache, never live."
   ],
+  "phase5": {
+    "name": "admin_analytics_snapshot_migration",
+    "clientRegistry": "src/hooks/useAdminAnalyticsSnapshotRegistry.ts",
+    "stateHook": "src/app/admin/analytics/hooks/useAdminAnalyticsState.tsx",
+    "debugSurface": "adminAnalyticsSnapshotMigration",
+    "debugWindow": "window.__KANDYDROPS_ADMIN_ANALYTICS_SNAPSHOT_MIGRATION_DEBUG__",
+    "rules": [
+      "Admin Analytics renders verified snapshot metadata first when available.",
+      "Realtime and historical routes are upgrade or compatibility paths, not blank-loading dependencies.",
+      "Manual refresh uses /api/admin/analytics/refresh and keeps stale verified snapshots visible.",
+      "Full parity, formula, source, legacy, and validation proof belongs in Admin Debug."
+    ],
+    "moduleKeys": [
+      "platform_pulse",
+      "audience_snapshot",
+      "commerce_snapshot",
+      "live_pulse",
+      "journey_funnel",
+      "auth_outcomes",
+      "onboarding_performance",
+      "daily_task_pipeline",
+      "notification_funnel",
+      "event_mix",
+      "live_interaction_stream",
+      "data_health_summary"
+    ]
+  },
   "phasePlan": [
     {
       "phase": 1,
@@ -338,8 +366,8 @@
     },
     {
       "phase": 5,
-      "name": "legacy_cleanup",
-      "goal": "remove obsolete realtime-only fallback paths after parity proof"
+      "name": "admin_analytics_snapshot_migration",
+      "goal": "migrate Admin Analytics and Admin Debug to verified hot-cache snapshot-first rendering with compact operator UI"
     }
   ],
   "validation": {

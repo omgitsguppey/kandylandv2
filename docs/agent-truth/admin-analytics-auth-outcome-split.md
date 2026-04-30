@@ -35,6 +35,10 @@ Future agents must not reintroduce giant auth cards, off-brand chart colors, fak
 Official references:
 - [Firebase Analytics events](https://firebase.google.com/docs/analytics/events)
 - [Firebase Analytics DebugView](https://firebase.google.com/docs/analytics/debugview)
+
+## Phase 5 Snapshot Migration
+
+Auth Outcomes reads the Admin Analytics snapshot registry first and renders a compact method split from verified snapshot truth when available. Method labels stay normalized, Registered Users stays out of the method list unless explicitly sourced as a method, and missing timing renders unavailable instead of fake `0s`. Admin Debug owns raw event names, casing drift, timing coverage, reconciliation deltas, source mode, and fake-zero prevention.
 - [Firestore realtime listeners](https://firebase.google.com/docs/firestore/query-data/listen)
 - [Firestore offline metadata](https://firebase.google.com/docs/firestore/manage-data/enable-offline)
 - [GA4 BigQuery export setup](https://support.google.com/analytics/answer/9358801)

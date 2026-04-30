@@ -9,6 +9,17 @@ Scoring: all entries below are marked as included in the current validated sweep
 
 Current repo-wide state snapshot: see [FULL_SCALE_CODEBASE_AUDIT.md](/Users/uylus/OneDrive/Documents/KandyDrops_Final/FULL_SCALE_CODEBASE_AUDIT.md) for the current live baseline, verification state, and continuity rules, and see [REPO_MEMORY_LEDGER.md](/Users/uylus/OneDrive/Documents/KandyDrops_Final/REPO_MEMORY_LEDGER.md) for major architectural and workflow decisions. The detailed file/function body below remains valuable historical evidence, but it has not been fully regenerated against the current 2026-04-18 inventory review yet.
 
+## 2026-04-30 Analytics Truth Layer v2 Phase 5 Admin Analytics Snapshot Migration Coverage
+
+- [x] `src/hooks/useAdminAnalyticsSnapshotRegistry.ts` registers all Admin Analytics module keys, maps page section keys to snapshot module keys, exposes source mode, truth state, last verified time, refresh status, debug path, first snapshot timing, duplicate refresh prevention, and manual refresh.
+- [x] `src/app/admin/analytics/hooks/useAdminAnalyticsState.tsx` wires the snapshot registry into shared section controls so every registered module gets a compact source label and refresh action without replacing old compatibility data paths.
+- [x] `src/app/admin/analytics/page.tsx` publishes `window.__KANDYDROPS_ADMIN_ANALYTICS_SNAPSHOT_MIGRATION_DEBUG__` for Admin Debug parity and agent validation.
+- [x] `src/app/api/admin/debug/route.ts` exposes `adminAnalyticsSnapshotMigration` metadata with module registry status, latest snapshot metadata, source/parity expectations, actor-lane rules, manual refresh route, and Data Validation placement.
+- [x] `scripts/agent/validate-admin-analytics-snapshot-migration.ts` and `package.json` add `npm run check:admin-analytics-snapshot-migration`.
+- [x] Module doctrine docs, hot-cache docs, source hierarchy, ecosystem parity docs, and `agent/index/analytics-truth-layer-v2.json` record the Phase 5 snapshot-first Admin Analytics migration rule.
+- [x] `tests/unit/admin-analytics-page.spec.tsx` verifies the Analytics page publishes snapshot migration Debug metadata.
+- [x] This Phase 5 pass intentionally keeps old realtime/historical routes for compatibility, does not run destructive legacy backfill, does not change payment/write behavior, and does not move full Data Validation back into Analytics.
+
 ## 2026-04-30 Analytics Truth Layer v2 Phase 4 Legacy Recovery and Ecosystem Parity Coverage
 
 - [x] `src/lib/analytics/legacy-recovery-contract.ts` defines recovered legacy event records, source inventory reports, mapping reports, ecosystem parity results, dry-run CLI parsing, duplicate keys, snapshot inclusion rules, and snapshot-compatible parity rows.

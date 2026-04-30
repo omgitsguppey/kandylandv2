@@ -24,6 +24,22 @@ This file is not a changelog. It is the concise ledger for durable decisions tha
 
 ## Decision Entries
 
+### 1bs. Admin Analytics uses snapshot-first migration metadata before realtime upgrades
+
+- Approximate date: Recorded explicitly on 2026-04-30 from the Analytics Truth Layer v2 Phase 5 Admin Analytics snapshot migration pass
+- Status: Active admin analytics UI and Debug migration doctrine
+- Problem/context: Phase 3 created the verified hot-cache snapshot contract and Phase 4 added legacy/parity validation, but Admin Analytics still needed a shared snapshot-first UI registry, manual refresh exposure, and Admin Debug migration metadata before module-by-module behavior can fully leave old realtime/historical route dependencies.
+- Decision made: Phase 5 adds `src/hooks/useAdminAnalyticsSnapshotRegistry.ts`, wires it into `src/app/admin/analytics/hooks/useAdminAnalyticsState.tsx`, publishes `window.__KANDYDROPS_ADMIN_ANALYTICS_SNAPSHOT_MIGRATION_DEBUG__`, and exposes `adminAnalyticsSnapshotMigration` in `/api/admin/debug`.
+- What became canonical:
+  - Every Admin Analytics module has a snapshot registry entry for source mode, truth state, last verified time, refresh status, debug path, first snapshot timing, and manual refresh.
+  - Realtime and historical route data are compatibility/upgrade lanes; they must not be the only first-render truth when a verified snapshot exists.
+  - Admin Analytics shows compact operator controls and labels, while Admin Debug owns formulas, source breakdown, parity, legacy recovery, lane failures, actor separation, and validation detail.
+  - Full Data Validation stays in Admin Debug; Analytics may only show a compact Data Health summary/link.
+- Consequence for future work:
+  - Do not add new Admin Analytics modules without registering their snapshot key and Debug path.
+  - Do not reintroduce realtime-only blank loading, fake zeros, fake live labels, raw backend jargon, or repeated degraded badge spam.
+  - Do not bypass the snapshot refresh route for manual refresh unless the new path has equivalent dedupe, auth, and Debug metadata.
+
 ### 1br. Analytics legacy recovery remains dry-run until parity proves source truth
 
 - Approximate date: Recorded explicitly on 2026-04-30 from the Analytics Truth Layer v2 Phase 4 legacy recovery and ecosystem parity pass

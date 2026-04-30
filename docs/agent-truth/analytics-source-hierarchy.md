@@ -142,3 +142,9 @@ The Phase 3 files are:
 A snapshot can be `verified_cache` only when it was produced by a materializer that checked its source lane and wrote `lastVerifiedAt`. A stale verified snapshot becomes `stale_cache`; it does not become live. Unavailable materializers must return `unavailable` and explain the reason in Debug.
 
 Do not auto-run cold BigQuery, GA4, or broad Firestore scans on every Admin Analytics page load. Those reads belong in materializers, scheduled jobs, explicit refresh, or Debug drill-down.
+
+## Phase 5 Admin Analytics Placement
+
+Admin Analytics now consumes the verified hot-cache snapshot registry first. Product truth and business records still outrank snapshots, but snapshots are the fast display layer for operator modules. Realtime listeners, GA/BigQuery current-day data, and old historical routes can upgrade or validate a module only when their source mode, truth state, and freshness metadata are preserved.
+
+Admin Debug remains the place for parity proof, legacy recovery details, source drift, formulas, fake-zero prevention, and actor-lane failures. Admin Analytics may show compact labels and summaries, not raw backend proof.

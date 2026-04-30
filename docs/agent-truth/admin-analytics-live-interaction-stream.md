@@ -17,3 +17,7 @@ If route or surface context is missing, the visible row may say `unknown surface
 Firebase Analytics events can be batched in normal use; DebugView is only near-realtime validation. Firestore listeners can emit cached snapshots first, so `fromCache` and `hasPendingWrites` metadata must be surfaced when that source is used.
 
 Mobile density rule: this module uses compact one- or two-line rows, a small source summary, and a short stats strip. Future agents must not reintroduce giant stream cards, full raw IDs as primary labels, admin events, or stale snapshots labeled as live.
+
+## Phase 5 Snapshot Migration
+
+Live Interaction Stream reads the Admin Analytics snapshot registry first and can upgrade to realtime only when the source is truly live. Admin and system actions remain excluded from user/guest behavior math. Compact rows show action, actor, surface, and age; Admin Debug stores raw event keys, actor classification, excluded counts, source mode, duplicate grouping, and snapshot parity.

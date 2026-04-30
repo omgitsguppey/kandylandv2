@@ -48,6 +48,10 @@ The Admin Analytics Notification Funnel is a compact summary only. It may show p
 
 Detailed notification health lives in Admin Debug: idempotency keys, browser tags, duplicate-created prevention, duplicate-push prevention, duplicate-browser-display prevention, skipped reasons, foreground/background counts, service-worker display counts, click handler wiring, read persistence lag, and unread reconciliation.
 
+## Phase 5 Snapshot Migration
+
+Notification Funnel reads the Admin Analytics snapshot registry first and remains a compact Analytics summary only. Prompt, enabled, sent, opened, read, cleared, duplicate-prevented, failed, and skipped counts must not show fake zeros when telemetry is missing. Admin Debug owns service-worker, push, dedupe, queued-drop-return-live, read persistence, and snapshot parity proof.
+
 ## Fake zero prevention
 
 Do not show `0` for enablement, sent, duplicate-prevented, failed/skipped, read, or clear metrics unless the selected source is present and server-confirmed or telemetry-confirmed for the selected range. Missing source means Waiting or Unavailable.

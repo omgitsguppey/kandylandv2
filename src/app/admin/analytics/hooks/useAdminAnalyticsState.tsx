@@ -7,6 +7,11 @@ import { toast } from "sonner";
 
 
 import { useAdminPollingSWR } from "@/hooks/useAdminPollingSWR";
+import {
+  useAdminAnalyticsSnapshotRegistry,
+  type AdminAnalyticsSnapshotModuleState,
+  type AdminAnalyticsSnapshotSectionKey,
+} from "@/hooks/useAdminAnalyticsSnapshotRegistry";
 import { useNow } from "@/hooks/useNow";
 import { useAuth } from "@/context/AuthContext";
 import { authFetch } from "@/lib/authFetch";
@@ -106,6 +111,80 @@ const ANALYTICS_OVERVIEW_BADGE_LABELS: Record<AdminSurfaceState, string> = {
   unavailable: "UNAVAILABLE",
   failed: "ERROR",
 };
+
+const SNAPSHOT_SECTION_KEYS = new Set<string>([
+  "platformPulse",
+  "audienceSnapshot",
+  "commerceSnapshot",
+  "livePulse",
+  "journeyFunnel",
+  "authOutcomeSplit",
+  "onboardingVelocity",
+  "dailyTaskPipeline",
+  "notificationFunnel",
+  "eventMix",
+  "liveInteractionStream",
+  "dataHealthSummary",
+]);
+
+const SNAPSHOT_SOURCE_LABELS: Record<string, string> = {
+  live: "LIVE",
+  verified_cache: "CACHE",
+  stale_cache: "STALE",
+  intraday: "INTRA",
+  estimated: "EST",
+  fallback: "FALLBACK",
+  unavailable: "WAIT",
+  mixed: "MIXED",
+};
+
+function isSnapshotSectionKey(value: string): value is AdminAnalyticsSnapshotSectionKey {
+  return SNAPSHOT_SECTION_KEYS.has(value);
+}
+
+function SnapshotRefreshControl(props: { snapshotModule: AdminAnalyticsSnapshotModuleState | null }) {
+  const [refreshing, setRefreshing] = useState(false);
+  const snapshotModule = props.snapshotModule;
+
+  if (!snapshotModule) {
+    return null;
+  }
+
+  const label = SNAPSHOT_SOURCE_LABELS[snapshotModule.sourceMode] ?? "WAIT";
+  const title = [
+    `Snapshot module: ${snapshotModule.moduleKey}`,
+    `Source: ${snapshotModule.sourceMode}`,
+    `Truth: ${snapshotModule.truthState}`,
+    snapshotModule.lastVerifiedAt ? `Last verified: ${snapshotModule.lastVerifiedAt}` : "No verified snapshot yet",
+    snapshotModule.unavailableReason ? `Reason: ${snapshotModule.unavailableReason}` : null,
+    `Debug: ${snapshotModule.debugPath}`,
+  ].filter(Boolean).join(" | ");
+
+  const handleRefresh = async () => {
+    setRefreshing(true);
+    try {
+      await snapshotModule.refresh({ force: false });
+    } finally {
+      setRefreshing(false);
+    }
+  };
+
+  return (
+    <div className="flex min-w-0 items-center gap-1.5" title={title} aria-label={title}>
+      <span className="max-w-[5.25rem] truncate rounded-full border border-white/10 bg-white/[0.08] px-2 py-1 text-[9px] font-black uppercase tracking-[0.1em] text-gray-200">
+        {refreshing || snapshotModule.refreshStatus === "refreshing" ? "SYNC" : label}
+      </span>
+      <button
+        type="button"
+        onClick={handleRefresh}
+        disabled={refreshing || snapshotModule.refreshStatus === "refreshing"}
+        className="rounded-full border border-white/10 bg-black/30 px-2 py-1 text-[9px] font-black uppercase tracking-[0.1em] text-gray-300 transition-colors hover:border-brand-purple/40 hover:text-white disabled:cursor-not-allowed disabled:opacity-50"
+      >
+        Refresh
+      </button>
+    </div>
+  );
+}
 
 function getClientPerformanceMs() {
   if (typeof performance !== "undefined" && typeof performance.now === "function") {
@@ -366,7 +445,7 @@ const { user } = useAuth();
     }
   };
 
-  const renderSectionRangeControl = (sectionKey: string) => (
+  const renderBaseSectionRangeControl = (sectionKey: string) => (
     <SectionRangeControl
       sectionKey={sectionKey}
       range={getSectionRange(sectionKey)}
@@ -571,6 +650,32 @@ const { user } = useAuth();
     "notificationFunnel",
     notificationFunnelRange,
   );
+  const analyticsSnapshotRegistry = useAdminAnalyticsSnapshotRegistry({
+    platformPulse: ADMIN_ANALYTICS_DEFAULT_RANGE,
+    audienceSnapshot: audienceSnapshotRange,
+    commerceSnapshot: commerceSnapshotRange,
+    livePulse: livePulseRange,
+    journeyFunnel: journeyFunnelRange,
+    authOutcomeSplit: authOutcomeSplitRange,
+    onboardingVelocity: onboardingVelocityRange,
+    dailyTaskPipeline: dailyTaskPipelineRange,
+    notificationFunnel: notificationFunnelRange,
+    eventMix: eventMixRange,
+    liveInteractionStream: liveInteractionStreamRange,
+    dataHealthSummary: ADMIN_ANALYTICS_DEFAULT_RANGE,
+  });
+  const renderSectionRangeControl = (sectionKey: string) => {
+    const snapshotModule = isSnapshotSectionKey(sectionKey)
+      ? analyticsSnapshotRegistry.bySectionKey[sectionKey]
+      : null;
+
+    return (
+      <div className="flex min-w-0 flex-wrap items-center justify-end gap-1.5">
+        {renderBaseSectionRangeControl(sectionKey)}
+        <SnapshotRefreshControl snapshotModule={snapshotModule} />
+      </div>
+    );
+  };
   const liveRealtime = useAdminAnalyticsRealtime(nowMs);
   const effectiveLiveResponse = useMemo<RealtimeAnalyticsResponse | undefined>(
     () => {
@@ -1882,7 +1987,7 @@ const { user } = useAuth();
   
   return {
     user, activeTab, setActiveTab: setActiveTabDeferred, range, nowMs, viewerUserDraft, setViewerUserDraft, viewerUserFilter, setViewerUserFilter,
-    moduleRanges, setModuleRanges, savingSectionKey, setSavingSectionKey, analyticsFilterStorageKey,
+    moduleRanges, setModuleRanges, savingSectionKey, setSavingSectionKey, analyticsFilterStorageKey, analyticsSnapshotRegistry, analyticsSnapshotMigrationDebug: analyticsSnapshotRegistry.debug,
     liveResponse: effectiveLiveResponse, historicalResponse, liveError, historicalError, liveLoading, historicalLoading,
     needsSetup, blockingAnalyticsError, isPrimingAnalytics, backgroundAnalyticsIssues, getSectionRange, renderSectionRangeControl,
     EVENT_LABELS, funnel, onboardingStats, onboardingDurationBuckets, onboardingStepStats, authBreakdown, historySeries,

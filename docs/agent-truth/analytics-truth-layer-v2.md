@@ -215,6 +215,16 @@ Phase 2 adds the canonical event contract, actor/session identity lanes, exclusi
 
 Phase 3 adds the verified hot-cache snapshot contract, storage helper, refresh route, materializer registry, snapshot-first client helper, and Admin Debug metadata.
 
-Phase 4 should centralize Admin Debug parity validation and legacy recovery reporting.
+Phase 4 centralizes Admin Debug parity validation and legacy recovery reporting.
 
-Phase 5 should remove obsolete realtime-only fallbacks and stale route snapshots after parity proves replacement coverage.
+## Phase 5 Admin Analytics Migration
+
+Phase 5 migrates Admin Analytics and Admin Debug onto the verified hot-cache snapshot architecture. Admin Analytics renders compact operator-facing modules from the latest verified snapshot first, keeps stale verified snapshots visible while refresh runs, and treats realtime listeners or old historical routes as upgrades rather than loading dependencies.
+
+Every Admin Analytics module must expose `sourceMode`, `truthState`, `lastVerifiedAt`, `refreshStatus`, and a `debugPath`. Manual refresh is allowed through the snapshot refresh route, but duplicate refresh storms must be prevented and refresh failures must not erase the last verified snapshot.
+
+Admin Analytics visible copy stays short and plain English. It must not show fake zeros, fake live labels, raw backend jargon, authenticated-only values as total audience, raw event ratios as ordered funnels, or task telemetry counts as canonical lifecycle without reconciliation. Full formulas, parity checks, source breakdowns, legacy recovery details, lane failures, actor classification, and validation proof live in Admin Debug.
+
+The page exposes Phase 5 migration metadata through `window.__KANDYDROPS_ADMIN_ANALYTICS_SNAPSHOT_MIGRATION_DEBUG__` and the Admin Debug route exposes `adminAnalyticsSnapshotMigration`.
+
+Phase 5 does not delete old routes yet. Compatibility remains until snapshot parity proves each replacement lane.

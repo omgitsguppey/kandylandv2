@@ -58,6 +58,7 @@ import { ANALYTICS_OPERATIONAL_COLLECTIONS } from "@/lib/server/analytics-govern
 import { getDailyTaskRefreshMetadataIssue } from "@/lib/tasks/task-timestamps";
 import { buildAdminShellLayoutDebugMetadata } from "@/lib/admin-shell-spacing";
 import { listAdminMetricSnapshotDebugMetadata } from "@/lib/server/admin-analytics-snapshots";
+import { ADMIN_ANALYTICS_MATERIALIZER_REGISTRY } from "@/lib/server/admin-analytics-materializers";
 
 const ONE_WEEK_MS = 7 * 24 * 60 * 60 * 1000;
 const TASK_AUDIT_SAMPLE_LIMIT = 2_000;
@@ -1237,6 +1238,51 @@ export async function GET(request: NextRequest) {
                 ],
                 noBlankLoadingRule: "Admin Analytics must render the latest verified snapshot first when one exists; realtime is an upgrade, not a loading dependency.",
                 fakeZeroRule: "Snapshot values use null/unavailable with fakeZeroPrevented=true when a source is missing; missing values must not be coerced to zero.",
+            },
+            adminAnalyticsSnapshotMigration: {
+                surface: "admin-analytics-snapshot-migration",
+                snapshotFirstMigrationEnabled: true,
+                verifiedSnapshotFirstRenderPath: true,
+                manualRefreshEnabled: true,
+                realtimeUpgradeOptional: true,
+                dataValidationFullListLocation: "Admin Debug validation groups; Admin Analytics may only show the compact Data Health summary.",
+                manualRefreshRoute: "/api/admin/analytics/refresh",
+                clientDebugWindow: "window.__KANDYDROPS_ADMIN_ANALYTICS_SNAPSHOT_MIGRATION_DEBUG__",
+                actorLaneRules: {
+                    guestAuthenticatedCreatorAdminSystemSeparated: true,
+                    adminExcludedFromUserGuestBehavior: true,
+                    unknownActorNeverPromotedToAuthenticatedUser: true,
+                },
+                modules: ADMIN_ANALYTICS_MATERIALIZER_REGISTRY.map((entry) => {
+                    const latestSnapshot = adminMetricSnapshots.find((snapshot) => snapshot.moduleKey === entry.moduleKey) ?? null;
+                    return {
+                        moduleKey: entry.moduleKey,
+                        label: entry.label,
+                        supportedRanges: entry.supportedRanges,
+                        currentImplementationStatus: entry.currentImplementationStatus,
+                        canonicalSources: entry.canonicalSources,
+                        parityChecksRequired: entry.parityChecksRequired,
+                        legacySupportStatus: entry.legacySupportStatus,
+                        sourceMode: latestSnapshot?.sourceMode ?? "unavailable",
+                        truthState: latestSnapshot?.truthState ?? "unavailable",
+                        lastVerifiedAt: latestSnapshot?.lastVerifiedAt ?? null,
+                        generatedAt: latestSnapshot?.generatedAt ?? null,
+                        refreshStatus: latestSnapshot?.refreshStatus ?? "unavailable",
+                        duplicateRefreshPrevented: latestSnapshot?.duplicateRefreshPrevented ?? false,
+                        confidence: latestSnapshot?.confidence ?? 0,
+                        warningCount: latestSnapshot?.warningCount ?? 0,
+                        parityCount: latestSnapshot?.parityCount ?? 0,
+                        legacyIncluded: latestSnapshot?.legacyIncluded ?? false,
+                        debugPath: latestSnapshot?.debugPath ?? `/admin/debug?tab=advanced#analytics-snapshots/${entry.moduleKey}`,
+                        fakeZeroPreventedPolicy: "Missing source values remain null/unavailable and are detailed in Debug.",
+                    };
+                }),
+                compactAnalyticsRules: [
+                    "No giant empty charts.",
+                    "No repeated degraded badge spam.",
+                    "No backend jargon in visible operator copy.",
+                    "Detailed source, parity, legacy, and failure proof lives in Admin Debug.",
+                ],
             },
             adminAnalyticsLegacyParity: buildAnalyticsLegacyParityDebugMetadata(),
             adminAnalyticsOverview: {

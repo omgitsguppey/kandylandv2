@@ -50,4 +50,8 @@ The page exposes `window.__KANDYDROPS_ADMIN_ANALYTICS_AUDIENCE_SNAPSHOT_DEBUG__`
 
 - GA4 BigQuery daily tables use `events_YYYYMMDD`; intraday streaming uses `events_intraday_YYYYMMDD` and is not the stable completed-day export: https://support.google.com/analytics/answer/7029846
 - Firestore cache/server state must use `SnapshotMetadata.fromCache` when cache truth matters: https://firebase.google.com/docs/firestore/manage-data/enable-offline
+
+## Phase 5 Snapshot Migration
+
+Audience Snapshot reads the Admin Analytics snapshot registry first and keeps its verified snapshot visible while refresh or realtime upgrades run. The module must show total/GA users, identified users, and estimated guest traffic with source labels, and it must never present authenticated-only traffic as total audience. Full formulas, guest estimate details, cache state, and parity proof belong in Admin Debug.
 - Firestore listeners need `includeMetadataChanges` to receive metadata-only cache/server transitions: https://firebase.google.com/docs/firestore/query-data/listen

@@ -48,6 +48,7 @@
         "check:analytics-truth-layer-v2": "tsx scripts/agent/validate-analytics-truth-layer-v2.ts",
         "check:analytics-event-contract": "tsx scripts/agent/validate-analytics-event-contract.ts",
         "check:admin-analytics-hot-cache": "tsx scripts/agent/validate-admin-analytics-hot-cache.ts",
+        "check:admin-analytics-snapshot-migration": "tsx scripts/agent/validate-admin-analytics-snapshot-migration.ts",
         "analytics:legacy:inventory": "tsx scripts/analytics/inventory-legacy-sources.ts",
         "analytics:legacy:map": "tsx scripts/analytics/map-legacy-events.ts",
         "analytics:ecosystem:parity": "tsx scripts/analytics/check-analytics-ecosystem-parity.ts",

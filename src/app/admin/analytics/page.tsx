@@ -53,9 +53,14 @@ export default function AdminAnalyticsPage() {
   useEffect(() => {
     (window as typeof window & {
       __KANDYDROPS_ADMIN_ANALYTICS_OVERVIEW_DEBUG__?: unknown;
+      __KANDYDROPS_ADMIN_ANALYTICS_SNAPSHOT_MIGRATION_DEBUG__?: unknown;
     }).__KANDYDROPS_ADMIN_ANALYTICS_OVERVIEW_DEBUG__ =
       state.analyticsOverviewDebugMeta;
-  }, [state.analyticsOverviewDebugMeta]);
+    (window as typeof window & {
+      __KANDYDROPS_ADMIN_ANALYTICS_SNAPSHOT_MIGRATION_DEBUG__?: unknown;
+    }).__KANDYDROPS_ADMIN_ANALYTICS_SNAPSHOT_MIGRATION_DEBUG__ =
+      state.analyticsSnapshotMigrationDebug;
+  }, [state.analyticsOverviewDebugMeta, state.analyticsSnapshotMigrationDebug]);
   const handleClearAllFilters = state.clearAllFilters ?? (() => {
     reportClientIssue({
       channel: "runtime",

@@ -17,3 +17,7 @@ Purchase parity uses completed real-money/internal payment records and canonical
 Module coverage remains warn or fail while indexed modules are empty or partial unless a module is explicitly exempted in code and Debug documents that exemption.
 
 Future agents must not reintroduce the full Data Validation card list into Admin Analytics. Move new validation details into Admin Debug and keep Analytics focused on actionable analytics modules.
+
+## Phase 5 Snapshot Migration
+
+Data Health in Admin Analytics may only be a compact snapshot-backed summary or Debug link. The full validation list belongs in Admin Debug, including source freshness, confidence, PASS blocking reasons, parity failures, legacy recovery, and module coverage. Missing samples, stale validation, and unknown source state must not appear as PASS.

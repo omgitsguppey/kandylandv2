@@ -85,3 +85,9 @@ Admin Analytics should show compact analytics insights from verified hot-cache s
 Self-healing is allowed only when it is deterministic and preserves source labels. Examples include using an event catalog to map a display label, suppressing a duplicate legacy candidate by dedupe key, or keeping a stale snapshot visible while Debug runs parity. Self-healing cannot silently promote low-confidence legacy records, merge guest and user history without `identity_linked`, or mark a stale/fallback source as live.
 
 Future agents must not hide parity failures, reintroduce stale validation as pass, or allow legacy mapped records to become server-confirmed current truth.
+
+## Phase 5 Debug Ownership
+
+Phase 5 keeps parity and legacy proof in Admin Debug while Admin Analytics consumes compact verified snapshot summaries. Analytics modules may show short mismatch labels, but raw lane counts, formulas, drift, source confidence, actor separation, fake-zero prevention, and legacy confidence must stay in Debug.
+
+Snapshot parity must not block first paint. Long parity jobs update snapshot Debug metadata after completion, and stale verified snapshots remain visible while refresh or parity is running.

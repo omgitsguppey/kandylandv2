@@ -1,5 +1,33 @@
 # KandyDrops Core Codebase Audit & Defensive Ledger
 
+## [2026-04-30 #63] PRE: Analytics Truth Layer v2 Phase 5 Snapshot-First Admin Analytics Migration
+
+Scope started:
+- Migrating Admin Analytics and Admin Debug toward the Phase 1-4 verified hot-cache snapshot architecture.
+- Targeting snapshot-first state/module metadata, compact operator-facing Analytics contracts, Debug parity/source details, validation, docs, and ledgers.
+- Keeping compatibility routes intact; no payment/write behavior changes, no destructive legacy backfill, and no unrelated user-surface changes.
+
+Startup protocol:
+- Read control tower startup, mission, role routing, execution order, capability constraints, source-of-truth map, shared component ownership, preflight/postflight checklists, product/copy/UI/surface/banned/vocabulary/GA-cloud doctrine, and current governance baselines.
+- Confirmed `.agent/doctrine-consultation.md` and `.agent/ui-copy-refinement-workflow.md` are absent; used available control-tower and doctrine sources instead.
+- Confirmed the worktree was clean at startup.
+
+Scope completed:
+- Added the Admin Analytics snapshot registry and wired every existing Analytics module to snapshot metadata, source/freshness labels, manual refresh, first-snapshot timing, and Debug paths.
+- Added Admin Debug `adminAnalyticsSnapshotMigration` metadata for module registry status, latest snapshot metadata, source/parity expectations, actor-lane separation, and Data Validation placement.
+- Updated Phase 5 doctrine, module truth docs, machine-readable agent index, repo ledger, and checklist entries.
+- Added targeted migration validation and a page unit test for snapshot migration Debug metadata.
+
+Verification completed:
+- `npm run check:admin-analytics-snapshot-migration`
+- `npm run check:admin-analytics-hot-cache`
+- `npm run check:analytics-legacy-recovery`
+- `npm run typecheck -- --pretty false`
+- `npx vitest run tests/unit/admin-analytics-refresh-route.spec.ts tests/unit/admin-analytics-page.spec.tsx tests/unit/admin-analytics-audience-snapshot.spec.ts tests/unit/admin-analytics-commerce-snapshot.spec.ts tests/unit/admin-analytics-live-pulse.spec.ts tests/unit/admin-analytics-journey-funnel.spec.ts tests/unit/admin-analytics-auth-outcome-split.spec.ts tests/unit/admin-analytics-event-mix.spec.ts tests/unit/admin-analytics-live-interaction-stream.spec.ts tests/unit/admin-task-pipeline.spec.ts tests/unit/admin-notification-funnel.spec.ts`
+- `npm run check:ui:coverage`
+- `npm run check:ui:runtime`
+- Targeted mobile visual audit: no dedicated Admin Analytics Phase 5/mobile visual script exists; the only discovered visual path is the broad `check:ui:audits`, which was not run because targeted migration validation passed and the task requested avoiding broad slow audits unless necessary.
+
 ## [2026-04-30 #62] PRE/POST: Analytics Truth Layer v2 Phase 4 Legacy Recovery and Ecosystem Parity
 
 Scope completed:
