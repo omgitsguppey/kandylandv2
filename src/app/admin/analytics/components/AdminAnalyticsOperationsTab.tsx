@@ -19,7 +19,7 @@ export function AdminAnalyticsOperationsTab(props: AdminAnalyticsState) {
     authOutcomeModel,
     authOnboardingDiscrepancies, onboardingVelocityModel, onboardingVelocityHasData, onboardingVelocityBuckets, onboardingVelocityStartCount, onboardingVelocityCompletionCount, onboardingVelocityCompletionRate, onboardingVelocityDropOffCount, onboardingVelocityStats, onboardingVelocityStartSourceHint, onboardingStepFlowItems,
     formatCompactNumber, formatDuration, formatPercent, formatRelativeTime,
-    guestBounceQualityCards, guestBounceGlobalSemantics, guestBounceGuestRate, guestBounceEngagedRate, guestBounceIdentifiedRate, guestBounceUserSemantics,
+    guestBounceQualityCards, guestBounceQualityModel, guestBounceGlobalSemantics, guestBounceGuestRate, guestBounceEngagedRate, guestBounceIdentifiedRate, guestBounceUserSemantics,
     guestViewsDisplayCount, guestViewsHint, guestBounceRateDisplay, guestBounceHint, guestEngagedRateDisplay, guestEngagedHint,
     topEvents,
     validations, getValidationClasses, dataValidationRange,
@@ -131,6 +131,20 @@ export function AdminAnalyticsOperationsTab(props: AdminAnalyticsState) {
     debugWindow.__KANDYDROPS_ADMIN_ANALYTICS_AUTH_OUTCOME_DEBUG__ = authOutcomeModel;
     debugWindow.__KANDYDROPS_ADMIN_ANALYTICS_AUTH_OUTCOME_SPLIT_DEBUG__ = authOutcomeModel;
   }, [authOutcomeModel]);
+  const guestQualityCountLabel = (value: number | null) =>
+    value === null ? "Unavailable" : formatCompactNumber(value);
+  const guestQualityRateLabel = (value: number | null) =>
+    value === null ? "Unavailable" : formatPercent(value);
+
+  React.useEffect(() => {
+    if (typeof window === "undefined") {
+      return;
+    }
+
+    (window as typeof window & {
+      __KANDYDROPS_ADMIN_ANALYTICS_GUEST_BOUNCE_QUALITY_DEBUG__?: typeof guestBounceQualityModel;
+    }).__KANDYDROPS_ADMIN_ANALYTICS_GUEST_BOUNCE_QUALITY_DEBUG__ = guestBounceQualityModel;
+  }, [guestBounceQualityModel]);
 
   return (
     <>
@@ -612,98 +626,62 @@ export function AdminAnalyticsOperationsTab(props: AdminAnalyticsState) {
 
             <div className="grid gap-5 xl:grid-cols-[1fr_1fr]">
               <SectionCard
-                title="Guest + Bounce Quality"
-                subtitle="Public and signed-in traffic quality from the semantic engine."
+                title="Guest Quality"
+                subtitle="Estimated guest traffic and source-labeled quality."
                 icon={Monitor}
                 rightSlot={renderSectionRangeControl("categorySemantics")}
               >
-                <div className="grid grid-cols-2 gap-3 lg:grid-cols-4">
-                  <MetricCard
-                    label="Guest Views"
-                    value={formatCompactNumber(guestViewsDisplayCount ?? 0)}
-                    hint={guestViewsHint}
-                    icon={Users}
-                    truthState={historicalMetricTruthState}
-                  />
-                  <MetricCard
-                    label="Guest Bounce"
-                    value={guestBounceRateDisplay}
-                    hint={guestBounceHint}
-                    icon={AlertTriangle}
-                    truthState={historicalMetricTruthState}
-                  />
-                  <MetricCard
-                    label="Guest Engaged"
-                    value={guestEngagedRateDisplay}
-                    hint={guestEngagedHint}
-                    icon={Sparkles}
-                    truthState={historicalMetricTruthState}
-                  />
-                  <MetricCard
-                    label="Signed-in Bounce"
-                    value={formatPercent(guestBounceIdentifiedRate)}
-                    hint={`${(guestBounceUserSemantics?.bounceCount ?? 0).toLocaleString()} bounced signed-in visits`}
-                    icon={Activity}
-                    truthState={historicalMetricTruthState}
+                <div className="mb-2.5 flex flex-col gap-2 rounded-[1rem] border border-white/10 bg-white/[0.035] px-3 py-2 text-[11px] leading-5 text-gray-300 md:flex-row md:items-center md:justify-between">
+                  <span>{guestBounceQualityModel.visibleCopy}</span>
+                  <AdminStatusBadge
+                    state={guestBounceQualityModel.truthState}
+                    label={guestBounceQualityModel.badgeLabel}
+                    className="max-w-[6.25rem] truncate whitespace-nowrap px-1.5 py-0.5 text-[9px]"
                   />
                 </div>
 
-                <div className="mt-5 h-72 w-full">
-                  {guestBounceQualityCards.some(
-                    (card: any) =>
-                      card.views > 0 || card.engaged > 0 || card.bounced > 0,
-                  ) ? (
-                    <ResponsiveContainer width="100%" height="100%">
-                      <BarChart
-                        data={guestBounceQualityCards}
-                        margin={{ top: 8, right: 0, left: -18, bottom: 0 }}
-                      >
-                        <CartesianGrid
-                          stroke="rgba(255,255,255,0.06)"
-                          vertical={false}
-                        />
-                        <XAxis
-                          dataKey="label"
-                          stroke="#6b7280"
-                          fontSize={11}
-                          tickLine={false}
-                          axisLine={false}
-                        />
-                        <YAxis
-                          stroke="#6b7280"
-                          fontSize={11}
-                          tickLine={false}
-                          axisLine={false}
-                        />
-                        <Tooltip content={<AnalyticsTooltip />} />
-                        <Bar
-                          dataKey="views"
-                          name="Views"
-                          fill="#b28cff"
-                          radius={[10, 10, 0, 0]}
-                        />
-                        <Bar
-                          dataKey="engaged"
-                          name="Engaged"
-                          fill="#22d3ee"
-                          radius={[10, 10, 0, 0]}
-                        />
-                        <Bar
-                          dataKey="bounced"
-                          name="Bounced"
-                          fill="#f59e0b"
-                          radius={[10, 10, 0, 0]}
-                        />
-                      </BarChart>
-                    </ResponsiveContainer>
-                  ) : (
-                    <div className="flex h-full items-center justify-center rounded-[1.6rem] border border-dashed border-white/10 bg-black/20 p-5 text-sm text-gray-500">
-                      <div className="text-center">
-                        <AdminStatusBadge state={historicalMetricTruthState} className="mb-2" />
-                        <div>No quality analytics data in this range.</div>
-                      </div>
-                    </div>
-                  )}
+                <div className="grid grid-cols-3 gap-2">
+                  <MetricCard
+                    label={guestBounceQualityModel.guestViewsEstimated ? "Est. Guest Views" : "Guest Views"}
+                    value={guestQualityCountLabel(guestBounceQualityModel.guestViews.value)}
+                    hint={guestBounceQualityModel.guestViewsEstimated ? "Estimated guest views" : "Tracked guest views"}
+                    icon={Users}
+                    truthState={guestBounceQualityModel.truthState}
+                    statusBadgeLabel={guestBounceQualityModel.guestViewsEstimated ? "EST" : guestBounceQualityModel.badgeLabel}
+                    className="rounded-[1rem] p-2"
+                    valueClassName="text-lg leading-6 md:text-xl"
+                  />
+                  <MetricCard
+                    label="Guest Quality"
+                    value={guestBounceQualityModel.guestBounce.value === null && guestBounceQualityModel.guestEngaged.value === null ? "Unavailable" : guestQualityRateLabel(guestBounceQualityModel.guestEngaged.value)}
+                    hint={guestBounceQualityModel.guestEngaged.unavailableReason ?? "Guest engaged rate"}
+                    icon={AlertTriangle}
+                    truthState={guestBounceQualityModel.truthState}
+                    statusBadgeLabel={guestBounceQualityModel.guestEngaged.value === null ? "NO SAMPLE" : guestBounceQualityModel.badgeLabel}
+                    className="rounded-[1rem] p-2"
+                    valueClassName="truncate text-base leading-6 md:text-lg"
+                  />
+                  <MetricCard
+                    label="Signed-in Bounce"
+                    value={guestQualityRateLabel(guestBounceQualityModel.signedInBounce.value)}
+                    hint={guestBounceQualityModel.signedInBounce.unavailableReason ?? "Signed-in bounce sample"}
+                    icon={Activity}
+                    truthState={guestBounceQualityModel.truthState}
+                    statusBadgeLabel={guestBounceQualityModel.signedInBounce.value === null ? "NO SAMPLE" : guestBounceQualityModel.badgeLabel}
+                    className="rounded-[1rem] p-2"
+                    valueClassName="truncate text-base leading-6 md:text-lg"
+                  />
+                </div>
+
+                <div className="mt-2 grid gap-2 rounded-[1rem] border border-white/10 bg-black/25 px-3 py-2 text-[11px] leading-5 text-gray-300 md:grid-cols-2">
+                  <span>
+                    <span className="font-semibold text-white">Action:</span>{" "}
+                    {guestBounceQualityModel.actionCopy}
+                  </span>
+                  <span>
+                    <span className="font-semibold text-white">Series:</span>{" "}
+                    {guestBounceQualityModel.chartCollapsedBecauseEmpty ? "collapsed" : "available"}
+                  </span>
                 </div>
               </SectionCard>
             </div>

@@ -29,6 +29,7 @@ import { buildAdminAnalyticsCommerceSnapshotModel } from "@/lib/admin-analytics-
 import { buildAdminAnalyticsLivePulseModel } from "@/lib/admin-analytics-live-pulse";
 import { buildAdminAnalyticsJourneyFunnelModel } from "@/lib/admin-analytics-journey-funnel";
 import { buildAdminAnalyticsAuthOutcomeModel } from "@/lib/admin-analytics-auth-outcome-split";
+import { buildAdminAnalyticsGuestBounceQualityModel } from "@/lib/admin-analytics-guest-bounce-quality";
 
 
 import { TELEMETRY_EVENT_LABELS } from "@/lib/telemetry-catalog";
@@ -1375,6 +1376,32 @@ const { user } = useAuth();
       exits: guestBounceDropSemantics?.exitCount ?? 0,
     },
   ];
+  const guestBounceQualityModel = useMemo(
+    () => buildAdminAnalyticsGuestBounceQualityModel({
+      selectedRange: guestBounceQualityRange,
+      response: guestBounceQualityData,
+      guestTraffic: guestBounceTraffic,
+      semanticCategories: guestBounceSemantics,
+      loading: guestBounceQualityRange === ADMIN_ANALYTICS_DEFAULT_RANGE
+        ? historicalLoading
+        : guestBounceQualityOverride.isLoading,
+      error: (guestBounceQualityRange === ADMIN_ANALYTICS_DEFAULT_RANGE
+        ? historicalError
+        : guestBounceQualityOverride.error) ?? undefined,
+      overviewTruthState: historicalOverviewTruthState,
+    }),
+    [
+      guestBounceQualityRange,
+      guestBounceQualityData,
+      guestBounceTraffic,
+      guestBounceSemantics,
+      historicalLoading,
+      guestBounceQualityOverride.isLoading,
+      historicalError,
+      guestBounceQualityOverride.error,
+      historicalOverviewTruthState,
+    ],
+  );
   const eventMixData =
     eventMixRange === ADMIN_ANALYTICS_DEFAULT_RANGE
       ? historicalResponse
@@ -1835,7 +1862,7 @@ const { user } = useAuth();
     showHistoricalEmptyState, liveSnapshotLabel, historicalSnapshotLabel, analyticsWarmState, isBackgroundSyncing, historicalTruthState, historicalSourceLabel, historicalOverviewSourceLabel, visibleDegradedCopy,
     authOutcomeHasData, authOutcomeChartItems, authOutcomeTotals, authOutcomeModel,
     authOnboardingDiscrepancies, onboardingVelocityModel, onboardingVelocityHasData, onboardingVelocityBuckets, onboardingVelocityStartCount, onboardingVelocityCompletionCount, onboardingVelocityCompletionRate, onboardingVelocityDropOffCount, onboardingVelocityStats, onboardingVelocityStartSourceHint, onboardingStepFlowItems,
-    guestBounceQualityCards, guestBounceGlobalSemantics, guestBounceGuestRate, guestBounceEngagedRate, guestBounceIdentifiedRate, guestBounceUserSemantics,
+    guestBounceQualityCards, guestBounceQualityModel, guestBounceGlobalSemantics, guestBounceGuestRate, guestBounceEngagedRate, guestBounceIdentifiedRate, guestBounceUserSemantics,
     guestViewsDisplayCount, guestViewsHint, guestBounceRateDisplay, guestBounceHint, guestEngagedRateDisplay, guestEngagedHint, guestQualityUnavailable,
     topEvents, liveInteractionStreamRange, liveInteractionStreamData, liveInteractionEvents,
     validations, validationItems, getValidationClasses, dataValidationRange,
