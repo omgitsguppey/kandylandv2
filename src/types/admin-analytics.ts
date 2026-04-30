@@ -294,8 +294,22 @@ export interface WatchCaptureHealthItem {
 
 export interface ValidationItem {
   label: string;
-  status: "pass" | "warn" | "fail";
+  status: "pass" | "warn" | "fail" | "unavailable" | "stale" | "unknown";
   detail: string;
+  checkKey?: string;
+  title?: string;
+  source?: string;
+  selectedRange?: string;
+  lastValidatedAt?: number;
+  freshnessState?: "fresh" | "stale" | "unknown";
+  confidence?: number | null;
+  requiredSourcesPresent?: boolean;
+  sampleRequired?: boolean;
+  sampleCount?: number;
+  passAllowed?: boolean;
+  passBlockedReason?: string | null;
+  action?: string;
+  fullDetails?: string;
 }
 
 export interface ComponentContextItem {

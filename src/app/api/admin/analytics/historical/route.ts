@@ -934,6 +934,8 @@ async function GET_handler(request: NextRequest) {
                 parityScore,
                 validations,
             } = buildHistoricalValidationSummary({
+                selectedRange: period,
+                lastValidatedAt: Date.now(),
                 propertyId,
                 gaEventCounts,
                 telemetryEventCounts,

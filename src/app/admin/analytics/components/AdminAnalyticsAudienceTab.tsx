@@ -16,7 +16,6 @@ export function AdminAnalyticsAudienceTab(props: AdminAnalyticsState) {
     formatCompactNumber, formatDuration, formatPercent, formatRelativeTime,
     guestBounceQualityCards, guestBounceGlobalSemantics, guestBounceGuestRate, guestBounceEngagedRate, guestBounceIdentifiedRate, guestBounceUserSemantics,
     topEvents,
-    validations, getValidationClasses, dataValidationRange,
     
     // Audience Tab
     totalDeviceUsers, mobileUsers, mobileShare, audienceSnapshotRange, semanticQualityCards, guestBounceRate, identifiedBounceRate, guestEngagedRate, historicalOverviewTruthState,

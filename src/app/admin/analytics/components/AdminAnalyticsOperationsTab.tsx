@@ -22,7 +22,6 @@ export function AdminAnalyticsOperationsTab(props: AdminAnalyticsState) {
     guestBounceQualityCards, guestBounceQualityModel, guestBounceGlobalSemantics, guestBounceGuestRate, guestBounceEngagedRate, guestBounceIdentifiedRate, guestBounceUserSemantics,
     guestViewsDisplayCount, guestViewsHint, guestBounceRateDisplay, guestBounceHint, guestEngagedRateDisplay, guestEngagedHint,
     topEvents,
-    validations, getValidationClasses, dataValidationRange,
     
     // Audience Tab
     totalDeviceUsers, mobileUsers, mobileShare, audienceSnapshotRange, semanticQualityCards, guestBounceRate, identifiedBounceRate, guestEngagedRate,
@@ -40,7 +39,7 @@ export function AdminAnalyticsOperationsTab(props: AdminAnalyticsState) {
     
     // Added remaining
     clearAllFilters, clearViewerFilter, viewerUserFilter, formatMoney, activeViewerFilter,
-    eventMixTopEvents, eventMixTopComponentContexts, eventMixModel, validationItems, topComponentContexts,
+    eventMixTopEvents, eventMixTopComponentContexts, eventMixModel, topComponentContexts,
     liveInteractionStreamModel
   } = props;
 
@@ -875,39 +874,6 @@ export function AdminAnalyticsOperationsTab(props: AdminAnalyticsState) {
                 </div>
               </SectionCard>
             </div>
-
-            <SectionCard
-              title="Data Validation"
-              subtitle="Every overview here is grounded in a real source with parity checks surfaced."
-              icon={CheckCircle2}
-              rightSlot={renderSectionRangeControl("dataValidation")}
-            >
-              <div className="grid gap-3 md:grid-cols-2 xl:grid-cols-3">
-                {validationItems.map((item: any) => (
-                  <div
-                    key={item.label}
-                    className="rounded-[1.5rem] border border-white/10 bg-black/30 p-4"
-                  >
-                    <div className="mb-2 flex items-center justify-between gap-3">
-                      <p className="text-sm font-semibold text-white">
-                        {item.label}
-                      </p>
-                      <span
-                        className={cn(
-                          "rounded-full border px-2.5 py-1 text-[10px] font-bold uppercase tracking-[0.14em]",
-                          getValidationClasses(item.status),
-                        )}
-                      >
-                        {item.status}
-                      </span>
-                    </div>
-                    <p className="text-xs leading-6 text-gray-400">
-                      {item.detail}
-                    </p>
-                  </div>
-                ))}
-              </div>
-            </SectionCard>
           </>
     </>
   );

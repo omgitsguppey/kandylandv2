@@ -58,7 +58,6 @@ import {
   getJourneyStateClasses,
   getJourneyStateLabel,
   getDeviceIcon,
-  getValidationClasses,
   isRecentViolation,
   useHistoricalSectionOverride,
 } from "../AnalyticsHelpers";
@@ -493,11 +492,6 @@ const { user } = useAuth();
     "liveInteractionStream",
     liveInteractionStreamRange,
   );
-  const dataValidationRange = getSectionRange("dataValidation");
-  const dataValidationOverride = useHistoricalSectionOverride(
-    "dataValidation",
-    dataValidationRange,
-  );
   const audienceSnapshotRange = getSectionRange("audienceSnapshot");
   const audienceSnapshotOverride = useHistoricalSectionOverride(
     "audienceSnapshot",
@@ -749,7 +743,6 @@ const { user } = useAuth();
     historicalResponse?.watchCaptureHealth ?? EMPTY_WATCH_CAPTURE_HEALTH;
   const activeViewerFilter = historicalResponse?.viewerFilter ?? viewerUserFilter;
   const semanticCategories = historicalResponse?.semanticCategories ?? [];
-  const validations = historicalResponse?.validations ?? [];
   const componentContexts = historicalResponse?.componentContexts ?? [];
   const userJourneys = historicalResponse?.userJourneys ?? [];
   const experienceContexts = historicalResponse?.experienceContexts ?? [];
@@ -1475,11 +1468,6 @@ const { user } = useAuth();
       historicalOverviewTruthState,
     ],
   );
-  const validationData =
-    dataValidationRange === ADMIN_ANALYTICS_DEFAULT_RANGE
-      ? historicalResponse
-      : dataValidationOverride.data;
-  const validationItems = validationData?.validations ?? validations;
   const audienceSnapshotData =
     audienceSnapshotRange === ADMIN_ANALYTICS_DEFAULT_RANGE
       ? historicalResponse
@@ -1769,11 +1757,6 @@ const { user } = useAuth();
     liveInteractionStreamRange,
     liveInteractionStreamOverride,
   );
-  const dataValidationState = buildHistoricalSectionState(
-    "Data validation",
-    dataValidationRange,
-    dataValidationOverride,
-  );
   const audienceSnapshotState = buildHistoricalSectionState(
     "Audience snapshot",
     audienceSnapshotRange,
@@ -1919,7 +1902,6 @@ const { user } = useAuth();
     guestBounceQualityCards, guestBounceQualityModel, guestBounceGlobalSemantics, guestBounceGuestRate, guestBounceEngagedRate, guestBounceIdentifiedRate, guestBounceUserSemantics,
     guestViewsDisplayCount, guestViewsHint, guestBounceRateDisplay, guestBounceHint, guestEngagedRateDisplay, guestEngagedHint, guestQualityUnavailable,
     topEvents, liveInteractionStreamRange, liveInteractionStreamData, liveInteractionEvents, liveInteractionStreamModel,
-    validations, validationItems, getValidationClasses, dataValidationRange,
     totalDeviceUsers, mobileUsers, mobileShare, audienceSnapshotRange, semanticQualityCards, guestBounceRate, identifiedBounceRate, guestEngagedRate,
     audienceTotals, audienceHistorySeries, audienceSnapshotModel,
     returnCadenceRange, returnCadenceData, returnCadenceSegments, returnCadenceSummary,
