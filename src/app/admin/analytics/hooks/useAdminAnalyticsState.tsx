@@ -31,6 +31,7 @@ import { buildAdminAnalyticsJourneyFunnelModel } from "@/lib/admin-analytics-jou
 import { buildAdminAnalyticsAuthOutcomeModel } from "@/lib/admin-analytics-auth-outcome-split";
 import { buildAdminAnalyticsGuestBounceQualityModel } from "@/lib/admin-analytics-guest-bounce-quality";
 import { buildAdminAnalyticsEventMixModel } from "@/lib/admin-analytics-event-mix";
+import { buildAdminAnalyticsLiveInteractionStreamModel } from "@/lib/admin-analytics-live-interaction-stream";
 
 
 import { TELEMETRY_EVENT_LABELS } from "@/lib/telemetry-catalog";
@@ -1449,6 +1450,31 @@ const { user } = useAuth();
       : liveInteractionStreamOverride.data;
   const liveInteractionStreamData = liveInteractionData;
   const liveInteractionEvents = liveInteractionData?.rawEvents ?? rawEvents;
+  const liveInteractionStreamModel = useMemo(
+    () => buildAdminAnalyticsLiveInteractionStreamModel({
+      selectedRange: liveInteractionStreamRange,
+      response: liveInteractionData,
+      rawEvents: liveInteractionEvents,
+      describeEvent,
+      loading: liveInteractionStreamRange === ADMIN_ANALYTICS_DEFAULT_RANGE
+        ? historicalLoading
+        : liveInteractionStreamOverride.isLoading,
+      error: (liveInteractionStreamRange === ADMIN_ANALYTICS_DEFAULT_RANGE
+        ? historicalError
+        : liveInteractionStreamOverride.error) ?? undefined,
+      overviewTruthState: historicalOverviewTruthState,
+    }),
+    [
+      liveInteractionStreamRange,
+      liveInteractionData,
+      liveInteractionEvents,
+      historicalLoading,
+      liveInteractionStreamOverride.isLoading,
+      historicalError,
+      liveInteractionStreamOverride.error,
+      historicalOverviewTruthState,
+    ],
+  );
   const validationData =
     dataValidationRange === ADMIN_ANALYTICS_DEFAULT_RANGE
       ? historicalResponse
@@ -1892,7 +1918,7 @@ const { user } = useAuth();
     authOnboardingDiscrepancies, onboardingVelocityModel, onboardingVelocityHasData, onboardingVelocityBuckets, onboardingVelocityStartCount, onboardingVelocityCompletionCount, onboardingVelocityCompletionRate, onboardingVelocityDropOffCount, onboardingVelocityStats, onboardingVelocityStartSourceHint, onboardingStepFlowItems,
     guestBounceQualityCards, guestBounceQualityModel, guestBounceGlobalSemantics, guestBounceGuestRate, guestBounceEngagedRate, guestBounceIdentifiedRate, guestBounceUserSemantics,
     guestViewsDisplayCount, guestViewsHint, guestBounceRateDisplay, guestBounceHint, guestEngagedRateDisplay, guestEngagedHint, guestQualityUnavailable,
-    topEvents, liveInteractionStreamRange, liveInteractionStreamData, liveInteractionEvents,
+    topEvents, liveInteractionStreamRange, liveInteractionStreamData, liveInteractionEvents, liveInteractionStreamModel,
     validations, validationItems, getValidationClasses, dataValidationRange,
     totalDeviceUsers, mobileUsers, mobileShare, audienceSnapshotRange, semanticQualityCards, guestBounceRate, identifiedBounceRate, guestEngagedRate,
     audienceTotals, audienceHistorySeries, audienceSnapshotModel,

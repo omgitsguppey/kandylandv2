@@ -37,12 +37,11 @@ export function AdminAnalyticsOperationsTab(props: AdminAnalyticsState) {
     packagePerformanceRange, packagePerformance,
     PIE_COLORS, contentConversionRange, unlockCategoryMix, previewToUnlockRate, checkoutToPurchaseRate,
     topDropConversionRange, topDrops,
-    describeEvent,
     
     // Added remaining
     clearAllFilters, clearViewerFilter, viewerUserFilter, formatMoney, activeViewerFilter,
     eventMixTopEvents, eventMixTopComponentContexts, eventMixModel, validationItems, topComponentContexts,
-    liveInteractionEvents
+    liveInteractionStreamModel
   } = props;
 
   const livePulseTruthState: AdminSurfaceState = liveActiveTruthState ?? (liveLoading ? "loading" : "failed");
@@ -159,6 +158,18 @@ export function AdminAnalyticsOperationsTab(props: AdminAnalyticsState) {
       __KANDYDROPS_ADMIN_ANALYTICS_EVENT_MIX_DEBUG__?: typeof eventMixModel;
     }).__KANDYDROPS_ADMIN_ANALYTICS_EVENT_MIX_DEBUG__ = eventMixModel;
   }, [eventMixModel]);
+  const streamCountLabel = (value: number | null) =>
+    value === null ? "Waiting" : formatCompactNumber(value);
+
+  React.useEffect(() => {
+    if (typeof window === "undefined") {
+      return;
+    }
+
+    (window as typeof window & {
+      __KANDYDROPS_ADMIN_ANALYTICS_LIVE_INTERACTION_STREAM_DEBUG__?: typeof liveInteractionStreamModel;
+    }).__KANDYDROPS_ADMIN_ANALYTICS_LIVE_INTERACTION_STREAM_DEBUG__ = liveInteractionStreamModel;
+  }, [liveInteractionStreamModel]);
 
   return (
     <>
@@ -803,52 +814,64 @@ export function AdminAnalyticsOperationsTab(props: AdminAnalyticsState) {
                 icon={Clock3}
                 rightSlot={renderSectionRangeControl("liveInteractionStream")}
               >
-                <div className="space-y-3">
-                  {liveInteractionEvents.length > 0 ? (
-                    liveInteractionEvents.slice(0, 8).map((event: any, index: any) => (
-                      <div
-                        key={`${event.timestamp}-${index}`}
-                        className="rounded-[1.4rem] border border-white/10 bg-black/30 p-3.5"
-                      >
-                        <div className="mb-2 flex items-center justify-between gap-3">
-                          <span className="rounded-full bg-white/5 px-2.5 py-1 text-[11px] font-semibold uppercase tracking-[0.14em] text-brand-purple">
-                            {event.type}
-                          </span>
-                          <span className="text-[11px] text-gray-500">
-                            {formatRelativeTime(event.timestamp, nowMs)}
-                          </span>
+                <div className="grid gap-2.5">
+                  <div className="flex flex-col gap-2 rounded-[1rem] border border-white/10 bg-white/[0.035] px-3 py-2 text-[11px] leading-5 text-gray-300 sm:flex-row sm:items-center sm:justify-between">
+                    <span className="min-w-0">{liveInteractionStreamModel.recommendation}</span>
+                    <AdminStatusBadge
+                      state={liveInteractionStreamModel.truthState}
+                      label={liveInteractionStreamModel.badgeLabel}
+                      className="max-w-[5.5rem] shrink-0 truncate whitespace-nowrap px-1.5 py-0.5 text-[9px]"
+                    />
+                  </div>
+
+                  <div className="grid grid-cols-2 gap-1.5 rounded-[1rem] border border-white/10 bg-black/25 px-3 py-2 text-[10px] leading-5 text-gray-300 sm:grid-cols-4">
+                    <span className="min-w-0 truncate"><span className="font-semibold text-white">Shown:</span> {streamCountLabel(liveInteractionStreamModel.visibleEventCount)}</span>
+                    <span className="min-w-0 truncate"><span className="font-semibold text-white">Actors:</span> {streamCountLabel(liveInteractionStreamModel.uniqueActorCount)}</span>
+                    <span className="min-w-0 truncate"><span className="font-semibold text-white">Failures:</span> {streamCountLabel(liveInteractionStreamModel.failureCount)}</span>
+                    <span className="min-w-0 truncate"><span className="font-semibold text-white">Admin excl.:</span> {liveInteractionStreamModel.adminExcludedCount}</span>
+                  </div>
+
+                  <div className="space-y-1.5">
+                    {liveInteractionStreamModel.eventRows.length > 0 ? (
+                      liveInteractionStreamModel.eventRows.map((event) => (
+                        <div
+                          key={`${event.timestamp}-${event.duplicateGroupKey}`}
+                          className="rounded-[0.9rem] border border-white/10 bg-white/[0.03] px-3 py-2"
+                        >
+                          <div className="grid grid-cols-[minmax(0,1fr)_auto] items-start gap-2">
+                            <div className="min-w-0">
+                              <p className="truncate text-xs font-semibold text-white">
+                                {event.displayLabel}
+                                {event.duplicateCount > 1 ? (
+                                  <span className="ml-1 text-[10px] text-brand-purple">
+                                    x{event.duplicateCount}
+                                  </span>
+                                ) : null}
+                              </p>
+                              <p className="mt-0.5 truncate text-[10px] text-gray-500">
+                                {event.actorDisplayLabel} / {event.surface || "unknown surface"} / {formatRelativeTime(event.timestamp, nowMs)}
+                              </p>
+                            </div>
+                            <span
+                              className={cn(
+                                "max-w-[5.5rem] truncate rounded-full border px-2 py-1 text-[9px] font-bold uppercase tracking-[0.08em]",
+                                /fail/i.test(event.eventKey)
+                                  ? "border-rose-400/25 bg-rose-500/10 text-rose-200"
+                                  : "border-brand-purple/25 bg-brand-purple/10 text-brand-purple",
+                              )}
+                              title={event.eventKey}
+                            >
+                              {event.compactTypeLabel}
+                            </span>
+                          </div>
                         </div>
-                        <p className="text-sm text-white">
-                          {describeEvent(event)}
-                        </p>
-                        <p className="mt-2 text-xs text-gray-500">
-                          {(event.username || "Guest").trim()} on{" "}
-                          <span className="text-gray-400">{event.path}</span>
-                        </p>
-                        <div className="mt-3 flex flex-wrap gap-2">
-                          {event.componentName ? (
-                            <span className="rounded-full border border-white/10 bg-white/5 px-2 py-1 text-[10px] font-semibold text-gray-300">
-                              {event.componentName}
-                            </span>
-                          ) : null}
-                          {event.dropTitle || event.dropId ? (
-                            <span className="rounded-full border border-brand-purple/20 bg-brand-purple/10 px-2 py-1 text-[10px] font-semibold text-brand-purple">
-                              {event.dropTitle || event.dropId}
-                            </span>
-                          ) : null}
-                          {event.watchSeconds ? (
-                            <span className="rounded-full border border-cyan-400/20 bg-cyan-400/10 px-2 py-1 text-[10px] font-semibold text-cyan-200">
-                              {formatDuration(event.watchSeconds)}
-                            </span>
-                          ) : null}
-                        </div>
+                      ))
+                    ) : (
+                      <div className="rounded-[0.9rem] border border-dashed border-white/10 bg-black/20 p-3 text-xs text-gray-500">
+                        No user interactions available for this range.
                       </div>
-                    ))
-                  ) : (
-                    <div className="rounded-[1.6rem] border border-dashed border-white/10 bg-black/20 p-5 text-sm text-gray-500">
-                      No recent interaction traces yet.
-                    </div>
-                  )}
+                    )}
+                  </div>
                 </div>
               </SectionCard>
             </div>
