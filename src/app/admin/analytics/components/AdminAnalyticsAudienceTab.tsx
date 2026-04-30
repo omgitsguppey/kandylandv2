@@ -1,6 +1,6 @@
 import React from "react";
 import {
-  Activity, Clock3, FileText, MapPin, Route, Smartphone, Sparkles, Users,
+  Activity, Clock3, FileText, MapPin, Route, Smartphone, Users,
 } from "lucide-react";
 import { Area, AreaChart, Bar, BarChart, CartesianGrid, ResponsiveContainer, Tooltip, XAxis, YAxis, Pie, PieChart, Cell } from "recharts";
 import { AnalyticsTooltip, MetricCard, SectionCard } from "@/components/Admin/Analytics/AdminAnalyticsPrimitives";
@@ -24,7 +24,7 @@ export function AdminAnalyticsAudienceTab(props: AdminAnalyticsState) {
     deviceMixRange, devices, getDeviceIcon,
     topPathsRange, pages,
     regionsRange, geo,
-    audienceTotals, audienceHistorySeries, returnCadenceSegments, returnCadenceSummary, navigationDestinationsMix, deviceMixDevices, deviceMixTotalUsers, topPathsPages, regionsGeo,
+    audienceHistorySeries, audienceSnapshotModel, returnCadenceSegments, returnCadenceSummary, navigationDestinationsMix, deviceMixDevices, deviceMixTotalUsers, topPathsPages, regionsGeo,
 
     // Commerce Tab
     commerceSnapshotRange, commerce,
@@ -36,57 +36,125 @@ export function AdminAnalyticsAudienceTab(props: AdminAnalyticsState) {
   } = props;
   const historicalPanelTruthState = historicalOverviewTruthState ?? (historicalLoading ? "loading" : "unavailable");
   const returnCadenceTruthState = returnCadenceSummary ? historicalPanelTruthState : historicalLoading ? "loading" : "unavailable";
+  React.useEffect(() => {
+    (window as typeof window & {
+      __KANDYDROPS_ADMIN_ANALYTICS_AUDIENCE_SNAPSHOT_DEBUG__?: unknown;
+    }).__KANDYDROPS_ADMIN_ANALYTICS_AUDIENCE_SNAPSHOT_DEBUG__ =
+      audienceSnapshotModel;
+  }, [audienceSnapshotModel]);
+  const formatAudienceValue = (
+    value: number | null,
+    formatter: (value: number) => string,
+    waitingLabel = "Unavailable",
+  ) => (value === null ? waitingLabel : formatter(value));
+  const audienceWaitingLabel =
+    audienceSnapshotModel.fakeZeroPrevented && historicalLoading
+      ? "Waiting"
+      : "Unavailable";
+  const guestBadgeLabel = audienceSnapshotModel.guestEstimateFormulaUsed
+    ? "EST"
+    : undefined;
 
   return (
     <>
 <>
             <SectionCard
               title="Audience Snapshot"
-              subtitle="The selected time range emphasizes mobile traffic, retention, and visit depth."
+              subtitle="GA totals and first-party activity for the selected range."
               icon={Users}
               defaultExpanded
               rightSlot={renderSectionRangeControl("audienceSnapshot")}
             >
-              <div className="grid grid-cols-2 gap-3 lg:grid-cols-4">
+              <div className="mb-3 rounded-2xl border border-white/10 bg-white/[0.03] px-3 py-2 text-[11px] leading-5 text-gray-300">
+                {audienceSnapshotModel.visibleCopy.map((line) => (
+                  <p key={line}>{line}</p>
+                ))}
+                <p className="mt-1 text-gray-500">
+                  Identified first-party:{" "}
+                  {audienceSnapshotModel.identifiedViews.value === null
+                    ? audienceWaitingLabel
+                    : `${audienceSnapshotModel.identifiedViews.value.toLocaleString()} views`}
+                  {" "}· Guest: {audienceSnapshotModel.guestVisits.label}
+                </p>
+              </div>
+
+              <div className="grid grid-cols-2 gap-2.5 lg:grid-cols-4">
                 <MetricCard
-                  label="Active Users"
-                  value={formatCompactNumber(audienceTotals.users)}
-                  hint={`${audienceTotals.newUsers.toLocaleString()} new users`}
+                  label="GA Users"
+                  value={formatAudienceValue(
+                    audienceSnapshotModel.totalUsers.value,
+                    formatCompactNumber,
+                    audienceWaitingLabel,
+                  )}
+                  hint={audienceSnapshotModel.totalUsers.label}
                   icon={Users}
-                  truthState={historicalPanelTruthState}
-                  dictionaryTooltip="Distinct users identified in the selected range. Includes both authenticated users and anonymous guests."
+                  truthState={audienceSnapshotModel.totalUsers.truthState}
+                  dictionaryTooltip="GA total users for the selected range. This is not the same as authenticated KandyDrops user accounts."
+                />
+                <MetricCard
+                  label="Guest Visits"
+                  value={formatAudienceValue(
+                    audienceSnapshotModel.guestVisits.value,
+                    formatCompactNumber,
+                    audienceWaitingLabel,
+                  )}
+                  hint={audienceSnapshotModel.guestVisits.label}
+                  icon={Smartphone}
+                  truthState={audienceSnapshotModel.guestVisits.truthState}
+                  statusBadgeLabel={guestBadgeLabel}
+                  dictionaryTooltip="Guest/public visits. When anonymous first-party batches are missing, this is estimated and labeled as estimated."
                 />
                 <MetricCard
                   label="Sessions"
-                  value={formatCompactNumber(audienceTotals.sessions)}
-                  hint={`${audienceTotals.views.toLocaleString()} views`}
+                  value={formatAudienceValue(
+                    audienceSnapshotModel.sessions.value,
+                    formatCompactNumber,
+                    audienceWaitingLabel,
+                  )}
+                  hint={
+                    audienceSnapshotModel.views.value === null
+                      ? audienceSnapshotModel.sessions.label
+                      : `${audienceSnapshotModel.views.value.toLocaleString()} views`
+                  }
                   icon={Activity}
-                  truthState={historicalPanelTruthState}
-                  dictionaryTooltip="Total number of discrete sessions initiated. A session usually expires after 30 minutes of inactivity."
-                />
-                <MetricCard
-                  label="Avg Session"
-                  value={formatDuration(audienceTotals.avgSessionDuration)}
-                  hint="Average time per visit"
-                  icon={Clock3}
-                  truthState={historicalPanelTruthState}
-                  dictionaryTooltip="Average length of time a user remains engaged with the app during a single session."
+                  truthState={audienceSnapshotModel.sessions.truthState}
+                  dictionaryTooltip="Sessions use GA totals with first-party fallback when that backend source is higher for the same selected range."
                 />
                 <MetricCard
                   label="Engagement"
-                  value={formatPercent(audienceTotals.engagementRate)}
-                  hint="GA engagement rate"
-                  icon={Sparkles}
-                  truthState={historicalPanelTruthState}
-                  dictionaryTooltip="Percentage of sessions that lasted longer than 10 seconds, had a conversion event, or had 2+ screen views."
+                  value={formatAudienceValue(
+                    audienceSnapshotModel.engagementRate.value,
+                    formatPercent,
+                    audienceWaitingLabel,
+                  )}
+                  hint={
+                    audienceSnapshotModel.avgSession.value === null
+                      ? audienceSnapshotModel.engagementRate.label
+                      : `${formatDuration(audienceSnapshotModel.avgSession.value)} avg session`
+                  }
+                  icon={Clock3}
+                  truthState={audienceSnapshotModel.engagementRate.truthState}
+                  dictionaryTooltip="GA engagement rate for the selected range. It is not a count of all first-party visits."
                 />
               </div>
 
-              <div className="mt-5 h-64 w-full md:h-72">
+              <div className="mt-3 flex flex-wrap items-center gap-3 text-[10px] font-semibold uppercase tracking-[0.12em] text-gray-500">
+                {audienceSnapshotModel.chartSeries.map((series) => (
+                  <span key={series.key} className="inline-flex items-center gap-1.5">
+                    <span
+                      className="h-2 w-2 rounded-full"
+                      style={{ backgroundColor: series.stroke }}
+                    />
+                    {series.label}
+                  </span>
+                ))}
+              </div>
+
+              <div className={`mt-2.5 ${audienceSnapshotModel.chartHeightClass} w-full`}>
                 <ResponsiveContainer width="100%" height="100%">
                   <AreaChart
                     data={audienceHistorySeries}
-                    margin={{ top: 8, right: 0, left: -18, bottom: 0 }}
+                    margin={{ top: 4, right: 0, left: -22, bottom: 0 }}
                   >
                     <defs>
                       <linearGradient
@@ -98,12 +166,12 @@ export function AdminAnalyticsAudienceTab(props: AdminAnalyticsState) {
                       >
                         <stop
                           offset="5%"
-                          stopColor="#b28cff"
-                          stopOpacity={0.35}
+                          stopColor="#ffffff"
+                          stopOpacity={0.22}
                         />
                         <stop
                           offset="95%"
-                          stopColor="#b28cff"
+                          stopColor="#ffffff"
                           stopOpacity={0}
                         />
                       </linearGradient>
@@ -115,14 +183,14 @@ export function AdminAnalyticsAudienceTab(props: AdminAnalyticsState) {
                     <XAxis
                       dataKey="date"
                       stroke="#6b7280"
-                      fontSize={11}
+                      fontSize={10}
                       tickLine={false}
                       axisLine={false}
                       minTickGap={20}
                     />
                     <YAxis
                       stroke="#6b7280"
-                      fontSize={11}
+                      fontSize={10}
                       tickLine={false}
                       axisLine={false}
                     />
@@ -130,8 +198,8 @@ export function AdminAnalyticsAudienceTab(props: AdminAnalyticsState) {
                     <Area
                       type="monotone"
                       dataKey="users"
-                      name="Users"
-                      stroke="#b28cff"
+                      name="GA users"
+                      stroke="#ffffff"
                       strokeWidth={2.5}
                       fill="url(#historyUsersFill)"
                     />
@@ -139,7 +207,7 @@ export function AdminAnalyticsAudienceTab(props: AdminAnalyticsState) {
                       type="monotone"
                       dataKey="views"
                       name="Views"
-                      stroke="#22d3ee"
+                      stroke="#b28cff"
                       strokeWidth={2}
                       fillOpacity={0}
                     />

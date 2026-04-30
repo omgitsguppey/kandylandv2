@@ -227,6 +227,7 @@ function scopeHistoricalResponse(section: string | null, payload: Record<string,
             return withSharedFields({
                 data: payload.data,
                 totals: payload.totals,
+                guestTraffic: payload.guestTraffic,
                 devices: payload.devices,
             });
         case "returnCadence":

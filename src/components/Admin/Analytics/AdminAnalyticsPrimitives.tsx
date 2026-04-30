@@ -42,6 +42,7 @@ export interface MetricCardProps {
     valueClassName?: string;
     truthState?: AdminSurfaceState;
     dictionaryTooltip?: string;
+    statusBadgeLabel?: string;
 }
 
 const ANALYTICS_METRIC_BADGE_LABELS: Record<AdminSurfaceState, string> = {
@@ -160,6 +161,7 @@ export function MetricCard({
     valueClassName,
     truthState,
     dictionaryTooltip,
+    statusBadgeLabel,
 }: MetricCardProps) {
     const resolvedTruthState = truthState ? coerceAdminSurfaceState(truthState) : undefined;
 
@@ -190,7 +192,7 @@ export function MetricCard({
                     <div className="min-w-0 max-w-[5.75rem] justify-self-end overflow-hidden">
                         <AdminStatusBadge
                             state={resolvedTruthState}
-                            label={ANALYTICS_METRIC_BADGE_LABELS[resolvedTruthState]}
+                            label={statusBadgeLabel ?? ANALYTICS_METRIC_BADGE_LABELS[resolvedTruthState]}
                             className="max-w-full min-w-0 truncate whitespace-nowrap rounded px-1.5 py-0.5 text-[9px] leading-4 tracking-[0.08em]"
                         />
                     </div>

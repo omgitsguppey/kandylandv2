@@ -24,6 +24,7 @@ import {
   buildAdminAnalyticsReturnCadenceSummary,
   normalizeAdminAnalyticsReturnCadenceSegments,
 } from "@/lib/admin-analytics-return-cadence";
+import { buildAdminAnalyticsAudienceSnapshotModel } from "@/lib/admin-analytics-audience-snapshot";
 
 
 import { TELEMETRY_EVENT_LABELS } from "@/lib/telemetry-catalog";
@@ -1620,6 +1621,15 @@ const { user } = useAuth();
     audienceSnapshotRange,
     audienceSnapshotOverride,
   );
+  const audienceSnapshotModel = buildAdminAnalyticsAudienceSnapshotModel({
+    selectedRange: audienceSnapshotRange,
+    response: audienceSnapshotData,
+    loading: audienceSnapshotState.loading,
+    error: audienceSnapshotRange === ADMIN_ANALYTICS_DEFAULT_RANGE
+      ? historicalError
+      : audienceSnapshotOverride.error,
+    overviewTruthState: historicalOverviewTruthState,
+  });
   const returnCadenceState = buildHistoricalSectionState(
     "Return cadence",
     returnCadenceRange,
@@ -1742,7 +1752,7 @@ const { user } = useAuth();
     topEvents, liveInteractionStreamRange, liveInteractionStreamData, liveInteractionEvents,
     validations, validationItems, getValidationClasses, dataValidationRange,
     totalDeviceUsers, mobileUsers, mobileShare, audienceSnapshotRange, semanticQualityCards, guestBounceRate, identifiedBounceRate, guestEngagedRate,
-    audienceTotals, audienceHistorySeries,
+    audienceTotals, audienceHistorySeries, audienceSnapshotModel,
     returnCadenceRange, returnCadenceData, returnCadenceSegments, returnCadenceSummary,
     navigationDestinationsRange, destinationMix, navigationDestinationsMix, deviceMixRange, getDeviceIcon, deviceMixDevices, deviceMixTotalUsers, topPathsRange, topPathsPages, regionsRange, regionsGeo,
     commerceSnapshotRange, commerceSnapshotCommerce, commerceSnapshotFunnel, packagePerformanceRange, packagePerformance, packagePerformanceItems,
