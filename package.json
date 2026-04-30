@@ -33,6 +33,7 @@
         "check:admin-analytics-overview": "tsx scripts/check-admin-analytics-overview.ts",
         "check:admin-analytics-audience-snapshot": "tsx scripts/check-admin-analytics-audience-snapshot.ts",
         "check:admin-analytics-commerce-snapshot": "tsx scripts/check-admin-analytics-commerce-snapshot.ts",
+        "check:admin-analytics-live-pulse": "tsx scripts/check-admin-analytics-live-pulse.ts",
         "check:admin-shell-spacing": "tsx scripts/check-admin-shell-spacing.ts",
         "test:gate:fast": "npm run typecheck && npm run test:gate:parity",
         "test:gate:targeted": "vitest run tests/unit/admin-parity.spec.ts tests/unit/admin-user-metrics.spec.ts tests/unit/admin-overview-route.spec.ts tests/unit/admin-support-threads-route.spec.ts tests/unit/admin-moderation-routes.spec.ts tests/unit/admin-content-route.spec.ts tests/unit/admin-ai-drop-covers-route.spec.ts",

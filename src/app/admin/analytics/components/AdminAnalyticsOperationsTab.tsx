@@ -13,7 +13,7 @@ import type { AdminAnalyticsState } from "../hooks/useAdminAnalyticsState";
 export function AdminAnalyticsOperationsTab(props: AdminAnalyticsState) {
   const {
     renderSectionRangeControl, liveResponse, historicalResponse, liveLoading, historicalLoading, nowMs, EVENT_LABELS,
-    liveSurfaceMix, liveActiveUsers, livePulseOnboardingStats, livePulseOnboardingStartCount, livePulseOnboardingCompletionRate, livePulseFunnel, liveSeries,
+    liveSurfaceMix, liveActiveUsers, livePulseOnboardingStats, livePulseOnboardingStartCount, livePulseOnboardingCompletionRate, livePulseFunnel, liveSeries, livePulseModel,
     liveActiveTruthState, historicalOverviewTruthState,
     journeyFunnelMetrics,
     authOutcomeHasData, authOutcomeChartItems, authOutcomeTotals,
@@ -58,260 +58,229 @@ export function AdminAnalyticsOperationsTab(props: AdminAnalyticsState) {
       : liveResponse?.liveTruthLabel === "fallback"
         ? `First-party fallback (${liveResponse?.liveSourceLabel || "realtime fallback"})`
         : "Google Analytics realtime";
+  const compactLiveMetricClass = "rounded-[1rem] p-2";
+  const compactLiveMetricValueClass = "text-lg leading-6 md:text-xl";
+  const livePulseBadgeLabel =
+    livePulseModel.presenceSourceStatus === "failed"
+      ? "ERROR"
+      : livePulseModel.presenceSourceStatus === "fallback"
+        ? "SNAP"
+        : livePulseModel.presenceSourceStatus === "waiting"
+          ? "WAIT"
+          : livePulseModel.presenceSourceStatus === "cache"
+            ? "STALE"
+            : "LIVE";
+  const activeNowValue = livePulseModel.activeCount.value === null
+    ? liveLoading ? "Waiting" : "Unavailable"
+    : formatCompactNumber(livePulseModel.activeCount.value);
+  const guestAuthMixValue =
+    livePulseModel.guestCount.value === null || livePulseModel.authenticatedCount.value === null
+      ? liveLoading ? "Waiting" : "Unavailable"
+      : `${formatCompactNumber(livePulseModel.guestCount.value)} / ${formatCompactNumber(livePulseModel.authenticatedCount.value)}`;
+  const topSurfaceValue = livePulseModel.topSurface.value ?? (liveLoading ? "Waiting" : "Unavailable");
+  const lastUpdateValue = liveResponse?.generatedAtMs
+    ? formatRelativeTime(liveResponse.generatedAtMs, nowMs)
+    : livePulseModel.activeIdentities[0]?.lastSeenLabel ?? (liveLoading ? "Waiting" : "Unavailable");
+
+  React.useEffect(() => {
+    if (typeof window === "undefined") {
+      return;
+    }
+
+    (window as typeof window & {
+      __KANDYDROPS_ADMIN_ANALYTICS_LIVE_PULSE_DEBUG__?: typeof livePulseModel;
+    }).__KANDYDROPS_ADMIN_ANALYTICS_LIVE_PULSE_DEBUG__ = livePulseModel;
+  }, [livePulseModel]);
 
   return (
     <>
 <>
             <SectionCard
               title="Live Pulse"
-              subtitle="Current traffic against the selected historical window."
+              subtitle="First-party realtime presence and graph health."
               icon={Activity}
               defaultExpanded
               rightSlot={renderSectionRangeControl("livePulse")}
             >
-              <div className="grid grid-cols-2 gap-3 lg:grid-cols-4">
+              <div className="mb-2.5 flex flex-col gap-2 rounded-[1rem] border border-white/10 bg-white/[0.035] px-3 py-2 text-[11px] leading-5 text-gray-300 md:flex-row md:items-center md:justify-between">
+                <span>{livePulseModel.visibleCopy}</span>
+                <AdminStatusBadge
+                  state={livePulseTruthState}
+                  label={livePulseBadgeLabel}
+                  className="max-w-[5.75rem] truncate whitespace-nowrap px-1.5 py-0.5 text-[9px]"
+                />
+              </div>
+
+              <div className="grid grid-cols-2 gap-2 lg:grid-cols-4">
                 <MetricCard
                   label="Active Now"
-                  value={liveResponse ? formatCompactNumber(liveResponse.totalActive ?? 0) : "—"}
+                  value={activeNowValue}
                   hint={realtimeCacheHint}
                   icon={Users}
                   truthState={livePulseTruthState}
+                  statusBadgeLabel={livePulseBadgeLabel}
+                  className={compactLiveMetricClass}
+                  valueClassName={compactLiveMetricValueClass}
                 />
                 <MetricCard
-                  label="Tracked Users"
-                  value={liveResponse ? formatCompactNumber(liveResponse.deepTrackerActive ?? 0) : "—"}
-                  hint={liveResponse?.activeUsersTruthLabel === "stale"
-                    ? `Stale active-user hot cache (${liveResponse?.activeUsersSourceLabel || realtimeCacheSource})`
-                    : liveResponse?.activeUsersTruthLabel === "fallback"
-                      ? `Authenticated users reconstructed from ${liveResponse?.activeUsersSourceLabel || "first-party telemetry"}`
-                      : `${formatCompactNumber(
-                        liveActiveUsers.filter((item: any) => item.actorType === "guest").length,
-                      )} live guests plus authenticated users in the last 30 minutes`}
+                  label="Guest / Auth"
+                  value={guestAuthMixValue}
+                  hint="Presence mix"
                   icon={Sparkles}
                   truthState={activeUsersTruthState}
+                  statusBadgeLabel={livePulseBadgeLabel}
+                  className={compactLiveMetricClass}
+                  valueClassName={compactLiveMetricValueClass}
                 />
                 <MetricCard
-                  label="Onboarding"
-                  value={livePulseOnboardingStats.completions.toLocaleString()}
-                  hint={`${livePulseOnboardingStartCount.toLocaleString()} starts · ${formatPercent(livePulseOnboardingCompletionRate)}`}
-                  icon={PlayCircle}
-                  truthState={historicalMetricTruthState}
+                  label="Top Surface"
+                  value={topSurfaceValue}
+                  hint={`${livePulseModel.surfaces.length} surfaces`}
+                  icon={Monitor}
+                  truthState={livePulseTruthState}
+                  statusBadgeLabel={livePulseBadgeLabel}
+                  className={compactLiveMetricClass}
+                  valueClassName="truncate text-base leading-6 md:text-lg"
                 />
                 <MetricCard
-                  label="Purchases"
-                  value={livePulseFunnel.purchases.toLocaleString()}
-                  hint={`${formatPercent(livePulseFunnel.checkoutStarts > 0 ? livePulseFunnel.purchases / Math.max(1, livePulseFunnel.checkoutStarts) : 0)} of checkout starts`}
-                  icon={ShoppingBag}
-                  truthState={historicalMetricTruthState}
+                  label="Last Update"
+                  value={lastUpdateValue}
+                  hint={livePulseModel.graphSourceMismatch ? "Graph source mismatch" : livePulseModel.graphSource}
+                  icon={Clock3}
+                  truthState={livePulseTruthState}
+                  statusBadgeLabel={livePulseBadgeLabel}
+                  className={compactLiveMetricClass}
+                  valueClassName="truncate text-base leading-6 md:text-lg"
                 />
               </div>
 
-              <div className="mt-5 h-64 w-full md:h-72">
-                <ResponsiveContainer width="100%" height="100%">
-                  <AreaChart
-                    data={liveSeries}
-                    margin={{ top: 8, right: 8, left: -18, bottom: 0 }}
-                  >
-                    <defs>
-                      <linearGradient
-                        id="liveUsersFill"
-                        x1="0"
-                        y1="0"
-                        x2="0"
-                        y2="1"
-                      >
-                        <stop
-                          offset="5%"
-                          stopColor="#b28cff"
-                          stopOpacity={0.35}
-                        />
-                        <stop
-                          offset="95%"
-                          stopColor="#b28cff"
-                          stopOpacity={0}
-                        />
-                      </linearGradient>
-                      <linearGradient
-                        id="liveViewsFill"
-                        x1="0"
-                        y1="0"
-                        x2="0"
-                        y2="1"
-                      >
-                        <stop
-                          offset="5%"
-                          stopColor="#22d3ee"
-                          stopOpacity={0.25}
-                        />
-                        <stop
-                          offset="95%"
-                          stopColor="#22d3ee"
-                          stopOpacity={0}
-                        />
-                      </linearGradient>
-                    </defs>
-                    <CartesianGrid
-                      stroke="rgba(255,255,255,0.06)"
-                      vertical={false}
-                    />
-                    <XAxis
-                      dataKey="label"
-                      stroke="#6b7280"
-                      fontSize={11}
-                      tickLine={false}
-                      axisLine={false}
-                    />
-                    <YAxis
-                      stroke="#6b7280"
-                      fontSize={11}
-                      tickLine={false}
-                      axisLine={false}
-                    />
-                    <Tooltip content={<AnalyticsTooltip />} />
-                    <Area
-                      type="monotone"
-                      dataKey="users"
-                      name="Active users"
-                      stroke="#b28cff"
-                      strokeWidth={2.5}
-                      fill="url(#liveUsersFill)"
-                    />
-                    <Area
-                      type="monotone"
-                      dataKey="views"
-                      name="Page views"
-                      stroke="#22d3ee"
-                      strokeWidth={2.5}
-                      fill="url(#liveViewsFill)"
-                    />
-                  </AreaChart>
-                </ResponsiveContainer>
+              <div className={cn("relative mt-2 w-full", livePulseModel.compactChartHeightClass)}>
+                {livePulseModel.graphHydrated ? (
+                  <ResponsiveContainer width="100%" height="100%">
+                    <AreaChart
+                      data={livePulseModel.graphPoints}
+                      margin={{ top: 6, right: 6, left: -24, bottom: 0 }}
+                    >
+                      <defs>
+                        <linearGradient id="liveUsersFill" x1="0" y1="0" x2="0" y2="1">
+                          <stop offset="5%" stopColor="#b28cff" stopOpacity={0.32} />
+                          <stop offset="95%" stopColor="#b28cff" stopOpacity={0} />
+                        </linearGradient>
+                        <linearGradient id="liveViewsFill" x1="0" y1="0" x2="0" y2="1">
+                          <stop offset="5%" stopColor="#ffffff" stopOpacity={0.22} />
+                          <stop offset="95%" stopColor="#ffffff" stopOpacity={0} />
+                        </linearGradient>
+                      </defs>
+                      <CartesianGrid stroke="rgba(255,255,255,0.06)" vertical={false} />
+                      <XAxis dataKey="label" stroke="#6b7280" fontSize={10} tickLine={false} axisLine={false} />
+                      <YAxis stroke="#6b7280" fontSize={10} tickLine={false} axisLine={false} />
+                      <Tooltip content={<AnalyticsTooltip />} />
+                      <Area type="monotone" dataKey="users" name="Active users" stroke="#b28cff" strokeWidth={2} fill="url(#liveUsersFill)" />
+                      <Area type="monotone" dataKey="views" name="Page views" stroke="#ffffff" strokeWidth={2} fill="url(#liveViewsFill)" />
+                    </AreaChart>
+                  </ResponsiveContainer>
+                ) : (
+                  <div className="flex h-full items-center justify-center rounded-[1rem] border border-dashed border-white/10 bg-black/25 px-3 text-center text-xs text-gray-400">
+                    {liveLoading ? "Waiting for pulse data" : "Graph source unavailable"}
+                  </div>
+                )}
               </div>
 
-              <div className="mt-5 grid gap-4 xl:grid-cols-[0.95fr_1.05fr]">
-                <div className="rounded-[1.5rem] border border-white/10 bg-black/30 p-4">
-                  <div className="mb-3 flex items-center justify-between gap-3">
-                    <div>
-                      <p className="text-xs font-semibold uppercase tracking-[0.14em] text-gray-500">
-                        Realtime surfaces
-                      </p>
-                      <p className="mt-1 text-sm text-gray-400">
-                        Where active admins and users are actually concentrated
-                        right now.
-                      </p>
-                    </div>
-                    <span className="rounded-full border border-white/10 bg-white/5 px-3 py-1 text-[11px] font-semibold text-gray-300">
-                      {liveSurfaceMix.length} lanes
+              <div className="mt-2 grid gap-2 xl:grid-cols-[0.9fr_1.1fr]">
+                <div className="rounded-[1rem] border border-white/10 bg-black/30 p-3">
+                  <div className="mb-2 flex items-center justify-between gap-3">
+                    <p className="text-[11px] font-semibold uppercase tracking-[0.14em] text-gray-500">
+                      Realtime surfaces
+                    </p>
+                    <span className="rounded-full border border-white/10 bg-white/5 px-2 py-1 text-[10px] font-semibold text-gray-300">
+                      {livePulseModel.surfaces.length} lanes
                     </span>
                   </div>
-                  <div className="space-y-3">
-                    {liveSurfaceMix.length > 0 ? (
-                      liveSurfaceMix.map((item: any) => (
+                  <div className="space-y-2">
+                    {livePulseModel.surfaces.length > 0 ? (
+                      livePulseModel.surfaces.map((item) => (
                         <div
                           key={item.key}
-                          className="rounded-2xl border border-white/10 bg-white/[0.03] p-3"
+                          className="rounded-[0.9rem] border border-white/10 bg-white/[0.03] px-3 py-2"
                         >
-                          <div className="mb-2 flex items-center justify-between gap-3">
-                            <p className="text-sm font-semibold text-white">
+                          <div className="mb-1.5 flex items-center justify-between gap-3">
+                            <p className="truncate text-xs font-semibold text-white">
                               {item.label}
                             </p>
-                            <span className="text-sm font-bold text-brand-purple">
+                            <span className="text-xs font-bold text-brand-purple">
                               {item.activeUsers}
                             </span>
                           </div>
-                          <div className="h-2 overflow-hidden rounded-full bg-white/10">
+                          <div className="h-1.5 overflow-hidden rounded-full bg-white/10">
                             <div
                               className="h-full rounded-full bg-gradient-to-r from-brand-purple to-cyan-400"
                               style={{
-                                width: `${Math.max(8, (item.activeUsers / Math.max(1, liveSurfaceMix[0]?.activeUsers || 1)) * 100)}%`,
+                                width: `${Math.max(8, (item.activeUsers / Math.max(1, livePulseModel.surfaces[0]?.activeUsers || 1)) * 100)}%`,
                               }}
                             />
                           </div>
-                          <p className="mt-2 text-[11px] text-gray-500">
+                          <p className="mt-1.5 text-[10px] text-gray-500">
                             Seen {formatRelativeTime(item.lastSeenAt, nowMs)}
                           </p>
                         </div>
                       ))
                     ) : (
-                      <div className="rounded-[1.4rem] border border-dashed border-white/10 bg-black/20 p-4 text-sm text-gray-500">
+                      <div className="rounded-[0.9rem] border border-dashed border-white/10 bg-black/20 p-3 text-xs text-gray-500">
                         <AdminStatusBadge state={livePulseTruthState} className="mb-2" />
-                        Realtime surface mix will populate as active-user
-                        snapshots land.
+                        Realtime surfaces are waiting for presence rows.
                       </div>
                     )}
                   </div>
                 </div>
 
-                <div className="rounded-[1.5rem] border border-white/10 bg-black/30 p-4">
-                  <div className="mb-3 flex items-center justify-between gap-3">
-                    <div>
-                      <p className="text-xs font-semibold uppercase tracking-[0.14em] text-gray-500">
-                        Active identities
-                      </p>
-                      <p className="mt-1 text-sm text-gray-400">
-                        Latest actor, route, and experience context for the live
-                        pulse window.
-                      </p>
-                    </div>
-                    <span className="rounded-full border border-white/10 bg-white/5 px-3 py-1 text-[11px] font-semibold text-gray-300">
-                      {liveActiveUsers.length} {livePulseTruthState === "live" ? "live" : livePulseTruthState}
+                <div className="rounded-[1rem] border border-white/10 bg-black/30 p-3">
+                  <div className="mb-2 flex items-center justify-between gap-3">
+                    <p className="text-[11px] font-semibold uppercase tracking-[0.14em] text-gray-500">
+                      Active identities
+                    </p>
+                    <span className="rounded-full border border-white/10 bg-white/5 px-2 py-1 text-[10px] font-semibold text-gray-300">
+                      {livePulseModel.activeIdentities.length} shown
                     </span>
                   </div>
-                  <div className="space-y-3">
-                    {liveActiveUsers.length > 0 ? (
-                      liveActiveUsers.map((item: any) => (
+                  <div className="space-y-1.5">
+                    {livePulseModel.activeIdentities.length > 0 ? (
+                      livePulseModel.activeIdentities.map((item) => (
                         <div
-                          key={item.uid}
-                          className="rounded-2xl border border-white/10 bg-white/[0.03] p-3"
+                          key={item.rawId}
+                          title={item.fullDebugId}
+                          className="grid grid-cols-[minmax(0,1fr)_auto] items-center gap-2 rounded-[0.9rem] border border-white/10 bg-white/[0.03] px-3 py-2"
                         >
-                          <div className="flex items-start justify-between gap-3">
-                            <div className="min-w-0">
-                              <p className="truncate text-sm font-semibold text-white">
-                                {item.username}
+                          <div className="min-w-0">
+                            <div className="flex min-w-0 items-center gap-1.5">
+                              <p className="truncate text-xs font-semibold text-white">
+                                {item.displayLabel}
                               </p>
-                              <p className="mt-1 text-[11px] text-gray-500">
-                                {item.lastComponentName ||
-                                  item.lastSemanticScopeLabel ||
-                                  item.lastPagePath ||
-                                  "Live session"}
-                              </p>
-                            </div>
-                            <span className="rounded-full border border-white/10 bg-black/30 px-2 py-1 text-[10px] font-bold uppercase tracking-[0.14em] text-gray-300">
-                              {formatRelativeTime(item.lastSeenAt, nowMs)}
-                            </span>
-                          </div>
-                          <div className="mt-3 flex flex-wrap gap-2">
-                            <span
-                              className={
-                                item.actorType === "guest"
-                                  ? "rounded-full border border-cyan-400/20 bg-cyan-500/10 px-2 py-1 text-[10px] font-semibold text-cyan-100"
-                                  : "rounded-full border border-white/10 bg-white/5 px-2 py-1 text-[10px] font-semibold text-gray-300"
-                              }
-                            >
-                              {item.actorType === "guest"
-                                ? item.sessionKey
-                                  ? `Guest ${item.sessionKey.slice(-6)}`
-                                  : "Guest"
-                                : "Authenticated"}
-                            </span>
-                            <span className="rounded-full border border-white/10 bg-white/5 px-2 py-1 text-[10px] font-semibold text-gray-300">
-                              {EVENT_LABELS[item.lastEventName] ||
-                                item.lastEventName ||
-                                "Unknown event"}
-                            </span>
-                            {item.lastDropTitle ? (
-                              <span className="rounded-full border border-brand-purple/20 bg-brand-purple/10 px-2 py-1 text-[10px] font-semibold text-brand-purple">
-                                {item.lastDropTitle}
+                              <span className="shrink-0 rounded border border-white/10 bg-white/5 px-1.5 py-0.5 text-[9px] font-bold text-gray-300">
+                                {item.actorBadgeLabel}
                               </span>
-                            ) : null}
+                            </div>
+                            <p className="mt-1 truncate text-[10px] text-gray-500">
+                              {item.routeLabel} - {item.actionLabel}
+                            </p>
+                          </div>
+                          <div className="flex items-center gap-1.5">
+                            <span className="rounded-full border border-white/10 bg-black/30 px-2 py-1 text-[10px] font-bold uppercase tracking-[0.08em] text-gray-300">
+                              {item.lastSeenLabel}
+                            </span>
+                            <AdminStatusBadge
+                              state={item.truthState}
+                              label={item.statusLabel}
+                              className="max-w-[4.5rem] truncate whitespace-nowrap px-1.5 py-0.5 text-[9px]"
+                            />
                           </div>
                         </div>
                       ))
                     ) : (
-                      <div className="rounded-[1.4rem] border border-dashed border-white/10 bg-black/20 p-4 text-sm text-gray-500">
+                      <div className="rounded-[0.9rem] border border-dashed border-white/10 bg-black/20 p-3 text-xs text-gray-500">
                         <AdminStatusBadge state={activeUsersTruthState} className="mb-2" />
-                        No active identity details are available in the current
-                        realtime snapshot.
+                        {livePulseModel.fakeZeroPrevented
+                          ? "Waiting for active identity rows."
+                          : "No active identity details are available."}
                       </div>
                     )}
                   </div>

@@ -26,6 +26,7 @@ import {
 } from "@/lib/admin-analytics-return-cadence";
 import { buildAdminAnalyticsAudienceSnapshotModel } from "@/lib/admin-analytics-audience-snapshot";
 import { buildAdminAnalyticsCommerceSnapshotModel } from "@/lib/admin-analytics-commerce-snapshot";
+import { buildAdminAnalyticsLivePulseModel } from "@/lib/admin-analytics-live-pulse";
 
 
 import { TELEMETRY_EVENT_LABELS } from "@/lib/telemetry-catalog";
@@ -868,6 +869,21 @@ const { user } = useAuth();
     : liveLoading ? "loading"
     : !effectiveLiveResponse ? "unavailable"
     : undefined;
+  const livePulseModel = buildAdminAnalyticsLivePulseModel({
+    activeUsers: liveActiveUsers,
+    surfaceMix: liveSurfaceMix,
+    liveSeries,
+    feedStatus: liveRealtime.feedStatus,
+    feedDetail: liveRealtime.feedDetail,
+    truthState: liveActiveTruthState ?? (liveLoading ? "loading" : "unavailable"),
+    activeUsersTruthState: effectiveLiveResponse?.activeUsersTruthLabel
+      ? coerceAdminSurfaceState(effectiveLiveResponse.activeUsersTruthLabel)
+      : liveActiveTruthState ?? (liveLoading ? "loading" : "unavailable"),
+    listenerDebugMeta: liveRealtime.listenerDebugMeta,
+    nowMs,
+    liveLoading,
+    cacheRevalidating: effectiveLiveResponse?.cacheRevalidating,
+  });
   const historicalOverviewTruthState: AdminSurfaceState | undefined =
     historicalTruthState === "live" ? "live"
     : historicalTruthState === "cached" ? "cached"
@@ -1771,7 +1787,7 @@ const { user } = useAuth();
     PIE_COLORS, contentConversionRange, unlockCategoryMix, contentConversionItems, previewToUnlockRate, checkoutToPurchaseRate,
     topDropConversionRange, topDrops, topDropConversionItems, recentCommerceFeedRange, recentCommerceFeedItems, describeEvent, formatAbsoluteDateTime,
     formatMoney, formatCompactNumber, formatDuration, formatPercent, formatRelativeTime,
-    liveSurfaceMix, liveActiveUsers, livePulseOnboardingStats, livePulseOnboardingStartCount, livePulseOnboardingCompletionRate, livePulseFunnel, liveSeries, journeyFunnelMetrics,
+    liveSurfaceMix, liveActiveUsers, livePulseOnboardingStats, livePulseOnboardingStartCount, livePulseOnboardingCompletionRate, livePulseFunnel, liveSeries, livePulseModel, journeyFunnelMetrics,
     liveFeedStatus: liveRealtime.feedStatus, liveFeedDetail: liveRealtime.feedDetail, liveGuestActiveCount: liveRealtime.guestActive
 ,
     revenueDisplay, purchasesDisplay, mobileShareDisplay, liveActiveDisplay, liveActiveTruthState, historicalOverviewTruthState, analyticsOverviewDebugMeta, overviewCheckoutStarts,
