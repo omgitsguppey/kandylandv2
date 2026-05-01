@@ -6,7 +6,7 @@ import CookieBanner from "@/components/CookieBanner";
 import { Navbar } from "@/components/Navbar";
 import MobileBottomBar from "@/components/Navigation/MobileBottomBar";
 import dynamic from "next/dynamic";
-import { useEffect } from "react";
+import { useEffect, type CSSProperties } from "react";
 import { usePathname } from "next/navigation";
 import { useAuthIdentity, useAuthLoading, useUserProfile } from "@/context/AuthContext";
 import { useUI } from "@/context/UIContext";
@@ -16,6 +16,7 @@ import { shouldBypassFanOnboarding } from "@/lib/creator-application";
 import { applyAnalyticsConsentToGtag, persistPrivacySettingsSnapshot, readPrivacySettingsSnapshot } from "@/lib/privacy-consent";
 import { writeLastVisitedPath } from "@/lib/navigation-persistence";
 import { ADMIN_SHELL_ROUTE_CLASS } from "@/lib/admin-shell-spacing";
+import { USER_MOBILE_BOTTOM_NAV_RESERVED_HEIGHT } from "@/lib/user-mobile-shell";
 
 const GlobalPurchaseModal = dynamic(() => import("@/components/GlobalPurchaseModal").then((mod) => mod.GlobalPurchaseModal));
 const GlobalAuthModal = dynamic(() => import("@/components/GlobalAuthModal").then((mod) => mod.GlobalAuthModal));
@@ -67,6 +68,12 @@ export function CoreLayoutWrapper({ children }: { children: React.ReactNode }) {
     const shouldShowDebugBreakpoints = process.env.NODE_ENV !== "production";
     const shouldTrackDeepAnalytics = true;
     const shouldEnablePwaRuntime = !isAdminRoute;
+    const shouldReserveMobileBottomNav = shouldShowPublicChrome && !isLegalRoute && !isChatRoute;
+    const mobileShellStyle = {
+        "--user-mobile-bottom-nav-reserved-height": shouldReserveMobileBottomNav
+            ? USER_MOBILE_BOTTOM_NAV_RESERVED_HEIGHT
+            : "0px",
+    } as CSSProperties;
     const shouldLoadOnboarding = isUserShell && userProfile?.onboardingCompleted !== true && !shouldBypassFanOnboarding(userProfile);
     const shouldShowTaskGuidanceBanner = isUserShell && !isChatRoute;
     const runtimeReady = useDeferredClientReady();
@@ -141,10 +148,18 @@ export function CoreLayoutWrapper({ children }: { children: React.ReactNode }) {
     }, [pathname, user?.uid]);
 
     const routedChildren = isAdminRoute ? (
-        <div className={ADMIN_SHELL_ROUTE_CLASS} data-admin-shell-route="true">
+        <div className={ADMIN_SHELL_ROUTE_CLASS} data-admin-shell-route="true" style={mobileShellStyle}>
             {children}
         </div>
-    ) : children;
+    ) : (
+        <div
+            className="flex min-h-0 flex-1 flex-col"
+            data-user-mobile-shell-route={shouldReserveMobileBottomNav ? "reserved" : "none"}
+            style={mobileShellStyle}
+        >
+            {children}
+        </div>
+    );
 
     return (
         <>

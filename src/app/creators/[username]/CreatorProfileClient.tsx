@@ -692,7 +692,7 @@ export default function CreatorProfileClient() {
     ].filter((entry): entry is { key: string; label: string; message: string } => Boolean(entry));
 
     return (
-        <div className="min-h-screen bg-black pb-20 pt-8 sm:pt-10" data-testid="creator-profile-shell">
+        <div className="min-h-screen bg-black pb-6 pt-8 sm:pt-10" data-testid="creator-profile-shell">
             <div className="relative z-10 mx-auto w-full max-w-6xl px-4 sm:px-6">
                 <CreatorProfileHeader
                     canMessageCreator={canMessageCreator}

@@ -1,5 +1,5 @@
 {
-  "generatedAt": "2026-05-01T18:54:21.439Z",
+  "generatedAt": "2026-05-01T21:50:53.981Z",
   "truthOrder": [
     "verified_runtime_code",
     "verified_configuration",
@@ -379,7 +379,8 @@
         "tests/unit/admin-user-commerce.spec.ts",
         "tests/unit/admin-user-metrics.spec.ts",
         "tests/unit/admin-user-username-route.spec.ts",
-        "tests/unit/admin-users-route.spec.ts"
+        "tests/unit/admin-users-route.spec.ts",
+        "tests/unit/drops-content-route.spec.ts"
       ],
       "known_gap": "auth_required_surface_not_in_guest_playwright_lane",
       "blocking_required": false,
@@ -619,8 +620,10 @@
         "tests/unit/admin-user-metrics.spec.ts",
         "tests/unit/admin-user-username-route.spec.ts",
         "tests/unit/admin-users-route.spec.ts",
+        "tests/unit/drops-content-route.spec.ts",
         "tests/unit/drops-feedback-route.spec.ts",
         "tests/unit/drops-route.spec.ts",
+        "tests/unit/drops-unlock-route.spec.ts",
         "tests/unit/gumdrops-packages.spec.ts",
         "tests/unit/notify-active-drops-route.spec.ts",
         "tests/unit/process-queue-drops.spec.ts",
@@ -2042,8 +2045,10 @@
       "playwright_owner": null,
       "lighthouse_required": false,
       "existing_tests": [
+        "tests/unit/drops-content-route.spec.ts",
         "tests/unit/drops-feedback-route.spec.ts",
         "tests/unit/drops-route.spec.ts",
+        "tests/unit/drops-unlock-route.spec.ts",
         "tests/unit/gumdrops-packages.spec.ts",
         "tests/unit/notify-active-drops-route.spec.ts",
         "tests/unit/process-queue-drops.spec.ts",

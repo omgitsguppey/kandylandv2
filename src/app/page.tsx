@@ -21,7 +21,7 @@ export default async function HomePage() {
             <HomeClient />
             <HomepageRuntimeDiagnostics />
             <div
-                className="relative min-h-screen bg-black pb-[calc(7.75rem+env(safe-area-inset-bottom))] md:pb-0"
+                className="relative min-h-screen bg-black pb-4 md:pb-0"
                 style={{ paddingTop: "var(--kandy-cookie-offset, 0px)" }}
             >
                 <Hero activeDrops={initialActiveDrops} />

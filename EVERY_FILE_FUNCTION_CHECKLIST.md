@@ -1,13 +1,21 @@
 # EVERY FILE FUNCTION CHECKLIST
 
 **Last Updated:** 2026-05-01
-**Current Focus:** Global Speed Hydration Cache Finalization.
+**Current Focus:** Mobile Layout Safe-Area Finalization.
 **Status:** In Progress. Current tracked-file coverage is reconciled as of 2026-04-28: every `git ls-files` entry has a current checklist heading, while detailed function-level audits remain pending for many historical and newly reconciled files.
 Purpose: exhaustive no-skip audit checklist covering every repository file currently in scope and every detected function-like implementation.
 
 Scoring: all entries below are marked as included in the current validated sweep. Confidence reflects current repository-state confidence, not perfection or future-proofing.
 
 Current repo-wide state snapshot: see [FULL_SCALE_CODEBASE_AUDIT.md](/Users/uylus/OneDrive/Documents/KandyDrops_Final/FULL_SCALE_CODEBASE_AUDIT.md) for the current live baseline, verification state, and continuity rules, and see [REPO_MEMORY_LEDGER.md](/Users/uylus/OneDrive/Documents/KandyDrops_Final/REPO_MEMORY_LEDGER.md) for major architectural and workflow decisions. The detailed file/function body below remains valuable historical evidence, but it has not been fully regenerated against the current 2026-04-18 inventory review yet.
+
+## 2026-05-01 Mobile Layout Safe-Area Finalization Coverage
+
+- [x] `src/app/layout.tsx` now reads `--user-mobile-bottom-nav-reserved-height` instead of hardcoding root `pb-32` for every mobile route.
+- [x] `src/components/CoreLayoutWrapper.tsx` sets the user mobile bottom-nav reserve only when the public mobile bottom nav is present; admin, legal, and chat routes set the variable to `0px`.
+- [x] `src/app/page.tsx`, `src/app/experiences/ExperiencesClient.tsx`, `src/app/faq/page.tsx`, `src/app/dashboard/profile/page.tsx`, and `src/app/creators/[username]/CreatorProfileClient.tsx` no longer duplicate full bottom-nav/safe-area route padding.
+- [x] `docs/agent-truth/mobile-shell-safe-area.md`, `agent/state/mobile-layout-safe-area-audit.generated.json`, `scripts/agent/validate-mobile-shell-safe-area.ts`, and `npm run check:mobile-shell-safe-area` record the shared mobile shell safe-area contract.
+- [x] `agent/index/ui-surface-coverage.json` was refreshed by the UI coverage lane after the shell change.
 
 ## 2026-05-01 Global Speed Hydration Cache Finalization Coverage
 

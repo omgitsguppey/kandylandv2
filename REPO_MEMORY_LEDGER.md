@@ -24,6 +24,15 @@ This file is not a changelog. It is the concise ledger for durable decisions tha
 
 ## Decision Entries
 
+### 1cg. Mobile safe-area reservation belongs to the shared shell
+
+- Approximate date: Recorded explicitly on 2026-05-01 from the mobile layout safe-area finalization pass
+- Status: Active launch mobile layout, shell spacing, and safe-area rule
+- Decision: The public user mobile bottom-nav reserve is applied once by the shared app shell through `--user-mobile-bottom-nav-reserved-height`. Page routes may add small local breathing room, but they must not add another full `env(safe-area-inset-bottom)` or hardcoded bottom-nav spacer unless they own a fixed overlay outside normal document flow.
+- Implementation: `src/app/layout.tsx` reads the shell variable, `src/components/CoreLayoutWrapper.tsx` sets it to `USER_MOBILE_BOTTOM_NAV_RESERVED_HEIGHT` only when the public bottom nav is present, and admin/legal/chat routes set it to `0px`. `docs/agent-truth/mobile-shell-safe-area.md` and `agent/state/mobile-layout-safe-area-audit.generated.json` record the launch surface audit.
+- Required validation: `npm run check:mobile-shell-safe-area`, `npm run check:user-chat-shell-routing`, `npm run check:drops-mobile-refinement`, `npm run check:admin-shell-spacing`, `npm run check:ui:mobile-doctrine`, `npm run check:not-found`, `npm run check:user-critical-path-launch`, UI coverage/runtime/audits, touched-file TypeScript, and focused touched-surface tests.
+- Consequence for future work: Do not fix mobile overlap with negative margins, translate hacks, duplicated safe-area padding, page-local bottom-nav spacers, or `100vh` chat containers. Fixed modals may own their own safe-area padding; route surfaces should use the shared shell reserve.
+
 ### 1cf. Global speed and hydration use refresh-based display retention
 
 - Approximate date: Recorded explicitly on 2026-05-01 from the global speed hydration cache finalization pass

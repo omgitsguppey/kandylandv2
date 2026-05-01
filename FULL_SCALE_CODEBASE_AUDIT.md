@@ -1,5 +1,28 @@
 # KandyDrops Core Codebase Audit & Defensive Ledger
 
+## [2026-05-01 #77] PRE: Mobile Layout Safe-Area Finalization
+
+Scope started:
+- Auditing launch-critical mobile surfaces for top nav spacing, bottom nav reservation, browser safe areas, bounded scroll containers, sticky/fixed controls, forms/inputs above navigation, and 404 recovery behavior.
+- Required outputs: `agent/state/mobile-layout-safe-area-audit.generated.json` and `docs/agent-truth/mobile-shell-safe-area.md`; fixes are limited to verified blocker/high layout issues.
+
+Initial evidence:
+- Worktree was clean at startup on `main`.
+- Control tower, source-of-truth map, shared component ownership, doctrine, UI/copy refinement workflow, and governance ledgers were consulted.
+- Current repo memory records active launch scope freeze, Drops mobile refinement, chat shell/routing validation, global refresh-based hydration, notification return-loop, and Admin Analytics launch finalization.
+
+Scope completed:
+- Audited Dashboard, Drops, Drop preview/viewer, Wallet, chat messages list, chat thread, Experiences, Creator Profile, auth/onboarding overlays, Notifications, 404, and Admin overview/analytics/debug for mobile shell spacing, safe-area, scroll containment, bottom-nav reservation, fixed/floating controls, and top-nav consistency.
+- Added `agent/state/mobile-layout-safe-area-audit.generated.json` with per-surface bottom-nav, safe-area, bounded-scroll, floating-control, negative-hack, keyboard/input, status, and required-fix fields.
+- Added `docs/agent-truth/mobile-shell-safe-area.md` and `scripts/agent/validate-mobile-shell-safe-area.ts` with `npm run check:mobile-shell-safe-area`.
+- Moved mobile bottom-nav reservation from hardcoded root `pb-32` to `--user-mobile-bottom-nav-reserved-height`, set by `src/components/CoreLayoutWrapper.tsx` only when the public mobile bottom nav is present.
+- Removed duplicate page-level full bottom safe-area reservations from Home, Experiences, FAQ, Dashboard Profile, and Creator Profile now that the shared shell owns the public route reserve.
+- Refreshed `agent/index/ui-surface-coverage.json` through the UI coverage lane.
+
+Residual risk:
+- Fixed overlays such as Wallet, Drop Preview, notification panels, and admin/create-drop modals intentionally own local safe-area padding because they sit outside normal route flow.
+- Chat remains a special bounded-viewport route and intentionally sets the shared route reserve to `0px` while using chat-specific composer/list tokens.
+
 ## [2026-05-01 #76] PRE: Global Speed Hydration Cache Finalization
 
 Scope started:

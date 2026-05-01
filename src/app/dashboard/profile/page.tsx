@@ -25,7 +25,7 @@ export default function ProfilePage() {
     }
 
     return (
-        <div className="mx-auto w-full max-w-lg bg-black min-h-screen pb-32">
+        <div className="mx-auto w-full max-w-lg bg-black min-h-screen pb-4">
             <PageViewEvent eventName="profile_settings_viewed" />
             {/* Header omitted or simplified */}
             <div className="sticky top-0 z-10 flex items-center justify-between border-b border-white/10 bg-black/80 px-4 py-3 backdrop-blur-md">

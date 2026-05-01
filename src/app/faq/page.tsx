@@ -17,7 +17,7 @@ export default function FAQPage() {
       <div className="absolute top-0 left-1/2 -translate-x-1/2 w-full max-w-4xl h-[400px] bg-brand-purple/20 blur-[120px] rounded-full pointer-events-none opacity-50" />
 
       <div
-        className="relative z-10 mx-auto max-w-4xl px-4 pb-[calc(7.75rem+env(safe-area-inset-bottom))] md:px-8 md:pb-0"
+        className="relative z-10 mx-auto max-w-4xl px-4 pb-4 md:px-8 md:pb-0"
         style={{ paddingTop: "var(--kandy-cookie-offset, 0px)" }}
       >
         <div className="mb-6 text-center sm:mb-10">
