@@ -1,3 +1,10 @@
+import {
+  buildRefreshCacheKey,
+  getDisplaySnapshot,
+  resolveRefreshCacheDisplayState,
+  type RefreshCacheDisplayState,
+} from "@/lib/cache/refresh-cache-contract";
+
 export const ADMIN_METRIC_SNAPSHOT_SCHEMA_VERSION = "admin_metric_snapshot_v1";
 export const ADMIN_METRIC_SNAPSHOT_MAX_AGE_MS = 5 * 60 * 1000;
 export const ADMIN_METRIC_SNAPSHOT_STALE_AGE_MS = 30 * 60 * 1000;
@@ -88,6 +95,8 @@ export type AdminMetricSnapshotValues = Record<string, AdminMetricSnapshotValue>
 
 export interface AdminMetricSnapshot<TValues extends AdminMetricSnapshotValues = AdminMetricSnapshotValues> extends SnapshotRefreshState {
   schemaVersion: typeof ADMIN_METRIC_SNAPSHOT_SCHEMA_VERSION;
+  cacheKey: string;
+  surfaceKey: string;
   moduleKey: string;
   rangeKey: AdminMetricSnapshotRange;
   values: TValues;
@@ -107,6 +116,15 @@ export interface AdminMetricSnapshot<TValues extends AdminMetricSnapshotValues =
   debugPath: string;
   staleReason?: string | null;
   unavailableReason?: string | null;
+  lastRefreshRequestedAt: string | null;
+  lastRefreshStartedAt: string | null;
+  lastRefreshCompletedAt: string | null;
+  lastRefreshFailedAt?: string | null;
+  refreshVersion: number;
+  sourceVersion: string;
+  invalidationReason?: string | null;
+  estimatedFlags: Record<string, unknown>;
+  legacyFlags: Record<string, unknown>;
 }
 
 export function isAdminMetricSnapshotRange(value: string): value is AdminMetricSnapshotRange {
@@ -119,6 +137,14 @@ export function normalizeAdminMetricSnapshotRange(value: string | null | undefin
 
 export function buildAdminMetricSnapshotDocId(moduleKey: string, rangeKey: AdminMetricSnapshotRange) {
   return `${moduleKey}:${rangeKey}`.replace(/[^a-zA-Z0-9:_-]+/g, "_");
+}
+
+export function buildAdminMetricSnapshotCacheKey(moduleKey: string, rangeKey: AdminMetricSnapshotRange) {
+  return buildRefreshCacheKey({
+    surfaceKey: "admin_analytics",
+    moduleKey,
+    rangeKey,
+  });
 }
 
 export function buildAdminMetricSnapshotDebugPath(moduleKey: string, rangeKey: AdminMetricSnapshotRange) {
@@ -161,6 +187,8 @@ export function createUnavailableAdminMetricSnapshot(input: {
 
   return {
     schemaVersion: ADMIN_METRIC_SNAPSHOT_SCHEMA_VERSION,
+    cacheKey: buildAdminMetricSnapshotCacheKey(input.moduleKey, input.rangeKey),
+    surfaceKey: "admin_analytics",
     moduleKey: input.moduleKey,
     rangeKey: input.rangeKey,
     values: {
@@ -189,7 +217,19 @@ export function createUnavailableAdminMetricSnapshot(input: {
     refreshStatus: "unavailable",
     refreshStartedAt: null,
     refreshCompletedAt: null,
+    refreshFailedAt: null,
     duplicateRefreshPrevented: false,
+    lastRefreshRequestedAt: null,
+    lastRefreshStartedAt: null,
+    lastRefreshCompletedAt: null,
+    lastRefreshFailedAt: null,
+    refreshVersion: 0,
+    sourceVersion: generatedAt,
+    invalidationReason: null,
+    estimatedFlags: {},
+    legacyFlags: {
+      legacyIncluded: false,
+    },
     warnings: input.warnings ?? [
       {
         code: "snapshot_unavailable",
@@ -214,6 +254,45 @@ export function createUnavailableAdminMetricSnapshot(input: {
     debugPath: buildAdminMetricSnapshotDebugPath(input.moduleKey, input.rangeKey),
     unavailableReason: input.reason,
   };
+}
+
+export function normalizeAdminMetricSnapshotRefreshFields(snapshot: AdminMetricSnapshot): AdminMetricSnapshot {
+  const lastRefreshStartedAt = snapshot.lastRefreshStartedAt ?? snapshot.refreshStartedAt ?? null;
+  const lastRefreshCompletedAt = snapshot.lastRefreshCompletedAt ?? snapshot.refreshCompletedAt ?? null;
+  const lastRefreshFailedAt = snapshot.lastRefreshFailedAt ?? snapshot.refreshFailedAt ?? null;
+  const estimatedFlags = Object.fromEntries(
+    Object.entries(snapshot.values ?? {})
+      .filter(([, metric]) => metric.estimated === true)
+      .map(([key]) => [key, true]),
+  );
+
+  return {
+    ...snapshot,
+    cacheKey: snapshot.cacheKey ?? buildAdminMetricSnapshotCacheKey(snapshot.moduleKey, snapshot.rangeKey),
+    surfaceKey: snapshot.surfaceKey ?? "admin_analytics",
+    lastRefreshRequestedAt: snapshot.lastRefreshRequestedAt ?? lastRefreshStartedAt,
+    lastRefreshStartedAt,
+    lastRefreshCompletedAt,
+    lastRefreshFailedAt,
+    refreshVersion: Number.isFinite(snapshot.refreshVersion) ? snapshot.refreshVersion : 0,
+    sourceVersion: snapshot.sourceVersion ?? snapshot.lastVerifiedAt ?? snapshot.generatedAt ?? "unverified",
+    invalidationReason: snapshot.invalidationReason ?? null,
+    estimatedFlags: snapshot.estimatedFlags ?? estimatedFlags,
+    legacyFlags: snapshot.legacyFlags ?? {
+      legacyIncluded: snapshot.legacyIncluded,
+      legacyConfidence: snapshot.legacyConfidence,
+    },
+  };
+}
+
+export function getAdminMetricDisplaySnapshot(snapshot: AdminMetricSnapshot | null | undefined) {
+  return getDisplaySnapshot(snapshot ? normalizeAdminMetricSnapshotRefreshFields(snapshot) : null);
+}
+
+export function resolveAdminMetricRefreshCacheDisplayState(
+  snapshot: AdminMetricSnapshot | null | undefined,
+): RefreshCacheDisplayState {
+  return resolveRefreshCacheDisplayState(snapshot ? normalizeAdminMetricSnapshotRefreshFields(snapshot) : null);
 }
 
 export function isAdminMetricSnapshotFresh(snapshot: Pick<AdminMetricSnapshot, "expiresAt" | "lastVerifiedAt">, nowMs = Date.now()) {
@@ -262,6 +341,12 @@ export function validateAdminMetricSnapshot(snapshot: AdminMetricSnapshot) {
   if (!snapshot.moduleKey) {
     issues.push("Snapshot moduleKey is missing.");
   }
+  if (!snapshot.cacheKey) {
+    issues.push("Snapshot cacheKey is missing.");
+  }
+  if (!snapshot.surfaceKey) {
+    issues.push("Snapshot surfaceKey is missing.");
+  }
   if (!isAdminMetricSnapshotRange(snapshot.rangeKey)) {
     issues.push("Snapshot rangeKey is invalid.");
   }
@@ -273,6 +358,12 @@ export function validateAdminMetricSnapshot(snapshot: AdminMetricSnapshot) {
   }
   if (snapshot.truthState === "verified" && !snapshot.lastVerifiedAt) {
     issues.push("Verified snapshots must include lastVerifiedAt.");
+  }
+  if (!Number.isFinite(snapshot.refreshVersion) || snapshot.refreshVersion < 0) {
+    issues.push("Snapshot refreshVersion is invalid.");
+  }
+  if (!snapshot.sourceVersion) {
+    issues.push("Snapshot sourceVersion is missing.");
   }
 
   Object.entries(snapshot.values).forEach(([key, metric]) => {

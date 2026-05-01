@@ -1,24 +1,23 @@
 # SHORT Task Context
 
 ## Goal
-audit global loading performance and preserve admin analytics hot cache first render
+validate repo intelligence fabric outputs
 
-Mode: admin
-Scope: moderate
-Why scope: Touches several files or shared helper surfaces with non-trivial adjacency.
+Mode: audit
+Scope: broad
+Why scope: Touches repo-tooling, governance, or multiple broad-signoff surfaces.
 
 ## Likely Entrypoints
-- src/app/admin/analytics/page.tsx
-- src/components/Analytics/PageViewEvent.tsx
-- src/lib/server/analytics.ts
-- src/app/admin/analytics/components/AdminAnalyticsCommerceTab.tsx
-- src/app/admin/analytics/hooks/useAdminAnalyticsState.tsx
+- scripts/agent/build-agent-indexes.ts
+- scripts/agent/build-task-context.ts
+- scripts/agent/build-ui-surface-coverage.ts
+- scripts/agent/check-agent-context.ts
+- scripts/agent/classify-repo-files.ts
 
 ## Canonical Helpers To Reuse
-- src/lib/telemetry-catalog.ts
-- src/lib/telemetry.ts
-- src/lib/route-runtime-health.ts
-- src/lib/server/admin-panel-system-logs.ts
+- src/lib/gumdrop-economics.ts
+- src/lib/gumdrop-ledger.ts
+- src/lib/server/paypal.ts
 
 ## Acceptance Criteria
 - Reuse the canonical helpers before introducing new ownership paths.
@@ -26,10 +25,10 @@ Why scope: Touches several files or shared helper surfaces with non-trivial adja
 - Report any blocked or unverified lane explicitly instead of implying success.
 
 ## Relevant Pitfalls
-- stale_lockfile_drift
 - diagnostics_serialization_crash
-- request_json_parse_falls_into_500
-- consumed_response_stream_fallback
+- generated_artifact_cleanup_miss
+- sidecar_truth_confusion
+- legacy_queue_adapter_usage
 
 ## Forbidden Surfaces
 - src/lib/gumdrop-ledger.ts
@@ -39,17 +38,15 @@ Why scope: Touches several files or shared helper surfaces with non-trivial adja
 
 ## Fast Verification
 - npm run typecheck
-- npm run agent:test -- src/app/admin/analytics/page.tsx
-- npm run agent:test -- src/components/Analytics/PageViewEvent.tsx
-- npm run agent:test -- src/lib/server/analytics.ts
-- npm run agent:test -- src/app/admin/analytics/components/AdminAnalyticsCommerceTab.tsx
-- npm run check:ui:coverage
-- npm run check:ui:runtime
-- npm run check:telemetry
-- npm run check:analytics-semantics
-- npm --prefix functions run check
+- npm run agent:test -- scripts/agent/build-agent-indexes.ts
+- npm run agent:test -- scripts/agent/build-task-context.ts
+- npm run agent:test -- scripts/agent/build-ui-surface-coverage.ts
+- npm run agent:test -- scripts/agent/check-agent-context.ts
+- npm run check:agent-context
 
 ## Signoff Verification
-- npm run check:ui:audits
-- npm run check:analytics:continuity
+- npm run check:inventory
+- npm run check:architecture
+- npm run check:agent-intelligence
+- npm run eval:agent-context
 - npm run check:continuity

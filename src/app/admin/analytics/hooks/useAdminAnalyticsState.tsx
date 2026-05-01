@@ -1094,7 +1094,7 @@ const { user } = useAuth();
       ? historicalError.message
       : commerceSnapshotModule.error ?? audienceSnapshotModule.error,
   });
-  const historicalOverviewWaitingLabel = historicalOverviewWaitingState.label ?? "No verified data yet";
+  const historicalOverviewWaitingLabel = historicalOverviewWaitingState.label ?? "No verified snapshot yet";
 
   const revenueDisplay = historicalOverviewResponse
     ? formatMoney(overviewCommerce.revenueUsd)
@@ -1161,11 +1161,11 @@ const { user } = useAuth();
   });
   const liveActiveDisplay =
     livePulseDisplayState.fakeZeroPrevented && livePulseDisplayState.shouldShowUnavailable
-      ? liveActiveWaitingState.label ?? "No verified data yet"
+      ? liveActiveWaitingState.label ?? "No verified snapshot yet"
       : effectiveLiveResponse?.totalActive === undefined || effectiveLiveResponse?.totalActive === null
         ? snapshotLiveActiveValue !== null
           ? formatCompactNumber(snapshotLiveActiveValue)
-          : liveActiveWaitingState.label ?? "No verified data yet"
+          : liveActiveWaitingState.label ?? "No verified snapshot yet"
         : formatCompactNumber(effectiveLiveResponse.totalActive);
   const liveActiveTruthState: AdminSurfaceState | undefined =
     mapDisplayStateToAdminSurfaceState(livePulseDisplayState);
@@ -1299,21 +1299,43 @@ const { user } = useAuth();
         (hydrationMs ?? Number.POSITIVE_INFINITY) > ADMIN_ANALYTICS_OVERVIEW_HYDRATION_BUDGET_MS,
       usedFallbackSnapshot: metricKey !== "liveActive" && usedHistoricalOverviewFallbackSnapshot,
       fakeZeroPrevented: sourceUnavailable,
+      cacheKey: snapshotModule?.snapshot?.cacheKey ?? `${snapshotModule?.moduleKey ?? metricKey}:${snapshotModule?.rangeKey ?? range}`,
+      refreshVersion: snapshotModule?.snapshot?.refreshVersion ?? 0,
+      sourceVersion: snapshotModule?.snapshot?.sourceVersion ?? null,
       firstSnapshotMs: snapshotModule?.firstSnapshotMs ?? null,
       firstUsefulValueMs: hydrationMs ?? snapshotModule?.firstSnapshotMs ?? null,
+      lastRefreshRequestedAt: snapshotModule?.snapshot?.lastRefreshRequestedAt ?? null,
       refreshStartedAt: snapshotModule?.snapshot?.refreshStartedAt ?? null,
       refreshCompletedAt: snapshotModule?.snapshot?.refreshCompletedAt ?? null,
       refreshStatus,
       snapshotUsedOnFirstRender,
+      displaySource: valueSource,
+      displayAllowedBecause: value !== null
+        ? valueSource === "verified_snapshot"
+          ? "last_verified_snapshot_exists"
+          : "server_or_realtime_value_exists"
+        : null,
+      displayBlockedBecause: value === null
+        ? waitingShownBecause ?? snapshotModule?.unavailableReason ?? "no_verified_snapshot"
+        : null,
       waitingShownBecause,
       waitingAllowed,
       blocksOnRealtime,
       blocksOnRefresh,
+      blocksOnTimeExpiry: false,
       fallbackSnapshotUsed:
         snapshotUsedOnFirstRender ||
         (metricKey !== "liveActive" && usedHistoricalOverviewFallbackSnapshot),
       fakeWaitingPrevented: snapshotUsedOnFirstRender,
       waterfallDetected,
+      refreshDedupeHit: snapshotModule?.duplicateRefreshPrevented === true,
+      staleButVerified: truthState === "stale" && value !== null,
+      invalidationReason: snapshotModule?.snapshot?.invalidationReason ?? null,
+      estimatedGuestTraffic: metricKey === "mobileShare" && Boolean(historicalEstimationReason),
+      anonymousBatchStatus: historicalEstimationReason ? "estimated_until_batches_arrive" : "not_applicable",
+      routerRefreshUsed: false,
+      revalidationUsed: false,
+      parityWarnings: snapshotModule?.snapshot?.parity?.filter((entry) => entry.status === "warn" || entry.status === "fail") ?? [],
       slowSource: hydrationMs && hydrationMs > ADMIN_ANALYTICS_OVERVIEW_HYDRATION_BUDGET_MS
         ? { key: valueSource, timingMs: hydrationMs }
         : null,

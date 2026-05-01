@@ -1,5 +1,6 @@
 import type { AdminMetricSnapshot } from "@/lib/analytics/admin-metric-snapshot";
 import type { AdminSurfaceState } from "@/lib/admin-parity";
+import { getDisplaySnapshot } from "@/lib/cache/refresh-cache-contract";
 
 export type AdminAnalyticsWaitingReason =
   | "snapshot_available"
@@ -10,12 +11,13 @@ export function readAdminSnapshotNumberValue(
   snapshot: AdminMetricSnapshot | null | undefined,
   candidateKeys: readonly string[],
 ): number | null {
-  if (!snapshot || snapshot.lastVerifiedAt === null) {
+  const displaySnapshot = getDisplaySnapshot(snapshot);
+  if (!displaySnapshot) {
     return null;
   }
 
   for (const key of candidateKeys) {
-    const metric = snapshot.values[key];
+    const metric = displaySnapshot.values[key];
     if (!metric || metric.available !== true || metric.fakeZeroPrevented === true) {
       continue;
     }
@@ -40,23 +42,24 @@ export function normalizeAdminSnapshotRatio(value: number | null): number | null
 export function resolveAdminSnapshotSurfaceState(
   snapshot: AdminMetricSnapshot | null | undefined,
 ): AdminSurfaceState | null {
-  if (!snapshot || snapshot.lastVerifiedAt === null) {
+  const displaySnapshot = getDisplaySnapshot(snapshot);
+  if (!displaySnapshot) {
     return null;
   }
 
-  if (snapshot.truthState === "verified") {
-    return snapshot.sourceMode === "stale_cache" ? "stale" : "cached";
+  if (displaySnapshot.truthState === "verified") {
+    return displaySnapshot.sourceMode === "stale_cache" ? "stale" : "cached";
   }
 
-  if (snapshot.truthState === "stale") {
+  if (displaySnapshot.truthState === "stale") {
     return "stale";
   }
 
-  if (snapshot.truthState === "partial" || snapshot.sourceMode === "mixed") {
+  if (displaySnapshot.truthState === "partial" || displaySnapshot.sourceMode === "mixed") {
     return "degraded";
   }
 
-  if (snapshot.truthState === "failed" || snapshot.sourceMode === "fallback") {
+  if (displaySnapshot.truthState === "failed" || displaySnapshot.sourceMode === "fallback") {
     return "fallback";
   }
 
@@ -85,7 +88,7 @@ export function resolveAdminAnalyticsWaitingCopy(input: {
   }
 
   return {
-    label: input.error ? "Source unavailable" : "No verified data yet",
+    label: input.error ? "Source unavailable" : "No verified snapshot yet",
     reason: "source_unavailable",
     allowed: true,
   };

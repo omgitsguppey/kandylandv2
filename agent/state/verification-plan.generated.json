@@ -1,5 +1,5 @@
 {
-  "generatedAt": "2026-05-01T16:12:52.573Z",
+  "generatedAt": "2026-05-01T16:35:50.082Z",
   "truthOrder": [
     "verified_runtime_code",
     "verified_configuration",
@@ -16,12 +16,12 @@
     "agent/index/surface-map.json",
     "agent/index/ui-surface-coverage.json"
   ],
-  "stable_id": "verifyplan__src__app__admin__analytics__page-tsx",
+  "stable_id": "verifyplan__src__app__admin__analytics__hooks__useadminanalyticsstate-tsx",
   "inputPaths": [
-    "src/app/admin/analytics/page.tsx"
+    "src/app/admin/analytics/hooks/useAdminAnalyticsState.tsx"
   ],
   "matchedRepoPaths": [
-    "src/app/admin/analytics/page.tsx"
+    "src/app/admin/analytics/hooks/useAdminAnalyticsState.tsx"
   ],
   "unmatchedPaths": [],
   "touchedDomains": [
@@ -30,7 +30,7 @@
   ],
   "fastCommands": [
     "npm run typecheck",
-    "npm run agent:test -- src/app/admin/analytics/page.tsx",
+    "npm run agent:test -- src/app/admin/analytics/hooks/useAdminAnalyticsState.tsx",
     "npm run check:ui:coverage",
     "npm run check:ui:runtime",
     "npm run check:telemetry",
@@ -50,7 +50,7 @@
       "lane": "fast"
     },
     {
-      "command": "npm run agent:test -- src/app/admin/analytics/page.tsx",
+      "command": "npm run agent:test -- src/app/admin/analytics/hooks/useAdminAnalyticsState.tsx",
       "why": [
         "Run the narrowest related contract/unit tests first."
       ],

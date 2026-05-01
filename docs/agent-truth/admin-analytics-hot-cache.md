@@ -12,9 +12,12 @@ The short rule is: realtime is an upgrade. Verified cache, stale cache, or the l
 ## Snapshot Schema
 
 The canonical contract lives in `src/lib/analytics/admin-metric-snapshot.ts`.
+The shared refresh/display policy lives in `src/lib/cache/refresh-cache-contract.ts`.
 
 Every snapshot includes:
 
+- `cacheKey`
+- `surfaceKey`
 - `moduleKey`
 - `rangeKey`
 - `values`
@@ -28,10 +31,19 @@ Every snapshot includes:
 - `expiresAt`
 - `maxAgeMs`
 - `refreshStatus`
+- `lastRefreshRequestedAt`
+- `lastRefreshStartedAt`
+- `lastRefreshCompletedAt`
+- `lastRefreshFailedAt`
 - `refreshStartedAt`
 - `refreshCompletedAt`
+- `refreshVersion`
+- `sourceVersion`
+- `invalidationReason`
 - `warnings`
 - `parity`
+- `estimatedFlags`
+- `legacyFlags`
 - `legacyIncluded`
 - `legacyConfidence`
 - `debugPath`
@@ -126,6 +138,12 @@ Missing metrics must use `value: null`, `available: false`, and `fakeZeroPrevent
 ## Stale Cache Rule
 
 Stale cache is useful and allowed. It must be labeled `stale_cache` or `stale`, include the last verification time, and keep refresh state visible. Stale cache must not be presented as live.
+
+Stale cache is not a deletion condition. A timer can make a snapshot `stale_but_verified`; it cannot blank a value. Only explicit correctness invalidation with an `invalidationReason` can block a previously verified display snapshot.
+
+## Refresh-Based Lifecycle Rule
+
+`refreshVersion` increments only after a verified replacement completes. `router.refresh()` may re-render UI after successful refresh, but it is not the source of cache invalidation. Admin Analytics uses explicit snapshot refresh and private `no-store` responses backed by internal hot cache, not public CDN caching of private admin data.
 
 ## Realtime Upgrade Rule
 

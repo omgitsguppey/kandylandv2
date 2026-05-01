@@ -7,6 +7,10 @@ Last updated: 2026-04-30
 
 Analytics Truth Layer v2 is the repo contract for moving Admin Analytics away from realtime-dependent loading and toward verified, source-labeled analytics. This phase does not rewrite behavior. It maps the truth model, source hierarchy, module blast radius, and validation expectations that later phases must implement.
 
+## 2026-05-01 Refresh-Based Cache Update
+
+Refresh-based cache now outranks time-limit display gating. A verified snapshot remains displayable after its ideal freshness window and becomes `stale_but_verified` instead of disappearing. Manual and background refresh replace that snapshot only after a new payload is verified; refresh failure records metadata and leaves the last verified value visible. The central contract is `src/lib/cache/refresh-cache-contract.ts`, and Admin Debug exposes cache key, refresh/source version, invalidation, estimate, and blocking metadata.
+
 ## New Doctrine
 
 Admin Analytics must render the latest verified hot cache snapshot first when one exists. A verified hot cache snapshot is a server-built read model with source metadata, validation metadata, and a timestamp that proves when it was last built.

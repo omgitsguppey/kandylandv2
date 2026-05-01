@@ -1,12 +1,12 @@
 Verification plan
 
-Matched paths: src/app/admin/analytics/page.tsx
+Matched paths: src/app/admin/analytics/hooks/useAdminAnalyticsState.tsx
 Broad work: yes
 Touched domains: admin_ops, app_routes
 
 Fast loop:
 - npm run typecheck  # TypeScript or runtime code changed.
-- npm run agent:test -- src/app/admin/analytics/page.tsx  # Run the narrowest related contract/unit tests first.
+- npm run agent:test -- src/app/admin/analytics/hooks/useAdminAnalyticsState.tsx  # Run the narrowest related contract/unit tests first.
 - npm run check:ui:coverage  # Indexed UI/admin surfaces changed.
 - npm run check:ui:runtime  # Hydration/runtime UI continuity should stay truthful.
 - npm run check:telemetry  # Telemetry or analytics semantics changed.

@@ -145,6 +145,8 @@ The Phase 3 files are:
 
 A snapshot can be `verified_cache` only when it was produced by a materializer that checked its source lane and wrote `lastVerifiedAt`. A stale verified snapshot becomes `stale_cache`; it does not become live. Unavailable materializers must return `unavailable` and explain the reason in Debug.
 
+Refresh-based cache is now the display rule for snapshots and validated backend route payloads. Expiration windows affect labels and refresh priority, not display eligibility. `stale_but_verified` means the last verified value is still usable with an explicit stale label. If a value is blocked, the cache record must carry `invalidationReason` and Debug must show why display was blocked.
+
 Do not auto-run cold BigQuery, GA4, or broad Firestore scans on every Admin Analytics page load. Those reads belong in materializers, scheduled jobs, explicit refresh, or Debug drill-down.
 
 ## Phase 5 Admin Analytics Placement

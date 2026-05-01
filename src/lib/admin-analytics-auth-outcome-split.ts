@@ -191,7 +191,7 @@ export function buildAdminAnalyticsAuthOutcomeModel(input: {
     ? totals.durationWeight / totals.durationSamples
     : null;
   const recommendation = !hasResponse
-    ? input.loading ? "Waiting for auth outcome data." : "Auth outcome data is unavailable."
+    ? input.loading ? "Waiting for first snapshot." : "Auth outcome data is unavailable."
     : !timingAvailable
       ? "Finish timing unavailable; start/end timestamps are missing."
       : weakestMethod && (weakestMethod.successRate ?? 1) < 0.5

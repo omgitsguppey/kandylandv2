@@ -1,5 +1,28 @@
 # KandyDrops Core Codebase Audit & Defensive Ledger
 
+## [2026-05-01 #69] PRE: Refresh-Based Hot Cache Architecture Refactor
+
+Scope started:
+- Refactoring loading, hydration, and cache truth from time-limit/realtime-dependent display gating to refresh-based verified hot cache across Admin Analytics, Admin Debug, snapshot helpers, route cache helpers, and shared loading doctrine.
+- Targeting `src/lib/cache/refresh-cache-contract.ts`, admin metric snapshots/storage, Admin Analytics state and module copy, Admin Analytics refresh/realtime/historical routes, Admin Debug metadata, route cache behavior, docs, validation, and tests.
+- Required doctrine path: control tower startup/read order, source map, shared component ownership, product/copy/UI/admin truth/GA-cloud doctrine, refresh/hot-cache docs, generated fast-start, and adjacency traces.
+
+Initial evidence:
+- Prior global-loading pass fixed top overview cards but module-level Admin Analytics still had visible `Waiting`, graph-source-unavailable, and realtime-first language in module models/components.
+- `src/lib/server/ephemeral-route-cache.ts` still used stale TTL as a hard display cutoff for validated route payloads.
+- `src/lib/analytics/admin-metric-snapshot.ts` had refresh timestamps but no central refresh-cache display state, cache key, refresh/source version, invalidation, estimate, or legacy flag contract.
+
+Scope completed:
+- Added `src/lib/cache/refresh-cache-contract.ts` with refresh-based states, display helpers, refresh request/dedupe helpers, and pure refresh lifecycle helpers.
+- Extended admin metric snapshots with cache keys, surface keys, refresh/source versions, invalidation, estimate and legacy flags, plus normalization for existing stored snapshots.
+- Updated Admin Analytics route cache to retain validated stale payloads beyond stale TTL while a background refresh runs.
+- Expanded Admin Debug hot-cache metadata with cache key, refresh/source versions, stale-but-verified, display allow/block reasons, invalidation, guest estimate, anonymous batch, blocking, revalidation, parity warning, fake waiting, and fake zero fields.
+- Replaced remaining module-level generic Admin Analytics `Waiting` visible copy with reasoned first-snapshot/no-verified-snapshot/live-upgrade labels.
+- Added `agent/state/refresh-cache-loading-audit.generated.json`, `docs/agent-truth/refresh-based-hot-cache.md`, `scripts/agent/validate-refresh-based-hot-cache.ts`, package script wiring, and targeted unit coverage.
+
+Residual risk:
+- Some non-admin private route caches still use simple TTL route cache (`readThroughEphemeralRouteCache`) and are documented in the generated audit for future migration if user-facing first paint remains slow. The high-risk Admin Analytics historical route now retains stale verified payloads instead of blanking by age.
+
 ## [2026-05-01 #68] PRE: Global Loading Performance Hot-Cache Preservation
 
 Scope started:

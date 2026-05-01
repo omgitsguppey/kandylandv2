@@ -6,6 +6,8 @@ import {
   type AdminMetricSnapshot,
   type AdminMetricSnapshotRange,
   buildAdminMetricSnapshotDocId,
+  normalizeAdminMetricSnapshotRefreshFields,
+  resolveAdminMetricRefreshCacheDisplayState,
   resolveAdminMetricSnapshotSourceMode,
   shouldPreventSnapshotRefreshStorm,
   validateAdminMetricSnapshot,
@@ -29,7 +31,7 @@ function toSnapshot(data: FirebaseFirestore.DocumentData | undefined): AdminMetr
     return null;
   }
 
-  return data as AdminMetricSnapshot;
+  return normalizeAdminMetricSnapshotRefreshFields(data as AdminMetricSnapshot);
 }
 
 export async function getAdminMetricSnapshot(moduleKey: string, rangeKey: AdminMetricSnapshotRange) {
@@ -43,10 +45,10 @@ export async function getLatestVerifiedSnapshot(moduleKey: string, rangeKey: Adm
     return null;
   }
 
-  return {
+  return normalizeAdminMetricSnapshotRefreshFields({
     ...snapshot,
     sourceMode: resolveAdminMetricSnapshotSourceMode(snapshot),
-  } satisfies AdminMetricSnapshot;
+  } satisfies AdminMetricSnapshot);
 }
 
 export async function writeVerifiedSnapshot(snapshot: AdminMetricSnapshot) {
@@ -94,6 +96,8 @@ export async function markSnapshotRefreshStarted(input: {
     moduleKey: input.moduleKey,
     rangeKey: input.rangeKey,
     refreshStatus: "refreshing",
+    lastRefreshRequestedAt: refreshStartedAt,
+    lastRefreshStartedAt: refreshStartedAt,
     refreshStartedAt,
     refreshCompletedAt: null,
     refreshError: null,
@@ -115,15 +119,22 @@ export async function markSnapshotRefreshCompleted(
   result: AdminMetricSnapshot,
 ) {
   const refreshCompletedAt = new Date().toISOString();
-  const snapshot = {
+  const existing = await getAdminMetricSnapshot(moduleKey, rangeKey);
+  const snapshot = normalizeAdminMetricSnapshotRefreshFields({
     ...result,
     moduleKey,
     rangeKey,
     refreshStatus: "completed",
     refreshCompletedAt,
+    lastRefreshRequestedAt: result.lastRefreshRequestedAt ?? existing?.lastRefreshRequestedAt ?? existing?.lastRefreshStartedAt ?? null,
+    lastRefreshStartedAt: result.lastRefreshStartedAt ?? result.refreshStartedAt ?? existing?.lastRefreshStartedAt ?? existing?.refreshStartedAt ?? null,
+    lastRefreshCompletedAt: refreshCompletedAt,
+    lastRefreshFailedAt: null,
     refreshError: null,
     duplicateRefreshPrevented: false,
-  } satisfies AdminMetricSnapshot;
+    refreshVersion: (existing?.refreshVersion ?? result.refreshVersion ?? 0) + 1,
+    sourceVersion: result.sourceVersion ?? result.lastVerifiedAt ?? result.generatedAt,
+  } satisfies AdminMetricSnapshot);
 
   await collectionRef().doc(snapshotKey(moduleKey, rangeKey)).set({
     ...snapshot,
@@ -145,6 +156,7 @@ export async function markSnapshotRefreshFailed(
     rangeKey,
     refreshStatus: "failed",
     refreshFailedAt,
+    lastRefreshFailedAt: refreshFailedAt,
     refreshError: message,
     duplicateRefreshPrevented: false,
     updatedAt: FieldValue.serverTimestamp(),
@@ -179,12 +191,22 @@ export async function getSnapshotDebugMetadata(moduleKey: string, rangeKey: Admi
     rangeKey,
     exists: true,
     sourceMode: resolveAdminMetricSnapshotSourceMode(snapshot),
+    cacheKey: snapshot.cacheKey,
+    surfaceKey: snapshot.surfaceKey,
     truthState: snapshot.truthState,
+    refreshCacheState: resolveAdminMetricRefreshCacheDisplayState(snapshot),
     lastVerifiedAt: snapshot.lastVerifiedAt,
     generatedAt: snapshot.generatedAt,
     refreshStatus: snapshot.refreshStatus,
+    lastRefreshRequestedAt: snapshot.lastRefreshRequestedAt,
+    lastRefreshStartedAt: snapshot.lastRefreshStartedAt,
+    lastRefreshCompletedAt: snapshot.lastRefreshCompletedAt,
+    lastRefreshFailedAt: snapshot.lastRefreshFailedAt ?? null,
     refreshStartedAt: snapshot.refreshStartedAt,
     refreshCompletedAt: snapshot.refreshCompletedAt,
+    refreshVersion: snapshot.refreshVersion,
+    sourceVersion: snapshot.sourceVersion,
+    invalidationReason: snapshot.invalidationReason ?? null,
     duplicateRefreshPrevented: snapshot.duplicateRefreshPrevented,
     values: snapshot.values,
     formulas: snapshot.formulas,
@@ -195,6 +217,27 @@ export async function getSnapshotDebugMetadata(moduleKey: string, rangeKey: Admi
     confidence: snapshot.confidence,
     staleReason: snapshot.staleReason ?? null,
     unavailableReason: snapshot.unavailableReason ?? null,
+    displaySource: snapshot.lastVerifiedAt ? resolveAdminMetricSnapshotSourceMode(snapshot) : "unavailable",
+    displayAllowedBecause: snapshot.lastVerifiedAt
+      ? "last_verified_snapshot_exists"
+      : null,
+    displayBlockedBecause: snapshot.lastVerifiedAt
+      ? null
+      : snapshot.invalidationReason ?? snapshot.unavailableReason ?? "no_verified_snapshot",
+    refreshDedupeHit: snapshot.duplicateRefreshPrevented,
+    staleButVerified: resolveAdminMetricRefreshCacheDisplayState(snapshot) === "stale_but_verified",
+    estimatedGuestTraffic: snapshot.estimatedFlags?.guestTrafficEstimated === true,
+    anonymousBatchStatus: snapshot.sourceBreakdown?.anonymousBatchStatus ?? null,
+    blocksOnRealtime: false,
+    blocksOnRefresh: false,
+    blocksOnTimeExpiry: false,
+    fakeWaitingPrevented: Boolean(snapshot.lastVerifiedAt),
+    fakeZeroPrevented: Object.values(snapshot.values).some((metric) => metric.fakeZeroPrevented === true),
+    routerRefreshUsed: false,
+    revalidationUsed: false,
+    parityWarnings: snapshot.parity.filter((entry) => entry.status === "warn" || entry.status === "fail"),
+    estimatedFlags: snapshot.estimatedFlags,
+    legacyFlags: snapshot.legacyFlags,
     debugPath: snapshot.debugPath,
   };
 }
@@ -211,20 +254,47 @@ export async function listAdminMetricSnapshotDebugMetadata(input: { limit?: numb
       id: doc.id,
       moduleKey: data?.moduleKey ?? "unknown",
       rangeKey: data?.rangeKey ?? "24h",
+      cacheKey: data?.cacheKey ?? null,
+      surfaceKey: data?.surfaceKey ?? "admin_analytics",
       sourceMode: data ? resolveAdminMetricSnapshotSourceMode(data) : "unavailable",
       truthState: data?.truthState ?? "unavailable",
+      refreshCacheState: data ? resolveAdminMetricRefreshCacheDisplayState(data) : "unavailable",
       lastVerifiedAt: data?.lastVerifiedAt ?? null,
       generatedAt: data?.generatedAt ?? null,
       refreshStatus: data?.refreshStatus ?? "unavailable",
+      lastRefreshRequestedAt: data?.lastRefreshRequestedAt ?? null,
+      lastRefreshStartedAt: data?.lastRefreshStartedAt ?? null,
+      lastRefreshCompletedAt: data?.lastRefreshCompletedAt ?? null,
+      lastRefreshFailedAt: data?.lastRefreshFailedAt ?? null,
+      refreshVersion: data?.refreshVersion ?? 0,
+      sourceVersion: data?.sourceVersion ?? null,
+      invalidationReason: data?.invalidationReason ?? null,
       refreshStartedAt: data?.refreshStartedAt ?? null,
       refreshCompletedAt: data?.refreshCompletedAt ?? null,
       duplicateRefreshPrevented: data?.duplicateRefreshPrevented ?? false,
+      refreshDedupeHit: data?.duplicateRefreshPrevented ?? false,
       confidence: data?.confidence ?? 0,
       warningCount: data?.warnings?.length ?? 0,
       parityCount: data?.parity?.length ?? 0,
       legacyIncluded: data?.legacyIncluded ?? false,
       staleReason: data?.staleReason ?? null,
       unavailableReason: data?.unavailableReason ?? null,
+      displaySource: data?.lastVerifiedAt ? resolveAdminMetricSnapshotSourceMode(data) : "unavailable",
+      displayAllowedBecause: data?.lastVerifiedAt ? "last_verified_snapshot_exists" : null,
+      displayBlockedBecause: data?.lastVerifiedAt ? null : data?.invalidationReason ?? data?.unavailableReason ?? "no_verified_snapshot",
+      staleButVerified: data ? resolveAdminMetricRefreshCacheDisplayState(data) === "stale_but_verified" : false,
+      estimatedGuestTraffic: data?.estimatedFlags?.guestTrafficEstimated === true,
+      anonymousBatchStatus: data?.sourceBreakdown?.anonymousBatchStatus ?? null,
+      blocksOnRealtime: false,
+      blocksOnRefresh: false,
+      blocksOnTimeExpiry: false,
+      fakeWaitingPrevented: Boolean(data?.lastVerifiedAt),
+      fakeZeroPrevented: data ? Object.values(data.values).some((metric) => metric.fakeZeroPrevented === true) : false,
+      routerRefreshUsed: false,
+      revalidationUsed: false,
+      parityWarnings: data?.parity?.filter((entry) => entry.status === "warn" || entry.status === "fail") ?? [],
+      estimatedFlags: data?.estimatedFlags ?? {},
+      legacyFlags: data?.legacyFlags ?? {},
       debugPath: data?.debugPath ?? null,
     };
   });

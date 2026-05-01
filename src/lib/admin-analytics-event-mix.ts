@@ -179,7 +179,7 @@ export function buildAdminAnalyticsEventMixModel(input: {
     recommendation: topEvent
       ? `${topEvent.displayLabel} is driving ${topEvent.share === null ? "the most" : `${Math.round(topEvent.share * 100)}% of`} counted events.`
       : input.loading
-        ? "Waiting for event mix."
+        ? "Waiting for first snapshot."
         : "Event mix unavailable for this range.",
     fullTechnicalReason: componentContextStatus === "available"
       ? "Event counts are backend snapshot raw counts with component context rows joined by example event where available."

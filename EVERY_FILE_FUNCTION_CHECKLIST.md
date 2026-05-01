@@ -1,13 +1,24 @@
 # EVERY FILE FUNCTION CHECKLIST
 
 **Last Updated:** 2026-05-01
-**Current Focus:** Global loading performance hot-cache preservation for Admin Analytics.
+**Current Focus:** Refresh-based hot-cache loading, hydration, and cache refactor.
 **Status:** In Progress. Current tracked-file coverage is reconciled as of 2026-04-28: every `git ls-files` entry has a current checklist heading, while detailed function-level audits remain pending for many historical and newly reconciled files.
 Purpose: exhaustive no-skip audit checklist covering every repository file currently in scope and every detected function-like implementation.
 
 Scoring: all entries below are marked as included in the current validated sweep. Confidence reflects current repository-state confidence, not perfection or future-proofing.
 
 Current repo-wide state snapshot: see [FULL_SCALE_CODEBASE_AUDIT.md](/Users/uylus/OneDrive/Documents/KandyDrops_Final/FULL_SCALE_CODEBASE_AUDIT.md) for the current live baseline, verification state, and continuity rules, and see [REPO_MEMORY_LEDGER.md](/Users/uylus/OneDrive/Documents/KandyDrops_Final/REPO_MEMORY_LEDGER.md) for major architectural and workflow decisions. The detailed file/function body below remains valuable historical evidence, but it has not been fully regenerated against the current 2026-04-18 inventory review yet.
+
+## 2026-05-01 Refresh-Based Hot Cache Refactor Coverage
+
+- [x] `src/lib/cache/refresh-cache-contract.ts` defines refresh-based cache display states, cache identity fields, display helpers, refresh request/dedupe helpers, and pure refresh lifecycle helpers.
+- [x] `src/lib/analytics/admin-metric-snapshot.ts` extends Admin Analytics snapshots with cache key, surface key, refresh/source versions, invalidation, estimate, and legacy metadata while preserving display eligibility after expiry.
+- [x] `src/lib/server/admin-analytics-snapshots.ts` normalizes existing persisted snapshots, increments `refreshVersion` only after completion, preserves failed-refresh display state, and exposes Debug metadata for refresh/cache display truth.
+- [x] `src/lib/server/ephemeral-route-cache.ts` keeps validated stale payloads displayable beyond stale TTL while async refresh runs.
+- [x] `src/app/api/admin/analytics/historical/route.ts` exposes `staleButVerified` and retained stale-cache metadata for Admin Analytics historical route payloads.
+- [x] `src/app/api/admin/debug/route.ts` exposes cache key, refresh/source version, refresh timestamps, display allow/block reasons, stale-but-verified, invalidation, guest estimate, anonymous batch, blocking, router refresh, revalidation, parity, fake waiting, and fake zero fields.
+- [x] Admin Analytics state and module helpers/components replace bare `Waiting` display paths with reasoned first-snapshot, no-verified-snapshot, or live-upgrade copy.
+- [x] `docs/agent-truth/refresh-based-hot-cache.md`, `agent/state/refresh-cache-loading-audit.generated.json`, `scripts/agent/validate-refresh-based-hot-cache.ts`, package scripts, and targeted unit tests cover the new architecture.
 
 ## 2026-05-01 Global Loading Performance Hot-Cache Coverage
 

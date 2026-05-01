@@ -146,7 +146,7 @@ function resolveDisplayLabel(item: RealtimeActiveUserItem, actorType: AdminAnaly
 }
 
 function relativeTime(timestampMs: number, nowMs: number) {
-  if (!isFiniteNumber(timestampMs) || timestampMs <= 0) return "Waiting";
+  if (!isFiniteNumber(timestampMs) || timestampMs <= 0) return "No verified timestamp";
   const deltaMs = Math.max(0, nowMs - timestampMs);
   const minutes = Math.floor(deltaMs / 60_000);
   if (minutes < 1) return "Just now";
@@ -269,7 +269,7 @@ export function buildAdminAnalyticsLivePulseModel(input: {
   const visibleCopy = input.displayState?.visibleMessage ?? (input.feedStatus === "polled"
     ? "Showing last verified snapshot."
     : input.feedStatus === "failed"
-      ? "No verified data yet."
+      ? "No verified snapshot yet."
       : graphSourceMismatch
         ? "Pulse graph is derived from presence while the graph source catches up."
         : guestCount === 0 && authCount > 0

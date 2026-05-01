@@ -2,6 +2,8 @@
 
 Admin Analytics and shared app loading must render verified hot cache first. Realtime listeners, manual refreshes, and slow backend recomputes are upgrades after first useful paint, not prerequisites for showing already verified data.
 
+This doctrine is now implemented through the refresh-based cache contract in `docs/agent-truth/refresh-based-hot-cache.md` and `src/lib/cache/refresh-cache-contract.ts`. Time-limit expiration changes labels and refresh priority; it does not remove a verified display snapshot.
+
 ## Hot-Cache-First Rule
 
 If a route or module has a valid verified snapshot, the initial UI renders that snapshot immediately. The UI may label it as cache, stale, fallback, or refreshing, but it must not show a blank panel or top-level waiting card while that verified value exists.
@@ -11,7 +13,7 @@ If a route or module has a valid verified snapshot, the initial UI renders that 
 Waiting is allowed only when no verified snapshot or valid source value exists yet. Waiting copy must name the reason:
 
 - Waiting for first snapshot
-- No verified data yet
+- No verified snapshot yet
 - Source unavailable
 
 Generic `Waiting` or `Waiting for analytics` is forbidden for Admin Analytics cards when a verified snapshot value exists.

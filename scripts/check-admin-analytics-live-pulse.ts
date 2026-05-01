@@ -45,9 +45,9 @@ const livePulseSection = component.slice(
 assertIncludes("AdminAnalyticsOperationsTab", component, "livePulseModel");
 assertIncludes("AdminAnalyticsOperationsTab", component, "__KANDYDROPS_ADMIN_ANALYTICS_LIVE_PULSE_DEBUG__");
 assertIncludes("AdminAnalyticsOperationsTab", component, "compactChartHeightClass");
-assertIncludes("AdminAnalyticsOperationsTab", component, "Waiting for pulse data");
-assertIncludes("AdminAnalyticsOperationsTab", component, "Graph waiting for live data.");
-assertIncludes("AdminAnalyticsOperationsTab", component, "Surface detail waiting for live data.");
+assertIncludes("AdminAnalyticsOperationsTab", component, "Graph awaiting first snapshot.");
+assertIncludes("AdminAnalyticsOperationsTab", component, "Graph awaiting live upgrade.");
+assertIncludes("AdminAnalyticsOperationsTab", component, "Surface detail has no verified live upgrade yet.");
 assertIncludes("AdminAnalyticsOperationsTab", component, "displayLabel");
 assertIncludes("AdminAnalyticsOperationsTab", component, "actorBadgeLabel");
 assertIncludes("AdminAnalyticsOperationsTab", component, "routeLabel");
@@ -58,7 +58,10 @@ assertNotIncludes("Live Pulse section", livePulseSection, "rounded-2xl border bo
 assertNotIncludes("Live Pulse section", livePulseSection, "{item.username}");
 assertNotIncludes("Live Pulse section", livePulseSection, "sessionKey.slice");
 assertNotIncludes("Live Pulse section", livePulseSection, "h-64 w-full md:h-72");
+assertNotIncludes("Live Pulse section", livePulseSection, "Waiting for pulse data");
+assertNotIncludes("Live Pulse section", livePulseSection, "Graph waiting for live data.");
 assertNotIncludes("Live Pulse section", livePulseSection, "Graph source unavailable");
+assertNotIncludes("Live Pulse section", livePulseSection, "Surface detail waiting for live data.");
 assertNotIncludes("Live Pulse section", livePulseSection, "Realtime surfaces are waiting for presence rows.");
 
 for (const phrase of BANNED_VISIBLE_COPY) {

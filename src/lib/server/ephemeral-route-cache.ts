@@ -21,6 +21,8 @@ export type StaleWhileRevalidateCacheResult<T> = {
   cacheAgeMs: number;
   revalidating: boolean;
   validationIssues: string[];
+  staleButVerified: boolean;
+  retainedBeyondStaleTtl: boolean;
 };
 
 const routeCache = new Map<string, CacheEntry<unknown>>();
@@ -145,8 +147,10 @@ export async function readThroughStaleWhileRevalidateEphemeralRouteCache<T>(inpu
       cacheAgeMs: Math.max(0, nowMs - existing.storedAtMs),
       revalidating: false,
       validationIssues: [],
+      staleButVerified: false,
+      retainedBeyondStaleTtl: false,
     };
-  } else if (existing && existing.staleUntilMs > nowMs) {
+  } else if (existing) {
     const refreshPromise = startStaleCacheRefresh(input);
     refreshPromise.catch(() => undefined);
     return {
@@ -156,9 +160,9 @@ export async function readThroughStaleWhileRevalidateEphemeralRouteCache<T>(inpu
       cacheAgeMs: Math.max(0, nowMs - existing.storedAtMs),
       revalidating: true,
       validationIssues: [],
+      staleButVerified: true,
+      retainedBeyondStaleTtl: existing.staleUntilMs <= nowMs,
     };
-  } else if (existing) {
-    staleRouteCache.delete(input.key);
   }
 
   const loaded = await startStaleCacheRefresh(input);
@@ -170,6 +174,8 @@ export async function readThroughStaleWhileRevalidateEphemeralRouteCache<T>(inpu
     cacheAgeMs: 0,
     revalidating: false,
     validationIssues,
+    staleButVerified: false,
+    retainedBeyondStaleTtl: false,
   };
 }
 

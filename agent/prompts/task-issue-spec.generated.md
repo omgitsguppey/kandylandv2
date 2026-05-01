@@ -1,7 +1,7 @@
 # Agent Task Spec
 
 ## Goal
-audit global loading performance and preserve admin analytics hot cache first render
+full-system refresh-based hot cache loading hydration caching refactor
 
 ## Acceptance Criteria
 - Stay within the touched entrypoints unless adjacency proves a shared helper must move with them.
@@ -10,7 +10,7 @@ audit global loading performance and preserve admin analytics hot cache first re
 - Keep broad signoff lanes separate from the fast loop.
 
 ## Likely Entrypoints
-- src/app/admin/analytics/page.tsx
+- src/app/admin/analytics/hooks/useAdminAnalyticsState.tsx
 
 ## Forbidden Surfaces
 - src/lib/gumdrop-ledger.ts
@@ -21,7 +21,7 @@ audit global loading performance and preserve admin analytics hot cache first re
 
 ## Fast Verification
 - npm run typecheck
-- npm run agent:test -- src/app/admin/analytics/page.tsx
+- npm run agent:test -- src/app/admin/analytics/hooks/useAdminAnalyticsState.tsx
 - npm run check:ui:coverage
 - npm run check:ui:runtime
 - npm run check:telemetry

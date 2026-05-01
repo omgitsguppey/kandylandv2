@@ -53,7 +53,7 @@ for (const auditNeedle of [
 for (const doctrineNeedle of [
   "verified hot cache first",
   "Waiting for first snapshot",
-  "No verified data yet",
+  "No verified snapshot yet",
   "Source unavailable",
   "Generic `Waiting` or `Waiting for analytics` is forbidden",
   "Manual refresh and background refresh must never clear visible verified snapshots",
@@ -69,7 +69,7 @@ for (const helperNeedle of [
   "resolveAdminSnapshotSurfaceState",
   "resolveAdminAnalyticsWaitingCopy",
   "Waiting for first snapshot",
-  "No verified data yet",
+  "No verified snapshot yet",
   "Source unavailable",
 ]) {
   requireIncludes(helper, helperNeedle, "Shared loading helper");

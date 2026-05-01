@@ -4,6 +4,8 @@ import {
   ADMIN_METRIC_SNAPSHOT_SOURCE_MODES,
   createSnapshotValue,
   createUnavailableAdminMetricSnapshot,
+  getAdminMetricDisplaySnapshot,
+  resolveAdminMetricRefreshCacheDisplayState,
   resolveAdminMetricSnapshotSourceMode,
   shouldPreventSnapshotRefreshStorm,
   validateAdminMetricSnapshot,
@@ -38,6 +40,8 @@ describe("admin metric snapshot contract", () => {
 
     expect(snapshot.truthState).toBe("unavailable");
     expect(snapshot.sourceMode).toBe("unavailable");
+    expect(snapshot.cacheKey).toBe("admin_analytics:commerce_snapshot:7d");
+    expect(snapshot.refreshVersion).toBe(0);
     expect(snapshot.values.module.value).toBeNull();
     expect(snapshot.values.module.fakeZeroPrevented).toBe(true);
     expect(validateAdminMetricSnapshot(snapshot)).toEqual([]);
@@ -83,6 +87,37 @@ describe("admin metric snapshot contract", () => {
 
     expect(resolveAdminMetricSnapshotSourceMode(snapshot, Date.parse("2026-04-30T12:04:00.000Z"))).toBe("verified_cache");
     expect(resolveAdminMetricSnapshotSourceMode(snapshot, Date.parse("2026-04-30T12:06:00.000Z"))).toBe("stale_cache");
+    expect(getAdminMetricDisplaySnapshot(snapshot)).not.toBeNull();
+    expect(resolveAdminMetricRefreshCacheDisplayState({
+      ...snapshot,
+      sourceMode: "stale_cache",
+    })).toBe("stale_but_verified");
+  });
+
+  it("does not treat time-limit expiry as display invalidation", () => {
+    const snapshot: AdminMetricSnapshot = {
+      ...createUnavailableAdminMetricSnapshot({
+        moduleKey: "live_pulse",
+        rangeKey: "24h",
+        reason: "seed",
+      }),
+      truthState: "verified",
+      sourceMode: "verified_cache",
+      confidence: 0.85,
+      lastVerifiedAt: "2026-04-30T12:00:00.000Z",
+      expiresAt: "2026-04-30T12:05:00.000Z",
+      values: {
+        activeUsers: createSnapshotValue({
+          value: 8,
+          available: true,
+          source: "verified_snapshot",
+          sourceMode: "verified_cache",
+        }),
+      },
+    };
+
+    expect(resolveAdminMetricSnapshotSourceMode(snapshot, Date.parse("2026-04-30T12:30:00.000Z"))).toBe("stale_cache");
+    expect(getAdminMetricDisplaySnapshot(snapshot)?.values.activeUsers.value).toBe(8);
   });
 
   it("prevents duplicate refresh storms while a refresh lock is fresh", () => {

@@ -189,7 +189,7 @@ function buildRecommendation(input: {
   loading: boolean;
   hasResponse: boolean;
 }) {
-  if (!input.hasResponse && input.loading) return "Waiting for user interaction stream.";
+  if (!input.hasResponse && input.loading) return "Waiting for first snapshot.";
   if (!input.hasResponse) return "User interaction stream unavailable for this range.";
   if (input.failureCount > 0) return "Recent task failures are present.";
   if (input.duplicateGroupedCount > 0) return "Repeated task events are grouped.";
@@ -351,12 +351,12 @@ export function buildAdminAnalyticsLiveInteractionStreamModel(input: {
     visibleCopy: stale
       ? "Showing the latest validated interaction snapshot."
       : sourceMode === "waiting"
-        ? "Waiting for user interaction stream."
+        ? "Waiting for first snapshot."
         : "Showing recent user and guest interactions. Admin events are excluded.",
     streamSourceStatusDetail: hasResponse
       ? "First-party backend interaction snapshot; realtime is not claimed unless the source upgrades."
       : input.loading
-        ? "Interaction stream is waiting for a validated snapshot."
+        ? "Interaction stream is waiting for first snapshot."
         : "Interaction stream has no validated snapshot for this range.",
   };
 }

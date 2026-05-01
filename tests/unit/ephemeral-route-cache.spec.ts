@@ -103,4 +103,34 @@ describe("readThroughStaleWhileRevalidateEphemeralRouteCache", () => {
     expect(reloaded.value.generatedAtMs).toBe(2_000);
     expect(loader).toHaveBeenCalledTimes(2);
   });
+
+  it("keeps stale verified route payload displayable beyond stale ttl while refreshing", async () => {
+    const loader = vi.fn<() => Promise<CachePayload>>()
+      .mockResolvedValueOnce({ success: true, generatedAtMs: 1_000, data: [] })
+      .mockResolvedValueOnce({ success: true, generatedAtMs: 20_000, data: [] });
+
+    await readThroughStaleWhileRevalidateEphemeralRouteCache({
+      key: "admin:test:expired-but-verified",
+      ttlMs: 100,
+      staleTtlMs: 200,
+      loader,
+      validate: () => [],
+    });
+
+    vi.setSystemTime(10_000);
+    const retained = await readThroughStaleWhileRevalidateEphemeralRouteCache({
+      key: "admin:test:expired-but-verified",
+      ttlMs: 100,
+      staleTtlMs: 200,
+      loader,
+      validate: () => [],
+    });
+
+    expect(retained.cacheStatus).toBe("stale");
+    expect(retained.value.generatedAtMs).toBe(1_000);
+    expect(retained.staleButVerified).toBe(true);
+    expect(retained.retainedBeyondStaleTtl).toBe(true);
+    expect(retained.revalidating).toBe(true);
+    expect(loader).toHaveBeenCalledTimes(2);
+  });
 });

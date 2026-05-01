@@ -1,5 +1,5 @@
 {
-  "generatedAt": "2026-05-01T16:12:40.437Z",
+  "generatedAt": "2026-05-01T17:40:42.526Z",
   "truthOrder": [
     "verified_runtime_code",
     "verified_configuration",
@@ -822,6 +822,40 @@
       "stable_id": "command__root-check-admin-analytics-hot-cache",
       "command": "npm run check:admin-analytics-hot-cache",
       "scopeType": "analytics",
+      "root_or_functions": "root",
+      "requiredWhen": [],
+      "optionalWhen": [
+        "Run when the touched surface overlaps the command lane."
+      ],
+      "cleanupExpected": [],
+      "broadSignoffWeight": 1,
+      "verifies_runtime": false,
+      "verifies_ui": false,
+      "verifies_rules": false,
+      "verifies_inventory": false,
+      "verifies_continuity": false
+    },
+    {
+      "stable_id": "command__root-check-global-loading-performance",
+      "command": "npm run check:global-loading-performance",
+      "scopeType": "repo",
+      "root_or_functions": "root",
+      "requiredWhen": [],
+      "optionalWhen": [
+        "Run when the touched surface overlaps the command lane."
+      ],
+      "cleanupExpected": [],
+      "broadSignoffWeight": 1,
+      "verifies_runtime": false,
+      "verifies_ui": false,
+      "verifies_rules": false,
+      "verifies_inventory": false,
+      "verifies_continuity": false
+    },
+    {
+      "stable_id": "command__root-check-refresh-based-hot-cache",
+      "command": "npm run check:refresh-based-hot-cache",
+      "scopeType": "repo",
       "root_or_functions": "root",
       "requiredWhen": [],
       "optionalWhen": [

@@ -144,7 +144,7 @@ export function buildAdminAnalyticsAudienceSnapshotModel(input: {
           "Guest traffic is estimated until anonymous batches arrive.",
         ]
       : ["Audience uses validated GA and first-party activity for this range."]
-    : [loading ? "Waiting for audience data." : "Audience unavailable."];
+    : [loading ? "Waiting for first snapshot." : "Audience unavailable."];
 
   const totalUsersSource: AudienceSource = hasResponse ? "ga_total" : loading ? "waiting" : "unavailable";
   const sessionsSource: AudienceSource = hasResponse ? "mixed_ga_first_party" : loading ? "waiting" : "unavailable";
@@ -163,7 +163,7 @@ export function buildAdminAnalyticsAudienceSnapshotModel(input: {
     totalUsers: metric(
       totals?.users ?? null,
       totalUsersSource,
-      hasResponse ? "GA total users" : loading ? "Waiting" : "Unavailable",
+      hasResponse ? "GA total users" : loading ? "Waiting for first snapshot" : "Unavailable",
       hasResponse ? baseTruthState : unavailableTruthState,
     ),
     identifiedUsers: metric(
@@ -175,7 +175,7 @@ export function buildAdminAnalyticsAudienceSnapshotModel(input: {
     identifiedViews: metric(
       guestTraffic?.identifiedViews ?? null,
       guestTraffic ? "identified_first_party" : loading ? "waiting" : "unavailable",
-      guestTraffic ? "Identified first-party views" : loading ? "Waiting" : "Unavailable",
+      guestTraffic ? "Identified first-party views" : loading ? "Waiting for first snapshot" : "Unavailable",
       guestTraffic ? baseTruthState : unavailableTruthState,
     ),
     guestVisits: metric(
@@ -186,32 +186,32 @@ export function buildAdminAnalyticsAudienceSnapshotModel(input: {
         : guestVisitsSource === "first_party_anonymous"
           ? "Guest visits"
           : loading
-            ? "Waiting"
+            ? "Waiting for first snapshot"
             : "Unavailable",
       guestTruthState,
     ),
     sessions: metric(
       totals?.sessions ?? null,
       sessionsSource,
-      hasResponse ? "Sessions from GA with first-party fallback" : loading ? "Waiting" : "Unavailable",
+      hasResponse ? "Sessions from GA with first-party fallback" : loading ? "Waiting for first snapshot" : "Unavailable",
       hasResponse ? baseTruthState : unavailableTruthState,
     ),
     views: metric(
       totals?.views ?? null,
       viewsSource,
-      hasResponse ? "Views from GA with first-party fallback" : loading ? "Waiting" : "Unavailable",
+      hasResponse ? "Views from GA with first-party fallback" : loading ? "Waiting for first snapshot" : "Unavailable",
       hasResponse ? baseTruthState : unavailableTruthState,
     ),
     avgSession: metric(
       totals?.avgSessionDuration ?? null,
       gaMetricSource,
-      hasResponse ? "GA average session duration" : loading ? "Waiting" : "Unavailable",
+      hasResponse ? "GA average session duration" : loading ? "Waiting for first snapshot" : "Unavailable",
       hasResponse ? baseTruthState : unavailableTruthState,
     ),
     engagementRate: metric(
       totals?.engagementRate ?? null,
       gaMetricSource,
-      hasResponse ? "GA engagement rate" : loading ? "Waiting" : "Unavailable",
+      hasResponse ? "GA engagement rate" : loading ? "Waiting for first snapshot" : "Unavailable",
       hasResponse ? baseTruthState : unavailableTruthState,
     ),
     guestEstimateFormula: guestEstimateFormulaUsed

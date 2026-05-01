@@ -1,5 +1,5 @@
 {
-  "generatedAt": "2026-05-01T16:12:40.468Z",
+  "generatedAt": "2026-05-01T17:40:42.567Z",
   "truthOrder": [
     "verified_runtime_code",
     "verified_configuration",
@@ -14,6 +14,62 @@
     "FULL_SCALE_CODEBASE_AUDIT.md"
   ],
   "passes": [
+    {
+      "stable_id": "pass__2026-05-01-pre-refresh-based-hot-cache-architecture-refactor",
+      "date": "2026-05-01",
+      "title": "PRE: Refresh-Based Hot Cache Architecture Refactor",
+      "scopeSummary": [],
+      "touchedSurfaces": [
+        "agent/state/refresh-cache-loading-audit.generated.json",
+        "docs/agent-truth/refresh-based-hot-cache.md",
+        "scripts/agent/validate-refresh-based-hot-cache.ts",
+        "src/lib/analytics/admin-metric-snapshot.ts",
+        "src/lib/cache/refresh-cache-contract.ts",
+        "src/lib/server/ephemeral-route-cache.ts"
+      ],
+      "canonicalHelpersReused": [],
+      "verificationCommandsRun": [],
+      "resultSummary": [],
+      "warnings": [],
+      "architecture_change": true,
+      "runtime_change": false,
+      "ui_change": false,
+      "security_change": false,
+      "maintenance_only": false,
+      "changeKinds": [
+        "admin",
+        "tooling",
+        "architecture"
+      ]
+    },
+    {
+      "stable_id": "pass__2026-05-01-pre-global-loading-performance-hot-cache-preservation",
+      "date": "2026-05-01",
+      "title": "PRE: Global Loading Performance Hot-Cache Preservation",
+      "scopeSummary": [],
+      "touchedSurfaces": [
+        "agent/state/global-loading-performance-audit.generated.json",
+        "docs/agent-truth/global-loading-performance.md",
+        "npm run agent:fast-start -- --task=\"audit global loading performance and preserve admin analytics hot cache first render\" --mode=admin --file=src/app/admin/analytics/page.tsx",
+        "npm run trace:adjacent -- src/app/admin/analytics/hooks/useAdminAnalyticsState.tsx",
+        "src/app/admin/analytics/hooks/useAdminAnalyticsState.tsx",
+        "src/app/api/admin/analytics/realtime/route.ts",
+        "src/app/api/admin/analytics/refresh/route.ts"
+      ],
+      "canonicalHelpersReused": [],
+      "verificationCommandsRun": [],
+      "resultSummary": [],
+      "warnings": [],
+      "architecture_change": false,
+      "runtime_change": true,
+      "ui_change": true,
+      "security_change": false,
+      "maintenance_only": false,
+      "changeKinds": [
+        "admin",
+        "runtime"
+      ]
+    },
     {
       "stable_id": "pass__2026-05-01-pre-drops-mobile-apple-aligned-ui-refinement",
       "date": "2026-05-01",
@@ -168,60 +224,6 @@
       "security_change": false,
       "maintenance_only": false,
       "changeKinds": []
-    },
-    {
-      "stable_id": "pass__2026-04-30-pre__post-analytics-truth-layer-v2-phase-3-verified-hot-cache-snapshots",
-      "date": "2026-04-30",
-      "title": "PRE/POST: Analytics Truth Layer v2 Phase 3 Verified Hot-Cache Snapshots",
-      "scopeSummary": [],
-      "touchedSurfaces": [
-        "/api/admin/analytics/historical",
-        "/api/admin/analytics/realtime",
-        "/api/admin/debug",
-        "npx vitest run tests/unit/admin-metric-snapshot.spec.ts tests/unit/admin-analytics-refresh-route.spec.ts tests/unit/admin-analytics-realtime-route.spec.ts tests/unit/admin-debug-route-runtime.spec.ts",
-        "src/app/admin/analytics/hooks/useAdminAnalyticsState.tsx"
-      ],
-      "canonicalHelpersReused": [],
-      "verificationCommandsRun": [],
-      "resultSummary": [],
-      "warnings": [],
-      "architecture_change": false,
-      "runtime_change": false,
-      "ui_change": true,
-      "security_change": false,
-      "maintenance_only": false,
-      "changeKinds": [
-        "admin",
-        "runtime"
-      ]
-    },
-    {
-      "stable_id": "pass__2026-04-30-pre__post-analytics-truth-layer-v2-phase-2-event-contract-and-identity-lanes",
-      "date": "2026-04-30",
-      "title": "PRE/POST: Analytics Truth Layer v2 Phase 2 Event Contract and Identity Lanes",
-      "scopeSummary": [],
-      "touchedSurfaces": [
-        "npx vitest run tests/unit/analytics-event-contract.spec.ts tests/unit/analytics-legacy-event-mapping.spec.ts",
-        "src/lib/analytics-identifiers.ts",
-        "src/lib/server/analytics.ts",
-        "src/lib/telemetry-catalog.ts",
-        "src/lib/telemetry.ts"
-      ],
-      "canonicalHelpersReused": [
-        "src/lib/telemetry-catalog.ts",
-        "src/lib/telemetry.ts"
-      ],
-      "verificationCommandsRun": [],
-      "resultSummary": [],
-      "warnings": [],
-      "architecture_change": true,
-      "runtime_change": false,
-      "ui_change": false,
-      "security_change": false,
-      "maintenance_only": false,
-      "changeKinds": [
-        "architecture"
-      ]
     }
   ]
 }

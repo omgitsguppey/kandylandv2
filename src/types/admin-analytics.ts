@@ -360,6 +360,8 @@ export interface HistoricalAnalyticsResponse {
   cacheSourceLabel?: string;
   cacheValidationIssues?: string[];
   cacheRevalidating?: boolean;
+  staleButVerified?: boolean;
+  retainedBeyondStaleTtl?: boolean;
   requiresSetup?: boolean;
   error?: string;
   issues?: string[];
@@ -469,6 +471,8 @@ export interface RealtimeAnalyticsResponse {
   cacheAgeMs?: number;
   cacheSourceLabel?: string;
   cacheRevalidating?: boolean;
+  staleButVerified?: boolean;
+  retainedBeyondStaleTtl?: boolean;
   liveTruthLabel?: "live" | "cached" | "stale" | "fallback" | "partial" | "failed";
   liveSourceLabel?: string;
   activeUsersTruthLabel?: "live" | "cached" | "stale" | "fallback" | "partial" | "failed";

@@ -93,8 +93,8 @@ for (const codeNeedle of [
 }
 
 for (const livePulseNeedle of [
-  "Graph waiting for live data.",
-  "Surface detail waiting for live data.",
+  "Graph awaiting live upgrade.",
+  "Surface detail has no verified live upgrade yet.",
   "Showing last verified snapshot.",
 ]) {
   requireIncludes(operationsTab + livePulseModel + displayStateHelper, livePulseNeedle, "Live Pulse snapshot-first visible state");
@@ -128,7 +128,9 @@ requireIncludes(truthDoc, "realtime is an upgrade", "Analytics truth doctrine");
 
 for (const bannedVisibleCopy of [
   "Live Pulse is unavailable.",
+  "Graph waiting for live data.",
   "Graph source unavailable",
+  "Surface detail waiting for live data.",
   "Realtime surfaces are waiting for presence rows.",
   "observer failed closed",
   "polled route snapshot",

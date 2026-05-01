@@ -72,17 +72,19 @@ export function AdminAnalyticsOperationsTab(props: AdminAnalyticsState) {
           : livePulseModel.presenceSourceStatus === "cache"
             ? "STALE"
             : "LIVE";
+  const firstSnapshotLabel = "Waiting for first snapshot";
+  const noSnapshotLabel = "No verified snapshot yet";
   const activeNowValue = livePulseModel.activeCount.value === null
-    ? liveLoading ? "Waiting" : "Unavailable"
+    ? liveLoading ? firstSnapshotLabel : noSnapshotLabel
     : formatCompactNumber(livePulseModel.activeCount.value);
   const guestAuthMixValue =
     livePulseModel.guestCount.value === null || livePulseModel.authenticatedCount.value === null
-      ? liveLoading ? "Waiting" : "Unavailable"
+      ? liveLoading ? firstSnapshotLabel : noSnapshotLabel
       : `${formatCompactNumber(livePulseModel.guestCount.value)} / ${formatCompactNumber(livePulseModel.authenticatedCount.value)}`;
-  const topSurfaceValue = livePulseModel.topSurface.value ?? (liveLoading ? "Waiting" : "Unavailable");
+  const topSurfaceValue = livePulseModel.topSurface.value ?? (liveLoading ? firstSnapshotLabel : noSnapshotLabel);
   const lastUpdateValue = liveResponse?.generatedAtMs
     ? formatRelativeTime(liveResponse.generatedAtMs, nowMs)
-    : livePulseModel.activeIdentities[0]?.lastSeenLabel ?? (liveLoading ? "Waiting" : "Unavailable");
+    : livePulseModel.activeIdentities[0]?.lastSeenLabel ?? (liveLoading ? firstSnapshotLabel : noSnapshotLabel);
 
   React.useEffect(() => {
     if (typeof window === "undefined") {
@@ -95,9 +97,9 @@ export function AdminAnalyticsOperationsTab(props: AdminAnalyticsState) {
   }, [livePulseModel]);
   const journeyFunnelBadgeLabel = journeyFunnelModel.modeLabel;
   const journeyPercentLabel = (value: number | null) =>
-    value === null ? "Waiting" : formatPercent(value);
+    value === null ? firstSnapshotLabel : formatPercent(value);
   const journeyCountLabel = (value: number | null) =>
-    value === null ? "Waiting" : formatCompactNumber(value);
+    value === null ? firstSnapshotLabel : formatCompactNumber(value);
   const biggestDropoffLabel =
     journeyFunnelModel.biggestDropoffStep && journeyFunnelModel.biggestDropoffPercent !== null
       ? `${journeyFunnelModel.biggestDropoffStep} ${formatPercent(journeyFunnelModel.biggestDropoffPercent)}`
@@ -114,9 +116,9 @@ export function AdminAnalyticsOperationsTab(props: AdminAnalyticsState) {
   }, [journeyFunnelModel]);
   const authOutcomeBadgeLabel = authOutcomeModel.modeLabel;
   const authCountLabel = (value: number | null) =>
-    value === null ? "Waiting" : formatCompactNumber(value);
+    value === null ? firstSnapshotLabel : formatCompactNumber(value);
   const authPercentLabel = (value: number | null) =>
-    value === null ? "Waiting" : formatPercent(value);
+    value === null ? firstSnapshotLabel : formatPercent(value);
   const authFinishLabel = authOutcomeModel.avgFinish.value === null
     ? "Unavailable"
     : formatDuration(authOutcomeModel.avgFinish.value / 1000);
@@ -148,7 +150,7 @@ export function AdminAnalyticsOperationsTab(props: AdminAnalyticsState) {
     }).__KANDYDROPS_ADMIN_ANALYTICS_GUEST_BOUNCE_QUALITY_DEBUG__ = guestBounceQualityModel;
   }, [guestBounceQualityModel]);
   const eventMixCountLabel = (value: number | null) =>
-    value === null ? "Waiting" : formatCompactNumber(value);
+    value === null ? firstSnapshotLabel : formatCompactNumber(value);
   const eventMixShareLabel = (value: number | null) =>
     value === null ? "Share unavailable" : formatPercent(value);
 
@@ -162,7 +164,7 @@ export function AdminAnalyticsOperationsTab(props: AdminAnalyticsState) {
     }).__KANDYDROPS_ADMIN_ANALYTICS_EVENT_MIX_DEBUG__ = eventMixModel;
   }, [eventMixModel]);
   const streamCountLabel = (value: number | null) =>
-    value === null ? "Waiting" : formatCompactNumber(value);
+    value === null ? firstSnapshotLabel : formatCompactNumber(value);
 
   React.useEffect(() => {
     if (typeof window === "undefined") {
@@ -264,8 +266,8 @@ export function AdminAnalyticsOperationsTab(props: AdminAnalyticsState) {
                 ) : (
                   <div className="flex h-full items-center justify-center rounded-[1rem] border border-dashed border-white/10 bg-black/25 px-3 text-center text-xs text-gray-400">
                     {livePulseModel.backendSnapshotStatus === "available"
-                      ? "Graph waiting for live data."
-                      : liveLoading ? "Waiting for pulse data." : "No verified graph data yet."}
+                      ? "Graph awaiting live upgrade."
+                      : liveLoading ? "Graph awaiting first snapshot." : "No verified graph data yet."}
                   </div>
                 )}
               </div>
@@ -311,7 +313,7 @@ export function AdminAnalyticsOperationsTab(props: AdminAnalyticsState) {
                     ) : (
                       <div className="rounded-[0.9rem] border border-dashed border-white/10 bg-black/20 p-3 text-xs text-gray-500">
                         <AdminStatusBadge state={livePulseTruthState} className="mb-2" />
-                        Surface detail waiting for live data.
+                        Surface detail has no verified live upgrade yet.
                       </div>
                     )}
                   </div>
@@ -363,7 +365,7 @@ export function AdminAnalyticsOperationsTab(props: AdminAnalyticsState) {
                       <div className="rounded-[0.9rem] border border-dashed border-white/10 bg-black/20 p-3 text-xs text-gray-500">
                         <AdminStatusBadge state={activeUsersTruthState} className="mb-2" />
                         {livePulseModel.fakeZeroPrevented
-                          ? "Waiting for active identity rows."
+                          ? "No verified active identity rows yet."
                           : "No active identity details are available."}
                       </div>
                     )}
@@ -622,7 +624,7 @@ export function AdminAnalyticsOperationsTab(props: AdminAnalyticsState) {
                       })
                     ) : (
                       <div className="rounded-[0.9rem] border border-dashed border-white/10 bg-black/20 p-3 text-xs text-gray-500">
-                        Auth method detail is waiting for tracked attempts.
+                        Auth method detail needs tracked attempts.
                       </div>
                     )}
                   </div>
@@ -740,7 +742,7 @@ export function AdminAnalyticsOperationsTab(props: AdminAnalyticsState) {
                     </span>
                     <span>
                       <span className="font-semibold text-white">Top:</span>{" "}
-                      {eventMixModel.topEvent?.displayLabel ?? "Waiting"}
+                      {eventMixModel.topEvent?.displayLabel ?? "No verified event yet"}
                     </span>
                     <span>
                       <span className="font-semibold text-white">Surfaces:</span>{" "}
@@ -797,7 +799,7 @@ export function AdminAnalyticsOperationsTab(props: AdminAnalyticsState) {
                         ))
                       ) : (
                         <div className="rounded-[0.9rem] border border-dashed border-white/10 bg-black/20 p-3 text-xs text-gray-500">
-                          Event mix is waiting for raw event counts.
+                          Event mix needs raw event counts.
                         </div>
                       )}
                     </div>

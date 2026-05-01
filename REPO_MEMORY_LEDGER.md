@@ -24,6 +24,14 @@ This file is not a changelog. It is the concise ledger for durable decisions tha
 
 ## Decision Entries
 
+### 1by. Refresh-based hot cache replaces time-limit display gating
+
+- Approximate date: Recorded explicitly on 2026-05-01 from the full-system refresh-cache refactor
+- Status: Active loading, hydration, cache, and admin truth rule
+- Decision: Verified snapshots and validated backend route payloads remain displayable until a verified replacement is written or an explicit `invalidationReason` blocks display. Time age changes labels and refresh priority (`stale_but_verified`), but it does not blank values. Realtime and router refresh are UI/update mechanisms, not first-render source truth.
+- Implications: Cache records must expose cache key, refresh/source versions, refresh timestamps, invalidation reason, source/truth state, confidence, parity warnings, estimate flags, and legacy flags. Manual/background refresh preserves old values, increments `refreshVersion` only after completion, and records failures without clearing display. Admin Debug owns detailed proof.
+- Canonical docs: `docs/agent-truth/refresh-based-hot-cache.md`, `agent/state/refresh-cache-loading-audit.generated.json`, `src/lib/cache/refresh-cache-contract.ts`.
+
 ### 1bx. Admin Analytics loading must preserve verified hot-cache values through realtime and refresh delays
 
 - Approximate date: Recorded explicitly on 2026-05-01 from the global loading performance audit pass

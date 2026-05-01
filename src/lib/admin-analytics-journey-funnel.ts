@@ -240,7 +240,7 @@ export function buildAdminAnalyticsJourneyFunnelModel(input: {
   const visibleHelperCopy = hasResponse
     ? "This view counts repeated events, not unique people moving step by step."
     : input.loading
-      ? "Waiting for journey event counts."
+      ? "Waiting for first snapshot."
       : "Journey event counts are unavailable.";
 
   return {

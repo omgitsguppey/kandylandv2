@@ -52,7 +52,7 @@ export function AdminAnalyticsCommerceTab(props: AdminAnalyticsState) {
   const formatCommerceValue = (
     value: number | null,
     formatter: (next: number) => string,
-    waitingLabel = "Waiting",
+    waitingLabel = "No verified snapshot yet",
   ) => (typeof value === "number" && Number.isFinite(value) ? formatter(value) : waitingLabel);
   const commerceBadgeLabel = commerceSnapshotModel.stale
     ? "STALE"

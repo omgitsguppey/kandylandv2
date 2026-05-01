@@ -195,7 +195,7 @@ export function resolveAdminAnalyticsDisplayState(input: {
     shouldRenderSnapshot: false,
     shouldRenderRealtimeUpgrade: false,
     shouldShowUnavailable: true,
-    visibleMessage: refreshRunning ? "Refresh running. No verified data yet." : "No verified data yet.",
+    visibleMessage: refreshRunning ? "Refresh running. No verified snapshot yet." : "No verified snapshot yet.",
     debugReason:
       errorState.snapshotError ??
       errorState.refreshError ??

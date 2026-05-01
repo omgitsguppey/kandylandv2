@@ -176,7 +176,7 @@ export function buildAdminAnalyticsCommerceSnapshotModel(input: {
     ? stale || response?.cacheRevalidating
       ? ["Commerce refresh is delayed. Showing last validated snapshot.", "Promo and bonus GD are excluded from revenue."]
       : ["Showing validated commerce data for the selected range.", "Promo and bonus GD are excluded from revenue."]
-    : [loading ? "Waiting for commerce data." : "Commerce unavailable."];
+    : [loading ? "Waiting for first snapshot." : "Commerce unavailable."];
 
   const needsAttention = [
     checkoutStartsValue !== null && purchaseCompletionsValue !== null && checkoutStartsValue > 0

@@ -158,6 +158,8 @@ function annotateHistoricalCacheState(
         cacheSourceLabel,
         cacheValidationIssues: result.validationIssues,
         cacheRevalidating: result.revalidating,
+        staleButVerified: result.staleButVerified,
+        retainedBeyondStaleTtl: result.retainedBeyondStaleTtl,
         issues: [
             ...(result.value.issues ?? []),
             ...(cacheIssue ? [cacheIssue] : []),

@@ -48,7 +48,7 @@ export function AdminAnalyticsAudienceTab(props: AdminAnalyticsState) {
   ) => (value === null ? waitingLabel : formatter(value));
   const audienceWaitingLabel =
     audienceSnapshotModel.fakeZeroPrevented && historicalLoading
-      ? "Waiting"
+      ? "Waiting for first snapshot"
       : "Unavailable";
   const guestBadgeLabel = audienceSnapshotModel.guestEstimateFormulaUsed
     ? "EST"

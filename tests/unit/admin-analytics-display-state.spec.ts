@@ -74,7 +74,7 @@ describe("resolveAdminAnalyticsDisplayState", () => {
     });
 
     expect(state.shouldShowUnavailable).toBe(true);
-    expect(state.visibleMessage).toBe("No verified data yet.");
+    expect(state.visibleMessage).toBe("No verified snapshot yet.");
     expect(state.fakeZeroPrevented).toBe(true);
   });
 
@@ -174,6 +174,11 @@ describe("resolveAdminAnalyticsDisplayState", () => {
       reason: "source_unavailable",
       allowed: true,
     });
+
+    expect(resolveAdminAnalyticsWaitingCopy({
+      hasVerifiedValue: false,
+      loading: false,
+    }).label).toBe("No verified snapshot yet");
   });
 
   it("normalizes percent snapshots that arrive as whole percentages", () => {
