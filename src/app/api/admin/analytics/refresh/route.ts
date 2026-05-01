@@ -32,6 +32,21 @@ type RefreshRequestBody = {
   force?: boolean;
 };
 
+const ADMIN_ANALYTICS_PRIVATE_CACHE_HEADERS = {
+  "Cache-Control": "private, no-store",
+  "CDN-Cache-Control": "no-store",
+};
+
+function adminAnalyticsJson(body: unknown, init?: ResponseInit) {
+  return NextResponse.json(body, {
+    ...init,
+    headers: {
+      ...ADMIN_ANALYTICS_PRIVATE_CACHE_HEADERS,
+      ...(init?.headers ?? {}),
+    },
+  });
+}
+
 function readModuleAndRange(request: NextRequest, body?: RefreshRequestBody) {
   const moduleKey = body?.moduleKey ?? request.nextUrl.searchParams.get("moduleKey") ?? "";
   const rangeKey = body?.rangeKey ?? request.nextUrl.searchParams.get("rangeKey") ?? "24h";
@@ -39,7 +54,7 @@ function readModuleAndRange(request: NextRequest, body?: RefreshRequestBody) {
   if (!isAdminAnalyticsSnapshotModuleKey(moduleKey)) {
     return {
       ok: false as const,
-      response: NextResponse.json({
+      response: adminAnalyticsJson({
         success: false,
         error: `Unknown admin analytics snapshot module: ${moduleKey || "missing"}`,
       }, { status: 400 }),
@@ -49,7 +64,7 @@ function readModuleAndRange(request: NextRequest, body?: RefreshRequestBody) {
   if (!isAdminMetricSnapshotRange(rangeKey)) {
     return {
       ok: false as const,
-      response: NextResponse.json({
+      response: adminAnalyticsJson({
         success: false,
         error: `Unsupported admin analytics snapshot range: ${rangeKey}`,
       }, { status: 400 }),
@@ -83,7 +98,7 @@ async function GET_handler(request: NextRequest) {
     const metadata = await getSnapshotDebugMetadata(parsed.moduleKey, parsed.rangeKey);
     const materializer = getAdminAnalyticsMaterializer(parsed.moduleKey);
 
-    return NextResponse.json({
+    return adminAnalyticsJson({
       success: true,
       moduleKey: parsed.moduleKey,
       rangeKey: parsed.rangeKey,
@@ -131,7 +146,7 @@ async function POST_handler(request: NextRequest) {
 
     if (started.duplicateRefreshPrevented) {
       const metadata = await getSnapshotDebugMetadata(parsed.moduleKey, parsed.rangeKey);
-      return NextResponse.json({
+      return adminAnalyticsJson({
         success: true,
         moduleKey: parsed.moduleKey,
         rangeKey: parsed.rangeKey,
@@ -162,7 +177,7 @@ async function POST_handler(request: NextRequest) {
       });
       const metadata = await getSnapshotDebugMetadata(parsed.moduleKey, parsed.rangeKey);
 
-      return NextResponse.json({
+      return adminAnalyticsJson({
         success: true,
         moduleKey: parsed.moduleKey,
         rangeKey: parsed.rangeKey,
@@ -177,7 +192,7 @@ async function POST_handler(request: NextRequest) {
       const snapshot = await getLatestVerifiedSnapshot(parsed.moduleKey, parsed.rangeKey);
       const metadata = await getSnapshotDebugMetadata(parsed.moduleKey, parsed.rangeKey);
 
-      return NextResponse.json({
+      return adminAnalyticsJson({
         success: false,
         moduleKey: parsed.moduleKey,
         rangeKey: parsed.rangeKey,

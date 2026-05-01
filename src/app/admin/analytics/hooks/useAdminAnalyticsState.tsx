@@ -22,6 +22,12 @@ import {
   type AdminAnalyticsDisplayState,
 } from "@/lib/analytics/admin-analytics-display-state";
 import {
+  normalizeAdminSnapshotRatio,
+  readAdminSnapshotNumberValue,
+  resolveAdminAnalyticsWaitingCopy,
+  resolveAdminSnapshotSurfaceState,
+} from "@/lib/analytics/admin-analytics-loading-state";
+import {
   ADMIN_ANALYTICS_DEFAULT_RANGE,
   normalizeAdminAnalyticsModuleRangeMap,
   type AdminAnalyticsModuleRangeMap,
@@ -972,21 +978,55 @@ const { user } = useAuth();
     (issue, index, array): issue is string =>
       Boolean(issue) && array.indexOf(issue) === index,
   );
+  const commerceSnapshotModule = analyticsSnapshotRegistry.bySectionKey.commerceSnapshot;
+  const audienceSnapshotModule = analyticsSnapshotRegistry.bySectionKey.audienceSnapshot;
+  const livePulseSnapshotModule = analyticsSnapshotRegistry.bySectionKey.livePulse;
+  const snapshotRevenueValue = readAdminSnapshotNumberValue(commerceSnapshotModule.snapshot, [
+    "revenueUsd",
+    "revenue",
+    "totalRevenueUsd",
+    "grossRevenueUsd",
+  ]);
+  const snapshotPurchasesValue = readAdminSnapshotNumberValue(commerceSnapshotModule.snapshot, [
+    "purchases",
+    "purchaseCount",
+    "purchaseCompletions",
+    "completedPurchases",
+  ]);
+  const snapshotMobileShareValue = normalizeAdminSnapshotRatio(readAdminSnapshotNumberValue(audienceSnapshotModule.snapshot, [
+    "mobileShare",
+    "mobileShareRate",
+    "mobileUsersShare",
+    "mobileTrafficShare",
+  ]));
+  const snapshotLiveActiveValue = readAdminSnapshotNumberValue(livePulseSnapshotModule.snapshot, [
+    "activeCount",
+    "activeUsers",
+    "totalActive",
+    "liveActive",
+  ]);
+  const hasOverviewSnapshotFirstValue =
+    snapshotRevenueValue !== null ||
+    snapshotPurchasesValue !== null ||
+    snapshotMobileShareValue !== null ||
+    snapshotLiveActiveValue !== null;
   const blockingAnalyticsError =
     (!effectiveLiveResponse &&
       !historicalOverviewResponse &&
+      !hasOverviewSnapshotFirstValue &&
       ((liveError as Error | undefined) ||
         (liveRealtime.feedStatus === "failed"
           ? new Error(liveRealtime.feedDetail)
           : undefined))) ||
-    (!historicalResponse && (historicalError as Error | undefined)) ||
+    (!historicalOverviewResponse && !hasOverviewSnapshotFirstValue && (historicalError as Error | undefined)) ||
     null;
   const isPrimingAnalytics =
     !effectiveLiveResponse &&
-    !historicalResponse &&
+    !historicalOverviewResponse &&
+    !hasOverviewSnapshotFirstValue &&
     (liveLoading || historicalLoading);
   const isBackgroundSyncing =
-    historicalLoading && Boolean(effectiveLiveResponse || historicalResponse);
+    historicalLoading && Boolean(effectiveLiveResponse || historicalOverviewResponse || hasOverviewSnapshotFirstValue);
   const analyticsWarmState = isPrimingAnalytics
     ? "Fetching live data"
     : liveRealtime.feedStatus === "realtime"
@@ -1025,7 +1065,7 @@ const { user } = useAuth();
       : historicalOverviewResponse && historicalError
         ? `Previous ${range.toUpperCase()} snapshot (revalidation failed)`
         : historicalLoading
-          ? "Waiting for analytics"
+          ? "Waiting for first analytics snapshot"
           : "Historical data unavailable";
   const historicalOverviewSourceLabel =
     usedHistoricalOverviewFallbackSnapshot
@@ -1041,19 +1081,36 @@ const { user } = useAuth();
     overviewDevices.find((item) => item.device.toLowerCase() === "mobile")?.users ?? 0;
   const mobileShare = totalDeviceUsers > 0 ? mobileUsers / totalDeviceUsers : 0;
 
-  // Fake-zero protected display values: show truthful waiting/unavailable states when data source is unavailable.
-  const historicalOverviewWaitingLabel = historicalLoading ? "Waiting" : "Unavailable";
+  const historicalSnapshotSurfaceState =
+    resolveAdminSnapshotSurfaceState(commerceSnapshotModule.snapshot) ??
+    resolveAdminSnapshotSurfaceState(audienceSnapshotModule.snapshot);
+  const historicalOverviewWaitingState = resolveAdminAnalyticsWaitingCopy({
+    hasVerifiedValue:
+      snapshotRevenueValue !== null ||
+      snapshotPurchasesValue !== null ||
+      snapshotMobileShareValue !== null,
+    loading: historicalLoading || commerceSnapshotModule.isLoading || audienceSnapshotModule.isLoading,
+    error: historicalError instanceof Error
+      ? historicalError.message
+      : commerceSnapshotModule.error ?? audienceSnapshotModule.error,
+  });
+  const historicalOverviewWaitingLabel = historicalOverviewWaitingState.label ?? "No verified data yet";
 
   const revenueDisplay = historicalOverviewResponse
     ? formatMoney(overviewCommerce.revenueUsd)
+    : snapshotRevenueValue !== null
+      ? formatMoney(snapshotRevenueValue)
     : historicalOverviewWaitingLabel;
   const purchasesDisplay = historicalOverviewResponse
     ? formatCompactNumber(overviewFunnel.purchases)
+    : snapshotPurchasesValue !== null
+      ? formatCompactNumber(snapshotPurchasesValue)
     : historicalOverviewWaitingLabel;
   const mobileShareDisplay = historicalOverviewResponse
     ? formatPercent(mobileShare)
+    : snapshotMobileShareValue !== null
+      ? formatPercent(snapshotMobileShareValue)
     : historicalOverviewWaitingLabel;
-  const livePulseSnapshotModule = analyticsSnapshotRegistry.bySectionKey.livePulse;
   const livePulseLatestVerifiedSnapshot = resolveLivePulseSnapshotState({
     liveResponse,
     snapshotModule: livePulseSnapshotModule,
@@ -1097,11 +1154,18 @@ const { user } = useAuth();
       graphSourceAvailable: liveSeries.some((point) => point.users > 0 || point.views > 0),
     },
   });
+  const liveActiveWaitingState = resolveAdminAnalyticsWaitingCopy({
+    hasVerifiedValue: snapshotLiveActiveValue !== null,
+    loading: liveLoading || livePulseSnapshotModule.isLoading,
+    error: liveRealtime.feedStatus === "failed" ? liveRealtime.feedDetail : livePulseSnapshotModule.error,
+  });
   const liveActiveDisplay =
     livePulseDisplayState.fakeZeroPrevented && livePulseDisplayState.shouldShowUnavailable
-      ? liveLoading ? "Waiting" : "Unavailable"
+      ? liveActiveWaitingState.label ?? "No verified data yet"
       : effectiveLiveResponse?.totalActive === undefined || effectiveLiveResponse?.totalActive === null
-        ? liveLoading ? "Waiting" : "Unavailable"
+        ? snapshotLiveActiveValue !== null
+          ? formatCompactNumber(snapshotLiveActiveValue)
+          : liveActiveWaitingState.label ?? "No verified data yet"
         : formatCompactNumber(effectiveLiveResponse.totalActive);
   const liveActiveTruthState: AdminSurfaceState | undefined =
     mapDisplayStateToAdminSurfaceState(livePulseDisplayState);
@@ -1135,6 +1199,8 @@ const { user } = useAuth();
     : historicalTruthState === "degraded" ? "degraded"
     : historicalTruthState === "stale" ? "stale"
     : historicalTruthState === "failed" ? "failed"
+    : historicalSnapshotSurfaceState
+      ? historicalSnapshotSurfaceState
     : historicalLoading ? "loading"
     : "unavailable";
 
@@ -1172,6 +1238,12 @@ const { user } = useAuth();
     valueSource,
     truthState,
     realtimeLaneStatus,
+    snapshotModule,
+    waitingShownBecause,
+    waitingAllowed,
+    blocksOnRealtime = false,
+    blocksOnRefresh = false,
+    waterfallDetected = false,
   }: {
     metricKey: AdminAnalyticsOverviewMetricKey;
     visibleValue: string;
@@ -1179,9 +1251,19 @@ const { user } = useAuth();
     valueSource: string;
     truthState: AdminSurfaceState;
     realtimeLaneStatus: string | null;
+    snapshotModule: AdminAnalyticsSnapshotModuleState | null;
+    waitingShownBecause: string | null;
+    waitingAllowed: boolean;
+    blocksOnRealtime?: boolean;
+    blocksOnRefresh?: boolean;
+    waterfallDetected?: boolean;
   }) => {
     const hydrationMs = overviewMetricHydrationMs[metricKey];
     const sourceUnavailable = value === null;
+    const snapshotUsedOnFirstRender = valueSource === "verified_snapshot";
+    const refreshStatus =
+      snapshotModule?.refreshStatus ??
+      (historicalLoading || liveLoading ? "refreshing" : "idle");
 
     return {
       metricKey,
@@ -1217,6 +1299,25 @@ const { user } = useAuth();
         (hydrationMs ?? Number.POSITIVE_INFINITY) > ADMIN_ANALYTICS_OVERVIEW_HYDRATION_BUDGET_MS,
       usedFallbackSnapshot: metricKey !== "liveActive" && usedHistoricalOverviewFallbackSnapshot,
       fakeZeroPrevented: sourceUnavailable,
+      firstSnapshotMs: snapshotModule?.firstSnapshotMs ?? null,
+      firstUsefulValueMs: hydrationMs ?? snapshotModule?.firstSnapshotMs ?? null,
+      refreshStartedAt: snapshotModule?.snapshot?.refreshStartedAt ?? null,
+      refreshCompletedAt: snapshotModule?.snapshot?.refreshCompletedAt ?? null,
+      refreshStatus,
+      snapshotUsedOnFirstRender,
+      waitingShownBecause,
+      waitingAllowed,
+      blocksOnRealtime,
+      blocksOnRefresh,
+      fallbackSnapshotUsed:
+        snapshotUsedOnFirstRender ||
+        (metricKey !== "liveActive" && usedHistoricalOverviewFallbackSnapshot),
+      fakeWaitingPrevented: snapshotUsedOnFirstRender,
+      waterfallDetected,
+      slowSource: hydrationMs && hydrationMs > ADMIN_ANALYTICS_OVERVIEW_HYDRATION_BUDGET_MS
+        ? { key: valueSource, timingMs: hydrationMs }
+        : null,
+      cacheControlMode: metricKey === "liveActive" ? "private-no-store-hot-cache" : "private-no-store-stale-while-revalidate",
     };
   };
 
@@ -1226,40 +1327,67 @@ const { user } = useAuth();
       liveActive: buildOverviewMetricDebugMeta({
         metricKey: "liveActive",
         visibleValue: liveActiveDisplay,
-        value: effectiveLiveResponse?.totalActive ?? null,
-        valueSource: liveRealtime.feedStatus === "realtime" ? "firestore_realtime" : liveRealtime.feedStatus === "partial" ? "firestore_partial" : liveLoading ? "hydrating" : "api_polling",
+        value: effectiveLiveResponse?.totalActive ?? snapshotLiveActiveValue,
+        valueSource: effectiveLiveResponse?.totalActive !== undefined && effectiveLiveResponse?.totalActive !== null
+          ? liveRealtime.feedStatus === "realtime" ? "firestore_realtime" : liveRealtime.feedStatus === "partial" ? "firestore_partial" : "api_polling"
+          : snapshotLiveActiveValue !== null ? "verified_snapshot" : liveLoading ? "hydrating" : "unavailable",
         truthState: liveActiveTruthState ?? (liveLoading ? "loading" : "unavailable"),
         realtimeLaneStatus: liveRealtime.feedStatus,
+        snapshotModule: livePulseSnapshotModule,
+        waitingShownBecause: effectiveLiveResponse?.totalActive === undefined || effectiveLiveResponse?.totalActive === null
+          ? liveActiveWaitingState.reason
+          : null,
+        waitingAllowed: liveActiveWaitingState.allowed,
+        blocksOnRealtime: false,
+        blocksOnRefresh: false,
       }),
       mobileShare: buildOverviewMetricDebugMeta({
         metricKey: "mobileShare",
         visibleValue: mobileShareDisplay,
-        value: historicalOverviewResponse ? mobileShare : null,
+        value: historicalOverviewResponse ? mobileShare : snapshotMobileShareValue,
         valueSource: historicalOverviewResponse?.cacheState === "fresh" ? "server_cache"
           : historicalOverviewResponse?.cacheState === "stale" ? "stale_server_cache"
-          : historicalResponse ? "server_confirmed" : historicalLoading ? "hydrating" : "unavailable",
+          : historicalResponse ? "server_confirmed" : snapshotMobileShareValue !== null ? "verified_snapshot" : historicalLoading ? "hydrating" : "unavailable",
         truthState: historicalOverviewTruthState ?? (historicalLoading ? "loading" : "unavailable"),
         realtimeLaneStatus: null,
+        snapshotModule: audienceSnapshotModule,
+        waitingShownBecause: historicalOverviewResponse || snapshotMobileShareValue !== null
+          ? null
+          : historicalOverviewWaitingState.reason,
+        waitingAllowed: historicalOverviewWaitingState.allowed,
+        blocksOnRefresh: false,
       }),
       revenue: buildOverviewMetricDebugMeta({
         metricKey: "revenue",
         visibleValue: revenueDisplay,
-        value: historicalOverviewResponse ? overviewCommerce.revenueUsd : null,
+        value: historicalOverviewResponse ? overviewCommerce.revenueUsd : snapshotRevenueValue,
         valueSource: historicalOverviewResponse?.cacheState === "fresh" ? "server_cache"
           : historicalOverviewResponse?.cacheState === "stale" ? "stale_server_cache"
-          : historicalResponse ? "server_confirmed" : historicalLoading ? "hydrating" : "unavailable",
+          : historicalResponse ? "server_confirmed" : snapshotRevenueValue !== null ? "verified_snapshot" : historicalLoading ? "hydrating" : "unavailable",
         truthState: historicalOverviewTruthState ?? (historicalLoading ? "loading" : "unavailable"),
         realtimeLaneStatus: null,
+        snapshotModule: commerceSnapshotModule,
+        waitingShownBecause: historicalOverviewResponse || snapshotRevenueValue !== null
+          ? null
+          : historicalOverviewWaitingState.reason,
+        waitingAllowed: historicalOverviewWaitingState.allowed,
+        blocksOnRefresh: false,
       }),
       purchases: buildOverviewMetricDebugMeta({
         metricKey: "purchases",
         visibleValue: purchasesDisplay,
-        value: historicalOverviewResponse ? overviewFunnel.purchases : null,
+        value: historicalOverviewResponse ? overviewFunnel.purchases : snapshotPurchasesValue,
         valueSource: historicalOverviewResponse?.cacheState === "fresh" ? "server_cache"
           : historicalOverviewResponse?.cacheState === "stale" ? "stale_server_cache"
-          : historicalResponse ? "server_confirmed" : historicalLoading ? "hydrating" : "unavailable",
+          : historicalResponse ? "server_confirmed" : snapshotPurchasesValue !== null ? "verified_snapshot" : historicalLoading ? "hydrating" : "unavailable",
         truthState: historicalOverviewTruthState ?? (historicalLoading ? "loading" : "unavailable"),
         realtimeLaneStatus: null,
+        snapshotModule: commerceSnapshotModule,
+        waitingShownBecause: historicalOverviewResponse || snapshotPurchasesValue !== null
+          ? null
+          : historicalOverviewWaitingState.reason,
+        waitingAllowed: historicalOverviewWaitingState.allowed,
+        blocksOnRefresh: false,
       }),
     },
     realtimeListenerDebug: liveRealtime.listenerDebugMeta ?? null,

@@ -24,6 +24,14 @@ This file is not a changelog. It is the concise ledger for durable decisions tha
 
 ## Decision Entries
 
+### 1bx. Admin Analytics loading must preserve verified hot-cache values through realtime and refresh delays
+
+- Approximate date: Recorded explicitly on 2026-05-01 from the global loading performance audit pass
+- Status: Active admin UI, analytics truth, and loading-performance rule
+- Decision: Admin Analytics top cards and reusable analytics modules must render verified hot-cache/snapshot values first whenever they exist. Realtime listeners, manual refresh, and backend recompute are upgrade paths and must not blank or replace those values with generic waiting cards.
+- Implications: Waiting copy must name the reason (`Waiting for first snapshot`, `No verified data yet`, or `Source unavailable`). Manual/background refresh failure preserves stale snapshot state and surfaces Debug metadata. Private admin routes remain `private, no-store`; speed comes from internal hot cache/snapshot reads, not public CDN caching of sensitive analytics.
+- Canonical docs: `docs/agent-truth/global-loading-performance.md`, `agent/state/global-loading-performance-audit.generated.json`, and `docs/agent-truth/admin-analytics-hot-cache.md`.
+
 ### 1bw. Drops mobile density must preserve telemetry while following Apple-aligned KandyDrops doctrine
 
 - Approximate date: Recorded explicitly on 2026-05-01 from the Drops mobile Apple-aligned refinement pass

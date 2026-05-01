@@ -1,5 +1,5 @@
 {
-  "generatedAt": "2026-05-01T16:05:53.817Z",
+  "generatedAt": "2026-05-01T16:12:52.573Z",
   "truthOrder": [
     "verified_runtime_code",
     "verified_configuration",
@@ -16,23 +16,30 @@
     "agent/index/surface-map.json",
     "agent/index/ui-surface-coverage.json"
   ],
-  "stable_id": "verifyplan__src__components__dropcard-tsx",
+  "stable_id": "verifyplan__src__app__admin__analytics__page-tsx",
   "inputPaths": [
-    "src/components/DropCard.tsx"
+    "src/app/admin/analytics/page.tsx"
   ],
   "matchedRepoPaths": [
-    "src/components/DropCard.tsx"
+    "src/app/admin/analytics/page.tsx"
   ],
   "unmatchedPaths": [],
-  "touchedDomains": [],
+  "touchedDomains": [
+    "admin_ops",
+    "app_routes"
+  ],
   "fastCommands": [
     "npm run typecheck",
-    "npm run agent:test -- src/components/DropCard.tsx",
+    "npm run agent:test -- src/app/admin/analytics/page.tsx",
     "npm run check:ui:coverage",
-    "npm run check:ui:runtime"
+    "npm run check:ui:runtime",
+    "npm run check:telemetry",
+    "npm run check:analytics-semantics"
   ],
   "signoffCommands": [
-    "npm run check:ui:audits"
+    "npm run check:ui:audits",
+    "npm run check:analytics:continuity",
+    "npm run check:continuity"
   ],
   "fastSelections": [
     {
@@ -43,7 +50,7 @@
       "lane": "fast"
     },
     {
-      "command": "npm run agent:test -- src/components/DropCard.tsx",
+      "command": "npm run agent:test -- src/app/admin/analytics/page.tsx",
       "why": [
         "Run the narrowest related contract/unit tests first."
       ],
@@ -62,6 +69,20 @@
         "Hydration/runtime UI continuity should stay truthful."
       ],
       "lane": "fast"
+    },
+    {
+      "command": "npm run check:telemetry",
+      "why": [
+        "Telemetry or analytics semantics changed."
+      ],
+      "lane": "fast"
+    },
+    {
+      "command": "npm run check:analytics-semantics",
+      "why": [
+        "Canonical analytics naming/schema must remain aligned."
+      ],
+      "lane": "fast"
     }
   ],
   "signoffSelections": [
@@ -69,6 +90,20 @@
       "command": "npm run check:ui:audits",
       "why": [
         "UI/admin signoff requires Playwright audit coverage."
+      ],
+      "lane": "signoff"
+    },
+    {
+      "command": "npm run check:analytics:continuity",
+      "why": [
+        "Analytics continuity needs explicit signoff for behavioral/runtime changes."
+      ],
+      "lane": "signoff"
+    },
+    {
+      "command": "npm run check:continuity",
+      "why": [
+        "Broad/shared/helper/tooling work requires continuity signoff."
       ],
       "lane": "signoff"
     }
@@ -84,7 +119,7 @@
     "src/app/api/paypal",
     "functions/src/analytics-transactions.ts"
   ],
-  "broadWork": false,
+  "broadWork": true,
   "reasoning": [
     "Matched 1 repo-tracked paths."
   ]

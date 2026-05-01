@@ -1,5 +1,5 @@
 {
-  "generatedAt": "2026-05-01T16:05:49.686Z",
+  "generatedAt": "2026-05-01T16:12:49.105Z",
   "truthOrder": [
     "verified_runtime_code",
     "verified_configuration",
@@ -1068,7 +1068,7 @@
       "risk_tags": [
         "broad_signoff"
       ],
-      "recency": "1777602563155:bcf006b7b745",
+      "recency": "1777651549734:7beeef465b5d",
       "freshness": {
         "local": "fresh",
         "sql_mirror": "unknown"
@@ -1096,7 +1096,7 @@
       "risk_tags": [
         "broad_signoff"
       ],
-      "recency": "1777602563160:56391e1c6519",
+      "recency": "1777651549706:6aefe6e5b4e0",
       "freshness": {
         "local": "fresh",
         "sql_mirror": "unknown"
@@ -1124,7 +1124,7 @@
       "risk_tags": [
         "broad_signoff"
       ],
-      "recency": "1777602563170:13bf9cea1fe6",
+      "recency": "1777651549728:73ffc4f0b14f",
       "freshness": {
         "local": "fresh",
         "sql_mirror": "unknown"
@@ -1152,7 +1152,7 @@
       "risk_tags": [
         "broad_signoff"
       ],
-      "recency": "1777602563176:1da6c86810ff",
+      "recency": "1777651549719:8f1417ea6d4c",
       "freshness": {
         "local": "fresh",
         "sql_mirror": "unknown"
@@ -1180,7 +1180,7 @@
       "risk_tags": [
         "broad_signoff"
       ],
-      "recency": "1777602563183:e2ee68a1d436",
+      "recency": "1777651549721:4491d1610356",
       "freshness": {
         "local": "fresh",
         "sql_mirror": "unknown"
@@ -1208,7 +1208,7 @@
       "risk_tags": [
         "broad_signoff"
       ],
-      "recency": "1777602563199:b578a5b8e8f8",
+      "recency": "1777651549712:d83d19a82eaf",
       "freshness": {
         "local": "fresh",
         "sql_mirror": "unknown"
@@ -1236,7 +1236,7 @@
       "risk_tags": [
         "broad_signoff"
       ],
-      "recency": "1777602563202:dd688af5f7d3",
+      "recency": "1777651549722:d591ca0ba87d",
       "freshness": {
         "local": "fresh",
         "sql_mirror": "unknown"
@@ -1264,7 +1264,7 @@
       "risk_tags": [
         "broad_signoff"
       ],
-      "recency": "1777602563218:5bd72fdd364a",
+      "recency": "1777651549694:a987e2e14589",
       "freshness": {
         "local": "fresh",
         "sql_mirror": "unknown"
@@ -1292,7 +1292,7 @@
       "risk_tags": [
         "broad_signoff"
       ],
-      "recency": "1777602563239:b82de47af901",
+      "recency": "1777651549746:594c3d7e2b79",
       "freshness": {
         "local": "fresh",
         "sql_mirror": "unknown"
@@ -1320,7 +1320,7 @@
       "risk_tags": [
         "broad_signoff"
       ],
-      "recency": "1777602563245:f0a85b52004d",
+      "recency": "1777651549724:530e4c04b5c5",
       "freshness": {
         "local": "fresh",
         "sql_mirror": "unknown"
@@ -1348,7 +1348,7 @@
       "risk_tags": [
         "broad_signoff"
       ],
-      "recency": "1777602563255:f3bd46dec68f",
+      "recency": "1777651549704:6da4053a473c",
       "freshness": {
         "local": "fresh",
         "sql_mirror": "unknown"
@@ -1376,7 +1376,7 @@
       "risk_tags": [
         "broad_signoff"
       ],
-      "recency": "1777651544170:eccd98c53acf",
+      "recency": "1777651964923:357a0337d1bd",
       "freshness": {
         "local": "fresh",
         "sql_mirror": "unknown"
@@ -1404,7 +1404,7 @@
       "risk_tags": [
         "broad_signoff"
       ],
-      "recency": "1777602563284:e3714a2cc662",
+      "recency": "1777651549709:6ef2ce62a7f8",
       "freshness": {
         "local": "fresh",
         "sql_mirror": "unknown"
@@ -1432,7 +1432,7 @@
       "risk_tags": [
         "broad_signoff"
       ],
-      "recency": "1777602563294:63d7137af2d4",
+      "recency": "1777651549715:20ca0a95b0a9",
       "freshness": {
         "local": "fresh",
         "sql_mirror": "unknown"
@@ -1460,7 +1460,7 @@
       "risk_tags": [
         "broad_signoff"
       ],
-      "recency": "1777602563303:e5760d814cb4",
+      "recency": "1777651561263:dd00a14be925",
       "freshness": {
         "local": "fresh",
         "sql_mirror": "unknown"
@@ -1488,7 +1488,7 @@
       "risk_tags": [
         "broad_signoff"
       ],
-      "recency": "1777602563306:819c087cf98d",
+      "recency": "1777651553807:a433677d8c1c",
       "freshness": {
         "local": "fresh",
         "sql_mirror": "unknown"
@@ -1514,7 +1514,7 @@
       "risk_tags": [
         "broad_signoff"
       ],
-      "recency": "1777602563309:0185d6225f7f",
+      "recency": "1777651553803:302f329add33",
       "freshness": {
         "local": "fresh",
         "sql_mirror": "unknown"
@@ -1540,7 +1540,7 @@
       "risk_tags": [
         "broad_signoff"
       ],
-      "recency": "1777602563315:2dce18158c49",
+      "recency": "1777651553805:83ed0eb4f1c1",
       "freshness": {
         "local": "fresh",
         "sql_mirror": "unknown"
@@ -1566,7 +1566,7 @@
       "risk_tags": [
         "broad_signoff"
       ],
-      "recency": "1777607172487:f0e16c1e0c56",
+      "recency": "1777651553821:7738db9d322e",
       "freshness": {
         "local": "fresh",
         "sql_mirror": "unknown"
@@ -2282,7 +2282,7 @@
       "risk_tags": [
         "broad_signoff"
       ],
-      "recency": "1777602563326:fec7dee592ea",
+      "recency": "1777651561261:d5197c87d3f2",
       "freshness": {
         "local": "fresh",
         "sql_mirror": "unknown"
@@ -2418,7 +2418,7 @@
       "risk_tags": [
         "broad_signoff"
       ],
-      "recency": "1777602563331:0fe57b1d7e30",
+      "recency": "1777651553801:b8929801fe38",
       "freshness": {
         "local": "fresh",
         "sql_mirror": "unknown"
@@ -2500,7 +2500,7 @@
       "risk_tags": [
         "broad_signoff"
       ],
-      "recency": "1777607172486:b3d7969a2396",
+      "recency": "1777651553819:471f358ee01f",
       "freshness": {
         "local": "fresh",
         "sql_mirror": "unknown"
@@ -4567,7 +4567,7 @@
       ],
       "helper_tags": [],
       "risk_tags": [],
-      "recency": "1777603875951:2f38c2920fbc",
+      "recency": "1777651718772:830b0a058b24",
       "freshness": {
         "local": "fresh",
         "sql_mirror": "unknown"
@@ -17312,7 +17312,7 @@
       "risk_tags": [
         "runtime_critical"
       ],
-      "recency": "1777602629447:211cb45cf603",
+      "recency": "1777651718758:478178e14647",
       "freshness": {
         "local": "fresh",
         "sql_mirror": "unknown"
@@ -17364,7 +17364,7 @@
       "risk_tags": [
         "runtime_critical"
       ],
-      "recency": "1777239760822:db05d747d5ac",
+      "recency": "1777651759968:c2f406fc4413",
       "freshness": {
         "local": "fresh",
         "sql_mirror": "unknown"
@@ -17416,7 +17416,7 @@
       "risk_tags": [
         "runtime_critical"
       ],
-      "recency": "1777603793436:2f67f05e3145",
+      "recency": "1777651750381:0d2236e0d61d",
       "freshness": {
         "local": "fresh",
         "sql_mirror": "unknown"
@@ -21214,6 +21214,34 @@
         "broad_signoff"
       ],
       "recency": "1773797406721:85fc30599e2b",
+      "freshness": {
+        "local": "fresh",
+        "sql_mirror": "unknown"
+      },
+      "context_tier": "hot",
+      "exclusion_tags": [],
+      "do_not_use_as_primary_truth": false
+    },
+    {
+      "stable_id": "file__src__lib__drop-countdown-ts",
+      "source_type": "file",
+      "source_id": "file__src__lib__drop-countdown-ts",
+      "searchable_terms": [
+        "src/lib/drop-countdown.ts",
+        "shared_helper",
+        "shared_runtime"
+      ],
+      "surface_tags": [
+        "shared_runtime",
+        "shared_helper"
+      ],
+      "helper_tags": [],
+      "risk_tags": [
+        "runtime_critical",
+        "shared_helper",
+        "broad_signoff"
+      ],
+      "recency": "1777651718746:af0d57c5fe9a",
       "freshness": {
         "local": "fresh",
         "sql_mirror": "unknown"
@@ -29359,6 +29387,30 @@
       "helper_tags": [],
       "risk_tags": [],
       "recency": "1776773686271:a9230114e9ec",
+      "freshness": {
+        "local": "fresh",
+        "sql_mirror": "unknown"
+      },
+      "context_tier": "warm",
+      "exclusion_tags": [],
+      "do_not_use_as_primary_truth": false
+    },
+    {
+      "stable_id": "file__tests__unit__drop-countdown-spec-ts",
+      "source_type": "file",
+      "source_id": "file__tests__unit__drop-countdown-spec-ts",
+      "searchable_terms": [
+        "tests/unit/drop-countdown.spec.ts",
+        "tests",
+        "tests"
+      ],
+      "surface_tags": [
+        "tests",
+        "tests"
+      ],
+      "helper_tags": [],
+      "risk_tags": [],
+      "recency": "1777651718773:5a6569784d40",
       "freshness": {
         "local": "fresh",
         "sql_mirror": "unknown"

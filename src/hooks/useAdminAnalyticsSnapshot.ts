@@ -116,7 +116,7 @@ export function useAdminAnalyticsSnapshot(
         throw new Error(result.error || "Admin analytics snapshot refresh failed");
       }
 
-      setSnapshot(result.snapshot ?? null);
+      setSnapshot((current) => result.snapshot ?? current);
       setMetadata(result.metadata ?? null);
       setRefreshStatus(result.refreshStatus ?? result.snapshot?.refreshStatus ?? (result.success ? "completed" : "failed"));
       setDuplicateRefreshPrevented(result.duplicateRefreshPrevented === true);

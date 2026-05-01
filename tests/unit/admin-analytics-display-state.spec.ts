@@ -1,6 +1,12 @@
 import { describe, expect, it } from "vitest";
 
 import { resolveAdminAnalyticsDisplayState } from "@/lib/analytics/admin-analytics-display-state";
+import {
+  normalizeAdminSnapshotRatio,
+  readAdminSnapshotNumberValue,
+  resolveAdminAnalyticsWaitingCopy,
+} from "@/lib/analytics/admin-analytics-loading-state";
+import { createSnapshotValue, type AdminMetricSnapshot } from "@/lib/analytics/admin-metric-snapshot";
 
 describe("resolveAdminAnalyticsDisplayState", () => {
   it("renders a verified snapshot when realtime fails", () => {
@@ -114,5 +120,65 @@ describe("resolveAdminAnalyticsDisplayState", () => {
     expect(state.shouldRenderSnapshot).toBe(true);
     expect(state.shouldShowUnavailable).toBe(false);
     expect(state.graphMissingButSnapshotRendered).toBe(true);
+  });
+
+  it("extracts verified snapshot values without inventing fake zeroes", () => {
+    const snapshot = {
+      lastVerifiedAt: "2026-05-01T12:00:00.000Z",
+      values: {
+        revenueUsd: createSnapshotValue({
+          value: 129.5,
+          available: true,
+          source: "verified_snapshot",
+          sourceMode: "verified_cache",
+        }),
+        purchases: createSnapshotValue({
+          value: null,
+          available: false,
+          source: "verified_snapshot",
+          sourceMode: "unavailable",
+          fakeZeroPrevented: true,
+        }),
+      },
+    } as unknown as AdminMetricSnapshot;
+
+    expect(readAdminSnapshotNumberValue(snapshot, ["revenueUsd"])).toBe(129.5);
+    expect(readAdminSnapshotNumberValue(snapshot, ["purchases"])).toBeNull();
+  });
+
+  it("uses reasoned waiting copy only when no verified snapshot value exists", () => {
+    expect(resolveAdminAnalyticsWaitingCopy({
+      hasVerifiedValue: true,
+      loading: true,
+    })).toMatchObject({
+      label: null,
+      reason: "snapshot_available",
+      allowed: false,
+    });
+
+    expect(resolveAdminAnalyticsWaitingCopy({
+      hasVerifiedValue: false,
+      loading: true,
+    })).toMatchObject({
+      label: "Waiting for first snapshot",
+      reason: "first_snapshot_pending",
+      allowed: true,
+    });
+
+    expect(resolveAdminAnalyticsWaitingCopy({
+      hasVerifiedValue: false,
+      loading: false,
+      error: "backend unavailable",
+    })).toMatchObject({
+      label: "Source unavailable",
+      reason: "source_unavailable",
+      allowed: true,
+    });
+  });
+
+  it("normalizes percent snapshots that arrive as whole percentages", () => {
+    expect(normalizeAdminSnapshotRatio(42)).toBe(0.42);
+    expect(normalizeAdminSnapshotRatio(0.42)).toBe(0.42);
+    expect(normalizeAdminSnapshotRatio(null)).toBeNull();
   });
 });

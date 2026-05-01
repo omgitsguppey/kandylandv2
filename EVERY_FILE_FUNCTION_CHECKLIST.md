@@ -1,13 +1,24 @@
 # EVERY FILE FUNCTION CHECKLIST
 
 **Last Updated:** 2026-05-01
-**Current Focus:** Drops mobile Apple-aligned UI refinement with telemetry and hydration preservation.
+**Current Focus:** Global loading performance hot-cache preservation for Admin Analytics.
 **Status:** In Progress. Current tracked-file coverage is reconciled as of 2026-04-28: every `git ls-files` entry has a current checklist heading, while detailed function-level audits remain pending for many historical and newly reconciled files.
 Purpose: exhaustive no-skip audit checklist covering every repository file currently in scope and every detected function-like implementation.
 
 Scoring: all entries below are marked as included in the current validated sweep. Confidence reflects current repository-state confidence, not perfection or future-proofing.
 
 Current repo-wide state snapshot: see [FULL_SCALE_CODEBASE_AUDIT.md](/Users/uylus/OneDrive/Documents/KandyDrops_Final/FULL_SCALE_CODEBASE_AUDIT.md) for the current live baseline, verification state, and continuity rules, and see [REPO_MEMORY_LEDGER.md](/Users/uylus/OneDrive/Documents/KandyDrops_Final/REPO_MEMORY_LEDGER.md) for major architectural and workflow decisions. The detailed file/function body below remains valuable historical evidence, but it has not been fully regenerated against the current 2026-04-18 inventory review yet.
+
+## 2026-05-01 Global Loading Performance Hot-Cache Coverage
+
+- [x] `src/app/admin/analytics/hooks/useAdminAnalyticsState.tsx` now reads verified module snapshots for Revenue, Purchases, Mobile share, and Live active before showing reasoned waiting/unavailable states, and emits Debug metadata for first snapshot, first useful value, refresh status, waiting reason, blocking flags, fallback use, and cache-control mode.
+- [x] `src/lib/analytics/admin-analytics-loading-state.ts` centralizes snapshot number extraction, percent normalization, snapshot surface-state mapping, and reasoned waiting copy.
+- [x] `src/hooks/useAdminAnalyticsSnapshotRegistry.ts` exposes the current snapshot with each module state so UI models can render verified values without duplicating fetch logic.
+- [x] `src/hooks/useAdminAnalyticsSnapshot.ts` preserves the current snapshot during refresh responses that do not return a replacement snapshot.
+- [x] `src/app/api/admin/analytics/refresh/route.ts` returns authenticated private no-store JSON and preserves stale snapshot state on failed manual refresh when a snapshot exists.
+- [x] `src/app/admin/analytics/loading.tsx` adds a route-level Admin Analytics loading boundary.
+- [x] `docs/agent-truth/global-loading-performance.md` and `agent/state/global-loading-performance-audit.generated.json` record the audit and future-agent loading doctrine.
+- [x] `scripts/agent/validate-global-loading-performance.ts`, `package.json`, and targeted unit tests validate snapshot-first rendering, refresh preservation, reasoned waiting copy, partial route behavior, and no generic waiting when verified values exist.
 
 ## 2026-05-01 Drops Mobile Apple-Aligned Refinement Coverage
 

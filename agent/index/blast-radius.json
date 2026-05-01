@@ -1,5 +1,5 @@
 {
-  "generatedAt": "2026-05-01T16:05:48.454Z",
+  "generatedAt": "2026-05-01T16:12:48.111Z",
   "truthOrder": [
     "verified_runtime_code",
     "verified_configuration",
@@ -1354,6 +1354,21 @@
     {
       "stable_id": "blast__src__lib__daily-checkin-ts",
       "path": "src/lib/daily-checkin.ts",
+      "blast_radius_score": 70,
+      "shared_helper_risk": 25,
+      "route_boundary_risk": 0,
+      "runtime_criticality": 25,
+      "verification_burden": 20,
+      "deploy_or_lockfile_sensitivity": 0,
+      "why_score_was_assigned": [
+        "Likely shared helper.",
+        "Runtime-critical surface.",
+        "Broad signoff likely."
+      ]
+    },
+    {
+      "stable_id": "blast__src__lib__drop-countdown-ts",
+      "path": "src/lib/drop-countdown.ts",
       "blast_radius_score": 70,
       "shared_helper_risk": 25,
       "route_boundary_risk": 0,

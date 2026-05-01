@@ -3,6 +3,7 @@
 import { useMemo } from "react";
 
 import type {
+  AdminMetricSnapshot,
   AdminMetricSnapshotRange,
   AdminMetricSnapshotSourceMode,
   AdminMetricSnapshotTruthState,
@@ -60,6 +61,7 @@ export interface AdminAnalyticsSnapshotModuleState {
   sourceMode: AdminMetricSnapshotSourceMode;
   truthState: AdminMetricSnapshotTruthState | "missing";
   refreshStatus: SnapshotRefreshStatus;
+  snapshot: AdminMetricSnapshot | null;
   lastVerifiedAt: string | null;
   generatedAt: string | null;
   debugPath: string;
@@ -109,6 +111,7 @@ function buildModuleState(input: {
     sourceMode: input.result.sourceMode,
     truthState: input.result.snapshot?.truthState ?? "missing",
     refreshStatus: input.result.refreshStatus,
+    snapshot: input.result.snapshot,
     lastVerifiedAt: input.result.snapshot?.lastVerifiedAt ?? null,
     generatedAt: input.result.snapshot?.generatedAt ?? null,
     debugPath: input.result.snapshot?.debugPath ?? `/admin/debug?tab=advanced#analytics-snapshots/${input.moduleKey}/${input.rangeKey}`,

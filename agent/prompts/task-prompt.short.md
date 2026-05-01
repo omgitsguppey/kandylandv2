@@ -1,23 +1,24 @@
 # SHORT Task Context
 
 ## Goal
-simplify final-day drop card countdown typography
+audit global loading performance and preserve admin analytics hot cache first render
 
-Mode: ui
+Mode: admin
 Scope: moderate
 Why scope: Touches several files or shared helper surfaces with non-trivial adjacency.
 
 ## Likely Entrypoints
-- src/components/DropCard.tsx
-- src/components/DropGrid.tsx
-- src/components/DropCardCta.tsx
-- src/components/DropCardLayout.tsx
-- src/lib/drop-engagement.ts
+- src/app/admin/analytics/page.tsx
+- src/components/Analytics/PageViewEvent.tsx
+- src/lib/server/analytics.ts
+- src/app/admin/analytics/components/AdminAnalyticsCommerceTab.tsx
+- src/app/admin/analytics/hooks/useAdminAnalyticsState.tsx
 
 ## Canonical Helpers To Reuse
+- src/lib/telemetry-catalog.ts
 - src/lib/telemetry.ts
-- src/lib/gumdrop-economics.ts
-- src/lib/gumdrop-ledger.ts
+- src/lib/route-runtime-health.ts
+- src/lib/server/admin-panel-system-logs.ts
 
 ## Acceptance Criteria
 - Reuse the canonical helpers before introducing new ownership paths.
@@ -25,6 +26,9 @@ Why scope: Touches several files or shared helper surfaces with non-trivial adja
 - Report any blocked or unverified lane explicitly instead of implying success.
 
 ## Relevant Pitfalls
+- stale_lockfile_drift
+- diagnostics_serialization_crash
+- request_json_parse_falls_into_500
 - consumed_response_stream_fallback
 
 ## Forbidden Surfaces
@@ -35,14 +39,15 @@ Why scope: Touches several files or shared helper surfaces with non-trivial adja
 
 ## Fast Verification
 - npm run typecheck
-- npm run agent:test -- src/components/DropCard.tsx
-- npm run agent:test -- src/components/DropGrid.tsx
-- npm run agent:test -- src/components/DropCardCta.tsx
-- npm run agent:test -- src/components/DropCardLayout.tsx
+- npm run agent:test -- src/app/admin/analytics/page.tsx
+- npm run agent:test -- src/components/Analytics/PageViewEvent.tsx
+- npm run agent:test -- src/lib/server/analytics.ts
+- npm run agent:test -- src/app/admin/analytics/components/AdminAnalyticsCommerceTab.tsx
 - npm run check:ui:coverage
 - npm run check:ui:runtime
 - npm run check:telemetry
 - npm run check:analytics-semantics
+- npm --prefix functions run check
 
 ## Signoff Verification
 - npm run check:ui:audits

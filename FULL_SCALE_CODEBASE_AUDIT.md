@@ -1,5 +1,26 @@
 # KandyDrops Core Codebase Audit & Defensive Ledger
 
+## [2026-05-01 #68] PRE: Global Loading Performance Hot-Cache Preservation
+
+Scope started:
+- Auditing global loading behavior with Admin Analytics priority, focused on verified hot-cache-first render, realtime/refresh as upgrades, private cache-control, Suspense/loading boundaries, and fake waiting prevention.
+- Targeting `src/app/admin/analytics/hooks/useAdminAnalyticsState.tsx`, Admin Analytics snapshot hooks/registry, admin analytics refresh/realtime/historical routes, Admin Analytics loading boundary, generated audit/report docs, validation script, and targeted tests.
+- Required doctrine path: control tower startup/read order, source map/shared ownership, product/copy/UI/admin truth doctrine, analytics hot-cache truth, and generated fast-start/adjacency evidence.
+
+Initial evidence:
+- `npm run agent:fast-start -- --task="audit global loading performance and preserve admin analytics hot cache first render" --mode=admin --file=src/app/admin/analytics/page.tsx` generated targeted admin verification lanes.
+- `npm run trace:adjacent -- src/app/admin/analytics/hooks/useAdminAnalyticsState.tsx`, `src/app/api/admin/analytics/refresh/route.ts`, and `src/app/api/admin/analytics/realtime/route.ts` identified the page state hook, snapshot registry, refresh route, realtime route, and hot-cache helpers as adjacent owners.
+- Runtime code showed Admin Analytics top cards could access the snapshot registry but still displayed generic waiting labels when the historical/realtime responses were not yet present.
+
+Scope completed:
+- Added `agent/state/global-loading-performance-audit.generated.json` and `docs/agent-truth/global-loading-performance.md` to record route/module loading truth, waiting rules, manual/background refresh rules, and private cache-control doctrine.
+- Exposed verified snapshots through `useAdminAnalyticsSnapshotRegistry`, preserved visible snapshots during manual refresh failure, and added shared loading helpers for snapshot value extraction, reasoned waiting copy, and snapshot surface states.
+- Updated Admin Analytics top cards so Revenue, Purchases, Mobile share, and Live active can render verified snapshot values before realtime/historical refresh completes, with Debug metadata for first snapshot, first useful value, waiting reason, blocking flags, fallback use, and cache-control mode.
+- Added an Admin Analytics route `loading.tsx` boundary so the admin shell can stream independently while route data hydrates.
+
+Residual risk:
+- Cold realtime and historical backend routes still contain slow-source/waterfall risk, but top overview cards no longer depend on those routes as their only first useful value source.
+
 ## [2026-05-01 #67] PRE: Drops Mobile Apple-Aligned UI Refinement
 
 Scope started:

@@ -94,6 +94,7 @@ describe("/api/admin/analytics/refresh", () => {
     const payload = await response.json();
 
     expect(response.status).toBe(200);
+    expect(response.headers.get("cache-control")).toBe("private, no-store");
     expect(payload).toMatchObject({
       success: true,
       moduleKey: "commerce_snapshot",
@@ -168,5 +169,40 @@ describe("/api/admin/analytics/refresh", () => {
     expect(payload.duplicateRefreshPrevented).toBe(true);
     expect(payload.snapshot.moduleKey).toBe("event_mix");
     expect(mockState.runSnapshotRefreshWithDedupe).not.toHaveBeenCalled();
+  });
+
+  it("returns stale snapshot metadata when manual refresh fails", async () => {
+    const existing = createUnavailableAdminMetricSnapshot({
+      moduleKey: "commerce_snapshot",
+      rangeKey: "30d",
+      reason: "Existing verified snapshot remains visible.",
+    });
+    mockState.runSnapshotRefreshWithDedupe.mockRejectedValue(new Error("source timeout"));
+    mockState.markSnapshotRefreshFailed.mockResolvedValue({
+      refreshStatus: "failed",
+      refreshError: "source timeout",
+    });
+    mockState.getLatestVerifiedSnapshot.mockResolvedValue(existing);
+
+    const request = new NextRequest("http://localhost/api/admin/analytics/refresh", {
+      method: "POST",
+      body: JSON.stringify({
+        moduleKey: "commerce_snapshot",
+        rangeKey: "30d",
+      }),
+      headers: {
+        "content-type": "application/json",
+      },
+    });
+
+    const response = await POST(request);
+    const payload = await response.json();
+
+    expect(response.status).toBe(200);
+    expect(response.headers.get("cache-control")).toBe("private, no-store");
+    expect(payload.success).toBe(false);
+    expect(payload.refreshStatus).toBe("failed");
+    expect(payload.snapshot.moduleKey).toBe("commerce_snapshot");
+    expect(payload.error).toBe("source timeout");
   });
 });
