@@ -2,7 +2,7 @@ import fs from "fs";
 import path from "path";
 
 const ROOT = process.cwd();
-const APPROVED_BADGES = ["LIVE", "STALE", "CACHE", "WAITING", "FALLBACK", "ERROR", "UNAVAILABLE"];
+const EXPECTED_OPERATOR_BADGES = ["LIVE", "SNAP", "REVIEW", "DELAYED", "WAIT", "ERROR"];
 const BANNED_VISIBLE_COPY = [
   "identified event realtime lane",
   "guest batch realtime lane",
@@ -40,7 +40,7 @@ const debugRoute = read("src/app/api/admin/debug/route.ts");
 const doc = read("docs/agent-truth/admin-analytics-overview.md");
 
 assertIncludes("AdminAnalyticsPrimitives", primitives, "ANALYTICS_METRIC_BADGE_LABELS");
-for (const badge of APPROVED_BADGES) {
+for (const badge of EXPECTED_OPERATOR_BADGES) {
   assertIncludes("AdminAnalyticsPrimitives", primitives, badge);
 }
 assertIncludes("AdminAnalyticsPrimitives", primitives, "grid grid-cols-[minmax(0,1fr)_auto]");
@@ -57,7 +57,7 @@ for (const phrase of BANNED_VISIBLE_COPY) {
   assertNotIncludes("AdminAnalyticsPage", page.toLowerCase(), phrase);
 }
 
-const degradedCopyMatch = hook.match(/Realtime analytics is delayed\. Showing the last validated backend snapshot while refresh runs\./);
+const degradedCopyMatch = hook.match(/Live updates are delayed\. Showing last verified data\./);
 if (!degradedCopyMatch) {
   fail("short degraded copy is missing from the analytics state hook");
 }

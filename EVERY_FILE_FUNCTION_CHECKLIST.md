@@ -9,6 +9,15 @@ Scoring: all entries below are marked as included in the current validated sweep
 
 Current repo-wide state snapshot: see [FULL_SCALE_CODEBASE_AUDIT.md](/Users/uylus/OneDrive/Documents/KandyDrops_Final/FULL_SCALE_CODEBASE_AUDIT.md) for the current live baseline, verification state, and continuity rules, and see [REPO_MEMORY_LEDGER.md](/Users/uylus/OneDrive/Documents/KandyDrops_Final/REPO_MEMORY_LEDGER.md) for major architectural and workflow decisions. The detailed file/function body below remains valuable historical evidence, but it has not been fully regenerated against the current 2026-04-18 inventory review yet.
 
+## 2026-05-01 Admin Analytics Launch Finalization Coverage
+
+- [x] `src/app/admin/page.tsx`, `src/hooks/useAdminOverviewRealtime.ts`, `tests/unit/admin-overview-truth.spec.ts`, `docs/agent-truth/admin-overview.md`, and `docs/agent-truth/admin-revenue-trends.md` use operator-friendly Overview truth labels instead of server/listener jargon.
+- [x] `src/app/admin/analytics/page.tsx` keeps compact visible degraded copy while exposing full background issue detail through the title.
+- [x] `src/lib/analytics/admin-analytics-display-state.ts` preserves snapshot-first display state for realtime failure and no-snapshot cases with explicit copy.
+- [x] `src/lib/admin-analytics-commerce-snapshot.ts` states that promo and bonus GD are excluded from revenue.
+- [x] `scripts/check-admin-analytics-overview.ts`, `scripts/check-admin-analytics-onboarding-performance.ts`, `scripts/check-admin-analytics-onboarding-velocity.ts`, and `scripts/agent/validate-admin-analytics-snapshot-migration.ts` now enforce the current human-readable launch doctrine instead of legacy internal wording.
+- [x] `docs/agent-truth/admin-analytics-launch-final.md`, `docs/agent-truth/admin-copy-style-guide.md`, `docs/agent-truth/human-readable-admin-truth.md`, `agent/state/admin-analytics-finalization.generated.json`, `scripts/agent/validate-admin-analytics-finalization.ts`, and `package.json` record the Admin Analytics and Debug launch finalization guard.
+
 ## 2026-05-01 Notification Return Loop Coverage
 
 - [x] `src/lib/server/push-notifications.ts` preserves deterministic drop notification idempotency for drop-live and queued-drop-return-live sends, suppresses duplicate FCM dispatch on existing deterministic docs/activation replays, and records structured dispatch diagnostics.

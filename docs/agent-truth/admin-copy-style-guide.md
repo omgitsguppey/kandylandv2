@@ -69,3 +69,14 @@ Every admin status needs:
 - Debug path: where a developer can inspect the evidence.
 
 Primary UI copy should be one to two short lines. Technical details belong in Debug details, titles, or `details` sections, not primary module copy.
+
+## Launch Finalization Addendum
+
+For Admin Overview, Admin Analytics, and Admin Debug launch work:
+
+- Analytics primary copy must prefer "Showing last verified data", "Refreshing", "Live updates are delayed", "Estimated", "Partial", "Needs review", or "Waiting for first snapshot".
+- Debug owns exact source names, route names, collection names, parity deltas, formulas, and recovery details.
+- A verified snapshot means the main UI must not show generic Waiting.
+- Event Mix visible copy says ranked event activity; raw event keys belong in Debug.
+- Commerce copy must state that promo and bonus GD are excluded from revenue when revenue is shown.
+- Admin Overview truth labels are Updated, Showing last verified data, Refreshing overview, Live updates delayed, and Waiting for first overview snapshot.

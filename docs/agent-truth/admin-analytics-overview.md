@@ -13,32 +13,39 @@ Metric card badges must never overflow card containers. The card header owns a t
 Visible badge labels stay short:
 
 - LIVE
-- STALE
-- CACHE
-- WAITING
-- FALLBACK
+- UPDATED
+- REFRESHING
+- DELAYED
+- EST
+- PARTIAL
+- WAIT
+- REVIEW
 - ERROR
-- UNAVAILABLE
+- SNAP
 
 Full status detail belongs in `title`, `aria-label`, and Admin Debug metadata. Do not place long source descriptions inside the visible badge.
 
 ## Analytics Hydration Rule
 
-Admin Analytics overview cards must render immediately. If fresh realtime or historical data is not ready, the shell shows a truthful state instead of waiting for the slowest analytics lane.
+Admin Analytics overview cards must render immediately. If fresh realtime or historical data is not ready, the shell shows a truthful state instead of waiting for the slowest analytics source.
 
-The last validated backend overview snapshot should render quickly from session storage while `/api/admin/analytics/historical` refreshes in the background. When server-confirmed data arrives, it replaces the snapshot. If refresh fails, the snapshot remains visible and is labeled stale/cache.
+The last verified overview snapshot should render quickly while `/api/admin/analytics/historical` refreshes in the background. When server-confirmed data arrives, it replaces the snapshot. If refresh fails, the snapshot remains visible and is labeled as last verified or delayed.
 
-Fake zeros are forbidden unless zero is server-confirmed. Revenue, purchases, and mobile share show `Waiting` or `Unavailable` when no validated snapshot exists. Loading longer than 3 seconds while a snapshot exists is a hydration regression and must be reported in debug metadata.
+## Fake-Zero Prevention
+
+Fake zeros are forbidden unless zero is server-confirmed. Revenue, purchases, mobile share, and live active show a verified value when a snapshot exists, or a specific no-snapshot/waiting label when no verified snapshot exists. Loading longer than 3 seconds while a snapshot exists is a hydration regression and must be reported in debug metadata.
 
 ## Degraded Copy Rule
 
-The main UI gets one short plain-English degraded sentence:
+The main UI gets one short plain-English delayed sentence:
 
-`Realtime analytics is delayed. Showing the last validated backend snapshot while refresh runs.`
+`Live updates are delayed. Showing last verified data.`
 
 If historical guest traffic is estimated, a second short line is allowed:
 
-`Some guest traffic is estimated until anonymous batches arrive.`
+`Guest traffic is estimated for this range.`
+
+## Prohibited Patterns
 
 Detailed lane failures belong in Admin Debug. Avoid jargon such as `identified event realtime lane`, `guest batch realtime lane`, `viewer watch-session realtime lane`, `failed closed`, and `polled route snapshot` in the main visible UI.
 

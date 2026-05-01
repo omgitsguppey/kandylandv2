@@ -9,20 +9,21 @@ The Admin Overview (`/admin` route, rendered by `src/app/admin/page.tsx`) is the
 
 1. **Title**: "Admin Overview" (no eyebrow label, no "CONTROL ROOM")
 2. **Truth chip**: A concise status badge showing the canonical data source state
-3. **Server update chip**: "Last server update X ago" — the most recent server-confirmed timestamp
+3. **Server update subtitle**: "Last server update X ago" - the most recent server-confirmed timestamp
 4. **Issue chip** (conditional): "N issues active" when listener failures or read fallbacks exist
 
 ## Canonical data sources
 
 ### Primary: Firestore realtime snapshot listeners (client-side)
 
-The `useAdminOverviewRealtime` hook (`src/hooks/useAdminOverviewRealtime.ts`) maintains 3 Firestore `onSnapshot` listeners:
+The `useAdminOverviewRealtime` hook (`src/hooks/useAdminOverviewRealtime.ts`) maintains 4 Firestore `onSnapshot` listeners:
 
 | Listener | Collection / Document | Purpose |
 |---|---|---|
 | Drops | `drops` (collection) | Live drop counts, top drops, drop status |
 | Commerce summary | `analytics_commerce_rollup/summary` (document) | Lifetime revenue and unwrap totals |
 | Transactions | `transactions` (collection, ordered desc, limit 20) | Recent transaction feed |
+| Admin activity | `transactions` filtered to admin adjustments | Recent admin adjustment feed |
 
 Each listener reads `snapshot.metadata.fromCache` to distinguish server-confirmed data from cached/offline data.
 
@@ -39,9 +40,9 @@ This polling remains because chart/trend/activity data doesn't need sub-minute f
 ### Source hierarchy (canonical to fallback)
 
 1. **Server-confirmed Firestore snapshot** (fromCache: false) → canonical truth
-2. **Cached Firestore snapshot** (fromCache: true) → labeled "Cached snapshot"
-3. **Server API rollup** → 60s-stale polled data, labeled as such
-4. **No data** → "Waiting for server truth"
+2. **Cached Firestore snapshot** (fromCache: true) - operator label is "Showing last verified data"
+3. **Server API rollup** - 60s refresh cadence, operator label is "Showing last verified data"
+4. **No data** - "Waiting for first overview snapshot"
 
 ## What must NEVER be treated as truth
 
@@ -55,12 +56,11 @@ This polling remains because chart/trend/activity data doesn't need sub-minute f
 
 | Chip | Meaning | Variant |
 |---|---|---|
-| **Live server truth** | All 3 Firestore listeners loaded, server-confirmed (not from cache) | `live` (green) |
-| **Cached snapshot** | All 3 listeners loaded but at least one returned from Firestore client cache | `cached` (amber) |
-| **Realtime warming up** | Some listeners have loaded, none failed, still initializing | `cached` (amber) |
-| **Server rollup only** | No realtime listeners active, only the polled server API data | `cached` (amber) |
-| **Fallback active — N listener(s) degraded** | At least one Firestore listener has errored | `fallback` (red) |
-| **Waiting for server truth** | No data available yet | `waiting` (gray) |
+| **Updated** | All overview live upgrade listeners loaded with server-confirmed data | `live` (green) |
+| **Showing last verified data** | A verified server response or cache-backed snapshot is visible | `cached` (amber) |
+| **Refreshing overview** | Some live upgrade listeners have loaded and the rest are still initializing | `cached` (amber) |
+| **Live updates delayed** | At least one live upgrade listener has errored | `fallback` (red) |
+| **Waiting for first overview snapshot** | No verified overview data is available yet | `waiting` (gray) |
 | **N issues active** | N listener failures or server read fallbacks detected | amber badge |
 | **Last server update X ago** | Time since most recent server-confirmed snapshot or transaction | neutral |
 
@@ -69,12 +69,12 @@ This polling remains because chart/trend/activity data doesn't need sub-minute f
 1. Each `onSnapshot` callback reads `snapshot.metadata.fromCache`.
 2. The `listenerState` tracks per-listener `fromCache` booleans.
 3. `resolveTruthChipLabel()` (exported from `useAdminOverviewRealtime.ts`) applies a deterministic state machine:
-   - Failed listeners → "Fallback active"
-   - All loaded + none from cache → "Live server truth"
-   - All loaded + some from cache → "Cached snapshot"
-   - Partial → "Realtime warming up"
-   - No realtime + server data → "Server rollup only"
-   - Nothing → "Waiting for server truth"
+   - Failed listeners -> "Live updates delayed"
+   - All loaded + none from cache -> "Updated"
+   - All loaded + some from cache -> "Showing last verified data"
+   - Partial -> "Refreshing overview"
+   - No live upgrade + server data -> "Showing last verified data"
+   - Nothing -> "Waiting for first overview snapshot"
 
 ## What caused this bug
 
@@ -129,4 +129,3 @@ The original implementation used bracket-prefixed developer jargon (`[PARTIAL] F
 | `src/components/Admin/AdminPageHeader.tsx` | Shared admin page header (eyebrow, title, subtitle, actions) |
 | `src/app/globals.css` | Admin spacing CSS tokens |
 | `tests/unit/admin-overview-truth.spec.ts` | Targeted validation for truth chips, copy, and type contracts |
-

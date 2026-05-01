@@ -64,3 +64,12 @@ The following terms are banned from primary admin UI and may appear only in Debu
 ## Agent Rule
 
 Future agents must not pipe raw backend diagnostics into primary admin UI. Put exact source detail in Debug, and pair it with What this means, Why it matters, What to check next, Technical evidence, and Source details.
+
+## Launch Finalization Addendum
+
+Admin Analytics is the operator view. Admin Debug is the evidence view.
+
+- Snapshot-backed Analytics values stay visible through refresh, realtime delay, and source caveats.
+- Waiting is visible only before the first verified snapshot.
+- The main UI may say "Live updates are delayed. Showing last verified data." or "Realtime delayed. Showing last verified snapshot." but must not expose listener, route, collection, lane, or rollup jargon.
+- Debug must keep the exact technical evidence for refresh, parity, legacy recovery, commerce formulas, task lifecycle, notification dedupe/read state, and actor lane separation.

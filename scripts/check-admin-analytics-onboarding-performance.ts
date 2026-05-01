@@ -41,7 +41,7 @@ assertIncludes("AdminOnboardingAnalyticsModules", component, 'title="Onboarding 
 assertNotIncludes("AdminOnboardingAnalyticsModules", component, 'title="Onboarding Velocity"');
 assertNotIncludes("AdminOnboardingAnalyticsModules", component, 'title="Onboarding Step Flow"');
 assertIncludes("AdminOnboardingAnalyticsModules", component, "__KANDYDROPS_ADMIN_ANALYTICS_ONBOARDING_PERFORMANCE_DEBUG__");
-assertIncludes("AdminOnboardingAnalyticsModules", component, "Using canonical onboarding starts.");
+assertIncludes("AdminOnboardingAnalyticsModules", component, "Showing verified onboarding starts.");
 assertIncludes("AdminOnboardingAnalyticsModules", component, "Details in Debug");
 assertIncludes("AdminOnboardingAnalyticsModules", component, "Biggest drop-off:");
 assertIncludes("AdminOnboardingAnalyticsModules", component, "Slowest:");

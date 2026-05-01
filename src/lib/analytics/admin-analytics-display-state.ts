@@ -150,7 +150,7 @@ export function resolveAdminAnalyticsDisplayState(input: {
     const visibleMessage = refreshRunning
       ? "Refreshing. Showing last verified data."
       : realtimeFailed
-        ? "Live updates are delayed. Showing last verified data."
+        ? "Realtime delayed. Showing last verified snapshot."
         : "Showing last verified data.";
 
     return {
@@ -195,7 +195,7 @@ export function resolveAdminAnalyticsDisplayState(input: {
     shouldRenderSnapshot: false,
     shouldRenderRealtimeUpgrade: false,
     shouldShowUnavailable: true,
-    visibleMessage: refreshRunning ? "Refreshing. No verified data yet." : "No verified data yet. Refresh to check again.",
+    visibleMessage: refreshRunning ? "Refreshing. No verified snapshot yet." : "No verified snapshot yet. Refresh to check again.",
     debugReason:
       errorState.snapshotError ??
       errorState.refreshError ??

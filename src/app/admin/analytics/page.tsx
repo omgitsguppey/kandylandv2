@@ -200,7 +200,7 @@ export default function AdminAnalyticsPage() {
           <AlertTriangle className="mt-0.5 h-3.5 w-3.5 shrink-0 text-amber-400" />
           <div
             className="min-w-0 space-y-0.5 text-xs text-amber-200"
-            title={visibleDegradedCopy.join(" | ")}
+            title={backgroundAnalyticsIssues.join(" | ")}
           >
             <p>
               <span className="font-semibold">Needs attention:</span>{" "}

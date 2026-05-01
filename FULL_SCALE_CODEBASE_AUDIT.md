@@ -1,5 +1,27 @@
 # KandyDrops Core Codebase Audit & Defensive Ledger
 
+## [2026-05-01 #75] PRE: Admin Analytics Launch Finalization
+
+Scope started:
+- Finalizing Admin Overview, Admin Analytics, Admin Debug, hot-cache snapshots, refresh route, realtime upgrade hooks, legacy recovery, ecosystem parity, admin copy mapping, docs, and validation for launch.
+- Required behavior: snapshot/hot-cache first render, realtime as upgrade only, refresh preserves current data, no generic waiting with snapshots, no fake zeros, operator-friendly Analytics copy, technical evidence in Debug, Data Validation full list in Debug only, separated guest/auth/admin/creator/system lanes, labeled estimates, commerce definitions, task lifecycle/parity truth, Event Mix ranked list, notification dedupe/read truth, and Live Pulse snapshot fallback.
+
+Initial evidence:
+- Worktree was clean at startup on `main`.
+- Control tower and doctrine consulted: admin surfaces are operational truth surfaces, Analytics tone is precise, Admin Overview urgency is allowed only when unhealthy, raw backend/source details belong in Debug, and hot analytics must read validated hot summaries/backend caches before cold provider reads.
+- Recent repo memory records active rules for admin truth copy, refresh-based hot cache, Admin Analytics snapshot-first loading, realtime upgrade-only Live Pulse, Analytics Truth Layer v2, legacy recovery/parity, and notification return-loop truth.
+
+Scope completed:
+- Finalized Admin Analytics launch truth with `agent/state/admin-analytics-finalization.generated.json`, `docs/agent-truth/admin-analytics-launch-final.md`, and `npm run check:admin-analytics-finalization`.
+- Kept Analytics compact and operator-facing while preserving full background issue detail through Debug/title metadata; Data Validation remains Debug-only.
+- Updated Admin Overview truth labels away from server/listener jargon to Updated, Showing last verified data, Refreshing overview, Live updates delayed, and Waiting for first overview snapshot.
+- Aligned display-state copy, commerce revenue copy, Event Mix/onboarding/overview validators, admin-copy docs, and overview/admin-analytics docs with the current launch doctrine.
+- Verification passed: admin finalization, hot-cache, no-pure-realtime, snapshot migration, legacy recovery, refresh-based hot cache, human-readable admin copy, all module-specific admin analytics checks, notification pipeline/return-loop checks, admin overview/display/debug/snapshot/refresh/parity unit tests, TypeScript, UI coverage, UI runtime, and UI audits.
+
+Residual risk:
+- Admin Overview still uses its existing realtime listener plus server rollup architecture; this pass corrected launch copy and guardrails without rewriting the overview data model.
+- Private admin route speed still depends on internal snapshot/hot-cache paths rather than public CDN caching, which is intentional for sensitive admin data.
+
 ## [2026-05-01 #74] PRE: Notification Return Loop Hardening
 
 Scope started:

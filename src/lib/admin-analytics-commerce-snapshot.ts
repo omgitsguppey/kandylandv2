@@ -174,8 +174,8 @@ export function buildAdminAnalyticsCommerceSnapshotModel(input: {
 
   const visibleCopy = hasResponse
     ? stale || response?.cacheRevalidating
-      ? ["Commerce refresh is delayed. Showing last verified data.", "Promo and bonus GumDrops are excluded from revenue."]
-      : ["Showing verified commerce data for the selected range.", "Promo and bonus GumDrops are excluded from revenue."]
+      ? ["Commerce refresh is delayed. Showing last verified data.", "Promo and bonus GD are excluded from revenue."]
+      : ["Showing verified commerce data for the selected range.", "Promo and bonus GD are excluded from revenue."]
     : [loading ? "Waiting for first snapshot." : "Commerce unavailable."];
 
   const needsAttention = [

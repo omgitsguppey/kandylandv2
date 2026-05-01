@@ -54,11 +54,11 @@ const SERVER_ROLLUP_POLL_INTERVAL_MS = 60_000;
  * Resolve a human-readable truth chip label from the listener state.
  *
  * Vocabulary:
- * - "Live server truth"                        — all listeners loaded, none from cache
- * - "Cached snapshot"                          — all listeners loaded, but some data from cache
- * - "Waiting for server truth"                 — no realtime data yet
- * - "Fallback active — N listener(s) degraded" — at least one listener has failed
- * - "Realtime warming up"                      — partial listeners loaded, none failed
+ * - "Updated"                             - all live upgrade listeners loaded, none from cache
+ * - "Showing last verified data"          - verified server data exists, cache is in use, or live upgrade is absent
+ * - "Waiting for first overview snapshot" - no verified overview data exists yet
+ * - "Live updates delayed"                - at least one live upgrade listener has failed
+ * - "Refreshing overview"                 - partial live upgrade listeners loaded, none failed
  */
 export function resolveTruthChipLabel(
     state: Pick<OverviewRealtimeListenerState,
@@ -74,34 +74,34 @@ export function resolveTruthChipLabel(
     const anyFromCache = state.dropsFromCache || state.summaryFromCache || state.transactionsFromCache || state.adminActivityFromCache;
 
     if (failedCount > 0) {
-        return `Fallback active — ${failedCount} listener${failedCount === 1 ? "" : "s"} degraded`;
+        return "Live updates delayed";
     }
 
     if (allLoaded && !anyFromCache) {
-        return "Live server truth";
+        return "Updated";
     }
 
     if (allLoaded && anyFromCache) {
-        return "Cached snapshot";
+        return "Showing last verified data";
     }
 
     if (anyLoaded) {
-        return "Realtime warming up";
+        return "Refreshing overview";
     }
 
     if (hasServerData) {
-        return "Server rollup only";
+        return "Showing last verified data";
     }
 
-    return "Waiting for server truth";
+    return "Waiting for first overview snapshot";
 }
 
 /** Map a truth chip label to a CSS chip style variant. */
 export function resolveTruthChipVariant(label: string): AdminSurfaceState {
-    if (label === "Live server truth") return "live";
-    if (label === "Cached snapshot") return "stale";
-    if (label === "Realtime warming up" || label === "Server rollup only") return "degraded";
-    if (label.startsWith("Fallback active")) return "fallback";
+    if (label === "Updated") return "live";
+    if (label === "Showing last verified data") return "stale";
+    if (label === "Refreshing overview") return "degraded";
+    if (label === "Live updates delayed") return "fallback";
     return "unavailable";
 }
 
@@ -111,10 +111,10 @@ function buildRealtimeOnlyOverview(
 ): AdminOverviewResponse {
     const generatedAt = Date.now();
     const issues = [
-        listenerState.dropsFailed ? "Drops realtime listener failed." : null,
-        listenerState.summaryFailed ? "Commerce summary realtime listener failed." : null,
-        listenerState.transactionsFailed ? "Transaction realtime listener failed." : null,
-        listenerState.adminActivityFailed ? "Admin activity realtime listener failed." : null,
+        listenerState.dropsFailed ? "Drop activity live updates are delayed." : null,
+        listenerState.summaryFailed ? "Commerce live updates are delayed." : null,
+        listenerState.transactionsFailed ? "Transaction live updates are delayed." : null,
+        listenerState.adminActivityFailed ? "Admin activity live updates are delayed." : null,
     ].filter((issue): issue is string => Boolean(issue));
 
     const overviewLabel = resolveTruthChipLabel(listenerState, false);
@@ -170,13 +170,13 @@ function buildRealtimeOnlyOverview(
         truthNotes: {
             overview: overviewLabel,
             platformPulse: listenerState.dropsLoaded || listenerState.summaryLoaded
-                ? "Realtime drops and commerce data active; rollup-only metrics pending server snapshot."
-                : "Waiting for realtime listeners to initialize.",
-            drops: listenerState.dropsFailed ? "Drops listener failed." : listenerState.dropsLoaded ? "Firestore drops listener active." : "Drops listener initializing.",
-            revenue: listenerState.summaryFailed ? "Commerce summary listener failed." : listenerState.summaryLoaded ? "Commerce rollup listener active." : "Commerce listener initializing.",
-            topDrops: listenerState.dropsFailed ? "Drops listener failed." : listenerState.dropsLoaded ? "Drops listener active." : "Drops listener initializing.",
-            transactions: listenerState.transactionsFailed ? "Transactions listener failed." : listenerState.transactionsLoaded ? "Transactions listener active." : "Transactions listener initializing.",
-            adminActivity: listenerState.adminActivityFailed ? "Admin activity listener failed." : listenerState.adminActivityLoaded ? "Admin activity listener active." : "Admin activity listener initializing.",
+                ? "Showing available overview data while the full snapshot loads."
+                : "Waiting for first overview snapshot.",
+            drops: listenerState.dropsFailed ? "Drop activity is delayed." : listenerState.dropsLoaded ? "Drop activity updated." : "Drop activity is refreshing.",
+            revenue: listenerState.summaryFailed ? "Commerce updates are delayed." : listenerState.summaryLoaded ? "Commerce updated." : "Commerce is refreshing.",
+            topDrops: listenerState.dropsFailed ? "Drop activity is delayed." : listenerState.dropsLoaded ? "Drop ranking updated." : "Drop ranking is refreshing.",
+            transactions: listenerState.transactionsFailed ? "Transactions are delayed." : listenerState.transactionsLoaded ? "Transactions updated." : "Transactions are refreshing.",
+            adminActivity: listenerState.adminActivityFailed ? "Admin activity is delayed." : listenerState.adminActivityLoaded ? "Admin activity updated." : "Admin activity is refreshing.",
         },
         realtimeDebugMeta: {
             dropsFromCache: listenerState.dropsFromCache,
@@ -522,10 +522,10 @@ export function useAdminOverviewRealtime() {
             },
             issues: [
                 ...(serverData.issues ?? []),
-                ...(listenerState.dropsFailed ? ["Drops realtime listener is degraded."] : []),
-                ...(listenerState.summaryFailed ? ["Commerce summary realtime listener is degraded."] : []),
-                ...(listenerState.transactionsFailed ? ["Transactions realtime listener is degraded."] : []),
-                ...(listenerState.adminActivityFailed ? ["Admin activity realtime listener is degraded."] : []),
+                ...(listenerState.dropsFailed ? ["Drop activity live updates are delayed."] : []),
+                ...(listenerState.summaryFailed ? ["Commerce live updates are delayed."] : []),
+                ...(listenerState.transactionsFailed ? ["Transaction live updates are delayed."] : []),
+                ...(listenerState.adminActivityFailed ? ["Admin activity live updates are delayed."] : []),
             ],
             truthNotes: {
                 ...serverData.truthNotes,

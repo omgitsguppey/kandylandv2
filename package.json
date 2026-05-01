@@ -61,6 +61,7 @@
         "check:notification-return-loop": "tsx scripts/agent/validate-notification-return-loop.ts",
         "check:admin-analytics-snapshot-migration": "tsx scripts/agent/validate-admin-analytics-snapshot-migration.ts",
         "check:admin-analytics-no-pure-realtime": "tsx scripts/agent/validate-admin-analytics-no-pure-realtime.ts",
+        "check:admin-analytics-finalization": "tsx scripts/agent/validate-admin-analytics-finalization.ts",
         "analytics:legacy:inventory": "tsx scripts/analytics/inventory-legacy-sources.ts",
         "analytics:legacy:map": "tsx scripts/analytics/map-legacy-events.ts",
         "analytics:ecosystem:parity": "tsx scripts/analytics/check-analytics-ecosystem-parity.ts",

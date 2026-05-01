@@ -36,7 +36,7 @@ export default function AdminDashboardPage() {
             : "No server update yet";
 
     /* Truth chip: concise human-readable admin truth state */
-    const truthLabel = data?.truthNotes?.overview ?? "Waiting for server truth";
+    const truthLabel = data?.truthNotes?.overview ?? "Waiting for first overview snapshot";
     const truthVariant = resolveTruthChipVariant(truthLabel);
 
 

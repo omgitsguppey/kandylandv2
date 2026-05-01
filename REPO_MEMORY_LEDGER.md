@@ -24,6 +24,15 @@ This file is not a changelog. It is the concise ledger for durable decisions tha
 
 ## Decision Entries
 
+### 1ce. Admin Analytics and Debug launch finalization keeps Analytics compact and Debug evidentiary
+
+- Approximate date: Recorded explicitly on 2026-05-01 from the Admin Analytics launch finalization pass
+- Status: Active launch admin truth, copy, hot-cache, and Debug rule
+- Decision: Admin Overview and Admin Analytics must use operator-friendly, snapshot-first labels while Admin Debug owns technical source evidence, parity, legacy recovery, refresh metadata, formulas, actor-lane separation, and recovery details. Realtime and refresh remain upgrade paths and must not blank verified values.
+- Implementation: `agent/state/admin-analytics-finalization.generated.json` records the finalized surfaces. `docs/agent-truth/admin-analytics-launch-final.md` records the launch rule. `scripts/agent/validate-admin-analytics-finalization.ts` adds the targeted guard. Admin Overview labels now use Updated, Showing last verified data, Refreshing overview, Live updates delayed, and Waiting for first overview snapshot.
+- Required validation: `npm run check:admin-analytics-finalization` plus the existing hot-cache, no-pure-realtime, snapshot-migration, legacy-recovery, refresh-cache, human-copy, and module-specific admin analytics checks.
+- Consequence for future work: Do not put Data Validation full lists, raw backend paths, listener/source jargon, parity dumps, or giant diagnostic paragraphs back into Analytics. Do not make stale cache look live, clear snapshots during refresh, show generic Waiting when a snapshot exists, or label authenticated-only data as total audience.
+
 ### 1cd. Notification return loop is deterministic and source-truth backed
 
 - Approximate date: Recorded explicitly on 2026-05-01 from the notification return-loop hardening pass

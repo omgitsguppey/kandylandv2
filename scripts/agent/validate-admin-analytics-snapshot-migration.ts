@@ -213,7 +213,7 @@ for (const moduleDoc of [
   requireIncludes(doc, "Debug", moduleDoc);
 }
 
-requireIncludes(analyticsUi, "Ranked raw events", "Event Mix compact ranked list");
+requireIncludes(analyticsUi, "Ranked event activity", "Event Mix compact ranked list");
 requireIncludes(analyticsUi, "Surface context unavailable", "Event Mix compact context state");
 requireIncludes(analyticsUi, "Task leaderboard", "Daily Task Pipeline consolidated leaderboard");
 requireIncludes(analyticsUi, "Completion speed", "Daily Task Pipeline consolidated speed");

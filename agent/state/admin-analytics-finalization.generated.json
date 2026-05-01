@@ -1,0 +1,325 @@
+{
+  "generatedAt": "2026-05-01T00:00:00-05:00",
+  "status": "launch_ready_with_targeted_warnings",
+  "scope": [
+    "admin_overview",
+    "admin_analytics",
+    "admin_debug",
+    "hot_cache_snapshots",
+    "refresh_route",
+    "realtime_upgrade_hooks",
+    "legacy_recovery",
+    "ecosystem_parity",
+    "admin_copy_mapper",
+    "validation_scripts",
+    "docs"
+  ],
+  "doctrine": {
+    "snapshotFirst": true,
+    "realtimeUpgradeOnly": true,
+    "refreshPreservesVisibleSnapshot": true,
+    "genericWaitingForbiddenWithSnapshot": true,
+    "fakeZerosForbidden": true,
+    "operatorCopyInAnalytics": true,
+    "technicalEvidenceInDebug": true,
+    "dataValidationFullListInDebugOnly": true
+  },
+  "corrections": [
+    {
+      "key": "admin_overview_operator_copy",
+      "files": [
+        "src/app/admin/page.tsx",
+        "src/hooks/useAdminOverviewRealtime.ts",
+        "tests/unit/admin-overview-truth.spec.ts",
+        "docs/agent-truth/admin-overview.md",
+        "docs/agent-truth/admin-revenue-trends.md"
+      ],
+      "before": "Overview truth labels exposed server/listener wording such as Waiting for server truth, Live server truth, Realtime warming up, Server rollup only, and Fallback active.",
+      "after": "Overview uses operator copy: Updated, Showing last verified data, Refreshing overview, Live updates delayed, and Waiting for first overview snapshot.",
+      "risk": "low"
+    },
+    {
+      "key": "analytics_degraded_title_debug_detail",
+      "files": [
+        "src/app/admin/analytics/page.tsx"
+      ],
+      "before": "Analytics degraded banner title duplicated compact operator copy.",
+      "after": "The visible banner stays compact while the title carries the full background issue list for evidence.",
+      "risk": "low"
+    },
+    {
+      "key": "refresh_display_copy_contract",
+      "files": [
+        "src/lib/analytics/admin-analytics-display-state.ts"
+      ],
+      "before": "Refresh-cache validation expected explicit realtime-delayed and no-snapshot copy markers that were not present.",
+      "after": "Display state distinguishes Realtime delayed. Showing last verified snapshot. and No verified snapshot yet.",
+      "risk": "low"
+    },
+    {
+      "key": "commerce_revenue_definition",
+      "files": [
+        "src/lib/admin-analytics-commerce-snapshot.ts"
+      ],
+      "before": "Visible commerce copy used GumDrops wording that did not match the launch guard.",
+      "after": "Commerce copy states Promo and bonus GD are excluded from revenue.",
+      "risk": "low"
+    },
+    {
+      "key": "validator_doctrine_alignment",
+      "files": [
+        "scripts/check-admin-analytics-overview.ts",
+        "scripts/check-admin-analytics-onboarding-performance.ts",
+        "scripts/check-admin-analytics-onboarding-velocity.ts",
+        "scripts/agent/validate-admin-analytics-snapshot-migration.ts",
+        "scripts/agent/validate-admin-analytics-finalization.ts",
+        "package.json"
+      ],
+      "before": "Some validators still required legacy internal wording or old badge labels.",
+      "after": "Validators now enforce the current human-readable launch copy, ranked Event Mix list, snapshot-first guards, and finalization report/doc presence.",
+      "risk": "low"
+    }
+  ],
+  "surfaces": [
+    {
+      "key": "admin_overview",
+      "files": [
+        "src/app/admin/page.tsx",
+        "src/hooks/useAdminOverviewRealtime.ts",
+        "src/app/api/admin/overview/route.ts"
+      ],
+      "firstRenderSource": "server overview response when available; live upgrade data only when no server response has arrived",
+      "verifiedSnapshotFirst": true,
+      "blocksOnRealtime": false,
+      "blocksOnRefresh": false,
+      "operatorCopy": true,
+      "debugEvidence": "realtimeDebugMeta and overview route runtime samples",
+      "fakeZeroRisk": "existing realtime-only fallback still uses zero-shaped overview fields when no server response exists; launch copy now labels this as first snapshot or delayed state",
+      "fixedInThisPass": true
+    },
+    {
+      "key": "admin_analytics_platform_pulse",
+      "files": [
+        "src/app/admin/analytics/hooks/useAdminAnalyticsState.tsx",
+        "src/components/Admin/Analytics/AdminAnalyticsPrimitives.tsx"
+      ],
+      "firstRenderSource": "snapshot registry and historical overview hot cache",
+      "verifiedSnapshotFirst": true,
+      "blocksOnRealtime": false,
+      "blocksOnRefresh": false,
+      "operatorCopy": true,
+      "debugEvidence": "adminAnalyticsSnapshotMigration and overview metric debug metadata",
+      "fixedInThisPass": true
+    },
+    {
+      "key": "admin_analytics_audience_snapshot",
+      "files": [
+        "src/lib/admin-analytics-audience-snapshot.ts",
+        "src/app/admin/analytics/components/AdminAnalyticsAudienceTab.tsx",
+        "src/app/api/admin/debug/route.ts"
+      ],
+      "firstRenderSource": "snapshot/historical route with guest estimate caveats",
+      "verifiedSnapshotFirst": true,
+      "guestAuthAdminCreatorSystemSeparated": true,
+      "guestEstimatesLabeled": true,
+      "authenticatedOnlyNotTotalAudience": true,
+      "fixedInThisPass": true
+    },
+    {
+      "key": "admin_analytics_commerce_snapshot",
+      "files": [
+        "src/lib/admin-analytics-commerce-snapshot.ts",
+        "src/app/admin/analytics/components/AdminAnalyticsCommerceTab.tsx",
+        "src/app/api/admin/debug/route.ts"
+      ],
+      "firstRenderSource": "snapshot/historical route with commerce source metadata",
+      "verifiedSnapshotFirst": true,
+      "revenueDefinition": "completed real-money purchases only",
+      "promoBonusExcludedFromRevenue": true,
+      "fixedInThisPass": true
+    },
+    {
+      "key": "admin_analytics_live_pulse",
+      "files": [
+        "src/lib/admin-analytics-live-pulse.ts",
+        "src/lib/analytics/admin-analytics-display-state.ts",
+        "src/app/admin/analytics/components/AdminAnalyticsOperationsTab.tsx"
+      ],
+      "firstRenderSource": "latest verified live pulse snapshot, then realtime upgrade",
+      "verifiedSnapshotFirst": true,
+      "realtimeMissingUsesSnapshot": true,
+      "graphUnavailableScoped": true,
+      "fixedInThisPass": true
+    },
+    {
+      "key": "admin_analytics_journey_event_chain",
+      "files": [
+        "src/lib/admin-analytics-journey-funnel.ts",
+        "src/app/admin/analytics/components/AdminAnalyticsOperationsTab.tsx",
+        "src/app/api/admin/debug/route.ts"
+      ],
+      "firstRenderSource": "snapshot/historical route",
+      "verifiedSnapshotFirst": true,
+      "rawEventKeysInDebugOnly": true,
+      "fixedInThisPass": true
+    },
+    {
+      "key": "admin_analytics_auth_outcomes",
+      "files": [
+        "src/lib/admin-analytics-auth-outcome-split.ts",
+        "src/app/admin/analytics/components/AdminAnalyticsOperationsTab.tsx",
+        "src/app/api/admin/debug/route.ts"
+      ],
+      "firstRenderSource": "snapshot/historical route",
+      "verifiedSnapshotFirst": true,
+      "timingUnavailableLabeled": true,
+      "fixedInThisPass": true
+    },
+    {
+      "key": "admin_analytics_onboarding_performance",
+      "files": [
+        "src/components/Admin/Analytics/AdminOnboardingAnalyticsModules.tsx",
+        "src/lib/admin-onboarding-velocity.ts",
+        "src/app/api/admin/debug/route.ts"
+      ],
+      "firstRenderSource": "snapshot/historical route",
+      "verifiedSnapshotFirst": true,
+      "operatorCopy": "Showing verified onboarding starts.",
+      "technicalDetailsInDebug": true,
+      "fixedInThisPass": true
+    },
+    {
+      "key": "admin_analytics_daily_task_pipeline",
+      "files": [
+        "src/lib/admin-task-pipeline.ts",
+        "src/components/Admin/Analytics/AdminDailyTaskPipelineModule.tsx",
+        "src/app/api/admin/debug/route.ts"
+      ],
+      "firstRenderSource": "snapshot/historical route",
+      "verifiedSnapshotFirst": true,
+      "lifecycleTruth": true,
+      "parityInDebug": true,
+      "fixedInThisPass": true
+    },
+    {
+      "key": "admin_analytics_notification_funnel",
+      "files": [
+        "src/lib/admin-notification-funnel.ts",
+        "src/components/Admin/Analytics/AdminTaskAndNotificationModules.tsx",
+        "src/app/api/admin/debug/route.ts"
+      ],
+      "firstRenderSource": "snapshot/historical route",
+      "verifiedSnapshotFirst": true,
+      "dedupeTruth": true,
+      "readClearTruth": true,
+      "fixedInThisPass": true
+    },
+    {
+      "key": "admin_analytics_event_mix",
+      "files": [
+        "src/lib/admin-analytics-event-mix.ts",
+        "src/app/admin/analytics/components/AdminAnalyticsOperationsTab.tsx",
+        "src/app/api/admin/debug/route.ts"
+      ],
+      "firstRenderSource": "snapshot/historical route",
+      "verifiedSnapshotFirst": true,
+      "rankedList": true,
+      "giantChart": false,
+      "rawKeysInDebug": true,
+      "fixedInThisPass": true
+    },
+    {
+      "key": "admin_analytics_live_interaction_stream",
+      "files": [
+        "src/lib/admin-analytics-live-interaction-stream.ts",
+        "src/app/admin/analytics/components/AdminAnalyticsOperationsTab.tsx",
+        "src/app/api/admin/debug/route.ts"
+      ],
+      "firstRenderSource": "snapshot/historical route plus live stream upgrade",
+      "verifiedSnapshotFirst": true,
+      "adminExcluded": true,
+      "duplicatesGrouped": true,
+      "fixedInThisPass": true
+    },
+    {
+      "key": "admin_analytics_data_health_summary",
+      "files": [
+        "src/app/admin/analytics/components/AdminAnalyticsOperationsTab.tsx",
+        "src/app/admin/debug/components/DebugAdvancedDataValidation.tsx",
+        "src/app/api/admin/debug/route.ts"
+      ],
+      "firstRenderSource": "compact Analytics summary; full list in Debug",
+      "dataValidationFullListInDebugOnly": true,
+      "fixedInThisPass": true
+    },
+    {
+      "key": "admin_debug",
+      "files": [
+        "src/app/admin/debug/components/DebugPrimitives.tsx",
+        "src/app/admin/debug/components/DebugAdvancedDataValidation.tsx",
+        "src/app/api/admin/debug/route.ts",
+        "src/lib/admin-debug-summary-cards.ts"
+      ],
+      "technicalEvidence": true,
+      "operatorSummary": true,
+      "parity": true,
+      "sourceBreakdown": true,
+      "recoveryDetails": true,
+      "fixedInThisPass": true
+    }
+  ],
+  "validationGates": [
+    {
+      "command": "npm run check:admin-analytics-snapshot-migration",
+      "status": "passed_after_correction"
+    },
+    {
+      "command": "npm run check:refresh-based-hot-cache",
+      "status": "passed_after_correction"
+    },
+    {
+      "command": "npm run check:admin-analytics-overview",
+      "status": "passed_after_correction"
+    },
+    {
+      "command": "npm run check:admin-analytics-commerce-snapshot",
+      "status": "passed_after_correction"
+    },
+    {
+      "command": "npm run check:admin-analytics-onboarding-performance",
+      "status": "passed_after_correction"
+    },
+    {
+      "command": "npm run check:admin-analytics-onboarding-velocity",
+      "status": "passed_after_correction"
+    },
+    {
+      "command": "npm run check:admin-analytics-finalization",
+      "status": "passed"
+    },
+    {
+      "command": "npm run check:human-readable-admin-copy",
+      "status": "passed"
+    },
+    {
+      "command": "npm run typecheck",
+      "status": "passed"
+    },
+    {
+      "command": "npm run check:ui:coverage",
+      "status": "passed"
+    },
+    {
+      "command": "npm run check:ui:runtime",
+      "status": "passed"
+    },
+    {
+      "command": "npm run check:ui:audits",
+      "status": "passed"
+    }
+  ],
+  "openWarnings": [
+    "Admin Overview still keeps its existing realtime listener plus server rollup architecture. This pass only corrected launch copy and did not rewrite the Overview data model.",
+    "Private admin routes remain no-store/force-dynamic where sensitive. Admin speed relies on internal snapshots and hot cache, not public CDN caching."
+  ]
+}

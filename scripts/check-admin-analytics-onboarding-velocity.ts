@@ -44,7 +44,7 @@ const section = component.slice(
 
 assertIncludes("AdminOnboardingAnalyticsModules", component, "onboardingVelocityModel");
 assertIncludes("AdminOnboardingAnalyticsModules", component, "__KANDYDROPS_ADMIN_ANALYTICS_ONBOARDING_VELOCITY_DEBUG__");
-assertIncludes("Onboarding Velocity section", section, "Using canonical onboarding starts.");
+assertIncludes("Onboarding Velocity section", section, "Showing verified onboarding starts.");
 assertIncludes("AdminOnboardingAnalyticsModules", component, "Details in Debug");
 assertIncludes("Onboarding Velocity section", section, "bucketReconciliationDelta");
 assertIncludes("Onboarding Velocity section", section, "Timing unavailable");

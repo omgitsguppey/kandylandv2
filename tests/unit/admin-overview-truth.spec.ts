@@ -38,44 +38,44 @@ describe("admin overview truth chips", () => {
         adminActivityFromCache: false,
     };
 
-    it("returns 'Live server truth' when all listeners loaded and none from cache", () => {
-        expect(resolveTruthChipLabel(allLoaded, true)).toBe("Live server truth");
+    it("returns 'Updated' when all listeners loaded and none from cache", () => {
+        expect(resolveTruthChipLabel(allLoaded, true)).toBe("Updated");
     });
 
-    it("returns 'Cached snapshot' when all loaded but some from cache", () => {
-        expect(resolveTruthChipLabel({ ...allLoaded, dropsFromCache: true }, true)).toBe("Cached snapshot");
+    it("returns 'Showing last verified data' when all loaded but some from cache", () => {
+        expect(resolveTruthChipLabel({ ...allLoaded, dropsFromCache: true }, true)).toBe("Showing last verified data");
     });
 
-    it("returns fallback label with count when listeners have failed", () => {
+    it("returns delayed copy when live updates fail", () => {
         expect(resolveTruthChipLabel({ ...allLoaded, dropsFailed: true }, true)).toBe(
-            "Fallback active — 1 listener degraded",
+            "Live updates delayed",
         );
         expect(resolveTruthChipLabel({ ...allLoaded, dropsFailed: true, summaryFailed: true }, true)).toBe(
-            "Fallback active — 2 listeners degraded",
+            "Live updates delayed",
         );
     });
 
-    it("returns 'Waiting for server truth' when nothing has loaded", () => {
+    it("returns 'Waiting for first overview snapshot' when nothing has loaded", () => {
         const empty = {
             dropsLoaded: false, summaryLoaded: false, transactionsLoaded: false, adminActivityLoaded: false,
             dropsFailed: false, summaryFailed: false, transactionsFailed: false, adminActivityFailed: false,
             dropsFromCache: false, summaryFromCache: false, transactionsFromCache: false, adminActivityFromCache: false,
         };
-        expect(resolveTruthChipLabel(empty, false)).toBe("Waiting for server truth");
+        expect(resolveTruthChipLabel(empty, false)).toBe("Waiting for first overview snapshot");
     });
 
-    it("returns 'Realtime warming up' when some but not all loaded", () => {
+    it("returns 'Refreshing overview' when some but not all loaded", () => {
         const partial = { ...allLoaded, summaryLoaded: false, transactionsLoaded: false };
-        expect(resolveTruthChipLabel(partial, true)).toBe("Realtime warming up");
+        expect(resolveTruthChipLabel(partial, true)).toBe("Refreshing overview");
     });
 
-    it("returns 'Server rollup only' when no realtime but server data exists", () => {
+    it("returns 'Showing last verified data' when no live upgrade but server data exists", () => {
         const noRealtime = {
             dropsLoaded: false, summaryLoaded: false, transactionsLoaded: false, adminActivityLoaded: false,
             dropsFailed: false, summaryFailed: false, transactionsFailed: false, adminActivityFailed: false,
             dropsFromCache: false, summaryFromCache: false, transactionsFromCache: false, adminActivityFromCache: false,
         };
-        expect(resolveTruthChipLabel(noRealtime, true)).toBe("Server rollup only");
+        expect(resolveTruthChipLabel(noRealtime, true)).toBe("Showing last verified data");
     });
 
     it("never produces vague bracket-prefixed labels", () => {
@@ -106,12 +106,11 @@ describe("admin overview truth chips", () => {
 
 describe("admin overview truth chip variants", () => {
     it("maps known labels to correct CSS variants", () => {
-        expect(resolveTruthChipVariant("Live server truth")).toBe("live");
-        expect(resolveTruthChipVariant("Cached snapshot")).toBe("stale");
-        expect(resolveTruthChipVariant("Realtime warming up")).toBe("degraded");
-        expect(resolveTruthChipVariant("Server rollup only")).toBe("degraded");
-        expect(resolveTruthChipVariant("Fallback active — 1 listener degraded")).toBe("fallback");
-        expect(resolveTruthChipVariant("Waiting for server truth")).toBe("unavailable");
+        expect(resolveTruthChipVariant("Updated")).toBe("live");
+        expect(resolveTruthChipVariant("Showing last verified data")).toBe("stale");
+        expect(resolveTruthChipVariant("Refreshing overview")).toBe("degraded");
+        expect(resolveTruthChipVariant("Live updates delayed")).toBe("fallback");
+        expect(resolveTruthChipVariant("Waiting for first overview snapshot")).toBe("unavailable");
     });
 
     it("returns waiting for unknown labels", () => {
@@ -167,39 +166,40 @@ describe("admin top spacing tokens", () => {
     it("documents the expected CSS custom property names", () => {
         // These tokens are defined in globals.css and consumed by the admin layout.
         const ADMIN_SPACING_TOKENS = [
-            "--admin-top-spacing",
-            "--admin-top-spacing-md",
+            "--admin-shell-gap",
+            "--admin-shell-gap-md",
         ];
         expect(ADMIN_SPACING_TOKENS).toHaveLength(2);
-        expect(ADMIN_SPACING_TOKENS[0]).toBe("--admin-top-spacing");
-        expect(ADMIN_SPACING_TOKENS[1]).toBe("--admin-top-spacing-md");
+        expect(ADMIN_SPACING_TOKENS[0]).toBe("--admin-shell-gap");
+        expect(ADMIN_SPACING_TOKENS[1]).toBe("--admin-shell-gap-md");
     });
 
-    it("mobile token is 0.25rem (4px), not 1rem (16px)", () => {
+    it("mobile token is 1rem and shared, not an ad hoc top-only token", () => {
         const globalsCss = readFileSync(
             join(__dirname, "../../src/app/globals.css"),
             "utf-8",
         );
-        expect(globalsCss).toContain("--admin-top-spacing: 0.25rem");
-        expect(globalsCss).not.toMatch(/--admin-top-spacing:\s*1rem/);
+        expect(globalsCss).toContain("--admin-shell-gap: 1rem");
+        expect(globalsCss).not.toContain("--admin-top-spacing:");
     });
 
-    it("desktop token is 0.75rem (12px), not 1.5rem (24px)", () => {
+    it("desktop token is 1.25rem and shared, not an ad hoc top-only token", () => {
         const globalsCss = readFileSync(
             join(__dirname, "../../src/app/globals.css"),
             "utf-8",
         );
-        expect(globalsCss).toContain("--admin-top-spacing-md: 0.75rem");
-        expect(globalsCss).not.toMatch(/--admin-top-spacing-md:\s*1\.5rem/);
+        expect(globalsCss).toContain("--admin-shell-gap-md: 1.25rem");
+        expect(globalsCss).not.toContain("--admin-top-spacing-md:");
     });
 
-    it("admin layout has negative top margin to counteract root pt-24", () => {
+    it("admin layout uses shared admin shell spacing classes", () => {
         const adminLayout = readFileSync(
             join(__dirname, "../../src/app/admin/layout.tsx"),
             "utf-8",
         );
-        expect(adminLayout).toContain("mt-[-2rem]");
-        expect(adminLayout).toContain("md:mt-[-1.5rem]");
+        expect(adminLayout).toContain("ADMIN_TOP_TO_CONSOLE_GAP_CLASS");
+        expect(adminLayout).toContain("ADMIN_CONSOLE_TO_CONTENT_GAP_CLASS");
+        expect(adminLayout).toContain("data-admin-shell-spacing=\"shared\"");
     });
 });
 
@@ -962,8 +962,8 @@ describe("admin analytics overview truth", () => {
 
     it("state hook produces fake-zero-protected revenueDisplay", () => {
         expect(ANALYTICS_STATE_SOURCE).toContain("revenueDisplay");
-        // Must use em dash when historicalResponse is unavailable
-        expect(ANALYTICS_STATE_SOURCE).toContain("\"—\"");
+        expect(ANALYTICS_STATE_SOURCE).toContain("historicalOverviewWaitingLabel");
+        expect(ANALYTICS_STATE_SOURCE).toContain("snapshotRevenueValue");
     });
 
     it("state hook produces fake-zero-protected purchasesDisplay", () => {
@@ -1013,12 +1013,12 @@ describe("admin analytics overview truth", () => {
         expect(ANALYTICS_STATE_SOURCE).toContain("analyticsOverviewDebugMeta");
     });
 
-    it("debug meta contains canonicalSource per metric", () => {
-        expect(ANALYTICS_STATE_SOURCE).toContain("canonicalSource");
+    it("debug meta contains valueSource per metric", () => {
+        expect(ANALYTICS_STATE_SOURCE).toContain("valueSource");
     });
 
-    it("debug meta contains isFakeZero per metric", () => {
-        expect(ANALYTICS_STATE_SOURCE).toContain("isFakeZero");
+    it("debug meta contains fakeZeroPrevented per metric", () => {
+        expect(ANALYTICS_STATE_SOURCE).toContain("fakeZeroPrevented");
     });
 
     it("debug meta includes realtimeListenerDebug", () => {
@@ -1081,7 +1081,7 @@ describe("admin analytics overview truth", () => {
     /* ── Compact alert banner ───────────────────────────────────────── */
 
     it("alert banner uses single-line degraded format", () => {
-        expect(ANALYTICS_PAGE_SOURCE).toContain("Degraded:");
+        expect(ANALYTICS_PAGE_SOURCE).toContain("Needs attention:");
         expect(ANALYTICS_PAGE_SOURCE).not.toContain("recovering in the background");
     });
 
