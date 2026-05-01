@@ -24,6 +24,15 @@ This file is not a changelog. It is the concise ledger for durable decisions tha
 
 ## Decision Entries
 
+### 1ci. Launch readiness final gate is launchable with warnings
+
+- Approximate date: Recorded explicitly on 2026-05-01 from the final launch readiness gate
+- Status: Active launch go/no-go, validation, and PR intake rule
+- Decision: KandyDrops is launchable with warnings from the readiness commit after all targeted launch gates, standard checks, Firebase/App Hosting/Functions/rules checks, serial full Vitest, continuity, UI audits, and generated-artifact cleanup pass. No unresolved blocker is recorded in `agent/state/launch-readiness-report.generated.json`.
+- Implementation: `docs/agent-truth/launch-readiness-final.md` provides the human-readable final gate. `agent/state/launch-readiness-report.generated.json` records blockers, risks, tests run, limitations, open PR recommendations, tiny launch-blocking fixes, and go/no-go status. `scripts/agent/validate-launch-readiness-final.ts` and `npm run check:launch-readiness-final` verify the report, phase artifacts, trusted-origin refresh fix, and governance ledger updates.
+- Required validation: `npm run check:launch-readiness-final` plus rerunning any affected launch gate if a launch-critical file changes after this commit.
+- Consequence for future work: Do not merge open PRs #201-#208 into launch without reconciling them against the readiness report and rerunning affected gates. PR #208 is expected to be superseded by the readiness pass trusted-origin fix after review. Keep the report status at `launchable with warnings` unless a later commit reruns and updates the same gates.
+
 ### 1ch. User problem-state copy uses shared human-readable translations
 
 - Approximate date: Recorded explicitly on 2026-05-01 from the human-readable admin and user problem-state copy finalization pass

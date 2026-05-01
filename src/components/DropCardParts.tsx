@@ -70,7 +70,7 @@ export function FileCountChip({ images, videos, compact = false }: FileCountChip
 }
 
 export function DropCardTimer({ validUntil }: { validUntil?: number }) {
-    const nowMs = useNow({ intervalMs: 1_000, initialNowMs: Date.now() });
+    const nowMs = useNow({ intervalMs: 1_000 });
     const { visibleLabel, fullLabel, urgencyState, isCountdownOnly } = formatDropCountdown(validUntil, nowMs);
 
     return (

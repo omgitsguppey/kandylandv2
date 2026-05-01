@@ -1,13 +1,22 @@
 # EVERY FILE FUNCTION CHECKLIST
 
 **Last Updated:** 2026-05-01
-**Current Focus:** Human-Readable Problem-State Copy Finalization.
+**Current Focus:** Launch Readiness Final Gate.
 **Status:** In Progress. Current tracked-file coverage is reconciled as of 2026-04-28: every `git ls-files` entry has a current checklist heading, while detailed function-level audits remain pending for many historical and newly reconciled files.
 Purpose: exhaustive no-skip audit checklist covering every repository file currently in scope and every detected function-like implementation.
 
 Scoring: all entries below are marked as included in the current validated sweep. Confidence reflects current repository-state confidence, not perfection or future-proofing.
 
 Current repo-wide state snapshot: see [FULL_SCALE_CODEBASE_AUDIT.md](/Users/uylus/OneDrive/Documents/KandyDrops_Final/FULL_SCALE_CODEBASE_AUDIT.md) for the current live baseline, verification state, and continuity rules, and see [REPO_MEMORY_LEDGER.md](/Users/uylus/OneDrive/Documents/KandyDrops_Final/REPO_MEMORY_LEDGER.md) for major architectural and workflow decisions. The detailed file/function body below remains valuable historical evidence, but it has not been fully regenerated against the current 2026-04-18 inventory review yet.
+
+## 2026-05-01 Launch Readiness Final Gate Coverage
+
+- [x] `agent/state/launch-readiness-report.generated.json` records the final launch status, blockers, risks, tests run, limitations, open PR recommendations, tiny launch-blocking fixes, and go/no-go recommendation.
+- [x] `docs/agent-truth/launch-readiness-final.md` provides the human-readable final launch gate summary.
+- [x] `scripts/agent/validate-launch-readiness-final.ts` and `package.json` add `npm run check:launch-readiness-final` to verify report structure, phase artifacts, trusted-origin refresh protection, and governance ledger coverage.
+- [x] `src/app/api/admin/analytics/refresh/route.ts` requires trusted origin on the state-changing admin refresh POST, superseding the open Sentinel PR #208 fix after review.
+- [x] `src/hooks/useNow.ts`, `src/components/DropCardParts.tsx`, and `src/components/FeaturedCarousel.tsx` remove render-time clock reads and synchronous effect state updates surfaced by the final standard gate.
+- [x] `tests/unit/admin-analytics-refresh-route.spec.ts` and `tests/unit/admin-analytics-audience-snapshot.spec.ts` lock the trusted-origin route guard and current launch copy.
 
 ## 2026-05-01 Human-Readable Problem-State Copy Finalization Coverage
 

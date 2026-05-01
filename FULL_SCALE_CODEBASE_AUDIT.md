@@ -1,5 +1,32 @@
 # KandyDrops Core Codebase Audit & Defensive Ledger
 
+## [2026-05-01 #79] PRE: Launch Readiness Final Gate
+
+Scope started:
+- Running the final launch readiness gate across user critical path, payment/unlock/entitlement security, notifications, Admin Analytics/Debug truth, performance/loading/cache, mobile safe-area, human-readable copy, Firebase/App Hosting/Functions/rules, tests/CI, and open PR/recent commit risk.
+- This pass is audit/report-only unless a tiny documented launch blocker fix is absolutely required. No features, refactors, redesigns, or architecture changes are in scope.
+
+Initial evidence:
+- Worktree was clean at startup on `main`.
+- Control tower routing, source-of-truth map, launch finalization scope, product doctrine, GitHub triage workflow, and recent audit/ledger entries were consulted.
+
+Scope completed:
+- Created `agent/state/launch-readiness-report.generated.json` and `docs/agent-truth/launch-readiness-final.md` with launch status `launchable with warnings`, no unresolved blockers, high/medium risks, deferred post-launch work, tests run, known limitations, open PR risk, and required next action.
+- Added `scripts/agent/validate-launch-readiness-final.ts` and `npm run check:launch-readiness-final` to verify the readiness report, phase artifacts, trusted-origin refresh protection, and governance ledger coverage.
+- Applied tiny launch-blocking fixes surfaced by the final gates: trusted-origin enforcement on `POST /api/admin/analytics/refresh`, React compiler/purity cleanup for Drop timers and Featured carousel state sync, stale Audience Snapshot launch-copy expectations, unused import cleanup, and Admin Debug dependency cleanup.
+- Reviewed current GitHub risk: open PRs #201-#208 remain unmerged; PR #208 is now superseded by this pass's trusted-origin fix after review; duplicate useDrops PRs remain post-launch/manual review candidates.
+
+Verification:
+- Targeted gates passed: `npm run check:user-critical-path-launch`, `npm run check:payment-unlock-security`, `npm run check:notification-return-loop`, `npm run check:admin-analytics-finalization`, `npm run check:global-speed-hydration-cache`, `npm run check:mobile-shell-safe-area`, `npm run check:human-readable-admin-copy`, `npm run check:firebase-runtime`, `npm run check:functions`, and `npm run check:firebase:rules`.
+- Standard gates passed after tiny fixes/artifact cleanup: `npm run check`, `npx vitest run --maxWorkers=1`, `npm run check:continuity`, `npm run check:ui:audits`, and `npm run check:generated-artifacts`.
+- The final readiness validator passed with `npm run check:launch-readiness-final`.
+
+Residual risk:
+- No GitHub Actions workflow/run/status context was discoverable for the evaluated commit, so local verification is the launch evidence for this pass.
+- The default parallel `npx vitest run` showed local worker-timeout sensitivity; the serial full suite passed.
+- No live production PayPal charge, real-device push delivery, or deployed provider smoke was performed in this local readiness gate.
+- Open PRs were not merged or closed by design and must be reconciled before any post-report merge.
+
 ## [2026-05-01 #78] PRE: Human-Readable Problem-State Copy Finalization
 
 Scope started:

@@ -123,6 +123,14 @@ describe("/api/admin/analytics/refresh", () => {
     const payload = await response.json();
 
     expect(response.status).toBe(200);
+    expect(mockState.guardApiRequest).toHaveBeenCalledWith(
+      request,
+      expect.objectContaining({
+        auth: "admin",
+        requireTrustedOrigin: true,
+        routeName: "admin/analytics/refresh",
+      }),
+    );
     expect(payload.success).toBe(true);
     expect(payload.refreshStatus).toBe("completed");
     expect(payload.snapshot.truthState).toBe("unavailable");

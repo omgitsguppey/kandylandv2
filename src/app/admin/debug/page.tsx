@@ -382,7 +382,7 @@ export default function DebugConsole() {
         sourceMode: data ? "snapshot" : "loading",
         routeName: "/api/admin/debug",
         debugDetails: data?.opsHealth?.canonicalState,
-    }), [data, error, isLoading, systemStateHealthy, systemStateMeta]);
+    }), [data, systemStateHealthy, systemStateMeta]);
     const pipelineCardCopy = useMemo(() => createAdminDebugCardCopy({
         operatorSummary: activePipelineFailureCount > 0
             ? "Route checks need attention."

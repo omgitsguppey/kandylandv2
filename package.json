@@ -57,6 +57,7 @@
         "check:human-readable-admin-copy": "tsx scripts/agent/validate-human-readable-admin-copy.ts",
         "check:launch-finalization-baseline": "tsx scripts/agent/validate-launch-finalization-baseline.ts",
         "check:launch-pr-triage": "tsx scripts/agent/validate-launch-pr-triage.ts",
+        "check:launch-readiness-final": "tsx scripts/agent/validate-launch-readiness-final.ts",
         "check:user-critical-path-launch": "tsx scripts/agent/validate-user-critical-path-launch.ts",
         "check:mobile-shell-safe-area": "tsx scripts/agent/validate-mobile-shell-safe-area.ts",
         "check:payment-unlock-security": "tsx scripts/agent/validate-payment-unlock-security.ts",

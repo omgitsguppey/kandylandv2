@@ -31,7 +31,7 @@ function getNowStore(intervalMs: number): NowStore {
     intervalId: null,
     syncId: null,
     listeners: new Set(),
-    nowMs: 0,
+    nowMs: typeof window === "undefined" ? 0 : Date.now(),
   };
   nowStores.set(intervalMs, store);
   return store;

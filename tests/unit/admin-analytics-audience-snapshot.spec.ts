@@ -39,7 +39,7 @@ describe("buildAdminAnalyticsAudienceSnapshotModel", () => {
       overviewTruthState: "live",
     });
 
-    expect(model.totalUsers.label).toBe("GA total users");
+    expect(model.totalUsers.label).toBe("Total users");
     expect(model.totalUsersSource).toBe("ga_total");
     expect(model.guestVisits.label).toBe("Estimated guest visits");
     expect(model.guestEstimateFormulaUsed).toBe(true);
@@ -90,7 +90,7 @@ describe("buildAdminAnalyticsAudienceSnapshotModel", () => {
     expect(clamped.guestEstimateClamped).toBe(true);
     expect(clamped.guestEstimateWarning).toContain("clamped");
     expect(waiting.totalUsers.value).toBeNull();
-    expect(waiting.totalUsers.label).toBe("Waiting");
+    expect(waiting.totalUsers.label).toBe("Waiting for first snapshot");
     expect(waiting.fakeZeroPrevented).toBe(true);
   });
 });

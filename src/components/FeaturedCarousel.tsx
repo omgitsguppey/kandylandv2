@@ -45,28 +45,33 @@ export function FeaturedCarousel({ drops, onSelectDrop }: FeaturedCarouselProps)
             return;
         }
 
-        onSelect();
+        const syncId = window.setTimeout(onSelect, 0);
         emblaApi.on("select", onSelect);
         emblaApi.on("reInit", onSelect);
         return () => {
+            window.clearTimeout(syncId);
             emblaApi.off("select", onSelect);
             emblaApi.off("reInit", onSelect);
         };
     }, [emblaApi, onSelect]);
 
     useEffect(() => {
-        if (featuredDrops.length === 0) {
-            setActiveIndex(0);
-            return;
-        }
-
-        setActiveIndex((prev) => {
-            const next = Math.min(prev, featuredDrops.length - 1);
-            if (emblaApi && next !== prev) {
-                emblaApi.scrollTo(next, true);
+        const syncId = window.setTimeout(() => {
+            if (featuredDrops.length === 0) {
+                setActiveIndex(0);
+                return;
             }
-            return next;
-        });
+
+            setActiveIndex((prev) => {
+                const next = Math.min(prev, featuredDrops.length - 1);
+                if (emblaApi && next !== prev) {
+                    emblaApi.scrollTo(next, true);
+                }
+                return next;
+            });
+        }, 0);
+
+        return () => window.clearTimeout(syncId);
     }, [emblaApi, featuredDrops.length]);
 
     const stopAutoAdvance = useCallback(() => {
@@ -306,7 +311,7 @@ function LifetimeProgressBar({ progressPercent, urgencyState }: { progressPercen
 }
 
 function useDropTiming(validFrom: number, validUntil?: number): { label: string; fullLabel: string; urgencyState: DropTimingUrgency; progressPercent: number } {
-    const nowMs = useNow({ intervalMs: 1_000, initialNowMs: Date.now() });
+    const nowMs = useNow({ intervalMs: 1_000 });
 
     return useMemo(() => {
         if (!validUntil) {

@@ -1,4 +1,4 @@
-import type { CanonicalAnalyticsEvent, LegacyMappingConfidence } from "@/lib/analytics/analytics-event-contract";
+import type { CanonicalAnalyticsEvent } from "@/lib/analytics/analytics-event-contract";
 import type { LegacyMappingResult, LegacyMappingSuccess } from "@/lib/analytics/legacy-event-mapping";
 import type { SnapshotParityResult, SnapshotParityStatus } from "@/lib/analytics/admin-metric-snapshot";
 

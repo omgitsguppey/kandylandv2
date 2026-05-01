@@ -129,6 +129,7 @@ async function POST_handler(request: NextRequest) {
       rateLimit: ADMIN_ANALYTICS,
       auth: "admin",
       scopeToCaller: true,
+      requireTrustedOrigin: true,
     });
 
     const body = await request.json().catch(() => ({} as RefreshRequestBody)) as RefreshRequestBody;
