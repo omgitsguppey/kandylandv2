@@ -111,6 +111,12 @@ Admin modules must name their counting mode:
 - estimated
 - unavailable
 
+## Ingest Boundary Rule
+
+Every writer into `analytics_event_facts` must resolve event names through the shared telemetry catalog before write. Client-side `trackEvent` and server-side `trackServerEvent` already reject unsupported names, and `/api/analytics/ingest-identified` must do the same at the route boundary because posted payloads cannot be trusted just because the current browser client is clean.
+
+Compatibility aliases can be accepted only when they are stored as their canonical event name and preserve the original name in legacy metadata such as `legacy_event_name`. Diagnostics that are not cataloged product events belong in server diagnostics, not in analytics facts.
+
 ## Legacy Data Recovery
 
 Legacy recovery is allowed when older data uses an older field name, document id shape, or rollup format. Recovery must:

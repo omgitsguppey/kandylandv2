@@ -1,0 +1,176 @@
+{
+  "generatedAt": "2026-05-01T02:08:00.000Z",
+  "auditName": "full_scale_telemetry_orphan_cleanup",
+  "scope": "Repo-wide telemetry emitters, catalogs, ingestion routes, task/notification/onboarding/commerce/viewer/admin lanes, Functions analytics processors, Admin Debug telemetry surfaces, validation scripts, and doctrine docs.",
+  "truthOrderApplied": [
+    "verified_runtime_code",
+    "verified_configuration",
+    "verified_command_output",
+    "FULL_SCALE_CODEBASE_AUDIT.md",
+    "REPO_MEMORY_LEDGER.md",
+    "EVERY_FILE_FUNCTION_CHECKLIST.md",
+    "AGENTS.md"
+  ],
+  "startupEvidence": {
+    "controlTowerRead": true,
+    "doctrineConsulted": [
+      "docs/doctrine/kandydrops-product-doctrine.md",
+      "docs/doctrine/kandydrops-google-analytics-cloud-doctrine.md",
+      "docs/doctrine/kandydrops-banned-patterns.md",
+      "docs/doctrine/kandydrops-decision-checklist.md"
+    ],
+    "traceAdjacentMainFile": "src/lib/telemetry-catalog.ts",
+    "preEditTelemetryCheck": {
+      "command": "npm run check:telemetry",
+      "status": "pass",
+      "literalOrResolvableEmitters": 287,
+      "sourceFilesChecked": 559,
+      "catalogedEventsWithoutDetectedEmitter": 0,
+      "parityContractChecks": 1187
+    }
+  },
+  "surfacesAudited": [
+    {
+      "surfaceKey": "client_track_event",
+      "files": [
+        "src/lib/telemetry.ts",
+        "src/lib/analytics-client-engine.ts",
+        "src/lib/telemetry-catalog.ts",
+        "src/lib/telemetry-safety.ts"
+      ],
+      "currentGuard": "prepareAnalyticsEvent normalizes aliases and trackEvent rejects unsupported events before GA/backend dispatch.",
+      "orphanRiskBefore": false,
+      "fixedInThisPass": false,
+      "result": "covered_by_existing_catalog_parity"
+    },
+    {
+      "surfaceKey": "authenticated_ingest_api",
+      "files": [
+        "src/app/api/analytics/ingest-identified/route.ts",
+        "tests/unit/analytics-ingest-identified-route.spec.ts"
+      ],
+      "currentGuard": "resolveTrackedTelemetryEvent runs at the route boundary; unsupported event names are skipped before analytics_event_facts writes, while legacy admin_ui_error goes to diagnostics only.",
+      "orphanRiskBefore": true,
+      "riskBefore": "Authenticated API accepted any posted eventName and could persist uncataloged analytics_event_facts even though the browser client rejected them.",
+      "fixedInThisPass": true,
+      "cleanupAction": "Canonicalized aliases, enriched route-written facts with catalog metadata, skipped unsupported events, returned skippedUnsupported, and added unit tests."
+    },
+    {
+      "surfaceKey": "server_track_server_event",
+      "files": [
+        "src/lib/server/analytics.ts",
+        "src/lib/server/analytics-event-utils.ts"
+      ],
+      "currentGuard": "trackServerEvent resolves through the shared catalog and ignores unsupported server events.",
+      "orphanRiskBefore": false,
+      "fixedInThisPass": false,
+      "result": "covered_by_existing_server_guard"
+    },
+    {
+      "surfaceKey": "anonymous_guest_ingest",
+      "files": [
+        "src/app/api/analytics/ingest/route.ts",
+        "functions/src/analytics-guest-batches.ts"
+      ],
+      "currentGuard": "Guest events are semantic interaction types, not catalog event names; they are stored in analytics_guest_batches and labeled as guest batches.",
+      "orphanRiskBefore": false,
+      "fixedInThisPass": false,
+      "result": "separate_directional_guest_lane"
+    },
+    {
+      "surfaceKey": "functions_callable_ingest",
+      "files": [
+        "functions/src/analytics-event-facts.ts"
+      ],
+      "currentGuard": "Callable requires auth and App Check, then privacy enforcement before writing analytics_event_facts.",
+      "orphanRiskBefore": true,
+      "fixedInThisPass": false,
+      "result": "legacy_exported_callable_retained",
+      "residualRisk": "The callable does not import the app telemetry catalog. No current repo client caller was found, so it was not removed or behaviorally rewritten in this cleanup pass. Future fix should move telemetry names to a shared manifest consumed by both app and Functions before tightening this callable."
+    },
+    {
+      "surfaceKey": "task_runtime_telemetry",
+      "files": [
+        "src/lib/server/daily-tasks.ts",
+        "src/lib/tasks/task-catalog.ts",
+        "src/lib/tasks/task-observability.ts",
+        "src/app/api/admin/tasks/route.ts"
+      ],
+      "currentGuard": "Built-in and admin-created task definitions resolve event names through the telemetry catalog; Admin Debug reports true task-mapping drift rather than generic lifecycle events as orphans.",
+      "orphanRiskBefore": false,
+      "fixedInThisPass": false,
+      "result": "covered_by_task_observability"
+    },
+    {
+      "surfaceKey": "security_telemetry",
+      "files": [
+        "src/lib/security-events.ts",
+        "src/app/api/security/log-attempt/route.ts"
+      ],
+      "currentGuard": "Security descriptors map to cataloged telemetryEventName values for analytics; security_violation_detected remains a security_events record name, not an analytics fact event.",
+      "orphanRiskBefore": false,
+      "fixedInThisPass": false,
+      "result": "separate_security_record_plus_cataloged_telemetry"
+    },
+    {
+      "surfaceKey": "admin_debug_orphan_reporting",
+      "files": [
+        "src/app/api/admin/debug/route.ts",
+        "src/app/admin/debug/components/DebugAdvancedTelemetry.tsx"
+      ],
+      "currentGuard": "Admin Debug reports task telemetry alignment and orphaned task mappings from runtime audit data.",
+      "orphanRiskBefore": false,
+      "fixedInThisPass": false,
+      "result": "debug_surface_retained"
+    },
+    {
+      "surfaceKey": "legacy_recovery_mapping",
+      "files": [
+        "src/lib/analytics/legacy-event-mapping.ts",
+        "scripts/analytics/map-legacy-events.ts",
+        "docs/agent-truth/analytics-legacy-recovery.md"
+      ],
+      "currentGuard": "Legacy records map with legacySource, legacyConfidence, mappingWarnings, and legacy_directional_only policy.",
+      "orphanRiskBefore": false,
+      "fixedInThisPass": false,
+      "result": "legacy_aliases_retained_for_recovery"
+    }
+  ],
+  "cleanupActions": [
+    {
+      "key": "skip_uncataloged_identified_ingest_events",
+      "file": "src/app/api/analytics/ingest-identified/route.ts",
+      "status": "done",
+      "effect": "Uncataloged authenticated telemetry can no longer create analytics_event_facts or analytics_event_stats through the API route."
+    },
+    {
+      "key": "diagnostic_not_analytics_for_admin_ui_error",
+      "file": "src/app/api/analytics/ingest-identified/route.ts",
+      "status": "done",
+      "effect": "Legacy admin_ui_error payloads are retained as server diagnostics and skipped as analytics facts."
+    },
+    {
+      "key": "alias_canonicalization_at_ingest",
+      "file": "src/app/api/analytics/ingest-identified/route.ts",
+      "status": "done",
+      "effect": "Compatibility aliases such as notification_read are stored as canonical event names with legacy_event_name metadata."
+    }
+  ],
+  "residualRisks": [
+    {
+      "key": "functions_callable_catalog_guard",
+      "severity": "medium",
+      "reason": "functions/src/analytics-event-facts.ts is exported and can write analytics_event_facts after auth/App Check/privacy enforcement, but it does not share the app telemetry catalog.",
+      "recommendedFollowup": "Create a shared generated telemetry manifest for app and Functions, then reject unsupported callable event names before write.",
+      "whyNotFixedHere": "No current repo client caller was found and duplicating the catalog inside Functions would create a second source of truth."
+    }
+  ],
+  "postPatchEvidence": {
+    "targetedTests": [
+      "npx vitest run tests/unit/analytics-ingest-identified-route.spec.ts"
+    ],
+    "telemetryParity": [
+      "npm run check:telemetry"
+    ]
+  }
+}

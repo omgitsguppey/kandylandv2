@@ -1,5 +1,5 @@
 {
-  "generatedAt": "2026-04-30T02:03:06.212Z",
+  "generatedAt": "2026-05-01T16:05:53.817Z",
   "truthOrder": [
     "verified_runtime_code",
     "verified_configuration",
@@ -16,34 +16,23 @@
     "agent/index/surface-map.json",
     "agent/index/ui-surface-coverage.json"
   ],
-  "stable_id": "verifyplan__src__lib__server__admin-panel-system-logs-ts-src__app__api__admin__debug__route-ts-tests__unit__admin-panel-system-logs-spec-ts",
+  "stable_id": "verifyplan__src__components__dropcard-tsx",
   "inputPaths": [
-    "src/lib/server/admin-panel-system-logs.ts",
-    "src/app/api/admin/debug/route.ts",
-    "tests/unit/admin-panel-system-logs.spec.ts"
+    "src/components/DropCard.tsx"
   ],
   "matchedRepoPaths": [
-    "src/lib/server/admin-panel-system-logs.ts",
-    "src/app/api/admin/debug/route.ts",
-    "tests/unit/admin-panel-system-logs.spec.ts"
+    "src/components/DropCard.tsx"
   ],
   "unmatchedPaths": [],
-  "touchedDomains": [
-    "admin_ops",
-    "app_routes",
-    "shared_server_helpers"
-  ],
+  "touchedDomains": [],
   "fastCommands": [
     "npm run typecheck",
-    "npm run agent:test -- src/lib/server/admin-panel-system-logs.ts",
-    "npm run agent:test -- src/app/api/admin/debug/route.ts",
-    "npm run agent:test -- tests/unit/admin-panel-system-logs.spec.ts",
+    "npm run agent:test -- src/components/DropCard.tsx",
     "npm run check:ui:coverage",
     "npm run check:ui:runtime"
   ],
   "signoffCommands": [
-    "npm run check:ui:audits",
-    "npm run check:continuity"
+    "npm run check:ui:audits"
   ],
   "fastSelections": [
     {
@@ -54,21 +43,7 @@
       "lane": "fast"
     },
     {
-      "command": "npm run agent:test -- src/lib/server/admin-panel-system-logs.ts",
-      "why": [
-        "Run the narrowest related contract/unit tests first."
-      ],
-      "lane": "fast"
-    },
-    {
-      "command": "npm run agent:test -- src/app/api/admin/debug/route.ts",
-      "why": [
-        "Run the narrowest related contract/unit tests first."
-      ],
-      "lane": "fast"
-    },
-    {
-      "command": "npm run agent:test -- tests/unit/admin-panel-system-logs.spec.ts",
+      "command": "npm run agent:test -- src/components/DropCard.tsx",
       "why": [
         "Run the narrowest related contract/unit tests first."
       ],
@@ -96,16 +71,10 @@
         "UI/admin signoff requires Playwright audit coverage."
       ],
       "lane": "signoff"
-    },
-    {
-      "command": "npm run check:continuity",
-      "why": [
-        "Broad/shared/helper/tooling work requires continuity signoff."
-      ],
-      "lane": "signoff"
     }
   ],
   "signoffAdvisories": [
+    "Run `npm run check:ui:lighthouse` only if the touched UI change affects loading, rendering, or performance-sensitive behavior.",
     "Run `npm run trace:adjacent -- <path>` for the main touched files before broad signoff."
   ],
   "forbiddenSurfaces": [
@@ -115,8 +84,8 @@
     "src/app/api/paypal",
     "functions/src/analytics-transactions.ts"
   ],
-  "broadWork": true,
+  "broadWork": false,
   "reasoning": [
-    "Matched 3 repo-tracked paths."
+    "Matched 1 repo-tracked paths."
   ]
 }

@@ -1,7 +1,7 @@
 # Agent Task Spec
 
 ## Goal
-tighten admin ai runtime health
+simplify final-day drop card countdown typography
 
 ## Acceptance Criteria
 - Stay within the touched entrypoints unless adjacency proves a shared helper must move with them.
@@ -10,7 +10,7 @@ tighten admin ai runtime health
 - Keep broad signoff lanes separate from the fast loop.
 
 ## Likely Entrypoints
-- src/app/admin/debug/page.tsx
+- src/components/DropCard.tsx
 
 ## Forbidden Surfaces
 - src/lib/gumdrop-ledger.ts
@@ -21,14 +21,13 @@ tighten admin ai runtime health
 
 ## Fast Verification
 - npm run typecheck
-- npm run agent:test -- src/app/admin/debug/page.tsx
+- npm run agent:test -- src/components/DropCard.tsx
 - npm run check:ui:coverage
 - npm run check:ui:runtime
 
 ## Signoff Verification
 - npm run check:ui:audits
-- npm run check:continuity
 
 ## Notes
-- Mode: admin
+- Mode: ui
 - Format follow-up implementation prompts like an issue: goal, acceptance criteria, entrypoints, forbidden surfaces, and exact verification lanes.

@@ -6,6 +6,7 @@ import { ANALYTICS_WRITE, RateLimitError } from "@/lib/server/rate-limit";
 import { guardApiRequest } from "@/lib/server/request-guard";
 import { recordRouteWarning } from "@/lib/server/route-diagnostics";
 import { recordServerDiagnostic } from "@/lib/server/server-diagnostics";
+import { resolveTrackedTelemetryEvent } from "@/lib/server/analytics-event-utils";
 import { ANALYTICS_CANONICAL_COLLECTIONS, ANALYTICS_OPERATIONAL_COLLECTIONS, ANALYTICS_ROUTE_POLICIES } from "@/lib/server/analytics-governance";
 import { withRouteRuntimeHealth } from "@/lib/server/route-runtime-health";
 
@@ -50,6 +51,33 @@ function readEventModules(params: Record<string, unknown>) {
     }
 
     return typeof value === "string" ? value.trim() : "";
+}
+
+async function recordLegacyClientDiagnostic(
+    userId: string,
+    eventName: string,
+    params: Record<string, unknown>,
+) {
+    if (eventName !== "admin_ui_error") {
+        return;
+    }
+
+    const errorMsg = String(params.message || "Unknown client error");
+    const stackTrace = typeof params.stack === "string" ? params.stack : "";
+
+    await recordServerDiagnostic({
+        channel: "ai",
+        severity: "error",
+        message: `Admin UI Error: ${errorMsg.slice(0, 100)}`,
+        detail: {
+            userId,
+            filename: params.filename,
+            lineno: params.lineno,
+            colno: params.colno,
+            preview: stackTrace || errorMsg,
+            telemetryCleanup: "skipped_uncataloged_diagnostic_event",
+        },
+    });
 }
 
 async function POST_handler(request: NextRequest) {
@@ -102,18 +130,35 @@ async function POST_handler(request: NextRequest) {
 
         const batch = adminDb.batch();
         let processed = 0;
+        let skippedUnsupported = 0;
+        const skippedUnsupportedEventNames = new Set<string>();
         let latestActiveUserPatch: Record<string, unknown> | null = null;
 
         for (const rawEvent of deduplicatedEvents) {
-            const eventId = rawEvent.eventId || buildFallbackEventId(caller.uid, rawEvent.eventName);
-            const ref = adminDb.collection(ANALYTICS_CANONICAL_COLLECTIONS.identifiedEventFacts).doc(eventId);
-            
-            const timestamp = rawEvent.eventTimestampMs || Date.now();
+            const telemetryEvent = resolveTrackedTelemetryEvent(rawEvent.eventName);
             const params = rawEvent.eventParams && typeof rawEvent.eventParams === "object" ? rawEvent.eventParams : {};
+
+            if (!telemetryEvent.isKnownEvent) {
+                skippedUnsupported += 1;
+                skippedUnsupportedEventNames.add(rawEvent.eventName);
+                await recordLegacyClientDiagnostic(caller.uid, rawEvent.eventName, params);
+                continue;
+            }
+
+            const canonicalEventName = telemetryEvent.canonicalEventName;
+            const eventId = rawEvent.eventId || buildFallbackEventId(caller.uid, canonicalEventName);
+            const ref = adminDb.collection(ANALYTICS_CANONICAL_COLLECTIONS.identifiedEventFacts).doc(eventId);
+
+            const timestamp = rawEvent.eventTimestampMs || Date.now();
+            const enrichedParams = {
+                ...params,
+                ...telemetryEvent.metadataParams,
+                tracking_origin: "identified_api_ingest",
+            };
             
             const finalEvent = {
                 eventId,
-                eventName: rawEvent.eventName,
+                eventName: canonicalEventName,
                 timestamp,
                 clientTimestamp: timestamp,
                 serverTimestamp: Date.now(),
@@ -123,28 +168,33 @@ async function POST_handler(request: NextRequest) {
                 sourceLayer: "observed",
                 sourceSurface: String(params.page_path || params.pagePath || "client"),
                 idempotencyKey: eventId,
-                sessionId: String(params.session_id || params.sessionId || ""),
-                pagePath: String(params.page_path || params.pagePath || ""),
-                dayKey: String(params.day_key || params.dayKey || ""),
-                hourKey: String(params.hour_key || params.hourKey || ""),
-                minuteKey: String(params.minute_key || params.minuteKey || ""),
-                dropId: String(params.drop_id || params.dropId || ""),
-                dropTitle: String(params.drop_title || params.dropTitle || ""),
-                dropCategory: String(params.drop_category || params.dropCategory || ""),
-                assetKey: String(params.asset_key || params.assetKey || ""),
-                assetIndex: Number(params.asset_index || params.assetIndex || 0),
-                contentKind: String(params.content_kind || params.contentKind || ""),
-                destination: String(params.destination || ""),
-                destinationType: String(params.destination_type || params.destinationType || ""),
-                sessionWatchSeconds: Number(params.session_watch_seconds || params.sessionWatchSeconds || 0),
-                watchSeconds: Number(params.watch_seconds || params.watchSeconds || 0),
-                durationMs: Number(params.duration_ms || params.durationMs || 0),
-                loadMs: Number(params.load_ms || params.loadMs || 0),
-                viewportWidth: Number(params.viewport_width || params.viewportWidth || 0),
-                viewportHeight: Number(params.viewport_height || params.viewportHeight || 0),
-                isMobileViewport: Boolean(params.is_mobile_viewport || params.isMobileViewport || false),
+                sessionId: String(enrichedParams.session_id || enrichedParams.sessionId || ""),
+                pagePath: String(enrichedParams.page_path || enrichedParams.pagePath || ""),
+                dayKey: String(enrichedParams.day_key || enrichedParams.dayKey || ""),
+                hourKey: String(enrichedParams.hour_key || enrichedParams.hourKey || ""),
+                minuteKey: String(enrichedParams.minute_key || enrichedParams.minuteKey || ""),
+                dropId: String(enrichedParams.drop_id || enrichedParams.dropId || ""),
+                dropTitle: String(enrichedParams.drop_title || enrichedParams.dropTitle || ""),
+                dropCategory: String(enrichedParams.drop_category || enrichedParams.dropCategory || ""),
+                assetKey: String(enrichedParams.asset_key || enrichedParams.assetKey || ""),
+                assetIndex: Number(enrichedParams.asset_index || enrichedParams.assetIndex || 0),
+                contentKind: String(enrichedParams.content_kind || enrichedParams.contentKind || ""),
+                destination: String(enrichedParams.destination || ""),
+                destinationType: String(enrichedParams.destination_type || enrichedParams.destinationType || ""),
+                sessionWatchSeconds: Number(enrichedParams.session_watch_seconds || enrichedParams.sessionWatchSeconds || 0),
+                watchSeconds: Number(enrichedParams.watch_seconds || enrichedParams.watchSeconds || 0),
+                durationMs: Number(enrichedParams.duration_ms || enrichedParams.durationMs || 0),
+                loadMs: Number(enrichedParams.load_ms || enrichedParams.loadMs || 0),
+                viewportWidth: Number(enrichedParams.viewport_width || enrichedParams.viewportWidth || 0),
+                viewportHeight: Number(enrichedParams.viewport_height || enrichedParams.viewportHeight || 0),
+                isMobileViewport: Boolean(enrichedParams.is_mobile_viewport || enrichedParams.isMobileViewport || false),
                 authState: "authenticated",
-                params,
+                eventCategory: telemetryEvent.option?.category || "system",
+                eventModules: telemetryEvent.option?.modules || [],
+                trackingSources: telemetryEvent.option?.sources || [],
+                eventIndexVersion: String(enrichedParams.event_index_version || ""),
+                trackingOrigin: "identified_api_ingest",
+                params: enrichedParams,
             };
 
             // Using batch.set with merge: false to mimic create, but safer. Deduplication is handled by background worker if duplicate
@@ -154,36 +204,33 @@ async function POST_handler(request: NextRequest) {
             if (!latestActiveUserPatch || timestamp >= Number(latestActiveUserPatch.lastSeenAt || 0)) {
                 latestActiveUserPatch = {
                     uid: caller.uid,
-                    username: readStringParam(params, "username", "user_name", "display_name", "displayName"),
+                    username: readStringParam(enrichedParams, "username", "user_name", "display_name", "displayName"),
                     lastSeenAt: timestamp,
-                    lastEventName: rawEvent.eventName,
+                    lastEventName: canonicalEventName,
                     lastPagePath: finalEvent.pagePath,
                     lastDropTitle: finalEvent.dropTitle,
-                    lastSemanticScopeLabel: readStringParam(params, "semantic_scope_label", "semanticScopeLabel"),
-                    lastComponentName: readStringParam(params, "component_name", "componentName"),
-                    lastEventModules: readEventModules(params),
+                    lastSemanticScopeLabel: readStringParam(enrichedParams, "semantic_scope_label", "semanticScopeLabel"),
+                    lastComponentName: readStringParam(enrichedParams, "component_name", "componentName"),
+                    lastEventModules: readEventModules(enrichedParams),
                     source: "identified_client_ingest",
                     updatedAt: Date.now(),
                 };
             }
+        }
 
-            if (rawEvent.eventName === "admin_ui_error") {
-                const errorMsg = String(params.message || "Unknown client error");
-                const stackTrace = typeof params.stack === "string" ? params.stack : "";
-                
-                await recordServerDiagnostic({
-                    channel: "ai",
-                    severity: "error",
-                    message: `Admin UI Error: ${errorMsg.slice(0, 100)}`,
+        if (skippedUnsupported > 0) {
+            recordRouteWarning(
+                "Analytics.IngestIdentified",
+                "Unsupported identified telemetry events skipped before analytics fact write",
+                undefined,
+                {
+                    channel: "analytics",
                     detail: {
-                        userId: caller.uid,
-                        filename: params.filename,
-                        lineno: params.lineno,
-                        colno: params.colno,
-                        preview: stackTrace || errorMsg,
+                        skippedUnsupported,
+                        eventNames: Array.from(skippedUnsupportedEventNames).slice(0, 12),
                     },
-                });
-            }
+                },
+            );
         }
 
         if (processed > 0) {
@@ -197,7 +244,7 @@ async function POST_handler(request: NextRequest) {
             await batch.commit();
         }
 
-        return NextResponse.json({ success: true, processed });
+        return NextResponse.json({ success: true, processed, skippedUnsupported });
     } catch (error) {
         if (error instanceof AuthError || error instanceof RateLimitError) {
             return handleApiError(error, "Analytics.IngestIdentified.POST");

@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useMemo, useRef, useState } from "react";
+import { useCallback, useDeferredValue, useEffect, useMemo, useRef, useState } from "react";
 import { usePathname, useSearchParams } from "next/navigation";
 import dynamic from "next/dynamic";
 
@@ -14,10 +14,11 @@ import { useDrops } from "@/hooks/useDrops";
 import { KandyDropsAccountOverview, AccountOverviewState } from "@/components/KandyDropsAccountOverview";
 import type { CreatorDiscoveryProfile } from "@/lib/creator-public-pages";
 import { trackEvent } from "@/lib/telemetry";
+import { DROPS_MOBILE_UI_DENSITY } from "@/hooks/useDropCardImpression";
 
 const FeaturedCarousel = dynamic(() => import("@/components/FeaturedCarousel").then(mod => mod.FeaturedCarousel), {
     ssr: false,
-    loading: () => <div className="h-52 sm:h-64 md:h-[320px] w-full rounded-[2.5rem] bg-zinc-900/50 animate-pulse border border-white/10" />
+    loading: () => <div className="h-44 w-full animate-pulse rounded-[1.35rem] border border-white/10 bg-zinc-900/50 sm:h-64 md:h-[320px] md:rounded-[2rem]" />
 });
 
 const DropPreviewModal = dynamic(() => import("@/components/DropPreviewModal").then(mod => mod.DropPreviewModal), {
@@ -62,7 +63,7 @@ function buildAccountOverviewViewModel(params: {
             displayName: "Loading profile",
             subtitle: "Loading account",
             avatarUrl: null,
-            avatarFallback: "…",
+            avatarFallback: "...",
             balanceLabel: "Loading GD",
         };
     }
@@ -117,10 +118,8 @@ export function DropsClient({ initialDrops, creatorRailProfiles }: DropsClientPr
     });
 
     const observerRef = useRef<HTMLDivElement>(null);
-
-    useEffect(() => {
-        trackEvent("drops_page_viewed");
-    }, []);
+    const pageViewTrackedRef = useRef(false);
+    const lastTrackedSearchRef = useRef("");
 
     useEffect(() => {
         const observer = new IntersectionObserver(
@@ -140,6 +139,7 @@ export function DropsClient({ initialDrops, creatorRailProfiles }: DropsClientPr
     }, [isLoadingMore, isReachingEnd, size, setSize]);
 
     const [searchQuery, setSearchQuery] = useState("");
+    const deferredSearchQuery = useDeferredValue(searchQuery);
     const [selectedCategory, setSelectedCategory] = useState("All");
     const [previewDropId, setPreviewDropId] = useState<string | null>(null);
     const requestedPreviewDropId = searchParams.get("drop")?.trim() || "";
@@ -168,6 +168,21 @@ export function DropsClient({ initialDrops, creatorRailProfiles }: DropsClientPr
         return liveDrops.filter(drop => !userProfile.unlockedContent!.includes(drop.id));
     }, [liveDrops, userProfile]);
 
+    useEffect(() => {
+        if (pageViewTrackedRef.current) {
+            return;
+        }
+
+        pageViewTrackedRef.current = true;
+        trackEvent("drops_page_viewed", {
+            source_component: "drops_compact_mobile_page",
+            ui_density: DROPS_MOBILE_UI_DENSITY,
+            initial_drop_count: liveDrops.length,
+            initial_visible_drop_count: sourceDrops.length,
+            creator_rail_count: creatorRailProfiles.length,
+        });
+    }, [creatorRailProfiles.length, liveDrops.length, sourceDrops.length]);
+
     const accountOverview = useMemo(() => buildAccountOverviewViewModel({
         authLoading,
         userDisplayName: user?.displayName ?? null,
@@ -181,8 +196,10 @@ export function DropsClient({ initialDrops, creatorRailProfiles }: DropsClientPr
 
         let result = sourceDrops;
 
-        if (searchQuery) {
-            const lowerQuery = searchQuery.toLowerCase();
+        const normalizedSearchQuery = deferredSearchQuery.trim();
+
+        if (normalizedSearchQuery) {
+            const lowerQuery = normalizedSearchQuery.toLowerCase();
             result = result.filter(drop =>
                 drop.title.toLowerCase().includes(lowerQuery) ||
                 drop.description.toLowerCase().includes(lowerQuery)
@@ -206,9 +223,24 @@ export function DropsClient({ initialDrops, creatorRailProfiles }: DropsClientPr
         }
 
         return result;
-    }, [sourceDrops, searchQuery, selectedCategory]);
+    }, [sourceDrops, deferredSearchQuery, selectedCategory]);
 
-    const syncDropQuery = (dropId: string | null) => {
+    useEffect(() => {
+        const normalizedQuery = deferredSearchQuery.trim();
+        if (normalizedQuery.length <= 2 || normalizedQuery === lastTrackedSearchRef.current) {
+            return;
+        }
+
+        lastTrackedSearchRef.current = normalizedQuery;
+        trackEvent("drops_searched", {
+            query: normalizedQuery,
+            source_component: "compact_drops_filter_bar",
+            ui_density: DROPS_MOBILE_UI_DENSITY,
+            result_count: filteredDrops.length,
+        });
+    }, [deferredSearchQuery, filteredDrops.length]);
+
+    const syncDropQuery = useCallback((dropId: string | null) => {
         if (typeof window === "undefined") {
             return;
         }
@@ -223,7 +255,7 @@ export function DropsClient({ initialDrops, creatorRailProfiles }: DropsClientPr
         const nextUrl = params.toString() ? `${pathname}?${params.toString()}` : pathname;
         window.history.replaceState(window.history.state, "", nextUrl);
         setUrlPreviewDropId(dropId ?? "");
-    };
+    }, [pathname]);
 
     const previewDrop = useMemo(() => {
         const activePreviewDropId = previewDropId || urlPreviewDropId;
@@ -234,24 +266,37 @@ export function DropsClient({ initialDrops, creatorRailProfiles }: DropsClientPr
         return liveDrops.find((drop) => drop.id === activePreviewDropId) ?? null;
     }, [liveDrops, previewDropId, urlPreviewDropId]);
 
-    const handleSelectDrop = (drop: Drop) => {
+    const handleSelectDrop = useCallback((drop: Drop) => {
         setPreviewDropId(drop.id);
         syncDropQuery(drop.id);
-    };
+    }, [syncDropQuery]);
 
-    const handleClosePreview = () => {
+    const handleClosePreview = useCallback(() => {
         setPreviewDropId(null);
         if (urlPreviewDropId) {
             syncDropQuery(null);
         }
-    };
+    }, [syncDropQuery, urlPreviewDropId]);
+
+    const handleSelectCategory = useCallback((category: string) => {
+        setSelectedCategory(category);
+        if (category !== selectedCategory) {
+            trackEvent("drops_category_selected", {
+                category,
+                source_component: "compact_drops_filter_bar",
+                ui_density: DROPS_MOBILE_UI_DENSITY,
+                visible_drop_count: filteredDrops.length,
+            });
+        }
+    }, [filteredDrops.length, selectedCategory]);
 
     return (
         <div
-            className="mx-auto w-full max-w-7xl px-4 pt-[calc(var(--kandy-cookie-offset,0px)+3.5rem)] pb-[calc(7.75rem+env(safe-area-inset-bottom))] selection:bg-brand-purple/30 md:px-8 md:pt-0 md:pb-8"
+            className="mx-auto w-full max-w-7xl px-3 pt-[calc(var(--kandy-cookie-offset,0px)+0.75rem)] pb-4 selection:bg-brand-purple/30 sm:px-4 md:px-8 md:pt-0 md:pb-8"
             data-onboarding-page="drops"
+            data-drops-page-density="compact-mobile"
         >
-            <div className="mb-4 md:mb-6">
+            <div className="mb-2 md:mb-5">
                 <KandyDropsAccountOverview
                     state={accountOverview.state}
                     displayName={accountOverview.displayName}
@@ -279,56 +324,49 @@ export function DropsClient({ initialDrops, creatorRailProfiles }: DropsClientPr
             <CreatorDiscoveryRail surface="drops" compact initialCreators={creatorRailProfiles} />
 
             {!searchQuery && selectedCategory === "All" && (
-                <div className="mt-4">
+                <div className="mt-3">
                     <FeaturedCarousel drops={sourceDrops} onSelectDrop={handleSelectDrop} />
                 </div>
             )}
 
-            <div id="live-drops" className="mt-4 md:mt-6 min-h-[500px]">
-                <div className="flex flex-col md:flex-row md:items-center justify-between mb-4 md:mb-5 px-4 md:px-0 gap-3">
-                    <div className="flex items-center gap-3">
-                        <h2 className="text-2xl font-bold text-white tracking-tight">
-                            {searchQuery ? `Search Results: "${searchQuery}"` : selectedCategory === "All" ? "All KandyDrops" : `${selectedCategory} Drops`}
+            <div id="live-drops" className="mt-3 md:mt-6">
+                <div className="mb-2 flex flex-row items-center justify-between gap-2 px-1 md:mb-4 md:px-0">
+                    <div className="min-w-0">
+                        <h2 className="truncate text-lg font-black tracking-tight text-white md:text-2xl">
+                            {deferredSearchQuery ? `Results: "${deferredSearchQuery}"` : selectedCategory === "All" ? "All KandyDrops" : `${selectedCategory} Drops`}
                         </h2>
-                        <span className="text-gray-500 text-xs md:text-sm font-medium px-2.5 py-1 rounded-full border border-white/10 bg-white/[0.03]">
-                            {filteredDrops.length} items
-                        </span>
                     </div>
+                    <span className="shrink-0 rounded-[0.7rem] border border-white/10 bg-white/[0.035] px-2 py-1 text-[11px] font-bold text-gray-400 md:text-sm">
+                        {filteredDrops.length}
+                    </span>
                 </div>
                 
-                <div className="mb-4">
+                <div className="mb-2 md:mb-4">
                     <StickyFilterBar
                         categories={CATEGORIES}
                         selectedCategory={selectedCategory}
-                        onSelectCategory={(cat) => {
-                            setSelectedCategory(cat);
-                            if (cat !== selectedCategory) trackEvent("drops_category_selected", { category: cat });
-                        }}
+                        onSelectCategory={handleSelectCategory}
                         searchQuery={searchQuery}
-                        onSearchChange={(q) => {
-                            setSearchQuery(q);
-                            if (q.trim().length > 2) trackEvent("drops_searched", { query: q.trim() });
-                        }}
+                        onSearchChange={setSearchQuery}
                     />
                 </div>
 
-                <div className="relative border border-white/5 bg-white/[0.01] rounded-[2.5rem] p-2 md:p-6">
+                <div className="relative rounded-[1.45rem] border border-white/5 bg-white/[0.01] p-1.5 md:rounded-[2rem] md:p-6">
                     <DropGrid
                         drops={filteredDrops}
                         loading={false}
-                        isSearching={!!searchQuery}
+                        isSearching={!!deferredSearchQuery}
                         onSelectDrop={handleSelectDrop}
                         impressionTrackingSurface="drops_page"
                         impressionTrackingSessionId={impressionTrackingSessionId}
                     />
 
-                    {/* Sentinel for infinite scrolling */}
-                    <div ref={observerRef} className="h-10 mt-8 flex items-center justify-center">
+                    <div ref={observerRef} className="mt-4 flex h-8 items-center justify-center md:mt-8 md:h-10">
                         {isLoadingMore && (
-                            <div className="w-6 h-6 rounded-full border-2 border-brand-purple border-t-transparent animate-spin" />
+                            <div className="h-5 w-5 animate-spin rounded-full border-2 border-brand-purple border-t-transparent md:h-6 md:w-6" />
                         )}
                         {isReachingEnd && filteredDrops.length > 0 && (
-                            <p className="text-gray-500 text-sm font-medium">You&apos;ve reached the end of the line.</p>
+                            <p className="text-xs font-medium text-gray-500 md:text-sm">You&apos;ve reached the end.</p>
                         )}
                     </div>
                 </div>

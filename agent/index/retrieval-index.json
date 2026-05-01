@@ -1,5 +1,5 @@
 {
-  "generatedAt": "2026-04-30T01:11:58.375Z",
+  "generatedAt": "2026-05-01T16:05:49.686Z",
   "truthOrder": [
     "verified_runtime_code",
     "verified_configuration",
@@ -906,7 +906,7 @@
       "risk_tags": [
         "broad_signoff"
       ],
-      "recency": "1777506505296:1af05d14bab1",
+      "recency": "1777604041504:9d1fa0e324ef",
       "freshness": {
         "local": "fresh",
         "sql_mirror": "unknown"
@@ -934,7 +934,7 @@
       "risk_tags": [
         "broad_signoff"
       ],
-      "recency": "1777510806595:3b2796477b79",
+      "recency": "1777605184570:7fe697d159c9",
       "freshness": {
         "local": "fresh",
         "sql_mirror": "unknown"
@@ -986,7 +986,7 @@
       "risk_tags": [
         "broad_signoff"
       ],
-      "recency": "1777506489407:b72492d38416",
+      "recency": "1777604014266:2f904e93adaa",
       "freshness": {
         "local": "fresh",
         "sql_mirror": "unknown"
@@ -1024,6 +1024,34 @@
       "do_not_use_as_primary_truth": false
     },
     {
+      "stable_id": "file__agent__index__analytics-truth-layer-v2-json",
+      "source_type": "file",
+      "source_id": "file__agent__index__analytics-truth-layer-v2-json",
+      "searchable_terms": [
+        "agent/index/analytics-truth-layer-v2.json",
+        "agent_index",
+        "analytics"
+      ],
+      "surface_tags": [
+        "analytics",
+        "agent_index"
+      ],
+      "helper_tags": [],
+      "risk_tags": [
+        "broad_signoff"
+      ],
+      "recency": "1777571032910:10af20c3b94a",
+      "freshness": {
+        "local": "fresh",
+        "sql_mirror": "unknown"
+      },
+      "context_tier": "warm",
+      "exclusion_tags": [
+        "generated"
+      ],
+      "do_not_use_as_primary_truth": true
+    },
+    {
       "stable_id": "file__agent__index__blast-radius-json",
       "source_type": "file",
       "source_id": "file__agent__index__blast-radius-json",
@@ -1040,7 +1068,7 @@
       "risk_tags": [
         "broad_signoff"
       ],
-      "recency": "1777511495209:010de72d45e2",
+      "recency": "1777602563155:bcf006b7b745",
       "freshness": {
         "local": "fresh",
         "sql_mirror": "unknown"
@@ -1068,7 +1096,7 @@
       "risk_tags": [
         "broad_signoff"
       ],
-      "recency": "1777511495170:e85e1dd61d4c",
+      "recency": "1777602563160:56391e1c6519",
       "freshness": {
         "local": "fresh",
         "sql_mirror": "unknown"
@@ -1096,7 +1124,7 @@
       "risk_tags": [
         "broad_signoff"
       ],
-      "recency": "1777511495201:5d0d00bfa498",
+      "recency": "1777602563170:13bf9cea1fe6",
       "freshness": {
         "local": "fresh",
         "sql_mirror": "unknown"
@@ -1124,7 +1152,7 @@
       "risk_tags": [
         "broad_signoff"
       ],
-      "recency": "1777511495183:a3b7730aa342",
+      "recency": "1777602563176:1da6c86810ff",
       "freshness": {
         "local": "fresh",
         "sql_mirror": "unknown"
@@ -1152,7 +1180,7 @@
       "risk_tags": [
         "broad_signoff"
       ],
-      "recency": "1777511495187:dc926431ab30",
+      "recency": "1777602563183:e2ee68a1d436",
       "freshness": {
         "local": "fresh",
         "sql_mirror": "unknown"
@@ -1180,7 +1208,7 @@
       "risk_tags": [
         "broad_signoff"
       ],
-      "recency": "1777511495178:07b38310468b",
+      "recency": "1777602563199:b578a5b8e8f8",
       "freshness": {
         "local": "fresh",
         "sql_mirror": "unknown"
@@ -1208,7 +1236,7 @@
       "risk_tags": [
         "broad_signoff"
       ],
-      "recency": "1777511495192:093cd61288a8",
+      "recency": "1777602563202:dd688af5f7d3",
       "freshness": {
         "local": "fresh",
         "sql_mirror": "unknown"
@@ -1236,7 +1264,7 @@
       "risk_tags": [
         "broad_signoff"
       ],
-      "recency": "1777511495160:99013b1f8b8e",
+      "recency": "1777602563218:5bd72fdd364a",
       "freshness": {
         "local": "fresh",
         "sql_mirror": "unknown"
@@ -1264,7 +1292,7 @@
       "risk_tags": [
         "broad_signoff"
       ],
-      "recency": "1777511495223:f215aa32c7aa",
+      "recency": "1777602563239:b82de47af901",
       "freshness": {
         "local": "fresh",
         "sql_mirror": "unknown"
@@ -1292,7 +1320,7 @@
       "risk_tags": [
         "broad_signoff"
       ],
-      "recency": "1777511495194:56da09647b4e",
+      "recency": "1777602563245:f0a85b52004d",
       "freshness": {
         "local": "fresh",
         "sql_mirror": "unknown"
@@ -1320,7 +1348,7 @@
       "risk_tags": [
         "broad_signoff"
       ],
-      "recency": "1777511495168:987263215acf",
+      "recency": "1777602563255:f3bd46dec68f",
       "freshness": {
         "local": "fresh",
         "sql_mirror": "unknown"
@@ -1348,7 +1376,7 @@
       "risk_tags": [
         "broad_signoff"
       ],
-      "recency": "1777511508226:a6941aa51917",
+      "recency": "1777651544170:eccd98c53acf",
       "freshness": {
         "local": "fresh",
         "sql_mirror": "unknown"
@@ -1376,7 +1404,7 @@
       "risk_tags": [
         "broad_signoff"
       ],
-      "recency": "1777511495174:01c8facb7b8f",
+      "recency": "1777602563284:e3714a2cc662",
       "freshness": {
         "local": "fresh",
         "sql_mirror": "unknown"
@@ -1404,7 +1432,7 @@
       "risk_tags": [
         "broad_signoff"
       ],
-      "recency": "1777511495180:9600a2bf41ba",
+      "recency": "1777602563294:63d7137af2d4",
       "freshness": {
         "local": "fresh",
         "sql_mirror": "unknown"
@@ -1432,7 +1460,7 @@
       "risk_tags": [
         "broad_signoff"
       ],
-      "recency": "1777503551345:e5760d814cb4",
+      "recency": "1777602563303:e5760d814cb4",
       "freshness": {
         "local": "fresh",
         "sql_mirror": "unknown"
@@ -1460,7 +1488,7 @@
       "risk_tags": [
         "broad_signoff"
       ],
-      "recency": "1777511500028:14b5dda0d062",
+      "recency": "1777602563306:819c087cf98d",
       "freshness": {
         "local": "fresh",
         "sql_mirror": "unknown"
@@ -1486,7 +1514,7 @@
       "risk_tags": [
         "broad_signoff"
       ],
-      "recency": "1777511500024:720b1986ad2e",
+      "recency": "1777602563309:0185d6225f7f",
       "freshness": {
         "local": "fresh",
         "sql_mirror": "unknown"
@@ -1512,7 +1540,7 @@
       "risk_tags": [
         "broad_signoff"
       ],
-      "recency": "1777511500025:57f75f46be7b",
+      "recency": "1777602563315:2dce18158c49",
       "freshness": {
         "local": "fresh",
         "sql_mirror": "unknown"
@@ -1538,7 +1566,7 @@
       "risk_tags": [
         "broad_signoff"
       ],
-      "recency": "1777503551355:620eb353daa1",
+      "recency": "1777607172487:f0e16c1e0c56",
       "freshness": {
         "local": "fresh",
         "sql_mirror": "unknown"
@@ -2044,6 +2072,118 @@
       "do_not_use_as_primary_truth": false
     },
     {
+      "stable_id": "file__agent__state__admin-analytics-realtime-dependency-audit-generated-json",
+      "source_type": "file",
+      "source_id": "file__agent__state__admin-analytics-realtime-dependency-audit-generated-json",
+      "searchable_terms": [
+        "agent/state/admin-analytics-realtime-dependency-audit.generated.json",
+        "agent_state",
+        "analytics"
+      ],
+      "surface_tags": [
+        "analytics",
+        "agent_state"
+      ],
+      "helper_tags": [],
+      "risk_tags": [
+        "broad_signoff"
+      ],
+      "recency": "1777599247670:2115835c2a9f",
+      "freshness": {
+        "local": "fresh",
+        "sql_mirror": "unknown"
+      },
+      "context_tier": "warm",
+      "exclusion_tags": [
+        "generated"
+      ],
+      "do_not_use_as_primary_truth": true
+    },
+    {
+      "stable_id": "file__agent__state__analytics-ecosystem-parity-generated-json",
+      "source_type": "file",
+      "source_id": "file__agent__state__analytics-ecosystem-parity-generated-json",
+      "searchable_terms": [
+        "agent/state/analytics-ecosystem-parity.generated.json",
+        "agent_state",
+        "analytics"
+      ],
+      "surface_tags": [
+        "analytics",
+        "agent_state"
+      ],
+      "helper_tags": [],
+      "risk_tags": [
+        "broad_signoff"
+      ],
+      "recency": "1777570227128:d5b0547adffc",
+      "freshness": {
+        "local": "fresh",
+        "sql_mirror": "unknown"
+      },
+      "context_tier": "warm",
+      "exclusion_tags": [
+        "generated"
+      ],
+      "do_not_use_as_primary_truth": true
+    },
+    {
+      "stable_id": "file__agent__state__analytics-legacy-mapping-report-generated-json",
+      "source_type": "file",
+      "source_id": "file__agent__state__analytics-legacy-mapping-report-generated-json",
+      "searchable_terms": [
+        "agent/state/analytics-legacy-mapping-report.generated.json",
+        "agent_state",
+        "analytics"
+      ],
+      "surface_tags": [
+        "analytics",
+        "agent_state"
+      ],
+      "helper_tags": [],
+      "risk_tags": [
+        "broad_signoff"
+      ],
+      "recency": "1777570225585:dae04e118075",
+      "freshness": {
+        "local": "fresh",
+        "sql_mirror": "unknown"
+      },
+      "context_tier": "warm",
+      "exclusion_tags": [
+        "generated"
+      ],
+      "do_not_use_as_primary_truth": true
+    },
+    {
+      "stable_id": "file__agent__state__analytics-legacy-source-inventory-generated-json",
+      "source_type": "file",
+      "source_id": "file__agent__state__analytics-legacy-source-inventory-generated-json",
+      "searchable_terms": [
+        "agent/state/analytics-legacy-source-inventory.generated.json",
+        "agent_state",
+        "analytics"
+      ],
+      "surface_tags": [
+        "analytics",
+        "agent_state"
+      ],
+      "helper_tags": [],
+      "risk_tags": [
+        "broad_signoff"
+      ],
+      "recency": "1777570033837:f79f17e3156f",
+      "freshness": {
+        "local": "fresh",
+        "sql_mirror": "unknown"
+      },
+      "context_tier": "warm",
+      "exclusion_tags": [
+        "generated"
+      ],
+      "do_not_use_as_primary_truth": true
+    },
+    {
       "stable_id": "file__agent__state__current-task-template-json",
       "source_type": "file",
       "source_id": "file__agent__state__current-task-template-json",
@@ -2086,7 +2226,7 @@
       "risk_tags": [
         "broad_signoff"
       ],
-      "recency": "1776784208145:505269aeb1ea",
+      "recency": "1777551422716:9f65a5568dd4",
       "freshness": {
         "local": "fresh",
         "sql_mirror": "unknown"
@@ -2114,7 +2254,7 @@
       "risk_tags": [
         "broad_signoff"
       ],
-      "recency": "1776784208144:fe4fa07f4e4c",
+      "recency": "1777551422718:c523c9455bca",
       "freshness": {
         "local": "fresh",
         "sql_mirror": "unknown"
@@ -2142,7 +2282,7 @@
       "risk_tags": [
         "broad_signoff"
       ],
-      "recency": "1777503551361:fec7dee592ea",
+      "recency": "1777602563326:fec7dee592ea",
       "freshness": {
         "local": "fresh",
         "sql_mirror": "unknown"
@@ -2222,7 +2362,7 @@
       "risk_tags": [
         "broad_signoff"
       ],
-      "recency": "1777511412146:4669c90b82af",
+      "recency": "1777574727178:5a9845007d47",
       "freshness": {
         "local": "fresh",
         "sql_mirror": "unknown"
@@ -2250,7 +2390,7 @@
       "risk_tags": [
         "broad_signoff"
       ],
-      "recency": "1777511412144:ee0052bc6f09",
+      "recency": "1777574727181:f93449e69cb4",
       "freshness": {
         "local": "fresh",
         "sql_mirror": "unknown"
@@ -2278,7 +2418,7 @@
       "risk_tags": [
         "broad_signoff"
       ],
-      "recency": "1777511500022:b2d6b4f04e2e",
+      "recency": "1777602563331:0fe57b1d7e30",
       "freshness": {
         "local": "fresh",
         "sql_mirror": "unknown"
@@ -2316,6 +2456,34 @@
       "do_not_use_as_primary_truth": false
     },
     {
+      "stable_id": "file__agent__state__telemetry-orphan-cleanup-audit-generated-json",
+      "source_type": "file",
+      "source_id": "file__agent__state__telemetry-orphan-cleanup-audit-generated-json",
+      "searchable_terms": [
+        "agent/state/telemetry-orphan-cleanup-audit.generated.json",
+        "agent_state",
+        "analytics"
+      ],
+      "surface_tags": [
+        "analytics",
+        "agent_state"
+      ],
+      "helper_tags": [],
+      "risk_tags": [
+        "broad_signoff"
+      ],
+      "recency": "1777601204084:1c37a169ea65",
+      "freshness": {
+        "local": "fresh",
+        "sql_mirror": "unknown"
+      },
+      "context_tier": "warm",
+      "exclusion_tags": [
+        "generated"
+      ],
+      "do_not_use_as_primary_truth": true
+    },
+    {
       "stable_id": "file__agent__state__verification-plan-generated-json",
       "source_type": "file",
       "source_id": "file__agent__state__verification-plan-generated-json",
@@ -2332,7 +2500,7 @@
       "risk_tags": [
         "broad_signoff"
       ],
-      "recency": "1777503551366:1fc4987ea508",
+      "recency": "1777607172486:b3d7969a2396",
       "freshness": {
         "local": "fresh",
         "sql_mirror": "unknown"
@@ -2360,7 +2528,7 @@
       "risk_tags": [
         "broad_signoff"
       ],
-      "recency": "1777493713839:b9e420592340",
+      "recency": "1777551031948:666218f5b50d",
       "freshness": {
         "local": "fresh",
         "sql_mirror": "unknown"
@@ -2624,7 +2792,7 @@
       ],
       "helper_tags": [],
       "risk_tags": [],
-      "recency": "1776724188522:d7d15cd29012",
+      "recency": "1777517884595:68bd62df7f96",
       "freshness": {
         "local": "fresh",
         "sql_mirror": "unknown"
@@ -3449,6 +3617,294 @@
       "do_not_use_as_primary_truth": false
     },
     {
+      "stable_id": "file__docs__agent-truth__admin-analytics-audience-snapshot-md",
+      "source_type": "file",
+      "source_id": "file__docs__agent-truth__admin-analytics-audience-snapshot-md",
+      "searchable_terms": [
+        "docs/agent-truth/admin-analytics-audience-snapshot.md",
+        "other",
+        "analytics"
+      ],
+      "surface_tags": [
+        "analytics",
+        "other"
+      ],
+      "helper_tags": [],
+      "risk_tags": [],
+      "recency": "1777570911166:9912d5ebff1d",
+      "freshness": {
+        "local": "fresh",
+        "sql_mirror": "unknown"
+      },
+      "context_tier": "warm",
+      "exclusion_tags": [],
+      "do_not_use_as_primary_truth": false
+    },
+    {
+      "stable_id": "file__docs__agent-truth__admin-analytics-auth-outcome-split-md",
+      "source_type": "file",
+      "source_id": "file__docs__agent-truth__admin-analytics-auth-outcome-split-md",
+      "searchable_terms": [
+        "docs/agent-truth/admin-analytics-auth-outcome-split.md",
+        "other",
+        "analytics"
+      ],
+      "surface_tags": [
+        "analytics",
+        "other"
+      ],
+      "helper_tags": [],
+      "risk_tags": [],
+      "recency": "1777570938279:220db3c96563",
+      "freshness": {
+        "local": "fresh",
+        "sql_mirror": "unknown"
+      },
+      "context_tier": "warm",
+      "exclusion_tags": [],
+      "do_not_use_as_primary_truth": false
+    },
+    {
+      "stable_id": "file__docs__agent-truth__admin-analytics-commerce-snapshot-md",
+      "source_type": "file",
+      "source_id": "file__docs__agent-truth__admin-analytics-commerce-snapshot-md",
+      "searchable_terms": [
+        "docs/agent-truth/admin-analytics-commerce-snapshot.md",
+        "other",
+        "analytics"
+      ],
+      "surface_tags": [
+        "analytics",
+        "other"
+      ],
+      "helper_tags": [],
+      "risk_tags": [],
+      "recency": "1777570917853:10d54508d86e",
+      "freshness": {
+        "local": "fresh",
+        "sql_mirror": "unknown"
+      },
+      "context_tier": "warm",
+      "exclusion_tags": [],
+      "do_not_use_as_primary_truth": false
+    },
+    {
+      "stable_id": "file__docs__agent-truth__admin-analytics-daily-task-pipeline-md",
+      "source_type": "file",
+      "source_id": "file__docs__agent-truth__admin-analytics-daily-task-pipeline-md",
+      "searchable_terms": [
+        "docs/agent-truth/admin-analytics-daily-task-pipeline.md",
+        "other",
+        "analytics"
+      ],
+      "surface_tags": [
+        "analytics",
+        "other"
+      ],
+      "helper_tags": [],
+      "risk_tags": [],
+      "recency": "1777570955049:e90a703e3546",
+      "freshness": {
+        "local": "fresh",
+        "sql_mirror": "unknown"
+      },
+      "context_tier": "warm",
+      "exclusion_tags": [],
+      "do_not_use_as_primary_truth": false
+    },
+    {
+      "stable_id": "file__docs__agent-truth__admin-analytics-event-mix-md",
+      "source_type": "file",
+      "source_id": "file__docs__agent-truth__admin-analytics-event-mix-md",
+      "searchable_terms": [
+        "docs/agent-truth/admin-analytics-event-mix.md",
+        "other",
+        "analytics"
+      ],
+      "surface_tags": [
+        "analytics",
+        "other"
+      ],
+      "helper_tags": [],
+      "risk_tags": [],
+      "recency": "1777570972595:1c1d4b7ecf7c",
+      "freshness": {
+        "local": "fresh",
+        "sql_mirror": "unknown"
+      },
+      "context_tier": "warm",
+      "exclusion_tags": [],
+      "do_not_use_as_primary_truth": false
+    },
+    {
+      "stable_id": "file__docs__agent-truth__admin-analytics-guest-bounce-quality-md",
+      "source_type": "file",
+      "source_id": "file__docs__agent-truth__admin-analytics-guest-bounce-quality-md",
+      "searchable_terms": [
+        "docs/agent-truth/admin-analytics-guest-bounce-quality.md",
+        "other",
+        "analytics"
+      ],
+      "surface_tags": [
+        "analytics",
+        "other"
+      ],
+      "helper_tags": [],
+      "risk_tags": [],
+      "recency": "1777559832919:038458521d80",
+      "freshness": {
+        "local": "fresh",
+        "sql_mirror": "unknown"
+      },
+      "context_tier": "warm",
+      "exclusion_tags": [],
+      "do_not_use_as_primary_truth": false
+    },
+    {
+      "stable_id": "file__docs__agent-truth__admin-analytics-hot-cache-md",
+      "source_type": "file",
+      "source_id": "file__docs__agent-truth__admin-analytics-hot-cache-md",
+      "searchable_terms": [
+        "docs/agent-truth/admin-analytics-hot-cache.md",
+        "other",
+        "analytics"
+      ],
+      "surface_tags": [
+        "analytics",
+        "other"
+      ],
+      "helper_tags": [],
+      "risk_tags": [],
+      "recency": "1777599361137:bcff240e76bd",
+      "freshness": {
+        "local": "fresh",
+        "sql_mirror": "unknown"
+      },
+      "context_tier": "warm",
+      "exclusion_tags": [],
+      "do_not_use_as_primary_truth": false
+    },
+    {
+      "stable_id": "file__docs__agent-truth__admin-analytics-journey-funnel-md",
+      "source_type": "file",
+      "source_id": "file__docs__agent-truth__admin-analytics-journey-funnel-md",
+      "searchable_terms": [
+        "docs/agent-truth/admin-analytics-journey-funnel.md",
+        "other",
+        "analytics"
+      ],
+      "surface_tags": [
+        "analytics",
+        "other"
+      ],
+      "helper_tags": [],
+      "risk_tags": [],
+      "recency": "1777570931168:6e113bbbe993",
+      "freshness": {
+        "local": "fresh",
+        "sql_mirror": "unknown"
+      },
+      "context_tier": "warm",
+      "exclusion_tags": [],
+      "do_not_use_as_primary_truth": false
+    },
+    {
+      "stable_id": "file__docs__agent-truth__admin-analytics-live-interaction-stream-md",
+      "source_type": "file",
+      "source_id": "file__docs__agent-truth__admin-analytics-live-interaction-stream-md",
+      "searchable_terms": [
+        "docs/agent-truth/admin-analytics-live-interaction-stream.md",
+        "other",
+        "analytics"
+      ],
+      "surface_tags": [
+        "analytics",
+        "other"
+      ],
+      "helper_tags": [],
+      "risk_tags": [],
+      "recency": "1777570980877:d963fd18cad1",
+      "freshness": {
+        "local": "fresh",
+        "sql_mirror": "unknown"
+      },
+      "context_tier": "warm",
+      "exclusion_tags": [],
+      "do_not_use_as_primary_truth": false
+    },
+    {
+      "stable_id": "file__docs__agent-truth__admin-analytics-live-pulse-md",
+      "source_type": "file",
+      "source_id": "file__docs__agent-truth__admin-analytics-live-pulse-md",
+      "searchable_terms": [
+        "docs/agent-truth/admin-analytics-live-pulse.md",
+        "other",
+        "analytics"
+      ],
+      "surface_tags": [
+        "analytics",
+        "other"
+      ],
+      "helper_tags": [],
+      "risk_tags": [],
+      "recency": "1777570924840:f27cf5b1b4c8",
+      "freshness": {
+        "local": "fresh",
+        "sql_mirror": "unknown"
+      },
+      "context_tier": "warm",
+      "exclusion_tags": [],
+      "do_not_use_as_primary_truth": false
+    },
+    {
+      "stable_id": "file__docs__agent-truth__admin-analytics-onboarding-performance-md",
+      "source_type": "file",
+      "source_id": "file__docs__agent-truth__admin-analytics-onboarding-performance-md",
+      "searchable_terms": [
+        "docs/agent-truth/admin-analytics-onboarding-performance.md",
+        "other",
+        "analytics"
+      ],
+      "surface_tags": [
+        "analytics",
+        "other"
+      ],
+      "helper_tags": [],
+      "risk_tags": [],
+      "recency": "1777570946679:aa0852c5d6e2",
+      "freshness": {
+        "local": "fresh",
+        "sql_mirror": "unknown"
+      },
+      "context_tier": "warm",
+      "exclusion_tags": [],
+      "do_not_use_as_primary_truth": false
+    },
+    {
+      "stable_id": "file__docs__agent-truth__admin-analytics-onboarding-velocity-md",
+      "source_type": "file",
+      "source_id": "file__docs__agent-truth__admin-analytics-onboarding-velocity-md",
+      "searchable_terms": [
+        "docs/agent-truth/admin-analytics-onboarding-velocity.md",
+        "other",
+        "analytics"
+      ],
+      "surface_tags": [
+        "analytics",
+        "other"
+      ],
+      "helper_tags": [],
+      "risk_tags": [],
+      "recency": "1777559386420:5cbdf4b4750c",
+      "freshness": {
+        "local": "fresh",
+        "sql_mirror": "unknown"
+      },
+      "context_tier": "warm",
+      "exclusion_tags": [],
+      "do_not_use_as_primary_truth": false
+    },
+    {
       "stable_id": "file__docs__agent-truth__admin-analytics-overview-md",
       "source_type": "file",
       "source_id": "file__docs__agent-truth__admin-analytics-overview-md",
@@ -3463,7 +3919,55 @@
       ],
       "helper_tags": [],
       "risk_tags": [],
-      "recency": "1777316619119:493186923dd6",
+      "recency": "1777555629939:533cc8554e20",
+      "freshness": {
+        "local": "fresh",
+        "sql_mirror": "unknown"
+      },
+      "context_tier": "warm",
+      "exclusion_tags": [],
+      "do_not_use_as_primary_truth": false
+    },
+    {
+      "stable_id": "file__docs__agent-truth__admin-analytics-realtime-to-hot-cache-audit-md",
+      "source_type": "file",
+      "source_id": "file__docs__agent-truth__admin-analytics-realtime-to-hot-cache-audit-md",
+      "searchable_terms": [
+        "docs/agent-truth/admin-analytics-realtime-to-hot-cache-audit.md",
+        "other",
+        "analytics"
+      ],
+      "surface_tags": [
+        "analytics",
+        "other"
+      ],
+      "helper_tags": [],
+      "risk_tags": [],
+      "recency": "1777599270383:d16032fa42ef",
+      "freshness": {
+        "local": "fresh",
+        "sql_mirror": "unknown"
+      },
+      "context_tier": "warm",
+      "exclusion_tags": [],
+      "do_not_use_as_primary_truth": false
+    },
+    {
+      "stable_id": "file__docs__agent-truth__admin-data-validation-md",
+      "source_type": "file",
+      "source_id": "file__docs__agent-truth__admin-data-validation-md",
+      "searchable_terms": [
+        "docs/agent-truth/admin-data-validation.md",
+        "other",
+        "documentation"
+      ],
+      "surface_tags": [
+        "documentation",
+        "other"
+      ],
+      "helper_tags": [],
+      "risk_tags": [],
+      "recency": "1777570990842:c0a72aec503e",
       "freshness": {
         "local": "fresh",
         "sql_mirror": "unknown"
@@ -3488,6 +3992,30 @@
       "helper_tags": [],
       "risk_tags": [],
       "recency": "1777300464510:40427b69f9a4",
+      "freshness": {
+        "local": "fresh",
+        "sql_mirror": "unknown"
+      },
+      "context_tier": "warm",
+      "exclusion_tags": [],
+      "do_not_use_as_primary_truth": false
+    },
+    {
+      "stable_id": "file__docs__agent-truth__admin-moderation-security-alerts-md",
+      "source_type": "file",
+      "source_id": "file__docs__agent-truth__admin-moderation-security-alerts-md",
+      "searchable_terms": [
+        "docs/agent-truth/admin-moderation-security-alerts.md",
+        "other",
+        "documentation"
+      ],
+      "surface_tags": [
+        "documentation",
+        "other"
+      ],
+      "helper_tags": [],
+      "risk_tags": [],
+      "recency": "1777606963189:88bd62688fc7",
       "freshness": {
         "local": "fresh",
         "sql_mirror": "unknown"
@@ -3593,6 +4121,294 @@
       "do_not_use_as_primary_truth": false
     },
     {
+      "stable_id": "file__docs__agent-truth__admin-shell-spacing-md",
+      "source_type": "file",
+      "source_id": "file__docs__agent-truth__admin-shell-spacing-md",
+      "searchable_terms": [
+        "docs/agent-truth/admin-shell-spacing.md",
+        "other",
+        "documentation"
+      ],
+      "surface_tags": [
+        "documentation",
+        "other"
+      ],
+      "helper_tags": [],
+      "risk_tags": [],
+      "recency": "1777565306108:59cb5133ef5e",
+      "freshness": {
+        "local": "fresh",
+        "sql_mirror": "unknown"
+      },
+      "context_tier": "warm",
+      "exclusion_tags": [],
+      "do_not_use_as_primary_truth": false
+    },
+    {
+      "stable_id": "file__docs__agent-truth__analytics-actor-taxonomy-md",
+      "source_type": "file",
+      "source_id": "file__docs__agent-truth__analytics-actor-taxonomy-md",
+      "searchable_terms": [
+        "docs/agent-truth/analytics-actor-taxonomy.md",
+        "other",
+        "analytics"
+      ],
+      "surface_tags": [
+        "analytics",
+        "other"
+      ],
+      "helper_tags": [],
+      "risk_tags": [],
+      "recency": "1777567572455:03fc18c12468",
+      "freshness": {
+        "local": "fresh",
+        "sql_mirror": "unknown"
+      },
+      "context_tier": "warm",
+      "exclusion_tags": [],
+      "do_not_use_as_primary_truth": false
+    },
+    {
+      "stable_id": "file__docs__agent-truth__analytics-ecosystem-parity-md",
+      "source_type": "file",
+      "source_id": "file__docs__agent-truth__analytics-ecosystem-parity-md",
+      "searchable_terms": [
+        "docs/agent-truth/analytics-ecosystem-parity.md",
+        "other",
+        "analytics"
+      ],
+      "surface_tags": [
+        "analytics",
+        "other"
+      ],
+      "helper_tags": [],
+      "risk_tags": [],
+      "recency": "1777571522617:30c51303cdaf",
+      "freshness": {
+        "local": "fresh",
+        "sql_mirror": "unknown"
+      },
+      "context_tier": "warm",
+      "exclusion_tags": [],
+      "do_not_use_as_primary_truth": false
+    },
+    {
+      "stable_id": "file__docs__agent-truth__analytics-file-inventory-md",
+      "source_type": "file",
+      "source_id": "file__docs__agent-truth__analytics-file-inventory-md",
+      "searchable_terms": [
+        "docs/agent-truth/analytics-file-inventory.md",
+        "other",
+        "analytics"
+      ],
+      "surface_tags": [
+        "analytics",
+        "other"
+      ],
+      "helper_tags": [],
+      "risk_tags": [],
+      "recency": "1777566453692:e3544cdd023e",
+      "freshness": {
+        "local": "fresh",
+        "sql_mirror": "unknown"
+      },
+      "context_tier": "warm",
+      "exclusion_tags": [],
+      "do_not_use_as_primary_truth": false
+    },
+    {
+      "stable_id": "file__docs__agent-truth__analytics-legacy-recovery-md",
+      "source_type": "file",
+      "source_id": "file__docs__agent-truth__analytics-legacy-recovery-md",
+      "searchable_terms": [
+        "docs/agent-truth/analytics-legacy-recovery.md",
+        "other",
+        "analytics"
+      ],
+      "surface_tags": [
+        "analytics",
+        "other"
+      ],
+      "helper_tags": [],
+      "risk_tags": [],
+      "recency": "1777569930120:265994329a4e",
+      "freshness": {
+        "local": "fresh",
+        "sql_mirror": "unknown"
+      },
+      "context_tier": "warm",
+      "exclusion_tags": [],
+      "do_not_use_as_primary_truth": false
+    },
+    {
+      "stable_id": "file__docs__agent-truth__analytics-module-map-md",
+      "source_type": "file",
+      "source_id": "file__docs__agent-truth__analytics-module-map-md",
+      "searchable_terms": [
+        "docs/agent-truth/analytics-module-map.md",
+        "other",
+        "analytics"
+      ],
+      "surface_tags": [
+        "analytics",
+        "other"
+      ],
+      "helper_tags": [],
+      "risk_tags": [],
+      "recency": "1777566589883:931c11d96277",
+      "freshness": {
+        "local": "fresh",
+        "sql_mirror": "unknown"
+      },
+      "context_tier": "warm",
+      "exclusion_tags": [],
+      "do_not_use_as_primary_truth": false
+    },
+    {
+      "stable_id": "file__docs__agent-truth__analytics-source-hierarchy-md",
+      "source_type": "file",
+      "source_id": "file__docs__agent-truth__analytics-source-hierarchy-md",
+      "searchable_terms": [
+        "docs/agent-truth/analytics-source-hierarchy.md",
+        "other",
+        "analytics"
+      ],
+      "surface_tags": [
+        "analytics",
+        "other"
+      ],
+      "helper_tags": [],
+      "risk_tags": [],
+      "recency": "1777601496606:3afec218a802",
+      "freshness": {
+        "local": "fresh",
+        "sql_mirror": "unknown"
+      },
+      "context_tier": "warm",
+      "exclusion_tags": [],
+      "do_not_use_as_primary_truth": false
+    },
+    {
+      "stable_id": "file__docs__agent-truth__analytics-truth-layer-v2-md",
+      "source_type": "file",
+      "source_id": "file__docs__agent-truth__analytics-truth-layer-v2-md",
+      "searchable_terms": [
+        "docs/agent-truth/analytics-truth-layer-v2.md",
+        "other",
+        "analytics"
+      ],
+      "surface_tags": [
+        "analytics",
+        "other"
+      ],
+      "helper_tags": [],
+      "risk_tags": [],
+      "recency": "1777601481055:bebf601246ca",
+      "freshness": {
+        "local": "fresh",
+        "sql_mirror": "unknown"
+      },
+      "context_tier": "warm",
+      "exclusion_tags": [],
+      "do_not_use_as_primary_truth": false
+    },
+    {
+      "stable_id": "file__docs__agent-truth__drops-mobile-refinement-md",
+      "source_type": "file",
+      "source_id": "file__docs__agent-truth__drops-mobile-refinement-md",
+      "searchable_terms": [
+        "docs/agent-truth/drops-mobile-refinement.md",
+        "other",
+        "documentation"
+      ],
+      "surface_tags": [
+        "documentation",
+        "other"
+      ],
+      "helper_tags": [],
+      "risk_tags": [],
+      "recency": "1777603924842:5fd83a46766b",
+      "freshness": {
+        "local": "fresh",
+        "sql_mirror": "unknown"
+      },
+      "context_tier": "warm",
+      "exclusion_tags": [],
+      "do_not_use_as_primary_truth": false
+    },
+    {
+      "stable_id": "file__docs__agent-truth__notification-pipeline-md",
+      "source_type": "file",
+      "source_id": "file__docs__agent-truth__notification-pipeline-md",
+      "searchable_terms": [
+        "docs/agent-truth/notification-pipeline.md",
+        "other",
+        "documentation"
+      ],
+      "surface_tags": [
+        "documentation",
+        "other"
+      ],
+      "helper_tags": [],
+      "risk_tags": [],
+      "recency": "1777570962492:edbcc9f76302",
+      "freshness": {
+        "local": "fresh",
+        "sql_mirror": "unknown"
+      },
+      "context_tier": "warm",
+      "exclusion_tags": [],
+      "do_not_use_as_primary_truth": false
+    },
+    {
+      "stable_id": "file__docs__agent-truth__telemetry-orphan-cleanup-audit-md",
+      "source_type": "file",
+      "source_id": "file__docs__agent-truth__telemetry-orphan-cleanup-audit-md",
+      "searchable_terms": [
+        "docs/agent-truth/telemetry-orphan-cleanup-audit.md",
+        "other",
+        "analytics"
+      ],
+      "surface_tags": [
+        "analytics",
+        "other"
+      ],
+      "helper_tags": [],
+      "risk_tags": [],
+      "recency": "1777601226172:420623b23614",
+      "freshness": {
+        "local": "fresh",
+        "sql_mirror": "unknown"
+      },
+      "context_tier": "warm",
+      "exclusion_tags": [],
+      "do_not_use_as_primary_truth": false
+    },
+    {
+      "stable_id": "file__docs__agent-truth__user-chat-shell-routing-md",
+      "source_type": "file",
+      "source_id": "file__docs__agent-truth__user-chat-shell-routing-md",
+      "searchable_terms": [
+        "docs/agent-truth/user-chat-shell-routing.md",
+        "other",
+        "documentation"
+      ],
+      "surface_tags": [
+        "documentation",
+        "other"
+      ],
+      "helper_tags": [],
+      "risk_tags": [],
+      "recency": "1777598094512:829ebe62ed7c",
+      "freshness": {
+        "local": "fresh",
+        "sql_mirror": "unknown"
+      },
+      "context_tier": "warm",
+      "exclusion_tags": [],
+      "do_not_use_as_primary_truth": false
+    },
+    {
       "stable_id": "file__docs__doctrine__kandydrops-banned-patterns-md",
       "source_type": "file",
       "source_id": "file__docs__doctrine__kandydrops-banned-patterns-md",
@@ -3665,6 +4481,30 @@
       "do_not_use_as_primary_truth": false
     },
     {
+      "stable_id": "file__docs__doctrine__kandydrops-google-analytics-cloud-doctrine-md",
+      "source_type": "file",
+      "source_id": "file__docs__doctrine__kandydrops-google-analytics-cloud-doctrine-md",
+      "searchable_terms": [
+        "docs/doctrine/kandydrops-google-analytics-cloud-doctrine.md",
+        "other",
+        "analytics"
+      ],
+      "surface_tags": [
+        "analytics",
+        "other"
+      ],
+      "helper_tags": [],
+      "risk_tags": [],
+      "recency": "1777517884593:268e54f808b4",
+      "freshness": {
+        "local": "fresh",
+        "sql_mirror": "unknown"
+      },
+      "context_tier": "warm",
+      "exclusion_tags": [],
+      "do_not_use_as_primary_truth": false
+    },
+    {
       "stable_id": "file__docs__doctrine__kandydrops-product-doctrine-md",
       "source_type": "file",
       "source_id": "file__docs__doctrine__kandydrops-product-doctrine-md",
@@ -3727,7 +4567,7 @@
       ],
       "helper_tags": [],
       "risk_tags": [],
-      "recency": "1776985478414:4644cbdc8eaf",
+      "recency": "1777603875951:2f38c2920fbc",
       "freshness": {
         "local": "fresh",
         "sql_mirror": "unknown"
@@ -3984,7 +4824,7 @@
       "risk_tags": [
         "broad_signoff"
       ],
-      "recency": "1776821535737:db78ccf228e2",
+      "recency": "1777546471029:8be5d19910b5",
       "freshness": {
         "local": "fresh",
         "sql_mirror": "unknown"
@@ -4036,7 +4876,7 @@
       "risk_tags": [
         "runtime_critical"
       ],
-      "recency": "1777511091268:57df100dea4a",
+      "recency": "1777545973930:1d9e08ba09bb",
       "freshness": {
         "local": "fresh",
         "sql_mirror": "unknown"
@@ -4115,6 +4955,32 @@
         "runtime_critical"
       ],
       "recency": "1776389626745:3a61b03b48fe",
+      "freshness": {
+        "local": "fresh",
+        "sql_mirror": "unknown"
+      },
+      "context_tier": "hot",
+      "exclusion_tags": [],
+      "do_not_use_as_primary_truth": false
+    },
+    {
+      "stable_id": "file__functions__src__analytics-realtime-summary-ts",
+      "source_type": "file",
+      "source_id": "file__functions__src__analytics-realtime-summary-ts",
+      "searchable_terms": [
+        "functions/src/analytics-realtime-summary.ts",
+        "functions_runtime",
+        "analytics"
+      ],
+      "surface_tags": [
+        "analytics",
+        "functions_runtime"
+      ],
+      "helper_tags": [],
+      "risk_tags": [
+        "runtime_critical"
+      ],
+      "recency": "1777518322228:5d2834395189",
       "freshness": {
         "local": "fresh",
         "sql_mirror": "unknown"
@@ -4530,7 +5396,7 @@
       "risk_tags": [
         "runtime_critical"
       ],
-      "recency": "1776797480613:e99871794eed",
+      "recency": "1777518327902:926708c17fa0",
       "freshness": {
         "local": "fresh",
         "sql_mirror": "unknown"
@@ -4868,7 +5734,7 @@
       "risk_tags": [
         "runtime_critical"
       ],
-      "recency": "1776535168181:71d329f69737",
+      "recency": "1777546486526:473f73daccfd",
       "freshness": {
         "local": "fresh",
         "sql_mirror": "unknown"
@@ -4894,7 +5760,7 @@
       "risk_tags": [
         "runtime_critical"
       ],
-      "recency": "1776535168189:9e74e0a12891",
+      "recency": "1777546489367:4c8620ad32f5",
       "freshness": {
         "local": "fresh",
         "sql_mirror": "unknown"
@@ -5124,7 +5990,7 @@
       "risk_tags": [
         "broad_signoff"
       ],
-      "recency": "1777243191244:aa3758b3a451",
+      "recency": "1777549255154:6c91e0890236",
       "freshness": {
         "local": "fresh",
         "sql_mirror": "unknown"
@@ -5150,7 +6016,7 @@
       "risk_tags": [
         "broad_signoff"
       ],
-      "recency": "1777469052715:f5a39d39ada1",
+      "recency": "1777603990691:2ee5a1f8a41a",
       "freshness": {
         "local": "fresh",
         "sql_mirror": "unknown"
@@ -5296,7 +6162,7 @@
       ],
       "helper_tags": [],
       "risk_tags": [],
-      "recency": "1775146810210:d0e69c7b131c",
+      "recency": "1777564620391:fd78146c8e0c",
       "freshness": {
         "local": "fresh",
         "sql_mirror": "unknown"
@@ -6708,7 +7574,7 @@
         "shared_helper",
         "broad_signoff"
       ],
-      "recency": "1777171922558:e5fb19dd47b4",
+      "recency": "1777518675178:f021e775c156",
       "freshness": {
         "local": "fresh",
         "sql_mirror": "unknown"
@@ -7042,6 +7908,114 @@
       "do_not_use_as_primary_truth": false
     },
     {
+      "stable_id": "file__scripts__agent__validate-admin-analytics-hot-cache-ts",
+      "source_type": "file",
+      "source_id": "file__scripts__agent__validate-admin-analytics-hot-cache-ts",
+      "searchable_terms": [
+        "scripts/agent/validate-admin-analytics-hot-cache.ts",
+        "repo_intelligence_tooling",
+        "analytics"
+      ],
+      "surface_tags": [
+        "analytics",
+        "repo_intelligence_tooling"
+      ],
+      "helper_tags": [],
+      "risk_tags": [
+        "shared_helper",
+        "broad_signoff"
+      ],
+      "recency": "1777568797848:2ff37a6c5b0b",
+      "freshness": {
+        "local": "fresh",
+        "sql_mirror": "unknown"
+      },
+      "context_tier": "hot",
+      "exclusion_tags": [],
+      "do_not_use_as_primary_truth": false
+    },
+    {
+      "stable_id": "file__scripts__agent__validate-admin-analytics-no-pure-realtime-ts",
+      "source_type": "file",
+      "source_id": "file__scripts__agent__validate-admin-analytics-no-pure-realtime-ts",
+      "searchable_terms": [
+        "scripts/agent/validate-admin-analytics-no-pure-realtime.ts",
+        "repo_intelligence_tooling",
+        "analytics"
+      ],
+      "surface_tags": [
+        "analytics",
+        "repo_intelligence_tooling"
+      ],
+      "helper_tags": [],
+      "risk_tags": [
+        "shared_helper",
+        "broad_signoff"
+      ],
+      "recency": "1777599782434:9f28c2489bf7",
+      "freshness": {
+        "local": "fresh",
+        "sql_mirror": "unknown"
+      },
+      "context_tier": "hot",
+      "exclusion_tags": [],
+      "do_not_use_as_primary_truth": false
+    },
+    {
+      "stable_id": "file__scripts__agent__validate-admin-analytics-snapshot-migration-ts",
+      "source_type": "file",
+      "source_id": "file__scripts__agent__validate-admin-analytics-snapshot-migration-ts",
+      "searchable_terms": [
+        "scripts/agent/validate-admin-analytics-snapshot-migration.ts",
+        "repo_intelligence_tooling",
+        "analytics"
+      ],
+      "surface_tags": [
+        "analytics",
+        "repo_intelligence_tooling"
+      ],
+      "helper_tags": [],
+      "risk_tags": [
+        "shared_helper",
+        "broad_signoff"
+      ],
+      "recency": "1777571124374:227db96914c0",
+      "freshness": {
+        "local": "fresh",
+        "sql_mirror": "unknown"
+      },
+      "context_tier": "hot",
+      "exclusion_tags": [],
+      "do_not_use_as_primary_truth": false
+    },
+    {
+      "stable_id": "file__scripts__agent__validate-admin-moderation-security-alerts-ts",
+      "source_type": "file",
+      "source_id": "file__scripts__agent__validate-admin-moderation-security-alerts-ts",
+      "searchable_terms": [
+        "scripts/agent/validate-admin-moderation-security-alerts.ts",
+        "repo_intelligence_tooling",
+        "repo_scripts"
+      ],
+      "surface_tags": [
+        "repo_scripts",
+        "repo_intelligence_tooling"
+      ],
+      "helper_tags": [],
+      "risk_tags": [
+        "shared_helper",
+        "broad_signoff"
+      ],
+      "recency": "1777607119605:0ee8c0d07f18",
+      "freshness": {
+        "local": "fresh",
+        "sql_mirror": "unknown"
+      },
+      "context_tier": "hot",
+      "exclusion_tags": [],
+      "do_not_use_as_primary_truth": false
+    },
+    {
       "stable_id": "file__scripts__agent__validate-agent-indexes-ts",
       "source_type": "file",
       "source_id": "file__scripts__agent__validate-agent-indexes-ts",
@@ -7060,6 +8034,168 @@
         "broad_signoff"
       ],
       "recency": "1776466395631:f4cc513fc27c",
+      "freshness": {
+        "local": "fresh",
+        "sql_mirror": "unknown"
+      },
+      "context_tier": "hot",
+      "exclusion_tags": [],
+      "do_not_use_as_primary_truth": false
+    },
+    {
+      "stable_id": "file__scripts__agent__validate-analytics-event-contract-ts",
+      "source_type": "file",
+      "source_id": "file__scripts__agent__validate-analytics-event-contract-ts",
+      "searchable_terms": [
+        "scripts/agent/validate-analytics-event-contract.ts",
+        "repo_intelligence_tooling",
+        "analytics"
+      ],
+      "surface_tags": [
+        "analytics",
+        "repo_intelligence_tooling"
+      ],
+      "helper_tags": [],
+      "risk_tags": [
+        "shared_helper",
+        "broad_signoff"
+      ],
+      "recency": "1777567671298:422d894df1b5",
+      "freshness": {
+        "local": "fresh",
+        "sql_mirror": "unknown"
+      },
+      "context_tier": "hot",
+      "exclusion_tags": [],
+      "do_not_use_as_primary_truth": false
+    },
+    {
+      "stable_id": "file__scripts__agent__validate-analytics-legacy-recovery-ts",
+      "source_type": "file",
+      "source_id": "file__scripts__agent__validate-analytics-legacy-recovery-ts",
+      "searchable_terms": [
+        "scripts/agent/validate-analytics-legacy-recovery.ts",
+        "repo_intelligence_tooling",
+        "analytics"
+      ],
+      "surface_tags": [
+        "analytics",
+        "repo_intelligence_tooling"
+      ],
+      "helper_tags": [],
+      "risk_tags": [
+        "shared_helper",
+        "broad_signoff"
+      ],
+      "recency": "1777569903536:5b53613964fa",
+      "freshness": {
+        "local": "fresh",
+        "sql_mirror": "unknown"
+      },
+      "context_tier": "hot",
+      "exclusion_tags": [],
+      "do_not_use_as_primary_truth": false
+    },
+    {
+      "stable_id": "file__scripts__agent__validate-analytics-truth-layer-v2-ts",
+      "source_type": "file",
+      "source_id": "file__scripts__agent__validate-analytics-truth-layer-v2-ts",
+      "searchable_terms": [
+        "scripts/agent/validate-analytics-truth-layer-v2.ts",
+        "repo_intelligence_tooling",
+        "analytics"
+      ],
+      "surface_tags": [
+        "analytics",
+        "repo_intelligence_tooling"
+      ],
+      "helper_tags": [],
+      "risk_tags": [
+        "shared_helper",
+        "broad_signoff"
+      ],
+      "recency": "1777566581163:3bfb850da61d",
+      "freshness": {
+        "local": "fresh",
+        "sql_mirror": "unknown"
+      },
+      "context_tier": "hot",
+      "exclusion_tags": [],
+      "do_not_use_as_primary_truth": false
+    },
+    {
+      "stable_id": "file__scripts__agent__validate-drops-mobile-refinement-ts",
+      "source_type": "file",
+      "source_id": "file__scripts__agent__validate-drops-mobile-refinement-ts",
+      "searchable_terms": [
+        "scripts/agent/validate-drops-mobile-refinement.ts",
+        "repo_intelligence_tooling",
+        "repo_scripts"
+      ],
+      "surface_tags": [
+        "repo_scripts",
+        "repo_intelligence_tooling"
+      ],
+      "helper_tags": [],
+      "risk_tags": [
+        "shared_helper",
+        "broad_signoff"
+      ],
+      "recency": "1777603974636:87599c88fd66",
+      "freshness": {
+        "local": "fresh",
+        "sql_mirror": "unknown"
+      },
+      "context_tier": "hot",
+      "exclusion_tags": [],
+      "do_not_use_as_primary_truth": false
+    },
+    {
+      "stable_id": "file__scripts__agent__validate-telemetry-orphan-cleanup-ts",
+      "source_type": "file",
+      "source_id": "file__scripts__agent__validate-telemetry-orphan-cleanup-ts",
+      "searchable_terms": [
+        "scripts/agent/validate-telemetry-orphan-cleanup.ts",
+        "repo_intelligence_tooling",
+        "analytics"
+      ],
+      "surface_tags": [
+        "analytics",
+        "repo_intelligence_tooling"
+      ],
+      "helper_tags": [],
+      "risk_tags": [
+        "shared_helper",
+        "broad_signoff"
+      ],
+      "recency": "1777601257005:a0e5085694ce",
+      "freshness": {
+        "local": "fresh",
+        "sql_mirror": "unknown"
+      },
+      "context_tier": "hot",
+      "exclusion_tags": [],
+      "do_not_use_as_primary_truth": false
+    },
+    {
+      "stable_id": "file__scripts__agent__validate-user-chat-shell-routing-ts",
+      "source_type": "file",
+      "source_id": "file__scripts__agent__validate-user-chat-shell-routing-ts",
+      "searchable_terms": [
+        "scripts/agent/validate-user-chat-shell-routing.ts",
+        "repo_intelligence_tooling",
+        "repo_scripts"
+      ],
+      "surface_tags": [
+        "repo_scripts",
+        "repo_intelligence_tooling"
+      ],
+      "helper_tags": [],
+      "risk_tags": [
+        "shared_helper",
+        "broad_signoff"
+      ],
+      "recency": "1777598083758:20a3a13c0755",
       "freshness": {
         "local": "fresh",
         "sql_mirror": "unknown"
@@ -7092,6 +8228,84 @@
         "sql_mirror": "unknown"
       },
       "context_tier": "hot",
+      "exclusion_tags": [],
+      "do_not_use_as_primary_truth": false
+    },
+    {
+      "stable_id": "file__scripts__analytics__check-analytics-ecosystem-parity-ts",
+      "source_type": "file",
+      "source_id": "file__scripts__analytics__check-analytics-ecosystem-parity-ts",
+      "searchable_terms": [
+        "scripts/analytics/check-analytics-ecosystem-parity.ts",
+        "repo_tooling",
+        "analytics"
+      ],
+      "surface_tags": [
+        "analytics",
+        "repo_tooling"
+      ],
+      "helper_tags": [],
+      "risk_tags": [
+        "broad_signoff"
+      ],
+      "recency": "1777569773434:8e0394b5c803",
+      "freshness": {
+        "local": "fresh",
+        "sql_mirror": "unknown"
+      },
+      "context_tier": "warm",
+      "exclusion_tags": [],
+      "do_not_use_as_primary_truth": false
+    },
+    {
+      "stable_id": "file__scripts__analytics__inventory-legacy-sources-ts",
+      "source_type": "file",
+      "source_id": "file__scripts__analytics__inventory-legacy-sources-ts",
+      "searchable_terms": [
+        "scripts/analytics/inventory-legacy-sources.ts",
+        "repo_tooling",
+        "analytics"
+      ],
+      "surface_tags": [
+        "analytics",
+        "repo_tooling"
+      ],
+      "helper_tags": [],
+      "risk_tags": [
+        "broad_signoff"
+      ],
+      "recency": "1777569650020:f9de22010611",
+      "freshness": {
+        "local": "fresh",
+        "sql_mirror": "unknown"
+      },
+      "context_tier": "warm",
+      "exclusion_tags": [],
+      "do_not_use_as_primary_truth": false
+    },
+    {
+      "stable_id": "file__scripts__analytics__map-legacy-events-ts",
+      "source_type": "file",
+      "source_id": "file__scripts__analytics__map-legacy-events-ts",
+      "searchable_terms": [
+        "scripts/analytics/map-legacy-events.ts",
+        "repo_tooling",
+        "analytics"
+      ],
+      "surface_tags": [
+        "analytics",
+        "repo_tooling"
+      ],
+      "helper_tags": [],
+      "risk_tags": [
+        "broad_signoff"
+      ],
+      "recency": "1777569699883:aacccc42d6b5",
+      "freshness": {
+        "local": "fresh",
+        "sql_mirror": "unknown"
+      },
+      "context_tier": "warm",
       "exclusion_tags": [],
       "do_not_use_as_primary_truth": false
     },
@@ -7174,6 +8388,344 @@
       "do_not_use_as_primary_truth": false
     },
     {
+      "stable_id": "file__scripts__check-admin-analytics-audience-snapshot-ts",
+      "source_type": "file",
+      "source_id": "file__scripts__check-admin-analytics-audience-snapshot-ts",
+      "searchable_terms": [
+        "scripts/check-admin-analytics-audience-snapshot.ts",
+        "repo_tooling",
+        "analytics"
+      ],
+      "surface_tags": [
+        "analytics",
+        "repo_tooling"
+      ],
+      "helper_tags": [],
+      "risk_tags": [
+        "broad_signoff"
+      ],
+      "recency": "1777556113642:be9de26fd42c",
+      "freshness": {
+        "local": "fresh",
+        "sql_mirror": "unknown"
+      },
+      "context_tier": "warm",
+      "exclusion_tags": [],
+      "do_not_use_as_primary_truth": false
+    },
+    {
+      "stable_id": "file__scripts__check-admin-analytics-auth-outcome-split-ts",
+      "source_type": "file",
+      "source_id": "file__scripts__check-admin-analytics-auth-outcome-split-ts",
+      "searchable_terms": [
+        "scripts/check-admin-analytics-auth-outcome-split.ts",
+        "repo_tooling",
+        "analytics"
+      ],
+      "surface_tags": [
+        "analytics",
+        "repo_tooling"
+      ],
+      "helper_tags": [],
+      "risk_tags": [
+        "broad_signoff"
+      ],
+      "recency": "1777558575696:cc95a12ab635",
+      "freshness": {
+        "local": "fresh",
+        "sql_mirror": "unknown"
+      },
+      "context_tier": "warm",
+      "exclusion_tags": [],
+      "do_not_use_as_primary_truth": false
+    },
+    {
+      "stable_id": "file__scripts__check-admin-analytics-commerce-snapshot-ts",
+      "source_type": "file",
+      "source_id": "file__scripts__check-admin-analytics-commerce-snapshot-ts",
+      "searchable_terms": [
+        "scripts/check-admin-analytics-commerce-snapshot.ts",
+        "repo_tooling",
+        "analytics"
+      ],
+      "surface_tags": [
+        "analytics",
+        "repo_tooling"
+      ],
+      "helper_tags": [],
+      "risk_tags": [
+        "broad_signoff"
+      ],
+      "recency": "1777556764994:585c176aa684",
+      "freshness": {
+        "local": "fresh",
+        "sql_mirror": "unknown"
+      },
+      "context_tier": "warm",
+      "exclusion_tags": [],
+      "do_not_use_as_primary_truth": false
+    },
+    {
+      "stable_id": "file__scripts__check-admin-analytics-daily-task-pipeline-ts",
+      "source_type": "file",
+      "source_id": "file__scripts__check-admin-analytics-daily-task-pipeline-ts",
+      "searchable_terms": [
+        "scripts/check-admin-analytics-daily-task-pipeline.ts",
+        "repo_tooling",
+        "analytics"
+      ],
+      "surface_tags": [
+        "analytics",
+        "repo_tooling"
+      ],
+      "helper_tags": [],
+      "risk_tags": [
+        "broad_signoff"
+      ],
+      "recency": "1777563842595:8fd091fc416f",
+      "freshness": {
+        "local": "fresh",
+        "sql_mirror": "unknown"
+      },
+      "context_tier": "warm",
+      "exclusion_tags": [],
+      "do_not_use_as_primary_truth": false
+    },
+    {
+      "stable_id": "file__scripts__check-admin-analytics-event-mix-ts",
+      "source_type": "file",
+      "source_id": "file__scripts__check-admin-analytics-event-mix-ts",
+      "searchable_terms": [
+        "scripts/check-admin-analytics-event-mix.ts",
+        "repo_tooling",
+        "analytics"
+      ],
+      "surface_tags": [
+        "analytics",
+        "repo_tooling"
+      ],
+      "helper_tags": [],
+      "risk_tags": [
+        "broad_signoff"
+      ],
+      "recency": "1777560468512:fb0d777b784e",
+      "freshness": {
+        "local": "fresh",
+        "sql_mirror": "unknown"
+      },
+      "context_tier": "warm",
+      "exclusion_tags": [],
+      "do_not_use_as_primary_truth": false
+    },
+    {
+      "stable_id": "file__scripts__check-admin-analytics-guest-bounce-quality-ts",
+      "source_type": "file",
+      "source_id": "file__scripts__check-admin-analytics-guest-bounce-quality-ts",
+      "searchable_terms": [
+        "scripts/check-admin-analytics-guest-bounce-quality.ts",
+        "repo_tooling",
+        "analytics"
+      ],
+      "surface_tags": [
+        "analytics",
+        "repo_tooling"
+      ],
+      "helper_tags": [],
+      "risk_tags": [
+        "broad_signoff"
+      ],
+      "recency": "1777559954643:e769209c34c1",
+      "freshness": {
+        "local": "fresh",
+        "sql_mirror": "unknown"
+      },
+      "context_tier": "warm",
+      "exclusion_tags": [],
+      "do_not_use_as_primary_truth": false
+    },
+    {
+      "stable_id": "file__scripts__check-admin-analytics-journey-funnel-ts",
+      "source_type": "file",
+      "source_id": "file__scripts__check-admin-analytics-journey-funnel-ts",
+      "searchable_terms": [
+        "scripts/check-admin-analytics-journey-funnel.ts",
+        "repo_tooling",
+        "analytics"
+      ],
+      "surface_tags": [
+        "analytics",
+        "repo_tooling"
+      ],
+      "helper_tags": [],
+      "risk_tags": [
+        "broad_signoff"
+      ],
+      "recency": "1777558430819:32a3e7ab5bee",
+      "freshness": {
+        "local": "fresh",
+        "sql_mirror": "unknown"
+      },
+      "context_tier": "warm",
+      "exclusion_tags": [],
+      "do_not_use_as_primary_truth": false
+    },
+    {
+      "stable_id": "file__scripts__check-admin-analytics-live-interaction-stream-ts",
+      "source_type": "file",
+      "source_id": "file__scripts__check-admin-analytics-live-interaction-stream-ts",
+      "searchable_terms": [
+        "scripts/check-admin-analytics-live-interaction-stream.ts",
+        "repo_tooling",
+        "analytics"
+      ],
+      "surface_tags": [
+        "analytics",
+        "repo_tooling"
+      ],
+      "helper_tags": [],
+      "risk_tags": [
+        "broad_signoff"
+      ],
+      "recency": "1777561072814:02a5509fe6f0",
+      "freshness": {
+        "local": "fresh",
+        "sql_mirror": "unknown"
+      },
+      "context_tier": "warm",
+      "exclusion_tags": [],
+      "do_not_use_as_primary_truth": false
+    },
+    {
+      "stable_id": "file__scripts__check-admin-analytics-live-pulse-ts",
+      "source_type": "file",
+      "source_id": "file__scripts__check-admin-analytics-live-pulse-ts",
+      "searchable_terms": [
+        "scripts/check-admin-analytics-live-pulse.ts",
+        "repo_tooling",
+        "analytics"
+      ],
+      "surface_tags": [
+        "analytics",
+        "repo_tooling"
+      ],
+      "helper_tags": [],
+      "risk_tags": [
+        "broad_signoff"
+      ],
+      "recency": "1777599527618:061f573e6863",
+      "freshness": {
+        "local": "fresh",
+        "sql_mirror": "unknown"
+      },
+      "context_tier": "warm",
+      "exclusion_tags": [],
+      "do_not_use_as_primary_truth": false
+    },
+    {
+      "stable_id": "file__scripts__check-admin-analytics-onboarding-performance-ts",
+      "source_type": "file",
+      "source_id": "file__scripts__check-admin-analytics-onboarding-performance-ts",
+      "searchable_terms": [
+        "scripts/check-admin-analytics-onboarding-performance.ts",
+        "repo_tooling",
+        "analytics"
+      ],
+      "surface_tags": [
+        "analytics",
+        "repo_tooling"
+      ],
+      "helper_tags": [],
+      "risk_tags": [
+        "broad_signoff"
+      ],
+      "recency": "1777559411191:352eaf27553f",
+      "freshness": {
+        "local": "fresh",
+        "sql_mirror": "unknown"
+      },
+      "context_tier": "warm",
+      "exclusion_tags": [],
+      "do_not_use_as_primary_truth": false
+    },
+    {
+      "stable_id": "file__scripts__check-admin-analytics-onboarding-velocity-ts",
+      "source_type": "file",
+      "source_id": "file__scripts__check-admin-analytics-onboarding-velocity-ts",
+      "searchable_terms": [
+        "scripts/check-admin-analytics-onboarding-velocity.ts",
+        "repo_tooling",
+        "analytics"
+      ],
+      "surface_tags": [
+        "analytics",
+        "repo_tooling"
+      ],
+      "helper_tags": [],
+      "risk_tags": [
+        "broad_signoff"
+      ],
+      "recency": "1777559434282:10f8d64e8631",
+      "freshness": {
+        "local": "fresh",
+        "sql_mirror": "unknown"
+      },
+      "context_tier": "warm",
+      "exclusion_tags": [],
+      "do_not_use_as_primary_truth": false
+    },
+    {
+      "stable_id": "file__scripts__check-admin-analytics-overview-ts",
+      "source_type": "file",
+      "source_id": "file__scripts__check-admin-analytics-overview-ts",
+      "searchable_terms": [
+        "scripts/check-admin-analytics-overview.ts",
+        "repo_tooling",
+        "analytics"
+      ],
+      "surface_tags": [
+        "analytics",
+        "repo_tooling"
+      ],
+      "helper_tags": [],
+      "risk_tags": [
+        "broad_signoff"
+      ],
+      "recency": "1777555362886:f72b3ec9f63e",
+      "freshness": {
+        "local": "fresh",
+        "sql_mirror": "unknown"
+      },
+      "context_tier": "warm",
+      "exclusion_tags": [],
+      "do_not_use_as_primary_truth": false
+    },
+    {
+      "stable_id": "file__scripts__check-admin-data-validation-relocation-ts",
+      "source_type": "file",
+      "source_id": "file__scripts__check-admin-data-validation-relocation-ts",
+      "searchable_terms": [
+        "scripts/check-admin-data-validation-relocation.ts",
+        "repo_tooling",
+        "repo_scripts"
+      ],
+      "surface_tags": [
+        "repo_scripts",
+        "repo_tooling"
+      ],
+      "helper_tags": [],
+      "risk_tags": [
+        "broad_signoff"
+      ],
+      "recency": "1777561660670:17887304a3d3",
+      "freshness": {
+        "local": "fresh",
+        "sql_mirror": "unknown"
+      },
+      "context_tier": "warm",
+      "exclusion_tags": [],
+      "do_not_use_as_primary_truth": false
+    },
+    {
       "stable_id": "file__scripts__check-admin-parity-ts",
       "source_type": "file",
       "source_id": "file__scripts__check-admin-parity-ts",
@@ -7191,6 +8743,32 @@
         "broad_signoff"
       ],
       "recency": "1776975492398:ccaf91e822cf",
+      "freshness": {
+        "local": "fresh",
+        "sql_mirror": "unknown"
+      },
+      "context_tier": "warm",
+      "exclusion_tags": [],
+      "do_not_use_as_primary_truth": false
+    },
+    {
+      "stable_id": "file__scripts__check-admin-shell-spacing-ts",
+      "source_type": "file",
+      "source_id": "file__scripts__check-admin-shell-spacing-ts",
+      "searchable_terms": [
+        "scripts/check-admin-shell-spacing.ts",
+        "repo_tooling",
+        "repo_scripts"
+      ],
+      "surface_tags": [
+        "repo_scripts",
+        "repo_tooling"
+      ],
+      "helper_tags": [],
+      "risk_tags": [
+        "broad_signoff"
+      ],
+      "recency": "1777565283510:87c7035b8b74",
       "freshness": {
         "local": "fresh",
         "sql_mirror": "unknown"
@@ -7453,6 +9031,32 @@
         "broad_signoff"
       ],
       "recency": "1777433575114:f18d23bcec98",
+      "freshness": {
+        "local": "fresh",
+        "sql_mirror": "unknown"
+      },
+      "context_tier": "warm",
+      "exclusion_tags": [],
+      "do_not_use_as_primary_truth": false
+    },
+    {
+      "stable_id": "file__scripts__check-notification-pipeline-ts",
+      "source_type": "file",
+      "source_id": "file__scripts__check-notification-pipeline-ts",
+      "searchable_terms": [
+        "scripts/check-notification-pipeline.ts",
+        "repo_tooling",
+        "repo_scripts"
+      ],
+      "surface_tags": [
+        "repo_scripts",
+        "repo_tooling"
+      ],
+      "helper_tags": [],
+      "risk_tags": [
+        "broad_signoff"
+      ],
+      "recency": "1777564912929:b01370b2193e",
       "freshness": {
         "local": "fresh",
         "sql_mirror": "unknown"
@@ -8896,7 +10500,7 @@
       "risk_tags": [
         "runtime_critical"
       ],
-      "recency": "1777465375272:dc116f1a07b2",
+      "recency": "1777554178254:d7eac1521376",
       "freshness": {
         "local": "fresh",
         "sql_mirror": "unknown"
@@ -8948,7 +10552,7 @@
       "risk_tags": [
         "runtime_critical"
       ],
-      "recency": "1777465410754:20f334dc5aa4",
+      "recency": "1777561547377:702625b6a730",
       "freshness": {
         "local": "fresh",
         "sql_mirror": "unknown"
@@ -8974,7 +10578,7 @@
       "risk_tags": [
         "runtime_critical"
       ],
-      "recency": "1777465443566:3feafde72618",
+      "recency": "1777561555258:c1f23dc56fc2",
       "freshness": {
         "local": "fresh",
         "sql_mirror": "unknown"
@@ -9000,7 +10604,7 @@
       "risk_tags": [
         "runtime_critical"
       ],
-      "recency": "1777465399712:8b9c63598a7c",
+      "recency": "1777599120830:d54d69349a88",
       "freshness": {
         "local": "fresh",
         "sql_mirror": "unknown"
@@ -9052,7 +10656,7 @@
       "risk_tags": [
         "runtime_critical"
       ],
-      "recency": "1777505001710:a5ba02eba078",
+      "recency": "1777599764751:0b3c6581cb8c",
       "freshness": {
         "local": "fresh",
         "sql_mirror": "unknown"
@@ -9078,7 +10682,7 @@
       "risk_tags": [
         "runtime_critical"
       ],
-      "recency": "1777316426955:dc7dc1dedfbe",
+      "recency": "1777599164064:202796c20ec4",
       "freshness": {
         "local": "fresh",
         "sql_mirror": "unknown"
@@ -9157,6 +10761,32 @@
         "runtime_critical"
       ],
       "recency": "1777482306820:d9d9c6f6e8ae",
+      "freshness": {
+        "local": "fresh",
+        "sql_mirror": "unknown"
+      },
+      "context_tier": "hot",
+      "exclusion_tags": [],
+      "do_not_use_as_primary_truth": false
+    },
+    {
+      "stable_id": "file__src__app__admin__debug__components__debugadvanceddatavalidation-tsx",
+      "source_type": "file",
+      "source_id": "file__src__app__admin__debug__components__debugadvanceddatavalidation-tsx",
+      "searchable_terms": [
+        "src/app/admin/debug/components/DebugAdvancedDataValidation.tsx",
+        "admin_surface",
+        "admin_ui"
+      ],
+      "surface_tags": [
+        "admin_ui",
+        "admin_surface"
+      ],
+      "helper_tags": [],
+      "risk_tags": [
+        "runtime_critical"
+      ],
+      "recency": "1777561785569:5dc221d8a2c6",
       "freshness": {
         "local": "fresh",
         "sql_mirror": "unknown"
@@ -9390,7 +11020,7 @@
       "risk_tags": [
         "runtime_critical"
       ],
-      "recency": "1777328337039:898160261be5",
+      "recency": "1777561603475:eba75a2f1958",
       "freshness": {
         "local": "fresh",
         "sql_mirror": "unknown"
@@ -9676,7 +11306,7 @@
       "risk_tags": [
         "runtime_critical"
       ],
-      "recency": "1777343138260:77447a8211f3",
+      "recency": "1777565256777:22407a6060b5",
       "freshness": {
         "local": "fresh",
         "sql_mirror": "unknown"
@@ -10222,7 +11852,7 @@
       "risk_tags": [
         "runtime_critical"
       ],
-      "recency": "1777505113600:46670a1a4483",
+      "recency": "1777562538393:dc8e7cbfd379",
       "freshness": {
         "local": "fresh",
         "sql_mirror": "unknown"
@@ -10274,7 +11904,33 @@
       "risk_tags": [
         "runtime_critical"
       ],
-      "recency": "1777479835974:b855608374fb",
+      "recency": "1777519093078:97f7a2f0ad0e",
+      "freshness": {
+        "local": "fresh",
+        "sql_mirror": "unknown"
+      },
+      "context_tier": "hot",
+      "exclusion_tags": [],
+      "do_not_use_as_primary_truth": false
+    },
+    {
+      "stable_id": "file__src__app__api__admin__analytics__refresh__route-ts",
+      "source_type": "file",
+      "source_id": "file__src__app__api__admin__analytics__refresh__route-ts",
+      "searchable_terms": [
+        "src/app/api/admin/analytics/refresh/route.ts",
+        "app_route",
+        "admin_route"
+      ],
+      "surface_tags": [
+        "admin_route",
+        "app_route"
+      ],
+      "helper_tags": [],
+      "risk_tags": [
+        "runtime_critical"
+      ],
+      "recency": "1777569015014:8cebedcddbae",
       "freshness": {
         "local": "fresh",
         "sql_mirror": "unknown"
@@ -10482,7 +12138,7 @@
       "risk_tags": [
         "runtime_critical"
       ],
-      "recency": "1777511032821:405cc8248b19",
+      "recency": "1777599179661:78ae382fa78e",
       "freshness": {
         "local": "fresh",
         "sql_mirror": "unknown"
@@ -10898,7 +12554,7 @@
       "risk_tags": [
         "runtime_critical"
       ],
-      "recency": "1777433434890:75655da66171",
+      "recency": "1777518628811:caab58fc1e34",
       "freshness": {
         "local": "fresh",
         "sql_mirror": "unknown"
@@ -11002,7 +12658,7 @@
       "risk_tags": [
         "runtime_critical"
       ],
-      "recency": "1777502189174:4a7fbace57f3",
+      "recency": "1777601019663:e415a2982661",
       "freshness": {
         "local": "fresh",
         "sql_mirror": "unknown"
@@ -11886,7 +13542,7 @@
       "risk_tags": [
         "runtime_critical"
       ],
-      "recency": "1777208944724:a7f159020143",
+      "recency": "1777606051904:9baa296c9879",
       "freshness": {
         "local": "fresh",
         "sql_mirror": "unknown"
@@ -12094,7 +13750,7 @@
       "risk_tags": [
         "runtime_critical"
       ],
-      "recency": "1777432435787:792e0843a1a9",
+      "recency": "1777564683657:4931b0283c58",
       "freshness": {
         "local": "fresh",
         "sql_mirror": "unknown"
@@ -12198,7 +13854,7 @@
       "risk_tags": [
         "runtime_critical"
       ],
-      "recency": "1777208932564:7da4fbb7f914",
+      "recency": "1777606689834:70e221804a49",
       "freshness": {
         "local": "fresh",
         "sql_mirror": "unknown"
@@ -13576,7 +15232,7 @@
       "risk_tags": [
         "runtime_critical"
       ],
-      "recency": "1777239760796:69d48c7e7642",
+      "recency": "1777606043104:7d312c3d08c9",
       "freshness": {
         "local": "fresh",
         "sql_mirror": "unknown"
@@ -13680,7 +15336,7 @@
       "risk_tags": [
         "runtime_critical"
       ],
-      "recency": "1776654184240:8696486722bf",
+      "recency": "1777605089134:f4c8be579f7f",
       "freshness": {
         "local": "fresh",
         "sql_mirror": "unknown"
@@ -13732,7 +15388,7 @@
       "risk_tags": [
         "runtime_critical"
       ],
-      "recency": "1772385372418:5adc85755141",
+      "recency": "1777603662456:84d7758a97b1",
       "freshness": {
         "local": "fresh",
         "sql_mirror": "unknown"
@@ -13992,7 +15648,7 @@
       "risk_tags": [
         "runtime_critical"
       ],
-      "recency": "1777343124170:a5dc889ae43a",
+      "recency": "1777565265690:15f4e35511a0",
       "freshness": {
         "local": "fresh",
         "sql_mirror": "unknown"
@@ -14018,7 +15674,7 @@
       "risk_tags": [
         "runtime_critical"
       ],
-      "recency": "1776974890280:30c797a068d0",
+      "recency": "1777554178251:4297a9be55b1",
       "freshness": {
         "local": "fresh",
         "sql_mirror": "unknown"
@@ -14330,7 +15986,33 @@
       "risk_tags": [
         "runtime_critical"
       ],
-      "recency": "1777239767973:980f754f6c94",
+      "recency": "1777606942740:3317a0dbb405",
+      "freshness": {
+        "local": "fresh",
+        "sql_mirror": "unknown"
+      },
+      "context_tier": "hot",
+      "exclusion_tags": [],
+      "do_not_use_as_primary_truth": false
+    },
+    {
+      "stable_id": "file__src__components__admin__adminmoderationsecurityalerts-tsx",
+      "source_type": "file",
+      "source_id": "file__src__components__admin__adminmoderationsecurityalerts-tsx",
+      "searchable_terms": [
+        "src/components/Admin/AdminModerationSecurityAlerts.tsx",
+        "component",
+        "ui_component"
+      ],
+      "surface_tags": [
+        "ui_component",
+        "component"
+      ],
+      "helper_tags": [],
+      "risk_tags": [
+        "runtime_critical"
+      ],
+      "recency": "1777606737378:413a40150eac",
       "freshness": {
         "local": "fresh",
         "sql_mirror": "unknown"
@@ -14434,7 +16116,7 @@
       "risk_tags": [
         "runtime_critical"
       ],
-      "recency": "1777504913559:3e7c7c6a93b7",
+      "recency": "1777554843163:727db828d26a",
       "freshness": {
         "local": "fresh",
         "sql_mirror": "unknown"
@@ -14564,7 +16246,33 @@
       "risk_tags": [
         "runtime_critical"
       ],
-      "recency": "1777396788043:08f686a2d486",
+      "recency": "1777555997907:f0b78144d2aa",
+      "freshness": {
+        "local": "fresh",
+        "sql_mirror": "unknown"
+      },
+      "context_tier": "hot",
+      "exclusion_tags": [],
+      "do_not_use_as_primary_truth": false
+    },
+    {
+      "stable_id": "file__src__components__admin__analytics__admindailytaskpipelinemodule-tsx",
+      "source_type": "file",
+      "source_id": "file__src__components__admin__analytics__admindailytaskpipelinemodule-tsx",
+      "searchable_terms": [
+        "src/components/Admin/Analytics/AdminDailyTaskPipelineModule.tsx",
+        "component",
+        "ui_component"
+      ],
+      "surface_tags": [
+        "ui_component",
+        "component"
+      ],
+      "helper_tags": [],
+      "risk_tags": [
+        "runtime_critical"
+      ],
+      "recency": "1777563509562:d2ba364b6482",
       "freshness": {
         "local": "fresh",
         "sql_mirror": "unknown"
@@ -14590,7 +16298,7 @@
       "risk_tags": [
         "runtime_critical"
       ],
-      "recency": "1775908589341:e73250d45937",
+      "recency": "1777559338403:f2a1ad5db922",
       "freshness": {
         "local": "fresh",
         "sql_mirror": "unknown"
@@ -14616,7 +16324,7 @@
       "risk_tags": [
         "runtime_critical"
       ],
-      "recency": "1776882600839:7cb64a4b2300",
+      "recency": "1777565054487:dd02e3bcdcff",
       "freshness": {
         "local": "fresh",
         "sql_mirror": "unknown"
@@ -15032,7 +16740,7 @@
       "risk_tags": [
         "runtime_critical"
       ],
-      "recency": "1777427646101:9e668d0c7a15",
+      "recency": "1777598065537:24e1a72644a1",
       "freshness": {
         "local": "fresh",
         "sql_mirror": "unknown"
@@ -15058,7 +16766,7 @@
       "risk_tags": [
         "runtime_critical"
       ],
-      "recency": "1777427464172:c52c6bdd8b52",
+      "recency": "1777598044040:9da051975d0a",
       "freshness": {
         "local": "fresh",
         "sql_mirror": "unknown"
@@ -15136,7 +16844,7 @@
       "risk_tags": [
         "runtime_critical"
       ],
-      "recency": "1777480559557:8c51fb2800c5",
+      "recency": "1777554178253:e119db1b4a54",
       "freshness": {
         "local": "fresh",
         "sql_mirror": "unknown"
@@ -15162,7 +16870,7 @@
       "risk_tags": [
         "runtime_critical"
       ],
-      "recency": "1777414081847:ea6458582b37",
+      "recency": "1777596584083:55dbdf64c572",
       "freshness": {
         "local": "fresh",
         "sql_mirror": "unknown"
@@ -15526,7 +17234,85 @@
       "risk_tags": [
         "runtime_critical"
       ],
-      "recency": "1777239760819:28b9f473fbfe",
+      "recency": "1777603691421:9c92f89d5adc",
+      "freshness": {
+        "local": "fresh",
+        "sql_mirror": "unknown"
+      },
+      "context_tier": "hot",
+      "exclusion_tags": [],
+      "do_not_use_as_primary_truth": false
+    },
+    {
+      "stable_id": "file__src__components__dropcardcta-tsx",
+      "source_type": "file",
+      "source_id": "file__src__components__dropcardcta-tsx",
+      "searchable_terms": [
+        "src/components/DropCardCta.tsx",
+        "component",
+        "ui_component"
+      ],
+      "surface_tags": [
+        "ui_component",
+        "component"
+      ],
+      "helper_tags": [],
+      "risk_tags": [
+        "runtime_critical"
+      ],
+      "recency": "1777603710122:27b3caf3f6d7",
+      "freshness": {
+        "local": "fresh",
+        "sql_mirror": "unknown"
+      },
+      "context_tier": "hot",
+      "exclusion_tags": [],
+      "do_not_use_as_primary_truth": false
+    },
+    {
+      "stable_id": "file__src__components__dropcardlayout-tsx",
+      "source_type": "file",
+      "source_id": "file__src__components__dropcardlayout-tsx",
+      "searchable_terms": [
+        "src/components/DropCardLayout.tsx",
+        "component",
+        "ui_component"
+      ],
+      "surface_tags": [
+        "ui_component",
+        "component"
+      ],
+      "helper_tags": [],
+      "risk_tags": [
+        "runtime_critical"
+      ],
+      "recency": "1777603338357:aaf430b3194b",
+      "freshness": {
+        "local": "fresh",
+        "sql_mirror": "unknown"
+      },
+      "context_tier": "hot",
+      "exclusion_tags": [],
+      "do_not_use_as_primary_truth": false
+    },
+    {
+      "stable_id": "file__src__components__dropcardparts-tsx",
+      "source_type": "file",
+      "source_id": "file__src__components__dropcardparts-tsx",
+      "searchable_terms": [
+        "src/components/DropCardParts.tsx",
+        "component",
+        "ui_component"
+      ],
+      "surface_tags": [
+        "ui_component",
+        "component"
+      ],
+      "helper_tags": [],
+      "risk_tags": [
+        "runtime_critical"
+      ],
+      "recency": "1777602629447:211cb45cf603",
       "freshness": {
         "local": "fresh",
         "sql_mirror": "unknown"
@@ -15552,7 +17338,7 @@
       "risk_tags": [
         "runtime_critical"
       ],
-      "recency": "1775157134315:c06ac46940cf",
+      "recency": "1777605244816:30aede742f73",
       "freshness": {
         "local": "fresh",
         "sql_mirror": "unknown"
@@ -15630,7 +17416,7 @@
       "risk_tags": [
         "runtime_critical"
       ],
-      "recency": "1776738381586:7bec4b6b6020",
+      "recency": "1777603793436:2f67f05e3145",
       "freshness": {
         "local": "fresh",
         "sql_mirror": "unknown"
@@ -16124,7 +17910,7 @@
       "risk_tags": [
         "runtime_critical"
       ],
-      "recency": "1776630451210:53a14fe3dc52",
+      "recency": "1777571965049:1904a5848da6",
       "freshness": {
         "local": "fresh",
         "sql_mirror": "unknown"
@@ -16254,7 +18040,7 @@
       "risk_tags": [
         "runtime_critical"
       ],
-      "recency": "1775959862968:d6572a748dea",
+      "recency": "1777564657413:e1ffb3af1094",
       "freshness": {
         "local": "fresh",
         "sql_mirror": "unknown"
@@ -16410,7 +18196,7 @@
       "risk_tags": [
         "runtime_critical"
       ],
-      "recency": "1775397202573:e7352027fda9",
+      "recency": "1777603625440:9fad77562ced",
       "freshness": {
         "local": "fresh",
         "sql_mirror": "unknown"
@@ -16592,7 +18378,7 @@
       "risk_tags": [
         "runtime_critical"
       ],
-      "recency": "1777432309321:b2cf0ed68f4b",
+      "recency": "1777572057102:7ecd9ed65de4",
       "freshness": {
         "local": "fresh",
         "sql_mirror": "unknown"
@@ -16777,6 +18563,60 @@
       "do_not_use_as_primary_truth": false
     },
     {
+      "stable_id": "file__src__hooks__useadminanalyticssnapshot-ts",
+      "source_type": "file",
+      "source_id": "file__src__hooks__useadminanalyticssnapshot-ts",
+      "searchable_terms": [
+        "src/hooks/useAdminAnalyticsSnapshot.ts",
+        "hook",
+        "misc"
+      ],
+      "surface_tags": [
+        "misc",
+        "hook"
+      ],
+      "helper_tags": [],
+      "risk_tags": [
+        "runtime_critical",
+        "shared_helper"
+      ],
+      "recency": "1777568679165:0971be382f94",
+      "freshness": {
+        "local": "fresh",
+        "sql_mirror": "unknown"
+      },
+      "context_tier": "hot",
+      "exclusion_tags": [],
+      "do_not_use_as_primary_truth": false
+    },
+    {
+      "stable_id": "file__src__hooks__useadminanalyticssnapshotregistry-ts",
+      "source_type": "file",
+      "source_id": "file__src__hooks__useadminanalyticssnapshotregistry-ts",
+      "searchable_terms": [
+        "src/hooks/useAdminAnalyticsSnapshotRegistry.ts",
+        "hook",
+        "misc"
+      ],
+      "surface_tags": [
+        "misc",
+        "hook"
+      ],
+      "helper_tags": [],
+      "risk_tags": [
+        "runtime_critical",
+        "shared_helper"
+      ],
+      "recency": "1777570738891:f4ab56871317",
+      "freshness": {
+        "local": "fresh",
+        "sql_mirror": "unknown"
+      },
+      "context_tier": "hot",
+      "exclusion_tags": [],
+      "do_not_use_as_primary_truth": false
+    },
+    {
       "stable_id": "file__src__hooks__useadmindropsfeed-ts",
       "source_type": "file",
       "source_id": "file__src__hooks__useadmindropsfeed-ts",
@@ -16821,7 +18661,7 @@
         "runtime_critical",
         "shared_helper"
       ],
-      "recency": "1777239767987:269fe03d42c6",
+      "recency": "1777606905503:b18858007416",
       "freshness": {
         "local": "fresh",
         "sql_mirror": "unknown"
@@ -16875,7 +18715,7 @@
         "runtime_critical",
         "shared_helper"
       ],
-      "recency": "1777397210030:6b2faac26e87",
+      "recency": "1777520244469:08c7e4f05273",
       "freshness": {
         "local": "fresh",
         "sql_mirror": "unknown"
@@ -17074,6 +18914,33 @@
       "do_not_use_as_primary_truth": false
     },
     {
+      "stable_id": "file__src__hooks__usedropcardimpression-ts",
+      "source_type": "file",
+      "source_id": "file__src__hooks__usedropcardimpression-ts",
+      "searchable_terms": [
+        "src/hooks/useDropCardImpression.ts",
+        "hook",
+        "misc"
+      ],
+      "surface_tags": [
+        "misc",
+        "hook"
+      ],
+      "helper_tags": [],
+      "risk_tags": [
+        "runtime_critical",
+        "shared_helper"
+      ],
+      "recency": "1777602798783:01e55c9d7664",
+      "freshness": {
+        "local": "fresh",
+        "sql_mirror": "unknown"
+      },
+      "context_tier": "hot",
+      "exclusion_tags": [],
+      "do_not_use_as_primary_truth": false
+    },
+    {
       "stable_id": "file__src__hooks__usedrops-ts",
       "source_type": "file",
       "source_id": "file__src__hooks__usedrops-ts",
@@ -17091,7 +18958,7 @@
         "runtime_critical",
         "shared_helper"
       ],
-      "recency": "1777240036451:1ff3b0f491f2",
+      "recency": "1777603304992:5e007b49cb36",
       "freshness": {
         "local": "fresh",
         "sql_mirror": "unknown"
@@ -17145,7 +19012,7 @@
         "runtime_critical",
         "shared_helper"
       ],
-      "recency": "1777239768007:ff4f960a8b6d",
+      "recency": "1777564671914:369b993d1917",
       "freshness": {
         "local": "fresh",
         "sql_mirror": "unknown"
@@ -17359,6 +19226,230 @@
         "broad_signoff"
       ],
       "recency": "1777502139932:528e5bb3ad5a",
+      "freshness": {
+        "local": "fresh",
+        "sql_mirror": "unknown"
+      },
+      "context_tier": "hot",
+      "exclusion_tags": [],
+      "do_not_use_as_primary_truth": false
+    },
+    {
+      "stable_id": "file__src__lib__admin-analytics-audience-snapshot-ts",
+      "source_type": "file",
+      "source_id": "file__src__lib__admin-analytics-audience-snapshot-ts",
+      "searchable_terms": [
+        "src/lib/admin-analytics-audience-snapshot.ts",
+        "shared_helper",
+        "analytics"
+      ],
+      "surface_tags": [
+        "analytics",
+        "shared_helper"
+      ],
+      "helper_tags": [],
+      "risk_tags": [
+        "runtime_critical",
+        "shared_helper",
+        "broad_signoff"
+      ],
+      "recency": "1777556127760:8ed777d89cfa",
+      "freshness": {
+        "local": "fresh",
+        "sql_mirror": "unknown"
+      },
+      "context_tier": "hot",
+      "exclusion_tags": [],
+      "do_not_use_as_primary_truth": false
+    },
+    {
+      "stable_id": "file__src__lib__admin-analytics-auth-outcome-split-ts",
+      "source_type": "file",
+      "source_id": "file__src__lib__admin-analytics-auth-outcome-split-ts",
+      "searchable_terms": [
+        "src/lib/admin-analytics-auth-outcome-split.ts",
+        "shared_helper",
+        "analytics"
+      ],
+      "surface_tags": [
+        "analytics",
+        "shared_helper"
+      ],
+      "helper_tags": [],
+      "risk_tags": [
+        "runtime_critical",
+        "shared_helper",
+        "broad_signoff"
+      ],
+      "recency": "1777558407760:36a53cae651f",
+      "freshness": {
+        "local": "fresh",
+        "sql_mirror": "unknown"
+      },
+      "context_tier": "hot",
+      "exclusion_tags": [],
+      "do_not_use_as_primary_truth": false
+    },
+    {
+      "stable_id": "file__src__lib__admin-analytics-commerce-snapshot-ts",
+      "source_type": "file",
+      "source_id": "file__src__lib__admin-analytics-commerce-snapshot-ts",
+      "searchable_terms": [
+        "src/lib/admin-analytics-commerce-snapshot.ts",
+        "shared_helper",
+        "analytics"
+      ],
+      "surface_tags": [
+        "analytics",
+        "shared_helper"
+      ],
+      "helper_tags": [],
+      "risk_tags": [
+        "runtime_critical",
+        "shared_helper",
+        "broad_signoff"
+      ],
+      "recency": "1777556561568:0c39d4a16e60",
+      "freshness": {
+        "local": "fresh",
+        "sql_mirror": "unknown"
+      },
+      "context_tier": "hot",
+      "exclusion_tags": [],
+      "do_not_use_as_primary_truth": false
+    },
+    {
+      "stable_id": "file__src__lib__admin-analytics-event-mix-ts",
+      "source_type": "file",
+      "source_id": "file__src__lib__admin-analytics-event-mix-ts",
+      "searchable_terms": [
+        "src/lib/admin-analytics-event-mix.ts",
+        "shared_helper",
+        "analytics"
+      ],
+      "surface_tags": [
+        "analytics",
+        "shared_helper"
+      ],
+      "helper_tags": [],
+      "risk_tags": [
+        "runtime_critical",
+        "shared_helper",
+        "broad_signoff"
+      ],
+      "recency": "1777560198429:354c86e89667",
+      "freshness": {
+        "local": "fresh",
+        "sql_mirror": "unknown"
+      },
+      "context_tier": "hot",
+      "exclusion_tags": [],
+      "do_not_use_as_primary_truth": false
+    },
+    {
+      "stable_id": "file__src__lib__admin-analytics-guest-bounce-quality-ts",
+      "source_type": "file",
+      "source_id": "file__src__lib__admin-analytics-guest-bounce-quality-ts",
+      "searchable_terms": [
+        "src/lib/admin-analytics-guest-bounce-quality.ts",
+        "shared_helper",
+        "analytics"
+      ],
+      "surface_tags": [
+        "analytics",
+        "shared_helper"
+      ],
+      "helper_tags": [],
+      "risk_tags": [
+        "runtime_critical",
+        "shared_helper",
+        "broad_signoff"
+      ],
+      "recency": "1777559718200:2c8a7225e336",
+      "freshness": {
+        "local": "fresh",
+        "sql_mirror": "unknown"
+      },
+      "context_tier": "hot",
+      "exclusion_tags": [],
+      "do_not_use_as_primary_truth": false
+    },
+    {
+      "stable_id": "file__src__lib__admin-analytics-journey-funnel-ts",
+      "source_type": "file",
+      "source_id": "file__src__lib__admin-analytics-journey-funnel-ts",
+      "searchable_terms": [
+        "src/lib/admin-analytics-journey-funnel.ts",
+        "shared_helper",
+        "analytics"
+      ],
+      "surface_tags": [
+        "analytics",
+        "shared_helper"
+      ],
+      "helper_tags": [],
+      "risk_tags": [
+        "runtime_critical",
+        "shared_helper",
+        "broad_signoff"
+      ],
+      "recency": "1777557998553:d2bf02752b5a",
+      "freshness": {
+        "local": "fresh",
+        "sql_mirror": "unknown"
+      },
+      "context_tier": "hot",
+      "exclusion_tags": [],
+      "do_not_use_as_primary_truth": false
+    },
+    {
+      "stable_id": "file__src__lib__admin-analytics-live-interaction-stream-ts",
+      "source_type": "file",
+      "source_id": "file__src__lib__admin-analytics-live-interaction-stream-ts",
+      "searchable_terms": [
+        "src/lib/admin-analytics-live-interaction-stream.ts",
+        "shared_helper",
+        "analytics"
+      ],
+      "surface_tags": [
+        "analytics",
+        "shared_helper"
+      ],
+      "helper_tags": [],
+      "risk_tags": [
+        "runtime_critical",
+        "shared_helper",
+        "broad_signoff"
+      ],
+      "recency": "1777560980822:b4fd5b5e9d0a",
+      "freshness": {
+        "local": "fresh",
+        "sql_mirror": "unknown"
+      },
+      "context_tier": "hot",
+      "exclusion_tags": [],
+      "do_not_use_as_primary_truth": false
+    },
+    {
+      "stable_id": "file__src__lib__admin-analytics-live-pulse-ts",
+      "source_type": "file",
+      "source_id": "file__src__lib__admin-analytics-live-pulse-ts",
+      "searchable_terms": [
+        "src/lib/admin-analytics-live-pulse.ts",
+        "shared_helper",
+        "analytics"
+      ],
+      "surface_tags": [
+        "analytics",
+        "shared_helper"
+      ],
+      "helper_tags": [],
+      "risk_tags": [
+        "runtime_critical",
+        "shared_helper",
+        "broad_signoff"
+      ],
+      "recency": "1777598997117:f37e386997ef",
       "freshness": {
         "local": "fresh",
         "sql_mirror": "unknown"
@@ -17732,6 +19823,34 @@
       "do_not_use_as_primary_truth": false
     },
     {
+      "stable_id": "file__src__lib__admin-moderation-security-alerts-ts",
+      "source_type": "file",
+      "source_id": "file__src__lib__admin-moderation-security-alerts-ts",
+      "searchable_terms": [
+        "src/lib/admin-moderation-security-alerts.ts",
+        "shared_helper",
+        "shared_runtime"
+      ],
+      "surface_tags": [
+        "shared_runtime",
+        "shared_helper"
+      ],
+      "helper_tags": [],
+      "risk_tags": [
+        "runtime_critical",
+        "shared_helper",
+        "broad_signoff"
+      ],
+      "recency": "1777606635026:149a0de675f9",
+      "freshness": {
+        "local": "fresh",
+        "sql_mirror": "unknown"
+      },
+      "context_tier": "hot",
+      "exclusion_tags": [],
+      "do_not_use_as_primary_truth": false
+    },
+    {
       "stable_id": "file__src__lib__admin-moderation-ts",
       "source_type": "file",
       "source_id": "file__src__lib__admin-moderation-ts",
@@ -17750,7 +19869,7 @@
         "shared_helper",
         "broad_signoff"
       ],
-      "recency": "1776977385570:3a090e10c016",
+      "recency": "1777606591503:32489f9a37a5",
       "freshness": {
         "local": "fresh",
         "sql_mirror": "unknown"
@@ -17778,7 +19897,7 @@
         "shared_helper",
         "broad_signoff"
       ],
-      "recency": "1775769957198:f2610491c04e",
+      "recency": "1777564991734:b0eb6c3ce349",
       "freshness": {
         "local": "fresh",
         "sql_mirror": "unknown"
@@ -17806,7 +19925,7 @@
         "shared_helper",
         "broad_signoff"
       ],
-      "recency": "1775769945080:31f68c7e1346",
+      "recency": "1777559274010:4c1ad30e20aa",
       "freshness": {
         "local": "fresh",
         "sql_mirror": "unknown"
@@ -17928,6 +20047,62 @@
       "do_not_use_as_primary_truth": false
     },
     {
+      "stable_id": "file__src__lib__admin-shell-spacing-ts",
+      "source_type": "file",
+      "source_id": "file__src__lib__admin-shell-spacing-ts",
+      "searchable_terms": [
+        "src/lib/admin-shell-spacing.ts",
+        "shared_helper",
+        "shared_runtime"
+      ],
+      "surface_tags": [
+        "shared_runtime",
+        "shared_helper"
+      ],
+      "helper_tags": [],
+      "risk_tags": [
+        "runtime_critical",
+        "shared_helper",
+        "broad_signoff"
+      ],
+      "recency": "1777565243916:92221615f0c9",
+      "freshness": {
+        "local": "fresh",
+        "sql_mirror": "unknown"
+      },
+      "context_tier": "hot",
+      "exclusion_tags": [],
+      "do_not_use_as_primary_truth": false
+    },
+    {
+      "stable_id": "file__src__lib__admin-task-leaderboard-ts",
+      "source_type": "file",
+      "source_id": "file__src__lib__admin-task-leaderboard-ts",
+      "searchable_terms": [
+        "src/lib/admin-task-leaderboard.ts",
+        "shared_helper",
+        "shared_runtime"
+      ],
+      "surface_tags": [
+        "shared_runtime",
+        "shared_helper"
+      ],
+      "helper_tags": [],
+      "risk_tags": [
+        "runtime_critical",
+        "shared_helper",
+        "broad_signoff"
+      ],
+      "recency": "1777563788816:674c3527d6b7",
+      "freshness": {
+        "local": "fresh",
+        "sql_mirror": "unknown"
+      },
+      "context_tier": "hot",
+      "exclusion_tags": [],
+      "do_not_use_as_primary_truth": false
+    },
+    {
       "stable_id": "file__src__lib__admin-task-pipeline-ts",
       "source_type": "file",
       "source_id": "file__src__lib__admin-task-pipeline-ts",
@@ -17946,7 +20121,7 @@
         "shared_helper",
         "broad_signoff"
       ],
-      "recency": "1775769965681:58e1815386bb",
+      "recency": "1777563826450:6e13d08a5ceb",
       "freshness": {
         "local": "fresh",
         "sql_mirror": "unknown"
@@ -18227,6 +20402,146 @@
         "broad_signoff"
       ],
       "recency": "1774334817212:25a30f5e0e32",
+      "freshness": {
+        "local": "fresh",
+        "sql_mirror": "unknown"
+      },
+      "context_tier": "hot",
+      "exclusion_tags": [],
+      "do_not_use_as_primary_truth": false
+    },
+    {
+      "stable_id": "file__src__lib__analytics__admin-analytics-display-state-ts",
+      "source_type": "file",
+      "source_id": "file__src__lib__analytics__admin-analytics-display-state-ts",
+      "searchable_terms": [
+        "src/lib/analytics/admin-analytics-display-state.ts",
+        "shared_helper",
+        "analytics"
+      ],
+      "surface_tags": [
+        "analytics",
+        "shared_helper"
+      ],
+      "helper_tags": [],
+      "risk_tags": [
+        "runtime_critical",
+        "shared_helper",
+        "broad_signoff"
+      ],
+      "recency": "1777598970374:449adbd0197e",
+      "freshness": {
+        "local": "fresh",
+        "sql_mirror": "unknown"
+      },
+      "context_tier": "hot",
+      "exclusion_tags": [],
+      "do_not_use_as_primary_truth": false
+    },
+    {
+      "stable_id": "file__src__lib__analytics__admin-metric-snapshot-ts",
+      "source_type": "file",
+      "source_id": "file__src__lib__analytics__admin-metric-snapshot-ts",
+      "searchable_terms": [
+        "src/lib/analytics/admin-metric-snapshot.ts",
+        "shared_helper",
+        "analytics"
+      ],
+      "surface_tags": [
+        "analytics",
+        "shared_helper"
+      ],
+      "helper_tags": [],
+      "risk_tags": [
+        "runtime_critical",
+        "shared_helper",
+        "broad_signoff"
+      ],
+      "recency": "1777568936692:4f3a057f65c3",
+      "freshness": {
+        "local": "fresh",
+        "sql_mirror": "unknown"
+      },
+      "context_tier": "hot",
+      "exclusion_tags": [],
+      "do_not_use_as_primary_truth": false
+    },
+    {
+      "stable_id": "file__src__lib__analytics__analytics-event-contract-ts",
+      "source_type": "file",
+      "source_id": "file__src__lib__analytics__analytics-event-contract-ts",
+      "searchable_terms": [
+        "src/lib/analytics/analytics-event-contract.ts",
+        "shared_helper",
+        "analytics"
+      ],
+      "surface_tags": [
+        "analytics",
+        "shared_helper"
+      ],
+      "helper_tags": [],
+      "risk_tags": [
+        "runtime_critical",
+        "shared_helper",
+        "broad_signoff"
+      ],
+      "recency": "1777567825794:a225e82f0546",
+      "freshness": {
+        "local": "fresh",
+        "sql_mirror": "unknown"
+      },
+      "context_tier": "hot",
+      "exclusion_tags": [],
+      "do_not_use_as_primary_truth": false
+    },
+    {
+      "stable_id": "file__src__lib__analytics__legacy-event-mapping-ts",
+      "source_type": "file",
+      "source_id": "file__src__lib__analytics__legacy-event-mapping-ts",
+      "searchable_terms": [
+        "src/lib/analytics/legacy-event-mapping.ts",
+        "shared_helper",
+        "analytics"
+      ],
+      "surface_tags": [
+        "analytics",
+        "shared_helper"
+      ],
+      "helper_tags": [],
+      "risk_tags": [
+        "runtime_critical",
+        "shared_helper",
+        "broad_signoff"
+      ],
+      "recency": "1777570216408:45f8b3e80b47",
+      "freshness": {
+        "local": "fresh",
+        "sql_mirror": "unknown"
+      },
+      "context_tier": "hot",
+      "exclusion_tags": [],
+      "do_not_use_as_primary_truth": false
+    },
+    {
+      "stable_id": "file__src__lib__analytics__legacy-recovery-contract-ts",
+      "source_type": "file",
+      "source_id": "file__src__lib__analytics__legacy-recovery-contract-ts",
+      "searchable_terms": [
+        "src/lib/analytics/legacy-recovery-contract.ts",
+        "shared_helper",
+        "analytics"
+      ],
+      "surface_tags": [
+        "analytics",
+        "shared_helper"
+      ],
+      "helper_tags": [],
+      "risk_tags": [
+        "runtime_critical",
+        "shared_helper",
+        "broad_signoff"
+      ],
+      "recency": "1777569765925:1ac71b7f17c9",
       "freshness": {
         "local": "fresh",
         "sql_mirror": "unknown"
@@ -18674,7 +20989,7 @@
         "shared_helper",
         "broad_signoff"
       ],
-      "recency": "1775162529832:8b8b457c08b7",
+      "recency": "1777567382658:445aee48466e",
       "freshness": {
         "local": "fresh",
         "sql_mirror": "unknown"
@@ -18870,7 +21185,7 @@
         "shared_helper",
         "broad_signoff"
       ],
-      "recency": "1776623498203:05bd57c86545",
+      "recency": "1777571973193:498e461cfcb1",
       "freshness": {
         "local": "fresh",
         "sql_mirror": "unknown"
@@ -19178,7 +21493,7 @@
         "shared_helper",
         "broad_signoff"
       ],
-      "recency": "1777239760842:73135e3228ce",
+      "recency": "1777564641485:c0b105af87d2",
       "freshness": {
         "local": "fresh",
         "sql_mirror": "unknown"
@@ -19608,6 +21923,34 @@
       "do_not_use_as_primary_truth": false
     },
     {
+      "stable_id": "file__src__lib__notification-identity-ts",
+      "source_type": "file",
+      "source_id": "file__src__lib__notification-identity-ts",
+      "searchable_terms": [
+        "src/lib/notification-identity.ts",
+        "shared_helper",
+        "shared_runtime"
+      ],
+      "surface_tags": [
+        "shared_runtime",
+        "shared_helper"
+      ],
+      "helper_tags": [],
+      "risk_tags": [
+        "runtime_critical",
+        "shared_helper",
+        "broad_signoff"
+      ],
+      "recency": "1777564453749:30ef94776b5f",
+      "freshness": {
+        "local": "fresh",
+        "sql_mirror": "unknown"
+      },
+      "context_tier": "hot",
+      "exclusion_tags": [],
+      "do_not_use_as_primary_truth": false
+    },
+    {
       "stable_id": "file__src__lib__notifications-ts",
       "source_type": "file",
       "source_id": "file__src__lib__notifications-ts",
@@ -19794,7 +22137,7 @@
         "shared_helper",
         "broad_signoff"
       ],
-      "recency": "1777499483344:132bbb13d9ac",
+      "recency": "1777569007685:e0623b4a7486",
       "freshness": {
         "local": "fresh",
         "sql_mirror": "unknown"
@@ -19822,7 +22165,7 @@
         "shared_helper",
         "broad_signoff"
       ],
-      "recency": "1776977261397:8a26aa62f82a",
+      "recency": "1777606580945:f48f33210984",
       "freshness": {
         "local": "fresh",
         "sql_mirror": "unknown"
@@ -20074,7 +22417,7 @@
         "shared_helper",
         "broad_signoff"
       ],
-      "recency": "1776882507265:0ad4665cf4a0",
+      "recency": "1777563187816:0c35eea0024f",
       "freshness": {
         "local": "fresh",
         "sql_mirror": "unknown"
@@ -20158,7 +22501,7 @@
         "shared_helper",
         "broad_signoff"
       ],
-      "recency": "1776535168519:4b06a0ec9738",
+      "recency": "1777561467069:ab22534760fb",
       "freshness": {
         "local": "fresh",
         "sql_mirror": "unknown"
@@ -20187,6 +22530,34 @@
         "broad_signoff"
       ],
       "recency": "1774452346978:61cc993732ef",
+      "freshness": {
+        "local": "fresh",
+        "sql_mirror": "unknown"
+      },
+      "context_tier": "hot",
+      "exclusion_tags": [],
+      "do_not_use_as_primary_truth": false
+    },
+    {
+      "stable_id": "file__src__lib__server__admin-analytics-materializers-ts",
+      "source_type": "file",
+      "source_id": "file__src__lib__server__admin-analytics-materializers-ts",
+      "searchable_terms": [
+        "src/lib/server/admin-analytics-materializers.ts",
+        "server_helper",
+        "analytics"
+      ],
+      "surface_tags": [
+        "analytics",
+        "server_helper"
+      ],
+      "helper_tags": [],
+      "risk_tags": [
+        "runtime_critical",
+        "shared_helper",
+        "broad_signoff"
+      ],
+      "recency": "1777568587831:add69691e8a4",
       "freshness": {
         "local": "fresh",
         "sql_mirror": "unknown"
@@ -20243,6 +22614,34 @@
         "broad_signoff"
       ],
       "recency": "1776882899077:ede7c725c63a",
+      "freshness": {
+        "local": "fresh",
+        "sql_mirror": "unknown"
+      },
+      "context_tier": "hot",
+      "exclusion_tags": [],
+      "do_not_use_as_primary_truth": false
+    },
+    {
+      "stable_id": "file__src__lib__server__admin-analytics-snapshots-ts",
+      "source_type": "file",
+      "source_id": "file__src__lib__server__admin-analytics-snapshots-ts",
+      "searchable_terms": [
+        "src/lib/server/admin-analytics-snapshots.ts",
+        "server_helper",
+        "analytics"
+      ],
+      "surface_tags": [
+        "analytics",
+        "server_helper"
+      ],
+      "helper_tags": [],
+      "risk_tags": [
+        "runtime_critical",
+        "shared_helper",
+        "broad_signoff"
+      ],
+      "recency": "1777568537656:17a04416930e",
       "freshness": {
         "local": "fresh",
         "sql_mirror": "unknown"
@@ -20354,7 +22753,7 @@
         "shared_helper",
         "broad_signoff"
       ],
-      "recency": "1776977399946:3d53577b96b5",
+      "recency": "1777606651708:37b1c7468e90",
       "freshness": {
         "local": "fresh",
         "sql_mirror": "unknown"
@@ -20466,7 +22865,7 @@
         "shared_helper",
         "broad_signoff"
       ],
-      "recency": "1777509163746:af9b18a229c5",
+      "recency": "1777514467319:2c6478b0af71",
       "freshness": {
         "local": "fresh",
         "sql_mirror": "unknown"
@@ -20690,7 +23089,7 @@
         "shared_helper",
         "broad_signoff"
       ],
-      "recency": "1777510998304:8dd2fe944b75",
+      "recency": "1777568496711:c0e6c15cca60",
       "freshness": {
         "local": "fresh",
         "sql_mirror": "unknown"
@@ -21390,7 +23789,7 @@
         "shared_helper",
         "broad_signoff"
       ],
-      "recency": "1777239760850:26e99fa743ba",
+      "recency": "1777564943428:cdf525d81aee",
       "freshness": {
         "local": "fresh",
         "sql_mirror": "unknown"
@@ -21726,7 +24125,7 @@
         "shared_helper",
         "broad_signoff"
       ],
-      "recency": "1777239760856:048ff215f567",
+      "recency": "1777573740246:c3bcb6cec897",
       "freshness": {
         "local": "fresh",
         "sql_mirror": "unknown"
@@ -22118,7 +24517,7 @@
         "shared_helper",
         "broad_signoff"
       ],
-      "recency": "1773962016015:c02731c3c4f3",
+      "recency": "1777551031953:1cc948fe5f23",
       "freshness": {
         "local": "fresh",
         "sql_mirror": "unknown"
@@ -22286,7 +24685,7 @@
         "shared_helper",
         "broad_signoff"
       ],
-      "recency": "1777464622957:5b17fdd80a59",
+      "recency": "1777568072972:375572924e09",
       "freshness": {
         "local": "fresh",
         "sql_mirror": "unknown"
@@ -22427,6 +24826,34 @@
         "broad_signoff"
       ],
       "recency": "1776772228258:5d528803905e",
+      "freshness": {
+        "local": "fresh",
+        "sql_mirror": "unknown"
+      },
+      "context_tier": "hot",
+      "exclusion_tags": [],
+      "do_not_use_as_primary_truth": false
+    },
+    {
+      "stable_id": "file__src__lib__user-mobile-shell-ts",
+      "source_type": "file",
+      "source_id": "file__src__lib__user-mobile-shell-ts",
+      "searchable_terms": [
+        "src/lib/user-mobile-shell.ts",
+        "shared_helper",
+        "shared_runtime"
+      ],
+      "surface_tags": [
+        "shared_runtime",
+        "shared_helper"
+      ],
+      "helper_tags": [],
+      "risk_tags": [
+        "runtime_critical",
+        "shared_helper",
+        "broad_signoff"
+      ],
+      "recency": "1777598034648:cfca3be49f4e",
       "freshness": {
         "local": "fresh",
         "sql_mirror": "unknown"
@@ -23214,7 +25641,7 @@
       ],
       "helper_tags": [],
       "risk_tags": [],
-      "recency": "1777504959924:d23b400d49ad",
+      "recency": "1777563180768:88f671424607",
       "freshness": {
         "local": "fresh",
         "sql_mirror": "unknown"
@@ -23553,7 +25980,7 @@
       ],
       "helper_tags": [],
       "risk_tags": [],
-      "recency": "1777432506043:b63d5de86726",
+      "recency": "1777573807234:9fdb75738c32",
       "freshness": {
         "local": "fresh",
         "sql_mirror": "unknown"
@@ -23769,7 +26196,7 @@
       ],
       "helper_tags": [],
       "risk_tags": [],
-      "recency": "1776398337545:2c9ce457b8fd",
+      "recency": "1777520497196:b6fa810be105",
       "freshness": {
         "local": "fresh",
         "sql_mirror": "unknown"
@@ -24507,7 +26934,55 @@
       ],
       "helper_tags": [],
       "risk_tags": [],
-      "recency": "1777255341923:7b4f426b1505",
+      "recency": "1777520506195:ec8246b84c4b",
+      "freshness": {
+        "local": "fresh",
+        "sql_mirror": "unknown"
+      },
+      "context_tier": "warm",
+      "exclusion_tags": [],
+      "do_not_use_as_primary_truth": false
+    },
+    {
+      "stable_id": "file__tests__unit__admin-analytics-audience-snapshot-spec-ts",
+      "source_type": "file",
+      "source_id": "file__tests__unit__admin-analytics-audience-snapshot-spec-ts",
+      "searchable_terms": [
+        "tests/unit/admin-analytics-audience-snapshot.spec.ts",
+        "tests",
+        "analytics"
+      ],
+      "surface_tags": [
+        "analytics",
+        "tests"
+      ],
+      "helper_tags": [],
+      "risk_tags": [],
+      "recency": "1777556216853:d16ac27c8af9",
+      "freshness": {
+        "local": "fresh",
+        "sql_mirror": "unknown"
+      },
+      "context_tier": "warm",
+      "exclusion_tags": [],
+      "do_not_use_as_primary_truth": false
+    },
+    {
+      "stable_id": "file__tests__unit__admin-analytics-auth-outcome-split-spec-ts",
+      "source_type": "file",
+      "source_id": "file__tests__unit__admin-analytics-auth-outcome-split-spec-ts",
+      "searchable_terms": [
+        "tests/unit/admin-analytics-auth-outcome-split.spec.ts",
+        "tests",
+        "analytics"
+      ],
+      "surface_tags": [
+        "analytics",
+        "tests"
+      ],
+      "helper_tags": [],
+      "risk_tags": [],
+      "recency": "1777558498863:b27e129afe91",
       "freshness": {
         "local": "fresh",
         "sql_mirror": "unknown"
@@ -24541,6 +27016,30 @@
       "do_not_use_as_primary_truth": false
     },
     {
+      "stable_id": "file__tests__unit__admin-analytics-commerce-snapshot-spec-ts",
+      "source_type": "file",
+      "source_id": "file__tests__unit__admin-analytics-commerce-snapshot-spec-ts",
+      "searchable_terms": [
+        "tests/unit/admin-analytics-commerce-snapshot.spec.ts",
+        "tests",
+        "analytics"
+      ],
+      "surface_tags": [
+        "analytics",
+        "tests"
+      ],
+      "helper_tags": [],
+      "risk_tags": [],
+      "recency": "1777556829957:65aeff64d7b0",
+      "freshness": {
+        "local": "fresh",
+        "sql_mirror": "unknown"
+      },
+      "context_tier": "warm",
+      "exclusion_tags": [],
+      "do_not_use_as_primary_truth": false
+    },
+    {
       "stable_id": "file__tests__unit__admin-analytics-data-spec-ts",
       "source_type": "file",
       "source_id": "file__tests__unit__admin-analytics-data-spec-ts",
@@ -24556,6 +27055,78 @@
       "helper_tags": [],
       "risk_tags": [],
       "recency": "1775334757451:9baacb0781ad",
+      "freshness": {
+        "local": "fresh",
+        "sql_mirror": "unknown"
+      },
+      "context_tier": "warm",
+      "exclusion_tags": [],
+      "do_not_use_as_primary_truth": false
+    },
+    {
+      "stable_id": "file__tests__unit__admin-analytics-display-state-spec-ts",
+      "source_type": "file",
+      "source_id": "file__tests__unit__admin-analytics-display-state-spec-ts",
+      "searchable_terms": [
+        "tests/unit/admin-analytics-display-state.spec.ts",
+        "tests",
+        "analytics"
+      ],
+      "surface_tags": [
+        "analytics",
+        "tests"
+      ],
+      "helper_tags": [],
+      "risk_tags": [],
+      "recency": "1777599297345:250d10ebf0b4",
+      "freshness": {
+        "local": "fresh",
+        "sql_mirror": "unknown"
+      },
+      "context_tier": "warm",
+      "exclusion_tags": [],
+      "do_not_use_as_primary_truth": false
+    },
+    {
+      "stable_id": "file__tests__unit__admin-analytics-event-mix-spec-ts",
+      "source_type": "file",
+      "source_id": "file__tests__unit__admin-analytics-event-mix-spec-ts",
+      "searchable_terms": [
+        "tests/unit/admin-analytics-event-mix.spec.ts",
+        "tests",
+        "analytics"
+      ],
+      "surface_tags": [
+        "analytics",
+        "tests"
+      ],
+      "helper_tags": [],
+      "risk_tags": [],
+      "recency": "1777560439497:5dca726d7b01",
+      "freshness": {
+        "local": "fresh",
+        "sql_mirror": "unknown"
+      },
+      "context_tier": "warm",
+      "exclusion_tags": [],
+      "do_not_use_as_primary_truth": false
+    },
+    {
+      "stable_id": "file__tests__unit__admin-analytics-guest-bounce-quality-spec-ts",
+      "source_type": "file",
+      "source_id": "file__tests__unit__admin-analytics-guest-bounce-quality-spec-ts",
+      "searchable_terms": [
+        "tests/unit/admin-analytics-guest-bounce-quality.spec.ts",
+        "tests",
+        "analytics"
+      ],
+      "surface_tags": [
+        "analytics",
+        "tests"
+      ],
+      "helper_tags": [],
+      "risk_tags": [],
+      "recency": "1777559870717:8fe56707317b",
       "freshness": {
         "local": "fresh",
         "sql_mirror": "unknown"
@@ -24637,6 +27208,78 @@
       "do_not_use_as_primary_truth": false
     },
     {
+      "stable_id": "file__tests__unit__admin-analytics-journey-funnel-spec-ts",
+      "source_type": "file",
+      "source_id": "file__tests__unit__admin-analytics-journey-funnel-spec-ts",
+      "searchable_terms": [
+        "tests/unit/admin-analytics-journey-funnel.spec.ts",
+        "tests",
+        "analytics"
+      ],
+      "surface_tags": [
+        "analytics",
+        "tests"
+      ],
+      "helper_tags": [],
+      "risk_tags": [],
+      "recency": "1777557943540:d10bcdf2881a",
+      "freshness": {
+        "local": "fresh",
+        "sql_mirror": "unknown"
+      },
+      "context_tier": "warm",
+      "exclusion_tags": [],
+      "do_not_use_as_primary_truth": false
+    },
+    {
+      "stable_id": "file__tests__unit__admin-analytics-live-interaction-stream-spec-ts",
+      "source_type": "file",
+      "source_id": "file__tests__unit__admin-analytics-live-interaction-stream-spec-ts",
+      "searchable_terms": [
+        "tests/unit/admin-analytics-live-interaction-stream.spec.ts",
+        "tests",
+        "analytics"
+      ],
+      "surface_tags": [
+        "analytics",
+        "tests"
+      ],
+      "helper_tags": [],
+      "risk_tags": [],
+      "recency": "1777561112108:549ba5a93bf6",
+      "freshness": {
+        "local": "fresh",
+        "sql_mirror": "unknown"
+      },
+      "context_tier": "warm",
+      "exclusion_tags": [],
+      "do_not_use_as_primary_truth": false
+    },
+    {
+      "stable_id": "file__tests__unit__admin-analytics-live-pulse-spec-ts",
+      "source_type": "file",
+      "source_id": "file__tests__unit__admin-analytics-live-pulse-spec-ts",
+      "searchable_terms": [
+        "tests/unit/admin-analytics-live-pulse.spec.ts",
+        "tests",
+        "analytics"
+      ],
+      "surface_tags": [
+        "analytics",
+        "tests"
+      ],
+      "helper_tags": [],
+      "risk_tags": [],
+      "recency": "1777599317390:dfe596b5498a",
+      "freshness": {
+        "local": "fresh",
+        "sql_mirror": "unknown"
+      },
+      "context_tier": "warm",
+      "exclusion_tags": [],
+      "do_not_use_as_primary_truth": false
+    },
+    {
       "stable_id": "file__tests__unit__admin-analytics-live-runtime-spec-ts",
       "source_type": "file",
       "source_id": "file__tests__unit__admin-analytics-live-runtime-spec-ts",
@@ -24675,7 +27318,7 @@
       ],
       "helper_tags": [],
       "risk_tags": [],
-      "recency": "1777392386869:4bcc814efb21",
+      "recency": "1777571054255:00ad30e5d0f8",
       "freshness": {
         "local": "fresh",
         "sql_mirror": "unknown"
@@ -24699,7 +27342,31 @@
       ],
       "helper_tags": [],
       "risk_tags": [],
-      "recency": "1777479874682:03164c11ab5a",
+      "recency": "1777518786444:737a255d581d",
+      "freshness": {
+        "local": "fresh",
+        "sql_mirror": "unknown"
+      },
+      "context_tier": "warm",
+      "exclusion_tags": [],
+      "do_not_use_as_primary_truth": false
+    },
+    {
+      "stable_id": "file__tests__unit__admin-analytics-refresh-route-spec-ts",
+      "source_type": "file",
+      "source_id": "file__tests__unit__admin-analytics-refresh-route-spec-ts",
+      "searchable_terms": [
+        "tests/unit/admin-analytics-refresh-route.spec.ts",
+        "tests",
+        "analytics"
+      ],
+      "surface_tags": [
+        "analytics",
+        "tests"
+      ],
+      "helper_tags": [],
+      "risk_tags": [],
+      "recency": "1777568902885:4e4c6911f2ae",
       "freshness": {
         "local": "fresh",
         "sql_mirror": "unknown"
@@ -24795,7 +27462,7 @@
       ],
       "helper_tags": [],
       "risk_tags": [],
-      "recency": "1777251499855:e859ccc5dd53",
+      "recency": "1777520556788:c36d5b8e68e6",
       "freshness": {
         "local": "fresh",
         "sql_mirror": "unknown"
@@ -24843,7 +27510,7 @@
       ],
       "helper_tags": [],
       "risk_tags": [],
-      "recency": "1776962296111:b71d3adeb440",
+      "recency": "1777520566050:3670c0d6d74f",
       "freshness": {
         "local": "fresh",
         "sql_mirror": "unknown"
@@ -24868,6 +27535,30 @@
       "helper_tags": [],
       "risk_tags": [],
       "recency": "1775151558674:5b90f0d5c946",
+      "freshness": {
+        "local": "fresh",
+        "sql_mirror": "unknown"
+      },
+      "context_tier": "warm",
+      "exclusion_tags": [],
+      "do_not_use_as_primary_truth": false
+    },
+    {
+      "stable_id": "file__tests__unit__admin-data-validation-spec-ts",
+      "source_type": "file",
+      "source_id": "file__tests__unit__admin-data-validation-spec-ts",
+      "searchable_terms": [
+        "tests/unit/admin-data-validation.spec.ts",
+        "tests",
+        "tests"
+      ],
+      "surface_tags": [
+        "tests",
+        "tests"
+      ],
+      "helper_tags": [],
+      "risk_tags": [],
+      "recency": "1777561701989:3651e55e65b2",
       "freshness": {
         "local": "fresh",
         "sql_mirror": "unknown"
@@ -25021,6 +27712,30 @@
       "do_not_use_as_primary_truth": false
     },
     {
+      "stable_id": "file__tests__unit__admin-metric-snapshot-spec-ts",
+      "source_type": "file",
+      "source_id": "file__tests__unit__admin-metric-snapshot-spec-ts",
+      "searchable_terms": [
+        "tests/unit/admin-metric-snapshot.spec.ts",
+        "tests",
+        "tests"
+      ],
+      "surface_tags": [
+        "tests",
+        "tests"
+      ],
+      "helper_tags": [],
+      "risk_tags": [],
+      "recency": "1777568858151:baddcf8b61e5",
+      "freshness": {
+        "local": "fresh",
+        "sql_mirror": "unknown"
+      },
+      "context_tier": "warm",
+      "exclusion_tags": [],
+      "do_not_use_as_primary_truth": false
+    },
+    {
       "stable_id": "file__tests__unit__admin-moderation-routes-spec-ts",
       "source_type": "file",
       "source_id": "file__tests__unit__admin-moderation-routes-spec-ts",
@@ -25035,7 +27750,31 @@
       ],
       "helper_tags": [],
       "risk_tags": [],
-      "recency": "1776962296087:7c80faa3b7cb",
+      "recency": "1777520575642:98ec833b75df",
+      "freshness": {
+        "local": "fresh",
+        "sql_mirror": "unknown"
+      },
+      "context_tier": "warm",
+      "exclusion_tags": [],
+      "do_not_use_as_primary_truth": false
+    },
+    {
+      "stable_id": "file__tests__unit__admin-moderation-security-alerts-spec-ts",
+      "source_type": "file",
+      "source_id": "file__tests__unit__admin-moderation-security-alerts-spec-ts",
+      "searchable_terms": [
+        "tests/unit/admin-moderation-security-alerts.spec.ts",
+        "tests",
+        "tests"
+      ],
+      "surface_tags": [
+        "tests",
+        "tests"
+      ],
+      "helper_tags": [],
+      "risk_tags": [],
+      "recency": "1777606793541:683561b8f28b",
       "freshness": {
         "local": "fresh",
         "sql_mirror": "unknown"
@@ -25059,7 +27798,7 @@
       ],
       "helper_tags": [],
       "risk_tags": [],
-      "recency": "1775770650467:defed1403f02",
+      "recency": "1777564833961:5493cb7cc40b",
       "freshness": {
         "local": "fresh",
         "sql_mirror": "unknown"
@@ -25083,7 +27822,7 @@
       ],
       "helper_tags": [],
       "risk_tags": [],
-      "recency": "1775770636205:64618604e78d",
+      "recency": "1777559452430:c344d87e7ab1",
       "freshness": {
         "local": "fresh",
         "sql_mirror": "unknown"
@@ -25155,7 +27894,7 @@
       ],
       "helper_tags": [],
       "risk_tags": [],
-      "recency": "1777343348133:9236f3d5266c",
+      "recency": "1777520747985:f8856a5bad19",
       "freshness": {
         "local": "fresh",
         "sql_mirror": "unknown"
@@ -25227,7 +27966,7 @@
       ],
       "helper_tags": [],
       "risk_tags": [],
-      "recency": "1777509303961:e87e930e88bb",
+      "recency": "1777514513807:ba6706672183",
       "freshness": {
         "local": "fresh",
         "sql_mirror": "unknown"
@@ -25323,7 +28062,7 @@
       ],
       "helper_tags": [],
       "risk_tags": [],
-      "recency": "1775770658489:73a541bbb889",
+      "recency": "1777563675115:bc2a1875ef5c",
       "freshness": {
         "local": "fresh",
         "sql_mirror": "unknown"
@@ -25525,6 +28264,54 @@
       "do_not_use_as_primary_truth": false
     },
     {
+      "stable_id": "file__tests__unit__analytics-ecosystem-parity-spec-ts",
+      "source_type": "file",
+      "source_id": "file__tests__unit__analytics-ecosystem-parity-spec-ts",
+      "searchable_terms": [
+        "tests/unit/analytics-ecosystem-parity.spec.ts",
+        "tests",
+        "analytics"
+      ],
+      "surface_tags": [
+        "analytics",
+        "tests"
+      ],
+      "helper_tags": [],
+      "risk_tags": [],
+      "recency": "1777570020864:9c23a9fd3d52",
+      "freshness": {
+        "local": "fresh",
+        "sql_mirror": "unknown"
+      },
+      "context_tier": "warm",
+      "exclusion_tags": [],
+      "do_not_use_as_primary_truth": false
+    },
+    {
+      "stable_id": "file__tests__unit__analytics-event-contract-spec-ts",
+      "source_type": "file",
+      "source_id": "file__tests__unit__analytics-event-contract-spec-ts",
+      "searchable_terms": [
+        "tests/unit/analytics-event-contract.spec.ts",
+        "tests",
+        "analytics"
+      ],
+      "surface_tags": [
+        "analytics",
+        "tests"
+      ],
+      "helper_tags": [],
+      "risk_tags": [],
+      "recency": "1777567608770:fb44f3c0ebfd",
+      "freshness": {
+        "local": "fresh",
+        "sql_mirror": "unknown"
+      },
+      "context_tier": "warm",
+      "exclusion_tags": [],
+      "do_not_use_as_primary_truth": false
+    },
+    {
       "stable_id": "file__tests__unit__analytics-identifiers-spec-ts",
       "source_type": "file",
       "source_id": "file__tests__unit__analytics-identifiers-spec-ts",
@@ -25549,6 +28336,30 @@
       "do_not_use_as_primary_truth": false
     },
     {
+      "stable_id": "file__tests__unit__analytics-ingest-identified-route-spec-ts",
+      "source_type": "file",
+      "source_id": "file__tests__unit__analytics-ingest-identified-route-spec-ts",
+      "searchable_terms": [
+        "tests/unit/analytics-ingest-identified-route.spec.ts",
+        "tests",
+        "analytics"
+      ],
+      "surface_tags": [
+        "analytics",
+        "tests"
+      ],
+      "helper_tags": [],
+      "risk_tags": [],
+      "recency": "1777601061373:d67081430d32",
+      "freshness": {
+        "local": "fresh",
+        "sql_mirror": "unknown"
+      },
+      "context_tier": "warm",
+      "exclusion_tags": [],
+      "do_not_use_as_primary_truth": false
+    },
+    {
       "stable_id": "file__tests__unit__analytics-ingest-route-spec-ts",
       "source_type": "file",
       "source_id": "file__tests__unit__analytics-ingest-route-spec-ts",
@@ -25564,6 +28375,54 @@
       "helper_tags": [],
       "risk_tags": [],
       "recency": "1775162058571:6eb9e6369c88",
+      "freshness": {
+        "local": "fresh",
+        "sql_mirror": "unknown"
+      },
+      "context_tier": "warm",
+      "exclusion_tags": [],
+      "do_not_use_as_primary_truth": false
+    },
+    {
+      "stable_id": "file__tests__unit__analytics-legacy-event-mapping-spec-ts",
+      "source_type": "file",
+      "source_id": "file__tests__unit__analytics-legacy-event-mapping-spec-ts",
+      "searchable_terms": [
+        "tests/unit/analytics-legacy-event-mapping.spec.ts",
+        "tests",
+        "analytics"
+      ],
+      "surface_tags": [
+        "analytics",
+        "tests"
+      ],
+      "helper_tags": [],
+      "risk_tags": [],
+      "recency": "1777567633651:9ce7dcf08c52",
+      "freshness": {
+        "local": "fresh",
+        "sql_mirror": "unknown"
+      },
+      "context_tier": "warm",
+      "exclusion_tags": [],
+      "do_not_use_as_primary_truth": false
+    },
+    {
+      "stable_id": "file__tests__unit__analytics-legacy-recovery-contract-spec-ts",
+      "source_type": "file",
+      "source_id": "file__tests__unit__analytics-legacy-recovery-contract-spec-ts",
+      "searchable_terms": [
+        "tests/unit/analytics-legacy-recovery-contract.spec.ts",
+        "tests",
+        "analytics"
+      ],
+      "surface_tags": [
+        "analytics",
+        "tests"
+      ],
+      "helper_tags": [],
+      "risk_tags": [],
+      "recency": "1777569997385:25948231854c",
       "freshness": {
         "local": "fresh",
         "sql_mirror": "unknown"
@@ -25707,7 +28566,7 @@
       ],
       "helper_tags": [],
       "risk_tags": [],
-      "recency": "1777428101905:1995a2b131ed",
+      "recency": "1777598105351:174857779a49",
       "freshness": {
         "local": "fresh",
         "sql_mirror": "unknown"
@@ -26355,7 +29214,7 @@
       ],
       "helper_tags": [],
       "risk_tags": [],
-      "recency": "1775659481743:482ae0d13e16",
+      "recency": "1777572065271:b18ede8f9b41",
       "freshness": {
         "local": "fresh",
         "sql_mirror": "unknown"
@@ -26581,6 +29440,30 @@
       "do_not_use_as_primary_truth": false
     },
     {
+      "stable_id": "file__tests__unit__drops-feedback-route-spec-ts",
+      "source_type": "file",
+      "source_id": "file__tests__unit__drops-feedback-route-spec-ts",
+      "searchable_terms": [
+        "tests/unit/drops-feedback-route.spec.ts",
+        "tests",
+        "tests"
+      ],
+      "surface_tags": [
+        "tests",
+        "tests"
+      ],
+      "helper_tags": [],
+      "risk_tags": [],
+      "recency": "1777605784662:8acf9ee1e0bd",
+      "freshness": {
+        "local": "fresh",
+        "sql_mirror": "unknown"
+      },
+      "context_tier": "warm",
+      "exclusion_tags": [],
+      "do_not_use_as_primary_truth": false
+    },
+    {
       "stable_id": "file__tests__unit__drops-route-spec-ts",
       "source_type": "file",
       "source_id": "file__tests__unit__drops-route-spec-ts",
@@ -26595,7 +29478,7 @@
       ],
       "helper_tags": [],
       "risk_tags": [],
-      "recency": "1775148836751:cefad5a2affa",
+      "recency": "1777520584005:3e63422791a6",
       "freshness": {
         "local": "fresh",
         "sql_mirror": "unknown"
@@ -26883,7 +29766,7 @@
       ],
       "helper_tags": [],
       "risk_tags": [],
-      "recency": "1776867302884:316dd6cd3a7c",
+      "recency": "1777520599282:09864855e7d1",
       "freshness": {
         "local": "fresh",
         "sql_mirror": "unknown"
@@ -27085,6 +29968,30 @@
       "do_not_use_as_primary_truth": false
     },
     {
+      "stable_id": "file__tests__unit__not-found-surface-spec-tsx",
+      "source_type": "file",
+      "source_id": "file__tests__unit__not-found-surface-spec-tsx",
+      "searchable_terms": [
+        "tests/unit/not-found-surface.spec.tsx",
+        "tests",
+        "tests"
+      ],
+      "surface_tags": [
+        "tests",
+        "tests"
+      ],
+      "helper_tags": [],
+      "risk_tags": [],
+      "recency": "1777572078560:5a2fd234051e",
+      "freshness": {
+        "local": "fresh",
+        "sql_mirror": "unknown"
+      },
+      "context_tier": "warm",
+      "exclusion_tags": [],
+      "do_not_use_as_primary_truth": false
+    },
+    {
       "stable_id": "file__tests__unit__notification-bell-layout-spec-ts",
       "source_type": "file",
       "source_id": "file__tests__unit__notification-bell-layout-spec-ts",
@@ -27147,7 +30054,7 @@
       ],
       "helper_tags": [],
       "risk_tags": [],
-      "recency": "1775736503728:2e818a273886",
+      "recency": "1777564841157:6ab1fac2577a",
       "freshness": {
         "local": "fresh",
         "sql_mirror": "unknown"
@@ -27364,6 +30271,30 @@
       "helper_tags": [],
       "risk_tags": [],
       "recency": "1776535304880:1bcab39ee92a",
+      "freshness": {
+        "local": "fresh",
+        "sql_mirror": "unknown"
+      },
+      "context_tier": "warm",
+      "exclusion_tags": [],
+      "do_not_use_as_primary_truth": false
+    },
+    {
+      "stable_id": "file__tests__unit__push-notifications-spec-ts",
+      "source_type": "file",
+      "source_id": "file__tests__unit__push-notifications-spec-ts",
+      "searchable_terms": [
+        "tests/unit/push-notifications.spec.ts",
+        "tests",
+        "tests"
+      ],
+      "surface_tags": [
+        "tests",
+        "tests"
+      ],
+      "helper_tags": [],
+      "risk_tags": [],
+      "recency": "1777574044958:de8c2b92f064",
       "freshness": {
         "local": "fresh",
         "sql_mirror": "unknown"
@@ -27939,7 +30870,7 @@
       ],
       "helper_tags": [],
       "risk_tags": [],
-      "recency": "1775868728255:0ef1ef10f82a",
+      "recency": "1777520519954:0bde307f270a",
       "freshness": {
         "local": "fresh",
         "sql_mirror": "unknown"
@@ -29427,74 +32358,31 @@
       "do_not_use_as_primary_truth": true
     },
     {
-      "stable_id": "retrieval__pass__2026-04-29-pre-telemetry-export-ga4-sql-mirror-and-parity-audit",
+      "stable_id": "retrieval__pass__2026-05-01-pre-drops-mobile-apple-aligned-ui-refinement",
       "source_type": "recent_pass",
-      "source_id": "pass__2026-04-29-pre-telemetry-export-ga4-sql-mirror-and-parity-audit",
+      "source_id": "pass__2026-05-01-pre-drops-mobile-apple-aligned-ui-refinement",
       "searchable_terms": [
-        "PRE: Telemetry Export, GA4, SQL Mirror, and Parity Audit"
+        "PRE: Drops Mobile Apple-Aligned UI Refinement",
+        "docs/agent-truth/drops-mobile-refinement.md",
+        "npm run agent:fast-start -- --task=\"apple style mobile drops page refinement with telemetry preservation\" --mode=user --file=src/app/drops/page.tsx",
+        "npm run agent:test -- src/app/drops/page.tsx",
+        "npm run trace:adjacent -- src/app/drops/page.tsx",
+        "npx vitest run tests/unit/drops-route.spec.ts tests/unit/drop-status.spec.ts tests/unit/lib/drop-normalizers.spec.ts tests/unit/lib/telemetry.spec.ts tests/unit/telemetry-flows.spec.ts",
+        "src/app/drops/DropsClient.tsx",
+        "src/app/drops/page.tsx",
+        "src/components/DropCard.tsx",
+        "src/components/DropGrid.tsx",
+        "src/components/FeaturedCarousel.tsx",
+        "src/components/StickyFilterBar.tsx"
       ],
       "surface_tags": [
-        "maintenance"
-      ],
-      "helper_tags": [],
-      "risk_tags": [],
-      "recency": "2026-04-29",
-      "freshness": {
-        "local": "fresh",
-        "sql_mirror": "unknown"
-      },
-      "context_tier": "cold",
-      "exclusion_tags": [
-        "secondary_truth"
-      ],
-      "do_not_use_as_primary_truth": true
-    },
-    {
-      "stable_id": "retrieval__pass__2026-04-29-pre__post-admin-analytics-historical-cache-and-legacy-validation",
-      "source_type": "recent_pass",
-      "source_id": "pass__2026-04-29-pre__post-admin-analytics-historical-cache-and-legacy-validation",
-      "searchable_terms": [
-        "PRE/POST: Admin Analytics Historical Cache and Legacy Validation",
-        "/api/admin/analytics/historical",
-        "npx vitest run tests/unit/ephemeral-route-cache.spec.ts tests/unit/admin-analytics-data.spec.ts tests/unit/admin-analytics-historical-traffic.spec.ts tests/unit/admin-analytics-page.spec.tsx"
-      ],
-      "surface_tags": [
-        "admin"
-      ],
-      "helper_tags": [],
-      "risk_tags": [],
-      "recency": "2026-04-29",
-      "freshness": {
-        "local": "fresh",
-        "sql_mirror": "unknown"
-      },
-      "context_tier": "cold",
-      "exclusion_tags": [
-        "secondary_truth"
-      ],
-      "do_not_use_as_primary_truth": true
-    },
-    {
-      "stable_id": "retrieval__pass__2026-04-29-pre__post-admin-debug-task-refresh-truth-fix",
-      "source_type": "recent_pass",
-      "source_id": "pass__2026-04-29-pre__post-admin-debug-task-refresh-truth-fix",
-      "searchable_terms": [
-        "PRE/POST: Admin Debug Task Refresh Truth Fix",
-        "/api/admin/debug",
-        "npx vitest run tests/unit/task-timestamps.spec.ts tests/unit/task-observability.spec.ts",
-        "scripts/check-admin-truth-contracts.ts",
-        "src/lib/tasks/task-timestamps.ts"
-      ],
-      "surface_tags": [
-        "admin",
-        "tooling",
-        "architecture"
+        "ui"
       ],
       "helper_tags": [],
       "risk_tags": [
-        "architecture"
+        "ui"
       ],
-      "recency": "2026-04-29",
+      "recency": "2026-05-01",
       "freshness": {
         "local": "fresh",
         "sql_mirror": "unknown"
@@ -29506,27 +32394,91 @@
       "do_not_use_as_primary_truth": true
     },
     {
-      "stable_id": "retrieval__pass__2026-04-29-pre__post-admin-analytics-realtime-fallback-root-cause-fix",
+      "stable_id": "retrieval__pass__2026-05-01-pre-full-scale-telemetry-orphan-cleanup-audit",
       "source_type": "recent_pass",
-      "source_id": "pass__2026-04-29-pre__post-admin-analytics-realtime-fallback-root-cause-fix",
+      "source_id": "pass__2026-05-01-pre-full-scale-telemetry-orphan-cleanup-audit",
       "searchable_terms": [
-        "PRE/POST: Admin Analytics Realtime Fallback Root-Cause Fix",
-        "/api/admin/analytics/realtime",
-        "npx vitest run tests/unit/admin-analytics-historical-traffic.spec.ts tests/unit/admin-analytics-realtime-route.spec.ts tests/unit/server-analytics-active-users.spec.ts tests/unit/admin-analytics-live-runtime.spec.ts",
-        "npx vitest run tests/unit/admin-analytics-realtime-route.spec.ts tests/unit/server-analytics-active-users.spec.ts tests/unit/admin-analytics-live-runtime.spec.ts",
-        "scripts/check-analytics-continuity.ts"
+        "PRE: Full-Scale Telemetry Orphan Cleanup Audit",
+        "agent/state/telemetry-orphan-cleanup-audit.generated.json",
+        "docs/agent-truth/telemetry-orphan-cleanup-audit.md",
+        "functions/src/analytics-event-facts.ts",
+        "npm run trace:adjacent -- src/lib/telemetry-catalog.ts",
+        "npx vitest run tests/unit/analytics-ingest-identified-route.spec.ts",
+        "scripts/agent/validate-telemetry-orphan-cleanup.ts"
+      ],
+      "surface_tags": [
+        "tooling"
+      ],
+      "helper_tags": [],
+      "risk_tags": [
+        "architecture",
+        "runtime"
+      ],
+      "recency": "2026-05-01",
+      "freshness": {
+        "local": "fresh",
+        "sql_mirror": "unknown"
+      },
+      "context_tier": "cold",
+      "exclusion_tags": [
+        "secondary_truth"
+      ],
+      "do_not_use_as_primary_truth": true
+    },
+    {
+      "stable_id": "retrieval__pass__2026-05-01-pre-admin-analytics-realtime-dependency-audit-and-hot-cache-correction",
+      "source_type": "recent_pass",
+      "source_id": "pass__2026-05-01-pre-admin-analytics-realtime-dependency-audit-and-hot-cache-correction",
+      "searchable_terms": [
+        "PRE: Admin Analytics Realtime Dependency Audit and Hot-Cache Correction",
+        "npx vitest run tests/unit/admin-analytics-display-state.spec.ts tests/unit/admin-analytics-live-pulse.spec.ts",
+        "npx vitest run tests/unit/admin-analytics-page.spec.tsx tests/unit/admin-analytics-realtime-route.spec.ts tests/unit/admin-analytics-refresh-route.spec.ts tests/unit/admin-metric-snapshot.spec.ts",
+        "npx vitest run tests/unit/admin-debug-route-runtime.spec.ts"
+      ],
+      "surface_tags": [
+        "admin",
+        "runtime"
+      ],
+      "helper_tags": [],
+      "risk_tags": [],
+      "recency": "2026-05-01",
+      "freshness": {
+        "local": "fresh",
+        "sql_mirror": "unknown"
+      },
+      "context_tier": "cold",
+      "exclusion_tags": [
+        "secondary_truth"
+      ],
+      "do_not_use_as_primary_truth": true
+    },
+    {
+      "stable_id": "retrieval__pass__2026-04-30-pre-last-20-commit-truth-and-cleanup-audit",
+      "source_type": "recent_pass",
+      "source_id": "pass__2026-04-30-pre-last-20-commit-truth-and-cleanup-audit",
+      "searchable_terms": [
+        "PRE: Last-20-Commit Truth and Cleanup Audit",
+        ".agent/doctrine-consultation.md",
+        ".agent/ui-copy-refinement-workflow.md",
+        "npx vitest run tests/unit/admin-analytics-refresh-route.spec.ts tests/unit/admin-analytics-page.spec.tsx tests/unit/admin-analytics-audience-snapshot.spec.ts tests/unit/admin-analytics-commerce-snapshot.spec.ts tests/unit/admin-analytics-live-pulse.spec.ts tests/unit/admin-analytics-journey-funnel.spec.ts tests/unit/admin-analytics-auth-outcome-split.spec.ts tests/unit/admin-analytics-event-mix.spec.ts tests/unit/admin-analytics-live-interaction-stream.spec.ts tests/unit/admin-task-pipeline.spec.ts tests/unit/admin-notification-funnel.spec.ts tests/unit/admin-metric-snapshot.spec.ts tests/unit/analytics-event-contract.spec.ts tests/unit/analytics-legacy-event-mapping.spec.ts tests/unit/analytics-legacy-recovery-contract.spec.ts tests/unit/analytics-ecosystem-parity.spec.ts tests/unit/chat-route-shell.spec.tsx tests/unit/creator-public-pages.spec.ts tests/unit/not-found-surface.spec.tsx tests/unit/push-notifications.spec.ts",
+        "npx vitest run tests/unit/push-notifications.spec.ts tests/unit/fcm-utils.spec.ts tests/unit/notifications-route.spec.ts tests/unit/notify-active-drops-route.spec.ts",
+        "src/app/admin/analytics/components/AdminAnalyticsCommerceTab.tsx",
+        "src/app/admin/analytics/hooks/useAdminAnalyticsState.tsx",
+        "src/app/api/admin/analytics/historical/route.ts",
+        "src/app/api/admin/debug/route.ts",
+        "src/components/Chat/ChatExperience.tsx"
       ],
       "surface_tags": [
         "admin",
         "ui",
+        "runtime"
+      ],
+      "helper_tags": [],
+      "risk_tags": [
         "runtime",
-        "tooling"
+        "ui"
       ],
-      "helper_tags": [],
-      "risk_tags": [
-        "architecture"
-      ],
-      "recency": "2026-04-29",
+      "recency": "2026-04-30",
       "freshness": {
         "local": "fresh",
         "sql_mirror": "unknown"
@@ -29538,55 +32490,22 @@
       "do_not_use_as_primary_truth": true
     },
     {
-      "stable_id": "retrieval__pass__2026-04-29-pre__post-global-client-firestore-connectivity-audit",
+      "stable_id": "retrieval__pass__2026-04-30-pre-analytics-truth-layer-v2-phase-5-snapshot-first-admin-analytics-migration",
       "source_type": "recent_pass",
-      "source_id": "pass__2026-04-29-pre__post-global-client-firestore-connectivity-audit",
+      "source_id": "pass__2026-04-30-pre-analytics-truth-layer-v2-phase-5-snapshot-first-admin-analytics-migration",
       "searchable_terms": [
-        "PRE/POST: Global Client Firestore Connectivity Audit",
-        "scripts/check-client-firestore-connectivity.ts"
-      ],
-      "surface_tags": [
-        "tooling"
-      ],
-      "helper_tags": [],
-      "risk_tags": [
-        "architecture"
-      ],
-      "recency": "2026-04-29",
-      "freshness": {
-        "local": "fresh",
-        "sql_mirror": "unknown"
-      },
-      "context_tier": "cold",
-      "exclusion_tags": [
-        "secondary_truth"
-      ],
-      "do_not_use_as_primary_truth": true
-    },
-    {
-      "stable_id": "retrieval__pass__2026-04-29-pre-admin-loading-truth-and-analytics-hydration-audit",
-      "source_type": "recent_pass",
-      "source_id": "pass__2026-04-29-pre-admin-loading-truth-and-analytics-hydration-audit",
-      "searchable_terms": [
-        "PRE: Admin Loading Truth and Analytics Hydration Audit",
-        ", static admin unavailable/loading probes, ",
-        "npm run trace:adjacent -- src/lib/admin-parity.ts",
-        "scripts/check-admin-truth-contracts.ts",
-        "src/components/Admin/AdminStatusBadge.tsx",
-        "src/lib/admin-parity.ts"
+        "PRE: Analytics Truth Layer v2 Phase 5 Snapshot-First Admin Analytics Migration",
+        ".agent/doctrine-consultation.md",
+        ".agent/ui-copy-refinement-workflow.md",
+        "npx vitest run tests/unit/admin-analytics-refresh-route.spec.ts tests/unit/admin-analytics-page.spec.tsx tests/unit/admin-analytics-audience-snapshot.spec.ts tests/unit/admin-analytics-commerce-snapshot.spec.ts tests/unit/admin-analytics-live-pulse.spec.ts tests/unit/admin-analytics-journey-funnel.spec.ts tests/unit/admin-analytics-auth-outcome-split.spec.ts tests/unit/admin-analytics-event-mix.spec.ts tests/unit/admin-analytics-live-interaction-stream.spec.ts tests/unit/admin-task-pipeline.spec.ts tests/unit/admin-notification-funnel.spec.ts"
       ],
       "surface_tags": [
         "admin",
-        "ui",
-        "tooling",
-        "architecture"
-      ],
-      "helper_tags": [],
-      "risk_tags": [
-        "architecture",
         "ui"
       ],
-      "recency": "2026-04-29",
+      "helper_tags": [],
+      "risk_tags": [],
+      "recency": "2026-04-30",
       "freshness": {
         "local": "fresh",
         "sql_mirror": "unknown"
@@ -29598,27 +32517,48 @@
       "do_not_use_as_primary_truth": true
     },
     {
-      "stable_id": "retrieval__pass__2026-04-29-post-admin-loading-truth-and-analytics-hydration-audit",
+      "stable_id": "retrieval__pass__2026-04-30-pre__post-analytics-truth-layer-v2-phase-4-legacy-recovery-and-ecosystem-parity",
       "source_type": "recent_pass",
-      "source_id": "pass__2026-04-29-post-admin-loading-truth-and-analytics-hydration-audit",
+      "source_id": "pass__2026-04-30-pre__post-analytics-truth-layer-v2-phase-4-legacy-recovery-and-ecosystem-parity",
       "searchable_terms": [
-        "POST: Admin Loading Truth and Analytics Hydration Audit",
-        "npm run trace:adjacent -- src/lib/admin-parity.ts",
-        "scripts/check-admin-truth-contracts.ts",
-        "src/app/admin",
-        "src/components/Admin"
+        "PRE/POST: Analytics Truth Layer v2 Phase 4 Legacy Recovery and Ecosystem Parity",
+        "npx vitest run tests/unit/analytics-legacy-recovery-contract.spec.ts tests/unit/analytics-ecosystem-parity.spec.ts tests/unit/analytics-legacy-event-mapping.spec.ts"
+      ],
+      "surface_tags": [],
+      "helper_tags": [],
+      "risk_tags": [],
+      "recency": "2026-04-30",
+      "freshness": {
+        "local": "fresh",
+        "sql_mirror": "unknown"
+      },
+      "context_tier": "cold",
+      "exclusion_tags": [
+        "secondary_truth"
+      ],
+      "do_not_use_as_primary_truth": true
+    },
+    {
+      "stable_id": "retrieval__pass__2026-04-30-pre__post-analytics-truth-layer-v2-phase-3-verified-hot-cache-snapshots",
+      "source_type": "recent_pass",
+      "source_id": "pass__2026-04-30-pre__post-analytics-truth-layer-v2-phase-3-verified-hot-cache-snapshots",
+      "searchable_terms": [
+        "PRE/POST: Analytics Truth Layer v2 Phase 3 Verified Hot-Cache Snapshots",
+        "/api/admin/analytics/historical",
+        "/api/admin/analytics/realtime",
+        "/api/admin/debug",
+        "npx vitest run tests/unit/admin-metric-snapshot.spec.ts tests/unit/admin-analytics-refresh-route.spec.ts tests/unit/admin-analytics-realtime-route.spec.ts tests/unit/admin-debug-route-runtime.spec.ts",
+        "src/app/admin/analytics/hooks/useAdminAnalyticsState.tsx"
       ],
       "surface_tags": [
         "admin",
-        "ui",
-        "tooling"
+        "runtime"
       ],
       "helper_tags": [],
       "risk_tags": [
-        "architecture",
         "ui"
       ],
-      "recency": "2026-04-29",
+      "recency": "2026-04-30",
       "freshness": {
         "local": "fresh",
         "sql_mirror": "unknown"
@@ -29630,25 +32570,28 @@
       "do_not_use_as_primary_truth": true
     },
     {
-      "stable_id": "retrieval__pass__2026-04-29-pre-telemetry-module-index-parity-audit",
+      "stable_id": "retrieval__pass__2026-04-30-pre__post-analytics-truth-layer-v2-phase-2-event-contract-and-identity-lanes",
       "source_type": "recent_pass",
-      "source_id": "pass__2026-04-29-pre-telemetry-module-index-parity-audit",
+      "source_id": "pass__2026-04-30-pre__post-analytics-truth-layer-v2-phase-2-event-contract-and-identity-lanes",
       "searchable_terms": [
-        "PRE: Telemetry Module Index Parity Audit",
-        "scripts/check-telemetry-parity-contracts.ts",
-        "src/lib/telemetry-catalog.ts"
+        "PRE/POST: Analytics Truth Layer v2 Phase 2 Event Contract and Identity Lanes",
+        "npx vitest run tests/unit/analytics-event-contract.spec.ts tests/unit/analytics-legacy-event-mapping.spec.ts",
+        "src/lib/analytics-identifiers.ts",
+        "src/lib/server/analytics.ts",
+        "src/lib/telemetry-catalog.ts",
+        "src/lib/telemetry.ts"
       ],
       "surface_tags": [
-        "tooling",
         "architecture"
       ],
       "helper_tags": [
-        "src/lib/telemetry-catalog.ts"
+        "src/lib/telemetry-catalog.ts",
+        "src/lib/telemetry.ts"
       ],
       "risk_tags": [
         "architecture"
       ],
-      "recency": "2026-04-29",
+      "recency": "2026-04-30",
       "freshness": {
         "local": "fresh",
         "sql_mirror": "unknown"

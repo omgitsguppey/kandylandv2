@@ -1,42 +1,50 @@
 "use client";
 
-import { Drop } from "@/types/db";
-import { useState, useRef, useEffect, useMemo, useCallback } from "react";
+import type { CSSProperties } from "react";
+import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import useEmblaCarousel from "embla-carousel-react";
-import { cn } from "@/lib/utils";
 import NextImage from "next/image";
-import { Clock, Eye, Image as ImageIcon, Film, Lock, Unlock } from "lucide-react";
-import { getSupportedDropAspectRatio } from "@/lib/drop-presentation";
+import { Clock, Eye, Film, Image as ImageIcon, Lock, Unlock } from "lucide-react";
 
-import { useUserProfile } from "@/context/AuthContext";
-import { trackEvent } from "@/lib/telemetry";
 import { TitleMarquee } from "@/components/ui/TitleMarquee";
+import { useUserProfile } from "@/context/AuthContext";
+import { DROPS_MOBILE_UI_DENSITY } from "@/hooks/useDropCardImpression";
+import { DROP_COUNTDOWN_ONE_DAY_MS, DROP_COUNTDOWN_ONE_HOUR_MS, formatDropCountdown, type DropCountdownUrgency } from "@/lib/drop-countdown";
+import { getSupportedDropAspectRatio } from "@/lib/drop-presentation";
+import { trackEvent } from "@/lib/telemetry";
+import { cn } from "@/lib/utils";
+import { useNow } from "@/hooks/useNow";
+import { Drop } from "@/types/db";
 
 interface FeaturedCarouselProps {
     drops: Drop[];
     onSelectDrop: (drop: Drop) => void;
 }
 
-type SwipeDirection = "prev" | "next";
-
-const AUTO_ADVANCE_MS = 5000;
-const ONE_DAY_MS = 24 * 60 * 60 * 1000;
+const AUTO_ADVANCE_MS = 5_000;
+type DropTimingUrgency = DropCountdownUrgency;
 
 export function FeaturedCarousel({ drops, onSelectDrop }: FeaturedCarouselProps) {
     const [activeIndex, setActiveIndex] = useState(0);
     const { userProfile } = useUserProfile();
     const intervalRef = useRef<number | null>(null);
+    const prefersReducedMotion = usePrefersReducedMotion();
     const [emblaRef, emblaApi] = useEmblaCarousel({ loop: true, watchDrag: true });
 
     const featuredDrops = useMemo(() => drops.slice(0, 5), [drops]);
 
     const onSelect = useCallback(() => {
-        if (!emblaApi) return;
+        if (!emblaApi) {
+            return;
+        }
         setActiveIndex(emblaApi.selectedScrollSnap());
-    }, [emblaApi, setActiveIndex]);
+    }, [emblaApi]);
 
     useEffect(() => {
-        if (!emblaApi) return;
+        if (!emblaApi) {
+            return;
+        }
+
         onSelect();
         emblaApi.on("select", onSelect);
         emblaApi.on("reInit", onSelect);
@@ -61,215 +69,235 @@ export function FeaturedCarousel({ drops, onSelectDrop }: FeaturedCarouselProps)
         });
     }, [emblaApi, featuredDrops.length]);
 
-    useEffect(() => {
-        if (!emblaApi || featuredDrops.length <= 1) return;
+    const stopAutoAdvance = useCallback(() => {
+        if (intervalRef.current !== null) {
+            window.clearInterval(intervalRef.current);
+            intervalRef.current = null;
+        }
+    }, []);
+
+    const startAutoAdvance = useCallback(() => {
+        stopAutoAdvance();
+        if (!emblaApi || featuredDrops.length <= 1 || prefersReducedMotion) {
+            return;
+        }
 
         intervalRef.current = window.setInterval(() => {
             emblaApi.scrollNext();
         }, AUTO_ADVANCE_MS);
+    }, [emblaApi, featuredDrops.length, prefersReducedMotion, stopAutoAdvance]);
 
-        return () => {
-            if (intervalRef.current) {
-                window.clearInterval(intervalRef.current);
-            }
-        };
-    }, [emblaApi, featuredDrops.length]);
+    useEffect(() => {
+        startAutoAdvance();
+        return stopAutoAdvance;
+    }, [startAutoAdvance, stopAutoAdvance]);
 
-    const resetAutoAdvance = useCallback(() => {
-        if (intervalRef.current) {
-            window.clearInterval(intervalRef.current);
-            intervalRef.current = null;
-        }
-
-        if (emblaApi && featuredDrops.length > 1) {
-            intervalRef.current = window.setInterval(() => {
-                emblaApi.scrollNext();
-            }, AUTO_ADVANCE_MS);
-        }
-    }, [emblaApi, featuredDrops.length]);
-
-    if (featuredDrops.length === 0) return null;
+    if (featuredDrops.length === 0) {
+        return null;
+    }
 
     const safeActiveIndex = Math.min(activeIndex, featuredDrops.length - 1);
     const activeDrop = featuredDrops[safeActiveIndex] || featuredDrops[0];
     const activeAspectRatio = getSupportedDropAspectRatio(activeDrop);
+    const aspectStyle = {
+        "--featured-drop-ratio": activeAspectRatio.replace(":", " / "),
+    } as CSSProperties;
 
     return (
-        <div className="w-full mb-8 space-y-4">
-            <div className="flex items-center gap-2 px-4 md:px-0">
-                <h2 className="text-xl md:text-2xl font-bold text-white tracking-tight">Featured Kandy Drops</h2>
+        <section className="mb-4 w-full space-y-2 md:mb-7 md:space-y-4" data-featured-drops-density="compact-mobile">
+            <div className="flex items-center gap-2 px-1 md:px-0">
+                <h2 className="text-base font-black tracking-tight text-white md:text-2xl">Featured Drops</h2>
                 <div className="h-px flex-1 bg-gradient-to-r from-white/10 to-transparent" />
             </div>
 
             <div
                 className={cn(
-                    "w-full rounded-3xl relative overflow-hidden border border-white/10 group block mx-auto",
-                    "shadow-[0_20px_50px_rgba(236,72,153,0.22)]",
+                    "group relative mx-auto block w-full overflow-hidden rounded-[1.35rem] border border-white/10 shadow-[0_14px_34px_rgba(164,118,255,0.16)] md:rounded-[2rem]",
+                    "[aspect-ratio:16/10] sm:[aspect-ratio:var(--featured-drop-ratio)]",
                     activeAspectRatio === "16:9" && "max-w-[590px]",
                     activeAspectRatio === "1:1" && "max-w-[500px]",
-                    activeAspectRatio === "9:16" && "max-w-[348px]"
+                    activeAspectRatio === "9:16" && "max-w-[348px]",
                 )}
-                style={{ aspectRatio: activeAspectRatio.replace(":", " / ") }}
+                style={aspectStyle}
                 ref={emblaRef}
             >
-                <div className="flex w-full h-full">
-                    {featuredDrops.map((drop, index) => {
-                        const isActive = index === activeIndex;
-                        const totalUnwraps = typeof drop.totalUnlocks === "number" && Number.isFinite(drop.totalUnlocks) ? Math.max(0, Math.floor(drop.totalUnlocks)) : 0;
-                        const isUnlocked = userProfile?.unlockedContent?.includes(drop.id);
-                        const canAfford = typeof userProfile?.gumDropsBalance === "number" && userProfile.gumDropsBalance >= drop.unlockCost;
-
-
-                        let images = 0;
-                        let videos = 0;
-                        if (drop.mediaCounts) {
-                            images = drop.mediaCounts.images;
-                            videos = drop.mediaCounts.videos;
-                        } else {
-                            const urls = drop.contentUrls || (drop.contentUrl ? [drop.contentUrl] : []);
-                            urls.forEach(url => {
-                                const lowerUrl = url.toLowerCase();
-                                if (lowerUrl.match(/\.(mp4|webm|ogg|mov)$/)) videos++;
-                                else if (lowerUrl.match(/\.(jpg|jpeg|png|gif|webp)$/)) images++;
-                                else images++; // Assume image fallback
-                            });
-                        }
-
-                        return (
-                            <div
-                                key={drop.id}
-                                className="relative flex-[0_0_100%] min-w-0 w-full h-full transition-opacity duration-300"
-                            >
-                                <button
-                                    onClick={() => {
-                                        trackEvent("featured_drop_clicked", { drop_id: drop.id, drop_category: drop.type });
-                                        onSelectDrop(drop);
-                                    }}
-                                    type="button"
-                                    className="absolute inset-0 block w-full h-full"
-                                    tabIndex={isActive ? 0 : -1}
-                                >
-                                    <div className="absolute inset-0 bg-[radial-gradient(circle_at_20%_0%,rgba(236,72,153,0.30),transparent_45%)] z-0" />
-                                    <NextImage
-                                        src={drop.imageUrl || "/placeholder.jpg"}
-                                        alt={drop.title}
-                                        fill
-                                        className="object-cover object-center bg-black"
-                                        sizes="(max-width: 768px) 100vw, 720px"
-                                    />
-                                    <div className="absolute inset-0 bg-gradient-to-t from-black/90 via-black/35 to-transparent" />
-
-                                    <div className="absolute top-4 left-4 flex flex-wrap gap-2">
-                                        <div className="bg-black/55 backdrop-blur-xl px-2.5 py-1 rounded-full text-[10px] uppercase tracking-[0.14em] font-bold text-white border border-white/20">
-                                            Featured Drop
-                                        </div>
-
-                                        {(images > 0 || videos > 0) && (
-                                            <div className="bg-black/60 backdrop-blur-md px-2.5 py-1 rounded-full text-[10px] font-bold text-white border border-white/20 flex items-center gap-1.5 shadow-lg">
-                                                {images > 0 && (
-                                                    <div className="flex items-center gap-0.5">
-                                                        <ImageIcon className="w-3 h-3 text-gray-300" />
-                                                        <span>{images}</span>
-                                                    </div>
-                                                )}
-                                                {videos > 0 && (
-                                                    <div className="flex items-center gap-0.5 ml-0.5">
-                                                        <Film className="w-3 h-3 text-gray-300" />
-                                                        <span>{videos}</span>
-                                                    </div>
-                                                )}
-                                            </div>
-                                        )}
-                                    </div>
-
-                                    <div className="absolute top-4 right-4 z-20">
-                                        <TimerWithProgress validFrom={drop.validFrom} validUntil={drop.validUntil} />
-                                    </div>
-
-                                    <div className="absolute bottom-0 left-0 right-0 p-5 md:p-6 space-y-2 text-left">
-                                        <div className="w-full max-w-full overflow-hidden">
-                                            <TitleMarquee 
-                                                title={drop.title} 
-                                                delaySeed={drop.id.charCodeAt(0) % 6} 
-                                                className="text-2xl font-bold text-white leading-tight" 
-                                            />
-                                        </div>
-                                        <p className="text-sm text-gray-300 line-clamp-2">{drop.description}</p>
-
-                                        <div className="flex items-center gap-1.5 opacity-80 text-xs font-semibold text-white/90 pb-1">
-                                            <Eye className="w-3.5 h-3.5 text-[#b28cff]" />
-                                            <span>{totalUnwraps.toLocaleString()} unwrapped</span>
-                                        </div>
-
-                                        <div className="pt-2 w-full max-w-[260px]">
-                                            {isUnlocked ? (
-                                                <div className="w-full flex items-center justify-center gap-1.5 whitespace-nowrap rounded-xl border border-brand-purple bg-gradient-to-r from-brand-purple to-purple-500 px-4 py-2.5 text-xs md:text-sm font-bold text-white shadow-[0_0_15px_rgba(164,118,255,0.28)] transition-all">
-                                                    <Unlock className="w-3.5 h-3.5 md:w-4 md:h-4" />
-                                                    View Content
-                                                </div>
-                                            ) : (
-                                                <div className="w-full flex items-center justify-center gap-1.5 whitespace-nowrap rounded-xl border border-brand-purple bg-gradient-to-r from-brand-purple to-purple-500 px-4 py-2.5 text-xs md:text-sm font-bold text-white shadow-[0_0_15px_rgba(164,118,255,0.28)] transition-all">
-                                                    <Lock className="w-3.5 h-3.5 md:w-4 md:h-4" />
-                                                    {!userProfile ? "Create Profile to Unwrap" : (!canAfford ? "Get more GumDrops" : `Unwrap for ${drop.unlockCost} GD`)}
-                                                </div>
-                                            )}
-                                        </div>
-                                    </div>
-                                </button>
-                            </div>
-                        );
-                    })}
+                <div className="flex h-full w-full">
+                    {featuredDrops.map((drop, index) => (
+                        <FeaturedDropSlide
+                            key={drop.id}
+                            drop={drop}
+                            index={index}
+                            isActive={index === safeActiveIndex}
+                            userProfile={userProfile}
+                            onSelectDrop={onSelectDrop}
+                        />
+                    ))}
                 </div>
             </div>
 
-            <div className="flex justify-center gap-2">
+            <div className="flex justify-center gap-1.5">
                 {featuredDrops.map((drop, index) => (
                     <button
                         key={drop.id}
+                        type="button"
                         onClick={() => {
-                            if (emblaApi) emblaApi.scrollTo(index);
-                            resetAutoAdvance();
+                            emblaApi?.scrollTo(index);
+                            startAutoAdvance();
                         }}
-                        className={cn("h-2.5 rounded-full transition-all", index === safeActiveIndex ? "w-7 bg-brand-purple" : "w-2.5 bg-white/25")}
-                        aria-label={`Go to featured drop ${index + 1}`}
+                        className={cn(
+                            "h-2 rounded-full transition-all",
+                            index === safeActiveIndex ? "w-6 bg-brand-purple" : "w-2 bg-white/25",
+                        )}
+                        aria-label={`Go to featured Drop ${index + 1}`}
                         aria-current={index === safeActiveIndex}
                     />
                 ))}
             </div>
+        </section>
+    );
+}
+
+function FeaturedDropSlide({
+    drop,
+    index,
+    isActive,
+    userProfile,
+    onSelectDrop,
+}: {
+    drop: Drop;
+    index: number;
+    isActive: boolean;
+    userProfile: ReturnType<typeof useUserProfile>["userProfile"];
+    onSelectDrop: (drop: Drop) => void;
+}) {
+    const totalUnwraps = typeof drop.totalUnlocks === "number" && Number.isFinite(drop.totalUnlocks) ? Math.max(0, Math.floor(drop.totalUnlocks)) : 0;
+    const isUnlocked = userProfile?.unlockedContent?.includes(drop.id);
+    const canAfford = typeof userProfile?.gumDropsBalance === "number" && userProfile.gumDropsBalance >= drop.unlockCost;
+    const { images, videos } = getMediaCounts(drop);
+
+    return (
+        <div className="relative h-full min-w-0 flex-[0_0_100%] transition-opacity duration-300">
+            <button
+                onClick={() => {
+                    trackEvent("featured_drop_clicked", {
+                        drop_id: drop.id,
+                        drop_category: drop.type,
+                        featured_rank: index + 1,
+                        source_component: "compact_featured_carousel",
+                        ui_density: DROPS_MOBILE_UI_DENSITY,
+                    });
+                    onSelectDrop(drop);
+                }}
+                type="button"
+                className="absolute inset-0 block h-full w-full text-left"
+                tabIndex={isActive ? 0 : -1}
+            >
+                <div className="absolute inset-0 z-0 bg-[radial-gradient(circle_at_20%_0%,rgba(164,118,255,0.30),transparent_44%)]" />
+                <NextImage
+                    src={drop.imageUrl || "/placeholder.jpg"}
+                    alt={drop.title}
+                    fill
+                    className="bg-black object-cover object-center"
+                    sizes="(max-width: 768px) 100vw, 720px"
+                />
+                <div className="absolute inset-0 bg-gradient-to-t from-black/88 via-black/30 to-transparent" />
+
+                <div className="absolute left-3 top-3 flex flex-wrap gap-1.5 md:left-4 md:top-4 md:gap-2">
+                    <div className="rounded-[0.75rem] border border-white/20 bg-black/55 px-2.5 py-1 text-[9px] font-black uppercase tracking-[0.14em] text-white backdrop-blur-xl md:text-[10px]">
+                        Featured
+                    </div>
+
+                    {images > 0 || videos > 0 ? (
+                        <div className="flex items-center gap-1.5 rounded-[0.75rem] border border-white/20 bg-black/60 px-2.5 py-1 text-[9px] font-bold text-white shadow-lg backdrop-blur-md md:text-[10px]">
+                            {images > 0 ? (
+                                <div className="flex items-center gap-0.5">
+                                    <ImageIcon className="h-3 w-3 text-gray-300" />
+                                    <span>{images}</span>
+                                </div>
+                            ) : null}
+                            {videos > 0 ? (
+                                <div className="flex items-center gap-0.5">
+                                    <Film className="h-3 w-3 text-gray-300" />
+                                    <span>{videos}</span>
+                                </div>
+                            ) : null}
+                        </div>
+                    ) : null}
+                </div>
+
+                <div className="absolute right-3 top-3 z-20 md:right-4 md:top-4">
+                    <TimerWithProgress validFrom={drop.validFrom} validUntil={drop.validUntil} />
+                </div>
+
+                <div className="absolute bottom-0 left-0 right-0 space-y-1.5 p-4 md:space-y-2 md:p-6">
+                    <div className="w-full max-w-full overflow-hidden">
+                        <TitleMarquee
+                            title={drop.title}
+                            delaySeed={drop.id.charCodeAt(0) % 6}
+                            className="text-lg font-black leading-tight text-white md:text-2xl"
+                        />
+                    </div>
+                    <p className="line-clamp-2 text-xs leading-relaxed text-gray-300 md:text-sm">{drop.description}</p>
+
+                    <div className="flex items-center gap-1.5 pb-0.5 text-[11px] font-semibold text-white/80 md:text-xs">
+                        <Eye className="h-3.5 w-3.5 text-brand-purple" />
+                        <span>{totalUnwraps.toLocaleString()} unwrapped</span>
+                    </div>
+
+                    <div className="w-full max-w-[230px] pt-1 md:max-w-[260px] md:pt-2">
+                        <div className="flex w-full items-center justify-center gap-1.5 whitespace-nowrap rounded-[0.9rem] border border-brand-purple bg-gradient-to-r from-brand-purple to-purple-500 px-3 py-2 text-xs font-black text-white shadow-[0_0_15px_rgba(164,118,255,0.24)] md:rounded-xl md:px-4 md:py-2.5 md:text-sm">
+                            {isUnlocked ? <Unlock className="h-3.5 w-3.5 md:h-4 md:w-4" /> : <Lock className="h-3.5 w-3.5 md:h-4 md:w-4" />}
+                            {isUnlocked
+                                ? "View Content"
+                                : !userProfile
+                                  ? "Create Profile"
+                                  : !canAfford
+                                    ? "Refill GumDrops"
+                                    : `Unwrap for ${drop.unlockCost} GD`}
+                        </div>
+                    </div>
+                </div>
+            </button>
         </div>
     );
 }
 
 function TimerWithProgress({ validFrom, validUntil }: { validFrom: number; validUntil?: number }) {
-    const { label, progressPercent, urgencyState } = useDropTiming(validFrom, validUntil);
+    const { label, fullLabel, progressPercent, urgencyState } = useDropTiming(validFrom, validUntil);
 
     return (
-        <div className="space-y-1 w-[140px] md:w-[160px]">
+        <div className="w-[104px] space-y-1 md:w-[150px]">
             <div
                 className={cn(
-                    "backdrop-blur-xl px-2.5 py-1 md:px-3 md:py-1.5 rounded-lg text-[11px] md:text-[12px] font-mono font-extrabold tracking-tight text-white border flex items-center gap-1.5 shadow-lg",
-                    urgencyState === "critical" ? "bg-fuchsia-900/40 border-fuchsia-500/50 text-fuchsia-100 animate-pulse" :
-                    urgencyState === "warm" ? "bg-[#b28cff]/20 border-[#b28cff]/40 text-[#dfcdff]" :
-                    "bg-black/65 border-white/20 text-white"
+                    "flex items-center gap-1.5 rounded-[0.75rem] border px-2 py-1 text-[10px] font-black tracking-tight text-white shadow-lg backdrop-blur-xl md:px-3 md:text-[12px]",
+                    urgencyState === "critical"
+                        ? "border-fuchsia-500/45 bg-fuchsia-900/35 text-fuchsia-100"
+                        : urgencyState === "warm"
+                          ? "border-brand-purple/40 bg-brand-purple/18 text-[#dfcdff]"
+                          : "border-white/20 bg-black/65 text-white",
                 )}
+                aria-label={fullLabel}
+                title={fullLabel}
             >
-                <Clock className={cn("w-3.5 h-3.5", urgencyState === "critical" ? "text-fuchsia-400" : urgencyState === "warm" ? "text-[#b28cff]" : "text-brand-purple")} />
-                <span>{label}</span>
+                <Clock className={cn("h-3 w-3 md:h-3.5 md:w-3.5", urgencyState === "critical" ? "text-fuchsia-300" : "text-brand-purple")} />
+                <span className="truncate">{label}</span>
             </div>
             <LifetimeProgressBar progressPercent={progressPercent} urgencyState={urgencyState} />
         </div>
     );
 }
 
-function LifetimeProgressBar({ progressPercent, urgencyState }: { progressPercent: number; urgencyState: "calm" | "warm" | "critical" }) {
+function LifetimeProgressBar({ progressPercent, urgencyState }: { progressPercent: number; urgencyState: DropTimingUrgency }) {
     return (
-        <div className="h-1 w-full rounded-full bg-white/20 overflow-hidden">
+        <div className="h-1 w-full overflow-hidden rounded-full bg-white/20">
             <div
                 className={cn(
                     "h-full rounded-full transition-[width] duration-700 ease-out",
-                    urgencyState === "critical" ? "bg-gradient-to-r from-[#b28cff] via-fuchsia-500 to-pink-500" :
-                    urgencyState === "warm" ? "bg-gradient-to-r from-brand-purple via-[#b28cff] to-fuchsia-400" :
-                    "bg-gradient-to-r from-brand-purple to-brand-purple"
+                    urgencyState === "critical"
+                        ? "bg-gradient-to-r from-brand-purple via-fuchsia-500 to-pink-500"
+                        : urgencyState === "warm"
+                          ? "bg-gradient-to-r from-brand-purple to-fuchsia-400"
+                          : "bg-brand-purple",
                 )}
                 style={{ width: `${progressPercent}%` }}
             />
@@ -277,91 +305,67 @@ function LifetimeProgressBar({ progressPercent, urgencyState }: { progressPercen
     );
 }
 
-function ActivityTicker({ count }: { count: number }) {
-    const [displayCount, setDisplayCount] = useState(count);
-    const [isAnimating, setIsAnimating] = useState(false);
+function useDropTiming(validFrom: number, validUntil?: number): { label: string; fullLabel: string; urgencyState: DropTimingUrgency; progressPercent: number } {
+    const nowMs = useNow({ intervalMs: 1_000, initialNowMs: Date.now() });
 
-    useEffect(() => {
-        if (count === displayCount) {
-            return;
+    return useMemo(() => {
+        if (!validUntil) {
+            return { label: "Always", fullLabel: "Always available", urgencyState: "calm" as const, progressPercent: 0 };
         }
 
-        const start = window.setTimeout(() => {
-            setIsAnimating(true);
-        }, 0);
-        const update = window.setTimeout(() => {
-            setDisplayCount(count);
-        }, 90);
-        const end = window.setTimeout(() => {
-            setIsAnimating(false);
-        }, 220);
+        const clampedNow = Math.max(validFrom, Math.min(nowMs, validUntil));
+        const msLeft = Math.max(0, validUntil - nowMs);
+        const lifetime = Math.max(1, validUntil - validFrom);
+        const progressPercent = Math.max(0, Math.min(100, ((clampedNow - validFrom) / lifetime) * 100));
 
-        return () => {
-            window.clearTimeout(start);
-            window.clearTimeout(update);
-            window.clearTimeout(end);
+        if (msLeft === 0) {
+            return { label: "Expired", fullLabel: "Expired", urgencyState: "critical" as const, progressPercent };
+        }
+
+        const countdown = formatDropCountdown(validUntil, nowMs);
+        const urgencyState: DropTimingUrgency = msLeft <= 4 * DROP_COUNTDOWN_ONE_HOUR_MS ? "critical" : msLeft <= DROP_COUNTDOWN_ONE_DAY_MS ? "warm" : countdown.urgencyState;
+
+        return { label: countdown.visibleLabel, fullLabel: countdown.fullLabel, urgencyState, progressPercent };
+    }, [nowMs, validFrom, validUntil]);
+}
+
+function getMediaCounts(drop: Drop) {
+    if (drop.mediaCounts) {
+        return {
+            images: drop.mediaCounts.images,
+            videos: drop.mediaCounts.videos,
         };
-    }, [count, displayCount]);
+    }
 
-    return (
-        <p className={cn("text-xs text-gray-200 transition-all duration-200", isAnimating ? "opacity-60 translate-y-0.5" : "opacity-100 translate-y-0")}>{displayCount.toLocaleString()} people already unwrapped</p>
+    const urls = drop.contentUrls || (drop.contentUrl ? [drop.contentUrl] : []);
+    return urls.reduce(
+        (counts, url) => {
+            const lowerUrl = url.toLowerCase();
+            if (lowerUrl.match(/\.(mp4|webm|ogg|mov)$/)) {
+                counts.videos += 1;
+            } else {
+                counts.images += 1;
+            }
+            return counts;
+        },
+        { images: 0, videos: 0 },
     );
 }
 
-function useDropTiming(validFrom: number, validUntil?: number) {
-    const [label, setLabel] = useState("No end date");
-    const [urgencyState, setUrgencyState] = useState<"calm" | "warm" | "critical">("calm");
-    const [progressPercent, setProgressPercent] = useState(0);
+function usePrefersReducedMotion() {
+    const [prefersReducedMotion, setPrefersReducedMotion] = useState(false);
 
     useEffect(() => {
-        const updateTiming = () => {
-            if (!validUntil) {
-                setLabel("No end date");
-                setUrgencyState("calm");
-                setProgressPercent(0);
-                return;
-            }
+        if (typeof window === "undefined" || typeof window.matchMedia !== "function") {
+            return;
+        }
 
-            const now = Date.now();
-            const clampedNow = Math.max(validFrom, Math.min(now, validUntil));
-            const msLeft = Math.max(0, validUntil - now);
-            const lifetime = Math.max(1, validUntil - validFrom);
-            const percent = ((clampedNow - validFrom) / lifetime) * 100;
-            setProgressPercent(Math.max(0, Math.min(100, percent)));
+        const mediaQuery = window.matchMedia("(prefers-reduced-motion: reduce)");
+        const update = () => setPrefersReducedMotion(mediaQuery.matches);
+        update();
+        mediaQuery.addEventListener("change", update);
+        return () => mediaQuery.removeEventListener("change", update);
+    }, []);
 
-            if (msLeft === 0) {
-                setLabel("Expired");
-                setUrgencyState("critical");
-                return;
-            }
-
-            if (msLeft <= 4 * 60 * 60 * 1000) {
-                setUrgencyState("critical");
-            } else if (msLeft <= ONE_DAY_MS) {
-                setUrgencyState("warm");
-            } else {
-                setUrgencyState("calm");
-            }
-
-            if (msLeft >= ONE_DAY_MS) {
-                const days = Math.ceil(msLeft / ONE_DAY_MS);
-                setLabel(`Ends in ${days} day${days === 1 ? "" : "s"}`);
-                return;
-            }
-
-            const totalSeconds = Math.floor(msLeft / 1000);
-            const hours = Math.floor(totalSeconds / 3600);
-            const minutes = Math.floor((totalSeconds % 3600) / 60);
-            const seconds = totalSeconds % 60;
-            const pad = (value: number) => value.toString().padStart(2, "0");
-
-            setLabel(`Ends in ${pad(hours)}:${pad(minutes)}:${pad(seconds)}`);
-        };
-
-        updateTiming();
-        const interval = window.setInterval(updateTiming, 1000);
-        return () => window.clearInterval(interval);
-    }, [validFrom, validUntil]);
-
-    return { label, urgencyState, progressPercent };
+    return prefersReducedMotion;
 }

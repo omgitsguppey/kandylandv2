@@ -1,17 +1,25 @@
 import { NextRequest, NextResponse } from "next/server";
 import { z } from "zod";
 import { adminDb } from "@/lib/server/firebase-admin";
-import { handleApiError } from "@/lib/server/auth";
+import { AuthError, handleApiError } from "@/lib/server/auth";
 import { FieldValue } from "firebase-admin/firestore";
 import { guardApiRequest } from "@/lib/server/request-guard";
 import { buildCompletedGumdropTransaction } from "@/lib/server/gumdrop-ledger";
 import { readSourceAwareBalance, creditSourceAwareGumdrops, buildSourceAwareBalancePatch } from "@/lib/gumdrop-ledger";
 import { withRouteRuntimeHealth } from "@/lib/server/route-runtime-health";
+import { trackServerEvent } from "@/lib/server/analytics";
+import { touchUserRuntime } from "@/lib/server/user-runtime";
 
 const feedbackSchema = z.object({
-  dropId: z.string().min(1),
+  dropId: z
+    .string()
+    .min(1)
+    .max(128)
+    .regex(/^[A-Za-z0-9_-]+$/u, "Invalid dropId format"),
   positive: z.boolean(),
 });
+
+const VIEWER_FEEDBACK_REWARD = 10;
 
 async function POST_handler(request: NextRequest) {
   try {
@@ -30,28 +38,61 @@ async function POST_handler(request: NextRequest) {
 
     const userRef = adminDb.collection("users").doc(userId);
     const feedbackRef = adminDb.collection("feedbacks").doc(`${userId}_${dropId}`);
+    const dropRef = adminDb.collection("drops").doc(dropId);
 
-    const newBalance = await adminDb.runTransaction(async (transaction) => {
+    const result = await adminDb.runTransaction(async (transaction) => {
       const feedbackSnap = await transaction.get(feedbackRef);
-      if (feedbackSnap.exists) {
-        throw new Error("ALREADY_SUBMITTED");
-      }
-
       const userSnap = await transaction.get(userRef);
       if (!userSnap.exists) {
-        throw new Error("USER_NOT_FOUND");
+        throw new AuthError("User not found", 404, "user");
+      }
+      const dropSnap = await transaction.get(dropRef);
+      if (!dropSnap.exists) {
+        throw new AuthError("Drop not found", 404, "drop");
       }
 
       const userData = userSnap.data() ?? {};
+      const dropData = dropSnap.data() ?? {};
+      const creatorId = typeof dropData.creatorId === "string" ? dropData.creatorId : "";
+      if (creatorId === userId) {
+        throw new AuthError("Creators cannot claim viewer feedback rewards for their own Drops", 403);
+      }
+
+      const unlockedContent = Array.isArray(userData.unlockedContent)
+        ? userData.unlockedContent.filter((value): value is string => typeof value === "string")
+        : [];
+      const unlockedTimestamp = Number((userData.unlockedContentTimestamps as Record<string, unknown> | undefined)?.[dropId]);
+      const hasUnlockedDrop = unlockedContent.includes(dropId) || Number.isFinite(unlockedTimestamp);
+      if (!hasUnlockedDrop) {
+        throw new AuthError("Feedback is available after this Drop is unwrapped", 403);
+      }
+
       const sourceAwareBalance = readSourceAwareBalance(userData);
-      const next = creditSourceAwareGumdrops(sourceAwareBalance, 10, "reward");
+      if (feedbackSnap.exists) {
+        const existingData = feedbackSnap.data() ?? {};
+        return {
+          alreadySubmitted: true,
+          positive: typeof existingData.positive === "boolean" ? existingData.positive : positive,
+          rewardCredited: false,
+          reward: 0,
+          newBalance: sourceAwareBalance.total,
+          purchasedBalance: sourceAwareBalance.purchased,
+          rewardBalance: sourceAwareBalance.reward,
+        };
+      }
+
+      const submittedAt = Date.now();
+      const next = creditSourceAwareGumdrops(sourceAwareBalance, VIEWER_FEEDBACK_REWARD, "reward");
 
       transaction.set(feedbackRef, {
         userId,
         dropId,
         positive,
         createdAt: FieldValue.serverTimestamp(),
-        rewarded: 10
+        createdAtMs: submittedAt,
+        rewarded: VIEWER_FEEDBACK_REWARD,
+        feedbackSource: "viewer",
+        verifiedUnlockedDrop: true,
       });
 
       transaction.update(userRef, {
@@ -62,22 +103,56 @@ async function POST_handler(request: NextRequest) {
       transaction.set(transactionRef, buildCompletedGumdropTransaction({
         userId,
         type: "daily_reward",
-        amount: 10,
-        description: "Feedback Reward",
+        amount: VIEWER_FEEDBACK_REWARD,
+        description: "Viewer Feedback Reward",
         balanceBefore: sourceAwareBalance.total,
         balanceAfter: next.total,
-        timestampMs: Date.now(),
-        extra: { dropId }
+        relatedDropId: dropId,
+        timestampMs: submittedAt,
+        extra: {
+          dropId,
+          rewardContext: "viewer_feedback",
+          feedbackPositive: positive,
+        }
       }));
 
-      return next.total;
+      return {
+        alreadySubmitted: false,
+        positive,
+        rewardCredited: true,
+        reward: VIEWER_FEEDBACK_REWARD,
+        newBalance: next.total,
+        purchasedBalance: next.purchased,
+        rewardBalance: next.reward,
+      };
     });
 
-    return NextResponse.json({ success: true, reward: 10, newBalance });
-  } catch (error: any) {
-    if (error.message === "ALREADY_SUBMITTED") {
-      return NextResponse.json({ error: "Feedback already submitted" }, { status: 400 });
+    if (result.rewardCredited) {
+      await Promise.all([
+        touchUserRuntime(userId, { activity: true, profile: true }),
+        trackServerEvent("feedback_submitted", {
+          drop_id: dropId,
+          positive: result.positive,
+          reward_amount: result.reward,
+          reward_credited: result.rewardCredited,
+          feedback_source: "viewer",
+          source_component: "viewer_feedback",
+          page_path: "/dashboard/viewer",
+        }, userId),
+      ]);
     }
+
+    return NextResponse.json({
+      success: true,
+      alreadySubmitted: result.alreadySubmitted,
+      rewardCredited: result.rewardCredited,
+      reward: result.reward,
+      positive: result.positive,
+      newBalance: result.newBalance,
+      purchasedBalance: result.purchasedBalance,
+      rewardBalance: result.rewardBalance,
+    });
+  } catch (error: any) {
     return handleApiError(error, "Drops.Feedback");
   }
 }

@@ -3,10 +3,6 @@
 import { Drop } from "@/types/db";
 import { useEffect, useState, memo, useMemo, useRef } from "react";
 import { useRouter } from "next/navigation";
-import NextImage from "next/image";
-import { Lock, Unlock, Clock, Loader2, AlertCircle, Eye, Image as ImageIcon, Film, Wallet } from "lucide-react";
-
-import { cn } from "@/lib/utils";
 
 import { toast } from "sonner";
 import { User } from "firebase/auth";
@@ -14,14 +10,14 @@ import { authFetch } from "@/lib/authFetch";
 import { useUserProfile } from "@/context/AuthContext";
 import { useUI } from "@/context/UIContext";
 import { trackEvent } from "@/lib/telemetry";
-import Link from "next/link";
 import { SupportedAspectRatio, getDropMediaSummary, getSupportedDropAspectRatio } from "@/lib/drop-presentation";
-import { SECONDARY_UNWRAP_CTA } from "@/lib/marketing-copy";
 import { showUnwrapSuccessToast } from "@/components/Toasts/UnwrapSuccessToast";
 import { getDropViewCount } from "@/lib/drop-engagement";
 import { dispatchActivitySync } from "@/lib/activity-sync";
-import { TitleMarquee } from "@/components/ui/TitleMarquee";
 import { reportClientIssue } from "@/lib/client-error-reporting";
+import { DropCardCta } from "@/components/DropCardCta";
+import { DropCardLayout } from "@/components/DropCardLayout";
+import { DROPS_MOBILE_UI_DENSITY, useDropCardImpression } from "@/hooks/useDropCardImpression";
 
 
 interface DropCardProps {
@@ -36,126 +32,7 @@ interface DropCardProps {
     impressionTrackingSessionId?: string;
 }
 
-interface DropCardBadgeProps {
-    label: string;
-    compact?: boolean;
-}
-
 const CATEGORY_TAGS = new Set(["Sweet", "Spicy", "RAW"]);
-const CARD_IMPRESSION_VISIBILITY_THRESHOLD = 0.6;
-const CARD_IMPRESSION_MIN_VISIBLE_MS = 500;
-const trackedDropCardImpressions = new Set<string>();
-
-const DropCardBadge = ({ label, compact = false }: DropCardBadgeProps) => (
-    <div
-        className={cn(
-            "backdrop-blur-md rounded-full font-bold text-white shadow-lg border w-fit",
-            compact ? "px-2 py-0.5 text-[9px]" : "px-2 py-0.5 md:px-3 md:py-1 text-[10px] md:text-xs",
-            "bg-brand-purple/80 border-white/10",
-            label === "Sweet" && "bg-brand-purple/90",
-            label === "Spicy" && "bg-white/20 border-white/20",
-            label === "RAW" && "bg-zinc-800/80 border-white/20"
-        )}
-    >
-        {label}
-    </div>
-);
-
-interface FileCountChipProps {
-    images: number;
-    videos: number;
-    compact?: boolean;
-}
-
-const FileCountChip = ({ images, videos, compact = false }: FileCountChipProps) => {
-    if (images === 0 && videos === 0) return null;
-
-    const fileCountLabel = [
-        images > 0 ? `${images} ${images === 1 ? "image" : "images"}` : null,
-        videos > 0 ? `${videos} ${videos === 1 ? "video" : "videos"}` : null,
-    ].filter(Boolean).join(", ");
-
-    return (
-        <div className={cn(
-            "backdrop-blur-md rounded-full font-bold text-white shadow-xl border border-white/20 flex items-center gap-2 bg-black/60 z-30",
-            compact ? "px-2 py-0.5 text-[9px] gap-1.5" : "px-3 py-1 text-[10px] md:text-xs"
-        )} aria-label={fileCountLabel} title={fileCountLabel}>
-            {images > 0 && (
-                <div className="flex items-center gap-1">
-                    <ImageIcon aria-hidden="true" className={compact ? "w-2.5 h-2.5" : "w-3 h-3 md:w-3.5 md:h-3.5"} />
-                    <span>{images}</span>
-                </div>
-            )}
-            {videos > 0 && (
-                <div className="flex items-center gap-1">
-                    <Film aria-hidden="true" className={compact ? "w-2.5 h-2.5" : "w-3 h-3 md:w-3.5 md:h-3.5"} />
-                    <span>{videos}</span>
-                </div>
-            )}
-        </div>
-    );
-};
-
-function DropCardTimer({ validUntil }: { validUntil?: number }) {
-    const [timeLeft, setTimeLeft] = useState("Ends soon");
-    const [urgencyState, setUrgencyState] = useState<"calm" | "warm" | "critical">("calm");
-
-    useEffect(() => {
-        const updateTimer = () => {
-            if (!validUntil) {
-                setTimeLeft("No end date");
-                return;
-            }
-
-            const msLeft = Math.max(0, validUntil - Date.now());
-            const ONE_HOUR_MS = 60 * 60 * 1000;
-            const ONE_DAY_MS = 24 * ONE_HOUR_MS;
-
-            if (msLeft === 0) {
-                setTimeLeft("Expired");
-                setUrgencyState("critical");
-                return;
-            }
-
-            if (msLeft <= 4 * ONE_HOUR_MS) {
-                setUrgencyState("critical");
-            } else if (msLeft <= ONE_DAY_MS) {
-                setUrgencyState("warm");
-            } else {
-                setUrgencyState("calm");
-            }
-
-            if (msLeft >= ONE_DAY_MS) {
-                const days = Math.ceil(msLeft / ONE_DAY_MS);
-                setTimeLeft(`Ends in ${days} day${days === 1 ? "" : "s"}`);
-                return;
-            }
-
-            const totalSeconds = Math.floor(msLeft / 1000);
-            const hours = Math.floor(totalSeconds / 3600);
-            const minutes = Math.floor((totalSeconds % 3600) / 60);
-            const seconds = totalSeconds % 60;
-            const pad = (value: number) => value.toString().padStart(2, "0");
-            setTimeLeft(`Ends in ${pad(hours)}:${pad(minutes)}:${pad(seconds)}`);
-        };
-
-        updateTimer();
-        const interval = window.setInterval(updateTimer, 1000);
-        return () => window.clearInterval(interval);
-    }, [validUntil]);
-
-    return (
-        <div className={cn(
-            "inline-flex items-center gap-1 rounded-lg border px-2 py-0.5 md:px-2.5 md:py-1 text-[9px] md:text-[10px] font-mono font-bold transition-colors w-full justify-center max-w-[120px]",
-            urgencyState === "critical" ? "bg-fuchsia-900/30 border-fuchsia-500/40 text-fuchsia-200 animate-pulse" :
-                urgencyState === "warm" ? "bg-[#b28cff]/15 border-[#b28cff]/30 text-[#e4d4ff]" :
-                    "border-white/10 bg-black/40 text-gray-300"
-        )}>
-            <Clock className={cn("h-3 w-3", urgencyState === "critical" ? "text-fuchsia-400" : urgencyState === "warm" ? "text-[#b28cff]" : "text-gray-400")} />
-            <span>{timeLeft}</span>
-        </div>
-    );
-}
 
 function DropCardBase({
     drop,
@@ -176,6 +53,8 @@ function DropCardBase({
     const [imageLoaded, setImageLoaded] = useState(false);
     const [error, setError] = useState<string | null>(null);
     const cardRef = useRef<HTMLDivElement | null>(null);
+    const resolvedRatio = aspectRatio ?? getSupportedDropAspectRatio(drop);
+    const ratioStyle = { aspectRatio: resolvedRatio.replace(":", " / ") };
 
     useEffect(() => {
         let timeout: ReturnType<typeof setTimeout>;
@@ -185,89 +64,14 @@ function DropCardBase({
         return () => clearTimeout(timeout);
     }, [confirming]);
 
-    useEffect(() => {
-        if (!impressionTrackingSurface || !impressionTrackingSessionId || !cardRef.current) {
-            return;
-        }
-
-        const impressionKey = `${impressionTrackingSessionId}:${drop.id}`;
-        if (trackedDropCardImpressions.has(impressionKey)) {
-            return;
-        }
-
-        let visibleTimer: ReturnType<typeof setTimeout> | null = null;
-        let cancelled = false;
-
-        const flushImpression = async () => {
-            if (cancelled || trackedDropCardImpressions.has(impressionKey)) {
-                return;
-            }
-
-            trackedDropCardImpressions.add(impressionKey);
-            trackEvent("drop_card_impression", {
-                drop_id: drop.id,
-                drop_category: drop.type,
-                is_unlocked: !!isUnlocked,
-                impression_surface: impressionTrackingSurface,
-                viewport_threshold: CARD_IMPRESSION_VISIBILITY_THRESHOLD,
-            });
-
-            try {
-                await fetch("/api/drops/impression", {
-                    method: "POST",
-                    headers: {
-                        "Content-Type": "application/json",
-                    },
-                    body: JSON.stringify({
-                        dropId: drop.id,
-                        pagePath: window.location.pathname,
-                        surface: impressionTrackingSurface,
-                        sessionId: impressionTrackingSessionId,
-                    }),
-                    keepalive: true,
-                });
-            } catch {
-                // Impression analytics should never block the card UI.
-            }
-        };
-
-        const observer = new IntersectionObserver(
-            (entries) => {
-                const entry = entries[0];
-                const isVisibleEnough = entry?.isIntersecting && entry.intersectionRatio >= CARD_IMPRESSION_VISIBILITY_THRESHOLD;
-                if (!isVisibleEnough) {
-                    if (visibleTimer) {
-                        clearTimeout(visibleTimer);
-                        visibleTimer = null;
-                    }
-                    return;
-                }
-
-                if (!visibleTimer) {
-                    visibleTimer = setTimeout(() => {
-                        visibleTimer = null;
-                        void flushImpression();
-                    }, CARD_IMPRESSION_MIN_VISIBLE_MS);
-                }
-            },
-            {
-                threshold: [CARD_IMPRESSION_VISIBILITY_THRESHOLD],
-            }
-        );
-
-        observer.observe(cardRef.current);
-
-        return () => {
-            cancelled = true;
-            observer.disconnect();
-            if (visibleTimer) {
-                clearTimeout(visibleTimer);
-            }
-        };
-    }, [drop.id, drop.type, impressionTrackingSessionId, impressionTrackingSurface, isUnlocked]);
-
-    const resolvedRatio = aspectRatio ?? getSupportedDropAspectRatio(drop);
-    const ratioStyle = { aspectRatio: resolvedRatio.replace(":", " / ") };
+    useDropCardImpression({
+        cardRef,
+        drop,
+        isUnlocked,
+        aspectRatio: resolvedRatio,
+        impressionTrackingSurface,
+        impressionTrackingSessionId,
+    });
 
     const displayedTags = useMemo(() => {
         return (drop.tags || []).filter((tag) => CATEGORY_TAGS.has(tag)).slice(0, 3);
@@ -299,6 +103,9 @@ function DropCardBase({
             drop_category: drop.type,
             is_unlocked: !!isUnlocked,
             drop_tags: (drop.tags || []).join("|"),
+            card_aspect_ratio: resolvedRatio,
+            source_component: "compact_drop_card",
+            ui_density: DROPS_MOBILE_UI_DENSITY,
         });
         fetch(`/api/drops/${drop.id}/click`, { method: "POST" }).catch(() => { });
         onPreview(drop);
@@ -314,6 +121,14 @@ function DropCardBase({
 
         const balance = userProfile?.gumDropsBalance ?? 0;
         if (balance < drop.unlockCost) {
+            trackEvent("drop_unwrap_intent_blocked_by_funds", {
+                drop_id: drop.id,
+                drop_category: drop.type,
+                unlock_cost: drop.unlockCost,
+                current_balance: balance,
+                source_component: "compact_drop_card",
+                ui_density: DROPS_MOBILE_UI_DENSITY,
+            });
             openPurchaseModal(Math.max(1, drop.unlockCost - balance));
             return;
         }
@@ -321,6 +136,14 @@ function DropCardBase({
         if (!confirming) {
             setConfirming(true);
             triggerHaptic();
+            trackEvent("drop_unlock_attempted", {
+                drop_id: drop.id,
+                drop_category: drop.type,
+                unlock_cost: drop.unlockCost,
+                drop_tags: (drop.tags || []).join("|"),
+                source_component: "compact_drop_card",
+                ui_density: DROPS_MOBILE_UI_DENSITY,
+            });
             return;
         }
 
@@ -350,6 +173,8 @@ function DropCardBase({
                 drop_category: drop.type,
                 unlock_cost: drop.unlockCost || 0,
                 drop_tags: (drop.tags || []).join("|"),
+                source_component: "compact_drop_card",
+                ui_density: DROPS_MOBILE_UI_DENSITY,
             });
 
             if (userProfile) {
@@ -399,193 +224,35 @@ function DropCardBase({
         }
     };
 
-    const ctaButton = isUnlocked ? (
-        <Link
-            href={`/dashboard/viewer?id=${drop.id}`}
-            onClick={triggerHaptic}
-            className="flex w-full items-center justify-center gap-1.5 whitespace-nowrap rounded-md border border-brand-purple bg-gradient-to-r from-brand-purple to-purple-500 px-3 py-1.5 text-[10px] font-bold text-white shadow-[0_0_15px_rgba(164,118,255,0.28)] transition-all active:scale-95 md:rounded-lg md:px-4 md:py-2 md:text-xs"
-        >
-            <Unlock className="w-3 h-3" />
-            View Content
-        </Link>
-    ) : (
-        <button
-            type="button"
-            onClick={handleUnlock}
-            disabled={unlocking}
-            className={cn(
-                "px-3 py-1.5 md:px-4 md:py-2 rounded-md md:rounded-lg font-bold text-[10px] md:text-xs flex items-center justify-center w-full whitespace-nowrap gap-1.5 border relative overflow-hidden transition-all active:scale-95 shadow-lg",
-                !canAfford ? "bg-gradient-to-r from-brand-purple to-purple-500 text-white border-brand-purple shadow-[0_0_15px_rgba(164,118,255,0.3)] hover:opacity-95"
-                    : confirming ? "bg-white text-black border-white shadow-[0_0_15px_rgba(255,255,255,0.22)]"
-                        : "bg-gradient-to-r from-brand-purple to-purple-500 text-white border-brand-purple shadow-[0_0_15px_rgba(164,118,255,0.28)] hover:opacity-95",
-                "disabled:opacity-50 disabled:cursor-not-allowed"
-            )}
-        >
-            {unlocking ? (
-                <>
-                    <Loader2 className="w-3 h-3 animate-spin" />
-                    <span>Unwrapping...</span>
-                </>
-            ) : !user ? (
-                <>
-                    <Lock className="w-3 h-3" />
-                    <span>{SECONDARY_UNWRAP_CTA}</span>
-                </>
-            ) : !canAfford ? (
-                <>
-                    <Wallet className="w-3 h-3" />
-                    <span>Get Gum Drops</span>
-                </>
-            ) : confirming ? (
-                <>
-                    <Lock className="w-3 h-3" />
-                    <span>Confirm {drop.unlockCost} GD?</span>
-                </>
-            ) : (
-                <>
-                    <Lock className="w-3 h-3" />
-                    <span>Unwrap</span>
-                </>
-            )}
-        </button>
+    const ctaButton = (
+        <DropCardCta
+            drop={drop}
+            user={user}
+            isUnlocked={isUnlocked}
+            canAfford={canAfford}
+            unlocking={unlocking}
+            confirming={confirming}
+            onUnlock={handleUnlock}
+            onHaptic={triggerHaptic}
+        />
     );
 
-    if (resolvedRatio === "9:16") {
-        return (
-            <div ref={cardRef} className="group relative p-1.5 md:p-3 rounded-2xl md:rounded-3xl glass-panel overflow-hidden h-full flex flex-col">
-                <button
-                    type="button"
-                    onClick={() => {
-                        handlePreviewOpen();
-                    }}
-                    className="relative w-full rounded-xl md:rounded-2xl overflow-hidden border border-white/10 bg-black text-left flex-shrink-0" style={ratioStyle}
-                >
-                    <NextImage
-                        src={drop.imageUrl || "/placeholder.jpg"}
-                        alt={drop.title}
-                        fill
-                        priority={priority}
-                        className={cn("object-cover object-center bg-black transition-all duration-500", imageLoaded ? "scale-100" : "scale-105")}
-                        onLoadingComplete={() => setImageLoaded(true)}
-                        sizes="(max-width: 768px) 25vw, 180px"
-                    />
-                    <div className="absolute inset-0 bg-gradient-to-t from-black/70 via-transparent to-transparent" />
-                    <div className="absolute top-1.5 right-1.5 z-10">
-                        <FileCountChip images={fileCounts.images} videos={fileCounts.videos} compact />
-                    </div>
-                    <div className="absolute bottom-1.5 left-1.5 right-1.5 space-y-1">
-                        {displayedTags.length > 0 ? <DropCardBadge label={displayedTags[0]} compact /> : null}
-                        <div className="w-full">
-                            <TitleMarquee 
-                                title={drop.title} 
-                                delaySeed={drop.id.charCodeAt(0) % 6} 
-                                className="text-[10px] font-bold text-white leading-tight" 
-                            />
-                        </div>
-                    </div>
-                </button>
-                <div className="mt-2 flex flex-col gap-2 flex-grow justify-between">
-                    <div className="space-y-2 w-full">
-                        <div className="flex items-center justify-between w-full">
-                            <div className="inline-flex px-2 py-1 rounded-md border border-brand-purple/20 bg-brand-purple/10 text-brand-purple font-bold text-[10px] w-fit">
-                                {drop.unlockCost} GD
-                            </div>
-                            <div
-                                className="flex items-center gap-1 opacity-60 text-[9px] font-medium text-white/80"
-                                aria-label={`${totalViews.toLocaleString()} views`}
-                                title={`${totalViews.toLocaleString()} views`}
-                            >
-                                <Eye aria-hidden="true" className="w-2.5 h-2.5" />
-                                <span>{totalViews.toLocaleString()}</span>
-                            </div>
-                        </div>
-                        {ctaButton}
-                    </div>
-                    <div className="mt-auto pt-1">
-                        <DropCardTimer validUntil={drop.validUntil} />
-                    </div>
-                </div>
-            </div>
-        );
-    }
-
     return (
-        <div ref={cardRef} className="group relative p-1.5 md:p-2.5 rounded-2xl md:rounded-3xl glass-panel overflow-hidden h-full flex flex-col justify-between">
-            <div className="absolute inset-0 bg-gradient-to-br from-brand-purple/5 via-transparent to-brand-purple/5 pointer-events-none" />
-
-            <button
-                type="button"
-                onClick={() => {
-                    handlePreviewOpen();
-                }}
-                className="relative w-full bg-black/40 rounded-xl md:rounded-2xl mb-1.5 md:mb-2 overflow-hidden group/image shadow-inner border border-white/5 text-left flex-shrink-0"
-                style={ratioStyle}
-            >
-                {drop.imageUrl ? (
-                    <>
-                        <NextImage
-                            src={drop.imageUrl}
-                            alt={drop.title}
-                            fill
-                            priority={priority}
-                            className={cn("object-cover object-center bg-black transition-all duration-700 opacity-90", imageLoaded ? "scale-100 blur-0" : "scale-105 blur-md")}
-                            onLoadingComplete={() => setImageLoaded(true)}
-                            sizes={resolvedRatio === "16:9" ? "(max-width: 768px) 100vw, 720px" : "(max-width: 768px) 50vw, 360px"}
-                        />
-                        {!imageLoaded && (
-                            <div className="absolute inset-0 bg-zinc-800/80 overflow-hidden">
-                                <div className="absolute inset-0 -translate-x-full animate-[shimmer_1.5s_infinite] bg-gradient-to-r from-transparent via-white/10 to-transparent" />
-                            </div>
-                        )}
-                    </>
-                ) : (
-                    <div className="w-full h-full flex items-center justify-center text-5xl bg-zinc-900/50">🍬</div>
-                )}
-                <div className="absolute top-1.5 md:top-2 right-1.5 md:right-2 z-10 transition-transform group-hover/image:scale-110">
-                    <FileCountChip images={fileCounts.images} videos={fileCounts.videos} compact />
-                </div>
-            </button>
-
-            <div className="relative z-10 flex flex-col h-full space-y-1.5">
-                <div className="flex items-center justify-between w-full">
-                    {displayedTags.length > 0 ? <DropCardBadge label={displayedTags[0]} compact /> : <div />}
-                    <DropCardTimer validUntil={drop.validUntil} />
-                </div>
-
-                <div className="w-full max-w-full overflow-hidden flex-shrink-0">
-                    <TitleMarquee 
-                        title={drop.title} 
-                        delaySeed={drop.id.charCodeAt(0) % 6} 
-                        className="text-xs md:text-sm font-bold text-white leading-tight tracking-tight pt-0.5" 
-                    />
-                </div>
-
-                <div className="flex flex-col items-start gap-1.5 mt-auto pt-1 w-full">
-                    <div className="flex items-center justify-between w-full">
-                        <div className="flex items-center gap-1 md:gap-1.5 px-2 py-0.5 md:py-1 bg-brand-purple/10 rounded-md border border-brand-purple/20">
-                            <span className="text-brand-purple font-bold text-[10px] md:text-[11px] tracking-wide whitespace-nowrap">{drop.unlockCost} GD</span>
-                        </div>
-                        <div
-                            className="flex items-center gap-1 opacity-60 text-[9px] font-medium text-white/80"
-                            aria-label={`${totalViews.toLocaleString()} views`}
-                            title={`${totalViews.toLocaleString()} views`}
-                        >
-                            <Eye aria-hidden="true" className="w-[10px] h-[10px]" />
-                            <span>{totalViews.toLocaleString()}</span>
-                        </div>
-                    </div>
-                    <div className="w-full">
-                        {ctaButton}
-                    </div>
-                </div>
-
-                {error && (
-                    <div className="mt-1 text-[9px] md:text-[10px] text-red-400 flex items-center justify-center gap-1 font-medium bg-red-500/10 py-1 rounded border border-red-500/10">
-                        <AlertCircle className="w-2.5 h-2.5" /> {error}
-                    </div>
-                )}
-            </div>
-        </div>
+        <DropCardLayout
+            cardRef={cardRef}
+            drop={drop}
+            priority={priority}
+            resolvedRatio={resolvedRatio}
+            ratioStyle={ratioStyle}
+            fileCounts={fileCounts}
+            displayedTags={displayedTags}
+            totalViews={totalViews}
+            ctaButton={ctaButton}
+            error={error}
+            imageLoaded={imageLoaded}
+            onImageLoaded={() => setImageLoaded(true)}
+            onPreviewOpen={handlePreviewOpen}
+        />
     );
 }
 

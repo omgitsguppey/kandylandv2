@@ -1,5 +1,5 @@
 {
-  "generatedAt": "2026-04-30T01:11:41.820Z",
+  "generatedAt": "2026-05-01T16:05:38.088Z",
   "truthOrder": [
     "verified_runtime_code",
     "verified_configuration",
@@ -409,6 +409,40 @@
       "verifies_continuity": false
     },
     {
+      "stable_id": "command__root-check-telemetry-orphan-cleanup",
+      "command": "npm run check:telemetry-orphan-cleanup",
+      "scopeType": "analytics",
+      "root_or_functions": "root",
+      "requiredWhen": [],
+      "optionalWhen": [
+        "Run when the touched surface overlaps the command lane."
+      ],
+      "cleanupExpected": [],
+      "broadSignoffWeight": 1,
+      "verifies_runtime": false,
+      "verifies_ui": false,
+      "verifies_rules": false,
+      "verifies_inventory": false,
+      "verifies_continuity": false
+    },
+    {
+      "stable_id": "command__root-check-drops-mobile-refinement",
+      "command": "npm run check:drops-mobile-refinement",
+      "scopeType": "repo",
+      "root_or_functions": "root",
+      "requiredWhen": [],
+      "optionalWhen": [
+        "Run when the touched surface overlaps the command lane."
+      ],
+      "cleanupExpected": [],
+      "broadSignoffWeight": 1,
+      "verifies_runtime": false,
+      "verifies_ui": false,
+      "verifies_rules": false,
+      "verifies_inventory": false,
+      "verifies_continuity": false
+    },
+    {
       "stable_id": "command__root-check-analytics-semantics",
       "command": "npm run check:analytics-semantics",
       "scopeType": "analytics",
@@ -465,6 +499,431 @@
       "stable_id": "command__root-check-admin-truth",
       "command": "npm run check:admin-truth",
       "scopeType": "repo",
+      "root_or_functions": "root",
+      "requiredWhen": [],
+      "optionalWhen": [
+        "Run when the touched surface overlaps the command lane."
+      ],
+      "cleanupExpected": [],
+      "broadSignoffWeight": 1,
+      "verifies_runtime": false,
+      "verifies_ui": false,
+      "verifies_rules": false,
+      "verifies_inventory": false,
+      "verifies_continuity": false
+    },
+    {
+      "stable_id": "command__root-check-admin-analytics-overview",
+      "command": "npm run check:admin-analytics-overview",
+      "scopeType": "analytics",
+      "root_or_functions": "root",
+      "requiredWhen": [],
+      "optionalWhen": [
+        "Run when the touched surface overlaps the command lane."
+      ],
+      "cleanupExpected": [],
+      "broadSignoffWeight": 1,
+      "verifies_runtime": false,
+      "verifies_ui": false,
+      "verifies_rules": false,
+      "verifies_inventory": false,
+      "verifies_continuity": false
+    },
+    {
+      "stable_id": "command__root-check-admin-analytics-audience-snapshot",
+      "command": "npm run check:admin-analytics-audience-snapshot",
+      "scopeType": "analytics",
+      "root_or_functions": "root",
+      "requiredWhen": [],
+      "optionalWhen": [
+        "Run when the touched surface overlaps the command lane."
+      ],
+      "cleanupExpected": [],
+      "broadSignoffWeight": 1,
+      "verifies_runtime": false,
+      "verifies_ui": false,
+      "verifies_rules": false,
+      "verifies_inventory": false,
+      "verifies_continuity": false
+    },
+    {
+      "stable_id": "command__root-check-admin-analytics-commerce-snapshot",
+      "command": "npm run check:admin-analytics-commerce-snapshot",
+      "scopeType": "analytics",
+      "root_or_functions": "root",
+      "requiredWhen": [],
+      "optionalWhen": [
+        "Run when the touched surface overlaps the command lane."
+      ],
+      "cleanupExpected": [],
+      "broadSignoffWeight": 1,
+      "verifies_runtime": false,
+      "verifies_ui": false,
+      "verifies_rules": false,
+      "verifies_inventory": false,
+      "verifies_continuity": false
+    },
+    {
+      "stable_id": "command__root-check-admin-analytics-live-pulse",
+      "command": "npm run check:admin-analytics-live-pulse",
+      "scopeType": "analytics",
+      "root_or_functions": "root",
+      "requiredWhen": [],
+      "optionalWhen": [
+        "Run when the touched surface overlaps the command lane."
+      ],
+      "cleanupExpected": [],
+      "broadSignoffWeight": 1,
+      "verifies_runtime": false,
+      "verifies_ui": false,
+      "verifies_rules": false,
+      "verifies_inventory": false,
+      "verifies_continuity": false
+    },
+    {
+      "stable_id": "command__root-check-admin-analytics-journey-funnel",
+      "command": "npm run check:admin-analytics-journey-funnel",
+      "scopeType": "analytics",
+      "root_or_functions": "root",
+      "requiredWhen": [],
+      "optionalWhen": [
+        "Run when the touched surface overlaps the command lane."
+      ],
+      "cleanupExpected": [],
+      "broadSignoffWeight": 1,
+      "verifies_runtime": false,
+      "verifies_ui": false,
+      "verifies_rules": false,
+      "verifies_inventory": false,
+      "verifies_continuity": false
+    },
+    {
+      "stable_id": "command__root-check-admin-analytics-auth-outcome-split",
+      "command": "npm run check:admin-analytics-auth-outcome-split",
+      "scopeType": "analytics",
+      "root_or_functions": "root",
+      "requiredWhen": [],
+      "optionalWhen": [
+        "Run when the touched surface overlaps the command lane."
+      ],
+      "cleanupExpected": [],
+      "broadSignoffWeight": 1,
+      "verifies_runtime": false,
+      "verifies_ui": false,
+      "verifies_rules": false,
+      "verifies_inventory": false,
+      "verifies_continuity": false
+    },
+    {
+      "stable_id": "command__root-check-admin-analytics-onboarding-velocity",
+      "command": "npm run check:admin-analytics-onboarding-velocity",
+      "scopeType": "analytics",
+      "root_or_functions": "root",
+      "requiredWhen": [],
+      "optionalWhen": [
+        "Run when the touched surface overlaps the command lane."
+      ],
+      "cleanupExpected": [],
+      "broadSignoffWeight": 1,
+      "verifies_runtime": false,
+      "verifies_ui": false,
+      "verifies_rules": false,
+      "verifies_inventory": false,
+      "verifies_continuity": false
+    },
+    {
+      "stable_id": "command__root-check-admin-analytics-onboarding-performance",
+      "command": "npm run check:admin-analytics-onboarding-performance",
+      "scopeType": "analytics",
+      "root_or_functions": "root",
+      "requiredWhen": [],
+      "optionalWhen": [
+        "Run when the touched surface overlaps the command lane."
+      ],
+      "cleanupExpected": [],
+      "broadSignoffWeight": 1,
+      "verifies_runtime": false,
+      "verifies_ui": false,
+      "verifies_rules": false,
+      "verifies_inventory": false,
+      "verifies_continuity": false
+    },
+    {
+      "stable_id": "command__root-check-admin-analytics-guest-bounce-quality",
+      "command": "npm run check:admin-analytics-guest-bounce-quality",
+      "scopeType": "analytics",
+      "root_or_functions": "root",
+      "requiredWhen": [],
+      "optionalWhen": [
+        "Run when the touched surface overlaps the command lane."
+      ],
+      "cleanupExpected": [],
+      "broadSignoffWeight": 1,
+      "verifies_runtime": false,
+      "verifies_ui": false,
+      "verifies_rules": false,
+      "verifies_inventory": false,
+      "verifies_continuity": false
+    },
+    {
+      "stable_id": "command__root-check-admin-analytics-event-mix",
+      "command": "npm run check:admin-analytics-event-mix",
+      "scopeType": "analytics",
+      "root_or_functions": "root",
+      "requiredWhen": [],
+      "optionalWhen": [
+        "Run when the touched surface overlaps the command lane."
+      ],
+      "cleanupExpected": [],
+      "broadSignoffWeight": 1,
+      "verifies_runtime": false,
+      "verifies_ui": false,
+      "verifies_rules": false,
+      "verifies_inventory": false,
+      "verifies_continuity": false
+    },
+    {
+      "stable_id": "command__root-check-admin-analytics-live-interaction-stream",
+      "command": "npm run check:admin-analytics-live-interaction-stream",
+      "scopeType": "analytics",
+      "root_or_functions": "root",
+      "requiredWhen": [],
+      "optionalWhen": [
+        "Run when the touched surface overlaps the command lane."
+      ],
+      "cleanupExpected": [],
+      "broadSignoffWeight": 1,
+      "verifies_runtime": false,
+      "verifies_ui": false,
+      "verifies_rules": false,
+      "verifies_inventory": false,
+      "verifies_continuity": false
+    },
+    {
+      "stable_id": "command__root-check-admin-analytics-daily-task-pipeline",
+      "command": "npm run check:admin-analytics-daily-task-pipeline",
+      "scopeType": "analytics",
+      "root_or_functions": "root",
+      "requiredWhen": [],
+      "optionalWhen": [
+        "Run when the touched surface overlaps the command lane."
+      ],
+      "cleanupExpected": [],
+      "broadSignoffWeight": 1,
+      "verifies_runtime": false,
+      "verifies_ui": false,
+      "verifies_rules": false,
+      "verifies_inventory": false,
+      "verifies_continuity": false
+    },
+    {
+      "stable_id": "command__root-check-admin-data-validation-relocation",
+      "command": "npm run check:admin-data-validation-relocation",
+      "scopeType": "repo",
+      "root_or_functions": "root",
+      "requiredWhen": [],
+      "optionalWhen": [
+        "Run when the touched surface overlaps the command lane."
+      ],
+      "cleanupExpected": [],
+      "broadSignoffWeight": 1,
+      "verifies_runtime": false,
+      "verifies_ui": false,
+      "verifies_rules": false,
+      "verifies_inventory": false,
+      "verifies_continuity": false
+    },
+    {
+      "stable_id": "command__root-check-notification-pipeline",
+      "command": "npm run check:notification-pipeline",
+      "scopeType": "repo",
+      "root_or_functions": "root",
+      "requiredWhen": [],
+      "optionalWhen": [
+        "Run when the touched surface overlaps the command lane."
+      ],
+      "cleanupExpected": [],
+      "broadSignoffWeight": 1,
+      "verifies_runtime": false,
+      "verifies_ui": false,
+      "verifies_rules": false,
+      "verifies_inventory": false,
+      "verifies_continuity": false
+    },
+    {
+      "stable_id": "command__root-check-admin-shell-spacing",
+      "command": "npm run check:admin-shell-spacing",
+      "scopeType": "repo",
+      "root_or_functions": "root",
+      "requiredWhen": [],
+      "optionalWhen": [
+        "Run when the touched surface overlaps the command lane."
+      ],
+      "cleanupExpected": [],
+      "broadSignoffWeight": 1,
+      "verifies_runtime": false,
+      "verifies_ui": false,
+      "verifies_rules": false,
+      "verifies_inventory": false,
+      "verifies_continuity": false
+    },
+    {
+      "stable_id": "command__root-check-user-chat-shell-routing",
+      "command": "npm run check:user-chat-shell-routing",
+      "scopeType": "repo",
+      "root_or_functions": "root",
+      "requiredWhen": [],
+      "optionalWhen": [
+        "Run when the touched surface overlaps the command lane."
+      ],
+      "cleanupExpected": [],
+      "broadSignoffWeight": 1,
+      "verifies_runtime": false,
+      "verifies_ui": false,
+      "verifies_rules": false,
+      "verifies_inventory": false,
+      "verifies_continuity": false
+    },
+    {
+      "stable_id": "command__root-check-analytics-truth-layer-v2",
+      "command": "npm run check:analytics-truth-layer-v2",
+      "scopeType": "analytics",
+      "root_or_functions": "root",
+      "requiredWhen": [],
+      "optionalWhen": [
+        "Run when the touched surface overlaps the command lane."
+      ],
+      "cleanupExpected": [],
+      "broadSignoffWeight": 1,
+      "verifies_runtime": false,
+      "verifies_ui": false,
+      "verifies_rules": false,
+      "verifies_inventory": false,
+      "verifies_continuity": false
+    },
+    {
+      "stable_id": "command__root-check-analytics-event-contract",
+      "command": "npm run check:analytics-event-contract",
+      "scopeType": "analytics",
+      "root_or_functions": "root",
+      "requiredWhen": [],
+      "optionalWhen": [
+        "Run when the touched surface overlaps the command lane."
+      ],
+      "cleanupExpected": [],
+      "broadSignoffWeight": 1,
+      "verifies_runtime": false,
+      "verifies_ui": false,
+      "verifies_rules": false,
+      "verifies_inventory": false,
+      "verifies_continuity": false
+    },
+    {
+      "stable_id": "command__root-check-admin-analytics-hot-cache",
+      "command": "npm run check:admin-analytics-hot-cache",
+      "scopeType": "analytics",
+      "root_or_functions": "root",
+      "requiredWhen": [],
+      "optionalWhen": [
+        "Run when the touched surface overlaps the command lane."
+      ],
+      "cleanupExpected": [],
+      "broadSignoffWeight": 1,
+      "verifies_runtime": false,
+      "verifies_ui": false,
+      "verifies_rules": false,
+      "verifies_inventory": false,
+      "verifies_continuity": false
+    },
+    {
+      "stable_id": "command__root-check-admin-analytics-snapshot-migration",
+      "command": "npm run check:admin-analytics-snapshot-migration",
+      "scopeType": "analytics",
+      "root_or_functions": "root",
+      "requiredWhen": [],
+      "optionalWhen": [
+        "Run when the touched surface overlaps the command lane."
+      ],
+      "cleanupExpected": [],
+      "broadSignoffWeight": 1,
+      "verifies_runtime": false,
+      "verifies_ui": false,
+      "verifies_rules": false,
+      "verifies_inventory": false,
+      "verifies_continuity": false
+    },
+    {
+      "stable_id": "command__root-check-admin-analytics-no-pure-realtime",
+      "command": "npm run check:admin-analytics-no-pure-realtime",
+      "scopeType": "analytics",
+      "root_or_functions": "root",
+      "requiredWhen": [],
+      "optionalWhen": [
+        "Run when the touched surface overlaps the command lane."
+      ],
+      "cleanupExpected": [],
+      "broadSignoffWeight": 1,
+      "verifies_runtime": false,
+      "verifies_ui": false,
+      "verifies_rules": false,
+      "verifies_inventory": false,
+      "verifies_continuity": false
+    },
+    {
+      "stable_id": "command__root-analytics-legacy-inventory",
+      "command": "npm run analytics:legacy:inventory",
+      "scopeType": "repo_tooling",
+      "root_or_functions": "root",
+      "requiredWhen": [],
+      "optionalWhen": [
+        "Run when the touched surface overlaps the command lane."
+      ],
+      "cleanupExpected": [],
+      "broadSignoffWeight": 1,
+      "verifies_runtime": false,
+      "verifies_ui": false,
+      "verifies_rules": false,
+      "verifies_inventory": false,
+      "verifies_continuity": false
+    },
+    {
+      "stable_id": "command__root-analytics-legacy-map",
+      "command": "npm run analytics:legacy:map",
+      "scopeType": "analytics",
+      "root_or_functions": "root",
+      "requiredWhen": [],
+      "optionalWhen": [
+        "Run when the touched surface overlaps the command lane."
+      ],
+      "cleanupExpected": [],
+      "broadSignoffWeight": 1,
+      "verifies_runtime": false,
+      "verifies_ui": false,
+      "verifies_rules": false,
+      "verifies_inventory": false,
+      "verifies_continuity": false
+    },
+    {
+      "stable_id": "command__root-analytics-ecosystem-parity",
+      "command": "npm run analytics:ecosystem:parity",
+      "scopeType": "analytics",
+      "root_or_functions": "root",
+      "requiredWhen": [],
+      "optionalWhen": [
+        "Run when the touched surface overlaps the command lane."
+      ],
+      "cleanupExpected": [],
+      "broadSignoffWeight": 1,
+      "verifies_runtime": false,
+      "verifies_ui": false,
+      "verifies_rules": false,
+      "verifies_inventory": false,
+      "verifies_continuity": false
+    },
+    {
+      "stable_id": "command__root-check-analytics-legacy-recovery",
+      "command": "npm run check:analytics-legacy-recovery",
+      "scopeType": "analytics",
       "root_or_functions": "root",
       "requiredWhen": [],
       "optionalWhen": [

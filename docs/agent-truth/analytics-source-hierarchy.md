@@ -23,6 +23,8 @@ Product truth comes from first-party event ledgers and business records. These a
 
 Product truth wins over provider summaries unless a later reconciliation job explicitly promotes another source.
 
+Event-fact writers are part of product truth only after they pass the telemetry catalog boundary. A route, callable, cron, or server helper must not write arbitrary posted event names into `analytics_event_facts` or `analytics_event_stats`. Unsupported names are diagnostics or rejected input, not product telemetry.
+
 ### 2. Fast Admin Display Truth
 
 Fast admin display truth is the verified hot cache snapshot. It is a backend-built read model intended for first paint in Admin Analytics. It can be fresh or stale, but it must be labeled and must include enough metadata to prevent fake zeros.
@@ -126,6 +128,8 @@ Only the first two are product truth by default. Hot caches are fast display tru
 Every current or future canonical writer needs a deterministic `dedupeKey`. The key should include the event name, actor lane/id, source lane, object type/id, and a safe time bucket or business id. Random browser ids can remain `eventId`, but they must not be the only idempotency control for business facts such as purchases, unlocks, tasks, notifications, or identity links.
 
 Legacy records mapped into canonical shape must keep `legacySource` and `legacyId` so they cannot silently mix with server-confirmed current events.
+
+Compatibility aliases remain useful for historical recovery, but active writes should store the canonical name and retain the alias only as legacy metadata. This prevents old names from becoming new orphaned event families.
 
 ## Phase 3 Hot-Cache Snapshot Placement
 

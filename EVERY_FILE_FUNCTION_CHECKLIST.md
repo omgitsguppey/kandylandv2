@@ -1,13 +1,37 @@
 # EVERY FILE FUNCTION CHECKLIST
 
 **Last Updated:** 2026-05-01
-**Current Focus:** Admin Analytics realtime dependency audit, hot-cache display-state policy, and Live Pulse snapshot-first correction.
+**Current Focus:** Drops mobile Apple-aligned UI refinement with telemetry and hydration preservation.
 **Status:** In Progress. Current tracked-file coverage is reconciled as of 2026-04-28: every `git ls-files` entry has a current checklist heading, while detailed function-level audits remain pending for many historical and newly reconciled files.
 Purpose: exhaustive no-skip audit checklist covering every repository file currently in scope and every detected function-like implementation.
 
 Scoring: all entries below are marked as included in the current validated sweep. Confidence reflects current repository-state confidence, not perfection or future-proofing.
 
 Current repo-wide state snapshot: see [FULL_SCALE_CODEBASE_AUDIT.md](/Users/uylus/OneDrive/Documents/KandyDrops_Final/FULL_SCALE_CODEBASE_AUDIT.md) for the current live baseline, verification state, and continuity rules, and see [REPO_MEMORY_LEDGER.md](/Users/uylus/OneDrive/Documents/KandyDrops_Final/REPO_MEMORY_LEDGER.md) for major architectural and workflow decisions. The detailed file/function body below remains valuable historical evidence, but it has not been fully regenerated against the current 2026-04-18 inventory review yet.
+
+## 2026-05-01 Drops Mobile Apple-Aligned Refinement Coverage
+
+- [x] `docs/doctrine/kandydrops-ui-doctrine.md` records the 2026 Apple-aligned KandyDrops mobile refinement rule with official HIG source anchors and telemetry requirements.
+- [x] `docs/agent-truth/drops-mobile-refinement.md` documents 50 mobile improvement areas, source owners, telemetry obligations, hydration order, and future-agent guardrails.
+- [x] `src/app/drops/DropsClient.tsx` reduces duplicated shell spacing, removes the large Drops body minimum height, defers search filtering with `useDeferredValue`, dedupes search telemetry, and enriches page/category/search events with `compact_mobile_apple_2026`.
+- [x] `src/app/drops/loading.tsx` mirrors the compact final Drops layout to reduce hydration jump.
+- [x] `src/components/StickyFilterBar.tsx` keeps compact search/filter controls, removes manual icon drawing, avoids animation/scroll dependencies, and preserves accessible search semantics.
+- [x] `src/components/FeaturedCarousel.tsx` uses compact mobile aspect sizing, reduced-motion-aware autoplay, shared `useNow` timing, and enriched featured-click telemetry.
+- [x] `src/components/DropGrid.tsx` reduces mobile gaps/skeletons, removes the fake local `Notify Me` affordance, and uses a truthful `/experiences` route link when Drops are empty.
+- [x] `src/components/DropCard.tsx`, `DropCardLayout.tsx`, `DropCardParts.tsx`, `DropCardCta.tsx`, and `src/hooks/useDropCardImpression.ts` split the oversized card, enforce compact radii, share timer state, preserve impression POSTs, and enrich detail/unlock/blocked-funds telemetry.
+- [x] `src/hooks/useDrops.ts` defers the Firestore runtime subscription until idle and revalidates empty server seeds instead of treating them as complete truth.
+- [x] `scripts/agent/validate-drops-mobile-refinement.ts` and `package.json` add `npm run check:drops-mobile-refinement`.
+
+## 2026-05-01 Full-Scale Telemetry Orphan Cleanup Coverage
+
+- [x] `src/app/api/analytics/ingest-identified/route.ts` canonicalizes every submitted authenticated telemetry event through `resolveTrackedTelemetryEvent` before writing `analytics_event_facts`.
+- [x] `src/app/api/analytics/ingest-identified/route.ts` skips unsupported event names with route diagnostics and `skippedUnsupported` response metadata instead of creating orphaned analytics facts.
+- [x] `src/app/api/analytics/ingest-identified/route.ts` preserves compatibility aliases as canonical event names with `legacy_event_name` metadata.
+- [x] `src/app/api/analytics/ingest-identified/route.ts` keeps legacy `admin_ui_error` as a server diagnostic and no longer lets it become product analytics telemetry.
+- [x] `tests/unit/analytics-ingest-identified-route.spec.ts` covers alias canonicalization, unsupported event blocking, no fact writes for orphan probes, and diagnostic-only legacy admin UI errors.
+- [x] `agent/state/telemetry-orphan-cleanup-audit.generated.json` records the audited telemetry surfaces, cleanup actions, and residual Functions callable risk.
+- [x] `docs/agent-truth/telemetry-orphan-cleanup-audit.md` documents the orphan cleanup doctrine, audited surfaces, fixed ingest gap, and future shared-manifest requirement.
+- [x] `scripts/agent/validate-telemetry-orphan-cleanup.ts` and `package.json` add `npm run check:telemetry-orphan-cleanup`.
 
 ## 2026-05-01 Admin Analytics Realtime Dependency Audit Coverage
 

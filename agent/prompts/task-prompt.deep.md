@@ -1,37 +1,32 @@
 # DEEP Task Context
 
 ## Goal
-tighten admin ai runtime health
+simplify final-day drop card countdown typography
 
-Mode: admin
+Mode: ui
 Scope: moderate
 Why scope: Touches several files or shared helper surfaces with non-trivial adjacency.
 
 ## Likely Entrypoints
-- src/app/admin/debug/page.tsx
-- src/lib/server/firebase-admin.ts
-- src/hooks/useAdminOverview.ts
-- src/app/admin/debug/hooks/useAdminAiAssistantRealtime.ts
-- src/app/admin/debug/hooks/useAdminDebugRealtime.ts
-- src/lib/admin-debug-preferences.ts
-- src/lib/admin-debug-route-runtime.ts
-- src/lib/ai-debug-assistant.ts
-- src/components/Admin/AdminPageHeader.tsx
-- src/components/Admin/AdminStatusBadge.tsx
+- src/components/DropCard.tsx
+- src/components/DropGrid.tsx
+- src/components/DropCardCta.tsx
+- src/components/DropCardLayout.tsx
+- src/lib/drop-engagement.ts
+- src/lib/drop-presentation.ts
+- src/components/Toasts/UnwrapSuccessToast.tsx
+- src/components/FeaturedCarousel.tsx
+- src/components/StickyFilterBar.tsx
+- src/lib/telemetry.ts
 - FULL_SCALE_CODEBASE_AUDIT.md
-- .agent/workflows/dependency-truth.md
-- /api/admin/debug
-- scripts/agent/check-infrastructure-truth.ts
+- docs/agent-truth/drops-mobile-refinement.md
+- npm run agent:fast-start -- --task="apple style mobile drops page refinement with telemetry preservation" --mode=user --file=src/app/drops/page.tsx
+- npm run agent:test -- src/app/drops/page.tsx
 
 ## Canonical Helpers To Reuse
-- src/lib/route-runtime-health.ts
-- src/lib/ai-drop-covers.ts
-- src/lib/server/admin-panel-system-logs.ts
-- src/lib/server/ai-drop-covers.ts
-- src/lib/server/route-diagnostics.ts
-- src/lib/server/route-runtime-health.ts
-- src/lib/server/server-diagnostics.ts
-- src/lib/server/auth.ts
+- src/lib/telemetry.ts
+- src/lib/gumdrop-economics.ts
+- src/lib/gumdrop-ledger.ts
 
 ## Acceptance Criteria
 - Reuse the canonical helpers before introducing new ownership paths.
@@ -40,11 +35,6 @@ Why scope: Touches several files or shared helper surfaces with non-trivial adja
 
 ## Relevant Pitfalls
 - consumed_response_stream_fallback
-- legacy_queue_adapter_usage
-- stale_queue_scheduler_heartbeat
-- unchecked_response_ok_ui_hydration
-- creator_booking_timezone_drift
-- silent_ui_fallback_masking_failure
 
 ## Forbidden Surfaces
 - src/lib/gumdrop-ledger.ts
@@ -55,10 +45,10 @@ Why scope: Touches several files or shared helper surfaces with non-trivial adja
 
 ## Fast Verification
 - npm run typecheck
-- npm run agent:test -- src/app/admin/debug/page.tsx
-- npm run agent:test -- src/lib/server/firebase-admin.ts
-- npm run agent:test -- src/hooks/useAdminOverview.ts
-- npm run agent:test -- src/app/admin/debug/hooks/useAdminAiAssistantRealtime.ts
+- npm run agent:test -- src/components/DropCard.tsx
+- npm run agent:test -- src/components/DropGrid.tsx
+- npm run agent:test -- src/components/DropCardCta.tsx
+- npm run agent:test -- src/components/DropCardLayout.tsx
 - npm run check:ui:coverage
 - npm run check:ui:runtime
 - npm run check:telemetry
@@ -73,8 +63,8 @@ Why scope: Touches several files or shared helper surfaces with non-trivial adja
 - required: npm run check:ui:audits
 - required: npm run check:ui:coverage
 - required: npm run check:ui:runtime
-- required: npm run test:contracts
 - required: npm run trace:adjacent -- <path>
+- required: npm run test:contracts
 - required: npm run check:telemetry
 - required: npm run check:analytics-semantics
 - optional: npm run check:ui:lighthouse
@@ -83,9 +73,6 @@ Why scope: Touches several files or shared helper surfaces with non-trivial adja
 Do not read unless needed:
 
 Do not touch without broad signoff:
-- src/lib/server/firebase-admin.ts
-- src/lib/admin-debug-preferences.ts
-- src/lib/admin-debug-route-runtime.ts
-- src/lib/ai-debug-assistant.ts
-- src/lib/admin-ai-models.ts
-- src/lib/admin-analytics-live-runtime.ts
+- src/lib/drop-engagement.ts
+- src/lib/drop-presentation.ts
+- src/lib/telemetry.ts

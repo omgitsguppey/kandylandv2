@@ -1,5 +1,5 @@
 {
-  "generatedAt": "2026-04-27T04:10:03.856Z",
+  "generatedAt": "2026-05-01T16:06:01.259Z",
   "truthOrder": [
     "verified_runtime_code",
     "verified_configuration",
@@ -16,47 +16,41 @@
     "scripts/trace-adjacent-surfaces.ts"
   ],
   "input": {
-    "task": "tighten admin ai runtime health",
-    "mode": "admin",
+    "task": "simplify final-day drop card countdown typography",
+    "mode": "ui",
     "files": [
-      "src/app/admin/debug/page.tsx"
+      "src/components/DropCard.tsx"
     ]
   },
-  "gitStatus": "M agent/index/blast-radius.json\n M agent/index/canonical-helpers.json\n M agent/index/dependency-graph.summary.json\n M agent/index/governance-truth.json\n M agent/index/known-pitfalls.json\n M agent/index/package-manager-truth.json\n M agent/index/recent-passes.json\n M agent/index/repo-inventory.json\n M agent/index/retrieval-index.json\n M agent/index/runtime-observability.json\n M agent/index/surface-map.json\n M agent/index/ui-surface-coverage.json\n M agent/index/verification-commands.json\n M agent/index/workflow-guidance.json\n M agent/prompts/task-issue-spec.generated.md\n M agent/prompts/task-prompt.deep.md\n M agent/prompts/task-prompt.short.md\n M agent/prompts/task-prompt.standard.md\n M agent/prompts/verification-plan.generated.md\n M agent/state/fast-start.generated.json\n M agent/state/task-context.generated.json\n M agent/state/verification-plan.generated.json",
-  "taskContextStableId": "taskctx__admin-tighten-admin-ai-runtime-health",
+  "gitStatus": "M EVERY_FILE_FUNCTION_CHECKLIST.md\n M FULL_SCALE_CODEBASE_AUDIT.md\n M REPO_MEMORY_LEDGER.md\n M agent/index/blast-radius.json\n M agent/index/canonical-helpers.json\n M agent/index/dependency-graph.summary.json\n M agent/index/governance-truth.json\n M agent/index/known-pitfalls.json\n M agent/index/package-manager-truth.json\n M agent/index/recent-passes.json\n M agent/index/repo-inventory.json\n M agent/index/retrieval-index.json\n M agent/index/runtime-observability.json\n M agent/index/surface-map.json\n M agent/index/ui-surface-coverage.json\n M agent/index/verification-commands.json\n M agent/index/workflow-guidance.json\n M agent/prompts/task-prompt.deep.md\n M agent/prompts/task-prompt.short.md\n M agent/prompts/task-prompt.standard.md\n M agent/prompts/verification-plan.generated.md\n M agent/state/task-context.generated.json\n M agent/state/verification-plan.generated.json\n M docs/agent-truth/analytics-source-hierarchy.md\n M docs/agent-truth/analytics-truth-layer-v2.md\n M docs/doctrine/kandydrops-ui-doctrine.md\n M package.json\n M src/app/api/analytics/ingest-identified/route.ts\n M src/app/api/drops/feedback/route.ts\n M src/app/dashboard/viewer/hooks/useViewerFeedback.ts\n M src/app/drops/DropsClient.tsx\n M src/app/drops/loading.tsx\n M src/components/DropCard.tsx\n M src/components/DropGrid.tsx\n M src/components/FeaturedCarousel.tsx\n M src/components/StickyFilterBar.tsx\n M src/hooks/useDrops.ts\n?? agent/state/telemetry-orphan-cleanup-audit.generated.json\n?? docs/agent-truth/drops-mobile-refinement.md\n?? docs/agent-truth/telemetry-orphan-cleanup-audit.md\n?? scripts/agent/validate-drops-mobile-refinement.ts\n?? scripts/agent/validate-telemetry-orphan-cleanup.ts\n?? src/components/DropCardCta.tsx\n?? src/components/DropCardLayout.tsx\n?? src/components/DropCardParts.tsx\n?? src/hooks/useDropCardImpression.ts\n?? tests/unit/analytics-ingest-identified-route.spec.ts\n?? tests/unit/drops-feedback-route.spec.ts",
+  "taskContextStableId": "taskctx__ui-simplify-final-day-drop-card-countdown-typography",
   "likelyTouchedFiles": [
-    "src/app/admin/debug/page.tsx",
-    "src/lib/server/firebase-admin.ts",
-    "src/hooks/useAdminOverview.ts",
-    "src/app/admin/debug/hooks/useAdminAiAssistantRealtime.ts",
-    "src/app/admin/debug/hooks/useAdminDebugRealtime.ts",
-    "src/lib/admin-debug-preferences.ts",
-    "src/lib/admin-debug-route-runtime.ts",
-    "src/lib/ai-debug-assistant.ts",
-    "src/components/Admin/AdminPageHeader.tsx",
-    "src/components/Admin/AdminStatusBadge.tsx",
-    "src/lib/admin-ai-models.ts",
-    "src/lib/admin-analytics-live-runtime.ts"
+    "src/components/DropCard.tsx",
+    "src/components/DropGrid.tsx",
+    "src/components/DropCardCta.tsx",
+    "src/components/DropCardLayout.tsx",
+    "src/lib/drop-engagement.ts",
+    "src/lib/drop-presentation.ts",
+    "src/components/Toasts/UnwrapSuccessToast.tsx",
+    "src/components/FeaturedCarousel.tsx",
+    "src/components/StickyFilterBar.tsx",
+    "src/lib/telemetry.ts",
+    "src/components/Chat/ChatExperience.tsx",
+    "src/context/AuthContext.tsx"
   ],
   "canonicalHelpersToReuse": [
-    "src/lib/route-runtime-health.ts",
-    "src/lib/ai-drop-covers.ts",
-    "src/lib/server/admin-panel-system-logs.ts",
-    "src/lib/server/ai-drop-covers.ts",
-    "src/lib/server/route-diagnostics.ts",
-    "src/lib/server/route-runtime-health.ts",
-    "src/lib/server/server-diagnostics.ts",
-    "src/lib/server/auth.ts"
+    "src/lib/telemetry.ts",
+    "src/lib/gumdrop-economics.ts",
+    "src/lib/gumdrop-ledger.ts"
   ],
   "fastVerificationCommands": [
     "npm run typecheck",
-    "npm run agent:test -- src/app/admin/debug/page.tsx",
+    "npm run agent:test -- src/components/DropCard.tsx",
     "npm run check:ui:coverage",
     "npm run check:ui:runtime"
   ],
   "signoffVerificationCommands": [
-    "npm run check:ui:audits",
-    "npm run check:continuity"
+    "npm run check:ui:audits"
   ],
   "forbiddenSurfaces": [
     "src/lib/gumdrop-ledger.ts",
@@ -67,8 +61,8 @@
   ],
   "traceOutputs": [
     {
-      "path": "src/app/admin/debug/page.tsx",
-      "output": "> kandydrops@0.1.0 trace:adjacent\n> tsx scripts/trace-adjacent-surfaces.ts src/app/admin/debug/page.tsx\n\n\nTarget: src/app/admin/debug/page.tsx\nSurface: route-or-page\nDirect imports:\n- src/app/admin/debug/components/AdminAiAssistantRealtimePanel.tsx\n- src/app/admin/debug/hooks/useAdminAiAssistantRealtime.ts\n- src/app/admin/debug/hooks/useAdminDebugRealtime.ts\n- src/components/Admin/AdminPageHeader.tsx\n- src/components/Admin/AdminStatusBadge.tsx\n- src/components/Analytics/PageViewEvent.tsx\n- src/components/ui/Button.tsx\n- src/context/AuthContext.tsx\n- src/hooks/useAdminOverview.ts\n- src/hooks/useAdminPollingSWR.ts\n- src/hooks/useCompactViewport.ts\n- src/lib/admin-debug-preferences.ts\n- src/lib/admin-debug-route-runtime.ts\n- src/lib/ai-debug-assistant.ts\n- src/lib/authFetch.ts\n- src/lib/client-error-reporting.ts\n- src/lib/creator-message-compatibility.ts\n- src/lib/route-runtime-health.ts\n- src/lib/utils.ts\nImported by:\n- None detected\nSame-directory siblings:\n- None detected\nPotential related tests:\n- tests/unit/admin-ai-debug-runtime.spec.ts\n- tests/unit/admin-analytics-page.spec.tsx\n- tests/unit/admin-debug-assistant-route.spec.ts\n- tests/unit/admin-debug-preferences-route.spec.ts\n- tests/unit/admin-debug-route-runtime.spec.ts\n- tests/unit/ai-debug-assistant.spec.ts\n- tests/unit/creator-public-pages.spec.ts\n- tests/unit/creator-waitlist-page.spec.tsx\n- tests/unit/dashboard-viewer-page.spec.tsx\nCanonical helpers to review:\n- None detected"
+      "path": "src/components/DropCard.tsx",
+      "output": "> kandydrops@0.1.0 trace:adjacent\n> tsx scripts/trace-adjacent-surfaces.ts src/components/DropCard.tsx\n\n\nTarget: src/components/DropCard.tsx\nSurface: component\nDirect imports:\n- src/components/DropCardCta.tsx\n- src/components/DropCardLayout.tsx\n- src/components/Toasts/UnwrapSuccessToast.tsx\n- src/context/AuthContext.tsx\n- src/context/UIContext.tsx\n- src/hooks/useDropCardImpression.ts\n- src/lib/activity-sync.ts\n- src/lib/authFetch.ts\n- src/lib/client-error-reporting.ts\n- src/lib/drop-engagement.ts\n- src/lib/drop-presentation.ts\n- src/lib/telemetry.ts\n- src/types/db.ts\nImported by:\n- src/components/DropGrid.tsx\nSame-directory siblings:\n- src/components/AdminErrorCatcher.tsx\n- src/components/ClientDiagnosticsBridge.tsx\n- src/components/CookieBanner.tsx\n- src/components/CoreLayoutWrapper.tsx\n- src/components/CreatorDiscoveryRail.tsx\n- src/components/DropCardCta.tsx\n- src/components/DropCardLayout.tsx\n- src/components/DropCardParts.tsx\n- src/components/DropGrid.tsx\n- src/components/DropPreviewModal.tsx\n- src/components/ErrorBoundary.tsx\n- src/components/FeaturedCarousel.tsx\n- src/components/GlobalAuthModal.tsx\n- src/components/GlobalPurchaseModal.tsx\n- src/components/Hero.tsx\n- src/components/HomeDropTicker.tsx\n- src/components/HomepageRuntimeDiagnostics.tsx\n- src/components/InsufficientBalanceModal.tsx\n- src/components/KandyDropsAccountOverview.tsx\n- src/components/Navbar.tsx\n- src/components/PayPalProvider.tsx\n- src/components/PromoCard.tsx\n- src/components/PurchaseModal.tsx\n- src/components/PwaRuntimeBridge.tsx\n- src/components/StickyFilterBar.tsx\n- src/components/UIDebug.tsx\nPotential related tests:\n- None detected\nCanonical helpers to review:\n- src/lib/client-error-reporting.ts"
     }
   ]
 }

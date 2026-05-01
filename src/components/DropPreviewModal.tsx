@@ -23,6 +23,7 @@ import {
 import { showUnwrapSuccessToast } from "@/components/Toasts/UnwrapSuccessToast";
 import { ReportBugButton } from "@/components/Feedback/ReportBugButton";
 import { dispatchActivitySync } from "@/lib/activity-sync";
+import { formatDropCountdown } from "@/lib/drop-countdown";
 
 interface DropPreviewModalProps {
   drop: Drop | null;
@@ -31,53 +32,31 @@ interface DropPreviewModalProps {
 
 function useModalTimer(validFrom: number, validUntil?: number) {
     const [label, setLabel] = useState("");
+    const [fullLabel, setFullLabel] = useState("");
     const [urgencyState, setUrgencyState] = useState<"calm" | "warm" | "critical">("calm");
 
     useEffect(() => {
         const updateTimer = () => {
             const now = Date.now();
             if (now < validFrom) {
-                setLabel(`Starts in ${formatDistanceToNow(validFrom)}`);
+                const startsLabel = `Starts in ${formatDistanceToNow(validFrom)}`;
+                setLabel(startsLabel);
+                setFullLabel(startsLabel);
                 setUrgencyState("calm");
                 return;
             }
 
             if (!validUntil) {
                 setLabel("Always available");
+                setFullLabel("Always available");
                 setUrgencyState("calm");
                 return;
             }
 
-            const msLeft = Math.max(0, validUntil - now);
-            const ONE_HOUR_MS = 60 * 60 * 1000;
-            const ONE_DAY_MS = 24 * ONE_HOUR_MS;
-
-            if (msLeft === 0) {
-                setLabel("Expired");
-                setUrgencyState("critical");
-                return;
-            }
-
-            if (msLeft <= 4 * ONE_HOUR_MS) {
-                setUrgencyState("critical");
-            } else if (msLeft <= ONE_DAY_MS) {
-                setUrgencyState("warm");
-            } else {
-                setUrgencyState("calm");
-            }
-
-            if (msLeft >= ONE_DAY_MS) {
-                const days = Math.ceil(msLeft / ONE_DAY_MS);
-                setLabel(`Ends in ${days} day${days === 1 ? "" : "s"}`);
-                return;
-            }
-
-            const totalSeconds = Math.floor(msLeft / 1000);
-            const hours = Math.floor(totalSeconds / 3600);
-            const minutes = Math.floor((totalSeconds % 3600) / 60);
-            const seconds = totalSeconds % 60;
-            const pad = (value: number) => value.toString().padStart(2, "0");
-            setLabel(`Ends in ${pad(hours)}:${pad(minutes)}:${pad(seconds)}`);
+            const countdown = formatDropCountdown(validUntil, now);
+            setLabel(countdown.visibleLabel);
+            setFullLabel(countdown.fullLabel);
+            setUrgencyState(countdown.urgencyState);
         };
 
         updateTimer();
@@ -85,7 +64,7 @@ function useModalTimer(validFrom: number, validUntil?: number) {
         return () => window.clearInterval(interval);
     }, [validFrom, validUntil]);
 
-    return { label, urgencyState };
+    return { label, fullLabel, urgencyState };
 }
 
 function FileCountBadge({ drop }: { drop: Drop }) {
@@ -174,7 +153,7 @@ export function DropPreviewModal({ drop, onClose }: DropPreviewModalProps) {
   }, [confirming]);
 
   const mediaSummary = useMemo(() => (drop ? getDropMediaSummary(drop) : { imageCount: 0, videoCount: 0 }), [drop]);
-  const { label: timerLabel, urgencyState: timerUrgency } = useModalTimer(drop?.validFrom || 0, drop?.validUntil);
+  const { label: timerLabel, fullLabel: timerFullLabel, urgencyState: timerUrgency } = useModalTimer(drop?.validFrom || 0, drop?.validUntil);
   const aspectRatio = useMemo(() => (drop ? getSupportedDropAspectRatio(drop) : "1:1"), [drop]);
   const ratioStyle = useMemo(() => ({ aspectRatio: getAspectRatioCssValue(aspectRatio) }), [aspectRatio]);
 
@@ -430,7 +409,10 @@ export function DropPreviewModal({ drop, onClose }: DropPreviewModalProps) {
                       timerUrgency === "critical" ? "bg-fuchsia-900/30 border-fuchsia-500/40 text-fuchsia-200 animate-pulse" :
                       timerUrgency === "warm" ? "bg-[#b28cff]/15 border-[#b28cff]/30 text-[#e4d4ff]" :
                       "bg-brand-purple/15 border-brand-purple/30 text-brand-purple"
-                  )}>
+                  )}
+                    aria-label={timerFullLabel || timerLabel || "Always available"}
+                    title={timerFullLabel || timerLabel || "Always available"}
+                  >
                     <Clock className={cn("w-3.5 h-3.5", timerUrgency === "critical" ? "text-fuchsia-400" : timerUrgency === "warm" ? "text-[#b28cff]" : "text-brand-purple")} /> 
                     {timerLabel || "Always available"}
                   </span>

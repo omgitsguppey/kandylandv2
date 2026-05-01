@@ -8,6 +8,7 @@ import { createAutoHealingObserver } from "@/lib/self-healing";
 import { Drop } from "@/types/db";
 import { applyDropStatus, resolveDropStatusFromTiming } from "@/lib/drop-status";
 import { SYSTEM_RUNTIME_COLLECTION, DROP_RUNTIME_DOC_ID } from "@/lib/platform-config";
+import { useDeferredClientReady } from "@/hooks/useDeferredClientReady";
 import { useNetworkConditions } from "@/hooks/useNetworkConditions";
 
 const INITIAL_SWEEP_NOW = Date.now();
@@ -69,6 +70,10 @@ export function useDrops(
   const [sweepNowMs, setSweepNowMs] = useState(INITIAL_SWEEP_NOW);
   const { isConstrained, isVerySlow } = useNetworkConditions();
   const lastRefreshAtRef = useRef(0);
+  const runtimeSubscriptionReady = useDeferredClientReady({
+    delayMs: isVerySlow ? 1_800 : isConstrained ? 1_200 : 500,
+    idle: true,
+  });
   const refreshIntervalMs = isVerySlow
     ? DROPS_VERY_SLOW_REFRESH_MS
     : isConstrained
@@ -87,7 +92,7 @@ export function useDrops(
       nextCursor: initialData.length === DROPS_PAGE_SIZE ? buildDropCursor(initialData[initialData.length - 1]) : null,
     }] : undefined;
   }, [initialData]);
-  const hasServerSeed = Boolean(initialData && initialData.length >= 0);
+  const hasServerSeed = Boolean(initialData && initialData.length > 0);
 
   const { data, error, size, setSize, mutate } = useSWRInfinite<DropFeedPage>(getKey, fetcher, {
     fallbackData: fallback,
@@ -146,6 +151,10 @@ export function useDrops(
   }, [isConstrained, refreshDrops]);
 
   useEffect(() => {
+    if (!runtimeSubscriptionReady) {
+      return;
+    }
+
     let cancelled = false;
     let unsubscribe: (() => void) | undefined;
     let sawInitialSnapshot = false;
@@ -213,7 +222,7 @@ export function useDrops(
         unsubscribe();
       }
     };
-  }, [isConstrained, refreshDrops]);
+  }, [isConstrained, refreshDrops, runtimeSubscriptionReady]);
 
   useEffect(() => {
     const upcomingExpirations: number[] = [];

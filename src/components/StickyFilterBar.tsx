@@ -1,10 +1,9 @@
 "use client";
 
-import { Search, Sparkles, Clock, Flame, Tag, ChevronDown, ChevronUp } from "lucide-react";
+import { ChevronDown, ChevronUp, Clock, Flame, LayoutGrid, Search, Sparkles, Tag } from "lucide-react";
+import { ChangeEvent, useEffect, useRef, useState } from "react";
 
 import { cn } from "@/lib/utils";
-import { useRef, useState, useEffect } from "react";
-import { motion, AnimatePresence } from "framer-motion";
 
 interface FilterBarProps {
     categories: string[];
@@ -14,171 +13,131 @@ interface FilterBarProps {
     onSearchChange: (query: string) => void;
 }
 
+const COLLAPSED_CATEGORY_COUNT = 4;
+
 export default function StickyFilterBar({
     categories,
     selectedCategory,
     onSelectCategory,
     searchQuery,
-    onSearchChange
+    onSearchChange,
 }: FilterBarProps) {
-    const [isSticky, setIsSticky] = useState(false);
     const [localSearch, setLocalSearch] = useState(searchQuery);
     const [isExpanded, setIsExpanded] = useState(false);
-    const barRef = useRef<HTMLDivElement>(null);
+    const debounceRef = useRef<ReturnType<typeof setTimeout> | null>(null);
 
-    const triggerHaptic = () => {
-        if (typeof navigator !== 'undefined' && navigator.vibrate) {
-            navigator.vibrate(5);
-        }
-    };
-
-    // Sync local state with prop if it changes externally (e.g. clear)
     useEffect(() => {
         setLocalSearch(searchQuery);
     }, [searchQuery]);
 
-    // Debounce effect
     useEffect(() => {
-        const handler = setTimeout(() => {
+        if (debounceRef.current) {
+            clearTimeout(debounceRef.current);
+        }
+
+        debounceRef.current = setTimeout(() => {
             if (localSearch !== searchQuery) {
                 onSearchChange(localSearch);
             }
-        }, 300);
+        }, 260);
 
-        return () => clearTimeout(handler);
-    }, [localSearch, searchQuery, onSearchChange]);
-
-    const handleSearchChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-        setLocalSearch(e.target.value);
-    };
-
-    useEffect(() => {
-        let rafId: number | null = null;
-
-        const handleScroll = () => {
-            if (rafId) return;
-
-            rafId = requestAnimationFrame(() => {
-                if (barRef.current) {
-                    const rect = barRef.current.getBoundingClientRect();
-                    // Setup threshold: navbar height is roughly 72px-80px
-                    setIsSticky(rect.top <= 85);
-                }
-                rafId = null;
-            });
-        };
-
-        window.addEventListener("scroll", handleScroll, { passive: true });
         return () => {
-            window.removeEventListener("scroll", handleScroll);
-            if (rafId) cancelAnimationFrame(rafId);
+            if (debounceRef.current) {
+                clearTimeout(debounceRef.current);
+            }
         };
-    }, []);
+    }, [localSearch, onSearchChange, searchQuery]);
 
-    const icons: Record<string, any> = {
-        "All": GridIcon,
-        "New": Sparkles,
-        "Ending Soon": Clock,
-        "Hottest": Flame,
+    const triggerHaptic = () => {
+        if (typeof navigator !== "undefined" && navigator.vibrate) {
+            navigator.vibrate(5);
+        }
     };
+
+    const handleSearchChange = (event: ChangeEvent<HTMLInputElement>) => {
+        setLocalSearch(event.target.value);
+    };
+
+    const icons: Record<string, typeof Sparkles> = {
+        All: LayoutGrid,
+        New: Sparkles,
+        "Ending Soon": Clock,
+        Hottest: Flame,
+    };
+
+    const visibleCategories = isExpanded ? categories : categories.slice(0, COLLAPSED_CATEGORY_COUNT);
 
     return (
         <div
-            ref={barRef}
-            className={cn(
-                "sticky top-[88px] z-40 py-2 transition-all duration-300",
-
-                isSticky ? "bg-black/50 border-b border-white/5 backdrop-blur-sm" : "bg-transparent"
-            )}
+            className="sticky top-[calc(env(safe-area-inset-top)+4.25rem)] z-40 -mx-1 rounded-[1.35rem] border border-white/8 bg-black/62 p-1.5 shadow-[0_10px_30px_rgba(0,0,0,0.24)] backdrop-blur-xl md:top-24 md:mx-0 md:rounded-[1.5rem]"
+            data-drops-filter-bar="compact"
+            style={{ WebkitBackdropFilter: "blur(20px)" }}
         >
-            <div className="max-w-7xl mx-auto px-4 md:px-8 flex flex-col md:flex-row gap-4 items-center justify-between">
-
-                {/* Search Input */}
-                <div className="relative w-full md:w-64 group">
-                    <div className="absolute inset-y-0 left-3 flex items-center pointer-events-none">
-                        <Search className="w-4 h-4 text-gray-500 group-focus-within:text-brand-purple transition-colors" />
-                    </div>
+            <div className="grid gap-1.5 md:grid-cols-[minmax(14rem,18rem)_1fr] md:items-center md:gap-3">
+                <label className="relative block">
+                    <span className="sr-only">Search Drops</span>
+                    <Search className="pointer-events-none absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-gray-500" />
                     <input
-                        type="text"
-                        placeholder="Search drops..."
+                        type="search"
+                        inputMode="search"
+                        enterKeyHint="search"
+                        autoComplete="off"
+                        placeholder="Search Drops"
                         value={localSearch}
                         onChange={handleSearchChange}
-                        className="w-full bg-white/5 border border-white/10 rounded-full py-2.5 pl-10 pr-4 text-sm text-white placeholder:text-gray-500 focus:outline-none focus:bg-white/10 focus:border-brand-purple/50 transition-all"
+                        className="h-10 w-full rounded-[1rem] border border-white/10 bg-white/[0.055] pl-9 pr-3 text-[13px] font-medium text-white outline-none transition-colors placeholder:text-gray-500 focus:border-brand-purple/55 focus:bg-white/[0.08]"
                     />
-                </div>
+                </label>
 
-                {/* Categories (Horizontal/Wrap) */}
                 <div className={cn(
-                    "flex flex-1 items-center gap-2 transition-all mt-1 md:mt-0 pl-1 md:pl-0",
-                    isExpanded ? "flex-wrap" : "flex-nowrap overflow-x-auto no-scrollbar pr-2"
+                    "flex items-center gap-1.5",
+                    isExpanded ? "flex-wrap" : "overflow-x-auto overscroll-x-contain pr-1 [scrollbar-width:none] [&::-webkit-scrollbar]:hidden",
                 )}>
-                    {categories.map((cat, index) => {
-                        if (!isExpanded && index > 3) return null;
-                        
-                        const Icon = icons[cat] || Tag;
-                        const isSelected = selectedCategory === cat;
+                    {visibleCategories.map((category) => {
+                        const Icon = icons[category] || Tag;
+                        const isSelected = selectedCategory === category;
 
                         return (
-                            <motion.button
-                                key={cat}
+                            <button
+                                key={category}
+                                type="button"
                                 onClick={() => {
                                     triggerHaptic();
-                                    onSelectCategory(cat);
-                                    if (isExpanded) setIsExpanded(false);
+                                    onSelectCategory(category);
+                                    if (isExpanded) {
+                                        setIsExpanded(false);
+                                    }
                                 }}
-                                whileHover={{ scale: 1.05 }}
-                                whileTap={{ scale: 0.95 }}
                                 className={cn(
-                                    "relative flex shrink-0 items-center gap-2 px-4 py-2 rounded-full text-xs font-bold whitespace-nowrap transition-all border",
+                                    "inline-flex h-10 shrink-0 items-center gap-1.5 rounded-[0.95rem] border px-3 text-[11px] font-bold transition-colors active:scale-[0.98]",
                                     isSelected
-                                        ? "text-white border-brand-purple/50"
-                                        : "bg-white/5 text-gray-400 border-white/5 hover:text-white hover:bg-white/10"
+                                        ? "border-brand-purple/45 bg-brand-purple/18 text-white"
+                                        : "border-white/8 bg-white/[0.045] text-gray-400 hover:bg-white/[0.075] hover:text-white",
                                 )}
+                                aria-pressed={isSelected}
                             >
-                                <AnimatePresence>
-                                    {isSelected && (
-                                        <motion.div
-                                            layoutId="active-pill"
-                                            className="absolute inset-0 bg-brand-purple/20 rounded-full -z-10 shadow-[0_0_15px_rgba(236,72,153,0.3)]"
-                                            initial={{ opacity: 0 }}
-                                            animate={{ opacity: 1 }}
-                                            exit={{ opacity: 0 }}
-                                            transition={{ type: "spring", bounce: 0.2, duration: 0.6 }}
-                                        />
-                                    )}
-                                </AnimatePresence>
-                                <Icon className={cn("w-3.5 h-3.5", isSelected ? "text-brand-purple" : "opacity-70")} />
-                                {cat}
-                            </motion.button>
+                                <Icon className={cn("h-3.5 w-3.5", isSelected ? "text-brand-purple" : "opacity-70")} />
+                                <span>{category}</span>
+                            </button>
                         );
                     })}
-                    
-                    {categories.length > 4 && (
-                        <motion.button
+
+                    {categories.length > COLLAPSED_CATEGORY_COUNT ? (
+                        <button
+                            type="button"
                             onClick={() => {
                                 triggerHaptic();
-                                setIsExpanded((prev) => !prev);
+                                setIsExpanded((current) => !current);
                             }}
-                            whileHover={{ scale: 1.05 }}
-                            whileTap={{ scale: 0.95 }}
-                            className="relative flex shrink-0 items-center justify-center px-3 py-2 rounded-full text-xs font-bold transition-all bg-white/5 text-gray-400 border border-white/5 hover:text-white hover:bg-white/10"
+                            className="inline-flex h-10 w-10 shrink-0 items-center justify-center rounded-[0.95rem] border border-white/8 bg-white/[0.045] text-gray-400 transition-colors hover:bg-white/[0.075] hover:text-white active:scale-[0.98]"
+                            aria-label={isExpanded ? "Collapse Drop filters" : "Show all Drop filters"}
+                            aria-expanded={isExpanded}
                         >
-                            {isExpanded ? <ChevronUp className="w-4 h-4" /> : <ChevronDown className="w-4 h-4" />}
-                        </motion.button>
-                    )}
+                            {isExpanded ? <ChevronUp className="h-4 w-4" /> : <ChevronDown className="h-4 w-4" />}
+                        </button>
+                    ) : null}
                 </div>
             </div>
         </div>
     );
-}
-
-function GridIcon({ className }: { className?: string }) {
-    return (
-        <svg className={className} width="15" height="15" viewBox="0 0 15 15" fill="none" xmlns="http://www.w3.org/2000/svg">
-            <path d="M1.5 1.5H6.5V6.5H1.5V1.5Z" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" />
-            <path d="M8.5 1.5H13.5V6.5H8.5V1.5Z" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" />
-            <path d="M1.5 8.5H6.5V13.5H1.5V8.5Z" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" />
-            <path d="M8.5 8.5H13.5V13.5H8.5V8.5Z" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" />
-        </svg>
-    )
 }

@@ -1,13 +1,14 @@
 "use client";
 
-import { Drop } from "@/types/db";
-import { memo, useEffect, useMemo, useState } from "react";
+import Link from "next/link";
+import { memo, useMemo } from "react";
+
+import { DropCard } from "@/components/DropCard";
+import { PromoCard } from "@/components/PromoCard";
 import { useAuth } from "@/context/AuthContext";
-import { DropCard } from "./DropCard";
-import { PromoCard } from "./PromoCard";
-import { toast } from "sonner";
-import { cn } from "@/lib/utils";
 import { getSupportedDropAspectRatio } from "@/lib/drop-presentation";
+import { cn } from "@/lib/utils";
+import { Drop } from "@/types/db";
 
 const EMPTY_DROPS: Drop[] = [];
 
@@ -29,19 +30,10 @@ export const DropGrid = memo(function DropGrid({
     impressionTrackingSessionId,
 }: DropGridProps) {
     const { user, userProfile } = useAuth();
-    const [notified, setNotified] = useState(false);
 
     const loading = propLoading ?? false;
     const drops = useMemo(() => propDrops ?? EMPTY_DROPS, [propDrops]);
-    // O(1) unlocked lookups avoid repeated linear scans while rendering large drop grids.
     const unlockedDropIds = useMemo(() => new Set(userProfile?.unlockedContent ?? []), [userProfile?.unlockedContent]);
-
-    useEffect(() => {
-        if (notified) {
-            const timer = setTimeout(() => setNotified(false), 4000);
-            return () => clearTimeout(timer);
-        }
-    }, [notified]);
 
     const dropEntries = useMemo(
         () =>
@@ -49,7 +41,7 @@ export const DropGrid = memo(function DropGrid({
                 drop,
                 aspectRatio: getSupportedDropAspectRatio(drop),
             })),
-        [drops]
+        [drops],
     );
 
     const getGridSpanClass = (ratio: "1:1" | "16:9" | "9:16") => {
@@ -66,9 +58,15 @@ export const DropGrid = memo(function DropGrid({
 
     if (loading) {
         return (
-            <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-3 md:gap-5 pb-20 md:pb-0">
+            <div
+                className="grid grid-cols-2 gap-2 pb-6 sm:gap-3 md:grid-cols-3 md:gap-5 md:pb-0 lg:grid-cols-4"
+                data-drops-grid-density="compact-mobile"
+            >
                 {Array.from({ length: 8 }).map((_, idx) => (
-                    <div key={idx} className="col-span-1 h-[240px] md:h-[360px] rounded-2xl bg-white/5 animate-pulse" />
+                    <div
+                        key={idx}
+                        className="col-span-1 h-[190px] animate-pulse rounded-[1.15rem] bg-white/5 md:h-[330px] md:rounded-[1.35rem]"
+                    />
                 ))}
             </div>
         );
@@ -76,61 +74,48 @@ export const DropGrid = memo(function DropGrid({
 
     if (drops.length === 0) {
         return (
-            <div className="w-full py-16 md:py-24">
-                <div className="relative max-w-2xl mx-auto text-center px-6 py-12 md:py-16 rounded-[2rem] glass-panel border border-white/10 overflow-hidden">
-                    <div className="absolute inset-0 bg-gradient-to-br from-brand-purple/10 via-transparent to-brand-purple/10 pointer-events-none" />
-                    <div className="absolute inset-0 bg-gradient-to-b from-white/5 to-transparent pointer-events-none" />
+            <div className="w-full py-6 md:py-10" data-drops-grid-density="compact-mobile">
+                <div className="relative mx-auto max-w-xl overflow-hidden rounded-[1.35rem] border border-white/10 bg-white/[0.035] px-5 py-6 text-center shadow-[0_12px_30px_rgba(0,0,0,0.18)] md:rounded-[1.6rem] md:px-6 md:py-8">
+                    <div className="pointer-events-none absolute inset-0 bg-gradient-to-br from-brand-purple/10 via-transparent to-white/[0.03]" />
 
-                    <div className="w-28 h-28 bg-zinc-900 rounded-3xl flex items-center justify-center mx-auto mb-8 border border-white/10 shadow-inner transition-transform duration-500 ease-out">
-                        <span className="text-6xl filter drop-shadow-[0_0_15px_rgba(168,85,247,0.4)]">🍬</span>
+                    <div className="relative mx-auto mb-4 flex h-12 w-12 items-center justify-center rounded-[1rem] border border-white/10 bg-zinc-900/80 text-sm font-black text-white/45 shadow-inner">
+                        KD
                     </div>
 
-                    <h3 className="text-3xl md:text-4xl font-black text-white mb-4 tracking-tight">
-                        {isSearching ? "No matching drops found" : "The Candy Shop is Empty"}
+                    <h3 className="relative mb-2 text-lg font-black tracking-tight text-white md:text-2xl">
+                        {isSearching ? "No matching Drops" : "No Drops right now"}
                     </h3>
 
-                    <p className="text-gray-400 text-lg max-w-md mx-auto mb-10 leading-relaxed">
+                    <p className="relative mx-auto max-w-sm text-sm leading-relaxed text-gray-400 md:text-base">
                         {isSearching
-                            ? "Try adjusting your search terms or browsing our featured collections."
-                            : "All drops have been claimed or expired. Check back soon for fresh content!"}
+                            ? "Try a shorter search or switch filters."
+                            : "Fresh drops are not available right now. Explore live experiences while the next batch lands."}
                     </p>
 
-                    {!isSearching && (
-                        <div className="flex flex-col items-center gap-4">
-                            {notified ? (
-                                <div className="flex items-center gap-2 bg-brand-purple/10 border border-brand-purple/20 text-brand-purple px-8 py-4 rounded-2xl font-bold animate-in zoom-in duration-300">
-                                    <span className="text-xl">✅</span>
-                                    <span>You&apos;ll be notified on-site!</span>
-                                </div>
-                            ) : (
-                                <button
-                                    onClick={() => {
-                                        setNotified(true);
-                                        toast.success("Notify preference saved!", {
-                                            description: "We'll alert you here when new drops land.",
-                                        });
-                                    }}
-                                    className="rounded-2xl bg-brand-purple px-10 py-5 text-lg font-black text-white shadow-[0_10px_30px_rgba(164,118,255,0.18)] transition-all active:scale-95"
-                                >
-                                    Notify Me
-                                </button>
-                            )}
-                            <p className="text-zinc-500 text-xs uppercase font-bold tracking-[0.2em] mt-2">Internal Site Alerts Only</p>
-                        </div>
-                    )}
+                    {!isSearching ? (
+                        <Link
+                            href="/experiences"
+                            className="relative mt-5 inline-flex min-h-10 items-center justify-center rounded-[0.85rem] border border-brand-purple/40 bg-brand-purple px-4 text-sm font-bold text-white shadow-[0_8px_22px_rgba(164,118,255,0.2)] transition-transform active:scale-[0.98]"
+                        >
+                            Browse Experiences
+                        </Link>
+                    ) : null}
                 </div>
             </div>
         );
     }
 
     return (
-        <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-3 md:gap-5 pb-20 md:pb-0 items-start">
+        <div
+            className="grid grid-cols-2 items-start gap-2 pb-6 sm:gap-3 md:grid-cols-3 md:gap-5 md:pb-0 lg:grid-cols-4"
+            data-drops-grid-density="compact-mobile"
+        >
             {dropEntries.map(({ drop, aspectRatio }, index) => {
                 const isUnlocked = unlockedDropIds.has(drop.id);
                 const canAfford = (userProfile?.gumDropsBalance || 0) >= drop.unlockCost;
 
                 return (
-                    <div key={drop.id} id={`drop-${drop.id}`} className={cn("scroll-mt-32 h-full", getGridSpanClass(aspectRatio))}>
+                    <div key={drop.id} id={`drop-${drop.id}`} className={cn("h-full scroll-mt-32", getGridSpanClass(aspectRatio))}>
                         {drop.type === "promo" || drop.type === "external" ? (
                             <PromoCard drop={drop} />
                         ) : (

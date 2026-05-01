@@ -1,5 +1,73 @@
 # KandyDrops Core Codebase Audit & Defensive Ledger
 
+## [2026-05-01 #67] PRE: Drops Mobile Apple-Aligned UI Refinement
+
+Scope started:
+- Refining the public Drops page for mobile Safari/Chrome density, repeat usage, safe-area fit, consistent radii, accessibility, and faster first interaction without changing payment/economy rules.
+- Targeting `src/app/drops/page.tsx`, `src/app/drops/DropsClient.tsx`, `src/components/DropGrid.tsx`, `src/components/DropCard.tsx`, `src/components/StickyFilterBar.tsx`, `src/components/FeaturedCarousel.tsx`, shared mobile-shell constants if needed, telemetry metadata, doctrine/docs, and targeted validation.
+- Required doctrine path: control tower startup/read order, source map, shared component ownership, product/copy/UI/surface/banned/vocabulary/checklist doctrine, and UI/copy refinement workflow.
+
+Initial evidence:
+- `npm run trace:adjacent -- src/app/drops/page.tsx` identified `DropsClient`, `getDrops`, creator discovery, and canonical drop lifecycle helpers as adjacent owners.
+- `npm run agent:fast-start -- --task="apple style mobile drops page refinement with telemetry preservation" --mode=user --file=src/app/drops/page.tsx` generated the targeted verification lane: `npm run typecheck`, `npm run agent:test -- src/app/drops/page.tsx`, `npm run check:ui:coverage`, and `npm run check:ui:runtime`.
+- Official Apple HIG references consulted for current layout/accessibility/material doctrine: Human Interface Guidelines, Layout, Accessibility, Materials, and Designing for iOS.
+
+Scope completed:
+- Updated KandyDrops UI doctrine with a 2026 Apple-aligned mobile refinement rule grounded in official HIG hierarchy, layout, accessibility, materials, and iOS guidance while keeping KandyDrops branding and telemetry truth authoritative.
+- Documented 50 mobile improvement areas for Drops in `docs/agent-truth/drops-mobile-refinement.md`.
+- Tightened Drops mobile spacing by removing duplicate top/bottom padding, removing the large `min-h-[500px]` body, matching the loading shell to the final compact layout, and reducing mobile grid gaps/skeleton height.
+- Refined the featured Drops carousel to use compact mobile aspect sizing, reduced-motion-aware autoplay, shared `useNow` timing, compact timer labels, and enriched click telemetry.
+- Refined the sticky search/filter bar for compact mobile use without scroll listeners, manual SVG icons, or animation dependencies.
+- Split the oversized Drop card view into card layout, CTA, parts, and impression hook files; preserved/unified card radii and replaced per-card timer intervals with the shared timer store.
+- Removed the fake local `Notify Me` empty-state affordance and replaced it with a real `/experiences` route link.
+- Preserved and enriched Drops telemetry for page view, search, category select, featured click, card impression, detail open, unlock attempt, insufficient balance, and unlock success with source component and `compact_mobile_apple_2026` density metadata.
+- Deferred the Firestore runtime subscription until idle after server/SWR Drops content renders and changed empty server seeds to revalidate instead of pretending the feed is final.
+
+Residual risk:
+- Automated visual audit coverage is Chromium and Mobile Chrome. Safari-specific runtime behavior was addressed through safe-area/layout doctrine and CSS contract, but no WebKit/Safari browser audit lane is configured in this repo.
+- `npm run agent:test -- src/app/drops/page.tsx` selected no related Vitest files, so additional targeted unit coverage came from the existing drops/telemetry unit set plus the new validation guard.
+
+Verification completed:
+- `npm run check:drops-mobile-refinement`
+- `npm run agent:test -- src/app/drops/page.tsx` (passed with no related test files selected)
+- `npm run typecheck -- --pretty false`
+- `npm run check:telemetry`
+- `npm run check:ui:coverage`
+- `npm run check:ui:runtime`
+- `npx vitest run tests/unit/drops-route.spec.ts tests/unit/drop-status.spec.ts tests/unit/lib/drop-normalizers.spec.ts tests/unit/lib/telemetry.spec.ts tests/unit/telemetry-flows.spec.ts`
+- `npm run check:ui:audits` (passed in Chromium and Mobile Chrome; build logged one external Firebase avatar timeout)
+- `npm run check:generated-artifacts`
+- `git diff --check`
+
+## [2026-05-01 #66] PRE: Full-Scale Telemetry Orphan Cleanup Audit
+
+Scope started:
+- Auditing the full telemetry ecosystem for unused, non-useful, orphaned, or unclassified telemetry while preserving legacy recovery, admin truth, and compatibility aliases that still have verified purpose.
+- Targeting emitter/catalog parity, dynamic or legacy event lanes missed by literal checks, analytics contract coverage, admin/debug consumption paths, generated inventory evidence, docs, and targeted validation.
+- Startup protocol: read control tower startup/mission/routing/execution/source maps, doctrine index/product/GA-cloud/banned/checklist guidance, current audit ledger, repo memory ledger, every-file checklist, generated task context, and current git status.
+
+Initial evidence:
+- `npm run check:telemetry` passed before edits with 287 literal or resolvable emitters checked across 559 files, 0 cataloged events lacking detected emitters, and 1187 parity-contract checks passing.
+- `npm run trace:adjacent -- src/lib/telemetry-catalog.ts` confirmed the telemetry catalog is a shared helper imported by Admin Analytics, Debug, ingest routes, task observability, analytics materializers, and telemetry contract tests.
+
+Scope completed:
+- Audited client `trackEvent`, server `trackServerEvent`, authenticated ingest, anonymous guest ingest, task runtime telemetry, security telemetry, Admin Debug orphan reporting, legacy recovery mapping, and the exported Functions callable ingest path.
+- Fixed the authenticated ingest API so every posted event resolves through `resolveTrackedTelemetryEvent` before any `analytics_event_facts` write.
+- Canonicalized compatibility aliases at ingest, preserving `legacy_event_name` metadata instead of storing alias names as primary facts.
+- Stopped legacy `admin_ui_error` payloads from creating analytics facts; they now stay in server diagnostics with cleanup metadata.
+- Added `agent/state/telemetry-orphan-cleanup-audit.generated.json`, `docs/agent-truth/telemetry-orphan-cleanup-audit.md`, `scripts/agent/validate-telemetry-orphan-cleanup.ts`, and targeted route tests.
+
+Residual risk:
+- `functions/src/analytics-event-facts.ts` remains an exported legacy callable that can write event facts after auth, App Check, and privacy enforcement, but it does not share the app telemetry catalog. No current repo client caller was found. The safe follow-up is a shared generated telemetry manifest for app and Functions; duplicating the catalog inside Functions was intentionally avoided in this pass.
+
+Verification completed:
+- `npm run check:telemetry-orphan-cleanup`
+- `npx vitest run tests/unit/analytics-ingest-identified-route.spec.ts`
+- `npm run check:telemetry`
+- `npm run typecheck -- --pretty false`
+- `npm run check:analytics-semantics`
+- `npm run check:analytics-event-contract`
+
 ## [2026-05-01 #65] PRE: Admin Analytics Realtime Dependency Audit and Hot-Cache Correction
 
 Scope started:

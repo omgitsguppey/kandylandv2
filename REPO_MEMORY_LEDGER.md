@@ -24,6 +24,37 @@ This file is not a changelog. It is the concise ledger for durable decisions tha
 
 ## Decision Entries
 
+### 1bw. Drops mobile density must preserve telemetry while following Apple-aligned KandyDrops doctrine
+
+- Approximate date: Recorded explicitly on 2026-05-01 from the Drops mobile Apple-aligned refinement pass
+- Status: Active user-surface UI and telemetry rule
+- Problem/context: The Drops page used duplicated shell spacing, a tall featured carousel on mobile, a large empty state, per-card timer intervals, and an oversized Drop card file. Reducing the UI risked losing detail/unlock/impression telemetry if the visual refactor was treated as purely cosmetic.
+- Decision made: The Drops page now uses compact mobile density (`compact_mobile_apple_2026`), a smaller featured carousel on mobile, a compact sticky search/filter bar, tighter grid spacing, a truthful empty state, split Drop card parts, a shared `useNow` timer lane, and deferred Firestore runtime subscription after server/SWR content renders.
+- What became canonical:
+  - Apple-aligned mobile refinement means current official Apple HIG principles interpreted through KandyDrops doctrine, not Apple branding.
+  - Every reduced Drops component must preserve or improve telemetry with source component and UI density fields.
+  - Fake local affordances such as non-persistent notification buttons are not allowed on the Drops empty state.
+  - Firestore runtime updates are a progressive upgrade for Drops, not the first-render dependency.
+  - Compact mobile card, chip, timer, and CTA radii must use the Drops compact radius scale instead of arbitrary giant rounding.
+- Consequence for future work:
+  - Do not reintroduce a full-height mobile featured hero, per-card timer intervals, a `min-h-[500px]` Drops body, or untracked reduced CTAs.
+  - If Drops controls are added or reduced, update the telemetry contract and `docs/agent-truth/drops-mobile-refinement.md`.
+
+### 1bv. Authenticated analytics ingest must canonicalize before writing event facts
+
+- Approximate date: Recorded explicitly on 2026-05-01 from the full-scale telemetry orphan cleanup audit
+- Status: Active telemetry ingress rule
+- Problem/context: `npm run check:telemetry` proved the client/server literal emitters and catalog were aligned, but `/api/analytics/ingest-identified` could still accept arbitrary posted `eventName` values and write them into `analytics_event_facts`, creating a back door for orphaned telemetry outside the catalog.
+- Decision made: `src/app/api/analytics/ingest-identified/route.ts` now resolves every submitted event through `resolveTrackedTelemetryEvent` before writing. Unsupported events are skipped with route diagnostics, compatibility aliases write under their canonical event name, and legacy `admin_ui_error` is kept as a server diagnostic rather than a product analytics fact.
+- What became canonical:
+  - A catalog check at emit time is not enough; authenticated ingest must also reject uncataloged names.
+  - `analytics_event_facts` and `analytics_event_stats` may not receive arbitrary client-posted event names.
+  - Compatibility aliases are allowed only when stored with canonical event names and legacy metadata.
+  - Diagnostics are not product analytics events unless the diagnostic event is explicitly cataloged.
+- Consequence for future work:
+  - Do not add an ingest route or callable that writes event facts without shared catalog resolution.
+  - The remaining Functions callable should be tightened through a shared generated telemetry manifest, not by hand-copying a second catalog.
+
 ### 1bu. Admin Analytics realtime is upgrade-only after a hot-cache display state resolves
 
 - Approximate date: Recorded explicitly on 2026-05-01 from the Admin Analytics realtime dependency audit pass
