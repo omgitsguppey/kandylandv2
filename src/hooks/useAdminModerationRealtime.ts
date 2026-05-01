@@ -5,16 +5,38 @@ import { reportRealtimeIssue, buildFirestoreClientIssueDetail } from "@/lib/clie
 import { createAutoHealingObserver } from "@/lib/self-healing";
 import { CHAT_COLLECTIONS } from "@/lib/chat";
 import { buildChatSoftSealScope, softOpenChatValue } from "@/lib/chat-soft-seal";
-import { describeSecurityEvent } from "@/lib/security-events";
+import {
+    clusterAdminModerationSecurityAlerts,
+    normalizeAdminModerationSecurityAlert,
+} from "@/lib/admin-moderation-security-alerts";
 import type {
     AdminModerationMessageRecord,
+    AdminModerationSecurityAlertsResponse,
     AdminModerationSecurityAlert,
+    AdminModerationThreadDetailResponse,
+    AdminModerationThreadsResponse,
     AdminModerationThreadSummary,
 } from "@/lib/admin-moderation";
 
 const THREAD_LIMIT = 80;
 const MESSAGE_LIMIT = 250;
 const SECURITY_LIMIT = 120;
+
+async function fetchAdminModerationJson<T>(path: string): Promise<T> {
+    const response = await fetch(path, {
+        cache: "no-store",
+        credentials: "same-origin",
+        headers: {
+            "Accept": "application/json",
+        },
+    });
+
+    if (!response.ok) {
+        throw new Error(`Admin moderation snapshot failed (${response.status})`);
+    }
+
+    return response.json() as Promise<T>;
+}
 
 function toNumber(value: unknown) {
     if (typeof value === "number" && Number.isFinite(value)) return Math.trunc(value);
@@ -31,10 +53,6 @@ function toStringValue(value: unknown) {
 function toNullableString(value: unknown) {
     const normalized = toStringValue(value).trim();
     return normalized.length > 0 ? normalized : null;
-}
-
-function normalizeSeverity(value: unknown): AdminModerationSecurityAlert["severity"] {
-    return value === "high" || value === "low" || value === "medium" ? value : "medium";
 }
 
 function mapThreadSummary(id: string, value: Record<string, unknown>): AdminModerationThreadSummary {
@@ -81,50 +99,7 @@ function mapMessageRecord(id: string, value: Record<string, unknown>): AdminMode
 }
 
 function mapSecurityAlert(id: string, value: Record<string, unknown>): AdminModerationSecurityAlert {
-    return {
-        id,
-        userId: toStringValue(value.userId),
-        username: toStringValue(value.username) || "Unknown user",
-        label: toStringValue(value.label) || "Security event",
-        message: toStringValue(value.message) || "Security event logged.",
-        reason: toStringValue(value.reason) || "unknown",
-        severity: normalizeSeverity(value.severity),
-        confidence: value.confidence === "confirmed" || value.confidence === "heuristic" ? value.confidence : describeSecurityEvent(toStringValue(value.reason)).confidence,
-        repeatCount: typeof value.repeatCount === "number" ? Math.max(1, value.repeatCount) : undefined,
-        detectionKind: toStringValue(value.detectionKind) || "runtime",
-        pagePath: toNullableString(value.pagePath),
-        dropId: toNullableString(value.dropId),
-        assetKey: toNullableString(value.assetKey),
-        timestamp: toNumber(value.timestamp),
-    };
-}
-
-// Canonical grouping to collapse noisy identical incidents from the same user
-function clusterSecurityAlerts(alerts: AdminModerationSecurityAlert[]): AdminModerationSecurityAlert[] {
-    const clustered = new Map<string, AdminModerationSecurityAlert>();
-    
-    // Sort ascending so the latest occurrence updates the cluster
-    const sorted = [...alerts].sort((a, b) => a.timestamp - b.timestamp);
-    
-    for (const alert of sorted) {
-        // Create a canonical issue signature: user + reason + UTC day bucket (prevents infinite sliding window)
-        const dayBucket = Math.floor(alert.timestamp / 86400000);
-        const signature = `${alert.userId}:${alert.reason}:${dayBucket}`;
-        
-        if (clustered.has(signature)) {
-            const existing = clustered.get(signature)!;
-            clustered.set(signature, {
-                ...alert, // take latest properties
-                repeatCount: (existing.repeatCount || 1) + (alert.repeatCount || 1),
-            });
-        } else {
-            // If it's outside the window, just overwrite it as a new rolling window start
-            // Or modify signature to include time slice. We will just take the latest.
-            clustered.set(signature, alert);
-        }
-    }
-    
-    return Array.from(clustered.values()).sort((a, b) => b.timestamp - a.timestamp);
+    return normalizeAdminModerationSecurityAlert(id, value);
 }
 
 export function useAdminModerationRealtime(selectedThreadId: string | null) {
@@ -148,6 +123,18 @@ export function useAdminModerationRealtime(selectedThreadId: string | null) {
     // Threads Subscription
     useEffect(() => {
         let cancelled = false;
+        void fetchAdminModerationJson<AdminModerationThreadsResponse>("/api/admin/moderation/threads")
+            .then((body) => {
+                if (cancelled) return;
+                setThreads(body.threads);
+                setIsLoadingThreads(false);
+                setThreadsError(null);
+            })
+            .catch((error) => {
+                if (cancelled) return;
+                setThreadsError(error as Error);
+                setIsLoadingThreads(false);
+            });
         const q = query(collection(db, CHAT_COLLECTIONS.threads), orderBy("lastMessageAt", "desc"), limit(THREAD_LIMIT));
         const control = createAutoHealingObserver(() => onSnapshot(q, (snapshot) => {
             if (cancelled) return;
@@ -172,6 +159,18 @@ export function useAdminModerationRealtime(selectedThreadId: string | null) {
     // Security Alerts Subscription
     useEffect(() => {
         let cancelled = false;
+        void fetchAdminModerationJson<AdminModerationSecurityAlertsResponse>("/api/admin/moderation/security-alerts")
+            .then((body) => {
+                if (cancelled) return;
+                setRawAlerts(body.alerts);
+                setIsLoadingAlerts(false);
+                setAlertsError(null);
+            })
+            .catch((error) => {
+                if (cancelled) return;
+                setAlertsError(error as Error);
+                setIsLoadingAlerts(false);
+            });
         const q = query(collection(db, "security_events"), orderBy("timestamp", "desc"), limit(SECURITY_LIMIT));
         const control = createAutoHealingObserver(() => onSnapshot(q, (snapshot) => {
             if (cancelled) return;
@@ -200,6 +199,18 @@ export function useAdminModerationRealtime(selectedThreadId: string | null) {
         }
 
         let cancelled = false;
+        void fetchAdminModerationJson<AdminModerationThreadDetailResponse>(`/api/admin/moderation/threads/${encodeURIComponent(activeThreadId)}`)
+            .then((body) => {
+                if (cancelled) return;
+                setMessagesThreadId(activeThreadId);
+                setMessages(body.messages.slice(-MESSAGE_LIMIT));
+                setMessagesError(null);
+            })
+            .catch((error) => {
+                if (cancelled) return;
+                setMessagesThreadId(activeThreadId);
+                setMessagesError(error as Error);
+            });
         const q = query(collection(db, CHAT_COLLECTIONS.messages), where("threadId", "==", activeThreadId));
         const control = createAutoHealingObserver(() => onSnapshot(q, (snapshot) => {
             if (cancelled) return;
@@ -224,7 +235,7 @@ export function useAdminModerationRealtime(selectedThreadId: string | null) {
         };
     }, [activeThreadId]);
 
-    const alerts = useMemo(() => clusterSecurityAlerts(rawAlerts), [rawAlerts]);
+    const alerts = useMemo(() => clusterAdminModerationSecurityAlerts(rawAlerts), [rawAlerts]);
     const activeMessages = activeThreadId && messagesThreadId === activeThreadId ? messages : [];
     const activeMessagesError = activeThreadId && messagesThreadId === activeThreadId ? messagesError : null;
     const isLoadingMessages = Boolean(activeThreadId && messagesThreadId !== activeThreadId && !activeMessagesError);

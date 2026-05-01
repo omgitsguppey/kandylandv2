@@ -5,6 +5,7 @@ import { useMemo, useState } from "react";
 import { FileText, Loader2, MessageSquare, Activity } from "lucide-react";
 
 import { AdminPageHeader } from "@/components/Admin/AdminPageHeader";
+import { AdminModerationSecurityAlerts } from "@/components/Admin/AdminModerationSecurityAlerts";
 import { PageViewEvent } from "@/components/Analytics/PageViewEvent";
 import { useAdminModerationRealtime } from "@/hooks/useAdminModerationRealtime";
 import { cn } from "@/lib/utils";
@@ -44,17 +45,6 @@ function isVideoAsset(assetUrl?: string, assetMimeType?: string) {
     return assetMimeType?.startsWith("video/") || /\.(mp4|mov|webm|m4v)$/i.test(assetUrl ?? "");
 }
 
-function statusTone(severity: "low" | "medium" | "high") {
-    if (severity === "high") return "border-red-500/30 bg-red-500/10 text-red-300";
-    if (severity === "medium") return "border-amber-400/30 bg-amber-400/10 text-amber-300";
-    return "border-sky-400/30 bg-sky-400/10 text-sky-300";
-}
-
-function confidenceTone(confidence: "confirmed" | "heuristic" | undefined) {
-    if (confidence === "confirmed") return "border-purple-500/40 bg-purple-500/15 text-purple-300";
-    return "border-gray-500/40 bg-gray-500/15 text-gray-400";
-}
-
 export function AdminModerationConsole() {
     const [selectedThreadIdOverride, setSelectedThreadIdOverride] = useState<string | null>(null);
     
@@ -76,7 +66,17 @@ export function AdminModerationConsole() {
 
     const selectedThread = useMemo(() => threads.find(t => t.id === selectedThreadId) || null, [threads, selectedThreadId]);
     const attachments = useMemo(() => messages.filter((message) => Boolean(message.assetUrl)), [messages]);
-    const highAlerts = useMemo(() => alerts.filter((alert) => alert.severity === "high").length, [alerts]);
+    const hasAnyError = Boolean(threadsError || messagesError || alertsError);
+    const hasVisibleData = threads.length > 0 || alerts.length > 0 || messages.length > 0;
+    const isInitialLoading = !hasVisibleData && (isLoadingThreads || isLoadingMessages || isLoadingAlerts);
+    const statusLabel = isInitialLoading ? "Loading" : hasAnyError && hasVisibleData ? "Partial" : hasAnyError ? "Degraded" : "Live";
+    const statusClassName = isInitialLoading
+        ? "border-white/10 bg-white/5 text-gray-300"
+        : statusLabel === "Live"
+            ? "border-emerald-500/30 bg-emerald-500/10 text-emerald-400"
+            : statusLabel === "Partial"
+                ? "border-amber-400/30 bg-amber-400/10 text-amber-400"
+                : "border-red-500/30 bg-red-500/10 text-red-400";
 
     return (
         <div className="space-y-4 md:space-y-5">
@@ -84,30 +84,16 @@ export function AdminModerationConsole() {
             <AdminPageHeader
                 eyebrow="Admin Moderation"
                 title="Moderation Console"
-                subtitle="Realtime creator chat oversight and clustered security alerts."
+                subtitle="Creator chat review and server-backed security alerts."
                 compact
                 actions={(
                     <>
                         <span className="rounded-full border border-white/10 bg-black/35 px-3 py-1 text-xs font-semibold text-white">{threads.length} threads</span>
                         <span className="rounded-full border border-white/10 bg-black/35 px-3 py-1 text-xs font-semibold text-white">{alerts.length} alerts</span>
-                        {threadsError || messagesError || alertsError ? (
-                            (threadsError && alertsError) ? (
-                                <span className="inline-flex items-center gap-1.5 rounded-full border border-red-500/30 bg-red-500/10 px-3 py-1 text-xs font-bold uppercase tracking-wider text-red-400">
-                                    <Activity className="h-3.5 w-3.5" />
-                                    Degraded
-                                </span>
-                            ) : (
-                                <span className="inline-flex items-center gap-1.5 rounded-full border border-amber-400/30 bg-amber-400/10 px-3 py-1 text-xs font-bold uppercase tracking-wider text-amber-400">
-                                    <Activity className="h-3.5 w-3.5" />
-                                    Partial
-                                </span>
-                            )
-                        ) : (
-                            <span className="inline-flex items-center gap-1.5 rounded-full border border-emerald-500/30 bg-emerald-500/10 px-3 py-1 text-xs font-bold uppercase tracking-wider text-emerald-400">
-                                <Activity className="h-3.5 w-3.5" />
-                                Live
-                            </span>
-                        )}
+                        <span className={cn("inline-flex items-center gap-1.5 rounded-full border px-3 py-1 text-xs font-bold uppercase tracking-wider", statusClassName)}>
+                            <Activity className="h-3.5 w-3.5" />
+                            {statusLabel}
+                        </span>
                     </>
                 )}
             />
@@ -155,41 +141,11 @@ export function AdminModerationConsole() {
                         </div>
                     </section>
 
-                    {/* Security Alerts */}
-                    <section className="glass-panel rounded-2xl p-4 flex flex-col h-full max-h-[40vh] xl:max-h-[50vh] overflow-hidden">
-                        <div className="mb-3 flex items-center justify-between">
-                            <h2 className="text-sm font-bold text-white">Security Alerts</h2>
-                            {highAlerts > 0 && <span className="rounded border border-red-500/30 bg-red-500/10 px-2 py-0.5 text-[10px] font-bold text-red-400">{highAlerts} High</span>}
-                        </div>
-                        <div className="space-y-2 overflow-y-auto pr-1">
-                            {alerts.slice(0, 20).map((alert) => (
-                                <div key={alert.id} className="rounded-xl border border-white/5 bg-white/[0.02] p-3 flex flex-col gap-1.5">
-                                    <div className="flex items-center justify-between gap-2">
-                                        <div className="flex items-center gap-2 min-w-0">
-                                            <p className="truncate text-xs font-bold text-white">{alert.username}</p>
-                                            {alert.repeatCount && alert.repeatCount > 1 ? (
-                                                <span className="rounded border border-orange-500/40 bg-orange-500/15 px-1.5 py-0.5 text-[9px] font-bold uppercase tracking-wider text-orange-300">
-                                                    {alert.repeatCount}x Burst
-                                                </span>
-                                            ) : null}
-                                        </div>
-                                        <span className="shrink-0 text-[10px] text-gray-500">{formatRelativeTime(alert.timestamp)}</span>
-                                    </div>
-                                    <div className="flex items-center gap-2">
-                                        <span className={cn("rounded border px-1.5 py-0.5 text-[9px] font-bold uppercase tracking-wider", statusTone(alert.severity))}>{alert.severity}</span>
-                                        <span className={cn("rounded border px-1.5 py-0.5 text-[9px] font-bold uppercase tracking-wider", confidenceTone(alert.confidence))}>{alert.confidence === "confirmed" ? "Confirmed" : "Suspected"}</span>
-                                        <span className="truncate text-[11px] text-gray-300">{alert.label}</span>
-                                    </div>
-                                </div>
-                            ))}
-                            {isLoadingAlerts && alerts.length === 0 ? <div className="p-3 text-xs text-gray-400"><Loader2 className="mr-2 inline h-3 w-3 animate-spin" />Loading alerts...</div> : null}
-                            {alertsError ? <div className="rounded-xl border border-red-500/30 bg-red-500/10 p-3 text-xs text-red-200">Alert stream failed.</div> : null}
-                        </div>
-                    </section>
+                    <AdminModerationSecurityAlerts alerts={alerts} isLoading={isLoadingAlerts} error={alertsError} />
                 </div>
 
                 {/* Selected Thread Workspace */}
-                <section className="glass-panel rounded-2xl flex flex-col h-[85vh] xl:h-[100vh] overflow-hidden">
+                <section className="glass-panel flex h-[70dvh] min-h-[520px] flex-col overflow-hidden rounded-2xl xl:h-[calc(100dvh-14rem)] xl:min-h-[620px]">
                     <div className="p-4 border-b border-white/5 flex items-center justify-between bg-white/[0.01]">
                         <h2 className="text-sm font-bold text-white">Workspace</h2>
                         {selectedThread && (

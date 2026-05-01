@@ -328,3 +328,11 @@ export function describeSecurityEvent(reason: string | null | undefined): Securi
     ...descriptor,
   };
 }
+
+export function isKnownSecurityEventReason(reason: string | null | undefined): boolean {
+  const normalizedReason = typeof reason === "string" && reason.trim().length > 0
+    ? reason.trim().toLowerCase()
+    : "unknown";
+
+  return Boolean(SECURITY_REASON_MAP[normalizedReason]);
+}

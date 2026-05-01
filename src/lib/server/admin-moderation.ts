@@ -1,13 +1,12 @@
 import "server-only";
 
-import { describeSecurityEvent } from "@/lib/security-events";
-
 import { CHAT_COLLECTIONS } from "@/lib/chat";
 import type {
     AdminModerationMessageRecord,
     AdminModerationSecurityAlert,
     AdminModerationThreadSummary,
 } from "@/lib/admin-moderation";
+import { normalizeAdminModerationSecurityAlert } from "@/lib/admin-moderation-security-alerts";
 import { buildChatSoftSealScope, softOpenChatValue } from "@/lib/chat-soft-seal";
 import { adminDb } from "@/lib/server/firebase-admin";
 import { recordRouteWarning } from "@/lib/server/route-diagnostics";
@@ -44,10 +43,6 @@ function toStringValue(value: unknown) {
 function toNullableString(value: unknown) {
     const normalized = toStringValue(value).trim();
     return normalized.length > 0 ? normalized : null;
-}
-
-function normalizeSeverity(value: unknown): AdminModerationSecurityAlert["severity"] {
-    return value === "high" || value === "low" || value === "medium" ? value : "medium";
 }
 
 function mapThreadSummary(id: string, value: Record<string, unknown>): AdminModerationThreadSummary {
@@ -96,22 +91,7 @@ function mapMessageRecord(id: string, value: Record<string, unknown>): AdminMode
 }
 
 function mapSecurityAlert(id: string, value: Record<string, unknown>): AdminModerationSecurityAlert {
-    return {
-        id,
-        userId: toStringValue(value.userId),
-        username: toStringValue(value.username) || "Unknown user",
-        label: toStringValue(value.label) || "Security event",
-        message: toStringValue(value.message) || "Security event logged.",
-        reason: toStringValue(value.reason) || "unknown",
-        severity: normalizeSeverity(value.severity),
-        confidence: value.confidence === "confirmed" || value.confidence === "heuristic" ? value.confidence : describeSecurityEvent(toStringValue(value.reason)).confidence,
-        repeatCount: typeof value.repeatCount === "number" ? Math.max(1, value.repeatCount) : undefined,
-        detectionKind: toStringValue(value.detectionKind) || "runtime",
-        pagePath: toNullableString(value.pagePath),
-        dropId: toNullableString(value.dropId),
-        assetKey: toNullableString(value.assetKey),
-        timestamp: toNumber(value.timestamp),
-    };
+    return normalizeAdminModerationSecurityAlert(id, value);
 }
 
 export async function listAdminModerationThreads() {
