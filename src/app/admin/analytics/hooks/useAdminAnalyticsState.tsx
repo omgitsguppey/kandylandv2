@@ -48,6 +48,7 @@ import { buildAdminAnalyticsAuthOutcomeModel } from "@/lib/admin-analytics-auth-
 import { buildAdminAnalyticsGuestBounceQualityModel } from "@/lib/admin-analytics-guest-bounce-quality";
 import { buildAdminAnalyticsEventMixModel } from "@/lib/admin-analytics-event-mix";
 import { buildAdminAnalyticsLiveInteractionStreamModel } from "@/lib/admin-analytics-live-interaction-stream";
+import { summarizeAdminIssueForOperator } from "@/lib/admin-copy/admin-truth-copy";
 
 
 import { TELEMETRY_EVENT_LABELS } from "@/lib/telemetry-catalog";
@@ -113,13 +114,13 @@ const EMPTY_ANALYTICS_OVERVIEW_HYDRATION_MARKS: AnalyticsOverviewHydrationMarks 
 };
 
 const ANALYTICS_OVERVIEW_BADGE_LABELS: Record<AdminSurfaceState, string> = {
-  loading: "WAITING",
+  loading: "WAIT",
   live: "LIVE",
-  cached: "CACHE",
-  degraded: "STALE",
-  fallback: "FALLBACK",
-  stale: "STALE",
-  unavailable: "UNAVAILABLE",
+  cached: "SNAP",
+  degraded: "REVIEW",
+  fallback: "SNAP",
+  stale: "DELAYED",
+  unavailable: "WAIT",
   failed: "ERROR",
 };
 
@@ -140,13 +141,13 @@ const SNAPSHOT_SECTION_KEYS = new Set<string>([
 
 const SNAPSHOT_SOURCE_LABELS: Record<string, string> = {
   live: "LIVE",
-  verified_cache: "CACHE",
-  stale_cache: "STALE",
-  intraday: "INTRA",
+  verified_cache: "SNAP",
+  stale_cache: "DELAYED",
+  intraday: "UPDATED",
   estimated: "EST",
-  fallback: "FALLBACK",
+  fallback: "SNAP",
   unavailable: "WAIT",
-  mixed: "MIXED",
+  mixed: "PARTIAL",
 };
 
 function isSnapshotSectionKey(value: string): value is AdminAnalyticsSnapshotSectionKey {
@@ -230,7 +231,7 @@ function compactHistoricalOverviewSnapshot(
     cacheAgeMs: response.generatedAtMs
       ? Math.max(0, Date.now() - response.generatedAtMs)
       : response.cacheAgeMs,
-    cacheSourceLabel: "Last validated backend snapshot",
+    cacheSourceLabel: "Last verified data",
     cacheRevalidating: true,
     devices: response.devices,
     funnel: response.funnel,
@@ -1028,16 +1029,16 @@ const { user } = useAuth();
   const isBackgroundSyncing =
     historicalLoading && Boolean(effectiveLiveResponse || historicalOverviewResponse || hasOverviewSnapshotFirstValue);
   const analyticsWarmState = isPrimingAnalytics
-    ? "Fetching live data"
+    ? "Refreshing"
     : liveRealtime.feedStatus === "realtime"
-      ? "Realtime live"
+      ? "Live updates active"
       : liveRealtime.feedStatus === "partial"
-        ? "Realtime partial"
+        ? "Live updates partial"
         : liveRealtime.feedStatus === "failed"
-          ? "Realtime fallback"
+          ? "Live updates delayed"
           : isBackgroundSyncing
             ? "Refreshing"
-            : "Polled fallback";
+            : "Showing last verified data";
 
   const historicalOverviewIssues = historicalOverviewResponse?.issues ?? [];
   const historicalEstimationReason =
@@ -1221,15 +1222,16 @@ const { user } = useAuth();
     historicalOverviewResponse?.cacheRevalidating === true && historicalLoading;
   const visibleDegradedMainCopy =
     backgroundAnalyticsIssues.length > 0
-      ? "Realtime analytics is delayed. Showing the last validated backend snapshot while refresh runs."
+      ? "Live updates are delayed. Showing last verified data."
       : "";
   const visibleHistoricalEstimationCopy = historicalEstimationReason
-    ? "Some guest traffic is estimated until anonymous batches arrive."
+    ? "Guest traffic is estimated for this range."
     : "";
-  const visibleDegradedCopy = [
+  const visibleDegradedCopy = Array.from(new Set([
     visibleDegradedMainCopy,
     visibleHistoricalEstimationCopy,
-  ].filter(Boolean);
+    ...backgroundAnalyticsIssues.map(summarizeAdminIssueForOperator),
+  ].filter(Boolean)));
 
   const buildOverviewMetricDebugMeta = ({
     metricKey,

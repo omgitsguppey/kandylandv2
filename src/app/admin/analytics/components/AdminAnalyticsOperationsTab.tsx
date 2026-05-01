@@ -10,6 +10,14 @@ import { coerceAdminSurfaceState, type AdminSurfaceState } from "@/lib/admin-par
 import { cn } from "@/lib/utils";
 import type { AdminAnalyticsState } from "../hooks/useAdminAnalyticsState";
 
+function formatJourneyDenominatorMode(mode: string) {
+  if (mode === "raw_event_ratio") return "Prior-step event ratio";
+  if (mode === "ordered_transition") return "Ordered journey ratio";
+  if (mode === "base_step") return "Base-step ratio";
+  if (mode === "prior_step") return "Prior-step ratio";
+  return "Event ratio";
+}
+
 export function AdminAnalyticsOperationsTab(props: AdminAnalyticsState) {
   const {
     renderSectionRangeControl, liveResponse, historicalResponse, liveLoading, historicalLoading, nowMs, EVENT_LABELS,
@@ -48,18 +56,17 @@ export function AdminAnalyticsOperationsTab(props: AdminAnalyticsState) {
   const activeUsersTruthState: AdminSurfaceState = liveResponse?.activeUsersTruthLabel
     ? coerceAdminSurfaceState(liveResponse.activeUsersTruthLabel)
     : livePulseTruthState;
-  const realtimeCacheSource = liveResponse?.cacheSourceLabel || liveResponse?.liveSourceLabel || "admin realtime hot cache";
   const realtimeCacheHint = livePulseModel.primaryDisplaySource === "verified_snapshot"
     ? livePulseModel.latestVerifiedSnapshotExists
-      ? "Last verified snapshot"
-      : "Snapshot fallback"
+      ? "Last verified data"
+      : "No verified live snapshot yet"
     : liveResponse?.liveTruthLabel === "stale"
-    ? `Stale hot cache (${realtimeCacheSource})`
+    ? "Live updates are delayed"
     : liveResponse?.cacheState === "fresh"
-      ? `Hot cache (${realtimeCacheSource})`
+      ? "Updated"
       : liveResponse?.liveTruthLabel === "fallback"
-        ? `First-party fallback (${liveResponse?.liveSourceLabel || "realtime fallback"})`
-        : "Google Analytics realtime";
+        ? "Showing last verified data"
+        : "Live updates";
   const compactLiveMetricClass = "rounded-[1rem] p-2";
   const compactLiveMetricValueClass = "text-lg leading-6 md:text-xl";
   const livePulseBadgeLabel =
@@ -70,7 +77,7 @@ export function AdminAnalyticsOperationsTab(props: AdminAnalyticsState) {
         : livePulseModel.presenceSourceStatus === "waiting"
           ? "WAIT"
           : livePulseModel.presenceSourceStatus === "cache"
-            ? "STALE"
+            ? "DELAYED"
             : "LIVE";
   const firstSnapshotLabel = "Waiting for first snapshot";
   const noSnapshotLabel = "No verified snapshot yet";
@@ -376,7 +383,7 @@ export function AdminAnalyticsOperationsTab(props: AdminAnalyticsState) {
 
             <SectionCard
               title={journeyFunnelModel.visibleTitle}
-              subtitle="Raw event chain with source and denominator truth."
+              subtitle="Event chain with source and denominator truth."
               icon={Eye}
               rightSlot={renderSectionRangeControl("journeyFunnel")}
             >
@@ -393,7 +400,7 @@ export function AdminAnalyticsOperationsTab(props: AdminAnalyticsState) {
                 <MetricCard
                   label="Mode"
                   value={journeyFunnelModel.modeLabel}
-                  hint={journeyFunnelModel.denominatorMode}
+                  hint={formatJourneyDenominatorMode(journeyFunnelModel.denominatorMode)}
                   icon={Route}
                   truthState={historicalMetricTruthState}
                   statusBadgeLabel={journeyFunnelBadgeLabel}
@@ -403,7 +410,7 @@ export function AdminAnalyticsOperationsTab(props: AdminAnalyticsState) {
                 <MetricCard
                   label="Base"
                   value={journeyCountLabel(journeyFunnelModel.steps[0]?.displayedCount ?? null)}
-                  hint="Auth modal raw events"
+                  hint="Auth modal events"
                   icon={Users}
                   truthState={historicalMetricTruthState}
                   statusBadgeLabel={journeyFunnelBadgeLabel}
@@ -413,7 +420,7 @@ export function AdminAnalyticsOperationsTab(props: AdminAnalyticsState) {
                 <MetricCard
                   label="Biggest Drop"
                   value={biggestDropoffLabel}
-                  hint="Prior-step raw ratio"
+                  hint="Prior-step event ratio"
                   icon={AlertTriangle}
                   truthState={historicalMetricTruthState}
                   statusBadgeLabel={journeyFunnelBadgeLabel}
@@ -456,7 +463,7 @@ export function AdminAnalyticsOperationsTab(props: AdminAnalyticsState) {
                             {step.visibleLabel}
                           </p>
                           <p className="mt-0.5 truncate text-[10px] text-gray-500">
-                            {journeyCountLabel(step.displayedCount)} raw events - {step.denominatorLabel}
+                            {journeyCountLabel(step.displayedCount)} tracked events - {step.denominatorLabel}
                           </p>
                         </div>
                         <div className="flex items-center gap-1.5">
@@ -466,7 +473,7 @@ export function AdminAnalyticsOperationsTab(props: AdminAnalyticsState) {
                           {rowDiffers ? (
                             <AdminStatusBadge
                               state="degraded"
-                              label="MIXED"
+                              label="PARTIAL"
                               className="max-w-[4.5rem] truncate whitespace-nowrap px-1.5 py-0.5 text-[9px]"
                             />
                           ) : null}
@@ -489,7 +496,7 @@ export function AdminAnalyticsOperationsTab(props: AdminAnalyticsState) {
                     key={item.stepKey}
                     label={item.visibleLabel}
                     value={journeyCountLabel(item.displayedCount)}
-                    hint="Supporting raw events"
+                    hint="Supporting events"
                     icon={item.stepKey === "shares" ? Share2 : CheckCircle2}
                     truthState={historicalMetricTruthState}
                     statusBadgeLabel={journeyFunnelBadgeLabel}
@@ -721,7 +728,7 @@ export function AdminAnalyticsOperationsTab(props: AdminAnalyticsState) {
             <div className="grid gap-5 xl:grid-cols-[1.15fr_0.85fr]">
               <SectionCard
                 title="Event Mix"
-                subtitle="Top raw events with source and surface context."
+                subtitle="Top event activity with source and surface context."
                 icon={Sparkles}
                 rightSlot={renderSectionRangeControl("eventMix")}
               >
@@ -738,7 +745,7 @@ export function AdminAnalyticsOperationsTab(props: AdminAnalyticsState) {
                   <div className="grid gap-2 rounded-[1rem] border border-white/10 bg-black/25 px-3 py-2 text-[11px] leading-5 text-gray-300 md:grid-cols-3">
                     <span>
                       <span className="font-semibold text-white">Total:</span>{" "}
-                      {eventMixCountLabel(eventMixModel.totalEventsInRange)} raw events
+                      {eventMixCountLabel(eventMixModel.totalEventsInRange)} tracked events
                     </span>
                     <span>
                       <span className="font-semibold text-white">Top:</span>{" "}
@@ -753,7 +760,7 @@ export function AdminAnalyticsOperationsTab(props: AdminAnalyticsState) {
                   <div className="rounded-[1rem] border border-white/10 bg-black/30 p-3">
                     <div className="mb-2 flex items-center justify-between gap-3">
                       <p className="text-[10px] font-semibold uppercase tracking-[0.14em] text-gray-500">
-                        Ranked raw events
+                        Ranked event activity
                       </p>
                       <span className="text-[10px] text-gray-500">
                         event count / total counted events
@@ -775,7 +782,7 @@ export function AdminAnalyticsOperationsTab(props: AdminAnalyticsState) {
                                   {item.displayLabel}
                                 </p>
                                 <p className="mt-0.5 truncate text-[10px] text-gray-500">
-                                  {item.mappedSurface ?? "Surface context unavailable"} / {item.mappingSource === "component_context" ? "mapped" : item.mappingSource === "fallback_event_catalog" ? "catalog" : "unmapped"}
+                                  {item.mappedSurface ?? "Surface context is unavailable"} / {item.mappingSource === "component_context" ? "mapped" : item.mappingSource === "fallback_event_catalog" ? "catalog" : "unmapped"}
                                 </p>
                               </div>
                               <div className="text-right">
@@ -799,7 +806,7 @@ export function AdminAnalyticsOperationsTab(props: AdminAnalyticsState) {
                         ))
                       ) : (
                         <div className="rounded-[0.9rem] border border-dashed border-white/10 bg-black/20 p-3 text-xs text-gray-500">
-                          Event mix needs raw event counts.
+                          Event mix needs verified event counts.
                         </div>
                       )}
                     </div>

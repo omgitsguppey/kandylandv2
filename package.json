@@ -53,6 +53,7 @@
         "check:admin-analytics-hot-cache": "tsx scripts/agent/validate-admin-analytics-hot-cache.ts",
         "check:global-loading-performance": "tsx scripts/agent/validate-global-loading-performance.ts",
         "check:refresh-based-hot-cache": "tsx scripts/agent/validate-refresh-based-hot-cache.ts",
+        "check:human-readable-admin-copy": "tsx scripts/agent/validate-human-readable-admin-copy.ts",
         "check:admin-analytics-snapshot-migration": "tsx scripts/agent/validate-admin-analytics-snapshot-migration.ts",
         "check:admin-analytics-no-pure-realtime": "tsx scripts/agent/validate-admin-analytics-no-pure-realtime.ts",
         "analytics:legacy:inventory": "tsx scripts/analytics/inventory-legacy-sources.ts",

@@ -7,6 +7,10 @@ Last updated: 2026-04-30
 
 Analytics Truth Layer v2 is the repo contract for moving Admin Analytics away from realtime-dependent loading and toward verified, source-labeled analytics. This phase does not rewrite behavior. It maps the truth model, source hierarchy, module blast radius, and validation expectations that later phases must implement.
 
+## 2026-05-01 Human-Readable Admin Copy Update
+
+Admin Analytics now has a required operator/developer copy split. Primary module copy must say plain-English states such as "Live updates are delayed. Showing last verified data.", "Guest traffic is estimated for this range.", "Purchase tracking needs review.", or "No verified data yet. Refresh to check again." Exact route names, collection names, formulas, parity deltas, raw event keys, and source paths belong in Debug technical evidence. Future agents must use `src/lib/admin-copy/admin-truth-copy.ts` and `docs/agent-truth/human-readable-admin-truth.md` before adding new Admin Analytics status copy.
+
 ## 2026-05-01 Refresh-Based Cache Update
 
 Refresh-based cache now outranks time-limit display gating. A verified snapshot remains displayable after its ideal freshness window and becomes `stale_but_verified` instead of disappearing. Manual and background refresh replace that snapshot only after a new payload is verified; refresh failure records metadata and leaves the last verified value visible. The central contract is `src/lib/cache/refresh-cache-contract.ts`, and Admin Debug exposes cache key, refresh/source version, invalidation, estimate, and blocking metadata.

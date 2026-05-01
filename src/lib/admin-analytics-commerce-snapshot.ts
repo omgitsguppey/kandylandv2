@@ -174,15 +174,15 @@ export function buildAdminAnalyticsCommerceSnapshotModel(input: {
 
   const visibleCopy = hasResponse
     ? stale || response?.cacheRevalidating
-      ? ["Commerce refresh is delayed. Showing last validated snapshot.", "Promo and bonus GD are excluded from revenue."]
-      : ["Showing validated commerce data for the selected range.", "Promo and bonus GD are excluded from revenue."]
+      ? ["Commerce refresh is delayed. Showing last verified data.", "Promo and bonus GumDrops are excluded from revenue."]
+      : ["Showing verified commerce data for the selected range.", "Promo and bonus GumDrops are excluded from revenue."]
     : [loading ? "Waiting for first snapshot." : "Commerce unavailable."];
 
   const needsAttention = [
     checkoutStartsValue !== null && purchaseCompletionsValue !== null && checkoutStartsValue > 0
       ? null
       : "Checkout conversion unavailable",
-    flags.fallback ? "Commerce data is using a validated snapshot" : null,
+    flags.fallback ? "Commerce is showing last verified data" : null,
     revenueValue === null ? "Revenue source unavailable" : null,
   ].filter((item): item is string => Boolean(item));
 

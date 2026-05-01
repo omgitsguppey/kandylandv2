@@ -56,9 +56,9 @@ export function DebugTabAi({
         <div className="space-y-4">
             <Section
                 title="AI debug assistant"
-                subtitle="Advisory summary over bounded canonical signals with labeled fallbacks."
+                subtitle="Plain-English guidance over the current Debug evidence."
                 defaultOpen
-                summary={<><Pill label="Status" value={aiStatusLabel} tone={aiStatusTone} /><Pill label="Enabled" value={aiDebugData?.enabled === false ? "No" : "Yes"} tone={aiDebugData?.enabled === false ? "warn" : "good"} /><Pill label="Configured model" value={aiDebugData?.configured_model || aiAssistantModel || "gemini-3.1-flash-lite-preview"} /><Pill label="Runtime" value={aiDebugData?.runtime_ready ? "Ready" : "Unavailable"} tone={aiDebugData?.runtime_ready ? "good" : "bad"} /><Pill label="Live lane" value={aiAssistantRealtime.feedStatus} tone={aiAssistantRealtime.feedStatus === "realtime" ? "good" : aiAssistantRealtime.feedStatus === "failed" ? "bad" : "warn"} /><Pill label="Last run" value={aiDebugData?.generated_at ? formatRelative(Date.parse(aiDebugData.generated_at)) : "Not recorded"} /><Pill label="Latency" value={aiDebugData ? `${aiDebugData.latency_ms}ms` : "--"} tone={aiDebugData && aiDebugData.latency_ms > 5000 ? "warn" : "neutral"} /></>}
+                summary={<><Pill label="Status" value={aiStatusLabel} tone={aiStatusTone} /><Pill label="Enabled" value={aiDebugData?.enabled === false ? "No" : "Yes"} tone={aiDebugData?.enabled === false ? "warn" : "good"} /><Pill label="Configured model" value={aiDebugData?.configured_model || aiAssistantModel || "gemini-3.1-flash-lite-preview"} /><Pill label="Runtime" value={aiDebugData?.runtime_ready ? "Ready" : "Unavailable"} tone={aiDebugData?.runtime_ready ? "good" : "bad"} /><Pill label="Update source" value={aiAssistantRealtime.feedStatus === "realtime" ? "Live" : aiAssistantRealtime.feedStatus === "failed" ? "Delayed" : "Saved"} tone={aiAssistantRealtime.feedStatus === "realtime" ? "good" : aiAssistantRealtime.feedStatus === "failed" ? "bad" : "warn"} /><Pill label="Last run" value={aiDebugData?.generated_at ? formatRelative(Date.parse(aiDebugData.generated_at)) : "Not recorded"} /><Pill label="Latency" value={aiDebugData ? `${aiDebugData.latency_ms}ms` : "--"} tone={aiDebugData && aiDebugData.latency_ms > 5000 ? "warn" : "neutral"} /></>}
             >
                 {aiDebugError ? (
                     <div className="rounded-[1rem] border border-red-400/20 bg-red-500/10 p-4 text-sm text-red-100">
@@ -71,7 +71,7 @@ export function DebugTabAi({
                         <div className="flex items-start justify-between gap-3">
                             <div>
                                 <p className="text-[11px] uppercase tracking-[0.18em] text-gray-400">Runtime config</p>
-                                <p className="mt-2 text-sm text-gray-300">Admin settings are now the primary enablement control. Runtime readiness is still gated by Vertex project and credentials.</p>
+                                <p className="mt-2 text-sm text-gray-300">Admin settings control whether summaries run. Technical runtime details are listed below.</p>
                             </div>
                             <Pill label="Resolved" value={aiDebugData?.model || aiAssistantModel || "gemini-3.1-flash-lite-preview"} tone={aiStatusTone} />
                         </div>
@@ -101,7 +101,7 @@ export function DebugTabAi({
                             <label className="flex items-center justify-between gap-4 rounded-xl border border-white/10 bg-black/20 px-3 py-3">
                                 <div>
                                     <p className="text-sm font-semibold text-white">Enabled</p>
-                                    <p className="mt-1 text-xs text-gray-400">Turns live assistant generation on or off without hiding the fallback truth surface.</p>
+                                    <p className="mt-1 text-xs text-gray-400">Turns assistant generation on or off without hiding saved guidance.</p>
                                 </div>
                                 <input type="checkbox" checked={aiAssistantEnabled} onChange={(event) => onAiAssistantEnabledChange(event.target.checked)} className="h-5 w-5 rounded border-white/20 bg-black/40 text-brand-purple" />
                             </label>
@@ -127,7 +127,7 @@ export function DebugTabAi({
                                 <p className="text-[11px] uppercase tracking-[0.18em] text-gray-400">What it found</p>
                                 <p className="mt-3 text-sm leading-6 text-gray-200">{aiDebugData.summary}</p>
                                 <div className="mt-4 flex flex-wrap gap-2">
-                                    <Pill label="Source" value={aiDebugData.fallback_used ? "Deterministic fallback" : "Live model"} tone={aiDebugData.fallback_used ? "warn" : "good"} />
+                                    <Pill label="Source" value={aiDebugData.fallback_used ? "Saved guidance" : "Live model"} tone={aiDebugData.fallback_used ? "warn" : "good"} />
                                     <Pill label="Prompt" value={aiDebugData.prompt_version} />
                                     <Pill label="Generated" value={formatTimestamp(Date.parse(aiDebugData.generated_at))} />
                                     <Pill label="Runtime" value={aiDebugData.runtime_ready ? "Ready" : "Unavailable"} tone={aiDebugData.runtime_ready ? "good" : "bad"} />

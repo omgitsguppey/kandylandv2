@@ -33,7 +33,7 @@ describe("resolveAdminAnalyticsDisplayState", () => {
     expect(state.shouldRenderSnapshot).toBe(true);
     expect(state.shouldShowUnavailable).toBe(false);
     expect(state.sourceMode).toBe("verified_cache");
-    expect(state.visibleMessage).toBe("Realtime delayed. Showing last verified snapshot.");
+    expect(state.visibleMessage).toBe("Live updates are delayed. Showing last verified data.");
     expect(state.realtimeBlocksFirstRender).toBe(false);
   });
 
@@ -56,7 +56,7 @@ describe("resolveAdminAnalyticsDisplayState", () => {
 
     expect(state.shouldRenderSnapshot).toBe(true);
     expect(state.truthState).toBe("refreshing");
-    expect(state.visibleMessage).toBe("Refresh running. Showing last verified snapshot.");
+    expect(state.visibleMessage).toBe("Refreshing. Showing last verified data.");
   });
 
   it("shows unavailable when neither snapshot nor realtime data exists", () => {
@@ -74,7 +74,7 @@ describe("resolveAdminAnalyticsDisplayState", () => {
     });
 
     expect(state.shouldShowUnavailable).toBe(true);
-    expect(state.visibleMessage).toBe("No verified snapshot yet.");
+    expect(state.visibleMessage).toBe("No verified data yet. Refresh to check again.");
     expect(state.fakeZeroPrevented).toBe(true);
   });
 

@@ -46,13 +46,13 @@ export interface MetricCardProps {
 }
 
 const ANALYTICS_METRIC_BADGE_LABELS: Record<AdminSurfaceState, string> = {
-    loading: "WAITING",
+    loading: "WAIT",
     live: "LIVE",
-    cached: "CACHE",
-    degraded: "STALE",
-    fallback: "FALLBACK",
-    stale: "STALE",
-    unavailable: "UNAVAILABLE",
+    cached: "SNAP",
+    degraded: "REVIEW",
+    fallback: "SNAP",
+    stale: "DELAYED",
+    unavailable: "WAIT",
     failed: "ERROR",
 };
 

@@ -4,6 +4,8 @@ Data Validation belongs in Admin Debug, not Admin Analytics. Analytics should sh
 
 Admin Analytics may show only a compact Data Health summary or Debug link. The full validation list, backend wording, source parity, freshness, and action details belong in `/admin/debug?tab=advanced#data-validation`.
 
+Each Debug validation row must include an operator summary, why it matters, what to check next, technical evidence, and source details. Primary validation row copy must be readable without backend knowledge; exact phrases such as `analytics_aggregate`, raw route paths, canonical event samples, truth score, and parity formulas belong inside the Technical evidence disclosure.
+
 Validation status values are `pass`, `warn`, `fail`, `unavailable`, `stale`, and `unknown`.
 
 PASS is allowed only when the required source exists, required samples are present, the validation snapshot is fresh enough for the selected range, and the threshold passes. PASS is forbidden when required data or required samples are missing. Stale validation must not appear as a live pass.

@@ -77,7 +77,7 @@ export function DebugAdvancedBehavior({ data }: DebugAdvancedBehaviorProps) {
             {/* ── Telemetry Truth Recovery ── */}
             <Section
                 title="Telemetry Truth Recovery"
-                subtitle="Raw, validated, finalized, and estimated analytics layers with repair visibility for delayed, duplicate, or legacy-broken telemetry."
+                subtitle="Observed, checked, final, and estimated analytics layers with repair visibility."
                 defaultOpen={false}
                 summary={<><Pill label="Drop metrics" value={data?.stats?.analyticsTruthDropMetrics ?? 0} /><Pill label="User metrics" value={data?.stats?.analyticsTruthUserMetrics ?? 0} /><Pill label="Repairs" value={data?.stats?.analyticsTruthRepairs ?? 0} tone={(data?.stats?.analyticsTruthRepairs ?? 0) > 0 ? "warn" : "good"} /><Pill label="Quality" value={data?.analyticsTruthRecovery?.global?.qualityLabel || "unknown"} tone={data?.analyticsTruthRecovery?.global?.qualityLabel === "exact" ? "good" : data?.analyticsTruthRecovery?.global?.qualityLabel === "estimated" ? "warn" : "neutral"} /></>}
             >
@@ -86,10 +86,10 @@ export function DebugAdvancedBehavior({ data }: DebugAdvancedBehaviorProps) {
                         <div className="rounded-[1rem] border border-white/10 bg-white/[0.03] p-4">
                             <p className="text-[11px] uppercase tracking-[0.18em] text-gray-400">Global truth summary</p>
                             <div className="mt-3 grid grid-cols-2 gap-3">
-                                <StatCard label="Raw views" value={data?.analyticsTruthRecovery?.global?.truthLayers?.raw?.raw_view_count ?? 0} meta="Observed viewer-open/session-start events" truthState={data?.analyticsTruthRecovery ? "live" : "unavailable"} />
-                                <StatCard label="Validated views" value={data?.analyticsTruthRecovery?.global?.truthLayers?.validated?.deduped_view_count ?? 0} meta="Duplicate hydration/remount noise collapsed" truthState={data?.analyticsTruthRecovery ? "live" : "unavailable"} />
-                                <StatCard label="Finalized views" value={data?.analyticsTruthRecovery?.global?.truthLayers?.finalized?.finalized_view_count ?? 0} meta="Historical reporting truth after reconciliation" truthState={data?.analyticsTruthRecovery ? "live" : "unavailable"} />
-                                <StatCard label="Estimated ratio" value={`${Math.round(((data?.analyticsTruthRecovery?.global?.truthLayers?.estimated?.estimated_data_ratio ?? 0) as number) * 100)}%`} meta="Recovered or inferred share of finalized metrics" truthState={data?.analyticsTruthRecovery?.global?.qualityLabel === "estimated" ? "fallback" : data?.analyticsTruthRecovery ? "live" : "unavailable"} />
+                                <StatCard label="Observed views" value={data?.analyticsTruthRecovery?.global?.truthLayers?.raw?.raw_view_count ?? 0} meta="Observed viewer-open and session-start activity" truthState={data?.analyticsTruthRecovery ? "live" : "unavailable"} />
+                                <StatCard label="Checked views" value={data?.analyticsTruthRecovery?.global?.truthLayers?.validated?.deduped_view_count ?? 0} meta="Duplicate page loads collapsed" truthState={data?.analyticsTruthRecovery ? "live" : "unavailable"} />
+                                <StatCard label="Final views" value={data?.analyticsTruthRecovery?.global?.truthLayers?.finalized?.finalized_view_count ?? 0} meta="Reporting value after review" truthState={data?.analyticsTruthRecovery ? "live" : "unavailable"} />
+                                <StatCard label="Estimated ratio" value={`${Math.round(((data?.analyticsTruthRecovery?.global?.truthLayers?.estimated?.estimated_data_ratio ?? 0) as number) * 100)}%`} meta="Recovered or inferred share of final metrics" truthState={data?.analyticsTruthRecovery?.global?.qualityLabel === "estimated" ? "fallback" : data?.analyticsTruthRecovery ? "live" : "unavailable"} />
                             </div>
                             <div className="mt-3 flex flex-wrap gap-2">
                                 <Pill label="Confidence" value={`${Math.round(((data?.analyticsTruthRecovery?.global?.confidenceScore ?? 0) as number) * 100)}%`} />
@@ -97,7 +97,7 @@ export function DebugAdvancedBehavior({ data }: DebugAdvancedBehaviorProps) {
                                 <Pill label="Recovered sessions" value={data?.analyticsTruthRecovery?.global?.truthLayers?.estimated?.recovered_sessions_count ?? 0} tone={(data?.analyticsTruthRecovery?.global?.truthLayers?.estimated?.recovered_sessions_count ?? 0) > 0 ? "warn" : "good"} />
                                 <Pill label="Freshness" value={data?.analyticsTruthRecovery?.status?.freshnessLabel || "unknown"} tone={data?.analyticsTruthRecovery?.status?.freshnessLabel === "live" ? "good" : "warn"} />
                             </div>
-                            <p className="mt-3 text-sm text-gray-300">Last rebuild {formatRelative(data?.analyticsTruthRecovery?.status?.lastComputedAtMs)}. Raw observations stay append-only; validated, finalized, and estimated truth are kept separate and explicitly labeled.</p>
+                            <p className="mt-3 text-sm text-gray-300">Last rebuild {formatRelative(data?.analyticsTruthRecovery?.status?.lastComputedAtMs)}. Observed, checked, final, and estimated layers stay separate and explicitly labeled.</p>
                         </div>
 
                         <ScrollWrap>

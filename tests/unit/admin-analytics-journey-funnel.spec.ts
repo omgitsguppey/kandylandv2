@@ -13,7 +13,7 @@ function responseWithFunnel(funnel: HistoricalAnalyticsResponse["funnel"]): Hist
 }
 
 describe("buildAdminAnalyticsJourneyFunnelModel", () => {
-  it("classifies non-sequential counts as raw events and exposes mismatches", () => {
+  it("classifies non-sequential event counts and exposes mismatches", () => {
     const response = responseWithFunnel({
       authModalOpens: 108,
       authSignIns: 0,
@@ -46,7 +46,7 @@ describe("buildAdminAnalyticsJourneyFunnelModel", () => {
     expect(model.sourceMismatchSteps).toContain("purchases");
     expect(model.steps.find((step) => step.stepKey === "purchases")?.displayedPercent).toBeCloseTo(19 / 5);
     expect(model.steps.find((step) => step.stepKey === "purchases")?.source).toBe("mixed_first_party_payment");
-    expect(model.recommendation).toContain("Raw events exceed prior steps");
+    expect(model.recommendation).toContain("Event counts exceed prior steps");
   });
 
   it("prevents fake zeros when data is unavailable", () => {

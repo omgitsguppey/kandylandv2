@@ -69,7 +69,7 @@ export function AdminModerationConsole() {
     const hasAnyError = Boolean(threadsError || messagesError || alertsError);
     const hasVisibleData = threads.length > 0 || alerts.length > 0 || messages.length > 0;
     const isInitialLoading = !hasVisibleData && (isLoadingThreads || isLoadingMessages || isLoadingAlerts);
-    const statusLabel = isInitialLoading ? "Loading" : hasAnyError && hasVisibleData ? "Partial" : hasAnyError ? "Degraded" : "Live";
+    const statusLabel = isInitialLoading ? "Loading" : hasAnyError && hasVisibleData ? "Partial" : hasAnyError ? "Needs review" : "Live";
     const statusClassName = isInitialLoading
         ? "border-white/10 bg-white/5 text-gray-300"
         : statusLabel === "Live"

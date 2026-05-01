@@ -117,7 +117,7 @@ export function AdminAnalyticsAudienceTab(props: AdminAnalyticsState) {
                   }
                   icon={Activity}
                   truthState={audienceSnapshotModel.sessions.truthState}
-                  dictionaryTooltip="Sessions use GA totals with first-party fallback when that backend source is higher for the same selected range."
+                  dictionaryTooltip="Sessions use GA totals and first-party activity, with the higher verified source shown for the selected range."
                 />
                 <MetricCard
                   label="Engagement"

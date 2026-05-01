@@ -106,18 +106,25 @@ export function coerceAdminSurfaceState(value: unknown): AdminSurfaceState {
 }
 
 export function formatAdminSurfaceStateLabel(state: AdminSurfaceState): string {
-  return `[${state}]`;
+  if (state === "loading") return "Waiting";
+  if (state === "live") return "Live";
+  if (state === "cached") return "Showing last verified data";
+  if (state === "degraded") return "Needs review";
+  if (state === "fallback") return "Showing last verified data";
+  if (state === "stale") return "Delayed";
+  if (state === "failed") return "Needs review";
+  return "Unavailable";
 }
 
 export const ADMIN_SURFACE_STATE_DETAIL: Record<AdminSurfaceState, string> = {
-  loading: "Canonical source request is still hydrating.",
-  live: "Canonical source is current.",
-  cached: "Validated backend cache is serving the current panel request.",
-  degraded: "Canonical source is connected but incomplete.",
-  fallback: "Primary source failed or is absent; secondary data is displayed.",
-  stale: "Last verified data is older than the allowed freshness window.",
-  unavailable: "No verified source snapshot is available yet.",
-  failed: "Data could not be loaded.",
+  loading: "Waiting for a verified source.",
+  live: "Current verified data is showing.",
+  cached: "Last verified data is showing.",
+  degraded: "The data is usable, but source evidence needs review.",
+  fallback: "Last verified data is showing while the live source catches up.",
+  stale: "Last verified data is older than ideal.",
+  unavailable: "No verified source is ready yet.",
+  failed: "The source could not be loaded.",
 };
 
 export function resolveAdminSurfaceState(input: {

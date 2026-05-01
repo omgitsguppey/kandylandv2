@@ -148,10 +148,10 @@ export function resolveAdminAnalyticsDisplayState(input: {
     const graphMissingButSnapshotRendered =
       input.moduleConfig.graphSourceAvailable === false;
     const visibleMessage = refreshRunning
-      ? "Refresh running. Showing last verified snapshot."
+      ? "Refreshing. Showing last verified data."
       : realtimeFailed
-        ? "Realtime delayed. Showing last verified snapshot."
-        : "Showing last verified snapshot.";
+        ? "Live updates are delayed. Showing last verified data."
+        : "Showing last verified data.";
 
     return {
       visibleValueSource: "verified_snapshot",
@@ -195,7 +195,7 @@ export function resolveAdminAnalyticsDisplayState(input: {
     shouldRenderSnapshot: false,
     shouldRenderRealtimeUpgrade: false,
     shouldShowUnavailable: true,
-    visibleMessage: refreshRunning ? "Refresh running. No verified snapshot yet." : "No verified snapshot yet.",
+    visibleMessage: refreshRunning ? "Refreshing. No verified data yet." : "No verified data yet. Refresh to check again.",
     debugReason:
       errorState.snapshotError ??
       errorState.refreshError ??

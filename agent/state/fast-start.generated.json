@@ -1,5 +1,5 @@
 {
-  "generatedAt": "2026-05-01T16:36:06.412Z",
+  "generatedAt": "2026-05-01T17:47:32.729Z",
   "truthOrder": [
     "verified_runtime_code",
     "verified_configuration",
@@ -16,14 +16,14 @@
     "scripts/trace-adjacent-surfaces.ts"
   ],
   "input": {
-    "task": "full-system refresh-based hot cache loading hydration caching refactor",
+    "task": "human-readable admin truth diagnostics copy hardening",
     "mode": "admin",
     "files": [
       "src/app/admin/analytics/hooks/useAdminAnalyticsState.tsx"
     ]
   },
-  "gitStatus": "M agent/index/blast-radius.json\n M agent/index/canonical-helpers.json\n M agent/index/dependency-graph.summary.json\n M agent/index/governance-truth.json\n M agent/index/known-pitfalls.json\n M agent/index/package-manager-truth.json\n M agent/index/recent-passes.json\n M agent/index/repo-inventory.json\n M agent/index/retrieval-index.json\n M agent/index/runtime-observability.json\n M agent/index/surface-map.json\n M agent/index/ui-surface-coverage.json\n M agent/index/verification-commands.json\n M agent/index/workflow-guidance.json\n M agent/prompts/task-prompt.deep.md\n M agent/prompts/task-prompt.short.md\n M agent/prompts/task-prompt.standard.md\n M agent/prompts/verification-plan.generated.md\n M agent/state/task-context.generated.json\n M agent/state/verification-plan.generated.json",
-  "taskContextStableId": "taskctx__admin-full-system-refresh-based-hot-cache-loading-hydration-caching-refactor",
+  "gitStatus": "M agent/index/blast-radius.json\n M agent/index/canonical-helpers.json\n M agent/index/dependency-graph.summary.json\n M agent/index/governance-truth.json\n M agent/index/known-pitfalls.json\n M agent/index/package-manager-truth.json\n M agent/index/recent-passes.json\n M agent/index/repo-inventory.json\n M agent/index/retrieval-index.json\n M agent/index/runtime-observability.json\n M agent/index/surface-map.json\n M agent/index/ui-surface-coverage.json\n M agent/index/verification-commands.json\n M agent/index/workflow-guidance.json\n M agent/prompts/task-prompt.deep.md\n M agent/prompts/task-prompt.short.md\n M agent/prompts/task-prompt.standard.md\n M agent/state/task-context.generated.json\n M agent/state/verification-plan.generated.json",
+  "taskContextStableId": "taskctx__admin-human-readable-admin-truth-diagnostics-copy-hardening",
   "likelyTouchedFiles": [
     "src/app/admin/analytics/hooks/useAdminAnalyticsState.tsx",
     "src/app/admin/analytics/components/AdminAnalyticsCommerceTab.tsx",
@@ -41,12 +41,12 @@
   "canonicalHelpersToReuse": [
     "src/lib/route-runtime-health.ts",
     "src/lib/server/admin-panel-system-logs.ts",
+    "src/lib/server/route-diagnostics.ts",
     "src/lib/server/route-runtime-health.ts",
     "src/lib/server/server-diagnostics.ts",
     "src/lib/telemetry-catalog.ts",
     "src/lib/telemetry.ts",
-    "src/lib/server/auth.ts",
-    "src/lib/server/request-guard.ts"
+    "src/lib/server/auth.ts"
   ],
   "fastVerificationCommands": [
     "npm run typecheck",

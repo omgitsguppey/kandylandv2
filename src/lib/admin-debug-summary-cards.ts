@@ -1,4 +1,6 @@
 import type { AdminSurfaceState } from "@/lib/admin-parity";
+import type { AdminDebugExplanation } from "@/lib/admin-copy/admin-truth-copy";
+import { buildAdminDebugExplanation } from "@/lib/admin-copy/admin-truth-copy";
 
 export type AdminDebugAiFeedStatus = "realtime" | "partial" | "polled" | "failed";
 
@@ -19,6 +21,15 @@ export type AdminDebugRouteListenerState = {
     routeHealthLoaded?: boolean;
 };
 
+export type AdminDebugCardCopy = {
+    operatorSummary: string;
+    whyItMatters: string;
+    recommendedNextCheck: string;
+    technicalEvidence: string;
+    sourceDetails: string;
+    debugExplanation: AdminDebugExplanation;
+};
+
 function formatWindowHours(windowMs?: number) {
     if (!windowMs) return "current window";
     return `${Math.max(1, Math.round(windowMs / 3_600_000))}h`;
@@ -33,6 +44,37 @@ function formatRelative(timestamp?: number, nowMs = Date.now()) {
     const hours = Math.floor(minutes / 60);
     if (hours < 24) return `${hours}h ago`;
     return `${Math.floor(hours / 24)}d ago`;
+}
+
+export function createAdminDebugCardCopy(input: {
+    operatorSummary: string;
+    whyItMatters: string;
+    recommendedNextCheck: string;
+    technicalEvidence: string;
+    sourceDetails: string;
+    technicalState: string;
+    sourceMode?: string;
+    routeName?: string;
+    collectionName?: string;
+    debugDetails?: unknown;
+}): AdminDebugCardCopy {
+    return {
+        operatorSummary: input.operatorSummary,
+        whyItMatters: input.whyItMatters,
+        recommendedNextCheck: input.recommendedNextCheck,
+        technicalEvidence: input.technicalEvidence,
+        sourceDetails: input.sourceDetails,
+        debugExplanation: buildAdminDebugExplanation({
+            technicalState: input.technicalState,
+            sourceMode: input.sourceMode,
+            routeName: input.routeName,
+            collectionName: input.collectionName,
+            operatorImpact: input.whyItMatters,
+            recommendedAction: input.recommendedNextCheck,
+            debugDetails: input.debugDetails ?? input.technicalEvidence,
+            debugPath: "/admin/debug",
+        }),
+    };
 }
 
 export function buildAdminDebugSystemHealthNowModel(input: {
@@ -86,7 +128,7 @@ export function buildAdminDebugSystemHealthNowModel(input: {
             truthState: pipelineTruthState,
             tone: pipelineTruthState === "failed" ? "bad" as const : pipelineTruthState === "live" ? "good" as const : "warn" as const,
             detail: diagnosticsDegraded
-                ? `${pipelineDetail} Diagnostics remain degraded: ${input.activeDiagnosticCount} active across ${input.activeIssueClusterCount} clusters.`
+                ? `${pipelineDetail} Diagnostics need review: ${input.activeDiagnosticCount} active across ${input.activeIssueClusterCount} clusters.`
                 : pipelineDetail,
         },
         diagnostics: {
@@ -117,7 +159,7 @@ export function buildAdminDebugSystemHealthNowModel(input: {
             truthState: input.routeFailureCount > 0 ? "degraded" as AdminSurfaceState : "live" as AdminSurfaceState,
             tone: input.routeFailureCount > 0 ? "warn" as const : "good" as const,
             emptyDetail: diagnosticsDegraded
-                ? "No route failures are present in the pipeline sample. Active diagnostics are still degraded outside the route-failure lane."
+                ? "No route failures are present in the pipeline sample. Other active diagnostics still need review."
                 : "No route failures are present in the loaded pipeline sample.",
         },
     };
@@ -135,7 +177,7 @@ export function buildAdminDebugRouteHealthCard(input: {
     const { summary, observedCount, hasRealtimeRows, hasSnapshotRows, listenerState, isLoading, hasError } = input;
     const observedWarnCount = Math.max(0, summary.warn - summary.unobserved);
     const issueCount = observedWarnCount + summary.fail + summary.stale;
-    const sourceLabel = hasSnapshotRows && hasRealtimeRows
+    const technicalSourceLabel = hasSnapshotRows && hasRealtimeRows
         ? "[live] API snapshot + route listener"
         : hasSnapshotRows && listenerState.routeHealthFailed
             ? "[degraded] API snapshot; route listener failed"
@@ -148,8 +190,26 @@ export function buildAdminDebugRouteHealthCard(input: {
                 : listenerState.routeHealthFailed
                     ? "[failed] route listener and API snapshot empty"
                     : isLoading
-                        ? "[loading] route sources"
-                        : "[unavailable] no route runtime records";
+                    ? "[loading] route sources"
+                    : "[unavailable] no route runtime records";
+    const operatorSourceLabel = hasSnapshotRows && hasRealtimeRows
+        ? "Live route checks are showing."
+        : hasSnapshotRows && listenerState.routeHealthFailed
+            ? "Live route checks are delayed. Showing last verified route data."
+        : hasSnapshotRows && !listenerState.routeHealthLoaded
+            ? "Showing last verified route data while live checks connect."
+        : hasSnapshotRows
+            ? "Showing last verified route data."
+            : hasRealtimeRows
+                ? "Live route checks are showing while the saved snapshot catches up."
+                : listenerState.routeHealthFailed
+                    ? "No verified route health data yet."
+                    : isLoading
+                        ? "Waiting for first route health snapshot."
+                        : "No route health records are available.";
+    const technicalEvidence = summary.total > 0
+        ? `${technicalSourceLabel} | ${summary.total} tracked, ${observedCount} observed, ${summary.unobserved} unseen | slow ${summary.slow}, server ${summary.serverErrors}, client ${summary.clientErrors}`
+        : technicalSourceLabel;
 
     const truthState: AdminSurfaceState = isLoading && summary.total === 0
         ? "loading"
@@ -168,10 +228,32 @@ export function buildAdminDebugRouteHealthCard(input: {
             ? `${summary.healthy} ok / ${issueCount} action / ${summary.fail} fail`
             : "0 tracked",
         meta: summary.total > 0
-            ? `${sourceLabel} | ${summary.total} tracked, ${observedCount} observed, ${summary.unobserved} unseen | slow ${summary.slow}, server ${summary.serverErrors}, client ${summary.clientErrors}`
-            : sourceLabel,
+            ? `${operatorSourceLabel} ${issueCount > 0 ? `${issueCount} route check${issueCount === 1 ? "" : "s"} need review.` : "No action needed."}`
+            : operatorSourceLabel,
         truthState,
-        sourceLabel,
+        sourceLabel: technicalSourceLabel,
+        operatorSourceLabel,
+        technicalEvidence,
+        copy: createAdminDebugCardCopy({
+            operatorSummary: operatorSourceLabel,
+            whyItMatters: summary.fail > 0
+                ? "One or more admin routes failed in the current health sample."
+                : summary.total > 0
+                    ? "Route health tells operators whether admin tools are responding normally."
+                    : "Without a route health snapshot, Debug cannot confirm route availability.",
+            recommendedNextCheck: summary.fail > 0
+                ? "Open the route health table and check the failed route response."
+                : issueCount > 0
+                    ? "Review the delayed or slow route checks below."
+                    : "No action needed.",
+            technicalEvidence,
+            sourceDetails: technicalSourceLabel,
+            technicalState: listenerState.routeHealthFailed ? "route_health_listener_failed" : "route_health_summary",
+            sourceMode: hasSnapshotRows && !hasRealtimeRows ? "snapshot" : hasRealtimeRows ? "realtime" : "unavailable",
+            routeName: "/api/admin/debug",
+            collectionName: "route_runtime_health",
+            debugDetails: { summary, observedCount, listenerState, hasRealtimeRows, hasSnapshotRows },
+        }),
     };
 }
 
@@ -236,10 +318,32 @@ export function buildAdminDebugOpenActionsCard(input: {
     return {
         count,
         meta: buckets.length > 0
-            ? buckets.map(formatBucket).join(" | ")
-            : "No actionable debug lanes in current snapshot",
+            ? `${count} open item${count === 1 ? "" : "s"} need review.`
+            : "No open debug actions.",
         truthState,
         buckets,
+        technicalEvidence: buckets.length > 0
+            ? buckets.map(formatBucket).join(" | ")
+            : "No actionable debug lanes in current snapshot",
+        copy: createAdminDebugCardCopy({
+            operatorSummary: buckets.length > 0
+                ? `${count} open item${count === 1 ? "" : "s"} need review.`
+                : "No open debug actions.",
+            whyItMatters: buckets.length > 0
+                ? "Open items point to admin areas that may need manual review."
+                : "The current debug snapshot has no operator action items.",
+            recommendedNextCheck: buckets.length > 0
+                ? "Open the Action lane and address the highest severity item first."
+                : "No action needed.",
+            technicalEvidence: buckets.length > 0
+                ? buckets.map(formatBucket).join(" | ")
+                : "No actionable debug lanes in current snapshot",
+            sourceDetails: "repair proposals, panel logs, route runtime, queue runtime",
+            technicalState: input.hasError ? "debug_actions_load_failed" : "debug_actions_summary",
+            sourceMode: input.isLoading ? "loading" : count > 0 ? "partial" : "verified",
+            routeName: "/api/admin/debug",
+            debugDetails: { buckets, count },
+        }),
     };
 }
 
@@ -258,20 +362,43 @@ export function buildAdminDebugAiAssistantCard(input: {
     const latency = typeof input.latencyMs === "number" && Number.isFinite(input.latencyMs)
         ? `${Math.max(0, Math.trunc(input.latencyMs))}ms`
         : "latency unknown";
+    const baseSourceDetails = `${configuredModel} configured | feedStatus=${feedStatus} | ${latency}`;
 
     if (input.hasError) {
+        const technicalEvidence = `assistant summary route failed | ${baseSourceDetails}`;
         return {
             value: "Unavailable",
-            meta: "assistant summary route failed",
+            meta: "AI summary could not be loaded.",
             truthState: "failed" as AdminSurfaceState,
+            technicalEvidence,
+            copy: createAdminDebugCardCopy({
+                operatorSummary: "AI summary could not be loaded.",
+                whyItMatters: "Debug can still be used, but the summary helper is unavailable.",
+                recommendedNextCheck: "Check the assistant route response in Debug.",
+                technicalEvidence,
+                sourceDetails: baseSourceDetails,
+                technicalState: "ai_assistant_route_failed",
+                routeName: "/api/admin/debug/assistant",
+            }),
         };
     }
 
     if (!input.hasSummary) {
+        const technicalEvidence = `waiting for assistant summary | ${baseSourceDetails}`;
         return {
             value: "Loading",
-            meta: "waiting for assistant summary",
+            meta: "Waiting for first AI summary.",
             truthState: "loading" as AdminSurfaceState,
+            technicalEvidence,
+            copy: createAdminDebugCardCopy({
+                operatorSummary: "Waiting for first AI summary.",
+                whyItMatters: "The helper cannot summarize issues until one response is verified.",
+                recommendedNextCheck: "Wait briefly or refresh Debug.",
+                technicalEvidence,
+                sourceDetails: baseSourceDetails,
+                technicalState: "ai_assistant_pending_first_summary",
+                routeName: "/api/admin/debug/assistant",
+            }),
         };
     }
 
@@ -279,56 +406,136 @@ export function buildAdminDebugAiAssistantCard(input: {
     const sourceLabel = input.fallbackUsed ? "deterministic fallback output" : "live model output";
 
     if (input.enabled === false) {
+        const technicalEvidence = `${configuredModel} configured | ${runtimeLabel} | ${sourceLabel} | ${latency}`;
         return {
-            value: "Disabled",
-            meta: `${configuredModel} configured | ${runtimeLabel} | ${sourceLabel} | ${latency}`,
+            value: "Off",
+            meta: "AI summaries are turned off.",
             truthState: "degraded" as AdminSurfaceState,
+            technicalEvidence,
+            copy: createAdminDebugCardCopy({
+                operatorSummary: "AI summaries are turned off.",
+                whyItMatters: "Debug works normally, but automatic summaries will not update.",
+                recommendedNextCheck: "Turn the assistant on if summaries are needed.",
+                technicalEvidence,
+                sourceDetails: baseSourceDetails,
+                technicalState: "ai_assistant_disabled",
+                routeName: "/api/admin/debug/assistant",
+            }),
         };
     }
 
     if (input.runtimeReady === false) {
+        const technicalEvidence = `${configuredModel} configured | ${feedStatus} preflight lane | ${sourceLabel} | ${latency}`;
         return {
             value: "Runtime unavailable",
-            meta: `${configuredModel} configured | ${feedStatus} preflight lane | ${sourceLabel} | ${latency}`,
+            meta: "AI summary cannot run right now.",
             truthState: "failed" as AdminSurfaceState,
+            technicalEvidence,
+            copy: createAdminDebugCardCopy({
+                operatorSummary: "AI summary cannot run right now.",
+                whyItMatters: "Debug works normally, but AI-generated guidance may be missing.",
+                recommendedNextCheck: "Check the configured model and runtime readiness.",
+                technicalEvidence,
+                sourceDetails: baseSourceDetails,
+                technicalState: "ai_assistant_runtime_unavailable",
+                routeName: "/api/admin/debug/assistant",
+            }),
         };
     }
 
     if (input.fallbackUsed) {
+        const technicalEvidence = `${configuredModel} configured | ${feedStatus === "failed" ? "preflight observers failed" : `${feedStatus} preflight lane`} | ${runtimeLabel} | deterministic fallback output | ${latency}`;
         return {
-            value: "Fallback",
-            meta: `${configuredModel} configured | ${feedStatus === "failed" ? "preflight observers failed" : `${feedStatus} preflight lane`} | ${runtimeLabel} | deterministic fallback output | ${latency}`,
+            value: "Saved summary",
+            meta: "Live AI summary is delayed. Showing saved guidance.",
             truthState: "fallback" as AdminSurfaceState,
+            technicalEvidence,
+            copy: createAdminDebugCardCopy({
+                operatorSummary: "Live AI summary is delayed. Showing saved guidance.",
+                whyItMatters: "Operators can still read guidance, but it is not generated from a live model call.",
+                recommendedNextCheck: "Check assistant preflight and model runtime if this persists.",
+                technicalEvidence,
+                sourceDetails: baseSourceDetails,
+                technicalState: "ai_assistant_fallback_output",
+                sourceMode: "fallback",
+                routeName: "/api/admin/debug/assistant",
+            }),
         };
     }
 
     if (feedStatus === "failed") {
+        const technicalEvidence = `${configuredModel} configured | preflight observers failed | ${runtimeLabel} | live model output | ${latency}`;
         return {
-            value: "Polled",
-            meta: `${configuredModel} configured | preflight observers failed | ${runtimeLabel} | live model output | ${latency}`,
+            value: "Delayed",
+            meta: "AI status is delayed. Showing the latest summary.",
             truthState: "degraded" as AdminSurfaceState,
+            technicalEvidence,
+            copy: createAdminDebugCardCopy({
+                operatorSummary: "AI status is delayed. Showing the latest summary.",
+                whyItMatters: "The summary is available, but live status updates may arrive late.",
+                recommendedNextCheck: "Check assistant preflight if the delay remains active.",
+                technicalEvidence,
+                sourceDetails: baseSourceDetails,
+                technicalState: "ai_assistant_preflight_failed",
+                routeName: "/api/admin/debug/assistant",
+            }),
         };
     }
 
     if (feedStatus === "partial") {
+        const technicalEvidence = `${configuredModel} configured | partial preflight lane | ${runtimeLabel} | live model output | ${latency}`;
         return {
             value: "Partial",
-            meta: `${configuredModel} configured | partial preflight lane | ${runtimeLabel} | live model output | ${latency}`,
+            meta: "AI status is partially updated.",
             truthState: "degraded" as AdminSurfaceState,
+            technicalEvidence,
+            copy: createAdminDebugCardCopy({
+                operatorSummary: "AI status is partially updated.",
+                whyItMatters: "Some assistant status details may lag behind the summary.",
+                recommendedNextCheck: "Review assistant source details below if this persists.",
+                technicalEvidence,
+                sourceDetails: baseSourceDetails,
+                technicalState: "ai_assistant_partial_preflight",
+                routeName: "/api/admin/debug/assistant",
+            }),
         };
     }
 
     if (feedStatus === "polled") {
+        const technicalEvidence = `${configuredModel} configured | polled preflight lane | ${runtimeLabel} | live model output | ${latency}`;
         return {
-            value: "Polled",
-            meta: `${configuredModel} configured | polled preflight lane | ${runtimeLabel} | live model output | ${latency}`,
+            value: "Updated",
+            meta: "Showing the latest saved AI summary.",
             truthState: "fallback" as AdminSurfaceState,
+            technicalEvidence,
+            copy: createAdminDebugCardCopy({
+                operatorSummary: "Showing the latest saved AI summary.",
+                whyItMatters: "The helper is usable, but it is not streaming live status.",
+                recommendedNextCheck: "No action needed unless live updates are expected.",
+                technicalEvidence,
+                sourceDetails: baseSourceDetails,
+                technicalState: "ai_assistant_polled_status",
+                sourceMode: "snapshot",
+                routeName: "/api/admin/debug/assistant",
+            }),
         };
     }
 
+    const technicalEvidence = `${configuredModel} configured | realtime preflight lane | ${runtimeLabel} | live model output | ${latency}`;
     return {
         value: "Live",
-        meta: `${configuredModel} configured | realtime preflight lane | ${runtimeLabel} | live model output | ${latency}`,
+        meta: "AI summary is current.",
         truthState: "live" as AdminSurfaceState,
+        technicalEvidence,
+        copy: createAdminDebugCardCopy({
+            operatorSummary: "AI summary is current.",
+            whyItMatters: "The helper can summarize current debug evidence.",
+            recommendedNextCheck: "No action needed.",
+            technicalEvidence,
+            sourceDetails: baseSourceDetails,
+            technicalState: "ai_assistant_live",
+            sourceMode: "realtime",
+            routeName: "/api/admin/debug/assistant",
+        }),
     };
 }

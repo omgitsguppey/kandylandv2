@@ -64,9 +64,9 @@ export function AdminOnboardingAnalyticsModules(props: {
 }) {
     const model = props.onboardingVelocityModel;
     const velocityBadgeLabel = model.discrepancyDetected
-        ? "MIXED"
+        ? "PARTIAL"
         : model.truthState === "stale"
-            ? "STALE"
+            ? "DELAYED"
             : model.truthState === "loading"
                 ? "WAIT"
                 : "LIVE";
@@ -94,7 +94,7 @@ export function AdminOnboardingAnalyticsModules(props: {
     return (
         <SectionCard
             title="Onboarding Performance"
-            subtitle="Starts, completions, timing, and step drop-off in one source-labeled view."
+            subtitle="Starts, completions, timing, and step drop-off in one verified view."
             icon={PlayCircle}
             rightSlot={props.renderSectionRangeControl("onboardingVelocity")}
         >
@@ -102,8 +102,8 @@ export function AdminOnboardingAnalyticsModules(props: {
                 <div className="flex items-center justify-between gap-2">
                     <p className="min-w-0 text-[11px] leading-5 text-gray-400">
                         {model.onboardingStarts.source === "canonical_onboarding_start_events"
-                            ? "Using canonical onboarding starts."
-                            : "Onboarding starts are source-labeled for this range."}
+                            ? "Showing verified onboarding starts."
+                            : "Onboarding starts include source detail for this range."}
                     </p>
                     <AdminStatusBadge
                         state={model.truthState}

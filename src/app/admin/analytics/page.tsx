@@ -109,13 +109,13 @@ export default function AdminAnalyticsPage() {
           label="Live Active"
           value={liveActiveDisplay}
           hint={liveFeedStatus === "realtime"
-            ? `${formatCompactNumber(liveGuestActiveCount ?? 0)} guests - live stream`
+            ? `${formatCompactNumber(liveGuestActiveCount ?? 0)} guests - live`
             : liveResponse?.liveTruthLabel === "fallback"
-              ? "30 min window - snapshot fallback"
+              ? "30 min window - last verified"
               : "30 min window"}
           icon={Activity}
           truthState={liveActiveTruthState}
-          dictionaryTooltip="Current active users on the platform. Can be live via canonical realtime tracking or fall back to historical tracking over 30 mins."
+          dictionaryTooltip="Current active users on the platform. If live updates are delayed, this card shows the last verified short-window count."
         />
         <MetricCard
           label="Mobile Share"
@@ -200,11 +200,11 @@ export default function AdminAnalyticsPage() {
           <AlertTriangle className="mt-0.5 h-3.5 w-3.5 shrink-0 text-amber-400" />
           <div
             className="min-w-0 space-y-0.5 text-xs text-amber-200"
-            title={backgroundAnalyticsIssues.join(" | ")}
+            title={visibleDegradedCopy.join(" | ")}
           >
             <p>
-              <span className="font-semibold">Degraded:</span>{" "}
-              {visibleDegradedCopy[0] ?? "Analytics is delayed. Showing the last validated snapshot."}
+              <span className="font-semibold">Needs attention:</span>{" "}
+              {visibleDegradedCopy[0] ?? "Analytics is delayed. Showing last verified data."}
             </p>
             {visibleDegradedCopy[1] ? <p>{visibleDegradedCopy[1]}</p> : null}
           </div>

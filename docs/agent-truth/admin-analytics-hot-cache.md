@@ -9,6 +9,10 @@ Admin Analytics must render verified backend snapshots first, then refresh in th
 
 The short rule is: realtime is an upgrade. Verified cache, stale cache, or the last validated backend snapshot is the primary display path when it exists.
 
+## Human-Readable Display Rule
+
+Hot-cache state must be translated before it reaches primary Admin Analytics UI. A verified cache hit renders as "Showing last verified data." A refresh with an existing snapshot renders as "Refreshing. Showing last verified data." A realtime failure with an existing snapshot renders as "Live updates are delayed. Showing last verified data." Only Debug may show exact cache keys, route paths, collection names, parity deltas, and source labels.
+
 ## Snapshot Schema
 
 The canonical contract lives in `src/lib/analytics/admin-metric-snapshot.ts`.

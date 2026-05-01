@@ -39,6 +39,7 @@ import {
     buildAdminDebugAiAssistantCard,
     buildAdminDebugOpenActionsCard,
     buildAdminDebugRouteHealthCard,
+    createAdminDebugCardCopy,
 } from "@/lib/admin-debug-summary-cards";
 import {
     buildAdminDebugRouteRuntimeRateSummary,
@@ -336,7 +337,7 @@ export default function DebugConsole() {
                 : aiDebugData.runtime_ready === false
                     ? "Unavailable"
                     : aiDebugData.fallback_used
-                ? "Fallback"
+                ? "Saved summary"
                 : "Live";
     const aiStatusTone: "neutral" | "good" | "warn" | "bad" = aiDebugError
         ? "bad"
@@ -362,6 +363,88 @@ export default function DebugConsole() {
         }),
         [aiAssistantRealtime.feedStatus, aiDebugData, aiDebugError],
     );
+    const systemStateStatus = data?.opsHealth?.canonicalState?.status || "--";
+    const systemStateHealthy = data?.opsHealth?.canonicalState?.status === "healthy";
+    const systemStateMeta = !data && isLoading
+        ? "Waiting for first system snapshot."
+        : error
+            ? "System state could not be loaded."
+            : systemStateHealthy
+                ? "System checks are healthy."
+                : "System checks need review.";
+    const systemStateCopy = useMemo(() => createAdminDebugCardCopy({
+        operatorSummary: systemStateMeta,
+        whyItMatters: "System state summarizes whether the admin backend is safe to use.",
+        recommendedNextCheck: systemStateHealthy ? "No action needed." : "Open the current diagnostics below.",
+        technicalEvidence: data?.opsHealth?.canonicalState?.reason || "Awaiting canonical state",
+        sourceDetails: "opsHealth.canonicalState",
+        technicalState: data?.opsHealth?.canonicalState?.status || "missing_canonical_state",
+        sourceMode: data ? "snapshot" : "loading",
+        routeName: "/api/admin/debug",
+        debugDetails: data?.opsHealth?.canonicalState,
+    }), [data, error, isLoading, systemStateHealthy, systemStateMeta]);
+    const pipelineCardCopy = useMemo(() => createAdminDebugCardCopy({
+        operatorSummary: activePipelineFailureCount > 0
+            ? "Route checks need attention."
+            : recentPipelineFailureCount > 0 || sampledPipelineFailureCount > 0
+                ? "Recent route checks need review."
+                : "No route failures are active.",
+        whyItMatters: "Route checks show whether admin tools are responding normally.",
+        recommendedNextCheck: activePipelineFailureCount > 0
+            ? "Open Monitoring and inspect the failed route."
+            : recentPipelineFailureCount > 0 || sampledPipelineFailureCount > 0
+                ? "Review recent route failures before treating the issue as resolved."
+                : "No action needed.",
+        technicalEvidence: `recent ${recentPipelineFailureCount} | sample ${sampledPipelineFailureCount} | ${data?.opsHealth?.pipeline?.status === "healthy" ? `no current incident in ${formatWindowHours(data?.opsHealth?.pipeline?.activeWindowMs)}` : data?.opsHealth?.pipeline?.lastFailureAt ? `last ${formatRelative(data.opsHealth.pipeline.lastFailureAt)}` : "missing last-failure timestamp"}`,
+        sourceDetails: "opsHealth.pipeline",
+        technicalState: data?.opsHealth?.pipeline?.status || "missing_pipeline_status",
+        sourceMode: data ? "snapshot" : "loading",
+        routeName: "/api/admin/debug",
+        debugDetails: data?.opsHealth?.pipeline,
+    }), [activePipelineFailureCount, data, recentPipelineFailureCount, sampledPipelineFailureCount]);
+    const taskIssueCopy = useMemo(() => createAdminDebugCardCopy({
+        operatorSummary: (data?.stats?.usersWithTaskIssues ?? 0) > 0
+            ? "Some users have task issues."
+            : "No task-user issues are active.",
+        whyItMatters: "Task issues can affect reward completion and user progress.",
+        recommendedNextCheck: (data?.stats?.usersWithTaskIssues ?? 0) > 0
+            ? "Open the task diagnostics row for affected users."
+            : "No action needed.",
+        technicalEvidence: `${data?.stats?.runtimeUsersWithRefreshIssues ?? 0} sampled refresh warnings`,
+        sourceDetails: "stats.usersWithTaskIssues, stats.runtimeUsersWithRefreshIssues",
+        technicalState: (data?.stats?.usersWithTaskIssues ?? 0) > 0 ? "task_issue_users_present" : "task_issue_users_clear",
+        sourceMode: data ? "snapshot" : "loading",
+        routeName: "/api/admin/debug",
+        debugDetails: data?.stats,
+    }), [data]);
+    const creatorIssueCopy = useMemo(() => createAdminDebugCardCopy({
+        operatorSummary: (data?.stats?.creatorOnboardingIssues ?? 0) > 0
+            ? "Creator intake needs review."
+            : "No creator intake issues are active.",
+        whyItMatters: "Creator intake mismatches can block applicants or show the wrong next step.",
+        recommendedNextCheck: (data?.stats?.creatorOnboardingIssues ?? 0) > 0
+            ? "Open Creator intake blockers and review the affected record."
+            : "No action needed.",
+        technicalEvidence: `${data?.creatorOnboardingDiagnostics?.summary?.missingQueueCount ?? 0} missing queue links`,
+        sourceDetails: "creatorOnboardingDiagnostics.summary",
+        technicalState: (data?.stats?.creatorOnboardingIssues ?? 0) > 0 ? "creator_onboarding_discrepancy" : "creator_onboarding_clear",
+        sourceMode: data ? "snapshot" : "loading",
+        routeName: "/api/admin/debug",
+        debugDetails: data?.creatorOnboardingDiagnostics?.summary,
+    }), [data]);
+    const freshestSampleCopy = useMemo(() => createAdminDebugCardCopy({
+        operatorSummary: freshestLoadedSignalAt
+            ? "Debug has a recent loaded sample."
+            : "No loaded sample has been verified yet.",
+        whyItMatters: "The newest loaded sample shows how recently Debug saw any admin evidence.",
+        recommendedNextCheck: freshestLoadedSignalAt ? "No action needed." : "Refresh Debug and check source availability.",
+        technicalEvidence: "Derived from loaded diagnostics, panel logs, UI hydration reports, transactions, and AI status.",
+        sourceDetails: "debug diagnostics, panel logs, hydration reports, transactions, AI status",
+        technicalState: freshestLoadedSignalAt ? "debug_sample_loaded" : "debug_sample_missing",
+        sourceMode: freshestLoadedSignalAt ? "snapshot" : "unavailable",
+        routeName: "/api/admin/debug",
+        debugDetails: { freshestLoadedSignalAt },
+    }), [freshestLoadedSignalAt]);
 
     const refreshAll = async () => {
         await Promise.all([mutate(), mutateOverview(), mutateAiDebug()]);
@@ -512,14 +595,14 @@ export default function DebugConsole() {
             {renderTabControls()}
 
             <div className="grid grid-cols-2 gap-3 md:grid-cols-3 lg:grid-cols-1">
-                <StatCard label="System Truth" value={data?.opsHealth?.canonicalState?.status || "--"} meta={data?.opsHealth?.canonicalState?.reason || "Awaiting canonical state"} truthState={!data && isLoading ? "loading" : error ? "failed" : data?.opsHealth?.canonicalState?.status === "healthy" ? "live" : "degraded"} />
-                <StatCard label="Pipeline active" value={activePipelineFailureCount} meta={`recent ${recentPipelineFailureCount} | sample ${sampledPipelineFailureCount} | ${data?.opsHealth?.pipeline?.status === "healthy" ? `no current incident in ${formatWindowHours(data?.opsHealth?.pipeline?.activeWindowMs)}` : data?.opsHealth?.pipeline?.lastFailureAt ? `last ${formatRelative(data.opsHealth.pipeline.lastFailureAt)}` : "missing last-failure timestamp"}`} truthState={!data && isLoading ? "loading" : error ? "failed" : activePipelineFailureCount > 0 ? "failed" : recentPipelineFailureCount > 0 || sampledPipelineFailureCount > 0 ? "degraded" : "live"} />
-                <StatCard label="Task-issue users" value={data?.stats?.usersWithTaskIssues ?? "--"} meta={`${data?.stats?.runtimeUsersWithRefreshIssues ?? 0} sampled refresh warnings`} truthState={!data && isLoading ? "loading" : error ? "failed" : (data?.stats?.usersWithTaskIssues ?? 0) > 0 || (data?.stats?.runtimeUsersWithRefreshIssues ?? 0) > 0 ? "degraded" : "live"} />
-                <StatCard label="Creator issues" value={data?.stats?.creatorOnboardingIssues ?? "--"} meta={`${data?.creatorOnboardingDiagnostics?.summary?.missingQueueCount ?? 0} missing queue links`} truthState={!data && isLoading ? "loading" : error ? "failed" : (data?.stats?.creatorOnboardingIssues ?? 0) > 0 ? "degraded" : "live"} />
-                <StatCard label="Open actions" value={openActionsCard.count} meta={openActionsCard.meta} truthState={openActionsCard.truthState} />
-                <StatCard label="Route health" value={routeHealthCard.value} meta={routeHealthCard.meta} truthState={routeHealthCard.truthState} />
-                <StatCard label="Freshest loaded sample" value={freshestLoadedSignalAt ? formatRelative(freshestLoadedSignalAt) : "--"} meta="derived from loaded diagnostics, panel logs, UI hydration reports, transactions, and AI status" truthState={!data && isLoading ? "loading" : error ? "failed" : freshestLoadedSignalAt ? "live" : "unavailable"} />
-                <StatCard label="AI assistant" value={aiAssistantCard.value} meta={aiAssistantCard.meta} truthState={aiAssistantCard.truthState} />
+                <StatCard label="System state" truthState={!data && isLoading ? "loading" : error ? "failed" : systemStateHealthy ? "live" : "degraded"} value={systemStateStatus} meta={systemStateMeta} copy={systemStateCopy} />
+                <StatCard label="Route checks" truthState={!data && isLoading ? "loading" : error ? "failed" : activePipelineFailureCount > 0 ? "failed" : recentPipelineFailureCount > 0 || sampledPipelineFailureCount > 0 ? "degraded" : "live"} value={activePipelineFailureCount} meta={activePipelineFailureCount > 0 ? "Route checks need attention." : recentPipelineFailureCount > 0 || sampledPipelineFailureCount > 0 ? "Recent route checks need review." : "No route failures are active."} copy={pipelineCardCopy} />
+                <StatCard label="Task users" truthState={!data && isLoading ? "loading" : error ? "failed" : (data?.stats?.usersWithTaskIssues ?? 0) > 0 || (data?.stats?.runtimeUsersWithRefreshIssues ?? 0) > 0 ? "degraded" : "live"} value={data?.stats?.usersWithTaskIssues ?? "--"} meta={(data?.stats?.usersWithTaskIssues ?? 0) > 0 ? "Some users have task issues." : "No task-user issues are active."} copy={taskIssueCopy} />
+                <StatCard label="Creator intake" truthState={!data && isLoading ? "loading" : error ? "failed" : (data?.stats?.creatorOnboardingIssues ?? 0) > 0 ? "degraded" : "live"} value={data?.stats?.creatorOnboardingIssues ?? "--"} meta={(data?.stats?.creatorOnboardingIssues ?? 0) > 0 ? "Creator intake needs review." : "No creator intake issues are active."} copy={creatorIssueCopy} />
+                <StatCard label="Open actions" truthState={openActionsCard.truthState} value={openActionsCard.count} meta={openActionsCard.meta} copy={openActionsCard.copy} />
+                <StatCard label="Route health" truthState={routeHealthCard.truthState} value={routeHealthCard.value} meta={routeHealthCard.meta} copy={routeHealthCard.copy} />
+                <StatCard label="Newest sample" truthState={!data && isLoading ? "loading" : error ? "failed" : freshestLoadedSignalAt ? "live" : "unavailable"} value={freshestLoadedSignalAt ? formatRelative(freshestLoadedSignalAt) : "--"} meta={freshestLoadedSignalAt ? "Debug has a recent loaded sample." : "No loaded sample has been verified yet."} copy={freshestSampleCopy} />
+                <StatCard label="AI assistant" truthState={aiAssistantCard.truthState} value={aiAssistantCard.value} meta={aiAssistantCard.meta} copy={aiAssistantCard.copy} />
             </div>
 
             {error ? <div className="rounded-[1.35rem] border border-red-400/20 bg-red-500/10 p-4 text-sm text-red-100">Debug data could not be loaded right now.</div> : null}

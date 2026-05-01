@@ -35,7 +35,7 @@ export type AdminAnalyticsJourneyFunnelModel = FunnelFlags & {
   selectedRange: RangeOption;
   funnelMode: FunnelMode;
   denominatorMode: DenominatorMode;
-  modeLabel: "RAW" | "UNIQUE" | "ORDERED" | "MIXED" | "WAIT" | "ERROR" | "STALE";
+  modeLabel: "UPDATED" | "PARTIAL" | "WAIT" | "ERROR" | "DELAYED";
   visibleTitle: "Event Chain" | "Journey Funnel";
   visibleHelperCopy: string;
   steps: AdminAnalyticsJourneyFunnelStep[];
@@ -134,7 +134,7 @@ function buildStep(input: {
     displayedPercent,
     denominatorStep: input.priorStep,
     denominatorValue: input.priorValue,
-    denominatorLabel: input.priorStep ? `vs ${input.priorStep}` : "Base raw events",
+    denominatorLabel: input.priorStep ? `vs ${input.priorStep}` : "Base events",
     source: input.source,
     truthState: input.truthState,
     fakeZeroPrevented: input.fakeZeroPrevented,
@@ -232,9 +232,9 @@ export function buildAdminAnalyticsJourneyFunnelModel(input: {
     onboardingCompletions !== null &&
     Math.abs(authSignUps - onboardingCompletions) > Math.max(3, onboardingCompletions * 0.25);
   const degradedReasons = [
-    "Journey Funnel is currently raw repeated event counts, not ordered actor/session transitions.",
+    "Journey Funnel is currently repeated event counts, not ordered actor/session transitions.",
     ...nonSequentialSteps.map((step) => `${step} exceeds its prior step.`),
-    ...sourceMismatchSteps.map((step) => `${step} uses a mixed purchase source and exceeds checkout starts.`),
+    ...sourceMismatchSteps.map((step) => `${step} uses purchase evidence that exceeds checkout starts.`),
     onboardingMismatch ? "Onboarding completion counts differ from auth signup counts." : null,
   ].filter((reason): reason is string => Boolean(reason));
   const visibleHelperCopy = hasResponse
@@ -247,7 +247,7 @@ export function buildAdminAnalyticsJourneyFunnelModel(input: {
     selectedRange: input.selectedRange,
     funnelMode,
     denominatorMode,
-    modeLabel: !hasResponse ? input.loading ? "WAIT" : "ERROR" : flags.stale ? "STALE" : "RAW",
+    modeLabel: !hasResponse ? input.loading ? "WAIT" : "ERROR" : flags.stale ? "DELAYED" : sourceMismatchSteps.length > 0 || nonSequentialSteps.length > 0 ? "PARTIAL" : "UPDATED",
     visibleTitle: "Event Chain",
     visibleHelperCopy,
     steps,
@@ -268,13 +268,13 @@ export function buildAdminAnalyticsJourneyFunnelModel(input: {
     biggestDropoffStep: biggestDropoff?.step ?? null,
     biggestDropoffPercent: biggestDropoff ? biggestDropoff.dropoff : null,
     recommendation: sourceMismatchSteps.length > 0
-      ? "Raw events exceed prior steps; use unique journey mode before treating this as conversion."
+      ? "Event counts exceed prior steps; use unique journey mode before treating this as conversion."
       : biggestDropoff
-        ? `${biggestDropoff.step} is the largest raw-event drop-off.`
-        : "Raw event chain is available; ordered journey validation is still required for conversion claims.",
+        ? `${biggestDropoff.step} is the largest event drop-off.`
+        : "Event chain is available; ordered journey validation is still required for conversion claims.",
     degradedReasons,
     visibleDegradedCopy: degradedReasons.length > 0
-      ? "Some steps use raw or mixed sources, so conversion is directional."
+      ? "Some steps need review, so conversion is directional."
       : "",
     duplicateRefreshPrevented: Boolean(input.response?.cacheRevalidating && input.loading),
     hydrationMs: hasResponse ? 0 : null,

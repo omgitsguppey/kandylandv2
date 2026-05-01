@@ -116,19 +116,27 @@ export function DebugAdvancedDataValidation() {
                                     <div key={check.checkKey || check.label} className="space-y-2 px-3 py-2.5">
                                         <div className="flex flex-wrap items-start justify-between gap-2">
                                             <div className="min-w-0">
-                                                <p className="truncate text-sm font-semibold text-white">{check.title || check.label}</p>
+                                                <p className="truncate text-sm font-semibold text-white">{check.operatorSummary || check.title || check.label}</p>
                                                 <p className="text-xs text-gray-400">{check.source || "source unknown"} | {check.selectedRange || "range unknown"} | {formatTimestamp(check.lastValidatedAt || data?.generatedAtMs)}</p>
                                             </div>
                                             <Pill label="Status" value={check.status} tone={toneForStatus(check.status)} />
                                         </div>
                                         <p className="text-xs leading-5 text-gray-300">{check.detail}</p>
+                                        {check.whyItMatters ? <p className="text-xs leading-5 text-gray-400">Why it matters: {check.whyItMatters}</p> : null}
                                         <div className="flex flex-wrap gap-2">
                                             <Pill label="Confidence" value={check.confidence ?? "n/a"} tone={(check.confidence ?? 100) < 70 ? "warn" : "neutral"} />
                                             <Pill label="Samples" value={check.sampleCount ?? 0} tone={check.sampleRequired && !check.sampleCount ? "warn" : "neutral"} />
                                             <Pill label="Pass allowed" value={check.passAllowed === false ? "no" : "yes"} tone={check.passAllowed === false ? "warn" : "good"} />
                                             {check.passBlockedReason ? <Pill label="Blocked" value={check.passBlockedReason} tone="warn" /> : null}
                                         </div>
-                                        <p className="text-xs text-gray-400">{check.action || "No action recorded."}</p>
+                                        <p className="text-xs text-gray-400">{check.recommendedNextCheck || check.action || "No action needed."}</p>
+                                        <details className="rounded-lg border border-white/10 bg-black/20 px-2 py-1.5 text-xs text-gray-300">
+                                            <summary className="cursor-pointer font-semibold text-gray-100">Technical evidence</summary>
+                                            <div className="mt-2 space-y-1">
+                                                <p>{check.technicalEvidence || check.fullDetails || "No technical evidence recorded."}</p>
+                                                <p className="text-gray-500">Source details: {check.sourceDetails || "not recorded"}</p>
+                                            </div>
+                                        </details>
                                     </div>
                                 ))}
                             </div>

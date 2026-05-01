@@ -34,7 +34,7 @@ export type AdminAnalyticsLivePulseIdentity = {
   lastSeenAt: number;
   lastSeenLabel: string;
   truthState: AdminSurfaceState;
-  statusLabel: "LIVE" | "STALE" | "SNAP" | "WAIT" | "ERROR";
+  statusLabel: "LIVE" | "DELAYED" | "SNAP" | "WAIT" | "ERROR";
   actorBadgeLabel: "GUEST" | "AUTH";
   source: LivePulseSource;
   fullDebugId: string;
@@ -253,7 +253,7 @@ export function buildAdminAnalyticsLivePulseModel(input: {
       lastSeenAt: item.lastSeenAt,
       lastSeenLabel: relativeTime(item.lastSeenAt, input.nowMs),
       truthState: stale ? "stale" : input.activeUsersTruthState,
-      statusLabel: stale ? "STALE" : input.activeUsersTruthState === "failed" ? "ERROR" : "LIVE",
+      statusLabel: stale ? "DELAYED" : input.activeUsersTruthState === "failed" ? "ERROR" : "LIVE",
       actorBadgeLabel: actorType === "guest" ? "GUEST" : "AUTH",
       source: item.sourceLabel?.includes("fallback") ? "backend_snapshot" : canonicalPresenceSource,
       fullDebugId: item.uid,
@@ -271,10 +271,10 @@ export function buildAdminAnalyticsLivePulseModel(input: {
     : input.feedStatus === "failed"
       ? "No verified snapshot yet."
       : graphSourceMismatch
-        ? "Pulse graph is derived from presence while the graph source catches up."
+        ? "Pulse chart is using verified presence while the chart source catches up."
         : guestCount === 0 && authCount > 0
           ? "Identified activity only. Guest presence is unavailable."
-          : "Showing first-party realtime presence.");
+          : "Showing first-party live presence.");
   const laneFailures = input.laneFailures ?? [];
 
   return {

@@ -5,6 +5,7 @@ import {
   formatAdminSurfaceStateLabel,
   type AdminSurfaceState,
 } from "@/lib/admin-parity";
+import { getAdminStatusBadgeLabel, getAdminStatusExplanation } from "@/lib/admin-copy/admin-truth-copy";
 import { cn } from "@/lib/utils";
 
 const STATE_STYLES: Record<AdminSurfaceState, string> = {
@@ -30,11 +31,12 @@ export function AdminStatusBadge({
   label?: string;
 }) {
   const fullLabel = formatAdminSurfaceStateLabel(state);
-  const accessibleLabel = label ? `${fullLabel} ${ADMIN_SURFACE_STATE_DETAIL[state]}` : `${fullLabel} ${ADMIN_SURFACE_STATE_DETAIL[state]}`;
+  const operatorLabel = label ?? getAdminStatusBadgeLabel(state);
+  const accessibleLabel = `${fullLabel} ${getAdminStatusExplanation(state)} ${ADMIN_SURFACE_STATE_DETAIL[state]}`;
 
   return (
     <span
-      title={title ?? ADMIN_SURFACE_STATE_DETAIL[state]}
+      title={title ?? `${getAdminStatusExplanation(state)} Debug: ${ADMIN_SURFACE_STATE_DETAIL[state]}`}
       aria-label={accessibleLabel}
       className={cn(
         "inline-flex rounded-md border px-2 py-1 text-[10px] font-bold uppercase tracking-wider",
@@ -42,7 +44,7 @@ export function AdminStatusBadge({
         className,
       )}
     >
-      {label ?? fullLabel}
+      {operatorLabel}
     </span>
   );
 }

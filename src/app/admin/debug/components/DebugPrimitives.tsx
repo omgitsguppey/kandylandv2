@@ -3,6 +3,7 @@
 import { useState } from "react";
 import { ChevronDown, ChevronUp } from "lucide-react";
 import { AdminStatusBadge } from "@/components/Admin/AdminStatusBadge";
+import type { AdminDebugCardCopy } from "@/lib/admin-debug-summary-cards";
 import type { AdminSurfaceState } from "@/lib/admin-parity";
 import { cn } from "@/lib/utils";
 
@@ -36,7 +37,19 @@ export function Pill({ label, value, tone = "neutral", truthState }: { label: st
 }
 
 /* ─── StatCard ─── */
-export function StatCard({ label, value, meta, truthState }: { label: string; value: string | number; meta?: string; truthState: AdminSurfaceState }) {
+export function StatCard({
+    label,
+    value,
+    meta,
+    truthState,
+    copy,
+}: {
+    label: string;
+    value: string | number;
+    meta?: string;
+    truthState: AdminSurfaceState;
+    copy?: AdminDebugCardCopy;
+}) {
     return (
         <div className="rounded-[1.1rem] border border-white/10 bg-white/[0.04] p-2.5">
             <div className="flex items-center justify-between gap-2">
@@ -45,6 +58,18 @@ export function StatCard({ label, value, meta, truthState }: { label: string; va
             </div>
             <div className="mt-1 text-[1.4rem] font-black text-white">{value}</div>
             {meta ? <p className="mt-1 text-[11px] text-gray-400">{meta}</p> : null}
+            {copy ? (
+                <details className="mt-2 rounded-xl border border-white/10 bg-black/20 px-2 py-1.5 text-[11px] text-gray-300">
+                    <summary className="cursor-pointer font-semibold text-gray-100">Explain this</summary>
+                    <div className="mt-2 space-y-1.5">
+                        <p><span className="text-gray-500">What this means:</span> {copy.operatorSummary}</p>
+                        <p><span className="text-gray-500">Why it matters:</span> {copy.whyItMatters}</p>
+                        <p><span className="text-gray-500">What to check next:</span> {copy.recommendedNextCheck}</p>
+                        <p><span className="text-gray-500">Technical evidence:</span> {copy.technicalEvidence}</p>
+                        <p><span className="text-gray-500">Source details:</span> {copy.sourceDetails}</p>
+                    </div>
+                </details>
+            ) : null}
         </div>
     );
 }

@@ -42,10 +42,10 @@ const section = component.slice(
 
 assertIncludes("AdminAnalyticsOperationsTab", component, "eventMixModel");
 assertIncludes("AdminAnalyticsOperationsTab", component, "__KANDYDROPS_ADMIN_ANALYTICS_EVENT_MIX_DEBUG__");
-assertIncludes("Event Mix section", section, "Ranked raw events");
-assertIncludes("Event Mix section", section, "raw events");
+assertIncludes("Event Mix section", section, "Ranked event activity");
+assertIncludes("Event Mix section", section, "tracked events");
 assertIncludes("Event Mix section", section, "event count / total counted events");
-assertIncludes("Event Mix section", section, "Surface context unavailable for this range.");
+assertIncludes("Event Mix section", section, "Surface context is unavailable");
 assertIncludes("Event Mix section", section, "rounded-[0.9rem]");
 assertNotIncludes("Event Mix section", section, "angle={-18}");
 assertNotIncludes("Event Mix section", section, "h-64 w-full md:h-72");
@@ -68,16 +68,17 @@ assertIncludes("event mix helper", helper, "unmappedEventCount");
 assertIncludes("event mix helper", helper, "missingSurfaceMappings");
 assertIncludes("event mix helper", helper, "mappedByFallbackCatalog");
 assertIncludes("event mix helper", helper, "fakeZeroPrevented");
-assertIncludes("event mix helper", helper, "Surface context unavailable for this range.");
+assertIncludes("event mix helper", helper, "Surface context is unavailable for this range.");
 
 assertIncludes("AdminDebugRoute", debugRoute, "adminAnalyticsEventMix");
 assertIncludes("AdminDebugRoute", debugRoute, "shareRule");
 assertIncludes("AdminDebugRoute", debugRoute, "contextRule");
 assertIncludes("AdminDebugRoute", debugRoute, "missingSurfaceMappings");
 
-assertIncludes("agent truth doc", doc, "raw event count");
+assertIncludes("agent truth doc", doc, "event activity");
 assertIncludes("agent truth doc", doc, "`event count / total counted events in the selected range`");
 assertIncludes("agent truth doc", doc, "`0 surfaces` is forbidden");
+assertIncludes("agent truth doc", doc, "Surface context is unavailable for this range.");
 assertIncludes("agent truth doc", doc, "Future agents must not reintroduce the giant slanted-label bar chart");
 
 if (process.exitCode) {

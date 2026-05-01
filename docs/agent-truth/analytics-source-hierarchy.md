@@ -3,6 +3,10 @@
 Status: Phase 1 source contract
 Last updated: 2026-04-30
 
+## Human-Readable Admin Copy Rule
+
+Source hierarchy is developer evidence, not primary operator copy. Admin Analytics may say "Showing last verified data", "Live updates are delayed", "Estimated", "Partial", or "Needs review"; Debug owns exact source names such as collections, routes, event keys, and provider labels.
+
 ## Canonical Hierarchy
 
 ### 1. Product Truth

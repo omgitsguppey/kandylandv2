@@ -1,5 +1,20 @@
 # KandyDrops Core Codebase Audit & Defensive Ledger
 
+## [2026-05-01 #70] PRE: Human-Readable Admin Truth Copy Hardening
+
+Scope started:
+- Hardening admin-facing status copy so primary UI uses operator language while Debug retains route, collection, source, formula, parity, timing, confidence, and raw event evidence.
+- Targeting Admin Analytics, Admin Debug summary/data-validation cards, shared admin status badges, admin module verification cards, AI/admin problem states, docs, validation, and tests.
+
+Scope completed:
+- Added `src/lib/admin-copy/admin-copy-registry.ts` and `src/lib/admin-copy/admin-truth-copy.ts` as the shared operator/developer copy translation layer.
+- Updated Admin Analytics loading/degraded/waiting copy, Admin Debug summary cards, Debug validation rows, onboarding/event/journey/live/commerce copy, and shared `AdminStatusBadge`/module verification display to avoid raw backend wording in primary UI.
+- Added deterministic "Explain this" debug fields with operator summary, why it matters, next check, technical evidence, and source details.
+- Added `docs/agent-truth/admin-copy-style-guide.md`, `docs/agent-truth/human-readable-admin-truth.md`, `scripts/agent/validate-human-readable-admin-copy.ts`, package script wiring, and targeted unit coverage.
+
+Residual risk:
+- Advanced Debug still intentionally exposes technical terms inside technical evidence and source-detail disclosures. That is allowed only when paired with operator summary copy.
+
 ## [2026-05-01 #69] PRE: Refresh-Based Hot Cache Architecture Refactor
 
 Scope started:

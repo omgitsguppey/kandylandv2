@@ -24,6 +24,15 @@ This file is not a changelog. It is the concise ledger for durable decisions tha
 
 ## Decision Entries
 
+### 1bz. Admin truth copy has operator and developer layers
+
+- Approximate date: Recorded explicitly on 2026-05-01 from the human-readable admin truth hardening pass
+- Status: Active admin UI, Debug, validation, and agent rule
+- Decision: Primary admin UI must use plain-English operator copy. Technical source names, route names, collection names, formulas, parity deltas, raw event keys, and backend lane language belong in Debug technical evidence.
+- Implementation: `src/lib/admin-copy/admin-truth-copy.ts` maps technical states to operator states; `src/lib/admin-copy/admin-copy-registry.ts` owns copy patterns and approved short badges.
+- Required docs: `docs/agent-truth/admin-copy-style-guide.md` and `docs/agent-truth/human-readable-admin-truth.md`.
+- Validation: `npm run check:human-readable-admin-copy`.
+
 ### 1by. Refresh-based hot cache replaces time-limit display gating
 
 - Approximate date: Recorded explicitly on 2026-05-01 from the full-system refresh-cache refactor

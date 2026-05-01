@@ -43,8 +43,8 @@ const section = component.slice(
 
 assertIncludes("AdminAnalyticsOperationsTab", component, "journeyFunnelModel");
 assertIncludes("AdminAnalyticsOperationsTab", component, "__KANDYDROPS_ADMIN_ANALYTICS_JOURNEY_FUNNEL_DEBUG__");
-assertIncludes("AdminAnalyticsOperationsTab", component, "Raw event chain with source and denominator truth.");
-assertIncludes("AdminAnalyticsOperationsTab", component, "denominatorLabel");
+assertIncludes("AdminAnalyticsOperationsTab", component, "Event chain with source and denominator truth.");
+assertIncludes("AdminAnalyticsOperationsTab", component, "formatJourneyDenominatorMode");
 assertIncludes("AdminAnalyticsOperationsTab", component, "nonSequentialSteps");
 assertIncludes("AdminAnalyticsOperationsTab", component, "sourceMismatchSteps");
 assertIncludes("AdminAnalyticsOperationsTab", component, "rounded-[0.9rem]");
@@ -80,10 +80,10 @@ assertIncludes("AdminDebugRoute", debugRoute, "adminAnalyticsJourneyFunnel");
 assertIncludes("AdminDebugRoute", debugRoute, "nonSequentialSteps");
 assertIncludes("AdminDebugRoute", debugRoute, "sourceMismatchSteps");
 
-assertIncludes("agent truth doc", doc, "raw event view");
+assertIncludes("agent truth doc", doc, "Event Chain");
 assertIncludes("agent truth doc", doc, "later step exceeds a prior step");
 assertIncludes("agent truth doc", doc, "Fake zeros are forbidden");
-assertIncludes("agent truth doc", doc, "Future agents must not display raw event ratios as ordered conversion");
+assertIncludes("agent truth doc", doc, "Future agents must not display raw event ratios as ordered conversion or primary operator copy");
 
 if (process.exitCode) {
   process.exit(process.exitCode);

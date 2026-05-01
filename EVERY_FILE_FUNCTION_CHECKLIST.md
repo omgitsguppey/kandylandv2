@@ -1,13 +1,22 @@
 # EVERY FILE FUNCTION CHECKLIST
 
 **Last Updated:** 2026-05-01
-**Current Focus:** Refresh-based hot-cache loading, hydration, and cache refactor.
+**Current Focus:** Human-readable admin truth copy hardening.
 **Status:** In Progress. Current tracked-file coverage is reconciled as of 2026-04-28: every `git ls-files` entry has a current checklist heading, while detailed function-level audits remain pending for many historical and newly reconciled files.
 Purpose: exhaustive no-skip audit checklist covering every repository file currently in scope and every detected function-like implementation.
 
 Scoring: all entries below are marked as included in the current validated sweep. Confidence reflects current repository-state confidence, not perfection or future-proofing.
 
 Current repo-wide state snapshot: see [FULL_SCALE_CODEBASE_AUDIT.md](/Users/uylus/OneDrive/Documents/KandyDrops_Final/FULL_SCALE_CODEBASE_AUDIT.md) for the current live baseline, verification state, and continuity rules, and see [REPO_MEMORY_LEDGER.md](/Users/uylus/OneDrive/Documents/KandyDrops_Final/REPO_MEMORY_LEDGER.md) for major architectural and workflow decisions. The detailed file/function body below remains valuable historical evidence, but it has not been fully regenerated against the current 2026-04-18 inventory review yet.
+
+## 2026-05-01 Human-Readable Admin Truth Copy Coverage
+
+- [x] `src/lib/admin-copy/admin-copy-registry.ts` registers operator status patterns, approved badge labels, and main UI state vocabulary.
+- [x] `src/lib/admin-copy/admin-truth-copy.ts` translates technical states into operator copy, developer debug copy, badge labels, action labels, and deterministic Debug explanations.
+- [x] `src/components/Admin/AdminStatusBadge.tsx` renders approved short operator badges while preserving detailed state explanation in title/aria text.
+- [x] Admin Analytics components and models now use plain-English delayed, estimated, partial, review, first-snapshot, and last-verified-data copy in primary UI.
+- [x] Admin Debug summary cards and Data Validation rows expose operator summary, why it matters, what to check next, technical evidence, and source details.
+- [x] `docs/agent-truth/admin-copy-style-guide.md`, `docs/agent-truth/human-readable-admin-truth.md`, `scripts/agent/validate-human-readable-admin-copy.ts`, and `tests/unit/admin-truth-copy.spec.ts` cover the doctrine and guardrails.
 
 ## 2026-05-01 Refresh-Based Hot Cache Refactor Coverage
 

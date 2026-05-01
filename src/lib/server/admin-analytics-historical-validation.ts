@@ -29,7 +29,10 @@ export interface DataValidationCheck {
   title: string;
   status: DataValidationStatus;
   detail: string;
+  operatorSummary: string;
+  whyItMatters: string;
   source: string;
+  sourceDetails: string;
   selectedRange: string;
   lastValidatedAt: number;
   freshnessState: "fresh" | "stale" | "unknown";
@@ -40,7 +43,154 @@ export interface DataValidationCheck {
   passAllowed: boolean;
   passBlockedReason: string | null;
   action: string;
+  recommendedNextCheck: string;
+  technicalEvidence: string;
   fullDetails: string;
+}
+
+const VALIDATION_OPERATOR_COPY: Record<string, {
+  pass: string;
+  warn: string;
+  fail: string;
+  source: string;
+  whyItMatters: string;
+  action: string;
+}> = {
+  ga_property: {
+    pass: "Google Analytics reports are available.",
+    warn: "Google Analytics setup needs review.",
+    fail: "Google Analytics setup is missing.",
+    source: "Google Analytics setup",
+    whyItMatters: "Audience totals depend on this connection.",
+    action: "Check the Analytics setup if reports are unavailable.",
+  },
+  telemetry_depth: {
+    pass: "Event samples are available for this range.",
+    warn: "No event sample is available for this range.",
+    fail: "Event samples are unavailable.",
+    source: "Event samples",
+    whyItMatters: "Samples help prove that tracked activity supports the displayed totals.",
+    action: "Use Debug to check which event source is missing.",
+  },
+  task_lifecycle: {
+    pass: "Task activity samples are available.",
+    warn: "Task activity needs more verified samples.",
+    fail: "Task activity samples are unavailable.",
+    source: "Task activity",
+    whyItMatters: "Task analytics need activity evidence before they should guide reward decisions.",
+    action: "Check task events and task completion records.",
+  },
+  pipeline_health: {
+    pass: "Analytics refresh checks have no recorded failures.",
+    warn: "Analytics refresh checks need review.",
+    fail: "Analytics refresh checks are failing.",
+    source: "Refresh diagnostics",
+    whyItMatters: "Refresh failures can delay new analytics snapshots.",
+    action: "Open route diagnostics and inspect active refresh failures.",
+  },
+  purchase_parity: {
+    pass: "Purchase tracking matches for this range.",
+    warn: "Purchase tracking needs review.",
+    fail: "Purchase tracking needs review.",
+    source: "Purchase records",
+    whyItMatters: "Revenue may be correct while purchase funnel analytics can undercount.",
+    action: "Check purchase event emission after payment confirmation.",
+  },
+  unlock_parity: {
+    pass: "Unlock tracking matches for this range.",
+    warn: "Unlock tracking needs review.",
+    fail: "Unlock tracking needs review.",
+    source: "Unlock records",
+    whyItMatters: "Unlock totals may be correct while unlock funnel analytics can undercount.",
+    action: "Check unlock event emission after access is granted.",
+  },
+  onboarding_coverage: {
+    pass: "Onboarding activity is verified for this range.",
+    warn: "Onboarding activity needs more verified starts.",
+    fail: "Onboarding activity is unavailable.",
+    source: "Onboarding records",
+    whyItMatters: "Start and completion evidence keeps onboarding performance truthful.",
+    action: "Check onboarding start and completion records.",
+  },
+  task_guidance_parity: {
+    pass: "Task guidance tracking is consistent.",
+    warn: "Task guidance tracking needs review.",
+    fail: "Task guidance tracking needs review.",
+    source: "Task guidance records",
+    whyItMatters: "Guidance analytics show whether task prompts are helping users finish.",
+    action: "Check guide view, tap, and completion evidence.",
+  },
+  creator_spend_parity: {
+    pass: "Creator spend checks are clear.",
+    warn: "Creator spend needs more samples.",
+    fail: "Creator spend needs review.",
+    source: "Creator spend records",
+    whyItMatters: "Creator spend checks protect reward balances and restricted funds.",
+    action: "Review creator spend records for mismatches or restricted spend.",
+  },
+  historical_freshness: {
+    pass: "Historical data is up to date for this range.",
+    warn: "Showing last verified historical data.",
+    fail: "Historical data needs review.",
+    source: "Historical snapshot",
+    whyItMatters: "Older or delayed sources can make trend decisions lag recent activity.",
+    action: "Refresh analytics or inspect source freshness in Debug.",
+  },
+  legacy_history_coverage: {
+    pass: "Older history support is available.",
+    warn: "Older history support is incomplete.",
+    fail: "Older history support is unavailable.",
+    source: "History support",
+    whyItMatters: "Older trend charts can miss activity when support data is incomplete.",
+    action: "Refresh older history support before using long-range trends.",
+  },
+  module_coverage: {
+    pass: "Analytics modules have verified data.",
+    warn: "Some analytics modules do not have verified data yet.",
+    fail: "Analytics module coverage needs review.",
+    source: "Analytics modules",
+    whyItMatters: "Module coverage explains whether every analytics section has enough evidence.",
+    action: "Review partial or empty modules in Debug.",
+  },
+  viewer_drilldown: {
+    pass: "Viewer activity samples are available.",
+    warn: "Viewer activity is waiting for verified samples.",
+    fail: "Viewer activity samples are unavailable.",
+    source: "Viewer activity",
+    whyItMatters: "Viewer samples support watch-time and content-engagement details.",
+    action: "Confirm viewer activity is expected for this range.",
+  },
+  watch_capture_health: {
+    pass: "Watch capture quality is verified.",
+    warn: "Watch capture quality needs review.",
+    fail: "Watch capture quality needs review.",
+    source: "Watch capture records",
+    whyItMatters: "Capture quality affects watch-time and viewer drilldown accuracy.",
+    action: "Investigate watch sessions with missing close signals.",
+  },
+};
+
+function statusFamily(status: DataValidationStatus): "pass" | "warn" | "fail" {
+  if (status === "pass") return "pass";
+  if (status === "fail" || status === "unavailable") return "fail";
+  return "warn";
+}
+
+function validationCopyFor(checkKey: string, status: DataValidationStatus) {
+  const copy = VALIDATION_OPERATOR_COPY[checkKey] ?? {
+    pass: "Validation is clear.",
+    warn: "Validation needs review.",
+    fail: "Validation failed.",
+    source: "Validation check",
+    whyItMatters: "This check protects the dashboard from unsupported claims.",
+    action: "Open Debug for the technical evidence.",
+  };
+  return {
+    summary: copy[statusFamily(status)],
+    source: copy.source,
+    whyItMatters: copy.whyItMatters,
+    action: copy.action,
+  };
 }
 
 function buildValidationCheck(input: {
@@ -57,6 +207,13 @@ function buildValidationCheck(input: {
   sampleRequired?: boolean;
   sampleCount?: number;
   action: string;
+  operatorSummary?: string;
+  operatorDetail?: string;
+  operatorSource?: string;
+  whyItMatters?: string;
+  recommendedNextCheck?: string;
+  technicalEvidence?: string;
+  sourceDetails?: string;
 }) {
   const requiredSourcesPresent = input.requiredSourcesPresent ?? true;
   const sampleRequired = input.sampleRequired ?? false;
@@ -73,14 +230,20 @@ function buildValidationCheck(input: {
   const status = input.status === "pass" && !passAllowed
     ? freshnessState === "stale" ? "stale" : "warn"
     : input.status;
+  const operatorCopy = validationCopyFor(input.checkKey, status);
+  const operatorSummary = input.operatorSummary || operatorCopy.summary;
+  const technicalEvidence = input.technicalEvidence || input.detail;
 
   return {
     checkKey: input.checkKey,
     label: input.title,
     title: input.title,
     status,
-    detail: input.detail,
-    source: input.source,
+    detail: input.operatorDetail || operatorSummary,
+    operatorSummary,
+    whyItMatters: input.whyItMatters || operatorCopy.whyItMatters,
+    source: input.operatorSource || operatorCopy.source,
+    sourceDetails: input.sourceDetails || input.source,
     selectedRange: input.selectedRange,
     lastValidatedAt: input.lastValidatedAt,
     freshnessState,
@@ -90,7 +253,9 @@ function buildValidationCheck(input: {
     sampleCount,
     passAllowed,
     passBlockedReason,
-    action: input.action,
+    action: input.recommendedNextCheck || operatorCopy.action || input.action,
+    recommendedNextCheck: input.recommendedNextCheck || operatorCopy.action || input.action,
+    technicalEvidence,
     fullDetails: input.detail,
   } satisfies DataValidationCheck;
 }

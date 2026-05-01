@@ -264,7 +264,7 @@ export function AiDropDescriptionGeneratorPanel({
                     {dashboard ? (
                         <span className={cn("inline-flex items-center gap-2 rounded-full border px-2.5 py-1 text-[11px]", runtimeTone(dashboard.runtime.status))}>
                             {dashboard.runtime.status === "ready" ? <Sparkles className="h-3.5 w-3.5" /> : <TriangleAlert className="h-3.5 w-3.5" />}
-                            {dashboard.runtime.status === "ready" ? "Ready" : dashboard.runtime.status === "disabled" ? "Off" : "Degraded"}
+                            {dashboard.runtime.status === "ready" ? "Ready" : dashboard.runtime.status === "disabled" ? "Off" : "Needs review"}
                         </span>
                     ) : null}
                 </div>

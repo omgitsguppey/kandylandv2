@@ -5,6 +5,7 @@ import { formatDistanceToNow } from "date-fns";
 import { CheckCircle2, Clock, AlertTriangle, XCircle, Database, HelpCircle } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { AdminStatusBadge } from "@/components/Admin/AdminStatusBadge";
+import { summarizeAdminIssueForOperator } from "@/lib/admin-copy/admin-truth-copy";
 import { formatAdminSurfaceStateLabel, type AdminModuleVerification, type AdminSurfaceState } from "@/lib/admin-parity";
 
 interface AdminModuleVerificationCardProps {
@@ -32,6 +33,9 @@ export function AdminModuleVerificationCard({
     className,
 }: AdminModuleVerificationCardProps) {
     const StatusIcon = STATE_ICONS[verification.status] || HelpCircle;
+    const operatorIssue = verification.degradedReason
+        ? summarizeAdminIssueForOperator(verification.degradedReason)
+        : null;
     
     return (
         <div className={cn("rounded-2xl border border-white/10 bg-white/5 p-4 sm:p-5 transition-all hover:bg-white/[0.07]", className)}>
@@ -50,9 +54,9 @@ export function AdminModuleVerificationCard({
 
             <div className="mt-5 grid gap-3 border-t border-white/10 pt-4 text-sm">
                 <div className="grid grid-cols-2 gap-2 sm:grid-cols-[140px_1fr]">
-                    <span className="text-gray-500 font-medium">Canonical Source</span>
-                    <span className="text-gray-200 font-mono text-xs break-all">
-                        {verification.canonicalSource}
+                    <span className="text-gray-500 font-medium">Display source</span>
+                    <span className="text-gray-200">
+                        Primary verified source
                         {verification.verificationState === "canonical" && (
                             <span className="ml-2 text-[10px] text-emerald-300">{formatAdminSurfaceStateLabel("live")}</span>
                         )}
@@ -61,9 +65,9 @@ export function AdminModuleVerificationCard({
 
                 {verification.fallbackSource && (
                     <div className="grid grid-cols-2 gap-2 sm:grid-cols-[140px_1fr]">
-                        <span className="text-gray-500 font-medium">Fallback Source</span>
-                        <span className="text-gray-200 font-mono text-xs break-all">
-                        {verification.fallbackSource}
+                        <span className="text-gray-500 font-medium">Backup source</span>
+                        <span className="text-gray-200">
+                        Last verified data available
                         {verification.verificationState === "fallback" && (
                                 <span className="ml-2 text-[10px] text-orange-300">{formatAdminSurfaceStateLabel("fallback")}</span>
                         )}
@@ -86,29 +90,49 @@ export function AdminModuleVerificationCard({
 
                 {verification.degradedReason && (
                     <div className="grid grid-cols-2 gap-2 sm:grid-cols-[140px_1fr]">
-                        <span className="text-gray-500 font-medium">Degraded Reason</span>
-                        <span className="text-orange-300">{verification.degradedReason}</span>
+                        <span className="text-gray-500 font-medium">Needs review</span>
+                        <span className="text-orange-300">{operatorIssue}</span>
                     </div>
                 )}
 
-                {verification.dedupeKey && (
-                    <div className="grid grid-cols-2 gap-2 sm:grid-cols-[140px_1fr]">
-                        <span className="text-gray-500 font-medium">Dedupe Key</span>
-                        <span className="text-gray-400 font-mono text-xs">{verification.dedupeKey}</span>
+                <details className="rounded-xl border border-white/10 bg-black/20 px-3 py-2">
+                    <summary className="cursor-pointer text-xs font-semibold text-gray-200">Technical source details</summary>
+                    <div className="mt-3 grid gap-2 text-xs">
+                        <div className="grid grid-cols-2 gap-2 sm:grid-cols-[140px_1fr]">
+                            <span className="text-gray-500 font-medium">Source path</span>
+                            <span className="break-all font-mono text-gray-300">{verification.canonicalSource}</span>
+                        </div>
+                        {verification.fallbackSource && (
+                            <div className="grid grid-cols-2 gap-2 sm:grid-cols-[140px_1fr]">
+                                <span className="text-gray-500 font-medium">Backup path</span>
+                                <span className="break-all font-mono text-gray-300">{verification.fallbackSource}</span>
+                            </div>
+                        )}
+                        {verification.degradedReason && (
+                            <div className="grid grid-cols-2 gap-2 sm:grid-cols-[140px_1fr]">
+                                <span className="text-gray-500 font-medium">Technical reason</span>
+                                <span className="text-orange-200">{verification.degradedReason}</span>
+                            </div>
+                        )}
+                        {verification.dedupeKey && (
+                            <div className="grid grid-cols-2 gap-2 sm:grid-cols-[140px_1fr]">
+                                <span className="text-gray-500 font-medium">Dedupe key</span>
+                                <span className="font-mono text-gray-400">{verification.dedupeKey}</span>
+                            </div>
+                        )}
+                        {verification.clusteringSignature && (
+                            <div className="grid grid-cols-2 gap-2 sm:grid-cols-[140px_1fr]">
+                                <span className="text-gray-500 font-medium">Cluster signature</span>
+                                <span className="break-all font-mono text-gray-400">{verification.clusteringSignature}</span>
+                            </div>
+                        )}
                     </div>
-                )}
-
-                {verification.clusteringSignature && (
-                    <div className="grid grid-cols-2 gap-2 sm:grid-cols-[140px_1fr]">
-                        <span className="text-gray-500 font-medium">Cluster Sig</span>
-                        <span className="text-gray-400 font-mono text-xs break-all">{verification.clusteringSignature}</span>
-                    </div>
-                )}
+                </details>
             </div>
 
             {verification.countComposition && Object.keys(verification.countComposition).length > 0 && (
                 <div className="mt-4 rounded-xl border border-white/5 bg-black/40 p-3">
-                    <h4 className="text-[11px] font-bold uppercase tracking-widest text-gray-500 mb-2">Count Composition</h4>
+                    <h4 className="text-[11px] font-bold uppercase tracking-widest text-gray-500 mb-2">Count detail</h4>
                     <div className="flex flex-wrap gap-2">
                         {Object.entries(verification.countComposition).map(([key, count]) => (
                             <div key={key} className="inline-flex items-center gap-1.5 rounded-lg border border-white/10 bg-white/5 px-2 py-1 text-xs">

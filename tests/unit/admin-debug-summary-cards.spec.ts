@@ -21,7 +21,7 @@ const EMPTY_SUMMARY: AdminDebugRouteRuntimeSummary = {
 };
 
 describe("admin debug summary cards", () => {
-    it("uses the API snapshot as an explicit partial source while the route listener hydrates", () => {
+    it("uses operator route health copy while preserving technical source evidence", () => {
         const card = buildAdminDebugRouteHealthCard({
             summary: {
                 total: 4,
@@ -43,8 +43,10 @@ describe("admin debug summary cards", () => {
         });
 
         expect(card.value).toBe("3 ok / 0 action / 0 fail");
-        expect(card.meta).toContain("[partial] API snapshot; route listener hydrating");
-        expect(card.meta).toContain("4 tracked, 3 observed, 1 unseen");
+        expect(card.meta).toContain("Showing last verified route data while live checks connect.");
+        expect(card.technicalEvidence).toContain("[partial] API snapshot; route listener hydrating");
+        expect(card.technicalEvidence).toContain("4 tracked, 3 observed, 1 unseen");
+        expect(card.copy.operatorSummary).toContain("Showing last verified route data");
         expect(card.truthState).toBe("degraded");
     });
 
@@ -69,8 +71,9 @@ describe("admin debug summary cards", () => {
             hasError: false,
         });
 
-        expect(card.meta).toContain("[live] API snapshot + route listener");
-        expect(card.meta).toContain("158 tracked, 38 observed, 120 unseen");
+        expect(card.meta).toContain("Live route checks are showing.");
+        expect(card.technicalEvidence).toContain("[live] API snapshot + route listener");
+        expect(card.technicalEvidence).toContain("158 tracked, 38 observed, 120 unseen");
         expect(card.truthState).toBe("live");
     });
 
@@ -96,7 +99,8 @@ describe("admin debug summary cards", () => {
         });
 
         expect(card.value).toBe("32 ok / 6 action / 1 fail");
-        expect(card.meta).toContain("[degraded] API snapshot; route listener failed");
+        expect(card.meta).toContain("Live route checks are delayed. Showing last verified route data.");
+        expect(card.technicalEvidence).toContain("[degraded] API snapshot; route listener failed");
         expect(card.meta).not.toContain("[fallback]");
         expect(card.truthState).toBe("failed");
     });
@@ -123,7 +127,7 @@ describe("admin debug summary cards", () => {
         });
 
         expect(card.value).toBe("5 ok / 4 action / 0 fail");
-        expect(card.meta).toContain("158 tracked, 9 observed, 149 unseen");
+        expect(card.technicalEvidence).toContain("158 tracked, 9 observed, 149 unseen");
         expect(card.truthState).toBe("degraded");
     });
 
@@ -139,7 +143,8 @@ describe("admin debug summary cards", () => {
         });
 
         expect(card.value).toBe("0 tracked");
-        expect(card.meta).toBe("[failed] route listener and API snapshot empty");
+        expect(card.meta).toBe("No verified route health data yet.");
+        expect(card.technicalEvidence).toBe("[failed] route listener and API snapshot empty");
         expect(card.truthState).toBe("failed");
     });
 
@@ -159,14 +164,16 @@ describe("admin debug summary cards", () => {
         });
 
         expect(card.count).toBe(12);
-        expect(card.meta).toContain("1 repair proposal (1 actionable proposal)");
-        expect(card.meta).toContain("9 panel logs (2 fail, 7 warn)");
-        expect(card.meta).not.toContain("0 route");
-        expect(card.meta).toContain("2 queue runtime (0 failed jobs, 1 stale jobs, 1 missing outcomes)");
+        expect(card.meta).toBe("12 open items need review.");
+        expect(card.technicalEvidence).toContain("1 repair proposal (1 actionable proposal)");
+        expect(card.technicalEvidence).toContain("9 panel logs (2 fail, 7 warn)");
+        expect(card.technicalEvidence).not.toContain("0 route");
+        expect(card.technicalEvidence).toContain("2 queue runtime (0 failed jobs, 1 stale jobs, 1 missing outcomes)");
+        expect(card.copy.recommendedNextCheck).toContain("Action lane");
         expect(card.truthState).toBe("failed");
     });
 
-    it("labels AI assistant fallback output as fallback when preflight observers fail but runtime is ready", () => {
+    it("labels AI assistant saved output in operator copy while preserving fallback evidence", () => {
         const card = buildAdminDebugAiAssistantCard({
             hasSummary: true,
             hasError: false,
@@ -178,14 +185,15 @@ describe("admin debug summary cards", () => {
             latencyMs: 97,
         });
 
-        expect(card.value).toBe("Fallback");
-        expect(card.meta).toContain("preflight observers failed");
-        expect(card.meta).toContain("runtime ready");
-        expect(card.meta).toContain("deterministic fallback output");
+        expect(card.value).toBe("Saved summary");
+        expect(card.meta).toBe("Live AI summary is delayed. Showing saved guidance.");
+        expect(card.technicalEvidence).toContain("preflight observers failed");
+        expect(card.technicalEvidence).toContain("runtime ready");
+        expect(card.technicalEvidence).toContain("deterministic fallback output");
         expect(card.truthState).toBe("fallback");
     });
 
-    it("labels AI assistant fallback output as fallback when preflight is connected", () => {
+    it("keeps AI assistant technical preflight source out of primary meta", () => {
         const card = buildAdminDebugAiAssistantCard({
             hasSummary: true,
             hasError: false,
@@ -197,8 +205,9 @@ describe("admin debug summary cards", () => {
             latencyMs: 97,
         });
 
-        expect(card.value).toBe("Fallback");
-        expect(card.meta).toContain("realtime preflight lane");
+        expect(card.value).toBe("Saved summary");
+        expect(card.meta).not.toContain("realtime preflight lane");
+        expect(card.technicalEvidence).toContain("realtime preflight lane");
         expect(card.truthState).toBe("fallback");
     });
 
@@ -221,9 +230,9 @@ describe("admin debug summary cards", () => {
 
         expect(model.pipeline.value).toBe("No route failures");
         expect(model.pipeline.truthState).toBe("degraded");
-        expect(model.pipeline.detail).toContain("Diagnostics remain degraded: 116 active across 5 clusters.");
+        expect(model.pipeline.detail).toContain("Diagnostics need review: 116 active across 5 clusters.");
         expect(model.pipeline.detail).not.toContain("$0");
-        expect(model.routeFailures.emptyDetail).toContain("Active diagnostics are still degraded outside the route-failure lane.");
+        expect(model.routeFailures.emptyDetail).toContain("Other active diagnostics still need review.");
         expect(model.writers.detail).toContain("This does not prove untracked writers are healthy.");
     });
 });

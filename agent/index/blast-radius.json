@@ -1,5 +1,5 @@
 {
-  "generatedAt": "2026-05-01T17:40:57.073Z",
+  "generatedAt": "2026-05-01T18:54:34.520Z",
   "truthOrder": [
     "verified_runtime_code",
     "verified_configuration",
@@ -559,6 +559,36 @@
     {
       "stable_id": "blast__src__lib__admin-auth-outcome-chart-ts",
       "path": "src/lib/admin-auth-outcome-chart.ts",
+      "blast_radius_score": 70,
+      "shared_helper_risk": 25,
+      "route_boundary_risk": 0,
+      "runtime_criticality": 25,
+      "verification_burden": 20,
+      "deploy_or_lockfile_sensitivity": 0,
+      "why_score_was_assigned": [
+        "Likely shared helper.",
+        "Runtime-critical surface.",
+        "Broad signoff likely."
+      ]
+    },
+    {
+      "stable_id": "blast__src__lib__admin-copy__admin-copy-registry-ts",
+      "path": "src/lib/admin-copy/admin-copy-registry.ts",
+      "blast_radius_score": 70,
+      "shared_helper_risk": 25,
+      "route_boundary_risk": 0,
+      "runtime_criticality": 25,
+      "verification_burden": 20,
+      "deploy_or_lockfile_sensitivity": 0,
+      "why_score_was_assigned": [
+        "Likely shared helper.",
+        "Runtime-critical surface.",
+        "Broad signoff likely."
+      ]
+    },
+    {
+      "stable_id": "blast__src__lib__admin-copy__admin-truth-copy-ts",
+      "path": "src/lib/admin-copy/admin-truth-copy.ts",
       "blast_radius_score": 70,
       "shared_helper_risk": 25,
       "route_boundary_risk": 0,
@@ -5441,6 +5471,20 @@
     {
       "stable_id": "blast__scripts__agent__validate-global-loading-performance-ts",
       "path": "scripts/agent/validate-global-loading-performance.ts",
+      "blast_radius_score": 45,
+      "shared_helper_risk": 25,
+      "route_boundary_risk": 0,
+      "runtime_criticality": 0,
+      "verification_burden": 20,
+      "deploy_or_lockfile_sensitivity": 0,
+      "why_score_was_assigned": [
+        "Likely shared helper.",
+        "Broad signoff likely."
+      ]
+    },
+    {
+      "stable_id": "blast__scripts__agent__validate-human-readable-admin-copy-ts",
+      "path": "scripts/agent/validate-human-readable-admin-copy.ts",
       "blast_radius_score": 45,
       "shared_helper_risk": 25,
       "route_boundary_risk": 0,

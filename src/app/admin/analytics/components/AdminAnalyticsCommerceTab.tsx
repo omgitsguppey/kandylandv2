@@ -55,9 +55,9 @@ export function AdminAnalyticsCommerceTab(props: AdminAnalyticsState) {
     waitingLabel = "No verified snapshot yet",
   ) => (typeof value === "number" && Number.isFinite(value) ? formatter(value) : waitingLabel);
   const commerceBadgeLabel = commerceSnapshotModel.stale
-    ? "STALE"
+    ? "DELAYED"
     : commerceSnapshotModel.cache
-      ? "CACHE"
+      ? "SNAP"
       : commerceSnapshotModel.serverConfirmed
         ? "LIVE"
         : commerceSnapshotModel.refreshStatus === "running"
@@ -687,9 +687,9 @@ export function AdminAnalyticsCommerceTab(props: AdminAnalyticsState) {
                                 Watch capture health
                               </p>
                               <p className="mt-1 text-sm text-gray-400">
-                                Canonical viewer-session capture quality,
-                                including degraded sync, replay recovery, and
-                                close-path misses.
+                                Viewer-session capture quality, including
+                                delayed sync, replay recovery, and close-path
+                                misses.
                               </p>
                             </div>
                             <span
@@ -715,7 +715,7 @@ export function AdminAnalyticsCommerceTab(props: AdminAnalyticsState) {
 
                           <div className="grid gap-3 sm:grid-cols-2">
                             <MetricCard
-                              label="Degraded"
+                              label="Delayed"
                               value={formatCompactNumber(
                                 viewerDrilldownCaptureHealth.degradedSessionCount,
                               )}
@@ -727,7 +727,7 @@ export function AdminAnalyticsCommerceTab(props: AdminAnalyticsState) {
                               value={formatCompactNumber(
                                 viewerDrilldownCaptureHealth.closeMissingCount,
                               )}
-                              hint={`${viewerDrilldownCaptureHealth.flushDegradedCount.toLocaleString()} flush degraded`}
+                              hint={`${viewerDrilldownCaptureHealth.flushDegradedCount.toLocaleString()} delayed flushes`}
                               icon={Activity}
                             />
                             <MetricCard
@@ -808,15 +808,14 @@ export function AdminAnalyticsCommerceTab(props: AdminAnalyticsState) {
                                 Live capture pulse
                               </p>
                               <p className="mt-1 text-sm text-gray-400">
-                                Recent-session continuity signal from the
-                                realtime lane, kept separate from the broader
-                                historical range.
+                                Recent-session continuity signal, kept separate
+                                from the broader historical range.
                               </p>
                             </div>
                             <div className="flex flex-wrap items-center gap-2">
                               <AdminStatusBadge state={liveCaptureTruthState} />
                               <span className="rounded-full border border-white/10 bg-white/5 px-3 py-1 text-[11px] font-semibold text-gray-300">
-                                {liveCaptureTruthState === "unavailable" ? "[unavailable]" : liveWatchCaptureHealth.sessionCount.toLocaleString()}{" "}
+                                {liveCaptureTruthState === "unavailable" ? "No sample" : liveWatchCaptureHealth.sessionCount.toLocaleString()}{" "}
                                 recent
                               </span>
                             </div>
@@ -942,7 +941,7 @@ export function AdminAnalyticsCommerceTab(props: AdminAnalyticsState) {
                             ) : (
                               <div className="rounded-[1.4rem] border border-dashed border-white/10 bg-black/20 p-4 text-sm text-gray-500">
                                 User-level viewer journeys will appear as soon
-                                as canonical watch sessions and telemetry
+                                as verified watch sessions and telemetry
                                 overlap in this range.
                               </div>
                             )}

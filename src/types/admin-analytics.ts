@@ -297,9 +297,12 @@ export interface ValidationItem {
   label: string;
   status: "pass" | "warn" | "fail" | "unavailable" | "stale" | "unknown";
   detail: string;
+  operatorSummary?: string;
+  whyItMatters?: string;
   checkKey?: string;
   title?: string;
   source?: string;
+  sourceDetails?: string;
   selectedRange?: string;
   lastValidatedAt?: number;
   freshnessState?: "fresh" | "stale" | "unknown";
@@ -310,6 +313,8 @@ export interface ValidationItem {
   passAllowed?: boolean;
   passBlockedReason?: string | null;
   action?: string;
+  recommendedNextCheck?: string;
+  technicalEvidence?: string;
   fullDetails?: string;
 }
 

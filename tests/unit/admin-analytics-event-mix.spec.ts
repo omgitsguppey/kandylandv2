@@ -11,7 +11,7 @@ function response(): HistoricalAnalyticsResponse {
 }
 
 describe("buildAdminAnalyticsEventMixModel", () => {
-  it("builds ranked raw event rows with share and readable labels", () => {
+  it("builds ranked event activity rows with share and readable labels", () => {
     const model = buildAdminAnalyticsEventMixModel({
       selectedRange: "30d",
       response: response(),
@@ -69,7 +69,7 @@ describe("buildAdminAnalyticsEventMixModel", () => {
 
     expect(model.componentContextStatus).toBe("unavailable");
     expect(model.mappedSurfaceCount).toBeNull();
-    expect(model.visibleCopy).toContain("Surface context unavailable");
+    expect(model.visibleCopy).toContain("Surface context is unavailable");
     expect(model.missingSurfaceMappings).toEqual(["unknown_custom_event"]);
   });
 

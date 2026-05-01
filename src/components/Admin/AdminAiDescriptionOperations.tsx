@@ -416,7 +416,7 @@ export function AdminAiDescriptionOperations({ compact = false }: { compact?: bo
                     <div className="flex flex-wrap gap-2">
                         <span className={cn("inline-flex items-center gap-2 rounded-full border px-3 py-1 text-xs", runtimeTone(data?.runtime.status))}>
                             {data?.runtime.status === "ready" ? <Sparkles className="h-3.5 w-3.5" /> : <Power className="h-3.5 w-3.5" />}
-                            {data?.runtime.status === "ready" ? "Ready" : data?.runtime.status === "disabled" ? "Off" : "Degraded"}
+                            {data?.runtime.status === "ready" ? "Ready" : data?.runtime.status === "disabled" ? "Off" : "Needs review"}
                         </span>
                         <span className="inline-flex items-center rounded-full border border-white/10 bg-white/[0.04] px-3 py-1 text-xs text-gray-200">
                             {formatAdminAiUsd(data?.aggregate.totalEstimatedCostUsd || 0)} total

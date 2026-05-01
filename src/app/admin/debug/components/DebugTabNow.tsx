@@ -71,7 +71,7 @@ export function DebugTabNow({
         <div className="space-y-4">
                     <Section
                         title="System health now"
-                        subtitle="Canonical system truth, current diagnostics, and sampled pipeline freshness."
+                        subtitle="Current admin health, open diagnostics, and recent route checks."
                         defaultOpen
                         summary={<><Pill label="Score" value={`${data?.opsHealth?.score ?? 0}%`} tone={(data?.opsHealth?.score ?? 0) >= 90 ? "good" : (data?.opsHealth?.score ?? 0) >= 70 ? "warn" : "bad"} /><Pill label="Pipeline sample" value={systemHealthNow.pipeline.value} tone={systemHealthNow.pipeline.tone} truthState={systemHealthNow.pipeline.truthState} /><Pill label="Active diagnostics" value={systemHealthNow.diagnostics.value} tone={systemHealthNow.diagnostics.tone} truthState={systemHealthNow.diagnostics.truthState} /><Pill label="Writers" value={systemHealthNow.writers.summaryValue} tone={systemHealthNow.writers.tone} truthState={systemHealthNow.writers.truthState} /><Pill label="Freshest loaded signal" value={freshestLoadedSignalAt ? formatRelative(freshestLoadedSignalAt) : "Not loaded"} tone={freshestLoadedSignalAt ? "good" : "neutral"} truthState={freshestLoadedSignalTruthState} /></>}
                     >
@@ -103,7 +103,7 @@ export function DebugTabNow({
                                     <div className="flex items-start justify-between gap-3">
                                         <div>
                                             <p className="font-semibold text-white">Route failure sample</p>
-                                            <p className="mt-1 text-xs text-gray-400">Recent route failures from the loaded pipeline lane only.</p>
+                                            <p className="mt-1 text-xs text-gray-400">Recent route failures from the loaded health sample.</p>
                                         </div>
                                         <Pill label="Route failures" value={systemHealthNow.routeFailures.value} tone={systemHealthNow.routeFailures.tone} truthState={systemHealthNow.routeFailures.truthState} />
                                     </div>
@@ -126,10 +126,10 @@ export function DebugTabNow({
                                 <div className="rounded-[1rem] border border-white/10 bg-white/[0.03] p-4">
                                     <div className="flex items-start justify-between gap-3">
                                         <div>
-                                            <p className="font-semibold text-white">Degraded downstream writers</p>
-                                            <p className="mt-1 text-xs text-gray-400">Only materializers tracked by the current health builder are represented here.</p>
+                                            <p className="font-semibold text-white">Downstream writers needing review</p>
+                                            <p className="mt-1 text-xs text-gray-400">Only tracked writer jobs are represented here.</p>
                                         </div>
-                                        <Pill label="Degraded" value={(data?.opsHealth?.materializers || []).filter((materializer: any) => materializer.status !== "healthy").length} tone={(data?.opsHealth?.materializers || []).some((materializer: any) => materializer.status !== "healthy") ? "warn" : "good"} />
+                                        <Pill label="Needs review" value={(data?.opsHealth?.materializers || []).filter((materializer: any) => materializer.status !== "healthy").length} tone={(data?.opsHealth?.materializers || []).some((materializer: any) => materializer.status !== "healthy") ? "warn" : "good"} />
                                     </div>
                                     {(data?.opsHealth?.materializers || []).length ? (
                                         <div className="mt-4 space-y-2">
@@ -164,12 +164,12 @@ export function DebugTabNow({
                             <div className="rounded-[1rem] border border-white/10 bg-white/[0.03] p-4">
                                 <p className="text-[11px] uppercase tracking-[0.18em] text-gray-400">Missing queue links</p>
                                 <p className="mt-2 text-xl font-black text-white">{data?.creatorOnboardingDiagnostics?.summary?.missingQueueCount ?? 0}</p>
-                                <p className="mt-1 text-sm text-gray-400">Canonical onboarding exists but the roster review queue entry is missing.</p>
+                                <p className="mt-1 text-sm text-gray-400">Creator intake exists, but the review queue entry is missing.</p>
                             </div>
                             <div className="rounded-[1rem] border border-white/10 bg-white/[0.03] p-4">
                                 <p className="text-[11px] uppercase tracking-[0.18em] text-gray-400">Missing source records</p>
                                 <p className="mt-2 text-xl font-black text-white">{(data?.creatorOnboardingDiagnostics?.summary?.missingSourceCount ?? 0) + (data?.creatorOnboardingDiagnostics?.summary?.projectionWithoutSourceCount ?? 0)}</p>
-                                <p className="mt-1 text-sm text-gray-400">Queue or projection exists without a canonical onboarding record behind it.</p>
+                                <p className="mt-1 text-sm text-gray-400">Queue or user state exists without a matching creator intake record.</p>
                             </div>
                             <div className="rounded-[1rem] border border-white/10 bg-white/[0.03] p-4">
                                 <p className="text-[11px] uppercase tracking-[0.18em] text-gray-400">Blocked in limbo</p>
@@ -182,7 +182,7 @@ export function DebugTabNow({
                             <div className="flex items-center justify-between gap-3 border-b border-white/10 px-4 py-3">
                                 <div>
                                     <p className="font-semibold text-white">Current creator onboarding issues</p>
-                                    <p className="text-xs text-gray-400">Live backend mismatches from the current debug load.</p>
+                                    <p className="text-xs text-gray-400">Current creator intake records that need review.</p>
                                 </div>
                                 <Pill label="Rows" value={(data?.creatorOnboardingDiagnostics?.issues || []).length} />
                             </div>
@@ -195,7 +195,7 @@ export function DebugTabNow({
                                             <div className="flex flex-wrap items-start justify-between gap-2">
                                                 <div>
                                                     <p className="font-semibold text-white">{issue.message}</p>
-                                                    <p className="text-xs text-gray-400">{issue.creatorDisplayName} · {issue.userId}</p>
+                                                    <p className="text-xs text-gray-400">{issue.creatorDisplayName} - {issue.userId}</p>
                                                 </div>
                                                 <Pill label="Severity" value={issue.severity} tone={issue.severity === "error" ? "bad" : "warn"} />
                                             </div>

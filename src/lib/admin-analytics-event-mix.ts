@@ -30,7 +30,7 @@ export type AdminAnalyticsEventMixModel = {
   selectedRange: RangeOption;
   eventMixSourceMode: EventMixSourceMode;
   truthState: AdminSurfaceState;
-  badgeLabel: "RAW" | "LIVE" | "STALE" | "GA" | "FIRST" | "MIXED" | "WAIT" | "ERROR";
+  badgeLabel: "LIVE" | "UPDATED" | "DELAYED" | "PARTIAL" | "WAIT" | "ERROR";
   totalEventsInRange: number | null;
   denominatorAvailable: boolean;
   topEvent: AdminAnalyticsEventMixRow | null;
@@ -148,10 +148,10 @@ export function buildAdminAnalyticsEventMixModel(input: {
       : sourceMode === "error"
         ? "ERROR"
         : stale
-          ? "STALE"
-          : rows.some((row) => row.mappedByFallbackCatalog || row.mappingSource === "missing")
-            ? "MIXED"
-            : "RAW";
+          ? "DELAYED"
+        : rows.some((row) => row.mappedByFallbackCatalog || row.mappingSource === "missing")
+            ? "PARTIAL"
+            : "UPDATED";
 
   return {
     selectedRange: input.selectedRange,
@@ -174,8 +174,8 @@ export function buildAdminAnalyticsEventMixModel(input: {
     fakeZeroPrevented,
     duplicateRefreshPrevented: Boolean(input.response?.cacheRevalidating && input.loading),
     visibleCopy: componentContextStatus === "available"
-      ? "Showing raw event counts with mapped surface context."
-      : "Showing raw event counts. Surface context unavailable for this range.",
+      ? "Showing event activity with mapped surface context."
+      : "Showing event activity. Surface context is unavailable for this range.",
     recommendation: topEvent
       ? `${topEvent.displayLabel} is driving ${topEvent.share === null ? "the most" : `${Math.round(topEvent.share * 100)}% of`} counted events.`
       : input.loading

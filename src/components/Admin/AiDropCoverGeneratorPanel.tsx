@@ -81,15 +81,15 @@ function getGenerationErrorMessage(errorCode?: AdminAiDropCoverErrorCode, fallba
         case "draft_session_required":
             return "This draft could not be identified. Close and reopen Create Drop, then try AI cover generation again.";
         case "model_location_unavailable":
-            return fallback || "The configured AI image model is not available to this project in the current Vertex location.";
+            return fallback || "The configured AI image model is not available in the current runtime location.";
         case "provider_unavailable":
-            return fallback || "The Vertex image provider is unavailable right now.";
+            return fallback || "The image provider is unavailable right now.";
         case "provider_timeout":
             return fallback || "The image provider ended the request before the cover finished rendering.";
         case "storage_failed":
-            return fallback || "The cover rendered, but KandyDrops could not save it to Firebase Storage.";
+            return fallback || "The cover rendered, but KandyDrops could not save the image file.";
         case "database_failed":
-            return fallback || "The AI cover job could not be recorded or finalized in Firebase.";
+            return fallback || "The AI cover job could not be recorded or finalized.";
         case "runtime_unavailable":
             return fallback || "AI cover generation is unavailable because a required runtime dependency is not ready.";
         case "feature_disabled":
@@ -389,7 +389,7 @@ export function AiDropCoverGeneratorPanel({
                     {dashboard ? (
                         <span className={cn("inline-flex items-center gap-2 rounded-full border px-3 py-1 text-xs", runtimeTone)}>
                             {dashboard.runtime.status === "ready" ? <Sparkles className="h-3.5 w-3.5" /> : <TriangleAlert className="h-3.5 w-3.5" />}
-                            {dashboard.runtime.status === "ready" ? "Ready" : dashboard.runtime.status === "disabled" ? "Off" : "Degraded"}
+                            {dashboard.runtime.status === "ready" ? "Ready" : dashboard.runtime.status === "disabled" ? "Off" : "Needs review"}
                         </span>
                     ) : null}
                     {dashboard?.settings ? (

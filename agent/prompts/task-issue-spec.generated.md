@@ -1,7 +1,7 @@
 # Agent Task Spec
 
 ## Goal
-full-system refresh-based hot cache loading hydration caching refactor
+human-readable admin truth diagnostics copy hardening
 
 ## Acceptance Criteria
 - Stay within the touched entrypoints unless adjacency proves a shared helper must move with them.
