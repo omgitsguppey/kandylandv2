@@ -24,6 +24,7 @@ import { showUnwrapSuccessToast } from "@/components/Toasts/UnwrapSuccessToast";
 import { ReportBugButton } from "@/components/Feedback/ReportBugButton";
 import { dispatchActivitySync } from "@/lib/activity-sync";
 import { formatDropCountdown } from "@/lib/drop-countdown";
+import { getUnlockProblemCopy } from "@/lib/problem-state-copy";
 
 interface DropPreviewModalProps {
   drop: Drop | null;
@@ -296,17 +297,17 @@ export function DropPreviewModal({ drop, onClose }: DropPreviewModalProps) {
         },
       });
     } catch (err: unknown) {
-      const message = err instanceof Error ? err.message : "Please try again later.";
+      const problemCopy = getUnlockProblemCopy(err);
       const timedStats = consumeTimedFlow("drop_unlock");
       trackEvent("unlock_drop_failed", {
         drop_id: drop.id,
         drop_category: drop.type,
         unlock_cost: drop.unlockCost,
-        error_message: message,
+        error_message: problemCopy.headline,
         ...(timedStats.mergedParams ?? {}),
       });
       clearTimedFlow("drop_unlock");
-      toast.error("Unwrap failed", { description: message });
+      toast.error(problemCopy.headline, { description: problemCopy.body });
     } finally {
       setUnlocking(false);
     }

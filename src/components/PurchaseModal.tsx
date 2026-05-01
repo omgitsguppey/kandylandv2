@@ -19,6 +19,7 @@ import { dispatchActivitySync } from "@/lib/activity-sync";
 import { FIXED_GUMDROP_PACKAGES } from "@/lib/gumdrops-packages";
 import type { DailyTasksState } from "@/lib/tasks/task-catalog";
 import { reportClientIssue } from "@/lib/client-error-reporting";
+import { getPaymentProblemCopy } from "@/lib/problem-state-copy";
 
 interface PurchaseModalProps {
   isOpen: boolean;
@@ -277,7 +278,7 @@ export function PurchaseModal({ isOpen, onClose }: PurchaseModalProps) {
         ...(consumeTimedFlow(CHECKOUT_FLOW_KEY).mergedParams ?? {}),
       });
     } catch (err: unknown) {
-      const message = err instanceof Error ? err.message : "Purchase failed. Please contact support.";
+      const problemCopy = getPaymentProblemCopy(err);
       reportClientIssue({
         channel: "payments",
         message: "PayPal capture approval failed",
@@ -290,16 +291,16 @@ export function PurchaseModal({ isOpen, onClose }: PurchaseModalProps) {
         },
         consoleLabel: "[Wallet] PayPal capture failed",
       });
-      setError(message);
+      setError(problemCopy.body);
       trackEvent("gumdrops_purchase_failed", {
         package_label: selectedPackage.label,
         package_drops: selectedPackage.drops,
         package_price: selectedPackage.price,
         package_paid_drops: selectedEconomics.paidGumDrops,
         package_bonus_drops: selectedEconomics.bonusGumDrops,
-        ...(consumeTimedFlow(CHECKOUT_FLOW_KEY, { failure_reason: message }).mergedParams ?? {}),
+        ...(consumeTimedFlow(CHECKOUT_FLOW_KEY, { failure_reason: problemCopy.headline }).mergedParams ?? {}),
       });
-      toast.error("Purchase failed", { description: message });
+      toast.error(problemCopy.headline, { description: problemCopy.body });
     } finally {
       setProcessing(false);
     }
@@ -484,7 +485,7 @@ export function PurchaseModal({ isOpen, onClose }: PurchaseModalProps) {
                           </div>
                         ) : !PAYPAL_READY ? (
                           <div className="rounded-xl border border-brand-purple/30 bg-brand-purple/10 p-3 text-xs text-brand-purple text-center">
-                            PayPal is not configured. Real payments require NEXT_PUBLIC_PAYPAL_CLIENT_ID_LIVE to be set.
+                            Checkout is unavailable right now. Please try again later.
                           </div>
                         ) : paypalFailed ? (
                           <div className="rounded-xl border border-red-500/30 bg-red-500/10 p-3 text-xs text-red-200 text-center">
@@ -519,8 +520,9 @@ export function PurchaseModal({ isOpen, onClose }: PurchaseModalProps) {
                                 const order = await response.json();
 
                                 if (!response.ok) {
-                                  toast.error(order.error || "Failed to initialize payment.");
-                                  throw new Error(order.error || "Failed to initialize payment.");
+                                  const problemCopy = getPaymentProblemCopy(order.error || "Payment initialization failed");
+                                  toast.error(problemCopy.headline, { description: problemCopy.body });
+                                  throw new Error(order.error || "Payment initialization failed");
                                 }
 
                                 return order.id;

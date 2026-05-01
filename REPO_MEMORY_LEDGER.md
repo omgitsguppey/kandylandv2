@@ -24,6 +24,15 @@ This file is not a changelog. It is the concise ledger for durable decisions tha
 
 ## Decision Entries
 
+### 1ch. User problem-state copy uses shared human-readable translations
+
+- Approximate date: Recorded explicitly on 2026-05-01 from the human-readable admin and user problem-state copy finalization pass
+- Status: Active launch copy, diagnostics, and user problem-state rule
+- Decision: Visible page, payment, unlock, and notification failures must use shared human-readable copy that says what happened and what to do next. Raw API errors, exception messages, provider details, route/source names, environment variables, and backend diagnostics stay in client diagnostics, telemetry, Admin Debug, or developer evidence rather than primary user UI.
+- Implementation: `src/lib/problem-state-copy.ts` owns page, payment, unlock, and notification problem-state translations. `src/app/error.tsx`, `src/components/ErrorBoundary.tsx`, `src/components/PurchaseModal.tsx`, `src/components/DropCard.tsx`, `src/components/DropPreviewModal.tsx`, and `src/components/Navigation/NotificationBell.tsx` now render those translations. `scripts/agent/validate-human-readable-admin-copy.ts` and `tests/unit/problem-state-copy.spec.ts` guard the contract.
+- Required validation: `npm run check:human-readable-admin-copy`, `npx vitest run tests/unit/admin-truth-copy.spec.ts tests/unit/problem-state-copy.spec.ts`, touched-file TypeScript, and touched-surface UI/runtime checks when visible surfaces change.
+- Consequence for future work: Do not pipe `result.error`, `error.message`, provider/config strings, or route diagnostics directly into visible user copy. Add a new deterministic problem-state translation first, keep the technical reason for diagnostics, and test the visible copy.
+
 ### 1cg. Mobile safe-area reservation belongs to the shared shell
 
 - Approximate date: Recorded explicitly on 2026-05-01 from the mobile layout safe-area finalization pass

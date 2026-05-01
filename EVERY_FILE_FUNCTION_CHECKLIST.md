@@ -1,13 +1,22 @@
 # EVERY FILE FUNCTION CHECKLIST
 
 **Last Updated:** 2026-05-01
-**Current Focus:** Mobile Layout Safe-Area Finalization.
+**Current Focus:** Human-Readable Problem-State Copy Finalization.
 **Status:** In Progress. Current tracked-file coverage is reconciled as of 2026-04-28: every `git ls-files` entry has a current checklist heading, while detailed function-level audits remain pending for many historical and newly reconciled files.
 Purpose: exhaustive no-skip audit checklist covering every repository file currently in scope and every detected function-like implementation.
 
 Scoring: all entries below are marked as included in the current validated sweep. Confidence reflects current repository-state confidence, not perfection or future-proofing.
 
 Current repo-wide state snapshot: see [FULL_SCALE_CODEBASE_AUDIT.md](/Users/uylus/OneDrive/Documents/KandyDrops_Final/FULL_SCALE_CODEBASE_AUDIT.md) for the current live baseline, verification state, and continuity rules, and see [REPO_MEMORY_LEDGER.md](/Users/uylus/OneDrive/Documents/KandyDrops_Final/REPO_MEMORY_LEDGER.md) for major architectural and workflow decisions. The detailed file/function body below remains valuable historical evidence, but it has not been fully regenerated against the current 2026-04-18 inventory review yet.
+
+## 2026-05-01 Human-Readable Problem-State Copy Finalization Coverage
+
+- [x] `src/lib/problem-state-copy.ts` centralizes page, payment, unlock, and notification problem-state translations while preserving raw technical reasons for diagnostics.
+- [x] `src/app/error.tsx` and `src/components/ErrorBoundary.tsx` no longer render raw exception messages as primary user UI.
+- [x] `src/components/PurchaseModal.tsx` maps PayPal/order/capture failures to wallet-safe visible copy and removes the environment-variable checkout message from user UI.
+- [x] `src/components/DropCard.tsx` and `src/components/DropPreviewModal.tsx` map unlock failures to clear charge-safe copy before showing toasts/cards.
+- [x] `src/components/Navigation/NotificationBell.tsx` distinguishes notification load failure from an empty inbox and provides a refresh action.
+- [x] `tests/unit/problem-state-copy.spec.ts` and `scripts/agent/validate-human-readable-admin-copy.ts` guard banned copy, raw-error leakage, shared helper use, approved admin badges, and problem-state copy examples.
 
 ## 2026-05-01 Mobile Layout Safe-Area Finalization Coverage
 

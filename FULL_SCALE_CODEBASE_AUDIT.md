@@ -1,5 +1,39 @@
 # KandyDrops Core Codebase Audit & Defensive Ledger
 
+## [2026-05-01 #78] PRE: Human-Readable Problem-State Copy Finalization
+
+Scope started:
+- Finalizing human-readable visible copy for admin and user problem states across Admin Overview, Admin Analytics, Admin Debug summaries, 404, payment/unlock errors, notifications, loading/waiting, empty, and route-unavailable states.
+- Required behavior: primary UI says what happened and what to do; Debug/diagnostics keep technical evidence; raw backend jargon, vague "something went wrong" copy, mystery chips, PASS-with-missing-data, and unexplained degraded/fallback wording stay out of main UI.
+
+Initial evidence:
+- Worktree was clean at startup on `main`.
+- Control tower, doctrine consultation workflow, source-of-truth map, shared component ownership, product/copy/UI doctrine, surface matrix, vocabulary, banned patterns, decision checklist, and governance ledgers were consulted.
+- Existing `npm run check:human-readable-admin-copy` and `tests/unit/admin-truth-copy.spec.ts` passed before edits, so the verified gaps are user-visible error boundaries and payment/unlock problem-state translations rather than a full admin copy rewrite.
+
+Scope completed:
+- Added `src/lib/problem-state-copy.ts` as the shared visible-copy mapper for page, payment, unlock, and notification problem states while preserving raw technical reasons for diagnostics.
+- Updated app/page error boundaries so raw exception messages no longer render as the primary user UI.
+- Updated Wallet checkout, Drop card unlock, Drop preview unlock, and notification dropdown copy so visible errors say whether the wallet changed, whether GumDrops were charged, or how to refresh unavailable notification loading.
+- Extended `scripts/agent/validate-human-readable-admin-copy.ts` and added `tests/unit/problem-state-copy.spec.ts` to guard user problem-state helper usage, raw-error leakage, banned copy, admin badge labels, and clear payment/unlock/notification wording.
+- Updated `docs/agent-truth/human-readable-admin-truth.md`, `docs/agent-truth/admin-copy-style-guide.md`, `REPO_MEMORY_LEDGER.md`, and `EVERY_FILE_FUNCTION_CHECKLIST.md`.
+
+Verification:
+- `npm run check:human-readable-admin-copy`
+- `npx vitest run tests/unit/admin-truth-copy.spec.ts tests/unit/problem-state-copy.spec.ts`
+- `npm run typecheck`
+- `npx vitest run tests/unit/notification-bell-layout.spec.ts tests/unit/not-found-surface.spec.tsx tests/unit/drops-unlock-route.spec.ts tests/unit/paypal-capture-route.spec.ts`
+- `npm run check:not-found`
+- `npm run check:notification-return-loop`
+- `npm run check:payment-unlock-security`
+- `npm run check:ui:coverage`
+- `npm run check:ui:runtime`
+- `npm run check:ui:audits`
+
+Residual risk:
+- Raw server/API strings still exist in route handlers and diagnostics by design; the visible user surfaces now translate them before display.
+- `src/components/PurchaseModal.tsx.bak` remains a tracked historical backup from prior repo state and was not modified in this targeted pass.
+
 ## [2026-05-01 #77] PRE: Mobile Layout Safe-Area Finalization
 
 Scope started:

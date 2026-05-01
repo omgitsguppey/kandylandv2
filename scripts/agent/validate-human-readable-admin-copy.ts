@@ -30,7 +30,9 @@ function fail(file: string | undefined, message: string) {
 const requiredFiles = [
   "src/lib/admin-copy/admin-truth-copy.ts",
   "src/lib/admin-copy/admin-copy-registry.ts",
+  "src/lib/problem-state-copy.ts",
   "tests/unit/admin-truth-copy.spec.ts",
+  "tests/unit/problem-state-copy.spec.ts",
   "docs/agent-truth/admin-copy-style-guide.md",
   "docs/agent-truth/human-readable-admin-truth.md",
 ];
@@ -41,6 +43,7 @@ for (const file of requiredFiles) {
 
 const registry = read("src/lib/admin-copy/admin-copy-registry.ts");
 const mapper = read("src/lib/admin-copy/admin-truth-copy.ts");
+const problemCopy = read("src/lib/problem-state-copy.ts");
 const debugCards = read("src/lib/admin-debug-summary-cards.ts");
 
 for (const expected of [
@@ -84,6 +87,17 @@ for (const pattern of [
   }
 }
 
+for (const expected of [
+  "getPageProblemCopy",
+  "getPaymentProblemCopy",
+  "getUnlockProblemCopy",
+  "getNotificationProblemCopy",
+]) {
+  if (!problemCopy.includes(`function ${expected}`)) {
+    fail("src/lib/problem-state-copy.ts", `Missing user problem-state copy helper: ${expected}.`);
+  }
+}
+
 for (const badge of ["LIVE", "UPDATED", "REFRESHING", "DELAYED", "EST", "PARTIAL", "WAIT", "REVIEW", "ERROR", "SNAP"]) {
   if (!registry.includes(`"${badge}"`)) {
     fail("src/lib/admin-copy/admin-copy-registry.ts", `Approved badge label is not registered: ${badge}.`);
@@ -108,6 +122,16 @@ const mainUiFiles = [
   "src/components/Admin/AdminAiDescriptionOperations.tsx",
   "src/components/Admin/AiDropCoverGeneratorPanel.tsx",
   "src/components/Admin/AiDropDescriptionGeneratorPanel.tsx",
+];
+
+const userProblemStateFiles = [
+  "src/app/error.tsx",
+  "src/components/ErrorBoundary.tsx",
+  "src/components/PurchaseModal.tsx",
+  "src/components/DropCard.tsx",
+  "src/components/DropPreviewModal.tsx",
+  "src/components/Navigation/NotificationBell.tsx",
+  "src/components/ui/NotFoundSurface.tsx",
 ];
 
 const bannedMainUiPhrases = [
@@ -170,6 +194,48 @@ for (const file of mainUiFiles) {
   });
 }
 
+for (const file of userProblemStateFiles) {
+  const content = read(file);
+  const lower = content.toLowerCase();
+  for (const phrase of [
+    ...bannedMainUiPhrases,
+    "something went wrong",
+    "error details unavailable",
+    "real payments require next_public_paypal_client_id_live",
+  ]) {
+    const found = phrase === "Degraded:"
+      ? content.includes(phrase)
+      : lower.includes(phrase.toLowerCase());
+    if (found) {
+      fail(file, `User-visible problem state contains debug-only or vague phrase: ${phrase}.`);
+    }
+  }
+}
+
+for (const [file, helper] of [
+  ["src/app/error.tsx", "getPageProblemCopy"],
+  ["src/components/ErrorBoundary.tsx", "getPageProblemCopy"],
+  ["src/components/PurchaseModal.tsx", "getPaymentProblemCopy"],
+  ["src/components/DropCard.tsx", "getUnlockProblemCopy"],
+  ["src/components/DropPreviewModal.tsx", "getUnlockProblemCopy"],
+  ["src/components/Navigation/NotificationBell.tsx", "getNotificationProblemCopy"],
+] as const) {
+  const content = read(file);
+  if (!content.includes(helper)) {
+    fail(file, `Problem-state UI must use shared helper: ${helper}.`);
+  }
+}
+
+for (const [file, rawErrorExpression] of [
+  ["src/app/error.tsx", "error.message"],
+  ["src/components/ErrorBoundary.tsx", "this.state.error.message"],
+] as const) {
+  const content = read(file);
+  if (content.includes(rawErrorExpression)) {
+    fail(file, "User-facing error boundary must not render raw technical error details.");
+  }
+}
+
 const debugUiFiles = [
   "src/app/admin/debug/components/DebugPrimitives.tsx",
   "src/app/admin/debug/components/DebugAdvancedDataValidation.tsx",
@@ -203,7 +269,7 @@ const docs = [
 ].map((file) => [file, read(file)] as const);
 
 for (const [file, content] of docs) {
-  for (const term of ["Live", "Updated", "Refreshing", "Showing last verified data", "Delayed", "Estimated", "Partial", "Waiting for first snapshot", "Needs review", "Unavailable", "Open in Debug", "Refresh"]) {
+  for (const term of ["Live", "Updated", "Refreshing", "Showing last verified data", "Delayed", "Estimated", "Partial", "Waiting for first snapshot", "Needs review", "Unavailable", "No sample", "Source mismatch", "Open in Debug", "Refresh"]) {
     if (!content.includes(term)) {
       fail(file, `Doc is missing allowed copy term: ${term}.`);
     }
@@ -225,6 +291,19 @@ for (const expected of [
 ]) {
   if (!copyTests.includes(expected)) {
     fail("tests/unit/admin-truth-copy.spec.ts", `Admin copy test is missing case: ${expected}.`);
+  }
+}
+
+const problemCopyTests = read("tests/unit/problem-state-copy.spec.ts");
+for (const expected of [
+  "Checkout could not be verified",
+  "Your wallet was not changed",
+  "More GumDrops are needed",
+  "Your GumDrops were not charged",
+  "Notifications are unavailable",
+]) {
+  if (!problemCopyTests.includes(expected)) {
+    fail("tests/unit/problem-state-copy.spec.ts", `Problem-state copy test is missing case: ${expected}.`);
   }
 }
 

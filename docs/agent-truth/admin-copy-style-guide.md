@@ -80,3 +80,14 @@ For Admin Overview, Admin Analytics, and Admin Debug launch work:
 - Event Mix visible copy says ranked event activity; raw event keys belong in Debug.
 - Commerce copy must state that promo and bonus GD are excluded from revenue when revenue is shown.
 - Admin Overview truth labels are Updated, Showing last verified data, Refreshing overview, Live updates delayed, and Waiting for first overview snapshot.
+
+## User Problem-State Copy
+
+Use the shared problem-state helper for visible user failures:
+
+- Page errors: "Page could not load. Refresh the page or retry the last action."
+- Payment verification: "Checkout could not be verified. Your wallet was not changed."
+- Unlock failure: "Drop could not be unwrapped. Your GumDrops were not charged."
+- Notification load failure: "Notifications are unavailable. Refresh this panel to check for new updates."
+
+Do not show raw API messages, route names, environment variable names, exception text, or provider/debug strings as primary user copy. The raw reason belongs in diagnostics and telemetry.

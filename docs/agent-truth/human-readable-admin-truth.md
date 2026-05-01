@@ -73,3 +73,16 @@ Admin Analytics is the operator view. Admin Debug is the evidence view.
 - Waiting is visible only before the first verified snapshot.
 - The main UI may say "Live updates are delayed. Showing last verified data." or "Realtime delayed. Showing last verified snapshot." but must not expose listener, route, collection, lane, or rollup jargon.
 - Debug must keep the exact technical evidence for refresh, parity, legacy recovery, commerce formulas, task lifecycle, notification dedupe/read state, and actor lane separation.
+
+## User Problem-State Addendum
+
+User-facing errors follow the same split:
+
+- The main UI says what happened and what to do next.
+- Technical messages stay in diagnostics, telemetry, or Debug evidence.
+- Payment copy must say whether the wallet changed.
+- Unlock copy must say whether GumDrops were charged.
+- Notification copy must distinguish empty inbox from unavailable notification loading.
+- Page error boundaries must not render raw exception messages as the primary user experience.
+
+Use `src/lib/problem-state-copy.ts` for page, payment, unlock, and notification problem states. Do not pipe API error strings directly into toast descriptions, page error bodies, payment panels, or Drop unlock cards.

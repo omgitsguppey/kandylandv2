@@ -18,6 +18,7 @@ import { reportClientIssue } from "@/lib/client-error-reporting";
 import { DropCardCta } from "@/components/DropCardCta";
 import { DropCardLayout } from "@/components/DropCardLayout";
 import { DROPS_MOBILE_UI_DENSITY, useDropCardImpression } from "@/hooks/useDropCardImpression";
+import { getUnlockProblemCopy } from "@/lib/problem-state-copy";
 
 
 interface DropCardProps {
@@ -207,7 +208,8 @@ function DropCardBase({
                     router.push(`/dashboard/viewer?id=${drop.id}`);
                 },
             });
-        } catch (err: any) {
+        } catch (err: unknown) {
+            const problemCopy = getUnlockProblemCopy(err);
             reportClientIssue({
                 channel: "payments",
                 message: "Drop unwrap failed",
@@ -215,10 +217,10 @@ function DropCardBase({
                 detail: { dropId: drop.id, unlockCost: drop.unlockCost },
                 consoleLabel: "[DropCard] Unwrap failed",
             });
-            toast.error("Unwrap failed", {
-                description: err.message || "Please try again later.",
+            toast.error(problemCopy.headline, {
+                description: problemCopy.body,
             });
-            setError(err.message || "Unwrap failed. Try again.");
+            setError(problemCopy.body);
         } finally {
             setUnlocking(false);
         }

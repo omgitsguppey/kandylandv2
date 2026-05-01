@@ -18,12 +18,13 @@ import { useRouter } from "next/navigation";
 import { toast } from "sonner";
 
 import { useNotifications } from "@/hooks/useNotifications";
-import { CLIENT_RUNTIME_EVENTS } from "@/hooks/client-runtime";
+import { CLIENT_RUNTIME_EVENTS, dispatchClientRuntimeEvent } from "@/hooks/client-runtime";
 import { useAuthIdentity } from "@/context/AuthContext";
 import { cn } from "@/lib/utils";
 import { trackEvent } from "@/lib/telemetry";
 import { useDeferredClientReady } from "@/hooks/useDeferredClientReady";
 import { useNetworkConditions } from "@/hooks/useNetworkConditions";
+import { getNotificationProblemCopy } from "@/lib/problem-state-copy";
 
 interface NotificationNote {
   id: string;
@@ -403,9 +404,10 @@ export function NotificationBell() {
     idle: true,
   });
   const notificationsEnabled = Boolean(user) && (isOpen || warmReady);
-  const { notifications, unreadCount, loading, markAsRead, markAllAsRead } = useNotifications({
+  const { notifications, unreadCount, loading, error, markAsRead, markAllAsRead } = useNotifications({
     enabled: notificationsEnabled,
   });
+  const notificationProblem = error ? getNotificationProblemCopy(error) : null;
   const panelStyle = getNotificationPanelStyle();
 
   useEffect(() => {
@@ -539,6 +541,21 @@ export function NotificationBell() {
                   </div>
                 </div>
               ))}
+            </div>
+          ) : notificationProblem ? (
+            <div className="flex flex-col items-center justify-center px-6 py-10 text-center">
+              <div className="mb-3 flex h-14 w-14 items-center justify-center rounded-[1.4rem] border border-white/10 bg-white/5 text-brand-purple">
+                <TriangleAlert className="h-6 w-6" />
+              </div>
+              <p className="text-sm font-semibold text-white">{notificationProblem.headline}</p>
+              <p className="mt-1 text-xs leading-6 text-gray-500">{notificationProblem.body}</p>
+              <button
+                type="button"
+                onClick={() => dispatchClientRuntimeEvent(CLIENT_RUNTIME_EVENTS.notificationsSync, true)}
+                className="mt-4 inline-flex min-h-8 items-center justify-center rounded-full border border-white/10 bg-white/5 px-4 text-[10px] font-bold uppercase tracking-[0.12em] text-white transition-colors hover:bg-white/10"
+              >
+                {notificationProblem.actionLabel}
+              </button>
             </div>
           ) : notifications.length === 0 ? (
             <div className="flex flex-col items-center justify-center px-6 py-10 text-center">

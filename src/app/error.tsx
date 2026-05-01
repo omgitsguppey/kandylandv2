@@ -5,6 +5,7 @@ import { Button } from "@/components/ui/Button";
 import { AlertCircle } from "lucide-react";
 import { ReportBugButton } from "@/components/Feedback/ReportBugButton";
 import { recordClientError } from "@/lib/client-diagnostics";
+import { getPageProblemCopy } from "@/lib/problem-state-copy";
 
 
 export default function Error({
@@ -14,6 +15,8 @@ export default function Error({
     error: Error & { digest?: string };
     reset: () => void;
 }) {
+    const problemCopy = getPageProblemCopy(error);
+
     useEffect(() => {
         recordClientError(error, { source: "app_error_boundary" });
     }, [error]);
@@ -24,20 +27,14 @@ export default function Error({
                 <AlertCircle className="w-8 h-8 text-red-500" />
             </div>
 
-            <h2 className="mb-4 text-2xl font-bold text-white">Page Error</h2>
+            <h2 className="mb-4 text-2xl font-bold text-white">{problemCopy.headline}</h2>
             <p className="text-gray-400 max-w-md mb-4">
-                This page failed to render. Refresh the page or retry the last action.
+                {problemCopy.body}
             </p>
-
-            <div className="bg-black/50 p-4 rounded-lg text-left mb-8 overflow-auto max-h-40 border border-white/5 w-full max-w-md">
-                <p className="font-mono text-xs text-red-400 break-all">
-                    {error.message || "Error details unavailable"}
-                </p>
-            </div>
 
             <div className="flex flex-col gap-3 sm:flex-row">
                 <Button variant="glass" onClick={() => window.location.reload()}>
-                    Refresh Page
+                    {problemCopy.actionLabel}
                 </Button>
                 <Button variant="brand" onClick={() => reset()}>
                     Try Again
