@@ -84,7 +84,7 @@ vi.mock("@/lib/server/firebase-admin", () => ({
 }));
 
 vi.mock("@/lib/server/fcm-utils", () => ({
-    broadcastFCM: vi.fn(),
+    broadcastFCMWithReport: vi.fn(),
 }));
 
 vi.mock("@/lib/server/notification-runtime", () => ({

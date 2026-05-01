@@ -17,6 +17,46 @@ type NotificationBroadcastOptions = {
     data?: Record<string, string | number | boolean | null | undefined>;
 };
 
+export interface NotificationBroadcastReport {
+    ok: boolean;
+    tokensSent: boolean;
+    successCount: number;
+    failureCount: number;
+    recipientCheckedCount: number;
+    permissionSkippedCount: number;
+    preferenceSkippedCount: number;
+    missingTokenSkippedCount: number;
+    duplicatePushPreventedCount: number;
+    tokensQueuedCount: number;
+    invalidTokenRemovedCount: number;
+    idempotencyKey: string | null;
+    browserTag: string | null;
+    dataOnlyPayload: boolean;
+    pwaDisplayMode: "manual-service-worker";
+    errorMessage?: string;
+}
+
+function buildBroadcastReport(input: Partial<NotificationBroadcastReport>): NotificationBroadcastReport {
+    return {
+        ok: input.ok ?? false,
+        tokensSent: input.tokensSent ?? false,
+        successCount: input.successCount ?? 0,
+        failureCount: input.failureCount ?? 0,
+        recipientCheckedCount: input.recipientCheckedCount ?? 0,
+        permissionSkippedCount: input.permissionSkippedCount ?? 0,
+        preferenceSkippedCount: input.preferenceSkippedCount ?? 0,
+        missingTokenSkippedCount: input.missingTokenSkippedCount ?? 0,
+        duplicatePushPreventedCount: input.duplicatePushPreventedCount ?? 0,
+        tokensQueuedCount: input.tokensQueuedCount ?? 0,
+        invalidTokenRemovedCount: input.invalidTokenRemovedCount ?? 0,
+        idempotencyKey: input.idempotencyKey ?? null,
+        browserTag: input.browserTag ?? null,
+        dataOnlyPayload: true,
+        pwaDisplayMode: "manual-service-worker",
+        errorMessage: input.errorMessage,
+    };
+}
+
 function stringifyData(data: Record<string, string | number | boolean | null | undefined>) {
     return Object.entries(data).reduce<Record<string, string>>((acc, [key, value]) => {
         if (value === null || typeof value === "undefined") {
@@ -45,8 +85,21 @@ export async function broadcastFCM(
     type: NotificationBroadcastType = "general",
     options: NotificationBroadcastOptions = {},
 ): Promise<boolean> {
-    if (!adminDb) return false;
+    const report = await broadcastFCMWithReport(title, body, url, type, options);
+    return report.ok;
+}
 
+export async function broadcastFCMWithReport(
+    title: string,
+    body: string,
+    url: string = "/drops",
+    type: NotificationBroadcastType = "general",
+    options: NotificationBroadcastOptions = {},
+): Promise<NotificationBroadcastReport> {
+    if (!adminDb) return buildBroadcastReport({ ok: false });
+
+    let idempotencyKey: string | null = null;
+    let browserTag: string | null = null;
     try {
         const BATCH_SIZE = 500;
         let tokensChunk: string[] = [];
@@ -55,8 +108,13 @@ export async function broadcastFCM(
         let successCount = 0;
         let failureCount = 0;
         let tokensSent = false;
+        let recipientCheckedCount = 0;
+        let permissionSkippedCount = 0;
+        let preferenceSkippedCount = 0;
+        let missingTokenSkippedCount = 0;
         let duplicatePushPreventedCount = 0;
-        const idempotencyKey = options.idempotencyKey || buildNotificationIdempotencyKey({
+        let invalidTokenRemovedCount = 0;
+        idempotencyKey = options.idempotencyKey || buildNotificationIdempotencyKey({
             type,
             notificationId: options.notificationId,
             dropId: options.dropId,
@@ -64,7 +122,7 @@ export async function broadcastFCM(
             lifecycleEvent: options.lifecycleEvent,
             audience: options.audience ?? "broadcast",
         });
-        const browserTag = options.browserTag || buildBrowserNotificationTag(idempotencyKey);
+        browserTag = options.browserTag || buildBrowserNotificationTag(idempotencyKey);
         const baseData = stringifyData({
             title,
             body,
@@ -108,6 +166,7 @@ export async function broadcastFCM(
                     if (!resp.success && (errorCode === "messaging/invalid-registration-token" || errorCode === "messaging/registration-token-not-registered")) {
                         const deadToken = tokens[index];
                         const uid = tokenToUidMap.get(deadToken);
+                        invalidTokenRemovedCount++;
                         if (uid) {
                             const deadList = failedTokensToRemoveByUid.get(uid) ?? [];
                             deadList.push(deadToken);
@@ -135,6 +194,7 @@ export async function broadcastFCM(
 
         for await (const doc of stream) {
             const documentSnapshot = doc as unknown as FirebaseFirestore.DocumentSnapshot;
+            recipientCheckedCount++;
             const data = documentSnapshot.data();
             const notificationSettings = data?.notificationSettings && typeof data.notificationSettings === "object"
                 ? data.notificationSettings as Record<string, unknown>
@@ -155,6 +215,16 @@ export async function broadcastFCM(
                 } else {
                     shouldSend = true;
                 }
+
+                if (!shouldSend) {
+                    preferenceSkippedCount++;
+                }
+            } else {
+                permissionSkippedCount++;
+            }
+
+            if (shouldSend && tokens.length === 0) {
+                missingTokenSkippedCount++;
             }
 
             if (shouldSend && tokens.length > 0) {
@@ -184,16 +254,63 @@ export async function broadcastFCM(
         if (tokensSent) {
             if (failureCount > 0) {
                 recordRouteWarning("fcm-multicast", `FCM Multicast Dispatch Partial Failure. Success: ${successCount}, Failed: ${failureCount}`);
-                return false;
+                return buildBroadcastReport({
+                    ok: false,
+                    tokensSent,
+                    successCount,
+                    failureCount,
+                    recipientCheckedCount,
+                    permissionSkippedCount,
+                    preferenceSkippedCount,
+                    missingTokenSkippedCount,
+                    duplicatePushPreventedCount,
+                    tokensQueuedCount: queuedTokens.size,
+                    invalidTokenRemovedCount,
+                    idempotencyKey,
+                    browserTag,
+                });
             }
 
             console.log(`FCM Multicast Dispatch Complete. Success: ${successCount}, Failed: ${failureCount}, Duplicate tokens prevented: ${duplicatePushPreventedCount}`);
-            return true;
+            return buildBroadcastReport({
+                ok: true,
+                tokensSent,
+                successCount,
+                failureCount,
+                recipientCheckedCount,
+                permissionSkippedCount,
+                preferenceSkippedCount,
+                missingTokenSkippedCount,
+                duplicatePushPreventedCount,
+                tokensQueuedCount: queuedTokens.size,
+                invalidTokenRemovedCount,
+                idempotencyKey,
+                browserTag,
+            });
         }
 
-        return true; 
+        return buildBroadcastReport({
+            ok: true,
+            tokensSent,
+            successCount,
+            failureCount,
+            recipientCheckedCount,
+            permissionSkippedCount,
+            preferenceSkippedCount,
+            missingTokenSkippedCount,
+            duplicatePushPreventedCount,
+            tokensQueuedCount: queuedTokens.size,
+            invalidTokenRemovedCount,
+            idempotencyKey,
+            browserTag,
+        });
     } catch (err) {
         recordRouteWarning("fcm-broadcast", "FCM broadcast multicasting failed", err);
-        return false;
+        return buildBroadcastReport({
+            ok: false,
+            idempotencyKey,
+            browserTag,
+            errorMessage: err instanceof Error ? err.message : String(err),
+        });
     }
 }

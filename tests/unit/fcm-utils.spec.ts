@@ -8,6 +8,7 @@ const mockState = vi.hoisted(() => {
     const stream = async function* () {
         for (const doc of userDocs) {
             yield {
+                id: typeof doc.uid === "string" ? doc.uid : `user_${userDocs.indexOf(doc)}`,
                 data: () => doc,
             };
         }
@@ -51,7 +52,7 @@ vi.mock("firebase-admin", () => ({
     }),
 }));
 
-import { broadcastFCM } from "@/lib/server/fcm-utils";
+import { broadcastFCM, broadcastFCMWithReport } from "@/lib/server/fcm-utils";
 
 describe("broadcastFCM", () => {
     beforeEach(() => {
@@ -159,5 +160,69 @@ describe("broadcastFCM", () => {
         expect(mockState.sendEachForMulticast).toHaveBeenCalledWith(expect.objectContaining({
             tokens: ["token-expiring-enabled"],
         }));
+    });
+
+    it("reports skipped recipients and duplicate tokens without adding an auto-display notification payload", async () => {
+        mockState.userDocs.push(
+            {
+                uid: "enabled",
+                fcmTokens: ["shared-token", "shared-token"],
+                notificationSettings: {
+                    browserPushEnabled: true,
+                    newDropAlerts: true,
+                },
+            },
+            {
+                uid: "permission-off",
+                fcmTokens: ["token-browser-off"],
+                notificationSettings: {
+                    browserPushEnabled: false,
+                    newDropAlerts: true,
+                },
+            },
+            {
+                uid: "preference-off",
+                fcmTokens: ["token-drops-off"],
+                notificationSettings: {
+                    browserPushEnabled: true,
+                    newDropAlerts: false,
+                },
+            },
+            {
+                uid: "missing-token",
+                fcmTokens: [],
+                notificationSettings: {
+                    browserPushEnabled: true,
+                    newDropAlerts: true,
+                },
+            },
+        );
+
+        const report = await broadcastFCMWithReport("Kandy Drops", "A new drop is live.", "/drops", "new_drop", {
+            idempotencyKey: "drop_live:drop_live:drop_1:global",
+            browserTag: "kandydrops:drop_live:drop_live:drop_1:global",
+        });
+
+        expect(report).toEqual(expect.objectContaining({
+            ok: true,
+            tokensSent: true,
+            recipientCheckedCount: 4,
+            permissionSkippedCount: 1,
+            preferenceSkippedCount: 1,
+            missingTokenSkippedCount: 1,
+            duplicatePushPreventedCount: 1,
+            tokensQueuedCount: 1,
+            dataOnlyPayload: true,
+            pwaDisplayMode: "manual-service-worker",
+        }));
+        expect(mockState.sendEachForMulticast).toHaveBeenCalledWith(expect.objectContaining({
+            data: expect.objectContaining({
+                pwaDisplayMode: "manual-service-worker",
+                autoDisplayedByFcm: "false",
+                tag: "kandydrops:drop_live:drop_live:drop_1:global",
+            }),
+            tokens: ["shared-token"],
+        }));
+        expect(mockState.sendEachForMulticast.mock.calls[0]?.[0]).not.toHaveProperty("notification");
     });
 });

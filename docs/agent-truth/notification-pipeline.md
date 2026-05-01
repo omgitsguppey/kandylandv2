@@ -32,15 +32,34 @@ When an auto-queued drop returns live, the notification lifecycle event is `drop
 
 Debug must expose skipped recipients when preferences are disabled, push tokens are missing, permission is denied, or recipient lookup fails.
 
+## Skip diagnostics rule
+
+Server push dispatch must record enough counts to explain why a notification did not reach a browser:
+
+- permission/browser-push disabled
+- notification preference disabled
+- push token missing
+- duplicate push token suppressed
+- FCM send failure
+- invalid token cleanup
+
+These counts belong in dispatch detail and Debug. Admin Analytics may summarize failed/skipped only when the joined source exists. Do not show fake zeros for missing skip telemetry.
+
 ## Read/persistence rule
 
 Marking a notification read updates local unread UI immediately, then persists server read state through `/api/notifications`. If persistence fails, the UI must reconcile and refetch. Closing or dismissing a notification that was already read must not restore it to unread.
 
 Opening the dropdown does not mark everything read. Clicking or explicitly reading a notification records read/open behavior only through the intended event path.
 
+## Clear-all rule
+
+Clear all means clearing the unread inbox, not deleting source-truth notification documents. The client may remove cleared unread notifications from the visible dropdown immediately, but the server must persist read state through `/api/notifications`. If only part of the mutation succeeds, restore the failed unread notifications and keep successfully cleared notifications hidden.
+
 ## Multi-tab unread count reconciliation rule
 
 After read or clear-all mutations, tabs should synchronize through the existing notification runtime event. Service-worker notification clicks should post a client message so the app can record open/read state while focusing or navigating the window.
+
+The shared runtime event must initialize BroadcastChannel listeners in tabs that load the notification hook, and mutations must dispatch with cross-tab broadcast enabled.
 
 ## Notification Funnel
 
@@ -58,4 +77,4 @@ Do not show `0` for enablement, sent, duplicate-prevented, failed/skipped, read,
 
 ## Future agents
 
-Do not reintroduce duplicate drop alerts, random browser notification tags, FCM notification auto-display plus manual service-worker display, giant Notification Funnel cards, stale unread counts, or stale funnel data labeled as live.
+Do not reintroduce duplicate drop alerts, random browser notification tags, FCM notification auto-display plus manual service-worker display, clear-all flows that only change local state, giant Notification Funnel cards, stale unread counts, or stale funnel data labeled as live.

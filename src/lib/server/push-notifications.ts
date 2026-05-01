@@ -8,7 +8,7 @@ import {
     buildNotificationIdempotencyKey,
 } from "@/lib/notification-identity";
 import { adminDb } from "./firebase-admin";
-import { broadcastFCM } from "./fcm-utils";
+import { broadcastFCMWithReport, type NotificationBroadcastReport } from "./fcm-utils";
 import { touchNotificationsRuntime } from "./notification-runtime";
 import { recordNotificationDispatchOutcome } from "./runtime-warning-store";
 import { recordRouteWarning } from "./route-diagnostics";
@@ -175,6 +175,28 @@ function buildBaseDispatchDetail(input: {
     };
 }
 
+function buildFcmDispatchDetail(report: NotificationBroadcastReport) {
+    return {
+        fcmDelivered: report.ok && report.tokensSent && report.failureCount === 0,
+        fcmTokensSent: report.tokensSent,
+        fcmSuccessCount: report.successCount,
+        fcmFailureCount: report.failureCount,
+        recipientCheckedCount: report.recipientCheckedCount,
+        skippedPermissionDeniedCount: report.permissionSkippedCount,
+        skippedMissingTokenCount: report.missingTokenSkippedCount,
+        skippedPreferencesDisabledCount: report.preferenceSkippedCount,
+        duplicatePushPreventedCount: report.duplicatePushPreventedCount,
+        invalidTokenRemovedCount: report.invalidTokenRemovedCount,
+        dataOnlyPayload: report.dataOnlyPayload,
+        pwaDisplayMode: report.pwaDisplayMode,
+        duplicatePushPrevented: report.duplicatePushPreventedCount > 0,
+        duplicateBrowserDisplayPrevented: false,
+        browserTagUsed: Boolean(report.browserTag),
+        dedupeKeyUsed: Boolean(report.idempotencyKey),
+        errorMessage: report.errorMessage ?? null,
+    };
+}
+
 export async function sendGlobalDropNotification(
     dropTitle: string,
     dropId: string,
@@ -202,6 +224,10 @@ export async function sendGlobalDropNotification(
             detail: {
                 ...buildBaseDispatchDetail({ dropTitle, imageUrl, identity }),
                 duplicateCreatedPrevented: true,
+                inAppQueued: false,
+                fcmDelivered: false,
+                duplicatePushPrevented: true,
+                duplicateBrowserDisplayPrevented: true,
             },
         });
     }
@@ -255,7 +281,7 @@ export async function sendGlobalDropNotification(
         });
     }
 
-    const fcmDelivered = await broadcastFCM(
+    const fcmReport = await broadcastFCMWithReport(
         "Kandy Drops",
         `${dropTitle} just went live! Don't miss out!`,
         DROP_COLLECTION_LINK,
@@ -270,6 +296,7 @@ export async function sendGlobalDropNotification(
             data: { duplicateCreatedPrevented },
         },
     );
+    const fcmDelivered = fcmReport.ok;
 
     return finalizeDispatchResult({
         activationKey: activationKey ?? null,
@@ -279,11 +306,9 @@ export async function sendGlobalDropNotification(
         detail: {
             ...buildBaseDispatchDetail({ dropTitle, imageUrl, identity }),
             inAppQueued,
-            fcmDelivered,
             notificationId,
             duplicateCreatedPrevented,
-            duplicatePushPrevented: true,
-            duplicateBrowserDisplayPrevented: true,
+            ...buildFcmDispatchDetail(fcmReport),
         },
     });
 }
@@ -317,6 +342,10 @@ export async function sendTargetedDropNotification(
             detail: {
                 ...buildBaseDispatchDetail({ dropTitle, imageUrl, isReturn, excludedUserIds, identity }),
                 duplicateCreatedPrevented: true,
+                inAppQueued: false,
+                fcmDelivered: false,
+                duplicatePushPrevented: true,
+                duplicateBrowserDisplayPrevented: true,
             },
         });
     }
@@ -376,7 +405,7 @@ export async function sendTargetedDropNotification(
         });
     }
 
-    const fcmDelivered = await broadcastFCM(
+    const fcmReport = await broadcastFCMWithReport(
         "Kandy Drops",
         message,
         DROP_COLLECTION_LINK,
@@ -394,6 +423,7 @@ export async function sendTargetedDropNotification(
             },
         },
     );
+    const fcmDelivered = fcmReport.ok;
 
     return finalizeDispatchResult({
         activationKey: activationKey ?? null,
@@ -403,11 +433,9 @@ export async function sendTargetedDropNotification(
         detail: {
             ...buildBaseDispatchDetail({ dropTitle, imageUrl, isReturn, excludedUserIds, identity }),
             inAppQueued,
-            fcmDelivered,
             notificationId,
             duplicateCreatedPrevented,
-            duplicatePushPrevented: true,
-            duplicateBrowserDisplayPrevented: true,
+            ...buildFcmDispatchDetail(fcmReport),
         },
     });
 }

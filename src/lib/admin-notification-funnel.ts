@@ -83,9 +83,18 @@ export interface AdminNotificationFunnelModel {
 const ACTION_LABELS: Record<string, AdminNotificationFunnelMetricKey> = {
     dropdown: "prompted",
     open: "opened",
+    opens: "opened",
+    "notification opened": "opened",
     read: "read",
+    reads: "read",
+    "notification marked read": "read",
+    "notifications marked read": "cleared",
     "clear all": "cleared",
+    "clear all notifications": "cleared",
+    "notification cleared": "cleared",
     enable: "enabled",
+    enabled: "enabled",
+    "notifications enabled": "enabled",
 };
 
 function findFunnelCount(items: AdminNotificationFunnelItemInput[], needles: string[]) {

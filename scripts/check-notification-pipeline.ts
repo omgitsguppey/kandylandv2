@@ -30,6 +30,7 @@ const serviceWorker = read("public/firebase-messaging-sw.js");
 const firebaseMessaging = read("src/lib/firebase-messaging.ts");
 const runtimeBridge = read("src/components/Notifications/NotificationRuntimeBridge.tsx");
 const notificationsHook = read("src/hooks/useNotifications.ts");
+const notificationLocalState = read("src/lib/notification-local-state.ts");
 const notificationsRoute = read("src/app/api/notifications/route.ts");
 const funnelComponent = read("src/components/Admin/Analytics/AdminTaskAndNotificationModules.tsx");
 const funnelHelper = read("src/lib/admin-notification-funnel.ts");
@@ -40,6 +41,10 @@ assertIncludes("fcm-utils", fcmUtils, "idempotencyKey");
 assertIncludes("fcm-utils", fcmUtils, "browserTag");
 assertIncludes("fcm-utils", fcmUtils, "pwaDisplayMode: \"manual-service-worker\"");
 assertIncludes("fcm-utils", fcmUtils, "duplicatePushPreventedCount");
+assertIncludes("fcm-utils", fcmUtils, "broadcastFCMWithReport");
+assertIncludes("fcm-utils", fcmUtils, "permissionSkippedCount");
+assertIncludes("fcm-utils", fcmUtils, "preferenceSkippedCount");
+assertIncludes("fcm-utils", fcmUtils, "missingTokenSkippedCount");
 assertIncludes("fcm-utils", fcmUtils, "queuedTokens");
 assertNotIncludes("fcm-utils", fcmUtils, "notification: { title, body }");
 
@@ -62,9 +67,13 @@ assertIncludes("firebase messaging", firebaseMessaging, "browserDisplayMode: \"f
 assertIncludes("runtime bridge", runtimeBridge, "KANDYDROPS_NOTIFICATION_CLICK");
 assertIncludes("runtime bridge", runtimeBridge, "markNotificationsAsRead");
 assertIncludes("runtime bridge", runtimeBridge, "idempotencyKey: data.idempotencyKey");
+assertIncludes("runtime bridge", runtimeBridge, "dispatchClientRuntimeEvent(CLIENT_RUNTIME_EVENTS.notificationsSync, true)");
 
 assertIncludes("notifications hook", notificationsHook, "previousNotifications");
 assertIncludes("notifications hook", notificationsHook, "optimistic: true");
+assertIncludes("notifications hook", notificationsHook, "listenForClientRuntimeEvent");
+assertIncludes("notifications hook", notificationsHook, "removeNotificationsLocally");
+assertIncludes("notification local state", notificationLocalState, "reconcileClearAllNotifications");
 assertIncludes("notifications route", notificationsRoute, "readAtMs");
 assertIncludes("notifications route", notificationsRoute, "lastReadBy");
 
@@ -87,3 +96,4 @@ assertIncludes("notification pipeline doc", doc, "Deterministic idempotency key 
 assertIncludes("notification pipeline doc", doc, "Browser notification tag rule");
 assertIncludes("notification pipeline doc", doc, "Auto-queued drop return-live notification rule");
 assertIncludes("notification pipeline doc", doc, "Read/persistence rule");
+assertIncludes("notification pipeline doc", doc, "Skip diagnostics rule");

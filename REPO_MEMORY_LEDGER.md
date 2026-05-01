@@ -24,6 +24,16 @@ This file is not a changelog. It is the concise ledger for durable decisions tha
 
 ## Decision Entries
 
+### 1cd. Notification return loop is deterministic and source-truth backed
+
+- Approximate date: Recorded explicitly on 2026-05-01 from the notification return-loop hardening pass
+- Status: Active launch-critical notifications, queue, PWA, and admin truth rule
+- Decision: Drop/live/return-live notifications must use deterministic idempotency keys for Firestore creation, deterministic browser tags for visible alerts, and structured FCM dispatch diagnostics for delivery/skip truth. Read and clear-all actions must update local unread UI immediately, persist through `/api/notifications`, broadcast cross-tab sync, and reconcile persistence failures.
+- Implementation: `src/lib/server/push-notifications.ts` owns drop notification idempotency and activation replay suppression, `src/lib/server/fcm-utils.ts` exposes `broadcastFCMWithReport`, `public/firebase-messaging-sw.js` owns manual tagged display/click return, `src/hooks/useNotifications.ts` owns unread local state, and `src/lib/notification-local-state.ts` owns read/clear reconciliation helpers.
+- Required docs/artifacts: `docs/agent-truth/notification-pipeline.md` and `agent/state/notification-return-loop-audit.generated.json`.
+- Required validation: `npm run check:notification-return-loop`, `npm run check:notification-pipeline`, and focused push/FCM/local-state/service-worker/notification-route/funnel tests.
+- Consequence for future work: Do not add notification paths with random document IDs or browser tags, FCM notification auto-display plus manual SW display, local-only clear-all state, generic fake-zero funnel counts, or queued-drop return-live sends that bypass activation reservation and dispatch outcome debug.
+
 ### 1cc. Payment wallet unlock entitlement is server-truth only
 
 - Approximate date: Recorded explicitly on 2026-05-01 from the payment wallet unlock entitlement launch-hardening pass

@@ -3,7 +3,7 @@ import { beforeEach, describe, expect, it, vi } from "vitest";
 const mockState = vi.hoisted(() => {
     const state = {
         forceExistingNotification: false,
-        broadcastFCM: vi.fn(),
+        broadcastFCMWithReport: vi.fn(),
         touchNotificationsRuntime: vi.fn(),
         recordNotificationDispatchOutcome: vi.fn(),
         recordRouteWarning: vi.fn(),
@@ -15,7 +15,7 @@ const mockState = vi.hoisted(() => {
         },
         reset() {
             this.forceExistingNotification = false;
-            this.broadcastFCM.mockReset();
+            this.broadcastFCMWithReport.mockReset();
             this.touchNotificationsRuntime.mockReset();
             this.recordNotificationDispatchOutcome.mockReset();
             this.recordRouteWarning.mockReset();
@@ -56,7 +56,7 @@ vi.mock("@/lib/server/firebase-admin", () => ({
 }));
 
 vi.mock("@/lib/server/fcm-utils", () => ({
-    broadcastFCM: mockState.broadcastFCM,
+    broadcastFCMWithReport: mockState.broadcastFCMWithReport,
 }));
 
 vi.mock("@/lib/server/notification-runtime", () => ({
@@ -92,7 +92,23 @@ describe("drop push notification dedupe", () => {
             id: ref.id ?? "unknown",
             data: () => ({}),
         }));
-        mockState.broadcastFCM.mockResolvedValue(true);
+        mockState.broadcastFCMWithReport.mockResolvedValue({
+            ok: true,
+            tokensSent: true,
+            successCount: 2,
+            failureCount: 0,
+            recipientCheckedCount: 3,
+            permissionSkippedCount: 0,
+            preferenceSkippedCount: 0,
+            missingTokenSkippedCount: 0,
+            duplicatePushPreventedCount: 0,
+            tokensQueuedCount: 2,
+            invalidTokenRemovedCount: 0,
+            idempotencyKey: "drop_live:drop_live:drop_1:global",
+            browserTag: "kandydrops:drop_live:drop_live:drop_1:global",
+            dataOnlyPayload: true,
+            pwaDisplayMode: "manual-service-worker",
+        });
     });
 
     it("does not send a global FCM push when the deterministic notification already exists", async () => {
@@ -107,7 +123,7 @@ describe("drop push notification dedupe", () => {
             duplicateBrowserDisplayPrevented: true,
             fcmDelivered: false,
         }));
-        expect(mockState.broadcastFCM).not.toHaveBeenCalled();
+        expect(mockState.broadcastFCMWithReport).not.toHaveBeenCalled();
         expect(mockState.touchNotificationsRuntime).not.toHaveBeenCalled();
     });
 
@@ -130,7 +146,43 @@ describe("drop push notification dedupe", () => {
             duplicateBrowserDisplayPrevented: true,
             fcmDelivered: false,
         }));
-        expect(mockState.broadcastFCM).not.toHaveBeenCalled();
+        expect(mockState.broadcastFCMWithReport).not.toHaveBeenCalled();
         expect(mockState.touchNotificationsRuntime).not.toHaveBeenCalled();
+    });
+
+    it("records return-live dispatch diagnostics without claiming duplicate prevention on first send", async () => {
+        const result = await sendTargetedDropNotification(
+            "Pink Bubble Bath",
+            "drop_1",
+            "/drop.jpg",
+            true,
+            ["owner_1"],
+        );
+
+        expect(result.status).toBe("sent");
+        expect(result.detail).toEqual(expect.objectContaining({
+            queuedDropReturnedLive: true,
+            inAppQueued: true,
+            fcmDelivered: true,
+            duplicateCreatedPrevented: false,
+            duplicatePushPrevented: false,
+            duplicateBrowserDisplayPrevented: false,
+            skippedPermissionDeniedCount: 0,
+            skippedMissingTokenCount: 0,
+            skippedPreferencesDisabledCount: 0,
+            dataOnlyPayload: true,
+            pwaDisplayMode: "manual-service-worker",
+        }));
+        expect(mockState.broadcastFCMWithReport).toHaveBeenCalledWith(
+            "Kandy Drops",
+            expect.stringContaining("Pink Bubble Bath"),
+            "/drops",
+            "new_drop",
+            expect.objectContaining({
+                dropId: "drop_1",
+                lifecycleEvent: "drop_requeued_live",
+                audience: "global_except_1",
+            }),
+        );
     });
 });

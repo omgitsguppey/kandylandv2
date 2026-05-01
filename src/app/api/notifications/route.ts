@@ -6,7 +6,7 @@ import { FieldValue } from "firebase-admin/firestore";
 import { normalizeNotificationCreatePayload, normalizeNotificationDoc } from "@/lib/notification-contracts";
 import { handleApiError } from "@/lib/server/auth";
 import { adminDb } from "@/lib/server/firebase-admin";
-import { broadcastFCM } from "@/lib/server/fcm-utils";
+import { broadcastFCMWithReport } from "@/lib/server/fcm-utils";
 import { fetchUnreadNotificationsForUser, isNotificationVisibleToUser } from "@/lib/server/notification-inbox";
 import { buildNotModifiedResponse, PRIVATE_REVALIDATE_CACHE_CONTROL, requestMatchesEtag } from "@/lib/http-cache";
 import { markNotificationsRuntimeChanged, touchNotificationsRuntime } from "@/lib/server/notification-runtime";
@@ -199,13 +199,28 @@ export async function POST(request: NextRequest) {
 
     if (payload.target.global) {
       try {
-        await broadcastFCM(payload.title, payload.message, payload.link || "/drops", "general", {
+        const report = await broadcastFCMWithReport(payload.title, payload.message, payload.link || "/drops", "general", {
           notificationId: notificationRef.id,
           idempotencyKey,
           browserTag,
           lifecycleEvent: "admin_created",
           audience: "global",
         });
+        if (!report.ok) {
+          recordRouteWarning("notifications", "Notification broadcast failed after persistence", undefined, {
+            channel: "notifications",
+            detail: {
+              routeName: "notifications",
+              notificationId: notificationRef.id,
+              successCount: report.successCount,
+              failureCount: report.failureCount,
+              skippedPermissionDeniedCount: report.permissionSkippedCount,
+              skippedMissingTokenCount: report.missingTokenSkippedCount,
+              skippedPreferencesDisabledCount: report.preferenceSkippedCount,
+              duplicatePushPreventedCount: report.duplicatePushPreventedCount,
+            },
+          });
+        }
       } catch (error) {
         recordRouteWarning("notifications", "Notification broadcast failed after persistence", {
           routeName: "notifications",

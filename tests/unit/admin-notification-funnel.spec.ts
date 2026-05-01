@@ -13,6 +13,7 @@ describe("admin notification funnel model", () => {
             actionItems: [
                 { label: "Opens", value: 30 },
                 { label: "Reads", value: 12 },
+                { label: "Notifications marked read", value: 7 },
             ],
             reminderReasons: [
                 { label: "Time ran out", count: 4 },
@@ -24,6 +25,7 @@ describe("admin notification funnel model", () => {
         expect(model.metrics.find((metric) => metric.key === "prompted")?.value).toBe(24);
         expect(model.metrics.find((metric) => metric.key === "enabled")?.value).toBe(0);
         expect(model.metrics.find((metric) => metric.key === "sent")?.value).toBeNull();
+        expect(model.metrics.find((metric) => metric.key === "cleared")?.value).toBe(7);
         expect(model.metrics.find((metric) => metric.key === "sent")?.fakeZeroPrevented).toBe(true);
         expect(model.reminderReasonSummary).toContain("Time ran out: 4");
         expect(model.debug.duplicateBrowserDisplayPreventedCount).toBeNull();

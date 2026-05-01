@@ -58,6 +58,7 @@
         "check:launch-pr-triage": "tsx scripts/agent/validate-launch-pr-triage.ts",
         "check:user-critical-path-launch": "tsx scripts/agent/validate-user-critical-path-launch.ts",
         "check:payment-unlock-security": "tsx scripts/agent/validate-payment-unlock-security.ts",
+        "check:notification-return-loop": "tsx scripts/agent/validate-notification-return-loop.ts",
         "check:admin-analytics-snapshot-migration": "tsx scripts/agent/validate-admin-analytics-snapshot-migration.ts",
         "check:admin-analytics-no-pure-realtime": "tsx scripts/agent/validate-admin-analytics-no-pure-realtime.ts",
         "analytics:legacy:inventory": "tsx scripts/analytics/inventory-legacy-sources.ts",

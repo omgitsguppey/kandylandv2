@@ -2,8 +2,13 @@
 
 import { useState, useEffect, useMemo, useRef } from "react";
 import { useAuthIdentity } from "@/context/AuthContext";
-import { CLIENT_RUNTIME_EVENTS, dispatchClientRuntimeEvent } from "@/hooks/client-runtime";
+import { CLIENT_RUNTIME_EVENTS, dispatchClientRuntimeEvent, listenForClientRuntimeEvent } from "@/hooks/client-runtime";
 import { reportRealtimeIssue } from "@/lib/client-error-reporting";
+import {
+    markNotificationsReadLocally,
+    reconcileClearAllNotifications,
+    removeNotificationsLocally,
+} from "@/lib/notification-local-state";
 import { markNotificationsAsRead } from "@/lib/notifications";
 import { AppNotification } from "@/lib/notification-contracts";
 import { trackEvent } from "@/lib/telemetry";
@@ -124,13 +129,16 @@ export function useNotifications({ enabled = true }: UseNotificationsOptions = {
         };
 
         window.addEventListener("focus", refreshOnVisible);
-        window.addEventListener(CLIENT_RUNTIME_EVENTS.notificationsSync, refreshOnDemand);
+        const removeNotificationsSyncListener = listenForClientRuntimeEvent(
+            CLIENT_RUNTIME_EVENTS.notificationsSync,
+            refreshOnDemand,
+        );
         document.addEventListener("visibilitychange", refreshOnVisible);
 
         return () => {
             cancelled = true;
             window.removeEventListener("focus", refreshOnVisible);
-            window.removeEventListener(CLIENT_RUNTIME_EVENTS.notificationsSync, refreshOnDemand);
+            removeNotificationsSyncListener();
             document.removeEventListener("visibilitychange", refreshOnVisible);
         };
     }, [enabled, userId]);
@@ -155,16 +163,9 @@ export function useNotifications({ enabled = true }: UseNotificationsOptions = {
         }
 
         const previousNotifications = notificationsState;
-        setNotificationsState((prev) => prev.map((notification) => {
-            if (notification.id !== id || notification.readBy.includes(userId)) {
-                return notification;
-            }
-
-            return {
-                ...notification,
-                readBy: [...notification.readBy, userId],
-            };
-        }));
+        setNotificationsState((prev) => options?.preserveVisible
+            ? markNotificationsReadLocally(prev, [id], userId)
+            : removeNotificationsLocally(prev, [id]));
 
         const result = await markNotificationsAsRead([id]);
         if (result.successCount === 0) {
@@ -177,9 +178,7 @@ export function useNotifications({ enabled = true }: UseNotificationsOptions = {
             optimistic: true,
         });
 
-        if (!options?.preserveVisible) {
-            dispatchClientRuntimeEvent(CLIENT_RUNTIME_EVENTS.notificationsSync, true);
-        }
+        dispatchClientRuntimeEvent(CLIENT_RUNTIME_EVENTS.notificationsSync, true);
 
         return true;
     };
@@ -202,14 +201,7 @@ export function useNotifications({ enabled = true }: UseNotificationsOptions = {
         });
 
         const previousNotifications = notificationsState;
-        setNotificationsState((prev) => prev.map((notification) => (
-            unreadIds.includes(notification.id) && !notification.readBy.includes(userId)
-                ? {
-                    ...notification,
-                    readBy: [...notification.readBy, userId],
-                }
-                : notification
-        )));
+        setNotificationsState((prev) => removeNotificationsLocally(prev, unreadIds));
 
         const result = await markNotificationsAsRead(unreadIds);
         const failedCount = result.failedCount;
@@ -225,16 +217,15 @@ export function useNotifications({ enabled = true }: UseNotificationsOptions = {
         }
 
         if (succeededIds.length > 0 && failedCount > 0) {
-            setNotificationsState((prev) => prev.map((notification) => (
-                succeededIds.includes(notification.id)
-                    ? {
-                        ...notification,
-                        readBy: notification.readBy.includes(userId)
-                            ? notification.readBy
-                            : [...notification.readBy, userId],
-                    }
-                    : notification
-            )));
+            setNotificationsState(reconcileClearAllNotifications(previousNotifications, unreadIds, succeededIds));
+        }
+
+        if (succeededIds.length > 0) {
+            trackEvent("notification_cleared", {
+                source: "clear_all",
+                cleared_count: succeededIds.length,
+                failed_count: failedCount,
+            });
         }
 
         dispatchClientRuntimeEvent(CLIENT_RUNTIME_EVENTS.notificationsSync, true);

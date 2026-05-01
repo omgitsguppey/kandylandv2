@@ -1,13 +1,24 @@
 # EVERY FILE FUNCTION CHECKLIST
 
 **Last Updated:** 2026-05-01
-**Current Focus:** Launch Finalization Scope Freeze.
+**Current Focus:** Notification Return Loop Hardening.
 **Status:** In Progress. Current tracked-file coverage is reconciled as of 2026-04-28: every `git ls-files` entry has a current checklist heading, while detailed function-level audits remain pending for many historical and newly reconciled files.
 Purpose: exhaustive no-skip audit checklist covering every repository file currently in scope and every detected function-like implementation.
 
 Scoring: all entries below are marked as included in the current validated sweep. Confidence reflects current repository-state confidence, not perfection or future-proofing.
 
 Current repo-wide state snapshot: see [FULL_SCALE_CODEBASE_AUDIT.md](/Users/uylus/OneDrive/Documents/KandyDrops_Final/FULL_SCALE_CODEBASE_AUDIT.md) for the current live baseline, verification state, and continuity rules, and see [REPO_MEMORY_LEDGER.md](/Users/uylus/OneDrive/Documents/KandyDrops_Final/REPO_MEMORY_LEDGER.md) for major architectural and workflow decisions. The detailed file/function body below remains valuable historical evidence, but it has not been fully regenerated against the current 2026-04-18 inventory review yet.
+
+## 2026-05-01 Notification Return Loop Coverage
+
+- [x] `src/lib/server/push-notifications.ts` preserves deterministic drop notification idempotency for drop-live and queued-drop-return-live sends, suppresses duplicate FCM dispatch on existing deterministic docs/activation replays, and records structured dispatch diagnostics.
+- [x] `src/lib/server/fcm-utils.ts` exposes `broadcastFCMWithReport` with permission/preference/missing-token/duplicate-token/send-failure/invalid-token counts while keeping data-only FCM payloads.
+- [x] `public/firebase-messaging-sw.js` keeps manual service-worker display, deterministic notification tags, `renotify:false`, auto-display suppression, and notification click return-loop metadata.
+- [x] `src/components/Notifications/NotificationRuntimeBridge.tsx`, `src/hooks/useNotifications.ts`, and `src/lib/notification-local-state.ts` keep foreground/SW click sync, multi-tab BroadcastChannel notification refresh, immediate read/clear local state, and partial-failure reconciliation.
+- [x] `src/app/api/notifications/route.ts` persists read state with `readAtMs`/`lastReadBy`, trusted-origin/user guards, runtime touch metadata, and structured global push diagnostics for admin-created notifications.
+- [x] `src/lib/admin-notification-funnel.ts`, `src/components/Admin/Analytics/AdminTaskAndNotificationModules.tsx`, and `src/app/api/admin/debug/route.ts` keep compact funnel truth, fake-zero prevention, Debug dedupe/read/queued-return-live fields, and cleared/read label mapping.
+- [x] `agent/state/notification-return-loop-audit.generated.json`, `docs/agent-truth/notification-pipeline.md`, `scripts/agent/validate-notification-return-loop.ts`, and `npm run check:notification-return-loop` record the notification return-loop guard.
+- [x] `tests/unit/push-notifications.spec.ts`, `tests/unit/fcm-utils.spec.ts`, `tests/unit/notification-local-state.spec.ts`, `tests/unit/firebase-messaging-sw.spec.ts`, `tests/unit/notifications-route.spec.ts`, and `tests/unit/admin-notification-funnel.spec.ts` cover the hardened notification contracts.
 
 ## 2026-05-01 Payment Wallet Unlock Entitlement Coverage
 

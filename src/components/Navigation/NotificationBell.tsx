@@ -499,8 +499,8 @@ export function NotificationBell() {
             {unreadCount > 0 ? (
               <button
                 type="button"
-                aria-label="Mark all as read"
-                title="Mark all as read"
+                aria-label="Clear all notifications"
+                title="Clear all notifications"
                 onClick={() => {
                   void handleMarkAllAsRead();
                 }}
@@ -508,7 +508,7 @@ export function NotificationBell() {
                 className="inline-flex h-8 items-center gap-1 rounded-full border border-white/10 bg-white/5 px-2.5 text-[10px] font-bold uppercase tracking-[0.12em] text-white transition-colors hover:bg-white/10"
               >
                 <Sparkles className="h-3 w-3" />
-                Mark all read
+                Clear all
               </button>
             ) : null}
           </div>

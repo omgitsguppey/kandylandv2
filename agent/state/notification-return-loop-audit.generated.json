@@ -1,0 +1,170 @@
+{
+  "generatedAt": "2026-05-01T00:00:00.000-05:00",
+  "task": "notification-return-loop-hardening",
+  "doctrine": {
+    "sourceOfTruth": "Firestore notifications collection plus notification_dispatch_outcomes diagnostics",
+    "idempotencyRule": "Deterministic notification type/drop/lifecycle/audience keys gate in-app creation and FCM dispatch.",
+    "displayRule": "Browser notifications use deterministic tags with renotify:false and data-only FCM payloads.",
+    "readRule": "Read and clear-all mutate local unread UI immediately, persist through /api/notifications, and reconcile failures.",
+    "fakeZeroRule": "Notification funnel metrics remain null/Waiting unless a verified source exists."
+  },
+  "surfaces": [
+    {
+      "key": "server-drop-notification-dispatch",
+      "files": [
+        "src/lib/server/push-notifications.ts",
+        "src/lib/notification-identity.ts",
+        "src/lib/server/runtime-warning-store.ts"
+      ],
+      "duplicateCreationPrevented": true,
+      "deterministicIdempotencyKey": true,
+      "duplicatePushPrevented": true,
+      "duplicateBrowserDisplayPrevented": true,
+      "queuedDropReturnLiveOnce": true,
+      "skipDiagnosticsRecorded": true,
+      "readPersistence": "not applicable",
+      "analyticsTruth": "dispatch detail records dedupe, FCM delivery, skip counts, lifecycle, tag, and data-only mode",
+      "riskBefore": "sent dispatch detail claimed duplicate push/browser prevention even when no duplicate was prevented",
+      "fix": "switched drop dispatch to structured FCM reports and reserved duplicate outcomes only when duplicate creation or activation replay is detected",
+      "fixedInThisPass": true
+    },
+    {
+      "key": "fcm-web-push-dispatch",
+      "files": [
+        "src/lib/server/fcm-utils.ts"
+      ],
+      "duplicateCreationPrevented": false,
+      "deterministicIdempotencyKey": true,
+      "duplicatePushPrevented": true,
+      "duplicateBrowserDisplayPrevented": true,
+      "queuedDropReturnLiveOnce": "delegated to server-drop-notification-dispatch",
+      "skipDiagnosticsRecorded": true,
+      "readPersistence": "not applicable",
+      "analyticsTruth": "NotificationBroadcastReport exposes permission, preference, missing-token, duplicate-token, success, failure, and invalid-token counts",
+      "riskBefore": "broadcast returned only boolean, so missing token/preference skips could not be explained",
+      "fix": "added broadcastFCMWithReport while preserving broadcastFCM boolean compatibility",
+      "fixedInThisPass": true
+    },
+    {
+      "key": "pwa-service-worker-display",
+      "files": [
+        "public/firebase-messaging-sw.js"
+      ],
+      "duplicateCreationPrevented": false,
+      "deterministicIdempotencyKey": true,
+      "duplicatePushPrevented": false,
+      "duplicateBrowserDisplayPrevented": true,
+      "queuedDropReturnLiveOnce": "uses lifecycle payload from FCM data",
+      "skipDiagnosticsRecorded": "debug via dispatch report",
+      "readPersistence": "posts click payload to app for read persistence",
+      "analyticsTruth": "click payload includes notificationId, idempotencyKey, tag, and safe URL",
+      "riskBefore": "no code change required; verified tag and auto-display suppression already present",
+      "fix": "covered by static service-worker regression test",
+      "fixedInThisPass": true
+    },
+    {
+      "key": "foreground-notification-runtime",
+      "files": [
+        "src/components/Notifications/NotificationRuntimeBridge.tsx",
+        "src/lib/firebase-messaging.ts"
+      ],
+      "duplicateCreationPrevented": false,
+      "deterministicIdempotencyKey": true,
+      "duplicatePushPrevented": false,
+      "duplicateBrowserDisplayPrevented": true,
+      "queuedDropReturnLiveOnce": "uses idempotency/tag data from server",
+      "skipDiagnosticsRecorded": false,
+      "readPersistence": "service worker click marks notification read and broadcasts sync",
+      "analyticsTruth": "notification_opened records source and notification id",
+      "riskBefore": "foreground sync did not broadcast to other tabs",
+      "fix": "foreground and reminder sync now dispatch cross-tab notification sync events",
+      "fixedInThisPass": true
+    },
+    {
+      "key": "notification-inbox-hook",
+      "files": [
+        "src/hooks/useNotifications.ts",
+        "src/lib/notification-local-state.ts"
+      ],
+      "duplicateCreationPrevented": false,
+      "deterministicIdempotencyKey": false,
+      "duplicatePushPrevented": false,
+      "duplicateBrowserDisplayPrevented": false,
+      "queuedDropReturnLiveOnce": false,
+      "skipDiagnosticsRecorded": false,
+      "readPersistence": true,
+      "analyticsTruth": "notification_marked_read and notification_cleared telemetry distinguish read and clear-all behavior",
+      "riskBefore": "BroadcastChannel listener was not initialized by the hook, and clear-all left cleared unread cards visible until refetch",
+      "fix": "hook now listens through client-runtime BroadcastChannel and removes cleared unread notifications locally with partial-failure reconciliation",
+      "fixedInThisPass": true
+    },
+    {
+      "key": "notifications-api-read-persistence",
+      "files": [
+        "src/app/api/notifications/route.ts",
+        "src/lib/server/notification-inbox.ts"
+      ],
+      "duplicateCreationPrevented": true,
+      "deterministicIdempotencyKey": true,
+      "duplicatePushPrevented": true,
+      "duplicateBrowserDisplayPrevented": true,
+      "queuedDropReturnLiveOnce": false,
+      "skipDiagnosticsRecorded": true,
+      "readPersistence": true,
+      "analyticsTruth": "PUT persists readBy/readAtMs/lastReadBy and touches user notification runtime",
+      "riskBefore": "admin-created global broadcast could not expose structured skip counts",
+      "fix": "POST uses structured FCM report and records warning details on failed dispatch",
+      "fixedInThisPass": true
+    },
+    {
+      "key": "queued-drop-return-live",
+      "files": [
+        "shared/runtime/queue-runtime.ts",
+        "src/lib/server/queue-runtime.ts",
+        "src/lib/server/push-notifications.ts"
+      ],
+      "duplicateCreationPrevented": true,
+      "deterministicIdempotencyKey": true,
+      "duplicatePushPrevented": true,
+      "duplicateBrowserDisplayPrevented": true,
+      "queuedDropReturnLiveOnce": true,
+      "skipDiagnosticsRecorded": true,
+      "readPersistence": "not applicable",
+      "analyticsTruth": "dispatch outcome includes queuedDropReturnedLive, lifecycleEvent, activationKey, and FCM skip counts",
+      "riskBefore": "return-live duplicate suppression existed but first-send diagnostics were too coarse",
+      "fix": "added return-live dispatch diagnostics test and FCM report detail",
+      "fixedInThisPass": true
+    },
+    {
+      "key": "admin-notification-funnel-debug",
+      "files": [
+        "src/lib/admin-notification-funnel.ts",
+        "src/components/Admin/Analytics/AdminTaskAndNotificationModules.tsx",
+        "src/app/api/admin/debug/route.ts"
+      ],
+      "duplicateCreationPrevented": "debug-visible",
+      "deterministicIdempotencyKey": "debug-visible",
+      "duplicatePushPrevented": "debug-visible",
+      "duplicateBrowserDisplayPrevented": "debug-visible",
+      "queuedDropReturnLiveOnce": "debug-visible",
+      "skipDiagnosticsRecorded": true,
+      "readPersistence": "debug-visible",
+      "analyticsTruth": "funnel maps clear/read labels and keeps missing delivery metrics null instead of fake zero",
+      "riskBefore": "clear-all telemetry labels could remain unmapped",
+      "fix": "mapped notification marked-read/cleared labels into read and cleared metrics",
+      "fixedInThisPass": true
+    }
+  ],
+  "validation": {
+    "script": "scripts/agent/validate-notification-return-loop.ts",
+    "packageScript": "check:notification-return-loop",
+    "unitTests": [
+      "tests/unit/push-notifications.spec.ts",
+      "tests/unit/fcm-utils.spec.ts",
+      "tests/unit/notification-local-state.spec.ts",
+      "tests/unit/firebase-messaging-sw.spec.ts",
+      "tests/unit/notifications-route.spec.ts",
+      "tests/unit/admin-notification-funnel.spec.ts"
+    ]
+  }
+}

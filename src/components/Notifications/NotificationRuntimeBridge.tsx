@@ -104,7 +104,13 @@ export function NotificationRuntimeBridge() {
                 return;
             }
 
-            dispatchClientRuntimeEvent(CLIENT_RUNTIME_EVENTS.notificationsSync);
+            dispatchClientRuntimeEvent(CLIENT_RUNTIME_EVENTS.notificationsSync, true);
+            const alreadyDisplayedByFcm = data.autoDisplayedByFcm === "true"
+                || data.browserDisplayMode === "auto-fcm";
+            if (alreadyDisplayedByFcm) {
+                return;
+            }
+
             void showBrowserNotification(title, body, data.url || "/dashboard", {
                 notificationId: data.notificationId ?? null,
                 idempotencyKey: data.idempotencyKey ?? null,
@@ -246,7 +252,7 @@ export function NotificationRuntimeBridge() {
             }
 
             reminderKeyRef.current = reminderKey;
-            dispatchClientRuntimeEvent(CLIENT_RUNTIME_EVENTS.notificationsSync);
+            dispatchClientRuntimeEvent(CLIENT_RUNTIME_EVENTS.notificationsSync, true);
             showInAppReminder();
             if (userProfile.notificationSettings?.browserPushEnabled === true) {
                 await showBrowserNotification(REMINDER_TITLE, REMINDER_MESSAGE, "/experiences", {

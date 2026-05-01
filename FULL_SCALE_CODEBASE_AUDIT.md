@@ -1,5 +1,27 @@
 # KandyDrops Core Codebase Audit & Defensive Ledger
 
+## [2026-05-01 #74] PRE: Notification Return Loop Hardening
+
+Scope started:
+- Auditing and hardening the product notification pipeline across Firestore `user_notifications`, Firebase Messaging/web push, service worker foreground/background display, notification click return loops, read/clear persistence, unread count sync, queued-drop return-live notifications, notification funnel telemetry, and Debug metadata.
+- This is a launch-critical product-system pass. Changes must preserve doctrine: notifications are brief, anticipated, relevant, source-truth backed, and never duplicate-visible by accident.
+
+Initial evidence:
+- Worktree was clean at startup on `main`.
+- Source-of-truth map identifies notifications as Firestore `user_notifications` owned by `src/hooks/useNotifications.ts`.
+- Existing repo memory says deterministic drop notification idempotency must suppress both in-app creation and FCM dispatch, including queued-drop-return-live notifications.
+- Doctrine and workflow consulted: control tower startup/read order, source truth map, shared component ownership, product/copy/UI/surface/vocabulary/banned/checklist doctrine, notification pipeline doc, and UI/copy refinement workflow.
+
+Scope completed:
+- Added structured FCM dispatch diagnostics through `broadcastFCMWithReport` while preserving the existing boolean `broadcastFCM` API for older callers.
+- Updated drop notification dispatch so duplicate-created/activation-replay cases suppress both FCM and browser display, while first sends no longer claim duplicate prevention unless a duplicate was actually prevented.
+- Hardened the unread return loop: the notification hook now initializes the shared BroadcastChannel listener, broadcasts notification sync across tabs, clears unread items locally immediately, and restores only failed clear-all items on partial persistence failure.
+- Kept PWA display data-only and deterministic-tag based, with service-worker click metadata covered by a static regression test.
+- Added `agent/state/notification-return-loop-audit.generated.json`, `scripts/agent/validate-notification-return-loop.ts`, `npm run check:notification-return-loop`, and focused unit/static tests for push dispatch, FCM skip counts, local read/clear state, service worker display, notification route persistence, and funnel mapping.
+
+Residual risk:
+- The app still depends on browser/OS notification permission behavior and real FCM delivery for end-to-end push proof; this pass validated local code contracts and server-side skip/debug metadata without running a live push device test.
+
 ## [2026-05-01 #73] PRE: Payment Wallet Unlock Entitlement Launch Hardening
 
 Scope started:
