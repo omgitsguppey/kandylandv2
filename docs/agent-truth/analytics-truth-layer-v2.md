@@ -13,6 +13,8 @@ Admin Analytics must render the latest verified hot cache snapshot first when on
 
 Realtime listeners are an upgrade path, not the only loading path. A realtime listener may improve values after the hot cache has rendered, but it must not block the dashboard from showing verified cached facts. When a listener is used, `SnapshotMetadata.fromCache` and `hasPendingWrites` must be respected before the UI calls the data server-confirmed.
 
+In implementation terms, realtime is an upgrade. Missing realtime can annotate a rendered snapshot, but it cannot blank a module that already has a verified snapshot or last validated backend snapshot.
+
 Manual refresh is allowed. A manual refresh must start a backend rebuild or route refresh, dedupe concurrent refreshes, expose refresh status, and keep the last verified snapshot visible while the refresh runs.
 
 Blank loading is forbidden when a verified snapshot exists. The shell can show a loading state only before any verified snapshot is available. If a verified snapshot is stale, show it as `[stale]` or `[cached]` and explain that refresh is pending or available.

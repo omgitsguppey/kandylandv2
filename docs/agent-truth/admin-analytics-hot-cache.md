@@ -7,6 +7,8 @@ Last updated: 2026-04-30
 
 Admin Analytics must render verified backend snapshots first, then refresh in the background or on command. Realtime is an upgrade path, not the loading dependency. This keeps Admin Analytics from waiting on raw realtime listeners, cold GA4/Data API calls, BigQuery reads, or broad Firestore scans when a verified snapshot already exists.
 
+The short rule is: realtime is an upgrade. Verified cache, stale cache, or the last validated backend snapshot is the primary display path when it exists.
+
 ## Snapshot Schema
 
 The canonical contract lives in `src/lib/analytics/admin-metric-snapshot.ts`.

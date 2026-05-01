@@ -1,4 +1,5 @@
 import type { AdminSurfaceState } from "@/lib/admin-parity";
+import type { AdminAnalyticsDisplayState } from "@/lib/analytics/admin-analytics-display-state";
 import type {
   RealtimeActiveUserItem,
   RealtimePoint,
@@ -75,6 +76,17 @@ export type AdminAnalyticsLivePulseModel = {
   hydrationBudgetExceeded: boolean;
   compactChartHeightClass: "h-36 md:h-56";
   visibleCopy: string;
+  displayStatePolicyApplied: true;
+  pureRealtimeDependencyRemoved: true;
+  primaryDisplaySource: AdminAnalyticsDisplayState["visibleValueSource"];
+  latestVerifiedSnapshotExists: boolean;
+  latestVerifiedSnapshotAgeMs: number | null;
+  realtimeListenerState: string;
+  realtimeBlocksFirstRender: false;
+  fallbackSnapshotUsed: boolean;
+  refreshStatus: string;
+  unavailableReason: string | null;
+  laneFailures: string[];
 };
 
 const GRAPH_HYDRATION_BUDGET_MS = 3_000;
@@ -190,6 +202,10 @@ export function buildAdminAnalyticsLivePulseModel(input: {
   nowMs: number;
   liveLoading: boolean;
   cacheRevalidating?: boolean;
+  displayState?: AdminAnalyticsDisplayState;
+  latestVerifiedSnapshotAgeMs?: number | null;
+  refreshStatus?: string | null;
+  laneFailures?: string[];
 }): AdminAnalyticsLivePulseModel {
   const firestoreFromCache = resolveFirestoreFromCache(input.listenerDebugMeta);
   const hasPresenceRows = input.activeUsers.length > 0;
@@ -200,8 +216,11 @@ export function buildAdminAnalyticsLivePulseModel(input: {
     ? deriveGraphFromPresence(input.activeUsers, input.nowMs)
     : input.liveSeries;
   const graphPointCount = graphPoints.filter((point) => point.users > 0 || point.views > 0).length;
+  const snapshotDisplayActive = input.displayState?.shouldRenderSnapshot === true;
   const canonicalPresenceSource: LivePulseSource =
-    input.feedStatus === "realtime"
+    snapshotDisplayActive
+      ? "backend_snapshot"
+      : input.feedStatus === "realtime"
       ? firestoreFromCache
         ? "firestore_realtime_cache"
         : "firestore_realtime"
@@ -247,18 +266,19 @@ export function buildAdminAnalyticsLivePulseModel(input: {
   const hasServerConfirmation = Object.values(input.listenerDebugMeta?.listeners ?? {}).some(
     (entry) => entry.lastServerConfirmedAtMs !== null,
   );
-  const visibleCopy = input.feedStatus === "polled"
-    ? "Live Pulse is showing a backend snapshot."
+  const visibleCopy = input.displayState?.visibleMessage ?? (input.feedStatus === "polled"
+    ? "Showing last verified snapshot."
     : input.feedStatus === "failed"
-      ? "Live Pulse is unavailable."
+      ? "No verified data yet."
       : graphSourceMismatch
         ? "Pulse graph is derived from presence while the graph source catches up."
         : guestCount === 0 && authCount > 0
           ? "Identified activity only. Guest presence is unavailable."
-          : "Showing first-party realtime presence.";
+          : "Showing first-party realtime presence.");
+  const laneFailures = input.laneFailures ?? [];
 
   return {
-    livePulseEnabled: input.feedStatus !== "failed",
+    livePulseEnabled: input.feedStatus !== "failed" || snapshotDisplayActive,
     selectedWindow: "30m",
     canonicalPresenceSource,
     activeCount: {
@@ -289,7 +309,9 @@ export function buildAdminAnalyticsLivePulseModel(input: {
     activeIdentities: identities,
     rawIdentityIds: input.activeUsers.map((item) => item.uid),
     presenceSourceStatus:
-      input.feedStatus === "realtime"
+      snapshotDisplayActive
+        ? canonicalPresenceSource === "backend_snapshot" && input.displayState?.sourceMode === "stale_cache" ? "cache" : "fallback"
+        : input.feedStatus === "realtime"
         ? firestoreFromCache ? "cache" : "live"
         : input.feedStatus === "partial"
           ? "partial"
@@ -303,7 +325,7 @@ export function buildAdminAnalyticsLivePulseModel(input: {
     reconnectReestablishesOnDisconnect: "unknown",
     firestoreFromCache,
     includeMetadataChanges: true,
-    backendSnapshotStatus: input.feedStatus === "polled" ? "available" : input.liveLoading ? "waiting" : "not_used",
+    backendSnapshotStatus: snapshotDisplayActive || input.feedStatus === "polled" ? "available" : input.liveLoading ? "waiting" : "not_used",
     gaIntradayStatus: "not_primary_for_presence",
     graphSource,
     graphPoints,
@@ -316,10 +338,21 @@ export function buildAdminAnalyticsLivePulseModel(input: {
     firstGraphPointMs: graphHydrated ? 0 : null,
     livePulseShellRenderMs: 0,
     stalePresenceRows,
-    fakeZeroPrevented: !hasPresenceRows && !hasServerConfirmation,
+    fakeZeroPrevented: input.displayState?.fakeZeroPrevented ?? (!hasPresenceRows && !hasServerConfirmation),
     duplicateRefreshPrevented: Boolean(input.cacheRevalidating),
     hydrationBudgetExceeded: graphSourceMismatch || (!graphHydrated && hasPresenceRows && GRAPH_HYDRATION_BUDGET_MS > 0),
     compactChartHeightClass: "h-36 md:h-56",
     visibleCopy,
+    displayStatePolicyApplied: true,
+    pureRealtimeDependencyRemoved: true,
+    primaryDisplaySource: input.displayState?.visibleValueSource ?? (input.feedStatus === "polled" ? "verified_snapshot" : hasPresenceRows ? "realtime_upgrade" : "unavailable"),
+    latestVerifiedSnapshotExists: snapshotDisplayActive,
+    latestVerifiedSnapshotAgeMs: input.latestVerifiedSnapshotAgeMs ?? null,
+    realtimeListenerState: input.feedStatus,
+    realtimeBlocksFirstRender: false,
+    fallbackSnapshotUsed: snapshotDisplayActive || input.feedStatus === "polled",
+    refreshStatus: input.refreshStatus ?? (input.liveLoading ? "refreshing" : "idle"),
+    unavailableReason: input.displayState?.shouldShowUnavailable ? input.displayState.debugReason : null,
+    laneFailures,
   };
 }

@@ -109,9 +109,9 @@ export default function AdminAnalyticsPage() {
           label="Live Active"
           value={liveActiveDisplay}
           hint={liveFeedStatus === "realtime"
-            ? `${formatCompactNumber(liveGuestActiveCount ?? 0)} guests · Firestore realtime`
+            ? `${formatCompactNumber(liveGuestActiveCount ?? 0)} guests - live stream`
             : liveResponse?.liveTruthLabel === "fallback"
-              ? "30 min window · polled fallback"
+              ? "30 min window - snapshot fallback"
               : "30 min window"}
           icon={Activity}
           truthState={liveActiveTruthState}

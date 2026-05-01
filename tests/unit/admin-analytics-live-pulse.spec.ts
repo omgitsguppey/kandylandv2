@@ -82,4 +82,58 @@ describe("buildAdminAnalyticsLivePulseModel", () => {
     expect(model.presenceSourceStatus).toBe("partial");
     expect(model.includeMetadataChanges).toBe(true);
   });
+
+  it("keeps backend snapshot values visible when realtime presence is delayed", () => {
+    const nowMs = 1_771_000_000_000;
+    const model = buildAdminAnalyticsLivePulseModel({
+      activeUsers: [
+        {
+          uid: "user_1",
+          username: "jessi",
+          actorType: "identified",
+          lastSeenAt: nowMs - 90_000,
+          lastEventName: "dashboard_viewed",
+          lastPagePath: "/dashboard",
+          lastDropTitle: "",
+          lastSemanticScopeLabel: "Dashboard",
+          lastComponentName: "",
+          lastEventModules: "",
+          sourceLabel: "analytics_aggregate_stats/realtime_summary",
+          truthLabel: "fallback",
+        },
+      ],
+      surfaceMix: [{ key: "dashboard", label: "Dashboard", activeUsers: 1, lastSeenAt: nowMs - 90_000 }],
+      liveSeries: [],
+      feedStatus: "polled",
+      feedDetail: "debug only",
+      truthState: "cached",
+      activeUsersTruthState: "cached",
+      nowMs,
+      liveLoading: false,
+      displayState: {
+        visibleValueSource: "verified_snapshot",
+        sourceMode: "verified_cache",
+        truthState: "verified",
+        shouldRenderSnapshot: true,
+        shouldRenderRealtimeUpgrade: false,
+        shouldShowUnavailable: false,
+        visibleMessage: "Realtime delayed. Showing last verified snapshot.",
+        debugReason: "snapshot exists",
+        refreshAvailable: true,
+        fakeZeroPrevented: false,
+        realtimeBlocksFirstRender: false,
+        graphMissingButSnapshotRendered: true,
+      },
+      laneFailures: ["listener failed"],
+    });
+
+    expect(model.livePulseEnabled).toBe(true);
+    expect(model.visibleCopy).toBe("Realtime delayed. Showing last verified snapshot.");
+    expect(model.presenceSourceStatus).toBe("fallback");
+    expect(model.primaryDisplaySource).toBe("verified_snapshot");
+    expect(model.latestVerifiedSnapshotExists).toBe(true);
+    expect(model.realtimeBlocksFirstRender).toBe(false);
+    expect(model.fallbackSnapshotUsed).toBe(true);
+    expect(model.laneFailures).toEqual(["listener failed"]);
+  });
 });

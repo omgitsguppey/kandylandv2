@@ -46,7 +46,8 @@ assertIncludes("AdminAnalyticsOperationsTab", component, "livePulseModel");
 assertIncludes("AdminAnalyticsOperationsTab", component, "__KANDYDROPS_ADMIN_ANALYTICS_LIVE_PULSE_DEBUG__");
 assertIncludes("AdminAnalyticsOperationsTab", component, "compactChartHeightClass");
 assertIncludes("AdminAnalyticsOperationsTab", component, "Waiting for pulse data");
-assertIncludes("AdminAnalyticsOperationsTab", component, "Graph source unavailable");
+assertIncludes("AdminAnalyticsOperationsTab", component, "Graph waiting for live data.");
+assertIncludes("AdminAnalyticsOperationsTab", component, "Surface detail waiting for live data.");
 assertIncludes("AdminAnalyticsOperationsTab", component, "displayLabel");
 assertIncludes("AdminAnalyticsOperationsTab", component, "actorBadgeLabel");
 assertIncludes("AdminAnalyticsOperationsTab", component, "routeLabel");
@@ -57,6 +58,8 @@ assertNotIncludes("Live Pulse section", livePulseSection, "rounded-2xl border bo
 assertNotIncludes("Live Pulse section", livePulseSection, "{item.username}");
 assertNotIncludes("Live Pulse section", livePulseSection, "sessionKey.slice");
 assertNotIncludes("Live Pulse section", livePulseSection, "h-64 w-full md:h-72");
+assertNotIncludes("Live Pulse section", livePulseSection, "Graph source unavailable");
+assertNotIncludes("Live Pulse section", livePulseSection, "Realtime surfaces are waiting for presence rows.");
 
 for (const phrase of BANNED_VISIBLE_COPY) {
   assertNotIncludes("visible Live Pulse copy", livePulseSection, phrase);
@@ -76,9 +79,12 @@ assertIncludes("live pulse helper", helper, "Guest session");
 assertIncludes("live pulse helper", helper, "firestoreFromCache");
 assertIncludes("live pulse helper", helper, "gaIntradayStatus");
 assertIncludes("live pulse helper", helper, "backendSnapshotStatus");
+assertIncludes("live pulse helper", helper, "displayStatePolicyApplied: true");
+assertIncludes("live pulse helper", helper, "realtimeBlocksFirstRender: false");
 
 assertIncludes("useAdminAnalyticsState", hook, "buildAdminAnalyticsLivePulseModel");
 assertIncludes("useAdminAnalyticsState", hook, "listenerDebugMeta: liveRealtime.listenerDebugMeta");
+assertIncludes("useAdminAnalyticsState", hook, "resolveAdminAnalyticsDisplayState");
 assertIncludes("useAdminAnalyticsRealtime", realtimeHook, "includeMetadataChanges: true");
 assertIncludes("MetricCard primitive", primitives, "max-w-[5.75rem]");
 assertIncludes("AdminDebugRoute", debugRoute, "adminAnalyticsLivePulse");

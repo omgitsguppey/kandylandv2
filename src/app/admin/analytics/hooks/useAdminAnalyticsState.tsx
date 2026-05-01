@@ -17,6 +17,11 @@ import { useAuth } from "@/context/AuthContext";
 import { authFetch } from "@/lib/authFetch";
 import { reportStorageIssue } from "@/lib/client-error-reporting";
 import {
+  resolveAdminAnalyticsDisplayState,
+  type AdminAnalyticsDisplaySnapshotState,
+  type AdminAnalyticsDisplayState,
+} from "@/lib/analytics/admin-analytics-display-state";
+import {
   ADMIN_ANALYTICS_DEFAULT_RANGE,
   normalizeAdminAnalyticsModuleRangeMap,
   type AdminAnalyticsModuleRangeMap,
@@ -278,6 +283,94 @@ function writeStoredHistoricalOverviewSnapshot(
       storageKey: buildOverviewSnapshotStorageKey(url),
     });
   }
+}
+
+function resolveRealtimeBackendSnapshotSourceMode(
+  response: RealtimeAnalyticsResponse,
+): AdminAnalyticsDisplaySnapshotState["sourceMode"] {
+  if (response.cacheState === "stale" || response.liveTruthLabel === "stale") {
+    return "stale_cache";
+  }
+  if (response.liveTruthLabel === "fallback") {
+    return "fallback";
+  }
+  if (response.liveTruthLabel === "partial") {
+    return "mixed";
+  }
+  return "verified_cache";
+}
+
+function resolveLivePulseSnapshotState(input: {
+  liveResponse?: RealtimeAnalyticsResponse;
+  snapshotModule?: AdminAnalyticsSnapshotModuleState;
+}): AdminAnalyticsDisplaySnapshotState | null {
+  if (input.liveResponse?.generatedAtMs) {
+    const hasValues =
+      typeof input.liveResponse.totalActive === "number" ||
+      (input.liveResponse.data?.length ?? 0) > 0 ||
+      (input.liveResponse.activeUsers?.length ?? 0) > 0 ||
+      (input.liveResponse.surfaceMix?.length ?? 0) > 0;
+
+    return {
+      exists: true,
+      sourceMode: resolveRealtimeBackendSnapshotSourceMode(input.liveResponse),
+      truthState: input.liveResponse.cacheState === "stale" || input.liveResponse.liveTruthLabel === "stale"
+        ? "stale"
+        : input.liveResponse.liveTruthLabel === "partial"
+          ? "partial"
+          : "verified",
+      lastVerifiedAt: input.liveResponse.generatedAtMs,
+      stale: input.liveResponse.cacheState === "stale" || input.liveResponse.liveTruthLabel === "stale",
+      hasValues,
+      sourceLabel: input.liveResponse.cacheSourceLabel ?? input.liveResponse.liveSourceLabel ?? "admin realtime hot cache",
+    };
+  }
+
+  if (input.snapshotModule?.hasVerifiedSnapshot) {
+    return {
+      exists: true,
+      sourceMode: input.snapshotModule.sourceMode,
+      truthState: input.snapshotModule.truthState === "missing"
+        ? "unavailable"
+        : input.snapshotModule.truthState,
+      lastVerifiedAt: input.snapshotModule.lastVerifiedAt,
+      stale: input.snapshotModule.sourceMode === "stale_cache",
+      hasValues: true,
+      sourceLabel: input.snapshotModule.debugPath,
+      unavailableReason: input.snapshotModule.unavailableReason,
+    };
+  }
+
+  return null;
+}
+
+function readDisplaySnapshotAgeMs(
+  snapshot: AdminAnalyticsDisplaySnapshotState | null,
+  nowMs: number,
+) {
+  if (!snapshot?.lastVerifiedAt) {
+    return null;
+  }
+
+  const timestampMs =
+    typeof snapshot.lastVerifiedAt === "number"
+      ? snapshot.lastVerifiedAt
+      : Date.parse(snapshot.lastVerifiedAt);
+  return Number.isFinite(timestampMs) ? Math.max(0, nowMs - timestampMs) : null;
+}
+
+function mapDisplayStateToAdminSurfaceState(
+  displayState: AdminAnalyticsDisplayState,
+): AdminSurfaceState {
+  if (displayState.truthState === "failed") return "failed";
+  if (displayState.truthState === "unavailable") return "unavailable";
+  if (displayState.truthState === "refreshing") return "degraded";
+  if (displayState.sourceMode === "live") return "live";
+  if (displayState.sourceMode === "verified_cache") return "cached";
+  if (displayState.sourceMode === "stale_cache") return "stale";
+  if (displayState.sourceMode === "fallback") return "fallback";
+  if (displayState.sourceMode === "mixed" || displayState.sourceMode === "intraday") return "degraded";
+  return displayState.truthState === "partial" ? "degraded" : "cached";
 }
 
 function getHistoricalEstimationReason(issues: string[]) {
@@ -695,6 +788,10 @@ const { user } = useAuth();
         };
       }
 
+      if (!liveResponse && liveRealtime.feedStatus === "failed") {
+        return undefined;
+      }
+
       const base = liveResponse ?? {
         success: liveRealtime.feedStatus !== "failed",
         issues: [liveRealtime.feedDetail],
@@ -877,6 +974,7 @@ const { user } = useAuth();
   );
   const blockingAnalyticsError =
     (!effectiveLiveResponse &&
+      !historicalOverviewResponse &&
       ((liveError as Error | undefined) ||
         (liveRealtime.feedStatus === "failed"
           ? new Error(liveRealtime.feedDetail)
@@ -955,28 +1053,81 @@ const { user } = useAuth();
   const mobileShareDisplay = historicalOverviewResponse
     ? formatPercent(mobileShare)
     : historicalOverviewWaitingLabel;
-  const liveActiveDisplay = effectiveLiveResponse
-    ? formatCompactNumber(effectiveLiveResponse.totalActive ?? 0)
-    : liveLoading ? "Waiting" : "Unavailable";
+  const livePulseSnapshotModule = analyticsSnapshotRegistry.bySectionKey.livePulse;
+  const livePulseLatestVerifiedSnapshot = resolveLivePulseSnapshotState({
+    liveResponse,
+    snapshotModule: livePulseSnapshotModule,
+  });
+  const livePulseDisplayState = resolveAdminAnalyticsDisplayState({
+    latestVerifiedSnapshot: livePulseLatestVerifiedSnapshot,
+    realtimeState: {
+      status: liveRealtime.feedStatus,
+      hasData:
+        liveRealtime.feedStatus === "realtime" ||
+        liveRealtime.activeUsers.length > 0 ||
+        liveRealtime.data.some((point) => point.users > 0 || point.views > 0),
+      sourceMode: liveRealtime.feedStatus === "realtime"
+        ? "live"
+        : liveRealtime.feedStatus === "polled"
+          ? "fallback"
+          : liveRealtime.feedStatus === "partial"
+            ? "mixed"
+            : "unavailable",
+      error: liveRealtime.feedStatus === "failed" ? liveRealtime.feedDetail : null,
+      graphAvailable: liveSeries.some((point) => point.users > 0 || point.views > 0),
+    },
+    refreshState: {
+      status: liveLoading || livePulseSnapshotModule.refreshStatus === "refreshing"
+        ? "refreshing"
+        : livePulseSnapshotModule.refreshStatus,
+    },
+    errorState: {
+      realtimeError: liveRealtime.feedStatus === "failed" ? liveRealtime.feedDetail : null,
+      snapshotError: livePulseSnapshotModule.error,
+      refreshError: liveError instanceof Error ? liveError.message : null,
+    },
+    moduleConfig: {
+      moduleKey: "live_pulse",
+      title: "Live Pulse",
+      refreshAvailable: true,
+      metricValue: effectiveLiveResponse?.totalActive ?? null,
+      serverConfirmedZero:
+        effectiveLiveResponse?.totalActive === 0 &&
+        Boolean(liveResponse?.generatedAtMs || liveRealtime.feedStatus === "realtime"),
+      graphSourceAvailable: liveSeries.some((point) => point.users > 0 || point.views > 0),
+    },
+  });
+  const liveActiveDisplay =
+    livePulseDisplayState.fakeZeroPrevented && livePulseDisplayState.shouldShowUnavailable
+      ? liveLoading ? "Waiting" : "Unavailable"
+      : effectiveLiveResponse?.totalActive === undefined || effectiveLiveResponse?.totalActive === null
+        ? liveLoading ? "Waiting" : "Unavailable"
+        : formatCompactNumber(effectiveLiveResponse.totalActive);
   const liveActiveTruthState: AdminSurfaceState | undefined =
-    effectiveLiveResponse?.liveTruthLabel ? coerceAdminSurfaceState(effectiveLiveResponse.liveTruthLabel)
-    : liveLoading ? "loading"
-    : !effectiveLiveResponse ? "unavailable"
-    : undefined;
+    mapDisplayStateToAdminSurfaceState(livePulseDisplayState);
+  const livePulseFeedStatus =
+    livePulseDisplayState.shouldRenderSnapshot && !livePulseDisplayState.shouldRenderRealtimeUpgrade
+      ? "polled"
+      : liveRealtime.feedStatus;
+  const livePulseTruthStateForModel = mapDisplayStateToAdminSurfaceState(livePulseDisplayState);
   const livePulseModel = buildAdminAnalyticsLivePulseModel({
     activeUsers: liveActiveUsers,
     surfaceMix: liveSurfaceMix,
     liveSeries,
-    feedStatus: liveRealtime.feedStatus,
+    feedStatus: livePulseFeedStatus,
     feedDetail: liveRealtime.feedDetail,
-    truthState: liveActiveTruthState ?? (liveLoading ? "loading" : "unavailable"),
+    truthState: livePulseTruthStateForModel,
     activeUsersTruthState: effectiveLiveResponse?.activeUsersTruthLabel
       ? coerceAdminSurfaceState(effectiveLiveResponse.activeUsersTruthLabel)
-      : liveActiveTruthState ?? (liveLoading ? "loading" : "unavailable"),
+      : livePulseTruthStateForModel,
     listenerDebugMeta: liveRealtime.listenerDebugMeta,
     nowMs,
     liveLoading,
     cacheRevalidating: effectiveLiveResponse?.cacheRevalidating,
+    displayState: livePulseDisplayState,
+    latestVerifiedSnapshotAgeMs: readDisplaySnapshotAgeMs(livePulseLatestVerifiedSnapshot, nowMs),
+    refreshStatus: livePulseSnapshotModule.refreshStatus,
+    laneFailures: liveRealtime.issues,
   });
   const historicalOverviewTruthState: AdminSurfaceState | undefined =
     historicalTruthState === "live" ? "live"

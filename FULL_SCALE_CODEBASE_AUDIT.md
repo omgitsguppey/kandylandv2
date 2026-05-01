@@ -1,5 +1,30 @@
 # KandyDrops Core Codebase Audit & Defensive Ledger
 
+## [2026-05-01 #65] PRE: Admin Analytics Realtime Dependency Audit and Hot-Cache Correction
+
+Scope started:
+- Auditing Admin Analytics for modules that still treat realtime as the primary source or top-level availability gate after the Analytics Truth Layer v2 migration.
+- Targeting source-order policy, Live Pulse fallback behavior, visible realtime/backend jargon, Debug metadata, validation, and docs without redesigning modules or touching unrelated user surfaces.
+
+Scope completed:
+- Added `resolveAdminAnalyticsDisplayState` as the shared source-order policy: verified snapshot or route hot cache first, realtime upgrade second, compact unavailable only when neither exists, and fake-zero prevention for unavailable metrics.
+- Fixed Live Pulse so a delayed/failed Firestore listener no longer makes the module unavailable when the backend realtime hot summary or snapshot metadata exists.
+- Replaced dominant Live Pulse realtime failure copy with snapshot-first plain English and moved listener failures to debug metadata.
+- Added the module-by-module realtime dependency audit report and doctrine doc.
+
+Verification completed:
+- `npm run check:admin-analytics-no-pure-realtime` (first run failed before the helper/audit/doc existed; final run passed)
+- `npx vitest run tests/unit/admin-analytics-display-state.spec.ts tests/unit/admin-analytics-live-pulse.spec.ts`
+- `npm run check:admin-analytics-hot-cache`
+- `npm run check:admin-analytics-live-pulse`
+- `npm run typecheck -- --pretty false`
+- `npx vitest run tests/unit/admin-analytics-page.spec.tsx tests/unit/admin-analytics-realtime-route.spec.ts tests/unit/admin-analytics-refresh-route.spec.ts tests/unit/admin-metric-snapshot.spec.ts`
+- `npx vitest run tests/unit/admin-debug-route-runtime.spec.ts`
+- `npm run check:admin-analytics-snapshot-migration`
+- `npm run check:analytics-legacy-recovery`
+- `git diff --check`
+- `npm run check:generated-artifacts`
+
 ## [2026-04-30 #64] PRE: Last-20-Commit Truth and Cleanup Audit
 
 Scope started:

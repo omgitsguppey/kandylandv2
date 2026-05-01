@@ -1,13 +1,24 @@
 # EVERY FILE FUNCTION CHECKLIST
 
-**Last Updated:** 2026-04-30
-**Current Focus:** Last-20-commit truth audit, notification duplicate dispatch cleanup, and every-file tracked inventory reconciliation against live git truth and regenerated agent indexes.
+**Last Updated:** 2026-05-01
+**Current Focus:** Admin Analytics realtime dependency audit, hot-cache display-state policy, and Live Pulse snapshot-first correction.
 **Status:** In Progress. Current tracked-file coverage is reconciled as of 2026-04-28: every `git ls-files` entry has a current checklist heading, while detailed function-level audits remain pending for many historical and newly reconciled files.
 Purpose: exhaustive no-skip audit checklist covering every repository file currently in scope and every detected function-like implementation.
 
 Scoring: all entries below are marked as included in the current validated sweep. Confidence reflects current repository-state confidence, not perfection or future-proofing.
 
 Current repo-wide state snapshot: see [FULL_SCALE_CODEBASE_AUDIT.md](/Users/uylus/OneDrive/Documents/KandyDrops_Final/FULL_SCALE_CODEBASE_AUDIT.md) for the current live baseline, verification state, and continuity rules, and see [REPO_MEMORY_LEDGER.md](/Users/uylus/OneDrive/Documents/KandyDrops_Final/REPO_MEMORY_LEDGER.md) for major architectural and workflow decisions. The detailed file/function body below remains valuable historical evidence, but it has not been fully regenerated against the current 2026-04-18 inventory review yet.
+
+## 2026-05-01 Admin Analytics Realtime Dependency Audit Coverage
+
+- [x] `src/lib/analytics/admin-analytics-display-state.ts` defines the shared source-order resolver for verified snapshot/hot cache, realtime upgrade, refresh, unavailable, and fake-zero prevention states.
+- [x] `src/app/admin/analytics/hooks/useAdminAnalyticsState.tsx` applies the resolver to Live Pulse before rendering top-level availability and avoids treating missing realtime as first-render failure when a backend snapshot exists.
+- [x] `src/lib/admin-analytics-live-pulse.ts` exposes display-state debug metadata including primary source, snapshot availability, snapshot age, realtime listener state, refresh status, fallback snapshot use, lane failures, and `realtimeBlocksFirstRender=false`.
+- [x] `src/app/admin/analytics/components/AdminAnalyticsOperationsTab.tsx` replaces dominant realtime unavailable/jargon copy with compact snapshot-first copy and graph/surface scoped waiting states.
+- [x] `agent/state/admin-analytics-realtime-dependency-audit.generated.json` records every Admin Analytics module's realtime dependency/source-order audit.
+- [x] `docs/agent-truth/admin-analytics-realtime-to-hot-cache-audit.md` documents the policy, findings, fixed Live Pulse assumption, and remaining materializer work.
+- [x] `scripts/agent/validate-admin-analytics-no-pure-realtime.ts` and `package.json` add `npm run check:admin-analytics-no-pure-realtime`.
+- [x] `tests/unit/admin-analytics-display-state.spec.ts` and `tests/unit/admin-analytics-live-pulse.spec.ts` cover snapshot plus realtime failure, refresh visibility, unavailable/no snapshot, fake-zero prevention, graph-only gaps, and Live Pulse fallback snapshot rendering.
 
 ## 2026-04-30 Last-20-Commit Truth Audit Cleanup Coverage
 

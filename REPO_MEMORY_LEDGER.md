@@ -1,7 +1,7 @@
 # Repo Memory Ledger
 
 Status: Canonical repository-memory and architecture-decision ledger
-Last refreshed: 2026-04-24
+Last refreshed: 2026-05-01
 Repo: `C:\Users\uylus\OneDrive\Documents\KandyDrops_Final`
 
 ## Purpose
@@ -23,6 +23,22 @@ This file is not a changelog. It is the concise ledger for durable decisions tha
 4. When this file and runtime code disagree, runtime code plus verification wins and this file must be updated immediately.
 
 ## Decision Entries
+
+### 1bu. Admin Analytics realtime is upgrade-only after a hot-cache display state resolves
+
+- Approximate date: Recorded explicitly on 2026-05-01 from the Admin Analytics realtime dependency audit pass
+- Status: Active admin analytics source-order rule
+- Problem/context: Live Pulse could still display `ERROR`/unavailable copy from failed Firestore realtime listeners even when the page banner and backend route indicated a last validated backend snapshot or hot cache was available.
+- Decision made: `src/lib/analytics/admin-analytics-display-state.ts` now centralizes source-order resolution. `src/app/admin/analytics/hooks/useAdminAnalyticsState.tsx` applies it to Live Pulse before the module model renders.
+- What became canonical:
+  - Verified snapshot or backend hot cache renders first.
+  - Realtime failure annotates a rendered snapshot; it does not blank a module.
+  - Graph/source gaps can be scoped to the graph area while metric cards remain visible from snapshot values.
+  - Full listener failures and source details belong in Admin Debug/client debug metadata.
+  - Fake zeros remain blocked when a value is unavailable or zero is not source-confirmed.
+- Consequence for future work:
+  - Do not pass raw realtime listener `failed` state directly into module top-level availability when a verified snapshot/hot cache exists.
+  - New Admin Analytics modules must use the display-state policy or document an equivalent snapshot-first source-order resolver.
 
 ### 1bt. Drop notification idempotency must suppress both in-app creation and FCM dispatch
 

@@ -49,7 +49,11 @@ export function AdminAnalyticsOperationsTab(props: AdminAnalyticsState) {
     ? coerceAdminSurfaceState(liveResponse.activeUsersTruthLabel)
     : livePulseTruthState;
   const realtimeCacheSource = liveResponse?.cacheSourceLabel || liveResponse?.liveSourceLabel || "admin realtime hot cache";
-  const realtimeCacheHint = liveResponse?.liveTruthLabel === "stale"
+  const realtimeCacheHint = livePulseModel.primaryDisplaySource === "verified_snapshot"
+    ? livePulseModel.latestVerifiedSnapshotExists
+      ? "Last verified snapshot"
+      : "Snapshot fallback"
+    : liveResponse?.liveTruthLabel === "stale"
     ? `Stale hot cache (${realtimeCacheSource})`
     : liveResponse?.cacheState === "fresh"
       ? `Hot cache (${realtimeCacheSource})`
@@ -259,7 +263,9 @@ export function AdminAnalyticsOperationsTab(props: AdminAnalyticsState) {
                   </ResponsiveContainer>
                 ) : (
                   <div className="flex h-full items-center justify-center rounded-[1rem] border border-dashed border-white/10 bg-black/25 px-3 text-center text-xs text-gray-400">
-                    {liveLoading ? "Waiting for pulse data" : "Graph source unavailable"}
+                    {livePulseModel.backendSnapshotStatus === "available"
+                      ? "Graph waiting for live data."
+                      : liveLoading ? "Waiting for pulse data." : "No verified graph data yet."}
                   </div>
                 )}
               </div>
@@ -305,7 +311,7 @@ export function AdminAnalyticsOperationsTab(props: AdminAnalyticsState) {
                     ) : (
                       <div className="rounded-[0.9rem] border border-dashed border-white/10 bg-black/20 p-3 text-xs text-gray-500">
                         <AdminStatusBadge state={livePulseTruthState} className="mb-2" />
-                        Realtime surfaces are waiting for presence rows.
+                        Surface detail waiting for live data.
                       </div>
                     )}
                   </div>
