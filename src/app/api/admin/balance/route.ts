@@ -70,7 +70,12 @@ async function POST_handler(request: NextRequest) {
                 balanceBefore: currentBalance,
                 balanceAfter: nextBalanceResult.next.total,
                 extra: {
-                    adjustedBy: caller.email || "admin",
+                    adjustedBy: caller.email || caller.uid || "admin",
+                    adjustedByEmail: caller.email || null,
+                    adjustedByUid: caller.uid,
+                    adjustmentReason: reason,
+                    adjustmentSource: "admin_balance_route",
+                    auditedServerSide: true,
                 },
             }));
 

@@ -160,21 +160,37 @@ async function POST_handler(request: NextRequest) {
     const bundlePresentation = getBundlePresentation(dropsToCredit);
 
     const customId = capture.custom_id || parsed.purchase_units[0]?.custom_id;
-    if (customId) {
-      const [capturedUserId] = customId.split(":");
-      if (capturedUserId !== userId) {
-        recordRouteWarning("paypal/capture", "PayPal user verification failed", undefined, {
-          channel: "commerce",
-          detail: {
-            userId,
-            orderId,
-            expectedDrops,
-            capturedUserId,
-          },
-        });
-        void logFailedTransaction(userId, orderId, expectedDrops, "User identity mismatch in capture payload");
-        return NextResponse.json({ error: "User verification failed" }, { status: 403 });
-      }
+    const [capturedUserId, capturedDropsRaw] = typeof customId === "string" ? customId.split(":") : [];
+    const capturedExpectedDrops = /^\d+$/u.test(capturedDropsRaw ?? "")
+      ? Number.parseInt(capturedDropsRaw ?? "", 10)
+      : Number.NaN;
+    if (!customId || !capturedUserId || !Number.isInteger(capturedExpectedDrops)) {
+      recordRouteWarning("paypal/capture", "PayPal capture was missing its server-created identity binding", undefined, {
+        channel: "commerce",
+        detail: {
+          userId,
+          orderId,
+          expectedDrops,
+          customIdPresent: Boolean(customId),
+        },
+      });
+      void logFailedTransaction(userId, orderId, expectedDrops, "Missing user identity in capture payload");
+      return NextResponse.json({ error: "User verification failed" }, { status: 403 });
+    }
+
+    if (capturedUserId !== userId || capturedExpectedDrops !== expectedDrops) {
+      recordRouteWarning("paypal/capture", "PayPal user or package verification failed", undefined, {
+        channel: "commerce",
+        detail: {
+          userId,
+          orderId,
+          expectedDrops,
+          capturedUserId,
+          capturedExpectedDrops,
+        },
+      });
+      void logFailedTransaction(userId, orderId, expectedDrops, "User identity or package mismatch in capture payload");
+      return NextResponse.json({ error: "User verification failed" }, { status: 403 });
     }
 
     if (!adminDb) return NextResponse.json({ error: "Database not available" }, { status: 500 });

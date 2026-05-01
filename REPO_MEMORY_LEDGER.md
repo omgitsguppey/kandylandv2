@@ -24,6 +24,16 @@ This file is not a changelog. It is the concise ledger for durable decisions tha
 
 ## Decision Entries
 
+### 1cc. Payment wallet unlock entitlement is server-truth only
+
+- Approximate date: Recorded explicitly on 2026-05-01 from the payment wallet unlock entitlement launch-hardening pass
+- Status: Active launch-security, commerce, wallet, unlock, and viewer-access rule
+- Decision: The client is never authoritative for balance, paid/bonus Gum Drops, revenue, unlock status, or content entitlement. PayPal capture credit must be server-confirmed and bound to the authenticated order `custom_id`; unlock and admin balance changes must be Firestore transaction ledger writes; secure content proxy access requires verified unlock or creator ownership.
+- Implementation: `src/app/api/paypal/capture/route.ts` requires PayPal `custom_id` user/package binding before credit, `src/app/api/drops/unlock/route.ts` keeps source-aware spend metadata, `src/app/api/drops/content/route.ts` mirrors creator entitlement, and `src/app/api/admin/balance/route.ts` records structured admin adjustment audit metadata.
+- Required docs/artifacts: `docs/agent-truth/payment-wallet-unlock-entitlement.md` and `agent/state/payment-unlock-security-audit.generated.json`.
+- Required validation: `npm run check:payment-unlock-security` plus focused PayPal, unlock, content entitlement, admin balance, ledger, package, and Gum Drops economics tests.
+- Consequence for future work: Do not credit captures missing the server-created identity binding, do not count promo/bonus/admin grants as revenue, do not expose raw private content URLs before entitlement, and do not change payment/write flows without targeted route tests and audit doc updates.
+
 ### 1cb. Launch PR triage is a manual decision gate
 
 - Approximate date: Recorded explicitly on 2026-05-01 from the launch PR and recent-commit triage pass

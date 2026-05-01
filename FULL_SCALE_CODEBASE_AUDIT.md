@@ -1,5 +1,26 @@
 # KandyDrops Core Codebase Audit & Defensive Ledger
 
+## [2026-05-01 #73] PRE: Payment Wallet Unlock Entitlement Launch Hardening
+
+Scope started:
+- Auditing and hardening Gum Drops packages, PayPal capture, wallet balance source truth, paid/bonus/admin grants, drop unlock transactions, viewer entitlement, library access, admin balance adjustments, commerce telemetry, API auth/CSRF/trusted-origin checks, security rules, and Debug/parity evidence.
+- This is a P0 launch-security pass. Payment/write-flow behavior may only change if verified code/test evidence proves a concrete issue.
+
+Initial evidence:
+- Worktree was clean at startup on `main`.
+- Launch scope marks wallet, Gum Drops balance, purchase flow, unlock flow, viewer/content access, and security/payment/admin route protection as P0.
+- Security guidance consulted for Next.js route handlers, React/browser security, and server-side auth/authorization enforcement.
+
+Scope completed:
+- Fixed PayPal capture identity binding so server credit now requires the PayPal `custom_id` created by the authenticated order flow and verifies both caller uid and expected Gum Drops before any balance mutation.
+- Fixed secure content entitlement mismatch by allowing the drop creator, as well as users with `unlockedContent`, through the private content proxy.
+- Added structured parity/audit metadata for unlock source split (`purchasedAmountSpent`, `rewardAmountSpent`) and admin balance adjustments (`adjustedByUid`, `adjustmentReason`, `adjustmentSource`, `auditedServerSide`).
+- Added `agent/state/payment-unlock-security-audit.generated.json`, `docs/agent-truth/payment-wallet-unlock-entitlement.md`, and `scripts/agent/validate-payment-unlock-security.ts` with `npm run check:payment-unlock-security`.
+- Added/updated targeted tests for PayPal capture identity/package binding, unlock idempotency/source split, content entitlement, admin adjustment audit, and promo/bonus revenue exclusion.
+
+Residual risk:
+- Firebase rules were not touched, so the Firebase rules lane remains deferred to any future rules change. This pass did not redesign payment UI, alter package prices, remove realtime/admin diagnostics, or make private admin data public-cacheable.
+
 ## [2026-05-01 #72] PRE: User Critical Path Launch Fix
 
 Scope started:

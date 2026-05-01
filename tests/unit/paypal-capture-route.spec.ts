@@ -23,6 +23,13 @@ const mockState = vi.hoisted(() => {
     const adminDb = {
         collection(name: string) {
             return {
+                async add(data: StoredDoc) {
+                    const resolvedId = `auto_${++autoId}`;
+                    const path = `${name}/${resolvedId}`;
+                    transactionWrites.push({ path, data });
+                    documents.set(path, data);
+                    return buildDocRef(path);
+                },
                 doc(id?: string) {
                     const resolvedId = id ?? `auto_${++autoId}`;
                     return buildDocRef(`${name}/${resolvedId}`);
@@ -200,5 +207,141 @@ describe("POST /api/paypal/capture", () => {
             gumDropsRewardBalance: 50,
         });
         expect(mockState.trackServerEvent).toHaveBeenCalledWith("purchase_verified", expect.any(Object), "fan_1");
+    });
+
+    it("rejects completed captures that are missing the server-created custom id", async () => {
+        mockState.capturePayPalOrder.mockResolvedValue({
+            status: "COMPLETED",
+            purchase_units: [
+                {
+                    payments: {
+                        captures: [
+                            {
+                                id: "capture_missing_identity",
+                                amount: {
+                                    currency_code: "USD",
+                                    value: "5.00",
+                                },
+                            },
+                        ],
+                    },
+                },
+            ],
+        });
+
+        const request = new NextRequest("http://localhost/api/paypal/capture", {
+            method: "POST",
+            body: JSON.stringify({
+                orderId: "order_missing_identity",
+                expectedDrops: 550,
+            }),
+        });
+
+        const response = await POST(request);
+        const payload = await response.json();
+
+        expect(response.status).toBe(403);
+        expect(payload).toMatchObject({ error: "User verification failed" });
+        expect(mockState.documents.get("users/fan_1")).toMatchObject({
+            gumDropsBalance: 0,
+            gumDropsPurchasedBalance: 0,
+            gumDropsRewardBalance: 0,
+        });
+        expect(mockState.documents.has("paymentLocks/order_missing_identity")).toBe(false);
+        expect(mockState.trackServerEvent).not.toHaveBeenCalled();
+        expect(mockState.recordRouteWarning).toHaveBeenCalledWith(
+            "paypal/capture",
+            "PayPal capture was missing its server-created identity binding",
+            undefined,
+            expect.any(Object),
+        );
+    });
+
+    it("rejects captures whose custom id does not match the requested package", async () => {
+        mockState.capturePayPalOrder.mockResolvedValue({
+            status: "COMPLETED",
+            purchase_units: [
+                {
+                    custom_id: "fan_1:100",
+                    payments: {
+                        captures: [
+                            {
+                                id: "capture_package_mismatch",
+                                custom_id: "fan_1:100",
+                                amount: {
+                                    currency_code: "USD",
+                                    value: "5.00",
+                                },
+                            },
+                        ],
+                    },
+                },
+            ],
+        });
+
+        const request = new NextRequest("http://localhost/api/paypal/capture", {
+            method: "POST",
+            body: JSON.stringify({
+                orderId: "order_package_mismatch",
+                expectedDrops: 550,
+            }),
+        });
+
+        const response = await POST(request);
+        const payload = await response.json();
+
+        expect(response.status).toBe(403);
+        expect(payload).toMatchObject({ error: "User verification failed" });
+        expect(mockState.documents.get("users/fan_1")).toMatchObject({
+            gumDropsBalance: 0,
+            gumDropsPurchasedBalance: 0,
+            gumDropsRewardBalance: 0,
+        });
+        expect(mockState.documents.has("paymentLocks/order_package_mismatch")).toBe(false);
+        expect(mockState.trackServerEvent).not.toHaveBeenCalled();
+    });
+
+    it("rejects malformed custom id package bindings", async () => {
+        mockState.capturePayPalOrder.mockResolvedValue({
+            status: "COMPLETED",
+            purchase_units: [
+                {
+                    custom_id: "fan_1:550abc",
+                    payments: {
+                        captures: [
+                            {
+                                id: "capture_malformed_package",
+                                custom_id: "fan_1:550abc",
+                                amount: {
+                                    currency_code: "USD",
+                                    value: "5.00",
+                                },
+                            },
+                        ],
+                    },
+                },
+            ],
+        });
+
+        const request = new NextRequest("http://localhost/api/paypal/capture", {
+            method: "POST",
+            body: JSON.stringify({
+                orderId: "order_malformed_package",
+                expectedDrops: 550,
+            }),
+        });
+
+        const response = await POST(request);
+        const payload = await response.json();
+
+        expect(response.status).toBe(403);
+        expect(payload).toMatchObject({ error: "User verification failed" });
+        expect(mockState.documents.get("users/fan_1")).toMatchObject({
+            gumDropsBalance: 0,
+            gumDropsPurchasedBalance: 0,
+            gumDropsRewardBalance: 0,
+        });
+        expect(mockState.documents.has("paymentLocks/order_malformed_package")).toBe(false);
+        expect(mockState.trackServerEvent).not.toHaveBeenCalled();
     });
 });

@@ -2,6 +2,7 @@ import { describe, expect, it } from "vitest";
 
 import {
     classifyGumdropTransaction,
+    getTransactionRevenueCents,
     readSourceAwareBalance,
     spendSourceAwareGumdrops,
 } from "@/lib/gumdrop-ledger";
@@ -62,6 +63,44 @@ describe("gumdrop ledger", () => {
         expect(result.gumdropPurchaseTotal).toBe(500);
         expect(result.gumdropRewardTotal).toBe(50);
         expect(result.purchaseTransactionCount).toBe(1);
+    });
+
+    it("does not count admin adjustments or reward credits as revenue purchases", () => {
+        expect(getTransactionRevenueCents({
+            type: "admin_adjustment",
+            cost: 10,
+            grossRevenueCents: 1000,
+        })).toBe(0);
+        expect(getTransactionRevenueCents({
+            type: "daily_reward",
+            cost: 10,
+            grossRevenueCents: 1000,
+        })).toBe(0);
+        expect(getTransactionRevenueCents({
+            type: "purchase_currency",
+            grossRevenueCents: 500,
+        })).toBe(500);
+
+        expect(classifyGumdropTransaction({
+            type: "admin_adjustment",
+            status: "completed",
+            amount: 100,
+        })).toMatchObject({
+            purchaseTransactionCount: 0,
+            gumdropPurchaseTotal: 0,
+            gumdropAdjustmentPositiveTotal: 100,
+        });
+
+        expect(classifyGumdropTransaction({
+            type: "daily_reward",
+            rewardSource: "task",
+            status: "completed",
+            amount: 25,
+        })).toMatchObject({
+            purchaseTransactionCount: 0,
+            gumdropPurchaseTotal: 0,
+            gumdropRewardTotal: 25,
+        });
     });
 
     it("flags creator spend parity mismatches and restricted reward spend violations", () => {

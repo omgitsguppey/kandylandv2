@@ -72,14 +72,18 @@ export async function GET(request: NextRequest) {
       return finalize(buildNotFoundResponse("drop", "Drop not found"));
     }
 
+    const dropData = dropSnap.data() ?? {};
+    const creatorId = typeof dropData.creatorId === "string" ? dropData.creatorId : "";
     const userData = userContentSchema.parse(userSnap.data());
-    if (!userData.unlockedContent.includes(dropId)) {
+    const ownsDrop = creatorId === caller.uid;
+    const hasUnlockedDrop = userData.unlockedContent.includes(dropId);
+    if (!ownsDrop && !hasUnlockedDrop) {
       return finalize(NextResponse.json({ error: "You do not own this content" }, { status: 403 }));
     }
 
     let dropRecord;
     try {
-      dropRecord = normalizeDropRecord(dropSnap.data(), dropId);
+      dropRecord = normalizeDropRecord(dropData, dropId);
     } catch {
       return finalize(buildNotFoundResponse("content", "No content available"));
     }

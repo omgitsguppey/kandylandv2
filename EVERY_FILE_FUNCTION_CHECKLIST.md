@@ -9,6 +9,15 @@ Scoring: all entries below are marked as included in the current validated sweep
 
 Current repo-wide state snapshot: see [FULL_SCALE_CODEBASE_AUDIT.md](/Users/uylus/OneDrive/Documents/KandyDrops_Final/FULL_SCALE_CODEBASE_AUDIT.md) for the current live baseline, verification state, and continuity rules, and see [REPO_MEMORY_LEDGER.md](/Users/uylus/OneDrive/Documents/KandyDrops_Final/REPO_MEMORY_LEDGER.md) for major architectural and workflow decisions. The detailed file/function body below remains valuable historical evidence, but it has not been fully regenerated against the current 2026-04-18 inventory review yet.
 
+## 2026-05-01 Payment Wallet Unlock Entitlement Coverage
+
+- [x] `src/app/api/paypal/capture/route.ts` requires completed PayPal status, USD package-price match, server-created `custom_id` caller/package binding, and transaction payment lock before crediting Gum Drops.
+- [x] `src/app/api/drops/unlock/route.ts` keeps unlock deduction inside a Firestore transaction, preserves already-unlocked idempotency, and records purchased/reward spend split metadata.
+- [x] `src/app/api/drops/content/route.ts` proxies private media only for verified unlock entitlement or creator ownership and returns private no-store content.
+- [x] `src/app/api/admin/balance/route.ts` records structured admin adjustment audit metadata including admin uid, email, reason, route source, and server audit marker.
+- [x] `tests/unit/paypal-capture-route.spec.ts`, `tests/unit/drops-unlock-route.spec.ts`, `tests/unit/drops-content-route.spec.ts`, `tests/unit/admin-balance-route.spec.ts`, and `tests/unit/gumdrop-ledger.spec.ts` cover the hardened contracts.
+- [x] `docs/agent-truth/payment-wallet-unlock-entitlement.md`, `agent/state/payment-unlock-security-audit.generated.json`, `scripts/agent/validate-payment-unlock-security.ts`, and `npm run check:payment-unlock-security` record the payment wallet unlock entitlement launch guard.
+
 ## 2026-05-01 Launch Finalization Scope Freeze Coverage
 
 - [x] `docs/agent-truth/launch-finalization-scope.md` defines launch-critical surfaces, blocked/warning/deferred categories, frozen features, allowed and forbidden change types, validation gates, risk ranking, and current PR/commit risk notes.

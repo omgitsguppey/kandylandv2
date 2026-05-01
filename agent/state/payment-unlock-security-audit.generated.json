@@ -1,0 +1,172 @@
+{
+  "generatedAt": "2026-05-01T00:00:00.000-05:00",
+  "task": "payment wallet unlock entitlement launch hardening",
+  "summary": {
+    "status": "fixed_verified_gaps_only",
+    "sourceTruth": "server-confirmed PayPal capture, Firestore transaction ledger, secure content proxy entitlement",
+    "fixedIssueCount": 3,
+    "productSemanticsChanged": false,
+    "pricingChanged": false,
+    "publicAdminCachingChanged": false
+  },
+  "findings": [
+    {
+      "id": "PWE-001",
+      "title": "PayPal capture identity binding was optional",
+      "severity": "high",
+      "status": "fixed",
+      "risk": "A completed capture payload without the server-created custom_id could credit the authenticated caller without proving the order was created for that user/package.",
+      "fix": "Capture now requires the PayPal custom_id and checks both user id and expected Gum Drops before any Firestore credit or payment lock write.",
+      "tests": [
+        "tests/unit/paypal-capture-route.spec.ts rejects completed captures that are missing the server-created custom id",
+        "tests/unit/paypal-capture-route.spec.ts rejects captures whose custom id does not match the requested package"
+      ]
+    },
+    {
+      "id": "PWE-002",
+      "title": "Secure content proxy did not mirror creator entitlement",
+      "severity": "medium",
+      "status": "fixed",
+      "risk": "The viewer client treated creators as authorized for their own drop, but the content proxy only accepted unlocked buyers.",
+      "fix": "The secure content proxy now accepts either a verified unlock or creator ownership before proxying private media.",
+      "tests": [
+        "tests/unit/drops-content-route.spec.ts blocks locked content for a caller without entitlement",
+        "tests/unit/drops-content-route.spec.ts serves content after the user has unlocked the drop",
+        "tests/unit/drops-content-route.spec.ts treats the drop creator as entitled without requiring a paid unlock"
+      ]
+    },
+    {
+      "id": "PWE-003",
+      "title": "Money/access ledger rows needed stronger audit detail",
+      "severity": "medium",
+      "status": "fixed",
+      "risk": "Admin balance adjustments and unlock spend records were server-authenticated but had limited structured evidence for parity/debug checks.",
+      "fix": "Admin adjustments now include admin uid/email/reason/source/audited marker. Unlock transactions include unlock source and purchased/reward spend split.",
+      "tests": [
+        "tests/unit/admin-balance-route.spec.ts verifies structured admin adjustment audit fields",
+        "tests/unit/drops-unlock-route.spec.ts verifies source-aware spend metadata"
+      ]
+    }
+  ],
+  "surfaces": [
+    {
+      "key": "paypal-create-order",
+      "files": [
+        "src/app/api/paypal/create/route.ts",
+        "src/lib/server/paypal.ts",
+        "src/lib/gumdrops-packages.ts"
+      ],
+      "clientAuthoritativeForBalance": false,
+      "serverConfirmedCompletion": "order creation requires authenticated user and trusted origin; server helper writes userId:expectedDrops custom_id",
+      "csrfTrustedOrigin": true,
+      "authRequired": "user",
+      "revenueMixRisk": false,
+      "requiredFix": "none",
+      "fixedInThisPass": false
+    },
+    {
+      "key": "paypal-capture",
+      "files": [
+        "src/app/api/paypal/capture/route.ts",
+        "src/lib/gumdrop-economics.ts",
+        "src/lib/gumdrop-ledger.ts",
+        "tests/unit/paypal-capture-route.spec.ts"
+      ],
+      "clientAuthoritativeForBalance": false,
+      "serverConfirmedCompletion": "PayPal capture status, USD amount, package price, and custom_id user/package binding are checked before credit",
+      "idempotent": true,
+      "idempotencyMechanism": "paymentLocks/{orderId} transaction guard",
+      "paidVsBonusSeparated": true,
+      "promoBonusRevenueExcluded": true,
+      "csrfTrustedOrigin": true,
+      "authRequired": "user",
+      "requiredFix": "require custom_id identity/package binding",
+      "fixedInThisPass": true
+    },
+    {
+      "key": "wallet-packages",
+      "files": [
+        "src/app/api/wallet/packages/route.ts",
+        "src/lib/gumdrops-packages.ts",
+        "tests/unit/gumdrops-packages.spec.ts"
+      ],
+      "clientAuthoritativeForBalance": false,
+      "serverConfirmedCompletion": "read-only package list; capture route revalidates package amount and price",
+      "csrfTrustedOrigin": false,
+      "authRequired": "none",
+      "requiredFix": "none",
+      "fixedInThisPass": false
+    },
+    {
+      "key": "drop-unlock",
+      "files": [
+        "src/app/api/drops/unlock/route.ts",
+        "src/lib/gumdrop-ledger.ts",
+        "tests/unit/drops-unlock-route.spec.ts"
+      ],
+      "clientAuthoritativeForBalance": false,
+      "requiresSufficientBalanceOrEntitlement": true,
+      "atomicDeduction": true,
+      "idempotent": true,
+      "idempotencyMechanism": "unlockedContent check inside Firestore transaction before deduction",
+      "sourceAwareSpendTracked": true,
+      "csrfTrustedOrigin": true,
+      "authRequired": "user",
+      "requiredFix": "add purchased/reward spend metadata",
+      "fixedInThisPass": true
+    },
+    {
+      "key": "drop-content-entitlement",
+      "files": [
+        "src/app/api/drops/content/route.ts",
+        "src/app/dashboard/viewer/page.tsx",
+        "src/app/dashboard/viewer/ViewerClient.tsx",
+        "tests/unit/drops-content-route.spec.ts"
+      ],
+      "rawContentUrlInInitialHtml": false,
+      "requiresEntitlement": true,
+      "validEntitlements": [
+        "unlockedContent contains dropId",
+        "caller uid matches drop creatorId"
+      ],
+      "privateNoStore": true,
+      "csrfTrustedOrigin": true,
+      "authRequired": "user",
+      "requiredFix": "allow creator ownership in secure proxy",
+      "fixedInThisPass": true
+    },
+    {
+      "key": "admin-balance-adjustment",
+      "files": [
+        "src/app/api/admin/balance/route.ts",
+        "tests/unit/admin-balance-route.spec.ts"
+      ],
+      "clientAuthoritativeForBalance": false,
+      "adminAuthRequired": true,
+      "trustedOriginRequired": true,
+      "audited": true,
+      "promoBonusRevenueExcluded": true,
+      "requiredFix": "add structured admin audit metadata",
+      "fixedInThisPass": true
+    },
+    {
+      "key": "gumdrop-ledger-revenue",
+      "files": [
+        "src/lib/gumdrop-ledger.ts",
+        "tests/unit/gumdrop-ledger.spec.ts",
+        "src/lib/admin-analytics-commerce-snapshot.ts"
+      ],
+      "purchaseRevenueSource": "purchase_currency only",
+      "promoBonusRevenueExcluded": true,
+      "fakeZeroBlocked": true,
+      "requiredFix": "test coverage for non-purchase revenue exclusion",
+      "fixedInThisPass": true
+    }
+  ],
+  "validation": [
+    "npm run check:payment-unlock-security",
+    "npm run typecheck -- --pretty false",
+    "npx vitest run tests/unit/paypal-capture-route.spec.ts tests/unit/drops-unlock-route.spec.ts tests/unit/drops-content-route.spec.ts tests/unit/admin-balance-route.spec.ts tests/unit/gumdrop-ledger.spec.ts tests/unit/gumdrops-packages.spec.ts tests/unit/gumdrop-economics.spec.ts",
+    "firebase rules tests not run unless rules are touched"
+  ]
+}

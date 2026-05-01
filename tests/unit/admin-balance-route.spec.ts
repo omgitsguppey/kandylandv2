@@ -166,5 +166,19 @@ describe("POST /api/admin/balance", () => {
             activity: true,
             profile: true,
         });
+        expect(mockState.transactionSet).toHaveBeenCalledWith(
+            mockState.transactionRef,
+            expect.objectContaining({
+                userId: "fan_1",
+                type: "admin_adjustment",
+                amount: 25,
+                adjustedBy: "owner@example.com",
+                adjustedByEmail: "owner@example.com",
+                adjustedByUid: "admin_1",
+                adjustmentReason: "goodwill",
+                adjustmentSource: "admin_balance_route",
+                auditedServerSide: true,
+            }),
+        );
     });
 });

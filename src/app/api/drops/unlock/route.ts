@@ -127,7 +127,11 @@ async function POST_handler(request: NextRequest) {
         balanceBefore: balance,
         balanceAfter: spend.next.total,
         timestampMs: unwrappedAt,
-        extra: usedSubscriptionAccess ? { unlockSource: "creator_subscription" } : undefined,
+        extra: {
+          unlockSource: usedSubscriptionAccess ? "creator_subscription" : "gumdrops",
+          purchasedAmountSpent: spend.purchasedSpent,
+          rewardAmountSpent: spend.rewardSpent,
+        },
       }));
 
       transaction.update(dropRef, {
