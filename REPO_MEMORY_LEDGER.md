@@ -24,6 +24,15 @@ This file is not a changelog. It is the concise ledger for durable decisions tha
 
 ## Decision Entries
 
+### 1ca. Launch finalization scope is frozen
+
+- Approximate date: Recorded explicitly on 2026-05-01 from the launch-finalization scope-freeze pass
+- Status: Active launch governance and validation rule
+- Decision: Launch work must prioritize stability over expansion. Auth/onboarding, Drops discovery/detail, wallet/GumDrops balance, purchase, unlock, viewer access, chat/messages, notifications, creator routing, recovery routes, Admin overview/analytics/debug truth, route protection, and mobile bottom-nav/safe-area are the launch-critical surfaces.
+- Implementation: `docs/agent-truth/launch-finalization-scope.md` defines blocked, warning, deferred, frozen, allowed, forbidden, validation, and risk-ranking rules. `agent/state/launch-finalization-baseline.generated.json` provides machine-readable scope state.
+- Required validation: `npm run check:launch-finalization-baseline`.
+- Consequence for future work: Do not add features, redesign pages, rewrite architecture, hide failures, remove Debug/validation truth, or touch unrelated modules during launch finalization unless verified launch-blocker evidence proves the change is required.
+
 ### 1bz. Admin truth copy has operator and developer layers
 
 - Approximate date: Recorded explicitly on 2026-05-01 from the human-readable admin truth hardening pass

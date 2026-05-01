@@ -1,0 +1,306 @@
+{
+  "generatedAt": "2026-05-01T00:00:00.000-05:00",
+  "task": "launch-finalization-scope-freeze",
+  "branch": "main",
+  "headCommit": "371b80cf",
+  "worktreeCleanAtStart": true,
+  "currentBranchPullRequest": "none reported by gh pr status on 2026-05-01",
+  "doctrineConsulted": [
+    "control-tower/00-START-HERE.md",
+    "control-tower/01-MISSION.md",
+    "control-tower/03-TASK-ROUTING.yaml",
+    "control-tower/04-EXECUTION-ORDER.md",
+    "control-tower/05-CAPABILITIES-AND-CONSTRAINTS.yaml",
+    "control-tower/06-SOURCE-OF-TRUTH-MAP.yaml",
+    "control-tower/08-DOCTRINE-INDEX.md",
+    "control-tower/11-PREFLIGHT-CHECKLIST.md",
+    "control-tower/12-POSTFLIGHT-CHECKLIST.md",
+    "docs/doctrine/kandydrops-product-doctrine.md",
+    "docs/doctrine/kandydrops-copy-doctrine.md"
+  ],
+  "launchCriticalSurfaces": [
+    {
+      "key": "auth_onboarding",
+      "label": "Auth and onboarding",
+      "riskRank": "P0",
+      "changePolicy": "Only launch-blocker fixes, security/auth correctness fixes, or validation updates.",
+      "requiredGates": ["targeted auth/onboarding tests", "npm run typecheck -- --pretty false"]
+    },
+    {
+      "key": "drops_discovery",
+      "label": "Drops discovery",
+      "riskRank": "P1",
+      "changePolicy": "Only correctness, hydration, routing, or launch-blocking mobile fixes.",
+      "requiredGates": ["npm run check:drops-mobile-refinement", "npm run check:ui:runtime"]
+    },
+    {
+      "key": "drop_detail",
+      "label": "Drop detail",
+      "riskRank": "P1",
+      "changePolicy": "Only correctness, access, timer, price display, or launch-blocking detail fixes.",
+      "requiredGates": ["targeted drop detail tests", "npm run typecheck -- --pretty false"]
+    },
+    {
+      "key": "wallet_balance",
+      "label": "Wallet and Gum Drops balance",
+      "riskRank": "P0",
+      "changePolicy": "Frozen except verified wallet/balance correctness, source-of-funds, or security fixes.",
+      "requiredGates": ["targeted wallet/balance tests", "npm run typecheck -- --pretty false"]
+    },
+    {
+      "key": "purchase_flow",
+      "label": "Purchase flow",
+      "riskRank": "P0",
+      "changePolicy": "Frozen except verified payment blocker or protection fix.",
+      "requiredGates": ["targeted purchase tests", "npm run typecheck -- --pretty false"]
+    },
+    {
+      "key": "unlock_flow",
+      "label": "Unlock flow",
+      "riskRank": "P0",
+      "changePolicy": "Frozen except verified entitlement, purchase unlock, or content access blocker.",
+      "requiredGates": ["targeted unlock tests", "npm run typecheck -- --pretty false"]
+    },
+    {
+      "key": "viewer_content_access",
+      "label": "Viewer/content access",
+      "riskRank": "P0",
+      "changePolicy": "Only verified entitlement, viewer route, or protected content launch fixes.",
+      "requiredGates": ["targeted viewer/access tests", "npm run typecheck -- --pretty false"]
+    },
+    {
+      "key": "chat_messages",
+      "label": "Chat/messages",
+      "riskRank": "P1",
+      "changePolicy": "Only delivery, routing, shell, or mobile recovery fixes.",
+      "requiredGates": ["npm run check:user-chat-shell-routing"]
+    },
+    {
+      "key": "notifications",
+      "label": "Notifications",
+      "riskRank": "P1",
+      "changePolicy": "Only duplicate, missing, permission, delivery, or truth-state launch fixes.",
+      "requiredGates": ["npm run check:notification-pipeline"]
+    },
+    {
+      "key": "creator_profile_routing",
+      "label": "Creator profile routing",
+      "riskRank": "P1",
+      "changePolicy": "Only broken profile navigation, recovery, or accessibility launch fixes.",
+      "requiredGates": ["npm run check:user-chat-shell-routing", "npm run typecheck -- --pretty false"]
+    },
+    {
+      "key": "not_found_recovery",
+      "label": "404/recovery routes",
+      "riskRank": "P1",
+      "changePolicy": "Only truthful recovery, navigation, and launch-blocking route fixes.",
+      "requiredGates": ["npm run check:not-found"]
+    },
+    {
+      "key": "admin_truth",
+      "label": "Admin overview/analytics/debug truth",
+      "riskRank": "P2",
+      "changePolicy": "Only truth-preserving, snapshot-first, Debug-preserving launch fixes.",
+      "requiredGates": [
+        "npm run check:human-readable-admin-copy",
+        "npm run check:refresh-based-hot-cache",
+        "npm run check:admin-truth"
+      ]
+    },
+    {
+      "key": "route_protection",
+      "label": "Security/payment/admin route protection",
+      "riskRank": "P0",
+      "changePolicy": "Only verified protection, auth, CSRF, payment, or admin access fixes.",
+      "requiredGates": ["targeted route protection tests", "npm run check:firebase:rules"]
+    },
+    {
+      "key": "mobile_nav_safe_area",
+      "label": "Mobile bottom-nav and safe-area layout",
+      "riskRank": "P1",
+      "changePolicy": "Only launch-blocking mobile overlap, navigation, or safe-area fixes.",
+      "requiredGates": ["npm run check:drops-mobile-refinement", "npm run check:ui:runtime"]
+    }
+  ],
+  "categories": {
+    "blocked": [],
+    "warnings": [
+      "Wallet, Gum Drops balance, purchase, and unlock flows are P0 launch risks.",
+      "Auth, onboarding, viewer access, and protected admin/payment routes are P0 launch risks.",
+      "Notifications, chat/messages, creator routing, Drops discovery/detail, 404 recovery, and mobile safe-area layout are P1 launch risks.",
+      "Admin overview, analytics, and Debug truth are P2 launch risks and must remain truth-preserving.",
+      "Recent hot-cache, parity, admin truth, notification, task, chat, and drop card migrations are stabilization zones."
+    ],
+    "deferred": [
+      "New analytics modules or architecture expansion.",
+      "New creator tools, merchandising systems, profile experiments, or discovery mechanics.",
+      "AI generation feature expansion unless required for an existing launch blocker.",
+      "A/B tests, conversion experiments, and speculative personalization.",
+      "Broad visual redesigns, large component rewrites, and non-blocking performance experiments.",
+      "Telemetry schema expansion unless required for launch-critical admin truth.",
+      "Non-critical oversized-module cleanup."
+    ]
+  },
+  "frozenFeatureList": [
+    "GumDrops economy mechanics and source-of-funds behavior",
+    "PayPal and purchase contract semantics",
+    "Unlock entitlement semantics and viewer access rules",
+    "Admin Analytics architecture beyond verified snapshot/hot-cache truth fixes",
+    "Admin Debug evidence model beyond truth-preserving launch fixes",
+    "Creator profile routing behavior except broken route recovery",
+    "Chat/message routing behavior except launch-blocking delivery or navigation defects",
+    "Notification pipeline behavior except duplicate, missing, or false-state launch defects",
+    "Drops merchandising, ranking, and discovery feature behavior beyond correctness fixes",
+    "AI/admin generation behavior except launch-blocking failures or unsafe output handling"
+  ],
+  "allowedChangeTypes": [
+    "Verified launch-blocker bug fixes on a launch-critical surface",
+    "Security, payment, auth, admin route protection, or entitlement fixes backed by failing checks or direct code evidence",
+    "Truth-preserving copy or diagnostic corrections that expose the real state more clearly",
+    "Narrow hydration, mobile safe-area, accessibility, or recovery-route fixes required for launch use",
+    "Targeted tests, validation scripts, docs, and checklist updates tied to launch gates",
+    "Fixes that preserve existing snapshots, hot-cache truth, Debug metadata, and validation output"
+  ],
+  "forbiddenChangeTypes": [
+    "New product features or feature expansion",
+    "Full-page redesigns or large visual overhauls",
+    "Architecture rewrites without verified launch-blocker evidence",
+    "Cosmetic copy that hides a failure, source delay, missing snapshot, or partial state",
+    "Removing validation, Debug truth, source labels, or audit evidence",
+    "Publicly caching private admin, payment, wallet, or user data",
+    "Fake zeros, fake pass states, fake live states, generic waiting, or silent fallbacks",
+    "Touching unrelated modules while fixing a launch surface",
+    "Changing wallet, PayPal, GumDrops, unlock, or entitlement semantics without explicit approval and proof",
+    "Deleting realtime listeners, legacy parity guards, or hot-cache fallbacks because they are inconvenient"
+  ],
+  "requiredValidationGates": [
+    "npm run check:launch-finalization-baseline",
+    "npm run typecheck -- --pretty false",
+    "npm run check:human-readable-admin-copy",
+    "npm run check:refresh-based-hot-cache",
+    "npm run check:global-loading-performance",
+    "npm run check:admin-truth",
+    "npm run check:admin-analytics-hot-cache",
+    "npm run check:notification-pipeline",
+    "npm run check:user-chat-shell-routing",
+    "npm run check:drops-mobile-refinement",
+    "npm run check:not-found",
+    "npm run check:ui:coverage",
+    "npm run check:ui:runtime",
+    "npm run check:firebase:rules",
+    "npm --prefix functions run check"
+  ],
+  "riskRanking": [
+    {
+      "rank": "P0",
+      "surfaces": [
+        "Auth and onboarding",
+        "Wallet and Gum Drops balance",
+        "Purchase flow",
+        "Unlock flow",
+        "Viewer/content access",
+        "Security/payment/admin route protection"
+      ],
+      "meaning": "Launch can be blocked, security can regress, money/entitlement can break, or protected data can be exposed."
+    },
+    {
+      "rank": "P1",
+      "surfaces": [
+        "Drops discovery",
+        "Drop detail",
+        "Chat/messages",
+        "Notifications",
+        "Creator profile routing",
+        "404/recovery routes",
+        "Mobile bottom-nav and safe-area layout"
+      ],
+      "meaning": "Core user flow, navigation, communication, recovery, or mobile usability can break."
+    },
+    {
+      "rank": "P2",
+      "surfaces": [
+        "Admin overview/analytics/debug truth",
+        "analytics hot-cache and parity reports",
+        "operational diagnostics"
+      ],
+      "meaning": "Launch operation and confidence can degrade, but customer launch paths are usually not directly blocked."
+    },
+    {
+      "rank": "P3",
+      "surfaces": [
+        "non-critical polish",
+        "AI expansion",
+        "broad performance exploration",
+        "creator tooling expansion",
+        "A/B tests",
+        "speculative cleanup"
+      ],
+      "meaning": "Deferred unless directly tied to a verified launch blocker."
+    }
+  ],
+  "openPrRiskNotes": [
+    {
+      "number": 208,
+      "title": "Sentinel: [HIGH] Fix CSRF missing protection...",
+      "risk": "Potential P0/P2 admin refresh protection overlap; must be checked against route-protection and admin truth gates before merge."
+    },
+    {
+      "number": 207,
+      "title": "Bolt: Combine filtering and next expiration ...",
+      "risk": "Potential Drops discovery/drop timer overlap; must not alter pricing, expiry truth, or launch card behavior without targeted checks."
+    },
+    {
+      "number": 206,
+      "title": "Palette: Add ARIA state attributes to Creator...",
+      "risk": "Potential creator experience accessibility overlap; validate route/profile behavior stays frozen."
+    },
+    {
+      "number": 205,
+      "title": "Reduce doctrine drift and banned-pattern rei...",
+      "risk": "Governance overlap; reconcile with this scope freeze before merging."
+    },
+    {
+      "number": 204,
+      "title": "Improve onboarding friction visibility and t...",
+      "risk": "P0 onboarding telemetry/truth overlap; must not change onboarding behavior without blocker proof."
+    },
+    {
+      "number": 203,
+      "title": "Bolt: Consolidate drops filtering and expiry...",
+      "risk": "Potential Drops discovery/drop timer overlap; must preserve launch freeze."
+    },
+    {
+      "number": 202,
+      "title": "Audit package metadata and source-of-funds t...",
+      "risk": "Potential wallet/source-of-funds overlap; money/economy semantics are frozen unless blocker proof exists."
+    },
+    {
+      "number": 201,
+      "title": "Bolt: Consolidate data filtering and expiry ...",
+      "risk": "Potential Drops discovery/drop timer overlap; must preserve launch freeze."
+    }
+  ],
+  "commitRiskNotes": [
+    "371b80cf refactor(admin): add human-readable truth copy layer",
+    "9936fd46 refactor(cache): make analytics refresh-based hot cache first",
+    "b69bf4cd fix(perf): audit loading paths and preserve hot cache first render",
+    "715766c2 fix(drops): simplify final-day countdown typography",
+    "5a83af7b fix(admin-moderation): harden security alert truth",
+    "9b75aea2 fix(admin-analytics): audit realtime dependencies and prefer hot cache",
+    "afdf74c7 fix(chat): enforce messages list bottom nav spacing",
+    "05343a4a fix(chat): align message shell and repair profile routing"
+  ],
+  "scopeFreezeRules": [
+    "Start from launch-critical surfaces and prove the blocker before editing.",
+    "Use verified runtime code, configuration, and command output over generated docs.",
+    "Age, delay, partial state, or source caveats must be labeled truthfully instead of hidden.",
+    "Do not make stale or estimated data look live.",
+    "Do not remove validation or Debug evidence during launch hardening.",
+    "Run targeted gates first and reserve broad slow audits for signoff or blocker proof."
+  ],
+  "validation": {
+    "script": "npm run check:launch-finalization-baseline",
+    "typescriptRequiredBecauseToolingChanged": true,
+    "broadSlowAuditsRequired": false
+  }
+}

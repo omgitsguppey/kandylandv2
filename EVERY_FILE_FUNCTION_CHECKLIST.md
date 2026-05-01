@@ -1,13 +1,21 @@
 # EVERY FILE FUNCTION CHECKLIST
 
 **Last Updated:** 2026-05-01
-**Current Focus:** Human-readable admin truth copy hardening.
+**Current Focus:** Launch Finalization Scope Freeze.
 **Status:** In Progress. Current tracked-file coverage is reconciled as of 2026-04-28: every `git ls-files` entry has a current checklist heading, while detailed function-level audits remain pending for many historical and newly reconciled files.
 Purpose: exhaustive no-skip audit checklist covering every repository file currently in scope and every detected function-like implementation.
 
 Scoring: all entries below are marked as included in the current validated sweep. Confidence reflects current repository-state confidence, not perfection or future-proofing.
 
 Current repo-wide state snapshot: see [FULL_SCALE_CODEBASE_AUDIT.md](/Users/uylus/OneDrive/Documents/KandyDrops_Final/FULL_SCALE_CODEBASE_AUDIT.md) for the current live baseline, verification state, and continuity rules, and see [REPO_MEMORY_LEDGER.md](/Users/uylus/OneDrive/Documents/KandyDrops_Final/REPO_MEMORY_LEDGER.md) for major architectural and workflow decisions. The detailed file/function body below remains valuable historical evidence, but it has not been fully regenerated against the current 2026-04-18 inventory review yet.
+
+## 2026-05-01 Launch Finalization Scope Freeze Coverage
+
+- [x] `docs/agent-truth/launch-finalization-scope.md` defines launch-critical surfaces, blocked/warning/deferred categories, frozen features, allowed and forbidden change types, validation gates, risk ranking, and current PR/commit risk notes.
+- [x] `agent/state/launch-finalization-baseline.generated.json` records the machine-readable launch baseline for future agents and validations.
+- [x] `scripts/agent/validate-launch-finalization-baseline.ts` verifies the scope doc, baseline JSON, required surface list, deferred separation, forbidden change types, validation gates, and governance ledger updates.
+- [x] `package.json` exposes `npm run check:launch-finalization-baseline`.
+- [x] `FULL_SCALE_CODEBASE_AUDIT.md`, `REPO_MEMORY_LEDGER.md`, and this checklist record the launch-finalization scope freeze.
 
 ## 2026-05-01 Human-Readable Admin Truth Copy Coverage
 

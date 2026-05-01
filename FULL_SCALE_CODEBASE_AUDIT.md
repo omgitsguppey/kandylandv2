@@ -1,5 +1,25 @@
 # KandyDrops Core Codebase Audit & Defensive Ledger
 
+## [2026-05-01 #71] PRE: Launch Finalization Scope Freeze
+
+Scope started:
+- Defining the launch-finalization baseline, launch-critical surfaces, frozen feature boundaries, blocked/warning/deferred categories, validation gates, risk ranking, and current PR/commit risk notes.
+- Restricting this pass to docs, generated baseline state, and targeted validation tooling. No application behavior, UI, payment, wallet, auth, telemetry, or Firebase architecture code was changed.
+
+Initial evidence:
+- Startup worktree was clean on `main` at `371b80cf`.
+- `gh pr status` reported no pull request for the current branch and showed adjacent open PRs touching CSRF/admin refresh, Drops filtering/expiry, creator accessibility, doctrine drift, onboarding friction, and source-of-funds/package metadata.
+- Recent local commits show stabilization migrations for admin copy, refresh-based hot cache, global loading performance, drop card countdown typography, admin moderation security alert truth, Admin Analytics realtime dependency correction, and chat/profile routing.
+
+Scope completed:
+- Added `docs/agent-truth/launch-finalization-scope.md` as the launch scope-freeze doctrine for critical surfaces, blocked/warning/deferred categories, frozen features, allowed/forbidden change types, validation gates, risk ranking, and PR/commit risk notes.
+- Added `agent/state/launch-finalization-baseline.generated.json` as machine-readable launch baseline state.
+- Added `scripts/agent/validate-launch-finalization-baseline.ts` and `npm run check:launch-finalization-baseline` to guard the scope doc, baseline JSON, validation gates, and ledger updates.
+- Updated `REPO_MEMORY_LEDGER.md` and `EVERY_FILE_FUNCTION_CHECKLIST.md` with the new launch-finalization rule and coverage.
+
+Residual risk:
+- This pass intentionally did not inspect or change runtime launch surfaces. Future launch fixes must prove the blocker with code/config/command evidence and run the narrow surface gate before changing frozen areas.
+
 ## [2026-05-01 #70] PRE: Human-Readable Admin Truth Copy Hardening
 
 Scope started:
