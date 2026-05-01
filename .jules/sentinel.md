@@ -26,3 +26,7 @@
 **Vulnerability:** Open redirect risk in `normalizeActionUrl` via inputs like `//evil.com` or `/\evil.com`.
 **Learning:** Checking that `parsed.origin === ADMIN_DROP_URL_BASE` is insufficient if the output simply appends `parsed.pathname`, because the URL constructor preserves `//` at the start of the `pathname` property for certain inputs.
 **Prevention:** Always verify that `pathname` does not start with `//` or `/\\` when extracting relative paths from user-provided URLs.
+## 2025-05-18 - admin/analytics/refresh/route.ts
+**Vulnerability:** Missing CSRF protection on POST endpoint for analytics refresh.
+**Learning:** Some Next.js API route handlers using guardApiRequest were missing the requireTrustedOrigin flag, which leaves them vulnerable to CSRF.
+**Prevention:** Ensure all state-mutating API routes (POST, PUT, DELETE) explicitly include requireTrustedOrigin: true in their guardApiRequest configuration.

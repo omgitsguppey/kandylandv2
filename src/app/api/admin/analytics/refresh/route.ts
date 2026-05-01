@@ -112,6 +112,7 @@ async function POST_handler(request: NextRequest) {
       preAuthRouteName: "admin/analytics/refresh/preauth",
       preAuthRateLimit: ADMIN_ANALYTICS,
       rateLimit: ADMIN_ANALYTICS,
+      requireTrustedOrigin: true,
       auth: "admin",
       scopeToCaller: true,
     });
