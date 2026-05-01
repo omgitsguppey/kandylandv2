@@ -24,6 +24,15 @@ This file is not a changelog. It is the concise ledger for durable decisions tha
 
 ## Decision Entries
 
+### 1cb. Launch PR triage is a manual decision gate
+
+- Approximate date: Recorded explicitly on 2026-05-01 from the launch PR and recent-commit triage pass
+- Status: Active launch governance and PR intake rule
+- Decision: Open PRs must be classified for launch relevance, duplication, risk, tests, and conflict potential before any merge or close action. No PR was merged, closed, rebased, or edited during the triage pass.
+- Implementation: `agent/state/launch-pr-triage.generated.json` records all open PRs at triage (#208 through #201), latest 20 commits, duplicate groups, required tests, files touched, risk, source-of-truth doc/validator impact, and recommendations. `docs/agent-truth/launch-pr-triage.md` provides the human-readable triage summary.
+- Required validation: `npm run check:launch-pr-triage`.
+- Consequence for future work: Review PR #208 first as launch-critical security hardening. If a `useDrops` optimization is accepted, choose one survivor only, currently PR #207, and supersede PR #203 and PR #201. Do not merge dirty or stale PRs that contradict the launch scope freeze, hot-cache truth, admin copy layer, DropCard timer/card work, or package-manager truth.
+
 ### 1ca. Launch finalization scope is frozen
 
 - Approximate date: Recorded explicitly on 2026-05-01 from the launch-finalization scope-freeze pass

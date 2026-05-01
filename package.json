@@ -55,6 +55,7 @@
         "check:refresh-based-hot-cache": "tsx scripts/agent/validate-refresh-based-hot-cache.ts",
         "check:human-readable-admin-copy": "tsx scripts/agent/validate-human-readable-admin-copy.ts",
         "check:launch-finalization-baseline": "tsx scripts/agent/validate-launch-finalization-baseline.ts",
+        "check:launch-pr-triage": "tsx scripts/agent/validate-launch-pr-triage.ts",
         "check:admin-analytics-snapshot-migration": "tsx scripts/agent/validate-admin-analytics-snapshot-migration.ts",
         "check:admin-analytics-no-pure-realtime": "tsx scripts/agent/validate-admin-analytics-no-pure-realtime.ts",
         "analytics:legacy:inventory": "tsx scripts/analytics/inventory-legacy-sources.ts",

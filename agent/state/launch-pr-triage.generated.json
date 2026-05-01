@@ -1,0 +1,784 @@
+{
+  "generatedAt": "2026-05-01T00:00:00.000-05:00",
+  "task": "launch-pr-and-recent-commit-triage",
+  "repository": "omgitsguppey/kandylandv2",
+  "branch": "main",
+  "headCommitAtTriage": "9b435162",
+  "automaticMergePerformed": false,
+  "automaticClosePerformed": false,
+  "openPrNumbersAtTriage": [208, 207, 206, 205, 204, 203, 202, 201],
+  "classificationLegend": [
+    "merge candidate",
+    "needs verification",
+    "duplicate/superseded",
+    "launch blocker",
+    "post-launch",
+    "risky/needs human review"
+  ],
+  "summary": {
+    "openPrCount": 8,
+    "latestCommitCount": 20,
+    "mergeCandidates": [208, 206],
+    "needsVerification": [207, 204, 202],
+    "duplicateOrSuperseded": [203, 201],
+    "launchBlockers": [208],
+    "postLaunch": [205],
+    "riskyNeedsHumanReview": [205, 204, 202],
+    "highestPriority": "PR 208 should be reviewed first because it protects a state-mutating admin analytics refresh POST route.",
+    "doNotAutoMerge": "No merge, close, or rebase action was performed during triage."
+  },
+  "openPullRequests": [
+    {
+      "number": 208,
+      "title": "Sentinel: [HIGH] Fix CSRF missing protection in admin analytics refresh API",
+      "url": "https://github.com/omgitsguppey/kandylandv2/pull/208",
+      "headRef": "sentinel-csrf-protection-admin-refresh-13148400785392851418",
+      "baseRef": "main",
+      "mergeStateStatus": "CLEAN",
+      "classification": "launch blocker",
+      "secondaryClassification": "merge candidate",
+      "filesTouched": [
+        ".jules/sentinel.md",
+        "src/app/api/admin/analytics/refresh/route.ts"
+      ],
+      "systemArea": "admin analytics refresh route protection",
+      "riskLevel": "high",
+      "launchRelevance": "P0 security/admin route protection. The POST route is state-mutating and currently lacks requireTrustedOrigin in main.",
+      "likelyConflicts": [
+        "Recent hot-cache and refresh-route commits touched src/app/api/admin/analytics/refresh/route.ts.",
+        "No textual merge conflict reported by GitHub at triage, but behavior must be checked against refresh preservation and admin auth."
+      ],
+      "requiredTests": [
+        "npm run check:refresh-based-hot-cache",
+        "npm run check:global-loading-performance",
+        "npx vitest run tests/unit/admin-analytics-refresh-route.spec.ts",
+        "npm run typecheck -- --pretty false"
+      ],
+      "recommendation": "Review and merge first after targeted route tests pass. This is launch-critical security hardening.",
+      "touchesSourceOfTruthDocsOrValidators": true,
+      "sourceOfTruthDocsOrValidators": [".jules/sentinel.md"],
+      "notes": "The product code change is one guardApiRequest option: requireTrustedOrigin: true."
+    },
+    {
+      "number": 207,
+      "title": "Bolt: Combine filtering and next expiration calculation in useDrops",
+      "url": "https://github.com/omgitsguppey/kandylandv2/pull/207",
+      "headRef": "bolt-usedrops-perf-10856231722249031227",
+      "baseRef": "main",
+      "mergeStateStatus": "CLEAN",
+      "classification": "needs verification",
+      "secondaryClassification": "merge candidate",
+      "filesTouched": [
+        ".jules/bolt.md",
+        "FULL_SCALE_CODEBASE_AUDIT.md",
+        "src/hooks/useDrops.ts"
+      ],
+      "systemArea": "Drops discovery performance and runtime expiry refresh",
+      "riskLevel": "medium",
+      "launchRelevance": "P1 launch performance for Drops discovery. It is not a blocker unless current Drops loading remains slow.",
+      "likelyConflicts": [
+        "Duplicates PR 203 and PR 201 on src/hooks/useDrops.ts.",
+        "Overlaps recent Drops mobile and countdown commits that changed useDrops timing and first-render behavior."
+      ],
+      "requiredTests": [
+        "npm run check:drops-mobile-refinement",
+        "npx vitest run tests/unit/drops-route.spec.ts tests/unit/drop-status.spec.ts tests/unit/drop-countdown.spec.ts",
+        "npm run typecheck -- --pretty false"
+      ],
+      "recommendation": "If one useDrops optimization is accepted, prefer PR 207 because it is newest and clean. Do not merge PR 203 or PR 201 afterward.",
+      "touchesSourceOfTruthDocsOrValidators": true,
+      "sourceOfTruthDocsOrValidators": ["FULL_SCALE_CODEBASE_AUDIT.md", ".jules/bolt.md"],
+      "notes": "Keep only one useDrops optimization path. Validate active/scheduled filters and expiry refresh timing carefully."
+    },
+    {
+      "number": 206,
+      "title": "Palette: Add ARIA state attributes to Creator Experiences Panel",
+      "url": "https://github.com/omgitsguppey/kandylandv2/pull/206",
+      "headRef": "jules-palette-a11y-creator-experiences-1996611093100102888",
+      "baseRef": "main",
+      "mergeStateStatus": "CLEAN",
+      "classification": "merge candidate",
+      "secondaryClassification": "needs verification",
+      "filesTouched": [
+        ".Jules/palette.md",
+        "src/components/Creators/CreatorExperiencesPanel.tsx"
+      ],
+      "systemArea": "creator profile accessibility",
+      "riskLevel": "low",
+      "launchRelevance": "P1 creator profile routing/accessibility surface. Small UI-only accessibility improvement.",
+      "likelyConflicts": [
+        "No current textual conflict reported by GitHub.",
+        "Must not convert static chips into fake interactive controls or change creator commerce behavior."
+      ],
+      "requiredTests": [
+        "npm run typecheck -- --pretty false",
+        "targeted CreatorExperiencesPanel accessibility/render test if present",
+        "npm run check:ui:runtime only if broader creator UI is touched during rebase"
+      ],
+      "recommendation": "Safe merge candidate after a quick accessibility and TypeScript check.",
+      "touchesSourceOfTruthDocsOrValidators": true,
+      "sourceOfTruthDocsOrValidators": [".Jules/palette.md"],
+      "notes": "Adds aria-expanded and aria-pressed attributes; no product logic change detected."
+    },
+    {
+      "number": 205,
+      "title": "Reduce doctrine drift and banned-pattern reintroduction",
+      "url": "https://github.com/omgitsguppey/kandylandv2/pull/205",
+      "headRef": "fix/doctrine-banned-patterns-drift-5368082492759323947",
+      "baseRef": "main",
+      "mergeStateStatus": "DIRTY",
+      "classification": "post-launch",
+      "secondaryClassification": "risky/needs human review",
+      "filesTouched": [
+        "pnpm-lock.yaml",
+        "src/app/admin/debug/components/DebugMonitoringRoutes.tsx",
+        "src/app/admin/debug/components/DebugNowDiagnostics.tsx",
+        "src/app/admin/debug/components/DebugTabNow.tsx",
+        "src/app/admin/debug/page.tsx",
+        "src/app/admin/user/[userId]/page.tsx",
+        "src/components/Dashboard/OwnedDropGalleryCard.tsx",
+        "src/components/DropCard.tsx",
+        "src/components/InsufficientBalanceModal.tsx"
+      ],
+      "systemArea": "doctrine copy, admin debug truth, Drop cards, wallet modal UI",
+      "riskLevel": "high",
+      "launchRelevance": "Touches launch-critical admin truth, Drop cards, owned gallery, and wallet UI, but is dirty and adds a pnpm lockfile to an npm/package-lock repo.",
+      "likelyConflicts": [
+        "Dirty against current main.",
+        "Likely conflicts with recent DropCard split/countdown typography work.",
+        "Likely conflicts with human-readable admin truth copy changes.",
+        "Adds pnpm-lock.yaml, which conflicts with current package-manager truth."
+      ],
+      "requiredTests": [
+        "npm run check:human-readable-admin-copy",
+        "npm run check:drops-mobile-refinement",
+        "npm run check:admin-truth",
+        "npm run typecheck -- --pretty false"
+      ],
+      "recommendation": "Do not merge as-is for launch. If any doctrine fixes are still wanted, cherry-pick narrowly after removing pnpm-lock.yaml and revalidating admin/drop/wallet copy.",
+      "touchesSourceOfTruthDocsOrValidators": false,
+      "sourceOfTruthDocsOrValidators": [],
+      "notes": "Some intent is valid, but the PR predates newer admin copy and DropCard fixes."
+    },
+    {
+      "number": 204,
+      "title": "Improve onboarding friction visibility and technical rescue signals",
+      "url": "https://github.com/omgitsguppey/kandylandv2/pull/204",
+      "headRef": "fix-onboarding-friction-tracking-700452895546873993",
+      "baseRef": "main",
+      "mergeStateStatus": "DIRTY",
+      "classification": "risky/needs human review",
+      "secondaryClassification": "needs verification",
+      "filesTouched": [
+        "EVERY_FILE_FUNCTION_CHECKLIST.md",
+        "FULL_SCALE_CODEBASE_AUDIT.md",
+        "src/components/DropPreviewModal.tsx",
+        "src/components/PurchaseModal.tsx",
+        "src/lib/telemetry-catalog.ts",
+        "src/lib/telemetry.ts"
+      ],
+      "systemArea": "onboarding friction telemetry, purchase/drop preview telemetry",
+      "riskLevel": "high",
+      "launchRelevance": "Touches P0 purchase modal and P1 drop preview telemetry. Could improve launch diagnostics but expands telemetry during scope freeze.",
+      "likelyConflicts": [
+        "Dirty against current main.",
+        "Overlaps recent telemetry orphan cleanup, analytics event contract, purchase/source-of-funds, and DropPreview changes.",
+        "May need catalog, ingest, admin analytics, and Debug parity updates to avoid orphan telemetry."
+      ],
+      "requiredTests": [
+        "npm run check:telemetry",
+        "npm run check:analytics-event-contract",
+        "npm run check:human-readable-admin-copy if admin/debug copy is affected",
+        "targeted PurchaseModal and DropPreviewModal tests if present",
+        "npm run typecheck -- --pretty false"
+      ],
+      "recommendation": "Do not merge during launch freeze unless onboarding friction telemetry is declared launch-critical. Rebase manually and prove no telemetry orphan or purchase-flow regression.",
+      "touchesSourceOfTruthDocsOrValidators": true,
+      "sourceOfTruthDocsOrValidators": [
+        "EVERY_FILE_FUNCTION_CHECKLIST.md",
+        "FULL_SCALE_CODEBASE_AUDIT.md",
+        "src/lib/telemetry-catalog.ts"
+      ],
+      "notes": "The added event wallet_closed_incomplete needs full telemetry/admin truth handling before launch acceptance."
+    },
+    {
+      "number": 203,
+      "title": "Bolt: Consolidate drops filtering and expiry calculation in useDrops",
+      "url": "https://github.com/omgitsguppey/kandylandv2/pull/203",
+      "headRef": "bolt-consolidate-usedrops-11715125348505162295",
+      "baseRef": "main",
+      "mergeStateStatus": "CLEAN",
+      "classification": "duplicate/superseded",
+      "secondaryClassification": "post-launch",
+      "filesTouched": [
+        ".jules/bolt.md",
+        "src/hooks/useDrops.ts"
+      ],
+      "systemArea": "Drops discovery performance and runtime expiry refresh",
+      "riskLevel": "medium",
+      "launchRelevance": "Same P1 Drops performance area as PR 207 and PR 201.",
+      "likelyConflicts": [
+        "Duplicates PR 207 and PR 201.",
+        "Would conflict semantically if more than one useDrops optimization PR is merged."
+      ],
+      "requiredTests": [
+        "Same as PR 207 if selected instead: npm run check:drops-mobile-refinement, targeted drop tests, npm run typecheck -- --pretty false"
+      ],
+      "recommendation": "Supersede with PR 207. Do not merge after PR 207.",
+      "touchesSourceOfTruthDocsOrValidators": true,
+      "sourceOfTruthDocsOrValidators": [".jules/bolt.md"],
+      "notes": "Older variant of the same single-pass useDrops optimization."
+    },
+    {
+      "number": 202,
+      "title": "Audit package metadata and source-of-funds truth",
+      "url": "https://github.com/omgitsguppey/kandylandv2/pull/202",
+      "headRef": "audit-package-metadata-967361559244833178",
+      "baseRef": "main",
+      "mergeStateStatus": "DIRTY",
+      "classification": "risky/needs human review",
+      "secondaryClassification": "needs verification",
+      "filesTouched": [
+        "FULL_SCALE_CODEBASE_AUDIT.md",
+        "src/components/PurchaseModal.tsx"
+      ],
+      "systemArea": "wallet purchase UI and source-of-funds truth",
+      "riskLevel": "high",
+      "launchRelevance": "P0 wallet/purchase truth. It fixes visible paid-vs-bonus GumDrops copy, but purchase UI semantics are frozen during launch unless manually verified.",
+      "likelyConflicts": [
+        "Dirty against current main.",
+        "Overlaps PR 204 on PurchaseModal.",
+        "Potentially conflicts with current package loading and purchase telemetry."
+      ],
+      "requiredTests": [
+        "targeted PurchaseModal render/economics tests if present",
+        "npm run typecheck -- --pretty false",
+        "payment/wallet launch smoke check",
+        "npm run check:human-readable-admin-copy only if admin copy is touched during rebase"
+      ],
+      "recommendation": "Human review required. If the visible source-of-funds mismatch still exists, apply as a narrow launch fix after rebase and wallet verification.",
+      "touchesSourceOfTruthDocsOrValidators": true,
+      "sourceOfTruthDocsOrValidators": ["FULL_SCALE_CODEBASE_AUDIT.md"],
+      "notes": "Current main still displays pkg.drops in PurchaseModal package rows at triage, so the issue may remain real even though the PR is dirty."
+    },
+    {
+      "number": 201,
+      "title": "Bolt: Consolidate data filtering and expiry timer calculation",
+      "url": "https://github.com/omgitsguppey/kandylandv2/pull/201",
+      "headRef": "bolt-use-drops-optimization-7385381609184839189",
+      "baseRef": "main",
+      "mergeStateStatus": "CLEAN",
+      "classification": "duplicate/superseded",
+      "secondaryClassification": "post-launch",
+      "filesTouched": [
+        ".jules/bolt.md",
+        "src/hooks/useDrops.ts"
+      ],
+      "systemArea": "Drops discovery performance and runtime expiry refresh",
+      "riskLevel": "medium",
+      "launchRelevance": "Same P1 Drops performance area as PR 207 and PR 203.",
+      "likelyConflicts": [
+        "Duplicates PR 207 and PR 203.",
+        "Oldest useDrops optimization variant."
+      ],
+      "requiredTests": [
+        "Same as PR 207 if selected instead: npm run check:drops-mobile-refinement, targeted drop tests, npm run typecheck -- --pretty false"
+      ],
+      "recommendation": "Supersede with PR 207. Do not merge after PR 207.",
+      "touchesSourceOfTruthDocsOrValidators": true,
+      "sourceOfTruthDocsOrValidators": [".jules/bolt.md"],
+      "notes": "Oldest duplicate implementation."
+    }
+  ],
+  "duplicateGroups": [
+    {
+      "key": "useDrops-single-pass-filter-and-expiry",
+      "prs": [207, 203, 201],
+      "sharedFiles": ["src/hooks/useDrops.ts", ".jules/bolt.md"],
+      "survivorRecommendation": 207,
+      "reason": "All three PRs consolidate drop filtering and next-expiry calculation. Keeping more than one would duplicate or conflict semantically."
+    }
+  ],
+  "latest20Commits": [
+    {
+      "sha": "9b4351629889c66a2cb217afa0b7be8adf2b9319",
+      "shortSha": "9b435162",
+      "date": "2026-05-01",
+      "title": "docs(launch): define finalization scope and gates",
+      "classification": "merge candidate",
+      "currentState": "already_on_main",
+      "filesTouched": [
+        "EVERY_FILE_FUNCTION_CHECKLIST.md",
+        "FULL_SCALE_CODEBASE_AUDIT.md",
+        "REPO_MEMORY_LEDGER.md",
+        "agent/state/launch-finalization-baseline.generated.json",
+        "docs/agent-truth/launch-finalization-scope.md",
+        "package.json",
+        "scripts/agent/validate-launch-finalization-baseline.ts"
+      ],
+      "systemArea": "launch governance",
+      "riskLevel": "low",
+      "launchRelevance": "Defines current launch scope freeze and validation gates.",
+      "likelyConflicts": ["PR 205 doctrine ledger changes may conflict with current governance docs."],
+      "requiredTests": ["npm run check:launch-finalization-baseline"],
+      "recommendation": "Keep as launch baseline.",
+      "touchesSourceOfTruthDocsOrValidators": true
+    },
+    {
+      "sha": "371b80cf42c03cd824e6f38e170b37b14fd54103",
+      "shortSha": "371b80cf",
+      "date": "2026-05-01",
+      "title": "refactor(admin): add human-readable truth copy layer",
+      "classification": "needs verification",
+      "currentState": "already_on_main",
+      "filesTouched": [
+        "docs/agent-truth/admin-copy-style-guide.md",
+        "docs/agent-truth/human-readable-admin-truth.md",
+        "scripts/agent/validate-human-readable-admin-copy.ts",
+        "src/lib/admin-copy/admin-copy-registry.ts",
+        "src/lib/admin-copy/admin-truth-copy.ts",
+        "src/app/admin/analytics/hooks/useAdminAnalyticsState.tsx",
+        "src/app/admin/debug/page.tsx",
+        "src/components/Admin/AdminStatusBadge.tsx",
+        "tests/unit/admin-truth-copy.spec.ts"
+      ],
+      "systemArea": "admin truth copy and debug translation",
+      "riskLevel": "medium",
+      "launchRelevance": "P2 admin operator trust. Prevents raw technical jargon in launch admin surfaces.",
+      "likelyConflicts": ["PR 205 changes older admin Debug labels and could partially contradict this layer."],
+      "requiredTests": ["npm run check:human-readable-admin-copy", "targeted admin copy mapper tests"],
+      "recommendation": "Keep. Reject older admin-copy changes that bypass the copy layer.",
+      "touchesSourceOfTruthDocsOrValidators": true
+    },
+    {
+      "sha": "9936fd46aced8c5e16b23f72a6640f1573d87654",
+      "shortSha": "9936fd46",
+      "date": "2026-05-01",
+      "title": "refactor(cache): make analytics refresh-based hot cache first",
+      "classification": "needs verification",
+      "currentState": "already_on_main",
+      "filesTouched": [
+        "src/lib/cache/refresh-cache-contract.ts",
+        "src/lib/analytics/admin-metric-snapshot.ts",
+        "src/lib/server/admin-analytics-snapshots.ts",
+        "src/lib/server/ephemeral-route-cache.ts",
+        "src/app/api/admin/analytics/historical/route.ts",
+        "src/app/api/admin/debug/route.ts",
+        "docs/agent-truth/refresh-based-hot-cache.md",
+        "scripts/agent/validate-refresh-based-hot-cache.ts",
+        "tests/unit/refresh-cache-contract.spec.ts"
+      ],
+      "systemArea": "refresh-based hot cache and Admin Analytics",
+      "riskLevel": "medium",
+      "launchRelevance": "P2 admin loading truth and operator confidence.",
+      "likelyConflicts": ["Any older analytics PR that treats realtime/time expiry as first-render truth."],
+      "requiredTests": ["npm run check:refresh-based-hot-cache", "npm run check:global-loading-performance"],
+      "recommendation": "Keep. Do not merge older analytics changes that blank verified snapshots.",
+      "touchesSourceOfTruthDocsOrValidators": true
+    },
+    {
+      "sha": "b69bf4cd0f83cbfc6bf1bfd3b91f59eb23df66a2",
+      "shortSha": "b69bf4cd",
+      "date": "2026-05-01",
+      "title": "fix(perf): audit loading paths and preserve hot cache first render",
+      "classification": "needs verification",
+      "currentState": "already_on_main",
+      "filesTouched": [
+        "src/app/admin/analytics/hooks/useAdminAnalyticsState.tsx",
+        "src/app/admin/analytics/loading.tsx",
+        "src/app/api/admin/analytics/refresh/route.ts",
+        "src/hooks/useAdminAnalyticsSnapshot.ts",
+        "src/hooks/useAdminAnalyticsSnapshotRegistry.ts",
+        "src/lib/analytics/admin-analytics-loading-state.ts",
+        "docs/agent-truth/global-loading-performance.md",
+        "scripts/agent/validate-global-loading-performance.ts"
+      ],
+      "systemArea": "Admin Analytics loading performance",
+      "riskLevel": "medium",
+      "launchRelevance": "P2 admin first useful paint and no fake waiting.",
+      "likelyConflicts": ["PR 208 touches the refresh route and should be tested against this behavior."],
+      "requiredTests": ["npm run check:global-loading-performance", "npx vitest run tests/unit/admin-analytics-refresh-route.spec.ts"],
+      "recommendation": "Keep and preserve snapshot-first loading during PR 208 merge.",
+      "touchesSourceOfTruthDocsOrValidators": true
+    },
+    {
+      "sha": "715766c241ddab55265fb4cce15f76c33e1357e4",
+      "shortSha": "715766c2",
+      "date": "2026-05-01",
+      "title": "fix(drops): simplify final-day countdown typography",
+      "classification": "needs verification",
+      "currentState": "already_on_main",
+      "filesTouched": [
+        "src/lib/drop-countdown.ts",
+        "src/components/DropCard.tsx",
+        "src/components/DropPreviewModal.tsx",
+        "src/hooks/useDrops.ts",
+        "tests/unit/drop-countdown.spec.ts",
+        "scripts/agent/validate-drops-mobile-refinement.ts"
+      ],
+      "systemArea": "Drops cards, timers, mobile performance",
+      "riskLevel": "medium",
+      "launchRelevance": "P1 Drops discovery and card truth.",
+      "likelyConflicts": ["PR 207/203/201 touch useDrops; PR 205 touches DropCard."],
+      "requiredTests": ["npm run check:drops-mobile-refinement", "npx vitest run tests/unit/drop-countdown.spec.ts"],
+      "recommendation": "Keep. Any useDrops PR must be checked against this timer behavior.",
+      "touchesSourceOfTruthDocsOrValidators": true
+    },
+    {
+      "sha": "5a83af7b6c8bfb53a2dd9ae705abeb1a290f329b",
+      "shortSha": "5a83af7b",
+      "date": "2026-04-30",
+      "title": "fix(admin-moderation): harden security alert truth",
+      "classification": "needs verification",
+      "currentState": "already_on_main",
+      "filesTouched": [
+        "src/app/api/security/log-attempt/route.ts",
+        "src/components/Admin/AdminModerationConsole.tsx",
+        "src/components/Admin/AdminModerationSecurityAlerts.tsx",
+        "src/lib/admin-moderation-security-alerts.ts",
+        "tests/unit/admin-moderation-security-alerts.spec.ts"
+      ],
+      "systemArea": "admin moderation and security alert truth",
+      "riskLevel": "medium",
+      "launchRelevance": "P0/P2 security visibility and admin protection.",
+      "likelyConflicts": ["Potential conceptual overlap with PR 208 security hardening."],
+      "requiredTests": ["npm run check:admin-truth", "targeted admin moderation security alert tests"],
+      "recommendation": "Keep. Security truth should not be softened by later copy-only PRs.",
+      "touchesSourceOfTruthDocsOrValidators": true
+    },
+    {
+      "sha": "9b75aea2a8ff49a7ad306f655320402934e21924",
+      "shortSha": "9b75aea2",
+      "date": "2026-04-30",
+      "title": "fix(admin-analytics): audit realtime dependencies and prefer hot cache",
+      "classification": "needs verification",
+      "currentState": "already_on_main",
+      "filesTouched": [
+        "src/lib/analytics/admin-analytics-display-state.ts",
+        "src/lib/admin-analytics-live-pulse.ts",
+        "src/app/admin/analytics/hooks/useAdminAnalyticsState.tsx",
+        "src/app/api/admin/debug/route.ts",
+        "docs/agent-truth/admin-analytics-realtime-to-hot-cache-audit.md",
+        "scripts/agent/validate-admin-analytics-no-pure-realtime.ts"
+      ],
+      "systemArea": "Admin Analytics realtime dependency correction",
+      "riskLevel": "medium",
+      "launchRelevance": "P2 admin truth; prevents realtime failure from blanking snapshots.",
+      "likelyConflicts": ["Older analytics PRs that make realtime first-render required."],
+      "requiredTests": ["npm run check:admin-analytics-no-pure-realtime", "npm run check:admin-analytics-live-pulse"],
+      "recommendation": "Keep and use as guardrail for any analytics PR.",
+      "touchesSourceOfTruthDocsOrValidators": true
+    },
+    {
+      "sha": "afdf74c7e284db8ac7299b6f99cc253435bf308b",
+      "shortSha": "afdf74c7",
+      "date": "2026-04-30",
+      "title": "fix(chat): enforce messages list bottom nav spacing",
+      "classification": "merge candidate",
+      "currentState": "already_on_main",
+      "filesTouched": [
+        "src/components/Chat/ChatExperience.tsx",
+        "src/components/Chat/ChatRouteShell.tsx",
+        "src/lib/user-mobile-shell.ts",
+        "docs/agent-truth/user-chat-shell-routing.md",
+        "scripts/agent/validate-user-chat-shell-routing.ts",
+        "tests/unit/chat-route-shell.spec.tsx"
+      ],
+      "systemArea": "chat/messages mobile shell",
+      "riskLevel": "medium",
+      "launchRelevance": "P1 chat/messages and bottom-nav safe-area.",
+      "likelyConflicts": ["Any future mobile shell PR touching user-mobile-shell or ChatRouteShell."],
+      "requiredTests": ["npm run check:user-chat-shell-routing"],
+      "recommendation": "Keep as current chat mobile baseline.",
+      "touchesSourceOfTruthDocsOrValidators": true
+    },
+    {
+      "sha": "05343a4a7e91976b0bf76c00cdd11d18c4c92c81",
+      "shortSha": "05343a4a",
+      "date": "2026-04-30",
+      "title": "fix(chat): align message shell and repair profile routing",
+      "classification": "merge candidate",
+      "currentState": "already_on_main",
+      "filesTouched": [
+        "src/components/CreatorDiscoveryRail.tsx",
+        "docs/agent-truth/user-chat-shell-routing.md",
+        "scripts/agent/validate-user-chat-shell-routing.ts"
+      ],
+      "systemArea": "creator routing and chat shell",
+      "riskLevel": "medium",
+      "launchRelevance": "P1 creator profile routing and chat recovery.",
+      "likelyConflicts": ["Potential conceptual overlap with creator accessibility PR 206."],
+      "requiredTests": ["npm run check:user-chat-shell-routing"],
+      "recommendation": "Keep; use PR 206 only if it does not change routing behavior.",
+      "touchesSourceOfTruthDocsOrValidators": true
+    },
+    {
+      "sha": "14baa004386cd0d3443d6f959ade235a827a7c61",
+      "shortSha": "14baa004",
+      "date": "2026-04-30",
+      "title": "fix(notifications): suppress duplicate drop push dispatch",
+      "classification": "merge candidate",
+      "currentState": "already_on_main",
+      "filesTouched": [
+        "src/lib/server/push-notifications.ts",
+        "tests/launch-qa.spec.ts",
+        "tests/unit/push-notifications.spec.ts",
+        "FULL_SCALE_CODEBASE_AUDIT.md",
+        "REPO_MEMORY_LEDGER.md"
+      ],
+      "systemArea": "notifications duplicate dispatch",
+      "riskLevel": "medium",
+      "launchRelevance": "P1 notifications.",
+      "likelyConflicts": ["Any notification PR touching duplicate prevention or FCM dispatch."],
+      "requiredTests": ["npm run check:notification-pipeline", "targeted push notification tests"],
+      "recommendation": "Keep; launch notifications must not send duplicate pushes.",
+      "touchesSourceOfTruthDocsOrValidators": true
+    },
+    {
+      "sha": "cba49efdc270439b3ab4a718f7ada5a29c557455",
+      "shortSha": "cba49efd",
+      "date": "2026-04-30",
+      "title": "fix(chat): align message shell and repair profile routing",
+      "classification": "merge candidate",
+      "currentState": "already_on_main",
+      "filesTouched": [
+        "src/components/Chat/ChatExperience.tsx",
+        "src/components/Navigation/MobileBottomBar.tsx",
+        "src/components/ui/NotFoundSurface.tsx",
+        "src/lib/creator-public-pages.ts",
+        "src/lib/user-mobile-shell.ts",
+        "tests/unit/creator-public-pages.spec.ts",
+        "tests/unit/not-found-surface.spec.tsx"
+      ],
+      "systemArea": "chat, creator routing, not-found recovery, mobile shell",
+      "riskLevel": "medium",
+      "launchRelevance": "P1 launch navigation and recovery.",
+      "likelyConflicts": ["Any PR touching mobile bottom bar, creator public pages, or not-found behavior."],
+      "requiredTests": ["npm run check:user-chat-shell-routing", "npm run check:not-found"],
+      "recommendation": "Keep as launch navigation baseline.",
+      "touchesSourceOfTruthDocsOrValidators": true
+    },
+    {
+      "sha": "ddac551278a5b000c06174f70fe99ec5da8f22c7",
+      "shortSha": "ddac5512",
+      "date": "2026-04-30",
+      "title": "refactor(admin-analytics): migrate to verified hot cache truth layer",
+      "classification": "needs verification",
+      "currentState": "already_on_main",
+      "filesTouched": [
+        "src/hooks/useAdminAnalyticsSnapshotRegistry.ts",
+        "src/app/admin/analytics/hooks/useAdminAnalyticsState.tsx",
+        "src/app/admin/analytics/page.tsx",
+        "src/app/api/admin/debug/route.ts",
+        "docs/agent-truth/admin-analytics-hot-cache.md",
+        "scripts/agent/validate-admin-analytics-snapshot-migration.ts",
+        "tests/unit/admin-analytics-page.spec.tsx"
+      ],
+      "systemArea": "Admin Analytics snapshot migration",
+      "riskLevel": "medium",
+      "launchRelevance": "P2 admin analytics truth and snapshot-first display.",
+      "likelyConflicts": ["Older analytics PRs that bypass snapshot registry."],
+      "requiredTests": ["npm run check:admin-analytics-snapshot-migration", "npm run check:admin-analytics-hot-cache"],
+      "recommendation": "Keep; do not merge older analytics changes that contradict snapshot registry.",
+      "touchesSourceOfTruthDocsOrValidators": true
+    },
+    {
+      "sha": "9c0b63d2780c5f9c829255d36818b4cdd93da83c",
+      "shortSha": "9c0b63d2",
+      "date": "2026-04-30",
+      "title": "feat(analytics): add legacy recovery and ecosystem parity checks",
+      "classification": "needs verification",
+      "currentState": "already_on_main",
+      "filesTouched": [
+        "src/lib/analytics/legacy-recovery-contract.ts",
+        "src/lib/analytics/legacy-event-mapping.ts",
+        "src/app/api/admin/debug/route.ts",
+        "scripts/analytics/inventory-legacy-sources.ts",
+        "scripts/analytics/map-legacy-events.ts",
+        "scripts/analytics/check-analytics-ecosystem-parity.ts",
+        "scripts/agent/validate-analytics-legacy-recovery.ts",
+        "docs/agent-truth/analytics-legacy-recovery.md"
+      ],
+      "systemArea": "analytics legacy recovery and parity",
+      "riskLevel": "medium",
+      "launchRelevance": "P2 admin analytics truth. Dry-run only.",
+      "likelyConflicts": ["Older telemetry PRs that introduce catalog events without parity handling."],
+      "requiredTests": ["npm run check:analytics-legacy-recovery", "targeted legacy recovery tests"],
+      "recommendation": "Keep dry-run. Do not run destructive recovery during launch freeze.",
+      "touchesSourceOfTruthDocsOrValidators": true
+    },
+    {
+      "sha": "4637276ea2057f571ac246d1fb95536d70b1cdcf",
+      "shortSha": "4637276e",
+      "date": "2026-04-30",
+      "title": "feat(analytics): add verified hot cache snapshots and refresh pipeline",
+      "classification": "needs verification",
+      "currentState": "already_on_main",
+      "filesTouched": [
+        "src/app/api/admin/analytics/refresh/route.ts",
+        "src/app/api/admin/debug/route.ts",
+        "src/hooks/useAdminAnalyticsSnapshot.ts",
+        "src/lib/analytics/admin-metric-snapshot.ts",
+        "src/lib/server/admin-analytics-materializers.ts",
+        "src/lib/server/admin-analytics-snapshots.ts",
+        "scripts/agent/validate-admin-analytics-hot-cache.ts",
+        "tests/unit/admin-analytics-refresh-route.spec.ts"
+      ],
+      "systemArea": "Admin Analytics hot cache snapshots",
+      "riskLevel": "medium",
+      "launchRelevance": "P2 admin analytics hot-cache baseline; security route hardening PR 208 builds on it.",
+      "likelyConflicts": ["PR 208 touches refresh route security on top of this pipeline."],
+      "requiredTests": ["npm run check:admin-analytics-hot-cache", "npx vitest run tests/unit/admin-analytics-refresh-route.spec.ts"],
+      "recommendation": "Keep; merge PR 208 only with this behavior preserved.",
+      "touchesSourceOfTruthDocsOrValidators": true
+    },
+    {
+      "sha": "829bd86976f34f683b369094b19253b5b9338ac2",
+      "shortSha": "829bd869",
+      "date": "2026-04-30",
+      "title": "feat(analytics): add canonical event contract and identity lanes",
+      "classification": "needs verification",
+      "currentState": "already_on_main",
+      "filesTouched": [
+        "src/lib/analytics/analytics-event-contract.ts",
+        "src/lib/analytics/legacy-event-mapping.ts",
+        "src/lib/client-session.ts",
+        "src/lib/telemetry-catalog.ts",
+        "scripts/agent/validate-analytics-event-contract.ts",
+        "tests/unit/analytics-event-contract.spec.ts"
+      ],
+      "systemArea": "telemetry identity lanes and event contract",
+      "riskLevel": "medium",
+      "launchRelevance": "P2 admin analytics truth and telemetry integrity.",
+      "likelyConflicts": ["PR 204 adds telemetry events and must satisfy this contract."],
+      "requiredTests": ["npm run check:analytics-event-contract", "npm run check:telemetry"],
+      "recommendation": "Keep; block orphan telemetry additions.",
+      "touchesSourceOfTruthDocsOrValidators": true
+    },
+    {
+      "sha": "3386ab9a173c0b447cd660f957432e680eaea610",
+      "shortSha": "3386ab9a",
+      "date": "2026-04-30",
+      "title": "docs(analytics): map truth layer v2 doctrine and blast radius",
+      "classification": "post-launch",
+      "currentState": "already_on_main",
+      "filesTouched": [
+        "docs/agent-truth/analytics-truth-layer-v2.md",
+        "docs/agent-truth/analytics-source-hierarchy.md",
+        "docs/agent-truth/analytics-actor-taxonomy.md",
+        "docs/agent-truth/analytics-module-map.md",
+        "docs/agent-truth/analytics-file-inventory.md",
+        "scripts/agent/validate-analytics-truth-layer-v2.ts"
+      ],
+      "systemArea": "analytics doctrine and validation",
+      "riskLevel": "low",
+      "launchRelevance": "P2 admin truth doctrine.",
+      "likelyConflicts": ["PR 205 doctrine changes may overlap governance wording."],
+      "requiredTests": ["npm run check:analytics-truth-layer-v2"],
+      "recommendation": "Keep as analytics doctrine baseline.",
+      "touchesSourceOfTruthDocsOrValidators": true
+    },
+    {
+      "sha": "ef6d78397b62737f594cd8ad6b505441f417c3dd",
+      "shortSha": "ef6d7839",
+      "date": "2026-04-30",
+      "title": "fix(admin-shell): reserve console spacing and stop content overlap",
+      "classification": "merge candidate",
+      "currentState": "already_on_main",
+      "filesTouched": [
+        "src/app/admin/layout.tsx",
+        "src/app/globals.css",
+        "src/lib/admin-shell-spacing.ts",
+        "docs/agent-truth/admin-shell-spacing.md",
+        "scripts/check-admin-shell-spacing.ts"
+      ],
+      "systemArea": "admin shell layout",
+      "riskLevel": "medium",
+      "launchRelevance": "P2 admin usability; prevents overlap.",
+      "likelyConflicts": ["Any UI-only admin shell layout PR."],
+      "requiredTests": ["npm run check:admin-shell-spacing", "npm run check:ui:runtime if admin shell changes again"],
+      "recommendation": "Keep as admin spacing baseline.",
+      "touchesSourceOfTruthDocsOrValidators": true
+    },
+    {
+      "sha": "30d8fcd4e1e93ee9944255a3e3f82158cdb49b3f",
+      "shortSha": "30d8fcd4",
+      "date": "2026-04-30",
+      "title": "fix(notifications): dedupe pwa alerts and compact funnel truth",
+      "classification": "needs verification",
+      "currentState": "already_on_main",
+      "filesTouched": [
+        "public/firebase-messaging-sw.js",
+        "src/app/api/notifications/route.ts",
+        "src/components/Notifications/NotificationRuntimeBridge.tsx",
+        "src/hooks/useNotifications.ts",
+        "src/lib/server/fcm-utils.ts",
+        "src/lib/server/push-notifications.ts",
+        "scripts/check-notification-pipeline.ts",
+        "tests/unit/notifications-route.spec.ts"
+      ],
+      "systemArea": "notifications and PWA alerts",
+      "riskLevel": "medium",
+      "launchRelevance": "P1 notifications.",
+      "likelyConflicts": ["Any notification pipeline PR touching FCM, browser display, or duplicate prevention."],
+      "requiredTests": ["npm run check:notification-pipeline", "targeted notifications tests"],
+      "recommendation": "Keep; use as notification truth baseline.",
+      "touchesSourceOfTruthDocsOrValidators": true
+    },
+    {
+      "sha": "099f365db45ca56f9a9ddf13483c12c48aebfc27",
+      "shortSha": "099f365d",
+      "date": "2026-04-30",
+      "title": "fix(admin-analytics): fold task leaderboard into pipeline parity",
+      "classification": "needs verification",
+      "currentState": "already_on_main",
+      "filesTouched": [
+        "src/components/Admin/Analytics/AdminDailyTaskPipelineModule.tsx",
+        "src/components/Admin/Analytics/AdminTaskAndNotificationModules.tsx",
+        "src/lib/admin-task-leaderboard.ts",
+        "src/lib/admin-task-pipeline.ts",
+        "src/lib/server/admin-analytics-historical-tasks.ts",
+        "scripts/check-admin-analytics-daily-task-pipeline.ts",
+        "tests/unit/admin-task-pipeline.spec.ts"
+      ],
+      "systemArea": "Admin Analytics daily task pipeline",
+      "riskLevel": "medium",
+      "launchRelevance": "P2 admin truth.",
+      "likelyConflicts": ["Admin Analytics module PRs that predate pipeline parity."],
+      "requiredTests": ["npm run check:admin-analytics-daily-task-pipeline", "targeted task pipeline tests"],
+      "recommendation": "Keep; do not regress task parity copy or Debug evidence.",
+      "touchesSourceOfTruthDocsOrValidators": true
+    },
+    {
+      "sha": "15dfa9b9671eaaa5dc46ecd44183fd859261544f",
+      "shortSha": "15dfa9b9",
+      "date": "2026-04-30",
+      "title": "fix(admin-analytics): fold task speed into pipeline truth",
+      "classification": "needs verification",
+      "currentState": "already_on_main",
+      "filesTouched": [
+        "src/app/api/admin/analytics/historical/route.ts",
+        "src/app/api/admin/debug/route.ts",
+        "src/components/Admin/Analytics/AdminTaskAndNotificationModules.tsx",
+        "src/lib/admin-task-pipeline.ts",
+        "scripts/check-admin-analytics-daily-task-pipeline.ts",
+        "tests/unit/admin-task-pipeline.spec.ts"
+      ],
+      "systemArea": "Admin Analytics daily task pipeline",
+      "riskLevel": "medium",
+      "launchRelevance": "P2 admin truth.",
+      "likelyConflicts": ["Admin Analytics route or task pipeline PRs that predate hot-cache migration."],
+      "requiredTests": ["npm run check:admin-analytics-daily-task-pipeline", "npm run check:refresh-based-hot-cache"],
+      "recommendation": "Keep; protect from older admin analytics changes.",
+      "touchesSourceOfTruthDocsOrValidators": true
+    }
+  ],
+  "triageDecisions": [
+    "Do not auto-merge or auto-close any PR.",
+    "Treat PR 208 as the first manual review candidate and only launch-blocking open PR at triage.",
+    "Keep only one useDrops optimization PR; prefer PR 207 if accepted and supersede PR 203 and PR 201.",
+    "Do not merge PR 205 as-is because it is dirty, adds pnpm-lock.yaml, and predates current admin copy and DropCard work.",
+    "Treat PR 204 and PR 202 as human-review items because they touch purchase/drop telemetry or source-of-funds truth during scope freeze.",
+    "Protect recent analytics truth/hot-cache commits from older PRs that would reintroduce realtime-first, fake waiting, or raw backend copy."
+  ]
+}
