@@ -10858,3 +10858,7 @@ Results:
 - analytics continuity check passed
 - focused admin analytics realtime route test passed
 
+
+## 2024-10-18 - Performance Optimization in useDrops
+**Learning:** Found redundant iterations over the `swrDrops` array in `src/hooks/useDrops.ts`. The calculation of `upcomingExpirations` and `clientDrops` both involved iterating over the array and calling `resolveDropStatusFromTiming`.
+**Action:** Combined entity filtering and next-expiration calculation into a single-pass `useMemo` that returns `{ data, nextExpiryMs }`. This reduces redundant iterations and ensures the associated `useEffect` depends on a primitive timestamp (`nextExpiryMs`), minimizing unnecessary effect cycles.

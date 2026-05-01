@@ -21,3 +21,7 @@
 ## 2026-04-02 - Array/String Allocations in Cache Keys
 **Learning:** Creating cache keys using dynamic string concatenations of arrays (e.g., `drop.contentUrls?.join(",")`) defeats the purpose of caching by unconditionally allocating memory and adding garbage collection pressure on every call. This causes a net performance regression in hot paths compared to simple, non-allocating property checks.
 **Action:** Use lightweight, non-allocating cache keys. For entities where we know references do not mutate deeply without a new top-level reference (like `drop`), we can use the entity's ID or `WeakMap` on the entity itself to cache derived data, avoiding costly key generation strings entirely.
+
+## 2024-10-18 - Performance Optimization in useDrops
+**Learning:** Found redundant iterations over the `swrDrops` array in `src/hooks/useDrops.ts`. The calculation of `upcomingExpirations` and `clientDrops` both involved iterating over the array and calling `resolveDropStatusFromTiming`.
+**Action:** Combined entity filtering and next-expiration calculation into a single-pass `useMemo` that returns `{ data, nextExpiryMs }`. This reduces redundant iterations and ensures the associated `useEffect` depends on a primitive timestamp (`nextExpiryMs`), minimizing unnecessary effect cycles.

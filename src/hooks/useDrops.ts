@@ -215,20 +215,34 @@ export function useDrops(
     };
   }, [isConstrained, refreshDrops]);
 
-  useEffect(() => {
-    const upcomingExpirations: number[] = [];
+  // ⚡ Bolt: Combine entity filtering and next expiration calculation into a single pass
+  // Impact: Reduces redundant iterations over swrDrops array during renders
+  const { data: clientDrops, nextExpiryMs } = useMemo(() => {
+    const nextDrops: Drop[] = [];
+    let minExpiryMs: number | null = null;
+
     for (const drop of swrDrops) {
       const status = resolveDropStatusFromTiming(drop, sweepNowMs);
+
       if (status === "active" && drop.validUntil && drop.validUntil > sweepNowMs) {
-        upcomingExpirations.push(drop.validUntil);
+        if (minExpiryMs === null || drop.validUntil < minExpiryMs) {
+          minExpiryMs = drop.validUntil;
+        }
+      }
+
+      if (!statusFilter || statusFilter.includes(status)) {
+        nextDrops.push(applyDropStatus(drop, sweepNowMs));
       }
     }
 
-    if (upcomingExpirations.length === 0) {
+    return { data: nextDrops, nextExpiryMs: minExpiryMs };
+  }, [statusFilter, sweepNowMs, swrDrops]);
+
+  useEffect(() => {
+    if (nextExpiryMs === null) {
       return;
     }
 
-    const nextExpiryMs = Math.min(...upcomingExpirations);
     const timeoutMs = Math.max(250, nextExpiryMs - Date.now() + EXPIRY_REFRESH_BUFFER_MS);
     const timeoutId = window.setTimeout(() => {
       refreshDrops(0);
@@ -237,21 +251,7 @@ export function useDrops(
     return () => {
       window.clearTimeout(timeoutId);
     };
-  }, [refreshDrops, sweepNowMs, swrDrops]);
-
-  const clientDrops = useMemo(() => {
-    // Single-pass filtering avoids cloning drops that will be discarded immediately.
-    const nextDrops: Drop[] = [];
-
-    for (const drop of swrDrops) {
-      const status = resolveDropStatusFromTiming(drop, sweepNowMs);
-      if (!statusFilter || statusFilter.includes(status)) {
-        nextDrops.push(applyDropStatus(drop, sweepNowMs));
-      }
-    }
-
-    return nextDrops;
-  }, [statusFilter, sweepNowMs, swrDrops]);
+  }, [refreshDrops, nextExpiryMs]);
 
 
   const isLoadingInitialData = !data && !error;
