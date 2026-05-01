@@ -165,6 +165,7 @@ export function CreatorExperiencesPanel({
                     <button
                         type="button"
                         onClick={() => selectedExperience === "subscriptions" ? onSelectedExperienceChange(null) : onSelectedExperienceChange("subscriptions")}
+                        aria-expanded={selectedExperience === "subscriptions"}
                         className={cn(
                             "flex flex-col items-center justify-center rounded-[1.4rem] border px-2 py-4 text-center transition-all duration-300",
                             selectedExperience === "subscriptions"
@@ -182,6 +183,7 @@ export function CreatorExperiencesPanel({
                     <button
                         type="button"
                         onClick={() => selectedExperience === "messages" ? onSelectedExperienceChange(null) : onSelectedExperienceChange("messages")}
+                        aria-expanded={selectedExperience === "messages"}
                         className={cn(
                             "flex flex-col items-center justify-center rounded-[1.4rem] border px-2 py-4 text-center transition-all duration-300",
                             selectedExperience === "messages"
@@ -199,6 +201,7 @@ export function CreatorExperiencesPanel({
                     <button
                         type="button"
                         onClick={() => selectedExperience === "requests" ? onSelectedExperienceChange(null) : onSelectedExperienceChange("requests")}
+                        aria-expanded={selectedExperience === "requests"}
                         className={cn(
                             "flex flex-col items-center justify-center rounded-[1.4rem] border px-2 py-4 text-center transition-all duration-300",
                             selectedExperience === "requests"
@@ -216,6 +219,7 @@ export function CreatorExperiencesPanel({
                     <button
                         type="button"
                         onClick={() => selectedExperience === "bookings" ? onSelectedExperienceChange(null) : onSelectedExperienceChange("bookings")}
+                        aria-expanded={selectedExperience === "bookings"}
                         className={cn(
                             "flex flex-col items-center justify-center rounded-[1.4rem] border px-2 py-4 text-center transition-all duration-300",
                             selectedExperience === "bookings"
@@ -374,6 +378,7 @@ export function CreatorExperiencesPanel({
                                 <button
                                     key={category.id}
                                     onClick={() => setRequestCategoryId(category.id)}
+                                    aria-pressed={requestCategoryId === category.id}
                                     className={cn(
                                         "flex items-center gap-2 rounded-full border px-4 py-2 transition-all",
                                         requestCategoryId === category.id
@@ -438,6 +443,7 @@ export function CreatorExperiencesPanel({
                         <button
                             type="button"
                             onClick={() => onBookingServiceTypeChange("phone")}
+                            aria-pressed={bookingServiceType === "phone"}
                             className={cn("flex flex-1 items-center justify-center gap-2 rounded-[1.2rem] py-3 text-sm font-bold transition-all border", bookingServiceType === "phone" ? "border-brand-purple bg-brand-purple/15 text-white shadow-inner shadow-brand-purple/20" : "border-white/5 bg-white/5 text-gray-400 hover:bg-white/10")}
                         >
                             <Phone className="h-4 w-4" /> Phone
@@ -445,6 +451,7 @@ export function CreatorExperiencesPanel({
                         <button
                             type="button"
                             onClick={() => onBookingServiceTypeChange("video")}
+                            aria-pressed={bookingServiceType === "video"}
                             className={cn("flex flex-1 items-center justify-center gap-2 rounded-[1.2rem] py-3 text-sm font-bold transition-all border", bookingServiceType === "video" ? "border-brand-purple bg-brand-purple/15 text-white shadow-inner shadow-brand-purple/20" : "border-white/5 bg-white/5 text-gray-400 hover:bg-white/10")}
                         >
                             <Video className="h-4 w-4" /> Video

@@ -9,3 +9,6 @@
 ## 2024-03-31 - Added ARIA label to mobile profile avatar
 **Learning:** Found a profile avatar `<button>` in the Navbar that was visually an icon-only button on mobile devices (`md:hidden`). It used an image or initial for sighted users but lacked an accessible name for screen readers.
 **Action:** Always provide an `aria-label` to avatar or profile buttons when they function as icon-only interactive elements without visible text labels.
+## 2026-05-01 - Add ARIA states to CreatorExperiencesPanel buttons
+**Learning:** In interactive modules like `CreatorExperiencesPanel.tsx`, many visually toggleable options (such as experience selectors, request categories, and booking methods) relied purely on CSS styling (like background colors or borders) to indicate selection. This leaves screen reader users unaware of their active state.
+**Action:** Always add `aria-expanded` to buttons that toggle the visibility of collapsible content sections, and use `aria-pressed` or `aria-selected` for elements acting as toggle switches or selection pills to ensure accessibility parity.
