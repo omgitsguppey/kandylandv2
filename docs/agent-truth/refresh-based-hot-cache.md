@@ -2,6 +2,14 @@
 
 KandyDrops uses refresh-based verified hot cache for admin analytics and slow hydration surfaces. A timer can change a label from cache to stale, but it cannot remove a usable verified snapshot.
 
+## Global Hydration Rule
+
+Age changes the label, not the existence of the data. Verified data stays visible until replaced by a newer verified snapshot or explicitly invalidated for correctness. This applies beyond Admin Analytics to user dashboard activity, Drops feed hydration, notifications, chat background refresh, wallet package loading, and any shared hook that already has a verified payload.
+
+A refresh failure keeps the previous verified payload visible. If a module has no verified payload, it can show a compact first-snapshot state. If a module has verified data, it can show `refreshing`, `stale_but_verified`, `refresh_failed`, `estimated`, or `mixed`, but it cannot clear the value solely because the ideal freshness window elapsed.
+
+Refresh storms are defects. Hooks and route caches must dedupe in-flight refresh work by cache key or surface key. Slow modules should use partial payloads, `Promise.allSettled`, safe diagnostic readers, or independent Suspense/loading boundaries so one route failure does not blank a whole page.
+
 ## Core Rule
 
 The app shows the last verified snapshot immediately. Realtime, cold server recompute, and manual refresh are upgrades. They replace the visible snapshot only after the replacement is verified.

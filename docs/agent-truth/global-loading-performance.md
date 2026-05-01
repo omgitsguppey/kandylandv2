@@ -4,6 +4,18 @@ Admin Analytics and shared app loading must render verified hot cache first. Rea
 
 This doctrine is now implemented through the refresh-based cache contract in `docs/agent-truth/refresh-based-hot-cache.md` and `src/lib/cache/refresh-cache-contract.ts`. Time-limit expiration changes labels and refresh priority; it does not remove a verified display snapshot.
 
+## Global Speed/Hydration Finalization
+
+Age changes the label, not the existence of the data. Verified data stays visible until replaced by a newer verified payload or explicitly invalidated with a recorded reason. A refresh failure keeps the previous verified payload visible and must surface a source-state note instead of blanking the module.
+
+One slow module cannot block unrelated modules. Server routes should fetch independent sources with `Promise.all`, `Promise.allSettled`, or safe diagnostic wrappers where one optional source can fail. Client hooks should dedupe refreshes, preserve previous data while refreshing, and show skeletons only before the first verified payload for that user/surface.
+
+Waiting must say why. Acceptable waiting reasons are first snapshot pending, no verified snapshot yet, source unavailable, or auth/session still resolving. Generic `Waiting` remains forbidden when any verified value is already available.
+
+Private/admin data must not be publicly CDN cached. Private routes may use internal hot snapshots or per-process stale-while-revalidate route caches, but response headers must stay private/no-store/no-cache as appropriate for the data. Public or non-sensitive route data can be dynamic, but it must not become authoritative for wallet/payment/user balances.
+
+Recent user activity now follows the same refresh-based rule as Admin Analytics: `/api/user/activity` keeps a validated per-user activity payload displayable beyond the freshness window, starts a background refresh, and returns cache/debug timing metadata so Debug and validators can distinguish `fresh_backend`, `verified_route_cache`, `staleButVerified`, and first-snapshot states.
+
 ## Hot-Cache-First Rule
 
 If a route or module has a valid verified snapshot, the initial UI renders that snapshot immediately. The UI may label it as cache, stale, fallback, or refreshing, but it must not show a blank panel or top-level waiting card while that verified value exists.

@@ -1,13 +1,21 @@
 # EVERY FILE FUNCTION CHECKLIST
 
 **Last Updated:** 2026-05-01
-**Current Focus:** Notification Return Loop Hardening.
+**Current Focus:** Global Speed Hydration Cache Finalization.
 **Status:** In Progress. Current tracked-file coverage is reconciled as of 2026-04-28: every `git ls-files` entry has a current checklist heading, while detailed function-level audits remain pending for many historical and newly reconciled files.
 Purpose: exhaustive no-skip audit checklist covering every repository file currently in scope and every detected function-like implementation.
 
 Scoring: all entries below are marked as included in the current validated sweep. Confidence reflects current repository-state confidence, not perfection or future-proofing.
 
 Current repo-wide state snapshot: see [FULL_SCALE_CODEBASE_AUDIT.md](/Users/uylus/OneDrive/Documents/KandyDrops_Final/FULL_SCALE_CODEBASE_AUDIT.md) for the current live baseline, verification state, and continuity rules, and see [REPO_MEMORY_LEDGER.md](/Users/uylus/OneDrive/Documents/KandyDrops_Final/REPO_MEMORY_LEDGER.md) for major architectural and workflow decisions. The detailed file/function body below remains valuable historical evidence, but it has not been fully regenerated against the current 2026-04-18 inventory review yet.
+
+## 2026-05-01 Global Speed Hydration Cache Finalization Coverage
+
+- [x] `src/app/api/user/activity/route.ts` now uses stale-while-revalidate route caching for per-user recent activity, keeps stale verified activity displayable during background refresh, returns private cache-control, and emits cache/debug timing metadata.
+- [x] `tests/unit/ephemeral-route-cache.spec.ts` covers refresh failure preserving a stale verified route payload.
+- [x] `agent/state/global-speed-hydration-cache-audit.generated.json` records audited first-render, realtime/refresh/time-expiry blocking, stale clearing, cache mode, partial payload, and fixed/residual-risk status for Admin Analytics, Admin Overview, dashboard, Drops, wallet, chat, experiences, notifications, app shell, user activity, and service worker.
+- [x] `docs/agent-truth/global-loading-performance.md` and `docs/agent-truth/refresh-based-hot-cache.md` now state the global hydration rule: age changes labels, verified data remains visible, refresh failures preserve previous data, slow modules cannot block unrelated modules, waiting must say why, and private data must not be publicly CDN cached.
+- [x] `scripts/agent/validate-global-speed-hydration-cache.ts` and `package.json` add `npm run check:global-speed-hydration-cache`.
 
 ## 2026-05-01 Admin Analytics Launch Finalization Coverage
 

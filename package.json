@@ -52,6 +52,7 @@
         "check:analytics-event-contract": "tsx scripts/agent/validate-analytics-event-contract.ts",
         "check:admin-analytics-hot-cache": "tsx scripts/agent/validate-admin-analytics-hot-cache.ts",
         "check:global-loading-performance": "tsx scripts/agent/validate-global-loading-performance.ts",
+        "check:global-speed-hydration-cache": "tsx scripts/agent/validate-global-speed-hydration-cache.ts",
         "check:refresh-based-hot-cache": "tsx scripts/agent/validate-refresh-based-hot-cache.ts",
         "check:human-readable-admin-copy": "tsx scripts/agent/validate-human-readable-admin-copy.ts",
         "check:launch-finalization-baseline": "tsx scripts/agent/validate-launch-finalization-baseline.ts",

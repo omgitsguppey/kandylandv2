@@ -24,6 +24,15 @@ This file is not a changelog. It is the concise ledger for durable decisions tha
 
 ## Decision Entries
 
+### 1cf. Global speed and hydration use refresh-based display retention
+
+- Approximate date: Recorded explicitly on 2026-05-01 from the global speed hydration cache finalization pass
+- Status: Active global loading, route-cache, and hydration rule
+- Decision: Verified data stays visible until a newer verified payload replaces it or correctness invalidation records a reason. Age changes labels and refresh priority only. Refresh failure, stale age, realtime failure, or one optional module failure must not blank unrelated UI or delete the last verified display payload.
+- Implementation: `agent/state/global-speed-hydration-cache-audit.generated.json` records audited Admin Analytics, Admin Overview, dashboard, Drops, wallet packages, chat/messages, experiences, notifications, app shell, user activity API, and service-worker data-freshness behavior. `/api/user/activity` now uses `readThroughStaleWhileRevalidateEphemeralRouteCache` with per-user/view keys, private response headers, cache/debug timing metadata, and stale-but-verified retention.
+- Required validation: `npm run check:global-speed-hydration-cache`, `npm run check:global-loading-performance`, `npm run check:refresh-based-hot-cache`, targeted route-cache/user-activity tests, touched-file TypeScript, and critical mobile smoke checks.
+- Consequence for future work: Do not reintroduce TTL display eviction, generic waiting with previous data, refresh-state clearing, router.refresh-as-invalidation, public caching of private data, or serial first-render waterfalls when independent/partial payloads are available.
+
 ### 1ce. Admin Analytics and Debug launch finalization keeps Analytics compact and Debug evidentiary
 
 - Approximate date: Recorded explicitly on 2026-05-01 from the Admin Analytics launch finalization pass

@@ -1,5 +1,27 @@
 # KandyDrops Core Codebase Audit & Defensive Ledger
 
+## [2026-05-01 #76] PRE: Global Speed Hydration Cache Finalization
+
+Scope started:
+- Auditing and finalizing refresh-based hot cache, hydration, partial payload, loading, and app-shell speed behavior across Admin Analytics, user dashboard, Drops, wallet, chat/messages, experiences, notifications, app shell, API routes, hooks, caches, loading boundaries, and service worker only where data freshness is affected.
+- Required behavior: age changes labels, verified data stays visible until replaced or explicitly invalidated, refresh is explicit/deduped, refresh failure preserves previous data, slow modules do not block unrelated modules, one route failure does not blank a whole page, and Waiting copy says why.
+
+Initial evidence:
+- Worktree was clean at startup on `main`.
+- Control tower, source-of-truth map, shared component ownership, doctrine, UI/copy refinement workflow, and React/Next performance guidance were consulted.
+- Recent repo memory records active refresh-based hot cache, global loading performance, Admin Analytics snapshot-first, Drops deferred runtime subscription, notification return-loop, and payment/wallet source-truth rules.
+
+Scope completed:
+- Audited Admin Analytics, Admin Overview, user dashboard/recent activity, Drops, wallet packages, chat/messages, experiences, notifications, app shell, API routes, hooks, route caches, loading boundaries, and service worker data-freshness impact.
+- Added `agent/state/global-speed-hydration-cache-audit.generated.json` with per-surface first-render source, realtime/refresh/time-expiry blocking flags, stale/refresh clearing checks, cache mode, partial payload strategy, and residual risks.
+- Migrated `/api/user/activity` from simple TTL read-through cache to stale-while-revalidate route cache so verified recent activity stays displayable beyond the freshness window while background refresh runs.
+- Added route cache/debug timing metadata for user activity and a regression test proving stale verified route payloads remain visible when background refresh fails.
+- Updated `docs/agent-truth/global-loading-performance.md`, `docs/agent-truth/refresh-based-hot-cache.md`, `scripts/agent/validate-global-speed-hydration-cache.ts`, and `package.json` to lock the global speed/hydration cache contract.
+
+Residual risk:
+- Admin Overview still has a username enrichment pass after its first parallel read group; existing safe diagnostic wrappers and private no-store response policy make this a warning rather than a launch blocker.
+- Chat intentionally has no browser-persisted private hot cache for first visit on a new device. It preserves data during background refresh but first thread-list load still depends on authenticated API/server truth.
+
 ## [2026-05-01 #75] PRE: Admin Analytics Launch Finalization
 
 Scope started:

@@ -9,7 +9,7 @@ import type { normalizeTransactionRecord } from "@/lib/transaction-normalizers";
 import { guardApiRequest } from "@/lib/server/request-guard";
 import { getErrorMessage } from "@/lib/server/route-diagnostics";
 import { recordRouteRuntimeSample } from "@/lib/server/route-runtime-health";
-import { readThroughEphemeralRouteCache } from "@/lib/server/ephemeral-route-cache";
+import { readThroughStaleWhileRevalidateEphemeralRouteCache } from "@/lib/server/ephemeral-route-cache";
 import { recordRuntimeWarning } from "@/lib/server/runtime-warning-store";
 import { buildActivityItems, toTimestampNumber, type toTaskEvent } from "./activity-route-test-helpers";
 
@@ -30,6 +30,32 @@ type ActivityItem =
     };
 
 const USER_ACTIVITY_CACHE_TTL_MS = 20_000;
+const USER_ACTIVITY_CACHE_STALE_TTL_MS = 10 * 60_000;
+
+type UserActivityPayload = {
+    success: true;
+    view: "summary" | "history";
+    activities: ActivityItem[];
+    transactions: Array<ReturnType<typeof normalizeTransactionRecord>>;
+    taskEvents: Array<ReturnType<typeof toTaskEvent>>;
+};
+
+function validateUserActivityPayload(value: UserActivityPayload) {
+    const issues: string[] = [];
+    if (!value || value.success !== true) {
+        issues.push("missing success marker");
+    }
+    if (!Array.isArray(value.activities)) {
+        issues.push("missing activities array");
+    }
+    if (!Array.isArray(value.transactions)) {
+        issues.push("missing transactions array");
+    }
+    if (!Array.isArray(value.taskEvents)) {
+        issues.push("missing taskEvents array");
+    }
+    return issues;
+}
 
 async function fetchTransactions(uid: string, limitCount?: number) {
     try {
@@ -169,9 +195,11 @@ export async function GET(request: NextRequest) {
         const view = request.nextUrl.searchParams.get("view") === "history" ? "history" : "summary";
         const itemLimit = view === "history" ? undefined : 1;
 
-        const payload = await readThroughEphemeralRouteCache({
+        const cacheResult = await readThroughStaleWhileRevalidateEphemeralRouteCache<UserActivityPayload>({
             key: `user-activity:${uid}:${view}`,
             ttlMs: USER_ACTIVITY_CACHE_TTL_MS,
+            staleTtlMs: USER_ACTIVITY_CACHE_STALE_TTL_MS,
+            validate: validateUserActivityPayload,
             loader: async () => {
                 const [transactionsSnapshot, taskEventsSnapshot] = await Promise.all([
                     fetchTransactions(uid, itemLimit),
@@ -188,6 +216,7 @@ export async function GET(request: NextRequest) {
                 };
             },
         });
+        const payload = cacheResult.value;
 
         const etag = buildWeakEtag({
             view,
@@ -200,7 +229,30 @@ export async function GET(request: NextRequest) {
             return finalize(buildNotModifiedResponse(etag, PRIVATE_REVALIDATE_CACHE_CONTROL));
         }
 
-        return finalize(NextResponse.json(payload, {
+        return finalize(NextResponse.json({
+            ...payload,
+            cache: {
+                cacheKey: `user-activity:${view}`,
+                cacheStatus: cacheResult.cacheStatus,
+                cachedAtMs: cacheResult.cachedAtMs,
+                cacheAgeMs: cacheResult.cacheAgeMs,
+                revalidating: cacheResult.revalidating,
+                staleButVerified: cacheResult.staleButVerified,
+                retainedBeyondStaleTtl: cacheResult.retainedBeyondStaleTtl,
+            },
+            debugTiming: {
+                route: "user/activity",
+                firstUsefulRenderSource: cacheResult.cacheStatus === "miss" ? "fresh_backend" : "verified_route_cache",
+                firstUsefulValueMs: Date.now() - startedAt,
+                refreshStatus: cacheResult.revalidating ? "refreshing" : "idle",
+                waitingShownBecause: payload.activities.length > 0 ? null : "no verified activity yet",
+                waitingAllowed: payload.activities.length === 0,
+                blocksOnRealtime: false,
+                blocksOnRefresh: cacheResult.cacheStatus === "miss",
+                blocksOnTimeExpiry: false,
+                staleButVerified: cacheResult.staleButVerified,
+            },
+        }, {
             headers: {
                 ETag: etag,
                 "Cache-Control": PRIVATE_REVALIDATE_CACHE_CONTROL,

@@ -133,4 +133,35 @@ describe("readThroughStaleWhileRevalidateEphemeralRouteCache", () => {
     expect(retained.revalidating).toBe(true);
     expect(loader).toHaveBeenCalledTimes(2);
   });
+
+  it("keeps stale verified route payload visible when background refresh fails", async () => {
+    const loader = vi.fn<() => Promise<CachePayload>>()
+      .mockResolvedValueOnce({ success: true, generatedAtMs: 1_000, data: ["verified"] })
+      .mockRejectedValueOnce(new Error("backend unavailable"));
+
+    await readThroughStaleWhileRevalidateEphemeralRouteCache({
+      key: "admin:test:refresh-failed",
+      ttlMs: 100,
+      staleTtlMs: 200,
+      loader,
+      validate: () => [],
+    });
+
+    vi.setSystemTime(10_000);
+    const retained = await readThroughStaleWhileRevalidateEphemeralRouteCache({
+      key: "admin:test:refresh-failed",
+      ttlMs: 100,
+      staleTtlMs: 200,
+      loader,
+      validate: () => [],
+    });
+    await Promise.resolve();
+
+    expect(retained.cacheStatus).toBe("stale");
+    expect(retained.value.data).toEqual(["verified"]);
+    expect(retained.revalidating).toBe(true);
+    expect(retained.staleButVerified).toBe(true);
+    expect(retained.retainedBeyondStaleTtl).toBe(true);
+    expect(loader).toHaveBeenCalledTimes(2);
+  });
 });
