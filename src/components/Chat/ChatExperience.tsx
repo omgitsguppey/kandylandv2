@@ -60,8 +60,11 @@ import { useCompactViewport } from "@/hooks/useCompactViewport";
 import { cn } from "@/lib/utils";
 import { ref as storageRef, uploadBytes } from "firebase/storage";
 import {
+    CHAT_LIST_FLOATING_ACTION_BOTTOM_OFFSET,
     CHAT_LIST_CONTROLS_BOTTOM_OFFSET,
     CHAT_LIST_SCROLL_PADDING_BOTTOM,
+    CHAT_THREAD_COMPOSER_PADDING_BOTTOM,
+    USER_MOBILE_CHAT_BOTTOM_RESERVED_HEIGHT,
     USER_MOBILE_BOTTOM_NAV_RESERVED_HEIGHT,
 } from "@/lib/user-mobile-shell";
 
@@ -473,9 +476,7 @@ export function ChatExperience() {
     }, [normalizedThreadSearch, visibleThreads]);
     const showCompactThreadListOnly = isCompactViewport && !selectedThreadId;
     const canComposeFromFollowedCreators = followedCreators.length > 0;
-    const chatViewportShellStyle = useMemo(() => ({
-        paddingBottom: showCompactThreadListOnly ? USER_MOBILE_BOTTOM_NAV_RESERVED_HEIGHT : undefined,
-    }) satisfies CSSProperties, [showCompactThreadListOnly]);
+    const chatViewportShellStyle = useMemo(() => ({}) satisfies CSSProperties, []);
     const compactThreadListScrollStyle = useMemo(() => ({
         paddingBottom: CHAT_LIST_SCROLL_PADDING_BOTTOM,
         scrollPaddingBottom: CHAT_LIST_SCROLL_PADDING_BOTTOM,
@@ -483,6 +484,12 @@ export function ChatExperience() {
     const compactThreadListControlsStyle = useMemo(() => ({
         bottom: CHAT_LIST_CONTROLS_BOTTOM_OFFSET,
     }) satisfies CSSProperties, []);
+    const compactThreadListFloatingActionStyle = useMemo(() => ({
+        bottom: CHAT_LIST_FLOATING_ACTION_BOTTOM_OFFSET,
+    }) satisfies CSSProperties, []);
+    const chatThreadComposerStyle = useMemo(() => ({
+        paddingBottom: isCompactViewport ? CHAT_THREAD_COMPOSER_PADDING_BOTTOM : undefined,
+    }) satisfies CSSProperties, [isCompactViewport]);
     const selectedThreadIdSet = useMemo(() => new Set(selectedThreadIds), [selectedThreadIds]);
     const liveViewerRole = useMemo(() => resolveChatViewerRole({
         viewerUid: user?.uid || "",
@@ -662,11 +669,19 @@ export function ChatExperience() {
             __KANDYDROPS_CHAT_SHELL_ROUTING_DEBUG__?: unknown;
         }).__KANDYDROPS_CHAT_SHELL_ROUTING_DEBUG__ = {
             messagesListUsesChatShellSizing: true,
+            messagesListUsesSharedBottomNavContract: true,
+            chatThreadUsesSharedBottomNavContract: true,
             bottomNavReservedHeight: USER_MOBILE_BOTTOM_NAV_RESERVED_HEIGHT,
+            chatBottomReservedHeight: USER_MOBILE_CHAT_BOTTOM_RESERVED_HEIGHT,
+            safeAreaBottomAppliedAt: "user-mobile-shell",
             safeAreaBottomApplied: true,
             duplicateSafeAreaBottomDetected: false,
+            messagesListScrollContainerFound: Boolean(compactThreadListScrollRef.current),
+            messagesListFloatingActionVisible: showCompactThreadListOnly ? canComposeFromFollowedCreators : true,
             messagesSearchVisible: showCompactThreadListOnly,
             newThreadControlVisible: showCompactThreadListOnly ? canComposeFromFollowedCreators : true,
+            newThreadControlAboveBottomNav: true,
+            composerAboveBottomNav: true,
             chatThreadProfileHref: selectedThreadCreatorProfileHref,
             chatThreadProfileHrefValid: Boolean(selectedThreadCreatorProfileHref),
             missingProfileHrefReason,
@@ -1913,7 +1928,7 @@ export function ChatExperience() {
                                                     type="button"
                                                     onClick={() => setComposePickerOpen(true)}
                                                     className="pointer-events-auto absolute right-5 inline-flex h-14 w-14 items-center justify-center rounded-full bg-brand-purple text-white shadow-[0_18px_36px_rgba(111,63,244,0.36)] transition hover:bg-[#8457ff]"
-                                                    style={compactThreadListControlsStyle}
+                                                    style={compactThreadListFloatingActionStyle}
                                                     aria-label="Compose message"
                                                 >
                                                     <SquarePen className="h-5 w-5" />
@@ -2110,7 +2125,10 @@ export function ChatExperience() {
                                     )}
                                 </div>
 
-                                <div className="border-t border-white/10 bg-[linear-gradient(180deg,rgba(0,0,0,0)_0%,rgba(0,0,0,0.92)_18%,#000_100%)] px-4 pb-[calc(1.5rem+env(safe-area-inset-bottom))] pt-3 sm:px-6 sm:pb-4">
+                                <div
+                                    className="border-t border-white/10 bg-[linear-gradient(180deg,rgba(0,0,0,0)_0%,rgba(0,0,0,0.92)_18%,#000_100%)] px-4 pb-4 pt-3 sm:px-6 sm:pb-4"
+                                    style={chatThreadComposerStyle}
+                                >
                                     {sendErrorMessage ? (
                                         <div className="rounded-[1.2rem] border border-rose-400/20 bg-rose-500/10 px-4 py-3 text-sm text-rose-100">
                                             <div className="flex items-start justify-between gap-3">

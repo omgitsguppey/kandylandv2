@@ -19,6 +19,8 @@ export function ChatRouteShell({ children }: { children: React.ReactNode }) {
         const previousMainHeight = mainElement?.style.height ?? "";
         const previousMainMaxHeight = mainElement?.style.maxHeight ?? "";
         const previousMainMinHeight = mainElement?.style.minHeight ?? "";
+        const previousMainBoxSizing = mainElement?.style.boxSizing ?? "";
+        const previousMainPaddingBottom = mainElement?.style.paddingBottom ?? "";
 
         documentElement.style.overflow = "hidden";
         documentElement.style.overscrollBehaviorY = "none";
@@ -26,11 +28,13 @@ export function ChatRouteShell({ children }: { children: React.ReactNode }) {
         body.style.overscrollBehaviorY = "none";
 
         if (mainElement) {
+            mainElement.style.boxSizing = "border-box";
             mainElement.style.overflow = "hidden";
             mainElement.style.overscrollBehaviorY = "none";
             mainElement.style.height = "100dvh";
             mainElement.style.maxHeight = "100dvh";
             mainElement.style.minHeight = "0";
+            mainElement.style.paddingBottom = "0px";
         }
 
         return () => {
@@ -45,6 +49,8 @@ export function ChatRouteShell({ children }: { children: React.ReactNode }) {
                 mainElement.style.height = previousMainHeight;
                 mainElement.style.maxHeight = previousMainMaxHeight;
                 mainElement.style.minHeight = previousMainMinHeight;
+                mainElement.style.boxSizing = previousMainBoxSizing;
+                mainElement.style.paddingBottom = previousMainPaddingBottom;
             }
         };
     }, []);

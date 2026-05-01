@@ -52,6 +52,12 @@ describe("ChatRouteShell", () => {
     const originalMainHeight = document.querySelector("main") instanceof HTMLElement
         ? (document.querySelector("main") as HTMLElement).style.height
         : "";
+    const originalMainBoxSizing = document.querySelector("main") instanceof HTMLElement
+        ? (document.querySelector("main") as HTMLElement).style.boxSizing
+        : "";
+    const originalMainPaddingBottom = document.querySelector("main") instanceof HTMLElement
+        ? (document.querySelector("main") as HTMLElement).style.paddingBottom
+        : "";
     let container: HTMLDivElement | null = null;
     let root: Root | null = null;
 
@@ -97,6 +103,8 @@ describe("ChatRouteShell", () => {
         expect(document.body.style.overflow).toBe("hidden");
         const main = document.querySelector("main") as HTMLElement | null;
         expect(main?.style.minHeight).toBe("0");
+        expect(main?.style.boxSizing).toBe("border-box");
+        expect(main?.style.paddingBottom).toBe("0px");
 
         act(() => {
             root?.unmount();
@@ -106,5 +114,7 @@ describe("ChatRouteShell", () => {
         expect(document.documentElement.style.overflow).toBe("");
         expect(document.body.style.overflow).toBe("");
         expect(main?.style.height).toBe(originalMainHeight);
+        expect(main?.style.boxSizing).toBe(originalMainBoxSizing);
+        expect(main?.style.paddingBottom).toBe(originalMainPaddingBottom);
     });
 });

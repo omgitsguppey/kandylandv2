@@ -38,12 +38,23 @@ for (const needle of [
   "CHAT_VIEWPORT_SHELL_CLASSNAME",
   "CHAT_COMPACT_THREAD_LIST_PANEL_CLASSNAME",
   "CHAT_COMPACT_THREAD_LIST_SCROLL_CLASSNAME",
+  "USER_MOBILE_CHAT_BOTTOM_RESERVED_HEIGHT",
   "USER_MOBILE_BOTTOM_NAV_RESERVED_HEIGHT",
   "CHAT_LIST_SCROLL_PADDING_BOTTOM",
   "CHAT_LIST_CONTROLS_BOTTOM_OFFSET",
+  "CHAT_LIST_FLOATING_ACTION_BOTTOM_OFFSET",
+  "CHAT_THREAD_COMPOSER_PADDING_BOTTOM",
   "compactThreadListScrollStyle",
   "compactThreadListControlsStyle",
+  "compactThreadListFloatingActionStyle",
+  "chatThreadComposerStyle",
   "__KANDYDROPS_CHAT_SHELL_ROUTING_DEBUG__",
+  "messagesListUsesSharedBottomNavContract",
+  "chatThreadUsesSharedBottomNavContract",
+  "messagesListScrollContainerFound",
+  "messagesListFloatingActionVisible",
+  "newThreadControlAboveBottomNav",
+  "composerAboveBottomNav",
   "messagesListUsesChatShellSizing",
   "messagesSearchVisible",
   "newThreadControlVisible",
@@ -64,6 +75,8 @@ for (const needle of [
 for (const needle of [
   "documentElement.style.overflow = \"hidden\"",
   "mainElement.style.height = \"100dvh\"",
+  "mainElement.style.boxSizing = \"border-box\"",
+  "mainElement.style.paddingBottom = \"0px\"",
   "min-h-0",
 ]) {
   requireIncludes(chatShell, needle, "Chat route shell scroll ownership");
@@ -71,8 +84,12 @@ for (const needle of [
 
 for (const needle of [
   "USER_MOBILE_BOTTOM_NAV_HEIGHT",
+  "USER_MOBILE_BOTTOM_NAV_SAFE_GAP",
   "USER_MOBILE_BOTTOM_NAV_BOTTOM_OFFSET",
   "USER_MOBILE_BOTTOM_NAV_RESERVED_HEIGHT",
+  "USER_MOBILE_CHAT_BOTTOM_RESERVED_HEIGHT",
+  "CHAT_LIST_FLOATING_ACTION_BOTTOM_OFFSET",
+  "CHAT_THREAD_COMPOSER_PADDING_BOTTOM",
 ]) {
   requireIncludes(spacing, needle, "Shared user mobile shell spacing");
 }
@@ -105,6 +122,10 @@ requireNotIncludes(notFound, "Return Home", "Not-found return action");
 
 for (const bannedLayout of ["-mt-", "translate-y-", "bottom-[calc(1.25rem+env", "pb-[calc(1.25rem+env"]) {
   requireNotIncludes(chat, bannedLayout, "Chat bottom-nav overlap fix");
+}
+
+for (const bannedSizing of ["paddingBottom: showCompactThreadListOnly", "pb-[calc(1.5rem+env(safe-area-inset-bottom))]", "h-screen", "min-h-screen"]) {
+  requireNotIncludes(chat, bannedSizing, "Messages list bounded shell sizing");
 }
 
 for (const needle of [
