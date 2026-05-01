@@ -1,0 +1,54 @@
+{
+  "generatedAt": "2026-05-01T00:00:00.000-05:00",
+  "task": "targeted user critical path fix pass",
+  "sourceAudit": "agent/state/user-critical-path-audit.generated.json",
+  "sourceAuditMissingAtStart": true,
+  "automaticScopeExpansion": false,
+  "productCodeChanged": false,
+  "fixedIssues": [
+    {
+      "auditIssueId": "UCP-001",
+      "title": "Drops mobile launch validator still checked the old DropCard timer marker",
+      "filesChanged": [
+        "scripts/agent/validate-drops-mobile-refinement.ts",
+        "tests/unit/drop-countdown.spec.ts",
+        "agent/state/user-critical-path-audit.generated.json",
+        "agent/state/user-critical-path-fix-report.generated.json",
+        "docs/agent-truth/user-critical-path-launch.md",
+        "scripts/agent/validate-user-critical-path-launch.ts",
+        "package.json",
+        "FULL_SCALE_CODEBASE_AUDIT.md"
+      ],
+      "behaviorBefore": "The Drops mobile launch validation failed because it required DropCardParts.tsx to contain the obsolete `formatTimer` marker and the fallback copy literal, even though the component now uses the shared `formatDropCountdown` helper.",
+      "behaviorAfter": "The validator now checks that DropCardParts.tsx uses `formatDropCountdown`, that the component does not create local intervals, and that `src/lib/drop-countdown.ts` owns the `Always available` fallback.",
+      "targetedTests": [
+        "npm run check:user-critical-path-launch",
+        "npm run check:drops-mobile-refinement",
+        "npx vitest run tests/unit/drop-countdown.spec.ts"
+      ],
+      "debugMetadataUpdated": false,
+      "debugMetadataReason": "No runtime user/debug payload changed; this was a launch validation contract correction.",
+      "regressionPrevention": "scripts/agent/validate-user-critical-path-launch.ts verifies UCP-001 remains fixed and the Drops mobile validator tracks the current shared countdown helper."
+    }
+  ],
+  "unchangedAreas": [
+    "payment/write flows",
+    "unlock entitlement flow",
+    "chat/message routing",
+    "notification persistence and dedupe",
+    "404 return behavior",
+    "admin analytics runtime behavior"
+  ],
+  "validationPlan": [
+    "npm run check:user-critical-path-launch",
+    "npm run check:drops-mobile-refinement",
+    "npm run check:user-chat-shell-routing",
+    "npm run check:not-found",
+    "npm run check:notification-pipeline",
+    "npx vitest run tests/unit/drop-countdown.spec.ts tests/unit/paypal-capture-route.spec.ts tests/unit/drops-route.spec.ts tests/unit/chat-thread-route.spec.ts tests/unit/chat-thread-messages-route.spec.ts tests/unit/notifications-route.spec.ts",
+    "npm run typecheck -- --pretty false"
+  ],
+  "broadAuditsRun": false,
+  "fastestMobileVisualAuditRun": false,
+  "fastestMobileVisualAuditReason": "No product UI/CSS/runtime surface changed; the touched failure was a static launch validation contract."
+}

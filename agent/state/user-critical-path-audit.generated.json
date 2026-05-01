@@ -1,0 +1,59 @@
+{
+  "generatedAt": "2026-05-01T00:00:00.000-05:00",
+  "task": "user-critical-path-launch-audit",
+  "sourceNote": "The requested audit artifact was missing from git history and origin/main at pass start. This generated audit records the reproducible high-priority blocker found by existing targeted user-path validation.",
+  "auditMissingAtStart": true,
+  "branch": "main",
+  "headCommitAtAudit": "7899598a",
+  "scope": [
+    "broken routes",
+    "mobile layout blocking use",
+    "bottom nav/safe-area overlap",
+    "payment/unlock correctness",
+    "entitlement/content access",
+    "chat/message routing and layout",
+    "notification duplicate/missing/read persistence",
+    "creator profile links",
+    "404 return behavior",
+    "loading states that block user action",
+    "missing telemetry only if required for launch-critical truth"
+  ],
+  "issues": [
+    {
+      "id": "UCP-001",
+      "title": "Drops mobile launch validator still checked the old DropCard timer marker",
+      "severity": "high",
+      "statusAtAudit": "failing",
+      "systemArea": "Drops discovery mobile card/timer validation",
+      "allowedFixArea": "mobile layout blocking use",
+      "evidence": [
+        "npm run check:drops-mobile-refinement failed with: DropCard shared timer must include \"formatTimer\".",
+        "npm run check:drops-mobile-refinement failed with: DropCard shared timer must include \"Always available\".",
+        "src/components/DropCardParts.tsx uses formatDropCountdown from src/lib/drop-countdown.ts.",
+        "src/lib/drop-countdown.ts owns the missing/invalid timestamp fallback full label: Always available."
+      ],
+      "userImpact": "Launch signoff for Drops mobile cards could not pass even though the runtime timer implementation had moved to the shared countdown helper.",
+      "requiredFix": "Update the Drops mobile launch validator and targeted timer test to verify the current shared helper contract instead of the obsolete component-local marker.",
+      "blockedLaunchGate": "npm run check:drops-mobile-refinement",
+      "fixedInThisPass": true
+    }
+  ],
+  "nonFailingChecksAtAudit": [
+    {
+      "command": "npm run check:user-chat-shell-routing",
+      "status": "passed"
+    },
+    {
+      "command": "npm run check:not-found",
+      "status": "passed"
+    },
+    {
+      "command": "npm run check:notification-pipeline",
+      "status": "passed"
+    },
+    {
+      "command": "npx vitest run tests/unit/paypal-capture-route.spec.ts tests/unit/drops-route.spec.ts tests/unit/chat-thread-route.spec.ts tests/unit/chat-thread-messages-route.spec.ts tests/unit/notifications-route.spec.ts",
+      "status": "passed"
+    }
+  ]
+}

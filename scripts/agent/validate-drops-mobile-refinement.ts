@@ -44,6 +44,7 @@ const dropCardParts = readRequired("src/components/DropCardParts.tsx");
 const dropCardCta = readRequired("src/components/DropCardCta.tsx");
 const dropImpressionHook = readRequired("src/hooks/useDropCardImpression.ts");
 const useDrops = readRequired("src/hooks/useDrops.ts");
+const dropCountdown = readRequired("src/lib/drop-countdown.ts");
 const uiDoctrine = readRequired("docs/doctrine/kandydrops-ui-doctrine.md");
 const agentDoc = readRequired("docs/agent-truth/drops-mobile-refinement.md");
 const packageJson = JSON.parse(readRequired("package.json")) as { scripts?: Record<string, string> };
@@ -184,13 +185,13 @@ for (const needle of [
 
 for (const needle of [
   "useNow",
-  "formatTimer",
-  "Always available",
+  "formatDropCountdown",
 ]) {
   requireIncludes(dropCardParts, needle, "DropCard shared timer");
 }
 
 requireNotIncludes(dropCardParts, "setInterval", "DropCard shared timer");
+requireIncludes(dropCountdown, "Always available", "Drop countdown missing timestamp fallback");
 requireIncludes(dropImpressionHook, "drop_card_impression", "DropCard impression hook");
 requireIncludes(dropImpressionHook, "card_aspect_ratio", "DropCard impression hook");
 requireIncludes(dropImpressionHook, "ui_density: DROPS_MOBILE_UI_DENSITY", "DropCard impression hook");

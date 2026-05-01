@@ -63,12 +63,15 @@ describe("drop card countdown UI contract", () => {
     it("keeps timer typography on the inherited site font and preserves core drop-card pieces", () => {
         const componentPath = join(process.cwd(), "src", "components", "DropCardParts.tsx");
         const layoutPath = join(process.cwd(), "src", "components", "DropCardLayout.tsx");
+        const countdownPath = join(process.cwd(), "src", "lib", "drop-countdown.ts");
         const timerSource = readFileSync(componentPath, "utf8");
         const layoutSource = readFileSync(layoutPath, "utf8");
+        const countdownSource = readFileSync(countdownPath, "utf8");
 
         expect(timerSource).not.toContain("font-mono");
         expect(timerSource).not.toContain("font-[ui-monospace");
         expect(timerSource).toContain("formatDropCountdown");
+        expect(countdownSource).toContain("Always available");
         expect(layoutSource).toContain("DropCardTimer");
         expect(layoutSource).toContain("FileCountChip");
         expect(layoutSource).toContain("drop.unlockCost");

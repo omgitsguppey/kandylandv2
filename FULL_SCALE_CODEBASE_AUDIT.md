@@ -1,5 +1,26 @@
 # KandyDrops Core Codebase Audit & Defensive Ledger
 
+## [2026-05-01 #72] PRE: User Critical Path Launch Fix
+
+Scope started:
+- Targeting only blocker/high-priority user-critical-path launch issues.
+- The requested source audit file `agent/state/user-critical-path-audit.generated.json` was missing from git history and `origin/main` at pass start, so this pass first ran existing targeted user-path checks to find reproducible blockers without inventing product defects.
+
+Initial evidence:
+- `npm run check:drops-mobile-refinement` failed on `UCP-001`: the validator still required the obsolete `formatTimer` marker and component-local `Always available` fallback inside `DropCardParts.tsx`.
+- Runtime code already used `formatDropCountdown` from `src/lib/drop-countdown.ts`; the fallback copy belongs to that shared helper.
+- `npm run check:user-chat-shell-routing`, `npm run check:not-found`, `npm run check:notification-pipeline`, and focused payment/drop/chat/notification route tests passed before the fix.
+
+Scope completed:
+- Added `agent/state/user-critical-path-audit.generated.json` to record `UCP-001` and the non-failing targeted user-path checks found during this pass.
+- Added `agent/state/user-critical-path-fix-report.generated.json` and `docs/agent-truth/user-critical-path-launch.md` documenting before/after behavior, files changed, targeted tests, and untouched areas.
+- Updated `scripts/agent/validate-drops-mobile-refinement.ts` so the Drops mobile launch guard checks `formatDropCountdown` in `DropCardParts.tsx` and the `Always available` fallback in `src/lib/drop-countdown.ts`.
+- Updated `tests/unit/drop-countdown.spec.ts` to protect the helper-owned fallback.
+- Added `scripts/agent/validate-user-critical-path-launch.ts` and `npm run check:user-critical-path-launch`.
+
+Residual risk:
+- No product UI, payment, unlock, chat, notification, entitlement, or route behavior changed in this pass. Fastest mobile visual audit was not run because the fix was a static validation-contract correction, not a runtime UI/CSS change.
+
 ## [2026-05-01 #71] PRE: Launch Finalization Scope Freeze
 
 Scope started:
