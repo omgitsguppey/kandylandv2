@@ -30,6 +30,7 @@ const chatShell = readRequired("src/components/Chat/ChatRouteShell.tsx");
 const bottomNav = readRequired("src/components/Navigation/MobileBottomBar.tsx");
 const spacing = readRequired("src/lib/user-mobile-shell.ts");
 const creatorPublicPages = readRequired("src/lib/creator-public-pages.ts");
+const creatorDiscoveryRail = readRequired("src/components/CreatorDiscoveryRail.tsx");
 const notFound = readRequired("src/components/ui/NotFoundSurface.tsx");
 const doc = readRequired("docs/agent-truth/user-chat-shell-routing.md");
 
@@ -86,6 +87,12 @@ requireIncludes(chat, "selectedThreadCreatorProfileHref", "Chat thread profile r
 requireIncludes(chat, "missingProfileHrefReason", "Missing profile href debug metadata");
 requireNotIncludes(chat, "href={`/${selectedThread.counterpartUsername}`}", "Chat thread profile route");
 requireNotIncludes(chat, "href={`/${", "Chat thread profile route");
+requireIncludes(creatorDiscoveryRail, "buildCreatorProfileHref", "Creator discovery profile route");
+requireIncludes(creatorDiscoveryRail, "creatorProfileHref", "Creator discovery profile route");
+requireIncludes(creatorDiscoveryRail, "Creator profile unavailable", "Creator discovery missing profile route");
+requireNotIncludes(creatorDiscoveryRail, "`/creators/${creator.username}`", "Creator discovery profile route");
+requireNotIncludes(creatorDiscoveryRail, "href={creator.username ? `/creators/${creator.username}` : \"#\"}", "Creator discovery profile route");
+requireNotIncludes(creatorDiscoveryRail, "href=\"#\"", "Creator discovery profile route");
 
 requireIncludes(notFound, "import Link from \"next/link\"", "Not-found return action");
 requireIncludes(notFound, "NOT_FOUND_RETURN_HREF = \"/dashboard\"", "Not-found return action");

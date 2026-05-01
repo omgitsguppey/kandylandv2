@@ -9,7 +9,11 @@ import { useAuthIdentity, useAuthLoading } from "@/context/AuthContext";
 import { useUIActions } from "@/context/UIContext";
 import { authFetch } from "@/lib/authFetch";
 import { reportClientIssue } from "@/lib/client-error-reporting";
-import { buildCreatorDiscoveryNavigationParams, type CreatorDiscoveryProfile } from "@/lib/creator-public-pages";
+import {
+    buildCreatorDiscoveryNavigationParams,
+    buildCreatorProfileHref,
+    type CreatorDiscoveryProfile,
+} from "@/lib/creator-public-pages";
 import { cn } from "@/lib/utils";
 import { trackEvent } from "@/lib/telemetry";
 import { TitleMarquee } from "@/components/ui/TitleMarquee";
@@ -182,27 +186,10 @@ function CreatorDiscoveryRailView({
 
             <div className="overflow-x-auto pb-1">
                 <div className={cn("flex min-w-max gap-3", compact ? "pr-2" : "pr-4")}>
-                    {creators.map((creator) => (
-                        <article
-                            key={creator.uid}
-                            className={cn(
-                                "group flex shrink-0 flex-col justify-between rounded-[1.45rem] border border-white/5 bg-white/[0.03] text-center",
-                                compact
-                                    ? "aspect-square w-[7.25rem] gap-2 px-2.5 py-2.5"
-                                    : "aspect-square w-[8.75rem] gap-2.5 px-3 py-3",
-                            )}
-                        >
-                            <Link
-                                href={creator.username ? `/creators/${creator.username}` : "#"}
-                                onClick={() => {
-                                    trackEvent("navigation_click", buildCreatorDiscoveryNavigationParams({
-                                        creatorId: creator.uid,
-                                        creatorUsername: creator.username,
-                                        surface,
-                                    }));
-                                }}
-                                className="flex w-full flex-col items-center gap-2"
-                            >
+                    {creators.map((creator) => {
+                        const creatorProfileHref = buildCreatorProfileHref({ creatorUsername: creator.username });
+                        const profileContent = (
+                            <>
                                 <div
                                     className={cn(
                                         "rounded-full p-[2px] transition-transform group-hover:scale-105",
@@ -249,26 +236,62 @@ function CreatorDiscoveryRailView({
                                         <CompactNumber value={Math.max(creator.followerCount ?? 0, 0)} /> followers
                                     </p>
                                 </div>
-                            </Link>
+                            </>
+                        );
 
-                            {userId === creator.uid ? null : (
-                                <button
-                                    type="button"
-                                    onClick={() => onFollowToggle(creator)}
-                                    disabled={pendingCreatorId === creator.uid}
-                                    className={cn(
-                                        "inline-flex items-center justify-center rounded-full border font-bold transition-colors",
-                                        compact ? "min-h-7 px-3 py-1.5 text-[10px]" : "min-h-8 px-3.5 py-1.5 text-[11px]",
-                                        creator.following
-                                            ? "border-brand-purple/60 bg-black text-brand-purple"
-                                            : "border-brand-purple/30 bg-brand-purple/15 text-white",
-                                    )}
-                                >
-                                    {pendingCreatorId === creator.uid ? <Loader2 className="h-3 w-3 animate-spin" /> : creator.following ? "following" : "Follow"}
-                                </button>
-                            )}
-                        </article>
-                    ))}
+                        return (
+                            <article
+                                key={creator.uid}
+                                className={cn(
+                                    "group flex shrink-0 flex-col justify-between rounded-[1.45rem] border border-white/5 bg-white/[0.03] text-center",
+                                    compact
+                                        ? "aspect-square w-[7.25rem] gap-2 px-2.5 py-2.5"
+                                        : "aspect-square w-[8.75rem] gap-2.5 px-3 py-3",
+                                )}
+                            >
+                                {creatorProfileHref ? (
+                                    <Link
+                                        href={creatorProfileHref}
+                                        onClick={() => {
+                                            trackEvent("navigation_click", buildCreatorDiscoveryNavigationParams({
+                                                creatorId: creator.uid,
+                                                creatorUsername: creator.username,
+                                                surface,
+                                            }));
+                                        }}
+                                        className="flex w-full flex-col items-center gap-2"
+                                    >
+                                        {profileContent}
+                                    </Link>
+                                ) : (
+                                    <div
+                                        className="flex w-full flex-col items-center gap-2"
+                                        aria-disabled="true"
+                                        title="Creator profile unavailable"
+                                    >
+                                        {profileContent}
+                                    </div>
+                                )}
+
+                                {userId === creator.uid ? null : (
+                                    <button
+                                        type="button"
+                                        onClick={() => onFollowToggle(creator)}
+                                        disabled={pendingCreatorId === creator.uid}
+                                        className={cn(
+                                            "inline-flex items-center justify-center rounded-full border font-bold transition-colors",
+                                            compact ? "min-h-7 px-3 py-1.5 text-[10px]" : "min-h-8 px-3.5 py-1.5 text-[11px]",
+                                            creator.following
+                                                ? "border-brand-purple/60 bg-black text-brand-purple"
+                                                : "border-brand-purple/30 bg-brand-purple/15 text-white",
+                                        )}
+                                    >
+                                        {pendingCreatorId === creator.uid ? <Loader2 className="h-3 w-3 animate-spin" /> : creator.following ? "following" : "Follow"}
+                                    </button>
+                                )}
+                            </article>
+                        );
+                    })}
                 </div>
             </div>
         </section>
