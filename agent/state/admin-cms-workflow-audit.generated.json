@@ -1,0 +1,305 @@
+{
+  "generatedAt": "2026-05-01T00:00:00.000-05:00",
+  "task": "creator-admin-cms-workflow-launch-audit",
+  "launchStatus": "launchable_with_warnings",
+  "summary": {
+    "fixedIssue": "Server-side Drop publish validation now mirrors the CMS form guardrails for admin create/update, creator submission/edit, and admin creator-submission approval.",
+    "warnings": [
+      "Archive is implemented as hard delete in the current admin drops workflow; a separate reversible archive state is not present and is documented as deferred.",
+      "Creator assignment is optional for admin-created public content drops, but required for creator-submitted drops and subscriber-only drops."
+    ],
+    "deferred": [
+      "Add a reversible archive status if product operations require restore/history beyond current delete behavior."
+    ]
+  },
+  "workflowMap": [
+    {
+      "stepKey": "create_draft_drop",
+      "files": [
+        "src/components/Admin/CreateDropModal.tsx",
+        "src/lib/admin-drop-form.ts",
+        "src/app/api/admin/drops/route.ts",
+        "src/lib/server/drop-mutations.ts"
+      ],
+      "currentGuard": "Admin modal uses zod form validation; admin POST requires admin auth, trusted origin, and shared server publish validation before writing.",
+      "userFacingImpact": "Invalid drafts cannot become visible Drops through direct API writes.",
+      "notificationImpact": "New active Drops notify only after the validated write succeeds.",
+      "entitlementImpact": "Content Drops must include locked asset pointers before publication.",
+      "analyticsImpact": "Published Drops keep stable Drop ids for downstream click, impression, unlock, and creator attribution.",
+      "validation": "validateDropPublishState and admin-cms workflow tests",
+      "requiredFix": "Added shared server-side publish validation.",
+      "fixedInThisPass": true
+    },
+    {
+      "stepKey": "assign_creator",
+      "files": [
+        "src/components/Admin/CreateDropModal.tsx",
+        "src/app/api/admin/creator-options/route.ts",
+        "src/app/api/creator/drops/route.ts",
+        "src/lib/server/drop-mutations.ts"
+      ],
+      "currentGuard": "Admin-created Drops may stay unassigned; creator-submitted Drops are forced to caller uid; subscriber-only Drops require creator assignment.",
+      "userFacingImpact": "Creator routing remains optional for general Drops and explicit for creator-owned or subscription-gated Drops.",
+      "notificationImpact": "Drop notifications carry Drop context regardless of creator assignment.",
+      "entitlementImpact": "Subscription access requires a creator lane before unlock can use creator subscription entitlement.",
+      "analyticsImpact": "Unlock analytics includes creator_id only when a creator exists.",
+      "validation": "validator checks optional admin creator field and required creator-submitted validation",
+      "requiredFix": "Added subscriber-only creator assignment validation.",
+      "fixedInThisPass": true
+    },
+    {
+      "stepKey": "upload_cover",
+      "files": [
+        "src/components/Admin/AssetUploader.tsx",
+        "src/components/Admin/CreateDropModal.tsx",
+        "src/app/api/admin/content/route.ts",
+        "src/app/api/creator/drops/assets/route.ts",
+        "src/lib/server/drop-mutations.ts"
+      ],
+      "currentGuard": "Cover uploads are routed through server endpoints; publish validation requires a valid http/https cover or public preview URL.",
+      "userFacingImpact": "Published cards have a real public-safe cover or fail before publishing.",
+      "notificationImpact": "Manual notification draft blocks without preview image; activation notifications use Drop imageUrl after validation.",
+      "entitlementImpact": "Cover is public-safe and does not grant locked asset access.",
+      "analyticsImpact": "Cover does not affect metric attribution.",
+      "validation": "admin form validation, server publish validation, content/media pipeline validator",
+      "requiredFix": "Added server cover URL requirement.",
+      "fixedInThisPass": true
+    },
+    {
+      "stepKey": "attach_locked_assets",
+      "files": [
+        "src/lib/admin-drop-form.ts",
+        "src/lib/server/drop-mutations.ts",
+        "src/app/api/drops/content/route.ts",
+        "src/lib/server/drops.ts"
+      ],
+      "currentGuard": "Content Drops require at least one contentUrl/contentUrls entry at form and server layers; public feeds sanitize protected URLs; content proxy verifies ownership/unlock.",
+      "userFacingImpact": "A published content Drop cannot be empty and public pages do not leak raw content URLs.",
+      "notificationImpact": "Asset presence does not send notifications by itself.",
+      "entitlementImpact": "Locked assets stay behind /api/drops/content entitlement checks.",
+      "analyticsImpact": "Viewer and unlock analytics keep Drop id attribution.",
+      "validation": "admin-cms workflow tests and content-media pipeline checks",
+      "requiredFix": "Added server locked-asset requirement.",
+      "fixedInThisPass": true
+    },
+    {
+      "stepKey": "set_price",
+      "files": [
+        "src/lib/admin-drop-form.ts",
+        "src/lib/server/drop-mutations.ts",
+        "src/app/api/drops/unlock/route.ts"
+      ],
+      "currentGuard": "Form and server validation require unlockCost to be a finite number >= 0; unlock route rejects invalid Drop configuration before spending balance.",
+      "userFacingImpact": "Negative prices cannot be published through the CMS API.",
+      "notificationImpact": "Price does not affect notification dispatch.",
+      "entitlementImpact": "Unlock deduction remains atomic and source-aware.",
+      "analyticsImpact": "Unlock telemetry records unlock_cost and creator_id where available.",
+      "validation": "admin-cms workflow tests, admin-drop-form tests, payment/unlock tests",
+      "requiredFix": "Added server price validation.",
+      "fixedInThisPass": true
+    },
+    {
+      "stepKey": "set_category_tier",
+      "files": [
+        "src/lib/admin-drop-form.ts",
+        "src/components/Admin/CreateDropModal.tsx",
+        "src/components/DropGrid.tsx",
+        "src/app/drops/DropsClient.tsx"
+      ],
+      "currentGuard": "Current category/tier controls are Drop type, tags, and requiresActiveSubscription; no separate tier taxonomy exists.",
+      "userFacingImpact": "Discovery filters use approved tag labels and subscription-gated Drops stay explicit.",
+      "notificationImpact": "Notification dispatch is independent from tags.",
+      "entitlementImpact": "requiresActiveSubscription is validated with creator assignment and enforced during unlock.",
+      "analyticsImpact": "Card and unlock events include Drop category/type and tags.",
+      "validation": "admin-cms validator and existing Drop form tests",
+      "requiredFix": "Documented current category/tier behavior.",
+      "fixedInThisPass": true
+    },
+    {
+      "stepKey": "set_expiration_live_window",
+      "files": [
+        "src/lib/admin-drop-form.ts",
+        "src/lib/drop-status.ts",
+        "src/lib/server/drop-mutations.ts",
+        "src/app/api/admin/drops/route.ts"
+      ],
+      "currentGuard": "Form checks validUntil > validFrom; server validation now enforces the same rule; mutations resolve canonical active/scheduled/expired status from timing.",
+      "userFacingImpact": "Bad windows cannot publish and public pages receive resolved status.",
+      "notificationImpact": "Activation notification keys include Drop id and validFrom.",
+      "entitlementImpact": "Expired Drops do not remove already-owned entitlements.",
+      "analyticsImpact": "Live window affects visibility but not metric identity.",
+      "validation": "admin-cms workflow tests and drop-status tests",
+      "requiredFix": "Added server live-window validation.",
+      "fixedInThisPass": true
+    },
+    {
+      "stepKey": "publish_live",
+      "files": [
+        "src/app/api/admin/drops/route.ts",
+        "src/lib/server/drop-mutations.ts",
+        "src/lib/server/push-notifications.ts",
+        "src/lib/server/drops.ts"
+      ],
+      "currentGuard": "Admin create/update and approval validate the full publish state before approved or live writes; public feed hides pending/rejected Drops.",
+      "userFacingImpact": "Only approved, complete, active Drops render on discovery.",
+      "notificationImpact": "sendGlobalDropNotification is called after a validated live transition and uses deterministic activation key.",
+      "entitlementImpact": "Publish does not grant entitlement; unlock remains separate.",
+      "analyticsImpact": "Published Drops preserve ids for impression/click/unlock events.",
+      "validation": "admin-cms workflow validator and tests",
+      "requiredFix": "Added validation on admin POST and approval/update.",
+      "fixedInThisPass": true
+    },
+    {
+      "stepKey": "queue_drop",
+      "files": [
+        "src/app/admin/drops/page.tsx",
+        "src/app/api/admin/queue/route.ts",
+        "src/app/api/admin/queue/toggle/route.ts",
+        "src/lib/server/drop-queue.ts",
+        "src/lib/admin-drop-queue.ts"
+      ],
+      "currentGuard": "Queue membership is admin-only, trusted-origin, deduped, normalized, and projected into visible admin lifecycle labels.",
+      "userFacingImpact": "Queue changes do not directly expose Drops until runtime schedules/activates them.",
+      "notificationImpact": "Queueing alone does not notify.",
+      "entitlementImpact": "Queue state does not affect existing entitlements.",
+      "analyticsImpact": "Queue state is not a separate public metric source.",
+      "validation": "admin-cms validator and queue lifecycle tests",
+      "requiredFix": "No code fix required.",
+      "fixedInThisPass": false
+    },
+    {
+      "stepKey": "auto_return_live",
+      "files": [
+        "shared/runtime/queue-runtime.ts",
+        "src/lib/server/queue-runtime.ts",
+        "functions/src/queue-runtime.ts",
+        "src/lib/server/push-notifications.ts"
+      ],
+      "currentGuard": "Scheduled runtime marks eligible queued Drops active and sends return-live notifications with deterministic activation keys and notification idempotency.",
+      "userFacingImpact": "Auto-return live Drops can reappear without duplicate push spam.",
+      "notificationImpact": "Return-live dispatch uses targeted notification identity and browser tags.",
+      "entitlementImpact": "Existing owners are excluded from targeted return-live notifications where owner lookup succeeds.",
+      "analyticsImpact": "Queue runtime records heartbeats, outcomes, and warnings.",
+      "validation": "admin-cms workflow tests and push-notification tests",
+      "requiredFix": "No code fix required.",
+      "fixedInThisPass": false
+    },
+    {
+      "stepKey": "expire_drop",
+      "files": [
+        "shared/runtime/queue-runtime.ts",
+        "src/lib/server/queue-runtime.ts",
+        "src/lib/drop-status.ts",
+        "src/components/DropCard.tsx"
+      ],
+      "currentGuard": "Runtime resolves expired active Drops from validUntil and can auto-queue if enabled; Drop cards hide expired locked Drops.",
+      "userFacingImpact": "Expired locked Drops stop appearing as unlockable cards.",
+      "notificationImpact": "Expiration alone does not notify unless queue return-live later triggers.",
+      "entitlementImpact": "Owned users keep library/viewer access through entitlement.",
+      "analyticsImpact": "Runtime warnings expose stale or failed status reconciliation.",
+      "validation": "queue lifecycle tests and admin-cms validator",
+      "requiredFix": "No code fix required.",
+      "fixedInThisPass": false
+    },
+    {
+      "stepKey": "archive_delete",
+      "files": [
+        "src/app/admin/drops/page.tsx",
+        "src/app/api/admin/drops/route.ts",
+        "docs/agent-truth/admin-cms-drop-workflow.md"
+      ],
+      "currentGuard": "Current admin workflow supports delete with confirmation and surface invalidation; reversible archive state is not implemented.",
+      "userFacingImpact": "Deleted Drops are removed from user-facing surfaces after invalidation.",
+      "notificationImpact": "Delete does not send notifications.",
+      "entitlementImpact": "Direct content retrieval fails once Drop document is removed; prior ownership records may remain for audit/history.",
+      "analyticsImpact": "Historical telemetry keeps prior Drop ids; deleted Drop records are not retained by this route.",
+      "validation": "admin-cms validator checks archive/delete documentation",
+      "requiredFix": "Documented delete-vs-archive behavior and deferred reversible archive.",
+      "fixedInThisPass": true
+    },
+    {
+      "stepKey": "edit_metadata_after_publish",
+      "files": [
+        "src/components/Admin/CreateDropModal.tsx",
+        "src/app/api/admin/drops/route.ts",
+        "src/lib/server/drop-mutations.ts"
+      ],
+      "currentGuard": "Edit mode hydrates existing Drop values; server validates merged existing+incoming publish state before status-affecting updates.",
+      "userFacingImpact": "Partial metadata edits cannot accidentally blank a published Drop into invalid state.",
+      "notificationImpact": "Only inactive-to-active timing transitions send activation notifications.",
+      "entitlementImpact": "Content asset edits still require a valid content asset set for content Drops.",
+      "analyticsImpact": "Drop id remains stable across metadata edits.",
+      "validation": "admin-cms workflow tests",
+      "requiredFix": "Added merged existing-drop validation.",
+      "fixedInThisPass": true
+    },
+    {
+      "stepKey": "verify_user_facing_route",
+      "files": [
+        "src/app/api/drops/route.ts",
+        "src/lib/server/drops.ts",
+        "src/components/DropGrid.tsx",
+        "src/components/DropCard.tsx"
+      ],
+      "currentGuard": "Public route filters active Drops and sanitized client payloads render through DropGrid/DropCard.",
+      "userFacingImpact": "Published approved Drops render without exposing protected content URLs.",
+      "notificationImpact": "Click routing and previews stay independent from notification dispatch.",
+      "entitlementImpact": "Unlock/viewer remains required for content bytes.",
+      "analyticsImpact": "Drop card impressions and details clicks include drop_id.",
+      "validation": "admin-cms validator, server-drops tests, Drop card tests",
+      "requiredFix": "No code fix required.",
+      "fixedInThisPass": false
+    },
+    {
+      "stepKey": "verify_notification_trigger",
+      "files": [
+        "src/app/api/admin/drops/route.ts",
+        "src/lib/server/queue-runtime.ts",
+        "src/app/api/notifications/route.ts",
+        "src/lib/server/push-notifications.ts"
+      ],
+      "currentGuard": "Activation and return-live notifications use deterministic idempotency; manual admin notifications use notification identity and duplicate reporting.",
+      "userFacingImpact": "Admins can notify users without duplicate visible notifications for the same Drop lifecycle.",
+      "notificationImpact": "Browser tag and document id prevent duplicate display/creation.",
+      "entitlementImpact": "Return-live notification excludes existing owners when owner lookup succeeds.",
+      "analyticsImpact": "Notification dispatch outcomes are recorded for Debug/admin funnel.",
+      "validation": "admin-cms validator and push-notifications tests",
+      "requiredFix": "No code fix required.",
+      "fixedInThisPass": false
+    },
+    {
+      "stepKey": "verify_analytics_attribution",
+      "files": [
+        "src/hooks/useDropCardImpression.ts",
+        "src/components/DropCard.tsx",
+        "src/app/api/drops/unlock/route.ts",
+        "src/app/api/drops/track/route.ts"
+      ],
+      "currentGuard": "Discovery, details, click, impression, and unlock paths include drop_id; creator unlock telemetry includes creator_id when available.",
+      "userFacingImpact": "User behavior on published Drops feeds admin truth with stable Drop identity.",
+      "notificationImpact": "Notification funnel remains separate from Drop discovery/unlock attribution.",
+      "entitlementImpact": "Unlock telemetry is emitted only after successful server transaction.",
+      "analyticsImpact": "drop_id and creator_id are present where source truth allows them.",
+      "validation": "admin-cms validator and analytics event contract checks",
+      "requiredFix": "No code fix required.",
+      "fixedInThisPass": false
+    },
+    {
+      "stepKey": "verify_entitlement_behavior",
+      "files": [
+        "src/app/api/drops/unlock/route.ts",
+        "src/app/api/drops/content/route.ts",
+        "src/app/dashboard/library/LibraryClient.tsx",
+        "src/app/dashboard/viewer/page.tsx"
+      ],
+      "currentGuard": "Unlock uses a server transaction; content proxy requires creator ownership or unlocked content/timestamp; library/viewer use owned Drop ids.",
+      "userFacingImpact": "Users cannot read locked content without entitlement and repeated unlocks do not double-charge.",
+      "notificationImpact": "Entitlement state prevents notifying owners during return-live targeting where lookup succeeds.",
+      "entitlementImpact": "Server remains source of truth for balance, unlock, and content access.",
+      "analyticsImpact": "Successful unlock writes task/creator telemetry with Drop id and creator id.",
+      "validation": "admin-cms validator, payment/unlock tests, content-media pipeline tests",
+      "requiredFix": "No code fix required.",
+      "fixedInThisPass": false
+    }
+  ]
+}

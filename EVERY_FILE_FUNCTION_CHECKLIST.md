@@ -1,13 +1,24 @@
 # EVERY FILE FUNCTION CHECKLIST
 
 **Last Updated:** 2026-05-01
-**Current Focus:** Content Media Pipeline Launch Audit.
+**Current Focus:** Admin CMS Drop Workflow Launch Audit.
 **Status:** In Progress. Current tracked-file coverage is reconciled as of 2026-04-28: every `git ls-files` entry has a current checklist heading, while detailed function-level audits remain pending for many historical and newly reconciled files.
 Purpose: exhaustive no-skip audit checklist covering every repository file currently in scope and every detected function-like implementation.
 
 Scoring: all entries below are marked as included in the current validated sweep. Confidence reflects current repository-state confidence, not perfection or future-proofing.
 
 Current repo-wide state snapshot: see [FULL_SCALE_CODEBASE_AUDIT.md](/Users/uylus/OneDrive/Documents/KandyDrops_Final/FULL_SCALE_CODEBASE_AUDIT.md) for the current live baseline, verification state, and continuity rules, and see [REPO_MEMORY_LEDGER.md](/Users/uylus/OneDrive/Documents/KandyDrops_Final/REPO_MEMORY_LEDGER.md) for major architectural and workflow decisions. The detailed file/function body below remains valuable historical evidence, but it has not been fully regenerated against the current 2026-04-18 inventory review yet.
+
+## 2026-05-01 Admin CMS Drop Workflow Launch Audit Coverage
+
+- [x] `src/lib/server/drop-mutations.ts` now owns `validateDropPublishState` and `shouldValidateDropPublishPayload`, keeping CMS publish readiness server-verified for title, description, cover, content assets, price, timing, action URL, creator-submitted ownership, and subscriber-only creator assignment.
+- [x] `src/app/api/admin/drops/route.ts` applies the shared publish gate on admin create and publish-affecting update/approval while preserving admin auth, trusted origin, surface invalidation, and deterministic live activation notification keys.
+- [x] `src/app/api/creator/drops/route.ts` applies the shared publish gate with `creatorIdOverride: caller.uid`, keeps creator submissions in `pending_review`, and prevents creator edits from bypassing locked asset/price/timing requirements.
+- [x] `src/components/Admin/CreateDropModal.tsx`, `src/lib/admin-drop-form.ts`, `src/app/api/admin/creator-options/route.ts`, and `src/app/api/drops/duplicate-filenames/route.ts` remain the client CMS validation, creator selection, upload, and duplicate filename warning surfaces.
+- [x] `src/app/admin/drops/page.tsx`, `src/app/api/admin/queue/route.ts`, `src/app/api/admin/queue/toggle/route.ts`, `src/lib/server/drop-queue.ts`, `src/lib/admin-drop-queue.ts`, `shared/runtime/queue-runtime.ts`, and `src/lib/server/queue-runtime.ts` preserve queue/requeue/return-live ownership and idempotent notification dispatch.
+- [x] `src/lib/server/push-notifications.ts`, `src/app/api/notifications/route.ts`, and `tests/unit/push-notifications.spec.ts` remain the duplicate notification prevention lane for manual, live, and return-live Drop notifications.
+- [x] `src/lib/server/drops.ts`, `src/app/api/drops/route.ts`, `src/components/DropGrid.tsx`, `src/components/DropCard.tsx`, `src/app/api/drops/content/route.ts`, and `src/app/api/drops/unlock/route.ts` preserve public rendering, content entitlement, and dropId/creatorId attribution after CMS publication.
+- [x] `agent/state/admin-cms-workflow-audit.generated.json`, `docs/agent-truth/admin-cms-drop-workflow.md`, `scripts/agent/validate-admin-cms-workflow.ts`, `package.json`, and `tests/unit/admin-cms-workflow.spec.ts` record and validate the launch CMS workflow gate.
 
 ## 2026-05-01 Content Media Pipeline Launch Audit Coverage
 

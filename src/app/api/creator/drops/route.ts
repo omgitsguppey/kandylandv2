@@ -11,6 +11,7 @@ import {
     resolveCreatedDropTiming,
     resolveUpdatedDropTiming,
     sanitizeDropData,
+    validateDropPublishState,
 } from "@/lib/server/drop-mutations";
 import { guardApiRequest } from "@/lib/server/request-guard";
 import { STANDARD } from "@/lib/server/rate-limit";
@@ -69,6 +70,17 @@ async function POST_handler(request: NextRequest) {
             return NextResponse.json({ error: "Missing drop data" }, { status: 400 });
         }
 
+        const publishValidation = validateDropPublishState(dropData, {
+            creatorIdOverride: caller.uid,
+            requireCreator: true,
+        });
+        if (!publishValidation.ok) {
+            return NextResponse.json({
+                error: "Invalid drop publish state",
+                details: publishValidation.errors,
+            }, { status: 400 });
+        }
+
         const sanitized = sanitizeDropData(dropData, ALLOWED_DROP_FIELDS);
         const now = Date.now();
         const { status } = resolveCreatedDropTiming(dropData, now);
@@ -125,6 +137,18 @@ async function PUT_handler(request: NextRequest) {
         const existingDrop = normalizeDropRecord(dropSnap.data(), dropId);
         if (existingDrop.submittedByCreatorId !== caller.uid && existingDrop.creatorId !== caller.uid) {
             return NextResponse.json({ error: "You can only edit your own submitted drops." }, { status: 403 });
+        }
+
+        const publishValidation = validateDropPublishState(dropData, {
+            existingDrop,
+            creatorIdOverride: caller.uid,
+            requireCreator: true,
+        });
+        if (!publishValidation.ok) {
+            return NextResponse.json({
+                error: "Invalid drop publish state",
+                details: publishValidation.errors,
+            }, { status: 400 });
         }
 
         const sanitized = sanitizeDropData(dropData, ALLOWED_DROP_FIELDS);

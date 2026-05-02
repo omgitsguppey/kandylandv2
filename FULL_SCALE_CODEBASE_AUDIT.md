@@ -1,5 +1,31 @@
 # KandyDrops Core Codebase Audit & Defensive Ledger
 
+## [2026-05-01 #87] PRE: Admin CMS Drop Workflow Launch Audit
+
+Scope started:
+- Auditing admin/creator Drop CMS workflow from create/edit through publish, queue, expire, archive/delete, media attachment, creator assignment, notification trigger, analytics attribution, entitlement behavior, and user-facing rendering.
+- Required outputs: `agent/state/admin-cms-workflow-audit.generated.json`, `docs/agent-truth/admin-cms-drop-workflow.md`, validator/script/package wiring, targeted tests, governance ledger updates, commit, and push.
+- Fixes are limited to verified launch-critical CMS workflow gaps; no redesign, broad queue rewrite, payment/economy mutation, or new publishing feature is in scope.
+
+Initial evidence:
+- Worktree was clean at startup on `main`.
+- Control tower routing, doctrine consultation workflow, source-of-truth map, shared component ownership, product/copy/UI/surface/vocabulary/banned-pattern/cloud doctrine, content/media pipeline doctrine, and background-job idempotency doctrine were consulted.
+
+Scope completed:
+- Created `agent/state/admin-cms-workflow-audit.generated.json`, `docs/agent-truth/admin-cms-drop-workflow.md`, and `scripts/agent/validate-admin-cms-workflow.ts` with `npm run check:admin-cms-workflow`.
+- Audited admin Drop manager, creator Drop submissions, Drop form validation, server write routes, creator options, duplicate filename warnings, upload endpoints, queue/requeue runtime, notification idempotency, public Drop rendering, content entitlement, unlock attribution, and archive/delete posture.
+- Fixed a verified launch-critical gap: Drop publish readiness is now enforced by `validateDropPublishState` on admin create, admin publish-affecting update/approval, and creator create/update, so direct API writes cannot publish missing covers, missing locked content, negative prices, invalid timing, unsafe promo/external URLs, or invalid creator-subscription states.
+- Added targeted tests for server publish validation, optional vs required creator assignment, partial approval/edit validation, and deterministic queued return-live activation notification keys.
+
+Verification:
+- `npm run check:admin-cms-workflow`
+- `npx vitest run tests/unit/admin-cms-workflow.spec.ts tests/unit/admin-drop-form.spec.ts tests/unit/drop-queue-lifecycle.spec.ts tests/unit/push-notifications.spec.ts`
+- `npm run typecheck`
+- `git diff --check` (passed; line-ending warnings only)
+
+Residual risk:
+- Reversible archive is still not implemented. Current launch behavior is documented as hard delete with surface invalidation; restore/history semantics should be a future product decision, not an implicit CMS change.
+
 ## [2026-05-01 #86] PRE: Content Media Pipeline Launch Audit
 
 Scope started:

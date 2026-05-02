@@ -24,6 +24,16 @@ This file is not a changelog. It is the concise ledger for durable decisions tha
 
 ## Decision Entries
 
+### 1cq. Admin CMS Drop workflow is server-validated before launch publication
+
+- Approximate date: Recorded explicitly on 2026-05-01 from the creator/admin CMS workflow launch audit
+- Status: Active launch admin/creator Drop publishing, queue, notification, entitlement, and attribution rule
+- Decision: Admin and creator Drop CMS workflows may not rely on client form validation alone. The server must verify publish readiness before creating, approving, or status-affecting edits: title, description, cover/public preview, non-negative GD price, valid live window, content assets for content Drops, safe promo/external destination, creator assignment for creator-submitted Drops, and creator assignment for subscriber-only Drops.
+- Implementation: `src/lib/server/drop-mutations.ts` owns `validateDropPublishState` and `shouldValidateDropPublishPayload`. `src/app/api/admin/drops/route.ts` applies the gate on create and publish-affecting update/approval. `src/app/api/creator/drops/route.ts` applies the same gate with caller-owned creator assignment. `agent/state/admin-cms-workflow-audit.generated.json`, `docs/agent-truth/admin-cms-drop-workflow.md`, `scripts/agent/validate-admin-cms-workflow.ts`, and `npm run check:admin-cms-workflow` record and enforce the workflow map.
+- Launch-critical fixes: server-side Drop publish validation now blocks incomplete direct API writes, negative prices, missing cover/media, invalid live windows, missing content assets, unsafe promo/external action URLs, missing creator assignment for creator submissions, and subscriber-only Drops without a creator. Current archive behavior is documented as hard delete; reversible archive remains deferred.
+- Required validation: `npm run check:admin-cms-workflow`, `npx vitest run tests/unit/admin-cms-workflow.spec.ts tests/unit/admin-drop-form.spec.ts tests/unit/drop-queue-lifecycle.spec.ts tests/unit/push-notifications.spec.ts`, touched-file TypeScript, and `git diff --check`.
+- Consequence for future work: Do not add another CMS write route, creator submission path, queue publish action, or admin approval path that bypasses `validateDropPublishState`. Do not add return-live notifications from the CMS UI; queue runtime owns return-live idempotency.
+
 ### 1cp. Content/media launch gate is server-mediated and public-safe
 
 - Approximate date: Recorded explicitly on 2026-05-01 from the content and media pipeline launch audit

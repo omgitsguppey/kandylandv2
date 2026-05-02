@@ -11,6 +11,8 @@ import {
     resolveCreatedDropTiming,
     resolveUpdatedDropTiming,
     sanitizeDropData,
+    shouldValidateDropPublishPayload,
+    validateDropPublishState,
 } from "@/lib/server/drop-mutations";
 import { sendGlobalDropNotification } from "@/lib/server/push-notifications";
 import { guardApiRequest } from "@/lib/server/request-guard";
@@ -45,6 +47,14 @@ async function POST_handler(request: NextRequest) {
         }
         if (!adminDb) {
             return NextResponse.json({ error: "Database not available" }, { status: 500 });
+        }
+
+        const publishValidation = validateDropPublishState(dropData);
+        if (!publishValidation.ok) {
+            return NextResponse.json({
+                error: "Invalid drop publish state",
+                details: publishValidation.errors,
+            }, { status: 400 });
         }
 
         const sanitized = sanitizeDropData(dropData, ALLOWED_DROP_FIELDS);
@@ -119,6 +129,16 @@ async function PUT_handler(request: NextRequest) {
         }
 
         const existingDrop = normalizeDropRecord(existingDropSnap.data(), dropId);
+        if (shouldValidateDropPublishPayload(dropData)) {
+            const publishValidation = validateDropPublishState(dropData, { existingDrop });
+            if (!publishValidation.ok) {
+                return NextResponse.json({
+                    error: "Invalid drop publish state",
+                    details: publishValidation.errors,
+                }, { status: 400 });
+            }
+        }
+
         const now = Date.now();
         const nextTiming = resolveUpdatedDropTiming(dropData, existingDrop, now);
         const currentLiveStatus = resolveDropStatusFromTiming(existingDrop, now);
