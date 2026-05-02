@@ -1,5 +1,34 @@
 # KandyDrops Core Codebase Audit & Defensive Ledger
 
+## [2026-05-01 #81] PRE: Environment Deployment Truth Audit
+
+Scope started:
+- Auditing production App Hosting, Firebase, Functions, PayPal, GA4/BigQuery, FCM, domain/origin, trusted-origin, service-worker, manifest, and deploy metadata truth for launch.
+- Required outputs: `agent/state/environment-deployment-truth-audit.generated.json`, `docs/agent-truth/environment-deployment-truth.md`, validator/script/package wiring, and governance ledger updates.
+- Runtime behavior changes are out of scope unless a concrete config mismatch or secret-exposure risk is verified.
+
+Initial evidence:
+- Worktree was clean at startup on `main`.
+- Control tower routing, source-of-truth map, Google Analytics/cloud doctrine, product doctrine, launch readiness/security ledgers, and deployment-related repo memory were consulted.
+- `npm run trace:adjacent -- apphosting.yaml src/lib/site-origin.ts src/lib/server/paypal.ts src/lib/firebase-runtime.ts public/firebase-messaging-sw.js` reported adjacency for code owners and could not classify YAML/service-worker static files as internal targets.
+
+Scope completed:
+- Created `agent/state/environment-deployment-truth-audit.generated.json`, `docs/agent-truth/environment-deployment-truth.md`, and `scripts/agent/validate-environment-deployment-truth.ts` with `npm run check:environment-deployment-truth`.
+- Verified canonical production origin, apex/www alias policy, App Hosting env/secret references, Firebase project/auth/storage/RTDB config, Functions entrypoint/runtime, PayPal live route posture, GA4/BigQuery config, FCM/VAPID, service-worker scope/cache, trusted origins, and manifest icons.
+- Fixed concrete config mismatches: PayPal App Hosting secrets now use env secret references, `NEXT_PUBLIC_FIREBASE_VAPID_KEY` is declared as an App Hosting secret reference, `.firebaserc` is tracked as production project truth, and generated backend override values are redacted in `backends.json`.
+
+Verification:
+- `npm run check:environment-deployment-truth`
+- `npm run typecheck`
+- `npm run check:firebase-runtime`
+- `npm run check:generated-artifacts`
+- `git diff --check`
+
+Residual risk:
+- No live deployed provider smoke or Secret Manager value lookup was performed; this pass verifies repo config truth and redacted secret references only.
+- PayPal webhook/return/cancel route files are intentionally absent because the launch flow uses inline PayPal JS SDK approval plus server create/capture. Do not configure a PayPal webhook until a signed webhook route and tests exist.
+- Browser GA `gtag` script injection is not detected in the app shell; first-party Firestore event facts remain canonical, and server Measurement Protocol is configured as an upgrade lane.
+
 ## [2026-05-01 #80] PRE: Security Role Boundary Launch Audit
 
 Scope started:

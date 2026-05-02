@@ -1,0 +1,331 @@
+{
+  "generatedAt": "2026-05-01T20:35:00.000-05:00",
+  "scope": "KandyDrops environment and deployment truth audit",
+  "status": "passed_with_documented_warnings_after_config_cleanup",
+  "canonicalProductionOrigin": "https://kandydrops.com",
+  "firebaseProjectId": "kandydrops-by-ikandy",
+  "secretValuesPrinted": false,
+  "runtimeBehaviorChanged": false,
+  "configFixesApplied": [
+    {
+      "id": "ENV-DEPLOY-001",
+      "summary": "Moved PayPal App Hosting runtime secret references into the documented env secret form.",
+      "files": [
+        "apphosting.yaml"
+      ]
+    },
+    {
+      "id": "ENV-DEPLOY-002",
+      "summary": "Added the FCM VAPID key as an App Hosting env secret reference.",
+      "files": [
+        "apphosting.yaml"
+      ]
+    },
+    {
+      "id": "ENV-DEPLOY-003",
+      "summary": "Redacted tracked generated backend override values from the App Hosting metadata snapshot.",
+      "files": [
+        "backends.json"
+      ]
+    },
+    {
+      "id": "ENV-DEPLOY-004",
+      "summary": "Made the Firebase project selection file part of tracked deployment truth.",
+      "files": [
+        ".firebaserc"
+      ]
+    }
+  ],
+  "warnings": [
+    {
+      "id": "ENV-WARN-001",
+      "summary": "PayPal webhook, return, and cancel route files are not present because the current production flow uses the inline PayPal JS SDK and server capture route. Do not configure PayPal webhooks until a signed webhook route is added."
+    },
+    {
+      "id": "ENV-WARN-002",
+      "summary": "No live deployed provider smoke was performed in this local audit; Secret Manager value existence is represented by redacted App Hosting secret references."
+    },
+    {
+      "id": "ENV-WARN-003",
+      "summary": "Browser GA gtag script injection is not detected in the app shell; first-party Firestore event facts remain canonical and server Measurement Protocol is configured as an upgrade lane."
+    }
+  ],
+  "configItems": [
+    {
+      "key": "production-domain-canonical-origin",
+      "filePath": "apphosting.yaml; src/lib/site-origin.ts",
+      "expectedProductionValueDescription": "Apex domain is canonical: https://kandydrops.com.",
+      "currentValueRedacted": "https://kandydrops.com",
+      "source": "App Hosting env and site-origin helper",
+      "productionSafe": true,
+      "mismatchRisk": "low",
+      "userImpact": "Canonical metadata, trusted-origin checks, sitemap, robots, and redirects resolve to the same apex origin.",
+      "fixNeeded": "None.",
+      "secretExposureRisk": false
+    },
+    {
+      "key": "apex-vs-www",
+      "filePath": "apphosting.yaml; src/lib/site-origin.ts; docs/agent-truth/environment-deployment-truth.md",
+      "expectedProductionValueDescription": "Apex is canonical; www is alias-only unless DNS/domain mapping is verified.",
+      "currentValueRedacted": "www present only in alias lists.",
+      "source": "Origin helper and deployment doctrine",
+      "productionSafe": true,
+      "mismatchRisk": "low",
+      "userImpact": "State-changing requests from mapped aliases remain trusted without making www canonical.",
+      "fixNeeded": "None.",
+      "secretExposureRisk": false
+    },
+    {
+      "key": "app-hosting-run-config",
+      "filePath": "apphosting.yaml",
+      "expectedProductionValueDescription": "Cloud/App Hosting keeps one warm instance and max two instances for launch baseline.",
+      "currentValueRedacted": "cpu=1, memoryMiB=2048, concurrency=80, minInstances=1, maxInstances=2",
+      "source": "apphosting.yaml",
+      "productionSafe": true,
+      "mismatchRisk": "low",
+      "userImpact": "Avoids cold-first admin and app shell responses while staying bounded.",
+      "fixNeeded": "None.",
+      "secretExposureRisk": false
+    },
+    {
+      "key": "app-hosting-env-secret-form",
+      "filePath": "apphosting.yaml",
+      "expectedProductionValueDescription": "Runtime secrets are declared under env with secret references, not top-level secrets.",
+      "currentValueRedacted": "GA, navigation cookie, PayPal, and FCM VAPID secret references present under env.",
+      "source": "App Hosting YAML",
+      "productionSafe": true,
+      "mismatchRisk": "fixed",
+      "userImpact": "Secrets needed by runtime/build are mounted through the documented config path.",
+      "fixNeeded": "Fixed in this pass.",
+      "secretExposureRisk": false
+    },
+    {
+      "key": "tracked-backend-snapshot-redaction",
+      "filePath": "backends.json",
+      "expectedProductionValueDescription": "Generated backend metadata may document variables but must not preserve raw override values in git.",
+      "currentValueRedacted": "All overrideEnv values redacted in tracked snapshot.",
+      "source": "Generated App Hosting metadata snapshot",
+      "productionSafe": true,
+      "mismatchRisk": "fixed",
+      "userImpact": "No runtime impact; reduces accidental secret exposure from tracked operational metadata.",
+      "fixNeeded": "Fixed in this pass.",
+      "secretExposureRisk": false
+    },
+    {
+      "key": "firebase-project-id",
+      "filePath": "apphosting.yaml; .firebaserc; src/lib/firebase-runtime.ts",
+      "expectedProductionValueDescription": "Production project ID is kandydrops-by-ikandy.",
+      "currentValueRedacted": "kandydrops-by-ikandy",
+      "source": "App Hosting env, Firebase project file, Firebase runtime helper",
+      "productionSafe": true,
+      "mismatchRisk": "low",
+      "userImpact": "Client SDK, Admin SDK default project, RTDB URL, and deployment target align.",
+      "fixNeeded": "Track .firebaserc in this pass so project truth travels with the repo.",
+      "secretExposureRisk": false
+    },
+    {
+      "key": "firebase-auth-domain",
+      "filePath": "apphosting.yaml; src/lib/firebase-runtime.ts",
+      "expectedProductionValueDescription": "Firebase Auth domain belongs to the production Firebase project.",
+      "currentValueRedacted": "kandydrops-by-ikandy.firebaseapp.com",
+      "source": "App Hosting env and Firebase runtime warning helper",
+      "productionSafe": true,
+      "mismatchRisk": "low",
+      "userImpact": "Firebase Auth client initialization uses the production project default auth domain.",
+      "fixNeeded": "None.",
+      "secretExposureRisk": false
+    },
+    {
+      "key": "firebase-storage-and-rtdb",
+      "filePath": "apphosting.yaml; firebase.json; src/lib/firebase-runtime.ts",
+      "expectedProductionValueDescription": "Storage bucket and RTDB URL include the production project ID.",
+      "currentValueRedacted": "Production storage bucket and RTDB URL configured; rules files are declared in firebase.json.",
+      "source": "App Hosting env, Firebase runtime warning helper, firebase.json",
+      "productionSafe": true,
+      "mismatchRisk": "low",
+      "userImpact": "Client Storage/RTDB and rules deployment point at the expected project resources.",
+      "fixNeeded": "None.",
+      "secretExposureRisk": false
+    },
+    {
+      "key": "functions-entrypoint",
+      "filePath": "functions/package.json; functions/src/index.ts",
+      "expectedProductionValueDescription": "Functions main points to compiled index output and source index exports scheduled/event functions.",
+      "currentValueRedacted": "main=lib/functions/src/index.js; source index exports queue, analytics, orchestration, and trigger handlers.",
+      "source": "Functions package and source entrypoint",
+      "productionSafe": true,
+      "mismatchRisk": "low",
+      "userImpact": "Firebase Functions deployment loads the compiled entrypoint expected by the build output.",
+      "fixNeeded": "None.",
+      "secretExposureRisk": false
+    },
+    {
+      "key": "functions-node-version",
+      "filePath": "functions/package.json",
+      "expectedProductionValueDescription": "Functions runtime uses Node 22.",
+      "currentValueRedacted": "node=22",
+      "source": "functions/package.json engines",
+      "productionSafe": true,
+      "mismatchRisk": "low",
+      "userImpact": "Functions deploy against the intended runtime generation.",
+      "fixNeeded": "None.",
+      "secretExposureRisk": false
+    },
+    {
+      "key": "paypal-mode",
+      "filePath": "apphosting.yaml; src/lib/server/paypal.ts; src/components/PayPalProvider.tsx",
+      "expectedProductionValueDescription": "Production uses live PayPal mode and live credentials only.",
+      "currentValueRedacted": "NEXT_PUBLIC_PAYPAL_ENV=production; server base URL is live PayPal API; live client ID is secret-referenced.",
+      "source": "App Hosting env, PayPal server helper, PayPal provider",
+      "productionSafe": true,
+      "mismatchRisk": "fixed",
+      "userImpact": "Checkout cannot accidentally use sandbox server APIs in production config.",
+      "fixNeeded": "Moved live PayPal vars into App Hosting env secret refs in this pass.",
+      "secretExposureRisk": false
+    },
+    {
+      "key": "paypal-return-cancel-webhook-urls",
+      "filePath": "src/app/api/paypal/create/route.ts; src/app/api/paypal/capture/route.ts; docs/agent-truth/environment-deployment-truth.md",
+      "expectedProductionValueDescription": "Current launch flow uses PayPal JS SDK inline approval plus server create/capture; no dashboard webhook should be configured until a signed webhook route exists.",
+      "currentValueRedacted": "Create and capture routes exist; return/cancel/webhook routes are explicitly documented as not used in the current architecture.",
+      "source": "PayPal route files and deployment truth doc",
+      "productionSafe": true,
+      "mismatchRisk": "medium",
+      "userImpact": "Payments remain server-confirmed through capture, but webhook-based reconciliation is deferred and must not be configured silently.",
+      "fixNeeded": "No runtime fix in this pass; future webhook route requires signature verification and tests.",
+      "secretExposureRisk": false
+    },
+    {
+      "key": "ga4-measurement-id",
+      "filePath": "apphosting.yaml; docs/doctrine/kandydrops-google-analytics-cloud-doctrine.md; src/lib/server/analytics.ts",
+      "expectedProductionValueDescription": "GA4 Measurement ID is the production KandyDrops measurement ID.",
+      "currentValueRedacted": "G-V8PWC2L31H",
+      "source": "App Hosting env, analytics doctrine, server Measurement Protocol helper",
+      "productionSafe": true,
+      "mismatchRisk": "low",
+      "userImpact": "Server-side Measurement Protocol events target the documented GA4 stream when API secret is available.",
+      "fixNeeded": "None.",
+      "secretExposureRisk": false
+    },
+    {
+      "key": "ga4-api-secret",
+      "filePath": "apphosting.yaml; src/lib/server/analytics.ts",
+      "expectedProductionValueDescription": "GA API secret is present only as a Secret Manager reference.",
+      "currentValueRedacted": "<secret-ref:GA_API_SECRET>",
+      "source": "App Hosting env secret reference",
+      "productionSafe": true,
+      "mismatchRisk": "low",
+      "userImpact": "Server Measurement Protocol can send only when secret is mounted; value is not committed.",
+      "fixNeeded": "None.",
+      "secretExposureRisk": false
+    },
+    {
+      "key": "ga4-browser-tagging",
+      "filePath": "src/app/layout.tsx; src/lib/telemetry.ts; src/lib/privacy-consent.ts",
+      "expectedProductionValueDescription": "GA4 browser tagging should exist if GA4 browser reports are expected; first-party facts remain canonical.",
+      "currentValueRedacted": "No app-shell GA script injection detected; telemetry sends to window.gtag only if another loader provides it.",
+      "source": "Static code audit",
+      "productionSafe": true,
+      "mismatchRisk": "medium",
+      "userImpact": "GA4 browser UI may under-report unless an external tag loader is configured; Admin truth still uses first-party facts.",
+      "fixNeeded": "Documented warning; no runtime change in this pass.",
+      "secretExposureRisk": false
+    },
+    {
+      "key": "bigquery-dataset-table",
+      "filePath": "functions/src/analytics-bigquery-export.ts; docs/doctrine/kandydrops-google-analytics-cloud-doctrine.md",
+      "expectedProductionValueDescription": "Raw event export defaults to kandydrops_canonical_analytics.raw_events.",
+      "currentValueRedacted": "dataset=kandydrops_canonical_analytics; table=raw_events",
+      "source": "Functions BigQuery export defaults and analytics doctrine",
+      "productionSafe": true,
+      "mismatchRisk": "low",
+      "userImpact": "Canonical event export creates or writes to the expected warehouse target.",
+      "fixNeeded": "None.",
+      "secretExposureRisk": false
+    },
+    {
+      "key": "fcm-vapid-key",
+      "filePath": "apphosting.yaml; src/lib/firebase-runtime.ts; src/lib/firebase-messaging.ts",
+      "expectedProductionValueDescription": "Browser push VAPID key is present in production runtime without committing the value.",
+      "currentValueRedacted": "<secret-ref:NEXT_PUBLIC_FIREBASE_VAPID_KEY>",
+      "source": "App Hosting env secret reference and Firebase messaging runtime helper",
+      "productionSafe": true,
+      "mismatchRisk": "fixed",
+      "userImpact": "Browser push token enrollment can request FCM tokens in production.",
+      "fixNeeded": "Fixed in this pass.",
+      "secretExposureRisk": false
+    },
+    {
+      "key": "notification-service-worker-scope",
+      "filePath": "public/firebase-messaging-sw.js; src/lib/firebase-messaging.ts; public/manifest.json",
+      "expectedProductionValueDescription": "Notification service worker is registered at app root scope and manifest scope is app root.",
+      "currentValueRedacted": "scope=/; service-worker file=/firebase-messaging-sw.js",
+      "source": "Firebase messaging helper, service worker, manifest",
+      "productionSafe": true,
+      "mismatchRisk": "low",
+      "userImpact": "Foreground/background notifications and click return-loop can operate across app routes.",
+      "fixNeeded": "None.",
+      "secretExposureRisk": false
+    },
+    {
+      "key": "admin-trusted-origins",
+      "filePath": "src/lib/site-origin.ts; src/lib/server/request-origin.ts; apphosting.yaml",
+      "expectedProductionValueDescription": "Trusted origins include the canonical apex and documented aliases; state-changing routes use trusted origin checks.",
+      "currentValueRedacted": "Apex, www alias, and hosted.app alias included.",
+      "source": "Origin helper and request-origin helper",
+      "productionSafe": true,
+      "mismatchRisk": "low",
+      "userImpact": "Admin/payment/wallet state-changing routes accept the production origin and documented aliases only.",
+      "fixNeeded": "None.",
+      "secretExposureRisk": false
+    },
+    {
+      "key": "cors-origin-allowlist",
+      "filePath": "next.config.ts; src/lib/server/request-origin.ts",
+      "expectedProductionValueDescription": "No broad public CORS allowlist for sensitive routes; same-site/trusted-origin checks own mutations.",
+      "currentValueRedacted": "No Access-Control-Allow-Origin wildcard found in audited config; CSP frame-ancestors blocks framing.",
+      "source": "Next headers and request-origin helper",
+      "productionSafe": true,
+      "mismatchRisk": "low",
+      "userImpact": "Sensitive APIs are not opened cross-origin through global headers.",
+      "fixNeeded": "None.",
+      "secretExposureRisk": false
+    },
+    {
+      "key": "service-worker-cache-version",
+      "filePath": "public/firebase-messaging-sw.js",
+      "expectedProductionValueDescription": "Service worker has explicit cache names and excludes API routes from app-data caching.",
+      "currentValueRedacted": "kandydrops-app-shell-v3; kandydrops-runtime-v3; /api excluded",
+      "source": "Service worker source",
+      "productionSafe": true,
+      "mismatchRisk": "low",
+      "userImpact": "Offline shell caching should not stale-cache private data routes.",
+      "fixNeeded": "None.",
+      "secretExposureRisk": false
+    },
+    {
+      "key": "manifest-icons-and-old-assets",
+      "filePath": "public/manifest.json; public/*",
+      "expectedProductionValueDescription": "Manifest references current KandyDrops app icons only.",
+      "currentValueRedacted": "Manifest references /icon-192x192.png and /icon-512x512.png.",
+      "source": "Manifest and public assets",
+      "productionSafe": true,
+      "mismatchRisk": "low",
+      "userImpact": "PWA install surfaces use KandyDrops icons; old starter assets are not manifest icons.",
+      "fixNeeded": "None; obsolete starter SVG files remain unused and can be cleaned post-launch.",
+      "secretExposureRisk": false
+    },
+    {
+      "key": "public-secret-exposure",
+      "filePath": "public/manifest.json; public/firebase-messaging-sw.js; backends.json; apphosting.yaml",
+      "expectedProductionValueDescription": "Public files and tracked deployment snapshots must not contain private secret values.",
+      "currentValueRedacted": "No public secret markers in public files; tracked backend snapshot values redacted; App Hosting uses secret references.",
+      "source": "Static validation",
+      "productionSafe": true,
+      "mismatchRisk": "fixed",
+      "userImpact": "Reduces accidental launch-time secret leakage from tracked files.",
+      "fixNeeded": "Fixed in this pass.",
+      "secretExposureRisk": false
+    }
+  ]
+}

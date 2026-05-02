@@ -24,6 +24,16 @@ This file is not a changelog. It is the concise ledger for durable decisions tha
 
 ## Decision Entries
 
+### 1ck. Environment and deployment truth is launch-gated
+
+- Approximate date: Recorded explicitly on 2026-05-01 from the environment and deployment truth audit
+- Status: Active launch deployment, App Hosting, Firebase, PayPal, GA4/BigQuery, FCM, domain, and secret-reference rule
+- Decision: Production deployment truth is `apphosting.yaml`, `firebase.json`, tracked `.firebaserc`, verified runtime code, and generated audit evidence. The canonical production origin is `https://kandydrops.com`; `www.kandydrops.com` and the App Hosting `hosted.app` backend are aliases only. Runtime secrets that App Hosting must mount belong under `env` with `secret:` references, not raw values or top-level generated override values.
+- Implementation: `agent/state/environment-deployment-truth-audit.generated.json` records config lanes, redacted current values, sources, production safety, mismatch risk, user impact, fix needs, and secret-exposure risk. `docs/agent-truth/environment-deployment-truth.md` documents the human-readable deployment contract. `scripts/agent/validate-environment-deployment-truth.ts` and `npm run check:environment-deployment-truth` validate canonical origin, Firebase project/auth domain, App Hosting secret form, PayPal live mode, route presence/documented webhook stance, Functions entrypoint/Node version, GA/BigQuery config, FCM/VAPID, service-worker scope/cache, manifest icons, trusted origins, and tracked metadata redaction.
+- Launch-critical cleanup: PayPal App Hosting secret references were moved into the `env` secret form, `NEXT_PUBLIC_FIREBASE_VAPID_KEY` was added as an App Hosting secret reference, `.firebaserc` is tracked as project truth, and `backends.json` override values are redacted because generated provider snapshots must not carry raw values in git.
+- Required validation: `npm run check:environment-deployment-truth`, touched-file TypeScript when scripts/config code changes, `npm run check:functions` if Functions config changes, Firebase rules only if rules change, and `git diff --check`.
+- Consequence for future work: Do not print secret values, commit generated backend raw override values, make `www` canonical without verified DNS/domain mapping, add sandbox PayPal defaults to production code, configure PayPal webhooks without signed webhook route/tests, or service-worker-cache private/API data.
+
 ### 1cj. Security role boundaries are server-mediated by actor lane
 
 - Approximate date: Recorded explicitly on 2026-05-01 from the security, rules, and role-boundary launch audit

@@ -59,6 +59,7 @@
         "check:launch-pr-triage": "tsx scripts/agent/validate-launch-pr-triage.ts",
         "check:launch-readiness-final": "tsx scripts/agent/validate-launch-readiness-final.ts",
         "check:security-role-boundaries": "tsx scripts/agent/validate-security-role-boundaries.ts",
+        "check:environment-deployment-truth": "tsx scripts/agent/validate-environment-deployment-truth.ts",
         "check:user-critical-path-launch": "tsx scripts/agent/validate-user-critical-path-launch.ts",
         "check:mobile-shell-safe-area": "tsx scripts/agent/validate-mobile-shell-safe-area.ts",
         "check:payment-unlock-security": "tsx scripts/agent/validate-payment-unlock-security.ts",

@@ -9,6 +9,16 @@ Scoring: all entries below are marked as included in the current validated sweep
 
 Current repo-wide state snapshot: see [FULL_SCALE_CODEBASE_AUDIT.md](/Users/uylus/OneDrive/Documents/KandyDrops_Final/FULL_SCALE_CODEBASE_AUDIT.md) for the current live baseline, verification state, and continuity rules, and see [REPO_MEMORY_LEDGER.md](/Users/uylus/OneDrive/Documents/KandyDrops_Final/REPO_MEMORY_LEDGER.md) for major architectural and workflow decisions. The detailed file/function body below remains valuable historical evidence, but it has not been fully regenerated against the current 2026-04-18 inventory review yet.
 
+## 2026-05-01 Environment Deployment Truth Audit Coverage
+
+- [x] `apphosting.yaml` keeps `https://kandydrops.com` canonical, leaves `www` and the App Hosting backend as aliases, and declares runtime secrets under `env` secret references.
+- [x] `.firebaserc`, `firebase.json`, `functions/package.json`, and `functions/src/index.ts` align Firebase project, framework backend, Functions entrypoint, and Node runtime truth.
+- [x] `src/lib/site-origin.ts`, `src/lib/server/request-origin.ts`, `src/lib/firebase-runtime.ts`, `src/lib/firebase-messaging.ts`, and `public/firebase-messaging-sw.js` preserve trusted-origin, Firebase, FCM, service-worker scope, and API cache-exclusion contracts.
+- [x] `src/lib/server/paypal.ts`, `src/app/api/paypal/create/route.ts`, `src/app/api/paypal/capture/route.ts`, and `src/components/PayPalProvider.tsx` remain live PayPal/create/capture owners; webhook/return/cancel route absence is documented rather than guessed.
+- [x] `functions/src/analytics-bigquery-export.ts` and `src/lib/server/analytics.ts` keep GA4/BigQuery config names and defaults source-labeled without committing secret values.
+- [x] `backends.json` keeps generated App Hosting metadata but redacts override values because provider snapshots are supporting evidence, not secret storage.
+- [x] `agent/state/environment-deployment-truth-audit.generated.json`, `docs/agent-truth/environment-deployment-truth.md`, `scripts/agent/validate-environment-deployment-truth.ts`, and `npm run check:environment-deployment-truth` record and validate the launch deployment truth gate.
+
 ## 2026-05-01 Security Role Boundary Launch Audit Coverage
 
 - [x] `storage.rules` denies direct client reads/writes under `drops/**`; Drop assets now require server-mediated upload/proxy paths.
