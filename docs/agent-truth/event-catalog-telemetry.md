@@ -1,0 +1,62 @@
+# Event Catalog Telemetry
+
+Status: Launch telemetry naming and payload contract doctrine.
+Last updated: 2026-05-01.
+
+## Doctrine
+
+Every emitted event must be cataloged in `src/lib/telemetry-catalog.ts`. Every catalog event must either have a detected emitter or an explicit `auditCoveredBy` explanation that ties it to a canonical replacement or upstream source.
+
+Canonical event names use lowercase snake_case. Casing drift and historical aliases must pass through `normalizeTelemetryEventName`; emitters should not invent ad hoc names.
+
+Telemetry has separate actor, source, and object lanes. Admin events may be stored for Admin Analytics and Debug, but they must not enter user behavior or active-user metrics. Unknown actors do not become authenticated users.
+
+## Payload Contract
+
+`TELEMETRY_EVENT_PAYLOAD_CONTRACTS` records the launch-required fields for each event:
+
+- Drop events require `drop_id` or `dropId` plus a route/surface/source component when emitted from UI.
+- Unlock events require a user actor, `drop_id`, and `transaction_id` or `idempotency_key`.
+- Purchase events require a user actor where purchase is completed or verified, an order/purchase/transaction id, amount/source fields, and payment source metadata.
+- Notification events require a recipient or audience, `notification_id` or `idempotency_key`, and notification type/lifecycle metadata.
+- Chat/message events require thread or conversation id plus message id or idempotency key.
+- Auth events require method/outcome when available and a session, anonymous visitor, or user identifier.
+- Admin events require admin classification and are excluded from user behavior lanes.
+
+Camel-case payload keys may be accepted by client emitters, but the analytics client mirrors canonical snake_case aliases before transport.
+
+## Admin And User Lanes
+
+Identified client ingest and server analytics write event facts with lane metadata:
+
+- `actorType`
+- `actorLane`
+- `adminId`
+- `analyticsUserId`
+- `includeInUserBehavior`
+- `includeInAdminAnalytics`
+- `analyticsExclusionReason`
+
+Only events with `includeInUserBehavior: true` may update `analytics_active_users`. Admin route visits, admin UI interactions, system jobs, and unknown actors stay visible in Debug/global evidence without polluting user behavior.
+
+## Validation
+
+Run:
+
+```bash
+npm run check:event-catalog-telemetry
+npm run check:telemetry
+npx vitest run tests/contracts/telemetry-contracts.spec.ts tests/unit/analytics-event-contract.spec.ts
+```
+
+The generated audit lives at `agent/state/event-catalog-telemetry-audit.generated.json` and includes every catalog event with aliases, field requirements, emitter/consumer evidence, family, dedupe policy, guest allowance, admin exclusion, and missing-field risk.
+
+## Future Agent Rules
+
+Do not emit a new telemetry event without adding it to the catalog and payload contract.
+
+Do not add a catalog event without an emitter, `auditCoveredBy`, or a clear legacy/deprecated reason.
+
+Do not label admin/system events as user behavior.
+
+Do not use raw backend event names as primary admin UI labels. Use operator copy in main UI and keep raw event/source names in Debug evidence.

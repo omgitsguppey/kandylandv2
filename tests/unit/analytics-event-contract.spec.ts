@@ -42,6 +42,19 @@ describe("analytics event contract", () => {
     expect(explanation.exclusionReason).toContain("Admin events are excluded");
   });
 
+  it("classifies admin routes as admin lane even when the event name is generic", () => {
+    const explanation = explainEventInclusion({
+      eventName: "navigation_click",
+      userId: "admin_user_1",
+      route: "/admin/debug",
+      source: "identified_ingest",
+    });
+
+    expect(explanation.actorClassification.actorType).toBe("admin");
+    expect(explanation.includeInUserBehavior).toBe(false);
+    expect(explanation.includeInAdminAnalytics).toBe(true);
+  });
+
   it("preserves global events for every classified actor while retaining classification", () => {
     const systemEvent = createCanonicalAnalyticsEvent({
       eventId: "evt_system",

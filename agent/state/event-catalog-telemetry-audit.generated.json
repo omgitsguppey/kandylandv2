@@ -1,0 +1,5487 @@
+{
+  "generatedAt": "2026-05-02T04:46:47.432Z",
+  "auditKey": "event-catalog-telemetry-launch-audit",
+  "catalogVersion": "2026.04.04.1",
+  "sourceRoots": [
+    "src/lib/telemetry.ts",
+    "src/lib/telemetry-catalog.ts",
+    "src/lib/analytics/analytics-event-contract.ts",
+    "src/** telemetry emitters",
+    "admin analytics consumers"
+  ],
+  "summary": {
+    "catalogEventCount": 223,
+    "emittedOrCoveredCount": 223,
+    "familyCounts": {
+      "auth": 19,
+      "onboarding": 6,
+      "page_view": 15,
+      "creator": 11,
+      "admin": 60,
+      "drop": 24,
+      "engagement": 16,
+      "task": 14,
+      "purchase": 15,
+      "unlock": 5,
+      "notification": 19,
+      "chat_message": 2,
+      "system": 3,
+      "security": 14
+    },
+    "casingPolicy": "canonical lowercase snake_case; aliases and casing drift normalize through normalizeTelemetryEventName",
+    "adminUserBehaviorPolicy": "admin route/event facts remain available to Admin/Debug but do not update analytics_active_users or user behavior lanes",
+    "objectPayloadPolicy": "drop/unlock/purchase/notification/chat families declare actor/object/surface field requirements in TELEMETRY_EVENT_PAYLOAD_CONTRACTS"
+  },
+  "validation": {
+    "script": "scripts/agent/validate-event-catalog-telemetry.ts",
+    "npmScript": "check:event-catalog-telemetry",
+    "targetedTests": [
+      "tests/contracts/telemetry-contracts.spec.ts",
+      "tests/unit/analytics-event-contract.spec.ts"
+    ]
+  },
+  "events": [
+    {
+      "eventName": "auth_modal_opened",
+      "aliases": [],
+      "version": 1,
+      "family": "auth",
+      "emittedFrom": [
+        "src/components/Auth/AuthModal.tsx",
+        "src/lib/admin-analytics-journey-funnel.ts"
+      ],
+      "consumedBy": [
+        "src/app/api/admin/analytics/historical/route.ts",
+        "src/lib/admin-analytics-journey-funnel.ts"
+      ],
+      "requiredActorFields": [
+        "session_id|sessionId|anonymous_visitor_id|anonymousVisitorId|user_id|userId"
+      ],
+      "requiredObjectFields": [],
+      "requiredSurfaceFields": [
+        "method|provider",
+        "outcome|success|error_code",
+        "route|page_path|pagePath|surface|source_component"
+      ],
+      "dedupeKeyRequired": false,
+      "guestAllowed": true,
+      "adminExcludedFromUserAnalytics": false,
+      "legacyDeprecated": false,
+      "auditCoveredBy": [],
+      "missingFieldsRisk": "medium"
+    },
+    {
+      "eventName": "auth_modal_closed_incomplete",
+      "aliases": [],
+      "version": 1,
+      "family": "auth",
+      "emittedFrom": [
+        "src/components/GlobalAuthModal.tsx"
+      ],
+      "consumedBy": [],
+      "requiredActorFields": [
+        "session_id|sessionId|anonymous_visitor_id|anonymousVisitorId|user_id|userId"
+      ],
+      "requiredObjectFields": [],
+      "requiredSurfaceFields": [
+        "method|provider",
+        "outcome|success|error_code",
+        "route|page_path|pagePath|surface|source_component"
+      ],
+      "dedupeKeyRequired": false,
+      "guestAllowed": true,
+      "adminExcludedFromUserAnalytics": false,
+      "legacyDeprecated": false,
+      "auditCoveredBy": [],
+      "missingFieldsRisk": "medium"
+    },
+    {
+      "eventName": "auth_mode_switched",
+      "aliases": [],
+      "version": 1,
+      "family": "auth",
+      "emittedFrom": [
+        "src/components/Auth/AuthModal.tsx"
+      ],
+      "consumedBy": [],
+      "requiredActorFields": [
+        "session_id|sessionId|anonymous_visitor_id|anonymousVisitorId|user_id|userId"
+      ],
+      "requiredObjectFields": [],
+      "requiredSurfaceFields": [
+        "method|provider",
+        "outcome|success|error_code",
+        "route|page_path|pagePath|surface|source_component"
+      ],
+      "dedupeKeyRequired": false,
+      "guestAllowed": true,
+      "adminExcludedFromUserAnalytics": false,
+      "legacyDeprecated": false,
+      "auditCoveredBy": [],
+      "missingFieldsRisk": "medium"
+    },
+    {
+      "eventName": "auth_google_sign_in_attempted",
+      "aliases": [],
+      "version": 1,
+      "family": "auth",
+      "emittedFrom": [
+        "src/components/Auth/AuthModal.tsx"
+      ],
+      "consumedBy": [
+        "src/lib/admin-analytics-auth-outcome-split.ts",
+        "src/lib/server/admin-analytics-historical-engagement.ts"
+      ],
+      "requiredActorFields": [
+        "session_id|sessionId|anonymous_visitor_id|anonymousVisitorId|user_id|userId"
+      ],
+      "requiredObjectFields": [],
+      "requiredSurfaceFields": [
+        "method|provider",
+        "outcome|success|error_code",
+        "route|page_path|pagePath|surface|source_component"
+      ],
+      "dedupeKeyRequired": false,
+      "guestAllowed": true,
+      "adminExcludedFromUserAnalytics": false,
+      "legacyDeprecated": false,
+      "auditCoveredBy": [],
+      "missingFieldsRisk": "medium"
+    },
+    {
+      "eventName": "auth_google_sign_in_success",
+      "aliases": [],
+      "version": 1,
+      "family": "auth",
+      "emittedFrom": [
+        "src/components/Auth/AuthModal.tsx"
+      ],
+      "consumedBy": [
+        "src/app/api/admin/analytics/historical/route.ts",
+        "src/lib/admin-analytics-auth-outcome-split.ts",
+        "src/lib/server/admin-analytics-historical-engagement.ts",
+        "src/lib/server/analytics-semantics.ts"
+      ],
+      "requiredActorFields": [
+        "session_id|sessionId|anonymous_visitor_id|anonymousVisitorId|user_id|userId"
+      ],
+      "requiredObjectFields": [],
+      "requiredSurfaceFields": [
+        "method|provider",
+        "outcome|success|error_code",
+        "route|page_path|pagePath|surface|source_component"
+      ],
+      "dedupeKeyRequired": false,
+      "guestAllowed": true,
+      "adminExcludedFromUserAnalytics": false,
+      "legacyDeprecated": false,
+      "auditCoveredBy": [],
+      "missingFieldsRisk": "medium"
+    },
+    {
+      "eventName": "auth_google_sign_in_failed",
+      "aliases": [],
+      "version": 1,
+      "family": "auth",
+      "emittedFrom": [
+        "src/components/Auth/AuthModal.tsx"
+      ],
+      "consumedBy": [
+        "src/lib/admin-analytics-auth-outcome-split.ts",
+        "src/lib/server/admin-analytics-historical-engagement.ts"
+      ],
+      "requiredActorFields": [
+        "session_id|sessionId|anonymous_visitor_id|anonymousVisitorId|user_id|userId"
+      ],
+      "requiredObjectFields": [],
+      "requiredSurfaceFields": [
+        "method|provider",
+        "outcome|success|error_code",
+        "route|page_path|pagePath|surface|source_component"
+      ],
+      "dedupeKeyRequired": false,
+      "guestAllowed": true,
+      "adminExcludedFromUserAnalytics": false,
+      "legacyDeprecated": false,
+      "auditCoveredBy": [],
+      "missingFieldsRisk": "medium"
+    },
+    {
+      "eventName": "auth_sign_in_attempted",
+      "aliases": [],
+      "version": 1,
+      "family": "auth",
+      "emittedFrom": [
+        "src/components/Auth/AuthModal.tsx"
+      ],
+      "consumedBy": [
+        "src/lib/admin-analytics-auth-outcome-split.ts",
+        "src/lib/server/admin-analytics-historical-engagement.ts"
+      ],
+      "requiredActorFields": [
+        "session_id|sessionId|anonymous_visitor_id|anonymousVisitorId|user_id|userId"
+      ],
+      "requiredObjectFields": [],
+      "requiredSurfaceFields": [
+        "method|provider",
+        "outcome|success|error_code",
+        "route|page_path|pagePath|surface|source_component"
+      ],
+      "dedupeKeyRequired": false,
+      "guestAllowed": true,
+      "adminExcludedFromUserAnalytics": false,
+      "legacyDeprecated": false,
+      "auditCoveredBy": [],
+      "missingFieldsRisk": "medium"
+    },
+    {
+      "eventName": "auth_sign_in_success",
+      "aliases": [],
+      "version": 1,
+      "family": "auth",
+      "emittedFrom": [
+        "src/components/Auth/AuthModal.tsx"
+      ],
+      "consumedBy": [
+        "src/app/api/admin/analytics/historical/route.ts",
+        "src/lib/admin-analytics-auth-outcome-split.ts",
+        "src/lib/server/admin-analytics-historical-engagement.ts",
+        "src/lib/server/analytics-semantics.ts"
+      ],
+      "requiredActorFields": [
+        "session_id|sessionId|anonymous_visitor_id|anonymousVisitorId|user_id|userId"
+      ],
+      "requiredObjectFields": [],
+      "requiredSurfaceFields": [
+        "method|provider",
+        "outcome|success|error_code",
+        "route|page_path|pagePath|surface|source_component"
+      ],
+      "dedupeKeyRequired": false,
+      "guestAllowed": true,
+      "adminExcludedFromUserAnalytics": false,
+      "legacyDeprecated": false,
+      "auditCoveredBy": [],
+      "missingFieldsRisk": "medium"
+    },
+    {
+      "eventName": "auth_sign_in_failed",
+      "aliases": [],
+      "version": 1,
+      "family": "auth",
+      "emittedFrom": [
+        "src/components/Auth/AuthModal.tsx"
+      ],
+      "consumedBy": [
+        "src/lib/admin-analytics-auth-outcome-split.ts",
+        "src/lib/server/admin-analytics-historical-engagement.ts"
+      ],
+      "requiredActorFields": [
+        "session_id|sessionId|anonymous_visitor_id|anonymousVisitorId|user_id|userId"
+      ],
+      "requiredObjectFields": [],
+      "requiredSurfaceFields": [
+        "method|provider",
+        "outcome|success|error_code",
+        "route|page_path|pagePath|surface|source_component"
+      ],
+      "dedupeKeyRequired": false,
+      "guestAllowed": true,
+      "adminExcludedFromUserAnalytics": false,
+      "legacyDeprecated": false,
+      "auditCoveredBy": [],
+      "missingFieldsRisk": "medium"
+    },
+    {
+      "eventName": "auth_sign_up_attempted",
+      "aliases": [],
+      "version": 1,
+      "family": "auth",
+      "emittedFrom": [
+        "src/components/Auth/AuthModal.tsx"
+      ],
+      "consumedBy": [
+        "src/lib/admin-analytics-auth-outcome-split.ts",
+        "src/lib/server/admin-analytics-historical-engagement.ts"
+      ],
+      "requiredActorFields": [
+        "session_id|sessionId|anonymous_visitor_id|anonymousVisitorId|user_id|userId"
+      ],
+      "requiredObjectFields": [],
+      "requiredSurfaceFields": [
+        "method|provider",
+        "outcome|success|error_code",
+        "route|page_path|pagePath|surface|source_component"
+      ],
+      "dedupeKeyRequired": false,
+      "guestAllowed": true,
+      "adminExcludedFromUserAnalytics": false,
+      "legacyDeprecated": false,
+      "auditCoveredBy": [],
+      "missingFieldsRisk": "medium"
+    },
+    {
+      "eventName": "auth_sign_up_success",
+      "aliases": [],
+      "version": 1,
+      "family": "auth",
+      "emittedFrom": [
+        "src/components/Auth/AuthModal.tsx"
+      ],
+      "consumedBy": [
+        "src/app/api/admin/analytics/historical/route.ts",
+        "src/lib/admin-analytics-auth-outcome-split.ts",
+        "src/lib/server/admin-analytics-historical-engagement.ts",
+        "src/lib/server/analytics-semantics.ts"
+      ],
+      "requiredActorFields": [
+        "session_id|sessionId|anonymous_visitor_id|anonymousVisitorId|user_id|userId"
+      ],
+      "requiredObjectFields": [],
+      "requiredSurfaceFields": [
+        "method|provider",
+        "outcome|success|error_code",
+        "route|page_path|pagePath|surface|source_component"
+      ],
+      "dedupeKeyRequired": false,
+      "guestAllowed": true,
+      "adminExcludedFromUserAnalytics": false,
+      "legacyDeprecated": false,
+      "auditCoveredBy": [],
+      "missingFieldsRisk": "medium"
+    },
+    {
+      "eventName": "auth_sign_up_failed",
+      "aliases": [],
+      "version": 1,
+      "family": "auth",
+      "emittedFrom": [
+        "src/components/Auth/AuthModal.tsx"
+      ],
+      "consumedBy": [
+        "src/lib/admin-analytics-auth-outcome-split.ts",
+        "src/lib/server/admin-analytics-historical-engagement.ts"
+      ],
+      "requiredActorFields": [
+        "session_id|sessionId|anonymous_visitor_id|anonymousVisitorId|user_id|userId"
+      ],
+      "requiredObjectFields": [],
+      "requiredSurfaceFields": [
+        "method|provider",
+        "outcome|success|error_code",
+        "route|page_path|pagePath|surface|source_component"
+      ],
+      "dedupeKeyRequired": false,
+      "guestAllowed": true,
+      "adminExcludedFromUserAnalytics": false,
+      "legacyDeprecated": false,
+      "auditCoveredBy": [],
+      "missingFieldsRisk": "medium"
+    },
+    {
+      "eventName": "user_registered",
+      "aliases": [],
+      "version": 1,
+      "family": "auth",
+      "emittedFrom": [
+        "src/app/api/user/register/route.ts"
+      ],
+      "consumedBy": [
+        "src/app/api/admin/analytics/historical/route.ts",
+        "src/lib/admin-analytics-auth-outcome-split.ts",
+        "src/lib/analytics-metric-catalog.ts"
+      ],
+      "requiredActorFields": [
+        "session_id|sessionId|anonymous_visitor_id|anonymousVisitorId|user_id|userId"
+      ],
+      "requiredObjectFields": [],
+      "requiredSurfaceFields": [
+        "method|provider",
+        "outcome|success|error_code",
+        "route|page_path|pagePath|surface|source_component"
+      ],
+      "dedupeKeyRequired": false,
+      "guestAllowed": true,
+      "adminExcludedFromUserAnalytics": false,
+      "legacyDeprecated": false,
+      "auditCoveredBy": [],
+      "missingFieldsRisk": "medium"
+    },
+    {
+      "eventName": "auth_session_restored",
+      "aliases": [],
+      "version": 1,
+      "family": "auth",
+      "emittedFrom": [
+        "src/context/AuthContext.tsx"
+      ],
+      "consumedBy": [
+        "src/lib/server/analytics-semantics.ts"
+      ],
+      "requiredActorFields": [
+        "session_id|sessionId|anonymous_visitor_id|anonymousVisitorId|user_id|userId"
+      ],
+      "requiredObjectFields": [],
+      "requiredSurfaceFields": [
+        "method|provider",
+        "outcome|success|error_code",
+        "route|page_path|pagePath|surface|source_component"
+      ],
+      "dedupeKeyRequired": false,
+      "guestAllowed": true,
+      "adminExcludedFromUserAnalytics": false,
+      "legacyDeprecated": false,
+      "auditCoveredBy": [],
+      "missingFieldsRisk": "medium"
+    },
+    {
+      "eventName": "auth_logout",
+      "aliases": [],
+      "version": 1,
+      "family": "auth",
+      "emittedFrom": [
+        "src/context/AuthContext.tsx"
+      ],
+      "consumedBy": [
+        "src/lib/server/analytics-semantics.ts"
+      ],
+      "requiredActorFields": [
+        "session_id|sessionId|anonymous_visitor_id|anonymousVisitorId|user_id|userId"
+      ],
+      "requiredObjectFields": [],
+      "requiredSurfaceFields": [
+        "method|provider",
+        "outcome|success|error_code",
+        "route|page_path|pagePath|surface|source_component"
+      ],
+      "dedupeKeyRequired": false,
+      "guestAllowed": true,
+      "adminExcludedFromUserAnalytics": false,
+      "legacyDeprecated": false,
+      "auditCoveredBy": [],
+      "missingFieldsRisk": "medium"
+    },
+    {
+      "eventName": "password_reset_requested",
+      "aliases": [],
+      "version": 1,
+      "family": "auth",
+      "emittedFrom": [
+        "src/components/Auth/AuthModal.tsx"
+      ],
+      "consumedBy": [],
+      "requiredActorFields": [
+        "session_id|sessionId|anonymous_visitor_id|anonymousVisitorId|user_id|userId"
+      ],
+      "requiredObjectFields": [],
+      "requiredSurfaceFields": [
+        "method|provider",
+        "outcome|success|error_code",
+        "route|page_path|pagePath|surface|source_component"
+      ],
+      "dedupeKeyRequired": false,
+      "guestAllowed": true,
+      "adminExcludedFromUserAnalytics": false,
+      "legacyDeprecated": false,
+      "auditCoveredBy": [],
+      "missingFieldsRisk": "medium"
+    },
+    {
+      "eventName": "password_reset_sent",
+      "aliases": [],
+      "version": 1,
+      "family": "auth",
+      "emittedFrom": [
+        "src/components/Auth/AuthModal.tsx"
+      ],
+      "consumedBy": [],
+      "requiredActorFields": [
+        "session_id|sessionId|anonymous_visitor_id|anonymousVisitorId|user_id|userId"
+      ],
+      "requiredObjectFields": [],
+      "requiredSurfaceFields": [
+        "method|provider",
+        "outcome|success|error_code",
+        "route|page_path|pagePath|surface|source_component"
+      ],
+      "dedupeKeyRequired": false,
+      "guestAllowed": true,
+      "adminExcludedFromUserAnalytics": false,
+      "legacyDeprecated": false,
+      "auditCoveredBy": [],
+      "missingFieldsRisk": "medium"
+    },
+    {
+      "eventName": "password_reset_failed",
+      "aliases": [],
+      "version": 1,
+      "family": "auth",
+      "emittedFrom": [
+        "src/components/Auth/AuthModal.tsx"
+      ],
+      "consumedBy": [],
+      "requiredActorFields": [
+        "session_id|sessionId|anonymous_visitor_id|anonymousVisitorId|user_id|userId"
+      ],
+      "requiredObjectFields": [],
+      "requiredSurfaceFields": [
+        "method|provider",
+        "outcome|success|error_code",
+        "route|page_path|pagePath|surface|source_component"
+      ],
+      "dedupeKeyRequired": false,
+      "guestAllowed": true,
+      "adminExcludedFromUserAnalytics": false,
+      "legacyDeprecated": false,
+      "auditCoveredBy": [],
+      "missingFieldsRisk": "medium"
+    },
+    {
+      "eventName": "guided_onboarding_started",
+      "aliases": [
+        "onboarding_started"
+      ],
+      "version": 1,
+      "family": "onboarding",
+      "emittedFrom": [
+        "src/app/api/user/complete-onboarding/route.ts",
+        "src/components/Auth/GuidedOnboarding.tsx"
+      ],
+      "consumedBy": [
+        "src/app/admin/user/[userId]/page.tsx",
+        "src/lib/server/admin-analytics-historical-onboarding.ts"
+      ],
+      "requiredActorFields": [],
+      "requiredObjectFields": [],
+      "requiredSurfaceFields": [
+        "route|page_path|pagePath|surface|source_component|sourceComponent"
+      ],
+      "dedupeKeyRequired": false,
+      "guestAllowed": true,
+      "adminExcludedFromUserAnalytics": false,
+      "legacyDeprecated": false,
+      "auditCoveredBy": [],
+      "missingFieldsRisk": "medium"
+    },
+    {
+      "eventName": "guided_onboarding_completed",
+      "aliases": [
+        "onboarding_complete",
+        "onboarding_completed"
+      ],
+      "version": 1,
+      "family": "onboarding",
+      "emittedFrom": [
+        "src/app/api/user/complete-onboarding/route.ts",
+        "src/components/Auth/GuidedOnboarding.tsx"
+      ],
+      "consumedBy": [
+        "src/lib/server/admin-analytics-data.ts",
+        "src/lib/server/admin-analytics-historical-engagement.ts",
+        "src/lib/server/admin-analytics-historical-onboarding.ts"
+      ],
+      "requiredActorFields": [],
+      "requiredObjectFields": [],
+      "requiredSurfaceFields": [
+        "route|page_path|pagePath|surface|source_component|sourceComponent"
+      ],
+      "dedupeKeyRequired": false,
+      "guestAllowed": true,
+      "adminExcludedFromUserAnalytics": false,
+      "legacyDeprecated": false,
+      "auditCoveredBy": [],
+      "missingFieldsRisk": "medium"
+    },
+    {
+      "eventName": "guided_onboarding_step_started",
+      "aliases": [
+        "onboarding_step_started"
+      ],
+      "version": 1,
+      "family": "onboarding",
+      "emittedFrom": [
+        "src/app/api/user/complete-onboarding/route.ts",
+        "src/components/Auth/GuidedOnboarding.tsx"
+      ],
+      "consumedBy": [
+        "src/app/api/admin/analytics/historical/route.ts",
+        "src/lib/analytics-metric-catalog.ts",
+        "src/lib/analytics/legacy-event-mapping.ts",
+        "src/lib/server/admin-analytics-historical-onboarding.ts"
+      ],
+      "requiredActorFields": [],
+      "requiredObjectFields": [],
+      "requiredSurfaceFields": [
+        "route|page_path|pagePath|surface|source_component|sourceComponent"
+      ],
+      "dedupeKeyRequired": false,
+      "guestAllowed": true,
+      "adminExcludedFromUserAnalytics": false,
+      "legacyDeprecated": false,
+      "auditCoveredBy": [],
+      "missingFieldsRisk": "medium"
+    },
+    {
+      "eventName": "guided_onboarding_step_completed",
+      "aliases": [
+        "onboarding_step_completed"
+      ],
+      "version": 1,
+      "family": "onboarding",
+      "emittedFrom": [
+        "src/app/api/user/complete-onboarding/route.ts",
+        "src/components/Auth/GuidedOnboarding.tsx"
+      ],
+      "consumedBy": [
+        "src/app/api/admin/analytics/historical/route.ts",
+        "src/lib/analytics-metric-catalog.ts",
+        "src/lib/analytics/legacy-event-mapping.ts",
+        "src/lib/server/admin-analytics-historical-onboarding.ts"
+      ],
+      "requiredActorFields": [],
+      "requiredObjectFields": [],
+      "requiredSurfaceFields": [
+        "route|page_path|pagePath|surface|source_component|sourceComponent"
+      ],
+      "dedupeKeyRequired": false,
+      "guestAllowed": true,
+      "adminExcludedFromUserAnalytics": false,
+      "legacyDeprecated": false,
+      "auditCoveredBy": [],
+      "missingFieldsRisk": "medium"
+    },
+    {
+      "eventName": "onboarding_step_viewed",
+      "aliases": [],
+      "version": 1,
+      "family": "onboarding",
+      "emittedFrom": [
+        "src/components/Auth/GuidedOnboarding.tsx"
+      ],
+      "consumedBy": [],
+      "requiredActorFields": [],
+      "requiredObjectFields": [],
+      "requiredSurfaceFields": [
+        "route|page_path|pagePath|surface|source_component|sourceComponent"
+      ],
+      "dedupeKeyRequired": false,
+      "guestAllowed": true,
+      "adminExcludedFromUserAnalytics": false,
+      "legacyDeprecated": false,
+      "auditCoveredBy": [],
+      "missingFieldsRisk": "medium"
+    },
+    {
+      "eventName": "avatar_uploaded",
+      "aliases": [],
+      "version": 1,
+      "family": "onboarding",
+      "emittedFrom": [
+        "src/app/dashboard/profile/hooks/useProfileState.tsx"
+      ],
+      "consumedBy": [],
+      "requiredActorFields": [],
+      "requiredObjectFields": [],
+      "requiredSurfaceFields": [
+        "route|page_path|pagePath|surface|source_component|sourceComponent"
+      ],
+      "dedupeKeyRequired": false,
+      "guestAllowed": true,
+      "adminExcludedFromUserAnalytics": false,
+      "legacyDeprecated": false,
+      "auditCoveredBy": [],
+      "missingFieldsRisk": "medium"
+    },
+    {
+      "eventName": "page_viewed",
+      "aliases": [],
+      "version": 1,
+      "family": "page_view",
+      "emittedFrom": [
+        "src/app/(legal)/privacy/page.tsx",
+        "src/app/(legal)/terms/page.tsx",
+        "src/app/HomeClient.tsx",
+        "src/app/api/admin/users/route.ts",
+        "src/app/drops/DropsClient.tsx",
+        "src/app/faq/FAQClient.tsx",
+        "src/components/Analytics/DeepTracker.tsx",
+        "src/lib/server/admin-analytics-historical-traffic.ts",
+        "src/lib/server/analytics-metrics.ts"
+      ],
+      "consumedBy": [
+        "src/lib/admin-analytics-live-runtime.ts",
+        "src/lib/analytics-semantics.ts",
+        "src/lib/analytics/legacy-event-mapping.ts",
+        "src/lib/server/admin-analytics-historical-traffic.ts",
+        "src/lib/server/admin-analytics-shared.ts",
+        "src/lib/server/analytics-metrics.ts",
+        "src/lib/server/analytics-semantics.ts"
+      ],
+      "requiredActorFields": [],
+      "requiredObjectFields": [],
+      "requiredSurfaceFields": [
+        "route|page_path|pagePath|surface|source_component|sourceComponent"
+      ],
+      "dedupeKeyRequired": false,
+      "guestAllowed": true,
+      "adminExcludedFromUserAnalytics": false,
+      "legacyDeprecated": false,
+      "auditCoveredBy": [
+        "semantic_page_viewed"
+      ],
+      "missingFieldsRisk": "medium"
+    },
+    {
+      "eventName": "home_page_viewed",
+      "aliases": [],
+      "version": 1,
+      "family": "page_view",
+      "emittedFrom": [
+        "src/app/HomeClient.tsx"
+      ],
+      "consumedBy": [
+        "src/lib/admin-analytics-live-runtime.ts",
+        "src/lib/analytics-semantics.ts",
+        "src/lib/server/admin-analytics-historical-traffic.ts",
+        "src/lib/server/admin-analytics-shared.ts",
+        "src/lib/server/analytics-metrics.ts",
+        "src/lib/server/analytics-semantics.ts"
+      ],
+      "requiredActorFields": [],
+      "requiredObjectFields": [],
+      "requiredSurfaceFields": [
+        "route|page_path|pagePath|surface|source_component|sourceComponent"
+      ],
+      "dedupeKeyRequired": false,
+      "guestAllowed": true,
+      "adminExcludedFromUserAnalytics": false,
+      "legacyDeprecated": false,
+      "auditCoveredBy": [],
+      "missingFieldsRisk": "medium"
+    },
+    {
+      "eventName": "creator_apply_viewed",
+      "aliases": [],
+      "version": 1,
+      "family": "creator",
+      "emittedFrom": [
+        "src/app/creators/apply/page.tsx"
+      ],
+      "consumedBy": [
+        "src/lib/analytics-semantics.ts",
+        "src/lib/server/analytics-semantics.ts"
+      ],
+      "requiredActorFields": [],
+      "requiredObjectFields": [],
+      "requiredSurfaceFields": [],
+      "dedupeKeyRequired": false,
+      "guestAllowed": true,
+      "adminExcludedFromUserAnalytics": false,
+      "legacyDeprecated": false,
+      "auditCoveredBy": [],
+      "missingFieldsRisk": "low"
+    },
+    {
+      "eventName": "creator_waitlist_viewed",
+      "aliases": [],
+      "version": 1,
+      "family": "creator",
+      "emittedFrom": [
+        "src/app/creators/waitlist/page.tsx"
+      ],
+      "consumedBy": [
+        "src/lib/analytics-semantics.ts",
+        "src/lib/server/analytics-semantics.ts"
+      ],
+      "requiredActorFields": [],
+      "requiredObjectFields": [],
+      "requiredSurfaceFields": [],
+      "dedupeKeyRequired": false,
+      "guestAllowed": true,
+      "adminExcludedFromUserAnalytics": false,
+      "legacyDeprecated": false,
+      "auditCoveredBy": [],
+      "missingFieldsRisk": "low"
+    },
+    {
+      "eventName": "creator_onboarding_submitted",
+      "aliases": [],
+      "version": 1,
+      "family": "admin",
+      "emittedFrom": [
+        "src/app/api/user/register/route.ts"
+      ],
+      "consumedBy": [],
+      "requiredActorFields": [
+        "admin_id|adminId"
+      ],
+      "requiredObjectFields": [],
+      "requiredSurfaceFields": [],
+      "dedupeKeyRequired": false,
+      "guestAllowed": false,
+      "adminExcludedFromUserAnalytics": true,
+      "legacyDeprecated": false,
+      "auditCoveredBy": [],
+      "missingFieldsRisk": "high"
+    },
+    {
+      "eventName": "creator_intro_acknowledged",
+      "aliases": [],
+      "version": 1,
+      "family": "admin",
+      "emittedFrom": [
+        "src/app/api/creator/onboarding/intro/route.ts"
+      ],
+      "consumedBy": [],
+      "requiredActorFields": [
+        "admin_id|adminId"
+      ],
+      "requiredObjectFields": [],
+      "requiredSurfaceFields": [],
+      "dedupeKeyRequired": false,
+      "guestAllowed": false,
+      "adminExcludedFromUserAnalytics": true,
+      "legacyDeprecated": false,
+      "auditCoveredBy": [],
+      "missingFieldsRisk": "high"
+    },
+    {
+      "eventName": "creator_legally_cleared_override",
+      "aliases": [],
+      "version": 1,
+      "family": "admin",
+      "emittedFrom": [
+        "src/app/api/admin/users/route.ts"
+      ],
+      "consumedBy": [],
+      "requiredActorFields": [
+        "admin_id|adminId"
+      ],
+      "requiredObjectFields": [],
+      "requiredSurfaceFields": [],
+      "dedupeKeyRequired": false,
+      "guestAllowed": false,
+      "adminExcludedFromUserAnalytics": true,
+      "legacyDeprecated": false,
+      "auditCoveredBy": [],
+      "missingFieldsRisk": "high"
+    },
+    {
+      "eventName": "creator_admin_queue_materialized",
+      "aliases": [],
+      "version": 1,
+      "family": "admin",
+      "emittedFrom": [
+        "src/app/api/admin/roster/route.ts",
+        "src/app/api/user/register/route.ts"
+      ],
+      "consumedBy": [],
+      "requiredActorFields": [
+        "admin_id|adminId"
+      ],
+      "requiredObjectFields": [],
+      "requiredSurfaceFields": [],
+      "dedupeKeyRequired": false,
+      "guestAllowed": false,
+      "adminExcludedFromUserAnalytics": true,
+      "legacyDeprecated": false,
+      "auditCoveredBy": [],
+      "missingFieldsRisk": "high"
+    },
+    {
+      "eventName": "creator_id_requested",
+      "aliases": [],
+      "version": 1,
+      "family": "admin",
+      "emittedFrom": [
+        "src/app/api/admin/users/route.ts"
+      ],
+      "consumedBy": [],
+      "requiredActorFields": [
+        "admin_id|adminId"
+      ],
+      "requiredObjectFields": [],
+      "requiredSurfaceFields": [],
+      "dedupeKeyRequired": false,
+      "guestAllowed": false,
+      "adminExcludedFromUserAnalytics": true,
+      "legacyDeprecated": false,
+      "auditCoveredBy": [],
+      "missingFieldsRisk": "high"
+    },
+    {
+      "eventName": "creator_id_document_uploaded",
+      "aliases": [],
+      "version": 1,
+      "family": "admin",
+      "emittedFrom": [
+        "src/app/api/creator/onboarding/id-submission/route.ts"
+      ],
+      "consumedBy": [],
+      "requiredActorFields": [
+        "admin_id|adminId"
+      ],
+      "requiredObjectFields": [],
+      "requiredSurfaceFields": [],
+      "dedupeKeyRequired": false,
+      "guestAllowed": false,
+      "adminExcludedFromUserAnalytics": true,
+      "legacyDeprecated": false,
+      "auditCoveredBy": [],
+      "missingFieldsRisk": "high"
+    },
+    {
+      "eventName": "creator_id_submitted",
+      "aliases": [],
+      "version": 1,
+      "family": "admin",
+      "emittedFrom": [
+        "src/app/api/creator/onboarding/id-submission/route.ts"
+      ],
+      "consumedBy": [],
+      "requiredActorFields": [
+        "admin_id|adminId"
+      ],
+      "requiredObjectFields": [],
+      "requiredSurfaceFields": [],
+      "dedupeKeyRequired": false,
+      "guestAllowed": false,
+      "adminExcludedFromUserAnalytics": true,
+      "legacyDeprecated": false,
+      "auditCoveredBy": [],
+      "missingFieldsRisk": "high"
+    },
+    {
+      "eventName": "creator_id_submission_failed",
+      "aliases": [],
+      "version": 1,
+      "family": "admin",
+      "emittedFrom": [
+        "src/app/api/creator/onboarding/id-submission/route.ts"
+      ],
+      "consumedBy": [],
+      "requiredActorFields": [
+        "admin_id|adminId"
+      ],
+      "requiredObjectFields": [],
+      "requiredSurfaceFields": [],
+      "dedupeKeyRequired": false,
+      "guestAllowed": false,
+      "adminExcludedFromUserAnalytics": true,
+      "legacyDeprecated": false,
+      "auditCoveredBy": [],
+      "missingFieldsRisk": "high"
+    },
+    {
+      "eventName": "creator_id_verified",
+      "aliases": [],
+      "version": 1,
+      "family": "admin",
+      "emittedFrom": [
+        "src/app/api/admin/users/route.ts"
+      ],
+      "consumedBy": [],
+      "requiredActorFields": [
+        "admin_id|adminId"
+      ],
+      "requiredObjectFields": [],
+      "requiredSurfaceFields": [],
+      "dedupeKeyRequired": false,
+      "guestAllowed": false,
+      "adminExcludedFromUserAnalytics": true,
+      "legacyDeprecated": false,
+      "auditCoveredBy": [],
+      "missingFieldsRisk": "high"
+    },
+    {
+      "eventName": "creator_id_rejected",
+      "aliases": [],
+      "version": 1,
+      "family": "admin",
+      "emittedFrom": [
+        "src/app/api/admin/users/route.ts"
+      ],
+      "consumedBy": [],
+      "requiredActorFields": [
+        "admin_id|adminId"
+      ],
+      "requiredObjectFields": [],
+      "requiredSurfaceFields": [],
+      "dedupeKeyRequired": false,
+      "guestAllowed": false,
+      "adminExcludedFromUserAnalytics": true,
+      "legacyDeprecated": false,
+      "auditCoveredBy": [],
+      "missingFieldsRisk": "high"
+    },
+    {
+      "eventName": "creator_legal_sent",
+      "aliases": [],
+      "version": 1,
+      "family": "admin",
+      "emittedFrom": [
+        "src/app/api/admin/users/route.ts"
+      ],
+      "consumedBy": [],
+      "requiredActorFields": [
+        "admin_id|adminId"
+      ],
+      "requiredObjectFields": [],
+      "requiredSurfaceFields": [],
+      "dedupeKeyRequired": false,
+      "guestAllowed": false,
+      "adminExcludedFromUserAnalytics": true,
+      "legacyDeprecated": false,
+      "auditCoveredBy": [],
+      "missingFieldsRisk": "high"
+    },
+    {
+      "eventName": "creator_contract_signed",
+      "aliases": [],
+      "version": 1,
+      "family": "admin",
+      "emittedFrom": [
+        "src/app/api/creator/onboarding/contract-signature/route.ts"
+      ],
+      "consumedBy": [],
+      "requiredActorFields": [
+        "admin_id|adminId"
+      ],
+      "requiredObjectFields": [],
+      "requiredSurfaceFields": [],
+      "dedupeKeyRequired": false,
+      "guestAllowed": false,
+      "adminExcludedFromUserAnalytics": true,
+      "legacyDeprecated": false,
+      "auditCoveredBy": [],
+      "missingFieldsRisk": "high"
+    },
+    {
+      "eventName": "creator_legal_signed",
+      "aliases": [],
+      "version": 1,
+      "family": "admin",
+      "emittedFrom": [
+        "src/app/api/admin/users/route.ts"
+      ],
+      "consumedBy": [],
+      "requiredActorFields": [
+        "admin_id|adminId"
+      ],
+      "requiredObjectFields": [],
+      "requiredSurfaceFields": [],
+      "dedupeKeyRequired": false,
+      "guestAllowed": false,
+      "adminExcludedFromUserAnalytics": true,
+      "legacyDeprecated": false,
+      "auditCoveredBy": [],
+      "missingFieldsRisk": "high"
+    },
+    {
+      "eventName": "creator_segment_assigned",
+      "aliases": [],
+      "version": 1,
+      "family": "admin",
+      "emittedFrom": [
+        "src/app/api/admin/users/route.ts"
+      ],
+      "consumedBy": [],
+      "requiredActorFields": [
+        "admin_id|adminId"
+      ],
+      "requiredObjectFields": [],
+      "requiredSurfaceFields": [],
+      "dedupeKeyRequired": false,
+      "guestAllowed": false,
+      "adminExcludedFromUserAnalytics": true,
+      "legacyDeprecated": false,
+      "auditCoveredBy": [],
+      "missingFieldsRisk": "high"
+    },
+    {
+      "eventName": "creator_approved",
+      "aliases": [],
+      "version": 1,
+      "family": "admin",
+      "emittedFrom": [
+        "src/app/api/admin/users/route.ts"
+      ],
+      "consumedBy": [
+        "src/app/admin/roster/page.tsx",
+        "src/app/admin/user/[userId]/page.tsx"
+      ],
+      "requiredActorFields": [
+        "admin_id|adminId"
+      ],
+      "requiredObjectFields": [],
+      "requiredSurfaceFields": [],
+      "dedupeKeyRequired": false,
+      "guestAllowed": false,
+      "adminExcludedFromUserAnalytics": true,
+      "legacyDeprecated": false,
+      "auditCoveredBy": [],
+      "missingFieldsRisk": "high"
+    },
+    {
+      "eventName": "creator_rejected",
+      "aliases": [],
+      "version": 1,
+      "family": "admin",
+      "emittedFrom": [
+        "src/app/api/admin/users/route.ts"
+      ],
+      "consumedBy": [
+        "src/app/admin/roster/page.tsx",
+        "src/app/admin/user/[userId]/page.tsx"
+      ],
+      "requiredActorFields": [
+        "admin_id|adminId"
+      ],
+      "requiredObjectFields": [],
+      "requiredSurfaceFields": [],
+      "dedupeKeyRequired": false,
+      "guestAllowed": false,
+      "adminExcludedFromUserAnalytics": true,
+      "legacyDeprecated": false,
+      "auditCoveredBy": [],
+      "missingFieldsRisk": "high"
+    },
+    {
+      "eventName": "creator_needs_changes",
+      "aliases": [],
+      "version": 1,
+      "family": "admin",
+      "emittedFrom": [
+        "src/app/api/admin/users/route.ts"
+      ],
+      "consumedBy": [
+        "src/app/admin/roster/page.tsx",
+        "src/app/admin/user/[userId]/page.tsx"
+      ],
+      "requiredActorFields": [
+        "admin_id|adminId"
+      ],
+      "requiredObjectFields": [],
+      "requiredSurfaceFields": [],
+      "dedupeKeyRequired": false,
+      "guestAllowed": false,
+      "adminExcludedFromUserAnalytics": true,
+      "legacyDeprecated": false,
+      "auditCoveredBy": [],
+      "missingFieldsRisk": "high"
+    },
+    {
+      "eventName": "creator_role_activated",
+      "aliases": [],
+      "version": 1,
+      "family": "admin",
+      "emittedFrom": [
+        "src/app/api/admin/users/route.ts"
+      ],
+      "consumedBy": [],
+      "requiredActorFields": [
+        "admin_id|adminId"
+      ],
+      "requiredObjectFields": [],
+      "requiredSurfaceFields": [],
+      "dedupeKeyRequired": false,
+      "guestAllowed": false,
+      "adminExcludedFromUserAnalytics": true,
+      "legacyDeprecated": false,
+      "auditCoveredBy": [],
+      "missingFieldsRisk": "high"
+    },
+    {
+      "eventName": "creator_role_activation_blocked",
+      "aliases": [],
+      "version": 1,
+      "family": "admin",
+      "emittedFrom": [
+        "src/app/api/admin/users/route.ts"
+      ],
+      "consumedBy": [],
+      "requiredActorFields": [
+        "admin_id|adminId"
+      ],
+      "requiredObjectFields": [],
+      "requiredSurfaceFields": [],
+      "dedupeKeyRequired": false,
+      "guestAllowed": false,
+      "adminExcludedFromUserAnalytics": true,
+      "legacyDeprecated": false,
+      "auditCoveredBy": [],
+      "missingFieldsRisk": "high"
+    },
+    {
+      "eventName": "owner_override_applied",
+      "aliases": [],
+      "version": 1,
+      "family": "admin",
+      "emittedFrom": [
+        "src/app/api/admin/users/route.ts"
+      ],
+      "consumedBy": [],
+      "requiredActorFields": [
+        "admin_id|adminId"
+      ],
+      "requiredObjectFields": [],
+      "requiredSurfaceFields": [],
+      "dedupeKeyRequired": false,
+      "guestAllowed": false,
+      "adminExcludedFromUserAnalytics": true,
+      "legacyDeprecated": false,
+      "auditCoveredBy": [],
+      "missingFieldsRisk": "high"
+    },
+    {
+      "eventName": "owner_override_cleared",
+      "aliases": [],
+      "version": 1,
+      "family": "admin",
+      "emittedFrom": [
+        "src/app/api/admin/users/route.ts"
+      ],
+      "consumedBy": [],
+      "requiredActorFields": [
+        "admin_id|adminId"
+      ],
+      "requiredObjectFields": [],
+      "requiredSurfaceFields": [],
+      "dedupeKeyRequired": false,
+      "guestAllowed": false,
+      "adminExcludedFromUserAnalytics": true,
+      "legacyDeprecated": false,
+      "auditCoveredBy": [],
+      "missingFieldsRisk": "high"
+    },
+    {
+      "eventName": "privacy_page_viewed",
+      "aliases": [],
+      "version": 1,
+      "family": "page_view",
+      "emittedFrom": [
+        "src/app/(legal)/privacy/page.tsx"
+      ],
+      "consumedBy": [
+        "src/lib/admin-analytics-live-runtime.ts",
+        "src/lib/analytics-semantics.ts",
+        "src/lib/server/admin-analytics-historical-traffic.ts",
+        "src/lib/server/admin-analytics-shared.ts",
+        "src/lib/server/analytics-metrics.ts",
+        "src/lib/server/analytics-semantics.ts"
+      ],
+      "requiredActorFields": [],
+      "requiredObjectFields": [],
+      "requiredSurfaceFields": [
+        "route|page_path|pagePath|surface|source_component|sourceComponent"
+      ],
+      "dedupeKeyRequired": false,
+      "guestAllowed": true,
+      "adminExcludedFromUserAnalytics": false,
+      "legacyDeprecated": false,
+      "auditCoveredBy": [],
+      "missingFieldsRisk": "medium"
+    },
+    {
+      "eventName": "terms_page_viewed",
+      "aliases": [],
+      "version": 1,
+      "family": "page_view",
+      "emittedFrom": [
+        "src/app/(legal)/terms/page.tsx"
+      ],
+      "consumedBy": [
+        "src/lib/admin-analytics-live-runtime.ts",
+        "src/lib/analytics-semantics.ts",
+        "src/lib/server/admin-analytics-historical-traffic.ts",
+        "src/lib/server/admin-analytics-shared.ts",
+        "src/lib/server/analytics-metrics.ts",
+        "src/lib/server/analytics-semantics.ts"
+      ],
+      "requiredActorFields": [],
+      "requiredObjectFields": [],
+      "requiredSurfaceFields": [
+        "route|page_path|pagePath|surface|source_component|sourceComponent"
+      ],
+      "dedupeKeyRequired": false,
+      "guestAllowed": true,
+      "adminExcludedFromUserAnalytics": false,
+      "legacyDeprecated": false,
+      "auditCoveredBy": [],
+      "missingFieldsRisk": "medium"
+    },
+    {
+      "eventName": "drops_page_viewed",
+      "aliases": [],
+      "version": 1,
+      "family": "drop",
+      "emittedFrom": [
+        "src/app/drops/DropsClient.tsx",
+        "src/lib/tasks/task-catalog.ts"
+      ],
+      "consumedBy": [
+        "src/lib/admin-analytics-live-runtime.ts",
+        "src/lib/analytics-semantics.ts",
+        "src/lib/server/admin-analytics-historical-traffic.ts",
+        "src/lib/server/admin-analytics-shared.ts",
+        "src/lib/server/analytics-metrics.ts",
+        "src/lib/server/analytics-semantics.ts"
+      ],
+      "requiredActorFields": [],
+      "requiredObjectFields": [
+        "drop_id|dropId"
+      ],
+      "requiredSurfaceFields": [
+        "route|page_path|pagePath|surface|source_component|sourceComponent"
+      ],
+      "dedupeKeyRequired": false,
+      "guestAllowed": true,
+      "adminExcludedFromUserAnalytics": false,
+      "legacyDeprecated": false,
+      "auditCoveredBy": [],
+      "missingFieldsRisk": "medium"
+    },
+    {
+      "eventName": "faq_page_viewed",
+      "aliases": [],
+      "version": 1,
+      "family": "page_view",
+      "emittedFrom": [
+        "src/app/faq/FAQClient.tsx"
+      ],
+      "consumedBy": [
+        "src/lib/admin-analytics-live-runtime.ts",
+        "src/lib/analytics-semantics.ts",
+        "src/lib/server/admin-analytics-historical-traffic.ts",
+        "src/lib/server/admin-analytics-shared.ts",
+        "src/lib/server/analytics-metrics.ts",
+        "src/lib/server/analytics-semantics.ts"
+      ],
+      "requiredActorFields": [],
+      "requiredObjectFields": [],
+      "requiredSurfaceFields": [
+        "route|page_path|pagePath|surface|source_component|sourceComponent"
+      ],
+      "dedupeKeyRequired": false,
+      "guestAllowed": true,
+      "adminExcludedFromUserAnalytics": false,
+      "legacyDeprecated": false,
+      "auditCoveredBy": [],
+      "missingFieldsRisk": "medium"
+    },
+    {
+      "eventName": "faq_search_used",
+      "aliases": [],
+      "version": 1,
+      "family": "engagement",
+      "emittedFrom": [
+        "src/app/faq/FAQClient.tsx"
+      ],
+      "consumedBy": [],
+      "requiredActorFields": [],
+      "requiredObjectFields": [],
+      "requiredSurfaceFields": [],
+      "dedupeKeyRequired": false,
+      "guestAllowed": true,
+      "adminExcludedFromUserAnalytics": false,
+      "legacyDeprecated": false,
+      "auditCoveredBy": [],
+      "missingFieldsRisk": "low"
+    },
+    {
+      "eventName": "faq_category_selected",
+      "aliases": [],
+      "version": 1,
+      "family": "engagement",
+      "emittedFrom": [
+        "src/app/faq/FAQClient.tsx"
+      ],
+      "consumedBy": [],
+      "requiredActorFields": [],
+      "requiredObjectFields": [],
+      "requiredSurfaceFields": [],
+      "dedupeKeyRequired": false,
+      "guestAllowed": true,
+      "adminExcludedFromUserAnalytics": false,
+      "legacyDeprecated": false,
+      "auditCoveredBy": [],
+      "missingFieldsRisk": "low"
+    },
+    {
+      "eventName": "faq_question_toggled",
+      "aliases": [],
+      "version": 1,
+      "family": "engagement",
+      "emittedFrom": [
+        "src/app/faq/FAQClient.tsx"
+      ],
+      "consumedBy": [],
+      "requiredActorFields": [],
+      "requiredObjectFields": [],
+      "requiredSurfaceFields": [],
+      "dedupeKeyRequired": false,
+      "guestAllowed": true,
+      "adminExcludedFromUserAnalytics": false,
+      "legacyDeprecated": false,
+      "auditCoveredBy": [],
+      "missingFieldsRisk": "low"
+    },
+    {
+      "eventName": "dashboard_viewed",
+      "aliases": [],
+      "version": 1,
+      "family": "page_view",
+      "emittedFrom": [
+        "src/app/dashboard/DashboardClient.tsx",
+        "src/lib/tasks/task-catalog.ts"
+      ],
+      "consumedBy": [
+        "src/app/admin/page.tsx",
+        "src/lib/admin-analytics-live-runtime.ts",
+        "src/lib/analytics-semantics.ts",
+        "src/lib/server/admin-analytics-historical-traffic.ts",
+        "src/lib/server/admin-analytics-shared.ts",
+        "src/lib/server/analytics-metrics.ts",
+        "src/lib/server/analytics-semantics.ts"
+      ],
+      "requiredActorFields": [],
+      "requiredObjectFields": [],
+      "requiredSurfaceFields": [
+        "route|page_path|pagePath|surface|source_component|sourceComponent"
+      ],
+      "dedupeKeyRequired": false,
+      "guestAllowed": true,
+      "adminExcludedFromUserAnalytics": false,
+      "legacyDeprecated": false,
+      "auditCoveredBy": [],
+      "missingFieldsRisk": "medium"
+    },
+    {
+      "eventName": "library_viewed",
+      "aliases": [],
+      "version": 1,
+      "family": "page_view",
+      "emittedFrom": [
+        "src/app/dashboard/library/LibraryClient.tsx",
+        "src/lib/tasks/task-catalog.ts"
+      ],
+      "consumedBy": [
+        "src/lib/admin-analytics-live-runtime.ts",
+        "src/lib/analytics-semantics.ts",
+        "src/lib/server/admin-analytics-historical-traffic.ts",
+        "src/lib/server/admin-analytics-shared.ts",
+        "src/lib/server/analytics-metrics.ts",
+        "src/lib/server/analytics-semantics.ts"
+      ],
+      "requiredActorFields": [],
+      "requiredObjectFields": [],
+      "requiredSurfaceFields": [
+        "route|page_path|pagePath|surface|source_component|sourceComponent"
+      ],
+      "dedupeKeyRequired": false,
+      "guestAllowed": true,
+      "adminExcludedFromUserAnalytics": false,
+      "legacyDeprecated": false,
+      "auditCoveredBy": [],
+      "missingFieldsRisk": "medium"
+    },
+    {
+      "eventName": "profile_settings_viewed",
+      "aliases": [],
+      "version": 1,
+      "family": "page_view",
+      "emittedFrom": [
+        "src/app/dashboard/profile/page.tsx"
+      ],
+      "consumedBy": [
+        "src/lib/admin-analytics-live-runtime.ts",
+        "src/lib/analytics-semantics.ts",
+        "src/lib/server/admin-analytics-historical-traffic.ts",
+        "src/lib/server/admin-analytics-shared.ts",
+        "src/lib/server/analytics-metrics.ts",
+        "src/lib/server/analytics-semantics.ts"
+      ],
+      "requiredActorFields": [],
+      "requiredObjectFields": [],
+      "requiredSurfaceFields": [
+        "route|page_path|pagePath|surface|source_component|sourceComponent"
+      ],
+      "dedupeKeyRequired": false,
+      "guestAllowed": true,
+      "adminExcludedFromUserAnalytics": false,
+      "legacyDeprecated": false,
+      "auditCoveredBy": [],
+      "missingFieldsRisk": "medium"
+    },
+    {
+      "eventName": "support_inbox_viewed",
+      "aliases": [],
+      "version": 1,
+      "family": "page_view",
+      "emittedFrom": [
+        "src/components/Support/SupportInbox.tsx"
+      ],
+      "consumedBy": [
+        "src/lib/analytics-semantics.ts",
+        "src/lib/server/analytics-semantics.ts"
+      ],
+      "requiredActorFields": [],
+      "requiredObjectFields": [],
+      "requiredSurfaceFields": [
+        "route|page_path|pagePath|surface|source_component|sourceComponent"
+      ],
+      "dedupeKeyRequired": false,
+      "guestAllowed": true,
+      "adminExcludedFromUserAnalytics": false,
+      "legacyDeprecated": false,
+      "auditCoveredBy": [],
+      "missingFieldsRisk": "medium"
+    },
+    {
+      "eventName": "experience_hub_viewed",
+      "aliases": [],
+      "version": 1,
+      "family": "task",
+      "emittedFrom": [
+        "src/app/experiences/ExperiencesClient.tsx",
+        "src/lib/tasks/task-catalog.ts"
+      ],
+      "consumedBy": [
+        "src/app/api/admin/analytics/historical/route.ts",
+        "src/components/Admin/AdminTasksManager.tsx",
+        "src/lib/admin-analytics-live-runtime.ts",
+        "src/lib/analytics-semantics.ts",
+        "src/lib/server/admin-analytics-historical-traffic.ts",
+        "src/lib/server/admin-analytics-shared.ts",
+        "src/lib/server/analytics-metrics.ts",
+        "src/lib/server/analytics-semantics.ts"
+      ],
+      "requiredActorFields": [],
+      "requiredObjectFields": [
+        "task_id|taskId|task_key|taskKey"
+      ],
+      "requiredSurfaceFields": [],
+      "dedupeKeyRequired": false,
+      "guestAllowed": true,
+      "adminExcludedFromUserAnalytics": false,
+      "legacyDeprecated": false,
+      "auditCoveredBy": [],
+      "missingFieldsRisk": "medium"
+    },
+    {
+      "eventName": "daily_check_in_claim",
+      "aliases": [
+        "daily_reward_claimed"
+      ],
+      "version": 1,
+      "family": "task",
+      "emittedFrom": [
+        "src/components/Dashboard/DailyCheckIn.tsx",
+        "src/lib/admin-analytics-journey-funnel.ts",
+        "src/lib/tasks/task-catalog.ts"
+      ],
+      "consumedBy": [
+        "src/app/api/admin/analytics/historical/route.ts",
+        "src/lib/admin-analytics-journey-funnel.ts",
+        "src/lib/analytics-metric-catalog.ts",
+        "src/lib/server/analytics-metrics.ts"
+      ],
+      "requiredActorFields": [],
+      "requiredObjectFields": [
+        "task_id|taskId|task_key|taskKey"
+      ],
+      "requiredSurfaceFields": [],
+      "dedupeKeyRequired": false,
+      "guestAllowed": true,
+      "adminExcludedFromUserAnalytics": false,
+      "legacyDeprecated": false,
+      "auditCoveredBy": [],
+      "missingFieldsRisk": "medium"
+    },
+    {
+      "eventName": "wallet_opened",
+      "aliases": [],
+      "version": 1,
+      "family": "purchase",
+      "emittedFrom": [
+        "src/components/PurchaseModal.tsx",
+        "src/lib/tasks/task-catalog.ts"
+      ],
+      "consumedBy": [
+        "src/app/api/admin/analytics/historical/route.ts"
+      ],
+      "requiredActorFields": [],
+      "requiredObjectFields": [],
+      "requiredSurfaceFields": [
+        "route|page_path|pagePath|surface|source_component|sourceComponent"
+      ],
+      "dedupeKeyRequired": false,
+      "guestAllowed": true,
+      "adminExcludedFromUserAnalytics": false,
+      "legacyDeprecated": false,
+      "auditCoveredBy": [],
+      "missingFieldsRisk": "high"
+    },
+    {
+      "eventName": "wallet_closed_incomplete",
+      "aliases": [],
+      "version": 1,
+      "family": "purchase",
+      "emittedFrom": [],
+      "consumedBy": [],
+      "requiredActorFields": [],
+      "requiredObjectFields": [],
+      "requiredSurfaceFields": [
+        "route|page_path|pagePath|surface|source_component|sourceComponent"
+      ],
+      "dedupeKeyRequired": false,
+      "guestAllowed": true,
+      "adminExcludedFromUserAnalytics": false,
+      "legacyDeprecated": false,
+      "auditCoveredBy": [
+        "wallet_opened"
+      ],
+      "missingFieldsRisk": "high"
+    },
+    {
+      "eventName": "purchase_package_selected",
+      "aliases": [],
+      "version": 1,
+      "family": "purchase",
+      "emittedFrom": [
+        "src/components/PurchaseModal.tsx"
+      ],
+      "consumedBy": [],
+      "requiredActorFields": [],
+      "requiredObjectFields": [],
+      "requiredSurfaceFields": [
+        "route|page_path|pagePath|surface|source_component|sourceComponent"
+      ],
+      "dedupeKeyRequired": false,
+      "guestAllowed": true,
+      "adminExcludedFromUserAnalytics": false,
+      "legacyDeprecated": false,
+      "auditCoveredBy": [],
+      "missingFieldsRisk": "high"
+    },
+    {
+      "eventName": "begin_checkout",
+      "aliases": [],
+      "version": 1,
+      "family": "purchase",
+      "emittedFrom": [
+        "src/components/PurchaseModal.tsx",
+        "src/lib/admin-analytics-journey-funnel.ts",
+        "src/lib/tasks/task-catalog.ts"
+      ],
+      "consumedBy": [
+        "src/app/api/admin/analytics/historical/route.ts",
+        "src/lib/admin-analytics-journey-funnel.ts",
+        "src/lib/server/admin-analytics-historical-content.ts"
+      ],
+      "requiredActorFields": [
+        "user_id|userId|authenticated caller"
+      ],
+      "requiredObjectFields": [
+        "purchase_id|purchaseId|order_id|orderId|transaction_id|transactionId",
+        "amount|value|package_price|source|payment_source|purchase_source"
+      ],
+      "requiredSurfaceFields": [
+        "route|page_path|pagePath|surface|source_component|sourceComponent"
+      ],
+      "dedupeKeyRequired": false,
+      "guestAllowed": true,
+      "adminExcludedFromUserAnalytics": false,
+      "legacyDeprecated": false,
+      "auditCoveredBy": [],
+      "missingFieldsRisk": "high"
+    },
+    {
+      "eventName": "purchase",
+      "aliases": [],
+      "version": 1,
+      "family": "purchase",
+      "emittedFrom": [
+        "src/components/PurchaseModal.tsx"
+      ],
+      "consumedBy": [
+        "src/app/admin/analytics/components/AdminAnalyticsCommerceTab.tsx",
+        "src/app/admin/analytics/hooks/useAdminAnalyticsState.tsx",
+        "src/app/admin/analytics/loading.tsx",
+        "src/app/admin/analytics/page.tsx",
+        "src/app/admin/debug/components/DebugAdvancedDataValidation.tsx",
+        "src/app/admin/debug/components/DebugAdvancedDrift.tsx",
+        "src/app/admin/user/[userId]/page.tsx",
+        "src/app/admin/users/page.tsx",
+        "src/app/api/admin/analytics/historical/route.ts",
+        "src/components/Admin/AdminStatsBar.tsx",
+        "src/components/Admin/AdminTasksManager.tsx",
+        "src/components/Admin/RecentTransactionsPanel.tsx",
+        "src/components/Admin/TransactionHistoryModal.tsx",
+        "src/lib/admin-analytics-commerce-snapshot.ts",
+        "src/lib/admin-analytics-event-mix.ts",
+        "src/lib/admin-analytics-journey-funnel.ts",
+        "src/lib/admin-analytics-live-interaction-stream.ts",
+        "src/lib/admin-analytics-live-runtime.ts",
+        "src/lib/analytics-metric-catalog.ts",
+        "src/lib/analytics-semantics.ts",
+        "src/lib/analytics/analytics-event-contract.ts",
+        "src/lib/analytics/legacy-event-mapping.ts",
+        "src/lib/analytics/legacy-recovery-contract.ts",
+        "src/lib/server/admin-analytics-context.ts",
+        "src/lib/server/admin-analytics-historical-content.ts",
+        "src/lib/server/admin-analytics-historical-validation.ts",
+        "src/lib/server/admin-analytics-materializers.ts",
+        "src/types/admin-analytics.ts"
+      ],
+      "requiredActorFields": [
+        "user_id|userId|authenticated caller"
+      ],
+      "requiredObjectFields": [
+        "purchase_id|purchaseId|order_id|orderId|transaction_id|transactionId",
+        "amount|value|package_price|source|payment_source|purchase_source"
+      ],
+      "requiredSurfaceFields": [
+        "route|page_path|pagePath|surface|source_component|sourceComponent"
+      ],
+      "dedupeKeyRequired": false,
+      "guestAllowed": true,
+      "adminExcludedFromUserAnalytics": false,
+      "legacyDeprecated": false,
+      "auditCoveredBy": [],
+      "missingFieldsRisk": "high"
+    },
+    {
+      "eventName": "spend_virtual_currency",
+      "aliases": [],
+      "version": 1,
+      "family": "drop",
+      "emittedFrom": [
+        "src/components/DropPreviewModal.tsx"
+      ],
+      "consumedBy": [],
+      "requiredActorFields": [],
+      "requiredObjectFields": [
+        "drop_id|dropId"
+      ],
+      "requiredSurfaceFields": [
+        "route|page_path|pagePath|surface|source_component|sourceComponent"
+      ],
+      "dedupeKeyRequired": false,
+      "guestAllowed": true,
+      "adminExcludedFromUserAnalytics": false,
+      "legacyDeprecated": false,
+      "auditCoveredBy": [],
+      "missingFieldsRisk": "medium"
+    },
+    {
+      "eventName": "gumdrops_purchase_completed",
+      "aliases": [],
+      "version": 1,
+      "family": "purchase",
+      "emittedFrom": [
+        "src/components/PurchaseModal.tsx",
+        "src/lib/admin-analytics-journey-funnel.ts",
+        "src/lib/tasks/task-catalog.ts"
+      ],
+      "consumedBy": [
+        "src/app/api/admin/analytics/historical/route.ts",
+        "src/lib/admin-analytics-journey-funnel.ts",
+        "src/lib/analytics/legacy-event-mapping.ts",
+        "src/lib/server/admin-analytics-historical-content.ts"
+      ],
+      "requiredActorFields": [
+        "user_id|userId|authenticated caller"
+      ],
+      "requiredObjectFields": [
+        "purchase_id|purchaseId|order_id|orderId|transaction_id|transactionId",
+        "amount|value|package_price|source|payment_source|purchase_source"
+      ],
+      "requiredSurfaceFields": [
+        "route|page_path|pagePath|surface|source_component|sourceComponent"
+      ],
+      "dedupeKeyRequired": true,
+      "guestAllowed": true,
+      "adminExcludedFromUserAnalytics": false,
+      "legacyDeprecated": false,
+      "auditCoveredBy": [],
+      "missingFieldsRisk": "high"
+    },
+    {
+      "eventName": "gumdrops_purchase_failed",
+      "aliases": [],
+      "version": 1,
+      "family": "purchase",
+      "emittedFrom": [
+        "src/components/PurchaseModal.tsx"
+      ],
+      "consumedBy": [
+        "src/lib/analytics/legacy-event-mapping.ts",
+        "src/lib/server/admin-analytics-historical-content.ts"
+      ],
+      "requiredActorFields": [
+        "user_id|userId|authenticated caller"
+      ],
+      "requiredObjectFields": [
+        "purchase_id|purchaseId|order_id|orderId|transaction_id|transactionId",
+        "amount|value|package_price|source|payment_source|purchase_source"
+      ],
+      "requiredSurfaceFields": [
+        "route|page_path|pagePath|surface|source_component|sourceComponent"
+      ],
+      "dedupeKeyRequired": true,
+      "guestAllowed": true,
+      "adminExcludedFromUserAnalytics": false,
+      "legacyDeprecated": false,
+      "auditCoveredBy": [],
+      "missingFieldsRisk": "high"
+    },
+    {
+      "eventName": "purchase_verified",
+      "aliases": [],
+      "version": 1,
+      "family": "purchase",
+      "emittedFrom": [
+        "src/app/api/paypal/capture/route.ts"
+      ],
+      "consumedBy": [],
+      "requiredActorFields": [
+        "user_id|userId|authenticated caller"
+      ],
+      "requiredObjectFields": [
+        "purchase_id|purchaseId|order_id|orderId|transaction_id|transactionId",
+        "amount|value|package_price|source|payment_source|purchase_source"
+      ],
+      "requiredSurfaceFields": [
+        "source|payment_source|purchase_source|tracking_origin"
+      ],
+      "dedupeKeyRequired": true,
+      "guestAllowed": false,
+      "adminExcludedFromUserAnalytics": false,
+      "legacyDeprecated": false,
+      "auditCoveredBy": [],
+      "missingFieldsRisk": "high"
+    },
+    {
+      "eventName": "drop_card_impression",
+      "aliases": [],
+      "version": 1,
+      "family": "drop",
+      "emittedFrom": [
+        "src/hooks/useDropCardImpression.ts"
+      ],
+      "consumedBy": [
+        "src/lib/analytics-metric-catalog.ts",
+        "src/lib/server/analytics-metrics.ts"
+      ],
+      "requiredActorFields": [],
+      "requiredObjectFields": [
+        "drop_id|dropId"
+      ],
+      "requiredSurfaceFields": [
+        "route|page_path|pagePath|surface|source_component|sourceComponent"
+      ],
+      "dedupeKeyRequired": false,
+      "guestAllowed": true,
+      "adminExcludedFromUserAnalytics": false,
+      "legacyDeprecated": false,
+      "auditCoveredBy": [],
+      "missingFieldsRisk": "medium"
+    },
+    {
+      "eventName": "view_drop_details",
+      "aliases": [],
+      "version": 1,
+      "family": "drop",
+      "emittedFrom": [
+        "src/components/DropCard.tsx",
+        "src/lib/tasks/task-catalog.ts"
+      ],
+      "consumedBy": [
+        "src/lib/server/analytics-metrics.ts",
+        "src/lib/server/analytics-semantics.ts"
+      ],
+      "requiredActorFields": [],
+      "requiredObjectFields": [
+        "drop_id|dropId"
+      ],
+      "requiredSurfaceFields": [
+        "route|page_path|pagePath|surface|source_component|sourceComponent"
+      ],
+      "dedupeKeyRequired": false,
+      "guestAllowed": true,
+      "adminExcludedFromUserAnalytics": false,
+      "legacyDeprecated": false,
+      "auditCoveredBy": [],
+      "missingFieldsRisk": "medium"
+    },
+    {
+      "eventName": "drop_clicked",
+      "aliases": [],
+      "version": 1,
+      "family": "drop",
+      "emittedFrom": [
+        "src/app/api/drops/[dropId]/click/route.ts",
+        "src/app/api/drops/track/route.ts"
+      ],
+      "consumedBy": [
+        "src/lib/server/admin-analytics-historical-viewer.ts",
+        "src/lib/server/analytics-metrics.ts",
+        "src/lib/server/analytics-semantics.ts"
+      ],
+      "requiredActorFields": [],
+      "requiredObjectFields": [
+        "drop_id|dropId"
+      ],
+      "requiredSurfaceFields": [
+        "route|page_path|pagePath|surface|source_component|sourceComponent"
+      ],
+      "dedupeKeyRequired": false,
+      "guestAllowed": true,
+      "adminExcludedFromUserAnalytics": false,
+      "legacyDeprecated": false,
+      "auditCoveredBy": [],
+      "missingFieldsRisk": "medium"
+    },
+    {
+      "eventName": "drop_preview_opened",
+      "aliases": [],
+      "version": 1,
+      "family": "drop",
+      "emittedFrom": [
+        "src/components/DropPreviewModal.tsx",
+        "src/lib/admin-analytics-journey-funnel.ts",
+        "src/lib/tasks/task-catalog.ts"
+      ],
+      "consumedBy": [
+        "src/app/api/admin/analytics/historical/route.ts",
+        "src/lib/admin-analytics-journey-funnel.ts",
+        "src/lib/analytics-metric-catalog.ts",
+        "src/lib/analytics/legacy-event-mapping.ts",
+        "src/lib/server/admin-analytics-historical-content.ts",
+        "src/lib/server/analytics-metrics.ts",
+        "src/lib/server/analytics-semantics.ts"
+      ],
+      "requiredActorFields": [],
+      "requiredObjectFields": [
+        "drop_id|dropId"
+      ],
+      "requiredSurfaceFields": [
+        "route|page_path|pagePath|surface|source_component|sourceComponent"
+      ],
+      "dedupeKeyRequired": false,
+      "guestAllowed": true,
+      "adminExcludedFromUserAnalytics": false,
+      "legacyDeprecated": false,
+      "auditCoveredBy": [],
+      "missingFieldsRisk": "medium"
+    },
+    {
+      "eventName": "drop_preview_closed_incomplete",
+      "aliases": [],
+      "version": 1,
+      "family": "drop",
+      "emittedFrom": [
+        "src/components/DropPreviewModal.tsx"
+      ],
+      "consumedBy": [],
+      "requiredActorFields": [],
+      "requiredObjectFields": [
+        "drop_id|dropId"
+      ],
+      "requiredSurfaceFields": [
+        "route|page_path|pagePath|surface|source_component|sourceComponent"
+      ],
+      "dedupeKeyRequired": false,
+      "guestAllowed": true,
+      "adminExcludedFromUserAnalytics": false,
+      "legacyDeprecated": false,
+      "auditCoveredBy": [],
+      "missingFieldsRisk": "medium"
+    },
+    {
+      "eventName": "drop_unwrap_intent_blocked_by_funds",
+      "aliases": [],
+      "version": 1,
+      "family": "unlock",
+      "emittedFrom": [
+        "src/components/DropCard.tsx",
+        "src/components/DropPreviewModal.tsx"
+      ],
+      "consumedBy": [],
+      "requiredActorFields": [
+        "user_id|userId|authenticated caller"
+      ],
+      "requiredObjectFields": [
+        "drop_id|dropId",
+        "transaction_id|transactionId|dedupeKey|idempotency_key|idempotencyKey"
+      ],
+      "requiredSurfaceFields": [
+        "route|page_path|pagePath|surface|source_component|sourceComponent"
+      ],
+      "dedupeKeyRequired": true,
+      "guestAllowed": false,
+      "adminExcludedFromUserAnalytics": false,
+      "legacyDeprecated": false,
+      "auditCoveredBy": [],
+      "missingFieldsRisk": "high"
+    },
+    {
+      "eventName": "drop_unlock_attempted",
+      "aliases": [],
+      "version": 1,
+      "family": "unlock",
+      "emittedFrom": [
+        "src/components/DropCard.tsx",
+        "src/components/DropPreviewModal.tsx"
+      ],
+      "consumedBy": [
+        "src/lib/server/admin-analytics-historical-content.ts",
+        "src/lib/server/analytics-metrics.ts",
+        "src/lib/server/analytics-semantics.ts"
+      ],
+      "requiredActorFields": [
+        "user_id|userId|authenticated caller"
+      ],
+      "requiredObjectFields": [
+        "drop_id|dropId",
+        "transaction_id|transactionId|dedupeKey|idempotency_key|idempotencyKey"
+      ],
+      "requiredSurfaceFields": [
+        "route|page_path|pagePath|surface|source_component|sourceComponent"
+      ],
+      "dedupeKeyRequired": true,
+      "guestAllowed": false,
+      "adminExcludedFromUserAnalytics": false,
+      "legacyDeprecated": false,
+      "auditCoveredBy": [],
+      "missingFieldsRisk": "high"
+    },
+    {
+      "eventName": "unlock_drop_success",
+      "aliases": [],
+      "version": 1,
+      "family": "unlock",
+      "emittedFrom": [
+        "src/app/api/admin/users/route.ts",
+        "src/components/DropCard.tsx",
+        "src/components/DropPreviewModal.tsx",
+        "src/lib/admin-analytics-journey-funnel.ts",
+        "src/lib/tasks/task-catalog.ts"
+      ],
+      "consumedBy": [
+        "src/app/api/admin/analytics/historical/route.ts",
+        "src/lib/admin-analytics-journey-funnel.ts",
+        "src/lib/analytics-metric-catalog.ts",
+        "src/lib/analytics/legacy-event-mapping.ts",
+        "src/lib/server/admin-analytics-context.ts",
+        "src/lib/server/admin-analytics-historical-content.ts",
+        "src/lib/server/analytics-metrics.ts",
+        "src/lib/server/analytics-semantics.ts"
+      ],
+      "requiredActorFields": [
+        "user_id|userId|authenticated caller"
+      ],
+      "requiredObjectFields": [
+        "drop_id|dropId",
+        "transaction_id|transactionId|dedupeKey|idempotency_key|idempotencyKey"
+      ],
+      "requiredSurfaceFields": [
+        "route|page_path|pagePath|surface|source_component|sourceComponent"
+      ],
+      "dedupeKeyRequired": true,
+      "guestAllowed": false,
+      "adminExcludedFromUserAnalytics": false,
+      "legacyDeprecated": false,
+      "auditCoveredBy": [],
+      "missingFieldsRisk": "high"
+    },
+    {
+      "eventName": "drop_share_copied",
+      "aliases": [],
+      "version": 1,
+      "family": "drop",
+      "emittedFrom": [
+        "src/components/DropPreviewModal.tsx",
+        "src/lib/admin-analytics-journey-funnel.ts",
+        "src/lib/tasks/task-catalog.ts"
+      ],
+      "consumedBy": [
+        "src/app/api/admin/analytics/historical/route.ts",
+        "src/lib/admin-analytics-journey-funnel.ts",
+        "src/lib/analytics-metric-catalog.ts",
+        "src/lib/server/analytics-metrics.ts"
+      ],
+      "requiredActorFields": [],
+      "requiredObjectFields": [
+        "drop_id|dropId"
+      ],
+      "requiredSurfaceFields": [
+        "route|page_path|pagePath|surface|source_component|sourceComponent"
+      ],
+      "dedupeKeyRequired": false,
+      "guestAllowed": true,
+      "adminExcludedFromUserAnalytics": false,
+      "legacyDeprecated": false,
+      "auditCoveredBy": [],
+      "missingFieldsRisk": "medium"
+    },
+    {
+      "eventName": "viewer_opened",
+      "aliases": [],
+      "version": 1,
+      "family": "drop",
+      "emittedFrom": [
+        "src/app/dashboard/viewer/adapters/ViewerTelemetryAdapter.ts",
+        "src/lib/admin-analytics-journey-funnel.ts",
+        "src/lib/tasks/task-catalog.ts"
+      ],
+      "consumedBy": [
+        "src/app/api/admin/analytics/historical/route.ts",
+        "src/lib/admin-analytics-journey-funnel.ts",
+        "src/lib/analytics-metric-catalog.ts",
+        "src/lib/server/admin-analytics-historical-viewer.ts",
+        "src/lib/server/analytics-metrics.ts",
+        "src/lib/server/analytics-semantics.ts"
+      ],
+      "requiredActorFields": [],
+      "requiredObjectFields": [
+        "drop_id|dropId"
+      ],
+      "requiredSurfaceFields": [
+        "route|page_path|pagePath|surface|source_component|sourceComponent"
+      ],
+      "dedupeKeyRequired": false,
+      "guestAllowed": true,
+      "adminExcludedFromUserAnalytics": false,
+      "legacyDeprecated": false,
+      "auditCoveredBy": [],
+      "missingFieldsRisk": "medium"
+    },
+    {
+      "eventName": "viewer_session_started",
+      "aliases": [],
+      "version": 1,
+      "family": "drop",
+      "emittedFrom": [
+        "src/app/dashboard/viewer/adapters/ViewerTelemetryAdapter.ts"
+      ],
+      "consumedBy": [
+        "src/lib/server/admin-analytics-historical-traffic.ts",
+        "src/lib/server/admin-analytics-historical-viewer.ts"
+      ],
+      "requiredActorFields": [],
+      "requiredObjectFields": [
+        "drop_id|dropId"
+      ],
+      "requiredSurfaceFields": [
+        "route|page_path|pagePath|surface|source_component|sourceComponent"
+      ],
+      "dedupeKeyRequired": false,
+      "guestAllowed": true,
+      "adminExcludedFromUserAnalytics": false,
+      "legacyDeprecated": false,
+      "auditCoveredBy": [],
+      "missingFieldsRisk": "medium"
+    },
+    {
+      "eventName": "viewer_session_completed",
+      "aliases": [],
+      "version": 1,
+      "family": "drop",
+      "emittedFrom": [
+        "src/app/dashboard/viewer/adapters/ViewerTelemetryAdapter.ts",
+        "src/lib/tasks/task-catalog.ts"
+      ],
+      "consumedBy": [
+        "src/lib/server/admin-analytics-historical-viewer.ts",
+        "src/lib/server/analytics-semantics.ts"
+      ],
+      "requiredActorFields": [],
+      "requiredObjectFields": [
+        "drop_id|dropId"
+      ],
+      "requiredSurfaceFields": [
+        "route|page_path|pagePath|surface|source_component|sourceComponent"
+      ],
+      "dedupeKeyRequired": false,
+      "guestAllowed": true,
+      "adminExcludedFromUserAnalytics": false,
+      "legacyDeprecated": false,
+      "auditCoveredBy": [],
+      "missingFieldsRisk": "medium"
+    },
+    {
+      "eventName": "viewer_asset_started",
+      "aliases": [],
+      "version": 1,
+      "family": "drop",
+      "emittedFrom": [
+        "src/app/dashboard/viewer/adapters/ViewerTelemetryAdapter.ts"
+      ],
+      "consumedBy": [
+        "src/lib/server/admin-analytics-historical-viewer.ts"
+      ],
+      "requiredActorFields": [],
+      "requiredObjectFields": [
+        "drop_id|dropId"
+      ],
+      "requiredSurfaceFields": [
+        "route|page_path|pagePath|surface|source_component|sourceComponent"
+      ],
+      "dedupeKeyRequired": false,
+      "guestAllowed": true,
+      "adminExcludedFromUserAnalytics": false,
+      "legacyDeprecated": false,
+      "auditCoveredBy": [],
+      "missingFieldsRisk": "medium"
+    },
+    {
+      "eventName": "viewer_asset_changed",
+      "aliases": [],
+      "version": 1,
+      "family": "drop",
+      "emittedFrom": [
+        "src/app/dashboard/viewer/adapters/ViewerTelemetryAdapter.ts",
+        "src/lib/tasks/task-catalog.ts"
+      ],
+      "consumedBy": [
+        "src/app/api/admin/analytics/historical/route.ts",
+        "src/lib/server/admin-analytics-historical-viewer.ts"
+      ],
+      "requiredActorFields": [],
+      "requiredObjectFields": [
+        "drop_id|dropId"
+      ],
+      "requiredSurfaceFields": [
+        "route|page_path|pagePath|surface|source_component|sourceComponent"
+      ],
+      "dedupeKeyRequired": false,
+      "guestAllowed": true,
+      "adminExcludedFromUserAnalytics": false,
+      "legacyDeprecated": false,
+      "auditCoveredBy": [],
+      "missingFieldsRisk": "medium"
+    },
+    {
+      "eventName": "viewer_asset_completed",
+      "aliases": [],
+      "version": 1,
+      "family": "drop",
+      "emittedFrom": [
+        "src/app/dashboard/viewer/adapters/ViewerTelemetryAdapter.ts",
+        "src/lib/tasks/task-catalog.ts"
+      ],
+      "consumedBy": [
+        "src/lib/server/admin-analytics-context.ts",
+        "src/lib/server/admin-analytics-historical-viewer.ts"
+      ],
+      "requiredActorFields": [],
+      "requiredObjectFields": [
+        "drop_id|dropId"
+      ],
+      "requiredSurfaceFields": [
+        "route|page_path|pagePath|surface|source_component|sourceComponent"
+      ],
+      "dedupeKeyRequired": false,
+      "guestAllowed": true,
+      "adminExcludedFromUserAnalytics": false,
+      "legacyDeprecated": false,
+      "auditCoveredBy": [],
+      "missingFieldsRisk": "medium"
+    },
+    {
+      "eventName": "viewer_asset_consumed",
+      "aliases": [],
+      "version": 1,
+      "family": "drop",
+      "emittedFrom": [
+        "src/app/dashboard/viewer/adapters/ViewerTelemetryAdapter.ts",
+        "src/lib/tasks/task-catalog.ts"
+      ],
+      "consumedBy": [
+        "src/lib/server/admin-analytics-context.ts",
+        "src/lib/server/admin-analytics-historical-content.ts",
+        "src/lib/server/admin-analytics-historical-viewer.ts"
+      ],
+      "requiredActorFields": [],
+      "requiredObjectFields": [
+        "drop_id|dropId"
+      ],
+      "requiredSurfaceFields": [
+        "route|page_path|pagePath|surface|source_component|sourceComponent"
+      ],
+      "dedupeKeyRequired": false,
+      "guestAllowed": true,
+      "adminExcludedFromUserAnalytics": false,
+      "legacyDeprecated": false,
+      "auditCoveredBy": [],
+      "missingFieldsRisk": "medium"
+    },
+    {
+      "eventName": "video_played",
+      "aliases": [],
+      "version": 1,
+      "family": "engagement",
+      "emittedFrom": [
+        "src/app/dashboard/viewer/components/MediaViewer.tsx"
+      ],
+      "consumedBy": [],
+      "requiredActorFields": [],
+      "requiredObjectFields": [],
+      "requiredSurfaceFields": [],
+      "dedupeKeyRequired": false,
+      "guestAllowed": true,
+      "adminExcludedFromUserAnalytics": false,
+      "legacyDeprecated": false,
+      "auditCoveredBy": [],
+      "missingFieldsRisk": "low"
+    },
+    {
+      "eventName": "viewer_watch_checkpoint",
+      "aliases": [],
+      "version": 1,
+      "family": "drop",
+      "emittedFrom": [
+        "src/app/dashboard/viewer/adapters/ViewerTelemetryAdapter.ts",
+        "src/lib/tasks/task-catalog.ts"
+      ],
+      "consumedBy": [
+        "src/lib/server/admin-analytics-historical-content.ts"
+      ],
+      "requiredActorFields": [],
+      "requiredObjectFields": [
+        "drop_id|dropId"
+      ],
+      "requiredSurfaceFields": [
+        "route|page_path|pagePath|surface|source_component|sourceComponent"
+      ],
+      "dedupeKeyRequired": false,
+      "guestAllowed": true,
+      "adminExcludedFromUserAnalytics": false,
+      "legacyDeprecated": false,
+      "auditCoveredBy": [],
+      "missingFieldsRisk": "medium"
+    },
+    {
+      "eventName": "viewer_content_loaded",
+      "aliases": [],
+      "version": 1,
+      "family": "drop",
+      "emittedFrom": [
+        "src/app/dashboard/viewer/adapters/ViewerTelemetryAdapter.ts"
+      ],
+      "consumedBy": [
+        "src/lib/server/admin-analytics-historical-viewer.ts"
+      ],
+      "requiredActorFields": [],
+      "requiredObjectFields": [
+        "drop_id|dropId"
+      ],
+      "requiredSurfaceFields": [
+        "route|page_path|pagePath|surface|source_component|sourceComponent"
+      ],
+      "dedupeKeyRequired": false,
+      "guestAllowed": true,
+      "adminExcludedFromUserAnalytics": false,
+      "legacyDeprecated": false,
+      "auditCoveredBy": [],
+      "missingFieldsRisk": "medium"
+    },
+    {
+      "eventName": "viewer_source_downloaded",
+      "aliases": [],
+      "version": 1,
+      "family": "drop",
+      "emittedFrom": [
+        "src/app/dashboard/viewer/adapters/ViewerTelemetryAdapter.ts",
+        "src/lib/tasks/task-catalog.ts"
+      ],
+      "consumedBy": [
+        "src/lib/server/admin-analytics-historical-viewer.ts"
+      ],
+      "requiredActorFields": [],
+      "requiredObjectFields": [
+        "drop_id|dropId"
+      ],
+      "requiredSurfaceFields": [
+        "route|page_path|pagePath|surface|source_component|sourceComponent"
+      ],
+      "dedupeKeyRequired": false,
+      "guestAllowed": true,
+      "adminExcludedFromUserAnalytics": false,
+      "legacyDeprecated": false,
+      "auditCoveredBy": [],
+      "missingFieldsRisk": "medium"
+    },
+    {
+      "eventName": "viewer_related_drop_clicked",
+      "aliases": [],
+      "version": 1,
+      "family": "drop",
+      "emittedFrom": [
+        "src/app/dashboard/viewer/adapters/ViewerTelemetryAdapter.ts",
+        "src/lib/tasks/task-catalog.ts"
+      ],
+      "consumedBy": [
+        "src/lib/server/admin-analytics-historical-viewer.ts",
+        "src/lib/server/analytics-metrics.ts",
+        "src/lib/server/analytics-semantics.ts"
+      ],
+      "requiredActorFields": [],
+      "requiredObjectFields": [
+        "drop_id|dropId"
+      ],
+      "requiredSurfaceFields": [
+        "route|page_path|pagePath|surface|source_component|sourceComponent"
+      ],
+      "dedupeKeyRequired": false,
+      "guestAllowed": true,
+      "adminExcludedFromUserAnalytics": false,
+      "legacyDeprecated": false,
+      "auditCoveredBy": [],
+      "missingFieldsRisk": "medium"
+    },
+    {
+      "eventName": "viewer_backgrounded",
+      "aliases": [],
+      "version": 1,
+      "family": "drop",
+      "emittedFrom": [
+        "src/app/dashboard/viewer/adapters/ViewerTelemetryAdapter.ts",
+        "src/components/Analytics/DeepTracker.tsx"
+      ],
+      "consumedBy": [],
+      "requiredActorFields": [],
+      "requiredObjectFields": [
+        "drop_id|dropId"
+      ],
+      "requiredSurfaceFields": [
+        "route|page_path|pagePath|surface|source_component|sourceComponent"
+      ],
+      "dedupeKeyRequired": false,
+      "guestAllowed": true,
+      "adminExcludedFromUserAnalytics": false,
+      "legacyDeprecated": false,
+      "auditCoveredBy": [],
+      "missingFieldsRisk": "medium"
+    },
+    {
+      "eventName": "creator_followed",
+      "aliases": [],
+      "version": 1,
+      "family": "creator",
+      "emittedFrom": [
+        "src/app/creators/[username]/CreatorProfileClient.tsx"
+      ],
+      "consumedBy": [],
+      "requiredActorFields": [],
+      "requiredObjectFields": [],
+      "requiredSurfaceFields": [],
+      "dedupeKeyRequired": false,
+      "guestAllowed": true,
+      "adminExcludedFromUserAnalytics": false,
+      "legacyDeprecated": false,
+      "auditCoveredBy": [],
+      "missingFieldsRisk": "low"
+    },
+    {
+      "eventName": "creator_unfollowed",
+      "aliases": [],
+      "version": 1,
+      "family": "creator",
+      "emittedFrom": [
+        "src/app/creators/[username]/CreatorProfileClient.tsx"
+      ],
+      "consumedBy": [],
+      "requiredActorFields": [],
+      "requiredObjectFields": [],
+      "requiredSurfaceFields": [],
+      "dedupeKeyRequired": false,
+      "guestAllowed": true,
+      "adminExcludedFromUserAnalytics": false,
+      "legacyDeprecated": false,
+      "auditCoveredBy": [],
+      "missingFieldsRisk": "low"
+    },
+    {
+      "eventName": "creator_notifications_enabled",
+      "aliases": [],
+      "version": 1,
+      "family": "notification",
+      "emittedFrom": [
+        "src/app/api/creator/relationships/route.ts"
+      ],
+      "consumedBy": [],
+      "requiredActorFields": [
+        "recipient_id|recipientId|user_id|userId|target audience"
+      ],
+      "requiredObjectFields": [
+        "notification_id|notificationId|idempotency_key|idempotencyKey|tag",
+        "notification_type|notificationType|type|lifecycle_event|lifecycleEvent"
+      ],
+      "requiredSurfaceFields": [],
+      "dedupeKeyRequired": true,
+      "guestAllowed": true,
+      "adminExcludedFromUserAnalytics": false,
+      "legacyDeprecated": false,
+      "auditCoveredBy": [],
+      "missingFieldsRisk": "high"
+    },
+    {
+      "eventName": "creator_notifications_disabled",
+      "aliases": [],
+      "version": 1,
+      "family": "notification",
+      "emittedFrom": [
+        "src/app/api/creator/relationships/route.ts"
+      ],
+      "consumedBy": [],
+      "requiredActorFields": [
+        "recipient_id|recipientId|user_id|userId|target audience"
+      ],
+      "requiredObjectFields": [
+        "notification_id|notificationId|idempotency_key|idempotencyKey|tag",
+        "notification_type|notificationType|type|lifecycle_event|lifecycleEvent"
+      ],
+      "requiredSurfaceFields": [],
+      "dedupeKeyRequired": true,
+      "guestAllowed": true,
+      "adminExcludedFromUserAnalytics": false,
+      "legacyDeprecated": false,
+      "auditCoveredBy": [],
+      "missingFieldsRisk": "high"
+    },
+    {
+      "eventName": "creator_profile_viewed",
+      "aliases": [],
+      "version": 1,
+      "family": "creator",
+      "emittedFrom": [
+        "src/app/creators/[username]/CreatorProfileClient.tsx"
+      ],
+      "consumedBy": [],
+      "requiredActorFields": [],
+      "requiredObjectFields": [],
+      "requiredSurfaceFields": [],
+      "dedupeKeyRequired": false,
+      "guestAllowed": true,
+      "adminExcludedFromUserAnalytics": false,
+      "legacyDeprecated": false,
+      "auditCoveredBy": [],
+      "missingFieldsRisk": "low"
+    },
+    {
+      "eventName": "creator_broadcast_opened",
+      "aliases": [],
+      "version": 1,
+      "family": "creator",
+      "emittedFrom": [
+        "src/app/creators/[username]/CreatorProfileClient.tsx"
+      ],
+      "consumedBy": [],
+      "requiredActorFields": [],
+      "requiredObjectFields": [],
+      "requiredSurfaceFields": [],
+      "dedupeKeyRequired": false,
+      "guestAllowed": true,
+      "adminExcludedFromUserAnalytics": false,
+      "legacyDeprecated": false,
+      "auditCoveredBy": [],
+      "missingFieldsRisk": "low"
+    },
+    {
+      "eventName": "creator_message_sent",
+      "aliases": [],
+      "version": 1,
+      "family": "chat_message",
+      "emittedFrom": [
+        "src/lib/server/chat.ts"
+      ],
+      "consumedBy": [],
+      "requiredActorFields": [
+        "user_id|userId|authenticated caller"
+      ],
+      "requiredObjectFields": [
+        "conversation_id|conversationId|thread_id|threadId",
+        "message_id|messageId|idempotency_key|idempotencyKey"
+      ],
+      "requiredSurfaceFields": [],
+      "dedupeKeyRequired": true,
+      "guestAllowed": true,
+      "adminExcludedFromUserAnalytics": false,
+      "legacyDeprecated": false,
+      "auditCoveredBy": [],
+      "missingFieldsRisk": "medium"
+    },
+    {
+      "eventName": "creator_media_sent",
+      "aliases": [],
+      "version": 1,
+      "family": "chat_message",
+      "emittedFrom": [
+        "src/lib/server/chat.ts"
+      ],
+      "consumedBy": [],
+      "requiredActorFields": [
+        "user_id|userId|authenticated caller"
+      ],
+      "requiredObjectFields": [
+        "conversation_id|conversationId|thread_id|threadId",
+        "message_id|messageId|idempotency_key|idempotencyKey"
+      ],
+      "requiredSurfaceFields": [],
+      "dedupeKeyRequired": true,
+      "guestAllowed": true,
+      "adminExcludedFromUserAnalytics": false,
+      "legacyDeprecated": false,
+      "auditCoveredBy": [],
+      "missingFieldsRisk": "medium"
+    },
+    {
+      "eventName": "creator_custom_request_created",
+      "aliases": [],
+      "version": 1,
+      "family": "creator",
+      "emittedFrom": [
+        "src/app/api/creator/requests/route.ts"
+      ],
+      "consumedBy": [],
+      "requiredActorFields": [],
+      "requiredObjectFields": [],
+      "requiredSurfaceFields": [],
+      "dedupeKeyRequired": false,
+      "guestAllowed": true,
+      "adminExcludedFromUserAnalytics": false,
+      "legacyDeprecated": false,
+      "auditCoveredBy": [],
+      "missingFieldsRisk": "low"
+    },
+    {
+      "eventName": "creator_custom_request_accepted",
+      "aliases": [],
+      "version": 1,
+      "family": "creator",
+      "emittedFrom": [
+        "src/app/api/creator/requests/route.ts"
+      ],
+      "consumedBy": [],
+      "requiredActorFields": [],
+      "requiredObjectFields": [],
+      "requiredSurfaceFields": [],
+      "dedupeKeyRequired": false,
+      "guestAllowed": true,
+      "adminExcludedFromUserAnalytics": false,
+      "legacyDeprecated": false,
+      "auditCoveredBy": [],
+      "missingFieldsRisk": "low"
+    },
+    {
+      "eventName": "creator_custom_request_declined",
+      "aliases": [],
+      "version": 1,
+      "family": "creator",
+      "emittedFrom": [
+        "src/app/api/creator/requests/route.ts"
+      ],
+      "consumedBy": [],
+      "requiredActorFields": [],
+      "requiredObjectFields": [],
+      "requiredSurfaceFields": [],
+      "dedupeKeyRequired": false,
+      "guestAllowed": true,
+      "adminExcludedFromUserAnalytics": false,
+      "legacyDeprecated": false,
+      "auditCoveredBy": [],
+      "missingFieldsRisk": "low"
+    },
+    {
+      "eventName": "creator_call_booking_created",
+      "aliases": [],
+      "version": 1,
+      "family": "creator",
+      "emittedFrom": [
+        "src/app/api/creator/bookings/route.ts"
+      ],
+      "consumedBy": [],
+      "requiredActorFields": [],
+      "requiredObjectFields": [],
+      "requiredSurfaceFields": [],
+      "dedupeKeyRequired": false,
+      "guestAllowed": true,
+      "adminExcludedFromUserAnalytics": false,
+      "legacyDeprecated": false,
+      "auditCoveredBy": [],
+      "missingFieldsRisk": "low"
+    },
+    {
+      "eventName": "creator_call_booking_completed",
+      "aliases": [],
+      "version": 1,
+      "family": "creator",
+      "emittedFrom": [
+        "src/app/api/creator/bookings/route.ts"
+      ],
+      "consumedBy": [],
+      "requiredActorFields": [],
+      "requiredObjectFields": [],
+      "requiredSurfaceFields": [],
+      "dedupeKeyRequired": false,
+      "guestAllowed": true,
+      "adminExcludedFromUserAnalytics": false,
+      "legacyDeprecated": false,
+      "auditCoveredBy": [],
+      "missingFieldsRisk": "low"
+    },
+    {
+      "eventName": "creator_subscription_started",
+      "aliases": [],
+      "version": 1,
+      "family": "purchase",
+      "emittedFrom": [
+        "src/app/api/creator/subscriptions/route.ts"
+      ],
+      "consumedBy": [],
+      "requiredActorFields": [
+        "user_id|userId|authenticated caller"
+      ],
+      "requiredObjectFields": [],
+      "requiredSurfaceFields": [
+        "route|page_path|pagePath|surface|source_component|sourceComponent"
+      ],
+      "dedupeKeyRequired": false,
+      "guestAllowed": true,
+      "adminExcludedFromUserAnalytics": false,
+      "legacyDeprecated": false,
+      "auditCoveredBy": [],
+      "missingFieldsRisk": "high"
+    },
+    {
+      "eventName": "creator_subscription_renewed",
+      "aliases": [],
+      "version": 1,
+      "family": "purchase",
+      "emittedFrom": [
+        "src/app/api/cron/process-creator-subscriptions/route.ts"
+      ],
+      "consumedBy": [],
+      "requiredActorFields": [
+        "user_id|userId|authenticated caller"
+      ],
+      "requiredObjectFields": [],
+      "requiredSurfaceFields": [
+        "route|page_path|pagePath|surface|source_component|sourceComponent"
+      ],
+      "dedupeKeyRequired": false,
+      "guestAllowed": true,
+      "adminExcludedFromUserAnalytics": false,
+      "legacyDeprecated": false,
+      "auditCoveredBy": [],
+      "missingFieldsRisk": "high"
+    },
+    {
+      "eventName": "creator_subscription_failed",
+      "aliases": [],
+      "version": 1,
+      "family": "purchase",
+      "emittedFrom": [
+        "src/app/api/cron/process-creator-subscriptions/route.ts"
+      ],
+      "consumedBy": [],
+      "requiredActorFields": [
+        "user_id|userId|authenticated caller"
+      ],
+      "requiredObjectFields": [],
+      "requiredSurfaceFields": [
+        "route|page_path|pagePath|surface|source_component|sourceComponent"
+      ],
+      "dedupeKeyRequired": false,
+      "guestAllowed": true,
+      "adminExcludedFromUserAnalytics": false,
+      "legacyDeprecated": false,
+      "auditCoveredBy": [],
+      "missingFieldsRisk": "high"
+    },
+    {
+      "eventName": "creator_subscription_canceled",
+      "aliases": [],
+      "version": 1,
+      "family": "purchase",
+      "emittedFrom": [
+        "src/app/api/creator/subscriptions/route.ts"
+      ],
+      "consumedBy": [],
+      "requiredActorFields": [
+        "user_id|userId|authenticated caller"
+      ],
+      "requiredObjectFields": [],
+      "requiredSurfaceFields": [
+        "route|page_path|pagePath|surface|source_component|sourceComponent"
+      ],
+      "dedupeKeyRequired": false,
+      "guestAllowed": true,
+      "adminExcludedFromUserAnalytics": false,
+      "legacyDeprecated": false,
+      "auditCoveredBy": [],
+      "missingFieldsRisk": "high"
+    },
+    {
+      "eventName": "creator_drop_unwrapped",
+      "aliases": [],
+      "version": 1,
+      "family": "unlock",
+      "emittedFrom": [
+        "src/app/api/drops/unlock/route.ts"
+      ],
+      "consumedBy": [],
+      "requiredActorFields": [
+        "user_id|userId|authenticated caller"
+      ],
+      "requiredObjectFields": [
+        "drop_id|dropId",
+        "transaction_id|transactionId|dedupeKey|idempotency_key|idempotencyKey"
+      ],
+      "requiredSurfaceFields": [
+        "route|page_path|pagePath|surface|source_component|sourceComponent"
+      ],
+      "dedupeKeyRequired": true,
+      "guestAllowed": false,
+      "adminExcludedFromUserAnalytics": false,
+      "legacyDeprecated": false,
+      "auditCoveredBy": [],
+      "missingFieldsRisk": "high"
+    },
+    {
+      "eventName": "creator_ledger_accrual_created",
+      "aliases": [],
+      "version": 1,
+      "family": "purchase",
+      "emittedFrom": [
+        "src/app/api/creator/bookings/route.ts",
+        "src/app/api/creator/requests/route.ts",
+        "src/app/api/creator/subscriptions/route.ts",
+        "src/app/api/cron/process-creator-subscriptions/route.ts",
+        "src/lib/server/chat.ts"
+      ],
+      "consumedBy": [],
+      "requiredActorFields": [
+        "user_id|userId|authenticated caller"
+      ],
+      "requiredObjectFields": [],
+      "requiredSurfaceFields": [
+        "route|page_path|pagePath|surface|source_component|sourceComponent"
+      ],
+      "dedupeKeyRequired": false,
+      "guestAllowed": true,
+      "adminExcludedFromUserAnalytics": false,
+      "legacyDeprecated": false,
+      "auditCoveredBy": [],
+      "missingFieldsRisk": "high"
+    },
+    {
+      "eventName": "creator_cashout_requested",
+      "aliases": [],
+      "version": 1,
+      "family": "purchase",
+      "emittedFrom": [
+        "src/app/api/creator/payouts/route.ts"
+      ],
+      "consumedBy": [],
+      "requiredActorFields": [
+        "user_id|userId|authenticated caller"
+      ],
+      "requiredObjectFields": [],
+      "requiredSurfaceFields": [
+        "route|page_path|pagePath|surface|source_component|sourceComponent"
+      ],
+      "dedupeKeyRequired": false,
+      "guestAllowed": true,
+      "adminExcludedFromUserAnalytics": false,
+      "legacyDeprecated": false,
+      "auditCoveredBy": [],
+      "missingFieldsRisk": "high"
+    },
+    {
+      "eventName": "creator_cashout_honored",
+      "aliases": [],
+      "version": 1,
+      "family": "purchase",
+      "emittedFrom": [
+        "src/app/api/creator/payouts/route.ts"
+      ],
+      "consumedBy": [],
+      "requiredActorFields": [
+        "user_id|userId|authenticated caller"
+      ],
+      "requiredObjectFields": [],
+      "requiredSurfaceFields": [
+        "route|page_path|pagePath|surface|source_component|sourceComponent"
+      ],
+      "dedupeKeyRequired": false,
+      "guestAllowed": true,
+      "adminExcludedFromUserAnalytics": false,
+      "legacyDeprecated": false,
+      "auditCoveredBy": [],
+      "missingFieldsRisk": "high"
+    },
+    {
+      "eventName": "notifications_dropdown_opened",
+      "aliases": [],
+      "version": 1,
+      "family": "notification",
+      "emittedFrom": [
+        "src/components/Navigation/NotificationBell.tsx",
+        "src/lib/tasks/task-catalog.ts"
+      ],
+      "consumedBy": [
+        "src/lib/server/admin-analytics-historical-engagement.ts"
+      ],
+      "requiredActorFields": [
+        "recipient_id|recipientId|user_id|userId|target audience"
+      ],
+      "requiredObjectFields": [
+        "notification_id|notificationId|idempotency_key|idempotencyKey|tag",
+        "notification_type|notificationType|type|lifecycle_event|lifecycleEvent"
+      ],
+      "requiredSurfaceFields": [],
+      "dedupeKeyRequired": true,
+      "guestAllowed": true,
+      "adminExcludedFromUserAnalytics": false,
+      "legacyDeprecated": false,
+      "auditCoveredBy": [],
+      "missingFieldsRisk": "high"
+    },
+    {
+      "eventName": "notification_opened",
+      "aliases": [],
+      "version": 1,
+      "family": "notification",
+      "emittedFrom": [
+        "src/components/Navigation/NotificationBell.tsx",
+        "src/components/Notifications/NotificationRuntimeBridge.tsx",
+        "src/lib/tasks/task-catalog.ts"
+      ],
+      "consumedBy": [
+        "src/lib/analytics/legacy-event-mapping.ts",
+        "src/lib/server/admin-analytics-historical-engagement.ts"
+      ],
+      "requiredActorFields": [
+        "recipient_id|recipientId|user_id|userId|target audience"
+      ],
+      "requiredObjectFields": [
+        "notification_id|notificationId|idempotency_key|idempotencyKey|tag",
+        "notification_type|notificationType|type|lifecycle_event|lifecycleEvent"
+      ],
+      "requiredSurfaceFields": [],
+      "dedupeKeyRequired": true,
+      "guestAllowed": true,
+      "adminExcludedFromUserAnalytics": false,
+      "legacyDeprecated": false,
+      "auditCoveredBy": [],
+      "missingFieldsRisk": "high"
+    },
+    {
+      "eventName": "notification_marked_read",
+      "aliases": [
+        "notification_read"
+      ],
+      "version": 1,
+      "family": "notification",
+      "emittedFrom": [
+        "src/hooks/useNotifications.ts",
+        "src/lib/tasks/task-catalog.ts"
+      ],
+      "consumedBy": [
+        "src/lib/analytics/legacy-event-mapping.ts",
+        "src/lib/server/admin-analytics-historical-engagement.ts"
+      ],
+      "requiredActorFields": [
+        "recipient_id|recipientId|user_id|userId|target audience"
+      ],
+      "requiredObjectFields": [
+        "notification_id|notificationId|idempotency_key|idempotencyKey|tag",
+        "notification_type|notificationType|type|lifecycle_event|lifecycleEvent"
+      ],
+      "requiredSurfaceFields": [],
+      "dedupeKeyRequired": true,
+      "guestAllowed": true,
+      "adminExcludedFromUserAnalytics": false,
+      "legacyDeprecated": false,
+      "auditCoveredBy": [],
+      "missingFieldsRisk": "high"
+    },
+    {
+      "eventName": "notification_mark_all_read",
+      "aliases": [],
+      "version": 1,
+      "family": "notification",
+      "emittedFrom": [
+        "src/hooks/useNotifications.ts"
+      ],
+      "consumedBy": [
+        "src/lib/server/admin-analytics-historical-engagement.ts"
+      ],
+      "requiredActorFields": [
+        "recipient_id|recipientId|user_id|userId|target audience"
+      ],
+      "requiredObjectFields": [
+        "notification_id|notificationId|idempotency_key|idempotencyKey|tag",
+        "notification_type|notificationType|type|lifecycle_event|lifecycleEvent"
+      ],
+      "requiredSurfaceFields": [],
+      "dedupeKeyRequired": true,
+      "guestAllowed": true,
+      "adminExcludedFromUserAnalytics": false,
+      "legacyDeprecated": false,
+      "auditCoveredBy": [],
+      "missingFieldsRisk": "high"
+    },
+    {
+      "eventName": "notification_cleared",
+      "aliases": [],
+      "version": 1,
+      "family": "notification",
+      "emittedFrom": [
+        "src/hooks/useNotifications.ts"
+      ],
+      "consumedBy": [
+        "src/lib/analytics/legacy-event-mapping.ts"
+      ],
+      "requiredActorFields": [
+        "recipient_id|recipientId|user_id|userId|target audience"
+      ],
+      "requiredObjectFields": [
+        "notification_id|notificationId|idempotency_key|idempotencyKey|tag",
+        "notification_type|notificationType|type|lifecycle_event|lifecycleEvent"
+      ],
+      "requiredSurfaceFields": [],
+      "dedupeKeyRequired": true,
+      "guestAllowed": true,
+      "adminExcludedFromUserAnalytics": false,
+      "legacyDeprecated": false,
+      "auditCoveredBy": [
+        "notification_mark_all_read"
+      ],
+      "missingFieldsRisk": "high"
+    },
+    {
+      "eventName": "task_notifications_enabled",
+      "aliases": [
+        "notification_enabled"
+      ],
+      "version": 1,
+      "family": "notification",
+      "emittedFrom": [
+        "src/components/Dashboard/NotificationPromptBanner.tsx",
+        "src/hooks/useTaskGuidanceActions.ts",
+        "src/lib/tasks/task-catalog.ts"
+      ],
+      "consumedBy": [
+        "src/lib/server/admin-analytics-historical-engagement.ts",
+        "src/lib/server/analytics-metrics.ts"
+      ],
+      "requiredActorFields": [
+        "recipient_id|recipientId|user_id|userId|target audience"
+      ],
+      "requiredObjectFields": [
+        "notification_id|notificationId|idempotency_key|idempotencyKey|tag",
+        "notification_type|notificationType|type|lifecycle_event|lifecycleEvent"
+      ],
+      "requiredSurfaceFields": [],
+      "dedupeKeyRequired": true,
+      "guestAllowed": true,
+      "adminExcludedFromUserAnalytics": false,
+      "legacyDeprecated": false,
+      "auditCoveredBy": [],
+      "missingFieldsRisk": "high"
+    },
+    {
+      "eventName": "notification_prompt_banner_viewed",
+      "aliases": [
+        "notification_prompted"
+      ],
+      "version": 1,
+      "family": "notification",
+      "emittedFrom": [
+        "src/components/Dashboard/NotificationPromptBanner.tsx"
+      ],
+      "consumedBy": [
+        "src/lib/server/admin-analytics-historical-engagement.ts",
+        "src/lib/server/analytics-metrics.ts"
+      ],
+      "requiredActorFields": [],
+      "requiredObjectFields": [],
+      "requiredSurfaceFields": [],
+      "dedupeKeyRequired": true,
+      "guestAllowed": true,
+      "adminExcludedFromUserAnalytics": false,
+      "legacyDeprecated": false,
+      "auditCoveredBy": [],
+      "missingFieldsRisk": "low"
+    },
+    {
+      "eventName": "notification_prompt_banner_dismissed",
+      "aliases": [],
+      "version": 1,
+      "family": "notification",
+      "emittedFrom": [
+        "src/components/Dashboard/NotificationPromptBanner.tsx"
+      ],
+      "consumedBy": [
+        "src/lib/server/admin-analytics-historical-engagement.ts"
+      ],
+      "requiredActorFields": [],
+      "requiredObjectFields": [],
+      "requiredSurfaceFields": [],
+      "dedupeKeyRequired": true,
+      "guestAllowed": true,
+      "adminExcludedFromUserAnalytics": false,
+      "legacyDeprecated": false,
+      "auditCoveredBy": [],
+      "missingFieldsRisk": "low"
+    },
+    {
+      "eventName": "notification_prompt_install_help_opened",
+      "aliases": [],
+      "version": 1,
+      "family": "notification",
+      "emittedFrom": [
+        "src/components/Dashboard/NotificationPromptBanner.tsx"
+      ],
+      "consumedBy": [],
+      "requiredActorFields": [],
+      "requiredObjectFields": [],
+      "requiredSurfaceFields": [],
+      "dedupeKeyRequired": true,
+      "guestAllowed": true,
+      "adminExcludedFromUserAnalytics": false,
+      "legacyDeprecated": false,
+      "auditCoveredBy": [],
+      "missingFieldsRisk": "low"
+    },
+    {
+      "eventName": "notification_sent",
+      "aliases": [],
+      "version": 1,
+      "family": "notification",
+      "emittedFrom": [],
+      "consumedBy": [
+        "src/lib/analytics/legacy-event-mapping.ts"
+      ],
+      "requiredActorFields": [
+        "recipient_id|recipientId|user_id|userId|target audience"
+      ],
+      "requiredObjectFields": [
+        "notification_id|notificationId|idempotency_key|idempotencyKey|tag",
+        "notification_type|notificationType|type|lifecycle_event|lifecycleEvent"
+      ],
+      "requiredSurfaceFields": [],
+      "dedupeKeyRequired": true,
+      "guestAllowed": true,
+      "adminExcludedFromUserAnalytics": false,
+      "legacyDeprecated": false,
+      "auditCoveredBy": [
+        "daily_task_deadline_reminder_sent"
+      ],
+      "missingFieldsRisk": "high"
+    },
+    {
+      "eventName": "notification_duplicate_prevented",
+      "aliases": [],
+      "version": 1,
+      "family": "notification",
+      "emittedFrom": [],
+      "consumedBy": [],
+      "requiredActorFields": [
+        "recipient_id|recipientId|user_id|userId|target audience"
+      ],
+      "requiredObjectFields": [
+        "notification_id|notificationId|idempotency_key|idempotencyKey|tag",
+        "notification_type|notificationType|type|lifecycle_event|lifecycleEvent"
+      ],
+      "requiredSurfaceFields": [],
+      "dedupeKeyRequired": true,
+      "guestAllowed": true,
+      "adminExcludedFromUserAnalytics": false,
+      "legacyDeprecated": false,
+      "auditCoveredBy": [
+        "daily_deadline_browser_notification_shown"
+      ],
+      "missingFieldsRisk": "high"
+    },
+    {
+      "eventName": "queued_drop_returned_live",
+      "aliases": [],
+      "version": 1,
+      "family": "notification",
+      "emittedFrom": [],
+      "consumedBy": [],
+      "requiredActorFields": [
+        "recipient_id|recipientId|user_id|userId|target audience"
+      ],
+      "requiredObjectFields": [
+        "notification_id|notificationId|idempotency_key|idempotencyKey|tag",
+        "notification_type|notificationType|type|lifecycle_event|lifecycleEvent"
+      ],
+      "requiredSurfaceFields": [],
+      "dedupeKeyRequired": true,
+      "guestAllowed": true,
+      "adminExcludedFromUserAnalytics": false,
+      "legacyDeprecated": false,
+      "auditCoveredBy": [
+        "notification_opened"
+      ],
+      "missingFieldsRisk": "high"
+    },
+    {
+      "eventName": "daily_deadline_in_app_reminder_shown",
+      "aliases": [],
+      "version": 1,
+      "family": "notification",
+      "emittedFrom": [
+        "src/components/Notifications/NotificationRuntimeBridge.tsx"
+      ],
+      "consumedBy": [],
+      "requiredActorFields": [
+        "recipient_id|recipientId|user_id|userId|target audience"
+      ],
+      "requiredObjectFields": [
+        "notification_id|notificationId|idempotency_key|idempotencyKey|tag",
+        "notification_type|notificationType|type|lifecycle_event|lifecycleEvent"
+      ],
+      "requiredSurfaceFields": [],
+      "dedupeKeyRequired": true,
+      "guestAllowed": true,
+      "adminExcludedFromUserAnalytics": false,
+      "legacyDeprecated": false,
+      "auditCoveredBy": [],
+      "missingFieldsRisk": "high"
+    },
+    {
+      "eventName": "daily_deadline_in_app_reminder_opened",
+      "aliases": [],
+      "version": 1,
+      "family": "notification",
+      "emittedFrom": [
+        "src/components/Notifications/NotificationRuntimeBridge.tsx"
+      ],
+      "consumedBy": [],
+      "requiredActorFields": [
+        "recipient_id|recipientId|user_id|userId|target audience"
+      ],
+      "requiredObjectFields": [
+        "notification_id|notificationId|idempotency_key|idempotencyKey|tag",
+        "notification_type|notificationType|type|lifecycle_event|lifecycleEvent"
+      ],
+      "requiredSurfaceFields": [],
+      "dedupeKeyRequired": true,
+      "guestAllowed": true,
+      "adminExcludedFromUserAnalytics": false,
+      "legacyDeprecated": false,
+      "auditCoveredBy": [],
+      "missingFieldsRisk": "high"
+    },
+    {
+      "eventName": "daily_deadline_in_app_reminder_dismissed",
+      "aliases": [],
+      "version": 1,
+      "family": "notification",
+      "emittedFrom": [
+        "src/components/Notifications/NotificationRuntimeBridge.tsx"
+      ],
+      "consumedBy": [],
+      "requiredActorFields": [
+        "recipient_id|recipientId|user_id|userId|target audience"
+      ],
+      "requiredObjectFields": [
+        "notification_id|notificationId|idempotency_key|idempotencyKey|tag",
+        "notification_type|notificationType|type|lifecycle_event|lifecycleEvent"
+      ],
+      "requiredSurfaceFields": [],
+      "dedupeKeyRequired": true,
+      "guestAllowed": true,
+      "adminExcludedFromUserAnalytics": false,
+      "legacyDeprecated": false,
+      "auditCoveredBy": [],
+      "missingFieldsRisk": "high"
+    },
+    {
+      "eventName": "feedback_modal_opened",
+      "aliases": [],
+      "version": 1,
+      "family": "task",
+      "emittedFrom": [
+        "src/components/Feedback/ReportBugButton.tsx",
+        "src/hooks/useTaskGuidanceActions.ts"
+      ],
+      "consumedBy": [],
+      "requiredActorFields": [],
+      "requiredObjectFields": [
+        "task_id|taskId|task_key|taskKey"
+      ],
+      "requiredSurfaceFields": [],
+      "dedupeKeyRequired": false,
+      "guestAllowed": true,
+      "adminExcludedFromUserAnalytics": false,
+      "legacyDeprecated": false,
+      "auditCoveredBy": [],
+      "missingFieldsRisk": "medium"
+    },
+    {
+      "eventName": "feedback_submitted",
+      "aliases": [],
+      "version": 1,
+      "family": "task",
+      "emittedFrom": [
+        "src/app/api/drops/feedback/route.ts",
+        "src/components/Dashboard/DailyTasksModule.tsx",
+        "src/components/Feedback/ReportBugButton.tsx",
+        "src/lib/tasks/task-catalog.ts"
+      ],
+      "consumedBy": [],
+      "requiredActorFields": [],
+      "requiredObjectFields": [
+        "task_id|taskId|task_key|taskKey"
+      ],
+      "requiredSurfaceFields": [],
+      "dedupeKeyRequired": false,
+      "guestAllowed": true,
+      "adminExcludedFromUserAnalytics": false,
+      "legacyDeprecated": false,
+      "auditCoveredBy": [],
+      "missingFieldsRisk": "medium"
+    },
+    {
+      "eventName": "feature_flag_exposed",
+      "aliases": [],
+      "version": 1,
+      "family": "system",
+      "emittedFrom": [
+        "src/context/RolloutContext.tsx"
+      ],
+      "consumedBy": [],
+      "requiredActorFields": [],
+      "requiredObjectFields": [],
+      "requiredSurfaceFields": [],
+      "dedupeKeyRequired": false,
+      "guestAllowed": true,
+      "adminExcludedFromUserAnalytics": false,
+      "legacyDeprecated": false,
+      "auditCoveredBy": [],
+      "missingFieldsRisk": "low"
+    },
+    {
+      "eventName": "experiment_variant_exposed",
+      "aliases": [],
+      "version": 1,
+      "family": "system",
+      "emittedFrom": [
+        "src/context/RolloutContext.tsx"
+      ],
+      "consumedBy": [],
+      "requiredActorFields": [],
+      "requiredObjectFields": [],
+      "requiredSurfaceFields": [],
+      "dedupeKeyRequired": false,
+      "guestAllowed": true,
+      "adminExcludedFromUserAnalytics": false,
+      "legacyDeprecated": false,
+      "auditCoveredBy": [],
+      "missingFieldsRisk": "low"
+    },
+    {
+      "eventName": "identity_linked",
+      "aliases": [],
+      "version": 1,
+      "family": "auth",
+      "emittedFrom": [],
+      "consumedBy": [
+        "src/lib/analytics/analytics-event-contract.ts"
+      ],
+      "requiredActorFields": [
+        "session_id|sessionId|anonymous_visitor_id|anonymousVisitorId|user_id|userId"
+      ],
+      "requiredObjectFields": [],
+      "requiredSurfaceFields": [
+        "method|provider",
+        "outcome|success|error_code",
+        "route|page_path|pagePath|surface|source_component"
+      ],
+      "dedupeKeyRequired": false,
+      "guestAllowed": true,
+      "adminExcludedFromUserAnalytics": false,
+      "legacyDeprecated": false,
+      "auditCoveredBy": [
+        "auth_sign_in_success",
+        "auth_sign_up_success"
+      ],
+      "missingFieldsRisk": "medium"
+    },
+    {
+      "eventName": "system_job_ran",
+      "aliases": [],
+      "version": 1,
+      "family": "system",
+      "emittedFrom": [],
+      "consumedBy": [],
+      "requiredActorFields": [],
+      "requiredObjectFields": [],
+      "requiredSurfaceFields": [],
+      "dedupeKeyRequired": false,
+      "guestAllowed": true,
+      "adminExcludedFromUserAnalytics": false,
+      "legacyDeprecated": false,
+      "auditCoveredBy": [
+        "feature_flag_exposed"
+      ],
+      "missingFieldsRisk": "low"
+    },
+    {
+      "eventName": "navigation_click",
+      "aliases": [],
+      "version": 1,
+      "family": "engagement",
+      "emittedFrom": [
+        "src/app/creators/[username]/CreatorProfileClient.tsx",
+        "src/app/creators/apply/page.tsx",
+        "src/components/CreatorDiscoveryRail.tsx",
+        "src/components/Dashboard/DailyTasksModule.tsx",
+        "src/components/Dashboard/LiveDropsForYouCarousel.tsx",
+        "src/components/Dashboard/RecentActivityFeed.tsx",
+        "src/components/Landing/HomeActiveDropsCarousel.tsx",
+        "src/components/Landing/HomeHowItWorksActions.tsx",
+        "src/components/Navbar.tsx",
+        "src/components/Navigation/MobileBottomBar.tsx",
+        "src/components/Navigation/ProfileDropdown.tsx",
+        "src/components/Navigation/ProfileSidebar.tsx",
+        "src/components/PurchaseModal.tsx"
+      ],
+      "consumedBy": [
+        "src/lib/server/admin-analytics-historical-engagement.ts",
+        "src/lib/server/analytics-metrics.ts",
+        "src/lib/server/analytics-semantics.ts"
+      ],
+      "requiredActorFields": [],
+      "requiredObjectFields": [],
+      "requiredSurfaceFields": [],
+      "dedupeKeyRequired": false,
+      "guestAllowed": true,
+      "adminExcludedFromUserAnalytics": false,
+      "legacyDeprecated": false,
+      "auditCoveredBy": [],
+      "missingFieldsRisk": "low"
+    },
+    {
+      "eventName": "semantic_page_viewed",
+      "aliases": [],
+      "version": 1,
+      "family": "page_view",
+      "emittedFrom": [
+        "src/components/Analytics/DeepTracker.tsx"
+      ],
+      "consumedBy": [
+        "src/lib/admin-analytics-live-runtime.ts",
+        "src/lib/server/analytics-metrics.ts",
+        "src/lib/server/analytics-semantics.ts"
+      ],
+      "requiredActorFields": [],
+      "requiredObjectFields": [],
+      "requiredSurfaceFields": [
+        "route|page_path|pagePath|surface|source_component|sourceComponent"
+      ],
+      "dedupeKeyRequired": false,
+      "guestAllowed": true,
+      "adminExcludedFromUserAnalytics": false,
+      "legacyDeprecated": false,
+      "auditCoveredBy": [],
+      "missingFieldsRisk": "medium"
+    },
+    {
+      "eventName": "semantic_page_engaged",
+      "aliases": [],
+      "version": 1,
+      "family": "page_view",
+      "emittedFrom": [
+        "src/app/api/admin/users/route.ts",
+        "src/components/Analytics/DeepTracker.tsx",
+        "src/lib/server/analytics-metrics.ts"
+      ],
+      "consumedBy": [
+        "src/lib/server/analytics-metrics.ts",
+        "src/lib/server/analytics-semantics.ts"
+      ],
+      "requiredActorFields": [],
+      "requiredObjectFields": [],
+      "requiredSurfaceFields": [
+        "route|page_path|pagePath|surface|source_component|sourceComponent"
+      ],
+      "dedupeKeyRequired": false,
+      "guestAllowed": true,
+      "adminExcludedFromUserAnalytics": false,
+      "legacyDeprecated": false,
+      "auditCoveredBy": [],
+      "missingFieldsRisk": "medium"
+    },
+    {
+      "eventName": "semantic_page_passive",
+      "aliases": [],
+      "version": 1,
+      "family": "page_view",
+      "emittedFrom": [
+        "src/app/api/admin/users/route.ts",
+        "src/components/Analytics/DeepTracker.tsx",
+        "src/lib/server/analytics-metrics.ts"
+      ],
+      "consumedBy": [
+        "src/lib/server/analytics-metrics.ts",
+        "src/lib/server/analytics-semantics.ts"
+      ],
+      "requiredActorFields": [],
+      "requiredObjectFields": [],
+      "requiredSurfaceFields": [
+        "route|page_path|pagePath|surface|source_component|sourceComponent"
+      ],
+      "dedupeKeyRequired": false,
+      "guestAllowed": true,
+      "adminExcludedFromUserAnalytics": false,
+      "legacyDeprecated": false,
+      "auditCoveredBy": [],
+      "missingFieldsRisk": "medium"
+    },
+    {
+      "eventName": "semantic_page_exited",
+      "aliases": [],
+      "version": 1,
+      "family": "page_view",
+      "emittedFrom": [
+        "src/components/Analytics/DeepTracker.tsx",
+        "src/lib/server/analytics-metrics.ts"
+      ],
+      "consumedBy": [
+        "src/lib/server/analytics-metrics.ts",
+        "src/lib/server/analytics-semantics.ts"
+      ],
+      "requiredActorFields": [],
+      "requiredObjectFields": [],
+      "requiredSurfaceFields": [
+        "route|page_path|pagePath|surface|source_component|sourceComponent"
+      ],
+      "dedupeKeyRequired": false,
+      "guestAllowed": true,
+      "adminExcludedFromUserAnalytics": false,
+      "legacyDeprecated": false,
+      "auditCoveredBy": [],
+      "missingFieldsRisk": "medium"
+    },
+    {
+      "eventName": "semantic_page_bounced",
+      "aliases": [],
+      "version": 1,
+      "family": "page_view",
+      "emittedFrom": [
+        "src/app/api/admin/users/route.ts",
+        "src/components/Analytics/DeepTracker.tsx",
+        "src/lib/server/analytics-metrics.ts"
+      ],
+      "consumedBy": [
+        "src/lib/server/analytics-metrics.ts",
+        "src/lib/server/analytics-semantics.ts"
+      ],
+      "requiredActorFields": [],
+      "requiredObjectFields": [],
+      "requiredSurfaceFields": [
+        "route|page_path|pagePath|surface|source_component|sourceComponent"
+      ],
+      "dedupeKeyRequired": false,
+      "guestAllowed": true,
+      "adminExcludedFromUserAnalytics": false,
+      "legacyDeprecated": false,
+      "auditCoveredBy": [],
+      "missingFieldsRisk": "medium"
+    },
+    {
+      "eventName": "semantic_target_clicked",
+      "aliases": [],
+      "version": 1,
+      "family": "engagement",
+      "emittedFrom": [
+        "src/components/Analytics/DeepTracker.tsx"
+      ],
+      "consumedBy": [
+        "src/lib/server/analytics-metrics.ts",
+        "src/lib/server/analytics-semantics.ts"
+      ],
+      "requiredActorFields": [],
+      "requiredObjectFields": [],
+      "requiredSurfaceFields": [],
+      "dedupeKeyRequired": false,
+      "guestAllowed": true,
+      "adminExcludedFromUserAnalytics": false,
+      "legacyDeprecated": false,
+      "auditCoveredBy": [],
+      "missingFieldsRisk": "low"
+    },
+    {
+      "eventName": "recent_activity_viewed",
+      "aliases": [],
+      "version": 1,
+      "family": "page_view",
+      "emittedFrom": [
+        "src/components/Dashboard/RecentActivityFeed.tsx"
+      ],
+      "consumedBy": [],
+      "requiredActorFields": [],
+      "requiredObjectFields": [],
+      "requiredSurfaceFields": [
+        "route|page_path|pagePath|surface|source_component|sourceComponent"
+      ],
+      "dedupeKeyRequired": false,
+      "guestAllowed": true,
+      "adminExcludedFromUserAnalytics": false,
+      "legacyDeprecated": false,
+      "auditCoveredBy": [],
+      "missingFieldsRisk": "medium"
+    },
+    {
+      "eventName": "recent_activity_toggled",
+      "aliases": [],
+      "version": 1,
+      "family": "engagement",
+      "emittedFrom": [
+        "src/components/Dashboard/RecentActivityFeed.tsx"
+      ],
+      "consumedBy": [],
+      "requiredActorFields": [],
+      "requiredObjectFields": [],
+      "requiredSurfaceFields": [],
+      "dedupeKeyRequired": false,
+      "guestAllowed": true,
+      "adminExcludedFromUserAnalytics": false,
+      "legacyDeprecated": false,
+      "auditCoveredBy": [],
+      "missingFieldsRisk": "low"
+    },
+    {
+      "eventName": "daily_tasks_viewed",
+      "aliases": [],
+      "version": 1,
+      "family": "task",
+      "emittedFrom": [
+        "src/components/Dashboard/DailyTasksModule.tsx"
+      ],
+      "consumedBy": [],
+      "requiredActorFields": [],
+      "requiredObjectFields": [
+        "task_id|taskId|task_key|taskKey"
+      ],
+      "requiredSurfaceFields": [],
+      "dedupeKeyRequired": false,
+      "guestAllowed": true,
+      "adminExcludedFromUserAnalytics": false,
+      "legacyDeprecated": false,
+      "auditCoveredBy": [],
+      "missingFieldsRisk": "medium"
+    },
+    {
+      "eventName": "daily_task_action_clicked",
+      "aliases": [],
+      "version": 1,
+      "family": "task",
+      "emittedFrom": [
+        "src/components/Dashboard/DailyTasksModule.tsx"
+      ],
+      "consumedBy": [
+        "src/lib/server/analytics-metrics.ts",
+        "src/lib/server/analytics-semantics.ts"
+      ],
+      "requiredActorFields": [],
+      "requiredObjectFields": [
+        "task_id|taskId|task_key|taskKey"
+      ],
+      "requiredSurfaceFields": [],
+      "dedupeKeyRequired": false,
+      "guestAllowed": true,
+      "adminExcludedFromUserAnalytics": false,
+      "legacyDeprecated": false,
+      "auditCoveredBy": [],
+      "missingFieldsRisk": "medium"
+    },
+    {
+      "eventName": "task_guidance_banner_viewed",
+      "aliases": [],
+      "version": 1,
+      "family": "task",
+      "emittedFrom": [
+        "src/components/Dashboard/TaskGuidanceBanner.tsx"
+      ],
+      "consumedBy": [
+        "src/lib/analytics-metric-catalog.ts",
+        "src/lib/server/admin-analytics-historical-tasks.ts",
+        "src/lib/server/analytics-metrics.ts"
+      ],
+      "requiredActorFields": [],
+      "requiredObjectFields": [
+        "task_id|taskId|task_key|taskKey"
+      ],
+      "requiredSurfaceFields": [],
+      "dedupeKeyRequired": false,
+      "guestAllowed": true,
+      "adminExcludedFromUserAnalytics": false,
+      "legacyDeprecated": false,
+      "auditCoveredBy": [],
+      "missingFieldsRisk": "medium"
+    },
+    {
+      "eventName": "task_guidance_banner_dismissed",
+      "aliases": [],
+      "version": 1,
+      "family": "task",
+      "emittedFrom": [
+        "src/components/Dashboard/TaskGuidanceBanner.tsx"
+      ],
+      "consumedBy": [
+        "src/lib/server/admin-analytics-historical-tasks.ts"
+      ],
+      "requiredActorFields": [],
+      "requiredObjectFields": [
+        "task_id|taskId|task_key|taskKey"
+      ],
+      "requiredSurfaceFields": [],
+      "dedupeKeyRequired": false,
+      "guestAllowed": true,
+      "adminExcludedFromUserAnalytics": false,
+      "legacyDeprecated": false,
+      "auditCoveredBy": [],
+      "missingFieldsRisk": "medium"
+    },
+    {
+      "eventName": "task_guidance_cta_clicked",
+      "aliases": [],
+      "version": 1,
+      "family": "task",
+      "emittedFrom": [
+        "src/components/Dashboard/TaskGuidanceBanner.tsx"
+      ],
+      "consumedBy": [
+        "src/lib/server/admin-analytics-historical-tasks.ts"
+      ],
+      "requiredActorFields": [],
+      "requiredObjectFields": [
+        "task_id|taskId|task_key|taskKey"
+      ],
+      "requiredSurfaceFields": [],
+      "dedupeKeyRequired": false,
+      "guestAllowed": true,
+      "adminExcludedFromUserAnalytics": false,
+      "legacyDeprecated": false,
+      "auditCoveredBy": [],
+      "missingFieldsRisk": "medium"
+    },
+    {
+      "eventName": "task_guidance_completed",
+      "aliases": [],
+      "version": 1,
+      "family": "task",
+      "emittedFrom": [
+        "src/components/Dashboard/TaskGuidanceBanner.tsx"
+      ],
+      "consumedBy": [
+        "src/lib/analytics-metric-catalog.ts",
+        "src/lib/server/admin-analytics-historical-tasks.ts",
+        "src/lib/server/analytics-metrics.ts"
+      ],
+      "requiredActorFields": [],
+      "requiredObjectFields": [
+        "task_id|taskId|task_key|taskKey"
+      ],
+      "requiredSurfaceFields": [],
+      "dedupeKeyRequired": false,
+      "guestAllowed": true,
+      "adminExcludedFromUserAnalytics": false,
+      "legacyDeprecated": false,
+      "auditCoveredBy": [],
+      "missingFieldsRisk": "medium"
+    },
+    {
+      "eventName": "daily_task_assigned",
+      "aliases": [
+        "task_assigned"
+      ],
+      "version": 1,
+      "family": "task",
+      "emittedFrom": [
+        "src/lib/server/daily-tasks.ts"
+      ],
+      "consumedBy": [
+        "src/lib/admin-analytics-live-interaction-stream.ts",
+        "src/lib/analytics/legacy-event-mapping.ts"
+      ],
+      "requiredActorFields": [],
+      "requiredObjectFields": [
+        "task_id|taskId|task_key|taskKey"
+      ],
+      "requiredSurfaceFields": [],
+      "dedupeKeyRequired": false,
+      "guestAllowed": true,
+      "adminExcludedFromUserAnalytics": false,
+      "legacyDeprecated": false,
+      "auditCoveredBy": [],
+      "missingFieldsRisk": "medium"
+    },
+    {
+      "eventName": "daily_task_started",
+      "aliases": [
+        "task_started"
+      ],
+      "version": 1,
+      "family": "task",
+      "emittedFrom": [
+        "src/lib/server/daily-tasks.ts"
+      ],
+      "consumedBy": [
+        "src/lib/analytics/legacy-event-mapping.ts"
+      ],
+      "requiredActorFields": [],
+      "requiredObjectFields": [
+        "task_id|taskId|task_key|taskKey"
+      ],
+      "requiredSurfaceFields": [],
+      "dedupeKeyRequired": false,
+      "guestAllowed": true,
+      "adminExcludedFromUserAnalytics": false,
+      "legacyDeprecated": false,
+      "auditCoveredBy": [],
+      "missingFieldsRisk": "medium"
+    },
+    {
+      "eventName": "daily_task_completed",
+      "aliases": [
+        "task_completed"
+      ],
+      "version": 1,
+      "family": "task",
+      "emittedFrom": [
+        "src/lib/server/daily-tasks.ts"
+      ],
+      "consumedBy": [
+        "src/lib/analytics/legacy-event-mapping.ts"
+      ],
+      "requiredActorFields": [],
+      "requiredObjectFields": [
+        "task_id|taskId|task_key|taskKey"
+      ],
+      "requiredSurfaceFields": [],
+      "dedupeKeyRequired": false,
+      "guestAllowed": true,
+      "adminExcludedFromUserAnalytics": false,
+      "legacyDeprecated": false,
+      "auditCoveredBy": [],
+      "missingFieldsRisk": "medium"
+    },
+    {
+      "eventName": "daily_task_failed",
+      "aliases": [
+        "task_failed"
+      ],
+      "version": 1,
+      "family": "task",
+      "emittedFrom": [
+        "src/lib/server/daily-tasks.ts"
+      ],
+      "consumedBy": [
+        "src/lib/admin-analytics-live-interaction-stream.ts",
+        "src/lib/analytics/legacy-event-mapping.ts"
+      ],
+      "requiredActorFields": [],
+      "requiredObjectFields": [
+        "task_id|taskId|task_key|taskKey"
+      ],
+      "requiredSurfaceFields": [],
+      "dedupeKeyRequired": false,
+      "guestAllowed": true,
+      "adminExcludedFromUserAnalytics": false,
+      "legacyDeprecated": false,
+      "auditCoveredBy": [],
+      "missingFieldsRisk": "medium"
+    },
+    {
+      "eventName": "daily_task_deadline_reminder_sent",
+      "aliases": [],
+      "version": 1,
+      "family": "notification",
+      "emittedFrom": [
+        "src/lib/server/daily-tasks.ts"
+      ],
+      "consumedBy": [],
+      "requiredActorFields": [
+        "recipient_id|recipientId|user_id|userId|target audience"
+      ],
+      "requiredObjectFields": [
+        "notification_id|notificationId|idempotency_key|idempotencyKey|tag",
+        "notification_type|notificationType|type|lifecycle_event|lifecycleEvent"
+      ],
+      "requiredSurfaceFields": [],
+      "dedupeKeyRequired": true,
+      "guestAllowed": true,
+      "adminExcludedFromUserAnalytics": false,
+      "legacyDeprecated": false,
+      "auditCoveredBy": [],
+      "missingFieldsRisk": "high"
+    },
+    {
+      "eventName": "daily_deadline_browser_notification_shown",
+      "aliases": [],
+      "version": 1,
+      "family": "notification",
+      "emittedFrom": [
+        "src/components/Notifications/NotificationRuntimeBridge.tsx"
+      ],
+      "consumedBy": [],
+      "requiredActorFields": [
+        "recipient_id|recipientId|user_id|userId|target audience"
+      ],
+      "requiredObjectFields": [
+        "notification_id|notificationId|idempotency_key|idempotencyKey|tag",
+        "notification_type|notificationType|type|lifecycle_event|lifecycleEvent"
+      ],
+      "requiredSurfaceFields": [],
+      "dedupeKeyRequired": true,
+      "guestAllowed": true,
+      "adminExcludedFromUserAnalytics": false,
+      "legacyDeprecated": false,
+      "auditCoveredBy": [],
+      "missingFieldsRisk": "high"
+    },
+    {
+      "eventName": "promo_card_clicked",
+      "aliases": [],
+      "version": 1,
+      "family": "engagement",
+      "emittedFrom": [
+        "src/components/PromoCard.tsx"
+      ],
+      "consumedBy": [],
+      "requiredActorFields": [],
+      "requiredObjectFields": [],
+      "requiredSurfaceFields": [],
+      "dedupeKeyRequired": false,
+      "guestAllowed": true,
+      "adminExcludedFromUserAnalytics": false,
+      "legacyDeprecated": false,
+      "auditCoveredBy": [],
+      "missingFieldsRisk": "low"
+    },
+    {
+      "eventName": "collection_filter_changed",
+      "aliases": [],
+      "version": 1,
+      "family": "engagement",
+      "emittedFrom": [
+        "src/components/Dashboard/CollectionList.tsx"
+      ],
+      "consumedBy": [],
+      "requiredActorFields": [],
+      "requiredObjectFields": [],
+      "requiredSurfaceFields": [],
+      "dedupeKeyRequired": false,
+      "guestAllowed": true,
+      "adminExcludedFromUserAnalytics": false,
+      "legacyDeprecated": false,
+      "auditCoveredBy": [],
+      "missingFieldsRisk": "low"
+    },
+    {
+      "eventName": "owned_drop_clicked",
+      "aliases": [],
+      "version": 1,
+      "family": "drop",
+      "emittedFrom": [
+        "src/components/Dashboard/OwnedDropGalleryCard.tsx"
+      ],
+      "consumedBy": [],
+      "requiredActorFields": [],
+      "requiredObjectFields": [
+        "drop_id|dropId"
+      ],
+      "requiredSurfaceFields": [
+        "route|page_path|pagePath|surface|source_component|sourceComponent"
+      ],
+      "dedupeKeyRequired": false,
+      "guestAllowed": true,
+      "adminExcludedFromUserAnalytics": false,
+      "legacyDeprecated": false,
+      "auditCoveredBy": [],
+      "missingFieldsRisk": "medium"
+    },
+    {
+      "eventName": "cookie_consent_updated",
+      "aliases": [],
+      "version": 1,
+      "family": "engagement",
+      "emittedFrom": [
+        "src/components/CookieBanner.tsx"
+      ],
+      "consumedBy": [],
+      "requiredActorFields": [],
+      "requiredObjectFields": [],
+      "requiredSurfaceFields": [],
+      "dedupeKeyRequired": false,
+      "guestAllowed": true,
+      "adminExcludedFromUserAnalytics": false,
+      "legacyDeprecated": false,
+      "auditCoveredBy": [],
+      "missingFieldsRisk": "low"
+    },
+    {
+      "eventName": "insufficient_balance_modal_closed",
+      "aliases": [],
+      "version": 1,
+      "family": "engagement",
+      "emittedFrom": [
+        "src/components/InsufficientBalanceModal.tsx"
+      ],
+      "consumedBy": [],
+      "requiredActorFields": [],
+      "requiredObjectFields": [],
+      "requiredSurfaceFields": [],
+      "dedupeKeyRequired": false,
+      "guestAllowed": true,
+      "adminExcludedFromUserAnalytics": false,
+      "legacyDeprecated": false,
+      "auditCoveredBy": [],
+      "missingFieldsRisk": "low"
+    },
+    {
+      "eventName": "insufficient_balance_get_more_clicked",
+      "aliases": [],
+      "version": 1,
+      "family": "engagement",
+      "emittedFrom": [
+        "src/components/InsufficientBalanceModal.tsx"
+      ],
+      "consumedBy": [],
+      "requiredActorFields": [],
+      "requiredObjectFields": [],
+      "requiredSurfaceFields": [],
+      "dedupeKeyRequired": false,
+      "guestAllowed": true,
+      "adminExcludedFromUserAnalytics": false,
+      "legacyDeprecated": false,
+      "auditCoveredBy": [],
+      "missingFieldsRisk": "low"
+    },
+    {
+      "eventName": "hero_cta_clicked",
+      "aliases": [],
+      "version": 1,
+      "family": "engagement",
+      "emittedFrom": [
+        "src/components/Landing/HomeHeroActions.tsx"
+      ],
+      "consumedBy": [],
+      "requiredActorFields": [],
+      "requiredObjectFields": [],
+      "requiredSurfaceFields": [],
+      "dedupeKeyRequired": false,
+      "guestAllowed": true,
+      "adminExcludedFromUserAnalytics": false,
+      "legacyDeprecated": false,
+      "auditCoveredBy": [],
+      "missingFieldsRisk": "low"
+    },
+    {
+      "eventName": "featured_drop_clicked",
+      "aliases": [],
+      "version": 1,
+      "family": "drop",
+      "emittedFrom": [
+        "src/components/FeaturedCarousel.tsx"
+      ],
+      "consumedBy": [],
+      "requiredActorFields": [],
+      "requiredObjectFields": [
+        "drop_id|dropId"
+      ],
+      "requiredSurfaceFields": [
+        "route|page_path|pagePath|surface|source_component|sourceComponent"
+      ],
+      "dedupeKeyRequired": false,
+      "guestAllowed": true,
+      "adminExcludedFromUserAnalytics": false,
+      "legacyDeprecated": false,
+      "auditCoveredBy": [],
+      "missingFieldsRisk": "medium"
+    },
+    {
+      "eventName": "admin_chart_view_changed",
+      "aliases": [],
+      "version": 1,
+      "family": "admin",
+      "emittedFrom": [
+        "src/components/Admin/AdminAnalyticsCharts.tsx"
+      ],
+      "consumedBy": [
+        "src/components/Admin/AdminAnalyticsCharts.tsx"
+      ],
+      "requiredActorFields": [
+        "admin_id|adminId"
+      ],
+      "requiredObjectFields": [],
+      "requiredSurfaceFields": [],
+      "dedupeKeyRequired": false,
+      "guestAllowed": false,
+      "adminExcludedFromUserAnalytics": true,
+      "legacyDeprecated": false,
+      "auditCoveredBy": [],
+      "missingFieldsRisk": "high"
+    },
+    {
+      "eventName": "admin_action_performed",
+      "aliases": [],
+      "version": 1,
+      "family": "admin",
+      "emittedFrom": [],
+      "consumedBy": [
+        "src/lib/analytics/legacy-event-mapping.ts"
+      ],
+      "requiredActorFields": [
+        "admin_id|adminId"
+      ],
+      "requiredObjectFields": [],
+      "requiredSurfaceFields": [],
+      "dedupeKeyRequired": false,
+      "guestAllowed": false,
+      "adminExcludedFromUserAnalytics": true,
+      "legacyDeprecated": false,
+      "auditCoveredBy": [
+        "admin_analytics_viewed"
+      ],
+      "missingFieldsRisk": "high"
+    },
+    {
+      "eventName": "asset_upload_started",
+      "aliases": [],
+      "version": 1,
+      "family": "admin",
+      "emittedFrom": [
+        "src/components/Admin/AssetUploader.tsx"
+      ],
+      "consumedBy": [
+        "src/components/Admin/AssetUploader.tsx"
+      ],
+      "requiredActorFields": [
+        "admin_id|adminId"
+      ],
+      "requiredObjectFields": [],
+      "requiredSurfaceFields": [],
+      "dedupeKeyRequired": false,
+      "guestAllowed": false,
+      "adminExcludedFromUserAnalytics": true,
+      "legacyDeprecated": false,
+      "auditCoveredBy": [],
+      "missingFieldsRisk": "high"
+    },
+    {
+      "eventName": "asset_upload_success",
+      "aliases": [],
+      "version": 1,
+      "family": "admin",
+      "emittedFrom": [
+        "src/components/Admin/AssetUploader.tsx"
+      ],
+      "consumedBy": [
+        "src/components/Admin/AssetUploader.tsx"
+      ],
+      "requiredActorFields": [
+        "admin_id|adminId"
+      ],
+      "requiredObjectFields": [],
+      "requiredSurfaceFields": [],
+      "dedupeKeyRequired": false,
+      "guestAllowed": false,
+      "adminExcludedFromUserAnalytics": true,
+      "legacyDeprecated": false,
+      "auditCoveredBy": [],
+      "missingFieldsRisk": "high"
+    },
+    {
+      "eventName": "asset_upload_failed",
+      "aliases": [],
+      "version": 1,
+      "family": "admin",
+      "emittedFrom": [
+        "src/components/Admin/AssetUploader.tsx"
+      ],
+      "consumedBy": [
+        "src/components/Admin/AssetUploader.tsx"
+      ],
+      "requiredActorFields": [
+        "admin_id|adminId"
+      ],
+      "requiredObjectFields": [],
+      "requiredSurfaceFields": [],
+      "dedupeKeyRequired": false,
+      "guestAllowed": false,
+      "adminExcludedFromUserAnalytics": true,
+      "legacyDeprecated": false,
+      "auditCoveredBy": [],
+      "missingFieldsRisk": "high"
+    },
+    {
+      "eventName": "admin_dashboard_viewed",
+      "aliases": [],
+      "version": 1,
+      "family": "admin",
+      "emittedFrom": [
+        "src/app/admin/page.tsx"
+      ],
+      "consumedBy": [
+        "src/app/admin/page.tsx",
+        "src/lib/admin-analytics-live-runtime.ts",
+        "src/lib/analytics-semantics.ts",
+        "src/lib/server/admin-analytics-historical-traffic.ts",
+        "src/lib/server/admin-analytics-shared.ts",
+        "src/lib/server/analytics-metrics.ts",
+        "src/lib/server/analytics-semantics.ts"
+      ],
+      "requiredActorFields": [
+        "admin_id|adminId"
+      ],
+      "requiredObjectFields": [],
+      "requiredSurfaceFields": [],
+      "dedupeKeyRequired": false,
+      "guestAllowed": false,
+      "adminExcludedFromUserAnalytics": true,
+      "legacyDeprecated": false,
+      "auditCoveredBy": [],
+      "missingFieldsRisk": "high"
+    },
+    {
+      "eventName": "admin_overview_viewed",
+      "aliases": [],
+      "version": 1,
+      "family": "admin",
+      "emittedFrom": [
+        "src/app/admin/page.tsx"
+      ],
+      "consumedBy": [
+        "src/app/admin/page.tsx",
+        "src/lib/analytics-semantics.ts",
+        "src/lib/server/analytics-semantics.ts"
+      ],
+      "requiredActorFields": [
+        "admin_id|adminId"
+      ],
+      "requiredObjectFields": [],
+      "requiredSurfaceFields": [],
+      "dedupeKeyRequired": false,
+      "guestAllowed": false,
+      "adminExcludedFromUserAnalytics": true,
+      "legacyDeprecated": false,
+      "auditCoveredBy": [],
+      "missingFieldsRisk": "high"
+    },
+    {
+      "eventName": "admin_analytics_viewed",
+      "aliases": [],
+      "version": 1,
+      "family": "admin",
+      "emittedFrom": [
+        "src/app/admin/analytics/page.tsx"
+      ],
+      "consumedBy": [
+        "src/app/admin/analytics/page.tsx",
+        "src/lib/admin-analytics-live-runtime.ts",
+        "src/lib/analytics-semantics.ts",
+        "src/lib/server/admin-analytics-historical-traffic.ts",
+        "src/lib/server/admin-analytics-shared.ts",
+        "src/lib/server/analytics-metrics.ts",
+        "src/lib/server/analytics-semantics.ts"
+      ],
+      "requiredActorFields": [
+        "admin_id|adminId"
+      ],
+      "requiredObjectFields": [],
+      "requiredSurfaceFields": [],
+      "dedupeKeyRequired": false,
+      "guestAllowed": false,
+      "adminExcludedFromUserAnalytics": true,
+      "legacyDeprecated": false,
+      "auditCoveredBy": [],
+      "missingFieldsRisk": "high"
+    },
+    {
+      "eventName": "admin_revenue_range_changed",
+      "aliases": [],
+      "version": 1,
+      "family": "admin",
+      "emittedFrom": [
+        "src/components/Admin/AdminAnalyticsCharts.tsx"
+      ],
+      "consumedBy": [
+        "src/components/Admin/AdminAnalyticsCharts.tsx"
+      ],
+      "requiredActorFields": [
+        "admin_id|adminId"
+      ],
+      "requiredObjectFields": [],
+      "requiredSurfaceFields": [],
+      "dedupeKeyRequired": false,
+      "guestAllowed": false,
+      "adminExcludedFromUserAnalytics": true,
+      "legacyDeprecated": false,
+      "auditCoveredBy": [],
+      "missingFieldsRisk": "high"
+    },
+    {
+      "eventName": "admin_top_drops_page_changed",
+      "aliases": [],
+      "version": 1,
+      "family": "admin",
+      "emittedFrom": [
+        "src/components/Admin/TopDropsTable.tsx"
+      ],
+      "consumedBy": [
+        "src/components/Admin/TopDropsTable.tsx"
+      ],
+      "requiredActorFields": [
+        "admin_id|adminId"
+      ],
+      "requiredObjectFields": [
+        "drop_id|dropId"
+      ],
+      "requiredSurfaceFields": [],
+      "dedupeKeyRequired": false,
+      "guestAllowed": false,
+      "adminExcludedFromUserAnalytics": true,
+      "legacyDeprecated": false,
+      "auditCoveredBy": [],
+      "missingFieldsRisk": "high"
+    },
+    {
+      "eventName": "admin_top_drops_search",
+      "aliases": [],
+      "version": 1,
+      "family": "admin",
+      "emittedFrom": [
+        "src/components/Admin/TopDropsTable.tsx"
+      ],
+      "consumedBy": [
+        "src/components/Admin/TopDropsTable.tsx"
+      ],
+      "requiredActorFields": [
+        "admin_id|adminId"
+      ],
+      "requiredObjectFields": [
+        "drop_id|dropId"
+      ],
+      "requiredSurfaceFields": [],
+      "dedupeKeyRequired": false,
+      "guestAllowed": false,
+      "adminExcludedFromUserAnalytics": true,
+      "legacyDeprecated": false,
+      "auditCoveredBy": [],
+      "missingFieldsRisk": "high"
+    },
+    {
+      "eventName": "admin_ai_viewed",
+      "aliases": [],
+      "version": 1,
+      "family": "admin",
+      "emittedFrom": [
+        "src/app/admin/ai/page.tsx"
+      ],
+      "consumedBy": [
+        "src/app/admin/ai/page.tsx",
+        "src/lib/analytics-semantics.ts",
+        "src/lib/server/analytics-semantics.ts"
+      ],
+      "requiredActorFields": [
+        "admin_id|adminId"
+      ],
+      "requiredObjectFields": [],
+      "requiredSurfaceFields": [],
+      "dedupeKeyRequired": false,
+      "guestAllowed": false,
+      "adminExcludedFromUserAnalytics": true,
+      "legacyDeprecated": false,
+      "auditCoveredBy": [],
+      "missingFieldsRisk": "high"
+    },
+    {
+      "eventName": "admin_moderation_viewed",
+      "aliases": [],
+      "version": 1,
+      "family": "admin",
+      "emittedFrom": [
+        "src/components/Admin/AdminModerationConsole.tsx"
+      ],
+      "consumedBy": [
+        "src/components/Admin/AdminModerationConsole.tsx",
+        "src/lib/analytics-semantics.ts",
+        "src/lib/server/analytics-semantics.ts"
+      ],
+      "requiredActorFields": [
+        "admin_id|adminId"
+      ],
+      "requiredObjectFields": [],
+      "requiredSurfaceFields": [],
+      "dedupeKeyRequired": false,
+      "guestAllowed": false,
+      "adminExcludedFromUserAnalytics": true,
+      "legacyDeprecated": false,
+      "auditCoveredBy": [],
+      "missingFieldsRisk": "high"
+    },
+    {
+      "eventName": "admin_debug_viewed",
+      "aliases": [],
+      "version": 1,
+      "family": "admin",
+      "emittedFrom": [
+        "src/app/admin/debug/page.tsx"
+      ],
+      "consumedBy": [
+        "src/app/admin/debug/page.tsx",
+        "src/lib/admin-analytics-live-runtime.ts",
+        "src/lib/analytics-semantics.ts",
+        "src/lib/server/admin-analytics-historical-traffic.ts",
+        "src/lib/server/admin-analytics-shared.ts",
+        "src/lib/server/analytics-metrics.ts",
+        "src/lib/server/analytics-semantics.ts"
+      ],
+      "requiredActorFields": [
+        "admin_id|adminId"
+      ],
+      "requiredObjectFields": [],
+      "requiredSurfaceFields": [],
+      "dedupeKeyRequired": false,
+      "guestAllowed": false,
+      "adminExcludedFromUserAnalytics": true,
+      "legacyDeprecated": false,
+      "auditCoveredBy": [],
+      "missingFieldsRisk": "high"
+    },
+    {
+      "eventName": "admin_support_viewed",
+      "aliases": [],
+      "version": 1,
+      "family": "admin",
+      "emittedFrom": [
+        "src/components/Admin/AdminSupportQueue.tsx"
+      ],
+      "consumedBy": [
+        "src/components/Admin/AdminSupportQueue.tsx",
+        "src/lib/analytics-semantics.ts",
+        "src/lib/server/analytics-semantics.ts"
+      ],
+      "requiredActorFields": [
+        "admin_id|adminId"
+      ],
+      "requiredObjectFields": [],
+      "requiredSurfaceFields": [],
+      "dedupeKeyRequired": false,
+      "guestAllowed": false,
+      "adminExcludedFromUserAnalytics": true,
+      "legacyDeprecated": false,
+      "auditCoveredBy": [],
+      "missingFieldsRisk": "high"
+    },
+    {
+      "eventName": "admin_users_viewed",
+      "aliases": [],
+      "version": 1,
+      "family": "admin",
+      "emittedFrom": [
+        "src/app/admin/users/page.tsx"
+      ],
+      "consumedBy": [
+        "src/app/admin/users/page.tsx",
+        "src/lib/admin-analytics-live-runtime.ts",
+        "src/lib/analytics-semantics.ts",
+        "src/lib/server/admin-analytics-historical-traffic.ts",
+        "src/lib/server/admin-analytics-shared.ts",
+        "src/lib/server/analytics-metrics.ts",
+        "src/lib/server/analytics-semantics.ts"
+      ],
+      "requiredActorFields": [
+        "admin_id|adminId"
+      ],
+      "requiredObjectFields": [],
+      "requiredSurfaceFields": [],
+      "dedupeKeyRequired": false,
+      "guestAllowed": false,
+      "adminExcludedFromUserAnalytics": true,
+      "legacyDeprecated": false,
+      "auditCoveredBy": [],
+      "missingFieldsRisk": "high"
+    },
+    {
+      "eventName": "admin_content_viewed",
+      "aliases": [],
+      "version": 1,
+      "family": "admin",
+      "emittedFrom": [
+        "src/app/admin/content/page.tsx"
+      ],
+      "consumedBy": [
+        "src/app/admin/content/page.tsx",
+        "src/lib/admin-analytics-live-runtime.ts",
+        "src/lib/analytics-semantics.ts",
+        "src/lib/server/admin-analytics-historical-traffic.ts",
+        "src/lib/server/admin-analytics-shared.ts",
+        "src/lib/server/analytics-metrics.ts",
+        "src/lib/server/analytics-semantics.ts"
+      ],
+      "requiredActorFields": [
+        "admin_id|adminId"
+      ],
+      "requiredObjectFields": [],
+      "requiredSurfaceFields": [],
+      "dedupeKeyRequired": false,
+      "guestAllowed": false,
+      "adminExcludedFromUserAnalytics": true,
+      "legacyDeprecated": false,
+      "auditCoveredBy": [],
+      "missingFieldsRisk": "high"
+    },
+    {
+      "eventName": "admin_drops_viewed",
+      "aliases": [],
+      "version": 1,
+      "family": "admin",
+      "emittedFrom": [
+        "src/app/admin/drops/page.tsx"
+      ],
+      "consumedBy": [
+        "src/app/admin/drops/page.tsx",
+        "src/lib/admin-analytics-live-runtime.ts",
+        "src/lib/analytics-semantics.ts",
+        "src/lib/server/admin-analytics-historical-traffic.ts",
+        "src/lib/server/admin-analytics-shared.ts",
+        "src/lib/server/analytics-metrics.ts",
+        "src/lib/server/analytics-semantics.ts"
+      ],
+      "requiredActorFields": [
+        "admin_id|adminId"
+      ],
+      "requiredObjectFields": [
+        "drop_id|dropId"
+      ],
+      "requiredSurfaceFields": [],
+      "dedupeKeyRequired": false,
+      "guestAllowed": false,
+      "adminExcludedFromUserAnalytics": true,
+      "legacyDeprecated": false,
+      "auditCoveredBy": [],
+      "missingFieldsRisk": "high"
+    },
+    {
+      "eventName": "admin_privacy_viewed",
+      "aliases": [],
+      "version": 1,
+      "family": "admin",
+      "emittedFrom": [
+        "src/app/admin/privacy/page.tsx"
+      ],
+      "consumedBy": [
+        "src/app/admin/privacy/page.tsx",
+        "src/lib/analytics-semantics.ts",
+        "src/lib/server/analytics-semantics.ts"
+      ],
+      "requiredActorFields": [
+        "admin_id|adminId"
+      ],
+      "requiredObjectFields": [],
+      "requiredSurfaceFields": [],
+      "dedupeKeyRequired": false,
+      "guestAllowed": false,
+      "adminExcludedFromUserAnalytics": true,
+      "legacyDeprecated": false,
+      "auditCoveredBy": [],
+      "missingFieldsRisk": "high"
+    },
+    {
+      "eventName": "admin_queue_viewed",
+      "aliases": [],
+      "version": 1,
+      "family": "admin",
+      "emittedFrom": [
+        "src/app/admin/queue/page.tsx"
+      ],
+      "consumedBy": [
+        "src/app/admin/queue/page.tsx",
+        "src/lib/analytics-semantics.ts",
+        "src/lib/server/admin-analytics-historical-traffic.ts",
+        "src/lib/server/admin-analytics-shared.ts",
+        "src/lib/server/analytics-metrics.ts",
+        "src/lib/server/analytics-semantics.ts"
+      ],
+      "requiredActorFields": [
+        "admin_id|adminId"
+      ],
+      "requiredObjectFields": [],
+      "requiredSurfaceFields": [],
+      "dedupeKeyRequired": false,
+      "guestAllowed": false,
+      "adminExcludedFromUserAnalytics": true,
+      "legacyDeprecated": false,
+      "auditCoveredBy": [],
+      "missingFieldsRisk": "high"
+    },
+    {
+      "eventName": "admin_roster_viewed",
+      "aliases": [],
+      "version": 1,
+      "family": "admin",
+      "emittedFrom": [
+        "src/app/admin/roster/page.tsx"
+      ],
+      "consumedBy": [
+        "src/app/admin/roster/page.tsx",
+        "src/lib/analytics-semantics.ts",
+        "src/lib/server/admin-analytics-historical-traffic.ts",
+        "src/lib/server/admin-analytics-shared.ts",
+        "src/lib/server/analytics-metrics.ts",
+        "src/lib/server/analytics-semantics.ts"
+      ],
+      "requiredActorFields": [
+        "admin_id|adminId"
+      ],
+      "requiredObjectFields": [],
+      "requiredSurfaceFields": [],
+      "dedupeKeyRequired": false,
+      "guestAllowed": false,
+      "adminExcludedFromUserAnalytics": true,
+      "legacyDeprecated": false,
+      "auditCoveredBy": [],
+      "missingFieldsRisk": "high"
+    },
+    {
+      "eventName": "admin_user_detail_viewed",
+      "aliases": [],
+      "version": 1,
+      "family": "admin",
+      "emittedFrom": [
+        "src/app/admin/user/[userId]/page.tsx"
+      ],
+      "consumedBy": [
+        "src/app/admin/user/[userId]/page.tsx",
+        "src/lib/analytics-semantics.ts",
+        "src/lib/server/admin-analytics-historical-traffic.ts",
+        "src/lib/server/admin-analytics-shared.ts",
+        "src/lib/server/analytics-metrics.ts",
+        "src/lib/server/analytics-semantics.ts"
+      ],
+      "requiredActorFields": [
+        "admin_id|adminId"
+      ],
+      "requiredObjectFields": [],
+      "requiredSurfaceFields": [],
+      "dedupeKeyRequired": false,
+      "guestAllowed": false,
+      "adminExcludedFromUserAnalytics": true,
+      "legacyDeprecated": false,
+      "auditCoveredBy": [],
+      "missingFieldsRisk": "high"
+    },
+    {
+      "eventName": "admin_ai_cover_toggle_updated",
+      "aliases": [],
+      "version": 1,
+      "family": "admin",
+      "emittedFrom": [
+        "src/lib/server/ai-drop-covers.ts"
+      ],
+      "consumedBy": [],
+      "requiredActorFields": [
+        "admin_id|adminId"
+      ],
+      "requiredObjectFields": [],
+      "requiredSurfaceFields": [],
+      "dedupeKeyRequired": false,
+      "guestAllowed": false,
+      "adminExcludedFromUserAnalytics": true,
+      "legacyDeprecated": false,
+      "auditCoveredBy": [],
+      "missingFieldsRisk": "high"
+    },
+    {
+      "eventName": "admin_ai_cover_generate_succeeded",
+      "aliases": [],
+      "version": 1,
+      "family": "admin",
+      "emittedFrom": [
+        "src/lib/server/ai-drop-covers.ts"
+      ],
+      "consumedBy": [],
+      "requiredActorFields": [
+        "admin_id|adminId"
+      ],
+      "requiredObjectFields": [],
+      "requiredSurfaceFields": [],
+      "dedupeKeyRequired": false,
+      "guestAllowed": false,
+      "adminExcludedFromUserAnalytics": true,
+      "legacyDeprecated": false,
+      "auditCoveredBy": [],
+      "missingFieldsRisk": "high"
+    },
+    {
+      "eventName": "admin_ai_cover_generate_failed",
+      "aliases": [],
+      "version": 1,
+      "family": "admin",
+      "emittedFrom": [
+        "src/lib/server/ai-drop-covers.ts"
+      ],
+      "consumedBy": [],
+      "requiredActorFields": [
+        "admin_id|adminId"
+      ],
+      "requiredObjectFields": [],
+      "requiredSurfaceFields": [],
+      "dedupeKeyRequired": false,
+      "guestAllowed": false,
+      "adminExcludedFromUserAnalytics": true,
+      "legacyDeprecated": false,
+      "auditCoveredBy": [],
+      "missingFieldsRisk": "high"
+    },
+    {
+      "eventName": "admin_ai_cover_generation_liked",
+      "aliases": [],
+      "version": 1,
+      "family": "admin",
+      "emittedFrom": [
+        "src/lib/server/ai-drop-covers.ts"
+      ],
+      "consumedBy": [],
+      "requiredActorFields": [
+        "admin_id|adminId"
+      ],
+      "requiredObjectFields": [],
+      "requiredSurfaceFields": [],
+      "dedupeKeyRequired": false,
+      "guestAllowed": false,
+      "adminExcludedFromUserAnalytics": true,
+      "legacyDeprecated": false,
+      "auditCoveredBy": [],
+      "missingFieldsRisk": "high"
+    },
+    {
+      "eventName": "admin_ai_cover_generation_disliked",
+      "aliases": [],
+      "version": 1,
+      "family": "admin",
+      "emittedFrom": [
+        "src/lib/server/ai-drop-covers.ts"
+      ],
+      "consumedBy": [],
+      "requiredActorFields": [
+        "admin_id|adminId"
+      ],
+      "requiredObjectFields": [],
+      "requiredSurfaceFields": [],
+      "dedupeKeyRequired": false,
+      "guestAllowed": false,
+      "adminExcludedFromUserAnalytics": true,
+      "legacyDeprecated": false,
+      "auditCoveredBy": [],
+      "missingFieldsRisk": "high"
+    },
+    {
+      "eventName": "admin_ai_cover_generation_accepted",
+      "aliases": [],
+      "version": 1,
+      "family": "admin",
+      "emittedFrom": [
+        "src/lib/server/ai-drop-covers.ts"
+      ],
+      "consumedBy": [],
+      "requiredActorFields": [
+        "admin_id|adminId"
+      ],
+      "requiredObjectFields": [],
+      "requiredSurfaceFields": [],
+      "dedupeKeyRequired": false,
+      "guestAllowed": false,
+      "adminExcludedFromUserAnalytics": true,
+      "legacyDeprecated": false,
+      "auditCoveredBy": [],
+      "missingFieldsRisk": "high"
+    },
+    {
+      "eventName": "admin_ai_cover_history_cleared",
+      "aliases": [],
+      "version": 1,
+      "family": "admin",
+      "emittedFrom": [
+        "src/components/Admin/AiDropCoverGeneratorPanel.tsx"
+      ],
+      "consumedBy": [
+        "src/components/Admin/AiDropCoverGeneratorPanel.tsx"
+      ],
+      "requiredActorFields": [
+        "admin_id|adminId"
+      ],
+      "requiredObjectFields": [],
+      "requiredSurfaceFields": [],
+      "dedupeKeyRequired": false,
+      "guestAllowed": false,
+      "adminExcludedFromUserAnalytics": true,
+      "legacyDeprecated": false,
+      "auditCoveredBy": [],
+      "missingFieldsRisk": "high"
+    },
+    {
+      "eventName": "admin_ai_description_toggle_updated",
+      "aliases": [],
+      "version": 1,
+      "family": "admin",
+      "emittedFrom": [
+        "src/lib/server/ai-drop-descriptions.ts"
+      ],
+      "consumedBy": [],
+      "requiredActorFields": [
+        "admin_id|adminId"
+      ],
+      "requiredObjectFields": [],
+      "requiredSurfaceFields": [],
+      "dedupeKeyRequired": false,
+      "guestAllowed": false,
+      "adminExcludedFromUserAnalytics": true,
+      "legacyDeprecated": false,
+      "auditCoveredBy": [],
+      "missingFieldsRisk": "high"
+    },
+    {
+      "eventName": "admin_ai_description_generate_succeeded",
+      "aliases": [],
+      "version": 1,
+      "family": "admin",
+      "emittedFrom": [
+        "src/lib/server/ai-drop-descriptions.ts"
+      ],
+      "consumedBy": [],
+      "requiredActorFields": [
+        "admin_id|adminId"
+      ],
+      "requiredObjectFields": [],
+      "requiredSurfaceFields": [],
+      "dedupeKeyRequired": false,
+      "guestAllowed": false,
+      "adminExcludedFromUserAnalytics": true,
+      "legacyDeprecated": false,
+      "auditCoveredBy": [],
+      "missingFieldsRisk": "high"
+    },
+    {
+      "eventName": "admin_ai_description_generate_failed",
+      "aliases": [],
+      "version": 1,
+      "family": "admin",
+      "emittedFrom": [
+        "src/lib/server/ai-drop-descriptions.ts"
+      ],
+      "consumedBy": [],
+      "requiredActorFields": [
+        "admin_id|adminId"
+      ],
+      "requiredObjectFields": [],
+      "requiredSurfaceFields": [],
+      "dedupeKeyRequired": false,
+      "guestAllowed": false,
+      "adminExcludedFromUserAnalytics": true,
+      "legacyDeprecated": false,
+      "auditCoveredBy": [],
+      "missingFieldsRisk": "high"
+    },
+    {
+      "eventName": "admin_ai_description_generation_liked",
+      "aliases": [],
+      "version": 1,
+      "family": "admin",
+      "emittedFrom": [
+        "src/lib/server/ai-drop-descriptions.ts"
+      ],
+      "consumedBy": [],
+      "requiredActorFields": [
+        "admin_id|adminId"
+      ],
+      "requiredObjectFields": [],
+      "requiredSurfaceFields": [],
+      "dedupeKeyRequired": false,
+      "guestAllowed": false,
+      "adminExcludedFromUserAnalytics": true,
+      "legacyDeprecated": false,
+      "auditCoveredBy": [],
+      "missingFieldsRisk": "high"
+    },
+    {
+      "eventName": "admin_ai_description_generation_disliked",
+      "aliases": [],
+      "version": 1,
+      "family": "admin",
+      "emittedFrom": [
+        "src/lib/server/ai-drop-descriptions.ts"
+      ],
+      "consumedBy": [],
+      "requiredActorFields": [
+        "admin_id|adminId"
+      ],
+      "requiredObjectFields": [],
+      "requiredSurfaceFields": [],
+      "dedupeKeyRequired": false,
+      "guestAllowed": false,
+      "adminExcludedFromUserAnalytics": true,
+      "legacyDeprecated": false,
+      "auditCoveredBy": [],
+      "missingFieldsRisk": "high"
+    },
+    {
+      "eventName": "admin_ai_description_generation_accepted",
+      "aliases": [],
+      "version": 1,
+      "family": "admin",
+      "emittedFrom": [
+        "src/lib/server/ai-drop-descriptions.ts"
+      ],
+      "consumedBy": [],
+      "requiredActorFields": [
+        "admin_id|adminId"
+      ],
+      "requiredObjectFields": [],
+      "requiredSurfaceFields": [],
+      "dedupeKeyRequired": false,
+      "guestAllowed": false,
+      "adminExcludedFromUserAnalytics": true,
+      "legacyDeprecated": false,
+      "auditCoveredBy": [],
+      "missingFieldsRisk": "high"
+    },
+    {
+      "eventName": "admin_ai_description_prompt_policy_updated",
+      "aliases": [],
+      "version": 1,
+      "family": "admin",
+      "emittedFrom": [
+        "src/lib/server/ai-drop-descriptions.ts"
+      ],
+      "consumedBy": [],
+      "requiredActorFields": [
+        "admin_id|adminId"
+      ],
+      "requiredObjectFields": [],
+      "requiredSurfaceFields": [],
+      "dedupeKeyRequired": false,
+      "guestAllowed": false,
+      "adminExcludedFromUserAnalytics": true,
+      "legacyDeprecated": false,
+      "auditCoveredBy": [],
+      "missingFieldsRisk": "high"
+    },
+    {
+      "eventName": "admin_ai_description_history_cleared",
+      "aliases": [],
+      "version": 1,
+      "family": "admin",
+      "emittedFrom": [
+        "src/components/Admin/AiDropDescriptionGeneratorPanel.tsx"
+      ],
+      "consumedBy": [
+        "src/components/Admin/AiDropDescriptionGeneratorPanel.tsx"
+      ],
+      "requiredActorFields": [
+        "admin_id|adminId"
+      ],
+      "requiredObjectFields": [],
+      "requiredSurfaceFields": [],
+      "dedupeKeyRequired": false,
+      "guestAllowed": false,
+      "adminExcludedFromUserAnalytics": true,
+      "legacyDeprecated": false,
+      "auditCoveredBy": [],
+      "missingFieldsRisk": "high"
+    },
+    {
+      "eventName": "admin_creator_created_directly",
+      "aliases": [],
+      "version": 1,
+      "family": "admin",
+      "emittedFrom": [
+        "src/app/api/admin/roster/route.ts"
+      ],
+      "consumedBy": [],
+      "requiredActorFields": [
+        "admin_id|adminId"
+      ],
+      "requiredObjectFields": [],
+      "requiredSurfaceFields": [],
+      "dedupeKeyRequired": false,
+      "guestAllowed": false,
+      "adminExcludedFromUserAnalytics": true,
+      "legacyDeprecated": false,
+      "auditCoveredBy": [],
+      "missingFieldsRisk": "high"
+    },
+    {
+      "eventName": "creator_application_review_saved",
+      "aliases": [],
+      "version": 1,
+      "family": "admin",
+      "emittedFrom": [
+        "src/app/admin/roster/page.tsx"
+      ],
+      "consumedBy": [
+        "src/app/admin/roster/page.tsx"
+      ],
+      "requiredActorFields": [
+        "admin_id|adminId"
+      ],
+      "requiredObjectFields": [],
+      "requiredSurfaceFields": [],
+      "dedupeKeyRequired": false,
+      "guestAllowed": false,
+      "adminExcludedFromUserAnalytics": true,
+      "legacyDeprecated": false,
+      "auditCoveredBy": [],
+      "missingFieldsRisk": "high"
+    },
+    {
+      "eventName": "heuristic_screenshot_shortcut_mac",
+      "aliases": [
+        "security_screenshot_mac_attempted"
+      ],
+      "version": 1,
+      "family": "security",
+      "emittedFrom": [
+        "src/lib/security-events.ts"
+      ],
+      "consumedBy": [
+        "src/lib/server/analytics-semantics.ts"
+      ],
+      "requiredActorFields": [],
+      "requiredObjectFields": [],
+      "requiredSurfaceFields": [],
+      "dedupeKeyRequired": false,
+      "guestAllowed": true,
+      "adminExcludedFromUserAnalytics": false,
+      "legacyDeprecated": false,
+      "auditCoveredBy": [],
+      "missingFieldsRisk": "low"
+    },
+    {
+      "eventName": "heuristic_screenshot_shortcut_windows",
+      "aliases": [
+        "security_screenshot_windows_attempted",
+        "security_screenshot_attempted"
+      ],
+      "version": 1,
+      "family": "security",
+      "emittedFrom": [
+        "src/lib/security-events.ts"
+      ],
+      "consumedBy": [
+        "src/lib/server/analytics-semantics.ts"
+      ],
+      "requiredActorFields": [],
+      "requiredObjectFields": [],
+      "requiredSurfaceFields": [],
+      "dedupeKeyRequired": false,
+      "guestAllowed": true,
+      "adminExcludedFromUserAnalytics": false,
+      "legacyDeprecated": false,
+      "auditCoveredBy": [],
+      "missingFieldsRisk": "low"
+    },
+    {
+      "eventName": "heuristic_screen_record_shortcut",
+      "aliases": [
+        "security_screen_record_attempted"
+      ],
+      "version": 1,
+      "family": "security",
+      "emittedFrom": [
+        "src/lib/security-events.ts"
+      ],
+      "consumedBy": [
+        "src/lib/server/analytics-semantics.ts"
+      ],
+      "requiredActorFields": [],
+      "requiredObjectFields": [],
+      "requiredSurfaceFields": [],
+      "dedupeKeyRequired": false,
+      "guestAllowed": true,
+      "adminExcludedFromUserAnalytics": false,
+      "legacyDeprecated": false,
+      "auditCoveredBy": [],
+      "missingFieldsRisk": "low"
+    },
+    {
+      "eventName": "heuristic_devtools_shortcut",
+      "aliases": [
+        "security_devtools_attempted",
+        "security_source_view_attempted"
+      ],
+      "version": 1,
+      "family": "security",
+      "emittedFrom": [
+        "src/lib/security-events.ts"
+      ],
+      "consumedBy": [
+        "src/lib/server/analytics-semantics.ts"
+      ],
+      "requiredActorFields": [],
+      "requiredObjectFields": [],
+      "requiredSurfaceFields": [],
+      "dedupeKeyRequired": false,
+      "guestAllowed": true,
+      "adminExcludedFromUserAnalytics": false,
+      "legacyDeprecated": false,
+      "auditCoveredBy": [],
+      "missingFieldsRisk": "low"
+    },
+    {
+      "eventName": "heuristic_rapid_visibility_capture",
+      "aliases": [
+        "security_capture_pattern_detected"
+      ],
+      "version": 1,
+      "family": "security",
+      "emittedFrom": [
+        "src/lib/security-events.ts"
+      ],
+      "consumedBy": [
+        "src/lib/server/analytics-semantics.ts"
+      ],
+      "requiredActorFields": [],
+      "requiredObjectFields": [],
+      "requiredSurfaceFields": [],
+      "dedupeKeyRequired": false,
+      "guestAllowed": true,
+      "adminExcludedFromUserAnalytics": false,
+      "legacyDeprecated": false,
+      "auditCoveredBy": [],
+      "missingFieldsRisk": "low"
+    },
+    {
+      "eventName": "heuristic_rip_pattern",
+      "aliases": [],
+      "version": 1,
+      "family": "security",
+      "emittedFrom": [
+        "src/lib/security-events.ts"
+      ],
+      "consumedBy": [
+        "src/lib/server/analytics-semantics.ts"
+      ],
+      "requiredActorFields": [],
+      "requiredObjectFields": [],
+      "requiredSurfaceFields": [],
+      "dedupeKeyRequired": false,
+      "guestAllowed": true,
+      "adminExcludedFromUserAnalytics": false,
+      "legacyDeprecated": false,
+      "auditCoveredBy": [],
+      "missingFieldsRisk": "low"
+    },
+    {
+      "eventName": "heuristic_unknown_threat",
+      "aliases": [],
+      "version": 1,
+      "family": "security",
+      "emittedFrom": [
+        "src/lib/security-events.ts"
+      ],
+      "consumedBy": [],
+      "requiredActorFields": [],
+      "requiredObjectFields": [],
+      "requiredSurfaceFields": [],
+      "dedupeKeyRequired": false,
+      "guestAllowed": true,
+      "adminExcludedFromUserAnalytics": false,
+      "legacyDeprecated": false,
+      "auditCoveredBy": [],
+      "missingFieldsRisk": "low"
+    },
+    {
+      "eventName": "confirmed_print_attempt",
+      "aliases": [
+        "security_print_attempted"
+      ],
+      "version": 1,
+      "family": "security",
+      "emittedFrom": [
+        "src/lib/security-events.ts"
+      ],
+      "consumedBy": [],
+      "requiredActorFields": [],
+      "requiredObjectFields": [],
+      "requiredSurfaceFields": [],
+      "dedupeKeyRequired": false,
+      "guestAllowed": true,
+      "adminExcludedFromUserAnalytics": false,
+      "legacyDeprecated": false,
+      "auditCoveredBy": [],
+      "missingFieldsRisk": "low"
+    },
+    {
+      "eventName": "confirmed_save_attempt",
+      "aliases": [
+        "security_save_attempted"
+      ],
+      "version": 1,
+      "family": "security",
+      "emittedFrom": [
+        "src/lib/security-events.ts"
+      ],
+      "consumedBy": [],
+      "requiredActorFields": [],
+      "requiredObjectFields": [],
+      "requiredSurfaceFields": [],
+      "dedupeKeyRequired": false,
+      "guestAllowed": true,
+      "adminExcludedFromUserAnalytics": false,
+      "legacyDeprecated": false,
+      "auditCoveredBy": [],
+      "missingFieldsRisk": "low"
+    },
+    {
+      "eventName": "confirmed_copy_attempt",
+      "aliases": [
+        "security_copy_attempted"
+      ],
+      "version": 1,
+      "family": "security",
+      "emittedFrom": [
+        "src/lib/security-events.ts"
+      ],
+      "consumedBy": [],
+      "requiredActorFields": [],
+      "requiredObjectFields": [],
+      "requiredSurfaceFields": [],
+      "dedupeKeyRequired": false,
+      "guestAllowed": true,
+      "adminExcludedFromUserAnalytics": false,
+      "legacyDeprecated": false,
+      "auditCoveredBy": [],
+      "missingFieldsRisk": "low"
+    },
+    {
+      "eventName": "confirmed_cut_attempt",
+      "aliases": [],
+      "version": 1,
+      "family": "security",
+      "emittedFrom": [
+        "src/lib/security-events.ts"
+      ],
+      "consumedBy": [],
+      "requiredActorFields": [],
+      "requiredObjectFields": [],
+      "requiredSurfaceFields": [],
+      "dedupeKeyRequired": false,
+      "guestAllowed": true,
+      "adminExcludedFromUserAnalytics": false,
+      "legacyDeprecated": false,
+      "auditCoveredBy": [],
+      "missingFieldsRisk": "low"
+    },
+    {
+      "eventName": "confirmed_selection_attempt",
+      "aliases": [
+        "security_selection_attempted"
+      ],
+      "version": 1,
+      "family": "security",
+      "emittedFrom": [
+        "src/lib/security-events.ts"
+      ],
+      "consumedBy": [
+        "src/lib/server/analytics-semantics.ts"
+      ],
+      "requiredActorFields": [],
+      "requiredObjectFields": [],
+      "requiredSurfaceFields": [],
+      "dedupeKeyRequired": false,
+      "guestAllowed": true,
+      "adminExcludedFromUserAnalytics": false,
+      "legacyDeprecated": false,
+      "auditCoveredBy": [],
+      "missingFieldsRisk": "low"
+    },
+    {
+      "eventName": "confirmed_drag_attempt",
+      "aliases": [
+        "security_drag_export_attempted"
+      ],
+      "version": 1,
+      "family": "security",
+      "emittedFrom": [
+        "src/lib/security-events.ts"
+      ],
+      "consumedBy": [],
+      "requiredActorFields": [],
+      "requiredObjectFields": [],
+      "requiredSurfaceFields": [],
+      "dedupeKeyRequired": false,
+      "guestAllowed": true,
+      "adminExcludedFromUserAnalytics": false,
+      "legacyDeprecated": false,
+      "auditCoveredBy": [],
+      "missingFieldsRisk": "low"
+    },
+    {
+      "eventName": "confirmed_context_menu_attempt",
+      "aliases": [
+        "security_context_menu_attempted"
+      ],
+      "version": 1,
+      "family": "security",
+      "emittedFrom": [
+        "src/lib/security-events.ts"
+      ],
+      "consumedBy": [
+        "src/lib/server/analytics-semantics.ts"
+      ],
+      "requiredActorFields": [],
+      "requiredObjectFields": [],
+      "requiredSurfaceFields": [],
+      "dedupeKeyRequired": false,
+      "guestAllowed": true,
+      "adminExcludedFromUserAnalytics": false,
+      "legacyDeprecated": false,
+      "auditCoveredBy": [],
+      "missingFieldsRisk": "low"
+    },
+    {
+      "eventName": "library_search",
+      "aliases": [],
+      "version": 1,
+      "family": "engagement",
+      "emittedFrom": [
+        "src/app/dashboard/library/LibraryClient.tsx"
+      ],
+      "consumedBy": [],
+      "requiredActorFields": [],
+      "requiredObjectFields": [],
+      "requiredSurfaceFields": [],
+      "dedupeKeyRequired": false,
+      "guestAllowed": true,
+      "adminExcludedFromUserAnalytics": false,
+      "legacyDeprecated": false,
+      "auditCoveredBy": [],
+      "missingFieldsRisk": "low"
+    },
+    {
+      "eventName": "drops_category_selected",
+      "aliases": [],
+      "version": 1,
+      "family": "drop",
+      "emittedFrom": [
+        "src/app/drops/DropsClient.tsx"
+      ],
+      "consumedBy": [],
+      "requiredActorFields": [],
+      "requiredObjectFields": [
+        "drop_id|dropId"
+      ],
+      "requiredSurfaceFields": [
+        "route|page_path|pagePath|surface|source_component|sourceComponent"
+      ],
+      "dedupeKeyRequired": false,
+      "guestAllowed": true,
+      "adminExcludedFromUserAnalytics": false,
+      "legacyDeprecated": false,
+      "auditCoveredBy": [],
+      "missingFieldsRisk": "medium"
+    },
+    {
+      "eventName": "drops_searched",
+      "aliases": [],
+      "version": 1,
+      "family": "drop",
+      "emittedFrom": [
+        "src/app/drops/DropsClient.tsx"
+      ],
+      "consumedBy": [],
+      "requiredActorFields": [],
+      "requiredObjectFields": [
+        "drop_id|dropId"
+      ],
+      "requiredSurfaceFields": [
+        "route|page_path|pagePath|surface|source_component|sourceComponent"
+      ],
+      "dedupeKeyRequired": false,
+      "guestAllowed": true,
+      "adminExcludedFromUserAnalytics": false,
+      "legacyDeprecated": false,
+      "auditCoveredBy": [],
+      "missingFieldsRisk": "medium"
+    },
+    {
+      "eventName": "recent_activity_page_changed",
+      "aliases": [],
+      "version": 1,
+      "family": "engagement",
+      "emittedFrom": [
+        "src/components/Dashboard/RecentActivityFeed.tsx"
+      ],
+      "consumedBy": [],
+      "requiredActorFields": [],
+      "requiredObjectFields": [],
+      "requiredSurfaceFields": [],
+      "dedupeKeyRequired": false,
+      "guestAllowed": true,
+      "adminExcludedFromUserAnalytics": false,
+      "legacyDeprecated": false,
+      "auditCoveredBy": [],
+      "missingFieldsRisk": "low"
+    },
+    {
+      "eventName": "recent_activity_searched",
+      "aliases": [],
+      "version": 1,
+      "family": "engagement",
+      "emittedFrom": [
+        "src/components/Dashboard/RecentActivityFeed.tsx"
+      ],
+      "consumedBy": [],
+      "requiredActorFields": [],
+      "requiredObjectFields": [],
+      "requiredSurfaceFields": [],
+      "dedupeKeyRequired": false,
+      "guestAllowed": true,
+      "adminExcludedFromUserAnalytics": false,
+      "legacyDeprecated": false,
+      "auditCoveredBy": [],
+      "missingFieldsRisk": "low"
+    },
+    {
+      "eventName": "unlock_drop_failed",
+      "aliases": [],
+      "version": 1,
+      "family": "unlock",
+      "emittedFrom": [
+        "src/components/DropPreviewModal.tsx"
+      ],
+      "consumedBy": [],
+      "requiredActorFields": [
+        "user_id|userId|authenticated caller"
+      ],
+      "requiredObjectFields": [
+        "drop_id|dropId",
+        "transaction_id|transactionId|dedupeKey|idempotency_key|idempotencyKey"
+      ],
+      "requiredSurfaceFields": [
+        "route|page_path|pagePath|surface|source_component|sourceComponent"
+      ],
+      "dedupeKeyRequired": true,
+      "guestAllowed": false,
+      "adminExcludedFromUserAnalytics": false,
+      "legacyDeprecated": false,
+      "auditCoveredBy": [],
+      "missingFieldsRisk": "high"
+    }
+  ]
+}

@@ -175,6 +175,9 @@ export function useNotifications({ enabled = true }: UseNotificationsOptions = {
         }
         trackEvent("notification_marked_read", {
             notification_id: id,
+            idempotency_key: id,
+            recipient_id: userId,
+            notification_type: "in_app",
             optimistic: true,
         });
 
@@ -197,6 +200,9 @@ export function useNotifications({ enabled = true }: UseNotificationsOptions = {
         }
 
         trackEvent("notification_mark_all_read", {
+            idempotency_key: `mark_all:${userId}:${unreadIds.join("|")}`,
+            recipient_id: userId,
+            notification_type: "in_app",
             unread_count: unreadIds.length,
         });
 
@@ -223,6 +229,9 @@ export function useNotifications({ enabled = true }: UseNotificationsOptions = {
         if (succeededIds.length > 0) {
             trackEvent("notification_cleared", {
                 source: "clear_all",
+                idempotency_key: `clear_all:${userId}:${succeededIds.join("|")}`,
+                recipient_id: userId,
+                notification_type: "in_app",
                 cleared_count: succeededIds.length,
                 failed_count: failedCount,
             });

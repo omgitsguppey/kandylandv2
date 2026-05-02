@@ -24,6 +24,15 @@ This file is not a changelog. It is the concise ledger for durable decisions tha
 
 ## Decision Entries
 
+### 1cr. Event catalog telemetry naming is launch-gated
+
+- Approximate date: Recorded explicitly on 2026-05-01 from the event catalog and telemetry naming launch audit
+- Status: Active launch telemetry catalog, payload contract, actor/source/object separation, and admin-exclusion rule
+- Decision: Every emitted telemetry event must be cataloged, every catalog event must have a detected emitter or explicit audit coverage, canonical event names are lowercase snake_case, and launch-critical event families must declare actor/object/surface payload requirements. Admin/system/unknown actors may be stored for Debug/global evidence but must not update user behavior or active-user lanes.
+- Implementation: `src/lib/telemetry-catalog.ts` owns `TELEMETRY_EVENT_PAYLOAD_CONTRACTS`, event family classification, casing/alias normalization, and payload key alias normalization. `src/lib/analytics-client-engine.ts` mirrors camel-case payload keys to canonical snake_case. `src/app/api/analytics/ingest-identified/route.ts` and `src/lib/server/analytics.ts` attach actor-lane metadata and gate `analytics_active_users` writes behind `includeInUserBehavior`.
+- Required validation: `npm run check:event-catalog-telemetry`, `npm run check:telemetry`, focused telemetry/analytics contract tests, touched-file TypeScript, and `git diff --check`.
+- Consequence for future work: Do not emit uncataloged events, add catalog events without emitter/audit coverage, let casing drift bypass aliases, omit canonical ids from drop/unlock/purchase/notification/chat events, or let admin telemetry enter user behavior analytics.
+
 ### 1cq. Admin CMS Drop workflow is server-validated before launch publication
 
 - Approximate date: Recorded explicitly on 2026-05-01 from the creator/admin CMS workflow launch audit

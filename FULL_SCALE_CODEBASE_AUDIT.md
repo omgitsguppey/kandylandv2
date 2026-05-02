@@ -1,5 +1,33 @@
 # KandyDrops Core Codebase Audit & Defensive Ledger
 
+## [2026-05-01 #88] PRE: Event Catalog Telemetry Naming Launch Audit
+
+Scope started:
+- Auditing telemetry catalog coverage, emitted event names, alias/casing normalization, actor/source/object separation, required payload fields, admin exclusion, event consumers, and launch-critical event families across client, server, task, notification, purchase/unlock, onboarding, chat, creator, admin, and diagnostics paths.
+- Required outputs: `agent/state/event-catalog-telemetry-audit.generated.json`, `docs/agent-truth/event-catalog-telemetry.md`, validator/script/package wiring, targeted tests, governance ledger updates, commit, and push.
+- Fixes are limited to verified telemetry catalog/contract gaps; no UI redesign, product feature expansion, payment/economy logic changes, admin analytics architecture rewrite, or raw backend UI label changes are in scope unless required to make event truth non-contradictory.
+
+Initial evidence:
+- Worktree was clean at startup on `main`.
+- Control tower routing, preflight checklist, source-of-truth map, product/copy/GA-cloud doctrine, and telemetry adjacency traces for `src/lib/telemetry.ts` and `src/lib/telemetry-catalog.ts` were consulted.
+- Task is a broad AUDIT/launch hardening pass with code/docs/tests requested by the user; implementation will stay scoped to catalog metadata, validation, and payload contract hardening.
+
+Scope completed:
+- Created `agent/state/event-catalog-telemetry-audit.generated.json`, `docs/agent-truth/event-catalog-telemetry.md`, and `scripts/agent/validate-event-catalog-telemetry.ts` with `npm run check:event-catalog-telemetry`.
+- Added `TELEMETRY_EVENT_PAYLOAD_CONTRACTS`, event-family classification, casing/alias normalization, and payload alias normalization to the shared telemetry catalog.
+- Hardened identified and server analytics facts with actor-lane metadata and prevented admin/system/unknown events from updating user-behavior active-user state.
+- Added canonical ids to launch-critical Drop card/preview unlock, purchase, notification, browser-push, and chat telemetry payloads without changing product flow semantics.
+
+Verification:
+- `npm run check:event-catalog-telemetry`
+- `npm run check:telemetry`
+- `npx vitest run tests/contracts/telemetry-contracts.spec.ts tests/unit/analytics-event-contract.spec.ts`
+- `npm run typecheck`
+- `git diff --check` (passed; line-ending warnings only)
+
+Residual risk:
+- This pass validates literal/resolvable emitters and known launch-critical payloads. Dynamic event names still require catalog review before use, and future non-literal emitters must extend the scanner or provide explicit audit coverage.
+
 ## [2026-05-01 #87] PRE: Admin CMS Drop Workflow Launch Audit
 
 Scope started:

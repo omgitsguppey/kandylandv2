@@ -9,6 +9,7 @@ import { recordServerDiagnostic } from "@/lib/server/server-diagnostics";
 import { resolveTrackedTelemetryEvent } from "@/lib/server/analytics-event-utils";
 import { ANALYTICS_CANONICAL_COLLECTIONS, ANALYTICS_OPERATIONAL_COLLECTIONS, ANALYTICS_ROUTE_POLICIES } from "@/lib/server/analytics-governance";
 import { withRouteRuntimeHealth } from "@/lib/server/route-runtime-health";
+import { explainEventInclusion } from "@/lib/analytics/analytics-event-contract";
 
 export const dynamic = "force-dynamic";
 
@@ -155,6 +156,23 @@ async function POST_handler(request: NextRequest) {
                 ...telemetryEvent.metadataParams,
                 tracking_origin: "identified_api_ingest",
             };
+            const sourceSurface = String(params.page_path || params.pagePath || "client");
+            const pagePath = String(enrichedParams.page_path || enrichedParams.pagePath || "");
+            const adminRouteOrEvent = telemetryEvent.option?.category === "admin"
+                || canonicalEventName.startsWith("admin_")
+                || pagePath === "/admin"
+                || pagePath.startsWith("/admin/");
+            const inclusion = explainEventInclusion({
+                eventName: canonicalEventName,
+                userId: caller.uid,
+                adminId: adminRouteOrEvent ? caller.uid : readStringParam(enrichedParams, "admin_id", "adminId"),
+                actorType: adminRouteOrEvent ? "admin" : "user",
+                route: pagePath,
+                surface: sourceSurface,
+                source: "identified_ingest",
+            });
+            const actorClassification = inclusion.actorClassification;
+            const adminId = actorClassification.isAdmin ? caller.uid : "";
             
             const finalEvent = {
                 eventId,
@@ -163,13 +181,20 @@ async function POST_handler(request: NextRequest) {
                 clientTimestamp: timestamp,
                 serverTimestamp: Date.now(),
                 userId: caller.uid,
+                analyticsUserId: inclusion.includeInUserBehavior ? caller.uid : "",
+                adminId,
+                actorType: actorClassification.actorType,
+                actorLane: actorClassification.actorLane,
+                includeInUserBehavior: inclusion.includeInUserBehavior,
+                includeInAdminAnalytics: inclusion.includeInAdminAnalytics,
+                analyticsExclusionReason: inclusion.exclusionReason ?? "",
                 username: "",
                 consentMode: "identified",
                 sourceLayer: "observed",
-                sourceSurface: String(params.page_path || params.pagePath || "client"),
+                sourceSurface,
                 idempotencyKey: eventId,
                 sessionId: String(enrichedParams.session_id || enrichedParams.sessionId || ""),
-                pagePath: String(enrichedParams.page_path || enrichedParams.pagePath || ""),
+                pagePath,
                 dayKey: String(enrichedParams.day_key || enrichedParams.dayKey || ""),
                 hourKey: String(enrichedParams.hour_key || enrichedParams.hourKey || ""),
                 minuteKey: String(enrichedParams.minute_key || enrichedParams.minuteKey || ""),
@@ -194,6 +219,14 @@ async function POST_handler(request: NextRequest) {
                 trackingSources: telemetryEvent.option?.sources || [],
                 eventIndexVersion: String(enrichedParams.event_index_version || ""),
                 trackingOrigin: "identified_api_ingest",
+                guestUserAdminSeparation: {
+                    guestOrAnonymous: actorClassification.isGuestLike,
+                    authenticatedUser: actorClassification.isAuthenticatedUser,
+                    creator: actorClassification.isCreator,
+                    admin: actorClassification.isAdmin,
+                    system: actorClassification.isSystem,
+                    unknown: actorClassification.isUnknown,
+                },
                 params: enrichedParams,
             };
 
@@ -201,7 +234,7 @@ async function POST_handler(request: NextRequest) {
             batch.set(ref, finalEvent, { merge: false });
             processed++;
 
-            if (!latestActiveUserPatch || timestamp >= Number(latestActiveUserPatch.lastSeenAt || 0)) {
+            if (inclusion.includeInUserBehavior && (!latestActiveUserPatch || timestamp >= Number(latestActiveUserPatch.lastSeenAt || 0))) {
                 latestActiveUserPatch = {
                     uid: caller.uid,
                     username: readStringParam(enrichedParams, "username", "user_name", "display_name", "displayName"),

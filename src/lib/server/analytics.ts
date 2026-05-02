@@ -6,6 +6,7 @@ import { adminDb } from "./firebase-admin";
 import { buildAnalyticsTimeKeys, resolveTrackedTelemetryEvent } from "./analytics-event-utils";
 import { recordRouteWarning } from "./route-diagnostics";
 import { buildAnalyticsSemanticParams } from "@/lib/analytics-semantics";
+import { explainEventInclusion } from "@/lib/analytics/analytics-event-contract";
 import { ANALYTICS_OPERATIONAL_COLLECTIONS } from "@/lib/server/analytics-governance";
 import { profileAllowsIdentifiedAnalytics } from "@/lib/server/privacy-consent";
 import type { UserProfile } from "@/types/db";
@@ -127,6 +128,22 @@ export async function trackServerEvent(
       dropCategory: readStringParam(sanitizedParams, "drop_category", "dropCategory"),
     }),
   };
+  const pagePath = readStringParam(enrichedParams, "page_path", "pagePath");
+  const explicitAdminId = readStringParam(enrichedParams, "admin_id", "adminId");
+  const adminRouteOrEvent = option?.category === "admin"
+    || canonicalEventName.startsWith("admin_")
+    || pagePath === "/admin"
+    || pagePath.startsWith("/admin/");
+  const inclusion = explainEventInclusion({
+    eventName: canonicalEventName,
+    userId,
+    adminId: adminRouteOrEvent ? userId || explicitAdminId : explicitAdminId,
+    actorType: adminRouteOrEvent ? "admin" : userId ? "user" : "system",
+    route: pagePath,
+    surface: "server",
+    source: "server",
+  });
+  const actorClassification = inclusion.actorClassification;
 
   try {
     const timeKeys = buildAnalyticsTimeKeys(nowMs);
@@ -141,12 +158,19 @@ export async function trackServerEvent(
         sourceLayer: "observed",
         sourceSurface: "server",
         userId: userId || "",
+        analyticsUserId: inclusion.includeInUserBehavior && userId ? userId : "",
+        adminId: actorClassification.isAdmin ? userId || explicitAdminId : "",
+        actorType: actorClassification.actorType,
+        actorLane: actorClassification.actorLane,
+        includeInUserBehavior: inclusion.includeInUserBehavior,
+        includeInAdminAnalytics: inclusion.includeInAdminAnalytics,
+        analyticsExclusionReason: inclusion.exclusionReason ?? "",
         username: "",
         timestamp: nowMs,
         clientTimestamp: nowMs,
         serverTimestamp: nowMs,
         userAgent: "server",
-        pagePath: readStringParam(enrichedParams, "page_path", "pagePath"),
+        pagePath,
         sessionId: readStringParam(enrichedParams, "session_id", "sessionId"),
         dayKey: timeKeys.dayKey,
         hourKey: timeKeys.hourKey,
@@ -178,12 +202,20 @@ export async function trackServerEvent(
         trackingSources: option?.sources || [],
         eventIndexVersion: readStringParam(enrichedParams, "event_index_version"),
         trackingOrigin: "server",
+        guestUserAdminSeparation: {
+          guestOrAnonymous: actorClassification.isGuestLike,
+          authenticatedUser: actorClassification.isAuthenticatedUser,
+          creator: actorClassification.isCreator,
+          admin: actorClassification.isAdmin,
+          system: actorClassification.isSystem,
+          unknown: actorClassification.isUnknown,
+        },
         params: enrichedParams,
         createdAt: admin.firestore.FieldValue.serverTimestamp(),
       }),
     ];
 
-    if (userId) {
+    if (userId && inclusion.includeInUserBehavior) {
       writes.push(
         adminDb
           .collection(ANALYTICS_OPERATIONAL_COLLECTIONS.activeUsers)

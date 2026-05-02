@@ -56,6 +56,38 @@ export interface TelemetryResolvedEventMetadata {
   metadataParams: Record<string, string>;
 }
 
+export type TelemetryEventFamily =
+  | "page_view"
+  | "drop"
+  | "unlock"
+  | "purchase"
+  | "auth"
+  | "onboarding"
+  | "task"
+  | "notification"
+  | "chat_message"
+  | "creator"
+  | "admin"
+  | "system"
+  | "security"
+  | "diagnostic"
+  | "engagement";
+
+export interface TelemetryEventPayloadContract {
+  eventName: string;
+  aliases: string[];
+  version: number;
+  family: TelemetryEventFamily;
+  requiredActorFields: string[];
+  requiredObjectFields: string[];
+  requiredSurfaceFields: string[];
+  dedupeKeyRequired: boolean;
+  guestAllowed: boolean;
+  adminExcludedFromUserAnalytics: boolean;
+  legacyDeprecated: boolean;
+  missingFieldsRisk: "low" | "medium" | "high";
+}
+
 const DEFAULT_CLIENT_SOURCES: TelemetryEventSource[] = ["ga4", "client", "backend"];
 const DEFAULT_SERVER_SOURCES: TelemetryEventSource[] = ["ga4", "backend"];
 const DEFAULT_CANONICAL_SERVER_SOURCES: TelemetryEventSource[] = ["ga4", "backend", "canonical"];
@@ -504,7 +536,12 @@ export const ADMIN_TELEMETRY_LOG_EVENT_NAMES = [
 ] as const;
 
 export function normalizeTelemetryEventName(eventName: string) {
-  return TELEMETRY_EVENT_ALIAS_MAP[eventName] || eventName;
+  const trimmedEventName = eventName.trim();
+  const lowerCaseEventName = trimmedEventName.toLowerCase();
+
+  return TELEMETRY_EVENT_ALIAS_MAP[trimmedEventName]
+    || TELEMETRY_EVENT_ALIAS_MAP[lowerCaseEventName]
+    || (TELEMETRY_EVENT_NAME_SET.has(lowerCaseEventName) ? lowerCaseEventName : trimmedEventName);
 }
 
 export function getTelemetryEventOption(eventName: string) {
@@ -530,3 +567,295 @@ export function buildTelemetryEventMetadata(eventName: string): TelemetryResolve
     },
   };
 }
+
+const TELEMETRY_PARAM_ALIASES: Record<string, string> = {
+  adminId: "admin_id",
+  anonymousVisitorId: "anonymous_visitor_id",
+  assetIndex: "asset_index",
+  assetKey: "asset_key",
+  componentName: "component_name",
+  contentKind: "content_kind",
+  creatorId: "creator_id",
+  dayKey: "day_key",
+  dropCategory: "drop_category",
+  dropId: "drop_id",
+  dropTags: "drop_tags",
+  dropTitle: "drop_title",
+  durationMs: "duration_ms",
+  eventIndexVersion: "event_index_version",
+  eventModules: "event_modules",
+  hourKey: "hour_key",
+  idempotencyKey: "idempotency_key",
+  isMobileViewport: "is_mobile_viewport",
+  messageId: "message_id",
+  minuteKey: "minute_key",
+  notificationId: "notification_id",
+  notificationType: "notification_type",
+  orderId: "order_id",
+  pagePath: "page_path",
+  purchaseId: "purchase_id",
+  recipientId: "recipient_id",
+  semanticScopeLabel: "semantic_scope_label",
+  sessionId: "session_id",
+  sessionWatchSeconds: "session_watch_seconds",
+  sourceComponent: "source_component",
+  taskId: "task_id",
+  taskKey: "task_key",
+  threadId: "thread_id",
+  transactionId: "transaction_id",
+  userId: "user_id",
+  viewportHeight: "viewport_height",
+  viewportWidth: "viewport_width",
+  watchSeconds: "watch_seconds",
+};
+
+export function normalizeTelemetryEventPayloadParams(eventParams?: Record<string, unknown>) {
+  if (!eventParams) {
+    return undefined;
+  }
+
+  const normalizedParams: Record<string, unknown> = { ...eventParams };
+  Object.entries(TELEMETRY_PARAM_ALIASES).forEach(([aliasKey, canonicalKey]) => {
+    if (
+      Object.prototype.hasOwnProperty.call(eventParams, aliasKey)
+      && !Object.prototype.hasOwnProperty.call(normalizedParams, canonicalKey)
+    ) {
+      normalizedParams[canonicalKey] = eventParams[aliasKey];
+    }
+  });
+
+  return normalizedParams;
+}
+
+function isPageViewEvent(eventName: string) {
+  return eventName === "page_viewed"
+    || eventName.startsWith("semantic_page_")
+    || eventName.endsWith("_page_viewed")
+    || eventName.endsWith("_viewed");
+}
+
+function isDropEvent(eventName: string) {
+  return eventName.includes("drop")
+    || eventName.includes("viewer_")
+    || eventName === "spend_virtual_currency";
+}
+
+function isUnlockEvent(eventName: string) {
+  return eventName.includes("unlock")
+    || eventName.includes("unwrap");
+}
+
+function isPurchaseEvent(eventName: string) {
+  return eventName.includes("purchase")
+    || eventName.includes("checkout")
+    || eventName.includes("wallet")
+    || eventName.includes("subscription")
+    || eventName.includes("cashout")
+    || eventName.includes("ledger_accrual");
+}
+
+function isNotificationEvent(eventName: string) {
+  return eventName.includes("notification")
+    || eventName.includes("reminder")
+    || eventName === "queued_drop_returned_live";
+}
+
+function isAuthEvent(eventName: string) {
+  return eventName.startsWith("auth_")
+    || eventName.includes("password_reset")
+    || eventName === "user_registered"
+    || eventName === "identity_linked";
+}
+
+function isChatEvent(eventName: string) {
+  return eventName === "creator_message_sent" || eventName === "creator_media_sent";
+}
+
+function isOnboardingEvent(eventName: string, option?: TelemetryEventOption) {
+  return eventName.includes("onboarding")
+    || eventName.includes("creator_id_")
+    || eventName.includes("creator_legal")
+    || option?.modules?.includes("onboarding") === true;
+}
+
+export function classifyTelemetryEventFamily(
+  eventName: string,
+  option = TELEMETRY_EVENT_OPTIONS_BY_NAME[normalizeTelemetryEventName(eventName)],
+): TelemetryEventFamily {
+  const canonicalEventName = normalizeTelemetryEventName(eventName);
+
+  if (option?.category === "admin" || canonicalEventName.startsWith("admin_")) {
+    return "admin";
+  }
+  if (option?.category === "security" || canonicalEventName.startsWith("security_") || canonicalEventName.startsWith("confirmed_") || canonicalEventName.startsWith("heuristic_")) {
+    return "security";
+  }
+  if (option?.category === "system" || canonicalEventName.startsWith("system_") || canonicalEventName.includes("runtime")) {
+    return "system";
+  }
+  if (isChatEvent(canonicalEventName)) {
+    return "chat_message";
+  }
+  if (isNotificationEvent(canonicalEventName)) {
+    return "notification";
+  }
+  if (isUnlockEvent(canonicalEventName)) {
+    return "unlock";
+  }
+  if (isPurchaseEvent(canonicalEventName)) {
+    return "purchase";
+  }
+  if (option?.modules?.includes("tasks") || canonicalEventName.includes("task") || canonicalEventName.includes("check_in")) {
+    return "task";
+  }
+  if (isAuthEvent(canonicalEventName)) {
+    return "auth";
+  }
+  if (isOnboardingEvent(canonicalEventName, option)) {
+    return "onboarding";
+  }
+  if (option?.modules?.includes("creator") || canonicalEventName.startsWith("creator_") || canonicalEventName.includes("creator_")) {
+    return "creator";
+  }
+  if (isDropEvent(canonicalEventName)) {
+    return "drop";
+  }
+  if (isPageViewEvent(canonicalEventName)) {
+    return "page_view";
+  }
+
+  return "engagement";
+}
+
+function buildRequiredObjectFields(eventName: string, family: TelemetryEventFamily) {
+  if (family === "unlock") {
+    return [
+      "drop_id|dropId",
+      "transaction_id|transactionId|dedupeKey|idempotency_key|idempotencyKey",
+    ];
+  }
+
+  if (eventName === "purchase" || eventName === "purchase_verified" || eventName.startsWith("gumdrops_purchase_") || eventName === "begin_checkout") {
+    return [
+      "purchase_id|purchaseId|order_id|orderId|transaction_id|transactionId",
+      "amount|value|package_price|source|payment_source|purchase_source",
+    ];
+  }
+
+  if (family === "notification" && !eventName.includes("prompt")) {
+    return [
+      "notification_id|notificationId|idempotency_key|idempotencyKey|tag",
+      "notification_type|notificationType|type|lifecycle_event|lifecycleEvent",
+    ];
+  }
+
+  if (family === "chat_message") {
+    return [
+      "conversation_id|conversationId|thread_id|threadId",
+      "message_id|messageId|idempotency_key|idempotencyKey",
+    ];
+  }
+
+  if (family === "task") {
+    return ["task_id|taskId|task_key|taskKey"];
+  }
+
+  if (family === "drop" || eventName.includes("drop")) {
+    return ["drop_id|dropId"];
+  }
+
+  return [];
+}
+
+function buildRequiredActorFields(eventName: string, family: TelemetryEventFamily) {
+  if (family === "admin") {
+    return ["admin_id|adminId"];
+  }
+
+  if (family === "unlock" || eventName === "purchase_verified" || eventName.startsWith("gumdrops_purchase_")) {
+    return ["user_id|userId|authenticated caller"];
+  }
+
+  if (family === "purchase" && eventName !== "purchase_package_selected" && eventName !== "wallet_opened" && eventName !== "wallet_closed_incomplete") {
+    return ["user_id|userId|authenticated caller"];
+  }
+
+  if (family === "notification" && !eventName.includes("prompt")) {
+    return ["recipient_id|recipientId|user_id|userId|target audience"];
+  }
+
+  if (family === "chat_message") {
+    return ["user_id|userId|authenticated caller"];
+  }
+
+  if (family === "auth") {
+    return ["session_id|sessionId|anonymous_visitor_id|anonymousVisitorId|user_id|userId"];
+  }
+
+  return [];
+}
+
+function buildRequiredSurfaceFields(eventName: string, family: TelemetryEventFamily) {
+  const requiresSurface = family === "drop"
+    || family === "unlock"
+    || family === "purchase"
+    || family === "auth"
+    || family === "onboarding"
+    || family === "page_view";
+
+  if (!requiresSurface) {
+    return [];
+  }
+
+  if (family === "auth") {
+    return ["method|provider", "outcome|success|error_code", "route|page_path|pagePath|surface|source_component"];
+  }
+
+  if (eventName === "purchase_verified") {
+    return ["source|payment_source|purchase_source|tracking_origin"];
+  }
+
+  return ["route|page_path|pagePath|surface|source_component|sourceComponent"];
+}
+
+export function buildTelemetryEventPayloadContract(eventName: string): TelemetryEventPayloadContract {
+  const canonicalEventName = normalizeTelemetryEventName(eventName);
+  const option = TELEMETRY_EVENT_OPTIONS_BY_NAME[canonicalEventName];
+  const family = classifyTelemetryEventFamily(canonicalEventName, option);
+  const requiredActorFields = buildRequiredActorFields(canonicalEventName, family);
+  const requiredObjectFields = buildRequiredObjectFields(canonicalEventName, family);
+  const requiredSurfaceFields = buildRequiredSurfaceFields(canonicalEventName, family);
+  const dedupeKeyRequired = family === "unlock"
+    || family === "notification"
+    || family === "chat_message"
+    || canonicalEventName === "purchase_verified"
+    || canonicalEventName.startsWith("gumdrops_purchase_");
+  const highRiskFamilies: TelemetryEventFamily[] = ["unlock", "purchase", "notification", "admin"];
+
+  return {
+    eventName: canonicalEventName,
+    aliases: option?.aliases ?? [],
+    version: 1,
+    family,
+    requiredActorFields,
+    requiredObjectFields,
+    requiredSurfaceFields,
+    dedupeKeyRequired,
+    guestAllowed: family !== "admin" && family !== "unlock" && canonicalEventName !== "purchase_verified",
+    adminExcludedFromUserAnalytics: family === "admin",
+    legacyDeprecated: false,
+    missingFieldsRisk: requiredActorFields.length + requiredObjectFields.length + requiredSurfaceFields.length === 0
+      ? "low"
+      : highRiskFamilies.includes(family)
+        ? "high"
+        : "medium",
+  };
+}
+
+export const TELEMETRY_EVENT_PAYLOAD_CONTRACTS = TELEMETRY_EVENT_OPTIONS.map((event) =>
+  buildTelemetryEventPayloadContract(event.eventName),
+);
+
+export const TELEMETRY_EVENT_PAYLOAD_CONTRACTS_BY_NAME = Object.fromEntries(
+  TELEMETRY_EVENT_PAYLOAD_CONTRACTS.map((contract) => [contract.eventName, contract]),
+) as Record<string, TelemetryEventPayloadContract>;

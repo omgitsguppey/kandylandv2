@@ -1,5 +1,6 @@
 import {
   buildTelemetryEventMetadata,
+  normalizeTelemetryEventPayloadParams,
   TELEMETRY_EVENT_NAME_SET,
 } from "./telemetry-catalog";
 
@@ -19,9 +20,10 @@ export function prepareAnalyticsEvent(
 ): PreparedAnalyticsEvent {
   const { canonicalEventName, metadataParams } = buildTelemetryEventMetadata(rawEventName);
   const isKnownEvent = TELEMETRY_EVENT_NAME_SET.has(canonicalEventName);
+  const aliasedParams = normalizeTelemetryEventPayloadParams(eventParams);
 
   const normalizedParams: AnalyticsEventParams = {};
-  Object.entries(eventParams ?? {}).forEach(([key, value]) => {
+  Object.entries(aliasedParams ?? {}).forEach(([key, value]) => {
     if (typeof value === "string" || typeof value === "number" || typeof value === "boolean") {
       normalizedParams[key] = value;
       return;

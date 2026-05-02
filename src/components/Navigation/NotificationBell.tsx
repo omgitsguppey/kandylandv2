@@ -276,6 +276,9 @@ function NotificationItem({
         source: "notifications_dropdown",
         destination,
         notification_id: note.id,
+        idempotency_key: note.id,
+        notification_type: note.type,
+        recipient_id: currentUserId ?? "",
       });
       await markAsRead(note.id, { preserveVisible: true });
       router.push(destination);

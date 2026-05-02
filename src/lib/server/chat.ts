@@ -901,6 +901,8 @@ export async function sendChatMessageForViewer(input: SendChatMessageInput) {
             {
                 creator_id: sendResult.thread.creatorId,
                 thread_id: sendResult.thread.id,
+                message_id: sendResult.message.id,
+                idempotency_key: sendResult.message.id,
                 spend_gd: sendResult.costGd,
                 media_kind: sendResult.message.messageKind,
             },

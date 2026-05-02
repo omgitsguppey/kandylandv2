@@ -330,6 +330,8 @@ export function PurchaseModal({ isOpen, onClose }: PurchaseModalProps) {
         }]
       });
       trackEvent("gumdrops_purchase_completed", {
+        order_id: orderId,
+        transaction_id: orderId,
         package_label: selectedPackage.label,
         package_drops: selectedPackage.drops,
         package_price: selectedPackage.price,
@@ -356,6 +358,8 @@ export function PurchaseModal({ isOpen, onClose }: PurchaseModalProps) {
       });
       setError(problemCopy.body);
       trackEvent("gumdrops_purchase_failed", {
+        order_id: orderId,
+        transaction_id: orderId,
         package_label: selectedPackage.label,
         package_drops: selectedPackage.drops,
         package_price: selectedPackage.price,

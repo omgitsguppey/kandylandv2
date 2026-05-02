@@ -7,8 +7,11 @@ import {
   TELEMETRY_EVENT_ALIAS_MAP,
   TELEMETRY_EVENT_NAMES,
   TELEMETRY_EVENT_OPTIONS,
+  TELEMETRY_EVENT_PAYLOAD_CONTRACTS,
+  TELEMETRY_EVENT_PAYLOAD_CONTRACTS_BY_NAME,
   TELEMETRY_EVENT_QUERY_NAMES,
   TELEMETRY_MODULE_INDEXES,
+  normalizeTelemetryEventPayloadParams,
   normalizeTelemetryEventName,
 } from "@/lib/telemetry-catalog";
 
@@ -30,6 +33,25 @@ describe("telemetry catalog contracts", () => {
     });
   });
 
+  it("normalizes event casing drift and payload key aliases", () => {
+    expect(normalizeTelemetryEventName("Unlock_Drop_Success")).toBe("unlock_drop_success");
+    expect(normalizeTelemetryEventName("NOTIFICATION_READ")).toBe("notification_marked_read");
+
+    expect(normalizeTelemetryEventPayloadParams({
+      dropId: "drop_1",
+      transactionId: "txn_1",
+      notificationId: "note_1",
+      idempotencyKey: "idem_1",
+      pagePath: "/drops",
+    })).toMatchObject({
+      drop_id: "drop_1",
+      transaction_id: "txn_1",
+      notification_id: "note_1",
+      idempotency_key: "idem_1",
+      page_path: "/drops",
+    });
+  });
+
   it("keeps module indexes bound to known telemetry events", () => {
     const knownEvents = new Set(TELEMETRY_EVENT_NAMES);
 
@@ -48,6 +70,16 @@ describe("telemetry catalog contracts", () => {
     Object.keys(TELEMETRY_EVENT_ALIAS_MAP).forEach((alias) => {
       expect(TELEMETRY_EVENT_QUERY_NAMES).toContain(alias);
     });
+  });
+
+  it("keeps payload contracts for every cataloged launch-critical event family", () => {
+    expect(TELEMETRY_EVENT_PAYLOAD_CONTRACTS).toHaveLength(TELEMETRY_EVENT_OPTIONS.length);
+    expect(TELEMETRY_EVENT_PAYLOAD_CONTRACTS_BY_NAME.drop_unlock_attempted.requiredObjectFields.join(" ")).toContain("drop_id");
+    expect(TELEMETRY_EVENT_PAYLOAD_CONTRACTS_BY_NAME.unlock_drop_success.requiredObjectFields.join(" ")).toContain("transaction_id");
+    expect(TELEMETRY_EVENT_PAYLOAD_CONTRACTS_BY_NAME.purchase_verified.requiredObjectFields.join(" ")).toContain("transaction_id");
+    expect(TELEMETRY_EVENT_PAYLOAD_CONTRACTS_BY_NAME.notification_opened.requiredObjectFields.join(" ")).toContain("idempotency");
+    expect(TELEMETRY_EVENT_PAYLOAD_CONTRACTS_BY_NAME.creator_message_sent.requiredObjectFields.join(" ")).toContain("message_id");
+    expect(TELEMETRY_EVENT_PAYLOAD_CONTRACTS_BY_NAME.admin_analytics_viewed.adminExcludedFromUserAnalytics).toBe(true);
   });
 });
 

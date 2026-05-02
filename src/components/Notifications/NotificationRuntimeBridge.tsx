@@ -74,6 +74,9 @@ export function NotificationRuntimeBridge() {
             trackEvent("notification_opened", {
                 source: "service_worker_notificationclick",
                 notification_id: message.notificationId ?? "unknown",
+                idempotency_key: message.idempotencyKey ?? message.tag ?? message.notificationId ?? "unknown",
+                notification_type: "browser_push",
+                recipient_id: user.uid,
                 tag: message.tag ?? "unknown",
                 destination: message.url ?? "/experiences",
             });

@@ -214,7 +214,9 @@ export function DropPreviewModal({ drop, onClose }: DropPreviewModalProps) {
       trackEvent("drop_unwrap_intent_blocked_by_funds", {
         drop_id: drop.id,
         unlock_cost: drop.unlockCost,
-        current_balance: balance
+        current_balance: balance,
+        idempotency_key: `${user.uid}:unlock_blocked:${drop.id}`,
+        source_component: "drop_preview_modal",
       });
       onClose();
       openPurchaseModal(Math.max(1, drop.unlockCost - balance));
@@ -233,7 +235,9 @@ export function DropPreviewModal({ drop, onClose }: DropPreviewModalProps) {
         drop_id: drop.id,
         drop_category: drop.type,
         unlock_cost: drop.unlockCost,
+        idempotency_key: `${user.uid}:unlock_attempt:${drop.id}`,
         drop_tags: (drop.tags || []).join("|"),
+        source_component: "drop_preview_modal",
       });
       return;
     }
@@ -266,7 +270,10 @@ export function DropPreviewModal({ drop, onClose }: DropPreviewModalProps) {
         drop_id: drop.id,
         drop_category: drop.type,
         unlock_cost: drop.unlockCost,
+        transaction_id: `${user.uid}:unlock:${drop.id}:${Number.isFinite(result.unwrappedAt) ? Math.floor(result.unwrappedAt) : "client"}`,
+        idempotency_key: `${user.uid}:unlock:${drop.id}`,
         drop_tags: (drop.tags || []).join("|"),
+        source_component: "drop_preview_modal",
         ...(consumeTimedFlow("drop_unlock").mergedParams ?? {}),
       });
 
@@ -308,6 +315,8 @@ export function DropPreviewModal({ drop, onClose }: DropPreviewModalProps) {
         drop_id: drop.id,
         drop_category: drop.type,
         unlock_cost: drop.unlockCost,
+        idempotency_key: `${user.uid}:unlock_failed:${drop.id}`,
+        source_component: "drop_preview_modal",
         error_message: problemCopy.headline,
         ...(timedStats.mergedParams ?? {}),
       });

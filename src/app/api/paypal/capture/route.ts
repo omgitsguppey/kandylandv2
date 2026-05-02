@@ -278,9 +278,11 @@ async function POST_handler(request: NextRequest) {
 
     const [analyticsResult, taskEventResult] = await Promise.allSettled([
       trackServerEvent("purchase_verified", {
+        order_id: orderId,
         transaction_id: orderId,
         value: paidUsd,
         currency: "USD",
+        purchase_source: "paypal_capture",
         items_count: dropsToCredit,
         paypal_fee_usd: economics.paypalFeeUsd,
         net_revenue_usd: economics.netRevenueUsd,
