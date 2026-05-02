@@ -83,3 +83,13 @@ npm run check:legacy-creator-application-migration
 ```
 
 The validation enforces adapter exports, dry-run inventory behavior, canonical-first write order, projection builder presence, signature-evidence safety, and report schema coverage.
+
+## Old Logic Removal Gate
+
+Also run:
+
+```bash
+npm run check:creator-lane-old-logic-removal
+```
+
+That gate treats this adapter and the dry-run inventory as the approved legacy read boundary. Other runtime files must not start treating `users/{uid}.creatorApplication` as canonical or add new direct projection lifecycle writes. If a temporary exception is unavoidable, it must be documented in `agent/state/creator-lane-old-logic-cleanup.generated.json` with owner, allowed reason, removal plan, and risk.

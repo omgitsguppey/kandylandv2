@@ -88,12 +88,18 @@ const APPROVED_ACCESS_ITEMS = [
     "Creator profile and public creator surfaces where enabled",
 ] as const;
 
+const CREATOR_LEGAL_STATUS_LABELS: Record<string, string> = {
+    legal_pending: "Legal not started",
+    legal_sent: "Waiting on signatures",
+    legal_signed: "Agreement complete",
+};
+
 function formatStatusLabel(value: string | undefined) {
     if (!value) {
         return "Waiting";
     }
 
-    return value.replaceAll("_", " ");
+    return CREATOR_LEGAL_STATUS_LABELS[value] ?? "Waiting";
 }
 
 function buildUploadButtonLabel(selectedCount: number) {

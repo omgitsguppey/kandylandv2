@@ -1,5 +1,5 @@
 {
-  "generatedAt": "2026-05-02T19:59:24.956Z",
+  "generatedAt": "2026-05-02T20:41:22.678Z",
   "truthOrder": [
     "verified_runtime_code",
     "verified_configuration",
@@ -930,7 +930,7 @@
       "risk_tags": [
         "broad_signoff"
       ],
-      "recency": "1777751812783:7e6ac5b3ecdf",
+      "recency": "1777754057526:28c5f86e5535",
       "freshness": {
         "local": "fresh",
         "sql_mirror": "unknown"
@@ -958,7 +958,7 @@
       "risk_tags": [
         "broad_signoff"
       ],
-      "recency": "1777751774096:512476192018",
+      "recency": "1777753434739:13349e9e8e2c",
       "freshness": {
         "local": "fresh",
         "sql_mirror": "unknown"
@@ -1010,7 +1010,7 @@
       "risk_tags": [
         "broad_signoff"
       ],
-      "recency": "1777751790767:e15265494e0c",
+      "recency": "1777754036470:7c3093d2bf86",
       "freshness": {
         "local": "fresh",
         "sql_mirror": "unknown"
@@ -1092,7 +1092,7 @@
       "risk_tags": [
         "broad_signoff"
       ],
-      "recency": "1777750619230:0204b44d8a09",
+      "recency": "1777754454845:edf7052c16cd",
       "freshness": {
         "local": "fresh",
         "sql_mirror": "unknown"
@@ -1120,7 +1120,7 @@
       "risk_tags": [
         "broad_signoff"
       ],
-      "recency": "1777750619180:9674959d9044",
+      "recency": "1777754454800:1b5e56b10a38",
       "freshness": {
         "local": "fresh",
         "sql_mirror": "unknown"
@@ -1148,7 +1148,7 @@
       "risk_tags": [
         "broad_signoff"
       ],
-      "recency": "1777750619222:2bdfa0ccb5c8",
+      "recency": "1777754454837:eb5cc23dbe66",
       "freshness": {
         "local": "fresh",
         "sql_mirror": "unknown"
@@ -1176,7 +1176,7 @@
       "risk_tags": [
         "broad_signoff"
       ],
-      "recency": "1777750619200:ad1847672471",
+      "recency": "1777754454819:5646910e3abd",
       "freshness": {
         "local": "fresh",
         "sql_mirror": "unknown"
@@ -1204,7 +1204,7 @@
       "risk_tags": [
         "broad_signoff"
       ],
-      "recency": "1777750619205:5b68155e7c7a",
+      "recency": "1777754454823:a531a6e529b8",
       "freshness": {
         "local": "fresh",
         "sql_mirror": "unknown"
@@ -1232,7 +1232,7 @@
       "risk_tags": [
         "broad_signoff"
       ],
-      "recency": "1777750619194:a3def406ad6f",
+      "recency": "1777754454814:5420afdc9aeb",
       "freshness": {
         "local": "fresh",
         "sql_mirror": "unknown"
@@ -1260,7 +1260,7 @@
       "risk_tags": [
         "broad_signoff"
       ],
-      "recency": "1777750619211:929923f4eec2",
+      "recency": "1777754454828:65328530c5cc",
       "freshness": {
         "local": "fresh",
         "sql_mirror": "unknown"
@@ -1288,7 +1288,7 @@
       "risk_tags": [
         "broad_signoff"
       ],
-      "recency": "1777750619159:a27cd685015d",
+      "recency": "1777754454783:5b2c1bb25b49",
       "freshness": {
         "local": "fresh",
         "sql_mirror": "unknown"
@@ -1316,7 +1316,7 @@
       "risk_tags": [
         "broad_signoff"
       ],
-      "recency": "1777750619247:73de8e9d929c",
+      "recency": "1777754454864:ac02f87086c2",
       "freshness": {
         "local": "fresh",
         "sql_mirror": "unknown"
@@ -1344,7 +1344,7 @@
       "risk_tags": [
         "broad_signoff"
       ],
-      "recency": "1777750619214:21a36c5eaf90",
+      "recency": "1777754454830:e3861b3c7e06",
       "freshness": {
         "local": "fresh",
         "sql_mirror": "unknown"
@@ -1372,7 +1372,7 @@
       "risk_tags": [
         "broad_signoff"
       ],
-      "recency": "1777750619178:a4daa62bdcd8",
+      "recency": "1777754454799:8c0eefbf1cd7",
       "freshness": {
         "local": "fresh",
         "sql_mirror": "unknown"
@@ -1400,7 +1400,7 @@
       "risk_tags": [
         "broad_signoff"
       ],
-      "recency": "1777751955968:c39a4c2d6a17",
+      "recency": "1777754472106:64c8140209d3",
       "freshness": {
         "local": "fresh",
         "sql_mirror": "unknown"
@@ -1428,7 +1428,7 @@
       "risk_tags": [
         "broad_signoff"
       ],
-      "recency": "1777750619185:ec9210781dca",
+      "recency": "1777754454805:228f284054b5",
       "freshness": {
         "local": "fresh",
         "sql_mirror": "unknown"
@@ -1456,7 +1456,7 @@
       "risk_tags": [
         "broad_signoff"
       ],
-      "recency": "1777750619196:3d9012dfda99",
+      "recency": "1777754454816:3d5f5f42ef17",
       "freshness": {
         "local": "fresh",
         "sql_mirror": "unknown"
@@ -1484,7 +1484,7 @@
       "risk_tags": [
         "broad_signoff"
       ],
-      "recency": "1777750636923:c221424a4181",
+      "recency": "1777753238647:464386cd983d",
       "freshness": {
         "local": "fresh",
         "sql_mirror": "unknown"
@@ -1512,7 +1512,7 @@
       "risk_tags": [
         "broad_signoff"
       ],
-      "recency": "1777750625401:c438ec531b45",
+      "recency": "1777754461046:3febf676a039",
       "freshness": {
         "local": "fresh",
         "sql_mirror": "unknown"
@@ -1538,7 +1538,7 @@
       "risk_tags": [
         "broad_signoff"
       ],
-      "recency": "1777750625393:b1309cd74d67",
+      "recency": "1777754461042:720b1986ad2e",
       "freshness": {
         "local": "fresh",
         "sql_mirror": "unknown"
@@ -1564,7 +1564,7 @@
       "risk_tags": [
         "broad_signoff"
       ],
-      "recency": "1777750625397:6687a5b7410e",
+      "recency": "1777754461044:57f75f46be7b",
       "freshness": {
         "local": "fresh",
         "sql_mirror": "unknown"
@@ -1590,7 +1590,7 @@
       "risk_tags": [
         "broad_signoff"
       ],
-      "recency": "1777750625420:637174b8d083",
+      "recency": "1777753227471:718b832432e7",
       "freshness": {
         "local": "fresh",
         "sql_mirror": "unknown"
@@ -2376,6 +2376,34 @@
       "do_not_use_as_primary_truth": true
     },
     {
+      "stable_id": "file__agent__state__creator-lane-old-logic-cleanup-generated-json",
+      "source_type": "file",
+      "source_id": "file__agent__state__creator-lane-old-logic-cleanup-generated-json",
+      "searchable_terms": [
+        "agent/state/creator-lane-old-logic-cleanup.generated.json",
+        "agent_state",
+        "creator"
+      ],
+      "surface_tags": [
+        "creator",
+        "agent_state"
+      ],
+      "helper_tags": [],
+      "risk_tags": [
+        "broad_signoff"
+      ],
+      "recency": "1777753691206:8e1447caeaab",
+      "freshness": {
+        "local": "fresh",
+        "sql_mirror": "unknown"
+      },
+      "context_tier": "warm",
+      "exclusion_tags": [
+        "generated"
+      ],
+      "do_not_use_as_primary_truth": true
+    },
+    {
       "stable_id": "file__agent__state__current-task-template-json",
       "source_type": "file",
       "source_id": "file__agent__state__current-task-template-json",
@@ -2558,7 +2586,7 @@
       "risk_tags": [
         "broad_signoff"
       ],
-      "recency": "1777750636919:72bc9f72d7a7",
+      "recency": "1777753238645:2240e836e04f",
       "freshness": {
         "local": "fresh",
         "sql_mirror": "unknown"
@@ -3142,7 +3170,7 @@
       "risk_tags": [
         "broad_signoff"
       ],
-      "recency": "1777750625391:50dfa45292bb",
+      "recency": "1777754461035:eedbafc844f4",
       "freshness": {
         "local": "fresh",
         "sql_mirror": "unknown"
@@ -3308,7 +3336,7 @@
       "risk_tags": [
         "broad_signoff"
       ],
-      "recency": "1777750625415:c9290d0cf9f0",
+      "recency": "1777753227468:dea86358b8c1",
       "freshness": {
         "local": "fresh",
         "sql_mirror": "unknown"
@@ -5063,7 +5091,7 @@
       ],
       "helper_tags": [],
       "risk_tags": [],
-      "recency": "1777736792645:211b29123ef5",
+      "recency": "1777753743170:ef10a10810c2",
       "freshness": {
         "local": "fresh",
         "sql_mirror": "unknown"
@@ -5495,7 +5523,7 @@
       ],
       "helper_tags": [],
       "risk_tags": [],
-      "recency": "1777711872884:0a7abbb6af36",
+      "recency": "1777753752665:bf28742d2357",
       "freshness": {
         "local": "fresh",
         "sql_mirror": "unknown"
@@ -5543,7 +5571,31 @@
       ],
       "helper_tags": [],
       "risk_tags": [],
-      "recency": "1777739790512:1b7ddf63fff6",
+      "recency": "1777753722323:0662d2e9f618",
+      "freshness": {
+        "local": "fresh",
+        "sql_mirror": "unknown"
+      },
+      "context_tier": "warm",
+      "exclusion_tags": [],
+      "do_not_use_as_primary_truth": false
+    },
+    {
+      "stable_id": "file__docs__agent-truth__creator-lane-old-logic-cleanup-md",
+      "source_type": "file",
+      "source_id": "file__docs__agent-truth__creator-lane-old-logic-cleanup-md",
+      "searchable_terms": [
+        "docs/agent-truth/creator-lane-old-logic-cleanup.md",
+        "other",
+        "creator"
+      ],
+      "surface_tags": [
+        "creator",
+        "other"
+      ],
+      "helper_tags": [],
+      "risk_tags": [],
+      "recency": "1777753974370:8185c84f595c",
       "freshness": {
         "local": "fresh",
         "sql_mirror": "unknown"
@@ -5879,7 +5931,7 @@
       ],
       "helper_tags": [],
       "risk_tags": [],
-      "recency": "1777739781724:01d8432e2b72",
+      "recency": "1777753732407:2f7f5def7cfe",
       "freshness": {
         "local": "fresh",
         "sql_mirror": "unknown"
@@ -7832,7 +7884,7 @@
       "risk_tags": [
         "broad_signoff"
       ],
-      "recency": "1777751645200:b7b5e2a60efd",
+      "recency": "1777753762214:89c53047020e",
       "freshness": {
         "local": "fresh",
         "sql_mirror": "unknown"
@@ -10444,6 +10496,33 @@
         "broad_signoff"
       ],
       "recency": "1777735693474:5a39bd1ee0a4",
+      "freshness": {
+        "local": "fresh",
+        "sql_mirror": "unknown"
+      },
+      "context_tier": "hot",
+      "exclusion_tags": [],
+      "do_not_use_as_primary_truth": false
+    },
+    {
+      "stable_id": "file__scripts__agent__validate-creator-lane-old-logic-removal-ts",
+      "source_type": "file",
+      "source_id": "file__scripts__agent__validate-creator-lane-old-logic-removal-ts",
+      "searchable_terms": [
+        "scripts/agent/validate-creator-lane-old-logic-removal.ts",
+        "repo_intelligence_tooling",
+        "creator"
+      ],
+      "surface_tags": [
+        "creator",
+        "repo_intelligence_tooling"
+      ],
+      "helper_tags": [],
+      "risk_tags": [
+        "shared_helper",
+        "broad_signoff"
+      ],
+      "recency": "1777753950914:a317837476b6",
       "freshness": {
         "local": "fresh",
         "sql_mirror": "unknown"
@@ -14571,7 +14650,7 @@
       "risk_tags": [
         "runtime_critical"
       ],
-      "recency": "1777751289216:ec1b55e3d1f0",
+      "recency": "1777754171296:454204ec1b96",
       "freshness": {
         "local": "fresh",
         "sql_mirror": "unknown"
@@ -14623,7 +14702,7 @@
       "risk_tags": [
         "runtime_critical"
       ],
-      "recency": "1777736653076:62d00cedaedc",
+      "recency": "1777753942105:ba82cd5660c6",
       "freshness": {
         "local": "fresh",
         "sql_mirror": "unknown"
@@ -15611,7 +15690,7 @@
       "risk_tags": [
         "runtime_critical"
       ],
-      "recency": "1777751587800:0c0c9e2805ea",
+      "recency": "1777753492671:15c3e0956b0c",
       "freshness": {
         "local": "fresh",
         "sql_mirror": "unknown"
@@ -15767,7 +15846,7 @@
       "risk_tags": [
         "runtime_critical"
       ],
-      "recency": "1777736628870:d5d7d5e4aaed",
+      "recency": "1777753500807:9bd2333f8407",
       "freshness": {
         "local": "fresh",
         "sql_mirror": "unknown"
@@ -15845,7 +15924,7 @@
       "risk_tags": [
         "runtime_critical"
       ],
-      "recency": "1777718175908:2b51b39492a6",
+      "recency": "1777753485513:69d30e17403a",
       "freshness": {
         "local": "fresh",
         "sql_mirror": "unknown"
@@ -17821,7 +17900,7 @@
       "risk_tags": [
         "runtime_critical"
       ],
-      "recency": "1777715290190:55fe6f29dad9",
+      "recency": "1777753964882:19f03ef3a952",
       "freshness": {
         "local": "fresh",
         "sql_mirror": "unknown"
@@ -24926,7 +25005,7 @@
         "shared_helper",
         "broad_signoff"
       ],
-      "recency": "1777707852098:4d3adf603863",
+      "recency": "1777753463031:9ea2430b8b04",
       "freshness": {
         "local": "fresh",
         "sql_mirror": "unknown"
@@ -25094,7 +25173,7 @@
         "shared_helper",
         "broad_signoff"
       ],
-      "recency": "1777740801106:c89c01985b36",
+      "recency": "1777753456186:5c6237eec268",
       "freshness": {
         "local": "fresh",
         "sql_mirror": "unknown"
@@ -27782,7 +27861,7 @@
         "shared_helper",
         "broad_signoff"
       ],
-      "recency": "1777739650569:baf3a28e2601",
+      "recency": "1777753470040:6bbabcbd6565",
       "freshness": {
         "local": "fresh",
         "sql_mirror": "unknown"
@@ -27810,7 +27889,7 @@
         "shared_helper",
         "broad_signoff"
       ],
-      "recency": "1777740099019:c2693e964f63",
+      "recency": "1777753477431:f2d07718065b",
       "freshness": {
         "local": "fresh",
         "sql_mirror": "unknown"
@@ -33837,6 +33916,30 @@
       "do_not_use_as_primary_truth": false
     },
     {
+      "stable_id": "file__tests__unit__creator-lane-old-logic-removal-validator-spec-ts",
+      "source_type": "file",
+      "source_id": "file__tests__unit__creator-lane-old-logic-removal-validator-spec-ts",
+      "searchable_terms": [
+        "tests/unit/creator-lane-old-logic-removal-validator.spec.ts",
+        "tests",
+        "creator"
+      ],
+      "surface_tags": [
+        "creator",
+        "tests"
+      ],
+      "helper_tags": [],
+      "risk_tags": [],
+      "recency": "1777753780894:99c7aaf9e213",
+      "freshness": {
+        "local": "fresh",
+        "sql_mirror": "unknown"
+      },
+      "context_tier": "warm",
+      "exclusion_tags": [],
+      "do_not_use_as_primary_truth": false
+    },
+    {
       "stable_id": "file__tests__unit__creator-messages-route-spec-ts",
       "source_type": "file",
       "source_id": "file__tests__unit__creator-messages-route-spec-ts",
@@ -37643,12 +37746,56 @@
       "do_not_use_as_primary_truth": true
     },
     {
+      "stable_id": "retrieval__pass__2026-05-02-pre-creator-lane-old-logic-removal-gate",
+      "source_type": "recent_pass",
+      "source_id": "pass__2026-05-02-pre-creator-lane-old-logic-removal-gate",
+      "searchable_terms": [
+        "PRE: Creator Lane Old Logic Removal Gate",
+        "agent/state/creator-lane-old-logic-cleanup.generated.json",
+        "docs/agent-truth/creator-lane-old-logic-cleanup.md",
+        "scripts/agent/validate-creator-lane-old-logic-removal.ts",
+        "src/app/api/admin/roster/route.ts",
+        "src/app/api/admin/user/[userId]/route.ts",
+        "src/app/api/admin/users/route.ts",
+        "src/lib/creator-application.ts",
+        "src/lib/server/creator-onboarding-legacy-adapter.ts",
+        "src/lib/server/creator-onboarding.ts"
+      ],
+      "surface_tags": [
+        "admin",
+        "runtime",
+        "tooling",
+        "architecture"
+      ],
+      "helper_tags": [
+        "src/lib/server/creator-onboarding.ts"
+      ],
+      "risk_tags": [
+        "architecture",
+        "runtime",
+        "ui"
+      ],
+      "recency": "2026-05-02",
+      "freshness": {
+        "local": "fresh",
+        "sql_mirror": "unknown"
+      },
+      "context_tier": "cold",
+      "exclusion_tags": [
+        "secondary_truth"
+      ],
+      "do_not_use_as_primary_truth": true
+    },
+    {
       "stable_id": "retrieval__pass__2026-05-02-pre-creator-lane-debug-parity",
       "source_type": "recent_pass",
       "source_id": "pass__2026-05-02-pre-creator-lane-debug-parity",
       "searchable_terms": [
         "PRE: Creator Lane Debug Parity",
         "docs/agent-truth/creator-lane-debug-parity.md",
+        "npm run agent:test -- src/app/admin/debug/page.tsx",
+        "npx vitest run tests/unit/admin-debug-route-runtime.spec.ts tests/unit/admin-debug-summary-cards.spec.ts tests/unit/admin-debug-assistant-route.spec.ts tests/unit/ai-debug-assistant.spec.ts",
+        "npx vitest run tests/unit/creator-onboarding-diagnostics.spec.ts tests/unit/admin-roster-route.spec.ts tests/unit/admin-roster-decision-queue.spec.ts tests/unit/ai-debug-assistant.spec.ts",
         "src/app/admin/debug/components/DebugTabNow.tsx",
         "src/app/admin/roster/page.tsx",
         "src/app/api/admin/debug/route.ts",
@@ -37889,46 +38036,6 @@
       ],
       "risk_tags": [
         "architecture"
-      ],
-      "recency": "2026-05-02",
-      "freshness": {
-        "local": "fresh",
-        "sql_mirror": "unknown"
-      },
-      "context_tier": "cold",
-      "exclusion_tags": [
-        "secondary_truth"
-      ],
-      "do_not_use_as_primary_truth": true
-    },
-    {
-      "stable_id": "retrieval__pass__2026-05-02-pre-creator-onboarding-projection-normalizer-cleanup",
-      "source_type": "recent_pass",
-      "source_id": "pass__2026-05-02-pre-creator-onboarding-projection-normalizer-cleanup",
-      "searchable_terms": [
-        "PRE: Creator Onboarding Projection Normalizer Cleanup",
-        "/api/admin/roster",
-        "/api/admin/user/[userId]",
-        "npx vitest run tests/unit/creator-onboarding-projection.spec.ts tests/unit/admin-roster-decision-queue.spec.ts tests/unit/admin-roster-route.spec.ts tests/unit/creator-onboarding.spec.ts",
-        "scripts/agent/validate-creator-projection-normalizer.ts",
-        "src/app/admin/roster/decision-queue.ts",
-        "src/app/admin/roster/page.tsx",
-        "src/lib/creator-onboarding-projection.ts",
-        "src/lib/creator-onboarding.ts",
-        "users/{uid}.creatorApplication"
-      ],
-      "surface_tags": [
-        "admin",
-        "ui",
-        "tooling",
-        "architecture"
-      ],
-      "helper_tags": [
-        "src/lib/creator-onboarding.ts"
-      ],
-      "risk_tags": [
-        "architecture",
-        "ui"
       ],
       "recency": "2026-05-02",
       "freshness": {

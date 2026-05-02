@@ -1,5 +1,5 @@
 {
-  "generatedAt": "2026-05-02T19:59:08.301Z",
+  "generatedAt": "2026-05-02T20:41:03.532Z",
   "truthOrder": [
     "verified_runtime_code",
     "verified_configuration",
@@ -15,12 +15,49 @@
   ],
   "passes": [
     {
+      "stable_id": "pass__2026-05-02-pre-creator-lane-old-logic-removal-gate",
+      "date": "2026-05-02",
+      "title": "PRE: Creator Lane Old Logic Removal Gate",
+      "scopeSummary": [],
+      "touchedSurfaces": [
+        "agent/state/creator-lane-old-logic-cleanup.generated.json",
+        "docs/agent-truth/creator-lane-old-logic-cleanup.md",
+        "scripts/agent/validate-creator-lane-old-logic-removal.ts",
+        "src/app/api/admin/roster/route.ts",
+        "src/app/api/admin/user/[userId]/route.ts",
+        "src/app/api/admin/users/route.ts",
+        "src/lib/creator-application.ts",
+        "src/lib/server/creator-onboarding-legacy-adapter.ts",
+        "src/lib/server/creator-onboarding.ts"
+      ],
+      "canonicalHelpersReused": [
+        "src/lib/server/creator-onboarding.ts"
+      ],
+      "verificationCommandsRun": [],
+      "resultSummary": [],
+      "warnings": [],
+      "architecture_change": true,
+      "runtime_change": true,
+      "ui_change": true,
+      "security_change": false,
+      "maintenance_only": false,
+      "changeKinds": [
+        "admin",
+        "runtime",
+        "tooling",
+        "architecture"
+      ]
+    },
+    {
       "stable_id": "pass__2026-05-02-pre-creator-lane-debug-parity",
       "date": "2026-05-02",
       "title": "PRE: Creator Lane Debug Parity",
       "scopeSummary": [],
       "touchedSurfaces": [
         "docs/agent-truth/creator-lane-debug-parity.md",
+        "npm run agent:test -- src/app/admin/debug/page.tsx",
+        "npx vitest run tests/unit/admin-debug-route-runtime.spec.ts tests/unit/admin-debug-summary-cards.spec.ts tests/unit/admin-debug-assistant-route.spec.ts tests/unit/ai-debug-assistant.spec.ts",
+        "npx vitest run tests/unit/creator-onboarding-diagnostics.spec.ts tests/unit/admin-roster-route.spec.ts tests/unit/admin-roster-decision-queue.spec.ts tests/unit/ai-debug-assistant.spec.ts",
         "src/app/admin/debug/components/DebugTabNow.tsx",
         "src/app/admin/roster/page.tsx",
         "src/app/api/admin/debug/route.ts",
@@ -231,40 +268,6 @@
       "changeKinds": [
         "admin",
         "ui",
-        "architecture"
-      ]
-    },
-    {
-      "stable_id": "pass__2026-05-02-pre-creator-onboarding-projection-normalizer-cleanup",
-      "date": "2026-05-02",
-      "title": "PRE: Creator Onboarding Projection Normalizer Cleanup",
-      "scopeSummary": [],
-      "touchedSurfaces": [
-        "/api/admin/roster",
-        "/api/admin/user/[userId]",
-        "npx vitest run tests/unit/creator-onboarding-projection.spec.ts tests/unit/admin-roster-decision-queue.spec.ts tests/unit/admin-roster-route.spec.ts tests/unit/creator-onboarding.spec.ts",
-        "scripts/agent/validate-creator-projection-normalizer.ts",
-        "src/app/admin/roster/decision-queue.ts",
-        "src/app/admin/roster/page.tsx",
-        "src/lib/creator-onboarding-projection.ts",
-        "src/lib/creator-onboarding.ts",
-        "users/{uid}.creatorApplication"
-      ],
-      "canonicalHelpersReused": [
-        "src/lib/creator-onboarding.ts"
-      ],
-      "verificationCommandsRun": [],
-      "resultSummary": [],
-      "warnings": [],
-      "architecture_change": true,
-      "runtime_change": false,
-      "ui_change": true,
-      "security_change": false,
-      "maintenance_only": false,
-      "changeKinds": [
-        "admin",
-        "ui",
-        "tooling",
         "architecture"
       ]
     }

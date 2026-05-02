@@ -5,6 +5,9 @@ import {
 } from "@/lib/creator-onboarding";
 import { readPreferredAuthenticatedPath } from "@/lib/navigation-persistence";
 
+// Legacy compatibility boundary: users/{uid}.creatorApplication is a projection,
+// not creator onboarding truth. New lifecycle writes must go through canonical
+// creator_onboarding sync helpers before this projection is rebuilt.
 export const CREATOR_APPLICATION_PATH = "/creators/apply";
 export const CREATOR_WAITLIST_PATH = "/creators/waitlist";
 export const DEFAULT_CREATOR_QUEUE_POSITION = 1;

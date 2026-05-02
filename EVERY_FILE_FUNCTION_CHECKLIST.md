@@ -1,13 +1,21 @@
 # EVERY FILE FUNCTION CHECKLIST
 
 **Last Updated:** 2026-05-02
-**Current Focus:** Creator Lane Debug Parity.
+**Current Focus:** Creator Lane Old Logic Removal Gate.
 **Status:** In Progress. Current tracked-file coverage is reconciled as of 2026-04-28: every `git ls-files` entry has a current checklist heading, while detailed function-level audits remain pending for many historical and newly reconciled files.
 Purpose: exhaustive no-skip audit checklist covering every repository file currently in scope and every detected function-like implementation.
 
 Scoring: all entries below are marked as included in the current validated sweep. Confidence reflects current repository-state confidence, not perfection or future-proofing.
 
 Current repo-wide state snapshot: see [FULL_SCALE_CODEBASE_AUDIT.md](/Users/uylus/OneDrive/Documents/KandyDrops_Final/FULL_SCALE_CODEBASE_AUDIT.md) for the current live baseline, verification state, and continuity rules, and see [REPO_MEMORY_LEDGER.md](/Users/uylus/OneDrive/Documents/KandyDrops_Final/REPO_MEMORY_LEDGER.md) for major architectural and workflow decisions. The detailed file/function body below remains valuable historical evidence, but it has not been fully regenerated against the current 2026-04-18 inventory review yet.
+
+## 2026-05-02 Creator Lane Old Logic Removal Gate Coverage
+
+- [x] `scripts/agent/validate-creator-lane-old-logic-removal.ts` scans runtime creator/admin/roster paths for forbidden old creator lane patterns and validates required canonical safeguards.
+- [x] `agent/state/creator-lane-old-logic-cleanup.generated.json` records remaining compatibility exceptions with owner, allowed reason, removal plan, and risk.
+- [x] `docs/agent-truth/creator-lane-old-logic-cleanup.md` documents the no-old-logic gate and cleanup sequence.
+- [x] `src/lib/creator-onboarding.ts`, `src/lib/creator-application.ts`, `src/lib/server/creator-onboarding-legacy-adapter.ts`, `src/lib/server/creator-onboarding.ts`, `src/app/api/admin/users/route.ts`, `src/app/api/admin/roster/route.ts`, and `src/app/api/admin/user/[userId]/route.ts` carry explicit projection/legacy compatibility comments where old paths remain.
+- [x] `tests/unit/creator-lane-old-logic-removal-validator.spec.ts` proves the validator catches sample forbidden roster blob updates and raw enum labels while allowing a named deprecated compatibility bridge.
 
 ## 2026-05-02 Creator Lane Debug Parity Coverage
 

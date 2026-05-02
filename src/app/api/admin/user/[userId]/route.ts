@@ -154,6 +154,9 @@ async function GET_handler(
             return NextResponse.json({ error: "User profile is malformed" }, { status: 500 });
         }
 
+        // Legacy projection read boundary: user.creatorApplication is used only
+        // to reconstruct old records for admin evidence when canonical
+        // creator_onboarding is absent.
         const creatorOnboardingCanonical = normalizeCreatorOnboardingCanonicalRecord(creatorOnboardingSnap.data())
             ?? (user.creatorApplication
                 ? buildCreatorOnboardingCanonicalRecord({

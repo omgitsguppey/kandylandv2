@@ -1,0 +1,118 @@
+{
+  "generatedAt": "2026-05-02T00:00:00.000-05:00",
+  "task": "creator-lane-old-logic-removal-gate",
+  "scope": "Blocks reintroduction of legacy creator onboarding, Admin Roster, agreement, creator experience, profile routing, synthetic creator, and view-as patterns after canonical creator lane hardening.",
+  "canonicalFlow": {
+    "creatorOnboarding": "creator_onboarding/{uid}",
+    "history": "creator_onboarding/{uid}/history/{eventId}",
+    "reviewQueueProjection": "creator_review_queue/{uid}",
+    "userProjection": "users/{uid}.creatorApplication",
+    "projectionRule": "users/{uid}.creatorApplication is projection only and must not become a lifecycle source of truth."
+  },
+  "blockedPatterns": [
+    "legacy_creator_application_direct_patch_bridge",
+    "admin_roster_generic_creator_application_put",
+    "raw_enum_label_in_primary_creator_ui",
+    "role_only_creator_intake_filter",
+    "legal_signature_completion_without_version_hash",
+    "owner_override_without_reason",
+    "admin_lifecycle_without_actor_marker",
+    "creator_paid_experience_without_idempotency",
+    "hardcoded_obsolete_creator_profile_route",
+    "view_as_replaces_auth_identity",
+    "synthetic_creator_without_marker"
+  ],
+  "remainingLegacyExceptions": [
+    {
+      "filePath": "src/app/api/admin/users/route.ts",
+      "pattern": "legacy_creator_application_direct_patch_bridge",
+      "allowedReason": "Deprecated compatibility bridge for legacy admin user updates; any creatorApplication patch is sanitized, converted into canonical creator_onboarding state, written through syncCreatorOnboardingDocuments, materialized into creator_review_queue, audited, and actor-marked.",
+      "owner": "creator_onboarding_admin_compatibility",
+      "removalPlan": "Remove creatorApplication patch support after Admin User profile editing no longer needs legacy projection compatibility and all lifecycle actions use /api/admin/creators/[userId]/action.",
+      "risk": "Medium: if future callers use this route for lifecycle decisions, they can bypass the decision-queue action shape even though the route currently rebuilds canonical state."
+    },
+    {
+      "filePath": "src/lib/creator-application.ts",
+      "pattern": "legacy_creator_application_projection_helper",
+      "allowedReason": "Projection builder and normalizer for users/{uid}.creatorApplication so creator waitlist and old user-profile consumers can keep reading a derived view.",
+      "owner": "creator_projection_adapter",
+      "removalPlan": "Keep until all creator-facing status surfaces read a canonical display projection and the nested user projection can be deleted.",
+      "risk": "Low: safe while comments and validators keep it projection-only."
+    },
+    {
+      "filePath": "src/lib/server/creator-onboarding-legacy-adapter.ts",
+      "pattern": "legacy_creator_application_migration_read",
+      "allowedReason": "Bounded migration adapter for reading old users/{uid}.creatorApplication records and mapping them into canonical onboarding without overwriting stronger canonical evidence.",
+      "owner": "creator_legacy_migration_adapter",
+      "removalPlan": "Delete after the dry-run inventory reports no migration-needed legacy records across production/staging and migration write mode is no longer needed.",
+      "risk": "Low: adapter refuses to infer legal/signature completion without evidence."
+    },
+    {
+      "filePath": "scripts/creators/inventory-legacy-creator-applications.ts",
+      "pattern": "legacy_creator_application_migration_read",
+      "allowedReason": "Dry-run inventory script for finding old users/{uid}.creatorApplication records before any canonical backfill.",
+      "owner": "creator_legacy_migration_adapter",
+      "removalPlan": "Remove after migration inventory stays empty for a launch stabilization window.",
+      "risk": "Low: dry-run default and write mode is intentionally unavailable."
+    },
+    {
+      "filePath": "src/lib/server/creator-onboarding.ts",
+      "pattern": "canonical_projection_dual_write_bridge",
+      "allowedReason": "Central canonical sync helper writes creator_onboarding first, then rebuilds users.creatorApplication and creator_review_queue projections in one server-controlled path.",
+      "owner": "creator_onboarding_canonical_sync",
+      "removalPlan": "Keep as long as projection consumers exist; later remove only the users.creatorApplication projection write after all consumers are migrated.",
+      "risk": "Medium: highest leverage path, but currently the safest single bridge because it keeps canonical, projection, queue, and history aligned."
+    },
+    {
+      "filePath": "src/app/api/admin/roster/route.ts",
+      "pattern": "legacy_creator_application_projection_fallback_read",
+      "allowedReason": "Admin Roster API may read the user projection as fallback/debug context while canonical onboarding and review queue remain the decision source.",
+      "owner": "admin_roster_projection_reader",
+      "removalPlan": "Remove fallback reads after creator_review_queue and canonical onboarding cover all historical creator applicants.",
+      "risk": "Medium: fallback must never become role-only intake filtering or lifecycle write authority."
+    },
+    {
+      "filePath": "src/app/api/admin/user/[userId]/route.ts",
+      "pattern": "legacy_creator_application_projection_fallback_read",
+      "allowedReason": "Admin user detail may reconstruct a canonical-looking detail from the old projection only when creator_onboarding is absent, so Debug can expose old records for cleanup.",
+      "owner": "admin_user_debug_projection_reader",
+      "removalPlan": "Remove after the legacy migration inventory has no projection-only creator records.",
+      "risk": "Medium: fallback must be labeled legacy/debug and must not write lifecycle state."
+    },
+    {
+      "filePath": "src/app/admin/roster/page.tsx",
+      "pattern": "legacy_creator_application_projection_display_fallback",
+      "allowedReason": "Roster client may read normalized projection fields already returned by server APIs for selected-record context; lifecycle actions use typed creator actions.",
+      "owner": "admin_roster_decision_queue",
+      "removalPlan": "Remove projection fallback fields after server payloads stop exposing user.creatorApplication for selected details.",
+      "risk": "Low: UI warnings and actions are canonical/queue-driven, not direct blob writes."
+    },
+    {
+      "filePath": "src/app/creators/waitlist/page.tsx",
+      "pattern": "legacy_creator_application_creator_facing_projection_read",
+      "allowedReason": "Creator waitlist status still reads the derived user projection because it is the creator-facing display contract for onboarding status.",
+      "owner": "creator_waitlist_projection_reader",
+      "removalPlan": "Replace with a canonical status endpoint after legacy projection migration is complete.",
+      "risk": "Low: display-only when the server keeps projection synchronized from canonical onboarding."
+    },
+    {
+      "filePath": "src/lib/creator-public-pages.ts",
+      "pattern": "legacy_creator_application_public_visibility_fallback",
+      "allowedReason": "Public creator helper may use approval projection as fallback until a dedicated public creator profile source fully replaces it.",
+      "owner": "creator_public_profile_projection_reader",
+      "removalPlan": "Move public creator visibility to role/public-profile state only after canonical profile routing and profile publication records are complete.",
+      "risk": "Medium: public routes must not expose private onboarding/legal/ID fields."
+    }
+  ],
+  "validation": {
+    "command": "npm run check:creator-lane-old-logic-removal",
+    "script": "scripts/agent/validate-creator-lane-old-logic-removal.ts",
+    "unitTest": "tests/unit/creator-lane-old-logic-removal-validator.spec.ts",
+    "notes": [
+      "The scanner fails on old logic patterns unless the file/pattern is a named exception in this report.",
+      "Adding a new exception requires owner, allowedReason, removalPlan, and risk.",
+      "Existing creator-lane targeted validations remain required signoff gates."
+    ]
+  },
+  "status": "gate_added"
+}

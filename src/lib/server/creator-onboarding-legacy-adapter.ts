@@ -7,6 +7,9 @@ import {
 } from "@/lib/creator-onboarding";
 import type { CreatorApplication, UserProfile } from "@/types/db";
 
+// Deprecated compatibility adapter: this file may read old
+// users/{uid}.creatorApplication records for migration/backfill only. It must
+// never make the nested projection the future canonical creator source.
 export type LegacyCreatorApplicationMappingConfidence = "none" | "low" | "medium" | "high";
 
 export type LegacyCreatorApplicationDebugFields = {

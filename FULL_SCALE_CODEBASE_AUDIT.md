@@ -1,5 +1,53 @@
 # KandyDrops Core Codebase Audit & Defensive Ledger
 
+## [2026-05-02 #112] PRE: Creator Lane Old Logic Removal Gate
+
+Scope started:
+- Adding a targeted regression gate that blocks old creator/onboarding/roster logic from returning after the canonical creator lane migration.
+- Required outputs: `scripts/agent/validate-creator-lane-old-logic-removal.ts`, `agent/state/creator-lane-old-logic-cleanup.generated.json`, `docs/agent-truth/creator-lane-old-logic-cleanup.md`, deprecation comments on remaining legacy compatibility boundaries, docs/ledger updates, focused validator self-tests, all creator-lane targeted validations, TypeScript, `git diff --check`, commit, and push.
+- This pass must not redesign creator/admin UI, change creator lifecycle behavior, touch GumDrop/payment/economy code, or remove compatibility bridges that still have documented projection fallback responsibilities.
+
+Initial evidence:
+- Control tower routing, product/copy doctrine, source-of-truth map, preflight/postflight checklists, full governance ledgers, generated fast-start context, existing creator-lane validators, and creator legacy inventory docs were consulted.
+- Runtime compatibility boundaries identified first: `src/lib/creator-application.ts`, `src/lib/server/creator-onboarding-legacy-adapter.ts`, `src/lib/server/creator-onboarding.ts`, `src/app/api/admin/users/route.ts`, `src/app/api/admin/roster/route.ts`, and `src/app/api/admin/user/[userId]/route.ts`.
+
+Scope completed:
+- Added `scripts/agent/validate-creator-lane-old-logic-removal.ts` and `npm run check:creator-lane-old-logic-removal` to scan for forbidden legacy creator lane patterns outside named compatibility boundaries.
+- Added `agent/state/creator-lane-old-logic-cleanup.generated.json` with remaining exceptions, owner, allowed reason, removal plan, and risk.
+- Added `docs/agent-truth/creator-lane-old-logic-cleanup.md`, updated adjacent creator-lane doctrine docs, and added deprecation/projection comments where compatibility remains.
+- Tightened the creator waitlist legal status label helper so creator-facing UI no longer uses raw enum underscore replacement.
+- Added `tests/unit/creator-lane-old-logic-removal-validator.spec.ts` to prove the validator catches sample forbidden roster blob updates/raw enum labels and permits a named deprecated compatibility bridge.
+- Restored Admin Roster `actorType` and `performedAs` debug/pageview metadata required by existing identity and decision-queue gates.
+
+Verification:
+- Passed: `npm run check:creator-lane-old-logic-removal`
+- Passed: `npx vitest run tests/unit/creator-lane-old-logic-removal-validator.spec.ts`
+- Passed: `npm run check:creator-identity-markers`
+- Passed: `npm run check:admin-roster-decision-queue`
+- Passed: `npm run check:creator-intake-flow`
+- Passed: `npm run check:creator-agreement-document-manager`
+- Passed: `npm run check:creator-agreement-signature-ux`
+- Passed: `npm run check:creator-audit-trail`
+- Passed: `npm run check:creator-fan-experience-settings`
+- Passed: `npm run check:admin-creator-account-controls`
+- Passed: `npm run check:synthetic-creators-view-as`
+- Passed: `npm run check:creator-profile-routing`
+- Passed: `npm run check:creator-lane-debug-parity`
+- Passed: `npm run check:creator-lane-legacy-truth-inventory`
+- Passed: `npm run check:creator-projection-normalizer`
+- Passed: `npm run check:creator-review-queue-materializer`
+- Passed: `npm run check:legacy-creator-application-migration`
+- Passed: `npm run check:creator-agreement-version-truth`
+- Passed: `npm run check:creator-admin-action-route`
+- Passed: `npm run check:creator-experience-transaction-truth`
+- Passed: `npm run check:creator-experiences-copy`
+- Passed: `npm run typecheck`
+- Passed: `npm run agent:index`
+- Passed: `npm run trace:adjacent -- scripts/agent/validate-creator-lane-old-logic-removal.ts`
+- Passed: `npm run check:agent-context`
+- Passed: `npm run check:continuity`
+- Passed: `git diff --check` with existing Windows CRLF normalization warnings only.
+
 ## [2026-05-02 #111] PRE: Creator Lane Debug Parity
 
 Scope started:

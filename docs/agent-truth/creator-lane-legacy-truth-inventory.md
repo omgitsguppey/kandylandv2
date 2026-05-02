@@ -84,6 +84,18 @@ Do not create a parallel creator intake collection or audit collection while `cr
 
 Do not expose private onboarding, legal, ID, agreement storage paths, or raw audit metadata through public creator routes.
 
+## Old Logic Removal Gate
+
+The final regression gate is:
+
+```bash
+npm run check:creator-lane-old-logic-removal
+```
+
+It blocks old creator lane patterns from returning after the canonical flow is installed. New code must not reintroduce role-only intake filters, arbitrary `creatorApplication` lifecycle PUTs, raw enum labels in primary UI, agreement completion without version/hash evidence, owner override without reason, admin lifecycle actions without actor markers, paid creator experience writes without idempotency, hardcoded creator profile routes, unsafe view-as identity replacement, or synthetic creators without explicit markers.
+
+Any remaining compatibility exception must be listed in `agent/state/creator-lane-old-logic-cleanup.generated.json` with an owner, allowed reason, removal plan, and risk.
+
 ## Inventory Artifact
 
 The machine-readable audit is:

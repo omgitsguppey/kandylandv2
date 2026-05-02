@@ -1,7 +1,7 @@
 # Agent Task Spec
 
 ## Goal
-add creator lane debug parity diagnostics
+block legacy creator lane regression patterns
 
 ## Acceptance Criteria
 - Stay within the touched entrypoints unless adjacency proves a shared helper must move with them.
@@ -10,7 +10,7 @@ add creator lane debug parity diagnostics
 - Keep broad signoff lanes separate from the fast loop.
 
 ## Likely Entrypoints
-- src/app/admin/debug/page.tsx
+- scripts/agent/validate-creator-lane-debug-parity.ts
 
 ## Forbidden Surfaces
 - src/lib/gumdrop-ledger.ts
@@ -21,12 +21,14 @@ add creator lane debug parity diagnostics
 
 ## Fast Verification
 - npm run typecheck
-- npm run agent:test -- src/app/admin/debug/page.tsx
-- npm run check:ui:coverage
-- npm run check:ui:runtime
+- npm run agent:test -- scripts/agent/validate-creator-lane-debug-parity.ts
+- npm run check:agent-context
 
 ## Signoff Verification
-- npm run check:ui:audits
+- npm run check:inventory
+- npm run check:architecture
+- npm run check:agent-intelligence
+- npm run eval:agent-context
 - npm run check:continuity
 
 ## Notes

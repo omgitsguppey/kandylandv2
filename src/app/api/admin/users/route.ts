@@ -87,6 +87,10 @@ class InvalidCreatorApplicationUpdateError extends Error {}
 class InvalidCreatorOnboardingTransitionError extends Error {}
 class ForbiddenCreatorOnboardingActionError extends Error {}
 
+// Deprecated compatibility bridge: this generic admin route may accept a
+// creatorApplication patch only to rebuild canonical creator_onboarding plus
+// projections and history. Admin Roster lifecycle actions must use the typed
+// /api/admin/creators/[userId]/action route instead.
 function resolveCreatorApplicationUpdate(input: {
   patch: Record<string, unknown>;
   currentProjection: ReturnType<typeof normalizeCreatorApplication> | undefined;

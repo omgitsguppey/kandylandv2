@@ -135,3 +135,13 @@ The creator intake now collects the launch setup fields before the Admin Roster 
 - recommended creator setup
 
 Admin Roster should use those fields as review context only. It must not push raw legal or audit machinery back into the creator-facing intake.
+
+## Old Logic Removal Gate
+
+Admin Roster is covered by:
+
+```bash
+npm run check:creator-lane-old-logic-removal
+```
+
+The roster must not send arbitrary `creatorApplication` lifecycle blobs to `/api/admin/users`, must not display raw enum labels in the primary UI, must not filter the review queue by `role === creator` only, and must not hand-build obsolete creator profile hrefs. Use typed creator actions, projection normalizers, review queue buckets, and canonical creator profile routing helpers.

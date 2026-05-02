@@ -55,6 +55,9 @@ import {
     type CreatorLaneRosterWarning,
 } from "@/lib/server/creator-onboarding-diagnostics";
 
+// Legacy projection read boundary: roster payloads may normalize
+// users/{uid}.creatorApplication only as fallback/debug context. Review queue
+// materialization and creator_onboarding remain the admin lifecycle truth.
 type RosterRole = "user" | "creator" | "admin";
 type RosterStatus = "active" | "suspended" | "banned";
 

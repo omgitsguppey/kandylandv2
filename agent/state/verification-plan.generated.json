@@ -1,5 +1,5 @@
 {
-  "generatedAt": "2026-05-02T19:37:05.411Z",
+  "generatedAt": "2026-05-02T20:20:27.463Z",
   "truthOrder": [
     "verified_runtime_code",
     "verified_configuration",
@@ -16,26 +16,27 @@
     "agent/index/surface-map.json",
     "agent/index/ui-surface-coverage.json"
   ],
-  "stable_id": "verifyplan__src__app__admin__debug__page-tsx",
+  "stable_id": "verifyplan__scripts__agent__validate-creator-lane-debug-parity-ts",
   "inputPaths": [
-    "src/app/admin/debug/page.tsx"
+    "scripts/agent/validate-creator-lane-debug-parity.ts"
   ],
   "matchedRepoPaths": [
-    "src/app/admin/debug/page.tsx"
+    "scripts/agent/validate-creator-lane-debug-parity.ts"
   ],
   "unmatchedPaths": [],
   "touchedDomains": [
-    "admin_ops",
-    "app_routes"
+    "repo_tooling"
   ],
   "fastCommands": [
     "npm run typecheck",
-    "npm run agent:test -- src/app/admin/debug/page.tsx",
-    "npm run check:ui:coverage",
-    "npm run check:ui:runtime"
+    "npm run agent:test -- scripts/agent/validate-creator-lane-debug-parity.ts",
+    "npm run check:agent-context"
   ],
   "signoffCommands": [
-    "npm run check:ui:audits",
+    "npm run check:inventory",
+    "npm run check:architecture",
+    "npm run check:agent-intelligence",
+    "npm run eval:agent-context",
     "npm run check:continuity"
   ],
   "fastSelections": [
@@ -47,32 +48,46 @@
       "lane": "fast"
     },
     {
-      "command": "npm run agent:test -- src/app/admin/debug/page.tsx",
+      "command": "npm run agent:test -- scripts/agent/validate-creator-lane-debug-parity.ts",
       "why": [
         "Run the narrowest related contract/unit tests first."
       ],
       "lane": "fast"
     },
     {
-      "command": "npm run check:ui:coverage",
+      "command": "npm run check:agent-context",
       "why": [
-        "Indexed UI/admin surfaces changed."
-      ],
-      "lane": "fast"
-    },
-    {
-      "command": "npm run check:ui:runtime",
-      "why": [
-        "Hydration/runtime UI continuity should stay truthful."
+        "Repo intelligence outputs should stay internally valid."
       ],
       "lane": "fast"
     }
   ],
   "signoffSelections": [
     {
-      "command": "npm run check:ui:audits",
+      "command": "npm run check:inventory",
       "why": [
-        "UI/admin signoff requires Playwright audit coverage."
+        "Repo-tooling changes must preserve inventory truth."
+      ],
+      "lane": "signoff"
+    },
+    {
+      "command": "npm run check:architecture",
+      "why": [
+        "Repo-tooling/shared-helper changes need architecture validation."
+      ],
+      "lane": "signoff"
+    },
+    {
+      "command": "npm run check:agent-intelligence",
+      "why": [
+        "Agent indexes and helper extraction must stay coherent."
+      ],
+      "lane": "signoff"
+    },
+    {
+      "command": "npm run eval:agent-context",
+      "why": [
+        "Task-context retrieval/eval fixtures changed."
       ],
       "lane": "signoff"
     },
@@ -85,7 +100,6 @@
     }
   ],
   "signoffAdvisories": [
-    "Run `npm run check:ui:lighthouse` only if the touched UI change affects loading, rendering, or performance-sensitive behavior.",
     "Run `npm run trace:adjacent -- <path>` for the main touched files before broad signoff."
   ],
   "forbiddenSurfaces": [

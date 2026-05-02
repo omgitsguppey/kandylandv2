@@ -41,6 +41,10 @@ export type CreatorOnboardingActor = {
 
 export { PRIMARY_CREATOR_OWNER_EMAIL, isCreatorOwnerEmail };
 
+// Canonical bridge boundary: this server module is allowed to rebuild the
+// users/{uid}.creatorApplication projection only after canonical
+// creator_onboarding state is constructed. Do not add page-local projection
+// writes or treat the user nested blob as lifecycle truth.
 function stripUndefinedDeep<T>(value: T): T {
     if (value === undefined) {
         return value;

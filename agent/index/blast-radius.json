@@ -1,5 +1,5 @@
 {
-  "generatedAt": "2026-05-02T19:59:22.992Z",
+  "generatedAt": "2026-05-02T20:41:20.120Z",
   "truthOrder": [
     "verified_runtime_code",
     "verified_configuration",
@@ -6126,6 +6126,20 @@
       ]
     },
     {
+      "stable_id": "blast__scripts__agent__validate-creator-lane-old-logic-removal-ts",
+      "path": "scripts/agent/validate-creator-lane-old-logic-removal.ts",
+      "blast_radius_score": 45,
+      "shared_helper_risk": 25,
+      "route_boundary_risk": 0,
+      "runtime_criticality": 0,
+      "verification_burden": 20,
+      "deploy_or_lockfile_sensitivity": 0,
+      "why_score_was_assigned": [
+        "Likely shared helper.",
+        "Broad signoff likely."
+      ]
+    },
+    {
       "stable_id": "blast__scripts__agent__validate-creator-profile-routing-ts",
       "path": "scripts/agent/validate-creator-profile-routing.ts",
       "blast_radius_score": 45,
@@ -10799,6 +10813,19 @@
     {
       "stable_id": "blast__agent__state__creator-lane-legacy-truth-inventory-generated-json",
       "path": "agent/state/creator-lane-legacy-truth-inventory.generated.json",
+      "blast_radius_score": 20,
+      "shared_helper_risk": 0,
+      "route_boundary_risk": 0,
+      "runtime_criticality": 0,
+      "verification_burden": 20,
+      "deploy_or_lockfile_sensitivity": 0,
+      "why_score_was_assigned": [
+        "Broad signoff likely."
+      ]
+    },
+    {
+      "stable_id": "blast__agent__state__creator-lane-old-logic-cleanup-generated-json",
+      "path": "agent/state/creator-lane-old-logic-cleanup.generated.json",
       "blast_radius_score": 20,
       "shared_helper_risk": 0,
       "route_boundary_risk": 0,

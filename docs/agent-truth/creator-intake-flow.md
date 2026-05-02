@@ -79,3 +79,13 @@ npx vitest run tests/unit/creator-intake-flow.spec.ts tests/unit/creator-intake-
 ```
 
 Future agents must keep the guided intake, canonical onboarding write path, telemetry, and history events aligned.
+
+## Old Logic Removal Gate
+
+Creator intake is covered by:
+
+```bash
+npm run check:creator-lane-old-logic-removal
+```
+
+The intake flow must keep writing through canonical onboarding. Do not restore role-only creator intake filters, do not create a second intake collection, do not expose raw legal/compliance enum labels in the creator-facing flow, and do not let `users.creatorApplication` become the lifecycle write source.

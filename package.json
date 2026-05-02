@@ -95,6 +95,7 @@
         "check:creator-experience-transaction-truth": "tsx scripts/agent/validate-creator-experience-transaction-truth.ts",
         "check:creator-profile-routing": "tsx scripts/agent/validate-creator-profile-routing.ts",
         "check:creator-lane-debug-parity": "tsx scripts/agent/validate-creator-lane-debug-parity.ts",
+        "check:creator-lane-old-logic-removal": "tsx scripts/agent/validate-creator-lane-old-logic-removal.ts",
         "check:admin-analytics-snapshot-migration": "tsx scripts/agent/validate-admin-analytics-snapshot-migration.ts",
         "check:admin-analytics-no-pure-realtime": "tsx scripts/agent/validate-admin-analytics-no-pure-realtime.ts",
         "check:admin-analytics-finalization": "tsx scripts/agent/validate-admin-analytics-finalization.ts",

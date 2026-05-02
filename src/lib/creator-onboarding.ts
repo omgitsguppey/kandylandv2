@@ -7,18 +7,19 @@
  * 2. `src/context/AuthContext.tsx`
  *    `signUpWithEmail()` posts creator signup data to `/api/user/register`.
  * 3. `src/app/api/user/register/route.ts`
- *    The current flow writes only `users/{uid}.creatorApplication`.
+ *    The current flow writes canonical `creator_onboarding/{uid}` first, then
+ *    rebuilds `users/{uid}.creatorApplication` and `creator_review_queue/{uid}`
+ *    as derived projections.
  * 4. `src/app/api/auth/navigation-session/route.ts`
  *    Creator applicants are routed into `/creators/waitlist` from the nested
- *    `users/{uid}.creatorApplication` snapshot.
+ *    `users/{uid}.creatorApplication` projection for legacy client compatibility.
  * 5. Current admin readers:
  *    - `src/app/api/admin/roster/route.ts`
  *    - `src/app/api/admin/users/route.ts`
  *    - `src/app/api/admin/user/[userId]/route.ts`
- *    These readers inspect `users/{uid}.creatorApplication`, but the roster
- *    intake lane still filters mainly by `role === "creator"`, so applicants
- *    who stay `role === "user"` can complete onboarding without surfacing in
- *    the creator review queue.
+ *    These readers may inspect `users/{uid}.creatorApplication` only as a
+ *    legacy-compatible projection fallback. They must prefer canonical
+ *    onboarding and review-queue materialization for lifecycle truth.
  *
  * Canonical target model for the hardening phases:
  * - `creator_onboarding/{uid}`:
@@ -31,6 +32,8 @@
  *   surface for creator intake review.
  * - `users/{uid}.creatorApplication`:
  *   Creator-facing projection used for waitlist routing and status rendering.
+ *   Deprecated as a source of truth: do not write this nested blob directly
+ *   outside canonical sync/projection adapter code.
  *
  * The goal is one canonical record with deterministic derived projections,
  * instead of ad hoc nested status blobs with no queue materializer.

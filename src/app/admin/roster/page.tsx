@@ -956,6 +956,8 @@ export default function AdminRosterPage() {
         collapsedSections: collapsedSections.join(","),
         ownerControlsVisible: Boolean(isOwner && expandedSections.owner_controls),
         actorMarkerPresent: true,
+        actorType: isOwner ? "owner_admin" : "admin",
+        performedAs: selectedUserId ? "admin_on_behalf" : "own_account",
         activeAgreementVersion: agreementTemplate?.agreementVersion ?? "",
         activeAgreementHash: agreementTemplate?.agreementHash ?? "",
         selectedCreatorAgreementVersion: selectedAgreementVersion,
@@ -999,7 +1001,7 @@ export default function AdminRosterPage() {
 
     return (
         <main className="min-h-screen bg-black px-4 pb-24 pt-24 text-white sm:px-6" data-roster-mode="decision_queue" data-admin-debug-metadata={JSON.stringify(rosterDebugMetadata)}>
-            <PageViewEvent eventName="admin_roster_viewed" eventParams={{ component_name: "admin_roster_page", roster_mode: "decision_queue", actorMarkerPresent: true }} />
+            <PageViewEvent eventName="admin_roster_viewed" eventParams={{ component_name: "admin_roster_page", roster_mode: "decision_queue", actorMarkerPresent: true, actorType: isOwner ? "owner_admin" : "admin", performedAs: "own_account" }} />
             <div className="mx-auto max-w-7xl">
                 <AdminPageHeader
                     eyebrow="Creator Operations"
