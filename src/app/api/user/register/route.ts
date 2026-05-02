@@ -15,6 +15,7 @@ import { ensureCreatorOnboardingSubmission } from "@/lib/server/creator-onboardi
 import { sendCreatorOnboardingAdminNotification } from "@/lib/server/creator-onboarding-alerts";
 import { getErrorMessage, recordRouteWarning } from "@/lib/server/route-diagnostics";
 import { recordRouteRuntimeSample } from "@/lib/server/route-runtime-health";
+import { sanitizeCreatorIntakeFields, type CreatorIntakeFields } from "@/lib/creator-intake-flow";
 import {
     actorMarkerToTelemetryPayload,
     assertKnownActor,
@@ -109,14 +110,30 @@ async function emitCreatorSubmissionSignals(input: {
     actorMarker: ActorMarker;
     onboardingStatus?: string;
     legalStatus?: string;
+    creatorIntakeFields?: CreatorIntakeFields | null;
 }) {
     const actorPayload = actorMarkerToTelemetryPayload(input.actorMarker);
+    const selectedGoals = input.creatorIntakeFields?.creatorMonetizationGoals?.join("|") ?? "";
     await Promise.allSettled([
+        trackServerEvent("creator_intake_submitted", {
+            page_path: "/api/user/register",
+            signup_intent: "creator",
+            step_key: "submit_for_review",
+            selected_goals: selectedGoals,
+            creator_recommended_setup: input.creatorIntakeFields?.creatorRecommendedSetup ?? "",
+            intake_version: input.creatorIntakeFields?.intakeVersion ?? "",
+            ...actorPayload,
+            source: "creator_intake",
+            route: "/api/user/register",
+        }, input.userId),
         trackServerEvent("creator_onboarding_submitted", {
             page_path: "/api/user/register",
             creator_display_name: input.creatorDisplayName,
             onboarding_status: input.onboardingStatus ?? "",
             legal_status: input.legalStatus ?? "",
+            selected_goals: selectedGoals,
+            creator_recommended_setup: input.creatorIntakeFields?.creatorRecommendedSetup ?? "",
+            intake_version: input.creatorIntakeFields?.intakeVersion ?? "",
             ...actorPayload,
         }, input.userId),
         trackServerEvent("creator_admin_queue_materialized", {
@@ -195,12 +212,27 @@ export async function POST(request: NextRequest) {
             registrationMethod,
             signupIntent,
             creatorDisplayName,
+            creatorMonetizationGoals,
             creatorPrimaryPlatform,
+            creatorFollowerRange,
+            creatorPostingFrequency,
             creatorContentFocus,
+            fansAlreadyAskForAccess,
+            creatorRecommendedSetup,
         } = await request.json();
         const normalizedRegistrationMethod = normalizeRegistrationMethod(registrationMethod);
         const normalizedSignupIntent = normalizeSignupIntent(signupIntent);
         const isCreatorSignup = normalizedSignupIntent === "creator";
+        const registrationTimestampMs = Date.now();
+        const creatorIntakeFields = isCreatorSignup
+            ? sanitizeCreatorIntakeFields({
+                creatorMonetizationGoals,
+                creatorFollowerRange,
+                creatorPostingFrequency,
+                fansAlreadyAskForAccess,
+                creatorRecommendedSetup,
+            })
+            : null;
         const parsedDob = dateOfBirth ? parseAdultDateOfBirth(dateOfBirth) : null;
         if (parsedDob && !parsedDob.ok) {
             return finalize(NextResponse.json(
@@ -271,7 +303,7 @@ export async function POST(request: NextRequest) {
                     uid: caller.uid,
                     email: caller.email,
                     displayName: typeof displayName === "string" ? displayName : null,
-                    occurredAt: Date.now(),
+                    occurredAt: registrationTimestampMs,
                 })
                 : null;
             const creatorSubmission = isCreatorSignup
@@ -304,8 +336,16 @@ export async function POST(request: NextRequest) {
                                     : typeof existingData.username === "string" && existingData.username.trim().length > 0
                                         ? existingData.username.trim()
                                         : "Creator",
+                    creatorMonetizationGoals: creatorIntakeFields?.creatorMonetizationGoals,
                     creatorPrimaryPlatform: typeof creatorPrimaryPlatform === "string" ? creatorPrimaryPlatform : undefined,
+                    creatorFollowerRange: creatorIntakeFields?.creatorFollowerRange,
+                    creatorPostingFrequency: creatorIntakeFields?.creatorPostingFrequency,
                     creatorContentFocus: typeof creatorContentFocus === "string" ? creatorContentFocus : undefined,
+                    fansAlreadyAskForAccess: creatorIntakeFields?.fansAlreadyAskForAccess,
+                    creatorRecommendedSetup: creatorIntakeFields?.creatorRecommendedSetup,
+                    intakeVersion: creatorIntakeFields?.intakeVersion,
+                    intakeSubmittedAt: registrationTimestampMs,
+                    intakeSource: creatorIntakeFields?.intakeSource,
                     actor: creatorSignupMarker
                         ? {
                             id: creatorSignupMarker.actorUid ?? caller.uid,
@@ -324,6 +364,7 @@ export async function POST(request: NextRequest) {
                     actorMarker: creatorSignupMarker!,
                     onboardingStatus: creatorSubmission.creatorApplication.submissionStatus,
                     legalStatus: creatorSubmission.creatorApplication.legalStatus,
+                    creatorIntakeFields,
                 });
             }
 
@@ -398,7 +439,7 @@ export async function POST(request: NextRequest) {
                 uid: caller.uid,
                 email: caller.email,
                 displayName: typeof displayName === "string" ? displayName : null,
-                occurredAt: Date.now(),
+                occurredAt: registrationTimestampMs,
             })
             : null;
         const creatorSubmission = isCreatorSignup
@@ -417,8 +458,16 @@ export async function POST(request: NextRequest) {
                     : typeof displayName === "string" && displayName.trim().length > 0
                         ? displayName.trim()
                         : normalizedUsername,
+                creatorMonetizationGoals: creatorIntakeFields?.creatorMonetizationGoals,
                 creatorPrimaryPlatform: typeof creatorPrimaryPlatform === "string" ? creatorPrimaryPlatform : undefined,
+                creatorFollowerRange: creatorIntakeFields?.creatorFollowerRange,
+                creatorPostingFrequency: creatorIntakeFields?.creatorPostingFrequency,
                 creatorContentFocus: typeof creatorContentFocus === "string" ? creatorContentFocus : undefined,
+                fansAlreadyAskForAccess: creatorIntakeFields?.fansAlreadyAskForAccess,
+                creatorRecommendedSetup: creatorIntakeFields?.creatorRecommendedSetup,
+                intakeVersion: creatorIntakeFields?.intakeVersion,
+                intakeSubmittedAt: registrationTimestampMs,
+                intakeSource: creatorIntakeFields?.intakeSource,
                 actor: creatorSignupMarker
                     ? {
                         id: creatorSignupMarker.actorUid ?? caller.uid,
@@ -431,14 +480,15 @@ export async function POST(request: NextRequest) {
             : null;
 
         if (creatorSubmission?.created) {
-            await emitCreatorSubmissionSignals({
-                userId: caller.uid,
-                creatorDisplayName: creatorSubmission.creatorApplication.creatorDisplayName,
-                actorMarker: creatorSignupMarker!,
-                onboardingStatus: creatorSubmission.creatorApplication.submissionStatus,
-                legalStatus: creatorSubmission.creatorApplication.legalStatus,
-            });
-        }
+                await emitCreatorSubmissionSignals({
+                    userId: caller.uid,
+                    creatorDisplayName: creatorSubmission.creatorApplication.creatorDisplayName,
+                    actorMarker: creatorSignupMarker!,
+                    onboardingStatus: creatorSubmission.creatorApplication.submissionStatus,
+                    legalStatus: creatorSubmission.creatorApplication.legalStatus,
+                    creatorIntakeFields,
+                });
+            }
 
         // Handle referral logic
         if (!isCreatorSignup && referredBy && typeof referredBy === "string" && referredBy !== caller.uid) {
@@ -496,6 +546,8 @@ export async function POST(request: NextRequest) {
                 has_referral_code: !isCreatorSignup && typeof referredBy === "string" && referredBy.trim().length > 0,
                 page_path: isCreatorSignup ? "/creators/waitlist" : "/dashboard",
                 creator_application_submitted: isCreatorSignup,
+                creator_recommended_setup: creatorIntakeFields?.creatorRecommendedSetup ?? "",
+                selected_goals: creatorIntakeFields?.creatorMonetizationGoals?.join("|") ?? "",
                 ...(creatorSignupMarker ? actorMarkerToTelemetryPayload(creatorSignupMarker) : {}),
             }, caller.uid),
         ]);

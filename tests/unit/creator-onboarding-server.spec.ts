@@ -96,8 +96,16 @@ describe("ensureCreatorOnboardingSubmission", () => {
             username: "creator-example",
             role: "user",
             creatorDisplayName: "Creator Example",
+            creatorMonetizationGoals: ["paid_drops", "private_chat"],
             creatorPrimaryPlatform: "TikTok",
+            creatorFollowerRange: "10k_50k",
+            creatorPostingFrequency: "weekly",
             creatorContentFocus: "Pop culture",
+            fansAlreadyAskForAccess: "yes",
+            creatorRecommendedSetup: "timed_drops_private_chat",
+            intakeVersion: "creator_intake_v1",
+            intakeSubmittedAt: 1_710_000_000_500,
+            intakeSource: "creator_site",
             nowMs: 1_710_000_000_500,
         });
 
@@ -109,8 +117,14 @@ describe("ensureCreatorOnboardingSubmission", () => {
             idVerificationStatus: "id_not_requested",
             segmentationStatus: "segment_unassigned",
             creatorDisplayName: "Creator Example",
+            creatorMonetizationGoals: ["paid_drops", "private_chat"],
             creatorPrimaryPlatform: "TikTok",
+            creatorFollowerRange: "10k_50k",
+            creatorPostingFrequency: "weekly",
             creatorContentFocus: "Pop culture",
+            fansAlreadyAskForAccess: "yes",
+            creatorRecommendedSetup: "timed_drops_private_chat",
+            intakeVersion: "creator_intake_v1",
             creatorReviewQueueVisible: true,
             readyForApproval: false,
         });
@@ -119,6 +133,7 @@ describe("ensureCreatorOnboardingSubmission", () => {
             userId: "creator_1",
             queueBucket: "newest_submissions",
             creatorReviewQueueVisible: true,
+            creatorRecommendedSetup: "timed_drops_private_chat",
         });
         expect(mockState.documents.get("users/creator_1")).toMatchObject({
             creatorApplication: expect.objectContaining({
@@ -127,6 +142,9 @@ describe("ensureCreatorOnboardingSubmission", () => {
             }),
         });
         expect(mockState.documents.get("creator_onboarding/creator_1/history/onboarding_started")).toBeTruthy();
+        expect(mockState.documents.get("creator_onboarding/creator_1/history/intake_started")).toBeTruthy();
+        expect(mockState.documents.get("creator_onboarding/creator_1/history/intake_step_completed_monetization_goals")).toBeTruthy();
+        expect(mockState.documents.get("creator_onboarding/creator_1/history/intake_submitted")).toBeTruthy();
         expect(mockState.documents.get("creator_onboarding/creator_1/history/onboarding_submitted")).toBeTruthy();
         expect(mockState.documents.get("creator_onboarding/creator_1/history/awaiting_manual_review")).toBeTruthy();
         expect(mockState.documents.get("creator_onboarding/creator_1/history/admin_queue_materialized")).toBeTruthy();
@@ -164,6 +182,13 @@ describe("ensureCreatorOnboardingSubmission", () => {
         expect(historyPaths.sort()).toEqual([
             "creator_onboarding/creator_1/history/admin_queue_materialized",
             "creator_onboarding/creator_1/history/awaiting_manual_review",
+            "creator_onboarding/creator_1/history/intake_started",
+            "creator_onboarding/creator_1/history/intake_step_completed_audience_state",
+            "creator_onboarding/creator_1/history/intake_step_completed_creator_agreement",
+            "creator_onboarding/creator_1/history/intake_step_completed_monetization_goals",
+            "creator_onboarding/creator_1/history/intake_step_completed_recommended_setup",
+            "creator_onboarding/creator_1/history/intake_step_completed_submit_for_review",
+            "creator_onboarding/creator_1/history/intake_submitted",
             "creator_onboarding/creator_1/history/onboarding_started",
             "creator_onboarding/creator_1/history/onboarding_submitted",
         ]);

@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useMemo, useRef, useState, type FormEvent, type KeyboardEvent } from "react";
+import { useCallback, useEffect, useMemo, useRef, useState, type FormEvent, type KeyboardEvent } from "react";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import {
@@ -10,7 +10,6 @@ import {
     Loader2,
     Lock,
     Mail,
-    ShieldCheck,
     User,
     X,
 } from "lucide-react";
@@ -24,7 +23,15 @@ import {
     resolveEmailAuthError,
 } from "@/lib/auth-errors";
 import { reportClientIssue } from "@/lib/client-error-reporting";
-import { KREATOR_EXPERIENCES_DEFINITION } from "@/lib/creator-onboarding";
+import { getClientAnalyticsIdentitySnapshot } from "@/lib/client-session";
+import {
+    buildCreatorIntakeTelemetryPayload,
+    CREATOR_INTAKE_STEPS,
+    recommendCreatorSetupFromGoals,
+    sanitizeCreatorIntakeFields,
+    type CreatorIntakeStepKey,
+    type CreatorMonetizationGoal,
+} from "@/lib/creator-intake-flow";
 import { clearTimedFlow, consumeTimedFlow, startTimedFlow, trackEvent } from "@/lib/telemetry";
 import { SECONDARY_UNWRAP_CTA } from "@/lib/marketing-copy";
 
@@ -33,7 +40,6 @@ import {
     AUTH_SIGN_IN_FLOW,
     AUTH_SIGN_UP_FLOW,
     AUTH_GOOGLE_FLOW,
-    CREATOR_PLATFORM_OPTIONS,
     type AuthFormData,
     type AuthMode,
     isSignupMode,
@@ -42,6 +48,7 @@ import {
     getSupportCopy,
     buildSchema,
 } from "./AuthHelpers";
+import { CreatorIntakeFlow } from "./CreatorIntakeFlow";
 
 interface AuthModalProps {
     isOpen: boolean;
@@ -63,6 +70,8 @@ export function AuthModal({ isOpen, mode: initialMode, onClose }: AuthModalProps
     const suggestionRequestRef = useRef(0);
     const availabilityRequestRef = useRef(0);
     const emailAuthSubmissionInFlightRef = useRef(false);
+    const creatorIntakeStartedRef = useRef(false);
+    const creatorRecommendedSetupTrackedRef = useRef<string | null>(null);
     const [emailSignInCooldownUntil, setEmailSignInCooldownUntil] = useState<number | null>(null);
 
     const activeSchema = useMemo(() => buildSchema(mode), [mode]);
@@ -87,8 +96,13 @@ export function AuthModal({ isOpen, mode: initialMode, onClose }: AuthModalProps
             username: "",
             dob: "",
             creatorDisplayName: "",
+            creatorMonetizationGoals: [],
             creatorPrimaryPlatform: "",
+            creatorFollowerRange: "",
+            creatorPostingFrequency: "",
             creatorContentFocus: "",
+            fansAlreadyAskForAccess: "",
+            creatorRecommendedSetup: "",
         },
     });
 
@@ -175,6 +189,8 @@ export function AuthModal({ isOpen, mode: initialMode, onClose }: AuthModalProps
 
     const watchedEmail = watch("email");
     const watchedUsername = watch("username");
+    const watchedCreatorGoals = watch("creatorMonetizationGoals");
+    const watchedCreatorRecommendedSetup = watch("creatorRecommendedSetup");
     const emailSignInBlocked = mode === "signin" && emailSignInCooldownUntil !== null && emailSignInCooldownUntil > Date.now();
 
     useEffect(() => {
@@ -281,10 +297,93 @@ export function AuthModal({ isOpen, mode: initialMode, onClose }: AuthModalProps
         setAuthError(null);
         setResetSent(false);
         setCreatorStep(0);
+        creatorIntakeStartedRef.current = false;
+        creatorRecommendedSetupTrackedRef.current = null;
         clearErrors();
         reset();
         trackEvent("auth_mode_switched", { from_mode: mode, to_mode: newMode });
     };
+
+    const buildCreatorIntakeTelemetry = useCallback((
+        stepKey: CreatorIntakeStepKey,
+        extra?: {
+            selectedGoals?: unknown;
+            creatorRecommendedSetup?: unknown;
+        },
+    ) => {
+        const identity = getClientAnalyticsIdentitySnapshot();
+        const actorUid = identity.anonymousVisitorId ?? identity.sessionId;
+        const route = typeof window !== "undefined" ? window.location.pathname : "/creator-intake";
+
+        return buildCreatorIntakeTelemetryPayload({
+            actorType: "guest",
+            actorUid,
+            anonymousVisitorId: identity.anonymousVisitorId,
+            sessionId: identity.sessionId,
+            signupIntent: "creator",
+            stepKey,
+            selectedGoals: extra?.selectedGoals ?? watchedCreatorGoals,
+            creatorRecommendedSetup: extra?.creatorRecommendedSetup ?? watchedCreatorRecommendedSetup,
+            source: "creator_intake",
+            route,
+        });
+    }, [watchedCreatorGoals, watchedCreatorRecommendedSetup]);
+
+    const trackCreatorIntakeStepCompleted = (stepIndex: number) => {
+        const stepKey = CREATOR_INTAKE_STEPS[stepIndex]?.key;
+        if (!stepKey) {
+            return;
+        }
+
+        trackEvent("creator_intake_step_completed", buildCreatorIntakeTelemetry(stepKey));
+    };
+
+    const handleCreatorGoalSelected = (
+        selectedGoals: CreatorMonetizationGoal[],
+        selectedGoal: CreatorMonetizationGoal,
+    ) => {
+        trackEvent("creator_intake_goal_selected", {
+            ...buildCreatorIntakeTelemetry("monetization_goals", {
+                selectedGoals,
+                creatorRecommendedSetup: recommendCreatorSetupFromGoals(selectedGoals),
+            }),
+            selectedGoal,
+            selected_goal: selectedGoal,
+        });
+    };
+
+    useEffect(() => {
+        if (!isOpen || !isCreatorSignupMode) {
+            creatorIntakeStartedRef.current = false;
+            creatorRecommendedSetupTrackedRef.current = null;
+            return;
+        }
+
+        if (!creatorIntakeStartedRef.current) {
+            creatorIntakeStartedRef.current = true;
+            trackEvent("creator_intake_started", buildCreatorIntakeTelemetry("monetization_goals"));
+        }
+    }, [buildCreatorIntakeTelemetry, isOpen, isCreatorSignupMode]);
+
+    useEffect(() => {
+        if (!isOpen || !isCreatorSignupMode || creatorStep !== 2) {
+            return;
+        }
+
+        const recommendedSetup = watchedCreatorRecommendedSetup || recommendCreatorSetupFromGoals(watchedCreatorGoals);
+        if (!watchedCreatorRecommendedSetup) {
+            setValue("creatorRecommendedSetup", recommendedSetup, { shouldDirty: true, shouldValidate: true });
+        }
+
+        if (creatorRecommendedSetupTrackedRef.current === recommendedSetup) {
+            return;
+        }
+
+        creatorRecommendedSetupTrackedRef.current = recommendedSetup;
+        trackEvent("creator_intake_recommended_setup_shown", buildCreatorIntakeTelemetry("recommended_setup", {
+            creatorRecommendedSetup: recommendedSetup,
+        }));
+    }, [buildCreatorIntakeTelemetry, creatorStep, isCreatorSignupMode, isOpen, setValue, watchedCreatorGoals, watchedCreatorRecommendedSetup]);
 
     const handleGoogleSignIn = async () => {
         setIsLoading(true);
@@ -316,17 +415,14 @@ export function AuthModal({ isOpen, mode: initialMode, onClose }: AuthModalProps
     };
 
     const handleAdvanceCreatorStep = async () => {
-        const valid = await trigger(creatorStepFields(creatorStep));
+        const fields = creatorStepFields(creatorStep);
+        const valid = fields.length > 0 ? await trigger(fields) : true;
         if (!valid) {
             return;
         }
 
-        if (creatorStep === 1 && usernameAvailable === false) {
-            setAuthError("Username is already taken.");
-            return;
-        }
-
         setAuthError(null);
+        trackCreatorIntakeStepCompleted(creatorStep);
         setCreatorStep((previous) => Math.min(previous + 1, CREATOR_SIGNUP_STEPS - 1));
     };
 
@@ -346,6 +442,7 @@ export function AuthModal({ isOpen, mode: initialMode, onClose }: AuthModalProps
 
     const onSubmit = async (data: AuthFormData) => {
         const signupIntent = mode === "creator_signup" ? "creator" : "fan";
+        const creatorIntake = signupIntent === "creator" ? sanitizeCreatorIntakeFields(data) : null;
         const manualIdentifierType = !isSignupMode(mode)
             ? looksLikeEmailAddress(data.email) ? "email" : "username"
             : undefined;
@@ -374,6 +471,13 @@ export function AuthModal({ isOpen, mode: initialMode, onClose }: AuthModalProps
                     signup_intent: signupIntent,
                     creator_primary_platform: data.creatorPrimaryPlatform || "",
                 });
+                if (signupIntent === "creator") {
+                    trackCreatorIntakeStepCompleted(CREATOR_SIGNUP_STEPS - 1);
+                    trackEvent("creator_intake_submitted", buildCreatorIntakeTelemetry("submit_for_review", {
+                        selectedGoals: creatorIntake?.creatorMonetizationGoals,
+                        creatorRecommendedSetup: creatorIntake?.creatorRecommendedSetup,
+                    }));
+                }
                 const result = await signUpWithEmail({
                     email: data.email,
                     password: data.password,
@@ -381,8 +485,13 @@ export function AuthModal({ isOpen, mode: initialMode, onClose }: AuthModalProps
                     dob: data.dob || "",
                     signupIntent,
                     creatorDisplayName: data.creatorDisplayName,
+                    creatorMonetizationGoals: creatorIntake?.creatorMonetizationGoals,
                     creatorPrimaryPlatform: data.creatorPrimaryPlatform,
+                    creatorFollowerRange: creatorIntake?.creatorFollowerRange,
+                    creatorPostingFrequency: creatorIntake?.creatorPostingFrequency,
                     creatorContentFocus: data.creatorContentFocus,
+                    fansAlreadyAskForAccess: creatorIntake?.fansAlreadyAskForAccess,
+                    creatorRecommendedSetup: creatorIntake?.creatorRecommendedSetup,
                 });
                 const { mergedParams } = consumeTimedFlow(AUTH_SIGN_UP_FLOW, {
                     entry_mode: initialMode,
@@ -390,6 +499,7 @@ export function AuthModal({ isOpen, mode: initialMode, onClose }: AuthModalProps
                     signup_intent: signupIntent,
                     welcome_bonus_gd: result.welcomeBonus,
                     creator_primary_platform: data.creatorPrimaryPlatform || "",
+                    creator_recommended_setup: creatorIntake?.creatorRecommendedSetup || "",
                     creator_has_content_focus: Boolean(data.creatorContentFocus?.trim()),
                 });
                 trackEvent("auth_sign_up_success", mergedParams);
@@ -512,7 +622,7 @@ export function AuthModal({ isOpen, mode: initialMode, onClose }: AuthModalProps
                     <div className="relative shrink-0 border-b border-white/5 bg-zinc-900/95 px-5 py-4 backdrop-blur-sm sm:p-6">
                         {isCreatorSignupMode ? (
                             <div className="mb-3 flex items-center justify-between gap-3">
-                                <span className="rounded-full border border-white/10 bg-white/5 px-3 py-1 text-[10px] font-bold uppercase tracking-[0.16em] text-brand-purple">
+                                <span className="text-[11px] font-bold uppercase tracking-[0.16em] text-brand-purple">
                                     Creator intake
                                 </span>
                                 <span className="text-[11px] font-semibold uppercase tracking-[0.16em] text-gray-500">
@@ -755,148 +865,18 @@ export function AuthModal({ isOpen, mode: initialMode, onClose }: AuthModalProps
                                     </>
                                 ) : null}
 
-                                {isCreatorSignupMode && creatorStep === 0 ? (
-                                    <div className="space-y-4">
-                                        <div className="rounded-[1.4rem] border border-white/10 bg-black/30 p-4">
-                                            <p className="text-sm font-semibold text-white">Tell us who you are</p>
-                                            <p className="mt-1 text-xs leading-6 text-gray-400">
-                                                This gives admins enough context to line up contracts, ID verification, and the right manual segment after review.
-                                            </p>
-                                        </div>
-
-                                        <div className="space-y-2">
-                                            <label className="text-xs font-medium text-gray-400 sm:text-sm">Creator name</label>
-                                            <div className="relative overflow-hidden">
-                                                <User className="absolute left-3 top-1/2 h-5 w-5 -translate-y-1/2 text-gray-500" />
-                                                <input
-                                                    {...register("creatorDisplayName")}
-                                                    type="text"
-                                                    className="block w-full rounded-xl border border-white/10 bg-black/50 px-10 py-2.5 text-sm text-white transition-colors focus:border-brand-purple focus:outline-none sm:py-3 sm:text-base"
-                                                    placeholder="How should we refer to you?"
-                                                />
-                                            </div>
-                                            {errors.creatorDisplayName ? <p className="pl-1 text-xs text-red-400">{errors.creatorDisplayName.message}</p> : null}
-                                        </div>
-
-                                        <div className="space-y-2">
-                                            <label className="text-xs font-medium text-gray-400 sm:text-sm">Primary platform</label>
-                                            <select
-                                                {...register("creatorPrimaryPlatform")}
-                                                className="block w-full rounded-xl border border-white/10 bg-black/50 px-4 py-2.5 text-sm text-white transition-colors focus:border-brand-purple focus:outline-none sm:py-3 sm:text-base"
-                                            >
-                                                <option value="" className="bg-black">Choose one</option>
-                                                {CREATOR_PLATFORM_OPTIONS.map((option) => (
-                                                    <option key={option} value={option} className="bg-black">{option}</option>
-                                                ))}
-                                            </select>
-                                            {errors.creatorPrimaryPlatform ? <p className="pl-1 text-xs text-red-400">{errors.creatorPrimaryPlatform.message}</p> : null}
-                                        </div>
-
-                                        <div className="space-y-2">
-                                            <label className="text-xs font-medium text-gray-400 sm:text-sm">What do you create?</label>
-                                            <textarea
-                                                {...register("creatorContentFocus")}
-                                                rows={4}
-                                                className="block w-full resize-none rounded-xl border border-white/10 bg-black/50 px-4 py-3 text-sm text-white transition-colors focus:border-brand-purple focus:outline-none sm:text-base"
-                                                placeholder="A short note so the review team understands what you create."
-                                            />
-                                            {errors.creatorContentFocus ? <p className="pl-1 text-xs text-red-400">{errors.creatorContentFocus.message}</p> : null}
-                                        </div>
-                                    </div>
-                                ) : null}
-
-                                {isCreatorSignupMode && creatorStep === 1 ? (
-                                    <div className="space-y-4">
-                                        <div className="rounded-[1.4rem] border border-white/10 bg-black/30 p-4">
-                                            <p className="text-sm font-semibold text-white">Lock your creator handle</p>
-                                            <p className="mt-1 text-xs leading-6 text-gray-400">
-                                                This sets the identity admins will review before any creator experiences go live.
-                                            </p>
-                                        </div>
-
-                                        <div className="space-y-2">
-                                            <label className="text-xs font-medium text-gray-400 sm:text-sm">Username</label>
-                                            <div className="relative overflow-hidden">
-                                                <User className="absolute left-3 top-1/2 h-5 w-5 -translate-y-1/2 text-gray-500" />
-                                                <input
-                                                    {...register("username", {
-                                                        onChange: () => setUsernameTouched(true),
-                                                    })}
-                                                    type="text"
-                                                    className="block w-full rounded-xl border border-white/10 bg-black/50 px-10 py-2.5 text-sm text-white transition-colors focus:border-brand-purple focus:outline-none sm:py-3 sm:text-base"
-                                                    placeholder="Create your creator username"
-                                                />
-                                            </div>
-                                            {errors.username ? <p className="pl-1 text-xs text-red-400">{errors.username.message}</p> : null}
-                                            {!errors.username && checkingUsername ? <p className="pl-1 text-xs text-gray-400">Checking username...</p> : null}
-                                            {!errors.username && !checkingUsername && usernameAvailable === true ? <p className="pl-1 text-xs text-brand-purple">Username available.</p> : null}
-                                            {!errors.username && !checkingUsername && usernameAvailable === false ? <p className="pl-1 text-xs text-red-400">Username already taken.</p> : null}
-                                        </div>
-
-                                        <div className="space-y-2">
-                                            <label className="text-xs font-medium text-gray-400 sm:text-sm">Date of birth</label>
-                                            <div className="relative overflow-hidden">
-                                                <Calendar className="absolute left-3 top-1/2 h-5 w-5 -translate-y-1/2 text-gray-500" />
-                                                <input
-                                                    {...register("dob")}
-                                                    type="date"
-                                                    className="block w-full appearance-none rounded-xl border border-white/10 bg-black/50 px-10 py-2.5 pr-4 text-sm text-white transition-colors focus:border-brand-purple focus:outline-none [color-scheme:dark] sm:py-3 sm:text-base"
-                                                />
-                                            </div>
-                                            {errors.dob ? <p className="pl-1 text-xs text-red-400">{errors.dob.message}</p> : null}
-                                            <p className="pl-1 text-xs text-gray-500">Must be 18 or older to apply for creator access.</p>
-                                        </div>
-                                    </div>
-                                ) : null}
-
-                                {isCreatorSignupMode && creatorStep === 2 ? (
-                                    <div className="space-y-4">
-                                        <div className="rounded-[1.4rem] border border-brand-purple/20 bg-brand-purple/10 p-4">
-                                            <div className="flex items-start gap-3">
-                                                <ShieldCheck className="mt-0.5 h-5 w-5 shrink-0 text-brand-purple" />
-                                                <div>
-                                                    <p className="text-sm font-semibold text-white">Final step: submit your application</p>
-                                                    <p className="mt-1 text-xs leading-6 text-gray-300">
-                                                        After signup, your creator application moves into manual review. Your waiting page will show legal, ID, and approval updates as they actually happen.
-                                                    </p>
-                                                </div>
-                                            </div>
-                                        </div>
-
-                                        <div className="space-y-2">
-                                            <label className="text-xs font-medium text-gray-400 sm:text-sm">Email</label>
-                                            <div className="relative overflow-hidden">
-                                                <Mail className="absolute left-3 top-1/2 h-5 w-5 -translate-y-1/2 text-gray-500" />
-                                                <input
-                                                    {...register("email")}
-                                                    type="email"
-                                                    autoComplete="email"
-                                                    className="block w-full rounded-xl border border-white/10 bg-black/50 px-10 py-2.5 text-sm text-white transition-colors focus:border-brand-purple focus:outline-none sm:py-3 sm:text-base"
-                                                    placeholder="Where should we contact you?"
-                                                />
-                                            </div>
-                                            {errors.email ? <p className="pl-1 text-xs text-red-400">{errors.email.message}</p> : null}
-                                        </div>
-
-                                        <div className="space-y-2">
-                                            <label className="text-xs font-medium text-gray-400 sm:text-sm">Password</label>
-                                            <div className="relative overflow-hidden">
-                                                <Lock className="absolute left-3 top-1/2 h-5 w-5 -translate-y-1/2 text-gray-500" />
-                                                <input
-                                                    {...register("password")}
-                                                    type="password"
-                                                    autoComplete="new-password"
-                                                    className="block w-full rounded-xl border border-white/10 bg-black/50 px-10 py-2.5 text-sm text-white transition-colors focus:border-brand-purple focus:outline-none sm:py-3 sm:text-base"
-                                                    placeholder="Create a password"
-                                                />
-                                            </div>
-                                            {errors.password ? <p className="pl-1 text-xs text-red-400">{errors.password.message}</p> : null}
-                                        </div>
-
-                                        <div className="rounded-[1.25rem] border border-white/10 bg-black/30 p-4 text-xs leading-6 text-gray-400">
-                                            <p>By submitting this creator application, you understand that KandyDrops may request legal documents and ID verification before creator tools are enabled.</p>
-                                        </div>
-                                    </div>
+                                {isCreatorSignupMode ? (
+                                    <CreatorIntakeFlow
+                                        step={creatorStep}
+                                        register={register}
+                                        setValue={setValue}
+                                        watch={watch}
+                                        errors={errors}
+                                        checkingUsername={checkingUsername}
+                                        usernameAvailable={usernameAvailable}
+                                        markUsernameTouched={() => setUsernameTouched(true)}
+                                        onGoalSelected={handleCreatorGoalSelected}
+                                    />
                                 ) : null}
 
                                 {authError ? (
@@ -933,7 +913,7 @@ export function AuthModal({ isOpen, mode: initialMode, onClose }: AuthModalProps
                                 ) : null}
 
                                 {isCreatorSignupMode ? (
-                                    <div className="flex gap-3">
+                                    <div className="sticky bottom-0 z-10 flex gap-3 rounded-2xl border border-white/10 bg-black/95 p-2 pb-[calc(0.5rem+env(safe-area-inset-bottom))]">
                                         {creatorStep > 0 ? (
                                             <button
                                                 type="button"
@@ -961,7 +941,7 @@ export function AuthModal({ isOpen, mode: initialMode, onClose }: AuthModalProps
                                             <button
                                                 type="submit"
                                                 disabled={isLoading}
-                                                className="flex-[1.25] rounded-xl bg-gradient-to-r from-brand-purple to-purple-500 py-3 font-bold text-white shadow-lg shadow-brand-purple/20 transition-all active:scale-[0.98] disabled:opacity-50 hover:opacity-95"
+                                                className="flex-[1.25] rounded-xl bg-brand-purple py-3 font-bold text-white shadow-lg shadow-brand-purple/20 transition-all active:scale-[0.98] disabled:opacity-50 hover:opacity-95"
                                             >
                                                 {isLoading ? <Loader2 className="mx-auto h-5 w-5 animate-spin" /> : "Submit creator application"}
                                             </button>
@@ -970,7 +950,7 @@ export function AuthModal({ isOpen, mode: initialMode, onClose }: AuthModalProps
                                                 type="button"
                                                 onClick={() => void handleAdvanceCreatorStep()}
                                                 disabled={isLoading}
-                                                className="flex-[1.25] rounded-xl bg-gradient-to-r from-brand-purple to-purple-500 py-3 font-bold text-white shadow-lg shadow-brand-purple/20 transition-all active:scale-[0.98] disabled:opacity-50 hover:opacity-95"
+                                                className="flex-[1.25] rounded-xl bg-brand-purple py-3 font-bold text-white shadow-lg shadow-brand-purple/20 transition-all active:scale-[0.98] disabled:opacity-50 hover:opacity-95"
                                             >
                                                 Continue
                                             </button>
@@ -1015,12 +995,6 @@ export function AuthModal({ isOpen, mode: initialMode, onClose }: AuthModalProps
 
                                     {isCreatorSignupMode ? (
                                         <>
-                                            <div className="rounded-[1.25rem] border border-white/10 bg-black/25 px-4 py-3 text-left text-xs leading-6 text-gray-400">
-                                                <p className="font-semibold uppercase tracking-[0.16em] text-gray-500">Creator path</p>
-                                                <p className="mt-1">
-                                                    {KREATOR_EXPERIENCES_DEFINITION} Creator accounts stay out of the fan onboarding flow, and creator tools remain locked until manual approval is complete.
-                                                </p>
-                                            </div>
                                             <p>
                                                 Want the regular fan signup instead?{" "}
                                                 <button type="button" onClick={() => switchMode("signup")} className="font-semibold text-brand-purple transition-colors hover:text-purple-300">

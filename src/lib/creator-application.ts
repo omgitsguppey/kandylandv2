@@ -33,8 +33,13 @@ export function resolveCreatorQueuePosition(value: unknown) {
 
 export function buildInitialCreatorApplication(input: {
     creatorDisplayName: string;
+    creatorMonetizationGoals?: CreatorApplication["creatorMonetizationGoals"];
     creatorPrimaryPlatform?: string;
+    creatorFollowerRange?: CreatorApplication["creatorFollowerRange"];
+    creatorPostingFrequency?: CreatorApplication["creatorPostingFrequency"];
     creatorContentFocus?: string;
+    fansAlreadyAskForAccess?: CreatorApplication["fansAlreadyAskForAccess"];
+    creatorRecommendedSetup?: CreatorApplication["creatorRecommendedSetup"];
     queuePosition?: number;
     submittedAt?: number;
 }): CreatorApplication {
@@ -45,8 +50,14 @@ export function buildInitialCreatorApplication(input: {
     return buildCreatorOnboardingProjectionState({
         queuePosition: resolveCreatorQueuePosition(input.queuePosition),
         creatorDisplayName: input.creatorDisplayName.trim(),
+        creatorMonetizationGoals: input.creatorMonetizationGoals,
         creatorPrimaryPlatform: readString(input.creatorPrimaryPlatform) || undefined,
+        creatorFollowerRange: input.creatorFollowerRange,
+        creatorPostingFrequency: input.creatorPostingFrequency,
         creatorContentFocus: readString(input.creatorContentFocus) || undefined,
+        fansAlreadyAskForAccess: input.fansAlreadyAskForAccess,
+        creatorRecommendedSetup: input.creatorRecommendedSetup,
+        intakeSubmittedAt: submittedAt,
         nowMs: submittedAt,
         source: {
             submissionStatus: "awaiting_manual_review",
@@ -80,8 +91,18 @@ export function normalizeCreatorApplication(value: unknown): CreatorApplication 
     return buildCreatorOnboardingProjectionState({
         queuePosition: resolveCreatorQueuePosition(source.queuePosition),
         creatorDisplayName,
+        creatorMonetizationGoals: Array.isArray(source.creatorMonetizationGoals)
+            ? source.creatorMonetizationGoals as CreatorApplication["creatorMonetizationGoals"]
+            : undefined,
         creatorPrimaryPlatform: readString(source.creatorPrimaryPlatform) || undefined,
+        creatorFollowerRange: source.creatorFollowerRange as CreatorApplication["creatorFollowerRange"],
+        creatorPostingFrequency: source.creatorPostingFrequency as CreatorApplication["creatorPostingFrequency"],
         creatorContentFocus: readString(source.creatorContentFocus) || undefined,
+        fansAlreadyAskForAccess: source.fansAlreadyAskForAccess as CreatorApplication["fansAlreadyAskForAccess"],
+        creatorRecommendedSetup: source.creatorRecommendedSetup as CreatorApplication["creatorRecommendedSetup"],
+        intakeVersion: readString(source.intakeVersion) || undefined,
+        intakeSubmittedAt: typeof source.intakeSubmittedAt === "number" ? source.intakeSubmittedAt : undefined,
+        intakeSource: source.intakeSource as CreatorApplication["intakeSource"],
         nowMs,
         source,
     });

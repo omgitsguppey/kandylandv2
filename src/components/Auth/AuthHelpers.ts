@@ -1,22 +1,20 @@
 import * as z from "zod";
 import { differenceInYears, parseISO } from "date-fns";
-import { CREATOR_REVIEW_TIMELINE_COPY } from "@/lib/creator-onboarding";
+import {
+    CREATOR_FANS_ASK_FOR_ACCESS_OPTIONS,
+    CREATOR_FOLLOWER_RANGE_OPTIONS,
+    CREATOR_INTAKE_STEP_COUNT,
+    CREATOR_MONETIZATION_GOAL_OPTIONS,
+    CREATOR_PLATFORM_OPTIONS,
+    CREATOR_POSTING_FREQUENCY_OPTIONS,
+    CREATOR_RECOMMENDED_SETUP_OPTIONS,
+} from "@/lib/creator-intake-flow";
 import { SIGNUP_SUPPORT_COPY } from "@/lib/marketing-copy";
 
-export const CREATOR_SIGNUP_STEPS = 3;
+export const CREATOR_SIGNUP_STEPS = CREATOR_INTAKE_STEP_COUNT;
 export const AUTH_SIGN_IN_FLOW = "auth_sign_in";
 export const AUTH_SIGN_UP_FLOW = "auth_sign_up";
 export const AUTH_GOOGLE_FLOW = "auth_google_sign_in";
-
-export const CREATOR_PLATFORM_OPTIONS = [
-    "Instagram",
-    "TikTok",
-    "YouTube",
-    "X",
-    "OnlyFans",
-    "Twitch",
-    "Independent / Other",
-] as const;
 
 export const authFormSchema = z.object({
     email: z.string().trim().min(1, "Email is required"),
@@ -24,8 +22,13 @@ export const authFormSchema = z.object({
     username: z.string().optional(),
     dob: z.string().optional(),
     creatorDisplayName: z.string().optional(),
+    creatorMonetizationGoals: z.array(z.string()).optional(),
     creatorPrimaryPlatform: z.string().optional(),
+    creatorFollowerRange: z.string().optional(),
+    creatorPostingFrequency: z.string().optional(),
     creatorContentFocus: z.string().optional(),
+    fansAlreadyAskForAccess: z.string().optional(),
+    creatorRecommendedSetup: z.string().optional(),
 });
 
 export const signInIdentifierSchema = z.string().trim().min(1, "Enter your email or username");
@@ -41,14 +44,29 @@ export function isSignupMode(mode: AuthMode) {
 
 export function creatorStepFields(step: number): Array<keyof AuthFormData> {
     if (step === 0) {
-        return ["creatorDisplayName", "creatorPrimaryPlatform", "creatorContentFocus"];
+        return ["creatorMonetizationGoals"];
     }
 
     if (step === 1) {
-        return ["username", "dob"];
+        return [
+            "creatorDisplayName",
+            "creatorPrimaryPlatform",
+            "creatorFollowerRange",
+            "creatorPostingFrequency",
+            "creatorContentFocus",
+            "fansAlreadyAskForAccess",
+        ];
     }
 
-    return ["email", "password"];
+    if (step === 2) {
+        return ["creatorRecommendedSetup"];
+    }
+
+    if (step === 3) {
+        return [];
+    }
+
+    return ["username", "dob", "email", "password"];
 }
 
 export function getHeading(mode: AuthMode) {
@@ -61,7 +79,7 @@ export function getHeading(mode: AuthMode) {
     }
 
     if (mode === "creator_signup") {
-        return "Creator Signup";
+        return "Creator Intake";
     }
 
     return "Reset Password";
@@ -77,7 +95,7 @@ export function getSupportCopy(mode: AuthMode) {
     }
 
     if (mode === "creator_signup") {
-        return `Three quick steps, then your creator application moves into manual review. ${CREATOR_REVIEW_TIMELINE_COPY}`;
+        return "Five short steps to shape your creator lane.";
     }
 
     return "We&apos;ll send a secure reset link to your inbox.";
@@ -88,8 +106,22 @@ export function buildSchema(mode: AuthMode) {
         return authFormSchema.extend({
             email: emailAddressSchema,
             creatorDisplayName: z.string().min(2, "Tell us what you want to be called."),
+            creatorMonetizationGoals: z.array(z.enum(CREATOR_MONETIZATION_GOAL_OPTIONS.map((option) => option.value) as [string, ...string[]]))
+                .min(1, "Choose at least one creator lane."),
             creatorPrimaryPlatform: z.string().min(2, "Choose the platform you use most."),
+            creatorFollowerRange: z.enum(CREATOR_FOLLOWER_RANGE_OPTIONS.map((option) => option.value) as [string, ...string[]], {
+                message: "Choose the closest audience size.",
+            }),
+            creatorPostingFrequency: z.enum(CREATOR_POSTING_FREQUENCY_OPTIONS.map((option) => option.value) as [string, ...string[]], {
+                message: "Choose how often you usually post.",
+            }),
             creatorContentFocus: z.string().min(8, "Give admins a little context about your content."),
+            fansAlreadyAskForAccess: z.enum(CREATOR_FANS_ASK_FOR_ACCESS_OPTIONS.map((option) => option.value) as [string, ...string[]], {
+                message: "Choose the closest answer.",
+            }),
+            creatorRecommendedSetup: z.enum(CREATOR_RECOMMENDED_SETUP_OPTIONS.map((option) => option.value) as [string, ...string[]], {
+                message: "Choose a creator setup.",
+            }),
             username: z.string()
                 .min(3, "Username must be at least 3 characters")
                 .regex(/^[a-z0-9_-]+$/, "Use lowercase letters, numbers, dashes, or underscores"),

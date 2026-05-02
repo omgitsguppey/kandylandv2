@@ -4,6 +4,10 @@ Status: Canonical repository-memory and architecture-decision ledger
 Last refreshed: 2026-05-02
 Repo: `C:\Users\uylus\OneDrive\Documents\KandyDrops_Final`
 
+## 2026-05-02 Creator Intake Flow
+
+Creator-facing intake is a five-step guided mobile flow, not a technical application form. The canonical contract is `src/lib/creator-intake-flow.ts`; UI rendering is `src/components/Auth/CreatorIntakeFlow.tsx`; registration still posts through `/api/user/register` and `ensureCreatorOnboardingSubmission`. New intake fields live on the existing creator onboarding canonical/projection state: `creatorMonetizationGoals`, `creatorFollowerRange`, `creatorPostingFrequency`, `fansAlreadyAskForAccess`, `creatorRecommendedSetup`, `intakeVersion`, `intakeSubmittedAt`, and `intakeSource: creator_site`. Do not create a parallel intake collection or expose legal/compliance machinery before the agreement step.
+
 ## 2026-05-02 Creator Identity Marker Hardening
 
 Creator identity markers are canonical for creator intake, Admin Roster, creator experience, and creator account/admin actions. The canonical helper is `src/lib/identity/actor-markers.ts`; it classifies `guest`, `user`, `creator`, `admin`, `owner_admin`, `system`, and `unknown`, and it emits explicit `performedAs`, target, route, surface, action, dedupe, source, and Debug fields. Unknown actors must not be promoted to user/creator/admin, owner overrides must be marked `owner_admin` plus `owner_override`, and admin-on-behalf events must include a target user.

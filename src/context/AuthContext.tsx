@@ -51,8 +51,13 @@ type SignUpInput = {
     dob: string;
     signupIntent?: SignupIntent;
     creatorDisplayName?: string;
+    creatorMonetizationGoals?: string[];
     creatorPrimaryPlatform?: string;
+    creatorFollowerRange?: string;
+    creatorPostingFrequency?: string;
     creatorContentFocus?: string;
+    fansAlreadyAskForAccess?: string;
+    creatorRecommendedSetup?: string;
 };
 
 type SignUpResult = {
@@ -484,8 +489,13 @@ export function AuthProvider({ children }: { children: ReactNode }) {
                     registrationMethod: "email",
                     signupIntent,
                     creatorDisplayName: input.creatorDisplayName,
+                    creatorMonetizationGoals: input.creatorMonetizationGoals,
                     creatorPrimaryPlatform: input.creatorPrimaryPlatform,
+                    creatorFollowerRange: input.creatorFollowerRange,
+                    creatorPostingFrequency: input.creatorPostingFrequency,
                     creatorContentFocus: input.creatorContentFocus,
+                    fansAlreadyAskForAccess: input.fansAlreadyAskForAccess,
+                    creatorRecommendedSetup: input.creatorRecommendedSetup,
                     referredBy: readSessionStorageValue(CLIENT_RUNTIME_STORAGE_KEYS.referralCode) ?? undefined,
                 }),
             });
@@ -494,7 +504,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
             const result = await readManualRegistrationResult(response);
             const welcomeBonus = result.welcomeBonus;
             if (signupIntent === "creator") {
-                toast.success("Creator application received. Check your creator status page for review, legal, and ID updates.");
+                toast.success("Creator intake received. Check your creator status page for next steps.");
                 router.push(CREATOR_WAITLIST_PATH);
             } else {
                 toast.success(welcomeBonus > 0 ? `Account created! +${welcomeBonus} Gum Drops` : "Account created!");

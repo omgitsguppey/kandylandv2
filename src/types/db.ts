@@ -7,6 +7,13 @@ import type {
     CreatorOnboardingSubmissionStatus,
     CreatorOnboardingAgreementBasis,
 } from "@/lib/creator-onboarding";
+import type {
+    CreatorFansAlreadyAskForAccess,
+    CreatorFollowerRange,
+    CreatorMonetizationGoal,
+    CreatorPostingFrequency,
+    CreatorRecommendedSetup,
+} from "@/lib/creator-intake-flow";
 
 export type CreatorRequestCategoryConfig = {
     id: string;
@@ -251,8 +258,16 @@ export type CreatorApplication = {
     awaitingManualReviewAt: number;
     updatedAt: number;
     creatorDisplayName: string;
+    creatorMonetizationGoals?: CreatorMonetizationGoal[];
     creatorPrimaryPlatform?: string;
+    creatorFollowerRange?: CreatorFollowerRange;
+    creatorPostingFrequency?: CreatorPostingFrequency;
     creatorContentFocus?: string;
+    fansAlreadyAskForAccess?: CreatorFansAlreadyAskForAccess;
+    creatorRecommendedSetup?: CreatorRecommendedSetup;
+    intakeVersion?: string;
+    intakeSubmittedAt?: number;
+    intakeSource?: "creator_site";
     bypassFanOnboarding: boolean;
     introAcknowledgedAt?: number;
     introAcknowledgedVersion?: string;

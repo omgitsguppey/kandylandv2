@@ -142,7 +142,15 @@ describe("creator onboarding contract", () => {
             awaitingManualReviewAt: 1_710_000_000_000,
             updatedAt: 1_710_000_000_000,
             creatorDisplayName: "Creator One",
+            creatorMonetizationGoals: ["paid_drops", "private_chat"],
             bypassFanOnboarding: true,
+            creatorFollowerRange: "10k_50k",
+            creatorPostingFrequency: "weekly",
+            fansAlreadyAskForAccess: "yes",
+            creatorRecommendedSetup: "timed_drops_private_chat",
+            intakeVersion: "creator_intake_v1",
+            intakeSubmittedAt: 1_710_000_000_000,
+            intakeSource: "creator_site",
             legalStatus: "legal_pending",
             idVerificationStatus: "id_requested",
             segmentationStatus: "segment_unassigned",
@@ -168,6 +176,9 @@ describe("creator onboarding contract", () => {
 
         expect(canonical?.idDocuments?.front?.fileName).toBe("legacy-front.png");
         expect(canonical?.idDocuments?.back?.fileName).toBe("modern-back.png");
+        expect(canonical?.creatorMonetizationGoals).toEqual(["paid_drops", "private_chat"]);
+        expect(canonical?.creatorRecommendedSetup).toBe("timed_drops_private_chat");
+        expect(canonical?.intakeVersion).toBe("creator_intake_v1");
         expect(getCreatorOnboardingIdDocumentSummary(canonical)).toMatchObject({
             count: 2,
             complete: false,
@@ -190,6 +201,17 @@ describe("creator onboarding contract", () => {
             eventType: "creator_approved",
             actorRole: "admin",
             detail: "All review gates are complete.",
+        });
+        expect(normalizeCreatorOnboardingHistoryEntry({
+            eventType: "intake_submitted",
+            actorId: "creator_1",
+            actorRole: "user",
+            actorLabel: "Creator",
+            timestamp: 1_710_000_000_000,
+            summary: "Creator intake submitted",
+        })).toMatchObject({
+            eventType: "intake_submitted",
+            actorRole: "user",
         });
         expect(normalizeCreatorOnboardingHistoryEntry({
             eventType: "mystery",

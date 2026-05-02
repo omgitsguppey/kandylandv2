@@ -70,3 +70,14 @@ The page exposes compact debug metadata:
 - `actorMarkerPresent`
 
 Future agents must keep legal and audit evidence available, but not crowd the default review flow.
+
+## Creator Intake Relationship
+
+The creator intake now collects the launch setup fields before the Admin Roster decision queue sees the record:
+
+- monetization goals
+- audience range and posting rhythm
+- whether fans already ask for access
+- recommended creator setup
+
+Admin Roster should use those fields as review context only. It must not push raw legal or audit machinery back into the creator-facing intake.

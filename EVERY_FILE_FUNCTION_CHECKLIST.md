@@ -9,6 +9,14 @@ Scoring: all entries below are marked as included in the current validated sweep
 
 Current repo-wide state snapshot: see [FULL_SCALE_CODEBASE_AUDIT.md](/Users/uylus/OneDrive/Documents/KandyDrops_Final/FULL_SCALE_CODEBASE_AUDIT.md) for the current live baseline, verification state, and continuity rules, and see [REPO_MEMORY_LEDGER.md](/Users/uylus/OneDrive/Documents/KandyDrops_Final/REPO_MEMORY_LEDGER.md) for major architectural and workflow decisions. The detailed file/function body below remains valuable historical evidence, but it has not been fully regenerated against the current 2026-04-18 inventory review yet.
 
+## 2026-05-02 Creator Intake Flow Coverage
+
+- [x] `src/lib/creator-intake-flow.ts` owns the five-step creator intake model, option sets, sanitizer, recommended setup mapping, intake metadata defaults, and creator-intake telemetry payload shape.
+- [x] `src/components/Auth/CreatorIntakeFlow.tsx`, `src/components/Auth/AuthHelpers.ts`, `src/components/Auth/AuthModal.tsx`, and `src/context/AuthContext.tsx` render the mobile-first guided intake, reserve bottom safe-area CTA space, emit intake telemetry, and pass the new fields through email signup.
+- [x] `src/app/api/user/register/route.ts`, `src/lib/server/creator-onboarding.ts`, `src/lib/creator-onboarding.ts`, `src/lib/creator-application.ts`, and `src/types/db.ts` persist intake fields through the existing creator onboarding canonical record, user projection, review queue projection, and history events without adding a parallel collection.
+- [x] `src/lib/telemetry-catalog.ts` catalogs `creator_intake_started`, `creator_intake_step_completed`, `creator_intake_goal_selected`, `creator_intake_recommended_setup_shown`, and `creator_intake_submitted`.
+- [x] `scripts/agent/validate-creator-intake-flow.ts`, `tests/unit/creator-intake-flow.spec.ts`, `tests/unit/creator-intake-flow-component.spec.tsx`, creator onboarding tests, registration route tests, and `docs/agent-truth/creator-intake-flow.md` cover the launch intake contract.
+
 ## 2026-05-02 Creator Identity Marker Hardening Coverage
 
 - [x] `src/lib/identity/actor-markers.ts` owns canonical actor classification, marker construction, admin-on-behalf markers, unknown-actor blocking, telemetry payload mapping, and Debug field mapping.

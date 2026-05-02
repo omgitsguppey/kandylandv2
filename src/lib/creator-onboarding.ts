@@ -3,7 +3,7 @@
  *
  * Current submission entrypoint audit:
  * 1. `src/components/Auth/AuthModal.tsx`
- *    Creator applicants complete the three-step creator signup UI.
+ *    Creator applicants complete the five-step creator intake UI.
  * 2. `src/context/AuthContext.tsx`
  *    `signUpWithEmail()` posts creator signup data to `/api/user/register`.
  * 3. `src/app/api/user/register/route.ts`
@@ -42,6 +42,16 @@ import {
     DEFAULT_CREATOR_TEMPLATE_ID,
     DEFAULT_CREATOR_TEMPLATE_LABEL,
 } from "@/lib/creator-contract";
+import {
+    CREATOR_INTAKE_SOURCE,
+    CREATOR_INTAKE_VERSION,
+    sanitizeCreatorIntakeFields,
+    type CreatorFansAlreadyAskForAccess,
+    type CreatorFollowerRange,
+    type CreatorMonetizationGoal,
+    type CreatorPostingFrequency,
+    type CreatorRecommendedSetup,
+} from "@/lib/creator-intake-flow";
 
 export const CREATOR_ONBOARDING_SUBMISSION_STATUSES = [
     "onboarding_started",
@@ -111,6 +121,9 @@ const SEGMENT_STATUS_SET = new Set<CreatorOnboardingSegmentStatus>(CREATOR_ONBOA
 const APPROVAL_STATUS_SET = new Set<CreatorOnboardingApprovalStatus>(CREATOR_ONBOARDING_APPROVAL_STATUSES);
 const BLOCKING_REASON_SET = new Set<CreatorOnboardingBlockingReason>(CREATOR_ONBOARDING_BLOCKING_REASONS);
 const HISTORY_EVENT_TYPE_SET = new Set<CreatorOnboardingHistoryEventType>([
+    "intake_started",
+    "intake_step_completed",
+    "intake_submitted",
     "onboarding_started",
     "onboarding_submitted",
     "awaiting_manual_review",
@@ -187,8 +200,16 @@ export type CreatorOnboardingProjectionState = {
     awaitingManualReviewAt: number;
     updatedAt: number;
     creatorDisplayName: string;
+    creatorMonetizationGoals?: CreatorMonetizationGoal[];
     creatorPrimaryPlatform?: string;
+    creatorFollowerRange?: CreatorFollowerRange;
+    creatorPostingFrequency?: CreatorPostingFrequency;
     creatorContentFocus?: string;
+    fansAlreadyAskForAccess?: CreatorFansAlreadyAskForAccess;
+    creatorRecommendedSetup?: CreatorRecommendedSetup;
+    intakeVersion?: string;
+    intakeSubmittedAt?: number;
+    intakeSource?: typeof CREATOR_INTAKE_SOURCE;
     bypassFanOnboarding: boolean;
     introAcknowledgedAt?: number;
     introAcknowledgedVersion?: string;
@@ -267,8 +288,16 @@ export type CreatorReviewQueueEntry = {
     queuePosition: number;
     displayName: string;
     creatorDisplayName: string;
+    creatorMonetizationGoals?: CreatorMonetizationGoal[];
     creatorPrimaryPlatform?: string;
+    creatorFollowerRange?: CreatorFollowerRange;
+    creatorPostingFrequency?: CreatorPostingFrequency;
     creatorContentFocus?: string;
+    fansAlreadyAskForAccess?: CreatorFansAlreadyAskForAccess;
+    creatorRecommendedSetup?: CreatorRecommendedSetup;
+    intakeVersion?: string;
+    intakeSubmittedAt?: number;
+    intakeSource?: typeof CREATOR_INTAKE_SOURCE;
     email: string;
     username: string;
     photoURL: string | null;
@@ -308,6 +337,9 @@ export type CreatorReviewQueueEntry = {
 };
 
 export type CreatorOnboardingHistoryEventType =
+    | "intake_started"
+    | "intake_step_completed"
+    | "intake_submitted"
     | "onboarding_started"
     | "onboarding_submitted"
     | "awaiting_manual_review"
@@ -384,7 +416,16 @@ type CreatorOnboardingStatusSummaryInput = {
 
 export type CreatorApplicantEditableFields = Pick<
     CreatorOnboardingProjectionState,
-    "creatorDisplayName" | "creatorPrimaryPlatform" | "creatorContentFocus"
+    | "creatorDisplayName"
+    | "creatorMonetizationGoals"
+    | "creatorPrimaryPlatform"
+    | "creatorFollowerRange"
+    | "creatorPostingFrequency"
+    | "creatorContentFocus"
+    | "fansAlreadyAskForAccess"
+    | "creatorRecommendedSetup"
+    | "intakeVersion"
+    | "intakeSource"
 >;
 
 function normalizeContractDocumentStatus(value: unknown, legalStatus?: CreatorOnboardingLegalStatus) {
@@ -435,6 +476,7 @@ export function sanitizeCreatorApplicantEditableFields(
     const creatorDisplayName = readString(source.creatorDisplayName);
     const creatorPrimaryPlatform = readString(source.creatorPrimaryPlatform);
     const creatorContentFocus = readString(source.creatorContentFocus);
+    const creatorIntakeFields = sanitizeCreatorIntakeFields(source);
 
     if (creatorDisplayName.length < 2 || creatorDisplayName.length > 80) {
         return undefined;
@@ -450,8 +492,15 @@ export function sanitizeCreatorApplicantEditableFields(
 
     return {
         creatorDisplayName,
+        creatorMonetizationGoals: creatorIntakeFields.creatorMonetizationGoals,
         creatorPrimaryPlatform,
+        creatorFollowerRange: creatorIntakeFields.creatorFollowerRange,
+        creatorPostingFrequency: creatorIntakeFields.creatorPostingFrequency,
         creatorContentFocus,
+        fansAlreadyAskForAccess: creatorIntakeFields.fansAlreadyAskForAccess,
+        creatorRecommendedSetup: creatorIntakeFields.creatorRecommendedSetup,
+        intakeVersion: creatorIntakeFields.intakeVersion,
+        intakeSource: creatorIntakeFields.intakeSource,
     };
 }
 
@@ -594,7 +643,11 @@ export function normalizeCreatorOnboardingHistoryEntry(
     const source = value as Record<string, unknown>;
     const eventType = readString(source.eventType) as CreatorOnboardingHistoryEventType;
     const actorId = readString(source.actorId);
-    const actorRole = source.actorRole === "creator" || source.actorRole === "admin" || source.actorRole === "system"
+    const actorRole = source.actorRole === "user"
+        || source.actorRole === "creator"
+        || source.actorRole === "admin"
+        || source.actorRole === "owner_admin"
+        || source.actorRole === "system"
         ? source.actorRole
         : undefined;
     const actorLabel = readString(source.actorLabel);
@@ -1159,8 +1212,16 @@ export function deriveCreatorReviewQueueBucket(input: {
 export function buildCreatorOnboardingProjectionState(input: {
     queuePosition: number;
     creatorDisplayName: string;
+    creatorMonetizationGoals?: CreatorMonetizationGoal[];
     creatorPrimaryPlatform?: string;
+    creatorFollowerRange?: CreatorFollowerRange;
+    creatorPostingFrequency?: CreatorPostingFrequency;
     creatorContentFocus?: string;
+    fansAlreadyAskForAccess?: CreatorFansAlreadyAskForAccess;
+    creatorRecommendedSetup?: CreatorRecommendedSetup;
+    intakeVersion?: string;
+    intakeSubmittedAt?: number;
+    intakeSource?: typeof CREATOR_INTAKE_SOURCE;
     nowMs: number;
     role?: string | null;
     source?: CreatorOnboardingStateSource | null;
@@ -1174,6 +1235,18 @@ export function buildCreatorOnboardingProjectionState(input: {
     const onboardingSubmittedAt = readOptionalTimestamp(sourceRecord?.["onboardingSubmittedAt"]) ?? submittedAt;
     const awaitingManualReviewAt = readOptionalTimestamp(sourceRecord?.["awaitingManualReviewAt"]) ?? onboardingSubmittedAt;
     const updatedAt = readOptionalTimestamp(sourceRecord?.["updatedAt"]) ?? input.nowMs;
+    const creatorIntakeFields = sanitizeCreatorIntakeFields({
+        creatorMonetizationGoals: input.creatorMonetizationGoals?.length
+            ? input.creatorMonetizationGoals
+            : sourceRecord?.["creatorMonetizationGoals"],
+        creatorFollowerRange: input.creatorFollowerRange ?? sourceRecord?.["creatorFollowerRange"],
+        creatorPostingFrequency: input.creatorPostingFrequency ?? sourceRecord?.["creatorPostingFrequency"],
+        fansAlreadyAskForAccess: input.fansAlreadyAskForAccess ?? sourceRecord?.["fansAlreadyAskForAccess"],
+        creatorRecommendedSetup: input.creatorRecommendedSetup ?? sourceRecord?.["creatorRecommendedSetup"],
+        intakeVersion: input.intakeVersion ?? sourceRecord?.["intakeVersion"] ?? CREATOR_INTAKE_VERSION,
+        intakeSubmittedAt: input.intakeSubmittedAt ?? sourceRecord?.["intakeSubmittedAt"],
+        intakeSource: input.intakeSource ?? sourceRecord?.["intakeSource"] ?? CREATOR_INTAKE_SOURCE,
+    });
     const contractDocumentStatus = normalizeContractDocumentStatus(
         sourceRecord?.["contractDocumentStatus"],
         canonicalStatuses.legalStatus,
@@ -1237,8 +1310,16 @@ export function buildCreatorOnboardingProjectionState(input: {
         awaitingManualReviewAt,
         updatedAt,
         creatorDisplayName: input.creatorDisplayName,
-        creatorPrimaryPlatform: readString(input.creatorPrimaryPlatform) || undefined,
-        creatorContentFocus: readString(input.creatorContentFocus) || undefined,
+        creatorMonetizationGoals: creatorIntakeFields.creatorMonetizationGoals,
+        creatorPrimaryPlatform: readString(input.creatorPrimaryPlatform) || readString(sourceRecord?.["creatorPrimaryPlatform"]) || undefined,
+        creatorFollowerRange: creatorIntakeFields.creatorFollowerRange,
+        creatorPostingFrequency: creatorIntakeFields.creatorPostingFrequency,
+        creatorContentFocus: readString(input.creatorContentFocus) || readString(sourceRecord?.["creatorContentFocus"]) || undefined,
+        fansAlreadyAskForAccess: creatorIntakeFields.fansAlreadyAskForAccess,
+        creatorRecommendedSetup: creatorIntakeFields.creatorRecommendedSetup,
+        intakeVersion: creatorIntakeFields.intakeVersion,
+        intakeSubmittedAt: creatorIntakeFields.intakeSubmittedAt ?? onboardingSubmittedAt,
+        intakeSource: creatorIntakeFields.intakeSource ?? CREATOR_INTAKE_SOURCE,
         bypassFanOnboarding: sourceRecord?.["bypassFanOnboarding"] !== false,
         introAcknowledgedAt,
         introAcknowledgedVersion: readString(sourceRecord?.["introAcknowledgedVersion"]) || CREATOR_ONBOARDING_INTRO_VERSION,
@@ -1330,8 +1411,16 @@ export function buildCreatorOnboardingUserProjection(
         awaitingManualReviewAt: canonical.awaitingManualReviewAt,
         updatedAt: canonical.updatedAt,
         creatorDisplayName: canonical.creatorDisplayName,
+        creatorMonetizationGoals: canonical.creatorMonetizationGoals,
         creatorPrimaryPlatform: canonical.creatorPrimaryPlatform,
+        creatorFollowerRange: canonical.creatorFollowerRange,
+        creatorPostingFrequency: canonical.creatorPostingFrequency,
         creatorContentFocus: canonical.creatorContentFocus,
+        fansAlreadyAskForAccess: canonical.fansAlreadyAskForAccess,
+        creatorRecommendedSetup: canonical.creatorRecommendedSetup,
+        intakeVersion: canonical.intakeVersion,
+        intakeSubmittedAt: canonical.intakeSubmittedAt,
+        intakeSource: canonical.intakeSource,
         bypassFanOnboarding: canonical.bypassFanOnboarding,
         introAcknowledgedAt: canonical.introAcknowledgedAt,
         introAcknowledgedVersion: canonical.introAcknowledgedVersion,
@@ -1393,8 +1482,16 @@ export function buildCreatorOnboardingCanonicalRecord(input: {
     sourceVersion?: number;
     queuePosition: number;
     creatorDisplayName: string;
+    creatorMonetizationGoals?: CreatorMonetizationGoal[];
     creatorPrimaryPlatform?: string;
+    creatorFollowerRange?: CreatorFollowerRange;
+    creatorPostingFrequency?: CreatorPostingFrequency;
     creatorContentFocus?: string;
+    fansAlreadyAskForAccess?: CreatorFansAlreadyAskForAccess;
+    creatorRecommendedSetup?: CreatorRecommendedSetup;
+    intakeVersion?: string;
+    intakeSubmittedAt?: number;
+    intakeSource?: typeof CREATOR_INTAKE_SOURCE;
     nowMs: number;
     source?: CreatorOnboardingStateSource | CreatorOnboardingCanonicalRecord | null;
 }) {
@@ -1403,8 +1500,16 @@ export function buildCreatorOnboardingCanonicalRecord(input: {
     const projection = buildCreatorOnboardingProjectionState({
         queuePosition: input.queuePosition,
         creatorDisplayName: input.creatorDisplayName,
+        creatorMonetizationGoals: input.creatorMonetizationGoals,
         creatorPrimaryPlatform: input.creatorPrimaryPlatform,
+        creatorFollowerRange: input.creatorFollowerRange,
+        creatorPostingFrequency: input.creatorPostingFrequency,
         creatorContentFocus: input.creatorContentFocus,
+        fansAlreadyAskForAccess: input.fansAlreadyAskForAccess,
+        creatorRecommendedSetup: input.creatorRecommendedSetup,
+        intakeVersion: input.intakeVersion,
+        intakeSubmittedAt: input.intakeSubmittedAt,
+        intakeSource: input.intakeSource,
         nowMs: input.nowMs,
         role,
         source,
@@ -1473,6 +1578,7 @@ export function normalizeCreatorOnboardingCanonicalRecord(
     const source = value as Record<string, unknown>;
     const creatorDisplayName = readString(source.creatorDisplayName);
     const userId = readString(source.userId);
+    const creatorIntakeFields = sanitizeCreatorIntakeFields(source);
     if (!creatorDisplayName || !userId) {
         return undefined;
     }
@@ -1492,8 +1598,16 @@ export function normalizeCreatorOnboardingCanonicalRecord(
             ? Math.trunc(source.queuePosition)
             : 1,
         creatorDisplayName,
+        creatorMonetizationGoals: creatorIntakeFields.creatorMonetizationGoals,
         creatorPrimaryPlatform: readString(source.creatorPrimaryPlatform) || undefined,
+        creatorFollowerRange: creatorIntakeFields.creatorFollowerRange,
+        creatorPostingFrequency: creatorIntakeFields.creatorPostingFrequency,
         creatorContentFocus: readString(source.creatorContentFocus) || undefined,
+        fansAlreadyAskForAccess: creatorIntakeFields.fansAlreadyAskForAccess,
+        creatorRecommendedSetup: creatorIntakeFields.creatorRecommendedSetup,
+        intakeVersion: creatorIntakeFields.intakeVersion || CREATOR_INTAKE_VERSION,
+        intakeSubmittedAt: readOptionalTimestamp(source.intakeSubmittedAt),
+        intakeSource: creatorIntakeFields.intakeSource || CREATOR_INTAKE_SOURCE,
         nowMs: readOptionalTimestamp(source.updatedAt)
             ?? readOptionalTimestamp(source.lastAdminActionAt)
             ?? readOptionalTimestamp(source.awaitingManualReviewAt)
@@ -1527,8 +1641,16 @@ export function buildCreatorReviewQueueEntry(input: {
         queuePosition: canonical.queuePosition,
         displayName: readString(input.displayName) || canonical.creatorDisplayName,
         creatorDisplayName: canonical.creatorDisplayName,
+        creatorMonetizationGoals: canonical.creatorMonetizationGoals,
         creatorPrimaryPlatform: canonical.creatorPrimaryPlatform,
+        creatorFollowerRange: canonical.creatorFollowerRange,
+        creatorPostingFrequency: canonical.creatorPostingFrequency,
         creatorContentFocus: canonical.creatorContentFocus,
+        fansAlreadyAskForAccess: canonical.fansAlreadyAskForAccess,
+        creatorRecommendedSetup: canonical.creatorRecommendedSetup,
+        intakeVersion: canonical.intakeVersion,
+        intakeSubmittedAt: canonical.intakeSubmittedAt,
+        intakeSource: canonical.intakeSource,
         email: canonical.email || "",
         username: canonical.username || "",
         photoURL: canonical.photoURL,

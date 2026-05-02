@@ -74,6 +74,8 @@ These raw ids are Debug evidence. Do not expose them as visible creator-facing U
 ## Integration Rules
 
 - Creator signup through `/api/user/register` is `actorType: user`, `performedAs: own_account`, and targets the same uid.
+- Creator-facing intake UI events start as guest/session events until the account exists. They must include `actorType`, `actorUid` when available, `anonymousVisitorId` or `sessionId`, `stepKey`, `signupIntent: creator`, `source: creator_intake`, and `route`.
+- The guided intake emits `creator_intake_started`, `creator_intake_step_completed`, `creator_intake_goal_selected`, `creator_intake_recommended_setup_shown`, and `creator_intake_submitted`.
 - Creator waitlist actions such as intro acknowledgement, ID submission, contract signature, and application edit are `own_account`.
 - Admin Roster creation/backfill is `admin_on_behalf` unless it is an owner-only bypass.
 - Owner-only onboarding bypass and live creator creation are `actorType: owner_admin` with `performedAs: owner_override`.

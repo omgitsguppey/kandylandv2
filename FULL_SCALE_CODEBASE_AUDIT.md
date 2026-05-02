@@ -1,5 +1,33 @@
 # KandyDrops Core Codebase Audit & Defensive Ledger
 
+## [2026-05-02 #96] PRE: Creator Intake Flow Refactor
+
+Scope started:
+- Refactoring creator-facing intake into a guided five-step, mobile-first flow while preserving `/api/user/register`, `ensureCreatorOnboardingSubmission`, and existing creator onboarding canonical/projection ownership.
+- Required outputs: structured intake fields for monetization goals, audience state, recommended setup, intake metadata, creator intake telemetry, creator onboarding history events, `scripts/agent/validate-creator-intake-flow.ts`, focused tests, `docs/agent-truth/creator-intake-flow.md`, creator identity/admin roster doc updates, governance ledger updates, commit, and push.
+- This pass is targeted. It must not create a parallel creator intake collection, expose legal/compliance machinery before the agreement step, change payment/economy flows, or rewrite unrelated auth/onboarding architecture.
+
+Initial evidence:
+- Worktree was clean at startup on `main`.
+- Control tower routing, source-of-truth map, shared component ownership, preflight/postflight checklists, and doctrine files for product, UI, copy, surface matrix, vocabulary, anti-patterns, GA/cloud truth, and decision checklist were consulted.
+- Source truth remains runtime code first: creator signup posts to `/api/user/register`, server registration calls `ensureCreatorOnboardingSubmission`, and creator onboarding canonical/projection types live in `src/lib/creator-onboarding.ts`.
+
+Scope completed:
+- Added `src/lib/creator-intake-flow.ts` and `src/components/Auth/CreatorIntakeFlow.tsx` for the five-step mobile creator intake, KandyDrops-specific setup options, safe-area CTA behavior, field sanitization, and creator-intake telemetry payloads.
+- Updated `AuthHelpers`, `AuthModal`, and `AuthContext` so creator signup asks for monetization goals, audience state, recommended setup, agreement review, and account submission without exposing raw legal/compliance states before the agreement step.
+- Persisted `creatorMonetizationGoals`, `creatorFollowerRange`, `creatorPostingFrequency`, `fansAlreadyAskForAccess`, `creatorRecommendedSetup`, `intakeVersion`, `intakeSubmittedAt`, and `intakeSource` through `/api/user/register`, `ensureCreatorOnboardingSubmission`, canonical onboarding, user projections, queue projections, and existing creator application normalization.
+- Added creator intake telemetry catalog entries and onboarding history events for `intake_started`, `intake_step_completed`, and `intake_submitted`.
+- Created `docs/agent-truth/creator-intake-flow.md`, updated creator identity/Admin Roster docs, added `scripts/agent/validate-creator-intake-flow.ts`, and added focused intake, projection, component, and registration tests.
+
+Verification:
+- `npm run check:creator-intake-flow`
+- `npx vitest run tests/unit/creator-intake-flow.spec.ts tests/unit/creator-intake-flow-component.spec.tsx tests/unit/creator-onboarding.spec.ts tests/unit/creator-onboarding-server.spec.ts tests/unit/user-register-route.spec.ts`
+- `npx tsc --noEmit --pretty false`
+
+Residual risk:
+- No fast mobile visual audit was discoverable or run in this targeted pass. Static validation and component tests cover the required copy, safe-area class, and no raw enum/legal-state exposure in the intake component.
+- The auth modal remains a large legacy file; this pass isolated the new intake renderer but did not decompose unrelated auth UI.
+
 ## [2026-05-02 #95] PRE: Admin Roster Decision Queue Refactor
 
 Scope started:

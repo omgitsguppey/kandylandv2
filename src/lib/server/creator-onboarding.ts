@@ -10,6 +10,7 @@ import {
 } from "@/lib/identity/actor-markers";
 import { adminDb } from "@/lib/server/firebase-admin";
 import { normalizeCreatorApplication, resolveCreatorQueuePosition } from "@/lib/creator-application";
+import { CREATOR_INTAKE_STEPS, type CreatorIntakeFields } from "@/lib/creator-intake-flow";
 import {
     buildCreatorOnboardingCanonicalRecord,
     buildCreatorOnboardingUserProjection,
@@ -111,8 +112,52 @@ function buildHistoryEntry(input: {
 export function buildCreatorOnboardingInitialHistoryEntries(input: {
     actor: CreatorOnboardingActor;
     timestamp: number;
+    intakeFields?: CreatorIntakeFields | null;
 }) {
     return [
+        {
+            id: "intake_started",
+            entry: buildHistoryEntry({
+                eventType: "intake_started",
+                actor: input.actor,
+                timestamp: input.timestamp,
+                summary: "Creator intake started",
+                metadata: {
+                    intakeVersion: input.intakeFields?.intakeVersion ?? null,
+                    intakeSource: input.intakeFields?.intakeSource ?? null,
+                },
+            }),
+        },
+        ...CREATOR_INTAKE_STEPS.map((step) => ({
+            id: `intake_step_completed_${step.key}`,
+            entry: buildHistoryEntry({
+                eventType: "intake_step_completed" as const,
+                actor: input.actor,
+                timestamp: input.timestamp,
+                summary: "Creator intake step completed",
+                detail: step.title,
+                metadata: {
+                    stepKey: step.key,
+                    intakeVersion: input.intakeFields?.intakeVersion ?? null,
+                    intakeSource: input.intakeFields?.intakeSource ?? null,
+                },
+            }),
+        })),
+        {
+            id: "intake_submitted",
+            entry: buildHistoryEntry({
+                eventType: "intake_submitted",
+                actor: input.actor,
+                timestamp: input.timestamp,
+                summary: "Creator intake submitted",
+                metadata: {
+                    selectedGoals: input.intakeFields?.creatorMonetizationGoals ?? [],
+                    creatorRecommendedSetup: input.intakeFields?.creatorRecommendedSetup ?? null,
+                    intakeVersion: input.intakeFields?.intakeVersion ?? null,
+                    intakeSource: input.intakeFields?.intakeSource ?? null,
+                },
+            }),
+        },
         {
             id: "onboarding_started",
             entry: buildHistoryEntry({
@@ -349,8 +394,16 @@ export async function ensureCreatorOnboardingSubmission(input: {
     role?: UserProfile["role"] | null;
     createdAt?: number;
     creatorDisplayName: string;
+    creatorMonetizationGoals?: CreatorIntakeFields["creatorMonetizationGoals"];
     creatorPrimaryPlatform?: string;
+    creatorFollowerRange?: CreatorIntakeFields["creatorFollowerRange"];
+    creatorPostingFrequency?: CreatorIntakeFields["creatorPostingFrequency"];
     creatorContentFocus?: string;
+    fansAlreadyAskForAccess?: CreatorIntakeFields["fansAlreadyAskForAccess"];
+    creatorRecommendedSetup?: CreatorIntakeFields["creatorRecommendedSetup"];
+    intakeVersion?: string;
+    intakeSubmittedAt?: number;
+    intakeSource?: CreatorIntakeFields["intakeSource"];
     actor?: CreatorOnboardingActor;
     nowMs?: number;
 }) {
@@ -396,8 +449,16 @@ export async function ensureCreatorOnboardingSubmission(input: {
                 ?? nowMs,
             queuePosition,
             creatorDisplayName: input.creatorDisplayName,
+            creatorMonetizationGoals: input.creatorMonetizationGoals,
             creatorPrimaryPlatform: input.creatorPrimaryPlatform,
+            creatorFollowerRange: input.creatorFollowerRange,
+            creatorPostingFrequency: input.creatorPostingFrequency,
             creatorContentFocus: input.creatorContentFocus,
+            fansAlreadyAskForAccess: input.fansAlreadyAskForAccess,
+            creatorRecommendedSetup: input.creatorRecommendedSetup,
+            intakeVersion: input.intakeVersion,
+            intakeSubmittedAt: input.intakeSubmittedAt ?? nowMs,
+            intakeSource: input.intakeSource,
             nowMs,
             source: existingCanonical ?? existingProjection ?? {
                 submissionStatus: "awaiting_manual_review",
@@ -420,6 +481,16 @@ export async function ensureCreatorOnboardingSubmission(input: {
             buildCreatorOnboardingInitialHistoryEntries({
                 actor,
                 timestamp: nowMs,
+                intakeFields: {
+                    creatorMonetizationGoals: input.creatorMonetizationGoals,
+                    creatorFollowerRange: input.creatorFollowerRange,
+                    creatorPostingFrequency: input.creatorPostingFrequency,
+                    fansAlreadyAskForAccess: input.fansAlreadyAskForAccess,
+                    creatorRecommendedSetup: input.creatorRecommendedSetup,
+                    intakeVersion: input.intakeVersion,
+                    intakeSubmittedAt: input.intakeSubmittedAt ?? nowMs,
+                    intakeSource: input.intakeSource,
+                },
             }).forEach(({ id, entry }) => {
                 transaction.set(
                     onboardingRef.collection(CREATOR_ONBOARDING_HISTORY_SUBCOLLECTION).doc(id),

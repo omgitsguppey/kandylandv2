@@ -195,8 +195,13 @@ describe("POST /api/user/register", () => {
                 username: "creatorone",
                 displayName: "Creator One",
                 creatorDisplayName: "Creator One",
+                creatorMonetizationGoals: ["paid_drops", "private_chat"],
                 creatorPrimaryPlatform: "TikTok",
+                creatorFollowerRange: "10k_50k",
+                creatorPostingFrequency: "weekly",
                 creatorContentFocus: "Launch drops",
+                fansAlreadyAskForAccess: "yes",
+                creatorRecommendedSetup: "timed_drops_private_chat",
             }),
         });
 
@@ -215,8 +220,21 @@ describe("POST /api/user/register", () => {
         expect(mockState.ensureCreatorOnboardingSubmission).toHaveBeenCalledWith(expect.objectContaining({
             userId: "creator_1",
             creatorDisplayName: "Creator One",
+            creatorMonetizationGoals: ["paid_drops", "private_chat"],
             creatorPrimaryPlatform: "TikTok",
+            creatorFollowerRange: "10k_50k",
+            creatorPostingFrequency: "weekly",
+            fansAlreadyAskForAccess: "yes",
+            creatorRecommendedSetup: "timed_drops_private_chat",
+            intakeVersion: "creator_intake_v1",
+            intakeSource: "creator_site",
         }));
+        expect(mockState.trackServerEvent).toHaveBeenCalledWith("creator_intake_submitted", expect.objectContaining({
+            actorType: "user",
+            actionKey: "creator_signup_submit",
+            step_key: "submit_for_review",
+            selected_goals: "paid_drops|private_chat",
+        }), "creator_1");
         expect(mockState.trackServerEvent).toHaveBeenCalledWith("creator_onboarding_submitted", expect.any(Object), "creator_1");
         expect(mockState.trackServerEvent).toHaveBeenCalledWith("creator_admin_queue_materialized", expect.any(Object), "creator_1");
         expect(mockState.sendCreatorOnboardingAdminNotification).toHaveBeenCalledWith(expect.objectContaining({
