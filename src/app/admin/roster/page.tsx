@@ -15,6 +15,10 @@ import {
     type CreatorAccountControlResult,
     type CreatorAccountControlsTarget,
 } from "@/components/Admin/CreatorAccountControlsPanel";
+import {
+    CreatorFanExperienceSettingsPanel,
+    type CreatorFanExperienceSettingsTarget,
+} from "@/components/Admin/CreatorFanExperienceSettingsPanel";
 import { PageViewEvent } from "@/components/Analytics/PageViewEvent";
 import type { CreatorAccountControlCommand } from "@/lib/admin/creator-account-controls";
 import { authFetch } from "@/lib/authFetch";
@@ -29,6 +33,8 @@ import {
     CREATOR_INTRO_FAN_BULLETS,
     CREATOR_MASTER_SERVICE_AGREEMENT_SECTIONS,
 } from "@/lib/creator-contract";
+import type { CreatorFanExperienceSettingsCommand } from "@/lib/admin/creator-fan-experience-settings";
+import type { CreatorRestrictions, CreatorSettings } from "@/lib/creator-experiences";
 import {
     describeCreatorOnboardingBlockingReason,
     getCreatorOnboardingStatusSummary,
@@ -148,6 +154,16 @@ type CreatorDetailResponse = {
             emailUpdateServerConfirmed?: boolean;
             roleUpdateServerConfirmed?: boolean;
         } | null;
+        creatorSettings?: CreatorSettings;
+        creatorRestrictions?: CreatorRestrictions;
+        creatorFanExperienceSettingsDebug?: {
+            creatorSettingsSource?: string;
+            settingsNormalized?: boolean;
+            settingsValidationWarnings?: string[];
+            lastSettingsUpdatedAt?: number;
+            lastSettingsUpdatedBy?: string;
+            changedKeys?: string[];
+        } | null;
         creatorApplication?: CreatorOnboardingCanonicalRecord | null;
     };
     creatorOnboardingCanonical?: CreatorOnboardingCanonicalRecord | null;
@@ -247,9 +263,11 @@ export default function AdminRosterPage() {
     const [agreementTemplateFile, setAgreementTemplateFile] = useState<File | null>(null);
     const [agreementSaving, setAgreementSaving] = useState<string | null>(null);
     const [accountSaving, setAccountSaving] = useState<string | null>(null);
+    const [fanExperienceSaving, setFanExperienceSaving] = useState(false);
     const [agreementPreviewOpen, setAgreementPreviewOpen] = useState(false);
     const [expandedSections, setExpandedSections] = useState<Record<RosterDetailSectionKey, boolean>>({
         account_controls: false,
+        fan_experience_settings: false,
         agreement_document: false,
         id_files: false,
         audit_trail: false,
@@ -281,6 +299,12 @@ export default function AdminRosterPage() {
         status: detail.user.status || "active",
         approvalStatus: selectedCanonical?.approvalStatus || selectedEntry?.approvalStatus || detail.user.creatorApplication?.approvalStatus || "creator_pending",
         notificationSettings: detail.user.notificationSettings,
+    } : null;
+    const selectedFanExperienceTarget: CreatorFanExperienceSettingsTarget | null = detail?.user && selectedUserId ? {
+        uid: selectedUserId,
+        displayName: detail.user.displayName || selectedCanonical?.creatorDisplayName || selectedEntry?.creatorDisplayName || "",
+        creatorSettings: detail.user.creatorSettings,
+        creatorRestrictions: detail.user.creatorRestrictions,
     } : null;
     const entriesByDecision = useMemo(() => ({
         needs_review: intakeEntries.filter((entry) => classifyRosterDecisionEntry(entry) === "needs_review"),
@@ -659,6 +683,43 @@ export default function AdminRosterPage() {
         await submitCreatorUpdate("account-approval-status", { approvalStatus });
     };
 
+    const handleFanExperienceSettingsSubmit = async (command: CreatorFanExperienceSettingsCommand): Promise<void> => {
+        try {
+            setFanExperienceSaving(true);
+            trackEvent("admin_creator_primary_action_clicked", buildTelemetryPayload({
+                actionKey: "admin_creator_experience_settings_saved",
+            }));
+            const response = await authFetch("/api/admin/creator-fan-experience-settings", {
+                method: "POST",
+                headers: {
+                    "content-type": "application/json",
+                },
+                body: JSON.stringify(command),
+            });
+            const result = await response.json().catch(() => ({})) as { error?: string };
+            if (!response.ok) {
+                throw new Error(result.error || "Fan experience settings update failed.");
+            }
+            await Promise.all([refreshRoster(), refreshSelectedDetail()]);
+            toast.success("Fan experience settings updated.");
+        } catch (error) {
+            reportClientIssue({
+                channel: "ui",
+                severity: "error",
+                message: "Admin creator fan experience settings update failed",
+                error,
+                detail: {
+                    adminView: "creator_roster_fan_experience_settings",
+                    userId: command.targetUserId,
+                },
+                consoleLabel: "[Admin Roster] fan experience settings update failed",
+            });
+            toast.error(error instanceof Error ? error.message : "Fan experience settings update failed.");
+        } finally {
+            setFanExperienceSaving(false);
+        }
+    };
+
     const handleCreatorAgreementAction = async (actionKey: "send_agreement" | "send_updated_agreement" | "countersign_agreement") => {
         if (!selectedUserId) {
             return;
@@ -770,6 +831,12 @@ export default function AdminRosterPage() {
                 actionKey: "admin_creator_section_expanded",
                 sectionKey,
             }));
+            if (sectionKey === "fan_experience_settings") {
+                trackEvent("admin_creator_experience_settings_opened", buildTelemetryPayload({
+                    actionKey: "admin_creator_experience_settings_opened",
+                    sectionKey,
+                }));
+            }
         }
     };
 
@@ -796,6 +863,13 @@ export default function AdminRosterPage() {
         passwordActionMode: detail?.user.adminAccountControlDebug?.passwordActionMode ?? "",
         emailUpdateServerConfirmed: detail?.user.adminAccountControlDebug?.emailUpdateServerConfirmed === true,
         roleUpdateServerConfirmed: detail?.user.adminAccountControlDebug?.roleUpdateServerConfirmed === true,
+        fanExperienceSettingsVisible: Boolean(expandedSections.fan_experience_settings),
+        creatorSettingsSource: detail?.user.creatorFanExperienceSettingsDebug?.creatorSettingsSource ?? "",
+        settingsNormalized: detail?.user.creatorFanExperienceSettingsDebug?.settingsNormalized === true,
+        settingsValidationWarnings: detail?.user.creatorFanExperienceSettingsDebug?.settingsValidationWarnings?.join(", ") ?? "",
+        lastSettingsUpdatedAt: detail?.user.creatorFanExperienceSettingsDebug?.lastSettingsUpdatedAt ?? 0,
+        lastSettingsUpdatedBy: detail?.user.creatorFanExperienceSettingsDebug?.lastSettingsUpdatedBy ?? "",
+        changedKeys: detail?.user.creatorFanExperienceSettingsDebug?.changedKeys?.join(", ") ?? "",
     };
 
     return (
@@ -1136,6 +1210,20 @@ export default function AdminRosterPage() {
                                             savingAction={accountSaving ?? saving}
                                             onSubmit={handleAccountControlSubmit}
                                             onApprovalStatusChange={handleAccountApprovalStatusChange}
+                                        />
+                                    </details>
+                                ) : null}
+
+                                {selectedFanExperienceTarget ? (
+                                    <details className="rounded-2xl border border-white/10 bg-black/25 p-4" onToggle={(event) => handleSectionToggle("fan_experience_settings", event.currentTarget.open)}>
+                                        <summary className="cursor-pointer list-none text-sm font-bold text-white">Fan experience settings</summary>
+                                        <p className="mt-2 text-sm leading-6 text-zinc-400">
+                                            Update Fan Pass, private chat, custom requests, live time, and creator restrictions. Pricing and pauses are validated before saving.
+                                        </p>
+                                        <CreatorFanExperienceSettingsPanel
+                                            target={selectedFanExperienceTarget}
+                                            saving={fanExperienceSaving}
+                                            onSubmit={handleFanExperienceSettingsSubmit}
                                         />
                                     </details>
                                 ) : null}

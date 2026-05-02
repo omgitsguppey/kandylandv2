@@ -1,9 +1,14 @@
 import { afterEach, describe, expect, it, vi } from "vitest";
 
 import {
+    CREATOR_BOOKING_MIN_MINUTES,
+    CREATOR_BOOKING_RATES,
+    CREATOR_SUBSCRIPTION_MIN_GD,
+    DEFAULT_CREATOR_SETTINGS,
     cryptoSafeId,
     isCreatorMessagingAvailable,
     normalizeCreatorAvailabilityWindows,
+    normalizeCreatorSettings,
 } from "@/lib/creator-experiences";
 
 describe("creator-experiences", () => {
@@ -89,5 +94,26 @@ describe("creator-experiences", () => {
                 messagingRestricted: true,
             } as any,
         })).toBe(false);
+    });
+
+    it("keeps creator settings at defaults and minimums", () => {
+        expect(normalizeCreatorSettings(undefined)).toBe(DEFAULT_CREATOR_SETTINGS);
+        expect(normalizeCreatorSettings({
+            subscriptionPriceGd: -1,
+            phoneRatePerMinuteGd: 1,
+            videoRatePerMinuteGd: 1,
+            bookingMinimumMinutes: 1,
+            videoSubscriberDiscountPercent: 150,
+            requestCategories: [],
+            availabilityWindows: [],
+        })).toMatchObject({
+            subscriptionPriceGd: CREATOR_SUBSCRIPTION_MIN_GD,
+            phoneRatePerMinuteGd: CREATOR_BOOKING_RATES.phone,
+            videoRatePerMinuteGd: CREATOR_BOOKING_RATES.video,
+            bookingMinimumMinutes: CREATOR_BOOKING_MIN_MINUTES,
+            videoSubscriberDiscountPercent: 100,
+            requestCategories: DEFAULT_CREATOR_SETTINGS.requestCategories,
+            availabilityWindows: DEFAULT_CREATOR_SETTINGS.availabilityWindows,
+        });
     });
 });

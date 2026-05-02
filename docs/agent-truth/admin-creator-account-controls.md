@@ -9,6 +9,8 @@ Admin Roster account controls are for quick, audited creator account fixes. They
 
 The selected creator record shows `Account controls` collapsed by default. Normal admins can update profile details, creator-safe status fields, and notification settings. Dangerous controls require confirmation. Owner-only permission stays required before any admin role grant.
 
+Creator fan experience settings live in their own collapsed `Fan experience settings` section and route. Account controls may link the operator to creator/fan settings, but Fan Pass, private chat, custom requests, live time, pricing, availability, and creator restrictions must use the `CreatorSettings` and `CreatorRestrictions` model documented in `docs/agent-truth/creator-fan-experience-settings.md`.
+
 ## Server Boundary
 
 Canonical route:

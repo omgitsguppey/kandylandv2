@@ -99,6 +99,9 @@ export function CreatorExperiencesPanel({
     // Fallback availabilities logic for bookings
     const availabilityWindows = settings.availabilityWindows || [];
     const hasAvailabilities = availabilityWindows.length > 0;
+    const phoneRatePerMinute = settings.phoneRatePerMinuteGd || CREATOR_BOOKING_RATES.phone;
+    const videoRatePerMinute = settings.videoRatePerMinuteGd || CREATOR_BOOKING_RATES.video;
+    const subscriberVideoRatePerMinute = Math.round(videoRatePerMinute * (1 - (settings.videoSubscriberDiscountPercent || 0) / 100));
 
     const activeOpacity = "opacity-100 scale-100";
     const inactiveOpacity = "opacity-50 scale-95 hover:opacity-100 hover:scale-100";
@@ -472,14 +475,14 @@ export function CreatorExperiencesPanel({
                                     <span className="text-xs text-brand-purple-light/70 font-semibold">@ {CREATOR_BOOKING_RATES.phone} GD/min</span>
                                 ) : (
                                     <span className="text-xs text-brand-purple-light/70 font-semibold">
-                                        @ {subscriptionActive ? Math.round(CREATOR_BOOKING_RATES.video * (1 - (settings.videoSubscriberDiscountPercent || 0)/100)) : CREATOR_BOOKING_RATES.video} GD/min
+                                        @ {subscriptionActive ? subscriberVideoRatePerMinute : videoRatePerMinute} GD/min
                                     </span>
                                 )}
                             </div>
                             <div className="text-2xl font-black text-white">
                                 {bookingServiceType === "phone" 
-                                    ? bookingDurationMinutes * CREATOR_BOOKING_RATES.phone 
-                                    : bookingDurationMinutes * (subscriptionActive ? Math.round(CREATOR_BOOKING_RATES.video * (1 - (settings.videoSubscriberDiscountPercent || 0)/100)) : CREATOR_BOOKING_RATES.video)} <span className="text-[11px] uppercase tracking-widest text-gray-500 font-bold ml-0.5">GD ttl</span>
+                                    ? bookingDurationMinutes * phoneRatePerMinute
+                                    : bookingDurationMinutes * (subscriptionActive ? subscriberVideoRatePerMinute : videoRatePerMinute)} <span className="text-[11px] uppercase tracking-widest text-gray-500 font-bold ml-0.5">GD ttl</span>
                             </div>
                         </div>
                     </div>
@@ -511,8 +514,8 @@ export function CreatorExperiencesPanel({
 
                     {renderCTA(
                         bookingServiceType === "phone" 
-                            ? bookingDurationMinutes * CREATOR_BOOKING_RATES.phone 
-                            : bookingDurationMinutes * (subscriptionActive ? Math.round(CREATOR_BOOKING_RATES.video * (1 - (settings.videoSubscriberDiscountPercent || 0)/100)) : CREATOR_BOOKING_RATES.video),
+                            ? bookingDurationMinutes * phoneRatePerMinute
+                            : bookingDurationMinutes * (subscriptionActive ? subscriberVideoRatePerMinute : videoRatePerMinute),
                         onCreateBooking,
                         creatingBooking,
                         <CalendarClock className="h-4 w-4" />,

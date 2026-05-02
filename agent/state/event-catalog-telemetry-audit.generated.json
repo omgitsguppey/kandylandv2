@@ -10,14 +10,14 @@
     "admin analytics consumers"
   ],
   "summary": {
-    "catalogEventCount": 249,
-    "emittedOrCoveredCount": 249,
+    "catalogEventCount": 254,
+    "emittedOrCoveredCount": 254,
     "familyCounts": {
       "auth": 19,
       "onboarding": 9,
       "page_view": 15,
       "creator": 18,
-      "admin": 76,
+      "admin": 81,
       "drop": 24,
       "engagement": 16,
       "task": 14,
@@ -6122,6 +6122,136 @@
       "legacyDeprecated": false,
       "auditCoveredBy": [],
       "missingFieldsRisk": "Generated audit entry added after Admin Roster account-control telemetry additions; emitter detection and payload contracts remain enforced by validate-event-catalog-telemetry."
+    },
+    {
+      "eventName": "admin_creator_experience_settings_opened",
+      "aliases": [],
+      "version": 1,
+      "family": "admin",
+      "emittedFrom": [
+        "src/app/admin/roster/page.tsx"
+      ],
+      "consumedBy": [],
+      "requiredActorFields": [
+        "actorType|actor_type",
+        "actorUid|actor_uid"
+      ],
+      "requiredObjectFields": [
+        "targetUserId|target_user_id|userId|user_id"
+      ],
+      "requiredSurfaceFields": [
+        "route|page_path|source"
+      ],
+      "dedupeKeyRequired": false,
+      "guestAllowed": false,
+      "adminExcludedFromUserAnalytics": true,
+      "legacyDeprecated": false,
+      "auditCoveredBy": [],
+      "missingFieldsRisk": "Generated audit entry added after Admin Roster fan experience settings telemetry additions; emitter detection and payload contracts remain enforced by validate-event-catalog-telemetry."
+    },
+    {
+      "eventName": "admin_creator_experience_settings_saved",
+      "aliases": [],
+      "version": 1,
+      "family": "admin",
+      "emittedFrom": [
+        "src/app/api/admin/creator-fan-experience-settings/route.ts"
+      ],
+      "consumedBy": [],
+      "requiredActorFields": [
+        "actorType|actor_type",
+        "actorUid|actor_uid"
+      ],
+      "requiredObjectFields": [
+        "targetUserId|target_user_id|userId|user_id"
+      ],
+      "requiredSurfaceFields": [
+        "route|page_path|source"
+      ],
+      "dedupeKeyRequired": false,
+      "guestAllowed": false,
+      "adminExcludedFromUserAnalytics": true,
+      "legacyDeprecated": false,
+      "auditCoveredBy": [],
+      "missingFieldsRisk": "Generated audit entry added after Admin Roster fan experience settings telemetry additions; emitter detection and payload contracts remain enforced by validate-event-catalog-telemetry."
+    },
+    {
+      "eventName": "admin_creator_experience_lane_toggled",
+      "aliases": [],
+      "version": 1,
+      "family": "admin",
+      "emittedFrom": [
+        "src/app/api/admin/creator-fan-experience-settings/route.ts"
+      ],
+      "consumedBy": [],
+      "requiredActorFields": [
+        "actorType|actor_type",
+        "actorUid|actor_uid"
+      ],
+      "requiredObjectFields": [
+        "targetUserId|target_user_id|userId|user_id"
+      ],
+      "requiredSurfaceFields": [
+        "route|page_path|source"
+      ],
+      "dedupeKeyRequired": false,
+      "guestAllowed": false,
+      "adminExcludedFromUserAnalytics": true,
+      "legacyDeprecated": false,
+      "auditCoveredBy": [],
+      "missingFieldsRisk": "Generated audit entry added after Admin Roster fan experience settings telemetry additions; emitter detection and payload contracts remain enforced by validate-event-catalog-telemetry."
+    },
+    {
+      "eventName": "admin_creator_experience_pricing_updated",
+      "aliases": [],
+      "version": 1,
+      "family": "admin",
+      "emittedFrom": [
+        "src/app/api/admin/creator-fan-experience-settings/route.ts"
+      ],
+      "consumedBy": [],
+      "requiredActorFields": [
+        "actorType|actor_type",
+        "actorUid|actor_uid"
+      ],
+      "requiredObjectFields": [
+        "targetUserId|target_user_id|userId|user_id"
+      ],
+      "requiredSurfaceFields": [
+        "route|page_path|source"
+      ],
+      "dedupeKeyRequired": false,
+      "guestAllowed": false,
+      "adminExcludedFromUserAnalytics": true,
+      "legacyDeprecated": false,
+      "auditCoveredBy": [],
+      "missingFieldsRisk": "Generated audit entry added after Admin Roster fan experience settings telemetry additions; emitter detection and payload contracts remain enforced by validate-event-catalog-telemetry."
+    },
+    {
+      "eventName": "admin_creator_experience_restriction_updated",
+      "aliases": [],
+      "version": 1,
+      "family": "admin",
+      "emittedFrom": [
+        "src/app/api/admin/creator-fan-experience-settings/route.ts"
+      ],
+      "consumedBy": [],
+      "requiredActorFields": [
+        "actorType|actor_type",
+        "actorUid|actor_uid"
+      ],
+      "requiredObjectFields": [
+        "targetUserId|target_user_id|userId|user_id"
+      ],
+      "requiredSurfaceFields": [
+        "route|page_path|source"
+      ],
+      "dedupeKeyRequired": false,
+      "guestAllowed": false,
+      "adminExcludedFromUserAnalytics": true,
+      "legacyDeprecated": false,
+      "auditCoveredBy": [],
+      "missingFieldsRisk": "Generated audit entry added after Admin Roster fan experience settings telemetry additions; emitter detection and payload contracts remain enforced by validate-event-catalog-telemetry."
     }
   ]
 }

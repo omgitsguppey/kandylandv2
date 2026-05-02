@@ -4,6 +4,10 @@ Status: Canonical repository-memory and architecture-decision ledger
 Last refreshed: 2026-05-02
 Repo: `C:\Users\uylus\OneDrive\Documents\KandyDrops_Final`
 
+## 2026-05-02 Creator fan experience settings
+
+Creator fan experience settings are now admin-editable from the Admin Roster selected creator record, but the source model remains `CreatorSettings` and `CreatorRestrictions` in `src/lib/creator-experiences.ts`. The collapsed `Fan experience settings` section delegates to `src/components/Admin/CreatorFanExperienceSettingsPanel.tsx` and the guarded route `src/app/api/admin/creator-fan-experience-settings/route.ts`. GD pricing, live time minimums, request prices, availability windows, and creator restrictions are server-validated; restriction pauses require confirmation, emit identity-marked admin-on-behalf telemetry, and write creator onboarding history.
+
 ## 2026-05-02 Admin Roster account controls
 
 Admin Roster account controls are guarded admin-on-behalf actions, not client-side profile edits. The collapsed `Account controls` section in `src/app/admin/roster/page.tsx` delegates to `src/components/Admin/CreatorAccountControlsPanel.tsx` and the server-only route `src/app/api/admin/creator-account-controls/route.ts`. Email, password reset, temporary password, role, and status changes require confirmation, use Firebase Admin SDK on the server, emit identity-marked admin telemetry, and write `admin_account_updated` creator onboarding history. Non-owner admins cannot grant admin role access.

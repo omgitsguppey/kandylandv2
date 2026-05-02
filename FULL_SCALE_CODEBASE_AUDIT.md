@@ -1,5 +1,40 @@
 # KandyDrops Core Codebase Audit & Defensive Ledger
 
+## [2026-05-02 #100] PRE: Creator Fan Experience Settings Controls
+
+Scope started:
+- Adding one targeted collapsed `Fan experience settings` section to Admin Roster selected creator records so admins can update creator fan lanes, pricing, requests, availability, and restrictions from the existing CreatorSettings/CreatorRestrictions model.
+- Required outputs: mobile-first grouped settings UI, guarded admin-on-behalf settings route/action, validation against creator-experiences business rules, actor-marked telemetry, creator onboarding history, Debug metadata, `scripts/agent/validate-creator-fan-experience-settings.ts`, focused tests, `docs/agent-truth/creator-fan-experience-settings.md`, account-control doc updates, governance ledger updates, commit, and push.
+- This pass is targeted. It must not invent a parallel settings model, bypass `CreatorExperiencesPanel` business rules, allow negative GD pricing, allow invalid availability windows, alter payment/economy flows, redesign Admin Roster, or touch unrelated creator onboarding/agreement behavior.
+
+Initial evidence:
+- Worktree was clean at startup on `main` before fast-start generated local context files.
+- Control tower routing, source-of-truth map, shared component ownership, doctrine consultation workflow, product/copy/UI/surface/vocabulary/anti-pattern/GA doctrine, and preflight/postflight checklists were consulted.
+- Source truth remains runtime code first: `src/lib/creator-experiences.ts`, `src/components/Creators/CreatorExperiencesPanel.tsx`, Admin Roster page/detail route, existing admin user update route, creator identity markers, and focused creator experience/Admin Roster tests.
+
+Scope completed:
+- Added `src/lib/admin/creator-fan-experience-settings.ts` for admin command parsing, canonical `CreatorSettings`/`CreatorRestrictions` validation, pricing minimums, availability-window validation, restriction confirmation, labels, value summaries, and Debug patch construction.
+- Added guarded `POST /api/admin/creator-fan-experience-settings` with admin auth, trusted origin, actor marker, server persistence, creator onboarding history, route runtime health, and telemetry for settings saved, lane toggles, pricing updates, and restrictions.
+- Added the collapsed mobile-first `Fan experience settings` Admin Roster section via `src/components/Admin/CreatorFanExperienceSettingsPanel.tsx` and `src/components/Admin/CreatorFanExperienceSettingsFields.tsx`, grouped into Access toggles, Pricing, Requests, Availability, and Restrictions.
+- Updated `CreatorExperiencesPanel` live-time pricing to read stored creator rates from the same `CreatorSettings` shape that Admin Roster saves.
+- Registered `creator_experience_settings_updated` and `creator_restrictions_updated` history events, cataloged the admin fan settings telemetry events, updated the generated telemetry audit, and added docs, validation, focused tests, and governance ledger coverage.
+
+Verification:
+- `npm run check:creator-fan-experience-settings`
+- `npx vitest run tests/unit/admin-creator-fan-experience-settings-route.spec.ts tests/unit/creator-experiences.spec.ts tests/unit/creator-experiences-panel.spec.tsx tests/unit/admin-roster-decision-queue.spec.ts`
+- `npx tsc --noEmit --pretty false`
+- `npm run check:event-catalog-telemetry`
+- `npm run check:creator-identity-markers`
+- `npm run check:admin-roster-decision-queue`
+- `npm run check:admin-creator-account-controls`
+- `npm run check:ui:coverage`
+- `npm run check:ui:runtime`
+- `npm run check:ui:audits`
+- `git diff --check`
+
+Residual risk:
+- `npm run check:ui:audits` passed 20/20 after a full production build. The Next/Playwright web server emitted non-blocking `controller[kState].transformAlgorithm is not a function` messages after the passed run; no test failed.
+
 ## [2026-05-02 #99] PRE: Admin Roster Account Controls
 
 Scope started:

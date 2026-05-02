@@ -19,6 +19,7 @@ export type RosterDecisionTab = Exclude<RosterTab, "create">;
 
 export const ROSTER_DETAIL_SECTION_KEYS = [
     "account_controls",
+    "fan_experience_settings",
     "agreement_document",
     "id_files",
     "audit_trail",

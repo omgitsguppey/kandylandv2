@@ -82,6 +82,7 @@
         "check:creator-agreement-document-manager": "tsx scripts/agent/validate-creator-agreement-document-manager.ts",
         "check:creator-agreement-signature-ux": "tsx scripts/agent/validate-creator-agreement-signature-ux.ts",
         "check:admin-creator-account-controls": "tsx scripts/agent/validate-admin-creator-account-controls.ts",
+        "check:creator-fan-experience-settings": "tsx scripts/agent/validate-creator-fan-experience-settings.ts",
         "check:admin-analytics-snapshot-migration": "tsx scripts/agent/validate-admin-analytics-snapshot-migration.ts",
         "check:admin-analytics-no-pure-realtime": "tsx scripts/agent/validate-admin-analytics-no-pure-realtime.ts",
         "check:admin-analytics-finalization": "tsx scripts/agent/validate-admin-analytics-finalization.ts",

@@ -1,13 +1,21 @@
 # EVERY FILE FUNCTION CHECKLIST
 
 **Last Updated:** 2026-05-02
-**Current Focus:** Admin Roster Account Controls.
+**Current Focus:** Creator Fan Experience Settings Controls.
 **Status:** In Progress. Current tracked-file coverage is reconciled as of 2026-04-28: every `git ls-files` entry has a current checklist heading, while detailed function-level audits remain pending for many historical and newly reconciled files.
 Purpose: exhaustive no-skip audit checklist covering every repository file currently in scope and every detected function-like implementation.
 
 Scoring: all entries below are marked as included in the current validated sweep. Confidence reflects current repository-state confidence, not perfection or future-proofing.
 
 Current repo-wide state snapshot: see [FULL_SCALE_CODEBASE_AUDIT.md](/Users/uylus/OneDrive/Documents/KandyDrops_Final/FULL_SCALE_CODEBASE_AUDIT.md) for the current live baseline, verification state, and continuity rules, and see [REPO_MEMORY_LEDGER.md](/Users/uylus/OneDrive/Documents/KandyDrops_Final/REPO_MEMORY_LEDGER.md) for major architectural and workflow decisions. The detailed file/function body below remains valuable historical evidence, but it has not been fully regenerated against the current 2026-04-18 inventory review yet.
+
+## 2026-05-02 Creator Fan Experience Settings Coverage
+
+- [x] `src/lib/admin/creator-fan-experience-settings.ts` owns admin command parsing, pricing/minimum validation, availability-window validation, restriction-confirmation requirements, setting labels, value summaries, and Debug patch construction while importing the canonical creator settings model from `src/lib/creator-experiences.ts`.
+- [x] `src/app/api/admin/creator-fan-experience-settings/route.ts` owns the guarded admin-on-behalf settings mutation with admin auth, trusted origin, actor marker, server persistence, creator onboarding history, Debug metadata, and telemetry for settings save, lane toggles, pricing updates, and restrictions.
+- [x] `src/components/Admin/CreatorFanExperienceSettingsPanel.tsx`, `src/components/Admin/CreatorFanExperienceSettingsFields.tsx`, `src/app/admin/roster/page.tsx`, and `src/app/admin/roster/decision-queue.ts` expose the collapsed mobile-first `Fan experience settings` section with grouped Access, Pricing, Requests, Availability, and Restrictions controls.
+- [x] `src/components/Creators/CreatorExperiencesPanel.tsx` reads the same `CreatorSettings` rate fields that Admin Roster saves, so fan-facing live time pricing reflects updated creator settings.
+- [x] `src/lib/creator-onboarding.ts`, `src/lib/telemetry-catalog.ts`, `src/lib/route-runtime-health.ts`, `agent/state/event-catalog-telemetry-audit.generated.json`, `scripts/agent/validate-creator-fan-experience-settings.ts`, focused unit tests, and `docs/agent-truth/creator-fan-experience-settings.md` validate the fan settings control contract.
 
 ## 2026-05-02 Admin Roster Account Controls Coverage
 
