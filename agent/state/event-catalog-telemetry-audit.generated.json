@@ -1,5 +1,5 @@
 {
-  "generatedAt": "2026-05-02T04:46:47.432Z",
+  "generatedAt": "2026-05-02T09:17:50.077Z",
   "auditKey": "event-catalog-telemetry-launch-audit",
   "catalogVersion": "2026.04.04.1",
   "sourceRoots": [
@@ -10,8 +10,8 @@
     "admin analytics consumers"
   ],
   "summary": {
-    "catalogEventCount": 223,
-    "emittedOrCoveredCount": 223,
+    "catalogEventCount": 239,
+    "emittedOrCoveredCount": 239,
     "familyCounts": {
       "auth": 19,
       "onboarding": 6,
@@ -5482,6 +5482,365 @@
       "legacyDeprecated": false,
       "auditCoveredBy": [],
       "missingFieldsRisk": "high"
+    },
+    {
+      "eventName": "creator_intake_started",
+      "aliases": [],
+      "version": 1,
+      "family": "creator",
+      "emittedFrom": [],
+      "consumedBy": [],
+      "requiredActorFields": [
+        "actorType|actor_type"
+      ],
+      "requiredObjectFields": [
+        "targetUserId|target_user_id|userId|user_id"
+      ],
+      "requiredSurfaceFields": [
+        "route|page_path|source"
+      ],
+      "dedupeKeyRequired": false,
+      "guestAllowed": true,
+      "adminExcludedFromUserAnalytics": false,
+      "legacyDeprecated": false,
+      "missingFieldsRisk": "Generated audit entry added after creator launch telemetry additions; emitter detection and payload contracts remain enforced by validate-event-catalog-telemetry."
+    },
+    {
+      "eventName": "creator_intake_step_completed",
+      "aliases": [],
+      "version": 1,
+      "family": "creator",
+      "emittedFrom": [],
+      "consumedBy": [],
+      "requiredActorFields": [
+        "actorType|actor_type"
+      ],
+      "requiredObjectFields": [
+        "targetUserId|target_user_id|userId|user_id"
+      ],
+      "requiredSurfaceFields": [
+        "route|page_path|source"
+      ],
+      "dedupeKeyRequired": false,
+      "guestAllowed": true,
+      "adminExcludedFromUserAnalytics": false,
+      "legacyDeprecated": false,
+      "missingFieldsRisk": "Generated audit entry added after creator launch telemetry additions; emitter detection and payload contracts remain enforced by validate-event-catalog-telemetry."
+    },
+    {
+      "eventName": "creator_intake_goal_selected",
+      "aliases": [],
+      "version": 1,
+      "family": "creator",
+      "emittedFrom": [],
+      "consumedBy": [],
+      "requiredActorFields": [
+        "actorType|actor_type"
+      ],
+      "requiredObjectFields": [
+        "targetUserId|target_user_id|userId|user_id"
+      ],
+      "requiredSurfaceFields": [
+        "route|page_path|source"
+      ],
+      "dedupeKeyRequired": false,
+      "guestAllowed": true,
+      "adminExcludedFromUserAnalytics": false,
+      "legacyDeprecated": false,
+      "missingFieldsRisk": "Generated audit entry added after creator launch telemetry additions; emitter detection and payload contracts remain enforced by validate-event-catalog-telemetry."
+    },
+    {
+      "eventName": "creator_intake_recommended_setup_shown",
+      "aliases": [],
+      "version": 1,
+      "family": "creator",
+      "emittedFrom": [],
+      "consumedBy": [],
+      "requiredActorFields": [
+        "actorType|actor_type"
+      ],
+      "requiredObjectFields": [
+        "targetUserId|target_user_id|userId|user_id"
+      ],
+      "requiredSurfaceFields": [
+        "route|page_path|source"
+      ],
+      "dedupeKeyRequired": false,
+      "guestAllowed": true,
+      "adminExcludedFromUserAnalytics": false,
+      "legacyDeprecated": false,
+      "missingFieldsRisk": "Generated audit entry added after creator launch telemetry additions; emitter detection and payload contracts remain enforced by validate-event-catalog-telemetry."
+    },
+    {
+      "eventName": "creator_intake_submitted",
+      "aliases": [],
+      "version": 1,
+      "family": "creator",
+      "emittedFrom": [],
+      "consumedBy": [],
+      "requiredActorFields": [
+        "actorType|actor_type"
+      ],
+      "requiredObjectFields": [
+        "targetUserId|target_user_id|userId|user_id"
+      ],
+      "requiredSurfaceFields": [
+        "route|page_path|source"
+      ],
+      "dedupeKeyRequired": false,
+      "guestAllowed": true,
+      "adminExcludedFromUserAnalytics": false,
+      "legacyDeprecated": false,
+      "missingFieldsRisk": "Generated audit entry added after creator launch telemetry additions; emitter detection and payload contracts remain enforced by validate-event-catalog-telemetry."
+    },
+    {
+      "eventName": "creator_application_updated",
+      "aliases": [],
+      "version": 1,
+      "family": "creator",
+      "emittedFrom": [],
+      "consumedBy": [],
+      "requiredActorFields": [
+        "actorType|actor_type"
+      ],
+      "requiredObjectFields": [
+        "targetUserId|target_user_id|userId|user_id"
+      ],
+      "requiredSurfaceFields": [
+        "route|page_path|source"
+      ],
+      "dedupeKeyRequired": false,
+      "guestAllowed": false,
+      "adminExcludedFromUserAnalytics": false,
+      "legacyDeprecated": false,
+      "missingFieldsRisk": "Generated audit entry added after creator launch telemetry additions; emitter detection and payload contracts remain enforced by validate-event-catalog-telemetry."
+    },
+    {
+      "eventName": "creator_settings_updated",
+      "aliases": [],
+      "version": 1,
+      "family": "creator",
+      "emittedFrom": [],
+      "consumedBy": [],
+      "requiredActorFields": [
+        "actorType|actor_type"
+      ],
+      "requiredObjectFields": [
+        "targetUserId|target_user_id|userId|user_id"
+      ],
+      "requiredSurfaceFields": [
+        "route|page_path|source"
+      ],
+      "dedupeKeyRequired": false,
+      "guestAllowed": false,
+      "adminExcludedFromUserAnalytics": false,
+      "legacyDeprecated": false,
+      "missingFieldsRisk": "Generated audit entry added after creator launch telemetry additions; emitter detection and payload contracts remain enforced by validate-event-catalog-telemetry."
+    },
+    {
+      "eventName": "admin_roster_tab_changed",
+      "aliases": [],
+      "version": 1,
+      "family": "admin",
+      "emittedFrom": [],
+      "consumedBy": [],
+      "requiredActorFields": [
+        "actorType|actor_type",
+        "actorUid|actor_uid"
+      ],
+      "requiredObjectFields": [],
+      "requiredSurfaceFields": [
+        "route|page_path|source"
+      ],
+      "dedupeKeyRequired": false,
+      "guestAllowed": false,
+      "adminExcludedFromUserAnalytics": true,
+      "legacyDeprecated": false,
+      "missingFieldsRisk": "Generated audit entry added after creator launch telemetry additions; emitter detection and payload contracts remain enforced by validate-event-catalog-telemetry."
+    },
+    {
+      "eventName": "admin_creator_record_opened",
+      "aliases": [],
+      "version": 1,
+      "family": "admin",
+      "emittedFrom": [],
+      "consumedBy": [],
+      "requiredActorFields": [
+        "actorType|actor_type",
+        "actorUid|actor_uid"
+      ],
+      "requiredObjectFields": [
+        "targetUserId|target_user_id|userId|user_id"
+      ],
+      "requiredSurfaceFields": [
+        "route|page_path|source"
+      ],
+      "dedupeKeyRequired": false,
+      "guestAllowed": false,
+      "adminExcludedFromUserAnalytics": true,
+      "legacyDeprecated": false,
+      "missingFieldsRisk": "Generated audit entry added after creator launch telemetry additions; emitter detection and payload contracts remain enforced by validate-event-catalog-telemetry."
+    },
+    {
+      "eventName": "admin_creator_primary_action_clicked",
+      "aliases": [],
+      "version": 1,
+      "family": "admin",
+      "emittedFrom": [],
+      "consumedBy": [],
+      "requiredActorFields": [
+        "actorType|actor_type",
+        "actorUid|actor_uid"
+      ],
+      "requiredObjectFields": [
+        "targetUserId|target_user_id|userId|user_id"
+      ],
+      "requiredSurfaceFields": [
+        "route|page_path|source"
+      ],
+      "dedupeKeyRequired": false,
+      "guestAllowed": false,
+      "adminExcludedFromUserAnalytics": true,
+      "legacyDeprecated": false,
+      "missingFieldsRisk": "Generated audit entry added after creator launch telemetry additions; emitter detection and payload contracts remain enforced by validate-event-catalog-telemetry."
+    },
+    {
+      "eventName": "admin_creator_section_expanded",
+      "aliases": [],
+      "version": 1,
+      "family": "admin",
+      "emittedFrom": [],
+      "consumedBy": [],
+      "requiredActorFields": [
+        "actorType|actor_type",
+        "actorUid|actor_uid"
+      ],
+      "requiredObjectFields": [
+        "targetUserId|target_user_id|userId|user_id"
+      ],
+      "requiredSurfaceFields": [
+        "route|page_path|source"
+      ],
+      "dedupeKeyRequired": false,
+      "guestAllowed": false,
+      "adminExcludedFromUserAnalytics": true,
+      "legacyDeprecated": false,
+      "missingFieldsRisk": "Generated audit entry added after creator launch telemetry additions; emitter detection and payload contracts remain enforced by validate-event-catalog-telemetry."
+    },
+    {
+      "eventName": "admin_creator_agreement_template_created",
+      "aliases": [],
+      "version": 1,
+      "family": "admin",
+      "emittedFrom": [],
+      "consumedBy": [],
+      "requiredActorFields": [
+        "actorType|actor_type",
+        "actorUid|actor_uid"
+      ],
+      "requiredObjectFields": [
+        "targetUserId|target_user_id|userId|user_id"
+      ],
+      "requiredSurfaceFields": [
+        "route|page_path|source"
+      ],
+      "dedupeKeyRequired": false,
+      "guestAllowed": false,
+      "adminExcludedFromUserAnalytics": true,
+      "legacyDeprecated": false,
+      "missingFieldsRisk": "Generated audit entry added after creator launch telemetry additions; emitter detection and payload contracts remain enforced by validate-event-catalog-telemetry."
+    },
+    {
+      "eventName": "admin_creator_agreement_template_activated",
+      "aliases": [],
+      "version": 1,
+      "family": "admin",
+      "emittedFrom": [],
+      "consumedBy": [],
+      "requiredActorFields": [
+        "actorType|actor_type",
+        "actorUid|actor_uid"
+      ],
+      "requiredObjectFields": [
+        "targetUserId|target_user_id|userId|user_id"
+      ],
+      "requiredSurfaceFields": [
+        "route|page_path|source"
+      ],
+      "dedupeKeyRequired": false,
+      "guestAllowed": false,
+      "adminExcludedFromUserAnalytics": true,
+      "legacyDeprecated": false,
+      "missingFieldsRisk": "Generated audit entry added after creator launch telemetry additions; emitter detection and payload contracts remain enforced by validate-event-catalog-telemetry."
+    },
+    {
+      "eventName": "admin_creator_agreement_sent",
+      "aliases": [],
+      "version": 1,
+      "family": "admin",
+      "emittedFrom": [],
+      "consumedBy": [],
+      "requiredActorFields": [
+        "actorType|actor_type",
+        "actorUid|actor_uid"
+      ],
+      "requiredObjectFields": [
+        "targetUserId|target_user_id|userId|user_id"
+      ],
+      "requiredSurfaceFields": [
+        "route|page_path|source"
+      ],
+      "dedupeKeyRequired": false,
+      "guestAllowed": false,
+      "adminExcludedFromUserAnalytics": true,
+      "legacyDeprecated": false,
+      "missingFieldsRisk": "Generated audit entry added after creator launch telemetry additions; emitter detection and payload contracts remain enforced by validate-event-catalog-telemetry."
+    },
+    {
+      "eventName": "admin_creator_agreement_update_sent",
+      "aliases": [],
+      "version": 1,
+      "family": "admin",
+      "emittedFrom": [],
+      "consumedBy": [],
+      "requiredActorFields": [
+        "actorType|actor_type",
+        "actorUid|actor_uid"
+      ],
+      "requiredObjectFields": [
+        "targetUserId|target_user_id|userId|user_id"
+      ],
+      "requiredSurfaceFields": [
+        "route|page_path|source"
+      ],
+      "dedupeKeyRequired": false,
+      "guestAllowed": false,
+      "adminExcludedFromUserAnalytics": true,
+      "legacyDeprecated": false,
+      "missingFieldsRisk": "Generated audit entry added after creator launch telemetry additions; emitter detection and payload contracts remain enforced by validate-event-catalog-telemetry."
+    },
+    {
+      "eventName": "admin_creator_agreement_countersigned",
+      "aliases": [],
+      "version": 1,
+      "family": "admin",
+      "emittedFrom": [],
+      "consumedBy": [],
+      "requiredActorFields": [
+        "actorType|actor_type",
+        "actorUid|actor_uid"
+      ],
+      "requiredObjectFields": [
+        "targetUserId|target_user_id|userId|user_id"
+      ],
+      "requiredSurfaceFields": [
+        "route|page_path|source"
+      ],
+      "dedupeKeyRequired": false,
+      "guestAllowed": false,
+      "adminExcludedFromUserAnalytics": true,
+      "legacyDeprecated": false,
+      "missingFieldsRisk": "Generated audit entry added after creator launch telemetry additions; emitter detection and payload contracts remain enforced by validate-event-catalog-telemetry."
     }
   ]
 }

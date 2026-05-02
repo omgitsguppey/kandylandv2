@@ -148,6 +148,13 @@ describe("POST /api/creator/onboarding/contract-signature", () => {
             introAcknowledgedAt: 1_710_000_000_050,
             legalStatus: "legal_sent",
             contractDocumentStatus: "contract_sent",
+            contractVersion: "agreement_v2",
+            agreementTemplateId: "creator_agreement_v2",
+            agreementTitle: "Creator Agreement v2",
+            agreementHash: "sha256:v2",
+            agreementSource: "uploaded_pdf_snapshot",
+            agreementDispatchId: "dispatch_v2",
+            agreementDispatchStatus: "sent",
             creatorSignatureStatus: "signature_pending",
             adminSignatureStatus: "signature_pending",
             idVerificationStatus: "id_verified",
@@ -189,9 +196,33 @@ describe("POST /api/creator/onboarding/contract-signature", () => {
             creatorSignatureStatus: "signature_signed",
             creatorContractSignedByName: "Creator One",
             creatorContractSignedIp: "127.0.0.1",
+            agreementHash: "sha256:v2",
+            agreementDispatchId: "dispatch_v2",
+        });
+        expect(mockState.documents.get("creator_onboarding/creator_1/agreement_dispatches/dispatch_v2")).toMatchObject({
+            status: "signed",
+            agreementVersion: "agreement_v2",
+            templateId: "creator_agreement_v2",
+            agreementHash: "sha256:v2",
+        });
+        expect(mockState.documents.get("creator_onboarding/creator_1/agreement_signatures/creator_dispatch_v2")).toMatchObject({
+            dispatchId: "dispatch_v2",
+            userId: "creator_1",
+            agreementVersion: "agreement_v2",
+            templateId: "creator_agreement_v2",
+            agreementHash: "sha256:v2",
+            signerUid: "creator_1",
         });
         const historyPath = Array.from(mockState.documents.keys()).find((path) => path.startsWith("creator_onboarding/creator_1/history/creator_contract_signed_"));
         expect(historyPath).toBeTruthy();
+        expect(mockState.documents.get(historyPath!)).toMatchObject({
+            metadata: expect.objectContaining({
+                agreementVersion: "agreement_v2",
+                agreementHash: "sha256:v2",
+                templateId: "creator_agreement_v2",
+                dispatchId: "dispatch_v2",
+            }),
+        });
         expect(mockState.trackServerEvent).toHaveBeenCalledWith("creator_contract_signed", expect.any(Object), "creator_1");
     });
 

@@ -278,6 +278,12 @@ export type CreatorApplication = {
     legallyClearedAt?: number;
     legallyClearedBy?: string;
     contractVersion?: string;
+    agreementTemplateId?: string;
+    agreementTitle?: string;
+    agreementHash?: string;
+    agreementSource?: "native_full_text" | "uploaded_pdf_snapshot" | "hybrid";
+    agreementDispatchId?: string;
+    agreementDispatchStatus?: "sent" | "viewed" | "signed" | "superseded";
     contractDocumentStatus?: CreatorContractDocumentStatus;
     creatorSignatureStatus?: CreatorContractSignatureStatus;
     adminSignatureStatus?: CreatorContractSignatureStatus;

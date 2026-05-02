@@ -55,7 +55,7 @@ const checklist = read("EVERY_FILE_FUNCTION_CHECKLIST.md");
   "role=\"tablist\"",
   "role=\"tab\"",
   "data-roster-mode=\"decision_queue\"",
-  "Agreement record",
+  "Agreement document",
   "ID files",
   "Audit trail",
   "Admin notes",

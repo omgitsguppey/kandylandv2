@@ -475,6 +475,18 @@ export const ROUTE_RUNTIME_HEALTH_TARGETS = {
                 title: "Admin Roster runtime",
                 slowThresholdMs: 1200,
             },
+    "admin/creator-agreements:GET": {
+                routeName: "admin/creator-agreements",
+                method: "GET",
+                title: "Admin Creator Agreements runtime",
+                slowThresholdMs: 1200,
+            },
+    "admin/creator-agreements:POST": {
+                routeName: "admin/creator-agreements",
+                method: "POST",
+                title: "Admin Creator Agreements runtime",
+                slowThresholdMs: 1200,
+            },
     "admin/tasks:GET": {
                 routeName: "admin/tasks",
                 method: "GET",
@@ -839,6 +851,12 @@ export const ROUTE_RUNTIME_HEALTH_TARGETS = {
                 routeName: "creator/onboarding/contract-signature",
                 method: "POST",
                 title: "Creator Onboarding Contract Signature runtime",
+                slowThresholdMs: 1200,
+            },
+    "creator/onboarding/agreement-document:GET": {
+                routeName: "creator/onboarding/agreement-document",
+                method: "GET",
+                title: "Creator Onboarding Agreement Document runtime",
                 slowThresholdMs: 1200,
             },
     "creator/onboarding/id-submission:POST": {

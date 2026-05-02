@@ -3,6 +3,10 @@ import { NextRequest, NextResponse } from "next/server";
 import { adminAuth, adminDb } from "@/lib/server/firebase-admin";
 import { normalizeCreatorApplication } from "@/lib/creator-application";
 import { DEFAULT_CREATOR_RESTRICTIONS, DEFAULT_CREATOR_SETTINGS, CREATOR_COLLECTIONS, isCreatorRole } from "@/lib/creator-experiences";
+import type {
+    CreatorAgreementDispatchStatus,
+    CreatorAgreementSource,
+} from "@/lib/creator-agreement-documents";
 import {
     buildCreatorOnboardingCanonicalRecord,
     type CreatorOnboardingBlockingReason,
@@ -76,6 +80,14 @@ type CreatorReviewQueueRosterEntry = RosterEntry & {
     submittedAt: number;
     updatedAt: number;
     legalDocumentUrl?: string;
+    legalDocumentSentAt?: number;
+    contractVersion?: string;
+    agreementTemplateId?: string;
+    agreementTitle?: string;
+    agreementHash?: string;
+    agreementSource?: CreatorAgreementSource;
+    agreementDispatchId?: string;
+    agreementDispatchStatus?: CreatorAgreementDispatchStatus;
     segmentLabel?: string;
     idDocumentFileName?: string;
     idDocumentFrontFileName?: string;
@@ -238,6 +250,18 @@ function serializeQueueEntry(
         submittedAt: toTimestampNumber(raw.submittedAt),
         updatedAt: toTimestampNumber(raw.updatedAt),
         legalDocumentUrl: readString(raw.legalDocumentUrl) || undefined,
+        legalDocumentSentAt: toTimestampNumber(raw.legalDocumentSentAt) || undefined,
+        contractVersion: readString(raw.contractVersion) || undefined,
+        agreementTemplateId: readString(raw.agreementTemplateId) || undefined,
+        agreementTitle: readString(raw.agreementTitle) || undefined,
+        agreementHash: readString(raw.agreementHash) || undefined,
+        agreementSource: raw.agreementSource === "uploaded_pdf_snapshot" || raw.agreementSource === "hybrid" || raw.agreementSource === "native_full_text"
+            ? raw.agreementSource
+            : undefined,
+        agreementDispatchId: readString(raw.agreementDispatchId) || undefined,
+        agreementDispatchStatus: raw.agreementDispatchStatus === "sent" || raw.agreementDispatchStatus === "viewed" || raw.agreementDispatchStatus === "signed" || raw.agreementDispatchStatus === "superseded"
+            ? raw.agreementDispatchStatus
+            : undefined,
         segmentLabel: readString(raw.segmentLabel) || undefined,
         idDocumentFileName: readString(raw.idDocumentFileName)
             || creatorApplication?.idDocument?.fileName
@@ -859,7 +883,9 @@ async function POST_handler(request: NextRequest) {
             compliance_path: compliancePath,
             onboarding_status: creatorPath === "live_override" ? "creator_approved" : "creator_pending",
             legal_status: compliancePath === "bypass" ? "legal_signed" : "legal_pending",
-            agreement_version: CREATOR_MASTER_SERVICE_AGREEMENT_VERSION,
+            agreement_version: latestCanonical.contractVersion ?? CREATOR_MASTER_SERVICE_AGREEMENT_VERSION,
+            agreement_hash: latestCanonical.agreementHash ?? "",
+            template_id: latestCanonical.agreementTemplateId ?? "",
             ...actorMarkerToTelemetryPayload(directCreateMarker),
         }, authUser.uid).catch(() => undefined);
 

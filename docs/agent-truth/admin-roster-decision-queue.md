@@ -32,9 +32,15 @@ Do not restore the old primary tab model of `Intake`, `Live creators`, and `Crea
 - Summary cards stay compact and scroll horizontally on mobile.
 - Roster rows are short, one-tap, and scannable.
 - The detail panel stacks below the list on mobile.
-- Legal, ID, audit, notes, and owner controls stay collapsed until needed.
+- Agreement document, ID, audit, notes, owner controls, and agreement templates stay collapsed until needed.
 - Do not show raw enum labels such as `signature_pending` or `id_not_requested` in visible UI.
 - Do not create fake chips. Static state text should look like text, not a button.
+
+## Agreement Document Manager
+
+The selected creator panel owns a collapsed `Agreement document` section. It shows the current agreement version, document title, last sent time, creator signature state, admin countersign state, full-document availability, and hash availability. It may offer `View agreement`, `Send agreement`, `Send updated agreement`, and `Countersign agreement`.
+
+The Create tab owns a collapsed `Agreement templates` section. It lets admins save a template source, preview the active agreement, and lets the primary owner mark a template active for new creators. Storage paths and raw document paths stay out of visible UI and belong in Debug evidence only.
 
 ## Telemetry
 
@@ -44,6 +50,11 @@ The Admin Roster page emits identity-marked telemetry for:
 - `admin_creator_record_opened`
 - `admin_creator_primary_action_clicked`
 - `admin_creator_section_expanded`
+- `admin_creator_agreement_template_created`
+- `admin_creator_agreement_template_activated`
+- `admin_creator_agreement_sent`
+- `admin_creator_agreement_update_sent`
+- `admin_creator_agreement_countersigned`
 
 Required payload fields include:
 
@@ -68,6 +79,14 @@ The page exposes compact debug metadata:
 - `collapsedSections`
 - `ownerControlsVisible`
 - `actorMarkerPresent`
+- `activeAgreementVersion`
+- `activeAgreementHash`
+- `selectedCreatorAgreementVersion`
+- `selectedCreatorAgreementHash`
+- `dispatchStatus`
+- `signatureEvidenceComplete`
+- `priorAgreementPreserved`
+- `requiresResign`
 
 Future agents must keep legal and audit evidence available, but not crowd the default review flow.
 

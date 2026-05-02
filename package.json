@@ -79,6 +79,7 @@
         "check:creator-identity-markers": "tsx scripts/agent/validate-creator-identity-markers.ts",
         "check:admin-roster-decision-queue": "tsx scripts/agent/validate-admin-roster-decision-queue.ts",
         "check:creator-intake-flow": "tsx scripts/agent/validate-creator-intake-flow.ts",
+        "check:creator-agreement-document-manager": "tsx scripts/agent/validate-creator-agreement-document-manager.ts",
         "check:admin-analytics-snapshot-migration": "tsx scripts/agent/validate-admin-analytics-snapshot-migration.ts",
         "check:admin-analytics-no-pure-realtime": "tsx scripts/agent/validate-admin-analytics-no-pure-realtime.ts",
         "check:admin-analytics-finalization": "tsx scripts/agent/validate-admin-analytics-finalization.ts",

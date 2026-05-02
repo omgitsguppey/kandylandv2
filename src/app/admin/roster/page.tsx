@@ -13,12 +13,15 @@ import { AdminPageHeader } from "@/components/Admin/AdminPageHeader";
 import { PageViewEvent } from "@/components/Analytics/PageViewEvent";
 import { authFetch } from "@/lib/authFetch";
 import { reportClientIssue } from "@/lib/client-error-reporting";
+import type {
+    CreatorAgreementSource,
+    CreatorAgreementTemplateAdminView,
+} from "@/lib/creator-agreement-documents";
 import {
     CREATOR_CONTRACT_SUMMARY_BULLETS,
     CREATOR_INTRO_CREATOR_BULLETS,
     CREATOR_INTRO_FAN_BULLETS,
     CREATOR_MASTER_SERVICE_AGREEMENT_SECTIONS,
-    DEFAULT_CREATOR_TEMPLATE_LABEL,
 } from "@/lib/creator-contract";
 import {
     describeCreatorOnboardingBlockingReason,
@@ -81,6 +84,14 @@ type CreatorReviewQueueEntry = {
     idDocumentBackFileName?: string;
     idDocumentFaceFileName?: string;
     idDocumentVideoFileName?: string;
+    contractVersion?: string;
+    legalDocumentSentAt?: number;
+    agreementTemplateId?: string;
+    agreementTitle?: string;
+    agreementHash?: string;
+    agreementSource?: CreatorAgreementSource;
+    agreementDispatchId?: string;
+    agreementDispatchStatus?: "sent" | "viewed" | "signed" | "superseded";
 };
 
 type RosterUser = {
@@ -132,6 +143,14 @@ type CreateCreatorFormState = {
     ownerOverrideReason: string;
 };
 
+type AgreementTemplateFormState = {
+    agreementVersion: string;
+    agreementTitle: string;
+    agreementSource: CreatorAgreementSource;
+    summaryBullets: string;
+    supersedesVersion: string;
+};
+
 const DEFAULT_CREATE_CREATOR_FORM: CreateCreatorFormState = {
     displayName: "",
     email: "",
@@ -142,6 +161,14 @@ const DEFAULT_CREATE_CREATOR_FORM: CreateCreatorFormState = {
     creatorPath: "intake",
     compliancePath: "required",
     ownerOverrideReason: "",
+};
+
+const DEFAULT_AGREEMENT_TEMPLATE_FORM: AgreementTemplateFormState = {
+    agreementVersion: "",
+    agreementTitle: "KandyDrops Creator Service Agreement",
+    agreementSource: "uploaded_pdf_snapshot",
+    summaryBullets: "",
+    supersedesVersion: "",
 };
 
 function formatTimestamp(value: number | undefined) {
@@ -164,6 +191,20 @@ function buildStage(entry: CreatorReviewQueueEntry) {
     return getCreatorOnboardingStatusSummary(entry).stage;
 }
 
+function formatBoolean(value: boolean) {
+    return value ? "Yes" : "No";
+}
+
+function formatAgreementSource(value: CreatorAgreementSource | undefined) {
+    if (value === "uploaded_pdf_snapshot") {
+        return "Uploaded PDF";
+    }
+    if (value === "hybrid") {
+        return "Uploaded source plus app summary";
+    }
+    return "Native full text";
+}
+
 export default function AdminRosterPage() {
     const searchParams = useSearchParams();
     const { user } = useAuth();
@@ -178,12 +219,18 @@ export default function AdminRosterPage() {
     const [detailLoading, setDetailLoading] = useState(false);
     const [ownerOverrideReason, setOwnerOverrideReason] = useState("");
     const [createCreatorForm, setCreateCreatorForm] = useState<CreateCreatorFormState>(DEFAULT_CREATE_CREATOR_FORM);
+    const [agreementTemplate, setAgreementTemplate] = useState<CreatorAgreementTemplateAdminView | null>(null);
+    const [agreementTemplateForm, setAgreementTemplateForm] = useState<AgreementTemplateFormState>(DEFAULT_AGREEMENT_TEMPLATE_FORM);
+    const [agreementTemplateFile, setAgreementTemplateFile] = useState<File | null>(null);
+    const [agreementSaving, setAgreementSaving] = useState<string | null>(null);
+    const [agreementPreviewOpen, setAgreementPreviewOpen] = useState(false);
     const [expandedSections, setExpandedSections] = useState<Record<RosterDetailSectionKey, boolean>>({
-        agreement_record: false,
+        agreement_document: false,
         id_files: false,
         audit_trail: false,
         admin_notes: false,
         owner_controls: false,
+        agreement_templates: false,
     });
 
     const isOwner = user?.email?.toLowerCase() === PRIMARY_CREATOR_OWNER_EMAIL;
@@ -195,6 +242,11 @@ export default function AdminRosterPage() {
     const selectedCanonical = detail?.creatorOnboardingCanonical ?? null;
     const selectedCreatorApplication = detail?.user.creatorApplication ?? null;
     const selectedHistory = detail?.creatorOnboardingHistory ?? [];
+    const selectedAgreementVersion = selectedCanonical?.contractVersion || selectedEntry?.contractVersion || agreementTemplate?.agreementVersion || "";
+    const selectedAgreementTitle = selectedCanonical?.agreementTitle || selectedEntry?.agreementTitle || agreementTemplate?.agreementTitle || "Agreement not set";
+    const selectedAgreementHash = selectedCanonical?.agreementHash || selectedEntry?.agreementHash || "";
+    const selectedAgreementSource = selectedCanonical?.agreementSource || selectedEntry?.agreementSource || agreementTemplate?.agreementSource;
+    const selectedAgreementDispatchStatus = selectedCanonical?.agreementDispatchStatus || selectedEntry?.agreementDispatchStatus;
     const entriesByDecision = useMemo(() => ({
         needs_review: intakeEntries.filter((entry) => classifyRosterDecisionEntry(entry) === "needs_review"),
         waiting: intakeEntries.filter((entry) => classifyRosterDecisionEntry(entry) === "waiting"),
@@ -302,6 +354,47 @@ export default function AdminRosterPage() {
         };
     }, [selectedUserId]);
 
+    useEffect(() => {
+        let cancelled = false;
+
+        async function loadAgreementTemplate() {
+            try {
+                const response = await authFetch("/api/admin/creator-agreements");
+                const result = await response.json() as { success?: boolean; activeTemplate?: CreatorAgreementTemplateAdminView; error?: string };
+                if (!response.ok || !result.success || !result.activeTemplate) {
+                    throw new Error(result.error || "Failed to load agreement template.");
+                }
+                if (!cancelled) {
+                    setAgreementTemplate(result.activeTemplate);
+                    setAgreementTemplateForm((current) => ({
+                        ...current,
+                        agreementVersion: current.agreementVersion || result.activeTemplate?.agreementVersion || "",
+                        agreementTitle: current.agreementTitle || result.activeTemplate?.agreementTitle || DEFAULT_AGREEMENT_TEMPLATE_FORM.agreementTitle,
+                        agreementSource: result.activeTemplate?.agreementSource || current.agreementSource,
+                        summaryBullets: current.summaryBullets || (result.activeTemplate?.summaryBullets ?? []).join("\n"),
+                        supersedesVersion: current.supersedesVersion || result.activeTemplate?.agreementVersion || "",
+                    }));
+                }
+            } catch (error) {
+                reportClientIssue({
+                    channel: "ui",
+                    severity: "warn",
+                    message: "Admin creator agreement template failed to load",
+                    error,
+                    detail: {
+                        adminView: "creator_roster_agreement_templates",
+                    },
+                    consoleLabel: "[Admin Roster] agreement template load failed",
+                });
+            }
+        }
+
+        void loadAgreementTemplate();
+        return () => {
+            cancelled = true;
+        };
+    }, []);
+
     const refreshSelectedDetail = async () => {
         if (!selectedUserId) {
             return;
@@ -327,6 +420,16 @@ export default function AdminRosterPage() {
             throw new Error(result.error || "Failed to refresh creator roster.");
         }
         setRoster(result);
+    };
+
+    const refreshAgreementTemplate = async () => {
+        const response = await authFetch("/api/admin/creator-agreements");
+        const result = await response.json() as { success?: boolean; activeTemplate?: CreatorAgreementTemplateAdminView; error?: string };
+        if (!response.ok || !result.success || !result.activeTemplate) {
+            throw new Error(result.error || "Failed to refresh agreement template.");
+        }
+        setAgreementTemplate(result.activeTemplate);
+        return result.activeTemplate;
     };
 
     const submitCreatorUpdate = async (
@@ -478,6 +581,110 @@ export default function AdminRosterPage() {
         void submitCreatorUpdate(actionKey, patch, extraUpdates);
     };
 
+    const handleCreatorAgreementAction = async (actionKey: "send_agreement" | "send_updated_agreement" | "countersign_agreement") => {
+        if (!selectedUserId) {
+            return;
+        }
+
+        try {
+            setAgreementSaving(actionKey);
+            trackEvent("admin_creator_primary_action_clicked", buildTelemetryPayload({
+                actionKey,
+            }));
+            const response = await authFetch("/api/admin/creator-agreements", {
+                method: "POST",
+                headers: {
+                    "content-type": "application/json",
+                },
+                body: JSON.stringify({
+                    action: actionKey,
+                    targetUserId: selectedUserId,
+                }),
+            });
+            const result = await response.json().catch(() => ({})) as { error?: string };
+            if (!response.ok) {
+                throw new Error(result.error || "Agreement action failed.");
+            }
+            await Promise.all([refreshRoster(), refreshSelectedDetail(), refreshAgreementTemplate()]);
+            toast.success(actionKey === "send_updated_agreement" ? "Updated agreement sent." : actionKey === "countersign_agreement" ? "Agreement countersigned." : "Agreement sent.");
+        } catch (error) {
+            reportClientIssue({
+                channel: "ui",
+                severity: "error",
+                message: "Admin creator agreement action failed",
+                error,
+                detail: {
+                    adminView: "creator_roster_agreement_document",
+                    action: actionKey,
+                    userId: selectedUserId,
+                },
+                consoleLabel: "[Admin Roster] agreement action failed",
+            });
+            toast.error(error instanceof Error ? error.message : "Agreement action failed.");
+        } finally {
+            setAgreementSaving(null);
+        }
+    };
+
+    const handleAgreementTemplateSubmit = async (actionKey: "create_template" | "activate_template") => {
+        try {
+            setAgreementSaving(actionKey);
+            const formData = new FormData();
+            formData.set("action", actionKey);
+            formData.set("agreementVersion", agreementTemplateForm.agreementVersion);
+            formData.set("agreementTitle", agreementTemplateForm.agreementTitle);
+            formData.set("agreementSource", agreementTemplateForm.agreementSource);
+            formData.set("summaryBullets", agreementTemplateForm.summaryBullets);
+            formData.set("supersedesVersion", agreementTemplateForm.supersedesVersion);
+            if (agreementTemplateFile) {
+                formData.set("agreementFile", agreementTemplateFile);
+            }
+
+            const response = await authFetch("/api/admin/creator-agreements", {
+                method: "POST",
+                body: formData,
+            });
+            const result = await response.json().catch(() => ({})) as { error?: string; activeTemplate?: CreatorAgreementTemplateAdminView };
+            if (!response.ok) {
+                throw new Error(result.error || "Agreement template update failed.");
+            }
+            const nextTemplate = result.activeTemplate ?? await refreshAgreementTemplate();
+            setAgreementTemplate(nextTemplate);
+            setAgreementTemplateFile(null);
+            toast.success(actionKey === "activate_template" ? "Agreement template activated." : "Agreement template saved.");
+        } catch (error) {
+            reportClientIssue({
+                channel: "ui",
+                severity: "error",
+                message: "Admin creator agreement template update failed",
+                error,
+                detail: {
+                    adminView: "creator_roster_agreement_templates",
+                    action: actionKey,
+                },
+                consoleLabel: "[Admin Roster] agreement template update failed",
+            });
+            toast.error(error instanceof Error ? error.message : "Agreement template update failed.");
+        } finally {
+            setAgreementSaving(null);
+        }
+    };
+
+    const handleViewAgreement = () => {
+        if (selectedCanonical?.legalDocumentUrl) {
+            window.open(selectedCanonical.legalDocumentUrl, "_blank", "noopener,noreferrer");
+            return;
+        }
+        if (agreementTemplate?.agreementSource === "uploaded_pdf_snapshot" || agreementTemplate?.agreementSource === "hybrid") {
+            window.open(`/api/admin/creator-agreements?download=1&templateId=${encodeURIComponent(agreementTemplate.templateId)}`, "_blank", "noopener,noreferrer");
+            return;
+        }
+        setAgreementPreviewOpen((current) => !current);
+        if (!agreementPreviewOpen) {
+            handleSectionToggle("agreement_document", true);
+        }
+    };
+
     const handleSectionToggle = (sectionKey: RosterDetailSectionKey, open: boolean) => {
         setExpandedSections((current) => ({ ...current, [sectionKey]: open }));
         if (open) {
@@ -496,6 +703,14 @@ export default function AdminRosterPage() {
         collapsedSections: collapsedSections.join(","),
         ownerControlsVisible: Boolean(isOwner && expandedSections.owner_controls),
         actorMarkerPresent: true,
+        activeAgreementVersion: agreementTemplate?.agreementVersion ?? "",
+        activeAgreementHash: agreementTemplate?.agreementHash ?? "",
+        selectedCreatorAgreementVersion: selectedAgreementVersion,
+        selectedCreatorAgreementHash: selectedAgreementHash,
+        dispatchStatus: selectedAgreementDispatchStatus ?? "",
+        signatureEvidenceComplete: Boolean(selectedAgreementHash && selectedCanonical?.creatorSignatureStatus === "signature_signed" && selectedCanonical?.adminSignatureStatus === "signature_signed"),
+        priorAgreementPreserved: Boolean(selectedCanonical?.agreementDispatchId && selectedAgreementHash),
+        requiresResign: selectedCanonical?.creatorSignatureStatus === "signature_pending" && selectedCanonical?.contractDocumentStatus === "contract_sent",
     };
 
     return (
@@ -687,6 +902,68 @@ export default function AdminRosterPage() {
                                         {creating ? "Creating..." : "Create account"}
                                     </button>
                                 </div>
+                                <details className="mt-4 rounded-2xl border border-white/10 bg-black/25 p-4" onToggle={(event) => handleSectionToggle("agreement_templates", event.currentTarget.open)}>
+                                    <summary className="cursor-pointer list-none text-sm font-bold text-white">Agreement templates</summary>
+                                    <div className="mt-4 space-y-4">
+                                        <div className="grid gap-3 sm:grid-cols-2">
+                                            <div className="rounded-2xl border border-white/10 bg-black/20 p-3">
+                                                <p className="text-[10px] font-semibold uppercase tracking-[0.16em] text-zinc-500">Current creator agreement version</p>
+                                                <p className="mt-2 text-sm font-semibold text-white">{agreementTemplate?.agreementVersion || "No active template loaded"}</p>
+                                            </div>
+                                            <div className="rounded-2xl border border-white/10 bg-black/20 p-3">
+                                                <p className="text-[10px] font-semibold uppercase tracking-[0.16em] text-zinc-500">Document title</p>
+                                                <p className="mt-2 text-sm font-semibold text-white">{agreementTemplate?.agreementTitle || DEFAULT_AGREEMENT_TEMPLATE_FORM.agreementTitle}</p>
+                                            </div>
+                                            <div className="rounded-2xl border border-white/10 bg-black/20 p-3">
+                                                <p className="text-[10px] font-semibold uppercase tracking-[0.16em] text-zinc-500">Full document available</p>
+                                                <p className="mt-2 text-sm font-semibold text-white">{formatBoolean(Boolean(agreementTemplate?.fullDocumentAvailable))}</p>
+                                            </div>
+                                            <div className="rounded-2xl border border-white/10 bg-black/20 p-3">
+                                                <p className="text-[10px] font-semibold uppercase tracking-[0.16em] text-zinc-500">Agreement hash available</p>
+                                                <p className="mt-2 text-sm font-semibold text-white">{formatBoolean(Boolean(agreementTemplate?.agreementHashAvailable))}</p>
+                                            </div>
+                                        </div>
+                                        <div className="grid gap-3 sm:grid-cols-2">
+                                            <input value={agreementTemplateForm.agreementVersion} onChange={(event) => setAgreementTemplateForm((current) => ({ ...current, agreementVersion: event.target.value }))} placeholder="Agreement version" className="rounded-2xl border border-white/10 bg-black/40 px-4 py-3 text-sm text-white outline-none focus:border-brand-purple/60" />
+                                            <input value={agreementTemplateForm.agreementTitle} onChange={(event) => setAgreementTemplateForm((current) => ({ ...current, agreementTitle: event.target.value }))} placeholder="Document title" className="rounded-2xl border border-white/10 bg-black/40 px-4 py-3 text-sm text-white outline-none focus:border-brand-purple/60" />
+                                            <label className="space-y-2">
+                                                <span className="text-[11px] font-semibold uppercase tracking-[0.18em] text-zinc-500">Agreement source</span>
+                                                <select value={agreementTemplateForm.agreementSource} onChange={(event) => setAgreementTemplateForm((current) => ({ ...current, agreementSource: event.target.value as CreatorAgreementSource }))} className="w-full rounded-2xl border border-white/10 bg-black/40 px-4 py-3 text-sm text-white outline-none focus:border-brand-purple/60">
+                                                    <option value="native_full_text">Native full text</option>
+                                                    <option value="uploaded_pdf_snapshot">Uploaded PDF</option>
+                                                    <option value="hybrid">Uploaded source plus app summary</option>
+                                                </select>
+                                            </label>
+                                            <input value={agreementTemplateForm.supersedesVersion} onChange={(event) => setAgreementTemplateForm((current) => ({ ...current, supersedesVersion: event.target.value }))} placeholder="Supersedes version" className="rounded-2xl border border-white/10 bg-black/40 px-4 py-3 text-sm text-white outline-none focus:border-brand-purple/60" />
+                                            <label className="space-y-2 sm:col-span-2">
+                                                <span className="text-[11px] font-semibold uppercase tracking-[0.18em] text-zinc-500">Upload or replace agreement source</span>
+                                                <input type="file" accept=".pdf,.txt,.md,application/pdf,text/plain,text/markdown" onChange={(event) => setAgreementTemplateFile(event.target.files?.[0] ?? null)} className="w-full rounded-2xl border border-white/10 bg-black/40 px-4 py-3 text-sm text-white file:mr-3 file:rounded-full file:border-0 file:bg-white file:px-3 file:py-2 file:text-sm file:font-semibold file:text-black" />
+                                            </label>
+                                            <textarea value={agreementTemplateForm.summaryBullets} onChange={(event) => setAgreementTemplateForm((current) => ({ ...current, summaryBullets: event.target.value }))} rows={4} placeholder="Summary bullets, one per line" className="rounded-2xl border border-white/10 bg-black/40 px-4 py-3 text-sm text-white outline-none focus:border-brand-purple/60 sm:col-span-2" />
+                                        </div>
+                                        <div className="flex flex-wrap gap-2">
+                                            <button type="button" onClick={() => void handleAgreementTemplateSubmit("create_template")} disabled={agreementSaving === "create_template"} className="rounded-full bg-white px-4 py-2 text-sm font-bold text-black disabled:opacity-50">Save template source</button>
+                                            <button type="button" onClick={() => setAgreementPreviewOpen((current) => !current)} className="rounded-full border border-white/10 bg-black/35 px-4 py-2 text-sm font-semibold text-white">Preview active agreement</button>
+                                            <button type="button" onClick={() => void handleAgreementTemplateSubmit("activate_template")} disabled={!isOwner || agreementSaving === "activate_template"} className="rounded-full border border-brand-purple/40 bg-brand-purple/15 px-4 py-2 text-sm font-semibold text-white disabled:opacity-50">Mark as active for new creators</button>
+                                        </div>
+                                        {!isOwner ? (
+                                            <p className="text-xs leading-5 text-zinc-500">Only the primary owner can activate a template for new creators.</p>
+                                        ) : null}
+                                        {agreementPreviewOpen ? (
+                                            <div className="rounded-2xl border border-white/10 bg-black/20 p-3">
+                                                <p className="text-sm font-semibold text-white">Active agreement preview</p>
+                                                <div className="mt-3 space-y-3 text-sm leading-6 text-zinc-300">
+                                                    {CREATOR_MASTER_SERVICE_AGREEMENT_SECTIONS.map((section) => (
+                                                        <div key={section.heading}>
+                                                            <p className="font-semibold text-white">{section.heading}</p>
+                                                            <p className="mt-1">{section.body}</p>
+                                                        </div>
+                                                    ))}
+                                                </div>
+                                            </div>
+                                        ) : null}
+                                    </div>
+                                </details>
                             </div>
                         )}
                     </div>
@@ -730,10 +1007,10 @@ export default function AdminRosterPage() {
                                             <button type="button" onClick={() => handlePrimaryActionClick("request-id", { idVerificationStatus: "id_requested", kycDueAt: Date.now() + (7 * 24 * 60 * 60 * 1000) })} disabled={saving === "request-id"} className="rounded-full bg-white px-4 py-2 text-sm font-bold text-black disabled:opacity-50">Request ID upload</button>
                                         ) : null}
                                         {selectedCanonical.contractDocumentStatus !== "contract_sent" && selectedCanonical.introAcknowledgedAt ? (
-                                            <button type="button" onClick={() => handlePrimaryActionClick("send-contract", { contractDocumentStatus: "contract_sent", legalStatus: "legal_sent" })} disabled={saving === "send-contract"} className="rounded-full bg-white px-4 py-2 text-sm font-bold text-black disabled:opacity-50">Send agreement</button>
+                                            <button type="button" onClick={() => void handleCreatorAgreementAction("send_agreement")} disabled={agreementSaving === "send_agreement"} className="rounded-full bg-white px-4 py-2 text-sm font-bold text-black disabled:opacity-50">Send agreement</button>
                                         ) : null}
                                         {selectedCanonical.creatorSignatureStatus === "signature_signed" && selectedCanonical.adminSignatureStatus !== "signature_signed" ? (
-                                            <button type="button" onClick={() => handlePrimaryActionClick("countersign", { adminSignatureStatus: "signature_signed", legalStatus: "legal_signed" })} disabled={saving === "countersign"} className="rounded-full bg-white px-4 py-2 text-sm font-bold text-black disabled:opacity-50">Countersign agreement</button>
+                                            <button type="button" onClick={() => void handleCreatorAgreementAction("countersign_agreement")} disabled={agreementSaving === "countersign_agreement"} className="rounded-full bg-white px-4 py-2 text-sm font-bold text-black disabled:opacity-50">Countersign agreement</button>
                                         ) : null}
                                         {(selectedCanonical.readyForApproval || selectedCanonical.ownerOverrideActive) ? (
                                             <button type="button" onClick={() => handlePrimaryActionClick("approve", { approvalStatus: "creator_approved" })} disabled={saving === "approve"} className="rounded-full bg-brand-purple px-4 py-2 text-sm font-bold text-white disabled:opacity-50">Approve creator</button>
@@ -762,25 +1039,56 @@ export default function AdminRosterPage() {
                                     </div>
                                 </div>
 
-                                <details className="rounded-2xl border border-white/10 bg-black/25 p-4" onToggle={(event) => handleSectionToggle("agreement_record", event.currentTarget.open)}>
-                                    <summary className="cursor-pointer list-none text-sm font-bold text-white">Agreement record</summary>
+                                <details className="rounded-2xl border border-white/10 bg-black/25 p-4" onToggle={(event) => handleSectionToggle("agreement_document", event.currentTarget.open)}>
+                                    <summary className="cursor-pointer list-none text-sm font-bold text-white">Agreement document</summary>
                                     <div className="mt-4 space-y-4">
                                         <div className="grid gap-3 sm:grid-cols-2">
                                             <div className="rounded-2xl border border-white/10 bg-black/20 p-3">
-                                                <p className="text-[10px] font-semibold uppercase tracking-[0.16em] text-zinc-500">Template</p>
-                                                <p className="mt-2 text-sm font-semibold text-white">{selectedCanonical.creatorTemplateLabel || DEFAULT_CREATOR_TEMPLATE_LABEL}</p>
+                                                <p className="text-[10px] font-semibold uppercase tracking-[0.16em] text-zinc-500">Current agreement version</p>
+                                                <p className="mt-2 text-sm font-semibold text-white">{selectedAgreementVersion || "Not set"}</p>
                                             </div>
                                             <div className="rounded-2xl border border-white/10 bg-black/20 p-3">
-                                                <p className="text-[10px] font-semibold uppercase tracking-[0.16em] text-zinc-500">Countersign</p>
-                                                <p className="mt-2 text-sm font-semibold text-white">{formatAgreementStatus(selectedCanonical)}</p>
+                                                <p className="text-[10px] font-semibold uppercase tracking-[0.16em] text-zinc-500">Document title</p>
+                                                <p className="mt-2 text-sm font-semibold text-white">{selectedAgreementTitle}</p>
                                             </div>
+                                            <div className="rounded-2xl border border-white/10 bg-black/20 p-3">
+                                                <p className="text-[10px] font-semibold uppercase tracking-[0.16em] text-zinc-500">Last sent</p>
+                                                <p className="mt-2 text-sm font-semibold text-white">{formatTimestamp(selectedCanonical.legalDocumentSentAt)}</p>
+                                            </div>
+                                            <div className="rounded-2xl border border-white/10 bg-black/20 p-3">
+                                                <p className="text-[10px] font-semibold uppercase tracking-[0.16em] text-zinc-500">Creator signature</p>
+                                                <p className="mt-2 text-sm font-semibold text-white">{selectedCanonical.creatorSignatureStatus === "signature_signed" ? "Signed" : "Waiting for signature"}</p>
+                                            </div>
+                                            <div className="rounded-2xl border border-white/10 bg-black/20 p-3">
+                                                <p className="text-[10px] font-semibold uppercase tracking-[0.16em] text-zinc-500">Admin countersign</p>
+                                                <p className="mt-2 text-sm font-semibold text-white">{selectedCanonical.adminSignatureStatus === "signature_signed" ? "Countersigned" : "Not countersigned"}</p>
+                                            </div>
+                                            <div className="rounded-2xl border border-white/10 bg-black/20 p-3">
+                                                <p className="text-[10px] font-semibold uppercase tracking-[0.16em] text-zinc-500">Full document available</p>
+                                                <p className="mt-2 text-sm font-semibold text-white">{formatBoolean(Boolean(selectedCanonical.legalDocumentUrl || agreementTemplate?.fullDocumentAvailable || CREATOR_MASTER_SERVICE_AGREEMENT_SECTIONS.length > 0))}</p>
+                                            </div>
+                                            <div className="rounded-2xl border border-white/10 bg-black/20 p-3">
+                                                <p className="text-[10px] font-semibold uppercase tracking-[0.16em] text-zinc-500">Agreement hash available</p>
+                                                <p className="mt-2 text-sm font-semibold text-white">{formatBoolean(Boolean(selectedAgreementHash || agreementTemplate?.agreementHashAvailable))}</p>
+                                            </div>
+                                            <div className="rounded-2xl border border-white/10 bg-black/20 p-3">
+                                                <p className="text-[10px] font-semibold uppercase tracking-[0.16em] text-zinc-500">Source</p>
+                                                <p className="mt-2 text-sm font-semibold text-white">{formatAgreementSource(selectedAgreementSource)}</p>
+                                            </div>
+                                        </div>
+                                        <div className="flex flex-wrap gap-2">
+                                            <button type="button" onClick={handleViewAgreement} className="rounded-full border border-white/10 bg-black/35 px-4 py-2 text-sm font-semibold text-white">View agreement</button>
+                                            <button type="button" onClick={() => void handleCreatorAgreementAction("send_agreement")} disabled={agreementSaving === "send_agreement"} className="rounded-full bg-white px-4 py-2 text-sm font-bold text-black disabled:opacity-50">Send agreement</button>
+                                            <button type="button" onClick={() => void handleCreatorAgreementAction("send_updated_agreement")} disabled={agreementSaving === "send_updated_agreement"} className="rounded-full border border-brand-purple/40 bg-brand-purple/15 px-4 py-2 text-sm font-semibold text-white disabled:opacity-50">Send updated agreement</button>
+                                            <button type="button" onClick={() => void handleCreatorAgreementAction("countersign_agreement")} disabled={agreementSaving === "countersign_agreement" || selectedCanonical.creatorSignatureStatus !== "signature_signed"} className="rounded-full border border-white/10 bg-black/35 px-4 py-2 text-sm font-semibold text-white disabled:opacity-50">Countersign agreement</button>
                                         </div>
                                         <div className="rounded-2xl border border-white/10 bg-black/20 p-3">
                                             <p className="text-sm font-semibold text-white">Plain-language agreement summary</p>
                                             <div className="mt-3 space-y-2 text-sm leading-6 text-zinc-300">
-                                                {CREATOR_CONTRACT_SUMMARY_BULLETS.map((bullet) => <p key={bullet}>- {bullet}</p>)}
+                                                {(agreementTemplate?.summaryBullets?.length ? agreementTemplate.summaryBullets : CREATOR_CONTRACT_SUMMARY_BULLETS).map((bullet) => <p key={bullet}>- {bullet}</p>)}
                                             </div>
                                         </div>
+                                        {agreementPreviewOpen ? (
                                         <div className="rounded-2xl border border-white/10 bg-black/20 p-3">
                                             <p className="text-sm font-semibold text-white">Full MGSA</p>
                                             <div className="mt-3 space-y-3 text-sm leading-6 text-zinc-300">
@@ -792,6 +1100,7 @@ export default function AdminRosterPage() {
                                                 ))}
                                             </div>
                                         </div>
+                                        ) : null}
                                     </div>
                                 </details>
 

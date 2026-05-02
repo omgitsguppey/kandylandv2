@@ -2,6 +2,13 @@ import { NextRequest, NextResponse } from "next/server";
 
 import { CREATOR_MASTER_SERVICE_AGREEMENT_VERSION } from "@/lib/creator-contract";
 import {
+    CREATOR_AGREEMENT_DISPATCHES_SUBCOLLECTION,
+    CREATOR_AGREEMENT_SIGNATURES_SUBCOLLECTION,
+    buildCreatorAgreementDispatch,
+    buildCreatorAgreementSignature,
+    buildDefaultCreatorAgreementTemplate,
+} from "@/lib/creator-agreement-documents";
+import {
     buildCreatorOnboardingCanonicalRecord,
     normalizeCreatorOnboardingCanonicalRecord,
 } from "@/lib/creator-onboarding";
@@ -174,7 +181,56 @@ async function POST_handler(request: NextRequest) {
                 displayName: readString(latestUserData.displayName) || latestCanonical.creatorDisplayName,
                 canonical: nextCanonical,
             });
+            const template = {
+                ...buildDefaultCreatorAgreementTemplate(nowMs),
+                templateId: latestCanonical.agreementTemplateId || buildDefaultCreatorAgreementTemplate(nowMs).templateId,
+                agreementVersion: latestCanonical.contractVersion ?? CREATOR_MASTER_SERVICE_AGREEMENT_VERSION,
+                agreementTitle: latestCanonical.agreementTitle || buildDefaultCreatorAgreementTemplate(nowMs).agreementTitle,
+                agreementHash: latestCanonical.agreementHash || buildDefaultCreatorAgreementTemplate(nowMs).agreementHash,
+                agreementSource: latestCanonical.agreementSource || buildDefaultCreatorAgreementTemplate(nowMs).agreementSource,
+            };
+            const dispatch = buildCreatorAgreementDispatch({
+                userId: caller.uid,
+                sentByUid: "admin",
+                template,
+                sentAt: latestCanonical.legalDocumentSentAt ?? nowMs,
+                dispatchId: latestCanonical.agreementDispatchId,
+                status: "signed",
+            });
+            const signature = buildCreatorAgreementSignature({
+                dispatch,
+                signerUid: caller.uid,
+                signerName: signatureName,
+                signerEmail: caller.email,
+                signedAt: nowMs,
+                signerIp: signatureIp,
+                signerUserAgent: signatureUserAgent,
+                acknowledgementValues: {
+                    creatorSignature: true,
+                    route: "/api/creator/onboarding/contract-signature",
+                },
+            });
 
+            transaction.set(
+                onboardingRef.collection(CREATOR_AGREEMENT_DISPATCHES_SUBCOLLECTION).doc(dispatch.dispatchId),
+                latestCanonical.agreementDispatchId
+                    ? {
+                        status: "signed",
+                        agreementVersion: dispatch.agreementVersion,
+                        templateId: dispatch.templateId,
+                        agreementHash: dispatch.agreementHash,
+                    }
+                    : {
+                        ...dispatch,
+                        status: "signed",
+                    },
+                { merge: true },
+            );
+            transaction.set(
+                onboardingRef.collection(CREATOR_AGREEMENT_SIGNATURES_SUBCOLLECTION).doc(`creator_${dispatch.dispatchId}`),
+                signature,
+                { merge: false },
+            );
             transaction.set(
                 onboardingRef.collection(CREATOR_ONBOARDING_HISTORY_SUBCOLLECTION).doc(`creator_contract_signed_${nowMs}`),
                 {
@@ -185,7 +241,11 @@ async function POST_handler(request: NextRequest) {
                     timestamp: nowMs,
                     summary: "Creator signed the agreement",
                     metadata: {
-                        contractVersion: CREATOR_MASTER_SERVICE_AGREEMENT_VERSION,
+                        contractVersion: dispatch.agreementVersion,
+                        agreementVersion: dispatch.agreementVersion,
+                        agreementHash: dispatch.agreementHash,
+                        templateId: dispatch.templateId,
+                        dispatchId: dispatch.dispatchId,
                         signatureName,
                         ...buildActorMarkerDebugFields(actorMarker),
                     },
@@ -199,10 +259,13 @@ async function POST_handler(request: NextRequest) {
 
         await trackServerEvent("creator_contract_signed", {
             page_path: "/creators/waitlist",
-            contract_version: CREATOR_MASTER_SERVICE_AGREEMENT_VERSION,
+            contract_version: result.creatorApplication.contractVersion ?? CREATOR_MASTER_SERVICE_AGREEMENT_VERSION,
             onboarding_status: result.creatorApplication.submissionStatus,
             legal_status: result.creatorApplication.legalStatus,
-            agreement_version: CREATOR_MASTER_SERVICE_AGREEMENT_VERSION,
+            agreement_version: result.creatorApplication.contractVersion ?? CREATOR_MASTER_SERVICE_AGREEMENT_VERSION,
+            agreement_hash: result.creatorApplication.agreementHash ?? "",
+            template_id: result.creatorApplication.agreementTemplateId ?? "",
+            dispatch_id: result.creatorApplication.agreementDispatchId ?? "",
             ...actorMarkerToTelemetryPayload(actorMarker),
         }, caller.uid).catch(() => undefined);
 

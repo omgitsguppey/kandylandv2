@@ -34,6 +34,8 @@ The canonical onboarding/projection state includes:
 
 Age or review state should not erase these fields. Existing canonical onboarding and queue projections must preserve them.
 
+The active agreement template is also seeded at intake/onboarding creation time. New creators carry the active agreement version, template id, title, hash, and source on the existing creator onboarding canonical record. Updating the active agreement later must create a new dispatch for affected creators instead of mutating prior signed evidence.
+
 ## Telemetry
 
 The creator intake emits:

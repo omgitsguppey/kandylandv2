@@ -9,6 +9,15 @@ Scoring: all entries below are marked as included in the current validated sweep
 
 Current repo-wide state snapshot: see [FULL_SCALE_CODEBASE_AUDIT.md](/Users/uylus/OneDrive/Documents/KandyDrops_Final/FULL_SCALE_CODEBASE_AUDIT.md) for the current live baseline, verification state, and continuity rules, and see [REPO_MEMORY_LEDGER.md](/Users/uylus/OneDrive/Documents/KandyDrops_Final/REPO_MEMORY_LEDGER.md) for major architectural and workflow decisions. The detailed file/function body below remains valuable historical evidence, but it has not been fully regenerated against the current 2026-04-18 inventory review yet.
 
+## 2026-05-02 Creator Agreement Document Manager Coverage
+
+- [x] `src/lib/creator-agreement-documents.ts`, `src/lib/server/creator-agreement-templates.ts`, and `src/lib/server/creator-agreement-documents.ts` own the versioned agreement template, active-template lookup, creator dispatch, signature evidence, supersede, countersign, Debug metadata, and server diagnostic contract.
+- [x] `src/app/api/admin/creator-agreements/route.ts` provides guarded admin create/activate/send/update/countersign actions with trusted-origin admin guard, owner-only template activation, actor-marked telemetry, upload hashing, and signed admin preview download.
+- [x] `src/app/api/creator/onboarding/agreement-document/route.ts` provides the creator-scoped uploaded source view without exposing raw Storage paths or allowing cross-user access.
+- [x] `src/lib/creator-onboarding.ts`, `src/lib/server/creator-onboarding.ts`, `src/types/db.ts`, and `src/app/api/creator/onboarding/contract-signature/route.ts` persist active agreement version/hash/source/template/dispatch fields and bind creator/admin signature evidence to the same dispatch.
+- [x] `src/app/admin/roster/page.tsx`, `src/app/admin/roster/decision-queue.ts`, and `src/app/api/admin/roster/route.ts` surface the collapsed `Agreement document` and `Agreement templates` manager, preserve mobile-first decision queue behavior, and serialize agreement metadata without raw storage paths.
+- [x] `scripts/agent/validate-creator-agreement-document-manager.ts`, `tests/unit/creator-agreement-documents.spec.ts`, `tests/unit/admin-creator-agreements-route.spec.ts`, `tests/unit/creator-contract-signature-route.spec.ts`, and `docs/agent-truth/creator-agreement-document-manager.md` validate the targeted launch contract.
+
 ## 2026-05-02 Creator Intake Flow Coverage
 
 - [x] `src/lib/creator-intake-flow.ts` owns the five-step creator intake model, option sets, sanitizer, recommended setup mapping, intake metadata defaults, and creator-intake telemetry payload shape.

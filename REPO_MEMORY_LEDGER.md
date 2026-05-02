@@ -4,6 +4,10 @@ Status: Canonical repository-memory and architecture-decision ledger
 Last refreshed: 2026-05-02
 Repo: `C:\Users\uylus\OneDrive\Documents\KandyDrops_Final`
 
+## 2026-05-02 Creator agreement document manager
+
+The creator agreement document manager is now the launch path for creator agreement source, dispatch, signature, and countersign evidence. Templates are versioned in `creator_agreement_templates`; active template metadata seeds creator onboarding canonical fields; creator-specific dispatches live under creator onboarding; signature evidence stores matching `agreementVersion`, `templateId`, `agreementHash`, and `dispatchId`. Admin Roster exposes collapsed `Agreement document` and `Agreement templates` sections without raw storage paths. Do not mutate prior signed records when a new template becomes active; send an updated agreement dispatch instead.
+
 ## 2026-05-02 Creator Intake Flow
 
 Creator-facing intake is a five-step guided mobile flow, not a technical application form. The canonical contract is `src/lib/creator-intake-flow.ts`; UI rendering is `src/components/Auth/CreatorIntakeFlow.tsx`; registration still posts through `/api/user/register` and `ensureCreatorOnboardingSubmission`. New intake fields live on the existing creator onboarding canonical/projection state: `creatorMonetizationGoals`, `creatorFollowerRange`, `creatorPostingFrequency`, `fansAlreadyAskForAccess`, `creatorRecommendedSetup`, `intakeVersion`, `intakeSubmittedAt`, and `intakeSource: creator_site`. Do not create a parallel intake collection or expose legal/compliance machinery before the agreement step.

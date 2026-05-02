@@ -9,6 +9,7 @@ import {
   formatIdStatus,
   formatIntakeStatus,
   ROSTER_DECISION_TABS,
+  ROSTER_DETAIL_SECTION_KEYS,
 } from "@/app/admin/roster/decision-queue";
 
 const baseEntry = {
@@ -33,6 +34,9 @@ describe("admin roster decision queue helpers", () => {
       "Approved",
       "Create",
     ]);
+    expect(ROSTER_DETAIL_SECTION_KEYS).toContain("agreement_document");
+    expect(ROSTER_DETAIL_SECTION_KEYS).toContain("agreement_templates");
+    expect(ROSTER_DETAIL_SECTION_KEYS).not.toContain("agreement_record");
   });
 
   it("classifies creator records by next decision", () => {

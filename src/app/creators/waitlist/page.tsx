@@ -244,6 +244,7 @@ export default function CreatorWaitlistPage() {
     const contractReady = creatorApplication?.contractDocumentStatus === "contract_sent";
     const creatorContractSigned = creatorApplication?.creatorSignatureStatus === "signature_signed";
     const adminCountersigned = creatorApplication?.adminSignatureStatus === "signature_signed";
+    const hasUploadedAgreementDocument = creatorApplication?.agreementSource === "uploaded_pdf_snapshot" || creatorApplication?.agreementSource === "hybrid";
     const currentAction = creatorApplication
         ? statusSummary.stage === "Approved"
             ? {
@@ -802,12 +803,27 @@ export default function CreatorWaitlistPage() {
                             <p className="mt-3 text-sm leading-6 text-gray-400">
                                 Review the summary, then sign the full in-app agreement when it unlocks.
                             </p>
+                            <div className="mt-4 grid gap-3 sm:grid-cols-2">
+                                <div className="rounded-[1.3rem] border border-white/10 bg-black/25 p-3">
+                                    <p className="text-[11px] font-semibold uppercase tracking-[0.18em] text-gray-500">Agreement version</p>
+                                    <p className="mt-2 text-sm font-semibold text-white">{creatorApplication.contractVersion || "Version pending"}</p>
+                                </div>
+                                <div className="rounded-[1.3rem] border border-white/10 bg-black/25 p-3">
+                                    <p className="text-[11px] font-semibold uppercase tracking-[0.18em] text-gray-500">Document title</p>
+                                    <p className="mt-2 text-sm font-semibold text-white">{creatorApplication.agreementTitle || "KandyDrops Creator Service Agreement"}</p>
+                                </div>
+                            </div>
                             <div className="mt-4 rounded-[1.3rem] border border-white/10 bg-black/25 p-3">
                                 <p className="text-[11px] font-semibold uppercase tracking-[0.18em] text-gray-500">Plain-language summary</p>
                                 <div className="mt-3 space-y-2 text-sm leading-6 text-gray-300">
                                     {CREATOR_CONTRACT_SUMMARY_BULLETS.map((bullet) => <p key={bullet}>- {bullet}</p>)}
                                 </div>
                             </div>
+                            {hasUploadedAgreementDocument ? (
+                                <a href="/api/creator/onboarding/agreement-document" target="_blank" rel="noreferrer" className="mt-4 inline-flex rounded-full border border-white/10 bg-black/25 px-4 py-2 text-sm font-semibold text-white transition-colors hover:border-white/20">
+                                    View full agreement document
+                                </a>
+                            ) : null}
                             <details className="mt-4 rounded-[1.3rem] border border-white/10 bg-black/25 p-3">
                                 <summary className="cursor-pointer text-sm font-semibold text-white">Read the full MGSA</summary>
                                 <div className="mt-3 space-y-3 text-sm leading-6 text-gray-300">

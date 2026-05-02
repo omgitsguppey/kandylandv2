@@ -11,6 +11,7 @@ import {
 import { adminDb } from "@/lib/server/firebase-admin";
 import { normalizeCreatorApplication, resolveCreatorQueuePosition } from "@/lib/creator-application";
 import { CREATOR_INTAKE_STEPS, type CreatorIntakeFields } from "@/lib/creator-intake-flow";
+import { getActiveCreatorAgreementTemplate } from "@/lib/server/creator-agreement-templates";
 import {
     buildCreatorOnboardingCanonicalRecord,
     buildCreatorOnboardingUserProjection,
@@ -422,6 +423,7 @@ export async function ensureCreatorOnboardingSubmission(input: {
         role: input.role === "creator" ? "creator" : "user",
         label: readString(input.displayName) || readString(input.username) || input.userId,
     };
+    const activeAgreementTemplate = await getActiveCreatorAgreementTemplate(nowMs);
 
     return adminDb.runTransaction(async (transaction) => {
         const [userSnap, onboardingSnap] = await transaction.getAll(userRef, onboardingRef);
@@ -468,6 +470,11 @@ export async function ensureCreatorOnboardingSubmission(input: {
                 awaitingManualReviewAt: nowMs,
                 updatedAt: nowMs,
                 idVerificationStatus: "id_not_requested",
+                contractVersion: activeAgreementTemplate.agreementVersion,
+                agreementTemplateId: activeAgreementTemplate.templateId,
+                agreementTitle: activeAgreementTemplate.agreementTitle,
+                agreementHash: activeAgreementTemplate.agreementHash,
+                agreementSource: activeAgreementTemplate.agreementSource,
             },
         });
 

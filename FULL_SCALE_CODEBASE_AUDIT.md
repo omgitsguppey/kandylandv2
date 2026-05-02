@@ -1,5 +1,39 @@
 # KandyDrops Core Codebase Audit & Defensive Ledger
 
+## [2026-05-02 #97] PRE: Creator Agreement Document Manager
+
+Scope started:
+- Adding a targeted creator agreement document/version manager inside Admin Roster so admins can manage the active creator agreement template, send updated agreements to selected creators, and preserve dispatch/signature evidence.
+- Required outputs: versioned agreement template/dispatch/signature contract, Admin Roster collapsed agreement document/template controls, audit history and telemetry for agreement lifecycle, `scripts/agent/validate-creator-agreement-document-manager.ts`, focused tests, `docs/agent-truth/creator-agreement-document-manager.md`, related creator intake/Admin Roster docs, governance ledger updates, commit, and push.
+- This pass is targeted. It must not hardcode binary PDFs into code, create a parallel creator onboarding source of truth, mutate prior signed records when a template changes, expose raw storage paths in visible UI, redesign Admin Roster, or alter payment/economy flows.
+
+Initial evidence:
+- Worktree was clean at startup on `main`.
+- Control tower routing, source-of-truth map, shared component ownership, preflight/postflight checklists, doctrine consultation workflow, product/copy/UI/surface/vocabulary/anti-pattern/cloud doctrine, and current creator identity/Admin Roster/creator intake ledgers were consulted.
+- Source truth remains runtime code first: `src/lib/creator-contract.ts`, `src/lib/creator-onboarding.ts`, server creator onboarding helpers/routes, `src/app/api/admin/roster/route.ts`, `src/app/admin/roster/page.tsx`, and `src/lib/identity/actor-markers.ts`.
+
+Scope completed:
+- Added versioned agreement template, dispatch, and signature contracts plus server helpers for active-template lookup, activation, creator-specific dispatch, update supersede, countersign, Debug fields, and diagnostics.
+- Added guarded Admin agreement route actions for template create/activate, agreement send/update send, countersign, and signed admin preview download. Template activation is owner-only; all state-changing actions use admin auth and trusted origin.
+- Seeded active agreement version/hash/template/source into new creator onboarding records, preserved those fields through projections, and tied creator signature evidence to dispatch/version/hash/template.
+- Updated Admin Roster with collapsed `Agreement document` and `Agreement templates` sections, send updated agreement action, template upload/replace controls, active preview, debug metadata, and no visible raw storage paths.
+- Added creator-scoped uploaded agreement document route so creators can view the sent uploaded source for their own version/hash without exposing Storage paths.
+- Cataloged admin agreement lifecycle telemetry, created `docs/agent-truth/creator-agreement-document-manager.md`, updated creator intake/Admin Roster/identity docs, updated governance ledgers, added the targeted validation script, and added focused helper/route/signature tests.
+
+Verification:
+- `npm run check:creator-agreement-document-manager`
+- `npx vitest run tests/unit/creator-agreement-documents.spec.ts tests/unit/admin-creator-agreements-route.spec.ts tests/unit/creator-contract-signature-route.spec.ts tests/unit/admin-roster-decision-queue.spec.ts`
+- `npx tsc --noEmit --pretty false`
+- `npm run check:admin-roster-decision-queue`
+- `npm run check:security-role-boundaries`
+- `npm run check:creator-identity-markers`
+- `npm run check:creator-intake-flow`
+- `npm run check:event-catalog-telemetry`
+- `git diff --check`
+
+Residual risk:
+- The uploaded document source is versioned and protected, but a full browser visual audit of the Admin Roster mobile layout was not yet run in this pass.
+
 ## [2026-05-02 #96] PRE: Creator Intake Flow Refactor
 
 Scope started:

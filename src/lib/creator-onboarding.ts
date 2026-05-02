@@ -52,6 +52,7 @@ import {
     type CreatorPostingFrequency,
     type CreatorRecommendedSetup,
 } from "@/lib/creator-intake-flow";
+import type { CreatorAgreementDispatchStatus, CreatorAgreementSource } from "@/lib/creator-agreement-documents";
 
 export const CREATOR_ONBOARDING_SUBMISSION_STATUSES = [
     "onboarding_started",
@@ -147,6 +148,8 @@ const HISTORY_EVENT_TYPE_SET = new Set<CreatorOnboardingHistoryEventType>([
     "creator_role_activated",
     "creator_role_activation_blocked",
     "admin_notes_updated",
+    "agreement_template_activated",
+    "agreement_update_sent",
 ]);
 
 export type LegacyCreatorApplicationSnapshot = {
@@ -217,6 +220,12 @@ export type CreatorOnboardingProjectionState = {
     introAcknowledgedByName?: string;
     legalStatus: CreatorOnboardingLegalStatus;
     contractVersion?: string;
+    agreementTemplateId?: string;
+    agreementTitle?: string;
+    agreementHash?: string;
+    agreementSource?: CreatorAgreementSource;
+    agreementDispatchId?: string;
+    agreementDispatchStatus?: CreatorAgreementDispatchStatus;
     contractDocumentStatus: CreatorContractDocumentStatus;
     creatorSignatureStatus: CreatorContractSignatureStatus;
     adminSignatureStatus: CreatorContractSignatureStatus;
@@ -310,6 +319,12 @@ export type CreatorReviewQueueEntry = {
     contractDocumentStatus: CreatorContractDocumentStatus;
     creatorSignatureStatus: CreatorContractSignatureStatus;
     adminSignatureStatus: CreatorContractSignatureStatus;
+    agreementTemplateId?: string;
+    agreementTitle?: string;
+    agreementHash?: string;
+    agreementSource?: CreatorAgreementSource;
+    agreementDispatchId?: string;
+    agreementDispatchStatus?: CreatorAgreementDispatchStatus;
     introAcknowledgedAt?: number;
     agreementBasis?: CreatorOnboardingAgreementBasis;
     legallyClearedAt?: number;
@@ -362,7 +377,9 @@ export type CreatorOnboardingHistoryEventType =
     | "creator_legally_cleared"
     | "creator_role_activated"
     | "creator_role_activation_blocked"
-    | "admin_notes_updated";
+    | "admin_notes_updated"
+    | "agreement_template_activated"
+    | "agreement_update_sent";
 
 export type CreatorOnboardingHistoryEntry = {
     eventType: CreatorOnboardingHistoryEventType;
@@ -453,6 +470,22 @@ function normalizeContractSignatureStatus(
     }
 
     return "signature_pending" satisfies CreatorContractSignatureStatus;
+}
+
+function normalizeAgreementSource(value: unknown): CreatorAgreementSource | undefined {
+    if (value === "native_full_text" || value === "uploaded_pdf_snapshot" || value === "hybrid") {
+        return value;
+    }
+
+    return undefined;
+}
+
+function normalizeAgreementDispatchStatus(value: unknown): CreatorAgreementDispatchStatus | undefined {
+    if (value === "sent" || value === "viewed" || value === "signed" || value === "superseded") {
+        return value;
+    }
+
+    return undefined;
 }
 
 function readString(value: unknown) {
@@ -1327,6 +1360,12 @@ export function buildCreatorOnboardingProjectionState(input: {
         introAcknowledgedByName: readString(sourceRecord?.["introAcknowledgedByName"]) || undefined,
         legalStatus,
         contractVersion: readString(sourceRecord?.["contractVersion"]) || CREATOR_MASTER_SERVICE_AGREEMENT_VERSION,
+        agreementTemplateId: readString(sourceRecord?.["agreementTemplateId"]) || undefined,
+        agreementTitle: readString(sourceRecord?.["agreementTitle"]) || undefined,
+        agreementHash: readString(sourceRecord?.["agreementHash"]) || undefined,
+        agreementSource: normalizeAgreementSource(sourceRecord?.["agreementSource"]),
+        agreementDispatchId: readString(sourceRecord?.["agreementDispatchId"]) || undefined,
+        agreementDispatchStatus: normalizeAgreementDispatchStatus(sourceRecord?.["agreementDispatchStatus"]),
         contractDocumentStatus,
         creatorSignatureStatus,
         adminSignatureStatus,
@@ -1428,6 +1467,12 @@ export function buildCreatorOnboardingUserProjection(
         introAcknowledgedByName: canonical.introAcknowledgedByName,
         legalStatus: canonical.legalStatus,
         contractVersion: canonical.contractVersion,
+        agreementTemplateId: canonical.agreementTemplateId,
+        agreementTitle: canonical.agreementTitle,
+        agreementHash: canonical.agreementHash,
+        agreementSource: canonical.agreementSource,
+        agreementDispatchId: canonical.agreementDispatchId,
+        agreementDispatchStatus: canonical.agreementDispatchStatus,
         contractDocumentStatus: canonical.contractDocumentStatus,
         creatorSignatureStatus: canonical.creatorSignatureStatus,
         adminSignatureStatus: canonical.adminSignatureStatus,
@@ -1663,6 +1708,12 @@ export function buildCreatorReviewQueueEntry(input: {
         contractDocumentStatus: canonical.contractDocumentStatus,
         creatorSignatureStatus: canonical.creatorSignatureStatus,
         adminSignatureStatus: canonical.adminSignatureStatus,
+        agreementTemplateId: canonical.agreementTemplateId,
+        agreementTitle: canonical.agreementTitle,
+        agreementHash: canonical.agreementHash,
+        agreementSource: canonical.agreementSource,
+        agreementDispatchId: canonical.agreementDispatchId,
+        agreementDispatchStatus: canonical.agreementDispatchStatus,
         introAcknowledgedAt: canonical.introAcknowledgedAt,
         ownerOverrideActive: canonical.ownerOverrideActive,
         readyForApproval: canonical.readyForApproval,
