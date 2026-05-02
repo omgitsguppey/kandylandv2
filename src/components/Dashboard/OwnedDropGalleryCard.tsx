@@ -4,8 +4,9 @@ import NextImage from "next/image";
 import { Drop } from "@/types/db";
 import { cn } from "@/lib/utils";
 import { getAspectRatioCssValue, getDropMediaSummary, getSupportedDropAspectRatio } from "@/lib/drop-presentation";
+import { resolvePublicDropCoverSrc } from "@/lib/drop-media-fallback";
 import { Lock, Unlock, Image as ImageIcon, Film } from "lucide-react";
-import { useMemo } from "react";
+import { useEffect, useMemo, useState } from "react";
 import { trackEvent } from "@/lib/telemetry";
 
 interface OwnedDropGalleryCardProps {
@@ -17,6 +18,12 @@ interface OwnedDropGalleryCardProps {
 export function OwnedDropGalleryCard({ drop, isUnlocked, onOpen }: OwnedDropGalleryCardProps) {
     const ratio = getSupportedDropAspectRatio(drop);
     const ratioStyle = { aspectRatio: getAspectRatioCssValue(ratio) };
+    const [imageError, setImageError] = useState(false);
+    const coverSrc = imageError ? resolvePublicDropCoverSrc(null) : resolvePublicDropCoverSrc(drop.imageUrl);
+
+    useEffect(() => {
+        setImageError(false);
+    }, [drop.imageUrl]);
 
     const fileCounts = useMemo(() => {
         const summary = getDropMediaSummary(drop);
@@ -43,17 +50,14 @@ export function OwnedDropGalleryCard({ drop, isUnlocked, onOpen }: OwnedDropGall
                 )}
                 style={ratioStyle}
             >
-                {drop.imageUrl ? (
-                    <NextImage
-                        src={drop.imageUrl}
-                        alt={drop.title}
-                        fill
-                        className="object-cover"
-                        sizes="(max-width: 640px) 50vw, (max-width: 768px) 33vw, 25vw"
-                    />
-                ) : (
-                    <div className="h-full w-full flex items-center justify-center text-3xl">🍬</div>
-                )}
+                <NextImage
+                    src={coverSrc}
+                    alt={drop.title}
+                    fill
+                    className="object-cover"
+                    sizes="(max-width: 640px) 50vw, (max-width: 768px) 33vw, 25vw"
+                    onError={() => setImageError(true)}
+                />
 
                 {/* File Count Chip */}
                 {(fileCounts.images > 0 || fileCounts.videos > 0) && (

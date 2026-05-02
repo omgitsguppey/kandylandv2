@@ -14,6 +14,12 @@ import { withRouteRuntimeHealth } from "@/lib/server/route-runtime-health";
 import { buildNotFoundResponse } from "@/lib/server/not-found";
 
 const DROPS_CONTENT_PREFIX = "drops/";
+const MAX_ADMIN_DROP_ASSET_BYTES = 250 * 1024 * 1024;
+const ALLOWED_ADMIN_DROP_ASSET_TYPES = new Set([
+    "application/pdf",
+    "application/zip",
+    "application/x-zip-compressed",
+]);
 
 function isSafeDropsContentPath(fullPath: string) {
     return fullPath.startsWith(DROPS_CONTENT_PREFIX)
@@ -80,12 +86,24 @@ async function POST_handler(request: NextRequest) {
         if (!(file instanceof File)) {
             return NextResponse.json({ error: "Missing upload file" }, { status: 400 });
         }
+        if (file.size > MAX_ADMIN_DROP_ASSET_BYTES) {
+            return NextResponse.json({ error: "File exceeds upload limit" }, { status: 400 });
+        }
+        const contentType = file.type || "application/octet-stream";
+        if (
+            !contentType.startsWith("image/")
+            && !contentType.startsWith("video/")
+            && !contentType.startsWith("audio/")
+            && !ALLOWED_ADMIN_DROP_ASSET_TYPES.has(contentType)
+        ) {
+            return NextResponse.json({ error: "Unsupported drop asset type" }, { status: 400 });
+        }
 
         const fullPath = `${DROPS_CONTENT_PREFIX}${Date.now()}_${sanitizeStorageFileName(file.name)}`;
         const storageFile = adminStorage.bucket().file(fullPath);
         await storageFile.save(Buffer.from(await file.arrayBuffer()), {
             resumable: false,
-            contentType: file.type || "application/octet-stream",
+            contentType,
         });
 
         const [metadata] = await storageFile.getMetadata();

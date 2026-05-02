@@ -1,5 +1,32 @@
 # KandyDrops Core Codebase Audit & Defensive Ledger
 
+## [2026-05-01 #86] PRE: Content Media Pipeline Launch Audit
+
+Scope started:
+- Auditing launch content/media access paths: Drop covers/previews, protected Drop content, viewer assets, thumbnails, creator profile media, owned library, admin/creator uploads, storage helpers, image fallback behavior, storage rules, deletion/archive posture, and route guards.
+- Required outputs: `agent/state/content-media-pipeline-audit.generated.json`, `docs/agent-truth/content-media-pipeline.md`, validator/script/package wiring, targeted tests, governance ledger updates, commit, and push.
+- Fixes are limited to verified launch-critical content leaks, missing media fallback contracts, route guard gaps, or regression-gate gaps; no page redesign, broad refactor, payment/economy change, or new media feature is in scope.
+
+Initial evidence:
+- Worktree was clean at startup on `main`.
+- Control tower routing, doctrine consultation workflow, source-of-truth map, shared component ownership, product/copy/UI/surface/vocabulary/banned-pattern/cloud doctrine, security role-boundary doctrine, and protected content/viewer adjacency traces were consulted.
+- Initial storage/firestore inspection shows direct client reads for raw Drop documents and `storage:drops/**` are denied; protected asset reads are expected to go through `/api/drops/content`.
+
+Scope completed:
+- Created `agent/state/content-media-pipeline-audit.generated.json`, `docs/agent-truth/content-media-pipeline.md`, and `scripts/agent/validate-content-media-pipeline.ts` with `npm run check:content-media-pipeline`.
+- Audited protected content proxy, public Drop/creator profile payloads, viewer proxy fetch path, owned library filtering, Drop card and viewer cover fallbacks, admin/creator upload routes, Storage rules, thumbnail ordering, and expired/archive media posture.
+- Fixed verified launch-critical gaps: public creator profile Drops are sanitized before returning to clients, content proxy entitlement also accepts server-written unlock timestamps, admin content upload now validates type/size, and Drop card/owned/viewer media surfaces share a current public-safe cover fallback with broken-image recovery.
+- Added targeted tests for public creator media safety, locked/unlocked content access, timestamp entitlement, admin upload type rejection, and viewer sanitization coverage.
+
+Verification:
+- `npm run check:content-media-pipeline`
+- `npx vitest run tests/unit/drops-content-route.spec.ts tests/unit/creator-profile-route.spec.ts tests/unit/admin-content-route.spec.ts tests/unit/dashboard-viewer-page.spec.tsx tests/unit/creator-drops-assets-route.spec.ts`
+- `npm run typecheck`
+- `git diff --check` (passed; line-ending warnings only)
+
+Residual risk:
+- This pass did not add automated Storage object purge or archive lifecycle jobs. Expired/archived behavior is documented: public Drop retrieval hides invalid/unapproved Drops, owned/viewer access remains server-entitlement-gated while the asset exists, and deletion of objects intentionally makes the proxy unavailable.
+
 ## [2026-05-01 #85] PRE: Design System Drift Launch Audit
 
 Scope started:

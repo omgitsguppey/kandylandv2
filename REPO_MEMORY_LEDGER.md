@@ -24,6 +24,16 @@ This file is not a changelog. It is the concise ledger for durable decisions tha
 
 ## Decision Entries
 
+### 1cp. Content/media launch gate is server-mediated and public-safe
+
+- Approximate date: Recorded explicitly on 2026-05-01 from the content and media pipeline launch audit
+- Status: Active launch content, media, storage, viewer entitlement, and upload-validation rule
+- Decision: Protected Drop content must never be exposed through public payloads or direct client Storage access. Public surfaces may show cover, preview, thumbnail, creator avatar, and creator banner media only after protected `contentUrl`/`contentUrls` are sanitized away. Unlock/viewer content bytes are served through the guarded `/api/drops/content` proxy.
+- Implementation: `agent/state/content-media-pipeline-audit.generated.json` records protected content proxy, public creator profile, Drop cards, owned library, viewer, storage rules, upload validation, expired/archive, thumbnail order, docs, and validation lanes. `docs/agent-truth/content-media-pipeline.md` documents the rule. `scripts/agent/validate-content-media-pipeline.ts` and `npm run check:content-media-pipeline` enforce the gate.
+- Launch-critical fixes: the public creator profile route now sanitizes Drop payloads before returning Drops, the content proxy accepts server-written unlock timestamps as entitlement evidence, admin content upload now validates file size/type, and Drop/owned/viewer cover fallbacks use the current `/candy-3d-glass.png` asset instead of missing placeholders.
+- Required validation: `npm run check:content-media-pipeline`, focused content/viewer/creator/admin-content tests, touched-file TypeScript, Firebase Storage rules tests when `storage.rules` changes, and `git diff --check`.
+- Consequence for future work: Do not return raw Drop `contentUrl`/`contentUrls` from public routes, use public Storage reads for protected content, trust client entitlement state as the access boundary, add missing placeholder image paths, or accept arbitrary upload types without a server guard and validator update.
+
 ### 1co. Design system drift is launch-gated
 
 - Approximate date: Recorded explicitly on 2026-05-01 from the design system drift launch audit

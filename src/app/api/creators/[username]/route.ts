@@ -8,6 +8,7 @@ import { guardApiRequest } from "@/lib/server/request-guard";
 import { buildNotFoundResponse } from "@/lib/server/not-found";
 import { recordRouteWarning } from "@/lib/server/route-diagnostics";
 import { isCreatorRole, normalizeCreatorSettings } from "@/lib/creator-experiences";
+import { sanitizeDropForClient } from "@/lib/server/drops";
 import { withRouteRuntimeHealth } from "@/lib/server/route-runtime-health";
 
 async function GET_handler(
@@ -75,7 +76,7 @@ async function GET_handler(
         const drops = dropsSnapshot.docs.flatMap((doc) => {
             const normalized = normalizeAndApplyDropStatusOrNull(doc.data(), doc.id, nowMs);
             return normalized && normalized.status === "active" && !isDropHiddenFromPublic(normalized)
-                ? [normalized]
+                ? [sanitizeDropForClient(normalized)]
                 : [];
         }).sort((left, right) => right.validFrom - left.validFrom);
 

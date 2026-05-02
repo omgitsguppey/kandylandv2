@@ -68,6 +68,7 @@
         "check:pwa-service-worker": "tsx scripts/agent/validate-pwa-service-worker.ts",
         "check:accessibility-tap-targets": "tsx scripts/agent/validate-accessibility-tap-targets.ts",
         "check:design-system-drift": "tsx scripts/agent/validate-design-system-drift.ts",
+        "check:content-media-pipeline": "tsx scripts/agent/validate-content-media-pipeline.ts",
         "check:admin-analytics-snapshot-migration": "tsx scripts/agent/validate-admin-analytics-snapshot-migration.ts",
         "check:admin-analytics-no-pure-realtime": "tsx scripts/agent/validate-admin-analytics-no-pure-realtime.ts",
         "check:admin-analytics-finalization": "tsx scripts/agent/validate-admin-analytics-finalization.ts",

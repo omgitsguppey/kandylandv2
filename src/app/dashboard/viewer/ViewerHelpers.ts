@@ -1,5 +1,6 @@
 import { Drop } from "@/types/db";
 import { authFetch } from "@/lib/authFetch";
+import { resolvePublicDropCoverSrc } from "@/lib/drop-media-fallback";
 
 export type ContentKind = "video" | "audio" | "image" | "pdf" | "unknown";
 
@@ -212,7 +213,7 @@ export function getThumbnailFallback(drop: Drop): ThumbnailItem {
     const fallbackResolved = resolveContent(drop.fileMetadata?.type || "", drop.fileMetadata?.type);
 
     return {
-        src: drop.imageUrl,
+        src: resolvePublicDropCoverSrc(drop.imageUrl),
         kind: fallbackResolved.kind === "unknown" ? "image" : fallbackResolved.kind,
     };
 }

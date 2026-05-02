@@ -12,6 +12,7 @@ import { buildNotFoundResponse } from "@/lib/server/not-found";
 
 const userContentSchema = z.object({
   unlockedContent: z.array(z.string()).default([]),
+  unlockedContentTimestamps: z.record(z.string(), z.unknown()).default({}),
 });
 
 /**
@@ -76,7 +77,8 @@ export async function GET(request: NextRequest) {
     const creatorId = typeof dropData.creatorId === "string" ? dropData.creatorId : "";
     const userData = userContentSchema.parse(userSnap.data());
     const ownsDrop = creatorId === caller.uid;
-    const hasUnlockedDrop = userData.unlockedContent.includes(dropId);
+    const hasUnlockedDrop = userData.unlockedContent.includes(dropId)
+      || Object.prototype.hasOwnProperty.call(userData.unlockedContentTimestamps, dropId);
     if (!ownsDrop && !hasUnlockedDrop) {
       return finalize(NextResponse.json({ error: "You do not own this content" }, { status: 403 }));
     }

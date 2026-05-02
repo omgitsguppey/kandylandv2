@@ -52,6 +52,7 @@ function DropCardBase({
     const [unlocking, setUnlocking] = useState(false);
     const [confirming, setConfirming] = useState(false);
     const [imageLoaded, setImageLoaded] = useState(false);
+    const [imageError, setImageError] = useState(false);
     const [error, setError] = useState<string | null>(null);
     const cardRef = useRef<HTMLDivElement | null>(null);
     const resolvedRatio = aspectRatio ?? getSupportedDropAspectRatio(drop);
@@ -64,6 +65,11 @@ function DropCardBase({
         }
         return () => clearTimeout(timeout);
     }, [confirming]);
+
+    useEffect(() => {
+        setImageError(false);
+        setImageLoaded(false);
+    }, [drop.imageUrl]);
 
     useDropCardImpression({
         cardRef,
@@ -252,7 +258,12 @@ function DropCardBase({
             ctaButton={ctaButton}
             error={error}
             imageLoaded={imageLoaded}
+            imageError={imageError}
             onImageLoaded={() => setImageLoaded(true)}
+            onImageError={() => {
+                setImageError(true);
+                setImageLoaded(true);
+            }}
             onPreviewOpen={handlePreviewOpen}
         />
     );

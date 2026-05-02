@@ -7,6 +7,7 @@ import { AlertCircle, Eye } from "lucide-react";
 import { DropCardBadge, DropCardTimer, FileCountChip } from "@/components/DropCardParts";
 import { TitleMarquee } from "@/components/ui/TitleMarquee";
 import { cn } from "@/lib/utils";
+import { resolvePublicDropCoverSrc } from "@/lib/drop-media-fallback";
 import type { SupportedAspectRatio } from "@/lib/drop-presentation";
 import type { Drop } from "@/types/db";
 
@@ -22,7 +23,9 @@ interface DropCardLayoutProps {
     ctaButton: ReactNode;
     error: string | null;
     imageLoaded: boolean;
+    imageError: boolean;
     onImageLoaded: () => void;
+    onImageError: () => void;
     onPreviewOpen: () => void;
 }
 
@@ -51,20 +54,25 @@ export function DropCardLayout({
     ctaButton,
     error,
     imageLoaded,
+    imageError,
     onImageLoaded,
+    onImageError,
     onPreviewOpen,
 }: DropCardLayoutProps) {
+    const coverSrc = imageError ? resolvePublicDropCoverSrc(null) : resolvePublicDropCoverSrc(drop.imageUrl);
+
     if (resolvedRatio === "9:16") {
         return (
             <div ref={cardRef} className="group relative flex h-full flex-col overflow-hidden rounded-[1.15rem] border border-white/8 bg-white/[0.025] p-1.5 shadow-[0_10px_24px_rgba(0,0,0,0.22)] backdrop-blur-md md:rounded-[1.35rem] md:p-2.5" data-drop-card-density="compact-mobile">
                 <button type="button" onClick={onPreviewOpen} aria-label={`Preview ${drop.title}`} className="relative w-full flex-shrink-0 overflow-hidden rounded-[0.9rem] border border-white/10 bg-black text-left md:rounded-[1rem]" style={ratioStyle}>
                     <NextImage
-                        src={drop.imageUrl || "/placeholder.jpg"}
+                        src={coverSrc}
                         alt={drop.title}
                         fill
                         priority={priority}
                         className={cn("object-cover object-center bg-black transition-all duration-500", imageLoaded ? "scale-100" : "scale-105")}
                         onLoadingComplete={onImageLoaded}
+                        onError={onImageError}
                         sizes="(max-width: 768px) 25vw, 180px"
                     />
                     <div className="absolute inset-0 bg-gradient-to-t from-black/70 via-transparent to-transparent" />
@@ -99,26 +107,21 @@ export function DropCardLayout({
             <div className="pointer-events-none absolute inset-0 bg-gradient-to-br from-brand-purple/5 via-transparent to-brand-purple/5" />
 
             <button type="button" onClick={onPreviewOpen} aria-label={`Preview ${drop.title}`} className="relative mb-1.5 w-full flex-shrink-0 overflow-hidden rounded-[0.9rem] border border-white/5 bg-black/40 text-left shadow-inner md:mb-2 md:rounded-[1rem]" style={ratioStyle}>
-                {drop.imageUrl ? (
-                    <>
-                        <NextImage
-                            src={drop.imageUrl}
-                            alt={drop.title}
-                            fill
-                            priority={priority}
-                            className={cn("object-cover object-center bg-black opacity-90 transition-all duration-700", imageLoaded ? "scale-100 blur-0" : "scale-105 blur-md")}
-                            onLoadingComplete={onImageLoaded}
-                            sizes={resolvedRatio === "16:9" ? "(max-width: 768px) 100vw, 720px" : "(max-width: 768px) 50vw, 360px"}
-                        />
-                        {!imageLoaded ? (
-                            <div className="absolute inset-0 overflow-hidden bg-zinc-800/80">
-                                <div className="absolute inset-0 -translate-x-full animate-[shimmer_1.5s_infinite] bg-gradient-to-r from-transparent via-white/10 to-transparent" />
-                            </div>
-                        ) : null}
-                    </>
-                ) : (
-                    <div className="flex h-full w-full items-center justify-center bg-zinc-900/50 text-lg font-black text-white/35">KD</div>
-                )}
+                <NextImage
+                    src={coverSrc}
+                    alt={drop.title}
+                    fill
+                    priority={priority}
+                    className={cn("object-cover object-center bg-black opacity-90 transition-all duration-700", imageLoaded ? "scale-100 blur-0" : "scale-105 blur-md")}
+                    onLoadingComplete={onImageLoaded}
+                    onError={onImageError}
+                    sizes={resolvedRatio === "16:9" ? "(max-width: 768px) 100vw, 720px" : "(max-width: 768px) 50vw, 360px"}
+                />
+                {!imageLoaded ? (
+                    <div className="absolute inset-0 overflow-hidden bg-zinc-800/80">
+                        <div className="absolute inset-0 -translate-x-full animate-[shimmer_1.5s_infinite] bg-gradient-to-r from-transparent via-white/10 to-transparent" />
+                    </div>
+                ) : null}
                 <div className="absolute right-1.5 top-1.5 z-10 transition-transform group-hover/image:scale-105 md:right-2 md:top-2">
                     <FileCountChip images={fileCounts.images} videos={fileCounts.videos} compact />
                 </div>

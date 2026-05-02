@@ -1,0 +1,214 @@
+{
+  "generatedAt": "2026-05-01T00:00:00.000-05:00",
+  "scope": "launch-critical content and media pipeline audit",
+  "status": "launch-critical public payload leak and upload validation gaps fixed; residual archival media lifecycle remains documented for post-launch hardening",
+  "entries": [
+    {
+      "id": "CMP-001",
+      "area": "protected drop content proxy",
+      "files": [
+        "src/app/api/drops/content/route.ts",
+        "src/app/dashboard/viewer/ViewerClient.tsx",
+        "src/app/dashboard/viewer/ViewerHelpers.ts"
+      ],
+      "checks": {
+        "lockedContentRejected": true,
+        "unlockedContentAllowed": true,
+        "creatorAllowed": true,
+        "directUrlHidden": true,
+        "privateNoStore": true,
+        "remoteHostAllowlist": true
+      },
+      "currentRisk": "low",
+      "requiredFix": "Align the content proxy entitlement check with the viewer entitlement source so server-written unlock timestamps remain valid evidence.",
+      "fixedInThisPass": true,
+      "validation": [
+        "tests/unit/drops-content-route.spec.ts",
+        "scripts/agent/validate-content-media-pipeline.ts"
+      ]
+    },
+    {
+      "id": "CMP-002",
+      "area": "public creator profile drops",
+      "files": [
+        "src/app/api/creators/[username]/route.ts",
+        "src/app/creators/[username]/CreatorProfileClient.tsx",
+        "src/components/DropGrid.tsx"
+      ],
+      "checks": {
+        "coverPreviewPublicSafe": true,
+        "protectedContentUrlsSanitized": true,
+        "creatorPrivateFieldsExcluded": true,
+        "publicOnlyActiveApprovedDrops": true
+      },
+      "currentRisk": "fixed high",
+      "requiredFix": "Sanitize public creator profile drop payloads before returning them to unauthenticated/public clients.",
+      "fixedInThisPass": true,
+      "validation": [
+        "tests/unit/creator-profile-route.spec.ts",
+        "scripts/agent/validate-content-media-pipeline.ts"
+      ]
+    },
+    {
+      "id": "CMP-003",
+      "area": "public drops discovery and cards",
+      "files": [
+        "src/app/api/drops/route.ts",
+        "src/lib/server/drops.ts",
+        "src/components/DropCard.tsx",
+        "src/components/DropCardLayout.tsx"
+      ],
+      "checks": {
+        "publicDropListUsesSanitizedServerHelper": true,
+        "dropCardsUseCoverOnly": true,
+        "missingCoverFallbackExists": true,
+        "brokenImageFallbackExists": true
+      },
+      "currentRisk": "fixed medium",
+      "requiredFix": "Replace the nonexistent placeholder path with a current public-safe fallback and handle broken cover images.",
+      "fixedInThisPass": true,
+      "validation": [
+        "scripts/agent/validate-content-media-pipeline.ts"
+      ]
+    },
+    {
+      "id": "CMP-004",
+      "area": "owned library and unlocked viewer",
+      "files": [
+        "src/app/dashboard/library/LibraryClient.tsx",
+        "src/components/Dashboard/OwnedDropGalleryCard.tsx",
+        "src/app/dashboard/viewer/page.tsx",
+        "src/app/dashboard/viewer/components/MediaViewer.tsx"
+      ],
+      "checks": {
+        "libraryFiltersOwnedDrops": true,
+        "viewerReceivesSanitizedDrop": true,
+        "viewerFetchesProtectedProxyOnly": true,
+        "viewerPosterFallbackExists": true
+      },
+      "currentRisk": "low",
+      "requiredFix": "Keep owned library filtering tied to unlock state and use the shared cover fallback in owned cards and viewer poster/art surfaces.",
+      "fixedInThisPass": true,
+      "validation": [
+        "tests/unit/dashboard-viewer-page.spec.tsx",
+        "scripts/agent/validate-content-media-pipeline.ts"
+      ]
+    },
+    {
+      "id": "CMP-005",
+      "area": "storage rules and direct asset guessing",
+      "files": [
+        "storage.rules",
+        "tests/firebase/storage.rules.spec.ts"
+      ],
+      "checks": {
+        "dropStorageClientReadDenied": true,
+        "dropStorageClientWriteDenied": true,
+        "dropStorageClientListDenied": true,
+        "entitlementRequiresServerProxy": true
+      },
+      "currentRisk": "low",
+      "requiredFix": "No code fix required; keep the direct Storage deny rule and regression tests documented as the launch boundary.",
+      "fixedInThisPass": true,
+      "validation": [
+        "tests/firebase/storage.rules.spec.ts",
+        "scripts/agent/validate-content-media-pipeline.ts"
+      ]
+    },
+    {
+      "id": "CMP-006",
+      "area": "admin and creator upload validation",
+      "files": [
+        "src/app/api/admin/content/route.ts",
+        "src/app/api/creator/drops/assets/route.ts",
+        "src/components/Admin/AssetUploader.tsx",
+        "src/components/Admin/CreateDropModal.tsx"
+      ],
+      "checks": {
+        "adminUploadRequiresAdminTrustedOrigin": true,
+        "creatorUploadRequiresCreatorTrustedOrigin": true,
+        "serverSideTypeValidation": true,
+        "serverSideSizeValidation": true,
+        "safeStorageFileName": true
+      },
+      "currentRisk": "fixed medium",
+      "requiredFix": "Add admin content route size/type validation to match the existing creator upload guard posture.",
+      "fixedInThisPass": true,
+      "validation": [
+        "tests/unit/admin-content-route.spec.ts",
+        "tests/unit/creator-drops-assets-route.spec.ts",
+        "scripts/agent/validate-content-media-pipeline.ts"
+      ]
+    },
+    {
+      "id": "CMP-007",
+      "area": "expired and archived drop media lifecycle",
+      "files": [
+        "src/lib/drop-status.ts",
+        "src/lib/drop-read-models.ts",
+        "src/lib/server/drops.ts",
+        "src/app/api/admin/drops/route.ts"
+      ],
+      "checks": {
+        "expiredLockedDropsHiddenFromCards": true,
+        "ownedUnlockedAccessRemainsServerEntitled": true,
+        "archiveDeletionPolicyDocumented": true,
+        "automatedAssetPurgeNotImplemented": true
+      },
+      "currentRisk": "low",
+      "requiredFix": "No launch code change; document that deletion/archive removes Drop docs or admin content objects intentionally, while entitlement remains server-checked until assets are deleted.",
+      "fixedInThisPass": false,
+      "validation": [
+        "docs/agent-truth/content-media-pipeline.md",
+        "scripts/agent/validate-content-media-pipeline.ts"
+      ]
+    },
+    {
+      "id": "CMP-008",
+      "area": "thumbnail and asset ordering",
+      "files": [
+        "src/app/dashboard/viewer/hooks/useViewerState.ts",
+        "src/app/dashboard/viewer/ViewerHelpers.ts",
+        "src/app/dashboard/viewer/components/ThumbnailsSlider.tsx"
+      ],
+      "checks": {
+        "thumbnailFetchOrderStable": true,
+        "viewerIndexUsesProtectedProxy": true,
+        "thumbnailFallbackExists": true,
+        "rawAssetUrlsNotNeededClientSide": true
+      },
+      "currentRisk": "low",
+      "requiredFix": "Use the shared public-safe cover fallback for thumbnail fallback records.",
+      "fixedInThisPass": true,
+      "validation": [
+        "tests/unit/viewer-asset-prefetch.spec.ts",
+        "scripts/agent/validate-content-media-pipeline.ts"
+      ]
+    },
+    {
+      "id": "CMP-009",
+      "area": "audit, docs, and validation gate",
+      "files": [
+        "agent/state/content-media-pipeline-audit.generated.json",
+        "docs/agent-truth/content-media-pipeline.md",
+        "scripts/agent/validate-content-media-pipeline.ts",
+        "package.json",
+        "FULL_SCALE_CODEBASE_AUDIT.md",
+        "REPO_MEMORY_LEDGER.md",
+        "EVERY_FILE_FUNCTION_CHECKLIST.md"
+      ],
+      "checks": {
+        "auditGenerated": true,
+        "doctrineDocumented": true,
+        "validatorAdded": true,
+        "governanceLedgersUpdated": true
+      },
+      "currentRisk": "low",
+      "requiredFix": "Add the launch content/media pipeline report and keep it wired to a targeted validation script.",
+      "fixedInThisPass": true,
+      "validation": [
+        "npm run check:content-media-pipeline"
+      ]
+    }
+  ]
+}

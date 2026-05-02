@@ -132,6 +132,21 @@ describe("GET /api/drops/content", () => {
     }));
   });
 
+  it("accepts the server-written unlock timestamp as entitlement evidence", async () => {
+    mockState.documents.set("users/fan_1", {
+      uid: "fan_1",
+      unlockedContent: [],
+      unlockedContentTimestamps: { drop_1: 1770000000000 },
+    });
+
+    const response = await GET(requestForDrop());
+
+    expect(response.status).toBe(200);
+    expect(fetch).toHaveBeenCalledWith(dropRecord.contentUrl, expect.objectContaining({
+      cache: "no-store",
+    }));
+  });
+
   it("treats the drop creator as entitled without requiring a paid unlock", async () => {
     mockState.guardApiRequest.mockResolvedValue({ uid: "creator_1", email: "creator@example.com" });
     mockState.documents.set("users/creator_1", {

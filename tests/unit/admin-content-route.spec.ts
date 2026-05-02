@@ -187,6 +187,23 @@ describe("admin content route", () => {
     expect(mockState.getOrCreateFile(expectedPath).save).toHaveBeenCalled();
   });
 
+  it("rejects unsupported drop asset upload types before writing storage", async () => {
+    const formData = new FormData();
+    formData.append("file", new File(["<script />"], "payload.html", { type: "text/html" }));
+
+    const request = new NextRequest("http://localhost/api/admin/content", {
+      method: "POST",
+      body: formData,
+    });
+
+    const response = await POST(request);
+    const payload = await response.json();
+
+    expect(response.status).toBe(400);
+    expect(payload).toMatchObject({ error: "Unsupported drop asset type" });
+    expect(mockState.files.size).toBe(0);
+  });
+
   it("deletes a drop asset when the path stays inside the drops prefix", async () => {
     const file = mockState.getOrCreateFile("drops/delete-me.png", {
       contentType: "image/png",

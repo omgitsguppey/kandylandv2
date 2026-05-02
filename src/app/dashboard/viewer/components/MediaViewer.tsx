@@ -4,6 +4,7 @@ import { Loader2, ShieldCheck } from "lucide-react";
 import { Drop } from "@/types/db";
 import { ResolvedContent } from "../ViewerHelpers";
 import { trackEvent } from "@/lib/telemetry";
+import { resolvePublicDropCoverSrc } from "@/lib/drop-media-fallback";
 
 interface MediaViewerProps {
     drop: Drop;
@@ -40,6 +41,7 @@ export function MediaViewer({
     const mediaWaitingStartedAtRef = useRef<number | null>(null);
     const videoFallbackTypes = ["video/mp4", "video/webm", "video/ogg"];
     const audioFallbackTypes = ["audio/mpeg", "audio/mp4", "audio/wav", "audio/ogg", "audio/webm"];
+    const coverSrc = resolvePublicDropCoverSrc(drop.imageUrl);
 
     if (contentLoading) {
         return (
@@ -62,7 +64,7 @@ export function MediaViewer({
                 controlsList="nodownload noplaybackrate"
                 disablePictureInPicture
                 className="h-full w-full object-contain bg-black"
-                poster={drop.imageUrl}
+                poster={coverSrc}
                 autoPlay
                 playsInline
                 preload="auto"
@@ -114,9 +116,9 @@ export function MediaViewer({
     if (resolvedContent.kind === "audio") {
         return (
             <div className="relative flex h-full w-full flex-col items-center justify-center overflow-hidden bg-gradient-to-br from-gray-900 to-black px-6 py-8">
-                <NextImage src={drop.imageUrl} alt="Album Art" fill className="object-cover opacity-30 blur-3xl" />
+                <NextImage src={coverSrc} alt="Album Art" fill className="object-cover opacity-30 blur-3xl" />
                 <div className="relative z-10 mb-6 h-36 w-36 overflow-hidden rounded-2xl border border-white/10 shadow-2xl sm:h-44 sm:w-44 md:h-56 md:w-56">
-                    <NextImage src={drop.imageUrl} alt="Art" fill priority className="object-cover" />
+                    <NextImage src={coverSrc} alt="Art" fill priority className="object-cover" />
                 </div>
                 <audio
                     key={`viewer-audio-${contentBlobUrl}`}

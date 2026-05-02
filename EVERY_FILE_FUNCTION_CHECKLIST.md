@@ -1,13 +1,25 @@
 # EVERY FILE FUNCTION CHECKLIST
 
 **Last Updated:** 2026-05-01
-**Current Focus:** Design System Drift Launch Audit.
+**Current Focus:** Content Media Pipeline Launch Audit.
 **Status:** In Progress. Current tracked-file coverage is reconciled as of 2026-04-28: every `git ls-files` entry has a current checklist heading, while detailed function-level audits remain pending for many historical and newly reconciled files.
 Purpose: exhaustive no-skip audit checklist covering every repository file currently in scope and every detected function-like implementation.
 
 Scoring: all entries below are marked as included in the current validated sweep. Confidence reflects current repository-state confidence, not perfection or future-proofing.
 
 Current repo-wide state snapshot: see [FULL_SCALE_CODEBASE_AUDIT.md](/Users/uylus/OneDrive/Documents/KandyDrops_Final/FULL_SCALE_CODEBASE_AUDIT.md) for the current live baseline, verification state, and continuity rules, and see [REPO_MEMORY_LEDGER.md](/Users/uylus/OneDrive/Documents/KandyDrops_Final/REPO_MEMORY_LEDGER.md) for major architectural and workflow decisions. The detailed file/function body below remains valuable historical evidence, but it has not been fully regenerated against the current 2026-04-18 inventory review yet.
+
+## 2026-05-01 Content Media Pipeline Launch Audit Coverage
+
+- [x] `src/app/api/drops/content/route.ts` remains the guarded protected-content proxy with trusted-origin user auth, creator/unlock entitlement checks, server-written timestamp entitlement support, host allowlisting, and private no-store streaming.
+- [x] `src/lib/server/drops.ts`, `src/app/api/drops/route.ts`, and `src/app/api/creators/[username]/route.ts` sanitize public Drop payloads so raw `contentUrl`/`contentUrls` do not reach discovery or public creator profile clients.
+- [x] `src/app/dashboard/viewer/page.tsx`, `src/app/dashboard/viewer/ViewerClient.tsx`, `src/app/dashboard/viewer/ViewerHelpers.ts`, and `src/app/dashboard/viewer/components/MediaViewer.tsx` keep viewer access tied to entitlement state and protected proxy fetches while using public-safe cover fallbacks.
+- [x] `src/app/dashboard/library/LibraryClient.tsx` and `src/components/Dashboard/OwnedDropGalleryCard.tsx` keep the owned library filtered by unlocked Drop ids and use the current shared cover fallback with broken-image recovery.
+- [x] `src/components/DropCard.tsx`, `src/components/DropCardLayout.tsx`, and `src/lib/drop-media-fallback.ts` define the public cover fallback contract for missing/broken Drop covers.
+- [x] `src/app/api/admin/content/route.ts`, `src/app/api/creator/drops/assets/route.ts`, `src/components/Admin/AssetUploader.tsx`, and `src/components/Admin/CreateDropModal.tsx` keep admin/creator upload paths server mediated with trusted-origin auth and server-side type/size validation.
+- [x] `storage.rules` denies direct client reads, writes, and listing under `drops/**`; `tests/firebase/storage.rules.spec.ts` remains the direct asset guessing regression lane.
+- [x] `tests/unit/drops-content-route.spec.ts`, `tests/unit/creator-profile-route.spec.ts`, `tests/unit/admin-content-route.spec.ts`, and `tests/unit/dashboard-viewer-page.spec.tsx` cover locked/unlocked content access, public creator media safety, upload validation, and viewer sanitization.
+- [x] `agent/state/content-media-pipeline-audit.generated.json`, `docs/agent-truth/content-media-pipeline.md`, `scripts/agent/validate-content-media-pipeline.ts`, and `package.json` record and validate the launch content/media gate.
 
 ## 2026-05-01 Design System Drift Launch Audit Coverage
 
