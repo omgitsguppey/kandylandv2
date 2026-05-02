@@ -1,13 +1,20 @@
 # EVERY FILE FUNCTION CHECKLIST
 
 **Last Updated:** 2026-05-02
-**Current Focus:** Legacy Creator Application Migration Adapter.
+**Current Focus:** Creator Agreement Version Truth Cleanup.
 **Status:** In Progress. Current tracked-file coverage is reconciled as of 2026-04-28: every `git ls-files` entry has a current checklist heading, while detailed function-level audits remain pending for many historical and newly reconciled files.
 Purpose: exhaustive no-skip audit checklist covering every repository file currently in scope and every detected function-like implementation.
 
 Scoring: all entries below are marked as included in the current validated sweep. Confidence reflects current repository-state confidence, not perfection or future-proofing.
 
 Current repo-wide state snapshot: see [FULL_SCALE_CODEBASE_AUDIT.md](/Users/uylus/OneDrive/Documents/KandyDrops_Final/FULL_SCALE_CODEBASE_AUDIT.md) for the current live baseline, verification state, and continuity rules, and see [REPO_MEMORY_LEDGER.md](/Users/uylus/OneDrive/Documents/KandyDrops_Final/REPO_MEMORY_LEDGER.md) for major architectural and workflow decisions. The detailed file/function body below remains valuable historical evidence, but it has not been fully regenerated against the current 2026-04-18 inventory review yet.
+
+## 2026-05-02 Creator Agreement Version Truth Coverage
+
+- [x] `src/lib/creator-agreement-version.ts` owns the single active agreement version resolver, default active template snapshot, agreement hash fallback, creator-specific agreement resolution, evidence completeness checks, and signed-vs-active comparison/debug fields.
+- [x] `src/lib/creator-agreement-documents.ts`, `src/lib/server/creator-agreement-templates.ts`, `src/app/api/admin/creator-agreements/route.ts`, and `src/app/api/creator/onboarding/contract-signature/route.ts` now route template defaults and signature evidence through the resolver instead of scattering version/hash defaults.
+- [x] `src/lib/server/creator-agreement-documents.ts` requires creator/admin countersign version/hash parity before marking `legal_signed`, while preserving old signed versions when active templates change.
+- [x] `scripts/agent/validate-creator-agreement-version-truth.ts`, `tests/unit/creator-agreement-version.spec.ts`, and agreement docs validate active version resolution, missing hash failure, countersign mismatch blocking, prior signature preservation, and no hardcoded active version outside resolver/contract source.
 
 ## 2026-05-02 Legacy Creator Application Migration Adapter Coverage
 

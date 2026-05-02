@@ -37,11 +37,11 @@
  */
 
 import {
-    CREATOR_MASTER_SERVICE_AGREEMENT_VERSION,
     CREATOR_ONBOARDING_INTRO_VERSION,
     DEFAULT_CREATOR_TEMPLATE_ID,
     DEFAULT_CREATOR_TEMPLATE_LABEL,
 } from "@/lib/creator-contract";
+import { getActiveCreatorAgreementVersion } from "@/lib/creator-agreement-version";
 import {
     CREATOR_INTAKE_SOURCE,
     CREATOR_INTAKE_VERSION,
@@ -1516,7 +1516,7 @@ export function buildCreatorOnboardingProjectionState(input: {
         introAcknowledgedByUid: readString(sourceRecord?.["introAcknowledgedByUid"]) || undefined,
         introAcknowledgedByName: readString(sourceRecord?.["introAcknowledgedByName"]) || undefined,
         legalStatus,
-        contractVersion: readString(sourceRecord?.["contractVersion"]) || CREATOR_MASTER_SERVICE_AGREEMENT_VERSION,
+        contractVersion: readString(sourceRecord?.["contractVersion"]) || getActiveCreatorAgreementVersion(),
         agreementTemplateId: readString(sourceRecord?.["agreementTemplateId"]) || undefined,
         agreementTitle: readString(sourceRecord?.["agreementTitle"]) || undefined,
         agreementHash: readString(sourceRecord?.["agreementHash"]) || undefined,

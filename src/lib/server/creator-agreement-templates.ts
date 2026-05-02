@@ -79,6 +79,7 @@ export async function activateCreatorAgreementTemplate(input: {
     activeForNewCreators: true,
     activatedAt: input.activatedAt,
     activatedByUid: input.activatedByUid,
+    effectiveAt: input.template.effectiveAt ?? input.activatedAt,
   };
   const sanitized = stripUndefinedDeep(activeTemplate);
   const collection = adminDb.collection(CREATOR_AGREEMENT_TEMPLATE_COLLECTION);

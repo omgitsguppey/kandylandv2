@@ -2,7 +2,6 @@ import { NextRequest, NextResponse } from "next/server";
 
 import {
     CREATOR_MASTER_SERVICE_AGREEMENT_SECTIONS,
-    CREATOR_MASTER_SERVICE_AGREEMENT_VERSION,
 } from "@/lib/creator-contract";
 import {
     CREATOR_AGREEMENT_DISPATCHES_SUBCOLLECTION,
@@ -13,6 +12,10 @@ import {
     buildDefaultCreatorAgreementTemplate,
     normalizeCreatorAgreementTemplate,
 } from "@/lib/creator-agreement-documents";
+import {
+    assertAgreementEvidenceComplete,
+    getActiveCreatorAgreementVersion,
+} from "@/lib/creator-agreement-version";
 import {
     hasRequiredCreatorAgreementAcknowledgements,
     normalizeCreatorAgreementAcknowledgements,
@@ -263,7 +266,7 @@ async function POST_handler(request: NextRequest) {
                 nowMs,
                 source: {
                     ...latestCanonical,
-                    contractVersion: latestCanonical.contractVersion ?? CREATOR_MASTER_SERVICE_AGREEMENT_VERSION,
+                    contractVersion: latestCanonical.contractVersion ?? getActiveCreatorAgreementVersion(),
                     creatorSignatureStatus: "signature_signed",
                     agreementDispatchStatus: "signed",
                     creatorContractSignedAt: nowMs,
@@ -291,7 +294,8 @@ async function POST_handler(request: NextRequest) {
                 dispatch,
                 agreementSource: template.agreementSource,
                 pdfStoragePath: template.pdfStoragePath,
-                fullTextSnapshotPath: template.fullTextStoragePath,
+                fullTextSnapshotPath: template.fullTextSnapshotPath ?? template.fullTextStoragePath,
+                embeddedFullTextReference: template.embeddedFullTextReference,
                 signerUid: caller.uid,
                 signerName: signatureName,
                 signerEmail,
@@ -304,6 +308,15 @@ async function POST_handler(request: NextRequest) {
                     route: "/api/creator/onboarding/contract-signature",
                 },
             });
+            const evidenceCheck = assertAgreementEvidenceComplete(signature, {
+                requireSignatureEvidence: true,
+                requireSourceSnapshot: true,
+            });
+            if (!evidenceCheck.evidenceComplete) {
+                throw new ContractSignaturePreconditionError(
+                    `Agreement evidence is incomplete: ${evidenceCheck.missingEvidenceFields.join(", ")}.`,
+                );
+            }
 
             transaction.set(
                 onboardingRef.collection(CREATOR_AGREEMENT_DISPATCHES_SUBCOLLECTION).doc(dispatch.dispatchId),
@@ -352,10 +365,10 @@ async function POST_handler(request: NextRequest) {
 
         const telemetryPayload = {
             page_path: "/creators/waitlist",
-            contract_version: result.creatorApplication.contractVersion ?? CREATOR_MASTER_SERVICE_AGREEMENT_VERSION,
+            contract_version: result.creatorApplication.contractVersion ?? getActiveCreatorAgreementVersion(),
             onboarding_status: result.creatorApplication.submissionStatus,
             legal_status: result.creatorApplication.legalStatus,
-            agreement_version: result.creatorApplication.contractVersion ?? CREATOR_MASTER_SERVICE_AGREEMENT_VERSION,
+            agreement_version: result.creatorApplication.contractVersion ?? getActiveCreatorAgreementVersion(),
             agreement_hash: result.creatorApplication.agreementHash ?? "",
             agreement_source: result.creatorApplication.agreementSource ?? "",
             template_id: result.creatorApplication.agreementTemplateId ?? "",

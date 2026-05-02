@@ -4,6 +4,10 @@ Status: Canonical repository-memory and architecture-decision ledger
 Last refreshed: 2026-05-02
 Repo: `C:\Users\uylus\OneDrive\Documents\KandyDrops_Final`
 
+## 2026-05-02 Creator agreement version truth
+
+Creator agreement version and evidence truth now routes through `src/lib/creator-agreement-version.ts`. That resolver owns the active version, active template fallback, native full-text source reference, agreement hash fallback, user agreement resolution, evidence completeness checks, and signed-vs-active comparison. New creator signatures and admin countersigns must carry agreement version, hash, source, source snapshot/reference, dispatch, signer, IP, and user-agent evidence. Active template changes do not mutate old signed records; `legal_signed` requires creator/admin signature version/hash parity unless an owner override records an explicit reason.
+
 ## 2026-05-02 Legacy creatorApplication migration adapter
 
 Old `users/{uid}.creatorApplication` records now have a bounded server adapter at `src/lib/server/creator-onboarding-legacy-adapter.ts`. The adapter can read legacy nested projections, map them into canonical `creator_onboarding/{uid}` shape, rebuild the `users.creatorApplication` projection from canonical data, explain mapping confidence, and skip any user that already has canonical onboarding. Legacy legal/signature status flags are not enough to mark canonical legal completion; signed state requires timestamp, signer, and agreement identity evidence. The dry-run inventory script is `scripts/creators/inventory-legacy-creator-applications.ts`, and it writes `agent/state/legacy-creator-application-inventory.generated.json` without mutating data. `users.creatorApplication` remains projection only.

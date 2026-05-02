@@ -1,5 +1,27 @@
 # KandyDrops Core Codebase Audit & Defensive Ledger
 
+## [2026-05-02 #107] PRE: Creator Agreement Version Truth Cleanup
+
+Scope started:
+- Centralizing creator agreement active-version resolution and evidence checks so agreement version/hash truth does not drift between constants, active templates, canonical onboarding, dispatches, and signature records.
+- Required outputs: single resolver at `src/lib/creator-agreement-version.ts`, signature/countersign evidence enforcement, validation command, focused tests, docs/ledger updates, targeted validation, TypeScript, agreement/onboarding tests, `git diff --check`, commit, and push.
+- This pass must not redesign creator UI, mutate prior signed agreement records when the active version changes, hardcode the active version outside the contract source/resolver, or mark `legal_signed` when creator/admin signature version/hash evidence does not match.
+
+Initial evidence:
+- Control tower routing, source-of-truth map, doctrine files, governance ledgers, and adjacency traces for creator agreement templates, signature route, and admin agreement route were consulted.
+- Runtime owners inspected first: `src/lib/creator-contract.ts`, `src/lib/creator-agreement-documents.ts`, `src/lib/server/creator-agreement-templates.ts`, `src/lib/server/creator-agreement-documents.ts`, creator signature route, admin agreement route, and focused agreement tests.
+
+Scope completed:
+- Added `src/lib/creator-agreement-version.ts` as the single agreement version/hash resolver with active template fallback, creator-specific dispatch resolution, evidence completeness checks, and signed-vs-active comparison/debug fields.
+- Routed default template construction, native source references, creator signature evidence, and admin countersign version/hash parity through the resolver while preserving existing signed versions when the active template changes.
+- Added `scripts/agent/validate-creator-agreement-version-truth.ts`, `npm run check:creator-agreement-version-truth`, focused resolver tests, and agreement docs/ledger coverage.
+
+Verification:
+- Passed: `npm run check:creator-agreement-version-truth`
+- Passed: `npx vitest run tests/unit/creator-agreement-version.spec.ts tests/unit/creator-agreement-documents.spec.ts tests/unit/creator-contract-signature-route.spec.ts tests/unit/admin-creator-agreements-route.spec.ts tests/unit/creator-agreement-signature-ux.spec.ts tests/unit/creator-onboarding.spec.ts tests/unit/creator-onboarding-server.spec.ts`
+- Passed: `npx tsc --noEmit --pretty false`
+- Passed: `git diff --check` with existing Windows CRLF normalization warnings only.
+
 ## [2026-05-02 #106] PRE: Legacy Creator Application Migration Adapter
 
 Scope started:

@@ -9,9 +9,14 @@ Creator agreements are versioned documents, not mutable page copy. Admins may sa
 
 Do not hardcode uploaded PDF bytes in code. Uploaded source files live in Storage, while Firestore stores template metadata, immutable dispatch records, and signature evidence.
 
+`src/lib/creator-agreement-version.ts` is the single agreement version resolver. It owns `getActiveCreatorAgreementVersion()`, the default active agreement template, the active agreement hash, and the embedded full agreement reference for the native text source. New creators resolve from the active agreement template; creators with an existing dispatch or signed record keep that dispatched/signed version until an admin sends an updated agreement. Signed records cannot be mutated when active version changes.
+
+Every active agreement template must carry `agreementVersion`, `agreementTitle`, `agreementHash`, `agreementSource`, `activeForNewCreators`, `effectiveAt`, and either `pdfStoragePath`, `fullTextSnapshotPath`/`fullTextStoragePath`, or `embeddedFullTextReference`. Admin countersign may mark `legal_signed` only when creator and admin signatures match the same agreement version/hash, unless an owner override records an explicit reason.
+
 ## Data Owners
 
 - `src/lib/creator-agreement-documents.ts` owns shared template, dispatch, signature, hash, and admin-view contracts.
+- `src/lib/creator-agreement-version.ts` owns the single agreement version resolver, active agreement template fallback, evidence checks, signed-vs-active comparison, and Debug version/hash fields.
 - `src/lib/server/creator-agreement-templates.ts` loads and activates the active template from `creator_agreement_templates`.
 - `src/lib/server/creator-agreement-documents.ts` sends creator-specific dispatches, supersedes prior dispatches, countersigns matching dispatches, writes onboarding history, and records Debug diagnostics.
 - `src/app/api/admin/creator-agreements/route.ts` is the guarded admin route for template create/activate, dispatch send/update, countersign, and admin preview download.

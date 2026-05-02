@@ -1,8 +1,15 @@
 import {
   CREATOR_CONTRACT_SUMMARY_BULLETS,
   CREATOR_MASTER_SERVICE_AGREEMENT_SECTIONS,
-  CREATOR_MASTER_SERVICE_AGREEMENT_VERSION,
 } from "@/lib/creator-contract";
+import {
+  ACTIVE_CREATOR_AGREEMENT_HASH,
+  ACTIVE_CREATOR_AGREEMENT_EMBEDDED_FULL_TEXT_REFERENCE,
+  ACTIVE_CREATOR_AGREEMENT_TITLE,
+  compareSignedAgreementToActive,
+  buildCreatorAgreementTemplateIdFromVersion,
+  getActiveCreatorAgreementTemplate as getDefaultActiveCreatorAgreementTemplate,
+} from "@/lib/creator-agreement-version";
 
 export const CREATOR_AGREEMENT_TEMPLATE_COLLECTION = "creator_agreement_templates";
 export const CREATOR_AGREEMENT_ACTIVE_TEMPLATE_DOC_ID = "active";
@@ -29,9 +36,11 @@ export type CreatorAgreementDispatchStatus = (typeof CREATOR_AGREEMENT_DISPATCH_
 export const CREATOR_AGREEMENT_DELIVERY_METHODS = ["in_app"] as const;
 export type CreatorAgreementDeliveryMethod = (typeof CREATOR_AGREEMENT_DELIVERY_METHODS)[number];
 
-export const DEFAULT_CREATOR_AGREEMENT_TEMPLATE_ID = "creator_agreement_mgsa_2026_v1";
-export const DEFAULT_CREATOR_AGREEMENT_TITLE = "KandyDrops Creator Service Agreement";
-export const DEFAULT_CREATOR_AGREEMENT_HASH = "sha256:cdf5886a4c2da3f35b99c6abf0c23d54c54f1aebb09bdc62e807e0b99a5ca5cf";
+export const DEFAULT_CREATOR_AGREEMENT_TEMPLATE_ID = buildCreatorAgreementTemplateIdFromVersion(
+  getDefaultActiveCreatorAgreementTemplate().agreementVersion,
+);
+export const DEFAULT_CREATOR_AGREEMENT_TITLE = ACTIVE_CREATOR_AGREEMENT_TITLE;
+export const DEFAULT_CREATOR_AGREEMENT_HASH = ACTIVE_CREATOR_AGREEMENT_HASH;
 
 export type CreatorAgreementTemplate = {
   templateId: string;
@@ -40,13 +49,16 @@ export type CreatorAgreementTemplate = {
   agreementSource: CreatorAgreementSource;
   activeForNewCreators: boolean;
   fullTextStoragePath?: string;
+  fullTextSnapshotPath?: string;
   pdfStoragePath?: string;
+  embeddedFullTextReference?: string;
   agreementHash: string;
   summaryBullets: string[];
   createdAt: number;
   createdByUid: string;
   activatedAt?: number;
   activatedByUid?: string;
+  effectiveAt?: number;
   supersedesVersion?: string;
 };
 
@@ -72,6 +84,7 @@ export type CreatorAgreementSignature = {
   agreementSource: CreatorAgreementSource;
   pdfStoragePath?: string;
   fullTextSnapshotPath?: string;
+  embeddedFullTextReference?: string;
   signerUid: string;
   signerName: string;
   signerEmail?: string;
@@ -93,6 +106,7 @@ export type CreatorAgreementTemplateAdminView = {
   summaryBullets: string[];
   createdAt: number;
   activatedAt?: number;
+  effectiveAt?: number;
   supersedesVersion?: string;
 };
 
@@ -139,7 +153,7 @@ export function buildCreatorAgreementTemplateId(input: {
 }) {
   const versionId = sanitizeCreatorAgreementTemplateId(input.agreementVersion);
   if (versionId) {
-    return `creator_agreement_${versionId}`;
+    return buildCreatorAgreementTemplateIdFromVersion(versionId);
   }
 
   return sanitizeCreatorAgreementTemplateId(`creator_agreement_${input.agreementTitle || "draft"}`)
@@ -147,18 +161,22 @@ export function buildCreatorAgreementTemplateId(input: {
 }
 
 export function buildDefaultCreatorAgreementTemplate(nowMs = 0): CreatorAgreementTemplate {
+  const activeTemplate = getDefaultActiveCreatorAgreementTemplate(nowMs);
+
   return {
-    templateId: DEFAULT_CREATOR_AGREEMENT_TEMPLATE_ID,
-    agreementVersion: CREATOR_MASTER_SERVICE_AGREEMENT_VERSION,
-    agreementTitle: DEFAULT_CREATOR_AGREEMENT_TITLE,
-    agreementSource: "native_full_text",
+    templateId: activeTemplate.templateId,
+    agreementVersion: activeTemplate.agreementVersion,
+    agreementTitle: activeTemplate.agreementTitle,
+    agreementSource: activeTemplate.agreementSource,
     activeForNewCreators: true,
-    agreementHash: DEFAULT_CREATOR_AGREEMENT_HASH,
+    agreementHash: activeTemplate.agreementHash,
+    embeddedFullTextReference: activeTemplate.embeddedFullTextReference,
     summaryBullets: [...CREATOR_CONTRACT_SUMMARY_BULLETS],
     createdAt: nowMs,
     createdByUid: "system",
     activatedAt: nowMs || undefined,
     activatedByUid: "system",
+    effectiveAt: activeTemplate.effectiveAt,
   };
 }
 
@@ -180,14 +198,19 @@ export function normalizeCreatorAgreementTemplate(value: unknown): CreatorAgreem
     return null;
   }
 
+  const agreementSource = normalizeAgreementSource(source.agreementSource);
+
   return {
     templateId,
     agreementVersion,
     agreementTitle,
-    agreementSource: normalizeAgreementSource(source.agreementSource),
+    agreementSource,
     activeForNewCreators: source.activeForNewCreators === true,
     fullTextStoragePath: readString(source.fullTextStoragePath) || undefined,
+    fullTextSnapshotPath: readString(source.fullTextSnapshotPath) || undefined,
     pdfStoragePath: readString(source.pdfStoragePath) || undefined,
+    embeddedFullTextReference: readString(source.embeddedFullTextReference)
+      || (agreementSource === "native_full_text" ? ACTIVE_CREATOR_AGREEMENT_EMBEDDED_FULL_TEXT_REFERENCE : undefined),
     agreementHash,
     summaryBullets: readStringArray(source.summaryBullets).length > 0
       ? readStringArray(source.summaryBullets)
@@ -196,6 +219,7 @@ export function normalizeCreatorAgreementTemplate(value: unknown): CreatorAgreem
     createdByUid,
     activatedAt: readOptionalTimestamp(source.activatedAt),
     activatedByUid: readString(source.activatedByUid) || undefined,
+    effectiveAt: readOptionalTimestamp(source.effectiveAt),
     supersedesVersion: readString(source.supersedesVersion) || undefined,
   };
 }
@@ -210,12 +234,19 @@ export function toCreatorAgreementTemplateAdminView(
     agreementSource: template.agreementSource,
     activeForNewCreators: template.activeForNewCreators,
     fullDocumentAvailable: template.agreementSource === "native_full_text"
-      || Boolean(template.fullTextStoragePath || template.pdfStoragePath || CREATOR_MASTER_SERVICE_AGREEMENT_SECTIONS.length > 0),
+      || Boolean(
+        template.fullTextStoragePath
+        || template.fullTextSnapshotPath
+        || template.pdfStoragePath
+        || template.embeddedFullTextReference
+        || CREATOR_MASTER_SERVICE_AGREEMENT_SECTIONS.length > 0,
+      ),
     agreementHashAvailable: Boolean(template.agreementHash),
     agreementHash: template.agreementHash,
     summaryBullets: template.summaryBullets,
     createdAt: template.createdAt,
     activatedAt: template.activatedAt,
+    effectiveAt: template.effectiveAt,
     supersedesVersion: template.supersedesVersion,
   };
 }
@@ -304,6 +335,7 @@ export function buildCreatorAgreementSignature(input: {
   agreementSource?: CreatorAgreementSource | null;
   pdfStoragePath?: string | null;
   fullTextSnapshotPath?: string | null;
+  embeddedFullTextReference?: string | null;
   signerUid: string;
   signerName: string;
   signerEmail?: string | null;
@@ -321,6 +353,7 @@ export function buildCreatorAgreementSignature(input: {
     agreementSource: input.agreementSource ?? "native_full_text",
     pdfStoragePath: readString(input.pdfStoragePath) || undefined,
     fullTextSnapshotPath: readString(input.fullTextSnapshotPath) || undefined,
+    embeddedFullTextReference: readString(input.embeddedFullTextReference) || undefined,
     signerUid: input.signerUid,
     signerName: input.signerName,
     signerEmail: readString(input.signerEmail) || undefined,
@@ -335,14 +368,42 @@ export function buildCreatorAgreementDebugFields(input: {
   activeTemplate?: CreatorAgreementTemplate | null;
   selectedAgreementVersion?: string | null;
   selectedAgreementHash?: string | null;
+  userAgreementVersion?: string | null;
+  userAgreementHash?: string | null;
+  creatorSignatureAgreementVersion?: string | null;
+  creatorSignatureAgreementHash?: string | null;
+  adminSignatureAgreementVersion?: string | null;
+  adminSignatureAgreementHash?: string | null;
+  legalStatus?: string | null;
+  creatorSignatureStatus?: string | null;
+  adminSignatureStatus?: string | null;
   dispatch?: CreatorAgreementDispatch | null;
   signatureEvidenceComplete?: boolean;
+  missingEvidenceFields?: string[];
   priorAgreementPreserved?: boolean;
   requiresResign?: boolean;
 }) {
+  const comparison = compareSignedAgreementToActive({
+    agreementVersion: input.userAgreementVersion ?? input.selectedAgreementVersion,
+    agreementHash: input.userAgreementHash ?? input.selectedAgreementHash,
+    creatorSignatureAgreementVersion: input.creatorSignatureAgreementVersion,
+    creatorSignatureAgreementHash: input.creatorSignatureAgreementHash,
+    adminSignatureAgreementVersion: input.adminSignatureAgreementVersion,
+    adminSignatureAgreementHash: input.adminSignatureAgreementHash,
+    legalStatus: input.legalStatus,
+    creatorSignatureStatus: input.creatorSignatureStatus,
+    adminSignatureStatus: input.adminSignatureStatus,
+  }, input.activeTemplate ?? getDefaultActiveCreatorAgreementTemplate());
+
   return {
-    activeAgreementVersion: input.activeTemplate?.agreementVersion ?? null,
-    activeAgreementHash: input.activeTemplate?.agreementHash ?? null,
+    activeAgreementVersion: comparison.activeAgreementVersion,
+    activeAgreementHash: comparison.activeAgreementHash,
+    userAgreementVersion: comparison.userAgreementVersion,
+    userAgreementHash: comparison.userAgreementHash,
+    versionMatchesActive: comparison.versionMatchesActive,
+    signaturesVersionMatch: comparison.signaturesVersionMatch,
+    evidenceComplete: input.signatureEvidenceComplete ?? comparison.evidenceComplete,
+    missingEvidenceFields: input.missingEvidenceFields ?? comparison.missingEvidenceFields,
     selectedCreatorAgreementVersion: readString(input.selectedAgreementVersion) || null,
     selectedCreatorAgreementHash: readString(input.selectedAgreementHash) || null,
     dispatchStatus: input.dispatch?.status ?? null,

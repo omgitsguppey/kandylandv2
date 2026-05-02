@@ -44,6 +44,7 @@ Signing is blocked unless:
 - the agreement version exists
 - the agreement hash exists
 - the agreement content source is available
+- the signature evidence passes `assertAgreementEvidenceComplete(...)` from `src/lib/creator-agreement-version.ts`
 - signer name and email are available
 - all required acknowledgements are true
 
@@ -72,9 +73,11 @@ Signature evidence stores:
 - `signerUserAgent`
 - `acknowledgementValues`
 - `agreementSource`
-- `pdfStoragePath` or `fullTextSnapshotPath` when available
+- `pdfStoragePath`, `fullTextSnapshotPath`, or `embeddedFullTextReference`
 
 Previous signatures must not be overwritten by a new agreement version. A new version creates a new dispatch and a new signature record.
+
+The active agreement version is resolved only through `src/lib/creator-agreement-version.ts`. Creator-facing UI and signing routes must not hardcode the version literal. Existing creators keep the version/hash they signed; if the active template changes later, `compareSignedAgreementToActive(...)` may report `versionMatchesActive: false` while the signed record remains valid as long as creator and admin signatures match each other.
 
 ## Copy Rule
 

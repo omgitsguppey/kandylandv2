@@ -10,6 +10,10 @@ import {
   buildCreatorAgreementSignature,
 } from "@/lib/creator-agreement-documents";
 import {
+  assertAgreementEvidenceComplete,
+  compareSignedAgreementToActive,
+} from "@/lib/creator-agreement-version";
+import {
   buildCreatorOnboardingCanonicalRecord,
   normalizeCreatorOnboardingCanonicalRecord,
 } from "@/lib/creator-onboarding";
@@ -297,6 +301,32 @@ export async function countersignCreatorAgreementDispatch(input: {
       sentAt: currentCanonical.legalDocumentSentAt ?? nowMs,
       dispatchId: currentCanonical.agreementDispatchId,
     });
+    const creatorSignatureRef = currentCanonical.agreementDispatchId
+      ? onboardingRef.collection(CREATOR_AGREEMENT_SIGNATURES_SUBCOLLECTION).doc(`creator_${currentCanonical.agreementDispatchId}`)
+      : null;
+    const creatorSignatureSnap = creatorSignatureRef ? await transaction.get(creatorSignatureRef) : null;
+    const creatorSignature = creatorSignatureSnap?.data() as Record<string, unknown> | undefined;
+    const creatorEvidence = assertAgreementEvidenceComplete({
+      ...creatorSignature,
+      userId: input.targetUserId,
+      dispatchId: currentCanonical.agreementDispatchId,
+      agreementVersion: readString(creatorSignature?.agreementVersion) || currentCanonical.contractVersion,
+      agreementHash: readString(creatorSignature?.agreementHash) || currentCanonical.agreementHash,
+      agreementSource: readString(creatorSignature?.agreementSource) || template.agreementSource,
+      pdfStoragePath: readString(creatorSignature?.pdfStoragePath) || template.pdfStoragePath,
+      fullTextSnapshotPath: readString(creatorSignature?.fullTextSnapshotPath)
+        || template.fullTextSnapshotPath
+        || template.fullTextStoragePath,
+      embeddedFullTextReference: readString(creatorSignature?.embeddedFullTextReference)
+        || template.embeddedFullTextReference,
+    }, {
+      requireSignatureEvidence: true,
+      requireSourceSnapshot: true,
+    });
+
+    if (!creatorEvidence.evidenceComplete) {
+      throw new Error(`Creator signature evidence is incomplete: ${creatorEvidence.missingEvidenceFields.join(", ")}.`);
+    }
 
     if (currentCanonical.adminSignatureStatus === "signature_signed") {
       return {
@@ -313,6 +343,10 @@ export async function countersignCreatorAgreementDispatch(input: {
 
     const signature = buildCreatorAgreementSignature({
       dispatch,
+      agreementSource: template.agreementSource,
+      pdfStoragePath: template.pdfStoragePath,
+      fullTextSnapshotPath: template.fullTextSnapshotPath ?? template.fullTextStoragePath,
+      embeddedFullTextReference: template.embeddedFullTextReference,
       signerUid: input.signerUid,
       signerName: input.signerName,
       signerEmail: input.signerEmail,
@@ -324,6 +358,30 @@ export async function countersignCreatorAgreementDispatch(input: {
         route: "/api/admin/creator-agreements",
       },
     });
+    const adminEvidence = assertAgreementEvidenceComplete(signature, {
+      requireSignatureEvidence: true,
+      requireSourceSnapshot: true,
+    });
+    if (!adminEvidence.evidenceComplete) {
+      throw new Error(`Admin countersign evidence is incomplete: ${adminEvidence.missingEvidenceFields.join(", ")}.`);
+    }
+    const agreementComparison = compareSignedAgreementToActive({
+      agreementVersion: dispatch.agreementVersion,
+      agreementHash: dispatch.agreementHash,
+      agreementSource: template.agreementSource,
+      creatorSignatureStatus: currentCanonical.creatorSignatureStatus,
+      adminSignatureStatus: "signature_signed",
+      legalStatus: "legal_signed",
+      creatorSignatureAgreementVersion: readString(creatorSignature?.agreementVersion) || dispatch.agreementVersion,
+      creatorSignatureAgreementHash: readString(creatorSignature?.agreementHash) || dispatch.agreementHash,
+      adminSignatureAgreementVersion: signature.agreementVersion,
+      adminSignatureAgreementHash: signature.agreementHash,
+      ownerOverrideActive: currentCanonical.ownerOverrideActive,
+      ownerOverrideReason: currentCanonical.ownerOverrideReason,
+    }, activeTemplate);
+    if (!agreementComparison.legalSignedAllowed) {
+      throw new Error("Creator and admin signatures must match the same agreement version and hash before legal completion.");
+    }
 
     const nextCanonical = buildCreatorOnboardingCanonicalRecord({
       userId: input.targetUserId,

@@ -4,7 +4,6 @@ import { NextRequest, NextResponse } from "next/server";
 
 import {
   CREATOR_AGREEMENT_TEMPLATE_COLLECTION,
-  DEFAULT_CREATOR_AGREEMENT_HASH,
   DEFAULT_CREATOR_AGREEMENT_TITLE,
   type CreatorAgreementSource,
   type CreatorAgreementTemplate,
@@ -13,6 +12,10 @@ import {
   normalizeCreatorAgreementTemplate,
   toCreatorAgreementTemplateAdminView,
 } from "@/lib/creator-agreement-documents";
+import {
+  ACTIVE_CREATOR_AGREEMENT_EMBEDDED_FULL_TEXT_REFERENCE,
+  buildAgreementHash,
+} from "@/lib/creator-agreement-version";
 import { isCreatorOwnerEmail } from "@/lib/creator-admin";
 import {
   activateCreatorAgreementTemplate,
@@ -174,7 +177,7 @@ async function buildTemplateFromJson(input: {
     : readAgreementSource(input.source.agreementSource);
   const agreementHash = input.fileUpload?.agreementHash
     || readString(input.source.agreementHash)
-    || (agreementSource === "native_full_text" ? DEFAULT_CREATOR_AGREEMENT_HASH : "");
+    || (agreementSource === "native_full_text" ? buildAgreementHash({ agreementVersion }) : "");
 
   if (!agreementVersion || agreementVersion.length < 3) {
     throw new Error("Enter an agreement version before saving.");
@@ -196,8 +199,14 @@ async function buildTemplateFromJson(input: {
     fullTextStoragePath: input.fileUpload && input.fileUpload.mimeType !== "application/pdf"
       ? input.fileUpload.storagePath
       : undefined,
+    fullTextSnapshotPath: input.fileUpload && input.fileUpload.mimeType !== "application/pdf"
+      ? input.fileUpload.storagePath
+      : undefined,
     pdfStoragePath: input.fileUpload && input.fileUpload.mimeType === "application/pdf"
       ? input.fileUpload.storagePath
+      : undefined,
+    embeddedFullTextReference: agreementSource === "native_full_text"
+      ? ACTIVE_CREATOR_AGREEMENT_EMBEDDED_FULL_TEXT_REFERENCE
       : undefined,
     agreementHash,
     summaryBullets: readSummaryBullets(input.source.summaryBullets).length > 0
@@ -205,6 +214,7 @@ async function buildTemplateFromJson(input: {
       : buildDefaultCreatorAgreementTemplate(input.nowMs).summaryBullets,
     createdAt: input.nowMs,
     createdByUid: input.actorUid,
+    effectiveAt: input.activeForNewCreators === true ? input.nowMs : undefined,
     supersedesVersion: readString(input.source.supersedesVersion) || undefined,
   } satisfies CreatorAgreementTemplate;
 }
