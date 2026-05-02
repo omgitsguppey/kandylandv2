@@ -246,6 +246,7 @@ export function buildAdminAiDebugSignalInput(input: {
             missingQueueCount: input.creatorOnboardingDiagnostics.summary.missingQueueCount,
             missingSourceCount: input.creatorOnboardingDiagnostics.summary.missingSourceCount,
             projectionWithoutSourceCount: input.creatorOnboardingDiagnostics.summary.projectionWithoutSourceCount,
+            queueParityMismatchCount: input.creatorOnboardingDiagnostics.summary.queueParityMismatchCount,
             missingIdMetadataCount: input.creatorOnboardingDiagnostics.summary.missingIdMetadataCount,
             stuckAwaitingReviewCount: input.creatorOnboardingDiagnostics.summary.stuckAwaitingReviewCount,
             roleMismatchCount: input.creatorOnboardingDiagnostics.summary.roleMismatchCount,

@@ -15,18 +15,21 @@ import { getActiveCreatorAgreementTemplate } from "@/lib/server/creator-agreemen
 import {
     buildCreatorOnboardingCanonicalRecord,
     buildCreatorOnboardingUserProjection,
-    buildCreatorReviewQueueEntry,
     hasCreatorApprovalPrerequisites,
     type CreatorOnboardingCanonicalRecord,
     type CreatorOnboardingHistoryEntry,
     type CreatorOnboardingHistoryEventType,
     normalizeCreatorOnboardingCanonicalRecord,
 } from "@/lib/creator-onboarding";
+import {
+    CREATOR_ONBOARDING_COLLECTION,
+    CREATOR_REVIEW_QUEUE_COLLECTION,
+    materializeCreatorReviewQueueEntryForTransaction,
+} from "@/lib/server/creator-review-queue";
 import type { CreatorApplication, UserProfile } from "@/types/db";
 
-export const CREATOR_ONBOARDING_COLLECTION = "creator_onboarding";
-export const CREATOR_REVIEW_QUEUE_COLLECTION = "creator_review_queue";
 export const CREATOR_ONBOARDING_HISTORY_SUBCOLLECTION = "history";
+export { CREATOR_ONBOARDING_COLLECTION, CREATOR_REVIEW_QUEUE_COLLECTION };
 
 export type CreatorOnboardingActor = {
     id: string;
@@ -425,25 +428,25 @@ export function syncCreatorOnboardingDocuments(
     },
 ) {
     const onboardingRef = adminDb.collection(CREATOR_ONBOARDING_COLLECTION).doc(input.userId);
-    const queueRef = adminDb.collection(CREATOR_REVIEW_QUEUE_COLLECTION).doc(input.userId);
     const userRef = adminDb.collection("users").doc(input.userId);
     const creatorApplication = buildCreatorOnboardingUserProjection(input.canonical);
-    const queueEntry = buildCreatorReviewQueueEntry({
+    const materializedQueue = materializeCreatorReviewQueueEntryForTransaction(transaction, {
+        userId: input.userId,
         canonical: input.canonical,
         displayName: input.displayName,
+        nowMs: input.canonical.updatedAt,
     });
 
     transaction.set(onboardingRef, stripUndefinedDeep(input.canonical), { merge: true });
-    transaction.set(queueRef, stripUndefinedDeep(queueEntry), { merge: true });
     transaction.set(userRef, stripUndefinedDeep({
         creatorApplication,
     }), { merge: true });
 
     return {
         creatorApplication,
-        queueEntry,
+        queueEntry: materializedQueue.queueEntry,
         onboardingRef,
-        queueRef,
+        queueRef: materializedQueue.queueRef,
         userRef,
     };
 }

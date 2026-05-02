@@ -143,10 +143,11 @@ describe("creator onboarding diagnostics", () => {
         });
 
         expect(result.summary).toMatchObject({
-            totalIssues: 6,
+            totalIssues: 9,
             missingQueueCount: 1,
             missingSourceCount: 1,
             projectionWithoutSourceCount: 1,
+            queueParityMismatchCount: 3,
             missingIdMetadataCount: 1,
             stuckAwaitingReviewCount: 1,
             roleMismatchCount: 1,
@@ -155,6 +156,7 @@ describe("creator onboarding diagnostics", () => {
             "missing_queue_record",
             "missing_source_onboarding",
             "projection_without_source",
+            "queue_parity_mismatch",
             "id_missing_metadata",
             "stuck_without_blockers",
             "role_status_mismatch",

@@ -26,6 +26,8 @@ The canonical settings shape is `CreatorSettings` and `CreatorRestrictions` in `
 
 `creator_review_queue/{uid}` is the Admin Roster projection. It exists so the roster can stay fast and decision-oriented. It must be derived from canonical creator onboarding state through shared sync/materializer helpers.
 
+`src/lib/server/creator-review-queue.ts` is the deterministic admin projection materializer for `creator_review_queue/{uid}`. It owns queue materialization, queue removal, per-user rebuilds, and `compareOnboardingToQueue` parity checks. Future agents must not turn the queue into a loose roster filter or a hand-written status blob. It is explicitly not a loose roster filter.
+
 `users/{uid}.creatorApplication` is a creator-facing and legacy-compatible projection. It exists for waitlist routing, creator status rendering, and older consumers that have not fully moved to canonical onboarding reads.
 
 Important rule: `users/{uid}.creatorApplication` is not the future canonical source. It may be used as fallback/projection when `creator_onboarding/{uid}` is absent, but new creator lifecycle logic must not treat it as authoritative when canonical onboarding exists.
@@ -56,7 +58,7 @@ Legacy-compatible code is allowed only when it is explicit, tested, and routed t
 ## Cleanup Plan
 
 1. Keep `src/lib/server/creator-onboarding.ts` as the only dual-write bridge for creator onboarding submissions and projection sync.
-2. Keep Admin Roster reads queue/canonical first. Use `users.creatorApplication` only as explicit projection fallback.
+2. Keep Admin Roster reads queue/canonical first through `src/lib/server/creator-review-queue.ts`. Use `users.creatorApplication` only as explicit projection fallback.
 3. Keep diagnostics that flag `projection_without_source`, `missing_source_onboarding`, and `missing_queue_record`.
 4. Migrate projection-only creator records by creating canonical `creator_onboarding/{uid}` records and queue projections, not by blessing the projection as canonical.
 5. Keep creator agreement template, dispatch, signature, and history evidence versioned under the agreement/onboarding helpers.

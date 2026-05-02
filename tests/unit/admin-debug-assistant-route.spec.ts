@@ -175,6 +175,7 @@ describe("GET /api/admin/debug/assistant", () => {
                 missingQueueCount: 0,
                 missingSourceCount: 0,
                 projectionWithoutSourceCount: 0,
+                queueParityMismatchCount: 0,
                 missingIdMetadataCount: 0,
                 stuckAwaitingReviewCount: 0,
                 roleMismatchCount: 0,

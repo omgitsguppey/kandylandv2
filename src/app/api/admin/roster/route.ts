@@ -131,6 +131,11 @@ type CreatorReviewQueueRosterEntry = RosterEntry & {
     rosterBucket?: "needs_review" | "waiting" | "approved";
     visibleStatusLabels?: ReturnType<typeof deriveCreatorVisibleStatus>["visibleStatusLabels"];
     normalizedProjectionDebug?: ReturnType<typeof deriveCreatorVisibleStatus>["debug"];
+    queueMaterializedAt?: number;
+    sourceOnboardingUpdatedAt?: number;
+    projectionLagMs?: number;
+    queueParityOk?: boolean;
+    queueParityDelta?: Array<Record<string, unknown>>;
 };
 
 type CreatorOpsAggregate = {
@@ -354,6 +359,15 @@ function serializeQueueEntry(
         reapplyAvailableAt: toTimestampNumber(raw.reapplyAvailableAt) || undefined,
         adminNotes: readString(raw.adminNotes) || undefined,
         reviewedBy: readString(raw.reviewedBy) || undefined,
+        queueMaterializedAt: toTimestampNumber(raw.queueMaterializedAt) || undefined,
+        sourceOnboardingUpdatedAt: toTimestampNumber(raw.sourceOnboardingUpdatedAt) || undefined,
+        projectionLagMs: typeof raw.projectionLagMs === "number" && Number.isFinite(raw.projectionLagMs)
+            ? Math.max(0, Math.trunc(raw.projectionLagMs))
+            : undefined,
+        queueParityOk: raw.queueParityOk === true,
+        queueParityDelta: Array.isArray(raw.queueParityDelta)
+            ? raw.queueParityDelta.filter((entry): entry is Record<string, unknown> => Boolean(entry) && typeof entry === "object" && !Array.isArray(entry))
+            : undefined,
     };
 
     const visibleStatus = deriveCreatorVisibleStatus(entry, {

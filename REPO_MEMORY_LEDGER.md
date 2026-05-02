@@ -4,6 +4,10 @@ Status: Canonical repository-memory and architecture-decision ledger
 Last refreshed: 2026-05-02
 Repo: `C:\Users\uylus\OneDrive\Documents\KandyDrops_Final`
 
+## 2026-05-02 Creator review queue materializer
+
+`creator_review_queue/{uid}` is now explicitly materialized by `src/lib/server/creator-review-queue.ts` from canonical `creator_onboarding/{uid}` records. `syncCreatorOnboardingDocuments(...)` owns the transaction path, so creator signup, intake, agreement, ID, approval, owner override, role activation, and admin lifecycle updates keep queue projections in sync. Queue records expose `queueMaterializedAt`, `sourceOnboardingUpdatedAt`, `projectionLagMs`, `queueParityOk`, and `queueParityDelta`; Admin Debug diagnostics flag `queue_parity_mismatch` when the projection drifts. Do not hand-build queue status blobs or filter review applicants by creator role only.
+
 ## 2026-05-02 Creator onboarding projection normalizer
 
 Creator onboarding display truth now routes through `src/lib/creator-onboarding-projection.ts`. Admin Roster decision buckets, primary action labels, visible status labels, admin user detail projection display, and Debug evidence should use this helper instead of parsing raw `creatorApplication` enum values locally. Raw enum values remain available in `rawStatusValues` and Debug detail, but primary UI labels must use the normalized labels such as `Waiting for signature`, `Agreement not sent`, `ID ready for review`, and `Needs changes`.

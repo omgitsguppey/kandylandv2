@@ -8,11 +8,13 @@ import {
     type CreatorOnboardingCanonicalRecord,
     type CreatorReviewQueueEntry,
 } from "@/lib/creator-onboarding";
+import { compareCreatorOnboardingToQueueRecords } from "@/lib/server/creator-review-queue";
 
 export type CreatorOnboardingDiagnosticIssueKey =
     | "missing_queue_record"
     | "missing_source_onboarding"
     | "projection_without_source"
+    | "queue_parity_mismatch"
     | "id_missing_metadata"
     | "stuck_without_blockers"
     | "role_status_mismatch";
@@ -32,6 +34,7 @@ export type CreatorOnboardingDiagnosticSummary = {
     missingQueueCount: number;
     missingSourceCount: number;
     projectionWithoutSourceCount: number;
+    queueParityMismatchCount: number;
     missingIdMetadataCount: number;
     stuckAwaitingReviewCount: number;
     roleMismatchCount: number;
@@ -86,6 +89,27 @@ export function buildCreatorOnboardingDiagnostics(input: {
                 detail: "This creator should be visible in the roster review lane, but the derived queue record is missing.",
                 link: `/admin/user/${userId}`,
             });
+        }
+
+        const queueEntry = queueByUser.get(userId);
+        if (queueEntry) {
+            const parity = compareCreatorOnboardingToQueueRecords({
+                userId,
+                canonical,
+                queue: queueEntry as unknown as Record<string, unknown>,
+            });
+
+            if (!parity.queueParityOk) {
+                pushIssue({
+                    key: "queue_parity_mismatch",
+                    severity: "warn",
+                    userId,
+                    creatorDisplayName: canonical.creatorDisplayName,
+                    message: "Creator review queue projection is stale",
+                    detail: `Queue projection differs from canonical onboarding on ${parity.queueParityDelta.map((entry) => entry.field).join(", ") || "unknown fields"}.`,
+                    link: `/admin/user/${userId}`,
+                });
+            }
         }
 
         if (canonical.idVerificationStatus === "id_submitted" && !canonical.idDocument) {
@@ -165,6 +189,7 @@ export function buildCreatorOnboardingDiagnostics(input: {
         missingQueueCount: issues.filter((entry) => entry.key === "missing_queue_record").length,
         missingSourceCount: issues.filter((entry) => entry.key === "missing_source_onboarding").length,
         projectionWithoutSourceCount: issues.filter((entry) => entry.key === "projection_without_source").length,
+        queueParityMismatchCount: issues.filter((entry) => entry.key === "queue_parity_mismatch").length,
         missingIdMetadataCount: issues.filter((entry) => entry.key === "id_missing_metadata").length,
         stuckAwaitingReviewCount: issues.filter((entry) => entry.key === "stuck_without_blockers").length,
         roleMismatchCount: issues.filter((entry) => entry.key === "role_status_mismatch").length,

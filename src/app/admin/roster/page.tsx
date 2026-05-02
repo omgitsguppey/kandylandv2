@@ -120,6 +120,11 @@ type CreatorReviewQueueEntry = {
     agreementSource?: CreatorAgreementSource;
     agreementDispatchId?: string;
     agreementDispatchStatus?: "sent" | "viewed" | "signed" | "superseded";
+    queueMaterializedAt?: number;
+    sourceOnboardingUpdatedAt?: number;
+    projectionLagMs?: number;
+    queueParityOk?: boolean;
+    queueParityDelta?: Array<Record<string, unknown>>;
 };
 
 type RosterUser = {
@@ -946,6 +951,12 @@ export default function AdminRosterPage() {
         projectionSourceUsed: selectedVisibleStatus?.debug.projectionSourceUsed === true,
         rawStatusValues: selectedVisibleStatus ? JSON.stringify(selectedVisibleStatus.debug.rawStatusValues) : "",
         visibleStatusLabels: selectedVisibleStatus ? JSON.stringify(selectedVisibleStatus.visibleStatusLabels) : "",
+        queueMaterializedAt: selectedEntry?.queueMaterializedAt ?? 0,
+        queueBucket: selectedEntry?.queueBucket ?? "",
+        sourceOnboardingUpdatedAt: selectedEntry?.sourceOnboardingUpdatedAt ?? selectedCanonical?.updatedAt ?? 0,
+        projectionLagMs: selectedEntry?.projectionLagMs ?? 0,
+        queueParityOk: selectedEntry?.queueParityOk === true,
+        queueParityDelta: JSON.stringify(selectedEntry?.queueParityDelta ?? []),
         accountControlsVisible: Boolean(expandedSections.account_controls),
         ...viewAsDebug,
         syntheticCreatorMarkerPresent: Boolean(selectedCanonical?.isSyntheticCreator || detail?.user.isSyntheticCreator || detail?.user.adminViewAsDebug?.syntheticCreatorMarkerPresent),

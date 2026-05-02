@@ -1,13 +1,21 @@
 # EVERY FILE FUNCTION CHECKLIST
 
 **Last Updated:** 2026-05-02
-**Current Focus:** Creator Onboarding Projection Normalizer Cleanup.
+**Current Focus:** Creator Review Queue Materializer Cleanup.
 **Status:** In Progress. Current tracked-file coverage is reconciled as of 2026-04-28: every `git ls-files` entry has a current checklist heading, while detailed function-level audits remain pending for many historical and newly reconciled files.
 Purpose: exhaustive no-skip audit checklist covering every repository file currently in scope and every detected function-like implementation.
 
 Scoring: all entries below are marked as included in the current validated sweep. Confidence reflects current repository-state confidence, not perfection or future-proofing.
 
 Current repo-wide state snapshot: see [FULL_SCALE_CODEBASE_AUDIT.md](/Users/uylus/OneDrive/Documents/KandyDrops_Final/FULL_SCALE_CODEBASE_AUDIT.md) for the current live baseline, verification state, and continuity rules, and see [REPO_MEMORY_LEDGER.md](/Users/uylus/OneDrive/Documents/KandyDrops_Final/REPO_MEMORY_LEDGER.md) for major architectural and workflow decisions. The detailed file/function body below remains valuable historical evidence, but it has not been fully regenerated against the current 2026-04-18 inventory review yet.
+
+## 2026-05-02 Creator Review Queue Materializer Coverage
+
+- [x] `src/lib/server/creator-review-queue.ts` owns deterministic `creator_review_queue/{uid}` materialization, removal, rebuild, transaction materialization, and canonical-vs-projection parity comparison.
+- [x] `src/lib/server/creator-onboarding.ts` routes `syncCreatorOnboardingDocuments(...)` through the materializer so registration, intake, agreement, ID, approval, owner override, role activation, and admin lifecycle writes rebuild the queue projection from `creator_onboarding/{uid}`.
+- [x] `src/lib/creator-onboarding.ts` includes the required queue fields and approved-bucket role rule, while `src/app/api/admin/roster/route.ts` and `src/app/admin/roster/page.tsx` expose queue materialization/parity Debug fields.
+- [x] `src/lib/server/creator-onboarding-diagnostics.ts`, `src/lib/server/ai-debug-assistant.ts`, and `src/lib/ai-debug-assistant.ts` expose queue parity mismatch diagnostics for Admin Debug evidence.
+- [x] `scripts/agent/validate-creator-review-queue-materializer.ts`, `tests/unit/creator-review-queue-materializer.spec.ts`, focused onboarding/roster route tests, and `docs/agent-truth/creator-review-queue.md` validate the targeted materializer contract.
 
 ## 2026-05-02 Creator Onboarding Projection Normalizer Coverage
 

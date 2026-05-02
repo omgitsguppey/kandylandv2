@@ -1359,11 +1359,12 @@ export function deriveCreatorReviewQueueBucket(input: {
     idVerificationStatus: CreatorOnboardingIdStatus;
     segmentationStatus: CreatorOnboardingSegmentStatus;
     approvalStatus: CreatorOnboardingApprovalStatus;
+    role?: "user" | "creator" | "admin";
     introAcknowledgedAt?: number;
     ownerOverrideActive?: boolean;
     legallyClearedAt?: number;
 }) {
-    if (input.approvalStatus === "creator_approved") {
+    if (input.approvalStatus === "creator_approved" || input.role === "creator") {
         return "approved" satisfies CreatorReviewQueueBucket;
     }
 
@@ -1846,6 +1847,7 @@ export function buildCreatorReviewQueueEntry(input: {
         idVerificationStatus: canonical.idVerificationStatus,
         segmentationStatus: canonical.segmentationStatus,
         approvalStatus: canonical.approvalStatus,
+        role: canonical.role,
         introAcknowledgedAt: canonical.introAcknowledgedAt,
         ownerOverrideActive: canonical.ownerOverrideActive,
     });
@@ -1887,6 +1889,9 @@ export function buildCreatorReviewQueueEntry(input: {
         agreementDispatchId: canonical.agreementDispatchId,
         agreementDispatchStatus: canonical.agreementDispatchStatus,
         introAcknowledgedAt: canonical.introAcknowledgedAt,
+        agreementBasis: canonical.agreementBasis,
+        legallyClearedAt: canonical.legallyClearedAt,
+        legallyClearedBy: canonical.legallyClearedBy,
         ownerOverrideActive: canonical.ownerOverrideActive,
         isSyntheticCreator: canonical.isSyntheticCreator,
         syntheticCreatorType: canonical.syntheticCreatorType,

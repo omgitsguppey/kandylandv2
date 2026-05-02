@@ -1,5 +1,29 @@
 # KandyDrops Core Codebase Audit & Defensive Ledger
 
+## [2026-05-02 #105] PRE: Creator Review Queue Materializer Cleanup
+
+Scope started:
+- Making `creator_review_queue/{uid}` an explicit deterministic projection of `creator_onboarding/{uid}` instead of an ad hoc roster/status blob.
+- Required outputs: server materializer helper, sync wiring for registration/intake/admin lifecycle updates, queue/onboarding parity helper, debug metadata, docs, validation script, focused tests, TypeScript, `git diff --check`, commit, and push.
+- This pass must not redesign Admin Roster, create a second creator onboarding source, alter payment/economy paths, or bypass canonical creator onboarding/history truth.
+
+Initial evidence:
+- Worktree was clean at startup on `main`.
+- Control tower routing, doctrine consultation workflow, product/copy/UI doctrine, source-of-truth map, preflight/postflight checklists, and generated fast-start context were consulted.
+- Runtime owners inspected first: `src/lib/server/creator-onboarding.ts`, `src/lib/creator-onboarding.ts`, `/api/user/register`, `/api/admin/roster`, admin creator/account/fan settings routes, creator onboarding routes, diagnostics, and focused creator/roster tests.
+
+Scope completed:
+- Added `src/lib/server/creator-review-queue.ts` as the explicit server materializer for `creator_review_queue/{uid}`, including materialize, remove, rebuild, transaction materialization, and onboarding-vs-queue parity comparison.
+- Updated `syncCreatorOnboardingDocuments(...)` so creator signup, intake, agreement, ID, approval, owner override, role activation, and admin lifecycle updates materialize the review queue from canonical onboarding truth.
+- Added queue materialization Debug fields: `queueMaterializedAt`, `sourceOnboardingUpdatedAt`, `projectionLagMs`, `queueParityOk`, and `queueParityDelta`.
+- Extended creator onboarding diagnostics to flag stale queue projections and added docs, validation, and focused materializer tests.
+
+Verification:
+- Passed: `npm run check:creator-review-queue-materializer`
+- Passed: `npx vitest run tests/unit/creator-review-queue-materializer.spec.ts tests/unit/creator-onboarding-server.spec.ts tests/unit/admin-roster-route.spec.ts tests/unit/creator-onboarding-diagnostics.spec.ts`
+- Passed: `npx vitest run tests/unit/user-register-route.spec.ts tests/unit/creator-onboarding-application-route.spec.ts tests/unit/creator-onboarding-intro-route.spec.ts tests/unit/creator-contract-signature-route.spec.ts tests/unit/creator-id-submission-route.spec.ts tests/unit/admin-users-route.spec.ts`
+- Passed: `npm run typecheck`
+
 ## [2026-05-02 #104] PRE: Creator Onboarding Projection Normalizer Cleanup
 
 Scope started:

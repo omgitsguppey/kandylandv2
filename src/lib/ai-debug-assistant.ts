@@ -84,6 +84,7 @@ export type AdminAiDebugSignalInput = {
         missingQueueCount: number;
         missingSourceCount: number;
         projectionWithoutSourceCount: number;
+        queueParityMismatchCount: number;
         missingIdMetadataCount: number;
         stuckAwaitingReviewCount: number;
         roleMismatchCount: number;
