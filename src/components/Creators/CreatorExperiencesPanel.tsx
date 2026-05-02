@@ -168,6 +168,7 @@ export function CreatorExperiencesPanel({
                     <button
                         type="button"
                         onClick={() => selectedExperience === "subscriptions" ? onSelectedExperienceChange(null) : onSelectedExperienceChange("subscriptions")}
+                        aria-expanded={selectedExperience === "subscriptions"}
                         className={cn(
                             "flex flex-col items-center justify-center rounded-[1.4rem] border px-2 py-4 text-center transition-all duration-300",
                             selectedExperience === "subscriptions"
@@ -185,6 +186,7 @@ export function CreatorExperiencesPanel({
                     <button
                         type="button"
                         onClick={() => selectedExperience === "messages" ? onSelectedExperienceChange(null) : onSelectedExperienceChange("messages")}
+                        aria-expanded={selectedExperience === "messages"}
                         className={cn(
                             "flex flex-col items-center justify-center rounded-[1.4rem] border px-2 py-4 text-center transition-all duration-300",
                             selectedExperience === "messages"
@@ -202,6 +204,7 @@ export function CreatorExperiencesPanel({
                     <button
                         type="button"
                         onClick={() => selectedExperience === "requests" ? onSelectedExperienceChange(null) : onSelectedExperienceChange("requests")}
+                        aria-expanded={selectedExperience === "requests"}
                         className={cn(
                             "flex flex-col items-center justify-center rounded-[1.4rem] border px-2 py-4 text-center transition-all duration-300",
                             selectedExperience === "requests"
@@ -219,6 +222,7 @@ export function CreatorExperiencesPanel({
                     <button
                         type="button"
                         onClick={() => selectedExperience === "bookings" ? onSelectedExperienceChange(null) : onSelectedExperienceChange("bookings")}
+                        aria-expanded={selectedExperience === "bookings"}
                         className={cn(
                             "flex flex-col items-center justify-center rounded-[1.4rem] border px-2 py-4 text-center transition-all duration-300",
                             selectedExperience === "bookings"

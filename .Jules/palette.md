@@ -9,3 +9,7 @@
 ## 2024-03-31 - Added ARIA label to mobile profile avatar
 **Learning:** Found a profile avatar `<button>` in the Navbar that was visually an icon-only button on mobile devices (`md:hidden`). It used an image or initial for sighted users but lacked an accessible name for screen readers.
 **Action:** Always provide an `aria-label` to avatar or profile buttons when they function as icon-only interactive elements without visible text labels.
+
+## 2024-05-02 - Mutually Exclusive ARIA Interaction Models
+**Learning:** When building interactive controls, applying both `aria-expanded` and `aria-pressed` to the same element is an accessibility anti-pattern. These attributes represent mutually exclusive interaction models.
+**Action:** Use `aria-expanded` strictly for elements that toggle the visibility of a related panel (like the experience selection buttons in `CreatorExperiencesPanel`), and `aria-pressed` strictly for toggle buttons that indicate an active state without controlling visibility.
