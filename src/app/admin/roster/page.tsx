@@ -51,6 +51,7 @@ import {
     type CreatorOnboardingHistoryEntry,
     type CreatorOnboardingIdStatus,
     type CreatorOnboardingLegalStatus,
+    type CreatorOnboardingSegmentStatus,
     type CreatorOnboardingSubmissionStatus,
 } from "@/lib/creator-onboarding";
 import { PRIMARY_CREATOR_OWNER_EMAIL } from "@/lib/creator-admin";
@@ -70,6 +71,7 @@ import {
     type RosterDetailSectionKey,
     type RosterTab,
 } from "./decision-queue";
+import { deriveCreatorVisibleStatus } from "@/lib/creator-onboarding-projection";
 
 type CreatorReviewQueueEntry = {
     uid: string;
@@ -84,6 +86,7 @@ type CreatorReviewQueueEntry = {
     approvalStatus: CreatorOnboardingApprovalStatus;
     legalStatus: CreatorOnboardingLegalStatus;
     idVerificationStatus: CreatorOnboardingIdStatus;
+    segmentationStatus?: CreatorOnboardingSegmentStatus;
     contractDocumentStatus: CreatorContractDocumentStatus;
     creatorSignatureStatus: CreatorContractSignatureStatus;
     adminSignatureStatus: CreatorContractSignatureStatus;
@@ -347,7 +350,39 @@ export default function AdminRosterPage() {
     const approvedLiveCreators = liveCreators.filter((entry) => !approvedQueueIds.has(entry.uid));
     const visibleDecisionEntries = tab === "create" ? [] : entriesByDecision[tab];
     const collapsedSections = ROSTER_DETAIL_SECTION_KEYS.filter((sectionKey) => !expandedSections[sectionKey]);
-    const selectedPrimaryAction = selectedCanonical ? buildPrimaryActionLabel(selectedCanonical) : selectedEntry ? buildPrimaryActionLabel(selectedEntry) : "";
+    const selectedVisibleStatus = selectedCanonical
+        ? deriveCreatorVisibleStatus(selectedCanonical, {
+            source: {
+                userId: selectedCanonical.userId,
+                submissionStatus: selectedCanonical.submissionStatus,
+                approvalStatus: selectedCanonical.approvalStatus,
+                legalStatus: selectedCanonical.legalStatus,
+                idVerificationStatus: selectedCanonical.idVerificationStatus,
+                segmentationStatus: selectedCanonical.segmentationStatus,
+                contractDocumentStatus: selectedCanonical.contractDocumentStatus,
+                creatorSignatureStatus: selectedCanonical.creatorSignatureStatus,
+                adminSignatureStatus: selectedCanonical.adminSignatureStatus,
+            },
+            context: { source: "canonical" },
+        })
+        : selectedEntry
+            ? deriveCreatorVisibleStatus(selectedEntry, {
+                source: {
+                    userId: selectedEntry.uid,
+                    queueBucket: selectedEntry.queueBucket,
+                    submissionStatus: selectedEntry.submissionStatus,
+                    approvalStatus: selectedEntry.approvalStatus,
+                    legalStatus: selectedEntry.legalStatus,
+                    idVerificationStatus: selectedEntry.idVerificationStatus,
+                    segmentationStatus: selectedEntry.segmentationStatus,
+                    contractDocumentStatus: selectedEntry.contractDocumentStatus,
+                    creatorSignatureStatus: selectedEntry.creatorSignatureStatus,
+                    adminSignatureStatus: selectedEntry.adminSignatureStatus,
+                },
+                context: { source: "projection" },
+            })
+            : null;
+    const selectedPrimaryAction = selectedVisibleStatus?.primaryAction ?? "";
 
     useEffect(() => {
         let cancelled = false;
@@ -906,6 +941,11 @@ export default function AdminRosterPage() {
         signatureEvidenceComplete: Boolean(selectedAgreementHash && selectedCanonical?.creatorSignatureStatus === "signature_signed" && selectedCanonical?.adminSignatureStatus === "signature_signed"),
         priorAgreementPreserved: Boolean(selectedCanonical?.agreementDispatchId && selectedAgreementHash),
         requiresResign: selectedCanonical?.creatorSignatureStatus === "signature_pending" && selectedCanonical?.contractDocumentStatus === "contract_sent",
+        normalizedFromLegacy: selectedVisibleStatus?.debug.normalizedFromLegacy === true,
+        canonicalSourceUsed: selectedVisibleStatus?.debug.canonicalSourceUsed === true,
+        projectionSourceUsed: selectedVisibleStatus?.debug.projectionSourceUsed === true,
+        rawStatusValues: selectedVisibleStatus ? JSON.stringify(selectedVisibleStatus.debug.rawStatusValues) : "",
+        visibleStatusLabels: selectedVisibleStatus ? JSON.stringify(selectedVisibleStatus.visibleStatusLabels) : "",
         accountControlsVisible: Boolean(expandedSections.account_controls),
         ...viewAsDebug,
         syntheticCreatorMarkerPresent: Boolean(selectedCanonical?.isSyntheticCreator || detail?.user.isSyntheticCreator || detail?.user.adminViewAsDebug?.syntheticCreatorMarkerPresent),
@@ -1327,11 +1367,11 @@ export default function AdminRosterPage() {
                                             </div>
                                             <div className="rounded-2xl border border-white/10 bg-black/20 p-3">
                                                 <p className="text-[10px] font-semibold uppercase tracking-[0.16em] text-zinc-500">Creator signature</p>
-                                                <p className="mt-2 text-sm font-semibold text-white">{selectedCanonical.creatorSignatureStatus === "signature_signed" ? "Signed" : "Waiting for signature"}</p>
+                                                <p className="mt-2 text-sm font-semibold text-white">{deriveCreatorVisibleStatus(selectedCanonical).visibleStatusLabels.creatorSignatureStatus}</p>
                                             </div>
                                             <div className="rounded-2xl border border-white/10 bg-black/20 p-3">
                                                 <p className="text-[10px] font-semibold uppercase tracking-[0.16em] text-zinc-500">Admin countersign</p>
-                                                <p className="mt-2 text-sm font-semibold text-white">{selectedCanonical.adminSignatureStatus === "signature_signed" ? "Countersigned" : "Not countersigned"}</p>
+                                                <p className="mt-2 text-sm font-semibold text-white">{deriveCreatorVisibleStatus(selectedCanonical).visibleStatusLabels.adminSignatureStatus}</p>
                                             </div>
                                             <div className="rounded-2xl border border-white/10 bg-black/20 p-3">
                                                 <p className="text-[10px] font-semibold uppercase tracking-[0.16em] text-zinc-500">Full document available</p>

@@ -1,11 +1,10 @@
-import type {
-    CreatorContractDocumentStatus,
-    CreatorContractSignatureStatus,
-    CreatorOnboardingApprovalStatus,
-    CreatorOnboardingIdStatus,
-    CreatorOnboardingLegalStatus,
-    CreatorOnboardingSubmissionStatus,
-} from "@/lib/creator-onboarding";
+import {
+    CREATOR_ONBOARDING_VISIBLE_STATUS_LABELS,
+    deriveCreatorPrimaryAction,
+    deriveCreatorRosterBucket,
+    deriveCreatorVisibleStatus,
+    type CreatorOnboardingDecisionRecord,
+} from "@/lib/creator-onboarding-projection";
 
 export const ROSTER_DECISION_TABS = [
     { key: "needs_review", label: "Needs Review" },
@@ -30,108 +29,34 @@ export const ROSTER_DETAIL_SECTION_KEYS = [
 
 export type RosterDetailSectionKey = (typeof ROSTER_DETAIL_SECTION_KEYS)[number];
 
-export type CreatorDecisionEntry = {
-    uid?: string;
-    role: "user" | "creator" | "admin";
-    submissionStatus: CreatorOnboardingSubmissionStatus;
-    approvalStatus: CreatorOnboardingApprovalStatus;
-    legalStatus: CreatorOnboardingLegalStatus;
-    idVerificationStatus: CreatorOnboardingIdStatus;
-    contractDocumentStatus: CreatorContractDocumentStatus;
-    creatorSignatureStatus: CreatorContractSignatureStatus;
-    adminSignatureStatus: CreatorContractSignatureStatus;
-    readyForApproval: boolean;
-    ownerOverrideActive?: boolean;
-    introAcknowledgedAt?: number;
-};
+export type CreatorDecisionEntry = CreatorOnboardingDecisionRecord;
 
 export function buildPrimaryActionLabel(entry: CreatorDecisionEntry) {
-    if (!entry.introAcknowledgedAt) {
-        return "Waiting for intro";
-    }
-    if (entry.idVerificationStatus === "id_not_requested" || entry.idVerificationStatus === "id_rejected") {
-        return "Request ID upload";
-    }
-    if (entry.contractDocumentStatus !== "contract_sent") {
-        return "Send agreement";
-    }
-    if (entry.creatorSignatureStatus === "signature_signed" && entry.adminSignatureStatus !== "signature_signed") {
-        return "Countersign agreement";
-    }
-    if (entry.readyForApproval || entry.ownerOverrideActive) {
-        return "Approve creator";
-    }
-
-    return "Review application";
+    return deriveCreatorPrimaryAction(entry);
 }
 
 export function classifyRosterDecisionEntry(entry: CreatorDecisionEntry): RosterDecisionTab {
-    if (entry.role === "creator" || entry.approvalStatus === "creator_approved") {
-        return "approved";
-    }
-
-    if (
-        !entry.introAcknowledgedAt
-        || entry.approvalStatus === "creator_needs_changes"
-        || (entry.contractDocumentStatus === "contract_sent" && entry.creatorSignatureStatus !== "signature_signed")
-        || entry.idVerificationStatus === "id_requested"
-    ) {
-        return "waiting";
-    }
-
-    return "needs_review";
+    return deriveCreatorRosterBucket(entry);
 }
 
 export function formatIntakeStatus(entry: CreatorDecisionEntry) {
-    if (!entry.introAcknowledgedAt) {
-        return "Waiting for intro";
-    }
-    if (entry.submissionStatus === "awaiting_manual_review") {
-        return "Ready for review";
-    }
-    return "Submitted";
+    return deriveCreatorVisibleStatus(entry).visibleStatusLabels.intakeStatus;
 }
 
 export function formatAgreementStatus(entry: CreatorDecisionEntry) {
-    if (entry.contractDocumentStatus !== "contract_sent") {
-        return "Agreement not sent";
-    }
-    if (entry.creatorSignatureStatus !== "signature_signed") {
-        return "Waiting for creator signature";
-    }
-    if (entry.adminSignatureStatus !== "signature_signed") {
-        return "Needs countersignature";
-    }
-    return "Agreement signed";
+    return deriveCreatorVisibleStatus(entry).visibleStatusLabels.agreementStatus;
 }
 
-export function formatIdStatus(status: CreatorOnboardingIdStatus) {
-    if (status === "id_not_requested") {
-        return "ID upload not requested";
-    }
-    if (status === "id_requested") {
-        return "Waiting for ID upload";
-    }
-    if (status === "id_submitted") {
-        return "ID ready for review";
-    }
-    if (status === "id_verified") {
-        return "ID verified";
-    }
-    return "ID needs resubmission";
+export function formatIdStatus(status: CreatorDecisionEntry["idVerificationStatus"]) {
+    return CREATOR_ONBOARDING_VISIBLE_STATUS_LABELS.idVerificationStatus[status];
 }
 
-export function formatApprovalStatus(status: CreatorOnboardingApprovalStatus, role: CreatorDecisionEntry["role"]) {
+export function formatApprovalStatus(status: CreatorDecisionEntry["approvalStatus"], role: CreatorDecisionEntry["role"]) {
     if (role === "creator" || status === "creator_approved") {
-        return "Approved creator";
+        return CREATOR_ONBOARDING_VISIBLE_STATUS_LABELS.approvalStatus.creator_approved;
     }
-    if (status === "creator_needs_changes") {
-        return "Waiting for resubmission";
-    }
-    if (status === "creator_rejected") {
-        return "Not approved";
-    }
-    return "Needs review";
+
+    return CREATOR_ONBOARDING_VISIBLE_STATUS_LABELS.approvalStatus[status];
 }
 
 export function buildRosterTelemetryPayload(input: {

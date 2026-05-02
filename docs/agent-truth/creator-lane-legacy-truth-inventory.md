@@ -30,6 +30,18 @@ The canonical settings shape is `CreatorSettings` and `CreatorRestrictions` in `
 
 Important rule: `users/{uid}.creatorApplication` is not the future canonical source. It may be used as fallback/projection when `creator_onboarding/{uid}` is absent, but new creator lifecycle logic must not treat it as authoritative when canonical onboarding exists.
 
+`src/lib/creator-onboarding-projection.ts` is the shared projection normalizer for creator onboarding display and admin roster decision labels. Admin Roster, admin user detail readers, and future creator-facing status surfaces should use its normalized display labels instead of interpreting raw `creatorApplication` status fields locally.
+
+The normalized display contract includes:
+
+- canonical status coercion through `normalizeCreatorOnboardingRecord`
+- queue projection display through `normalizeCreatorReviewQueueEntry`
+- creator-facing projection display through `normalizeCreatorFacingApplication`
+- admin detail display through `normalizeCreatorAdminDetail`
+- roster decision buckets through `deriveCreatorRosterBucket`
+- primary action labels through `deriveCreatorPrimaryAction`
+- `visibleStatusLabels` and debug fields for `normalizedFromLegacy`, `canonicalSourceUsed`, `projectionSourceUsed`, and `rawStatusValues`
+
 ## Legacy Source
 
 Legacy means code that still depends on old projection or compatibility paths:
@@ -56,6 +68,8 @@ Legacy-compatible code is allowed only when it is explicit, tested, and routed t
 Do not treat `users/{uid}.creatorApplication` as canonical when `creator_onboarding/{uid}` exists.
 
 Do not add direct `creatorApplication` writes outside centralized onboarding sync helpers.
+
+Do not parse raw creator onboarding enums in Admin Roster or admin user detail UI with string replacements such as `replaceAll("_", " ")`. Use the projection normalizer and keep raw enum values only in Debug/detail evidence.
 
 Do not create a parallel creator intake collection or audit collection while `creator_onboarding/{uid}` and `creator_onboarding/{uid}/history/{eventId}` are active.
 

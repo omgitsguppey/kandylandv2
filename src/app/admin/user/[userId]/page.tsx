@@ -205,21 +205,21 @@ const CREATOR_APPROVAL_STATUS_OPTIONS = [
 ] as const satisfies Array<{ value: CreatorApplicationState["approvalStatus"]; label: string }>;
 
 const CREATOR_LEGAL_STATUS_OPTIONS = [
-    { value: "legal_pending", label: "Pending" },
-    { value: "legal_sent", label: "Sent" },
-    { value: "legal_signed", label: "Signed" },
+    { value: "legal_pending", label: "Legal not started" },
+    { value: "legal_sent", label: "Waiting on signatures" },
+    { value: "legal_signed", label: "Agreement complete" },
 ] as const satisfies Array<{ value: CreatorApplicationState["legalStatus"]; label: string }>;
 
 const CREATOR_ID_STATUS_OPTIONS = [
-    { value: "id_not_requested", label: "Pending enablement" },
-    { value: "id_requested", label: "Requested" },
-    { value: "id_submitted", label: "Submitted" },
-    { value: "id_verified", label: "Verified" },
-    { value: "id_rejected", label: "Rejected" },
+    { value: "id_not_requested", label: "ID not requested" },
+    { value: "id_requested", label: "Waiting for ID upload" },
+    { value: "id_submitted", label: "ID ready for review" },
+    { value: "id_verified", label: "ID verified" },
+    { value: "id_rejected", label: "ID needs resubmission" },
 ] as const satisfies Array<{ value: CreatorApplicationState["idVerificationStatus"]; label: string }>;
 
 const CREATOR_SEGMENTATION_STATUS_OPTIONS = [
-    { value: "segment_unassigned", label: "Unassigned" },
+    { value: "segment_unassigned", label: "Not assigned" },
     { value: "segment_assigned", label: "Assigned" },
 ] as const satisfies Array<{ value: CreatorApplicationState["segmentationStatus"]; label: string }>;
 
@@ -258,22 +258,6 @@ function formatRelativeTimestamp(value: unknown) {
     return typeof value === "number" && value > 0
         ? formatDistanceToNow(value, { addSuffix: true })
         : "No timestamp";
-}
-
-function formatCreatorStatusLabel(value: string | undefined) {
-    return value ? value.replaceAll("_", " ") : "pending";
-}
-
-function getPrimaryCreatorReviewStatus(value: CreatorApplicationState | null) {
-    if (!value) {
-        return "pending";
-    }
-
-    if (value.approvalStatus !== "creator_pending") {
-        return formatCreatorStatusLabel(value.approvalStatus);
-    }
-
-    return formatCreatorStatusLabel(value.submissionStatus);
 }
 
 function getSupportStateClasses(state: SupportReadinessState) {

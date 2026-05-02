@@ -241,6 +241,15 @@ describe("GET /api/admin/roster", () => {
             idDocumentFrontFileName: "front.png",
             idDocumentBackFileName: "back.png",
             idDocumentCount: 2,
+            primaryAction: "Waiting for intro",
+            rosterBucket: "waiting",
+            visibleStatusLabels: {
+                idVerificationStatus: "ID not requested",
+                legalStatus: "Legal not started",
+            },
+            normalizedProjectionDebug: {
+                normalizedFromLegacy: true,
+            },
         });
         expect(payload.summary).toMatchObject({
             reviewQueueCount: 1,

@@ -49,6 +49,7 @@ import {
     sanitizeSyntheticReason,
     type SyntheticCreatorType,
 } from "@/lib/admin/synthetic-creators-view-as";
+import { deriveCreatorVisibleStatus } from "@/lib/creator-onboarding-projection";
 
 type RosterRole = "user" | "creator" | "admin";
 type RosterStatus = "active" | "suspended" | "banned";
@@ -126,6 +127,10 @@ type CreatorReviewQueueRosterEntry = RosterEntry & {
     reapplyAvailableAt?: number;
     adminNotes?: string;
     reviewedBy?: string;
+    primaryAction?: string;
+    rosterBucket?: "needs_review" | "waiting" | "approved";
+    visibleStatusLabels?: ReturnType<typeof deriveCreatorVisibleStatus>["visibleStatusLabels"];
+    normalizedProjectionDebug?: ReturnType<typeof deriveCreatorVisibleStatus>["debug"];
 };
 
 type CreatorOpsAggregate = {
@@ -221,7 +226,7 @@ function serializeQueueEntry(
         return null;
     }
 
-    return {
+    const entry: CreatorReviewQueueRosterEntry = {
         uid,
         displayName: user?.displayName || readString(raw.displayName) || creatorDisplayName,
         email: readString(raw.email) || user?.email || "",
@@ -349,6 +354,24 @@ function serializeQueueEntry(
         reapplyAvailableAt: toTimestampNumber(raw.reapplyAvailableAt) || undefined,
         adminNotes: readString(raw.adminNotes) || undefined,
         reviewedBy: readString(raw.reviewedBy) || undefined,
+    };
+
+    const visibleStatus = deriveCreatorVisibleStatus(entry, {
+        source: {
+            ...raw,
+            userId: uid,
+        },
+        context: {
+            source: creatorApplication ? "legacy" : "projection",
+        },
+    });
+
+    return {
+        ...entry,
+        primaryAction: visibleStatus.primaryAction,
+        rosterBucket: visibleStatus.rosterBucket,
+        visibleStatusLabels: visibleStatus.visibleStatusLabels,
+        normalizedProjectionDebug: visibleStatus.debug,
     };
 }
 

@@ -1,13 +1,20 @@
 # EVERY FILE FUNCTION CHECKLIST
 
 **Last Updated:** 2026-05-02
-**Current Focus:** Creator Lane Legacy Truth Inventory.
+**Current Focus:** Creator Onboarding Projection Normalizer Cleanup.
 **Status:** In Progress. Current tracked-file coverage is reconciled as of 2026-04-28: every `git ls-files` entry has a current checklist heading, while detailed function-level audits remain pending for many historical and newly reconciled files.
 Purpose: exhaustive no-skip audit checklist covering every repository file currently in scope and every detected function-like implementation.
 
 Scoring: all entries below are marked as included in the current validated sweep. Confidence reflects current repository-state confidence, not perfection or future-proofing.
 
 Current repo-wide state snapshot: see [FULL_SCALE_CODEBASE_AUDIT.md](/Users/uylus/OneDrive/Documents/KandyDrops_Final/FULL_SCALE_CODEBASE_AUDIT.md) for the current live baseline, verification state, and continuity rules, and see [REPO_MEMORY_LEDGER.md](/Users/uylus/OneDrive/Documents/KandyDrops_Final/REPO_MEMORY_LEDGER.md) for major architectural and workflow decisions. The detailed file/function body below remains valuable historical evidence, but it has not been fully regenerated against the current 2026-04-18 inventory review yet.
+
+## 2026-05-02 Creator Onboarding Projection Normalizer Coverage
+
+- [x] `src/lib/creator-onboarding-projection.ts` owns normalized creator onboarding projection display, including canonical/admin/queue/creator-facing normalization, visible status labels, roster buckets, primary action labels, and Debug metadata for raw status values.
+- [x] `src/app/admin/roster/decision-queue.ts`, `src/app/admin/roster/page.tsx`, `src/app/api/admin/roster/route.ts`, and `src/app/api/admin/user/[userId]/route.ts` use the shared normalizer for display/Debug fields instead of duplicating creator status interpretation.
+- [x] `src/app/admin/user/[userId]/page.tsx` no longer keeps creator-specific raw enum replacement helpers; status option labels now align with the normalized projection vocabulary.
+- [x] `scripts/agent/validate-creator-projection-normalizer.ts`, `tests/unit/creator-onboarding-projection.spec.ts`, roster tests, and docs updates validate that raw enum labels stay out of primary Admin Roster UI while Debug retains raw status evidence.
 
 ## 2026-05-02 Creator Lane Legacy Truth Inventory Coverage
 

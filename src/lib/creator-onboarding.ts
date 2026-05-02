@@ -1224,10 +1224,6 @@ export function describeCreatorFacingOnboardingBlockingReason(
     }
 }
 
-function formatStatusLabel(value: string | undefined) {
-    return value ? value.replaceAll("_", " ") : "waiting";
-}
-
 export function getCreatorOnboardingStatusSummary(
     value: CreatorOnboardingStatusSummaryInput | null | undefined,
 ): CreatorOnboardingStatusSummary {

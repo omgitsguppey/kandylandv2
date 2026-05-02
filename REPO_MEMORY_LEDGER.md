@@ -4,6 +4,10 @@ Status: Canonical repository-memory and architecture-decision ledger
 Last refreshed: 2026-05-02
 Repo: `C:\Users\uylus\OneDrive\Documents\KandyDrops_Final`
 
+## 2026-05-02 Creator onboarding projection normalizer
+
+Creator onboarding display truth now routes through `src/lib/creator-onboarding-projection.ts`. Admin Roster decision buckets, primary action labels, visible status labels, admin user detail projection display, and Debug evidence should use this helper instead of parsing raw `creatorApplication` enum values locally. Raw enum values remain available in `rawStatusValues` and Debug detail, but primary UI labels must use the normalized labels such as `Waiting for signature`, `Agreement not sent`, `ID ready for review`, and `Needs changes`.
+
 ## 2026-05-02 Creator lane legacy truth inventory
 
 Creator onboarding truth is inventoried across canonical, projection, legacy, mixed, and unknown paths in `agent/state/creator-lane-legacy-truth-inventory.generated.json`. The current canonical creator intake/legal/ID/approval/owner/synthetic/role activation record is `creator_onboarding/{uid}`; lifecycle audit truth is `creator_onboarding/{uid}/history/{eventId}`. `creator_review_queue/{uid}` is an Admin Roster projection. `users/{uid}.creatorApplication` is a creator-facing and legacy-compatible projection, not the future canonical source when `creator_onboarding/{uid}` exists. Creator fan-experience settings currently remain on `users/{uid}.creatorSettings` and `users/{uid}.creatorRestrictions` using the shared `CreatorSettings`/`CreatorRestrictions` model in `src/lib/creator-experiences.ts`.

@@ -26,6 +26,33 @@ Do not restore the old primary tab model of `Intake`, `Live creators`, and `Crea
 
 `Create` is the guarded admin/manual creator creation form. Owner-only bypass controls stay hidden from normal admin flow and collapsed by default.
 
+## Projection Labels
+
+Admin Roster uses the centralized projection normalizer in `src/lib/creator-onboarding-projection.ts` for roster buckets, primary action labels, and `visibleStatusLabels`. Do not reintroduce page-local status parsing or raw enum string replacement.
+
+Required normalized labels include:
+
+- `signature_pending` -> `Waiting for signature`
+- `signature_signed` -> `Signed`
+- `contract_not_sent` -> `Agreement not sent`
+- `contract_sent` -> `Agreement sent`
+- `legal_pending` -> `Legal not started`
+- `legal_sent` -> `Waiting on signatures`
+- `legal_signed` -> `Agreement complete`
+- `id_not_requested` -> `ID not requested`
+- `id_requested` -> `Waiting for ID upload`
+- `id_submitted` -> `ID ready for review`
+- `id_verified` -> `ID verified`
+- `id_rejected` -> `ID needs resubmission`
+- `segment_unassigned` -> `Not assigned`
+- `segment_assigned` -> `Assigned`
+- `creator_pending` -> `Pending review`
+- `creator_approved` -> `Approved`
+- `creator_rejected` -> `Rejected`
+- `creator_needs_changes` -> `Needs changes`
+
+Raw enum values may appear in Debug evidence only, paired with human-readable labels.
+
 ## Mobile Rules
 
 - Use compact segmented controls for the tabs.

@@ -24,6 +24,7 @@ import {
     normalizeCreatorOnboardingCanonicalRecord,
     normalizeCreatorOnboardingHistoryEntry,
 } from "@/lib/creator-onboarding";
+import { normalizeCreatorAdminDetail } from "@/lib/creator-onboarding-projection";
 import {
     CREATOR_ONBOARDING_COLLECTION,
     CREATOR_ONBOARDING_HISTORY_SUBCOLLECTION,
@@ -171,6 +172,20 @@ async function GET_handler(
                     source: user.creatorApplication,
                 })
                 : null);
+        const creatorOnboardingProjection = creatorOnboardingCanonical
+            ? normalizeCreatorAdminDetail(creatorOnboardingCanonical, { source: creatorOnboardingSnap.exists ? "canonical" : "legacy" })
+            : user.creatorApplication
+                ? normalizeCreatorAdminDetail({
+                    ...user.creatorApplication,
+                    userId,
+                    email: user.email,
+                    username: user.username,
+                    displayName: user.displayName ?? undefined,
+                    photoURL: user.photoURL,
+                    role: user.role,
+                    createdAt: user.createdAt,
+                }, { source: "legacy" })
+                : null;
         const creatorOnboardingHistory = creatorOnboardingHistorySnap.docs
             .map((doc) => normalizeCreatorOnboardingHistoryEntry(doc.data()))
             .filter((entry): entry is Exclude<ReturnType<typeof normalizeCreatorOnboardingHistoryEntry>, undefined> => Boolean(entry))
@@ -953,6 +968,7 @@ async function GET_handler(
                     : null,
             },
             creatorOnboardingCanonical,
+            creatorOnboardingProjection,
             creatorOnboardingHistory,
             transactions,
             analytics,

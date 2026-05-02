@@ -1,5 +1,28 @@
 # KandyDrops Core Codebase Audit & Defensive Ledger
 
+## [2026-05-02 #104] PRE: Creator Onboarding Projection Normalizer Cleanup
+
+Scope started:
+- Centralizing creator onboarding projection labels and roster/admin-user display derivation so Admin Roster and admin user readers stop interpreting raw `users/{uid}.creatorApplication` status fields independently.
+- Required outputs: shared projection normalizer, replacement of duplicated Admin Roster/admin user status parsing, targeted validator, focused tests, docs updates, governance ledger updates, targeted validation, TypeScript, roster/creator onboarding tests, `git diff --check`, commit, and push.
+- This pass must not change creator onboarding write architecture, create a parallel creator source, redesign Admin Roster, or hide raw enum/debug evidence from Debug/detail surfaces.
+
+Initial evidence:
+- Worktree was clean at startup on `main` before generated fast-start context refresh.
+- Control tower routing, doctrine consultation workflow, product/copy/UI doctrine, banned-pattern doctrine, preflight/postflight checklists, and adjacency traces were consulted.
+- Runtime owners inspected first: `src/lib/creator-onboarding.ts`, `src/app/admin/roster/decision-queue.ts`, `src/app/admin/roster/page.tsx`, `/api/admin/roster`, `/api/admin/user/[userId]`, admin user detail page, and focused creator/roster tests.
+
+Scope completed:
+- Added `src/lib/creator-onboarding-projection.ts` as the shared creator onboarding projection normalizer for canonical/admin/queue/creator-facing display, roster decision buckets, primary actions, visible labels, and Debug fields.
+- Updated Admin Roster decision helpers and selected-record Debug metadata to use the shared normalizer instead of local status/action interpretation.
+- Updated admin roster and admin user detail API responses to include normalized projection/display fields where available, while preserving raw status values for Debug evidence.
+- Removed creator-specific raw enum string replacement from admin user detail helpers and added `scripts/agent/validate-creator-projection-normalizer.ts`, package validation command, focused unit tests, and docs/ledger updates.
+
+Verification:
+- Passed: `npm run check:creator-projection-normalizer`
+- Passed: `npx vitest run tests/unit/creator-onboarding-projection.spec.ts tests/unit/admin-roster-decision-queue.spec.ts tests/unit/admin-roster-route.spec.ts tests/unit/creator-onboarding.spec.ts`
+- Passed: `npm run typecheck`
+
 ## [2026-05-02 #103] PRE: Creator Lane Legacy Truth Inventory
 
 Scope started:

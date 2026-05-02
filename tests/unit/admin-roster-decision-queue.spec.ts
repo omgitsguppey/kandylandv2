@@ -78,6 +78,14 @@ describe("admin roster decision queue helpers", () => {
       formatApprovalStatus("creator_needs_changes", "user"),
     ];
 
+    expect(labels).toEqual([
+      "Ready for review",
+      "Agreement not sent",
+      "ID not requested",
+      "ID ready for review",
+      "Needs changes",
+    ]);
+
     labels.forEach((label) => {
       expect(label).not.toMatch(/signature_pending|id_not_requested|segment_unassigned|creator_needs_changes/);
     });
