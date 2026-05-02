@@ -1,0 +1,594 @@
+{
+  "generatedAt": "2026-05-02T12:00:00.000-05:00",
+  "auditKey": "rollback-incident-response-launch-plan",
+  "status": "documented_no_runtime_changes",
+  "defaultPosture": "Stop new harm first, preserve evidence, roll back the bad deploy when code/config caused the incident, and recover data from verified server/provider facts.",
+  "runtimeBehaviorChanged": false,
+  "liveConfigChanged": false,
+  "productionDataWritten": false,
+  "secretsPrinted": false,
+  "noFakeKillSwitches": true,
+  "manualDbInterventionMustBeMarked": true,
+  "sourceOfTruth": [
+    "apphosting.yaml",
+    "firebase.json",
+    ".firebaserc",
+    "src/components/PurchaseModal.tsx",
+    "src/app/api/paypal/capture/route.ts",
+    "src/app/api/drops/unlock/route.ts",
+    "src/app/api/drops/content/route.ts",
+    "src/app/api/notifications/route.ts",
+    "src/lib/server/push-notifications.ts",
+    "src/lib/notification-identity.ts",
+    "src/app/api/admin/analytics/refresh/route.ts",
+    "src/app/api/admin/queue/toggle/route.ts",
+    "public/firebase-messaging-sw.js",
+    "docs/agent-truth/environment-deployment-truth.md",
+    "docs/agent-truth/background-jobs-idempotency.md",
+    "docs/agent-truth/payment-wallet-unlock-entitlement.md",
+    "docs/agent-truth/notification-pipeline.md",
+    "docs/agent-truth/pwa-service-worker-mobile.md",
+    "docs/agent-truth/support-recovery-flows.md",
+    "docs/agent-truth/security-role-boundaries.md"
+  ],
+  "globalRollback": {
+    "appHosting": {
+      "documentedInRepo": true,
+      "safePath": "Use the Firebase/App Hosting console to roll back traffic to the last known-good backend revision when a deployed app revision is the cause. This repo does not define a one-command rollback script.",
+      "codeRollbackPath": "If rollback by provider console is unavailable, create a reviewed revert commit with `git revert <bad_commit>` and let the normal GitHub/App Hosting deployment path deploy it after targeted gates pass.",
+      "preRedeployChecks": [
+        "npm run check:deployment",
+        "npm run typecheck",
+        "npm run check:functions if Functions changed",
+        "npm run check:firebase:rules if Firebase rules changed",
+        "incident-specific validation listed below"
+      ],
+      "repoConfigFiles": [
+        "apphosting.yaml",
+        "firebase.json",
+        ".firebaserc"
+      ]
+    },
+    "firebase": {
+      "documentedInRepo": true,
+      "safePath": "Use Firebase console release history or a reviewed deploy from a known-good commit for Hosting/Functions/rules. Do not push emergency rules or Functions changes without recording the exact file, command, actor, and reason.",
+      "rulesPath": "Rules are tracked in firestore.rules, database.rules.json, and storage.rules; use `npm run check:firebase:rules` before rules redeploy when possible.",
+      "manualConsoleActionRequired": "Provider-console rollback may be required; no repo script can guarantee remote rollback state."
+    },
+    "evidenceRetention": [
+      "Do not delete paymentLocks, transactions, notificationDispatchLocks, notification records, queue_job_heartbeats, route runtime samples, runtime warnings, or Admin Debug evidence during first response.",
+      "Export provider receipts, affected user ids, order ids, drop ids, notification ids, idempotency keys, browser tags, refresh ids, and deployment revision ids before cleanup."
+    ]
+  },
+  "switchInventory": [
+    {
+      "key": "payment-client-checkout-availability",
+      "implemented": true,
+      "scope": "partial_deploy_time",
+      "verifiedFiles": [
+        "src/components/PurchaseModal.tsx",
+        "src/components/PayPalProvider.tsx",
+        "apphosting.yaml"
+      ],
+      "howToUse": "If NEXT_PUBLIC_PAYPAL_CLIENT_ID_LIVE is absent after deploy, the wallet hides PayPal buttons and shows checkout unavailable. This is not a live dashboard toggle.",
+      "doesNotDo": "Does not stop a direct authenticated call to /api/paypal/capture for already-created PayPal orders."
+    },
+    {
+      "key": "admin-drop-queue-membership-toggle",
+      "implemented": true,
+      "scope": "per_drop_admin_action",
+      "verifiedFiles": [
+        "src/app/api/admin/queue/toggle/route.ts",
+        "src/lib/server/drop-queue.ts",
+        "src/app/admin/drops/page.tsx"
+      ],
+      "howToUse": "Admin can remove a malfunctioning Drop from the queue through the guarded queue toggle route.",
+      "doesNotDo": "Does not globally stop scheduled Functions or rewind already-sent notifications."
+    },
+    {
+      "key": "analytics-refresh-dedupe",
+      "implemented": true,
+      "scope": "refresh_storm_mitigation",
+      "verifiedFiles": [
+        "src/app/api/admin/analytics/refresh/route.ts",
+        "src/lib/server/admin-analytics-snapshots.ts"
+      ],
+      "howToUse": "The refresh route records started/completed/failed status and returns duplicate_prevented when a refresh is already running.",
+      "doesNotDo": "Does not disable all analytics jobs globally; use provider rollback or pause scheduled trigger externally if a job storms."
+    },
+    {
+      "key": "notification-user-preferences",
+      "implemented": true,
+      "scope": "per_user_preference",
+      "verifiedFiles": [
+        "src/lib/server/fcm-utils.ts",
+        "src/components/Notifications/NotificationRuntimeBridge.tsx",
+        "docs/agent-truth/notification-pipeline.md"
+      ],
+      "howToUse": "Recipients with disabled browser/in-app preferences are skipped and counted by notification diagnostics.",
+      "doesNotDo": "Does not provide a global push-off kill switch for all notification dispatch."
+    },
+    {
+      "key": "service-worker-versioned-cache",
+      "implemented": true,
+      "scope": "deploy_mitigation",
+      "verifiedFiles": [
+        "public/firebase-messaging-sw.js",
+        "src/lib/firebase-messaging.ts",
+        "docs/agent-truth/pwa-service-worker-mobile.md"
+      ],
+      "howToUse": "Bump APP_SHELL_CACHE and APP_RUNTIME_CACHE, deploy, and rely on skipWaiting/clients.claim plus network-first navigation to replace stale shells.",
+      "doesNotDo": "Does not let an operator change caches at runtime without a deploy."
+    },
+    {
+      "key": "creator-messaging-settings",
+      "implemented": true,
+      "scope": "per_creator_feature_availability",
+      "verifiedFiles": [
+        "src/lib/server/chat.ts",
+        "src/lib/creator-experiences.ts"
+      ],
+      "howToUse": "Creator messaging availability is enforced through creator settings/restrictions in chat helpers.",
+      "doesNotDo": "Does not provide a global chat-off kill switch."
+    },
+    {
+      "key": "content-access-storage-deny",
+      "implemented": true,
+      "scope": "baseline_protection_not_switch",
+      "verifiedFiles": [
+        "storage.rules",
+        "src/app/api/drops/content/route.ts"
+      ],
+      "howToUse": "Direct client Storage reads under drops/** are denied; protected content is served through the entitlement proxy.",
+      "doesNotDo": "Does not revoke already-leaked external media URLs by itself."
+    }
+  ],
+  "incidents": [
+    {
+      "category": "payments broken",
+      "detectionSignal": "Wallet checkout errors, PayPal create/capture route warnings, payment failed transactions, support reports, or live smoke purchase failure.",
+      "userImpact": "Fans cannot refill GumDrops or may abandon checkout before a server-confirmed purchase completes.",
+      "immediateMitigation": "Disable the visible checkout by removing/withholding the PayPal client id in the next emergency deploy or roll back to the last known-good App Hosting revision. Do not manually credit until PayPal order evidence is verified.",
+      "switchFlagAvailable": {
+        "available": "partial_deploy_time",
+        "name": "NEXT_PUBLIC_PAYPAL_CLIENT_ID_LIVE readiness",
+        "verifiedFiles": [
+          "src/components/PurchaseModal.tsx",
+          "src/components/PayPalProvider.tsx",
+          "apphosting.yaml"
+        ],
+        "limitations": "Client visibility only; not a runtime console switch and not a server capture kill switch."
+      },
+      "manualFallback": "Use Admin Users and transaction history to verify failed/completed purchase attempts. Manual balance credit is allowed only after provider proof and must use the audited admin balance route with a reason.",
+      "rollbackCommandPath": "Provider rollback through Firebase/App Hosting console to the previous healthy revision, or reviewed `git revert <bad_commit>` followed by normal GitHub/App Hosting deploy. No one-command rollback script exists in repo.",
+      "dataRecoverySteps": [
+        "Collect orderId, PayPal capture id, userId, package, paid amount, route warning, and transaction rows.",
+        "Confirm PayPal status and custom_id user/package binding before credit.",
+        "If paid and not credited, use /api/admin/balance-backed admin UI/action to add GumDrops with support ticket reason.",
+        "If not paid or capture failed, do not credit; ask user to retry after mitigation.",
+        "Reconcile Admin Analytics commerce parity after recovery."
+      ],
+      "userCommunicationNote": "Checkout is temporarily unavailable while we verify payment processing. Completed payments will be reviewed from provider receipts before any balance correction.",
+      "postmortemDataToCollect": [
+        "deployment revision",
+        "order ids",
+        "PayPal status/capture ids",
+        "custom_id verification results",
+        "paymentLocks",
+        "transactions",
+        "route warnings",
+        "affected package ids"
+      ],
+      "emergencyPlanRequired": true,
+      "manualDbInterventionRequired": false,
+      "fakeKillSwitchClaimed": false
+    },
+    {
+      "category": "wallet crediting broken",
+      "detectionSignal": "PayPal completed captures without matching paymentLocks/transactions, user balance mismatch, purchase parity warning, or support report that paid GumDrops did not appear.",
+      "userImpact": "A fan may have paid but not received GumDrops.",
+      "immediateMitigation": "Stop new checkout through PayPal client readiness deploy or App Hosting rollback, then reconcile already-completed orders from PayPal provider truth.",
+      "switchFlagAvailable": {
+        "available": "partial_deploy_time",
+        "name": "PayPal client id checkout availability",
+        "verifiedFiles": [
+          "src/components/PurchaseModal.tsx",
+          "src/app/api/paypal/capture/route.ts"
+        ],
+        "limitations": "No live wallet-crediting kill switch exists."
+      },
+      "manualFallback": "Use audited admin balance adjustment for verified paid orders. Manual DB intervention is not the first option because /api/admin/balance records an admin_adjustment transaction.",
+      "rollbackCommandPath": "App Hosting rollback or reviewed revert commit; run payment/unlock security validation before redeploy.",
+      "dataRecoverySteps": [
+        "Export affected paymentLocks, transactions, failed transactions, route warnings, and PayPal captures.",
+        "For each completed PayPal capture missing credit, verify user/package custom_id and expected USD amount.",
+        "Apply audited admin balance adjustment with reason referencing the support ticket and order id.",
+        "Mark duplicate or already-credited orders as no-op; never credit from client screenshots alone."
+      ],
+      "userCommunicationNote": "We found a wallet credit delay. Verified completed payments will be credited from provider records.",
+      "postmortemDataToCollect": [
+        "PayPal capture response",
+        "paymentLocks existence",
+        "user balance before/after",
+        "admin adjustment transaction id",
+        "commerce parity results"
+      ],
+      "emergencyPlanRequired": true,
+      "manualDbInterventionRequired": false,
+      "fakeKillSwitchClaimed": false
+    },
+    {
+      "category": "unlock double-charge",
+      "detectionSignal": "Duplicate unlock_content transactions for the same user/drop, balance double-deduction support report, unlock parity mismatch, or transaction ledger anomaly.",
+      "userImpact": "A fan may lose extra GumDrops for one Drop unlock.",
+      "immediateMitigation": "Roll back the bad deploy or temporarily block unlock entry points with an emergency reviewed deploy if rollback is not enough. Preserve all transactions before correction.",
+      "switchFlagAvailable": {
+        "available": "no",
+        "name": "No global unlock kill switch identified",
+        "verifiedFiles": [
+          "src/app/api/drops/unlock/route.ts"
+        ],
+        "limitations": "Existing route is transactional and idempotent by unlockedContent, but there is no runtime off switch."
+      },
+      "manualFallback": "Manual DB intervention may be required only if duplicate ledger rows cannot be corrected through audited admin balance adjustment. Prefer admin balance adjustment for refunding excess GumDrops.",
+      "rollbackCommandPath": "App Hosting rollback or reviewed revert commit. Run unlock idempotency/payment validation before redeploy.",
+      "dataRecoverySteps": [
+        "Identify duplicate transactions by userId/dropId/timestamp and compare unlockedContent/unlockedContentTimestamps.",
+        "Verify the user received one entitlement only.",
+        "Refund the excess deduction with audited admin balance adjustment and support reason.",
+        "Do not delete transaction evidence; append corrective transaction metadata instead."
+      ],
+      "userCommunicationNote": "We found an unlock charge issue and will return any extra GumDrops after verifying the ledger.",
+      "postmortemDataToCollect": [
+        "user id",
+        "drop id",
+        "duplicate transaction ids",
+        "balance before/after",
+        "unlockedContent state",
+        "deployment revision"
+      ],
+      "emergencyPlanRequired": true,
+      "manualDbInterventionRequired": true,
+      "fakeKillSwitchClaimed": false
+    },
+    {
+      "category": "locked content leak",
+      "detectionSignal": "Protected asset URL appears in public payload, unauthenticated Storage access succeeds, content proxy serves without entitlement, or user reports locked media exposure.",
+      "userImpact": "Protected creator content may be visible to users without an entitlement.",
+      "immediateMitigation": "Roll back the leaking deploy, redeploy deny-by-default Storage rules if rules changed, remove public payload exposure, and rotate/revoke exposed media URLs where provider controls allow.",
+      "switchFlagAvailable": {
+        "available": "baseline_protection_not_switch",
+        "name": "storage.rules denies drops/** direct reads",
+        "verifiedFiles": [
+          "storage.rules",
+          "src/app/api/drops/content/route.ts"
+        ],
+        "limitations": "No live content-leak kill switch exists; leaked third-party URLs may need storage/provider cleanup."
+      },
+      "manualFallback": "Manual DB intervention or Storage provider intervention is required to remove or rotate leaked content paths, replace media, or temporarily unpublish affected Drops.",
+      "rollbackCommandPath": "Firebase rules rollback/deploy from known-good storage.rules plus App Hosting rollback for public payload leaks. Run content media and Firebase storage rules validation before redeploy.",
+      "dataRecoverySteps": [
+        "Record affected drop ids, asset URLs, user reports, and route payload evidence.",
+        "Verify raw public routes no longer return contentUrl/contentUrls.",
+        "Disable or archive affected Drops if URLs cannot be revoked immediately.",
+        "Replace leaked assets or move them to a new protected path if needed."
+      ],
+      "userCommunicationNote": "Access to the affected Drop is temporarily limited while protected media is secured.",
+      "postmortemDataToCollect": [
+        "drop ids",
+        "asset paths",
+        "public route payload",
+        "storage rules version",
+        "content proxy logs",
+        "first exposure time"
+      ],
+      "emergencyPlanRequired": true,
+      "manualDbInterventionRequired": true,
+      "fakeKillSwitchClaimed": false
+    },
+    {
+      "category": "notifications duplicate/spam",
+      "detectionSignal": "Duplicate notification records, repeated browser alerts with same tag/idempotency key, FCM duplicate dispatch diagnostics, user reports, or Admin Debug duplicate counts.",
+      "userImpact": "Fans may receive repeated alerts and lose trust in Drop notifications.",
+      "immediateMitigation": "Stop the offending notification source: remove affected Drops from queue, roll back the deploy, or pause the scheduled trigger externally. Do not bulk resend until idempotency evidence is verified.",
+      "switchFlagAvailable": {
+        "available": "partial",
+        "name": "admin queue toggle and per-user notification preferences",
+        "verifiedFiles": [
+          "src/app/api/admin/queue/toggle/route.ts",
+          "src/lib/server/push-notifications.ts",
+          "public/firebase-messaging-sw.js"
+        ],
+        "limitations": "No global notification kill switch exists in tracked app code."
+      },
+      "manualFallback": "Manual DB intervention may be required to mark duplicate notification records read/cleared or to inspect notificationDispatchLocks. Preserve duplicate evidence first.",
+      "rollbackCommandPath": "App Hosting/Functions rollback or reviewed revert. If scheduled Functions are the source, pause the scheduler in provider console until a reviewed fix deploys.",
+      "dataRecoverySteps": [
+        "Collect notification ids, idempotency keys, browser tags, dispatch locks, queue activation keys, and FCM report counts.",
+        "Confirm whether duplicates are in-app records, browser displays, or FCM sends.",
+        "Remove affected Drops from queue if live/return-live loop is the source.",
+        "Mark duplicates as read/cleared only after evidence export."
+      ],
+      "userCommunicationNote": "Some alerts repeated. We stopped the affected send path and are cleaning duplicate notifications without changing your Drop access.",
+      "postmortemDataToCollect": [
+        "idempotency keys",
+        "browser tags",
+        "notificationDispatchLocks",
+        "activationKey",
+        "FCM success/failure/duplicate counts",
+        "queue heartbeat"
+      ],
+      "emergencyPlanRequired": true,
+      "manualDbInterventionRequired": true,
+      "fakeKillSwitchClaimed": false
+    },
+    {
+      "category": "notifications missing",
+      "detectionSignal": "Eligible users skipped unexpectedly, missing notification records, FCM missing-token/preference/permission skip counts, user reports, or Debug funnel drop-off.",
+      "userImpact": "Fans may miss queued/live Drop, task, or account notifications.",
+      "immediateMitigation": "Do not mass-resend immediately. Verify eligibility, preferences, tokens, idempotency locks, and dispatch outcome. Re-run only the minimal safe send path after duplicate prevention is confirmed.",
+      "switchFlagAvailable": {
+        "available": "no",
+        "name": "No resend-all or global notification recovery switch identified",
+        "verifiedFiles": [
+          "src/app/api/notifications/route.ts",
+          "src/lib/server/fcm-utils.ts",
+          "docs/agent-truth/support-recovery-flows.md"
+        ],
+        "limitations": "Admin-created notifications exist, but historical per-recipient replay is not a safe one-click recovery tool."
+      },
+      "manualFallback": "Manual DB intervention is required for historical replay or per-recipient repair unless a protected admin-created notification is appropriate.",
+      "rollbackCommandPath": "Roll back the notification deploy if code caused missing sends; pause source jobs only if retries would amplify harm.",
+      "dataRecoverySteps": [
+        "Classify missing reason: permission, token, preference, dispatch failure, queue bug, or eligibility bug.",
+        "Collect recipient ids, notification ids, idempotency keys, preference state, token state, and FCM report.",
+        "If resend is needed, target only eligible affected users and use deterministic idempotency keys.",
+        "Update Admin Debug notes with skipped reason rather than fake zero counts."
+      ],
+      "userCommunicationNote": "Some alerts may have been delayed or missed. We are verifying eligibility before sending any replacement alert.",
+      "postmortemDataToCollect": [
+        "recipient ids",
+        "permission/preference/token state",
+        "FCM report",
+        "notification records",
+        "dispatch locks",
+        "Admin Debug funnel"
+      ],
+      "emergencyPlanRequired": true,
+      "manualDbInterventionRequired": true,
+      "fakeKillSwitchClaimed": false
+    },
+    {
+      "category": "analytics refresh storm",
+      "detectionSignal": "Admin Analytics refresh duplicate_prevented warnings spike, refresh route latency/errors, materializer load, route runtime warnings, or Admin Debug refresh status stuck running.",
+      "userImpact": "Admin surfaces may slow down or show delayed diagnostics, but verified snapshots should remain visible.",
+      "immediateMitigation": "Stop manual refresh traffic, restrict admin refresh use, let dedupe settle, and roll back the bad deploy if refresh loops were introduced. Preserve last verified snapshots.",
+      "switchFlagAvailable": {
+        "available": "mitigation_only",
+        "name": "refresh dedupe and private no-store refresh route",
+        "verifiedFiles": [
+          "src/app/api/admin/analytics/refresh/route.ts",
+          "src/lib/server/admin-analytics-snapshots.ts"
+        ],
+        "limitations": "No global analytics-refresh-off switch exists in tracked app code."
+      },
+      "manualFallback": "Manual DB intervention may be required to mark a stuck refresh failed only after preserving metadata and if the UI cannot recover through route dedupe.",
+      "rollbackCommandPath": "App Hosting rollback or reviewed revert. If a scheduled Function causes load, pause that trigger in provider console and document the actor/time.",
+      "dataRecoverySteps": [
+        "Export snapshot metadata for affected module/range cache keys.",
+        "Verify lastVerifiedAt and refreshVersion before any manual correction.",
+        "Keep last verified snapshots visible; do not delete snapshot docs.",
+        "After fix, run one forced refresh per affected module/range and record metadata."
+      ],
+      "userCommunicationNote": "Admin analytics refresh is delayed. Last verified data remains available while refresh is stabilized.",
+      "postmortemDataToCollect": [
+        "cacheKey",
+        "moduleKey",
+        "rangeKey",
+        "refreshStartedAt",
+        "refreshStatus",
+        "duplicateRefreshPrevented",
+        "route runtime samples",
+        "deployment revision"
+      ],
+      "emergencyPlanRequired": true,
+      "manualDbInterventionRequired": true,
+      "fakeKillSwitchClaimed": false
+    },
+    {
+      "category": "admin route/security issue",
+      "detectionSignal": "Non-admin access to /admin or /api/admin/**, trusted-origin rejection missing on state-changing route, security alert, suspicious admin mutation, or route boundary validation failure.",
+      "userImpact": "Private admin data or state-changing controls may be exposed to the wrong actor.",
+      "immediateMitigation": "Roll back immediately, revoke affected admin/session credentials, tighten Firebase/Auth roles, and deploy known-good guards/rules if the boundary broke.",
+      "switchFlagAvailable": {
+        "available": "guard_not_switch",
+        "name": "guardApiRequest admin and trusted-origin checks",
+        "verifiedFiles": [
+          "src/lib/server/request-guard.ts",
+          "src/app/api/admin"
+        ],
+        "limitations": "Guards are baseline protection; no runtime kill switch can make a broken admin route safe without deploy/rollback."
+      },
+      "manualFallback": "Manual DB intervention or provider-console action may be required to remove admin claims, disable users, rotate secrets, audit affected records, or redeploy rules.",
+      "rollbackCommandPath": "Immediate App Hosting rollback plus Firebase rules rollback/deploy when rules changed. Run security role-boundaries validation before any redeploy.",
+      "dataRecoverySteps": [
+        "Collect route, actor uid, auth claims, origin, request method, mutation ids, and affected records.",
+        "Revoke or rotate compromised credentials and admin claims.",
+        "Audit admin mutation logs and transaction records for unauthorized writes.",
+        "Notify affected operators/users if sensitive data was exposed."
+      ],
+      "userCommunicationNote": "Admin access is being locked down while we verify protected system routes. Public app access may be temporarily limited if needed.",
+      "postmortemDataToCollect": [
+        "route path",
+        "request method",
+        "uid/claims",
+        "origin",
+        "mutation ids",
+        "Firebase rules version",
+        "deployment revision"
+      ],
+      "emergencyPlanRequired": true,
+      "manualDbInterventionRequired": true,
+      "fakeKillSwitchClaimed": false
+    },
+    {
+      "category": "service worker stale app shell",
+      "detectionSignal": "Users continue seeing old UI after deploy, offline fallback appears for valid routes, mismatched service-worker cache names, or PWA smoke failure.",
+      "userImpact": "Mobile/PWA users may use stale UI or stale route assets after a deployment.",
+      "immediateMitigation": "Deploy a cache-version bump and known-good service worker, or roll back to the last known-good revision. Ask affected users to close/reopen or hard refresh if needed.",
+      "switchFlagAvailable": {
+        "available": "deploy_mitigation",
+        "name": "APP_SHELL_CACHE/APP_RUNTIME_CACHE versioning with skipWaiting and clients.claim",
+        "verifiedFiles": [
+          "public/firebase-messaging-sw.js",
+          "src/lib/firebase-messaging.ts"
+        ],
+        "limitations": "No runtime switch exists; stale clients need a new worker or user refresh."
+      },
+      "manualFallback": "No DB intervention is needed unless stale UI caused data writes. Support can guide close/reopen, browser site-data clear, or install refresh.",
+      "rollbackCommandPath": "App Hosting rollback for bad app shell, or deploy a service-worker cache-name bump after `npm run check:pwa-service-worker`.",
+      "dataRecoverySteps": [
+        "Verify APP_SHELL_CACHE/APP_RUNTIME_CACHE names and service-worker scope.",
+        "Confirm API routes are not cached and navigation is network-first.",
+        "Bump cache names when shell/offline assets change.",
+        "Collect affected browser/device/PWA context and route."
+      ],
+      "userCommunicationNote": "A mobile app refresh may be needed. Close and reopen KandyDrops, or refresh the browser tab, to load the latest version.",
+      "postmortemDataToCollect": [
+        "cache names",
+        "service-worker script URL",
+        "client browser/device",
+        "route",
+        "deployment revision",
+        "offline fallback evidence"
+      ],
+      "emergencyPlanRequired": true,
+      "manualDbInterventionRequired": false,
+      "fakeKillSwitchClaimed": false
+    },
+    {
+      "category": "drop queue malfunction",
+      "detectionSignal": "Queued Drops fail to activate, active Drops fail to expire, auto-queued Drops loop, queue heartbeat warnings, duplicate return-live notifications, or Admin Drops schedule mismatch.",
+      "userImpact": "Fans may see wrong Drop availability or receive wrong live/return-live alerts.",
+      "immediateMitigation": "Remove affected Drops from queue with the admin queue toggle, pause scheduled queue processing externally if it is amplifying harm, and roll back a bad queue deploy.",
+      "switchFlagAvailable": {
+        "available": "partial",
+        "name": "admin queue toggle per Drop",
+        "verifiedFiles": [
+          "src/app/api/admin/queue/toggle/route.ts",
+          "src/lib/server/queue-runtime.ts",
+          "shared/runtime/queue-runtime.ts"
+        ],
+        "limitations": "Per-Drop queue membership only; scheduled Functions must be paused in provider console if the scheduler itself is malfunctioning."
+      },
+      "manualFallback": "Manual DB intervention may be required to correct adminSettings/dropQueue, Drop validFrom/validUntil/status, or activation keys after evidence export.",
+      "rollbackCommandPath": "App Hosting/Functions rollback or reviewed revert. Run background-job idempotency and admin CMS workflow validation before redeploy.",
+      "dataRecoverySteps": [
+        "Export queue config, affected Drop docs, queue_job_heartbeats, runtime warnings, activation keys, and notification dispatch outcomes.",
+        "Remove problematic Drops from queue or reset queue order.",
+        "Correct Drop timing/status only with explicit reason and before/after snapshot.",
+        "Re-run queue lifecycle after fix and verify no duplicate notification dispatch."
+      ],
+      "userCommunicationNote": "A Drop schedule issue is being corrected. Availability may update while the queue is reconciled.",
+      "postmortemDataToCollect": [
+        "drop ids",
+        "queue config",
+        "validFrom/validUntil",
+        "status",
+        "queue heartbeat",
+        "activationKey",
+        "notification outcome"
+      ],
+      "emergencyPlanRequired": true,
+      "manualDbInterventionRequired": true,
+      "fakeKillSwitchClaimed": false
+    },
+    {
+      "category": "chat outage",
+      "detectionSignal": "Chat thread/message route errors, participant authorization failures, creator messaging unavailable reports, send latency, or route runtime samples failing.",
+      "userImpact": "Fans and creators may be unable to send or read messages.",
+      "immediateMitigation": "Roll back the bad deploy if chat routes changed. For a creator-specific issue, disable or adjust creator messaging settings/restrictions if existing admin tooling supports it; do not expose chat transcripts broadly.",
+      "switchFlagAvailable": {
+        "available": "partial_per_creator",
+        "name": "creator messaging availability settings",
+        "verifiedFiles": [
+          "src/lib/server/chat.ts",
+          "src/lib/creator-experiences.ts"
+        ],
+        "limitations": "No global chat outage kill switch is implemented."
+      },
+      "manualFallback": "Manual DB intervention may be required to repair a specific thread, participant id, read marker, or creator setting. Keep participant boundaries intact.",
+      "rollbackCommandPath": "App Hosting rollback or reviewed revert. Run chat route tests and security role-boundary validation before redeploy.",
+      "dataRecoverySteps": [
+        "Collect threadId, sender uid, creator/user participant ids, route error, and transaction/accrual evidence if a paid message failed.",
+        "Verify participant authorization before exposing any record.",
+        "Refund paid message cost through audited balance adjustment only if spend occurred without message delivery.",
+        "Repair thread metadata only with before/after evidence."
+      ],
+      "userCommunicationNote": "Creator messaging is temporarily delayed. Any paid message issue will be checked against the chat and wallet ledger.",
+      "postmortemDataToCollect": [
+        "threadId",
+        "messageId",
+        "participant ids",
+        "route runtime sample",
+        "transaction id",
+        "creator settings",
+        "deployment revision"
+      ],
+      "emergencyPlanRequired": true,
+      "manualDbInterventionRequired": true,
+      "fakeKillSwitchClaimed": false
+    },
+    {
+      "category": "creator profile 404 spike",
+      "detectionSignal": "Creator profile route not-found spike, support reports, username lookup failures, public Drops missing for active creators, or creator routing telemetry anomaly.",
+      "userImpact": "Fans may be unable to open creator profiles or public creator Drops.",
+      "immediateMitigation": "Roll back route/profile changes, repair username/status/role data for affected creators, and verify public payload sanitization remains intact.",
+      "switchFlagAvailable": {
+        "available": "no",
+        "name": "No creator-profile rollback switch identified",
+        "verifiedFiles": [
+          "src/app/api/creators/[username]/route.ts",
+          "src/app/creators/[username]/CreatorProfileClient.tsx"
+        ],
+        "limitations": "Creator 404 repair is data/deploy recovery, not a flag."
+      },
+      "manualFallback": "Manual DB intervention may be required to repair username, role, status, creatorSettings, or public Drop metadata. Do not expose private creator data during repair.",
+      "rollbackCommandPath": "App Hosting rollback or reviewed revert. Run creator profile/content media/security validations before redeploy.",
+      "dataRecoverySteps": [
+        "Collect usernames, creator uids, role/status fields, creatorSettings, and public Drop ids.",
+        "Verify creator is public and active before changing routing data.",
+        "Repair username index/profile fields or route regression.",
+        "Confirm public route returns sanitized Drops only."
+      ],
+      "userCommunicationNote": "Some creator profiles may be temporarily unavailable while routing is corrected.",
+      "postmortemDataToCollect": [
+        "username",
+        "creator uid",
+        "role/status",
+        "route status",
+        "public Drop ids",
+        "deployment revision"
+      ],
+      "emergencyPlanRequired": true,
+      "manualDbInterventionRequired": true,
+      "fakeKillSwitchClaimed": false
+    }
+  ],
+  "manualInterventionRequired": [
+    "unlock double-charge",
+    "locked content leak",
+    "notifications duplicate/spam",
+    "notifications missing",
+    "analytics refresh storm",
+    "admin route/security issue",
+    "drop queue malfunction",
+    "chat outage",
+    "creator profile 404 spike"
+  ],
+  "requiredValidation": [
+    "npm run check:rollback-incident-response",
+    "npm run typecheck",
+    "git diff --check"
+  ]
+}

@@ -1,13 +1,21 @@
 # EVERY FILE FUNCTION CHECKLIST
 
 **Last Updated:** 2026-05-02
-**Current Focus:** Test Fixtures Demo Account Launch Audit.
+**Current Focus:** Rollback Incident Response Launch Plan.
 **Status:** In Progress. Current tracked-file coverage is reconciled as of 2026-04-28: every `git ls-files` entry has a current checklist heading, while detailed function-level audits remain pending for many historical and newly reconciled files.
 Purpose: exhaustive no-skip audit checklist covering every repository file currently in scope and every detected function-like implementation.
 
 Scoring: all entries below are marked as included in the current validated sweep. Confidence reflects current repository-state confidence, not perfection or future-proofing.
 
 Current repo-wide state snapshot: see [FULL_SCALE_CODEBASE_AUDIT.md](/Users/uylus/OneDrive/Documents/KandyDrops_Final/FULL_SCALE_CODEBASE_AUDIT.md) for the current live baseline, verification state, and continuity rules, and see [REPO_MEMORY_LEDGER.md](/Users/uylus/OneDrive/Documents/KandyDrops_Final/REPO_MEMORY_LEDGER.md) for major architectural and workflow decisions. The detailed file/function body below remains valuable historical evidence, but it has not been fully regenerated against the current 2026-04-18 inventory review yet.
+
+## 2026-05-02 Rollback Incident Response Launch Plan Coverage
+
+- [x] `agent/state/rollback-incident-response.generated.json` records the launch incident map for payments, wallet crediting, unlock double-charge, content leaks, notification duplicate/missing states, analytics refresh storms, admin/security issues, service-worker stale shells, Drop queue malfunction, chat outage, and creator profile 404 spikes.
+- [x] `docs/agent-truth/rollback-incident-response.md` documents the operator doctrine: stop new harm, preserve evidence, roll back bad revisions, do not claim fake kill switches, and explicitly mark manual DB intervention when no guarded product action exists.
+- [x] `scripts/agent/validate-rollback-incident-response.ts` and `package.json` add `npm run check:rollback-incident-response` to validate required incident categories, mitigation fields, real switch scope, App Hosting/Firebase rollback documentation, service-worker stale-cache plan, analytics refresh storm plan, and manual-intervention markers.
+- [x] Existing launch truth owners remain the verified recovery paths: `src/components/PurchaseModal.tsx`, `src/components/PayPalProvider.tsx`, `src/app/api/paypal/capture/route.ts`, `src/app/api/drops/unlock/route.ts`, `src/app/api/drops/content/route.ts`, `src/app/api/notifications/route.ts`, `src/lib/server/push-notifications.ts`, `src/lib/notification-identity.ts`, `src/app/api/admin/analytics/refresh/route.ts`, `src/app/api/admin/queue/toggle/route.ts`, `public/firebase-messaging-sw.js`, `src/lib/firebase-messaging.ts`, `src/lib/server/chat.ts`, `src/app/api/creators/[username]/route.ts`, `storage.rules`, `apphosting.yaml`, `firebase.json`, and `.firebaserc`.
+- [x] `FULL_SCALE_CODEBASE_AUDIT.md` and `REPO_MEMORY_LEDGER.md` record the launch incident-response rule and the no-fake-kill-switch constraint.
 
 ## 2026-05-02 Test Fixtures Demo Account Launch Audit Coverage
 

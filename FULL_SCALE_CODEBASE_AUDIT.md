@@ -1,5 +1,33 @@
 # KandyDrops Core Codebase Audit & Defensive Ledger
 
+## [2026-05-02 #92] PRE: Rollback Incident Response Launch Plan
+
+Scope started:
+- Auditing existing safe switches, deploy rollback paths, diagnostic signals, and manual recovery paths for payments broken, wallet crediting broken, unlock double-charge, locked content leak, notification duplicate/spam, notification missing, analytics refresh storm, admin route/security issue, service-worker stale app shell, Drop queue malfunction, chat outage, and creator profile 404 spike.
+- Required outputs: `agent/state/rollback-incident-response.generated.json`, `docs/agent-truth/rollback-incident-response.md`, `scripts/agent/validate-rollback-incident-response.ts`, package script wiring, governance ledger updates, commit, and push.
+- This pass must not add risky kill switches, change live runtime behavior, write production data, expose secrets, or claim a switch exists unless verified in tracked code/config/docs. Manual DB intervention must be explicitly marked where no protected product tool exists.
+
+Initial evidence:
+- Worktree was clean at startup on `main`.
+- Control tower routing, source-of-truth map, doctrine consultation workflow, product/copy/UI/cloud doctrine, recent deployment/security/background-job/PWA/payment/support ledgers, and preflight/postflight checklists were consulted.
+- Task is classified as an AUDIT/DOCS_ONLY launch incident-response pass with no product feature expansion, no payment/economy/runtime logic changes, and no live configuration changes planned.
+
+Scope completed:
+- Created `agent/state/rollback-incident-response.generated.json`, `docs/agent-truth/rollback-incident-response.md`, and `scripts/agent/validate-rollback-incident-response.ts` with `npm run check:rollback-incident-response`.
+- Audited verified launch levers and limits across PayPal client readiness, PayPal capture idempotency, unlock/content entitlement routes, notification idempotency/browser tags, analytics refresh dedupe, admin queue toggle, service-worker versioning/activation, admin guards, chat participant boundaries, creator profile 404 handling, Storage deny rules, App Hosting config, Firebase config, and deployment truth docs.
+- Documented incident playbooks for payments broken, wallet crediting broken, unlock double-charge, locked content leak, notification duplicate/spam, notification missing, analytics refresh storm, admin route/security issue, service-worker stale app shell, Drop queue malfunction, chat outage, and creator profile 404 spike.
+- No runtime kill switch, live config change, production data write, product feature, payment/economy code path, or Firebase rule behavior change was added. Partial levers are explicitly marked partial, deploy-time, per-Drop, per-recipient, per-creator, or mitigation-only.
+
+Verification:
+- `npm run trace:adjacent -- scripts/agent/validate-rollback-incident-response.ts`
+- `npm run check:rollback-incident-response`
+- `npm run typecheck`
+- `git diff --check` (passed; line-ending warnings only)
+
+Residual risk:
+- Provider-console rollback, scheduled Function pause, secret rotation, claim revocation, and Storage/media URL revocation cannot be verified from local repo state. The plan documents those as external/manual actions rather than pretending the repo owns them.
+- No global runtime kill switches were added for unlocks, notifications, analytics refresh, chat, or creator profiles; future work must design, guard, audit, and test any true global switch before relying on it.
+
 ## [2026-05-02 #91] PRE: Test Fixtures Demo Account Launch Audit
 
 Scope started:

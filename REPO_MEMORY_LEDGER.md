@@ -24,6 +24,16 @@ This file is not a changelog. It is the concise ledger for durable decisions tha
 
 ## Decision Entries
 
+### 1cv. Rollback and incident response is launch-mapped
+
+- Approximate date: Recorded explicitly on 2026-05-02 from the rollback, kill switch, and incident response launch plan
+- Status: Active launch rollback, incident response, kill-switch honesty, and manual-intervention rule
+- Decision: KandyDrops must not claim emergency switches that are not implemented. Launch incidents first stop new harm, preserve route/provider/Firestore/Admin Debug evidence, roll back a bad App Hosting/Firebase/Functions revision when code or config caused the issue, and recover data from verified server/provider facts. Manual DB intervention must be explicitly marked when no guarded product action exists.
+- Implementation: `agent/state/rollback-incident-response.generated.json` maps incident playbooks for payments broken, wallet crediting broken, unlock double-charge, locked content leak, notification duplicate/spam, notification missing, analytics refresh storm, admin route/security issue, service-worker stale app shell, Drop queue malfunction, chat outage, and creator profile 404 spike. `docs/agent-truth/rollback-incident-response.md` documents the human-readable launch incident doctrine. `scripts/agent/validate-rollback-incident-response.ts` and `npm run check:rollback-incident-response` validate required mitigations, real switch scope, deployment rollback documentation, service-worker stale-cache plan, analytics refresh storm plan, and manual-intervention markers.
+- Verified switch truth: PayPal client readiness is deploy-time and partial only; admin queue toggle is per Drop; analytics refresh dedupe mitigates storms but is not a global off switch; notification preferences are per-recipient and not a global kill switch; service-worker cache versioning is deploy mitigation; creator messaging settings are per creator; Storage deny is baseline protection, not a leak-revocation switch.
+- Required validation: `npm run check:rollback-incident-response`, `npm run typecheck` when scripts/docs schema change, and `git diff --check`.
+- Consequence for future work: Do not add or document emergency controls without precise scope, owner, safe default, audit trail, and tests. Do not erase payment locks, transaction rows, notification locks, queue heartbeats, route warnings, refresh metadata, or Debug evidence during first response.
+
 ### 1cu. Test fixtures and demo states are launch-mapped
 
 - Approximate date: Recorded explicitly on 2026-05-02 from the test fixtures, seed data, and demo account launch audit
