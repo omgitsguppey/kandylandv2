@@ -1,8 +1,10 @@
 import "server-only";
 
+import { createHash } from "crypto";
 import { FieldValue } from "firebase-admin/firestore";
 
 import { CREATOR_REVENUE_SHARE, buildCreatorRelationshipId, calculateCreatorCashoutUsd, getCreatorBookingRate, getCreatorMessageCost, normalizeCreatorRestrictions, normalizeCreatorSettings, normalizePositiveWholeNumber } from "@/lib/creator-experiences";
+import type { ActorMarker } from "@/lib/identity/actor-markers";
 import {
     buildSourceAwareBalancePatch,
     readSourceAwareBalance,
@@ -24,6 +26,19 @@ export type CreatorSpendPolicyKey =
     | "custom_request"
     | "booking_phone"
     | "booking_video";
+
+export type CreatorExperiencePaidActionKey =
+    | "fan_pass"
+    | "private_chat"
+    | "custom_request"
+    | "live_time";
+
+export const CREATOR_EXPERIENCE_PAID_EVENTS: Record<CreatorExperiencePaidActionKey, string> = {
+    fan_pass: "creator_fan_pass_started",
+    private_chat: "creator_private_chat_opened",
+    custom_request: "creator_custom_request_created",
+    live_time: "creator_live_time_booked",
+};
 
 export const CREATOR_SPEND_POLICIES: Record<CreatorSpendPolicyKey, {
     label: string;
@@ -83,6 +98,142 @@ export function spendCreatorExperienceGumdrops(
         policyLabel: policy.label,
         policyDescription: policy.description,
         ledgerSource,
+    };
+}
+
+function stableSerialize(value: unknown): string {
+    if (value === null || typeof value === "undefined") {
+        return "";
+    }
+
+    if (typeof value !== "object") {
+        return String(value);
+    }
+
+    if (Array.isArray(value)) {
+        return `[${value.map((entry) => stableSerialize(entry)).join(",")}]`;
+    }
+
+    return Object.keys(value as Record<string, unknown>)
+        .sort()
+        .map((key) => `${key}:${stableSerialize((value as Record<string, unknown>)[key])}`)
+        .join("|");
+}
+
+function hashCreatorExperienceValue(value: string) {
+    return createHash("sha256").update(value).digest("hex").slice(0, 32);
+}
+
+export function normalizeCreatorExperienceIdempotencyKey(value: unknown) {
+    if (typeof value !== "string") {
+        return "";
+    }
+
+    return value
+        .trim()
+        .toLowerCase()
+        .replace(/[^a-z0-9:_./-]+/g, "-")
+        .replace(/\//g, "_")
+        .slice(0, 160);
+}
+
+export function buildCreatorExperienceIdempotencyKey(input: {
+    action: CreatorExperiencePaidActionKey;
+    userId: string;
+    creatorId: string;
+    clientKey?: unknown;
+    payloadParts?: unknown[];
+}) {
+    const clientKey = normalizeCreatorExperienceIdempotencyKey(input.clientKey);
+    const payloadKey = stableSerialize(input.payloadParts ?? []);
+    const scopedSource = [
+        input.action,
+        input.userId,
+        input.creatorId,
+        clientKey || payloadKey,
+    ].join("|");
+    const hash = hashCreatorExperienceValue(scopedSource);
+
+    return `creator-experience:${input.action}:${input.userId}:${input.creatorId}:${hash}`;
+}
+
+export function buildCreatorExperienceRecordIds(input: {
+    action: CreatorExperiencePaidActionKey;
+    idempotencyKey: string;
+}) {
+    const suffix = hashCreatorExperienceValue(`${input.action}:${input.idempotencyKey}`);
+    return {
+        userTransactionId: `creator_txn_${suffix}`,
+        creatorAccrualId: `creator_accrual_${suffix}`,
+        creatorExperienceRecordId: `${input.action}_${suffix}`,
+    };
+}
+
+export function buildCreatorExperienceTransactionDebug(input: {
+    userTransactionId: string;
+    creatorAccrualId: string;
+    creatorExperienceRecordId: string;
+    priceGd: number;
+    idempotencyKey: string;
+    duplicatePrevented: boolean;
+    sourceAwareBalanceBefore?: SourceAwareGumdropBalance | null;
+    sourceAwareBalanceAfter?: SourceAwareGumdropBalance | null;
+}) {
+    const priceGd = Math.max(0, normalizePositiveWholeNumber(input.priceGd));
+    const creatorShareGd = Math.max(0, Math.round(priceGd * CREATOR_REVENUE_SHARE));
+
+    return {
+        userTransactionId: input.userTransactionId,
+        creatorAccrualId: input.creatorAccrualId,
+        creatorExperienceRecordId: input.creatorExperienceRecordId,
+        priceGd,
+        platformShareGd: Math.max(0, priceGd - creatorShareGd),
+        creatorShareGd,
+        idempotencyKey: input.idempotencyKey,
+        duplicatePrevented: input.duplicatePrevented,
+        sourceAwareBalanceBefore: input.sourceAwareBalanceBefore ?? null,
+        sourceAwareBalanceAfter: input.sourceAwareBalanceAfter ?? null,
+    };
+}
+
+export function buildCreatorExperienceTelemetryPayload(input: {
+    marker: ActorMarker;
+    creatorId: string;
+    priceGd: number;
+    idempotencyKey: string;
+    duplicatePrevented: boolean;
+    userTransactionId?: string;
+    creatorAccrualId?: string;
+    creatorExperienceRecordId?: string;
+    extra?: Record<string, string | number | boolean>;
+}) {
+    return {
+        actorType: input.marker.actorType,
+        actorUid: input.marker.actorUid ?? "",
+        actorRole: input.marker.actorRole,
+        targetUserId: input.marker.targetUserId ?? "",
+        targetCreatorId: input.marker.targetCreatorId ?? input.creatorId,
+        performedAs: input.marker.performedAs,
+        surface: input.marker.surface,
+        route: input.marker.route,
+        actionKey: input.marker.actionKey,
+        source: input.marker.source,
+        actor_type: input.marker.actorType,
+        actor_uid: input.marker.actorUid ?? "",
+        actor_role: input.marker.actorRole,
+        target_user_id: input.marker.targetUserId ?? "",
+        target_creator_id: input.marker.targetCreatorId ?? input.creatorId,
+        performed_as: input.marker.performedAs,
+        action_key: input.marker.actionKey,
+        creator_id: input.creatorId,
+        price_gd: input.priceGd,
+        spend_gd: input.priceGd,
+        idempotency_key: input.idempotencyKey,
+        duplicate_prevented: input.duplicatePrevented,
+        user_transaction_id: input.userTransactionId ?? "",
+        creator_accrual_id: input.creatorAccrualId ?? "",
+        creator_experience_record_id: input.creatorExperienceRecordId ?? "",
+        ...(input.extra ?? {}),
     };
 }
 

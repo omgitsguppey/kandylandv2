@@ -34,6 +34,7 @@ const sendMessageSchema = z.object({
     assetMimeType: z.string().trim().max(160).optional(),
     messageKind: z.enum(["text", "image", "video"]).default("text"),
     targetUserId: z.string().trim().optional(),
+    idempotencyKey: z.string().trim().max(180).optional(),
 });
 
 export async function GET(request: NextRequest) {
@@ -175,6 +176,7 @@ export async function POST(request: NextRequest) {
             assetName: payload.assetName,
             assetMimeType: payload.assetMimeType,
             messageKind: payload.messageKind,
+            idempotencyKey: payload.idempotencyKey,
         });
 
         return finalize(withCompatibilityHeaders(NextResponse.json({

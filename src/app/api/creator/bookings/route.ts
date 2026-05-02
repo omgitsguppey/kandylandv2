@@ -6,18 +6,32 @@ import { handleApiError } from "@/lib/server/auth";
 import { STANDARD } from "@/lib/server/rate-limit";
 import { guardApiRequest } from "@/lib/server/request-guard";
 import { CREATOR_BOOKING_MIN_MINUTES, CREATOR_COLLECTIONS, isCreatorRole } from "@/lib/creator-experiences";
-import { buildBookingSlotKey, buildCreatorAccrual, buildSourceAwareBalancePatch, calculateBookingPriceGd, readSourceAwareBalance, spendCreatorExperienceGumdrops } from "@/lib/server/creator-experiences";
+import {
+    CREATOR_EXPERIENCE_PAID_EVENTS,
+    buildBookingSlotKey,
+    buildCreatorAccrual,
+    buildCreatorExperienceIdempotencyKey,
+    buildCreatorExperienceRecordIds,
+    buildCreatorExperienceTelemetryPayload,
+    buildCreatorExperienceTransactionDebug,
+    buildSourceAwareBalancePatch,
+    calculateBookingPriceGd,
+    readSourceAwareBalance,
+    spendCreatorExperienceGumdrops,
+} from "@/lib/server/creator-experiences";
 import { buildCompletedGumdropTransaction } from "@/lib/server/gumdrop-ledger";
 import { trackServerEvent } from "@/lib/server/analytics";
 import { isWithinAnyWindow } from "./booking-timezone";
 import { withRouteRuntimeHealth } from "@/lib/server/route-runtime-health";
 import { buildNotFoundResponse } from "@/lib/server/not-found";
+import { assertKnownActor, buildActorMarker } from "@/lib/identity/actor-markers";
 
 const createBookingSchema = z.object({
     creatorId: z.string().trim().min(1),
     serviceType: z.enum(["phone", "video"]),
     startAt: z.number().finite(),
     durationMinutes: z.number().int().min(CREATOR_BOOKING_MIN_MINUTES),
+    idempotencyKey: z.string().trim().max(180).optional(),
 });
 
 const updateBookingSchema = z.object({
@@ -91,22 +105,52 @@ async function POST_handler(request: NextRequest) {
             return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
         }
 
-        const { creatorId, serviceType, startAt, durationMinutes } = createBookingSchema.parse(await request.json());
+        const { creatorId, serviceType, startAt, durationMinutes, idempotencyKey: rawIdempotencyKey } = createBookingSchema.parse(await request.json());
         if (creatorId === caller.uid) {
             return NextResponse.json({ error: "Creator bookings are for fans only." }, { status: 400 });
         }
 
+        const paidEventName = CREATOR_EXPERIENCE_PAID_EVENTS.live_time;
+        const idempotencyKey = buildCreatorExperienceIdempotencyKey({
+            action: "live_time",
+            userId: caller.uid,
+            creatorId,
+            clientKey: rawIdempotencyKey,
+            payloadParts: [serviceType, startAt, durationMinutes],
+        });
+        const recordIds = buildCreatorExperienceRecordIds({
+            action: "live_time",
+            idempotencyKey,
+        });
+        const actorMarker = assertKnownActor(buildActorMarker({
+            actor: {
+                uid: caller.uid,
+                email: caller.email,
+                role: "user",
+            },
+            performedAs: "own_account",
+            surface: "creator_experiences",
+            route: "/api/creator/bookings",
+            actionKey: paidEventName,
+            targetCreatorId: creatorId,
+            occurredAt: Date.now(),
+            dedupeKey: idempotencyKey,
+            source: "creator_experience_transaction",
+        }));
+
         const creatorRef = adminDb.collection("users").doc(creatorId);
         const userRef = adminDb.collection("users").doc(caller.uid);
-        const bookingRef = adminDb.collection(CREATOR_COLLECTIONS.bookings).doc();
-        const ledgerRef = adminDb.collection(CREATOR_COLLECTIONS.ledgerAccruals).doc();
-        const transactionRef = adminDb.collection("transactions").doc();
+        const bookingRef = adminDb.collection(CREATOR_COLLECTIONS.bookings).doc(recordIds.creatorExperienceRecordId);
+        const ledgerRef = adminDb.collection(CREATOR_COLLECTIONS.ledgerAccruals).doc(recordIds.creatorAccrualId);
+        const transactionRef = adminDb.collection("transactions").doc(recordIds.userTransactionId);
 
         const result = await adminDb.runTransaction(async (transaction) => {
-            const [creatorSnap, userSnap, subscriptionSnap] = await Promise.all([
+            const [creatorSnap, userSnap, subscriptionSnap, bookingSnap, transactionSnap] = await Promise.all([
                 transaction.get(creatorRef),
                 transaction.get(userRef),
                 transaction.get(adminDb.collection(CREATOR_COLLECTIONS.subscriptions).doc(`${caller.uid}__${creatorId}`)),
+                transaction.get(bookingRef),
+                transaction.get(transactionRef),
             ]);
 
             if (!creatorSnap.exists || !userSnap.exists) {
@@ -140,16 +184,6 @@ async function POST_handler(request: NextRequest) {
             }
 
             const slotKey = buildBookingSlotKey({ creatorId, serviceType, startAt, durationMinutes });
-            const conflictingSnap = await transaction.get(
-                adminDb.collection(CREATOR_COLLECTIONS.bookings)
-                    .where("slotKey", "==", slotKey)
-                    .where("status", "==", "booked")
-                    .limit(1),
-            );
-            if (!conflictingSnap.empty) {
-                throw new Error("That slot was already booked.");
-            }
-
             const subscriptionActive = subscriptionSnap.exists && (subscriptionSnap.data() as Record<string, unknown>).status === "active";
             const priceGd = calculateBookingPriceGd({
                 serviceType,
@@ -160,6 +194,36 @@ async function POST_handler(request: NextRequest) {
                     : undefined,
             });
             const balance = readSourceAwareBalance(userData);
+            if (bookingSnap.exists || transactionSnap.exists) {
+                const bookingData = bookingSnap.data() as Record<string, unknown> | undefined;
+                const existingPrice = typeof bookingData?.priceGd === "number" ? bookingData.priceGd : priceGd;
+                const existingAccrualId = typeof bookingData?.creatorAccrualId === "string" ? bookingData.creatorAccrualId : ledgerRef.id;
+
+                return {
+                    priceGd: existingPrice,
+                    creatorAccrualId: existingAccrualId,
+                    duplicatePrevented: true,
+                    debug: buildCreatorExperienceTransactionDebug({
+                        userTransactionId: transactionRef.id,
+                        creatorAccrualId: existingAccrualId,
+                        creatorExperienceRecordId: bookingRef.id,
+                        priceGd: existingPrice,
+                        idempotencyKey,
+                        duplicatePrevented: true,
+                        sourceAwareBalanceBefore: balance,
+                        sourceAwareBalanceAfter: balance,
+                    }),
+                };
+            }
+            const conflictingSnap = await transaction.get(
+                adminDb.collection(CREATOR_COLLECTIONS.bookings)
+                    .where("slotKey", "==", slotKey)
+                    .where("status", "==", "booked")
+                    .limit(1),
+            );
+            if (!conflictingSnap.empty) {
+                throw new Error("That slot was already booked.");
+            }
             const spend = spendCreatorExperienceGumdrops(
                 balance,
                 priceGd,
@@ -178,6 +242,16 @@ async function POST_handler(request: NextRequest) {
                 grossSpendGd: priceGd,
                 createdAt: now,
             });
+            const debug = buildCreatorExperienceTransactionDebug({
+                userTransactionId: transactionRef.id,
+                creatorAccrualId: ledgerRef.id,
+                creatorExperienceRecordId: bookingRef.id,
+                priceGd,
+                idempotencyKey,
+                duplicatePrevented: false,
+                sourceAwareBalanceBefore: balance,
+                sourceAwareBalanceAfter: spend.next,
+            });
 
             transaction.update(userRef, buildSourceAwareBalancePatch(spend.next));
             transaction.set(bookingRef, {
@@ -192,9 +266,19 @@ async function POST_handler(request: NextRequest) {
                 priceGd,
                 subscriberDiscountApplied: subscriptionActive && serviceType === "video",
                 creatorAccrualId: ledgerRef.id,
+                userTransactionId: transactionRef.id,
+                idempotencyKey,
+                duplicatePrevented: false,
+                transactionDebug: debug,
                 createdAt: now,
             });
-            transaction.set(ledgerRef, accrual);
+            transaction.set(ledgerRef, {
+                ...accrual,
+                userTransactionId: transactionRef.id,
+                creatorExperienceRecordId: bookingRef.id,
+                idempotencyKey,
+                platformShareGd: debug.platformShareGd,
+            });
             transaction.set(transactionRef, buildCompletedGumdropTransaction({
                 userId: caller.uid,
                 type: serviceType === "video" ? "creator_booking_video" : "creator_booking_phone",
@@ -211,23 +295,68 @@ async function POST_handler(request: NextRequest) {
                     creatorRevenueShareGd: accrual.creatorShareGd,
                     creatorRevenueShareUsd: accrual.cashoutValueUsd,
                     creatorAccrualId: ledgerRef.id,
+                    creatorExperienceRecordId: bookingRef.id,
+                    idempotencyKey,
+                    duplicatePrevented: false,
+                    userTransactionId: transactionRef.id,
+                    platformShareGd: debug.platformShareGd,
+                    sourceAwareBalanceBefore: balance,
+                    sourceAwareBalanceAfter: spend.next,
                 },
             }));
 
             return {
                 priceGd,
                 creatorAccrualId: ledgerRef.id,
+                duplicatePrevented: false,
+                debug,
             };
         });
 
         await Promise.allSettled([
             trackServerEvent("creator_call_booking_created", {
+                ...buildCreatorExperienceTelemetryPayload({
+                    marker: actorMarker,
+                    creatorId,
+                    priceGd: result.priceGd,
+                    idempotencyKey,
+                    duplicatePrevented: result.duplicatePrevented,
+                    userTransactionId: result.debug.userTransactionId,
+                    creatorAccrualId: result.creatorAccrualId,
+                    creatorExperienceRecordId: result.debug.creatorExperienceRecordId,
+                    extra: {
+                        service_type: serviceType,
+                    },
+                }),
                 creator_id: creatorId,
                 service_type: serviceType,
                 spend_gd: result.priceGd,
-                transaction_id: `${caller.uid}:${creatorId}:${serviceType}:${startAt}`,
+                transaction_id: result.debug.userTransactionId,
             }, caller.uid),
+            trackServerEvent(paidEventName, buildCreatorExperienceTelemetryPayload({
+                marker: actorMarker,
+                creatorId,
+                priceGd: result.priceGd,
+                idempotencyKey,
+                duplicatePrevented: result.duplicatePrevented,
+                userTransactionId: result.debug.userTransactionId,
+                creatorAccrualId: result.creatorAccrualId,
+                creatorExperienceRecordId: result.debug.creatorExperienceRecordId,
+                extra: {
+                    service_type: serviceType,
+                },
+            }), caller.uid),
             trackServerEvent("creator_ledger_accrual_created", {
+                ...buildCreatorExperienceTelemetryPayload({
+                    marker: actorMarker,
+                    creatorId,
+                    priceGd: result.priceGd,
+                    idempotencyKey,
+                    duplicatePrevented: result.duplicatePrevented,
+                    userTransactionId: result.debug.userTransactionId,
+                    creatorAccrualId: result.creatorAccrualId,
+                    creatorExperienceRecordId: result.debug.creatorExperienceRecordId,
+                }),
                 creator_id: creatorId,
                 source_type: serviceType === "video" ? "booking_video" : "booking_phone",
                 accrual_id: result.creatorAccrualId,
@@ -235,7 +364,11 @@ async function POST_handler(request: NextRequest) {
             }, caller.uid),
         ]);
 
-        return NextResponse.json({ success: true });
+        return NextResponse.json({
+            success: true,
+            duplicatePrevented: result.duplicatePrevented,
+            debug: result.debug,
+        });
     } catch (error) {
         return handleApiError(error, "Creator.Bookings.POST");
     }

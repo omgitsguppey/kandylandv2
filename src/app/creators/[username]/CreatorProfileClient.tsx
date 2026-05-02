@@ -38,6 +38,19 @@ const DEFAULT_MODULE_STATE: Record<ExperienceModuleKey, UiContinuityModuleState>
     broadcasts: { key: "broadcasts", label: "broadcasts", critical: false, status: "success", warning: null, fallbackActive: false, responseOk: true },
 };
 
+function buildCreatorExperienceClientIdempotencyKey(action: string, creatorId: string) {
+    let random = globalThis.crypto?.randomUUID?.() ?? "";
+    if (!random && globalThis.crypto?.getRandomValues) {
+        const buffer = new Uint32Array(2);
+        globalThis.crypto.getRandomValues(buffer);
+        random = Array.from(buffer).map((value) => value.toString(36)).join("-");
+    }
+    if (!random) {
+        random = `${Date.now()}`;
+    }
+    return `creator-experience:${action}:${creatorId}:${random}`;
+}
+
 export default function CreatorProfileClient() {
     const params = useParams();
     const router = useRouter();
@@ -538,6 +551,10 @@ export default function CreatorProfileClient() {
                 body: JSON.stringify({
                     creatorId: creator.uid,
                     action: subscriptionActive ? "cancel" : "subscribe",
+                    idempotencyKey: buildCreatorExperienceClientIdempotencyKey(
+                        subscriptionActive ? "fan-pass-cancel" : "fan-pass-start",
+                        creator.uid,
+                    ),
                 }),
             });
             const result = await response.json();
@@ -589,6 +606,7 @@ export default function CreatorProfileClient() {
                     creatorId: creator.uid,
                     categoryId: requestCategoryId,
                     details: requestDetails.trim(),
+                    idempotencyKey: buildCreatorExperienceClientIdempotencyKey("custom-request", creator.uid),
                 }),
             });
             const result = await response.json();
@@ -635,6 +653,7 @@ export default function CreatorProfileClient() {
                     serviceType: bookingServiceType,
                     startAt: new Date(bookingStartAt).getTime(),
                     durationMinutes: bookingDurationMinutes,
+                    idempotencyKey: buildCreatorExperienceClientIdempotencyKey("live-time", creator.uid),
                 }),
             });
             const result = await response.json();

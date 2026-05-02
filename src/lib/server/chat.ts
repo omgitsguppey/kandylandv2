@@ -18,6 +18,7 @@ import {
 } from "@/lib/chat";
 import { buildChatSoftSealScope, softOpenChatValue, softSealChatValue } from "@/lib/chat-soft-seal";
 import {
+    CREATOR_COLLECTIONS,
     isCreatorMessagingAvailable,
     normalizeCreatorRestrictions,
     normalizeCreatorSettings,
@@ -25,11 +26,17 @@ import {
     type CreatorSettings,
 } from "@/lib/creator-experiences";
 import {
+    CREATOR_EXPERIENCE_PAID_EVENTS,
     buildCreatorAccrual,
+    buildCreatorExperienceIdempotencyKey,
+    buildCreatorExperienceRecordIds,
+    buildCreatorExperienceTelemetryPayload,
+    buildCreatorExperienceTransactionDebug,
     buildSourceAwareBalancePatch,
     readSourceAwareBalance,
     spendCreatorExperienceGumdrops,
 } from "@/lib/server/creator-experiences";
+import { assertKnownActor, buildActorMarker } from "@/lib/identity/actor-markers";
 import { trackServerEvent } from "@/lib/server/analytics";
 import { AuthError } from "@/lib/server/auth";
 import { adminDb } from "@/lib/server/firebase-admin";
@@ -61,6 +68,7 @@ type SendChatMessageInput = {
     assetName?: string;
     assetMimeType?: string;
     messageKind?: unknown;
+    idempotencyKey?: string;
 };
 
 function requireAdminDb() {
@@ -728,19 +736,56 @@ export async function sendChatMessageForViewer(input: SendChatMessageInput) {
         }));
     }
 
+    const idempotencyKey = buildCreatorExperienceIdempotencyKey({
+        action: "private_chat",
+        userId: parsedThread.userId,
+        creatorId: parsedThread.creatorId,
+        clientKey: input.idempotencyKey,
+        payloadParts: [
+            input.threadId,
+            input.callerUid,
+            messageKind,
+            text,
+            assetUrl,
+            assetName,
+            assetMimeType,
+        ],
+    });
+    const recordIds = buildCreatorExperienceRecordIds({
+        action: "private_chat",
+        idempotencyKey,
+    });
+    const actorMarker = assertKnownActor(buildActorMarker({
+        actor: {
+            uid: input.callerUid,
+            email: input.callerEmail,
+            role: input.callerRole,
+        },
+        performedAs: "own_account",
+        surface: "creator_experiences",
+        route: "/api/chat/threads/[threadId]/messages",
+        actionKey: CREATOR_EXPERIENCE_PAID_EVENTS.private_chat,
+        targetCreatorId: parsedThread.creatorId,
+        occurredAt: Date.now(),
+        dedupeKey: idempotencyKey,
+        source: "creator_experience_transaction",
+    }));
+
     const creatorRef = db.collection("users").doc(parsedThread.creatorId);
     const participantRef = db.collection("users").doc(parsedThread.userId);
     const threadRef = db.collection(CHAT_COLLECTIONS.threads).doc(input.threadId);
-    const messageRef = db.collection(CHAT_COLLECTIONS.messages).doc();
-    const transactionRef = db.collection("transactions").doc();
-    const ledgerRef = db.collection("creator_ledger_accruals").doc();
+    const messageRef = db.collection(CHAT_COLLECTIONS.messages).doc(recordIds.creatorExperienceRecordId);
+    const transactionRef = db.collection("transactions").doc(recordIds.userTransactionId);
+    const ledgerRef = db.collection(CREATOR_COLLECTIONS.ledgerAccruals).doc(recordIds.creatorAccrualId);
 
     const sendResult = await db.runTransaction(async (transaction) => {
-        const [creatorSnap, participantSnap, threadSnap, subscriptionSnap] = await Promise.all([
+        const [creatorSnap, participantSnap, threadSnap, subscriptionSnap, messageSnap, transactionSnap] = await Promise.all([
             transaction.get(creatorRef),
             transaction.get(participantRef),
             transaction.get(threadRef),
             transaction.get(db.collection("creator_subscriptions").doc(`${parsedThread.userId}__${parsedThread.creatorId}`)),
+            transaction.get(messageRef),
+            transaction.get(transactionRef),
         ]);
 
         if (!creatorSnap.exists || !participantSnap.exists) {
@@ -774,12 +819,60 @@ export async function sendChatMessageForViewer(input: SendChatMessageInput) {
                     : messageKind === "video"
                         ? 10
                         : 1;
+        if (messageSnap.exists || transactionSnap.exists) {
+            if (!messageSnap.exists || !threadSnap.exists) {
+                throw new ChatClientError("This creator message is already being processed.", 409, buildChatErrorBody({
+                    error: "This creator message is already being processed.",
+                    errorCode: "duplicate_processing",
+                    detail: {
+                        idempotencyKey,
+                    },
+                }));
+            }
+
+            const existingMessage = mapCreatorMessage(messageRef.id, messageSnap.data() as Record<string, unknown>);
+            const existingThread = mapCreatorMessageThread(threadSnap.id, threadSnap.data() as Record<string, unknown>);
+            const existingAccrualId = existingMessage.creatorAccrualId;
+
+            return {
+                thread: toChatThreadRecord(existingThread, input.callerUid),
+                message: existingMessage,
+                pricing: buildChatPricingSummary({
+                    purchasedBalanceGd: viewerRole === "user" ? participantBalance.purchased : 0,
+                    subscriberFreeChatApplies,
+                    subscriberFreeChatEnabled: creator.creatorSettings.chatFreeForSubscribers !== false,
+                }),
+                costGd: existingMessage.costGd,
+                creatorAccrualId: existingAccrualId,
+                duplicatePrevented: true,
+                debug: buildCreatorExperienceTransactionDebug({
+                    userTransactionId: transactionRef.id,
+                    creatorAccrualId: existingAccrualId ?? ledgerRef.id,
+                    creatorExperienceRecordId: messageRef.id,
+                    priceGd: existingMessage.costGd,
+                    idempotencyKey,
+                    duplicatePrevented: true,
+                    sourceAwareBalanceBefore: participantBalance,
+                    sourceAwareBalanceAfter: participantBalance,
+                }),
+            };
+        }
         const preview = describeMessagePreview({
             text,
             messageKind,
         });
         const now = Date.now();
         let creatorAccrualId: string | undefined;
+        let transactionDebug = buildCreatorExperienceTransactionDebug({
+            userTransactionId: transactionRef.id,
+            creatorAccrualId: ledgerRef.id,
+            creatorExperienceRecordId: messageRef.id,
+            priceGd: costGd,
+            idempotencyKey,
+            duplicatePrevented: false,
+            sourceAwareBalanceBefore: participantBalance,
+            sourceAwareBalanceAfter: participantBalance,
+        });
 
         if (viewerRole === "user" && costGd > 0) {
             const spend = spendCreatorExperienceGumdrops(participantBalance, costGd, "message");
@@ -793,6 +886,16 @@ export async function sendChatMessageForViewer(input: SendChatMessageInput) {
             }
 
             nextParticipantBalance = spend.next;
+            transactionDebug = buildCreatorExperienceTransactionDebug({
+                userTransactionId: transactionRef.id,
+                creatorAccrualId: ledgerRef.id,
+                creatorExperienceRecordId: messageRef.id,
+                priceGd: costGd,
+                idempotencyKey,
+                duplicatePrevented: false,
+                sourceAwareBalanceBefore: participantBalance,
+                sourceAwareBalanceAfter: spend.next,
+            });
             transaction.update(participantRef, buildSourceAwareBalancePatch(spend.next));
             const accrual = buildCreatorAccrual({
                 creatorId: parsedThread.creatorId,
@@ -800,9 +903,16 @@ export async function sendChatMessageForViewer(input: SendChatMessageInput) {
                 sourceType: "message",
                 sourceId: messageRef.id,
                 grossSpendGd: costGd,
+                createdAt: now,
             });
             creatorAccrualId = ledgerRef.id;
-            transaction.set(ledgerRef, accrual);
+            transaction.set(ledgerRef, {
+                ...accrual,
+                userTransactionId: transactionRef.id,
+                creatorExperienceRecordId: messageRef.id,
+                idempotencyKey,
+                platformShareGd: transactionDebug.platformShareGd,
+            });
             transaction.set(transactionRef, buildCompletedGumdropTransaction({
                 userId: parsedThread.userId,
                 type: messageKind === "video" ? "creator_message_video" : messageKind === "image" ? "creator_message_image" : "creator_message_text",
@@ -818,6 +928,13 @@ export async function sendChatMessageForViewer(input: SendChatMessageInput) {
                     creatorRevenueShareGd: accrual.creatorShareGd,
                     creatorRevenueShareUsd: accrual.cashoutValueUsd,
                     creatorAccrualId,
+                    creatorExperienceRecordId: messageRef.id,
+                    idempotencyKey,
+                    duplicatePrevented: false,
+                    userTransactionId: transactionRef.id,
+                    platformShareGd: transactionDebug.platformShareGd,
+                    sourceAwareBalanceBefore: participantBalance,
+                    sourceAwareBalanceAfter: spend.next,
                 },
             }));
         }
@@ -867,6 +984,10 @@ export async function sendChatMessageForViewer(input: SendChatMessageInput) {
             assetMimeType,
             costGd,
             creatorAccrualId,
+            userTransactionId: costGd > 0 ? transactionRef.id : null,
+            idempotencyKey,
+            duplicatePrevented: false,
+            transactionDebug,
             createdAt: now,
         });
         const sealedThreadPatch = {
@@ -892,6 +1013,8 @@ export async function sendChatMessageForViewer(input: SendChatMessageInput) {
             }),
             costGd,
             creatorAccrualId,
+            duplicatePrevented: false,
+            debug: transactionDebug,
         };
     });
 
@@ -899,17 +1022,56 @@ export async function sendChatMessageForViewer(input: SendChatMessageInput) {
         Promise.resolve().then(() => trackServerEvent(
             sendResult.message.messageKind === "text" ? "creator_message_sent" : "creator_media_sent",
             {
-                creator_id: sendResult.thread.creatorId,
-                thread_id: sendResult.thread.id,
-                message_id: sendResult.message.id,
-                idempotency_key: sendResult.message.id,
+                ...buildCreatorExperienceTelemetryPayload({
+                    marker: actorMarker,
+                    creatorId: sendResult.thread.creatorId,
+                    priceGd: sendResult.costGd,
+                    idempotencyKey,
+                    duplicatePrevented: sendResult.duplicatePrevented,
+                    userTransactionId: sendResult.debug.userTransactionId,
+                    creatorAccrualId: sendResult.creatorAccrualId,
+                    creatorExperienceRecordId: sendResult.message.id,
+                    extra: {
+                        thread_id: sendResult.thread.id,
+                        message_id: sendResult.message.id,
+                        media_kind: sendResult.message.messageKind,
+                    },
+                }),
+                idempotency_key: idempotencyKey,
                 spend_gd: sendResult.costGd,
                 media_kind: sendResult.message.messageKind,
             },
             input.callerUid,
         )),
+        sendResult.thread.viewerRole === "user"
+            ? Promise.resolve().then(() => trackServerEvent(CREATOR_EXPERIENCE_PAID_EVENTS.private_chat, buildCreatorExperienceTelemetryPayload({
+                marker: actorMarker,
+                creatorId: sendResult.thread.creatorId,
+                priceGd: sendResult.costGd,
+                idempotencyKey,
+                duplicatePrevented: sendResult.duplicatePrevented,
+                userTransactionId: sendResult.debug.userTransactionId,
+                creatorAccrualId: sendResult.creatorAccrualId,
+                creatorExperienceRecordId: sendResult.message.id,
+                extra: {
+                    thread_id: sendResult.thread.id,
+                    message_id: sendResult.message.id,
+                    media_kind: sendResult.message.messageKind,
+                },
+            }), input.callerUid))
+            : Promise.resolve(null),
         sendResult.creatorAccrualId
             ? Promise.resolve().then(() => trackServerEvent("creator_ledger_accrual_created", {
+                ...buildCreatorExperienceTelemetryPayload({
+                    marker: actorMarker,
+                    creatorId: sendResult.thread.creatorId,
+                    priceGd: sendResult.costGd,
+                    idempotencyKey,
+                    duplicatePrevented: sendResult.duplicatePrevented,
+                    userTransactionId: sendResult.debug.userTransactionId,
+                    creatorAccrualId: sendResult.creatorAccrualId,
+                    creatorExperienceRecordId: sendResult.message.id,
+                }),
                 creator_id: sendResult.thread.creatorId,
                 source_type: "message",
                 accrual_id: sendResult.creatorAccrualId,

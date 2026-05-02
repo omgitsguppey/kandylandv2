@@ -127,6 +127,20 @@ type UploadedChatAttachment = {
     storagePath: string;
 };
 
+function buildChatMessageIdempotencyKey(threadId: string) {
+    let random = globalThis.crypto?.randomUUID?.() ?? "";
+    if (!random && globalThis.crypto?.getRandomValues) {
+        const buffer = new Uint32Array(2);
+        globalThis.crypto.getRandomValues(buffer);
+        random = Array.from(buffer).map((value) => value.toString(36)).join("-");
+    }
+    if (!random) {
+        random = `${Date.now()}`;
+    }
+
+    return `creator-private-chat:${threadId}:${random}`;
+}
+
 type PresenceSnapshot = {
     typing?: boolean;
     activeAt?: number;
@@ -1480,6 +1494,7 @@ export function ChatExperience() {
         const currentComposerText = composerText.trim();
         const currentComposerFile = composerFile;
         const currentComposerKind = composerKind;
+        const idempotencyKey = buildChatMessageIdempotencyKey(selectedThreadId);
         let uploadedAttachment: UploadedChatAttachment | null = null;
 
         const optimisticId = `optimistic-${Date.now()}`;
@@ -1515,6 +1530,7 @@ export function ChatExperience() {
                     messageKind: uploadedAttachment
                         ? (resolveChatAttachmentKind(uploadedAttachment.assetMimeType) || currentComposerKind)
                         : currentComposerKind,
+                    idempotencyKey,
                     ...(uploadedAttachment ? {
                         assetUrl: uploadedAttachment.assetUrl,
                         assetName: uploadedAttachment.assetName,

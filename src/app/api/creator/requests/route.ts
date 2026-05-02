@@ -6,11 +6,22 @@ import { handleApiError } from "@/lib/server/auth";
 import { STANDARD } from "@/lib/server/rate-limit";
 import { guardApiRequest } from "@/lib/server/request-guard";
 import { CREATOR_COLLECTIONS, isCreatorRole } from "@/lib/creator-experiences";
-import { buildCreatorAccrual, buildSourceAwareBalancePatch, readSourceAwareBalance, spendCreatorExperienceGumdrops } from "@/lib/server/creator-experiences";
+import {
+    CREATOR_EXPERIENCE_PAID_EVENTS,
+    buildCreatorAccrual,
+    buildCreatorExperienceIdempotencyKey,
+    buildCreatorExperienceRecordIds,
+    buildCreatorExperienceTelemetryPayload,
+    buildCreatorExperienceTransactionDebug,
+    buildSourceAwareBalancePatch,
+    readSourceAwareBalance,
+    spendCreatorExperienceGumdrops,
+} from "@/lib/server/creator-experiences";
 import { buildCompletedGumdropTransaction } from "@/lib/server/gumdrop-ledger";
 import { trackServerEvent } from "@/lib/server/analytics";
 import { withRouteRuntimeHealth } from "@/lib/server/route-runtime-health";
 import { buildNotFoundResponse } from "@/lib/server/not-found";
+import { assertKnownActor, buildActorMarker } from "@/lib/identity/actor-markers";
 
 type CreatorRequestRecord = Record<string, unknown> & {
     id: string;
@@ -21,6 +32,7 @@ const createRequestSchema = z.object({
     creatorId: z.string().trim().min(1),
     categoryId: z.string().trim().min(1),
     details: z.string().trim().min(8).max(1500),
+    idempotencyKey: z.string().trim().max(180).optional(),
 });
 
 const updateRequestSchema = z.object({
@@ -77,21 +89,51 @@ async function POST_handler(request: NextRequest) {
             return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
         }
 
-        const { creatorId, categoryId, details } = createRequestSchema.parse(await request.json());
+        const { creatorId, categoryId, details, idempotencyKey: rawIdempotencyKey } = createRequestSchema.parse(await request.json());
         if (creatorId === caller.uid) {
             return NextResponse.json({ error: "Custom requests are for fans only." }, { status: 400 });
         }
 
+        const paidEventName = CREATOR_EXPERIENCE_PAID_EVENTS.custom_request;
+        const idempotencyKey = buildCreatorExperienceIdempotencyKey({
+            action: "custom_request",
+            userId: caller.uid,
+            creatorId,
+            clientKey: rawIdempotencyKey,
+            payloadParts: [categoryId, details],
+        });
+        const recordIds = buildCreatorExperienceRecordIds({
+            action: "custom_request",
+            idempotencyKey,
+        });
+        const actorMarker = assertKnownActor(buildActorMarker({
+            actor: {
+                uid: caller.uid,
+                email: caller.email,
+                role: "user",
+            },
+            performedAs: "own_account",
+            surface: "creator_experiences",
+            route: "/api/creator/requests",
+            actionKey: paidEventName,
+            targetCreatorId: creatorId,
+            occurredAt: Date.now(),
+            dedupeKey: idempotencyKey,
+            source: "creator_experience_transaction",
+        }));
+
         const creatorRef = adminDb.collection("users").doc(creatorId);
         const userRef = adminDb.collection("users").doc(caller.uid);
-        const requestRef = adminDb.collection(CREATOR_COLLECTIONS.requests).doc();
-        const ledgerRef = adminDb.collection(CREATOR_COLLECTIONS.ledgerAccruals).doc();
-        const transactionRef = adminDb.collection("transactions").doc();
+        const requestRef = adminDb.collection(CREATOR_COLLECTIONS.requests).doc(recordIds.creatorExperienceRecordId);
+        const ledgerRef = adminDb.collection(CREATOR_COLLECTIONS.ledgerAccruals).doc(recordIds.creatorAccrualId);
+        const transactionRef = adminDb.collection("transactions").doc(recordIds.userTransactionId);
 
         const result = await adminDb.runTransaction(async (transaction) => {
-            const [creatorSnap, userSnap] = await Promise.all([
+            const [creatorSnap, userSnap, requestSnap, transactionSnap] = await Promise.all([
                 transaction.get(creatorRef),
                 transaction.get(userRef),
+                transaction.get(requestRef),
+                transaction.get(transactionRef),
             ]);
 
             if (!creatorSnap.exists || !userSnap.exists) {
@@ -124,6 +166,27 @@ async function POST_handler(request: NextRequest) {
 
             const priceGd = typeof selectedCategory.priceGd === "number" ? Math.round(selectedCategory.priceGd) : 0;
             const balance = readSourceAwareBalance(userData);
+            if (requestSnap.exists || transactionSnap.exists) {
+                const requestData = requestSnap.data() as Record<string, unknown> | undefined;
+                const existingPrice = typeof requestData?.priceGd === "number" ? requestData.priceGd : priceGd;
+                const existingAccrualId = typeof requestData?.creatorAccrualId === "string" ? requestData.creatorAccrualId : ledgerRef.id;
+
+                return {
+                    priceGd: existingPrice,
+                    creatorAccrualId: existingAccrualId,
+                    duplicatePrevented: true,
+                    debug: buildCreatorExperienceTransactionDebug({
+                        userTransactionId: transactionRef.id,
+                        creatorAccrualId: existingAccrualId,
+                        creatorExperienceRecordId: requestRef.id,
+                        priceGd: existingPrice,
+                        idempotencyKey,
+                        duplicatePrevented: true,
+                        sourceAwareBalanceBefore: balance,
+                        sourceAwareBalanceAfter: balance,
+                    }),
+                };
+            }
             const spend = spendCreatorExperienceGumdrops(balance, priceGd, "custom_request");
             if (!spend.ok) {
                 throw new Error(spend.error);
@@ -138,6 +201,16 @@ async function POST_handler(request: NextRequest) {
                 grossSpendGd: priceGd,
                 createdAt: now,
             });
+            const debug = buildCreatorExperienceTransactionDebug({
+                userTransactionId: transactionRef.id,
+                creatorAccrualId: ledgerRef.id,
+                creatorExperienceRecordId: requestRef.id,
+                priceGd,
+                idempotencyKey,
+                duplicatePrevented: false,
+                sourceAwareBalanceBefore: balance,
+                sourceAwareBalanceAfter: spend.next,
+            });
 
             transaction.update(userRef, buildSourceAwareBalancePatch(spend.next));
             transaction.set(requestRef, {
@@ -149,9 +222,19 @@ async function POST_handler(request: NextRequest) {
                 priceGd,
                 status: "pending",
                 creatorAccrualId: ledgerRef.id,
+                userTransactionId: transactionRef.id,
+                idempotencyKey,
+                duplicatePrevented: false,
+                transactionDebug: debug,
                 createdAt: now,
             });
-            transaction.set(ledgerRef, accrual);
+            transaction.set(ledgerRef, {
+                ...accrual,
+                userTransactionId: transactionRef.id,
+                creatorExperienceRecordId: requestRef.id,
+                idempotencyKey,
+                platformShareGd: debug.platformShareGd,
+            });
             transaction.set(transactionRef, buildCompletedGumdropTransaction({
                 userId: caller.uid,
                 type: "creator_custom_request",
@@ -168,23 +251,55 @@ async function POST_handler(request: NextRequest) {
                     creatorRevenueShareGd: accrual.creatorShareGd,
                     creatorRevenueShareUsd: accrual.cashoutValueUsd,
                     creatorAccrualId: ledgerRef.id,
+                    creatorExperienceRecordId: requestRef.id,
+                    idempotencyKey,
+                    duplicatePrevented: false,
+                    userTransactionId: transactionRef.id,
+                    platformShareGd: debug.platformShareGd,
+                    sourceAwareBalanceBefore: balance,
+                    sourceAwareBalanceAfter: spend.next,
                 },
             }));
 
             return {
                 priceGd,
                 creatorAccrualId: ledgerRef.id,
+                duplicatePrevented: false,
+                debug,
             };
         });
 
         await Promise.allSettled([
-            trackServerEvent("creator_custom_request_created", {
+            trackServerEvent(paidEventName, {
+                ...buildCreatorExperienceTelemetryPayload({
+                    marker: actorMarker,
+                    creatorId,
+                    priceGd: result.priceGd,
+                    idempotencyKey,
+                    duplicatePrevented: result.duplicatePrevented,
+                    userTransactionId: result.debug.userTransactionId,
+                    creatorAccrualId: result.creatorAccrualId,
+                    creatorExperienceRecordId: result.debug.creatorExperienceRecordId,
+                    extra: {
+                        category_id: categoryId,
+                    },
+                }),
                 creator_id: creatorId,
                 spend_gd: result.priceGd,
                 category_id: categoryId,
-                transaction_id: `${caller.uid}:${creatorId}:${categoryId}:${Date.now()}`,
+                transaction_id: result.debug.userTransactionId,
             }, caller.uid),
             trackServerEvent("creator_ledger_accrual_created", {
+                ...buildCreatorExperienceTelemetryPayload({
+                    marker: actorMarker,
+                    creatorId,
+                    priceGd: result.priceGd,
+                    idempotencyKey,
+                    duplicatePrevented: result.duplicatePrevented,
+                    userTransactionId: result.debug.userTransactionId,
+                    creatorAccrualId: result.creatorAccrualId,
+                    creatorExperienceRecordId: result.debug.creatorExperienceRecordId,
+                }),
                 creator_id: creatorId,
                 source_type: "custom_request",
                 accrual_id: result.creatorAccrualId,
@@ -192,7 +307,11 @@ async function POST_handler(request: NextRequest) {
             }, caller.uid),
         ]);
 
-        return NextResponse.json({ success: true });
+        return NextResponse.json({
+            success: true,
+            duplicatePrevented: result.duplicatePrevented,
+            debug: result.debug,
+        });
     } catch (error) {
         return handleApiError(error, "Creator.Requests.POST");
     }

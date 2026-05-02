@@ -1,13 +1,21 @@
 # EVERY FILE FUNCTION CHECKLIST
 
 **Last Updated:** 2026-05-02
-**Current Focus:** Creator Admin Action Route Consolidation.
+**Current Focus:** Creator Experience Transaction Truth Cleanup.
 **Status:** In Progress. Current tracked-file coverage is reconciled as of 2026-04-28: every `git ls-files` entry has a current checklist heading, while detailed function-level audits remain pending for many historical and newly reconciled files.
 Purpose: exhaustive no-skip audit checklist covering every repository file currently in scope and every detected function-like implementation.
 
 Scoring: all entries below are marked as included in the current validated sweep. Confidence reflects current repository-state confidence, not perfection or future-proofing.
 
 Current repo-wide state snapshot: see [FULL_SCALE_CODEBASE_AUDIT.md](/Users/uylus/OneDrive/Documents/KandyDrops_Final/FULL_SCALE_CODEBASE_AUDIT.md) for the current live baseline, verification state, and continuity rules, and see [REPO_MEMORY_LEDGER.md](/Users/uylus/OneDrive/Documents/KandyDrops_Final/REPO_MEMORY_LEDGER.md) for major architectural and workflow decisions. The detailed file/function body below remains valuable historical evidence, but it has not been fully regenerated against the current 2026-04-18 inventory review yet.
+
+## 2026-05-02 Creator Experience Transaction Truth Coverage
+
+- [x] `src/lib/server/creator-experiences.ts` owns creator experience paid event names, idempotency key normalization, deterministic transaction/accrual/experience record IDs, transaction debug parity fields, telemetry payload shaping, creator accrual creation, and source-aware GumDrop spending policy.
+- [x] `src/app/api/creator/subscriptions/route.ts`, `src/app/api/creator/requests/route.ts`, and `src/app/api/creator/bookings/route.ts` compute prices server-side, spend via source-aware ledger helpers, write deterministic user transactions plus creator accruals, preserve duplicate retries with `duplicatePrevented`, and emit actor-marked creator commerce telemetry.
+- [x] `src/lib/server/chat.ts`, `src/app/api/chat/threads/[threadId]/messages/route.ts`, and `src/app/api/creator/messages/route.ts` carry private chat idempotency through the native and compatibility message send paths while keeping paid message deduction server-side.
+- [x] `src/app/creators/[username]/CreatorProfileClient.tsx` and `src/components/Chat/ChatExperience.tsx` pass idempotency keys to server routes without mutating GumDrop balances locally.
+- [x] `scripts/agent/validate-creator-experience-transaction-truth.ts`, focused creator route/chat tests, and `docs/agent-truth/creator-experience-transaction-truth.md` validate no client-only balance deduction, no duplicate paid retries, required telemetry events, and creator accrual parity.
 
 ## 2026-05-02 Creator Admin Action Route Coverage
 

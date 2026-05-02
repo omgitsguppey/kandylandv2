@@ -1,37 +1,32 @@
 # DEEP Task Context
 
 ## Goal
-human-readable admin truth diagnostics copy hardening
+creator experience transaction truth cleanup
 
-Mode: admin
+Mode: creators
 Scope: moderate
 Why scope: Touches several files or shared helper surfaces with non-trivial adjacency.
 
 ## Likely Entrypoints
-- src/app/admin/analytics/hooks/useAdminAnalyticsState.tsx
-- src/app/admin/analytics/components/AdminAnalyticsCommerceTab.tsx
-- src/lib/admin-analytics-audience-snapshot.ts
-- src/lib/admin-analytics-auth-outcome-split.ts
-- src/lib/admin-analytics-commerce-snapshot.ts
-- src/lib/admin-analytics-event-mix.ts
-- src/lib/admin-analytics-guest-bounce-quality.ts
-- src/lib/admin-analytics-journey-funnel.ts
-- src/lib/admin-analytics-live-interaction-stream.ts
-- src/lib/admin-analytics-live-pulse.ts
+- src/components/Creators/CreatorExperiencesPanel.tsx
+- src/lib/creator-experiences.ts
+- src/lib/creator-onboarding.ts
+- src/app/creators/[username]/CreatorProfileClient.tsx
+- src/lib/creator-agreement-documents.ts
+- src/lib/creator-agreement-version.ts
+- src/lib/creator-application.ts
+- src/lib/creator-contract.ts
+- src/lib/creator-onboarding-projection.ts
+- src/lib/server/creator-admin-action-contract.ts
 - FULL_SCALE_CODEBASE_AUDIT.md
-- agent/state/refresh-cache-loading-audit.generated.json
-- docs/agent-truth/refresh-based-hot-cache.md
-- scripts/agent/validate-refresh-based-hot-cache.ts
+- /api/admin/creator-agreements
+- /api/admin/user/[userId]
+- /api/admin/users
 
 ## Canonical Helpers To Reuse
-- src/lib/route-runtime-health.ts
-- src/lib/server/admin-panel-system-logs.ts
-- src/lib/server/route-diagnostics.ts
-- src/lib/server/route-runtime-health.ts
-- src/lib/server/server-diagnostics.ts
-- src/lib/telemetry-catalog.ts
+- src/lib/creator-onboarding.ts
+- src/lib/server/creator-onboarding.ts
 - src/lib/telemetry.ts
-- src/lib/server/auth.ts
 
 ## Acceptance Criteria
 - Reuse the canonical helpers before introducing new ownership paths.
@@ -39,12 +34,12 @@ Why scope: Touches several files or shared helper surfaces with non-trivial adja
 - Report any blocked or unverified lane explicitly instead of implying success.
 
 ## Relevant Pitfalls
-- diagnostics_serialization_crash
 - consumed_response_stream_fallback
+- generated_artifact_cleanup_miss
 - sidecar_truth_confusion
-- legacy_queue_adapter_usage
 - queue_activation_missing_notification_outcome
-- stale_queue_scheduler_heartbeat
+- unchecked_response_ok_ui_hydration
+- creator_booking_timezone_drift
 
 ## Forbidden Surfaces
 - src/lib/gumdrop-ledger.ts
@@ -55,39 +50,33 @@ Why scope: Touches several files or shared helper surfaces with non-trivial adja
 
 ## Fast Verification
 - npm run typecheck
-- npm run agent:test -- src/app/admin/analytics/hooks/useAdminAnalyticsState.tsx
-- npm run agent:test -- src/app/admin/analytics/components/AdminAnalyticsCommerceTab.tsx
-- npm run agent:test -- src/lib/admin-analytics-audience-snapshot.ts
-- npm run agent:test -- src/lib/admin-analytics-auth-outcome-split.ts
+- npm run agent:test -- src/components/Creators/CreatorExperiencesPanel.tsx
+- npm run agent:test -- src/lib/creator-experiences.ts
+- npm run agent:test -- src/lib/creator-onboarding.ts
+- npm run agent:test -- src/app/creators/[username]/CreatorProfileClient.tsx
 - npm run check:ui:coverage
 - npm run check:ui:runtime
-- npm run check:telemetry
-- npm run check:analytics-semantics
 
 ## Signoff Verification
 - npm run check:ui:audits
-- npm run check:analytics:continuity
 - npm run check:continuity
 
 ## Compatibility Verification Fields
-- required: npm run check:analytics-semantics
-- required: npm run check:analytics:continuity
-- required: npm run check:telemetry
-- required: npm run check:ui:audits
 - required: npm run test:contracts
 - required: npm run trace:adjacent -- <path>
+- required: npm run check:ui:audits
 - optional: npm run check:architecture
 
 Do not read unless needed:
 
 Do not touch without broad signoff:
-- src/lib/admin-analytics-audience-snapshot.ts
-- src/lib/admin-analytics-auth-outcome-split.ts
-- src/lib/admin-analytics-commerce-snapshot.ts
-- src/lib/admin-analytics-event-mix.ts
-- src/lib/admin-analytics-guest-bounce-quality.ts
-- src/lib/admin-analytics-journey-funnel.ts
-- src/lib/admin-analytics-live-interaction-stream.ts
-- src/lib/admin-analytics-live-pulse.ts
-- src/lib/admin-analytics-preferences.ts
-- src/lib/admin-analytics-return-cadence.ts
+- src/lib/creator-experiences.ts
+- src/lib/creator-onboarding.ts
+- src/lib/creator-agreement-documents.ts
+- src/lib/creator-agreement-version.ts
+- src/lib/creator-application.ts
+- src/lib/creator-contract.ts
+- src/lib/creator-onboarding-projection.ts
+- src/lib/server/creator-admin-action-contract.ts
+- src/lib/server/creator-admin-actions.ts
+- src/lib/server/creator-agreement-documents.ts

@@ -4,6 +4,10 @@ Status: Canonical repository-memory and architecture-decision ledger
 Last refreshed: 2026-05-02
 Repo: `C:\Users\uylus\OneDrive\Documents\KandyDrops_Final`
 
+## 2026-05-02 Creator experience transaction truth
+
+Fan Pass, private chat, custom request, and live-time booking commerce now use deterministic creator experience idempotency helpers in `src/lib/server/creator-experiences.ts`. Paid creator routes compute price and spend server-side, write source-aware user transactions, fan-facing records, and `creator_ledger_accruals`, and expose debug parity fields including `userTransactionId`, `creatorAccrualId`, `creatorExperienceRecordId`, `priceGd`, `platformShareGd`, `creatorShareGd`, `idempotencyKey`, `duplicatePrevented`, and source-aware balance before/after. Client CTAs may pass idempotency keys, but they do not deduct GumDrops. Do not reintroduce random paid transaction IDs or client-authoritative balance deduction for creator experiences.
+
 ## 2026-05-02 Creator admin action route consolidation
 
 Admin Roster creator lifecycle actions now use the typed route `src/app/api/admin/creators/[userId]/action/route.ts`, action contract `src/lib/server/creator-admin-action-contract.ts`, and executor `src/lib/server/creator-admin-actions.ts`. The roster no longer builds broad mutable `creatorApplication` blobs for legal, ID, approval, rejection, changes, owner override, role activation, or agreement send/countersign actions. The action route requires admin auth and trusted origin, protects owner-only override actions, validates transitions on the server, writes canonical `creator_onboarding/{uid}`, rebuilds `users/{uid}.creatorApplication` plus `creator_review_queue/{uid}`, appends history, and emits actor-marked telemetry. `/api/admin/users` must not be reintroduced as the Admin Roster lifecycle mutation path.

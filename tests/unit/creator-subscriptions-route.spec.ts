@@ -75,6 +75,31 @@ const mockState = vi.hoisted(() => {
         guardApiRequest: vi.fn(),
         handleApiError: vi.fn(),
         buildCreatorAccrual: vi.fn(() => ({ creatorShareGd: 250, cashoutValueUsd: 2.5 })),
+        buildCreatorExperienceIdempotencyKey: vi.fn((input: { clientKey?: string; action: string; userId: string; creatorId: string }) => input.clientKey || `${input.action}:${input.userId}:${input.creatorId}`),
+        buildCreatorExperienceRecordIds: vi.fn((input: { idempotencyKey: string }) => ({
+            userTransactionId: `txn_${input.idempotencyKey.replace(/[^a-z0-9_-]/gi, "_")}`,
+            creatorAccrualId: `accrual_${input.idempotencyKey.replace(/[^a-z0-9_-]/gi, "_")}`,
+            creatorExperienceRecordId: `experience_${input.idempotencyKey.replace(/[^a-z0-9_-]/gi, "_")}`,
+        })),
+        buildCreatorExperienceTelemetryPayload: vi.fn((input: any) => ({
+            actorType: input.marker.actorType,
+            creator_id: input.creatorId,
+            price_gd: input.priceGd,
+            idempotency_key: input.idempotencyKey,
+            duplicate_prevented: input.duplicatePrevented,
+        })),
+        buildCreatorExperienceTransactionDebug: vi.fn((input: any) => ({
+            userTransactionId: input.userTransactionId,
+            creatorAccrualId: input.creatorAccrualId,
+            creatorExperienceRecordId: input.creatorExperienceRecordId,
+            priceGd: input.priceGd,
+            platformShareGd: Math.max(0, input.priceGd - 250),
+            creatorShareGd: 250,
+            idempotencyKey: input.idempotencyKey,
+            duplicatePrevented: input.duplicatePrevented,
+            sourceAwareBalanceBefore: input.sourceAwareBalanceBefore ?? null,
+            sourceAwareBalanceAfter: input.sourceAwareBalanceAfter ?? null,
+        })),
         buildSourceAwareBalancePatch: vi.fn(() => ({ gumDropsBalance: 500 })),
         readSourceAwareBalance: vi.fn(() => ({ total: 1200 })),
         spendCreatorExperienceGumdrops: vi.fn(() => ({ ok: true, next: { total: 700 }, purchasedSpent: 500, rewardSpent: 0, ledgerSource: "purchased" })),
@@ -108,6 +133,10 @@ const mockState = vi.hoisted(() => {
             this.guardApiRequest.mockReset();
             this.handleApiError.mockReset();
             this.buildCreatorAccrual.mockClear();
+            this.buildCreatorExperienceIdempotencyKey.mockClear();
+            this.buildCreatorExperienceRecordIds.mockClear();
+            this.buildCreatorExperienceTelemetryPayload.mockClear();
+            this.buildCreatorExperienceTransactionDebug.mockClear();
             this.buildSourceAwareBalancePatch.mockClear();
             this.readSourceAwareBalance.mockClear();
             this.spendCreatorExperienceGumdrops.mockClear();
@@ -140,7 +169,17 @@ vi.mock("@/lib/creator-experiences", () => ({
     isCreatorOrAdminRole: (role: unknown) => role === "creator" || role === "admin",
 }));
 vi.mock("@/lib/server/creator-experiences", () => ({
+    CREATOR_EXPERIENCE_PAID_EVENTS: {
+        fan_pass: "creator_fan_pass_started",
+        private_chat: "creator_private_chat_opened",
+        custom_request: "creator_custom_request_created",
+        live_time: "creator_live_time_booked",
+    },
     buildCreatorAccrual: mockState.buildCreatorAccrual,
+    buildCreatorExperienceIdempotencyKey: mockState.buildCreatorExperienceIdempotencyKey,
+    buildCreatorExperienceRecordIds: mockState.buildCreatorExperienceRecordIds,
+    buildCreatorExperienceTelemetryPayload: mockState.buildCreatorExperienceTelemetryPayload,
+    buildCreatorExperienceTransactionDebug: mockState.buildCreatorExperienceTransactionDebug,
     buildSourceAwareBalancePatch: mockState.buildSourceAwareBalancePatch,
     readSourceAwareBalance: mockState.readSourceAwareBalance,
     spendCreatorExperienceGumdrops: mockState.spendCreatorExperienceGumdrops,
@@ -213,7 +252,40 @@ describe("creator subscriptions route", () => {
             status: "active",
             creatorId: "creator_1",
             userId: "fan_1",
+            userTransactionId: "txn_fan_pass_fan_1_creator_1",
         });
+    });
+
+    it("prevents duplicate fan pass charges for the same idempotency key", async () => {
+        mockState.guardApiRequest.mockResolvedValue({ uid: "fan_1" });
+        mockState.setDocument("users", "fan_1", { role: "user", gumDropsBalance: 1200 });
+        mockState.setDocument("users", "creator_1", {
+            role: "creator",
+            displayName: "Creator One",
+            creatorSettings: { subscriptionPriceGd: 700, subscriptionsEnabled: true },
+        });
+
+        const requestBody = {
+            creatorId: "creator_1",
+            action: "subscribe",
+            idempotencyKey: "fan-pass-key-1",
+        };
+        const firstResponse = await POST(new NextRequest("http://localhost/api/creator/subscriptions", {
+            method: "POST",
+            body: JSON.stringify(requestBody),
+        }));
+        const secondResponse = await POST(new NextRequest("http://localhost/api/creator/subscriptions", {
+            method: "POST",
+            body: JSON.stringify(requestBody),
+        }));
+        const secondBody = await secondResponse.json();
+
+        expect(firstResponse.status).toBe(200);
+        expect(secondResponse.status).toBe(200);
+        expect(secondBody.duplicatePrevented).toBe(true);
+        expect(mockState.spendCreatorExperienceGumdrops).toHaveBeenCalledTimes(1);
+        expect(Array.from(mockState.documents.keys()).filter((key) => key.startsWith("transactions/"))).toHaveLength(1);
+        expect(Array.from(mockState.documents.keys()).filter((key) => key.startsWith("creator_ledger_accruals/"))).toHaveLength(1);
     });
 
     it("cancels an existing subscription successfully", async () => {

@@ -1,5 +1,28 @@
 # KandyDrops Core Codebase Audit & Defensive Ledger
 
+## [2026-05-02 #109] PRE: Creator Experience Transaction Truth Cleanup
+
+Scope started:
+- Hardening paid creator experience actions for Fan Pass, private chat, custom requests, and live-time booking so server-side price, balance, user transactions, creator accruals, idempotency, telemetry, and debug parity stay truthful.
+- Required outputs: targeted route/helper fixes, docs at `docs/agent-truth/creator-experience-transaction-truth.md`, validation command, focused tests, TypeScript, creator experience/wallet checks, `git diff --check`, commit, and push.
+- This pass must not redesign creator UI, invent a parallel transaction system, trust client balance, change pricing semantics, or modify PayPal/package economics.
+
+Initial evidence:
+- Control tower routing, product/copy/UI doctrine, preflight/postflight checklists, generated fast-start context, and adjacency traces for `CreatorExperiencesPanel` and `creator-experiences` were consulted.
+- Runtime owners inspected first: creator subscription/request/booking/message routes, `src/lib/server/creator-experiences.ts`, `src/lib/server/chat.ts`, Gumdrop ledger helpers, creator collections, and related route tests.
+
+Scope completed:
+- Added deterministic creator experience idempotency, record ID, debug parity, and telemetry payload helpers to `src/lib/server/creator-experiences.ts`.
+- Rewired Fan Pass, custom request, live-time booking, and private chat send paths to carry idempotency keys, no-op duplicate retries, preserve server-side price/balance authority, write user transactions plus creator accruals, and expose transaction debug fields.
+- Added required telemetry events, client idempotency key forwarding, docs, validation command, focused route/chat/ledger tests, and refreshed tracked agent indexes after adding the validation command.
+
+Verification:
+- Passed: `npm run check:creator-experience-transaction-truth`
+- Passed: `npx tsc --noEmit --pretty false`
+- Passed: `npx vitest run tests/unit/creator-subscriptions-route.spec.ts tests/unit/creator-requests-route.spec.ts tests/unit/creator-bookings-transaction-route.spec.ts tests/unit/server-chat-send.spec.ts tests/unit/server-creator-experience-transactions.spec.ts tests/unit/gumdrop-ledger.spec.ts tests/unit/creator-experiences.spec.ts`
+- Passed: `npm run agent:index`
+- Passed: `git diff --check` with existing Windows CRLF normalization warnings only.
+
 ## [2026-05-02 #108] PRE: Creator Admin Action Route Consolidation
 
 Scope started:

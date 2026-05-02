@@ -1,5 +1,5 @@
 {
-  "generatedAt": "2026-05-01T18:54:29.118Z",
+  "generatedAt": "2026-05-02T18:19:23.775Z",
   "truthOrder": [
     "verified_runtime_code",
     "verified_configuration",
@@ -427,44 +427,6 @@
         "src/lib/server/auth.ts",
         "src/lib/server/creator-experiences.ts",
         "src/lib/server/creator-onboarding.ts"
-      ]
-    },
-    {
-      "route": "src/app/api/analytics/ingest/route.ts",
-      "helperPaths": [
-        "src/lib/analytics-identifiers.ts",
-        "src/lib/server/analytics-event-utils.ts",
-        "src/lib/server/analytics-governance.ts",
-        "src/lib/server/analytics-pipeline-health.ts",
-        "src/lib/server/firebase-admin.ts",
-        "src/lib/server/privacy-consent.ts",
-        "src/lib/server/rate-limit.ts",
-        "src/lib/server/request-guard.ts"
-      ]
-    },
-    {
-      "route": "src/app/api/auth/manual-sign-in-lookup/route.ts",
-      "helperPaths": [
-        "src/lib/auth-errors.ts",
-        "src/lib/server/auth.ts",
-        "src/lib/server/firebase-admin.ts",
-        "src/lib/server/rate-limit.ts",
-        "src/lib/server/request-guard.ts",
-        "src/lib/server/route-diagnostics.ts",
-        "src/lib/server/route-runtime-health.ts",
-        "src/lib/user-utils.ts"
-      ]
-    },
-    {
-      "route": "src/app/api/auth/navigation-session/route.ts",
-      "helperPaths": [
-        "src/lib/creator-application.ts",
-        "src/lib/navigation-session.ts",
-        "src/lib/server/auth.ts",
-        "src/lib/server/firebase-admin.ts",
-        "src/lib/server/rate-limit.ts",
-        "src/lib/server/request-guard.ts",
-        "src/lib/server/server-diagnostics.ts"
       ]
     }
   ],

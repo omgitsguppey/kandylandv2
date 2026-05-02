@@ -1,5 +1,5 @@
 {
-  "generatedAt": "2026-05-01T18:54:21.408Z",
+  "generatedAt": "2026-05-02T18:19:17.814Z",
   "truthOrder": [
     "verified_runtime_code",
     "verified_configuration",
@@ -15,18 +15,229 @@
   ],
   "passes": [
     {
-      "stable_id": "pass__2026-05-01-pre-human-readable-admin-truth-copy-hardening",
-      "date": "2026-05-01",
-      "title": "PRE: Human-Readable Admin Truth Copy Hardening",
+      "stable_id": "pass__2026-05-02-pre-creator-experience-transaction-truth-cleanup",
+      "date": "2026-05-02",
+      "title": "PRE: Creator Experience Transaction Truth Cleanup",
       "scopeSummary": [],
       "touchedSurfaces": [
-        "docs/agent-truth/admin-copy-style-guide.md",
-        "docs/agent-truth/human-readable-admin-truth.md",
-        "scripts/agent/validate-human-readable-admin-copy.ts",
-        "src/lib/admin-copy/admin-copy-registry.ts",
-        "src/lib/admin-copy/admin-truth-copy.ts"
+        "docs/agent-truth/creator-experience-transaction-truth.md",
+        "src/lib/server/chat.ts",
+        "src/lib/server/creator-experiences.ts"
+      ],
+      "canonicalHelpersReused": [
+        "src/lib/server/chat.ts"
+      ],
+      "verificationCommandsRun": [],
+      "resultSummary": [],
+      "warnings": [],
+      "architecture_change": true,
+      "runtime_change": false,
+      "ui_change": false,
+      "security_change": false,
+      "maintenance_only": false,
+      "changeKinds": [
+        "architecture"
+      ]
+    },
+    {
+      "stable_id": "pass__2026-05-02-pre-creator-admin-action-route-consolidation",
+      "date": "2026-05-02",
+      "title": "PRE: Creator Admin Action Route Consolidation",
+      "scopeSummary": [],
+      "touchedSurfaces": [
+        "/api/admin/creator-agreements",
+        "/api/admin/user/[userId]",
+        "/api/admin/users",
+        "creator_onboarding/{uid}",
+        "creator_review_queue/{uid}",
+        "npx vitest run tests/unit/admin-creator-action-route.spec.ts tests/unit/admin-users-route.spec.ts tests/unit/admin-roster-route.spec.ts tests/unit/creator-onboarding-server.spec.ts",
+        "src/app/admin/roster/page.tsx",
+        "src/app/api/admin/creators/[userId]/action/route.ts",
+        "src/lib/creator-onboarding.ts",
+        "src/lib/server/creator-admin-action-contract.ts",
+        "src/lib/server/creator-admin-actions.ts",
+        "src/lib/server/creator-onboarding.ts"
+      ],
+      "canonicalHelpersReused": [
+        "src/lib/creator-onboarding.ts",
+        "src/lib/server/creator-onboarding.ts"
+      ],
+      "verificationCommandsRun": [],
+      "resultSummary": [],
+      "warnings": [],
+      "architecture_change": true,
+      "runtime_change": true,
+      "ui_change": true,
+      "security_change": false,
+      "maintenance_only": false,
+      "changeKinds": [
+        "admin",
+        "ui",
+        "runtime",
+        "architecture"
+      ]
+    },
+    {
+      "stable_id": "pass__2026-05-02-pre-creator-agreement-version-truth-cleanup",
+      "date": "2026-05-02",
+      "title": "PRE: Creator Agreement Version Truth Cleanup",
+      "scopeSummary": [],
+      "touchedSurfaces": [
+        "npx vitest run tests/unit/creator-agreement-version.spec.ts tests/unit/creator-agreement-documents.spec.ts tests/unit/creator-contract-signature-route.spec.ts tests/unit/admin-creator-agreements-route.spec.ts tests/unit/creator-agreement-signature-ux.spec.ts tests/unit/creator-onboarding.spec.ts tests/unit/creator-onboarding-server.spec.ts",
+        "scripts/agent/validate-creator-agreement-version-truth.ts",
+        "src/lib/creator-agreement-documents.ts",
+        "src/lib/creator-agreement-version.ts",
+        "src/lib/creator-contract.ts",
+        "src/lib/server/creator-agreement-documents.ts",
+        "src/lib/server/creator-agreement-templates.ts"
       ],
       "canonicalHelpersReused": [],
+      "verificationCommandsRun": [],
+      "resultSummary": [],
+      "warnings": [],
+      "architecture_change": true,
+      "runtime_change": false,
+      "ui_change": false,
+      "security_change": false,
+      "maintenance_only": false,
+      "changeKinds": [
+        "admin",
+        "tooling",
+        "architecture"
+      ]
+    },
+    {
+      "stable_id": "pass__2026-05-02-pre-legacy-creator-application-migration-adapter",
+      "date": "2026-05-02",
+      "title": "PRE: Legacy Creator Application Migration Adapter",
+      "scopeSummary": [],
+      "touchedSurfaces": [
+        "/api/user/register",
+        "agent/state/legacy-creator-application-inventory.generated.json",
+        "creator_onboarding/{uid}",
+        "npx tsx scripts/creators/inventory-legacy-creator-applications.ts",
+        "npx vitest run tests/unit/creator-onboarding-legacy-adapter.spec.ts tests/unit/creator-onboarding-server.spec.ts tests/unit/creator-review-queue-materializer.spec.ts",
+        "npx vitest run tests/unit/creator-onboarding-legacy-adapter.spec.ts tests/unit/creator-onboarding.spec.ts tests/unit/creator-onboarding-server.spec.ts tests/unit/user-register-route.spec.ts",
+        "scripts/agent/validate-legacy-creator-application-migration.ts",
+        "scripts/creators/inventory-legacy-creator-applications.ts",
+        "src/lib/creator-application.ts",
+        "src/lib/creator-onboarding.ts",
+        "src/lib/server/creator-onboarding-legacy-adapter.ts",
+        "src/lib/server/creator-onboarding.ts",
+        "src/lib/server/creator-review-queue.ts",
+        "users/{uid}.creatorApplication"
+      ],
+      "canonicalHelpersReused": [
+        "src/lib/creator-onboarding.ts",
+        "src/lib/server/creator-onboarding.ts"
+      ],
+      "verificationCommandsRun": [],
+      "resultSummary": [],
+      "warnings": [],
+      "architecture_change": true,
+      "runtime_change": false,
+      "ui_change": false,
+      "security_change": false,
+      "maintenance_only": false,
+      "changeKinds": [
+        "ui",
+        "tooling",
+        "architecture"
+      ]
+    },
+    {
+      "stable_id": "pass__2026-05-02-pre-creator-review-queue-materializer-cleanup",
+      "date": "2026-05-02",
+      "title": "PRE: Creator Review Queue Materializer Cleanup",
+      "scopeSummary": [],
+      "touchedSurfaces": [
+        "/api/admin/roster",
+        "/api/user/register",
+        "creator_onboarding/{uid}",
+        "creator_review_queue/{uid}",
+        "npx vitest run tests/unit/creator-review-queue-materializer.spec.ts tests/unit/creator-onboarding-server.spec.ts tests/unit/admin-roster-route.spec.ts tests/unit/creator-onboarding-diagnostics.spec.ts",
+        "npx vitest run tests/unit/user-register-route.spec.ts tests/unit/creator-onboarding-application-route.spec.ts tests/unit/creator-onboarding-intro-route.spec.ts tests/unit/creator-contract-signature-route.spec.ts tests/unit/creator-id-submission-route.spec.ts tests/unit/admin-users-route.spec.ts",
+        "src/lib/creator-onboarding.ts",
+        "src/lib/server/creator-onboarding.ts",
+        "src/lib/server/creator-review-queue.ts"
+      ],
+      "canonicalHelpersReused": [
+        "src/lib/creator-onboarding.ts",
+        "src/lib/server/creator-onboarding.ts"
+      ],
+      "verificationCommandsRun": [],
+      "resultSummary": [],
+      "warnings": [],
+      "architecture_change": true,
+      "runtime_change": false,
+      "ui_change": false,
+      "security_change": false,
+      "maintenance_only": false,
+      "changeKinds": [
+        "admin",
+        "ui",
+        "architecture"
+      ]
+    },
+    {
+      "stable_id": "pass__2026-05-02-pre-creator-onboarding-projection-normalizer-cleanup",
+      "date": "2026-05-02",
+      "title": "PRE: Creator Onboarding Projection Normalizer Cleanup",
+      "scopeSummary": [],
+      "touchedSurfaces": [
+        "/api/admin/roster",
+        "/api/admin/user/[userId]",
+        "npx vitest run tests/unit/creator-onboarding-projection.spec.ts tests/unit/admin-roster-decision-queue.spec.ts tests/unit/admin-roster-route.spec.ts tests/unit/creator-onboarding.spec.ts",
+        "scripts/agent/validate-creator-projection-normalizer.ts",
+        "src/app/admin/roster/decision-queue.ts",
+        "src/app/admin/roster/page.tsx",
+        "src/lib/creator-onboarding-projection.ts",
+        "src/lib/creator-onboarding.ts",
+        "users/{uid}.creatorApplication"
+      ],
+      "canonicalHelpersReused": [
+        "src/lib/creator-onboarding.ts"
+      ],
+      "verificationCommandsRun": [],
+      "resultSummary": [],
+      "warnings": [],
+      "architecture_change": true,
+      "runtime_change": false,
+      "ui_change": true,
+      "security_change": false,
+      "maintenance_only": false,
+      "changeKinds": [
+        "admin",
+        "ui",
+        "tooling",
+        "architecture"
+      ]
+    },
+    {
+      "stable_id": "pass__2026-05-02-pre-creator-lane-legacy-truth-inventory",
+      "date": "2026-05-02",
+      "title": "PRE: Creator Lane Legacy Truth Inventory",
+      "scopeSummary": [],
+      "touchedSurfaces": [
+        "/api/admin/roster",
+        "/api/admin/user/[userId]",
+        "/api/admin/users",
+        "/api/user/register",
+        "agent/state/creator-lane-legacy-truth-inventory.generated.json",
+        "creator_onboarding/{uid}",
+        "creator_onboarding/{uid}/history/{eventId}",
+        "creator_review_queue/{uid}",
+        "docs/agent-truth/creator-lane-legacy-truth-inventory.md",
+        "scripts/agent/validate-creator-lane-legacy-truth-inventory.ts",
+        "src/lib/creator-onboarding.ts",
+        "src/lib/server/creator-onboarding.ts",
+        "src/types/db.ts",
+        "users/{uid}.creatorApplication"
+      ],
+      "canonicalHelpersReused": [
+        "src/lib/creator-onboarding.ts",
+        "src/lib/server/creator-onboarding.ts"
+      ],
       "verificationCommandsRun": [],
       "resultSummary": [],
       "warnings": [],
@@ -43,19 +254,22 @@
       ]
     },
     {
-      "stable_id": "pass__2026-05-01-pre-refresh-based-hot-cache-architecture-refactor",
-      "date": "2026-05-01",
-      "title": "PRE: Refresh-Based Hot Cache Architecture Refactor",
+      "stable_id": "pass__2026-05-02-pre-creator-onboarding-audit-trail-hardening",
+      "date": "2026-05-02",
+      "title": "PRE: Creator Onboarding Audit Trail Hardening",
       "scopeSummary": [],
       "touchedSurfaces": [
-        "agent/state/refresh-cache-loading-audit.generated.json",
-        "docs/agent-truth/refresh-based-hot-cache.md",
-        "scripts/agent/validate-refresh-based-hot-cache.ts",
-        "src/lib/analytics/admin-metric-snapshot.ts",
-        "src/lib/cache/refresh-cache-contract.ts",
-        "src/lib/server/ephemeral-route-cache.ts"
+        "/api/admin/user/[userId]",
+        "docs/agent-truth/creator-onboarding-audit-trail.md",
+        "npx vitest run tests/unit/admin-creator-agreements-route.spec.ts tests/unit/admin-creator-fan-experience-settings-route.spec.ts tests/unit/admin-users-route.spec.ts",
+        "npx vitest run tests/unit/admin-roster-route.spec.ts tests/unit/admin-view-as-creator-route.spec.ts tests/unit/admin-creator-account-controls-route.spec.ts",
+        "npx vitest run tests/unit/creator-audit-trail-panel.spec.tsx tests/unit/creator-onboarding.spec.ts tests/unit/creator-onboarding-server.spec.ts tests/unit/creator-contract-signature-route.spec.ts tests/unit/admin-roster-decision-queue.spec.ts",
+        "scripts/agent/validate-creator-audit-trail.ts",
+        "src/lib/creator-onboarding.ts"
       ],
-      "canonicalHelpersReused": [],
+      "canonicalHelpersReused": [
+        "src/lib/creator-onboarding.ts"
+      ],
       "verificationCommandsRun": [],
       "resultSummary": [],
       "warnings": [],
@@ -68,170 +282,6 @@
         "admin",
         "tooling",
         "architecture"
-      ]
-    },
-    {
-      "stable_id": "pass__2026-05-01-pre-global-loading-performance-hot-cache-preservation",
-      "date": "2026-05-01",
-      "title": "PRE: Global Loading Performance Hot-Cache Preservation",
-      "scopeSummary": [],
-      "touchedSurfaces": [
-        "agent/state/global-loading-performance-audit.generated.json",
-        "docs/agent-truth/global-loading-performance.md",
-        "npm run agent:fast-start -- --task=\"audit global loading performance and preserve admin analytics hot cache first render\" --mode=admin --file=src/app/admin/analytics/page.tsx",
-        "npm run trace:adjacent -- src/app/admin/analytics/hooks/useAdminAnalyticsState.tsx",
-        "src/app/admin/analytics/hooks/useAdminAnalyticsState.tsx",
-        "src/app/api/admin/analytics/realtime/route.ts",
-        "src/app/api/admin/analytics/refresh/route.ts"
-      ],
-      "canonicalHelpersReused": [],
-      "verificationCommandsRun": [],
-      "resultSummary": [],
-      "warnings": [],
-      "architecture_change": false,
-      "runtime_change": true,
-      "ui_change": true,
-      "security_change": false,
-      "maintenance_only": false,
-      "changeKinds": [
-        "admin",
-        "runtime"
-      ]
-    },
-    {
-      "stable_id": "pass__2026-05-01-pre-drops-mobile-apple-aligned-ui-refinement",
-      "date": "2026-05-01",
-      "title": "PRE: Drops Mobile Apple-Aligned UI Refinement",
-      "scopeSummary": [],
-      "touchedSurfaces": [
-        "docs/agent-truth/drops-mobile-refinement.md",
-        "npm run agent:fast-start -- --task=\"apple style mobile drops page refinement with telemetry preservation\" --mode=user --file=src/app/drops/page.tsx",
-        "npm run agent:test -- src/app/drops/page.tsx",
-        "npm run trace:adjacent -- src/app/drops/page.tsx",
-        "npx vitest run tests/unit/drops-route.spec.ts tests/unit/drop-status.spec.ts tests/unit/lib/drop-normalizers.spec.ts tests/unit/lib/telemetry.spec.ts tests/unit/telemetry-flows.spec.ts",
-        "src/app/drops/DropsClient.tsx",
-        "src/app/drops/page.tsx",
-        "src/components/DropCard.tsx",
-        "src/components/DropGrid.tsx",
-        "src/components/FeaturedCarousel.tsx",
-        "src/components/StickyFilterBar.tsx"
-      ],
-      "canonicalHelpersReused": [],
-      "verificationCommandsRun": [],
-      "resultSummary": [],
-      "warnings": [],
-      "architecture_change": false,
-      "runtime_change": false,
-      "ui_change": true,
-      "security_change": false,
-      "maintenance_only": false,
-      "changeKinds": [
-        "ui"
-      ]
-    },
-    {
-      "stable_id": "pass__2026-05-01-pre-full-scale-telemetry-orphan-cleanup-audit",
-      "date": "2026-05-01",
-      "title": "PRE: Full-Scale Telemetry Orphan Cleanup Audit",
-      "scopeSummary": [],
-      "touchedSurfaces": [
-        "agent/state/telemetry-orphan-cleanup-audit.generated.json",
-        "docs/agent-truth/telemetry-orphan-cleanup-audit.md",
-        "functions/src/analytics-event-facts.ts",
-        "npm run trace:adjacent -- src/lib/telemetry-catalog.ts",
-        "npx vitest run tests/unit/analytics-ingest-identified-route.spec.ts",
-        "scripts/agent/validate-telemetry-orphan-cleanup.ts"
-      ],
-      "canonicalHelpersReused": [],
-      "verificationCommandsRun": [],
-      "resultSummary": [],
-      "warnings": [],
-      "architecture_change": true,
-      "runtime_change": true,
-      "ui_change": false,
-      "security_change": false,
-      "maintenance_only": false,
-      "changeKinds": [
-        "tooling"
-      ]
-    },
-    {
-      "stable_id": "pass__2026-05-01-pre-admin-analytics-realtime-dependency-audit-and-hot-cache-correction",
-      "date": "2026-05-01",
-      "title": "PRE: Admin Analytics Realtime Dependency Audit and Hot-Cache Correction",
-      "scopeSummary": [],
-      "touchedSurfaces": [
-        "npx vitest run tests/unit/admin-analytics-display-state.spec.ts tests/unit/admin-analytics-live-pulse.spec.ts",
-        "npx vitest run tests/unit/admin-analytics-page.spec.tsx tests/unit/admin-analytics-realtime-route.spec.ts tests/unit/admin-analytics-refresh-route.spec.ts tests/unit/admin-metric-snapshot.spec.ts",
-        "npx vitest run tests/unit/admin-debug-route-runtime.spec.ts"
-      ],
-      "canonicalHelpersReused": [],
-      "verificationCommandsRun": [],
-      "resultSummary": [],
-      "warnings": [],
-      "architecture_change": false,
-      "runtime_change": false,
-      "ui_change": false,
-      "security_change": false,
-      "maintenance_only": false,
-      "changeKinds": [
-        "admin",
-        "runtime"
-      ]
-    },
-    {
-      "stable_id": "pass__2026-04-30-pre-last-20-commit-truth-and-cleanup-audit",
-      "date": "2026-04-30",
-      "title": "PRE: Last-20-Commit Truth and Cleanup Audit",
-      "scopeSummary": [],
-      "touchedSurfaces": [
-        ".agent/doctrine-consultation.md",
-        ".agent/ui-copy-refinement-workflow.md",
-        "npx vitest run tests/unit/admin-analytics-refresh-route.spec.ts tests/unit/admin-analytics-page.spec.tsx tests/unit/admin-analytics-audience-snapshot.spec.ts tests/unit/admin-analytics-commerce-snapshot.spec.ts tests/unit/admin-analytics-live-pulse.spec.ts tests/unit/admin-analytics-journey-funnel.spec.ts tests/unit/admin-analytics-auth-outcome-split.spec.ts tests/unit/admin-analytics-event-mix.spec.ts tests/unit/admin-analytics-live-interaction-stream.spec.ts tests/unit/admin-task-pipeline.spec.ts tests/unit/admin-notification-funnel.spec.ts tests/unit/admin-metric-snapshot.spec.ts tests/unit/analytics-event-contract.spec.ts tests/unit/analytics-legacy-event-mapping.spec.ts tests/unit/analytics-legacy-recovery-contract.spec.ts tests/unit/analytics-ecosystem-parity.spec.ts tests/unit/chat-route-shell.spec.tsx tests/unit/creator-public-pages.spec.ts tests/unit/not-found-surface.spec.tsx tests/unit/push-notifications.spec.ts",
-        "npx vitest run tests/unit/push-notifications.spec.ts tests/unit/fcm-utils.spec.ts tests/unit/notifications-route.spec.ts tests/unit/notify-active-drops-route.spec.ts",
-        "src/app/admin/analytics/components/AdminAnalyticsCommerceTab.tsx",
-        "src/app/admin/analytics/hooks/useAdminAnalyticsState.tsx",
-        "src/app/api/admin/analytics/historical/route.ts",
-        "src/app/api/admin/debug/route.ts",
-        "src/components/Chat/ChatExperience.tsx"
-      ],
-      "canonicalHelpersReused": [],
-      "verificationCommandsRun": [],
-      "resultSummary": [],
-      "warnings": [],
-      "architecture_change": false,
-      "runtime_change": true,
-      "ui_change": true,
-      "security_change": false,
-      "maintenance_only": false,
-      "changeKinds": [
-        "admin",
-        "ui",
-        "runtime"
-      ]
-    },
-    {
-      "stable_id": "pass__2026-04-30-pre-analytics-truth-layer-v2-phase-5-snapshot-first-admin-analytics-migration",
-      "date": "2026-04-30",
-      "title": "PRE: Analytics Truth Layer v2 Phase 5 Snapshot-First Admin Analytics Migration",
-      "scopeSummary": [],
-      "touchedSurfaces": [
-        ".agent/doctrine-consultation.md",
-        ".agent/ui-copy-refinement-workflow.md",
-        "npx vitest run tests/unit/admin-analytics-refresh-route.spec.ts tests/unit/admin-analytics-page.spec.tsx tests/unit/admin-analytics-audience-snapshot.spec.ts tests/unit/admin-analytics-commerce-snapshot.spec.ts tests/unit/admin-analytics-live-pulse.spec.ts tests/unit/admin-analytics-journey-funnel.spec.ts tests/unit/admin-analytics-auth-outcome-split.spec.ts tests/unit/admin-analytics-event-mix.spec.ts tests/unit/admin-analytics-live-interaction-stream.spec.ts tests/unit/admin-task-pipeline.spec.ts tests/unit/admin-notification-funnel.spec.ts"
-      ],
-      "canonicalHelpersReused": [],
-      "verificationCommandsRun": [],
-      "resultSummary": [],
-      "warnings": [],
-      "architecture_change": false,
-      "runtime_change": false,
-      "ui_change": false,
-      "security_change": false,
-      "maintenance_only": false,
-      "changeKinds": [
-        "admin",
-        "ui"
       ]
     }
   ]

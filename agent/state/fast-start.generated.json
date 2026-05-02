@@ -1,5 +1,5 @@
 {
-  "generatedAt": "2026-05-01T17:47:32.729Z",
+  "generatedAt": "2026-05-02T17:55:51.205Z",
   "truthOrder": [
     "verified_runtime_code",
     "verified_configuration",
@@ -16,50 +16,41 @@
     "scripts/trace-adjacent-surfaces.ts"
   ],
   "input": {
-    "task": "human-readable admin truth diagnostics copy hardening",
-    "mode": "admin",
+    "task": "creator experience transaction truth cleanup",
+    "mode": "creators",
     "files": [
-      "src/app/admin/analytics/hooks/useAdminAnalyticsState.tsx"
+      "src/components/Creators/CreatorExperiencesPanel.tsx"
     ]
   },
-  "gitStatus": "M agent/index/blast-radius.json\n M agent/index/canonical-helpers.json\n M agent/index/dependency-graph.summary.json\n M agent/index/governance-truth.json\n M agent/index/known-pitfalls.json\n M agent/index/package-manager-truth.json\n M agent/index/recent-passes.json\n M agent/index/repo-inventory.json\n M agent/index/retrieval-index.json\n M agent/index/runtime-observability.json\n M agent/index/surface-map.json\n M agent/index/ui-surface-coverage.json\n M agent/index/verification-commands.json\n M agent/index/workflow-guidance.json\n M agent/prompts/task-prompt.deep.md\n M agent/prompts/task-prompt.short.md\n M agent/prompts/task-prompt.standard.md\n M agent/state/task-context.generated.json\n M agent/state/verification-plan.generated.json",
-  "taskContextStableId": "taskctx__admin-human-readable-admin-truth-diagnostics-copy-hardening",
+  "gitStatus": "M agent/index/blast-radius.json\n M agent/index/canonical-helpers.json\n M agent/index/dependency-graph.summary.json\n M agent/index/governance-truth.json\n M agent/index/known-pitfalls.json\n M agent/index/package-manager-truth.json\n M agent/index/recent-passes.json\n M agent/index/repo-inventory.json\n M agent/index/retrieval-index.json\n M agent/index/runtime-observability.json\n M agent/index/surface-map.json\n M agent/index/ui-surface-coverage.json\n M agent/index/verification-commands.json\n M agent/index/workflow-guidance.json\n M agent/prompts/task-prompt.deep.md\n M agent/prompts/task-prompt.short.md\n M agent/prompts/task-prompt.standard.md\n M agent/prompts/verification-plan.generated.md\n M agent/state/task-context.generated.json\n M agent/state/verification-plan.generated.json",
+  "taskContextStableId": "taskctx__creators-creator-experience-transaction-truth-cleanup",
   "likelyTouchedFiles": [
-    "src/app/admin/analytics/hooks/useAdminAnalyticsState.tsx",
-    "src/app/admin/analytics/components/AdminAnalyticsCommerceTab.tsx",
-    "src/lib/admin-analytics-audience-snapshot.ts",
-    "src/lib/admin-analytics-auth-outcome-split.ts",
-    "src/lib/admin-analytics-commerce-snapshot.ts",
-    "src/lib/admin-analytics-event-mix.ts",
-    "src/lib/admin-analytics-guest-bounce-quality.ts",
-    "src/lib/admin-analytics-journey-funnel.ts",
-    "src/lib/admin-analytics-live-interaction-stream.ts",
-    "src/lib/admin-analytics-live-pulse.ts",
-    "src/lib/admin-analytics-preferences.ts",
-    "src/lib/admin-analytics-return-cadence.ts"
+    "src/components/Creators/CreatorExperiencesPanel.tsx",
+    "src/lib/creator-experiences.ts",
+    "src/lib/creator-onboarding.ts",
+    "src/app/creators/[username]/CreatorProfileClient.tsx",
+    "src/lib/creator-agreement-documents.ts",
+    "src/lib/creator-agreement-version.ts",
+    "src/lib/creator-application.ts",
+    "src/lib/creator-contract.ts",
+    "src/lib/creator-onboarding-projection.ts",
+    "src/lib/server/creator-admin-action-contract.ts",
+    "src/lib/server/creator-admin-actions.ts",
+    "src/lib/server/creator-agreement-documents.ts"
   ],
   "canonicalHelpersToReuse": [
-    "src/lib/route-runtime-health.ts",
-    "src/lib/server/admin-panel-system-logs.ts",
-    "src/lib/server/route-diagnostics.ts",
-    "src/lib/server/route-runtime-health.ts",
-    "src/lib/server/server-diagnostics.ts",
-    "src/lib/telemetry-catalog.ts",
-    "src/lib/telemetry.ts",
-    "src/lib/server/auth.ts"
+    "src/lib/creator-onboarding.ts",
+    "src/lib/server/creator-onboarding.ts",
+    "src/lib/telemetry.ts"
   ],
   "fastVerificationCommands": [
     "npm run typecheck",
-    "npm run agent:test -- src/app/admin/analytics/hooks/useAdminAnalyticsState.tsx",
+    "npm run agent:test -- src/components/Creators/CreatorExperiencesPanel.tsx",
     "npm run check:ui:coverage",
-    "npm run check:ui:runtime",
-    "npm run check:telemetry",
-    "npm run check:analytics-semantics"
+    "npm run check:ui:runtime"
   ],
   "signoffVerificationCommands": [
-    "npm run check:ui:audits",
-    "npm run check:analytics:continuity",
-    "npm run check:continuity"
+    "npm run check:ui:audits"
   ],
   "forbiddenSurfaces": [
     "src/lib/gumdrop-ledger.ts",
@@ -70,8 +61,8 @@
   ],
   "traceOutputs": [
     {
-      "path": "src/app/admin/analytics/hooks/useAdminAnalyticsState.tsx",
-      "output": "> kandydrops@0.1.0 trace:adjacent\n> tsx scripts/trace-adjacent-surfaces.ts src/app/admin/analytics/hooks/useAdminAnalyticsState.tsx\n\n\nTarget: src/app/admin/analytics/hooks/useAdminAnalyticsState.tsx\nSurface: route-or-page\nDirect imports:\n- src/app/admin/analytics/AnalyticsHelpers.tsx\n- src/app/admin/analytics/hooks/useAdminAnalyticsRealtime.ts\n- src/context/AuthContext.tsx\n- src/hooks/useAdminAnalyticsSnapshotRegistry.ts\n- src/hooks/useAdminPollingSWR.ts\n- src/hooks/useNow.ts\n- src/lib/admin-analytics-audience-snapshot.ts\n- src/lib/admin-analytics-auth-outcome-split.ts\n- src/lib/admin-analytics-commerce-snapshot.ts\n- src/lib/admin-analytics-event-mix.ts\n- src/lib/admin-analytics-guest-bounce-quality.ts\n- src/lib/admin-analytics-journey-funnel.ts\n- src/lib/admin-analytics-live-interaction-stream.ts\n- src/lib/admin-analytics-live-pulse.ts\n- src/lib/admin-analytics-preferences.ts\n- src/lib/admin-analytics-return-cadence.ts\n- src/lib/admin-auth-outcome-chart.ts\n- src/lib/admin-notification-funnel.ts\n- src/lib/admin-onboarding-velocity.ts\n- src/lib/admin-parity.ts\n- src/lib/admin-task-pipeline.ts\n- src/lib/analytics/admin-analytics-display-state.ts\n- src/lib/analytics/admin-analytics-loading-state.ts\n- src/lib/authFetch.ts\n- src/lib/client-error-reporting.ts\n- src/lib/telemetry-catalog.ts\n- src/types/admin-analytics.ts\nImported by:\n- src/app/admin/analytics/components/AdminAnalyticsAudienceTab.tsx\n- src/app/admin/analytics/components/AdminAnalyticsCommerceTab.tsx\n- src/app/admin/analytics/components/AdminAnalyticsOperationsTab.tsx\n- src/app/admin/analytics/page.tsx\nSame-directory siblings:\n- src/app/admin/analytics/hooks/useAdminAnalyticsRealtime.ts\nPotential related tests:\n- None detected\nCanonical helpers to review:\n- src/lib/server/analytics-governance.ts\n- src/lib/server/analytics.ts\n- src/lib/telemetry.ts"
+      "path": "src/components/Creators/CreatorExperiencesPanel.tsx",
+      "output": "> kandydrops@0.1.0 trace:adjacent\n> tsx scripts/trace-adjacent-surfaces.ts src/components/Creators/CreatorExperiencesPanel.tsx\n\n\nTarget: src/components/Creators/CreatorExperiencesPanel.tsx\nSurface: component\nDirect imports:\n- src/components/ui/UiContinuityNotice.tsx\n- src/lib/client-session.ts\n- src/lib/creator-experiences.ts\n- src/lib/telemetry.ts\n- src/lib/utils.ts\n- src/types/db.ts\nImported by:\n- src/app/creators/[username]/CreatorProfileClient.tsx\n- tests/unit/creator-experiences-panel.spec.tsx\nSame-directory siblings:\n- src/components/Creators/CreatorAgreementFullText.tsx\n- src/components/Creators/CreatorAgreementReview.tsx\n- src/components/Creators/CreatorAgreementSignatureSection.tsx\n- src/components/Creators/CreatorProfileHeader.tsx\n- src/components/Creators/CreatorUpdatesFeed.tsx\nPotential related tests:\n- None detected\nCanonical helpers to review:\n- src/lib/client-error-reporting.ts"
     }
   ]
 }

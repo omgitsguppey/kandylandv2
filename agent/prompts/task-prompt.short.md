@@ -1,24 +1,23 @@
 # SHORT Task Context
 
 ## Goal
-human-readable admin truth diagnostics copy hardening
+creator experience transaction truth cleanup
 
-Mode: admin
+Mode: creators
 Scope: moderate
 Why scope: Touches several files or shared helper surfaces with non-trivial adjacency.
 
 ## Likely Entrypoints
-- src/app/admin/analytics/hooks/useAdminAnalyticsState.tsx
-- src/app/admin/analytics/components/AdminAnalyticsCommerceTab.tsx
-- src/lib/admin-analytics-audience-snapshot.ts
-- src/lib/admin-analytics-auth-outcome-split.ts
-- src/lib/admin-analytics-commerce-snapshot.ts
+- src/components/Creators/CreatorExperiencesPanel.tsx
+- src/lib/creator-experiences.ts
+- src/lib/creator-onboarding.ts
+- src/app/creators/[username]/CreatorProfileClient.tsx
+- src/lib/creator-agreement-documents.ts
 
 ## Canonical Helpers To Reuse
-- src/lib/route-runtime-health.ts
-- src/lib/server/admin-panel-system-logs.ts
-- src/lib/server/route-diagnostics.ts
-- src/lib/server/route-runtime-health.ts
+- src/lib/creator-onboarding.ts
+- src/lib/server/creator-onboarding.ts
+- src/lib/telemetry.ts
 
 ## Acceptance Criteria
 - Reuse the canonical helpers before introducing new ownership paths.
@@ -26,10 +25,10 @@ Why scope: Touches several files or shared helper surfaces with non-trivial adja
 - Report any blocked or unverified lane explicitly instead of implying success.
 
 ## Relevant Pitfalls
-- diagnostics_serialization_crash
 - consumed_response_stream_fallback
+- generated_artifact_cleanup_miss
 - sidecar_truth_confusion
-- legacy_queue_adapter_usage
+- queue_activation_missing_notification_outcome
 
 ## Forbidden Surfaces
 - src/lib/gumdrop-ledger.ts
@@ -39,16 +38,13 @@ Why scope: Touches several files or shared helper surfaces with non-trivial adja
 
 ## Fast Verification
 - npm run typecheck
-- npm run agent:test -- src/app/admin/analytics/hooks/useAdminAnalyticsState.tsx
-- npm run agent:test -- src/app/admin/analytics/components/AdminAnalyticsCommerceTab.tsx
-- npm run agent:test -- src/lib/admin-analytics-audience-snapshot.ts
-- npm run agent:test -- src/lib/admin-analytics-auth-outcome-split.ts
+- npm run agent:test -- src/components/Creators/CreatorExperiencesPanel.tsx
+- npm run agent:test -- src/lib/creator-experiences.ts
+- npm run agent:test -- src/lib/creator-onboarding.ts
+- npm run agent:test -- src/app/creators/[username]/CreatorProfileClient.tsx
 - npm run check:ui:coverage
 - npm run check:ui:runtime
-- npm run check:telemetry
-- npm run check:analytics-semantics
 
 ## Signoff Verification
 - npm run check:ui:audits
-- npm run check:analytics:continuity
 - npm run check:continuity

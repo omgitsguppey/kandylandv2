@@ -184,6 +184,40 @@ describe("sendChatMessageForViewer", () => {
         });
     });
 
+    it("prevents duplicate private chat charges for the same idempotency key", async () => {
+        mockState.documents.set(`users/${userId}`, {
+            uid: userId,
+            role: "user",
+            displayName: "Fan One",
+            username: "fanone",
+            gumDropsBalance: 10,
+        });
+
+        const input = {
+            callerUid: userId,
+            callerEmail: "fan@example.com",
+            callerRole: "user",
+            threadId,
+            text: "one paid message",
+            messageKind: "text",
+            idempotencyKey: "private-chat-key-1",
+        } as const;
+
+        const first = await sendChatMessageForViewer(input);
+        const second = await sendChatMessageForViewer(input);
+
+        expect(first.duplicatePrevented).toBe(false);
+        expect(second.duplicatePrevented).toBe(true);
+        expect(second.message.id).toBe(first.message.id);
+        expect(mockState.documents.get(`users/${userId}`)).toMatchObject({
+            gumDropsBalance: 9,
+            gumDropsPurchasedBalance: 9,
+            gumDropsRewardBalance: 0,
+        });
+        expect(Array.from(mockState.documents.keys()).filter((key) => key.startsWith("transactions/"))).toHaveLength(1);
+        expect(Array.from(mockState.documents.keys()).filter((key) => key.startsWith("creator_ledger_accruals/"))).toHaveLength(1);
+    });
+
     it("allows text sends from admin accounts acting as the paid participant", async () => {
         const adminUserId = "admin_1";
         const adminThreadId = buildChatThreadId(creatorId, adminUserId);

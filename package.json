@@ -92,6 +92,7 @@
         "check:legacy-creator-application-migration": "tsx scripts/agent/validate-legacy-creator-application-migration.ts",
         "check:creator-agreement-version-truth": "tsx scripts/agent/validate-creator-agreement-version-truth.ts",
         "check:creator-admin-action-route": "tsx scripts/agent/validate-creator-admin-action-route.ts",
+        "check:creator-experience-transaction-truth": "tsx scripts/agent/validate-creator-experience-transaction-truth.ts",
         "check:admin-analytics-snapshot-migration": "tsx scripts/agent/validate-admin-analytics-snapshot-migration.ts",
         "check:admin-analytics-no-pure-realtime": "tsx scripts/agent/validate-admin-analytics-no-pure-realtime.ts",
         "check:admin-analytics-finalization": "tsx scripts/agent/validate-admin-analytics-finalization.ts",

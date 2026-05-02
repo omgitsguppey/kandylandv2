@@ -1,7 +1,7 @@
 # Agent Task Spec
 
 ## Goal
-human-readable admin truth diagnostics copy hardening
+creator experience transaction truth cleanup
 
 ## Acceptance Criteria
 - Stay within the touched entrypoints unless adjacency proves a shared helper must move with them.
@@ -10,7 +10,7 @@ human-readable admin truth diagnostics copy hardening
 - Keep broad signoff lanes separate from the fast loop.
 
 ## Likely Entrypoints
-- src/app/admin/analytics/hooks/useAdminAnalyticsState.tsx
+- src/components/Creators/CreatorExperiencesPanel.tsx
 
 ## Forbidden Surfaces
 - src/lib/gumdrop-ledger.ts
@@ -21,17 +21,13 @@ human-readable admin truth diagnostics copy hardening
 
 ## Fast Verification
 - npm run typecheck
-- npm run agent:test -- src/app/admin/analytics/hooks/useAdminAnalyticsState.tsx
+- npm run agent:test -- src/components/Creators/CreatorExperiencesPanel.tsx
 - npm run check:ui:coverage
 - npm run check:ui:runtime
-- npm run check:telemetry
-- npm run check:analytics-semantics
 
 ## Signoff Verification
 - npm run check:ui:audits
-- npm run check:analytics:continuity
-- npm run check:continuity
 
 ## Notes
-- Mode: admin
+- Mode: creators
 - Format follow-up implementation prompts like an issue: goal, acceptance criteria, entrypoints, forbidden surfaces, and exact verification lanes.
