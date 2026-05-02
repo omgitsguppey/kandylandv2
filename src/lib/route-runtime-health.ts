@@ -145,6 +145,12 @@ export const ROUTE_RUNTIME_HEALTH_TARGETS = {
         title: "Admin creator account controls",
         slowThresholdMs: 1600,
     },
+    "admin/creators/[userId]/action:POST": {
+        routeName: "admin/creators/[userId]/action",
+        method: "POST",
+        title: "Admin creator typed lifecycle action",
+        slowThresholdMs: 1600,
+    },
     "admin/creator-fan-experience-settings:POST": {
         routeName: "admin/creator-fan-experience-settings",
         method: "POST",

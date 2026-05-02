@@ -1,13 +1,20 @@
 # EVERY FILE FUNCTION CHECKLIST
 
 **Last Updated:** 2026-05-02
-**Current Focus:** Creator Agreement Version Truth Cleanup.
+**Current Focus:** Creator Admin Action Route Consolidation.
 **Status:** In Progress. Current tracked-file coverage is reconciled as of 2026-04-28: every `git ls-files` entry has a current checklist heading, while detailed function-level audits remain pending for many historical and newly reconciled files.
 Purpose: exhaustive no-skip audit checklist covering every repository file currently in scope and every detected function-like implementation.
 
 Scoring: all entries below are marked as included in the current validated sweep. Confidence reflects current repository-state confidence, not perfection or future-proofing.
 
 Current repo-wide state snapshot: see [FULL_SCALE_CODEBASE_AUDIT.md](/Users/uylus/OneDrive/Documents/KandyDrops_Final/FULL_SCALE_CODEBASE_AUDIT.md) for the current live baseline, verification state, and continuity rules, and see [REPO_MEMORY_LEDGER.md](/Users/uylus/OneDrive/Documents/KandyDrops_Final/REPO_MEMORY_LEDGER.md) for major architectural and workflow decisions. The detailed file/function body below remains valuable historical evidence, but it has not been fully regenerated against the current 2026-04-18 inventory review yet.
+
+## 2026-05-02 Creator Admin Action Route Coverage
+
+- [x] `src/app/api/admin/creators/[userId]/action/route.ts` owns the focused Admin Roster lifecycle action endpoint with admin auth, trusted origin, typed request parsing, no-store response headers, runtime health sampling, and normalized creator detail responses.
+- [x] `src/lib/server/creator-admin-action-contract.ts` owns the supported action registry and server-side transition validation, while `src/lib/server/creator-admin-actions.ts` owns owner-only override enforcement, actor marker construction, agreement dispatch delegation, canonical onboarding writes, user projection sync, review queue materialization, history writes, and actor-marked telemetry.
+- [x] `src/app/admin/roster/page.tsx` no longer sends merged `creatorApplication` blobs through `/api/admin/users` for lifecycle actions; ID request, approval, return/reject, owner override, and agreement send/countersign actions call the typed route.
+- [x] `src/lib/route-runtime-health.ts`, `scripts/agent/validate-creator-admin-action-route.ts`, `tests/unit/admin-creator-action-route.spec.ts`, and `docs/agent-truth/creator-admin-action-route.md` validate and document the typed creator action route contract.
 
 ## 2026-05-02 Creator Agreement Version Truth Coverage
 

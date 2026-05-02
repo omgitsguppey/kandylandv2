@@ -4,6 +4,10 @@ Status: Canonical repository-memory and architecture-decision ledger
 Last refreshed: 2026-05-02
 Repo: `C:\Users\uylus\OneDrive\Documents\KandyDrops_Final`
 
+## 2026-05-02 Creator admin action route consolidation
+
+Admin Roster creator lifecycle actions now use the typed route `src/app/api/admin/creators/[userId]/action/route.ts`, action contract `src/lib/server/creator-admin-action-contract.ts`, and executor `src/lib/server/creator-admin-actions.ts`. The roster no longer builds broad mutable `creatorApplication` blobs for legal, ID, approval, rejection, changes, owner override, role activation, or agreement send/countersign actions. The action route requires admin auth and trusted origin, protects owner-only override actions, validates transitions on the server, writes canonical `creator_onboarding/{uid}`, rebuilds `users/{uid}.creatorApplication` plus `creator_review_queue/{uid}`, appends history, and emits actor-marked telemetry. `/api/admin/users` must not be reintroduced as the Admin Roster lifecycle mutation path.
+
 ## 2026-05-02 Creator agreement version truth
 
 Creator agreement version and evidence truth now routes through `src/lib/creator-agreement-version.ts`. That resolver owns the active version, active template fallback, native full-text source reference, agreement hash fallback, user agreement resolution, evidence completeness checks, and signed-vs-active comparison. New creator signatures and admin countersigns must carry agreement version, hash, source, source snapshot/reference, dispatch, signer, IP, and user-agent evidence. Active template changes do not mutate old signed records; `legal_signed` requires creator/admin signature version/hash parity unless an owner override records an explicit reason.

@@ -73,6 +73,21 @@ import {
 } from "./decision-queue";
 import { deriveCreatorVisibleStatus } from "@/lib/creator-onboarding-projection";
 
+type CreatorAdminRosterAction =
+    | "send_agreement"
+    | "send_updated_agreement"
+    | "countersign_agreement"
+    | "request_id"
+    | "mark_id_verified"
+    | "mark_id_rejected"
+    | "approve_creator"
+    | "reject_creator"
+    | "request_changes"
+    | "apply_owner_override"
+    | "clear_owner_override"
+    | "activate_creator_role"
+    | "update_admin_notes";
+
 type CreatorReviewQueueEntry = {
     uid: string;
     displayName: string;
@@ -320,7 +335,6 @@ export default function AdminRosterPage() {
     const liveCreators = (roster?.rosterUsers ?? []).filter((entry) => entry.role === "creator");
     const selectedEntry = intakeEntries.find((entry) => entry.uid === selectedUserId) ?? null;
     const selectedCanonical = detail?.creatorOnboardingCanonical ?? null;
-    const selectedCreatorApplication = detail?.user.creatorApplication ?? null;
     const selectedHistory = detail?.creatorOnboardingHistory ?? [];
     const selectedAgreementVersion = selectedCanonical?.contractVersion || selectedEntry?.contractVersion || agreementTemplate?.agreementVersion || "";
     const selectedAgreementTitle = selectedCanonical?.agreementTitle || selectedEntry?.agreementTitle || agreementTemplate?.agreementTitle || "Agreement not set";
@@ -563,28 +577,27 @@ export default function AdminRosterPage() {
         return result.activeTemplate;
     };
 
-    const submitCreatorUpdate = async (
-        actionKey: string,
-        patch: Record<string, unknown>,
-        extraUpdates?: Record<string, unknown>,
+    const submitCreatorAction = async (
+        action: CreatorAdminRosterAction,
+        payload: Record<string, unknown> = {},
+        savingKey: string = action,
     ) => {
-        if (!selectedUserId || !selectedCreatorApplication) {
+        if (!selectedUserId) {
             return;
         }
 
         try {
-            setSaving(actionKey);
-            const response = await authFetch("/api/admin/users", {
-                method: "PUT",
+            setSaving(savingKey);
+            const response = await authFetch(`/api/admin/creators/${selectedUserId}/action`, {
+                method: "POST",
+                headers: {
+                    "content-type": "application/json",
+                },
                 body: JSON.stringify({
-                    userId: selectedUserId,
-                    updates: {
-                        ...extraUpdates,
-                        creatorApplication: {
-                            ...selectedCreatorApplication,
-                            ...patch,
-                        },
-                    },
+                    action,
+                    payload,
+                    expectedVersion: selectedCanonical?.sourceVersion ? String(selectedCanonical.sourceVersion) : undefined,
+                    idempotencyKey: `admin_roster:${action}:${selectedUserId}:${Date.now()}`,
                 }),
             });
             const result = await response.json().catch(() => ({})) as { error?: string };
@@ -592,27 +605,6 @@ export default function AdminRosterPage() {
                 throw new Error(result.error || "Failed to update creator intake.");
             }
             await Promise.all([refreshRoster(), refreshSelectedDetail()]);
-            const performedAs = Object.prototype.hasOwnProperty.call(patch, "ownerOverrideActive")
-                ? "owner_override"
-                : "admin_on_behalf";
-            const occurredAt = new Date().toISOString();
-            trackEvent("creator_application_review_saved", {
-                creator_user_id: selectedUserId,
-                review_action: actionKey,
-                actorType: isOwner ? "owner_admin" : "admin",
-                actorUid: user?.uid ?? "",
-                actorEmail: user?.email ?? "",
-                actorRole: isOwner ? "owner_admin" : "admin",
-                targetUserId: selectedUserId,
-                targetCreatorId: selectedUserId,
-                performedAs,
-                surface: "admin_roster",
-                route: "/admin/roster",
-                actionKey,
-                occurredAt,
-                dedupeKey: `admin_roster:${actionKey}:${selectedUserId}:${occurredAt.slice(0, 19)}`,
-                source: "admin_roster_client",
-            });
             toast.success("Creator intake updated.");
         } catch (error) {
             reportClientIssue({
@@ -622,7 +614,7 @@ export default function AdminRosterPage() {
                 error,
                 detail: {
                     adminView: "creator_roster",
-                    action: actionKey,
+                    action,
                     userId: selectedUserId,
                 },
                 consoleLabel: "[Admin Roster] update failed",
@@ -705,11 +697,11 @@ export default function AdminRosterPage() {
         }));
     };
 
-    const handlePrimaryActionClick = (actionKey: string, patch: Record<string, unknown>, extraUpdates?: Record<string, unknown>) => {
+    const handlePrimaryActionClick = (actionKey: CreatorAdminRosterAction, payload: Record<string, unknown> = {}, savingKey: string = actionKey) => {
         trackEvent("admin_creator_primary_action_clicked", buildTelemetryPayload({
             actionKey,
         }));
-        void submitCreatorUpdate(actionKey, patch, extraUpdates);
+        void submitCreatorAction(actionKey, payload, savingKey);
     };
 
     const handleAccountControlSubmit = async (command: CreatorAccountControlCommand): Promise<CreatorAccountControlResult | void> => {
@@ -752,7 +744,20 @@ export default function AdminRosterPage() {
     };
 
     const handleAccountApprovalStatusChange = async (approvalStatus: CreatorOnboardingApprovalStatus) => {
-        await submitCreatorUpdate("account-approval-status", { approvalStatus });
+        if (approvalStatus === "creator_approved") {
+            await submitCreatorAction("approve_creator", {}, "account-approval-status");
+            return;
+        }
+        if (approvalStatus === "creator_rejected") {
+            await submitCreatorAction("reject_creator", {}, "account-approval-status");
+            return;
+        }
+        if (approvalStatus === "creator_needs_changes") {
+            await submitCreatorAction("request_changes", {}, "account-approval-status");
+            return;
+        }
+
+        toast.error("Choose approve, return for changes, or reject for creator review.");
     };
 
     const handleFanExperienceSettingsSubmit = async (command: CreatorFanExperienceSettingsCommand): Promise<void> => {
@@ -802,14 +807,16 @@ export default function AdminRosterPage() {
             trackEvent("admin_creator_primary_action_clicked", buildTelemetryPayload({
                 actionKey,
             }));
-            const response = await authFetch("/api/admin/creator-agreements", {
+            const response = await authFetch(`/api/admin/creators/${selectedUserId}/action`, {
                 method: "POST",
                 headers: {
                     "content-type": "application/json",
                 },
                 body: JSON.stringify({
                     action: actionKey,
-                    targetUserId: selectedUserId,
+                    payload: {},
+                    expectedVersion: selectedCanonical?.sourceVersion ? String(selectedCanonical.sourceVersion) : undefined,
+                    idempotencyKey: `admin_roster:${actionKey}:${selectedUserId}:${Date.now()}`,
                 }),
             });
             const result = await response.json().catch(() => ({})) as { error?: string };
@@ -1288,7 +1295,7 @@ export default function AdminRosterPage() {
                                             <p className="text-sm text-zinc-300">Creator still needs to acknowledge the intro before review can move forward.</p>
                                         ) : null}
                                         {(selectedCanonical.idVerificationStatus === "id_not_requested" || selectedCanonical.idVerificationStatus === "id_rejected") ? (
-                                            <button type="button" onClick={() => handlePrimaryActionClick("request-id", { idVerificationStatus: "id_requested", kycDueAt: Date.now() + (7 * 24 * 60 * 60 * 1000) })} disabled={saving === "request-id"} className="rounded-full bg-white px-4 py-2 text-sm font-bold text-black disabled:opacity-50">Request ID upload</button>
+                                            <button type="button" onClick={() => handlePrimaryActionClick("request_id", { kycDueAt: Date.now() + (7 * 24 * 60 * 60 * 1000) }, "request-id")} disabled={saving === "request-id"} className="rounded-full bg-white px-4 py-2 text-sm font-bold text-black disabled:opacity-50">Request ID upload</button>
                                         ) : null}
                                         {selectedCanonical.contractDocumentStatus !== "contract_sent" && selectedCanonical.introAcknowledgedAt ? (
                                             <button type="button" onClick={() => void handleCreatorAgreementAction("send_agreement")} disabled={agreementSaving === "send_agreement"} className="rounded-full bg-white px-4 py-2 text-sm font-bold text-black disabled:opacity-50">Send agreement</button>
@@ -1297,10 +1304,10 @@ export default function AdminRosterPage() {
                                             <button type="button" onClick={() => void handleCreatorAgreementAction("countersign_agreement")} disabled={agreementSaving === "countersign_agreement"} className="rounded-full bg-white px-4 py-2 text-sm font-bold text-black disabled:opacity-50">Countersign agreement</button>
                                         ) : null}
                                         {(selectedCanonical.readyForApproval || selectedCanonical.ownerOverrideActive) ? (
-                                            <button type="button" onClick={() => handlePrimaryActionClick("approve", { approvalStatus: "creator_approved" })} disabled={saving === "approve"} className="rounded-full bg-brand-purple px-4 py-2 text-sm font-bold text-white disabled:opacity-50">Approve creator</button>
+                                            <button type="button" onClick={() => handlePrimaryActionClick("approve_creator", {}, "approve")} disabled={saving === "approve"} className="rounded-full bg-brand-purple px-4 py-2 text-sm font-bold text-white disabled:opacity-50">Approve creator</button>
                                         ) : null}
-                                        <button type="button" onClick={() => void submitCreatorUpdate("return", { approvalStatus: "creator_needs_changes" })} disabled={saving === "return"} className="rounded-full border border-white/10 bg-black/35 px-4 py-2 text-sm font-semibold text-white disabled:opacity-50">Return for changes</button>
-                                        <button type="button" onClick={() => void submitCreatorUpdate("reject", { approvalStatus: "creator_rejected" })} disabled={saving === "reject"} className="rounded-full border border-white/10 bg-zinc-950 px-4 py-2 text-sm font-semibold text-zinc-200 disabled:opacity-50">Reject application</button>
+                                        <button type="button" onClick={() => void submitCreatorAction("request_changes", {}, "return")} disabled={saving === "return"} className="rounded-full border border-white/10 bg-black/35 px-4 py-2 text-sm font-semibold text-white disabled:opacity-50">Return for changes</button>
+                                        <button type="button" onClick={() => void submitCreatorAction("reject_creator", {}, "reject")} disabled={saving === "reject"} className="rounded-full border border-white/10 bg-zinc-950 px-4 py-2 text-sm font-semibold text-zinc-200 disabled:opacity-50">Reject application</button>
                                     </div>
                                 </div>
 
@@ -1488,8 +1495,8 @@ export default function AdminRosterPage() {
                                             className="mt-3 w-full rounded-2xl border border-white/10 bg-black/30 px-4 py-3 text-sm text-white outline-none focus:border-brand-purple/60"
                                         />
                                         <div className="mt-3 flex flex-wrap gap-3">
-                                            <button type="button" onClick={() => void submitCreatorUpdate("owner-override-on", { ownerOverrideActive: true, ownerOverrideReason })} disabled={saving === "owner-override-on"} className="rounded-full bg-white px-4 py-2 text-sm font-bold text-black disabled:opacity-50">Apply owner override</button>
-                                            <button type="button" onClick={() => void submitCreatorUpdate("owner-override-off", { ownerOverrideActive: false, ownerOverrideReason: "" })} disabled={saving === "owner-override-off"} className="rounded-full border border-white/10 bg-black/30 px-4 py-2 text-sm font-semibold text-white disabled:opacity-50">Clear override</button>
+                                            <button type="button" onClick={() => void submitCreatorAction("apply_owner_override", { reason: ownerOverrideReason }, "owner-override-on")} disabled={saving === "owner-override-on"} className="rounded-full bg-white px-4 py-2 text-sm font-bold text-black disabled:opacity-50">Apply owner override</button>
+                                            <button type="button" onClick={() => void submitCreatorAction("clear_owner_override", {}, "owner-override-off")} disabled={saving === "owner-override-off"} className="rounded-full border border-white/10 bg-black/30 px-4 py-2 text-sm font-semibold text-white disabled:opacity-50">Clear override</button>
                                         </div>
                                     </details>
                                 ) : null}

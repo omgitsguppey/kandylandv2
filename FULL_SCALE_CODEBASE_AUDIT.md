@@ -1,5 +1,28 @@
 # KandyDrops Core Codebase Audit & Defensive Ledger
 
+## [2026-05-02 #108] PRE: Creator Admin Action Route Consolidation
+
+Scope started:
+- Replacing Admin Roster lifecycle updates that send broad mutable `creatorApplication` blobs through `/api/admin/users` with a typed admin creator action route.
+- Required outputs: focused route at `src/app/api/admin/creators/[userId]/action/route.ts`, server-side lifecycle validation/audit/materialization, roster action rewiring, docs, validation command, focused tests, TypeScript, route/security tests, `git diff --check`, commit, and push.
+- This pass must not redesign Admin Roster, allow arbitrary client status blobs, skip creator onboarding history, or bypass canonical `creator_onboarding/{uid}` plus `creator_review_queue/{uid}` projection truth.
+
+Initial evidence:
+- Control tower routing, doctrine consultation, source-of-truth map, governance startup context, and adjacency traces for Admin Roster, generic admin users updates, and creator onboarding server helpers were consulted.
+- Runtime owners inspected first: `src/app/admin/roster/page.tsx`, `/api/admin/users`, `/api/admin/creator-agreements`, `/api/admin/user/[userId]`, `src/lib/server/creator-onboarding.ts`, `src/lib/creator-onboarding.ts`, actor marker helpers, and creator agreement dispatch helpers.
+
+Scope completed:
+- Added `src/lib/server/creator-admin-action-contract.ts`, `src/lib/server/creator-admin-actions.ts`, and `src/app/api/admin/creators/[userId]/action/route.ts` as the focused server-side creator lifecycle action path with typed action parsing, admin/trusted-origin guard, owner-only override protection, expected-version handling, actor markers, transition validation, canonical onboarding writes, projection sync, queue materialization, history writes, and telemetry.
+- Rewired Admin Roster ID request, approval, return/reject, owner override, account approval, and agreement send/countersign actions away from generic `/api/admin/users` blob updates and onto the typed creator action route.
+- Added route runtime health coverage, docs, validation, and focused route tests for send agreement, countersign, request ID, approve, reject, owner-only override, invalid transition rejection, non-admin rejection, history, and queue materialization.
+
+Verification:
+- Passed: `npm run check:creator-admin-action-route`
+- Passed: `npx vitest run tests/unit/admin-creator-action-route.spec.ts tests/unit/admin-users-route.spec.ts tests/unit/admin-roster-route.spec.ts tests/unit/creator-onboarding-server.spec.ts`
+- Passed: `npx tsc --noEmit --pretty false`
+- Passed: `npm run check:security-role-boundaries`
+- Passed: `git diff --check` with existing Windows CRLF normalization warnings only.
+
 ## [2026-05-02 #107] PRE: Creator Agreement Version Truth Cleanup
 
 Scope started:
