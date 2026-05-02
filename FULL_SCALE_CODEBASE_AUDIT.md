@@ -1,5 +1,31 @@
 # KandyDrops Core Codebase Audit & Defensive Ledger
 
+## [2026-05-01 #89] PRE: Support Recovery Flow Launch Audit
+
+Scope started:
+- Auditing launch recovery paths for payment credit, unlock deduction, entitlement/viewer access, broken viewer assets, duplicate/missing notifications, chat send/read issues, creator profile 404, login/onboarding issues, refunds/manual credit, notification resend, manual entitlement grant, user/wallet freeze, and transaction history inspection.
+- Required outputs: `agent/state/support-recovery-flow-audit.generated.json`, `docs/agent-truth/support-recovery-flows.md`, `scripts/agent/validate-support-recovery-flows.ts`, package script wiring, governance ledger updates, commit, and push.
+- Fixes are limited to docs/validation/audit mapping unless a launch-critical recovery evidence gap is proven. No product feature expansion, payment/economy mutation, UI redesign, or admin action bypass is in scope.
+
+Initial evidence:
+- Worktree was clean at startup on `main`.
+- Control tower routing, source-of-truth map, product/copy/UI/surface/banned-pattern doctrine, payment/unlock entitlement doctrine, notification pipeline doctrine, recent launch ledgers, and `npm run trace:adjacent -- src/app/admin/users/page.tsx` were consulted.
+- `.agent/ui-copy-refinement-workflow.md` is referenced by `AGENTS.md` but is not present in this checkout; the doctrine consultation skill and doctrine files were consulted directly.
+
+Scope completed:
+- Created `agent/state/support-recovery-flow-audit.generated.json`, `docs/agent-truth/support-recovery-flows.md`, and `scripts/agent/validate-support-recovery-flows.ts` with `npm run check:support-recovery-flows`.
+- Audited Admin Users, Admin user detail, Admin Support Workspace, balance adjustment, transaction history, admin user mutation, admin balance, support threads, notification create/read, push dispatch, PayPal capture, Drop unlock, protected content, creator chat, public creator profile, and Debug notification evidence.
+- Mapped every required launch support scenario to operator visibility, admin action availability, data needed, audit requirements, risk, missing UI/API/Debug fields, fix recommendation, and launch priority.
+- Documented manual DB intervention paths rather than inventing launch features: PayPal refunds, wallet-only freeze, general onboarding reset, historical notification replay, arbitrary creator chat transcript inspection, and protected media repair outside CMS.
+
+Verification:
+- `npm run check:support-recovery-flows`
+- `npm run typecheck`
+- `git diff --check` (passed; line-ending warnings only)
+
+Residual risk:
+- Admin balance adjustment is fully audited. Admin entitlement grant and account status changes are protected but not yet fully immutable-audit complete; this pass intentionally documents those as launch support risks instead of changing money/access semantics during the audit-only phase.
+
 ## [2026-05-01 #88] PRE: Event Catalog Telemetry Naming Launch Audit
 
 Scope started:

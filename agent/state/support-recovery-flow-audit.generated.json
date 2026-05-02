@@ -1,0 +1,354 @@
+{
+  "generatedAt": "2026-05-01T00:00:00.000-05:00",
+  "auditKey": "support-recovery-flow-launch-audit",
+  "scope": "Launch recovery paths for payment, unlock, entitlement, media, notification, chat, creator profile, account, onboarding, refund/manual credit, resend, grant, freeze, and transaction-history scenarios.",
+  "sourceOfTruth": [
+    "src/app/admin/users/page.tsx",
+    "src/app/admin/user/[userId]/page.tsx",
+    "src/app/admin/support/page.tsx",
+    "src/components/Admin/AdminSupportQueue.tsx",
+    "src/components/Admin/BalanceAdjustmentModal.tsx",
+    "src/components/Admin/TransactionHistoryModal.tsx",
+    "src/app/api/admin/balance/route.ts",
+    "src/app/api/admin/user/[userId]/route.ts",
+    "src/app/api/admin/users/route.ts",
+    "src/app/api/admin/support/threads/route.ts",
+    "src/app/api/admin/support/threads/[threadId]/route.ts",
+    "src/app/api/notifications/route.ts",
+    "src/app/api/drops/unlock/route.ts",
+    "src/app/api/drops/content/route.ts",
+    "src/app/api/paypal/create/route.ts",
+    "src/app/api/paypal/capture/route.ts",
+    "src/app/api/chat/threads/[threadId]/route.ts",
+    "src/app/api/chat/threads/[threadId]/messages/route.ts",
+    "src/app/api/creators/[username]/route.ts",
+    "src/lib/server/push-notifications.ts",
+    "src/lib/server/support-threads.ts",
+    "src/lib/server/chat.ts"
+  ],
+  "checks": {
+    "adminCanInspectUserWalletLedger": {
+      "status": "pass",
+      "evidence": "Admin Users opens TransactionHistoryModal, which fetches /api/admin/user/:userId. The detail route returns transactions, purchaseTransactions, completedUnlockTransactions, commerce metrics, and support readiness."
+    },
+    "adminCanInspectPurchaseUnlockRecords": {
+      "status": "pass",
+      "evidence": "Admin user detail API derives purchaseTransactions and completedUnlockTransactions from the transactions ledger and exposes the Action Ledger in the user detail page."
+    },
+    "adminCanVerifyEntitlement": {
+      "status": "pass",
+      "evidence": "Admin Users shows unlockedContent counts and manages unlocked drops; protected content route verifies creator ownership or unlockedContent/unlockedContentTimestamps before streaming content."
+    },
+    "adminCanSeeNotificationSendReadStatus": {
+      "status": "partial",
+      "evidence": "Admin Analytics/Debug expose notification funnel, dispatch outcomes, duplicate prevention, skips, read and clear counts. Per-recipient notification document inspection is not exposed as a dedicated support UI."
+    },
+    "adminCanInspectChatConversationSafely": {
+      "status": "partial",
+      "evidence": "Support conversations are admin-inspectable in AdminSupportQueue. Creator chat routes enforce participant-only access; Admin user detail summarizes creator thread/message records for creator accounts but does not expose a full admin chat transcript viewer for arbitrary creator chats."
+    },
+    "adminActionsAreAudited": {
+      "status": "partial",
+      "evidence": "Admin balance adjustments are guarded and include adjustedByUid, adjustedByEmail, adjustmentReason, adjustmentSource, and auditedServerSide. Admin entitlement grants create zero-amount unlock transactions with grantSource=admin but do not require a reason or explicit adjustedBy/admin UID metadata in the transaction extra."
+    },
+    "manualCreditProtectedAndLogged": {
+      "status": "pass",
+      "evidence": "/api/admin/balance requires admin auth and trusted origin, requires a reason, updates balance in a transaction, and logs an admin_adjustment transaction with audit metadata."
+    },
+    "manualGrantProtectedAndLogged": {
+      "status": "partial",
+      "evidence": "/api/admin/users POST requires admin auth and trusted origin, validates the Drop, updates unlockedContent in a transaction, and creates an admin-grant unlock transaction. Missing reason/admin identity metadata is documented as a follow-up hardening item."
+    },
+    "missingActionsDocumented": {
+      "status": "pass",
+      "evidence": "This audit and docs mark PayPal refund, wallet-specific freeze, per-recipient notification resend, arbitrary creator chat transcript inspection, login provider recovery, and broken asset repair as external/manual actions when no product-safe admin action exists."
+    }
+  },
+  "scenarios": [
+    {
+      "id": "paid_gd_missing",
+      "title": "User paid but Gum Drops did not appear",
+      "currentVisibility": "Admin can open the user record, inspect balance, transaction ledger, failed purchase rows, purchase economics, and PayPal capture-derived transaction metadata. Server warnings for capture failures are recorded through route diagnostics.",
+      "adminActionAvailable": "Use Transaction History to verify whether a purchase_currency transaction and paymentLock exist. If PayPal confirms payment but no credit exists, use the Balance Adjustment modal to apply a manual credit with a reason. PayPal refund itself remains external to the app.",
+      "dataRequired": [
+        "userId",
+        "PayPal orderId/captureId",
+        "expected Gum Drops package",
+        "transaction ledger rows",
+        "paymentLocks row",
+        "admin adjustment reason"
+      ],
+      "auditLogRequired": "Manual GD credit must create an admin_adjustment transaction with adjustedByUid, adjustedByEmail, adjustmentReason, adjustmentSource, and auditedServerSide.",
+      "risk": "high",
+      "missingUiApiDebugField": "No one-click PayPal order lookup or refund status UI is present; operator must cross-check PayPal externally and app ledger internally.",
+      "fixRecommendation": "Launch-safe: keep current manual credit path. Post-launch: add a read-only PayPal/order lookup panel that never credits balance without server confirmation.",
+      "launchPriority": "launch-critical visibility present"
+    },
+    {
+      "id": "gd_deducted_unlock_failed",
+      "title": "Gum Drops deducted but unlock failed",
+      "currentVisibility": "Admin user detail shows unlock_content ledger rows and unlockedContent counts. The unlock route is transactional and returns alreadyUnlocked without double deduction, so true split-brain should be rare.",
+      "adminActionAvailable": "Verify the unlock transaction and user unlockedContent. If ledger shows a deduction but entitlement is missing, use Admin Users content management to grant the Drop manually. If entitlement exists, send the user back to the viewer/library path.",
+      "dataRequired": [
+        "userId",
+        "dropId",
+        "unlock_content transaction",
+        "unlockedContent array",
+        "unlockedContentTimestamps map",
+        "drop record"
+      ],
+      "auditLogRequired": "Manual entitlement grant should create an admin-grant unlock_content transaction; current metadata marks grantSource=admin but does not capture an operator reason.",
+      "risk": "high",
+      "missingUiApiDebugField": "Admin entitlement grants do not require a reason and do not include explicit admin UID/email in transaction extra.",
+      "fixRecommendation": "Do not change launch flow here. Before adding self-service recovery, harden the manual entitlement grant with required reason/admin identity metadata and a focused test.",
+      "launchPriority": "launch-critical recovery present with audit-field warning"
+    },
+    {
+      "id": "unlock_exists_viewer_missing",
+      "title": "Unlock exists but viewer access is missing",
+      "currentVisibility": "Admin can verify unlockedContent/unlockedContentTimestamps on user surfaces. /api/drops/content accepts either array membership or server-written timestamp as entitlement evidence.",
+      "adminActionAvailable": "Confirm entitlement and Drop media in Admin Users and Drop records. If entitlement exists and viewer still fails, treat it as viewer/content route issue and inspect route diagnostics or support thread evidence.",
+      "dataRequired": [
+        "userId",
+        "dropId",
+        "unlockedContent",
+        "unlockedContentTimestamps",
+        "contentUrl/contentUrls",
+        "route runtime sample for drops/content"
+      ],
+      "auditLogRequired": "If the admin must re-grant entitlement, the admin-grant unlock transaction is required.",
+      "risk": "medium",
+      "missingUiApiDebugField": "No dedicated viewer-entitlement comparison panel exists; operator must compare user entitlement, Drop content fields, and content route errors manually.",
+      "fixRecommendation": "Post-launch: add a read-only entitlement check card to Admin user detail that compares user entitlement, Drop content presence, and last viewer/content route result.",
+      "launchPriority": "warning"
+    },
+    {
+      "id": "viewer_asset_missing_broken",
+      "title": "Viewer asset is missing or broken",
+      "currentVisibility": "Admin Drop/CMS and content media audit define public cover fallback and protected content proxy. Content route returns explicit not-found messages for missing content and index bounds.",
+      "adminActionAvailable": "Inspect the Drop record and media fields in Admin Drops/CMS, then replace or remove broken media through the CMS/upload workflow. If the protected URL host is not allowed, correct the stored media URL.",
+      "dataRequired": [
+        "dropId",
+        "contentUrls order",
+        "contentUrl fallback",
+        "cover/preview URL",
+        "content route status",
+        "storage object existence"
+      ],
+      "auditLogRequired": "CMS edits should remain admin-authenticated and trusted-origin guarded. No separate asset repair audit log was identified beyond Drop update metadata.",
+      "risk": "medium",
+      "missingUiApiDebugField": "No one-click asset health report per Drop is exposed in Support; media repair is CMS/manual inspection.",
+      "fixRecommendation": "Launch-safe: document CMS repair path. Post-launch: add a read-only asset health check to Drop admin detail before adding any automatic media rewrite.",
+      "launchPriority": "warning"
+    },
+    {
+      "id": "notification_duplicated",
+      "title": "Notification was duplicated",
+      "currentVisibility": "Admin Debug and Analytics expose duplicateCreatedPrevented, duplicatePushPrevented, duplicateBrowserDisplayPrevented, and notification dispatch outcomes. Server dispatch uses idempotency keys and browser tags.",
+      "adminActionAvailable": "Open Admin Debug notification/queue runtime evidence and inspect dispatch outcome for the Drop activation key/idempotency key. No destructive duplicate cleanup action is exposed.",
+      "dataRequired": [
+        "notificationId",
+        "idempotencyKey",
+        "browserTag",
+        "dropId",
+        "activationKey",
+        "dispatch outcome",
+        "recipient token status"
+      ],
+      "auditLogRequired": "Duplicate prevention is recorded in notification dispatch outcomes and funnel Debug metadata.",
+      "risk": "medium",
+      "missingUiApiDebugField": "No per-recipient notification record viewer or duplicate cleanup button exists.",
+      "fixRecommendation": "Do not delete notification rows during launch. Use Debug evidence to confirm duplicate prevention; add a read-only per-notification inspector post-launch if operators need it.",
+      "launchPriority": "warning"
+    },
+    {
+      "id": "notification_missing",
+      "title": "Notification was missing",
+      "currentVisibility": "Admin Debug/Analytics expose sent/opened/read/cleared counts and skip counts for permission denied, missing token, and preferences disabled. User detail shows whether push alerts are enabled.",
+      "adminActionAvailable": "Check user push preference, token/permission skip counts, and dispatch outcomes. Admin Drops can send a new Drop notification, but there is no safe per-recipient resend of a historical notification.",
+      "dataRequired": [
+        "recipient userId",
+        "notificationId or dropId",
+        "notificationSettings.browserPushEnabled",
+        "FCM token status",
+        "skippedMissingTokenCount",
+        "skippedPermissionDeniedCount",
+        "skippedPreferencesDisabledCount"
+      ],
+      "auditLogRequired": "Admin-created notifications are guarded and deduped through notificationDispatchLocks; skip outcomes are recorded in dispatch diagnostics.",
+      "risk": "medium",
+      "missingUiApiDebugField": "No per-recipient resend or send-status drilldown exists.",
+      "fixRecommendation": "Launch-safe: document that missing notification recovery is diagnosis-first and any resend is a new admin notification, not a replay. Add recipient-level notification trace later.",
+      "launchPriority": "warning"
+    },
+    {
+      "id": "chat_message_failed",
+      "title": "Chat message failed",
+      "currentVisibility": "Creator chat routes use participant-only guards and server diagnostics on send failures. Admin support queue is available for support conversations; creator chat records are summarized on creator user detail.",
+      "adminActionAvailable": "For support chat, open Admin Support Queue and reply/update status. For creator chat, inspect creator/user detail summaries and route diagnostics; arbitrary full transcript recovery is not exposed to admins.",
+      "dataRequired": [
+        "threadId",
+        "creatorId",
+        "userId",
+        "messageId if created",
+        "caller role",
+        "transaction row for paid message",
+        "route warning"
+      ],
+      "auditLogRequired": "Paid creator chat messages create transaction and creator ledger accrual records when spend occurs. Support replies record senderRole and senderId.",
+      "risk": "medium",
+      "missingUiApiDebugField": "No admin read-only full transcript viewer for creator chat failures.",
+      "fixRecommendation": "Keep creator chat privacy boundary. Add a scoped support-only transcript inspector only after a privacy/legal decision and tests.",
+      "launchPriority": "warning"
+    },
+    {
+      "id": "creator_profile_404",
+      "title": "Creator profile returns 404",
+      "currentVisibility": "Public creator route returns 404 when username is missing, the user is not a creator role, or status is not active. Admin Users can edit username; Admin user detail exposes creator record handoff for creators.",
+      "adminActionAvailable": "Open Admin Users, verify role/status/username, edit username if needed, reactivate if appropriate, and verify Drop creator assignment/public active status.",
+      "dataRequired": [
+        "username",
+        "userId",
+        "role",
+        "status",
+        "creatorSettings",
+        "drop creatorId",
+        "active public Drop count"
+      ],
+      "auditLogRequired": "Username route records updatedBy on the user mutation. Status/role changes are admin guarded; separate audit-log rows were not identified.",
+      "risk": "medium",
+      "missingUiApiDebugField": "No dedicated creator-profile resolver diagnostic explains which 404 gate failed.",
+      "fixRecommendation": "Post-launch: add a read-only creator profile readiness checklist to Admin user detail. Avoid making inactive/banned creators public.",
+      "launchPriority": "warning"
+    },
+    {
+      "id": "user_cannot_login",
+      "title": "User cannot log in",
+      "currentVisibility": "Admin user detail exposes security summary and support channels. Banned/suspended account route informs users of blocked status. Firebase Auth provider-level recovery remains outside the app.",
+      "adminActionAvailable": "Search Admin Users by email/UID, inspect status/security events, reactivate if suspension was incorrect, and use support thread or external Firebase Auth console for provider issues.",
+      "dataRequired": [
+        "email or UID",
+        "account status",
+        "security events",
+        "Firebase Auth provider state",
+        "support thread"
+      ],
+      "auditLogRequired": "Status changes are admin guarded; no separate support recovery audit log was identified for activate/suspend/ban actions.",
+      "risk": "high",
+      "missingUiApiDebugField": "No Firebase Auth provider diagnostics or status-change audit record is visible in-app.",
+      "fixRecommendation": "Launch-safe: use Admin Users plus Firebase console. Post-launch: add audit rows for status changes and a read-only auth provider status card.",
+      "launchPriority": "warning"
+    },
+    {
+      "id": "onboarding_stuck",
+      "title": "Onboarding is stuck",
+      "currentVisibility": "Admin user detail exposes creator onboarding canonical/history, support readiness, notification preference state, and behavioral/support signals. Onboarding UI records client issues for notification enable failures.",
+      "adminActionAvailable": "Inspect Admin user detail and support thread. For creator onboarding, use creator roster/admin handoff. User onboarding reset is not exposed as a product-safe admin action.",
+      "dataRequired": [
+        "userId",
+        "creator onboarding state",
+        "notificationSettings",
+        "support signals",
+        "client issue route diagnostics",
+        "account profile fields"
+      ],
+      "auditLogRequired": "Any manual reset must be documented as manual DB intervention unless a protected endpoint exists.",
+      "risk": "medium",
+      "missingUiApiDebugField": "No general onboarding reset/step repair action exists in Admin Users.",
+      "fixRecommendation": "Document manual DB intervention for launch. Add a protected, audited onboarding reset only if launch support volume proves it is needed.",
+      "launchPriority": "deferred recovery action"
+    },
+    {
+      "id": "refund_manual_credit",
+      "title": "Refund or manual credit scenario",
+      "currentVisibility": "Admin can inspect purchase rows, PayPal order/capture metadata, and apply positive or negative GD adjustments with reason. Legal copy states Gum Drops are not refundable through the app.",
+      "adminActionAvailable": "Handle any cash refund externally in PayPal. Reflect app balance with Balance Adjustment only after policy/provider decision, recording the reason.",
+      "dataRequired": [
+        "userId",
+        "orderId/captureId",
+        "purchase transaction",
+        "refund provider record",
+        "adjustment amount",
+        "operator reason"
+      ],
+      "auditLogRequired": "Every manual credit/debit must create an admin_adjustment transaction with adjustedBy metadata and reason.",
+      "risk": "high",
+      "missingUiApiDebugField": "No in-app PayPal refund endpoint or refund-status ledger type exists.",
+      "fixRecommendation": "Keep refund as external provider operation for launch; add a refund ledger type only with policy, provider webhook/callback verification, and tests.",
+      "launchPriority": "manual process documented"
+    },
+    {
+      "id": "admin_resend_notification",
+      "title": "Admin needs to resend a notification",
+      "currentVisibility": "Admin Drops can create a new Drop notification. Notification API dedupes recent identical admin-created payloads and records dispatch diagnostics.",
+      "adminActionAvailable": "Send a new Drop notification from Admin Drops if appropriate. Do not replay historical rows manually; use Debug to understand why the original was skipped/missed.",
+      "dataRequired": [
+        "dropId",
+        "message text",
+        "target audience",
+        "original idempotencyKey if troubleshooting",
+        "dispatch outcome"
+      ],
+      "auditLogRequired": "Admin notification persistence includes dispatchFingerprint, idempotencyKey, dedupeKey, browserTag, and notificationDispatchLocks.",
+      "risk": "medium",
+      "missingUiApiDebugField": "No explicit resend-existing-notification API exists, by design for launch dedupe safety.",
+      "fixRecommendation": "Keep resend as new notification with fresh operator intent. Add per-recipient resend only after idempotency and audit semantics are designed.",
+      "launchPriority": "warning"
+    },
+    {
+      "id": "admin_manual_entitlement_grant",
+      "title": "Admin needs to manually grant entitlement",
+      "currentVisibility": "Admin Users has an unlocked Drops modal and server route to add/remove a Drop entitlement after validating the Drop id.",
+      "adminActionAvailable": "Open Admin Users, manage unlocked Drops, add the canonical Drop id, and verify the user record/library/viewer.",
+      "dataRequired": [
+        "userId",
+        "dropId",
+        "drop existence",
+        "current unlockedContent",
+        "reason for grant"
+      ],
+      "auditLogRequired": "The route creates a zero-amount unlock_content transaction with grantSource=admin. It should also capture admin UID/email and reason before this becomes a routine support workflow.",
+      "risk": "high",
+      "missingUiApiDebugField": "Grant reason and admin identity are not required in entitlement-grant transaction metadata.",
+      "fixRecommendation": "Treat as launch emergency recovery only. Next hardening pass should add required reason/admin UID fields and tests without changing entitlement semantics.",
+      "launchPriority": "launch-critical recovery present with audit gap"
+    },
+    {
+      "id": "admin_freeze_wallet_user",
+      "title": "Admin needs to freeze wallet or user",
+      "currentVisibility": "Admin Users can suspend, ban, or reactivate a user. Creator/public routes check suspended/banned status in several creator operations. No wallet-specific freeze flag was identified.",
+      "adminActionAvailable": "Use suspend/ban/reactivate for account-level freeze. For wallet-only freeze, manual DB intervention would be required and should be treated as high risk.",
+      "dataRequired": [
+        "userId",
+        "current status",
+        "security flags",
+        "reason for freeze",
+        "support thread"
+      ],
+      "auditLogRequired": "Status changes should be audit logged; current admin status route is guarded but a separate immutable audit row was not identified.",
+      "risk": "high",
+      "missingUiApiDebugField": "No walletFreeze flag, wallet-only freeze UI, or immutable status-change audit log was identified.",
+      "fixRecommendation": "Launch-safe: account-level suspend/ban only. Do not invent wallet freeze in this pass. Add audited wallet freeze as a separate security/economy feature if needed.",
+      "launchPriority": "warning"
+    },
+    {
+      "id": "admin_inspect_transaction_history",
+      "title": "Admin needs to inspect transaction history",
+      "currentVisibility": "Admin Users exposes TransactionHistoryModal and Admin user detail exposes the Action Ledger. API returns recent transactions with commerce metrics and verification metadata.",
+      "adminActionAvailable": "Open Admin Users, click transaction history, or open the full user record to inspect Action Ledger and support/security handoff.",
+      "dataRequired": [
+        "userId",
+        "transaction limit",
+        "transaction type",
+        "paymentId/relatedDropId",
+        "balanceBefore/balanceAfter",
+        "status"
+      ],
+      "auditLogRequired": "Inspection is read-only and admin guarded. Sensitive follow-up actions must use their own audit logs.",
+      "risk": "low",
+      "missingUiApiDebugField": "No issue found for launch-critical inspection.",
+      "fixRecommendation": "Keep current path. Add filters/export only post-launch if support volume requires it.",
+      "launchPriority": "pass"
+    }
+  ]
+}

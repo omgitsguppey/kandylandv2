@@ -24,6 +24,17 @@ This file is not a changelog. It is the concise ledger for durable decisions tha
 
 ## Decision Entries
 
+### 1cs. Support recovery flows are mapped before launch
+
+- Approximate date: Recorded explicitly on 2026-05-01 from the support and recovery flow launch audit
+- Status: Active launch support recovery, operator action, audit-log, and manual-intervention rule
+- Decision: Launch support actions must be evidence-first and actor-safe. Operators should use Admin Users, Admin user detail, transaction history, balance adjustment, Admin Support Workspace, Admin Drops, Admin Analytics, and Admin Debug before touching money/access/account state. When no protected product action exists, the recovery path must explicitly say manual DB intervention or external provider action is required.
+- Implementation: `agent/state/support-recovery-flow-audit.generated.json` maps payment, unlock, entitlement, viewer asset, notification, chat, creator profile, login, onboarding, refund/manual credit, resend, manual grant, freeze, and transaction-history scenarios. `docs/agent-truth/support-recovery-flows.md` documents operator steps, audit requirements, and manual DB intervention rules. `scripts/agent/validate-support-recovery-flows.ts` and `npm run check:support-recovery-flows` enforce audit/doc/code coverage.
+- Launch-critical evidence: `/api/admin/balance` is admin/trusted-origin protected and logs `admin_adjustment` rows with admin/reason metadata; Admin user detail exposes transactions, purchase/unlock rows, support readiness, security summary, and creator operations; Admin Support Workspace is admin guarded; notification diagnostics expose dedupe/read/skip truth; protected content and unlock routes remain server-mediated.
+- Known recovery risks: manual entitlement grant is protected and creates an admin-grant transaction but does not yet require reason/admin UID metadata, account status changes lack a separate immutable audit row, PayPal refunds are external, wallet-only freeze is not a launch feature, and arbitrary creator chat transcript inspection is intentionally not exposed.
+- Required validation: `npm run check:support-recovery-flows`, touched-file TypeScript when script/code changes, and `git diff --check`.
+- Consequence for future work: Do not add support recovery buttons that bypass server guards, client-authoritative balance/entitlement state, provider confirmation, or audit logging. Do not hide manual DB intervention behind vague copy; document the operator, reason, before/after values, and support thread.
+
 ### 1cr. Event catalog telemetry naming is launch-gated
 
 - Approximate date: Recorded explicitly on 2026-05-01 from the event catalog and telemetry naming launch audit

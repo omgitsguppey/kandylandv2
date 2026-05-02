@@ -1,13 +1,23 @@
 # EVERY FILE FUNCTION CHECKLIST
 
 **Last Updated:** 2026-05-01
-**Current Focus:** Event Catalog Telemetry Naming Launch Audit.
+**Current Focus:** Support Recovery Flow Launch Audit.
 **Status:** In Progress. Current tracked-file coverage is reconciled as of 2026-04-28: every `git ls-files` entry has a current checklist heading, while detailed function-level audits remain pending for many historical and newly reconciled files.
 Purpose: exhaustive no-skip audit checklist covering every repository file currently in scope and every detected function-like implementation.
 
 Scoring: all entries below are marked as included in the current validated sweep. Confidence reflects current repository-state confidence, not perfection or future-proofing.
 
 Current repo-wide state snapshot: see [FULL_SCALE_CODEBASE_AUDIT.md](/Users/uylus/OneDrive/Documents/KandyDrops_Final/FULL_SCALE_CODEBASE_AUDIT.md) for the current live baseline, verification state, and continuity rules, and see [REPO_MEMORY_LEDGER.md](/Users/uylus/OneDrive/Documents/KandyDrops_Final/REPO_MEMORY_LEDGER.md) for major architectural and workflow decisions. The detailed file/function body below remains valuable historical evidence, but it has not been fully regenerated against the current 2026-04-18 inventory review yet.
+
+## 2026-05-01 Support Recovery Flow Launch Audit Coverage
+
+- [x] `src/app/admin/users/page.tsx`, `src/app/admin/user/[userId]/page.tsx`, `src/components/Admin/BalanceAdjustmentModal.tsx`, and `src/components/Admin/TransactionHistoryModal.tsx` provide the operator entry points for wallet ledger inspection, manual balance adjustment, entitlement visibility, status actions, username recovery, and support handoff.
+- [x] `src/app/api/admin/balance/route.ts`, `src/app/api/admin/user/[userId]/route.ts`, `src/app/api/admin/users/route.ts`, and `src/app/api/admin/users/[userId]/username/route.ts` are the guarded admin recovery data/action routes for balance adjustment, user detail evidence, manual entitlement grant/revoke, account status/role actions, and username repair.
+- [x] `src/app/admin/support/page.tsx`, `src/components/Admin/AdminSupportQueue.tsx`, `src/app/api/admin/support/threads/route.ts`, `src/app/api/admin/support/threads/[threadId]/route.ts`, and `src/lib/server/support-threads.ts` cover admin support thread inspection, reply, status update, unread state, and user-record deep links.
+- [x] `src/app/api/paypal/create/route.ts`, `src/app/api/paypal/capture/route.ts`, `src/app/api/drops/unlock/route.ts`, and `src/app/api/drops/content/route.ts` remain the launch payment, unlock, idempotency, ledger, and protected content evidence owners for support recovery.
+- [x] `src/app/api/notifications/route.ts`, `src/lib/server/push-notifications.ts`, `src/lib/admin-notification-funnel.ts`, and `src/app/api/admin/debug/route.ts` provide notification resend/diagnostic evidence, dedupe locks, browser tags, skip counts, read state, and Debug dispatch outcomes.
+- [x] `src/app/api/chat/threads/[threadId]/route.ts`, `src/app/api/chat/threads/[threadId]/messages/route.ts`, `src/lib/server/chat.ts`, and `src/app/api/creators/[username]/route.ts` preserve participant-scoped chat recovery boundaries and public creator-profile 404 gates.
+- [x] `agent/state/support-recovery-flow-audit.generated.json`, `docs/agent-truth/support-recovery-flows.md`, `scripts/agent/validate-support-recovery-flows.ts`, and `package.json` record and validate the support recovery launch map.
 
 ## 2026-05-01 Event Catalog Telemetry Naming Launch Audit Coverage
 
