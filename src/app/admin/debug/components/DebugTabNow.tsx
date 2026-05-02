@@ -140,7 +140,7 @@ export function DebugTabNow({
                                                             <p className="font-semibold text-white">{materializer.label}</p>
                                                             <p className="text-xs text-gray-400">{materializer.engine}</p>
                                                         </div>
-                                                        <Pill label="Status" value={materializer.status} tone={materializer.status === "healthy" ? "good" : materializer.status === "warn" ? "warn" : "bad"} />
+                                                        <Pill label="Status" value={materializer.status === "healthy" ? "Live" : materializer.status === "warn" ? "Degraded" : "Failed"} tone={materializer.status === "healthy" ? "good" : materializer.status === "warn" ? "warn" : "bad"} truthState={materializer.status === "healthy" ? "live" : materializer.status === "warn" ? "degraded" : "failed"} />
                                                     </div>
                                                     <p className="mt-2 text-sm text-gray-300">{materializer.detail}</p>
                                                 </div>

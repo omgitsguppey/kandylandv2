@@ -3,7 +3,7 @@
 import { useUI } from "@/context/UIContext";
 import { useAuth } from "@/context/AuthContext";
 import { Button } from "@/components/ui/Button";
-import { Coins, X, AlertCircle } from "lucide-react";
+import { Candy, X, AlertCircle } from "lucide-react";
 import { toast } from "sonner";
 
 import { motion, AnimatePresence } from "framer-motion";
@@ -71,7 +71,7 @@ export function InsufficientBalanceModal() {
                         </button>
 
                         <div className="w-16 h-16 bg-brand-purple/10 rounded-full flex items-center justify-center mx-auto mb-6 border border-brand-purple/20">
-                            <Coins className="w-8 h-8 text-brand-purple" />
+                            <Candy className="w-8 h-8 text-brand-purple" />
                         </div>
 
                         <h2 className="text-xl font-bold text-white mb-2">Not Enough Gum Drops</h2>
