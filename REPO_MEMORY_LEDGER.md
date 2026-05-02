@@ -4,6 +4,10 @@ Status: Canonical repository-memory and architecture-decision ledger
 Last refreshed: 2026-05-02
 Repo: `C:\Users\uylus\OneDrive\Documents\KandyDrops_Final`
 
+## 2026-05-02 Creator onboarding audit trail hardening
+
+Creator intake, agreement, ID, approval, account-control, fan-experience, synthetic creator, and admin view-as actions use the existing `creator_onboarding/{uid}/history` subcollection as the audit trail. `src/lib/server/creator-onboarding.ts` owns `buildCreatorOnboardingHistoryEntry(...)` for deterministic event shape, actor marker evidence, target user/creator IDs, and agreement version/hash plus IP/user-agent evidence for signatures. Admin Roster shows the collapsed audit trail with the latest 3 events first and technical metadata inside Details; Admin Debug/user detail keeps raw evidence available.
+
 ## 2026-05-02 Synthetic creators and safe creator view-as
 
 Owner-created synthetic creators now carry explicit `isSyntheticCreator`, `syntheticCreatorType`, creator/created-at/reason, and human-operator marker fields across the user profile, creator onboarding canonical record, and creator review queue projection. Admin creator QA uses a session-scoped view-as simulation with `performedAs: admin_view_as_creator`; it does not replace Firebase auth identity or share passwords. The global return banner clears simulation state, and `authFetch` blocks payment, wallet, unlock, and creator state-changing writes while view-as is active.

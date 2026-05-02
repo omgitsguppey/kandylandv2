@@ -54,6 +54,7 @@ import {
 } from "@/lib/creator-intake-flow";
 import type { CreatorAgreementDispatchStatus, CreatorAgreementSource } from "@/lib/creator-agreement-documents";
 import type { SyntheticCreatorType } from "@/lib/admin/synthetic-creators-view-as";
+import type { ActorMarker } from "@/lib/identity/actor-markers";
 
 export const CREATOR_ONBOARDING_SUBMISSION_STATUSES = [
     "onboarding_started",
@@ -419,6 +420,79 @@ export type CreatorOnboardingHistoryEntry = {
     summary: string;
     detail?: string;
     metadata?: Record<string, unknown>;
+    actorMarker?: ActorMarker;
+    targetUserId?: string;
+    targetCreatorId?: string;
+    agreementVersion?: string;
+    agreementHash?: string;
+    ip?: string;
+    userAgent?: string;
+};
+
+export const CREATOR_ONBOARDING_REQUIRED_HISTORY_EVENT_TYPES = [
+    "onboarding_started",
+    "onboarding_submitted",
+    "intro_acknowledged",
+    "intake_step_completed",
+    "legal_sent",
+    "agreement_update_sent",
+    "creator_contract_signed",
+    "admin_contract_signed",
+    "legal_signed",
+    "id_requested",
+    "id_submitted",
+    "id_verified",
+    "id_rejected",
+    "creator_approved",
+    "creator_rejected",
+    "creator_needs_changes",
+    "owner_override_applied",
+    "owner_override_cleared",
+    "creator_role_activated",
+    "creator_role_activation_blocked",
+    "creator_experience_settings_updated",
+    "admin_account_updated",
+    "synthetic_creator_created",
+    "admin_view_as_started",
+    "admin_view_as_ended",
+] as const satisfies readonly CreatorOnboardingHistoryEventType[];
+
+export const CREATOR_ONBOARDING_HISTORY_EVENT_LABELS: Record<CreatorOnboardingHistoryEventType, string> = {
+    intake_started: "Creator intake started",
+    intake_step_completed: "Creator completed intake step",
+    intake_submitted: "Creator submitted intake",
+    onboarding_started: "Creator onboarding started",
+    onboarding_submitted: "Creator submitted application",
+    awaiting_manual_review: "Application entered review",
+    admin_queue_materialized: "Creator added to review queue",
+    intro_acknowledged: "Creator acknowledged intro",
+    legal_sent: "Agreement sent",
+    id_requested: "ID requested",
+    id_submitted: "Creator submitted ID",
+    id_verified: "ID verified",
+    id_rejected: "ID rejected",
+    creator_contract_signed: "Creator signed agreement",
+    admin_contract_signed: "Admin countersigned agreement",
+    legal_signed: "Agreement complete",
+    creator_segment_assigned: "Creator segment assigned",
+    creator_approved: "Creator approved",
+    creator_rejected: "Creator rejected",
+    creator_needs_changes: "Changes requested",
+    owner_override_applied: "Owner override applied",
+    owner_override_cleared: "Owner override cleared",
+    creator_legally_cleared: "Creator legally cleared",
+    creator_role_activated: "Creator access activated",
+    creator_role_activation_blocked: "Creator access blocked",
+    admin_account_updated: "Account controls updated",
+    creator_experience_settings_updated: "Fan experience settings updated",
+    creator_restrictions_updated: "Creator restrictions updated",
+    admin_notes_updated: "Admin notes updated",
+    agreement_template_activated: "Agreement template activated",
+    agreement_update_sent: "Updated agreement sent",
+    synthetic_creator_created: "Synthetic creator created",
+    admin_view_as_started: "Admin view-as started",
+    admin_view_as_ended: "Admin view-as ended",
+    admin_view_as_action_blocked: "View-as action blocked",
 };
 
 export type CreatorOnboardingBlockingReasonDetail = {
@@ -732,6 +806,36 @@ export function normalizeCreatorOnboardingHistoryEntry(
     const metadata = source.metadata && typeof source.metadata === "object" && !Array.isArray(source.metadata)
         ? source.metadata as Record<string, unknown>
         : undefined;
+    const actorMarker = source.actorMarker && typeof source.actorMarker === "object" && !Array.isArray(source.actorMarker)
+        ? source.actorMarker as ActorMarker
+        : undefined;
+    const targetUserId = readString(source.targetUserId)
+        || readString(metadata?.targetUserId)
+        || readString(metadata?.target_user_id)
+        || actorMarker?.targetUserId
+        || undefined;
+    const targetCreatorId = readString(source.targetCreatorId)
+        || readString(metadata?.targetCreatorId)
+        || readString(metadata?.target_creator_id)
+        || actorMarker?.targetCreatorId
+        || undefined;
+    const agreementVersion = readString(source.agreementVersion)
+        || readString(metadata?.agreementVersion)
+        || readString(metadata?.contractVersion)
+        || undefined;
+    const agreementHash = readString(source.agreementHash)
+        || readString(metadata?.agreementHash)
+        || undefined;
+    const ip = readString(source.ip)
+        || readString(source.signerIp)
+        || readString(metadata?.ip)
+        || readString(metadata?.signerIp)
+        || undefined;
+    const userAgent = readString(source.userAgent)
+        || readString(source.signerUserAgent)
+        || readString(metadata?.userAgent)
+        || readString(metadata?.signerUserAgent)
+        || undefined;
 
     return {
         eventType,
@@ -742,7 +846,25 @@ export function normalizeCreatorOnboardingHistoryEntry(
         summary,
         detail: readString(source.detail) || undefined,
         metadata,
+        actorMarker,
+        targetUserId,
+        targetCreatorId,
+        agreementVersion,
+        agreementHash,
+        ip,
+        userAgent,
     };
+}
+
+export function formatCreatorOnboardingHistoryEventLabel(
+    entryOrType: CreatorOnboardingHistoryEntry | CreatorOnboardingHistoryEventType,
+) {
+    const eventType = typeof entryOrType === "string" ? entryOrType : entryOrType.eventType;
+    return CREATOR_ONBOARDING_HISTORY_EVENT_LABELS[eventType] ?? "Creator audit event";
+}
+
+export function formatCreatorOnboardingHistoryEventSummary(entry: CreatorOnboardingHistoryEntry) {
+    return formatCreatorOnboardingHistoryEventLabel(entry);
 }
 
 export function normalizeCreatorOnboardingSubmissionStatus(

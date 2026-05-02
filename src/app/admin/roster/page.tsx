@@ -16,6 +16,7 @@ import {
     type CreatorAccountControlsTarget,
 } from "@/components/Admin/CreatorAccountControlsPanel";
 import { AdminCreatorViewAsControls } from "@/components/Admin/AdminCreatorViewAsControls";
+import { CreatorAuditTrailPanel } from "@/components/Admin/CreatorAuditTrailPanel";
 import {
     CreatorFanExperienceSettingsPanel,
     type CreatorFanExperienceSettingsTarget,
@@ -34,8 +35,6 @@ import type {
 } from "@/lib/creator-agreement-documents";
 import {
     CREATOR_CONTRACT_SUMMARY_BULLETS,
-    CREATOR_INTRO_CREATOR_BULLETS,
-    CREATOR_INTRO_FAN_BULLETS,
     CREATOR_MASTER_SERVICE_AGREEMENT_SECTIONS,
 } from "@/lib/creator-contract";
 import type { CreatorFanExperienceSettingsCommand } from "@/lib/admin/creator-fan-experience-settings";
@@ -249,10 +248,6 @@ function formatTimestamp(value: number | undefined) {
     }
 
     return new Date(value).toLocaleString();
-}
-
-function buildHistoryLabel(entry: CreatorOnboardingHistoryEntry) {
-    return `${entry.summary} - ${formatTimestamp(entry.timestamp)}`;
 }
 
 function countRealBlockers(entry: CreatorReviewQueueEntry) {
@@ -868,6 +863,12 @@ export default function AdminRosterPage() {
                 actionKey: "admin_creator_section_expanded",
                 sectionKey,
             }));
+            if (sectionKey === "audit_trail") {
+                trackEvent("admin_creator_audit_trail_opened", buildTelemetryPayload({
+                    actionKey: "admin_creator_audit_trail_opened",
+                    sectionKey,
+                }));
+            }
             if (sectionKey === "fan_experience_settings") {
                 trackEvent("admin_creator_experience_settings_opened", buildTelemetryPayload({
                     actionKey: "admin_creator_experience_settings_opened",
@@ -875,6 +876,18 @@ export default function AdminRosterPage() {
                 }));
             }
         }
+    };
+
+    const handleAuditEventExpanded = (entry: CreatorOnboardingHistoryEntry) => {
+        trackEvent("admin_creator_audit_event_expanded", {
+            ...buildTelemetryPayload({
+                actionKey: "admin_creator_audit_event_expanded",
+                sectionKey: "audit_trail",
+            }),
+            eventType: entry.eventType,
+            eventTimestamp: entry.timestamp,
+            agreementVersion: entry.agreementVersion ?? "",
+        });
     };
 
     const rosterDebugMetadata = {
@@ -1392,49 +1405,7 @@ export default function AdminRosterPage() {
 
                                 <details className="rounded-2xl border border-white/10 bg-black/25 p-4" onToggle={(event) => handleSectionToggle("audit_trail", event.currentTarget.open)}>
                                     <summary className="cursor-pointer list-none text-sm font-bold text-white">Audit trail</summary>
-                                    <div className="mt-4 grid gap-4 lg:grid-cols-[0.9fr_1.1fr]">
-                                        <div className="space-y-3">
-                                            <div className="rounded-2xl border border-white/10 bg-black/20 p-3">
-                                                <p className="text-[10px] font-semibold uppercase tracking-[0.16em] text-zinc-500">Creator intro acknowledgment</p>
-                                                <div className="mt-2 space-y-2 text-sm leading-6 text-zinc-300">
-                                                    {CREATOR_INTRO_CREATOR_BULLETS.map((bullet) => <p key={bullet}>- {bullet}</p>)}
-                                                </div>
-                                            </div>
-                                            <div className="rounded-2xl border border-white/10 bg-black/20 p-3">
-                                                <p className="text-[10px] font-semibold uppercase tracking-[0.16em] text-zinc-500">Fan explainer</p>
-                                                <div className="mt-2 space-y-2 text-sm leading-6 text-zinc-300">
-                                                    {CREATOR_INTRO_FAN_BULLETS.map((bullet) => <p key={bullet}>- {bullet}</p>)}
-                                                </div>
-                                            </div>
-                                        </div>
-                                        <div className="space-y-3">
-                                            <div className="rounded-2xl border border-white/10 bg-black/20 p-3">
-                                                <p className="text-sm font-semibold text-white">Milestones</p>
-                                                <div className="mt-3 space-y-2 text-sm text-zinc-300">
-                                                    <p>Submitted - {formatTimestamp(selectedCanonical.submittedAt)}</p>
-                                                    <p>Intro acknowledged - {formatTimestamp(selectedCanonical.introAcknowledgedAt)}</p>
-                                                    <p>ID requested - {formatTimestamp(selectedCanonical.idVerificationRequestedAt)}</p>
-                                                    <p>ID reviewed - {formatTimestamp(selectedCanonical.idVerificationReviewedAt)}</p>
-                                                    <p>Creator signed - {formatTimestamp(selectedCanonical.creatorContractSignedAt)}</p>
-                                                    <p>Admin countersigned - {formatTimestamp(selectedCanonical.adminContractSignedAt)}</p>
-                                                    <p>Last review touch - {formatTimestamp(selectedCanonical.updatedAt)}</p>
-                                                </div>
-                                            </div>
-                                            <div className="rounded-2xl border border-white/10 bg-black/20 p-3">
-                                                <p className="text-sm font-semibold text-white">History</p>
-                                                <div className="mt-3 max-h-[260px] space-y-2 overflow-y-auto pr-1 text-sm text-zinc-300">
-                                                    {selectedHistory.length === 0 ? (
-                                                        <p className="text-zinc-500">No history records loaded.</p>
-                                                    ) : selectedHistory.map((entry) => (
-                                                        <div key={`${entry.eventType}-${entry.timestamp}-${entry.actorId}`} className="rounded-2xl border border-white/10 bg-black/20 px-3 py-3">
-                                                            <p className="font-semibold text-white">{buildHistoryLabel(entry)}</p>
-                                                            {entry.detail ? <p className="mt-1 text-xs leading-6 text-zinc-400">{entry.detail}</p> : null}
-                                                        </div>
-                                                    ))}
-                                                </div>
-                                            </div>
-                                        </div>
-                                    </div>
+                                    <CreatorAuditTrailPanel history={selectedHistory} onEventExpanded={handleAuditEventExpanded} />
                                 </details>
 
                                 <details className="rounded-2xl border border-white/10 bg-black/25 p-4" onToggle={(event) => handleSectionToggle("admin_notes", event.currentTarget.open)}>

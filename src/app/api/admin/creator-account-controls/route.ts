@@ -3,7 +3,6 @@ import { NextRequest, NextResponse } from "next/server";
 import {
   buildCreatorOnboardingCanonicalRecord,
   normalizeCreatorOnboardingCanonicalRecord,
-  type CreatorOnboardingHistoryEntry,
 } from "@/lib/creator-onboarding";
 import {
   creatorAccountActionField,
@@ -25,6 +24,7 @@ import { handleApiError } from "@/lib/server/auth";
 import {
   CREATOR_ONBOARDING_COLLECTION,
   CREATOR_ONBOARDING_HISTORY_SUBCOLLECTION,
+  buildCreatorOnboardingHistoryEntry,
   buildCreatorOnboardingStatusChangeHistoryEntries,
   recordCreatorOnboardingHistoryEntries,
   shouldActivateCreatorRole,
@@ -124,11 +124,9 @@ function buildAccountHistoryEntry(input: {
 }) {
   return {
     id: `admin_account_updated_${input.fieldChanged}_${input.timestamp}`,
-    entry: {
+    entry: buildCreatorOnboardingHistoryEntry({
       eventType: "admin_account_updated",
-      actorId: input.actor.id,
-      actorRole: input.actor.role,
-      actorLabel: input.actor.label,
+      actor: input.actor,
       timestamp: input.timestamp,
       summary: "Admin updated creator account controls",
       detail: `${input.fieldChanged} changed from ${input.oldValueRedacted || "not set"} to ${input.newValueRedacted || "not set"}.`,
@@ -138,9 +136,8 @@ function buildAccountHistoryEntry(input: {
         oldValueRedacted: input.oldValueRedacted,
         newValueRedacted: input.newValueRedacted,
         accountControlWarnings: input.warnings,
-        ...buildActorMarkerDebugFields(input.marker),
       }),
-    } satisfies CreatorOnboardingHistoryEntry,
+    }),
   };
 }
 
@@ -296,16 +293,13 @@ async function updateRole(input: {
         };
         recordCreatorOnboardingHistoryEntries(transaction, input.command.targetUserId, [{
           id: `creator_role_activation_blocked_${input.nowMs}`,
-          entry: {
+          entry: buildCreatorOnboardingHistoryEntry({
             eventType: "creator_role_activation_blocked",
-            actorId: input.actor.id,
-            actorRole: input.actor.role,
-            actorLabel: input.actor.label,
+            actor: input.actor,
             timestamp: input.nowMs,
             summary: "Creator role activation blocked",
             detail: "Creator role requires intro, ID, and agreement completion before activation.",
-            metadata: buildActorMarkerDebugFields(input.marker),
-          },
+          }),
         }]);
         return false;
       }

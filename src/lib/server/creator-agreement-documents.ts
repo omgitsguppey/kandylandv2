@@ -14,9 +14,9 @@ import {
   normalizeCreatorOnboardingCanonicalRecord,
 } from "@/lib/creator-onboarding";
 import {
+  buildCreatorOnboardingHistoryEntry,
   buildCreatorOnboardingStatusChangeHistoryEntries,
   CREATOR_ONBOARDING_COLLECTION,
-  CREATOR_ONBOARDING_HISTORY_SUBCOLLECTION,
   type CreatorOnboardingActor,
   recordCreatorOnboardingHistoryEntries,
   syncCreatorOnboardingDocuments,
@@ -185,15 +185,13 @@ export async function sendCreatorAgreementDispatch(input: {
     );
 
     if (input.sendUpdatedAgreement) {
-      transaction.set(
-        onboardingRef.collection(CREATOR_ONBOARDING_HISTORY_SUBCOLLECTION).doc(`agreement_update_sent_${nowMs}`),
-        stripUndefinedDeep({
+      recordCreatorOnboardingHistoryEntries(transaction, input.targetUserId, [{
+        id: `agreement_update_sent_${nowMs}`,
+        entry: buildCreatorOnboardingHistoryEntry({
           eventType: "agreement_update_sent",
-          actorId: input.actor.id,
-          actorRole: input.actor.role,
-          actorLabel: input.actor.label,
+          actor: input.actor,
           timestamp: nowMs,
-          summary: "Updated creator agreement sent",
+          summary: "Updated agreement sent",
           metadata: {
             templateId: template.templateId,
             agreementVersion: template.agreementVersion,
@@ -209,9 +207,12 @@ export async function sendCreatorAgreementDispatch(input: {
               requiresResign: true,
             }),
           },
+          agreementVersion: template.agreementVersion,
+          agreementHash: template.agreementHash,
+          targetUserId: input.targetUserId,
+          targetCreatorId: input.targetUserId,
         }),
-        { merge: true },
-      );
+      }]);
     }
 
     return {

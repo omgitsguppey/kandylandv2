@@ -25,7 +25,8 @@ import { handleApiError } from "@/lib/server/auth";
 import { trackServerEvent } from "@/lib/server/analytics";
 import {
     CREATOR_ONBOARDING_COLLECTION,
-    CREATOR_ONBOARDING_HISTORY_SUBCOLLECTION,
+    buildCreatorOnboardingHistoryEntry,
+    recordCreatorOnboardingHistoryEntries,
     syncCreatorOnboardingDocuments,
 } from "@/lib/server/creator-onboarding";
 import { adminDb } from "@/lib/server/firebase-admin";
@@ -37,7 +38,6 @@ import {
     actorMarkerToTelemetryPayload,
     assertKnownActor,
     buildActorMarker,
-    buildActorMarkerDebugFields,
 } from "@/lib/identity/actor-markers";
 
 function buildErrorResponse(status: number, message: string) {
@@ -318,15 +318,18 @@ async function POST_handler(request: NextRequest) {
                 signature,
                 { merge: false },
             );
-            transaction.set(
-                onboardingRef.collection(CREATOR_ONBOARDING_HISTORY_SUBCOLLECTION).doc(`creator_contract_signed_${nowMs}`),
-                {
+            recordCreatorOnboardingHistoryEntries(transaction, caller.uid, [{
+                id: `creator_contract_signed_${nowMs}`,
+                entry: buildCreatorOnboardingHistoryEntry({
                     eventType: "creator_contract_signed",
-                    actorId: caller.uid,
-                    actorRole: "creator",
-                    actorLabel,
+                    actor: {
+                        id: caller.uid,
+                        role: "creator",
+                        label: actorLabel,
+                        marker: actorMarker,
+                    },
                     timestamp: nowMs,
-                    summary: "Creator signed the agreement",
+                    summary: "Creator signed agreement",
                     metadata: {
                         contractVersion: dispatch.agreementVersion,
                         agreementVersion: dispatch.agreementVersion,
@@ -334,10 +337,13 @@ async function POST_handler(request: NextRequest) {
                         templateId: dispatch.templateId,
                         dispatchId: dispatch.dispatchId,
                         signatureName,
-                        ...buildActorMarkerDebugFields(actorMarker),
                     },
-                },
-            );
+                    agreementVersion: dispatch.agreementVersion,
+                    agreementHash: dispatch.agreementHash,
+                    ip: signatureIp,
+                    userAgent: signatureUserAgent,
+                }),
+            }]);
 
             return {
                 creatorApplication: synced.creatorApplication,

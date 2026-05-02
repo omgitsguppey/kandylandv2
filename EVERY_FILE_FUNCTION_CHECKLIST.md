@@ -1,13 +1,21 @@
 # EVERY FILE FUNCTION CHECKLIST
 
 **Last Updated:** 2026-05-02
-**Current Focus:** Synthetic Creators And Safe View-As Controls.
+**Current Focus:** Creator Onboarding Audit Trail Hardening.
 **Status:** In Progress. Current tracked-file coverage is reconciled as of 2026-04-28: every `git ls-files` entry has a current checklist heading, while detailed function-level audits remain pending for many historical and newly reconciled files.
 Purpose: exhaustive no-skip audit checklist covering every repository file currently in scope and every detected function-like implementation.
 
 Scoring: all entries below are marked as included in the current validated sweep. Confidence reflects current repository-state confidence, not perfection or future-proofing.
 
 Current repo-wide state snapshot: see [FULL_SCALE_CODEBASE_AUDIT.md](/Users/uylus/OneDrive/Documents/KandyDrops_Final/FULL_SCALE_CODEBASE_AUDIT.md) for the current live baseline, verification state, and continuity rules, and see [REPO_MEMORY_LEDGER.md](/Users/uylus/OneDrive/Documents/KandyDrops_Final/REPO_MEMORY_LEDGER.md) for major architectural and workflow decisions. The detailed file/function body below remains valuable historical evidence, but it has not been fully regenerated against the current 2026-04-18 inventory review yet.
+
+## 2026-05-02 Creator Onboarding Audit Trail Hardening Coverage
+
+- [x] `src/lib/creator-onboarding.ts` owns the required creator lifecycle history event list, human-readable event labels, normalized history fields, actor marker evidence, target IDs, agreement version/hash, and IP/user-agent evidence.
+- [x] `src/lib/server/creator-onboarding.ts` owns `buildCreatorOnboardingHistoryEntry(...)` and all status-change history construction for intake, legal, ID, approval, owner override, role activation, and signature-related transitions.
+- [x] `src/components/Admin/CreatorAuditTrailPanel.tsx` and `src/app/admin/roster/page.tsx` own the collapsed Admin Roster audit viewer, latest-3 default display, full-history expansion, metadata Details disclosure, and audit viewer telemetry.
+- [x] Creator/admin action routes now write history through the normalized helper for creator signatures, intro acknowledgement, ID submission, agreement updates, account controls, fan experience settings, synthetic creator creation, and admin view-as actions.
+- [x] `scripts/agent/validate-creator-audit-trail.ts`, `tests/unit/creator-audit-trail-panel.spec.tsx`, creator onboarding tests, and `docs/agent-truth/creator-onboarding-audit-trail.md` validate the targeted audit trail contract.
 
 ## 2026-05-02 Synthetic Creators And View-As Coverage
 

@@ -3,8 +3,10 @@ import { describe, expect, it } from "vitest";
 import {
     CREATOR_LEGAL_WAITING_HEADLINE,
     CREATOR_LEGAL_WAITING_HELPER,
+    CREATOR_ONBOARDING_REQUIRED_HISTORY_EVENT_TYPES,
     describeCreatorFacingOnboardingBlockingReason,
     describeCreatorOnboardingBlockingReason,
+    formatCreatorOnboardingHistoryEventSummary,
     getCreatorOnboardingIdDocumentSummary,
     deriveCanonicalCreatorOnboardingStatuses,
     getCreatorOnboardingStatusSummary,
@@ -194,6 +196,10 @@ describe("creator onboarding contract", () => {
             timestamp: 1_710_000_000_000,
             summary: "Creator approved",
             detail: "All review gates are complete.",
+            agreementVersion: "agreement_v2",
+            agreementHash: "sha256:v2",
+            ip: "127.0.0.1",
+            userAgent: "Vitest",
             metadata: {
                 source: "admin",
             },
@@ -201,6 +207,10 @@ describe("creator onboarding contract", () => {
             eventType: "creator_approved",
             actorRole: "admin",
             detail: "All review gates are complete.",
+            agreementVersion: "agreement_v2",
+            agreementHash: "sha256:v2",
+            ip: "127.0.0.1",
+            userAgent: "Vitest",
         });
         expect(normalizeCreatorOnboardingHistoryEntry({
             eventType: "intake_submitted",
@@ -221,5 +231,28 @@ describe("creator onboarding contract", () => {
             timestamp: 1_710_000_000_000,
             summary: "Invalid",
         })).toBeUndefined();
+    });
+
+    it("keeps required lifecycle event labels human readable", () => {
+        expect(CREATOR_ONBOARDING_REQUIRED_HISTORY_EVENT_TYPES).toEqual(expect.arrayContaining([
+            "legal_sent",
+            "agreement_update_sent",
+            "creator_contract_signed",
+            "admin_contract_signed",
+            "owner_override_applied",
+            "creator_experience_settings_updated",
+            "admin_account_updated",
+            "synthetic_creator_created",
+            "admin_view_as_started",
+            "admin_view_as_ended",
+        ]));
+        expect(formatCreatorOnboardingHistoryEventSummary({
+            eventType: "creator_contract_signed",
+            actorId: "creator_1",
+            actorRole: "creator",
+            actorLabel: "Creator",
+            timestamp: 1_710_000_000_000,
+            summary: "creator_contract_signed",
+        })).toBe("Creator signed agreement");
     });
 });

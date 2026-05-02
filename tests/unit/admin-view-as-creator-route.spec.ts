@@ -91,6 +91,24 @@ vi.mock("@/lib/server/route-runtime-health", () => ({
 vi.mock("@/lib/server/creator-onboarding", () => ({
   CREATOR_ONBOARDING_COLLECTION: "creator_onboarding",
   CREATOR_ONBOARDING_HISTORY_SUBCOLLECTION: "history",
+  buildCreatorOnboardingHistoryEntry: (input: {
+    eventType: string;
+    actor: { id: string; role: string; label: string; marker?: unknown };
+    timestamp: number;
+    summary: string;
+    detail?: string;
+    metadata?: Record<string, unknown>;
+  }) => ({
+    eventType: input.eventType,
+    actorId: input.actor.id,
+    actorRole: input.actor.role,
+    actorLabel: input.actor.label,
+    actorMarker: input.actor.marker,
+    timestamp: input.timestamp,
+    summary: input.summary,
+    detail: input.detail,
+    metadata: input.metadata,
+  }),
   isCreatorOwnerEmail: (email?: string) => email === "owner@example.com",
 }));
 

@@ -85,15 +85,43 @@ function readRole(value: unknown): UserProfile["role"] {
         : "user";
 }
 
-function buildHistoryEntry(input: {
+function readMetadataString(metadata: Record<string, unknown> | undefined, ...keys: string[]) {
+    if (!metadata) {
+        return "";
+    }
+
+    for (const key of keys) {
+        const value = metadata[key];
+        if (typeof value === "string" && value.trim()) {
+            return value.trim();
+        }
+    }
+
+    return "";
+}
+
+export function buildCreatorOnboardingHistoryEntry(input: {
     eventType: CreatorOnboardingHistoryEventType;
     actor: CreatorOnboardingActor;
     timestamp: number;
     summary: string;
     detail?: string;
     metadata?: Record<string, unknown>;
+    targetUserId?: string;
+    targetCreatorId?: string;
+    agreementVersion?: string;
+    agreementHash?: string;
+    ip?: string | null;
+    userAgent?: string | null;
 }) {
-    return {
+    const metadata = input.actor.marker
+        ? {
+            ...(input.metadata ?? {}),
+            ...buildActorMarkerDebugFields(input.actor.marker),
+        }
+        : input.metadata;
+
+    return stripUndefinedDeep({
         eventType: input.eventType,
         actorId: input.actor.id,
         actorRole: input.actor.role,
@@ -101,13 +129,25 @@ function buildHistoryEntry(input: {
         timestamp: input.timestamp,
         summary: input.summary,
         detail: input.detail,
-        metadata: input.actor.marker
-            ? {
-                ...(input.metadata ?? {}),
-                ...buildActorMarkerDebugFields(input.actor.marker),
-            }
-            : input.metadata,
-    } satisfies CreatorOnboardingHistoryEntry;
+        metadata,
+        actorMarker: input.actor.marker,
+        targetUserId: readString(input.targetUserId)
+            || input.actor.marker?.targetUserId
+            || readMetadataString(metadata, "targetUserId", "target_user_id")
+            || undefined,
+        targetCreatorId: readString(input.targetCreatorId)
+            || input.actor.marker?.targetCreatorId
+            || readMetadataString(metadata, "targetCreatorId", "target_creator_id")
+            || undefined,
+        agreementVersion: readString(input.agreementVersion)
+            || readMetadataString(metadata, "agreementVersion", "contractVersion")
+            || undefined,
+        agreementHash: readString(input.agreementHash)
+            || readMetadataString(metadata, "agreementHash")
+            || undefined,
+        ip: readString(input.ip) || readMetadataString(metadata, "ip", "signerIp") || undefined,
+        userAgent: readString(input.userAgent) || readMetadataString(metadata, "userAgent", "signerUserAgent") || undefined,
+    } satisfies CreatorOnboardingHistoryEntry);
 }
 
 export function buildCreatorOnboardingInitialHistoryEntries(input: {
@@ -118,7 +158,7 @@ export function buildCreatorOnboardingInitialHistoryEntries(input: {
     return [
         {
             id: "intake_started",
-            entry: buildHistoryEntry({
+            entry: buildCreatorOnboardingHistoryEntry({
                 eventType: "intake_started",
                 actor: input.actor,
                 timestamp: input.timestamp,
@@ -131,7 +171,7 @@ export function buildCreatorOnboardingInitialHistoryEntries(input: {
         },
         ...CREATOR_INTAKE_STEPS.map((step) => ({
             id: `intake_step_completed_${step.key}`,
-            entry: buildHistoryEntry({
+            entry: buildCreatorOnboardingHistoryEntry({
                 eventType: "intake_step_completed" as const,
                 actor: input.actor,
                 timestamp: input.timestamp,
@@ -146,7 +186,7 @@ export function buildCreatorOnboardingInitialHistoryEntries(input: {
         })),
         {
             id: "intake_submitted",
-            entry: buildHistoryEntry({
+            entry: buildCreatorOnboardingHistoryEntry({
                 eventType: "intake_submitted",
                 actor: input.actor,
                 timestamp: input.timestamp,
@@ -161,7 +201,7 @@ export function buildCreatorOnboardingInitialHistoryEntries(input: {
         },
         {
             id: "onboarding_started",
-            entry: buildHistoryEntry({
+            entry: buildCreatorOnboardingHistoryEntry({
                 eventType: "onboarding_started",
                 actor: input.actor,
                 timestamp: input.timestamp,
@@ -170,7 +210,7 @@ export function buildCreatorOnboardingInitialHistoryEntries(input: {
         },
         {
             id: "onboarding_submitted",
-            entry: buildHistoryEntry({
+            entry: buildCreatorOnboardingHistoryEntry({
                 eventType: "onboarding_submitted",
                 actor: input.actor,
                 timestamp: input.timestamp,
@@ -179,7 +219,7 @@ export function buildCreatorOnboardingInitialHistoryEntries(input: {
         },
         {
             id: "awaiting_manual_review",
-            entry: buildHistoryEntry({
+            entry: buildCreatorOnboardingHistoryEntry({
                 eventType: "awaiting_manual_review",
                 actor: input.actor,
                 timestamp: input.timestamp,
@@ -188,7 +228,7 @@ export function buildCreatorOnboardingInitialHistoryEntries(input: {
         },
         {
             id: "admin_queue_materialized",
-            entry: buildHistoryEntry({
+            entry: buildCreatorOnboardingHistoryEntry({
                 eventType: "admin_queue_materialized",
                 actor: {
                     id: "system",
@@ -244,13 +284,15 @@ export function buildCreatorOnboardingStatusChangeHistoryEntries(input: {
     ) => {
         entries.push({
             id: `${eventType}_${input.timestamp}`,
-            entry: buildHistoryEntry({
+            entry: buildCreatorOnboardingHistoryEntry({
                 eventType,
                 actor: input.actor,
                 timestamp: input.timestamp,
                 summary,
                 detail,
                 metadata,
+                targetUserId: input.after.userId,
+                targetCreatorId: input.after.userId,
             }),
         });
     };
@@ -270,25 +312,45 @@ export function buildCreatorOnboardingStatusChangeHistoryEntries(input: {
         input.before.contractDocumentStatus !== input.after.contractDocumentStatus
         && input.after.contractDocumentStatus === "contract_sent"
     ) {
-        addEntry("legal_sent", "Legal documents sent to creator");
+        addEntry("legal_sent", "Agreement sent", undefined, {
+            agreementVersion: input.after.contractVersion,
+            agreementHash: input.after.agreementHash,
+            dispatchId: input.after.agreementDispatchId,
+        });
     }
 
     if (
         input.before.creatorSignatureStatus !== input.after.creatorSignatureStatus
         && input.after.creatorSignatureStatus === "signature_signed"
     ) {
-        addEntry("creator_contract_signed", "Creator signed the agreement");
+        addEntry("creator_contract_signed", "Creator signed agreement", undefined, {
+            agreementVersion: input.after.contractVersion,
+            agreementHash: input.after.agreementHash,
+            dispatchId: input.after.agreementDispatchId,
+            signerIp: input.after.creatorContractSignedIp,
+            signerUserAgent: input.after.creatorContractSignedUserAgent,
+        });
     }
 
     if (
         input.before.adminSignatureStatus !== input.after.adminSignatureStatus
         && input.after.adminSignatureStatus === "signature_signed"
     ) {
-        addEntry("admin_contract_signed", "Admin countersigned the agreement");
+        addEntry("admin_contract_signed", "Admin countersigned agreement", undefined, {
+            agreementVersion: input.after.contractVersion,
+            agreementHash: input.after.agreementHash,
+            dispatchId: input.after.agreementDispatchId,
+            signerIp: input.after.adminContractSignedIp,
+            signerUserAgent: input.after.adminContractSignedUserAgent,
+        });
     }
 
     if (input.before.legalStatus !== input.after.legalStatus && input.after.legalStatus === "legal_signed") {
-        addEntry("legal_signed", "Legal documents fully signed");
+        addEntry("legal_signed", "Agreement complete", undefined, {
+            agreementVersion: input.after.contractVersion,
+            agreementHash: input.after.agreementHash,
+            dispatchId: input.after.agreementDispatchId,
+        });
     }
 
     if (input.before.idVerificationStatus !== input.after.idVerificationStatus) {

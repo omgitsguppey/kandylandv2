@@ -8,6 +8,7 @@ import { buildNotFoundResponse } from "@/lib/server/not-found";
 import { trackServerEvent } from "@/lib/server/analytics";
 import { withRouteRuntimeHealth } from "@/lib/server/route-runtime-health";
 import {
+  buildCreatorOnboardingHistoryEntry,
   CREATOR_ONBOARDING_COLLECTION,
   CREATOR_ONBOARDING_HISTORY_SUBCOLLECTION,
   isCreatorOwnerEmail,
@@ -15,7 +16,6 @@ import {
 import {
   actorMarkerToTelemetryPayload,
   assertKnownActor,
-  buildActorMarkerDebugFields,
   buildAdminOnBehalfMarker,
 } from "@/lib/identity/actor-markers";
 import {
@@ -155,11 +155,14 @@ async function POST_handler(request: NextRequest) {
         .doc(targetUserId)
         .collection(CREATOR_ONBOARDING_HISTORY_SUBCOLLECTION)
         .doc(`${eventType}_${nowMs}_${caller.uid}`)
-        .set({
+        .set(buildCreatorOnboardingHistoryEntry({
           eventType,
-          actorId: caller.uid,
-          actorRole: marker.actorType === "owner_admin" ? "owner_admin" : "admin",
-          actorLabel: caller.email ?? caller.uid,
+          actor: {
+            id: caller.uid,
+            role: marker.actorType === "owner_admin" ? "owner_admin" : "admin",
+            label: caller.email ?? caller.uid,
+            marker,
+          },
           timestamp: nowMs,
           summary: eventSummary,
           detail: reason || route,
@@ -171,9 +174,8 @@ async function POST_handler(request: NextRequest) {
               ? normalizeSyntheticCreatorType(target.syntheticCreatorType)
               : "",
             ...debugFields,
-            ...buildActorMarkerDebugFields(marker),
           },
-        }, { merge: true }),
+        }), { merge: true }),
       trackServerEvent(buildTelemetryEvent(action), {
         page_path: route,
         reason,

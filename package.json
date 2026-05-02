@@ -84,6 +84,7 @@
         "check:admin-creator-account-controls": "tsx scripts/agent/validate-admin-creator-account-controls.ts",
         "check:creator-fan-experience-settings": "tsx scripts/agent/validate-creator-fan-experience-settings.ts",
         "check:synthetic-creators-view-as": "tsx scripts/agent/validate-synthetic-creators-view-as.ts",
+        "check:creator-audit-trail": "tsx scripts/agent/validate-creator-audit-trail.ts",
         "check:admin-analytics-snapshot-migration": "tsx scripts/agent/validate-admin-analytics-snapshot-migration.ts",
         "check:admin-analytics-no-pure-realtime": "tsx scripts/agent/validate-admin-analytics-no-pure-realtime.ts",
         "check:admin-analytics-finalization": "tsx scripts/agent/validate-admin-analytics-finalization.ts",

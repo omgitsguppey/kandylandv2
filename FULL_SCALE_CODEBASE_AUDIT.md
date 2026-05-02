@@ -1,5 +1,38 @@
 # KandyDrops Core Codebase Audit & Defensive Ledger
 
+## [2026-05-02 #102] PRE: Creator Onboarding Audit Trail Hardening
+
+Scope started:
+- Hardening one targeted creator intake/agreement/admin audit trail pass so creator onboarding lifecycle actions write deterministic history and Admin Roster can show the record compactly without exposing raw enum labels in the main UI.
+- Required outputs: normalized creator onboarding history event creation, required lifecycle event typing, compact collapsed Admin Roster audit trail with latest three events and expandable details, admin audit viewer telemetry, `scripts/agent/validate-creator-audit-trail.ts`, focused tests, docs updates, governance ledger updates, commit, and push.
+- This pass is targeted. It must not create a parallel audit collection, redesign Admin Roster, hide technical metadata from Debug/details, alter payment/economy flows, or rewrite creator onboarding architecture.
+
+Initial evidence:
+- Worktree was clean at startup on `main`.
+- Control tower routing, source-of-truth map, shared component ownership, doctrine consultation workflow, product/copy/UI/surface/vocabulary/anti-pattern doctrine, and preflight/postflight checklists were consulted.
+- Source truth remains runtime code first: `src/lib/creator-onboarding.ts`, creator onboarding history subcollections, `/api/admin/user/[userId]`, Admin Roster selected creator state, identity actor markers, and existing creator/admin route tests.
+
+Scope completed:
+- Added `buildCreatorOnboardingHistoryEntry(...)` as the normalized history entry writer for creator intake, agreement, ID, approval, owner, account-control, fan-experience, synthetic creator, and admin view-as actions.
+- Extended creator onboarding history normalization with actor markers, target user/creator IDs, agreement version/hash, IP, and user-agent fields, plus required lifecycle event constants and human-readable event labels.
+- Replaced direct route history payloads with normalized helper usage for creator signature, intro acknowledgement, ID submission, agreement updates, account controls, fan experience settings, synthetic creator creation, and admin view-as actions.
+- Added a compact Admin Roster audit trail panel that stays collapsed by default, shows the latest 3 events first, expands full history on request, keeps technical metadata inside Details, and emits identity-marked audit viewer telemetry.
+- Added `docs/agent-truth/creator-onboarding-audit-trail.md`, updated Admin Roster doctrine, added `scripts/agent/validate-creator-audit-trail.ts`, and added focused creator onboarding/Admin Roster tests.
+
+Verification:
+- Passed: `npm run check:creator-audit-trail`
+- Passed: `npx vitest run tests/unit/creator-audit-trail-panel.spec.tsx tests/unit/creator-onboarding.spec.ts tests/unit/creator-onboarding-server.spec.ts tests/unit/creator-contract-signature-route.spec.ts tests/unit/admin-roster-decision-queue.spec.ts`
+- Passed: `npx vitest run tests/unit/admin-creator-agreements-route.spec.ts tests/unit/admin-creator-fan-experience-settings-route.spec.ts tests/unit/admin-users-route.spec.ts`
+- Passed: `npx vitest run tests/unit/admin-roster-route.spec.ts tests/unit/admin-view-as-creator-route.spec.ts tests/unit/admin-creator-account-controls-route.spec.ts`
+- Passed: `npx tsc --noEmit --pretty false`
+- Passed: `npm run check:creator-identity-markers`
+- Passed: `npm run check:admin-roster-decision-queue`
+- Passed: `npm run check:creator-agreement-document-manager`
+- Passed: `npm run check:creator-agreement-signature-ux`
+- Passed: `npm run check:admin-creator-account-controls`
+- Passed: `npm run check:creator-fan-experience-settings`
+- Passed: `git diff --check`
+
 ## [2026-05-02 #101] PRE: Synthetic Creators And Safe View Switching
 
 Scope started:

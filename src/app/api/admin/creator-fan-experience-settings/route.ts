@@ -8,16 +8,15 @@ import {
   validateCreatorFanExperienceSettingsCommand,
 } from "@/lib/admin/creator-fan-experience-settings";
 import { isCreatorOwnerEmail } from "@/lib/creator-admin";
-import type { CreatorOnboardingHistoryEntry } from "@/lib/creator-onboarding";
 import {
   actorMarkerToTelemetryPayload,
   assertKnownActor,
-  buildActorMarkerDebugFields,
   buildAdminOnBehalfMarker,
   type ActorMarker,
 } from "@/lib/identity/actor-markers";
 import { handleApiError } from "@/lib/server/auth";
 import {
+  buildCreatorOnboardingHistoryEntry,
   CREATOR_ONBOARDING_COLLECTION,
   CREATOR_ONBOARDING_HISTORY_SUBCOLLECTION,
   type CreatorOnboardingActor,
@@ -85,11 +84,9 @@ function buildSettingsHistoryEntry(input: {
   const settingLabels = input.changedKeys.map(formatCreatorFanExperienceSettingLabel).join(", ");
   return {
     id: `${input.eventType}_${input.timestamp}`,
-    entry: {
+    entry: buildCreatorOnboardingHistoryEntry({
       eventType: input.eventType,
-      actorId: input.actor.id,
-      actorRole: input.actor.role,
-      actorLabel: input.actor.label,
+      actor: input.actor,
       timestamp: input.timestamp,
       summary: input.eventType === "creator_restrictions_updated"
         ? "Admin updated creator restrictions"
@@ -98,9 +95,8 @@ function buildSettingsHistoryEntry(input: {
       metadata: cleanRecord({
         changedKeys: input.changedKeys,
         changedLabels: settingLabels,
-        ...buildActorMarkerDebugFields(input.marker),
       }),
-    } satisfies CreatorOnboardingHistoryEntry,
+    }),
   };
 }
 

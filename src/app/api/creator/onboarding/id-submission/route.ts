@@ -4,8 +4,9 @@ import { adminDb, adminStorage } from "@/lib/server/firebase-admin";
 import { handleApiError } from "@/lib/server/auth";
 import { trackServerEvent } from "@/lib/server/analytics";
 import {
+    buildCreatorOnboardingHistoryEntry,
     CREATOR_ONBOARDING_COLLECTION,
-    CREATOR_ONBOARDING_HISTORY_SUBCOLLECTION,
+    recordCreatorOnboardingHistoryEntries,
     syncCreatorOnboardingDocuments,
 } from "@/lib/server/creator-onboarding";
 import { STRICT } from "@/lib/server/rate-limit";
@@ -22,7 +23,6 @@ import {
     actorMarkerToTelemetryPayload,
     assertKnownActor,
     buildActorMarker,
-    buildActorMarkerDebugFields,
     type ActorMarker,
 } from "@/lib/identity/actor-markers";
 
@@ -219,13 +219,16 @@ async function POST_handler(request: NextRequest) {
                 canonical: nextCanonical,
             });
 
-            transaction.set(
-                onboardingRef.collection(CREATOR_ONBOARDING_HISTORY_SUBCOLLECTION).doc(`id_submitted_${nowMs}`),
-                {
+            recordCreatorOnboardingHistoryEntries(transaction, caller.uid, [{
+                id: `id_submitted_${nowMs}`,
+                entry: buildCreatorOnboardingHistoryEntry({
                     eventType: "id_submitted",
-                    actorId: caller.uid,
-                    actorRole: "creator",
-                    actorLabel: typeof latestUserData.displayName === "string" ? latestUserData.displayName : canonical.creatorDisplayName,
+                    actor: {
+                        id: caller.uid,
+                        role: "creator",
+                        label: typeof latestUserData.displayName === "string" ? latestUserData.displayName : canonical.creatorDisplayName,
+                        marker: actorMarker,
+                    },
                     timestamp: nowMs,
                     summary: documentsComplete
                         ? "Creator verification package submitted for review"
@@ -236,10 +239,9 @@ async function POST_handler(request: NextRequest) {
                         fileName: file.name,
                         contentType: file.type,
                         sizeBytes: file.size,
-                        ...buildActorMarkerDebugFields(actorMarker),
                     },
-                },
-            );
+                }),
+            }]);
 
             return {
                 creatorApplication: synced.creatorApplication,

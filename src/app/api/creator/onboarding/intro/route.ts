@@ -8,8 +8,9 @@ import {
 import { handleApiError } from "@/lib/server/auth";
 import { trackServerEvent } from "@/lib/server/analytics";
 import {
+    buildCreatorOnboardingHistoryEntry,
     CREATOR_ONBOARDING_COLLECTION,
-    CREATOR_ONBOARDING_HISTORY_SUBCOLLECTION,
+    recordCreatorOnboardingHistoryEntries,
     syncCreatorOnboardingDocuments,
 } from "@/lib/server/creator-onboarding";
 import { adminDb } from "@/lib/server/firebase-admin";
@@ -21,7 +22,6 @@ import {
     actorMarkerToTelemetryPayload,
     assertKnownActor,
     buildActorMarker,
-    buildActorMarkerDebugFields,
 } from "@/lib/identity/actor-markers";
 
 function buildErrorResponse(status: number, message: string) {
@@ -148,35 +148,43 @@ async function POST_handler(request: NextRequest) {
                 canonical: nextCanonical,
             });
 
-            transaction.set(
-                onboardingRef.collection(CREATOR_ONBOARDING_HISTORY_SUBCOLLECTION).doc(`intro_acknowledged_${nowMs}`),
-                {
+            const historyEntries: Array<{ id: string; entry: ReturnType<typeof buildCreatorOnboardingHistoryEntry> }> = [{
+                id: `intro_acknowledged_${nowMs}`,
+                entry: buildCreatorOnboardingHistoryEntry({
                     eventType: "intro_acknowledged",
-                    actorId: caller.uid,
-                    actorRole: "creator",
-                    actorLabel,
+                    actor: {
+                        id: caller.uid,
+                        role: "creator",
+                        label: actorLabel,
+                        marker: actorMarker,
+                    },
                     timestamp: nowMs,
                     summary: "Creator intro acknowledged",
                     metadata: {
                         introVersion: CREATOR_ONBOARDING_INTRO_VERSION,
-                        ...buildActorMarkerDebugFields(actorMarker),
                     },
-                },
-            );
+                }),
+            }];
 
             if (latestCanonical.idVerificationStatus === "id_not_requested") {
-                transaction.set(
-                    onboardingRef.collection(CREATOR_ONBOARDING_HISTORY_SUBCOLLECTION).doc(`id_requested_${nowMs}`),
-                    {
+                historyEntries.push({
+                    id: `id_requested_${nowMs}`,
+                    entry: buildCreatorOnboardingHistoryEntry({
                         eventType: "id_requested",
-                        actorId: "system",
-                        actorRole: "system",
-                        actorLabel: "System",
+                        actor: {
+                            id: "system",
+                            role: "system",
+                            label: "System",
+                        },
                         timestamp: nowMs,
                         summary: "Creator ID verification requested",
-                    },
-                );
+                        targetUserId: caller.uid,
+                        targetCreatorId: caller.uid,
+                    }),
+                });
             }
+
+            recordCreatorOnboardingHistoryEntries(transaction, caller.uid, historyEntries);
 
             return {
                 creatorApplication: synced.creatorApplication,

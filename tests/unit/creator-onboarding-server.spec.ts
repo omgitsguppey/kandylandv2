@@ -18,6 +18,12 @@ const mockState = vi.hoisted(() => {
 
     const buildDocRef = (path: string) => ({
         path,
+        async get() {
+            return {
+                exists: documents.has(path),
+                data: () => readDoc(path),
+            };
+        },
         collection(name: string) {
             return buildCollectionRef(`${path}/${name}`);
         },
@@ -73,7 +79,10 @@ vi.mock("@/lib/server/firebase-admin", () => ({
     adminDb: mockState.adminDb,
 }));
 
-import { ensureCreatorOnboardingSubmission } from "@/lib/server/creator-onboarding";
+import {
+    buildCreatorOnboardingHistoryEntry,
+    ensureCreatorOnboardingSubmission,
+} from "@/lib/server/creator-onboarding";
 
 describe("ensureCreatorOnboardingSubmission", () => {
     beforeEach(() => {
@@ -192,5 +201,51 @@ describe("ensureCreatorOnboardingSubmission", () => {
             "creator_onboarding/creator_1/history/onboarding_started",
             "creator_onboarding/creator_1/history/onboarding_submitted",
         ]);
+    });
+
+    it("builds deterministic history entries with actor markers and signature evidence", () => {
+        const entry = buildCreatorOnboardingHistoryEntry({
+            eventType: "creator_contract_signed",
+            actor: {
+                id: "creator_1",
+                role: "creator",
+                label: "Creator One",
+                marker: {
+                    actorType: "creator",
+                    actorUid: "creator_1",
+                    actorRole: "creator",
+                    targetUserId: "creator_1",
+                    targetCreatorId: "creator_1",
+                    performedAs: "own_account",
+                    surface: "creator_intake",
+                    route: "/creators/waitlist",
+                    actionKey: "creator_contract_signed",
+                    occurredAt: "2026-05-02T00:00:00.000Z",
+                    dedupeKey: "creator_contract_signed:creator_1:v2",
+                    source: "creator_contract_signature_route",
+                    actorClassificationReason: "Creator uid is present.",
+                    unknownActorBlocked: false,
+                },
+            },
+            timestamp: 1_710_000_000_000,
+            summary: "Creator signed agreement",
+            agreementVersion: "agreement_v2",
+            agreementHash: "sha256:v2",
+            ip: "127.0.0.1",
+            userAgent: "Vitest",
+        });
+
+        expect(entry).toMatchObject({
+            eventType: "creator_contract_signed",
+            targetUserId: "creator_1",
+            agreementVersion: "agreement_v2",
+            agreementHash: "sha256:v2",
+            ip: "127.0.0.1",
+            userAgent: "Vitest",
+            metadata: expect.objectContaining({
+                actorMarkerPresent: true,
+                performedAs: "own_account",
+            }),
+        });
     });
 });

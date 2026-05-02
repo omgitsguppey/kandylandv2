@@ -22,6 +22,7 @@ import {
 import { handleApiError } from "@/lib/server/auth";
 import { CREATOR_MASTER_SERVICE_AGREEMENT_VERSION, DEFAULT_CREATOR_TEMPLATE_ID, DEFAULT_CREATOR_TEMPLATE_LABEL } from "@/lib/creator-contract";
 import {
+    buildCreatorOnboardingHistoryEntry,
     buildCreatorOnboardingStatusChangeHistoryEntries,
     ensureCreatorOnboardingSubmission,
     CREATOR_REVIEW_QUEUE_COLLECTION,
@@ -934,20 +935,21 @@ async function POST_handler(request: NextRequest) {
             });
             const syntheticHistoryEntries = syntheticMarker ? [{
                 id: `synthetic_creator_created_${nowMs}`,
-                entry: {
-                    eventType: "synthetic_creator_created" as const,
-                    actorId: directCreateMarker.actorUid ?? "admin",
-                    actorRole: directCreateMarker.actorType === "owner_admin" ? "owner_admin" as const : "admin" as const,
-                    actorLabel: directCreateMarker.actorEmail ?? directCreateMarker.actorUid ?? "Admin",
+                entry: buildCreatorOnboardingHistoryEntry({
+                    eventType: "synthetic_creator_created",
+                    actor: {
+                        ...buildCreatorOnboardingActorFromMarker(directCreateMarker),
+                    },
                     timestamp: nowMs,
                     summary: "Synthetic creator created",
                     detail: syntheticReason,
                     metadata: {
                         syntheticCreatorType: syntheticMarker.syntheticCreatorType,
                         humanOperatorRequired: syntheticMarker.humanOperatorRequired,
-                        ...actorMarkerToTelemetryPayload(directCreateMarker),
                     },
-                },
+                    targetUserId: authUser.uid,
+                    targetCreatorId: authUser.uid,
+                }),
             }] : [];
 
             recordCreatorOnboardingHistoryEntries(

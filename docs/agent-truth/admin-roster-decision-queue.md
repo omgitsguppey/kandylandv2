@@ -42,6 +42,12 @@ The selected creator panel owns a collapsed `Agreement document` section. It sho
 
 The Create tab owns a collapsed `Agreement templates` section. It lets admins save a template source, preview the active agreement, and lets the primary owner mark a template active for new creators. Storage paths and raw document paths stay out of visible UI and belong in Debug evidence only.
 
+## Audit Trail
+
+The selected creator panel owns a collapsed `Audit trail` section. Its visible subcopy is: "Every intake, agreement, ID, approval, and owner action is recorded here."
+
+Default view shows only the latest 3 audit events. `View full history` expands the rest. Primary event labels must be human-readable, such as "Creator submitted application," "Agreement sent," "Creator signed agreement," "Admin countersigned agreement," "ID requested," "Creator approved," and "Owner override applied." Raw event types and metadata stay inside each event's collapsed `Details` section or Admin Debug.
+
 ## Telemetry
 
 The Admin Roster page emits identity-marked telemetry for:
@@ -50,6 +56,8 @@ The Admin Roster page emits identity-marked telemetry for:
 - `admin_creator_record_opened`
 - `admin_creator_primary_action_clicked`
 - `admin_creator_section_expanded`
+- `admin_creator_audit_trail_opened`
+- `admin_creator_audit_event_expanded`
 - `admin_creator_agreement_template_created`
 - `admin_creator_agreement_template_activated`
 - `admin_creator_agreement_sent`
