@@ -83,6 +83,7 @@
         "check:creator-agreement-signature-ux": "tsx scripts/agent/validate-creator-agreement-signature-ux.ts",
         "check:admin-creator-account-controls": "tsx scripts/agent/validate-admin-creator-account-controls.ts",
         "check:creator-fan-experience-settings": "tsx scripts/agent/validate-creator-fan-experience-settings.ts",
+        "check:creator-experiences-copy": "tsx scripts/agent/validate-creator-experiences-copy.ts",
         "check:synthetic-creators-view-as": "tsx scripts/agent/validate-synthetic-creators-view-as.ts",
         "check:creator-audit-trail": "tsx scripts/agent/validate-creator-audit-trail.ts",
         "check:admin-analytics-snapshot-migration": "tsx scripts/agent/validate-admin-analytics-snapshot-migration.ts",

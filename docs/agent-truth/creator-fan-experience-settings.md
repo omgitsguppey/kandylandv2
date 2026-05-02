@@ -52,6 +52,17 @@ Creator onboarding history records:
 - `creator_experience_settings_updated`
 - `creator_restrictions_updated`
 
+## Fan-Facing Panel Copy
+
+`CreatorExperiencesPanel` reads this same `CreatorSettings` shape but must not expose raw internal settings names. Fan-facing copy uses access-oriented labels:
+
+- Fan Pass: "Stay closer when new access opens."
+- Private chat: "Send a private message without getting lost in comments."
+- Custom Request: "Ask for something specific, then let the creator decide what fits."
+- Live Time: "Reserve real time before the window closes."
+
+The fan panel may compact secondary details into rows or collapsed sections, but it must not change pricing logic or billing behavior. See `docs/agent-truth/creator-experiences-copy.md`.
+
 ## Debug Fields
 
 Debug may show internal keys and raw ids:

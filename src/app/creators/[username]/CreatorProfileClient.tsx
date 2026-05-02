@@ -757,7 +757,9 @@ export default function CreatorProfileClient() {
                             bookingStartAt={bookingStartAt}
                             creatingBooking={creatingBooking}
                             creatingRequest={creatingRequest}
-                            currentUser={currentUser}
+                            creatorId={creator.uid}
+                            creatorUsername={creator.username || username}
+                            currentUser={currentUserProfile ?? currentUser}
                             experienceWarnings={experienceWarnings}
                             latestBooking={latestBooking}
                             messages={messages}
