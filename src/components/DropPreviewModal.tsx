@@ -23,6 +23,7 @@ import {
 import { showUnwrapSuccessToast } from "@/components/Toasts/UnwrapSuccessToast";
 import { ReportBugButton } from "@/components/Feedback/ReportBugButton";
 import { dispatchActivitySync } from "@/lib/activity-sync";
+import { LAUNCH_BADGE_CONTAINMENT_CLASSNAME, LAUNCH_STATIC_BADGE_CLASSNAME } from "@/lib/design-system";
 import { formatDropCountdown } from "@/lib/drop-countdown";
 import { getUnlockProblemCopy } from "@/lib/problem-state-copy";
 
@@ -78,7 +79,11 @@ function FileCountBadge({ drop }: { drop: Drop }) {
   }
 
   return (
-    <span className="px-3 py-1 rounded-full bg-white/5 border border-white/10 text-gray-200 flex items-center gap-1.5">
+    <span className={cn(
+      "flex items-center gap-1.5 rounded-full border border-white/10 bg-white/5 px-3 py-1 text-gray-200",
+      LAUNCH_BADGE_CONTAINMENT_CLASSNAME,
+      LAUNCH_STATIC_BADGE_CLASSNAME,
+    )}>
       <Images className="w-3.5 h-3.5" /> +{numFiles} {numFiles === 1 ? 'File' : 'Files'}
     </span>
   );
@@ -408,6 +413,7 @@ export function DropPreviewModal({ drop, onClose }: DropPreviewModalProps) {
                 <div className="mt-4 flex flex-wrap items-center gap-2 text-xs font-semibold">
                   <span className={cn(
                       "px-3 py-1 rounded-full border flex items-center gap-1.5 transition-colors",
+                      LAUNCH_BADGE_CONTAINMENT_CLASSNAME,
                       timerUrgency === "critical" ? "bg-fuchsia-900/30 border-fuchsia-500/40 text-fuchsia-200 animate-pulse" :
                       timerUrgency === "warm" ? "bg-[#b28cff]/15 border-[#b28cff]/30 text-[#e4d4ff]" :
                       "bg-brand-purple/15 border-brand-purple/30 text-brand-purple"

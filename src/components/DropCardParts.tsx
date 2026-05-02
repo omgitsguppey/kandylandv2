@@ -3,6 +3,7 @@
 import { Clock, Film, Image as ImageIcon } from "lucide-react";
 
 import { useNow } from "@/hooks/useNow";
+import { LAUNCH_BADGE_CONTAINMENT_CLASSNAME, LAUNCH_STATIC_BADGE_CLASSNAME } from "@/lib/design-system";
 import { formatDropCountdown } from "@/lib/drop-countdown";
 import { cn } from "@/lib/utils";
 
@@ -22,6 +23,8 @@ export function DropCardBadge({ label, compact = false }: DropCardBadgeProps) {
         <div
             className={cn(
                 "w-fit rounded-full border font-bold text-white shadow-lg backdrop-blur-md",
+                LAUNCH_BADGE_CONTAINMENT_CLASSNAME,
+                LAUNCH_STATIC_BADGE_CLASSNAME,
                 compact ? "px-2 py-0.5 text-[9px]" : "px-2.5 py-1 text-[10px] md:text-xs",
                 "border-white/10 bg-brand-purple/80",
                 label === "Sweet" && "bg-brand-purple/90",
@@ -48,6 +51,8 @@ export function FileCountChip({ images, videos, compact = false }: FileCountChip
         <div
             className={cn(
                 "z-30 flex items-center rounded-full border border-white/20 bg-black/60 font-bold text-white shadow-xl backdrop-blur-md",
+                LAUNCH_BADGE_CONTAINMENT_CLASSNAME,
+                LAUNCH_STATIC_BADGE_CLASSNAME,
                 compact ? "gap-1.5 px-2 py-0.5 text-[9px]" : "gap-2 px-3 py-1 text-[10px] md:text-xs",
             )}
             aria-label={fileCountLabel}
@@ -77,6 +82,7 @@ export function DropCardTimer({ validUntil }: { validUntil?: number }) {
         <div
             className={cn(
                 "inline-flex max-w-[6.75rem] items-center justify-center gap-1 rounded-[0.65rem] border px-1.5 py-0.5 text-[9px] font-bold transition-colors md:max-w-[7.5rem] md:px-2 md:text-[10px]",
+                LAUNCH_BADGE_CONTAINMENT_CLASSNAME,
                 isCountdownOnly && "min-w-[4.9rem] whitespace-nowrap",
                 urgencyState === "critical"
                     ? "border-fuchsia-500/40 bg-fuchsia-900/25 text-fuchsia-100"

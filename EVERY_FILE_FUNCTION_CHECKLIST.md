@@ -1,13 +1,22 @@
 # EVERY FILE FUNCTION CHECKLIST
 
 **Last Updated:** 2026-05-01
-**Current Focus:** Accessibility Tap Target Launch Audit.
+**Current Focus:** Design System Drift Launch Audit.
 **Status:** In Progress. Current tracked-file coverage is reconciled as of 2026-04-28: every `git ls-files` entry has a current checklist heading, while detailed function-level audits remain pending for many historical and newly reconciled files.
 Purpose: exhaustive no-skip audit checklist covering every repository file currently in scope and every detected function-like implementation.
 
 Scoring: all entries below are marked as included in the current validated sweep. Confidence reflects current repository-state confidence, not perfection or future-proofing.
 
 Current repo-wide state snapshot: see [FULL_SCALE_CODEBASE_AUDIT.md](/Users/uylus/OneDrive/Documents/KandyDrops_Final/FULL_SCALE_CODEBASE_AUDIT.md) for the current live baseline, verification state, and continuity rules, and see [REPO_MEMORY_LEDGER.md](/Users/uylus/OneDrive/Documents/KandyDrops_Final/REPO_MEMORY_LEDGER.md) for major architectural and workflow decisions. The detailed file/function body below remains valuable historical evidence, but it has not been fully regenerated against the current 2026-04-18 inventory review yet.
+
+## 2026-05-01 Design System Drift Launch Audit Coverage
+
+- [x] `src/lib/design-system.ts` owns the launch badge containment helper, static-chip affordance helper, and Admin Analytics chart color tokens.
+- [x] `src/components/Admin/AdminStatusBadge.tsx` keeps the shared admin status badge on the launch palette with overflow containment and no sky/cyan/slate central status drift.
+- [x] `src/components/DropCardParts.tsx` uses shared containment/static-chip helpers for Drop badges and file chips while keeping countdown timers on inherited site font with `aria-live="off"`.
+- [x] `src/components/DropPreviewModal.tsx` uses the same badge containment/static-chip helpers for preview file/timer pills.
+- [x] `src/components/Admin/AdminAnalyticsCharts.tsx` consumes `KANDYDROPS_CHART_COLORS` for chart accent, grid, axis, legend, and tooltip colors.
+- [x] `agent/state/design-system-drift-audit.generated.json`, `docs/agent-truth/design-system-drift.md`, `scripts/agent/validate-design-system-drift.ts`, `package.json`, and `tests/unit/design-system-drift.spec.ts` record and validate the launch design drift gate.
 
 ## 2026-05-01 Accessibility Tap Target Launch Audit Coverage
 

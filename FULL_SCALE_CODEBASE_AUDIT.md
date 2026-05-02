@@ -1,5 +1,34 @@
 # KandyDrops Core Codebase Audit & Defensive Ledger
 
+## [2026-05-01 #85] PRE: Design System Drift Launch Audit
+
+Scope started:
+- Auditing launch-critical surfaces for visual drift: random color classes, fake/static chips, inconsistent badge/card/button treatment, old icon/logo references, negative-margin/safe-area hacks, countdown timer typography, repeated degraded badge spam, chart palette drift, and mobile label overflow risks.
+- Required outputs: `agent/state/design-system-drift-audit.generated.json`, `docs/agent-truth/design-system-drift.md`, validator/script/package wiring, targeted tests, governance ledger updates, commit, and push.
+- Fixes are limited to repeated visible drift patterns or usability risks confirmed by code inspection; no page redesign, broad restyle, feature expansion, payment/economy logic, or admin truth hiding is in scope.
+
+Initial evidence:
+- Worktree was clean at startup on `main`.
+- Control tower routing, doctrine consultation workflow, source-of-truth map, shared component ownership, product/copy/UI/surface/vocabulary/banned-pattern/cloud doctrine, and recent accessibility/mobile/PWA/readiness ledgers were consulted.
+
+Scope completed:
+- Created `agent/state/design-system-drift-audit.generated.json`, `docs/agent-truth/design-system-drift.md`, and `scripts/agent/validate-design-system-drift.ts` with `npm run check:design-system-drift`.
+- Audited launch-critical shared badges, Drop card and preview timer/file pills, Admin Analytics chart colors, obsolete starter asset references, bottom-nav shell spacing tokens, negative-margin shell risks, final-day countdown copy, and repeated degraded/status spam risks.
+- Fixed confirmed repeated drift without redesign: central admin badges no longer use sky/cyan/slate palette drift, shared badge containment/static-chip helpers now cover Drop grid and preview pills, Drop timers remain site-font countdowns, and Admin Analytics chart colors are centralized in `KANDYDROPS_CHART_COLORS`.
+- Added static regression coverage in `tests/unit/design-system-drift.spec.ts`.
+
+Verification:
+- `npm run check:design-system-drift`
+- `npx vitest run tests/unit/design-system-drift.spec.ts tests/unit/drop-countdown.spec.ts tests/unit/accessibility-tap-targets.spec.ts tests/unit/admin-analytics-page.spec.tsx`
+- `npm run typecheck`
+- `npm run check:ui:coverage`
+- `npm run check:ui:runtime`
+- `npm run check:ui:audits` (20 Playwright UI audit tests passed; the web server emitted non-blocking timeout/transform cleanup noise after test completion)
+
+Residual risk:
+- This pass intentionally did not restyle one-off admin detail accents, candy urgency colors, or localized filter edge-bleed spacing unless they were shared launch primitives.
+- Existing public starter SVG files were not deleted because launch references were the risk; unused asset deletion should be a separate cleanup.
+
 ## [2026-05-01 #84] PRE: Accessibility Tap Target Launch Audit
 
 Scope started:

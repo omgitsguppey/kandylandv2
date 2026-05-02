@@ -24,6 +24,16 @@ This file is not a changelog. It is the concise ledger for durable decisions tha
 
 ## Decision Entries
 
+### 1co. Design system drift is launch-gated
+
+- Approximate date: Recorded explicitly on 2026-05-01 from the design system drift launch audit
+- Status: Active launch UI consistency, badge, chart, countdown, asset, and shell-spacing rule
+- Decision: KandyDrops launch UI may not drift through repeated random palette utilities, overflowing badges, fake interactive static chips, local chart palettes, old starter asset references, terminal-style countdown fonts, or negative-margin shell spacing fixes. Shared primitives own repeated visual contracts.
+- Implementation: `agent/state/design-system-drift-audit.generated.json` records fixed and deferred drift issues. `docs/agent-truth/design-system-drift.md` documents the launch rule. `src/lib/design-system.ts` exports `LAUNCH_BADGE_CONTAINMENT_CLASSNAME`, `LAUNCH_STATIC_BADGE_CLASSNAME`, and `KANDYDROPS_CHART_COLORS`. `scripts/agent/validate-design-system-drift.ts` and `npm run check:design-system-drift` enforce the gate.
+- Launch-critical fixes: central admin status badges moved loading/cached states to brand purple and unavailable to neutral gray, Drop grid/preview badges now use shared containment and static-chip helpers, Drop countdowns stay on inherited site font with countdown-only final-24h copy, and Admin Analytics charts use shared chart colors.
+- Required validation: `npm run check:design-system-drift`, targeted design drift/unit tests, touched-file TypeScript, and visual audit for any changed launch surface.
+- Consequence for future work: Do not add repeated one-off cyan/blue/pink palettes, button-looking static chips, local chart color constants, old starter icon references, monospace Drop timers, or page/shell negative-margin layout fixes without extending doctrine and the validator.
+
 ### 1cn. Accessibility and tap-target semantics are a launch gate
 
 - Approximate date: Recorded explicitly on 2026-05-01 from the accessibility and tap-target launch audit

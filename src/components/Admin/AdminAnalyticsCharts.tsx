@@ -16,6 +16,7 @@ import {
 import type { Drop } from "@/types/db";
 import type { AdminOverviewResponse } from "@/lib/admin-overview";
 import { calculateOverviewMetricDelta } from "@/lib/admin-overview";
+import { KANDYDROPS_CHART_COLORS } from "@/lib/design-system";
 import { trackEvent } from "@/lib/telemetry";
 import { AdminStatusBadge } from "@/components/Admin/AdminStatusBadge";
 import type { AdminSurfaceState } from "@/lib/admin-parity";
@@ -24,9 +25,9 @@ import { TopDropsTable } from "./TopDropsTable";
 /* ── Canonical color tokens ─────────────────────────────────────────────── */
 
 /** KandyDrops canonical accent — matches --color-brand-purple in globals.css */
-const CHART_PURPLE = "#b28cff";
+const CHART_PURPLE = KANDYDROPS_CHART_COLORS.brand;
 /** Lighter tint for the secondary dataset (unwraps) */
-const CHART_PURPLE_LIGHT = "#d8b4fe";
+const CHART_PURPLE_LIGHT = KANDYDROPS_CHART_COLORS.brandSoft;
 
 /* ── Time range definitions ─────────────────────────────────────────────── */
 
@@ -294,10 +295,10 @@ export function AdminAnalyticsCharts({
                                         <stop offset="95%" stopColor={CHART_PURPLE} stopOpacity={0} />
                                     </linearGradient>
                                 </defs>
-                                <CartesianGrid strokeDasharray="3 3" stroke="rgba(255,255,255,0.05)" vertical={false} />
+                                <CartesianGrid strokeDasharray="3 3" stroke={KANDYDROPS_CHART_COLORS.grid} vertical={false} />
                                 <XAxis
                                     dataKey="date"
-                                    stroke="#6b7280"
+                                    stroke={KANDYDROPS_CHART_COLORS.axis}
                                     fontSize={10}
                                     tickLine={false}
                                     axisLine={false}
@@ -305,7 +306,7 @@ export function AdminAnalyticsCharts({
                                 />
                                 <YAxis
                                     yAxisId="revenue"
-                                    stroke="#6b7280"
+                                    stroke={KANDYDROPS_CHART_COLORS.axis}
                                     fontSize={10}
                                     tickLine={false}
                                     axisLine={false}
@@ -314,7 +315,7 @@ export function AdminAnalyticsCharts({
                                 <YAxis
                                     yAxisId="unwraps"
                                     orientation="right"
-                                    stroke="#6b7280"
+                                    stroke={KANDYDROPS_CHART_COLORS.axis}
                                     fontSize={10}
                                     tickLine={false}
                                     axisLine={false}
@@ -322,8 +323,8 @@ export function AdminAnalyticsCharts({
                                 />
                                 <Tooltip
                                     contentStyle={{
-                                        backgroundColor: "rgba(0,0,0,0.88)",
-                                        borderColor: "rgba(255,255,255,0.12)",
+                                        backgroundColor: KANDYDROPS_CHART_COLORS.tooltipBackground,
+                                        borderColor: KANDYDROPS_CHART_COLORS.tooltipBorder,
                                         borderRadius: "10px",
                                         color: "white",
                                         fontSize: "11px",
@@ -336,7 +337,7 @@ export function AdminAnalyticsCharts({
                                 <Legend
                                     iconType="circle"
                                     iconSize={6}
-                                    wrapperStyle={{ fontSize: "10px", color: "#9ca3af", paddingTop: "4px" }}
+                                    wrapperStyle={{ fontSize: "10px", color: KANDYDROPS_CHART_COLORS.legend, paddingTop: "4px" }}
                                 />
                                 <Bar
                                     yAxisId="unwraps"

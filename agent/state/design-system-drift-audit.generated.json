@@ -1,0 +1,111 @@
+{
+  "generatedAt": "2026-05-01T00:00:00.000-05:00",
+  "scope": "launch-critical design system drift audit",
+  "status": "fixed repeated launch-visible drift patterns; low-risk one-off drift documented",
+  "issues": [
+    {
+      "id": "DSD-001",
+      "filePath": "src/components/Admin/AdminStatusBadge.tsx",
+      "component": "AdminStatusBadge",
+      "driftType": "random status palette",
+      "currentPattern": "Central admin loading/cached/unavailable badges used sky/cyan/slate accent colors outside the documented launch palette.",
+      "expectedPattern": "Use the brand purple or neutral gray status palette through the shared admin status badge.",
+      "severity": "high",
+      "launchImpact": "Admin modules could look like unrelated systems and make status badges scan inconsistently.",
+      "fixNow": true,
+      "fixed": true,
+      "suggestedFix": "Map loading/cached to brand purple and unavailable to neutral gray; add launch badge containment to the shared badge."
+    },
+    {
+      "id": "DSD-002",
+      "filePath": "src/components/DropCardParts.tsx",
+      "component": "DropCardBadge, FileCountChip, DropCardTimer",
+      "driftType": "badge containment and static chip affordance",
+      "currentPattern": "Drop card badges and file chips had local sizing/overflow behavior and static chips could inherit button-like visual affordance.",
+      "expectedPattern": "Reusable launch badge containment for all pills; static chips must not behave or read as controls.",
+      "severity": "high",
+      "launchImpact": "Long labels or file-count chips could overflow compact cards and create fake interactive controls.",
+      "fixNow": true,
+      "fixed": true,
+      "suggestedFix": "Use LAUNCH_BADGE_CONTAINMENT_CLASSNAME on badge/timer pills and LAUNCH_STATIC_BADGE_CLASSNAME on non-interactive chips."
+    },
+    {
+      "id": "DSD-003",
+      "filePath": "src/components/DropPreviewModal.tsx",
+      "component": "DropPreviewModal timer and file-count badges",
+      "driftType": "badge containment and modal chip consistency",
+      "currentPattern": "Preview modal timer/file badges duplicated pill containment locally instead of sharing the launch badge contract.",
+      "expectedPattern": "Modal badges use the same containment and static-chip helpers as drop grid cards.",
+      "severity": "medium",
+      "launchImpact": "Preview modal badges could wrap differently from grid cards on mobile.",
+      "fixNow": true,
+      "fixed": true,
+      "suggestedFix": "Apply launch badge containment to modal timer and static badge helpers to the file-count badge."
+    },
+    {
+      "id": "DSD-004",
+      "filePath": "src/components/Admin/AdminAnalyticsCharts.tsx",
+      "component": "AdminAnalyticsCharts",
+      "driftType": "local chart color constants",
+      "currentPattern": "Chart accent, axis, grid, legend, and tooltip colors were defined inline in the chart component.",
+      "expectedPattern": "Admin charts read from a documented KandyDrops chart color token map.",
+      "severity": "medium",
+      "launchImpact": "Future chart modules could drift into random color palettes and inconsistent contrast.",
+      "fixNow": true,
+      "fixed": true,
+      "suggestedFix": "Move chart colors to KANDYDROPS_CHART_COLORS and consume them from the chart component."
+    },
+    {
+      "id": "DSD-005",
+      "filePath": "public/*.svg",
+      "component": "public starter assets",
+      "driftType": "old logo/icon assets",
+      "currentPattern": "Starter SVG files exist in public but are not referenced by launch UI, manifest, PWA, or 404 surfaces.",
+      "expectedPattern": "Launch UI may not reference obsolete starter logos/icons; unused files can be deleted in a later cleanup.",
+      "severity": "low",
+      "launchImpact": "No visible launch impact while references remain absent.",
+      "fixNow": false,
+      "fixed": false,
+      "suggestedFix": "Keep validator coverage for references; delete unused starter files in a separate asset cleanup if desired."
+    },
+    {
+      "id": "DSD-006",
+      "filePath": "src/components/StickyFilterBar.tsx",
+      "component": "StickyFilterBar",
+      "driftType": "edge-bleed spacing",
+      "currentPattern": "The filter bar uses a local -mx-1 edge-bleed treatment.",
+      "expectedPattern": "Shell and launch route containers must not rely on negative margin safe-area fixes; small component edge bleed is documented if bounded.",
+      "severity": "low",
+      "launchImpact": "No launch shell overlap was detected; this remains a localized filter affordance.",
+      "fixNow": false,
+      "fixed": false,
+      "suggestedFix": "Do not broaden this pass; only revisit if the mobile shell audit flags overflow or overlap."
+    },
+    {
+      "id": "DSD-007",
+      "filePath": "src/app/admin/**/*.tsx",
+      "component": "admin support and AI detail surfaces",
+      "driftType": "one-off cyan/blue utility accents",
+      "currentPattern": "Several non-launch-primary admin detail surfaces still contain local cyan/blue utility accents.",
+      "expectedPattern": "Repeated status, card, and chart primitives should use shared tokens; one-off detail accents need a later component-by-component review.",
+      "severity": "warning",
+      "launchImpact": "Lower priority than central badge and chart drift because these are not the shared launch primitives changed in this pass.",
+      "fixNow": false,
+      "fixed": false,
+      "suggestedFix": "Move any repeated post-launch admin detail chips into shared primitives instead of replacing every one-off accent now."
+    },
+    {
+      "id": "DSD-008",
+      "filePath": "src/lib/drop-countdown.ts",
+      "component": "formatDropCountdown and DropCardTimer",
+      "driftType": "countdown typography and final-day copy",
+      "currentPattern": "Drop countdown logic already renders final 24h as HH:MM:SS without monospace timer classes.",
+      "expectedPattern": "More than 24h keeps Ends in copy; final 24h shows countdown-only text using inherited site font.",
+      "severity": "none",
+      "launchImpact": "Compliant; validator locks the prior timer fix so design drift cannot reintroduce bulky copy or terminal typography.",
+      "fixNow": false,
+      "fixed": true,
+      "suggestedFix": "Keep static validation for countdown-only final-day labels and absence of font-mono in timer components."
+    }
+  ]
+}
