@@ -1,13 +1,20 @@
 # EVERY FILE FUNCTION CHECKLIST
 
 **Last Updated:** 2026-05-02
-**Current Focus:** Creator Onboarding Audit Trail Hardening.
+**Current Focus:** Creator Lane Legacy Truth Inventory.
 **Status:** In Progress. Current tracked-file coverage is reconciled as of 2026-04-28: every `git ls-files` entry has a current checklist heading, while detailed function-level audits remain pending for many historical and newly reconciled files.
 Purpose: exhaustive no-skip audit checklist covering every repository file currently in scope and every detected function-like implementation.
 
 Scoring: all entries below are marked as included in the current validated sweep. Confidence reflects current repository-state confidence, not perfection or future-proofing.
 
 Current repo-wide state snapshot: see [FULL_SCALE_CODEBASE_AUDIT.md](/Users/uylus/OneDrive/Documents/KandyDrops_Final/FULL_SCALE_CODEBASE_AUDIT.md) for the current live baseline, verification state, and continuity rules, and see [REPO_MEMORY_LEDGER.md](/Users/uylus/OneDrive/Documents/KandyDrops_Final/REPO_MEMORY_LEDGER.md) for major architectural and workflow decisions. The detailed file/function body below remains valuable historical evidence, but it has not been fully regenerated against the current 2026-04-18 inventory review yet.
+
+## 2026-05-02 Creator Lane Legacy Truth Inventory Coverage
+
+- [x] `agent/state/creator-lane-legacy-truth-inventory.generated.json` classifies current and legacy creator onboarding, roster, agreement, creator experience, rules, and focused tests as canonical, projection, legacy, mixed, or unknown.
+- [x] `docs/agent-truth/creator-lane-legacy-truth-inventory.md` defines `creator_onboarding/{uid}` as canonical, `creator_onboarding/{uid}/history/{eventId}` as canonical audit trail, `creator_review_queue/{uid}` as Admin Roster projection, and `users/{uid}.creatorApplication` as projection/legacy-compatible only.
+- [x] `scripts/agent/validate-creator-lane-legacy-truth-inventory.ts` and `package.json` add `npm run check:creator-lane-legacy-truth-inventory` to enforce report presence, required file classification, collection-path coverage, cleanup recommendations, and the forbidden future pattern against making `users.creatorApplication` canonical.
+- [x] Runtime behavior was intentionally not changed in this audit pass.
 
 ## 2026-05-02 Creator Onboarding Audit Trail Hardening Coverage
 

@@ -1,5 +1,28 @@
 # KandyDrops Core Codebase Audit & Defensive Ledger
 
+## [2026-05-02 #103] PRE: Creator Lane Legacy Truth Inventory
+
+Scope started:
+- Creating one targeted creator-lane truth inventory for creator onboarding, roster, agreement, creator experience, and related rules/tests so future work knows which paths are canonical, projection, legacy-compatible, or cleanup candidates.
+- Required outputs: `agent/state/creator-lane-legacy-truth-inventory.generated.json`, `docs/agent-truth/creator-lane-legacy-truth-inventory.md`, `scripts/agent/validate-creator-lane-legacy-truth-inventory.ts`, package validation command, governance ledger updates, targeted validation, TypeScript for touched script, `git diff --check`, commit, and push.
+- This pass is audit/docs/validation only. It must not change runtime behavior, redesign Admin Roster, alter creator onboarding writes, move creator experience storage, or treat `users/{uid}.creatorApplication` as future canonical when `creator_onboarding/{uid}` exists.
+
+Initial evidence:
+- Worktree was clean at startup on `main`.
+- Control tower routing, source-of-truth map, doctrine index, product/copy/cloud doctrine, preflight/postflight checklists, and governance ledgers were consulted.
+- Verified runtime owners inspected first: `src/lib/creator-onboarding.ts`, `src/lib/server/creator-onboarding.ts`, creator onboarding diagnostics/alerts, `/api/user/register`, `/api/admin/roster`, `/api/admin/users`, `/api/admin/user/[userId]`, Admin Roster, creator agreement helpers, creator experiences helpers/panel, `src/types/db.ts`, focused creator tests, and Firebase rules.
+
+Scope completed:
+- Added `agent/state/creator-lane-legacy-truth-inventory.generated.json` with classification for canonical, projection, legacy, mixed, and unknown creator-lane files and paths, including read/write flags for `users.creatorApplication`, `creator_onboarding`, `creator_review_queue`, and onboarding history.
+- Added `docs/agent-truth/creator-lane-legacy-truth-inventory.md` defining `creator_onboarding/{uid}` as canonical, `creator_onboarding/{uid}/history/{eventId}` as canonical audit trail, `creator_review_queue/{uid}` as Admin Roster projection, and `users/{uid}.creatorApplication` as projection/legacy-compatible only.
+- Added `scripts/agent/validate-creator-lane-legacy-truth-inventory.ts` and `npm run check:creator-lane-legacy-truth-inventory` to enforce required classification, cleanup recommendations, collection-path coverage, and the forbidden future pattern against making `users.creatorApplication` canonical.
+- Updated repo ledgers with the creator lane truth inventory rule. Runtime behavior was intentionally unchanged.
+
+Verification:
+- Passed: `npm run check:creator-lane-legacy-truth-inventory`
+- Passed: `npx tsc --noEmit --pretty false`
+- Passed: `git diff --check` with Windows CRLF normalization warnings only.
+
 ## [2026-05-02 #102] PRE: Creator Onboarding Audit Trail Hardening
 
 Scope started:

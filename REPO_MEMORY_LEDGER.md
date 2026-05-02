@@ -4,6 +4,10 @@ Status: Canonical repository-memory and architecture-decision ledger
 Last refreshed: 2026-05-02
 Repo: `C:\Users\uylus\OneDrive\Documents\KandyDrops_Final`
 
+## 2026-05-02 Creator lane legacy truth inventory
+
+Creator onboarding truth is inventoried across canonical, projection, legacy, mixed, and unknown paths in `agent/state/creator-lane-legacy-truth-inventory.generated.json`. The current canonical creator intake/legal/ID/approval/owner/synthetic/role activation record is `creator_onboarding/{uid}`; lifecycle audit truth is `creator_onboarding/{uid}/history/{eventId}`. `creator_review_queue/{uid}` is an Admin Roster projection. `users/{uid}.creatorApplication` is a creator-facing and legacy-compatible projection, not the future canonical source when `creator_onboarding/{uid}` exists. Creator fan-experience settings currently remain on `users/{uid}.creatorSettings` and `users/{uid}.creatorRestrictions` using the shared `CreatorSettings`/`CreatorRestrictions` model in `src/lib/creator-experiences.ts`.
+
 ## 2026-05-02 Creator onboarding audit trail hardening
 
 Creator intake, agreement, ID, approval, account-control, fan-experience, synthetic creator, and admin view-as actions use the existing `creator_onboarding/{uid}/history` subcollection as the audit trail. `src/lib/server/creator-onboarding.ts` owns `buildCreatorOnboardingHistoryEntry(...)` for deterministic event shape, actor marker evidence, target user/creator IDs, and agreement version/hash plus IP/user-agent evidence for signatures. Admin Roster shows the collapsed audit trail with the latest 3 events first and technical metadata inside Details; Admin Debug/user detail keeps raw evidence available.
