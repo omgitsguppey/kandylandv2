@@ -1,13 +1,21 @@
 # EVERY FILE FUNCTION CHECKLIST
 
 **Last Updated:** 2026-05-02
-**Current Focus:** Creator Experience Transaction Truth Cleanup.
+**Current Focus:** Creator Public Profile Routing Cleanup.
 **Status:** In Progress. Current tracked-file coverage is reconciled as of 2026-04-28: every `git ls-files` entry has a current checklist heading, while detailed function-level audits remain pending for many historical and newly reconciled files.
 Purpose: exhaustive no-skip audit checklist covering every repository file currently in scope and every detected function-like implementation.
 
 Scoring: all entries below are marked as included in the current validated sweep. Confidence reflects current repository-state confidence, not perfection or future-proofing.
 
 Current repo-wide state snapshot: see [FULL_SCALE_CODEBASE_AUDIT.md](/Users/uylus/OneDrive/Documents/KandyDrops_Final/FULL_SCALE_CODEBASE_AUDIT.md) for the current live baseline, verification state, and continuity rules, and see [REPO_MEMORY_LEDGER.md](/Users/uylus/OneDrive/Documents/KandyDrops_Final/REPO_MEMORY_LEDGER.md) for major architectural and workflow decisions. The detailed file/function body below remains valuable historical evidence, but it has not been fully regenerated against the current 2026-04-18 inventory review yet.
+
+## 2026-05-02 Creator Public Profile Routing Coverage
+
+- [x] `src/lib/creator-profile-routing.ts` owns creator public/admin/review href construction, slug validation, missing-route explanations, synthetic creator profile-route diagnosis, and actor-marked profile-link telemetry payloads.
+- [x] `src/lib/creator-public-pages.ts` re-exports the canonical routing helper for compatibility while creator discovery navigation uses `buildCreatorPublicHref(...)`.
+- [x] `src/components/Chat/ChatExperience.tsx`, `src/components/CreatorDiscoveryRail.tsx`, `src/components/Admin/AdminCreatorViewAsControls.tsx`, `src/app/admin/roster/page.tsx`, and `src/components/Creators/CreatorExperiencesPanel.tsx` now use canonical creator profile href helpers and emit profile-link click/missing telemetry where the link is user-visible.
+- [x] `src/app/api/creator/broadcasts/route.ts`, `src/app/api/cron/process-creator-subscriptions/route.ts`, and `src/lib/admin/creator-account-controls.ts` build creator profile notification/admin paths through the canonical helper instead of direct `/creators/${username}` templates.
+- [x] `scripts/agent/validate-creator-profile-routing.ts`, `tests/unit/creator-profile-routing.spec.ts`, `docs/agent-truth/creator-profile-routing.md`, and the updated chat routing doctrine validate the routing contract and block stale route patterns.
 
 ## 2026-05-02 Creator Experience Transaction Truth Coverage
 

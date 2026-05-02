@@ -21,6 +21,7 @@ import { reportClientIssue } from "@/lib/client-error-reporting";
 import {
     CREATOR_BOOKING_MIN_MINUTES,
 } from "@/lib/creator-experiences";
+import { buildCreatorPublicHref } from "@/lib/creator-profile-routing";
 import { resolveCreatorPublicExperienceState } from "@/lib/creator-public-pages";
 import { trackEvent } from "@/lib/telemetry";
 import { loadUiContinuityModules, readUiJson, type UiContinuityModuleState } from "@/lib/ui-continuity";
@@ -57,6 +58,7 @@ export default function CreatorProfileClient() {
     const { user: currentUser, userProfile: currentUserProfile, setUserProfile, loading: authLoading } = useAuth();
     const { openAuthModal } = useUI();
     const username = params.username as string;
+    const profileRoute = useMemo(() => buildCreatorPublicHref({ username }) ?? "/creators", [username]);
 
     const [activeTab, setActiveTab] = useState<"drops" | "experiences">("drops");
     const [creator, setCreator] = useState<(UserProfile & { followerCount?: number }) | null>(null);
@@ -132,9 +134,9 @@ export default function CreatorProfileClient() {
         trackEvent("creator_profile_viewed", {
             creator_id: creator.uid,
             creator_username: creator.username || username,
-            page_path: `/creators/${username}`,
+            page_path: profileRoute,
         });
-    }, [creator, username]);
+    }, [creator, profileRoute, username]);
 
     useEffect(() => {
         if (!currentUser || !creator) {
@@ -289,9 +291,9 @@ export default function CreatorProfileClient() {
             creator_username: creator.username || username,
             broadcast_count: broadcasts.length,
             latest_broadcast_id: latestBroadcastId,
-            page_path: `/creators/${username}`,
+            page_path: profileRoute,
         });
-    }, [activeTab, broadcasts, creator, username]);
+    }, [activeTab, broadcasts, creator, profileRoute, username]);
 
     const creatorPublicState = useMemo(
         () => resolveCreatorPublicExperienceState(creator?.creatorSettings, drops.length),

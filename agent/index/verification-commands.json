@@ -1,5 +1,5 @@
 {
-  "generatedAt": "2026-05-02T18:19:17.775Z",
+  "generatedAt": "2026-05-02T18:53:50.028Z",
   "truthOrder": [
     "verified_runtime_code",
     "verified_configuration",
@@ -1535,6 +1535,23 @@
     {
       "stable_id": "command__root-check-creator-experience-transaction-truth",
       "command": "npm run check:creator-experience-transaction-truth",
+      "scopeType": "repo",
+      "root_or_functions": "root",
+      "requiredWhen": [],
+      "optionalWhen": [
+        "Run when the touched surface overlaps the command lane."
+      ],
+      "cleanupExpected": [],
+      "broadSignoffWeight": 1,
+      "verifies_runtime": false,
+      "verifies_ui": false,
+      "verifies_rules": false,
+      "verifies_inventory": false,
+      "verifies_continuity": false
+    },
+    {
+      "stable_id": "command__root-check-creator-profile-routing",
+      "command": "npm run check:creator-profile-routing",
       "scopeType": "repo",
       "root_or_functions": "root",
       "requiredWhen": [],

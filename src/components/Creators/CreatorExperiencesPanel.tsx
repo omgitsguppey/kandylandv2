@@ -17,6 +17,7 @@ import { useCallback, useEffect, useMemo, useRef, useState, type ReactNode } fro
 
 import { UiContinuityNotice } from "@/components/ui/UiContinuityNotice";
 import { getClientAnalyticsIdentitySnapshot } from "@/lib/client-session";
+import { buildCreatorPublicHref } from "@/lib/creator-profile-routing";
 import {
     CREATOR_BOOKING_MIN_MINUTES,
     CREATOR_BOOKING_RATES,
@@ -115,7 +116,11 @@ export function CreatorExperiencesPanel({
     const balance = user?.gumDropsBalance || 0;
     const userId = readUserId(currentUser);
     const identity = useMemo(() => getClientAnalyticsIdentitySnapshot(), []);
-    const route = creatorUsername ? `/creators/${creatorUsername}` : "/creators";
+    const route = buildCreatorPublicHref({
+        creatorId,
+        creatorUsername,
+        username: creatorUsername,
+    }) ?? "/creators";
 
     const recentMessages = messages.slice(-3).reverse();
     const hasRecentThread = messages.length > 0;

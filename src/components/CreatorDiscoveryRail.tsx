@@ -1,6 +1,6 @@
 "use client";
 
-import { useCallback, useEffect, useMemo, useState, useTransition } from "react";
+import { useCallback, useEffect, useMemo, useRef, useState, useTransition } from "react";
 import Image from "next/image";
 import Link from "next/link";
 import { CheckCircle2, Loader2, Sparkles, Users } from "lucide-react";
@@ -11,7 +11,9 @@ import { authFetch } from "@/lib/authFetch";
 import { reportClientIssue } from "@/lib/client-error-reporting";
 import {
     buildCreatorDiscoveryNavigationParams,
-    buildCreatorProfileHref,
+    buildCreatorProfileLinkTelemetryPayload,
+    buildCreatorPublicHref,
+    explainCreatorProfileRouteMissing,
     type CreatorDiscoveryProfile,
 } from "@/lib/creator-public-pages";
 import { cn } from "@/lib/utils";
@@ -160,6 +162,12 @@ function CreatorDiscoveryRailView({
     userId?: string;
     onFollowToggle: (creator: CreatorCard) => void;
 }) {
+    const actor = useMemo(() => ({
+        uid: userId ?? "",
+        role: userId ? "user" : "guest",
+    }), [userId]);
+    const currentRoute = surface === "home" ? "/" : `/${surface}`;
+
     return (
         <section
             data-home-section={surface === "home" ? "creator-spotlight" : undefined}
@@ -187,7 +195,14 @@ function CreatorDiscoveryRailView({
             <div className="overflow-x-auto pb-1">
                 <div className={cn("flex min-w-max gap-3", compact ? "pr-2" : "pr-4")}>
                     {creators.map((creator) => {
-                        const creatorProfileHref = buildCreatorProfileHref({ creatorUsername: creator.username });
+                        const creatorRouteInput = {
+                            uid: creator.uid,
+                            creatorId: creator.uid,
+                            username: creator.username,
+                            creatorUsername: creator.username,
+                        };
+                        const creatorProfileHref = buildCreatorPublicHref(creatorRouteInput);
+                        const missingProfileReason = creatorProfileHref ? "" : explainCreatorProfileRouteMissing(creatorRouteInput);
                         const profileContent = (
                             <>
                                 <div
@@ -253,6 +268,13 @@ function CreatorDiscoveryRailView({
                                     <Link
                                         href={creatorProfileHref}
                                         onClick={() => {
+                                            trackEvent("creator_profile_link_clicked", buildCreatorProfileLinkTelemetryPayload({
+                                                actor,
+                                                creator: creatorRouteInput,
+                                                href: creatorProfileHref,
+                                                routeSource: "creator_discovery",
+                                                currentRoute,
+                                            }));
                                             trackEvent("navigation_click", buildCreatorDiscoveryNavigationParams({
                                                 creatorId: creator.uid,
                                                 creatorUsername: creator.username,
@@ -260,6 +282,7 @@ function CreatorDiscoveryRailView({
                                             }));
                                         }}
                                         className="flex w-full flex-col items-center gap-2"
+                                        data-creator-profile-route-source="canonical-builder"
                                     >
                                         {profileContent}
                                     </Link>
@@ -267,7 +290,8 @@ function CreatorDiscoveryRailView({
                                     <div
                                         className="flex w-full flex-col items-center gap-2"
                                         aria-disabled="true"
-                                        title="Creator profile unavailable"
+                                        title={missingProfileReason || "Creator profile unavailable"}
+                                        data-creator-profile-missing-reason={missingProfileReason || "unknown"}
                                     >
                                         {profileContent}
                                     </div>
@@ -312,6 +336,7 @@ export function CreatorDiscoveryRail({
     const [railLoading, setRailLoading] = useState(initialCreators.length === 0);
     const [pendingCreatorId, setPendingCreatorId] = useState<string | null>(null);
     const [, startCreatorsTransition] = useTransition();
+    const missingProfileRouteTelemetryKeyRef = useRef("");
     const authSettled = !authLoading;
     const initialCreatorKey = useMemo(
         () => initialCreators.map((creator) => creator.uid).join("|"),
@@ -470,6 +495,47 @@ export function CreatorDiscoveryRail({
 
         return combined.filter((creator) => creator.uid !== user?.uid);
     }, [followedCreators, recommendedCreators, user?.uid]);
+
+    useEffect(() => {
+        const missingCreators = primaryCreators
+            .map((creator) => {
+                const routeInput = {
+                    uid: creator.uid,
+                    creatorId: creator.uid,
+                    username: creator.username,
+                    creatorUsername: creator.username,
+                };
+                const href = buildCreatorPublicHref(routeInput);
+                const missingReason = href ? "" : explainCreatorProfileRouteMissing(routeInput);
+                return missingReason ? { creator, routeInput, missingReason } : null;
+            })
+            .filter(Boolean) as Array<{
+                creator: CreatorCard;
+                routeInput: { uid: string; creatorId: string; username: string; creatorUsername: string };
+                missingReason: string;
+            }>;
+
+        const telemetryKey = missingCreators.map((entry) => `${entry.creator.uid}:${entry.missingReason}`).join("|");
+        if (!telemetryKey || missingProfileRouteTelemetryKeyRef.current === telemetryKey) {
+            return;
+        }
+
+        missingProfileRouteTelemetryKeyRef.current = telemetryKey;
+        const currentRoute = surface === "home" ? "/" : `/${surface}`;
+        missingCreators.forEach((entry) => {
+            trackEvent("creator_profile_link_missing", buildCreatorProfileLinkTelemetryPayload({
+                actor: {
+                    uid: user?.uid ?? "",
+                    role: user ? "user" : "guest",
+                },
+                creator: entry.routeInput,
+                href: null,
+                routeSource: "creator_discovery",
+                currentRoute,
+                missingReason: entry.missingReason,
+            }));
+        });
+    }, [primaryCreators, surface, user]);
 
     const handleFollowToggle = useCallback(async (creator: CreatorCard) => {
         if (!user) {

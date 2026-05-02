@@ -1,7 +1,7 @@
 # Agent Task Spec
 
 ## Goal
-creator experience transaction truth cleanup
+centralize creator profile routing
 
 ## Acceptance Criteria
 - Stay within the touched entrypoints unless adjacency proves a shared helper must move with them.
@@ -10,7 +10,7 @@ creator experience transaction truth cleanup
 - Keep broad signoff lanes separate from the fast loop.
 
 ## Likely Entrypoints
-- src/components/Creators/CreatorExperiencesPanel.tsx
+- src/lib/creator-public-pages.ts
 
 ## Forbidden Surfaces
 - src/lib/gumdrop-ledger.ts
@@ -21,13 +21,11 @@ creator experience transaction truth cleanup
 
 ## Fast Verification
 - npm run typecheck
-- npm run agent:test -- src/components/Creators/CreatorExperiencesPanel.tsx
-- npm run check:ui:coverage
-- npm run check:ui:runtime
+- npm run agent:test -- src/lib/creator-public-pages.ts
 
 ## Signoff Verification
-- npm run check:ui:audits
+- npm run check:continuity
 
 ## Notes
-- Mode: creators
+- Mode: creator
 - Format follow-up implementation prompts like an issue: goal, acceptance criteria, entrypoints, forbidden surfaces, and exact verification lanes.

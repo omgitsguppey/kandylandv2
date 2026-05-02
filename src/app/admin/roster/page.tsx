@@ -59,6 +59,10 @@ import { useAuth } from "@/context/AuthContext";
 import { useAdminViewAs } from "@/context/AdminViewAsContext";
 import { trackEvent } from "@/lib/telemetry";
 import {
+    buildCreatorAdminHref,
+    buildCreatorReviewHref,
+} from "@/lib/creator-profile-routing";
+import {
     ROSTER_DECISION_TABS,
     ROSTER_DETAIL_SECTION_KEYS,
     buildPrimaryActionLabel,
@@ -344,6 +348,11 @@ export default function AdminRosterPage() {
     const selectedSyntheticCreatorType = selectedCanonical?.syntheticCreatorType
         ?? selectedEntry?.syntheticCreatorType
         ?? detail?.user.syntheticCreatorType;
+    const selectedReviewHref = buildCreatorReviewHref(selectedUserId);
+    const selectedAdminHref = buildCreatorAdminHref({
+        uid: selectedUserId,
+        userId: selectedUserId,
+    });
     const selectedAccountTarget: CreatorAccountControlsTarget | null = detail?.user && selectedUserId ? {
         uid: selectedUserId,
         displayName: detail.user.displayName || selectedCanonical?.creatorDisplayName || selectedEntry?.creatorDisplayName || "",
@@ -1276,12 +1285,16 @@ export default function AdminRosterPage() {
                                             <p className="mt-2 text-sm font-semibold text-white">{selectedPrimaryAction}</p>
                                         </div>
                                         <div className="flex flex-wrap gap-2">
-                                            <Link href={`/admin/roster?focus=${selectedUserId}`} className="rounded-full border border-white/10 bg-black/25 px-4 py-2 text-sm font-semibold text-white">
-                                                Focus link
-                                            </Link>
-                                            <Link href={`/admin/user/${selectedUserId}`} className="rounded-full border border-white/10 bg-black/25 px-4 py-2 text-sm font-semibold text-white">
-                                                Open user record
-                                            </Link>
+                                            {selectedReviewHref ? (
+                                                <Link href={selectedReviewHref} className="rounded-full border border-white/10 bg-black/25 px-4 py-2 text-sm font-semibold text-white">
+                                                    Focus link
+                                                </Link>
+                                            ) : null}
+                                            {selectedAdminHref ? (
+                                                <Link href={selectedAdminHref} className="rounded-full border border-white/10 bg-black/25 px-4 py-2 text-sm font-semibold text-white">
+                                                    Open user record
+                                                </Link>
+                                            ) : null}
                                             <AdminCreatorViewAsControls
                                                 targetUserId={selectedUserId}
                                                 displayName={selectedCanonical.creatorDisplayName}

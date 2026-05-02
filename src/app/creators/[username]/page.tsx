@@ -4,6 +4,7 @@ import { SITE_ORIGIN } from "@/lib/site-origin";
 import { adminDb } from "@/lib/server/firebase-admin";
 import { recordRouteWarning } from "@/lib/server/route-diagnostics";
 import { isCreatorRole } from "@/lib/creator-experiences";
+import { buildCreatorPublicHref } from "@/lib/creator-profile-routing";
 
 import CreatorProfileClient from "./CreatorProfileClient";
 
@@ -57,7 +58,7 @@ export async function generateMetadata(
     { params }: { params: Promise<{ username: string }> },
 ): Promise<Metadata> {
     const { username } = await params;
-    const canonicalPath = `/creators/${encodeURIComponent(username)}`;
+    const canonicalPath = buildCreatorPublicHref({ username }) ?? "/creators";
     const creator = await getCreatorMetadataRecord(username);
 
     if (!creator) {

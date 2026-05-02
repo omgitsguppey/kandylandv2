@@ -6,6 +6,7 @@ import { handleApiError } from "@/lib/server/auth";
 import { CRON } from "@/lib/server/rate-limit";
 import { guardApiRequest } from "@/lib/server/request-guard";
 import { CREATOR_COLLECTIONS, CREATOR_SUBSCRIPTION_MIN_GD, isCreatorRole } from "@/lib/creator-experiences";
+import { buildCreatorPublicHref } from "@/lib/creator-profile-routing";
 import { buildCreatorAccrual, buildSourceAwareBalancePatch, readSourceAwareBalance, spendCreatorExperienceGumdrops } from "@/lib/server/creator-experiences";
 import { buildCompletedGumdropTransaction } from "@/lib/server/gumdrop-ledger";
 import { trackServerEvent } from "@/lib/server/analytics";
@@ -151,7 +152,12 @@ async function GET_handler(request: NextRequest) {
                                 global: false,
                                 userIds: [userId],
                             },
-                            link: creatorUsername ? `/creators/${creatorUsername}` : "/dashboard/profile",
+                            link: buildCreatorPublicHref({
+                                uid: creatorId,
+                                creatorId,
+                                username: creatorUsername,
+                                creatorUsername,
+                            }) ?? "/dashboard/profile",
                             createdAt: FieldValue.serverTimestamp(),
                             createdAtMs: now,
                             readBy: [],
@@ -220,7 +226,12 @@ async function GET_handler(request: NextRequest) {
                                 global: false,
                                 userIds: [userId],
                             },
-                            link: creatorUsername ? `/creators/${creatorUsername}` : "/dashboard/profile",
+                            link: buildCreatorPublicHref({
+                                uid: creatorId,
+                                creatorId,
+                                username: creatorUsername,
+                                creatorUsername,
+                            }) ?? "/dashboard/profile",
                             createdAt: FieldValue.serverTimestamp(),
                             createdAtMs: now,
                             readBy: [],

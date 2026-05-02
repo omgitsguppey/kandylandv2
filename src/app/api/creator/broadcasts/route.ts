@@ -7,6 +7,7 @@ import { handleApiError } from "@/lib/server/auth";
 import { STANDARD } from "@/lib/server/rate-limit";
 import { guardApiRequest } from "@/lib/server/request-guard";
 import { CREATOR_COLLECTIONS, isCreatorRole } from "@/lib/creator-experiences";
+import { buildCreatorPublicHref } from "@/lib/creator-profile-routing";
 import { markNotificationsRuntimeChanged } from "@/lib/server/notification-runtime";
 import { withRouteRuntimeHealth } from "@/lib/server/route-runtime-health";
 import { buildNotFoundResponse } from "@/lib/server/not-found";
@@ -173,7 +174,12 @@ async function POST_handler(request: NextRequest) {
                     global: false,
                     userIds: notificationUserIds,
                 },
-                link: creatorUsername ? `/creators/${creatorUsername}` : "/dashboard/profile",
+                link: buildCreatorPublicHref({
+                    uid: caller.uid,
+                    creatorId: caller.uid,
+                    username: creatorUsername,
+                    creatorUsername,
+                }) ?? "/dashboard/profile",
                 createdAt: FieldValue.serverTimestamp(),
                 createdAtMs: now,
                 readBy: [],

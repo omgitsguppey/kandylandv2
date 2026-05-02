@@ -49,16 +49,6 @@ function buildEventType(action: "start" | "end" | "blocked"): CreatorOnboardingH
   return "admin_view_as_started";
 }
 
-function buildTelemetryEvent(action: "start" | "end" | "blocked") {
-  if (action === "end") {
-    return "admin_view_as_creator_ended";
-  }
-  if (action === "blocked") {
-    return "admin_view_as_creator_action_blocked";
-  }
-  return "admin_view_as_creator_started";
-}
-
 async function POST_handler(request: NextRequest) {
   try {
     const caller = await guardApiRequest(request, {
@@ -80,6 +70,11 @@ async function POST_handler(request: NextRequest) {
     const returnHref = readString(body.returnHref) || "/admin/roster";
     const nowMs = Date.now();
     const simulationStartedAt = readTimestamp(body.simulationStartedAt);
+    const telemetryEventName = action === "end"
+      ? "admin_view_as_creator_ended"
+      : action === "blocked"
+        ? "admin_view_as_creator_action_blocked"
+        : "admin_view_as_creator_started";
 
     if (!targetUserId) {
       return NextResponse.json({ error: "Select a creator before starting view-as mode." }, { status: 400 });
@@ -114,7 +109,7 @@ async function POST_handler(request: NextRequest) {
       {
         surface: "admin_roster",
         route: "/api/admin/view-as-creator",
-        actionKey: buildTelemetryEvent(action),
+        actionKey: telemetryEventName,
         source: "admin_view_as_creator_route",
         performedAs: "admin_view_as_creator",
         targetCreatorId: targetUserId,
@@ -176,7 +171,7 @@ async function POST_handler(request: NextRequest) {
             ...debugFields,
           },
         }), { merge: true }),
-      trackServerEvent(buildTelemetryEvent(action), {
+      trackServerEvent(telemetryEventName, {
         page_path: route,
         reason,
         syntheticCreatorType: target.isSyntheticCreator === true

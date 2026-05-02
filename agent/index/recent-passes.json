@@ -1,5 +1,5 @@
 {
-  "generatedAt": "2026-05-02T18:19:17.814Z",
+  "generatedAt": "2026-05-02T18:53:50.080Z",
   "truthOrder": [
     "verified_runtime_code",
     "verified_configuration",
@@ -15,12 +15,36 @@
   ],
   "passes": [
     {
+      "stable_id": "pass__2026-05-02-pre-creator-public-profile-routing-cleanup",
+      "date": "2026-05-02",
+      "title": "PRE: Creator Public Profile Routing Cleanup",
+      "scopeSummary": [],
+      "touchedSurfaces": [
+        "docs/agent-truth/creator-profile-routing.md",
+        "docs/agent-truth/user-chat-shell-routing.md",
+        "src/lib/creator-public-pages.ts"
+      ],
+      "canonicalHelpersReused": [],
+      "verificationCommandsRun": [],
+      "resultSummary": [],
+      "warnings": [],
+      "architecture_change": true,
+      "runtime_change": false,
+      "ui_change": false,
+      "security_change": false,
+      "maintenance_only": false,
+      "changeKinds": [
+        "architecture"
+      ]
+    },
+    {
       "stable_id": "pass__2026-05-02-pre-creator-experience-transaction-truth-cleanup",
       "date": "2026-05-02",
       "title": "PRE: Creator Experience Transaction Truth Cleanup",
       "scopeSummary": [],
       "touchedSurfaces": [
         "docs/agent-truth/creator-experience-transaction-truth.md",
+        "npx vitest run tests/unit/creator-subscriptions-route.spec.ts tests/unit/creator-requests-route.spec.ts tests/unit/creator-bookings-transaction-route.spec.ts tests/unit/server-chat-send.spec.ts tests/unit/server-creator-experience-transactions.spec.ts tests/unit/gumdrop-ledger.spec.ts tests/unit/creator-experiences.spec.ts",
         "src/lib/server/chat.ts",
         "src/lib/server/creator-experiences.ts"
       ],
@@ -249,37 +273,6 @@
       "changeKinds": [
         "admin",
         "ui",
-        "tooling",
-        "architecture"
-      ]
-    },
-    {
-      "stable_id": "pass__2026-05-02-pre-creator-onboarding-audit-trail-hardening",
-      "date": "2026-05-02",
-      "title": "PRE: Creator Onboarding Audit Trail Hardening",
-      "scopeSummary": [],
-      "touchedSurfaces": [
-        "/api/admin/user/[userId]",
-        "docs/agent-truth/creator-onboarding-audit-trail.md",
-        "npx vitest run tests/unit/admin-creator-agreements-route.spec.ts tests/unit/admin-creator-fan-experience-settings-route.spec.ts tests/unit/admin-users-route.spec.ts",
-        "npx vitest run tests/unit/admin-roster-route.spec.ts tests/unit/admin-view-as-creator-route.spec.ts tests/unit/admin-creator-account-controls-route.spec.ts",
-        "npx vitest run tests/unit/creator-audit-trail-panel.spec.tsx tests/unit/creator-onboarding.spec.ts tests/unit/creator-onboarding-server.spec.ts tests/unit/creator-contract-signature-route.spec.ts tests/unit/admin-roster-decision-queue.spec.ts",
-        "scripts/agent/validate-creator-audit-trail.ts",
-        "src/lib/creator-onboarding.ts"
-      ],
-      "canonicalHelpersReused": [
-        "src/lib/creator-onboarding.ts"
-      ],
-      "verificationCommandsRun": [],
-      "resultSummary": [],
-      "warnings": [],
-      "architecture_change": true,
-      "runtime_change": false,
-      "ui_change": false,
-      "security_change": false,
-      "maintenance_only": false,
-      "changeKinds": [
-        "admin",
         "tooling",
         "architecture"
       ]

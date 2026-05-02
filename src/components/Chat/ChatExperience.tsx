@@ -53,9 +53,14 @@ import {
     buildChatSendWarningMessage,
     type ChatSendWarning,
 } from "@/lib/chat-send-feedback";
-import { buildCreatorProfileHref } from "@/lib/creator-public-pages";
+import {
+    buildCreatorProfileLinkTelemetryPayload,
+    buildCreatorPublicHref,
+    explainCreatorProfileRouteMissing,
+} from "@/lib/creator-profile-routing";
 import { reportClientIssue, reportRealtimeIssue, reportStorageIssue } from "@/lib/client-error-reporting";
 import { storage, db, rtdb } from "@/lib/firebase-data";
+import { trackEvent } from "@/lib/telemetry";
 import { useCompactViewport } from "@/hooks/useCompactViewport";
 import { cn } from "@/lib/utils";
 import { ref as storageRef, uploadBytes } from "firebase/storage";
@@ -450,6 +455,7 @@ export function ChatExperience() {
     const selectedDetailThreadRef = useRef<ChatThreadRecord | null>(selectedDetail?.thread ?? null);
     const threadDetailRequestIdRef = useRef(0);
     const threadsLoadRequestIdRef = useRef(0);
+    const profileRouteTelemetryKeyRef = useRef<string | null>(null);
 
     const visibleThreads = useMemo(
         () => mergeThreads(threads, selectedDetail?.thread ?? null),
@@ -460,15 +466,31 @@ export function ChatExperience() {
         () => visibleThreads.find((thread) => thread.id === selectedThreadId) ?? selectedDetail?.thread ?? null,
         [selectedDetail?.thread, selectedThreadId, visibleThreads],
     );
-    const selectedThreadCreatorProfileHref = useMemo(() => {
+    const selectedThreadCreatorRouteInput = useMemo(() => {
         if (!selectedThread || selectedThread.viewerRole === "creator") {
             return null;
         }
 
-        return buildCreatorProfileHref({
+        return {
+            uid: selectedThread.creatorId,
+            creatorId: selectedThread.creatorId,
+            username: selectedThread.counterpartUsername,
             creatorUsername: selectedThread.counterpartUsername,
-        });
+        };
     }, [selectedThread]);
+    const selectedThreadCreatorProfileHref = useMemo(() => {
+        return buildCreatorPublicHref(selectedThreadCreatorRouteInput);
+    }, [selectedThreadCreatorRouteInput]);
+    const selectedThreadCreatorProfileMissingReason = useMemo(() => {
+        return selectedThreadCreatorRouteInput && !selectedThreadCreatorProfileHref
+            ? explainCreatorProfileRouteMissing(selectedThreadCreatorRouteInput)
+            : "";
+    }, [selectedThreadCreatorProfileHref, selectedThreadCreatorRouteInput]);
+    const chatProfileLinkActor = useMemo(() => ({
+        uid: user?.uid ?? "",
+        email: user?.email ?? "",
+        role: userProfile?.role ?? (user ? "user" : "guest"),
+    }), [user, userProfile?.role]);
     const normalizedThreadSearch = threadSearch.trim().toLowerCase();
     const filteredThreads = useMemo(() => {
         if (!normalizedThreadSearch) {
@@ -675,9 +697,7 @@ export function ChatExperience() {
             return;
         }
 
-        const missingProfileHrefReason = selectedThread && selectedThread.viewerRole !== "creator" && !selectedThreadCreatorProfileHref
-            ? "creator_username_missing_or_invalid"
-            : null;
+        const missingProfileHrefReason = selectedThreadCreatorProfileMissingReason || null;
 
         (window as typeof window & {
             __KANDYDROPS_CHAT_SHELL_ROUTING_DEBUG__?: unknown;
@@ -700,7 +720,30 @@ export function ChatExperience() {
             chatThreadProfileHrefValid: Boolean(selectedThreadCreatorProfileHref),
             missingProfileHrefReason,
         };
-    }, [canComposeFromFollowedCreators, selectedThread, selectedThreadCreatorProfileHref, showCompactThreadListOnly]);
+
+        if (selectedThreadCreatorRouteInput && missingProfileHrefReason) {
+            const telemetryKey = `${selectedThread?.id ?? "thread"}:${missingProfileHrefReason}`;
+            if (profileRouteTelemetryKeyRef.current !== telemetryKey) {
+                profileRouteTelemetryKeyRef.current = telemetryKey;
+                trackEvent("creator_profile_link_missing", buildCreatorProfileLinkTelemetryPayload({
+                    actor: chatProfileLinkActor,
+                    creator: selectedThreadCreatorRouteInput,
+                    href: null,
+                    routeSource: "chat_header",
+                    currentRoute: "/dashboard/chat",
+                    missingReason: missingProfileHrefReason,
+                }));
+            }
+        }
+    }, [
+        canComposeFromFollowedCreators,
+        chatProfileLinkActor,
+        selectedThread,
+        selectedThreadCreatorProfileHref,
+        selectedThreadCreatorProfileMissingReason,
+        selectedThreadCreatorRouteInput,
+        showCompactThreadListOnly,
+    ]);
 
 
     const loadThreads = useCallback(async (options?: LoadThreadsOptions) => {
@@ -2028,6 +2071,15 @@ export function ChatExperience() {
                                         {selectedThreadCreatorProfileHref ? (
                                             <Link
                                                 href={selectedThreadCreatorProfileHref}
+                                                onClick={() => {
+                                                    trackEvent("creator_profile_link_clicked", buildCreatorProfileLinkTelemetryPayload({
+                                                        actor: chatProfileLinkActor,
+                                                        creator: selectedThreadCreatorRouteInput,
+                                                        href: selectedThreadCreatorProfileHref,
+                                                        routeSource: "chat_header",
+                                                        currentRoute: "/dashboard/chat",
+                                                    }));
+                                                }}
                                                 className="flex items-center gap-2.5 rounded-full bg-[#141417] px-2 py-1.5 shadow-[0_12px_28px_rgba(0,0,0,0.3)] ring-1 ring-white/8 transition active:scale-[0.98] active:opacity-75"
                                             >
                                                 <ChatAvatar

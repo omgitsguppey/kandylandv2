@@ -1,5 +1,5 @@
 {
-  "generatedAt": "2026-05-02T17:55:41.945Z",
+  "generatedAt": "2026-05-02T18:32:23.500Z",
   "truthOrder": [
     "verified_runtime_code",
     "verified_configuration",
@@ -19,77 +19,81 @@
     "agent/index/dependency-graph.summary.json",
     "agent/index/ui-surface-coverage.json"
   ],
-  "stable_id": "taskctx__creators-creator-experience-transaction-truth-cleanup",
+  "stable_id": "taskctx__creator-centralize-creator-profile-routing",
   "input": {
-    "task": "creator experience transaction truth cleanup",
-    "mode": "creators",
+    "task": "centralize creator profile routing",
+    "mode": "creator",
     "fileHints": [
-      "src/components/Creators/CreatorExperiencesPanel.tsx"
+      "src/lib/creator-public-pages.ts"
     ],
     "tokenBudgetProfile": "standard"
   },
-  "normalizedTaskSummary": "creator experience transaction truth cleanup",
-  "taskModeClassification": "creators",
+  "normalizedTaskSummary": "centralize creator profile routing",
+  "taskModeClassification": "creator",
   "scopeClassification": "moderate",
   "scopeWhy": "Touches several files or shared helper surfaces with non-trivial adjacency.",
-  "likelySurfaceCategory": "ui_component",
+  "likelySurfaceCategory": "creator",
   "likelySurfaces": [
-    "ui_component",
-    "creator"
+    "creator",
+    "ui_component"
   ],
   "hotContextFiles": [
-    "src/components/Creators/CreatorExperiencesPanel.tsx",
-    "src/lib/creator-experiences.ts",
+    "src/lib/creator-public-pages.ts",
     "src/lib/creator-onboarding.ts",
-    "src/app/creators/[username]/CreatorProfileClient.tsx",
-    "src/lib/creator-agreement-documents.ts"
+    "src/lib/creator-experiences.ts",
+    "src/components/CreatorDiscoveryRail.tsx",
+    "src/lib/server/creator-discovery.ts"
   ],
   "warmContextFiles": [
-    "src/lib/creator-agreement-version.ts",
-    "src/lib/creator-application.ts",
-    "src/lib/creator-contract.ts",
-    "src/lib/creator-onboarding-projection.ts",
-    "src/lib/server/creator-admin-action-contract.ts"
+    "src/app/creators/[username]/CreatorProfileClient.tsx",
+    "src/app/api/creator/discovery/route.ts",
+    "src/app/api/creator/relationships/route.ts",
+    "src/lib/creator-agreement-documents.ts",
+    "src/lib/creator-agreement-version.ts"
   ],
   "coldContextFiles": [
     "FULL_SCALE_CODEBASE_AUDIT.md",
-    "/api/admin/creator-agreements",
-    "/api/admin/user/[userId]",
-    "/api/admin/users",
-    "creator_onboarding/{uid}"
+    "docs/agent-truth/creator-experience-transaction-truth.md",
+    "npx vitest run tests/unit/creator-subscriptions-route.spec.ts tests/unit/creator-requests-route.spec.ts tests/unit/creator-bookings-transaction-route.spec.ts tests/unit/server-chat-send.spec.ts tests/unit/server-creator-experience-transactions.spec.ts tests/unit/gumdrop-ledger.spec.ts tests/unit/creator-experiences.spec.ts",
+    "src/lib/server/chat.ts",
+    "src/lib/server/creator-experiences.ts"
   ],
   "likelyTouchedFiles": [
-    "src/components/Creators/CreatorExperiencesPanel.tsx",
-    "src/lib/creator-experiences.ts",
+    "src/lib/creator-public-pages.ts",
     "src/lib/creator-onboarding.ts",
+    "src/lib/creator-experiences.ts",
+    "src/components/CreatorDiscoveryRail.tsx",
+    "src/lib/server/creator-discovery.ts",
     "src/app/creators/[username]/CreatorProfileClient.tsx",
+    "src/app/api/creator/discovery/route.ts",
+    "src/app/api/creator/relationships/route.ts",
     "src/lib/creator-agreement-documents.ts",
     "src/lib/creator-agreement-version.ts",
     "src/lib/creator-application.ts",
-    "src/lib/creator-contract.ts",
-    "src/lib/creator-onboarding-projection.ts",
-    "src/lib/server/creator-admin-action-contract.ts",
-    "src/lib/server/creator-admin-actions.ts",
-    "src/lib/server/creator-agreement-documents.ts"
+    "src/lib/creator-contract.ts"
   ],
   "likelyAdjacentFiles": [
-    "src/components/ui/UiContinuityNotice.tsx",
-    "src/lib/client-session.ts",
-    "src/lib/telemetry.ts",
-    "src/lib/utils.ts",
-    "src/types/db.ts",
-    "tests/unit/creator-experiences-panel.spec.tsx",
-    "src/lib/client-random.ts",
+    "src/app/dashboard/DashboardClient.tsx",
+    "src/app/drops/DropsClient.tsx",
+    "src/app/experiences/ExperiencesClient.tsx",
+    "src/components/Chat/ChatExperience.tsx",
+    "tests/unit/creator-public-pages.spec.ts",
+    "src/lib/creator-intake-flow.ts",
+    "src/lib/admin/synthetic-creators-view-as.ts",
+    "src/lib/identity/actor-markers.ts",
     "src/app/admin/roster/page.tsx",
-    "src/app/api/admin/creator-options/route.ts",
-    "src/app/api/admin/roster/route.ts",
-    "src/app/api/admin/user/[userId]/route.ts",
-    "src/app/api/admin/users/route.ts"
+    "src/app/admin/user/[userId]/page.tsx",
+    "src/app/api/admin/creator-account-controls/route.ts",
+    "src/app/api/admin/roster/route.ts"
   ],
   "likelyAdjacentHelpers": [
     "src/lib/creator-onboarding.ts",
     "src/lib/server/creator-onboarding.ts",
-    "src/lib/telemetry.ts"
+    "src/lib/telemetry-catalog.ts",
+    "src/lib/telemetry.ts",
+    "src/lib/gumdrop-economics.ts",
+    "src/lib/gumdrop-ledger.ts",
+    "src/lib/server/paypal.ts"
   ],
   "governanceConsultFull": [
     "FULL_SCALE_CODEBASE_AUDIT.md",
@@ -100,30 +104,40 @@
   "canonicalHelpersToReuse": [
     "src/lib/creator-onboarding.ts",
     "src/lib/server/creator-onboarding.ts",
-    "src/lib/telemetry.ts"
+    "src/lib/telemetry-catalog.ts",
+    "src/lib/telemetry.ts",
+    "src/lib/gumdrop-economics.ts",
+    "src/lib/gumdrop-ledger.ts",
+    "src/lib/server/paypal.ts"
   ],
   "relevantKnownPitfalls": [
+    "diagnostics_serialization_crash",
+    "request_json_parse_falls_into_500",
     "consumed_response_stream_fallback",
     "generated_artifact_cleanup_miss",
-    "sidecar_truth_confusion",
+    "legacy_queue_adapter_usage",
     "queue_activation_missing_notification_outcome",
     "unchecked_response_ok_ui_hydration",
     "creator_booking_timezone_drift"
   ],
   "requiredVerificationCommands": [
+    "npm run check:ui:audits",
+    "npm run check:ui:coverage",
+    "npm run check:ui:runtime",
     "npm run test:contracts",
-    "npm run trace:adjacent -- <path>",
-    "npm run check:ui:audits"
+    "npm run trace:adjacent -- <path>"
   ],
   "optionalVerificationCommands": [
+    "npm run check:analytics-semantics",
+    "npm run check:ui:lighthouse",
     "npm run check:architecture"
   ],
   "fastVerificationCommands": [
     "npm run typecheck",
-    "npm run agent:test -- src/components/Creators/CreatorExperiencesPanel.tsx",
-    "npm run agent:test -- src/lib/creator-experiences.ts",
+    "npm run agent:test -- src/lib/creator-public-pages.ts",
     "npm run agent:test -- src/lib/creator-onboarding.ts",
-    "npm run agent:test -- src/app/creators/[username]/CreatorProfileClient.tsx",
+    "npm run agent:test -- src/lib/creator-experiences.ts",
+    "npm run agent:test -- src/components/CreatorDiscoveryRail.tsx",
     "npm run check:ui:coverage",
     "npm run check:ui:runtime"
   ],
@@ -150,8 +164,8 @@
   "broadWorkStartupProtocolRequired": false,
   "sqlMirrorFreshnessState": "unknown",
   "confidenceNotes": [
-    "Mode resolved as creators.",
-    "Ranking considered 1405 repo files and 20 canonical helper entries.",
+    "Mode resolved as creator.",
+    "Ranking considered 1410 repo files and 20 canonical helper entries.",
     "UI coverage matched 8 indexed surfaces."
   ],
   "ambiguityNotes": [],
@@ -199,21 +213,19 @@
     }
   ],
   "do_not_touch_without_broad_signoff": [
-    "src/lib/creator-experiences.ts",
+    "src/lib/creator-public-pages.ts",
     "src/lib/creator-onboarding.ts",
+    "src/lib/creator-experiences.ts",
+    "src/lib/server/creator-discovery.ts",
     "src/lib/creator-agreement-documents.ts",
     "src/lib/creator-agreement-version.ts",
     "src/lib/creator-application.ts",
-    "src/lib/creator-contract.ts",
-    "src/lib/creator-onboarding-projection.ts",
-    "src/lib/server/creator-admin-action-contract.ts",
-    "src/lib/server/creator-admin-actions.ts",
-    "src/lib/server/creator-agreement-documents.ts"
+    "src/lib/creator-contract.ts"
   ],
   "rankingEvidence": [
     {
-      "stable_id": "file__src__components__creators__creatorexperiencespanel-tsx",
-      "path": "src/components/Creators/CreatorExperiencesPanel.tsx",
+      "stable_id": "file__src__lib__creator-public-pages-ts",
+      "path": "src/lib/creator-public-pages.ts",
       "score": 158,
       "why_selected": "explicit_file_hint, path_domain_match, task_signal_match, filename_match, canonical_helper_relevance, pitfall_match, verification_lane_match",
       "weighted_components": [
@@ -224,6 +236,24 @@
         "canonical_helper_relevance",
         "pitfall_match",
         "verification_lane_match"
+      ],
+      "freshness_state": "fresh"
+    },
+    {
+      "stable_id": "file__src__lib__creator-onboarding-ts",
+      "path": "src/lib/creator-onboarding.ts",
+      "score": 154,
+      "why_selected": "path_domain_match, task_signal_match, filename_match, canonical_helper_relevance, adjacency_match, recent_pass_match, pitfall_match, verification_lane_match, high_inbound_bonus",
+      "weighted_components": [
+        "path_domain_match",
+        "task_signal_match",
+        "filename_match",
+        "canonical_helper_relevance",
+        "adjacency_match",
+        "recent_pass_match",
+        "pitfall_match",
+        "verification_lane_match",
+        "high_inbound_bonus"
       ],
       "freshness_state": "fresh"
     },
@@ -245,25 +275,72 @@
       "freshness_state": "fresh"
     },
     {
-      "stable_id": "file__src__lib__creator-onboarding-ts",
-      "path": "src/lib/creator-onboarding.ts",
-      "score": 138,
-      "why_selected": "path_domain_match, task_signal_match, filename_match, canonical_helper_relevance, recent_pass_match, pitfall_match, verification_lane_match, high_inbound_bonus",
+      "stable_id": "file__src__components__creatordiscoveryrail-tsx",
+      "path": "src/components/CreatorDiscoveryRail.tsx",
+      "score": 134,
+      "why_selected": "path_domain_match, task_signal_match, filename_match, canonical_helper_relevance, adjacency_match, pitfall_match, verification_lane_match",
       "weighted_components": [
         "path_domain_match",
         "task_signal_match",
         "filename_match",
         "canonical_helper_relevance",
-        "recent_pass_match",
+        "adjacency_match",
         "pitfall_match",
-        "verification_lane_match",
-        "high_inbound_bonus"
+        "verification_lane_match"
+      ],
+      "freshness_state": "fresh"
+    },
+    {
+      "stable_id": "file__src__lib__server__creator-discovery-ts",
+      "path": "src/lib/server/creator-discovery.ts",
+      "score": 134,
+      "why_selected": "path_domain_match, task_signal_match, filename_match, canonical_helper_relevance, adjacency_match, pitfall_match, verification_lane_match",
+      "weighted_components": [
+        "path_domain_match",
+        "task_signal_match",
+        "filename_match",
+        "canonical_helper_relevance",
+        "adjacency_match",
+        "pitfall_match",
+        "verification_lane_match"
       ],
       "freshness_state": "fresh"
     },
     {
       "stable_id": "file__src__app__creators__-username-__creatorprofileclient-tsx",
       "path": "src/app/creators/[username]/CreatorProfileClient.tsx",
+      "score": 134,
+      "why_selected": "path_domain_match, task_signal_match, filename_match, canonical_helper_relevance, adjacency_match, pitfall_match, verification_lane_match",
+      "weighted_components": [
+        "path_domain_match",
+        "task_signal_match",
+        "filename_match",
+        "canonical_helper_relevance",
+        "adjacency_match",
+        "pitfall_match",
+        "verification_lane_match"
+      ],
+      "freshness_state": "fresh"
+    },
+    {
+      "stable_id": "file__src__app__api__creator__discovery__route-ts",
+      "path": "src/app/api/creator/discovery/route.ts",
+      "score": 134,
+      "why_selected": "path_domain_match, task_signal_match, filename_match, canonical_helper_relevance, adjacency_match, pitfall_match, verification_lane_match",
+      "weighted_components": [
+        "path_domain_match",
+        "task_signal_match",
+        "filename_match",
+        "canonical_helper_relevance",
+        "adjacency_match",
+        "pitfall_match",
+        "verification_lane_match"
+      ],
+      "freshness_state": "fresh"
+    },
+    {
+      "stable_id": "file__src__app__api__creator__relationships__route-ts",
+      "path": "src/app/api/creator/relationships/route.ts",
       "score": 134,
       "why_selected": "path_domain_match, task_signal_match, filename_match, canonical_helper_relevance, adjacency_match, pitfall_match, verification_lane_match",
       "weighted_components": [
@@ -340,91 +417,27 @@
         "verification_lane_match"
       ],
       "freshness_state": "fresh"
-    },
-    {
-      "stable_id": "file__src__lib__creator-onboarding-projection-ts",
-      "path": "src/lib/creator-onboarding-projection.ts",
-      "score": 132,
-      "why_selected": "path_domain_match, task_signal_match, filename_match, canonical_helper_relevance, recent_pass_match, pitfall_match, verification_lane_match",
-      "weighted_components": [
-        "path_domain_match",
-        "task_signal_match",
-        "filename_match",
-        "canonical_helper_relevance",
-        "recent_pass_match",
-        "pitfall_match",
-        "verification_lane_match"
-      ],
-      "freshness_state": "fresh"
-    },
-    {
-      "stable_id": "file__src__lib__server__creator-admin-action-contract-ts",
-      "path": "src/lib/server/creator-admin-action-contract.ts",
-      "score": 132,
-      "why_selected": "path_domain_match, task_signal_match, filename_match, canonical_helper_relevance, recent_pass_match, pitfall_match, verification_lane_match",
-      "weighted_components": [
-        "path_domain_match",
-        "task_signal_match",
-        "filename_match",
-        "canonical_helper_relevance",
-        "recent_pass_match",
-        "pitfall_match",
-        "verification_lane_match"
-      ],
-      "freshness_state": "fresh"
-    },
-    {
-      "stable_id": "file__src__lib__server__creator-admin-actions-ts",
-      "path": "src/lib/server/creator-admin-actions.ts",
-      "score": 132,
-      "why_selected": "path_domain_match, task_signal_match, filename_match, canonical_helper_relevance, recent_pass_match, pitfall_match, verification_lane_match",
-      "weighted_components": [
-        "path_domain_match",
-        "task_signal_match",
-        "filename_match",
-        "canonical_helper_relevance",
-        "recent_pass_match",
-        "pitfall_match",
-        "verification_lane_match"
-      ],
-      "freshness_state": "fresh"
-    },
-    {
-      "stable_id": "file__src__lib__server__creator-agreement-documents-ts",
-      "path": "src/lib/server/creator-agreement-documents.ts",
-      "score": 132,
-      "why_selected": "path_domain_match, task_signal_match, filename_match, canonical_helper_relevance, recent_pass_match, pitfall_match, verification_lane_match",
-      "weighted_components": [
-        "path_domain_match",
-        "task_signal_match",
-        "filename_match",
-        "canonical_helper_relevance",
-        "recent_pass_match",
-        "pitfall_match",
-        "verification_lane_match"
-      ],
-      "freshness_state": "fresh"
     }
   ],
   "relevantUiSurfaces": [
     {
-      "route_or_component": "src/components/Creators/CreatorExperiencesPanel.tsx",
+      "route_or_component": "src/app/creators/waitlist/page.tsx",
+      "criticality": "medium",
+      "hydration_mode": "auth_hydrated",
+      "coverage_notes": [
+        "Mapped to app_routes."
+      ]
+    },
+    {
+      "route_or_component": "src/components/Dashboard/CreatorWorkspacePanel.tsx",
       "criticality": "high",
-      "hydration_mode": "static",
+      "hydration_mode": "auth_hydrated",
       "coverage_notes": []
     },
     {
       "route_or_component": "src/app/creators/apply/page.tsx",
       "criticality": "medium",
       "hydration_mode": "static",
-      "coverage_notes": [
-        "Mapped to app_routes."
-      ]
-    },
-    {
-      "route_or_component": "src/app/creators/waitlist/page.tsx",
-      "criticality": "medium",
-      "hydration_mode": "auth_hydrated",
       "coverage_notes": [
         "Mapped to app_routes."
       ]

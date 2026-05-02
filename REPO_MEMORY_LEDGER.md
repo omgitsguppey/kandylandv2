@@ -4,6 +4,10 @@ Status: Canonical repository-memory and architecture-decision ledger
 Last refreshed: 2026-05-02
 Repo: `C:\Users\uylus\OneDrive\Documents\KandyDrops_Final`
 
+## 2026-05-02 Creator public profile routing
+
+Creator public/admin/review profile navigation now routes through `src/lib/creator-profile-routing.ts`. Public creator links must use `buildCreatorPublicHref(...)`, admin user-record links must use `buildCreatorAdminHref(...)`, and Admin Roster focus links must use `buildCreatorReviewHref(...)`. The public route is `/creators/[username]`, so public links prefer username/handle/creatorUsername and do not fall back to uid. If no valid public slug exists, UI should render a non-link state with `explainCreatorProfileRouteMissing(...)`, emit `creator_profile_link_missing`, and expose Debug metadata rather than sending users to a 404. Chat headers, CreatorDiscoveryRail, Admin Roster view-as controls, creator-experience telemetry, creator notification links, and creator account-control profile paths are covered by this helper.
+
 ## 2026-05-02 Creator experience transaction truth
 
 Fan Pass, private chat, custom request, and live-time booking commerce now use deterministic creator experience idempotency helpers in `src/lib/server/creator-experiences.ts`. Paid creator routes compute price and spend server-side, write source-aware user transactions, fan-facing records, and `creator_ledger_accruals`, and expose debug parity fields including `userTransactionId`, `creatorAccrualId`, `creatorExperienceRecordId`, `priceGd`, `platformShareGd`, `creatorShareGd`, `idempotencyKey`, `duplicatePrevented`, and source-aware balance before/after. Client CTAs may pass idempotency keys, but they do not deduct GumDrops. Do not reintroduce random paid transaction IDs or client-authoritative balance deduction for creator experiences.

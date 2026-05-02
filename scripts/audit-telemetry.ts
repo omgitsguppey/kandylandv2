@@ -19,6 +19,13 @@ interface MatchRecord {
   matcher: string;
 }
 
+const KNOWN_IMPORTED_CONST_PROPERTY_VALUES = new Map<string, string[]>([
+  ["CREATOR_EXPERIENCE_PAID_EVENTS.fan_pass", ["creator_fan_pass_started"]],
+  ["CREATOR_EXPERIENCE_PAID_EVENTS.private_chat", ["creator_private_chat_opened"]],
+  ["CREATOR_EXPERIENCE_PAID_EVENTS.custom_request", ["creator_custom_request_created"]],
+  ["CREATOR_EXPERIENCE_PAID_EVENTS.live_time", ["creator_live_time_booked"]],
+]);
+
 function walkFiles(directory: string, results: string[] = []) {
   for (const entry of readdirSync(directory)) {
     const absolutePath = path.join(directory, entry);
@@ -67,6 +74,21 @@ function collectStringLiteralValues(
     return constValueMap.get(expression.text) ?? [];
   }
 
+  if (ts.isPropertyAccessExpression(expression) && ts.isIdentifier(expression.expression)) {
+    const key = `${expression.expression.text}.${expression.name.text}`;
+    return constValueMap.get(key) ?? KNOWN_IMPORTED_CONST_PROPERTY_VALUES.get(key) ?? [];
+  }
+
+  if (
+    ts.isElementAccessExpression(expression)
+    && ts.isIdentifier(expression.expression)
+    && expression.argumentExpression
+    && ts.isStringLiteralLike(expression.argumentExpression)
+  ) {
+    const key = `${expression.expression.text}.${expression.argumentExpression.text}`;
+    return constValueMap.get(key) ?? KNOWN_IMPORTED_CONST_PROPERTY_VALUES.get(key) ?? [];
+  }
+
   return [];
 }
 
@@ -75,9 +97,33 @@ function buildConstValueMap(sourceFile: ts.SourceFile) {
 
   function visit(node: ts.Node) {
     if (ts.isVariableDeclaration(node) && ts.isIdentifier(node.name) && node.initializer) {
+      const variableName = node.name.text;
       const values = collectStringLiteralValues(node.initializer, constValueMap);
       if (values.length > 0) {
-        constValueMap.set(node.name.text, Array.from(new Set(values)));
+        constValueMap.set(variableName, Array.from(new Set(values)));
+      }
+
+      if (ts.isObjectLiteralExpression(node.initializer)) {
+        node.initializer.properties.forEach((property) => {
+          if (!ts.isPropertyAssignment(property)) {
+            return;
+          }
+
+          const propertyName = ts.isIdentifier(property.name) || ts.isStringLiteralLike(property.name)
+            ? property.name.text
+            : "";
+          if (!propertyName) {
+            return;
+          }
+
+          const propertyValues = collectStringLiteralValues(property.initializer, constValueMap);
+          if (propertyValues.length > 0) {
+            constValueMap.set(
+              `${variableName}.${propertyName}`,
+              Array.from(new Set(propertyValues)),
+            );
+          }
+        });
       }
     }
 
@@ -99,7 +145,11 @@ function extractEventNamesFromCall(
   const expression = callExpression.expression;
   const args = callExpression.arguments;
 
-  if (isIdentifierNamed(expression, "trackEvent") || isIdentifierNamed(expression, "trackServerEvent")) {
+  if (
+    isIdentifierNamed(expression, "trackEvent")
+    || isIdentifierNamed(expression, "trackServerEvent")
+    || isIdentifierNamed(expression, "trackCreatorExperienceEvent")
+  ) {
     const matcher = ts.isIdentifier(expression) ? expression.text : "trackEvent";
     const eventNames = collectStringLiteralValues(args[0], constValueMap);
     return eventNames.length > 0

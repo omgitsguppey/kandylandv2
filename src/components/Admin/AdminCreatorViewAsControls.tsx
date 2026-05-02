@@ -1,12 +1,19 @@
 "use client";
 
-import { useState } from "react";
+import { useEffect, useMemo, useRef, useState } from "react";
 import Link from "next/link";
 import { Eye, RotateCcw } from "lucide-react";
 import { toast } from "sonner";
 
 import { useAdminViewAs } from "@/context/AdminViewAsContext";
+import { useAuth } from "@/context/AuthContext";
 import type { SyntheticCreatorType } from "@/lib/admin/synthetic-creators-view-as";
+import {
+  buildCreatorProfileLinkTelemetryPayload,
+  buildCreatorPublicHref,
+  explainCreatorProfileRouteMissing,
+} from "@/lib/creator-profile-routing";
+import { trackEvent } from "@/lib/telemetry";
 
 type AdminCreatorViewAsControlsProps = {
   targetUserId: string;
@@ -22,10 +29,47 @@ export function AdminCreatorViewAsControls({
   syntheticCreatorType,
 }: AdminCreatorViewAsControlsProps) {
   const { viewAsState, startViewAsCreator, endViewAsCreator } = useAdminViewAs();
+  const { user, userProfile } = useAuth();
   const [reason, setReason] = useState("Admin roster QA");
   const [saving, setSaving] = useState(false);
+  const missingRouteTelemetryKeyRef = useRef("");
   const isViewingThisCreator = viewAsState?.adminViewingAsUserId === targetUserId;
-  const profileHref = username ? `/creators/${encodeURIComponent(username)}` : "";
+  const profileRouteInput = useMemo(() => ({
+    uid: targetUserId,
+    creatorId: targetUserId,
+    username,
+    creatorUsername: username,
+    isSyntheticCreator: Boolean(syntheticCreatorType),
+  }), [syntheticCreatorType, targetUserId, username]);
+  const profileHref = buildCreatorPublicHref(profileRouteInput) ?? "";
+  const missingProfileReason = profileHref ? "" : explainCreatorProfileRouteMissing(profileRouteInput);
+  const actor = useMemo(() => ({
+    uid: user?.uid ?? "",
+    email: user?.email ?? "",
+    role: userProfile?.role ?? (user ? "admin" : "guest"),
+    isAdmin: userProfile?.role === "admin",
+  }), [user, userProfile?.role]);
+
+  useEffect(() => {
+    if (!missingProfileReason) {
+      return;
+    }
+
+    const telemetryKey = `${targetUserId}:${missingProfileReason}`;
+    if (missingRouteTelemetryKeyRef.current === telemetryKey) {
+      return;
+    }
+
+    missingRouteTelemetryKeyRef.current = telemetryKey;
+    trackEvent("creator_profile_link_missing", buildCreatorProfileLinkTelemetryPayload({
+      actor,
+      creator: profileRouteInput,
+      href: null,
+      routeSource: "admin_roster",
+      currentRoute: "/admin/roster",
+      missingReason: missingProfileReason,
+    }));
+  }, [actor, missingProfileReason, profileRouteInput, targetUserId]);
 
   const handleStart = async () => {
     try {
@@ -48,7 +92,19 @@ export function AdminCreatorViewAsControls({
     <div className="w-full rounded-2xl border border-white/10 bg-black/20 p-3 sm:w-auto">
       <div className="flex flex-wrap items-center gap-2">
         {profileHref ? (
-          <Link href={profileHref} className="inline-flex min-h-10 items-center rounded-full border border-white/10 bg-black/35 px-4 text-sm font-semibold text-white">
+          <Link
+            href={profileHref}
+            onClick={() => {
+              trackEvent("creator_profile_link_clicked", buildCreatorProfileLinkTelemetryPayload({
+                actor,
+                creator: profileRouteInput,
+                href: profileHref,
+                routeSource: "admin_roster",
+                currentRoute: "/admin/roster",
+              }));
+            }}
+            className="inline-flex min-h-10 items-center rounded-full border border-white/10 bg-black/35 px-4 text-sm font-semibold text-white"
+          >
             View fan profile
           </Link>
         ) : null}

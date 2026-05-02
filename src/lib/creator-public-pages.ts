@@ -8,6 +8,20 @@ import {
     type CreatorSettings,
 } from "@/lib/creator-experiences";
 import { normalizeCreatorOnboardingApprovalStatus } from "@/lib/creator-onboarding";
+import { buildCreatorPublicHref } from "@/lib/creator-profile-routing";
+
+export {
+    buildCreatorAdminHref,
+    buildCreatorProfileHref,
+    buildCreatorProfileLinkTelemetryPayload,
+    buildCreatorPublicHref,
+    buildCreatorReviewHref,
+    canLinkToCreatorPublicProfile,
+    explainCreatorProfileRouteMissing,
+    normalizeCreatorProfileSlug,
+    type CreatorProfileRouteInput,
+    type CreatorProfileRouteSource,
+} from "@/lib/creator-profile-routing";
 
 export type CreatorDiscoverySurface = "dashboard" | "drops" | "experiences" | "home";
 
@@ -38,24 +52,15 @@ export type CreatorDiscoveryProfile = {
     notificationsEnabledCount?: number;
 };
 
-function normalizeCreatorUsernameForHref(username: string | null | undefined) {
-    const normalized = (username || "").trim().replace(/^@+/, "").toLowerCase();
-    return normalized && !normalized.includes("/") ? normalized : "";
-}
-
-export function buildCreatorProfileHref(input: {
-    creatorUsername?: string | null;
-}) {
-    const username = normalizeCreatorUsernameForHref(input.creatorUsername);
-    return username ? `/creators/${encodeURIComponent(username)}` : null;
-}
-
 export function buildCreatorDiscoveryNavigationParams(input: {
     creatorId: string;
     creatorUsername?: string;
     surface: CreatorDiscoverySurface;
 }) {
-    const destination = buildCreatorProfileHref({ creatorUsername: input.creatorUsername }) ?? "/creators";
+    const destination = buildCreatorPublicHref({
+        creatorId: input.creatorId,
+        creatorUsername: input.creatorUsername,
+    }) ?? "/creators";
 
     return {
         destination,

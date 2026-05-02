@@ -30,6 +30,7 @@ const chatShell = readRequired("src/components/Chat/ChatRouteShell.tsx");
 const bottomNav = readRequired("src/components/Navigation/MobileBottomBar.tsx");
 const spacing = readRequired("src/lib/user-mobile-shell.ts");
 const creatorPublicPages = readRequired("src/lib/creator-public-pages.ts");
+const creatorProfileRouting = readRequired("src/lib/creator-profile-routing.ts");
 const creatorDiscoveryRail = readRequired("src/components/CreatorDiscoveryRail.tsx");
 const notFound = readRequired("src/components/ui/NotFoundSurface.tsx");
 const doc = readRequired("docs/agent-truth/user-chat-shell-routing.md");
@@ -97,14 +98,15 @@ for (const needle of [
 requireIncludes(bottomNav, "USER_MOBILE_BOTTOM_NAV_BOTTOM_OFFSET", "Bottom nav shared spacing");
 requireIncludes(bottomNav, "USER_MOBILE_BOTTOM_NAV_HEIGHT", "Bottom nav shared spacing");
 
-requireIncludes(creatorPublicPages, "buildCreatorProfileHref", "Creator profile href builder");
-requireIncludes(creatorPublicPages, "/creators/${encodeURIComponent(username)}", "Creator profile href builder");
-requireIncludes(chat, "buildCreatorProfileHref", "Chat thread profile route");
+requireIncludes(creatorProfileRouting, "buildCreatorPublicHref", "Creator profile href builder");
+requireIncludes(creatorProfileRouting, "/creators/${encodeURIComponent(slug)}", "Creator profile href builder");
+requireIncludes(creatorPublicPages, "from \"@/lib/creator-profile-routing\"", "Creator profile href builder re-export");
+requireIncludes(chat, "buildCreatorPublicHref", "Chat thread profile route");
 requireIncludes(chat, "selectedThreadCreatorProfileHref", "Chat thread profile route");
 requireIncludes(chat, "missingProfileHrefReason", "Missing profile href debug metadata");
 requireNotIncludes(chat, "href={`/${selectedThread.counterpartUsername}`}", "Chat thread profile route");
 requireNotIncludes(chat, "href={`/${", "Chat thread profile route");
-requireIncludes(creatorDiscoveryRail, "buildCreatorProfileHref", "Creator discovery profile route");
+requireIncludes(creatorDiscoveryRail, "buildCreatorPublicHref", "Creator discovery profile route");
 requireIncludes(creatorDiscoveryRail, "creatorProfileHref", "Creator discovery profile route");
 requireIncludes(creatorDiscoveryRail, "Creator profile unavailable", "Creator discovery missing profile route");
 requireNotIncludes(creatorDiscoveryRail, "`/creators/${creator.username}`", "Creator discovery profile route");
@@ -130,7 +132,7 @@ for (const bannedSizing of ["paddingBottom: showCompactThreadListOnly", "pb-[cal
 
 for (const needle of [
   "Messages list and chat thread views share one mobile shell contract",
-  "buildCreatorProfileHref",
+  "buildCreatorPublicHref",
   "Return to App",
   "Do not fix bottom-nav overlap with negative margins",
 ]) {

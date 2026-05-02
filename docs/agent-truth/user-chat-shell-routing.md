@@ -10,7 +10,7 @@ Do not fix bottom-nav overlap with negative margins, upward transforms, clipping
 
 Floating compose/new-chat controls must be anchored above the user bottom nav and iOS safe area. Do not use random outer card padding, browser chrome height guesses, `min-h-screen`/`h-screen` dead zones, or a second safe-area-bottom padding layer to make the Messages list appear correct.
 
-The chat thread creator header must use the canonical creator profile route: `/creators/[username]`. Build it through `buildCreatorProfileHref` from `src/lib/creator-public-pages.ts`. Do not use obsolete root username paths like `/${username}`. If a creator username is missing or invalid, render a non-link profile pill and expose the missing href in debug metadata instead of linking users into a 404.
+The chat thread creator header must use the canonical creator profile route: `/creators/[username]`. Build it through `buildCreatorPublicHref` from `src/lib/creator-profile-routing.ts`. Do not use obsolete root username paths like `/${username}`. If a creator username is missing or invalid, render a non-link profile pill, emit `creator_profile_link_missing`, and expose the missing href reason in debug metadata instead of linking users into a 404.
 
 Any other creator-profile affordance in user surfaces must use the same helper. Discovery rails and chat headers must not hand-build `/creators/${username}` links, use `#` placeholders, or make unavailable creator profiles look like working links.
 

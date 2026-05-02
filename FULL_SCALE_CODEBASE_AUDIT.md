@@ -1,5 +1,31 @@
 # KandyDrops Core Codebase Audit & Defensive Ledger
 
+## [2026-05-02 #110] PRE: Creator Public Profile Routing Cleanup
+
+Scope started:
+- Centralizing creator public/admin/review profile href building so chat headers, Admin Roster links, creator discovery rails, synthetic creator links, and recovery surfaces stop relying on stale or hardcoded route patterns.
+- Required outputs: canonical creator profile routing helper, replacement of obsolete profile href usage, docs at `docs/agent-truth/creator-profile-routing.md` and `docs/agent-truth/user-chat-shell-routing.md`, validation command, focused routing/chat/roster tests, TypeScript, `git diff --check`, commit, and push.
+- This pass must not redesign creator profiles, change creator profile route semantics beyond canonical href construction, touch GumDrop/payment/economy code, or use 404s as normal control flow for creators with valid profile data.
+
+Initial evidence:
+- Control tower routing, product/copy/UI doctrine, source-of-truth map, shared component ownership, generated fast-start context, and adjacency trace for `src/lib/creator-public-pages.ts` were consulted.
+- Runtime owners to inspect first: `src/lib/creator-public-pages.ts`, creator discovery rail/data helpers, chat profile links, Admin Roster creator links, creator profile client, not-found recovery, and focused creator routing tests.
+
+Scope completed:
+- Added `src/lib/creator-profile-routing.ts` as the canonical creator public/admin/review href builder with public-profile eligibility checks, synthetic creator handling, missing-route explanations, and actor-marked link telemetry payload helpers.
+- Replaced stale direct creator href construction across chat headers, creator discovery rails, Admin Roster links, synthetic creator view-as controls, creator profile metadata/client events, creator experience route metadata, notification links, and admin creator account controls.
+- Added routing docs, validation, focused route tests, and refreshed the telemetry audit so canonical creator experience/server event maps are recognized without duplicating event literals in runtime code.
+
+Verification:
+- Passed: `npm run check:creator-profile-routing`
+- Passed: `npm run check:user-chat-shell-routing`
+- Passed: `npm run check:telemetry`
+- Passed: `npm run typecheck`
+- Passed: `npx vitest run tests/unit/creator-profile-routing.spec.ts tests/unit/creator-public-pages.spec.ts tests/unit/creator-profile-route.spec.ts tests/unit/creator-experiences-panel.spec.tsx tests/unit/admin-roster-decision-queue.spec.ts tests/unit/admin-roster-route.spec.ts tests/unit/chat-thread-route.spec.ts tests/unit/chat-thread-messages-route.spec.ts`
+- Passed: `npm run check:ui:audits`
+- Passed: `npm run check:continuity`
+- Passed: `git diff --check` with existing Windows CRLF normalization warnings only.
+
 ## [2026-05-02 #109] PRE: Creator Experience Transaction Truth Cleanup
 
 Scope started:

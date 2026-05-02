@@ -1,4 +1,5 @@
 import type { CreatorOnboardingApprovalStatus } from "@/lib/creator-onboarding";
+import { buildCreatorPublicHref } from "@/lib/creator-profile-routing";
 
 export const CREATOR_ACCOUNT_CONTROL_ROLES = ["user", "creator", "admin"] as const;
 export type CreatorAccountControlRole = (typeof CREATOR_ACCOUNT_CONTROL_ROLES)[number];
@@ -275,6 +276,5 @@ export function formatCreatorApprovalStatus(status: CreatorOnboardingApprovalSta
 }
 
 export function buildCreatorPublicProfilePath(username?: string | null) {
-  const handle = readString(username).toLowerCase();
-  return handle ? `/creators/${encodeURIComponent(handle)}` : "";
+  return buildCreatorPublicHref({ username, creatorUsername: username }) ?? "";
 }

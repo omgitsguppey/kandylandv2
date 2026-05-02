@@ -1,5 +1,5 @@
 {
-  "generatedAt": "2026-05-02T17:55:41.966Z",
+  "generatedAt": "2026-05-02T18:32:23.530Z",
   "truthOrder": [
     "verified_runtime_code",
     "verified_configuration",
@@ -16,23 +16,23 @@
     "agent/index/surface-map.json",
     "agent/index/ui-surface-coverage.json"
   ],
-  "stable_id": "verifyplan__src__components__creators__creatorexperiencespanel-tsx",
+  "stable_id": "verifyplan__src__lib__creator-public-pages-ts",
   "inputPaths": [
-    "src/components/Creators/CreatorExperiencesPanel.tsx"
+    "src/lib/creator-public-pages.ts"
   ],
   "matchedRepoPaths": [
-    "src/components/Creators/CreatorExperiencesPanel.tsx"
+    "src/lib/creator-public-pages.ts"
   ],
   "unmatchedPaths": [],
-  "touchedDomains": [],
+  "touchedDomains": [
+    "shared_server_helpers"
+  ],
   "fastCommands": [
     "npm run typecheck",
-    "npm run agent:test -- src/components/Creators/CreatorExperiencesPanel.tsx",
-    "npm run check:ui:coverage",
-    "npm run check:ui:runtime"
+    "npm run agent:test -- src/lib/creator-public-pages.ts"
   ],
   "signoffCommands": [
-    "npm run check:ui:audits"
+    "npm run check:continuity"
   ],
   "fastSelections": [
     {
@@ -43,38 +43,23 @@
       "lane": "fast"
     },
     {
-      "command": "npm run agent:test -- src/components/Creators/CreatorExperiencesPanel.tsx",
+      "command": "npm run agent:test -- src/lib/creator-public-pages.ts",
       "why": [
         "Run the narrowest related contract/unit tests first."
-      ],
-      "lane": "fast"
-    },
-    {
-      "command": "npm run check:ui:coverage",
-      "why": [
-        "Indexed UI/admin surfaces changed."
-      ],
-      "lane": "fast"
-    },
-    {
-      "command": "npm run check:ui:runtime",
-      "why": [
-        "Hydration/runtime UI continuity should stay truthful."
       ],
       "lane": "fast"
     }
   ],
   "signoffSelections": [
     {
-      "command": "npm run check:ui:audits",
+      "command": "npm run check:continuity",
       "why": [
-        "UI/admin signoff requires Playwright audit coverage."
+        "Broad/shared/helper/tooling work requires continuity signoff."
       ],
       "lane": "signoff"
     }
   ],
   "signoffAdvisories": [
-    "Run `npm run check:ui:lighthouse` only if the touched UI change affects loading, rendering, or performance-sensitive behavior.",
     "Run `npm run trace:adjacent -- <path>` for the main touched files before broad signoff."
   ],
   "forbiddenSurfaces": [
@@ -84,7 +69,7 @@
     "src/app/api/paypal",
     "functions/src/analytics-transactions.ts"
   ],
-  "broadWork": false,
+  "broadWork": true,
   "reasoning": [
     "Matched 1 repo-tracked paths."
   ]

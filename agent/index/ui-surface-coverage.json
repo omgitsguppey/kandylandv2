@@ -1,5 +1,5 @@
 {
-  "generatedAt": "2026-05-02T18:19:17.829Z",
+  "generatedAt": "2026-05-02T18:58:05.069Z",
   "truthOrder": [
     "verified_runtime_code",
     "verified_configuration",
@@ -1298,6 +1298,7 @@
         "src/lib/creator-experiences.ts",
         "src/lib/creator-onboarding-projection.ts",
         "src/lib/creator-onboarding.ts",
+        "src/lib/creator-profile-routing.ts",
         "src/lib/telemetry.ts"
       ],
       "hydration_mode": "auth_hydrated",
@@ -1809,6 +1810,7 @@
       ],
       "runtime_dependencies": [
         "src/lib/creator-experiences.ts",
+        "src/lib/creator-profile-routing.ts",
         "src/lib/server/firebase-admin.ts",
         "src/lib/server/route-diagnostics.ts",
         "src/lib/site-origin.ts"
@@ -2069,6 +2071,7 @@
       "lighthouse_required": false,
       "existing_tests": [
         "tests/unit/creator-profile-route.spec.ts",
+        "tests/unit/creator-profile-routing.spec.ts",
         "tests/unit/dashboard-viewer-page.spec.tsx",
         "tests/unit/user-profile-route.spec.ts"
       ],
@@ -2339,6 +2342,7 @@
       "runtime_dependencies": [
         "src/lib/client-session.ts",
         "src/lib/creator-experiences.ts",
+        "src/lib/creator-profile-routing.ts",
         "src/lib/telemetry.ts",
         "src/lib/utils.ts"
       ],
