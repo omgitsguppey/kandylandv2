@@ -9,6 +9,14 @@ Scoring: all entries below are marked as included in the current validated sweep
 
 Current repo-wide state snapshot: see [FULL_SCALE_CODEBASE_AUDIT.md](/Users/uylus/OneDrive/Documents/KandyDrops_Final/FULL_SCALE_CODEBASE_AUDIT.md) for the current live baseline, verification state, and continuity rules, and see [REPO_MEMORY_LEDGER.md](/Users/uylus/OneDrive/Documents/KandyDrops_Final/REPO_MEMORY_LEDGER.md) for major architectural and workflow decisions. The detailed file/function body below remains valuable historical evidence, but it has not been fully regenerated against the current 2026-04-18 inventory review yet.
 
+## 2026-05-02 Creator Identity Marker Hardening Coverage
+
+- [x] `src/lib/identity/actor-markers.ts` owns canonical actor classification, marker construction, admin-on-behalf markers, unknown-actor blocking, telemetry payload mapping, and Debug field mapping.
+- [x] Creator intake and onboarding routes now carry actor markers for signup, intro acknowledgement, application updates, ID submission, contract signing, and safe unknown failure metadata.
+- [x] Admin Roster and admin user creator-account actions now mark admin-on-behalf and owner-override actions with target user/creator identity and Debug evidence.
+- [x] `src/lib/server/analytics.ts` and `src/lib/analytics/analytics-event-contract.ts` preserve explicit actor markers, include `owner_admin`, and keep admin/owner/system/unknown events out of user behavior analytics unless explicitly classified.
+- [x] `scripts/agent/validate-creator-identity-markers.ts`, `tests/unit/actor-markers.spec.ts`, `docs/agent-truth/creator-identity-markers.md`, and `docs/agent-truth/analytics-actor-taxonomy.md` cover the launch identity-marker contract.
+
 ## 2026-05-02 Final Launch Readiness Report Coverage
 
 - [x] `agent/state/final-launch-readiness-report.generated.json` records all required launch gates with status, evidence files, validations run, blockers, warnings, launch recommendation, and post-launch tasks.

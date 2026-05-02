@@ -350,9 +350,26 @@ export default function AdminRosterPage() {
                 throw new Error(result.error || "Failed to update creator intake.");
             }
             await Promise.all([refreshRoster(), refreshSelectedDetail()]);
+            const performedAs = Object.prototype.hasOwnProperty.call(patch, "ownerOverrideActive")
+                ? "owner_override"
+                : "admin_on_behalf";
+            const occurredAt = new Date().toISOString();
             trackEvent("creator_application_review_saved", {
                 creator_user_id: selectedUserId,
                 review_action: actionKey,
+                actorType: isOwner ? "owner_admin" : "admin",
+                actorUid: user?.uid ?? "",
+                actorEmail: user?.email ?? "",
+                actorRole: isOwner ? "owner_admin" : "admin",
+                targetUserId: selectedUserId,
+                targetCreatorId: selectedUserId,
+                performedAs,
+                surface: "admin_roster",
+                route: "/admin/roster",
+                actionKey,
+                occurredAt,
+                dedupeKey: `admin_roster:${actionKey}:${selectedUserId}:${occurredAt.slice(0, 19)}`,
+                source: "admin_roster_client",
             });
             toast.success("Creator intake updated.");
         } catch (error) {

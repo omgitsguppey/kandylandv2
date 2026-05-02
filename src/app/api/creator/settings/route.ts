@@ -8,6 +8,12 @@ import { guardApiRequest } from "@/lib/server/request-guard";
 import { isCreatorOrAdminRole } from "@/lib/creator-experiences";
 import { buildCreatorUpdateMerge, sanitizeCreatorRestrictionsUpdate, sanitizeCreatorSettingsUpdate } from "@/lib/server/creator-experiences";
 import { withRouteRuntimeHealth } from "@/lib/server/route-runtime-health";
+import { trackServerEvent } from "@/lib/server/analytics";
+import {
+    actorMarkerToTelemetryPayload,
+    assertKnownActor,
+    buildActorMarker,
+} from "@/lib/identity/actor-markers";
 
 async function requireCreator(uid: string) {
     if (!adminDb) {
@@ -148,7 +154,29 @@ async function PUT_handler(request: NextRequest) {
             return NextResponse.json({ error: "No valid creator settings provided." }, { status: 400 });
         }
 
+        const actorMarker = assertKnownActor(buildActorMarker({
+            actor: {
+                uid: caller.uid,
+                email: caller.email,
+                role: typeof data.role === "string" ? data.role : "creator",
+            },
+            targetUserId: caller.uid,
+            targetCreatorId: caller.uid,
+            performedAs: payload.creatorRestrictions ? "admin_on_behalf" : "own_account",
+            surface: "creator_experiences",
+            route: "/api/creator/settings",
+            actionKey: "creator_settings_updated",
+            occurredAt: Date.now(),
+            dedupeKey: `creator_settings_updated:${caller.uid}:${payload.creatorRestrictions ? "restrictions" : "settings"}`,
+            source: "creator_settings_route",
+        }));
         await adminDb.collection("users").doc(caller.uid).update(buildCreatorUpdateMerge(update));
+        await trackServerEvent("creator_settings_updated", {
+            page_path: "/dashboard/creator",
+            creator_settings_updated: Boolean(payload.creatorSettings),
+            creator_restrictions_updated: Boolean(payload.creatorRestrictions),
+            ...actorMarkerToTelemetryPayload(actorMarker),
+        }, caller.uid).catch(() => undefined);
         return NextResponse.json({ success: true });
     } catch (error) {
         return handleApiError(error, "Creator.Settings.PUT");

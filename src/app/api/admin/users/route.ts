@@ -28,6 +28,13 @@ import {
   shouldActivateCreatorRole,
   syncCreatorOnboardingDocuments,
 } from "@/lib/server/creator-onboarding";
+import {
+  actorMarkerToTelemetryPayload,
+  assertKnownActor,
+  buildAdminOnBehalfMarker,
+  buildActorMarkerDebugFields,
+  type ActorMarker,
+} from "@/lib/identity/actor-markers";
 import { recordRouteWarning } from "@/lib/server/route-diagnostics";
 import { buildServerAdminModuleVerification } from "@/lib/server/admin-source-verification";
 import { recordServerDiagnostic } from "@/lib/server/server-diagnostics";
@@ -286,10 +293,20 @@ function buildCreatorLifecycleEvents(input: {
 async function emitCreatorLifecycleTelemetry(
   events: ReturnType<typeof buildCreatorLifecycleEvents>,
   userId: string,
+  actorMarker: ActorMarker,
+  state: {
+    onboardingStatus?: string;
+    legalStatus?: string;
+    agreementVersion?: string;
+  } = {},
 ) {
   await Promise.allSettled(events.map((eventName) => {
     const payload = {
       page_path: `/admin/user/${userId}`,
+      onboarding_status: state.onboardingStatus ?? "",
+      legal_status: state.legalStatus ?? "",
+      agreement_version: state.agreementVersion ?? "",
+      ...actorMarkerToTelemetryPayload(actorMarker),
     };
 
     switch (eventName) {
@@ -325,6 +342,29 @@ async function emitCreatorLifecycleTelemetry(
         return Promise.resolve();
     }
   }));
+}
+
+function buildAdminUsersActor(input: {
+  uid?: string | null;
+  email?: string | null;
+  isOwner: boolean;
+}) {
+  return {
+    uid: input.uid,
+    email: input.email,
+    role: input.isOwner ? "owner_admin" : "admin",
+    isAdmin: true,
+    isOwner: input.isOwner,
+  };
+}
+
+function buildCreatorOnboardingActorFromMarker(marker: ActorMarker): CreatorOnboardingActor {
+  return {
+    id: marker.actorUid ?? marker.actorType,
+    role: marker.actorType === "owner_admin" ? "owner_admin" : "admin",
+    label: marker.actorEmail ?? marker.actorUid ?? "Admin",
+    marker,
+  };
 }
 
 type CreatorOpsAggregate = {
@@ -1194,14 +1234,35 @@ async function PUT_handler(request: NextRequest) {
       return NextResponse.json({ error: "No valid fields to update" }, { status: 400 });
     }
 
-    const actor: CreatorOnboardingActor = {
-      id: authResult?.uid ?? "admin",
-      role: "admin",
-      label: authResult?.email ?? authResult?.uid ?? "Admin",
-    };
     const isOwnerActor = isCreatorOwnerEmail(authResult?.email);
+    const creatorActorMarker = assertKnownActor(buildAdminOnBehalfMarker(
+      buildAdminUsersActor({
+        uid: authResult?.uid,
+        email: authResult?.email,
+        isOwner: isOwnerActor,
+      }),
+      userId,
+      {
+        surface: "creator_account_admin",
+        route: "/api/admin/users",
+        actionKey: Object.prototype.hasOwnProperty.call(creatorApplicationPatch ?? {}, "ownerOverrideActive")
+          ? "owner_override_creator_onboarding_update"
+          : "admin_creator_onboarding_update",
+        source: "admin_users_put",
+        performedAs: Object.prototype.hasOwnProperty.call(creatorApplicationPatch ?? {}, "ownerOverrideActive")
+          ? "owner_override"
+          : "admin_on_behalf",
+        targetCreatorId: userId,
+      },
+    ));
+    const actor: CreatorOnboardingActor = buildCreatorOnboardingActorFromMarker(creatorActorMarker);
     const nowMs = Date.now();
     let creatorLifecycleEvents: ReturnType<typeof buildCreatorLifecycleEvents> = [];
+    let creatorLifecycleState: {
+      onboardingStatus?: string;
+      legalStatus?: string;
+      agreementVersion?: string;
+    } = {};
     let creatorOnboardingDiagnostic: CreatorOnboardingDiagnosticEntry | null = null;
 
     if (creatorApplicationPatch) {
@@ -1300,6 +1361,10 @@ async function PUT_handler(request: NextRequest) {
         ) {
           await trackServerEvent("creator_role_activation_blocked", {
             page_path: `/admin/user/${userId}`,
+            onboarding_status: nextCanonical.submissionStatus,
+            legal_status: nextCanonical.legalStatus,
+            agreement_version: nextCanonical.contractVersion ?? "",
+            ...actorMarkerToTelemetryPayload(creatorActorMarker),
           }, userId).catch(() => undefined);
           throw new InvalidCreatorOnboardingTransitionError("Creator approval requires intro acknowledgment, accepted identity verification, and both agreement signatures unless owner override is active.");
         }
@@ -1369,6 +1434,11 @@ async function PUT_handler(request: NextRequest) {
           before: currentCanonical,
           after: nextCanonical,
         });
+        creatorLifecycleState = {
+          onboardingStatus: nextCanonical.submissionStatus,
+          legalStatus: nextCanonical.legalStatus,
+          agreementVersion: nextCanonical.contractVersion,
+        };
 
         if (
           (requestedRole === "creator" && nextRole !== "creator")
@@ -1434,6 +1504,10 @@ async function PUT_handler(request: NextRequest) {
           if (!shouldActivateCreatorRole(currentCanonical)) {
             await trackServerEvent("creator_role_activation_blocked", {
               page_path: `/admin/user/${userId}`,
+              onboarding_status: currentCanonical.submissionStatus,
+              legal_status: currentCanonical.legalStatus,
+              agreement_version: currentCanonical.contractVersion ?? "",
+              ...actorMarkerToTelemetryPayload(creatorActorMarker),
             }, userId).catch(() => undefined);
             await recordServerDiagnostic({
               channel: "creator_onboarding",
@@ -1449,6 +1523,7 @@ async function PUT_handler(request: NextRequest) {
                 contractDocumentStatus: currentCanonical.contractDocumentStatus,
                 creatorSignatureStatus: currentCanonical.creatorSignatureStatus,
                 adminSignatureStatus: currentCanonical.adminSignatureStatus,
+                ...buildActorMarkerDebugFields(creatorActorMarker),
               },
             });
 
@@ -1518,11 +1593,14 @@ async function PUT_handler(request: NextRequest) {
         channel: "creator_onboarding",
         severity: creatorOnboardingDiagnosticEntry.severity,
         message: creatorOnboardingDiagnosticEntry.message,
-        detail: creatorOnboardingDiagnosticEntry.detail,
+        detail: {
+          ...creatorOnboardingDiagnosticEntry.detail,
+          ...buildActorMarkerDebugFields(creatorActorMarker),
+        },
       });
     }
 
-    await emitCreatorLifecycleTelemetry(creatorLifecycleEvents, userId);
+    await emitCreatorLifecycleTelemetry(creatorLifecycleEvents, userId, creatorActorMarker, creatorLifecycleState);
 
     return NextResponse.json({ success: true });
   } catch (error) {

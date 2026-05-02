@@ -1,5 +1,33 @@
 # KandyDrops Core Codebase Audit & Defensive Ledger
 
+## [2026-05-02 #94] PRE: Creator Identity Marker Hardening
+
+Scope started:
+- Adding and verifying canonical actor identity markers for creator intake, creator onboarding/admin actions, Admin Roster actions, creator experience actions, and creator account/admin flows.
+- Required outputs: `src/lib/identity/actor-markers.ts` or equivalent helper, telemetry/debug marker integration, `scripts/agent/validate-creator-identity-markers.ts`, focused actor-marker tests, `docs/agent-truth/creator-identity-markers.md`, `docs/agent-truth/analytics-actor-taxonomy.md`, governance ledger updates, commit, and push.
+- This pass is targeted. It must not invent a second telemetry spine, expose raw private ids in visible UI, treat unknown actors as users, allow admin events into user-behavior analytics without explicit `admin_on_behalf`, or broaden into unrelated creator/admin redesign work.
+
+Initial evidence:
+- Worktree was clean at startup on `main`.
+- Control tower routing, source-of-truth map, doctrine consultation workflow, product/copy/UI/cloud doctrine, preflight/postflight checklists, and current launch/telemetry ledgers were consulted.
+- Task is a bounded creator identity/telemetry/admin truth hardening pass. Source truth is runtime code first, especially `src/lib/creator-onboarding.ts`, server creator onboarding routes/helpers, Admin Roster routes, and the existing analytics event contract.
+
+Scope completed:
+- Added `src/lib/identity/actor-markers.ts` as the canonical identity marker helper for creator/admin actions, including classification, admin-on-behalf markers, unknown-actor blocking, telemetry payload mapping, and Debug field mapping.
+- Wired creator signup, creator onboarding steps, creator settings, Admin Roster backfill/direct creation, admin user creator-account actions, and server analytics persistence to carry actor type, target identity, `performedAs`, surface, action, dedupe, and source markers.
+- Updated analytics actor taxonomy and event contracts to include `owner_admin`, preserve explicit actor markers, and keep admin/owner/system/unknown events out of user behavior analytics unless explicitly classified.
+- Added `scripts/agent/validate-creator-identity-markers.ts`, `npm run check:creator-identity-markers`, focused actor-marker tests, and governance/docs coverage.
+
+Verification:
+- `npm run check:creator-identity-markers`
+- `npx vitest run tests/unit/actor-markers.spec.ts tests/unit/analytics-event-contract.spec.ts`
+- `npx vitest run tests/unit/admin-roster-route.spec.ts tests/unit/user-register-route.spec.ts tests/unit/admin-users-route.spec.ts tests/unit/creator-onboarding-server.spec.ts tests/unit/creator-onboarding-application-route.spec.ts tests/unit/creator-contract-signature-route.spec.ts tests/unit/creator-id-submission-route.spec.ts tests/unit/creator-settings-route.spec.ts tests/contracts/telemetry-contracts.spec.ts`
+- `npm run typecheck`
+- `git diff --check`
+
+Residual risk:
+- This pass did not redesign creator/admin UI or add new product flows. It hardens markers on the known creator intake, roster, creator experience, and creator account/admin paths. Future creator/admin actions must use the same helper rather than adding ad hoc telemetry fields.
+
 ## [2026-05-02 #93] PRE: Final Launch Readiness Report
 
 Scope started:

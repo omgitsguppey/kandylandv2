@@ -2,7 +2,7 @@ export const ANALYTICS_EVENT_SCHEMA_VERSION = "analytics_event_v2";
 export const ANALYTICS_EVENT_CONTRACT_VERSION = 2;
 export const IDENTITY_LINKED_EVENT_NAME = "identity_linked";
 
-export const ANALYTICS_ACTOR_TYPES = ["guest", "user", "creator", "admin", "system", "unknown"] as const;
+export const ANALYTICS_ACTOR_TYPES = ["guest", "user", "creator", "admin", "owner_admin", "system", "unknown"] as const;
 export type AnalyticsActorType = (typeof ANALYTICS_ACTOR_TYPES)[number];
 
 export const ANALYTICS_ACTOR_LANES = [
@@ -12,6 +12,7 @@ export const ANALYTICS_ACTOR_LANES = [
   "user",
   "creator",
   "admin",
+  "owner_admin",
   "system",
   "unknown",
 ] as const;
@@ -227,7 +228,7 @@ export function classifyAnalyticsActor(input: AnalyticsActorClassificationInput)
   const reasons: string[] = [];
 
   const hasAdminRole =
-    roles.some((role) => role === "admin" || role === "owner" || role === "super_admin") ||
+    roles.some((role) => role === "admin" || role === "owner" || role === "owner_admin" || role === "super_admin") ||
     claims.admin === true ||
     claims.owner === true;
 
@@ -247,6 +248,31 @@ export function classifyAnalyticsActor(input: AnalyticsActorClassificationInput)
       isAdmin: false,
       isCreator: false,
       isSystem: true,
+      isUnknown: false,
+      identityLinkRequired: false,
+      confidence: "high",
+      reasons,
+    };
+  }
+
+  const isOwnerAdmin =
+    explicitActorType === "owner_admin" ||
+    roles.some((role) => role === "owner" || role === "owner_admin" || role === "super_admin") ||
+    claims.owner === true;
+
+  if (isOwnerAdmin) {
+    reasons.push("Owner admin role, claim, or explicit owner admin actor type is present.");
+    if (stringOrNull(input.userId)) {
+      reasons.push("A userId is present, but owner admin classification wins and must not be counted as user behavior.");
+    }
+    return {
+      actorType: "owner_admin",
+      actorLane: "owner_admin",
+      isAuthenticatedUser: false,
+      isGuestLike: false,
+      isAdmin: true,
+      isCreator: false,
+      isSystem: false,
       isUnknown: false,
       identityLinkRequired: false,
       confidence: "high",
@@ -510,6 +536,7 @@ export function shouldExcludeFromUserAnalytics(event: AnalyticsActorClassificati
   const classification = classifyAnalyticsActor(event);
   return (
     classification.actorType === "admin" ||
+    classification.actorType === "owner_admin" ||
     classification.actorType === "system" ||
     classification.actorType === "creator" ||
     classification.actorType === "unknown"
@@ -535,7 +562,7 @@ export function explainEventInclusion(event: AnalyticsActorClassificationInput):
   const includeInGlobalEvents = shouldIncludeInGlobalEvents(event);
   const exclusionReason = includeInUserBehavior
     ? null
-    : actorClassification.actorType === "admin"
+    : actorClassification.actorType === "admin" || actorClassification.actorType === "owner_admin"
       ? "Admin events are excluded from user/guest behavior analytics."
       : actorClassification.actorType === "system"
         ? "System events are excluded from user/guest behavior analytics."

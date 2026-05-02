@@ -18,6 +18,13 @@ import {
     normalizeCreatorOnboardingCanonicalRecord,
 } from "@/lib/creator-onboarding";
 import { withRouteRuntimeHealth } from "@/lib/server/route-runtime-health";
+import {
+    actorMarkerToTelemetryPayload,
+    assertKnownActor,
+    buildActorMarker,
+    buildActorMarkerDebugFields,
+    type ActorMarker,
+} from "@/lib/identity/actor-markers";
 
 const MAX_ID_UPLOAD_BYTES = 15 * 1024 * 1024;
 const ALLOWED_ID_CONTENT_TYPES = new Set([
@@ -53,6 +60,7 @@ function buildErrorResponse(status: number, message: string) {
 async function POST_handler(request: NextRequest) {
     let uploadedStoragePath: string | null = null;
     let uploadedSlot: "front" | "back" | "face_with_id" | "video_with_id" = "front";
+    let actorMarkerForFailure: ActorMarker | null = null;
 
     try {
         const caller = await guardApiRequest(request, {
@@ -111,6 +119,24 @@ async function POST_handler(request: NextRequest) {
         if (canonical.idVerificationStatus !== "id_requested" && canonical.idVerificationStatus !== "id_rejected") {
             return buildErrorResponse(409, "ID submission is not currently requested for this account.");
         }
+
+        const actorMarker = assertKnownActor(buildActorMarker({
+            actor: {
+                uid: caller.uid,
+                email: caller.email,
+                role: typeof userData.role === "string" ? userData.role : canonical.role,
+            },
+            targetUserId: caller.uid,
+            targetCreatorId: caller.uid,
+            performedAs: "own_account",
+            surface: "creator_intake",
+            route: "/api/creator/onboarding/id-submission",
+            actionKey: "creator_id_submitted",
+            occurredAt: Date.now(),
+            dedupeKey: `creator_id_submission:${caller.uid}:${uploadedSlot}`,
+            source: "creator_id_submission",
+        }));
+        actorMarkerForFailure = actorMarker;
 
         const uploadBuffer = Buffer.from(await file.arrayBuffer());
         uploadedStoragePath = buildStoragePath(caller.uid, uploadedSlot, file.name);
@@ -210,6 +236,7 @@ async function POST_handler(request: NextRequest) {
                         fileName: file.name,
                         contentType: file.type,
                         sizeBytes: file.size,
+                        ...buildActorMarkerDebugFields(actorMarker),
                     },
                 },
             );
@@ -234,6 +261,9 @@ async function POST_handler(request: NextRequest) {
                 file_type: file.type,
                 file_size_bytes: file.size,
                 documents_complete: result.documentsComplete,
+                onboarding_status: result.creatorApplication.submissionStatus,
+                legal_status: result.creatorApplication.legalStatus,
+                ...actorMarkerToTelemetryPayload(actorMarker),
             }, caller.uid),
             ...(result.documentsComplete ? [
                 trackServerEvent("creator_id_submitted", {
@@ -241,6 +271,9 @@ async function POST_handler(request: NextRequest) {
                     file_name: file.name,
                     file_type: file.type,
                     file_size_bytes: file.size,
+                    onboarding_status: result.creatorApplication.submissionStatus,
+                    legal_status: result.creatorApplication.legalStatus,
+                    ...actorMarkerToTelemetryPayload(actorMarker),
                 }, caller.uid),
                 sendCreatorOnboardingAdminNotification({
                     eventKey: `creator_id_submitted:${caller.uid}`,
@@ -271,6 +304,18 @@ async function POST_handler(request: NextRequest) {
             trackServerEvent("creator_id_submission_failed", {
                 page_path: "/creators/waitlist",
                 error_message: routeError.message,
+                ...(actorMarkerForFailure
+                    ? actorMarkerToTelemetryPayload(actorMarkerForFailure)
+                    : {
+                        actorType: "unknown",
+                        performedAs: "own_account",
+                        surface: "creator_intake",
+                        route: "/api/creator/onboarding/id-submission",
+                        actionKey: "creator_id_submission_failed",
+                        source: "creator_id_submission",
+                        unknownActorBlocked: true,
+                        actorClassificationReason: "ID submission failed before a trusted actor marker was built.",
+                    }),
             }),
             recordServerDiagnostic({
                 channel: "creator_onboarding",

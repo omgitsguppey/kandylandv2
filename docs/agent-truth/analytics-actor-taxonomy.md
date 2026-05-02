@@ -1,7 +1,7 @@
 # Analytics Actor Taxonomy
 
-Status: Phase 1 actor contract
-Last updated: 2026-04-30
+Status: Phase 2 actor contract
+Last updated: 2026-05-02
 
 ## Why Actor Lanes Matter
 
@@ -42,6 +42,10 @@ A creator is an account operating creator-facing tools, drops, experiences, mess
 
 An admin is an operator using Admin Console, Debug, moderation, content, queue, economy, AI, support, or analytics surfaces. Admin activity must be excluded from user/guest analytics by default. If included for operational diagnostics, it must be labeled admin.
 
+### Owner Admin
+
+An owner admin is the primary owner or owner-level operator performing an owner-only action such as onboarding override, direct creator activation, or emergency creator account administration. Owner-admin activity is an admin lane, not fan behavior, and must be excluded from user/guest analytics unless a module is explicitly measuring admin operations.
+
 ### System
 
 System actors are cron jobs, Cloud Functions, queue processors, materializers, export jobs, recovery jobs, and service workers. System events must not be shown as user behavior unless the module is explicitly about system health.
@@ -77,7 +81,7 @@ When a guest signs in:
 
 ## Admin Exclusion Rules
 
-Admin activity is excluded from user/guest analytics by default. This applies to:
+Admin and owner-admin activity is excluded from user/guest analytics by default. This applies to:
 
 - Live Interaction Stream
 - Event Mix user-facing interpretations
@@ -95,7 +99,7 @@ Admin excluded counts should be available in Debug for modules that filter event
 Creator, admin, and system actions can be valuable operational data, but they answer different questions:
 
 - creator lanes belong in creator operations, creator onboarding, content, payouts, or creator health modules
-- admin lanes belong in Admin Debug, route diagnostics, moderation/support/admin audit streams
+- admin and owner-admin lanes belong in Admin Debug, route diagnostics, moderation/support/admin audit streams
 - system lanes belong in runtime, scheduler, queue, notification, export, and pipeline health
 
 If an analytics module needs to compare these lanes, it must label each lane and expose source classification.
@@ -137,6 +141,7 @@ Actor types are:
 - `user`
 - `creator`
 - `admin`
+- `owner_admin`
 - `system`
 - `unknown`
 
@@ -144,7 +149,7 @@ Actor lanes additionally name `anonymous_visitor` and `session` so Debug can exp
 
 The helper rules are:
 
-1. Admin classification wins over user classification. A record with `userId` and an admin route/role remains admin and must not count as user behavior.
+1. Admin and owner-admin classification wins over user classification. A record with `userId` and an admin route/role remains admin or owner_admin and must not count as user behavior.
 2. System events remain system even when they affect user-facing objects.
 3. Creator events remain creator lane and must not be merged into fan behavior by default.
 4. Unknown is never upgraded to authenticated user.

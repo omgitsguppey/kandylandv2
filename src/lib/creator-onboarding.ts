@@ -335,7 +335,7 @@ export type CreatorOnboardingHistoryEventType =
 export type CreatorOnboardingHistoryEntry = {
     eventType: CreatorOnboardingHistoryEventType;
     actorId: string;
-    actorRole: "creator" | "admin" | "system";
+    actorRole: "user" | "creator" | "admin" | "owner_admin" | "system";
     actorLabel: string;
     timestamp: number;
     summary: string;

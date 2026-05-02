@@ -4,6 +4,10 @@ Status: Canonical repository-memory and architecture-decision ledger
 Last refreshed: 2026-05-02
 Repo: `C:\Users\uylus\OneDrive\Documents\KandyDrops_Final`
 
+## 2026-05-02 Creator Identity Marker Hardening
+
+Creator identity markers are canonical for creator intake, Admin Roster, creator experience, and creator account/admin actions. The canonical helper is `src/lib/identity/actor-markers.ts`; it classifies `guest`, `user`, `creator`, `admin`, `owner_admin`, `system`, and `unknown`, and it emits explicit `performedAs`, target, route, surface, action, dedupe, source, and Debug fields. Unknown actors must not be promoted to user/creator/admin, owner overrides must be marked `owner_admin` plus `owner_override`, and admin-on-behalf events must include a target user.
+
 ## Purpose
 
 This file records major architectural pivots, workflow-authority decisions, and continuity-sensitive repo rules that future contributors should not have to reconstruct from founder memory, private AI context, or scattered commit history alone.

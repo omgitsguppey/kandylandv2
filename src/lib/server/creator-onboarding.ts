@@ -3,6 +3,11 @@ import "server-only";
 import type { Transaction } from "firebase-admin/firestore";
 
 import { PRIMARY_CREATOR_OWNER_EMAIL, isCreatorOwnerEmail } from "@/lib/creator-admin";
+import {
+    buildActorMarker,
+    buildActorMarkerDebugFields,
+    type ActorMarker,
+} from "@/lib/identity/actor-markers";
 import { adminDb } from "@/lib/server/firebase-admin";
 import { normalizeCreatorApplication, resolveCreatorQueuePosition } from "@/lib/creator-application";
 import {
@@ -23,8 +28,9 @@ export const CREATOR_ONBOARDING_HISTORY_SUBCOLLECTION = "history";
 
 export type CreatorOnboardingActor = {
     id: string;
-    role: "creator" | "admin" | "system";
+    role: "user" | "creator" | "admin" | "owner_admin" | "system";
     label: string;
+    marker?: ActorMarker;
 };
 
 export { PRIMARY_CREATOR_OWNER_EMAIL, isCreatorOwnerEmail };
@@ -93,7 +99,12 @@ function buildHistoryEntry(input: {
         timestamp: input.timestamp,
         summary: input.summary,
         detail: input.detail,
-        metadata: input.metadata,
+        metadata: input.actor.marker
+            ? {
+                ...(input.metadata ?? {}),
+                ...buildActorMarkerDebugFields(input.actor.marker),
+            }
+            : input.metadata,
     } satisfies CreatorOnboardingHistoryEntry;
 }
 
@@ -137,6 +148,22 @@ export function buildCreatorOnboardingInitialHistoryEntries(input: {
                     id: "system",
                     role: "system",
                     label: "System",
+                    marker: input.actor.marker
+                        ? buildActorMarker({
+                            actorType: "system",
+                            actorUid: "system",
+                            actorRole: "system",
+                            targetUserId: input.actor.marker.targetUserId,
+                            targetCreatorId: input.actor.marker.targetCreatorId,
+                            performedAs: "system_job",
+                            surface: input.actor.marker.surface,
+                            route: "creator_onboarding/materializer",
+                            actionKey: "admin_queue_materialized",
+                            occurredAt: input.timestamp,
+                            dedupeKey: `admin_queue_materialized:${input.actor.marker.targetUserId ?? input.actor.marker.targetCreatorId ?? "unknown"}`,
+                            source: "creator_onboarding_materializer",
+                        })
+                        : undefined,
                 },
                 timestamp: input.timestamp,
                 summary: "Creator review queue record materialized",
@@ -339,7 +366,7 @@ export async function ensureCreatorOnboardingSubmission(input: {
     const userRef = adminDb.collection("users").doc(input.userId);
     const actor = input.actor ?? {
         id: input.userId,
-        role: "creator",
+        role: input.role === "creator" ? "creator" : "user",
         label: readString(input.displayName) || readString(input.username) || input.userId,
     };
 

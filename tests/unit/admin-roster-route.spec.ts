@@ -137,6 +137,7 @@ vi.mock("@/lib/creator-experiences", () => ({
 vi.mock("@/lib/server/creator-onboarding", () => ({
     CREATOR_REVIEW_QUEUE_COLLECTION: "creator_review_queue",
     ensureCreatorOnboardingSubmission: mockState.ensureCreatorOnboardingSubmission,
+    isCreatorOwnerEmail: () => false,
 }));
 
 import { GET } from "@/app/api/admin/roster/route";

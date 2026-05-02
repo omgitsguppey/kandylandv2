@@ -8,6 +8,7 @@ import {
 } from "@/lib/creator-onboarding";
 import { normalizeCreatorApplication } from "@/lib/creator-application";
 import { handleApiError } from "@/lib/server/auth";
+import { trackServerEvent } from "@/lib/server/analytics";
 import {
     CREATOR_ONBOARDING_COLLECTION,
     syncCreatorOnboardingDocuments,
@@ -17,6 +18,12 @@ import { STRICT } from "@/lib/server/rate-limit";
 import { guardApiRequest } from "@/lib/server/request-guard";
 import { recordServerDiagnostic } from "@/lib/server/server-diagnostics";
 import { withRouteRuntimeHealth } from "@/lib/server/route-runtime-health";
+import {
+    actorMarkerToTelemetryPayload,
+    assertKnownActor,
+    buildActorMarker,
+    buildActorMarkerDebugFields,
+} from "@/lib/identity/actor-markers";
 
 const APPROVED_APPLICATION_EDIT_ERROR = "Approved creator applications must be managed through the standard creator profile tools.";
 
@@ -64,6 +71,22 @@ async function PUT_handler(request: NextRequest) {
         const existingProjection = normalizeCreatorApplication(userData.creatorApplication);
         const currentRole = readRole(userData.role ?? canonical?.role);
         const currentApprovalStatus = canonical?.approvalStatus ?? existingProjection?.approvalStatus ?? "creator_pending";
+        const actorMarker = assertKnownActor(buildActorMarker({
+            actor: {
+                uid: caller.uid,
+                email: caller.email,
+                role: currentRole,
+            },
+            targetUserId: caller.uid,
+            targetCreatorId: caller.uid,
+            performedAs: "own_account",
+            surface: "creator_intake",
+            route: "/api/creator/onboarding/application",
+            actionKey: "creator_application_updated",
+            occurredAt: Date.now(),
+            dedupeKey: `creator_application_updated:${caller.uid}`,
+            source: "creator_onboarding_application",
+        }));
 
         if (!canonical && !existingProjection) {
             await recordServerDiagnostic({
@@ -73,6 +96,7 @@ async function PUT_handler(request: NextRequest) {
                 detail: {
                     route: "creator/onboarding/application",
                     userId: caller.uid,
+                    ...buildActorMarkerDebugFields(actorMarker),
                 },
             });
             return buildErrorResponse(409, "Creator onboarding was not found for this account.");
@@ -91,6 +115,7 @@ async function PUT_handler(request: NextRequest) {
                     userId: caller.uid,
                     approvalStatus: currentApprovalStatus,
                     role: currentRole,
+                    ...buildActorMarkerDebugFields(actorMarker),
                 },
             });
             return buildErrorResponse(409, APPROVED_APPLICATION_EDIT_ERROR);
@@ -176,9 +201,17 @@ async function PUT_handler(request: NextRequest) {
                 detail: {
                     route: "creator/onboarding/application",
                     userId: caller.uid,
+                    ...buildActorMarkerDebugFields(actorMarker),
                 },
             });
         }
+
+        await trackServerEvent("creator_application_updated", {
+            page_path: "/creators/waitlist",
+            onboarding_status: result.creatorApplication.submissionStatus,
+            legal_status: result.creatorApplication.legalStatus,
+            ...actorMarkerToTelemetryPayload(actorMarker),
+        }, caller.uid).catch(() => undefined);
 
         return NextResponse.json({
             success: true,

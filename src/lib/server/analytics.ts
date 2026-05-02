@@ -118,7 +118,7 @@ export async function trackServerEvent(
     return;
   }
   const sanitizedParams = sanitizeServerParams(params);
-  const enrichedParams = {
+  const enrichedParams: Record<string, string | number | boolean> = {
     ...sanitizedParams,
     ...metadataParams,
     tracking_origin: "server",
@@ -130,6 +130,12 @@ export async function trackServerEvent(
   };
   const pagePath = readStringParam(enrichedParams, "page_path", "pagePath");
   const explicitAdminId = readStringParam(enrichedParams, "admin_id", "adminId");
+  const explicitActorType = readStringParam(enrichedParams, "actor_type", "actorType");
+  const explicitActorUid = readStringParam(enrichedParams, "actor_uid", "actorUid");
+  const explicitActorRole = readStringParam(enrichedParams, "actor_role", "actorRole");
+  const performedAs = readStringParam(enrichedParams, "performed_as", "performedAs");
+  const targetUserId = readStringParam(enrichedParams, "target_user_id", "targetUserId");
+  const targetCreatorId = readStringParam(enrichedParams, "target_creator_id", "targetCreatorId");
   const adminRouteOrEvent = option?.category === "admin"
     || canonicalEventName.startsWith("admin_")
     || pagePath === "/admin"
@@ -137,8 +143,9 @@ export async function trackServerEvent(
   const inclusion = explainEventInclusion({
     eventName: canonicalEventName,
     userId,
-    adminId: adminRouteOrEvent ? userId || explicitAdminId : explicitAdminId,
-    actorType: adminRouteOrEvent ? "admin" : userId ? "user" : "system",
+    adminId: adminRouteOrEvent ? explicitActorUid || explicitAdminId || userId : explicitAdminId,
+    actorType: explicitActorType || (adminRouteOrEvent ? "admin" : userId ? "user" : "system"),
+    roles: explicitActorRole ? [explicitActorRole] : null,
     route: pagePath,
     surface: "server",
     source: "server",
@@ -159,7 +166,15 @@ export async function trackServerEvent(
         sourceSurface: "server",
         userId: userId || "",
         analyticsUserId: inclusion.includeInUserBehavior && userId ? userId : "",
-        adminId: actorClassification.isAdmin ? userId || explicitAdminId : "",
+        adminId: actorClassification.isAdmin ? explicitActorUid || explicitAdminId || userId || "" : "",
+        actorUid: explicitActorUid || userId || "",
+        actorRole: explicitActorRole,
+        performedAs,
+        targetUserId,
+        targetCreatorId,
+        actionKey: readStringParam(enrichedParams, "action_key", "actionKey"),
+        actorClassificationReason: readStringParam(enrichedParams, "actor_classification_reason", "actorClassificationReason"),
+        unknownActorBlocked: enrichedParams.unknown_actor_blocked === true || enrichedParams.unknownActorBlocked === true,
         actorType: actorClassification.actorType,
         actorLane: actorClassification.actorLane,
         includeInUserBehavior: inclusion.includeInUserBehavior,

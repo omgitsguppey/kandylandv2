@@ -17,6 +17,12 @@ import { STRICT } from "@/lib/server/rate-limit";
 import { guardApiRequest } from "@/lib/server/request-guard";
 import { recordServerDiagnostic } from "@/lib/server/server-diagnostics";
 import { withRouteRuntimeHealth } from "@/lib/server/route-runtime-health";
+import {
+    actorMarkerToTelemetryPayload,
+    assertKnownActor,
+    buildActorMarker,
+    buildActorMarkerDebugFields,
+} from "@/lib/identity/actor-markers";
 
 function buildErrorResponse(status: number, message: string) {
     return NextResponse.json({ error: message }, { status });
@@ -103,6 +109,22 @@ async function POST_handler(request: NextRequest) {
         const actorLabel = readString(userData.displayName) || canonical.creatorDisplayName;
         const signatureIp = readRequestIp(request);
         const signatureUserAgent = request.headers.get("user-agent")?.trim() || undefined;
+        const actorMarker = assertKnownActor(buildActorMarker({
+            actor: {
+                uid: caller.uid,
+                email: caller.email,
+                role: readRole(userData.role ?? canonical.role),
+            },
+            targetUserId: caller.uid,
+            targetCreatorId: caller.uid,
+            performedAs: "own_account",
+            surface: "creator_intake",
+            route: "/api/creator/onboarding/contract-signature",
+            actionKey: "creator_contract_signed",
+            occurredAt: nowMs,
+            dedupeKey: `creator_contract_signed:${caller.uid}:${CREATOR_MASTER_SERVICE_AGREEMENT_VERSION}`,
+            source: "creator_contract_signature",
+        }));
 
         const result = await adminDb.runTransaction(async (transaction) => {
             const [latestOnboardingSnap, latestUserSnap] = await transaction.getAll(onboardingRef, userRef);
@@ -165,6 +187,7 @@ async function POST_handler(request: NextRequest) {
                     metadata: {
                         contractVersion: CREATOR_MASTER_SERVICE_AGREEMENT_VERSION,
                         signatureName,
+                        ...buildActorMarkerDebugFields(actorMarker),
                     },
                 },
             );
@@ -177,6 +200,10 @@ async function POST_handler(request: NextRequest) {
         await trackServerEvent("creator_contract_signed", {
             page_path: "/creators/waitlist",
             contract_version: CREATOR_MASTER_SERVICE_AGREEMENT_VERSION,
+            onboarding_status: result.creatorApplication.submissionStatus,
+            legal_status: result.creatorApplication.legalStatus,
+            agreement_version: CREATOR_MASTER_SERVICE_AGREEMENT_VERSION,
+            ...actorMarkerToTelemetryPayload(actorMarker),
         }, caller.uid).catch(() => undefined);
 
         return NextResponse.json({

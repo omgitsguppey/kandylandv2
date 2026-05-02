@@ -17,6 +17,12 @@ import { STRICT } from "@/lib/server/rate-limit";
 import { guardApiRequest } from "@/lib/server/request-guard";
 import { recordServerDiagnostic } from "@/lib/server/server-diagnostics";
 import { withRouteRuntimeHealth } from "@/lib/server/route-runtime-health";
+import {
+    actorMarkerToTelemetryPayload,
+    assertKnownActor,
+    buildActorMarker,
+    buildActorMarkerDebugFields,
+} from "@/lib/identity/actor-markers";
 
 function buildErrorResponse(status: number, message: string) {
     return NextResponse.json({ error: message }, { status });
@@ -74,6 +80,22 @@ async function POST_handler(request: NextRequest) {
 
         const nowMs = Date.now();
         const actorLabel = readString(userData.displayName) || canonical.creatorDisplayName;
+        const actorMarker = assertKnownActor(buildActorMarker({
+            actor: {
+                uid: caller.uid,
+                email: caller.email,
+                role: readRole(userData.role ?? canonical.role),
+            },
+            targetUserId: caller.uid,
+            targetCreatorId: caller.uid,
+            performedAs: "own_account",
+            surface: "creator_intake",
+            route: "/api/creator/onboarding/intro",
+            actionKey: "creator_intro_acknowledged",
+            occurredAt: nowMs,
+            dedupeKey: `creator_intro_acknowledged:${caller.uid}`,
+            source: "creator_onboarding_intro",
+        }));
 
         const result = await adminDb.runTransaction(async (transaction) => {
             const [latestOnboardingSnap, latestUserSnap] = await transaction.getAll(onboardingRef, userRef);
@@ -137,6 +159,7 @@ async function POST_handler(request: NextRequest) {
                     summary: "Creator intro acknowledged",
                     metadata: {
                         introVersion: CREATOR_ONBOARDING_INTRO_VERSION,
+                        ...buildActorMarkerDebugFields(actorMarker),
                     },
                 },
             );
@@ -163,6 +186,9 @@ async function POST_handler(request: NextRequest) {
         await trackServerEvent("creator_intro_acknowledged", {
             page_path: "/creators/waitlist",
             intro_version: CREATOR_ONBOARDING_INTRO_VERSION,
+            onboarding_status: result.creatorApplication.submissionStatus,
+            legal_status: result.creatorApplication.legalStatus,
+            ...actorMarkerToTelemetryPayload(actorMarker),
         }, caller.uid).catch(() => undefined);
 
         return NextResponse.json({

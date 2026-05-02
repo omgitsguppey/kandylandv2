@@ -14,13 +14,30 @@ import {
 
 describe("analytics event contract", () => {
   it("defines the required actor lanes without promoting unknown actors", () => {
-    expect(ANALYTICS_ACTOR_TYPES).toEqual(["guest", "user", "creator", "admin", "system", "unknown"]);
+    expect(ANALYTICS_ACTOR_TYPES).toEqual(["guest", "user", "creator", "admin", "owner_admin", "system", "unknown"]);
 
     const unknown = classifyAnalyticsActor({ eventName: "drop_clicked" });
 
     expect(unknown.actorType).toBe("unknown");
     expect(unknown.isAuthenticatedUser).toBe(false);
     expect(unknown.reasons.join(" ")).toContain("No trusted actor");
+  });
+
+  it("keeps owner admin events in the admin lane", () => {
+    const explanation = explainEventInclusion({
+      eventName: "owner_override_applied",
+      actorType: "owner_admin",
+      userId: "target_creator_1",
+      adminId: "owner_admin_1",
+      roles: ["owner_admin"],
+      route: "/admin/user/target_creator_1",
+      source: "server",
+    });
+
+    expect(explanation.actorClassification.actorType).toBe("owner_admin");
+    expect(explanation.actorClassification.actorLane).toBe("owner_admin");
+    expect(explanation.actorClassification.isAdmin).toBe(true);
+    expect(explanation.includeInUserBehavior).toBe(false);
   });
 
   it("keeps admin events out of the user behavior lane even when a user id is present", () => {

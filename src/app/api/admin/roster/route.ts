@@ -16,7 +16,7 @@ import {
     type CreatorReviewQueueBucket,
 } from "@/lib/creator-onboarding";
 import { handleApiError } from "@/lib/server/auth";
-import { DEFAULT_CREATOR_TEMPLATE_ID, DEFAULT_CREATOR_TEMPLATE_LABEL } from "@/lib/creator-contract";
+import { CREATOR_MASTER_SERVICE_AGREEMENT_VERSION, DEFAULT_CREATOR_TEMPLATE_ID, DEFAULT_CREATOR_TEMPLATE_LABEL } from "@/lib/creator-contract";
 import {
     buildCreatorOnboardingStatusChangeHistoryEntries,
     ensureCreatorOnboardingSubmission,
@@ -32,6 +32,12 @@ import { guardApiRequest } from "@/lib/server/request-guard";
 import { recordServerDiagnostic } from "@/lib/server/server-diagnostics";
 import { generateUniqueUsernameSuggestion } from "@/lib/server/username-suggestions";
 import { withRouteRuntimeHealth } from "@/lib/server/route-runtime-health";
+import {
+    actorMarkerToTelemetryPayload,
+    assertKnownActor,
+    buildAdminOnBehalfMarker,
+    type ActorMarker,
+} from "@/lib/identity/actor-markers";
 
 type RosterRole = "user" | "creator" | "admin";
 type RosterStatus = "active" | "suspended" | "banned";
@@ -299,7 +305,7 @@ function matchesQuery(entry: RosterEntry, query: string) {
 
 async function GET_handler(request: NextRequest) {
     try {
-        await guardApiRequest(request, {
+        const caller = await guardApiRequest(request, {
             routeName: "admin/roster",
             rateLimit: ADMIN,
             requireTrustedOrigin: true,
@@ -355,18 +361,38 @@ async function GET_handler(request: NextRequest) {
             .filter((entry) => !queueIds.has(entry.id));
 
         if (repairCandidates.length > 0) {
-            const repairResults = await Promise.allSettled(repairCandidates.map((entry) => ensureCreatorOnboardingSubmission({
-                userId: entry.id,
-                email: typeof entry.raw.email === "string" ? entry.raw.email : null,
-                displayName: typeof entry.raw.displayName === "string" ? entry.raw.displayName : entry.creatorApplication?.creatorDisplayName,
-                username: typeof entry.raw.username === "string" ? entry.raw.username : null,
-                photoURL: typeof entry.raw.photoURL === "string" ? entry.raw.photoURL : null,
-                role: entry.raw.role === "creator" || entry.raw.role === "admin" || entry.raw.role === "user" ? entry.raw.role : "user",
-                createdAt: toTimestampNumber(entry.raw.createdAt),
-                creatorDisplayName: entry.creatorApplication?.creatorDisplayName || readString(entry.raw.displayName) || "Creator",
-                creatorPrimaryPlatform: entry.creatorApplication?.creatorPrimaryPlatform,
-                creatorContentFocus: entry.creatorApplication?.creatorContentFocus,
-            })));
+            const repairResults = await Promise.allSettled(repairCandidates.map((entry) => {
+                const marker = assertKnownActor(buildAdminOnBehalfMarker(
+                    buildRosterActor({
+                        uid: caller?.uid,
+                        email: caller?.email,
+                        isOwner: isCreatorOwnerEmail(caller?.email),
+                    }),
+                    entry.id,
+                    {
+                        surface: "admin_roster",
+                        route: "/api/admin/roster",
+                        actionKey: "legacy_creator_queue_backfill",
+                        source: "admin_roster_get",
+                        performedAs: "admin_on_behalf",
+                        targetCreatorId: entry.id,
+                    },
+                ));
+
+                return ensureCreatorOnboardingSubmission({
+                    userId: entry.id,
+                    email: typeof entry.raw.email === "string" ? entry.raw.email : null,
+                    displayName: typeof entry.raw.displayName === "string" ? entry.raw.displayName : entry.creatorApplication?.creatorDisplayName,
+                    username: typeof entry.raw.username === "string" ? entry.raw.username : null,
+                    photoURL: typeof entry.raw.photoURL === "string" ? entry.raw.photoURL : null,
+                    role: entry.raw.role === "creator" || entry.raw.role === "admin" || entry.raw.role === "user" ? entry.raw.role : "user",
+                    createdAt: toTimestampNumber(entry.raw.createdAt),
+                    creatorDisplayName: entry.creatorApplication?.creatorDisplayName || readString(entry.raw.displayName) || "Creator",
+                    creatorPrimaryPlatform: entry.creatorApplication?.creatorPrimaryPlatform,
+                    creatorContentFocus: entry.creatorApplication?.creatorContentFocus,
+                    actor: buildCreatorOnboardingActorFromMarker(marker),
+                });
+            }));
 
             await Promise.allSettled(repairResults.map((result, index) => {
                 const entry = repairCandidates[index];
@@ -390,10 +416,28 @@ async function GET_handler(request: NextRequest) {
                     return Promise.resolve();
                 }
 
+                const marker = assertKnownActor(buildAdminOnBehalfMarker(
+                    buildRosterActor({
+                        uid: caller?.uid,
+                        email: caller?.email,
+                        isOwner: isCreatorOwnerEmail(caller?.email),
+                    }),
+                    entry.id,
+                    {
+                        surface: "admin_roster",
+                        route: "/api/admin/roster",
+                        actionKey: "legacy_creator_queue_backfill",
+                        source: "admin_roster_get",
+                        performedAs: "admin_on_behalf",
+                        targetCreatorId: entry.id,
+                    },
+                ));
+
                 return Promise.allSettled([
                     trackServerEvent("creator_admin_queue_materialized", {
                         page_path: "/admin/roster",
                         repair_source: "legacy_creator_application_projection",
+                        ...actorMarkerToTelemetryPayload(marker),
                     }, entry.id),
                     recordServerDiagnostic({
                         channel: "creator_onboarding",
@@ -582,6 +626,29 @@ function readRoleLabel(value: unknown) {
     return typeof value === "string" && value.trim().length > 0 ? value.trim() : "Admin";
 }
 
+function buildRosterActor(input: {
+    uid?: string | null;
+    email?: string | null;
+    isOwner: boolean;
+}) {
+    return {
+        uid: input.uid,
+        email: input.email,
+        role: input.isOwner ? "owner_admin" : "admin",
+        isAdmin: true,
+        isOwner: input.isOwner,
+    };
+}
+
+function buildCreatorOnboardingActorFromMarker(marker: ActorMarker) {
+    return {
+        id: marker.actorUid ?? marker.actorType,
+        role: marker.actorType === "owner_admin" ? "owner_admin" as const : "admin" as const,
+        label: marker.actorEmail ?? marker.actorUid ?? "Admin",
+        marker,
+    };
+}
+
 async function POST_handler(request: NextRequest) {
     try {
         const caller = await guardApiRequest(request, {
@@ -644,6 +711,24 @@ async function POST_handler(request: NextRequest) {
             emailVerified: false,
             disabled: false,
         });
+        const directCreateMarker = assertKnownActor(buildAdminOnBehalfMarker(
+            buildRosterActor({
+                uid: caller?.uid,
+                email: caller?.email,
+                isOwner: isOwnerActor,
+            }),
+            authUser.uid,
+            {
+                surface: "admin_roster",
+                route: "/api/admin/roster",
+                actionKey: creatorPath === "live_override" ? "admin_creator_created_live_override" : "admin_creator_created_intake",
+                source: "admin_roster_post",
+                performedAs: creatorPath === "live_override" || compliancePath === "bypass"
+                    ? "owner_override"
+                    : "admin_on_behalf",
+                targetCreatorId: authUser.uid,
+            },
+        ));
 
         const role = creatorPath === "live_override" ? "creator" : "user";
         const userRef = adminDb.collection("users").doc(authUser.uid);
@@ -682,9 +767,7 @@ async function POST_handler(request: NextRequest) {
             creatorContentFocus,
             nowMs,
             actor: {
-                id: caller?.uid ?? "admin",
-                role: "admin",
-                label: readRoleLabel(caller?.email ?? caller?.uid),
+                ...buildCreatorOnboardingActorFromMarker(directCreateMarker),
             },
         });
 
@@ -763,9 +846,7 @@ async function POST_handler(request: NextRequest) {
                     before: latestCanonical,
                     after: nextCanonical,
                     actor: {
-                        id: caller?.uid ?? "admin",
-                        role: "admin",
-                        label: readRoleLabel(caller?.email ?? caller?.uid),
+                        ...buildCreatorOnboardingActorFromMarker(directCreateMarker),
                     },
                     timestamp: nowMs,
                 }),
@@ -776,6 +857,10 @@ async function POST_handler(request: NextRequest) {
             page_path: "/admin/roster",
             creator_path: creatorPath,
             compliance_path: compliancePath,
+            onboarding_status: creatorPath === "live_override" ? "creator_approved" : "creator_pending",
+            legal_status: compliancePath === "bypass" ? "legal_signed" : "legal_pending",
+            agreement_version: CREATOR_MASTER_SERVICE_AGREEMENT_VERSION,
+            ...actorMarkerToTelemetryPayload(directCreateMarker),
         }, authUser.uid).catch(() => undefined);
 
         return NextResponse.json({

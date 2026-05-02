@@ -15,6 +15,12 @@ import { ensureCreatorOnboardingSubmission } from "@/lib/server/creator-onboardi
 import { sendCreatorOnboardingAdminNotification } from "@/lib/server/creator-onboarding-alerts";
 import { getErrorMessage, recordRouteWarning } from "@/lib/server/route-diagnostics";
 import { recordRouteRuntimeSample } from "@/lib/server/route-runtime-health";
+import {
+    actorMarkerToTelemetryPayload,
+    assertKnownActor,
+    buildActorMarker,
+    type ActorMarker,
+} from "@/lib/identity/actor-markers";
 
 function normalizeRegistrationMethod(value: unknown) {
     return value === "google" ? "google" : "email";
@@ -100,15 +106,25 @@ async function reserveRegistrationUsername(input: {
 async function emitCreatorSubmissionSignals(input: {
     userId: string;
     creatorDisplayName: string;
+    actorMarker: ActorMarker;
+    onboardingStatus?: string;
+    legalStatus?: string;
 }) {
+    const actorPayload = actorMarkerToTelemetryPayload(input.actorMarker);
     await Promise.allSettled([
         trackServerEvent("creator_onboarding_submitted", {
             page_path: "/api/user/register",
             creator_display_name: input.creatorDisplayName,
+            onboarding_status: input.onboardingStatus ?? "",
+            legal_status: input.legalStatus ?? "",
+            ...actorPayload,
         }, input.userId),
         trackServerEvent("creator_admin_queue_materialized", {
             page_path: "/admin/roster",
             creator_display_name: input.creatorDisplayName,
+            onboarding_status: input.onboardingStatus ?? "",
+            legal_status: input.legalStatus ?? "",
+            ...actorPayload,
         }, input.userId),
         sendCreatorOnboardingAdminNotification({
             eventKey: `creator_onboarding_submitted:${input.userId}`,
@@ -117,6 +133,30 @@ async function emitCreatorSubmissionSignals(input: {
             link: `/admin/user/${input.userId}`,
         }),
     ]);
+}
+
+function buildCreatorSignupMarker(input: {
+    uid: string;
+    email?: string | null;
+    displayName?: string | null;
+    occurredAt: number;
+}) {
+    return assertKnownActor(buildActorMarker({
+        actor: {
+            uid: input.uid,
+            email: input.email,
+            role: "user",
+        },
+        targetUserId: input.uid,
+        targetCreatorId: input.uid,
+        performedAs: "own_account",
+        surface: "creator_intake",
+        route: "/api/user/register",
+        actionKey: "creator_signup_submit",
+        occurredAt: input.occurredAt,
+        dedupeKey: `creator_signup_submit:${input.uid}`,
+        source: "user_register",
+    }));
 }
 
 export async function POST(request: NextRequest) {
@@ -226,6 +266,14 @@ export async function POST(request: NextRequest) {
                 await userRef.set(profilePatch, { merge: true });
             }
 
+            const creatorSignupMarker = isCreatorSignup
+                ? buildCreatorSignupMarker({
+                    uid: caller.uid,
+                    email: caller.email,
+                    displayName: typeof displayName === "string" ? displayName : null,
+                    occurredAt: Date.now(),
+                })
+                : null;
             const creatorSubmission = isCreatorSignup
                 ? await ensureCreatorOnboardingSubmission({
                     userId: caller.uid,
@@ -258,6 +306,14 @@ export async function POST(request: NextRequest) {
                                         : "Creator",
                     creatorPrimaryPlatform: typeof creatorPrimaryPlatform === "string" ? creatorPrimaryPlatform : undefined,
                     creatorContentFocus: typeof creatorContentFocus === "string" ? creatorContentFocus : undefined,
+                    actor: creatorSignupMarker
+                        ? {
+                            id: creatorSignupMarker.actorUid ?? caller.uid,
+                            role: "user",
+                            label: creatorSignupMarker.actorEmail ?? caller.uid,
+                            marker: creatorSignupMarker,
+                        }
+                        : undefined,
                 })
                 : null;
 
@@ -265,6 +321,9 @@ export async function POST(request: NextRequest) {
                 await emitCreatorSubmissionSignals({
                     userId: caller.uid,
                     creatorDisplayName: creatorSubmission.creatorApplication.creatorDisplayName,
+                    actorMarker: creatorSignupMarker!,
+                    onboardingStatus: creatorSubmission.creatorApplication.submissionStatus,
+                    legalStatus: creatorSubmission.creatorApplication.legalStatus,
                 });
             }
 
@@ -334,6 +393,14 @@ export async function POST(request: NextRequest) {
             return finalize(normalizedUsername);
         }
 
+        const creatorSignupMarker = isCreatorSignup
+            ? buildCreatorSignupMarker({
+                uid: caller.uid,
+                email: caller.email,
+                displayName: typeof displayName === "string" ? displayName : null,
+                occurredAt: Date.now(),
+            })
+            : null;
         const creatorSubmission = isCreatorSignup
             ? await ensureCreatorOnboardingSubmission({
                 userId: caller.uid,
@@ -352,6 +419,14 @@ export async function POST(request: NextRequest) {
                         : normalizedUsername,
                 creatorPrimaryPlatform: typeof creatorPrimaryPlatform === "string" ? creatorPrimaryPlatform : undefined,
                 creatorContentFocus: typeof creatorContentFocus === "string" ? creatorContentFocus : undefined,
+                actor: creatorSignupMarker
+                    ? {
+                        id: creatorSignupMarker.actorUid ?? caller.uid,
+                        role: "user",
+                        label: creatorSignupMarker.actorEmail ?? caller.uid,
+                        marker: creatorSignupMarker,
+                    }
+                    : undefined,
             })
             : null;
 
@@ -359,6 +434,9 @@ export async function POST(request: NextRequest) {
             await emitCreatorSubmissionSignals({
                 userId: caller.uid,
                 creatorDisplayName: creatorSubmission.creatorApplication.creatorDisplayName,
+                actorMarker: creatorSignupMarker!,
+                onboardingStatus: creatorSubmission.creatorApplication.submissionStatus,
+                legalStatus: creatorSubmission.creatorApplication.legalStatus,
             });
         }
 
@@ -418,6 +496,7 @@ export async function POST(request: NextRequest) {
                 has_referral_code: !isCreatorSignup && typeof referredBy === "string" && referredBy.trim().length > 0,
                 page_path: isCreatorSignup ? "/creators/waitlist" : "/dashboard",
                 creator_application_submitted: isCreatorSignup,
+                ...(creatorSignupMarker ? actorMarkerToTelemetryPayload(creatorSignupMarker) : {}),
             }, caller.uid),
         ]);
 
