@@ -1,36 +1,37 @@
 # DEEP Task Context
 
 ## Goal
-centralize creator profile routing
+add creator lane debug parity diagnostics
 
-Mode: creator
+Mode: admin
 Scope: moderate
 Why scope: Touches several files or shared helper surfaces with non-trivial adjacency.
 
 ## Likely Entrypoints
-- src/lib/creator-public-pages.ts
+- src/app/admin/debug/page.tsx
 - src/lib/creator-onboarding.ts
-- src/lib/creator-experiences.ts
-- src/components/CreatorDiscoveryRail.tsx
-- src/lib/server/creator-discovery.ts
-- src/app/creators/[username]/CreatorProfileClient.tsx
-- src/app/api/creator/discovery/route.ts
-- src/app/api/creator/relationships/route.ts
+- src/lib/admin-debug-preferences.ts
+- src/lib/admin-debug-route-runtime.ts
+- src/lib/admin-debug-summary-cards.ts
+- src/lib/ai-debug-assistant.ts
+- src/components/Admin/AdminPageHeader.tsx
 - src/lib/creator-agreement-documents.ts
 - src/lib/creator-agreement-version.ts
+- src/lib/creator-application.ts
 - FULL_SCALE_CODEBASE_AUDIT.md
-- docs/agent-truth/creator-experience-transaction-truth.md
-- npx vitest run tests/unit/creator-subscriptions-route.spec.ts tests/unit/creator-requests-route.spec.ts tests/unit/creator-bookings-transaction-route.spec.ts tests/unit/server-chat-send.spec.ts tests/unit/server-creator-experience-transactions.spec.ts tests/unit/gumdrop-ledger.spec.ts tests/unit/creator-experiences.spec.ts
-- src/lib/server/chat.ts
+- docs/agent-truth/creator-profile-routing.md
+- docs/agent-truth/user-chat-shell-routing.md
+- npx vitest run tests/unit/creator-profile-routing.spec.ts tests/unit/creator-public-pages.spec.ts tests/unit/creator-profile-route.spec.ts tests/unit/creator-experiences-panel.spec.tsx tests/unit/admin-roster-decision-queue.spec.ts tests/unit/admin-roster-route.spec.ts tests/unit/chat-thread-route.spec.ts tests/unit/chat-thread-messages-route.spec.ts
 
 ## Canonical Helpers To Reuse
 - src/lib/creator-onboarding.ts
+- src/lib/route-runtime-health.ts
+- src/lib/server/admin-panel-system-logs.ts
 - src/lib/server/creator-onboarding.ts
-- src/lib/telemetry-catalog.ts
-- src/lib/telemetry.ts
-- src/lib/gumdrop-economics.ts
-- src/lib/gumdrop-ledger.ts
-- src/lib/server/paypal.ts
+- src/lib/server/route-diagnostics.ts
+- src/lib/server/route-runtime-health.ts
+- src/lib/server/server-diagnostics.ts
+- src/lib/server/auth.ts
 
 ## Acceptance Criteria
 - Reuse the canonical helpers before introducing new ownership paths.
@@ -39,12 +40,9 @@ Why scope: Touches several files or shared helper surfaces with non-trivial adja
 
 ## Relevant Pitfalls
 - diagnostics_serialization_crash
-- request_json_parse_falls_into_500
 - consumed_response_stream_fallback
-- generated_artifact_cleanup_miss
 - legacy_queue_adapter_usage
-- queue_activation_missing_notification_outcome
-- unchecked_response_ok_ui_hydration
+- stale_queue_scheduler_heartbeat
 - creator_booking_timezone_drift
 
 ## Forbidden Surfaces
@@ -56,10 +54,10 @@ Why scope: Touches several files or shared helper surfaces with non-trivial adja
 
 ## Fast Verification
 - npm run typecheck
-- npm run agent:test -- src/lib/creator-public-pages.ts
+- npm run agent:test -- src/app/admin/debug/page.tsx
 - npm run agent:test -- src/lib/creator-onboarding.ts
-- npm run agent:test -- src/lib/creator-experiences.ts
-- npm run agent:test -- src/components/CreatorDiscoveryRail.tsx
+- npm run agent:test -- src/lib/admin-debug-preferences.ts
+- npm run agent:test -- src/lib/admin-debug-route-runtime.ts
 - npm run check:ui:coverage
 - npm run check:ui:runtime
 
@@ -73,18 +71,19 @@ Why scope: Touches several files or shared helper surfaces with non-trivial adja
 - required: npm run check:ui:runtime
 - required: npm run test:contracts
 - required: npm run trace:adjacent -- <path>
-- optional: npm run check:analytics-semantics
 - optional: npm run check:ui:lighthouse
 - optional: npm run check:architecture
 
 Do not read unless needed:
 
 Do not touch without broad signoff:
-- src/lib/creator-public-pages.ts
 - src/lib/creator-onboarding.ts
-- src/lib/creator-experiences.ts
-- src/lib/server/creator-discovery.ts
+- src/lib/admin-debug-preferences.ts
+- src/lib/admin-debug-route-runtime.ts
+- src/lib/admin-debug-summary-cards.ts
+- src/lib/ai-debug-assistant.ts
 - src/lib/creator-agreement-documents.ts
 - src/lib/creator-agreement-version.ts
 - src/lib/creator-application.ts
 - src/lib/creator-contract.ts
+- src/lib/creator-onboarding-projection.ts

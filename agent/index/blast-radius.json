@@ -1,5 +1,5 @@
 {
-  "generatedAt": "2026-05-02T18:54:05.238Z",
+  "generatedAt": "2026-05-02T19:59:22.992Z",
   "truthOrder": [
     "verified_runtime_code",
     "verified_configuration",
@@ -6086,6 +6086,20 @@
     {
       "stable_id": "blast__scripts__agent__validate-creator-intake-flow-ts",
       "path": "scripts/agent/validate-creator-intake-flow.ts",
+      "blast_radius_score": 45,
+      "shared_helper_risk": 25,
+      "route_boundary_risk": 0,
+      "runtime_criticality": 0,
+      "verification_burden": 20,
+      "deploy_or_lockfile_sensitivity": 0,
+      "why_score_was_assigned": [
+        "Likely shared helper.",
+        "Broad signoff likely."
+      ]
+    },
+    {
+      "stable_id": "blast__scripts__agent__validate-creator-lane-debug-parity-ts",
+      "path": "scripts/agent/validate-creator-lane-debug-parity.ts",
       "blast_radius_score": 45,
       "shared_helper_risk": 25,
       "route_boundary_risk": 0,

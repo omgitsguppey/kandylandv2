@@ -1,5 +1,33 @@
 # KandyDrops Core Codebase Audit & Defensive Ledger
 
+## [2026-05-02 #111] PRE: Creator Lane Debug Parity
+
+Scope started:
+- Hardening creator lane diagnostics so Admin Debug and Admin Roster agree on creator onboarding, review queue, user projection, legal/signature, ID, role, settings, restrictions, fan-experience activity, and history truth.
+- Required outputs: creator lane debug metadata, parity checks, short roster warnings only, Admin Debug Creator Lane evidence group, docs at `docs/agent-truth/creator-lane-debug-parity.md`, validation command, focused diagnostics/roster tests, TypeScript, admin debug checks, `git diff --check`, commit, and push.
+- This pass must not redesign Admin Roster or Debug, create a parallel creator truth source, hide failures with copy, expose raw Firestore paths in the roster, or touch GumDrop/payment/economy code.
+
+Initial evidence:
+- Control tower routing, doctrine consultation, governance startup files, generated fast-start context, and adjacency traces for Admin Debug, Admin Roster, and creator diagnostics were consulted.
+- Runtime owners inspected first: `src/lib/server/creator-onboarding-diagnostics.ts`, `src/app/api/admin/debug/route.ts`, `src/app/admin/debug/components/DebugTabNow.tsx`, `src/app/api/admin/roster/route.ts`, `src/app/admin/roster/page.tsx`, creator onboarding canonical/history helpers, review queue materializer, projection normalizer, and creator experience settings model.
+
+Scope completed:
+- Extended `src/lib/server/creator-onboarding-diagnostics.ts` with Creator Lane source snapshots, roster warning labels, recommended fixes, self-heal flags, history coverage, agreement/ID/role/settings parity checks, and creator fan-experience activity counts.
+- Updated Admin Debug to expose a `Creator Lane` group with source snapshots, mismatch rows, history coverage, last materialized time, recommended fixes, and technical source details while keeping Admin Roster rows limited to short warnings.
+- Added roster warning propagation through the roster API/page, docs, validation, and focused diagnostics/roster tests.
+
+Verification:
+- Passed: `npm run check:creator-lane-debug-parity`
+- Passed: `npm run typecheck`
+- Passed: `npm run agent:test -- src/app/admin/debug/page.tsx` (no related test files found; command exited 0)
+- Passed: `npx vitest run tests/unit/creator-onboarding-diagnostics.spec.ts tests/unit/admin-roster-route.spec.ts tests/unit/admin-roster-decision-queue.spec.ts tests/unit/ai-debug-assistant.spec.ts`
+- Passed: `npx vitest run tests/unit/admin-debug-route-runtime.spec.ts tests/unit/admin-debug-summary-cards.spec.ts tests/unit/admin-debug-assistant-route.spec.ts tests/unit/ai-debug-assistant.spec.ts`
+- Passed: `npm run check:ui:coverage`
+- Passed: `npm run check:ui:runtime`
+- Passed: `npm run check:ui:audits` (Playwright suite passed; Next webserver emitted residual transformAlgorithm noise after completion)
+- Passed: `npm run check:continuity` after removing generated `.next`, `playwright-report`, and `test-results`
+- Passed: `git diff --check` with existing Windows CRLF normalization warnings only.
+
 ## [2026-05-02 #110] PRE: Creator Public Profile Routing Cleanup
 
 Scope started:

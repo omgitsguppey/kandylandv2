@@ -144,6 +144,7 @@ type CreatorReviewQueueEntry = {
     projectionLagMs?: number;
     queueParityOk?: boolean;
     queueParityDelta?: Array<Record<string, unknown>>;
+    creatorLaneWarnings?: string[];
 };
 
 type RosterUser = {
@@ -411,6 +412,7 @@ export default function AdminRosterPage() {
             })
             : null;
     const selectedPrimaryAction = selectedVisibleStatus?.primaryAction ?? "";
+    const selectedCreatorLaneWarnings = selectedEntry?.creatorLaneWarnings ?? [];
 
     useEffect(() => {
         let cancelled = false;
@@ -973,6 +975,8 @@ export default function AdminRosterPage() {
         projectionLagMs: selectedEntry?.projectionLagMs ?? 0,
         queueParityOk: selectedEntry?.queueParityOk === true,
         queueParityDelta: JSON.stringify(selectedEntry?.queueParityDelta ?? []),
+        creatorLaneWarnings: selectedCreatorLaneWarnings.join(", "),
+        creatorLaneParityStatus: selectedCreatorLaneWarnings.length > 0 ? "needs_review" : "ok",
         accountControlsVisible: Boolean(expandedSections.account_controls),
         ...viewAsDebug,
         syntheticCreatorMarkerPresent: Boolean(selectedCanonical?.isSyntheticCreator || detail?.user.isSyntheticCreator || detail?.user.adminViewAsDebug?.syntheticCreatorMarkerPresent),
@@ -1121,6 +1125,11 @@ export default function AdminRosterPage() {
                                                         <p className="text-base font-bold text-white">{entry.creatorDisplayName}</p>
                                                         <p className="mt-1 truncate text-sm text-zinc-400">{buildStage(entry)} - {entry.email}</p>
                                                         <p className="mt-1 text-xs text-zinc-500">{countRealBlockers(entry)} review notes</p>
+                                                        {(entry.creatorLaneWarnings ?? []).length > 0 ? (
+                                                            <p className="mt-1 text-xs font-semibold text-brand-purple">
+                                                                {(entry.creatorLaneWarnings ?? []).slice(0, 2).join(" / ")}
+                                                            </p>
+                                                        ) : null}
                                                     </div>
                                                     <div className="flex shrink-0 items-center gap-2 text-sm font-semibold text-white">
                                                         <span>{buildPrimaryActionLabel(entry)}</span>
@@ -1347,6 +1356,17 @@ export default function AdminRosterPage() {
                                     <div className="rounded-2xl border border-brand-purple/25 bg-brand-purple/10 p-3 text-sm leading-6 text-zinc-200">
                                         <p className="font-bold text-white">Synthetic creator</p>
                                         <p className="mt-1">Internal QA and creator experience actions require an admin operator.</p>
+                                    </div>
+                                ) : null}
+
+                                {selectedCreatorLaneWarnings.length > 0 ? (
+                                    <div className="rounded-2xl border border-brand-purple/25 bg-black/25 p-3 text-sm leading-6 text-zinc-200">
+                                        <p className="font-bold text-white">Needs review</p>
+                                        <div className="mt-2 space-y-1">
+                                            {selectedCreatorLaneWarnings.map((warning) => (
+                                                <p key={warning}>{warning}</p>
+                                            ))}
+                                        </div>
                                     </div>
                                 ) : null}
 

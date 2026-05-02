@@ -1,7 +1,7 @@
 # Agent Task Spec
 
 ## Goal
-centralize creator profile routing
+add creator lane debug parity diagnostics
 
 ## Acceptance Criteria
 - Stay within the touched entrypoints unless adjacency proves a shared helper must move with them.
@@ -10,7 +10,7 @@ centralize creator profile routing
 - Keep broad signoff lanes separate from the fast loop.
 
 ## Likely Entrypoints
-- src/lib/creator-public-pages.ts
+- src/app/admin/debug/page.tsx
 
 ## Forbidden Surfaces
 - src/lib/gumdrop-ledger.ts
@@ -21,11 +21,14 @@ centralize creator profile routing
 
 ## Fast Verification
 - npm run typecheck
-- npm run agent:test -- src/lib/creator-public-pages.ts
+- npm run agent:test -- src/app/admin/debug/page.tsx
+- npm run check:ui:coverage
+- npm run check:ui:runtime
 
 ## Signoff Verification
+- npm run check:ui:audits
 - npm run check:continuity
 
 ## Notes
-- Mode: creator
+- Mode: admin
 - Format follow-up implementation prompts like an issue: goal, acceptance criteria, entrypoints, forbidden surfaces, and exact verification lanes.

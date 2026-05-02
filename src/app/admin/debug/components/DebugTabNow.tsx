@@ -49,6 +49,9 @@ export function DebugTabNow({
     const writerFailCount = data?.opsHealth?.materializerSummary?.fail ?? 0;
     const writerSampleCount = (data?.opsHealth?.materializers || []).length;
     const freshestLoadedSignalTruthState = freshestLoadedSignalAt ? "live" : "unavailable";
+    const creatorLaneDebug = data?.creatorOnboardingDiagnostics?.creatorLaneDebug;
+    const creatorLaneIssues = data?.creatorOnboardingDiagnostics?.issues || [];
+    const creatorLaneNeedsReview = (data?.creatorOnboardingDiagnostics?.summary?.totalIssues ?? 0) > 0;
     const systemHealthNow = buildAdminDebugSystemHealthNowModel({
         pipelineStatus: data?.opsHealth?.pipeline?.status,
         activePipelineFailureCount,
@@ -155,42 +158,44 @@ export function DebugTabNow({
                     </Section>
 
                     <Section
-                        title="Creator intake blockers"
-                        subtitle="Live cross-checks between onboarding records, queue entries, and user projections."
-                        defaultOpen={(data?.creatorOnboardingDiagnostics?.summary?.totalIssues ?? 0) > 0}
-                        summary={<><Pill label="Issues" value={data?.creatorOnboardingDiagnostics?.summary?.totalIssues ?? 0} tone={(data?.creatorOnboardingDiagnostics?.summary?.totalIssues ?? 0) > 0 ? "warn" : "good"} /><Pill label="Missing queue" value={data?.creatorOnboardingDiagnostics?.summary?.missingQueueCount ?? 0} tone={(data?.creatorOnboardingDiagnostics?.summary?.missingQueueCount ?? 0) > 0 ? "bad" : "good"} /><Pill label="Role mismatch" value={data?.creatorOnboardingDiagnostics?.summary?.roleMismatchCount ?? 0} tone={(data?.creatorOnboardingDiagnostics?.summary?.roleMismatchCount ?? 0) > 0 ? "warn" : "good"} /></>}
+                        title="Creator Lane"
+                        subtitle="Technical parity across onboarding, review queue, user projection, settings, experience records, and history."
+                        defaultOpen={creatorLaneNeedsReview}
+                        summary={<><Pill label="Parity" value={creatorLaneDebug?.parityStatus ?? "ok"} tone={creatorLaneNeedsReview ? "warn" : "good"} /><Pill label="Issues" value={data?.creatorOnboardingDiagnostics?.summary?.totalIssues ?? 0} tone={creatorLaneNeedsReview ? "warn" : "good"} /><Pill label="History gaps" value={data?.creatorOnboardingDiagnostics?.summary?.historyCoverageIssueCount ?? 0} tone={(data?.creatorOnboardingDiagnostics?.summary?.historyCoverageIssueCount ?? 0) > 0 ? "warn" : "good"} /></>}
                     >
                         <div className="grid gap-4 lg:grid-cols-3">
                             <div className="rounded-[1rem] border border-white/10 bg-white/[0.03] p-4">
-                                <p className="text-[11px] uppercase tracking-[0.18em] text-gray-400">Missing queue links</p>
-                                <p className="mt-2 text-xl font-black text-white">{data?.creatorOnboardingDiagnostics?.summary?.missingQueueCount ?? 0}</p>
-                                <p className="mt-1 text-sm text-gray-400">Creator intake exists, but the review queue entry is missing.</p>
+                                <p className="text-[11px] uppercase tracking-[0.18em] text-gray-400">Source snapshots</p>
+                                <p className="mt-2 text-xl font-black text-white">{creatorLaneDebug?.sourceSnapshots?.onboardingCount ?? 0}</p>
+                                <p className="mt-1 text-sm text-gray-400">
+                                    {(creatorLaneDebug?.sourceSnapshots?.reviewQueueCount ?? 0)} queue entries, {(creatorLaneDebug?.sourceSnapshots?.userProjectionCount ?? 0)} user projections.
+                                </p>
                             </div>
                             <div className="rounded-[1rem] border border-white/10 bg-white/[0.03] p-4">
-                                <p className="text-[11px] uppercase tracking-[0.18em] text-gray-400">Missing source records</p>
-                                <p className="mt-2 text-xl font-black text-white">{(data?.creatorOnboardingDiagnostics?.summary?.missingSourceCount ?? 0) + (data?.creatorOnboardingDiagnostics?.summary?.projectionWithoutSourceCount ?? 0)}</p>
-                                <p className="mt-1 text-sm text-gray-400">Queue or user state exists without a matching creator intake record.</p>
+                                <p className="text-[11px] uppercase tracking-[0.18em] text-gray-400">Mismatches</p>
+                                <p className="mt-2 text-xl font-black text-white">{creatorLaneIssues.length}</p>
+                                <p className="mt-1 text-sm text-gray-400">Queue, role, agreement, ID, settings, and history parity checks.</p>
                             </div>
                             <div className="rounded-[1rem] border border-white/10 bg-white/[0.03] p-4">
-                                <p className="text-[11px] uppercase tracking-[0.18em] text-gray-400">Blocked in limbo</p>
-                                <p className="mt-2 text-xl font-black text-white">{(data?.creatorOnboardingDiagnostics?.summary?.stuckAwaitingReviewCount ?? 0) + (data?.creatorOnboardingDiagnostics?.summary?.roleMismatchCount ?? 0)}</p>
-                                <p className="mt-1 text-sm text-gray-400">Applicants waiting with no clear next state, or with approval and role state out of sync.</p>
+                                <p className="text-[11px] uppercase tracking-[0.18em] text-gray-400">Last materialized</p>
+                                <p className="mt-2 text-xl font-black text-white">{creatorLaneDebug?.lastMaterializedAt ? formatRelative(creatorLaneDebug.lastMaterializedAt) : "Not recorded"}</p>
+                                <p className="mt-1 text-sm text-gray-400">{creatorLaneDebug?.recommendedFix ?? "No action needed."}</p>
                             </div>
                         </div>
 
                         <div className="mt-4 rounded-[1rem] border border-white/10 bg-white/[0.03]">
                             <div className="flex items-center justify-between gap-3 border-b border-white/10 px-4 py-3">
                                 <div>
-                                    <p className="font-semibold text-white">Current creator onboarding issues</p>
-                                    <p className="text-xs text-gray-400">Current creator intake records that need review.</p>
+                                    <p className="font-semibold text-white">Creator lane parity issues</p>
+                                    <p className="text-xs text-gray-400">Admin Roster shows only short warnings. Full source evidence stays here.</p>
                                 </div>
-                                <Pill label="Rows" value={(data?.creatorOnboardingDiagnostics?.issues || []).length} />
+                                <Pill label="Rows" value={creatorLaneIssues.length} />
                             </div>
                             <div className="divide-y divide-white/10">
-                                {(data?.creatorOnboardingDiagnostics?.issues || []).length === 0 ? (
+                                {creatorLaneIssues.length === 0 ? (
                                     <div className="px-4 py-6 text-sm text-gray-300">No creator onboarding anomalies are currently detected.</div>
                                 ) : (
-                                    (data?.creatorOnboardingDiagnostics?.issues || []).slice(0, 12).map((issue: any) => (
+                                    creatorLaneIssues.slice(0, 12).map((issue: any) => (
                                         <div key={`${issue.key}-${issue.userId}`} className="space-y-2 px-4 py-3">
                                             <div className="flex flex-wrap items-start justify-between gap-2">
                                                 <div>
@@ -200,6 +205,18 @@ export function DebugTabNow({
                                                 <Pill label="Severity" value={issue.severity} tone={issue.severity === "error" ? "bad" : "warn"} />
                                             </div>
                                             <p className="text-sm text-gray-300">{issue.detail}</p>
+                                            <p className="text-xs text-gray-400">Roster warning: {issue.rosterWarning}</p>
+                                            <p className="text-xs text-gray-400">Recommended fix: {issue.recommendedFix}</p>
+                                            <p className="text-xs text-gray-400">Can self-heal: {issue.canSelfHeal ? "Yes" : "No"}</p>
+                                            <details className="rounded-lg border border-white/10 bg-black/20 px-3 py-2 text-xs text-gray-300">
+                                                <summary className="cursor-pointer text-gray-200">Source details</summary>
+                                                <pre className="mt-2 whitespace-pre-wrap break-words">{JSON.stringify({
+                                                    sourceSnapshots: issue.sourceSnapshots,
+                                                    mismatches: issue.mismatches,
+                                                    missingHistoryEvents: issue.missingHistoryEvents,
+                                                    missingEvidenceFields: issue.missingEvidenceFields,
+                                                }, null, 2)}</pre>
+                                            </details>
                                             <a href={issue.link} className="text-xs font-semibold text-brand-purple hover:text-white">
                                                 Open creator record
                                             </a>

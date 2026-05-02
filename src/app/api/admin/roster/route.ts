@@ -50,6 +50,10 @@ import {
     type SyntheticCreatorType,
 } from "@/lib/admin/synthetic-creators-view-as";
 import { deriveCreatorVisibleStatus } from "@/lib/creator-onboarding-projection";
+import {
+    buildCreatorLaneRosterWarnings,
+    type CreatorLaneRosterWarning,
+} from "@/lib/server/creator-onboarding-diagnostics";
 
 type RosterRole = "user" | "creator" | "admin";
 type RosterStatus = "active" | "suspended" | "banned";
@@ -136,6 +140,8 @@ type CreatorReviewQueueRosterEntry = RosterEntry & {
     projectionLagMs?: number;
     queueParityOk?: boolean;
     queueParityDelta?: Array<Record<string, unknown>>;
+    ownerOverrideReason?: string;
+    creatorLaneWarnings?: CreatorLaneRosterWarning[];
 };
 
 type CreatorOpsAggregate = {
@@ -224,6 +230,7 @@ function serializeQueueEntry(
     raw: Record<string, unknown>,
     user: RosterEntry | undefined,
     creatorApplication: ReturnType<typeof normalizeCreatorApplication> | undefined,
+    userRaw: Record<string, unknown> | undefined,
 ): CreatorReviewQueueRosterEntry | null {
     const uid = readString(raw.userId) || user?.uid || "";
     const creatorDisplayName = readString(raw.creatorDisplayName);
@@ -290,6 +297,7 @@ function serializeQueueEntry(
         blockingReasons: readStringArray(raw.blockingReasons) as CreatorOnboardingBlockingReason[],
         introAcknowledgedAt: toTimestampNumber(raw.introAcknowledgedAt) || undefined,
         ownerOverrideActive: raw.ownerOverrideActive === true,
+        ownerOverrideReason: readString(raw.ownerOverrideReason) || undefined,
         humanOperatorRequired: raw.humanOperatorRequired === false ? false : raw.isSyntheticCreator === true ? true : user?.humanOperatorRequired,
         publicDisclosureMode: readString(raw.publicDisclosureMode) || user?.publicDisclosureMode,
         readyForApproval: readBoolean(raw.readyForApproval),
@@ -364,7 +372,7 @@ function serializeQueueEntry(
         projectionLagMs: typeof raw.projectionLagMs === "number" && Number.isFinite(raw.projectionLagMs)
             ? Math.max(0, Math.trunc(raw.projectionLagMs))
             : undefined,
-        queueParityOk: raw.queueParityOk === true,
+        queueParityOk: raw.queueParityOk === true ? true : raw.queueParityOk === false ? false : undefined,
         queueParityDelta: Array.isArray(raw.queueParityDelta)
             ? raw.queueParityDelta.filter((entry): entry is Record<string, unknown> => Boolean(entry) && typeof entry === "object" && !Array.isArray(entry))
             : undefined,
@@ -386,6 +394,10 @@ function serializeQueueEntry(
         rosterBucket: visibleStatus.rosterBucket,
         visibleStatusLabels: visibleStatus.visibleStatusLabels,
         normalizedProjectionDebug: visibleStatus.debug,
+        creatorLaneWarnings: buildCreatorLaneRosterWarnings({
+            entry,
+            userRaw,
+        }),
     };
 }
 
@@ -445,6 +457,7 @@ async function GET_handler(request: NextRequest) {
         }));
         const allUsers = userDocs.map((doc) => serializeRosterEntry(doc.id, doc.raw));
         const userMap = new Map(allUsers.map((entry) => [entry.uid, entry]));
+        const userRawMap = new Map(userDocs.map((doc) => [doc.id, doc.raw] as const));
         const creatorApplicationMap = new Map(
             userDocs.map((doc) => [doc.id, normalizeCreatorApplication(doc.raw.creatorApplication)] as const),
         );
@@ -665,6 +678,7 @@ async function GET_handler(request: NextRequest) {
                 doc.data() as Record<string, unknown>,
                 userMap.get(doc.id),
                 creatorApplicationMap.get(doc.id),
+                userRawMap.get(doc.id),
             ))
             .filter((entry): entry is CreatorReviewQueueRosterEntry => Boolean(entry))
             .filter((entry) => entry.creatorReviewQueueVisible)

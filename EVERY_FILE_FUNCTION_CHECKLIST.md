@@ -1,13 +1,21 @@
 # EVERY FILE FUNCTION CHECKLIST
 
 **Last Updated:** 2026-05-02
-**Current Focus:** Creator Public Profile Routing Cleanup.
+**Current Focus:** Creator Lane Debug Parity.
 **Status:** In Progress. Current tracked-file coverage is reconciled as of 2026-04-28: every `git ls-files` entry has a current checklist heading, while detailed function-level audits remain pending for many historical and newly reconciled files.
 Purpose: exhaustive no-skip audit checklist covering every repository file currently in scope and every detected function-like implementation.
 
 Scoring: all entries below are marked as included in the current validated sweep. Confidence reflects current repository-state confidence, not perfection or future-proofing.
 
 Current repo-wide state snapshot: see [FULL_SCALE_CODEBASE_AUDIT.md](/Users/uylus/OneDrive/Documents/KandyDrops_Final/FULL_SCALE_CODEBASE_AUDIT.md) for the current live baseline, verification state, and continuity rules, and see [REPO_MEMORY_LEDGER.md](/Users/uylus/OneDrive/Documents/KandyDrops_Final/REPO_MEMORY_LEDGER.md) for major architectural and workflow decisions. The detailed file/function body below remains valuable historical evidence, but it has not been fully regenerated against the current 2026-04-18 inventory review yet.
+
+## 2026-05-02 Creator Lane Debug Parity Coverage
+
+- [x] `src/lib/server/creator-onboarding-diagnostics.ts` owns Creator Lane parity checks across canonical onboarding, review queue, user projection, role/approval, agreement evidence, ID metadata, owner override reason, creator settings/restrictions, creator experience records, and lifecycle history coverage.
+- [x] `src/app/api/admin/debug/route.ts` feeds creator onboarding history plus creator subscriptions, requests, bookings, message threads, and messages into the diagnostic builder for Debug evidence.
+- [x] `src/app/admin/debug/components/DebugTabNow.tsx` exposes the `Creator Lane` Debug group with source snapshots, mismatch details, history coverage, last materialized time, recommended fixes, and self-heal status.
+- [x] `src/app/api/admin/roster/route.ts` and `src/app/admin/roster/page.tsx` propagate only short roster warnings: `Review queue out of sync`, `Role needs review`, `Agreement evidence missing`, `ID record needs review`, and `Settings need review`.
+- [x] `scripts/agent/validate-creator-lane-debug-parity.ts`, `tests/unit/creator-onboarding-diagnostics.spec.ts`, and `docs/agent-truth/creator-lane-debug-parity.md` validate and document the targeted parity contract.
 
 ## 2026-05-02 Creator Public Profile Routing Coverage
 

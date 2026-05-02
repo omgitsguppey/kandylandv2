@@ -4,6 +4,10 @@ Status: Canonical repository-memory and architecture-decision ledger
 Last refreshed: 2026-05-02
 Repo: `C:\Users\uylus\OneDrive\Documents\KandyDrops_Final`
 
+## 2026-05-02 Creator lane debug parity
+
+Creator lane parity now routes through `src/lib/server/creator-onboarding-diagnostics.ts`. Admin Debug exposes a `Creator Lane` group with source snapshot counts, mismatch rows, history coverage, last queue materialization time, recommended fixes, and `canSelfHeal`; Admin Roster receives only short operator warnings: `Review queue out of sync`, `Role needs review`, `Agreement evidence missing`, `ID record needs review`, and `Settings need review`. Parity checks cover canonical onboarding, history, review queue, user projection, role, agreement signature evidence, ID documents, owner override reason, creator settings/restrictions, and creator experience records. Full technical details belong in Debug, not the roster row.
+
 ## 2026-05-02 Creator public profile routing
 
 Creator public/admin/review profile navigation now routes through `src/lib/creator-profile-routing.ts`. Public creator links must use `buildCreatorPublicHref(...)`, admin user-record links must use `buildCreatorAdminHref(...)`, and Admin Roster focus links must use `buildCreatorReviewHref(...)`. The public route is `/creators/[username]`, so public links prefer username/handle/creatorUsername and do not fall back to uid. If no valid public slug exists, UI should render a non-link state with `explainCreatorProfileRouteMissing(...)`, emit `creator_profile_link_missing`, and expose Debug metadata rather than sending users to a 404. Chat headers, CreatorDiscoveryRail, Admin Roster view-as controls, creator-experience telemetry, creator notification links, and creator account-control profile paths are covered by this helper.

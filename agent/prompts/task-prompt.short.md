@@ -1,24 +1,24 @@
 # SHORT Task Context
 
 ## Goal
-centralize creator profile routing
+add creator lane debug parity diagnostics
 
-Mode: creator
+Mode: admin
 Scope: moderate
 Why scope: Touches several files or shared helper surfaces with non-trivial adjacency.
 
 ## Likely Entrypoints
-- src/lib/creator-public-pages.ts
+- src/app/admin/debug/page.tsx
 - src/lib/creator-onboarding.ts
-- src/lib/creator-experiences.ts
-- src/components/CreatorDiscoveryRail.tsx
-- src/lib/server/creator-discovery.ts
+- src/lib/admin-debug-preferences.ts
+- src/lib/admin-debug-route-runtime.ts
+- src/lib/admin-debug-summary-cards.ts
 
 ## Canonical Helpers To Reuse
 - src/lib/creator-onboarding.ts
+- src/lib/route-runtime-health.ts
+- src/lib/server/admin-panel-system-logs.ts
 - src/lib/server/creator-onboarding.ts
-- src/lib/telemetry-catalog.ts
-- src/lib/telemetry.ts
 
 ## Acceptance Criteria
 - Reuse the canonical helpers before introducing new ownership paths.
@@ -27,9 +27,9 @@ Why scope: Touches several files or shared helper surfaces with non-trivial adja
 
 ## Relevant Pitfalls
 - diagnostics_serialization_crash
-- request_json_parse_falls_into_500
 - consumed_response_stream_fallback
-- generated_artifact_cleanup_miss
+- legacy_queue_adapter_usage
+- stale_queue_scheduler_heartbeat
 
 ## Forbidden Surfaces
 - src/lib/gumdrop-ledger.ts
@@ -39,10 +39,10 @@ Why scope: Touches several files or shared helper surfaces with non-trivial adja
 
 ## Fast Verification
 - npm run typecheck
-- npm run agent:test -- src/lib/creator-public-pages.ts
+- npm run agent:test -- src/app/admin/debug/page.tsx
 - npm run agent:test -- src/lib/creator-onboarding.ts
-- npm run agent:test -- src/lib/creator-experiences.ts
-- npm run agent:test -- src/components/CreatorDiscoveryRail.tsx
+- npm run agent:test -- src/lib/admin-debug-preferences.ts
+- npm run agent:test -- src/lib/admin-debug-route-runtime.ts
 - npm run check:ui:coverage
 - npm run check:ui:runtime
 

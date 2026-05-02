@@ -38,11 +38,16 @@ import { getConfiguredRollouts, getRolloutEvaluationSamples } from "@/lib/rollou
 import { getChangelogEntries, getCurrentRelease } from "@/lib/release-tracking";
 import { getCSTDateKey } from "@/lib/timezone";
 import { ORCHESTRATION_COLLECTIONS } from "@/lib/orchestration/contract";
+import { CREATOR_COLLECTIONS } from "@/lib/creator-experiences";
 import { CREATOR_SPEND_POLICIES } from "@/lib/server/creator-experiences";
 import { CREATOR_SPEND_TRANSACTION_TYPES, getTransactionBadgeLabel } from "@/lib/transaction-normalizers";
 import { buildAdminPanelSystemLogs, syncAdminPanelSystemLogs } from "@/lib/server/admin-panel-system-logs";
 import { buildCreatorOnboardingDiagnostics } from "@/lib/server/creator-onboarding-diagnostics";
-import { CREATOR_ONBOARDING_COLLECTION, CREATOR_REVIEW_QUEUE_COLLECTION } from "@/lib/server/creator-onboarding";
+import {
+    CREATOR_ONBOARDING_COLLECTION,
+    CREATOR_ONBOARDING_HISTORY_SUBCOLLECTION,
+    CREATOR_REVIEW_QUEUE_COLLECTION,
+} from "@/lib/server/creator-onboarding";
 import { listRouteRuntimeHealth, recordRouteRuntimeSample } from "@/lib/server/route-runtime-health";
 import {
     listNotificationDispatchOutcomes,
@@ -414,6 +419,12 @@ export async function GET(request: NextRequest) {
             orchestrationRepairActionsSnapshot,
             creatorOnboardingSnapshot,
             creatorReviewQueueSnapshot,
+            creatorOnboardingHistorySnapshot,
+            creatorSubscriptionsSnapshot,
+            creatorRequestsSnapshot,
+            creatorBookingsSnapshot,
+            creatorMessageThreadsSnapshot,
+            creatorMessagesSnapshot,
         ] = await Promise.all([
             adminDb.collection("users").get(),
             adminDb.collection("daily_task_events")
@@ -469,6 +480,12 @@ export async function GET(request: NextRequest) {
             adminDb.collection(ORCHESTRATION_COLLECTIONS.repairActions).orderBy("createdAtMs", "desc").limit(60).get(),
             adminDb.collection(CREATOR_ONBOARDING_COLLECTION).get(),
             adminDb.collection(CREATOR_REVIEW_QUEUE_COLLECTION).get(),
+            adminDb.collectionGroup(CREATOR_ONBOARDING_HISTORY_SUBCOLLECTION).limit(2_000).get(),
+            adminDb.collection(CREATOR_COLLECTIONS.subscriptions).limit(1_000).get(),
+            adminDb.collection(CREATOR_COLLECTIONS.requests).limit(1_000).get(),
+            adminDb.collection(CREATOR_COLLECTIONS.bookings).limit(1_000).get(),
+            adminDb.collection(CREATOR_COLLECTIONS.messageThreads).limit(1_000).get(),
+            adminDb.collection(CREATOR_COLLECTIONS.messages).limit(1_000).get(),
         ]);
 
         const [routeRuntimeHealth, runtimeWarnings, queueJobHeartbeats, notificationDispatchOutcomes, behavioralSnapshotStatus, behavioralDrops, analyticsTruthRecovery, analyticsTruthDrops, analyticsTruthUsers, analyticsTruthRepairs, adminMetricSnapshots] = await Promise.all([
@@ -555,6 +572,35 @@ export async function GET(request: NextRequest) {
             })),
             onboardingRecords: creatorOnboardingSnapshot.docs.map((doc) => doc.data() as Record<string, unknown>),
             queueRecords: creatorReviewQueueSnapshot.docs.map((doc) => doc.data() as Record<string, unknown>),
+            historyRecords: creatorOnboardingHistorySnapshot.docs.map((doc) => {
+                const raw = doc.data() as Record<string, unknown>;
+                const userId = doc.ref.parent.parent?.id
+                    || toStringValue(raw.targetUserId)
+                    || toStringValue(raw.targetCreatorId);
+                return { userId, raw };
+            }),
+            creatorExperienceRecords: [
+                ...creatorSubscriptionsSnapshot.docs.map((doc) => {
+                    const raw = doc.data() as Record<string, unknown>;
+                    return { creatorId: toStringValue(raw.creatorId), userId: toStringValue(raw.userId), raw };
+                }),
+                ...creatorRequestsSnapshot.docs.map((doc) => {
+                    const raw = doc.data() as Record<string, unknown>;
+                    return { creatorId: toStringValue(raw.creatorId), userId: toStringValue(raw.userId), raw };
+                }),
+                ...creatorBookingsSnapshot.docs.map((doc) => {
+                    const raw = doc.data() as Record<string, unknown>;
+                    return { creatorId: toStringValue(raw.creatorId), userId: toStringValue(raw.userId), raw };
+                }),
+                ...creatorMessageThreadsSnapshot.docs.map((doc) => {
+                    const raw = doc.data() as Record<string, unknown>;
+                    return { creatorId: toStringValue(raw.creatorId), userId: toStringValue(raw.userId), raw };
+                }),
+                ...creatorMessagesSnapshot.docs.map((doc) => {
+                    const raw = doc.data() as Record<string, unknown>;
+                    return { creatorId: toStringValue(raw.creatorId), userId: toStringValue(raw.userId), raw };
+                }),
+            ],
         });
 
         const coverage = buildDailyTaskInventory();

@@ -1,5 +1,5 @@
 {
-  "generatedAt": "2026-05-02T18:53:50.080Z",
+  "generatedAt": "2026-05-02T19:59:08.301Z",
   "truthOrder": [
     "verified_runtime_code",
     "verified_configuration",
@@ -15,6 +15,34 @@
   ],
   "passes": [
     {
+      "stable_id": "pass__2026-05-02-pre-creator-lane-debug-parity",
+      "date": "2026-05-02",
+      "title": "PRE: Creator Lane Debug Parity",
+      "scopeSummary": [],
+      "touchedSurfaces": [
+        "docs/agent-truth/creator-lane-debug-parity.md",
+        "src/app/admin/debug/components/DebugTabNow.tsx",
+        "src/app/admin/roster/page.tsx",
+        "src/app/api/admin/debug/route.ts",
+        "src/app/api/admin/roster/route.ts",
+        "src/lib/server/creator-onboarding-diagnostics.ts"
+      ],
+      "canonicalHelpersReused": [],
+      "verificationCommandsRun": [],
+      "resultSummary": [],
+      "warnings": [],
+      "architecture_change": true,
+      "runtime_change": true,
+      "ui_change": true,
+      "security_change": false,
+      "maintenance_only": false,
+      "changeKinds": [
+        "admin",
+        "runtime",
+        "architecture"
+      ]
+    },
+    {
       "stable_id": "pass__2026-05-02-pre-creator-public-profile-routing-cleanup",
       "date": "2026-05-02",
       "title": "PRE: Creator Public Profile Routing Cleanup",
@@ -22,6 +50,8 @@
       "touchedSurfaces": [
         "docs/agent-truth/creator-profile-routing.md",
         "docs/agent-truth/user-chat-shell-routing.md",
+        "npx vitest run tests/unit/creator-profile-routing.spec.ts tests/unit/creator-public-pages.spec.ts tests/unit/creator-profile-route.spec.ts tests/unit/creator-experiences-panel.spec.tsx tests/unit/admin-roster-decision-queue.spec.ts tests/unit/admin-roster-route.spec.ts tests/unit/chat-thread-route.spec.ts tests/unit/chat-thread-messages-route.spec.ts",
+        "src/lib/creator-profile-routing.ts",
         "src/lib/creator-public-pages.ts"
       ],
       "canonicalHelpersReused": [],
@@ -34,6 +64,7 @@
       "security_change": false,
       "maintenance_only": false,
       "changeKinds": [
+        "admin",
         "architecture"
       ]
     },
@@ -228,46 +259,6 @@
       "architecture_change": true,
       "runtime_change": false,
       "ui_change": true,
-      "security_change": false,
-      "maintenance_only": false,
-      "changeKinds": [
-        "admin",
-        "ui",
-        "tooling",
-        "architecture"
-      ]
-    },
-    {
-      "stable_id": "pass__2026-05-02-pre-creator-lane-legacy-truth-inventory",
-      "date": "2026-05-02",
-      "title": "PRE: Creator Lane Legacy Truth Inventory",
-      "scopeSummary": [],
-      "touchedSurfaces": [
-        "/api/admin/roster",
-        "/api/admin/user/[userId]",
-        "/api/admin/users",
-        "/api/user/register",
-        "agent/state/creator-lane-legacy-truth-inventory.generated.json",
-        "creator_onboarding/{uid}",
-        "creator_onboarding/{uid}/history/{eventId}",
-        "creator_review_queue/{uid}",
-        "docs/agent-truth/creator-lane-legacy-truth-inventory.md",
-        "scripts/agent/validate-creator-lane-legacy-truth-inventory.ts",
-        "src/lib/creator-onboarding.ts",
-        "src/lib/server/creator-onboarding.ts",
-        "src/types/db.ts",
-        "users/{uid}.creatorApplication"
-      ],
-      "canonicalHelpersReused": [
-        "src/lib/creator-onboarding.ts",
-        "src/lib/server/creator-onboarding.ts"
-      ],
-      "verificationCommandsRun": [],
-      "resultSummary": [],
-      "warnings": [],
-      "architecture_change": true,
-      "runtime_change": false,
-      "ui_change": false,
       "security_change": false,
       "maintenance_only": false,
       "changeKinds": [
