@@ -53,7 +53,7 @@ Every marker includes:
 - `dedupeKey`
 - `source`
 
-Allowed `performedAs` values are `own_account`, `admin_on_behalf`, `owner_override`, and `system_job`.
+Allowed `performedAs` values are `own_account`, `admin_on_behalf`, `owner_override`, `admin_view_as_creator`, and `system_job`.
 
 Allowed creator identity surfaces are `admin_roster`, `creator_intake`, `creator_experiences`, and `creator_account_admin`.
 
@@ -78,6 +78,8 @@ These raw ids are Debug evidence. Do not expose them as visible creator-facing U
 - The guided intake emits `creator_intake_started`, `creator_intake_step_completed`, `creator_intake_goal_selected`, `creator_intake_recommended_setup_shown`, and `creator_intake_submitted`.
 - Creator waitlist actions such as intro acknowledgement, ID submission, contract signature, and application edit are `own_account`.
 - Admin Roster creation/backfill is `admin_on_behalf` unless it is an owner-only bypass.
+- Synthetic creator creation is owner-only and emits `admin_synthetic_creator_created` with `isSyntheticCreator`, `syntheticCreatorType`, `syntheticReason`, and the affected creator as `targetUserId`.
+- Admin creator QA simulation uses `performedAs: admin_view_as_creator`. It must preserve the admin's real Firebase auth identity, include `targetUserId`, show a return-to-admin banner, and block wallet/payment/unlock actions.
 - Admin Roster agreement lifecycle actions use the same markers. Template creation is an admin action, template activation is `owner_override`, agreement send/update/countersign is `admin_on_behalf` with the creator as `targetUserId`.
 - Admin Roster account controls use surface `creator_account_admin` and `performedAs: admin_on_behalf`. Profile, email, password reset, temporary password, role, status, creator approval, and notification setting changes must include `actorType`, `actorUid`, `targetUserId`, `fieldChanged`, redacted old/new values, and `/admin/roster` as the route. These events must not enter user behavior analytics as if the creator performed them.
 - Owner-only onboarding bypass and live creator creation are `actorType: owner_admin` with `performedAs: owner_override`.

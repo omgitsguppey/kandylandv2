@@ -42,6 +42,12 @@ import {
     buildAdminOnBehalfMarker,
     type ActorMarker,
 } from "@/lib/identity/actor-markers";
+import {
+    buildSyntheticCreatorMarker,
+    normalizeSyntheticCreatorType,
+    sanitizeSyntheticReason,
+    type SyntheticCreatorType,
+} from "@/lib/admin/synthetic-creators-view-as";
 
 type RosterRole = "user" | "creator" | "admin";
 type RosterStatus = "active" | "suspended" | "banned";
@@ -54,6 +60,13 @@ type RosterEntry = {
     photoURL: string | null;
     role: RosterRole;
     status: RosterStatus;
+    isSyntheticCreator?: boolean;
+    syntheticCreatorType?: SyntheticCreatorType;
+    syntheticCreatedByUid?: string;
+    syntheticCreatedAt?: number;
+    syntheticReason?: string;
+    humanOperatorRequired?: boolean;
+    publicDisclosureMode?: string;
     isVerified: boolean;
     createdAt: number;
 };
@@ -75,6 +88,13 @@ type CreatorReviewQueueRosterEntry = RosterEntry & {
     blockingReasons: CreatorOnboardingBlockingReason[];
     introAcknowledgedAt?: number;
     ownerOverrideActive?: boolean;
+    isSyntheticCreator?: boolean;
+    syntheticCreatorType?: SyntheticCreatorType;
+    syntheticCreatedByUid?: string;
+    syntheticCreatedAt?: number;
+    syntheticReason?: string;
+    humanOperatorRequired?: boolean;
+    publicDisclosureMode?: string;
     readyForApproval: boolean;
     creatorReviewQueueVisible: boolean;
     submittedAt: number;
@@ -177,6 +197,13 @@ function serializeRosterEntry(id: string, raw: Record<string, unknown>): RosterE
         photoURL: typeof raw.photoURL === "string" ? raw.photoURL : null,
         role: raw.role === "creator" || raw.role === "admin" || raw.role === "user" ? raw.role : "user",
         status: raw.status === "suspended" || raw.status === "banned" || raw.status === "active" ? raw.status : "active",
+        isSyntheticCreator: raw.isSyntheticCreator === true,
+        syntheticCreatorType: raw.isSyntheticCreator === true ? normalizeSyntheticCreatorType(raw.syntheticCreatorType) : undefined,
+        syntheticCreatedByUid: readString(raw.syntheticCreatedByUid) || undefined,
+        syntheticCreatedAt: toTimestampNumber(raw.syntheticCreatedAt) || undefined,
+        syntheticReason: readString(raw.syntheticReason) || undefined,
+        humanOperatorRequired: raw.isSyntheticCreator === true ? raw.humanOperatorRequired !== false : undefined,
+        publicDisclosureMode: readString(raw.publicDisclosureMode) || undefined,
         isVerified: raw.isVerified === true,
         createdAt: toTimestampNumber(raw.createdAt),
     };
@@ -201,6 +228,13 @@ function serializeQueueEntry(
         photoURL: typeof raw.photoURL === "string" ? raw.photoURL : user?.photoURL ?? null,
         role: user?.role ?? (raw.role === "creator" || raw.role === "admin" || raw.role === "user" ? raw.role : "user"),
         status: user?.status ?? "active",
+        isSyntheticCreator: raw.isSyntheticCreator === true || user?.isSyntheticCreator === true,
+        syntheticCreatorType: raw.isSyntheticCreator === true || user?.isSyntheticCreator === true
+            ? normalizeSyntheticCreatorType(raw.syntheticCreatorType || user?.syntheticCreatorType)
+            : undefined,
+        syntheticCreatedByUid: readString(raw.syntheticCreatedByUid) || user?.syntheticCreatedByUid,
+        syntheticCreatedAt: toTimestampNumber(raw.syntheticCreatedAt) || user?.syntheticCreatedAt,
+        syntheticReason: readString(raw.syntheticReason) || user?.syntheticReason,
         isVerified: user?.isVerified ?? false,
         createdAt: user?.createdAt ?? 0,
         creatorDisplayName,
@@ -245,6 +279,8 @@ function serializeQueueEntry(
         blockingReasons: readStringArray(raw.blockingReasons) as CreatorOnboardingBlockingReason[],
         introAcknowledgedAt: toTimestampNumber(raw.introAcknowledgedAt) || undefined,
         ownerOverrideActive: raw.ownerOverrideActive === true,
+        humanOperatorRequired: raw.humanOperatorRequired === false ? false : raw.isSyntheticCreator === true ? true : user?.humanOperatorRequired,
+        publicDisclosureMode: readString(raw.publicDisclosureMode) || user?.publicDisclosureMode,
         readyForApproval: readBoolean(raw.readyForApproval),
         creatorReviewQueueVisible: raw.creatorReviewQueueVisible !== false,
         submittedAt: toTimestampNumber(raw.submittedAt),
@@ -698,6 +734,8 @@ async function POST_handler(request: NextRequest) {
         const ownerOverrideReason = readString(body.ownerOverrideReason)
             || (creatorPath === "live_override" ? "Direct creator creation owner override" : "");
         const isOwnerActor = isCreatorOwnerEmail(caller?.email);
+        const isSyntheticCreator = body.isSyntheticCreator === true;
+        const syntheticReason = sanitizeSyntheticReason(body.syntheticReason);
 
         if (
             displayName.length < 2
@@ -715,9 +753,21 @@ async function POST_handler(request: NextRequest) {
             }, { status: 403 });
         }
 
+        if (isSyntheticCreator && !isOwnerActor) {
+            return NextResponse.json({
+                error: "Only the primary owner can create synthetic creators.",
+            }, { status: 403 });
+        }
+
         if (creatorPath === "live_override" && ownerOverrideReason.length < 8) {
             return NextResponse.json({
                 error: "Enter an internal owner override reason before creating a live creator path directly.",
+            }, { status: 400 });
+        }
+
+        if (isSyntheticCreator && syntheticReason.length < 8) {
+            return NextResponse.json({
+                error: "Enter an internal reason before creating a synthetic creator.",
             }, { status: 400 });
         }
 
@@ -735,6 +785,15 @@ async function POST_handler(request: NextRequest) {
             emailVerified: false,
             disabled: false,
         });
+        const syntheticMarker = isSyntheticCreator
+            ? buildSyntheticCreatorMarker({
+                syntheticCreatorType: body.syntheticCreatorType,
+                syntheticCreatedByUid: caller?.uid ?? "unknown_admin",
+                syntheticCreatedAt: nowMs,
+                syntheticReason,
+                humanOperatorRequired: body.humanOperatorRequired,
+            })
+            : null;
         const directCreateMarker = assertKnownActor(buildAdminOnBehalfMarker(
             buildRosterActor({
                 uid: caller?.uid,
@@ -775,6 +834,7 @@ async function POST_handler(request: NextRequest) {
             creatorNotificationPreferences: {},
             creatorSettings: DEFAULT_CREATOR_SETTINGS,
             creatorRestrictions: DEFAULT_CREATOR_RESTRICTIONS,
+            ...(syntheticMarker ?? {}),
             createdAt: nowMs,
         }, { merge: true });
 
@@ -840,6 +900,7 @@ async function POST_handler(request: NextRequest) {
                     ownerOverrideReason: creatorPath === "live_override" ? ownerOverrideReason : undefined,
                     ownerOverrideAt: creatorPath === "live_override" ? nowMs : undefined,
                     ownerOverrideBy: creatorPath === "live_override" ? readRoleLabel(caller?.email ?? caller?.uid) : undefined,
+                    ...(syntheticMarker ?? {}),
                     idVerificationStatus: compliancePath === "bypass" ? "id_verified" : "id_requested",
                     idVerificationRequestedAt: nowMs,
                     idVerificationSubmittedAt: compliancePath === "bypass" ? nowMs : undefined,
@@ -863,21 +924,41 @@ async function POST_handler(request: NextRequest) {
                 canonical: nextCanonical,
             });
 
+            const statusHistoryEntries = buildCreatorOnboardingStatusChangeHistoryEntries({
+                before: latestCanonical,
+                after: nextCanonical,
+                actor: {
+                    ...buildCreatorOnboardingActorFromMarker(directCreateMarker),
+                },
+                timestamp: nowMs,
+            });
+            const syntheticHistoryEntries = syntheticMarker ? [{
+                id: `synthetic_creator_created_${nowMs}`,
+                entry: {
+                    eventType: "synthetic_creator_created" as const,
+                    actorId: directCreateMarker.actorUid ?? "admin",
+                    actorRole: directCreateMarker.actorType === "owner_admin" ? "owner_admin" as const : "admin" as const,
+                    actorLabel: directCreateMarker.actorEmail ?? directCreateMarker.actorUid ?? "Admin",
+                    timestamp: nowMs,
+                    summary: "Synthetic creator created",
+                    detail: syntheticReason,
+                    metadata: {
+                        syntheticCreatorType: syntheticMarker.syntheticCreatorType,
+                        humanOperatorRequired: syntheticMarker.humanOperatorRequired,
+                        ...actorMarkerToTelemetryPayload(directCreateMarker),
+                    },
+                },
+            }] : [];
+
             recordCreatorOnboardingHistoryEntries(
                 transaction,
                 authUser.uid,
-                buildCreatorOnboardingStatusChangeHistoryEntries({
-                    before: latestCanonical,
-                    after: nextCanonical,
-                    actor: {
-                        ...buildCreatorOnboardingActorFromMarker(directCreateMarker),
-                    },
-                    timestamp: nowMs,
-                }),
+                [...statusHistoryEntries, ...syntheticHistoryEntries],
             );
         });
 
-        await trackServerEvent("admin_creator_created_directly", {
+        await Promise.allSettled([
+            trackServerEvent("admin_creator_created_directly", {
             page_path: "/admin/roster",
             creator_path: creatorPath,
             compliance_path: compliancePath,
@@ -886,14 +967,27 @@ async function POST_handler(request: NextRequest) {
             agreement_version: latestCanonical.contractVersion ?? CREATOR_MASTER_SERVICE_AGREEMENT_VERSION,
             agreement_hash: latestCanonical.agreementHash ?? "",
             template_id: latestCanonical.agreementTemplateId ?? "",
+            is_synthetic_creator: isSyntheticCreator,
+            synthetic_creator_type: syntheticMarker?.syntheticCreatorType ?? "",
             ...actorMarkerToTelemetryPayload(directCreateMarker),
-        }, authUser.uid).catch(() => undefined);
+            }, authUser.uid),
+            syntheticMarker ? trackServerEvent("admin_synthetic_creator_created", {
+                page_path: "/admin/roster",
+                syntheticCreatorType: syntheticMarker.syntheticCreatorType,
+                synthetic_creator_type: syntheticMarker.syntheticCreatorType,
+                humanOperatorRequired: syntheticMarker.humanOperatorRequired,
+                reason: syntheticReason,
+                ...actorMarkerToTelemetryPayload(directCreateMarker),
+            }, authUser.uid) : Promise.resolve(undefined),
+        ]).catch(() => undefined);
 
         return NextResponse.json({
             success: true,
             userId: authUser.uid,
             creatorPath,
             compliancePath,
+            isSyntheticCreator,
+            syntheticCreatorType: syntheticMarker?.syntheticCreatorType,
         });
     } catch (error) {
         return handleApiError(error, "Admin.Roster.POST");

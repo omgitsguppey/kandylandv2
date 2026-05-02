@@ -487,6 +487,12 @@ export const ROUTE_RUNTIME_HEALTH_TARGETS = {
                 title: "Admin Roster runtime",
                 slowThresholdMs: 1200,
             },
+    "admin/view-as-creator:POST": {
+                routeName: "admin/view-as-creator",
+                method: "POST",
+                title: "Admin creator view-as runtime",
+                slowThresholdMs: 1200,
+            },
     "admin/creator-agreements:GET": {
                 routeName: "admin/creator-agreements",
                 method: "GET",

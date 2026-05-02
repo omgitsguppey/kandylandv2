@@ -1,5 +1,10 @@
 import { auth } from "@/lib/firebase";
 import { recordClientBreadcrumb, recordClientDiagnostic } from "@/lib/client-diagnostics";
+import {
+    buildAdminViewAsHeaders,
+    isAdminViewAsBlockedRequest,
+    readAdminViewAsStateFromStorage,
+} from "@/lib/admin/synthetic-creators-view-as";
 
 function resolveSafeAuthFetchUrl(url: string) {
     if (typeof window === "undefined") {
@@ -47,9 +52,44 @@ export async function authFetch(url: string, options: RequestInit = {}): Promise
 
     const headers = new Headers(options.headers);
     headers.set("Authorization", `Bearer ${idToken}`);
+    const adminViewAsState = readAdminViewAsStateFromStorage();
+    const blockedViewAsRequest = adminViewAsState
+        ? isAdminViewAsBlockedRequest(safeUrl, options.method || "GET")
+        : null;
+    if (adminViewAsState) {
+        Object.entries(buildAdminViewAsHeaders(adminViewAsState)).forEach(([key, value]) => {
+            headers.set(key, value);
+        });
+    }
     const hasFormDataBody = typeof FormData !== "undefined" && options.body instanceof FormData;
     if (!headers.has("Content-Type") && options.body && !hasFormDataBody) {
         headers.set("Content-Type", "application/json");
+    }
+
+    if (blockedViewAsRequest && adminViewAsState) {
+        fetch("/api/admin/view-as-creator", {
+            method: "POST",
+            headers: {
+                Authorization: `Bearer ${idToken}`,
+                "Content-Type": "application/json",
+            },
+            body: JSON.stringify({
+                action: "blocked",
+                targetUserId: adminViewAsState.adminViewingAsUserId,
+                reason: blockedViewAsRequest.reason,
+                route: safeUrl,
+                routePrefix: blockedViewAsRequest.routePrefix,
+                simulationStartedAt: adminViewAsState.simulationStartedAt,
+            }),
+            keepalive: true,
+        }).catch(() => undefined);
+        recordClientDiagnostic("network", "Blocked view-as state-changing request", {
+            url: safeUrl,
+            method: options.method || "GET",
+            targetUserId: adminViewAsState.adminViewingAsUserId,
+            reason: blockedViewAsRequest.reason,
+        }, "warn");
+        throw new Error(`${blockedViewAsRequest.reason} Return to admin to continue.`);
     }
 
     try {

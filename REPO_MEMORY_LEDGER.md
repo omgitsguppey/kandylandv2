@@ -4,6 +4,10 @@ Status: Canonical repository-memory and architecture-decision ledger
 Last refreshed: 2026-05-02
 Repo: `C:\Users\uylus\OneDrive\Documents\KandyDrops_Final`
 
+## 2026-05-02 Synthetic creators and safe creator view-as
+
+Owner-created synthetic creators now carry explicit `isSyntheticCreator`, `syntheticCreatorType`, creator/created-at/reason, and human-operator marker fields across the user profile, creator onboarding canonical record, and creator review queue projection. Admin creator QA uses a session-scoped view-as simulation with `performedAs: admin_view_as_creator`; it does not replace Firebase auth identity or share passwords. The global return banner clears simulation state, and `authFetch` blocks payment, wallet, unlock, and creator state-changing writes while view-as is active.
+
 ## 2026-05-02 Creator fan experience settings
 
 Creator fan experience settings are now admin-editable from the Admin Roster selected creator record, but the source model remains `CreatorSettings` and `CreatorRestrictions` in `src/lib/creator-experiences.ts`. The collapsed `Fan experience settings` section delegates to `src/components/Admin/CreatorFanExperienceSettingsPanel.tsx` and the guarded route `src/app/api/admin/creator-fan-experience-settings/route.ts`. GD pricing, live time minimums, request prices, availability windows, and creator restrictions are server-validated; restriction pauses require confirmation, emit identity-marked admin-on-behalf telemetry, and write creator onboarding history.

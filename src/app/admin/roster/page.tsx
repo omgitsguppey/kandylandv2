@@ -15,10 +15,15 @@ import {
     type CreatorAccountControlResult,
     type CreatorAccountControlsTarget,
 } from "@/components/Admin/CreatorAccountControlsPanel";
+import { AdminCreatorViewAsControls } from "@/components/Admin/AdminCreatorViewAsControls";
 import {
     CreatorFanExperienceSettingsPanel,
     type CreatorFanExperienceSettingsTarget,
 } from "@/components/Admin/CreatorFanExperienceSettingsPanel";
+import {
+    SyntheticCreatorCreateFields,
+    type SyntheticCreatorCreateValue,
+} from "@/components/Admin/SyntheticCreatorCreateFields";
 import { PageViewEvent } from "@/components/Analytics/PageViewEvent";
 import type { CreatorAccountControlCommand } from "@/lib/admin/creator-account-controls";
 import { authFetch } from "@/lib/authFetch";
@@ -34,6 +39,7 @@ import {
     CREATOR_MASTER_SERVICE_AGREEMENT_SECTIONS,
 } from "@/lib/creator-contract";
 import type { CreatorFanExperienceSettingsCommand } from "@/lib/admin/creator-fan-experience-settings";
+import type { SyntheticCreatorType } from "@/lib/admin/synthetic-creators-view-as";
 import type { CreatorRestrictions, CreatorSettings } from "@/lib/creator-experiences";
 import {
     describeCreatorOnboardingBlockingReason,
@@ -50,6 +56,7 @@ import {
 } from "@/lib/creator-onboarding";
 import { PRIMARY_CREATOR_OWNER_EMAIL } from "@/lib/creator-admin";
 import { useAuth } from "@/context/AuthContext";
+import { useAdminViewAs } from "@/context/AdminViewAsContext";
 import { trackEvent } from "@/lib/telemetry";
 import {
     ROSTER_DECISION_TABS,
@@ -84,6 +91,13 @@ type CreatorReviewQueueEntry = {
     blockingReasons: CreatorOnboardingBlockingReason[];
     readyForApproval: boolean;
     ownerOverrideActive?: boolean;
+    isSyntheticCreator?: boolean;
+    syntheticCreatorType?: SyntheticCreatorType;
+    syntheticCreatedByUid?: string;
+    syntheticCreatedAt?: number;
+    syntheticReason?: string;
+    humanOperatorRequired?: boolean;
+    publicDisclosureMode?: string;
     introAcknowledgedAt?: number;
     submittedAt: number;
     updatedAt: number;
@@ -113,6 +127,9 @@ type RosterUser = {
     username: string;
     role: "user" | "creator" | "admin";
     status: "active" | "suspended" | "banned";
+    isSyntheticCreator?: boolean;
+    syntheticCreatorType?: SyntheticCreatorType;
+    humanOperatorRequired?: boolean;
     isVerified: boolean;
 };
 
@@ -140,6 +157,9 @@ type CreatorDetailResponse = {
         username?: string;
         role: "user" | "creator" | "admin";
         status: "active" | "suspended" | "banned";
+        isSyntheticCreator?: boolean;
+        syntheticCreatorType?: SyntheticCreatorType;
+        humanOperatorRequired?: boolean;
         notificationSettings?: {
             inAppEnabled?: boolean;
             browserPushEnabled?: boolean;
@@ -164,6 +184,15 @@ type CreatorDetailResponse = {
             lastSettingsUpdatedBy?: string;
             changedKeys?: string[];
         } | null;
+        adminViewAsDebug?: {
+            activeViewAsUserId?: string;
+            activeViewAsRole?: string;
+            viewAsStartedAt?: number;
+            viewAsActorUid?: string;
+            viewAsReturnHref?: string;
+            syntheticCreatorMarkerPresent?: boolean;
+            destructiveActionsBlockedInViewAs?: boolean;
+        } | null;
         creatorApplication?: CreatorOnboardingCanonicalRecord | null;
     };
     creatorOnboardingCanonical?: CreatorOnboardingCanonicalRecord | null;
@@ -180,7 +209,7 @@ type CreateCreatorFormState = {
     creatorPath: "intake" | "live_override";
     compliancePath: "required" | "bypass";
     ownerOverrideReason: string;
-};
+} & SyntheticCreatorCreateValue;
 
 type AgreementTemplateFormState = {
     agreementVersion: string;
@@ -200,6 +229,10 @@ const DEFAULT_CREATE_CREATOR_FORM: CreateCreatorFormState = {
     creatorPath: "intake",
     compliancePath: "required",
     ownerOverrideReason: "",
+    isSyntheticCreator: false,
+    syntheticCreatorType: "test_creator",
+    syntheticReason: "",
+    humanOperatorRequired: true,
 };
 
 const DEFAULT_AGREEMENT_TEMPLATE_FORM: AgreementTemplateFormState = {
@@ -247,6 +280,7 @@ function formatAgreementSource(value: CreatorAgreementSource | undefined) {
 export default function AdminRosterPage() {
     const searchParams = useSearchParams();
     const { user } = useAuth();
+    const { debug: viewAsDebug } = useAdminViewAs();
     const [tab, setTab] = useState<RosterTab>("needs_review");
     const [query, setQuery] = useState("");
     const [loading, setLoading] = useState(true);
@@ -290,6 +324,9 @@ export default function AdminRosterPage() {
     const selectedAgreementHash = selectedCanonical?.agreementHash || selectedEntry?.agreementHash || "";
     const selectedAgreementSource = selectedCanonical?.agreementSource || selectedEntry?.agreementSource || agreementTemplate?.agreementSource;
     const selectedAgreementDispatchStatus = selectedCanonical?.agreementDispatchStatus || selectedEntry?.agreementDispatchStatus;
+    const selectedSyntheticCreatorType = selectedCanonical?.syntheticCreatorType
+        ?? selectedEntry?.syntheticCreatorType
+        ?? detail?.user.syntheticCreatorType;
     const selectedAccountTarget: CreatorAccountControlsTarget | null = detail?.user && selectedUserId ? {
         uid: selectedUserId,
         displayName: detail.user.displayName || selectedCanonical?.creatorDisplayName || selectedEntry?.creatorDisplayName || "",
@@ -857,6 +894,10 @@ export default function AdminRosterPage() {
         priorAgreementPreserved: Boolean(selectedCanonical?.agreementDispatchId && selectedAgreementHash),
         requiresResign: selectedCanonical?.creatorSignatureStatus === "signature_pending" && selectedCanonical?.contractDocumentStatus === "contract_sent",
         accountControlsVisible: Boolean(expandedSections.account_controls),
+        ...viewAsDebug,
+        syntheticCreatorMarkerPresent: Boolean(selectedCanonical?.isSyntheticCreator || detail?.user.isSyntheticCreator || detail?.user.adminViewAsDebug?.syntheticCreatorMarkerPresent),
+        viewAsReturnHref: viewAsDebug.viewAsReturnHref || detail?.user.adminViewAsDebug?.viewAsReturnHref || "",
+        destructiveActionsBlockedInViewAs: viewAsDebug.destructiveActionsBlockedInViewAs || detail?.user.adminViewAsDebug?.destructiveActionsBlockedInViewAs === true,
         lastAdminAccountActionAt: detail?.user.adminAccountControlDebug?.lastAdminAccountActionAt ?? 0,
         lastAdminAccountActionBy: detail?.user.adminAccountControlDebug?.lastAdminAccountActionBy ?? "",
         accountControlWarnings: detail?.user.adminAccountControlDebug?.accountControlWarnings?.join(", ") ?? "",
@@ -1056,6 +1097,20 @@ export default function AdminRosterPage() {
                                         Direct creator creation is available to all admins, but live creator path and compliance bypass stay owner-only because they bypass standard onboarding locks.
                                     </p>
                                 ) : null}
+                                {isOwner ? (
+                                    <SyntheticCreatorCreateFields
+                                        value={{
+                                            isSyntheticCreator: createCreatorForm.isSyntheticCreator,
+                                            syntheticCreatorType: createCreatorForm.syntheticCreatorType,
+                                            syntheticReason: createCreatorForm.syntheticReason,
+                                            humanOperatorRequired: createCreatorForm.humanOperatorRequired,
+                                        }}
+                                        onChange={(nextSyntheticValue) => setCreateCreatorForm((current) => ({
+                                            ...current,
+                                            ...nextSyntheticValue,
+                                        }))}
+                                    />
+                                ) : null}
                                 <div className="mt-4 flex justify-end">
                                     <button type="button" onClick={() => void handleCreateCreator()} disabled={creating} className="rounded-full bg-white px-5 py-3 text-sm font-bold text-black disabled:opacity-50">
                                         {creating ? "Creating..." : "Create account"}
@@ -1156,6 +1211,12 @@ export default function AdminRosterPage() {
                                             <Link href={`/admin/user/${selectedUserId}`} className="rounded-full border border-white/10 bg-black/25 px-4 py-2 text-sm font-semibold text-white">
                                                 Open user record
                                             </Link>
+                                            <AdminCreatorViewAsControls
+                                                targetUserId={selectedUserId}
+                                                displayName={selectedCanonical.creatorDisplayName}
+                                                username={selectedCanonical.username}
+                                                syntheticCreatorType={selectedSyntheticCreatorType}
+                                            />
                                         </div>
                                     </div>
                                     <div className="mt-4 flex flex-wrap gap-3">
@@ -1197,6 +1258,13 @@ export default function AdminRosterPage() {
                                         <p className="mt-2 text-sm font-bold text-white">{formatApprovalStatus(selectedCanonical.approvalStatus, selectedCanonical.role)}</p>
                                     </div>
                                 </div>
+
+                                {selectedCanonical.isSyntheticCreator ? (
+                                    <div className="rounded-2xl border border-brand-purple/25 bg-brand-purple/10 p-3 text-sm leading-6 text-zinc-200">
+                                        <p className="font-bold text-white">Synthetic creator</p>
+                                        <p className="mt-1">Internal QA and creator experience actions require an admin operator.</p>
+                                    </div>
+                                ) : null}
 
                                 {selectedAccountTarget ? (
                                     <details className="rounded-2xl border border-white/10 bg-black/25 p-4" onToggle={(event) => handleSectionToggle("account_controls", event.currentTarget.open)}>

@@ -103,6 +103,24 @@ describe("admin roster decision queue helpers", () => {
     });
   });
 
+  it("builds identity-marked telemetry payloads for creator view-as actions", () => {
+    const payload = buildRosterTelemetryPayload({
+      isOwner: false,
+      actorUid: "admin_1",
+      actorEmail: "admin@example.com",
+      targetUserId: "creator_1",
+      tab: "approved",
+      actionKey: "admin_view_as_creator_started",
+    });
+
+    expect(payload).toMatchObject({
+      actorType: "admin",
+      targetUserId: "creator_1",
+      performedAs: "admin_view_as_creator",
+      actionKey: "admin_view_as_creator_started",
+    });
+  });
+
   it("marks owner telemetry distinctly", () => {
     expect(buildRosterTelemetryPayload({
       isOwner: true,

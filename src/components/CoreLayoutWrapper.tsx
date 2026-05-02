@@ -4,6 +4,7 @@ import { PayPalProvider } from "@/components/PayPalProvider";
 import { Toaster } from "sonner";
 import CookieBanner from "@/components/CookieBanner";
 import { Navbar } from "@/components/Navbar";
+import { AdminViewAsBanner } from "@/components/Admin/AdminViewAsBanner";
 import MobileBottomBar from "@/components/Navigation/MobileBottomBar";
 import dynamic from "next/dynamic";
 import { useEffect, type CSSProperties } from "react";
@@ -164,6 +165,7 @@ export function CoreLayoutWrapper({ children }: { children: React.ReactNode }) {
     return (
         <>
             <Navbar />
+            <AdminViewAsBanner />
             {routedChildren}
             {shouldShowPublicChrome && !isLegalRoute ? <MobileBottomBar /> : null}
             {scrollControlsReady ? <ScrollToTop /> : null}

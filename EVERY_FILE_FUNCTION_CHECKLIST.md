@@ -1,13 +1,21 @@
 # EVERY FILE FUNCTION CHECKLIST
 
 **Last Updated:** 2026-05-02
-**Current Focus:** Creator Fan Experience Settings Controls.
+**Current Focus:** Synthetic Creators And Safe View-As Controls.
 **Status:** In Progress. Current tracked-file coverage is reconciled as of 2026-04-28: every `git ls-files` entry has a current checklist heading, while detailed function-level audits remain pending for many historical and newly reconciled files.
 Purpose: exhaustive no-skip audit checklist covering every repository file currently in scope and every detected function-like implementation.
 
 Scoring: all entries below are marked as included in the current validated sweep. Confidence reflects current repository-state confidence, not perfection or future-proofing.
 
 Current repo-wide state snapshot: see [FULL_SCALE_CODEBASE_AUDIT.md](/Users/uylus/OneDrive/Documents/KandyDrops_Final/FULL_SCALE_CODEBASE_AUDIT.md) for the current live baseline, verification state, and continuity rules, and see [REPO_MEMORY_LEDGER.md](/Users/uylus/OneDrive/Documents/KandyDrops_Final/REPO_MEMORY_LEDGER.md) for major architectural and workflow decisions. The detailed file/function body below remains valuable historical evidence, but it has not been fully regenerated against the current 2026-04-18 inventory review yet.
+
+## 2026-05-02 Synthetic Creators And View-As Coverage
+
+- [x] `src/lib/admin/synthetic-creators-view-as.ts` owns synthetic creator type normalization, required marker construction, session-scoped view-as state, headers, Debug fields, and blocked route policy for payment/wallet/unlock/creator writes.
+- [x] `src/context/AdminViewAsContext.tsx`, `src/components/Admin/AdminViewAsBanner.tsx`, and `src/lib/authFetch.ts` own safe creator view-as simulation, return-to-admin control, audit route calls, view-as headers, and blocked-action diagnostics without replacing Firebase auth identity.
+- [x] `src/app/api/admin/roster/route.ts`, `src/app/api/admin/view-as-creator/route.ts`, `src/app/admin/roster/page.tsx`, `src/components/Admin/SyntheticCreatorCreateFields.tsx`, and `src/components/Admin/AdminCreatorViewAsControls.tsx` expose owner-only synthetic creation, selected-creator view-as controls, server audit history, telemetry, and Debug metadata.
+- [x] `src/lib/creator-onboarding.ts`, `src/types/db.ts`, `src/lib/user-utils.ts`, `src/lib/identity/actor-markers.ts`, and `src/lib/telemetry-catalog.ts` preserve synthetic creator markers and `admin_view_as_creator` actor identity across projections, normalized profiles, history, and event cataloging.
+- [x] `scripts/agent/validate-synthetic-creators-view-as.ts`, `tests/unit/synthetic-creators-view-as.spec.ts`, `tests/unit/admin-view-as-creator-route.spec.ts`, and `docs/agent-truth/synthetic-creators-view-as.md` validate the targeted synthetic/view-as contract.
 
 ## 2026-05-02 Creator Fan Experience Settings Coverage
 

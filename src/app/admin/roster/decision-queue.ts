@@ -145,6 +145,11 @@ export function buildRosterTelemetryPayload(input: {
 }) {
     const occurredAt = new Date().toISOString();
     const targetUserId = input.targetUserId || "";
+    const performedAs = input.actionKey.startsWith("admin_view_as_creator")
+        ? "admin_view_as_creator"
+        : targetUserId
+            ? "admin_on_behalf"
+            : "own_account";
 
     return {
         actorType: input.isOwner ? "owner_admin" : "admin",
@@ -153,7 +158,7 @@ export function buildRosterTelemetryPayload(input: {
         actorRole: input.isOwner ? "owner_admin" : "admin",
         targetUserId,
         targetCreatorId: targetUserId,
-        performedAs: targetUserId ? "admin_on_behalf" : "own_account",
+        performedAs,
         surface: "admin_roster",
         route: "/admin/roster",
         tab: input.tab,

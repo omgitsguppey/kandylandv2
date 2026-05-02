@@ -82,6 +82,29 @@ describe("creator actor identity markers", () => {
     expect(marker.targetUserId).toBe("creator_1");
   });
 
+  it("marks admin creator QA simulation without changing the target actor lane", () => {
+    const marker = buildAdminOnBehalfMarker(
+      { uid: "admin_1", email: "admin@example.com", role: "admin", isAdmin: true },
+      "creator_1",
+      {
+        surface: "admin_roster",
+        route: "/api/admin/view-as-creator",
+        actionKey: "admin_view_as_creator_started",
+        performedAs: "admin_view_as_creator",
+        source: "unit_test",
+      },
+    );
+
+    expect(marker.actorType).toBe("admin");
+    expect(marker.targetUserId).toBe("creator_1");
+    expect(marker.performedAs).toBe("admin_view_as_creator");
+    expect(actorMarkerToTelemetryPayload(marker)).toMatchObject({
+      actorType: "admin",
+      targetUserId: "creator_1",
+      performedAs: "admin_view_as_creator",
+    });
+  });
+
   it("blocks unknown actors instead of promoting them to user", () => {
     const marker = buildActorMarker({
       actor: null,

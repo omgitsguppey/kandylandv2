@@ -2,6 +2,7 @@ import type { Metadata } from "next";
 import { Geist, Geist_Mono } from "next/font/google";
 import "./globals.css";
 import { AuthProvider } from "@/context/AuthContext";
+import { AdminViewAsProvider } from "@/context/AdminViewAsContext";
 import { RolloutProvider } from "@/context/RolloutContext";
 import { SWRProvider } from "@/context/SWRProvider";
 import { UIProvider } from "@/context/UIContext";
@@ -86,23 +87,25 @@ export default function RootLayout({
         <UIDebug />
         <CSPostHogProvider>
           <AuthProvider>
-            <RolloutProvider>
-              <SWRProvider>
-                <UIProvider>
-                  <CoreLayoutWrapper>
-                    <main className="pt-[var(--root-shell-top-spacing,6rem)] pb-[var(--user-mobile-bottom-nav-reserved-height,0px)] md:pb-0 flex-1 relative flex flex-col overflow-x-hidden">
+            <AdminViewAsProvider>
+              <RolloutProvider>
+                <SWRProvider>
+                  <UIProvider>
+                    <CoreLayoutWrapper>
+                      <main className="pt-[var(--root-shell-top-spacing,6rem)] pb-[var(--user-mobile-bottom-nav-reserved-height,0px)] md:pb-0 flex-1 relative flex flex-col overflow-x-hidden">
 
-                      {/* Content */}
-                      <div className="relative z-10 flex-1 w-full">
-                        <ErrorBoundary>
-                          {children}
-                        </ErrorBoundary>
-                      </div>
-                    </main>
-                  </CoreLayoutWrapper>
-                </UIProvider>
-              </SWRProvider>
-            </RolloutProvider>
+                        {/* Content */}
+                        <div className="relative z-10 flex-1 w-full">
+                          <ErrorBoundary>
+                            {children}
+                          </ErrorBoundary>
+                        </div>
+                      </main>
+                    </CoreLayoutWrapper>
+                  </UIProvider>
+                </SWRProvider>
+              </RolloutProvider>
+            </AdminViewAsProvider>
           </AuthProvider>
         </CSPostHogProvider>
       </body>

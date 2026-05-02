@@ -53,6 +53,7 @@ import {
     type CreatorRecommendedSetup,
 } from "@/lib/creator-intake-flow";
 import type { CreatorAgreementDispatchStatus, CreatorAgreementSource } from "@/lib/creator-agreement-documents";
+import type { SyntheticCreatorType } from "@/lib/admin/synthetic-creators-view-as";
 
 export const CREATOR_ONBOARDING_SUBMISSION_STATUSES = [
     "onboarding_started",
@@ -153,6 +154,10 @@ const HISTORY_EVENT_TYPE_SET = new Set<CreatorOnboardingHistoryEventType>([
     "admin_notes_updated",
     "agreement_template_activated",
     "agreement_update_sent",
+    "synthetic_creator_created",
+    "admin_view_as_started",
+    "admin_view_as_ended",
+    "admin_view_as_action_blocked",
 ]);
 
 export type LegacyCreatorApplicationSnapshot = {
@@ -262,6 +267,13 @@ export type CreatorOnboardingProjectionState = {
     ownerOverrideReason?: string;
     ownerOverrideAt?: number;
     ownerOverrideBy?: string;
+    isSyntheticCreator?: boolean;
+    syntheticCreatorType?: SyntheticCreatorType;
+    syntheticCreatedByUid?: string;
+    syntheticCreatedAt?: number;
+    syntheticReason?: string;
+    humanOperatorRequired?: boolean;
+    publicDisclosureMode?: string;
     rejectedAt?: number;
     reapplyAvailableAt?: number;
     reviewedBy?: string;
@@ -333,6 +345,13 @@ export type CreatorReviewQueueEntry = {
     legallyClearedAt?: number;
     legallyClearedBy?: string;
     ownerOverrideActive?: boolean;
+    isSyntheticCreator?: boolean;
+    syntheticCreatorType?: SyntheticCreatorType;
+    syntheticCreatedByUid?: string;
+    syntheticCreatedAt?: number;
+    syntheticReason?: string;
+    humanOperatorRequired?: boolean;
+    publicDisclosureMode?: string;
     readyForApproval: boolean;
     creatorReviewQueueVisible: boolean;
     blockingReasons: CreatorOnboardingBlockingReason[];
@@ -385,7 +404,11 @@ export type CreatorOnboardingHistoryEventType =
     | "creator_restrictions_updated"
     | "admin_notes_updated"
     | "agreement_template_activated"
-    | "agreement_update_sent";
+    | "agreement_update_sent"
+    | "synthetic_creator_created"
+    | "admin_view_as_started"
+    | "admin_view_as_ended"
+    | "admin_view_as_action_blocked";
 
 export type CreatorOnboardingHistoryEntry = {
     eventType: CreatorOnboardingHistoryEventType;
@@ -501,6 +524,15 @@ function readString(value: unknown) {
 function readOptionalTimestamp(value: unknown) {
     return typeof value === "number" && Number.isFinite(value) && value > 0
         ? Math.trunc(value)
+        : undefined;
+}
+
+function readSyntheticCreatorType(value: unknown): SyntheticCreatorType | undefined {
+    return value === "internal_character"
+        || value === "test_creator"
+        || value === "ai_creator"
+        || value === "demo_creator"
+        ? value
         : undefined;
 }
 
@@ -1406,6 +1438,15 @@ export function buildCreatorOnboardingProjectionState(input: {
         ownerOverrideReason: readString(sourceRecord?.["ownerOverrideReason"]) || undefined,
         ownerOverrideAt: readOptionalTimestamp(sourceRecord?.["ownerOverrideAt"]),
         ownerOverrideBy: readString(sourceRecord?.["ownerOverrideBy"]) || undefined,
+        isSyntheticCreator: sourceRecord?.["isSyntheticCreator"] === true,
+        syntheticCreatorType: readSyntheticCreatorType(sourceRecord?.["syntheticCreatorType"]),
+        syntheticCreatedByUid: readString(sourceRecord?.["syntheticCreatedByUid"]) || undefined,
+        syntheticCreatedAt: readOptionalTimestamp(sourceRecord?.["syntheticCreatedAt"]),
+        syntheticReason: readString(sourceRecord?.["syntheticReason"]) || undefined,
+        humanOperatorRequired: sourceRecord?.["isSyntheticCreator"] === true
+            ? sourceRecord?.["humanOperatorRequired"] !== false
+            : undefined,
+        publicDisclosureMode: readString(sourceRecord?.["publicDisclosureMode"]) || undefined,
         rejectedAt: readOptionalTimestamp(sourceRecord?.["rejectedAt"]),
         reapplyAvailableAt: readOptionalTimestamp(sourceRecord?.["reapplyAvailableAt"]),
         reviewedBy: readString(sourceRecord?.["reviewedBy"]) || undefined,
@@ -1512,6 +1553,13 @@ export function buildCreatorOnboardingUserProjection(
         ownerOverrideReason: canonical.ownerOverrideReason,
         ownerOverrideAt: canonical.ownerOverrideAt,
         ownerOverrideBy: canonical.ownerOverrideBy,
+        isSyntheticCreator: canonical.isSyntheticCreator,
+        syntheticCreatorType: canonical.syntheticCreatorType,
+        syntheticCreatedByUid: canonical.syntheticCreatedByUid,
+        syntheticCreatedAt: canonical.syntheticCreatedAt,
+        syntheticReason: canonical.syntheticReason,
+        humanOperatorRequired: canonical.humanOperatorRequired,
+        publicDisclosureMode: canonical.publicDisclosureMode,
         rejectedAt: canonical.rejectedAt,
         reapplyAvailableAt: canonical.reapplyAvailableAt,
         reviewedBy: canonical.reviewedBy,
@@ -1722,6 +1770,13 @@ export function buildCreatorReviewQueueEntry(input: {
         agreementDispatchStatus: canonical.agreementDispatchStatus,
         introAcknowledgedAt: canonical.introAcknowledgedAt,
         ownerOverrideActive: canonical.ownerOverrideActive,
+        isSyntheticCreator: canonical.isSyntheticCreator,
+        syntheticCreatorType: canonical.syntheticCreatorType,
+        syntheticCreatedByUid: canonical.syntheticCreatedByUid,
+        syntheticCreatedAt: canonical.syntheticCreatedAt,
+        syntheticReason: canonical.syntheticReason,
+        humanOperatorRequired: canonical.humanOperatorRequired,
+        publicDisclosureMode: canonical.publicDisclosureMode,
         readyForApproval: canonical.readyForApproval,
         creatorReviewQueueVisible: canonical.creatorReviewQueueVisible,
         blockingReasons: canonical.blockingReasons,

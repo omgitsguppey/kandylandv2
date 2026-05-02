@@ -23,6 +23,8 @@ Admin analytics and debug data are private. Redirect shims count as admin API ro
 
 Creator account controls use `/api/admin/creator-account-controls`. That route is admin-only, trusted-origin-only, and server-only for Firebase Auth mutations. It may update display name, username, email, reset-link creation, temporary password, role, status, creator approval, and notification settings only through audited admin-on-behalf actions. Non-owner admins cannot grant `admin` role access. Password values must never be read, displayed, written to Firestore, or emitted in telemetry.
 
+Synthetic creators and creator QA use `/api/admin/view-as-creator` plus Admin Roster owner controls. Synthetic creation is owner-only, requires `syntheticReason`, and records `isSyntheticCreator` plus type/creator/audit fields. View-as mode uses `performedAs: admin_view_as_creator`; it does not replace Firebase auth identity, does not share passwords, and blocks payment, wallet, unlock, and creator state-changing routes while the simulation banner is active.
+
 ## Drop Asset Boundary
 
 Raw `storage:drops/**` client SDK access is denied. Storage object paths do not encode drop entitlement, so Storage rules cannot prove whether a user unlocked a Drop.

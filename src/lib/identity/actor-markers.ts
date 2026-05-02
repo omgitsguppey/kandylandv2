@@ -14,6 +14,7 @@ export const ACTOR_MARKER_PERFORMED_AS = [
   "own_account",
   "admin_on_behalf",
   "owner_override",
+  "admin_view_as_creator",
   "system_job",
 ] as const;
 
@@ -259,7 +260,14 @@ export function buildActorMarker(input: {
     unknownActorBlocked: classified.actorType === "unknown",
   };
 
-  if ((marker.performedAs === "admin_on_behalf" || marker.performedAs === "owner_override") && !marker.targetUserId) {
+  if (
+    (
+      marker.performedAs === "admin_on_behalf"
+      || marker.performedAs === "owner_override"
+      || marker.performedAs === "admin_view_as_creator"
+    )
+    && !marker.targetUserId
+  ) {
     throw new Error("Admin-on-behalf actor markers require targetUserId.");
   }
 
@@ -275,7 +283,7 @@ export function buildAdminOnBehalfMarker(
     actionKey?: string;
     occurredAt?: string | number | Date;
     source?: string;
-    performedAs?: Extract<ActorMarkerPerformedAs, "admin_on_behalf" | "owner_override">;
+    performedAs?: Extract<ActorMarkerPerformedAs, "admin_on_behalf" | "owner_override" | "admin_view_as_creator">;
     targetCreatorId?: string | null;
     dedupeKey?: string | null;
   },

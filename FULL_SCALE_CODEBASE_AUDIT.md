@@ -1,5 +1,35 @@
 # KandyDrops Core Codebase Audit & Defensive Ledger
 
+## [2026-05-02 #101] PRE: Synthetic Creators And Safe View Switching
+
+Scope started:
+- Adding one targeted synthetic creator and admin view-switching implementation so owner/admin can create marked synthetic creators, configure their creator/fan experience, enter a safe creator simulation mode for QA, and return to admin without replacing the real auth identity.
+- Required outputs: synthetic creator markers on admin-created creator records, owner-only create controls, safe view-as context/banner/return control, destructive/payment/wallet action blocking in view-as mode, actor-marked telemetry, creator/admin audit history, Debug metadata, `scripts/agent/validate-synthetic-creators-view-as.ts`, focused tests, docs updates, governance ledger updates, commit, and push.
+- This pass is targeted. It must not build password sharing, real session takeover, unsafe wallet/payment impersonation, unaudited synthetic profiles, duplicate creator settings models, or a broad admin redesign.
+
+Initial evidence:
+- Worktree was clean at startup on `main`.
+- Control tower routing, source-of-truth map, shared component ownership, doctrine consultation workflow, product/copy/UI/surface/vocabulary/anti-pattern doctrine, and preflight/postflight checklists were consulted.
+- Source truth remains runtime code first: Admin Roster create/detail flow, `/api/admin/roster`, Firebase Auth-backed admin identity, user profile Firestore records, creator onboarding canonical/projection state, identity actor markers, and existing admin/creator route tests.
+
+Scope completed:
+- Added explicit synthetic creator marker support across user profile typing/normalization, creator onboarding canonical/projection, creator review queue serialization, and owner-only Admin Roster direct creator creation.
+- Added safe admin view-as simulation with session-scoped state, view-as headers, persistent return-to-admin banner, `/api/admin/view-as-creator` audit route, `admin_view_as_creator` actor marker support, and blocked payment/wallet/unlock/creator write guards in `authFetch`.
+- Added Admin Roster controls for owner synthetic creation, selected creator `View as creator`, `View fan profile`, and `Return to admin`, plus Debug metadata for active view-as and synthetic marker state.
+- Cataloged telemetry events, added onboarding history event types, created `docs/agent-truth/synthetic-creators-view-as.md`, updated security/identity doctrine, added focused helper/route tests, and added `npm run check:synthetic-creators-view-as`.
+
+Verification:
+- Passed: `npm run check:synthetic-creators-view-as`
+- Passed: `npx vitest run tests/unit/synthetic-creators-view-as.spec.ts tests/unit/admin-view-as-creator-route.spec.ts tests/unit/actor-markers.spec.ts tests/unit/admin-roster-decision-queue.spec.ts tests/unit/admin-roster-route.spec.ts`
+- Passed: `npx tsc --noEmit --pretty false`
+- Passed: `npm run check:creator-identity-markers`
+- Passed: `npm run check:admin-roster-decision-queue`
+- Passed: `npm run check:security-role-boundaries`
+- Passed: `npm run check:ui:coverage`
+- Passed: `npm run check:ui:runtime`
+- Passed: `npm run check:ui:audits`
+- Passed: `git diff --check` with existing CRLF warnings only.
+
 ## [2026-05-02 #100] PRE: Creator Fan Experience Settings Controls
 
 Scope started:

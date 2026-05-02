@@ -948,6 +948,9 @@ async function GET_handler(
                 creatorFanExperienceSettingsDebug: rawUser.creatorFanExperienceSettingsDebug && typeof rawUser.creatorFanExperienceSettingsDebug === "object"
                     ? rawUser.creatorFanExperienceSettingsDebug
                     : null,
+                adminViewAsDebug: rawUser.adminViewAsDebug && typeof rawUser.adminViewAsDebug === "object"
+                    ? rawUser.adminViewAsDebug
+                    : null,
             },
             creatorOnboardingCanonical,
             creatorOnboardingHistory,

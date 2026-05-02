@@ -7,6 +7,7 @@ import type {
     CreatorOnboardingSubmissionStatus,
     CreatorOnboardingAgreementBasis,
 } from "@/lib/creator-onboarding";
+import type { SyntheticCreatorType } from "@/lib/admin/synthetic-creators-view-as";
 import type {
     CreatorFansAlreadyAskForAccess,
     CreatorFollowerRange,
@@ -314,6 +315,13 @@ export type CreatorApplication = {
     ownerOverrideReason?: string;
     ownerOverrideAt?: number;
     ownerOverrideBy?: string;
+    isSyntheticCreator?: boolean;
+    syntheticCreatorType?: SyntheticCreatorType;
+    syntheticCreatedByUid?: string;
+    syntheticCreatedAt?: number;
+    syntheticReason?: string;
+    humanOperatorRequired?: boolean;
+    publicDisclosureMode?: string;
     rejectedAt?: number;
     reapplyAvailableAt?: number;
     reviewedBy?: string;
@@ -333,6 +341,13 @@ export interface UserProfile {
     bannerUrl?: string; // Profile Banner
     bio?: string; // Creator Bio
     role?: 'user' | 'creator' | 'admin'; // Default 'user'
+    isSyntheticCreator?: boolean;
+    syntheticCreatorType?: SyntheticCreatorType;
+    syntheticCreatedByUid?: string;
+    syntheticCreatedAt?: number;
+    syntheticReason?: string;
+    humanOperatorRequired?: boolean;
+    publicDisclosureMode?: string;
 
     isVerified?: boolean; // Verified Creator badge
     gumDropsBalance: number;

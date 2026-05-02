@@ -96,6 +96,12 @@ export function normalizeUserProfile(raw: unknown, user: User): UserProfile | nu
         : legacyCreatorFlag
             ? "creator"
             : "user";
+    const syntheticCreatorType = source.syntheticCreatorType === "internal_character"
+        || source.syntheticCreatorType === "test_creator"
+        || source.syntheticCreatorType === "ai_creator"
+        || source.syntheticCreatorType === "demo_creator"
+        ? source.syntheticCreatorType
+        : undefined;
 
     return {
         uid: typeof source.uid === "string" ? source.uid : user.uid,
@@ -110,6 +116,13 @@ export function normalizeUserProfile(raw: unknown, user: User): UserProfile | nu
         bannerUrl: typeof source.bannerUrl === "string" ? source.bannerUrl : undefined,
         bio: typeof source.bio === "string" ? source.bio : undefined,
         role: normalizedRole,
+        isSyntheticCreator: source.isSyntheticCreator === true,
+        syntheticCreatorType,
+        syntheticCreatedByUid: typeof source.syntheticCreatedByUid === "string" ? source.syntheticCreatedByUid : undefined,
+        syntheticCreatedAt: Number.isFinite(source.syntheticCreatedAt) ? Number(source.syntheticCreatedAt) : undefined,
+        syntheticReason: typeof source.syntheticReason === "string" ? source.syntheticReason : undefined,
+        humanOperatorRequired: source.isSyntheticCreator === true ? source.humanOperatorRequired !== false : undefined,
+        publicDisclosureMode: typeof source.publicDisclosureMode === "string" ? source.publicDisclosureMode : undefined,
 
 
         isVerified: source.isVerified === true,
