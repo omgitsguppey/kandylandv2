@@ -25,4 +25,11 @@ describe("firebase messaging service worker notification display", () => {
         expect(serviceWorkerSource).toContain("idempotencyKey");
         expect(serviceWorkerSource).toContain("postMessage(clickPayload)");
     });
+
+    it("sanitizes notification click targets before focusing or opening the app", () => {
+        expect(serviceWorkerSource).toContain("resolveSafeNotificationUrl");
+        expect(serviceWorkerSource).toContain("parsed.origin !== self.location.origin");
+        expect(serviceWorkerSource).toContain("clients.matchAll({ type: \"window\", includeUncontrolled: true })");
+        expect(serviceWorkerSource).toContain("clients.openWindow(targetUrl.toString())");
+    });
 });

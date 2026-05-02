@@ -6,6 +6,7 @@ import { recordClientDiagnostic } from "./client-diagnostics";
 import { FIREBASE_MESSAGING_CONFIG, FIREBASE_VAPID_KEY } from "./firebase-runtime";
 
 const APP_NOTIFICATION_ICON = "/icon-192x192.png";
+let appServiceWorkerRegistrationPromise: Promise<ServiceWorkerRegistration | null> | null = null;
 
 type BrowserNotificationOptions = {
     notificationId?: string | null;
@@ -87,14 +88,20 @@ export async function registerAppServiceWorker() {
         return null;
     }
 
-    try {
-        return await navigator.serviceWorker.register(getAppServiceWorkerUrl(), { scope: "/" });
-    } catch (error) {
-        recordClientDiagnostic("firebase", "Service worker registration failed", {
-            message: error instanceof Error ? error.message : String(error),
-        });
-        return null;
+    if (appServiceWorkerRegistrationPromise) {
+        return appServiceWorkerRegistrationPromise;
     }
+
+    appServiceWorkerRegistrationPromise = navigator.serviceWorker.register(getAppServiceWorkerUrl(), { scope: "/" })
+        .catch((error) => {
+            recordClientDiagnostic("firebase", "Service worker registration failed", {
+                message: error instanceof Error ? error.message : String(error),
+            });
+            appServiceWorkerRegistrationPromise = null;
+            return null;
+        });
+
+    return appServiceWorkerRegistrationPromise;
 }
 
 export async function getBrowserNotificationState(): Promise<BrowserNotificationState> {

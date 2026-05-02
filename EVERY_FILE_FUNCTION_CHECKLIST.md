@@ -9,6 +9,17 @@ Scoring: all entries below are marked as included in the current validated sweep
 
 Current repo-wide state snapshot: see [FULL_SCALE_CODEBASE_AUDIT.md](/Users/uylus/OneDrive/Documents/KandyDrops_Final/FULL_SCALE_CODEBASE_AUDIT.md) for the current live baseline, verification state, and continuity rules, and see [REPO_MEMORY_LEDGER.md](/Users/uylus/OneDrive/Documents/KandyDrops_Final/REPO_MEMORY_LEDGER.md) for major architectural and workflow decisions. The detailed file/function body below remains valuable historical evidence, but it has not been fully regenerated against the current 2026-04-18 inventory review yet.
 
+## 2026-05-01 PWA Service Worker Mobile Install Launch Audit Coverage
+
+- [x] `public/manifest.json`, `public/icon-192x192.png`, and `public/icon-512x512.png` keep current mobile install metadata, root scope, standalone display, black theme/background colors, and current install icons.
+- [x] `public/firebase-messaging-sw.js` remains the single launch service worker, with versioned shell/runtime caches, `/api` and `/__` exclusions, network-first navigation, offline fallback, old-cache cleanup, `skipWaiting`, `clients.claim`, deterministic notification tags, and sanitized notificationclick routing.
+- [x] `src/lib/firebase-messaging.ts` now uses a single-flight service-worker registration promise shared by PWA runtime registration, browser notification enrollment, and foreground browser notification display.
+- [x] `src/components/PwaRuntimeBridge.tsx`, `src/components/CoreLayoutWrapper.tsx`, and `src/components/Notifications/NotificationRuntimeBridge.tsx` preserve shell-level registration, admin bypass, foreground FCM handling, duplicate-display suppression, notification click read/open persistence, and task reminder browser notification tags.
+- [x] `src/lib/user-mobile-shell.ts`, `src/app/layout.tsx`, and `src/components/Navigation/MobileBottomBar.tsx` preserve standalone/mobile bottom-nav safe-area reservation through shared shell tokens.
+- [x] `src/components/ui/NotFoundSurface.tsx`, `src/app/not-found.tsx`, and `src/app/offline/page.tsx` keep valid return-to-app and offline fallback routes.
+- [x] `agent/state/pwa-service-worker-audit.generated.json`, `docs/agent-truth/pwa-service-worker-mobile.md`, `scripts/agent/validate-pwa-service-worker.ts`, and `npm run check:pwa-service-worker` record and validate the PWA/mobile install gate.
+- [x] `tests/unit/pwa-manifest.spec.ts`, `tests/unit/firebase-messaging-registration.spec.ts`, `tests/unit/firebase-messaging-sw.spec.ts`, and `tests/unit/not-found-surface.spec.tsx` cover manifest/icons, single-flight service-worker registration, duplicate notification display safeguards, notificationclick routing, and 404 return behavior.
+
 ## 2026-05-01 Background Job Idempotency Launch Audit Coverage
 
 - [x] `functions/src/index.ts`, `functions/src/queue-runtime.ts`, `src/lib/server/queue-runtime.ts`, and `shared/runtime/queue-runtime.ts` cover scheduled queue processing, active-drop notification lifecycle, activation/expiration, auto-queued return-live behavior, heartbeats, warnings, and dispatch outcomes.

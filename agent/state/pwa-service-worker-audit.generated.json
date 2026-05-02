@@ -1,0 +1,189 @@
+{
+  "generatedAt": "2026-05-01T00:00:00.000-05:00",
+  "task": "pwa-service-worker-mobile-install-launch-audit",
+  "summary": {
+    "lanesAudited": 17,
+    "launchCriticalFixesApplied": 1,
+    "remainingLaunchBlockers": [],
+    "fixedInThisPass": [
+      "service-worker-registration"
+    ],
+    "warnings": [
+      "No custom beforeinstallprompt UI is implemented; mobile install relies on browser-native install affordances and manifest metadata.",
+      "No live-device iOS/Android push delivery smoke was performed in this local pass.",
+      "Old starter assets still exist in public/ but are not referenced by manifest, PWA service worker, or 404 recovery."
+    ]
+  },
+  "lanes": [
+    {
+      "laneKey": "manifest.identity",
+      "files": ["public/manifest.json", "src/app/layout.tsx"],
+      "currentBehavior": "Manifest name and short_name are KandyDrops; start_url is /drops?source=pwa; scope is /; display is standalone; orientation is portrait-primary.",
+      "launchSafe": true,
+      "risk": "low",
+      "requiredFix": "none",
+      "fixedInThisPass": false,
+      "validation": ["manifest exists", "name/short_name match KandyDrops", "start_url route is valid", "scope is root"]
+    },
+    {
+      "laneKey": "manifest.colors",
+      "files": ["public/manifest.json", "src/app/layout.tsx"],
+      "currentBehavior": "Manifest theme_color/background_color are #000000; app metadata sets black-translucent Apple status bar.",
+      "launchSafe": true,
+      "risk": "low",
+      "requiredFix": "none",
+      "fixedInThisPass": false,
+      "validation": ["manifest colors are present", "Apple web app metadata exists"]
+    },
+    {
+      "laneKey": "manifest.icons",
+      "files": ["public/manifest.json", "public/icon-192x192.png", "public/icon-512x512.png", "src/components/ui/NotFoundSurface.tsx"],
+      "currentBehavior": "Manifest references current PNG icons only; 404 surface does not render old logos and records data-old-not-found-logo-removed=true.",
+      "launchSafe": true,
+      "risk": "low",
+      "requiredFix": "none",
+      "fixedInThisPass": false,
+      "validation": ["manifest icon files exist", "manifest does not reference next.svg/vercel.svg/file.svg/globe.svg/window.svg", "404 does not render obsolete logo"]
+    },
+    {
+      "laneKey": "service-worker-registration",
+      "files": ["src/components/PwaRuntimeBridge.tsx", "src/lib/firebase-messaging.ts", "src/components/CoreLayoutWrapper.tsx"],
+      "currentBehavior": "CoreLayoutWrapper loads one PwaRuntimeBridge outside admin routes; registerAppServiceWorker now uses a module-level single-flight promise and registers /firebase-messaging-sw.js with scope /.",
+      "launchSafe": true,
+      "risk": "low",
+      "requiredFix": "Helper previously allowed repeated navigator.serviceWorker.register calls from runtime/enrollment/display paths; cache the registration promise.",
+      "fixedInThisPass": true,
+      "validation": ["PwaRuntimeBridge imports registerAppServiceWorker", "only PwaRuntimeBridge component registers at app shell level", "register helper single-flight promise exists"]
+    },
+    {
+      "laneKey": "service-worker-scope",
+      "files": ["src/lib/firebase-messaging.ts", "public/firebase-messaging-sw.js"],
+      "currentBehavior": "Registration scope is /; manifest scope is /; notification click targets are same-origin only.",
+      "launchSafe": true,
+      "risk": "low",
+      "requiredFix": "none",
+      "fixedInThisPass": false,
+      "validation": ["serviceWorker.register(..., { scope: \"/\" })", "manifest scope is /", "resolveSafeNotificationUrl enforces same origin"]
+    },
+    {
+      "laneKey": "service-worker-cache-strategy",
+      "files": ["public/firebase-messaging-sw.js", "src/app/offline/page.tsx"],
+      "currentBehavior": "Versioned app-shell/runtime caches precache core public routes/assets; navigation is network-first with cached/offline fallback; static image/style/font assets are cache-first with background refresh; /api and /__/ are excluded.",
+      "launchSafe": true,
+      "risk": "medium",
+      "requiredFix": "none",
+      "fixedInThisPass": false,
+      "validation": ["APP_SHELL_CACHE version exists", "APP_RUNTIME_CACHE version exists", "API routes excluded", "offline fallback route exists"]
+    },
+    {
+      "laneKey": "service-worker-update-invalidation",
+      "files": ["public/firebase-messaging-sw.js"],
+      "currentBehavior": "Install uses skipWaiting; activate deletes caches outside current app/runtime cache names and claims clients.",
+      "launchSafe": true,
+      "risk": "low",
+      "requiredFix": "none",
+      "fixedInThisPass": false,
+      "validation": ["skipWaiting", "clients.claim", "caches.delete stale cache names"]
+    },
+    {
+      "laneKey": "reload-after-deploy",
+      "files": ["public/firebase-messaging-sw.js", "src/components/PwaRuntimeBridge.tsx"],
+      "currentBehavior": "New service worker activates immediately and claims clients; navigation fetch remains network-first so deployed routes are refreshed before cached fallback.",
+      "launchSafe": true,
+      "risk": "medium",
+      "requiredFix": "none",
+      "fixedInThisPass": false,
+      "validation": ["skipWaiting", "clients.claim", "handleNavigationRequest fetches network first"]
+    },
+    {
+      "laneKey": "notification-permission-flow",
+      "files": ["src/lib/firebase-messaging.ts", "src/lib/browser-notification-enrollment.ts", "src/components/Dashboard/NotificationPromptBanner.tsx"],
+      "currentBehavior": "Permission is requested only through explicit browser notification enrollment; iOS non-standalone state is detected and reported as not granted/needs install.",
+      "launchSafe": true,
+      "risk": "low",
+      "requiredFix": "none",
+      "fixedInThisPass": false,
+      "validation": ["Notification.requestPermission", "needsStandaloneInstall", "authFetch profile token persistence"]
+    },
+    {
+      "laneKey": "fcm-foreground-handler",
+      "files": ["src/components/Notifications/NotificationRuntimeBridge.tsx", "src/lib/firebase-messaging.ts"],
+      "currentBehavior": "Foreground onMessage dispatches notification sync, suppresses auto-FCM payloads, and calls showBrowserNotification with deterministic id/tag metadata.",
+      "launchSafe": true,
+      "risk": "low",
+      "requiredFix": "none",
+      "fixedInThisPass": false,
+      "validation": ["onNotificationMessage", "alreadyDisplayedByFcm", "showBrowserNotification"]
+    },
+    {
+      "laneKey": "fcm-background-handler",
+      "files": ["public/firebase-messaging-sw.js"],
+      "currentBehavior": "Background onBackgroundMessage suppresses FCM auto-display payloads unless manual-service-worker mode is declared, then shows a manually tagged notification.",
+      "launchSafe": true,
+      "risk": "low",
+      "requiredFix": "none",
+      "fixedInThisPass": false,
+      "validation": ["messaging.onBackgroundMessage", "autoDisplayedByFcm", "manual display suppressed", "registration.showNotification"]
+    },
+    {
+      "laneKey": "notification-tag-idempotency",
+      "files": ["src/lib/notification-identity.ts", "src/lib/firebase-messaging.ts", "src/lib/server/push-notifications.ts", "functions/src/queue-runtime.ts", "public/firebase-messaging-sw.js"],
+      "currentBehavior": "Drop/server notifications use deterministic idempotency keys/document ids; foreground/background browser display resolves deterministic tags and uses renotify=false.",
+      "launchSafe": true,
+      "risk": "low",
+      "requiredFix": "none",
+      "fixedInThisPass": false,
+      "validation": ["buildNotificationIdempotencyKey", "buildBrowserNotificationTag", "resolveNotificationTag", "renotify: false"]
+    },
+    {
+      "laneKey": "notificationclick-return-routing",
+      "files": ["public/firebase-messaging-sw.js", "src/components/Notifications/NotificationRuntimeBridge.tsx", "src/lib/notifications.ts"],
+      "currentBehavior": "notificationclick closes the alert, sanitizes target URLs to same-origin routes, focuses/navigates matching clients or opens a new window, and posts click metadata so the app can mark notifications read.",
+      "launchSafe": true,
+      "risk": "low",
+      "requiredFix": "none",
+      "fixedInThisPass": false,
+      "validation": ["notificationclick listener", "resolveSafeNotificationUrl", "clients.openWindow", "KANDYDROPS_NOTIFICATION_CLICK", "markNotificationsAsRead"]
+    },
+    {
+      "laneKey": "push-token-refresh",
+      "files": ["src/lib/firebase-messaging.ts", "src/lib/browser-notification-enrollment.ts"],
+      "currentBehavior": "Web FCM token is obtained through getToken during explicit enrollment and persisted through /api/user/profile. Firebase Web SDK has no onTokenRefresh listener in the current modular API; re-enrollment/getToken is the supported refresh path.",
+      "launchSafe": true,
+      "risk": "medium",
+      "requiredFix": "documented unavailable as a continuous listener; re-enrollment path exists",
+      "fixedInThisPass": false,
+      "validation": ["getToken", "browserPushToken", "push token refresh documented"]
+    },
+    {
+      "laneKey": "standalone-safe-area",
+      "files": ["src/lib/user-mobile-shell.ts", "src/app/layout.tsx", "src/components/CoreLayoutWrapper.tsx", "src/components/Navigation/MobileBottomBar.tsx"],
+      "currentBehavior": "Shared user-mobile shell tokens reserve bottom nav and env(safe-area-inset-bottom) exactly once for public mobile routes; standalone PWA uses the same root shell spacing.",
+      "launchSafe": true,
+      "risk": "low",
+      "requiredFix": "none",
+      "fixedInThisPass": false,
+      "validation": ["USER_MOBILE_BOTTOM_NAV_RESERVED_HEIGHT", "env(safe-area-inset-bottom)", "root padding variable", "MobileBottomBar uses token"]
+    },
+    {
+      "laneKey": "return-to-app-route",
+      "files": ["src/components/ui/NotFoundSurface.tsx", "src/app/not-found.tsx", "public/firebase-messaging-sw.js"],
+      "currentBehavior": "404 returns to /dashboard; service-worker notification fallback route is /experiences; manifest start route is /drops. All are valid app routes.",
+      "launchSafe": true,
+      "risk": "low",
+      "requiredFix": "none",
+      "fixedInThisPass": false,
+      "validation": ["NOT_FOUND_RETURN_HREF", "Return to App", "safe notification default /experiences", "manifest start_url /drops"]
+    },
+    {
+      "laneKey": "pwa-install-prompt",
+      "files": ["public/manifest.json", "src/lib/firebase-messaging.ts", "src/lib/browser-notification-enrollment.ts"],
+      "currentBehavior": "No custom beforeinstallprompt flow is active. Install behavior is browser-native from a valid manifest; notification enrollment reports iOS non-standalone as needing standalone install.",
+      "launchSafe": true,
+      "risk": "low",
+      "requiredFix": "none",
+      "fixedInThisPass": false,
+      "validation": ["beforeinstallprompt absence documented", "manifest install metadata exists", "needsStandaloneInstall exists"]
+    }
+  ]
+}

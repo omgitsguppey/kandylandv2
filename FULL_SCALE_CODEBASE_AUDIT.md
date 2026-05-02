@@ -1,5 +1,34 @@
 # KandyDrops Core Codebase Audit & Defensive Ledger
 
+## [2026-05-01 #83] PRE: PWA Service Worker Mobile Install Launch Audit
+
+Scope started:
+- Auditing PWA manifest, service-worker registration/cache/update behavior, Firebase Messaging foreground/background push, notification click routing, deterministic browser tags, push token refresh, standalone/mobile safe-area behavior, not-found return routing, and mobile install readiness.
+- Required outputs: `agent/state/pwa-service-worker-audit.generated.json`, `docs/agent-truth/pwa-service-worker-mobile.md`, validator/script/package wiring, and governance ledger updates.
+- Fixes are limited to verified launch-critical PWA/mobile install gaps; no UI redesign, feature expansion, payment/economy work, or broad service-worker architecture rewrite is in scope.
+
+Initial evidence:
+- Worktree was clean at startup on `main`.
+- Control tower routing, doctrine consultation workflow, source-of-truth map, shared component ownership, product/copy/UI/surface/vocabulary/banned-pattern/cloud doctrine, and recent launch readiness/environment/security/notification/mobile/background-job ledgers were consulted.
+
+Scope completed:
+- Created `agent/state/pwa-service-worker-audit.generated.json`, `docs/agent-truth/pwa-service-worker-mobile.md`, and `scripts/agent/validate-pwa-service-worker.ts` with `npm run check:pwa-service-worker`.
+- Audited manifest identity/colors/icons, app metadata, service-worker scope/cache/update/reload behavior, offline fallback, foreground/background Firebase Messaging handlers, notificationclick return routing, deterministic browser tags/idempotency, browser notification enrollment/token persistence, mobile standalone safe-area, native install posture, and 404 return behavior.
+- Fixed the verified launch-critical registration gap: `src/lib/firebase-messaging.ts` now uses a module-level single-flight service-worker registration promise so PWA runtime registration, notification enrollment, and foreground browser notification display reuse the same worker registration.
+- Added manifest/icon and service-worker registration smoke tests, and extended the service-worker test to verify notificationclick target sanitization/open behavior.
+
+Verification:
+- `npm run check:pwa-service-worker`
+- `npx vitest run tests/unit/pwa-manifest.spec.ts tests/unit/firebase-messaging-registration.spec.ts tests/unit/firebase-messaging-sw.spec.ts tests/unit/not-found-surface.spec.tsx tests/unit/fcm-utils.spec.ts tests/unit/push-notifications.spec.ts tests/unit/notification-local-state.spec.ts`
+- `npm run typecheck`
+- `npm run check:notification-return-loop`
+- `npm run check:mobile-shell-safe-area`
+- `npm run check:generated-artifacts`
+
+Residual risk:
+- No live iOS/Android install prompt, real-device push delivery, or deployed service-worker update smoke was performed in this local pass.
+- The app intentionally has no custom `beforeinstallprompt` UI; browser-native install remains the launch path and token refresh is documented as explicit re-enrollment/getToken rather than a continuous listener.
+
 ## [2026-05-01 #82] PRE: Background Jobs Idempotency Launch Audit
 
 Scope started:

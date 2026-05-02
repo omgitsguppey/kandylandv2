@@ -24,6 +24,16 @@ This file is not a changelog. It is the concise ledger for durable decisions tha
 
 ## Decision Entries
 
+### 1cm. PWA service worker behavior is single-worker and notification-safe
+
+- Approximate date: Recorded explicitly on 2026-05-01 from the PWA, service worker, and mobile install launch audit
+- Status: Active launch PWA, mobile install, service-worker cache, notification, and safe-area rule
+- Decision: KandyDrops uses `public/firebase-messaging-sw.js` as the single launch service worker for app-shell/offline behavior and Firebase Messaging background display. It must cache only public shell/static assets, exclude private API data, use deterministic notification tags, sanitize notification click routes, and respect the shared mobile safe-area shell.
+- Implementation: `agent/state/pwa-service-worker-audit.generated.json` records manifest, icon, service-worker scope/cache/update, foreground/background push, notificationclick, token enrollment, standalone safe-area, return route, offline fallback, and install prompt lanes. `docs/agent-truth/pwa-service-worker-mobile.md` documents the human-readable doctrine. `scripts/agent/validate-pwa-service-worker.ts` and `npm run check:pwa-service-worker` enforce the launch gate.
+- Launch-critical fix: `src/lib/firebase-messaging.ts` now uses a module-level single-flight service-worker registration promise so the app runtime bridge, notification enrollment, and foreground display reuse the same registration instead of repeatedly calling `navigator.serviceWorker.register`.
+- Required validation: `npm run check:pwa-service-worker`, touched-file TypeScript, service-worker/manifest/not-found tests, notification tests when push behavior changes, and mobile visual checks when layout changes.
+- Consequence for future work: Do not add a second service worker, random notification tags, FCM auto-display plus manual service-worker display, API/private-data service-worker caching, stale shell caches without versioning, or page-local safe-area hacks.
+
 ### 1cl. Background job idempotency is a launch gate
 
 - Approximate date: Recorded explicitly on 2026-05-01 from the background jobs, cron, queue, and idempotency launch audit
