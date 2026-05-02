@@ -1,5 +1,36 @@
 # KandyDrops Core Codebase Audit & Defensive Ledger
 
+## [2026-05-01 #84] PRE: Accessibility Tap Target Launch Audit
+
+Scope started:
+- Auditing launch-critical controls for accessible names, button/link semantics, aria current/expanded/pressed state, modal focus/escape behavior, disabled/loading/error state clarity, timer announcements, mobile tap targets, and clickable non-button risks.
+- Required outputs: `agent/state/accessibility-tap-target-audit.generated.json`, `docs/agent-truth/accessibility-tap-targets.md`, validator/script/package wiring, and governance ledger updates.
+- Fixes are limited to verified launch-critical accessibility/tap-target gaps; no UI redesign, copy rewrite, feature expansion, payment/economy work, or broad component architecture rewrite is in scope.
+
+Initial evidence:
+- Worktree was clean at startup on `main`.
+- Control tower routing, doctrine consultation workflow, source-of-truth map, shared component ownership, product/copy/UI/surface/vocabulary/banned-pattern doctrine, and recent launch PWA/mobile/notification/readiness ledgers were consulted.
+
+Scope completed:
+- Created `agent/state/accessibility-tap-target-audit.generated.json`, `docs/agent-truth/accessibility-tap-targets.md`, and `scripts/agent/validate-accessibility-tap-targets.ts` with `npm run check:accessibility-tap-targets`.
+- Audited top nav, bottom nav, drops/drop cards, wallet purchase modal, unlock modal, viewer, chat/messages, notifications, auth/onboarding, creator profile, Admin Overview/Analytics/Debug, 404, and shared modals/drawers/tabs/filters/icon buttons for accessible names, state attributes, semantic controls, focus behavior, tap-target posture, timer announcement posture, and error/loading readability.
+- Fixed launch-critical semantics without redesign: mobile/admin nav current state, profile settings accessible name, explicit Drop preview button labels, countdown `aria-live="off"`, custom wallet modal dialog/focus/Escape behavior, wallet selector pressed states, Drop preview confirm/timer states, viewer thumbnail labels/current state, and Admin Analytics/Debug tab pressed state.
+- Added static regression coverage in `tests/unit/accessibility-tap-targets.spec.ts`.
+
+Verification:
+- `npm run check:accessibility-tap-targets`
+- `npx vitest run tests/unit/accessibility-tap-targets.spec.ts tests/unit/notification-bell-layout.spec.ts tests/unit/not-found-surface.spec.tsx tests/unit/drop-countdown.spec.ts tests/unit/admin-analytics-page.spec.tsx tests/unit/dashboard-viewer-page.spec.tsx`
+- `npm run typecheck`
+- `npm run check:ui:coverage`
+- `npm run check:ui:runtime`
+- `npm run check:generated-artifacts`
+- `git diff --check`
+
+Residual risk:
+- This was a static and targeted launch pass, not a full live axe/browser pass of every route state.
+- Color contrast was not remeasured in this pass; existing UI audit lanes remain the browser-backed contrast gate.
+- Auth/onboarding and chat picker focus behavior were inspected and documented but not broadly refactored because no launch-blocking semantic gap was confirmed.
+
 ## [2026-05-01 #83] PRE: PWA Service Worker Mobile Install Launch Audit
 
 Scope started:

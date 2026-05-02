@@ -57,7 +57,7 @@ export function DropCardLayout({
     if (resolvedRatio === "9:16") {
         return (
             <div ref={cardRef} className="group relative flex h-full flex-col overflow-hidden rounded-[1.15rem] border border-white/8 bg-white/[0.025] p-1.5 shadow-[0_10px_24px_rgba(0,0,0,0.22)] backdrop-blur-md md:rounded-[1.35rem] md:p-2.5" data-drop-card-density="compact-mobile">
-                <button type="button" onClick={onPreviewOpen} className="relative w-full flex-shrink-0 overflow-hidden rounded-[0.9rem] border border-white/10 bg-black text-left md:rounded-[1rem]" style={ratioStyle}>
+                <button type="button" onClick={onPreviewOpen} aria-label={`Preview ${drop.title}`} className="relative w-full flex-shrink-0 overflow-hidden rounded-[0.9rem] border border-white/10 bg-black text-left md:rounded-[1rem]" style={ratioStyle}>
                     <NextImage
                         src={drop.imageUrl || "/placeholder.jpg"}
                         alt={drop.title}
@@ -98,7 +98,7 @@ export function DropCardLayout({
         <div ref={cardRef} className="group relative flex h-full flex-col justify-between overflow-hidden rounded-[1.15rem] border border-white/8 bg-white/[0.025] p-1.5 shadow-[0_10px_24px_rgba(0,0,0,0.22)] backdrop-blur-md md:rounded-[1.35rem] md:p-2.5" data-drop-card-density="compact-mobile">
             <div className="pointer-events-none absolute inset-0 bg-gradient-to-br from-brand-purple/5 via-transparent to-brand-purple/5" />
 
-            <button type="button" onClick={onPreviewOpen} className="relative mb-1.5 w-full flex-shrink-0 overflow-hidden rounded-[0.9rem] border border-white/5 bg-black/40 text-left shadow-inner md:mb-2 md:rounded-[1rem]" style={ratioStyle}>
+            <button type="button" onClick={onPreviewOpen} aria-label={`Preview ${drop.title}`} className="relative mb-1.5 w-full flex-shrink-0 overflow-hidden rounded-[0.9rem] border border-white/5 bg-black/40 text-left shadow-inner md:mb-2 md:rounded-[1rem]" style={ratioStyle}>
                 {drop.imageUrl ? (
                     <>
                         <NextImage

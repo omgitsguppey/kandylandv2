@@ -98,7 +98,7 @@ export function DropCardTimer({ validUntil }: { validUntil?: number }) {
                             : "text-gray-400",
                 )}
             />
-            <span className={cn("truncate", isCountdownOnly && "text-center")}>{visibleLabel}</span>
+            <span aria-live="off" className={cn("truncate", isCountdownOnly && "text-center")}>{visibleLabel}</span>
         </div>
     );
 }

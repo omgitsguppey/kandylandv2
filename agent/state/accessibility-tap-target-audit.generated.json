@@ -1,0 +1,594 @@
+{
+  "generatedAt": "2026-05-01T00:00:00.000-05:00",
+  "task": "accessibility-tap-target-launch-audit",
+  "status": "completed_with_targeted_fixes",
+  "doctrine": {
+    "controlTowerConsulted": true,
+    "doctrineConsulted": true,
+    "uiCopyWorkflowConsulted": true,
+    "noScreenshotsReliedOn": true
+  },
+  "minimumTapTarget": {
+    "preferredCssPixels": 44,
+    "compactAllowedCssPixels": 40,
+    "rule": "Launch-critical mobile controls use semantic buttons/links and must provide either a 44px target or documented compact treatment with surrounding spacing."
+  },
+  "surfaces": [
+    {
+      "surfaceKey": "top-nav",
+      "files": [
+        "src/components/Navbar.tsx",
+        "src/components/Navigation/AdminDropdown.tsx",
+        "src/components/Navigation/ProfileDropdown.tsx",
+        "src/components/Navigation/ProfileSidebar.tsx",
+        "src/components/Navigation/NotificationBell.tsx"
+      ],
+      "controlsAudited": [
+        "brand home link",
+        "wallet button",
+        "profile menu",
+        "profile sidebar",
+        "admin menu",
+        "notification bell"
+      ],
+      "iconOnlyNames": true,
+      "navCurrentState": true,
+      "toggleStateAttributes": true,
+      "expandedStateAttributes": true,
+      "modalFocusBehavior": "profile sidebar scroll-locks body; custom wallet modal traps focus",
+      "escBackBehavior": "notification/profile/admin menus close by outside click; wallet modal closes on Escape",
+      "clickableNonButtonRisk": false,
+      "tapTargetRisk": "low",
+      "disabledStateExplained": true,
+      "loadingStateReadable": true,
+      "errorAssociation": "not applicable",
+      "timerAnnouncementRisk": "not applicable",
+      "colorContrastRisk": "not remeasured in this static pass",
+      "requiredFix": "Add active state semantics to admin/mobile nav and accessible name to icon-only settings link.",
+      "fixedInThisPass": true,
+      "validation": "scripts/agent/validate-accessibility-tap-targets.ts"
+    },
+    {
+      "surfaceKey": "bottom-nav",
+      "files": [
+        "src/components/Navigation/MobileBottomBar.tsx",
+        "src/lib/user-mobile-shell.ts"
+      ],
+      "controlsAudited": [
+        "Home/Dashboard",
+        "Drops",
+        "Chat",
+        "Experiences",
+        "Wallet"
+      ],
+      "iconOnlyNames": true,
+      "navCurrentState": true,
+      "toggleStateAttributes": "wallet is an action button, not a pressed toggle",
+      "expandedStateAttributes": "not applicable",
+      "modalFocusBehavior": "wallet opens PurchaseModal",
+      "escBackBehavior": "handled by PurchaseModal",
+      "clickableNonButtonRisk": false,
+      "tapTargetRisk": "low",
+      "disabledStateExplained": "not applicable",
+      "loadingStateReadable": true,
+      "errorAssociation": "not applicable",
+      "timerAnnouncementRisk": "not applicable",
+      "colorContrastRisk": "not remeasured in this static pass",
+      "requiredFix": "Add nav label, current page state, button type, and wallet action accessible name.",
+      "fixedInThisPass": true,
+      "validation": "scripts/agent/validate-accessibility-tap-targets.ts"
+    },
+    {
+      "surfaceKey": "drops-page",
+      "files": [
+        "src/app/drops/DropsClient.tsx",
+        "src/components/StickyFilterBar.tsx",
+        "src/components/DropCard.tsx",
+        "src/components/DropCardLayout.tsx",
+        "src/components/DropCardParts.tsx",
+        "src/components/DropCardCta.tsx"
+      ],
+      "controlsAudited": [
+        "filter chips",
+        "expand filters",
+        "drop preview image buttons",
+        "unlock/view buttons",
+        "countdown pill"
+      ],
+      "iconOnlyNames": true,
+      "navCurrentState": "not applicable",
+      "toggleStateAttributes": true,
+      "expandedStateAttributes": true,
+      "modalFocusBehavior": "drop preview uses Radix Dialog",
+      "escBackBehavior": "drop preview uses Radix Dialog close behavior",
+      "clickableNonButtonRisk": false,
+      "tapTargetRisk": "low",
+      "disabledStateExplained": true,
+      "loadingStateReadable": true,
+      "errorAssociation": true,
+      "timerAnnouncementRisk": "low; countdown has title/aria label and aria-live off",
+      "colorContrastRisk": "not remeasured in this static pass",
+      "requiredFix": "Add explicit preview button labels and confirm countdown does not create a live screen-reader stream.",
+      "fixedInThisPass": true,
+      "validation": "tests/unit/accessibility-tap-targets.spec.ts"
+    },
+    {
+      "surfaceKey": "drop-card-countdown",
+      "files": [
+        "src/components/DropCardParts.tsx",
+        "src/lib/drop-countdown.ts",
+        "tests/unit/drop-countdown.spec.ts"
+      ],
+      "controlsAudited": [
+        "countdown visible pill",
+        "timer title",
+        "timer accessible label"
+      ],
+      "iconOnlyNames": true,
+      "navCurrentState": "not applicable",
+      "toggleStateAttributes": "not applicable",
+      "expandedStateAttributes": "not applicable",
+      "modalFocusBehavior": "not applicable",
+      "escBackBehavior": "not applicable",
+      "clickableNonButtonRisk": false,
+      "tapTargetRisk": "not interactive",
+      "disabledStateExplained": "not applicable",
+      "loadingStateReadable": true,
+      "errorAssociation": "not applicable",
+      "timerAnnouncementRisk": "low; countdown updates visually but is not an aria-live region",
+      "colorContrastRisk": "not remeasured in this static pass",
+      "requiredFix": "Add aria-live off to visible countdown text while preserving full title/aria labels.",
+      "fixedInThisPass": true,
+      "validation": "scripts/agent/validate-accessibility-tap-targets.ts"
+    },
+    {
+      "surfaceKey": "wallet-purchase-modal",
+      "files": [
+        "src/components/PurchaseModal.tsx",
+        "src/components/GlobalPurchaseModal.tsx",
+        "src/components/InsufficientBalanceModal.tsx"
+      ],
+      "controlsAudited": [
+        "modal close",
+        "package selectors",
+        "bundle selector",
+        "bundle increment/decrement",
+        "PayPal surface",
+        "success actions"
+      ],
+      "iconOnlyNames": true,
+      "navCurrentState": "not applicable",
+      "toggleStateAttributes": true,
+      "expandedStateAttributes": "not applicable",
+      "modalFocusBehavior": "custom PurchaseModal traps Tab focus and closes on Escape",
+      "escBackBehavior": true,
+      "clickableNonButtonRisk": "controlled; bundle selector keeps role button plus keyboard support because it contains nested increment/decrement buttons when selected",
+      "tapTargetRisk": "low",
+      "disabledStateExplained": true,
+      "loadingStateReadable": true,
+      "errorAssociation": "payment errors render role=alert",
+      "timerAnnouncementRisk": "not applicable",
+      "colorContrastRisk": "not remeasured in this static pass",
+      "requiredFix": "Add dialog semantics, focus trap, Escape close, aria-pressed package states, and alert role for payment errors.",
+      "fixedInThisPass": true,
+      "validation": "tests/unit/accessibility-tap-targets.spec.ts"
+    },
+    {
+      "surfaceKey": "unlock-modal",
+      "files": [
+        "src/components/DropPreviewModal.tsx",
+        "src/components/DropCardCta.tsx"
+      ],
+      "controlsAudited": [
+        "Radix Dialog content",
+        "share button",
+        "close button",
+        "signed-out preview overlay",
+        "unwrap confirmation",
+        "view content link"
+      ],
+      "iconOnlyNames": true,
+      "navCurrentState": "not applicable",
+      "toggleStateAttributes": true,
+      "expandedStateAttributes": "not applicable",
+      "modalFocusBehavior": "Radix Dialog owns focus trap",
+      "escBackBehavior": "Radix Dialog",
+      "clickableNonButtonRisk": false,
+      "tapTargetRisk": "low",
+      "disabledStateExplained": true,
+      "loadingStateReadable": true,
+      "errorAssociation": "toast/problem copy path",
+      "timerAnnouncementRisk": "low; modal timer label/title is not live-announced",
+      "colorContrastRisk": "not remeasured in this static pass",
+      "requiredFix": "Add accessible label to signed-out overlay, aria-pressed to confirmation step, and aria-live off to timer chip.",
+      "fixedInThisPass": true,
+      "validation": "scripts/agent/validate-accessibility-tap-targets.ts"
+    },
+    {
+      "surfaceKey": "viewer",
+      "files": [
+        "src/app/dashboard/viewer/ViewerClient.tsx",
+        "src/app/dashboard/viewer/components/MediaViewer.tsx",
+        "src/app/dashboard/viewer/components/ThumbnailsSlider.tsx"
+      ],
+      "controlsAudited": [
+        "back link",
+        "media controls",
+        "thumbnail selectors",
+        "thumbnail scroll controls"
+      ],
+      "iconOnlyNames": true,
+      "navCurrentState": true,
+      "toggleStateAttributes": "thumbnail active state uses aria-current",
+      "expandedStateAttributes": "not applicable",
+      "modalFocusBehavior": "not applicable",
+      "escBackBehavior": "browser/native media controls",
+      "clickableNonButtonRisk": false,
+      "tapTargetRisk": "low",
+      "disabledStateExplained": true,
+      "loadingStateReadable": true,
+      "errorAssociation": true,
+      "timerAnnouncementRisk": "not applicable",
+      "colorContrastRisk": "not remeasured in this static pass",
+      "requiredFix": "Add accessible labels and current state to thumbnail selectors and scroll controls.",
+      "fixedInThisPass": true,
+      "validation": "tests/unit/accessibility-tap-targets.spec.ts"
+    },
+    {
+      "surfaceKey": "chat-messages",
+      "files": [
+        "src/components/Chat/ChatExperience.tsx",
+        "src/components/Chat/ChatRouteShell.tsx"
+      ],
+      "controlsAudited": [
+        "thread list",
+        "edit menu",
+        "compose picker",
+        "attachment menu",
+        "send button",
+        "error close buttons"
+      ],
+      "iconOnlyNames": true,
+      "navCurrentState": "route state",
+      "toggleStateAttributes": true,
+      "expandedStateAttributes": true,
+      "modalFocusBehavior": "compose picker has labeled close; no product-code change made in this pass",
+      "escBackBehavior": "documented as residual manual visual risk",
+      "clickableNonButtonRisk": false,
+      "tapTargetRisk": "low",
+      "disabledStateExplained": true,
+      "loadingStateReadable": true,
+      "errorAssociation": true,
+      "timerAnnouncementRisk": "not applicable",
+      "colorContrastRisk": "not remeasured in this static pass",
+      "requiredFix": "No launch-blocking semantic gap found during static scan.",
+      "fixedInThisPass": false,
+      "validation": "existing chat route tests plus static validator coverage"
+    },
+    {
+      "surfaceKey": "notifications",
+      "files": [
+        "src/components/Navigation/NotificationBell.tsx",
+        "src/components/Notifications/NotificationRuntimeBridge.tsx",
+        "src/hooks/useNotifications.ts"
+      ],
+      "controlsAudited": [
+        "notification bell",
+        "details expander",
+        "open action",
+        "mark read",
+        "clear all",
+        "refresh action"
+      ],
+      "iconOnlyNames": true,
+      "navCurrentState": "not applicable",
+      "toggleStateAttributes": true,
+      "expandedStateAttributes": true,
+      "modalFocusBehavior": "dropdown closes on outside click",
+      "escBackBehavior": "documented residual: outside click only",
+      "clickableNonButtonRisk": false,
+      "tapTargetRisk": "low",
+      "disabledStateExplained": true,
+      "loadingStateReadable": true,
+      "errorAssociation": true,
+      "timerAnnouncementRisk": "relative delivery times are not live regions",
+      "colorContrastRisk": "not remeasured in this static pass",
+      "requiredFix": "No launch-blocking semantic gap found during static scan.",
+      "fixedInThisPass": false,
+      "validation": "tests/unit/notification-bell-layout.spec.ts"
+    },
+    {
+      "surfaceKey": "auth-onboarding",
+      "files": [
+        "src/components/Auth/AuthModal.tsx",
+        "src/components/Auth/GuidedOnboarding.tsx",
+        "src/components/GlobalAuthModal.tsx",
+        "src/app/api/user/onboarding-progress/route.ts"
+      ],
+      "controlsAudited": [
+        "auth modal actions",
+        "onboarding steps",
+        "form errors",
+        "submit buttons"
+      ],
+      "iconOnlyNames": true,
+      "navCurrentState": "not applicable",
+      "toggleStateAttributes": "step state visible in copy/classes",
+      "expandedStateAttributes": "not applicable",
+      "modalFocusBehavior": "auth modal remains on existing implementation",
+      "escBackBehavior": "existing modal behavior",
+      "clickableNonButtonRisk": false,
+      "tapTargetRisk": "medium_static_unverified",
+      "disabledStateExplained": true,
+      "loadingStateReadable": true,
+      "errorAssociation": "known form errors render visible copy",
+      "timerAnnouncementRisk": "not applicable",
+      "colorContrastRisk": "not remeasured in this static pass",
+      "requiredFix": "No launch-blocking gap confirmed without broad auth redesign.",
+      "fixedInThisPass": false,
+      "validation": "static validator docs/audit requirement"
+    },
+    {
+      "surfaceKey": "creator-profile",
+      "files": [
+        "src/app/creators/[username]/CreatorProfileClient.tsx",
+        "src/components/CreatorDiscoveryRail.tsx"
+      ],
+      "controlsAudited": [
+        "creator profile links",
+        "follow controls",
+        "creator discovery rail cards"
+      ],
+      "iconOnlyNames": true,
+      "navCurrentState": "not applicable",
+      "toggleStateAttributes": true,
+      "expandedStateAttributes": "not applicable",
+      "modalFocusBehavior": "not applicable",
+      "escBackBehavior": "not applicable",
+      "clickableNonButtonRisk": false,
+      "tapTargetRisk": "low",
+      "disabledStateExplained": true,
+      "loadingStateReadable": true,
+      "errorAssociation": true,
+      "timerAnnouncementRisk": "not applicable",
+      "colorContrastRisk": "not remeasured in this static pass",
+      "requiredFix": "No launch-blocking gap found during static scan.",
+      "fixedInThisPass": false,
+      "validation": "static validator docs/audit requirement"
+    },
+    {
+      "surfaceKey": "admin-overview",
+      "files": [
+        "src/app/admin/page.tsx",
+        "src/components/Admin/AdminDashboardModule.tsx",
+        "src/components/Admin/AdminPageHeader.tsx"
+      ],
+      "controlsAudited": [
+        "module expanders",
+        "admin action buttons",
+        "status badges"
+      ],
+      "iconOnlyNames": true,
+      "navCurrentState": true,
+      "toggleStateAttributes": "expanders use aria-expanded",
+      "expandedStateAttributes": true,
+      "modalFocusBehavior": "admin modals out of scope unless touched",
+      "escBackBehavior": "existing modal behavior",
+      "clickableNonButtonRisk": false,
+      "tapTargetRisk": "low",
+      "disabledStateExplained": true,
+      "loadingStateReadable": true,
+      "errorAssociation": true,
+      "timerAnnouncementRisk": "not applicable",
+      "colorContrastRisk": "not remeasured in this static pass",
+      "requiredFix": "No launch-blocking gap found beyond shared admin nav semantics.",
+      "fixedInThisPass": true,
+      "validation": "scripts/agent/validate-accessibility-tap-targets.ts"
+    },
+    {
+      "surfaceKey": "admin-analytics",
+      "files": [
+        "src/app/admin/analytics/page.tsx",
+        "src/app/admin/analytics/components/AdminAnalyticsAudienceTab.tsx",
+        "src/app/admin/analytics/components/AdminAnalyticsCommerceTab.tsx",
+        "src/app/admin/analytics/components/AdminAnalyticsOperationsTab.tsx",
+        "src/components/Admin/Analytics/AdminAnalyticsPrimitives.tsx"
+      ],
+      "controlsAudited": [
+        "tab buttons",
+        "filter clear buttons",
+        "refresh/loading states",
+        "cards"
+      ],
+      "iconOnlyNames": true,
+      "navCurrentState": true,
+      "toggleStateAttributes": true,
+      "expandedStateAttributes": "not applicable",
+      "modalFocusBehavior": "not applicable",
+      "escBackBehavior": "not applicable",
+      "clickableNonButtonRisk": false,
+      "tapTargetRisk": "low",
+      "disabledStateExplained": true,
+      "loadingStateReadable": true,
+      "errorAssociation": true,
+      "timerAnnouncementRisk": "not applicable",
+      "colorContrastRisk": "not remeasured in this static pass",
+      "requiredFix": "Add aria-pressed to analytics tab controls.",
+      "fixedInThisPass": true,
+      "validation": "tests/unit/accessibility-tap-targets.spec.ts"
+    },
+    {
+      "surfaceKey": "admin-debug",
+      "files": [
+        "src/app/admin/debug/page.tsx",
+        "src/app/admin/debug/components/DebugPrimitives.tsx",
+        "src/app/admin/debug/components/DebugTabActions.tsx"
+      ],
+      "controlsAudited": [
+        "debug tab buttons",
+        "debug action buttons",
+        "technical details cards"
+      ],
+      "iconOnlyNames": true,
+      "navCurrentState": true,
+      "toggleStateAttributes": true,
+      "expandedStateAttributes": true,
+      "modalFocusBehavior": "not applicable",
+      "escBackBehavior": "not applicable",
+      "clickableNonButtonRisk": false,
+      "tapTargetRisk": "low",
+      "disabledStateExplained": true,
+      "loadingStateReadable": true,
+      "errorAssociation": true,
+      "timerAnnouncementRisk": "not applicable",
+      "colorContrastRisk": "not remeasured in this static pass",
+      "requiredFix": "Add aria-pressed to debug tab controls.",
+      "fixedInThisPass": true,
+      "validation": "tests/unit/accessibility-tap-targets.spec.ts"
+    },
+    {
+      "surfaceKey": "not-found",
+      "files": [
+        "src/components/ui/NotFoundSurface.tsx",
+        "src/app/not-found.tsx",
+        "tests/unit/not-found-surface.spec.tsx"
+      ],
+      "controlsAudited": [
+        "return-to-app link"
+      ],
+      "iconOnlyNames": "not applicable",
+      "navCurrentState": "not applicable",
+      "toggleStateAttributes": "not applicable",
+      "expandedStateAttributes": "not applicable",
+      "modalFocusBehavior": "not applicable",
+      "escBackBehavior": "return link remains explicit",
+      "clickableNonButtonRisk": false,
+      "tapTargetRisk": "low",
+      "disabledStateExplained": "not applicable",
+      "loadingStateReadable": true,
+      "errorAssociation": true,
+      "timerAnnouncementRisk": "not applicable",
+      "colorContrastRisk": "not remeasured in this static pass",
+      "requiredFix": "No launch-blocking gap found.",
+      "fixedInThisPass": false,
+      "validation": "tests/unit/not-found-surface.spec.tsx"
+    },
+    {
+      "surfaceKey": "shared-modals-drawers-tabs-filters-icon-buttons",
+      "files": [
+        "src/components/StickyFilterBar.tsx",
+        "src/components/PurchaseModal.tsx",
+        "src/components/DropPreviewModal.tsx",
+        "src/components/Navigation/ProfileSidebar.tsx",
+        "src/components/Admin/AdminDashboardModule.tsx"
+      ],
+      "controlsAudited": [
+        "filters",
+        "drawers",
+        "custom modal",
+        "Radix modal",
+        "admin expanders",
+        "icon-only controls"
+      ],
+      "iconOnlyNames": true,
+      "navCurrentState": true,
+      "toggleStateAttributes": true,
+      "expandedStateAttributes": true,
+      "modalFocusBehavior": "PurchaseModal traps focus; DropPreviewModal uses Radix Dialog; ProfileSidebar has close and body scroll lock",
+      "escBackBehavior": "PurchaseModal closes on Escape; DropPreviewModal handled by Radix",
+      "clickableNonButtonRisk": "controlled; no unlabeled non-button click target found in launch-critical static scan",
+      "tapTargetRisk": "low",
+      "disabledStateExplained": true,
+      "loadingStateReadable": true,
+      "errorAssociation": true,
+      "timerAnnouncementRisk": "low",
+      "colorContrastRisk": "not remeasured in this static pass",
+      "requiredFix": "Keep validator and docs as launch gate for future control additions.",
+      "fixedInThisPass": true,
+      "validation": "scripts/agent/validate-accessibility-tap-targets.ts"
+    }
+  ],
+  "fixedIssues": [
+    {
+      "issueId": "A11Y-TAP-001",
+      "surfaceKey": "bottom-nav",
+      "before": "Mobile bottom navigation had visible labels but did not expose current-page state.",
+      "after": "Mobile bottom navigation has an aria-label, active links use aria-current=page, and the wallet action has type/button accessible naming.",
+      "filesChanged": [
+        "src/components/Navigation/MobileBottomBar.tsx"
+      ]
+    },
+    {
+      "issueId": "A11Y-TAP-002",
+      "surfaceKey": "top-nav",
+      "before": "Admin menu links and profile settings icon lacked full semantic context for screen reader navigation.",
+      "after": "Admin menu links expose aria-current for active admin route and the icon-only settings link has an accessible name.",
+      "filesChanged": [
+        "src/components/Navigation/AdminDropdown.tsx",
+        "src/components/Navigation/ProfileDropdown.tsx",
+        "src/components/Navbar.tsx"
+      ]
+    },
+    {
+      "issueId": "A11Y-TAP-003",
+      "surfaceKey": "wallet-purchase-modal",
+      "before": "The custom wallet modal lacked dialog semantics/focus trap and package selectors did not expose pressed state.",
+      "after": "Wallet modal has role=dialog, aria-modal, labelled title, initial focus, Tab wrap, Escape close, package aria-pressed state, and role=alert error copy.",
+      "filesChanged": [
+        "src/components/PurchaseModal.tsx"
+      ]
+    },
+    {
+      "issueId": "A11Y-TAP-004",
+      "surfaceKey": "drop-cards",
+      "before": "Drop preview image buttons relied on image alt text instead of explicit control names.",
+      "after": "Drop preview image buttons have explicit Preview labels.",
+      "filesChanged": [
+        "src/components/DropCardLayout.tsx"
+      ]
+    },
+    {
+      "issueId": "A11Y-TAP-005",
+      "surfaceKey": "viewer",
+      "before": "Viewer thumbnail and carousel scroll icon controls lacked explicit labels/current state.",
+      "after": "Viewer thumbnails expose Show asset labels and current state; scroll controls have labels.",
+      "filesChanged": [
+        "src/app/dashboard/viewer/components/ThumbnailsSlider.tsx"
+      ]
+    },
+    {
+      "issueId": "A11Y-TAP-006",
+      "surfaceKey": "admin-analytics-debug",
+      "before": "Admin Analytics and Debug tab buttons visually showed active state but did not expose pressed state.",
+      "after": "Admin Analytics and Debug tabs expose aria-pressed.",
+      "filesChanged": [
+        "src/app/admin/analytics/page.tsx",
+        "src/app/admin/debug/page.tsx"
+      ]
+    },
+    {
+      "issueId": "A11Y-TAP-007",
+      "surfaceKey": "timers-unlock-modal",
+      "before": "Countdown and unlock confirmation controls were readable visually but not explicitly protected against live-announcement spam/pressed state gaps.",
+      "after": "Drop timers use title/aria labels with aria-live off, and unlock confirmation exposes aria-pressed.",
+      "filesChanged": [
+        "src/components/DropCardParts.tsx",
+        "src/components/DropPreviewModal.tsx"
+      ]
+    }
+  ],
+  "residualRisks": [
+    "This was a static and targeted launch audit, not a full axe/browser audit of every runtime state.",
+    "Color contrast was not remeasured in this pass; existing UI audit lanes remain the browser-backed contrast gate.",
+    "Auth/onboarding and chat compose picker focus behavior was documented from code inspection but not refactored because no launch-blocking semantic gap was confirmed."
+  ],
+  "validationCommands": [
+    "npm run check:accessibility-tap-targets",
+    "npx vitest run tests/unit/accessibility-tap-targets.spec.ts tests/unit/notification-bell-layout.spec.ts tests/unit/not-found-surface.spec.tsx tests/unit/drop-countdown.spec.ts tests/unit/admin-analytics-page.spec.tsx tests/unit/dashboard-viewer-page.spec.tsx",
+    "npm run typecheck",
+    "npm run check:ui:coverage",
+    "npm run check:ui:runtime",
+    "npm run check:generated-artifacts",
+    "git diff --check"
+  ]
+}

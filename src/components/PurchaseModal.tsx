@@ -57,6 +57,8 @@ export function PurchaseModal({ isOpen, onClose }: PurchaseModalProps) {
   const paypalLoading = isPending;
   const paypalFailed = false;
   const hasTrackedOpenRef = useRef(false);
+  const modalRef = useRef<HTMLDivElement | null>(null);
+  const closeButtonRef = useRef<HTMLButtonElement | null>(null);
 
   useEffect(() => {
     setNetworkOnline(navigator.onLine);
@@ -114,6 +116,67 @@ export function PurchaseModal({ isOpen, onClose }: PurchaseModalProps) {
     clearTimedFlow(CHECKOUT_FLOW_KEY);
     requestAnimationFrame(onClose);
   }, [onClose]);
+
+  useEffect(() => {
+    if (!isOpen) {
+      return;
+    }
+
+    const focusTimer = window.setTimeout(() => {
+      closeButtonRef.current?.focus();
+    }, 0);
+
+    return () => window.clearTimeout(focusTimer);
+  }, [isOpen]);
+
+  useEffect(() => {
+    if (!isOpen) {
+      return;
+    }
+
+    const handleKeyDown = (event: KeyboardEvent) => {
+      if (event.key === "Escape") {
+        event.preventDefault();
+        closeModal();
+        return;
+      }
+
+      if (event.key !== "Tab" || !modalRef.current) {
+        return;
+      }
+
+      const focusableElements = Array.from(
+        modalRef.current.querySelectorAll<HTMLElement>(
+          'a[href], button:not([disabled]), textarea:not([disabled]), input:not([disabled]), select:not([disabled]), [tabindex]:not([tabindex="-1"])',
+        ),
+      ).filter((element) => !element.hasAttribute("disabled") && element.getAttribute("aria-hidden") !== "true");
+
+      if (focusableElements.length === 0) {
+        event.preventDefault();
+        return;
+      }
+
+      const firstElement = focusableElements[0];
+      const lastElement = focusableElements[focusableElements.length - 1];
+      if (!firstElement || !lastElement) {
+        return;
+      }
+
+      if (event.shiftKey && document.activeElement === firstElement) {
+        event.preventDefault();
+        lastElement.focus();
+        return;
+      }
+
+      if (!event.shiftKey && document.activeElement === lastElement) {
+        event.preventDefault();
+        firstElement.focus();
+      }
+    };
+
+    document.addEventListener("keydown", handleKeyDown);
+    return () => document.removeEventListener("keydown", handleKeyDown);
+  }, [closeModal, isOpen]);
 
   const continueFromSuccess = useCallback((destination: string, source: string) => {
     trackEvent("navigation_click", {
@@ -318,9 +381,13 @@ export function PurchaseModal({ isOpen, onClose }: PurchaseModalProps) {
                 animate={{ opacity: 1, scale: 1, y: 0 }}
                 exit={{ opacity: 0, scale: 0.95, y: 20 }}
                 transition={{ type: "spring", damping: 25, stiffness: 300 }}
+                ref={modalRef}
+                role="dialog"
+                aria-modal="true"
+                aria-labelledby="purchase-wallet-title"
                 className="relative w-full max-w-md bg-black/45 backdrop-blur-xl rounded-3xl p-6 md:p-8 shadow-2xl border border-white/10 pointer-events-auto"
               >
-                <button aria-label="Close modal" onClick={closeModal} className="absolute top-4 right-4 p-2 rounded-full text-gray-400 transition-colors z-30">
+                <button ref={closeButtonRef} aria-label="Close modal" onClick={closeModal} className="absolute top-4 right-4 p-2 rounded-full text-gray-400 transition-colors z-30">
                   <X className="w-5 h-5" />
                 </button>
 
@@ -334,7 +401,7 @@ export function PurchaseModal({ isOpen, onClose }: PurchaseModalProps) {
                         <div className="w-14 h-14 bg-gradient-to-tr from-brand-purple to-brand-purple rounded-2xl mx-auto mb-3 flex items-center justify-center shadow-lg shadow-brand-purple/20">
                           <Candy className="w-7 h-7 text-white drop-shadow-md" />
                         </div>
-                        <h2 className="text-xl font-bold text-white mb-0.5 tracking-tight">Kandy Shop Wallet</h2>
+                        <h2 id="purchase-wallet-title" className="text-xl font-bold text-white mb-0.5 tracking-tight">Kandy Shop Wallet</h2>
                         <p className="text-gray-400 text-xs font-medium mb-3">Get more GumDrops to Unwrap more!</p>
                         {userProfile?.gumDropsBalance !== undefined && (
                           <div className="inline-flex items-center gap-1.5 px-3 py-1 bg-white/5 border border-white/10 rounded-full">
@@ -351,6 +418,7 @@ export function PurchaseModal({ isOpen, onClose }: PurchaseModalProps) {
                           return (
                             <button
                               key={pkg.drops}
+                              type="button"
                               onClick={() => {
                                 setSelectedPackage(pkg);
                                 trackEvent("purchase_package_selected", {
@@ -361,6 +429,7 @@ export function PurchaseModal({ isOpen, onClose }: PurchaseModalProps) {
                                   package_bonus_drops: pkgEconomics.bonusGumDrops,
                                 });
                               }}
+                              aria-pressed={isSelected}
                               className={cn(
                                 "relative flex items-center justify-between rounded-xl border p-3 w-full transition-all text-left",
                                 isSelected
@@ -396,6 +465,8 @@ export function PurchaseModal({ isOpen, onClose }: PurchaseModalProps) {
                       <div
                         role="button"
                         tabIndex={0}
+                        aria-pressed={isBundleSelected}
+                        aria-label={`Select King Size Bundle with ${customDrops.toLocaleString()} Gum Drops`}
                         onClick={() => {
                           selectBundlePackage(customDrops);
                         }}
@@ -565,7 +636,7 @@ export function PurchaseModal({ isOpen, onClose }: PurchaseModalProps) {
                         )}
                       </div>
 
-                      {error && <div className="mt-4 p-3 bg-red-500/10 border border-red-500/20 text-red-500 rounded-lg text-center text-xs font-bold">{error}</div>}
+                      {error && <div role="alert" className="mt-4 p-3 bg-red-500/10 border border-red-500/20 text-red-500 rounded-lg text-center text-xs font-bold">{error}</div>}
                     </div>
                   ) : (
                     <div className="text-center py-10 pt-4">

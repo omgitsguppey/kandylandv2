@@ -2,6 +2,7 @@
 
 import { useState, useRef, useEffect } from "react";
 import Link from "next/link";
+import { usePathname } from "next/navigation";
 import { useAuth } from "@/context/AuthContext";
 import { House, LayoutDashboard, Package, TrendingUp, Users, Terminal, LogOut, ShieldCheck, LifeBuoy, ShieldAlert } from "lucide-react";
 
@@ -9,6 +10,7 @@ import { cn } from "@/lib/utils";
 
 export function AdminDropdown() {
     const { logout, userProfile, loading } = useAuth();
+    const pathname = usePathname();
     const authSettled = !loading;
     const [isOpen, setIsOpen] = useState(false);
     const dropdownRef = useRef<HTMLDivElement>(null);
@@ -73,18 +75,24 @@ export function AdminDropdown() {
                     <p className="text-xs font-bold text-brand-purple uppercase tracking-wider">Admin Console</p>
                 </div>
 
-                <nav className="space-y-1">
-                    {navItems.map((item) => (
-                        <Link
-                            key={item.href}
-                            href={item.href}
-                            onClick={() => setIsOpen(false)}
-                            className="flex items-center gap-3 px-3 py-2 text-sm text-gray-300 rounded-xl transition-all group"
-                        >
-                            <item.icon className="w-4 h-4 text-gray-400 transition-colors" />
-                            {item.label}
-                        </Link>
-                    ))}
+                <nav className="space-y-1" aria-label="Admin navigation">
+                    {navItems.map((item) => {
+                        const isActive = item.href === "/admin"
+                            ? pathname === item.href
+                            : pathname === item.href || pathname?.startsWith(`${item.href}/`);
+                        return (
+                            <Link
+                                key={item.href}
+                                href={item.href}
+                                onClick={() => setIsOpen(false)}
+                                aria-current={isActive ? "page" : undefined}
+                                className="flex items-center gap-3 px-3 py-2 text-sm text-gray-300 rounded-xl transition-all group"
+                            >
+                                <item.icon className="w-4 h-4 text-gray-400 transition-colors" />
+                                {item.label}
+                            </Link>
+                        );
+                    })}
                 </nav>
 
                 <div className="mt-2 pt-2 border-t border-white/10">

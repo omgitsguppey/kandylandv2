@@ -58,6 +58,7 @@ export function Navbar() {
                         onClick={() => {
                             trackEvent("navigation_click", { destination: homeHref, source: "navbar_logo" });
                         }}
+                        aria-label="KandyDrops home"
                         className="shrink-0 text-white text-base font-bold sm:text-2xl"
                     >
                         KandyDrops

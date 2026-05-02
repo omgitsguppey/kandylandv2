@@ -36,6 +36,8 @@ export function ThumbnailsSlider({ assetCount, activeIndex, thumbnailItems, setA
                                 key={`thumb-${idx}`}
                                 type="button"
                                 onClick={() => setActiveIndex(idx)}
+                                aria-label={`Show asset ${idx + 1} of ${assetCount}`}
+                                aria-current={activeIndex === idx ? "true" : undefined}
                                 className={cn(
                                     "relative flex-[0_0_auto] w-16 h-16 md:w-20 md:h-20 rounded-xl overflow-hidden border-2 transition-all transform",
                                     activeIndex === idx
@@ -74,6 +76,7 @@ export function ThumbnailsSlider({ assetCount, activeIndex, thumbnailItems, setA
                     type="button"
                     onClick={() => emblaApi?.scrollPrev()}
                     disabled={activeIndex === 0}
+                    aria-label="Scroll thumbnails left"
                     className="w-8 h-8 flex items-center justify-center bg-black/60 backdrop-blur-md rounded-full border border-white/20 text-white shadow-xl pointer-events-auto disabled:opacity-30 transition-all hover:scale-110 active:scale-95"
                 >
                     <ChevronLeft className="w-4 h-4" />
@@ -82,6 +85,7 @@ export function ThumbnailsSlider({ assetCount, activeIndex, thumbnailItems, setA
                     type="button"
                     onClick={() => emblaApi?.scrollNext()}
                     disabled={activeIndex === assetCount - 1}
+                    aria-label="Scroll thumbnails right"
                     className="w-8 h-8 flex items-center justify-center bg-black/60 backdrop-blur-md rounded-full border border-white/20 text-white shadow-xl pointer-events-auto disabled:opacity-30 transition-all hover:scale-110 active:scale-95"
                 >
                     <ChevronRight className="w-4 h-4" />

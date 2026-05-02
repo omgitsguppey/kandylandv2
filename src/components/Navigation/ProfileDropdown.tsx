@@ -47,6 +47,7 @@ export function ProfileDropdown() {
                 aria-label="Open profile menu"
                 title="Profile menu"
                 aria-expanded={isOpen}
+                aria-haspopup="menu"
                 onClick={() => setIsOpen(!isOpen)}
                 className="flex items-center gap-3 pl-2 pr-4 py-1.5 rounded-full transition-colors border border-transparent"
             >
@@ -89,7 +90,7 @@ export function ProfileDropdown() {
                             </p>
                             <p className="text-xs text-gray-400 truncate">{secondaryIdentity}</p>
                         </div>
-                        <Link href="/dashboard/profile" onClick={() => setIsOpen(false)} className="p-2 rounded-full bg-white/5 border border-white/10" title="Settings">
+                        <Link href="/dashboard/profile" onClick={() => setIsOpen(false)} className="p-2 rounded-full bg-white/5 border border-white/10" title="Settings" aria-label="Open settings">
                             <Settings className="w-4 h-4 text-gray-300" />
                         </Link>
                     </div>

@@ -388,6 +388,7 @@ export function DropPreviewModal({ drop, onClose }: DropPreviewModalProps) {
                           onClose();
                           openAuthModal("signup");
                         }}
+                        aria-label="Create a profile to unlock this Drop"
                         className="absolute inset-0 z-10 bg-black/50 backdrop-blur-xl flex flex-col items-center justify-center p-4 transition-all hover:bg-black/60 group focus:outline-none"
                       >
                         <div className="bg-black/80 p-5 rounded-3xl border border-white/15 shadow-[0_0_30px_rgba(164,118,255,0.1)] flex flex-col items-center justify-center gap-3 text-center max-w-[240px] transition-transform group-hover:scale-105">
@@ -412,6 +413,7 @@ export function DropPreviewModal({ drop, onClose }: DropPreviewModalProps) {
                       "bg-brand-purple/15 border-brand-purple/30 text-brand-purple"
                   )}
                     aria-label={timerFullLabel || timerLabel || "Always available"}
+                    aria-live="off"
                     title={timerFullLabel || timerLabel || "Always available"}
                   >
                     <Clock className={cn("w-3.5 h-3.5", timerUrgency === "critical" ? "text-fuchsia-400" : timerUrgency === "warm" ? "text-[#b28cff]" : "text-brand-purple")} /> 
@@ -454,6 +456,7 @@ export function DropPreviewModal({ drop, onClose }: DropPreviewModalProps) {
                     <button
                       onClick={handleUnwrap}
                       disabled={unlocking}
+                      aria-pressed={confirming}
                       className={cn(
                         "flex min-h-14 w-full items-center justify-center gap-2 rounded-2xl border relative overflow-hidden px-4 py-3 text-center text-base font-bold leading-5 transition-all active:scale-95 shadow-lg",
                         (!canAfford || !confirming) && "bg-gradient-to-r from-brand-purple to-purple-500 text-white border-brand-purple shadow-[0_0_20px_rgba(164,118,255,0.4)] hover:opacity-95",

@@ -24,6 +24,16 @@ This file is not a changelog. It is the concise ledger for durable decisions tha
 
 ## Decision Entries
 
+### 1cn. Accessibility and tap-target semantics are a launch gate
+
+- Approximate date: Recorded explicitly on 2026-05-01 from the accessibility and tap-target launch audit
+- Status: Active launch accessibility, mobile tap-target, keyboard control, and admin/user control-state rule
+- Decision: Launch-critical KandyDrops controls must expose semantic roles, accessible names, visible/assistive state, and safe mobile tap areas. Product UI may stay visually compact, but controls cannot rely on visual state alone.
+- Implementation: `agent/state/accessibility-tap-target-audit.generated.json` records the audited top nav, bottom nav, drops, drop cards, wallet purchase modal, unlock modal, viewer, chat/messages, notifications, auth/onboarding, creator profile, Admin Overview/Analytics/Debug, 404, and shared modal/drawer/tab/filter/icon-button surfaces. `docs/agent-truth/accessibility-tap-targets.md` documents the human-readable doctrine. `scripts/agent/validate-accessibility-tap-targets.ts` and `npm run check:accessibility-tap-targets` enforce the launch gate.
+- Launch-critical fixes: active mobile/admin nav now exposes `aria-current`, icon-only profile/settings/wallet controls have accessible names, Drop preview buttons and viewer thumbnails have explicit labels/current state, Drop timers avoid live-region spam, Admin Analytics/Debug tabs expose pressed state, and the custom wallet modal now has dialog semantics, focus containment, Escape close, selector pressed states, and alert errors.
+- Required validation: `npm run check:accessibility-tap-targets`, focused component/static tests, touched-file TypeScript, and UI coverage/runtime lanes when launch-critical controls change.
+- Consequence for future work: Do not add clickable non-buttons, unnamed icon buttons, visual-only active tabs/filters/nav, live-announced countdowns, or undersized mobile controls without documenting the exception and extending the validator.
+
 ### 1cm. PWA service worker behavior is single-worker and notification-safe
 
 - Approximate date: Recorded explicitly on 2026-05-01 from the PWA, service worker, and mobile install launch audit

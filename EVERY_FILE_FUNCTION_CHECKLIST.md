@@ -1,13 +1,22 @@
 # EVERY FILE FUNCTION CHECKLIST
 
 **Last Updated:** 2026-05-01
-**Current Focus:** Launch Readiness Final Gate.
+**Current Focus:** Accessibility Tap Target Launch Audit.
 **Status:** In Progress. Current tracked-file coverage is reconciled as of 2026-04-28: every `git ls-files` entry has a current checklist heading, while detailed function-level audits remain pending for many historical and newly reconciled files.
 Purpose: exhaustive no-skip audit checklist covering every repository file currently in scope and every detected function-like implementation.
 
 Scoring: all entries below are marked as included in the current validated sweep. Confidence reflects current repository-state confidence, not perfection or future-proofing.
 
 Current repo-wide state snapshot: see [FULL_SCALE_CODEBASE_AUDIT.md](/Users/uylus/OneDrive/Documents/KandyDrops_Final/FULL_SCALE_CODEBASE_AUDIT.md) for the current live baseline, verification state, and continuity rules, and see [REPO_MEMORY_LEDGER.md](/Users/uylus/OneDrive/Documents/KandyDrops_Final/REPO_MEMORY_LEDGER.md) for major architectural and workflow decisions. The detailed file/function body below remains valuable historical evidence, but it has not been fully regenerated against the current 2026-04-18 inventory review yet.
+
+## 2026-05-01 Accessibility Tap Target Launch Audit Coverage
+
+- [x] `src/components/Navigation/MobileBottomBar.tsx`, `src/components/Navbar.tsx`, `src/components/Navigation/AdminDropdown.tsx`, and `src/components/Navigation/ProfileDropdown.tsx` expose mobile/admin active state, navigation labels, icon-only accessible names, and menu expanded/haspopup semantics.
+- [x] `src/components/DropCardLayout.tsx`, `src/components/DropCardParts.tsx`, `src/components/DropPreviewModal.tsx`, and `src/components/DropCardCta.tsx` preserve semantic Drop preview/unlock actions, timer title/aria labels without live ticking announcements, and Radix Dialog focus behavior for Drop preview.
+- [x] `src/components/PurchaseModal.tsx` now provides custom modal dialog semantics, initial focus, Tab focus containment, Escape close, package/bundle pressed states, labelled controls, and alert-role payment errors.
+- [x] `src/app/dashboard/viewer/components/ThumbnailsSlider.tsx` labels thumbnail and scroll icon controls and marks the active thumbnail state.
+- [x] `src/app/admin/analytics/page.tsx`, `src/app/admin/debug/page.tsx`, `src/components/Admin/AdminDashboardModule.tsx`, `src/components/StickyFilterBar.tsx`, `src/components/Chat/ChatExperience.tsx`, `src/components/Navigation/NotificationBell.tsx`, and `src/components/ui/NotFoundSurface.tsx` are covered by the launch control-state scan for pressed/expanded/current state, labelled actions, return links, and semantic controls.
+- [x] `agent/state/accessibility-tap-target-audit.generated.json`, `docs/agent-truth/accessibility-tap-targets.md`, `scripts/agent/validate-accessibility-tap-targets.ts`, `package.json`, and `tests/unit/accessibility-tap-targets.spec.ts` record and validate the accessibility/tap-target launch gate.
 
 ## 2026-05-01 PWA Service Worker Mobile Install Launch Audit Coverage
 

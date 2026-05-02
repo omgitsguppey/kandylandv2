@@ -71,6 +71,7 @@ function MobileBottomBarInner() {
             style={{ bottom: USER_MOBILE_BOTTOM_NAV_BOTTOM_OFFSET }}
         >
             <nav
+                aria-label="Mobile navigation"
                 className="pointer-events-auto mx-auto flex max-w-7xl items-center justify-between rounded-full border border-white/10 bg-black/55 px-3.5 py-2 shadow-xl shadow-black/40 backdrop-blur-xl"
                 style={{ WebkitBackdropFilter: "blur(20px)" }}
             >
@@ -85,12 +86,14 @@ function MobileBottomBarInner() {
                     if (item.action === "purchase") {
                         return (
                             <button
+                                type="button"
                                 key={item.label}
                                 onClick={() => {
                                     triggerHaptic();
                                     trackEvent("navigation_click", { destination: "wallet", source: "mobile_bottom_bar" });
                                     openPurchaseModal();
                                 }}
+                                aria-label="Open wallet"
                                 className={cn(
                                     "flex h-10 min-w-0 flex-1 flex-col items-center justify-center gap-1 rounded-full px-2 py-1 text-center transition-colors active:scale-95",
                                     "text-gray-400"
@@ -107,6 +110,7 @@ function MobileBottomBarInner() {
                             key={item.label}
                             href={item.href}
                             data-onboarding-target={`${item.label.toLowerCase()}-nav`}
+                            aria-current={isActive ? "page" : undefined}
                             onClick={() => {
                                 triggerHaptic();
                                 trackEvent('navigation_click', { destination: item.href, source: 'mobile_bottom_bar' });
