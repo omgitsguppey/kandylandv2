@@ -98,6 +98,7 @@ interface FilesAndAssetsSectionProps {
     initialContentAssets: UploadedAsset[];
     onCoverAssetsChange: (assets: UploadedAsset[]) => void;
     onContentAssetsChange: (assets: UploadedAsset[]) => void;
+    serverUploadEndpoint: string;
     aiPanel?: ReactNode;
     errors: FieldErrors<DropFormData>;
 }
@@ -152,6 +153,7 @@ const FilesAndAssetsSection = memo(function FilesAndAssetsSection({
     initialContentAssets,
     onCoverAssetsChange,
     onContentAssetsChange,
+    serverUploadEndpoint,
     aiPanel,
     errors,
 }: FilesAndAssetsSectionProps) {
@@ -193,6 +195,7 @@ const FilesAndAssetsSection = memo(function FilesAndAssetsSection({
                         initialUrl={imageUrl}
                         initialType="image/png"
                         onChange={onCoverAssetsChange}
+                        serverUploadEndpoint={serverUploadEndpoint}
                     />
                     {errors.imageUrl && <p className="text-red-400 text-xs">{errors.imageUrl.message}</p>}
 
@@ -209,6 +212,7 @@ const FilesAndAssetsSection = memo(function FilesAndAssetsSection({
                         initialType={contentType}
                         onChange={onContentAssetsChange}
                         disableCrop={true}
+                        serverUploadEndpoint={serverUploadEndpoint}
                     />
                     {(errors.contentUrls || errors.contentUrl) && (
                         <p className="text-red-400 text-xs">{errors.contentUrls?.message || errors.contentUrl?.message}</p>
@@ -870,6 +874,7 @@ export function CreateDropModal({ isOpen, onClose, dropId, duplicateFromId, onSu
                                         initialContentAssets={contentAssets}
                                         onCoverAssetsChange={handleCoverAssetsChange}
                                         onContentAssetsChange={handleContentAssetsChange}
+                                        serverUploadEndpoint={mode === "creator" ? "/api/creator/drops/assets" : "/api/admin/content"}
                                         aiPanel={mode === "admin" ? (
                                             <AiDropCoverGeneratorPanel
                                                 visible={uploadsOpen}

@@ -24,6 +24,16 @@ This file is not a changelog. It is the concise ledger for durable decisions tha
 
 ## Decision Entries
 
+### 1cj. Security role boundaries are server-mediated by actor lane
+
+- Approximate date: Recorded explicitly on 2026-05-01 from the security, rules, and role-boundary launch audit
+- Status: Active launch security, Firebase rules, protected route, and actor-boundary rule
+- Decision: KandyDrops actor lanes are explicit: guests get public/drop-preview-safe data only; authenticated users get owner-scoped data; creators get creator-owned submission and chat surfaces; admins get admin-only APIs and diagnostics; system jobs use scheduled functions or shared-secret cron adapters; unknown actors never become authenticated users.
+- Implementation: `agent/state/security-role-boundary-audit.generated.json` records protected routes, Firebase rules, storage paths, realtime paths, admin/creator/wallet/unlock/chat/notification/content boundaries, exploit scenarios, and required tests. `docs/agent-truth/security-role-boundaries.md` is the human-readable doctrine. `scripts/agent/validate-security-role-boundaries.ts` and `npm run check:security-role-boundaries` enforce admin guards, trusted-origin state changes, server-only Drop assets, money/access route contracts, chat/notification ownership, and client/server module boundaries.
+- Launch-critical fix: raw `storage:drops/**` client reads/writes are denied. Drop asset uploads are server-mediated through `/api/admin/content` and `/api/creator/drops/assets`; protected content reads stay behind `/api/drops/content` entitlement checks. The `/api/admin/analytics` redirect shim now has an explicit admin guard.
+- Required validation: `npm run check:security-role-boundaries`, touched-file TypeScript, affected route tests, and Firebase rules tests when rules change.
+- Consequence for future work: Do not add admin APIs without `auth: "admin"`, state-changing admin APIs without `requireTrustedOrigin: true`, direct client Drop storage access, client-authoritative wallet/unlock writes, public-readable admin/debug analytics, or client imports of server-only modules.
+
 ### 1ci. Launch readiness final gate is launchable with warnings
 
 - Approximate date: Recorded explicitly on 2026-05-01 from the final launch readiness gate

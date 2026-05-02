@@ -156,9 +156,16 @@ describe("storage.rules", () => {
     );
   });
 
-  it("allows authenticated users to fetch an individual drop asset", async () => {
+  it("blocks direct client reads of drop assets; entitlement must go through server proxy", async () => {
     const storage = testEnv.authenticatedContext("alice").storage();
-    await assertSucceeds(storage.ref(DROP_FILE_PATH).getDownloadURL());
+    await assertFails(storage.ref(DROP_FILE_PATH).getDownloadURL());
+  });
+
+  it("blocks direct client writes to drop assets", async () => {
+    const storage = testEnv.authenticatedContext("alice").storage();
+    await assertFails(
+      uploadStringWithRules(storage, "drops/content/direct-upload.png", "drop-asset", "image/png"),
+    );
   });
 
   it("blocks client-side listing of the drops folder", async () => {

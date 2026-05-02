@@ -32,9 +32,11 @@ service firebase.storage {
     }
 
     match /drops/{allPaths=**} {
-      allow get: if isSignedIn();
+      // Drop assets are served by server-side routes after admin/creator/entitlement checks.
+      // Direct client SDK access cannot prove drop entitlement from this path shape.
+      allow get: if false;
       allow list: if false;
-      allow write: if isSignedIn();
+      allow write: if false;
     }
 
     match /landing/{allPaths=**} {

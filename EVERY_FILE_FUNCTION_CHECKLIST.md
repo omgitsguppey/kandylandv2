@@ -9,6 +9,15 @@ Scoring: all entries below are marked as included in the current validated sweep
 
 Current repo-wide state snapshot: see [FULL_SCALE_CODEBASE_AUDIT.md](/Users/uylus/OneDrive/Documents/KandyDrops_Final/FULL_SCALE_CODEBASE_AUDIT.md) for the current live baseline, verification state, and continuity rules, and see [REPO_MEMORY_LEDGER.md](/Users/uylus/OneDrive/Documents/KandyDrops_Final/REPO_MEMORY_LEDGER.md) for major architectural and workflow decisions. The detailed file/function body below remains valuable historical evidence, but it has not been fully regenerated against the current 2026-04-18 inventory review yet.
 
+## 2026-05-01 Security Role Boundary Launch Audit Coverage
+
+- [x] `storage.rules` denies direct client reads/writes under `drops/**`; Drop assets now require server-mediated upload/proxy paths.
+- [x] `src/app/api/admin/analytics/route.ts` runs an explicit admin guard before redirecting to protected analytics lanes.
+- [x] `src/app/api/creator/drops/assets/route.ts` lets only trusted-origin authenticated creators upload Drop submission assets through Firebase Admin Storage.
+- [x] `src/components/Admin/AssetUploader.tsx` and `src/components/Admin/CreateDropModal.tsx` send admin/creator Drop asset uploads through guarded server routes instead of direct `drops/**` Storage writes.
+- [x] `tests/firebase/storage.rules.spec.ts`, `tests/unit/admin-analytics-redirect-route.spec.ts`, and `tests/unit/creator-drops-assets-route.spec.ts` cover the launch-critical boundary fixes.
+- [x] `agent/state/security-role-boundary-audit.generated.json`, `docs/agent-truth/security-role-boundaries.md`, `scripts/agent/validate-security-role-boundaries.ts`, and `npm run check:security-role-boundaries` record and validate the actor-lane audit.
+
 ## 2026-05-01 Launch Readiness Final Gate Coverage
 
 - [x] `agent/state/launch-readiness-report.generated.json` records the final launch status, blockers, risks, tests run, limitations, open PR recommendations, tiny launch-blocking fixes, and go/no-go recommendation.

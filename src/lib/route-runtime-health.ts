@@ -577,6 +577,12 @@ export const ROUTE_RUNTIME_HEALTH_TARGETS = {
                 title: "Creator Drops runtime",
                 slowThresholdMs: 1200,
             },
+    "creator/drops/assets:POST": {
+                routeName: "creator/drops/assets",
+                method: "POST",
+                title: "Creator Drop Assets runtime",
+                slowThresholdMs: 1200,
+            },
     "creator/drops:PUT": {
                 routeName: "creator/drops",
                 method: "PUT",

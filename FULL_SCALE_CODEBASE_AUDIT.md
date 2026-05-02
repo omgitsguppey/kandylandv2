@@ -1,5 +1,39 @@
 # KandyDrops Core Codebase Audit & Defensive Ledger
 
+## [2026-05-01 #80] PRE: Security Role Boundary Launch Audit
+
+Scope started:
+- Auditing Firebase rules, storage/database paths, protected Next.js routes, Functions, server-only helpers, admin surfaces, creator surfaces, wallet/payment/unlock/content access, chat/messages, notifications, analytics/debug, and actor-lane boundaries for launch.
+- Required outputs: `agent/state/security-role-boundary-audit.generated.json`, `docs/agent-truth/security-role-boundaries.md`, validator/script/package wiring, and governance ledger updates.
+- Fixes are limited to verified launch-critical role-boundary gaps; no UI redesign, broad refactor, or feature work is in scope.
+
+Initial evidence:
+- Worktree was clean at startup on `main`.
+- Control tower routing, source-of-truth map, product/cloud doctrine, security best-practice references, launch readiness report, payment/unlock entitlement doctrine, and recent governance ledgers were consulted.
+- `rg` failed with an environment access-denied error, so this pass uses PowerShell enumeration and direct file reads for route/rules inventory.
+
+Scope completed:
+- Audited Firebase Firestore rules, Realtime Database rules, Storage rules, protected API routes, admin pages/APIs, creator/drop upload paths, wallet/payment/unlock/content access, chat, notifications, cron/system jobs, Functions triggers, and client/server module boundaries.
+- Created `agent/state/security-role-boundary-audit.generated.json`, `docs/agent-truth/security-role-boundaries.md`, and `scripts/agent/validate-security-role-boundaries.ts` with `npm run check:security-role-boundaries`.
+- Fixed launch-critical gaps: `/api/admin/analytics` now has an explicit admin guard before redirecting, and raw `storage:drops/**` client access is denied.
+- Moved Drop asset uploads through guarded server routes: admin uploads use `/api/admin/content`, creator submissions use the new `/api/creator/drops/assets`, and `/api/drops/content` remains the entitlement-checked read proxy.
+
+Verification:
+- `npm run check:security-role-boundaries`
+- `npm run check:route-runtime-parity`
+- `npm run typecheck`
+- `npx vitest run tests/unit/admin-analytics-redirect-route.spec.ts tests/unit/creator-drops-assets-route.spec.ts tests/unit/admin-content-route.spec.ts tests/unit/drops-content-route.spec.ts tests/unit/drops-unlock-route.spec.ts tests/unit/paypal-capture-route.spec.ts tests/unit/chat-thread-route.spec.ts tests/unit/chat-thread-messages-route.spec.ts tests/unit/notifications-route.spec.ts tests/unit/admin-debug-route-runtime.spec.ts`
+- `npm run check:firebase:rules`
+- `npm run check:functions`
+- `npm run check:generated-artifacts`
+- `git diff --check`
+- `npx vitest run tests/unit/admin-analytics-redirect-route.spec.ts tests/unit/creator-drops-assets-route.spec.ts tests/unit/admin-content-route.spec.ts tests/unit/drops-content-route.spec.ts`
+- `npm run test:rules:storage`
+
+Residual risk:
+- Existing Firebase download-token URLs remain bearer URLs if already stored or leaked; public APIs continue to avoid exposing protected content URLs, and new client SDK minting for `drops/**` is blocked by rules.
+- Admin pages still use client-side layout gating for the shell, while admin data access is enforced by server/API and Firestore rules.
+
 ## [2026-05-01 #79] PRE: Launch Readiness Final Gate
 
 Scope started:

@@ -10,6 +10,7 @@ import Cropper, { Area } from "react-easy-crop";
 import { trackEvent } from "@/lib/telemetry";
 import { generateSecureClientId } from "@/lib/client-random";
 import { reportClientIssue } from "@/lib/client-error-reporting";
+import { authFetch } from "@/lib/authFetch";
 
 export type UploadAspectRatio = "1:1" | "16:9" | "9:16";
 
@@ -49,6 +50,7 @@ interface AssetUploaderProps {
   onChange: (assets: UploadedAsset[]) => void;
   accept: string;
   disableCrop?: boolean;
+  serverUploadEndpoint?: string;
 }
 
 const RATIO_OPTIONS: UploadAspectRatio[] = ["1:1", "16:9", "9:16"];
@@ -154,6 +156,7 @@ export function AssetUploader({
   onChange,
   accept,
   disableCrop = false,
+  serverUploadEndpoint,
 }: AssetUploaderProps) {
     const [assets, setAssets] = useState<AssetDraft[]>(() => createInitialAssets(initialAssets, initialUrl, initialType));
     const inputRef = useRef<HTMLInputElement>(null);
@@ -222,6 +225,50 @@ export function AssetUploader({
         uploadBlob = await buildCroppedBlobPixels(originalFile, pixelsToCrop);
         uploadExtension = "jpg";
         uploadType = "image/jpeg";
+      }
+
+      if (serverUploadEndpoint) {
+        const formData = new FormData();
+        const baseUploadName = target.fileName || originalFile.name || `${target.id}.${uploadExtension}`;
+        const uploadName = !disableCrop && target.kind === "image" && pixelsToCrop
+          ? `${baseUploadName.replace(/\.[A-Za-z0-9]+$/u, "")}.${uploadExtension}`
+          : baseUploadName;
+        formData.append("file", uploadBlob, uploadName);
+
+        const response = await authFetch(serverUploadEndpoint, {
+          method: "POST",
+          body: formData,
+        });
+        const result = await response.json() as {
+          file?: {
+            url?: string;
+            contentType?: string;
+            size?: number;
+            name?: string;
+            fullPath?: string;
+          };
+          error?: string;
+        };
+
+        if (!response.ok || !result.file?.url) {
+          throw new Error(result.error || "Asset upload failed");
+        }
+
+        try {
+          trackEvent('asset_upload_success', { kind: target.kind, format: uploadExtension, upload_path: "server" });
+        } catch (e) { }
+
+        setAssets((current) => current.map((item) => item.id === target.id
+          ? {
+            ...item,
+            uploadUrl: result.file?.url,
+            uploadType: result.file?.contentType || uploadType,
+            uploadSize: result.file?.size || uploadBlob.size,
+            fileName: result.file?.name || target.fileName,
+            uploading: false,
+          }
+          : item));
+        return;
       }
 
       const storageRef = ref(storage, `${folder}/${Date.now()}_${target.id}.${uploadExtension}`);
