@@ -1,5 +1,36 @@
 # KandyDrops Core Codebase Audit & Defensive Ledger
 
+## [2026-05-02 #95] PRE: Admin Roster Decision Queue Refactor
+
+Scope started:
+- Refactoring `src/app/admin/roster/page.tsx` from mixed intake/live/create cockpit into a mobile-first decision queue with `Needs Review`, `Waiting`, `Approved`, and `Create` tabs.
+- Required outputs: compact operator copy, collapsed legal/audit sections, owner-only collapsed owner controls, identity-marked roster telemetry, `scripts/agent/validate-admin-roster-decision-queue.ts`, focused tests, `docs/agent-truth/admin-roster-decision-queue.md`, creator identity marker doc updates, governance ledger updates, commit, and push.
+- This pass is targeted. It must not remove legal/audit functionality, alter creator onboarding truth, invent raw enum UI, create fake chips, broaden into unrelated Admin redesign, or change payment/economy flows.
+
+Initial evidence:
+- Worktree was clean at startup on `main`.
+- Control tower routing, source-of-truth map, shared component ownership, preflight/postflight checklists, and doctrine files for product, UI, copy, surface matrix, vocabulary, anti-patterns, GA/cloud truth, and decision checklist were consulted.
+- Task is a bounded Admin Roster UI/copy/telemetry refactor. Source truth remains runtime code first, especially `src/app/admin/roster/page.tsx`, `src/app/api/admin/roster/route.ts`, `src/lib/creator-onboarding.ts`, and `src/lib/identity/actor-markers.ts`.
+
+Scope completed:
+- Added `src/app/admin/roster/decision-queue.ts` for decision tabs, queue classification, plain-English action/status labels, detail section keys, and identity-marked Admin Roster telemetry payloads.
+- Updated `src/app/admin/roster/page.tsx` to present `Needs Review`, `Waiting`, `Approved`, and `Create`; compact mobile summary cards; short one-tap rows; a stacked detail panel; and collapsed Agreement, ID, Audit, Admin Notes, and owner-only Owner Controls sections.
+- Added `admin_roster_tab_changed`, `admin_creator_record_opened`, `admin_creator_primary_action_clicked`, and `admin_creator_section_expanded` to the telemetry catalog and preserved creator identity marker payloads.
+- Created `docs/agent-truth/admin-roster-decision-queue.md`, updated `docs/agent-truth/creator-identity-markers.md`, added `scripts/agent/validate-admin-roster-decision-queue.ts`, and added focused decision queue tests.
+
+Verification:
+- `npm run check:admin-roster-decision-queue`
+- `npx vitest run tests/unit/admin-roster-decision-queue.spec.ts tests/contracts/telemetry-contracts.spec.ts`
+- `npm run check:analytics-event-contract`
+- `npm run typecheck`
+- `npx vitest run tests/unit/admin-roster-decision-queue.spec.ts tests/unit/admin-roster-route.spec.ts tests/contracts/telemetry-contracts.spec.ts`
+- `npm run check:creator-identity-markers`
+- `git diff --check`
+
+Residual risk:
+- No local fast mobile Admin Roster visual audit was discoverable by script/test search. The refactor was verified through static validation, focused helper tests, route coverage, telemetry contract checks, TypeScript, and diff hygiene.
+- `src/app/admin/roster/page.tsx` remains a large legacy client page after this targeted pass. The decision and telemetry logic is now isolated, but a future non-launch pass should move the list, detail, and create form into separate view components.
+
 ## [2026-05-02 #94] PRE: Creator Identity Marker Hardening
 
 Scope started:

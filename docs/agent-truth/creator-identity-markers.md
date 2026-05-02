@@ -79,6 +79,7 @@ These raw ids are Debug evidence. Do not expose them as visible creator-facing U
 - Owner-only onboarding bypass and live creator creation are `actorType: owner_admin` with `performedAs: owner_override`.
 - Creator settings updates use `creator_experiences`; admin restriction updates from that route must still declare `performedAs`.
 - System projections may use `system_job`, but they should preserve the affected target id.
+- Admin Roster decision queue UI events must emit identity-marked payloads for tab changes, record opens, primary actions, and collapsed section expansion. These UI telemetry events still use `actorType: admin` or `owner_admin` and must include `targetUserId` when a creator record is selected.
 
 ## Validation
 

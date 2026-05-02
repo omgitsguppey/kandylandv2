@@ -17,6 +17,13 @@ Current repo-wide state snapshot: see [FULL_SCALE_CODEBASE_AUDIT.md](/Users/uylu
 - [x] `src/lib/server/analytics.ts` and `src/lib/analytics/analytics-event-contract.ts` preserve explicit actor markers, include `owner_admin`, and keep admin/owner/system/unknown events out of user behavior analytics unless explicitly classified.
 - [x] `scripts/agent/validate-creator-identity-markers.ts`, `tests/unit/actor-markers.spec.ts`, `docs/agent-truth/creator-identity-markers.md`, and `docs/agent-truth/analytics-actor-taxonomy.md` cover the launch identity-marker contract.
 
+## 2026-05-02 Admin Roster Decision Queue Coverage
+
+- [x] `src/app/admin/roster/decision-queue.ts` owns decision tab labels, creator queue classification, primary action copy, status label mapping, detail section keys, and identity-marked roster telemetry payload construction.
+- [x] `src/app/admin/roster/page.tsx` presents `Needs Review`, `Waiting`, `Approved`, and `Create` as the primary Admin Roster model with compact mobile rows, compact summary cards, stacked mobile detail, and collapsed legal/audit/owner sections.
+- [x] `src/lib/telemetry-catalog.ts` catalogs `admin_roster_tab_changed`, `admin_creator_record_opened`, `admin_creator_primary_action_clicked`, and `admin_creator_section_expanded`.
+- [x] `scripts/agent/validate-admin-roster-decision-queue.ts`, `tests/unit/admin-roster-decision-queue.spec.ts`, and `docs/agent-truth/admin-roster-decision-queue.md` validate the decision queue contract.
+
 ## 2026-05-02 Final Launch Readiness Report Coverage
 
 - [x] `agent/state/final-launch-readiness-report.generated.json` records all required launch gates with status, evidence files, validations run, blockers, warnings, launch recommendation, and post-launch tasks.
