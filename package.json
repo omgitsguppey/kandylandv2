@@ -89,6 +89,7 @@
         "check:creator-lane-legacy-truth-inventory": "tsx scripts/agent/validate-creator-lane-legacy-truth-inventory.ts",
         "check:creator-projection-normalizer": "tsx scripts/agent/validate-creator-projection-normalizer.ts",
         "check:creator-review-queue-materializer": "tsx scripts/agent/validate-creator-review-queue-materializer.ts",
+        "check:legacy-creator-application-migration": "tsx scripts/agent/validate-legacy-creator-application-migration.ts",
         "check:admin-analytics-snapshot-migration": "tsx scripts/agent/validate-admin-analytics-snapshot-migration.ts",
         "check:admin-analytics-no-pure-realtime": "tsx scripts/agent/validate-admin-analytics-no-pure-realtime.ts",
         "check:admin-analytics-finalization": "tsx scripts/agent/validate-admin-analytics-finalization.ts",

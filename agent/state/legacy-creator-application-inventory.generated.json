@@ -1,0 +1,33 @@
+{
+  "generatedAt": "2026-05-02T16:39:34.413Z",
+  "mode": "dry-run",
+  "writeRequested": false,
+  "writeModeImplemented": false,
+  "runtimeAvailable": true,
+  "requiredEntryFields": [
+    "userId",
+    "hasLegacyCreatorApplication",
+    "hasCanonicalCreatorOnboarding",
+    "hasReviewQueueEntry",
+    "migrationNeeded",
+    "mappingConfidence",
+    "missingFields",
+    "blockingRisks",
+    "recommendedAction"
+  ],
+  "rules": {
+    "dryRunDefault": true,
+    "canonicalFirst": "Backfill creates creator_onboarding before rebuilding creator_review_queue and users.creatorApplication projection.",
+    "projectionOnly": "users/{uid}.creatorApplication remains a projection and legacy-compatible read path.",
+    "noSignatureInference": "Legacy legal/signature completion is not inferred without timestamp, signer, and agreement identity evidence."
+  },
+  "totals": {
+    "scannedUsers": 0,
+    "legacyCreatorApplications": 0,
+    "canonicalCreatorOnboarding": 0,
+    "reviewQueueEntries": 0,
+    "migrationNeeded": 0,
+    "backfillCandidates": 0
+  },
+  "entries": []
+}

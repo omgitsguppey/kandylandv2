@@ -26,6 +26,7 @@ import {
     CREATOR_REVIEW_QUEUE_COLLECTION,
     materializeCreatorReviewQueueEntryForTransaction,
 } from "@/lib/server/creator-review-queue";
+import { mapLegacyCreatorApplicationToCanonical } from "@/lib/server/creator-onboarding-legacy-adapter";
 import type { CreatorApplication, UserProfile } from "@/types/db";
 
 export const CREATOR_ONBOARDING_HISTORY_SUBCOLLECTION = "history";
@@ -430,17 +431,17 @@ export function syncCreatorOnboardingDocuments(
     const onboardingRef = adminDb.collection(CREATOR_ONBOARDING_COLLECTION).doc(input.userId);
     const userRef = adminDb.collection("users").doc(input.userId);
     const creatorApplication = buildCreatorOnboardingUserProjection(input.canonical);
+
+    transaction.set(onboardingRef, stripUndefinedDeep(input.canonical), { merge: true });
+    transaction.set(userRef, stripUndefinedDeep({
+        creatorApplication,
+    }), { merge: true });
     const materializedQueue = materializeCreatorReviewQueueEntryForTransaction(transaction, {
         userId: input.userId,
         canonical: input.canonical,
         displayName: input.displayName,
         nowMs: input.canonical.updatedAt,
     });
-
-    transaction.set(onboardingRef, stripUndefinedDeep(input.canonical), { merge: true });
-    transaction.set(userRef, stripUndefinedDeep({
-        creatorApplication,
-    }), { merge: true });
 
     return {
         creatorApplication,
@@ -495,53 +496,73 @@ export async function ensureCreatorOnboardingSubmission(input: {
         const userData = (userSnap.data() as Record<string, unknown> | undefined) ?? {};
         const existingProjection = normalizeCreatorApplication(userData.creatorApplication);
         const existingCanonical = normalizeCreatorOnboardingCanonicalRecord(onboardingSnap.data());
+        const legacyMapping = mapLegacyCreatorApplicationToCanonical({
+            userId: input.userId,
+            userDoc: userData,
+            existingCanonical,
+            nowMs,
+        });
         const queuePosition = resolveCreatorQueuePosition(
             existingCanonical?.queuePosition ?? existingProjection?.queuePosition,
         );
-        const canonical = buildCreatorOnboardingCanonicalRecord({
-            userId: input.userId,
-            email: input.email ?? (typeof userData.email === "string" ? userData.email : null),
-            username: readString(input.username) || readString(userData.username) || undefined,
-            displayName: readString(input.displayName) || readString(userData.displayName) || undefined,
-            photoURL: typeof input.photoURL === "string"
-                ? input.photoURL
-                : typeof userData.photoURL === "string"
-                    ? userData.photoURL
-                    : null,
-            role: readRole(input.role ?? userData.role),
-            createdAt: input.createdAt
-                ?? readOptionalTimestamp(userData.createdAt)
-                ?? existingCanonical?.createdAt
-                ?? existingProjection?.submittedAt
-                ?? nowMs,
-            queuePosition,
-            creatorDisplayName: input.creatorDisplayName,
-            creatorMonetizationGoals: input.creatorMonetizationGoals,
-            creatorPrimaryPlatform: input.creatorPrimaryPlatform,
-            creatorFollowerRange: input.creatorFollowerRange,
-            creatorPostingFrequency: input.creatorPostingFrequency,
-            creatorContentFocus: input.creatorContentFocus,
-            fansAlreadyAskForAccess: input.fansAlreadyAskForAccess,
-            creatorRecommendedSetup: input.creatorRecommendedSetup,
-            intakeVersion: input.intakeVersion,
-            intakeSubmittedAt: input.intakeSubmittedAt ?? nowMs,
-            intakeSource: input.intakeSource,
-            nowMs,
-            source: existingCanonical ?? existingProjection ?? {
-                submissionStatus: "awaiting_manual_review",
-                onboardingStartedAt: nowMs,
-                submittedAt: nowMs,
-                onboardingSubmittedAt: nowMs,
-                awaitingManualReviewAt: nowMs,
-                updatedAt: nowMs,
-                idVerificationStatus: "id_not_requested",
-                contractVersion: activeAgreementTemplate.agreementVersion,
-                agreementTemplateId: activeAgreementTemplate.templateId,
-                agreementTitle: activeAgreementTemplate.agreementTitle,
-                agreementHash: activeAgreementTemplate.agreementHash,
-                agreementSource: activeAgreementTemplate.agreementSource,
-            },
-        });
+        const canonicalSource = existingCanonical ?? legacyMapping.canonical ?? existingProjection ?? {
+            submissionStatus: "awaiting_manual_review",
+            onboardingStartedAt: nowMs,
+            submittedAt: nowMs,
+            onboardingSubmittedAt: nowMs,
+            awaitingManualReviewAt: nowMs,
+            updatedAt: nowMs,
+            idVerificationStatus: "id_not_requested",
+            contractVersion: activeAgreementTemplate.agreementVersion,
+            agreementTemplateId: activeAgreementTemplate.templateId,
+            agreementTitle: activeAgreementTemplate.agreementTitle,
+            agreementHash: activeAgreementTemplate.agreementHash,
+            agreementSource: activeAgreementTemplate.agreementSource,
+        };
+        const canonical = {
+            ...buildCreatorOnboardingCanonicalRecord({
+                userId: input.userId,
+                email: input.email ?? (typeof userData.email === "string" ? userData.email : null),
+                username: readString(input.username) || readString(userData.username) || undefined,
+                displayName: readString(input.displayName) || readString(userData.displayName) || undefined,
+                photoURL: typeof input.photoURL === "string"
+                    ? input.photoURL
+                    : typeof userData.photoURL === "string"
+                        ? userData.photoURL
+                        : null,
+                role: readRole(input.role ?? userData.role),
+                createdAt: input.createdAt
+                    ?? readOptionalTimestamp(userData.createdAt)
+                    ?? existingCanonical?.createdAt
+                    ?? existingProjection?.submittedAt
+                    ?? nowMs,
+                queuePosition,
+                creatorDisplayName: input.creatorDisplayName,
+                creatorMonetizationGoals: input.creatorMonetizationGoals,
+                creatorPrimaryPlatform: input.creatorPrimaryPlatform,
+                creatorFollowerRange: input.creatorFollowerRange,
+                creatorPostingFrequency: input.creatorPostingFrequency,
+                creatorContentFocus: input.creatorContentFocus,
+                fansAlreadyAskForAccess: input.fansAlreadyAskForAccess,
+                creatorRecommendedSetup: input.creatorRecommendedSetup,
+                intakeVersion: input.intakeVersion,
+                intakeSubmittedAt: input.intakeSubmittedAt ?? nowMs,
+                intakeSource: input.intakeSource,
+                nowMs,
+                source: canonicalSource,
+            }),
+            ...(!existingCanonical && legacyMapping.legacyCreatorApplicationDetected
+                ? {
+                    legacyCreatorApplicationDetected: true,
+                    legacyCreatorApplicationMapped: legacyMapping.legacyCreatorApplicationMapped,
+                    legacyCreatorApplicationSkipped: legacyMapping.legacyCreatorApplicationSkipped,
+                    mappingConfidence: legacyMapping.mappingConfidence,
+                    mappingWarnings: legacyMapping.mappingWarnings,
+                    legacyConfidence: legacyMapping.legacyConfidence,
+                    legacyMappedAt: legacyMapping.legacyMappedAt ?? nowMs,
+                }
+                : {}),
+        } satisfies CreatorOnboardingCanonicalRecord & Record<string, unknown>;
 
         const synced = syncCreatorOnboardingDocuments(transaction, {
             userId: input.userId,

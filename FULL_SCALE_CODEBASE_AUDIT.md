@@ -1,5 +1,31 @@
 # KandyDrops Core Codebase Audit & Defensive Ledger
 
+## [2026-05-02 #106] PRE: Legacy Creator Application Migration Adapter
+
+Scope started:
+- Adding one targeted legacy `users/{uid}.creatorApplication` migration adapter so old creator projection records can be inventoried and mapped into canonical `creator_onboarding/{uid}` without making the nested user blob the future source of truth.
+- Required outputs: server adapter, dry-run inventory script/report, validation command, focused tests, docs/ledger updates, targeted validation, dry-run inventory, TypeScript, creator onboarding tests, `git diff --check`, commit, and push.
+- This pass must not redesign creator UI, create a parallel onboarding collection, infer legal/signature completion without evidence, overwrite existing canonical onboarding with weaker legacy projection data, or add default write-mode migration.
+
+Initial evidence:
+- Control tower routing, agent roles/capabilities, source-of-truth map, product/copy/UI doctrine, surface matrix, banned patterns, decision checklist, generated fast-start context, governance ledgers, and `trace:adjacent` for `src/lib/server/creator-onboarding.ts` were consulted.
+- Runtime owners inspected first: `src/lib/creator-onboarding.ts`, `src/lib/creator-application.ts`, `src/lib/server/creator-onboarding.ts`, `src/lib/server/creator-review-queue.ts`, `/api/user/register`, creator onboarding tests, and the existing creator lane truth inventory.
+
+Scope completed:
+- Added `src/lib/server/creator-onboarding-legacy-adapter.ts` with bounded legacy projection reads, canonical mapping, projection rebuild, backfill detection, and mapping explanation helpers.
+- Updated `ensureCreatorOnboardingSubmission(...)` to prefer canonical onboarding, then sanitized legacy adapter mapping, then raw projection fallback; `syncCreatorOnboardingDocuments(...)` now performs the canonical onboarding write before user/queue projection writes.
+- Added dry-run inventory script `scripts/creators/inventory-legacy-creator-applications.ts` and generated `agent/state/legacy-creator-application-inventory.generated.json` with required fields and no write-mode mutation.
+- Added `scripts/agent/validate-legacy-creator-application-migration.ts`, `npm run check:legacy-creator-application-migration`, focused adapter tests, and docs/ledger coverage.
+
+Verification:
+- Passed: `npx tsx scripts/creators/inventory-legacy-creator-applications.ts`
+- Passed: `npm run check:legacy-creator-application-migration`
+- Passed: `npm run check:creator-lane-legacy-truth-inventory`
+- Passed: `npx vitest run tests/unit/creator-onboarding-legacy-adapter.spec.ts tests/unit/creator-onboarding.spec.ts tests/unit/creator-onboarding-server.spec.ts tests/unit/user-register-route.spec.ts`
+- Passed: `npx vitest run tests/unit/creator-onboarding-legacy-adapter.spec.ts tests/unit/creator-onboarding-server.spec.ts tests/unit/creator-review-queue-materializer.spec.ts`
+- Passed: `npx tsc --noEmit --pretty false`
+- Passed: `git diff --check` with existing Windows CRLF normalization warnings only.
+
 ## [2026-05-02 #105] PRE: Creator Review Queue Materializer Cleanup
 
 Scope started:

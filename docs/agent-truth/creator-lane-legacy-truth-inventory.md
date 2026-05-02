@@ -32,6 +32,8 @@ The canonical settings shape is `CreatorSettings` and `CreatorRestrictions` in `
 
 Important rule: `users/{uid}.creatorApplication` is not the future canonical source. It may be used as fallback/projection when `creator_onboarding/{uid}` is absent, but new creator lifecycle logic must not treat it as authoritative when canonical onboarding exists.
 
+`src/lib/server/creator-onboarding-legacy-adapter.ts` is the bounded migration adapter for old nested `creatorApplication` records. It can read legacy projections, map them into canonical onboarding shape, rebuild a projection from canonical data, and explain mapping confidence. It must not overwrite an existing canonical record, and it must not infer legal/signature completion from legacy status flags without signature evidence.
+
 `src/lib/creator-onboarding-projection.ts` is the shared projection normalizer for creator onboarding display and admin roster decision labels. Admin Roster, admin user detail readers, and future creator-facing status surfaces should use its normalized display labels instead of interpreting raw `creatorApplication` status fields locally.
 
 The normalized display contract includes:
@@ -64,12 +66,17 @@ Legacy-compatible code is allowed only when it is explicit, tested, and routed t
 5. Keep creator agreement template, dispatch, signature, and history evidence versioned under the agreement/onboarding helpers.
 6. Keep creator fan-experience settings on the existing `CreatorSettings`/`CreatorRestrictions` model unless a future migration deliberately changes the canonical source.
 7. Retire the legacy creator messages compatibility route only after native chat callers are verified.
+8. Use `docs/agent-truth/legacy-creator-application-migration.md` and the dry-run inventory report before any backfill write. Future write mode must be explicit, idempotent, and canonical-first.
 
 ## Forbidden Future Pattern
+
+This is the forbidden future pattern for creator onboarding migrations:
 
 Do not treat `users/{uid}.creatorApplication` as canonical when `creator_onboarding/{uid}` exists.
 
 Do not add direct `creatorApplication` writes outside centralized onboarding sync helpers.
+
+Do not bypass the legacy adapter for old `creatorApplication` records that need backfill. The adapter is the compatibility boundary, not a new canonical source.
 
 Do not parse raw creator onboarding enums in Admin Roster or admin user detail UI with string replacements such as `replaceAll("_", " ")`. Use the projection normalizer and keep raw enum values only in Debug/detail evidence.
 

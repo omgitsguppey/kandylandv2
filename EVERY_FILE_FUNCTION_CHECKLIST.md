@@ -1,13 +1,20 @@
 # EVERY FILE FUNCTION CHECKLIST
 
 **Last Updated:** 2026-05-02
-**Current Focus:** Creator Review Queue Materializer Cleanup.
+**Current Focus:** Legacy Creator Application Migration Adapter.
 **Status:** In Progress. Current tracked-file coverage is reconciled as of 2026-04-28: every `git ls-files` entry has a current checklist heading, while detailed function-level audits remain pending for many historical and newly reconciled files.
 Purpose: exhaustive no-skip audit checklist covering every repository file currently in scope and every detected function-like implementation.
 
 Scoring: all entries below are marked as included in the current validated sweep. Confidence reflects current repository-state confidence, not perfection or future-proofing.
 
 Current repo-wide state snapshot: see [FULL_SCALE_CODEBASE_AUDIT.md](/Users/uylus/OneDrive/Documents/KandyDrops_Final/FULL_SCALE_CODEBASE_AUDIT.md) for the current live baseline, verification state, and continuity rules, and see [REPO_MEMORY_LEDGER.md](/Users/uylus/OneDrive/Documents/KandyDrops_Final/REPO_MEMORY_LEDGER.md) for major architectural and workflow decisions. The detailed file/function body below remains valuable historical evidence, but it has not been fully regenerated against the current 2026-04-18 inventory review yet.
+
+## 2026-05-02 Legacy Creator Application Migration Adapter Coverage
+
+- [x] `src/lib/server/creator-onboarding-legacy-adapter.ts` owns legacy `users/{uid}.creatorApplication` reads, canonical mapping, projection rebuild, backfill need checks, and mapping explanations without promoting the nested user blob to canonical truth.
+- [x] `src/lib/server/creator-onboarding.ts` now routes canonical submission source fallback through the legacy adapter before using raw projection fallback, while `syncCreatorOnboardingDocuments(...)` keeps canonical onboarding writes before the user projection write.
+- [x] `scripts/creators/inventory-legacy-creator-applications.ts` owns the dry-run inventory report at `agent/state/legacy-creator-application-inventory.generated.json`; write mode is intentionally unavailable in this pass.
+- [x] `scripts/agent/validate-legacy-creator-application-migration.ts`, `tests/unit/creator-onboarding-legacy-adapter.spec.ts`, and `docs/agent-truth/legacy-creator-application-migration.md` validate adapter exports, signature-evidence safety, canonical-preservation behavior, projection compatibility, and report shape.
 
 ## 2026-05-02 Creator Review Queue Materializer Coverage
 

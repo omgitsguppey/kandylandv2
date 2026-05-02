@@ -4,6 +4,10 @@ Status: Canonical repository-memory and architecture-decision ledger
 Last refreshed: 2026-05-02
 Repo: `C:\Users\uylus\OneDrive\Documents\KandyDrops_Final`
 
+## 2026-05-02 Legacy creatorApplication migration adapter
+
+Old `users/{uid}.creatorApplication` records now have a bounded server adapter at `src/lib/server/creator-onboarding-legacy-adapter.ts`. The adapter can read legacy nested projections, map them into canonical `creator_onboarding/{uid}` shape, rebuild the `users.creatorApplication` projection from canonical data, explain mapping confidence, and skip any user that already has canonical onboarding. Legacy legal/signature status flags are not enough to mark canonical legal completion; signed state requires timestamp, signer, and agreement identity evidence. The dry-run inventory script is `scripts/creators/inventory-legacy-creator-applications.ts`, and it writes `agent/state/legacy-creator-application-inventory.generated.json` without mutating data. `users.creatorApplication` remains projection only.
+
 ## 2026-05-02 Creator review queue materializer
 
 `creator_review_queue/{uid}` is now explicitly materialized by `src/lib/server/creator-review-queue.ts` from canonical `creator_onboarding/{uid}` records. `syncCreatorOnboardingDocuments(...)` owns the transaction path, so creator signup, intake, agreement, ID, approval, owner override, role activation, and admin lifecycle updates keep queue projections in sync. Queue records expose `queueMaterializedAt`, `sourceOnboardingUpdatedAt`, `projectionLagMs`, `queueParityOk`, and `queueParityDelta`; Admin Debug diagnostics flag `queue_parity_mismatch` when the projection drifts. Do not hand-build queue status blobs or filter review applicants by creator role only.
