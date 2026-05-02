@@ -1235,6 +1235,12 @@ async function PUT_handler(request: NextRequest) {
     }
 
     const isOwnerActor = isCreatorOwnerEmail(authResult?.email);
+    if (sanitized.role === "admin" && !isOwnerActor) {
+      return NextResponse.json({
+        error: "Only the owner admin can grant admin access.",
+      }, { status: 403 });
+    }
+
     const creatorActorMarker = assertKnownActor(buildAdminOnBehalfMarker(
       buildAdminUsersActor({
         uid: authResult?.uid,

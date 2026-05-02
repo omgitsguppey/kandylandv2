@@ -147,6 +147,7 @@ const HISTORY_EVENT_TYPE_SET = new Set<CreatorOnboardingHistoryEventType>([
     "creator_legally_cleared",
     "creator_role_activated",
     "creator_role_activation_blocked",
+    "admin_account_updated",
     "admin_notes_updated",
     "agreement_template_activated",
     "agreement_update_sent",
@@ -377,6 +378,7 @@ export type CreatorOnboardingHistoryEventType =
     | "creator_legally_cleared"
     | "creator_role_activated"
     | "creator_role_activation_blocked"
+    | "admin_account_updated"
     | "admin_notes_updated"
     | "agreement_template_activated"
     | "agreement_update_sent";

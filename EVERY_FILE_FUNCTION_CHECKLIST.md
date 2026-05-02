@@ -1,13 +1,21 @@
 # EVERY FILE FUNCTION CHECKLIST
 
 **Last Updated:** 2026-05-02
-**Current Focus:** Creator Agreement Signature UX.
+**Current Focus:** Admin Roster Account Controls.
 **Status:** In Progress. Current tracked-file coverage is reconciled as of 2026-04-28: every `git ls-files` entry has a current checklist heading, while detailed function-level audits remain pending for many historical and newly reconciled files.
 Purpose: exhaustive no-skip audit checklist covering every repository file currently in scope and every detected function-like implementation.
 
 Scoring: all entries below are marked as included in the current validated sweep. Confidence reflects current repository-state confidence, not perfection or future-proofing.
 
 Current repo-wide state snapshot: see [FULL_SCALE_CODEBASE_AUDIT.md](/Users/uylus/OneDrive/Documents/KandyDrops_Final/FULL_SCALE_CODEBASE_AUDIT.md) for the current live baseline, verification state, and continuity rules, and see [REPO_MEMORY_LEDGER.md](/Users/uylus/OneDrive/Documents/KandyDrops_Final/REPO_MEMORY_LEDGER.md) for major architectural and workflow decisions. The detailed file/function body below remains valuable historical evidence, but it has not been fully regenerated against the current 2026-04-18 inventory review yet.
+
+## 2026-05-02 Admin Roster Account Controls Coverage
+
+- [x] `src/lib/admin/creator-account-controls.ts` owns the account-control command parser, dangerous-action classification, password/email redaction, role/status/copy label mapping, and public creator profile path helper.
+- [x] `src/app/api/admin/creator-account-controls/route.ts` owns guarded admin-on-behalf account mutations for profile, email, password reset link, temporary password, role, status, and notification settings with Firebase Admin SDK, trusted origin guard, audit history, Debug metadata, and identity-marked telemetry.
+- [x] `src/app/admin/roster/page.tsx`, `src/components/Admin/CreatorAccountControlsPanel.tsx`, and `src/app/admin/roster/decision-queue.ts` expose the collapsed mobile-first `Account controls` section without current-password display, raw enum copy, or owner-only admin promotion leakage.
+- [x] `src/lib/creator-onboarding.ts`, `src/lib/telemetry-catalog.ts`, and `src/lib/route-runtime-health.ts` register `admin_account_updated`, account-control telemetry events, and route runtime health evidence.
+- [x] `scripts/agent/validate-admin-creator-account-controls.ts`, `tests/unit/admin-creator-account-controls-route.spec.ts`, `tests/unit/admin-users-route.spec.ts`, and `docs/agent-truth/admin-creator-account-controls.md` validate the launch account-control contract.
 
 ## 2026-05-02 Creator Agreement Signature UX Coverage
 

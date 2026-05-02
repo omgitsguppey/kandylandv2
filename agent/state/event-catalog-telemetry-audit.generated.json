@@ -1,5 +1,5 @@
 {
-  "generatedAt": "2026-05-02T09:45:07.715Z",
+  "generatedAt": "2026-05-02T11:04:15.556Z",
   "auditKey": "event-catalog-telemetry-launch-audit",
   "catalogVersion": "2026.04.04.1",
   "sourceRoots": [
@@ -10,14 +10,14 @@
     "admin analytics consumers"
   ],
   "summary": {
-    "catalogEventCount": 243,
-    "emittedOrCoveredCount": 243,
+    "catalogEventCount": 249,
+    "emittedOrCoveredCount": 249,
     "familyCounts": {
       "auth": 19,
       "onboarding": 9,
       "page_view": 15,
       "creator": 18,
-      "admin": 70,
+      "admin": 76,
       "drop": 24,
       "engagement": 16,
       "task": 14,
@@ -5966,6 +5966,162 @@
       "legacyDeprecated": false,
       "auditCoveredBy": [],
       "missingFieldsRisk": "medium"
+    },
+    {
+      "eventName": "admin_creator_account_updated",
+      "aliases": [],
+      "version": 1,
+      "family": "admin",
+      "emittedFrom": [
+        "src/app/api/admin/creator-account-controls/route.ts"
+      ],
+      "consumedBy": [],
+      "requiredActorFields": [
+        "actorType|actor_type",
+        "actorUid|actor_uid"
+      ],
+      "requiredObjectFields": [
+        "targetUserId|target_user_id|userId|user_id"
+      ],
+      "requiredSurfaceFields": [
+        "route|page_path|source"
+      ],
+      "dedupeKeyRequired": false,
+      "guestAllowed": false,
+      "adminExcludedFromUserAnalytics": true,
+      "legacyDeprecated": false,
+      "auditCoveredBy": [],
+      "missingFieldsRisk": "Generated audit entry added after Admin Roster account-control telemetry additions; emitter detection and payload contracts remain enforced by validate-event-catalog-telemetry."
+    },
+    {
+      "eventName": "admin_creator_email_updated",
+      "aliases": [],
+      "version": 1,
+      "family": "admin",
+      "emittedFrom": [
+        "src/app/api/admin/creator-account-controls/route.ts"
+      ],
+      "consumedBy": [],
+      "requiredActorFields": [
+        "actorType|actor_type",
+        "actorUid|actor_uid"
+      ],
+      "requiredObjectFields": [
+        "targetUserId|target_user_id|userId|user_id"
+      ],
+      "requiredSurfaceFields": [
+        "route|page_path|source"
+      ],
+      "dedupeKeyRequired": false,
+      "guestAllowed": false,
+      "adminExcludedFromUserAnalytics": true,
+      "legacyDeprecated": false,
+      "auditCoveredBy": [],
+      "missingFieldsRisk": "Generated audit entry added after Admin Roster account-control telemetry additions; emitter detection and payload contracts remain enforced by validate-event-catalog-telemetry."
+    },
+    {
+      "eventName": "admin_creator_password_reset_sent",
+      "aliases": [],
+      "version": 1,
+      "family": "admin",
+      "emittedFrom": [
+        "src/app/api/admin/creator-account-controls/route.ts"
+      ],
+      "consumedBy": [],
+      "requiredActorFields": [
+        "actorType|actor_type",
+        "actorUid|actor_uid"
+      ],
+      "requiredObjectFields": [
+        "targetUserId|target_user_id|userId|user_id"
+      ],
+      "requiredSurfaceFields": [
+        "route|page_path|source"
+      ],
+      "dedupeKeyRequired": false,
+      "guestAllowed": false,
+      "adminExcludedFromUserAnalytics": true,
+      "legacyDeprecated": false,
+      "auditCoveredBy": [],
+      "missingFieldsRisk": "Generated audit entry added after Admin Roster account-control telemetry additions; emitter detection and payload contracts remain enforced by validate-event-catalog-telemetry."
+    },
+    {
+      "eventName": "admin_creator_temporary_password_set",
+      "aliases": [],
+      "version": 1,
+      "family": "admin",
+      "emittedFrom": [
+        "src/app/api/admin/creator-account-controls/route.ts"
+      ],
+      "consumedBy": [],
+      "requiredActorFields": [
+        "actorType|actor_type",
+        "actorUid|actor_uid"
+      ],
+      "requiredObjectFields": [
+        "targetUserId|target_user_id|userId|user_id"
+      ],
+      "requiredSurfaceFields": [
+        "route|page_path|source"
+      ],
+      "dedupeKeyRequired": false,
+      "guestAllowed": false,
+      "adminExcludedFromUserAnalytics": true,
+      "legacyDeprecated": false,
+      "auditCoveredBy": [],
+      "missingFieldsRisk": "Generated audit entry added after Admin Roster account-control telemetry additions; emitter detection and payload contracts remain enforced by validate-event-catalog-telemetry."
+    },
+    {
+      "eventName": "admin_creator_role_updated",
+      "aliases": [],
+      "version": 1,
+      "family": "admin",
+      "emittedFrom": [
+        "src/app/api/admin/creator-account-controls/route.ts"
+      ],
+      "consumedBy": [],
+      "requiredActorFields": [
+        "actorType|actor_type",
+        "actorUid|actor_uid"
+      ],
+      "requiredObjectFields": [
+        "targetUserId|target_user_id|userId|user_id"
+      ],
+      "requiredSurfaceFields": [
+        "route|page_path|source"
+      ],
+      "dedupeKeyRequired": false,
+      "guestAllowed": false,
+      "adminExcludedFromUserAnalytics": true,
+      "legacyDeprecated": false,
+      "auditCoveredBy": [],
+      "missingFieldsRisk": "Generated audit entry added after Admin Roster account-control telemetry additions; emitter detection and payload contracts remain enforced by validate-event-catalog-telemetry."
+    },
+    {
+      "eventName": "admin_creator_status_updated",
+      "aliases": [],
+      "version": 1,
+      "family": "admin",
+      "emittedFrom": [
+        "src/app/api/admin/creator-account-controls/route.ts"
+      ],
+      "consumedBy": [],
+      "requiredActorFields": [
+        "actorType|actor_type",
+        "actorUid|actor_uid"
+      ],
+      "requiredObjectFields": [
+        "targetUserId|target_user_id|userId|user_id"
+      ],
+      "requiredSurfaceFields": [
+        "route|page_path|source"
+      ],
+      "dedupeKeyRequired": false,
+      "guestAllowed": false,
+      "adminExcludedFromUserAnalytics": true,
+      "legacyDeprecated": false,
+      "auditCoveredBy": [],
+      "missingFieldsRisk": "Generated audit entry added after Admin Roster account-control telemetry additions; emitter detection and payload contracts remain enforced by validate-event-catalog-telemetry."
     }
   ]
 }

@@ -79,6 +79,7 @@ These raw ids are Debug evidence. Do not expose them as visible creator-facing U
 - Creator waitlist actions such as intro acknowledgement, ID submission, contract signature, and application edit are `own_account`.
 - Admin Roster creation/backfill is `admin_on_behalf` unless it is an owner-only bypass.
 - Admin Roster agreement lifecycle actions use the same markers. Template creation is an admin action, template activation is `owner_override`, agreement send/update/countersign is `admin_on_behalf` with the creator as `targetUserId`.
+- Admin Roster account controls use surface `creator_account_admin` and `performedAs: admin_on_behalf`. Profile, email, password reset, temporary password, role, status, creator approval, and notification setting changes must include `actorType`, `actorUid`, `targetUserId`, `fieldChanged`, redacted old/new values, and `/admin/roster` as the route. These events must not enter user behavior analytics as if the creator performed them.
 - Owner-only onboarding bypass and live creator creation are `actorType: owner_admin` with `performedAs: owner_override`.
 - Creator settings updates use `creator_experiences`; admin restriction updates from that route must still declare `performedAs`.
 - System projections may use `system_job`, but they should preserve the affected target id.

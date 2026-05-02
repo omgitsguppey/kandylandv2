@@ -940,7 +940,12 @@ async function GET_handler(
 
         return NextResponse.json({
             success: true,
-            user,
+            user: {
+                ...user,
+                adminAccountControlDebug: rawUser.adminAccountControlDebug && typeof rawUser.adminAccountControlDebug === "object"
+                    ? rawUser.adminAccountControlDebug
+                    : null,
+            },
             creatorOnboardingCanonical,
             creatorOnboardingHistory,
             transactions,

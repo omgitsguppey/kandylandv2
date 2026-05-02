@@ -1,5 +1,39 @@
 # KandyDrops Core Codebase Audit & Defensive Ledger
 
+## [2026-05-02 #99] PRE: Admin Roster Account Controls
+
+Scope started:
+- Adding one targeted Admin Roster account-control section so admins can update creator profile, email/password action, role, status, approval, public profile path, notification quick-edit/link, and creator experience settings access from the selected creator record.
+- Required outputs: collapsed mobile-first `Account controls` UI, server-only guarded admin account update actions, actor-marked telemetry, creator/admin audit history, Debug metadata, `scripts/agent/validate-admin-creator-account-controls.ts`, focused route/roster tests, `docs/agent-truth/admin-creator-account-controls.md`, security and identity doc updates, governance ledger updates, commit, and push.
+- This pass is targeted. It must not redesign Admin Roster, expose or store plaintext passwords, allow client-authoritative role/status updates, let non-owner admins grant admin unless the existing doctrine permits it, alter payment/economy flows, or touch unrelated creator onboarding/agreement behavior.
+
+Initial evidence:
+- Worktree was clean at startup on `main`.
+- Control tower routing, source-of-truth map, shared component ownership, doctrine consultation workflow, product/copy/UI/surface/vocabulary/anti-pattern doctrine, and preflight/postflight checklists were consulted.
+- Source truth remains runtime code first: Admin Roster page and decision queue, `/api/admin/roster`, existing admin user routes, creator onboarding/experience helpers, identity actor markers, request guards, Firebase Admin helpers, and focused admin roster/user route tests.
+
+Scope completed:
+- Added the collapsed mobile-first `Account controls` section to Admin Roster selected creator records, backed by `src/components/Admin/CreatorAccountControlsPanel.tsx` and `src/lib/admin/creator-account-controls.ts`.
+- Added guarded `/api/admin/creator-account-controls` server actions for profile, email, password reset link, temporary password, role, status, and notification settings. The route uses admin auth, trusted-origin enforcement, Firebase Admin SDK, actor markers, Debug fields, and creator onboarding history.
+- Kept owner-only role boundaries intact by blocking non-owner admin promotion in both the new account-control route and the existing `/api/admin/users` update path.
+- Registered `admin_account_updated` history, account-control telemetry events, and route runtime health evidence. Updated the generated event catalog audit for the six new admin account-control events.
+- Created `docs/agent-truth/admin-creator-account-controls.md`, updated security and identity marker doctrine, added the targeted validator, and added focused route/roster/user tests.
+
+Verification:
+- `npm run check:admin-creator-account-controls`
+- `npx vitest run tests/unit/admin-creator-account-controls-route.spec.ts tests/unit/admin-users-route.spec.ts tests/unit/admin-roster-decision-queue.spec.ts`
+- `npx tsc --noEmit --pretty false`
+- `npm run check:creator-identity-markers`
+- `npm run check:security-role-boundaries`
+- `npm run check:admin-roster-decision-queue`
+- `npm run check:event-catalog-telemetry`
+- `npm run check:ui:coverage`
+- `npm run check:ui:runtime`
+- `npm run check:ui:audits`
+
+Residual risk:
+- `npm run check:ui:audits` passed 20/20 after a full production build. The Next/Playwright web server emitted non-blocking `controller[kState].transformAlgorithm is not a function` messages after the passed run; no test failed.
+
 ## [2026-05-02 #98] PRE: Creator Agreement Signature UX
 
 Scope started:

@@ -398,6 +398,38 @@ describe("PUT /api/admin/users", () => {
         }));
     });
 
+    it("blocks non-owner admins from granting admin access", async () => {
+        seedCreatorApplicant({
+            userId: "creator_admin_blocked",
+            legalStatus: "legal_signed",
+            idVerificationStatus: "id_verified",
+            segmentationStatus: "segment_assigned",
+            approvalStatus: "creator_approved",
+            introAcknowledgedAt: 1_710_000_000_100,
+        });
+
+        const request = new NextRequest("http://localhost/api/admin/users", {
+            method: "PUT",
+            body: JSON.stringify({
+                userId: "creator_admin_blocked",
+                updates: {
+                    role: "admin",
+                },
+            }),
+        });
+
+        const response = await PUT(request);
+        const payload = await response.json();
+
+        expect(response.status).toBe(403);
+        expect(payload).toMatchObject({
+            error: "Only the owner admin can grant admin access.",
+        });
+        expect(mockState.documents.get("users/creator_admin_blocked")).toMatchObject({
+            role: "user",
+        });
+    });
+
     it("allows direct creator role activation to sync the canonical record after approval prerequisites are complete", async () => {
         seedCreatorApplicant({
             userId: "creator_direct_ready",

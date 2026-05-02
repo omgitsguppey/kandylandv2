@@ -21,6 +21,8 @@ Admin pages are gated by `src/app/admin/layout.tsx`, and admin data is gated by 
 
 Admin analytics and debug data are private. Redirect shims count as admin API routes and must run the same admin guard before routing to a protected lane.
 
+Creator account controls use `/api/admin/creator-account-controls`. That route is admin-only, trusted-origin-only, and server-only for Firebase Auth mutations. It may update display name, username, email, reset-link creation, temporary password, role, status, creator approval, and notification settings only through audited admin-on-behalf actions. Non-owner admins cannot grant `admin` role access. Password values must never be read, displayed, written to Firestore, or emitted in telemetry.
+
 ## Drop Asset Boundary
 
 Raw `storage:drops/**` client SDK access is denied. Storage object paths do not encode drop entitlement, so Storage rules cannot prove whether a user unlocked a Drop.

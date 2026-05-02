@@ -18,6 +18,7 @@ export type RosterTab = (typeof ROSTER_DECISION_TABS)[number]["key"];
 export type RosterDecisionTab = Exclude<RosterTab, "create">;
 
 export const ROSTER_DETAIL_SECTION_KEYS = [
+    "account_controls",
     "agreement_document",
     "id_files",
     "audit_trail",

@@ -10,7 +10,13 @@ import {
 import { toast } from "sonner";
 
 import { AdminPageHeader } from "@/components/Admin/AdminPageHeader";
+import {
+    CreatorAccountControlsPanel,
+    type CreatorAccountControlResult,
+    type CreatorAccountControlsTarget,
+} from "@/components/Admin/CreatorAccountControlsPanel";
 import { PageViewEvent } from "@/components/Analytics/PageViewEvent";
+import type { CreatorAccountControlCommand } from "@/lib/admin/creator-account-controls";
 import { authFetch } from "@/lib/authFetch";
 import { reportClientIssue } from "@/lib/client-error-reporting";
 import type {
@@ -124,7 +130,24 @@ type CreatorDetailResponse = {
     user: {
         uid: string;
         displayName: string;
+        email: string;
+        username?: string;
         role: "user" | "creator" | "admin";
+        status: "active" | "suspended" | "banned";
+        notificationSettings?: {
+            inAppEnabled?: boolean;
+            browserPushEnabled?: boolean;
+            newDropAlerts?: boolean;
+            expiringSoonAlerts?: boolean;
+        };
+        adminAccountControlDebug?: {
+            lastAdminAccountActionAt?: number;
+            lastAdminAccountActionBy?: string;
+            accountControlWarnings?: string[];
+            passwordActionMode?: string;
+            emailUpdateServerConfirmed?: boolean;
+            roleUpdateServerConfirmed?: boolean;
+        } | null;
         creatorApplication?: CreatorOnboardingCanonicalRecord | null;
     };
     creatorOnboardingCanonical?: CreatorOnboardingCanonicalRecord | null;
@@ -223,8 +246,10 @@ export default function AdminRosterPage() {
     const [agreementTemplateForm, setAgreementTemplateForm] = useState<AgreementTemplateFormState>(DEFAULT_AGREEMENT_TEMPLATE_FORM);
     const [agreementTemplateFile, setAgreementTemplateFile] = useState<File | null>(null);
     const [agreementSaving, setAgreementSaving] = useState<string | null>(null);
+    const [accountSaving, setAccountSaving] = useState<string | null>(null);
     const [agreementPreviewOpen, setAgreementPreviewOpen] = useState(false);
     const [expandedSections, setExpandedSections] = useState<Record<RosterDetailSectionKey, boolean>>({
+        account_controls: false,
         agreement_document: false,
         id_files: false,
         audit_trail: false,
@@ -247,6 +272,16 @@ export default function AdminRosterPage() {
     const selectedAgreementHash = selectedCanonical?.agreementHash || selectedEntry?.agreementHash || "";
     const selectedAgreementSource = selectedCanonical?.agreementSource || selectedEntry?.agreementSource || agreementTemplate?.agreementSource;
     const selectedAgreementDispatchStatus = selectedCanonical?.agreementDispatchStatus || selectedEntry?.agreementDispatchStatus;
+    const selectedAccountTarget: CreatorAccountControlsTarget | null = detail?.user && selectedUserId ? {
+        uid: selectedUserId,
+        displayName: detail.user.displayName || selectedCanonical?.creatorDisplayName || selectedEntry?.creatorDisplayName || "",
+        email: detail.user.email || selectedEntry?.email || "",
+        username: detail.user.username || "",
+        role: detail.user.role,
+        status: detail.user.status || "active",
+        approvalStatus: selectedCanonical?.approvalStatus || selectedEntry?.approvalStatus || detail.user.creatorApplication?.approvalStatus || "creator_pending",
+        notificationSettings: detail.user.notificationSettings,
+    } : null;
     const entriesByDecision = useMemo(() => ({
         needs_review: intakeEntries.filter((entry) => classifyRosterDecisionEntry(entry) === "needs_review"),
         waiting: intakeEntries.filter((entry) => classifyRosterDecisionEntry(entry) === "waiting"),
@@ -581,6 +616,49 @@ export default function AdminRosterPage() {
         void submitCreatorUpdate(actionKey, patch, extraUpdates);
     };
 
+    const handleAccountControlSubmit = async (command: CreatorAccountControlCommand): Promise<CreatorAccountControlResult | void> => {
+        try {
+            setAccountSaving(command.action);
+            trackEvent("admin_creator_primary_action_clicked", buildTelemetryPayload({
+                actionKey: command.action,
+            }));
+            const response = await authFetch("/api/admin/creator-account-controls", {
+                method: "POST",
+                headers: {
+                    "content-type": "application/json",
+                },
+                body: JSON.stringify(command),
+            });
+            const result = await response.json().catch(() => ({})) as { error?: string; passwordResetLink?: string };
+            if (!response.ok) {
+                throw new Error(result.error || "Account update failed.");
+            }
+            await Promise.all([refreshRoster(), refreshSelectedDetail()]);
+            toast.success(command.action === "create_password_reset_link" ? "Reset link created." : "Account controls updated.");
+            return { passwordResetLink: result.passwordResetLink };
+        } catch (error) {
+            reportClientIssue({
+                channel: "ui",
+                severity: "error",
+                message: "Admin creator account control update failed",
+                error,
+                detail: {
+                    adminView: "creator_roster_account_controls",
+                    action: command.action,
+                    userId: command.targetUserId,
+                },
+                consoleLabel: "[Admin Roster] account control update failed",
+            });
+            toast.error(error instanceof Error ? error.message : "Account update failed.");
+        } finally {
+            setAccountSaving(null);
+        }
+    };
+
+    const handleAccountApprovalStatusChange = async (approvalStatus: CreatorOnboardingApprovalStatus) => {
+        await submitCreatorUpdate("account-approval-status", { approvalStatus });
+    };
+
     const handleCreatorAgreementAction = async (actionKey: "send_agreement" | "send_updated_agreement" | "countersign_agreement") => {
         if (!selectedUserId) {
             return;
@@ -711,6 +789,13 @@ export default function AdminRosterPage() {
         signatureEvidenceComplete: Boolean(selectedAgreementHash && selectedCanonical?.creatorSignatureStatus === "signature_signed" && selectedCanonical?.adminSignatureStatus === "signature_signed"),
         priorAgreementPreserved: Boolean(selectedCanonical?.agreementDispatchId && selectedAgreementHash),
         requiresResign: selectedCanonical?.creatorSignatureStatus === "signature_pending" && selectedCanonical?.contractDocumentStatus === "contract_sent",
+        accountControlsVisible: Boolean(expandedSections.account_controls),
+        lastAdminAccountActionAt: detail?.user.adminAccountControlDebug?.lastAdminAccountActionAt ?? 0,
+        lastAdminAccountActionBy: detail?.user.adminAccountControlDebug?.lastAdminAccountActionBy ?? "",
+        accountControlWarnings: detail?.user.adminAccountControlDebug?.accountControlWarnings?.join(", ") ?? "",
+        passwordActionMode: detail?.user.adminAccountControlDebug?.passwordActionMode ?? "",
+        emailUpdateServerConfirmed: detail?.user.adminAccountControlDebug?.emailUpdateServerConfirmed === true,
+        roleUpdateServerConfirmed: detail?.user.adminAccountControlDebug?.roleUpdateServerConfirmed === true,
     };
 
     return (
@@ -1038,6 +1123,22 @@ export default function AdminRosterPage() {
                                         <p className="mt-2 text-sm font-bold text-white">{formatApprovalStatus(selectedCanonical.approvalStatus, selectedCanonical.role)}</p>
                                     </div>
                                 </div>
+
+                                {selectedAccountTarget ? (
+                                    <details className="rounded-2xl border border-white/10 bg-black/25 p-4" onToggle={(event) => handleSectionToggle("account_controls", event.currentTarget.open)}>
+                                        <summary className="cursor-pointer list-none text-sm font-bold text-white">Account controls</summary>
+                                        <p className="mt-2 text-sm leading-6 text-zinc-400">
+                                            Update profile, access, and notification settings. Login and role changes require confirmation and stay in the audit trail.
+                                        </p>
+                                        <CreatorAccountControlsPanel
+                                            target={selectedAccountTarget}
+                                            isOwner={isOwner}
+                                            savingAction={accountSaving ?? saving}
+                                            onSubmit={handleAccountControlSubmit}
+                                            onApprovalStatusChange={handleAccountApprovalStatusChange}
+                                        />
+                                    </details>
+                                ) : null}
 
                                 <details className="rounded-2xl border border-white/10 bg-black/25 p-4" onToggle={(event) => handleSectionToggle("agreement_document", event.currentTarget.open)}>
                                     <summary className="cursor-pointer list-none text-sm font-bold text-white">Agreement document</summary>

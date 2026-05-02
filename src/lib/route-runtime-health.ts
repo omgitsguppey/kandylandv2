@@ -139,6 +139,12 @@ export const ROUTE_RUNTIME_HEALTH_TARGETS = {
         title: "Admin UI preferences writes",
         slowThresholdMs: 1200,
     },
+    "admin/creator-account-controls:POST": {
+        routeName: "admin/creator-account-controls",
+        method: "POST",
+        title: "Admin creator account controls",
+        slowThresholdMs: 1600,
+    },
     "creator/discovery:GET": {
         routeName: "creator/discovery",
         method: "GET",
