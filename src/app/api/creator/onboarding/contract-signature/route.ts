@@ -1,13 +1,22 @@
 import { NextRequest, NextResponse } from "next/server";
 
-import { CREATOR_MASTER_SERVICE_AGREEMENT_VERSION } from "@/lib/creator-contract";
+import {
+    CREATOR_MASTER_SERVICE_AGREEMENT_SECTIONS,
+    CREATOR_MASTER_SERVICE_AGREEMENT_VERSION,
+} from "@/lib/creator-contract";
 import {
     CREATOR_AGREEMENT_DISPATCHES_SUBCOLLECTION,
     CREATOR_AGREEMENT_SIGNATURES_SUBCOLLECTION,
+    CREATOR_AGREEMENT_TEMPLATE_COLLECTION,
     buildCreatorAgreementDispatch,
     buildCreatorAgreementSignature,
     buildDefaultCreatorAgreementTemplate,
+    normalizeCreatorAgreementTemplate,
 } from "@/lib/creator-agreement-documents";
+import {
+    hasRequiredCreatorAgreementAcknowledgements,
+    normalizeCreatorAgreementAcknowledgements,
+} from "@/lib/creator-agreement-signature-ux";
 import {
     buildCreatorOnboardingCanonicalRecord,
     normalizeCreatorOnboardingCanonicalRecord,
@@ -35,6 +44,16 @@ function buildErrorResponse(status: number, message: string) {
     return NextResponse.json({ error: message }, { status });
 }
 
+class ContractSignaturePreconditionError extends Error {
+    status: number;
+
+    constructor(message: string, status = 409) {
+        super(message);
+        this.name = "ContractSignaturePreconditionError";
+        this.status = status;
+    }
+}
+
 function readRole(value: unknown) {
     return value === "creator" || value === "admin" || value === "user"
         ? value
@@ -52,6 +71,24 @@ function readRequestIp(request: NextRequest) {
     }
 
     return request.headers.get("x-real-ip")?.trim() || undefined;
+}
+
+function assertContentSourceAvailable(input: {
+    agreementSource?: string;
+    pdfStoragePath?: string;
+    fullTextStoragePath?: string;
+    legalDocumentUrl?: string;
+}) {
+    if (input.agreementSource === "native_full_text") {
+        return CREATOR_MASTER_SERVICE_AGREEMENT_SECTIONS.length > 0;
+    }
+
+    if (input.agreementSource === "hybrid") {
+        return CREATOR_MASTER_SERVICE_AGREEMENT_SECTIONS.length > 0
+            || Boolean(input.pdfStoragePath || input.fullTextStoragePath || input.legalDocumentUrl);
+    }
+
+    return Boolean(input.pdfStoragePath || input.fullTextStoragePath || input.legalDocumentUrl);
 }
 
 async function POST_handler(request: NextRequest) {
@@ -72,10 +109,17 @@ async function POST_handler(request: NextRequest) {
             return buildErrorResponse(500, "Database not available");
         }
 
-        const body = await request.json().catch(() => ({})) as { signatureName?: unknown };
+        const body = await request.json().catch(() => ({})) as {
+            signatureName?: unknown;
+            acknowledgementValues?: unknown;
+        };
         const signatureName = readString(body.signatureName);
         if (signatureName.length < 2) {
             return buildErrorResponse(400, "Enter your legal name before signing.");
+        }
+        const acknowledgementValues = normalizeCreatorAgreementAcknowledgements(body.acknowledgementValues);
+        if (!hasRequiredCreatorAgreementAcknowledgements(acknowledgementValues)) {
+            return buildErrorResponse(400, "Review and accept every agreement acknowledgement before signing.");
         }
 
         const onboardingRef = adminDb.collection(CREATOR_ONBOARDING_COLLECTION).doc(caller.uid);
@@ -112,10 +156,26 @@ async function POST_handler(request: NextRequest) {
             return buildErrorResponse(409, "No creator agreement has been sent yet.");
         }
 
+        if (!canonical.agreementDispatchId) {
+            return buildErrorResponse(409, "No active agreement dispatch exists for this account.");
+        }
+
+        if (!canonical.contractVersion) {
+            return buildErrorResponse(409, "Agreement version is missing.");
+        }
+
+        if (!canonical.agreementHash) {
+            return buildErrorResponse(409, "Agreement hash is missing.");
+        }
+
         const nowMs = Date.now();
         const actorLabel = readString(userData.displayName) || canonical.creatorDisplayName;
-        const signatureIp = readRequestIp(request);
-        const signatureUserAgent = request.headers.get("user-agent")?.trim() || undefined;
+        const signerEmail = readString(userData.email) || readString(caller.email);
+        if (!signerEmail) {
+            return buildErrorResponse(409, "Your account email is required before signing.");
+        }
+        const signatureIp = readRequestIp(request) || "unavailable";
+        const signatureUserAgent = request.headers.get("user-agent")?.trim() || "unavailable";
         const actorMarker = assertKnownActor(buildActorMarker({
             actor: {
                 uid: caller.uid,
@@ -127,14 +187,22 @@ async function POST_handler(request: NextRequest) {
             performedAs: "own_account",
             surface: "creator_intake",
             route: "/api/creator/onboarding/contract-signature",
-            actionKey: "creator_contract_signed",
+            actionKey: "creator_agreement_signed",
             occurredAt: nowMs,
-            dedupeKey: `creator_contract_signed:${caller.uid}:${CREATOR_MASTER_SERVICE_AGREEMENT_VERSION}`,
-            source: "creator_contract_signature",
+            dedupeKey: `creator_agreement_signed:${caller.uid}:${canonical.agreementDispatchId}:${canonical.agreementHash}`,
+            source: "creator_agreement_signature_ux",
         }));
+        const initialTemplateRef = canonical.agreementTemplateId
+            ? adminDb.collection(CREATOR_AGREEMENT_TEMPLATE_COLLECTION).doc(canonical.agreementTemplateId)
+            : null;
 
         const result = await adminDb.runTransaction(async (transaction) => {
-            const [latestOnboardingSnap, latestUserSnap] = await transaction.getAll(onboardingRef, userRef);
+            const snaps = await transaction.getAll(
+                onboardingRef,
+                userRef,
+                ...(initialTemplateRef ? [initialTemplateRef] : []),
+            );
+            const [latestOnboardingSnap, latestUserSnap, templateSnap] = snaps;
             const latestCanonical = normalizeCreatorOnboardingCanonicalRecord(latestOnboardingSnap.data());
             const latestUserData = (latestUserSnap.data() as Record<string, unknown> | undefined) ?? userData;
             if (!latestCanonical) {
@@ -151,9 +219,38 @@ async function POST_handler(request: NextRequest) {
                 };
             }
 
+            if (!latestCanonical.agreementDispatchId) {
+                throw new ContractSignaturePreconditionError("No active agreement dispatch exists for this account.");
+            }
+            if (!latestCanonical.contractVersion) {
+                throw new ContractSignaturePreconditionError("Agreement version is missing.");
+            }
+            if (!latestCanonical.agreementHash) {
+                throw new ContractSignaturePreconditionError("Agreement hash is missing.");
+            }
+
+            const defaultTemplate = buildDefaultCreatorAgreementTemplate(nowMs);
+            const storedTemplate = normalizeCreatorAgreementTemplate(templateSnap?.data());
+            const template = storedTemplate ?? {
+                ...defaultTemplate,
+                templateId: latestCanonical.agreementTemplateId || defaultTemplate.templateId,
+                agreementVersion: latestCanonical.contractVersion,
+                agreementTitle: latestCanonical.agreementTitle || defaultTemplate.agreementTitle,
+                agreementHash: latestCanonical.agreementHash,
+                agreementSource: latestCanonical.agreementSource || defaultTemplate.agreementSource,
+            };
+            if (!assertContentSourceAvailable({
+                agreementSource: latestCanonical.agreementSource || template.agreementSource,
+                pdfStoragePath: template.pdfStoragePath,
+                fullTextStoragePath: template.fullTextStoragePath,
+                legalDocumentUrl: latestCanonical.legalDocumentUrl,
+            })) {
+                throw new ContractSignaturePreconditionError("Agreement content is unavailable. Ask creator support to resend it.");
+            }
+
             const nextCanonical = buildCreatorOnboardingCanonicalRecord({
                 userId: caller.uid,
-                email: typeof latestUserData.email === "string" ? latestUserData.email : caller.email ?? null,
+                email: typeof latestUserData.email === "string" ? latestUserData.email : signerEmail,
                 username: typeof latestUserData.username === "string" ? latestUserData.username : latestCanonical.username,
                 displayName: readString(latestUserData.displayName) || latestCanonical.creatorDisplayName,
                 photoURL: typeof latestUserData.photoURL === "string" ? latestUserData.photoURL : latestCanonical.photoURL,
@@ -168,6 +265,7 @@ async function POST_handler(request: NextRequest) {
                     ...latestCanonical,
                     contractVersion: latestCanonical.contractVersion ?? CREATOR_MASTER_SERVICE_AGREEMENT_VERSION,
                     creatorSignatureStatus: "signature_signed",
+                    agreementDispatchStatus: "signed",
                     creatorContractSignedAt: nowMs,
                     creatorContractSignedByName: signatureName,
                     creatorContractSignedIp: signatureIp,
@@ -181,14 +279,6 @@ async function POST_handler(request: NextRequest) {
                 displayName: readString(latestUserData.displayName) || latestCanonical.creatorDisplayName,
                 canonical: nextCanonical,
             });
-            const template = {
-                ...buildDefaultCreatorAgreementTemplate(nowMs),
-                templateId: latestCanonical.agreementTemplateId || buildDefaultCreatorAgreementTemplate(nowMs).templateId,
-                agreementVersion: latestCanonical.contractVersion ?? CREATOR_MASTER_SERVICE_AGREEMENT_VERSION,
-                agreementTitle: latestCanonical.agreementTitle || buildDefaultCreatorAgreementTemplate(nowMs).agreementTitle,
-                agreementHash: latestCanonical.agreementHash || buildDefaultCreatorAgreementTemplate(nowMs).agreementHash,
-                agreementSource: latestCanonical.agreementSource || buildDefaultCreatorAgreementTemplate(nowMs).agreementSource,
-            };
             const dispatch = buildCreatorAgreementDispatch({
                 userId: caller.uid,
                 sentByUid: "admin",
@@ -199,13 +289,17 @@ async function POST_handler(request: NextRequest) {
             });
             const signature = buildCreatorAgreementSignature({
                 dispatch,
+                agreementSource: template.agreementSource,
+                pdfStoragePath: template.pdfStoragePath,
+                fullTextSnapshotPath: template.fullTextStoragePath,
                 signerUid: caller.uid,
                 signerName: signatureName,
-                signerEmail: caller.email,
+                signerEmail,
                 signedAt: nowMs,
                 signerIp: signatureIp,
                 signerUserAgent: signatureUserAgent,
                 acknowledgementValues: {
+                    ...acknowledgementValues,
                     creatorSignature: true,
                     route: "/api/creator/onboarding/contract-signature",
                 },
@@ -213,17 +307,10 @@ async function POST_handler(request: NextRequest) {
 
             transaction.set(
                 onboardingRef.collection(CREATOR_AGREEMENT_DISPATCHES_SUBCOLLECTION).doc(dispatch.dispatchId),
-                latestCanonical.agreementDispatchId
-                    ? {
-                        status: "signed",
-                        agreementVersion: dispatch.agreementVersion,
-                        templateId: dispatch.templateId,
-                        agreementHash: dispatch.agreementHash,
-                    }
-                    : {
-                        ...dispatch,
-                        status: "signed",
-                    },
+                {
+                    ...dispatch,
+                    status: "signed",
+                },
                 { merge: true },
             );
             transaction.set(
@@ -257,23 +344,33 @@ async function POST_handler(request: NextRequest) {
             };
         });
 
-        await trackServerEvent("creator_contract_signed", {
+        const telemetryPayload = {
             page_path: "/creators/waitlist",
             contract_version: result.creatorApplication.contractVersion ?? CREATOR_MASTER_SERVICE_AGREEMENT_VERSION,
             onboarding_status: result.creatorApplication.submissionStatus,
             legal_status: result.creatorApplication.legalStatus,
             agreement_version: result.creatorApplication.contractVersion ?? CREATOR_MASTER_SERVICE_AGREEMENT_VERSION,
             agreement_hash: result.creatorApplication.agreementHash ?? "",
+            agreement_source: result.creatorApplication.agreementSource ?? "",
             template_id: result.creatorApplication.agreementTemplateId ?? "",
             dispatch_id: result.creatorApplication.agreementDispatchId ?? "",
             ...actorMarkerToTelemetryPayload(actorMarker),
-        }, caller.uid).catch(() => undefined);
+        };
+
+        await Promise.all([
+            trackServerEvent("creator_agreement_signed", telemetryPayload, caller.uid),
+            trackServerEvent("creator_contract_signed", telemetryPayload, caller.uid),
+        ]).catch(() => undefined);
 
         return NextResponse.json({
             success: true,
             creatorApplication: result.creatorApplication,
         });
     } catch (error) {
+        if (error instanceof ContractSignaturePreconditionError) {
+            return buildErrorResponse(error.status, error.message);
+        }
+
         return handleApiError(error, "Creator.Onboarding.ContractSignature");
     }
 }

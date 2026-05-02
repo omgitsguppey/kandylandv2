@@ -1,5 +1,41 @@
 # KandyDrops Core Codebase Audit & Defensive Ledger
 
+## [2026-05-02 #98] PRE: Creator Agreement Signature UX
+
+Scope started:
+- Replacing the creator-facing summary-only agreement review with a structured, versioned Creator Service Agreement viewer and signature flow on the existing creator onboarding/dispatch/signature spine.
+- Required outputs: full in-site agreement review sections, required acknowledgement gate, signature evidence with version/hash/IP/user-agent/source fields, creator agreement telemetry events, audit history preservation, `scripts/agent/validate-creator-agreement-signature-ux.ts`, focused tests, `docs/agent-truth/creator-agreement-signature-ux.md`, agreement document manager doc update, governance ledger updates, commit, and push.
+- This pass is targeted. It must not create a parallel agreement collection, hardcode uploaded PDF bytes, expose raw storage paths in creator UI, show raw legal enum statuses to creators, change admin countersign legal completion semantics, or redesign unrelated creator onboarding surfaces.
+
+Initial evidence:
+- Worktree was clean at startup on `main`.
+- Control tower routing, doctrine consultation workflow, UI/copy/product doctrine, surface matrix, banned patterns, vocabulary index, preflight/postflight checklists, and creator agreement document manager ledger were consulted.
+- Source truth remains runtime code first: `src/app/creators/waitlist/page.tsx`, `src/app/api/creator/onboarding/contract-signature/route.ts`, `src/lib/creator-agreement-documents.ts`, `src/lib/creator-contract.ts`, `src/lib/creator-onboarding.ts`, and current agreement route/helper tests.
+
+Scope completed:
+- Added `src/components/Creators/CreatorAgreementReview.tsx` as the focused mobile-first creator-facing agreement viewer with the required title, intro, summary, acknowledgements, full agreement table of contents, expandable sections, protected PDF action, signer name field, and safe-area signature CTA.
+- Added `src/lib/creator-agreement-signature-ux.ts` for required acknowledgement keys, status copy, content source availability, signature readiness, and identity-marked telemetry payloads.
+- Hardened `/api/creator/onboarding/contract-signature` so creator signing requires active dispatch, agreement version/hash, content source, signer identity, all acknowledgements, IP/user-agent evidence, and writes source-aware signature evidence without overwriting prior version records.
+- Cataloged `creator_agreement_viewed`, `creator_agreement_section_opened`, `creator_agreement_acknowledgement_checked`, and `creator_agreement_signed`, updated the event catalog audit, and preserved legacy `creator_contract_signed` lifecycle telemetry/history.
+- Created `docs/agent-truth/creator-agreement-signature-ux.md`, updated the agreement document manager doctrine, updated governance ledgers, and added targeted validation/tests.
+
+Verification:
+- `npm run check:creator-agreement-signature-ux`
+- `npx vitest run tests/unit/creator-agreement-signature-ux.spec.ts tests/unit/creator-contract-signature-route.spec.ts tests/unit/creator-waitlist-page.spec.tsx tests/unit/creator-agreement-documents.spec.ts tests/contracts/telemetry-contracts.spec.ts`
+- `npx tsc --noEmit --pretty false`
+- `npm run check:event-catalog-telemetry`
+- `npm run check:creator-agreement-document-manager`
+- `npm run check:creator-identity-markers`
+- `npm run check:creator-intake-flow`
+- `npm run check:ui:coverage`
+- `npm run check:ui:runtime`
+- `npm run check:ui:audits`
+- `npm run check:generated-artifacts`
+- `git diff --check`
+
+Residual risk:
+- `npm run check:ui:audits` passed 20/20 desktop and Mobile Chrome checks after the final component split. No browser visual audit blocker remains from this pass.
+
 ## [2026-05-02 #97] PRE: Creator Agreement Document Manager
 
 Scope started:

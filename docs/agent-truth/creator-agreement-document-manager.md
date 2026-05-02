@@ -50,6 +50,12 @@ Storage paths and raw document paths are Debug-only. Main UI may show availabili
 - Creator signatures and admin countersignatures store the same `agreementVersion`, `templateId`, `agreementHash`, and `dispatchId`.
 - Admin countersign is blocked until the creator signature is recorded.
 
+## Creator-facing signature UX
+
+Creator signature happens through the full in-site `Creator Service Agreement` review flow, not a summary-only action. The creator view shows the agreement version, document title, last updated date, summary, required acknowledgements, full agreement sections, and a protected PDF link when the dispatched template has one.
+
+The creator cannot sign without an active dispatch, agreement version, agreement hash, content source, authenticated signer, signer name/email, and all required acknowledgements. Signature evidence records IP, user agent, acknowledgement values, agreement source, and source storage paths when available. See `docs/agent-truth/creator-agreement-signature-ux.md`.
+
 ## Telemetry
 
 Admin agreement lifecycle events are:
@@ -81,6 +87,7 @@ Run:
 
 ```bash
 npm run check:creator-agreement-document-manager
+npm run check:creator-agreement-signature-ux
 npx vitest run tests/unit/creator-agreement-documents.spec.ts tests/unit/admin-creator-agreements-route.spec.ts tests/unit/creator-contract-signature-route.spec.ts tests/unit/admin-roster-decision-queue.spec.ts
 ```
 

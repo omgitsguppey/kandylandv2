@@ -4,6 +4,10 @@ Status: Canonical repository-memory and architecture-decision ledger
 Last refreshed: 2026-05-02
 Repo: `C:\Users\uylus\OneDrive\Documents\KandyDrops_Final`
 
+## 2026-05-02 Creator agreement signature UX
+
+Creator-facing agreement signature now requires a structured full agreement review, not summary-only signing. The focused UI component is `src/components/Creators/CreatorAgreementReview.tsx`; shared acknowledgement/status/readiness/telemetry helpers live in `src/lib/creator-agreement-signature-ux.ts`; the guarded signature route remains `src/app/api/creator/onboarding/contract-signature/route.ts`. A creator cannot sign unless the active dispatch, agreement version, agreement hash, signer identity, content source, and all four acknowledgements are present. Signature evidence now stores source details, IP/user agent, and acknowledgement values, while preserving prior dispatch/version records.
+
 ## 2026-05-02 Creator agreement document manager
 
 The creator agreement document manager is now the launch path for creator agreement source, dispatch, signature, and countersign evidence. Templates are versioned in `creator_agreement_templates`; active template metadata seeds creator onboarding canonical fields; creator-specific dispatches live under creator onboarding; signature evidence stores matching `agreementVersion`, `templateId`, `agreementHash`, and `dispatchId`. Admin Roster exposes collapsed `Agreement document` and `Agreement templates` sections without raw storage paths. Do not mutate prior signed records when a new template becomes active; send an updated agreement dispatch instead.

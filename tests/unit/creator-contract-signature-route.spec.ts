@@ -107,6 +107,13 @@ vi.mock("@/lib/server/server-diagnostics", () => ({
 
 import { POST } from "@/app/api/creator/onboarding/contract-signature/route";
 
+const AGREEMENT_ACKNOWLEDGEMENTS = {
+    tools_activate_after_approval: true,
+    access_may_pause_for_review: true,
+    signature_record_stored: true,
+    full_agreement_reviewed: true,
+};
+
 describe("POST /api/creator/onboarding/contract-signature", () => {
     beforeEach(() => {
         mockState.reset();
@@ -166,6 +173,20 @@ describe("POST /api/creator/onboarding/contract-signature", () => {
             readyForApproval: false,
             creatorReviewQueueVisible: true,
         });
+        mockState.documents.set("creator_agreement_templates/creator_agreement_v2", {
+            templateId: "creator_agreement_v2",
+            agreementVersion: "agreement_v2",
+            agreementTitle: "Creator Agreement v2",
+            agreementSource: "uploaded_pdf_snapshot",
+            activeForNewCreators: true,
+            pdfStoragePath: "creator-agreements/agreement_v2/source.pdf",
+            agreementHash: "sha256:v2",
+            summaryBullets: ["Version two summary"],
+            createdAt: 1_710_000_000_000,
+            createdByUid: "owner_1",
+            activatedAt: 1_710_000_000_050,
+            activatedByUid: "owner_1",
+        });
     });
 
     it("records the creator signature and preserves the native contract audit trail", async () => {
@@ -178,6 +199,7 @@ describe("POST /api/creator/onboarding/contract-signature", () => {
             },
             body: JSON.stringify({
                 signatureName: "Creator One",
+                acknowledgementValues: AGREEMENT_ACKNOWLEDGEMENTS,
             }),
         });
 
@@ -211,7 +233,13 @@ describe("POST /api/creator/onboarding/contract-signature", () => {
             agreementVersion: "agreement_v2",
             templateId: "creator_agreement_v2",
             agreementHash: "sha256:v2",
+            agreementSource: "uploaded_pdf_snapshot",
+            pdfStoragePath: "creator-agreements/agreement_v2/source.pdf",
             signerUid: "creator_1",
+            signerEmail: "creator@example.com",
+            signerIp: "127.0.0.1",
+            signerUserAgent: "Vitest/creator-contract",
+            acknowledgementValues: expect.objectContaining(AGREEMENT_ACKNOWLEDGEMENTS),
         });
         const historyPath = Array.from(mockState.documents.keys()).find((path) => path.startsWith("creator_onboarding/creator_1/history/creator_contract_signed_"));
         expect(historyPath).toBeTruthy();
@@ -223,7 +251,87 @@ describe("POST /api/creator/onboarding/contract-signature", () => {
                 dispatchId: "dispatch_v2",
             }),
         });
+        expect(mockState.trackServerEvent).toHaveBeenCalledWith("creator_agreement_signed", expect.objectContaining({
+            agreement_hash: "sha256:v2",
+            dispatch_id: "dispatch_v2",
+        }), "creator_1");
         expect(mockState.trackServerEvent).toHaveBeenCalledWith("creator_contract_signed", expect.any(Object), "creator_1");
+    });
+
+    it("blocks signing when acknowledgements are incomplete", async () => {
+        const request = new NextRequest("http://localhost/api/creator/onboarding/contract-signature", {
+            method: "POST",
+            headers: {
+                "content-type": "application/json",
+            },
+            body: JSON.stringify({
+                signatureName: "Creator One",
+                acknowledgementValues: {
+                    ...AGREEMENT_ACKNOWLEDGEMENTS,
+                    full_agreement_reviewed: false,
+                },
+            }),
+        });
+
+        const response = await POST(request);
+        const payload = await response.json();
+
+        expect(response.status).toBe(400);
+        expect(payload).toMatchObject({
+            error: "Review and accept every agreement acknowledgement before signing.",
+        });
+    });
+
+    it("blocks signing without an agreement hash", async () => {
+        mockState.documents.set("creator_onboarding/creator_1", {
+            ...(mockState.documents.get("creator_onboarding/creator_1") ?? {}),
+            agreementHash: "",
+        });
+
+        const request = new NextRequest("http://localhost/api/creator/onboarding/contract-signature", {
+            method: "POST",
+            headers: {
+                "content-type": "application/json",
+            },
+            body: JSON.stringify({
+                signatureName: "Creator One",
+                acknowledgementValues: AGREEMENT_ACKNOWLEDGEMENTS,
+            }),
+        });
+
+        const response = await POST(request);
+        const payload = await response.json();
+
+        expect(response.status).toBe(409);
+        expect(payload).toMatchObject({
+            error: "Agreement hash is missing.",
+        });
+    });
+
+    it("blocks signing without an active dispatch", async () => {
+        mockState.documents.set("creator_onboarding/creator_1", {
+            ...(mockState.documents.get("creator_onboarding/creator_1") ?? {}),
+            agreementDispatchId: "",
+        });
+
+        const request = new NextRequest("http://localhost/api/creator/onboarding/contract-signature", {
+            method: "POST",
+            headers: {
+                "content-type": "application/json",
+            },
+            body: JSON.stringify({
+                signatureName: "Creator One",
+                acknowledgementValues: AGREEMENT_ACKNOWLEDGEMENTS,
+            }),
+        });
+
+        const response = await POST(request);
+        const payload = await response.json();
+
+        expect(response.status).toBe(409);
+        expect(payload).toMatchObject({
+            error: "No active agreement dispatch exists for this account.",
+        });
     });
 
     it("blocks signing until identity verification is accepted", async () => {
@@ -239,6 +347,7 @@ describe("POST /api/creator/onboarding/contract-signature", () => {
             },
             body: JSON.stringify({
                 signatureName: "Creator One",
+                acknowledgementValues: AGREEMENT_ACKNOWLEDGEMENTS,
             }),
         });
 

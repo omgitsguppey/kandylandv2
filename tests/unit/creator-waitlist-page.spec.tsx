@@ -69,6 +69,10 @@ vi.mock("@/lib/client-error-reporting", () => ({
     reportClientIssue: vi.fn(),
 }));
 
+vi.mock("@/lib/telemetry", () => ({
+    trackEvent: vi.fn(),
+}));
+
 vi.mock("sonner", () => ({
     toast: {
         success: vi.fn(),
@@ -97,5 +101,33 @@ describe("CreatorWaitlistPage", () => {
         expect(markup).toContain("No documents have been sent yet.");
         expect(markup).toContain("Documents will appear here once your application reaches the legal review stage.");
         expect(markup).toContain("/dashboard/support?category=creator_application&amp;subject=Creator+application+support");
+    });
+
+    it("renders the full creator agreement review flow without raw enum labels", () => {
+        Object.assign(mockState.authValue.userProfile.creatorApplication, {
+            legalStatus: "legal_sent",
+            contractDocumentStatus: "contract_sent",
+            contractVersion: "mgsa_2026_v1",
+            agreementTitle: "KandyDrops Creator Service Agreement",
+            agreementHash: "sha256:agreement",
+            agreementSource: "hybrid",
+            agreementDispatchId: "dispatch_1",
+            agreementDispatchStatus: "sent",
+            creatorSignatureStatus: "signature_pending",
+            adminSignatureStatus: "signature_pending",
+            idVerificationStatus: "id_verified",
+            legalDocumentSentAt: 1_710_000_000_000,
+        });
+
+        const markup = renderToStaticMarkup(<CreatorWaitlistPage />);
+
+        expect(markup).toContain("Creator Service Agreement");
+        expect(markup).toContain("Review the full agreement before signing.");
+        expect(markup).toContain("Important acknowledgements");
+        expect(markup).toContain("I reviewed the full agreement before signing.");
+        expect(markup).toContain("Full agreement");
+        expect(markup).toContain("Review agreement to continue");
+        expect(markup).not.toContain("signature_pending");
+        expect(markup).not.toContain("legal_sent");
     });
 });

@@ -35,6 +35,8 @@ const onboardingServer = read("src/lib/server/creator-onboarding.ts");
 const onboardingContract = read("src/lib/creator-onboarding.ts");
 const rosterPage = read("src/app/admin/roster/page.tsx");
 const waitlistPage = read("src/app/creators/waitlist/page.tsx");
+const creatorAgreementReview = read("src/components/Creators/CreatorAgreementReview.tsx");
+const creatorAgreementFullText = read("src/components/Creators/CreatorAgreementFullText.tsx");
 const telemetryCatalog = read("src/lib/telemetry-catalog.ts");
 const packageJson = read("package.json");
 const helperTests = read("tests/unit/creator-agreement-documents.spec.ts");
@@ -162,7 +164,7 @@ const checklist = read("EVERY_FILE_FUNCTION_CHECKLIST.md");
   "Agreement version",
   "Document title",
   "/api/creator/onboarding/agreement-document",
-].forEach((needle) => requireIncludes(waitlistPage, needle, "creator-facing agreement version view"));
+].forEach((needle) => requireIncludes(`${waitlistPage}\n${creatorAgreementReview}\n${creatorAgreementFullText}`, needle, "creator-facing agreement version view"));
 
 [
   "admin_creator_agreement_template_created",

@@ -1,5 +1,5 @@
 {
-  "generatedAt": "2026-05-02T09:17:50.077Z",
+  "generatedAt": "2026-05-02T09:45:07.715Z",
   "auditKey": "event-catalog-telemetry-launch-audit",
   "catalogVersion": "2026.04.04.1",
   "sourceRoots": [
@@ -10,14 +10,14 @@
     "admin analytics consumers"
   ],
   "summary": {
-    "catalogEventCount": 239,
-    "emittedOrCoveredCount": 239,
+    "catalogEventCount": 243,
+    "emittedOrCoveredCount": 243,
     "familyCounts": {
       "auth": 19,
-      "onboarding": 6,
+      "onboarding": 9,
       "page_view": 15,
-      "creator": 11,
-      "admin": 60,
+      "creator": 18,
+      "admin": 70,
       "drop": 24,
       "engagement": 16,
       "task": 14,
@@ -5841,6 +5841,131 @@
       "adminExcludedFromUserAnalytics": true,
       "legacyDeprecated": false,
       "missingFieldsRisk": "Generated audit entry added after creator launch telemetry additions; emitter detection and payload contracts remain enforced by validate-event-catalog-telemetry."
+    },
+    {
+      "eventName": "creator_agreement_viewed",
+      "aliases": [],
+      "version": 1,
+      "family": "onboarding",
+      "emittedFrom": [
+        "src/components/Creators/CreatorAgreementReview.tsx"
+      ],
+      "consumedBy": [
+        "src/app/admin/analytics/page.tsx",
+        "src/app/admin/debug/page.tsx"
+      ],
+      "requiredActorFields": [
+        "actorType|actor_type",
+        "actorUid|actor_uid"
+      ],
+      "requiredObjectFields": [
+        "agreementVersion|agreement_version",
+        "agreementHash|agreement_hash",
+        "dispatchId|dispatch_id"
+      ],
+      "requiredSurfaceFields": [
+        "route|page_path|source"
+      ],
+      "dedupeKeyRequired": false,
+      "guestAllowed": true,
+      "adminExcludedFromUserAnalytics": false,
+      "legacyDeprecated": false,
+      "auditCoveredBy": [],
+      "missingFieldsRisk": "medium"
+    },
+    {
+      "eventName": "creator_agreement_section_opened",
+      "aliases": [],
+      "version": 1,
+      "family": "onboarding",
+      "emittedFrom": [
+        "src/components/Creators/CreatorAgreementReview.tsx"
+      ],
+      "consumedBy": [
+        "src/app/admin/analytics/page.tsx",
+        "src/app/admin/debug/page.tsx"
+      ],
+      "requiredActorFields": [
+        "actorType|actor_type",
+        "actorUid|actor_uid"
+      ],
+      "requiredObjectFields": [
+        "agreementVersion|agreement_version",
+        "agreementHash|agreement_hash",
+        "dispatchId|dispatch_id"
+      ],
+      "requiredSurfaceFields": [
+        "route|page_path|source"
+      ],
+      "dedupeKeyRequired": false,
+      "guestAllowed": true,
+      "adminExcludedFromUserAnalytics": false,
+      "legacyDeprecated": false,
+      "auditCoveredBy": [],
+      "missingFieldsRisk": "medium"
+    },
+    {
+      "eventName": "creator_agreement_acknowledgement_checked",
+      "aliases": [],
+      "version": 1,
+      "family": "onboarding",
+      "emittedFrom": [
+        "src/components/Creators/CreatorAgreementReview.tsx"
+      ],
+      "consumedBy": [
+        "src/app/admin/analytics/page.tsx",
+        "src/app/admin/debug/page.tsx"
+      ],
+      "requiredActorFields": [
+        "actorType|actor_type",
+        "actorUid|actor_uid"
+      ],
+      "requiredObjectFields": [
+        "agreementVersion|agreement_version",
+        "agreementHash|agreement_hash",
+        "dispatchId|dispatch_id"
+      ],
+      "requiredSurfaceFields": [
+        "route|page_path|source"
+      ],
+      "dedupeKeyRequired": false,
+      "guestAllowed": true,
+      "adminExcludedFromUserAnalytics": false,
+      "legacyDeprecated": false,
+      "auditCoveredBy": [],
+      "missingFieldsRisk": "medium"
+    },
+    {
+      "eventName": "creator_agreement_signed",
+      "aliases": [],
+      "version": 1,
+      "family": "admin",
+      "emittedFrom": [
+        "src/app/api/creator/onboarding/contract-signature/route.ts",
+        "src/components/Creators/CreatorAgreementReview.tsx"
+      ],
+      "consumedBy": [
+        "src/app/admin/analytics/page.tsx",
+        "src/app/admin/debug/page.tsx"
+      ],
+      "requiredActorFields": [
+        "actorType|actor_type",
+        "actorUid|actor_uid"
+      ],
+      "requiredObjectFields": [
+        "agreementVersion|agreement_version",
+        "agreementHash|agreement_hash",
+        "dispatchId|dispatch_id"
+      ],
+      "requiredSurfaceFields": [
+        "route|page_path|source"
+      ],
+      "dedupeKeyRequired": true,
+      "guestAllowed": false,
+      "adminExcludedFromUserAnalytics": true,
+      "legacyDeprecated": false,
+      "auditCoveredBy": [],
+      "missingFieldsRisk": "medium"
     }
   ]
 }

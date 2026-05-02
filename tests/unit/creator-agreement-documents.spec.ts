@@ -60,6 +60,8 @@ describe("creator agreement document contract helpers", () => {
     });
     const signature = buildCreatorAgreementSignature({
       dispatch,
+      agreementSource: "uploaded_pdf_snapshot",
+      pdfStoragePath: "creator-agreements/v2/source.pdf",
       signerUid: "creator_1",
       signerName: "Creator One",
       signedAt: 1_710_000_200_000,
@@ -78,6 +80,8 @@ describe("creator agreement document contract helpers", () => {
       agreementVersion: "v2",
       templateId: "template_v2",
       agreementHash: "sha256:v2",
+      agreementSource: "uploaded_pdf_snapshot",
+      pdfStoragePath: "creator-agreements/v2/source.pdf",
       signerUid: "creator_1",
     });
     expect(normalizeCreatorAgreementDispatch(dispatch)).toMatchObject(dispatch);

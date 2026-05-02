@@ -69,6 +69,9 @@ export type CreatorAgreementSignature = {
   agreementVersion: string;
   templateId: string;
   agreementHash: string;
+  agreementSource: CreatorAgreementSource;
+  pdfStoragePath?: string;
+  fullTextSnapshotPath?: string;
   signerUid: string;
   signerName: string;
   signerEmail?: string;
@@ -298,6 +301,9 @@ export function normalizeCreatorAgreementDispatch(value: unknown): CreatorAgreem
 
 export function buildCreatorAgreementSignature(input: {
   dispatch: CreatorAgreementDispatch;
+  agreementSource?: CreatorAgreementSource | null;
+  pdfStoragePath?: string | null;
+  fullTextSnapshotPath?: string | null;
   signerUid: string;
   signerName: string;
   signerEmail?: string | null;
@@ -312,6 +318,9 @@ export function buildCreatorAgreementSignature(input: {
     agreementVersion: input.dispatch.agreementVersion,
     templateId: input.dispatch.templateId,
     agreementHash: input.dispatch.agreementHash,
+    agreementSource: input.agreementSource ?? "native_full_text",
+    pdfStoragePath: readString(input.pdfStoragePath) || undefined,
+    fullTextSnapshotPath: readString(input.fullTextSnapshotPath) || undefined,
     signerUid: input.signerUid,
     signerName: input.signerName,
     signerEmail: readString(input.signerEmail) || undefined,

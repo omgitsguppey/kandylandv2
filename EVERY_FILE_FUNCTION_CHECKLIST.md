@@ -1,13 +1,22 @@
 # EVERY FILE FUNCTION CHECKLIST
 
 **Last Updated:** 2026-05-02
-**Current Focus:** Final Launch Readiness Report.
+**Current Focus:** Creator Agreement Signature UX.
 **Status:** In Progress. Current tracked-file coverage is reconciled as of 2026-04-28: every `git ls-files` entry has a current checklist heading, while detailed function-level audits remain pending for many historical and newly reconciled files.
 Purpose: exhaustive no-skip audit checklist covering every repository file currently in scope and every detected function-like implementation.
 
 Scoring: all entries below are marked as included in the current validated sweep. Confidence reflects current repository-state confidence, not perfection or future-proofing.
 
 Current repo-wide state snapshot: see [FULL_SCALE_CODEBASE_AUDIT.md](/Users/uylus/OneDrive/Documents/KandyDrops_Final/FULL_SCALE_CODEBASE_AUDIT.md) for the current live baseline, verification state, and continuity rules, and see [REPO_MEMORY_LEDGER.md](/Users/uylus/OneDrive/Documents/KandyDrops_Final/REPO_MEMORY_LEDGER.md) for major architectural and workflow decisions. The detailed file/function body below remains valuable historical evidence, but it has not been fully regenerated against the current 2026-04-18 inventory review yet.
+
+## 2026-05-02 Creator Agreement Signature UX Coverage
+
+- [x] `src/components/Creators/CreatorAgreementReview.tsx`, `src/components/Creators/CreatorAgreementFullText.tsx`, and `src/components/Creators/CreatorAgreementSignatureSection.tsx` own the mobile-first creator-facing full agreement viewer, table of contents, expandable full agreement sections, required acknowledgement checkboxes, protected PDF action, signature status copy, and safe-area CTA.
+- [x] `src/lib/creator-agreement-signature-ux.ts` owns required acknowledgement keys, status copy mapping, content-source availability, signature readiness, and identity-marked creator agreement telemetry payloads.
+- [x] `src/app/api/creator/onboarding/contract-signature/route.ts` requires active dispatch/version/hash/content source, all acknowledgements, signer identity, IP/user-agent evidence, and writes a non-overwriting signature record plus `creator_contract_signed` history.
+- [x] `src/lib/creator-agreement-documents.ts` now includes agreement source and source path evidence on creator signature records without exposing raw paths in creator UI.
+- [x] `src/lib/telemetry-catalog.ts` catalogs `creator_agreement_viewed`, `creator_agreement_section_opened`, `creator_agreement_acknowledgement_checked`, and `creator_agreement_signed`.
+- [x] `scripts/agent/validate-creator-agreement-signature-ux.ts`, `tests/unit/creator-agreement-signature-ux.spec.ts`, creator signature route tests, waitlist page tests, and agreement document helper tests validate the targeted signature UX contract.
 
 ## 2026-05-02 Creator Agreement Document Manager Coverage
 
