@@ -1,13 +1,21 @@
 # EVERY FILE FUNCTION CHECKLIST
 
 **Last Updated:** 2026-05-02
-**Current Focus:** Rollback Incident Response Launch Plan.
+**Current Focus:** Final Launch Readiness Report.
 **Status:** In Progress. Current tracked-file coverage is reconciled as of 2026-04-28: every `git ls-files` entry has a current checklist heading, while detailed function-level audits remain pending for many historical and newly reconciled files.
 Purpose: exhaustive no-skip audit checklist covering every repository file currently in scope and every detected function-like implementation.
 
 Scoring: all entries below are marked as included in the current validated sweep. Confidence reflects current repository-state confidence, not perfection or future-proofing.
 
 Current repo-wide state snapshot: see [FULL_SCALE_CODEBASE_AUDIT.md](/Users/uylus/OneDrive/Documents/KandyDrops_Final/FULL_SCALE_CODEBASE_AUDIT.md) for the current live baseline, verification state, and continuity rules, and see [REPO_MEMORY_LEDGER.md](/Users/uylus/OneDrive/Documents/KandyDrops_Final/REPO_MEMORY_LEDGER.md) for major architectural and workflow decisions. The detailed file/function body below remains valuable historical evidence, but it has not been fully regenerated against the current 2026-04-18 inventory review yet.
+
+## 2026-05-02 Final Launch Readiness Report Coverage
+
+- [x] `agent/state/final-launch-readiness-report.generated.json` records all required launch gates with status, evidence files, validations run, blockers, warnings, launch recommendation, and post-launch tasks.
+- [x] `docs/agent-truth/final-launch-readiness-report.md` records the human-readable final decision: `LAUNCHABLE WITH WARNINGS`, with hard-stop gates passed and live provider smoke still required before public announcement.
+- [x] `scripts/agent/validate-final-launch-readiness-report.ts` and `package.json` add `npm run check:final-launch-readiness-report` to validate report structure, required gates, hard-stop launch rules, validation command coverage, and governance ledger updates.
+- [x] The final gate reran all targeted launch validators that exist, plus TypeScript, Functions check, Firebase rules, Firebase runtime, Admin truth, analytics contract/truth checks, and previous launch-readiness final validation.
+- [x] `FULL_SCALE_CODEBASE_AUDIT.md` and `REPO_MEMORY_LEDGER.md` record that launch status is launchable with warnings and that deployment/public announcement still requires live PayPal, entitlement, push, PWA, App Hosting health, and Admin Debug smoke checks.
 
 ## 2026-05-02 Rollback Incident Response Launch Plan Coverage
 

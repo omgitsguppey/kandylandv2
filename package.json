@@ -75,6 +75,7 @@
         "check:legal-payment-copy": "tsx scripts/agent/validate-legal-payment-copy.ts",
         "check:test-fixtures-demo": "tsx scripts/agent/validate-test-fixtures-demo.ts",
         "check:rollback-incident-response": "tsx scripts/agent/validate-rollback-incident-response.ts",
+        "check:final-launch-readiness-report": "tsx scripts/agent/validate-final-launch-readiness-report.ts",
         "check:admin-analytics-snapshot-migration": "tsx scripts/agent/validate-admin-analytics-snapshot-migration.ts",
         "check:admin-analytics-no-pure-realtime": "tsx scripts/agent/validate-admin-analytics-no-pure-realtime.ts",
         "check:admin-analytics-finalization": "tsx scripts/agent/validate-admin-analytics-finalization.ts",

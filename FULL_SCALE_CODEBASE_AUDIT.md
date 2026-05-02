@@ -1,5 +1,72 @@
 # KandyDrops Core Codebase Audit & Defensive Ledger
 
+## [2026-05-02 #93] PRE: Final Launch Readiness Report
+
+Scope started:
+- Running the final KandyDrops launch readiness gate across scope freeze, PR triage, user critical path, payment/unlock/wallet/entitlement, notification return loop, security/rules/role boundaries, environment/deployment truth, background jobs/idempotency, Admin Analytics/Debug truth, speed/hydration/cache, mobile shell/PWA, human-readable copy, accessibility/tap targets, design drift, content/media, Admin CMS workflow, event catalog/telemetry, support/recovery, legal/payment copy, test fixtures/demo, and rollback/incident response.
+- Required outputs: `agent/state/final-launch-readiness-report.generated.json`, `docs/agent-truth/final-launch-readiness-report.md`, governance ledger updates, commit, and push.
+- This pass is audit/report only. It must not add features, refactor architecture, hide failed checks, or mark launchable if payment/unlock/content entitlement, security role boundaries, or user critical path has an unresolved blocker.
+
+Initial evidence:
+- Worktree was clean at startup on `main`.
+- Control tower routing, source-of-truth map, doctrine consultation workflow, product/copy/UI/cloud doctrine, preflight/postflight checklists, and current launch ledgers were consulted.
+- Task is classified as a final AUDIT/VERIFICATION launch-readiness pass with no planned product/runtime code changes.
+
+Scope completed:
+- Created `agent/state/final-launch-readiness-report.generated.json`, `docs/agent-truth/final-launch-readiness-report.md`, and `scripts/agent/validate-final-launch-readiness-report.ts` with `npm run check:final-launch-readiness-report`.
+- Ran all existing targeted launch gate validations for scope freeze, PR triage, user critical path, payment/unlock/content entitlement, notification pipeline/return loop, security/rules/role boundaries, environment/deployment truth, background jobs, Admin Analytics/Debug, speed/cache, mobile/PWA, human-readable copy, accessibility, design drift, content/media, Admin CMS, event catalog/telemetry, support/recovery, legal/payment copy, fixtures/demo, rollback/incident response, and previous launch-readiness final.
+- Hard-stop gates passed: user critical path, payment/unlock/content entitlement, security role boundaries, and Firebase rules.
+- Launch decision recorded as `LAUNCHABLE WITH WARNINGS`. Warnings are operational and smoke-test related: open PR discipline, live PayPal/FCM/App Hosting/GA4/PWA provider smoke still required, local `/api/health` deployment smoke unavailable, manual recovery paths remain documented, and no global runtime kill switches were added.
+
+Verification:
+- `npm run check:launch-finalization-baseline`
+- `npm run check:launch-pr-triage`
+- `npm run check:user-critical-path-launch`
+- `npm run check:payment-unlock-security`
+- `npm run check:notification-return-loop`
+- `npm run check:notification-pipeline`
+- `npm run check:security-role-boundaries`
+- `npm run check:environment-deployment-truth`
+- `npm run check:background-job-idempotency`
+- `npm run check:admin-analytics-finalization`
+- `npm run check:admin-analytics-hot-cache`
+- `npm run check:admin-analytics-no-pure-realtime`
+- `npm run check:admin-analytics-snapshot-migration`
+- `npm run check:analytics-legacy-recovery`
+- `npm run check:global-speed-hydration-cache`
+- `npm run check:global-loading-performance`
+- `npm run check:refresh-based-hot-cache`
+- `npm run check:mobile-shell-safe-area`
+- `npm run check:pwa-service-worker`
+- `npm run check:human-readable-admin-copy`
+- `npm run check:accessibility-tap-targets`
+- `npm run check:design-system-drift`
+- `npm run check:content-media-pipeline`
+- `npm run check:admin-cms-workflow`
+- `npm run check:event-catalog-telemetry`
+- `npm run check:support-recovery-flows`
+- `npm run check:legal-payment-copy`
+- `npm run check:test-fixtures-demo`
+- `npm run check:rollback-incident-response`
+- `npm run check:launch-readiness-final`
+- `npm run check:analytics-truth-layer-v2`
+- `npm run check:analytics-event-contract`
+- `npm run check:admin-truth`
+- `npm run check:firebase-runtime`
+- `npm run check:functions`
+- `npm run check:firebase:rules`
+- `npm run typecheck`
+- `npm run check:final-launch-readiness-report`
+- `git diff --check`
+
+Checks unavailable or intentionally not rerun:
+- `npm run check:deployment` was attempted. It first failed because no local server was listening at `localhost:3000`; after starting a temporary dev server, `/api/health` timed out. This is recorded as an environment/deployment warning and a required production smoke check, not as a launch blocker because static environment truth, Firebase runtime, Functions, and Firebase rules passed.
+- Broad aggregate `npm run check`, full `npx vitest run`, and browser `npm run check:ui:audits` were not rerun in this docs-only final report pass. Targeted launch validations, TypeScript, Functions, and Firebase rules were run instead.
+
+Residual risk:
+- Final launch status depends on not merging unrelated/open PRs before deployment. Any post-report change to user path, payment, unlock, content, security, notifications, mobile shell, Admin truth, or deployment config requires rerunning affected gates.
+- Live production provider smoke remains required before public announcement.
+
 ## [2026-05-02 #92] PRE: Rollback Incident Response Launch Plan
 
 Scope started:

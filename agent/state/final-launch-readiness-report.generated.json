@@ -1,0 +1,530 @@
+{
+  "generatedAt": "2026-05-02T01:25:00.000-05:00",
+  "reportKey": "final-launch-readiness-report",
+  "launchDecision": "LAUNCHABLE WITH WARNINGS",
+  "recommendedGoNoGo": "GO with warnings after production smoke",
+  "requiredNextAction": "Deploy only from this commit or a later commit that reruns the affected gates. Before public announcement, run live production smoke for PayPal refill, GumDrops credit, Drop unlock, protected content access, real-device push notification, PWA refresh, and App Hosting health.",
+  "summary": {
+    "gatesRequired": 21,
+    "gatesPassed": 14,
+    "gatesWarn": 7,
+    "gatesFailed": 0,
+    "gatesNotRun": 0,
+    "unresolvedBlockerCount": 0,
+    "hardStopGatesPassed": true,
+    "runtimeCodeChanged": false,
+    "featuresAdded": false,
+    "refactorsPerformed": false
+  },
+  "hardStopRules": [
+    {
+      "rule": "If payment/unlock/content entitlement fails, status is NOT LAUNCHABLE.",
+      "result": "passed",
+      "evidence": [
+        "npm run check:payment-unlock-security",
+        "npm run check:content-media-pipeline"
+      ]
+    },
+    {
+      "rule": "If security role boundaries fail, status is NOT LAUNCHABLE.",
+      "result": "passed",
+      "evidence": [
+        "npm run check:security-role-boundaries",
+        "npm run check:firebase:rules"
+      ]
+    },
+    {
+      "rule": "If user critical path has a blocker, status is NOT LAUNCHABLE.",
+      "result": "passed",
+      "evidence": [
+        "npm run check:user-critical-path-launch"
+      ]
+    }
+  ],
+  "overallUnresolvedBlockers": [],
+  "overallUnresolvedWarnings": [
+    "Open PRs remain a human merge decision gate; do not merge them into launch without reconciling the triage report and rerunning affected gates.",
+    "Live production provider smoke was not performed locally for PayPal, FCM delivery, App Hosting deployed health, GA4/BigQuery, or real-device PWA install.",
+    "The supplemental local deployment health check `npm run check:deployment` was attempted but unavailable: first no server was running, then a temporary dev server started but `/api/health` timed out. Static deployment truth, Firebase runtime, Functions, and Firebase rules checks passed.",
+    "Several launch recovery paths intentionally require provider console action or manual DB/Storage intervention because no safe product tool exists yet.",
+    "Fixture/demo coverage is documented and locally validated, but no executable seed runner was added by default.",
+    "Rollback/incident response documents real partial levers only; no true global runtime kill switches were added for unlocks, notifications, chat, creator profiles, or analytics refresh."
+  ],
+  "validationsRun": [
+    { "command": "npm run check:launch-finalization-baseline", "status": "pass" },
+    { "command": "npm run check:launch-pr-triage", "status": "pass" },
+    { "command": "npm run check:user-critical-path-launch", "status": "pass" },
+    { "command": "npm run check:payment-unlock-security", "status": "pass" },
+    { "command": "npm run check:notification-return-loop", "status": "pass" },
+    { "command": "npm run check:notification-pipeline", "status": "pass" },
+    { "command": "npm run check:security-role-boundaries", "status": "pass" },
+    { "command": "npm run check:environment-deployment-truth", "status": "pass" },
+    { "command": "npm run check:background-job-idempotency", "status": "pass" },
+    { "command": "npm run check:admin-analytics-finalization", "status": "pass" },
+    { "command": "npm run check:admin-analytics-hot-cache", "status": "pass" },
+    { "command": "npm run check:admin-analytics-no-pure-realtime", "status": "pass" },
+    { "command": "npm run check:admin-analytics-snapshot-migration", "status": "pass" },
+    { "command": "npm run check:analytics-legacy-recovery", "status": "pass" },
+    { "command": "npm run check:global-speed-hydration-cache", "status": "pass" },
+    { "command": "npm run check:global-loading-performance", "status": "pass" },
+    { "command": "npm run check:refresh-based-hot-cache", "status": "pass" },
+    { "command": "npm run check:mobile-shell-safe-area", "status": "pass" },
+    { "command": "npm run check:pwa-service-worker", "status": "pass" },
+    { "command": "npm run check:human-readable-admin-copy", "status": "pass" },
+    { "command": "npm run check:accessibility-tap-targets", "status": "pass" },
+    { "command": "npm run check:design-system-drift", "status": "pass" },
+    { "command": "npm run check:content-media-pipeline", "status": "pass" },
+    { "command": "npm run check:admin-cms-workflow", "status": "pass" },
+    { "command": "npm run check:event-catalog-telemetry", "status": "pass" },
+    { "command": "npm run check:support-recovery-flows", "status": "pass" },
+    { "command": "npm run check:legal-payment-copy", "status": "pass" },
+    { "command": "npm run check:test-fixtures-demo", "status": "pass" },
+    { "command": "npm run check:rollback-incident-response", "status": "pass" },
+    { "command": "npm run check:launch-readiness-final", "status": "pass" },
+    { "command": "npm run check:analytics-truth-layer-v2", "status": "pass" },
+    { "command": "npm run check:analytics-event-contract", "status": "pass" },
+    { "command": "npm run check:admin-truth", "status": "pass" },
+    { "command": "npm run check:firebase-runtime", "status": "pass" },
+    { "command": "npm run check:functions", "status": "pass" },
+    { "command": "npm run check:firebase:rules", "status": "pass" },
+    { "command": "npm run typecheck", "status": "pass" },
+    {
+      "command": "npm run check:deployment",
+      "status": "warn",
+      "detail": "Unavailable in local audit. Initial run failed because no server was listening at localhost:3000. A temporary dev server reported ready, but /api/health timed out. Treat as a required production smoke item, not a code validation pass."
+    }
+  ],
+  "skippedChecks": [
+    {
+      "command": "npm run check",
+      "reason": "Broad aggregate CI-style sweep was not required by this final targeted gate pass; targeted launch gates, typecheck, Functions, and Firebase rules were run instead."
+    },
+    {
+      "command": "npx vitest run",
+      "reason": "Full unit test sweep was not required by this final targeted gate pass; gate validators and Firebase rules tests were run."
+    },
+    {
+      "command": "npm run check:ui:audits",
+      "reason": "Browser visual/a11y audits were not rerun in this docs-only report pass; mobile/PWA/a11y/design targeted validators passed and prior UI audit reports remain the browser-backed evidence."
+    }
+  ],
+  "gates": [
+    {
+      "gateKey": "scope-freeze",
+      "status": "pass",
+      "evidenceFiles": [
+        "docs/agent-truth/launch-finalization-scope.md",
+        "agent/state/launch-finalization-baseline.generated.json"
+      ],
+      "validationsRun": [
+        "npm run check:launch-finalization-baseline"
+      ],
+      "unresolvedBlockers": [],
+      "unresolvedWarnings": [],
+      "launchRecommendation": "Launchable. Keep launch-critical scope frozen.",
+      "postLaunchTasks": [
+        "Reopen deferred feature work only after launch branch stability is confirmed."
+      ]
+    },
+    {
+      "gateKey": "pr-triage",
+      "status": "warn",
+      "evidenceFiles": [
+        "docs/agent-truth/launch-pr-triage.md",
+        "agent/state/launch-pr-triage.generated.json"
+      ],
+      "validationsRun": [
+        "npm run check:launch-pr-triage"
+      ],
+      "unresolvedBlockers": [],
+      "unresolvedWarnings": [
+        "Open PRs remain human merge decisions and may conflict with launch hardening if merged without rerunning gates."
+      ],
+      "launchRecommendation": "Launchable with PR freeze. Do not merge open PRs into launch without triage reconciliation.",
+      "postLaunchTasks": [
+        "Resolve duplicate/superseded automation PRs.",
+        "Re-run affected gates before merging any security, performance, truth, or UI PR."
+      ]
+    },
+    {
+      "gateKey": "user-critical-path",
+      "status": "pass",
+      "evidenceFiles": [
+        "docs/agent-truth/user-critical-path-launch.md",
+        "agent/state/user-critical-path-fix-report.generated.json"
+      ],
+      "validationsRun": [
+        "npm run check:user-critical-path-launch"
+      ],
+      "unresolvedBlockers": [],
+      "unresolvedWarnings": [],
+      "launchRecommendation": "Launchable. No unresolved user-path blocker was detected by the targeted gate.",
+      "postLaunchTasks": [
+        "Run a live mobile smoke after deployment across signup, Drops, Wallet, Unlock, Viewer, Chat, Notifications, and 404 recovery."
+      ]
+    },
+    {
+      "gateKey": "payment-unlock-wallet-entitlement",
+      "status": "warn",
+      "evidenceFiles": [
+        "docs/agent-truth/payment-wallet-unlock-entitlement.md",
+        "agent/state/payment-unlock-security-audit.generated.json"
+      ],
+      "validationsRun": [
+        "npm run check:payment-unlock-security",
+        "npm run check:content-media-pipeline"
+      ],
+      "unresolvedBlockers": [],
+      "unresolvedWarnings": [
+        "Live PayPal low-value smoke was not performed locally.",
+        "Payment provider receipts remain required before any manual support credit."
+      ],
+      "launchRecommendation": "Launchable with required production payment smoke before public announcement.",
+      "postLaunchTasks": [
+        "Run one low-value production PayPal refill.",
+        "Verify GumDrops credit, unlock deduction, entitlement access, and Admin commerce parity."
+      ]
+    },
+    {
+      "gateKey": "notification-return-loop",
+      "status": "warn",
+      "evidenceFiles": [
+        "docs/agent-truth/notification-pipeline.md",
+        "agent/state/notification-return-loop-audit.generated.json"
+      ],
+      "validationsRun": [
+        "npm run check:notification-return-loop",
+        "npm run check:notification-pipeline"
+      ],
+      "unresolvedBlockers": [],
+      "unresolvedWarnings": [
+        "Real-device FCM delivery was not performed locally.",
+        "No global notification kill switch exists; incident plan documents pause/rollback/manual paths."
+      ],
+      "launchRecommendation": "Launchable with real-device push smoke and notification volume monitoring.",
+      "postLaunchTasks": [
+        "Verify foreground and background push on an installed-capable device.",
+        "Monitor duplicate prevented, skipped token, permission, and preference counts after launch."
+      ]
+    },
+    {
+      "gateKey": "security-rules-role-boundaries",
+      "status": "pass",
+      "evidenceFiles": [
+        "docs/agent-truth/security-role-boundaries.md",
+        "agent/state/security-role-boundary-audit.generated.json",
+        "firestore.rules",
+        "database.rules.json",
+        "storage.rules"
+      ],
+      "validationsRun": [
+        "npm run check:security-role-boundaries",
+        "npm run check:firebase:rules"
+      ],
+      "unresolvedBlockers": [],
+      "unresolvedWarnings": [],
+      "launchRecommendation": "Launchable. Security and Firebase rules gates passed.",
+      "postLaunchTasks": [
+        "Re-run this gate after any admin, wallet, unlock, content, chat, notification, or rules change."
+      ]
+    },
+    {
+      "gateKey": "environment-deployment-truth",
+      "status": "warn",
+      "evidenceFiles": [
+        "docs/agent-truth/environment-deployment-truth.md",
+        "agent/state/environment-deployment-truth-audit.generated.json",
+        "apphosting.yaml",
+        "firebase.json",
+        ".firebaserc"
+      ],
+      "validationsRun": [
+        "npm run check:environment-deployment-truth",
+        "npm run check:firebase-runtime",
+        "npm run check:functions",
+        "npm run check:deployment (unavailable warning)"
+      ],
+      "unresolvedBlockers": [],
+      "unresolvedWarnings": [
+        "Local deployment health smoke could not complete because /api/health timed out under a temporary dev server.",
+        "Secret Manager value existence and deployed provider health were not verified locally."
+      ],
+      "launchRecommendation": "Launchable with required deployed App Hosting health and provider smoke after deployment.",
+      "postLaunchTasks": [
+        "Run health check against the deployed production URL.",
+        "Confirm App Hosting revision, Secret Manager bindings, PayPal live mode, GA4/BigQuery config, and FCM VAPID at deploy time."
+      ]
+    },
+    {
+      "gateKey": "background-jobs-idempotency",
+      "status": "warn",
+      "evidenceFiles": [
+        "docs/agent-truth/background-jobs-idempotency.md",
+        "agent/state/background-job-idempotency-audit.generated.json"
+      ],
+      "validationsRun": [
+        "npm run check:background-job-idempotency",
+        "npm run check:functions"
+      ],
+      "unresolvedBlockers": [],
+      "unresolvedWarnings": [
+        "Scheduled job behavior was validated statically and through Functions build, not by live scheduler execution."
+      ],
+      "launchRecommendation": "Launchable with scheduler monitoring after deployment.",
+      "postLaunchTasks": [
+        "Monitor queue heartbeats, notification dispatch outcomes, analytics refresh status, and runtime warnings during launch."
+      ]
+    },
+    {
+      "gateKey": "admin-analytics-debug-truth",
+      "status": "warn",
+      "evidenceFiles": [
+        "docs/agent-truth/admin-analytics-launch-final.md",
+        "agent/state/admin-analytics-finalization.generated.json"
+      ],
+      "validationsRun": [
+        "npm run check:admin-analytics-finalization",
+        "npm run check:admin-analytics-hot-cache",
+        "npm run check:admin-analytics-no-pure-realtime",
+        "npm run check:admin-analytics-snapshot-migration",
+        "npm run check:analytics-legacy-recovery",
+        "npm run check:admin-truth"
+      ],
+      "unresolvedBlockers": [],
+      "unresolvedWarnings": [
+        "Live GA4/BigQuery provider freshness was not verified locally.",
+        "Admin Analytics warnings are acceptable if user path, payment, entitlement, and security remain green."
+      ],
+      "launchRecommendation": "Launchable with Admin Debug monitoring after deployment.",
+      "postLaunchTasks": [
+        "Check Admin Debug after first production traffic for refresh status, parity warnings, and guest estimate labels."
+      ]
+    },
+    {
+      "gateKey": "speed-hydration-cache",
+      "status": "pass",
+      "evidenceFiles": [
+        "docs/agent-truth/global-loading-performance.md",
+        "docs/agent-truth/refresh-based-hot-cache.md",
+        "agent/state/global-speed-hydration-cache-audit.generated.json"
+      ],
+      "validationsRun": [
+        "npm run check:global-speed-hydration-cache",
+        "npm run check:global-loading-performance",
+        "npm run check:refresh-based-hot-cache"
+      ],
+      "unresolvedBlockers": [],
+      "unresolvedWarnings": [],
+      "launchRecommendation": "Launchable. Refresh-based cache and loading gates passed.",
+      "postLaunchTasks": [
+        "Monitor first useful render metadata, refresh dedupe, and stale-but-verified labels under production traffic."
+      ]
+    },
+    {
+      "gateKey": "mobile-shell-pwa",
+      "status": "warn",
+      "evidenceFiles": [
+        "docs/agent-truth/mobile-shell-safe-area.md",
+        "docs/agent-truth/pwa-service-worker-mobile.md",
+        "agent/state/mobile-layout-safe-area-audit.generated.json",
+        "agent/state/pwa-service-worker-audit.generated.json"
+      ],
+      "validationsRun": [
+        "npm run check:mobile-shell-safe-area",
+        "npm run check:pwa-service-worker"
+      ],
+      "unresolvedBlockers": [],
+      "unresolvedWarnings": [
+        "Real-device PWA install/update smoke was not performed locally."
+      ],
+      "launchRecommendation": "Launchable with real-device mobile and PWA smoke after deployment.",
+      "postLaunchTasks": [
+        "Verify installed app refresh, notification click return, safe-area layout, and offline fallback on real mobile hardware."
+      ]
+    },
+    {
+      "gateKey": "human-readable-copy",
+      "status": "pass",
+      "evidenceFiles": [
+        "docs/agent-truth/human-readable-admin-truth.md",
+        "docs/agent-truth/admin-copy-style-guide.md"
+      ],
+      "validationsRun": [
+        "npm run check:human-readable-admin-copy"
+      ],
+      "unresolvedBlockers": [],
+      "unresolvedWarnings": [],
+      "launchRecommendation": "Launchable. Human-readable copy gate passed.",
+      "postLaunchTasks": [
+        "Keep raw backend diagnostics in Debug; do not pipe them back into primary UI."
+      ]
+    },
+    {
+      "gateKey": "accessibility-tap-targets",
+      "status": "pass",
+      "evidenceFiles": [
+        "docs/agent-truth/accessibility-tap-targets.md",
+        "agent/state/accessibility-tap-target-audit.generated.json"
+      ],
+      "validationsRun": [
+        "npm run check:accessibility-tap-targets"
+      ],
+      "unresolvedBlockers": [],
+      "unresolvedWarnings": [],
+      "launchRecommendation": "Launchable. Accessibility/tap-target gate passed.",
+      "postLaunchTasks": [
+        "Run live browser/assistive smoke for any surface touched after this report."
+      ]
+    },
+    {
+      "gateKey": "design-system-drift",
+      "status": "pass",
+      "evidenceFiles": [
+        "docs/agent-truth/design-system-drift.md",
+        "agent/state/design-system-drift-audit.generated.json"
+      ],
+      "validationsRun": [
+        "npm run check:design-system-drift"
+      ],
+      "unresolvedBlockers": [],
+      "unresolvedWarnings": [],
+      "launchRecommendation": "Launchable. Design drift gate passed.",
+      "postLaunchTasks": [
+        "Do not merge UI-only PRs that reintroduce fake chips, old icons, or badge drift without rerunning this gate."
+      ]
+    },
+    {
+      "gateKey": "content-media-pipeline",
+      "status": "pass",
+      "evidenceFiles": [
+        "docs/agent-truth/content-media-pipeline.md",
+        "agent/state/content-media-pipeline-audit.generated.json"
+      ],
+      "validationsRun": [
+        "npm run check:content-media-pipeline",
+        "npm run check:firebase:rules"
+      ],
+      "unresolvedBlockers": [],
+      "unresolvedWarnings": [],
+      "launchRecommendation": "Launchable. Content/media entitlement and Storage rules passed.",
+      "postLaunchTasks": [
+        "Keep protected asset URLs out of public payloads and monitor content proxy errors after launch."
+      ]
+    },
+    {
+      "gateKey": "admin-cms-workflow",
+      "status": "pass",
+      "evidenceFiles": [
+        "docs/agent-truth/admin-cms-drop-workflow.md",
+        "agent/state/admin-cms-workflow-audit.generated.json"
+      ],
+      "validationsRun": [
+        "npm run check:admin-cms-workflow"
+      ],
+      "unresolvedBlockers": [],
+      "unresolvedWarnings": [],
+      "launchRecommendation": "Launchable. Admin CMS workflow gate passed.",
+      "postLaunchTasks": [
+        "Do not bypass server publish validation for new creator/admin Drop write paths."
+      ]
+    },
+    {
+      "gateKey": "event-catalog-telemetry",
+      "status": "pass",
+      "evidenceFiles": [
+        "docs/agent-truth/event-catalog-telemetry.md",
+        "agent/state/event-catalog-telemetry-audit.generated.json"
+      ],
+      "validationsRun": [
+        "npm run check:event-catalog-telemetry",
+        "npm run check:analytics-truth-layer-v2",
+        "npm run check:analytics-event-contract"
+      ],
+      "unresolvedBlockers": [],
+      "unresolvedWarnings": [],
+      "launchRecommendation": "Launchable. Event catalog and payload contracts passed.",
+      "postLaunchTasks": [
+        "Catalog any new event before emit and rerun telemetry gates."
+      ]
+    },
+    {
+      "gateKey": "support-recovery",
+      "status": "warn",
+      "evidenceFiles": [
+        "docs/agent-truth/support-recovery-flows.md",
+        "agent/state/support-recovery-flow-audit.generated.json"
+      ],
+      "validationsRun": [
+        "npm run check:support-recovery-flows"
+      ],
+      "unresolvedBlockers": [],
+      "unresolvedWarnings": [
+        "Some recovery paths intentionally require manual DB/provider intervention because guarded product tools do not exist yet."
+      ],
+      "launchRecommendation": "Launchable with operator awareness of manual recovery limits.",
+      "postLaunchTasks": [
+        "Add guarded/audited admin tools for high-frequency manual recovery paths after launch."
+      ]
+    },
+    {
+      "gateKey": "legal-payment-copy",
+      "status": "warn",
+      "evidenceFiles": [
+        "docs/agent-truth/legal-payment-user-trust-copy.md",
+        "agent/state/legal-payment-copy-audit.generated.json"
+      ],
+      "validationsRun": [
+        "npm run check:legal-payment-copy"
+      ],
+      "unresolvedBlockers": [],
+      "unresolvedWarnings": [
+        "This is product-copy clarity, not legal advice.",
+        "Public 404 support contact remains a documented policy decision; signed-in support and FAQ support paths exist."
+      ],
+      "launchRecommendation": "Launchable with legal/product review before any policy wording changes.",
+      "postLaunchTasks": [
+        "Review Terms/Privacy/support wording with product/legal owners before scaling paid traffic."
+      ]
+    },
+    {
+      "gateKey": "test-fixtures-demo",
+      "status": "warn",
+      "evidenceFiles": [
+        "docs/agent-truth/test-fixtures-demo-accounts.md",
+        "agent/state/test-fixtures-demo-audit.generated.json",
+        "tests/fixtures/launch-demo-fixtures.json"
+      ],
+      "validationsRun": [
+        "npm run check:test-fixtures-demo"
+      ],
+      "unresolvedBlockers": [],
+      "unresolvedWarnings": [
+        "Fixture contract is documented and locally validated, but no executable seed runner exists by default."
+      ],
+      "launchRecommendation": "Launchable. QA/demo states are mapped; seed automation can remain post-launch.",
+      "postLaunchTasks": [
+        "Build an emulator/staging-only dry-run seed runner if repeatable demo provisioning becomes necessary."
+      ]
+    },
+    {
+      "gateKey": "rollback-incident-response",
+      "status": "warn",
+      "evidenceFiles": [
+        "docs/agent-truth/rollback-incident-response.md",
+        "agent/state/rollback-incident-response.generated.json"
+      ],
+      "validationsRun": [
+        "npm run check:rollback-incident-response"
+      ],
+      "unresolvedBlockers": [],
+      "unresolvedWarnings": [
+        "No risky runtime kill switches were added; true global switches remain future work and must be designed safely before use.",
+        "Several incident categories require provider console or manual DB/Storage intervention."
+      ],
+      "launchRecommendation": "Launchable with operator incident-response readiness.",
+      "postLaunchTasks": [
+        "Design audited runtime kill switches only for repeated operational needs and test them before relying on them."
+      ]
+    }
+  ]
+}

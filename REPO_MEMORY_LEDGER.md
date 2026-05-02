@@ -24,6 +24,16 @@ This file is not a changelog. It is the concise ledger for durable decisions tha
 
 ## Decision Entries
 
+### 1cw. Final launch readiness is launchable with warnings
+
+- Approximate date: Recorded explicitly on 2026-05-02 from the final KandyDrops launch readiness report
+- Status: Active final launch go/no-go rule
+- Decision: KandyDrops is `LAUNCHABLE WITH WARNINGS` after the final targeted gate pass. The hard-stop gates are green: user critical path, payment/unlock/content entitlement, security role boundaries, and Firebase rules. No unresolved blocker is recorded in `agent/state/final-launch-readiness-report.generated.json`.
+- Implementation: `agent/state/final-launch-readiness-report.generated.json` records each required gate status, evidence files, validations run, blockers, warnings, launch recommendation, and post-launch tasks. `docs/agent-truth/final-launch-readiness-report.md` is the human-readable report. `scripts/agent/validate-final-launch-readiness-report.ts` and `npm run check:final-launch-readiness-report` verify the final report structure and hard-stop launch rules.
+- Non-blocking warnings: open PRs remain a human merge gate, live production smoke was not performed locally for PayPal/FCM/App Hosting/GA4/PWA, the local `npm run check:deployment` health smoke was unavailable, several recovery paths still require provider console or manual DB/Storage intervention, demo fixtures do not include a seed runner, and true global runtime kill switches were not added.
+- Required next action: deploy only from this commit or a later commit that reruns affected gates. Before public announcement, run production smoke for PayPal refill, GumDrops credit, Drop unlock, protected content access, real-device push, PWA refresh/install behavior, deployed App Hosting health, and Admin Debug/Analytics snapshot visibility.
+- Consequence for future work: Do not merge unrelated PRs, alter payment/unlock/content/security/user-path code, or change launch-critical config after this report without rerunning affected gates and updating the final readiness report if the launch decision changes.
+
 ### 1cv. Rollback and incident response is launch-mapped
 
 - Approximate date: Recorded explicitly on 2026-05-02 from the rollback, kill switch, and incident response launch plan
