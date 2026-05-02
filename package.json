@@ -64,6 +64,7 @@
         "check:mobile-shell-safe-area": "tsx scripts/agent/validate-mobile-shell-safe-area.ts",
         "check:payment-unlock-security": "tsx scripts/agent/validate-payment-unlock-security.ts",
         "check:notification-return-loop": "tsx scripts/agent/validate-notification-return-loop.ts",
+        "check:background-job-idempotency": "tsx scripts/agent/validate-background-job-idempotency.ts",
         "check:admin-analytics-snapshot-migration": "tsx scripts/agent/validate-admin-analytics-snapshot-migration.ts",
         "check:admin-analytics-no-pure-realtime": "tsx scripts/agent/validate-admin-analytics-no-pure-realtime.ts",
         "check:admin-analytics-finalization": "tsx scripts/agent/validate-admin-analytics-finalization.ts",

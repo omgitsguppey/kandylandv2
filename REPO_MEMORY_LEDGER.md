@@ -24,6 +24,16 @@ This file is not a changelog. It is the concise ledger for durable decisions tha
 
 ## Decision Entries
 
+### 1cl. Background job idempotency is a launch gate
+
+- Approximate date: Recorded explicitly on 2026-05-01 from the background jobs, cron, queue, and idempotency launch audit
+- Status: Active launch scheduled-job, queue, notification, reward, refresh, and diagnostics rule
+- Decision: KandyDrops background work is treated as at-least-once. A scheduled function, cron route, Firestore trigger, queue transition, notification dispatch, reward grant, wallet credit, unlock, analytics refresh, cleanup, or manual rebuild is launch-safe only when a retry no-ops or completes without duplicating user-visible side effects.
+- Implementation: `agent/state/background-job-idempotency-audit.generated.json` enumerates 31 job/lifecycle lanes with trigger source, schedule, inputs, outputs, writes, idempotency key, retry safety, duplicate/stale risk, user impact, Debug/failure visibility, required fix, and tests. `docs/agent-truth/background-jobs-idempotency.md` defines the human-readable doctrine. `scripts/agent/validate-background-job-idempotency.ts` and `npm run check:background-job-idempotency` validate registered jobs, deterministic drop notification identity, reward/payment/unlock receipts and locks, analytics refresh dedupe, runtime diagnostics, and governance coverage.
+- Launch-critical fix: the Functions scheduled drop notification path now matches the app-server path with deterministic notification ids, idempotency keys, browser tags, data-only FCM payloads, duplicate token suppression, invalid-token cleanup diagnostics, and recorded dispatch outcomes. PayPal capture now has an explicit duplicate-lock test.
+- Required validation: `npm run check:background-job-idempotency`, focused notification/queue/analytics/payment/unlock tests, touched-file TypeScript, `npm run check:functions` when Functions code changes, and `git diff --check`.
+- Consequence for future work: Do not add generated notification ids, FCM auto-display payloads, random browser tags, duplicate-prone reward/payment/unlock writes, refresh storms, or job writes without diagnostic/error capture. Do not enable retries on incremental rollup triggers without an explicit processed-event marker.
+
 ### 1ck. Environment and deployment truth is launch-gated
 
 - Approximate date: Recorded explicitly on 2026-05-01 from the environment and deployment truth audit

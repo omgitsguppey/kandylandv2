@@ -1,5 +1,34 @@
 # KandyDrops Core Codebase Audit & Defensive Ledger
 
+## [2026-05-01 #82] PRE: Background Jobs Idempotency Launch Audit
+
+Scope started:
+- Auditing scheduled Functions, queue transitions, notification triggers, analytics refresh/materializers, rewards, daily tasks, drop lifecycle operations, runtime warnings, scripts, and retry/duplicate behavior for launch.
+- Required outputs: `agent/state/background-job-idempotency-audit.generated.json`, `docs/agent-truth/background-jobs-idempotency.md`, validator/script/package wiring, and governance ledger updates.
+- Fixes are limited to verified launch-critical idempotency gaps; no new features, broad refactors, UI redesign, or payment/economy experimentation is in scope.
+
+Initial evidence:
+- Worktree was clean at startup on `main`.
+- Control tower routing, source-of-truth map, Google Analytics/cloud doctrine, launch readiness/security/payment/notification/environment ledgers, and relevant governance files were consulted.
+
+Scope completed:
+- Created `agent/state/background-job-idempotency-audit.generated.json`, `docs/agent-truth/background-jobs-idempotency.md`, and `scripts/agent/validate-background-job-idempotency.ts` with `npm run check:background-job-idempotency`.
+- Audited scheduled Functions, queue activation/expiration/return-live paths, notification dispatch/display/read persistence, daily reward/check-in, task assignment/completion/failure/reminders, analytics refresh/materializers/rollups/export, purchase/unlock credits, creator subscription renewal, runtime warnings, cleanup, and manual rebuild scripts.
+- Fixed the verified launch-critical gap in the Functions scheduled drop notification path: scheduled live/return-live notifications now use deterministic notification ids, deterministic idempotency keys/browser tags, data-only FCM payloads, duplicate token suppression, invalid-token cleanup diagnostics, and notification dispatch outcome detail consistent with the app-server path.
+- Added a duplicate PayPal capture test proving the server payment lock suppresses repeated wallet credit and post-credit telemetry.
+
+Verification:
+- `npm run check:background-job-idempotency`
+- `npx vitest run tests/unit/checkin-route.spec.ts tests/unit/daily-tasks-idempotency.spec.ts tests/unit/push-notifications.spec.ts tests/unit/fcm-utils.spec.ts tests/unit/firebase-messaging-sw.spec.ts tests/unit/admin-analytics-refresh-route.spec.ts tests/unit/drops-unlock-route.spec.ts tests/unit/paypal-capture-route.spec.ts tests/unit/notify-active-drops-route.spec.ts tests/unit/process-queue-route.spec.ts tests/unit/process-queue-drops.spec.ts tests/unit/drop-queue-lifecycle.spec.ts`
+- `npm run typecheck`
+- `npm run check:functions`
+- `npm run check:generated-artifacts`
+- `git diff --check` (passed with line-ending warnings only)
+
+Residual risk:
+- Incremental Firestore analytics rollup triggers remain projection jobs with source-level canonical dedupe but no separate provider-delivery processed marker. Do not enable retries on those increment triggers without adding an explicit processed-event guard.
+- `drop.endingNotification` and background wallet tier mutation are explicitly not active launch jobs; adding them later is new feature scope and must update the audit/validator first.
+
 ## [2026-05-01 #81] PRE: Environment Deployment Truth Audit
 
 Scope started:

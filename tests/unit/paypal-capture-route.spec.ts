@@ -209,6 +209,40 @@ describe("POST /api/paypal/capture", () => {
         expect(mockState.trackServerEvent).toHaveBeenCalledWith("purchase_verified", expect.any(Object), "fan_1");
     });
 
+    it("suppresses duplicate purchase credit when the payment lock already exists", async () => {
+        mockState.documents.set("paymentLocks/order_1", {
+            orderId: "order_1",
+            userId: "fan_1",
+            expectedDrops: 550,
+        });
+
+        const request = new NextRequest("http://localhost/api/paypal/capture", {
+            method: "POST",
+            body: JSON.stringify({
+                orderId: "order_1",
+                expectedDrops: 550,
+            }),
+        });
+
+        const response = await POST(request);
+        const payload = await response.json();
+
+        expect(response.status).toBe(200);
+        expect(payload).toMatchObject({
+            success: true,
+            drops: 550,
+            duplicate: true,
+        });
+        expect(mockState.documents.get("users/fan_1")).toMatchObject({
+            gumDropsBalance: 0,
+            gumDropsPurchasedBalance: 0,
+            gumDropsRewardBalance: 0,
+        });
+        expect(mockState.transactionWrites.some((write) => write.path.startsWith("gumdrop_transactions/"))).toBe(false);
+        expect(mockState.trackServerEvent).not.toHaveBeenCalled();
+        expect(mockState.recordCanonicalTaskEvent).not.toHaveBeenCalled();
+    });
+
     it("rejects completed captures that are missing the server-created custom id", async () => {
         mockState.capturePayPalOrder.mockResolvedValue({
             status: "COMPLETED",

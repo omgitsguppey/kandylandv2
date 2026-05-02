@@ -9,6 +9,16 @@ Scoring: all entries below are marked as included in the current validated sweep
 
 Current repo-wide state snapshot: see [FULL_SCALE_CODEBASE_AUDIT.md](/Users/uylus/OneDrive/Documents/KandyDrops_Final/FULL_SCALE_CODEBASE_AUDIT.md) for the current live baseline, verification state, and continuity rules, and see [REPO_MEMORY_LEDGER.md](/Users/uylus/OneDrive/Documents/KandyDrops_Final/REPO_MEMORY_LEDGER.md) for major architectural and workflow decisions. The detailed file/function body below remains valuable historical evidence, but it has not been fully regenerated against the current 2026-04-18 inventory review yet.
 
+## 2026-05-01 Background Job Idempotency Launch Audit Coverage
+
+- [x] `functions/src/index.ts`, `functions/src/queue-runtime.ts`, `src/lib/server/queue-runtime.ts`, and `shared/runtime/queue-runtime.ts` cover scheduled queue processing, active-drop notification lifecycle, activation/expiration, auto-queued return-live behavior, heartbeats, warnings, and dispatch outcomes.
+- [x] `functions/src/queue-runtime.ts` now uses deterministic notification document ids, idempotency keys, browser tags, data-only FCM payloads, duplicate token suppression, invalid-token cleanup counts, and stable dispatch detail for scheduled live/return-live notifications.
+- [x] `src/lib/server/push-notifications.ts`, `src/lib/server/fcm-utils.ts`, `public/firebase-messaging-sw.js`, and `src/app/api/notifications/route.ts` remain the app-server/PWA notification idempotency, browser-display, read persistence, and diagnostics owners.
+- [x] `src/lib/server/daily-tasks.ts`, `src/app/api/checkin/route.ts`, `src/app/api/paypal/capture/route.ts`, and `src/app/api/drops/unlock/route.ts` preserve receipt/lock/transaction idempotency for task rewards, daily rewards, payment credit, and unlock spend.
+- [x] `src/lib/server/admin-analytics-snapshots.ts`, `src/app/api/admin/analytics/refresh/route.ts`, `functions/src/analytics-realtime-summary.ts`, analytics Functions rollups/export/truth/profile jobs, and manual rebuild scripts are registered with refresh/rollup idempotency and diagnostic expectations.
+- [x] `tests/unit/checkin-route.spec.ts`, `tests/unit/daily-tasks-idempotency.spec.ts`, and `tests/unit/paypal-capture-route.spec.ts` now cover duplicate daily reward, task-completion receipt, and payment-lock suppression; existing notification, service-worker, FCM, analytics refresh, and unlock tests remain the focused launch regression lane.
+- [x] `agent/state/background-job-idempotency-audit.generated.json`, `docs/agent-truth/background-jobs-idempotency.md`, `scripts/agent/validate-background-job-idempotency.ts`, and `npm run check:background-job-idempotency` record and validate the background job idempotency gate.
+
 ## 2026-05-01 Environment Deployment Truth Audit Coverage
 
 - [x] `apphosting.yaml` keeps `https://kandydrops.com` canonical, leaves `www` and the App Hosting backend as aliases, and declares runtime secrets under `env` secret references.

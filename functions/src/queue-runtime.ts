@@ -1,3 +1,4 @@
+import {createHash} from "node:crypto"
 import {FieldValue} from "firebase-admin/firestore"
 import {getMessaging} from "firebase-admin/messaging"
 
@@ -29,6 +30,129 @@ const DEFAULT_QUEUE_CONFIG = {
   dropsPerDay: 1,
   cooldownDays: 7,
   timesPerDay: ["12:00"],
+}
+
+type DropNotificationIdentity = {
+  idempotencyKey: string
+  browserTag: string
+  lifecycleEvent: string
+  audience: string
+}
+
+type NotificationBroadcastReport = {
+  ok: boolean
+  tokensSent: boolean
+  successCount: number
+  failureCount: number
+  recipientCheckedCount: number
+  permissionSkippedCount: number
+  preferenceSkippedCount: number
+  missingTokenSkippedCount: number
+  duplicatePushPreventedCount: number
+  tokensQueuedCount: number
+  invalidTokenRemovedCount: number
+  idempotencyKey: string | null
+  browserTag: string | null
+  dataOnlyPayload: true
+  pwaDisplayMode: "manual-service-worker"
+  errorMessage?: string
+}
+
+function cleanNotificationPart(value: string | null | undefined, fallback: string) {
+  const cleaned = String(value ?? "")
+    .trim()
+    .toLowerCase()
+    .replace(/[^a-z0-9:_-]+/g, "_")
+    .replace(/_+/g, "_")
+    .replace(/^_+|_+$/g, "")
+
+  return cleaned || fallback
+}
+
+function buildNotificationDocumentId(idempotencyKey: string) {
+  return createHash("sha1").update(idempotencyKey).digest("hex")
+}
+
+function buildBrowserNotificationTag(idempotencyKey: string) {
+  return `kandydrops:${cleanNotificationPart(idempotencyKey, "notification")}`
+}
+
+function buildNotificationIdempotencyKey(input: {
+  type?: string
+  notificationId?: string | null
+  dropId?: string
+  lifecycleEvent?: string
+  audience?: string
+}) {
+  if (input.notificationId) {
+    return `notification:${cleanNotificationPart(input.notificationId, "unknown")}`
+  }
+
+  const type = cleanNotificationPart(input.type, "general")
+  const lifecycleEvent = cleanNotificationPart(input.lifecycleEvent, "sent")
+  const recipient = cleanNotificationPart(input.audience, "global")
+
+  if (input.dropId) {
+    return `${type}:${lifecycleEvent}:${cleanNotificationPart(input.dropId, "drop")}:${recipient}`
+  }
+
+  return `${type}:${lifecycleEvent}:${recipient}`
+}
+
+function buildDropNotificationIdentity(input: {
+  dropId: string
+  isReturn: boolean
+  excludedUserIds: string[]
+}): DropNotificationIdentity {
+  const lifecycleEvent = input.isReturn ? "drop_requeued_live" : "drop_live"
+  const audience = input.excludedUserIds.length > 0 ?
+    `global_except_${input.excludedUserIds.length}` :
+    "global"
+  const idempotencyKey = buildNotificationIdempotencyKey({
+    type: lifecycleEvent,
+    dropId: input.dropId,
+    lifecycleEvent,
+    audience,
+  })
+
+  return {
+    idempotencyKey,
+    browserTag: buildBrowserNotificationTag(idempotencyKey),
+    lifecycleEvent,
+    audience,
+  }
+}
+
+function buildBroadcastReport(input: Partial<NotificationBroadcastReport>): NotificationBroadcastReport {
+  return {
+    ok: input.ok ?? false,
+    tokensSent: input.tokensSent ?? false,
+    successCount: input.successCount ?? 0,
+    failureCount: input.failureCount ?? 0,
+    recipientCheckedCount: input.recipientCheckedCount ?? 0,
+    permissionSkippedCount: input.permissionSkippedCount ?? 0,
+    preferenceSkippedCount: input.preferenceSkippedCount ?? 0,
+    missingTokenSkippedCount: input.missingTokenSkippedCount ?? 0,
+    duplicatePushPreventedCount: input.duplicatePushPreventedCount ?? 0,
+    tokensQueuedCount: input.tokensQueuedCount ?? 0,
+    invalidTokenRemovedCount: input.invalidTokenRemovedCount ?? 0,
+    idempotencyKey: input.idempotencyKey ?? null,
+    browserTag: input.browserTag ?? null,
+    dataOnlyPayload: true,
+    pwaDisplayMode: "manual-service-worker",
+    errorMessage: input.errorMessage,
+  }
+}
+
+function stringifyNotificationData(data: Record<string, string | number | boolean | null | undefined>) {
+  return Object.entries(data).reduce<Record<string, string>>((acc, [key, value]) => {
+    if (value === null || typeof value === "undefined") {
+      return acc
+    }
+
+    acc[key] = String(value)
+    return acc
+  }, {})
 }
 
 function normalizeTimesPerDay(timesPerDay: unknown, dropsPerDay: number) {
@@ -184,32 +308,59 @@ async function touchNotificationsRuntime(nowMs: number) {
   }, {merge: true})
 }
 
-async function queueDropNotificationDoc(
-  dropTitle: string,
-  dropId: string,
-  imageUrl: string | undefined,
-  title: string,
-  message: string,
-  excludedUserIds: string[],
-) {
+async function queueDropNotificationDoc(input: {
+  dropTitle: string
+  dropId: string
+  imageUrl: string | undefined
+  title: string
+  message: string
+  excludedUserIds: string[]
+  identity: DropNotificationIdentity
+}) {
   const nowMs = Date.now()
-  await db.collection("notifications").add({
-    title,
-    message,
-    type: "success",
-    target: {global: true, excludedUserIds, userIds: []},
-    link: DROP_COLLECTION_LINK,
-    dropContext: imageUrl ? {
-      dropId,
-      dropTitle,
-      previewImageUrl: imageUrl,
-    } : null,
-    createdAt: FieldValue.serverTimestamp(),
-    createdAtMs: nowMs,
-    readBy: [],
+  const notificationId = buildNotificationDocumentId(input.identity.idempotencyKey)
+  const notificationRef = db.collection("notifications").doc(notificationId)
+  let queued = false
+  let duplicateCreatedPrevented = false
+
+  await db.runTransaction(async (transaction) => {
+    const existing = await transaction.get(notificationRef)
+    if (existing.exists) {
+      duplicateCreatedPrevented = true
+      return
+    }
+
+    transaction.set(notificationRef, {
+      title: input.title,
+      message: input.message,
+      type: "success",
+      target: {global: true, excludedUserIds: input.excludedUserIds, userIds: []},
+      link: DROP_COLLECTION_LINK,
+      dropContext: input.imageUrl ? {
+        dropId: input.dropId,
+        dropTitle: input.dropTitle,
+        previewImageUrl: input.imageUrl,
+      } : null,
+      idempotencyKey: input.identity.idempotencyKey,
+      dedupeKey: input.identity.idempotencyKey,
+      browserTag: input.identity.browserTag,
+      lifecycleEvent: input.identity.lifecycleEvent,
+      createdAt: FieldValue.serverTimestamp(),
+      createdAtMs: nowMs,
+      readBy: [],
+    })
+    queued = true
   })
 
-  await touchNotificationsRuntime(nowMs)
+  if (queued) {
+    await touchNotificationsRuntime(nowMs)
+  }
+
+  return {
+    queued,
+    duplicateCreatedPrevented,
+    notificationId,
+  }
 }
 
 async function broadcastFCM(
@@ -217,14 +368,52 @@ async function broadcastFCM(
   body: string,
   url = DROP_COLLECTION_LINK,
   type: "new_drop" | "expiring_soon" | "system_alert" | "general" = "general",
+  options: {
+    notificationId?: string | null
+    idempotencyKey?: string | null
+    browserTag?: string | null
+    dropId?: string
+    lifecycleEvent?: string
+    audience?: string
+    data?: Record<string, string | number | boolean | null | undefined>
+  } = {},
 ) {
   const messaging = getMessaging(adminApp)
   const batchSize = 500
   let tokensChunk: string[] = []
   const tokenToUidMap = new Map<string, string>()
+  const queuedTokens = new Set<string>()
   let successCount = 0
   let failureCount = 0
   let tokensSent = false
+  let recipientCheckedCount = 0
+  let permissionSkippedCount = 0
+  let preferenceSkippedCount = 0
+  let missingTokenSkippedCount = 0
+  let duplicatePushPreventedCount = 0
+  let invalidTokenRemovedCount = 0
+  const idempotencyKey = options.idempotencyKey || buildNotificationIdempotencyKey({
+    type,
+    notificationId: options.notificationId,
+    dropId: options.dropId,
+    lifecycleEvent: options.lifecycleEvent,
+    audience: options.audience ?? "broadcast",
+  })
+  const browserTag = options.browserTag || buildBrowserNotificationTag(idempotencyKey)
+  const baseData = stringifyNotificationData({
+    title,
+    body,
+    url,
+    type,
+    notificationId: options.notificationId,
+    idempotencyKey,
+    tag: browserTag,
+    dropId: options.dropId,
+    lifecycleEvent: options.lifecycleEvent,
+    pwaDisplayMode: "manual-service-worker",
+    autoDisplayedByFcm: false,
+    ...options.data,
+  })
 
   const stream = db.collection("users")
     .select("fcmTokens", "notificationSettings")
@@ -237,8 +426,12 @@ async function broadcastFCM(
 
     tokensSent = true
     const response = await messaging.sendEachForMulticast({
-      notification: {title, body},
-      data: {url},
+      data: baseData,
+      webpush: {
+        headers: {
+          Urgency: type === "new_drop" || type === "system_alert" ? "high" : "normal",
+        },
+      },
       tokens,
     })
     successCount += response.successCount
@@ -252,6 +445,7 @@ async function broadcastFCM(
           errorCode === "messaging/invalid-registration-token" ||
           errorCode === "messaging/registration-token-not-registered"
         )) {
+          invalidTokenRemovedCount += 1
           const deadToken = tokens[index]
           if (!deadToken) {
             return
@@ -289,6 +483,7 @@ async function broadcastFCM(
 
   for await (const rawDoc of stream) {
     const doc = rawDoc as unknown as FirebaseFirestore.QueryDocumentSnapshot
+    recipientCheckedCount += 1
     const data = doc.data()
     const notificationSettings = data?.notificationSettings && typeof data.notificationSettings === "object" ?
       data.notificationSettings as Record<string, unknown> :
@@ -309,11 +504,29 @@ async function broadcastFCM(
       } else {
         shouldSend = true
       }
+    } else {
+      permissionSkippedCount += 1
+    }
+
+    if (browserPushEnabled && !shouldSend) {
+      preferenceSkippedCount += 1
+    }
+
+    if (shouldSend && tokens.length === 0) {
+      missingTokenSkippedCount += 1
     }
 
     if (shouldSend && tokens.length > 0) {
-      tokens.forEach((token: string) => tokenToUidMap.set(token, doc.id))
-      tokensChunk.push(...tokens)
+      for (const token of tokens) {
+        if (queuedTokens.has(token)) {
+          duplicatePushPreventedCount += 1
+          continue
+        }
+
+        queuedTokens.add(token)
+        tokenToUidMap.set(token, doc.id)
+        tokensChunk.push(token)
+      }
 
       while (tokensChunk.length >= batchSize) {
         const batchToDispatch = tokensChunk.slice(0, batchSize)
@@ -327,7 +540,21 @@ async function broadcastFCM(
     await dispatchBatch(tokensChunk)
   }
 
-  return !tokensSent || failureCount === 0 || successCount > 0
+  return buildBroadcastReport({
+    ok: !tokensSent || failureCount === 0 || successCount > 0,
+    tokensSent,
+    successCount,
+    failureCount,
+    recipientCheckedCount,
+    permissionSkippedCount,
+    preferenceSkippedCount,
+    missingTokenSkippedCount,
+    duplicatePushPreventedCount,
+    tokensQueuedCount: queuedTokens.size,
+    invalidTokenRemovedCount,
+    idempotencyKey,
+    browserTag,
+  })
 }
 
 async function finalizeDispatchOutcome(input: {
@@ -362,6 +589,11 @@ async function sendTargetedDropNotification(
   excludedUserIds: string[],
   activationKey: string,
 ) {
+  const identity = buildDropNotificationIdentity({
+    dropId,
+    isReturn,
+    excludedUserIds,
+  })
   const shouldSend = await reserveDropActivationNotification(dropId, activationKey)
   if (!shouldSend) {
     return finalizeDispatchOutcome({
@@ -372,18 +604,41 @@ async function sendTargetedDropNotification(
         dropTitle,
         imageUrlPresent: Boolean(imageUrl),
         isReturn,
+        queuedDropReturnedLive: isReturn,
         excludedUserIdsCount: excludedUserIds.length,
+        idempotencyKey: identity.idempotencyKey,
+        tag: identity.browserTag,
+        lifecycleEvent: identity.lifecycleEvent,
+        duplicateCreatedPrevented: true,
+        inAppQueued: false,
+        fcmDelivered: false,
+        duplicatePushPrevented: true,
+        duplicateBrowserDisplayPrevented: true,
       },
     })
   }
 
-  const title = isReturn ? "Drop Returned 🔥" : "New Drop Live 🔥"
+  const title = isReturn ? "Drop Returned" : "New Drop Live"
   const message = isReturn ?
     `Oh, snap! ${dropTitle} is back! Don't miss out this time!` :
     `${dropTitle} is now available in the drops collection!`
 
+  let inAppQueued = false
+  let duplicateCreatedPrevented = false
+  let notificationId: string | null = null
   try {
-    await queueDropNotificationDoc(dropTitle, dropId, imageUrl, title, message, excludedUserIds)
+    const queueResult = await queueDropNotificationDoc({
+      dropTitle,
+      dropId,
+      imageUrl,
+      title,
+      message,
+      excludedUserIds,
+      identity,
+    })
+    inAppQueued = queueResult.queued
+    duplicateCreatedPrevented = queueResult.duplicateCreatedPrevented
+    notificationId = queueResult.notificationId
   } catch (error) {
     return finalizeDispatchOutcome({
       activationKey,
@@ -394,13 +649,56 @@ async function sendTargetedDropNotification(
         dropTitle,
         imageUrlPresent: Boolean(imageUrl),
         isReturn,
+        queuedDropReturnedLive: isReturn,
         excludedUserIdsCount: excludedUserIds.length,
+        idempotencyKey: identity.idempotencyKey,
+        tag: identity.browserTag,
+        lifecycleEvent: identity.lifecycleEvent,
+        inAppQueued,
+        duplicateCreatedPrevented,
         errorMessage: error instanceof Error ? error.message : String(error),
       },
     })
   }
 
-  const fcmDelivered = await broadcastFCM("Kandy Drops", message, DROP_COLLECTION_LINK, "new_drop")
+  if (duplicateCreatedPrevented && !inAppQueued) {
+    return finalizeDispatchOutcome({
+      activationKey,
+      dropId,
+      status: "duplicate",
+      errorCode: null,
+      detail: {
+        dropTitle,
+        imageUrlPresent: Boolean(imageUrl),
+        isReturn,
+        queuedDropReturnedLive: isReturn,
+        excludedUserIdsCount: excludedUserIds.length,
+        idempotencyKey: identity.idempotencyKey,
+        tag: identity.browserTag,
+        lifecycleEvent: identity.lifecycleEvent,
+        inAppQueued,
+        fcmDelivered: false,
+        notificationId,
+        duplicateCreatedPrevented,
+        duplicatePushPrevented: true,
+        duplicateBrowserDisplayPrevented: true,
+      },
+    })
+  }
+
+  const fcmReport = await broadcastFCM("Kandy Drops", message, DROP_COLLECTION_LINK, "new_drop", {
+    notificationId,
+    idempotencyKey: identity.idempotencyKey,
+    browserTag: identity.browserTag,
+    dropId,
+    lifecycleEvent: identity.lifecycleEvent,
+    audience: identity.audience,
+    data: {
+      queuedDropReturnedLive: isReturn,
+      duplicateCreatedPrevented,
+    },
+  })
+  const fcmDelivered = fcmReport.ok
   return finalizeDispatchOutcome({
     activationKey,
     dropId,
@@ -410,8 +708,30 @@ async function sendTargetedDropNotification(
       dropTitle,
       imageUrlPresent: Boolean(imageUrl),
       isReturn,
+      queuedDropReturnedLive: isReturn,
       excludedUserIdsCount: excludedUserIds.length,
+      idempotencyKey: identity.idempotencyKey,
+      tag: identity.browserTag,
+      lifecycleEvent: identity.lifecycleEvent,
+      inAppQueued,
+      notificationId,
+      duplicateCreatedPrevented,
       fcmDelivered,
+      fcmTokensSent: fcmReport.tokensSent,
+      fcmSuccessCount: fcmReport.successCount,
+      fcmFailureCount: fcmReport.failureCount,
+      recipientCheckedCount: fcmReport.recipientCheckedCount,
+      skippedPermissionDeniedCount: fcmReport.permissionSkippedCount,
+      skippedMissingTokenCount: fcmReport.missingTokenSkippedCount,
+      skippedPreferencesDisabledCount: fcmReport.preferenceSkippedCount,
+      duplicatePushPreventedCount: fcmReport.duplicatePushPreventedCount,
+      invalidTokenRemovedCount: fcmReport.invalidTokenRemovedCount,
+      dataOnlyPayload: fcmReport.dataOnlyPayload,
+      pwaDisplayMode: fcmReport.pwaDisplayMode,
+      duplicatePushPrevented: fcmReport.duplicatePushPreventedCount > 0,
+      duplicateBrowserDisplayPrevented: false,
+      browserTagUsed: Boolean(fcmReport.browserTag),
+      dedupeKeyUsed: Boolean(fcmReport.idempotencyKey),
     },
   })
 }
