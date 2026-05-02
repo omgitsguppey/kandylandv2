@@ -11922,3 +11922,9 @@ Results:
 - analytics continuity check passed
 - focused admin analytics realtime route test passed
 
+
+## [2026-05-15 #bolt-usedrops] PRE/POST: Consolidate entity filtering and next-expiration calculation into a single-pass useMemo in useDrops.ts
+
+Scope: `src/hooks/useDrops.ts`
+Findings: The array iteration for drops expiration calculation and status filtering used to iterate over `swrDrops` twice. I consolidated it into a single `useMemo` block that iterates once, filters, and computes `nextExpiryMs`, aligning with the existing `bolt.md` insight.
+Verification: Passed `pnpm run typecheck` and `npx vitest run`.

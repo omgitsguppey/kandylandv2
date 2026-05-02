@@ -224,20 +224,35 @@ export function useDrops(
     };
   }, [isConstrained, refreshDrops, runtimeSubscriptionReady]);
 
-  useEffect(() => {
+  const { clientDrops, nextExpiryMs } = useMemo(() => {
+    // Single-pass filtering avoids cloning drops that will be discarded immediately.
+    const nextDrops: Drop[] = [];
     const upcomingExpirations: number[] = [];
+
     for (const drop of swrDrops) {
       const status = resolveDropStatusFromTiming(drop, sweepNowMs);
+
+      // ⚡ Bolt: Consolidate next-expiration calculation
       if (status === "active" && drop.validUntil && drop.validUntil > sweepNowMs) {
         upcomingExpirations.push(drop.validUntil);
       }
+
+      if (!statusFilter || statusFilter.includes(status)) {
+        nextDrops.push(applyDropStatus(drop, sweepNowMs));
+      }
     }
 
-    if (upcomingExpirations.length === 0) {
+    return {
+      clientDrops: nextDrops,
+      nextExpiryMs: upcomingExpirations.length > 0 ? Math.min(...upcomingExpirations) : null,
+    };
+  }, [statusFilter, sweepNowMs, swrDrops]);
+
+  useEffect(() => {
+    if (nextExpiryMs === null) {
       return;
     }
 
-    const nextExpiryMs = Math.min(...upcomingExpirations);
     const timeoutMs = Math.max(250, nextExpiryMs - Date.now() + EXPIRY_REFRESH_BUFFER_MS);
     const timeoutId = window.setTimeout(() => {
       refreshDrops(0);
@@ -246,21 +261,7 @@ export function useDrops(
     return () => {
       window.clearTimeout(timeoutId);
     };
-  }, [refreshDrops, sweepNowMs, swrDrops]);
-
-  const clientDrops = useMemo(() => {
-    // Single-pass filtering avoids cloning drops that will be discarded immediately.
-    const nextDrops: Drop[] = [];
-
-    for (const drop of swrDrops) {
-      const status = resolveDropStatusFromTiming(drop, sweepNowMs);
-      if (!statusFilter || statusFilter.includes(status)) {
-        nextDrops.push(applyDropStatus(drop, sweepNowMs));
-      }
-    }
-
-    return nextDrops;
-  }, [statusFilter, sweepNowMs, swrDrops]);
+  }, [refreshDrops, nextExpiryMs]);
 
 
   const isLoadingInitialData = !data && !error;
