@@ -24,6 +24,17 @@ This file is not a changelog. It is the concise ledger for durable decisions tha
 
 ## Decision Entries
 
+### 1ct. Legal/payment user-trust copy is launch-audited
+
+- Approximate date: Recorded explicitly on 2026-05-02 from the legal/payment disclosure and user-trust copy audit
+- Status: Active launch payment, GumDrops, unlock, expiration, notification, legal-link, and support-copy rule
+- Decision: User-facing payment and access copy must be clear before launch without inventing legal claims. GumDrops are currency-like product units for KandyDrops access, not cash. Wallet refill copy must show USD amount, total GumDrops, and paid versus bonus GumDrops. Unlock copy must show the GD cost before confirmation. Expiration copy must distinguish public Drop availability from owned Library access. Notification prompts must say what alerts are for. Terms, Privacy, and Support paths must remain reachable or documented as a launch risk.
+- Implementation: `agent/state/legal-payment-copy-audit.generated.json` maps the required clarity lanes. `docs/agent-truth/legal-payment-user-trust-copy.md` records the doctrine and current launch truth. `scripts/agent/validate-legal-payment-copy.ts` and `npm run check:legal-payment-copy` enforce the audit, visible wallet paid/bonus split, unlock cost copy, legal/support route reachability, expiration consistency, and notification permission purpose.
+- Launch-critical fixes: `src/components/PurchaseModal.tsx` now separates paid GumDrops from bonus GumDrops in package rows before checkout. `src/components/Auth/OnboardingHelpers.ts` now says expired live Drops leave the public Drops page and tells users to unwrap before expiry to keep Library access, avoiding conflict with FAQ and Library truth.
+- Known trust-copy risks: The legal page intentionally uses `Gum Drops` in its legal-definition copy while product doctrine prefers `GumDrops`; do not rewrite legal wording without a legal/product decision. The public 404 currently returns users to the app but does not include direct support contact; signed-in support and FAQ support email exist.
+- Required validation: `npm run check:legal-payment-copy`, `npm run typecheck` when code or scripts change, and `git diff --check`.
+- Consequence for future work: Do not add wallet, purchase, promo, unlock, expiration, notification, support, or creator access copy that implies cash value, hides paid/bonus split, omits unlock cost, promises Drop return/refunds/realtime earnings, or contradicts owned Library access.
+
 ### 1cs. Support recovery flows are mapped before launch
 
 - Approximate date: Recorded explicitly on 2026-05-01 from the support and recovery flow launch audit

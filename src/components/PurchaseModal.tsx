@@ -194,6 +194,10 @@ export function PurchaseModal({ isOpen, onClose }: PurchaseModalProps) {
     () => deriveGumdropEconomics(selectedPackage.drops, selectedPackage.price),
     [selectedPackage.drops, selectedPackage.price],
   );
+  const customBundleEconomics = useMemo(
+    () => deriveGumdropEconomics(customDrops, (customDrops / 1000) * 5),
+    [customDrops],
+  );
   const creditedDropsValue = creditedDrops ?? selectedPackage.drops;
 
   useEffect(() => {
@@ -456,6 +460,11 @@ export function PurchaseModal({ isOpen, onClose }: PurchaseModalProps) {
                                     )}
                                   </div>
                                   <p className="text-[11px] font-medium text-gray-400 mt-1">{pkg.label}</p>
+                                  <p className="mt-0.5 text-[10px] font-semibold text-gray-500">
+                                    {pkgEconomics.bonusGumDrops > 0
+                                      ? `${pkgEconomics.paidGumDrops.toLocaleString()} paid + ${pkgEconomics.bonusGumDrops.toLocaleString()} bonus GumDrops`
+                                      : `${pkgEconomics.paidGumDrops.toLocaleString()} paid GumDrops`}
+                                  </p>
                                 </div>
                               </div>
                               <span className={cn("shrink-0 text-[15px] font-bold", isSelected ? "text-brand-purple" : "text-white")}>
@@ -501,6 +510,9 @@ export function PurchaseModal({ isOpen, onClose }: PurchaseModalProps) {
                                     </span>
                                   </div>
                                   <p className="text-[11px] font-medium text-gray-400 mt-1">King Size Bundle</p>
+                                  <p className="mt-0.5 text-[10px] font-semibold text-gray-500">
+                                    {customBundleEconomics.paidGumDrops.toLocaleString()} paid + {customBundleEconomics.bonusGumDrops.toLocaleString()} bonus GumDrops
+                                  </p>
                                 </div>
                            </div>
                            <span className={cn("shrink-0 text-[15px] font-bold", isBundleSelected ? "text-brand-purple" : "text-white")}>

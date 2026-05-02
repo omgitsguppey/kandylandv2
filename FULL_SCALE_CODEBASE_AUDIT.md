@@ -1,5 +1,31 @@
 # KandyDrops Core Codebase Audit & Defensive Ledger
 
+## [2026-05-02 #90] PRE: Legal Payment User-Trust Copy Audit
+
+Scope started:
+- Auditing launch-critical user-facing copy for GumDrops, purchase/refill, paid versus bonus balance, unlock cost, Drop expiration/access, notification permission, privacy/terms/support reachability, creator/content disclaimers, 404/support contact, and consistency with legal/payment trust doctrine.
+- Required outputs: `agent/state/legal-payment-copy-audit.generated.json`, `docs/agent-truth/legal-payment-user-trust-copy.md`, `scripts/agent/validate-legal-payment-copy.ts`, package script wiring, governance ledger updates, commit, and push.
+- This is a clarity and consistency audit, not legal advice. Fixes are limited to docs/validation/audit mapping unless a concrete launch-blocking copy contradiction is proven.
+
+Initial evidence:
+- Worktree was clean at startup on `main`.
+- Control tower routing, source-of-truth map, doctrine consultation skill, product/copy/UI/surface/vocabulary/banned-pattern/decision-checklist doctrine, support recovery doctrine, and recent launch ledgers were consulted.
+- `.agent/ui-copy-refinement-workflow.md` is referenced by `AGENTS.md` but is not present in this checkout; the doctrine consultation skill and doctrine files were consulted directly.
+
+Scope completed:
+- Created `agent/state/legal-payment-copy-audit.generated.json`, `docs/agent-truth/legal-payment-user-trust-copy.md`, and `scripts/agent/validate-legal-payment-copy.ts` with `npm run check:legal-payment-copy`.
+- Audited Terms, Privacy, support, wallet refill, GumDrop economics, Drop card/preview unlock cost, insufficient-balance copy, onboarding expiry, FAQ, Library, Viewer entitlement copy, notification permission/preferences, and 404 recovery.
+- Fixed verified clarity gaps: wallet package rows now separate paid GumDrops from bonus GumDrops before checkout, and onboarding expiry copy now says expired live Drops leave the public Drops page while unwrapped Drops can stay in Library.
+
+Verification:
+- `npm run check:legal-payment-copy`
+- `npm run typecheck`
+- `git diff --check` (passed; line-ending warnings only)
+
+Residual risk:
+- Legal pages intentionally use `Gum Drops` in legal-definition copy while product doctrine prefers `GumDrops`; do not change legal wording without product/legal review.
+- Public 404 recovery returns users to the app but does not show a direct support contact. Signed-in support and FAQ support email exist; add public support only if launch support policy requires unauthenticated contact there.
+
 ## [2026-05-01 #89] PRE: Support Recovery Flow Launch Audit
 
 Scope started:

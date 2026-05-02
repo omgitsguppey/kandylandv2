@@ -1,0 +1,212 @@
+{
+  "generatedAt": "2026-05-02T00:00:00.000-05:00",
+  "auditKey": "legal-payment-user-trust-copy",
+  "launchGate": "legal-payment-disclosure-and-user-trust-copy",
+  "notLegalAdvice": true,
+  "scope": "Launch-critical user-facing clarity for GumDrops, wallet refill packages, paid versus bonus GumDrops, unlock cost, Drop expiration and owned-library access, notification permission, privacy/terms/support reachability, and support recovery paths.",
+  "doctrineConsulted": [
+    "control-tower/00-START-HERE.md",
+    "control-tower/08-DOCTRINE-INDEX.md",
+    ".agent/skills/doctrine-consultation.md",
+    "docs/doctrine/kandydrops-product-doctrine.md",
+    "docs/doctrine/kandydrops-copy-doctrine.md",
+    "docs/doctrine/kandydrops-ui-doctrine.md",
+    "docs/doctrine/kandydrops-surface-matrix.md",
+    "docs/doctrine/kandydrops-vocabulary-index.md",
+    "docs/doctrine/kandydrops-banned-patterns.md",
+    "docs/doctrine/kandydrops-decision-checklist.md"
+  ],
+  "sourceOfTruth": [
+    "src/app/(legal)/terms/page.tsx",
+    "src/app/(legal)/privacy/page.tsx",
+    "src/app/dashboard/support/page.tsx",
+    "src/components/Support/SupportInbox.tsx",
+    "src/components/PurchaseModal.tsx",
+    "src/components/InsufficientBalanceModal.tsx",
+    "src/components/DropCardLayout.tsx",
+    "src/components/DropCardCta.tsx",
+    "src/components/DropPreviewModal.tsx",
+    "src/components/Auth/OnboardingHelpers.ts",
+    "src/components/Auth/GuidedOnboarding.tsx",
+    "src/components/Dashboard/NotificationPromptBanner.tsx",
+    "src/app/dashboard/profile/components/ProfileNotificationsSection.tsx",
+    "src/app/dashboard/profile/components/ProfilePrivacyDataSection.tsx",
+    "src/app/dashboard/profile/components/ProfileSupportSafetySection.tsx",
+    "src/app/faq/faq-data.ts",
+    "src/app/dashboard/library/LibraryClient.tsx",
+    "src/app/dashboard/viewer/ViewerClient.tsx",
+    "src/app/dashboard/viewer/components/DropInfoOverlay.tsx",
+    "src/components/ui/NotFoundSurface.tsx",
+    "src/lib/gumdrops-packages.ts",
+    "src/lib/gumdrop-economics.ts"
+  ],
+  "checks": {
+    "gumDropsAreCurrencyLikeProductUnits": {
+      "status": "pass",
+      "evidence": "Terms section 3 says Gum Drops are a limited, non-transferable, revocable license for digital content access, not real currency, have no monetary value, and cannot be redeemed for cash."
+    },
+    "purchaseAmountAndGdAmountClear": {
+      "status": "pass",
+      "evidence": "PurchaseModal package rows show GumDrops amount and USD price; PayPal checkout is shown only after a package is selected."
+    },
+    "paidVsBonusClear": {
+      "status": "pass",
+      "evidence": "PurchaseModal package rows and success state now separate paid GumDrops from bonus GumDrops; canonical economics come from deriveGumdropEconomics."
+    },
+    "bonusPromoAdminNotCashValue": {
+      "status": "pass",
+      "evidence": "Terms state Gum Drops have no monetary value and cannot be redeemed for cash. Admin commerce copy excludes promo and bonus value from revenue."
+    },
+    "unlockCostClearBeforeUnlock": {
+      "status": "pass",
+      "evidence": "Drop cards show the GD cost next to the CTA, Drop preview says 'Unwrap for {cost} GD' before confirmation, and insufficient-balance copy says the action cost and current balance."
+    },
+    "expirationCopyConsistentWithLibraryAccess": {
+      "status": "pass",
+      "evidence": "FAQ says expired public Drops disappear if not unwrapped and unwrapped Drops remain in Library. Onboarding copy now says expired Drops leave the public Drops page and tells users to unwrap before expiry to keep them in Library."
+    },
+    "notificationPermissionCopyExplainsPurpose": {
+      "status": "pass",
+      "evidence": "Onboarding, dashboard prompt, and profile notification settings explain drop-live, ending-soon, daily-loop, task, and in-app notification purposes."
+    },
+    "termsPrivacyReachable": {
+      "status": "pass",
+      "evidence": "Terms and Privacy routes exist, are in sitemap, and Profile/Privacy surfaces link to policy pages."
+    },
+    "supportPathReachable": {
+      "status": "pass",
+      "evidence": "/dashboard/support renders SupportInbox; Privacy, FAQ, profile menu/sidebar, and profile Support & Safety link to support or support email."
+    },
+    "noRealtimeEarningsPromise": {
+      "status": "pass",
+      "evidence": "No launch-critical user copy promises realtime creator earnings or realtime analytics as user-facing truth."
+    }
+  },
+  "surfaces": [
+    {
+      "surfaceKey": "terms",
+      "files": [
+        "src/app/(legal)/terms/page.tsx"
+      ],
+      "currentCopyTruth": "Legal page defines Gum Drops, no cash redemption, no monetary value, and legal contact.",
+      "riskLevel": "low",
+      "launchImpact": "Core virtual-product disclosure exists.",
+      "requiredFix": "None in this pass.",
+      "fixedInThisPass": false
+    },
+    {
+      "surfaceKey": "privacy_and_policy_reachability",
+      "files": [
+        "src/app/(legal)/privacy/page.tsx",
+        "src/app/dashboard/profile/components/ProfilePrivacyDataSection.tsx",
+        "src/app/dashboard/profile/components/ProfileSupportSafetySection.tsx",
+        "src/components/Navigation/ProfileDropdown.tsx",
+        "src/components/Navigation/ProfileSidebar.tsx"
+      ],
+      "currentCopyTruth": "Privacy explains payment, notification, optional analytics, service activity, and in-site support controls.",
+      "riskLevel": "low",
+      "launchImpact": "Users can reach Privacy and support from account surfaces.",
+      "requiredFix": "Terms link is discoverable through sitemap/legal route and policy surfaces; future footer work can add a second direct Terms shortcut if desired.",
+      "fixedInThisPass": false
+    },
+    {
+      "surfaceKey": "wallet_refill_purchase_modal",
+      "files": [
+        "src/components/PurchaseModal.tsx",
+        "src/lib/gumdrops-packages.ts",
+        "src/lib/gumdrop-economics.ts"
+      ],
+      "currentCopyTruth": "Wallet shows selected package, USD price, total GumDrops, paid GumDrops, bonus GumDrops, PayPal checkout state, duplicate processed payment state, and payment problem copy.",
+      "riskLevel": "low",
+      "launchImpact": "Purchase decision shows amount and GumDrops before checkout; bonus is separated from paid balance.",
+      "requiredFix": "Completed: make paid/bonus split visible in package rows, not only telemetry and success state.",
+      "fixedInThisPass": true
+    },
+    {
+      "surfaceKey": "unlock_cost_and_insufficient_balance",
+      "files": [
+        "src/components/DropCardLayout.tsx",
+        "src/components/DropCardCta.tsx",
+        "src/components/DropPreviewModal.tsx",
+        "src/components/InsufficientBalanceModal.tsx"
+      ],
+      "currentCopyTruth": "Drop card shows GD price, preview CTA says 'Unwrap for {cost} GD', confirmation repeats cost, and insufficient-balance modal shows action cost, balance, and shortfall.",
+      "riskLevel": "low",
+      "launchImpact": "Users see the GumDrops spend before unlock.",
+      "requiredFix": "None in this pass.",
+      "fixedInThisPass": false
+    },
+    {
+      "surfaceKey": "expiration_and_library_access",
+      "files": [
+        "src/components/Auth/OnboardingHelpers.ts",
+        "src/app/faq/faq-data.ts",
+        "src/components/DropCardParts.tsx",
+        "src/components/DropPreviewModal.tsx",
+        "src/app/dashboard/library/LibraryClient.tsx",
+        "src/app/dashboard/viewer/ViewerClient.tsx"
+      ],
+      "currentCopyTruth": "FAQ and Library explain public expiry versus retained owned access; timers show time remaining; viewer blocks users without entitlement.",
+      "riskLevel": "low",
+      "launchImpact": "Expiration language no longer implies owned library access disappears after the timer.",
+      "requiredFix": "Completed: onboarding copy changed from 'it is gone' to 'leaves the public Drops page'.",
+      "fixedInThisPass": true
+    },
+    {
+      "surfaceKey": "notifications_permission_and_preferences",
+      "files": [
+        "src/components/Auth/GuidedOnboarding.tsx",
+        "src/components/Auth/OnboardingHelpers.ts",
+        "src/components/Dashboard/NotificationPromptBanner.tsx",
+        "src/app/dashboard/profile/components/ProfileNotificationsSection.tsx",
+        "src/components/Navigation/NotificationBell.tsx"
+      ],
+      "currentCopyTruth": "Notification asks explain drops going live, daily loop resets, tasks, in-app alerts, new releases, and ending-soon alerts.",
+      "riskLevel": "low",
+      "launchImpact": "Permission request purpose is plain before enablement.",
+      "requiredFix": "None in this pass.",
+      "fixedInThisPass": false
+    },
+    {
+      "surfaceKey": "support_and_recovery",
+      "files": [
+        "src/app/dashboard/support/page.tsx",
+        "src/components/Support/SupportInbox.tsx",
+        "src/app/faq/faq-data.ts",
+        "src/components/ui/NotFoundSurface.tsx"
+      ],
+      "currentCopyTruth": "Support route exists, FAQ points purchase/account issues to support email, and 404 provides a return-to-app route.",
+      "riskLevel": "medium",
+      "launchImpact": "Signed-in support exists. Public 404 does not currently show support contact, but it provides recovery navigation.",
+      "requiredFix": "Documented: if public unauthenticated support becomes launch-required, add an explicit public support route or support link to 404.",
+      "fixedInThisPass": false
+    }
+  ],
+  "warnings": [
+    {
+      "key": "public_404_support_contact",
+      "severity": "medium",
+      "message": "404 recovery copy returns users to the app but does not expose a direct support contact. This is acceptable for launch because FAQ and signed-in support exist; add public support contact if unauthenticated recovery becomes required."
+    },
+    {
+      "key": "gumdrops_spacing",
+      "severity": "low",
+      "message": "Doctrine prefers 'GumDrops' while legal pages use 'Gum Drops' in legal-definition copy. Keep product UI on GumDrops where possible and leave legal wording stable unless counsel revises it."
+    }
+  ],
+  "fixesInThisPass": [
+    {
+      "filePath": "src/components/PurchaseModal.tsx",
+      "summary": "Visible wallet package rows now separate paid GumDrops from bonus GumDrops before checkout."
+    },
+    {
+      "filePath": "src/components/Auth/OnboardingHelpers.ts",
+      "summary": "Expiration copy now says expired live Drops leave the public Drops page while telling users to unwrap before expiry to keep library access."
+    }
+  ],
+  "validation": {
+    "script": "scripts/agent/validate-legal-payment-copy.ts",
+    "command": "npm run check:legal-payment-copy",
+    "required": true
+  }
+}

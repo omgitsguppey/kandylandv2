@@ -39,7 +39,7 @@ export const STEP_DEFINITIONS: StepDefinition[] = [
     {
         id: "live_drops",
         title: "Live drops move fast",
-        description: "When a live drop expires, it is gone. If you want it in your library, unwrap before the timer runs out.",
+        description: "When a live drop expires, it leaves the public Drops page. Unwrap before the timer runs out to keep it in your library.",
         path: DASHBOARD_ONBOARDING_PATH,
     },
     {

@@ -1,13 +1,23 @@
 # EVERY FILE FUNCTION CHECKLIST
 
-**Last Updated:** 2026-05-01
-**Current Focus:** Support Recovery Flow Launch Audit.
+**Last Updated:** 2026-05-02
+**Current Focus:** Legal Payment User-Trust Copy Audit.
 **Status:** In Progress. Current tracked-file coverage is reconciled as of 2026-04-28: every `git ls-files` entry has a current checklist heading, while detailed function-level audits remain pending for many historical and newly reconciled files.
 Purpose: exhaustive no-skip audit checklist covering every repository file currently in scope and every detected function-like implementation.
 
 Scoring: all entries below are marked as included in the current validated sweep. Confidence reflects current repository-state confidence, not perfection or future-proofing.
 
 Current repo-wide state snapshot: see [FULL_SCALE_CODEBASE_AUDIT.md](/Users/uylus/OneDrive/Documents/KandyDrops_Final/FULL_SCALE_CODEBASE_AUDIT.md) for the current live baseline, verification state, and continuity rules, and see [REPO_MEMORY_LEDGER.md](/Users/uylus/OneDrive/Documents/KandyDrops_Final/REPO_MEMORY_LEDGER.md) for major architectural and workflow decisions. The detailed file/function body below remains valuable historical evidence, but it has not been fully regenerated against the current 2026-04-18 inventory review yet.
+
+## 2026-05-02 Legal Payment User-Trust Copy Audit Coverage
+
+- [x] `src/app/(legal)/terms/page.tsx` and `src/app/(legal)/privacy/page.tsx` provide GumDrops legal/payment disclosure, no-cash-value language, PayPal/privacy/service-activity context, and support reachability.
+- [x] `src/components/PurchaseModal.tsx`, `src/lib/gumdrops-packages.ts`, and `src/lib/gumdrop-economics.ts` keep wallet refill package economics canonical and now show paid versus bonus GumDrops before checkout.
+- [x] `src/components/DropCardLayout.tsx`, `src/components/DropCardCta.tsx`, `src/components/DropPreviewModal.tsx`, and `src/components/InsufficientBalanceModal.tsx` keep unlock cost, confirmation, balance shortfall, and refill action copy visible before spend.
+- [x] `src/components/Auth/OnboardingHelpers.ts`, `src/app/faq/faq-data.ts`, `src/components/DropCardParts.tsx`, `src/app/dashboard/library/LibraryClient.tsx`, and `src/app/dashboard/viewer/ViewerClient.tsx` preserve the distinction between public Drop expiry and retained owned Library access.
+- [x] `src/components/Auth/GuidedOnboarding.tsx`, `src/components/Dashboard/NotificationPromptBanner.tsx`, `src/app/dashboard/profile/components/ProfileNotificationsSection.tsx`, and `src/components/Navigation/NotificationBell.tsx` cover notification permission, preference, and notification-state copy.
+- [x] `src/app/dashboard/support/page.tsx`, `src/components/Support/SupportInbox.tsx`, `src/app/dashboard/profile/components/ProfilePrivacyDataSection.tsx`, `src/app/dashboard/profile/components/ProfileSupportSafetySection.tsx`, and `src/components/ui/NotFoundSurface.tsx` cover support route reachability, policy links, and 404 recovery behavior.
+- [x] `agent/state/legal-payment-copy-audit.generated.json`, `docs/agent-truth/legal-payment-user-trust-copy.md`, `scripts/agent/validate-legal-payment-copy.ts`, and `package.json` record and validate the launch trust-copy gate.
 
 ## 2026-05-01 Support Recovery Flow Launch Audit Coverage
 
