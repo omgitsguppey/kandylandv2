@@ -1,7 +1,7 @@
 # Repo Memory Ledger
 
 Status: Canonical repository-memory and architecture-decision ledger
-Last refreshed: 2026-05-01
+Last refreshed: 2026-05-02
 Repo: `C:\Users\uylus\OneDrive\Documents\KandyDrops_Final`
 
 ## Purpose
@@ -23,6 +23,17 @@ This file is not a changelog. It is the concise ledger for durable decisions tha
 4. When this file and runtime code disagree, runtime code plus verification wins and this file must be updated immediately.
 
 ## Decision Entries
+
+### 1cu. Test fixtures and demo states are launch-mapped
+
+- Approximate date: Recorded explicitly on 2026-05-02 from the test fixtures, seed data, and demo account launch audit
+- Status: Active launch QA/demo fixture, local-test data, and no-live-write rule
+- Decision: Launch QA must not depend on random production state. The default fixture posture is static local/test contracts plus emulator or mock execution, not production user creation or live Firestore/Storage/PayPal/FCM writes. Demo accounts may be configured only in an explicit emulator/staging process that does not commit passwords, tokens, API keys, or provider credentials.
+- Implementation: `tests/fixtures/launch-demo-fixtures.json` defines the repeatable launch fixture contract for guest, new user, zero-GD user, GD-balance user, unlocked-drop user, failed-purchase user, creator public profile, admin, notification read/unread user, chat-thread user, expired/queued/live-ending-soon/archived/missing-cover/locked-assets Drops, notifications, chat threads, transactions, and critical paths. `agent/state/test-fixtures-demo-audit.generated.json` records the audit map. `docs/agent-truth/test-fixtures-demo-accounts.md` documents the safe fixture doctrine. `scripts/agent/validate-test-fixtures-demo.ts`, `tests/unit/test-fixtures-demo.spec.ts`, and `npm run check:test-fixtures-demo` enforce the contract.
+- Launch-critical evidence: Existing focused tests cover unlock idempotency and paid/reward spend, PayPal duplicate credit suppression, notification read persistence, chat thread participant routes, creator profile public payloads, protected Viewer/content access, and Firebase emulator rules. The new fixture contract ties those lanes to named demo states.
+- Known fixture limits: This pass intentionally does not add an executable seed runner. A future runner must default to dry-run, reject production projects by default, require explicit safe-write configuration, and generate Auth users outside git.
+- Required validation: `npm run check:test-fixtures-demo`, `npx vitest run tests/unit/test-fixtures-demo.spec.ts`, `npm run typecheck` when scripts/tests change, and `git diff --check`.
+- Consequence for future work: Do not create launch QA paths that rely on live production randomness, committed credentials, client-authoritative money/access state, or fixture Drops that expose protected asset URLs. Keep paid, bonus, reward, and admin-granted GumDrops separated in fixtures.
 
 ### 1ct. Legal/payment user-trust copy is launch-audited
 

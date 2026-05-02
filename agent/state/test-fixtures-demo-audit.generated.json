@@ -1,0 +1,283 @@
+{
+  "generatedAt": "2026-05-02T00:00:00.000-05:00",
+  "auditKey": "test-fixtures-demo-launch-audit",
+  "scope": "Repeatable local/test QA and demo-state contract for launch validation without relying on random production state.",
+  "defaultPosture": "docs_and_static_local_test_fixtures_only",
+  "productionSafety": {
+    "createsProductionUsers": false,
+    "writesLiveDataByDefault": false,
+    "requiresExplicitSafeConfigurationForWrites": true,
+    "commitsSensitiveCredentials": false,
+    "fixtureDataFile": "tests/fixtures/launch-demo-fixtures.json"
+  },
+  "sourceOfTruth": [
+    "tests/fixtures/launch-demo-fixtures.json",
+    "tests/unit/drops-unlock-route.spec.ts",
+    "tests/unit/paypal-capture-route.spec.ts",
+    "tests/unit/notifications-route.spec.ts",
+    "tests/unit/chat-thread-route.spec.ts",
+    "tests/unit/creator-profile-route.spec.ts",
+    "tests/unit/dashboard-viewer-page.spec.tsx",
+    "tests/firebase/firestore.rules.spec.ts",
+    "tests/firebase/storage.rules.spec.ts",
+    "src/types/db.ts",
+    "src/lib/gumdrops-packages.ts",
+    "src/lib/gumdrop-economics.ts",
+    "src/app/api/drops/unlock/route.ts",
+    "src/app/api/drops/content/route.ts",
+    "src/app/api/paypal/capture/route.ts",
+    "src/app/api/notifications/route.ts",
+    "src/app/api/chat/threads/[threadId]/route.ts"
+  ],
+  "fixturePersonas": [
+    {
+      "id": "guest_visitor",
+      "purpose": "Browse public surfaces, Drop discovery, creator public profile, auth prompt, and notification prompt skip path.",
+      "requiredState": "No auth credential and no user profile.",
+      "criticalPaths": [
+        "guest_to_signup"
+      ],
+      "status": "documented"
+    },
+    {
+      "id": "new_user",
+      "purpose": "Exercise registration, first dashboard, onboarding, daily check-in, and notification setup.",
+      "requiredState": "User profile with onboarding incomplete, starter reward balance, no paid balance, no unlocked Drops.",
+      "criticalPaths": [
+        "guest_to_signup"
+      ],
+      "status": "documented"
+    },
+    {
+      "id": "user_zero_gd",
+      "purpose": "Exercise insufficient-balance, wallet refill, and blocked unlock copy.",
+      "requiredState": "Authenticated user with zero total, paid, and reward GumDrops.",
+      "criticalPaths": [
+        "wallet_refill_and_unlock"
+      ],
+      "status": "documented"
+    },
+    {
+      "id": "user_gd_balance",
+      "purpose": "Exercise unlock, wallet balance, paid/reward balance split, and can-afford state.",
+      "requiredState": "Authenticated user with total, paid, and reward GumDrops separated.",
+      "criticalPaths": [
+        "wallet_refill_and_unlock"
+      ],
+      "status": "documented"
+    },
+    {
+      "id": "user_unlocked_drop",
+      "purpose": "Exercise owned Library, Viewer entitlement, expired owned access, and repeat unlock idempotency.",
+      "requiredState": "Authenticated user with unlockedContent and unlockedContentTimestamps for locked asset Drop.",
+      "criticalPaths": [
+        "owned_library_viewer",
+        "admin_truth_and_recovery"
+      ],
+      "status": "documented"
+    },
+    {
+      "id": "user_failed_purchase",
+      "purpose": "Exercise payment failure copy, support recovery, and no fake wallet credit.",
+      "requiredState": "Authenticated user with failed PayPal fixture record and no credited GumDrops.",
+      "criticalPaths": [
+        "admin_truth_and_recovery"
+      ],
+      "status": "documented"
+    },
+    {
+      "id": "creator_profile_public_drops",
+      "purpose": "Exercise public creator profile, public-safe Drop cards, creator routing, and creator-owned Drop visibility.",
+      "requiredState": "Creator profile with public Drop ids and no private asset leakage.",
+      "criticalPaths": [
+        "chat_thread"
+      ],
+      "status": "documented"
+    },
+    {
+      "id": "admin",
+      "purpose": "Exercise Admin Overview, Analytics, Debug, user recovery, and protected admin routes.",
+      "requiredState": "Admin role profile only; no committed production credential.",
+      "criticalPaths": [
+        "admin_truth_and_recovery"
+      ],
+      "status": "documented"
+    },
+    {
+      "id": "user_notification_read_unread",
+      "purpose": "Exercise unread count, read persistence, clear all, and push preference display.",
+      "requiredState": "Authenticated user with one unread and one read fixture notification.",
+      "criticalPaths": [
+        "notification_read_clear"
+      ],
+      "status": "documented"
+    },
+    {
+      "id": "user_chat_thread",
+      "purpose": "Exercise message list, thread detail, send route, participant gating, and unread chat state.",
+      "requiredState": "Authenticated user with a creator chat thread and participant ids.",
+      "criticalPaths": [
+        "chat_thread"
+      ],
+      "status": "documented"
+    }
+  ],
+  "fixtureDrops": [
+    {
+      "id": "fixture_drop_expired",
+      "state": "expired",
+      "purpose": "Validate public expiry and owned Library access if unlocked.",
+      "status": "documented"
+    },
+    {
+      "id": "fixture_drop_queued",
+      "state": "queued",
+      "purpose": "Validate queued lifecycle, admin queue, and not-public-until-live behavior.",
+      "status": "documented"
+    },
+    {
+      "id": "fixture_drop_live_ending_soon",
+      "state": "live_ending_soon",
+      "purpose": "Validate Drops grid, preview, final-24h countdown, ending-soon notifications, and live unlock path.",
+      "status": "documented"
+    },
+    {
+      "id": "fixture_drop_archived",
+      "state": "archived",
+      "purpose": "Validate archived/not-public behavior and admin-only recovery visibility.",
+      "status": "documented"
+    },
+    {
+      "id": "fixture_drop_missing_cover",
+      "state": "live_missing_cover",
+      "purpose": "Validate Drop cover fallback on public Drop and creator profile surfaces.",
+      "status": "documented"
+    },
+    {
+      "id": "fixture_drop_locked_assets",
+      "state": "live_locked_assets",
+      "purpose": "Validate locked asset entitlement, unlock, viewer, and owned Library behavior.",
+      "status": "documented"
+    }
+  ],
+  "criticalPathCoverage": [
+    {
+      "id": "guest_to_signup",
+      "personas": [
+        "guest_visitor",
+        "new_user"
+      ],
+      "surfaces": [
+        "/",
+        "/drops",
+        "/auth",
+        "/dashboard"
+      ],
+      "coveredByFixtureContract": true
+    },
+    {
+      "id": "wallet_refill_and_unlock",
+      "personas": [
+        "user_zero_gd",
+        "user_gd_balance"
+      ],
+      "surfaces": [
+        "/drops",
+        "/dashboard/wallet",
+        "/dashboard/viewer"
+      ],
+      "coveredByFixtureContract": true
+    },
+    {
+      "id": "owned_library_viewer",
+      "personas": [
+        "user_unlocked_drop"
+      ],
+      "surfaces": [
+        "/dashboard/library",
+        "/dashboard/viewer"
+      ],
+      "coveredByFixtureContract": true
+    },
+    {
+      "id": "notification_read_clear",
+      "personas": [
+        "user_notification_read_unread"
+      ],
+      "surfaces": [
+        "/dashboard",
+        "/api/notifications"
+      ],
+      "coveredByFixtureContract": true
+    },
+    {
+      "id": "chat_thread",
+      "personas": [
+        "user_chat_thread",
+        "creator_profile_public_drops"
+      ],
+      "surfaces": [
+        "/dashboard/messages",
+        "/api/chat/threads"
+      ],
+      "coveredByFixtureContract": true
+    },
+    {
+      "id": "admin_truth_and_recovery",
+      "personas": [
+        "admin",
+        "user_failed_purchase",
+        "user_unlocked_drop"
+      ],
+      "surfaces": [
+        "/admin",
+        "/admin/analytics",
+        "/admin/debug",
+        "/admin/users"
+      ],
+      "coveredByFixtureContract": true
+    }
+  ],
+  "existingTestCoverage": [
+    {
+      "area": "payment_unlock_entitlement",
+      "files": [
+        "tests/unit/drops-unlock-route.spec.ts",
+        "tests/unit/paypal-capture-route.spec.ts",
+        "tests/unit/drops-content-route.spec.ts",
+        "tests/unit/dashboard-viewer-page.spec.tsx"
+      ],
+      "fixtureGap": "Tests use local mocks; launch fixture contract now names reusable personas/states."
+    },
+    {
+      "area": "notifications_chat",
+      "files": [
+        "tests/unit/notifications-route.spec.ts",
+        "tests/unit/notification-local-state.spec.ts",
+        "tests/unit/chat-thread-route.spec.ts",
+        "tests/unit/chat-thread-messages-route.spec.ts"
+      ],
+      "fixtureGap": "Tests cover behavior but did not previously define demo persona states."
+    },
+    {
+      "area": "rules_and_assets",
+      "files": [
+        "tests/firebase/firestore.rules.spec.ts",
+        "tests/firebase/storage.rules.spec.ts",
+        "tests/unit/creator-profile-route.spec.ts"
+      ],
+      "fixtureGap": "Emulator seeds exist inside tests; no production-safe fixture map existed."
+    }
+  ],
+  "validation": {
+    "script": "scripts/agent/validate-test-fixtures-demo.ts",
+    "command": "npm run check:test-fixtures-demo",
+    "unitTest": "npx vitest run tests/unit/test-fixtures-demo.spec.ts"
+  },
+  "requiredFollowUpBeforeLiveSeeding": [
+    "Create an explicit staging/emulator seed runner behind a non-production environment guard.",
+    "Require a target project allowlist and destructive-write confirmation for any seeded backend.",
+    "Generate demo Auth users at runtime or in the Auth emulator only; never commit passwords or service credentials.",
+    "Keep production launch validation on anonymized fixture contracts unless leadership explicitly approves live demo data."
+  ]
+}

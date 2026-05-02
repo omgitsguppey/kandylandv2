@@ -1,0 +1,543 @@
+{
+  "schemaVersion": 1,
+  "fixtureSet": "kandydrops-launch-demo",
+  "environment": "local_or_test_only",
+  "safeToCommit": true,
+  "writesLiveDataByDefault": false,
+  "productionWritesAllowed": false,
+  "credentialPolicy": {
+    "committedCredentials": false,
+    "authPasswordsCommitted": false,
+    "secretValuesCommitted": false,
+    "accountCreationMode": "Use Firebase Auth emulator or manually configured staging accounts only."
+  },
+  "clock": {
+    "fixedNowMs": 1770000000000,
+    "timezone": "America/Chicago"
+  },
+  "personas": [
+    {
+      "id": "guest_visitor",
+      "actorType": "guest",
+      "displayName": "Guest Visitor",
+      "credentialRequired": false,
+      "profile": null,
+      "exercises": [
+        "home",
+        "drops_discovery",
+        "creator_profile_public",
+        "auth_prompt",
+        "notification_prompt_skip"
+      ]
+    },
+    {
+      "id": "new_user",
+      "actorType": "authenticated_user",
+      "displayName": "New User",
+      "credentialRequired": true,
+      "profile": {
+        "uid": "fixture_user_new",
+        "email": "new-user@example.test",
+        "role": "user",
+        "gumDropsBalance": 100,
+        "gumDropsPurchasedBalance": 0,
+        "gumDropsRewardBalance": 100,
+        "unlockedContent": [],
+        "onboardingCompleted": false,
+        "notificationSettings": {
+          "inAppEnabled": true,
+          "browserPushEnabled": false,
+          "newDropAlerts": true,
+          "expiringSoonAlerts": true
+        }
+      },
+      "exercises": [
+        "auth",
+        "onboarding",
+        "dashboard_first_run",
+        "daily_checkin"
+      ]
+    },
+    {
+      "id": "user_zero_gd",
+      "actorType": "authenticated_user",
+      "displayName": "Zero GumDrops User",
+      "credentialRequired": true,
+      "profile": {
+        "uid": "fixture_user_zero_gd",
+        "email": "zero-gd@example.test",
+        "role": "user",
+        "gumDropsBalance": 0,
+        "gumDropsPurchasedBalance": 0,
+        "gumDropsRewardBalance": 0,
+        "unlockedContent": [],
+        "onboardingCompleted": true
+      },
+      "exercises": [
+        "insufficient_balance",
+        "wallet_refill",
+        "unlock_blocked_by_balance"
+      ]
+    },
+    {
+      "id": "user_gd_balance",
+      "actorType": "authenticated_user",
+      "displayName": "Balance User",
+      "credentialRequired": true,
+      "profile": {
+        "uid": "fixture_user_balance",
+        "email": "balance@example.test",
+        "role": "user",
+        "gumDropsBalance": 650,
+        "gumDropsPurchasedBalance": 500,
+        "gumDropsRewardBalance": 150,
+        "unlockedContent": [],
+        "onboardingCompleted": true
+      },
+      "exercises": [
+        "wallet_balance",
+        "unlock_can_afford",
+        "paid_bonus_balance_display"
+      ]
+    },
+    {
+      "id": "user_unlocked_drop",
+      "actorType": "authenticated_user",
+      "displayName": "Unlocked Drop User",
+      "credentialRequired": true,
+      "profile": {
+        "uid": "fixture_user_unlocked",
+        "email": "unlocked@example.test",
+        "role": "user",
+        "gumDropsBalance": 430,
+        "gumDropsPurchasedBalance": 300,
+        "gumDropsRewardBalance": 130,
+        "unlockedContent": [
+          "fixture_drop_locked_assets"
+        ],
+        "unlockedContentTimestamps": {
+          "fixture_drop_locked_assets": 1769996400000
+        },
+        "onboardingCompleted": true
+      },
+      "exercises": [
+        "owned_library",
+        "viewer_entitlement",
+        "repeat_unlock_no_double_charge"
+      ]
+    },
+    {
+      "id": "user_failed_purchase",
+      "actorType": "authenticated_user",
+      "displayName": "Failed Purchase User",
+      "credentialRequired": true,
+      "profile": {
+        "uid": "fixture_user_failed_purchase",
+        "email": "failed-purchase@example.test",
+        "role": "user",
+        "gumDropsBalance": 25,
+        "gumDropsPurchasedBalance": 0,
+        "gumDropsRewardBalance": 25,
+        "unlockedContent": [],
+        "onboardingCompleted": true
+      },
+      "purchaseRecords": [
+        {
+          "id": "fixture_purchase_failed",
+          "provider": "paypal",
+          "status": "failed",
+          "orderId": "fixture_order_failed",
+          "paidGumDrops": 0,
+          "bonusGumDrops": 0,
+          "creditedGumDrops": 0,
+          "usdAmount": 0,
+          "failureReason": "provider_declined_test_fixture"
+        }
+      ],
+      "exercises": [
+        "payment_error_copy",
+        "support_recovery",
+        "no_fake_credit"
+      ]
+    },
+    {
+      "id": "creator_profile_public_drops",
+      "actorType": "creator",
+      "displayName": "Demo Creator",
+      "credentialRequired": true,
+      "profile": {
+        "uid": "fixture_creator_public",
+        "email": "creator-public@example.test",
+        "role": "creator",
+        "username": "demo-creator",
+        "displayName": "Demo Creator",
+        "gumDropsBalance": 0,
+        "gumDropsPurchasedBalance": 0,
+        "gumDropsRewardBalance": 0,
+        "unlockedContent": [],
+        "isVerified": true
+      },
+      "publicDropIds": [
+        "fixture_drop_live_ending_soon",
+        "fixture_drop_missing_cover"
+      ],
+      "exercises": [
+        "creator_public_profile",
+        "public_drop_cards",
+        "creator_routing"
+      ]
+    },
+    {
+      "id": "admin",
+      "actorType": "admin",
+      "displayName": "Demo Admin",
+      "credentialRequired": true,
+      "profile": {
+        "uid": "fixture_admin",
+        "email": "admin@example.test",
+        "role": "admin",
+        "gumDropsBalance": 0,
+        "gumDropsPurchasedBalance": 0,
+        "gumDropsRewardBalance": 0,
+        "unlockedContent": []
+      },
+      "exercises": [
+        "admin_overview",
+        "admin_analytics",
+        "admin_debug",
+        "admin_user_recovery"
+      ]
+    },
+    {
+      "id": "user_notification_read_unread",
+      "actorType": "authenticated_user",
+      "displayName": "Notification State User",
+      "credentialRequired": true,
+      "profile": {
+        "uid": "fixture_user_notifications",
+        "email": "notifications@example.test",
+        "role": "user",
+        "gumDropsBalance": 110,
+        "gumDropsPurchasedBalance": 100,
+        "gumDropsRewardBalance": 10,
+        "unlockedContent": [],
+        "notificationSettings": {
+          "inAppEnabled": true,
+          "browserPushEnabled": true,
+          "newDropAlerts": true,
+          "expiringSoonAlerts": true
+        }
+      },
+      "notificationIds": [
+        "fixture_notification_unread",
+        "fixture_notification_read"
+      ],
+      "exercises": [
+        "notification_unread_count",
+        "notification_mark_read",
+        "notification_clear_all",
+        "push_preference"
+      ]
+    },
+    {
+      "id": "user_chat_thread",
+      "actorType": "authenticated_user",
+      "displayName": "Chat Thread User",
+      "credentialRequired": true,
+      "profile": {
+        "uid": "fixture_user_chat",
+        "email": "chat-user@example.test",
+        "role": "user",
+        "gumDropsBalance": 275,
+        "gumDropsPurchasedBalance": 250,
+        "gumDropsRewardBalance": 25,
+        "unlockedContent": [],
+        "following": [
+          "fixture_creator_public"
+        ]
+      },
+      "chatThreadIds": [
+        "fixture_chat_thread_user_creator"
+      ],
+      "exercises": [
+        "chat_list",
+        "chat_thread",
+        "send_message",
+        "unread_chat_state"
+      ]
+    }
+  ],
+  "drops": [
+    {
+      "id": "fixture_drop_expired",
+      "state": "expired",
+      "title": "Expired Fixture Drop",
+      "creatorId": "fixture_creator_public",
+      "unlockCost": 50,
+      "imageUrl": "/candy-3d-glass.png",
+      "validFromMs": 1769827200000,
+      "validUntilMs": 1769913600000,
+      "archived": false,
+      "contentAccess": "requiresEntitlement",
+      "expectedSurfaces": [
+        "not_public_unless_unlocked",
+        "library_if_unlocked"
+      ]
+    },
+    {
+      "id": "fixture_drop_queued",
+      "state": "queued",
+      "title": "Queued Fixture Drop",
+      "creatorId": "fixture_creator_public",
+      "unlockCost": 75,
+      "imageUrl": "/candy-3d-glass.png",
+      "validFromMs": 1770086400000,
+      "validUntilMs": 1770172800000,
+      "archived": false,
+      "contentAccess": "requiresEntitlement",
+      "expectedSurfaces": [
+        "admin_queue",
+        "not_public_until_live"
+      ]
+    },
+    {
+      "id": "fixture_drop_live_ending_soon",
+      "state": "live_ending_soon",
+      "title": "Ending Soon Fixture Drop",
+      "creatorId": "fixture_creator_public",
+      "unlockCost": 100,
+      "imageUrl": "/candy-3d-glass.png",
+      "validFromMs": 1769992800000,
+      "validUntilMs": 1770001800000,
+      "archived": false,
+      "contentAccess": "requiresEntitlement",
+      "expectedSurfaces": [
+        "drops_grid",
+        "drop_preview",
+        "countdown_final_24h",
+        "notification_ending_soon"
+      ]
+    },
+    {
+      "id": "fixture_drop_archived",
+      "state": "archived",
+      "title": "Archived Fixture Drop",
+      "creatorId": "fixture_creator_public",
+      "unlockCost": 60,
+      "imageUrl": "/candy-3d-glass.png",
+      "validFromMs": 1769827200000,
+      "validUntilMs": 1769913600000,
+      "archived": true,
+      "contentAccess": "blocked_with_reason",
+      "expectedSurfaces": [
+        "admin_only",
+        "not_public"
+      ]
+    },
+    {
+      "id": "fixture_drop_missing_cover",
+      "state": "live_missing_cover",
+      "title": "Missing Cover Fixture Drop",
+      "creatorId": "fixture_creator_public",
+      "unlockCost": 25,
+      "imageUrl": null,
+      "validFromMs": 1769992800000,
+      "validUntilMs": 1770043200000,
+      "archived": false,
+      "contentAccess": "requiresEntitlement",
+      "expectedSurfaces": [
+        "cover_fallback",
+        "creator_profile_public",
+        "drops_grid"
+      ]
+    },
+    {
+      "id": "fixture_drop_locked_assets",
+      "state": "live_locked_assets",
+      "title": "Locked Assets Fixture Drop",
+      "creatorId": "fixture_creator_public",
+      "unlockCost": 120,
+      "imageUrl": "/candy-3d-glass.png",
+      "validFromMs": 1769992800000,
+      "validUntilMs": 1770043200000,
+      "archived": false,
+      "contentAccess": "requiresEntitlement",
+      "lockedAssets": [
+        {
+          "id": "fixture_asset_image_1",
+          "kind": "image",
+          "storagePath": "test-only/drops/fixture_drop_locked_assets/image_1.jpg",
+          "publicUrlCommitted": false
+        },
+        {
+          "id": "fixture_asset_video_1",
+          "kind": "video",
+          "storagePath": "test-only/drops/fixture_drop_locked_assets/video_1.mp4",
+          "publicUrlCommitted": false
+        }
+      ],
+      "expectedSurfaces": [
+        "unlock_flow",
+        "viewer_entitlement",
+        "owned_library"
+      ]
+    }
+  ],
+  "notifications": [
+    {
+      "id": "fixture_notification_unread",
+      "recipientId": "fixture_user_notifications",
+      "type": "drop_live",
+      "dropId": "fixture_drop_live_ending_soon",
+      "idempotencyKey": "drop_live:fixture_drop_live_ending_soon:fixture_user_notifications",
+      "read": false
+    },
+    {
+      "id": "fixture_notification_read",
+      "recipientId": "fixture_user_notifications",
+      "type": "drop_ending",
+      "dropId": "fixture_drop_live_ending_soon",
+      "idempotencyKey": "drop_ending:fixture_drop_live_ending_soon:fixture_user_notifications",
+      "read": true
+    }
+  ],
+  "chatThreads": [
+    {
+      "id": "fixture_chat_thread_user_creator",
+      "creatorId": "fixture_creator_public",
+      "userId": "fixture_user_chat",
+      "participantIds": [
+        "fixture_creator_public",
+        "fixture_user_chat"
+      ],
+      "messageIds": [
+        "fixture_chat_message_1",
+        "fixture_chat_message_2"
+      ],
+      "unreadCountForUser": 1,
+      "unreadCountForCreator": 0
+    }
+  ],
+  "transactions": [
+    {
+      "id": "fixture_tx_paid_bonus_refill",
+      "userId": "fixture_user_balance",
+      "type": "purchase_currency",
+      "status": "completed",
+      "paidGumDrops": 500,
+      "bonusGumDrops": 150,
+      "adminGumDrops": 0,
+      "amountUsd": 25
+    },
+    {
+      "id": "fixture_tx_admin_grant",
+      "userId": "fixture_user_zero_gd",
+      "type": "admin_adjustment",
+      "status": "completed",
+      "paidGumDrops": 0,
+      "bonusGumDrops": 0,
+      "adminGumDrops": 100,
+      "amountUsd": 0
+    },
+    {
+      "id": "fixture_tx_unlock",
+      "userId": "fixture_user_unlocked",
+      "type": "unlock_content",
+      "status": "completed",
+      "dropId": "fixture_drop_locked_assets",
+      "paidGumDropsSpent": 90,
+      "bonusGumDropsSpent": 30,
+      "adminGumDropsSpent": 0
+    }
+  ],
+  "criticalPaths": [
+    {
+      "id": "guest_to_signup",
+      "personaIds": [
+        "guest_visitor",
+        "new_user"
+      ],
+      "dropIds": [
+        "fixture_drop_live_ending_soon"
+      ],
+      "surfaces": [
+        "/",
+        "/drops",
+        "/auth",
+        "/dashboard"
+      ]
+    },
+    {
+      "id": "wallet_refill_and_unlock",
+      "personaIds": [
+        "user_zero_gd",
+        "user_gd_balance"
+      ],
+      "dropIds": [
+        "fixture_drop_locked_assets"
+      ],
+      "surfaces": [
+        "/drops",
+        "/dashboard/wallet",
+        "/dashboard/viewer"
+      ]
+    },
+    {
+      "id": "owned_library_viewer",
+      "personaIds": [
+        "user_unlocked_drop"
+      ],
+      "dropIds": [
+        "fixture_drop_locked_assets",
+        "fixture_drop_expired"
+      ],
+      "surfaces": [
+        "/dashboard/library",
+        "/dashboard/viewer"
+      ]
+    },
+    {
+      "id": "notification_read_clear",
+      "personaIds": [
+        "user_notification_read_unread"
+      ],
+      "dropIds": [
+        "fixture_drop_live_ending_soon"
+      ],
+      "surfaces": [
+        "/dashboard",
+        "/api/notifications"
+      ]
+    },
+    {
+      "id": "chat_thread",
+      "personaIds": [
+        "user_chat_thread",
+        "creator_profile_public_drops"
+      ],
+      "dropIds": [],
+      "surfaces": [
+        "/dashboard/messages",
+        "/api/chat/threads"
+      ]
+    },
+    {
+      "id": "admin_truth_and_recovery",
+      "personaIds": [
+        "admin",
+        "user_failed_purchase",
+        "user_unlocked_drop"
+      ],
+      "dropIds": [
+        "fixture_drop_archived",
+        "fixture_drop_missing_cover"
+      ],
+      "surfaces": [
+        "/admin",
+        "/admin/analytics",
+        "/admin/debug",
+        "/admin/users"
+      ]
+    }
+  ]
+}

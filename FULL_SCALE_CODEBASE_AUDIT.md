@@ -1,5 +1,32 @@
 # KandyDrops Core Codebase Audit & Defensive Ledger
 
+## [2026-05-02 #91] PRE: Test Fixtures Demo Account Launch Audit
+
+Scope started:
+- Auditing launch QA/demo fixture contracts for guest, new user, zero-GD user, GD-balance user, unlocked-drop user, failed-purchase user, creator public drops, admin, notification read/unread user, chat-thread user, expired/queued/ending-soon/archived/missing-cover/locked-asset Drops, and critical path exercise coverage.
+- Required outputs: `agent/state/test-fixtures-demo-audit.generated.json`, `docs/agent-truth/test-fixtures-demo-accounts.md`, optional local/test fixture JSON if supported, `scripts/agent/validate-test-fixtures-demo.ts`, package script wiring, governance ledger updates, commit, and push.
+- This pass must not create production users, commit sensitive credentials, or write live data by default. Default posture is docs plus local/test fixture contracts and validation.
+
+Initial evidence:
+- Worktree was clean at startup on `main`.
+- Control tower routing, source-of-truth map, product/copy doctrine, preflight/postflight checklists, and recent launch ledgers were consulted.
+- Task is classified as an AUDIT/DOCS_ONLY launch QA fixture pass with no product feature expansion, no live-data mutation, and no payment/economy/runtime logic changes planned.
+
+Scope completed:
+- Created `agent/state/test-fixtures-demo-audit.generated.json`, `docs/agent-truth/test-fixtures-demo-accounts.md`, `tests/fixtures/launch-demo-fixtures.json`, `scripts/agent/validate-test-fixtures-demo.ts`, and `tests/unit/test-fixtures-demo.spec.ts` with `npm run check:test-fixtures-demo`.
+- Audited current fixture-adjacent coverage across unlock, payment capture, notification read persistence, chat thread routes, creator public profile, Viewer/content access, Firestore rules, Storage rules, and existing route mocks.
+- Defined local/test-only launch fixture personas and states: guest, new user, zero-GD user, GD-balance user, unlocked-drop user, failed-purchase user, creator public profile, admin, read/unread notification user, chat-thread user, expired/queued/live-ending-soon/archived/missing-cover/locked-assets Drops, read/unread notifications, chat thread, paid/bonus/admin GD transactions, and critical paths.
+- No production users, live writes, seed runner, credentials, tokens, or secret values were added.
+
+Verification:
+- `npm run check:test-fixtures-demo`
+- `npx vitest run tests/unit/test-fixtures-demo.spec.ts`
+- `npm run typecheck`
+- `git diff --check` (passed; line-ending warnings only)
+
+Residual risk:
+- This pass documents a fixture contract and local/static validation only. An executable seed runner remains intentionally deferred until a safe emulator/staging write policy is explicitly approved.
+
 ## [2026-05-02 #90] PRE: Legal Payment User-Trust Copy Audit
 
 Scope started:

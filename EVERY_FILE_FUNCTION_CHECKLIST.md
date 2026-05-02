@@ -1,13 +1,21 @@
 # EVERY FILE FUNCTION CHECKLIST
 
 **Last Updated:** 2026-05-02
-**Current Focus:** Legal Payment User-Trust Copy Audit.
+**Current Focus:** Test Fixtures Demo Account Launch Audit.
 **Status:** In Progress. Current tracked-file coverage is reconciled as of 2026-04-28: every `git ls-files` entry has a current checklist heading, while detailed function-level audits remain pending for many historical and newly reconciled files.
 Purpose: exhaustive no-skip audit checklist covering every repository file currently in scope and every detected function-like implementation.
 
 Scoring: all entries below are marked as included in the current validated sweep. Confidence reflects current repository-state confidence, not perfection or future-proofing.
 
 Current repo-wide state snapshot: see [FULL_SCALE_CODEBASE_AUDIT.md](/Users/uylus/OneDrive/Documents/KandyDrops_Final/FULL_SCALE_CODEBASE_AUDIT.md) for the current live baseline, verification state, and continuity rules, and see [REPO_MEMORY_LEDGER.md](/Users/uylus/OneDrive/Documents/KandyDrops_Final/REPO_MEMORY_LEDGER.md) for major architectural and workflow decisions. The detailed file/function body below remains valuable historical evidence, but it has not been fully regenerated against the current 2026-04-18 inventory review yet.
+
+## 2026-05-02 Test Fixtures Demo Account Launch Audit Coverage
+
+- [x] `tests/fixtures/launch-demo-fixtures.json` defines local/test-only launch personas, Drop states, notification records, chat thread, transactions, and critical path fixture coverage without live writes or committed credentials.
+- [x] `agent/state/test-fixtures-demo-audit.generated.json` records required fixture personas, Drop states, existing targeted test coverage, critical paths, production-safety posture, and follow-up rules before any executable seed runner exists.
+- [x] `docs/agent-truth/test-fixtures-demo-accounts.md` documents the fixture doctrine: no production users, no live data writes by default, no committed secrets, emulator/staging-only execution, and paid/bonus/reward/admin GumDrops separated.
+- [x] `scripts/agent/validate-test-fixtures-demo.ts`, `tests/unit/test-fixtures-demo.spec.ts`, and `package.json` add `npm run check:test-fixtures-demo` and a focused unit test for fixture completeness, no-live-write safety, Drop lifecycle states, notification/chat states, and money splits.
+- [x] Existing fixture-adjacent coverage remains mapped through `tests/unit/drops-unlock-route.spec.ts`, `tests/unit/paypal-capture-route.spec.ts`, `tests/unit/notifications-route.spec.ts`, `tests/unit/chat-thread-route.spec.ts`, `tests/unit/creator-profile-route.spec.ts`, `tests/unit/dashboard-viewer-page.spec.tsx`, `tests/firebase/firestore.rules.spec.ts`, and `tests/firebase/storage.rules.spec.ts`.
 
 ## 2026-05-02 Legal Payment User-Trust Copy Audit Coverage
 
