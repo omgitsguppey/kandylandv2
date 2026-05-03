@@ -1,3 +1,5 @@
+import type { AdminSurfaceState } from "@/lib/admin-parity";
+
 export interface AdminNotificationFunnelItemInput {
     label: string;
     count: number;
@@ -28,7 +30,7 @@ export interface AdminNotificationFunnelMetric {
     label: string;
     value: number | null;
     source: string;
-    truthState: "server" | "telemetry" | "partial" | "unavailable" | "stale";
+    truthState: AdminSurfaceState;
     helper: string;
     fakeZeroPrevented: boolean;
 }
@@ -120,7 +122,7 @@ function metric(input: {
         label: input.label,
         value: input.value,
         source: input.source,
-        truthState: input.value === null ? "unavailable" : "telemetry",
+        truthState: input.value === null ? "unavailable" : "live",
         helper: input.helper,
         fakeZeroPrevented: input.value === null,
     };
