@@ -1,6 +1,6 @@
 "use client";
 
-import { Clock, Film, Image as ImageIcon } from "lucide-react";
+import { Clock, Image as ImageIcon } from "lucide-react";
 
 import { useNow } from "@/hooks/useNow";
 import { LAUNCH_BADGE_CONTAINMENT_CLASSNAME, LAUNCH_STATIC_BADGE_CLASSNAME } from "@/lib/design-system";
@@ -66,7 +66,7 @@ export function FileCountChip({ images, videos, compact = false }: FileCountChip
             ) : null}
             {videos > 0 ? (
                 <div className="flex items-center gap-1">
-                    <Film aria-hidden="true" className={compact ? "h-2.5 w-2.5" : "h-3 w-3 md:h-3.5 md:w-3.5"} />
+                    <span aria-hidden="true" className={cn("leading-none", compact ? "text-[10px]" : "text-xs md:text-sm")}>🎥</span>
                     <span>{videos}</span>
                 </div>
             ) : null}

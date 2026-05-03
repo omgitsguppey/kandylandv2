@@ -86,7 +86,8 @@ body {
   90%, 100% { transform: translateX(0); }
 }
 .title-marquee-active {
-  animation: title-marquee-anim 17.5s cubic-bezier(0.23, 1, 0.32, 1) infinite;
+  --title-marquee-duration: 11.67s;
+  animation: title-marquee-anim var(--title-marquee-duration) cubic-bezier(0.23, 1, 0.32, 1) infinite;
   will-change: transform;
   display: inline-block;
 }

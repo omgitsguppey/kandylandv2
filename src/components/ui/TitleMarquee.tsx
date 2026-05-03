@@ -21,7 +21,7 @@ export function TitleMarquee({
 
     const marqueeStyle = overflowPx > 0 ? ({
         ["--title-shift" as string]: `-${overflowPx}px`,
-        animationDelay: `${delaySeed * 1.15}s`,
+        animationDelay: `${delaySeed * 0.75}s`,
     } satisfies CSSProperties) : undefined;
 
     useEffect(() => {
@@ -77,7 +77,7 @@ export function TitleMarquee({
     }, [title]);
 
     return (
-        <div ref={frameRef} className="overflow-hidden relative">
+        <div ref={frameRef} className="overflow-hidden relative" data-title-marquee-speed="public-beta-fast">
             <p
                 ref={textRef}
                 className={cn(

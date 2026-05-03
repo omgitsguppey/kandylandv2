@@ -5,6 +5,7 @@ import { useRouter } from "next/navigation";
 import NextImage from "next/image";
 import { ArrowRight, Images, Sparkles } from "lucide-react";
 
+import { TitleMarquee } from "@/components/ui/TitleMarquee";
 import { useDrops } from "@/hooks/useDrops";
 import { useNow } from "@/hooks/useNow";
 import { getSupportedDropAspectRatio } from "@/lib/drop-presentation";
@@ -128,7 +129,11 @@ export function LiveDropsForYouCarousel({ initialDrops }: LiveDropsForYouCarouse
             </div>
 
             <div className="absolute inset-x-0 bottom-0 p-3">
-              <h3 className="line-clamp-2 text-sm font-extrabold leading-5 text-white">{drop.title}</h3>
+              <TitleMarquee
+                title={drop.title}
+                delaySeed={drop.id.charCodeAt(0) % 6}
+                className="text-sm font-extrabold leading-5 text-white"
+              />
               <div className="mt-2 inline-flex items-center gap-1 text-[11px] font-bold uppercase tracking-[0.14em] text-brand-purple">
                 Unwrap
                 <ArrowRight className="h-3.5 w-3.5" />

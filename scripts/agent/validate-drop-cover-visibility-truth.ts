@@ -88,10 +88,10 @@ for (const expected of [
 
 for (const expected of [
   "resolveDropCardVisibilityState",
-  "FEATURED_CHIP_ADAPTIVE_GLASS_CLASSNAME",
+  "resolveFeaturedCoverAccent",
   "data-featured-drop-affordability",
   "data-featured-drop-cta-state",
-  "data-featured-chip-treatment=\"adaptive-glass\"",
+  "data-featured-chip-treatment=\"cover-aware-glass\"",
   "Create Profile",
   "Refill GumDrops",
   "Unwrap for",

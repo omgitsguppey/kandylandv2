@@ -4,7 +4,7 @@ import { memo, startTransition, useEffect, useMemo, useRef, useState } from "rea
 import useEmblaCarousel from "embla-carousel-react";
 import NextImage from "next/image";
 import { useRouter } from "next/navigation";
-import { Images, Film } from "lucide-react";
+import { Images } from "lucide-react";
 import { TitleMarquee } from "@/components/ui/TitleMarquee";
 
 import { useUIActions } from "@/context/UIContext";
@@ -221,7 +221,7 @@ export const HomeActiveDropsCarousel = memo(function HomeActiveDropsCarousel({
                                         {(images > 0 || videos > 0) ? (
                                             <div className="rounded-full border border-white/10 bg-black/60 px-2.5 py-1 text-[10px] font-bold text-white backdrop-blur-md shadow-sm">
                                                 {images > 0 ? <Images className="mr-1 inline h-3.5 w-3.5 text-brand-purple" /> : null}
-                                                {videos > 0 ? <Film className="mr-1 inline h-3.5 w-3.5 text-brand-purple" /> : null}
+                                                {videos > 0 ? <span aria-hidden="true" className="mr-1 inline text-xs leading-none">🎥</span> : null}
                                                 {images + videos} files
                                             </div>
                                         ) : null}

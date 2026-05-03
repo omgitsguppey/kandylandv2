@@ -4,13 +4,14 @@ import type { CSSProperties } from "react";
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import useEmblaCarousel from "embla-carousel-react";
 import NextImage from "next/image";
-import { Clock, Eye, Film, Image as ImageIcon, Lock, Unlock } from "lucide-react";
+import { Clock, Eye, Image as ImageIcon, Lock, Unlock } from "lucide-react";
 
 import { TitleMarquee } from "@/components/ui/TitleMarquee";
 import { useAuthIdentity, useUserProfile } from "@/context/AuthContext";
 import { DROPS_MOBILE_UI_DENSITY } from "@/hooks/useDropCardImpression";
 import { DROP_COUNTDOWN_ONE_DAY_MS, DROP_COUNTDOWN_ONE_HOUR_MS, formatDropCountdown, type DropCountdownUrgency } from "@/lib/drop-countdown";
 import { getDropCardVisibilityTelemetryPayload, resolveDropCardVisibilityState, type DropCtaState } from "@/lib/drop-card-visibility";
+import { getDropViewCount } from "@/lib/drop-engagement";
 import { getSupportedDropAspectRatio } from "@/lib/drop-presentation";
 import { trackEvent } from "@/lib/telemetry";
 import { cn } from "@/lib/utils";
@@ -24,8 +25,44 @@ interface FeaturedCarouselProps {
 
 const AUTO_ADVANCE_MS = 5_000;
 type DropTimingUrgency = DropCountdownUrgency;
-const FEATURED_CHIP_ADAPTIVE_GLASS_CLASSNAME =
-    "border-white/25 bg-black/65 text-white shadow-[0_8px_24px_rgba(0,0,0,0.38)] ring-1 ring-black/20 backdrop-blur-xl";
+type FeaturedCoverAccentName = "cherry" | "watermelon" | "honey" | "lemon" | "peach" | "bubblegum" | "chocolate" | "brand";
+type FeaturedSocialProofType = "unwraps" | "views";
+
+const FEATURED_CHIP_BASE_CLASSNAME = "border text-white shadow-[0_8px_24px_rgba(0,0,0,0.38)] backdrop-blur-xl";
+const FEATURED_COVER_ACCENTS: Record<FeaturedCoverAccentName, { ctaGradientClass: string; chipGlassClass: string }> = {
+    cherry: {
+        ctaGradientClass: "border-rose-200/45 bg-gradient-to-r from-rose-500 via-pink-500 to-purple-500 shadow-[0_0_18px_rgba(244,63,94,0.30)]",
+        chipGlassClass: "border-rose-100/25 bg-black/70 ring-1 ring-rose-500/20",
+    },
+    watermelon: {
+        ctaGradientClass: "border-emerald-100/45 bg-gradient-to-r from-emerald-500 via-rose-500 to-fuchsia-500 shadow-[0_0_18px_rgba(16,185,129,0.24)]",
+        chipGlassClass: "border-emerald-100/25 bg-black/70 ring-1 ring-emerald-500/20",
+    },
+    honey: {
+        ctaGradientClass: "border-amber-100/50 bg-gradient-to-r from-amber-500 via-orange-400 to-purple-500 shadow-[0_0_18px_rgba(245,158,11,0.28)]",
+        chipGlassClass: "border-amber-100/25 bg-stone-950/72 ring-1 ring-amber-500/20",
+    },
+    lemon: {
+        ctaGradientClass: "border-yellow-100/55 bg-gradient-to-r from-yellow-400 via-amber-500 to-purple-500 shadow-[0_0_18px_rgba(250,204,21,0.26)]",
+        chipGlassClass: "border-yellow-100/25 bg-stone-950/72 ring-1 ring-yellow-400/20",
+    },
+    peach: {
+        ctaGradientClass: "border-orange-100/50 bg-gradient-to-r from-orange-400 via-pink-400 to-purple-500 shadow-[0_0_18px_rgba(251,146,60,0.25)]",
+        chipGlassClass: "border-orange-100/25 bg-black/68 ring-1 ring-orange-400/20",
+    },
+    bubblegum: {
+        ctaGradientClass: "border-pink-100/45 bg-gradient-to-r from-pink-400 via-fuchsia-500 to-purple-500 shadow-[0_0_18px_rgba(236,72,153,0.28)]",
+        chipGlassClass: "border-pink-100/25 bg-black/68 ring-1 ring-pink-500/20",
+    },
+    chocolate: {
+        ctaGradientClass: "border-amber-100/35 bg-gradient-to-r from-stone-800 via-amber-800 to-purple-600 shadow-[0_0_18px_rgba(120,53,15,0.32)]",
+        chipGlassClass: "border-amber-100/20 bg-stone-950/76 ring-1 ring-amber-700/20",
+    },
+    brand: {
+        ctaGradientClass: "border-brand-purple bg-gradient-to-r from-brand-purple to-purple-500 shadow-[0_0_15px_rgba(164,118,255,0.24)]",
+        chipGlassClass: "border-white/25 bg-black/65 ring-1 ring-black/20",
+    },
+};
 
 export function FeaturedCarousel({ drops, onSelectDrop }: FeaturedCarouselProps) {
     const [activeIndex, setActiveIndex] = useState(0);
@@ -182,7 +219,6 @@ function FeaturedDropSlide({
     userProfile: ReturnType<typeof useUserProfile>["userProfile"];
     onSelectDrop: (drop: Drop) => void;
 }) {
-    const totalUnwraps = typeof drop.totalUnlocks === "number" && Number.isFinite(drop.totalUnlocks) ? Math.max(0, Math.floor(drop.totalUnlocks)) : 0;
     const isUnlocked = Boolean(userProfile?.unlockedContent?.includes(drop.id));
     const visibilityState = useMemo(
         () =>
@@ -195,6 +231,8 @@ function FeaturedDropSlide({
         [drop, isUnlocked, user, userProfile?.gumDropsBalance],
     );
     const ctaLabel = getFeaturedCtaLabel(visibilityState.ctaState, drop.unlockCost);
+    const coverAccent = useMemo(() => resolveFeaturedCoverAccent(drop), [drop]);
+    const socialProof = useMemo(() => getFeaturedSocialProof(drop), [drop]);
     const { images, videos } = getMediaCounts(drop);
 
     return (
@@ -202,7 +240,7 @@ function FeaturedDropSlide({
             className="relative h-full min-w-0 flex-[0_0_100%] transition-opacity duration-300"
             data-featured-drop-affordability={visibilityState.balanceState}
             data-featured-drop-cta-state={visibilityState.ctaState}
-            data-featured-chip-treatment="adaptive-glass"
+            data-featured-chip-treatment="cover-aware-glass"
         >
             <button
                 onClick={() => {
@@ -212,6 +250,8 @@ function FeaturedDropSlide({
                         featured_rank: index + 1,
                         source_component: "compact_featured_carousel",
                         ui_density: DROPS_MOBILE_UI_DENSITY,
+                        featured_cta_accent: coverAccent.accentName,
+                        featured_social_proof_type: socialProof.type,
                         ...getDropCardVisibilityTelemetryPayload(visibilityState),
                     });
                     onSelectDrop(drop);
@@ -231,21 +271,24 @@ function FeaturedDropSlide({
                 <div className="absolute inset-0 bg-gradient-to-t from-black/88 via-black/30 to-transparent" />
 
                 <div className="absolute left-3 top-3 flex flex-wrap gap-1.5 md:left-4 md:top-4 md:gap-2">
-                    <div className={cn("rounded-[0.75rem] px-2.5 py-1 text-[9px] font-black uppercase tracking-[0.14em] md:text-[10px]", FEATURED_CHIP_ADAPTIVE_GLASS_CLASSNAME)}>
+                    <div className={cn("rounded-[0.75rem] px-2.5 py-1 text-[9px] font-black uppercase tracking-[0.14em] md:text-[10px]", FEATURED_CHIP_BASE_CLASSNAME, coverAccent.chipGlassClass)}>
                         Featured
                     </div>
 
                     {images > 0 || videos > 0 ? (
-                        <div className={cn("flex items-center gap-1.5 rounded-[0.75rem] px-2.5 py-1 text-[9px] font-bold md:text-[10px]", FEATURED_CHIP_ADAPTIVE_GLASS_CLASSNAME)}>
+                        <div
+                            className={cn("flex items-center gap-1.5 rounded-[0.75rem] px-2.5 py-1 text-[9px] font-bold md:text-[10px]", FEATURED_CHIP_BASE_CLASSNAME, coverAccent.chipGlassClass)}
+                            aria-label={`${images > 0 ? `${images} ${images === 1 ? "image" : "images"}` : ""}${images > 0 && videos > 0 ? ", " : ""}${videos > 0 ? `${videos} ${videos === 1 ? "video" : "videos"}` : ""}`}
+                        >
                             {images > 0 ? (
                                 <div className="flex items-center gap-0.5">
-                                    <ImageIcon className="h-3 w-3 text-gray-300" />
+                                    <ImageIcon aria-hidden="true" className="h-3 w-3 text-gray-300" />
                                     <span>{images}</span>
                                 </div>
                             ) : null}
                             {videos > 0 ? (
                                 <div className="flex items-center gap-0.5">
-                                    <Film className="h-3 w-3 text-gray-300" />
+                                    <span aria-hidden="true" className="text-[11px] leading-none md:text-xs">🎥</span>
                                     <span>{videos}</span>
                                 </div>
                             ) : null}
@@ -254,7 +297,7 @@ function FeaturedDropSlide({
                 </div>
 
                 <div className="absolute right-3 top-3 z-20 md:right-4 md:top-4">
-                    <TimerWithProgress validUntil={drop.validUntil} />
+                    <TimerWithProgress validUntil={drop.validUntil} coverAccent={coverAccent} />
                 </div>
 
                 <div className="absolute bottom-0 left-0 right-0 space-y-1.5 p-4 md:space-y-2 md:p-6">
@@ -267,13 +310,28 @@ function FeaturedDropSlide({
                     </div>
                     <p className="line-clamp-2 text-xs leading-relaxed text-gray-300 md:text-sm">{drop.description}</p>
 
-                    <div className="flex items-center gap-1.5 pb-0.5 text-[11px] font-semibold text-white/80 md:text-xs">
-                        <Eye className="h-3.5 w-3.5 text-brand-purple" />
-                        <span>{totalUnwraps.toLocaleString()} unwrapped</span>
+                    <div
+                        className="flex items-center gap-1.5 pb-0.5 text-[11px] font-semibold text-white/80 md:text-xs"
+                        data-featured-social-proof-type={socialProof.type}
+                    >
+                        {socialProof.type === "unwraps" ? (
+                            <Unlock className="h-3.5 w-3.5 text-brand-purple" />
+                        ) : (
+                            <Eye className="h-3.5 w-3.5 text-brand-purple" />
+                        )}
+                        <span>{socialProof.label}</span>
                     </div>
 
                     <div className="w-full max-w-[230px] pt-1 md:max-w-[260px] md:pt-2">
-                        <div className="flex w-full items-center justify-center gap-1.5 whitespace-nowrap rounded-[0.9rem] border border-brand-purple bg-gradient-to-r from-brand-purple to-purple-500 px-3 py-2 text-xs font-black text-white shadow-[0_0_15px_rgba(164,118,255,0.24)] md:rounded-xl md:px-4 md:py-2.5 md:text-sm">
+                        <div
+                            className={cn(
+                                "flex w-full items-center justify-center gap-1.5 whitespace-nowrap rounded-[0.9rem] border px-3 py-2 text-xs font-black text-white transition-transform active:scale-[0.98] md:rounded-xl md:px-4 md:py-2.5 md:text-sm",
+                                "drop-shadow-[0_1px_2px_rgba(0,0,0,0.45)]",
+                                coverAccent.ctaGradientClass,
+                            )}
+                            data-featured-cta-accent={coverAccent.accentName}
+                            data-featured-cta-cover-aware="true"
+                        >
                             {visibilityState.ctaState === "view" ? <Unlock className="h-3.5 w-3.5 md:h-4 md:w-4" /> : <Lock className="h-3.5 w-3.5 md:h-4 md:w-4" />}
                             {ctaLabel}
                         </div>
@@ -284,7 +342,7 @@ function FeaturedDropSlide({
     );
 }
 
-function TimerWithProgress({ validUntil }: { validUntil?: number }) {
+function TimerWithProgress({ validUntil, coverAccent }: { validUntil?: number; coverAccent: FeaturedCoverAccent }) {
     const { label, fullLabel, urgencyState } = useDropTiming(validUntil);
 
     return (
@@ -292,7 +350,8 @@ function TimerWithProgress({ validUntil }: { validUntil?: number }) {
             <div
                 className={cn(
                     "inline-flex min-w-0 items-center gap-1 rounded-[0.75rem] px-2 py-1 text-[10px] font-black tracking-tight md:px-2.5 md:text-[12px]",
-                    FEATURED_CHIP_ADAPTIVE_GLASS_CLASSNAME,
+                    FEATURED_CHIP_BASE_CLASSNAME,
+                    coverAccent.chipGlassClass,
                     urgencyState === "critical"
                         ? "border-fuchsia-400/55 bg-fuchsia-950/55 text-fuchsia-100 ring-fuchsia-500/20"
                         : urgencyState === "warm"
@@ -344,6 +403,51 @@ function getFeaturedCtaLabel(ctaState: DropCtaState, unlockCost: number) {
         return "Unavailable";
     }
     return `Unwrap for ${unlockCost} GD`;
+}
+
+interface FeaturedCoverAccent {
+    accentName: FeaturedCoverAccentName;
+    ctaGradientClass: string;
+    chipGlassClass: string;
+}
+
+function resolveFeaturedCoverAccent(drop: Pick<Drop, "title" | "type" | "tags" | "imageUrl">): FeaturedCoverAccent {
+    const searchable = [drop.title, drop.type, drop.imageUrl, ...(drop.tags ?? [])].join(" ").toLowerCase();
+    const accentName: FeaturedCoverAccentName =
+        /\b(cherry|berry|strawberry|raspberry|rose|red)\b/.test(searchable) ? "cherry"
+            : /\b(watermelon|melon|lime|mint)\b/.test(searchable) ? "watermelon"
+                : /\b(honey|caramel|gold|golden|butter|toffee)\b/.test(searchable) ? "honey"
+                    : /\b(lemon|citrus|yellow)\b/.test(searchable) ? "lemon"
+                        : /\b(peach|apricot|orange|mango|tangerine)\b/.test(searchable) ? "peach"
+                            : /\b(bubblegum|bubble|candy|pink|fuchsia|cotton)\b/.test(searchable) ? "bubblegum"
+                                : /\b(chocolate|cocoa|coffee|espresso|brown|mocha)\b/.test(searchable) ? "chocolate"
+                                    : "brand";
+    const accent = FEATURED_COVER_ACCENTS[accentName];
+
+    return {
+        accentName,
+        ctaGradientClass: accent.ctaGradientClass,
+        chipGlassClass: accent.chipGlassClass,
+    };
+}
+
+function getFeaturedSocialProof(drop: Drop): { label: string; type: FeaturedSocialProofType; count: number } {
+    const totalUnwraps = typeof drop.totalUnlocks === "number" && Number.isFinite(drop.totalUnlocks) ? Math.max(0, Math.floor(drop.totalUnlocks)) : 0;
+
+    if (totalUnwraps > 10) {
+        return {
+            label: `${totalUnwraps.toLocaleString()} unwrapped`,
+            type: "unwraps",
+            count: totalUnwraps,
+        };
+    }
+
+    const views = getDropViewCount(drop);
+    return {
+        label: `${views.toLocaleString()} views`,
+        type: "views",
+        count: views,
+    };
 }
 
 function getMediaCounts(drop: Drop) {

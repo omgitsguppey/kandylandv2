@@ -2,6 +2,7 @@
 
 import { useMemo, memo } from "react";
 import Image from "next/image";
+import { TitleMarquee } from "@/components/ui/TitleMarquee";
 import type { Drop } from "@/types/db";
 import { isFirebaseStorageMediaUrl } from "@/lib/media-hosts";
 
@@ -30,7 +31,11 @@ export const HomeDropTicker = memo(function HomeDropTicker({ drops }: HomeDropTi
             />
           </div>
           <div className="p-2 text-left">
-            <p className="text-[11px] md:text-xs font-semibold text-white line-clamp-1">{drop.title}</p>
+            <TitleMarquee
+              title={drop.title}
+              delaySeed={drop.id.charCodeAt(0) % 6}
+              className="text-[11px] md:text-xs font-semibold text-white"
+            />
             <p className="text-[10px] text-brand-purple">{drop.unlockCost} GD</p>
           </div>
         </div>

@@ -5,9 +5,10 @@ import { Drop } from "@/types/db";
 import { cn } from "@/lib/utils";
 import { getAspectRatioCssValue, getDropMediaSummary, getSupportedDropAspectRatio } from "@/lib/drop-presentation";
 import { resolvePublicDropCoverSrc } from "@/lib/drop-media-fallback";
-import { Lock, Unlock, Image as ImageIcon, Film } from "lucide-react";
+import { Lock, Unlock, Image as ImageIcon } from "lucide-react";
 import { useEffect, useMemo, useState } from "react";
 import { trackEvent } from "@/lib/telemetry";
+import { TitleMarquee } from "@/components/ui/TitleMarquee";
 
 interface OwnedDropGalleryCardProps {
     drop: Drop;
@@ -32,6 +33,10 @@ export function OwnedDropGalleryCard({ drop, isUnlocked, onOpen }: OwnedDropGall
             videos: summary.videoCount,
         };
     }, [drop]);
+    const fileCountLabel = [
+        fileCounts.images > 0 ? `${fileCounts.images} ${fileCounts.images === 1 ? "image" : "images"}` : null,
+        fileCounts.videos > 0 ? `${fileCounts.videos} ${fileCounts.videos === 1 ? "video" : "videos"}` : null,
+    ].filter(Boolean).join(", ");
 
     return (
         <button
@@ -61,16 +66,16 @@ export function OwnedDropGalleryCard({ drop, isUnlocked, onOpen }: OwnedDropGall
 
                 {/* File Count Chip */}
                 {(fileCounts.images > 0 || fileCounts.videos > 0) && (
-                    <div className="absolute top-2 right-2 flex items-center gap-1.5 bg-black/60 backdrop-blur-md px-2 py-1 rounded-full text-[9px] sm:text-[10px] font-bold text-white border border-white/20 z-30 shadow-xl">
+                    <div className="absolute top-2 right-2 flex items-center gap-1.5 bg-black/60 backdrop-blur-md px-2 py-1 rounded-full text-[9px] sm:text-[10px] font-bold text-white border border-white/20 z-30 shadow-xl" aria-label={fileCountLabel} title={fileCountLabel}>
                         {fileCounts.images > 0 && (
                             <div className="flex items-center gap-0.5">
-                                <ImageIcon className="w-2.5 h-2.5" />
+                                <ImageIcon aria-hidden="true" className="w-2.5 h-2.5" />
                                 <span>{fileCounts.images}</span>
                             </div>
                         )}
                         {fileCounts.videos > 0 && (
                             <div className="flex items-center gap-0.5">
-                                <Film className="w-2.5 h-2.5" />
+                                <span aria-hidden="true" className="text-[10px] leading-none">🎥</span>
                                 <span>{fileCounts.videos}</span>
                             </div>
                         )}
@@ -78,10 +83,12 @@ export function OwnedDropGalleryCard({ drop, isUnlocked, onOpen }: OwnedDropGall
                 )}
 
                 <div className="absolute inset-x-0 bottom-0 bg-gradient-to-t from-black/95 via-black/60 to-transparent p-2.5 sm:p-3">
-                    <div className="relative overflow-hidden group">
-                        <p className="text-[11px] sm:text-xs font-bold text-white leading-tight drop-shadow-[0_2px_2px_rgba(0,0,0,0.8)] truncate">
-                            {drop.title}
-                        </p>
+                    <div className="relative overflow-hidden">
+                        <TitleMarquee
+                            title={drop.title}
+                            delaySeed={drop.id.charCodeAt(0) % 6}
+                            className="text-[11px] sm:text-xs font-bold text-white leading-tight drop-shadow-[0_2px_2px_rgba(0,0,0,0.8)]"
+                        />
                     </div>
                     <span className={cn(
                         "mt-1 inline-flex items-center gap-1 rounded-full px-2 py-0.5 text-[9px] sm:text-[10px] font-bold border shadow-sm",

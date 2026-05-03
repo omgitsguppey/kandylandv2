@@ -14,6 +14,7 @@ This pass audits visual drift without redesigning pages. The launch rule is narr
 - Admin chart colors come from `KANDYDROPS_CHART_COLORS`; do not hardcode chart accent, axis, legend, grid, or tooltip colors in each chart.
 - Launch UI, PWA, manifest, and 404 surfaces must not reference obsolete starter icons or logos.
 - Shell and launch route containers must not fix spacing with negative margins or duplicate safe-area padding. Use the shared mobile shell tokens.
+- Featured drop CTAs and chips are cover-aware through deterministic metadata-based accent mapping, not runtime pixel sampling. Featured social proof shows unwraps only after total unwraps exceed 10; otherwise it shows views. Drop grid view counts remain unchanged. All truncated drop/card titles use the shared TitleMarquee animation, sped up by 50%, with reduced-motion respected. Video file chips use a 🎥 camera indicator for clarity.
 
 ## Allowed Drift During Launch
 

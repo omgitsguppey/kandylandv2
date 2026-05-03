@@ -1,5 +1,37 @@
 # KandyDrops Core Codebase Audit & Defensive Ledger
 
+## [2026-05-02 #117] PRE: Featured Drop Accents And Marquee Polish
+
+Scope started:
+- Refining public beta Featured Drop and global Drop card/title polish so Featured CTAs/chips adapt to cover metadata, low unwrap social proof falls back to views, shared title marquee timing is faster, and video file chips are easier to distinguish.
+- Required outputs: deterministic metadata-based featured accent helper, cover-aware CTA/chip data markers, `getFeaturedSocialProof` fallback rule, global `TitleMarquee` speed update, public truncated Drop title call-site cleanup, 🎥 video count visuals, targeted validator, docs updates, focused verification, commit, and push.
+- This pass must not alter unlock business logic, affordability rules, card ordering/filter/search, Drop grid view-count behavior, realtime listeners, polling, JS animation loops, or image pixel sampling.
+
+Initial evidence:
+- Control tower routing, doctrine consultation workflow, product/copy/UI doctrine, generated Featured carousel task context, and adjacency tracing for `src/components/FeaturedCarousel.tsx` were consulted.
+- Runtime owners inspected first: `src/components/FeaturedCarousel.tsx`, `src/components/DropCardParts.tsx`, `src/components/DropCardLayout.tsx`, `src/components/DropCard.tsx`, `src/components/DropGrid.tsx`, `src/components/ui/TitleMarquee.tsx`, `src/app/globals.css`, `src/lib/drop-presentation.ts`, and `src/lib/drop-engagement.ts`.
+
+Doctrine:
+- Featured drop CTAs and chips are cover-aware through deterministic metadata-based accent mapping, not runtime pixel sampling. Featured social proof shows unwraps only after total unwraps exceed 10; otherwise it shows views. Drop grid view counts remain unchanged. All truncated drop/card titles use the shared TitleMarquee animation, sped up by 50%, with reduced-motion respected. Video file chips use a 🎥 camera indicator for clarity.
+
+Scope completed:
+- Added deterministic Featured cover accent mapping in `src/components/FeaturedCarousel.tsx` using Drop title/type/tags/image URL keywords only. Featured CTA gradients and top chips now use the selected accent and expose `data-featured-cta-accent`, `data-featured-cta-cover-aware`, and `data-featured-chip-treatment="cover-aware-glass"`.
+- Added `getFeaturedSocialProof(drop)` so Featured social proof shows unwraps only when `totalUnlocks > 10`; low-unwrap Drops fall back to `getDropViewCount(drop)`. Drop grid view-count behavior remains unchanged.
+- Sped up the shared `TitleMarquee` by moving the CSS duration to `--title-marquee-duration: 11.67s`, reducing delay multiplier to `0.75`, and adding `data-title-marquee-speed="public-beta-fast"` while preserving reduced-motion behavior and ResizeObserver/requestAnimationFrame measurement.
+- Moved remaining public constrained Drop titles in owned library cards, Live Drops For You, and the home ticker onto `TitleMarquee`, and replaced public video file-count Film icons with a 🎥 camera indicator while preserving accessible file-count labels where present.
+- Added `scripts/agent/validate-featured-carousel-polish.ts`, `npm run check:featured-carousel-polish`, and updated Drops/design source-truth docs.
+
+Verification:
+- Passed: `npm run check:featured-carousel-polish`
+- Passed: `npm run check:drop-cover-visibility-truth`
+- Passed: `npm run check:drops-mobile-refinement`
+- Passed: `npm run typecheck`
+- Passed: `npm run agent:test -- src/components/FeaturedCarousel.tsx` (no related test files found; command exited 0)
+- Passed: `npm run agent:test -- src/components/ui/TitleMarquee.tsx` (no related test files found; command exited 0)
+- Passed: `npm run check:ui:coverage`
+- Passed: `npm run check:ui:runtime`
+- Partial: `npm run check:ui:audits` completed the production build and passed 19/20 Playwright checks, but failed the pre-existing Mobile Chrome homepage hero visual snapshot for `/` by 61 pixels against a 60-pixel threshold. The failing target was the home hero, not the Drops page, Featured carousel, file chips, or title marquee.
+
 ## [2026-05-02 #116] PRE: Drop Cover Visibility And Featured Timer Chips
 
 Scope started:
