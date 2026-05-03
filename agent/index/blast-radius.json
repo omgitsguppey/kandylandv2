@@ -1,5 +1,5 @@
 {
-  "generatedAt": "2026-05-02T20:41:20.120Z",
+  "generatedAt": "2026-05-03T01:02:24.501Z",
   "truthOrder": [
     "verified_runtime_code",
     "verified_configuration",
@@ -16,6 +16,22 @@
   ],
   "entries": [
     {
+      "stable_id": "blast__src__lib__route-runtime-health-ts",
+      "path": "src/lib/route-runtime-health.ts",
+      "blast_radius_score": 110,
+      "shared_helper_risk": 25,
+      "route_boundary_risk": 20,
+      "runtime_criticality": 25,
+      "verification_burden": 20,
+      "deploy_or_lockfile_sensitivity": 0,
+      "why_score_was_assigned": [
+        "Likely shared helper.",
+        "Runtime-critical surface.",
+        "Broad signoff likely.",
+        "Inbound dependency count: 25."
+      ]
+    },
+    {
       "stable_id": "blast__src__lib__server__route-diagnostics-ts",
       "path": "src/lib/server/route-diagnostics.ts",
       "blast_radius_score": 110,
@@ -28,7 +44,7 @@
         "Likely shared helper.",
         "Runtime-critical surface.",
         "Broad signoff likely.",
-        "Inbound dependency count: 63."
+        "Inbound dependency count: 82."
       ]
     },
     {
@@ -44,7 +60,7 @@
         "Likely shared helper.",
         "Runtime-critical surface.",
         "Broad signoff likely.",
-        "Inbound dependency count: 43."
+        "Inbound dependency count: 116."
       ]
     },
     {
@@ -63,6 +79,22 @@
       ]
     },
     {
+      "stable_id": "blast__src__lib__admin-parity-ts",
+      "path": "src/lib/admin-parity.ts",
+      "blast_radius_score": 90,
+      "shared_helper_risk": 25,
+      "route_boundary_risk": 0,
+      "runtime_criticality": 25,
+      "verification_burden": 20,
+      "deploy_or_lockfile_sensitivity": 0,
+      "why_score_was_assigned": [
+        "Likely shared helper.",
+        "Runtime-critical surface.",
+        "Broad signoff likely.",
+        "Inbound dependency count: 37."
+      ]
+    },
+    {
       "stable_id": "blast__src__lib__authfetch-ts",
       "path": "src/lib/authFetch.ts",
       "blast_radius_score": 90,
@@ -75,7 +107,7 @@
         "Likely shared helper.",
         "Runtime-critical surface.",
         "Broad signoff likely.",
-        "Inbound dependency count: 44."
+        "Inbound dependency count: 53."
       ]
     },
     {
@@ -91,7 +123,7 @@
         "Likely shared helper.",
         "Runtime-critical surface.",
         "Broad signoff likely.",
-        "Inbound dependency count: 42."
+        "Inbound dependency count: 62."
       ]
     },
     {
@@ -107,7 +139,7 @@
         "Likely shared helper.",
         "Runtime-critical surface.",
         "Broad signoff likely.",
-        "Inbound dependency count: 27."
+        "Inbound dependency count: 37."
       ]
     },
     {
@@ -123,38 +155,7 @@
         "Likely shared helper.",
         "Runtime-critical surface.",
         "Broad signoff likely.",
-        "Inbound dependency count: 18."
-      ]
-    },
-    {
-      "stable_id": "blast__src__lib__drop-status-ts",
-      "path": "src/lib/drop-status.ts",
-      "blast_radius_score": 90,
-      "shared_helper_risk": 25,
-      "route_boundary_risk": 0,
-      "runtime_criticality": 25,
-      "verification_burden": 20,
-      "deploy_or_lockfile_sensitivity": 0,
-      "why_score_was_assigned": [
-        "Likely shared helper.",
-        "Runtime-critical surface.",
-        "Broad signoff likely.",
-        "Inbound dependency count: 17."
-      ]
-    },
-    {
-      "stable_id": "blast__src__lib__route-runtime-health-ts",
-      "path": "src/lib/route-runtime-health.ts",
-      "blast_radius_score": 90,
-      "shared_helper_risk": 25,
-      "route_boundary_risk": 20,
-      "runtime_criticality": 25,
-      "verification_burden": 20,
-      "deploy_or_lockfile_sensitivity": 0,
-      "why_score_was_assigned": [
-        "Likely shared helper.",
-        "Runtime-critical surface.",
-        "Broad signoff likely."
+        "Inbound dependency count: 38."
       ]
     },
     {
@@ -170,7 +171,7 @@
         "Likely shared helper.",
         "Runtime-critical surface.",
         "Broad signoff likely.",
-        "Inbound dependency count: 21."
+        "Inbound dependency count: 30."
       ]
     },
     {
@@ -186,7 +187,7 @@
         "Likely shared helper.",
         "Runtime-critical surface.",
         "Broad signoff likely.",
-        "Inbound dependency count: 97."
+        "Inbound dependency count: 114."
       ]
     },
     {
@@ -217,7 +218,23 @@
         "Likely shared helper.",
         "Runtime-critical surface.",
         "Broad signoff likely.",
-        "Inbound dependency count: 103."
+        "Inbound dependency count: 122."
+      ]
+    },
+    {
+      "stable_id": "blast__src__lib__server__not-found-ts",
+      "path": "src/lib/server/not-found.ts",
+      "blast_radius_score": 90,
+      "shared_helper_risk": 25,
+      "route_boundary_risk": 0,
+      "runtime_criticality": 25,
+      "verification_burden": 20,
+      "deploy_or_lockfile_sensitivity": 0,
+      "why_score_was_assigned": [
+        "Likely shared helper.",
+        "Runtime-critical surface.",
+        "Broad signoff likely.",
+        "Inbound dependency count: 34."
       ]
     },
     {
@@ -233,7 +250,7 @@
         "Likely shared helper.",
         "Runtime-critical surface.",
         "Broad signoff likely.",
-        "Inbound dependency count: 100."
+        "Inbound dependency count: 116."
       ]
     },
     {
@@ -249,23 +266,7 @@
         "Likely shared helper.",
         "Runtime-critical surface.",
         "Broad signoff likely.",
-        "Inbound dependency count: 98."
-      ]
-    },
-    {
-      "stable_id": "blast__src__lib__server__server-diagnostics-ts",
-      "path": "src/lib/server/server-diagnostics.ts",
-      "blast_radius_score": 90,
-      "shared_helper_risk": 25,
-      "route_boundary_risk": 0,
-      "runtime_criticality": 25,
-      "verification_burden": 20,
-      "deploy_or_lockfile_sensitivity": 0,
-      "why_score_was_assigned": [
-        "Likely shared helper.",
-        "Runtime-critical surface.",
-        "Broad signoff likely.",
-        "Inbound dependency count: 18."
+        "Inbound dependency count: 115."
       ]
     },
     {
@@ -281,23 +282,7 @@
         "Likely shared helper.",
         "Runtime-critical surface.",
         "Broad signoff likely.",
-        "Inbound dependency count: 49."
-      ]
-    },
-    {
-      "stable_id": "blast__src__lib__timezone-ts",
-      "path": "src/lib/timezone.ts",
-      "blast_radius_score": 90,
-      "shared_helper_risk": 25,
-      "route_boundary_risk": 0,
-      "runtime_criticality": 25,
-      "verification_burden": 20,
-      "deploy_or_lockfile_sensitivity": 0,
-      "why_score_was_assigned": [
-        "Likely shared helper.",
-        "Runtime-critical surface.",
-        "Broad signoff likely.",
-        "Inbound dependency count: 16."
+        "Inbound dependency count: 61."
       ]
     },
     {
@@ -313,7 +298,7 @@
         "Likely shared helper.",
         "Runtime-critical surface.",
         "Broad signoff likely.",
-        "Inbound dependency count: 49."
+        "Inbound dependency count: 70."
       ]
     },
     {
@@ -799,21 +784,6 @@
     {
       "stable_id": "blast__src__lib__admin-panel-system-logs-ts",
       "path": "src/lib/admin-panel-system-logs.ts",
-      "blast_radius_score": 70,
-      "shared_helper_risk": 25,
-      "route_boundary_risk": 0,
-      "runtime_criticality": 25,
-      "verification_burden": 20,
-      "deploy_or_lockfile_sensitivity": 0,
-      "why_score_was_assigned": [
-        "Likely shared helper.",
-        "Runtime-critical surface.",
-        "Broad signoff likely."
-      ]
-    },
-    {
-      "stable_id": "blast__src__lib__admin-parity-ts",
-      "path": "src/lib/admin-parity.ts",
       "blast_radius_score": 70,
       "shared_helper_risk": 25,
       "route_boundary_risk": 0,
@@ -1699,6 +1669,21 @@
     {
       "stable_id": "blast__src__lib__drop-read-models-ts",
       "path": "src/lib/drop-read-models.ts",
+      "blast_radius_score": 70,
+      "shared_helper_risk": 25,
+      "route_boundary_risk": 0,
+      "runtime_criticality": 25,
+      "verification_burden": 20,
+      "deploy_or_lockfile_sensitivity": 0,
+      "why_score_was_assigned": [
+        "Likely shared helper.",
+        "Runtime-critical surface.",
+        "Broad signoff likely."
+      ]
+    },
+    {
+      "stable_id": "blast__src__lib__drop-status-ts",
+      "path": "src/lib/drop-status.ts",
       "blast_radius_score": 70,
       "shared_helper_risk": 25,
       "route_boundary_risk": 0,
@@ -3077,21 +3062,6 @@
       ]
     },
     {
-      "stable_id": "blast__src__lib__server__not-found-ts",
-      "path": "src/lib/server/not-found.ts",
-      "blast_radius_score": 70,
-      "shared_helper_risk": 25,
-      "route_boundary_risk": 0,
-      "runtime_criticality": 25,
-      "verification_burden": 20,
-      "deploy_or_lockfile_sensitivity": 0,
-      "why_score_was_assigned": [
-        "Likely shared helper.",
-        "Runtime-critical surface.",
-        "Broad signoff likely."
-      ]
-    },
-    {
       "stable_id": "blast__src__lib__server__notification-inbox-ts",
       "path": "src/lib/server/notification-inbox.ts",
       "blast_radius_score": 70,
@@ -3244,6 +3214,21 @@
     {
       "stable_id": "blast__src__lib__server__runtime-warning-store-ts",
       "path": "src/lib/server/runtime-warning-store.ts",
+      "blast_radius_score": 70,
+      "shared_helper_risk": 25,
+      "route_boundary_risk": 0,
+      "runtime_criticality": 25,
+      "verification_burden": 20,
+      "deploy_or_lockfile_sensitivity": 0,
+      "why_score_was_assigned": [
+        "Likely shared helper.",
+        "Runtime-critical surface.",
+        "Broad signoff likely."
+      ]
+    },
+    {
+      "stable_id": "blast__src__lib__server__server-diagnostics-ts",
+      "path": "src/lib/server/server-diagnostics.ts",
       "blast_radius_score": 70,
       "shared_helper_risk": 25,
       "route_boundary_risk": 0,
@@ -3424,6 +3409,21 @@
     {
       "stable_id": "blast__src__lib__telemetry-safety-ts",
       "path": "src/lib/telemetry-safety.ts",
+      "blast_radius_score": 70,
+      "shared_helper_risk": 25,
+      "route_boundary_risk": 0,
+      "runtime_criticality": 25,
+      "verification_burden": 20,
+      "deploy_or_lockfile_sensitivity": 0,
+      "why_score_was_assigned": [
+        "Likely shared helper.",
+        "Runtime-critical surface.",
+        "Broad signoff likely."
+      ]
+    },
+    {
+      "stable_id": "blast__src__lib__timezone-ts",
+      "path": "src/lib/timezone.ts",
       "blast_radius_score": 70,
       "shared_helper_risk": 25,
       "route_boundary_risk": 0,
@@ -5426,34 +5426,6 @@
       ]
     },
     {
-      "stable_id": "blast__src__components__analytics__pageviewevent-tsx",
-      "path": "src/components/Analytics/PageViewEvent.tsx",
-      "blast_radius_score": 55,
-      "shared_helper_risk": 0,
-      "route_boundary_risk": 0,
-      "runtime_criticality": 25,
-      "verification_burden": 10,
-      "deploy_or_lockfile_sensitivity": 0,
-      "why_score_was_assigned": [
-        "Runtime-critical surface.",
-        "Inbound dependency count: 18."
-      ]
-    },
-    {
-      "stable_id": "blast__src__components__ui__button-tsx",
-      "path": "src/components/ui/Button.tsx",
-      "blast_radius_score": 55,
-      "shared_helper_risk": 0,
-      "route_boundary_risk": 0,
-      "runtime_criticality": 25,
-      "verification_burden": 10,
-      "deploy_or_lockfile_sensitivity": 0,
-      "why_score_was_assigned": [
-        "Runtime-critical surface.",
-        "Inbound dependency count: 20."
-      ]
-    },
-    {
       "stable_id": "blast__database-rules-json",
       "path": "database.rules.json",
       "blast_radius_score": 45,
@@ -6268,6 +6240,20 @@
     {
       "stable_id": "blast__scripts__agent__validate-global-speed-hydration-cache-ts",
       "path": "scripts/agent/validate-global-speed-hydration-cache.ts",
+      "blast_radius_score": 45,
+      "shared_helper_risk": 25,
+      "route_boundary_risk": 0,
+      "runtime_criticality": 0,
+      "verification_burden": 20,
+      "deploy_or_lockfile_sensitivity": 0,
+      "why_score_was_assigned": [
+        "Likely shared helper.",
+        "Broad signoff likely."
+      ]
+    },
+    {
+      "stable_id": "blast__scripts__agent__validate-home-mobile-hero-shell-ts",
+      "path": "scripts/agent/validate-home-mobile-hero-shell.ts",
       "blast_radius_score": 45,
       "shared_helper_risk": 25,
       "route_boundary_risk": 0,
@@ -8939,6 +8925,19 @@
       ]
     },
     {
+      "stable_id": "blast__src__components__analytics__pageviewevent-tsx",
+      "path": "src/components/Analytics/PageViewEvent.tsx",
+      "blast_radius_score": 35,
+      "shared_helper_risk": 0,
+      "route_boundary_risk": 0,
+      "runtime_criticality": 25,
+      "verification_burden": 10,
+      "deploy_or_lockfile_sensitivity": 0,
+      "why_score_was_assigned": [
+        "Runtime-critical surface."
+      ]
+    },
+    {
       "stable_id": "blast__src__components__auth__authhelpers-ts",
       "path": "src/components/Auth/AuthHelpers.ts",
       "blast_radius_score": 35,
@@ -9812,6 +9811,19 @@
     {
       "stable_id": "blast__src__components__toasts__unwrapsuccesstoast-tsx",
       "path": "src/components/Toasts/UnwrapSuccessToast.tsx",
+      "blast_radius_score": 35,
+      "shared_helper_risk": 0,
+      "route_boundary_risk": 0,
+      "runtime_criticality": 25,
+      "verification_burden": 10,
+      "deploy_or_lockfile_sensitivity": 0,
+      "why_score_was_assigned": [
+        "Runtime-critical surface."
+      ]
+    },
+    {
+      "stable_id": "blast__src__components__ui__button-tsx",
+      "path": "src/components/ui/Button.tsx",
       "blast_radius_score": 35,
       "shared_helper_risk": 0,
       "route_boundary_risk": 0,

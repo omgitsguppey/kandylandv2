@@ -273,6 +273,9 @@ Anticipate structural iteration, but do it safely.
 - **SAFE SURFACES**: CTA emphasis, visual merchandising, spotlight layouts, hero copy, onboarding flow text.
 - **STRICTLY UNSAFE SURFACES**: Wallet state, PayPal integrations, economy operations, Auth session logic.
 
+## Mobile Guest Home Hero Shell
+The guest home hero is shell-centered on mobile. It must center within available visual height between fixed top nav and mobile bottom nav/browser/PWA chrome using shell-aware viewport math, not a fixed vh-plus-nav estimate.
+
 ## AI Governance & Workflow Execution
 Antigravity must behave like a disciplined senior engineer. 
 **Cycle**: Inspect architecture -> Identify precise owners -> Patch -> Verify Parity -> Verify Regression Safety -> Report.

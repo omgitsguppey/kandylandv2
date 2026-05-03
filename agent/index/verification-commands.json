@@ -1,5 +1,5 @@
 {
-  "generatedAt": "2026-05-02T20:41:03.475Z",
+  "generatedAt": "2026-05-03T01:01:58.258Z",
   "truthOrder": [
     "verified_runtime_code",
     "verified_configuration",
@@ -1008,6 +1008,23 @@
     {
       "stable_id": "command__root-check-mobile-shell-safe-area",
       "command": "npm run check:mobile-shell-safe-area",
+      "scopeType": "repo",
+      "root_or_functions": "root",
+      "requiredWhen": [],
+      "optionalWhen": [
+        "Run when the touched surface overlaps the command lane."
+      ],
+      "cleanupExpected": [],
+      "broadSignoffWeight": 1,
+      "verifies_runtime": false,
+      "verifies_ui": false,
+      "verifies_rules": false,
+      "verifies_inventory": false,
+      "verifies_continuity": false
+    },
+    {
+      "stable_id": "command__root-check-home-mobile-hero-shell",
+      "command": "npm run check:home-mobile-hero-shell",
       "scopeType": "repo",
       "root_or_functions": "root",
       "requiredWhen": [],

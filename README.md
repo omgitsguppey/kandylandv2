@@ -23,3 +23,5 @@ Before making **ANY** changes to user-facing UI, copy, or product logic, you are
 ### Agent Control Tower
 **Before touching UI, copy, telemetry, state, admin truth, or Firebase architecture, start with [/control-tower/00-START-HERE.md](./control-tower/00-START-HERE.md).**
 
+### Mobile Guest Home Hero Shell
+The guest home hero is shell-centered on mobile. It must center within available visual height between fixed top nav and mobile bottom nav/browser/PWA chrome using shell-aware viewport math, not a fixed vh-plus-nav estimate.

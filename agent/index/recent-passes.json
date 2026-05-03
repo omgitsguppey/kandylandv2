@@ -1,5 +1,5 @@
 {
-  "generatedAt": "2026-05-02T20:41:03.532Z",
+  "generatedAt": "2026-05-03T01:01:58.306Z",
   "truthOrder": [
     "verified_runtime_code",
     "verified_configuration",
@@ -15,6 +15,44 @@
   ],
   "passes": [
     {
+      "stable_id": "pass__2026-05-02-pre-mobile-guest-home-hero-shell-centering",
+      "date": "2026-05-02",
+      "title": "PRE: Mobile Guest Home Hero Shell Centering",
+      "scopeSummary": [],
+      "touchedSurfaces": [
+        " / ",
+        "npm run agent:test -- src/components/CoreLayoutWrapper.tsx",
+        "npm run agent:test -- src/components/Hero.tsx",
+        "npm run agent:test -- src/components/Landing/HomeHeroActions.tsx",
+        "npm run trace:adjacent -- src/components/CoreLayoutWrapper.tsx",
+        "npm run trace:adjacent -- src/components/Hero.tsx",
+        "npm run trace:adjacent -- src/components/Landing/HomeHeroActions.tsx",
+        "scripts/agent/validate-home-mobile-hero-shell.ts",
+        "src/app/layout.tsx",
+        "src/components/CoreLayoutWrapper.tsx",
+        "src/components/Hero.tsx",
+        "src/components/Landing/HomeHeroActions.tsx",
+        "src/components/Navbar.tsx",
+        "src/components/Navigation/MobileBottomBar.tsx",
+        "src/lib/user-mobile-shell.ts",
+        "tests/ui-audits/visual-regression.spec.ts-snapshots/ui-surface-src-app-page-tsx-Mobile-Chrome-win32.png"
+      ],
+      "canonicalHelpersReused": [],
+      "verificationCommandsRun": [],
+      "resultSummary": [],
+      "warnings": [],
+      "architecture_change": true,
+      "runtime_change": false,
+      "ui_change": true,
+      "security_change": false,
+      "maintenance_only": false,
+      "changeKinds": [
+        "ui",
+        "tooling",
+        "architecture"
+      ]
+    },
+    {
       "stable_id": "pass__2026-05-02-pre-creator-lane-old-logic-removal-gate",
       "date": "2026-05-02",
       "title": "PRE: Creator Lane Old Logic Removal Gate",
@@ -22,13 +60,16 @@
       "touchedSurfaces": [
         "agent/state/creator-lane-old-logic-cleanup.generated.json",
         "docs/agent-truth/creator-lane-old-logic-cleanup.md",
+        "npm run trace:adjacent -- scripts/agent/validate-creator-lane-old-logic-removal.ts",
+        "npx vitest run tests/unit/creator-lane-old-logic-removal-validator.spec.ts",
         "scripts/agent/validate-creator-lane-old-logic-removal.ts",
         "src/app/api/admin/roster/route.ts",
         "src/app/api/admin/user/[userId]/route.ts",
         "src/app/api/admin/users/route.ts",
         "src/lib/creator-application.ts",
         "src/lib/server/creator-onboarding-legacy-adapter.ts",
-        "src/lib/server/creator-onboarding.ts"
+        "src/lib/server/creator-onboarding.ts",
+        "tests/unit/creator-lane-old-logic-removal-validator.spec.ts"
       ],
       "canonicalHelpersReused": [
         "src/lib/server/creator-onboarding.ts"
@@ -234,40 +275,6 @@
       "changeKinds": [
         "ui",
         "tooling",
-        "architecture"
-      ]
-    },
-    {
-      "stable_id": "pass__2026-05-02-pre-creator-review-queue-materializer-cleanup",
-      "date": "2026-05-02",
-      "title": "PRE: Creator Review Queue Materializer Cleanup",
-      "scopeSummary": [],
-      "touchedSurfaces": [
-        "/api/admin/roster",
-        "/api/user/register",
-        "creator_onboarding/{uid}",
-        "creator_review_queue/{uid}",
-        "npx vitest run tests/unit/creator-review-queue-materializer.spec.ts tests/unit/creator-onboarding-server.spec.ts tests/unit/admin-roster-route.spec.ts tests/unit/creator-onboarding-diagnostics.spec.ts",
-        "npx vitest run tests/unit/user-register-route.spec.ts tests/unit/creator-onboarding-application-route.spec.ts tests/unit/creator-onboarding-intro-route.spec.ts tests/unit/creator-contract-signature-route.spec.ts tests/unit/creator-id-submission-route.spec.ts tests/unit/admin-users-route.spec.ts",
-        "src/lib/creator-onboarding.ts",
-        "src/lib/server/creator-onboarding.ts",
-        "src/lib/server/creator-review-queue.ts"
-      ],
-      "canonicalHelpersReused": [
-        "src/lib/creator-onboarding.ts",
-        "src/lib/server/creator-onboarding.ts"
-      ],
-      "verificationCommandsRun": [],
-      "resultSummary": [],
-      "warnings": [],
-      "architecture_change": true,
-      "runtime_change": false,
-      "ui_change": false,
-      "security_change": false,
-      "maintenance_only": false,
-      "changeKinds": [
-        "admin",
-        "ui",
         "architecture"
       ]
     }

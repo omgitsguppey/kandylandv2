@@ -95,7 +95,8 @@ export function CoreLayoutWrapper({ children }: { children: React.ReactNode }) {
         idle: true,
     });
     const diagnosticsReady = isHomeRoute ? homepageAfterPaintReady : runtimeReady;
-    const telemetryReady = afterPaintReady;
+    const telemetryReady = isHomeRoute ? homepageIdleReady : afterPaintReady;
+    const interactiveOverlayReady = afterPaintReady;
     const enhancementReady = isHomeRoute ? homepageIdleReady : idleReady;
     const overlayReady = isHomeRoute ? homepageOverlayReady : telemetryReady;
     const scrollControlsReady = !isHomeRoute || homepageAfterPaintReady;
@@ -176,13 +177,13 @@ export function CoreLayoutWrapper({ children }: { children: React.ReactNode }) {
             {telemetryReady && shouldShowTaskGuidanceBanner ? <TaskGuidanceBanner /> : null}
             {enhancementReady && shouldEnablePwaRuntime ? <PwaRuntimeBridge /> : null}
             {overlayReady && shouldShowBugReportTrigger ? <GlobalBugReportTrigger /> : null}
-            {telemetryReady && shouldShowPurchaseUi && isPurchaseModalOpen ? (
+            {interactiveOverlayReady && shouldShowPurchaseUi && isPurchaseModalOpen ? (
                 <PayPalProvider>
                     <GlobalPurchaseModal />
                 </PayPalProvider>
             ) : null}
-            {telemetryReady && isUserShell && isInsufficientBalanceModalOpen ? <InsufficientBalanceModal /> : null}
-            {telemetryReady && shouldShowAuthUi && isAuthModalOpen ? <GlobalAuthModal /> : null}
+            {interactiveOverlayReady && isUserShell && isInsufficientBalanceModalOpen ? <InsufficientBalanceModal /> : null}
+            {interactiveOverlayReady && shouldShowAuthUi && isAuthModalOpen ? <GlobalAuthModal /> : null}
             {enhancementReady && shouldLoadOnboarding ? <GuidedOnboarding /> : null}
             <Toaster position="top-center" theme="dark" richColors closeButton />
             {overlayReady && shouldShowCookieBanner ? <CookieBanner /> : null}

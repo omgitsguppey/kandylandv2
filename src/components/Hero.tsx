@@ -14,7 +14,9 @@ export default function Hero({ activeDrops }: HeroProps) {
     return (
         <section
             data-home-section="hero"
-            className="relative flex min-h-[calc(68vh+3.75rem)] w-full flex-col justify-center overflow-hidden pb-5 pt-[2.2rem] max-[360px]:min-h-[calc(64vh+3.75rem)] max-[360px]:pb-4 max-[360px]:pt-[2.0rem] sm:min-h-[90vh] sm:pb-12 sm:pt-24 landscape:min-h-0 landscape:justify-start landscape:pb-8 landscape:pt-10"
+            data-home-hero-layout="shell-centered"
+            data-home-hero-shell-aware="true"
+            className="relative flex min-h-[calc(100dvh_-_var(--root-shell-top-spacing,6rem)_-_var(--user-mobile-bottom-nav-reserved-height,0px)_-_0.75rem)] w-full flex-col justify-center overflow-hidden pb-3 pt-1 max-[360px]:min-h-[calc(100dvh_-_var(--root-shell-top-spacing,6rem)_-_var(--user-mobile-bottom-nav-reserved-height,0px)_-_1rem)] max-[360px]:pb-3 max-[360px]:pt-0 sm:min-h-[90vh] sm:pb-12 sm:pt-24 landscape:min-h-0 landscape:justify-start landscape:pb-8 landscape:pt-10"
         >
             <div className="pointer-events-none absolute inset-0 z-0 opacity-30 motion-reduce:hidden" aria-hidden="true">
                 <div className="absolute left-1/4 top-1/4 h-[360px] w-[360px] rounded-full bg-brand-purple/16 blur-[80px] mix-blend-screen" />

@@ -4,6 +4,10 @@ Status: Canonical repository-memory and architecture-decision ledger
 Last refreshed: 2026-05-02
 Repo: `C:\Users\uylus\OneDrive\Documents\KandyDrops_Final`
 
+## 2026-05-02 Mobile guest home hero shell centering
+
+The guest home hero is shell-centered on mobile. It must center within available visual height between fixed top nav and mobile bottom nav/browser/PWA chrome using shell-aware viewport math, not a fixed vh-plus-nav estimate. The canonical implementation lives in `src/components/Hero.tsx`, reuses `--root-shell-top-spacing` and `--user-mobile-bottom-nav-reserved-height`, preserves `HomeHeroActions` CTA truth and `hero_cta_clicked`, and is guarded by `npm run check:home-mobile-hero-shell`. Homepage deep telemetry remains idle-gated through `CoreLayoutWrapper`, while auth and purchase overlays stay on the after-paint gate so the hero signup CTA can open promptly.
+
 ## 2026-05-02 Creator lane debug parity
 
 Creator lane parity now routes through `src/lib/server/creator-onboarding-diagnostics.ts`. Admin Debug exposes a `Creator Lane` group with source snapshot counts, mismatch rows, history coverage, last queue materialization time, recommended fixes, and `canSelfHeal`; Admin Roster receives only short operator warnings: `Review queue out of sync`, `Role needs review`, `Agreement evidence missing`, `ID record needs review`, and `Settings need review`. Parity checks cover canonical onboarding, history, review queue, user projection, role, agreement signature evidence, ID documents, owner override reason, creator settings/restrictions, and creator experience records. Full technical details belong in Debug, not the roster row.

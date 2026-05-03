@@ -58,6 +58,8 @@ The Firebase Web modular SDK path used here does not expose the old continuous `
 
 Standalone PWA surfaces use the same mobile shell contract as browser mobile surfaces. `src/lib/user-mobile-shell.ts` owns bottom-nav/safe-area tokens; root layout reads `--user-mobile-bottom-nav-reserved-height`; `CoreLayoutWrapper` applies it once; `MobileBottomBar` uses the bottom offset token. Do not add duplicate page-level safe-area padding for normal public routes.
 
+The guest home hero is shell-centered on mobile. It must center within available visual height between fixed top nav and mobile bottom nav/browser/PWA chrome using shell-aware viewport math, not a fixed vh-plus-nav estimate.
+
 ## Offline And Return Routes
 
 `/offline` is the offline fallback route. Notification fallback route is `/experiences`. PWA start route is `/drops`. 404 recovery returns to `/dashboard`. These routes must remain valid and human-readable.

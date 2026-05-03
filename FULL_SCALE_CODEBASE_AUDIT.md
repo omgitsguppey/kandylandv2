@@ -1,5 +1,44 @@
 # KandyDrops Core Codebase Audit & Defensive Ledger
 
+## [2026-05-02 #113] PRE: Mobile Guest Home Hero Shell Centering
+
+Scope started:
+- Refining the public guest home hero vertical rhythm on iPhone-class screens so the badge/headline/CTA/ticker group centers inside the visual lane between the fixed top nav and mobile bottom nav/browser or standalone PWA chrome.
+- Required outputs: shell-aware `100dvh` mobile hero sizing, preserved dynamic CTA truth and `hero_cta_clicked` telemetry, lightweight hero debug attributes, targeted validator, docs updates, mobile-shell validation, TypeScript, commit, and push.
+- This pass must not redesign the landing page, change hero copy except for truthful auth-loading CTA handling, add negative margins/translate hacks, duplicate bottom-nav/safe-area spacing, or touch payment/economy surfaces.
+
+Initial evidence:
+- Control tower routing, doctrine consultation, mobile safe-area doctrine, PWA mobile doctrine, source-of-truth map, shared component ownership, generated fast-start context, and adjacency trace for `src/components/Hero.tsx` were consulted.
+- Runtime owners inspected first: `src/app/layout.tsx`, `src/components/CoreLayoutWrapper.tsx`, `src/components/Navbar.tsx`, `src/components/Navigation/MobileBottomBar.tsx`, `src/lib/user-mobile-shell.ts`, `src/components/Hero.tsx`, and `src/components/Landing/HomeHeroActions.tsx`.
+
+Doctrine:
+- The guest home hero is shell-centered on mobile. It must center within available visual height between fixed top nav and mobile bottom nav/browser/PWA chrome using shell-aware viewport math, not a fixed vh-plus-nav estimate.
+
+Scope completed:
+- Replaced the home hero's mobile `68vh + 3.75rem` / `64vh + 3.75rem` height estimate with shell-aware `100dvh` math that subtracts `--root-shell-top-spacing`, `--user-mobile-bottom-nav-reserved-height`, and a small optical breathing token.
+- Reduced mobile hero top/bottom padding, added `data-home-hero-layout="shell-centered"` and `data-home-hero-shell-aware="true"`, and left sm/desktop and landscape overrides explicit.
+- Preserved guest and authenticated CTA paths, added an auth-loading guard so persisted signed-in users do not see the guest CTA during auth hydration, and kept the `hero_cta_clicked` event name/payload lanes.
+- Restored homepage deep telemetry idle gating in `CoreLayoutWrapper` while keeping auth/purchase modal overlays on the after-paint gate so the signup CTA remains responsive.
+- Added `scripts/agent/validate-home-mobile-hero-shell.ts`, `npm run check:home-mobile-hero-shell`, source-of-truth docs, refreshed agent indexes, and updated the Mobile Chrome home hero visual baseline.
+
+Verification:
+- Passed: `npm run check:home-mobile-hero-shell`
+- Passed: `npm run trace:adjacent -- src/components/Hero.tsx`
+- Passed: `npm run trace:adjacent -- src/components/Landing/HomeHeroActions.tsx`
+- Passed: `npm run trace:adjacent -- src/components/CoreLayoutWrapper.tsx`
+- Passed: `npm run check:mobile-shell-safe-area`
+- Passed: `npm run agent:test -- src/components/Hero.tsx` (no related test files found; command exited 0)
+- Passed: `npm run agent:test -- src/components/Landing/HomeHeroActions.tsx` (no related test files found; command exited 0)
+- Passed: `npm run agent:test -- src/components/CoreLayoutWrapper.tsx` (no related test files found; command exited 0)
+- Passed: `npm run typecheck`
+- Passed: `npm run check:telemetry`
+- Passed: `npm run check:analytics-semantics`
+- Passed: `npm run check:home-hydration`
+- Passed: `npm run check:ui:coverage`
+- Passed: `npm run check:ui:runtime`
+- Passed: `npm run agent:index`
+- Passed: `npm run check:ui:audits` after refreshing only `tests/ui-audits/visual-regression.spec.ts-snapshots/ui-surface-src-app-page-tsx-Mobile-Chrome-win32.png`.
+
 ## [2026-05-02 #112] PRE: Creator Lane Old Logic Removal Gate
 
 Scope started:
