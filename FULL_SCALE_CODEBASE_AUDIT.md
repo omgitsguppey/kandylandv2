@@ -1,5 +1,37 @@
 # KandyDrops Core Codebase Audit & Defensive Ledger
 
+## [2026-05-02 #114] PRE: Mobile Chat Shell Compact Spacing
+
+Scope started:
+- Refining the public beta chat shell on iPhone-class browser and standalone PWA screens so inbox controls, floating compose, message list, and thread composer stay stable above the KandyDrops bottom nav and browser/PWA safe area.
+- Required outputs: shared chat shell token update, compact list/thread debug markers, denser composer controls, approved outgoing bubble accent gradient, preserved paid/free GumDrops logic, targeted chat shell validator, source-of-truth docs, focused verification, commit, and push.
+- This pass must not touch paid GumDrops business logic, free vs paid balance rules, message send transactions, creator accruals, server chat pricing, thread ID format, auth/profile bootstrap, realtime listeners, or polling.
+
+Initial evidence:
+- Control tower routing, doctrine consultation workflow, product/copy/UI doctrine, mobile safe-area doctrine, PWA mobile doctrine, generated chat task context, and `docs/agent-truth/user-chat-shell-routing.md` were consulted.
+- Runtime owners inspected first: `src/components/Chat/ChatExperience.tsx`, `src/lib/user-mobile-shell.ts`, `src/components/Navigation/MobileBottomBar.tsx`, `src/components/CoreLayoutWrapper.tsx`, `src/app/layout.tsx`, `src/lib/chat.ts`, `src/lib/server/chat.ts`, and `scripts/agent/validate-user-chat-shell-routing.ts`.
+
+Doctrine:
+- The chat route bypasses normal page bottom-nav reservation and owns its own mobile shell spacing. Inbox controls, floating compose controls, and thread composer must sit above the mobile bottom nav in Safari browser and standalone PWA modes using shared chat shell tokens, not per-screen hardcoded offsets.
+
+Scope completed:
+- Replaced the chat floating action `0px` offset with shared bottom-nav reservation math, tightened the compact chat control gap to 0.875rem, added an explicit 3.25rem list control height token, and kept list scroll padding tied to the same shared contract.
+- Tightened compact inbox search/floating compose controls to 48px, reduced thread composer top density, set the plus button to 44px, send button/input row to 48px, made the price summary a single 13px line, and kept the message list breathing room above the composer.
+- Added `data-chat-shell-mode`, bottom-nav/composer/list-clearance markers, public beta compact density metadata, and human-readable self-debug warnings for list controls, composer clearance, and scroll ownership.
+- Updated outgoing user bubbles to the approved KandyDrops purple accent gradient while leaving incoming bubble, message ordering, read state, paid/free GumDrops pricing, send transaction, creator accrual, auth, and thread ID logic unchanged.
+- Added minimal chat interaction telemetry for thread open, compose sheet open, list search focus, send attempted/failed/sent with source component, route, display mode, viewport, thread/creator, idempotency, and message metadata where available. Catalog and generated audit validation were refreshed so the stricter event-catalog gate recognizes the current creator/chat emitters.
+- Updated README, repo memory, checklist, event-catalog docs, mobile safe-area/PWA docs, and user chat shell routing doctrine with the shared chat mobile shell note.
+
+Verification:
+- Passed: `npm run check:user-chat-shell-routing`
+- Passed: `npm run check:mobile-shell-safe-area`
+- Passed: `npm run agent:test -- src/components/Chat/ChatExperience.tsx` (no related test files found; command exited 0)
+- Passed: `npm run typecheck`
+- Passed: `npx vitest run tests/unit/server-chat-send.spec.ts tests/unit/chat-thread-messages-route.spec.ts tests/unit/chat-send-feedback.spec.ts tests/unit/chat-send-realtime.spec.ts tests/unit/chat-route-shell.spec.tsx`
+- Passed: `npm run check:telemetry`
+- Passed: `npm run check:event-catalog-telemetry`
+- Passed: `git diff --check`
+
 ## [2026-05-02 #113] PRE: Mobile Guest Home Hero Shell Centering
 
 Scope started:

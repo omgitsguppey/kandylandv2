@@ -42,6 +42,7 @@ for (const needle of [
   "USER_MOBILE_CHAT_BOTTOM_RESERVED_HEIGHT",
   "USER_MOBILE_BOTTOM_NAV_RESERVED_HEIGHT",
   "CHAT_LIST_SCROLL_PADDING_BOTTOM",
+  "CHAT_LIST_CONTROL_HEIGHT",
   "CHAT_LIST_CONTROLS_BOTTOM_OFFSET",
   "CHAT_LIST_FLOATING_ACTION_BOTTOM_OFFSET",
   "CHAT_THREAD_COMPOSER_PADDING_BOTTOM",
@@ -59,6 +60,14 @@ for (const needle of [
   "messagesListUsesChatShellSizing",
   "messagesSearchVisible",
   "newThreadControlVisible",
+  "data-chat-shell-mode",
+  "data-chat-bottom-nav-reserved=\"true\"",
+  "data-chat-composer-above-bottom-nav=\"true\"",
+  "data-chat-list-controls-above-bottom-nav=\"true\"",
+  "data-chat-density=\"public-beta-compact\"",
+  "Chat controls are too close to the bottom navigation.",
+  "Chat composer is not fully above the mobile navigation.",
+  "Chat list scroll container lost viewport ownership.",
 ]) {
   requireIncludes(chat, needle, "Messages list shell sizing");
 }
@@ -89,11 +98,17 @@ for (const needle of [
   "USER_MOBILE_BOTTOM_NAV_BOTTOM_OFFSET",
   "USER_MOBILE_BOTTOM_NAV_RESERVED_HEIGHT",
   "USER_MOBILE_CHAT_BOTTOM_RESERVED_HEIGHT",
+  "USER_MOBILE_CHAT_CONTROL_GAP",
+  "CHAT_LIST_CONTROL_HEIGHT",
+  "CHAT_LIST_CONTROLS_BOTTOM_OFFSET = USER_MOBILE_CHAT_BOTTOM_RESERVED_HEIGHT",
+  "CHAT_LIST_FLOATING_ACTION_BOTTOM_OFFSET = CHAT_LIST_CONTROLS_BOTTOM_OFFSET",
+  "CHAT_LIST_SCROLL_PADDING_BOTTOM = `calc(${CHAT_LIST_CONTROLS_BOTTOM_OFFSET} + ${CHAT_LIST_CONTROL_HEIGHT} + ${USER_MOBILE_CHAT_CONTROL_GAP})`",
   "CHAT_LIST_FLOATING_ACTION_BOTTOM_OFFSET",
   "CHAT_THREAD_COMPOSER_PADDING_BOTTOM",
 ]) {
   requireIncludes(spacing, needle, "Shared user mobile shell spacing");
 }
+requireNotIncludes(spacing, "CHAT_LIST_FLOATING_ACTION_BOTTOM_OFFSET = \"0px\"", "Shared user mobile shell spacing");
 
 requireIncludes(bottomNav, "USER_MOBILE_BOTTOM_NAV_BOTTOM_OFFSET", "Bottom nav shared spacing");
 requireIncludes(bottomNav, "USER_MOBILE_BOTTOM_NAV_HEIGHT", "Bottom nav shared spacing");
@@ -122,7 +137,7 @@ requireNotIncludes(notFound, "LegalBackLink", "Not-found broken return helper");
 requireNotIncludes(notFound, "router.back", "Not-found return action");
 requireNotIncludes(notFound, "Return Home", "Not-found return action");
 
-for (const bannedLayout of ["-mt-", "translate-y-", "bottom-[calc(1.25rem+env", "pb-[calc(1.25rem+env"]) {
+for (const bannedLayout of ["-mt-", "mt-[-", "-mb-", "mb-[-", "translate-y-", "translate-y", "bottom-[calc(1.25rem+env", "pb-[calc(1.25rem+env"]) {
   requireNotIncludes(chat, bannedLayout, "Chat bottom-nav overlap fix");
 }
 
@@ -132,11 +147,25 @@ for (const bannedSizing of ["paddingBottom: showCompactThreadListOnly", "pb-[cal
 
 for (const needle of [
   "Messages list and chat thread views share one mobile shell contract",
+  "The chat route bypasses normal page bottom-nav reservation and owns its own mobile shell spacing",
   "buildCreatorPublicHref",
   "Return to App",
   "Do not fix bottom-nav overlap with negative margins",
 ]) {
   requireIncludes(doc, needle, "User chat shell routing doctrine");
+}
+
+for (const needle of [
+  "linear-gradient(135deg,rgba(178,140,255,.96),rgba(126,87,255,.94))",
+  "Text ${detail.pricing.textPriceGd} GD, image ${detail.pricing.imagePriceGd} GD, video ${detail.pricing.videoPriceGd} GD. Paid balance ${detail.pricing.purchasedBalanceGd} GD.",
+  "chat_thread_opened",
+  "chat_compose_sheet_opened",
+  "chat_message_send_attempted",
+  "chat_message_send_failed",
+  "chat_message_sent",
+  "chat_list_search_focused",
+]) {
+  requireIncludes(chat, needle, "Compact chat public beta behavior");
 }
 
 if (failures.length > 0) {

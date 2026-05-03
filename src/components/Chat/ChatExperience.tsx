@@ -27,6 +27,7 @@ import { Button } from "@/components/ui/Button";
 import { useAuth } from "@/context/AuthContext";
 import { useUI } from "@/context/UIContext";
 import { authFetch } from "@/lib/authFetch";
+import { isStandalone } from "@/lib/browser-utils";
 import { resolveChatAttachmentKind } from "@/lib/chat-attachments";
 import { buildChatSoftSealScope, softOpenChatValue } from "@/lib/chat-soft-seal";
 import {
@@ -65,6 +66,7 @@ import { useCompactViewport } from "@/hooks/useCompactViewport";
 import { cn } from "@/lib/utils";
 import { ref as storageRef, uploadBytes } from "firebase/storage";
 import {
+    CHAT_LIST_CONTROL_HEIGHT,
     CHAT_LIST_FLOATING_ACTION_BOTTOM_OFFSET,
     CHAT_LIST_CONTROLS_BOTTOM_OFFSET,
     CHAT_LIST_SCROLL_PADDING_BOTTOM,
@@ -132,6 +134,20 @@ type UploadedChatAttachment = {
     storagePath: string;
 };
 
+type ChatTelemetryPayloadInput = {
+    sourceComponent: string;
+    userId?: string | null;
+    thread?: ChatThreadRecord | null;
+    threadId?: string | null;
+    creatorId?: string | null;
+    idempotencyKey?: string | null;
+    messageId?: string | null;
+    messageKind?: ChatMessageKind | null;
+    hasAttachment?: boolean;
+    errorCode?: string | null;
+    errorMessage?: string | null;
+};
+
 function buildChatMessageIdempotencyKey(threadId: string) {
     let random = globalThis.crypto?.randomUUID?.() ?? "";
     if (!random && globalThis.crypto?.getRandomValues) {
@@ -144,6 +160,67 @@ function buildChatMessageIdempotencyKey(threadId: string) {
     }
 
     return `creator-private-chat:${threadId}:${random}`;
+}
+
+function readChatDisplayMode() {
+    return isStandalone() ? "standalone" : "browser";
+}
+
+function readChatViewportSize() {
+    if (typeof window === "undefined") {
+        return {
+            viewport_width: 0,
+            viewport_height: 0,
+        };
+    }
+
+    const viewport = window.visualViewport;
+    return {
+        viewport_width: Math.round(viewport?.width ?? window.innerWidth ?? 0),
+        viewport_height: Math.round(viewport?.height ?? window.innerHeight ?? 0),
+    };
+}
+
+function readMobileBottomNavTop() {
+    if (typeof document === "undefined") {
+        return null;
+    }
+
+    const bottomNav = document.querySelector('nav[aria-label="Mobile navigation"]');
+    return bottomNav instanceof HTMLElement ? bottomNav.getBoundingClientRect().top : null;
+}
+
+function buildChatTelemetryPayload({
+    sourceComponent,
+    userId,
+    thread,
+    threadId,
+    creatorId,
+    idempotencyKey,
+    messageId,
+    messageKind,
+    hasAttachment,
+    errorCode,
+    errorMessage,
+}: ChatTelemetryPayloadInput) {
+    const resolvedThreadId = thread?.id ?? threadId ?? null;
+    const resolvedCreatorId = thread?.creatorId ?? creatorId ?? null;
+
+    return {
+        source_component: sourceComponent,
+        route: "/dashboard/chat",
+        display_mode: readChatDisplayMode(),
+        ...readChatViewportSize(),
+        ...(userId ? { user_id: userId } : {}),
+        ...(resolvedThreadId ? { thread_id: resolvedThreadId } : {}),
+        ...(resolvedCreatorId ? { creator_id: resolvedCreatorId } : {}),
+        ...(idempotencyKey ? { idempotency_key: idempotencyKey } : {}),
+        ...(messageId ? { message_id: messageId } : {}),
+        ...(messageKind ? { message_kind: messageKind } : {}),
+        ...(typeof hasAttachment === "boolean" ? { has_attachment: hasAttachment } : {}),
+        ...(errorCode ? { error_code: errorCode } : {}),
+        ...(errorMessage ? { error_message: errorMessage.slice(0, 160) } : {}),
+    };
 }
 
 type PresenceSnapshot = {
@@ -444,7 +521,12 @@ export function ChatExperience() {
     const chatViewportShellRef = useRef<HTMLDivElement | null>(null);
     const compactThreadListPanelRef = useRef<HTMLElement | null>(null);
     const compactThreadListScrollRef = useRef<HTMLDivElement | null>(null);
+    const compactThreadListControlsRef = useRef<HTMLDivElement | null>(null);
+    const compactThreadListFloatingActionRef = useRef<HTMLButtonElement | null>(null);
+    const chatThreadComposerRef = useRef<HTMLDivElement | null>(null);
+    const chatThreadComposerControlRef = useRef<HTMLDivElement | null>(null);
     const compactThreadListLayoutReportKeyRef = useRef<string | null>(null);
+    const chatThreadComposerLayoutReportKeyRef = useRef<string | null>(null);
     const attachmentMenuRef = useRef<HTMLDivElement | null>(null);
     const imageInputRef = useRef<HTMLInputElement | null>(null);
     const videoInputRef = useRef<HTMLInputElement | null>(null);
@@ -622,13 +704,18 @@ export function ChatExperience() {
             const shell = chatViewportShellRef.current;
             const panel = compactThreadListPanelRef.current;
             const scrollArea = compactThreadListScrollRef.current;
+            const controls = compactThreadListControlsRef.current;
+            const floatingAction = compactThreadListFloatingActionRef.current;
             if (!shell || !panel || !scrollArea) {
                 return;
             }
 
             const viewportHeight = window.visualViewport?.height ?? window.innerHeight;
+            const bottomNavTop = readMobileBottomNavTop() ?? viewportHeight;
             const shellRect = shell.getBoundingClientRect();
             const panelRect = panel.getBoundingClientRect();
+            const controlsRect = controls?.getBoundingClientRect() ?? null;
+            const floatingActionRect = floatingAction?.getBoundingClientRect() ?? null;
             const main = document.querySelector("main");
             const mainElement = main instanceof HTMLElement ? main : null;
             const scrollStyle = window.getComputedStyle(scrollArea);
@@ -640,6 +727,10 @@ export function ChatExperience() {
             const panelBottomOverflowPx = Math.max(0, Math.round(panelRect.bottom - viewportHeight));
             const scrollAreaTooShort = scrollArea.clientHeight < 160 && filteredThreads.length > 0;
             const scrollAreaOwnsOverflow = scrollStyle.overflowY === "auto" || scrollStyle.overflowY === "scroll";
+            const controlsGapPx = controlsRect ? Math.round(bottomNavTop - controlsRect.bottom) : null;
+            const floatingActionGapPx = floatingActionRect ? Math.round(bottomNavTop - floatingActionRect.bottom) : null;
+            const controlsTooCloseToBottomNav = (controlsGapPx !== null && controlsGapPx < 12)
+                || (floatingActionGapPx !== null && floatingActionGapPx < 12);
 
             if (
                 shellBottomOverflowPx === 0
@@ -647,6 +738,7 @@ export function ChatExperience() {
                 && !documentScrollLeak
                 && !scrollAreaTooShort
                 && scrollAreaOwnsOverflow
+                && !controlsTooCloseToBottomNav
             ) {
                 compactThreadListLayoutReportKeyRef.current = null;
                 return;
@@ -658,6 +750,8 @@ export function ChatExperience() {
                 documentScrollLeak ? "document-scroll" : "document-locked",
                 scrollAreaTooShort ? "short-scroll-area" : "scroll-area-ok",
                 scrollAreaOwnsOverflow ? "own-scroll" : "missing-scroll-owner",
+                controlsGapPx ?? "controls-missing",
+                floatingActionGapPx ?? "floating-action-missing",
             ].join(":");
 
             if (compactThreadListLayoutReportKeyRef.current === reportKey) {
@@ -665,17 +759,27 @@ export function ChatExperience() {
             }
             compactThreadListLayoutReportKeyRef.current = reportKey;
 
+            const warningMessage = !scrollAreaOwnsOverflow
+                ? "Chat list scroll container lost viewport ownership."
+                : controlsTooCloseToBottomNav
+                    ? "Chat controls are too close to the bottom navigation."
+                    : "Compact chat list layout violated viewport bounds";
+
             reportClientIssue({
                 channel: "ui",
                 severity: "warn",
-                message: "Compact chat list layout violated viewport bounds",
+                message: warningMessage,
                 detail: {
                     scope: "chat_compact_thread_list",
                     viewportHeight,
+                    bottomNavTop: Math.round(bottomNavTop),
                     shellHeight: Math.round(shellRect.height),
                     shellBottomOverflowPx,
                     panelHeight: Math.round(panelRect.height),
                     panelBottomOverflowPx,
+                    controlsGapPx,
+                    floatingActionGapPx,
+                    controlsExpectedHeight: CHAT_LIST_CONTROL_HEIGHT,
                     scrollClientHeight: scrollArea.clientHeight,
                     scrollHeight: scrollArea.scrollHeight,
                     scrollOverflowY: scrollStyle.overflowY,
@@ -683,7 +787,7 @@ export function ChatExperience() {
                     mainHeight: mainElement?.style.height || null,
                     mainOverflow: mainElement?.style.overflow || null,
                 },
-                consoleLabel: "[Chat] compact thread list layout bounds failed",
+                consoleLabel: "[Chat] compact thread list layout warning",
             });
         });
 
@@ -691,6 +795,77 @@ export function ChatExperience() {
             window.cancelAnimationFrame(frameId);
         };
     }, [filteredThreads.length, showCompactThreadListOnly, threadSelectionMode, threadsLoading]);
+
+    useEffect(() => {
+        if (
+            !isCompactViewport
+            || showCompactThreadListOnly
+            || typeof window === "undefined"
+            || typeof document === "undefined"
+        ) {
+            chatThreadComposerLayoutReportKeyRef.current = null;
+            return;
+        }
+
+        const frameId = window.requestAnimationFrame(() => {
+            const composer = chatThreadComposerRef.current;
+            const composerControl = chatThreadComposerControlRef.current;
+            if (!composer || !composerControl) {
+                return;
+            }
+
+            const viewportHeight = window.visualViewport?.height ?? window.innerHeight;
+            const bottomNavTop = readMobileBottomNavTop() ?? viewportHeight;
+            const composerRect = composer.getBoundingClientRect();
+            const composerControlRect = composerControl.getBoundingClientRect();
+            const composerControlGapPx = Math.round(bottomNavTop - composerControlRect.bottom);
+            const composerBottomOverflowPx = Math.max(0, Math.round(composerRect.bottom - viewportHeight));
+
+            if (composerControlGapPx >= 12 && composerBottomOverflowPx === 0) {
+                chatThreadComposerLayoutReportKeyRef.current = null;
+                return;
+            }
+
+            const reportKey = [
+                composerControlGapPx,
+                composerBottomOverflowPx,
+                Math.round(composerRect.height),
+            ].join(":");
+
+            if (chatThreadComposerLayoutReportKeyRef.current === reportKey) {
+                return;
+            }
+            chatThreadComposerLayoutReportKeyRef.current = reportKey;
+
+            reportClientIssue({
+                channel: "ui",
+                severity: "warn",
+                message: "Chat composer is not fully above the mobile navigation.",
+                detail: {
+                    scope: "chat_thread_composer",
+                    viewportHeight,
+                    bottomNavTop: Math.round(bottomNavTop),
+                    composerHeight: Math.round(composerRect.height),
+                    composerBottomOverflowPx,
+                    composerControlGapPx,
+                    composerPaddingBottom: CHAT_THREAD_COMPOSER_PADDING_BOTTOM,
+                },
+                consoleLabel: "[Chat] compact composer navigation clearance warning",
+            });
+        });
+
+        return () => {
+            window.cancelAnimationFrame(frameId);
+        };
+    }, [
+        composerFile,
+        insufficientFunds,
+        isCompactViewport,
+        selectedThreadId,
+        sendErrorMessage,
+        sendWarningMessage,
+        showCompactThreadListOnly,
+    ]);
 
     useEffect(() => {
         if (typeof window === "undefined") {
@@ -702,6 +877,12 @@ export function ChatExperience() {
         (window as typeof window & {
             __KANDYDROPS_CHAT_SHELL_ROUTING_DEBUG__?: unknown;
         }).__KANDYDROPS_CHAT_SHELL_ROUTING_DEBUG__ = {
+            chatShellMode: showCompactThreadListOnly ? "list" : "thread",
+            chatBottomNavReserved: true,
+            chatComposerAboveBottomNav: true,
+            chatListControlsAboveBottomNav: true,
+            chatDensity: "public-beta-compact",
+            displayMode: readChatDisplayMode(),
             messagesListUsesChatShellSizing: true,
             messagesListUsesSharedBottomNavContract: true,
             chatThreadUsesSharedBottomNavContract: true,
@@ -1227,6 +1408,36 @@ export function ChatExperience() {
             : [...current, threadId]);
     }, []);
 
+    const openComposePicker = useCallback((sourceComponent: string, nextCreatorId?: string | null) => {
+        setComposePickerOpen(true);
+        trackEvent("chat_compose_sheet_opened", buildChatTelemetryPayload({
+            sourceComponent,
+            userId: user?.uid,
+            creatorId: nextCreatorId ?? null,
+        }));
+    }, [user?.uid]);
+
+    const handleThreadSearchFocus = useCallback(() => {
+        trackEvent("chat_list_search_focused", buildChatTelemetryPayload({
+            sourceComponent: "chat_list_search",
+            userId: user?.uid,
+        }));
+    }, [user?.uid]);
+
+    const openThreadFromList = useCallback((thread: ChatThreadRecord) => {
+        if (threadSelectionMode) {
+            toggleThreadSelection(thread.id);
+            return;
+        }
+
+        trackEvent("chat_thread_opened", buildChatTelemetryPayload({
+            sourceComponent: "chat_thread_list_item",
+            userId: user?.uid,
+            thread,
+        }));
+        startTransition(() => setSelectedThreadId(thread.id));
+    }, [threadSelectionMode, toggleThreadSelection, user?.uid]);
+
     const handleMarkThreadsRead = useCallback(async () => {
         const targetIds = selectedThreadIds.length > 0
             ? selectedThreadIds
@@ -1540,6 +1751,15 @@ export function ChatExperience() {
         const idempotencyKey = buildChatMessageIdempotencyKey(selectedThreadId);
         let uploadedAttachment: UploadedChatAttachment | null = null;
 
+        trackEvent("chat_message_send_attempted", buildChatTelemetryPayload({
+            sourceComponent: "chat_thread_composer",
+            userId: user?.uid,
+            thread: selectedThread,
+            idempotencyKey,
+            messageKind: currentComposerKind,
+            hasAttachment: Boolean(currentComposerFile),
+        }));
+
         const optimisticId = `optimistic-${Date.now()}`;
         if (!currentComposerFile) {
             setSelectedDetail((current) => current ? {
@@ -1597,6 +1817,16 @@ export function ChatExperience() {
                             messages: current.messages.filter((msg) => msg.id !== optimisticId),
                         } : current);
                     }
+                    trackEvent("chat_message_send_failed", buildChatTelemetryPayload({
+                        sourceComponent: "chat_thread_composer",
+                        userId: user?.uid,
+                        thread: selectedThread,
+                        idempotencyKey,
+                        messageKind: currentComposerKind,
+                        hasAttachment: Boolean(currentComposerFile),
+                        errorCode: body.errorCode,
+                        errorMessage: body.error || "Insufficient paid GumDrops.",
+                    }));
                     setInsufficientFunds(body as ChatInsufficientFundsPayload);
                     return;
                 }
@@ -1624,6 +1854,17 @@ export function ChatExperience() {
                     persistedThread,
                 ));
             }
+            trackEvent("chat_message_sent", buildChatTelemetryPayload({
+                sourceComponent: "chat_thread_composer",
+                userId: user?.uid,
+                thread: body.thread ?? selectedThread,
+                threadId: selectedThreadId,
+                creatorId: selectedThread.creatorId,
+                idempotencyKey,
+                messageId: body.message?.id ?? null,
+                messageKind: currentComposerKind,
+                hasAttachment: Boolean(currentComposerFile),
+            }));
             const warningMessage = buildChatSendWarningMessage(body.warnings);
             if (warningMessage) {
                 setSendWarningMessage(warningMessage);
@@ -1643,6 +1884,15 @@ export function ChatExperience() {
             const message = cleanupFailed
                 ? `${error instanceof Error ? error.message : "Failed to send message."} The uploaded attachment could not be cleaned up automatically, and this was logged.`
                 : (error instanceof Error ? error.message : "Failed to send message.");
+            trackEvent("chat_message_send_failed", buildChatTelemetryPayload({
+                sourceComponent: "chat_thread_composer",
+                userId: user?.uid,
+                thread: selectedThread,
+                idempotencyKey,
+                messageKind: currentComposerKind,
+                hasAttachment: Boolean(currentComposerFile),
+                errorMessage: message,
+            }));
             setSendErrorMessage(message);
             reportClientIssue({
                 channel: "ui",
@@ -1661,7 +1911,7 @@ export function ChatExperience() {
         } finally {
             setSendingMessage(false);
         }
-    }, [composerFile, composerKind, composerText, discardUploadedAttachment, pushTypingState, selectedThread, selectedThreadId, uploadAttachment]);
+    }, [composerFile, composerKind, composerText, discardUploadedAttachment, pushTypingState, selectedThread, selectedThreadId, uploadAttachment, user?.uid]);
 
     const handleComposerKeyDown = useCallback((event: KeyboardEvent<HTMLTextAreaElement>) => {
         if (event.key === "Enter" && !event.shiftKey) {
@@ -1759,7 +2009,16 @@ export function ChatExperience() {
     }
 
     return (
-        <div ref={chatViewportShellRef} className={CHAT_VIEWPORT_SHELL_CLASSNAME} style={chatViewportShellStyle}>
+        <div
+            ref={chatViewportShellRef}
+            className={CHAT_VIEWPORT_SHELL_CLASSNAME}
+            style={chatViewportShellStyle}
+            data-chat-shell-mode={showCompactThreadListOnly ? "list" : "thread"}
+            data-chat-bottom-nav-reserved="true"
+            data-chat-composer-above-bottom-nav="true"
+            data-chat-list-controls-above-bottom-nav="true"
+            data-chat-density="public-beta-compact"
+        >
             <div className="flex h-full min-h-0 w-full flex-col overflow-hidden rounded-[2rem] border border-white/10 bg-black shadow-[0_26px_80px_rgba(0,0,0,0.55)]">
                 <div className="grid h-full min-h-0 lg:grid-cols-[320px_minmax(0,1fr)]">
                     {(!isCompactViewport || !selectedThreadId) ? (
@@ -1834,14 +2093,7 @@ export function ChatExperience() {
                                                     <button
                                                         key={thread.id}
                                                         type="button"
-                                                        onClick={() => {
-                                                            if (threadSelectionMode) {
-                                                                toggleThreadSelection(thread.id);
-                                                                return;
-                                                            }
-
-                                                            startTransition(() => setSelectedThreadId(thread.id));
-                                                        }}
+                                                        onClick={() => openThreadFromList(thread)}
                                                         className="flex w-full items-center gap-3 rounded-[1.35rem] px-1 py-3 text-left transition hover:bg-white/[0.03]"
                                                     >
                                                         {threadSelectionMode ? (
@@ -1902,7 +2154,7 @@ export function ChatExperience() {
                                                 </p>
                                                 <button
                                                     type="button"
-                                                    onClick={() => setComposePickerOpen(true)}
+                                                    onClick={() => openComposePicker("chat_empty_state_compose")}
                                                     className="mt-5 rounded-full bg-brand-purple px-5 py-3 text-sm font-semibold text-white transition hover:bg-[#8457ff]"
                                                 >
                                                     Compose a message
@@ -1928,7 +2180,12 @@ export function ChatExperience() {
                                     </div>
 
                                     {threadSelectionMode ? (
-                                        <div className="pointer-events-none absolute inset-x-0 px-5" style={compactThreadListControlsStyle}>
+                                        <div
+                                            ref={compactThreadListControlsRef}
+                                            className="pointer-events-none absolute inset-x-0 px-5"
+                                            style={compactThreadListControlsStyle}
+                                            data-chat-list-controls-above-bottom-nav="true"
+                                        >
                                             <div className="pointer-events-auto flex items-center justify-between">
                                                 <button
                                                     type="button"
@@ -1960,40 +2217,53 @@ export function ChatExperience() {
                                             </div>
                                         </div>
                                     ) : (
-                                        <div className="pointer-events-none absolute inset-x-0 px-5" style={compactThreadListControlsStyle}>
-                                            <div className="pointer-events-auto mx-auto max-w-md rounded-full bg-[#121214] px-4 py-3 ring-1 ring-white/8">
-                                                <div className="flex items-center gap-3">
-                                                    <Search className="h-4 w-4 text-[#6e7077]" />
-                                                    <input
-                                                        ref={threadSearchInputRef}
-                                                        value={threadSearch}
-                                                        onChange={(event) => setThreadSearch(event.target.value)}
-                                                        onBlur={(event) => {
-                                                            releaseThreadSearchFocus();
-                                                            scheduleCompactInteractionRecovery("chat_search_blur", event.currentTarget);
-                                                        }}
-                                                        onKeyDown={(event) => {
-                                                            if (event.key === "Escape") {
-                                                                event.currentTarget.blur();
-                                                            }
-                                                        }}
-                                                        placeholder="Search"
-                                                        className="w-full bg-transparent text-base text-white placeholder:text-[#6e7077] focus:outline-none sm:text-sm"
-                                                    />
+                                        <>
+                                            <div
+                                                ref={compactThreadListControlsRef}
+                                                className="pointer-events-none absolute inset-x-0 px-5"
+                                                style={compactThreadListControlsStyle}
+                                                data-chat-list-controls-above-bottom-nav="true"
+                                            >
+                                                <div className={cn(
+                                                    "pointer-events-auto h-12 rounded-full bg-[#121214] px-4 ring-1 ring-white/8",
+                                                    canComposeFromFollowedCreators ? "mr-[4.25rem]" : "mx-auto max-w-md",
+                                                )}>
+                                                    <div className="flex h-full items-center gap-3">
+                                                        <Search className="h-4 w-4 text-[#6e7077]" />
+                                                        <input
+                                                            ref={threadSearchInputRef}
+                                                            value={threadSearch}
+                                                            onChange={(event) => setThreadSearch(event.target.value)}
+                                                            onFocus={handleThreadSearchFocus}
+                                                            onBlur={(event) => {
+                                                                releaseThreadSearchFocus();
+                                                                scheduleCompactInteractionRecovery("chat_search_blur", event.currentTarget);
+                                                            }}
+                                                            onKeyDown={(event) => {
+                                                                if (event.key === "Escape") {
+                                                                    event.currentTarget.blur();
+                                                                }
+                                                            }}
+                                                            placeholder="Search"
+                                                            className="w-full bg-transparent text-base leading-5 text-white placeholder:text-[#6e7077] focus:outline-none sm:text-sm"
+                                                        />
+                                                    </div>
                                                 </div>
                                             </div>
                                             {canComposeFromFollowedCreators ? (
                                                 <button
+                                                    ref={compactThreadListFloatingActionRef}
                                                     type="button"
-                                                    onClick={() => setComposePickerOpen(true)}
-                                                    className="pointer-events-auto absolute right-5 inline-flex h-14 w-14 items-center justify-center rounded-full bg-brand-purple text-white shadow-[0_18px_36px_rgba(111,63,244,0.36)] transition hover:bg-[#8457ff]"
+                                                    onClick={() => openComposePicker("chat_list_floating_compose")}
+                                                    className="pointer-events-auto absolute right-5 inline-flex h-12 w-12 items-center justify-center rounded-full bg-brand-purple text-white shadow-[0_18px_36px_rgba(111,63,244,0.34)] transition hover:bg-[#8457ff]"
                                                     style={compactThreadListFloatingActionStyle}
                                                     aria-label="Compose message"
+                                                    data-chat-list-controls-above-bottom-nav="true"
                                                 >
                                                     <SquarePen className="h-5 w-5" />
                                                 </button>
                                             ) : null}
-                                        </div>
+                                        </>
                                     )}
                                 </div>
                             ) : (
@@ -2009,7 +2279,7 @@ export function ChatExperience() {
                                             <button
                                                 key={thread.id}
                                                 type="button"
-                                                onClick={() => startTransition(() => setSelectedThreadId(thread.id))}
+                                                onClick={() => openThreadFromList(thread)}
                                                 className={cn(
                                                     "flex w-full items-center gap-3 border-b border-white/5 px-4 py-3 text-left transition-colors sm:px-5",
                                                     selectedThreadId === thread.id
@@ -2113,7 +2383,7 @@ export function ChatExperience() {
                                 <div
                                     ref={messageListRef}
                                     onScroll={handleMessageListScroll}
-                                    className="min-h-0 flex-1 overflow-y-auto overscroll-y-contain bg-black px-4 pb-5 pt-4 sm:px-6"
+                                    className="min-h-0 flex-1 overflow-y-auto overscroll-y-contain bg-black px-4 pb-4 pt-4 sm:px-6"
                                 >
                                     {threadLoading && !selectedDetail ? (
                                         <div className="text-sm text-[#b6b6bc]">Loading thread...</div>
@@ -2144,7 +2414,7 @@ export function ChatExperience() {
                                                         <div className={cn(
                                                             "overflow-hidden px-4 py-2.5 text-[15px] leading-6 shadow-[0_12px_30px_rgba(0,0,0,0.22)]",
                                                             isOutgoing
-                                                                ? "rounded-[1.45rem] rounded-br-[0.5rem] bg-[linear-gradient(180deg,#8457ff_0%,#6d38f8_100%)] text-white"
+                                                                ? "rounded-[1.45rem] rounded-br-[0.5rem] bg-[linear-gradient(135deg,rgba(178,140,255,.96),rgba(126,87,255,.94))] text-white"
                                                                 : "rounded-[1.45rem] rounded-bl-[0.5rem] bg-[#26262a] text-white",
                                                             message.assetUrl && !message.text ? "p-1.5" : "",
                                                             isOptimistic ? "opacity-75" : "",
@@ -2194,8 +2464,11 @@ export function ChatExperience() {
                                 </div>
 
                                 <div
-                                    className="border-t border-white/10 bg-[linear-gradient(180deg,rgba(0,0,0,0)_0%,rgba(0,0,0,0.92)_18%,#000_100%)] px-4 pb-4 pt-3 sm:px-6 sm:pb-4"
+                                    ref={chatThreadComposerRef}
+                                    className="border-t border-white/10 bg-[linear-gradient(180deg,rgba(0,0,0,0)_0%,rgba(0,0,0,0.92)_18%,#000_100%)] px-4 pb-3 pt-2 sm:px-6 sm:pb-4"
                                     style={chatThreadComposerStyle}
+                                    data-chat-composer-above-bottom-nav="true"
+                                    data-chat-density="public-beta-compact"
                                 >
                                     {sendErrorMessage ? (
                                         <div className="rounded-[1.2rem] border border-rose-400/20 bg-rose-500/10 px-4 py-3 text-sm text-rose-100">
@@ -2260,19 +2533,19 @@ export function ChatExperience() {
                                         </div>
                                     ) : null}
                                     {composerSummary ? (
-                                        <div className="mt-3 text-[11px] text-[#7f8087]">{composerSummary}</div>
+                                        <div className="mt-2 max-h-5 truncate text-[13px] leading-5 text-[#7f8087]">{composerSummary}</div>
                                     ) : null}
-                                    <div className="mt-3 flex items-center gap-3">
+                                    <div ref={chatThreadComposerControlRef} className="mt-2 flex items-center gap-2">
                                         <div ref={attachmentMenuRef} className="relative shrink-0">
                                             <button
                                                 type="button"
                                                 onClick={() => setAttachmentMenuOpen((current) => !current)}
-                                                className="inline-flex h-9 w-9 items-center justify-center rounded-full bg-[#141417] text-white transition hover:bg-[#1a1b1f]"
+                                                className="inline-flex h-11 w-11 items-center justify-center rounded-full bg-[#141417] text-white transition hover:bg-[#1a1b1f]"
                                                 aria-label="Add attachment"
                                                 aria-expanded={attachmentMenuOpen}
                                                 aria-haspopup="menu"
                                             >
-                                                <Plus className="h-[18px] w-[18px]" />
+                                                <Plus className="h-5 w-5" />
                                             </button>
                                             {attachmentMenuOpen ? (
                                                 <div
@@ -2325,21 +2598,21 @@ export function ChatExperience() {
                                                 }}
                                             />
                                         </div>
-                                        <div className="flex min-h-9 flex-1 items-center gap-3 rounded-[1.65rem] bg-[#121214] pl-4 pr-1.5 py-1.5 ring-1 ring-white/8">
+                                        <div className="flex min-h-12 flex-1 items-center gap-2 rounded-[1.65rem] bg-[#121214] py-1 pl-4 pr-1 ring-1 ring-white/8">
                                             <textarea
                                                 value={composerText}
                                                 onChange={(event) => handleComposerTextChange(event.target.value.slice(0, 1200))}
                                                 onKeyDown={handleComposerKeyDown}
                                                 rows={1}
                                                 placeholder={selectedThread.viewerRole === "creator" ? "Reply..." : "Message"}
-                                                className="block max-h-32 min-h-[20px] w-full resize-none self-center bg-transparent py-0.5 text-[14px] leading-5 text-white placeholder:text-[#5d5e66] focus:outline-none sm:text-[13px]"
+                                                className="block max-h-32 min-h-[24px] w-full resize-none self-center bg-transparent py-0 text-[16px] leading-6 text-white placeholder:text-[#5d5e66] focus:outline-none sm:text-[14px]"
                                             />
                                             <button
                                                 type="button"
                                                 onClick={() => void handleSendMessage()}
                                                 disabled={sendingMessage}
                                                 className={cn(
-                                                    "inline-flex h-9 w-9 shrink-0 self-center items-center justify-center rounded-full transition",
+                                                    "inline-flex h-12 w-12 shrink-0 self-center items-center justify-center rounded-full transition",
                                                     sendingMessage
                                                         ? "bg-brand-purple/50 text-white/80"
                                                         : "bg-brand-purple text-white hover:bg-[#8457ff]",

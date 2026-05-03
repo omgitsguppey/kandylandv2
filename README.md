@@ -25,3 +25,6 @@ Before making **ANY** changes to user-facing UI, copy, or product logic, you are
 
 ### Mobile Guest Home Hero Shell
 The guest home hero is shell-centered on mobile. It must center within available visual height between fixed top nav and mobile bottom nav/browser/PWA chrome using shell-aware viewport math, not a fixed vh-plus-nav estimate.
+
+### Mobile Chat Shell
+The chat route bypasses normal page bottom-nav reservation and owns its own mobile shell spacing. Inbox controls, floating compose controls, and thread composer must sit above the mobile bottom nav in Safari browser and standalone PWA modes using shared chat shell tokens, not per-screen hardcoded offsets.

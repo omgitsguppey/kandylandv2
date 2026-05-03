@@ -15,6 +15,12 @@ const root = process.cwd();
 const srcRoot = join(root, "src");
 const failures: string[] = [];
 const fileExtensions = new Set([".ts", ".tsx"]);
+const KNOWN_IMPORTED_CONST_PROPERTY_VALUES = new Map<string, string[]>([
+  ["CREATOR_EXPERIENCE_PAID_EVENTS.fan_pass", ["creator_fan_pass_started"]],
+  ["CREATOR_EXPERIENCE_PAID_EVENTS.private_chat", ["creator_private_chat_opened"]],
+  ["CREATOR_EXPERIENCE_PAID_EVENTS.custom_request", ["creator_custom_request_created"]],
+  ["CREATOR_EXPERIENCE_PAID_EVENTS.live_time", ["creator_live_time_booked"]],
+]);
 
 interface MatchRecord {
   file: string;
@@ -99,6 +105,21 @@ function collectStringLiteralValues(
     return constValueMap.get(expression.text) ?? [];
   }
 
+  if (ts.isPropertyAccessExpression(expression) && ts.isIdentifier(expression.expression)) {
+    const key = `${expression.expression.text}.${expression.name.text}`;
+    return constValueMap.get(key) ?? KNOWN_IMPORTED_CONST_PROPERTY_VALUES.get(key) ?? [];
+  }
+
+  if (
+    ts.isElementAccessExpression(expression)
+    && ts.isIdentifier(expression.expression)
+    && expression.argumentExpression
+    && ts.isStringLiteralLike(expression.argumentExpression)
+  ) {
+    const key = `${expression.expression.text}.${expression.argumentExpression.text}`;
+    return constValueMap.get(key) ?? KNOWN_IMPORTED_CONST_PROPERTY_VALUES.get(key) ?? [];
+  }
+
   return [];
 }
 
@@ -131,7 +152,11 @@ function extractEventNamesFromCall(
   const expression = callExpression.expression;
   const args = callExpression.arguments;
 
-  if (isIdentifierNamed(expression, "trackEvent") || isIdentifierNamed(expression, "trackServerEvent")) {
+  if (
+    isIdentifierNamed(expression, "trackEvent")
+    || isIdentifierNamed(expression, "trackServerEvent")
+    || isIdentifierNamed(expression, "trackCreatorExperienceEvent")
+  ) {
     const matcher = ts.isIdentifier(expression) ? expression.text : "trackEvent";
     const eventNames = collectStringLiteralValues(args[0], constValueMap);
     return eventNames.length > 0 ? { matcher, eventNames } : null;

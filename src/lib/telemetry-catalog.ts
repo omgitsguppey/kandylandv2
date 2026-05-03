@@ -242,6 +242,12 @@ export const TELEMETRY_EVENT_OPTIONS: TelemetryEventOption[] = [
   { eventName: "creator_experience_insufficient_balance", label: "Creator experience blocked by balance", category: "commerce", sources: DEFAULT_CLIENT_SOURCES, modules: ["creator", "commerce"] },
   { eventName: "creator_experience_request_category_selected", label: "Creator request category selected", category: "engagement", sources: DEFAULT_CLIENT_SOURCES, modules: ["creator", "engagement"] },
   { eventName: "creator_experience_booking_type_selected", label: "Creator booking type selected", category: "engagement", sources: DEFAULT_CLIENT_SOURCES, modules: ["creator", "engagement"] },
+  { eventName: "chat_thread_opened", label: "Chat thread opened", category: "navigation", sources: DEFAULT_CLIENT_SOURCES, modules: ["engagement", "navigation"] },
+  { eventName: "chat_compose_sheet_opened", label: "Chat compose sheet opened", category: "engagement", sources: DEFAULT_CLIENT_SOURCES, modules: ["engagement"] },
+  { eventName: "chat_list_search_focused", label: "Chat list search focused", category: "engagement", sources: DEFAULT_CLIENT_SOURCES, modules: ["engagement"] },
+  { eventName: "chat_message_send_attempted", label: "Chat message send attempted", category: "engagement", sources: DEFAULT_CLIENT_SOURCES, modules: ["engagement"] },
+  { eventName: "chat_message_send_failed", label: "Chat message send failed", category: "engagement", sources: DEFAULT_CLIENT_SOURCES, modules: ["engagement"] },
+  { eventName: "chat_message_sent", label: "Chat message sent", category: "engagement", sources: DEFAULT_CLIENT_SOURCES, modules: ["engagement"] },
   { eventName: "creator_message_sent", label: "Creator message sent", category: "commerce", sources: DEFAULT_CANONICAL_SERVER_SOURCES, modules: ["creator", "commerce"] },
   { eventName: "creator_media_sent", label: "Creator media sent", category: "commerce", sources: DEFAULT_CANONICAL_SERVER_SOURCES, modules: ["creator", "commerce"] },
   { eventName: "creator_private_chat_opened", label: "Creator private chat opened", category: "commerce", sources: DEFAULT_CANONICAL_SERVER_SOURCES, modules: ["creator", "commerce"] },
@@ -768,7 +774,11 @@ function isAuthEvent(eventName: string) {
 }
 
 function isChatEvent(eventName: string) {
-  return eventName === "creator_message_sent" || eventName === "creator_media_sent";
+  return eventName === "creator_message_sent"
+    || eventName === "creator_media_sent"
+    || eventName === "chat_message_send_attempted"
+    || eventName === "chat_message_send_failed"
+    || eventName === "chat_message_sent";
 }
 
 function isOnboardingEvent(eventName: string, option?: TelemetryEventOption) {

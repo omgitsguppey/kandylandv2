@@ -23,6 +23,8 @@ Telemetry has separate actor, source, and object lanes. Admin events may be stor
 - Auth events require method/outcome when available and a session, anonymous visitor, or user identifier.
 - Admin events require admin classification and are excluded from user behavior lanes.
 
+Public beta chat UI emits `chat_thread_opened`, `chat_compose_sheet_opened`, `chat_list_search_focused`, `chat_message_send_attempted`, `chat_message_send_failed`, and `chat_message_sent` with `source_component`, route, display mode, viewport size, and thread/creator/idempotency details when available.
+
 Camel-case payload keys may be accepted by client emitters, but the analytics client mirrors canonical snake_case aliases before transport.
 
 ## Admin And User Lanes

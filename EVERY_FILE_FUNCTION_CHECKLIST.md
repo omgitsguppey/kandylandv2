@@ -1,13 +1,19 @@
 # EVERY FILE FUNCTION CHECKLIST
 
 **Last Updated:** 2026-05-02
-**Current Focus:** Creator Lane Old Logic Removal Gate.
+**Current Focus:** Mobile Chat Shell Compact Spacing.
 **Status:** In Progress. Current tracked-file coverage is reconciled as of 2026-04-28: every `git ls-files` entry has a current checklist heading, while detailed function-level audits remain pending for many historical and newly reconciled files.
 Purpose: exhaustive no-skip audit checklist covering every repository file currently in scope and every detected function-like implementation.
 
 Scoring: all entries below are marked as included in the current validated sweep. Confidence reflects current repository-state confidence, not perfection or future-proofing.
 
 Current repo-wide state snapshot: see [FULL_SCALE_CODEBASE_AUDIT.md](/Users/uylus/OneDrive/Documents/KandyDrops_Final/FULL_SCALE_CODEBASE_AUDIT.md) for the current live baseline, verification state, and continuity rules, and see [REPO_MEMORY_LEDGER.md](/Users/uylus/OneDrive/Documents/KandyDrops_Final/REPO_MEMORY_LEDGER.md) for major architectural and workflow decisions. The detailed file/function body below remains valuable historical evidence, but it has not been fully regenerated against the current 2026-04-18 inventory review yet.
+
+## 2026-05-02 Mobile Chat Shell Compact Spacing Coverage
+
+- [x] `src/lib/user-mobile-shell.ts` owns the shared chat bottom-nav reserve, list control height, floating action bottom offset, scroll padding, and composer padding tokens for Safari browser and standalone PWA modes.
+- [x] `src/components/Chat/ChatExperience.tsx` consumes the shared tokens for compact inbox controls, floating compose, message list padding, thread composer clearance, public beta density debug markers, approved outgoing bubble accent gradient, and chat interaction telemetry without changing GumDrops pricing or send transaction logic.
+- [x] `scripts/agent/validate-user-chat-shell-routing.ts`, `docs/agent-truth/user-chat-shell-routing.md`, `docs/agent-truth/mobile-shell-safe-area.md`, and `docs/agent-truth/pwa-service-worker-mobile.md` validate and document that chat owns its own mobile shell spacing instead of relying on page-level bottom-nav reservation or hardcoded offsets.
 
 ## 2026-05-02 Creator Lane Old Logic Removal Gate Coverage
 

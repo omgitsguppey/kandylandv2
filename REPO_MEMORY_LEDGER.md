@@ -4,6 +4,10 @@ Status: Canonical repository-memory and architecture-decision ledger
 Last refreshed: 2026-05-02
 Repo: `C:\Users\uylus\OneDrive\Documents\KandyDrops_Final`
 
+## 2026-05-02 Mobile chat shell compact spacing
+
+The chat route bypasses normal page bottom-nav reservation and owns its own mobile shell spacing. Inbox controls, floating compose controls, and thread composer must sit above the mobile bottom nav in Safari browser and standalone PWA modes using shared chat shell tokens, not per-screen hardcoded offsets. The canonical shell tokens live in `src/lib/user-mobile-shell.ts`; `src/components/Chat/ChatExperience.tsx` consumes them for list controls, scroll padding, thread composer clearance, compact debug markers, and the public beta density contract. Chat send, GumDrops pricing, thread IDs, and creator accrual logic remain owned by the existing chat server/runtime helpers.
+
 ## 2026-05-02 Mobile guest home hero shell centering
 
 The guest home hero is shell-centered on mobile. It must center within available visual height between fixed top nav and mobile bottom nav/browser/PWA chrome using shell-aware viewport math, not a fixed vh-plus-nav estimate. The canonical implementation lives in `src/components/Hero.tsx`, reuses `--root-shell-top-spacing` and `--user-mobile-bottom-nav-reserved-height`, preserves `HomeHeroActions` CTA truth and `hero_cta_clicked`, and is guarded by `npm run check:home-mobile-hero-shell`. Homepage deep telemetry remains idle-gated through `CoreLayoutWrapper`, while auth and purchase overlays stay on the after-paint gate so the hero signup CTA can open promptly.
