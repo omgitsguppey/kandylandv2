@@ -23,6 +23,7 @@ Money and access flows are server-truth only. The browser may request a purchase
 - Secure content access requires either `unlockedContent` entitlement or creator ownership.
 - Raw content URLs must not appear in initial viewer HTML.
 - Admin balance adjustments require admin auth, trusted origin, reason, and structured audit metadata.
+- Drop cover blur is product-state driven, not loading-state driven. Guests may see protected/blurred covers. Authenticated users and admins see clear covers when they have enough total GumDrops for a normal drop. Authenticated users only see affordability blur when they need a refill for that specific drop. Featured carousel chips use adaptive glass styling and the timer pill does not include a progress bar.
 
 ## Fixed In This Pass
 

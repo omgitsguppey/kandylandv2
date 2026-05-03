@@ -86,6 +86,10 @@ Apple guidance is used here for hierarchy, safe areas, progressive disclosure, a
 
 Refined components must maintain or improve tracking. The active mobile Drops density label is `compact_mobile_apple_2026`.
 
+## Drop Cover Visibility Doctrine
+
+Drop cover blur is product-state driven, not loading-state driven. Guests may see protected/blurred covers. Authenticated users and admins see clear covers when they have enough total GumDrops for a normal drop. Authenticated users only see affordability blur when they need a refill for that specific drop. Featured carousel chips use adaptive glass styling and the timer pill does not include a progress bar.
+
 Required event enrichments:
 
 - `drops_page_viewed`: source component, UI density, initial drop count, initial visible count, creator rail count.

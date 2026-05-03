@@ -4,6 +4,10 @@ Status: Canonical repository-memory and architecture-decision ledger
 Last refreshed: 2026-05-02
 Repo: `C:\Users\uylus\OneDrive\Documents\KandyDrops_Final`
 
+## 2026-05-02 Drop cover visibility truth
+
+Drop cover blur is product-state driven, not loading-state driven. Guests may see protected/blurred covers. Authenticated users and admins see clear covers when they have enough total GumDrops for a normal drop. Authenticated users only see affordability blur when they need a refill for that specific drop. Featured carousel chips use adaptive glass styling and the timer pill does not include a progress bar. The client helper `src/lib/drop-card-visibility.ts` owns card/carousel presentation state only; server unlock, payment, entitlement, and source-aware spend logic remain unchanged.
+
 ## 2026-05-02 Experiences compact daily hub
 
 DailyCheckIn has two allowed presentation variants. Dashboard uses the full account-status version with welcome header and subtitle. Experiences uses the compact retention-hub version that hides the welcome header/subtitle and tightens vertical rhythm. Logic, reward ladder, check-in state, confetti, and telemetry remain shared. The `/experiences` page remains the retention/action hub and keeps Creator Spotlight, DailyCheckIn, DailyTasksModule, Live Drops For You, and the GumDrops wallet CTA in the normal mobile shell reservation.

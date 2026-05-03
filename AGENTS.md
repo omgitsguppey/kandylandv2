@@ -51,6 +51,10 @@ For narrow work, use the generated agent context first and only escalate to full
 
 DailyCheckIn has two allowed presentation variants. Dashboard uses the full account-status version with welcome header and subtitle. Experiences uses the compact retention-hub version that hides the welcome header/subtitle and tightens vertical rhythm. Logic, reward ladder, check-in state, confetti, and telemetry remain shared.
 
+## Drop Cover Visibility
+
+Drop cover blur is product-state driven, not loading-state driven. Guests may see protected/blurred covers. Authenticated users and admins see clear covers when they have enough total GumDrops for a normal drop. Authenticated users only see affordability blur when they need a refill for that specific drop. Featured carousel chips use adaptive glass styling and the timer pill does not include a progress bar.
+
 ## Repo Intelligence Fabric
 
 Use `/agent/` as the default low-token machine-readable context layer:

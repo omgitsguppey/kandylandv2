@@ -112,7 +112,6 @@ export const DropGrid = memo(function DropGrid({
         >
             {dropEntries.map(({ drop, aspectRatio }, index) => {
                 const isUnlocked = unlockedDropIds.has(drop.id);
-                const canAfford = (userProfile?.gumDropsBalance || 0) >= drop.unlockCost;
 
                 return (
                     <div key={drop.id} id={`drop-${drop.id}`} className={cn("h-full scroll-mt-32", getGridSpanClass(aspectRatio))}>
@@ -124,7 +123,6 @@ export const DropGrid = memo(function DropGrid({
                                 priority={index < 4}
                                 user={user}
                                 isUnlocked={isUnlocked}
-                                canAfford={canAfford}
                                 onPreview={onSelectDrop}
                                 aspectRatio={aspectRatio}
                                 impressionTrackingSurface={impressionTrackingSurface}

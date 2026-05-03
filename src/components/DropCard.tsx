@@ -11,6 +11,7 @@ import { useUserProfile } from "@/context/AuthContext";
 import { useUI } from "@/context/UIContext";
 import { trackEvent } from "@/lib/telemetry";
 import { SupportedAspectRatio, getDropMediaSummary, getSupportedDropAspectRatio } from "@/lib/drop-presentation";
+import { getDropCardVisibilityTelemetryPayload, resolveDropCardVisibilityState } from "@/lib/drop-card-visibility";
 import { showUnwrapSuccessToast } from "@/components/Toasts/UnwrapSuccessToast";
 import { getDropViewCount } from "@/lib/drop-engagement";
 import { dispatchActivitySync } from "@/lib/activity-sync";
@@ -26,7 +27,6 @@ interface DropCardProps {
     priority?: boolean;
     user: User | null;
     isUnlocked?: boolean;
-    canAfford?: boolean;
     onPreview: (drop: Drop) => void;
     aspectRatio?: SupportedAspectRatio;
     impressionTrackingSurface?: string;
@@ -40,7 +40,6 @@ function DropCardBase({
     priority = false,
     user,
     isUnlocked = false,
-    canAfford = false,
     onPreview,
     aspectRatio,
     impressionTrackingSurface,
@@ -57,6 +56,16 @@ function DropCardBase({
     const cardRef = useRef<HTMLDivElement | null>(null);
     const resolvedRatio = aspectRatio ?? getSupportedDropAspectRatio(drop);
     const ratioStyle = { aspectRatio: resolvedRatio.replace(":", " / ") };
+    const visibilityState = useMemo(
+        () =>
+            resolveDropCardVisibilityState({
+                drop,
+                isAuthenticated: Boolean(user),
+                isUnlocked,
+                gumDropsBalance: userProfile?.gumDropsBalance,
+            }),
+        [drop, isUnlocked, user, userProfile?.gumDropsBalance],
+    );
 
     useEffect(() => {
         let timeout: ReturnType<typeof setTimeout>;
@@ -113,6 +122,7 @@ function DropCardBase({
             card_aspect_ratio: resolvedRatio,
             source_component: "compact_drop_card",
             ui_density: DROPS_MOBILE_UI_DENSITY,
+            ...getDropCardVisibilityTelemetryPayload(visibilityState),
         });
         fetch(`/api/drops/${drop.id}/click`, { method: "POST" }).catch(() => { });
         onPreview(drop);
@@ -133,11 +143,13 @@ function DropCardBase({
                 drop_category: drop.type,
                 unlock_cost: drop.unlockCost,
                 current_balance: balance,
+                shortfall_gd: Math.max(1, visibilityState.shortfallGd || drop.unlockCost - balance),
                 idempotency_key: `${user.uid}:unlock_blocked:${drop.id}`,
                 source_component: "compact_drop_card",
                 ui_density: DROPS_MOBILE_UI_DENSITY,
+                ...getDropCardVisibilityTelemetryPayload(visibilityState),
             });
-            openPurchaseModal(Math.max(1, drop.unlockCost - balance));
+            openPurchaseModal(Math.max(1, visibilityState.shortfallGd || drop.unlockCost - balance));
             return;
         }
 
@@ -152,6 +164,7 @@ function DropCardBase({
                 drop_tags: (drop.tags || []).join("|"),
                 source_component: "compact_drop_card",
                 ui_density: DROPS_MOBILE_UI_DENSITY,
+                ...getDropCardVisibilityTelemetryPayload(visibilityState),
             });
             return;
         }
@@ -186,6 +199,7 @@ function DropCardBase({
                 drop_tags: (drop.tags || []).join("|"),
                 source_component: "compact_drop_card",
                 ui_density: DROPS_MOBILE_UI_DENSITY,
+                ...getDropCardVisibilityTelemetryPayload(visibilityState),
             });
 
             if (userProfile) {
@@ -241,7 +255,7 @@ function DropCardBase({
             drop={drop}
             user={user}
             isUnlocked={isUnlocked}
-            canAfford={canAfford}
+            canAfford={visibilityState.canAfford}
             unlocking={unlocking}
             confirming={confirming}
             onUnlock={handleUnlock}
@@ -259,6 +273,7 @@ function DropCardBase({
             fileCounts={fileCounts}
             displayedTags={displayedTags}
             totalViews={totalViews}
+            visibilityState={visibilityState}
             ctaButton={ctaButton}
             error={error}
             imageLoaded={imageLoaded}

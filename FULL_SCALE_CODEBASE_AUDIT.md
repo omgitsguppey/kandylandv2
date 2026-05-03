@@ -1,5 +1,36 @@
 # KandyDrops Core Codebase Audit & Defensive Ledger
 
+## [2026-05-02 #116] PRE: Drop Cover Visibility And Featured Timer Chips
+
+Scope started:
+- Normalizing public beta Drop card and Featured carousel presentation state so cover blur follows explicit guest, ownership, expiration, and total GumDrops affordability truth.
+- Required outputs: canonical client visibility helper, explicit Drop card data markers, separated loading blur from product blur, featured timer pill without progress bar, adaptive glass top chips, preserved unlock/refill/auth flows and telemetry event names, targeted validator, source-of-truth docs, focused verification, commit, and push.
+- This pass must not alter PayPal, GumDrops ledger, creator paid-only balance rules, server unlock transactions, entitlement checks, creator accruals, realtime listeners, polling, or image analysis.
+
+Initial evidence:
+- Control tower routing, doctrine consultation workflow, product/copy/UI doctrine, generated Drops task context, and adjacency tracing for `src/components/DropCard.tsx` were consulted.
+- Runtime owners inspected first: `src/components/DropCard.tsx`, `src/components/DropCardLayout.tsx`, `src/components/DropCardParts.tsx`, `src/components/DropGrid.tsx`, `src/components/FeaturedCarousel.tsx`, `src/app/drops/DropsClient.tsx`, `src/lib/drop-status.ts`, `src/lib/drop-countdown.ts`, `src/lib/gumdrop-ledger.ts`, and `src/context/AuthContext.tsx`.
+
+Doctrine:
+- Drop cover blur is product-state driven, not loading-state driven. Guests may see protected/blurred covers. Authenticated users and admins see clear covers when they have enough total GumDrops for a normal drop. Authenticated users only see affordability blur when they need a refill for that specific drop. Featured carousel chips use adaptive glass styling and the timer pill does not include a progress bar.
+
+Scope completed:
+- Added `src/lib/drop-card-visibility.ts` as the shared client presentation decision helper for normal Drop cover treatment, CTA state, affordability reason, total GumDrops balance state, and visibility telemetry payload fields.
+- Wired Drop cards and Featured carousel to the helper, separated image loading blur from explicit product cover blur, and added `data-drop-*` / `data-featured-*` debug markers without changing unlock, refill, auth, payment, ledger, or entitlement logic.
+- Removed the Featured carousel timer progress bar, tightened the timer pill width, and moved Featured/media/timer chips onto a shared adaptive glass treatment.
+- Added `scripts/agent/validate-drop-cover-visibility-truth.ts`, `npm run check:drop-cover-visibility-truth`, and the dedicated Drop cover visibility agent-truth artifact.
+
+Verification:
+- Passed: `npm run check:drop-cover-visibility-truth`
+- Passed: `npm run check:drops-mobile-refinement`
+- Passed: `npm run typecheck`
+- Passed: `npm run agent:test -- src/components/DropCard.tsx` (no related test files found; command exited 0)
+- Passed: `npm run check:payment-unlock-security`
+- Passed: `npm run check:ui:coverage`
+- Passed: `npm run check:ui:runtime`
+- Passed: `git diff --check`
+- Partial: `npm run check:ui:audits` completed the production build and passed 19/20 Playwright checks, but failed the pre-existing Mobile Chrome homepage hero visual snapshot for `/` by 61 pixels against a 60-pixel threshold. The failing target was the home hero, not the Drops page or Featured carousel.
+
 ## [2026-05-02 #115] PRE: Experiences Compact Daily Hub
 
 Scope started:
