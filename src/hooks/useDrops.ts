@@ -224,20 +224,39 @@ export function useDrops(
     };
   }, [isConstrained, refreshDrops, runtimeSubscriptionReady]);
 
-  useEffect(() => {
-    const upcomingExpirations: number[] = [];
+  // ⚡ Bolt: Single-pass iteration for filtering drops and finding the next expiration timestamp.
+  // Impact: Reduces redundant iterations and object allocations. Also provides a primitive expiration timestamp to useEffect.
+  const { clientDrops, nextExpiryMs } = useMemo(() => {
+    const nextDrops: Drop[] = [];
+    let earliestExpiry = Number.POSITIVE_INFINITY;
+
     for (const drop of swrDrops) {
       const status = resolveDropStatusFromTiming(drop, sweepNowMs);
+
+      // Calculate drops to show
+      if (!statusFilter || statusFilter.includes(status)) {
+        nextDrops.push(applyDropStatus(drop, sweepNowMs));
+      }
+
+      // Calculate earliest expiry
       if (status === "active" && drop.validUntil && drop.validUntil > sweepNowMs) {
-        upcomingExpirations.push(drop.validUntil);
+        if (drop.validUntil < earliestExpiry) {
+          earliestExpiry = drop.validUntil;
+        }
       }
     }
 
-    if (upcomingExpirations.length === 0) {
+    return {
+      clientDrops: nextDrops,
+      nextExpiryMs: earliestExpiry === Number.POSITIVE_INFINITY ? null : earliestExpiry,
+    };
+  }, [statusFilter, sweepNowMs, swrDrops]);
+
+  useEffect(() => {
+    if (nextExpiryMs === null) {
       return;
     }
 
-    const nextExpiryMs = Math.min(...upcomingExpirations);
     const timeoutMs = Math.max(250, nextExpiryMs - Date.now() + EXPIRY_REFRESH_BUFFER_MS);
     const timeoutId = window.setTimeout(() => {
       refreshDrops(0);
@@ -246,21 +265,7 @@ export function useDrops(
     return () => {
       window.clearTimeout(timeoutId);
     };
-  }, [refreshDrops, sweepNowMs, swrDrops]);
-
-  const clientDrops = useMemo(() => {
-    // Single-pass filtering avoids cloning drops that will be discarded immediately.
-    const nextDrops: Drop[] = [];
-
-    for (const drop of swrDrops) {
-      const status = resolveDropStatusFromTiming(drop, sweepNowMs);
-      if (!statusFilter || statusFilter.includes(status)) {
-        nextDrops.push(applyDropStatus(drop, sweepNowMs));
-      }
-    }
-
-    return nextDrops;
-  }, [statusFilter, sweepNowMs, swrDrops]);
+  }, [refreshDrops, nextExpiryMs]);
 
 
   const isLoadingInitialData = !data && !error;

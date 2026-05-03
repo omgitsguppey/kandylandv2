@@ -1,3 +1,14 @@
+## [2026-05-03 #perf] PRE: useDrops hook optimized
+
+- Optimizing useDrops iteration.
+## [2026-05-03 #perf] POST: useDrops hook optimized
+
+- Replaced dual iteration in useDrops with a single-pass useMemo that filters clientDrops and finds nextExpiryMs.
+- Cleaned up git artifacts.
+## [2026-05-03 #perf] POST: useDrops hook optimized
+
+- Replaced dual iteration in  with a single-pass  that filters  and finds .
+- Cleaned up git artifacts.
 # KandyDrops Core Codebase Audit & Defensive Ledger
 
 ## [2026-05-03 #118] PRE: Full-Page Locked Drop Preview

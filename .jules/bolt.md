@@ -21,3 +21,7 @@
 ## 2026-04-02 - Array/String Allocations in Cache Keys
 **Learning:** Creating cache keys using dynamic string concatenations of arrays (e.g., `drop.contentUrls?.join(",")`) defeats the purpose of caching by unconditionally allocating memory and adding garbage collection pressure on every call. This causes a net performance regression in hot paths compared to simple, non-allocating property checks.
 **Action:** Use lightweight, non-allocating cache keys. For entities where we know references do not mutate deeply without a new top-level reference (like `drop`), we can use the entity's ID or `WeakMap` on the entity itself to cache derived data, avoiding costly key generation strings entirely.
+
+## 2024-05-15 - React Component Hook Refactoring
+**Learning:** Consolidating entity filtering and next-expiration timestamp calculations into a single `useMemo` block in React components is highly beneficial. Passing primitive values like `nextExpiryMs` directly to a `useEffect` prevents unnecessary effect cycles and garbage collection compared to iterating inside an effect or triggering it based on volatile state variables like `nowMs`.
+**Action:** When a `useEffect` calculates a primitive value (like a timeout) from a data array that is also being mapped or filtered, move the calculation into the shared `useMemo` pass that filters the array. This saves an iteration loop and bounds the `useEffect` execution to a primitive variable change.
