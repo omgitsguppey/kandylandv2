@@ -26,6 +26,7 @@ Mobile bottom navigation space is reserved once by the shared app shell. Page co
 Fixed overlays own their own safe-area padding. Normal route surfaces use the shared app shell reservation.
 
 - Dashboard, Drops, Experiences, Creator Profile, 404, and public pages use the shell reservation instead of duplicating `env(safe-area-inset-bottom)` in page-level padding.
+- DailyCheckIn has two allowed presentation variants. Dashboard uses the full account-status version with welcome header and subtitle. Experiences uses the compact retention-hub version that hides the welcome header/subtitle and tightens vertical rhythm. Logic, reward ladder, check-in state, confetti, and telemetry remain shared.
 - The guest home hero is shell-centered on mobile. It must center within available visual height between fixed top nav and mobile bottom nav/browser/PWA chrome using shell-aware viewport math, not a fixed vh-plus-nav estimate.
 - Chat/messages use `ChatRouteShell` plus chat-specific tokens because the chat route locks the viewport and owns its internal scroll containers.
 - The chat route bypasses normal page bottom-nav reservation and owns its own mobile shell spacing. Inbox controls, floating compose controls, and thread composer must sit above the mobile bottom nav in Safari browser and standalone PWA modes using shared chat shell tokens, not per-screen hardcoded offsets.

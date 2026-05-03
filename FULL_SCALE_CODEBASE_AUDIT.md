@@ -1,5 +1,36 @@
 # KandyDrops Core Codebase Audit & Defensive Ledger
 
+## [2026-05-02 #115] PRE: Experiences Compact Daily Hub
+
+Scope started:
+- Refining `/experiences` into a substantially more compact public beta retention/action hub for iPhone-class browser and standalone PWA screens.
+- Required outputs: remove the redundant hero explainer cards, compact the Experiences vertical rhythm, add an Experiences-only DailyCheckIn presentation variant, preserve Dashboard DailyCheckIn full header/subtitle, preserve check-in/task/reward/GumDrops logic and telemetry, add a targeted validator, update source-of-truth docs, run focused verification, commit, and push.
+- This pass must not alter daily check-in claim logic, reward ladder logic, daily task completion logic, GumDrops economy rules, Dashboard DailyCheckIn full design, shell safe-area ownership, polling/listener behavior, or desktop/tablet readability.
+
+Initial evidence:
+- Control tower routing, doctrine consultation workflow, product/copy/UI doctrine, mobile safe-area doctrine, PWA mobile doctrine, generated Experiences task context, and adjacency traces for `src/app/experiences/ExperiencesClient.tsx` and `src/components/Dashboard/DailyCheckIn.tsx` were consulted.
+- Runtime owners inspected first: `src/app/experiences/ExperiencesClient.tsx`, `src/components/Dashboard/DailyCheckIn.tsx`, `src/components/Dashboard/DailyTasksModule.tsx`, `src/components/Dashboard/LiveDropsForYouCarousel.tsx`, `src/components/CreatorDiscoveryRail.tsx`, `src/lib/user-mobile-shell.ts`, and `src/components/CoreLayoutWrapper.tsx`.
+
+Doctrine:
+- DailyCheckIn has two allowed presentation variants. Dashboard uses the full account-status version with welcome header and subtitle. Experiences uses the compact retention-hub version that hides the welcome header/subtitle and tightens vertical rhythm. Logic, reward ladder, check-in state, confetti, and telemetry remain shared.
+
+Scope completed:
+- Removed the redundant `/experiences` hero explainer card grid and tightened the route wrapper, hero panel, guest module stack, Creator Spotlight rail, and GumDrops wallet CTA spacing for public beta compact density.
+- Added the shared `DailyCheckIn` presentation variant prop with `dashboard` as the default and `experiences` as the compact retention-hub variant. The Experiences variant hides only the welcome header/subtitle and tightens panel/stat/reward/CTA spacing while preserving reward ladder, timer, optimistic state, confetti, claim logic, and `daily_check_in_claim` telemetry.
+- Added `data-experiences-layout="public-beta-compact"`, `data-experiences-hero-explainer-cards="removed"`, and `data-daily-checkin-variant` debug markers.
+- Added `scripts/agent/validate-experiences-compact-layout.ts`, `npm run check:experiences-compact-layout`, and the dedicated Experiences compact DailyCheckIn agent-truth artifact.
+
+Verification:
+- Passed: `npm run check:experiences-compact-layout`
+- Passed: `npm run typecheck`
+- Passed: `npm run agent:test -- src/app/experiences/ExperiencesClient.tsx` (no related test files found; command exited 0)
+- Passed: `npm run agent:test -- src/components/Dashboard/DailyCheckIn.tsx` (no related test files found; command exited 0)
+- Passed: `npm run check:ui:coverage`
+- Passed: `npm run check:ui:runtime`
+- Passed: `npm run check:mobile-shell-safe-area`
+- Passed: `git diff --check`
+- Partial: `npm run check:ui:audits` completed the production build and passed 19/20 Playwright checks, but failed the existing Chromium homepage visual snapshot for `/` with a 0.01 pixel ratio diff against `ui_surface__src__app__page-tsx.png`. The failing target was the home hero, not `/experiences`.
+
 ## [2026-05-02 #114] PRE: Mobile Chat Shell Compact Spacing
 
 Scope started:

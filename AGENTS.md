@@ -47,6 +47,10 @@ For broad work, shared helpers, repo tooling, governance, package/lockfile chang
 
 For narrow work, use the generated agent context first and only escalate to full governance reads if the task is broad, shared-helper heavy, or continuity-sensitive.
 
+## Experiences DailyCheckIn Variant
+
+DailyCheckIn has two allowed presentation variants. Dashboard uses the full account-status version with welcome header and subtitle. Experiences uses the compact retention-hub version that hides the welcome header/subtitle and tightens vertical rhythm. Logic, reward ladder, check-in state, confetti, and telemetry remain shared.
+
 ## Repo Intelligence Fabric
 
 Use `/agent/` as the default low-token machine-readable context layer:

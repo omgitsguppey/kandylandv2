@@ -4,6 +4,10 @@ Status: Canonical repository-memory and architecture-decision ledger
 Last refreshed: 2026-05-02
 Repo: `C:\Users\uylus\OneDrive\Documents\KandyDrops_Final`
 
+## 2026-05-02 Experiences compact daily hub
+
+DailyCheckIn has two allowed presentation variants. Dashboard uses the full account-status version with welcome header and subtitle. Experiences uses the compact retention-hub version that hides the welcome header/subtitle and tightens vertical rhythm. Logic, reward ladder, check-in state, confetti, and telemetry remain shared. The `/experiences` page remains the retention/action hub and keeps Creator Spotlight, DailyCheckIn, DailyTasksModule, Live Drops For You, and the GumDrops wallet CTA in the normal mobile shell reservation.
+
 ## 2026-05-02 Mobile chat shell compact spacing
 
 The chat route bypasses normal page bottom-nav reservation and owns its own mobile shell spacing. Inbox controls, floating compose controls, and thread composer must sit above the mobile bottom nav in Safari browser and standalone PWA modes using shared chat shell tokens, not per-screen hardcoded offsets. The canonical shell tokens live in `src/lib/user-mobile-shell.ts`; `src/components/Chat/ChatExperience.tsx` consumes them for list controls, scroll padding, thread composer clearance, compact debug markers, and the public beta density contract. Chat send, GumDrops pricing, thread IDs, and creator accrual logic remain owned by the existing chat server/runtime helpers.

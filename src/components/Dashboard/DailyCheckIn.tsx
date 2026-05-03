@@ -36,7 +36,13 @@ function emitGuidedCheckIn(status: "success" | "already-claimed" | "error", mess
     }));
 }
 
-export function DailyCheckIn() {
+type DailyCheckInVariant = "dashboard" | "experiences";
+
+interface DailyCheckInProps {
+    variant?: DailyCheckInVariant;
+}
+
+export function DailyCheckIn({ variant = "dashboard" }: DailyCheckInProps = {}) {
     const { user, userProfile, setUserProfile } = useAuth();
     const [loading, setLoading] = useState(false);
     const [optimisticCheckInMs, setOptimisticCheckInMs] = useState<number | null>(null);
@@ -77,6 +83,7 @@ export function DailyCheckIn() {
     const rewardAmount = checkInProgress.claimRewardAmount;
     const nextRewardAmount = checkInProgress.nextRewardAmount;
     const displayedStreakCount = checkInProgress.displayedStreakCount;
+    const isExperiencesVariant = variant === "experiences";
 
     const handleClaim = async () => {
         if (loading || !canCheckIn) {
@@ -177,18 +184,26 @@ export function DailyCheckIn() {
 
     if (!isMounted) {
         return (
-        <div className="glass-panel p-4 sm:p-6 rounded-3xl relative overflow-hidden min-h-[20rem] animate-pulse">
+        <div
+            className={cn(
+                "glass-panel rounded-3xl relative overflow-hidden animate-pulse",
+                isExperiencesVariant ? "min-h-[14rem] p-3.5 sm:p-5" : "min-h-[20rem] p-4 sm:p-6",
+            )}
+            data-daily-checkin-variant={variant}
+        >
             <div className="absolute top-0 right-0 w-32 h-32 bg-brand-purple/10 rounded-full blur-[50px] pointer-events-none" />
             <div className="relative z-10 h-full flex flex-col">
+                {!isExperiencesVariant ? (
                 <div className="mb-5 sm:mb-6">
                     <div className="h-8 w-3/4 sm:w-1/2 bg-white/10 rounded-lg mb-2" />
                     <div className="h-4 w-1/2 sm:w-1/3 bg-white/5 rounded-md" />
                 </div>
-                <div className="mb-5 sm:mb-6 h-16 sm:h-20 w-full bg-white/5 rounded-2xl" />
-                <div className="h-6 w-1/3 bg-white/5 rounded-lg mb-4" />
-                <div className="flex justify-between gap-1">
+                ) : null}
+                <div className={cn("h-16 sm:h-20 w-full bg-white/5 rounded-2xl", isExperiencesVariant ? "mb-3" : "mb-5 sm:mb-6")} />
+                <div className={cn("h-6 w-1/3 bg-white/5 rounded-lg", isExperiencesVariant ? "mb-3" : "mb-4")} />
+                <div className={cn("flex justify-between gap-1", isExperiencesVariant ? "mb-3" : "")}>
                     {[...Array(7)].map((_, i) => (
-                        <div key={i} className="flex-1 h-16 sm:h-20 bg-white/5 rounded-2xl" />
+                        <div key={i} className={cn("flex-1 bg-white/5 rounded-2xl", isExperiencesVariant ? "h-11 sm:h-14" : "h-16 sm:h-20")} />
                     ))}
                 </div>
             </div>
@@ -199,49 +214,62 @@ export function DailyCheckIn() {
     const firstName = userProfile?.displayName?.split(" ")[0] || "Collector";
 
     return (
-        <div id="daily-reward" className="glass-panel p-4 sm:p-6 rounded-3xl relative overflow-hidden" data-onboarding-target="daily-reward">
+        <div
+            id="daily-reward"
+            className={cn(
+                "glass-panel rounded-3xl relative overflow-hidden",
+                isExperiencesVariant ? "p-3.5 sm:p-5" : "p-4 sm:p-6",
+            )}
+            data-onboarding-target="daily-reward"
+            data-daily-checkin-variant={variant}
+        >
             <div className="absolute top-0 right-0 w-32 h-32 bg-brand-purple/10 rounded-full blur-[50px] pointer-events-none" />
 
             <div className="relative z-10">
+                {!isExperiencesVariant ? (
                 <header className="mb-5 sm:mb-6">
                     <h1 className="text-xl md:text-2xl font-bold leading-tight tracking-tight text-white/90">
                         Welcome back to the Kandy Shop, {firstName}
                     </h1>
                     <p className="mt-1 text-sm text-gray-400">Claim your streak and stay ready to unwrap</p>
                 </header>
+                ) : null}
 
-                <div className="mb-5 sm:mb-6 flex items-center justify-between rounded-2xl bg-black/20 p-3 sm:px-5 sm:py-3 border border-white/5 backdrop-blur-sm">
+                <div className={cn(
+                    "flex items-center justify-between rounded-2xl bg-black/20 border border-white/5 backdrop-blur-sm",
+                    isExperiencesVariant ? "mb-3 p-2.5 sm:px-4 sm:py-2.5" : "mb-5 p-3 sm:mb-6 sm:px-5 sm:py-3",
+                )}>
                     <div className="flex flex-col items-center">
                         <span className="text-[10px] font-bold uppercase tracking-widest text-gray-500">Gum Drops</span>
-                        <CompactNumber value={userProfile?.gumDropsBalance || 0} className="text-lg sm:text-xl font-black text-brand-purple" />
+                        <CompactNumber value={userProfile?.gumDropsBalance || 0} className={cn("font-black text-brand-purple", isExperiencesVariant ? "text-base sm:text-lg" : "text-lg sm:text-xl")} />
                     </div>
                     <div className="h-8 w-px bg-white/10" />
                     <div className="flex flex-col items-center">
                         <span className="text-[10px] font-bold uppercase tracking-widest text-gray-500">Unwrapped</span>
-                        <CompactNumber value={userProfile?.unlockedContent?.length || 0} className="text-lg sm:text-xl font-black text-white" />
+                        <CompactNumber value={userProfile?.unlockedContent?.length || 0} className={cn("font-black text-white", isExperiencesVariant ? "text-base sm:text-lg" : "text-lg sm:text-xl")} />
                     </div>
                     <div className="h-8 w-px bg-white/10" />
                     <div className="flex flex-col items-center">
                         <span className="text-[10px] font-bold uppercase tracking-widest text-gray-500">Day Streak</span>
-                        <div className="text-lg sm:text-xl font-black text-brand-purple">
+                        <div className={cn("font-black text-brand-purple", isExperiencesVariant ? "text-base sm:text-lg" : "text-lg sm:text-xl")}>
                             {displayedStreakCount}<span className="text-xs sm:text-sm font-semibold text-gray-500">/7</span>
                         </div>
                     </div>
                 </div>
 
-                <div className="mb-5 sm:mb-6">
-                    <h2 className="text-xl sm:text-2xl font-bold text-white flex items-center gap-2">
-                        <Gift className="w-5 h-5 sm:w-6 sm:h-6 text-brand-purple" /> Daily Rewards
+                <div className={cn(isExperiencesVariant ? "mb-3" : "mb-5 sm:mb-6")}>
+                    <h2 className={cn("font-bold text-white flex items-center gap-2", isExperiencesVariant ? "text-lg sm:text-xl" : "text-xl sm:text-2xl")}>
+                        <Gift className={cn("text-brand-purple", isExperiencesVariant ? "h-5 w-5" : "w-5 h-5 sm:w-6 sm:h-6")} /> Daily Rewards
                     </h2>
                 </div>
 
-                <div className="flex justify-between gap-1 mb-4">
+                <div className={cn("flex justify-between gap-1", isExperiencesVariant ? "mb-3" : "mb-4")}>
                     {DAILY_CHECK_IN_REWARD_LADDER.map((reward, index) => {
                         const day = index + 1;
                         const isActive = day <= Math.min(checkInProgress.activeStreak, 7);
 
                         return (
-                            <div key={day} className="flex flex-col items-center gap-2 flex-1">
+                            <div key={day} className={cn("flex flex-col items-center flex-1", isExperiencesVariant ? "gap-1.5" : "gap-2")}>
                                 <div
                                     className={cn(
                                         "w-full h-1.5 rounded-full transition-all",
@@ -261,12 +289,15 @@ export function DailyCheckIn() {
                     })}
                 </div>
 
-                <p className="mb-6 text-sm font-medium text-gray-300">
+                <p className={cn("text-sm font-medium text-gray-300", isExperiencesVariant ? "mb-3" : "mb-6")}>
                     {canCheckIn ? "You can check in now." : `Next check-in available in ${formatCountdown(remainingMs)}`}
                 </p>
 
                 {!canCheckIn ? (
-                    <div className="w-full py-4 rounded-2xl bg-white/5 border border-white/5 text-center text-gray-400 font-medium flex items-center justify-center gap-2">
+                    <div className={cn(
+                        "w-full rounded-2xl bg-white/5 border border-white/5 text-center text-gray-400 font-medium flex items-center justify-center gap-2",
+                        isExperiencesVariant ? "min-h-12 px-3 py-3 text-sm" : "py-4",
+                    )}>
                         <CheckCircle className="w-5 h-5 text-brand-purple" />
                         Come back tomorrow for {nextRewardAmount} Drops!
                     </div>
@@ -277,7 +308,10 @@ export function DailyCheckIn() {
                         disabled={loading}
                         data-onboarding-target="daily-reward-claim"
                         data-onboarding-radius="16"
-                        className="w-full py-6 text-lg rounded-2xl text-white shadow-[0_0_20px_rgba(164,118,255,0.35)] hover:shadow-[0_0_30px_rgba(164,118,255,0.5)] transition-shadow"
+                        className={cn(
+                            "w-full rounded-2xl text-white shadow-[0_0_20px_rgba(164,118,255,0.35)] hover:shadow-[0_0_30px_rgba(164,118,255,0.5)] transition-shadow",
+                            isExperiencesVariant ? "min-h-12 py-3 text-base" : "py-6 text-lg",
+                        )}
                     >
                         {loading ? (
                             <Loader2 className="w-5 h-5 animate-spin" />

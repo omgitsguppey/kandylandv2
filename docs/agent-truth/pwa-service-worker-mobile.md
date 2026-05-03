@@ -58,6 +58,8 @@ The Firebase Web modular SDK path used here does not expose the old continuous `
 
 Standalone PWA surfaces use the same mobile shell contract as browser mobile surfaces. `src/lib/user-mobile-shell.ts` owns bottom-nav/safe-area tokens; root layout reads `--user-mobile-bottom-nav-reserved-height`; `CoreLayoutWrapper` applies it once; `MobileBottomBar` uses the bottom offset token. Do not add duplicate page-level safe-area padding for normal public routes.
 
+DailyCheckIn has two allowed presentation variants. Dashboard uses the full account-status version with welcome header and subtitle. Experiences uses the compact retention-hub version that hides the welcome header/subtitle and tightens vertical rhythm. Logic, reward ladder, check-in state, confetti, and telemetry remain shared.
+
 The chat route bypasses normal page bottom-nav reservation and owns its own mobile shell spacing. Inbox controls, floating compose controls, and thread composer must sit above the mobile bottom nav in Safari browser and standalone PWA modes using shared chat shell tokens, not per-screen hardcoded offsets.
 
 The guest home hero is shell-centered on mobile. It must center within available visual height between fixed top nav and mobile bottom nav/browser/PWA chrome using shell-aware viewport math, not a fixed vh-plus-nav estimate.

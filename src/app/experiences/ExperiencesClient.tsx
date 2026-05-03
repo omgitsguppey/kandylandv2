@@ -1,7 +1,7 @@
 "use client";
 
 import { useEffect } from "react";
-import { ArrowRight, Clock3, Gift, Sparkles, Wallet } from "lucide-react";
+import { ArrowRight, Sparkles, Wallet } from "lucide-react";
 
 import { GuestComponentBlur } from "@/components/Auth/GuestComponentBlur";
 import { CreatorDiscoveryRail } from "@/components/CreatorDiscoveryRail";
@@ -31,37 +31,28 @@ export default function ExperiencesClient({ initialActiveDrops, creatorRailProfi
 
     return (
         <div
-            className="min-h-[calc(100dvh-11rem)] w-full overflow-hidden bg-black px-4 py-8 pb-4 text-left md:min-h-[calc(100dvh-5rem)] md:py-12 md:pb-12"
+            className="min-h-[calc(100dvh-11rem)] w-full overflow-hidden bg-black px-4 py-4 pb-4 text-left md:min-h-[calc(100dvh-5rem)] md:py-8 md:pb-10"
             data-onboarding-page="experiences"
+            data-experiences-layout="public-beta-compact"
             style={{ paddingTop: "var(--kandy-cookie-offset, 0px)" }}
         >
-            <div className="mx-auto max-w-4xl space-y-6">
-                <section className="glass-panel rounded-[2rem] border border-white/10 p-5 sm:p-6">
-                    <div className="flex flex-col gap-5 md:flex-row md:items-center md:justify-between">
+            <div className="mx-auto max-w-4xl space-y-4">
+                <section
+                    className="glass-panel rounded-[2rem] border border-white/10 p-4 sm:p-5"
+                    data-experiences-hero-explainer-cards="removed"
+                >
+                    <div className="flex flex-col gap-3 md:flex-row md:items-center md:justify-between">
                         <div className="max-w-2xl">
-                            <div className="mb-3 inline-flex items-center gap-2 rounded-full border border-brand-purple/30 bg-brand-purple/15 px-3 py-1 text-[10px] font-bold uppercase tracking-[0.16em] text-white">
+                            <div className="mb-2 inline-flex items-center gap-2 rounded-full border border-brand-purple/30 bg-brand-purple/15 px-3 py-1 text-[10px] font-bold uppercase tracking-[0.16em] text-white">
                                 <Sparkles className="h-3.5 w-3.5" />
                                 Daily Experiences
                             </div>
-                            <h1 className="text-3xl font-black tracking-tight text-white sm:text-4xl md:text-5xl">
+                            <h1 className="text-2xl font-black tracking-tight text-white sm:text-3xl md:text-4xl">
                                 Stay ready to unwrap.
                             </h1>
-                            <p className="mt-3 max-w-xl text-sm leading-6 text-gray-400 sm:text-base">
+                            <p className="mt-2 max-w-xl text-sm leading-5 text-gray-400 sm:text-base sm:leading-6">
                                 Check in, finish three missions, and come back when the timer resets.
                             </p>
-                        </div>
-
-                        <div className="grid grid-cols-2 gap-3 md:min-w-[16rem]">
-                            <div className="rounded-[1.5rem] border border-white/10 bg-black/30 p-4">
-                                <Clock3 className="h-5 w-5 text-brand-purple" />
-                                <p className="mt-3 text-xs font-bold uppercase tracking-[0.14em] text-gray-500">Daily reset</p>
-                                <p className="mt-1 text-sm font-semibold text-white">Syncs with your check-in timer</p>
-                            </div>
-                            <div className="rounded-[1.5rem] border border-white/10 bg-black/30 p-4">
-                                <Gift className="h-5 w-5 text-brand-purple" />
-                                <p className="mt-3 text-xs font-bold uppercase tracking-[0.14em] text-gray-500">Reward loop</p>
-                                <p className="mt-1 text-sm font-semibold text-white">Earn Gum Drops for coming back daily</p>
-                            </div>
                         </div>
                     </div>
                 </section>
@@ -71,22 +62,22 @@ export default function ExperiencesClient({ initialActiveDrops, creatorRailProfi
                         actionText={SECONDARY_UNWRAP_CTA}
                         supportText="Create a free profile to start Day 1 and stack Gum Drops daily."
                     >
-                        <div className="space-y-5">
-                            <CreatorDiscoveryRail surface="experiences" initialCreators={creatorRailProfiles} />
-                            <DailyCheckIn />
+                        <div className="space-y-4">
+                            <CreatorDiscoveryRail surface="experiences" compact initialCreators={creatorRailProfiles} />
+                            <DailyCheckIn variant="experiences" />
                             <DailyTasksModule />
                             <LiveDropsForYouCarousel initialDrops={initialActiveDrops} />
                         </div>
                     </GuestComponentBlur>
                 </div>
 
-                <section id="gumdrops-wallet" className="glass-panel rounded-[2rem] border border-white/10 p-5 text-center sm:p-6">
+                <section id="gumdrops-wallet" className="glass-panel rounded-[2rem] border border-white/10 p-4 text-center sm:p-5">
                     <div className="mx-auto max-w-2xl">
-                        <div className="mx-auto mb-3 flex h-14 w-14 items-center justify-center rounded-2xl border border-brand-purple/25 bg-brand-purple/15 text-white">
-                            <Wallet className="h-6 w-6" />
+                        <div className="mx-auto mb-2 flex h-12 w-12 items-center justify-center rounded-2xl border border-brand-purple/25 bg-brand-purple/15 text-white">
+                            <Wallet className="h-5 w-5" />
                         </div>
-                        <h2 className="text-2xl font-bold text-white">Need more Gum Drops before the next unwrap?</h2>
-                        <p className="mt-2 text-sm leading-6 text-gray-400">{GUMDROPS_SUPPORT_COPY}</p>
+                        <h2 className="text-xl font-bold text-white sm:text-2xl">Need more Gum Drops before the next unwrap?</h2>
+                        <p className="mt-1.5 text-sm leading-6 text-gray-400">{GUMDROPS_SUPPORT_COPY}</p>
                     </div>
 
                     <button
@@ -97,12 +88,12 @@ export default function ExperiencesClient({ initialActiveDrops, creatorRailProfi
                             }
                             openPurchaseModal();
                         }}
-                        className="mt-5 inline-flex items-center gap-2 rounded-full border border-brand-purple bg-brand-purple px-8 py-4 text-sm font-bold text-white transition-opacity hover:opacity-90"
+                        className="mt-4 inline-flex min-h-11 items-center gap-2 rounded-full border border-brand-purple bg-brand-purple px-7 py-3 text-sm font-bold text-white transition-opacity hover:opacity-90"
                     >
                         Get Gum Drops
                         <ArrowRight className="h-4 w-4" />
                     </button>
-                    <p className="mt-3 text-xs leading-6 text-gray-500">{GUMDROPS_PRIMARY_CTA}</p>
+                    <p className="mt-2 text-xs leading-5 text-gray-500">{GUMDROPS_PRIMARY_CTA}</p>
                 </section>
             </div>
         </div>
