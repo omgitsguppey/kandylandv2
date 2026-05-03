@@ -6,6 +6,8 @@ Messages list controls must remain visible above the bottom nav. Search and new-
 
 The chat route bypasses normal page bottom-nav reservation and owns its own mobile shell spacing. Inbox controls, floating compose controls, and thread composer must sit above the mobile bottom nav in Safari browser and standalone PWA modes using shared chat shell tokens, not per-screen hardcoded offsets.
 
+Chat interaction handlers are INP-sensitive. Thread open, back-to-list, compose-open, search-focus, and send-start paths must keep visual state updates immediate while deferring viewport reads, layout diagnostics, recovery reports, and telemetry payload construction until after paint. Self-healing is allowed, but it must not run synchronous DOM recovery or diagnostic reporting inside tap/focus handlers.
+
 The previous outer-padding-only fix failed because the Messages list still used the wrong full-page sizing model. The chat route shell must bound the route inside the visible viewport, include root top padding in the `100dvh` box, and remove root mobile bottom padding so chat internals own the bottom-nav reservation. The Messages list scroll area, search control, floating compose button, and chat-thread composer all read the shared bottom-nav contract from `src/lib/user-mobile-shell.ts`.
 
 Do not fix bottom-nav overlap with negative margins, upward transforms, clipping, or duplicated safe-area padding. Shared bottom-nav spacing lives in `src/lib/user-mobile-shell.ts`, and `MobileBottomBar` plus `ChatExperience` must consume those values instead of unrelated magic numbers.

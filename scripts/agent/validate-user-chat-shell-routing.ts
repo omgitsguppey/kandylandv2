@@ -25,6 +25,33 @@ function requireNotIncludes(source: string, needle: string, label: string) {
   }
 }
 
+function countOccurrences(source: string, needle: string) {
+  return source.split(needle).length - 1;
+}
+
+function sourceBetween(source: string, startNeedle: string, endNeedles: string[]) {
+  const start = source.indexOf(startNeedle);
+  if (start === -1) {
+    failures.push(`Missing source section: ${startNeedle}.`);
+    return "";
+  }
+
+  const end = endNeedles
+    .map((needle) => source.indexOf(needle, start + startNeedle.length))
+    .filter((index) => index !== -1)
+    .sort((left, right) => left - right)[0] ?? source.length;
+
+  return source.slice(start, end);
+}
+
+function requireOrdered(source: string, firstNeedle: string, secondNeedle: string, label: string) {
+  const first = source.indexOf(firstNeedle);
+  const second = source.indexOf(secondNeedle);
+  if (first === -1 || second === -1 || first > second) {
+    failures.push(`${label} must contain "${firstNeedle}" before "${secondNeedle}".`);
+  }
+}
+
 const chat = readRequired("src/components/Chat/ChatExperience.tsx");
 const chatShell = readRequired("src/components/Chat/ChatRouteShell.tsx");
 const bottomNav = readRequired("src/components/Navigation/MobileBottomBar.tsx");
@@ -65,6 +92,9 @@ for (const needle of [
   "data-chat-composer-above-bottom-nav=\"true\"",
   "data-chat-list-controls-above-bottom-nav=\"true\"",
   "data-chat-density=\"public-beta-compact\"",
+  "data-chat-interaction-performance=\"optimized\"",
+  "data-chat-diagnostics-deferred=\"true\"",
+  "data-chat-tap-path=\"nonblocking\"",
   "Chat controls are too close to the bottom navigation.",
   "Chat composer is not fully above the mobile navigation.",
   "Chat list scroll container lost viewport ownership.",
@@ -148,6 +178,7 @@ for (const bannedSizing of ["paddingBottom: showCompactThreadListOnly", "pb-[cal
 for (const needle of [
   "Messages list and chat thread views share one mobile shell contract",
   "The chat route bypasses normal page bottom-nav reservation and owns its own mobile shell spacing",
+  "Chat interaction handlers are INP-sensitive",
   "buildCreatorPublicHref",
   "Return to App",
   "Do not fix bottom-nav overlap with negative margins",
@@ -167,6 +198,61 @@ for (const needle of [
 ]) {
   requireIncludes(chat, needle, "Compact chat public beta behavior");
 }
+
+for (const needle of [
+  "useDeferredValue",
+  "visibleThreadById",
+  "visibleThreadIdSet",
+  "scheduleChatPostPaintTask",
+  "scheduleChatPostPaintDiagnostics",
+  "scheduleChatLayoutDiagnostics",
+  "deferChatDiagnosticReport",
+  "deferChatRealtimeIssue",
+  "deferChatThreadOpenedTelemetry",
+  "deferChatComposeSheetOpenedTelemetry",
+  "deferChatListSearchFocusedTelemetry",
+  "deferChatMessageSendAttemptedTelemetry",
+  "deferChatMessageSendFailedTelemetry",
+  "deferChatMessageSentTelemetry",
+  "chatInteractionPerformance: \"optimized\"",
+  "chatDiagnosticsDeferred: true",
+  "chatTapPath: \"nonblocking\"",
+]) {
+  requireIncludes(chat, needle, "Compact chat interaction performance");
+}
+
+const composePickerHandler = sourceBetween(chat, "const openComposePicker = useCallback", ["const handleThreadSearchFocus = useCallback"]);
+requireIncludes(composePickerHandler, "setComposePickerOpen(true);", "Compose picker tap path");
+requireIncludes(composePickerHandler, "deferChatComposeSheetOpenedTelemetry({", "Compose picker tap path");
+requireNotIncludes(composePickerHandler, "trackEvent(\"chat_", "Compose picker tap path");
+
+const searchFocusHandler = sourceBetween(chat, "const handleThreadSearchFocus = useCallback", ["const openThreadFromList = useCallback"]);
+requireIncludes(searchFocusHandler, "deferChatListSearchFocusedTelemetry({", "Search focus tap path");
+requireNotIncludes(searchFocusHandler, "trackEvent(\"chat_", "Search focus tap path");
+
+const threadOpenHandler = sourceBetween(chat, "const openThreadFromList = useCallback", ["const handleMarkThreadsRead = useCallback"]);
+requireOrdered(threadOpenHandler, "setSelectedThreadId(thread.id);", "deferChatThreadOpenedTelemetry({", "Thread open tap path");
+requireNotIncludes(threadOpenHandler, "trackEvent(\"chat_", "Thread open tap path");
+requireNotIncludes(threadOpenHandler, "reportClientIssue(", "Thread open tap path");
+requireNotIncludes(threadOpenHandler, "reportRealtimeIssue(", "Thread open tap path");
+
+const sendMessageHandler = sourceBetween(chat, "const handleSendMessage = useCallback", ["const handleComposerKeyDown = useCallback"]);
+requireIncludes(sendMessageHandler, "setSendingMessage(true);", "Message send tap path");
+requireIncludes(sendMessageHandler, "deferChatMessageSendAttemptedTelemetry({", "Message send tap path");
+requireIncludes(sendMessageHandler, "deferChatMessageSendFailedTelemetry({", "Message send tap path");
+requireIncludes(sendMessageHandler, "deferChatMessageSentTelemetry({", "Message send tap path");
+requireNotIncludes(sendMessageHandler, "trackEvent(\"chat_", "Message send tap path");
+
+requireNotIncludes(chat, "recoveryGuard.runCheck();", "Compact chat recovery");
+requireNotIncludes(chat, "requestAnimationFrame(loop", "Compact chat diagnostics");
+requireNotIncludes(chat, "requestAnimationFrame(run", "Compact chat diagnostics");
+requireNotIncludes(chat, "while (true)", "Compact chat diagnostics");
+
+const intervalCount = countOccurrences(chat, "setInterval(");
+if (intervalCount > 1) {
+  failures.push(`Compact chat must not add polling/extra intervals. Found ${intervalCount} setInterval calls.`);
+}
+requireIncludes(chat, "heartbeatTimer = window.setInterval", "Existing chat presence heartbeat");
 
 if (failures.length > 0) {
   console.error("User chat shell/routing validation failed:");

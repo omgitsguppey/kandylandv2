@@ -2,7 +2,7 @@
 
 import Link from "next/link";
 import { useRouter, useSearchParams } from "next/navigation";
-import { startTransition, useCallback, useEffect, useMemo, useRef, useState, type CSSProperties, type KeyboardEvent } from "react";
+import { startTransition, useCallback, useDeferredValue, useEffect, useMemo, useRef, useState, type CSSProperties, type KeyboardEvent } from "react";
 import { createAutoHealingObserver, createCompactInteractionRecoveryGuard } from "@/lib/self-healing";
 import {
     ArrowLeft,
@@ -190,6 +190,96 @@ function readMobileBottomNavTop() {
     return bottomNav instanceof HTMLElement ? bottomNav.getBoundingClientRect().top : null;
 }
 
+type ChatDeferredTask = () => void;
+type ChatDeferredCleanup = () => void;
+
+function scheduleChatPostPaintTask(task: ChatDeferredTask): ChatDeferredCleanup {
+    if (typeof window === "undefined") {
+        return () => undefined;
+    }
+
+    let cancelled = false;
+    let timeoutId: number | null = null;
+    const frameId = window.requestAnimationFrame(() => {
+        timeoutId = window.setTimeout(() => {
+            if (!cancelled) {
+                task();
+            }
+        }, 0);
+    });
+
+    return () => {
+        cancelled = true;
+        window.cancelAnimationFrame(frameId);
+        if (timeoutId !== null) {
+            window.clearTimeout(timeoutId);
+        }
+    };
+}
+
+function scheduleChatPostPaintDiagnostics(task: ChatDeferredTask): ChatDeferredCleanup {
+    let cancelled = false;
+    let idleId: number | null = null;
+    const cancelPostPaint = scheduleChatPostPaintTask(() => {
+        if (typeof window === "undefined") {
+            return;
+        }
+
+        if (typeof window.requestIdleCallback === "function") {
+            idleId = window.requestIdleCallback(() => {
+                if (!cancelled) {
+                    task();
+                }
+            }, { timeout: 900 });
+            return;
+        }
+
+        if (!cancelled) {
+            task();
+        }
+    });
+
+    return () => {
+        cancelled = true;
+        cancelPostPaint();
+        if (idleId !== null && typeof window !== "undefined" && typeof window.cancelIdleCallback === "function") {
+            window.cancelIdleCallback(idleId);
+        }
+    };
+}
+
+function scheduleChatLayoutDiagnostics(task: ChatDeferredTask): ChatDeferredCleanup {
+    if (typeof window === "undefined") {
+        return () => undefined;
+    }
+
+    let cancelled = false;
+    let frameId: number | null = null;
+    const timeoutId = window.setTimeout(() => {
+        frameId = window.requestAnimationFrame(() => {
+            if (!cancelled) {
+                task();
+            }
+        });
+    }, 0);
+
+    return () => {
+        cancelled = true;
+        window.clearTimeout(timeoutId);
+        if (frameId !== null) {
+            window.cancelAnimationFrame(frameId);
+        }
+    };
+}
+
+function deferChatDiagnosticReport(input: Parameters<typeof reportClientIssue>[0]) {
+    scheduleChatPostPaintDiagnostics(() => reportClientIssue(input));
+}
+
+function deferChatRealtimeIssue(scope: string, error?: unknown, detail?: Record<string, unknown>) {
+    scheduleChatPostPaintDiagnostics(() => reportRealtimeIssue(scope, error, detail));
+}
+
 function buildChatTelemetryPayload({
     sourceComponent,
     userId,
@@ -221,6 +311,42 @@ function buildChatTelemetryPayload({
         ...(errorCode ? { error_code: errorCode } : {}),
         ...(errorMessage ? { error_message: errorMessage.slice(0, 160) } : {}),
     };
+}
+
+function deferChatThreadOpenedTelemetry(input: ChatTelemetryPayloadInput) {
+    scheduleChatPostPaintTask(() => {
+        trackEvent("chat_thread_opened", buildChatTelemetryPayload(input));
+    });
+}
+
+function deferChatComposeSheetOpenedTelemetry(input: ChatTelemetryPayloadInput) {
+    scheduleChatPostPaintTask(() => {
+        trackEvent("chat_compose_sheet_opened", buildChatTelemetryPayload(input));
+    });
+}
+
+function deferChatListSearchFocusedTelemetry(input: ChatTelemetryPayloadInput) {
+    scheduleChatPostPaintTask(() => {
+        trackEvent("chat_list_search_focused", buildChatTelemetryPayload(input));
+    });
+}
+
+function deferChatMessageSendAttemptedTelemetry(input: ChatTelemetryPayloadInput) {
+    scheduleChatPostPaintTask(() => {
+        trackEvent("chat_message_send_attempted", buildChatTelemetryPayload(input));
+    });
+}
+
+function deferChatMessageSendFailedTelemetry(input: ChatTelemetryPayloadInput) {
+    scheduleChatPostPaintTask(() => {
+        trackEvent("chat_message_send_failed", buildChatTelemetryPayload(input));
+    });
+}
+
+function deferChatMessageSentTelemetry(input: ChatTelemetryPayloadInput) {
+    scheduleChatPostPaintTask(() => {
+        trackEvent("chat_message_sent", buildChatTelemetryPayload(input));
+    });
 }
 
 type PresenceSnapshot = {
@@ -543,10 +669,18 @@ export function ChatExperience() {
         () => mergeThreads(threads, selectedDetail?.thread ?? null),
         [selectedDetail?.thread, threads],
     );
+    const visibleThreadById = useMemo(() => {
+        const map = new Map<string, ChatThreadRecord>();
+        visibleThreads.forEach((thread) => {
+            map.set(thread.id, thread);
+        });
+        return map;
+    }, [visibleThreads]);
+    const visibleThreadIdSet = useMemo(() => new Set(visibleThreadById.keys()), [visibleThreadById]);
 
     const selectedThread = useMemo(
-        () => visibleThreads.find((thread) => thread.id === selectedThreadId) ?? selectedDetail?.thread ?? null,
-        [selectedDetail?.thread, selectedThreadId, visibleThreads],
+        () => (selectedThreadId ? visibleThreadById.get(selectedThreadId) ?? selectedDetail?.thread ?? null : selectedDetail?.thread ?? null),
+        [selectedDetail?.thread, selectedThreadId, visibleThreadById],
     );
     const selectedThreadCreatorRouteInput = useMemo(() => {
         if (!selectedThread || selectedThread.viewerRole === "creator") {
@@ -573,7 +707,8 @@ export function ChatExperience() {
         email: user?.email ?? "",
         role: userProfile?.role ?? (user ? "user" : "guest"),
     }), [user, userProfile?.role]);
-    const normalizedThreadSearch = threadSearch.trim().toLowerCase();
+    const deferredThreadSearch = useDeferredValue(threadSearch);
+    const normalizedThreadSearch = useMemo(() => deferredThreadSearch.trim().toLowerCase(), [deferredThreadSearch]);
     const filteredThreads = useMemo(() => {
         if (!normalizedThreadSearch) {
             return visibleThreads;
@@ -616,6 +751,10 @@ export function ChatExperience() {
     }), [creatorId, user?.uid, userProfile]);
 
     const releaseThreadSearchFocus = useCallback(() => {
+        if (typeof document === "undefined") {
+            return;
+        }
+
         const activeElement = document.activeElement;
         const searchInput = threadSearchInputRef.current;
 
@@ -635,7 +774,7 @@ export function ChatExperience() {
             isOverlayOpen: () => composePickerOpen,
             isDocumentScrollLockExpected: () => true,
             onRecovered: (snapshot) => {
-                reportClientIssue({
+                deferChatDiagnosticReport({
                     channel: "ui",
                     severity: "warn",
                     message: "Compact chat interaction required recovery",
@@ -665,33 +804,37 @@ export function ChatExperience() {
             return;
         }
 
-        releaseThreadSearchFocus();
+        const cancelFocusRelease = scheduleChatPostPaintTask(releaseThreadSearchFocus);
         const recoveryGuard = scheduleCompactInteractionRecovery("chat_thread_transition");
-        return () => recoveryGuard.cleanup();
+        return () => {
+            cancelFocusRelease();
+            recoveryGuard.cleanup();
+        };
     }, [isCompactViewport, releaseThreadSearchFocus, scheduleCompactInteractionRecovery, selectedThreadId]);
 
     useEffect(() => () => {
-        releaseThreadSearchFocus();
-        const recoveryGuard = createCompactInteractionRecoveryGuard({
-            isEnabled: () => isCompactViewport,
-            getTarget: () => threadSearchInputRef.current,
-            isOverlayOpen: () => composePickerOpen,
-            isDocumentScrollLockExpected: () => true,
-            onRecovered: (snapshot) => {
-                reportClientIssue({
-                    channel: "ui",
-                    severity: "warn",
-                    message: "Compact chat interaction required recovery",
-                    detail: {
-                        scope: "chat_unmount_cleanup",
-                        ...snapshot,
-                    },
-                    consoleLabel: "[Chat] compact interaction recovered",
-                });
-            },
+        scheduleChatPostPaintTask(() => {
+            releaseThreadSearchFocus();
+            const recoveryGuard = createCompactInteractionRecoveryGuard({
+                isEnabled: () => isCompactViewport,
+                getTarget: () => threadSearchInputRef.current,
+                isOverlayOpen: () => composePickerOpen,
+                isDocumentScrollLockExpected: () => true,
+                onRecovered: (snapshot) => {
+                    deferChatDiagnosticReport({
+                        channel: "ui",
+                        severity: "warn",
+                        message: "Compact chat interaction required recovery",
+                        detail: {
+                            scope: "chat_unmount_cleanup",
+                            ...snapshot,
+                        },
+                        consoleLabel: "[Chat] compact interaction recovered",
+                    });
+                },
+            });
+            recoveryGuard.scheduleCheck();
         });
-        recoveryGuard.runCheck();
-        recoveryGuard.cleanup();
     }, [composePickerOpen, isCompactViewport, releaseThreadSearchFocus]);
 
     useEffect(() => {
@@ -700,7 +843,7 @@ export function ChatExperience() {
             return;
         }
 
-        const frameId = window.requestAnimationFrame(() => {
+        const cancelDiagnostics = scheduleChatLayoutDiagnostics(() => {
             const shell = chatViewportShellRef.current;
             const panel = compactThreadListPanelRef.current;
             const scrollArea = compactThreadListScrollRef.current;
@@ -765,7 +908,7 @@ export function ChatExperience() {
                     ? "Chat controls are too close to the bottom navigation."
                     : "Compact chat list layout violated viewport bounds";
 
-            reportClientIssue({
+            deferChatDiagnosticReport({
                 channel: "ui",
                 severity: "warn",
                 message: warningMessage,
@@ -791,9 +934,7 @@ export function ChatExperience() {
             });
         });
 
-        return () => {
-            window.cancelAnimationFrame(frameId);
-        };
+        return cancelDiagnostics;
     }, [filteredThreads.length, showCompactThreadListOnly, threadSelectionMode, threadsLoading]);
 
     useEffect(() => {
@@ -807,7 +948,7 @@ export function ChatExperience() {
             return;
         }
 
-        const frameId = window.requestAnimationFrame(() => {
+        const cancelDiagnostics = scheduleChatLayoutDiagnostics(() => {
             const composer = chatThreadComposerRef.current;
             const composerControl = chatThreadComposerControlRef.current;
             if (!composer || !composerControl) {
@@ -837,7 +978,7 @@ export function ChatExperience() {
             }
             chatThreadComposerLayoutReportKeyRef.current = reportKey;
 
-            reportClientIssue({
+            deferChatDiagnosticReport({
                 channel: "ui",
                 severity: "warn",
                 message: "Chat composer is not fully above the mobile navigation.",
@@ -854,9 +995,7 @@ export function ChatExperience() {
             });
         });
 
-        return () => {
-            window.cancelAnimationFrame(frameId);
-        };
+        return cancelDiagnostics;
     }, [
         composerFile,
         insufficientFunds,
@@ -882,6 +1021,9 @@ export function ChatExperience() {
             chatComposerAboveBottomNav: true,
             chatListControlsAboveBottomNav: true,
             chatDensity: "public-beta-compact",
+            chatInteractionPerformance: "optimized",
+            chatDiagnosticsDeferred: true,
+            chatTapPath: "nonblocking",
             displayMode: readChatDisplayMode(),
             messagesListUsesChatShellSizing: true,
             messagesListUsesSharedBottomNavContract: true,
@@ -1227,8 +1369,8 @@ export function ChatExperience() {
     }, [creatorId, router, searchParamsString, selectedThreadId]);
 
     useEffect(() => {
-        setSelectedThreadIds((current) => current.filter((threadId) => visibleThreads.some((thread) => thread.id === threadId)));
-    }, [visibleThreads]);
+        setSelectedThreadIds((current) => current.filter((threadId) => visibleThreadIdSet.has(threadId)));
+    }, [visibleThreadIdSet]);
     useEffect(() => {
         if (!user || !userProfile) {
             return;
@@ -1282,7 +1424,7 @@ export function ChatExperience() {
                 },
             );
         }, (error: unknown) => {
-            reportRealtimeIssue(CHAT_THREAD_LIST_SCOPE, error, {
+            deferChatRealtimeIssue(CHAT_THREAD_LIST_SCOPE, error, {
                 creatorId: creatorId || null,
             });
         });
@@ -1334,7 +1476,7 @@ export function ChatExperience() {
                 },
             );
         }, (error: unknown) => {
-            reportRealtimeIssue(CHAT_MESSAGES_SCOPE, error, {
+            deferChatRealtimeIssue(CHAT_MESSAGES_SCOPE, error, {
                 threadId: selectedThreadId,
             });
         });
@@ -1364,7 +1506,7 @@ export function ChatExperience() {
         void authFetch(`/api/chat/threads/${encodeURIComponent(selectedThreadId)}/read`, {
             method: "POST",
         }).catch((error) => {
-            reportClientIssue({
+            deferChatDiagnosticReport({
                 channel: "realtime",
                 severity: "warn",
                 message: "Chat read receipt update failed",
@@ -1410,18 +1552,18 @@ export function ChatExperience() {
 
     const openComposePicker = useCallback((sourceComponent: string, nextCreatorId?: string | null) => {
         setComposePickerOpen(true);
-        trackEvent("chat_compose_sheet_opened", buildChatTelemetryPayload({
+        deferChatComposeSheetOpenedTelemetry({
             sourceComponent,
             userId: user?.uid,
             creatorId: nextCreatorId ?? null,
-        }));
+        });
     }, [user?.uid]);
 
     const handleThreadSearchFocus = useCallback(() => {
-        trackEvent("chat_list_search_focused", buildChatTelemetryPayload({
+        deferChatListSearchFocusedTelemetry({
             sourceComponent: "chat_list_search",
             userId: user?.uid,
-        }));
+        });
     }, [user?.uid]);
 
     const openThreadFromList = useCallback((thread: ChatThreadRecord) => {
@@ -1430,12 +1572,12 @@ export function ChatExperience() {
             return;
         }
 
-        trackEvent("chat_thread_opened", buildChatTelemetryPayload({
+        setSelectedThreadId(thread.id);
+        deferChatThreadOpenedTelemetry({
             sourceComponent: "chat_thread_list_item",
             userId: user?.uid,
             thread,
-        }));
-        startTransition(() => setSelectedThreadId(thread.id));
+        });
     }, [threadSelectionMode, toggleThreadSelection, user?.uid]);
 
     const handleMarkThreadsRead = useCallback(async () => {
@@ -1523,7 +1665,7 @@ export function ChatExperience() {
             displayName: userProfile?.displayName || user.displayName || user.email || "User",
         }).catch((error) => {
             if (!cancelled) {
-                reportRealtimeIssue("chat presence write", error, {
+                deferChatRealtimeIssue("chat presence write", error, {
                     threadId: selectedThreadId,
                 });
             }
@@ -1538,7 +1680,7 @@ export function ChatExperience() {
         const unsubscribe = onValue(counterpartPresenceRef, (snapshot) => {
             setPresence((snapshot.val() as PresenceSnapshot | null) ?? null);
         }, (error) => {
-            reportRealtimeIssue("chat presence read", error, {
+            deferChatRealtimeIssue("chat presence read", error, {
                 threadId: selectedThreadId,
             });
         });
@@ -1568,7 +1710,7 @@ export function ChatExperience() {
             role: selectedThread?.viewerRole || "user",
             displayName: userProfile?.displayName || user.displayName || user.email || "User",
         }).catch((error) => {
-            reportRealtimeIssue("chat typing write", error, {
+            deferChatRealtimeIssue("chat typing write", error, {
                 threadId: selectedThreadId,
             });
         });
@@ -1751,14 +1893,14 @@ export function ChatExperience() {
         const idempotencyKey = buildChatMessageIdempotencyKey(selectedThreadId);
         let uploadedAttachment: UploadedChatAttachment | null = null;
 
-        trackEvent("chat_message_send_attempted", buildChatTelemetryPayload({
+        deferChatMessageSendAttemptedTelemetry({
             sourceComponent: "chat_thread_composer",
             userId: user?.uid,
             thread: selectedThread,
             idempotencyKey,
             messageKind: currentComposerKind,
             hasAttachment: Boolean(currentComposerFile),
-        }));
+        });
 
         const optimisticId = `optimistic-${Date.now()}`;
         if (!currentComposerFile) {
@@ -1817,7 +1959,7 @@ export function ChatExperience() {
                             messages: current.messages.filter((msg) => msg.id !== optimisticId),
                         } : current);
                     }
-                    trackEvent("chat_message_send_failed", buildChatTelemetryPayload({
+                    deferChatMessageSendFailedTelemetry({
                         sourceComponent: "chat_thread_composer",
                         userId: user?.uid,
                         thread: selectedThread,
@@ -1826,7 +1968,7 @@ export function ChatExperience() {
                         hasAttachment: Boolean(currentComposerFile),
                         errorCode: body.errorCode,
                         errorMessage: body.error || "Insufficient paid GumDrops.",
-                    }));
+                    });
                     setInsufficientFunds(body as ChatInsufficientFundsPayload);
                     return;
                 }
@@ -1854,7 +1996,7 @@ export function ChatExperience() {
                     persistedThread,
                 ));
             }
-            trackEvent("chat_message_sent", buildChatTelemetryPayload({
+            deferChatMessageSentTelemetry({
                 sourceComponent: "chat_thread_composer",
                 userId: user?.uid,
                 thread: body.thread ?? selectedThread,
@@ -1864,7 +2006,7 @@ export function ChatExperience() {
                 messageId: body.message?.id ?? null,
                 messageKind: currentComposerKind,
                 hasAttachment: Boolean(currentComposerFile),
-            }));
+            });
             const warningMessage = buildChatSendWarningMessage(body.warnings);
             if (warningMessage) {
                 setSendWarningMessage(warningMessage);
@@ -1884,7 +2026,7 @@ export function ChatExperience() {
             const message = cleanupFailed
                 ? `${error instanceof Error ? error.message : "Failed to send message."} The uploaded attachment could not be cleaned up automatically, and this was logged.`
                 : (error instanceof Error ? error.message : "Failed to send message.");
-            trackEvent("chat_message_send_failed", buildChatTelemetryPayload({
+            deferChatMessageSendFailedTelemetry({
                 sourceComponent: "chat_thread_composer",
                 userId: user?.uid,
                 thread: selectedThread,
@@ -1892,9 +2034,9 @@ export function ChatExperience() {
                 messageKind: currentComposerKind,
                 hasAttachment: Boolean(currentComposerFile),
                 errorMessage: message,
-            }));
+            });
             setSendErrorMessage(message);
-            reportClientIssue({
+            deferChatDiagnosticReport({
                 channel: "ui",
                 severity: "warn",
                 message: "Chat message send failed",
@@ -1928,8 +2070,14 @@ export function ChatExperience() {
         }
 
         const viewerRole = selectedDetail.thread.viewerRole;
-        const outgoing = [...selectedDetail.messages].reverse().find((message) => message.senderRole === viewerRole);
-        return outgoing?.id ?? null;
+        for (let index = selectedDetail.messages.length - 1; index >= 0; index -= 1) {
+            const message = selectedDetail.messages[index];
+            if (message.senderRole === viewerRole) {
+                return message.id;
+            }
+        }
+
+        return null;
     }, [selectedDetail]);
     const latestMessageSnapshot = useMemo(() => {
         const latestMessage = selectedDetail?.messages[selectedDetail.messages.length - 1];
@@ -1981,9 +2129,11 @@ export function ChatExperience() {
 
     useEffect(() => {
         shouldStickToBottomRef.current = true;
-        window.requestAnimationFrame(() => {
+        const frameId = window.requestAnimationFrame(() => {
             scrollMessageListToBottom("auto");
         });
+
+        return () => window.cancelAnimationFrame(frameId);
     }, [scrollMessageListToBottom, selectedThreadId]);
 
     useEffect(() => {
@@ -1993,9 +2143,10 @@ export function ChatExperience() {
 
         const latestMessage = selectedDetail.messages[selectedDetail.messages.length - 1];
         if (shouldStickToBottomRef.current || latestMessage.senderRole === selectedThread.viewerRole) {
-            window.requestAnimationFrame(() => {
+            const frameId = window.requestAnimationFrame(() => {
                 scrollMessageListToBottom(shouldStickToBottomRef.current ? "smooth" : "auto");
             });
+            return () => window.cancelAnimationFrame(frameId);
         }
     }, [latestMessageSnapshot, scrollMessageListToBottom, selectedDetail?.messages, selectedThread]);
 
@@ -2018,6 +2169,9 @@ export function ChatExperience() {
             data-chat-composer-above-bottom-nav="true"
             data-chat-list-controls-above-bottom-nav="true"
             data-chat-density="public-beta-compact"
+            data-chat-interaction-performance="optimized"
+            data-chat-diagnostics-deferred="true"
+            data-chat-tap-path="nonblocking"
         >
             <div className="flex h-full min-h-0 w-full flex-col overflow-hidden rounded-[2rem] border border-white/10 bg-black shadow-[0_26px_80px_rgba(0,0,0,0.55)]">
                 <div className="grid h-full min-h-0 lg:grid-cols-[320px_minmax(0,1fr)]">
@@ -2236,8 +2390,9 @@ export function ChatExperience() {
                                                             onChange={(event) => setThreadSearch(event.target.value)}
                                                             onFocus={handleThreadSearchFocus}
                                                             onBlur={(event) => {
-                                                                releaseThreadSearchFocus();
-                                                                scheduleCompactInteractionRecovery("chat_search_blur", event.currentTarget);
+                                                                const target = event.currentTarget;
+                                                                scheduleChatPostPaintTask(releaseThreadSearchFocus);
+                                                                scheduleCompactInteractionRecovery("chat_search_blur", target);
                                                             }}
                                                             onKeyDown={(event) => {
                                                                 if (event.key === "Escape") {
