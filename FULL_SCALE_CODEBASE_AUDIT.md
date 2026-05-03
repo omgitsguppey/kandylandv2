@@ -12390,3 +12390,17 @@ Results:
 - analytics continuity check passed
 - focused admin analytics realtime route test passed
 
+
+## 2026-05-18 - Audit package metadata and source-of-funds truth
+
+Scope:
+- `src/components/PurchaseModal.tsx`
+
+Problem fixed:
+- The `PurchaseModal` component exhibited visible value claim mismatches by displaying combined "total" GumDrop amounts alongside the `+X Bonus` badge, leading to a "double-counting" visual where the base paid amount appeared inflated by including the bonus, while still explicitly listing the bonus separately.
+
+Hardening applied:
+- Replaced the generic `pkg.drops` and `customDrops` displays with `pkgEconomics.paidGumDrops` and `customBundleEconomics.paidGumDrops` respectively, ensuring the primary highlighted value correctly represents only the paid portion of the transaction when accompanied by the `+X Bonus` badge. This clarifies source-of-funds and ensures UI claims truthfully match backend economic logic.
+
+Verification:
+- Confirmed `deriveGumdropEconomics` correctly splits total `deliveredGumDrops` into `paidGumDrops` and `bonusGumDrops` in `src/lib/gumdrop-economics.ts`.
