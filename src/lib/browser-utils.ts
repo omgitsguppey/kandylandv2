@@ -25,6 +25,8 @@ export const isStandalone = () => {
     );
 };
 
+export const getClientDisplayMode = () => (isStandalone() ? "standalone" : "browser");
+
 /**
  * Returns true if the device is iOS and NOT in standalone mode.
  * This is the state where Web Push is generally NOT supported on iOS.

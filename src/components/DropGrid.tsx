@@ -16,7 +16,7 @@ interface DropGridProps {
     drops: Drop[];
     loading?: boolean;
     isSearching?: boolean;
-    onSelectDrop: (drop: Drop) => void;
+    onSelectDrop: (drop: Drop, sourceComponent?: string) => void;
     impressionTrackingSurface?: string;
     impressionTrackingSessionId?: string;
 }

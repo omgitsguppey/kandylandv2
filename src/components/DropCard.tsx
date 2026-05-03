@@ -27,7 +27,7 @@ interface DropCardProps {
     priority?: boolean;
     user: User | null;
     isUnlocked?: boolean;
-    onPreview: (drop: Drop) => void;
+    onPreview: (drop: Drop, sourceComponent?: string) => void;
     aspectRatio?: SupportedAspectRatio;
     impressionTrackingSurface?: string;
     impressionTrackingSessionId?: string;
@@ -125,7 +125,7 @@ function DropCardBase({
             ...getDropCardVisibilityTelemetryPayload(visibilityState),
         });
         fetch(`/api/drops/${drop.id}/click`, { method: "POST" }).catch(() => { });
-        onPreview(drop);
+        onPreview(drop, "compact_drop_card");
     };
 
     const handleUnlock = async () => {

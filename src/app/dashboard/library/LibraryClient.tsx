@@ -7,7 +7,7 @@ import { Lock } from "lucide-react";
 
 import { Button } from "@/components/ui/Button";
 import Link from "next/link";
-import { useRouter } from "next/navigation";
+import { useRouter, useSearchParams } from "next/navigation";
 import { Drop } from "@/types/db";
 import { OwnedDropGalleryCard } from "@/components/Dashboard/OwnedDropGalleryCard";
 import { trackEvent } from "@/lib/telemetry";
@@ -35,6 +35,8 @@ interface LibraryClientProps {
 
 export function LibraryClient({ drops }: LibraryClientProps) {
     const { userProfile, loading: authLoading } = useAuth();
+    const searchParams = useSearchParams();
+    const targetDropId = searchParams.get("drop")?.trim() || "";
     const unlockedIds = useMemo(() => {
         const source = userProfile?.unlockedContent;
         return Array.isArray(source) ? new Set(source) : new Set<string>();
@@ -50,6 +52,14 @@ export function LibraryClient({ drops }: LibraryClientProps) {
 
         trackEvent("library_viewed");
     }, [userProfile]);
+
+    useEffect(() => {
+        if (authLoading || !targetDropId || !unlockedIds.has(targetDropId)) {
+            return;
+        }
+
+        router.replace(`/dashboard/viewer?id=${encodeURIComponent(targetDropId)}`);
+    }, [authLoading, router, targetDropId, unlockedIds]);
 
     const [searchQuery, setSearchQuery] = useState("");
     const [selectedCategory, setSelectedCategory] = useState("All");

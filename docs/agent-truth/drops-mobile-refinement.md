@@ -76,7 +76,7 @@ Apple guidance is used here for hierarchy, safe areas, progressive disclosure, a
 43. Add direct-card unlock attempt telemetry for `drop_unlock_attempted`.
 44. Preserve successful unlock telemetry with source component and UI density.
 45. Preserve detail open telemetry with card aspect ratio, tags, source component, and UI density.
-46. Keep `DropPreviewModal` lazy-loaded so first paint is not blocked by modal code.
+46. Route locked preview taps to `/drops/[id]/preview` so first paint is not blocked by modal code and the preview owns its full-page conversion surface.
 47. Keep `FeaturedCarousel` lazy-loaded with a compact skeleton so the page does not blank-load.
 48. Delay the Firestore runtime subscription until idle after server-seeded/SWR Drops render.
 49. Treat an empty server seed as needing client revalidation instead of pretending it is a useful loaded feed.
@@ -93,6 +93,10 @@ Drop cover blur is product-state driven, not loading-state driven. Guests may se
 ## Featured Drop Polish Doctrine
 
 Featured drop CTAs and chips are cover-aware through deterministic metadata-based accent mapping, not runtime pixel sampling. Featured social proof shows unwraps only after total unwraps exceed 10; otherwise it shows views. Drop grid view counts remain unchanged. All truncated drop/card titles use the shared TitleMarquee animation, sped up by 50%, with reduced-motion respected. Video file chips use a 🎥 camera indicator for clarity.
+
+## Locked Drop Preview Page Doctrine
+
+Locked Drop preview is a dedicated full-page conversion surface, not a bottom sheet. It keeps the global app shell and bottom nav visible, uses safe preview fields only, never exposes internal content thumbnails before unlock, adapts urgency by timer state, collects lightweight feedback, and after successful unwrap hands users to My KandyDrops with the new Drop targeted while also offering Keep Unwrapping.
 
 Required event enrichments:
 

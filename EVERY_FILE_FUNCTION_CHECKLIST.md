@@ -9,6 +9,12 @@ Scoring: all entries below are marked as included in the current validated sweep
 
 Current repo-wide state snapshot: see [FULL_SCALE_CODEBASE_AUDIT.md](/Users/uylus/OneDrive/Documents/KandyDrops_Final/FULL_SCALE_CODEBASE_AUDIT.md) for the current live baseline, verification state, and continuity rules, and see [REPO_MEMORY_LEDGER.md](/Users/uylus/OneDrive/Documents/KandyDrops_Final/REPO_MEMORY_LEDGER.md) for major architectural and workflow decisions. The detailed file/function body below remains valuable historical evidence, but it has not been fully regenerated against the current 2026-04-18 inventory review yet.
 
+## 2026-05-03 Full-Page Locked Drop Preview Coverage
+
+- [x] `src/app/drops/[id]/preview/page.tsx`, `src/components/Drops/LockedDropPreviewClient.tsx`, `src/components/Drops/LockedDropPreviewView.tsx`, and `src/lib/locked-drop-preview-truth.ts` own the dedicated locked Drop preview route, safe preview fields, urgency tiers, social proof fallback, feedback strip, shell-aware sticky CTA, and post-unlock success state without exposing internal content URLs.
+- [x] `src/app/drops/page.tsx`, `src/app/drops/DropsClient.tsx`, `src/components/DropCard.tsx`, and `src/components/FeaturedCarousel.tsx` route legacy `/drops?drop=<id>`, Drop card preview taps, and Featured preview taps to the dedicated preview page with source-component context.
+- [x] `src/app/dashboard/library/LibraryClient.tsx`, `src/lib/drop-preview-telemetry.ts`, `src/lib/locked-drop-preview-profile.ts`, `src/lib/telemetry-catalog.ts`, `scripts/agent/validate-drop-preview-page.ts`, and `docs/agent-truth/drop-preview-page.md` validate and document the unlock success handoff, preview telemetry, profile patching, and no-modal preview doctrine.
+
 ## 2026-05-02 Mobile Chat Shell Compact Spacing Coverage
 
 - [x] `src/lib/user-mobile-shell.ts` owns the shared chat bottom-nav reserve, list control height, floating action bottom offset, scroll padding, and composer padding tokens for Safari browser and standalone PWA modes.

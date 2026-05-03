@@ -1,5 +1,7 @@
 "use client";
 
+// Legacy fallback only. Locked Drop preview ownership moved to /drops/[id]/preview.
+
 import { useEffect, useMemo, useState } from "react";
 import { useRouter } from "next/navigation";
 import Image from "next/image";
@@ -329,7 +331,7 @@ export function DropPreviewModal({ drop, onClose }: DropPreviewModalProps) {
 
   const handleShare = (e: React.MouseEvent) => {
     e.stopPropagation();
-    const url = `${window.location.origin}/drops?drop=${encodeURIComponent(drop.id)}`;
+    const url = `${window.location.origin}/drops/${encodeURIComponent(drop.id)}/preview`;
     navigator.clipboard.writeText(url)
       .then(() => {
         toast.success("Link copied to clipboard!");

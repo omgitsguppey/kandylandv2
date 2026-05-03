@@ -1,7 +1,7 @@
 "use client";
 
 import { useCallback, useDeferredValue, useEffect, useMemo, useRef, useState } from "react";
-import { usePathname, useSearchParams } from "next/navigation";
+import { useRouter } from "next/navigation";
 import dynamic from "next/dynamic";
 
 import { CreatorDiscoveryRail } from "@/components/CreatorDiscoveryRail";
@@ -19,10 +19,6 @@ import { DROPS_MOBILE_UI_DENSITY } from "@/hooks/useDropCardImpression";
 const FeaturedCarousel = dynamic(() => import("@/components/FeaturedCarousel").then(mod => mod.FeaturedCarousel), {
     ssr: false,
     loading: () => <div className="h-44 w-full animate-pulse rounded-[1.35rem] border border-white/10 bg-zinc-900/50 sm:h-64 md:h-[320px] md:rounded-[2rem]" />
-});
-
-const DropPreviewModal = dynamic(() => import("@/components/DropPreviewModal").then(mod => mod.DropPreviewModal), {
-    ssr: false
 });
 
 const CATEGORIES = ["All", "New", "Ending Soon", "Hottest", "Sweet", "Spicy", "RAW"];
@@ -95,8 +91,7 @@ function buildAccountOverviewViewModel(params: {
 }
 
 export function DropsClient({ initialDrops, creatorRailProfiles }: DropsClientProps) {
-    const pathname = usePathname();
-    const searchParams = useSearchParams();
+    const router = useRouter();
     const { user, userProfile, loading: authLoading } = useAuth();
     const { openAuthModal, openPurchaseModal, openProfileSidebar } = useUI();
     const { drops: liveDrops, size, setSize, isLoadingMore, isReachingEnd } = useDrops(["active", "scheduled"], initialDrops);
@@ -141,26 +136,6 @@ export function DropsClient({ initialDrops, creatorRailProfiles }: DropsClientPr
     const [searchQuery, setSearchQuery] = useState("");
     const deferredSearchQuery = useDeferredValue(searchQuery);
     const [selectedCategory, setSelectedCategory] = useState("All");
-    const [previewDropId, setPreviewDropId] = useState<string | null>(null);
-    const requestedPreviewDropId = searchParams.get("drop")?.trim() || "";
-    const [urlPreviewDropId, setUrlPreviewDropId] = useState(requestedPreviewDropId);
-
-    useEffect(() => {
-        setUrlPreviewDropId(requestedPreviewDropId);
-    }, [requestedPreviewDropId]);
-
-    useEffect(() => {
-        const handlePopState = () => {
-            const params = new URLSearchParams(window.location.search);
-            const nextDropId = params.get("drop")?.trim() || "";
-            setUrlPreviewDropId(nextDropId);
-            setPreviewDropId(nextDropId || null);
-        };
-
-        window.addEventListener("popstate", handlePopState);
-        return () => window.removeEventListener("popstate", handlePopState);
-    }, []);
-
     const sourceDrops = useMemo(() => {
         if (!userProfile?.unlockedContent || !Array.isArray(userProfile.unlockedContent)) {
             return liveDrops;
@@ -240,43 +215,9 @@ export function DropsClient({ initialDrops, creatorRailProfiles }: DropsClientPr
         });
     }, [deferredSearchQuery, filteredDrops.length]);
 
-    const syncDropQuery = useCallback((dropId: string | null) => {
-        if (typeof window === "undefined") {
-            return;
-        }
-
-        const params = new URLSearchParams(window.location.search);
-        if (dropId) {
-            params.set("drop", dropId);
-        } else {
-            params.delete("drop");
-        }
-
-        const nextUrl = params.toString() ? `${pathname}?${params.toString()}` : pathname;
-        window.history.replaceState(window.history.state, "", nextUrl);
-        setUrlPreviewDropId(dropId ?? "");
-    }, [pathname]);
-
-    const previewDrop = useMemo(() => {
-        const activePreviewDropId = previewDropId || urlPreviewDropId;
-        if (!activePreviewDropId) {
-            return null;
-        }
-
-        return liveDrops.find((drop) => drop.id === activePreviewDropId) ?? null;
-    }, [liveDrops, previewDropId, urlPreviewDropId]);
-
-    const handleSelectDrop = useCallback((drop: Drop) => {
-        setPreviewDropId(drop.id);
-        syncDropQuery(drop.id);
-    }, [syncDropQuery]);
-
-    const handleClosePreview = useCallback(() => {
-        setPreviewDropId(null);
-        if (urlPreviewDropId) {
-            syncDropQuery(null);
-        }
-    }, [syncDropQuery, urlPreviewDropId]);
+    const handleSelectDrop = useCallback((drop: Drop, sourceComponent = "drops_page") => {
+        router.push(`/drops/${encodeURIComponent(drop.id)}/preview?source_component=${encodeURIComponent(sourceComponent)}`);
+    }, [router]);
 
     const handleSelectCategory = useCallback((category: string) => {
         setSelectedCategory(category);
@@ -371,8 +312,6 @@ export function DropsClient({ initialDrops, creatorRailProfiles }: DropsClientPr
                     </div>
                 </div>
             </div>
-
-            {previewDrop ? <DropPreviewModal drop={previewDrop} onClose={handleClosePreview} /> : null}
         </div>
     );
 }

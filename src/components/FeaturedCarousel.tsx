@@ -20,7 +20,7 @@ import { Drop } from "@/types/db";
 
 interface FeaturedCarouselProps {
     drops: Drop[];
-    onSelectDrop: (drop: Drop) => void;
+    onSelectDrop: (drop: Drop, sourceComponent?: string) => void;
 }
 
 const AUTO_ADVANCE_MS = 5_000;
@@ -217,7 +217,7 @@ function FeaturedDropSlide({
     isActive: boolean;
     user: ReturnType<typeof useAuthIdentity>["user"];
     userProfile: ReturnType<typeof useUserProfile>["userProfile"];
-    onSelectDrop: (drop: Drop) => void;
+    onSelectDrop: (drop: Drop, sourceComponent?: string) => void;
 }) {
     const isUnlocked = Boolean(userProfile?.unlockedContent?.includes(drop.id));
     const visibilityState = useMemo(
@@ -254,7 +254,7 @@ function FeaturedDropSlide({
                         featured_social_proof_type: socialProof.type,
                         ...getDropCardVisibilityTelemetryPayload(visibilityState),
                     });
-                    onSelectDrop(drop);
+                    onSelectDrop(drop, "compact_featured_carousel");
                 }}
                 type="button"
                 className="absolute inset-0 block h-full w-full text-left"

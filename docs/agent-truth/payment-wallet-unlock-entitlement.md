@@ -24,6 +24,7 @@ Money and access flows are server-truth only. The browser may request a purchase
 - Raw content URLs must not appear in initial viewer HTML.
 - Admin balance adjustments require admin auth, trusted origin, reason, and structured audit metadata.
 - Drop cover blur is product-state driven, not loading-state driven. Guests may see protected/blurred covers. Authenticated users and admins see clear covers when they have enough total GumDrops for a normal drop. Authenticated users only see affordability blur when they need a refill for that specific drop. Featured carousel chips use adaptive glass styling and the timer pill does not include a progress bar.
+- Locked Drop preview is a dedicated full-page conversion surface, not a bottom sheet. It keeps the global app shell and bottom nav visible, uses safe preview fields only, never exposes internal content thumbnails before unlock, adapts urgency by timer state, collects lightweight feedback, and after successful unwrap hands users to My KandyDrops with the new Drop targeted while also offering Keep Unwrapping.
 
 ## Fixed In This Pass
 

@@ -38,6 +38,7 @@ Debug metadata:
 
 - Do not change payment/write flows without targeted payment tests and docs.
 - Do not change unlock or entitlement behavior without targeted unlock/content-access tests.
+- Locked Drop preview is a dedicated full-page conversion surface, not a bottom sheet. It keeps the global app shell and bottom nav visible, uses safe preview fields only, never exposes internal content thumbnails before unlock, adapts urgency by timer state, collects lightweight feedback, and after successful unwrap hands users to My KandyDrops with the new Drop targeted while also offering Keep Unwrapping.
 - Do not change chat/message route layout without `npm run check:user-chat-shell-routing`.
 - Do not change notifications without `npm run check:notification-pipeline`.
 - Do not change 404/recovery behavior without `npm run check:not-found`.

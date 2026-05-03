@@ -1,5 +1,42 @@
 # KandyDrops Core Codebase Audit & Defensive Ledger
 
+## [2026-05-03 #118] PRE: Full-Page Locked Drop Preview
+
+Scope started:
+- Replacing the locked Drop preview modal handoff with a dedicated `/drops/[id]/preview` conversion route that preserves the global app shell, safe preview fields, existing unlock/payment authority, lightweight feedback telemetry, and post-unlock My KandyDrops handoff.
+- Required outputs: safe preview truth helper, dedicated preview page route, legacy `/drops?drop=<id>` handoff, card/featured preview routing, library deep-open query support, targeted validator, source-of-truth docs, focused verification, commit, and push.
+- This pass must not alter GumDrops ledger math, PayPal/payment flows, server unlock transaction logic, content proxy entitlement checks, Drop ordering/filter/search behavior, realtime listeners, polling, or raw content URL exposure.
+
+Initial evidence:
+- Control tower routing, doctrine consultation workflow, product/copy/UI doctrine, source-of-truth map, shared component ownership, generated preview task context, and adjacency traces for Drops client/card/featured/library surfaces were consulted.
+- Runtime owners inspected first: `src/components/DropPreviewModal.tsx`, `src/app/drops/DropsClient.tsx`, `src/components/DropCard.tsx`, `src/components/DropCardLayout.tsx`, `src/components/FeaturedCarousel.tsx`, `src/components/DropGrid.tsx`, `src/lib/drop-countdown.ts`, `src/lib/drop-status.ts`, `src/lib/drop-engagement.ts`, `src/lib/drop-card-visibility.ts`, `src/app/api/drops/unlock/route.ts`, `src/app/api/drops/content/route.ts`, `src/app/dashboard/library/LibraryClient.tsx`, `src/lib/user-mobile-shell.ts`, `src/components/CoreLayoutWrapper.tsx`, and `src/lib/telemetry.ts`.
+
+Doctrine:
+- Locked Drop preview is a dedicated full-page conversion surface, not a bottom sheet. It keeps the global app shell and bottom nav visible, uses safe preview fields only, never exposes internal content thumbnails before unlock, adapts urgency by timer state, collects lightweight feedback, and after successful unwrap hands users to My KandyDrops with the new Drop targeted while also offering Keep Unwrapping.
+
+Scope completed:
+- Added a dedicated `/drops/[id]/preview` route with a server-sanitized safe Drop payload, shell-aware loading state, and a client preview surface that keeps the global top nav and mobile bottom nav visible while reserving sticky CTA space with `100dvh` and existing shell tokens.
+- Added `resolveLockedDropPreviewTruth(...)` plus safe media/social-proof/urgency helpers so the page exposes cover art, metadata, file counts, creator/title, real timer urgency, and views-or-unwraps social proof without internal content thumbnails or content URLs before unlock.
+- Routed locked preview entry points from Drop cards, Featured carousel, and legacy `/drops?drop=<id>` links to the dedicated preview route, left `DropPreviewModal` as a documented legacy fallback, and added the post-unlock `/dashboard/library?drop=<id>` deep-open handoff.
+- Added compact optional feedback reactions, shell-safe bottom CTA states for guest/unwrap/refill/unavailable/success, non-blocking preview telemetry events, and success CTAs for `Open in My KandyDrops` and `Keep Unwrapping` while preserving `/api/drops/unlock`, GumDrops ledger math, entitlement checks, and payment modal behavior.
+- Added `scripts/agent/validate-drop-preview-page.ts`, `npm run check:drop-preview-page`, the dedicated Drop preview source-truth artifact, and telemetry catalog audit coverage for the new preview events.
+
+Verification:
+- Passed: `npm run check:drop-preview-page`
+- Passed: `npm run typecheck`
+- Passed: `npm run check:drops-mobile-refinement`
+- Passed: `npm run check:drop-cover-visibility-truth`
+- Passed: `npm run check:payment-unlock-security`
+- Passed: `npm run agent:test -- src/components/Drops/LockedDropPreviewClient.tsx` (no related test files found; command exited 0)
+- Passed: `npm run agent:test -- src/app/drops/[id]/preview/page.tsx` (no related test files found; command exited 0)
+- Passed: `npm run check:mobile-shell-safe-area`
+- Passed: `npm run check:ui:coverage`
+- Passed: `npm run check:ui:runtime`
+- Passed: `npm run check:event-catalog-telemetry`
+- Passed: `npm run check:featured-carousel-polish`
+- Passed: `git diff --check`
+- Partial: `npm run check:ui:audits` completed the production build and passed 19/20 Playwright checks, but failed the known unrelated Mobile Chrome homepage hero visual snapshot for `/` by 61 pixels against a 60-pixel threshold. The failing target was the home hero, not the Drops preview page, unlock flow, library handoff, or mobile shell preview CTA.
+
 ## [2026-05-02 #117] PRE: Featured Drop Accents And Marquee Polish
 
 Scope started:
