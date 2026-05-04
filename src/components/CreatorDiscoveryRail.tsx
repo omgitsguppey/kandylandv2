@@ -20,6 +20,7 @@ import { cn } from "@/lib/utils";
 import { trackEvent } from "@/lib/telemetry";
 import { TitleMarquee } from "@/components/ui/TitleMarquee";
 import { CompactNumber } from "@/components/ui/CompactNumber";
+import { getImageLoadingPolicy, getImagePolicyDataAttributes } from "@/lib/image-loading-policy";
 
 type CreatorCard = CreatorDiscoveryProfile & {
     bio?: string;
@@ -167,6 +168,7 @@ function CreatorDiscoveryRailView({
         role: userId ? "user" : "guest",
     }), [userId]);
     const currentRoute = surface === "home" ? "/" : `/${surface}`;
+    const imagePolicy = useMemo(() => getImageLoadingPolicy("home_creator_rail"), []);
 
     return (
         <section
@@ -223,9 +225,14 @@ function CreatorDiscoveryRailView({
                                                 alt={creator.username || creator.displayName}
                                                 width={72}
                                                 height={72}
-                                                sizes="72px"
+                                                loading={imagePolicy.loading}
+                                                preload={imagePolicy.preload}
+                                                fetchPriority={imagePolicy.fetchPriority}
+                                                quality={imagePolicy.quality}
+                                                sizes={imagePolicy.sizes}
                                                 decoding="async"
                                                 className="h-full w-full object-cover"
+                                                {...getImagePolicyDataAttributes(imagePolicy)}
                                             />
                                         ) : (
                                             <span className="text-sm font-black text-white">

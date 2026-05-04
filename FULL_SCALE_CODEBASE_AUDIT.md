@@ -1,5 +1,32 @@
 # KandyDrops Core Codebase Audit & Defensive Ledger
 
+## [2026-05-04 #144] PRE: Sitewide Image Loading Policy
+
+Scope started:
+- Normalizing image loading across KandyDrops so LCP candidates are eager/preloaded sparingly, grid/list/library images stay lazy, fill images carry accurate `sizes`, and locked content remains protected.
+- Required outputs include `src/lib/image-loading-policy.ts`, policy usage on critical image surfaces, deterministic validation, targeted unit tests, source-of-truth docs, commit, and push.
+- This pass must not expose locked content URLs, render internal thumbnails before unlock, change blur/affordability rules, alter unlock/payment/creator permissions, add image analysis, add runtime measurement loops, or run Playwright/Lighthouse/Cypress/full `npm run check`/broad UI audits.
+
+Evidence:
+- Control tower routing, doctrine consultation, source-of-truth map, shared component ownership, governance ledgers, Next version (`next` 16.2.4), and adjacency traces for `DropCardLayout`, `FeaturedCarousel`, and viewer client were consulted.
+- Source confirms image-heavy surfaces use a mix of `NextImage`, raw `<img>`, and existing safe preview/content entitlement boundaries that must remain separate from loading optimization.
+
+Doctrine:
+- KandyDrops image loading is surface-based. Above-fold LCP images are eager/preloaded sparingly. Grids, rails, libraries, and below-fold images are lazy. All fill images require accurate sizes. Locked previews never render internal content thumbnails before unlock. Image loading blur and product-state blur are separate truths.
+
+Scope completed:
+- Added `src/lib/image-loading-policy.ts` with surface-based loading, preload, fetch priority, sizes, quality, LCP, and debug-attribute policy.
+- Wired critical Drop, featured carousel, locked preview, legacy preview, homepage rail/ticker, creator profile, dashboard/library, viewer media, and retention image surfaces to the shared policy.
+- Removed deprecated `next/image` `priority` usage from source image components and removed Drop grid repeated-card high-priority behavior.
+- Added explicit `sizes` to all source `fill` images found in this pass, including public viewer/retention paths and admin avatar/feed thumbnails.
+- Added `scripts/agent/validate-sitewide-image-optimization.ts`, `tests/unit/image-loading-policy.spec.ts`, package script `check:sitewide-image-optimization`, and source-of-truth docs.
+
+Verification:
+- `npm run check:sitewide-image-optimization` passed.
+- `npx vitest run --config vitest.contracts.config.ts tests/unit/image-loading-policy.spec.ts` passed.
+- `npm run typecheck` passed.
+- No Playwright, Lighthouse, Cypress, full `npm run check`, broad UI audits, image analysis, runtime measurement loops, payment/economy/auth/unlock changes, creator permission changes, or content exposure changes were run.
+
 ## [2026-05-04 #143] PRE: Watch Time Truth And Behavioral Scoring
 
 Scope started:

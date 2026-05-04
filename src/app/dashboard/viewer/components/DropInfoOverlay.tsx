@@ -5,6 +5,7 @@ import { Drop } from "@/types/db";
 import { formatUnwrappedLabel, sanitizeDropTags } from "../ViewerHelpers";
 import { cn } from "@/lib/utils";
 import { useMemo } from "react";
+import { getImageLoadingPolicy, getImagePolicyDataAttributes } from "@/lib/image-loading-policy";
 
 interface DropInfoOverlayProps {
     drop: Drop;
@@ -51,6 +52,7 @@ export function DropInfoOverlay({
 
     const previewTags = useMemo(() => sanitizeDropTags(drop.tags), [drop.tags]);
     const totalUnlocks = useMemo(() => Number.isFinite(drop.totalUnlocks) ? Math.max(0, Math.floor(drop.totalUnlocks)) : 0, [drop.totalUnlocks]);
+    const retentionImagePolicy = getImageLoadingPolicy("dashboard_collection");
 
     return (
         <div className="max-w-4xl mx-auto px-4 mt-6 md:mt-8">
@@ -163,7 +165,18 @@ export function DropInfoOverlay({
                             <Link key={retentionDrop.id} href={`/dashboard/viewer?id=${retentionDrop.id}`} onClick={() => handleRelatedDropClick(retentionDrop.id, "library_related")} className="group block w-40 md:w-48 shrink-0 snap-start">
                                 <div className="aspect-[3/4] bg-zinc-900 rounded-xl border border-white/10 overflow-hidden relative mb-3 shadow-lg">
                                     {retentionDrop.imageUrl ? (
-                                        <NextImage src={retentionDrop.imageUrl} alt={retentionDrop.title} fill className="object-cover bg-black group-hover:scale-105 transition-transform duration-700 ease-out" />
+                                        <NextImage
+                                            src={retentionDrop.imageUrl}
+                                            alt={retentionDrop.title}
+                                            fill
+                                            loading={retentionImagePolicy.loading}
+                                            preload={retentionImagePolicy.preload}
+                                            fetchPriority={retentionImagePolicy.fetchPriority}
+                                            quality={retentionImagePolicy.quality}
+                                            sizes={retentionImagePolicy.sizes}
+                                            className="object-cover bg-black group-hover:scale-105 transition-transform duration-700 ease-out"
+                                            {...getImagePolicyDataAttributes(retentionImagePolicy)}
+                                        />
                                     ) : (
                                         <div className="w-full h-full flex items-center justify-center text-3xl">🍬</div>
                                     )}

@@ -120,7 +120,6 @@ export const DropGrid = memo(function DropGrid({
                         ) : (
                             <DropCard
                                 drop={drop}
-                                priority={index < 4}
                                 user={user}
                                 isUnlocked={isUnlocked}
                                 onPreview={onSelectDrop}

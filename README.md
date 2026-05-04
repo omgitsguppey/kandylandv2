@@ -35,6 +35,9 @@ KandyDrops layout scoring is deterministic. It detects violations of Google-styl
 ### Hydration Performance
 KandyDrops hydration uses staged priority lanes. Critical shell and first actions hydrate first. Telemetry/session/privacy truth remains connected. Diagnostics, overlays, bridges, cookie UI, bug reports, onboarding helpers, notification runtime, and PWA enhancement load after paint or idle unless required by the current interaction. No public-beta performance fix may disconnect tracking, privacy consent, parity truth, or source-of-truth debug surfaces.
 
+### Sitewide Image Loading
+KandyDrops image loading is surface-based. Above-fold LCP images are eager/preloaded sparingly. Grids, rails, libraries, and below-fold images are lazy. All fill images require accurate sizes. Locked previews never render internal content thumbnails before unlock. Image loading blur and product-state blur are separate truths.
+
 ### Watch Time Truth
 Watch time is foreground visible content engagement, not page duration. KandyDrops counts only active/visible/playing viewer intervals, excludes hidden and idle time, scores image and video sessions differently, labels legacy page-duration fallbacks, and feeds behavioral intelligence from watch-session rollups first.
 

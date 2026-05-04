@@ -175,6 +175,7 @@ export function ViewerClient({ drop, initialCreatorProfile }: ViewerClientProps)
                             drop={drop}
                             contentBlobUrl={contentBlobUrl}
                             resolvedContent={resolvedContent}
+                            activeIndex={activeIndex}
                             contentLoading={contentLoading}
                             preventContextMenu={preventContextMenu}
                             reportWatchMediaPlay={() => telemetry.reportWatchMediaPlay()}

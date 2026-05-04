@@ -5,6 +5,7 @@ import Image from "next/image";
 import { TitleMarquee } from "@/components/ui/TitleMarquee";
 import type { Drop } from "@/types/db";
 import { isFirebaseStorageMediaUrl } from "@/lib/media-hosts";
+import { getImageLoadingPolicy, getImagePolicyDataAttributes } from "@/lib/image-loading-policy";
 
 interface HomeDropTickerProps {
   drops: Drop[];
@@ -13,6 +14,7 @@ interface HomeDropTickerProps {
 export const HomeDropTicker = memo(function HomeDropTicker({ drops }: HomeDropTickerProps) {
   const tickerDrops = useMemo(() => drops.slice(0, 8), [drops]);
   const duplicatedTickerDrops = useMemo(() => [...tickerDrops, ...tickerDrops], [tickerDrops]);
+  const imagePolicy = useMemo(() => getImageLoadingPolicy("home_drop_ticker"), []);
   if (tickerDrops.length === 0) return null;
 
   const renderTrack = () => (
@@ -24,10 +26,15 @@ export const HomeDropTicker = memo(function HomeDropTicker({ drops }: HomeDropTi
               src={drop.imageUrl}
               alt={drop.title}
               fill
-              sizes="180px"
+              loading={imagePolicy.loading}
+              preload={imagePolicy.preload}
+              fetchPriority={imagePolicy.fetchPriority}
+              quality={imagePolicy.quality}
+              sizes={imagePolicy.sizes}
               className="object-contain"
               decoding="async"
               unoptimized={isFirebaseStorageMediaUrl(drop.imageUrl)}
+              {...getImagePolicyDataAttributes(imagePolicy)}
             />
           </div>
           <div className="p-2 text-left">

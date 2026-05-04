@@ -4,6 +4,7 @@ import { cn } from "@/lib/utils";
 import { ThumbnailItem } from "../ViewerHelpers";
 import useEmblaCarousel from "embla-carousel-react";
 import { useEffect } from "react";
+import { getImageLoadingPolicy, getImagePolicyDataAttributes } from "@/lib/image-loading-policy";
 
 interface ThumbnailsSliderProps {
     assetCount: number;
@@ -14,6 +15,7 @@ interface ThumbnailsSliderProps {
 
 export function ThumbnailsSlider({ assetCount, activeIndex, thumbnailItems, setActiveIndex }: ThumbnailsSliderProps) {
     const [emblaRef, emblaApi] = useEmblaCarousel({ dragFree: true, containScroll: "trimSnaps" });
+    const thumbnailImagePolicy = getImageLoadingPolicy("viewer_content", { mediaIndex: 1 });
 
     useEffect(() => {
         if (!emblaApi) return;
@@ -57,9 +59,13 @@ export function ThumbnailsSlider({ assetCount, activeIndex, thumbnailItems, setA
                                         alt={`Thumbnail ${idx + 1}`}
                                         fill
                                         unoptimized
+                                        loading="lazy"
+                                        preload={false}
+                                        fetchPriority="low"
                                         sizes="80px"
                                         className="object-cover opacity-80 pointer-events-none bg-zinc-900"
                                         draggable={false}
+                                        {...getImagePolicyDataAttributes(thumbnailImagePolicy)}
                                     />
                                 ) : (
                                     <div className="flex h-full w-full items-center justify-center bg-zinc-900 text-white/60">

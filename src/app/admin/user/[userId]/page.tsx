@@ -520,7 +520,7 @@ export default function AdminUserAnalyticsPage() {
                         <div className="flex min-h-[5.75rem] flex-1 items-center justify-center gap-4 rounded-[1.6rem] border border-white/10 bg-black/35 px-5 py-4">
                             <div className="relative h-16 w-16 overflow-hidden rounded-2xl border border-brand-purple/30 bg-zinc-800">
                                 {targetUser.photoURL ? (
-                                    <Image src={targetUser.photoURL} alt="Avatar" fill className="object-cover" />
+                                    <Image src={targetUser.photoURL} alt="Avatar" fill sizes="64px" className="object-cover" />
                                 ) : (
                                     <div className="flex h-full w-full items-center justify-center bg-black text-2xl font-black text-white">
                                         {targetUser.displayName?.charAt(0) || "U"}

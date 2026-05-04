@@ -5,6 +5,7 @@ import { Drop } from "@/types/db";
 import { cn } from "@/lib/utils";
 import { getAspectRatioCssValue, getDropMediaSummary, getSupportedDropAspectRatio } from "@/lib/drop-presentation";
 import { resolvePublicDropCoverSrc } from "@/lib/drop-media-fallback";
+import { getImageLoadingPolicy, getImagePolicyDataAttributes } from "@/lib/image-loading-policy";
 import { Lock, Unlock, Image as ImageIcon } from "lucide-react";
 import { useEffect, useMemo, useState } from "react";
 import { trackEvent } from "@/lib/telemetry";
@@ -21,6 +22,7 @@ export function OwnedDropGalleryCard({ drop, isUnlocked, onOpen }: OwnedDropGall
     const ratioStyle = { aspectRatio: getAspectRatioCssValue(ratio) };
     const [imageError, setImageError] = useState(false);
     const coverSrc = imageError ? resolvePublicDropCoverSrc(null) : resolvePublicDropCoverSrc(drop.imageUrl);
+    const imagePolicy = getImageLoadingPolicy("my_kandydrops_library");
 
     useEffect(() => {
         setImageError(false);
@@ -59,9 +61,14 @@ export function OwnedDropGalleryCard({ drop, isUnlocked, onOpen }: OwnedDropGall
                     src={coverSrc}
                     alt={drop.title}
                     fill
+                    loading={imagePolicy.loading}
+                    preload={imagePolicy.preload}
+                    fetchPriority={imagePolicy.fetchPriority}
+                    quality={imagePolicy.quality}
                     className="object-cover"
-                    sizes="(max-width: 640px) 50vw, (max-width: 768px) 33vw, 25vw"
+                    sizes={imagePolicy.sizes}
                     onError={() => setImageError(true)}
+                    {...getImagePolicyDataAttributes(imagePolicy)}
                 />
 
                 {/* File Count Chip */}

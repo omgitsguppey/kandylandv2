@@ -9,13 +9,13 @@ import { TitleMarquee } from "@/components/ui/TitleMarquee";
 import { cn } from "@/lib/utils";
 import { resolvePublicDropCoverSrc } from "@/lib/drop-media-fallback";
 import type { DropCardVisibilityState } from "@/lib/drop-card-visibility";
+import { getImageLoadingPolicy, getImagePolicyDataAttributes } from "@/lib/image-loading-policy";
 import type { SupportedAspectRatio } from "@/lib/drop-presentation";
 import type { Drop } from "@/types/db";
 
 interface DropCardLayoutProps {
     cardRef: RefObject<HTMLDivElement | null>;
     drop: Drop;
-    priority: boolean;
     resolvedRatio: SupportedAspectRatio;
     ratioStyle: { aspectRatio: string };
     fileCounts: { images: number; videos: number };
@@ -47,7 +47,6 @@ function DropCardViewCount({ totalViews, compact = false }: { totalViews: number
 export function DropCardLayout({
     cardRef,
     drop,
-    priority,
     resolvedRatio,
     ratioStyle,
     fileCounts,
@@ -65,6 +64,9 @@ export function DropCardLayout({
     const coverSrc = imageError ? resolvePublicDropCoverSrc(null) : resolvePublicDropCoverSrc(drop.imageUrl);
     const hasProductCoverBlur =
         visibilityState.coverTreatment === "blurred_guest" || visibilityState.coverTreatment === "blurred_insufficient_balance";
+    const imagePolicy = getImageLoadingPolicy("drops_grid", {
+        dropGridLayout: resolvedRatio === "16:9" ? "wide" : "standard",
+    });
     const cardStateAttributes = {
         "data-drop-cover-treatment": visibilityState.coverTreatment,
         "data-drop-cta-state": visibilityState.ctaState,
@@ -85,11 +87,15 @@ export function DropCardLayout({
                         src={coverSrc}
                         alt={drop.title}
                         fill
-                        priority={priority}
+                        loading={imagePolicy.loading}
+                        preload={imagePolicy.preload}
+                        fetchPriority={imagePolicy.fetchPriority}
+                        quality={imagePolicy.quality}
                         className={cn("object-cover object-center bg-black transition-all duration-500", imageTreatmentClassName)}
                         onLoadingComplete={onImageLoaded}
                         onError={onImageError}
-                        sizes="(max-width: 768px) 25vw, 180px"
+                        sizes={imagePolicy.sizes}
+                        {...getImagePolicyDataAttributes(imagePolicy)}
                     />
                     {imageLoaded && hasProductCoverBlur ? <div className="absolute inset-0 bg-black/20" aria-hidden="true" /> : null}
                     <div className="absolute inset-0 bg-gradient-to-t from-black/70 via-transparent to-transparent" />
@@ -128,11 +134,15 @@ export function DropCardLayout({
                     src={coverSrc}
                     alt={drop.title}
                     fill
-                    priority={priority}
+                    loading={imagePolicy.loading}
+                    preload={imagePolicy.preload}
+                    fetchPriority={imagePolicy.fetchPriority}
+                    quality={imagePolicy.quality}
                     className={cn("object-cover object-center bg-black opacity-90 transition-all duration-700", imageTreatmentClassName)}
                     onLoadingComplete={onImageLoaded}
                     onError={onImageError}
-                    sizes={resolvedRatio === "16:9" ? "(max-width: 768px) 100vw, 720px" : "(max-width: 768px) 50vw, 360px"}
+                    sizes={imagePolicy.sizes}
+                    {...getImagePolicyDataAttributes(imagePolicy)}
                 />
                 {imageLoaded && hasProductCoverBlur ? <div className="absolute inset-0 bg-black/20" aria-hidden="true" /> : null}
                 {!imageLoaded ? (

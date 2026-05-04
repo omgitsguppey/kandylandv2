@@ -12,6 +12,7 @@ import {
 } from "lucide-react";
 
 import { cn } from "@/lib/utils";
+import { getImageLoadingPolicy, getImagePolicyDataAttributes } from "@/lib/image-loading-policy";
 import { UserProfile } from "@/types/db";
 
 type CreatorProfileHeaderProps = {
@@ -43,13 +44,26 @@ export function CreatorProfileHeader({
     relationshipLoading,
     subscribeLoading,
 }: CreatorProfileHeaderProps) {
+    const imagePolicy = getImageLoadingPolicy("creator_profile_header");
+
     return (
         <section className="overflow-hidden rounded-[2rem] border border-white/10 bg-gradient-to-br from-white/[0.08] via-black to-black p-4 shadow-[0_30px_80px_rgba(0,0,0,0.45)] sm:p-5">
             <div className="flex flex-col gap-4">
                 <div className="flex items-start gap-4">
                     <div className="relative h-24 w-24 shrink-0 overflow-hidden rounded-full border border-white/10 bg-zinc-900 shadow-2xl sm:h-28 sm:w-28">
                         {creator.photoURL ? (
-                            <Image src={creator.photoURL} alt={creator.displayName || ""} fill sizes="112px" priority className="object-cover" />
+                            <Image
+                                src={creator.photoURL}
+                                alt={creator.displayName || ""}
+                                fill
+                                loading={imagePolicy.loading}
+                                preload={imagePolicy.preload}
+                                fetchPriority={imagePolicy.fetchPriority}
+                                quality={imagePolicy.quality}
+                                sizes={imagePolicy.sizes}
+                                className="object-cover"
+                                {...getImagePolicyDataAttributes(imagePolicy)}
+                            />
                         ) : (
                             <div className="flex h-full w-full items-center justify-center text-brand-purple">
                                 <Ghost className="h-10 w-10 sm:h-12 sm:w-12" />

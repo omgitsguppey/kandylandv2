@@ -130,6 +130,7 @@
         "check:creator-booking-error-copy": "tsx scripts/agent/validate-creator-booking-error-copy.ts",
         "check:fan-pass-gumdrops-truth": "tsx scripts/agent/validate-fan-pass-gumdrops-truth.ts",
         "check:watch-time-truth": "tsx scripts/agent/validate-watch-time-truth.ts",
+        "check:sitewide-image-optimization": "tsx scripts/agent/validate-sitewide-image-optimization.ts",
         "check:creator-profile-routing": "tsx scripts/agent/validate-creator-profile-routing.ts",
         "check:creator-lane-debug-parity": "tsx scripts/agent/validate-creator-lane-debug-parity.ts",
         "check:creator-lane-old-logic-removal": "tsx scripts/agent/validate-creator-lane-old-logic-removal.ts",

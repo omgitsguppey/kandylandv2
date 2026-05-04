@@ -11,6 +11,7 @@ import { useUIActions } from "@/context/UIContext";
 import { useAuthIdentity } from "@/context/AuthContext";
 import { cn } from "@/lib/utils";
 import { getSupportedDropAspectRatio } from "@/lib/drop-presentation";
+import { getImageLoadingPolicy, getImagePolicyDataAttributes } from "@/lib/image-loading-policy";
 import { isFirebaseStorageMediaUrl } from "@/lib/media-hosts";
 import { trackEvent } from "@/lib/telemetry";
 import type { Drop } from "@/types/db";
@@ -39,6 +40,7 @@ export const HomeActiveDropsCarousel = memo(function HomeActiveDropsCarousel({
     const rootRef = useRef<HTMLDivElement | null>(null);
     const [emblaRef, emblaApi] = useEmblaCarousel({ loop: activeDrops.length > 1, align: "start" });
     const selectedIndex = Math.min(activeIndex, Math.max(activeDrops.length - 1, 0));
+    const imagePolicy = getImageLoadingPolicy("home_active_drops");
 
     useEffect(() => {
         if (!emblaApi) {
@@ -209,11 +211,16 @@ export const HomeActiveDropsCarousel = memo(function HomeActiveDropsCarousel({
                                         src={drop.imageUrl}
                                         alt={drop.title}
                                         fill
-                                        sizes="(max-width: 640px) 46vw, (max-width: 1024px) 38vw, 360px"
+                                        loading={imagePolicy.loading}
+                                        preload={imagePolicy.preload}
+                                        fetchPriority={imagePolicy.fetchPriority}
+                                        quality={imagePolicy.quality}
+                                        sizes={imagePolicy.sizes}
                                         unoptimized={isFirebaseStorageMediaUrl(drop.imageUrl)}
                                         decoding="async"
                                         draggable={false}
                                         className="object-cover object-center transition-transform duration-700 select-none group-hover:scale-105 motion-reduce:transition-none motion-reduce:group-hover:scale-100"
+                                        {...getImagePolicyDataAttributes(imagePolicy)}
                                     />
                                     <div className="absolute inset-x-0 bottom-0 h-1/2 bg-gradient-to-t from-black/60 to-transparent pointer-events-none" />
 

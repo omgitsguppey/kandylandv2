@@ -471,6 +471,7 @@ export function AdminAnalyticsCommerceTab(props: AdminAnalyticsState) {
                                 src={item.userPhoto}
                                 alt={item.username || "User"}
                                 fill
+                                sizes="44px"
                                 className="object-cover"
                               />
                             ) : (

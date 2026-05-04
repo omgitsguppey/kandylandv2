@@ -13,6 +13,7 @@ import { DROP_COUNTDOWN_ONE_DAY_MS, DROP_COUNTDOWN_ONE_HOUR_MS, formatDropCountd
 import { getDropCardVisibilityTelemetryPayload, resolveDropCardVisibilityState, type DropCtaState } from "@/lib/drop-card-visibility";
 import { getDropViewCount } from "@/lib/drop-engagement";
 import { getSupportedDropAspectRatio } from "@/lib/drop-presentation";
+import { getImageLoadingPolicy, getImagePolicyDataAttributes } from "@/lib/image-loading-policy";
 import { trackEvent } from "@/lib/telemetry";
 import { cn } from "@/lib/utils";
 import { useNow } from "@/hooks/useNow";
@@ -233,6 +234,10 @@ function FeaturedDropSlide({
     const ctaLabel = getFeaturedCtaLabel(visibilityState.ctaState, drop.unlockCost);
     const coverAccent = useMemo(() => resolveFeaturedCoverAccent(drop), [drop]);
     const socialProof = useMemo(() => getFeaturedSocialProof(drop), [drop]);
+    const imagePolicy = useMemo(
+        () => getImageLoadingPolicy("featured_carousel", { mediaIndex: index, isLcpCandidate: index === 0 }),
+        [index],
+    );
     const { images, videos } = getMediaCounts(drop);
 
     return (
@@ -265,8 +270,13 @@ function FeaturedDropSlide({
                     src={drop.imageUrl || "/placeholder.jpg"}
                     alt={drop.title}
                     fill
+                    loading={imagePolicy.loading}
+                    preload={imagePolicy.preload}
+                    fetchPriority={imagePolicy.fetchPriority}
+                    quality={imagePolicy.quality}
                     className="bg-black object-cover object-center"
-                    sizes="(max-width: 768px) 100vw, 720px"
+                    sizes={imagePolicy.sizes}
+                    {...getImagePolicyDataAttributes(imagePolicy)}
                 />
                 <div className="absolute inset-0 bg-gradient-to-t from-black/88 via-black/30 to-transparent" />
 

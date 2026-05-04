@@ -5,11 +5,13 @@ import { Drop } from "@/types/db";
 import { ResolvedContent } from "../ViewerHelpers";
 import { trackEvent } from "@/lib/telemetry";
 import { resolvePublicDropCoverSrc } from "@/lib/drop-media-fallback";
+import { getImageLoadingPolicy, getImagePolicyDataAttributes } from "@/lib/image-loading-policy";
 
 interface MediaViewerProps {
     drop: Drop;
     contentBlobUrl: string | null;
     resolvedContent: ResolvedContent;
+    activeIndex: number;
     contentLoading: boolean;
     preventContextMenu: (e: React.MouseEvent) => void;
     reportWatchMediaPlay: () => void;
@@ -26,6 +28,7 @@ export function MediaViewer({
     drop,
     contentBlobUrl,
     resolvedContent,
+    activeIndex,
     contentLoading,
     preventContextMenu,
     reportWatchMediaPlay,
@@ -42,6 +45,8 @@ export function MediaViewer({
     const videoFallbackTypes = ["video/mp4", "video/webm", "video/ogg"];
     const audioFallbackTypes = ["audio/mpeg", "audio/mp4", "audio/wav", "audio/ogg", "audio/webm"];
     const coverSrc = resolvePublicDropCoverSrc(drop.imageUrl);
+    const viewerImagePolicy = getImageLoadingPolicy("viewer_content", { mediaIndex: activeIndex });
+    const viewerSecondaryImagePolicy = getImageLoadingPolicy("viewer_content", { mediaIndex: activeIndex + 1 });
 
     if (contentLoading) {
         return (
@@ -65,6 +70,11 @@ export function MediaViewer({
                 disablePictureInPicture
                 className="h-full w-full object-contain bg-black"
                 poster={coverSrc}
+                data-image-surface={viewerImagePolicy.surface}
+                data-image-loading-policy={viewerImagePolicy.loading}
+                data-image-preload-allowed={String(viewerImagePolicy.preload)}
+                data-image-lcp-candidate={String(viewerImagePolicy.lcpCandidate)}
+                data-image-sizes-policy={viewerImagePolicy.sizesPolicy}
                 autoPlay
                 playsInline
                 preload="auto"
@@ -116,9 +126,31 @@ export function MediaViewer({
     if (resolvedContent.kind === "audio") {
         return (
             <div className="relative flex h-full w-full flex-col items-center justify-center overflow-hidden bg-gradient-to-br from-gray-900 to-black px-6 py-8">
-                <NextImage src={coverSrc} alt="Album Art" fill className="object-cover opacity-30 blur-3xl" />
+                <NextImage
+                    src={coverSrc}
+                    alt="Album Art"
+                    fill
+                    loading={viewerSecondaryImagePolicy.loading}
+                    preload={false}
+                    fetchPriority="low"
+                    sizes={viewerSecondaryImagePolicy.sizes}
+                    quality={viewerSecondaryImagePolicy.quality}
+                    className="object-cover opacity-30 blur-3xl"
+                    {...getImagePolicyDataAttributes(viewerSecondaryImagePolicy)}
+                />
                 <div className="relative z-10 mb-6 h-36 w-36 overflow-hidden rounded-2xl border border-white/10 shadow-2xl sm:h-44 sm:w-44 md:h-56 md:w-56">
-                    <NextImage src={coverSrc} alt="Art" fill priority className="object-cover" />
+                    <NextImage
+                        src={coverSrc}
+                        alt="Art"
+                        fill
+                        loading={viewerImagePolicy.loading}
+                        preload={viewerImagePolicy.preload}
+                        fetchPriority={viewerImagePolicy.fetchPriority}
+                        sizes="(max-width: 640px) 144px, (max-width: 768px) 176px, 224px"
+                        quality={viewerImagePolicy.quality}
+                        className="object-cover"
+                        {...getImagePolicyDataAttributes(viewerImagePolicy)}
+                    />
                 </div>
                 <audio
                     key={`viewer-audio-${contentBlobUrl}`}
@@ -174,10 +206,15 @@ export function MediaViewer({
                     alt="Content"
                     fill
                     unoptimized
-                    sizes="100vw"
+                    loading={viewerImagePolicy.loading}
+                    preload={viewerImagePolicy.preload}
+                    fetchPriority={viewerImagePolicy.fetchPriority}
+                    sizes={viewerImagePolicy.sizes}
+                    quality={viewerImagePolicy.quality}
                     className="object-contain"
                     draggable={false}
                     onContextMenu={preventContextMenu}
+                    {...getImagePolicyDataAttributes(viewerImagePolicy)}
                 />
             </div>
         );

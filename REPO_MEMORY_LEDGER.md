@@ -4,6 +4,10 @@ Status: Canonical repository-memory and architecture-decision ledger
 Last refreshed: 2026-05-02
 Repo: `C:\Users\uylus\OneDrive\Documents\KandyDrops_Final`
 
+## 2026-05-04 Sitewide image loading policy
+
+KandyDrops image loading is surface-based. Above-fold LCP images are eager/preloaded sparingly, grids/rails/libraries and below-fold images are lazy, all fill images require accurate `sizes`, locked previews never render internal content thumbnails before unlock, and image loading blur remains separate from product-state blur. `src/lib/image-loading-policy.ts` owns the static policy and debug attributes; `npm run check:sitewide-image-optimization` validates policy usage, fill sizing, deprecated Next Image `priority` removal, card preload discipline, and locked-preview safety.
+
 ## 2026-05-04 Watch time truth and behavioral scoring
 
 Watch time is foreground visible content engagement, not page duration. Viewer watch sessions start only after loaded content is at least 50 percent visible in a visible document, use coarse 5s visible ticks, exclude hidden/offscreen/modal-covered/idle time, and score image/video sessions through `src/lib/watch-time-scoring.ts`. `/api/viewer/watch-session` writes consent-aware rollups with `watchScoreSource: "watch_session_rollup"` and no internal content URLs. Behavioral intelligence prefers watch rollups and labels page-duration-only history as `legacy_page_duration`. `npm run check:watch-time-truth` validates the lane.

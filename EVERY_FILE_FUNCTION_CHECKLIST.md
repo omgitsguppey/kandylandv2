@@ -9,6 +9,14 @@ Scoring: all entries below are marked as included in the current validated sweep
 
 Current repo-wide state snapshot: see [FULL_SCALE_CODEBASE_AUDIT.md](/Users/uylus/OneDrive/Documents/KandyDrops_Final/FULL_SCALE_CODEBASE_AUDIT.md) for the current live baseline, verification state, and continuity rules, and see [REPO_MEMORY_LEDGER.md](/Users/uylus/OneDrive/Documents/KandyDrops_Final/REPO_MEMORY_LEDGER.md) for major architectural and workflow decisions. The detailed file/function body below remains valuable historical evidence, but it has not been fully regenerated against the current 2026-04-18 inventory review yet.
 
+## 2026-05-04 Sitewide Image Loading Coverage
+
+- [x] `src/lib/image-loading-policy.ts` owns the surface-based image loading contract for homepage, Drop grids, featured carousel, locked preview, creator profile, dashboard/library, and viewer content surfaces.
+- [x] Above-fold LCP candidates are eager/preloaded sparingly: full-page locked preview cover and first viewer media can be high priority, while repeated cards, grids, rails, libraries, thumbnails, and below-fold modules remain lazy/low priority.
+- [x] Critical image surfaces expose `data-image-surface`, `data-image-loading-policy`, `data-image-preload-allowed`, `data-image-lcp-candidate`, and `data-image-sizes-policy` debug attributes through the shared helper.
+- [x] Fill images have explicit `sizes`, deprecated Next Image `priority` props are removed from source image components, and Drop card product blur remains separate from loading blur.
+- [x] `scripts/agent/validate-sitewide-image-optimization.ts` and `tests/unit/image-loading-policy.spec.ts` provide the targeted no-browser validation lane.
+
 ## 2026-05-04 Watch Time Truth Coverage
 
 - [x] Watch time is foreground visible content engagement, not page duration. The viewer hook starts watch sessions only when loaded viewer content is mounted, at least 50 percent visible, the document is visible, and consent allows tracking.

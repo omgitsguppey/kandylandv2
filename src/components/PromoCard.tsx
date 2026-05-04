@@ -5,6 +5,7 @@ import { ArrowUpRight } from "lucide-react";
 
 import NextImage from "next/image";
 import { trackEvent } from "@/lib/telemetry";
+import { getImageLoadingPolicy, getImagePolicyDataAttributes } from "@/lib/image-loading-policy";
 
 interface PromoCardProps {
     drop: Drop;
@@ -41,6 +42,7 @@ export function getSafeUrl(url: string | undefined): string | undefined {
 }
 
 export function PromoCard({ drop }: PromoCardProps) {
+    const imagePolicy = getImageLoadingPolicy("drops_grid");
     const handleClick = () => {
         trackEvent("promo_card_clicked", {
             drop_id: drop.id,
@@ -88,8 +90,13 @@ export function PromoCard({ drop }: PromoCardProps) {
                         src={drop.imageUrl}
                         alt={drop.title}
                         fill
+                        loading={imagePolicy.loading}
+                        preload={imagePolicy.preload}
+                        fetchPriority={imagePolicy.fetchPriority}
+                        quality={imagePolicy.quality}
                         className="object-contain bg-black transition-transform duration-700 opacity-90"
-                        sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 33vw"
+                        sizes={imagePolicy.sizes}
+                        {...getImagePolicyDataAttributes(imagePolicy)}
                     />
                 ) : (
                     <div className="w-full h-full bg-zinc-900" />

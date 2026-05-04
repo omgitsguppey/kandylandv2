@@ -24,7 +24,6 @@ import { getUnlockProblemCopy } from "@/lib/problem-state-copy";
 
 interface DropCardProps {
     drop: Drop;
-    priority?: boolean;
     user: User | null;
     isUnlocked?: boolean;
     onPreview: (drop: Drop, sourceComponent?: string) => void;
@@ -37,7 +36,6 @@ const CATEGORY_TAGS = new Set(["Sweet", "Spicy", "RAW"]);
 
 function DropCardBase({
     drop,
-    priority = false,
     user,
     isUnlocked = false,
     onPreview,
@@ -268,7 +266,6 @@ function DropCardBase({
         <DropCardLayout
             cardRef={cardRef}
             drop={drop}
-            priority={priority}
             resolvedRatio={resolvedRatio}
             ratioStyle={ratioStyle}
             fileCounts={fileCounts}

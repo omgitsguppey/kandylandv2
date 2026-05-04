@@ -29,6 +29,7 @@ import { dispatchActivitySync } from "@/lib/activity-sync";
 import { LAUNCH_BADGE_CONTAINMENT_CLASSNAME, LAUNCH_STATIC_BADGE_CLASSNAME } from "@/lib/design-system";
 import { formatDropCountdown } from "@/lib/drop-countdown";
 import { getUnlockProblemCopy } from "@/lib/problem-state-copy";
+import { getImageLoadingPolicy, getImagePolicyDataAttributes } from "@/lib/image-loading-policy";
 
 interface DropPreviewModalProps {
   drop: Drop | null;
@@ -164,6 +165,7 @@ export function DropPreviewModal({ drop, onClose }: DropPreviewModalProps) {
   const { label: timerLabel, fullLabel: timerFullLabel, urgencyState: timerUrgency } = useModalTimer(drop?.validFrom || 0, drop?.validUntil);
   const aspectRatio = useMemo(() => (drop ? getSupportedDropAspectRatio(drop) : "1:1"), [drop]);
   const ratioStyle = useMemo(() => ({ aspectRatio: getAspectRatioCssValue(aspectRatio) }), [aspectRatio]);
+  const imagePolicy = useMemo(() => getImageLoadingPolicy("drop_preview", { isLcpCandidate: false }), []);
 
   const totalUnlocks = useMemo(
     () => (drop && Number.isFinite(drop.totalUnlocks) ? Math.max(0, Math.floor(drop.totalUnlocks)) : 0),
@@ -397,8 +399,13 @@ export function DropPreviewModal({ drop, onClose }: DropPreviewModalProps) {
                       src={drop.imageUrl}
                       alt={drop.title}
                       fill
+                      loading={imagePolicy.loading}
+                      preload={imagePolicy.preload}
+                      fetchPriority={imagePolicy.fetchPriority}
+                      quality={imagePolicy.quality}
                       sizes="(max-width: 768px) 95vw, 640px"
                       className="object-cover object-center opacity-90"
+                      {...getImagePolicyDataAttributes(imagePolicy)}
                     />
                     {!user && (
                       <button

@@ -11,6 +11,7 @@ import type {
     LockedDropPreviewSafeDrop,
     LockedDropPreviewTruth,
 } from "@/lib/locked-drop-preview-truth";
+import { getImageLoadingPolicy, getImagePolicyDataAttributes } from "@/lib/image-loading-policy";
 import { cn } from "@/lib/utils";
 
 interface LockedDropPreviewViewProps {
@@ -103,10 +104,23 @@ export function LockedDropPreviewView({
 }
 
 function CoverHero({ drop, truth, mediaCounts, timerLabel, timerFullLabel }: Pick<LockedDropPreviewViewProps, "drop" | "truth" | "mediaCounts" | "timerLabel" | "timerFullLabel">) {
+    const imagePolicy = getImageLoadingPolicy("drop_preview", { isLcpCandidate: true });
+
     return (
         <div className="relative overflow-hidden rounded-[1.6rem] border border-white/10 bg-zinc-950 shadow-[0_24px_80px_rgba(0,0,0,0.42)] md:rounded-[2rem]" data-drop-preview-cover-treatment={truth.coverTreatment}>
             <div className="relative aspect-[4/5] min-h-[21rem] w-full">
-                <Image src={drop.imageUrl || "/placeholder.jpg"} alt={drop.title} fill priority sizes="(max-width: 768px) 100vw, 52vw" className={cn("object-cover object-center", truth.coverTreatment === "insufficient_softened" && "blur-[6px] brightness-[0.76] saturate-[0.9]")} />
+                <Image
+                    src={drop.imageUrl || "/placeholder.jpg"}
+                    alt={drop.title}
+                    fill
+                    loading={imagePolicy.loading}
+                    preload={imagePolicy.preload}
+                    fetchPriority={imagePolicy.fetchPriority}
+                    quality={imagePolicy.quality}
+                    sizes={imagePolicy.sizes}
+                    className={cn("object-cover object-center", truth.coverTreatment === "insufficient_softened" && "blur-[6px] brightness-[0.76] saturate-[0.9]")}
+                    {...getImagePolicyDataAttributes(imagePolicy)}
+                />
                 <div className="absolute inset-0 bg-gradient-to-t from-black/86 via-black/15 to-black/25" />
                 <div className="absolute left-3 right-3 top-3 flex flex-wrap items-start justify-between gap-2">
                     <PreviewChip label={drop.type === "promo" ? "Drop" : "Limited Release"} />

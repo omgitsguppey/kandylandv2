@@ -9,6 +9,7 @@ import { TitleMarquee } from "@/components/ui/TitleMarquee";
 import { useDrops } from "@/hooks/useDrops";
 import { useNow } from "@/hooks/useNow";
 import { getSupportedDropAspectRatio } from "@/lib/drop-presentation";
+import { getImageLoadingPolicy, getImagePolicyDataAttributes } from "@/lib/image-loading-policy";
 import { trackEvent } from "@/lib/telemetry";
 import { reportClientIssue } from "@/lib/client-error-reporting";
 import type { Drop } from "@/types/db";
@@ -22,6 +23,7 @@ export function LiveDropsForYouCarousel({ initialDrops }: LiveDropsForYouCarouse
   const { drops, loading } = useDrops(["active"], initialDrops);
   const nowMs = useNow({ intervalMs: 60_000 });
   const [recommendedDrops, setRecommendedDrops] = useState<Drop[] | null>(null);
+  const imagePolicy = getImageLoadingPolicy("dashboard_collection");
 
   const activeDrops = useMemo(
     () =>
@@ -118,8 +120,13 @@ export function LiveDropsForYouCarousel({ initialDrops }: LiveDropsForYouCarouse
               src={drop.imageUrl}
               alt={drop.title}
               fill
-              sizes="192px"
+              loading={imagePolicy.loading}
+              preload={imagePolicy.preload}
+              fetchPriority={imagePolicy.fetchPriority}
+              quality={imagePolicy.quality}
+              sizes={imagePolicy.sizes}
               className="object-cover object-center transition-transform duration-300 group-hover:scale-[1.03]"
+              {...getImagePolicyDataAttributes(imagePolicy)}
             />
             <div className="absolute inset-0 bg-gradient-to-t from-black via-black/25 to-transparent" />
 
