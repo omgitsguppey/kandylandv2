@@ -1,5 +1,36 @@
 # KandyDrops Core Codebase Audit & Defensive Ledger
 
+## [2026-05-03 #119] PRE: Mobile Chat Viewport And Composer Stability
+
+Scope started:
+- Stabilizing the public beta mobile chat shell so the Messages list starts higher under the fixed KandyDrops navbar, selected thread composer spacing stays compact above the bottom nav, and input focus/blur cannot shift the chat surface below the navbar until refresh.
+- Required outputs: shared mobile chat shell token refinement, stable `100dvh` chat viewport ownership, compact composer/list spacing, focus-safe diagnostics deferral, targeted chat validator update, source-of-truth docs, focused verification, commit, and push.
+- This pass must not touch chat business logic, paid/free GumDrops rules, send APIs, thread id format, creator/user role logic, message ordering/read state, server chat pricing, polling, realtime listeners, or payment/economy surfaces.
+
+Initial evidence:
+- Control tower routing, doctrine consultation workflow, product/copy/UI doctrine, surface matrix, banned patterns, vocabulary, analytics doctrine, generated chat task context, and adjacency traces for `src/components/Chat/ChatExperience.tsx` and `src/lib/user-mobile-shell.ts` were consulted.
+- Runtime owners inspected first: `src/components/Chat/ChatExperience.tsx`, `src/lib/user-mobile-shell.ts`, `src/components/CoreLayoutWrapper.tsx`, `src/components/Navigation/MobileBottomBar.tsx`, `scripts/agent/validate-user-chat-shell-routing.ts`, and `docs/agent-truth/user-chat-shell-routing.md`.
+
+Doctrine:
+- The chat route bypasses normal page bottom reservation and owns its own stable mobile viewport shell. Chat list and thread views must remain anchored below the navbar across browser, standalone PWA, keyboard focus, and blur. Composer height must be compact and bottom-nav-safe. Diagnostics must not block tap/focus paths.
+
+Scope completed:
+- Added chat-specific top, visual viewport, bottom-reserve, list-control, and compact-composer tokens in `src/lib/user-mobile-shell.ts`, and wired `CoreLayoutWrapper` to mark `/dashboard/chat` as `chat-owned` with a tighter root top offset.
+- Updated `ChatRouteShell` to lock document scroll while syncing a lightweight `--chat-visual-viewport-height` CSS variable from `visualViewport`, restoring the route shell on viewport resize, blur, media-query transition, and unmount without polling or focus-handler layout loops.
+- Tightened the compact Messages header vertical rhythm, moved list controls to the shell-owned bottom contract, reduced selected thread composer padding/summary/control spacing, and added `data-chat-viewport-owner`, `data-chat-input-focus-stable`, `data-chat-composer-chin`, and `data-chat-top-offset` markers.
+- Kept chat business logic, paid/free GumDrops rules, send APIs, server chat, thread ids, creator/user roles, message ordering, read state, realtime listeners, and polling behavior unchanged.
+- Updated chat, mobile shell, PWA, repo memory, checklist, and AI context docs plus the targeted chat/mobile shell validators to enforce the stable viewport contract.
+
+Verification:
+- Passed: `npm run check:user-chat-shell-routing`
+- Passed: `npm run typecheck`
+- Passed: `npm run agent:test -- src/components/Chat/ChatExperience.tsx` (no related test files found; command exited 0)
+- Passed: `npx vitest run --config vitest.contracts.config.ts tests/unit/chat-route-shell.spec.tsx`
+- Passed: `npm run check:mobile-shell-safe-area`
+- Passed: `npm run check:ui:coverage`
+- Passed: `npm run check:ui:runtime`
+- Passed: `git diff --check`
+
 ## [2026-05-03 #118] PRE: Full-Page Locked Drop Preview
 
 Scope started:

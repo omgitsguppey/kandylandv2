@@ -9,6 +9,12 @@ Scoring: all entries below are marked as included in the current validated sweep
 
 Current repo-wide state snapshot: see [FULL_SCALE_CODEBASE_AUDIT.md](/Users/uylus/OneDrive/Documents/KandyDrops_Final/FULL_SCALE_CODEBASE_AUDIT.md) for the current live baseline, verification state, and continuity rules, and see [REPO_MEMORY_LEDGER.md](/Users/uylus/OneDrive/Documents/KandyDrops_Final/REPO_MEMORY_LEDGER.md) for major architectural and workflow decisions. The detailed file/function body below remains valuable historical evidence, but it has not been fully regenerated against the current 2026-04-18 inventory review yet.
 
+## 2026-05-03 Mobile Chat Stable Viewport Coverage
+
+- [x] `src/lib/user-mobile-shell.ts`, `src/components/CoreLayoutWrapper.tsx`, and `src/components/Chat/ChatRouteShell.tsx` own the chat-specific top offset, visual viewport height token, bottom-nav-safe route reservation, and keyboard focus/blur restoration path for browser and standalone PWA modes.
+- [x] `src/components/Chat/ChatExperience.tsx` keeps the Messages list and selected thread as internal scroll owners, reduces compact list header padding, tightens composer summary/control spacing, exposes focus-stability debug markers, and keeps diagnostics deferred off tap/focus paths.
+- [x] `scripts/agent/validate-user-chat-shell-routing.ts` and `docs/agent-truth/user-chat-shell-routing.md` validate and document the stable mobile chat viewport shell without changing paid/free GumDrops rules, send APIs, thread ids, creator roles, read state, or message ordering.
+
 ## 2026-05-03 Full-Page Locked Drop Preview Coverage
 
 - [x] `src/app/drops/[id]/preview/page.tsx`, `src/components/Drops/LockedDropPreviewClient.tsx`, `src/components/Drops/LockedDropPreviewView.tsx`, and `src/lib/locked-drop-preview-truth.ts` own the dedicated locked Drop preview route, safe preview fields, urgency tiers, social proof fallback, feedback strip, shell-aware sticky CTA, and post-unlock success state without exposing internal content URLs.

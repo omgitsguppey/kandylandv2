@@ -4,6 +4,10 @@ Status: Canonical repository-memory and architecture-decision ledger
 Last refreshed: 2026-05-02
 Repo: `C:\Users\uylus\OneDrive\Documents\KandyDrops_Final`
 
+## 2026-05-03 Mobile chat stable viewport and composer sizing
+
+The chat route bypasses normal page bottom reservation and owns its own stable mobile viewport shell. Chat list and thread views must remain anchored below the navbar across browser, standalone PWA, keyboard focus, and blur. Composer height must be compact and bottom-nav-safe. Diagnostics must not block tap/focus paths. `src/lib/user-mobile-shell.ts` owns chat top, viewport, bottom-reserve, list-control, and compact-composer tokens; `ChatRouteShell` syncs a lightweight visual viewport CSS variable and restores layout on unmount; `ChatExperience` keeps list/thread scrolling internal and exposes compact focus-stability debug markers without changing paid chat pricing, send APIs, thread ids, or message ordering.
+
 ## 2026-05-03 Full-page locked Drop preview
 
 Locked Drop preview is a dedicated full-page conversion surface, not a bottom sheet. It keeps the global app shell and bottom nav visible, uses safe preview fields only, never exposes internal content thumbnails before unlock, adapts urgency by timer state, collects lightweight feedback, and after successful unwrap hands users to My KandyDrops with the new Drop targeted while also offering Keep Unwrapping. Unlock, payment, ledger, and content entitlement authority remain server-truth through the existing routes.

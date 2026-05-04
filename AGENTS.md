@@ -63,6 +63,10 @@ Featured drop CTAs and chips are cover-aware through deterministic metadata-base
 
 Locked Drop preview is a dedicated full-page conversion surface, not a bottom sheet. It keeps the global app shell and bottom nav visible, uses safe preview fields only, never exposes internal content thumbnails before unlock, adapts urgency by timer state, collects lightweight feedback, and after successful unwrap hands users to My KandyDrops with the new Drop targeted while also offering Keep Unwrapping.
 
+## Mobile Chat Stable Viewport
+
+The chat route bypasses normal page bottom reservation and owns its own stable mobile viewport shell. Chat list and thread views must remain anchored below the navbar across browser, standalone PWA, keyboard focus, and blur. Composer height must be compact and bottom-nav-safe. Diagnostics must not block tap/focus paths.
+
 ## Repo Intelligence Fabric
 
 Use `/agent/` as the default low-token machine-readable context layer:

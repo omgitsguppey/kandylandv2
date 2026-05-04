@@ -55,6 +55,7 @@ function requireOrdered(source: string, firstNeedle: string, secondNeedle: strin
 const chat = readRequired("src/components/Chat/ChatExperience.tsx");
 const chatShell = readRequired("src/components/Chat/ChatRouteShell.tsx");
 const bottomNav = readRequired("src/components/Navigation/MobileBottomBar.tsx");
+const coreLayout = readRequired("src/components/CoreLayoutWrapper.tsx");
 const spacing = readRequired("src/lib/user-mobile-shell.ts");
 const creatorPublicPages = readRequired("src/lib/creator-public-pages.ts");
 const creatorProfileRouting = readRequired("src/lib/creator-profile-routing.ts");
@@ -92,11 +93,16 @@ for (const needle of [
   "data-chat-composer-above-bottom-nav=\"true\"",
   "data-chat-list-controls-above-bottom-nav=\"true\"",
   "data-chat-density=\"public-beta-compact\"",
+  "data-chat-viewport-owner=\"internal\"",
+  "data-chat-input-focus-stable=\"true\"",
+  "data-chat-composer-chin=\"compact\"",
+  "data-chat-top-offset=\"navbar-aligned\"",
   "data-chat-interaction-performance=\"optimized\"",
   "data-chat-diagnostics-deferred=\"true\"",
   "data-chat-tap-path=\"nonblocking\"",
+  "Chat input focus shifted the shell below the navbar.",
   "Chat controls are too close to the bottom navigation.",
-  "Chat composer is not fully above the mobile navigation.",
+  "Chat composer exceeded reserved bottom space.",
   "Chat list scroll container lost viewport ownership.",
 ]) {
   requireIncludes(chat, needle, "Messages list shell sizing");
@@ -114,31 +120,42 @@ for (const needle of [
 
 for (const needle of [
   "documentElement.style.overflow = \"hidden\"",
-  "mainElement.style.height = \"100dvh\"",
+  "USER_MOBILE_CHAT_VIEWPORT_HEIGHT",
+  "mainElement.style.height = USER_MOBILE_CHAT_VIEWPORT_HEIGHT",
   "mainElement.style.boxSizing = \"border-box\"",
-  "mainElement.style.paddingBottom = \"0px\"",
+  "var(--user-mobile-chat-bottom-reserved-height",
+  "--chat-visual-viewport-height",
   "min-h-0",
 ]) {
   requireIncludes(chatShell, needle, "Chat route shell scroll ownership");
 }
+requireNotIncludes(chatShell, "100vh", "Chat route shell scroll ownership");
 
 for (const needle of [
   "USER_MOBILE_BOTTOM_NAV_HEIGHT",
   "USER_MOBILE_BOTTOM_NAV_SAFE_GAP",
   "USER_MOBILE_BOTTOM_NAV_BOTTOM_OFFSET",
   "USER_MOBILE_BOTTOM_NAV_RESERVED_HEIGHT",
+  "USER_MOBILE_CHAT_TOP_GAP",
+  "USER_MOBILE_CHAT_TOP_RESERVED_HEIGHT",
   "USER_MOBILE_CHAT_BOTTOM_RESERVED_HEIGHT",
   "USER_MOBILE_CHAT_CONTROL_GAP",
+  "USER_MOBILE_CHAT_VIEWPORT_HEIGHT",
+  "USER_MOBILE_CHAT_VIEWPORT_SHELL_HEIGHT",
+  "USER_MOBILE_CHAT_COMPOSER_BOTTOM_PADDING",
   "CHAT_LIST_CONTROL_HEIGHT",
-  "CHAT_LIST_CONTROLS_BOTTOM_OFFSET = USER_MOBILE_CHAT_BOTTOM_RESERVED_HEIGHT",
+  "CHAT_LIST_CONTROLS_BOTTOM_OFFSET = USER_MOBILE_CHAT_CONTROL_GAP",
   "CHAT_LIST_FLOATING_ACTION_BOTTOM_OFFSET = CHAT_LIST_CONTROLS_BOTTOM_OFFSET",
   "CHAT_LIST_SCROLL_PADDING_BOTTOM = `calc(${CHAT_LIST_CONTROLS_BOTTOM_OFFSET} + ${CHAT_LIST_CONTROL_HEIGHT} + ${USER_MOBILE_CHAT_CONTROL_GAP})`",
   "CHAT_LIST_FLOATING_ACTION_BOTTOM_OFFSET",
-  "CHAT_THREAD_COMPOSER_PADDING_BOTTOM",
+  "CHAT_THREAD_COMPOSER_PADDING_BOTTOM = USER_MOBILE_CHAT_COMPOSER_BOTTOM_PADDING",
 ]) {
   requireIncludes(spacing, needle, "Shared user mobile shell spacing");
 }
 requireNotIncludes(spacing, "CHAT_LIST_FLOATING_ACTION_BOTTOM_OFFSET = \"0px\"", "Shared user mobile shell spacing");
+requireIncludes(coreLayout, "data-user-mobile-shell-route={isChatRoute ? \"chat-owned\"", "Chat route shell ownership");
+requireIncludes(coreLayout, "\"--root-shell-top-spacing\": USER_MOBILE_CHAT_TOP_RESERVED_HEIGHT", "Chat route shell ownership");
+requireIncludes(coreLayout, "\"--user-mobile-chat-bottom-reserved-height\": USER_MOBILE_CHAT_BOTTOM_RESERVED_HEIGHT", "Chat route shell ownership");
 
 requireIncludes(bottomNav, "USER_MOBILE_BOTTOM_NAV_BOTTOM_OFFSET", "Bottom nav shared spacing");
 requireIncludes(bottomNav, "USER_MOBILE_BOTTOM_NAV_HEIGHT", "Bottom nav shared spacing");

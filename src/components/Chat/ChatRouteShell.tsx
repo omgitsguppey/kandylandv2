@@ -1,15 +1,21 @@
 "use client";
 
 import { useEffect } from "react";
+import {
+    USER_MOBILE_CHAT_BOTTOM_RESERVED_HEIGHT,
+    USER_MOBILE_CHAT_VIEWPORT_HEIGHT,
+} from "@/lib/user-mobile-shell";
+
 export function ChatRouteShell({ children }: { children: React.ReactNode }) {
     useEffect(() => {
-// Early return removed to ensure mobile viewport is also locked for stable app-like behavior.
-
         const documentElement = document.documentElement;
         const body = document.body;
         const main = document.querySelector("main");
         const mainElement = main instanceof HTMLElement ? main : null;
+        const compactViewportQuery = window.matchMedia("(max-width: 767px)");
+        const visualViewport = window.visualViewport;
 
+        const previousChatViewportHeight = documentElement.style.getPropertyValue("--chat-visual-viewport-height");
         const previousDocumentOverflow = documentElement.style.overflow;
         const previousDocumentOverscrollY = documentElement.style.overscrollBehaviorY;
         const previousBodyOverflow = body.style.overflow;
@@ -21,23 +27,66 @@ export function ChatRouteShell({ children }: { children: React.ReactNode }) {
         const previousMainMinHeight = mainElement?.style.minHeight ?? "";
         const previousMainBoxSizing = mainElement?.style.boxSizing ?? "";
         const previousMainPaddingBottom = mainElement?.style.paddingBottom ?? "";
+        let frameId: number | null = null;
 
         documentElement.style.overflow = "hidden";
         documentElement.style.overscrollBehaviorY = "none";
         body.style.overflow = "hidden";
         body.style.overscrollBehaviorY = "none";
 
-        if (mainElement) {
+        const syncChatViewportShell = () => {
+            frameId = null;
+            const viewportHeight = Math.round(visualViewport?.height ?? window.innerHeight);
+            documentElement.style.setProperty("--chat-visual-viewport-height", `${viewportHeight}px`);
+
+            if (!mainElement) {
+                return;
+            }
+
             mainElement.style.boxSizing = "border-box";
             mainElement.style.overflow = "hidden";
             mainElement.style.overscrollBehaviorY = "none";
-            mainElement.style.height = "100dvh";
-            mainElement.style.maxHeight = "100dvh";
+            mainElement.style.height = USER_MOBILE_CHAT_VIEWPORT_HEIGHT;
+            mainElement.style.maxHeight = USER_MOBILE_CHAT_VIEWPORT_HEIGHT;
             mainElement.style.minHeight = "0";
-            mainElement.style.paddingBottom = "0px";
-        }
+            mainElement.style.paddingBottom = compactViewportQuery.matches
+                ? `var(--user-mobile-chat-bottom-reserved-height, ${USER_MOBILE_CHAT_BOTTOM_RESERVED_HEIGHT})`
+                : "0px";
+
+            if (window.scrollY !== 0) {
+                window.scrollTo(0, 0);
+            }
+        };
+
+        const scheduleChatViewportShellSync = () => {
+            if (frameId !== null) {
+                window.cancelAnimationFrame(frameId);
+            }
+            frameId = window.requestAnimationFrame(syncChatViewportShell);
+        };
+
+        syncChatViewportShell();
+        visualViewport?.addEventListener("resize", scheduleChatViewportShellSync, { passive: true });
+        visualViewport?.addEventListener("scroll", scheduleChatViewportShellSync, { passive: true });
+        compactViewportQuery.addEventListener("change", scheduleChatViewportShellSync);
+
+        const handleWindowBlur = () => scheduleChatViewportShellSync();
+        window.addEventListener("blur", handleWindowBlur, { passive: true });
 
         return () => {
+            if (frameId !== null) {
+                window.cancelAnimationFrame(frameId);
+            }
+            visualViewport?.removeEventListener("resize", scheduleChatViewportShellSync);
+            visualViewport?.removeEventListener("scroll", scheduleChatViewportShellSync);
+            compactViewportQuery.removeEventListener("change", scheduleChatViewportShellSync);
+            window.removeEventListener("blur", handleWindowBlur);
+
+            if (previousChatViewportHeight) {
+                documentElement.style.setProperty("--chat-visual-viewport-height", previousChatViewportHeight);
+            } else {
+                documentElement.style.removeProperty("--chat-visual-viewport-height");
+            }
             documentElement.style.overflow = previousDocumentOverflow;
             documentElement.style.overscrollBehaviorY = previousDocumentOverscrollY;
             body.style.overflow = previousBodyOverflow;

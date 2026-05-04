@@ -17,7 +17,11 @@ import { shouldBypassFanOnboarding } from "@/lib/creator-application";
 import { applyAnalyticsConsentToGtag, persistPrivacySettingsSnapshot, readPrivacySettingsSnapshot } from "@/lib/privacy-consent";
 import { writeLastVisitedPath } from "@/lib/navigation-persistence";
 import { ADMIN_SHELL_ROUTE_CLASS } from "@/lib/admin-shell-spacing";
-import { USER_MOBILE_BOTTOM_NAV_RESERVED_HEIGHT } from "@/lib/user-mobile-shell";
+import {
+    USER_MOBILE_BOTTOM_NAV_RESERVED_HEIGHT,
+    USER_MOBILE_CHAT_BOTTOM_RESERVED_HEIGHT,
+    USER_MOBILE_CHAT_TOP_RESERVED_HEIGHT,
+} from "@/lib/user-mobile-shell";
 
 const GlobalPurchaseModal = dynamic(() => import("@/components/GlobalPurchaseModal").then((mod) => mod.GlobalPurchaseModal));
 const GlobalAuthModal = dynamic(() => import("@/components/GlobalAuthModal").then((mod) => mod.GlobalAuthModal));
@@ -70,10 +74,19 @@ export function CoreLayoutWrapper({ children }: { children: React.ReactNode }) {
     const shouldTrackDeepAnalytics = true;
     const shouldEnablePwaRuntime = !isAdminRoute;
     const shouldReserveMobileBottomNav = shouldShowPublicChrome && !isLegalRoute && !isChatRoute;
-    const mobileShellStyle = {
-        "--user-mobile-bottom-nav-reserved-height": shouldReserveMobileBottomNav
+    const mobileBottomNavReservedHeight = isChatRoute
+        ? USER_MOBILE_CHAT_BOTTOM_RESERVED_HEIGHT
+        : shouldReserveMobileBottomNav
             ? USER_MOBILE_BOTTOM_NAV_RESERVED_HEIGHT
-            : "0px",
+            : "0px";
+    const mobileShellStyle = {
+        "--user-mobile-bottom-nav-reserved-height": mobileBottomNavReservedHeight,
+        ...(isChatRoute
+            ? {
+                "--root-shell-top-spacing": USER_MOBILE_CHAT_TOP_RESERVED_HEIGHT,
+                "--user-mobile-chat-bottom-reserved-height": USER_MOBILE_CHAT_BOTTOM_RESERVED_HEIGHT,
+            }
+            : {}),
     } as CSSProperties;
     const shouldLoadOnboarding = isUserShell && userProfile?.onboardingCompleted !== true && !shouldBypassFanOnboarding(userProfile);
     const shouldShowTaskGuidanceBanner = isUserShell && !isChatRoute;
@@ -156,7 +169,7 @@ export function CoreLayoutWrapper({ children }: { children: React.ReactNode }) {
     ) : (
         <div
             className="flex min-h-0 flex-1 flex-col"
-            data-user-mobile-shell-route={shouldReserveMobileBottomNav ? "reserved" : "none"}
+            data-user-mobile-shell-route={isChatRoute ? "chat-owned" : shouldReserveMobileBottomNav ? "reserved" : "none"}
             style={mobileShellStyle}
         >
             {children}

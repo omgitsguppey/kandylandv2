@@ -861,7 +861,14 @@ export function ChatExperience() {
             const floatingActionRect = floatingAction?.getBoundingClientRect() ?? null;
             const main = document.querySelector("main");
             const mainElement = main instanceof HTMLElement ? main : null;
+            const mainRect = mainElement?.getBoundingClientRect() ?? null;
+            const mainStyle = mainElement ? window.getComputedStyle(mainElement) : null;
             const scrollStyle = window.getComputedStyle(scrollArea);
+            const expectedShellTopPx = mainRect && mainStyle
+                ? mainRect.top + (Number.parseFloat(mainStyle.paddingTop) || 0)
+                : shellRect.top;
+            const shellTopDriftPx = Math.max(0, Math.round(shellRect.top - expectedShellTopPx));
+            const shellShiftedBelowNavbar = shellTopDriftPx > 8;
             const documentScrollLeak = Math.max(
                 document.documentElement.scrollHeight,
                 document.body.scrollHeight,
@@ -882,6 +889,7 @@ export function ChatExperience() {
                 && !scrollAreaTooShort
                 && scrollAreaOwnsOverflow
                 && !controlsTooCloseToBottomNav
+                && !shellShiftedBelowNavbar
             ) {
                 compactThreadListLayoutReportKeyRef.current = null;
                 return;
@@ -893,6 +901,7 @@ export function ChatExperience() {
                 documentScrollLeak ? "document-scroll" : "document-locked",
                 scrollAreaTooShort ? "short-scroll-area" : "scroll-area-ok",
                 scrollAreaOwnsOverflow ? "own-scroll" : "missing-scroll-owner",
+                shellShiftedBelowNavbar ? `shell-top-drift-${shellTopDriftPx}` : "shell-top-ok",
                 controlsGapPx ?? "controls-missing",
                 floatingActionGapPx ?? "floating-action-missing",
             ].join(":");
@@ -904,6 +913,8 @@ export function ChatExperience() {
 
             const warningMessage = !scrollAreaOwnsOverflow
                 ? "Chat list scroll container lost viewport ownership."
+                : shellShiftedBelowNavbar
+                    ? "Chat input focus shifted the shell below the navbar."
                 : controlsTooCloseToBottomNav
                     ? "Chat controls are too close to the bottom navigation."
                     : "Compact chat list layout violated viewport bounds";
@@ -917,6 +928,9 @@ export function ChatExperience() {
                     viewportHeight,
                     bottomNavTop: Math.round(bottomNavTop),
                     shellHeight: Math.round(shellRect.height),
+                    shellTop: Math.round(shellRect.top),
+                    expectedShellTopPx: Math.round(expectedShellTopPx),
+                    shellTopDriftPx,
                     shellBottomOverflowPx,
                     panelHeight: Math.round(panelRect.height),
                     panelBottomOverflowPx,
@@ -949,6 +963,7 @@ export function ChatExperience() {
         }
 
         const cancelDiagnostics = scheduleChatLayoutDiagnostics(() => {
+            const shell = chatViewportShellRef.current;
             const composer = chatThreadComposerRef.current;
             const composerControl = chatThreadComposerControlRef.current;
             if (!composer || !composerControl) {
@@ -959,10 +974,22 @@ export function ChatExperience() {
             const bottomNavTop = readMobileBottomNavTop() ?? viewportHeight;
             const composerRect = composer.getBoundingClientRect();
             const composerControlRect = composerControl.getBoundingClientRect();
+            const shellRect = shell?.getBoundingClientRect() ?? null;
+            const main = document.querySelector("main");
+            const mainElement = main instanceof HTMLElement ? main : null;
+            const mainRect = mainElement?.getBoundingClientRect() ?? null;
+            const mainStyle = mainElement ? window.getComputedStyle(mainElement) : null;
+            const expectedShellTopPx = shellRect && mainRect && mainStyle
+                ? mainRect.top + (Number.parseFloat(mainStyle.paddingTop) || 0)
+                : shellRect?.top ?? null;
+            const shellTopDriftPx = shellRect && expectedShellTopPx !== null
+                ? Math.max(0, Math.round(shellRect.top - expectedShellTopPx))
+                : 0;
+            const shellShiftedBelowNavbar = shellTopDriftPx > 8;
             const composerControlGapPx = Math.round(bottomNavTop - composerControlRect.bottom);
             const composerBottomOverflowPx = Math.max(0, Math.round(composerRect.bottom - viewportHeight));
 
-            if (composerControlGapPx >= 12 && composerBottomOverflowPx === 0) {
+            if (composerControlGapPx >= 12 && composerBottomOverflowPx === 0 && !shellShiftedBelowNavbar) {
                 chatThreadComposerLayoutReportKeyRef.current = null;
                 return;
             }
@@ -971,6 +998,7 @@ export function ChatExperience() {
                 composerControlGapPx,
                 composerBottomOverflowPx,
                 Math.round(composerRect.height),
+                shellShiftedBelowNavbar ? `shell-top-drift-${shellTopDriftPx}` : "shell-top-ok",
             ].join(":");
 
             if (chatThreadComposerLayoutReportKeyRef.current === reportKey) {
@@ -981,11 +1009,16 @@ export function ChatExperience() {
             deferChatDiagnosticReport({
                 channel: "ui",
                 severity: "warn",
-                message: "Chat composer is not fully above the mobile navigation.",
+                message: shellShiftedBelowNavbar
+                    ? "Chat input focus shifted the shell below the navbar."
+                    : "Chat composer exceeded reserved bottom space.",
                 detail: {
                     scope: "chat_thread_composer",
                     viewportHeight,
                     bottomNavTop: Math.round(bottomNavTop),
+                    shellTop: shellRect ? Math.round(shellRect.top) : null,
+                    expectedShellTopPx: expectedShellTopPx === null ? null : Math.round(expectedShellTopPx),
+                    shellTopDriftPx,
                     composerHeight: Math.round(composerRect.height),
                     composerBottomOverflowPx,
                     composerControlGapPx,
@@ -1024,6 +1057,10 @@ export function ChatExperience() {
             chatInteractionPerformance: "optimized",
             chatDiagnosticsDeferred: true,
             chatTapPath: "nonblocking",
+            chatViewportOwner: "internal",
+            chatInputFocusStable: true,
+            chatComposerChin: "compact",
+            chatTopOffset: "navbar-aligned",
             displayMode: readChatDisplayMode(),
             messagesListUsesChatShellSizing: true,
             messagesListUsesSharedBottomNavContract: true,
@@ -2169,6 +2206,10 @@ export function ChatExperience() {
             data-chat-composer-above-bottom-nav="true"
             data-chat-list-controls-above-bottom-nav="true"
             data-chat-density="public-beta-compact"
+            data-chat-viewport-owner="internal"
+            data-chat-input-focus-stable="true"
+            data-chat-composer-chin="compact"
+            data-chat-top-offset="navbar-aligned"
             data-chat-interaction-performance="optimized"
             data-chat-diagnostics-deferred="true"
             data-chat-tap-path="nonblocking"
@@ -2184,7 +2225,7 @@ export function ChatExperience() {
                         )}>
                             {showCompactThreadListOnly ? (
                                 <div className={CHAT_COMPACT_THREAD_LIST_PANEL_CLASSNAME}>
-                                    <div className="px-5 pb-4 pt-6">
+                                    <div className="px-5 pb-3 pt-3">
                                         <div className="flex items-center justify-between">
                                             <div ref={threadEditMenuRef} className="relative">
                                                 {threadSelectionMode ? (
@@ -2228,9 +2269,9 @@ export function ChatExperience() {
                                                 ) : null}
                                             </div>
                                         </div>
-                                        <div className="mt-5">
-                                            <p className="text-4xl font-black tracking-[-0.04em] text-white">Messages</p>
-                                            <p className="mt-2 text-sm text-[#8f9097]">
+                                        <div className="mt-3">
+                                            <p className="text-3xl font-black tracking-tight text-white">Messages</p>
+                                            <p className="mt-1 text-sm text-[#8f9097]">
                                                 {threadsLoading ? "Loading your conversations..." : `${visibleThreads.length} conversation${visibleThreads.length === 1 ? "" : "s"}`}
                                             </p>
                                         </div>
@@ -2620,10 +2661,11 @@ export function ChatExperience() {
 
                                 <div
                                     ref={chatThreadComposerRef}
-                                    className="border-t border-white/10 bg-[linear-gradient(180deg,rgba(0,0,0,0)_0%,rgba(0,0,0,0.92)_18%,#000_100%)] px-4 pb-3 pt-2 sm:px-6 sm:pb-4"
+                                    className="border-t border-white/10 bg-[linear-gradient(180deg,rgba(0,0,0,0)_0%,rgba(0,0,0,0.92)_18%,#000_100%)] px-4 pb-2 pt-1.5 sm:px-6 sm:pb-4"
                                     style={chatThreadComposerStyle}
                                     data-chat-composer-above-bottom-nav="true"
                                     data-chat-density="public-beta-compact"
+                                    data-chat-composer-chin="compact"
                                 >
                                     {sendErrorMessage ? (
                                         <div className="rounded-[1.2rem] border border-rose-400/20 bg-rose-500/10 px-4 py-3 text-sm text-rose-100">
@@ -2688,9 +2730,9 @@ export function ChatExperience() {
                                         </div>
                                     ) : null}
                                     {composerSummary ? (
-                                        <div className="mt-2 max-h-5 truncate text-[13px] leading-5 text-[#7f8087]">{composerSummary}</div>
+                                        <div className="mt-1.5 max-h-[18px] truncate text-[13px] leading-[18px] text-[#7f8087]">{composerSummary}</div>
                                     ) : null}
-                                    <div ref={chatThreadComposerControlRef} className="mt-2 flex items-center gap-2">
+                                    <div ref={chatThreadComposerControlRef} className="mt-1.5 flex items-center gap-2">
                                         <div ref={attachmentMenuRef} className="relative shrink-0">
                                             <button
                                                 type="button"
