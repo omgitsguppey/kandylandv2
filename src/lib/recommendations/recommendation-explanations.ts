@@ -12,10 +12,6 @@ export type RecommendationExplanation = {
   }>;
 };
 
-function percent(value: number) {
-  return `${Math.round(value * 100)}%`;
-}
-
 function addIfMissing(reasons: string[], reason: string) {
   if (!reasons.includes(reason)) {
     reasons.push(reason);
@@ -60,7 +56,7 @@ export function buildRecommendationExplanation(input: {
   }
 
   return {
-    summary: reasons[0] || "Deterministic fallback recommendation.",
+    summary: reasons[0] || "This recommendation is fallback-only because no creator or content affinity has formed yet.",
     reasons: reasons.slice(0, 3),
     diagnostics: [
       { label: "Predicted paid conversion", value: features.predictedPaidConversion },

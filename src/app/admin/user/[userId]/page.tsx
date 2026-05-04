@@ -1,4 +1,4 @@
-"use client";
+﻿"use client";
 
 import Link from "next/link";
 import { useCallback, useEffect, useMemo, useState } from "react";
@@ -20,8 +20,14 @@ import {
 
 import { useAuth } from "@/context/AuthContext";
 import { AdminPageHeader } from "@/components/Admin/AdminPageHeader";
+import { BehavioralVerdictCard } from "@/components/Admin/BehavioralVerdictCard";
 import { AdminTruthBadge } from "@/components/Admin/AdminTruthBadge";
 import { PageViewEvent } from "@/components/Analytics/PageViewEvent";
+import {
+    buildEngagementBehavioralExplanation,
+    buildRecommendationBehavioralExplanation,
+    buildValueBehavioralExplanation,
+} from "@/lib/behavioral/behavioral-explanation";
 import type { AdminSurfaceState } from "@/lib/admin-parity";
 import {
     coerceAdminTruthState,
@@ -471,6 +477,22 @@ export default function AdminUserAnalyticsPage() {
         sourceConfigured: true,
         reviewRequired: Boolean(parity?.validations?.some((item) => item.status !== "pass")),
     });
+    const engagementExplanation = buildEngagementBehavioralExplanation({
+        engagement,
+        behaviorRollup,
+        truthState: behaviorTruthState,
+    });
+    const valueExplanation = buildValueBehavioralExplanation({
+        value,
+        behaviorRollup,
+        truthState: behaviorTruthState,
+    });
+    const recommendationVerdict = buildRecommendationBehavioralExplanation({
+        behavioralProfile,
+        recommendationDebug,
+        behaviorRollup,
+        truthState: behaviorTruthState,
+    });
 
     const watchTimeLabel = useMemo(() => {
         const watchTimeMs = behaviorRollup?.watchTimeMs ?? ((analytics?.watchSecondsTotal ?? 0) * 1000);
@@ -635,8 +657,8 @@ export default function AdminUserAnalyticsPage() {
                             { label: "Avg order", value: `$${averageOrderUsd.toFixed(2)}` },
                             { label: "Actions", value: (behaviorRollup?.totalActions ?? analytics?.eventCount ?? 0).toLocaleString() },
                             { label: "Views", value: (behaviorRollup?.views ?? analytics?.viewCount ?? 0).toLocaleString() },
-                            { label: "Engagement", value: engagement ? `${engagement.verdict} · ${engagement.score}` : "Dormant · 0" },
-                            { label: "Value", value: value ? `${value.verdict} · ${value.valueScore}` : "Observer · 0", tone: "text-brand-purple" },
+                            { label: "Engagement", value: engagementExplanation.verdict },
+                            { label: "Value", value: valueExplanation.verdict, tone: "text-brand-purple" },
                             { label: "Auth", value: (behaviorRollup?.authEvents ?? analytics?.authSuccessCount ?? 0).toLocaleString() },
                             { label: "Watch time", value: watchTimeLabel },
                             { label: "Last seen", value: (behaviorRollup?.lastSeenAt ?? analytics?.lastSeenAt) ? formatDistanceToNow(behaviorRollup?.lastSeenAt ?? analytics!.lastSeenAt, { addSuffix: true }) : "No activity" },
@@ -668,48 +690,11 @@ export default function AdminUserAnalyticsPage() {
                             : "Behavior rollup unavailable."}
                         {behaviorIssueSummary ? ` Issues: ${behaviorIssueSummary}` : ""}
                     </div>
-                    <div className="mt-3 rounded-[1.25rem] border border-white/10 bg-black/25 px-4 py-3">
-                        <div className="flex flex-wrap items-center justify-between gap-3">
-                            <div>
-                                <p className="text-[10px] font-bold uppercase tracking-[0.16em] text-gray-500">Engagement verdict</p>
-                                <p className="mt-1 text-sm font-black text-white">{engagement?.verdict || "Dormant"}</p>
-                                <p className="mt-1 text-xs text-gray-400">{engagement?.score ?? 0}/100 · {engagement?.tier || "dormant"}</p>
-                            </div>
-                            <div className="flex flex-wrap gap-2">
-                                {(engagement?.topReasons ?? []).slice(0, 3).map((reason) => (
-                                    <span key={reason.code} className="inline-flex items-center rounded-full border border-white/10 bg-white/5 px-3 py-1 text-[11px] font-semibold text-white">
-                                        {reason.label}
-                                    </span>
-                                ))}
-                            </div>
-                        </div>
-                        <div className="mt-3 space-y-1 text-xs leading-5 text-gray-400">
-                            {(engagement?.topReasons ?? []).slice(0, 3).map((reason) => (
-                                <p key={`${reason.code}-summary`}>{reason.summary}</p>
-                            ))}
-                        </div>
+                    <div className="mt-3">
+                        <BehavioralVerdictCard title="Engagement verdict" explanation={engagementExplanation} />
                     </div>
-                    <div className="mt-3 rounded-[1.25rem] border border-white/10 bg-black/25 px-4 py-3">
-                        <div className="flex flex-wrap items-center justify-between gap-3">
-                            <div>
-                                <p className="text-[10px] font-bold uppercase tracking-[0.16em] text-gray-500">Value verdict</p>
-                                <p className="mt-1 text-sm font-black text-white">{value?.verdict || "Observer"}</p>
-                                <p className="mt-1 text-xs text-gray-400">{value?.valueScore ?? 0}/100 · {value?.valueTier || "observer"}</p>
-                            </div>
-                            <div className="flex flex-wrap gap-2">
-                                {(value?.topReasons ?? []).slice(0, 3).map((reason) => (
-                                    <span key={reason.code} className="inline-flex items-center rounded-full border border-white/10 bg-white/5 px-3 py-1 text-[11px] font-semibold text-white">
-                                        {reason.label}
-                                    </span>
-                                ))}
-                            </div>
-                        </div>
-                        <div className="mt-3 space-y-1 text-xs leading-5 text-gray-400">
-                            {(value?.topReasons ?? []).slice(0, 3).map((reason) => (
-                                <p key={`${reason.code}-summary`}>{reason.summary}</p>
-                            ))}
-                            <p>Bonus GD stays separate from cash revenue. Package bonus raises paid-source delivery, not gross spend.</p>
-                        </div>
+                    <div className="mt-3">
+                        <BehavioralVerdictCard title="Value verdict" explanation={valueExplanation} />
                     </div>
                 </div>
 
@@ -792,9 +777,17 @@ export default function AdminUserAnalyticsPage() {
                         </span>
                     </div>
                 </div>
+                <div className="mt-4">
+                    <BehavioralVerdictCard title="Recommendation verdict" explanation={recommendationVerdict} />
+                </div>
+
 
                 <div className="mt-5 grid gap-4 xl:grid-cols-[0.9fr_1.1fr]">
-                    <div className="space-y-4">
+                    <details className="rounded-[1.35rem] border border-white/10 bg-black/20 p-4">
+                        <summary className="cursor-pointer text-[11px] font-semibold uppercase tracking-[0.14em] text-gray-300">
+                            Why this verdict?
+                        </summary>
+                        <div className="mt-4 space-y-4">
                         <div className="grid gap-3 sm:grid-cols-2">
                             <div className="rounded-[1.35rem] border border-white/10 bg-black/25 p-4">
                                 <p className="text-[10px] font-semibold uppercase tracking-[0.16em] text-gray-500">Eligibility</p>
@@ -860,7 +853,8 @@ export default function AdminUserAnalyticsPage() {
                                 </p>
                             </div>
                         )}
-                    </div>
+                        </div>
+                    </details>
 
                     <div className="space-y-3">
                         <div className="rounded-[1.35rem] border border-white/10 bg-black/25 p-4">
@@ -883,9 +877,6 @@ export default function AdminUserAnalyticsPage() {
                                                     <p className="mt-2 text-xs leading-5 text-gray-300">{entry.explanationSummary || entry.fallbackReason}</p>
                                                 </div>
                                                 <div className="flex flex-wrap gap-2">
-                                                    <span className="inline-flex items-center rounded-full border border-white/10 bg-white/5 px-3 py-1 text-[10px] font-bold uppercase tracking-[0.14em] text-white">
-                                                        Score {entry.score}
-                                                    </span>
                                                     <span className="inline-flex items-center rounded-full border border-brand-purple/20 bg-brand-purple/10 px-3 py-1 text-[10px] font-bold uppercase tracking-[0.14em] text-brand-purple">
                                                         {entry.rankingMode === "ml_artifact" ? "ML artifact" : "Deterministic"}
                                                     </span>
@@ -1044,7 +1035,7 @@ export default function AdminUserAnalyticsPage() {
                                         <div className="min-w-0">
                                             <p className="line-clamp-2 text-sm font-semibold text-white">{signal.summary}</p>
                                             <p className="mt-1 text-[11px] uppercase tracking-[0.14em] text-gray-500">
-                                                {signal.kind === "thread" ? "Support thread" : "Bug report"} • {signal.status.replaceAll("_", " ")}
+                                                {signal.kind === "thread" ? "Support thread" : "Bug report"} â€¢ {signal.status.replaceAll("_", " ")}
                                             </p>
                                         </div>
                                         <span className="shrink-0 text-[11px] text-gray-500">{formatRelativeTimestamp(signal.timestamp)}</span>
@@ -1386,3 +1377,4 @@ export default function AdminUserAnalyticsPage() {
         </div>
     );
 }
+

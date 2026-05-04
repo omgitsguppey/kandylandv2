@@ -17,6 +17,10 @@ import { AdminTruthBadge } from "@/components/Admin/AdminTruthBadge";
 import { PageViewEvent } from "@/components/Analytics/PageViewEvent";
 import { AdminTasksManager } from "@/components/Admin/AdminTasksManager";
 import { reportClientIssue } from "@/lib/client-error-reporting";
+import {
+    buildEngagementBehavioralExplanation,
+    buildValueBehavioralExplanation,
+} from "@/lib/behavioral/behavioral-explanation";
 import type { AdminSurfaceState } from "@/lib/admin-parity";
 import {
     coerceAdminTruthState,
@@ -373,6 +377,12 @@ export default function UserManagementPage() {
 
     const getUserAnalytics = (uid: string) => userAnalytics[uid];
     const getBehaviorRollup = (uid: string) => userAnalytics[uid]?.behaviorRollup;
+    const getBehaviorTruthState = (behaviorRollup?: UserAnalytics["behaviorRollup"]) => resolveAdminTruthState({
+        hasUsableValue: Boolean(behaviorRollup),
+        sourceConfigured: true,
+        valueState: behaviorRollup?.confidence === "unknown" ? "unavailable" : behaviorRollup?.freshnessState,
+        reviewRequired: Boolean(behaviorRollup?.issues.length) || behaviorRollup?.confidence === "insufficient" || behaviorRollup?.confidence === "low",
+    });
     const SUMMARY_PLACEHOLDER = "—";
     const formatMoney = (value?: number) => typeof value === "number" && Number.isFinite(value) ? `$${value.toFixed(2)}` : "[unavailable]";
     const formatPercent = (value?: number) => typeof value === "number" && Number.isFinite(value) ? `${Math.round(value * 100)}%` : "[unavailable]";
@@ -838,6 +848,9 @@ export default function UserManagementPage() {
                                     const behaviorRollup = getBehaviorRollup(user.uid);
                                     const engagement = analytics?.engagement ?? behaviorRollup?.engagement;
                                     const value = analytics?.value ?? behaviorRollup?.value;
+                                    const truthState = getBehaviorTruthState(behaviorRollup);
+                                    const engagementExplanation = buildEngagementBehavioralExplanation({ engagement, behaviorRollup, truthState });
+                                    const valueExplanation = buildValueBehavioralExplanation({ value, behaviorRollup, truthState });
                                     return (
                                     <div
                                         key={user.uid}
@@ -849,10 +862,10 @@ export default function UserManagementPage() {
                                             <div className="min-w-0">
                                                 <p className="truncate text-sm font-bold text-white">{user.username ? `@${user.username}` : user.displayName || user.email || user.uid}</p>
                                                 <p className="text-xs text-gray-500">
-                                                    {engagement?.verdict || "Dormant"} &middot; Value {value?.verdict || "Observer"} &middot; {behaviorRollup?.confidence ?? "unknown"} truth
+                                                    {engagementExplanation.verdict} &middot; Value {valueExplanation.verdict} &middot; {engagementExplanation.confidenceLabel} truth
                                                 </p>
                                                 <p className="mt-1 text-[11px] text-gray-400">
-                                                    {value?.topReasons?.[0]?.summary || engagement?.topReasons?.[0]?.summary || "No recent verified value signal."}
+                                                    {valueExplanation.summary || engagementExplanation.summary || "No recent verified value signal."}
                                                 </p>
                                             </div>
                                             <Link href={`/admin/user/${user.uid}`} className="text-xs font-bold text-brand-purple hover:underline">
@@ -900,6 +913,9 @@ export default function UserManagementPage() {
                                             const behaviorRollup = getBehaviorRollup(user.uid);
                                             const engagement = analytics?.engagement ?? behaviorRollup?.engagement;
                                             const value = analytics?.value ?? behaviorRollup?.value;
+                                            const truthState = getBehaviorTruthState(behaviorRollup);
+                                            const engagementExplanation = buildEngagementBehavioralExplanation({ engagement, behaviorRollup, truthState });
+                                            const valueExplanation = buildValueBehavioralExplanation({ value, behaviorRollup, truthState });
                                             const onboardingBadge = getOnboardingBadge(user, analytics);
                                             return (
                                             <tr key={user.uid} className="transition-colors">
@@ -960,10 +976,10 @@ export default function UserManagementPage() {
                                                             data-user-behavior-rollup-confidence={behaviorRollup?.confidence ?? "unknown"}
                                                         >
                                                             <div className="rounded-xl border border-white/10 bg-black/30 px-3 py-2 text-xs text-white">
-                                                                {engagement?.verdict || "Dormant"} / Value {value?.verdict || "Observer"}
+                                                                {engagementExplanation.verdict} / Value {valueExplanation.verdict}
                                                             </div>
                                                             <div className="text-[10px] text-gray-500">
-                                                                {value?.topReasons?.[0]?.label || engagement?.topReasons?.[0]?.label || "No recent signal"} / {behaviorRollup?.issues.length ?? 0} issues
+                                                                {valueExplanation.statusLabel || engagementExplanation.statusLabel || "No recent signal"} / {behaviorRollup?.issues.length ?? 0} issues
                                                             </div>
                                                         </div>
                                                     ) : (
@@ -1050,6 +1066,9 @@ export default function UserManagementPage() {
                                 const behaviorRollup = getBehaviorRollup(user.uid);
                                 const engagement = analytics?.engagement ?? behaviorRollup?.engagement;
                                 const value = analytics?.value ?? behaviorRollup?.value;
+                                const truthState = getBehaviorTruthState(behaviorRollup);
+                                const engagementExplanation = buildEngagementBehavioralExplanation({ engagement, behaviorRollup, truthState });
+                                const valueExplanation = buildValueBehavioralExplanation({ value, behaviorRollup, truthState });
                                 const onboardingBadge = getOnboardingBadge(user, analytics);
                                 return (
                                 <div key={user.uid} className="glass-panel p-4 rounded-2xl border border-white/10 flex flex-col gap-4 relative overflow-hidden group">
@@ -1130,11 +1149,11 @@ export default function UserManagementPage() {
                                                 </div>
                                                 <div className="flex justify-between items-center">
                                                     <span className="text-xs text-gray-500 font-bold uppercase"><Activity className="w-3 h-3 inline mr-1" />Engagement</span>
-                                                    <span className="text-sm font-mono text-gray-300">{engagement?.verdict || "Dormant"} · {engagement?.score ?? 0}</span>
+                                                    <span className="text-sm font-mono text-gray-300">{engagementExplanation.verdict}</span>
                                                 </div>
                                                 <div className="flex justify-between items-center">
                                                     <span className="text-xs text-gray-500 font-bold uppercase"><DollarSign className="w-3 h-3 inline mr-1" />Value</span>
-                                                    <span className="text-sm font-mono text-gray-300">{value?.verdict || "Observer"} · {value?.valueScore ?? 0}</span>
+                                                    <span className="text-sm font-mono text-gray-300">{valueExplanation.verdict}</span>
                                                 </div>
                                             </div>
                                         ) : (
