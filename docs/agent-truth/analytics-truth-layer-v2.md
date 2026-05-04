@@ -49,6 +49,8 @@ The replacement doctrine is:
 
 The raw event ledger is first-party KandyDrops telemetry, such as `analytics_event_facts`, guest batches, task lifecycle logs, watch sessions, purchase facts, unlock facts, notification facts, and route diagnostics. It is the product behavior source before provider exports. Raw events are not automatically funnels, unique users, ordered journeys, or live presence unless the model proves those definitions.
 
+Watch sessions are stronger than page duration for content engagement only when they prove foreground visible viewer content. They must exclude hidden, offscreen, modal-covered, and idle intervals; behavioral scoring must label current rollups as `watch_session_rollup` and legacy duration fallbacks as `legacy_page_duration`.
+
 ### Identity Graph
 
 The identity graph links anonymous sessions, guest visitors, authenticated users, creators, admins, and system actors without erasing earlier guest history. A guest-to-user link should add an identity link event and preserve the original guest session lane. Admin, creator, and system actions must stay separate from user and guest analytics unless a module explicitly tracks those actor lanes.

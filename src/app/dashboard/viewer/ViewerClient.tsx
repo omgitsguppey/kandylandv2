@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useMemo } from "react";
+import { useEffect, useMemo, useRef } from "react";
 import { useRouter } from "next/navigation";
 import Link from "next/link";
 import { ArrowLeft, Lock, ShieldCheck } from "lucide-react";
@@ -31,6 +31,7 @@ interface ViewerClientProps {
 export function ViewerClient({ drop, initialCreatorProfile }: ViewerClientProps) {
     const { user, userProfile, loading: authLoading } = useAuth();
     const router = useRouter();
+    const viewerContentRef = useRef<HTMLDivElement>(null);
 
     const isAuthorized = useMemo(() => {
         if (!drop || !user) return false;
@@ -65,6 +66,7 @@ export function ViewerClient({ drop, initialCreatorProfile }: ViewerClientProps)
         resolvedContent,
         contentLoading,
         contentBlobUrl,
+        contentElementRef: viewerContentRef,
     });
 
     // 4. Security Hook
@@ -164,7 +166,11 @@ export function ViewerClient({ drop, initialCreatorProfile }: ViewerClientProps)
                         </div>
                     )}
 
-                    <div className={`absolute inset-0 z-10 transition-opacity duration-300 ${isSecurityTriggered ? 'opacity-0 select-none pointer-events-none blur-xl' : 'opacity-100'}`}>
+                    <div
+                        ref={viewerContentRef}
+                        data-watch-session-visibility-owner="intersection-observer"
+                        className={`absolute inset-0 z-10 transition-opacity duration-300 ${isSecurityTriggered ? 'opacity-0 select-none pointer-events-none blur-xl' : 'opacity-100'}`}
+                    >
                         <MediaViewer
                             drop={drop}
                             contentBlobUrl={contentBlobUrl}

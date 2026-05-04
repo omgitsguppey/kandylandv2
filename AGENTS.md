@@ -63,6 +63,10 @@ KandyDrops layout scoring is deterministic. It detects violations of Google-styl
 
 KandyDrops hydration uses staged priority lanes. Critical shell and first actions hydrate first. Telemetry/session/privacy truth remains connected. Diagnostics, overlays, bridges, cookie UI, bug reports, onboarding helpers, notification runtime, and PWA enhancement load after paint or idle unless required by the current interaction. No public-beta performance fix may disconnect tracking, privacy consent, parity truth, or source-of-truth debug surfaces.
 
+## Watch Time Truth
+
+Watch time is foreground visible content engagement, not page duration. KandyDrops counts only active, visible, or playing viewer intervals, excludes hidden and idle time, scores image and video sessions differently, labels legacy page-duration fallbacks, and feeds behavioral intelligence from watch-session rollups before page duration.
+
 ## Ast-Grep Source Rules
 
 KandyDrops ast-grep rules are deterministic source guardrails. They catch forbidden shell, safe-area, preview content-protection, diagnostics, timer, and breakpoint patterns from source files without replacing targeted tests or broad runtime validation. Use `npm run check:ast-grep-rules` before broad browser audits.

@@ -50,6 +50,8 @@ export type ViewerOverview = {
   totalWatchSeconds: number;
   avgSessionSeconds: number;
   avgWatchSeconds: number;
+  watchScoreSource?: "watch_session_rollup" | "legacy_page_duration";
+  watchScoreConfidence?: "high" | "low";
   avgLoadMs: number;
   assetCompletionRate: number;
   meaningfulSessionCount: number;
@@ -75,6 +77,8 @@ export type ViewerDropInsight = {
   totalWatchSeconds: number;
   avgSessionSeconds: number;
   avgWatchSeconds: number;
+  watchScoreSource?: "watch_session_rollup" | "legacy_page_duration";
+  watchScoreConfidence?: "high" | "low";
   assetStarts: number;
   assetCompletions: number;
   meaningfulSessionCount: number;

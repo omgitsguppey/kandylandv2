@@ -9,6 +9,15 @@ Scoring: all entries below are marked as included in the current validated sweep
 
 Current repo-wide state snapshot: see [FULL_SCALE_CODEBASE_AUDIT.md](/Users/uylus/OneDrive/Documents/KandyDrops_Final/FULL_SCALE_CODEBASE_AUDIT.md) for the current live baseline, verification state, and continuity rules, and see [REPO_MEMORY_LEDGER.md](/Users/uylus/OneDrive/Documents/KandyDrops_Final/REPO_MEMORY_LEDGER.md) for major architectural and workflow decisions. The detailed file/function body below remains valuable historical evidence, but it has not been fully regenerated against the current 2026-04-18 inventory review yet.
 
+## 2026-05-04 Watch Time Truth Coverage
+
+- [x] Watch time is foreground visible content engagement, not page duration. The viewer hook starts watch sessions only when loaded viewer content is mounted, at least 50 percent visible, the document is visible, and consent allows tracking.
+- [x] `src/hooks/useViewerWatchSession.ts` owns IntersectionObserver visibility gating, Page Visibility handling, coarse 5s watch ticks, hidden/idle exclusion, modal/route ownership checks, video progress capture, and watch session telemetry flushes.
+- [x] `src/lib/watch-time-scoring.ts` owns deterministic `none` / `skim` / `viewed` / `engaged` / `completed` scoring with hidden and idle time excluded from valid watch credit.
+- [x] `src/app/api/viewer/watch-session/route.ts` stores consent-aware watch rollups, computes `watchScoreSource: "watch_session_rollup"`, dedupes observations, and avoids storing internal content URLs.
+- [x] `functions/src/behavioral-intelligence-runtime.ts` prefers watch-session rollups and labels page-duration fallback as `legacy_page_duration` with lower source confidence.
+- [x] `scripts/agent/validate-watch-time-truth.ts`, `tests/unit/watch-time-scoring.spec.ts`, and `tests/unit/viewer-watch-session-route.spec.ts` provide the targeted no-browser validation lane.
+
 ## 2026-05-04 Orphaned Logic Score Coverage
 
 - [x] KandyDrops orphaned logic scoring is deterministic and source-only. It detects stale duplicate PR logic, deprecated route/modal ownership, duplicate truth helpers, broken generated audit chunks, stale docs, wrong GumDrops vocabulary, obsolete realtime patterns, duplicate telemetry intent names, and dead imports without relying on browser audits.

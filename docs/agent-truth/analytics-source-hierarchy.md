@@ -22,10 +22,12 @@ Product truth comes from first-party event ledgers and business records. These a
 - purchase, PayPal capture, and commerce rollups
 - unlock and GumDrops ledger records
 - onboarding step events/state
-- watch sessions and viewer capture health
+- watch sessions and viewer capture health, with `watch_session_rollup` preferred over page duration for behavioral watch scoring
 - route diagnostics and runtime health
 
 Product truth wins over provider summaries unless a later reconciliation job explicitly promotes another source.
+
+Watch time product truth means foreground visible content engagement. Viewer rollups must exclude hidden, offscreen, modal-covered, and idle intervals. Page duration may support only a labeled `legacy_page_duration` fallback and must not be promoted to exact watch time.
 
 Event-fact writers are part of product truth only after they pass the telemetry catalog boundary. A route, callable, cron, or server helper must not write arbitrary posted event names into `analytics_event_facts` or `analytics_event_stats`. Unsupported names are diagnostics or rejected input, not product telemetry.
 

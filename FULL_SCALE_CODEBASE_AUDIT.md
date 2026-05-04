@@ -1,5 +1,34 @@
 # KandyDrops Core Codebase Audit & Defensive Ledger
 
+## [2026-05-04 #143] PRE: Watch Time Truth And Behavioral Scoring
+
+Scope started:
+- Improving viewer watch-time tracking so KandyDrops distinguishes foreground visible content engagement from passive page duration, hidden tabs, idle sessions, and route-duration fallbacks.
+- Required outputs include deterministic watch scoring, viewer watch-session hardening, route-side rollup truth, behavioral intelligence source labels, validation, targeted tests, docs, commit, and push.
+- This pass must not run Playwright, Lighthouse, Cypress, full `npm run check`, broad UI audits, polling, realtime additions, payment/economy/auth/unlock mutations, or provider mutations.
+
+Evidence:
+- Control tower routing, doctrine, source-of-truth map, generated task context, adjacency traces for `src/hooks/useViewerWatchSession.ts` and `src/app/api/viewer/watch-session/route.ts`, viewer telemetry adapter, watch-session route, telemetry catalog, and behavioral intelligence runtime were consulted.
+- Source confirms an existing canonical viewer watch lane through `src/hooks/useViewerWatchSession.ts`, `/api/viewer/watch-session`, and Firestore rollups in `analytics_watch_sessions`, `analytics_watch_assets`, and `analytics_watch_observations`.
+
+Doctrine:
+- Watch time is foreground visible content engagement, not page duration. KandyDrops must count only active/visible/playing intervals, exclude hidden/idle time, score image/video content differently, label legacy fallbacks, and feed behavioral intelligence from watch-session rollups before page duration.
+
+Scope completed:
+- Added `src/lib/watch-time-scoring.ts` with deterministic watch score tiers, hidden/idle exclusion, video progress completion, image visible-time thresholds, and overlapping interval protection.
+- Hardened `src/hooks/useViewerWatchSession.ts` so viewer sessions start only after loaded content is at least 50 percent visible in a visible document, use coarse 5s ticks, record active/playing/hidden/idle time, and flush watch-session telemetry without 1s polling.
+- Updated `/api/viewer/watch-session` to accept consent-aware watch rollups, compute `watchScoreSource: "watch_session_rollup"`, dedupe observations, store score fields, and avoid storing internal content URLs.
+- Updated behavioral intelligence and admin analytics source labels so watch rollups outrank page-duration fallback and legacy duration is labeled `legacy_page_duration`.
+- Added the watch-time truth validator, targeted watch scoring tests, targeted watch-session route tests, telemetry catalog entries, sanitized telemetry payload keys, and source-of-truth docs.
+
+Verification:
+- `npm run check:watch-time-truth` passed.
+- `npx vitest run --config vitest.contracts.config.ts tests/unit/watch-time-scoring.spec.ts` passed.
+- `npx vitest run --config vitest.contracts.config.ts tests/unit/viewer-watch-session-route.spec.ts` passed.
+- `npx vitest run --config vitest.contracts.config.ts tests/unit/analytics-ingest-route.spec.ts tests/unit/analytics-ingest-identified-route.spec.ts` passed.
+- `npm run typecheck` passed.
+- No Playwright, Lighthouse, Cypress, full `npm run check`, broad UI audits, polling, realtime listeners, payment/economy/auth/unlock changes, or provider mutations were run.
+
 ## [2026-05-04 #142] PRE: Cloud Run SQL BigQuery Guardrails
 
 Scope started:

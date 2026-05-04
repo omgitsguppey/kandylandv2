@@ -1,12 +1,14 @@
 "use client";
 
-import { useCallback, useEffect, useRef, useState } from "react";
+import { useCallback, useEffect, useRef, useState, type RefObject } from "react";
 
 import { authFetch } from "@/lib/authFetch";
 import { getClientSessionId } from "@/lib/client-session";
 import { recordClientDiagnostic } from "@/lib/client-diagnostics";
 import { auth } from "@/lib/firebase";
 import { createAnalyticsWatchSessionId } from "@/lib/analytics-identifiers";
+import { canUseIdentifiedAnalytics, readPrivacySettingsSnapshot, subscribeToPrivacySettings } from "@/lib/privacy-consent";
+import { trackEvent } from "@/lib/telemetry";
 import type {
     ViewerWatchCaptureQuality,
     ViewerWatchCaptureTransport,
@@ -14,11 +16,15 @@ import type {
     ViewerWatchContentKind,
     ViewerWatchSessionSnapshot,
 } from "@/lib/viewer-watch-session";
-import { shouldRetryViewerWatchCloseFlush } from "@/lib/viewer-watch-session";
+import { scoreViewerWatchSession, shouldRetryViewerWatchCloseFlush } from "@/lib/viewer-watch-session";
 
-const HEARTBEAT_INTERVAL_MS = 1_000;
-const HEARTBEAT_FLUSH_WINDOW_MS = 5_000;
+const WATCH_VISIBLE_TICK_INTERVAL_MS = 5_000;
+const HEARTBEAT_FLUSH_WINDOW_MS = 10_000;
+const CLOSE_RETRY_DELAY_MS = 1_000;
 const MAX_TICK_DELTA_MS = 5_000;
+const MINIMUM_VIEWPORT_VISIBLE_PERCENT = 50;
+const ACTIVE_IDLE_THRESHOLD_MS = 30_000;
+const IDLE_TIMEOUT_MS = 120_000;
 const VIEWER_WATCH_PENDING_STORAGE_KEY = "kd_viewer_watch_pending_v1";
 const VIEWER_WATCH_PENDING_MAX_AGE_MS = 7 * 24 * 60 * 60 * 1000;
 const VIEWER_WATCH_PENDING_MAX_ENTRIES = 12;
@@ -31,6 +37,9 @@ interface UseViewerWatchSessionOptions {
     contentCount: number;
     activeAssetIndex: number;
     activeContentKind: ViewerWatchContentKind;
+    contentElementRef?: RefObject<Element | null>;
+    contentLoaded?: boolean;
+    overlayBlocked?: boolean;
 }
 
 interface AssetWatchState extends ViewerWatchAssetSnapshot {
@@ -51,6 +60,8 @@ interface SessionContext {
     contentCount: number;
     activeAssetIndex: number;
     activeContentKind: ViewerWatchContentKind;
+    contentLoaded?: boolean;
+    overlayBlocked?: boolean;
 }
 
 interface StoredViewerWatchSessionEntry {
@@ -111,6 +122,50 @@ function inferCaptureQuality(input: {
 
 function isMediaContent(kind: ViewerWatchContentKind) {
     return kind === "video" || kind === "audio";
+}
+
+function readDocumentVisibilityState() {
+    if (typeof document === "undefined") {
+        return "unknown" as const;
+    }
+
+    if (document.visibilityState === "visible" || document.visibilityState === "hidden" || document.visibilityState === "prerender") {
+        return document.visibilityState;
+    }
+
+    return "unknown" as const;
+}
+
+function readHasFocus() {
+    if (typeof document === "undefined" || typeof document.hasFocus !== "function") {
+        return true;
+    }
+
+    return document.hasFocus();
+}
+
+function readReducedMotion() {
+    if (typeof window === "undefined" || typeof window.matchMedia !== "function") {
+        return false;
+    }
+
+    return window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+}
+
+function readDisplayMode() {
+    if (typeof window === "undefined" || typeof window.matchMedia !== "function") {
+        return "unknown" as const;
+    }
+
+    const navigatorWithStandalone = window.navigator as Navigator & { standalone?: boolean };
+    if (window.matchMedia("(display-mode: fullscreen)").matches) {
+        return "fullscreen" as const;
+    }
+    if (window.matchMedia("(display-mode: standalone)").matches || navigatorWithStandalone.standalone === true) {
+        return "standalone" as const;
+    }
+
+    return "browser" as const;
 }
 
 function readPendingWatchSessionEntries() {
@@ -224,9 +279,13 @@ function clearPendingWatchSessions(watchSessionIds: string[]) {
 
 export function useViewerWatchSession(options: UseViewerWatchSessionOptions) {
     const [watchSessionId, setWatchSessionId] = useState<string | null>(null);
+    const [contentVisibilityPercent, setContentVisibilityPercent] = useState(0);
+    const [documentVisible, setDocumentVisible] = useState(() => readDocumentVisibilityState() === "visible");
+    const [analyticsAllowed, setAnalyticsAllowed] = useState(() => canUseIdentifiedAnalytics(readPrivacySettingsSnapshot()));
 
     const contextRef = useRef<SessionContext>(options);
     const watchSessionIdRef = useRef<string | null>(null);
+    const activeDropIdRef = useRef<string | null>(null);
     const clientSessionIdRef = useRef<string>("");
     const sessionStartedAtRef = useRef<number | null>(null);
     const sessionSequenceRef = useRef(0);
@@ -235,6 +294,10 @@ export function useViewerWatchSession(options: UseViewerWatchSessionOptions) {
     const lastHeartbeatFlushAtRef = useRef(0);
     const lastTickAtRef = useRef<number | null>(null);
     const mediaPlayingRef = useRef(false);
+    const lastUserActivityAtRef = useRef(currentTimestamp());
+    const lastProgressTelemetryAtRef = useRef(0);
+    const contentVisiblePercentRef = useRef(0);
+    const contentVisibleRef = useRef(false);
     const flushInFlightRef = useRef<Promise<void> | null>(null);
     const flushQueuedRef = useRef<{ reason: string; options?: FlushOptions } | null>(null);
     const closeRetryTimeoutRef = useRef<number | null>(null);
@@ -250,6 +313,10 @@ export function useViewerWatchSession(options: UseViewerWatchSessionOptions) {
         visibilityHiddenCount: 0,
         hiddenDurationMs: 0,
         hiddenSinceMs: null as number | null,
+        idleDurationMs: 0,
+        idleSinceMs: null as number | null,
+        totalActiveMs: 0,
+        totalPlayingMs: 0,
         gapCount: 0,
         maxGapMs: 0,
         flushAttemptCount: 0,
@@ -287,12 +354,13 @@ export function useViewerWatchSession(options: UseViewerWatchSessionOptions) {
 
             flushQueuedRef.current = { reason, options };
             void flushSessionRef.current(reason, options);
-        }, HEARTBEAT_INTERVAL_MS);
+        }, CLOSE_RETRY_DELAY_MS);
     }, [clearCloseRetryTimeout]);
 
     const resetSessionState = useCallback(() => {
         clearCloseRetryTimeout();
         watchSessionIdRef.current = null;
+        activeDropIdRef.current = null;
         clientSessionIdRef.current = "";
         sessionStartedAtRef.current = null;
         sessionSequenceRef.current = 0;
@@ -301,6 +369,8 @@ export function useViewerWatchSession(options: UseViewerWatchSessionOptions) {
         lastHeartbeatFlushAtRef.current = 0;
         lastTickAtRef.current = null;
         mediaPlayingRef.current = false;
+        lastUserActivityAtRef.current = currentTimestamp();
+        lastProgressTelemetryAtRef.current = 0;
         flushInFlightRef.current = null;
         flushQueuedRef.current = null;
         pendingReplayAttemptedRef.current = false;
@@ -314,6 +384,10 @@ export function useViewerWatchSession(options: UseViewerWatchSessionOptions) {
             visibilityHiddenCount: 0,
             hiddenDurationMs: 0,
             hiddenSinceMs: null,
+            idleDurationMs: 0,
+            idleSinceMs: null,
+            totalActiveMs: 0,
+            totalPlayingMs: 0,
             gapCount: 0,
             maxGapMs: 0,
             flushAttemptCount: 0,
@@ -375,7 +449,10 @@ export function useViewerWatchSession(options: UseViewerWatchSessionOptions) {
             startedAtMs: timestamp,
             totalWatchSeconds: 0,
             totalVisibleSeconds: 0,
+            totalActiveSeconds: 0,
+            totalPlayingSeconds: 0,
             maxProgressSeconds: 0,
+            maxProgressPercent: 0,
             checkpointMaxSeconds: 0,
             durationSeconds: null,
             consumedAtMs: null,
@@ -392,6 +469,9 @@ export function useViewerWatchSession(options: UseViewerWatchSessionOptions) {
             waitingDurationSeconds: 0,
             playbackRateAverage: 0,
             mutedSampleCount: 0,
+            viewportVisiblePercent: contentVisiblePercentRef.current,
+            documentVisibilityState: readDocumentVisibilityState(),
+            hasFocus: readHasFocus(),
             revision: 1,
         };
         assetsRef.current.set(assetKey, created);
@@ -408,6 +488,16 @@ export function useViewerWatchSession(options: UseViewerWatchSessionOptions) {
         }
         dirtyAssetKeysRef.current.add(asset.assetKey);
         markSessionDirty();
+    }, [markSessionDirty]);
+
+    const markUserActivity = useCallback(() => {
+        const timestamp = currentTimestamp();
+        if (sessionMetadataRef.current.idleSinceMs !== null) {
+            sessionMetadataRef.current.idleDurationMs += Math.max(0, timestamp - sessionMetadataRef.current.idleSinceMs);
+            sessionMetadataRef.current.idleSinceMs = null;
+            markSessionDirty();
+        }
+        lastUserActivityAtRef.current = timestamp;
     }, [markSessionDirty]);
 
     const applyActiveDelta = useCallback((timestampMs = currentTimestamp()) => {
@@ -439,19 +529,34 @@ export function useViewerWatchSession(options: UseViewerWatchSessionOptions) {
             return;
         }
 
-        if (rawDeltaMs > HEARTBEAT_INTERVAL_MS * 2) {
+        if (rawDeltaMs > WATCH_VISIBLE_TICK_INTERVAL_MS * 2) {
             sessionMetadataRef.current.gapCount += 1;
             sessionMetadataRef.current.maxGapMs = Math.max(sessionMetadataRef.current.maxGapMs, Math.round(rawDeltaMs));
             markSessionDirty();
         }
 
         const deltaSeconds = roundSeconds(deltaMs / 1000);
-        const documentVisible = typeof document === "undefined" || document.visibilityState === "visible";
-        const shouldCountWatch = isMediaContent(contextRef.current.activeContentKind)
-            ? mediaPlayingRef.current
-            : documentVisible;
+        const currentDocumentVisibility = readDocumentVisibilityState();
+        const documentIsVisible = currentDocumentVisibility === "visible";
+        const contentIsVisible = contentVisibleRef.current && contentVisiblePercentRef.current >= MINIMUM_VIEWPORT_VISIBLE_PERCENT;
+        const routeOwnsViewer = typeof window === "undefined" || (window.location.pathname || "").startsWith("/dashboard/viewer");
+        const idleMs = Math.max(0, timestampMs - lastUserActivityAtRef.current);
+        const activeEligible = idleMs < ACTIVE_IDLE_THRESHOLD_MS;
+        const canObserveContent = documentIsVisible && contentIsVisible && routeOwnsViewer && contextRef.current.overlayBlocked !== true;
+        const mediaContent = isMediaContent(contextRef.current.activeContentKind);
+        const shouldCountVisible = canObserveContent;
+        const shouldCountActive = canObserveContent && activeEligible;
+        const shouldCountPlaying = shouldCountActive && mediaContent && mediaPlayingRef.current;
+        const shouldCountWatch = mediaContent
+            ? shouldCountPlaying || (shouldCountActive && asset.maxProgressSeconds > 0)
+            : shouldCountActive;
 
-        if (!shouldCountWatch && !documentVisible) {
+        if (idleMs >= ACTIVE_IDLE_THRESHOLD_MS && sessionMetadataRef.current.idleSinceMs === null) {
+            sessionMetadataRef.current.idleSinceMs = Math.max(lastUserActivityAtRef.current + ACTIVE_IDLE_THRESHOLD_MS, timestampMs - deltaMs);
+            markSessionDirty();
+        }
+
+        if (!shouldCountVisible && !shouldCountWatch) {
             return;
         }
 
@@ -460,9 +565,20 @@ export function useViewerWatchSession(options: UseViewerWatchSessionOptions) {
             if (shouldCountWatch) {
                 asset.totalWatchSeconds = roundSeconds(asset.totalWatchSeconds + deltaSeconds);
             }
-            if (documentVisible) {
+            if (shouldCountVisible) {
                 asset.totalVisibleSeconds = roundSeconds(asset.totalVisibleSeconds + deltaSeconds);
             }
+            if (shouldCountActive) {
+                asset.totalActiveSeconds = roundSeconds((asset.totalActiveSeconds ?? 0) + deltaSeconds);
+                sessionMetadataRef.current.totalActiveMs += deltaMs;
+            }
+            if (shouldCountPlaying) {
+                asset.totalPlayingSeconds = roundSeconds((asset.totalPlayingSeconds ?? 0) + deltaSeconds);
+                sessionMetadataRef.current.totalPlayingMs += deltaMs;
+            }
+            asset.viewportVisiblePercent = contentVisiblePercentRef.current;
+            asset.documentVisibilityState = currentDocumentVisibility;
+            asset.hasFocus = readHasFocus();
             asset.heartbeatCount += 1;
         });
     }, [ensureAssetState, getCurrentAssetIdentity, markSessionDirty, updateAssetState]);
@@ -490,9 +606,15 @@ export function useViewerWatchSession(options: UseViewerWatchSessionOptions) {
         );
         const totalWatchSeconds = roundSeconds(allAssets.reduce((sum, asset) => sum + asset.totalWatchSeconds, 0));
         const totalVisibleSeconds = roundSeconds(allAssets.reduce((sum, asset) => sum + asset.totalVisibleSeconds, 0));
+        const totalActiveSeconds = roundSeconds(allAssets.reduce((sum, asset) => sum + (asset.totalActiveSeconds ?? 0), 0));
+        const totalPlayingSeconds = roundSeconds(allAssets.reduce((sum, asset) => sum + (asset.totalPlayingSeconds ?? 0), 0));
         const maxAssetWatchSeconds = roundSeconds(allAssets.reduce((max, asset) => Math.max(max, asset.totalWatchSeconds), 0));
+        const maxProgressPercent = roundSeconds(allAssets.reduce((max, asset) => Math.max(max, asset.maxProgressPercent ?? 0), 0));
         const loadMsTotal = Math.round(allAssets.reduce((sum, asset) => sum + asset.loadMsTotal, 0));
         const loadSampleCount = allAssets.reduce((sum, asset) => sum + asset.loadSampleCount, 0);
+        const openIdleDurationMs = sessionMetadataRef.current.idleSinceMs === null
+            ? 0
+            : Math.max(0, currentTimestamp() - sessionMetadataRef.current.idleSinceMs);
         const assetRevisionMap = new Map<string, number>(dirtyAssets.map((asset) => [asset.assetKey, asset.revision]));
         const captureTransport = (
             options?.transport
@@ -525,7 +647,10 @@ export function useViewerWatchSession(options: UseViewerWatchSessionOptions) {
             activeAssetIndex: close ? null : (getCurrentAssetIdentity()?.assetIndex ?? null),
             totalWatchSeconds,
             totalVisibleSeconds,
+            totalActiveSeconds,
+            totalPlayingSeconds,
             maxAssetWatchSeconds,
+            maxProgressPercent,
             viewedAssetCount: allAssets.filter((asset) => asset.totalWatchSeconds > 0 || asset.totalVisibleSeconds > 0 || asset.loadSampleCount > 0).length,
             completedAssetCount: allAssets.filter((asset) => asset.isCompleted).length,
             consumedAssetCount: allAssets.filter((asset) => asset.isConsumed).length,
@@ -544,8 +669,14 @@ export function useViewerWatchSession(options: UseViewerWatchSessionOptions) {
             flushFailureCount: sessionMetadataRef.current.flushFailureCount,
             visibilityHiddenCount: sessionMetadataRef.current.visibilityHiddenCount,
             hiddenDurationSeconds: roundSeconds(sessionMetadataRef.current.hiddenDurationMs / 1000),
+            idleDurationSeconds: roundSeconds((sessionMetadataRef.current.idleDurationMs + openIdleDurationMs) / 1000),
             gapCount: sessionMetadataRef.current.gapCount,
             maxGapMs: sessionMetadataRef.current.maxGapMs,
+            viewportVisiblePercent: contentVisiblePercentRef.current,
+            documentVisibilityState: readDocumentVisibilityState(),
+            hasFocus: readHasFocus(),
+            reducedMotion: readReducedMotion(),
+            displayMode: readDisplayMode(),
             assets: dirtyAssets.map((asset) => ({
                 assetKey: asset.assetKey,
                 assetIndex: asset.assetIndex,
@@ -555,7 +686,10 @@ export function useViewerWatchSession(options: UseViewerWatchSessionOptions) {
                 startedAtMs: asset.startedAtMs,
                 totalWatchSeconds: asset.totalWatchSeconds,
                 totalVisibleSeconds: asset.totalVisibleSeconds,
+                totalActiveSeconds: asset.totalActiveSeconds ?? 0,
+                totalPlayingSeconds: asset.totalPlayingSeconds ?? 0,
                 maxProgressSeconds: asset.maxProgressSeconds,
+                maxProgressPercent: asset.maxProgressPercent ?? 0,
                 checkpointMaxSeconds: asset.checkpointMaxSeconds,
                 durationSeconds: asset.durationSeconds ?? null,
                 consumedAtMs: asset.consumedAtMs ?? null,
@@ -572,6 +706,9 @@ export function useViewerWatchSession(options: UseViewerWatchSessionOptions) {
                 waitingDurationSeconds: asset.waitingDurationSeconds ?? 0,
                 playbackRateAverage: asset.playbackRateAverage ?? 0,
                 mutedSampleCount: asset.mutedSampleCount ?? 0,
+                viewportVisiblePercent: asset.viewportVisiblePercent ?? contentVisiblePercentRef.current,
+                documentVisibilityState: asset.documentVisibilityState ?? readDocumentVisibilityState(),
+                hasFocus: asset.hasFocus ?? readHasFocus(),
             })),
         };
 
@@ -599,6 +736,51 @@ export function useViewerWatchSession(options: UseViewerWatchSessionOptions) {
         const { payload, sessionRevision, assetRevisionMap } = payloadBundle;
         sessionSequenceRef.current = payload.sessionSequence;
         const activeWatchSessionId = payload.watchSessionId;
+        if (options?.close === true) {
+            const watchScore = scoreViewerWatchSession({
+                contentKind: contextRef.current.activeContentKind,
+                totalWatchSeconds: payload.totalWatchSeconds,
+                totalVisibleSeconds: payload.totalVisibleSeconds,
+                totalActiveSeconds: payload.totalActiveSeconds,
+                totalPlayingSeconds: payload.totalPlayingSeconds,
+                hiddenDurationSeconds: payload.hiddenDurationSeconds,
+                idleDurationSeconds: payload.idleDurationSeconds,
+                maxProgressPercent: payload.maxProgressPercent,
+                completed: payload.completedAssetCount > 0,
+            });
+            trackEvent("watch_session_ended", {
+                source_component: "viewer_watch_session",
+                route: payload.pagePath,
+                drop_id: payload.dropId,
+                watch_session_id: activeWatchSessionId,
+                started_at_ms: payload.sessionStartedAtMs,
+                ended_at_ms: payload.closedAtMs ?? payload.lastSeenAtMs,
+                visible_ms: Math.round(payload.totalVisibleSeconds * 1000),
+                active_ms: Math.round((payload.totalActiveSeconds ?? 0) * 1000),
+                playing_ms: Math.round((payload.totalPlayingSeconds ?? 0) * 1000),
+                hidden_ms: Math.round((payload.hiddenDurationSeconds ?? 0) * 1000),
+                idle_ms: Math.round((payload.idleDurationSeconds ?? 0) * 1000),
+                valid_watch_ms: watchScore.validWatchMs,
+                score: watchScore.score,
+                tier: watchScore.tier,
+                completion_reason: payload.closeReason ?? "closed",
+                reason_codes: watchScore.reasonCodes.join("|"),
+                visibility_state: payload.documentVisibilityState ?? "unknown",
+                idle_state: (payload.idleDurationSeconds ?? 0) > 0 ? "idle_excluded" : "active",
+            });
+            trackEvent("watch_score_computed", {
+                source_component: "viewer_watch_session",
+                route: payload.pagePath,
+                drop_id: payload.dropId,
+                watch_session_id: activeWatchSessionId,
+                valid_watch_ms: watchScore.validWatchMs,
+                score: watchScore.score,
+                tier: watchScore.tier,
+                reason_codes: watchScore.reasonCodes.join("|"),
+                visibility_state: payload.documentVisibilityState ?? "unknown",
+                idle_state: (payload.idleDurationSeconds ?? 0) > 0 ? "idle_excluded" : "active",
+            });
+        }
         sessionMetadataRef.current.flushAttemptCount += 1;
         persistPendingWatchSession(payload);
         flushInFlightRef.current = (async () => {
@@ -676,6 +858,7 @@ export function useViewerWatchSession(options: UseViewerWatchSessionOptions) {
     flushSessionRef.current = flushSession;
 
     const reportAssetStarted = useCallback(() => {
+        markUserActivity();
         const asset = ensureAssetState();
         if (!asset) {
             return;
@@ -687,7 +870,7 @@ export function useViewerWatchSession(options: UseViewerWatchSessionOptions) {
             asset.firstSeenAtMs = Math.min(asset.firstSeenAtMs, timestamp);
             asset.lastSeenAtMs = Math.max(asset.lastSeenAtMs, timestamp);
         });
-    }, [ensureAssetState, updateAssetState]);
+    }, [ensureAssetState, markUserActivity, updateAssetState]);
 
     const reportAssetLoaded = useCallback((loadMs: number) => {
         if (!Number.isFinite(loadMs) || loadMs <= 0) {
@@ -728,6 +911,7 @@ export function useViewerWatchSession(options: UseViewerWatchSessionOptions) {
     }, [ensureAssetState, updateAssetState]);
 
     const reportAssetProgress = useCallback((progressSeconds: number, durationSeconds?: number) => {
+        markUserActivity();
         const asset = ensureAssetState();
         if (!asset) {
             return;
@@ -739,12 +923,33 @@ export function useViewerWatchSession(options: UseViewerWatchSessionOptions) {
             asset.checkpointMaxSeconds = Math.max(asset.checkpointMaxSeconds, normalizedProgress);
             if (Number.isFinite(durationSeconds) && durationSeconds && durationSeconds > 0) {
                 asset.durationSeconds = Math.max(1, Math.round(durationSeconds));
+                asset.maxProgressPercent = Math.max(
+                    asset.maxProgressPercent ?? 0,
+                    Math.max(0, Math.min(100, (normalizedProgress / durationSeconds) * 100)),
+                );
             }
             asset.lastSeenAtMs = Math.max(asset.lastSeenAtMs, currentTimestamp());
         });
-    }, [ensureAssetState, updateAssetState]);
+        const timestamp = currentTimestamp();
+        if (timestamp - lastProgressTelemetryAtRef.current >= WATCH_VISIBLE_TICK_INTERVAL_MS) {
+            lastProgressTelemetryAtRef.current = timestamp;
+            trackEvent("watch_session_progress", {
+                source_component: "viewer_watch_session",
+                route: pagePathRef.current,
+                drop_id: contextRef.current.dropId ?? "",
+                watch_session_id: watchSessionIdRef.current ?? "",
+                media_index: contextRef.current.activeAssetIndex + 1,
+                media_type: isMediaContent(contextRef.current.activeContentKind) ? "video" : contextRef.current.activeContentKind === "image" ? "image" : "unknown",
+                max_progress_percent: asset.maxProgressPercent ?? 0,
+                viewport_visible_percent: contentVisiblePercentRef.current,
+                document_visibility_state: readDocumentVisibilityState(),
+                has_focus: readHasFocus(),
+            });
+        }
+    }, [ensureAssetState, markUserActivity, updateAssetState]);
 
     const reportMediaSeeking = useCallback((fromSeconds: number, toSeconds: number, durationSeconds?: number) => {
+        markUserActivity();
         const asset = ensureAssetState();
         if (!asset) {
             return;
@@ -765,7 +970,7 @@ export function useViewerWatchSession(options: UseViewerWatchSessionOptions) {
             }
             asset.lastSeenAtMs = Math.max(asset.lastSeenAtMs, currentTimestamp());
         });
-    }, [ensureAssetState, updateAssetState]);
+    }, [ensureAssetState, markUserActivity, updateAssetState]);
 
     const reportMediaWaiting = useCallback((waitingSeconds: number) => {
         const asset = ensureAssetState();
@@ -781,6 +986,7 @@ export function useViewerWatchSession(options: UseViewerWatchSessionOptions) {
     }, [ensureAssetState, updateAssetState]);
 
     const reportAssetConsumed = useCallback((progressSeconds?: number, durationSeconds?: number) => {
+        markUserActivity();
         const asset = ensureAssetState();
         if (!asset) {
             return;
@@ -792,14 +998,19 @@ export function useViewerWatchSession(options: UseViewerWatchSessionOptions) {
             }
             if (Number.isFinite(durationSeconds) && durationSeconds && durationSeconds > 0) {
                 asset.durationSeconds = Math.max(1, Math.round(durationSeconds));
+                asset.maxProgressPercent = Math.max(
+                    asset.maxProgressPercent ?? 0,
+                    Math.max(0, Math.min(100, ((progressSeconds || 0) / durationSeconds) * 100)),
+                );
             }
             asset.isConsumed = true;
             asset.consumedAtMs = asset.consumedAtMs ?? currentTimestamp();
             asset.lastSeenAtMs = Math.max(asset.lastSeenAtMs, currentTimestamp());
         });
-    }, [ensureAssetState, updateAssetState]);
+    }, [ensureAssetState, markUserActivity, updateAssetState]);
 
     const reportAssetCompleted = useCallback((progressSeconds?: number, durationSeconds?: number) => {
+        markUserActivity();
         const asset = ensureAssetState();
         if (!asset) {
             return;
@@ -811,6 +1022,10 @@ export function useViewerWatchSession(options: UseViewerWatchSessionOptions) {
             }
             if (Number.isFinite(durationSeconds) && durationSeconds && durationSeconds > 0) {
                 asset.durationSeconds = Math.max(1, Math.round(durationSeconds));
+                asset.maxProgressPercent = Math.max(
+                    asset.maxProgressPercent ?? 0,
+                    Math.max(0, Math.min(100, ((progressSeconds || 0) / durationSeconds) * 100)),
+                );
             }
             asset.isConsumed = true;
             asset.isCompleted = true;
@@ -818,9 +1033,10 @@ export function useViewerWatchSession(options: UseViewerWatchSessionOptions) {
             asset.completedAtMs = asset.completedAtMs ?? currentTimestamp();
             asset.lastSeenAtMs = Math.max(asset.lastSeenAtMs, currentTimestamp());
         });
-    }, [ensureAssetState, updateAssetState]);
+    }, [ensureAssetState, markUserActivity, updateAssetState]);
 
     const reportMediaPlay = useCallback((progressSeconds?: number, durationSeconds?: number) => {
+        markUserActivity();
         reportAssetStarted();
         if (Number.isFinite(progressSeconds)) {
             reportAssetProgress(progressSeconds || 0, durationSeconds);
@@ -828,16 +1044,31 @@ export function useViewerWatchSession(options: UseViewerWatchSessionOptions) {
         applyActiveDelta();
         mediaPlayingRef.current = true;
         lastTickAtRef.current = currentTimestamp();
-    }, [applyActiveDelta, reportAssetProgress, reportAssetStarted]);
+        trackEvent("watch_session_resumed", {
+            source_component: "viewer_watch_session",
+            route: pagePathRef.current,
+            drop_id: contextRef.current.dropId ?? "",
+            watch_session_id: watchSessionIdRef.current ?? "",
+            media_type: "video",
+        });
+    }, [applyActiveDelta, markUserActivity, reportAssetProgress, reportAssetStarted]);
 
     const reportMediaPause = useCallback((progressSeconds?: number, durationSeconds?: number) => {
+        markUserActivity();
         if (Number.isFinite(progressSeconds)) {
             reportAssetProgress(progressSeconds || 0, durationSeconds);
         }
         applyActiveDelta();
         mediaPlayingRef.current = false;
         lastTickAtRef.current = currentTimestamp();
-    }, [applyActiveDelta, reportAssetProgress]);
+        trackEvent("watch_session_paused", {
+            source_component: "viewer_watch_session",
+            route: pagePathRef.current,
+            drop_id: contextRef.current.dropId ?? "",
+            watch_session_id: watchSessionIdRef.current ?? "",
+            media_type: "video",
+        });
+    }, [applyActiveDelta, markUserActivity, reportAssetProgress]);
 
     const reportMediaEnded = useCallback((progressSeconds?: number, durationSeconds?: number) => {
         reportMediaPause(progressSeconds, durationSeconds);
@@ -862,6 +1093,13 @@ export function useViewerWatchSession(options: UseViewerWatchSessionOptions) {
             sessionMetadataRef.current.visibilityHiddenCount += 1;
             sessionMetadataRef.current.hiddenSinceMs = timestamp;
             markSessionDirty();
+            trackEvent("watch_session_hidden", {
+                source_component: "viewer_watch_session",
+                route: pagePathRef.current,
+                drop_id: contextRef.current.dropId ?? "",
+                watch_session_id: watchSessionIdRef.current ?? "",
+                document_visibility_state: "hidden",
+            });
             void flushSessionRef.current("visibility_hidden", { keepalive: true });
         } else if (sessionMetadataRef.current.hiddenSinceMs) {
             sessionMetadataRef.current.hiddenDurationMs += Math.max(0, timestamp - sessionMetadataRef.current.hiddenSinceMs);
@@ -871,8 +1109,91 @@ export function useViewerWatchSession(options: UseViewerWatchSessionOptions) {
     }, [applyActiveDelta, markSessionDirty]);
 
     useEffect(() => {
-        if (!options.enabled || !options.dropId) {
+        const syncPrivacy = () => setAnalyticsAllowed(canUseIdentifiedAnalytics(readPrivacySettingsSnapshot()));
+        syncPrivacy();
+        return subscribeToPrivacySettings(syncPrivacy);
+    }, []);
+
+    useEffect(() => {
+        if (typeof document === "undefined") {
+            return;
+        }
+
+        const handleVisibilityChange = () => {
+            const isVisible = document.visibilityState === "visible";
+            setDocumentVisible(isVisible);
+            if (watchSessionIdRef.current) {
+                noteVisibility(!isVisible);
+            }
+        };
+
+        document.addEventListener("visibilitychange", handleVisibilityChange);
+        return () => document.removeEventListener("visibilitychange", handleVisibilityChange);
+    }, [noteVisibility]);
+
+    useEffect(() => {
+        const target = options.contentElementRef?.current ?? null;
+        if (typeof window === "undefined" || !target || typeof IntersectionObserver === "undefined") {
+            const fallbackPercent = target ? 100 : 0;
+            contentVisiblePercentRef.current = fallbackPercent;
+            contentVisibleRef.current = fallbackPercent >= MINIMUM_VIEWPORT_VISIBLE_PERCENT;
+            setContentVisibilityPercent(fallbackPercent);
+            return;
+        }
+
+        const observer = new IntersectionObserver((entries) => {
+            const entry = entries[0];
+            const nextPercent = entry ? Math.round(Math.max(0, Math.min(1, entry.intersectionRatio)) * 100) : 0;
+            contentVisiblePercentRef.current = nextPercent;
+            contentVisibleRef.current = nextPercent >= MINIMUM_VIEWPORT_VISIBLE_PERCENT;
+            setContentVisibilityPercent(nextPercent);
+            if (watchSessionIdRef.current) {
+                applyActiveDelta();
+            }
+        }, { threshold: [0, 0.25, 0.5, 0.75, 1] });
+
+        observer.observe(target);
+        return () => observer.disconnect();
+    }, [applyActiveDelta, options.contentElementRef, options.contentElementRef?.current]);
+
+    useEffect(() => {
+        if (typeof window === "undefined" || !options.enabled) {
+            return;
+        }
+
+        const activityEvents = ["pointerdown", "keydown", "touchstart", "scroll"] as const;
+        activityEvents.forEach((eventName) => {
+            window.addEventListener(eventName, markUserActivity, { passive: true });
+        });
+
+        return () => {
+            activityEvents.forEach((eventName) => {
+                window.removeEventListener(eventName, markUserActivity);
+            });
+        };
+    }, [markUserActivity, options.enabled]);
+
+    const canStartSession = Boolean(
+        options.enabled
+        && options.dropId
+        && options.contentLoaded
+        && analyticsAllowed
+        && documentVisible
+        && contentVisibilityPercent >= MINIMUM_VIEWPORT_VISIBLE_PERCENT
+        && options.overlayBlocked !== true,
+    );
+
+    useEffect(() => {
+        if (!options.enabled || !options.dropId || !analyticsAllowed) {
             resetSessionState();
+            return;
+        }
+
+        if (!canStartSession) {
+            return;
+        }
+
+        if (watchSessionIdRef.current && activeDropIdRef.current === options.dropId) {
             return;
         }
 
@@ -882,14 +1203,28 @@ export function useViewerWatchSession(options: UseViewerWatchSessionOptions) {
         const startedAtMs = currentTimestamp();
 
         watchSessionIdRef.current = nextWatchSessionId;
+        activeDropIdRef.current = options.dropId;
         clientSessionIdRef.current = clientSessionId;
         sessionStartedAtRef.current = startedAtMs;
         lastTickAtRef.current = startedAtMs;
         previousAssetKeyRef.current = null;
         sessionDirtyRef.current = true;
         setWatchSessionId(nextWatchSessionId);
+        trackEvent("watch_session_started", {
+            source_component: "viewer_watch_session",
+            route: pagePathRef.current,
+            drop_id: options.dropId,
+            watch_session_id: nextWatchSessionId,
+            started_at_ms: startedAtMs,
+            media_type: isMediaContent(options.activeContentKind) ? "video" : options.activeContentKind === "image" ? "image" : "unknown",
+            viewport_visible_percent: contentVisiblePercentRef.current,
+            document_visibility_state: readDocumentVisibilityState(),
+            has_focus: readHasFocus(),
+            reduced_motion: readReducedMotion(),
+            display_mode: readDisplayMode(),
+        });
 
-    }, [options.dropId, options.enabled, resetSessionState]);
+    }, [analyticsAllowed, canStartSession, options.activeContentKind, options.dropId, options.enabled, resetSessionState]);
 
     useEffect(() => {
         if (!watchSessionIdRef.current || !options.enabled || !options.dropId) {
@@ -994,35 +1329,45 @@ export function useViewerWatchSession(options: UseViewerWatchSessionOptions) {
 
         const intervalId = window.setInterval(() => {
             applyActiveDelta();
+            const timestamp = currentTimestamp();
+            const idleMs = Math.max(0, timestamp - lastUserActivityAtRef.current);
+            if (idleMs >= IDLE_TIMEOUT_MS) {
+                void flushSessionRef.current("idle_timeout", { close: true, keepalive: true });
+                return;
+            }
+
             if (!sessionDirtyRef.current && dirtyAssetKeysRef.current.size === 0) {
                 return;
             }
 
-            const timestamp = currentTimestamp();
             if (timestamp - lastHeartbeatFlushAtRef.current >= HEARTBEAT_FLUSH_WINDOW_MS) {
+                trackEvent("watch_session_visible_tick", {
+                    source_component: "viewer_watch_session",
+                    route: pagePathRef.current,
+                    drop_id: options.dropId,
+                    watch_session_id: watchSessionIdRef.current,
+                    viewport_visible_percent: contentVisiblePercentRef.current,
+                    document_visibility_state: readDocumentVisibilityState(),
+                    has_focus: readHasFocus(),
+                    idle_state: idleMs >= ACTIVE_IDLE_THRESHOLD_MS ? "idle" : "active",
+                });
+                trackEvent("watch_session_tick", {
+                    source_component: "viewer_watch_session",
+                    route: pagePathRef.current,
+                    drop_id: options.dropId,
+                    watch_session_id: watchSessionIdRef.current,
+                    viewport_visible_percent: contentVisiblePercentRef.current,
+                    document_visibility_state: readDocumentVisibilityState(),
+                    idle_state: idleMs >= ACTIVE_IDLE_THRESHOLD_MS ? "idle" : "active",
+                });
                 void flushSessionRef.current("heartbeat");
             }
-        }, HEARTBEAT_INTERVAL_MS);
+        }, WATCH_VISIBLE_TICK_INTERVAL_MS);
 
         return () => {
             window.clearInterval(intervalId);
         };
     }, [applyActiveDelta, options.dropId, options.enabled, watchSessionId]);
-
-    useEffect(() => {
-        if (!watchSessionIdRef.current || !options.enabled || !options.dropId) {
-            return;
-        }
-
-        const handleVisibilityChange = () => {
-            noteVisibility(document.visibilityState === "hidden");
-        };
-        document.addEventListener("visibilitychange", handleVisibilityChange);
-
-        return () => {
-            document.removeEventListener("visibilitychange", handleVisibilityChange);
-        };
-    }, [noteVisibility, options.dropId, options.enabled, watchSessionId]);
 
     return {
         watchSessionId,

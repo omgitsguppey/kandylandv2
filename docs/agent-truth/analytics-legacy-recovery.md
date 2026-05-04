@@ -101,3 +101,7 @@ These sources can help explain history but cannot alone prove exact product trut
 - user records used as behavioral events
 
 Future agents must not turn directional recovery into confident Analytics UI values without a fresh source-labeling and parity pass.
+
+## Watch Time Fallback Rule
+
+Watch time is foreground visible content engagement, not route duration. Legacy page/session duration can explain older viewer history only when no watch-session rollup exists, and the output must carry `watchScoreSource = legacy_page_duration` with lower confidence. Current behavioral intelligence must prefer `analytics_watch_sessions`, `analytics_watch_assets`, and `analytics_watch_observations` rollups with `watchScoreSource = watch_session_rollup`.

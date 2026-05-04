@@ -106,7 +106,7 @@ function matchesResolvedViewerIdentity(userId: string, username: string, viewerF
 function parseWatchSessionDoc(doc: FirebaseFirestore.QueryDocumentSnapshot): WatchSessionRecord {
   const data = doc.data() as Record<string, unknown>;
   const derivedState = deriveViewerWatchSessionState({
-    totalWatchSeconds: toNumber(data.totalWatchSeconds),
+    totalWatchSeconds: Math.max(toNumber(data.validWatchMs) / 1000, toNumber(data.totalActiveSeconds), toNumber(data.totalWatchSeconds)),
     totalVisibleSeconds: toNumber(data.totalVisibleSeconds),
     maxAssetWatchSeconds: toNumber(data.maxAssetWatchSeconds),
     viewedAssetCount: toNumber(data.viewedAssetCount),
@@ -123,7 +123,7 @@ function parseWatchSessionDoc(doc: FirebaseFirestore.QueryDocumentSnapshot): Wat
     username: toStringValue(data.username),
     dropId: toStringValue(data.dropId) || "unknown-drop",
     dropTitle: toStringValue(data.dropTitle),
-    totalWatchSeconds: toNumber(data.totalWatchSeconds),
+    totalWatchSeconds: Math.max(toNumber(data.validWatchMs) / 1000, toNumber(data.totalActiveSeconds), toNumber(data.totalWatchSeconds)),
     totalVisibleSeconds: toNumber(data.totalVisibleSeconds),
     meaningfulWatch: data.meaningfulWatch === true || derivedState.meaningfulWatch,
     deepWatch: data.deepWatch === true || derivedState.deepWatch,
@@ -148,7 +148,7 @@ function parseWatchSessionDoc(doc: FirebaseFirestore.QueryDocumentSnapshot): Wat
 function parseWatchAssetDoc(doc: FirebaseFirestore.QueryDocumentSnapshot): WatchAssetRecord {
   const data = doc.data() as Record<string, unknown>;
   const derivedState = deriveViewerWatchAssetState({
-    totalWatchSeconds: toNumber(data.totalWatchSeconds),
+    totalWatchSeconds: Math.max(toNumber(data.validWatchMs) / 1000, toNumber(data.totalActiveSeconds), toNumber(data.totalWatchSeconds)),
     totalVisibleSeconds: toNumber(data.totalVisibleSeconds),
     maxProgressSeconds: Math.max(toNumber(data.maxProgressSeconds), toNumber(data.checkpointMaxSeconds)),
     completedAssetCount: data.isCompleted === true ? 1 : 0,
@@ -162,7 +162,7 @@ function parseWatchAssetDoc(doc: FirebaseFirestore.QueryDocumentSnapshot): Watch
     username: toStringValue(data.username),
     dropId: toStringValue(data.dropId) || "unknown-drop",
     dropTitle: toStringValue(data.dropTitle),
-    totalWatchSeconds: toNumber(data.totalWatchSeconds),
+    totalWatchSeconds: Math.max(toNumber(data.validWatchMs) / 1000, toNumber(data.totalActiveSeconds), toNumber(data.totalWatchSeconds)),
     totalVisibleSeconds: toNumber(data.totalVisibleSeconds),
     meaningfulWatch: data.meaningfulWatch === true || derivedState.meaningfulWatch,
     bounced: data.bounced === true || derivedState.bounced,
@@ -254,6 +254,8 @@ function buildWatchOverview(
     totalWatchSeconds: sum(watchDurations),
     avgSessionSeconds: average(sessionDurations),
     avgWatchSeconds: average(watchDurations),
+    watchScoreSource: "watch_session_rollup",
+    watchScoreConfidence: "high",
     avgLoadMs: totalLoadSampleCount > 0 ? Math.round(totalLoadMs / totalLoadSampleCount) : average(loadSamples),
     assetCompletionRate: assetStarts > 0 ? assetCompletions / assetStarts : 0,
     meaningfulSessionCount,
@@ -296,6 +298,8 @@ function buildWatchDropInsights(input: {
       totalWatchSeconds: 0,
       avgSessionSeconds: 0,
       avgWatchSeconds: 0,
+      watchScoreSource: "legacy_page_duration",
+      watchScoreConfidence: "low",
       assetStarts: 0,
       assetCompletions: 0,
       meaningfulSessionCount: 0,
@@ -572,6 +576,8 @@ export function buildHistoricalViewerOverview(input: {
     totalWatchSeconds: sum(overallWatchDurations),
     avgSessionSeconds: average(overallSessionDurations),
     avgWatchSeconds: average(overallWatchDurations),
+    watchScoreSource: "legacy_page_duration",
+    watchScoreConfidence: "low",
     avgLoadMs: average(overallLoadSamples),
     assetCompletionRate: viewerAssetStartedLogs.length > 0 ? viewerAssetCompletedLogs.length / viewerAssetStartedLogs.length : 0,
     meaningfulSessionCount: meaningfulSessionCountFromTelemetry,
@@ -614,6 +620,8 @@ export function buildHistoricalViewerOverview(input: {
   });
 
   const watchOverview = buildWatchOverview(filteredWatchSessions, filteredWatchAssets);
+  watchOverview.watchScoreSource = "watch_session_rollup";
+  watchOverview.watchScoreConfidence = "high";
   const viewerOverviewCanonical: ViewerOverview = filteredWatchSessions.length > 0
     ? watchOverview
     : viewerOverview.sessionCount > 0
@@ -637,6 +645,8 @@ export function buildHistoricalViewerOverview(input: {
         avgWatchSeconds: sessionFactOverview.sessionCount > 0
           ? Math.round(sessionFactOverview.totalWatchSeconds / sessionFactOverview.sessionCount)
           : 0,
+        watchScoreSource: "legacy_page_duration",
+        watchScoreConfidence: "low",
         avgLoadMs: sessionFactOverview.loadSampleCount > 0
           ? Math.round(sessionFactOverview.loadMsTotal / sessionFactOverview.loadSampleCount)
           : 0,

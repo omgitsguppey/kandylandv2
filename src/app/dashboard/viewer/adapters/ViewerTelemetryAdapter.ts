@@ -1,4 +1,4 @@
-import { useCallback, useEffect, useRef } from "react";
+import { useCallback, useEffect, useRef, type RefObject } from "react";
 import { Drop } from "@/types/db";
 import { trackEvent } from "@/lib/telemetry";
 import { useViewerWatchSession } from "@/hooks/useViewerWatchSession";
@@ -13,6 +13,7 @@ interface ViewerTelemetryAdapterProps {
     resolvedContent: ResolvedContent;
     contentLoading: boolean;
     contentBlobUrl: string | null;
+    contentElementRef?: RefObject<Element | null>;
 }
 
 const WATCH_CHECKPOINT_SECONDS = [15, 30, 60, 120, 300, 600];
@@ -25,6 +26,7 @@ export function useViewerTelemetry({
     resolvedContent,
     contentLoading,
     contentBlobUrl,
+    contentElementRef,
 }: ViewerTelemetryAdapterProps) {
     const previousDropIdRef = useRef<string | null>(null);
     const hasTrackedViewerOpenRef = useRef<string | null>(null);
@@ -75,6 +77,8 @@ export function useViewerTelemetry({
         contentCount: assetCount,
         activeAssetIndex: activeIndex,
         activeContentKind: resolvedContent.kind,
+        contentElementRef,
+        contentLoaded: !contentLoading && Boolean(contentBlobUrl),
     });
 
     const withWatchSessionParams = useCallback(<T extends Record<string, string | number | boolean>>(params: T) => (
@@ -306,16 +310,16 @@ export function useViewerTelemetry({
     }, [activeIndex, drop, dropType, isAuthorized, resolvedContent.kind, watchSessionId, withWatchSessionParams]);
 
     useEffect(() => {
-        if (!drop || !isAuthorized || !watchSessionId) {
+        if (!drop || !isAuthorized) {
             hasTrackedViewerOpenRef.current = null;
             return;
         }
-        if (hasTrackedViewerOpenRef.current === watchSessionId) return;
-        hasTrackedViewerOpenRef.current = watchSessionId;
+        if (hasTrackedViewerOpenRef.current === drop.id) return;
+        hasTrackedViewerOpenRef.current = drop.id;
         trackEvent("viewer_opened", withWatchSessionParams({
             drop_id: drop.id, drop_title: drop.title, drop_category: dropType, content_count: assetCount,
         }));
-    }, [assetCount, drop, dropType, isAuthorized, watchSessionId, withWatchSessionParams]);
+    }, [assetCount, drop, dropType, isAuthorized, withWatchSessionParams]);
 
     useEffect(() => {
         if (!dropId || !isAuthorized || !watchSessionId) return;
@@ -351,10 +355,11 @@ export function useViewerTelemetry({
     }, [activeIndex, commitAssetWatchTime, contentBlobUrl, contentLoading, drop, isAuthorized, markAssetWatchStarted, resolvedContent.kind]);
 
     useEffect(() => {
-        if (!drop || !isAuthorized || contentLoading || !contentBlobUrl) return;
+        if (!drop || !isAuthorized || !watchSessionId || contentLoading || !contentBlobUrl) return;
         if (resolvedContent.kind === "video" || resolvedContent.kind === "audio") return;
         const currentAssetIndex = activeIndex;
         const timerId = window.setTimeout(() => {
+            if (document.visibilityState !== "visible" || !document.hasFocus()) return;
             const elapsedWatchSeconds = resolveViewerWatchSeconds({
                 contentKind: resolvedContent.kind, watchSeconds: 6,
                 assetStartedAtMs: sessionAssetWatchStartedAtRef.current.get(`${drop.id}:${currentAssetIndex}`)!,
@@ -364,7 +369,7 @@ export function useViewerTelemetry({
             trackAssetCompleted(elapsedWatchSeconds, elapsedWatchSeconds);
         }, 6000);
         return () => window.clearTimeout(timerId);
-    }, [activeIndex, contentBlobUrl, contentLoading, drop, isAuthorized, resolvedContent.kind, trackAssetCompleted, trackAssetConsumed]);
+    }, [activeIndex, contentBlobUrl, contentLoading, drop, isAuthorized, resolvedContent.kind, trackAssetCompleted, trackAssetConsumed, watchSessionId]);
 
     useEffect(() => {
         if (!drop || !isAuthorized || contentLoading || !contentBlobUrl) return;

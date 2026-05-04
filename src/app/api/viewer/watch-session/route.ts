@@ -13,6 +13,7 @@ import { recordAnalyticsPipelineFailure } from "@/lib/server/analytics-pipeline-
 import { recordServerDiagnostic } from "@/lib/server/server-diagnostics";
 import { getErrorMessage } from "@/lib/server/route-diagnostics";
 import { recordRouteRuntimeSample } from "@/lib/server/route-runtime-health";
+import { profileAllowsIdentifiedAnalytics } from "@/lib/server/privacy-consent";
 import {
     ANALYTICS_CANONICAL_COLLECTIONS,
     ANALYTICS_ROUTE_POLICIES,
@@ -25,6 +26,7 @@ import {
     deriveViewerWatchAssetState,
     deriveViewerWatchCaptureState,
     deriveViewerWatchSessionState,
+    scoreViewerWatchSession,
 } from "@/lib/viewer-watch-session";
 
 const MAX_WATCH_SESSION_BODY_BYTES = 96 * 1024;
@@ -38,7 +40,10 @@ const assetSnapshotSchema = z.object({
     startedAtMs: z.number().int().positive(),
     totalWatchSeconds: z.number().min(0).max(172800),
     totalVisibleSeconds: z.number().min(0).max(172800),
+    totalActiveSeconds: z.number().min(0).max(172800).optional(),
+    totalPlayingSeconds: z.number().min(0).max(172800).optional(),
     maxProgressSeconds: z.number().min(0).max(172800),
+    maxProgressPercent: z.number().min(0).max(100).optional(),
     checkpointMaxSeconds: z.number().min(0).max(172800),
     durationSeconds: z.number().int().positive().nullable().optional(),
     consumedAtMs: z.number().int().positive().nullable().optional(),
@@ -55,6 +60,9 @@ const assetSnapshotSchema = z.object({
     waitingDurationSeconds: z.number().min(0).max(172800).optional(),
     playbackRateAverage: z.number().min(0).max(8).optional(),
     mutedSampleCount: z.number().int().min(0).max(100000).optional(),
+    viewportVisiblePercent: z.number().min(0).max(100).optional(),
+    documentVisibilityState: z.enum(["visible", "hidden", "prerender", "unloaded", "unknown"]).optional(),
+    hasFocus: z.boolean().optional(),
 });
 
 const watchSessionSchema = z.object({
@@ -78,7 +86,10 @@ const watchSessionSchema = z.object({
     activeAssetIndex: z.number().int().min(1).max(100).nullable().optional(),
     totalWatchSeconds: z.number().min(0).max(172800),
     totalVisibleSeconds: z.number().min(0).max(172800),
+    totalActiveSeconds: z.number().min(0).max(172800).optional(),
+    totalPlayingSeconds: z.number().min(0).max(172800).optional(),
     maxAssetWatchSeconds: z.number().min(0).max(172800),
+    maxProgressPercent: z.number().min(0).max(100).optional(),
     viewedAssetCount: z.number().int().min(0).max(100),
     completedAssetCount: z.number().int().min(0).max(100),
     consumedAssetCount: z.number().int().min(0).max(100),
@@ -97,8 +108,14 @@ const watchSessionSchema = z.object({
     flushFailureCount: z.number().int().min(0).max(100000).optional(),
     visibilityHiddenCount: z.number().int().min(0).max(100000).optional(),
     hiddenDurationSeconds: z.number().min(0).max(172800).optional(),
+    idleDurationSeconds: z.number().min(0).max(172800).optional(),
     gapCount: z.number().int().min(0).max(100000).optional(),
     maxGapMs: z.number().int().min(0).max(172800000).optional(),
+    viewportVisiblePercent: z.number().min(0).max(100).optional(),
+    documentVisibilityState: z.enum(["visible", "hidden", "prerender", "unloaded", "unknown"]).optional(),
+    hasFocus: z.boolean().optional(),
+    reducedMotion: z.boolean().optional(),
+    displayMode: z.enum(["browser", "standalone", "fullscreen", "unknown"]).optional(),
     assets: z.array(assetSnapshotSchema).max(64),
 });
 
@@ -164,6 +181,15 @@ export async function POST(request: NextRequest) {
         }
 
         const userProfile = (userSnapshot.data() as UserProfile | undefined) ?? null;
+        if (!profileAllowsIdentifiedAnalytics(userProfile, request)) {
+            return finalize(NextResponse.json({
+                success: true,
+                ignored: true,
+                reason: "identified_analytics_consent_denied",
+                watchSessionId: parsedBody.watchSessionId,
+            }));
+        }
+
         const unlockedContent = Array.isArray(userProfile?.unlockedContent) ? userProfile.unlockedContent : [];
         if (!unlockedContent.includes(parsedBody.dropId)) {
             return finalize(NextResponse.json({ error: "You do not own this content" }, { status: 403 }));
@@ -247,7 +273,10 @@ export async function POST(request: NextRequest) {
                 activeAssetIndex: parsedBody.isClosed ? null : (parsedBody.activeAssetIndex ?? null),
                 totalWatchSeconds: normalizeSeconds(readMax(existingSession?.totalWatchSeconds, parsedBody.totalWatchSeconds)),
                 totalVisibleSeconds: normalizeSeconds(readMax(existingSession?.totalVisibleSeconds, parsedBody.totalVisibleSeconds)),
+                totalActiveSeconds: normalizeSeconds(readMax(existingSession?.totalActiveSeconds, parsedBody.totalActiveSeconds ?? 0)),
+                totalPlayingSeconds: normalizeSeconds(readMax(existingSession?.totalPlayingSeconds, parsedBody.totalPlayingSeconds ?? 0)),
                 maxAssetWatchSeconds: normalizeSeconds(readMax(existingSession?.maxAssetWatchSeconds, parsedBody.maxAssetWatchSeconds)),
+                maxProgressPercent: normalizeSeconds(readMax(existingSession?.maxProgressPercent, parsedBody.maxProgressPercent ?? 0)),
                 viewedAssetCount: Math.max(typeof existingSession?.viewedAssetCount === "number" ? Number(existingSession.viewedAssetCount) : 0, parsedBody.viewedAssetCount),
                 completedAssetCount: Math.max(typeof existingSession?.completedAssetCount === "number" ? Number(existingSession.completedAssetCount) : 0, parsedBody.completedAssetCount),
                 consumedAssetCount: Math.max(typeof existingSession?.consumedAssetCount === "number" ? Number(existingSession.consumedAssetCount) : 0, parsedBody.consumedAssetCount),
@@ -266,8 +295,14 @@ export async function POST(request: NextRequest) {
                 flushFailureCount: Math.max(typeof existingSession?.flushFailureCount === "number" ? Number(existingSession.flushFailureCount) : 0, parsedBody.flushFailureCount ?? 0),
                 visibilityHiddenCount: Math.max(typeof existingSession?.visibilityHiddenCount === "number" ? Number(existingSession.visibilityHiddenCount) : 0, parsedBody.visibilityHiddenCount ?? 0),
                 hiddenDurationSeconds: normalizeSeconds(readMax(existingSession?.hiddenDurationSeconds, parsedBody.hiddenDurationSeconds ?? 0)),
+                idleDurationSeconds: normalizeSeconds(readMax(existingSession?.idleDurationSeconds, parsedBody.idleDurationSeconds ?? 0)),
                 gapCount: Math.max(typeof existingSession?.gapCount === "number" ? Number(existingSession.gapCount) : 0, parsedBody.gapCount ?? 0),
                 maxGapMs: Math.max(typeof existingSession?.maxGapMs === "number" ? Number(existingSession.maxGapMs) : 0, parsedBody.maxGapMs ?? 0),
+                viewportVisiblePercent: Math.max(typeof existingSession?.viewportVisiblePercent === "number" ? Number(existingSession.viewportVisiblePercent) : 0, parsedBody.viewportVisiblePercent ?? 0),
+                documentVisibilityState: parsedBody.documentVisibilityState ?? (typeof existingSession?.documentVisibilityState === "string" ? existingSession.documentVisibilityState : "unknown"),
+                hasFocus: parsedBody.hasFocus ?? (typeof existingSession?.hasFocus === "boolean" ? existingSession.hasFocus : null),
+                reducedMotion: parsedBody.reducedMotion ?? (typeof existingSession?.reducedMotion === "boolean" ? existingSession.reducedMotion : null),
+                displayMode: parsedBody.displayMode ?? (typeof existingSession?.displayMode === "string" ? existingSession.displayMode : "unknown"),
                 startedDayKey: startedTimeKeys.dayKey,
                 startedHourKey: startedTimeKeys.hourKey,
                 lastDayKey: lastSeenTimeKeys.dayKey,
@@ -285,7 +320,12 @@ export async function POST(request: NextRequest) {
             const sessionDerivedState = deriveViewerWatchSessionState({
                 totalWatchSeconds: mergedSessionData.totalWatchSeconds,
                 totalVisibleSeconds: mergedSessionData.totalVisibleSeconds,
+                totalActiveSeconds: mergedSessionData.totalActiveSeconds,
+                totalPlayingSeconds: mergedSessionData.totalPlayingSeconds,
+                hiddenDurationSeconds: mergedSessionData.hiddenDurationSeconds,
+                idleDurationSeconds: mergedSessionData.idleDurationSeconds,
                 maxAssetWatchSeconds: mergedSessionData.maxAssetWatchSeconds,
+                maxProgressPercent: mergedSessionData.maxProgressPercent,
                 viewedAssetCount: mergedSessionData.viewedAssetCount,
                 completedAssetCount: mergedSessionData.completedAssetCount,
                 consumedAssetCount: mergedSessionData.consumedAssetCount,
@@ -294,9 +334,27 @@ export async function POST(request: NextRequest) {
                 relatedClickCount: mergedSessionData.relatedClickCount,
                 loadSampleCount: mergedSessionData.loadSampleCount,
             });
+            const primaryContentKind = parsedBody.assets[0]?.contentKind ?? "unknown";
+            const sessionWatchScore = scoreViewerWatchSession({
+                contentKind: primaryContentKind,
+                totalWatchSeconds: mergedSessionData.totalWatchSeconds,
+                totalVisibleSeconds: mergedSessionData.totalVisibleSeconds,
+                totalActiveSeconds: mergedSessionData.totalActiveSeconds,
+                totalPlayingSeconds: mergedSessionData.totalPlayingSeconds,
+                hiddenDurationSeconds: mergedSessionData.hiddenDurationSeconds,
+                idleDurationSeconds: mergedSessionData.idleDurationSeconds,
+                maxProgressPercent: mergedSessionData.maxProgressPercent,
+                completed: mergedSessionData.completedAssetCount > 0,
+            });
 
             const sessionData = {
                 ...mergedSessionData,
+                watchScore: sessionWatchScore.score,
+                watchTier: sessionWatchScore.tier,
+                validWatchMs: sessionWatchScore.validWatchMs,
+                completionCredit: sessionWatchScore.completionCredit,
+                reasonCodes: sessionWatchScore.reasonCodes,
+                watchScoreSource: "watch_session_rollup",
                 meaningfulWatch: sessionDerivedState.meaningfulWatch,
                 deepWatch: sessionDerivedState.deepWatch,
                 bounced: sessionDerivedState.bounced,
@@ -346,8 +404,15 @@ export async function POST(request: NextRequest) {
                 closeReason: parsedBody.closeReason ?? null,
                 rawObservedWatchTimeMs: Math.round(parsedBody.totalWatchSeconds * 1000),
                 rawObservedVisibleTimeMs: Math.round(parsedBody.totalVisibleSeconds * 1000),
+                rawObservedActiveTimeMs: Math.round((parsedBody.totalActiveSeconds ?? 0) * 1000),
+                rawObservedPlayingTimeMs: Math.round((parsedBody.totalPlayingSeconds ?? 0) * 1000),
                 observedWatchDeltaMs,
                 observedVisibleDeltaMs,
+                validWatchMs: sessionWatchScore.validWatchMs,
+                watchScore: sessionWatchScore.score,
+                watchTier: sessionWatchScore.tier,
+                watchScoreSource: "watch_session_rollup",
+                reasonCodes: sessionWatchScore.reasonCodes,
                 viewedAssetCount: parsedBody.viewedAssetCount,
                 completedAssetCount: parsedBody.completedAssetCount,
                 consumedAssetCount: parsedBody.consumedAssetCount,
@@ -364,7 +429,10 @@ export async function POST(request: NextRequest) {
                     contentKind: asset.contentKind,
                     totalWatchSeconds: asset.totalWatchSeconds,
                     totalVisibleSeconds: asset.totalVisibleSeconds,
+                    totalActiveSeconds: asset.totalActiveSeconds ?? 0,
+                    totalPlayingSeconds: asset.totalPlayingSeconds ?? 0,
                     maxProgressSeconds: asset.maxProgressSeconds,
+                    maxProgressPercent: asset.maxProgressPercent ?? 0,
                     checkpointMaxSeconds: asset.checkpointMaxSeconds,
                     durationSeconds: asset.durationSeconds ?? null,
                     isConsumed: asset.isConsumed,
@@ -403,7 +471,10 @@ export async function POST(request: NextRequest) {
                     startedAtMs: readMinTimestamp(existingAsset?.startedAtMs, asset.startedAtMs),
                     totalWatchSeconds: normalizeSeconds(readMax(existingAsset?.totalWatchSeconds, asset.totalWatchSeconds)),
                     totalVisibleSeconds: normalizeSeconds(readMax(existingAsset?.totalVisibleSeconds, asset.totalVisibleSeconds)),
+                    totalActiveSeconds: normalizeSeconds(readMax(existingAsset?.totalActiveSeconds, asset.totalActiveSeconds ?? 0)),
+                    totalPlayingSeconds: normalizeSeconds(readMax(existingAsset?.totalPlayingSeconds, asset.totalPlayingSeconds ?? 0)),
                     maxProgressSeconds: Math.max(typeof existingAsset?.maxProgressSeconds === "number" ? Number(existingAsset.maxProgressSeconds) : 0, asset.maxProgressSeconds),
+                    maxProgressPercent: Math.max(typeof existingAsset?.maxProgressPercent === "number" ? Number(existingAsset.maxProgressPercent) : 0, asset.maxProgressPercent ?? 0),
                     checkpointMaxSeconds: Math.max(typeof existingAsset?.checkpointMaxSeconds === "number" ? Number(existingAsset.checkpointMaxSeconds) : 0, asset.checkpointMaxSeconds),
                     durationSeconds: Math.max(typeof existingAsset?.durationSeconds === "number" ? Number(existingAsset.durationSeconds) : 0, asset.durationSeconds ?? 0) || null,
                     consumedAtMs: asset.isConsumed
@@ -424,6 +495,9 @@ export async function POST(request: NextRequest) {
                     waitingDurationSeconds: normalizeSeconds(readMax(existingAsset?.waitingDurationSeconds, asset.waitingDurationSeconds ?? 0)),
                     playbackRateAverage: Math.max(typeof existingAsset?.playbackRateAverage === "number" ? Number(existingAsset.playbackRateAverage) : 0, asset.playbackRateAverage ?? 0),
                     mutedSampleCount: Math.max(typeof existingAsset?.mutedSampleCount === "number" ? Number(existingAsset.mutedSampleCount) : 0, asset.mutedSampleCount ?? 0),
+                    viewportVisiblePercent: Math.max(typeof existingAsset?.viewportVisiblePercent === "number" ? Number(existingAsset.viewportVisiblePercent) : 0, asset.viewportVisiblePercent ?? 0),
+                    documentVisibilityState: asset.documentVisibilityState ?? (typeof existingAsset?.documentVisibilityState === "string" ? existingAsset.documentVisibilityState : "unknown"),
+                    hasFocus: asset.hasFocus ?? (typeof existingAsset?.hasFocus === "boolean" ? existingAsset.hasFocus : null),
                     lastSequence: parsedBody.sessionSequence,
                     updatedAt: admin.firestore.FieldValue.serverTimestamp(),
                     ...(existingAssetSnapshot.exists ? {} : {
@@ -434,15 +508,35 @@ export async function POST(request: NextRequest) {
                 const assetDerivedState = deriveViewerWatchAssetState({
                     totalWatchSeconds: mergedAssetData.totalWatchSeconds,
                     totalVisibleSeconds: mergedAssetData.totalVisibleSeconds,
+                    totalActiveSeconds: mergedAssetData.totalActiveSeconds,
+                    totalPlayingSeconds: mergedAssetData.totalPlayingSeconds,
                     maxProgressSeconds: mergedAssetData.maxProgressSeconds,
+                    maxProgressPercent: mergedAssetData.maxProgressPercent,
                     completedAssetCount: mergedAssetData.isCompleted ? 1 : 0,
                     consumedAssetCount: mergedAssetData.isConsumed ? 1 : 0,
                     loadSampleCount: mergedAssetData.loadSampleCount,
                     viewedAssetCount: 1,
                 });
+                const assetWatchScore = scoreViewerWatchSession({
+                    contentKind: mergedAssetData.contentKind,
+                    totalWatchSeconds: mergedAssetData.totalWatchSeconds,
+                    totalVisibleSeconds: mergedAssetData.totalVisibleSeconds,
+                    totalActiveSeconds: mergedAssetData.totalActiveSeconds,
+                    totalPlayingSeconds: mergedAssetData.totalPlayingSeconds,
+                    hiddenDurationSeconds: 0,
+                    idleDurationSeconds: 0,
+                    maxProgressPercent: mergedAssetData.maxProgressPercent,
+                    completed: mergedAssetData.isCompleted,
+                });
 
                 transaction.set(ref, {
                     ...mergedAssetData,
+                    watchScore: assetWatchScore.score,
+                    watchTier: assetWatchScore.tier,
+                    validWatchMs: assetWatchScore.validWatchMs,
+                    completionCredit: assetWatchScore.completionCredit,
+                    reasonCodes: assetWatchScore.reasonCodes,
+                    watchScoreSource: "watch_session_rollup",
                     meaningfulWatch: assetDerivedState.meaningfulWatch,
                     deepWatch: assetDerivedState.deepWatch,
                     bounced: assetDerivedState.bounced,
@@ -466,6 +560,7 @@ export async function POST(request: NextRequest) {
             deduped: transactionResult.deduped,
             assetCount: parsedBody.assets.length,
             watchSessionId: parsedBody.watchSessionId,
+            watchScoreSource: "watch_session_rollup",
         }));
     } catch (error) {
         if (error instanceof z.ZodError) {

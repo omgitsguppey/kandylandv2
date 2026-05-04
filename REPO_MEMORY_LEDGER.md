@@ -4,6 +4,10 @@ Status: Canonical repository-memory and architecture-decision ledger
 Last refreshed: 2026-05-02
 Repo: `C:\Users\uylus\OneDrive\Documents\KandyDrops_Final`
 
+## 2026-05-04 Watch time truth and behavioral scoring
+
+Watch time is foreground visible content engagement, not page duration. Viewer watch sessions start only after loaded content is at least 50 percent visible in a visible document, use coarse 5s visible ticks, exclude hidden/offscreen/modal-covered/idle time, and score image/video sessions through `src/lib/watch-time-scoring.ts`. `/api/viewer/watch-session` writes consent-aware rollups with `watchScoreSource: "watch_session_rollup"` and no internal content URLs. Behavioral intelligence prefers watch rollups and labels page-duration-only history as `legacy_page_duration`. `npm run check:watch-time-truth` validates the lane.
+
 ## 2026-05-04 Fan Pass paid-source GumDrops truth
 
 Fan Pass is a paid-source GumDrops subscription. Daily/task/reward GumDrops cannot start or renew Fan Pass. Paid package bonus GumDrops count as paid-source only if credited to purchased balance by wallet capture truth. Expected Fan Pass failures must return typed safe errors, never generic internal server errors. `src/app/api/creator/subscriptions/route.ts` keeps `spendCreatorExperienceGumdrops(balance, priceGd, "subscription")`, writes `purchasedOnly: true`, short-circuits duplicate active subscriptions before charging, keeps cancel no-charge, and adds renewal-readiness fields without running renewals. `src/lib/problem-state-copy.ts` owns `getCreatorSubscriptionProblemCopy(...)`; `npm run check:fan-pass-gumdrops-truth` validates this lane.

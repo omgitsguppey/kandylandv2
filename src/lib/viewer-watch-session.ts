@@ -1,3 +1,5 @@
+import { computeWatchScore, type WatchScoreTier } from "@/lib/watch-time-scoring";
+
 export const VIEWER_WATCH_CONTENT_KINDS = ["video", "audio", "image", "pdf", "unknown"] as const;
 
 export type ViewerWatchContentKind = (typeof VIEWER_WATCH_CONTENT_KINDS)[number];
@@ -49,7 +51,12 @@ export interface ViewerWatchCaptureState {
 interface ViewerWatchDerivationInput {
     totalWatchSeconds?: number | null;
     totalVisibleSeconds?: number | null;
+    totalActiveSeconds?: number | null;
+    totalPlayingSeconds?: number | null;
+    hiddenDurationSeconds?: number | null;
+    idleDurationSeconds?: number | null;
     maxProgressSeconds?: number | null;
+    maxProgressPercent?: number | null;
     maxAssetWatchSeconds?: number | null;
     viewedAssetCount?: number | null;
     completedAssetCount?: number | null;
@@ -205,6 +212,32 @@ export function deriveViewerWatchAssetState(input: ViewerWatchDerivationInput) {
     return deriveWatchState(input);
 }
 
+export function scoreViewerWatchSession(input: ViewerWatchDerivationInput & {
+    contentKind?: ViewerWatchContentKind | null;
+    completed?: boolean | null;
+}) {
+    const contentKind = input.contentKind || "unknown";
+    const mediaType = contentKind === "video" || contentKind === "audio"
+        ? "video"
+        : contentKind === "image" || contentKind === "pdf"
+            ? "image"
+            : "unknown";
+    const visibleMs = Math.round(asFiniteNumber(input.totalVisibleSeconds) * 1000);
+    const activeSeconds = asFiniteNumber(input.totalActiveSeconds);
+    const watchSeconds = asFiniteNumber(input.totalWatchSeconds);
+
+    return computeWatchScore({
+        mediaType,
+        visibleMs,
+        activeMs: Math.round(Math.max(activeSeconds, watchSeconds) * 1000),
+        playingMs: Math.round(asFiniteNumber(input.totalPlayingSeconds) * 1000),
+        hiddenMs: Math.round(asFiniteNumber(input.hiddenDurationSeconds) * 1000),
+        idleMs: Math.round(asFiniteNumber(input.idleDurationSeconds) * 1000),
+        maxProgressPercent: asFiniteNumber(input.maxProgressPercent),
+        completed: input.completed === true,
+    });
+}
+
 export function deriveViewerWatchCaptureState(input: {
     replayRecovered?: boolean | null;
     replayRecoveredCount?: number | null;
@@ -256,7 +289,10 @@ export interface ViewerWatchAssetSnapshot {
     startedAtMs: number;
     totalWatchSeconds: number;
     totalVisibleSeconds: number;
+    totalActiveSeconds?: number;
+    totalPlayingSeconds?: number;
     maxProgressSeconds: number;
+    maxProgressPercent?: number;
     checkpointMaxSeconds: number;
     durationSeconds?: number | null;
     consumedAtMs?: number | null;
@@ -273,6 +309,13 @@ export interface ViewerWatchAssetSnapshot {
     waitingDurationSeconds?: number;
     playbackRateAverage?: number;
     mutedSampleCount?: number;
+    viewportVisiblePercent?: number;
+    documentVisibilityState?: "visible" | "hidden" | "prerender" | "unloaded" | "unknown";
+    hasFocus?: boolean;
+    watchScore?: number;
+    watchTier?: WatchScoreTier;
+    validWatchMs?: number;
+    reasonCodes?: string[];
 }
 
 export interface ViewerWatchSessionSnapshot {
@@ -294,7 +337,10 @@ export interface ViewerWatchSessionSnapshot {
     activeAssetIndex?: number | null;
     totalWatchSeconds: number;
     totalVisibleSeconds: number;
+    totalActiveSeconds?: number;
+    totalPlayingSeconds?: number;
     maxAssetWatchSeconds: number;
+    maxProgressPercent?: number;
     viewedAssetCount: number;
     completedAssetCount: number;
     consumedAssetCount: number;
@@ -313,7 +359,19 @@ export interface ViewerWatchSessionSnapshot {
     flushFailureCount?: number;
     visibilityHiddenCount?: number;
     hiddenDurationSeconds?: number;
+    idleDurationSeconds?: number;
     gapCount?: number;
     maxGapMs?: number;
+    viewportVisiblePercent?: number;
+    documentVisibilityState?: "visible" | "hidden" | "prerender" | "unloaded" | "unknown";
+    hasFocus?: boolean;
+    reducedMotion?: boolean;
+    displayMode?: "browser" | "standalone" | "fullscreen" | "unknown";
+    watchScore?: number;
+    watchTier?: WatchScoreTier;
+    validWatchMs?: number;
+    completionCredit?: boolean;
+    reasonCodes?: string[];
+    watchScoreSource?: "watch_session_rollup" | "legacy_page_duration";
     assets: ViewerWatchAssetSnapshot[];
 }

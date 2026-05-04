@@ -41,6 +41,9 @@ const IMMEDIATE_IDENTIFIED_EVENT_NAMES = new Set([
     "viewer_opened",
     "viewer_session_started",
     "viewer_session_completed",
+    "watch_session_started",
+    "watch_session_ended",
+    "watch_score_computed",
     "creator_followed",
     "feedback_submitted",
 ]);

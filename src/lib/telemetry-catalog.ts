@@ -226,6 +226,14 @@ export const TELEMETRY_EVENT_OPTIONS: TelemetryEventOption[] = [
   { eventName: "viewer_opened", label: "Viewer opened", category: "content", sources: DEFAULT_CLIENT_SOURCES, modules: ["viewer", "content"] },
   { eventName: "viewer_session_started", label: "Viewer session started", category: "content", sources: DEFAULT_CLIENT_SOURCES, modules: ["viewer"] },
   { eventName: "viewer_session_completed", label: "Viewer session completed", category: "content", sources: DEFAULT_CLIENT_SOURCES, modules: ["viewer"] },
+  { eventName: "watch_session_started", label: "Watch session started", category: "content", sources: DEFAULT_CLIENT_SOURCES, modules: ["viewer", "content"] },
+  { eventName: "watch_session_visible_tick", label: "Watch session visible tick", category: "content", sources: DEFAULT_CLIENT_SOURCES, modules: ["viewer"], aliases: ["watch_session_tick"] },
+  { eventName: "watch_session_progress", label: "Watch session progress", category: "content", sources: DEFAULT_CLIENT_SOURCES, modules: ["viewer"] },
+  { eventName: "watch_session_paused", label: "Watch session paused", category: "content", sources: DEFAULT_CLIENT_SOURCES, modules: ["viewer"] },
+  { eventName: "watch_session_resumed", label: "Watch session resumed", category: "content", sources: DEFAULT_CLIENT_SOURCES, modules: ["viewer"] },
+  { eventName: "watch_session_hidden", label: "Watch session hidden", category: "content", sources: DEFAULT_CLIENT_SOURCES, modules: ["viewer"] },
+  { eventName: "watch_session_ended", label: "Watch session ended", category: "content", sources: DEFAULT_CLIENT_SOURCES, modules: ["viewer", "content"] },
+  { eventName: "watch_score_computed", label: "Watch score computed", category: "content", sources: DEFAULT_CLIENT_SOURCES, modules: ["viewer", "content"] },
   { eventName: "viewer_asset_started", label: "Viewer asset started", category: "content", sources: DEFAULT_CLIENT_SOURCES, modules: ["viewer"] },
   { eventName: "viewer_asset_changed", label: "Viewer asset changed", category: "content", sources: DEFAULT_CLIENT_SOURCES, modules: ["viewer"] },
   { eventName: "viewer_asset_completed", label: "Viewer asset completed", category: "content", sources: DEFAULT_CLIENT_SOURCES, modules: ["viewer"] },
@@ -626,6 +634,14 @@ export const ADMIN_TELEMETRY_LOG_EVENT_NAMES = [
   "viewer_content_loaded",
   "viewer_session_started",
   "viewer_session_completed",
+  "watch_session_started",
+  "watch_session_visible_tick",
+  "watch_session_progress",
+  "watch_session_paused",
+  "watch_session_resumed",
+  "watch_session_hidden",
+  "watch_session_ended",
+  "watch_score_computed",
   "viewer_asset_started",
   "viewer_asset_completed",
   "viewer_asset_changed",
@@ -691,6 +707,7 @@ const TELEMETRY_PARAM_ALIASES: Record<string, string> = {
   dropTitle: "drop_title",
   dispatchId: "dispatch_id",
   durationMs: "duration_ms",
+  activeMs: "active_ms",
   eventIndexVersion: "event_index_version",
   eventModules: "event_modules",
   hourKey: "hour_key",
@@ -698,6 +715,8 @@ const TELEMETRY_PARAM_ALIASES: Record<string, string> = {
   intakeVersion: "intake_version",
   isMobileViewport: "is_mobile_viewport",
   messageId: "message_id",
+  mediaIndex: "media_index",
+  mediaType: "media_type",
   minuteKey: "minute_key",
   notificationId: "notification_id",
   notificationType: "notification_type",
@@ -720,7 +739,15 @@ const TELEMETRY_PARAM_ALIASES: Record<string, string> = {
   unknownActorBlocked: "unknown_actor_blocked",
   userId: "user_id",
   viewportHeight: "viewport_height",
+  viewportVisiblePercent: "viewport_visible_percent",
   viewportWidth: "viewport_width",
+  watchSessionId: "watch_session_id",
+  validWatchMs: "valid_watch_ms",
+  visibleMs: "visible_ms",
+  playingMs: "playing_ms",
+  hiddenMs: "hidden_ms",
+  idleMs: "idle_ms",
+  reasonCodes: "reason_codes",
   watchSeconds: "watch_seconds",
 };
 
@@ -752,6 +779,8 @@ function isPageViewEvent(eventName: string) {
 function isDropEvent(eventName: string) {
   return eventName.includes("drop")
     || eventName.includes("viewer_")
+    || eventName.startsWith("watch_session")
+    || eventName === "watch_score_computed"
     || eventName === "spend_virtual_currency";
 }
 
@@ -847,6 +876,10 @@ export function classifyTelemetryEventFamily(
 }
 
 function buildRequiredObjectFields(eventName: string, family: TelemetryEventFamily) {
+  if (eventName.startsWith("watch_session") || eventName === "watch_score_computed") {
+    return ["drop_id|dropId", "watch_session_id|watchSessionId"];
+  }
+
   if (family === "unlock") {
     return [
       "drop_id|dropId",
