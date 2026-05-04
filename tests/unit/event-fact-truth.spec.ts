@@ -134,4 +134,39 @@ describe("behavioral event facts", () => {
       entityId: "note-1",
     });
   });
+
+  it("dedupes task completion facts by user, task, and CST day key", () => {
+    const first = normalizeBehavioralEventFactWithDiagnostics({
+      eventId: "task-complete-1",
+      eventName: "task_completed",
+      params: {
+        source_component: "daily_tasks_module",
+        route: "/dashboard",
+        task_id: "feedback_task",
+        reward_gd: 100,
+        day_key: "2026-05-04",
+      },
+      timestamp: 1000,
+      userId: "user-1",
+      sessionId: "session-1",
+      source: "server",
+    }).fact;
+    const duplicateSameDay = normalizeBehavioralEventFactWithDiagnostics({
+      eventId: "task-complete-2",
+      eventName: "daily_task_completed",
+      params: {
+        source_component: "daily_tasks_module",
+        route: "/dashboard",
+        task_id: "feedback_task",
+        reward_gd: 100,
+        day_key: "2026-05-04",
+      },
+      timestamp: 2000,
+      userId: "user-1",
+      sessionId: "session-1",
+      source: "server",
+    }).fact;
+
+    expect(dedupeBehavioralEventFacts([first, duplicateSameDay])).toHaveLength(1);
+  });
 });

@@ -25,7 +25,7 @@ import {
 } from "@/lib/tasks/task-catalog";
 import { readTaskTimestampMs } from "@/lib/tasks/task-timestamps";
 import { isDropActiveNow } from "@/lib/drop-status";
-import { getCSTDayBoundaries, isSameCSTDay } from "@/lib/timezone";
+import { getCSTDateKey, getCSTDayBoundaries, isSameCSTDay } from "@/lib/timezone";
 import {
   buildSourceAwareBalancePatch,
   computeNextGumdropBalance,
@@ -239,7 +239,7 @@ const DAILY_TASK_ACTION_PRIORITY: Record<DailyTaskActionType, number> = {
 };
 
 const CORE_LOOP_TASK_EVENTS = new Set([
-  "daily_check_in_claim",
+  "daily_checkin_claimed",
   "drop_preview_opened",
   "view_drop_details",
   "unlock_drop_success",
@@ -335,7 +335,7 @@ function pickTasksForCycle(
       return false;
     }
 
-    if (task.eventName === "daily_check_in_claim" && eligibility.hasCheckedInToday) {
+    if (task.eventName === "daily_checkin_claimed" && eligibility.hasCheckedInToday) {
       return false;
     }
 
@@ -1203,10 +1203,13 @@ export async function recordDailyTaskProgressFromEvent(
           startedAt: updatedTasks[index].startedAt,
           durationMs,
         });
-        incrementEventStat(transaction, "daily_task_completed", nowMs, {
+        incrementEventStat(transaction, "task_completed", nowMs, {
           task_id: task.id,
           trigger_event: eventName,
+          reward_gd: task.reward,
           reward: task.reward,
+          day_key: getCSTDateKey(nowMs),
+          sourceTruth: "canonical",
           duration_ms: durationMs,
         });
 

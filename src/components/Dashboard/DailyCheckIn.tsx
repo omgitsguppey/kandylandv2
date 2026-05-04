@@ -10,7 +10,7 @@ import { useNow } from "@/hooks/useNow";
 import { authFetch } from "@/lib/authFetch";
 import { DAILY_CHECK_IN_REWARD_LADDER, getDailyCheckInProgress } from "@/lib/daily-checkin";
 import { trackEvent } from "@/lib/telemetry";
-import { getCSTDayBoundaries } from "@/lib/timezone";
+import { getCSTDateKey, getCSTDayBoundaries } from "@/lib/timezone";
 import { cn } from "@/lib/utils";
 import { dispatchActivitySync } from "@/lib/activity-sync";
 import { reportClientIssue } from "@/lib/client-error-reporting";
@@ -157,9 +157,14 @@ export function DailyCheckIn({ variant = "dashboard" }: DailyCheckInProps = {}) 
                 }());
             }).catch(() => { });
 
-            trackEvent("daily_check_in_claim", {
+            trackEvent("daily_checkin_claimed", {
+                task_id: "check_in_today",
                 streak_count: streak,
+                reward_gd: reward,
                 gum_drops_awarded: reward,
+                day_key: getCSTDateKey(claimedAt),
+                transaction_id: `${user?.uid ?? "user"}:checkin:${claimedAt}`,
+                sourceTruth: "client_supporting",
                 source_component: "daily_check_in",
             });
             emitGuidedCheckIn("success");

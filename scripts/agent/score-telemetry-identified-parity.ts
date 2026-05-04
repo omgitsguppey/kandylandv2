@@ -135,7 +135,7 @@ export function buildTelemetryIdentifiedParityReport(): TelemetryIdentifiedParit
 
   const watchNotificationTaskChecks = [
     has(eventFact, "daily_checkin_claimed"),
-    has(catalog, 'aliases: ["daily_reward_claimed", "daily_checkin_claimed"]'),
+    has(catalog, 'aliases: ["daily_check_in_claim", "daily_reward_claimed"]'),
     has(eventFact, "notification_read"),
     has(eventFact, "notifications_dropdown_opened"),
   ];
@@ -184,7 +184,7 @@ export function buildTelemetryIdentifiedParityReport(): TelemetryIdentifiedParit
   const missingExpectedEvents: string[] = [];
   if (!has(catalog, 'eventName: "identity_linked"')) missingExpectedEvents.push("identity_linked");
   if (!has(catalog, 'eventName: "notification_read"')) missingExpectedEvents.push("notification_read");
-  if (!has(catalog, 'eventName: "daily_check_in_claim"')) missingExpectedEvents.push("daily_check_in_claim");
+  if (!has(catalog, 'eventName: "daily_checkin_claimed"')) missingExpectedEvents.push("daily_checkin_claimed");
 
   const unsupportedEventNotes = has(ingest, "skippedUnsupportedEventNames")
     ? ["Unsupported identified events are explicitly reported before analytics fact writes."]

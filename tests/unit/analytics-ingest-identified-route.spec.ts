@@ -274,6 +274,78 @@ describe("POST /api/analytics/ingest-identified", () => {
     });
   });
 
+  it("canonicalizes daily check-in aliases onto the shared claimed action", async () => {
+    const response = await POST(buildRequest({
+      events: [{
+        eventId: "evt_daily_alias",
+        eventTimestampMs: 1767225600000,
+        eventName: "daily_reward_claimed",
+        eventParams: {
+          page_path: "/dashboard",
+          session_id: "session_123",
+          task_id: "check_in_today",
+          reward_gd: 25,
+          day_key: "2026-05-04",
+          sourceTruth: "client_supporting",
+        },
+      }],
+    }));
+    const payload = await response.json();
+
+    expect(payload).toEqual({ success: true, processed: 1, skippedUnsupported: 0 });
+
+    const eventWrite = mockState.writes.find((write) => write.path === "analytics_event_facts/evt_daily_alias");
+    expect(eventWrite?.data).toMatchObject({
+      eventName: "daily_checkin_claimed",
+      normalizedActionName: "daily_checkin_claimed",
+      metricFamily: "task",
+      sourceTruth: "client",
+      metricEligible: true,
+      params: expect.objectContaining({
+        legacy_event_name: "daily_reward_claimed",
+        task_id: "check_in_today",
+        reward_gd: 25,
+        day_key: "2026-05-04",
+      }),
+    });
+  });
+
+  it("keeps task_completed canonical with task and reward payload fields", async () => {
+    const response = await POST(buildRequest({
+      events: [{
+        eventId: "evt_task_completed",
+        eventTimestampMs: 1767225600000,
+        eventName: "task_completed",
+        eventParams: {
+          page_path: "/dashboard",
+          session_id: "session_123",
+          task_id: "feedback_task",
+          reward_gd: 100,
+          day_key: "2026-05-04",
+          sourceTruth: "canonical",
+        },
+      }],
+    }));
+    const payload = await response.json();
+
+    expect(payload).toEqual({ success: true, processed: 1, skippedUnsupported: 0 });
+
+    const eventWrite = mockState.writes.find((write) => write.path === "analytics_event_facts/evt_task_completed");
+    expect(eventWrite?.data).toMatchObject({
+      eventName: "task_completed",
+      normalizedActionName: "task_completed",
+      metricFamily: "task",
+      sourceTruth: "canonical",
+      metricEligible: true,
+      actionTaskId: "feedback_task",
+      params: expect.objectContaining({
+        task_id: "feedback_task",
+        reward_gd: 100,
+        day_key: "2026-05-04",
+      }),
+    });
+  });
+
   it("keeps purchase_verified canonical when the server emits the purchase fact", async () => {
     const response = await POST(buildRequest({
       events: [{

@@ -167,7 +167,7 @@ const criticalSurfaces: TelemetryCriticalSurface[] = [
     id: "daily_check_in",
     label: "Daily check-in claim",
     filePaths: ["src/components/Dashboard/DailyCheckIn.tsx"],
-    eventNames: ["daily_check_in_claim"],
+    eventNames: ["daily_checkin_claimed"],
     requiredPayloadAll: ["source_component"],
     requiredPayloadAny: [["gum_drops_awarded", "reward_amount"]],
   },

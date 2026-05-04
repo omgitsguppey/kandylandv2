@@ -133,7 +133,7 @@ function inferEventName(input: LegacyAnalyticsRecordInput) {
     const lifecycleState = stringValue(record, ["lifecycleState", "state", "status", "action"])?.toLowerCase();
     if (lifecycleState?.includes("assign")) return "daily_task_assigned";
     if (lifecycleState?.includes("start")) return "daily_task_started";
-    if (lifecycleState?.includes("complete")) return "daily_task_completed";
+    if (lifecycleState?.includes("complete")) return "task_completed";
     if (lifecycleState?.includes("fail") || lifecycleState?.includes("expire")) return "daily_task_failed";
     return "daily_task_started";
   }

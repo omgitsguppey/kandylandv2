@@ -27,11 +27,12 @@ const ACTION_ALIASES: Record<string, ActionAliasConfig> = {
   guided_onboarding_completed: { normalizedAction: "onboarding_completed", entityKeys: ["user_id", "userId"] },
   onboarding_complete: { normalizedAction: "onboarding_completed", entityKeys: ["user_id", "userId"] },
   onboarding_completed: { normalizedAction: "onboarding_completed", entityKeys: ["user_id", "userId"] },
+  daily_checkin_claimed: { normalizedAction: "daily_checkin_claimed", entityType: "task", entityKeys: ["task_id", "taskId", "user_id", "userId"] },
   daily_check_in_claim: { normalizedAction: "daily_checkin_claimed", entityType: "task", entityKeys: ["task_id", "taskId", "user_id", "userId"] },
   daily_reward_claimed: { normalizedAction: "daily_checkin_claimed", entityType: "task", entityKeys: ["task_id", "taskId", "user_id", "userId"] },
-  daily_checkin_claimed: { normalizedAction: "daily_checkin_claimed", entityType: "task", entityKeys: ["task_id", "taskId", "user_id", "userId"] },
   daily_tasks_viewed: { normalizedAction: "task_ready", entityType: "task", entityKeys: ["task_id", "taskId", "task_key", "taskKey", "route", "page_path", "pagePath"] },
-  daily_task_action_clicked: { normalizedAction: "task_completed", entityType: "task", entityKeys: ["task_id", "taskId", "task_key", "taskKey"] },
+  task_completed: { normalizedAction: "task_completed", entityType: "task", entityKeys: ["task_id", "taskId", "task_key", "taskKey"] },
+  daily_task_completed: { normalizedAction: "task_completed", entityType: "task", entityKeys: ["task_id", "taskId", "task_key", "taskKey"] },
   creator_spotlight_viewed: { normalizedAction: "creator_spotlight_viewed", entityType: "creator", entityKeys: ["creator_id", "creatorId", "surface"] },
   drop_clicked: { normalizedAction: "drop_viewed", entityType: "drop", entityKeys: ["drop_id", "dropId"] },
   view_drop_details: { normalizedAction: "drop_card_viewed", entityType: "drop", entityKeys: ["drop_id", "dropId"] },
@@ -168,6 +169,11 @@ function buildDedupeKey(fact: Omit<BehavioralEventFact, "dedupeKey">) {
   const actorKey = sanitizeFragment(fact.userId || fact.sessionId || fact.anonymousVisitorId || "anonymous");
   const entityKey = sanitizeFragment(fact.entityId || fact.dropId || fact.fileId || fact.notificationId || fact.threadId || "none");
   const eventKey = sanitizeFragment(fact.eventId);
+  const dayKey = sanitizeFragment(fact.dayKey || "none");
+
+  if ((fact.normalizedAction === "daily_checkin_claimed" || fact.normalizedAction === "task_completed") && fact.taskId && fact.dayKey) {
+    return [actorKey, fact.normalizedAction, sanitizeFragment(fact.taskId), dayKey].join(":");
+  }
 
   if (windowMs === "event_id") return [actorKey, fact.normalizedAction, entityKey, eventKey].join(":");
   if (windowMs === "permanent") return [actorKey, fact.normalizedAction, entityKey].join(":");
@@ -304,6 +310,7 @@ export function normalizeBehavioralEventFactWithDiagnostics(input: {
     ...(readOptionalString(merged, "thread_id", "threadId", "conversation_id", "conversationId") ? { threadId: readOptionalString(merged, "thread_id", "threadId", "conversation_id", "conversationId") } : {}),
     ...(readOptionalString(merged, "notification_id", "notificationId", "tag") ? { notificationId: readOptionalString(merged, "notification_id", "notificationId", "tag") } : {}),
     ...(readOptionalString(merged, "task_id", "taskId", "task_key", "taskKey") ? { taskId: readOptionalString(merged, "task_id", "taskId", "task_key", "taskKey") } : {}),
+    ...(readOptionalString(merged, "day_key", "dayKey") ? { dayKey: readOptionalString(merged, "day_key", "dayKey") } : {}),
     ...(valueUsd > 0 ? { valueUsd } : {}),
     ...(gumDropsAmount > 0 ? { gumDropsAmount: Math.round(gumDropsAmount) } : {}),
     ...(readOptionalString(merged, "reason_code", "reasonCode", "security_reason", "securityReason", "error_code", "errorCode") ? { reasonCode: readOptionalString(merged, "reason_code", "reasonCode", "security_reason", "securityReason", "error_code", "errorCode") } : {}),

@@ -13,7 +13,7 @@ import {
 import { getTelemetryEventOption } from "@/lib/telemetry-catalog";
 
 export const CANONICAL_TASK_EVENT_NAMES = new Set([
-  "daily_check_in_claim",
+  "daily_checkin_claimed",
   "unlock_drop_success",
   "gumdrops_purchase_completed",
   "task_notifications_enabled",
@@ -23,7 +23,7 @@ export const CANONICAL_TASK_EVENT_NAMES = new Set([
 const GENERIC_TASK_LIFECYCLE_EVENT_NAMES = new Set([
   "daily_task_assigned",
   "daily_task_started",
-  "daily_task_completed",
+  "task_completed",
   "daily_task_failed",
   "daily_task_deadline_reminder_sent",
 ]);

@@ -74,7 +74,7 @@ const MAIN_STEPS = [
 
 const SUPPORTING_STEPS = [
   { stepKey: "shares", eventName: "drop_share_copied", visibleLabel: "Shares" },
-  { stepKey: "checkIns", eventName: "daily_check_in_claim", visibleLabel: "Daily check-ins" },
+  { stepKey: "checkIns", eventName: "daily_checkin_claimed", visibleLabel: "Daily check-ins" },
 ] as const;
 
 type FunnelKey = (typeof MAIN_STEPS)[number]["stepKey"] | (typeof SUPPORTING_STEPS)[number]["stepKey"];

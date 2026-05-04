@@ -90,6 +90,8 @@ function resolveIdentifiedSourceTruth(
     if (
         canonicalEventName === "identity_linked"
         || canonicalEventName === "purchase_verified"
+        || canonicalEventName === "daily_checkin_claimed"
+        || canonicalEventName === "task_completed"
     ) {
         return "canonical" as const;
     }

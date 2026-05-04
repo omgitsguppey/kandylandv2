@@ -248,7 +248,7 @@ export const BUILT_IN_DAILY_TASKS: DailyTaskDefinition[] = [
     subtitle: "Stack today's Gum Drops before the timer resets.",
     reward: 140,
     maxProgress: 1,
-    eventName: "daily_check_in_claim",
+    eventName: "daily_checkin_claimed",
     actionType: "open_experiences",
     ctaLabel: "Claim daily rewards",
     icon: "gift",

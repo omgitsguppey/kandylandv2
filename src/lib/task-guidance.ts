@@ -229,7 +229,7 @@ export function findCurrentTaskGuidanceTask(
 }
 
 export function getTaskInstruction(task: DailyTaskAssignment) {
-  if (task.eventName === "daily_check_in_claim") {
+  if (task.eventName === "daily_checkin_claimed") {
     return "Open Daily Rewards, tap Claim daily reward, and your streak will update immediately.";
   }
 
@@ -337,7 +337,7 @@ export function getTaskInstruction(task: DailyTaskAssignment) {
 }
 
 export function getTaskActionLabel(task: DailyTaskAssignment) {
-  if (task.eventName === "daily_check_in_claim") {
+  if (task.eventName === "daily_checkin_claimed") {
     return "Claim reward";
   }
 
@@ -447,7 +447,7 @@ export function getTaskDestinationHref(task: DailyTaskAssignment) {
     case "open_drops":
       return "/drops#live-drops";
     case "open_experiences":
-      return task.eventName === "daily_check_in_claim" ? "/experiences#daily-reward" : "/experiences#daily-tasks";
+      return task.eventName === "daily_checkin_claimed" ? "/experiences#daily-reward" : "/experiences#daily-tasks";
     case "open_library":
       return "/dashboard/library#library-grid";
     case "open_notifications":

@@ -126,11 +126,17 @@ export async function POST(request: NextRequest) {
         }
 
         try {
-            await recordCanonicalTaskEvent(userId, result.username ?? caller?.email ?? userId, "daily_check_in_claim", {
+            const dayKey = getCSTDateKey(result.lastCheckIn);
+            await recordCanonicalTaskEvent(userId, result.username ?? caller?.email ?? userId, "daily_checkin_claimed", {
+                task_id: "check_in_today",
+                reward_gd: result.reward,
                 reward: result.reward,
                 streak_count: result.nextStreak,
-                day_key: getCSTDateKey(result.lastCheckIn),
+                day_key: dayKey,
                 transaction_id: `${userId}:checkin:${result.lastCheckIn}`,
+                sourceTruth: "canonical",
+            }, {
+                receiptKey: `check_in_today:${dayKey}`,
             });
         } catch (taskEventError) {
             recordRouteWarning("checkin", "Check-in completed but daily task progress sync failed", taskEventError, {

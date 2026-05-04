@@ -621,9 +621,9 @@ export function buildAnalyticsMetricReport(input: AnalyticsMetricEngineInput) {
     ),
     checkin_conversion_rate: createResult(
       ANALYTICS_SOCIAL_METRICS_BY_KEY.checkin_conversion_rate,
-      percent(toNumber(eventCounts.daily_check_in_claim), dashboardSessions),
+      percent(toNumber(eventCounts.daily_checkin_claimed || eventCounts.daily_check_in_claim), dashboardSessions),
       dashboardSessions,
-      { dashboardSessions, dailyCheckIns: toNumber(eventCounts.daily_check_in_claim) },
+      { dashboardSessions, dailyCheckIns: toNumber(eventCounts.daily_checkin_claimed || eventCounts.daily_check_in_claim) },
     ),
     notification_opt_in_rate: createResult(
       ANALYTICS_SOCIAL_METRICS_BY_KEY.notification_opt_in_rate,

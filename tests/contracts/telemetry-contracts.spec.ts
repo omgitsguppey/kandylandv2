@@ -36,6 +36,8 @@ describe("telemetry catalog contracts", () => {
   it("normalizes event casing drift and payload key aliases", () => {
     expect(normalizeTelemetryEventName("Unlock_Drop_Success")).toBe("unlock_drop_success");
     expect(normalizeTelemetryEventName("NOTIFICATION_READ")).toBe("notification_read");
+    expect(normalizeTelemetryEventName("daily_reward_claimed")).toBe("daily_checkin_claimed");
+    expect(normalizeTelemetryEventName("daily_task_completed")).toBe("task_completed");
 
     expect(normalizeTelemetryEventPayloadParams({
       dropId: "drop_1",
@@ -43,12 +45,16 @@ describe("telemetry catalog contracts", () => {
       notificationId: "note_1",
       idempotencyKey: "idem_1",
       pagePath: "/drops",
+      rewardGd: 100,
+      sourceTruth: "canonical",
     })).toMatchObject({
       drop_id: "drop_1",
       transaction_id: "txn_1",
       notification_id: "note_1",
       idempotency_key: "idem_1",
       page_path: "/drops",
+      reward_gd: 100,
+      source_truth: "canonical",
     });
   });
 
@@ -79,6 +85,9 @@ describe("telemetry catalog contracts", () => {
     expect(TELEMETRY_EVENT_PAYLOAD_CONTRACTS_BY_NAME.purchase_verified.requiredObjectFields.join(" ")).toContain("transaction_id");
     expect(TELEMETRY_EVENT_PAYLOAD_CONTRACTS_BY_NAME.notification_opened.requiredObjectFields.join(" ")).toContain("idempotency");
     expect(TELEMETRY_EVENT_PAYLOAD_CONTRACTS_BY_NAME.creator_message_sent.requiredObjectFields.join(" ")).toContain("message_id");
+    expect(TELEMETRY_EVENT_PAYLOAD_CONTRACTS_BY_NAME.daily_checkin_claimed.aliases).toContain("daily_reward_claimed");
+    expect(TELEMETRY_EVENT_PAYLOAD_CONTRACTS_BY_NAME.task_completed.requiredObjectFields.join(" ")).toContain("task_id");
+    expect(TELEMETRY_EVENT_PAYLOAD_CONTRACTS_BY_NAME.task_completed.requiredObjectFields.join(" ")).toContain("reward_gd");
     expect(TELEMETRY_EVENT_PAYLOAD_CONTRACTS_BY_NAME.admin_analytics_viewed.adminExcludedFromUserAnalytics).toBe(true);
   });
 });

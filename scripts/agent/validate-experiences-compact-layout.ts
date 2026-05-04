@@ -83,7 +83,7 @@ for (const needle of [
   "{!isExperiencesVariant ? (",
   "min-h-[14rem] p-3.5 sm:p-5",
   "isExperiencesVariant ? \"p-3.5 sm:p-5\" : \"p-4 sm:p-6\"",
-  "daily_check_in_claim",
+  "daily_checkin_claimed",
   "DAILY_CHECK_IN_REWARD_LADDER",
   "canvas-confetti",
 ]) {

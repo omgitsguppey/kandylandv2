@@ -715,7 +715,7 @@ async function GET_handler(request: NextRequest) {
                 walletOpens: eventsData.wallet_opened || 0,
                 checkoutStarts: eventsData.begin_checkout || 0,
                 purchases,
-                checkIns: eventsData.daily_check_in_claim || 0,
+                checkIns: eventsData.daily_checkin_claimed || eventsData.daily_check_in_claim || 0,
                 experienceViews: eventsData.experience_hub_viewed || 0,
             };
 

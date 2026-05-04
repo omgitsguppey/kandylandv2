@@ -216,12 +216,12 @@ describe("daily task observability inventory", () => {
       receipts: [],
       eventStats: [
         { eventName: "daily_task_assigned", totalCount: 12, lastSeenAt: 5000 },
-        { eventName: "daily_task_completed", totalCount: 8, lastSeenAt: 6000 },
+        { eventName: "task_completed", totalCount: 8, lastSeenAt: 6000 },
       ],
     });
 
     const assignedAlignment = report.telemetryAlignment.find((entry) => entry.eventName === "daily_task_assigned");
-    const completedAlignment = report.telemetryAlignment.find((entry) => entry.eventName === "daily_task_completed");
+    const completedAlignment = report.telemetryAlignment.find((entry) => entry.eventName === "task_completed");
 
     expect(assignedAlignment?.mappedTaskCount).toBe(0);
     expect(assignedAlignment?.driftReasons).not.toContain("tracked_without_task_mapping");

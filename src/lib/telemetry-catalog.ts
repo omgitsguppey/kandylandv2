@@ -204,7 +204,7 @@ export const TELEMETRY_EVENT_OPTIONS: TelemetryEventOption[] = [
   { eventName: "support_thread_replied", label: "Support thread replied", category: "engagement", sources: DEFAULT_CLIENT_SOURCES, modules: ["engagement"] },
   { eventName: "support_thread_reply_failed", label: "Support thread reply failed", category: "engagement", sources: DEFAULT_CLIENT_SOURCES, modules: ["engagement"] },
   { eventName: "experience_hub_viewed", label: "Experiences viewed", category: "engagement", sources: DEFAULT_CLIENT_SOURCES, modules: ["engagement", "tasks", "navigation"] },
-  { eventName: "daily_check_in_claim", label: "Daily check-in claimed", category: "tasks", sources: DEFAULT_CLIENT_SOURCES, modules: ["tasks"], aliases: ["daily_reward_claimed", "daily_checkin_claimed"] },
+  { eventName: "daily_checkin_claimed", label: "Daily check-in claimed", category: "tasks", sources: DEFAULT_CLIENT_SOURCES, modules: ["tasks"], aliases: ["daily_check_in_claim", "daily_reward_claimed"] },
   { eventName: "wallet_opened", label: "Wallet opened", category: "commerce", sources: DEFAULT_CLIENT_SOURCES, modules: ["commerce"] },
   { eventName: "wallet_closed_incomplete", label: "Wallet closed without completion", category: "commerce", sources: DEFAULT_CLIENT_SOURCES, modules: ["commerce"], auditCoveredBy: ["wallet_opened"] },
   { eventName: "purchase_package_selected", label: "Wallet package selected", category: "commerce", sources: DEFAULT_CLIENT_SOURCES, modules: ["commerce"] },
@@ -333,7 +333,7 @@ export const TELEMETRY_EVENT_OPTIONS: TelemetryEventOption[] = [
   { eventName: "task_guidance_completed", label: "Task guidance completed", category: "tasks", sources: DEFAULT_CLIENT_SOURCES, modules: ["tasks", "task_guidance"] },
   { eventName: "daily_task_assigned", label: "Daily task assigned", category: "tasks", sources: ["backend", "canonical"], modules: ["tasks"], aliases: ["task_assigned"] },
   { eventName: "daily_task_started", label: "Daily task started", category: "tasks", sources: ["backend", "canonical"], modules: ["tasks"], aliases: ["task_started"] },
-  { eventName: "daily_task_completed", label: "Daily task completed", category: "tasks", sources: ["backend", "canonical"], modules: ["tasks"], aliases: ["task_completed"] },
+  { eventName: "task_completed", label: "Task completed", category: "tasks", sources: ["backend", "canonical"], modules: ["tasks"], aliases: ["daily_task_completed"] },
   { eventName: "daily_task_failed", label: "Daily task failed", category: "tasks", sources: ["backend", "canonical"], modules: ["tasks"], aliases: ["task_failed"] },
   { eventName: "daily_task_deadline_reminder_sent", label: "Daily task reminder sent", category: "tasks", sources: ["backend", "canonical"], modules: ["tasks", "notifications"] },
   { eventName: "daily_deadline_browser_notification_shown", label: "Browser deadline notification shown", category: "notifications", sources: DEFAULT_CLIENT_SOURCES, modules: ["notifications", "tasks"] },
@@ -756,7 +756,9 @@ const TELEMETRY_PARAM_ALIASES: Record<string, string> = {
   sessionId: "session_id",
   sessionWatchSeconds: "session_watch_seconds",
   selectedGoals: "selected_goals",
+  rewardGd: "reward_gd",
   sourceComponent: "source_component",
+  sourceTruth: "source_truth",
   stepKey: "step_key",
   taskId: "task_id",
   taskKey: "task_key",
@@ -933,6 +935,13 @@ function buildRequiredObjectFields(eventName: string, family: TelemetryEventFami
     return [
       "conversation_id|conversationId|thread_id|threadId",
       "message_id|messageId|idempotency_key|idempotencyKey",
+    ];
+  }
+
+  if (eventName === "task_completed") {
+    return [
+      "task_id|taskId|task_key|taskKey",
+      "reward_gd|rewardGd|gum_drops_awarded|reward",
     ];
   }
 

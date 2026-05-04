@@ -91,6 +91,7 @@ export type BehavioralEventFact = {
   threadId?: string;
   notificationId?: string;
   taskId?: string;
+  dayKey?: string;
   valueUsd?: number;
   gumDropsAmount?: number;
   reasonCode?: string;
@@ -118,7 +119,7 @@ export const BEHAVIORAL_EVENT_DEDUPE_WINDOWS_MS: Record<BehavioralNormalizedActi
   onboarding_completed: 24 * 60 * 60 * 1000,
   daily_checkin_claimed: 20 * 60 * 60 * 1000,
   task_ready: 10 * 60 * 1000,
-  task_completed: "event_id",
+  task_completed: 20 * 60 * 60 * 1000,
   creator_spotlight_viewed: 60 * 1000,
   drop_viewed: 10 * 1000,
   drop_card_viewed: 10 * 1000,

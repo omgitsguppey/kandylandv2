@@ -175,7 +175,7 @@ if (report) {
     "purchase_package_selected",
     "gumdrops_purchase_completed",
     "gumdrops_purchase_failed",
-    "daily_check_in_claim",
+    "daily_checkin_claimed",
     "daily_task_action_clicked",
     "chat_thread_opened",
     "chat_message_send_failed",

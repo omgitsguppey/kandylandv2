@@ -47,7 +47,7 @@ export const TRACKING_SURFACE_MAP: TrackingSurfaceDefinition[] = [
       "src/components/Dashboard/DailyCheckIn.tsx",
       "src/components/Dashboard/DailyTasksModule.tsx",
     ],
-    events: ["daily_check_in_claim", "daily_task_action_clicked"],
+    events: ["daily_checkin_claimed", "daily_task_action_clicked"],
     requiredFields: ["source_component", "task_id"],
   },
   {

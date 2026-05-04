@@ -32,7 +32,7 @@ import {
   DAILY_TASK_LIMIT,
   type DailyTasksState,
 } from "@/lib/tasks/task-catalog";
-import { getCSTDayBoundaries } from "@/lib/timezone";
+import { getCSTDateKey, getCSTDayBoundaries } from "@/lib/timezone";
 import { trackEvent } from "@/lib/telemetry";
 import {
   TASK_GUIDANCE_ACTION_EVENT,
@@ -339,7 +339,10 @@ export function DailyTasksModule() {
   const handleTaskAction = async (task: DailyTaskAssignment) => {
     trackEvent("daily_task_action_clicked", {
       task_id: task.id,
+      reward_gd: task.reward,
+      day_key: dailyTaskState?.lastResetMs ? getCSTDateKey(dailyTaskState.lastResetMs) : getCSTDateKey(Date.now()),
       action_type: task.actionType,
+      sourceTruth: "client_supporting",
       source_component: "daily_tasks_module",
     });
     activateTaskGuidance(task);
