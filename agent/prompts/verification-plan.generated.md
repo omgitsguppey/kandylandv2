@@ -1,19 +1,17 @@
 Verification plan
 
-Matched paths: scripts/agent/validate-creator-lane-debug-parity.ts
+Matched paths: src/lib/telemetry.ts
 Broad work: yes
-Touched domains: repo_tooling
+Touched domains: shared_server_helpers
 
 Fast loop:
 - npm run typecheck  # TypeScript or runtime code changed.
-- npm run agent:test -- scripts/agent/validate-creator-lane-debug-parity.ts  # Run the narrowest related contract/unit tests first.
-- npm run check:agent-context  # Repo intelligence outputs should stay internally valid.
+- npm run agent:test -- src/lib/telemetry.ts  # Run the narrowest related contract/unit tests first.
+- npm run check:telemetry  # Telemetry or analytics semantics changed.
+- npm run check:analytics-semantics  # Canonical analytics naming/schema must remain aligned.
 
 Signoff loop:
-- npm run check:inventory  # Repo-tooling changes must preserve inventory truth.
-- npm run check:architecture  # Repo-tooling/shared-helper changes need architecture validation.
-- npm run check:agent-intelligence  # Agent indexes and helper extraction must stay coherent.
-- npm run eval:agent-context  # Task-context retrieval/eval fixtures changed.
+- npm run check:analytics:continuity  # Analytics continuity needs explicit signoff for behavioral/runtime changes.
 - npm run check:continuity  # Broad/shared/helper/tooling work requires continuity signoff.
 
 Advisories:

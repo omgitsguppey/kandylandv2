@@ -1,7 +1,7 @@
 # Agent Task Spec
 
 ## Goal
-block legacy creator lane regression patterns
+harden identified telemetry parity
 
 ## Acceptance Criteria
 - Stay within the touched entrypoints unless adjacency proves a shared helper must move with them.
@@ -10,7 +10,7 @@ block legacy creator lane regression patterns
 - Keep broad signoff lanes separate from the fast loop.
 
 ## Likely Entrypoints
-- scripts/agent/validate-creator-lane-debug-parity.ts
+- src/lib/telemetry.ts
 
 ## Forbidden Surfaces
 - src/lib/gumdrop-ledger.ts
@@ -21,14 +21,12 @@ block legacy creator lane regression patterns
 
 ## Fast Verification
 - npm run typecheck
-- npm run agent:test -- scripts/agent/validate-creator-lane-debug-parity.ts
-- npm run check:agent-context
+- npm run agent:test -- src/lib/telemetry.ts
+- npm run check:telemetry
+- npm run check:analytics-semantics
 
 ## Signoff Verification
-- npm run check:inventory
-- npm run check:architecture
-- npm run check:agent-intelligence
-- npm run eval:agent-context
+- npm run check:analytics:continuity
 - npm run check:continuity
 
 ## Notes

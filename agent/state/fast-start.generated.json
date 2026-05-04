@@ -1,5 +1,5 @@
 {
-  "generatedAt": "2026-05-02T20:20:38.643Z",
+  "generatedAt": "2026-05-04T21:20:06.387Z",
   "truthOrder": [
     "verified_runtime_code",
     "verified_configuration",
@@ -16,48 +16,46 @@
     "scripts/trace-adjacent-surfaces.ts"
   ],
   "input": {
-    "task": "block legacy creator lane regression patterns",
+    "task": "harden identified telemetry parity",
     "mode": "admin",
     "files": [
-      "scripts/agent/validate-creator-lane-debug-parity.ts"
+      "src/lib/telemetry.ts"
     ]
   },
-  "gitStatus": "M agent/index/blast-radius.json\n M agent/index/canonical-helpers.json\n M agent/index/dependency-graph.summary.json\n M agent/index/governance-truth.json\n M agent/index/known-pitfalls.json\n M agent/index/package-manager-truth.json\n M agent/index/recent-passes.json\n M agent/index/repo-inventory.json\n M agent/index/retrieval-index.json\n M agent/index/runtime-observability.json\n M agent/index/surface-map.json\n M agent/index/ui-surface-coverage.json\n M agent/index/verification-commands.json\n M agent/index/workflow-guidance.json\n M agent/prompts/task-prompt.deep.md\n M agent/prompts/task-prompt.short.md\n M agent/prompts/task-prompt.standard.md\n M agent/prompts/verification-plan.generated.md\n M agent/state/task-context.generated.json\n M agent/state/verification-plan.generated.json",
-  "taskContextStableId": "taskctx__admin-block-legacy-creator-lane-regression-patterns",
+  "gitStatus": "M agent/index/blast-radius.json\n M agent/index/canonical-helpers.json\n M agent/index/dependency-graph.summary.json\n M agent/index/governance-truth.json\n M agent/index/known-pitfalls.json\n M agent/index/package-manager-truth.json\n M agent/index/recent-passes.json\n M agent/index/repo-inventory.json\n M agent/index/retrieval-index.json\n M agent/index/runtime-observability.json\n M agent/index/surface-map.json\n M agent/index/ui-surface-coverage.json\n M agent/index/verification-commands.json\n M agent/index/workflow-guidance.json\n M agent/prompts/task-issue-spec.generated.md\n M agent/prompts/task-prompt.deep.md\n M agent/prompts/task-prompt.short.md\n M agent/prompts/task-prompt.standard.md\n M agent/prompts/verification-plan.generated.md\n M agent/state/fast-start.generated.json\n M agent/state/recommendation-model.generated.json\n M agent/state/task-context.generated.json\n M agent/state/verification-plan.generated.json",
+  "taskContextStableId": "taskctx__admin-harden-identified-telemetry-parity",
   "likelyTouchedFiles": [
-    "scripts/agent/validate-creator-lane-debug-parity.ts",
-    "src/lib/creator-onboarding.ts",
-    "src/lib/creator-agreement-documents.ts",
-    "src/lib/creator-agreement-version.ts",
-    "src/lib/creator-application.ts",
-    "src/lib/creator-contract.ts",
-    "src/lib/creator-onboarding-projection.ts",
-    "src/lib/creator-profile-routing.ts",
-    "src/lib/creator-public-pages.ts",
-    "src/lib/server/creator-admin-action-contract.ts",
-    "src/lib/server/creator-admin-actions.ts",
-    "src/lib/server/creator-agreement-documents.ts"
+    "src/lib/telemetry.ts",
+    "src/lib/server/analytics.ts",
+    "src/lib/analytics-client-engine.ts",
+    "src/lib/analytics-identifiers.ts",
+    "src/lib/analytics-semantics.ts",
+    "src/lib/telemetry-safety.ts",
+    "src/components/Admin/AdminAnalyticsCharts.tsx",
+    "src/components/Admin/AdminCreatorViewAsControls.tsx",
+    "src/components/Admin/AdminModerationConsole.tsx",
+    "src/components/Admin/AiDropCoverGeneratorPanel.tsx",
+    "src/components/Admin/AiDropDescriptionGeneratorPanel.tsx",
+    "src/components/Admin/AssetUploader.tsx"
   ],
   "canonicalHelpersToReuse": [
-    "src/lib/creator-onboarding.ts",
+    "src/lib/telemetry.ts",
+    "src/lib/telemetry-catalog.ts",
     "src/lib/route-runtime-health.ts",
     "src/lib/server/admin-panel-system-logs.ts",
-    "src/lib/server/creator-onboarding.ts",
+    "src/lib/server/auth.ts",
+    "src/lib/server/request-guard.ts",
     "src/lib/server/route-diagnostics.ts",
-    "src/lib/server/route-runtime-health.ts",
-    "src/lib/server/server-diagnostics.ts",
-    "src/lib/server/auth.ts"
+    "src/lib/server/route-runtime-health.ts"
   ],
   "fastVerificationCommands": [
     "npm run typecheck",
-    "npm run agent:test -- scripts/agent/validate-creator-lane-debug-parity.ts",
-    "npm run check:agent-context"
+    "npm run agent:test -- src/lib/telemetry.ts",
+    "npm run check:telemetry",
+    "npm run check:analytics-semantics"
   ],
   "signoffVerificationCommands": [
-    "npm run check:inventory",
-    "npm run check:architecture",
-    "npm run check:agent-intelligence",
-    "npm run eval:agent-context",
+    "npm run check:analytics:continuity",
     "npm run check:continuity"
   ],
   "forbiddenSurfaces": [
@@ -69,8 +67,8 @@
   ],
   "traceOutputs": [
     {
-      "path": "scripts/agent/validate-creator-lane-debug-parity.ts",
-      "output": "> kandydrops@0.1.0 trace:adjacent\n> tsx scripts/trace-adjacent-surfaces.ts scripts/agent/validate-creator-lane-debug-parity.ts\n\n\nTarget: scripts/agent/validate-creator-lane-debug-parity.ts\nSurface: script\nDirect imports:\n- None detected\nImported by:\n- None detected\nSame-directory siblings:\n- scripts/agent/build-agent-indexes.ts\n- scripts/agent/build-task-context.ts\n- scripts/agent/build-ui-runtime-audit.ts\n- scripts/agent/build-ui-surface-coverage.ts\n- scripts/agent/check-agent-context.ts\n- scripts/agent/check-dependency-truth.ts\n- scripts/agent/check-infrastructure-truth.ts\n- scripts/agent/check-ui-surface-coverage.ts\n- scripts/agent/classify-repo-files.ts\n- scripts/agent/extract-canonical-helpers.ts\n- scripts/agent/extract-governance.ts\n- scripts/agent/extract-runtime-observability.ts\n- scripts/agent/extract-workflow.ts\n- scripts/agent/fast-start.ts\n- scripts/agent/run-evals.ts\n- scripts/agent/shared.ts\n- scripts/agent/summarize-dependency-graph.ts\n- scripts/agent/sync-sql.ts\n- scripts/agent/validate-accessibility-tap-targets.ts\n- scripts/agent/validate-admin-analytics-finalization.ts\n- scripts/agent/validate-admin-analytics-hot-cache.ts\n- scripts/agent/validate-admin-analytics-no-pure-realtime.ts\n- scripts/agent/validate-admin-analytics-snapshot-migration.ts\n- scripts/agent/validate-admin-cms-workflow.ts\n- scripts/agent/validate-admin-creator-account-controls.ts\n- scripts/agent/validate-admin-moderation-security-alerts.ts\n- scripts/agent/validate-admin-roster-decision-queue.ts\n- scripts/agent/validate-agent-indexes.ts\n- scripts/agent/validate-analytics-event-contract.ts\n- scripts/agent/validate-analytics-legacy-recovery.ts\n- scripts/agent/validate-analytics-truth-layer-v2.ts\n- scripts/agent/validate-background-job-idempotency.ts\n- scripts/agent/validate-content-media-pipeline.ts\n- scripts/agent/validate-creator-admin-action-route.ts\n- scripts/agent/validate-creator-agreement-document-manager.ts\n- scripts/agent/validate-creator-agreement-signature-ux.ts\n- scripts/agent/validate-creator-agreement-version-truth.ts\n- scripts/agent/validate-creator-audit-trail.ts\n- scripts/agent/validate-creator-experience-transaction-truth.ts\n- scripts/agent/validate-creator-experiences-copy.ts\n- scripts/agent/validate-creator-fan-experience-settings.ts\n- scripts/agent/validate-creator-identity-markers.ts\n- scripts/agent/validate-creator-intake-flow.ts\n- scripts/agent/validate-creator-lane-legacy-truth-inventory.ts\n- scripts/agent/validate-creator-profile-routing.ts\n- scripts/agent/validate-creator-projection-normalizer.ts\n- scripts/agent/validate-creator-review-queue-materializer.ts\n- scripts/agent/validate-design-system-drift.ts\n- scripts/agent/validate-drops-mobile-refinement.ts\n- scripts/agent/validate-environment-deployment-truth.ts\n- scripts/agent/validate-event-catalog-telemetry.ts\n- scripts/agent/validate-final-launch-readiness-report.ts\n- scripts/agent/validate-global-loading-performance.ts\n- scripts/agent/validate-global-speed-hydration-cache.ts\n- scripts/agent/validate-human-readable-admin-copy.ts\n- scripts/agent/validate-launch-finalization-baseline.ts\n- scripts/agent/validate-launch-pr-triage.ts\n- scripts/agent/validate-launch-readiness-final.ts\n- scripts/agent/validate-legacy-creator-application-migration.ts\n- scripts/agent/validate-legal-payment-copy.ts\n- scripts/agent/validate-mobile-shell-safe-area.ts\n- scripts/agent/validate-notification-return-loop.ts\n- scripts/agent/validate-payment-unlock-security.ts\n- scripts/agent/validate-pwa-service-worker.ts\n- scripts/agent/validate-refresh-based-hot-cache.ts\n- scripts/agent/validate-rollback-incident-response.ts\n- scripts/agent/validate-security-role-boundaries.ts\n- scripts/agent/validate-support-recovery-flows.ts\n- scripts/agent/validate-synthetic-creators-view-as.ts\n- scripts/agent/validate-telemetry-orphan-cleanup.ts\n- scripts/agent/validate-test-fixtures-demo.ts\n- scripts/agent/validate-user-chat-shell-routing.ts\n- scripts/agent/validate-user-critical-path-launch.ts\n- scripts/agent/verification-selector.ts\nPotential related tests:\n- tests/unit/agent-verification-selector.spec.ts\nCanonical helpers to review:\n- src/lib/creator-application.ts\n- src/lib/creator-onboarding.ts\n- src/lib/server/creator-onboarding.ts"
+      "path": "src/lib/telemetry.ts",
+      "output": "> kandydrops@0.1.0 trace:adjacent\n> tsx scripts/trace-adjacent-surfaces.ts src/lib/telemetry.ts\n\n\nTarget: src/lib/telemetry.ts\nSurface: shared-helper\nDirect imports:\n- src/lib/analytics-client-engine.ts\n- src/lib/analytics-identifiers.ts\n- src/lib/analytics-semantics.ts\n- src/lib/authFetch.ts\n- src/lib/client-diagnostics.ts\n- src/lib/client-session.ts\n- src/lib/firebase.ts\n- src/lib/privacy-consent.ts\n- src/lib/rollouts.ts\n- src/lib/tasks/task-catalog.ts\n- src/lib/telemetry-safety.ts\nImported by:\n- src/app/HomeClient.tsx\n- src/app/admin/roster/page.tsx\n- src/app/admin/users/page.tsx\n- src/app/creators/[username]/CreatorProfileClient.tsx\n- src/app/creators/apply/page.tsx\n- src/app/dashboard/DashboardClient.tsx\n- src/app/dashboard/library/LibraryClient.tsx\n- src/app/dashboard/profile/hooks/useProfileState.tsx\n- src/app/dashboard/viewer/adapters/ViewerTelemetryAdapter.ts\n- src/app/dashboard/viewer/components/MediaViewer.tsx\n- src/app/drops/DropsClient.tsx\n- src/app/experiences/ExperiencesClient.tsx\n- src/app/faq/FAQClient.tsx\n- src/components/Admin/AdminAnalyticsCharts.tsx\n- src/components/Admin/AdminCreatorViewAsControls.tsx\n- src/components/Admin/AdminModerationConsole.tsx\n- src/components/Admin/AiDropCoverGeneratorPanel.tsx\n- src/components/Admin/AiDropDescriptionGeneratorPanel.tsx\n- src/components/Admin/AssetUploader.tsx\n- src/components/Admin/TopDropsTable.tsx\n- src/components/Analytics/DeepTracker.tsx\n- src/components/Analytics/PageViewEvent.tsx\n- src/components/Auth/AuthModal.tsx\n- src/components/Auth/GuidedOnboarding.tsx\n- src/components/Chat/ChatExperience.tsx\n- src/components/CookieBanner.tsx\n- src/components/CreatorDiscoveryRail.tsx\n- src/components/Creators/CreatorAgreementReview.tsx\n- src/components/Creators/CreatorExperiencesPanel.tsx\n- src/components/Dashboard/CollectionList.tsx\n- src/components/Dashboard/DailyCheckIn.tsx\n- src/components/Dashboard/DailyTasksModule.tsx\n- src/components/Dashboard/LiveDropsForYouCarousel.tsx\n- src/components/Dashboard/NotificationPromptBanner.tsx\n- src/components/Dashboard/OwnedDropGalleryCard.tsx\n- src/components/Dashboard/RecentActivityFeed.tsx\n- src/components/Dashboard/TaskGuidanceBanner.tsx\n- src/components/DropCard.tsx\n- src/components/DropPreviewModal.tsx\n- src/components/Drops/LockedDropPreviewClient.tsx\n- src/components/FeaturedCarousel.tsx\n- src/components/Feedback/ReportBugButton.tsx\n- src/components/GlobalAuthModal.tsx\n- src/components/InsufficientBalanceModal.tsx\n- src/components/Landing/HomeActiveDropsCarousel.tsx\n- src/components/Landing/HomeHeroActions.tsx\n- src/components/Landing/HomeHowItWorksActions.tsx\n- src/components/Navbar.tsx\n- src/components/Navigation/MobileBottomBar.tsx\n- src/components/Navigation/NotificationBell.tsx\n- src/components/Navigation/ProfileDropdown.tsx\n- src/components/Navigation/ProfileSidebar.tsx\n- src/components/Notifications/NotificationRuntimeBridge.tsx\n- src/components/PromoCard.tsx\n- src/components/PurchaseModal.tsx\n- src/components/Support/SupportInbox.tsx\n- src/context/AdminViewAsContext.tsx\n- src/context/AuthContext.tsx\n- src/context/RolloutContext.tsx\n- src/hooks/useDropCardImpression.ts\n- src/hooks/useNotifications.ts\n- src/hooks/useTaskGuidanceActions.ts\n- src/hooks/useViewerWatchSession.ts\n- tests/unit/lib/telemetry.spec.ts\n- tests/unit/telemetry-flows.spec.ts\n- tests/unit/telemetry.spec.ts\nSame-directory siblings:\n- src/lib/activity-sync.ts\n- src/lib/admin-ai-debug-runtime.ts\n- src/lib/admin-ai-models.ts\n- src/lib/admin-analytics-audience-snapshot.ts\n- src/lib/admin-analytics-auth-outcome-split.ts\n- src/lib/admin-analytics-commerce-snapshot.ts\n- src/lib/admin-analytics-event-mix.ts\n- src/lib/admin-analytics-guest-bounce-quality.ts\n- src/lib/admin-analytics-journey-funnel.ts\n- src/lib/admin-analytics-live-interaction-stream.ts\n- src/lib/admin-analytics-live-pulse.ts\n- src/lib/admin-analytics-live-runtime.ts\n- src/lib/admin-analytics-preferences.ts\n- src/lib/admin-analytics-return-cadence.ts\n- src/lib/admin-analytics-truth.ts\n- src/lib/admin-auth-outcome-chart.ts\n- src/lib/admin-debug-control-tower.ts\n- src/lib/admin-debug-preferences.ts\n- src/lib/admin-debug-route-runtime.ts\n- src/lib/admin-debug-summary-cards.ts\n- src/lib/admin-drop-form-sections.ts\n- src/lib/admin-drop-form.ts\n- src/lib/admin-drop-formatting.ts\n- src/lib/admin-drop-lifecycle.ts\n- src/lib/admin-drop-queue.ts\n- src/lib/admin-metric-truth-state.ts\n- src/lib/admin-moderation-control-tower.ts\n- src/lib/admin-moderation-security-alerts.ts\n- src/lib/admin-moderation.ts\n- src/lib/admin-notification-funnel.ts\n- src/lib/admin-onboarding-velocity.ts\n- src/lib/admin-ops-health.ts\n- src/lib/admin-overview.ts\n- src/lib/admin-panel-system-logs.ts\n- src/lib/admin-parity.ts\n- src/lib/admin-shell-spacing.ts\n- src/lib/admin-task-leaderboard.ts\n- src/lib/admin-task-pipeline.ts\n- src/lib/admin-truth-state.ts\n- src/lib/admin-user-commerce.ts\n- src/lib/admin-user-metrics-contract.ts\n- src/lib/admin-user-metrics.ts\n- src/lib/ai-debug-assistant.ts\n- src/lib/ai-drop-covers.ts\n- src/lib/ai-drop-descriptions.ts\n- src/lib/analytics-action-taxonomy.ts\n- src/lib/analytics-client-engine.ts\n- src/lib/analytics-identifiers.ts\n- src/lib/analytics-metric-catalog.ts\n- src/lib/analytics-semantics.ts\n- src/lib/analytics-time.ts\n- src/lib/auth-errors.ts\n- src/lib/authFetch.ts\n- src/lib/browser-notification-enrollment.ts\n- src/lib/browser-utils.ts\n- src/lib/bug-reporting.ts\n- src/lib/chat-attachments.ts\n- src/lib/chat-realtime.ts\n- src/lib/chat-send-feedback.ts\n- src/lib/chat-send-realtime.ts\n- src/lib/chat-soft-seal.ts\n- src/lib/chat.ts\n- src/lib/client-boot-diagnostics.ts\n- src/lib/client-diagnostics.ts\n- src/lib/client-error-reporting.ts\n- src/lib/client-random.ts\n- src/lib/client-session.ts\n- src/lib/codebase-hardening-contract.ts\n- src/lib/creator-admin.ts\n- src/lib/creator-agreement-documents.ts\n- src/lib/creator-agreement-signature-ux.ts\n- src/lib/creator-agreement-version.ts\n- src/lib/creator-application.ts\n- src/lib/creator-contract.ts\n- src/lib/creator-experiences.ts\n- src/lib/creator-intake-flow.ts\n- src/lib/creator-message-compatibility.ts\n- src/lib/creator-onboarding-projection.ts\n- src/lib/creator-onboarding.ts\n- src/lib/creator-profile-routing.ts\n- src/lib/creator-public-pages.ts\n- src/lib/daily-checkin.ts\n- src/lib/debug-evidence-contract.ts\n- src/lib/design-system.ts\n- src/lib/device-layout-contract.ts\n- src/lib/device-layout-score.ts\n- src/lib/device-ui-dry-audit-rules.ts\n- src/lib/device-ui-dry-audit.ts\n- src/lib/drop-card-visibility.ts\n- src/lib/drop-countdown.ts\n- src/lib/drop-dashboard.ts\n- src/lib/drop-engagement.ts\n- src/lib/drop-media-fallback.ts\n- src/lib/drop-normalizers.ts\n- src/lib/drop-presentation.ts\n- src/lib/drop-preview-telemetry.ts\n- src/lib/drop-queue-lifecycle.ts\n- src/lib/drop-queue-schedule.ts\n- src/lib/drop-read-models.ts\n- src/lib/drop-status.ts\n- src/lib/firebase-data.ts\n- src/lib/firebase-messaging.ts\n- src/lib/firebase-runtime.ts\n- src/lib/firebase.ts\n- src/lib/firestore-client-errors.ts\n- src/lib/gumdrop-economics.ts\n- src/lib/gumdrop-formatting.ts\n- src/lib/gumdrop-ledger.ts\n- src/lib/gumdrops-packages.ts\n- src/lib/http-cache.ts\n- src/lib/hydration-performance-score.ts\n- src/lib/image-loading-policy.ts\n- src/lib/landing-assets.ts\n- src/lib/locked-drop-preview-profile.ts\n- src/lib/locked-drop-preview-truth.ts\n- src/lib/manual-email-auth.ts\n- src/lib/marketing-copy.ts\n- src/lib/media-hosts.ts\n- src/lib/navigation-persistence.ts\n- src/lib/navigation-session.ts\n- src/lib/notification-contracts.ts\n- src/lib/notification-identity.ts\n- src/lib/notification-local-state.ts\n- src/lib/notifications.ts\n- src/lib/platform-config.ts\n- src/lib/privacy-consent.ts\n- src/lib/problem-state-copy.ts\n- src/lib/release-tracking.ts\n- src/lib/rollouts.ts\n- src/lib/route-runtime-health.ts\n- src/lib/security-events.ts\n- src/lib/self-healing.ts\n- src/lib/site-origin.ts\n- src/lib/support-readiness.ts\n- src/lib/task-guidance.ts\n- src/lib/telemetry-catalog.ts\n- src/lib/telemetry-safety.ts\n- src/lib/timezone.ts\n- src/lib/transaction-normalizers.ts\n- src/lib/ui-continuity.ts\n- src/lib/user-behavior-rollup-contract.ts\n- src/lib/user-mobile-shell.ts\n- src/lib/user-profile-validation.ts\n- src/lib/user-utils.ts\n- src/lib/utils.ts\n- src/lib/viewer-asset-prefetch.ts\n- src/lib/viewer-watch-session.ts\n- src/lib/watch-time-rollup-contract.ts\n- src/lib/watch-time-scoring.ts\nPotential related tests:\n- tests/contracts/telemetry-contracts.spec.ts\n- tests/unit/lib/drop-engagement.spec.ts\n- tests/unit/lib/drop-normalizers.spec.ts\n- tests/unit/lib/gumdrop-economics.spec.ts\n- tests/unit/lib/gumdrop-formatting.spec.ts\n- tests/unit/lib/telemetry.spec.ts\n- tests/unit/telemetry-flows.spec.ts\n- tests/unit/telemetry.spec.ts\nCanonical helpers to review:\n- src/lib/server/analytics-governance.ts\n- src/lib/server/analytics.ts\n- src/lib/telemetry.ts"
     }
   ]
 }

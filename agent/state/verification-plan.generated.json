@@ -1,5 +1,5 @@
 {
-  "generatedAt": "2026-05-02T20:20:27.463Z",
+  "generatedAt": "2026-05-04T21:19:33.038Z",
   "truthOrder": [
     "verified_runtime_code",
     "verified_configuration",
@@ -16,27 +16,25 @@
     "agent/index/surface-map.json",
     "agent/index/ui-surface-coverage.json"
   ],
-  "stable_id": "verifyplan__scripts__agent__validate-creator-lane-debug-parity-ts",
+  "stable_id": "verifyplan__src__lib__telemetry-ts",
   "inputPaths": [
-    "scripts/agent/validate-creator-lane-debug-parity.ts"
+    "src/lib/telemetry.ts"
   ],
   "matchedRepoPaths": [
-    "scripts/agent/validate-creator-lane-debug-parity.ts"
+    "src/lib/telemetry.ts"
   ],
   "unmatchedPaths": [],
   "touchedDomains": [
-    "repo_tooling"
+    "shared_server_helpers"
   ],
   "fastCommands": [
     "npm run typecheck",
-    "npm run agent:test -- scripts/agent/validate-creator-lane-debug-parity.ts",
-    "npm run check:agent-context"
+    "npm run agent:test -- src/lib/telemetry.ts",
+    "npm run check:telemetry",
+    "npm run check:analytics-semantics"
   ],
   "signoffCommands": [
-    "npm run check:inventory",
-    "npm run check:architecture",
-    "npm run check:agent-intelligence",
-    "npm run eval:agent-context",
+    "npm run check:analytics:continuity",
     "npm run check:continuity"
   ],
   "fastSelections": [
@@ -48,46 +46,32 @@
       "lane": "fast"
     },
     {
-      "command": "npm run agent:test -- scripts/agent/validate-creator-lane-debug-parity.ts",
+      "command": "npm run agent:test -- src/lib/telemetry.ts",
       "why": [
         "Run the narrowest related contract/unit tests first."
       ],
       "lane": "fast"
     },
     {
-      "command": "npm run check:agent-context",
+      "command": "npm run check:telemetry",
       "why": [
-        "Repo intelligence outputs should stay internally valid."
+        "Telemetry or analytics semantics changed."
+      ],
+      "lane": "fast"
+    },
+    {
+      "command": "npm run check:analytics-semantics",
+      "why": [
+        "Canonical analytics naming/schema must remain aligned."
       ],
       "lane": "fast"
     }
   ],
   "signoffSelections": [
     {
-      "command": "npm run check:inventory",
+      "command": "npm run check:analytics:continuity",
       "why": [
-        "Repo-tooling changes must preserve inventory truth."
-      ],
-      "lane": "signoff"
-    },
-    {
-      "command": "npm run check:architecture",
-      "why": [
-        "Repo-tooling/shared-helper changes need architecture validation."
-      ],
-      "lane": "signoff"
-    },
-    {
-      "command": "npm run check:agent-intelligence",
-      "why": [
-        "Agent indexes and helper extraction must stay coherent."
-      ],
-      "lane": "signoff"
-    },
-    {
-      "command": "npm run eval:agent-context",
-      "why": [
-        "Task-context retrieval/eval fixtures changed."
+        "Analytics continuity needs explicit signoff for behavioral/runtime changes."
       ],
       "lane": "signoff"
     },

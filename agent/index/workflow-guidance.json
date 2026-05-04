@@ -1,5 +1,5 @@
 {
-  "generatedAt": "2026-05-03T01:01:58.278Z",
+  "generatedAt": "2026-05-04T21:16:36.341Z",
   "truthOrder": [
     "verified_runtime_code",
     "verified_configuration",
@@ -279,6 +279,7 @@
       ],
       "relatedPaths": [
         "/agent/index/*",
+        "; provider billing state is not proven from source. This surface is allowed only for agent/repo intelligence mirror use and is forbidden for user/payment/Drop/chat/support/creator runtime flows unless an explicit SQL/Data Connect ",
         "agent/index/*.json",
         "agent/index/ui-surface-coverage.json",
         "agent/index/verification-commands.json",
@@ -286,9 +287,17 @@
         "agent/prompts/task-prompt.deep.md",
         "agent/prompts/task-prompt.short.md",
         "agent/prompts/task-prompt.standard.md",
+        "agent/state/sql-mirror-status.generated.json",
+        "agent/state/sql-sync.payload.generated.json",
         "agent/state/task-context.generated.json",
         "agent/state/verification-plan.generated.json",
-        "output/dependency-graph.json"
+        "dataconnect/dataconnect.yaml",
+        "dataconnect/example/*",
+        "dataconnect/schema/*.gql",
+        "output/dependency-graph.json",
+        "scripts/agent/sync-sql.ts",
+        "src/lib/device-layout-contract.ts",
+        "src/lib/user-mobile-shell.ts"
       ]
     }
   ]
