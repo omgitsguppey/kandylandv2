@@ -55,6 +55,8 @@ Watch sessions are stronger than page duration for content engagement only when 
 
 The identity graph links anonymous sessions, guest visitors, authenticated users, creators, admins, and system actors without erasing earlier guest history. A guest-to-user link should add an identity link event and preserve the original guest session lane. Admin, creator, and system actions must stay separate from user and guest analytics unless a module explicitly tracks those actor lanes.
 
+Identified parity now requires a second layer on top of raw event facts: normalized action, metric family, actor-target separation, source truth, source confidence, and metric eligibility. Target creator ids must never force creator actor classification. Admin projection events remain visible in analytics evidence, but they are excluded from user behavior.
+
 ### Verified Hot Cache Snapshot
 
 A verified hot cache snapshot is the fast admin display truth. It is a materialized backend read model with:

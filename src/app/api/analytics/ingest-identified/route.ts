@@ -11,7 +11,8 @@ import { ANALYTICS_CANONICAL_COLLECTIONS, ANALYTICS_OPERATIONAL_COLLECTIONS, ANA
 import { withRouteRuntimeHealth } from "@/lib/server/route-runtime-health";
 import { explainEventInclusion } from "@/lib/analytics/analytics-event-contract";
 import { BEHAVIORAL_EVENT_FACT_VERSION } from "@/lib/behavioral/event-fact-contract";
-import { normalizeBehavioralEventFact } from "@/lib/behavioral/normalize-event-fact";
+import { buildIdentifiedActiveUserPatch } from "@/lib/behavioral/identified-metric-parity";
+import { normalizeIdentifiedMetricEventFact } from "@/lib/behavioral/event-fact-normalizer";
 
 export const dynamic = "force-dynamic";
 
@@ -176,24 +177,27 @@ async function POST_handler(request: NextRequest) {
             });
             const actorClassification = inclusion.actorClassification;
             const adminId = actorClassification.isAdmin ? caller.uid : "";
-            const normalizedEventFact = inclusion.includeInUserBehavior
-                ? normalizeBehavioralEventFact({
-                    eventId,
-                    eventName: canonicalEventName,
-                    params: enrichedParams,
-                    timestamp,
-                    userId: caller.uid,
-                    sessionId: String(enrichedParams.session_id || enrichedParams.sessionId || ""),
-                    pagePath,
-                    dropId: String(enrichedParams.drop_id || enrichedParams.dropId || ""),
-                    creatorId: String(enrichedParams.creator_id || enrichedParams.creatorId || ""),
-                    assetKey: String(enrichedParams.asset_key || enrichedParams.assetKey || ""),
-                    assetIndex: Number(enrichedParams.asset_index || enrichedParams.assetIndex || 0),
-                    source: "server",
-                    valueUsd: enrichedParams.gross_revenue_usd || enrichedParams.grossRevenueUsd || enrichedParams.amount_usd || enrichedParams.amountUsd,
-                    gumDropsAmount: enrichedParams.delivered_gumdrops || enrichedParams.deliveredGumDrops || enrichedParams.gumdrops_amount || enrichedParams.gumDropsAmount,
-                })
-                : null;
+            const parityFact = normalizeIdentifiedMetricEventFact({
+                eventId,
+                eventName: canonicalEventName,
+                params: enrichedParams,
+                timestamp,
+                callerUid: caller.uid,
+                pagePath,
+                includeInUserBehavior: inclusion.includeInUserBehavior,
+                actorType: actorClassification.actorType,
+                actorLane: actorClassification.actorLane,
+                sourceTruth: canonicalEventName === "identity_linked"
+                    ? "canonical"
+                    : canonicalEventName === "gumdrops_purchase_completed" || canonicalEventName === "purchase_verified"
+                        ? "canonical"
+                        : canonicalEventName === "unlock_drop_success"
+                            ? "canonical"
+                            : canonicalEventName.startsWith("watch_session_") || canonicalEventName === "viewer_session_completed" || canonicalEventName === "watch_score_computed"
+                                ? "canonical"
+                                : "server",
+            });
+            const normalizedEventFact = parityFact.behavioralFact;
             
             const finalEvent = {
                 eventId,
@@ -255,6 +259,20 @@ async function POST_handler(request: NextRequest) {
                 normalizedActionConfidence: normalizedEventFact?.confidence ?? 0,
                 normalizedActionSourceTruth: normalizedEventFact?.sourceTruth ?? "",
                 normalizedActionReasonCode: normalizedEventFact?.reasonCode ?? "",
+                metricFamily: parityFact.metricFamily,
+                actorUserId: parityFact.actorUserId,
+                actorAdminId: parityFact.actorAdminId,
+                actorCreatorId: parityFact.actorCreatorId,
+                targetUserId: parityFact.targetUserId,
+                targetCreatorId: parityFact.targetCreatorId,
+                targetDropId: parityFact.targetDropId,
+                targetFileId: parityFact.targetFileId,
+                targetThreadId: parityFact.targetThreadId,
+                transactionId: parityFact.transactionId,
+                sourceTruth: parityFact.sourceTruth,
+                sourceConfidence: parityFact.sourceConfidence,
+                metricEligible: parityFact.metricEligible,
+                metricExclusionReason: parityFact.metricExclusionReason,
                 actionEntityId: normalizedEventFact?.entityId ?? "",
                 actionEntityType: normalizedEventFact?.entityType ?? "",
                 actionSourceComponent: normalizedEventFact?.sourceComponent ?? "",
@@ -272,20 +290,19 @@ async function POST_handler(request: NextRequest) {
             batch.set(ref, finalEvent, { merge: false });
             processed++;
 
-            if (inclusion.includeInUserBehavior && (!latestActiveUserPatch || timestamp >= Number(latestActiveUserPatch.lastSeenAt || 0))) {
-                latestActiveUserPatch = {
+            if (!latestActiveUserPatch || timestamp >= Number(latestActiveUserPatch.lastSeenAt || 0)) {
+                latestActiveUserPatch = buildIdentifiedActiveUserPatch({
                     uid: caller.uid,
+                    timestampMs: timestamp,
+                    eventName: canonicalEventName,
+                    pagePath: finalEvent.pagePath,
                     username: readStringParam(enrichedParams, "username", "user_name", "display_name", "displayName"),
-                    lastSeenAt: timestamp,
-                    lastEventName: canonicalEventName,
-                    lastPagePath: finalEvent.pagePath,
-                    lastDropTitle: finalEvent.dropTitle,
-                    lastSemanticScopeLabel: readStringParam(enrichedParams, "semantic_scope_label", "semanticScopeLabel"),
-                    lastComponentName: readStringParam(enrichedParams, "component_name", "componentName"),
-                    lastEventModules: readEventModules(enrichedParams),
+                    semanticScopeLabel: readStringParam(enrichedParams, "semantic_scope_label", "semanticScopeLabel"),
+                    componentName: readStringParam(enrichedParams, "component_name", "componentName"),
+                    eventModules: readEventModules(enrichedParams),
                     source: "identified_client_ingest",
-                    updatedAt: Date.now(),
-                };
+                    parityFact,
+                });
             }
         }
 

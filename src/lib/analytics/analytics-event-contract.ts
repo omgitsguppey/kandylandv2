@@ -308,9 +308,16 @@ export function classifyAnalyticsActor(input: AnalyticsActorClassificationInput)
     };
   }
 
-  const isCreator = explicitActorType === "creator" || Boolean(stringOrNull(input.creatorId)) || roles.includes("creator");
+  const creatorActorId =
+    stringOrNull((claims as Record<string, unknown>).creatorUid)
+    ?? stringOrNull((claims as Record<string, unknown>).creatorId)
+    ?? null;
+  const isCreator =
+    explicitActorType === "creator"
+    || roles.includes("creator")
+    || Boolean(creatorActorId);
   if (isCreator) {
-    reasons.push("Creator id, creator role, or explicit creator actor type is present.");
+    reasons.push("Creator actor type, creator role, or creator actor claim is present.");
     return {
       actorType: "creator",
       actorLane: "creator",

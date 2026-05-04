@@ -3,7 +3,7 @@ import { prepareAnalyticsEvent } from "./analytics-client-engine";
 import { createAnalyticsEventId } from "./analytics-identifiers";
 import destr from "destr";
 import { buildAnalyticsSemanticParams } from "./analytics-semantics";
-import { getClientSessionId } from "./client-session";
+import { buildClientIdentityLinkRecord, getClientSessionId, rememberClientIdentityLink } from "./client-session";
 import { recordClientDiagnostic } from "./client-diagnostics";
 import { authFetch } from "./authFetch";
 import { canUseAnonymousAnalytics, canUseIdentifiedAnalytics, readPrivacySettingsSnapshot } from "./privacy-consent";
@@ -452,6 +452,58 @@ export function trackEvent(eventName: string, eventParams?: Record<string, unkno
         eventName: preparedEvent.canonicalEventName,
         eventParams: enrichedParams,
     }, shouldFlushIdentifiedTelemetryImmediately(preparedEvent.canonicalEventName, enrichedParams, shouldSyncTaskProgress));
+}
+
+export function trackIdentityLinked(input: {
+    userId: string;
+    method: "login" | "signup" | "session_restore" | "admin_link" | "import" | "unknown";
+    eligiblePastSessionIds?: string[];
+}) {
+    if (typeof window === "undefined" || !auth?.currentUser?.uid) {
+        return;
+    }
+
+    const privacySettings = readPrivacySettingsSnapshot();
+    const allowIdentifiedAnalytics = canUseIdentifiedAnalytics(privacySettings);
+    const consentState = allowIdentifiedAnalytics ? "granted" : "denied";
+    const identityLink = buildClientIdentityLinkRecord({
+        userId: input.userId,
+        method: input.method,
+        consentState,
+        eligiblePastSessionIds: input.eligiblePastSessionIds,
+        source: "client",
+    });
+
+    rememberClientIdentityLink(identityLink);
+
+    const preparedEvent = prepareAnalyticsEvent("identity_linked", {
+        anonymous_visitor_id: identityLink.anonymousVisitorId ?? "",
+        session_id: identityLink.sessionId,
+        user_id: identityLink.userId,
+        linked_at: identityLink.linkedAt,
+        method: identityLink.method,
+        eligible_past_session_ids: identityLink.eligiblePastSessionIds,
+        confidence: identityLink.persisted ? "high" : "medium",
+        metric_eligible: allowIdentifiedAnalytics,
+        metric_exclusion_reason: allowIdentifiedAnalytics ? "" : "privacy_limited",
+        privacy_exclusion_reason: allowIdentifiedAnalytics ? "" : "privacy_limited",
+        identity_persistence_allowed: identityLink.persisted,
+        consent_state: identityLink.consentState,
+        source_truth: "canonical",
+        source_confidence: allowIdentifiedAnalytics ? 1 : 0.7,
+    });
+    const enrichedParams = getEnrichedEventParams(preparedEvent.enrichedParams);
+    const sessionId = typeof enrichedParams?.session_id === "string" ? enrichedParams.session_id : getSessionId();
+    const eventTimestampMs = typeof enrichedParams?.event_timestamp_ms === "number"
+        ? enrichedParams.event_timestamp_ms
+        : Date.now();
+
+    enqueueIdentifiedTelemetryEvent({
+        eventId: createAnalyticsEventId(sessionId),
+        eventTimestampMs,
+        eventName: preparedEvent.canonicalEventName,
+        eventParams: enrichedParams,
+    }, true);
 }
 
 export function __getTelemetryStateForTesting() {

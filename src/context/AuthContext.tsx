@@ -34,7 +34,7 @@ import {
 } from "@/lib/auth-errors";
 import { syncClientSessionOwnership } from "@/lib/client-session";
 import { clearTaskGuidanceStorage } from "@/lib/task-guidance";
-import { syncIdentifiedTelemetryOwnership, trackEvent } from "@/lib/telemetry";
+import { syncIdentifiedTelemetryOwnership, trackEvent, trackIdentityLinked } from "@/lib/telemetry";
 import {
     ensureManualSignupUsername,
     readManualRegistrationResult,
@@ -234,6 +234,10 @@ export function AuthProvider({ children }: { children: ReactNode }) {
                         trackEvent("auth_session_restored", {
                             restoration_source: "browser_local_persistence",
                             auth_provider: currentUser.providerData[0]?.providerId || "unknown",
+                        });
+                        trackIdentityLinked({
+                            userId: currentUser.uid,
+                            method: "session_restore",
                         });
                     }
                     initialAuthResolvedRef.current = true;

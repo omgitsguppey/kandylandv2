@@ -1,0 +1,76 @@
+{
+  "generatedAt": "2026-05-04T21:30:52.072Z",
+  "overallScore": 100,
+  "status": "pass",
+  "criticalFail": false,
+  "domainScores": [
+    {
+      "key": "actor_target",
+      "label": "Actor/Target Separation",
+      "weight": 20,
+      "score": 20,
+      "status": "pass"
+    },
+    {
+      "key": "server_truth",
+      "label": "Server Truth Priority",
+      "weight": 20,
+      "score": 20,
+      "status": "pass"
+    },
+    {
+      "key": "identity_linking",
+      "label": "Identity Linking",
+      "weight": 15,
+      "score": 15,
+      "status": "pass"
+    },
+    {
+      "key": "normalization",
+      "label": "Event Fact Normalization",
+      "weight": 15,
+      "score": 15,
+      "status": "pass"
+    },
+    {
+      "key": "watch_notification_task",
+      "label": "Watch/Notification/Task Parity",
+      "weight": 15,
+      "score": 15,
+      "status": "pass"
+    },
+    {
+      "key": "active_user_split",
+      "label": "Active User Meaningful Split",
+      "weight": 10,
+      "score": 10,
+      "status": "pass"
+    },
+    {
+      "key": "consent_clarity",
+      "label": "Consent/Exclusion Clarity",
+      "weight": 5,
+      "score": 5,
+      "status": "pass"
+    }
+  ],
+  "findings": [],
+  "criticalFindings": [],
+  "missingExpectedEvents": [],
+  "unsupportedEventNotes": [
+    "Unsupported identified events are explicitly reported before analytics fact writes."
+  ],
+  "commandBudget": {
+    "allowed": [
+      "npm run score:telemetry-identified-parity",
+      "npm run check:telemetry-identified-parity",
+      "npm run typecheck"
+    ],
+    "forbidden": [
+      "npm run check",
+      "playwright",
+      "cypress",
+      "lighthouse"
+    ]
+  }
+}

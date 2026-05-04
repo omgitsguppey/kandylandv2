@@ -121,6 +121,11 @@ describe("POST /api/analytics/ingest-identified", () => {
     expect(eventWrite?.data).toMatchObject({
       eventName: "notification_marked_read",
       eventCategory: "notifications",
+      metricFamily: "notification",
+      metricEligible: true,
+      actorUserId: "user_123",
+      actorCreatorId: "",
+      targetCreatorId: "",
       eventModules: ["notifications"],
       trackingOrigin: "identified_api_ingest",
       params: expect.objectContaining({
@@ -134,9 +139,80 @@ describe("POST /api/analytics/ingest-identified", () => {
     const activeUserWrite = mockState.writes.find((write) => write.path === "analytics_active_users/user_123");
     expect(activeUserWrite?.data).toMatchObject({
       lastEventName: "notification_marked_read",
+      lastSeenEventName: "notification_marked_read",
       lastPagePath: "/dashboard",
       lastEventModules: "notifications",
     });
+    expect(activeUserWrite?.data).not.toHaveProperty("lastMeaningfulActionAt");
+  });
+
+  it("keeps creator targets separate from the user actor lane", async () => {
+    const response = await POST(buildRequest({
+      events: [{
+        eventId: "evt_follow",
+        eventTimestampMs: 1767225600000,
+        eventName: "creator_followed",
+        eventParams: {
+          page_path: "/creators/kandy",
+          session_id: "session_123",
+          creator_id: "creator_456",
+          source_component: "creator_profile_header",
+        },
+      }],
+    }));
+    const payload = await response.json();
+
+    expect(payload).toEqual({ success: true, processed: 1, skippedUnsupported: 0 });
+
+    const eventWrite = mockState.writes.find((write) => write.path === "analytics_event_facts/evt_follow");
+    expect(eventWrite?.data).toMatchObject({
+      actorType: "user",
+      actorUserId: "user_123",
+      actorCreatorId: "",
+      targetCreatorId: "creator_456",
+      metricEligible: true,
+      metricFamily: "creator",
+      normalizedActionName: "creator_followed",
+    });
+
+    const activeUserWrite = mockState.writes.find((write) => write.path === "analytics_active_users/user_123");
+    expect(activeUserWrite?.data).toMatchObject({
+      lastMeaningfulActionName: "creator_followed",
+      lastMeaningfulActionAt: 1767225600000,
+    });
+  });
+
+  it("excludes admin projection events from user behavior metrics", async () => {
+    const response = await POST(buildRequest({
+      events: [{
+        eventId: "evt_projection",
+        eventTimestampMs: 1767225600000,
+        eventName: "admin_view_as_creator_started",
+        eventParams: {
+          page_path: "/admin/users",
+          session_id: "session_123",
+          admin_id: "user_123",
+          target_creator_id: "creator_789",
+          projection_mode: "read_only_creator_projection",
+        },
+      }],
+    }));
+    const payload = await response.json();
+
+    expect(payload).toEqual({ success: true, processed: 1, skippedUnsupported: 0 });
+
+    const eventWrite = mockState.writes.find((write) => write.path === "analytics_event_facts/evt_projection");
+    expect(eventWrite?.data).toMatchObject({
+      actorType: "admin",
+      analyticsUserId: "",
+      metricEligible: false,
+      metricExclusionReason: "admin_projection",
+      actorAdminId: "user_123",
+      targetCreatorId: "creator_789",
+    });
+
+    const activeUserWrite = mockState.writes.find((write) => write.path === "analytics_active_users/user_123");
+    expect(activeUserWrite?.data).not.toHaveProperty("lastMeaningfulActionAt");
   });
 
   it("skips unsupported telemetry before it can create orphaned event facts", async () => {

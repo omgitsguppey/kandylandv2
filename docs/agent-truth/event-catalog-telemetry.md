@@ -38,8 +38,17 @@ Identified client ingest and server analytics write event facts with lane metada
 - `includeInUserBehavior`
 - `includeInAdminAnalytics`
 - `analyticsExclusionReason`
+- `metricFamily`
+- `actorUserId` / `actorAdminId` / `actorCreatorId`
+- `targetUserId` / `targetCreatorId` / `targetDropId` / `targetFileId` / `targetThreadId`
+- `sourceTruth`
+- `sourceConfidence`
+- `metricEligible`
+- `metricExclusionReason`
 
 Only events with `includeInUserBehavior: true` may update `analytics_active_users`. Admin route visits, admin UI interactions, system jobs, and unknown actors stay visible in Debug/global evidence without polluting user behavior.
+
+`identity_linked` must emit on signup, login, and session restore. Privacy-limited identity linking is recorded with an exclusion reason instead of being mislabeled as a broken metric source.
 
 ## Validation
 
