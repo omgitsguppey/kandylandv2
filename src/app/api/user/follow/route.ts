@@ -80,6 +80,7 @@ async function POST_handler(request: NextRequest) {
 
         await trackServerEvent(action === "follow" ? "creator_followed" : "creator_unfollowed", {
             creator_id: targetUserId,
+            target_creator_id: targetUserId,
             creator_username: typeof targetData.username === "string" ? targetData.username : "",
             creator_display_name: typeof targetData.displayName === "string" ? targetData.displayName : "Creator",
             transaction_id: `${userId}:${targetUserId}:${action}`,

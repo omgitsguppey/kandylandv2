@@ -137,7 +137,7 @@ export async function trackServerEvent(
   const explicitActorRole = readStringParam(enrichedParams, "actor_role", "actorRole");
   const performedAs = readStringParam(enrichedParams, "performed_as", "performedAs");
   const targetUserId = readStringParam(enrichedParams, "target_user_id", "targetUserId");
-  const targetCreatorId = readStringParam(enrichedParams, "target_creator_id", "targetCreatorId");
+  const targetCreatorId = readStringParam(enrichedParams, "target_creator_id", "targetCreatorId", "creator_id", "creatorId");
   const adminRouteOrEvent = option?.category === "admin"
     || canonicalEventName.startsWith("admin_")
     || pagePath === "/admin"
@@ -153,6 +153,11 @@ export async function trackServerEvent(
     source: "server",
   });
   const actorClassification = inclusion.actorClassification;
+  const actorAdminId = actorClassification.isAdmin ? (explicitActorUid || explicitAdminId || userId || "") : "";
+  const actorCreatorId = actorClassification.isCreator
+    ? (readStringParam(enrichedParams, "actor_creator_id", "actorCreatorId", "creator_actor_id", "creatorActorId", "creator_uid", "creatorUid") || explicitActorUid || userId || "")
+    : "";
+  const actorUserId = actorClassification.actorType === "user" ? (readStringParam(enrichedParams, "actor_user_id", "actorUserId") || explicitActorUid || userId || "") : "";
   const normalizedEventFact = inclusion.includeInUserBehavior
     ? normalizeBehavioralEventFact({
       eventId: buildServerEventId(userId, canonicalEventName),
@@ -186,7 +191,10 @@ export async function trackServerEvent(
         sourceSurface: "server",
         userId: userId || "",
         analyticsUserId: inclusion.includeInUserBehavior && userId ? userId : "",
-        adminId: actorClassification.isAdmin ? explicitActorUid || explicitAdminId || userId || "" : "",
+        adminId: actorAdminId,
+        actorUserId,
+        actorAdminId,
+        actorCreatorId,
         actorUid: explicitActorUid || userId || "",
         actorRole: explicitActorRole,
         performedAs,

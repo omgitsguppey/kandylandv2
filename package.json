@@ -95,6 +95,7 @@
         "check:user-chat-shell-routing": "tsx scripts/agent/validate-user-chat-shell-routing.ts",
         "check:analytics-truth-layer-v2": "tsx scripts/agent/validate-analytics-truth-layer-v2.ts",
         "check:analytics-event-contract": "tsx scripts/agent/validate-analytics-event-contract.ts",
+        "check:actor-target-telemetry": "tsx scripts/agent/validate-actor-target-telemetry.ts",
         "check:admin-analytics-hot-cache": "tsx scripts/agent/validate-admin-analytics-hot-cache.ts",
         "check:global-loading-performance": "tsx scripts/agent/validate-global-loading-performance.ts",
         "check:global-speed-hydration-cache": "tsx scripts/agent/validate-global-speed-hydration-cache.ts",

@@ -82,6 +82,11 @@ export interface CanonicalAnalyticsEvent {
   userId: string | null;
   creatorId: string | null;
   adminId: string | null;
+  actorUserId: string | null;
+  actorCreatorId: string | null;
+  actorAdminId: string | null;
+  targetUserId: string | null;
+  targetCreatorId: string | null;
   surface: string | null;
   route: string | null;
   component: string | null;
@@ -126,6 +131,11 @@ export interface AnalyticsActorClassificationInput {
   userId?: string | null;
   creatorId?: string | null;
   adminId?: string | null;
+  actorUserId?: string | null;
+  actorCreatorId?: string | null;
+  actorAdminId?: string | null;
+  targetUserId?: string | null;
+  targetCreatorId?: string | null;
   route?: string | null;
   surface?: string | null;
   source?: string | null;
@@ -202,6 +212,19 @@ function isOneOf<T extends readonly string[]>(value: unknown, values: T): value 
   return typeof value === "string" && values.includes(value);
 }
 
+function resolveActorUserId(input: Pick<CanonicalAnalyticsEventInput, "actorUserId" | "userId">, actorType: AnalyticsActorType) {
+  return stringOrNull(input.actorUserId) ?? (actorType === "user" ? stringOrNull(input.userId) : null);
+}
+
+function resolveActorCreatorId(input: Pick<CanonicalAnalyticsEventInput, "actorCreatorId" | "creatorId">, actorType: AnalyticsActorType) {
+  return stringOrNull(input.actorCreatorId) ?? (actorType === "creator" ? stringOrNull(input.creatorId) : null);
+}
+
+function resolveActorAdminId(input: Pick<CanonicalAnalyticsEventInput, "actorAdminId" | "adminId" | "userId">, actorType: AnalyticsActorType) {
+  return stringOrNull(input.actorAdminId)
+    ?? ((actorType === "admin" || actorType === "owner_admin") ? (stringOrNull(input.adminId) ?? stringOrNull(input.userId)) : null);
+}
+
 export function normalizeAnalyticsActorType(value: unknown): AnalyticsActorType {
   return isOneOf(value, ANALYTICS_ACTOR_TYPES) ? value : "unknown";
 }
@@ -226,6 +249,9 @@ export function classifyAnalyticsActor(input: AnalyticsActorClassificationInput)
   const source = stringOrNull(input.source);
   const eventName = stringOrNull(input.eventName)?.toLowerCase() ?? "";
   const reasons: string[] = [];
+  const actorUserId = stringOrNull(input.actorUserId) ?? stringOrNull(input.userId);
+  const actorCreatorId = stringOrNull(input.actorCreatorId);
+  const actorAdminId = stringOrNull(input.actorAdminId) ?? stringOrNull(input.adminId);
 
   const hasAdminRole =
     roles.some((role) => role === "admin" || role === "owner" || role === "owner_admin" || role === "super_admin") ||
@@ -282,7 +308,7 @@ export function classifyAnalyticsActor(input: AnalyticsActorClassificationInput)
 
   const isAdmin =
     explicitActorType === "admin" ||
-    Boolean(stringOrNull(input.adminId)) ||
+    Boolean(actorAdminId) ||
     hasAdminRole ||
     route === "/admin" ||
     route.startsWith("/admin/") ||
@@ -309,7 +335,8 @@ export function classifyAnalyticsActor(input: AnalyticsActorClassificationInput)
   }
 
   const creatorActorId =
-    stringOrNull((claims as Record<string, unknown>).creatorUid)
+    actorCreatorId
+    ?? stringOrNull((claims as Record<string, unknown>).creatorUid)
     ?? stringOrNull((claims as Record<string, unknown>).creatorId)
     ?? null;
   const isCreator =
@@ -333,7 +360,7 @@ export function classifyAnalyticsActor(input: AnalyticsActorClassificationInput)
     };
   }
 
-  if (explicitActorType === "user" || stringOrNull(input.userId)) {
+  if (explicitActorType === "user" || actorUserId) {
     reasons.push("Authenticated user id or explicit user actor type is present.");
     if (stringOrNull(input.anonymousVisitorId) || stringOrNull(input.sessionId)) {
       reasons.push("Guest/session lineage is present; merge requires an identity_linked event and must preserve guest history.");
@@ -396,6 +423,11 @@ export function buildAnalyticsDedupeKey(input: {
   userId?: string | null;
   creatorId?: string | null;
   adminId?: string | null;
+  actorUserId?: string | null;
+  actorCreatorId?: string | null;
+  actorAdminId?: string | null;
+  targetUserId?: string | null;
+  targetCreatorId?: string | null;
   source?: string | null;
   objectType?: string | null;
   objectId?: string | null;
@@ -410,6 +442,9 @@ export function buildAnalyticsDedupeKey(input: {
         : stringOrNull(input.occurredAt);
   const timeBucket = occurredAt ? occurredAt.slice(0, 16) : "no-time";
   const actor =
+    stringOrNull(input.actorAdminId) ??
+    stringOrNull(input.actorCreatorId) ??
+    stringOrNull(input.actorUserId) ??
     stringOrNull(input.adminId) ??
     stringOrNull(input.creatorId) ??
     stringOrNull(input.userId) ??
@@ -443,6 +478,9 @@ export function createCanonicalAnalyticsEvent(input: CanonicalAnalyticsEventInpu
     ...input,
     source,
   });
+  const actorUserId = resolveActorUserId(input, actorClassification.actorType);
+  const actorCreatorId = resolveActorCreatorId(input, actorClassification.actorType);
+  const actorAdminId = resolveActorAdminId(input, actorClassification.actorType);
   const mappingWarnings = (input.mappingWarnings ?? []).filter((warning): warning is string => Boolean(stringOrNull(warning)));
 
   return {
@@ -454,9 +492,14 @@ export function createCanonicalAnalyticsEvent(input: CanonicalAnalyticsEventInpu
     actorType: actorClassification.actorType,
     anonymousVisitorId: stringOrNull(input.anonymousVisitorId),
     sessionId: stringOrNull(input.sessionId),
-    userId: stringOrNull(input.userId),
-    creatorId: stringOrNull(input.creatorId),
-    adminId: stringOrNull(input.adminId),
+    userId: actorUserId ?? stringOrNull(input.userId),
+    creatorId: actorCreatorId ?? stringOrNull(input.creatorId),
+    adminId: actorAdminId ?? stringOrNull(input.adminId),
+    actorUserId,
+    actorCreatorId,
+    actorAdminId,
+    targetUserId: stringOrNull(input.targetUserId),
+    targetCreatorId: stringOrNull(input.targetCreatorId) ?? stringOrNull(input.creatorId),
     surface: stringOrNull(input.surface),
     route: stringOrNull(input.route),
     component: stringOrNull(input.component),

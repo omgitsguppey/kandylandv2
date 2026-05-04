@@ -398,6 +398,7 @@ export async function POST(request: NextRequest) {
 
         await trackServerEvent(telemetryEventName, {
             creator_id: creatorId,
+            target_creator_id: creatorId,
             creator_username: creator.username,
             creator_display_name: creator.displayName,
             transaction_id: `${caller.uid}:${creatorId}:${action}`,

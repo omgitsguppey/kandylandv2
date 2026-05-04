@@ -156,6 +156,8 @@ export function CreatorExperiencesPanel({
         anonymousVisitorId: identity.anonymousVisitorId ?? "",
         sessionId: identity.sessionId,
         creatorId,
+        targetCreatorId: creatorId,
+        target_creator_id: creatorId,
         lane: EXPERIENCE_VIEW_TO_LANE[view],
         priceGd: cost,
         balanceState: getBalanceState(cost),

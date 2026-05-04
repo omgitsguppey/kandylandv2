@@ -462,10 +462,22 @@ export default function CreatorProfileClient() {
 
             if (nextFollowing) {
                 await refreshCreatorBroadcasts(creator.uid);
-                trackEvent("creator_followed", { creator_id: creator.uid, creator_username: creator.username, route: profileRoute, source_component: "creator_profile_page" });
+                trackEvent("creator_followed", {
+                    creator_id: creator.uid,
+                    target_creator_id: creator.uid,
+                    creator_username: creator.username,
+                    route: profileRoute,
+                    source_component: "creator_profile_page",
+                });
             } else if (!subscriptionActive) {
                 setBroadcasts([]);
-                trackEvent("creator_unfollowed", { creator_id: creator.uid, creator_username: creator.username, route: profileRoute, source_component: "creator_profile_page" });
+                trackEvent("creator_unfollowed", {
+                    creator_id: creator.uid,
+                    target_creator_id: creator.uid,
+                    creator_username: creator.username,
+                    route: profileRoute,
+                    source_component: "creator_profile_page",
+                });
             }
             toast.success(nextFollowing ? `Following ${creator.displayName}!` : `Unfollowed ${creator.displayName}`);
         } catch (error: any) {
@@ -532,6 +544,7 @@ export default function CreatorProfileClient() {
             });
             trackEvent(nextNotificationsEnabled ? "creator_notifications_enabled" : "creator_notifications_disabled", {
                 creator_id: creator.uid,
+                target_creator_id: creator.uid,
                 creator_username: creator.username,
                 route: profileRoute,
                 source_component: "creator_profile_page",

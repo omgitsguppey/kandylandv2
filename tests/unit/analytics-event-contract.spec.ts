@@ -72,6 +72,28 @@ describe("analytics event contract", () => {
     expect(explanation.includeInAdminAnalytics).toBe(true);
   });
 
+  it("keeps creator targets in target fields without promoting fan actions into creator behavior", () => {
+    const event = createCanonicalAnalyticsEvent({
+      eventId: "evt_follow_target",
+      eventName: "creator_followed",
+      actorType: "user",
+      userId: "fan_123",
+      targetCreatorId: "creator_456",
+      creatorId: "creator_456",
+      source: "client",
+      route: "/creators/kandy",
+    });
+
+    const explanation = explainEventInclusion(event);
+
+    expect(event.actorType).toBe("user");
+    expect(event.actorUserId).toBe("fan_123");
+    expect(event.actorCreatorId).toBeNull();
+    expect(event.targetCreatorId).toBe("creator_456");
+    expect(explanation.includeInUserBehavior).toBe(true);
+    expect(explanation.actorClassification.isCreator).toBe(false);
+  });
+
   it("preserves global events for every classified actor while retaining classification", () => {
     const systemEvent = createCanonicalAnalyticsEvent({
       eventId: "evt_system",

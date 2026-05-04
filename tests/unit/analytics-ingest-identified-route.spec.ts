@@ -182,6 +182,37 @@ describe("POST /api/analytics/ingest-identified", () => {
     });
   });
 
+  it("maps fan pass starts to a user actor with a creator target", async () => {
+    const response = await POST(buildRequest({
+      events: [{
+        eventId: "evt_fan_pass",
+        eventTimestampMs: 1767225600000,
+        eventName: "creator_fan_pass_started",
+        eventParams: {
+          page_path: "/creators/kandy",
+          session_id: "session_123",
+          creator_id: "creator_456",
+          transaction_id: "txn_123",
+          source_component: "creator_experiences_panel",
+        },
+      }],
+    }));
+    const payload = await response.json();
+
+    expect(payload).toEqual({ success: true, processed: 1, skippedUnsupported: 0 });
+
+    const eventWrite = mockState.writes.find((write) => write.path === "analytics_event_facts/evt_fan_pass");
+    expect(eventWrite?.data).toMatchObject({
+      actorType: "user",
+      actorUserId: "user_123",
+      actorCreatorId: "",
+      targetCreatorId: "creator_456",
+      transactionId: "txn_123",
+      metricEligible: true,
+      normalizedActionName: "fan_pass_started",
+    });
+  });
+
   it("excludes admin projection events from user behavior metrics", async () => {
     const response = await POST(buildRequest({
       events: [{

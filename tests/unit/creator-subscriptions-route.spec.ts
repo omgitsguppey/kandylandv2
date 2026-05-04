@@ -83,7 +83,11 @@ const mockState = vi.hoisted(() => {
         })),
         buildCreatorExperienceTelemetryPayload: vi.fn((input: any) => ({
             actorType: input.marker.actorType,
+            actor_user_id: input.marker.actorType === "user" ? input.marker.actorUid : "",
+            actor_creator_id: input.marker.actorType === "creator" ? input.marker.actorUid : "",
+            actor_admin_id: input.marker.actorType === "admin" || input.marker.actorType === "owner_admin" ? input.marker.actorUid : "",
             creator_id: input.creatorId,
+            target_creator_id: input.marker.targetCreatorId ?? input.creatorId,
             price_gd: input.priceGd,
             idempotency_key: input.idempotencyKey,
             duplicate_prevented: input.duplicatePrevented,
@@ -288,6 +292,16 @@ describe("creator subscriptions route", () => {
                 source_policy: "creator_subscription_paid_only",
             },
         });
+        expect(mockState.trackServerEvent).toHaveBeenCalledWith(
+            "creator_fan_pass_started",
+            expect.objectContaining({
+                actor_user_id: "fan_1",
+                actor_creator_id: "",
+                target_creator_id: "creator_1",
+                creator_id: "creator_1",
+            }),
+            "fan_1",
+        );
     });
 
     it("allows paid-pack bonus when it is credited into purchased balance", async () => {

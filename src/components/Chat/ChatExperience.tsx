@@ -305,7 +305,7 @@ function buildChatTelemetryPayload({
         ...readChatViewportSize(),
         ...(userId ? { user_id: userId } : {}),
         ...(resolvedThreadId ? { thread_id: resolvedThreadId } : {}),
-        ...(resolvedCreatorId ? { creator_id: resolvedCreatorId } : {}),
+        ...(resolvedCreatorId ? { creator_id: resolvedCreatorId, target_creator_id: resolvedCreatorId } : {}),
         ...(idempotencyKey ? { idempotency_key: idempotencyKey } : {}),
         ...(messageId ? { message_id: messageId } : {}),
         ...(messageKind ? { message_kind: messageKind } : {}),

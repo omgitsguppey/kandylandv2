@@ -203,12 +203,12 @@ function resolveMetricEligibility(input: {
 
 export function normalizeIdentifiedMetricEventFact(input: NormalizeInput): IdentifiedMetricParityFact {
   const params = input.params;
-  const actorAdminId = readString(params, "admin_id", "adminId");
+  const actorAdminId = readString(params, "actor_admin_id", "actorAdminId", "admin_id", "adminId");
   const actorCreatorId = input.actorType === "creator"
-    ? (readString(params, "actor_creator_id", "actorCreatorId", "creator_actor_id", "creatorActorId", "user_id", "userId", "creator_uid", "creatorUid") || input.callerUid)
+    ? (readString(params, "actor_creator_id", "actorCreatorId", "creator_actor_id", "creatorActorId", "creator_uid", "creatorUid", "user_id", "userId") || input.callerUid)
     : "";
   const actorUserId = input.actorType === "user" || (!actorAdminId && !actorCreatorId)
-    ? input.callerUid
+    ? (readString(params, "actor_user_id", "actorUserId", "user_id", "userId") || input.callerUid)
     : "";
   const targetCreatorId = readString(params, "target_creator_id", "targetCreatorId", "creator_id", "creatorId");
   const targetUserId = readString(params, "target_user_id", "targetUserId", "subject_user_id", "subjectUserId");
