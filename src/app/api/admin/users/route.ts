@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from "next/server";
 import { FieldValue } from "firebase-admin/firestore";
 import type { AdminUsersResponse } from "@/types/admin-analytics";
+import type { AdminUserMetricsSnapshot } from "@/lib/admin-user-metrics-contract";
 
 import { adminDb } from "@/lib/server/firebase-admin";
 import { handleApiError } from "@/lib/server/auth";
@@ -363,6 +364,102 @@ function buildAdminUsersActor(input: {
   };
 }
 
+async function readAggregateCount(query: unknown): Promise<number> {
+  const maybeCount = query as {
+    count?: () => { get: () => Promise<{ data: () => { count?: unknown } }> };
+    get?: () => Promise<{ docs?: unknown[] }>;
+  };
+
+  if (typeof maybeCount.count === "function") {
+    const snapshot = await maybeCount.count().get();
+    const count = snapshot.data().count;
+    return typeof count === "number" && Number.isFinite(count) ? count : 0;
+  }
+
+  if (typeof maybeCount.get === "function") {
+    const snapshot = await maybeCount.get();
+    return Array.isArray(snapshot.docs) ? snapshot.docs.length : 0;
+  }
+
+  return 0;
+}
+
+function resolveSnapshotFreshness(generatedAt: number, latestMetricAt: number) {
+  if (latestMetricAt > 0 && generatedAt - latestMetricAt > 24 * 60 * 60 * 1000) {
+    return "stale" as const;
+  }
+
+  return "live" as const;
+}
+
+async function readAdminUsersFastSummarySnapshot() {
+  const nowMs = Date.now();
+  const sevenDaysAgo = nowMs - (7 * 24 * 60 * 60 * 1000);
+  const usersCollection = adminDb.collection("users");
+  const analyticsRollupCollection = adminDb.collection("analytics_users_rollup");
+  const [
+    totalUsers,
+    activeUsers,
+    verifiedUsers,
+    pushEnabledUsers,
+    onboardedUsers,
+    sevenDayReturners,
+    payingUsers,
+    commerceSummarySnap,
+  ] = await Promise.all([
+    readAggregateCount(usersCollection),
+    readAggregateCount(usersCollection.where("status", "==", "active")),
+    readAggregateCount(usersCollection.where("isVerified", "==", true)),
+    readAggregateCount(usersCollection.where("notificationSettings.browserPushEnabled", "==", true)),
+    readAggregateCount(usersCollection.where("onboardingCompleted", "==", true)),
+    readAggregateCount(analyticsRollupCollection.where("lastSeenAt", ">=", sevenDaysAgo)),
+    readAggregateCount(analyticsRollupCollection.where("purchaseCount", ">", 0)),
+    adminDb.collection("analytics_commerce_rollup").doc("summary").get(),
+  ]);
+  const commerceSummaryRaw = commerceSummarySnap.exists
+    ? commerceSummarySnap.data() as Record<string, unknown>
+    : {};
+  const latestMetricAt = Math.max(
+    toTimestampNumber(commerceSummaryRaw.updatedAt),
+    toTimestampNumber(commerceSummaryRaw.generatedAt),
+    toTimestampNumber(commerceSummaryRaw.lastPurchaseAt),
+  );
+  const snapshot: AdminUserMetricsSnapshot = {
+    totalUsers,
+    activeUsers,
+    verifiedUsers,
+    sevenDayReturners,
+    pushEnabledUsers,
+    trackedUnwraps: Math.round(readMetric(commerceSummaryRaw, "unlockCount", "totalUnlocks", "unwrapCount")),
+    trackedPurchases: Math.round(readMetric(commerceSummaryRaw, "purchaseCount", "purchaseTransactionCount")),
+    watchTimeMs: Math.round(readMetric(commerceSummaryRaw, "watchSecondsTotal", "watchSeconds") * 1000),
+    onboardedUsers,
+    totalRevenueUsd: readMetric(commerceSummaryRaw, "grossRevenueUsdTotal", "grossRevenueUsd"),
+    payingUsers,
+    generatedAt: nowMs,
+    source: commerceSummarySnap.exists ? "hot_cache" : "live_fallback",
+    freshnessState: commerceSummarySnap.exists
+      ? resolveSnapshotFreshness(nowMs, latestMetricAt)
+      : totalUsers > 0
+        ? "degraded"
+        : "unavailable",
+  };
+
+  return {
+    snapshot,
+    commerceSummaryRaw,
+    commerceSummaryExists: commerceSummarySnap.exists,
+    sourceLabel: commerceSummarySnap.exists
+      ? "users_count_aggregates+analytics_users_rollup_count_aggregates+analytics_commerce_rollup"
+      : "users_count_aggregates+analytics_users_rollup_count_aggregates",
+    staleReason: snapshot.freshnessState === "stale"
+      ? "Admin user metrics are showing bounded hot-cache counts, but the commerce summary is older than 24h."
+      : snapshot.freshnessState === "degraded"
+        ? "Admin user metrics are visible from bounded counts, but commerce hot-cache is unavailable."
+        : null,
+  };
+}
+
 function buildCreatorOnboardingActorFromMarker(marker: ActorMarker): CreatorOnboardingActor {
   return {
     id: marker.actorUid ?? marker.actorType,
@@ -530,6 +627,214 @@ async function GET_handler(request: NextRequest) {
       requireTrustedOrigin: true,
       auth: "admin",
     });
+
+    const mode = request.nextUrl.searchParams.get("mode") ?? "full";
+
+    if (mode === "summary") {
+      const metricsSnapshotMeta = await readAdminUsersFastSummarySnapshot();
+
+      return NextResponse.json({
+        success: true,
+        loadingLane: "summary",
+        summary: buildSummaryFromMetricsSnapshot({
+          metricsSnapshotMeta,
+          commerceSummaryRaw: metricsSnapshotMeta.commerceSummaryRaw,
+          commerceSummaryExists: metricsSnapshotMeta.commerceSummaryExists,
+        }),
+        verification: buildServerAdminModuleVerification({
+          module: "admin_users_summary",
+          canonicalSource: metricsSnapshotMeta.sourceLabel,
+          fallbackSource: metricsSnapshotMeta.snapshot.source === "live_fallback" ? "live_fallback" : null,
+          freshnessTimestamp: metricsSnapshotMeta.snapshot.generatedAt,
+          degradedReason: metricsSnapshotMeta.staleReason,
+          status: metricsSnapshotMeta.snapshot.freshnessState === "degraded"
+            ? "degraded"
+            : metricsSnapshotMeta.snapshot.freshnessState === "stale"
+              ? "stale"
+              : metricsSnapshotMeta.snapshot.freshnessState === "unavailable"
+                ? "failed"
+                : "live",
+        }),
+      });
+    }
+
+    if (mode === "list") {
+      const usersSnapshot = await adminDb.collection("users").orderBy("createdAt", "desc").get();
+      const users = usersSnapshot.docs.map((doc) => serializeUserDoc(doc.id, doc.data()));
+
+      return NextResponse.json({
+        success: true,
+        loadingLane: "list",
+        users,
+        analyticsByUser: {},
+        dropReferences: {},
+        summary: null,
+        verification: buildServerAdminModuleVerification({
+          module: "admin_users_list",
+          canonicalSource: "users",
+          fallbackSource: null,
+          freshnessTimestamp: Date.now(),
+          status: "live",
+          countComposition: {
+            totalUsers: users.length,
+          },
+        }),
+      });
+    }
+
+    if (mode === "detail") {
+      const userId = readStringValue(request.nextUrl.searchParams.get("userId"));
+      if (!userId) {
+        return NextResponse.json({ error: "Missing userId" }, { status: 400 });
+      }
+
+      const [userSnap, analyticsSnap, userDailySnapshot] = await Promise.all([
+        adminDb.collection("users").doc(userId).get(),
+        adminDb.collection("analytics_users_rollup").doc(userId).get(),
+        adminDb.collection("analytics_user_daily").where("uid", "==", userId).get(),
+      ]);
+
+      if (!userSnap.exists) {
+        return buildNotFoundResponse("user", "User not found");
+      }
+
+      const user = serializeUserDoc(userSnap.id, userSnap.data() as Record<string, unknown>);
+      const dailyAggregate = buildEmptyDailyAggregate();
+      userDailySnapshot.docs.forEach((doc) => {
+        const raw = doc.data() as Record<string, unknown>;
+        dailyAggregate.eventCount += Math.round(readMetric(raw, "eventCount"));
+        dailyAggregate.sessionCount += Math.round(readMetric(raw, "sessionCount"));
+        dailyAggregate.viewCount += Math.round(readMetric(raw, "viewCount"));
+        dailyAggregate.engagedViewCount += Math.round(readMetric(raw, "engagedViewCount"));
+        dailyAggregate.passiveViewCount += Math.round(readMetric(raw, "passiveViewCount"));
+        dailyAggregate.bounceCount += Math.round(readMetric(raw, "bounceCount"));
+        dailyAggregate.unwrapCount += Math.round(readMetric(raw, "unwrapCount"));
+        dailyAggregate.unlockCount += Math.round(readMetric(raw, "unlockCount"));
+        dailyAggregate.purchaseCount += Math.round(readMetric(raw, "purchaseCount", "purchaseTransactionCount"));
+        dailyAggregate.authSuccessCount += Math.round(readMetric(raw, "authSuccessCount", "signInCount"));
+        dailyAggregate.onboardingStartCount += Math.round(readMetric(raw, "onboardingStartCount", "guidedOnboardingStartCount"));
+        dailyAggregate.onboardingCompletionCount += Math.round(readMetric(raw, "onboardingCompletionCount", "guidedOnboardingCompletionCount"));
+        dailyAggregate.watchSecondsTotal += Math.round(readMetric(raw, "watchSecondsTotal"));
+        dailyAggregate.loadMsTotal += Math.round(readMetric(raw, "loadMsTotal"));
+        dailyAggregate.loadSampleCount += Math.round(readMetric(raw, "loadSampleCount"));
+        dailyAggregate.spendGdTotal += Math.round(readMetric(raw, "spendGdTotal", "unlockSpendGdTotal"));
+        dailyAggregate.revenueCentsTotal += Math.round(readMetric(raw, "revenueCentsTotal"));
+        dailyAggregate.grossRevenueUsdTotal += readMetric(raw, "grossRevenueUsdTotal");
+        dailyAggregate.paypalFeeUsdTotal += readMetric(raw, "paypalFeeUsdTotal");
+        dailyAggregate.netRevenueUsdTotal += readMetric(raw, "netRevenueUsdTotal");
+        dailyAggregate.adjustedProfitUsdTotal += readMetric(raw, "adjustedProfitUsdTotal");
+        dailyAggregate.bonusValueUsdTotal += readMetric(raw, "bonusValueUsdTotal");
+        dailyAggregate.bonusGumDropsTotal += Math.round(readMetric(raw, "bonusGumDropsTotal"));
+        dailyAggregate.deliveredGumDropsTotal += Math.round(readMetric(raw, "deliveredGumDropsTotal"));
+        dailyAggregate.paidGumDropsTotal += Math.round(readMetric(raw, "paidGumDropsTotal"));
+        dailyAggregate.lastSeenAt = Math.max(dailyAggregate.lastSeenAt, toTimestampNumber(raw.lastSeenAt), toTimestampNumber(raw.lastSeenAtMs));
+        dailyAggregate.lastPurchaseAt = Math.max(dailyAggregate.lastPurchaseAt, toTimestampNumber(raw.lastPurchaseAt));
+      });
+
+      const raw = analyticsSnap.exists ? analyticsSnap.data() as Record<string, unknown> : {};
+      const mergedCommerceMetrics = buildCommerceMetricsFromRollup({
+        ...dailyAggregate,
+        ...raw,
+        grossRevenueUsdTotal: Math.max(readMetric(raw, "grossRevenueUsdTotal"), dailyAggregate.grossRevenueUsdTotal),
+        revenueCentsTotal: Math.max(readMetric(raw, "revenueCentsTotal"), dailyAggregate.revenueCentsTotal),
+        purchaseCount: Math.max(readMetric(raw, "purchaseTransactionCount", "purchaseCount"), dailyAggregate.purchaseCount),
+        spendGdTotal: Math.max(readMetric(raw, "spendGdTotal", "unlockSpendGdTotal"), dailyAggregate.spendGdTotal),
+        lastPurchaseAt: Math.max(toTimestampNumber(raw.lastPurchaseAt), dailyAggregate.lastPurchaseAt),
+      });
+      const watchSecondsTotal = Math.max(readMetric(raw, "watchSecondsTotal"), dailyAggregate.watchSecondsTotal);
+      const loadSampleCount = readMetric(raw, "loadSampleCount");
+      const loadMsTotal = readMetric(raw, "loadMsTotal");
+      const analytics = {
+        uid: user.uid,
+        username: user.username || user.displayName || user.uid,
+        eventCount: Math.max(readMetric(raw, "eventCount"), dailyAggregate.eventCount),
+        sessionCount: Math.max(readMetric(raw, "sessionCount"), dailyAggregate.sessionCount),
+        viewCount: Math.max(readMetric(raw, "viewCount"), dailyAggregate.viewCount),
+        engagedViewCount: Math.max(readMetric(raw, "engagedViewCount"), dailyAggregate.engagedViewCount),
+        passiveViewCount: Math.max(readMetric(raw, "passiveViewCount"), dailyAggregate.passiveViewCount),
+        bounceCount: Math.max(readMetric(raw, "bounceCount"), dailyAggregate.bounceCount),
+        unwrapCount: Math.max(readMetric(raw, "unwrapCount", "unlockCount"), dailyAggregate.unwrapCount, dailyAggregate.unlockCount),
+        purchaseCount: Math.max(readMetric(raw, "purchaseTransactionCount", "purchaseCount"), dailyAggregate.purchaseCount),
+        authSuccessCount: Math.max(readMetric(raw, "authSuccessCount", "signInCount"), dailyAggregate.authSuccessCount),
+        onboardingStartCount: Math.max(readMetric(raw, "onboardingStartCount", "guidedOnboardingStartCount"), dailyAggregate.onboardingStartCount),
+        onboardingCompletionCount: Math.max(readMetric(raw, "onboardingCompletionCount", "guidedOnboardingCompletionCount"), dailyAggregate.onboardingCompletionCount, user.onboardingCompleted ? 1 : 0),
+        watchSecondsTotal,
+        watchHours: Number((watchSecondsTotal / 3600).toFixed(1)),
+        avgLoadMs: Math.max(
+          loadSampleCount > 0 ? Math.round(loadMsTotal / loadSampleCount) : 0,
+          dailyAggregate.loadSampleCount > 0 ? Math.round(dailyAggregate.loadMsTotal / dailyAggregate.loadSampleCount) : 0,
+        ),
+        lastSeenAt: Math.max(toTimestampNumber(raw.lastSeenAt), toTimestampNumber(raw.lastSeenAtMs), dailyAggregate.lastSeenAt),
+        ...mergedCommerceMetrics,
+        retailValueUsd: mergedCommerceMetrics.retailValueUsd,
+        bundleYieldRatio: mergedCommerceMetrics.retailValueUsd > 0
+          ? Number((mergedCommerceMetrics.grossRevenueUsd / mergedCommerceMetrics.retailValueUsd).toFixed(4))
+          : 0,
+        commerceTruthLabel: mergedCommerceMetrics.commerceTruthLabel,
+        commerceSourceLabel: mergedCommerceMetrics.commerceSourceLabel,
+        commerceEmptyReason: mergedCommerceMetrics.commerceEmptyReason,
+      };
+      const metricSnapshot = {
+        eventCount: analytics.eventCount,
+        sessionCount: analytics.sessionCount,
+        viewCount: analytics.viewCount,
+        bounceCount: analytics.bounceCount,
+        authSuccessCount: analytics.authSuccessCount,
+        onboardingCompletionCount: analytics.onboardingCompletionCount,
+        watchSecondsTotal: analytics.watchSecondsTotal,
+        unwrapCount: analytics.unwrapCount,
+        purchaseCount: analytics.purchaseCount,
+        grossRevenueUsd: analytics.grossRevenueUsd,
+        unlockSpendGdTotal: analytics.unlockSpendGdTotal,
+        lastSeenAt: analytics.lastSeenAt,
+      };
+      const metricIntegrity = buildAdminUserMetricIntegrity({
+        hasRollup: analyticsSnap.exists,
+        hasDaily: userDailySnapshot.docs.length > 0,
+        recoveredFromFacts: false,
+        userOnboarded: user.onboardingCompleted === true,
+        userCreatedAt: toTimestampNumber(user.createdAt),
+        nowMs: Date.now(),
+        lastSeenAt: metricSnapshot.lastSeenAt,
+        metrics: metricSnapshot,
+      });
+      const analyticsByUser = {
+        [user.uid]: {
+          ...analytics,
+          metricTruthLabel: metricIntegrity.truthLabel,
+          metricVerificationState: metricIntegrity.verificationState,
+          metricSourceLabel: metricIntegrity.sourceLabel,
+          metricIntegrityFailures: metricIntegrity.failures,
+          metricFreshnessMs: metricIntegrity.freshnessMs,
+          recoveredFromFacts: false,
+          engagementScore: scoreAdminUserEngagement(metricSnapshot, Date.now()),
+        },
+      };
+
+      return NextResponse.json({
+        success: true,
+        loadingLane: "selectedUser",
+        users: [user],
+        analyticsByUser,
+        dropReferences: await getDropReferenceMap(user.unlockedContent || []),
+        summary: null,
+        verification: buildServerAdminModuleVerification({
+          module: "admin_users_detail",
+          canonicalSource: "users+analytics_users_rollup+analytics_user_daily",
+          fallbackSource: null,
+          freshnessTimestamp: Date.now(),
+          status: metricIntegrity.truthLabel === "live"
+            ? "live"
+            : metricIntegrity.truthLabel === "stale"
+              ? "stale"
+              : "degraded",
+          countComposition: {
+            totalUsers: 1,
+            degradedUsers: metricIntegrity.failures.length > 0 ? 1 : 0,
+          },
+        }),
+      });
+    }
 
     const [
       usersSnapshot,
@@ -1788,6 +2093,63 @@ type UserDailyAggregate = {
   lastSeenAt: number;
   lastPurchaseAt: number;
 };
+
+function buildSummaryFromMetricsSnapshot(input: {
+  users?: Array<ReturnType<typeof serializeUserDoc>>;
+  metricsSnapshotMeta: {
+    snapshot: AdminUserMetricsSnapshot;
+    sourceLabel: string;
+    staleReason: string | null;
+  };
+  commerceSummaryRaw?: Record<string, unknown>;
+  commerceSummaryExists?: boolean;
+}) {
+  const users = input.users ?? [];
+  const userMetricsSnapshot = input.metricsSnapshotMeta.snapshot;
+  const commerceSummaryRaw = input.commerceSummaryRaw ?? {};
+  const commerceSummaryMetrics = input.commerceSummaryExists
+    ? buildCommerceMetricsFromRollup(commerceSummaryRaw)
+    : buildEmptyCommerceMetrics();
+  const unlockSpendGdTotal = Math.max(
+    Math.round(readMetric(commerceSummaryRaw, "unlockSpendGdTotal", "spendGdTotal")),
+    commerceSummaryMetrics.unlockSpendGdTotal,
+  );
+
+  return {
+    totalUsers: userMetricsSnapshot.totalUsers,
+    totalCreators: users.filter((user) => user.role === "creator").length,
+    totalAdmins: users.filter((user) => user.role === "admin").length,
+    verifiedUsers: userMetricsSnapshot.verifiedUsers,
+    activeUsers: userMetricsSnapshot.activeUsers,
+    suspendedUsers: users.filter((user) => user.status === "suspended").length,
+    bannedUsers: users.filter((user) => user.status === "banned").length,
+    notificationsEnabledUsers: userMetricsSnapshot.pushEnabledUsers,
+    onboardingCompletedUsers: userMetricsSnapshot.onboardedUsers,
+    activeLast7Days: userMetricsSnapshot.sevenDayReturners,
+    totalEvents: 0,
+    totalUnwraps: userMetricsSnapshot.trackedUnwraps,
+    totalPurchases: userMetricsSnapshot.trackedPurchases,
+    totalWatchHours: Number((userMetricsSnapshot.watchTimeMs / 3_600_000).toFixed(1)),
+    grossRevenueUsd: userMetricsSnapshot.totalRevenueUsd,
+    adjustedProfitUsd: commerceSummaryMetrics.adjustedProfitUsd,
+    bonusValueUsd: commerceSummaryMetrics.bonusValueUsd,
+    bonusGumDrops: commerceSummaryMetrics.bonusGumDrops,
+    deliveredGumDrops: commerceSummaryMetrics.deliveredGumDrops,
+    paidGumDrops: commerceSummaryMetrics.paidGumDrops,
+    unlockSpendGdTotal,
+    averageOrderUsd: userMetricsSnapshot.trackedPurchases > 0
+      ? roundCurrency(userMetricsSnapshot.totalRevenueUsd / userMetricsSnapshot.trackedPurchases)
+      : 0,
+    effectiveUsdPer100Gd: commerceSummaryMetrics.deliveredGumDrops > 0
+      ? roundCurrency(userMetricsSnapshot.totalRevenueUsd / (commerceSummaryMetrics.deliveredGumDrops / 100))
+      : 0,
+    payingUsers: userMetricsSnapshot.payingUsers,
+    commerceTruthLabel: commerceSummaryMetrics.commerceTruthLabel,
+    commerceSourceLabel: commerceSummaryMetrics.commerceSourceLabel,
+    commerceEmptyReason: commerceSummaryMetrics.commerceEmptyReason,
+    metricsSnapshot: userMetricsSnapshot,
+  };
+}
 
 function buildEmptyDailyAggregate(): UserDailyAggregate {
   return {

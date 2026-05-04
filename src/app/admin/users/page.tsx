@@ -54,13 +54,20 @@ type AdminFeedbackItem = {
     timestamp: number;
 };
 
+type AdminUsersLaneResponse = Partial<AdminUsersResponse> & {
+    success: boolean;
+    loadingLane?: "summary" | "list" | "selectedUser" | "behavioralDetail";
+};
+
 export default function UserManagementPage() {
     const [users, setUsers] = useState<UserProfile[]>([]);
     const [userAnalytics, setUserAnalytics] = useState<Record<string, UserAnalytics>>({});
     const [dropReferences, setDropReferences] = useState<Record<string, DropReference>>({});
     const [summary, setSummary] = useState<UsersSummary | null>(null);
     const [loading, setLoading] = useState(true);
+    const [summaryLoading, setSummaryLoading] = useState(true);
     const [summaryRefreshInFlight, setSummaryRefreshInFlight] = useState(false);
+    const [selectedUserDetailLoading, setSelectedUserDetailLoading] = useState<string | null>(null);
     const [realtimeState, setRealtimeState] = useState<AdminSurfaceState>("loading");
     const [searchQuery, setSearchQuery] = useState("");
     const [actionUser, setActionUser] = useState<UserProfile | null>(null);
@@ -81,28 +88,117 @@ export default function UserManagementPage() {
     // Balance Editing State
     const [editBalanceUser, setEditBalanceUser] = useState<UserProfile | null>(null);
     const [historyUser, setHistoryUser] = useState<UserProfile | null>(null);
+    const [contentUser, setContentUser] = useState<UserProfile | null>(null);
+    const [contentActionProcessing, setContentActionProcessing] = useState(false);
+    const [contentInput, setContentInput] = useState("");
 
     const refreshDebounceRef = useRef<ReturnType<typeof setTimeout> | null>(null);
     const lastUsableSummaryRef = useRef(false);
 
-    const fetchUsers = useCallback(async (options: { silent?: boolean; reason?: string } = {}) => {
+    const mergeUserDetail = useCallback((result: AdminUsersLaneResponse) => {
+        const detailUser = result.users?.[0];
+        if (detailUser) {
+            setUsers((current) => current.map((user) => (user.uid === detailUser.uid ? { ...user, ...detailUser } : user)));
+        }
+        if (result.analyticsByUser) {
+            setUserAnalytics((current) => ({ ...current, ...result.analyticsByUser }));
+        }
+        if (result.dropReferences) {
+            setDropReferences((current) => ({ ...current, ...result.dropReferences }));
+        }
+    }, []);
+
+    const fetchUserDetail = useCallback(async (user: UserProfile, options: { openContent?: boolean } = {}) => {
+        setSelectedUserDetailLoading(user.uid);
+        try {
+            const response = await authFetch(`/api/admin/users?mode=detail&userId=${encodeURIComponent(user.uid)}`);
+            const result = await response.json() as AdminUsersLaneResponse;
+            if (!response.ok || !result.success) {
+                throw new Error(result.error || "Failed to load user detail");
+            }
+
+            mergeUserDetail(result);
+            const detailUser = result.users?.[0] ? { ...user, ...result.users[0] } : user;
+            if (options.openContent) {
+                setContentUser(detailUser);
+            }
+        } catch (error) {
+            reportClientIssue({
+                channel: "ui",
+                message: "Admin selected user detail fetch failed",
+                error,
+                detail: {
+                    adminView: "users",
+                    action: "fetch_selected_user_detail",
+                    userId: user.uid,
+                },
+                consoleLabel: "[Admin Users] fetch selected user detail failed",
+            });
+            toast.error(error instanceof Error ? error.message : "Failed to load user detail");
+            if (options.openContent) {
+                setContentUser(user);
+            }
+        } finally {
+            setSelectedUserDetailLoading(null);
+        }
+    }, [mergeUserDetail]);
+
+    const fetchSummary = useCallback(async (options: { silent?: boolean; reason?: string } = {}) => {
         if (!options.silent) {
-            setLoading(true);
+            setSummaryLoading(true);
         } else {
             setSummaryRefreshInFlight(true);
         }
         try {
-            const response = await authFetch("/api/admin/users");
-            const result = await response.json() as AdminUsersResponse;
+            const response = await authFetch("/api/admin/users?mode=summary");
+            const result = await response.json() as AdminUsersLaneResponse;
             if (!response.ok || !result.success) {
-                throw new Error(result.error || "Failed to load users");
+                throw new Error(result.error || "Failed to load user metrics");
+            }
+
+            setSummary(result.summary || null);
+            lastUsableSummaryRef.current = Boolean(result.summary);
+            if (options.reason) {
+                setRealtimeState("live");
+            }
+        } catch (error) {
+            if (options.silent) {
+                setRealtimeState("degraded");
+            }
+            reportClientIssue({
+                channel: "ui",
+                message: "Admin users summary fetch failed",
+                error,
+                detail: {
+                    adminView: "users",
+                    action: "fetch_users_summary",
+                },
+                consoleLabel: "[Admin Users] fetch users summary failed",
+            });
+            if (!options.silent || !lastUsableSummaryRef.current) {
+                toast.error(error instanceof Error ? error.message : "Failed to load user metrics");
+            }
+        } finally {
+            if (!options.silent) {
+                setSummaryLoading(false);
+            } else {
+                setSummaryRefreshInFlight(false);
+            }
+        }
+    }, []);
+
+    const fetchUsers = useCallback(async (options: { silent?: boolean; reason?: string } = {}) => {
+        if (!options.silent) {
+            setLoading(true);
+        }
+        try {
+            const response = await authFetch("/api/admin/users?mode=list");
+            const result = await response.json() as AdminUsersLaneResponse;
+            if (!response.ok || !result.success) {
+                throw new Error(result.error || "Failed to load user list");
             }
 
             setUsers(result.users || []);
-            setUserAnalytics(result.analyticsByUser || {});
-            setDropReferences(result.dropReferences || {});
-            setSummary(result.summary || null);
-            lastUsableSummaryRef.current = Boolean(result.summary);
             if (options.reason) {
                 setRealtimeState("live");
             }
@@ -116,25 +212,24 @@ export default function UserManagementPage() {
                 error,
                 detail: {
                     adminView: "users",
-                    action: "fetch_users",
+                    action: "fetch_users_list",
                 },
-                consoleLabel: "[Admin Users] fetch users failed",
+                consoleLabel: "[Admin Users] fetch user list failed",
             });
-            if (!options.silent || !lastUsableSummaryRef.current) {
-                toast.error(error instanceof Error ? error.message : "Failed to load users");
+            if (!options.silent) {
+                toast.error(error instanceof Error ? error.message : "Failed to load user list");
             }
         } finally {
             if (!options.silent) {
                 setLoading(false);
-            } else {
-                setSummaryRefreshInFlight(false);
             }
         }
     }, []);
 
     useEffect(() => {
+        fetchSummary();
         fetchUsers();
-    }, [fetchUsers]);
+    }, [fetchSummary, fetchUsers]);
 
     useEffect(() => {
         let cancelled = false;
@@ -147,6 +242,7 @@ export default function UserManagementPage() {
                 clearTimeout(refreshDebounceRef.current);
             }
             refreshDebounceRef.current = setTimeout(() => {
+                fetchSummary({ silent: true, reason });
                 fetchUsers({ silent: true, reason });
             }, 450);
         };
@@ -235,7 +331,7 @@ export default function UserManagementPage() {
                 clearTimeout(reconnectTimer);
             }
         };
-    }, [fetchUsers]);
+    }, [fetchSummary, fetchUsers]);
 
     const fetchFeedback = async () => {
         setLoadingFeedback(true);
@@ -297,7 +393,7 @@ export default function UserManagementPage() {
 
         return `$${value.toFixed(2)}`;
     };
-    const summaryTransportState: AdminSurfaceState = summary ? realtimeState : loading ? "loading" : "failed";
+    const summaryTransportState: AdminSurfaceState = summary ? realtimeState : summaryLoading ? "loading" : "failed";
     const summarySnapshotTruthState = summary?.metricsSnapshot?.freshnessState ?? null;
     const summarySnapshotSource = summary?.metricsSnapshot?.source ?? "unavailable";
     const getSummaryMetricState = (
@@ -376,7 +472,8 @@ export default function UserManagementPage() {
         ? describeSecurityEvent(securityDetailsUser.securityFlags?.lastViolationReason)
         : null;
 
-    const topTrackedUsers = [...filteredUsers]
+    const topTrackedUsers = filteredUsers
+        .filter((user) => Boolean(userAnalytics[user.uid]))
         .sort((left, right) => (getUserAnalytics(right.uid)?.engagementScore || 0) - (getUserAnalytics(left.uid)?.engagementScore || 0))
         .slice(0, 3);
 
@@ -449,9 +546,6 @@ export default function UserManagementPage() {
     };
 
     // --- Content Management ---
-    const [contentUser, setContentUser] = useState<UserProfile | null>(null);
-    const [contentActionProcessing, setContentActionProcessing] = useState(false);
-    const [contentInput, setContentInput] = useState("");
 
     const handleManageContent = async (action: 'add' | 'remove', dropId: string) => {
         const normalizedDropId = dropId.trim();
@@ -699,13 +793,13 @@ export default function UserManagementPage() {
                             <div className="flex items-center justify-between gap-3">
                                 <div className="flex items-center gap-2 text-sm font-bold text-white">
                                     <TrendingUp className="w-4 h-4 text-brand-purple" />
-                                    Most engaged right now
+                                    Behavior detail lane
                                 </div>
                                 <AdminStatusBadge state={realtimeState} />
                             </div>
                             <div className="mt-3 grid gap-2">
                                 {topTrackedUsers.length === 0 ? (
-                                    <p className="text-sm text-gray-400">No tracked engagement yet.</p>
+                                    <p className="text-sm text-gray-400">Open a user before loading behavior rollups.</p>
                                 ) : topTrackedUsers.map((user) => (
                                     <div key={user.uid} className="rounded-2xl border border-white/10 bg-black/25 px-3 py-3">
                                         <div className="flex items-center justify-between gap-3">
@@ -809,38 +903,35 @@ export default function UserManagementPage() {
                                                     </div>
                                                 </td>
                                                 <td className="p-4 text-sm">
-                                                    <div className="space-y-2">
-                                                        <div className="grid grid-cols-2 gap-2">
-                                                            <div className="rounded-xl border border-white/10 bg-black/20 px-3 py-2">
-                                                                <div className="text-[10px] font-bold uppercase tracking-wider text-gray-500">Views</div>
-                                                                <div className="mt-1 text-xs font-semibold text-white">{analytics?.viewCount || 0} · {formatPercent(getBounceRate(analytics))} bounce</div>
+                                                    {analytics ? (
+                                                        <div className="space-y-2" data-admin-users-loading-lane="behavioralDetail">
+                                                            <div className="rounded-xl border border-white/10 bg-black/30 px-3 py-2 text-xs text-white">
+                                                                {analytics.eventCount || 0} events / {analytics.sessionCount || 0} sessions
                                                             </div>
-                                                            <div className="rounded-xl border border-white/10 bg-black/20 px-3 py-2">
-                                                                <div className="text-[10px] font-bold uppercase tracking-wider text-gray-500">Onboarding</div>
-                                                                <div className="mt-1 text-xs font-semibold text-white">{analytics?.onboardingCompletionCount || 0} done · {analytics?.onboardingStartCount || 0} started</div>
+                                                            <div className="text-[10px] text-gray-500">
+                                                                {analytics.watchHours || 0}h watch / score {analytics.engagementScore || 0}
                                                             </div>
                                                         </div>
-                                                        <div className="rounded-xl border border-white/10 bg-black/30 px-3 py-2 text-xs text-white">
-                                                            {analytics?.eventCount || 0} events · {analytics?.sessionCount || 0} sessions
-                                                        </div>
-                                                        <div className="rounded-xl border border-white/10 bg-black/30 px-3 py-2 text-xs text-white">
-                                                            {getUserAnalytics(user.uid)?.unwrapCount || 0} unwraps · {getUserAnalytics(user.uid)?.purchaseCount || 0} purchases
-                                                        </div>
-                                                        <div className="rounded-xl border border-white/10 bg-black/30 px-3 py-2 text-xs text-white">
-                                                            {formatMoney(getUserAnalytics(user.uid)?.grossRevenueUsd)} cash · {formatMoney(getUserAnalytics(user.uid)?.adjustedProfitUsd)} adj.
-                                                        </div>
-                                                        <div className="text-[10px] text-gray-500">
-                                                            {getUserAnalytics(user.uid)?.watchHours || 0}h watch · avg {getUserAnalytics(user.uid)?.avgLoadMs || 0}ms
-                                                        </div>
-                                                        <div className="text-[10px] text-gray-500">
-                                                            {(getUserAnalytics(user.uid)?.bonusGumDrops || 0).toLocaleString()} bonus GD · {formatMoney(getUserAnalytics(user.uid)?.effectiveUsdPer100Gd)} / 100 GD
-                                                        </div>
-                                                    </div>
+                                                    ) : (
+                                                        <button
+                                                            type="button"
+                                                            onClick={() => void fetchUserDetail(user)}
+                                                            className="min-h-11 rounded-xl border border-white/10 bg-white/5 px-3 text-xs font-bold text-gray-300 transition-colors hover:border-brand-purple/40 hover:text-white"
+                                                            data-admin-users-loading-lane="selectedUser"
+                                                            disabled={selectedUserDetailLoading === user.uid}
+                                                        >
+                                                            {selectedUserDetailLoading === user.uid ? "Loading detail" : "Load detail"}
+                                                        </button>
+                                                    )}
                                                 </td>
                                                 <td className="p-4 text-gray-500 text-sm">
                                                     {formatJoined(user.createdAt)}
-                                                    <div className="mt-2 text-[10px] text-gray-500">{formatLastSeen(getUserAnalytics(user.uid)?.lastSeenAt)}</div>
-                                                    <div className="mt-1 text-[10px] text-gray-500">{formatLastPurchase(getUserAnalytics(user.uid)?.lastPurchaseAt)}</div>
+                                                    {analytics && (
+                                                        <>
+                                                            <div className="mt-2 text-[10px] text-gray-500">{formatLastSeen(analytics.lastSeenAt)}</div>
+                                                            <div className="mt-1 text-[10px] text-gray-500">{formatLastPurchase(analytics.lastPurchaseAt)}</div>
+                                                        </>
+                                                    )}
                                                 </td>
                                                 <td className="p-4 text-sm">
                                                     {(user.securityFlags?.ripAttempts ?? 0) > 0 ? (
@@ -882,7 +973,7 @@ export default function UserManagementPage() {
                                                         ) : (
                                                             <button onClick={() => { setActionUser(user); setActionType('activate'); }} className="p-1.5 rounded text-brand-purple transition-colors" title="Reactivate user" aria-label="Reactivate user"><CheckCircle className="w-3 h-3" /></button>
                                                         )}
-                                                        <button onClick={() => setContentUser(user)} className="p-1.5 rounded text-gray-400 transition-colors" title="Manage content access" aria-label="Manage content access"><Lock className="w-3 h-3" /></button>
+                                                        <button onClick={() => void fetchUserDetail(user, { openContent: true })} className="p-1.5 rounded text-gray-400 transition-colors" title="Manage content access" aria-label="Manage content access"><Lock className="w-3 h-3" /></button>
                                                     </div>
                                                 </td>
                                             </tr>
@@ -961,93 +1052,36 @@ export default function UserManagementPage() {
                                             </div>
                                         </div>
 
-                                        <div className="grid grid-cols-2 gap-3 p-3 bg-black/25 rounded-xl border border-white/5">
-                                            <div className="flex justify-between items-center">
-                                                <span className="text-xs text-gray-500 font-bold uppercase"><Users className="w-3 h-3 inline mr-1" />Events</span>
-                                                <span className="text-sm font-mono text-gray-300">
-                                                    {analytics?.eventCount || 0}
-                                                </span>
+                                        {analytics ? (
+                                            <div className="grid grid-cols-2 gap-3 p-3 bg-black/25 rounded-xl border border-white/5" data-admin-users-loading-lane="behavioralDetail">
+                                                <div className="flex justify-between items-center">
+                                                    <span className="text-xs text-gray-500 font-bold uppercase"><Users className="w-3 h-3 inline mr-1" />Events</span>
+                                                    <span className="text-sm font-mono text-gray-300">{analytics.eventCount || 0}</span>
+                                                </div>
+                                                <div className="flex justify-between items-center">
+                                                    <span className="text-xs text-gray-500 font-bold uppercase"><TrendingUp className="w-3 h-3 inline mr-1" />Unwraps</span>
+                                                    <span className="text-sm font-mono text-gray-300">{analytics.unwrapCount || 0}</span>
+                                                </div>
+                                                <div className="flex justify-between items-center">
+                                                    <span className="text-xs text-gray-500 font-bold uppercase"><Clock3 className="w-3 h-3 inline mr-1" />Watch</span>
+                                                    <span className="text-sm font-mono text-gray-300">{analytics.watchHours || 0}h</span>
+                                                </div>
+                                                <div className="flex justify-between items-center">
+                                                    <span className="text-xs text-gray-500 font-bold uppercase"><Activity className="w-3 h-3 inline mr-1" />Score</span>
+                                                    <span className="text-sm font-mono text-gray-300">{analytics.engagementScore || 0}</span>
+                                                </div>
                                             </div>
-                                            <div className="flex justify-between items-center">
-                                                <span className="text-xs text-gray-500 font-bold uppercase"><TrendingUp className="w-3 h-3 inline mr-1" />Unwraps</span>
-                                                <span className="text-sm font-mono text-gray-300">
-                                                    {analytics?.unwrapCount || 0}
-                                                </span>
-                                            </div>
-                                            <div className="flex justify-between items-center">
-                                                <span className="text-xs text-gray-500 font-bold uppercase"><Clock3 className="w-3 h-3 inline mr-1" />Watch</span>
-                                                <span className="text-sm font-mono text-gray-300">
-                                                    {analytics?.watchHours || 0}h
-                                                </span>
-                                            </div>
-                                            <div className="flex justify-between items-center">
-                                                <span className="text-xs text-gray-500 font-bold uppercase"><Bell className="w-3 h-3 inline mr-1" />Push</span>
-                                                <span className="text-sm font-mono text-gray-300">
-                                                    {user.notificationSettings?.browserPushEnabled ? "On" : "Off"}
-                                                </span>
-                                            </div>
-                                        </div>
-
-                                        <div className="grid grid-cols-2 gap-3 p-3 bg-black/25 rounded-xl border border-white/5">
-                                            <div className="flex justify-between items-center">
-                                                <span className="text-xs text-gray-500 font-bold uppercase"><Activity className="w-3 h-3 inline mr-1" />Views</span>
-                                                <span className="text-sm font-mono text-gray-300">
-                                                    {analytics?.viewCount || 0}
-                                                </span>
-                                            </div>
-                                            <div className="flex justify-between items-center">
-                                                <span className="text-xs text-gray-500 font-bold uppercase"><AlertTriangle className="w-3 h-3 inline mr-1" />Bounce</span>
-                                                <span className="text-sm font-mono text-gray-300">
-                                                    {formatPercent(getBounceRate(analytics))}
-                                                </span>
-                                            </div>
-                                            <div className="flex justify-between items-center">
-                                                <span className="text-xs text-gray-500 font-bold uppercase"><CheckCircle className="w-3 h-3 inline mr-1" />Onboarded</span>
-                                                <span className="text-sm font-mono text-gray-300">
-                                                    {analytics?.onboardingCompletionCount || 0}
-                                                </span>
-                                            </div>
-                                            <div className="flex justify-between items-center">
-                                                <span className="text-xs text-gray-500 font-bold uppercase"><Shield className="w-3 h-3 inline mr-1" />Auth</span>
-                                                <span className="text-sm font-mono text-gray-300">
-                                                    {analytics?.authSuccessCount || 0}
-                                                </span>
-                                            </div>
-                                        </div>
-
-                                        <div className="grid grid-cols-2 gap-3 p-3 bg-black/25 rounded-xl border border-white/5">
-                                            <div className="flex justify-between items-center">
-                                                <span className="text-xs text-gray-500 font-bold uppercase"><DollarSign className="w-3 h-3 inline mr-1" />Cash</span>
-                                                <span className="text-sm font-mono text-gray-300">
-                                                    {formatMoney(analytics?.grossRevenueUsd)}
-                                                </span>
-                                            </div>
-                                            <div className="flex justify-between items-center">
-                                                <span className="text-xs text-gray-500 font-bold uppercase"><TrendingUp className="w-3 h-3 inline mr-1" />Profit</span>
-                                                <span className="text-sm font-mono text-gray-300">
-                                                    {formatMoney(analytics?.adjustedProfitUsd)}
-                                                </span>
-                                            </div>
-                                            <div className="flex justify-between items-center">
-                                                <span className="text-xs text-gray-500 font-bold uppercase"><Plus className="w-3 h-3 inline mr-1" />Bonus</span>
-                                                <span className="text-sm font-mono text-gray-300">
-                                                    {(analytics?.bonusGumDrops || 0).toLocaleString()} GD
-                                                </span>
-                                            </div>
-                                            <div className="flex justify-between items-center">
-                                                <span className="text-xs text-gray-500 font-bold uppercase"><Clock3 className="w-3 h-3 inline mr-1" />Yield</span>
-                                                <span className="text-sm font-mono text-gray-300">
-                                                    {formatMoney(analytics?.effectiveUsdPer100Gd)}
-                                                </span>
-                                            </div>
-                                        </div>
-
-                                        <div className="text-[10px] text-gray-500 -mt-1">
-                                            {formatLastSeen(analytics?.lastSeenAt)}
-                                        </div>
-                                        <div className="text-[10px] text-gray-500 -mt-2">
-                                            {formatLastPurchase(analytics?.lastPurchaseAt)}
-                                        </div>
+                                        ) : (
+                                            <button
+                                                type="button"
+                                                onClick={() => void fetchUserDetail(user)}
+                                                className="min-h-11 rounded-xl border border-white/10 bg-white/5 px-3 text-xs font-bold text-gray-300 transition-colors hover:border-brand-purple/40 hover:text-white"
+                                                data-admin-users-loading-lane="selectedUser"
+                                                disabled={selectedUserDetailLoading === user.uid}
+                                            >
+                                                {selectedUserDetailLoading === user.uid ? "Loading behavior detail" : "Load behavior detail"}
+                                            </button>
+                                        )}
 
                                     {/* Security Flag (Full Width Button if flags exist) */}
                                     {(user.securityFlags?.ripAttempts ?? 0) > 0 ? (
@@ -1069,7 +1103,7 @@ export default function UserManagementPage() {
                                             <Edit2 className="w-5 h-5 mb-1 group-active:scale-95 transition-transform" />
                                             <span className="text-[10px] font-bold uppercase tracking-wider">Balance</span>
                                         </button>
-                                        <button onClick={() => setContentUser(user)} className="flex flex-col items-center justify-center p-3 bg-white/5 hover:bg-blue-500/20 border border-white/10 rounded-xl transition-colors text-gray-400 hover:text-blue-400 hover:border-blue-500/50 group">
+                                        <button onClick={() => void fetchUserDetail(user, { openContent: true })} className="flex flex-col items-center justify-center p-3 bg-white/5 hover:bg-blue-500/20 border border-white/10 rounded-xl transition-colors text-gray-400 hover:text-blue-400 hover:border-blue-500/50 group">
                                             <Lock className="w-5 h-5 mb-1 group-active:scale-95 transition-transform" />
                                             <span className="text-[10px] font-bold uppercase tracking-wider">Content</span>
                                         </button>

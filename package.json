@@ -51,6 +51,7 @@
         "check:admin-truth": "tsx scripts/check-admin-truth-contracts.ts",
         "check:admin-user-metrics-snapshot": "tsx scripts/agent/validate-admin-user-metrics-snapshot.ts",
         "check:admin-users-stats-grid": "tsx scripts/agent/validate-admin-users-stats-grid.ts",
+        "check:admin-users-loading-lanes": "tsx scripts/agent/validate-admin-users-loading-lanes.ts",
         "check:admin-debug-control-tower": "tsx scripts/agent/validate-admin-debug-control-tower.ts",
         "check:admin-moderation-real-risk": "tsx scripts/agent/validate-admin-moderation-real-risk.ts",
         "check:admin-analytics-overview": "tsx scripts/check-admin-analytics-overview.ts",
