@@ -282,6 +282,21 @@ export default function UserManagementPage() {
     const formatCount = (value?: number, analytics?: UserAnalytics) =>
         !analytics || analytics.metricTruthLabel === "unknown" ? "[unavailable]" : (value ?? 0).toLocaleString();
     const formatSummaryCount = (value?: number) => summary ? (value ?? 0).toLocaleString() : "[unavailable]";
+    const formatCompactMoney = (value?: number) => {
+        if (typeof value !== "number" || !Number.isFinite(value)) {
+            return "[unavailable]";
+        }
+
+        if (Math.abs(value) >= 1000) {
+            const compact = new Intl.NumberFormat("en-US", {
+                notation: "compact",
+                maximumFractionDigits: 1,
+            }).format(value);
+            return `$${compact}`;
+        }
+
+        return `$${value.toFixed(2)}`;
+    };
     const summaryTransportState: AdminSurfaceState = summary ? realtimeState : loading ? "loading" : "failed";
     const summarySnapshotTruthState = summary?.metricsSnapshot?.freshnessState ?? null;
     const summarySnapshotSource = summary?.metricsSnapshot?.source ?? "unavailable";
@@ -306,20 +321,23 @@ export default function UserManagementPage() {
         metricState: AdminMetricState;
     }) => (
         <div
-            className="glass-panel rounded-[1.7rem] border border-white/10 p-4"
+            className="rounded-2xl border border-white/10 bg-white/[0.045] px-2.5 py-2.5 shadow-[inset_0_1px_0_rgba(255,255,255,0.06)] backdrop-blur-md sm:px-3 sm:py-3"
             data-admin-metric-state={metricState}
             data-admin-metric-source={summarySnapshotSource}
             data-admin-metric-freshness={summarySnapshotTruthState ?? "unavailable"}
+            data-admin-users-metric-state={metricState}
+            data-admin-users-metric-source={summarySnapshotSource}
         >
-            <p className="text-[11px] font-bold uppercase tracking-[0.16em] text-gray-500">{title}</p>
-            <div className="mt-1">
+            <div className="flex min-h-5 items-start justify-between gap-1.5">
+                <p className="min-w-0 truncate text-[10px] font-bold uppercase tracking-[0.13em] text-gray-500">{title}</p>
                 <AdminStatusBadge
                     state={adminMetricStateToSurfaceState(metricState)}
                     label={getAdminMetricStateBadgeLabel(metricState)}
+                    className="shrink-0 px-1.5 py-0 text-[8px] tracking-[0.08em]"
                 />
             </div>
-            <p className="mt-2 text-3xl font-black text-white">{value}</p>
-            <p className="mt-1 text-xs text-gray-400">{detail}</p>
+            <p className="mt-1 truncate text-xl font-black leading-none text-white sm:text-2xl">{value}</p>
+            <p className="mt-1 min-h-7 text-[10px] leading-snug text-gray-400 sm:text-[11px]">{detail}</p>
         </div>
     );
     const formatJoined = (value: unknown) => {
@@ -599,71 +617,70 @@ export default function UserManagementPage() {
 
             {viewMode === 'users' && (
                 <>
-                    <div className="grid gap-3 sm:grid-cols-2 xl:grid-cols-4">
+                    <div
+                        className="grid grid-cols-2 gap-2 min-[390px]:grid-cols-3 md:gap-2.5 xl:grid-cols-5"
+                        data-admin-users-stats-layout="compact-grid"
+                    >
                         {renderSummaryMetricCard({
-                            title: "User base",
+                            title: "Users",
                             value: formatSummaryCount(summary?.totalUsers),
-                            detail: `${formatSummaryCount(summary?.activeUsers)} active, ${formatSummaryCount(summary?.verifiedUsers)} verified`,
-                            metricState: getSummaryMetricState([summary?.totalUsers, summary?.activeUsers, summary?.verifiedUsers], summarySnapshotTruthState),
+                            detail: `${formatSummaryCount(summary?.activeUsers)} active`,
+                            metricState: getSummaryMetricState([summary?.totalUsers, summary?.activeUsers], summarySnapshotTruthState),
                         })}
                         {renderSummaryMetricCard({
-                            title: "7 day returners",
+                            title: "Returners",
                             value: formatSummaryCount(summary?.activeLast7Days),
-                            detail: `${formatSummaryCount(summary?.notificationsEnabledUsers)} with notifications on`,
-                            metricState: getSummaryMetricState([summary?.activeLast7Days, summary?.notificationsEnabledUsers], summarySnapshotTruthState),
+                            detail: "last 7 days",
+                            metricState: getSummaryMetricState([summary?.activeLast7Days], summarySnapshotTruthState),
                         })}
                         {renderSummaryMetricCard({
-                            title: "Tracked unwraps",
+                            title: "Unwraps",
                             value: formatSummaryCount(summary?.totalUnwraps),
                             detail: `${formatSummaryCount(summary?.totalPurchases)} tracked purchases`,
                             metricState: getSummaryMetricState([summary?.totalUnwraps, summary?.totalPurchases], summarySnapshotTruthState),
                         })}
                         {renderSummaryMetricCard({
-                            title: "Watch time",
+                            title: "Watch",
                             value: summary ? `${summary.totalWatchHours ?? 0}h` : "[unavailable]",
-                            detail: `${formatSummaryCount(summary?.onboardingCompletedUsers)} users completed onboarding`,
-                            metricState: getSummaryMetricState([summary?.totalWatchHours, summary?.onboardingCompletedUsers], summarySnapshotTruthState),
+                            detail: "foreground viewer time",
+                            metricState: getSummaryMetricState([summary?.totalWatchHours], summarySnapshotTruthState),
                         })}
                         {renderSummaryMetricCard({
-                            title: "Monetization",
-                            value: formatMoney(summary?.grossRevenueUsd),
-                            detail: summary?.commerceEmptyReason || `${summary?.payingUsers || 0} paying users`,
+                            title: "Revenue",
+                            value: formatCompactMoney(summary?.grossRevenueUsd),
+                            detail: summary?.commerceEmptyReason || `adj ${formatCompactMoney(summary?.adjustedProfitUsd)} / bonus ${formatCompactMoney(summary?.bonusValueUsd)}`,
                             metricState: getSummaryMetricState(
-                                [summary?.grossRevenueUsd, summary?.payingUsers],
+                                [summary?.grossRevenueUsd, summary?.adjustedProfitUsd, summary?.bonusValueUsd],
                                 coerceAdminSurfaceState(summary?.commerceTruthLabel),
                             ),
                         })}
                         {renderSummaryMetricCard({
-                            title: "Profit / bonus",
-                            value: formatMoney(summary?.adjustedProfitUsd),
-                            detail: `${formatMoney(summary?.bonusValueUsd)} package-rate bonus value`,
+                            title: "Paying",
+                            value: formatSummaryCount(summary?.payingUsers),
+                            detail: `avg ${formatCompactMoney(summary?.averageOrderUsd)} / rate ${formatCompactMoney(summary?.effectiveUsdPer100Gd)}`,
                             metricState: getSummaryMetricState(
-                                [summary?.adjustedProfitUsd, summary?.bonusValueUsd],
+                                [summary?.payingUsers, summary?.averageOrderUsd, summary?.effectiveUsdPer100Gd],
                                 coerceAdminSurfaceState(summary?.commerceTruthLabel),
                             ),
                         })}
                         {renderSummaryMetricCard({
-                            title: "Delivered / bonus",
-                            value: summary ? `${(summary.deliveredGumDrops ?? 0).toLocaleString()} GD` : "[unavailable]",
-                            detail: `${summary ? (summary.bonusGumDrops ?? 0).toLocaleString() : "[unavailable]"} GD bonus on top`,
-                            metricState: getSummaryMetricState(
-                                [summary?.deliveredGumDrops, summary?.bonusGumDrops],
-                                coerceAdminSurfaceState(summary?.commerceTruthLabel),
-                            ),
+                            title: "Verified",
+                            value: formatSummaryCount(summary?.verifiedUsers),
+                            detail: "badge-ready accounts",
+                            metricState: getSummaryMetricState([summary?.verifiedUsers], summarySnapshotTruthState),
                         })}
-                        <div
-                            className="glass-panel rounded-[1.7rem] border border-white/10 p-4"
-                            data-admin-metric-state={getSummaryMetricState(
-                                [summary?.effectiveUsdPer100Gd, summary?.averageOrderUsd],
-                                coerceAdminSurfaceState(summary?.commerceTruthLabel),
-                            )}
-                            data-admin-metric-source={summarySnapshotSource}
-                            data-admin-metric-freshness={summarySnapshotTruthState ?? "unavailable"}
-                        >
-                            <p className="text-[11px] font-bold uppercase tracking-[0.16em] text-gray-500">Effective rate</p>
-                            <p className="mt-2 text-3xl font-black text-white">{formatMoney(summary?.effectiveUsdPer100Gd)}</p>
-                            <p className="mt-1 text-xs text-gray-400">per 100 GD · avg order {formatMoney(summary?.averageOrderUsd)}</p>
-                        </div>
+                        {renderSummaryMetricCard({
+                            title: "Push",
+                            value: formatSummaryCount(summary?.notificationsEnabledUsers),
+                            detail: "browser alerts on",
+                            metricState: getSummaryMetricState([summary?.notificationsEnabledUsers], summarySnapshotTruthState),
+                        })}
+                        {renderSummaryMetricCard({
+                            title: "Onboarded",
+                            value: formatSummaryCount(summary?.onboardingCompletedUsers),
+                            detail: "completed setup",
+                            metricState: getSummaryMetricState([summary?.onboardingCompletedUsers], summarySnapshotTruthState),
+                        })}
                     </div>
 
                     <div className="grid gap-4 xl:grid-cols-[1.35fr_0.65fr]">
