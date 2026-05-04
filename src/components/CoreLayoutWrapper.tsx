@@ -7,7 +7,7 @@ import { Navbar } from "@/components/Navbar";
 import { AdminViewAsBanner } from "@/components/Admin/AdminViewAsBanner";
 import MobileBottomBar from "@/components/Navigation/MobileBottomBar";
 import dynamic from "next/dynamic";
-import { useEffect, type CSSProperties } from "react";
+import { useEffect, useState, type CSSProperties } from "react";
 import { usePathname } from "next/navigation";
 import { useAuthIdentity, useAuthLoading, useUserProfile } from "@/context/AuthContext";
 import { useUI } from "@/context/UIContext";
@@ -22,6 +22,7 @@ import {
     USER_MOBILE_CHAT_BOTTOM_RESERVED_HEIGHT,
     USER_MOBILE_CHAT_TOP_RESERVED_HEIGHT,
 } from "@/lib/user-mobile-shell";
+import { detectDeviceDisplayMode, type DeviceDisplayMode } from "@/lib/device-layout-contract";
 
 const GlobalPurchaseModal = dynamic(() => import("@/components/GlobalPurchaseModal").then((mod) => mod.GlobalPurchaseModal));
 const GlobalAuthModal = dynamic(() => import("@/components/GlobalAuthModal").then((mod) => mod.GlobalAuthModal));
@@ -58,6 +59,7 @@ export function CoreLayoutWrapper({ children }: { children: React.ReactNode }) {
         isInsufficientBalanceModalOpen,
         isPurchaseModalOpen,
     } = useUI();
+    const [displayMode, setDisplayMode] = useState<DeviceDisplayMode>("unknown");
     const pathname = usePathname();
     const isHomeRoute = pathname === "/";
     const isAdminRoute = pathname?.startsWith("/admin") ?? false;
@@ -162,13 +164,25 @@ export function CoreLayoutWrapper({ children }: { children: React.ReactNode }) {
         writeLastVisitedPath(nextPath, user?.uid ?? null);
     }, [pathname, user?.uid]);
 
+    useEffect(() => {
+        setDisplayMode(detectDeviceDisplayMode());
+    }, []);
+
     const routedChildren = isAdminRoute ? (
-        <div className={ADMIN_SHELL_ROUTE_CLASS} data-admin-shell-route="true" style={mobileShellStyle}>
+        <div
+            className={ADMIN_SHELL_ROUTE_CLASS}
+            data-admin-shell-route="true"
+            data-device-layout-contract="true"
+            data-display-mode={displayMode}
+            style={mobileShellStyle}
+        >
             {children}
         </div>
     ) : (
         <div
             className="flex min-h-0 flex-1 flex-col"
+            data-device-layout-contract="true"
+            data-display-mode={displayMode}
             data-user-mobile-shell-route={isChatRoute ? "chat-owned" : shouldReserveMobileBottomNav ? "reserved" : "none"}
             style={mobileShellStyle}
         >

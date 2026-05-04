@@ -15,6 +15,7 @@ Mobile bottom navigation space is reserved once by the shared app shell. Page co
 - `USER_MOBILE_BOTTOM_NAV_SAFE_GAP`
 - `USER_MOBILE_BOTTOM_NAV_BOTTOM_OFFSET`
 - `USER_MOBILE_BOTTOM_NAV_RESERVED_HEIGHT`
+- `USER_MOBILE_FLOATING_CONTROL_BOTTOM_OFFSET`
 - `USER_MOBILE_CHAT_TOP_RESERVED_HEIGHT`
 - `USER_MOBILE_CHAT_BOTTOM_RESERVED_HEIGHT`
 - `USER_MOBILE_CHAT_VIEWPORT_HEIGHT`
@@ -22,6 +23,8 @@ Mobile bottom navigation space is reserved once by the shared app shell. Page co
 - `CHAT_THREAD_COMPOSER_PADDING_BOTTOM`
 
 `src/app/layout.tsx` reads `--user-mobile-bottom-nav-reserved-height` for root mobile bottom padding. `src/components/CoreLayoutWrapper.tsx` sets that variable to the shared reserved height only when the public mobile bottom nav is present. Admin and legal routes set it to `0px`; chat marks the route as `chat-owned`, applies a chat-specific top offset, and reserves mobile bottom-nav space through chat shell tokens so the internal composer does not create a large blank chin.
+
+`src/lib/device-layout-contract.ts` owns the broader device layout contract. Google owns structural language: breakpoints, adaptive layout, PWA display mode, viewport units. Apple owns style/cohesion: safe areas, floating tab bars, sidebars on larger screens, glass hierarchy, stable top-level navigation. KandyDrops agents must use contract tokens and validators, not freestyle layout physics.
 
 ## Surface Rules
 
@@ -46,4 +49,4 @@ Fixed overlays own their own safe-area padding. Normal route surfaces use the sh
 
 ## Validation
 
-Run `npm run check:mobile-shell-safe-area` after mobile shell or launch-critical surface changes. For UI changes, also run the existing user chat shell, Drops mobile, admin shell spacing, mobile doctrine, not-found, and UI runtime/visual lanes as appropriate.
+Run `npm run check:mobile-shell-safe-area` after mobile shell or launch-critical surface changes. Run `npm run check:device-layout-contract` after changing responsive breakpoints, display-mode detection, shell tokens, chat/drop-preview viewport ownership, or critical mobile touch sizing. For UI changes, also run the existing user chat shell, Drops mobile, admin shell spacing, mobile doctrine, not-found, and UI runtime/visual lanes as appropriate.

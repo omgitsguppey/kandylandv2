@@ -1,5 +1,65 @@
 # KandyDrops Core Codebase Audit & Defensive Ledger
 
+## [2026-05-04 #126] PRE: Device Layout Score And Safe Repair
+
+Scope started:
+- Creating a deterministic, source-only device layout scoring and safe repair system around the new device layout contract.
+- Required outputs: `src/lib/device-layout-score.ts`, `scripts/agent/score-device-layout-contract.ts`, `scripts/agent/repair-device-layout-contract.ts`, `scripts/agent/validate-device-layout-score.ts`, `agent/state/device-layout-score.generated.json`, `docs/agent-truth/device-layout-score.md`, package scripts, source-of-truth docs, focused validation, commit, and push.
+- This pass must not use an LLM, external APIs, browser automation, Playwright, Lighthouse, Cypress, or broad command marathons; it must not change payments, auth, creator eligibility, unlock enforcement, or product UI behavior.
+
+Initial evidence:
+- Control tower routing, doctrine consultation workflow, product/copy/UI doctrine, source-of-truth map, shared component ownership, full governance files, and adjacency traces for `src/lib/device-layout-contract.ts` and `src/lib/user-mobile-shell.ts` were consulted.
+- Existing contract work defines the screen-size/display-mode/shell token doctrine and already routes global floating controls through shared shell tokens; the scorer should evaluate that source truth and report remaining unsupported layout physics without applying judgment-based fixes.
+
+Doctrine:
+- KandyDrops layout scoring is deterministic. It detects violations of Google-style structure and Apple-style cohesion using hardcoded file/path/pattern rules. It can auto-fix exact safe token/string replacements only. It must escalate anything involving payments, auth, locked content exposure, keyboard runtime behavior, visual judgment, or product intent.
+
+Scope completed:
+- Added `src/lib/device-layout-score.ts` with the device-layout finding/report types, severity impacts, capped score groups, source-only scanners, deterministic status thresholds, safe autofix planning, exact-text autofix gate, report writing, and terminal summary output.
+- Added `npm run score:layout`, `npm run repair:layout`, `npm run check:device-layout-score`, and the corresponding scripts under `scripts/agent/`.
+- Generated `agent/state/device-layout-score.generated.json`; current score is `80/warning` with no critical/major findings and no safe autofixes available. Remaining findings are escalations only, including unsupported raw breakpoint constants and the current mobile bottom-nav wallet action semantics.
+- Added `docs/agent-truth/device-layout-score.md` and updated README, AGENTS, memory ledger, checklist, and device layout contract doctrine with the deterministic score/repair rule.
+- Ran `repair:layout` dry-run and `repair:layout -- --apply`; no fixes were applied because there were no high-confidence exact-token repairs available.
+
+Verification:
+- Passed: `npm run score:layout`
+- Passed: `npm run repair:layout`
+- Passed: `npm run repair:layout -- --apply`
+- Passed: `npm run check:device-layout-score`
+- Passed: `npm run check:device-layout-contract`
+- Passed: `npm run typecheck -- --pretty false`
+- Not run by design: Playwright, Lighthouse, Cypress, external APIs, full `npm run check`, broad UI audits.
+
+## [2026-05-04 #125] PRE: Device Layout Contract
+
+Scope started:
+- Creating the canonical KandyDrops device layout contract, documentation, and targeted validator so public beta agents use shared screen-size, display-mode, shell-spacing, safe-area, and component sizing rules instead of inventing responsive layout physics.
+- Required outputs: `src/lib/device-layout-contract.ts`, `docs/agent-truth/device-layout-contract.md`, `scripts/agent/validate-device-layout-contract.ts`, `npm run check:device-layout-contract`, source-of-truth documentation updates, and minimal shell debug/token compatibility wiring.
+- This pass must not redesign user-facing UI, must not change business logic, must not weaken locked-content protection, and must preserve existing public mobile shell/chat/drop preview behavior except for deterministic token/debug compatibility.
+
+Initial evidence:
+- Control tower routing, doctrine consultation workflow, product/copy/UI doctrine, source-of-truth map, shared component ownership, full governance files, and adjacency traces for `src/lib/user-mobile-shell.ts` and `src/components/Navigation/MobileBottomBar.tsx` were consulted.
+- Existing `user-mobile-shell` already owns mobile bottom-nav, chat viewport, and chat composer tokens; existing chat and locked-drop preview surfaces already use `100dvh`/shell variables and expose most required debug attributes.
+- `GlobalBugReportTrigger` and `ScrollToTop` still used duplicated hardcoded mobile bottom offsets, so the contract pass must route them through a shared shell token without changing their product behavior.
+
+Doctrine:
+- Google owns structural language: breakpoints, adaptive layout, PWA display mode, viewport units. Apple owns style/cohesion: safe areas, floating tab bars, sidebars on larger screens, glass hierarchy, stable top-level navigation. KandyDrops agents must use contract tokens and validators, not freestyle layout physics.
+
+Scope completed:
+- Added `src/lib/device-layout-contract.ts` with canonical xs-phone through ultra-wide classes, Google/Material breakpoint boundaries, browser/standalone-PWA/fullscreen/unknown display modes, shell rules, required debug attributes, source anchors, and touch/chat/preview sizing constants.
+- Added `docs/agent-truth/device-layout-contract.md`, updated the user manual/dev truth/AI context docs, and linked the broader contract from the mobile safe-area doctrine.
+- Added `npm run check:device-layout-contract` and `scripts/agent/validate-device-layout-contract.ts` to enforce source-based checks for public shell `100vh`, negative/translate layout hacks, hardcoded floating offsets, chat control bottom offset truth, display-mode debug markers, critical shell data attributes, touch targets, undocumented breakpoint constants, and locked preview content leaks.
+- Wired existing shell compatibility without redesign: `CoreLayoutWrapper` now exposes `data-display-mode`; top/bottom navs expose layout debug markers; global bug report and scroll-to-top controls use the shared floating-control bottom token; bottom nav targets are 44px while preserving the 56px visual contract.
+
+Verification:
+- Passed: `npm run check:device-layout-contract`
+- Passed: `npm run check:mobile-shell-safe-area`
+- Passed: `npm run check:user-chat-shell-routing`
+- Passed: `npm run check:drop-preview-page`
+- Passed: `npm run check:accessibility-tap-targets`
+- Passed: `npm run typecheck -- --pretty false`
+- Not run by design: Playwright, Lighthouse, Cypress, full `npm run check`, broad UI audits.
+
 ## [2026-05-03 #124] PRE: Open Public Beta PR Triage
 
 Scope started:

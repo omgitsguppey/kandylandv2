@@ -4,6 +4,14 @@ Status: Canonical repository-memory and architecture-decision ledger
 Last refreshed: 2026-05-02
 Repo: `C:\Users\uylus\OneDrive\Documents\KandyDrops_Final`
 
+## 2026-05-04 Device layout score and safe repair
+
+KandyDrops layout scoring is deterministic. It detects violations of Google-style structure and Apple-style cohesion using hardcoded file/path/pattern rules. It can auto-fix exact safe token/string replacements only. It must escalate anything involving payments, auth, locked content exposure, keyboard runtime behavior, visual judgment, or product intent. The source-only score path is `npm run score:layout`; safe repair is dry-run through `npm run repair:layout` and apply-gated through `npm run repair:layout -- --apply`; validation is `npm run check:device-layout-score`.
+
+## 2026-05-04 Device layout contract
+
+Google owns structural language: breakpoints, adaptive layout, PWA display mode, viewport units. Apple owns style/cohesion: safe areas, floating tab bars, sidebars on larger screens, glass hierarchy, stable top-level navigation. KandyDrops agents must use `src/lib/device-layout-contract.ts`, `src/lib/user-mobile-shell.ts`, and `npm run check:device-layout-contract`, not freestyle layout physics. The contract defines xs-phone through ultra-wide classes, allowed browser/standalone-PWA/fullscreen/unknown display modes, bottom-nav and safe-area shell rules, and critical touch/chat/preview sizing constants.
+
 ## 2026-05-03 Open public beta PR triage
 
 Open bot PRs must be cherry-picked by current-source relevance. Duplicate Bolt/Jules branches should not be merged wholesale. Public beta fixes prioritize current source-of-truth, no UI regression, and targeted validation over broad stale branch merges. Current triage closed duplicate `useDrops` PRs after applying the #214 single-pass filtering/next-expiry primitive dependency, handled #210 ARIA state semantics without visual changes, confirmed #208 trusted-origin protection already present, applied only current admin truth/vocabulary cleanup from #209/#213, and treated #202/#212 wallet source-of-funds PRs as superseded by the accounting-truth implementation that preserved wallet UI copy/design.

@@ -9,6 +9,16 @@ Scoring: all entries below are marked as included in the current validated sweep
 
 Current repo-wide state snapshot: see [FULL_SCALE_CODEBASE_AUDIT.md](/Users/uylus/OneDrive/Documents/KandyDrops_Final/FULL_SCALE_CODEBASE_AUDIT.md) for the current live baseline, verification state, and continuity rules, and see [REPO_MEMORY_LEDGER.md](/Users/uylus/OneDrive/Documents/KandyDrops_Final/REPO_MEMORY_LEDGER.md) for major architectural and workflow decisions. The detailed file/function body below remains valuable historical evidence, but it has not been fully regenerated against the current 2026-04-18 inventory review yet.
 
+## 2026-05-04 Device Layout Contract Coverage
+
+- [x] Google owns structural language: breakpoints, adaptive layout, PWA display mode, viewport units. Apple owns style/cohesion: safe areas, floating tab bars, sidebars on larger screens, glass hierarchy, stable top-level navigation. KandyDrops agents must use contract tokens and validators, not freestyle layout physics.
+- [x] KandyDrops layout scoring is deterministic. It detects violations of Google-style structure and Apple-style cohesion using hardcoded file/path/pattern rules. It can auto-fix exact safe token/string replacements only. It must escalate anything involving payments, auth, locked content exposure, keyboard runtime behavior, visual judgment, or product intent.
+- [x] `src/lib/device-layout-contract.ts` owns the canonical KandyDrops screen-size classes, Google/Material breakpoint boundaries, display modes, shell rules, required debug attributes, and critical component sizing constants.
+- [x] `src/lib/device-layout-score.ts` owns the deterministic score model, capped category penalties, hardcoded scanners, report writer, summary output, safe autofix plan builder, exact-text autofix gate, and score-not-worsening repair support for device layout truth.
+- [x] `scripts/agent/score-device-layout-contract.ts`, `scripts/agent/repair-device-layout-contract.ts`, `scripts/agent/validate-device-layout-score.ts`, `agent/state/device-layout-score.generated.json`, and `docs/agent-truth/device-layout-score.md` provide the local no-LLM score/repair/check lane.
+- [x] `src/lib/user-mobile-shell.ts`, `src/components/CoreLayoutWrapper.tsx`, `src/components/Navbar.tsx`, `src/components/Navigation/MobileBottomBar.tsx`, `src/components/Navigation/ScrollToTop.tsx`, and `src/components/Feedback/GlobalBugReportTrigger.tsx` expose compatible shared shell tokens and debug markers without changing product navigation behavior.
+- [x] `scripts/agent/validate-device-layout-contract.ts`, `docs/agent-truth/device-layout-contract.md`, and `npm run check:device-layout-contract` validate public mobile shell/chat/drop preview physics through source checks instead of Playwright, Lighthouse, Cypress, or broad UI audits.
+
 ## 2026-05-03 Open Public Beta PR Triage Coverage
 
 - [x] `src/hooks/useDrops.ts` owns the manually cherry-picked #214 optimization: client filtering and next-expiration timestamp calculation happen in one pass, the timer effect depends on primitive `nextExpiryMs`, and duplicate Bolt/Jules branch docs are not imported.

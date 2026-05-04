@@ -57,6 +57,8 @@ function MobileBottomBarInner() {
         return (
             <div
                 className="pointer-events-none fixed inset-x-0 z-40 px-3 md:hidden sm:px-4 opacity-0"
+                data-device-layout-surface="mobile-bottom-nav"
+                data-bottom-nav-role="navigation"
                 style={{ bottom: USER_MOBILE_BOTTOM_NAV_BOTTOM_OFFSET, height: USER_MOBILE_BOTTOM_NAV_HEIGHT }}
             />
         );
@@ -72,7 +74,10 @@ function MobileBottomBarInner() {
         >
             <nav
                 aria-label="Mobile navigation"
-                className="pointer-events-auto mx-auto flex max-w-7xl items-center justify-between rounded-full border border-white/10 bg-black/55 px-3.5 py-2 shadow-xl shadow-black/40 backdrop-blur-xl"
+                className="pointer-events-auto mx-auto flex max-w-7xl items-center justify-between rounded-full border border-white/10 bg-black/55 px-3.5 py-1.5 shadow-xl shadow-black/40 backdrop-blur-xl"
+                data-device-layout-surface="mobile-bottom-nav"
+                data-bottom-nav-role="navigation"
+                data-bottom-nav-visual-height="56"
                 style={{ WebkitBackdropFilter: "blur(20px)" }}
             >
                 {navItems.map((item) => {
@@ -95,7 +100,7 @@ function MobileBottomBarInner() {
                                 }}
                                 aria-label="Open wallet"
                                 className={cn(
-                                    "flex h-10 min-w-0 flex-1 flex-col items-center justify-center gap-1 rounded-full px-2 py-1 text-center transition-colors active:scale-95",
+                                    "flex h-11 min-w-0 flex-1 flex-col items-center justify-center gap-1 rounded-full px-2 py-1 text-center transition-colors active:scale-95",
                                     "text-gray-400"
                                 )}
                             >
@@ -116,7 +121,7 @@ function MobileBottomBarInner() {
                                 trackEvent('navigation_click', { destination: item.href, source: 'mobile_bottom_bar' });
                             }}
                             className={cn(
-                                "flex h-10 min-w-0 flex-1 flex-col items-center justify-center gap-1 rounded-full px-2 py-1 text-center transition-colors active:scale-95",
+                                "flex h-11 min-w-0 flex-1 flex-col items-center justify-center gap-1 rounded-full px-2 py-1 text-center transition-colors active:scale-95",
                                 isActive ? "bg-brand-purple/10 text-brand-purple" : "text-gray-400"
                             )}
                         >

@@ -1,9 +1,10 @@
 "use client";
 
-import { useEffect, useRef, useState } from "react";
+import { useEffect, useRef, useState, type CSSProperties } from "react";
 import { ArrowUp } from "lucide-react";
 
 import { motion, AnimatePresence } from "framer-motion";
+import { USER_MOBILE_FLOATING_CONTROL_BOTTOM_OFFSET } from "@/lib/user-mobile-shell";
 
 export function ScrollToTop() {
     const [isVisible, setIsVisible] = useState(false);
@@ -55,7 +56,11 @@ export function ScrollToTop() {
                     animate={{ opacity: 1, scale: 1, y: 0 }}
                     exit={{ opacity: 0, scale: 0.8, y: 20 }}
                     onClick={scrollToTop}
-                    className="fixed bottom-[calc(env(safe-area-inset-bottom)+5.75rem)] right-3 z-40 flex h-10 w-10 items-center justify-center rounded-full border border-white/10 bg-black/75 text-white shadow-2xl shadow-black/45 backdrop-blur-xl transition-all hover:border-brand-purple/35 hover:bg-black active:scale-90 md:bottom-7 md:right-5"
+                    className="fixed bottom-[var(--user-mobile-floating-control-bottom-offset)] right-3 z-40 flex h-11 w-11 items-center justify-center rounded-full border border-white/10 bg-black/75 text-white shadow-2xl shadow-black/45 backdrop-blur-xl transition-all hover:border-brand-purple/35 hover:bg-black active:scale-90 md:bottom-7 md:right-5"
+                    data-device-layout-surface="floating-scroll-control"
+                    style={{
+                        "--user-mobile-floating-control-bottom-offset": USER_MOBILE_FLOATING_CONTROL_BOTTOM_OFFSET,
+                    } as CSSProperties}
                     aria-label="Scroll to top"
                     title="Scroll to top"
                 >
