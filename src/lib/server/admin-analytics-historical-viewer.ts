@@ -489,7 +489,10 @@ export function buildHistoricalViewerOverview(input: {
   const viewerOpenLogs = (input.telemetryLogsByEvent.viewer_opened || []).filter((record) => matchesViewerFilter(record, input.viewerUser));
   const viewerSessionStartedLogs = (input.telemetryLogsByEvent.viewer_session_started || []).filter((record) => matchesViewerFilter(record, input.viewerUser));
   const viewerSessionCompletedLogs = (input.telemetryLogsByEvent.viewer_session_completed || []).filter((record) => matchesViewerFilter(record, input.viewerUser));
-  const viewerAssetStartedLogs = (input.telemetryLogsByEvent.viewer_asset_started || []).filter((record) => matchesViewerFilter(record, input.viewerUser));
+  const viewerAssetStartedLogs = [
+    ...(input.telemetryLogsByEvent.file_viewed || []),
+    ...(input.telemetryLogsByEvent.viewer_asset_started || []),
+  ].filter((record) => matchesViewerFilter(record, input.viewerUser));
   const viewerAssetCompletedLogs = (input.telemetryLogsByEvent.viewer_asset_completed || []).filter((record) => matchesViewerFilter(record, input.viewerUser));
   const viewerAssetChangedLogs = (input.telemetryLogsByEvent.viewer_asset_changed || []).filter((record) => matchesViewerFilter(record, input.viewerUser));
   const viewerDownloadLogs = (input.telemetryLogsByEvent.viewer_source_downloaded || []).filter((record) => matchesViewerFilter(record, input.viewerUser));

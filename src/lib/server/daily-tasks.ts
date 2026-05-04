@@ -248,6 +248,7 @@ const CORE_LOOP_TASK_EVENTS = new Set([
   "viewer_asset_completed",
   "viewer_asset_consumed",
   "viewer_watch_checkpoint",
+  "file_viewed",
 ]);
 
 function computeTaskPriorityScore(
@@ -344,7 +345,7 @@ function pickTasksForCycle(
       || task.eventName === "viewer_asset_completed"
       || task.eventName === "viewer_asset_consumed"
       || task.eventName === "viewer_watch_checkpoint"
-      || task.eventName === "viewer_asset_changed"
+      || task.eventName === "file_viewed"
       || task.eventName === "viewer_source_downloaded"
       || task.eventName === "viewer_related_drop_clicked";
 
@@ -352,7 +353,7 @@ function pickTasksForCycle(
       return false;
     }
 
-    if (task.eventName === "viewer_asset_changed" && !eligibility.hasMultiAssetUnlockedContent) {
+    if (task.eventName === "file_viewed" && !eligibility.hasMultiAssetUnlockedContent) {
       return false;
     }
 

@@ -77,7 +77,7 @@ export const TRACKING_SURFACE_MAP: TrackingSurfaceDefinition[] = [
       "watch_session_started",
       "watch_session_visible_tick",
       "watch_session_ended",
-      "viewer_asset_started",
+      "file_viewed",
     ],
     requiredFields: ["source_component", "drop_id", "file_id"],
     serverTruthEvents: ["unlock_drop_success"],

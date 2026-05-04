@@ -31,6 +31,25 @@ export type ViewerWatchDropOffStage = (typeof VIEWER_WATCH_DROP_OFF_STAGES)[numb
 export type ViewerWatchCaptureQuality = (typeof VIEWER_WATCH_CAPTURE_QUALITIES)[number];
 export type ViewerWatchCaptureTransport = (typeof VIEWER_WATCH_CAPTURE_TRANSPORTS)[number];
 
+export const VIEWER_FILE_VIEW_DEDUPE_WINDOW_MS = 30_000;
+
+export interface ViewerFileTelemetryContext {
+    dropId: string;
+    fileId: string;
+    assetKey: string;
+    mediaIndex: number;
+    mediaType: ViewerWatchContentKind;
+    viewerSessionId: string;
+}
+
+interface ViewerFileTelemetryInput {
+    dropId: string | null;
+    contentFileNames?: string[] | null;
+    activeAssetIndex: number;
+    activeContentKind: ViewerWatchContentKind;
+    viewerSessionId: string | null;
+}
+
 export interface ViewerWatchDerivedState {
     meaningfulWatch: boolean;
     deepWatch: boolean;
@@ -92,6 +111,60 @@ function roundSeconds(value: number) {
     }
 
     return Number(value.toFixed(2));
+}
+
+function readViewerFileName(contentFileNames: string[] | null | undefined, activeAssetIndex: number) {
+    if (!Array.isArray(contentFileNames)) {
+        return "";
+    }
+
+    const candidate = contentFileNames[activeAssetIndex];
+    return typeof candidate === "string" ? candidate.trim() : "";
+}
+
+export function buildViewerFileTelemetryContext(input: ViewerFileTelemetryInput): ViewerFileTelemetryContext | null {
+    if (!input.dropId || !input.viewerSessionId) {
+        return null;
+    }
+
+    const normalizedAssetIndex = Math.max(0, Math.trunc(input.activeAssetIndex));
+    const fileName = readViewerFileName(input.contentFileNames, normalizedAssetIndex);
+
+    return {
+        dropId: input.dropId,
+        fileId: fileName || `${input.dropId}:file:${normalizedAssetIndex + 1}`,
+        assetKey: `${input.dropId}:${normalizedAssetIndex}`,
+        mediaIndex: normalizedAssetIndex + 1,
+        mediaType: input.activeContentKind,
+        viewerSessionId: input.viewerSessionId,
+    };
+}
+
+export function buildViewerFileTelemetryParams(context: ViewerFileTelemetryContext) {
+    return {
+        drop_id: context.dropId,
+        file_id: context.fileId,
+        asset_key: context.assetKey,
+        media_index: context.mediaIndex,
+        media_type: context.mediaType,
+        viewer_session_id: context.viewerSessionId,
+        watch_session_id: context.viewerSessionId,
+    };
+}
+
+export function shouldEmitViewerFileView(input: {
+    lastEmittedAtMs?: number | null;
+    nextEmittedAtMs: number;
+    dedupeWindowMs?: number;
+}) {
+    const lastEmittedAtMs = typeof input.lastEmittedAtMs === "number" ? input.lastEmittedAtMs : 0;
+    const dedupeWindowMs = input.dedupeWindowMs ?? VIEWER_FILE_VIEW_DEDUPE_WINDOW_MS;
+
+    if (!lastEmittedAtMs || lastEmittedAtMs <= 0) {
+        return true;
+    }
+
+    return Math.max(0, input.nextEmittedAtMs - lastEmittedAtMs) >= dedupeWindowMs;
 }
 
 export function resolveViewerWatchSeconds(input: {
@@ -313,6 +386,8 @@ export function shouldRetryViewerWatchCloseFlush(input: {
 export interface ViewerWatchAssetSnapshot {
     assetKey: string;
     assetIndex: number;
+    fileId?: string | null;
+    mediaType?: ViewerWatchContentKind;
     contentKind: ViewerWatchContentKind;
     firstSeenAtMs: number;
     lastSeenAtMs: number;
@@ -365,6 +440,9 @@ export interface ViewerWatchSessionSnapshot {
     contentCount: number;
     activeAssetKey?: string | null;
     activeAssetIndex?: number | null;
+    fileId?: string | null;
+    mediaIndex?: number | null;
+    mediaType?: ViewerWatchContentKind | null;
     totalWatchSeconds: number;
     totalVisibleSeconds: number;
     totalActiveSeconds?: number;

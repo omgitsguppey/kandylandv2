@@ -485,7 +485,7 @@ export const BUILT_IN_DAILY_TASKS: DailyTaskDefinition[] = [
     subtitle: "Use the thumbnail rail and explore the whole unlock.",
     reward: 150,
     maxProgress: 3,
-    eventName: "viewer_asset_changed",
+    eventName: "file_viewed",
     actionType: "open_library",
     ctaLabel: "Open library",
     icon: "layers",

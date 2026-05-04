@@ -277,7 +277,7 @@ export function getTaskInstruction(task: DailyTaskAssignment) {
     return "Open an unlocked drop, play the required file, and keep watching until the viewing milestone is reached.";
   }
 
-  if (task.eventName === "viewer_asset_changed") {
+  if (task.eventName === "file_viewed") {
     return "Open an unlocked drop and switch through different files in the viewer until the count is complete.";
   }
 
@@ -397,7 +397,7 @@ export function getTaskActionLabel(task: DailyTaskAssignment) {
     return "Keep watching";
   }
 
-  if (task.eventName === "viewer_asset_changed") {
+  if (task.eventName === "file_viewed") {
     return "Switch files";
   }
 

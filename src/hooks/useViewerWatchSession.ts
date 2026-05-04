@@ -10,6 +10,7 @@ import { createAnalyticsWatchSessionId } from "@/lib/analytics-identifiers";
 import { canUseIdentifiedAnalytics, readPrivacySettingsSnapshot, subscribeToPrivacySettings } from "@/lib/privacy-consent";
 import { trackEvent } from "@/lib/telemetry";
 import type {
+    ViewerFileTelemetryContext,
     ViewerWatchCaptureQuality,
     ViewerWatchCaptureTransport,
     ViewerWatchAssetSnapshot,
@@ -17,6 +18,8 @@ import type {
     ViewerWatchSessionSnapshot,
 } from "@/lib/viewer-watch-session";
 import {
+    buildViewerFileTelemetryContext,
+    buildViewerFileTelemetryParams,
     scoreViewerWatchSession,
     shouldCompleteImageOnManualAdvance,
     shouldConsumeImageAsset,
@@ -37,6 +40,7 @@ const VIEWER_WATCH_PENDING_MAX_ENTRIES = 12;
 interface UseViewerWatchSessionOptions {
     enabled: boolean;
     dropId: string | null;
+    dropContentFileNames?: string[] | null;
     dropTitle: string;
     dropCategory: string;
     contentCount: number;
@@ -60,6 +64,7 @@ interface FlushOptions {
 interface SessionContext {
     enabled: boolean;
     dropId: string | null;
+    dropContentFileNames?: string[] | null;
     dropTitle: string;
     dropCategory: string;
     contentCount: number;
@@ -420,6 +425,16 @@ export function useViewerWatchSession(options: UseViewerWatchSessionOptions) {
         };
     }, []);
 
+    const getCurrentFileTelemetryContext = useCallback((viewerSessionIdOverride?: string | null): ViewerFileTelemetryContext | null => (
+        buildViewerFileTelemetryContext({
+            dropId: contextRef.current.dropId,
+            contentFileNames: contextRef.current.dropContentFileNames ?? null,
+            activeAssetIndex: contextRef.current.activeAssetIndex,
+            activeContentKind: contextRef.current.activeContentKind,
+            viewerSessionId: viewerSessionIdOverride ?? watchSessionIdRef.current,
+        })
+    ), []);
+
     const ensureAssetState = useCallback((override?: {
         assetKey?: string;
         assetIndex?: number;
@@ -638,6 +653,13 @@ export function useViewerWatchSession(options: UseViewerWatchSessionOptions) {
         });
 
         const scoredAssets = dirtyAssets.map((asset) => {
+            const assetFileContext = buildViewerFileTelemetryContext({
+                dropId: contextRef.current.dropId,
+                contentFileNames: contextRef.current.dropContentFileNames ?? null,
+                activeAssetIndex: Math.max(0, asset.assetIndex - 1),
+                activeContentKind: asset.contentKind,
+                viewerSessionId: activeWatchSessionId,
+            });
             const consumedByTruth = asset.isConsumed || shouldConsumeImageAsset({
                 contentKind: asset.contentKind,
                 totalVisibleSeconds: asset.totalVisibleSeconds,
@@ -659,6 +681,8 @@ export function useViewerWatchSession(options: UseViewerWatchSessionOptions) {
             return {
                 assetKey: asset.assetKey,
                 assetIndex: asset.assetIndex,
+                fileId: assetFileContext?.fileId ?? null,
+                mediaType: asset.contentKind,
                 contentKind: asset.contentKind,
                 firstSeenAtMs: asset.firstSeenAtMs,
                 lastSeenAtMs: asset.lastSeenAtMs,
@@ -690,6 +714,7 @@ export function useViewerWatchSession(options: UseViewerWatchSessionOptions) {
                 hasFocus: asset.hasFocus ?? readHasFocus(),
             };
         });
+        const activeFileContext = getCurrentFileTelemetryContext(activeWatchSessionId);
 
         const payload: ViewerWatchSessionSnapshot = {
             watchSessionId: activeWatchSessionId,
@@ -708,6 +733,9 @@ export function useViewerWatchSession(options: UseViewerWatchSessionOptions) {
             contentCount: contextRef.current.contentCount,
             activeAssetKey: close ? null : (getCurrentAssetIdentity()?.assetKey ?? null),
             activeAssetIndex: close ? null : (getCurrentAssetIdentity()?.assetIndex ?? null),
+            fileId: activeFileContext?.fileId ?? null,
+            mediaIndex: activeFileContext?.mediaIndex ?? null,
+            mediaType: activeFileContext?.mediaType ?? null,
             totalWatchSeconds,
             totalVisibleSeconds,
             totalActiveSeconds,
@@ -748,7 +776,7 @@ export function useViewerWatchSession(options: UseViewerWatchSessionOptions) {
             sessionRevision: sessionRevisionRef.current,
             assetRevisionMap,
         };
-    }, [applyActiveDelta, getCurrentAssetIdentity]);
+    }, [applyActiveDelta, getCurrentAssetIdentity, getCurrentFileTelemetryContext]);
 
     const flushSession = useCallback(async (reason: string, options?: FlushOptions) => {
         const payloadBundle = buildSessionPayload(reason, options?.close === true, options);
@@ -768,6 +796,14 @@ export function useViewerWatchSession(options: UseViewerWatchSessionOptions) {
         sessionSequenceRef.current = payload.sessionSequence;
         const activeWatchSessionId = payload.watchSessionId;
         if (options?.close === true) {
+            const activeFileParams = buildViewerFileTelemetryParams(getCurrentFileTelemetryContext(activeWatchSessionId) ?? {
+                dropId: payload.dropId,
+                fileId: payload.fileId ?? `${payload.dropId}:file:${Math.max(1, payload.mediaIndex ?? 1)}`,
+                assetKey: payload.activeAssetKey ?? `${payload.dropId}:${Math.max(0, (payload.mediaIndex ?? 1) - 1)}`,
+                mediaIndex: payload.mediaIndex ?? Math.max(1, payload.activeAssetIndex ?? 1),
+                mediaType: payload.mediaType ?? "unknown",
+                viewerSessionId: activeWatchSessionId,
+            });
             const watchScore = scoreViewerWatchSession({
                 contentKind: contextRef.current.activeContentKind,
                 totalWatchSeconds: payload.totalWatchSeconds,
@@ -785,8 +821,6 @@ export function useViewerWatchSession(options: UseViewerWatchSessionOptions) {
             trackEvent("watch_session_ended", {
                 source_component: "viewer_watch_session",
                 route: payload.pagePath,
-                drop_id: payload.dropId,
-                watch_session_id: activeWatchSessionId,
                 started_at_ms: payload.sessionStartedAtMs,
                 ended_at_ms: payload.closedAtMs ?? payload.lastSeenAtMs,
                 visible_ms: Math.round(payload.totalVisibleSeconds * 1000),
@@ -801,18 +835,18 @@ export function useViewerWatchSession(options: UseViewerWatchSessionOptions) {
                 reason_codes: watchScore.reasonCodes.join("|"),
                 visibility_state: payload.documentVisibilityState ?? "unknown",
                 idle_state: (payload.idleDurationSeconds ?? 0) > 0 ? "idle_excluded" : "active",
+                ...activeFileParams,
             });
             trackEvent("watch_score_computed", {
                 source_component: "viewer_watch_session",
                 route: payload.pagePath,
-                drop_id: payload.dropId,
-                watch_session_id: activeWatchSessionId,
                 valid_watch_ms: watchScore.validWatchMs,
                 score: watchScore.score,
                 tier: watchScore.tier,
                 reason_codes: watchScore.reasonCodes.join("|"),
                 visibility_state: payload.documentVisibilityState ?? "unknown",
                 idle_state: (payload.idleDurationSeconds ?? 0) > 0 ? "idle_excluded" : "active",
+                ...activeFileParams,
             });
         }
         sessionMetadataRef.current.flushAttemptCount += 1;
@@ -970,17 +1004,21 @@ export function useViewerWatchSession(options: UseViewerWatchSessionOptions) {
             trackEvent("watch_session_progress", {
                 source_component: "viewer_watch_session",
                 route: pagePathRef.current,
-                drop_id: contextRef.current.dropId ?? "",
-                watch_session_id: watchSessionIdRef.current ?? "",
-                media_index: contextRef.current.activeAssetIndex + 1,
-                media_type: isMediaContent(contextRef.current.activeContentKind) ? "video" : contextRef.current.activeContentKind === "image" ? "image" : "unknown",
                 max_progress_percent: asset.maxProgressPercent ?? 0,
                 viewport_visible_percent: contentVisiblePercentRef.current,
                 document_visibility_state: readDocumentVisibilityState(),
                 has_focus: readHasFocus(),
+                ...buildViewerFileTelemetryParams(getCurrentFileTelemetryContext() ?? {
+                    dropId: contextRef.current.dropId ?? "",
+                    fileId: `${contextRef.current.dropId ?? "drop"}:file:${contextRef.current.activeAssetIndex + 1}`,
+                    assetKey: `${contextRef.current.dropId ?? "drop"}:${contextRef.current.activeAssetIndex}`,
+                    mediaIndex: contextRef.current.activeAssetIndex + 1,
+                    mediaType: contextRef.current.activeContentKind,
+                    viewerSessionId: watchSessionIdRef.current ?? "",
+                }),
             });
         }
-    }, [ensureAssetState, markUserActivity, updateAssetState]);
+    }, [ensureAssetState, getCurrentFileTelemetryContext, markUserActivity, updateAssetState]);
 
     const reportMediaSeeking = useCallback((fromSeconds: number, toSeconds: number, durationSeconds?: number) => {
         markUserActivity();
@@ -1081,11 +1119,16 @@ export function useViewerWatchSession(options: UseViewerWatchSessionOptions) {
         trackEvent("watch_session_resumed", {
             source_component: "viewer_watch_session",
             route: pagePathRef.current,
-            drop_id: contextRef.current.dropId ?? "",
-            watch_session_id: watchSessionIdRef.current ?? "",
-            media_type: "video",
+            ...buildViewerFileTelemetryParams(getCurrentFileTelemetryContext() ?? {
+                dropId: contextRef.current.dropId ?? "",
+                fileId: `${contextRef.current.dropId ?? "drop"}:file:${contextRef.current.activeAssetIndex + 1}`,
+                assetKey: `${contextRef.current.dropId ?? "drop"}:${contextRef.current.activeAssetIndex}`,
+                mediaIndex: contextRef.current.activeAssetIndex + 1,
+                mediaType: contextRef.current.activeContentKind,
+                viewerSessionId: watchSessionIdRef.current ?? "",
+            }),
         });
-    }, [applyActiveDelta, markUserActivity, reportAssetProgress, reportAssetStarted]);
+    }, [applyActiveDelta, getCurrentFileTelemetryContext, markUserActivity, reportAssetProgress, reportAssetStarted]);
 
     const reportMediaPause = useCallback((progressSeconds?: number, durationSeconds?: number) => {
         markUserActivity();
@@ -1098,11 +1141,16 @@ export function useViewerWatchSession(options: UseViewerWatchSessionOptions) {
         trackEvent("watch_session_paused", {
             source_component: "viewer_watch_session",
             route: pagePathRef.current,
-            drop_id: contextRef.current.dropId ?? "",
-            watch_session_id: watchSessionIdRef.current ?? "",
-            media_type: "video",
+            ...buildViewerFileTelemetryParams(getCurrentFileTelemetryContext() ?? {
+                dropId: contextRef.current.dropId ?? "",
+                fileId: `${contextRef.current.dropId ?? "drop"}:file:${contextRef.current.activeAssetIndex + 1}`,
+                assetKey: `${contextRef.current.dropId ?? "drop"}:${contextRef.current.activeAssetIndex}`,
+                mediaIndex: contextRef.current.activeAssetIndex + 1,
+                mediaType: contextRef.current.activeContentKind,
+                viewerSessionId: watchSessionIdRef.current ?? "",
+            }),
         });
-    }, [applyActiveDelta, markUserActivity, reportAssetProgress]);
+    }, [applyActiveDelta, getCurrentFileTelemetryContext, markUserActivity, reportAssetProgress]);
 
     const reportMediaEnded = useCallback((progressSeconds?: number, durationSeconds?: number) => {
         reportMediaPause(progressSeconds, durationSeconds);
@@ -1130,9 +1178,15 @@ export function useViewerWatchSession(options: UseViewerWatchSessionOptions) {
             trackEvent("watch_session_hidden", {
                 source_component: "viewer_watch_session",
                 route: pagePathRef.current,
-                drop_id: contextRef.current.dropId ?? "",
-                watch_session_id: watchSessionIdRef.current ?? "",
                 document_visibility_state: "hidden",
+                ...buildViewerFileTelemetryParams(getCurrentFileTelemetryContext() ?? {
+                    dropId: contextRef.current.dropId ?? "",
+                    fileId: `${contextRef.current.dropId ?? "drop"}:file:${contextRef.current.activeAssetIndex + 1}`,
+                    assetKey: `${contextRef.current.dropId ?? "drop"}:${contextRef.current.activeAssetIndex}`,
+                    mediaIndex: contextRef.current.activeAssetIndex + 1,
+                    mediaType: contextRef.current.activeContentKind,
+                    viewerSessionId: watchSessionIdRef.current ?? "",
+                }),
             });
             void flushSessionRef.current("visibility_hidden", { keepalive: true });
         } else if (sessionMetadataRef.current.hiddenSinceMs) {
@@ -1140,7 +1194,7 @@ export function useViewerWatchSession(options: UseViewerWatchSessionOptions) {
             sessionMetadataRef.current.hiddenSinceMs = null;
             markSessionDirty();
         }
-    }, [applyActiveDelta, markSessionDirty]);
+    }, [applyActiveDelta, getCurrentFileTelemetryContext, markSessionDirty]);
 
     useEffect(() => {
         const syncPrivacy = () => setAnalyticsAllowed(canUseIdentifiedAnalytics(readPrivacySettingsSnapshot()));
@@ -1247,18 +1301,23 @@ export function useViewerWatchSession(options: UseViewerWatchSessionOptions) {
         trackEvent("watch_session_started", {
             source_component: "viewer_watch_session",
             route: pagePathRef.current,
-            drop_id: options.dropId,
-            watch_session_id: nextWatchSessionId,
             started_at_ms: startedAtMs,
-            media_type: isMediaContent(options.activeContentKind) ? "video" : options.activeContentKind === "image" ? "image" : "unknown",
             viewport_visible_percent: contentVisiblePercentRef.current,
             document_visibility_state: readDocumentVisibilityState(),
             has_focus: readHasFocus(),
             reduced_motion: readReducedMotion(),
             display_mode: readDisplayMode(),
+            ...buildViewerFileTelemetryParams(getCurrentFileTelemetryContext(nextWatchSessionId) ?? {
+                dropId: options.dropId,
+                fileId: `${options.dropId}:file:${options.activeAssetIndex + 1}`,
+                assetKey: `${options.dropId}:${options.activeAssetIndex}`,
+                mediaIndex: options.activeAssetIndex + 1,
+                mediaType: options.activeContentKind,
+                viewerSessionId: nextWatchSessionId,
+            }),
         });
 
-    }, [analyticsAllowed, canStartSession, options.activeContentKind, options.dropId, options.enabled, resetSessionState]);
+    }, [analyticsAllowed, canStartSession, getCurrentFileTelemetryContext, options.activeAssetIndex, options.activeContentKind, options.dropId, options.enabled, resetSessionState]);
 
     useEffect(() => {
         if (!watchSessionIdRef.current || !options.enabled || !options.dropId) {

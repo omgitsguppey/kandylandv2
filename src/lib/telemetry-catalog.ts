@@ -244,8 +244,7 @@ export const TELEMETRY_EVENT_OPTIONS: TelemetryEventOption[] = [
   { eventName: "watch_session_hidden", label: "Watch session hidden", category: "content", sources: DEFAULT_CLIENT_SOURCES, modules: ["viewer"] },
   { eventName: "watch_session_ended", label: "Watch session ended", category: "content", sources: DEFAULT_CLIENT_SOURCES, modules: ["viewer", "content"], aliases: ["watch_session_completed"] },
   { eventName: "watch_score_computed", label: "Watch score computed", category: "content", sources: DEFAULT_CLIENT_SOURCES, modules: ["viewer", "content"] },
-  { eventName: "viewer_asset_started", label: "Viewer asset started", category: "content", sources: DEFAULT_CLIENT_SOURCES, modules: ["viewer"] },
-  { eventName: "viewer_asset_changed", label: "Viewer asset changed", category: "content", sources: DEFAULT_CLIENT_SOURCES, modules: ["viewer"] },
+  { eventName: "file_viewed", label: "File viewed", category: "content", sources: DEFAULT_CLIENT_SOURCES, modules: ["viewer", "content"], aliases: ["viewer_asset_started", "viewer_asset_changed"] },
   { eventName: "viewer_asset_completed", label: "Viewer asset completed", category: "content", sources: DEFAULT_CLIENT_SOURCES, modules: ["viewer"] },
   { eventName: "viewer_asset_consumed", label: "Viewer asset consumed", category: "content", sources: DEFAULT_CLIENT_SOURCES, modules: ["viewer"] },
   { eventName: "video_played", label: "Video played (GA)", category: "content", sources: DEFAULT_GA_ONLY_SOURCES, modules: ["viewer", "content"] },
@@ -666,9 +665,8 @@ export const ADMIN_TELEMETRY_LOG_EVENT_NAMES = [
   "watch_session_hidden",
   "watch_session_ended",
   "watch_score_computed",
-  "viewer_asset_started",
+  "file_viewed",
   "viewer_asset_completed",
-  "viewer_asset_changed",
   "viewer_source_downloaded",
   "viewer_related_drop_clicked",
 ] as const;
@@ -735,6 +733,7 @@ const TELEMETRY_PARAM_ALIASES: Record<string, string> = {
   dispatchId: "dispatch_id",
   durationMs: "duration_ms",
   entitlementId: "entitlement_id",
+  fileId: "file_id",
   activeMs: "active_ms",
   eventIndexVersion: "event_index_version",
   eventModules: "event_modules",
@@ -772,6 +771,7 @@ const TELEMETRY_PARAM_ALIASES: Record<string, string> = {
   viewportVisiblePercent: "viewport_visible_percent",
   viewportWidth: "viewport_width",
   watchSessionId: "watch_session_id",
+  viewerSessionId: "viewer_session_id",
   validWatchMs: "valid_watch_ms",
   visibleMs: "visible_ms",
   playingMs: "playing_ms",
@@ -808,6 +808,7 @@ function isPageViewEvent(eventName: string) {
 
 function isDropEvent(eventName: string) {
   return eventName.includes("drop")
+    || eventName === "file_viewed"
     || eventName.includes("viewer_")
     || eventName.startsWith("watch_session")
     || eventName === "watch_score_computed"
@@ -908,6 +909,15 @@ export function classifyTelemetryEventFamily(
 function buildRequiredObjectFields(eventName: string, family: TelemetryEventFamily) {
   if (eventName.startsWith("watch_session") || eventName === "watch_score_computed") {
     return ["drop_id|dropId", "watch_session_id|watchSessionId"];
+  }
+
+  if (eventName === "file_viewed") {
+    return [
+      "drop_id|dropId",
+      "file_id|fileId|asset_key|assetKey",
+      "media_index|mediaIndex",
+      "viewer_session_id|viewerSessionId|watch_session_id|watchSessionId",
+    ];
   }
 
   if (family === "unlock") {

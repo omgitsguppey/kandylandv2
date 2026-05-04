@@ -369,7 +369,7 @@ async function GET_handler(
 
         const directViewSessionCount = analyticsFacts.filter((event) => event.eventName === "viewer_session_started").length;
         const directViewerOpenedCount = analyticsFacts.filter((event) => event.eventName === "viewer_opened").length;
-        const directAssetViewCount = analyticsFacts.filter((event) => event.eventName === "viewer_asset_started").length;
+        const directAssetViewCount = analyticsFacts.filter((event) => event.eventName === "file_viewed" || event.eventName === "viewer_asset_started").length;
         const directAssetCompletionCount = analyticsFacts.filter((event) => event.eventName === "viewer_asset_completed").length;
         const directDownloadCount = analyticsFacts.filter((event) => event.eventName === "viewer_source_downloaded").length;
         const directRelatedClickCount = analyticsFacts.filter((event) => event.eventName === "viewer_related_drop_clicked").length;

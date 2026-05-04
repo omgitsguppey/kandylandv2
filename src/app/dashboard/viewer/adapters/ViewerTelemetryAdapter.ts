@@ -2,6 +2,12 @@ import { useCallback, useEffect, useRef, type RefObject } from "react";
 import { Drop } from "@/types/db";
 import { trackEvent } from "@/lib/telemetry";
 import { useViewerWatchSession } from "@/hooks/useViewerWatchSession";
+import {
+    buildViewerFileTelemetryContext,
+    buildViewerFileTelemetryParams,
+    shouldEmitViewerFileView,
+    VIEWER_FILE_VIEW_DEDUPE_WINDOW_MS,
+} from "@/lib/viewer-watch-session";
 import { ContentKind, ResolvedContent , sumNumbers, roundSeconds, buildWatchTelemetryMetrics } from "../ViewerHelpers";
 
 interface ViewerTelemetryAdapterProps {
@@ -29,7 +35,7 @@ export function useViewerTelemetry({
 }: ViewerTelemetryAdapterProps) {
     const previousDropIdRef = useRef<string | null>(null);
     const hasTrackedViewerOpenRef = useRef<string | null>(null);
-    const lastTrackedAssetRef = useRef<string | null>(null);
+    const fileViewLastEmittedAtRef = useRef<Map<string, number>>(new Map());
     const consumedAssetKeysRef = useRef<Set<string>>(new Set());
     const watchCheckpointKeysRef = useRef<Set<string>>(new Set());
     
@@ -75,6 +81,7 @@ export function useViewerTelemetry({
         contentCount: assetCount,
         activeAssetIndex: activeIndex,
         activeContentKind: resolvedContent.kind,
+        dropContentFileNames: drop?.contentFileNames ?? null,
         contentElementRef,
         contentLoaded: !contentLoading && Boolean(contentBlobUrl),
     });
@@ -91,6 +98,7 @@ export function useViewerTelemetry({
         sessionAssetSwitchCountRef.current = 0;
         sessionDownloadCountRef.current = 0;
         sessionRelatedClickCountRef.current = 0;
+        fileViewLastEmittedAtRef.current.clear();
         consumedAssetKeysRef.current.clear();
         watchCheckpointKeysRef.current.clear();
         startedAssetKeysRef.current.clear();
@@ -153,23 +161,47 @@ export function useViewerTelemetry({
     const finalizeViewerSessionRef = useRef(finalizeViewerSession);
     useEffect(() => { finalizeViewerSessionRef.current = finalizeViewerSession; }, [finalizeViewerSession]);
 
-    const trackAssetStarted = useCallback(() => {
-        if (!drop) return;
-        const assetKey = `${drop.id}:${activeIndex}`;
-        if (startedAssetKeysRef.current.has(assetKey)) return;
+    const trackFileViewed = useCallback((reason: "content_visible" | "asset_switched") => {
+        if (!drop || !watchSessionId) return;
+
+        const fileContext = buildViewerFileTelemetryContext({
+            dropId: drop.id,
+            contentFileNames: drop.contentFileNames ?? null,
+            activeAssetIndex: activeIndex,
+            activeContentKind: resolvedContent.kind,
+            viewerSessionId: watchSessionId,
+        });
+        if (!fileContext) {
+            return;
+        }
+
+        const assetKey = fileContext.assetKey;
         reportWatchAssetStarted();
         startedAssetKeysRef.current.add(assetKey);
         sessionViewedAssetsRef.current.add(assetKey);
-        trackEvent("viewer_asset_started", withWatchSessionParams({
-            drop_id: drop.id,
+
+        const now = Date.now();
+        const lastEmittedAtMs = fileViewLastEmittedAtRef.current.get(assetKey) ?? 0;
+        if (!shouldEmitViewerFileView({
+            lastEmittedAtMs,
+            nextEmittedAtMs: now,
+            dedupeWindowMs: VIEWER_FILE_VIEW_DEDUPE_WINDOW_MS,
+        })) {
+            return;
+        }
+
+        fileViewLastEmittedAtRef.current.set(assetKey, now);
+        trackEvent("file_viewed", withWatchSessionParams({
             drop_title: drop.title,
             drop_category: dropType,
             asset_index: activeIndex + 1,
             asset_total: assetCount,
-            asset_key: assetKey,
             content_kind: resolvedContent.kind,
+            view_reason: reason,
+            dedupe_window_ms: VIEWER_FILE_VIEW_DEDUPE_WINDOW_MS,
+            ...buildViewerFileTelemetryParams(fileContext),
         }));
-    }, [activeIndex, assetCount, drop, dropType, reportWatchAssetStarted, resolvedContent.kind, withWatchSessionParams]);
+    }, [activeIndex, assetCount, drop, dropType, reportWatchAssetStarted, resolvedContent.kind, watchSessionId, withWatchSessionParams]);
 
     const trackAssetConsumed = useCallback((watchSeconds: number, assetDurationSeconds?: number) => {
         if (!drop) return;
@@ -301,26 +333,9 @@ export function useViewerTelemetry({
     }, [assetCount, dropId, dropTitle, dropType, finalizeViewerSession, isAuthorized, resetViewerSessionMetrics, watchSessionId, withWatchSessionParams]);
 
     useEffect(() => {
-        if (!drop || !isAuthorized || assetCount <= 1) {
-            lastTrackedAssetRef.current = null;
-            return;
-        }
-        const assetKey = `${drop.id}:${activeIndex}`;
-        if (lastTrackedAssetRef.current === assetKey) return;
-        if (lastTrackedAssetRef.current !== null) {
-            sessionAssetSwitchCountRef.current += 1;
-            trackEvent("viewer_asset_changed", withWatchSessionParams({
-                drop_id: drop.id, drop_title: drop.title, drop_category: dropType,
-                asset_index: activeIndex + 1, asset_total: assetCount, asset_key: assetKey,
-            }));
-        }
-        lastTrackedAssetRef.current = assetKey;
-    }, [activeIndex, assetCount, drop, dropType, isAuthorized, withWatchSessionParams]);
-
-    useEffect(() => {
         if (!drop || !isAuthorized || contentLoading || !contentBlobUrl) return;
-        trackAssetStarted();
-    }, [contentBlobUrl, contentLoading, drop, isAuthorized, trackAssetStarted]);
+        trackFileViewed("content_visible");
+    }, [contentBlobUrl, contentLoading, drop, isAuthorized, trackFileViewed]);
 
     const handleMediaTimeUpdate = useCallback((currentTime: number, assetDurationSeconds?: number) => {
         if (!Number.isFinite(currentTime) || currentTime <= 0) return;
@@ -337,8 +352,9 @@ export function useViewerTelemetry({
 
     const handleAssetSwitch = useCallback((newActiveIndex: number, newContentKind: ContentKind) => {
         if (!drop) return;
-        trackAssetStarted();
-    }, [drop, trackAssetStarted]);
+        sessionAssetSwitchCountRef.current += 1;
+        trackFileViewed("asset_switched");
+    }, [drop, trackFileViewed]);
 
     return {
         handleMediaTimeUpdate,

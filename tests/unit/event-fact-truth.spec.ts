@@ -66,11 +66,13 @@ describe("behavioral event facts", () => {
 
   it("dedupes repeat file views inside the configured window", () => {
     const first = normalizeBehavioralEventFactWithDiagnostics({
-      eventName: "viewer_asset_started",
+      eventName: "file_viewed",
       params: {
         source_component: "MediaViewer",
         route: "/dashboard/viewer",
         file_id: "file-1",
+        asset_key: "drop-1:0",
+        media_index: 1,
       },
       timestamp: 1000,
       userId: "user-1",
@@ -83,6 +85,8 @@ describe("behavioral event facts", () => {
         source_component: "MediaViewer",
         route: "/dashboard/viewer",
         file_id: "file-1",
+        asset_key: "drop-1:0",
+        media_index: 1,
       },
       timestamp: 20_000,
       userId: "user-1",

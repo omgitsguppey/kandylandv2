@@ -167,6 +167,9 @@ const validPayload = {
     contentCount: 1,
     activeAssetKey: null,
     activeAssetIndex: null,
+    fileId: "drop_1:file:1",
+    mediaIndex: 1,
+    mediaType: "video",
     totalWatchSeconds: 12,
     totalVisibleSeconds: 15,
     totalActiveSeconds: 12,
@@ -193,6 +196,8 @@ const validPayload = {
     assets: [{
         assetKey: "drop_1:0",
         assetIndex: 1,
+        fileId: "drop_1:file:1",
+        mediaType: "video",
         contentKind: "video",
         firstSeenAtMs: 1_700_000_000_000,
         lastSeenAtMs: 1_700_000_015_000,
@@ -260,6 +265,7 @@ describe("POST /api/viewer/watch-session", () => {
         });
         expect(mockState.writes.some((write) => write.collectionName === "analytics_watch_sessions")).toBe(true);
         expect(mockState.writes.some((write) => write.data.watchScore === 100 && write.data.watchTier === "completed")).toBe(true);
+        expect(mockState.writes.some((write) => write.data.fileId === "drop_1:file:1" && write.data.mediaIndex === 1 && write.data.mediaType === "video")).toBe(true);
     });
 
     it("rejects oversized watch payloads", async () => {
