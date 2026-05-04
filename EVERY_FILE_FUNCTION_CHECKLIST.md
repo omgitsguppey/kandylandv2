@@ -9,6 +9,15 @@ Scoring: all entries below are marked as included in the current validated sweep
 
 Current repo-wide state snapshot: see [FULL_SCALE_CODEBASE_AUDIT.md](/Users/uylus/OneDrive/Documents/KandyDrops_Final/FULL_SCALE_CODEBASE_AUDIT.md) for the current live baseline, verification state, and continuity rules, and see [REPO_MEMORY_LEDGER.md](/Users/uylus/OneDrive/Documents/KandyDrops_Final/REPO_MEMORY_LEDGER.md) for major architectural and workflow decisions. The detailed file/function body below remains valuable historical evidence, but it has not been fully regenerated against the current 2026-04-18 inventory review yet.
 
+## 2026-05-04 Admin Moderation Real Risk Coverage
+
+- [x] KandyDrops moderation uses evidence-weighted scrape-risk scoring and must not claim browser/PWA screenshot confirmation from weak visibility, blur, or page-leave signals.
+- [x] `src/lib/moderation/moderation-evidence.ts` owns normalized moderation evidence shape and safe details.
+- [x] `src/lib/moderation/scrape-risk-score.ts` owns 0-100 risk score, tier, confidence, reason codes, recommendations, normalizing watch-time signals, and auto-restrict eligibility.
+- [x] `src/lib/admin-moderation-control-tower.ts` owns moderation summary truth, risk-first alert sorting, queue health, and failed-source state.
+- [x] `src/components/Admin/AdminModerationConsole.tsx`, `AdminModerationSecurityAlerts.tsx`, and `AdminEvidenceMediaPreview.tsx` own the mobile-first workspace, risk cards, selected evidence workspace, safe media metadata, disabled `not_implemented` actions, and no raw asset URL rendering.
+- [x] `scripts/agent/validate-admin-moderation-real-risk.ts`, `tests/unit/moderation-scrape-risk-score.spec.ts`, `tests/unit/admin-moderation-security-alerts.spec.ts`, docs, and package script `check:admin-moderation-real-risk` provide the targeted no-browser validation lane.
+
 ## 2026-05-04 Admin Debug Control Tower Coverage
 
 - [x] Admin Debug v2 is the mobile-first Control Tower. It surfaces generated public-beta reports, live debug evidence, stale/missing state truth, cost/security/device/telemetry/economy/watch-time/support findings, and deterministic next actions.

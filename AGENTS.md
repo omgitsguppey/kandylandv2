@@ -115,6 +115,10 @@ KandyDrops debug evidence is structured, fingerprinted, stored, and injected int
 
 Admin Debug v2 is the mobile-first Control Tower. It surfaces generated public-beta reports, live debug evidence, stale/missing state truth, cost/security/device/telemetry/economy/watch-time/support findings, and deterministic next actions. Missing or stale data must never be shown as healthy. Heavy raw JSON stays collapsed. Existing ops health and creator lane parity remain visible, but they no longer define the whole debug truth.
 
+## Admin Moderation Real Risk
+
+KandyDrops moderation must never pretend browser/PWA screenshot detection is confirmed. Screenshot-like events are weak heuristic context unless confirmed by a real platform/server source. Moderation decisions are based on evidence-weighted scrape-risk scoring: entitlement failures, abnormal asset requests, viewer velocity, watch-time mismatch, repeated behavior, and server-backed content-protection events. Weak visibility/blur events alone do not justify action.
+
 ## Experiences DailyCheckIn Variant
 
 DailyCheckIn has two allowed presentation variants. Dashboard uses the full account-status version with welcome header and subtitle. Experiences uses the compact retention-hub version that hides the welcome header/subtitle and tightens vertical rhythm. Logic, reward ladder, check-in state, confetti, and telemetry remain shared.

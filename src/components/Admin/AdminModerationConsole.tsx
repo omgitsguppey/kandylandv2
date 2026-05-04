@@ -1,14 +1,18 @@
 "use client";
 
-/* eslint-disable @next/next/no-img-element */
 import { useMemo, useState } from "react";
-import { FileText, Loader2, MessageSquare, Activity } from "lucide-react";
+import { FileText, MessageSquare, ShieldCheck, ShieldAlert } from "lucide-react";
 
-import { AdminPageHeader } from "@/components/Admin/AdminPageHeader";
+import { AdminEvidenceMediaPreview } from "@/components/Admin/AdminEvidenceMediaPreview";
 import { AdminModerationSecurityAlerts } from "@/components/Admin/AdminModerationSecurityAlerts";
+import { AdminPageHeader } from "@/components/Admin/AdminPageHeader";
 import { PageViewEvent } from "@/components/Analytics/PageViewEvent";
 import { useAdminModerationRealtime } from "@/hooks/useAdminModerationRealtime";
+import { buildAdminModerationControlTowerModel } from "@/lib/admin-moderation-control-tower";
+import { trackEvent } from "@/lib/telemetry";
 import { cn } from "@/lib/utils";
+
+const FILTERS = ["All", "Critical", "High", "Review", "Heuristic", "Confirmed", "Entitlement", "Threads"] as const;
 
 function formatRelativeTime(timestamp?: number) {
     if (!timestamp || !Number.isFinite(timestamp)) return "Not recorded";
@@ -24,215 +28,272 @@ function formatAbsoluteTime(timestamp?: number) {
     return timestamp && Number.isFinite(timestamp) ? new Date(timestamp).toLocaleString() : "Not recorded";
 }
 
-function buildThreadLabel(input: {
-    creatorUsername?: string;
-    creatorDisplayName?: string;
-    creatorId: string;
-    userUsername?: string;
-    userDisplayName?: string;
-    userId: string;
-}) {
+function buildThreadLabel(input: { creatorUsername?: string; creatorDisplayName?: string; creatorId: string; userUsername?: string; userDisplayName?: string; userId: string }) {
     const creator = input.creatorUsername ? `@${input.creatorUsername.replace(/^@+/, "")}` : input.creatorDisplayName || input.creatorId;
     const user = input.userUsername ? `@${input.userUsername.replace(/^@+/, "")}` : input.userDisplayName || input.userId;
     return `${creator} / ${user}`;
 }
 
-function isImageAsset(assetUrl?: string, assetMimeType?: string) {
-    return assetMimeType?.startsWith("image/") || /\.(png|jpe?g|gif|webp)$/i.test(assetUrl ?? "");
-}
-
-function isVideoAsset(assetUrl?: string, assetMimeType?: string) {
-    return assetMimeType?.startsWith("video/") || /\.(mp4|mov|webm|m4v)$/i.test(assetUrl ?? "");
+function turnLabel(sender?: string) {
+    if (sender === "admin") return "Reviewed by admin";
+    if (sender === "creator") return "Creator context";
+    return "User context";
 }
 
 export function AdminModerationConsole() {
     const [selectedThreadIdOverride, setSelectedThreadIdOverride] = useState<string | null>(null);
-    
-    // Wire up true realtime hooks
-    const {
+    const [selectedAlertId, setSelectedAlertId] = useState<string | null>(null);
+    const [filter, setFilter] = useState<(typeof FILTERS)[number]>("All");
+    const { threads, messages, alerts, isLoadingThreads, isLoadingMessages, isLoadingAlerts, threadsError, messagesError, alertsError, activeThreadId } = useAdminModerationRealtime(selectedThreadIdOverride);
+
+    const model = useMemo(() => buildAdminModerationControlTowerModel({
         threads,
-        messages,
         alerts,
-        isLoadingThreads,
-        isLoadingMessages,
-        isLoadingAlerts,
         threadsError,
         messagesError,
         alertsError,
-        activeThreadId,
-    } = useAdminModerationRealtime(selectedThreadIdOverride);
+        selectedAlertId,
+    }), [alerts, alertsError, messagesError, selectedAlertId, threads, threadsError]);
+    const selectedThread = useMemo(() => model.sortedThreads.find((thread) => thread.id === activeThreadId) || null, [activeThreadId, model.sortedThreads]);
+    const attachments = useMemo(() => messages.filter((message) => Boolean(message.assetUrl || message.assetMimeType)), [messages]);
+    const visibleAlerts = useMemo(() => model.sortedAlerts.filter((alert) => {
+        if (filter === "All") return true;
+        if (filter === "Critical") return alert.riskTier === "critical";
+        if (filter === "High") return alert.riskTier === "high";
+        if (filter === "Review") return alert.riskTier === "review";
+        if (filter === "Heuristic") return alert.riskConfidence === "heuristic";
+        if (filter === "Confirmed") return alert.riskConfidence === "confirmed";
+        if (filter === "Entitlement") return alert.reasonCodes.some((code) => code.includes("entitlement"));
+        return true;
+    }), [filter, model.sortedAlerts]);
 
-    const selectedThreadId = activeThreadId;
+    function selectAlert(alertId: string) {
+        setSelectedAlertId(alertId);
+        const alert = model.sortedAlerts.find((item) => item.id === alertId);
+        trackEvent("admin_moderation_alert_selected", {
+            source_component: "AdminModerationConsole",
+            alert_id: alertId,
+            user_id: alert?.userId,
+            drop_id: alert?.dropId,
+            risk_score: alert?.riskScore,
+            risk_tier: alert?.riskTier,
+            confidence: alert?.riskConfidence,
+        });
+    }
 
-    const selectedThread = useMemo(() => threads.find(t => t.id === selectedThreadId) || null, [threads, selectedThreadId]);
-    const attachments = useMemo(() => messages.filter((message) => Boolean(message.assetUrl)), [messages]);
-    const hasAnyError = Boolean(threadsError || messagesError || alertsError);
-    const hasVisibleData = threads.length > 0 || alerts.length > 0 || messages.length > 0;
-    const isInitialLoading = !hasVisibleData && (isLoadingThreads || isLoadingMessages || isLoadingAlerts);
-    const statusLabel = isInitialLoading ? "Loading" : hasAnyError && hasVisibleData ? "Partial" : hasAnyError ? "Needs review" : "Live";
-    const statusClassName = isInitialLoading
-        ? "border-white/10 bg-white/5 text-gray-300"
-        : statusLabel === "Live"
-            ? "border-emerald-500/30 bg-emerald-500/10 text-emerald-400"
-            : statusLabel === "Partial"
-                ? "border-amber-400/30 bg-amber-400/10 text-amber-400"
-                : "border-red-500/30 bg-red-500/10 text-red-400";
+    function actionClick(action: string) {
+        const alert = model.selectedAlert;
+        const payload = {
+            source_component: "AdminModerationConsole",
+            action,
+            alert_id: alert?.id,
+            user_id: alert?.userId,
+            drop_id: alert?.dropId,
+            risk_score: alert?.riskScore,
+            risk_tier: alert?.riskTier,
+            confidence: alert?.riskConfidence,
+            reason_codes: alert?.reasonCodes,
+        };
+        trackEvent("admin_moderation_risk_action_clicked", payload);
+        if (action === "reviewed") trackEvent("admin_moderation_alert_reviewed", payload);
+        if (action === "dismissed_false_positive") trackEvent("admin_moderation_alert_dismissed_false_positive", payload);
+        if (action === "escalated") trackEvent("admin_moderation_alert_escalated", payload);
+    }
 
     return (
-        <div className="space-y-4 md:space-y-5">
+        <div
+            className="space-y-4 md:space-y-5"
+            data-admin-moderation-v2="real-risk-workspace"
+            data-moderation-truth-state={model.truthState}
+            data-moderation-alert-count={model.unresolvedAlerts}
+            data-moderation-selected-alert-id={model.selectedAlert?.id || "none"}
+        >
             <PageViewEvent eventName="admin_moderation_viewed" />
             <AdminPageHeader
                 eyebrow="Admin Moderation"
-                title="Moderation Console"
-                subtitle="Creator chat review and server-backed security alerts."
+                title="Moderation Control Tower"
+                subtitle="Real evidence, scrape-risk scoring, and human review decisions."
                 compact
                 actions={(
                     <>
+                        <span className="rounded-full border border-brand-purple/30 bg-brand-purple/12 px-3 py-1 text-xs font-bold text-[#e4d4ff]">Real evidence only</span>
                         <span className="rounded-full border border-white/10 bg-black/35 px-3 py-1 text-xs font-semibold text-white">{threads.length} threads</span>
                         <span className="rounded-full border border-white/10 bg-black/35 px-3 py-1 text-xs font-semibold text-white">{alerts.length} alerts</span>
-                        <span className={cn("inline-flex items-center gap-1.5 rounded-full border px-3 py-1 text-xs font-bold uppercase tracking-wider", statusClassName)}>
-                            <Activity className="h-3.5 w-3.5" />
-                            {statusLabel}
-                        </span>
                     </>
                 )}
             />
 
-            <div className="grid gap-4 xl:grid-cols-[0.8fr_1.2fr]">
-                <div className="space-y-4">
-                    {/* Chat Threads List */}
-                    <section className="glass-panel rounded-2xl p-4 flex flex-col h-full max-h-[40vh] xl:max-h-[50vh] overflow-hidden">
+            <section className="grid gap-2 sm:grid-cols-2 xl:grid-cols-5" data-moderation-control-tower="true">
+                {[
+                    ["Unresolved", model.unresolvedAlerts, "Risk alerts in feed"],
+                    ["High/Critical", model.highOrCriticalRiskCount, "Human review first"],
+                    ["Confirmed", model.confirmedEvidenceCount, "Server-backed evidence"],
+                    ["Heuristic", model.heuristicOnlyCount, "Never auto-punitive alone"],
+                    ["Sources", model.failedDataSources, model.failedDataSources > 0 ? "Partial / failed" : "Live"],
+                ].map(([label, value, detail]) => (
+                    <article key={label} className="rounded-2xl border border-white/10 bg-black/25 p-3">
+                        <p className="text-[10px] font-bold uppercase tracking-[0.18em] text-gray-500">{label}</p>
+                        <p className="mt-2 text-2xl font-black text-white">{value}</p>
+                        <p className="mt-1 text-xs text-gray-400">{detail}</p>
+                    </article>
+                ))}
+            </section>
+
+            <div className="flex gap-2 overflow-x-auto pb-1" aria-label="Moderation filters">
+                {FILTERS.map((item) => (
+                    <button
+                        key={item}
+                        type="button"
+                        onClick={() => setFilter(item)}
+                        aria-pressed={filter === item}
+                        className={cn("min-h-11 shrink-0 rounded-full border px-3 text-sm font-bold", filter === item ? "border-brand-purple/40 bg-brand-purple/15 text-white" : "border-white/10 bg-white/[0.03] text-gray-300")}
+                    >
+                        {item}
+                    </button>
+                ))}
+            </div>
+
+            <div className="grid gap-4 xl:grid-cols-[360px_1fr]">
+                <aside className="space-y-3">
+                    <section className="rounded-2xl border border-white/10 bg-black/25 p-3" data-moderation-thread-queue="compact">
                         <div className="mb-3 flex items-center justify-between">
-                            <h2 className="text-sm font-bold text-white">Queue</h2>
+                            <h2 className="text-sm font-bold text-white">Threads</h2>
+                            <span className="text-xs text-gray-500">{model.queueHealth}</span>
                         </div>
-                        <div className="space-y-2 overflow-y-auto pr-1">
-                            {threads.map((thread) => {
+                        <div className="flex gap-2 overflow-x-auto xl:block xl:max-h-[26rem] xl:space-y-2 xl:overflow-y-auto">
+                            {model.sortedThreads.slice(0, 12).map((thread) => {
                                 const unreadCount = Math.max(thread.unreadCountForCreator, thread.unreadCountForUser);
+                                const selected = activeThreadId === thread.id;
                                 return (
-                                    <button 
-                                        key={thread.id} 
-                                        type="button" 
-                                        onClick={() => setSelectedThreadIdOverride(thread.id)} 
-                                        className={cn(
-                                            "w-full rounded-xl border p-2.5 text-left transition-colors flex items-center justify-between gap-3", 
-                                            selectedThreadId === thread.id 
-                                                ? "border-brand-purple/40 bg-brand-purple/10" 
-                                                : "border-white/5 bg-white/[0.02] hover:bg-white/[0.05]"
-                                        )}
+                                    <button
+                                        key={thread.id}
+                                        type="button"
+                                        onClick={() => setSelectedThreadIdOverride(thread.id)}
+                                        aria-current={selected ? "true" : undefined}
+                                        className={cn("min-h-11 w-[17rem] shrink-0 rounded-xl border p-3 text-left xl:w-full", selected ? "border-brand-purple/45 bg-brand-purple/12" : "border-white/10 bg-white/[0.03]")}
                                     >
-                                        <div className="min-w-0">
-                                            <p className="truncate text-xs font-semibold text-white">{buildThreadLabel(thread)}</p>
-                                            <p className="truncate text-[10px] text-gray-400 mt-0.5">{thread.lastMessagePreview || "No messages yet"}</p>
-                                        </div>
-                                        <div className="flex flex-col items-end shrink-0">
-                                            <span className="text-[10px] text-gray-500">{formatRelativeTime(thread.lastMessageAt)}</span>
-                                            {unreadCount > 0 ? (
-                                                <span className="mt-1 rounded border border-brand-purple/30 bg-brand-purple/12 px-1.5 py-0.5 text-[9px] font-bold text-brand-purple">
-                                                    {unreadCount} unread
-                                                </span>
-                                            ) : null}
+                                        <p className="truncate text-sm font-bold text-white">{buildThreadLabel(thread)}</p>
+                                        <p className="mt-1 truncate text-xs text-gray-400">{thread.lastMessagePreview || "No messages yet"}</p>
+                                        <div className="mt-2 flex items-center justify-between gap-2 text-[10px] text-gray-500">
+                                            <span>{formatRelativeTime(thread.lastMessageAt)}</span>
+                                            {unreadCount > 0 ? <span className="rounded-full bg-brand-purple px-2 py-0.5 font-bold text-white">{unreadCount}</span> : null}
                                         </div>
                                     </button>
                                 );
                             })}
-                            {isLoadingThreads && threads.length === 0 ? <div className="p-3 text-xs text-gray-400"><Loader2 className="mr-2 inline h-3 w-3 animate-spin" />Loading queue...</div> : null}
-                            {!isLoadingThreads && threads.length === 0 && !threadsError ? <div className="rounded-xl border border-dashed border-white/10 bg-black/20 p-3 text-xs text-gray-500">No active chat threads.</div> : null}
-                            {threadsError ? <div className="rounded-xl border border-red-500/30 bg-red-500/10 p-3 text-xs text-red-200">Failed to load threads.</div> : null}
+                            {isLoadingThreads && threads.length === 0 ? <div className="p-3 text-xs text-gray-400">Loading queue...</div> : null}
+                            {!isLoadingThreads && threads.length === 0 && !threadsError ? <div className="rounded-xl border border-dashed border-white/10 p-3 text-sm text-gray-400">No moderation threads linked.</div> : null}
+                            {threadsError ? <div className="rounded-xl border border-red-500/30 bg-red-500/10 p-3 text-xs text-red-200">Thread route failed: /api/admin/moderation/threads.</div> : null}
                         </div>
                     </section>
 
-                    <AdminModerationSecurityAlerts alerts={alerts} isLoading={isLoadingAlerts} error={alertsError} />
-                </div>
+                    <AdminModerationSecurityAlerts alerts={visibleAlerts} selectedAlertId={model.selectedAlert?.id} isLoading={isLoadingAlerts} error={alertsError} onSelectAlert={selectAlert} />
+                </aside>
 
-                {/* Selected Thread Workspace */}
-                <section className="glass-panel flex h-[70dvh] min-h-[520px] flex-col overflow-hidden rounded-2xl xl:h-[calc(100dvh-14rem)] xl:min-h-[620px]">
-                    <div className="p-4 border-b border-white/5 flex items-center justify-between bg-white/[0.01]">
-                        <h2 className="text-sm font-bold text-white">Workspace</h2>
-                        {selectedThread && (
-                            <div className="flex gap-2 text-[10px] uppercase font-bold tracking-wider">
-                                <span className="rounded border border-white/10 bg-white/5 px-2 py-1 text-gray-300">Cr: {selectedThread.creatorUsername || selectedThread.creatorId.substring(0, 8)}</span>
-                                <span className="rounded border border-white/10 bg-white/5 px-2 py-1 text-gray-300">Usr: {selectedThread.userUsername || selectedThread.userId.substring(0, 8)}</span>
-                            </div>
-                        )}
-                    </div>
-                    
-                    {selectedThread ? (
-                        <div className="flex-1 overflow-y-auto p-4 flex flex-col lg:flex-row gap-4">
-                            {/* Transcript */}
-                            <div className="flex-1 flex flex-col min-w-0">
-                                <div className="mb-2 flex items-center gap-2 text-[10px] font-bold uppercase tracking-wider text-brand-purple">
-                                    <MessageSquare className="h-3.5 w-3.5" />
-                                    Transcript
+                <main className="min-h-[520px] rounded-2xl border border-white/10 bg-black/25" data-moderation-evidence-workspace="primary">
+                    {model.selectedAlert ? (
+                        <div className="flex min-h-[520px] flex-col">
+                            <header className="border-b border-white/10 p-4">
+                                <div className="flex flex-wrap items-start justify-between gap-3">
+                                    <div className="min-w-0">
+                                        <p className="text-[10px] font-bold uppercase tracking-[0.2em] text-brand-purple">Evidence workspace</p>
+                                        <h2 className="mt-1 text-xl font-black text-white">{model.selectedAlert.label}</h2>
+                                        <p className="mt-1 text-sm text-gray-400">{model.selectedAlert.message}</p>
+                                    </div>
+                                    <div className="text-right">
+                                        <p className="text-3xl font-black text-white">{model.selectedAlert.riskScore}</p>
+                                        <p className="text-xs font-bold uppercase text-gray-400">{model.selectedAlert.riskTier} / {model.selectedAlert.riskConfidence}</p>
+                                    </div>
                                 </div>
-                                <div className="flex-1 space-y-2 overflow-y-auto pr-2">
-                                    {messages.map((message) => (
-                                        <div key={message.id} className={cn(
-                                            "rounded-xl border p-2.5", 
-                                            message.senderRole === "creator" ? "border-brand-purple/25 bg-brand-purple/5" 
-                                            : message.senderRole === "admin" ? "border-cyan-400/20 bg-cyan-400/5" 
-                                            : "border-white/5 bg-black/20"
-                                        )}>
-                                            <div className="mb-1 flex items-center justify-between gap-3">
-                                                <div className="flex items-center gap-1.5 text-[10px] font-bold uppercase tracking-wider">
-                                                    <span className="text-white">{message.senderRole}</span>
-                                                    <span className="text-gray-600">|</span>
-                                                    <span className="text-gray-400">{message.messageKind}</span>
-                                                </div>
-                                                <span className="text-[9px] text-gray-500">{formatAbsoluteTime(message.createdAt)}</span>
-                                            </div>
-                                            {message.text && <p className="text-xs leading-relaxed text-gray-200">{message.text}</p>}
-                                            {(message.costGd > 0 || message.assetMimeType) && (
-                                                <div className="mt-1.5 flex gap-2 text-[9px] font-medium text-gray-500">
-                                                    {message.costGd > 0 && <span>{message.costGd} GD</span>}
-                                                    {message.assetMimeType && <span>{message.assetMimeType}</span>}
-                                                </div>
-                                            )}
-                                        </div>
-                                    ))}
-                                    {isLoadingMessages && messages.length === 0 ? <div className="p-3 text-xs text-gray-400"><Loader2 className="mr-2 inline h-3 w-3 animate-spin" />Loading transcript...</div> : null}
-                                    {!isLoadingMessages && messages.length === 0 && !messagesError ? <div className="rounded-xl border border-dashed border-white/10 p-3 text-xs text-gray-500">No messages in this thread.</div> : null}
-                                    {messagesError ? <div className="rounded-xl border border-red-500/30 bg-red-500/10 p-3 text-xs text-red-200">Transcript feed failed.</div> : null}
+                                <div className="mt-3 flex flex-wrap gap-2 text-xs">
+                                    <span className="rounded-full border border-white/10 bg-white/5 px-3 py-1 text-gray-200">False positive: {model.selectedAlert.falsePositiveRisk}</span>
+                                    <span className="rounded-full border border-white/10 bg-white/5 px-3 py-1 text-gray-200">{model.selectedAlert.evidenceCount} evidence</span>
+                                    <span className="rounded-full border border-white/10 bg-white/5 px-3 py-1 text-gray-200">{model.selectedAlert.sourceLabel}</span>
                                 </div>
-                            </div>
+                            </header>
 
-                            {/* Attachments */}
-                            <div className="lg:w-64 xl:w-72 flex flex-col shrink-0">
-                                <div className="mb-2 flex items-center gap-2 text-[10px] font-bold uppercase tracking-wider text-brand-purple">
-                                    <FileText className="h-3.5 w-3.5" />
-                                    Files
-                                </div>
-                                <div className="flex-1 space-y-2 overflow-y-auto pr-1">
-                                    {attachments.length > 0 ? attachments.map((message) => (
-                                        <div key={message.id} className="rounded-xl border border-white/5 bg-black/20 p-2">
-                                            <div className="mb-1.5 flex justify-between items-center">
-                                                <span className="text-[9px] font-bold uppercase tracking-wider text-gray-400">{message.senderRole}</span>
-                                            </div>
-                                            {isImageAsset(message.assetUrl, message.assetMimeType) && message.assetUrl && (
-                                                <a href={message.assetUrl} target="_blank" rel="noreferrer" className="block overflow-hidden rounded-lg border border-white/5">
-                                                    <img src={message.assetUrl} alt="Shared image" className="h-24 w-full object-cover" />
-                                                </a>
-                                            )}
-                                            {isVideoAsset(message.assetUrl, message.assetMimeType) && message.assetUrl && (
-                                                <video controls className="w-full h-24 rounded-lg border border-white/5 bg-black/40">
-                                                    <source src={message.assetUrl} type={message.assetMimeType || undefined} />
-                                                </video>
-                                            )}
-                                            {!isImageAsset(message.assetUrl, message.assetMimeType) && !isVideoAsset(message.assetUrl, message.assetMimeType) && message.assetUrl && (
-                                                <a href={message.assetUrl} target="_blank" rel="noreferrer" className="inline-flex items-center gap-1.5 rounded bg-white/5 px-2 py-1.5 text-[10px] font-semibold text-gray-300 w-full justify-center">
-                                                    <FileText className="h-3 w-3" /> Open File
-                                                </a>
-                                            )}
+                            <div className="grid flex-1 gap-4 p-4 lg:grid-cols-[1fr_18rem]">
+                                <section className="space-y-3">
+                                    <article className="rounded-xl border border-white/10 bg-black/25 p-3">
+                                        <div className="mb-2 flex items-center gap-2 text-sm font-bold text-white">
+                                            <ShieldAlert className="h-4 w-4 text-brand-purple" />
+                                            What was actually observed
                                         </div>
-                                    )) : <div className="rounded-xl border border-dashed border-white/5 p-3 text-xs text-gray-600 text-center">No files shared.</div>}
-                                </div>
+                                        <p className="text-sm leading-6 text-gray-300">{model.selectedAlert.recommendedAction}</p>
+                                        <ul className="mt-3 space-y-2 text-xs text-gray-400">
+                                            {model.selectedAlert.positiveSignals.map((signal) => <li key={signal}>+ {signal}</li>)}
+                                            {model.selectedAlert.negativeSignals.map((signal) => <li key={signal}>- {signal}</li>)}
+                                        </ul>
+                                    </article>
+
+                                    <article className="rounded-xl border border-white/10 bg-black/25 p-3">
+                                        <div className="mb-2 flex items-center gap-2 text-sm font-bold text-white">
+                                            <MessageSquare className="h-4 w-4 text-brand-purple" />
+                                            Linked thread transcript
+                                        </div>
+                                        {selectedThread ? (
+                                            <div className="max-h-[42dvh] space-y-2 overflow-y-auto pr-1" data-moderation-transcript-owner="primary-scroll-region">
+                                                {messages.map((message) => (
+                                                    <div key={message.id} className={cn("rounded-xl border p-3", message.senderRole === "admin" ? "border-cyan-400/20 bg-cyan-400/5" : message.senderRole === "creator" ? "border-brand-purple/25 bg-brand-purple/5" : "border-white/10 bg-white/[0.03]")}>
+                                                        <div className="mb-1 flex items-center justify-between gap-3 text-[10px] font-bold uppercase tracking-wider">
+                                                            <span className="text-white">{turnLabel(message.senderRole)}</span>
+                                                            <span className="text-gray-500">{formatAbsoluteTime(message.createdAt)}</span>
+                                                        </div>
+                                                        {message.text ? <p className="text-sm leading-6 text-gray-200">{message.text}</p> : null}
+                                                    </div>
+                                                ))}
+                                                {isLoadingMessages && messages.length === 0 ? <div className="text-xs text-gray-400">Loading transcript...</div> : null}
+                                                {messagesError ? <div className="rounded-xl border border-red-500/30 bg-red-500/10 p-3 text-xs text-red-200">Message route failed: /api/admin/moderation/threads/[threadId]. Retry by selecting the thread again.</div> : null}
+                                            </div>
+                                        ) : (
+                                            <p className="text-sm text-gray-400">No thread linked. Evidence-only alert.</p>
+                                        )}
+                                    </article>
+
+                                    <article className="rounded-xl border border-white/10 bg-black/25 p-3">
+                                        <div className="mb-2 flex items-center gap-2 text-sm font-bold text-white">
+                                            <FileText className="h-4 w-4 text-brand-purple" />
+                                            Safe evidence media
+                                        </div>
+                                        <div className="grid gap-2 sm:grid-cols-2">
+                                            {attachments.length > 0 ? attachments.map((message) => <AdminEvidenceMediaPreview key={message.id} message={message} />) : <p className="text-sm text-gray-500">No files shared in the selected thread.</p>}
+                                        </div>
+                                    </article>
+                                </section>
+
+                                <aside className="space-y-3">
+                                    <article className="rounded-xl border border-white/10 bg-black/25 p-3">
+                                        <h3 className="text-sm font-bold text-white">Context</h3>
+                                        <div className="mt-3 space-y-2 text-xs text-gray-300">
+                                            <p>User: {model.selectedAlert.username || model.selectedAlert.userId || "Unknown"}</p>
+                                            <p>Drop: {model.selectedAlert.dropId || "Not linked"}</p>
+                                            <p>Asset: {model.selectedAlert.assetKey || "Not linked"}</p>
+                                            <p>Last seen: {formatAbsoluteTime(model.selectedAlert.timestamp)}</p>
+                                        </div>
+                                    </article>
+                                    <article className="rounded-xl border border-white/10 bg-black/25 p-3">
+                                        <h3 className="text-sm font-bold text-white">Actions</h3>
+                                        <div className="mt-3 grid gap-2">
+                                            {["reviewed", "escalated", "dismissed_false_positive"].map((action) => (
+                                                <button key={action} type="button" onClick={() => actionClick(action)} className="min-h-11 rounded-full border border-white/10 bg-white/[0.04] px-3 text-sm font-bold text-white">
+                                                    {action === "reviewed" ? "Mark reviewed" : action === "escalated" ? "Escalate" : "Dismiss false positive"}
+                                                </button>
+                                            ))}
+                                            <button type="button" disabled className="min-h-11 rounded-full border border-white/10 bg-white/[0.02] px-3 text-sm font-bold text-gray-500">Restrict account - not_implemented</button>
+                                            <button type="button" disabled className="min-h-11 rounded-full border border-white/10 bg-white/[0.02] px-3 text-sm font-bold text-gray-500">Disable file access - not_implemented</button>
+                                        </div>
+                                    </article>
+                                </aside>
                             </div>
                         </div>
                     ) : (
-                        <div className="flex-1 flex items-center justify-center p-6 text-xs text-gray-500">
-                            Select a thread from the queue to open the workspace.
+                        <div className="flex min-h-[24rem] flex-col items-center justify-center p-6 text-center">
+                            <ShieldCheck className="h-10 w-10 text-brand-purple" />
+                            <h2 className="mt-3 text-lg font-black text-white">No alert selected</h2>
+                            <p className="mt-1 max-w-sm text-sm text-gray-400">Select a risk alert. Empty workspaces stay compact and truthful instead of showing fake moderation tools.</p>
                         </div>
                     )}
-                </section>
+                </main>
             </div>
         </div>
     );

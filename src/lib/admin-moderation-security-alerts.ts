@@ -5,6 +5,8 @@ import {
   type SecurityEventConfidence,
   type SecurityEventSeverity,
 } from "@/lib/security-events";
+import { normalizeModerationEvidence } from "@/lib/moderation/moderation-evidence";
+import { scoreSingleModerationEvidence } from "@/lib/moderation/scrape-risk-score";
 
 const BURST_BUCKET_MS = 10 * 60_000;
 
@@ -68,17 +70,21 @@ function resolveFalsePositiveRisk(input: {
 }
 
 function resolvePriority(input: {
-  severity: SecurityEventSeverity;
+  riskScore: number;
+  riskTier: AdminModerationSecurityAlert["riskTier"];
   confidence: AdminModerationSecurityAlert["confidence"];
   repeatCount: number;
 }): Pick<AdminModerationSecurityAlert, "reviewPriority" | "priorityLabel"> {
-  if (input.severity === "high" && input.confidence === "confirmed") {
+  if (input.confidence === "unknown") {
+    return { reviewPriority: "normal", priorityLabel: "Check" };
+  }
+  if (input.riskTier === "critical" && input.confidence === "confirmed") {
     return { reviewPriority: "urgent", priorityLabel: "Review now" };
   }
-  if (input.severity === "high" || input.repeatCount >= 3) {
+  if (input.riskTier === "high" || input.repeatCount >= 3 || input.riskScore >= 40) {
     return { reviewPriority: "elevated", priorityLabel: "Needs review" };
   }
-  if (input.severity === "low") {
+  if (input.riskTier === "low") {
     return { reviewPriority: "low", priorityLabel: "Monitor" };
   }
   return { reviewPriority: "normal", priorityLabel: "Check" };
@@ -92,17 +98,21 @@ function resolveAccuracyLabel(confidence: AdminModerationSecurityAlert["confiden
 
 function resolveActionLabel(input: {
   confidence: AdminModerationSecurityAlert["confidence"];
-  severity: SecurityEventSeverity;
+  riskScore: number;
   detectionKind: string;
   knownReason: boolean;
+  recommendedAction: string;
 }): string {
   if (!input.knownReason || input.confidence === "unknown") {
     return "Check the raw log before acting.";
   }
+  if (input.recommendedAction) {
+    return input.recommendedAction;
+  }
   if (input.confidence === "heuristic") {
     return "Review repeated signals before taking action.";
   }
-  if (input.severity === "high") {
+  if (input.riskScore >= 60) {
     return "Review the account and protected drop.";
   }
   if (input.detectionKind === "file_scrape" || input.detectionKind === "print") {
@@ -141,7 +151,17 @@ export function normalizeAdminModerationSecurityAlert(id: string, value: Record<
   const pagePath = toNullableString(value.pagePath);
   const dropId = toNullableString(value.dropId);
   const assetKey = toNullableString(value.assetKey);
-  const priority = resolvePriority({ severity, confidence, repeatCount });
+  const evidence = normalizeModerationEvidence(id, {
+    ...value,
+    confidence,
+    source: serverConfirmed ? "server" : source,
+    rawReason,
+    eventType: descriptor.detectionKind,
+    humanSummary: knownReason ? descriptor.message : toStringValue(value.message) || "Uncataloged moderation signal.",
+    falsePositiveRisk: resolveFalsePositiveRisk({ confidence, detectionKind: descriptor.detectionKind, knownReason }),
+  });
+  const risk = scoreSingleModerationEvidence(evidence);
+  const priority = resolvePriority({ riskScore: risk.score, riskTier: risk.tier, confidence, repeatCount });
 
   return {
     id,
@@ -152,10 +172,18 @@ export function normalizeAdminModerationSecurityAlert(id: string, value: Record<
     reason: descriptor.reason,
     severity,
     confidence,
+    riskScore: risk.score,
+    riskTier: risk.tier,
+    riskConfidence: risk.confidence,
+    reasonCodes: risk.reasonCodes,
+    positiveSignals: risk.positiveSignals,
+    negativeSignals: risk.negativeSignals,
+    recommendedAction: risk.recommendedAction,
+    canAutoRestrict: risk.canAutoRestrict,
     accuracyLabel: resolveAccuracyLabel(confidence),
     falsePositiveRisk: resolveFalsePositiveRisk({ confidence, detectionKind: descriptor.detectionKind, knownReason }),
     ...priority,
-    actionLabel: resolveActionLabel({ confidence, severity, detectionKind: descriptor.detectionKind, knownReason }),
+    actionLabel: resolveActionLabel({ confidence, riskScore: risk.score, detectionKind: descriptor.detectionKind, knownReason, recommendedAction: risk.recommendedAction }),
     contextLabel: resolveContextLabel({ pagePath, dropId, assetKey }),
     source,
     sourceLabel: resolveSourceLabel(source, serverConfirmed),
@@ -192,10 +220,13 @@ export function clusterAdminModerationSecurityAlerts(alerts: AdminModerationSecu
     }
 
     const repeatCount = (existing.repeatCount || 1) + (alert.repeatCount || 1);
+    const mergedScore = Math.min(100, existing.riskScore + Math.max(0, alert.riskScore - 5));
     clustered.set(signature, {
       ...alert,
       repeatCount,
       evidenceCount: repeatCount,
+      riskScore: mergedScore,
+      riskTier: mergedScore >= 80 ? "critical" : mergedScore >= 60 ? "high" : mergedScore >= 40 ? "review" : mergedScore >= 20 ? "watch" : "low",
       priorityLabel: repeatCount >= 3 && alert.reviewPriority !== "urgent" ? "Needs review" : alert.priorityLabel,
       reviewPriority: repeatCount >= 3 && alert.reviewPriority !== "urgent" ? "elevated" : alert.reviewPriority,
     });

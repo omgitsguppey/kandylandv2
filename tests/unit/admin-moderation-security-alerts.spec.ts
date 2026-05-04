@@ -21,11 +21,14 @@ describe("admin moderation security alert normalization", () => {
     expect(alert.confidence).toBe("heuristic");
     expect(alert.accuracyLabel).toBe("Needs review");
     expect(alert.falsePositiveRisk).toBe("high");
+    expect(alert.riskTier).toBe("low");
+    expect(alert.riskScore).toBeLessThanOrEqual(5);
+    expect(alert.recommendedAction).toBe("Do not act on this alone. Monitor for repeats or stronger signals.");
     expect(alert.sourceVerified).toBe(true);
     expect(alert.sourceLabel).toBe("Server log");
     expect(alert.contextLabel).toContain("/dashboard/viewer");
     expect(alert.contextLabel).toContain("Drop drop-1...7890");
-    expect(alert.actionLabel).toBe("Review repeated signals before taking action.");
+    expect(alert.actionLabel).toBe("Do not act on this alone. Monitor for repeats or stronger signals.");
     expect(alert.timestamp).toBe(Date.parse("2026-04-30T12:00:00.000Z"));
     expect(alert.evidenceCount).toBe(2);
   });

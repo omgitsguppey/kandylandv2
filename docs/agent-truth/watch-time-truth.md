@@ -7,6 +7,8 @@ Last updated: 2026-05-04
 
 Watch time is foreground visible content engagement, not page duration. KandyDrops must count only active, visible, or playing intervals, exclude hidden and idle time, score image and video content differently, label legacy fallbacks, and feed behavioral intelligence from watch-session rollups before page duration.
 
+Moderation may use watch-time mismatch as one scrape-risk signal, but weak visibility/blur events alone do not justify action. KandyDrops moderation must never pretend browser/PWA screenshot detection is confirmed. Screenshot-like events are weak heuristic context unless confirmed by a real platform/server source.
+
 ## Canonical Events
 
 Viewer watch tracking owns these deterministic session events:

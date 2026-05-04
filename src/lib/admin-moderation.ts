@@ -1,5 +1,7 @@
 import type { ChatMessageKind } from "@/lib/chat";
 import type { AdminModuleVerification } from "@/lib/admin-parity";
+import type { ModerationEvidenceConfidence } from "@/lib/moderation/moderation-evidence";
+import type { ScrapeRiskTier } from "@/lib/moderation/scrape-risk-score";
 
 export type AdminModerationThreadSummary = {
     id: string;
@@ -46,6 +48,14 @@ export type AdminModerationSecurityAlert = {
     reason: string;
     severity: "low" | "medium" | "high";
     confidence: "confirmed" | "heuristic" | "unknown";
+    riskScore: number;
+    riskTier: ScrapeRiskTier;
+    riskConfidence: ModerationEvidenceConfidence;
+    reasonCodes: string[];
+    positiveSignals: string[];
+    negativeSignals: string[];
+    recommendedAction: string;
+    canAutoRestrict: boolean;
     accuracyLabel: string;
     falsePositiveRisk: "low" | "medium" | "high" | "unknown";
     reviewPriority: "urgent" | "elevated" | "normal" | "low";

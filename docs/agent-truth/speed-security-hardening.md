@@ -47,6 +47,8 @@ Public/stable routes should not use `no-store` or `force-dynamic` without a sour
 
 POST, PUT, PATCH, and DELETE routes must use `guardApiRequest` with `requireTrustedOrigin: true` unless a webhook or cron exception is documented. Payment, unlock, creator monetization, wallet, support write, admin write, media proxy, analytics ingest, and private user routes require rate-limit evidence. Money, entitlement, account, and monetization writes require idempotency or duplicate-prevention evidence.
 
+Admin moderation is a security workspace, but it must still avoid fake or unbacked actions. KandyDrops moderation must never pretend browser/PWA screenshot detection is confirmed. Screenshot-like events are weak heuristic context unless confirmed by a real platform/server source. Moderation decisions are based on evidence-weighted scrape-risk scoring, and weak visibility/blur events alone do not justify action. Missing moderation action backends render disabled `not_implemented` controls instead of fake success.
+
 ## Firebase Rules
 
 Firestore and Storage rules remain default-deny. Client access must be path/auth scoped:

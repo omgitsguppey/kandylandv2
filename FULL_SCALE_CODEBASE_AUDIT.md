@@ -1,5 +1,31 @@
 # KandyDrops Core Codebase Audit & Defensive Ledger
 
+## [2026-05-04 #150] PRE: Admin Moderation Real Risk Console
+
+Scope started:
+- Rebuilding the admin moderation console into a mobile-first moderation/security workspace with deterministic scrape-risk scoring, evidence clustering, safer media evidence handling, truthful detection confidence, and no fake/simulative moderation actions.
+- Required outputs include `src/lib/moderation/scrape-risk-score.ts`, `src/lib/moderation/moderation-evidence.ts`, `src/lib/admin-moderation-control-tower.ts`, refreshed admin moderation UI, safe evidence media preview, `scripts/agent/validate-admin-moderation-real-risk.ts`, targeted tests, docs/source-of-truth updates, commit, and push.
+- This pass must not claim browser/PWA screenshot detection is confirmed from weak visibility/blur events, loosen admin auth, expose raw locked media URLs, add polling, change public UI, auto-block users from weak heuristics, run Playwright/Lighthouse/Cypress/full `npm run check`/broad UI audits, or fake moderation actions as implemented.
+
+Evidence:
+- Control tower routing, doctrine consultation workflow, governance ledgers, moderation adjacency trace, current moderation console/hooks/routes, security events, viewer watch-session truth, content-protection score, watch-time truth, and speed-security doctrine are being consulted before implementation.
+
+Doctrine:
+- KandyDrops moderation must never pretend browser/PWA screenshot detection is confirmed. Screenshot-like events are weak heuristic context unless confirmed by a real platform/server source. Moderation decisions are based on evidence-weighted scrape-risk scoring: entitlement failures, abnormal asset requests, viewer velocity, watch-time mismatch, repeated behavior, and server-backed content-protection events. Weak visibility/blur events alone do not justify action.
+
+Scope completed:
+- Added `src/lib/moderation/moderation-evidence.ts` and `src/lib/moderation/scrape-risk-score.ts` to normalize moderation evidence, compute deterministic 0-100 scrape-risk scores, tier/confidence/reason-code output, normalizing watch-time signals, and auto-restrict eligibility only for confirmed/strong critical risk.
+- Added `src/lib/admin-moderation-control-tower.ts` and extended moderation alert normalization so security alerts expose risk score, tier, confidence, reason codes, false-positive risk, recommendations, and sorted risk-first control tower data.
+- Rebuilt `AdminModerationConsole.tsx` and `AdminModerationSecurityAlerts.tsx` into a mobile-first real-risk workspace with a top control tower, compact thread queue, risk filters, selected evidence workspace, transcript primary scroll region, real action telemetry, disabled `not_implemented` backend-missing actions, and no raw screenshot claims.
+- Added `AdminEvidenceMediaPreview.tsx` so moderation attachments render safe metadata cards instead of raw `<img>`, `<video>`, or open-file asset URLs.
+- Added `scripts/agent/validate-admin-moderation-real-risk.ts`, package script `check:admin-moderation-real-risk`, targeted risk scoring tests, telemetry catalog entries for moderation actions, and docs/source-of-truth updates.
+
+Verification:
+- `npm run check:admin-moderation-real-risk` passed.
+- `npx vitest run --config vitest.contracts.config.ts tests/unit/moderation-scrape-risk-score.spec.ts tests/unit/admin-moderation-security-alerts.spec.ts` passed.
+- `npm run typecheck` passed.
+- No Playwright, Lighthouse, Cypress, full `npm run check`, broad UI audits, public UI changes, polling, raw asset URL rendering in moderation UI, admin auth loosening, or automatic punitive moderation actions were run or applied.
+
 ## [2026-05-04 #149] PRE: Admin Debug Control Tower V2
 
 Scope started:

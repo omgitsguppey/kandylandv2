@@ -50,6 +50,7 @@
         "test:gate:parity": "tsx scripts/check-admin-parity.ts",
         "check:admin-truth": "tsx scripts/check-admin-truth-contracts.ts",
         "check:admin-debug-control-tower": "tsx scripts/agent/validate-admin-debug-control-tower.ts",
+        "check:admin-moderation-real-risk": "tsx scripts/agent/validate-admin-moderation-real-risk.ts",
         "check:admin-analytics-overview": "tsx scripts/check-admin-analytics-overview.ts",
         "check:admin-analytics-audience-snapshot": "tsx scripts/check-admin-analytics-audience-snapshot.ts",
         "check:admin-analytics-commerce-snapshot": "tsx scripts/check-admin-analytics-commerce-snapshot.ts",
