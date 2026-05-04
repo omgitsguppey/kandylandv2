@@ -26,6 +26,28 @@ import { withRouteRuntimeHealth } from "@/lib/server/route-runtime-health";
 import { buildNotFoundResponse } from "@/lib/server/not-found";
 import { assertKnownActor, buildActorMarker } from "@/lib/identity/actor-markers";
 
+type CreatorBookingProblemCode =
+    | "creator_or_user_not_found"
+    | "creator_unavailable"
+    | "bookings_unavailable"
+    | "creator_availability_not_configured"
+    | "slot_outside_availability"
+    | "slot_already_booked"
+    | "insufficient_paid_gumdrops"
+    | "invalid_booking_request"
+    | "unauthorized";
+
+type CreatorBookingProblemContext = {
+    creatorId?: string;
+    serviceType?: "phone" | "video";
+    durationMinutes?: number;
+    startAt?: number;
+    requiredPaidGd?: number;
+    priceGd?: number;
+    paidBalanceGd?: number;
+    shortfallGd?: number;
+};
+
 const createBookingSchema = z.object({
     creatorId: z.string().trim().min(1),
     serviceType: z.enum(["phone", "video"]),
@@ -38,6 +60,50 @@ const updateBookingSchema = z.object({
     bookingId: z.string().trim().min(1),
     action: z.enum(["complete", "cancel"]),
 });
+
+class CreatorBookingProblem extends Error {
+    status: number;
+    code: CreatorBookingProblemCode;
+    context: CreatorBookingProblemContext;
+
+    constructor(status: number, code: CreatorBookingProblemCode, message: string, context: CreatorBookingProblemContext = {}) {
+        super(message);
+        this.name = "CreatorBookingProblem";
+        this.status = status;
+        this.code = code;
+        this.context = context;
+    }
+}
+
+function toOptionalNumber(value: unknown) {
+    return typeof value === "number" && Number.isFinite(value) ? Math.max(0, Math.round(value)) : undefined;
+}
+
+function buildBookingProblemResponse(problem: CreatorBookingProblem) {
+    return NextResponse.json({
+        success: false,
+        code: problem.code,
+        error: problem.message,
+        message: problem.message,
+        creatorId: problem.context.creatorId,
+        serviceType: problem.context.serviceType,
+        durationMinutes: toOptionalNumber(problem.context.durationMinutes),
+        startAt: toOptionalNumber(problem.context.startAt),
+        requiredPaidGd: toOptionalNumber(problem.context.requiredPaidGd),
+        priceGd: toOptionalNumber(problem.context.priceGd),
+        paidBalanceGd: toOptionalNumber(problem.context.paidBalanceGd),
+        shortfallGd: toOptionalNumber(problem.context.shortfallGd),
+    }, { status: problem.status });
+}
+
+function isAuthUnauthorized(error: unknown) {
+    if (!(error instanceof Error)) {
+        return false;
+    }
+
+    const status = (error as { status?: unknown }).status;
+    return error.name === "AuthError" && status === 401;
+}
 
 async function GET_handler(request: NextRequest) {
     try {
@@ -101,13 +167,42 @@ async function POST_handler(request: NextRequest) {
             auth: "user",
             scopeToCaller: true,
         });
-        if (!caller || !adminDb) {
-            return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
+        if (!caller) {
+            return buildBookingProblemResponse(new CreatorBookingProblem(
+                401,
+                "unauthorized",
+                "Sign in to book creator live time.",
+            ));
+        }
+        if (!adminDb) {
+            throw new Error("Database not available");
         }
 
-        const { creatorId, serviceType, startAt, durationMinutes, idempotencyKey: rawIdempotencyKey } = createBookingSchema.parse(await request.json());
+        let bookingRequest: z.infer<typeof createBookingSchema>;
+        try {
+            bookingRequest = createBookingSchema.parse(await request.json());
+        } catch {
+            return buildBookingProblemResponse(new CreatorBookingProblem(
+                400,
+                "invalid_booking_request",
+                "Check the booking details and try again.",
+            ));
+        }
+
+        const { creatorId, serviceType, startAt, durationMinutes, idempotencyKey: rawIdempotencyKey } = bookingRequest;
+        const bookingContext: CreatorBookingProblemContext = {
+            creatorId,
+            serviceType,
+            durationMinutes,
+            startAt,
+        };
         if (creatorId === caller.uid) {
-            return NextResponse.json({ error: "Creator bookings are for fans only." }, { status: 400 });
+            return buildBookingProblemResponse(new CreatorBookingProblem(
+                400,
+                "invalid_booking_request",
+                "Creator bookings are for fans only.",
+                bookingContext,
+            ));
         }
 
         const paidEventName = CREATOR_EXPERIENCE_PAID_EVENTS.live_time;
@@ -154,13 +249,23 @@ async function POST_handler(request: NextRequest) {
             ]);
 
             if (!creatorSnap.exists || !userSnap.exists) {
-                throw new Error("Creator or user not found");
+                throw new CreatorBookingProblem(
+                    404,
+                    "creator_or_user_not_found",
+                    "Creator or user was not found.",
+                    bookingContext,
+                );
             }
 
             const creatorData = creatorSnap.data() as Record<string, unknown>;
             const userData = userSnap.data() as Record<string, unknown>;
             if (!isCreatorRole(creatorData.role) || creatorData.status === "suspended" || creatorData.status === "banned") {
-                throw new Error("Creator unavailable");
+                throw new CreatorBookingProblem(
+                    403,
+                    "creator_unavailable",
+                    "This creator is unavailable right now.",
+                    bookingContext,
+                );
             }
 
             const creatorSettings = creatorData.creatorSettings && typeof creatorData.creatorSettings === "object"
@@ -170,7 +275,12 @@ async function POST_handler(request: NextRequest) {
                 ? creatorData.creatorRestrictions as Record<string, unknown>
                 : {};
             if (creatorSettings.bookingsEnabled === false || creatorRestrictions.bookingsRestricted === true) {
-                throw new Error("Bookings are unavailable for this creator.");
+                throw new CreatorBookingProblem(
+                    409,
+                    "bookings_unavailable",
+                    "Bookings are not available for this creator right now.",
+                    bookingContext,
+                );
             }
 
             const windows = Array.isArray(creatorSettings.availabilityWindows)
@@ -179,8 +289,21 @@ async function POST_handler(request: NextRequest) {
             const availabilityTimezone = typeof creatorSettings.availabilityTimezone === "string" && creatorSettings.availabilityTimezone.trim().length > 0
                 ? creatorSettings.availabilityTimezone.trim()
                 : "UTC";
+            if (windows.length === 0) {
+                throw new CreatorBookingProblem(
+                    409,
+                    "creator_availability_not_configured",
+                    "This creator has not set booking hours yet.",
+                    bookingContext,
+                );
+            }
             if (!isWithinAnyWindow(startAt, durationMinutes, serviceType, windows, availabilityTimezone)) {
-                throw new Error("That slot is outside the creator's availability.");
+                throw new CreatorBookingProblem(
+                    400,
+                    "slot_outside_availability",
+                    "Pick a time inside the creator's booking hours.",
+                    bookingContext,
+                );
             }
 
             const slotKey = buildBookingSlotKey({ creatorId, serviceType, startAt, durationMinutes });
@@ -222,7 +345,12 @@ async function POST_handler(request: NextRequest) {
                     .limit(1),
             );
             if (!conflictingSnap.empty) {
-                throw new Error("That slot was already booked.");
+                throw new CreatorBookingProblem(
+                    409,
+                    "slot_already_booked",
+                    "That time was just booked. Pick another slot.",
+                    bookingContext,
+                );
             }
             const spend = spendCreatorExperienceGumdrops(
                 balance,
@@ -230,7 +358,19 @@ async function POST_handler(request: NextRequest) {
                 serviceType === "video" ? "booking_video" : "booking_phone",
             );
             if (!spend.ok) {
-                throw new Error(spend.error);
+                const shortfallGd = Math.max(0, priceGd - balance.purchased);
+                throw new CreatorBookingProblem(
+                    402,
+                    "insufficient_paid_gumdrops",
+                    "You need more paid GumDrops to book this.",
+                    {
+                        ...bookingContext,
+                        requiredPaidGd: priceGd,
+                        priceGd,
+                        paidBalanceGd: balance.purchased,
+                        shortfallGd,
+                    },
+                );
             }
 
             const now = Date.now();
@@ -370,6 +510,16 @@ async function POST_handler(request: NextRequest) {
             debug: result.debug,
         });
     } catch (error) {
+        if (error instanceof CreatorBookingProblem) {
+            return buildBookingProblemResponse(error);
+        }
+        if (isAuthUnauthorized(error)) {
+            return buildBookingProblemResponse(new CreatorBookingProblem(
+                401,
+                "unauthorized",
+                "Sign in to book creator live time.",
+            ));
+        }
         return handleApiError(error, "Creator.Bookings.POST");
     }
 }

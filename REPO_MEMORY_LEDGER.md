@@ -4,6 +4,10 @@ Status: Canonical repository-memory and architecture-decision ledger
 Last refreshed: 2026-05-02
 Repo: `C:\Users\uylus\OneDrive\Documents\KandyDrops_Final`
 
+## 2026-05-04 Creator booking typed error truth
+
+Creator booking expected failures must never surface as generic internal server errors. Availability, missing booking-hour configuration, slot conflicts, paid-GD shortfalls, disabled booking lanes, and creator availability must return typed safe error codes with human-readable client copy. `src/app/api/creator/bookings/route.ts` aborts expected Firestore transaction failures through a typed booking problem response while preserving paid-only GumDrops spending, idempotency, creator accrual, and ledger writes for valid bookings. `src/lib/problem-state-copy.ts` owns `getCreatorBookingProblemCopy(...)`, and `npm run check:creator-booking-error-copy` validates that expected booking failures do not rely on plain thrown errors or user-facing internal-server fallbacks.
+
 ## 2026-05-04 Orphaned logic score
 
 KandyDrops orphaned logic scoring is deterministic and source-only. It detects duplicate normalizers/truth helpers, legacy preview ownership drift, duplicate useDrops/PR audit notes, broken generated doc chunks, route migration leftovers, stale docs, wrong GumDrops vocabulary, obsolete realtime patterns, duplicate telemetry intent names, and dead imports in public beta surfaces without browser audits or broad terminal sweeps. `npm run score:orphans` writes `agent/state/orphaned-logic-score.generated.json`; `npm run check:orphaned-logic` validates the report, package scripts, scorer rules, full-page preview doctrine, launch PR triage doctrine, telemetry duplicate-intent evidence, and governance docs. Cleanup is advisory only unless TypeScript and exact-text evidence prove a safe unused import or duplicate broken doc chunk.

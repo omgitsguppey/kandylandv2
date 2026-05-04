@@ -47,6 +47,9 @@ KandyDrops MSW scenarios are deterministic API fixtures, not production fallback
 ### GumDrop Source-Of-Funds
 Paid package bonus GumDrops are paid-source GumDrops. They count toward `gumDropsPurchasedBalance` and can be used for paid-only creator monetization surfaces. Reward-source GumDrops are only non-purchase rewards such as check-ins, tasks, referrals, onboarding, or admin reward adjustments. Wallet UI may display total delivered package value, but backend source-of-funds truth must preserve paid vs reward source correctly.
 
+### Creator Booking Error Truth
+Creator booking expected failures must never surface as generic internal server errors. Availability, slot conflicts, paid-GD shortfalls, disabled bookings, and creator availability must return typed safe error codes with human-readable client copy. Only unexpected route failures should become internal server errors.
+
 ### Wallet Modal Density
 The wallet modal uses compact public-beta density. Package cards show total delivered GumDrops, package label, price, and purple bonus chip only. The visible paid/bonus explanatory subcopy is removed to reduce vertical sprawl. The balance chip shows source-aware free GD and paid GD. Backend source-of-funds accounting and telemetry remain unchanged.
 

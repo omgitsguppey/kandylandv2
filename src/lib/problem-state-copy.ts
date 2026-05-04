@@ -8,6 +8,13 @@ export type ProblemStateCopy = {
   technicalReason: string;
 };
 
+export type CreatorBookingProblemPayload = {
+  code?: unknown;
+  error?: unknown;
+  message?: unknown;
+  shortfallGd?: unknown;
+};
+
 function normalizeReason(reason: unknown) {
   if (typeof reason === "string") {
     return reason.trim();
@@ -22,6 +29,26 @@ function normalizeReason(reason: unknown) {
 
 function lowerReason(reason: unknown) {
   return normalizeReason(reason).toLowerCase();
+}
+
+function normalizeProblemCode(value: unknown) {
+  return typeof value === "string" ? value.trim().toLowerCase() : "";
+}
+
+function readCreatorBookingProblemPayload(value: unknown): CreatorBookingProblemPayload {
+  if (!value || typeof value !== "object" || Array.isArray(value)) {
+    return {};
+  }
+
+  return value as CreatorBookingProblemPayload;
+}
+
+function normalizePositiveInteger(value: unknown) {
+  if (typeof value !== "number" || !Number.isFinite(value)) {
+    return 0;
+  }
+
+  return Math.max(0, Math.round(value));
 }
 
 function copy(
@@ -193,6 +220,54 @@ export function getUnlockProblemCopy(reason?: unknown): ProblemStateCopy {
     "Your GumDrops were not charged. Try again shortly.",
     "Try again",
   );
+}
+
+export function getCreatorBookingProblemCopy(reason?: unknown) {
+  const payload = readCreatorBookingProblemPayload(reason);
+  const code = normalizeProblemCode(payload.code);
+  const fallbackReason = normalizeReason(payload.message) || normalizeReason(payload.error) || normalizeReason(reason);
+  const normalized = `${code} ${fallbackReason}`.toLowerCase();
+
+  if (code === "slot_outside_availability" || normalized.includes("outside") && normalized.includes("availability")) {
+    return "Pick a time inside the creator's booking hours.";
+  }
+
+  if (code === "creator_availability_not_configured") {
+    return "This creator has not opened booking hours yet.";
+  }
+
+  if (code === "slot_already_booked" || normalized.includes("already booked")) {
+    return "That time was just booked. Pick another slot.";
+  }
+
+  if (code === "bookings_unavailable" || normalized.includes("bookings are not available")) {
+    return "Bookings are not available for this creator right now.";
+  }
+
+  if (code === "insufficient_paid_gumdrops" || normalized.includes("insufficient") && normalized.includes("purchased")) {
+    const shortfallGd = normalizePositiveInteger(payload.shortfallGd);
+    return shortfallGd > 0
+      ? `You need ${shortfallGd} more paid GD to book this.`
+      : "You need more paid GD to book this.";
+  }
+
+  if (code === "creator_unavailable") {
+    return "This creator is unavailable right now.";
+  }
+
+  if (code === "invalid_booking_request") {
+    return "Check the booking details and try again.";
+  }
+
+  if (code === "creator_or_user_not_found") {
+    return "This creator booking could not be found.";
+  }
+
+  if (code === "unauthorized") {
+    return "Sign in to book creator live time.";
+  }
+
+  return "Booking could not be completed. Try again or report the issue.";
 }
 
 export function getNotificationProblemCopy(reason?: unknown): ProblemStateCopy {

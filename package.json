@@ -125,6 +125,7 @@
         "check:creator-agreement-version-truth": "tsx scripts/agent/validate-creator-agreement-version-truth.ts",
         "check:creator-admin-action-route": "tsx scripts/agent/validate-creator-admin-action-route.ts",
         "check:creator-experience-transaction-truth": "tsx scripts/agent/validate-creator-experience-transaction-truth.ts",
+        "check:creator-booking-error-copy": "tsx scripts/agent/validate-creator-booking-error-copy.ts",
         "check:creator-profile-routing": "tsx scripts/agent/validate-creator-profile-routing.ts",
         "check:creator-lane-debug-parity": "tsx scripts/agent/validate-creator-lane-debug-parity.ts",
         "check:creator-lane-old-logic-removal": "tsx scripts/agent/validate-creator-lane-old-logic-removal.ts",

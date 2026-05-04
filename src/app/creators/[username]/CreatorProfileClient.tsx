@@ -21,6 +21,7 @@ import { reportClientIssue } from "@/lib/client-error-reporting";
 import {
     CREATOR_BOOKING_MIN_MINUTES,
 } from "@/lib/creator-experiences";
+import { getCreatorBookingProblemCopy } from "@/lib/problem-state-copy";
 import { buildCreatorPublicHref } from "@/lib/creator-profile-routing";
 import { resolveCreatorPublicExperienceState } from "@/lib/creator-public-pages";
 import { trackEvent } from "@/lib/telemetry";
@@ -56,7 +57,7 @@ export default function CreatorProfileClient() {
     const params = useParams();
     const router = useRouter();
     const { user: currentUser, userProfile: currentUserProfile, setUserProfile, loading: authLoading } = useAuth();
-    const { openAuthModal } = useUI();
+    const { openAuthModal, openPurchaseModal } = useUI();
     const username = params.username as string;
     const profileRoute = useMemo(() => buildCreatorPublicHref({ username }) ?? "/creators", [username]);
 
@@ -658,6 +659,7 @@ export default function CreatorProfileClient() {
             return;
         }
 
+        const startAt = new Date(bookingStartAt).getTime();
         setCreatingBooking(true);
         try {
             const response = await authFetch("/api/creator/bookings", {
@@ -665,14 +667,48 @@ export default function CreatorProfileClient() {
                 body: JSON.stringify({
                     creatorId: creator.uid,
                     serviceType: bookingServiceType,
-                    startAt: new Date(bookingStartAt).getTime(),
+                    startAt,
                     durationMinutes: bookingDurationMinutes,
                     idempotencyKey: buildCreatorExperienceClientIdempotencyKey("live-time", creator.uid),
                 }),
             });
-            const result = await response.json();
+            const result = await response.json() as {
+                code?: string;
+                error?: string;
+                message?: string;
+                shortfallGd?: number;
+                priceGd?: number;
+                requiredPaidGd?: number;
+            };
             if (!response.ok) {
-                throw new Error(typeof result.error === "string" ? result.error : "Booking failed.");
+                const message = getCreatorBookingProblemCopy(result);
+                reportClientIssue({
+                    channel: "payments",
+                    message: "Creator booking failed",
+                    error: new Error(message),
+                    detail: {
+                        code: result.code ?? "unknown",
+                        creatorId: creator.uid,
+                        serviceType: bookingServiceType,
+                        durationMinutes: bookingDurationMinutes,
+                        startAt,
+                        selectedExperience: "bookings",
+                        route: "/api/creator/bookings",
+                    },
+                    consoleLabel: "[CreatorProfile] booking failed",
+                });
+                if (result.code === "insufficient_paid_gumdrops") {
+                    const preferredDrops = typeof result.shortfallGd === "number" && Number.isFinite(result.shortfallGd)
+                        ? result.shortfallGd
+                        : typeof result.requiredPaidGd === "number" && Number.isFinite(result.requiredPaidGd)
+                            ? result.requiredPaidGd
+                            : typeof result.priceGd === "number" && Number.isFinite(result.priceGd)
+                                ? result.priceGd
+                                : undefined;
+                    openPurchaseModal(preferredDrops);
+                }
+                toast.error(message);
+                return;
             }
 
             const refreshResponse = await authFetch(`/api/creator/bookings?creatorId=${encodeURIComponent(creator.uid)}`);
@@ -688,10 +724,13 @@ export default function CreatorProfileClient() {
                     creatorId: creator.uid,
                     serviceType: bookingServiceType,
                     durationMinutes: bookingDurationMinutes,
+                    startAt,
+                    selectedExperience: "bookings",
+                    route: "/api/creator/bookings",
                 },
                 consoleLabel: "[CreatorProfile] booking failed",
             });
-            toast.error(error.message || "Booking failed.");
+            toast.error(getCreatorBookingProblemCopy(error));
         } finally {
             setCreatingBooking(false);
         }

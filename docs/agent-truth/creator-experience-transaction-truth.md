@@ -90,3 +90,21 @@ Insufficient balance must stop before paid writes:
 - no fake zero
 
 The UI can route the fan to Wallet, but the server remains the source of truth.
+
+## Creator Booking Error Copy
+
+Creator booking expected failures must never surface as generic internal server errors. Availability, slot conflicts, paid-GD shortfalls, disabled bookings, and creator availability must return typed safe error codes with human-readable client copy. Only unexpected route failures should become internal server errors.
+
+Live Time booking failures use these safe codes:
+
+- `creator_or_user_not_found`
+- `creator_unavailable`
+- `bookings_unavailable`
+- `creator_availability_not_configured`
+- `slot_outside_availability`
+- `slot_already_booked`
+- `insufficient_paid_gumdrops`
+- `invalid_booking_request`
+- `unauthorized`
+
+The booking route may abort a Firestore transaction with a typed booking problem to preserve atomicity, but the route response must serialize the code, safe message, service type, duration, creator id, start time, and paid-balance shortfall fields when relevant. The client maps codes through `getCreatorBookingProblemCopy(...)`; the user must never see `Internal server error` for configured availability, slot, disabled-lane, creator-unavailable, or paid-GD shortfall states.

@@ -101,6 +101,7 @@ const mockState = vi.hoisted(() => {
         calculateBookingPriceGd: vi.fn(() => 1000),
         readSourceAwareBalance: vi.fn(() => ({ total: 2000, purchased: 2000, reward: 0 })),
         spendCreatorExperienceGumdrops: vi.fn(() => ({ ok: true, next: { total: 1000, purchased: 1000, reward: 0 }, purchasedSpent: 1000, rewardSpent: 0, ledgerSource: "purchased" })),
+        isWithinAnyWindow: vi.fn(() => true),
         buildCompletedGumdropTransaction: vi.fn(() => ({ verifiedServerSide: true })),
         trackServerEvent: vi.fn(),
         adminDb: {
@@ -137,6 +138,8 @@ const mockState = vi.hoisted(() => {
             this.calculateBookingPriceGd.mockClear();
             this.readSourceAwareBalance.mockClear();
             this.spendCreatorExperienceGumdrops.mockClear();
+            this.isWithinAnyWindow.mockReset();
+            this.isWithinAnyWindow.mockReturnValue(true);
             this.buildCompletedGumdropTransaction.mockClear();
             this.trackServerEvent.mockClear();
         },
@@ -155,7 +158,7 @@ vi.mock("@/lib/server/route-runtime-health", () => ({
     withRouteRuntimeHealth: (_key: string, handler: unknown) => handler,
 }));
 vi.mock("@/app/api/creator/bookings/booking-timezone", () => ({
-    isWithinAnyWindow: () => true,
+    isWithinAnyWindow: mockState.isWithinAnyWindow,
 }));
 vi.mock("@/lib/creator-experiences", () => ({
     CREATOR_BOOKING_MIN_MINUTES: 5,
@@ -261,7 +264,125 @@ describe("creator bookings route transaction truth", () => {
         expect(Array.from(mockState.documents.keys()).filter((key) => key.startsWith("transactions/"))).toHaveLength(1);
     });
 
-    it("rejects insufficient balance without writing paid records", async () => {
+    it("returns typed invalid payload errors before transaction writes", async () => {
+        const response = await POST(new NextRequest("http://localhost/api/creator/bookings", {
+            method: "POST",
+            body: JSON.stringify({
+                creatorId: "",
+                serviceType: "video",
+                startAt: "not-a-date",
+                durationMinutes: 1,
+            }),
+        }));
+        const body = await response.json();
+
+        expect(response.status).toBe(400);
+        expect(body.code).toBe("invalid_booking_request");
+        expect(Array.from(mockState.documents.keys()).filter((key) => key.startsWith("transactions/"))).toHaveLength(0);
+    });
+
+    it("returns typed creator-or-user-not-found errors without writing paid records", async () => {
+        mockState.documents.delete("users/creator_1");
+
+        const response = await POST(new NextRequest("http://localhost/api/creator/bookings", {
+            method: "POST",
+            body: JSON.stringify({
+                creatorId: "creator_1",
+                serviceType: "video",
+                startAt: 1780000000000,
+                durationMinutes: 30,
+                idempotencyKey: "booking-key-not-found",
+            }),
+        }));
+        const body = await response.json();
+
+        expect(response.status).toBe(404);
+        expect(body.code).toBe("creator_or_user_not_found");
+        expect(Array.from(mockState.documents.keys()).filter((key) => key.startsWith("transactions/"))).toHaveLength(0);
+    });
+
+    it("returns typed missing availability errors without writing paid records", async () => {
+        mockState.setDocument("users", "creator_1", {
+            role: "creator",
+            creatorSettings: {
+                bookingsEnabled: true,
+                availabilityWindows: [],
+            },
+        });
+
+        const response = await POST(new NextRequest("http://localhost/api/creator/bookings", {
+            method: "POST",
+            body: JSON.stringify({
+                creatorId: "creator_1",
+                serviceType: "video",
+                startAt: 1780000000000,
+                durationMinutes: 30,
+                idempotencyKey: "booking-key-missing-availability",
+            }),
+        }));
+        const body = await response.json();
+
+        expect(response.status).toBe(409);
+        expect(body).toMatchObject({
+            code: "creator_availability_not_configured",
+            message: "This creator has not set booking hours yet.",
+            creatorId: "creator_1",
+            serviceType: "video",
+            durationMinutes: 30,
+        });
+        expect(Array.from(mockState.documents.keys()).filter((key) => key.startsWith("transactions/"))).toHaveLength(0);
+    });
+
+    it("returns typed outside-availability errors without writing paid records", async () => {
+        mockState.isWithinAnyWindow.mockReturnValueOnce(false);
+
+        const response = await POST(new NextRequest("http://localhost/api/creator/bookings", {
+            method: "POST",
+            body: JSON.stringify({
+                creatorId: "creator_1",
+                serviceType: "phone",
+                startAt: 1780000000000,
+                durationMinutes: 30,
+                idempotencyKey: "booking-key-outside",
+            }),
+        }));
+        const body = await response.json();
+
+        expect(response.status).toBe(400);
+        expect(body.code).toBe("slot_outside_availability");
+        expect(body.message).toBe("Pick a time inside the creator's booking hours.");
+        expect(Array.from(mockState.documents.keys()).filter((key) => key.startsWith("transactions/"))).toHaveLength(0);
+    });
+
+    it("returns typed slot conflict errors without writing paid records", async () => {
+        mockState.setDocument("creator_call_bookings", "existing_booking", {
+            creatorId: "creator_1",
+            userId: "fan_2",
+            serviceType: "video",
+            slotKey: "creator_1:video:1780000000000:30",
+            status: "booked",
+        });
+
+        const response = await POST(new NextRequest("http://localhost/api/creator/bookings", {
+            method: "POST",
+            body: JSON.stringify({
+                creatorId: "creator_1",
+                serviceType: "video",
+                startAt: 1780000000000,
+                durationMinutes: 30,
+                idempotencyKey: "booking-key-conflict",
+            }),
+        }));
+        const body = await response.json();
+
+        expect(response.status).toBe(409);
+        expect(body.code).toBe("slot_already_booked");
+        expect(body.message).toBe("That time was just booked. Pick another slot.");
+        expect(Array.from(mockState.documents.keys()).filter((key) => key.startsWith("transactions/"))).toHaveLength(0);
+    });
+
+    it("rejects insufficient paid balance with typed copy without writing paid records", async () => {
+        mockState.readSourceAwareBalance.mockReturnValueOnce({ total: 1500, purchased: 250, reward: 1250 });
         mockState.spendCreatorExperienceGumdrops.mockReturnValueOnce({ ok: false, error: "Insufficient purchased balance." } as any);
 
         const response = await POST(new NextRequest("http://localhost/api/creator/bookings", {
@@ -276,9 +397,68 @@ describe("creator bookings route transaction truth", () => {
         }));
         const body = await response.json();
 
-        expect(response.status).toBe(500);
-        expect(body.error).toContain("Insufficient purchased balance");
+        expect(response.status).toBe(402);
+        expect(body).toMatchObject({
+            code: "insufficient_paid_gumdrops",
+            requiredPaidGd: 1000,
+            priceGd: 1000,
+            paidBalanceGd: 250,
+            shortfallGd: 750,
+        });
         expect(Array.from(mockState.documents.keys()).filter((key) => key.startsWith("transactions/"))).toHaveLength(0);
         expect(Array.from(mockState.documents.keys()).filter((key) => key.startsWith("creator_ledger_accruals/"))).toHaveLength(0);
+    });
+
+    it("returns typed unavailable creator errors without writing paid records", async () => {
+        mockState.setDocument("users", "creator_1", {
+            role: "creator",
+            status: "suspended",
+            creatorSettings: {
+                bookingsEnabled: true,
+                availabilityWindows: [{ dayOfWeek: 5, startHour: 9, startMinute: 0, endHour: 17, endMinute: 0, serviceTypes: ["phone", "video"] }],
+            },
+        });
+
+        const response = await POST(new NextRequest("http://localhost/api/creator/bookings", {
+            method: "POST",
+            body: JSON.stringify({
+                creatorId: "creator_1",
+                serviceType: "video",
+                startAt: 1780000000000,
+                durationMinutes: 30,
+                idempotencyKey: "booking-key-unavailable",
+            }),
+        }));
+        const body = await response.json();
+
+        expect(response.status).toBe(403);
+        expect(body.code).toBe("creator_unavailable");
+        expect(Array.from(mockState.documents.keys()).filter((key) => key.startsWith("transactions/"))).toHaveLength(0);
+    });
+
+    it("returns typed unavailable booking errors without writing paid records", async () => {
+        mockState.setDocument("users", "creator_1", {
+            role: "creator",
+            creatorSettings: {
+                bookingsEnabled: false,
+                availabilityWindows: [{ dayOfWeek: 5, startHour: 9, startMinute: 0, endHour: 17, endMinute: 0, serviceTypes: ["phone", "video"] }],
+            },
+        });
+
+        const response = await POST(new NextRequest("http://localhost/api/creator/bookings", {
+            method: "POST",
+            body: JSON.stringify({
+                creatorId: "creator_1",
+                serviceType: "video",
+                startAt: 1780000000000,
+                durationMinutes: 30,
+                idempotencyKey: "booking-key-disabled",
+            }),
+        }));
+        const body = await response.json();
+
+        expect(response.status).toBe(409);
+        expect(body.code).toBe("bookings_unavailable");
+        expect(Array.from(mockState.documents.keys()).filter((key) => key.startsWith("transactions/"))).toHaveLength(0);
     });
 });

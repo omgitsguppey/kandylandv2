@@ -318,6 +318,7 @@ A feature is NOT complete until all 4 core components are structurally safe:
 4. **Admin/Audit Layer**: UI updates visibly feed reporting dashboards truthfully.
 
 **Violations**: No silent catch blocks. No fake \"pass\" states. No hidden fallbacks without visual source-state labels. No detached feature code bypassing canonical hydration.
+**Creator Booking Error Rule**: Expected Live Time booking failures (availability missing/outside window, slot conflict, disabled bookings, unavailable creator, paid-GD shortfall, invalid request, unauthorized) must return typed safe codes and human-readable client copy. Only unexpected route failures may surface as internal server errors.
 
 ## File Size & Module Discipline (Mandatory)
 Massive monolithic un-maintainable files are forbidden. 

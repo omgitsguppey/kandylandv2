@@ -1,5 +1,29 @@
 # KandyDrops Core Codebase Audit & Defensive Ledger
 
+## [2026-05-04 #139] PRE: Creator Booking Typed Error Copy
+
+Scope started:
+- Fixing creator live-time booking so expected failures return typed safe errors instead of surfacing generic internal server copy.
+- Required surfaces: `src/app/api/creator/bookings/route.ts`, `src/app/creators/[username]/CreatorProfileClient.tsx`, `src/lib/problem-state-copy.ts`, focused booking tests, targeted validator, and creator experience transaction docs.
+- This pass must not alter booking pricing, paid-only GumDrops spend policy, ledger/accrual creation, idempotency, route auth, rate limiting, Firestore collection names, creator eligibility rules, wallet/payment logic, or broad UI behavior.
+
+Initial evidence:
+- Control tower routing, doctrine consultation workflow, product/copy/UI/vocabulary/banned-pattern doctrine, source-of-truth map, request guard, route runtime health, creator booking route, creator profile booking handler, creator experience spend helpers, and focused creator booking tests were consulted.
+
+Doctrine:
+- Creator booking expected failures must never surface as generic internal server errors. Availability, slot conflicts, paid-GD shortfalls, disabled bookings, and creator availability must return typed safe error codes with human-readable client copy. Only unexpected route failures should become internal server errors.
+
+Scope completed:
+- Replaced expected `Creator.Bookings.POST` transaction failures with typed booking problems that preserve transaction abort semantics while returning safe 4xx/402 responses for invalid payloads, not found, unavailable creator, disabled bookings, missing hours, outside-hours slots, slot conflicts, and insufficient paid GumDrops.
+- Updated creator profile booking handling to map problem codes through `getCreatorBookingProblemCopy(...)`, report code/context via `reportClientIssue`, and open Wallet refill for paid-GD shortfalls without changing booking pricing, spend policy, idempotency, ledger/accrual writes, auth, rate limits, collection names, or wallet logic.
+- Added `scripts/agent/validate-creator-booking-error-copy.ts`, package script `check:creator-booking-error-copy`, focused route/copy tests, and source-of-truth docs.
+
+Verification:
+- `npm run check:creator-booking-error-copy` passed.
+- `npx vitest run --config vitest.contracts.config.ts tests/unit/creator-bookings-transaction-route.spec.ts tests/unit/creator-booking-problem-copy.spec.ts tests/unit/creator-bookings-route.spec.ts` passed with 18 tests.
+- `npm run typecheck` passed.
+- As requested, this pass did not run Playwright, Lighthouse, Cypress, full `npm run check`, or broad UI audits.
+
 ## [2026-05-04 #138] PRE: Google Cost Bleed Scoring
 
 Scope started:
