@@ -297,6 +297,7 @@ export function CreatorExperiencesPanel({
                     <button
                         type="button"
                         onClick={() => selectedExperience === "subscriptions" ? selectExperience(null) : selectExperience("subscriptions")}
+                        aria-expanded={selectedExperience === "subscriptions"}
                         className={cn(
                             "flex min-h-16 flex-col items-center justify-center rounded-[1.1rem] border px-2 py-3 text-center transition-all duration-300",
                             selectedExperience === "subscriptions"
@@ -314,6 +315,7 @@ export function CreatorExperiencesPanel({
                     <button
                         type="button"
                         onClick={() => selectedExperience === "messages" ? selectExperience(null) : selectExperience("messages")}
+                        aria-expanded={selectedExperience === "messages"}
                         className={cn(
                             "flex min-h-16 flex-col items-center justify-center rounded-[1.1rem] border px-2 py-3 text-center transition-all duration-300",
                             selectedExperience === "messages"
@@ -331,6 +333,7 @@ export function CreatorExperiencesPanel({
                     <button
                         type="button"
                         onClick={() => selectedExperience === "requests" ? selectExperience(null) : selectExperience("requests")}
+                        aria-expanded={selectedExperience === "requests"}
                         className={cn(
                             "flex min-h-16 flex-col items-center justify-center rounded-[1.1rem] border px-2 py-3 text-center transition-all duration-300",
                             selectedExperience === "requests"
@@ -348,6 +351,7 @@ export function CreatorExperiencesPanel({
                     <button
                         type="button"
                         onClick={() => selectedExperience === "bookings" ? selectExperience(null) : selectExperience("bookings")}
+                        aria-expanded={selectedExperience === "bookings"}
                         className={cn(
                             "flex min-h-16 flex-col items-center justify-center rounded-[1.1rem] border px-2 py-3 text-center transition-all duration-300",
                             selectedExperience === "bookings"
@@ -526,6 +530,7 @@ export function CreatorExperiencesPanel({
                                 <button
                                     key={category.id}
                                     type="button"
+                                    aria-pressed={requestCategoryId === category.id}
                                     onClick={() => {
                                         setRequestCategoryId(category.id);
                                         trackCreatorExperienceEvent("creator_experience_request_category_selected", "requests", category.priceGd, {
@@ -596,6 +601,7 @@ export function CreatorExperiencesPanel({
                     <div className="mb-5 flex gap-2">
                         <button
                             type="button"
+                            aria-pressed={bookingServiceType === "phone"}
                             onClick={() => {
                                 onBookingServiceTypeChange("phone");
                                 trackCreatorExperienceEvent("creator_experience_booking_type_selected", "bookings", bookingDurationMinutes * phoneRatePerMinute, {
@@ -608,6 +614,7 @@ export function CreatorExperiencesPanel({
                         </button>
                         <button
                             type="button"
+                            aria-pressed={bookingServiceType === "video"}
                             onClick={() => {
                                 onBookingServiceTypeChange("video");
                                 trackCreatorExperienceEvent("creator_experience_booking_type_selected", "bookings", bookingDurationMinutes * (subscriptionActive ? subscriberVideoRatePerMinute : videoRatePerMinute), {

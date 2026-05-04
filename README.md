@@ -23,6 +23,9 @@ Before making **ANY** changes to user-facing UI, copy, or product logic, you are
 ### Agent Control Tower
 **Before touching UI, copy, telemetry, state, admin truth, or Firebase architecture, start with [/control-tower/00-START-HERE.md](./control-tower/00-START-HERE.md).**
 
+### Open Bot PR Triage
+Open bot PRs must be cherry-picked by current-source relevance. Duplicate Bolt/Jules branches should not be merged wholesale. Public beta fixes prioritize current source-of-truth, no UI regression, and targeted validation over broad stale branch merges.
+
 ### GumDrop Source-Of-Funds
 Paid package bonus GumDrops are paid-source GumDrops. They count toward `gumDropsPurchasedBalance` and can be used for paid-only creator monetization surfaces. Reward-source GumDrops are only non-purchase rewards such as check-ins, tasks, referrals, onboarding, or admin reward adjustments. Wallet UI may display total delivered package value, but backend source-of-funds truth must preserve paid vs reward source correctly.
 

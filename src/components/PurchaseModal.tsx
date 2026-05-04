@@ -102,6 +102,13 @@ export function PurchaseModal({ isOpen, onClose }: PurchaseModalProps) {
   const isBundleSelected = selectedPackage.label === "King Size Bundle";
   const canDecreaseBundle = customDrops > 5000;
   const canIncreaseBundle = customDrops < 100000;
+  const walletBalanceSplit = useMemo(() => resolveWalletBalanceSplit(userProfile), [userProfile]);
+  const walletDensityPayload = useMemo(() => ({
+    balance_free_gd: walletBalanceSplit.freeGd,
+    balance_paid_gd: walletBalanceSplit.paidGd,
+    balance_total_gd: walletBalanceSplit.totalGd,
+    wallet_density: "public-beta-compact" as const,
+  }), [walletBalanceSplit.freeGd, walletBalanceSplit.paidGd, walletBalanceSplit.totalGd]);
 
   useEffect(() => {
     document.body.style.overflow = isOpen ? "hidden" : "";
@@ -110,13 +117,35 @@ export function PurchaseModal({ isOpen, onClose }: PurchaseModalProps) {
     };
   }, [isOpen]);
 
-  const closeModal = useCallback(() => {
+  const closeModal = useCallback((source: string = "wallet_modal_close") => {
+    if (isOpen && !success) {
+      trackEvent("wallet_closed_incomplete", {
+        package_label: selectedPackage.label,
+        package_drops: selectedPackage.drops,
+        package_price: selectedPackage.price,
+        wallet_close_source: source,
+        wallet_close_state: processing ? "checkout_processing" : error ? "error_visible" : "package_selected",
+        source_component: "purchase_modal",
+        ...walletDensityPayload,
+      });
+    }
+
     setSuccess(false);
     setError(null);
     setCreditedDrops(null);
     clearTimedFlow(CHECKOUT_FLOW_KEY);
     requestAnimationFrame(onClose);
-  }, [onClose]);
+  }, [
+    error,
+    isOpen,
+    onClose,
+    processing,
+    selectedPackage.drops,
+    selectedPackage.label,
+    selectedPackage.price,
+    success,
+    walletDensityPayload,
+  ]);
 
   useEffect(() => {
     if (!isOpen) {
@@ -138,7 +167,7 @@ export function PurchaseModal({ isOpen, onClose }: PurchaseModalProps) {
     const handleKeyDown = (event: KeyboardEvent) => {
       if (event.key === "Escape") {
         event.preventDefault();
-        closeModal();
+        closeModal("wallet_escape_key");
         return;
       }
 
@@ -184,7 +213,7 @@ export function PurchaseModal({ isOpen, onClose }: PurchaseModalProps) {
       destination,
       source,
     });
-    closeModal();
+    closeModal("wallet_success_navigation");
     requestAnimationFrame(() => {
       router.push(destination);
     });
@@ -196,13 +225,6 @@ export function PurchaseModal({ isOpen, onClose }: PurchaseModalProps) {
     [selectedPackage.drops, selectedPackage.price],
   );
   const creditedDropsValue = creditedDrops ?? selectedPackage.drops;
-  const walletBalanceSplit = useMemo(() => resolveWalletBalanceSplit(userProfile), [userProfile]);
-  const walletDensityPayload = useMemo(() => ({
-    balance_free_gd: walletBalanceSplit.freeGd,
-    balance_paid_gd: walletBalanceSplit.paidGd,
-    balance_total_gd: walletBalanceSplit.totalGd,
-    wallet_density: "public-beta-compact" as const,
-  }), [walletBalanceSplit.freeGd, walletBalanceSplit.paidGd, walletBalanceSplit.totalGd]);
 
   useEffect(() => {
     if (isOpen && !hasTrackedOpenRef.current) {
@@ -390,7 +412,7 @@ export function PurchaseModal({ isOpen, onClose }: PurchaseModalProps) {
     <AnimatePresence>
       {isOpen && (
         <>
-          <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }} className="fixed inset-0 z-50 bg-black/60 backdrop-blur-sm" onClick={closeModal} aria-hidden="true" />
+          <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }} className="fixed inset-0 z-50 bg-black/60 backdrop-blur-sm" onClick={() => closeModal("wallet_backdrop")} aria-hidden="true" />
           <div className="fixed inset-0 z-50 overflow-y-auto pointer-events-none">
             <div className="flex min-h-full items-center justify-center p-4">
               <motion.div
@@ -408,7 +430,7 @@ export function PurchaseModal({ isOpen, onClose }: PurchaseModalProps) {
                 data-wallet-bonus-chip-theme="brand-purple"
                 className="relative w-full max-w-md bg-black/45 backdrop-blur-xl rounded-3xl p-4 sm:p-5 md:p-6 shadow-2xl border border-white/10 pointer-events-auto"
               >
-                <button ref={closeButtonRef} aria-label="Close modal" onClick={closeModal} className="absolute top-3 right-3 flex h-11 w-11 items-center justify-center rounded-full text-gray-400 transition-colors z-30">
+                <button ref={closeButtonRef} aria-label="Close modal" onClick={() => closeModal("wallet_close_button")} className="absolute top-3 right-3 flex h-11 w-11 items-center justify-center rounded-full text-gray-400 transition-colors z-30">
                   <X className="w-5 h-5" />
                 </button>
 

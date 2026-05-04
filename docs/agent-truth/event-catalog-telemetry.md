@@ -62,3 +62,9 @@ Do not add a catalog event without an emitter, `auditCoveredBy`, or a clear lega
 Do not label admin/system events as user behavior.
 
 Do not use raw backend event names as primary admin UI labels. Use operator copy in main UI and keep raw event/source names in Debug evidence.
+
+## Public Beta PR Triage Addendum
+
+Open bot PRs must be cherry-picked by current-source relevance. Duplicate Bolt/Jules branches should not be merged wholesale. Public beta fixes prioritize current source-of-truth, no UI regression, and targeted validation over broad stale branch merges.
+
+Only truly critical user-path telemetry should bypass the normal identified batch window. Wallet open/close-incomplete, locked preview page/CTA, unlock success, purchase completion/failure, viewer open/session, creator follow, feedback submission, guided onboarding, auth, security, task progress, and admin-route events may flush immediately when consent and identity gates allow it. Do not turn every event into an immediate backend flush.

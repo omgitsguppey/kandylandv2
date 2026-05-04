@@ -65,6 +65,12 @@ The following terms are banned from primary admin UI and may appear only in Debu
 
 Future agents must not pipe raw backend diagnostics into primary admin UI. Put exact source detail in Debug, and pair it with What this means, Why it matters, What to check next, Technical evidence, and Source details.
 
+## Open PR Triage Addendum
+
+Open bot PRs must be cherry-picked by current-source relevance. Duplicate Bolt/Jules branches should not be merged wholesale. Public beta fixes prioritize current source-of-truth, no UI regression, and targeted validation over broad stale branch merges.
+
+When cherry-picking admin truth cleanup, apply only exact current-source fixes. Admin surfaces with read issues must degrade to `Needs review`/`degraded` instead of showing false healthy/live states, and Debug may keep raw status evidence only when paired with a human-readable truth label.
+
 ## Launch Finalization Addendum
 
 Admin Analytics is the operator view. Admin Debug is the evidence view.

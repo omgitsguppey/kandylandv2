@@ -5,7 +5,20 @@ Recorded: 2026-05-01
 Baseline: `main` at `9b435162`  
 Scope: open PRs plus latest 20 commits
 
-No PR was merged, closed, rebased, or edited during this pass.
+## 2026-05-03 Current Resolution
+
+Open bot PRs must be cherry-picked by current-source relevance. Duplicate Bolt/Jules branches should not be merged wholesale. Public beta fixes prioritize current source-of-truth, no UI regression, and targeted validation over broad stale branch merges.
+
+This pass did not merge stale branches. It manually applied or confirmed only current-source-relevant hunks:
+
+- #214 `useDrops` optimization is the survivor for #201/#203/#207/#211/#214: filtering and next-expiration detection run in one pass and the refresh timer depends on primitive `nextExpiryMs`. `.jules` notes and stale audit doc noise were not imported.
+- #210 is the survivor for #206/#210: Creator Experiences expandable modules expose `aria-expanded`; true selected request category and booking type toggles expose `aria-pressed`; no visual or commerce logic changed.
+- #208 is already present on `main`: the admin analytics refresh POST route includes `requireTrustedOrigin: true` while preserving admin auth, preauth, and rate limits.
+- #202/#212 source-of-funds PRs are not merged raw because their wallet UI text/design changes are not accepted. The accounting truth is handled by current `gumdrop-ledger`/PayPal capture source-of-funds logic without wallet copy regressions.
+- #209/#213 were cherry-picked only for exact current-source cleanup: no `Coins` vocabulary drift, no empty telemetry catch blocks in the touched admin uploader, and admin truth badges/labels degrade to `Needs review`/`degraded` instead of false healthy/live states.
+- #204 was not merged raw. Only narrow telemetry rescue was retained: critical wallet/preview/viewer/follow events flush immediately when allowed, and wallet close-incomplete is classified without bypassing consent or changing checkout/payment behavior.
+
+Original 2026-05-01 baseline note: No PR was merged, closed, rebased, or edited during this pass.
 
 ## Executive Summary
 

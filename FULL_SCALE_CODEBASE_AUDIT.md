@@ -1,5 +1,43 @@
 # KandyDrops Core Codebase Audit & Defensive Ledger
 
+## [2026-05-03 #124] PRE: Open Public Beta PR Triage
+
+Scope started:
+- Reviewing open PRs #201-#214 in `omgitsguppey/kandylandv2`, closing stale/duplicate bot branches, and manually cherry-picking only current-source-relevant low-regression fixes.
+- Candidate safe fixes: #214 `useDrops` single-pass client filtering/next-expiry primitive dependency, #210 Creator Experiences ARIA expansion state, #208 trusted-origin guard confirmation, #209/#213 exact admin truth/vocabulary cleanup, #204 narrow critical telemetry classification, and #212 source-of-funds closure after prior accounting-truth implementation.
+- This pass must not merge stale PRs wholesale, must not import `.jules`/lockfile/audit-doc noise, must not apply #202/#212 wallet UI copy/design changes, and must preserve payment/economy/auth/unlock enforcement.
+
+Initial evidence:
+- GitHub CLI is authenticated for `omgitsguppey/kandylandv2`; all open PR metadata was listed from GitHub.
+- Control tower routing, doctrine consultation workflow, product/copy/UI doctrine, source-of-truth map, shared component ownership, full governance files, and adjacency traces for `src/hooks/useDrops.ts`, `src/components/Creators/CreatorExperiencesPanel.tsx`, and `src/app/api/admin/analytics/refresh/route.ts` were consulted.
+- Current `main` already includes `requireTrustedOrigin: true` on the admin analytics refresh POST route and the paid package bonus source-of-funds implementation without the stale PR #212 wallet UI text/design changes.
+
+Doctrine:
+- Open bot PRs must be cherry-picked by current-source relevance. Duplicate Bolt/Jules branches should not be merged wholesale. Public beta fixes prioritize current source-of-truth, no UI regression, and targeted validation over broad stale branch merges.
+
+Scope completed:
+- Manually applied the #214 `useDrops` survivor hunk: client filtering and next-expiration timestamp discovery now share one pass, the timer effect depends on primitive `nextExpiryMs`, and duplicate #201/#203/#207/#211 branch noise was not imported.
+- Manually applied #210 Creator Experiences ARIA semantics only: expandable module buttons expose `aria-expanded`; request category and booking type selections expose `aria-pressed`; creator experience pricing/business logic and visual design remain unchanged.
+- Confirmed #208 is already present: `src/app/api/admin/analytics/refresh/route.ts` POST guard includes `requireTrustedOrigin: true` with admin auth, preauth, and rate-limit options intact.
+- Closed the #202/#212 source-of-funds lane as superseded by current accounting-truth code: paid package bonuses credit purchased/paid source without adopting stale wallet UI text/design changes.
+- Applied only current-source #209/#213 admin cleanup: no false live status when overview read issues exist, no `Coins` icon drift in the insufficient-balance modal, no empty telemetry catches in the admin uploader, and Debug status chips show human-readable truth labels.
+- Applied narrow #204 telemetry rescue only: selected critical wallet/preview/viewer/follow events flush immediately when allowed by consent/identity gates, and wallet close-incomplete classification is emitted without changing checkout, PayPal, package math, or source-of-funds truth.
+
+Verification:
+- Passed: `npm run check:launch-pr-triage`
+- Passed: `npm run check:drops-mobile-refinement`
+- Passed: `npm run check:admin-truth`
+- Passed: `npm run check:human-readable-admin-copy`
+- Passed: `npm run check:design-system-drift`
+- Passed: `npm run check:telemetry`
+- Passed: `npm run check:event-catalog-telemetry`
+- Passed: `npm run check:wallet-density`
+- Passed: `npx vitest run --config vitest.contracts.config.ts tests/unit/admin-notification-funnel.spec.ts tests/unit/admin-analytics-refresh-route.spec.ts tests/unit/drop-status.spec.ts tests/unit/drop-countdown.spec.ts tests/unit/lib/telemetry.spec.ts tests/unit/purchase-modal-density.spec.tsx`
+- Passed: `npx vitest run --config vitest.contracts.config.ts tests/unit/creator-experiences-panel.spec.tsx tests/unit/creator-experiences.spec.ts`
+- Passed: `npm run typecheck -- --pretty false`
+- Passed: `git diff --check` (line-ending warnings only)
+- Not run by design: Playwright, Lighthouse, Cypress, full `npm run check`, broad UI audits.
+
 ## [2026-05-03 #123] PRE: Wallet Modal Compact Density
 
 Scope started:

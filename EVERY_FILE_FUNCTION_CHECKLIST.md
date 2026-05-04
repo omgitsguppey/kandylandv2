@@ -9,6 +9,14 @@ Scoring: all entries below are marked as included in the current validated sweep
 
 Current repo-wide state snapshot: see [FULL_SCALE_CODEBASE_AUDIT.md](/Users/uylus/OneDrive/Documents/KandyDrops_Final/FULL_SCALE_CODEBASE_AUDIT.md) for the current live baseline, verification state, and continuity rules, and see [REPO_MEMORY_LEDGER.md](/Users/uylus/OneDrive/Documents/KandyDrops_Final/REPO_MEMORY_LEDGER.md) for major architectural and workflow decisions. The detailed file/function body below remains valuable historical evidence, but it has not been fully regenerated against the current 2026-04-18 inventory review yet.
 
+## 2026-05-03 Open Public Beta PR Triage Coverage
+
+- [x] `src/hooks/useDrops.ts` owns the manually cherry-picked #214 optimization: client filtering and next-expiration timestamp calculation happen in one pass, the timer effect depends on primitive `nextExpiryMs`, and duplicate Bolt/Jules branch docs are not imported.
+- [x] `src/components/Creators/CreatorExperiencesPanel.tsx` owns the #210 semantic ARIA state patch: expandable creator experience buttons expose `aria-expanded`, while true selected category/type toggles expose `aria-pressed` without visual or business-logic changes.
+- [x] `src/app/api/admin/analytics/refresh/route.ts` already contains the #208 `requireTrustedOrigin: true` POST protection while preserving admin auth, preauth, and rate-limit behavior.
+- [x] `src/components/Admin/AdminStatsBar.tsx`, `src/app/admin/debug/components/DebugNowDiagnostics.tsx`, `src/app/admin/debug/components/DebugTabNow.tsx`, `src/lib/admin-notification-funnel.ts`, and `src/components/Admin/AssetUploader.tsx` carry only current-source admin truth/vocabulary cleanup from #209/#213: no false live badges when read issues exist, no raw healthy/warn/fail labels as operator status copy, and no empty telemetry catch blocks.
+- [x] `src/lib/telemetry.ts` and `src/components/PurchaseModal.tsx` carry the narrow #204 telemetry rescue: critical wallet/preview/viewer/follow events flush immediately when allowed, and wallet close-incomplete is classified without bypassing consent or changing checkout/source-of-funds behavior.
+
 ## 2026-05-03 Wallet Modal Compact Density Coverage
 
 - [x] `src/components/PurchaseModal.tsx` owns the compact public-beta wallet density: tighter shell/header/package rows, visible paid/bonus row subcopy removed, brand-purple package bonus chips, split source-aware balance chip, and wallet density debug/telemetry fields without changing PayPal buttons, checkout handlers, package totals, or backend source-of-funds truth.

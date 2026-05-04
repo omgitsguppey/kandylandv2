@@ -30,11 +30,18 @@ const IMMEDIATE_IDENTIFIED_EVENT_NAMES = new Set([
     "guided_onboarding_step_started",
     "guided_onboarding_step_completed",
     "guided_onboarding_completed",
+    "wallet_opened",
+    "wallet_closed_incomplete",
     "gumdrops_purchase_completed",
     "gumdrops_purchase_failed",
+    "drop_preview_opened",
+    "drop_preview_page_viewed",
+    "drop_preview_cta_clicked",
     "unlock_drop_success",
+    "viewer_opened",
     "viewer_session_started",
     "viewer_session_completed",
+    "creator_followed",
     "feedback_submitted",
 ]);
 const IDENTIFIED_TELEMETRY_BATCH_LIMIT = 12;

@@ -26,6 +26,8 @@ describe("admin notification funnel model", () => {
         expect(model.metrics.find((metric) => metric.key === "enabled")?.value).toBe(0);
         expect(model.metrics.find((metric) => metric.key === "sent")?.value).toBeNull();
         expect(model.metrics.find((metric) => metric.key === "cleared")?.value).toBe(7);
+        expect(model.metrics.find((metric) => metric.key === "prompted")?.truthState).toBe("degraded");
+        expect(model.metrics.find((metric) => metric.key === "sent")?.truthState).toBe("unavailable");
         expect(model.metrics.find((metric) => metric.key === "sent")?.fakeZeroPrevented).toBe(true);
         expect(model.reminderReasonSummary).toContain("Time ran out: 4");
         expect(model.debug.duplicateBrowserDisplayPreventedCount).toBeNull();

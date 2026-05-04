@@ -1,6 +1,7 @@
 "use client";
 
 import { buildAdminDebugSystemHealthNowModel } from "@/lib/admin-debug-summary-cards";
+import { coerceAdminSurfaceState, formatAdminSurfaceStateLabel, type AdminSurfaceState } from "@/lib/admin-parity";
 import { Pill, Section } from "./DebugPrimitives";
 import { DebugNowDiagnostics } from "./DebugNowDiagnostics";
 
@@ -14,6 +15,20 @@ function formatRelative(timestamp?: number) {
     const hours = Math.floor(minutes / 60);
     if (hours < 24) return `${hours}h ago`;
     return `${Math.floor(hours / 24)}d ago`;
+}
+function toneForPanelStatus(status?: string) {
+    if (status === "healthy") return "good" as const;
+    if (status === "warn") return "warn" as const;
+    if (status === "fail" || status === "failed") return "bad" as const;
+    return "neutral" as const;
+}
+function truthStateForPanelStatus(status?: string): AdminSurfaceState {
+    if (status === "warn") return "degraded";
+    if (status === "fail" || status === "failed") return "failed";
+    return coerceAdminSurfaceState(status);
+}
+function labelForPanelStatus(status?: string) {
+    return formatAdminSurfaceStateLabel(truthStateForPanelStatus(status));
 }
 
 /* ─── Props ─── */
@@ -143,7 +158,7 @@ export function DebugTabNow({
                                                             <p className="font-semibold text-white">{materializer.label}</p>
                                                             <p className="text-xs text-gray-400">{materializer.engine}</p>
                                                         </div>
-                                                        <Pill label="Status" value={materializer.status} tone={materializer.status === "healthy" ? "good" : materializer.status === "warn" ? "warn" : "bad"} />
+                                                        <Pill label="Status" value={labelForPanelStatus(materializer.status)} tone={toneForPanelStatus(materializer.status)} truthState={truthStateForPanelStatus(materializer.status)} />
                                                     </div>
                                                     <p className="mt-2 text-sm text-gray-300">{materializer.detail}</p>
                                                 </div>

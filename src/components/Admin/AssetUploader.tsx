@@ -211,9 +211,7 @@ export function AssetUploader({
 
     setAssets((current) => current.map((item) => item.id === target.id ? { ...item, uploading: true } : item));
 
-    try {
-      trackEvent('asset_upload_started', { kind: target.kind });
-    } catch (e) { }
+    trackEvent('asset_upload_started', { kind: target.kind });
 
     try {
       const originalFile = target.file;
@@ -254,9 +252,7 @@ export function AssetUploader({
           throw new Error(result.error || "Asset upload failed");
         }
 
-        try {
-          trackEvent('asset_upload_success', { kind: target.kind, format: uploadExtension, upload_path: "server" });
-        } catch (e) { }
+        trackEvent('asset_upload_success', { kind: target.kind, format: uploadExtension, upload_path: "server" });
 
         setAssets((current) => current.map((item) => item.id === target.id
           ? {
@@ -279,9 +275,7 @@ export function AssetUploader({
       });
 
       const downloadUrl = await getDownloadURL(uploadTask.snapshot.ref);
-      try {
-        trackEvent('asset_upload_success', { kind: target.kind, format: uploadExtension });
-      } catch (e) { }
+      trackEvent('asset_upload_success', { kind: target.kind, format: uploadExtension });
 
       setAssets((current) => current.map((item) => item.id === target.id
         ? {
@@ -306,9 +300,7 @@ export function AssetUploader({
         },
         consoleLabel: "[AssetUploader] upload failed",
       });
-      try {
-        trackEvent('asset_upload_failed', { kind: target.kind, error: error instanceof Error ? error.message : "unknown" });
-      } catch (e) { }
+      trackEvent('asset_upload_failed', { kind: target.kind, error: error instanceof Error ? error.message : "unknown" });
       setAssets((current) => current.map((item) => item.id === target.id ? { ...item, uploading: false } : item));
     }
   }, [disableCrop, folder, label]);

@@ -4,6 +4,10 @@ Status: Canonical repository-memory and architecture-decision ledger
 Last refreshed: 2026-05-02
 Repo: `C:\Users\uylus\OneDrive\Documents\KandyDrops_Final`
 
+## 2026-05-03 Open public beta PR triage
+
+Open bot PRs must be cherry-picked by current-source relevance. Duplicate Bolt/Jules branches should not be merged wholesale. Public beta fixes prioritize current source-of-truth, no UI regression, and targeted validation over broad stale branch merges. Current triage closed duplicate `useDrops` PRs after applying the #214 single-pass filtering/next-expiry primitive dependency, handled #210 ARIA state semantics without visual changes, confirmed #208 trusted-origin protection already present, applied only current admin truth/vocabulary cleanup from #209/#213, and treated #202/#212 wallet source-of-funds PRs as superseded by the accounting-truth implementation that preserved wallet UI copy/design.
+
 ## 2026-05-03 Wallet modal compact density
 
 The wallet modal uses compact public-beta density. Package cards show total delivered GumDrops, package label, price, and purple bonus chip only. The visible paid/bonus explanatory subcopy is removed to reduce vertical sprawl. The balance chip shows source-aware free GD and paid GD. Backend source-of-funds accounting and telemetry remain unchanged. The compact balance display uses explicit `gumDropsRewardBalance` and `gumDropsPurchasedBalance` through `readSourceAwareBalance`; legacy total-only profiles follow the canonical helper fallback instead of guessing a free/paid split.
