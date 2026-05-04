@@ -4,6 +4,10 @@ Status: Canonical repository-memory and architecture-decision ledger
 Last refreshed: 2026-05-02
 Repo: `C:\Users\uylus\OneDrive\Documents\KandyDrops_Final`
 
+## 2026-05-04 Orphaned logic score
+
+KandyDrops orphaned logic scoring is deterministic and source-only. It detects duplicate normalizers/truth helpers, legacy preview ownership drift, duplicate useDrops/PR audit notes, broken generated doc chunks, route migration leftovers, stale docs, wrong GumDrops vocabulary, obsolete realtime patterns, duplicate telemetry intent names, and dead imports in public beta surfaces without browser audits or broad terminal sweeps. `npm run score:orphans` writes `agent/state/orphaned-logic-score.generated.json`; `npm run check:orphaned-logic` validates the report, package scripts, scorer rules, full-page preview doctrine, launch PR triage doctrine, telemetry duplicate-intent evidence, and governance docs. Cleanup is advisory only unless TypeScript and exact-text evidence prove a safe unused import or duplicate broken doc chunk.
+
 ## 2026-05-04 Locked content protection score
 
 KandyDrops locked content protection scoring is deterministic. Locked preview and guest/user surfaces may show cover art, safe metadata, file counts, and public social proof, but must never render internal content URLs, internal thumbnails, blurred internal previews, or raw storage URLs before entitlement. Viewer and content APIs must prove entitlement before fetching or streaming content. `npm run score:content-protection` writes `agent/state/content-protection-score.generated.json`; `npm run check:content-protection` validates the report, scorer, package scripts, `sanitizeDropForClient`, safe preview fields, content proxy entitlement, viewer gating, legacy modal safety, and targeted tests without browser audits or broad terminal sweeps. Content-protection findings are not auto-fixed by default.

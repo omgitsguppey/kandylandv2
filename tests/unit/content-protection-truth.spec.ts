@@ -21,7 +21,7 @@ const lockedDrop = {
   status: "active",
   totalUnlocks: 0,
   totalViews: 12,
-  type: "video",
+  type: "content",
   tags: ["launch"],
   mediaCounts: { images: 1, videos: 1 },
 } as Drop;

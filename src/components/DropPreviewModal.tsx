@@ -73,7 +73,7 @@ function useModalTimer(validFrom: number, validUntil?: number) {
 
 function FileCountBadge({ drop }: { drop: Drop }) {
   const mediaSummary = getDropMediaSummary(drop);
-  const numFiles = mediaSummary.total;
+  const numFiles = mediaSummary.imageCount + mediaSummary.videoCount;
 
   if (numFiles <= 0) {
     return null;

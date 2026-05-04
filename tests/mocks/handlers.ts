@@ -11,7 +11,9 @@ import {
 
 let activeScenario = getKandyDropsMswScenario("guestBrowsingDrops");
 
-function json(body: unknown, init: ResponseInit = {}) {
+type MswJsonBody = Parameters<typeof HttpResponse.json>[0];
+
+function json(body: MswJsonBody, init: ResponseInit = {}) {
   return HttpResponse.json(body, {
     ...init,
     headers: {
@@ -278,7 +280,7 @@ export const kandyDropsMockHandlers = [
     }
 
     const payload = await readJsonBody(request);
-    const messageKind = payload.messageKind === "image" || payload.messageKind === "video" ? payload.messageKind : "text";
+    const messageKind: "text" | "image" | "video" = payload.messageKind === "image" || payload.messageKind === "video" ? payload.messageKind : "text";
     const pricing = activeScenario.chat.pricingByThreadId[threadId];
     const costGd = messageKind === "video"
       ? pricing?.videoPriceGd ?? 0

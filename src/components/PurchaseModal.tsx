@@ -126,7 +126,6 @@ export function PurchaseModal({ isOpen, onClose }: PurchaseModalProps) {
         package_price: selectedPackage.price,
         wallet_close_source: source,
         wallet_close_state: processing ? "checkout_processing" : error ? "error_visible" : "package_selected",
-        source_component: "purchase_modal",
         ...walletDensityPayload,
       });
     }

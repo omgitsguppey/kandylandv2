@@ -9,6 +9,13 @@ Scoring: all entries below are marked as included in the current validated sweep
 
 Current repo-wide state snapshot: see [FULL_SCALE_CODEBASE_AUDIT.md](/Users/uylus/OneDrive/Documents/KandyDrops_Final/FULL_SCALE_CODEBASE_AUDIT.md) for the current live baseline, verification state, and continuity rules, and see [REPO_MEMORY_LEDGER.md](/Users/uylus/OneDrive/Documents/KandyDrops_Final/REPO_MEMORY_LEDGER.md) for major architectural and workflow decisions. The detailed file/function body below remains valuable historical evidence, but it has not been fully regenerated against the current 2026-04-18 inventory review yet.
 
+## 2026-05-04 Orphaned Logic Score Coverage
+
+- [x] KandyDrops orphaned logic scoring is deterministic and source-only. It detects stale duplicate PR logic, deprecated route/modal ownership, duplicate truth helpers, broken generated audit chunks, stale docs, wrong GumDrops vocabulary, obsolete realtime patterns, duplicate telemetry intent names, and dead imports without relying on browser audits.
+- [x] `scripts/agent/score-orphaned-logic.ts` owns the source-only stale artifact score over duplicate normalizers, full-page locked preview route ownership, useDrops PR notes, generated doc placeholders, route migration markers, vocabulary drift, admin analytics realtime patterns, telemetry duplicate-intent groups, and public beta import usage.
+- [x] `scripts/agent/validate-orphaned-logic.ts`, `agent/state/orphaned-logic-score.generated.json`, `docs/agent-truth/orphaned-logic-score.md`, and package scripts `score:orphans` / `check:orphaned-logic` provide the deterministic validation lane.
+- [x] Autofix is advisory only in this lane: exact unused imports require TypeScript confirmation, exact duplicate broken doc chunks require byte-for-byte evidence, and product behavior, route deletion, component deletion, telemetry rename, auth/payment/unlock/content changes, and ambiguous doctrine conflicts must be escalated.
+
 ## 2026-05-04 Locked Content Protection Score Coverage
 
 - [x] KandyDrops locked content protection scoring is deterministic. Locked preview and guest/user surfaces may show cover art, safe metadata, file counts, and public social proof, but must never render internal content URLs, internal thumbnails, blurred internal previews, or raw storage URLs before entitlement.

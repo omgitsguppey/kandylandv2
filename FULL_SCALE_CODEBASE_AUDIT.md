@@ -1,5 +1,34 @@
 # KandyDrops Core Codebase Audit & Defensive Ledger
 
+## [2026-05-04 #137] PRE: Orphaned Logic And Stale Artifact Scoring
+
+Scope started:
+- Creating a deterministic orphaned-logic and stale-artifact scorer to reduce regressions from duplicate normalizers/truth helpers, stale PR audit chunks, legacy locked-preview ownership, obsolete docs, wrong GumDrops vocabulary, duplicate telemetry intent names, unused route surfaces, and dead imports in public beta surfaces.
+- Required outputs: `scripts/agent/score-orphaned-logic.ts`, `scripts/agent/validate-orphaned-logic.ts`, `agent/state/orphaned-logic-score.generated.json`, `docs/agent-truth/orphaned-logic-score.md`, package scripts `score:orphans` and `check:orphaned-logic`, targeted verification, commit, and push.
+- This pass must not run Playwright, Lighthouse, Cypress, full UI audits, broad integration tests, or full `npm run check`, and must not delete route files/components or alter product behavior.
+
+Initial evidence:
+- Control tower routing, doctrine consultation workflow, product/copy/vocabulary/banned-pattern doctrine, source-of-truth map, current git status, existing deterministic score scripts, public beta scanner, telemetry catalog, locked preview routing, and source/docs vocabulary scan were consulted.
+- The new scorer is a source-only audit lane. It may suggest exact safe cleanup plans, but it must escalate anything that affects product behavior, route ownership, telemetry semantics, or canonical helper ownership.
+
+Doctrine:
+- KandyDrops orphaned logic scoring is deterministic and source-only. It exists to reduce stale duplicate PR logic, deprecated route/modal ownership, duplicate truth helpers, broken generated audit chunks, stale docs, wrong GumDrops vocabulary, obsolete realtime patterns, duplicate telemetry intent names, and dead imports without relying on browser audits. It may propose exact cleanup only when the evidence is deterministic; product behavior changes, route deletion, component deletion, telemetry renaming, and ambiguous doctrine conflicts must be escalated.
+
+Scope completed:
+- Added `scripts/agent/score-orphaned-logic.ts` to scan duplicate normalizer/truth helper exports, legacy `DropPreviewModal` ownership drift, duplicate useDrops and PR audit notes, broken generated doc placeholders, route migration leftovers, stale doctrine contradictions, wrong GumDrops vocabulary, admin analytics realtime/hot-cache review patterns, duplicate telemetry intent groups, and potential dead imports in public beta surfaces.
+- Added `scripts/agent/validate-orphaned-logic.ts`, `agent/state/orphaned-logic-score.generated.json`, `docs/agent-truth/orphaned-logic-score.md`, and package scripts `score:orphans` and `check:orphaned-logic`.
+- Updated repo memory and file-function checklist coverage for the new orphaned-logic score lane.
+- Fixed TypeScript-only issues exposed by the requested typecheck: legacy preview file count now sums safe media summary counts, wallet close telemetry no longer declares `source_component` twice, MSW JSON/message fixture types are narrowed, and the content-protection Drop fixture uses the valid `content` Drop type.
+
+Verification:
+- `npm run score:orphans` passed with `90/100` `pass` status, no critical findings, one major hot-cache/realtime review finding, and two informational telemetry duplicate-intent findings.
+- `npm run check:orphaned-logic` passed.
+- `npm run typecheck` passed.
+- As requested, this pass did not run Playwright, Lighthouse, Cypress, full `npm run check`, broad UI audits, browser automation, or broad integration tests.
+
+Residual risk:
+- The scorer is deterministic source validation. It does not delete stale routes/components, rename telemetry, or resolve admin analytics realtime ownership automatically. The generated report escalates those decisions for owner review.
+
 ## [2026-05-04 #136] PRE: Locked Content Protection Scoring
 
 Scope started:
