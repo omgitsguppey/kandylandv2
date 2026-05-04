@@ -6,6 +6,7 @@ import type {
   AnalyticsTruthSourceSummary,
   AnalyticsTruthSummary,
 } from "@/lib/admin-analytics-truth";
+import type { AdminUserMetricsSnapshot } from "@/lib/admin-user-metrics-contract";
 import type { UserProfile } from "@/types/db";
 
 export type ViewTab = "operations" | "audience" | "commerce";
@@ -565,6 +566,7 @@ export type UsersSummary = {
   commerceTruthLabel?: "live" | "partial" | "stale" | "unknown";
   commerceSourceLabel?: string;
   commerceEmptyReason?: string | null;
+  metricsSnapshot?: AdminUserMetricsSnapshot;
   creatorOps?: {
     creatorsWithFollowers: number;
     totalFollowers: number;

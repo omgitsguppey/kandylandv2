@@ -1,0 +1,26 @@
+export type AdminUserMetricsSnapshotSource = "hot_cache" | "materialized" | "live_fallback";
+
+export type AdminUserMetricsFreshnessState = "live" | "stale" | "degraded" | "unavailable";
+
+export type AdminUserMetricsSnapshot = {
+  totalUsers: number;
+  activeUsers: number;
+  verifiedUsers: number;
+  sevenDayReturners: number;
+  pushEnabledUsers: number;
+  trackedUnwraps: number;
+  trackedPurchases: number;
+  watchTimeMs: number;
+  onboardedUsers: number;
+  totalRevenueUsd: number;
+  payingUsers: number;
+  generatedAt: number;
+  source: AdminUserMetricsSnapshotSource;
+  freshnessState: AdminUserMetricsFreshnessState;
+};
+
+export type AdminUserMetricsSnapshotMetadata = {
+  snapshot: AdminUserMetricsSnapshot;
+  sourceLabel: string;
+  staleReason: string | null;
+};

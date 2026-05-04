@@ -13,9 +13,9 @@ import { getTransactionDisplayLabel, normalizeTransactionRecord } from "@/lib/tr
 import { handleApiError } from "@/lib/server/auth";
 import { fetchTelemetryLogs } from "@/lib/server/admin-analytics-shared";
 import { buildAdminOverviewUserNameMap } from "@/lib/server/admin-overview-users";
+import { readAdminUserMetricsSnapshot } from "@/lib/server/admin-user-metrics-snapshot";
 import { buildServerAdminModuleVerification } from "@/lib/server/admin-source-verification";
 import {
-    safeCountWithDiagnostics,
     safeDocumentWithDiagnostics,
     safeQueryWithDiagnostics,
 } from "@/lib/server/diagnostic-read-fallbacks";
@@ -52,11 +52,6 @@ function toTimestampNumber(value: unknown): number {
     }
 
     return 0;
-}
-
-function toNumber(value: unknown): number {
-    const numeric = Number(value);
-    return Number.isFinite(numeric) ? numeric : 0;
 }
 
 function readMetric(raw: Record<string, unknown>, ...keys: string[]) {
@@ -194,7 +189,6 @@ async function GET_handler(request: NextRequest) {
         const issues: string[] = [];
 
         const [
-            usersCountSnapshot,
             recentUsersSnapshot,
             dropsSnapshot,
             recentTransactionsSnapshot,
@@ -202,14 +196,8 @@ async function GET_handler(request: NextRequest) {
             commerceSummarySnapshot,
             commerceDailySnapshot,
             currentDropDailySnapshot,
+            userMetricsSnapshotMeta,
         ] = await Promise.all([
-            safeCountWithDiagnostics({
-                routeName: "admin/overview",
-                channel: "admin",
-                label: "users count",
-                issues,
-                reader: () => adminDb.collection("users").count().get(),
-            }),
             safeQueryWithDiagnostics({
                 routeName: "admin/overview",
                 channel: "admin",
@@ -272,7 +260,12 @@ async function GET_handler(request: NextRequest) {
                     .where("dayKey", ">=", currentStartDayKey)
                     .get(),
             }),
+            readAdminUserMetricsSnapshot({
+                db: adminDb,
+                generatedAt: now,
+            }),
         ]);
+        const userMetricsSnapshot = userMetricsSnapshotMeta.snapshot;
 
         const telemetryLogsByEvent = await fetchTelemetryLogs(ADMIN_ACTIVITY_TELEMETRY_EVENT_NAMES, adminActivityStartMs);
 
@@ -459,18 +452,13 @@ async function GET_handler(request: NextRequest) {
         const commerceSummary = commerceSummarySnapshot.exists
             ? (commerceSummarySnapshot.data() as Record<string, unknown>)
             : null;
-        const grossRevenueCents = commerceSummary
-            ? Math.max(
-                Math.round(readMetric(commerceSummary, "grossRevenueUsdTotal") * 100),
-                Math.round(readMetric(commerceSummary, "revenueCentsTotal", "grossRevenueCents")),
-            )
-            : currentRevenueCents + previousRevenueCents;
-        const totalUnwraps = commerceSummary
-            ? Math.max(
-                Math.round(readMetric(commerceSummary, "unlockCount", "totalUnlocks")),
-                dropUnlockTotals,
-            )
-            : dropUnlockTotals;
+        const grossRevenueCents = Math.max(
+            Math.round(userMetricsSnapshot.totalRevenueUsd * 100),
+            commerceSummary
+                ? Math.round(readMetric(commerceSummary, "revenueCentsTotal", "grossRevenueCents"))
+                : currentRevenueCents + previousRevenueCents,
+        );
+        const totalUnwraps = Math.max(userMetricsSnapshot.trackedUnwraps, dropUnlockTotals);
 
         const lastTransactionAt = recentTransactions.reduce(
             (latest, transaction) => Math.max(latest, typeof transaction.timestamp === "number" ? transaction.timestamp : 0),
@@ -501,13 +489,14 @@ async function GET_handler(request: NextRequest) {
                 lastAdminActivityAt,
             },
             stats: {
-                totalUsers: toNumber(usersCountSnapshot.data()?.count),
+                totalUsers: userMetricsSnapshot.totalUsers,
                 liveDrops: drops.filter((drop) => drop.status === "active").length,
                 totalDrops: drops.length,
                 grossRevenueCents,
                 totalUnwraps,
                 currentWindowPurchases: currentPurchases,
                 currentWindowNewUsers: currentNewUsers,
+                userMetricsSnapshot,
             },
             deltas: {
                 accounts: calculateOverviewMetricDelta(currentNewUsers, previousNewUsers),
@@ -566,7 +555,7 @@ async function GET_handler(request: NextRequest) {
                 degradedReason: issues.length > 0 ? issues[0] : null,
                 status: issues.length > 0 ? "degraded" : "live",
                 countComposition: {
-                    totalUsers: toNumber(usersCountSnapshot.data()?.count),
+                    totalUsers: userMetricsSnapshot.totalUsers,
                     liveDrops: drops.filter((drop) => drop.status === "active").length,
                     totalDrops: drops.length,
                     recentTransactions: recentTransactions.length,

@@ -37,6 +37,7 @@ import {
 } from "@/lib/identity/actor-markers";
 import { recordRouteWarning } from "@/lib/server/route-diagnostics";
 import { buildServerAdminModuleVerification } from "@/lib/server/admin-source-verification";
+import { buildAdminUserMetricsSnapshot } from "@/lib/server/admin-user-metrics-snapshot";
 import { recordServerDiagnostic } from "@/lib/server/server-diagnostics";
 import {
   buildCommerceMetricsFromRollup,
@@ -1101,35 +1102,41 @@ async function GET_handler(request: NextRequest) {
     const commerceSummaryMetrics = commerceSummarySnap.exists
       ? buildCommerceMetricsFromRollup(commerceSummaryRaw)
       : buildEmptyCommerceMetrics();
-    const totalPurchases = Math.max(
-      Math.round(readMetric(commerceSummaryRaw, "purchaseCount")),
-      Object.values(analyticsByUser).reduce((sum, entry) => sum + (entry.purchaseCount || 0), 0),
-    );
     const unlockSpendGdTotal = Math.max(
       Math.round(readMetric(commerceSummaryRaw, "unlockSpendGdTotal", "spendGdTotal")),
       Object.values(analyticsByUser).reduce((sum, entry) => sum + (entry.unlockSpendGdTotal || 0), 0),
     );
+    const metricsSnapshotMeta = buildAdminUserMetricsSnapshot({
+      users,
+      analyticsByUser,
+      commerceSummaryRaw,
+      commerceSummaryExists: commerceSummarySnap.exists,
+      generatedAt: nowMs,
+      source: commerceSummarySnap.exists ? "hot_cache" : "live_fallback",
+      degraded: metricFailureUsers.length > 0,
+    });
+    const userMetricsSnapshot = metricsSnapshotMeta.snapshot;
 
     const summary = {
-      totalUsers: users.length,
+      totalUsers: userMetricsSnapshot.totalUsers,
       totalCreators: users.filter((user) => user.role === "creator").length,
       totalAdmins: users.filter((user) => user.role === "admin").length,
-      verifiedUsers: users.filter((user) => user.isVerified).length,
-      activeUsers: users.filter((user) => user.status === "active").length,
+      verifiedUsers: userMetricsSnapshot.verifiedUsers,
+      activeUsers: userMetricsSnapshot.activeUsers,
       suspendedUsers: users.filter((user) => user.status === "suspended").length,
       bannedUsers: users.filter((user) => user.status === "banned").length,
-      notificationsEnabledUsers: users.filter((user) => user.notificationSettings.browserPushEnabled).length,
-      onboardingCompletedUsers: users.filter((user) => user.onboardingCompleted).length,
-      activeLast7Days: Object.values(analyticsByUser).filter((entry) => nowMs - (entry.lastSeenAt || 0) < 7 * 24 * 60 * 60 * 1000).length,
+      notificationsEnabledUsers: userMetricsSnapshot.pushEnabledUsers,
+      onboardingCompletedUsers: userMetricsSnapshot.onboardedUsers,
+      activeLast7Days: userMetricsSnapshot.sevenDayReturners,
       totalEvents: Object.values(analyticsByUser).reduce((sum, entry) => sum + (entry.eventCount || 0), 0),
-      totalUnwraps: Object.values(analyticsByUser).reduce((sum, entry) => sum + (entry.unwrapCount || 0), 0),
-      totalPurchases,
+      totalUnwraps: userMetricsSnapshot.trackedUnwraps,
+      totalPurchases: userMetricsSnapshot.trackedPurchases,
       totalWatchHours: Number(
         (
-          Object.values(analyticsByUser).reduce((sum, entry) => sum + (entry.watchSecondsTotal || 0), 0) / 3600
+          userMetricsSnapshot.watchTimeMs / 3_600_000
         ).toFixed(1),
       ),
-      grossRevenueUsd: commerceSummaryMetrics.grossRevenueUsd,
+      grossRevenueUsd: userMetricsSnapshot.totalRevenueUsd,
       adjustedProfitUsd: commerceSummaryMetrics.adjustedProfitUsd,
       bonusValueUsd: commerceSummaryMetrics.bonusValueUsd,
       bonusGumDrops: commerceSummaryMetrics.bonusGumDrops,
@@ -1137,17 +1144,18 @@ async function GET_handler(request: NextRequest) {
       paidGumDrops: commerceSummaryMetrics.paidGumDrops,
       unlockSpendGdTotal,
       averageOrderUsd: (() => {
-        return totalPurchases > 0 ? roundCurrency(commerceSummaryMetrics.grossRevenueUsd / totalPurchases) : 0;
+        return userMetricsSnapshot.trackedPurchases > 0 ? roundCurrency(userMetricsSnapshot.totalRevenueUsd / userMetricsSnapshot.trackedPurchases) : 0;
       })(),
       effectiveUsdPer100Gd: (() => {
         return commerceSummaryMetrics.deliveredGumDrops > 0
-          ? roundCurrency(commerceSummaryMetrics.grossRevenueUsd / (commerceSummaryMetrics.deliveredGumDrops / 100))
+          ? roundCurrency(userMetricsSnapshot.totalRevenueUsd / (commerceSummaryMetrics.deliveredGumDrops / 100))
           : 0;
       })(),
-      payingUsers: Object.values(analyticsByUser).filter((entry) => (entry.purchaseCount || 0) > 0).length,
+      payingUsers: userMetricsSnapshot.payingUsers,
       commerceTruthLabel: commerceSummaryMetrics.commerceTruthLabel,
       commerceSourceLabel: commerceSummaryMetrics.commerceSourceLabel,
       commerceEmptyReason: commerceSummaryMetrics.commerceEmptyReason,
+      metricsSnapshot: userMetricsSnapshot,
       creatorOps: {
         creatorsWithFollowers: Array.from(creatorOpsByUser.values()).filter((entry) => entry.followerCount > 0).length,
         totalFollowers: Array.from(creatorOpsByUser.values()).reduce((sum, entry) => sum + entry.followerCount, 0),

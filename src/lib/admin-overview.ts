@@ -1,5 +1,6 @@
 import type { Drop, Transaction } from "@/types/db";
 import type { AdminModuleVerification } from "@/lib/admin-parity";
+import type { AdminUserMetricsSnapshot } from "@/lib/admin-user-metrics-contract";
 
 export type AdminOverviewDeltaDirection = "up" | "down" | "flat";
 
@@ -58,6 +59,7 @@ export type AdminOverviewStats = {
     totalUnwraps: number;
     currentWindowPurchases: number;
     currentWindowNewUsers: number;
+    userMetricsSnapshot?: AdminUserMetricsSnapshot;
 };
 
 export type AdminOverviewTransactionRecord = Transaction & {

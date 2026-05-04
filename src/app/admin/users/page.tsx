@@ -283,6 +283,8 @@ export default function UserManagementPage() {
         !analytics || analytics.metricTruthLabel === "unknown" ? "[unavailable]" : (value ?? 0).toLocaleString();
     const formatSummaryCount = (value?: number) => summary ? (value ?? 0).toLocaleString() : "[unavailable]";
     const summaryTransportState: AdminSurfaceState = summary ? realtimeState : loading ? "loading" : "failed";
+    const summarySnapshotTruthState = summary?.metricsSnapshot?.freshnessState ?? null;
+    const summarySnapshotSource = summary?.metricsSnapshot?.source ?? "unavailable";
     const getSummaryMetricState = (
         values: unknown[],
         valueTruthState?: AdminSurfaceState | null,
@@ -306,6 +308,8 @@ export default function UserManagementPage() {
         <div
             className="glass-panel rounded-[1.7rem] border border-white/10 p-4"
             data-admin-metric-state={metricState}
+            data-admin-metric-source={summarySnapshotSource}
+            data-admin-metric-freshness={summarySnapshotTruthState ?? "unavailable"}
         >
             <p className="text-[11px] font-bold uppercase tracking-[0.16em] text-gray-500">{title}</p>
             <div className="mt-1">
@@ -600,25 +604,25 @@ export default function UserManagementPage() {
                             title: "User base",
                             value: formatSummaryCount(summary?.totalUsers),
                             detail: `${formatSummaryCount(summary?.activeUsers)} active, ${formatSummaryCount(summary?.verifiedUsers)} verified`,
-                            metricState: getSummaryMetricState([summary?.totalUsers, summary?.activeUsers, summary?.verifiedUsers]),
+                            metricState: getSummaryMetricState([summary?.totalUsers, summary?.activeUsers, summary?.verifiedUsers], summarySnapshotTruthState),
                         })}
                         {renderSummaryMetricCard({
                             title: "7 day returners",
                             value: formatSummaryCount(summary?.activeLast7Days),
                             detail: `${formatSummaryCount(summary?.notificationsEnabledUsers)} with notifications on`,
-                            metricState: getSummaryMetricState([summary?.activeLast7Days, summary?.notificationsEnabledUsers]),
+                            metricState: getSummaryMetricState([summary?.activeLast7Days, summary?.notificationsEnabledUsers], summarySnapshotTruthState),
                         })}
                         {renderSummaryMetricCard({
                             title: "Tracked unwraps",
                             value: formatSummaryCount(summary?.totalUnwraps),
                             detail: `${formatSummaryCount(summary?.totalPurchases)} tracked purchases`,
-                            metricState: getSummaryMetricState([summary?.totalUnwraps, summary?.totalPurchases]),
+                            metricState: getSummaryMetricState([summary?.totalUnwraps, summary?.totalPurchases], summarySnapshotTruthState),
                         })}
                         {renderSummaryMetricCard({
                             title: "Watch time",
                             value: summary ? `${summary.totalWatchHours ?? 0}h` : "[unavailable]",
                             detail: `${formatSummaryCount(summary?.onboardingCompletedUsers)} users completed onboarding`,
-                            metricState: getSummaryMetricState([summary?.totalWatchHours, summary?.onboardingCompletedUsers]),
+                            metricState: getSummaryMetricState([summary?.totalWatchHours, summary?.onboardingCompletedUsers], summarySnapshotTruthState),
                         })}
                         {renderSummaryMetricCard({
                             title: "Monetization",
@@ -653,6 +657,8 @@ export default function UserManagementPage() {
                                 [summary?.effectiveUsdPer100Gd, summary?.averageOrderUsd],
                                 coerceAdminSurfaceState(summary?.commerceTruthLabel),
                             )}
+                            data-admin-metric-source={summarySnapshotSource}
+                            data-admin-metric-freshness={summarySnapshotTruthState ?? "unavailable"}
                         >
                             <p className="text-[11px] font-bold uppercase tracking-[0.16em] text-gray-500">Effective rate</p>
                             <p className="mt-2 text-3xl font-black text-white">{formatMoney(summary?.effectiveUsdPer100Gd)}</p>

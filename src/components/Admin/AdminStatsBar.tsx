@@ -57,6 +57,7 @@ export function AdminStatsBar({ stats, deltas, issueCount, truthState }: AdminSt
     const metricState = resolveAdminMetricState({
         hasUsableValue: true,
         transportState: resolvedTruthState,
+        valueTruthState: stats.userMetricsSnapshot?.freshnessState,
     });
     const metricBadgeState = adminMetricStateToSurfaceState(metricState);
     const metricBadgeLabel = getAdminMetricStateBadgeLabel(metricState);
@@ -64,7 +65,7 @@ export function AdminStatsBar({ stats, deltas, issueCount, truthState }: AdminSt
     return (
         <div className="space-y-3">
             <div className="grid grid-cols-2 gap-2.5 xl:grid-cols-4">
-                <div className="rounded-[1.35rem] border border-white/8 bg-black/35 px-3.5 py-3.5" data-admin-metric-state={metricState}>
+                <div className="rounded-[1.35rem] border border-white/8 bg-black/35 px-3.5 py-3.5" data-admin-metric-state={metricState} data-admin-metric-source={stats.userMetricsSnapshot?.source ?? "unavailable"} data-admin-metric-freshness={stats.userMetricsSnapshot?.freshnessState ?? "unavailable"}>
                     <p className="flex items-center gap-1.5 text-[10px] font-bold uppercase tracking-[0.16em] text-gray-500">
                         <Users className="h-3.5 w-3.5 text-brand-purple" />
                         Accounts
@@ -77,7 +78,7 @@ export function AdminStatsBar({ stats, deltas, issueCount, truthState }: AdminSt
                     <p className="mt-2 text-[10px] text-gray-500">{stats.currentWindowNewUsers.toLocaleString()} new in 30d</p>
                 </div>
 
-                <div className="rounded-[1.35rem] border border-white/8 bg-black/35 px-3.5 py-3.5" data-admin-metric-state={metricState}>
+                <div className="rounded-[1.35rem] border border-white/8 bg-black/35 px-3.5 py-3.5" data-admin-metric-state={metricState} data-admin-metric-source={stats.userMetricsSnapshot?.source ?? "unavailable"} data-admin-metric-freshness={stats.userMetricsSnapshot?.freshnessState ?? "unavailable"}>
                     <p className="flex items-center gap-1.5 text-[10px] font-bold uppercase tracking-[0.16em] text-gray-500">
                         <ShoppingBag className="h-3.5 w-3.5 text-brand-purple" />
                         Purchases (30d)
@@ -90,7 +91,7 @@ export function AdminStatsBar({ stats, deltas, issueCount, truthState }: AdminSt
                     <p className="mt-2 text-[10px] text-gray-500">{stats.liveDrops} live of {stats.totalDrops} drops</p>
                 </div>
 
-                <div className="rounded-[1.35rem] border border-white/8 bg-black/35 px-3.5 py-3.5" data-admin-metric-state={metricState}>
+                <div className="rounded-[1.35rem] border border-white/8 bg-black/35 px-3.5 py-3.5" data-admin-metric-state={metricState} data-admin-metric-source={stats.userMetricsSnapshot?.source ?? "unavailable"} data-admin-metric-freshness={stats.userMetricsSnapshot?.freshnessState ?? "unavailable"}>
                     <p className="flex items-center gap-1.5 text-[10px] font-bold uppercase tracking-[0.16em] text-gray-500">
                         <DollarSign className="h-3.5 w-3.5 text-brand-purple" />
                         Lifetime revenue
@@ -103,7 +104,7 @@ export function AdminStatsBar({ stats, deltas, issueCount, truthState }: AdminSt
                     <p className="mt-2 text-[10px] text-gray-500">vs. prior 30d</p>
                 </div>
 
-                <div className="rounded-[1.35rem] border border-white/8 bg-black/35 px-3.5 py-3.5" data-admin-metric-state={metricState}>
+                <div className="rounded-[1.35rem] border border-white/8 bg-black/35 px-3.5 py-3.5" data-admin-metric-state={metricState} data-admin-metric-source={stats.userMetricsSnapshot?.source ?? "unavailable"} data-admin-metric-freshness={stats.userMetricsSnapshot?.freshnessState ?? "unavailable"}>
                     <p className="flex items-center gap-1.5 text-[10px] font-bold uppercase tracking-[0.16em] text-gray-500">
                         <Zap className="h-3.5 w-3.5 text-brand-purple" />
                         Lifetime unwraps

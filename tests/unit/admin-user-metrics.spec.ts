@@ -10,6 +10,7 @@ import {
   hasUsableAdminMetricValue,
   resolveAdminMetricState,
 } from "@/lib/admin-metric-truth-state";
+import { buildAdminUserMetricsSnapshot } from "@/lib/server/admin-user-metrics-snapshot";
 
 describe("admin user metric source truth", () => {
   it("keeps cached metric values visible while realtime transport refreshes", () => {
@@ -36,6 +37,61 @@ describe("admin user metric source truth", () => {
       transportState: "failed",
     })).toBe("failed");
     expect(hasUsableAdminMetricValue(0, undefined)).toBe(true);
+  });
+
+  it("builds a canonical admin user metrics snapshot with stale-but-visible values", () => {
+    const generatedAt = 1_700_000_000_000;
+    const snapshot = buildAdminUserMetricsSnapshot({
+      generatedAt,
+      users: [
+        {
+          uid: "user_1",
+          status: "active",
+          isVerified: true,
+          onboardingCompleted: true,
+          notificationSettings: { browserPushEnabled: true },
+        },
+        {
+          uid: "user_2",
+          status: "suspended",
+          isVerified: false,
+          onboardingCompleted: false,
+          notificationSettings: { browserPushEnabled: false },
+        },
+      ],
+      analyticsByUser: {
+        user_1: {
+          lastSeenAt: generatedAt - 8 * 24 * 60 * 60 * 1000,
+          unwrapCount: 3,
+          purchaseCount: 2,
+          watchSecondsTotal: 90,
+          grossRevenueUsd: 20,
+        },
+      },
+      commerceSummaryRaw: {
+        grossRevenueUsdTotal: 20,
+        purchaseCount: 2,
+        unlockCount: 4,
+      },
+      commerceSummaryExists: true,
+      source: "hot_cache",
+    }).snapshot;
+
+    expect(snapshot).toMatchObject({
+      totalUsers: 2,
+      activeUsers: 1,
+      verifiedUsers: 1,
+      sevenDayReturners: 0,
+      pushEnabledUsers: 1,
+      trackedUnwraps: 4,
+      trackedPurchases: 2,
+      watchTimeMs: 90_000,
+      onboardedUsers: 1,
+      totalRevenueUsd: 20,
+      payingUsers: 1,
+      source: "hot_cache",
+      freshnessState: "stale",
+    });
   });
 
   it("flags capped rollup events for raw fact recovery", () => {
