@@ -73,6 +73,7 @@ import {
     CHAT_THREAD_COMPOSER_PADDING_BOTTOM,
     USER_MOBILE_CHAT_BOTTOM_NAV_SAFE_OFFSET,
     USER_MOBILE_CHAT_BOTTOM_RESERVED_HEIGHT,
+    USER_MOBILE_CHAT_CONTROL_BOTTOM_OFFSET,
     USER_MOBILE_BOTTOM_NAV_RESERVED_HEIGHT,
 } from "@/lib/user-mobile-shell";
 
@@ -730,7 +731,9 @@ export function ChatExperience() {
     }, [normalizedThreadSearch, visibleThreads]);
     const showCompactThreadListOnly = isCompactViewport && !selectedThreadId;
     const canComposeFromFollowedCreators = followedCreators.length > 0;
-    const chatViewportShellStyle = useMemo(() => ({}) satisfies CSSProperties, []);
+    const chatViewportShellStyle = useMemo(() => ({
+        paddingBottom: isCompactViewport ? USER_MOBILE_CHAT_BOTTOM_NAV_SAFE_OFFSET : undefined,
+    }) satisfies CSSProperties, [isCompactViewport]);
     const compactThreadListScrollStyle = useMemo(() => ({
         paddingBottom: CHAT_LIST_SCROLL_PADDING_BOTTOM,
         scrollPaddingBottom: CHAT_LIST_SCROLL_PADDING_BOTTOM,
@@ -1069,6 +1072,9 @@ export function ChatExperience() {
             bottomNavReservedHeight: USER_MOBILE_BOTTOM_NAV_RESERVED_HEIGHT,
             chatBottomReservedHeight: USER_MOBILE_CHAT_BOTTOM_RESERVED_HEIGHT,
             chatBottomNavSafeOffset: USER_MOBILE_CHAT_BOTTOM_NAV_SAFE_OFFSET,
+            chatShellReservesBottomNav: true,
+            chatControlBottomOffset: USER_MOBILE_CHAT_CONTROL_BOTTOM_OFFSET,
+            chatInnerControlBottomOffset: CHAT_LIST_CONTROLS_BOTTOM_OFFSET,
             safeAreaBottomAppliedAt: "user-mobile-shell",
             safeAreaBottomApplied: true,
             duplicateSafeAreaBottomDetected: false,

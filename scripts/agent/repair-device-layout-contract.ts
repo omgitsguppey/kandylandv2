@@ -58,7 +58,7 @@ for (const plan of plans) {
     const reverted = buildDeviceLayoutScoreReport({ root, safeAutofixesApplied: applied });
     skipped.push({
       findingId: plan.findingId,
-      reason: "Repair was reverted because the layout score decreased or a new critical finding appeared.",
+      reason: "Repair was reverted because the layout score decreased or new critical findings appeared.",
     });
     currentReport = reverted;
     continue;
