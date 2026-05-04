@@ -18,6 +18,7 @@ import {
   AnalyticsMetricResult,
   AnalyticsSessionFactRecord,
 } from "@/types/analytics";
+import { normalizeUserAction } from "@/lib/analytics-action-taxonomy";
 
 interface AnalyticsMetricEngineInput {
   eventFacts?: AnalyticsEventFactRecord[];
@@ -49,6 +50,7 @@ interface SessionSummary {
   hasAdminUser: boolean;
   hasDropSurface: boolean;
   clickCount: number;
+  actionIds: Set<string>;
   hoverCount: number;
   scrollCount: number;
   exits: number;
@@ -175,6 +177,7 @@ function getOrCreateSession(
     hasAdminUser: false,
     hasDropSurface: false,
     clickCount: 0,
+    actionIds: new Set<string>(),
     hoverCount: 0,
     scrollCount: 0,
     exits: 0,
@@ -292,7 +295,23 @@ function buildSessionSummaries(input: AnalyticsMetricEngineInput) {
       summary.pageViews += 1;
     }
 
-    if (isClickLikeEvent(eventName)) {
+    const normalizedAction = normalizeUserAction({
+      eventId: (fact as Record<string, unknown>).eventId,
+      eventName,
+      params,
+      timestamp: fact.timestamp,
+      userId: fact.userId,
+      sessionId: fact.sessionId,
+      pagePath,
+      dropId: fact.dropId,
+    });
+
+    if (normalizedAction) {
+      if (!summary.actionIds.has(normalizedAction.actionId)) {
+        summary.actionIds.add(normalizedAction.actionId);
+        summary.clickCount += 1;
+      }
+    } else if (isClickLikeEvent(eventName)) {
       summary.clickCount += Math.max(1, toNumber(params.click_count) || 1);
     }
 

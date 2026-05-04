@@ -22,6 +22,11 @@ import {
 import { buildUserBehaviorRollup } from "@/lib/server/user-behavior-rollup";
 import { buildWatchTimeRollupFromRecords } from "@/lib/server/watch-time-rollup";
 import {
+    dedupeNormalizedUserActions,
+    normalizeUserAction,
+    toUserActionLedgerItem,
+} from "@/lib/analytics-action-taxonomy";
+import {
     buildCreatorOnboardingCanonicalRecord,
     normalizeCreatorOnboardingCanonicalRecord,
     normalizeCreatorOnboardingHistoryEntry,
@@ -255,15 +260,26 @@ async function GET_handler(
         const analyticsFacts = analyticsFactsSnap.docs
             .map((doc) => {
                 const data = doc.data() as Record<string, unknown>;
+                const params = data.params && typeof data.params === "object"
+                    ? data.params as Record<string, unknown>
+                    : {};
                 return {
                     id: doc.id,
+                    eventId: readString(data.eventId) || doc.id,
                     eventName: readString(data.eventName),
                     timestamp: toTimestampNumber(data.timestamp),
+                    userId: readString(data.userId),
+                    sessionId: readString(data.sessionId),
+                    pagePath: readString(data.pagePath),
                     dropId: readString(data.dropId),
                     dropTitle: readString(data.dropTitle),
+                    creatorId: readString(data.creatorId) || readString(params.creator_id) || readString(params.creatorId),
+                    assetKey: readString(data.assetKey),
+                    assetIndex: readNumber(data.assetIndex),
                     sessionWatchSeconds: readNumber(data.sessionWatchSeconds),
                     watchSeconds: readNumber(data.watchSeconds),
                     loadMs: readNumber(data.loadMs),
+                    params,
                 };
             })
             .sort((left, right) => right.timestamp - left.timestamp);
@@ -452,6 +468,82 @@ async function GET_handler(
         const unlockSpendGdTotal = transactions
             .filter((transaction) => transaction.status === "completed" && transaction.type === "unlock_content")
             .reduce((sum, transaction) => sum + transaction.amount, 0);
+        const normalizedActionLedger = dedupeNormalizedUserActions([
+            ...analyticsFacts.map((event) => normalizeUserAction({
+                eventId: event.eventId,
+                eventName: event.eventName,
+                params: event.params,
+                timestamp: event.timestamp,
+                userId: event.userId || userId,
+                sessionId: event.sessionId,
+                pagePath: event.pagePath,
+                dropId: event.dropId,
+                creatorId: event.creatorId,
+                assetKey: event.assetKey,
+                assetIndex: event.assetIndex,
+            })),
+            ...watchSessionsSnap.docs.map((doc) => {
+                const data = doc.data() as Record<string, unknown>;
+                const completed = data.completed === true
+                    || data.completedSession === true
+                    || readString(data.tier) === "completed"
+                    || readString(data.watchTier) === "completed"
+                    || readString(data.completionReason) === "completed";
+                if (!completed) {
+                    return null;
+                }
+
+                return normalizeUserAction({
+                    eventId: doc.id,
+                    eventName: "watch_session_ended",
+                    params: {
+                        watch_session_id: doc.id,
+                        source_component: "viewer_watch_session_rollup",
+                        route: readString(data.route) || readString(data.pagePath) || "/dashboard/viewer",
+                        drop_id: readString(data.dropId),
+                        file_id: readString(data.fileId),
+                        media_index: readNumber(data.mediaIndex),
+                    },
+                    timestamp: Math.max(toTimestampNumber(data.endedAtMs), toTimestampNumber(data.lastUpdatedAtMs), toTimestampNumber(data.updatedAt)),
+                    userId,
+                    sessionId: readString(data.sessionId) || doc.id,
+                    pagePath: readString(data.route) || readString(data.pagePath) || "/dashboard/viewer",
+                    dropId: readString(data.dropId),
+                });
+            }),
+            ...transactions.map((transaction) => {
+                if (transaction.status !== "completed") {
+                    return null;
+                }
+
+                const transactionType = String(transaction.type);
+                const eventName = transactionType === "purchase_currency" || transactionType === "purchase"
+                    ? "gumdrops_purchase_completed"
+                    : transactionType === "unlock_content"
+                        ? "unlock_drop_success"
+                        : "";
+                if (!eventName) {
+                    return null;
+                }
+
+                return normalizeUserAction({
+                    eventId: transaction.id,
+                    eventName,
+                    params: {
+                        transaction_id: transaction.id,
+                        source_component: "transaction_ledger",
+                        route: transactionType === "unlock_content" ? "/drops" : "/wallet",
+                        drop_id: transaction.relatedDropId,
+                    },
+                    timestamp: toTimestampNumber(transaction.timestamp) || toTimestampNumber(transaction.timestampMs),
+                    userId,
+                    sessionId: `transaction:${transaction.id}`,
+                    pagePath: transactionType === "unlock_content" ? "/drops" : "/wallet",
+                    dropId: transaction.relatedDropId,
+                });
+            }),
+        ]);
+        const normalizedActionCount = normalizedActionLedger.length;
         const purchaseSourceCounts = [
             { key: "transactions", label: "Transactions", count: purchaseTransactions.length },
             { key: "rollup", label: "User rollup", count: rollupPurchaseCount },
@@ -508,7 +600,7 @@ async function GET_handler(
         const normalizedUnlockCount = completedUnlockTransactions.length > 0
             ? completedUnlockTransactions.length
             : Math.max(rollupUnlockCount, dailyUnwrapCount, directUnwrapCount);
-        const normalizedEventCount = Math.max(readNumber(analyticsRollup.eventCount), directEventCount, dailyEventCount);
+        const normalizedEventCount = Math.max(normalizedActionCount, readNumber(analyticsRollup.eventCount), directEventCount, dailyEventCount);
         const normalizedViewCount = Math.max(
             readNumber(analyticsRollup.viewCount),
             dailyViewCount,
@@ -557,7 +649,7 @@ async function GET_handler(
         });
         const behaviorRollup = buildUserBehaviorRollup({
             userId,
-            totalActions: normalizedEventCount,
+            totalActions: normalizedActionCount,
             views: normalizedViewCount,
             unwraps: normalizedUnlockCount,
             watchSecondsTotal: normalizedWatchSeconds,
@@ -628,6 +720,8 @@ async function GET_handler(
             recoveredFromFacts: metricIntegrity.recoveredFromFacts,
             engagementScore: scoreAdminUserEngagement(metricSnapshot, Date.now()),
             behaviorRollup,
+            actionLedger: normalizedActionLedger.slice(0, 80).map(toUserActionLedgerItem),
+            actionTaxonomyVersion: "user-action-taxonomy-v1",
             watchTimeSource: watchTimeRollup.source,
             watchTimeIssues: watchTimeRollup.issues,
             topViewedDrops: Array.from(viewedDrops.values())

@@ -7,6 +7,7 @@ export type AnalyticsMetricReliability = "canonical" | "cross_source" | "directi
 export type AnalyticsMetricStatus = "healthy" | "partial" | "empty";
 
 export interface AnalyticsEventFactRecord {
+  eventId?: string;
   eventName?: string;
   pagePath?: string;
   sessionId?: string;

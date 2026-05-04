@@ -9,7 +9,6 @@ import {
     Activity,
     AlertCircle,
     ArrowLeft,
-    Ban,
     CalendarDays,
     Eye,
     History,
@@ -29,6 +28,7 @@ import { Transaction, UserProfile } from "@/types/db";
 import { authFetch } from "@/lib/authFetch";
 import type { SupportReadinessSnapshot } from "@/lib/support-readiness";
 import { reportClientIssue } from "@/lib/client-error-reporting";
+import type { UserActionLedgerItem } from "@/lib/analytics-action-taxonomy";
 import {
     describeCreatorOnboardingBlockingReason,
     getCreatorOnboardingStatusSummary,
@@ -75,6 +75,8 @@ type UserDetailAnalytics = {
     recoveredFromFacts?: boolean;
     engagementScore?: number;
     behaviorRollup?: UserBehaviorRollup;
+    actionLedger?: UserActionLedgerItem[];
+    actionTaxonomyVersion?: string;
     unlockSpendGdTotal: number;
     topViewedDrops: Array<{ dropId: string; dropTitle: string; views: number; watchSeconds: number }>;
     parity: {
@@ -406,6 +408,7 @@ export default function AdminUserAnalyticsPage() {
     const failedTxCount = transactions.filter((transaction) => transaction.status === "failed").length;
     const parity = analytics?.parity;
     const behaviorRollup = analytics?.behaviorRollup;
+    const actionLedger = analytics?.actionLedger ?? [];
     const behaviorIssueSummary = behaviorRollup?.issues.map((issue) => issue.message).join(" ");
     const behaviorTruthState: AdminSurfaceState = !behaviorRollup
         ? "unavailable"
@@ -620,42 +623,36 @@ export default function AdminUserAnalyticsPage() {
                     </h3>
 
                     <div className="custom-scrollbar max-h-[400px] space-y-3 overflow-y-auto pr-2">
-                        {transactions.length === 0 ? (
+                        {actionLedger.length === 0 ? (
                             <p className="py-8 text-center text-sm text-gray-500">No behavior logged yet.</p>
                         ) : (
-                            transactions.map((transaction) => {
-                                const transactionType = String(transaction.type);
-
+                            actionLedger.map((action) => {
                                 return (
-                                    <div key={transaction.id} className="flex items-center justify-between rounded-xl border border-white/5 bg-black/40 p-3">
+                                    <div
+                                        key={action.actionId}
+                                        className="flex items-center justify-between rounded-xl border border-white/5 bg-black/40 p-3"
+                                        data-user-action-name={action.actionName}
+                                        data-user-action-source={action.sourceComponent}
+                                    >
                                         <div className="min-w-0 flex-1">
                                             <div className="line-clamp-1 text-sm font-bold text-white">
-                                                {transaction.description || transactionType}
+                                                {action.label}
                                             </div>
-                                            <div className="mt-1 font-mono text-[10px] text-gray-500">
-                                                {formatDistanceToNow((transaction.timestamp as number) > 0 ? (transaction.timestamp as number) : Date.now(), { addSuffix: true })}
+                                            <div className="mt-1 flex flex-wrap gap-x-2 gap-y-1 text-[10px] text-gray-500">
+                                                <span className="font-mono">
+                                                    {formatDistanceToNow(action.timestamp > 0 ? action.timestamp : Date.now(), { addSuffix: true })}
+                                                </span>
+                                                <span>{action.route}</span>
+                                                <span>{action.sourceComponent}</span>
                                             </div>
                                         </div>
                                         <div className="ml-4 flex shrink-0 flex-col items-end gap-1">
-                                            {transaction.type === "unlock_content" ? (
-                                                <span className="rounded-md border border-white/10 bg-zinc-800 px-2 py-0.5 text-xs font-bold text-zinc-400">
-                                                    {transaction.amount} GD
-                                                </span>
-                                            ) : transactionType === "purchase_currency" || transactionType === "purchase" ? (
-                                                <span className="rounded-md border border-brand-purple/20 bg-brand-purple/10 px-2 py-0.5 text-xs font-bold text-brand-purple">
-                                                    ${((transaction.grossRevenueUsd ?? transaction.cost ?? 0)).toFixed(2)}
-                                                </span>
-                                            ) : Number.isFinite(transaction.amount) && transaction.amount !== 0 ? (
-                                                <span className="rounded-md border border-white/10 bg-black/25 px-2 py-0.5 text-xs font-bold text-gray-300">
-                                                    {transaction.amount > 0 ? "+" : ""}{transaction.amount} GD
-                                                </span>
-                                            ) : (
-                                                <span className="text-xs font-bold text-gray-400">Log</span>
-                                            )}
-
-                                            {transaction.status === "failed" ? (
-                                                <span className="flex items-center gap-1 text-[9px] font-bold uppercase text-red-500">
-                                                    <Ban className="h-2 w-2" /> Failed
+                                            <span className="rounded-md border border-brand-purple/20 bg-brand-purple/10 px-2 py-0.5 text-xs font-bold text-brand-purple">
+                                                {action.actionName}
+                                            </span>
+                                            {action.entityId ? (
+                                                <span className="max-w-[9rem] truncate font-mono text-[9px] text-gray-500">
+                                                    {action.entityType}:{action.entityId}
                                                 </span>
                                             ) : null}
                                         </div>

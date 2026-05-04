@@ -11,6 +11,7 @@ import { guardApiRequest } from "@/lib/server/request-guard";
 import { recordRouteWarning } from "@/lib/server/route-diagnostics";
 import { recordServerDiagnostic } from "@/lib/server/server-diagnostics";
 import { ANALYTICS_BATCH_ID_PATTERN, createAnalyticsBatchId, createAnalyticsStorageKey } from "@/lib/analytics-identifiers";
+import { dedupeNormalizedUserActions, normalizeUserAction } from "@/lib/analytics-action-taxonomy";
 import {
     ANALYTICS_CANONICAL_COLLECTIONS,
     ANALYTICS_OPERATIONAL_COLLECTIONS,
@@ -154,6 +155,19 @@ async function POST_handler(request: NextRequest) {
             x: typeof event.x === "number" ? Math.floor(event.x / 24) * 24 : undefined,
             y: typeof event.y === "number" ? Math.floor(event.y / 24) * 24 : undefined,
         }));
+        const normalizedActions = dedupeNormalizedUserActions(sanitizedEvents.map((event) => normalizeUserAction({
+            eventName: event.targetId || event.semanticSurfaceKey || event.type,
+            params: {
+                source_component: event.targetId || event.targetTag || "guest_analytics_ingest",
+                route: event.path,
+                drop_id: event.dropId,
+            },
+            timestamp: event.timestamp,
+            sessionId: sessionId || sessionKey,
+            userId: sessionKey,
+            pagePath: event.path,
+            dropId: event.dropId,
+        })));
 
         // Group events by a unique minute-bucket to prevent writing thousands of tiny docs.
         const minuteBucket = timeKeys.minuteKey;
@@ -233,6 +247,8 @@ async function POST_handler(request: NextRequest) {
                 maxScrollDepth: batchScrollDepth,
                 hasPixelData,
                 events: sanitizedEvents,
+                normalizedActions: normalizedActions.slice(0, 50),
+                normalizedActionCount: normalizedActions.length,
                 createdAt: FieldValue.serverTimestamp(),
             });
 

@@ -10,6 +10,7 @@ import { resolveTrackedTelemetryEvent } from "@/lib/server/analytics-event-utils
 import { ANALYTICS_CANONICAL_COLLECTIONS, ANALYTICS_OPERATIONAL_COLLECTIONS, ANALYTICS_ROUTE_POLICIES } from "@/lib/server/analytics-governance";
 import { withRouteRuntimeHealth } from "@/lib/server/route-runtime-health";
 import { explainEventInclusion } from "@/lib/analytics/analytics-event-contract";
+import { normalizeUserAction } from "@/lib/analytics-action-taxonomy";
 
 export const dynamic = "force-dynamic";
 
@@ -173,6 +174,21 @@ async function POST_handler(request: NextRequest) {
             });
             const actorClassification = inclusion.actorClassification;
             const adminId = actorClassification.isAdmin ? caller.uid : "";
+            const normalizedAction = inclusion.includeInUserBehavior
+                ? normalizeUserAction({
+                    eventId,
+                    eventName: canonicalEventName,
+                    params: enrichedParams,
+                    timestamp,
+                    userId: caller.uid,
+                    sessionId: String(enrichedParams.session_id || enrichedParams.sessionId || ""),
+                    pagePath,
+                    dropId: String(enrichedParams.drop_id || enrichedParams.dropId || ""),
+                    creatorId: String(enrichedParams.creator_id || enrichedParams.creatorId || ""),
+                    assetKey: String(enrichedParams.asset_key || enrichedParams.assetKey || ""),
+                    assetIndex: Number(enrichedParams.asset_index || enrichedParams.assetIndex || 0),
+                })
+                : null;
             
             const finalEvent = {
                 eventId,
@@ -228,6 +244,12 @@ async function POST_handler(request: NextRequest) {
                     unknown: actorClassification.isUnknown,
                 },
                 params: enrichedParams,
+                normalizedActionName: normalizedAction?.actionName ?? "",
+                normalizedActionId: normalizedAction?.actionId ?? "",
+                actionEntityId: normalizedAction?.entityId ?? "",
+                actionEntityType: normalizedAction?.entityType ?? "",
+                actionSourceComponent: normalizedAction?.sourceComponent ?? "",
+                actionRoute: normalizedAction?.route ?? "",
             };
 
             // Using batch.set with merge: false to mimic create, but safer. Deduplication is handled by background worker if duplicate
