@@ -1,0 +1,77 @@
+import { existsSync, readFileSync } from "node:fs";
+import { join } from "node:path";
+
+const root = process.cwd();
+const failures: string[] = [];
+
+function readRequired(relativePath: string) {
+  const fullPath = join(root, relativePath);
+  if (!existsSync(fullPath)) {
+    failures.push(`Missing required file: ${relativePath}`);
+    return "";
+  }
+  return readFileSync(fullPath, "utf8");
+}
+
+function requireIncludes(source: string, needle: string, label: string) {
+  if (!source.includes(needle)) {
+    failures.push(`${label} must include "${needle}".`);
+  }
+}
+
+function requireExcludes(source: string, needle: string, label: string) {
+  if (source.includes(needle)) {
+    failures.push(`${label} must not include "${needle}".`);
+  }
+}
+
+const packageJson = JSON.parse(readRequired("package.json") || "{}") as {
+  scripts?: Record<string, string>;
+};
+const notificationBell = readRequired("src/components/Navigation/NotificationBell.tsx");
+const notificationRuntimeBridge = readRequired("src/components/Notifications/NotificationRuntimeBridge.tsx");
+const notificationsHook = readRequired("src/hooks/useNotifications.ts");
+const telemetryCatalog = readRequired("src/lib/telemetry-catalog.ts");
+const identifiedIngestRoute = readRequired("src/app/api/analytics/ingest-identified/route.ts");
+const eventFactNormalizer = readRequired("src/lib/behavioral/event-fact-normalizer.ts");
+const adminHistoricalEngagement = readRequired("src/lib/server/admin-analytics-historical-engagement.ts");
+const taskCatalog = readRequired("src/lib/tasks/task-catalog.ts");
+const notificationReadTests = readRequired("tests/unit/notification-read-state.spec.tsx");
+const ingestTests = readRequired("tests/unit/analytics-ingest-identified-route.spec.ts");
+
+if (packageJson.scripts?.["check:notification-read-truth"] !== "tsx scripts/agent/validate-notification-read-truth.ts") {
+  failures.push("package.json must expose check:notification-read-truth.");
+}
+
+requireIncludes(notificationsHook, 'trackEvent("notification_read"', "useNotifications hook");
+requireExcludes(notificationsHook, 'trackEvent("notification_marked_read"', "useNotifications hook");
+
+requireIncludes(notificationBell, 'trackEvent("notification_opened"', "Notification bell diagnostics");
+requireIncludes(notificationBell, 'trackEvent("notification_action_clicked"', "Notification bell diagnostics");
+requireExcludes(notificationBell, 'trackEvent("notification_marked_read"', "Notification bell");
+
+requireIncludes(notificationRuntimeBridge, 'trackEvent("notification_opened"', "Notification runtime bridge diagnostics");
+requireIncludes(notificationRuntimeBridge, 'trackEvent("notification_read"', "Notification runtime bridge canonical read");
+
+requireIncludes(telemetryCatalog, '{ eventName: "notification_read"', "Telemetry catalog canonical notification read");
+requireIncludes(telemetryCatalog, 'aliases: ["notification_marked_read"]', "Telemetry catalog notification read compatibility alias");
+requireIncludes(taskCatalog, 'eventName: "notification_read"', "Task catalog canonical notification read");
+
+requireIncludes(eventFactNormalizer, 'input.metricFamily === "notification" && input.eventName !== "notification_read"', "Notification metric eligibility gate");
+requireIncludes(identifiedIngestRoute, "normalizeIdentifiedMetricEventFact", "Identified ingest route");
+requireIncludes(adminHistoricalEngagement, 'input.eventsData.notification_read || 0', "Admin historical engagement notification read count");
+
+requireIncludes(notificationReadTests, '"notification_read"', "Notification read state tests");
+requireIncludes(notificationReadTests, 'expect(readCalls).toHaveLength(1);', "Notification read dedupe test");
+requireIncludes(ingestTests, 'metricExclusionReason: "notification_diagnostic_only"', "Identified ingest notification diagnostic test");
+requireIncludes(ingestTests, 'eventName: "notification_read"', "Identified ingest canonical notification read test");
+
+if (failures.length > 0) {
+  console.error("Notification read telemetry truth validation failed:");
+  for (const failure of failures) {
+    console.error(`- ${failure}`);
+  }
+  process.exit(1);
+}
+
+console.log("Notification read telemetry truth validator passed.");

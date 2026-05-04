@@ -116,7 +116,7 @@ describe("behavioral event facts", () => {
 
   it("normalizes notification reads to the canonical scoring action", () => {
     const result = normalizeBehavioralEventFactWithDiagnostics({
-      eventName: "notification_marked_read",
+      eventName: "notification_read",
       params: {
         source_component: "notification_bell",
         route: "/dashboard",

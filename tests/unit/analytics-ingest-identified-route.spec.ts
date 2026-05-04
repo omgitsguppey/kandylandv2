@@ -105,7 +105,7 @@ describe("POST /api/analytics/ingest-identified", () => {
       events: [{
         eventId: "evt_alias",
         eventTimestampMs: 1767225600000,
-        eventName: "notification_read",
+        eventName: "notification_marked_read",
         eventParams: {
           page_path: "/dashboard",
           session_id: "session_123",
@@ -119,7 +119,7 @@ describe("POST /api/analytics/ingest-identified", () => {
 
     const eventWrite = mockState.writes.find((write) => write.path === "analytics_event_facts/evt_alias");
     expect(eventWrite?.data).toMatchObject({
-      eventName: "notification_marked_read",
+      eventName: "notification_read",
       eventCategory: "notifications",
       metricFamily: "notification",
       metricEligible: true,
@@ -129,7 +129,7 @@ describe("POST /api/analytics/ingest-identified", () => {
       eventModules: ["notifications"],
       trackingOrigin: "identified_api_ingest",
       params: expect.objectContaining({
-        legacy_event_name: "notification_read",
+        legacy_event_name: "notification_marked_read",
         event_category: "notifications",
         event_modules: "notifications",
         tracking_origin: "identified_api_ingest",
@@ -138,11 +138,42 @@ describe("POST /api/analytics/ingest-identified", () => {
 
     const activeUserWrite = mockState.writes.find((write) => write.path === "analytics_active_users/user_123");
     expect(activeUserWrite?.data).toMatchObject({
-      lastEventName: "notification_marked_read",
-      lastSeenEventName: "notification_marked_read",
+      lastEventName: "notification_read",
+      lastSeenEventName: "notification_read",
       lastPagePath: "/dashboard",
       lastEventModules: "notifications",
     });
+    expect(activeUserWrite?.data).not.toHaveProperty("lastMeaningfulActionAt");
+  });
+
+  it("keeps notification_opened as a diagnostic instead of a scored read action", async () => {
+    const response = await POST(buildRequest({
+      events: [{
+        eventId: "evt_notification_opened",
+        eventTimestampMs: 1767225600000,
+        eventName: "notification_opened",
+        eventParams: {
+          page_path: "/dashboard",
+          session_id: "session_123",
+          notification_id: "note_1",
+          source_component: "notification_bell",
+        },
+      }],
+    }));
+    const payload = await response.json();
+
+    expect(payload).toEqual({ success: true, processed: 1, skippedUnsupported: 0 });
+
+    const eventWrite = mockState.writes.find((write) => write.path === "analytics_event_facts/evt_notification_opened");
+    expect(eventWrite?.data).toMatchObject({
+      eventName: "notification_opened",
+      normalizedActionName: "notification_opened",
+      metricFamily: "notification",
+      metricEligible: false,
+      metricExclusionReason: "notification_diagnostic_only",
+    });
+
+    const activeUserWrite = mockState.writes.find((write) => write.path === "analytics_active_users/user_123");
     expect(activeUserWrite?.data).not.toHaveProperty("lastMeaningfulActionAt");
   });
 

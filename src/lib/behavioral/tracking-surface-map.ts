@@ -141,7 +141,7 @@ export const TRACKING_SURFACE_MAP: TrackingSurfaceDefinition[] = [
       "chat_message_sent",
       "chat_message_send_failed",
       "notification_opened",
-      "notification_marked_read",
+      "notification_read",
       "notification_action_clicked",
       "support_ticket_submitted",
       "support_thread_opened",

@@ -35,7 +35,7 @@ describe("telemetry catalog contracts", () => {
 
   it("normalizes event casing drift and payload key aliases", () => {
     expect(normalizeTelemetryEventName("Unlock_Drop_Success")).toBe("unlock_drop_success");
-    expect(normalizeTelemetryEventName("NOTIFICATION_READ")).toBe("notification_marked_read");
+    expect(normalizeTelemetryEventName("NOTIFICATION_READ")).toBe("notification_read");
 
     expect(normalizeTelemetryEventPayloadParams({
       dropId: "drop_1",

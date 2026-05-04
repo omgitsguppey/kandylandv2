@@ -49,7 +49,7 @@ assert(
   "Viewer tracking is missing file or media identity.",
 );
 
-assert(normalizer.includes('notification_marked_read: { normalizedAction: "notification_read"'), "Notification read is not canonical for scoring.");
+assert(normalizer.includes('notification_read: { normalizedAction: "notification_read"'), "Notification read is not canonical for scoring.");
 assert(normalizer.includes("unknown_event_name"), "Unsupported events are not routed to diagnostics.");
 
 assert(telemetrySafety.includes("[redacted_sensitive_url]"), "Sensitive URL redaction is missing.");

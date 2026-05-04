@@ -237,7 +237,7 @@ export function getTaskInstruction(task: DailyTaskAssignment) {
     return "Open the notification bell and keep the drawer open for a moment so the visit counts.";
   }
 
-  if (task.eventName === "notification_marked_read") {
+  if (task.eventName === "notification_read") {
     return "Open the notification bell, tap Read on one alert, and the task will finish as soon as it syncs.";
   }
 
@@ -345,7 +345,7 @@ export function getTaskActionLabel(task: DailyTaskAssignment) {
     return "Open bell";
   }
 
-  if (task.eventName === "notification_marked_read") {
+  if (task.eventName === "notification_read") {
     return "Mark one read";
   }
 

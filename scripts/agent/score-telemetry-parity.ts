@@ -195,7 +195,7 @@ const criticalSurfaces: TelemetryCriticalSurface[] = [
       "src/hooks/useNotifications.ts",
       "src/components/Notifications/NotificationRuntimeBridge.tsx",
     ],
-    eventNames: ["notification_opened", "notification_marked_read", "notification_mark_all_read"],
+    eventNames: ["notification_opened", "notification_read", "notification_mark_all_read"],
     requiredPayloadAll: ["source_component"],
     requiredPayloadAny: [["notification_id", "idempotency_key"]],
   },

@@ -174,7 +174,7 @@ function resolveMetricEligibility(input: {
     };
   }
 
-  if (input.metricFamily === "notification" && input.eventName !== "notification_marked_read") {
+  if (input.metricFamily === "notification" && input.eventName !== "notification_read") {
     return {
       metricEligible: false,
       metricExclusionReason: "notification_diagnostic_only" as const,

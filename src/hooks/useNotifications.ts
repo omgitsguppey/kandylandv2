@@ -173,7 +173,7 @@ export function useNotifications({ enabled = true }: UseNotificationsOptions = {
             dispatchClientRuntimeEvent(CLIENT_RUNTIME_EVENTS.notificationsSync, true);
             return false;
         }
-        trackEvent("notification_marked_read", {
+        trackEvent("notification_read", {
             notification_id: id,
             idempotency_key: id,
             recipient_id: userId,

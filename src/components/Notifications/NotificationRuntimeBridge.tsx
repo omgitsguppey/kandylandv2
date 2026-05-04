@@ -85,6 +85,16 @@ export function NotificationRuntimeBridge() {
             if (message.notificationId) {
                 void markNotificationsAsRead([message.notificationId]).then((result) => {
                     if (result.successCount > 0) {
+                        trackEvent("notification_read", {
+                            source: "service_worker_notificationclick",
+                            source_component: "notification_runtime_bridge",
+                            notification_id: message.notificationId,
+                            idempotency_key: `${message.notificationId}:read`,
+                            notification_type: "browser_push",
+                            recipient_id: user.uid,
+                            tag: message.tag ?? "unknown",
+                            destination: message.url ?? "/experiences",
+                        });
                         dispatchClientRuntimeEvent(CLIENT_RUNTIME_EVENTS.notificationsSync, true);
                     }
                 });

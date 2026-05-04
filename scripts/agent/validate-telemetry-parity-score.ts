@@ -179,7 +179,7 @@ if (report) {
     "daily_task_action_clicked",
     "chat_thread_opened",
     "chat_message_send_failed",
-    "notification_marked_read",
+    "notification_read",
     "feedback_submitted",
     "support_ticket_submitted",
     "creator_followed",
@@ -259,7 +259,7 @@ for (const expected of [
   "hero_cta_clicked",
   "drop_preview_page_viewed",
   "chat_message_send_failed",
-  "notification_marked_read",
+  "notification_read",
   "creator_experience_cta_clicked",
 ]) {
   requireIncludes(catalog, expected, "telemetry catalog");

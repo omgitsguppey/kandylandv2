@@ -117,7 +117,7 @@ describe("Notification read state", () => {
     await waitFor(() => {
       expect(screen.queryByText("Drop ready")).not.toBeInTheDocument();
     });
-    expect(mockState.trackEvent).toHaveBeenCalledWith("notification_marked_read", expect.objectContaining({
+    expect(mockState.trackEvent).toHaveBeenCalledWith("notification_read", expect.objectContaining({
       notification_id: "note_1",
       recipient_id: "notify_user",
       optimistic: true,
@@ -160,10 +160,55 @@ describe("Notification read state", () => {
       expect(screen.getByText("Drop ready")).toBeInTheDocument();
       expect(screen.getByRole("button", { name: /already read/i })).toHaveTextContent(/viewed/i);
     });
-    expect(mockState.trackEvent).toHaveBeenCalledWith("notification_marked_read", expect.objectContaining({
+    expect(mockState.trackEvent).toHaveBeenCalledWith("notification_read", expect.objectContaining({
       notification_id: "note_2",
       recipient_id: "notify_user",
       optimistic: true,
+    }));
+  });
+
+  it("emits one canonical read fact when opening a notification destination", async () => {
+    mockState.authFetch.mockImplementation(async (_url: string, options?: RequestInit) => {
+      if (options?.method === "PUT") {
+        return {
+          ok: true,
+          json: async () => ({ successCount: 1, failedCount: 0, notificationIds: ["note_3"] }),
+        };
+      }
+
+      return {
+        ok: true,
+        status: 200,
+        headers: new Headers({ etag: "notifications-v3" }),
+        json: async () => ({ success: true, notifications: [buildNotification("note_3")] }),
+      };
+    });
+
+    render(<NotificationBell />);
+
+    await userEvent.click(screen.getByRole("button", { name: /notifications/i }));
+    expect(await screen.findByText("Drop ready")).toBeInTheDocument();
+
+    await userEvent.click(screen.getByRole("button", { name: /open details/i }));
+
+    await waitFor(() => {
+      expect(mockState.push).toHaveBeenCalledWith("/drops/drop_1/preview");
+    });
+
+    const readCalls = mockState.trackEvent.mock.calls.filter(([eventName]) => eventName === "notification_read");
+    expect(readCalls).toHaveLength(1);
+    expect(readCalls[0]?.[1]).toEqual(expect.objectContaining({
+      notification_id: "note_3",
+      recipient_id: "notify_user",
+      optimistic: true,
+    }));
+    expect(mockState.trackEvent).toHaveBeenCalledWith("notification_opened", expect.objectContaining({
+      notification_id: "note_3",
+      destination: "/drops/drop_1/preview",
+    }));
+    expect(mockState.trackEvent).toHaveBeenCalledWith("notification_action_clicked", expect.objectContaining({
+      notification_id: "note_3",
+      destination: "/drops/drop_1/preview",
     }));
   });
 });

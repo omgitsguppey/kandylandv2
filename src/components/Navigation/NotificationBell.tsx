@@ -307,16 +307,6 @@ function NotificationItem({
 
     setIsPending(true);
     try {
-      trackEvent("notification_marked_read", {
-        source: "notifications_dropdown",
-        source_component: "notification_bell",
-        notification_id: note.id,
-        idempotency_key: `${note.id}:read`,
-        notification_type: note.type,
-        recipient_id: currentUserId ?? "",
-        entity_type: "notification",
-        entity_id: note.id,
-      });
       const success = await markAsRead(note.id);
       if (!success) {
         toast.error("We couldn't mark that notification as read. Please try again.");

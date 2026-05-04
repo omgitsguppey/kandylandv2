@@ -224,7 +224,7 @@ export const BUILT_IN_DAILY_TASKS: DailyTaskDefinition[] = [
     subtitle: "Mark one notification as read to keep your queue fresh.",
     reward: 50,
     maxProgress: 1,
-    eventName: "notification_marked_read",
+    eventName: "notification_read",
     actionType: "open_notifications",
     ctaLabel: "Review notifications",
     icon: "bell",

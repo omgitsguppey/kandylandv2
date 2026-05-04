@@ -376,7 +376,7 @@ function pickTasksForCycle(
       return false;
     }
 
-    const requiresUnreadNotification = task.eventName === "notification_marked_read"
+    const requiresUnreadNotification = task.eventName === "notification_read"
       || task.eventName === "notification_opened";
 
     if (requiresUnreadNotification && !eligibility.hasUnreadNotifications) {

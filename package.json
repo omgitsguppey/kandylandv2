@@ -98,6 +98,7 @@
         "check:actor-target-telemetry": "tsx scripts/agent/validate-actor-target-telemetry.ts",
         "check:purchase-telemetry-truth": "tsx scripts/agent/validate-purchase-telemetry-truth.ts",
         "check:unlock-telemetry-truth": "tsx scripts/agent/validate-unlock-telemetry-truth.ts",
+        "check:notification-read-truth": "tsx scripts/agent/validate-notification-read-truth.ts",
         "check:admin-analytics-hot-cache": "tsx scripts/agent/validate-admin-analytics-hot-cache.ts",
         "check:global-loading-performance": "tsx scripts/agent/validate-global-loading-performance.ts",
         "check:global-speed-hydration-cache": "tsx scripts/agent/validate-global-speed-hydration-cache.ts",
