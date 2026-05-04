@@ -274,6 +274,7 @@ function NotificationItem({
       const destination = note.link || "/drops";
       trackEvent("notification_opened", {
         source: "notifications_dropdown",
+        source_component: "notification_bell",
         destination,
         notification_id: note.id,
         idempotency_key: note.id,
@@ -430,6 +431,7 @@ export function NotificationBell() {
       trackEvent("notifications_dropdown_opened", {
         unread_count: unreadCount,
         source: "task_cta",
+        source_component: "notification_bell",
       });
     }
 
@@ -444,6 +446,7 @@ export function NotificationBell() {
         trackEvent("notifications_dropdown_opened", {
           unread_count: unreadCount,
           source: "notification_bell",
+          source_component: "notification_bell",
         });
       }
       return next;

@@ -32,7 +32,7 @@ export function HomeHeroActions() {
                         Checking access
                     </Button>
                 ) : user ? (
-                    <Link href="/dashboard" className="w-full sm:w-auto" onClick={() => trackEvent("hero_cta_clicked", { destination: "/dashboard" })}>
+                    <Link href="/dashboard" className="w-full sm:w-auto" onClick={() => trackEvent("hero_cta_clicked", { destination: "/dashboard", route: "/", source_component: "home_hero_actions" })}>
                         <Button size="lg" variant="brand" className={PRIMARY_HERO_BUTTON_CLASSNAME}>
                             Go to Dashboard <ArrowRight className="ml-2 h-4 w-4 md:h-5 md:w-5" />
                         </Button>
@@ -40,7 +40,7 @@ export function HomeHeroActions() {
                 ) : (
                     <Button
                         onClick={() => {
-                            trackEvent("hero_cta_clicked", { action: "open_signup" });
+                            trackEvent("hero_cta_clicked", { action: "open_signup", route: "/", source_component: "home_hero_actions" });
                             openAuthModal("signup");
                         }}
                         size="lg"
@@ -53,7 +53,7 @@ export function HomeHeroActions() {
             </div>
 
             <div className="flex w-full flex-col justify-center gap-2 sm:w-auto sm:flex-row sm:gap-3">
-                <Link href="/faq" className="w-full sm:w-auto" onClick={() => trackEvent("hero_cta_clicked", { destination: "/faq" })}>
+                <Link href="/faq" className="w-full sm:w-auto" onClick={() => trackEvent("hero_cta_clicked", { destination: "/faq", route: "/", source_component: "home_hero_actions" })}>
                     <Button variant="outline" size="lg" className="w-full border border-white/10 bg-white/[0.04] px-6 py-3 text-sm font-bold text-white hover:bg-white/[0.08]">
                         See How It Works
                     </Button>

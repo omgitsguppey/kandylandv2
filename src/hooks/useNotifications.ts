@@ -179,6 +179,7 @@ export function useNotifications({ enabled = true }: UseNotificationsOptions = {
             recipient_id: userId,
             notification_type: "in_app",
             optimistic: true,
+            source_component: "use_notifications",
         });
 
         dispatchClientRuntimeEvent(CLIENT_RUNTIME_EVENTS.notificationsSync, true);
@@ -204,6 +205,7 @@ export function useNotifications({ enabled = true }: UseNotificationsOptions = {
             recipient_id: userId,
             notification_type: "in_app",
             unread_count: unreadIds.length,
+            source_component: "use_notifications",
         });
 
         const previousNotifications = notificationsState;
@@ -229,6 +231,7 @@ export function useNotifications({ enabled = true }: UseNotificationsOptions = {
         if (succeededIds.length > 0) {
             trackEvent("notification_cleared", {
                 source: "clear_all",
+                source_component: "use_notifications",
                 idempotency_key: `clear_all:${userId}:${succeededIds.join("|")}`,
                 recipient_id: userId,
                 notification_type: "in_app",

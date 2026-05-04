@@ -340,6 +340,7 @@ export function DailyTasksModule() {
     trackEvent("daily_task_action_clicked", {
       task_id: task.id,
       action_type: task.actionType,
+      source_component: "daily_tasks_module",
     });
     activateTaskGuidance(task);
 
@@ -371,6 +372,7 @@ export function DailyTasksModule() {
       if (isSamePageTaskViewEvent(task.eventName)) {
         trackEvent(task.eventName, {
           source: "daily_task_same_page",
+          source_component: "daily_tasks_module",
           task_id: task.id,
         });
       }
@@ -422,6 +424,7 @@ export function DailyTasksModule() {
       trackEvent("feedback_submitted", {
         category: feedbackCategory,
         rating: feedbackRating,
+        source_component: "daily_tasks_module",
       });
 
       setShowFeedbackModal(false);

@@ -9,6 +9,13 @@ Scoring: all entries below are marked as included in the current validated sweep
 
 Current repo-wide state snapshot: see [FULL_SCALE_CODEBASE_AUDIT.md](/Users/uylus/OneDrive/Documents/KandyDrops_Final/FULL_SCALE_CODEBASE_AUDIT.md) for the current live baseline, verification state, and continuity rules, and see [REPO_MEMORY_LEDGER.md](/Users/uylus/OneDrive/Documents/KandyDrops_Final/REPO_MEMORY_LEDGER.md) for major architectural and workflow decisions. The detailed file/function body below remains valuable historical evidence, but it has not been fully regenerated against the current 2026-04-18 inventory review yet.
 
+## 2026-05-04 Telemetry Parity Score Coverage
+
+- [x] KandyDrops telemetry parity scoring is deterministic and source-only. Critical UI actions must use cataloged, consent-aware telemetry through canonical `trackEvent` or server tracking, with `source_component`, route/session/auth enrichment, entity ids, and reason context for blocked or failed paths.
+- [x] `scripts/agent/score-telemetry-parity.ts` owns the source-only parity score over Hero CTA, mobile bottom nav, Drops, featured carousel, preview page, wallet, daily check-in/tasks, chat, notifications, support/bug reports, and creator action telemetry.
+- [x] `scripts/agent/validate-telemetry-parity-score.ts`, `agent/state/telemetry-parity-score.generated.json`, `docs/agent-truth/telemetry-parity-score.md`, and package scripts `score:telemetry` / `check:telemetry-parity-score` provide the no-browser validation lane.
+- [x] `src/lib/telemetry.ts` remains the consent/enrichment owner for `page_path`, `session_id`, `auth_state`, privacy gates, sanitized backend payloads, unknown-event diagnostics, and identified telemetry queueing.
+
 ## 2026-05-04 MSW Scenario Coverage
 
 - [x] KandyDrops MSW scenarios are deterministic API fixtures, not production fallback state. They model wallet, Drops, chat, notifications, support, and creator profile user-side states without Firebase, browser automation, or live network access.

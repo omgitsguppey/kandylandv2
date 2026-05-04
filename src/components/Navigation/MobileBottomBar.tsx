@@ -97,7 +97,7 @@ function MobileBottomBarInner() {
                                 key={item.label}
                                 onClick={() => {
                                     triggerHaptic();
-                                    trackEvent("navigation_click", { destination: "wallet", source: "mobile_bottom_bar" });
+                                    trackEvent("navigation_click", { destination: "wallet", route: pathname ?? "/", source: "mobile_bottom_bar", source_component: "mobile_bottom_bar" });
                                     openPurchaseModal();
                                 }}
                                 aria-label="Open wallet"
@@ -120,7 +120,7 @@ function MobileBottomBarInner() {
                             aria-current={isActive ? "page" : undefined}
                             onClick={() => {
                                 triggerHaptic();
-                                trackEvent('navigation_click', { destination: item.href, source: 'mobile_bottom_bar' });
+                                trackEvent('navigation_click', { destination: item.href, route: pathname ?? "/", source: 'mobile_bottom_bar', source_component: "mobile_bottom_bar" });
                             }}
                             className={cn(
                                 "flex h-11 min-w-0 flex-1 flex-col items-center justify-center gap-1 rounded-full px-2 py-1 text-center transition-colors active:scale-95",

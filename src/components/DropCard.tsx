@@ -145,6 +145,7 @@ function DropCardBase({
                 current_balance: balance,
                 shortfall_gd: Math.max(1, visibilityState.shortfallGd || drop.unlockCost - balance),
                 idempotency_key: `${user.uid}:unlock_blocked:${drop.id}`,
+                reason_code: "insufficient_gumdrops",
                 source_component: "compact_drop_card",
                 ui_density: DROPS_MOBILE_UI_DENSITY,
                 ...getDropCardVisibilityTelemetryPayload(visibilityState),

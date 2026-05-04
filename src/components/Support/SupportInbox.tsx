@@ -10,6 +10,7 @@ import { Button } from "@/components/ui/Button";
 import { useAuthSWR } from "@/hooks/useAuthSWR";
 import { authFetch } from "@/lib/authFetch";
 import { reportClientIssue } from "@/lib/client-error-reporting";
+import { trackEvent } from "@/lib/telemetry";
 import {
     SUPPORT_THREAD_CATEGORIES,
     type SupportMessageRecord,
@@ -192,6 +193,12 @@ export function SupportInbox() {
             await mutateThreadList();
             await mutateSelectedThread(response.thread, false);
             setSelectedThreadId(response.thread.thread?.id || null);
+            trackEvent("support_ticket_submitted", {
+                ticket_id: response.thread.thread?.id ?? "",
+                support_category: category,
+                route: window.location.pathname,
+                source_component: "support_inbox",
+            });
             setComposerOpen(false);
             setMessage("");
             toast.success("Support ticket created.");

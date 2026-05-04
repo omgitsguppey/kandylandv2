@@ -79,6 +79,8 @@
         "check:hydration-performance": "tsx scripts/agent/validate-hydration-performance.ts",
         "score:economy": "tsx scripts/agent/score-gumdrop-economy.ts",
         "check:gumdrop-economy": "tsx scripts/agent/validate-gumdrop-economy.ts",
+        "score:telemetry": "tsx scripts/agent/score-telemetry-parity.ts",
+        "check:telemetry-parity-score": "tsx scripts/agent/validate-telemetry-parity-score.ts",
         "check:ast-grep-rules": "tsx scripts/agent/run-ast-grep-rules.ts",
         "check:home-mobile-hero-shell": "tsx scripts/agent/validate-home-mobile-hero-shell.ts",
         "check:experiences-compact-layout": "tsx scripts/agent/validate-experiences-compact-layout.ts",

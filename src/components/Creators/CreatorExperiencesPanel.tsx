@@ -161,6 +161,7 @@ export function CreatorExperiencesPanel({
         balanceState: getBalanceState(cost),
         route,
         source: "creator_experiences_panel",
+        source_component: "creator_experiences_panel",
     }), [creatorId, getBalanceState, identity.anonymousVisitorId, identity.sessionId, route, userId]);
 
     const trackCreatorExperienceEvent = useCallback((

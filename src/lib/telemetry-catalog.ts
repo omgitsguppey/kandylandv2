@@ -194,6 +194,7 @@ export const TELEMETRY_EVENT_OPTIONS: TelemetryEventOption[] = [
     { eventName: "library_viewed", label: "Library viewed", category: "engagement", sources: DEFAULT_CLIENT_SOURCES, modules: ["engagement", "content", "navigation"] },
     { eventName: "profile_settings_viewed", label: "Profile settings viewed", category: "engagement", sources: DEFAULT_CLIENT_SOURCES, modules: ["engagement", "navigation"] },
     { eventName: "support_inbox_viewed", label: "Support inbox viewed", category: "engagement", sources: DEFAULT_CLIENT_SOURCES, modules: ["engagement", "navigation"] },
+    { eventName: "support_ticket_submitted", label: "Support ticket submitted", category: "engagement", sources: DEFAULT_CLIENT_SOURCES, modules: ["engagement"] },
     { eventName: "experience_hub_viewed", label: "Experiences viewed", category: "engagement", sources: DEFAULT_CLIENT_SOURCES, modules: ["engagement", "tasks", "navigation"] },
   { eventName: "daily_check_in_claim", label: "Daily check-in claimed", category: "tasks", sources: DEFAULT_CLIENT_SOURCES, modules: ["tasks"], aliases: ["daily_reward_claimed"] },
   { eventName: "wallet_opened", label: "Wallet opened", category: "commerce", sources: DEFAULT_CLIENT_SOURCES, modules: ["commerce"] },

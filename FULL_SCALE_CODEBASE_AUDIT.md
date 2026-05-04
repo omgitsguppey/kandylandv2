@@ -1,5 +1,34 @@
 # KandyDrops Core Codebase Audit & Defensive Ledger
 
+## [2026-05-04 #135] PRE: Telemetry Parity Scoring
+
+Scope started:
+- Creating a deterministic telemetry parity scorer to verify critical UI actions, event catalog coverage, consent-aware telemetry ownership, route/session/auth enrichment, entity identifiers, blocked/failed reason codes, and support/debug reporting signals without browser audits or broad terminal sweeps.
+- Required outputs: `scripts/agent/score-telemetry-parity.ts`, `scripts/agent/validate-telemetry-parity-score.ts`, `agent/state/telemetry-parity-score.generated.json`, `docs/agent-truth/telemetry-parity-score.md`, package scripts `score:telemetry` and `check:telemetry-parity-score`, targeted verification, commit, and push.
+- This pass must not run Playwright, Lighthouse, Cypress, full `npm run check`, broad UI audits, or browser automation, and must not bypass privacy consent, telemetry enrichment, analytics catalog truth, session identity, support privacy, payment/auth/unlock enforcement, or product UI behavior.
+
+Initial evidence:
+- Control tower routing, doctrine consultation workflow, product/copy/UI doctrine, banned-pattern doctrine, source-of-truth map, full governance files, current git status, and adjacency trace for telemetry helpers/catalog/audit scripts were consulted.
+- Current telemetry source still enriches canonical client events with `page_path`, `session_id`, viewport, timestamp, and `auth_state`, applies privacy-consent gates, ignores unknown events through diagnostics, and retains a catalog of public-beta critical event names.
+
+Doctrine:
+- KandyDrops telemetry parity scoring is deterministic and source-only. Critical UI actions must use cataloged, consent-aware telemetry through canonical `trackEvent` or server tracking, with `source_component`, enriched route/session/auth fields, entity ids, and reason codes for blocked or failed paths. The score lane exists to reduce heavy browser-audit dependence, not to replace targeted runtime or privacy tests when telemetry behavior changes.
+
+Scope completed:
+- Added `scripts/agent/score-telemetry-parity.ts` and `scripts/agent/validate-telemetry-parity-score.ts` for deterministic source-only telemetry parity scoring and validation.
+- Added `agent/state/telemetry-parity-score.generated.json`, `docs/agent-truth/telemetry-parity-score.md`, and package scripts `score:telemetry` and `check:telemetry-parity-score`.
+- Added telemetry-only payload specificity for critical surfaces by adding `source_component`, entity/reason context, and a cataloged `support_ticket_submitted` event where the support ticket submission flow already creates a ticket.
+- Updated event-catalog audit generated state, repo memory, checklist, and audit doctrine for the new telemetry parity lane.
+
+Verification:
+- `npm run score:telemetry` passed with `100/100` clean status and no findings.
+- `npm run check:telemetry-parity-score` passed.
+- `npm run check:event-catalog-telemetry` passed with `387` emitters checked across `633` files and `287` catalog events audited.
+- As requested, this pass did not run Playwright, Lighthouse, Cypress, full `npm run check`, broad UI audits, or browser automation.
+
+Residual risk:
+- The scorer is deterministic source validation. It does not replace runtime analytics delivery verification, consent edge-case tests, backend ingestion tests, or manual review when a new telemetry event changes product semantics.
+
 ## [2026-05-04 #134] PRE: GumDrops Economy Truth Scoring
 
 Scope started:

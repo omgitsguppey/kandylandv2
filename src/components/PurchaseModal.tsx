@@ -108,6 +108,7 @@ export function PurchaseModal({ isOpen, onClose }: PurchaseModalProps) {
     balance_paid_gd: walletBalanceSplit.paidGd,
     balance_total_gd: walletBalanceSplit.totalGd,
     wallet_density: "public-beta-compact" as const,
+    source_component: "purchase_modal",
   }), [walletBalanceSplit.freeGd, walletBalanceSplit.paidGd, walletBalanceSplit.totalGd]);
 
   useEffect(() => {

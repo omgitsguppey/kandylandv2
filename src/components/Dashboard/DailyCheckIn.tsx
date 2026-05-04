@@ -160,6 +160,7 @@ export function DailyCheckIn({ variant = "dashboard" }: DailyCheckInProps = {}) 
             trackEvent("daily_check_in_claim", {
                 streak_count: streak,
                 gum_drops_awarded: reward,
+                source_component: "daily_check_in",
             });
             emitGuidedCheckIn("success");
         } catch (error: unknown) {

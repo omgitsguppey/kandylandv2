@@ -73,6 +73,7 @@ export function NotificationRuntimeBridge() {
 
             trackEvent("notification_opened", {
                 source: "service_worker_notificationclick",
+                source_component: "notification_runtime_bridge",
                 notification_id: message.notificationId ?? "unknown",
                 idempotency_key: message.idempotencyKey ?? message.tag ?? message.notificationId ?? "unknown",
                 notification_type: "browser_push",
@@ -163,6 +164,7 @@ export function NotificationRuntimeBridge() {
             trackEvent("daily_deadline_in_app_reminder_shown", {
                 unfinished_tasks: unfinishedTasks.length,
                 pending_checkin: pendingCheckIn,
+                source_component: "notification_runtime_bridge",
             });
 
             toast.custom((activeToastId) => (
@@ -190,6 +192,7 @@ export function NotificationRuntimeBridge() {
                                 trackEvent("daily_deadline_in_app_reminder_opened", {
                                     unfinished_tasks: unfinishedTasks.length,
                                     pending_checkin: pendingCheckIn,
+                                    source_component: "notification_runtime_bridge",
                                 });
                                 toast.dismiss(activeToastId);
                                 router.push(summary.destination);
@@ -205,6 +208,7 @@ export function NotificationRuntimeBridge() {
                                 trackEvent("daily_deadline_in_app_reminder_dismissed", {
                                     unfinished_tasks: unfinishedTasks.length,
                                     pending_checkin: pendingCheckIn,
+                                    source_component: "notification_runtime_bridge",
                                 });
                                 toast.dismiss(activeToastId);
                             }}
@@ -266,6 +270,7 @@ export function NotificationRuntimeBridge() {
                 trackEvent("daily_deadline_browser_notification_shown", {
                     unfinished_tasks: unfinishedTasks.length,
                     pending_checkin: pendingCheckIn,
+                    source_component: "notification_runtime_bridge",
                 });
             }
         };

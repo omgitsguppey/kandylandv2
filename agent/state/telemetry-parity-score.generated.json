@@ -1,0 +1,221 @@
+{
+  "score": 100,
+  "status": "clean",
+  "generatedAt": "2026-05-04T05:50:23.722Z",
+  "repoRoot": "C:\\Users\\uylus\\OneDrive\\Documents\\KandyDrops_Final",
+  "findings": [],
+  "criticalCount": 0,
+  "majorCount": 0,
+  "safeAutofixesAvailable": 0,
+  "checkedSurfaces": [
+    {
+      "id": "hero_cta",
+      "label": "Hero CTA",
+      "filePaths": [
+        "src/components/Landing/HomeHeroActions.tsx"
+      ],
+      "eventNames": [
+        "hero_cta_clicked"
+      ]
+    },
+    {
+      "id": "bottom_nav",
+      "label": "Mobile bottom nav",
+      "filePaths": [
+        "src/components/Navigation/MobileBottomBar.tsx"
+      ],
+      "eventNames": [
+        "navigation_click"
+      ]
+    },
+    {
+      "id": "drop_card",
+      "label": "Drop card view unwrap refill",
+      "filePaths": [
+        "src/components/DropCard.tsx",
+        "src/components/DropCardLayout.tsx"
+      ],
+      "eventNames": [
+        "view_drop_details",
+        "drop_unlock_attempted",
+        "drop_unwrap_intent_blocked_by_funds",
+        "unlock_drop_success"
+      ]
+    },
+    {
+      "id": "featured_carousel",
+      "label": "Featured carousel click",
+      "filePaths": [
+        "src/components/FeaturedCarousel.tsx"
+      ],
+      "eventNames": [
+        "featured_drop_clicked"
+      ]
+    },
+    {
+      "id": "preview_page",
+      "label": "Locked preview page open reaction unwrap library keep unwrapping",
+      "filePaths": [
+        "src/components/Drops/LockedDropPreviewClient.tsx",
+        "src/components/Drops/LockedDropPreviewView.tsx",
+        "src/lib/drop-preview-telemetry.ts"
+      ],
+      "eventNames": [
+        "drop_preview_page_viewed",
+        "drop_preview_opened",
+        "drop_preview_feedback_reacted",
+        "drop_preview_cta_clicked",
+        "drop_preview_open_library_clicked",
+        "drop_preview_keep_unwrapping_clicked",
+        "unlock_drop_success"
+      ]
+    },
+    {
+      "id": "wallet_purchase",
+      "label": "Wallet package select purchase success failure",
+      "filePaths": [
+        "src/components/PurchaseModal.tsx"
+      ],
+      "eventNames": [
+        "purchase_package_selected",
+        "begin_checkout",
+        "purchase",
+        "gumdrops_purchase_completed",
+        "gumdrops_purchase_failed"
+      ]
+    },
+    {
+      "id": "daily_check_in",
+      "label": "Daily check-in claim",
+      "filePaths": [
+        "src/components/Dashboard/DailyCheckIn.tsx"
+      ],
+      "eventNames": [
+        "daily_check_in_claim"
+      ]
+    },
+    {
+      "id": "daily_tasks",
+      "label": "Daily task action",
+      "filePaths": [
+        "src/components/Dashboard/DailyTasksModule.tsx"
+      ],
+      "eventNames": [
+        "daily_task_action_clicked"
+      ]
+    },
+    {
+      "id": "chat",
+      "label": "Chat thread open send fail",
+      "filePaths": [
+        "src/components/Chat/ChatExperience.tsx"
+      ],
+      "eventNames": [
+        "chat_thread_opened",
+        "chat_message_send_attempted",
+        "chat_message_send_failed",
+        "chat_message_sent"
+      ]
+    },
+    {
+      "id": "notifications",
+      "label": "Notifications read action",
+      "filePaths": [
+        "src/components/Navigation/NotificationBell.tsx",
+        "src/hooks/useNotifications.ts",
+        "src/components/Notifications/NotificationRuntimeBridge.tsx"
+      ],
+      "eventNames": [
+        "notification_opened",
+        "notification_marked_read",
+        "notification_mark_all_read"
+      ]
+    },
+    {
+      "id": "support_bug_report",
+      "label": "Support and bug report submit",
+      "filePaths": [
+        "src/components/Feedback/ReportBugButton.tsx",
+        "src/components/Support/SupportInbox.tsx"
+      ],
+      "eventNames": [
+        "feedback_submitted",
+        "support_ticket_submitted"
+      ]
+    },
+    {
+      "id": "creator_actions",
+      "label": "Creator follow alerts experience lane CTA",
+      "filePaths": [
+        "src/app/creators/[username]/CreatorProfileClient.tsx",
+        "src/components/Creators/CreatorExperiencesPanel.tsx"
+      ],
+      "eventNames": [
+        "creator_followed",
+        "creator_notifications_enabled",
+        "creator_notifications_disabled",
+        "creator_experience_cta_clicked"
+      ]
+    }
+  ],
+  "requiredEvents": [
+    "begin_checkout",
+    "chat_message_send_attempted",
+    "chat_message_send_failed",
+    "chat_message_sent",
+    "chat_thread_opened",
+    "creator_experience_cta_clicked",
+    "creator_followed",
+    "creator_notifications_disabled",
+    "creator_notifications_enabled",
+    "daily_check_in_claim",
+    "daily_task_action_clicked",
+    "drop_preview_cta_clicked",
+    "drop_preview_feedback_reacted",
+    "drop_preview_keep_unwrapping_clicked",
+    "drop_preview_open_library_clicked",
+    "drop_preview_opened",
+    "drop_preview_page_viewed",
+    "drop_unlock_attempted",
+    "drop_unwrap_intent_blocked_by_funds",
+    "featured_drop_clicked",
+    "feedback_submitted",
+    "gumdrops_purchase_completed",
+    "gumdrops_purchase_failed",
+    "hero_cta_clicked",
+    "navigation_click",
+    "notification_mark_all_read",
+    "notification_marked_read",
+    "notification_opened",
+    "purchase",
+    "purchase_package_selected",
+    "support_ticket_submitted",
+    "unlock_drop_success",
+    "view_drop_details"
+  ],
+  "payloadRequirements": [
+    "source_component on critical UI action payloads",
+    "route or page_path through payload or canonical enrichment",
+    "auth_state through canonical enrichment or explicit auth payload",
+    "session_id through canonical enrichment",
+    "entity id fields when relevant: drop_id creator_id thread_id ticket_id notification_id task_id",
+    "reason_code or equivalent failure_reason/reason_codes for blocked and failed paths",
+    "privacy consent respected before anonymous or identified analytics dispatch"
+  ],
+  "commandBudget": {
+    "allowedCommands": [
+      "npm run score:telemetry",
+      "npm run check:telemetry-parity-score",
+      "npm run check:event-catalog-telemetry"
+    ],
+    "forbiddenCommands": [
+      "playwright",
+      "cypress",
+      "lighthouse",
+      "npm run check",
+      "npm run check:ui:audits",
+      "npm run check:ui:lighthouse"
+    ]
+  },
+  "summary": "Telemetry parity is clean for critical public-beta surfaces."
+}

@@ -4,6 +4,10 @@ Status: Canonical repository-memory and architecture-decision ledger
 Last refreshed: 2026-05-02
 Repo: `C:\Users\uylus\OneDrive\Documents\KandyDrops_Final`
 
+## 2026-05-04 Telemetry parity score
+
+KandyDrops telemetry parity scoring is deterministic and source-only. Critical UI actions must use cataloged, consent-aware telemetry through canonical `trackEvent` or server tracking, include `source_component`, rely on route/session/auth enrichment, carry entity ids such as `drop_id`, `creator_id`, `thread_id`, `ticket_id`, `notification_id`, or `task_id` when relevant, and include reason context for blocked or failed paths. `npm run score:telemetry` writes `agent/state/telemetry-parity-score.generated.json`; `npm run check:telemetry-parity-score` validates the report, scorer, package scripts, telemetry client consent/enrichment anchors, catalog coverage, and docs without browser audits or broad terminal sweeps.
+
 ## 2026-05-04 MSW user flow scenarios
 
 KandyDrops MSW scenarios are deterministic API fixtures, not production fallback state. They model wallet, Drops, chat, notifications, support, and creator profile user-side states without Firebase, browser automation, or live network access. `tests/mocks/scenarios.ts` owns the named fixture states, `tests/mocks/handlers.ts` maps user-side API routes, and `tests/mocks/server.ts` exposes the reusable Node MSW server for targeted Vitest tests.

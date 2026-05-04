@@ -135,6 +135,7 @@ export default function CreatorProfileClient() {
             creator_id: creator.uid,
             creator_username: creator.username || username,
             page_path: profileRoute,
+            source_component: "creator_profile_page",
         });
     }, [creator, profileRoute, username]);
 
@@ -292,6 +293,7 @@ export default function CreatorProfileClient() {
             broadcast_count: broadcasts.length,
             latest_broadcast_id: latestBroadcastId,
             page_path: profileRoute,
+            source_component: "creator_profile_page",
         });
     }, [activeTab, broadcasts, creator, profileRoute, username]);
 
@@ -382,6 +384,7 @@ export default function CreatorProfileClient() {
         trackEvent("navigation_click", {
             destination: `/dashboard/chat?creator=${creator.uid}`,
             source: "creator_profile_message_cta",
+            source_component: "creator_profile_page",
         });
         router.push(`/dashboard/chat?creator=${encodeURIComponent(creator.uid)}`);
     };
@@ -455,10 +458,10 @@ export default function CreatorProfileClient() {
 
             if (nextFollowing) {
                 await refreshCreatorBroadcasts(creator.uid);
-                trackEvent("creator_followed", { creator_id: creator.uid, creator_username: creator.username });
+                trackEvent("creator_followed", { creator_id: creator.uid, creator_username: creator.username, route: profileRoute, source_component: "creator_profile_page" });
             } else if (!subscriptionActive) {
                 setBroadcasts([]);
-                trackEvent("creator_unfollowed", { creator_id: creator.uid, creator_username: creator.username });
+                trackEvent("creator_unfollowed", { creator_id: creator.uid, creator_username: creator.username, route: profileRoute, source_component: "creator_profile_page" });
             }
             toast.success(nextFollowing ? `Following ${creator.displayName}!` : `Unfollowed ${creator.displayName}`);
         } catch (error: any) {
@@ -522,6 +525,12 @@ export default function CreatorProfileClient() {
                         [creator.uid]: nextNotificationsEnabled,
                     },
                 };
+            });
+            trackEvent(nextNotificationsEnabled ? "creator_notifications_enabled" : "creator_notifications_disabled", {
+                creator_id: creator.uid,
+                creator_username: creator.username,
+                route: profileRoute,
+                source_component: "creator_profile_page",
             });
         } catch (error: any) {
             reportClientIssue({

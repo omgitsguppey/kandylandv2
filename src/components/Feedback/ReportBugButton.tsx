@@ -124,6 +124,7 @@ export function ReportBugButton({
 
     trackEvent("feedback_modal_opened", {
       source: "inline_bug_report",
+      source_component: "report_bug_button",
       context,
       component_name: componentMeta.componentName,
     });
@@ -181,6 +182,7 @@ export function ReportBugButton({
         message_length: note.trim().length,
         issue_type: issueType,
         severity,
+        source_component: "report_bug_button",
       });
       dispatchActivitySync();
       toast.success("Bug report sent with runtime diagnostics attached.");
