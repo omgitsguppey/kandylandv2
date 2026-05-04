@@ -26,3 +26,7 @@
 **Vulnerability:** Open redirect risk in `normalizeActionUrl` via inputs like `//evil.com` or `/\evil.com`.
 **Learning:** Checking that `parsed.origin === ADMIN_DROP_URL_BASE` is insufficient if the output simply appends `parsed.pathname`, because the URL constructor preserves `//` at the start of the `pathname` property for certain inputs.
 **Prevention:** Always verify that `pathname` does not start with `//` or `/\\` when extracting relative paths from user-provided URLs.
+## 2024-05-27 - [Open Redirect via Protocol-Relative URLs in PromoCard.tsx]
+**Vulnerability:** Open redirect risk in `getSafeUrl` via inputs like `\\evil.com`.
+**Learning:** Checking that `parsed.origin === PROMO_CARD_URL_BASE` is insufficient if the output simply appends `parsed.pathname` and does not check for `\\` at the start of the pathname, since the URL constructor may normalize it to `//` leading to open redirect.
+**Prevention:** Always verify that `pathname` does not start with `//` or `/\\` or `\\` when extracting relative paths from user-provided URLs.

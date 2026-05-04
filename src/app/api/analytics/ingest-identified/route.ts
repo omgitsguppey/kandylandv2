@@ -87,6 +87,7 @@ async function POST_handler(request: NextRequest) {
             ...ANALYTICS_ROUTE_POLICIES.identifiedIngest,
             preAuthRateLimit: ANALYTICS_WRITE,
             rateLimit: ANALYTICS_WRITE,
+            requireTrustedOrigin: true,
         });
 
         if (!caller || !caller.uid) {
