@@ -4,6 +4,10 @@ Status: Canonical repository-memory and architecture-decision ledger
 Last refreshed: 2026-05-02
 Repo: `C:\Users\uylus\OneDrive\Documents\KandyDrops_Final`
 
+## 2026-05-04 Behavioral model validation harness
+
+KandyDrops behavioral math now has a deterministic validation control plane. `scripts/validate-behavioral-models.ts` evaluates user engagement score, user value score, recommendation ranking, watch-time estimation, theft-risk, and behavioral confidence against time-based train/validate splits and writes `agent/state/behavioral-model-validation.generated.json`. `scripts/train-behavioral-models.ts` chains recommendation artifact training with validation. `src/lib/recommendations/ml-ranker.ts` now checks the validation report before activating artifact scoring, so deterministic ranking remains active unless the report explicitly promotes recommendation mode to `hybrid` or `ml_active`. `npm run validate:behavioral-models` and `npm run check:math-goal-alignment` are the canonical regression lanes.
+
 ## 2026-05-04 Recommendation ranker truth
 
 Recommendations now flow through shared helpers under `src/lib/recommendations/*`. Candidate retrieval is cheap and deterministic: live drops, ending-soon drops, creator affinity, previously unlocked creators, theme/category affinity, lookalike creator hints, and popularity/freshness fallback. Deterministic ranking remains the safety baseline. `src/lib/recommendations/ml-ranker.ts` can blend a fresh local artifact from `agent/state/recommendation-model.generated.json`; missing or stale artifacts fall back cleanly. `functions/src/behavioral-intelligence-runtime.ts` now writes `lookalikeCreatorIds` into behavioral profiles so similar-user retrieval stays precomputed instead of expensive at request time. Admin user detail shows plain-English recommendation reasons first and keeps ranking math inside collapsed diagnostics. `npm run train:recommendations` and `npm run check:recommendation-ranker` are the canonical lanes.

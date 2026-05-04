@@ -48,8 +48,19 @@ export type MlRecommendationScore = {
   score: number;
 };
 
+type BehavioralModelValidationReport = {
+  generatedAt: string;
+  models?: {
+    recommendationRanker?: {
+      activeMode?: "deterministic" | "hybrid" | "ml_experimental" | "ml_active";
+    };
+  };
+};
+
 const MODEL_ARTIFACT_PATH = path.resolve(process.cwd(), "agent/state/recommendation-model.generated.json");
+const VALIDATION_REPORT_PATH = path.resolve(process.cwd(), "agent/state/behavioral-model-validation.generated.json");
 let cachedArtifact: RecommendationModelArtifact | null | undefined;
+let cachedValidationReport: BehavioralModelValidationReport | null | undefined;
 
 function clamp01(value: number) {
   if (!Number.isFinite(value)) {
@@ -113,8 +124,29 @@ export function loadRecommendationModelArtifact() {
   }
 }
 
+export function loadBehavioralModelValidationReport() {
+  if (cachedValidationReport !== undefined) {
+    return cachedValidationReport;
+  }
+
+  try {
+    if (!fs.existsSync(VALIDATION_REPORT_PATH)) {
+      cachedValidationReport = null;
+      return cachedValidationReport;
+    }
+
+    const raw = fs.readFileSync(VALIDATION_REPORT_PATH, "utf8");
+    cachedValidationReport = JSON.parse(raw) as BehavioralModelValidationReport;
+    return cachedValidationReport;
+  } catch {
+    cachedValidationReport = null;
+    return cachedValidationReport;
+  }
+}
+
 export function resetRecommendationModelArtifactCache() {
   cachedArtifact = undefined;
+  cachedValidationReport = undefined;
 }
 
 export function getRecommendationModelFreshness(artifact: RecommendationModelArtifact | null | undefined, nowMs = Date.now()) {
@@ -135,6 +167,12 @@ export function scoreRecommendationWithArtifact(input: {
   artifact?: RecommendationModelArtifact | null;
   nowMs?: number;
 }) : MlRecommendationScore | null {
+  const validationReport = loadBehavioralModelValidationReport();
+  const activeMode = validationReport?.models?.recommendationRanker?.activeMode || "deterministic";
+  if (activeMode !== "hybrid" && activeMode !== "ml_active") {
+    return null;
+  }
+
   const artifact = input.artifact ?? loadRecommendationModelArtifact();
   const modelFreshness = getRecommendationModelFreshness(artifact, input.nowMs);
   if (!artifact || modelFreshness !== "fresh") {

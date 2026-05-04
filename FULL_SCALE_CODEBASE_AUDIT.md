@@ -1,5 +1,29 @@
 # KandyDrops Core Codebase Audit & Defensive Ledger
 
+## [2026-05-04 #153] PRE: Behavioral Model Validation Harness
+
+Scope started:
+- Adding a deterministic validation harness that proves behavioral math is aligned with KandyDrops goals across engagement, value, recommendation ranking, watch-time repair estimates, theft-risk scoring, and behavioral confidence.
+- Required outputs include `scripts/validate-behavioral-models.ts`, `scripts/train-behavioral-models.ts`, `scripts/agent/validate-math-goal-alignment.ts`, `agent/state/behavioral-model-validation.generated.json`, docs, package scripts, and ML activation gating from the generated validation report.
+- This pass must not turn synthetic/experimental artifacts into production truth, must keep deterministic systems as the safety baseline, and must not let ML activate when it underperforms the deterministic baseline or lacks enough time-split samples.
+
+Evidence:
+- Control tower routing, doctrine consultation, governance ledgers, fast-start context, adjacency traces for `scripts/rebuild-behavioral-intelligence.ts`, behavioral score helpers, recommendation artifact loading, moderation risk helpers, and analytics truth contracts were consulted before implementation.
+
+Doctrine:
+- KandyDrops behavioral math must prove itself with deterministic validation. Time-based splits are mandatory. Small samples stay deterministic-only or experimental. Generated validation reports are the control plane for whether hybrid ML ranking may activate. Deterministic fallbacks always remain active and hard rules around payments, security, and content protection remain non-negotiable.
+
+Scope completed:
+- Added `scripts/validate-behavioral-models.ts` to evaluate engagement, value, recommendation ranking, watch-time estimation, theft-risk, and behavioral confidence against time-based validation windows and KandyDrops goal metrics.
+- Added `scripts/train-behavioral-models.ts` to run recommendation training first and behavioral validation second so the validation report reflects the latest available artifact.
+- Added `scripts/agent/validate-math-goal-alignment.ts`, `docs/agent-truth/math-goal-alignment.md`, `agent/state/behavioral-model-validation.generated.json`, and package scripts `train:behavioral-models`, `validate:behavioral-models`, and `check:math-goal-alignment`.
+- Updated `src/lib/recommendations/ml-ranker.ts` so recommendation artifact scoring only activates when the validation report explicitly allows `hybrid` or `ml_active`; otherwise runtime stays deterministic even if an artifact exists.
+
+Verification:
+- `npm run validate:behavioral-models` passed and wrote `agent/state/behavioral-model-validation.generated.json`.
+- `npm run check:math-goal-alignment` passed.
+- `npm run typecheck` passed.
+
 ## [2026-05-04 #152] PRE: Recommendation Ranker Truth
 
 Scope started:

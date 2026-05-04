@@ -1,0 +1,262 @@
+{
+  "version": 1,
+  "generatedAt": "2026-05-04T20:20:55.682Z",
+  "splitPolicy": {
+    "type": "time_based",
+    "trainEndsBefore": "2026-02-21T20:20:55.556Z",
+    "validateStartsAt": "2026-02-21T20:20:55.556Z",
+    "leakageGuard": "Older synthetic behavioral scenarios train first; newer scenarios validate later. No random-only split is used."
+  },
+  "overallStatus": "aligned",
+  "overallActiveMode": "deterministic",
+  "reasons": [
+    "Recommendation ML remains inactive until it beats deterministic baseline with sufficient real sample support."
+  ],
+  "models": {
+    "userEngagementScore": {
+      "modelVersion": 1,
+      "trainingSampleSize": 168,
+      "validationSampleSize": 72,
+      "trainingSource": "deterministic_rule_score",
+      "metrics": {
+        "precisionAt5": 0.6667,
+        "precisionAt10": 0.6667,
+        "recallAt10": 0.6667,
+        "calibrationError": 0.305,
+        "auc": 1,
+        "hitRate": 0.6667,
+        "falsePositiveRate": 0,
+        "coverage": 1,
+        "staleSourceRate": 0.1667,
+        "sourceDisagreementRate": 0.3333
+      },
+      "baselineComparison": {
+        "baselineName": "action_count_only",
+        "baselineMetrics": {
+          "precisionAt5": 0.6667,
+          "precisionAt10": 0.6667,
+          "recallAt10": 0.6667,
+          "calibrationError": 0.4067,
+          "auc": 0.75,
+          "hitRate": 0.6667,
+          "falsePositiveRate": 0,
+          "coverage": 1,
+          "staleSourceRate": 0.1667,
+          "sourceDisagreementRate": 0.3333
+        },
+        "beatsBaseline": true,
+        "improvementSummary": [
+          "calibration error improved by 0.102"
+        ]
+      },
+      "activeMode": "deterministic",
+      "reasons": [
+        "Engagement score outperforms action-count-only ranking on synthetic time-split validation."
+      ]
+    },
+    "userValueScore": {
+      "modelVersion": 1,
+      "trainingSampleSize": 168,
+      "validationSampleSize": 72,
+      "trainingSource": "deterministic_rule_score",
+      "metrics": {
+        "precisionAt5": 0.25,
+        "precisionAt10": 0.25,
+        "recallAt10": 0.25,
+        "calibrationError": 0.2283,
+        "auc": 0.8333,
+        "hitRate": 0.25,
+        "falsePositiveRate": 0,
+        "coverage": 1,
+        "staleSourceRate": 0.1667,
+        "sourceDisagreementRate": 0.3333
+      },
+      "baselineComparison": {
+        "baselineName": "total_spend_only",
+        "baselineMetrics": {
+          "precisionAt5": 0.25,
+          "precisionAt10": 0.25,
+          "recallAt10": 0.25,
+          "calibrationError": 0.1627,
+          "auc": 0.7593,
+          "hitRate": 0.25,
+          "falsePositiveRate": 0,
+          "coverage": 1,
+          "staleSourceRate": 0.1667,
+          "sourceDisagreementRate": 0.3333
+        },
+        "beatsBaseline": false,
+        "improvementSummary": []
+      },
+      "activeMode": "deterministic",
+      "reasons": [
+        "Value score stays deterministic because spend and purchase count are the canonical value truth."
+      ]
+    },
+    "recommendationRanker": {
+      "modelVersion": 1,
+      "trainingSampleSize": 5,
+      "validationSampleSize": 720,
+      "trainingSource": "synthetic_bootstrap",
+      "metrics": {
+        "precisionAt5": 0.2667,
+        "precisionAt10": 0.1333,
+        "recallAt10": 0.6667,
+        "calibrationError": 0.0693,
+        "auc": 0.9495,
+        "hitRate": 0.6667,
+        "falsePositiveRate": 0.0962,
+        "coverage": 1,
+        "staleSourceRate": 0.1667,
+        "sourceDisagreementRate": 0.3333
+      },
+      "baselineComparison": {
+        "baselineName": "deterministic_ranker",
+        "baselineMetrics": {
+          "precisionAt5": 0.2667,
+          "precisionAt10": 0.1333,
+          "recallAt10": 0.6667,
+          "calibrationError": 0.0675,
+          "auc": 0.9748,
+          "hitRate": 0.6667,
+          "falsePositiveRate": 0.0962,
+          "coverage": 1,
+          "staleSourceRate": 0.1667,
+          "sourceDisagreementRate": 0.3333
+        },
+        "beatsBaseline": true,
+        "improvementSummary": []
+      },
+      "activeMode": "deterministic",
+      "reasons": [
+        "Training sample size is below 50, so no ML verdict is allowed.",
+        "Training source is synthetic bootstrap, so ML cannot activate in production."
+      ]
+    },
+    "watchTimeEstimation": {
+      "modelVersion": 2,
+      "trainingSampleSize": 168,
+      "validationSampleSize": 72,
+      "trainingSource": "diagnostic_estimation_rule",
+      "metrics": {
+        "precisionAt5": 0.3333,
+        "precisionAt10": 0.3333,
+        "recallAt10": 0.3333,
+        "calibrationError": 0.2909,
+        "auc": 1,
+        "hitRate": 0.3333,
+        "falsePositiveRate": 0.5,
+        "coverage": 1,
+        "staleSourceRate": 0.1667,
+        "sourceDisagreementRate": 0.3333
+      },
+      "baselineComparison": {
+        "baselineName": "legacy_page_duration",
+        "baselineMetrics": {
+          "precisionAt5": 0.3333,
+          "precisionAt10": 0.3333,
+          "recallAt10": 0.3333,
+          "calibrationError": 0.2909,
+          "auc": 1,
+          "hitRate": 0.3333,
+          "falsePositiveRate": 0.5,
+          "coverage": 1,
+          "staleSourceRate": 0.1667,
+          "sourceDisagreementRate": 0.3333
+        },
+        "beatsBaseline": true,
+        "improvementSummary": []
+      },
+      "activeMode": "deterministic",
+      "reasons": [
+        "Watch-time estimation remains diagnostics-only and never replaces verified watch-session truth.",
+        "Bounded estimate outperforms raw legacy page-duration fallback on validation scenarios."
+      ]
+    },
+    "theftRiskScore": {
+      "modelVersion": 1,
+      "trainingSampleSize": 168,
+      "validationSampleSize": 72,
+      "trainingSource": "deterministic_rule_score",
+      "metrics": {
+        "precisionAt5": 0.1667,
+        "precisionAt10": 0.1667,
+        "recallAt10": 0.1667,
+        "calibrationError": 0.025,
+        "auc": 1,
+        "hitRate": 0.1667,
+        "falsePositiveRate": 0,
+        "coverage": 1,
+        "staleSourceRate": 0.1667,
+        "sourceDisagreementRate": 0.3333
+      },
+      "baselineComparison": {
+        "baselineName": "visibility_event_alerting",
+        "baselineMetrics": {
+          "precisionAt5": 0.1667,
+          "precisionAt10": 0.1667,
+          "recallAt10": 0.1667,
+          "calibrationError": 0.2,
+          "auc": 0.4,
+          "hitRate": 0.1667,
+          "falsePositiveRate": 0.2,
+          "coverage": 1,
+          "staleSourceRate": 0.1667,
+          "sourceDisagreementRate": 0.3333
+        },
+        "beatsBaseline": true,
+        "improvementSummary": [
+          "false positive rate improved by 0.2",
+          "calibration error improved by 0.175"
+        ]
+      },
+      "activeMode": "deterministic",
+      "reasons": [
+        "Theft risk remains deterministic because moderation, content protection, and account actions cannot be delegated to ML.",
+        "Evidence-weighted theft scoring reduces false positives against visibility-only alerting."
+      ]
+    },
+    "behavioralConfidenceScore": {
+      "modelVersion": 1,
+      "trainingSampleSize": 168,
+      "validationSampleSize": 72,
+      "trainingSource": "deterministic_rule_score",
+      "metrics": {
+        "precisionAt5": 0.5,
+        "precisionAt10": 0.5,
+        "recallAt10": 0.5,
+        "calibrationError": 0.2167,
+        "auc": 1,
+        "hitRate": 0.5,
+        "falsePositiveRate": 0,
+        "coverage": 1,
+        "staleSourceRate": 0.1667,
+        "sourceDisagreementRate": 0.3333
+      },
+      "baselineComparison": {
+        "baselineName": "sample_count_only",
+        "baselineMetrics": {
+          "precisionAt5": 0.5,
+          "precisionAt10": 0.5,
+          "recallAt10": 0.5,
+          "calibrationError": 0.3401,
+          "auc": 1,
+          "hitRate": 0.5,
+          "falsePositiveRate": 0,
+          "coverage": 1,
+          "staleSourceRate": 0.1667,
+          "sourceDisagreementRate": 0.3333
+        },
+        "beatsBaseline": true,
+        "improvementSummary": [
+          "calibration error improved by 0.123"
+        ]
+      },
+      "activeMode": "deterministic",
+      "reasons": [
+        "Behavioral confidence remains deterministic because source agreement, freshness, schema completeness, and issue penalties are policy truth.",
+        "Confidence formula outperforms sample-count-only scoring on personalization safety."
+      ]
+    }
+  }
+}

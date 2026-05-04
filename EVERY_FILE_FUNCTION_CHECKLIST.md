@@ -9,6 +9,13 @@ Scoring: all entries below are marked as included in the current validated sweep
 
 Current repo-wide state snapshot: see [FULL_SCALE_CODEBASE_AUDIT.md](/Users/uylus/OneDrive/Documents/KandyDrops_Final/FULL_SCALE_CODEBASE_AUDIT.md) for the current live baseline, verification state, and continuity rules, and see [REPO_MEMORY_LEDGER.md](/Users/uylus/OneDrive/Documents/KandyDrops_Final/REPO_MEMORY_LEDGER.md) for major architectural and workflow decisions. The detailed file/function body below remains valuable historical evidence, but it has not been fully regenerated against the current 2026-04-18 inventory review yet.
 
+## 2026-05-04 Behavioral Model Validation Coverage
+
+- [x] `scripts/validate-behavioral-models.ts` owns time-based train/validation splits, synthetic validation dataset generation, KandyDrops goal metrics, baseline comparisons, active-mode decisions, and writing `agent/state/behavioral-model-validation.generated.json`.
+- [x] `scripts/train-behavioral-models.ts` owns the orchestration lane that trains the lightweight recommendation artifact before behavioral validation runs.
+- [x] `scripts/agent/validate-math-goal-alignment.ts`, `docs/agent-truth/math-goal-alignment.md`, and package scripts `train:behavioral-models`, `validate:behavioral-models`, and `check:math-goal-alignment` provide the deterministic regression lane.
+- [x] `src/lib/recommendations/ml-ranker.ts` treats `agent/state/behavioral-model-validation.generated.json` as the recommendation ML activation gate and falls back to deterministic ranking unless the validated active mode is `hybrid` or `ml_active`.
+
 ## 2026-05-04 Recommendation Ranker Coverage
 
 - [x] `src/lib/recommendations/candidate-generation.ts` owns deterministic candidate retrieval from live/ending-soon Drops, creator affinity, previous unlock creators, theme/category affinity, similar-user hints, and popularity/freshness fallback.
