@@ -273,6 +273,7 @@ function isClickLikeEvent(eventName: string) {
     "drop_preview_opened",
     "drop_unlock_attempted",
     "unlock_drop_success",
+    "drop_unwrapped",
     "viewer_related_drop_clicked",
   ]).has(eventName);
 }
@@ -707,20 +708,20 @@ export function buildAnalyticsMetricReport(input: AnalyticsMetricEngineInput) {
     ),
     preview_to_unlock_rate: createResult(
       ANALYTICS_SOCIAL_METRICS_BY_KEY.preview_to_unlock_rate,
-      percent(toNumber(eventCounts.unlock_drop_success), toNumber(eventCounts.drop_preview_opened)),
+      percent(toNumber(eventCounts.drop_unwrapped), toNumber(eventCounts.drop_preview_opened)),
       toNumber(eventCounts.drop_preview_opened),
       {
-        unlocks: toNumber(eventCounts.unlock_drop_success),
+        unlocks: toNumber(eventCounts.drop_unwrapped),
         previews: toNumber(eventCounts.drop_preview_opened),
       },
     ),
     unlock_to_viewer_rate: createResult(
       ANALYTICS_SOCIAL_METRICS_BY_KEY.unlock_to_viewer_rate,
-      percent(toNumber(eventCounts.viewer_opened), toNumber(eventCounts.unlock_drop_success)),
-      toNumber(eventCounts.unlock_drop_success),
+      percent(toNumber(eventCounts.viewer_opened), toNumber(eventCounts.drop_unwrapped)),
+      toNumber(eventCounts.drop_unwrapped),
       {
         viewerOpens: toNumber(eventCounts.viewer_opened),
-        unlocks: toNumber(eventCounts.unlock_drop_success),
+        unlocks: toNumber(eventCounts.drop_unwrapped),
       },
     ),
     viewer_completion_rate: createResult(

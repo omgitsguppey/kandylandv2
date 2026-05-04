@@ -79,6 +79,10 @@ function resolveIdentifiedSourceTruth(
         return "materialized" as const;
     }
 
+    if (explicitSourceTruth === "server") {
+        return "server" as const;
+    }
+
     if (explicitSourceTruth === "canonical") {
         return "canonical" as const;
     }
@@ -86,9 +90,16 @@ function resolveIdentifiedSourceTruth(
     if (
         canonicalEventName === "identity_linked"
         || canonicalEventName === "purchase_verified"
-        || canonicalEventName === "unlock_drop_success"
     ) {
         return "canonical" as const;
+    }
+
+    if (canonicalEventName === "drop_unwrapped" || canonicalEventName === "entitlement_granted") {
+        return "server" as const;
+    }
+
+    if (canonicalEventName === "unlock_drop_success") {
+        return "client" as const;
     }
 
     if (canonicalEventName === "gumdrops_purchase_completed" || canonicalEventName === "purchase") {

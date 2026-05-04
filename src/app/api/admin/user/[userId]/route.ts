@@ -373,7 +373,7 @@ async function GET_handler(
         const directAssetCompletionCount = analyticsFacts.filter((event) => event.eventName === "viewer_asset_completed").length;
         const directDownloadCount = analyticsFacts.filter((event) => event.eventName === "viewer_source_downloaded").length;
         const directRelatedClickCount = analyticsFacts.filter((event) => event.eventName === "viewer_related_drop_clicked").length;
-        const directUnwrapCount = analyticsFacts.filter((event) => event.eventName === "unlock_drop_success").length;
+        const directUnwrapCount = analyticsFacts.filter((event) => event.eventName === "drop_unwrapped").length;
         const directPageViewCount = analyticsFacts.filter((event) => event.eventName.endsWith("_page_viewed") || event.eventName === "semantic_page_viewed").length;
         const directBounceCount = analyticsFacts.filter((event) => event.eventName === "semantic_page_bounced").length;
         const directAuthSuccessCount = analyticsFacts.filter((event) => (
@@ -595,7 +595,7 @@ async function GET_handler(
                 const eventName = transactionType === "purchase_currency" || transactionType === "purchase"
                     ? "gumdrops_purchase_completed"
                     : transactionType === "unlock_content"
-                        ? "unlock_drop_success"
+                        ? "drop_unwrapped"
                         : "";
                 if (!eventName) {
                     return null;
@@ -647,7 +647,7 @@ async function GET_handler(
             { key: "transactions", label: "Transactions", count: completedUnlockTransactions.length },
             { key: "rollup", label: "User rollup", count: rollupUnlockCount },
             { key: "daily", label: "Daily rollups", count: dailyUnwrapCount },
-            { key: "facts", label: "Event facts", count: directUnwrapCount },
+            { key: "facts", label: "Server facts", count: directUnwrapCount },
         ];
         const purchaseParity = buildParityInsight(purchaseSourceCounts, { tolerance: 1, relativeTolerance: 0.2 });
         const unlockParity = buildParityInsight(unlockSourceCounts, { tolerance: 1, relativeTolerance: 0.2 });

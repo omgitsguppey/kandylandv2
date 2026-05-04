@@ -189,18 +189,6 @@ function DropCardBase({
                 throw new Error(result.error || "Unlock failed");
             }
 
-            trackEvent('unlock_drop_success', {
-                drop_id: drop.id,
-                drop_category: drop.type,
-                unlock_cost: drop.unlockCost || 0,
-                transaction_id: `${user.uid}:unlock:${drop.id}:${Number.isFinite(result.unwrappedAt) ? Math.floor(result.unwrappedAt) : "client"}`,
-                idempotency_key: `${user.uid}:unlock:${drop.id}`,
-                drop_tags: (drop.tags || []).join("|"),
-                source_component: "compact_drop_card",
-                ui_density: DROPS_MOBILE_UI_DENSITY,
-                ...getDropCardVisibilityTelemetryPayload(visibilityState),
-            });
-
             if (userProfile) {
                 const unwrappedAt = Number.isFinite(result.unwrappedAt) ? Math.floor(result.unwrappedAt) : Date.now();
 

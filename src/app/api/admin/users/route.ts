@@ -1435,7 +1435,7 @@ async function GET_handler(request: NextRequest) {
           current.engagedViewCount += eventName === "semantic_page_engaged" ? 1 : 0;
           current.passiveViewCount += eventName === "semantic_page_passive" ? 1 : 0;
           current.bounceCount += eventName === "semantic_page_bounced" ? 1 : 0;
-          current.unwrapCount += eventName === "unlock_drop_success" ? 1 : 0;
+          current.unwrapCount += eventName === "drop_unwrapped" ? 1 : 0;
           current.authSuccessCount += (
             eventName === "auth_sign_in_success"
             || eventName === "auth_google_sign_in_success"
@@ -2219,7 +2219,7 @@ async function PUT_handler(request: NextRequest) {
 
 async function POST_handler(request: NextRequest) {
   try {
-    await guardApiRequest(request, {
+    const caller = await guardApiRequest(request, {
       routeName: "admin/users",
       rateLimit: ADMIN,
       requireTrustedOrigin: true,
@@ -2271,11 +2271,21 @@ async function POST_handler(request: NextRequest) {
 
       if (action === "add") {
         if (alreadyUnlocked) {
-          return { changed: false, actionTaken: "add" as const, grantedAt: null, dropTitle };
-        }
+        return {
+          changed: false,
+          actionTaken: "add" as const,
+          grantedAt: null,
+          dropTitle,
+          creatorId: typeof dropData.creatorId === "string" ? dropData.creatorId : "",
+          entitlementId: `drop-entitlement:${userId}:${normalizedDropId}`,
+          transactionId: "",
+        };
+      }
 
-        const grantedAt = Date.now();
-        const transactionRef = adminDb.collection("transactions").doc();
+      const grantedAt = Date.now();
+      const transactionRef = adminDb.collection("transactions").doc();
+      const transactionId = transactionRef.id;
+      const entitlementId = `drop-entitlement:${userId}:${normalizedDropId}`;
         transaction.update(userRef, {
           unlockedContent: FieldValue.arrayUnion(normalizedDropId),
           [`unlockedContentTimestamps.${normalizedDropId}`]: grantedAt,
@@ -2294,14 +2304,33 @@ async function POST_handler(request: NextRequest) {
           timestampMs: grantedAt,
           extra: {
             grantSource: "admin",
+            sourceTruth: "server",
+            entitlementId,
+            transactionId,
           },
         }));
 
-        return { changed: true, actionTaken: "add" as const, grantedAt, dropTitle };
+        return {
+          changed: true,
+          actionTaken: "add" as const,
+          grantedAt,
+          dropTitle,
+          creatorId: typeof dropData.creatorId === "string" ? dropData.creatorId : "",
+          entitlementId,
+          transactionId,
+        };
       }
 
       if (!alreadyUnlocked) {
-        return { changed: false, actionTaken: "remove" as const, grantedAt: null, dropTitle };
+        return {
+          changed: false,
+          actionTaken: "remove" as const,
+          grantedAt: null,
+          dropTitle,
+          creatorId: typeof dropData.creatorId === "string" ? dropData.creatorId : "",
+          entitlementId: `drop-entitlement:${userId}:${normalizedDropId}`,
+          transactionId: "",
+        };
       }
 
       transaction.update(userRef, {
@@ -2313,13 +2342,22 @@ async function POST_handler(request: NextRequest) {
     });
 
     if (result.changed && result.actionTaken === "add") {
-      await trackServerEvent("unlock_drop_success", {
+      await trackServerEvent("entitlement_granted", {
+        actor_type: "admin",
+        actor_admin_id: caller?.uid ?? "",
         drop_id: normalizedDropId,
         drop_title: result.dropTitle,
-        unlock_cost: 0,
+        creator_id: result.creatorId,
+        target_creator_id: result.creatorId,
+        target_user_id: userId,
+        entitlement_id: result.entitlementId,
+        entitlement_kind: "drop_unlock",
+        price_gd: 0,
         grant_source: "admin",
-        transaction_id: `admin-grant:${userId}:${normalizedDropId}:${result.grantedAt ?? "unknown"}`,
-      }, userId).catch((error) => {
+        transaction_id: result.transactionId || `admin-grant:${userId}:${normalizedDropId}:${result.grantedAt ?? "unknown"}`,
+        sourceTruth: "server",
+        page_path: `/admin/user/${userId}`,
+      }, caller?.uid).catch((error) => {
         recordRouteWarning("admin/users", "Failed to mirror admin grant into analytics facts", error, {
           channel: "analytics",
           detail: {

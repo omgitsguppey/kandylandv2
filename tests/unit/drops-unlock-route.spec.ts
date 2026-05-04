@@ -2,7 +2,7 @@ import { NextRequest, NextResponse } from "next/server";
 import { beforeEach, describe, expect, it, vi } from "vitest";
 
 type StoredDoc = Record<string, unknown>;
-type MockRef = { path: string };
+type MockRef = { path: string; id: string };
 
 const mockState = vi.hoisted(() => {
   const documents = new Map<string, StoredDoc>();
@@ -21,7 +21,7 @@ const mockState = vi.hoisted(() => {
     data: () => documents.get(path),
   });
 
-  const buildDocRef = (path: string) => ({ path });
+  const buildDocRef = (path: string) => ({ path, id: path.split("/").at(-1) ?? "" });
 
   const adminDb = {
     collection(name: string) {
@@ -155,8 +155,12 @@ describe("POST /api/drops/unlock", () => {
     expect(payload).toMatchObject({
       success: true,
       cost: 7,
+      priceGd: 7,
       newBalance: 3,
       alreadyUnlocked: false,
+      sourceTruth: "server",
+      transactionId: "generated_tx",
+      entitlementId: "drop-entitlement:fan_1:drop_1",
     });
     expect(mockState.guardApiRequest).toHaveBeenCalledWith(expect.any(NextRequest), expect.objectContaining({
       routeName: "drops/unlock",
@@ -185,8 +189,43 @@ describe("POST /api/drops/unlock", () => {
         unlockSource: "gumdrops",
         purchasedAmountSpent: 1,
         rewardAmountSpent: 6,
+        transactionId: "generated_tx",
+        entitlementId: "drop-entitlement:fan_1:drop_1",
+        sourceTruth: "server",
         verifiedServerSide: true,
       }),
+    );
+    expect(mockState.recordCanonicalTaskEvent).toHaveBeenCalledWith(
+      "fan_1",
+      "fan",
+      "unlock_drop_success",
+      expect.objectContaining({
+        transaction_id: "generated_tx",
+        entitlement_id: "drop-entitlement:fan_1:drop_1",
+        sourceTruth: "server",
+      }),
+    );
+    expect(mockState.trackServerEvent).toHaveBeenCalledWith(
+      "drop_unwrapped",
+      expect.objectContaining({
+        drop_id: "drop_1",
+        price_gd: 7,
+        entitlement_id: "drop-entitlement:fan_1:drop_1",
+        transaction_id: "generated_tx",
+        sourceTruth: "server",
+      }),
+      "fan_1",
+    );
+    expect(mockState.trackServerEvent).toHaveBeenCalledWith(
+      "entitlement_granted",
+      expect.objectContaining({
+        drop_id: "drop_1",
+        target_user_id: "fan_1",
+        entitlement_id: "drop-entitlement:fan_1:drop_1",
+        transaction_id: "generated_tx",
+        sourceTruth: "server",
+      }),
+      "fan_1",
     );
   });
 
@@ -209,6 +248,9 @@ describe("POST /api/drops/unlock", () => {
       newBalance: 10,
       alreadyUnlocked: true,
       unwrappedAt: 1770000000000,
+      entitlementId: "drop-entitlement:fan_1:drop_1",
+      transactionId: "",
+      sourceTruth: "server",
     });
     expect(mockState.transactionUpdate).not.toHaveBeenCalled();
     expect(mockState.transactionSet).not.toHaveBeenCalled();

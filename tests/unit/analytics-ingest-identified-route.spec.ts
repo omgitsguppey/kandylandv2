@@ -273,6 +273,66 @@ describe("POST /api/analytics/ingest-identified", () => {
     });
   });
 
+  it("treats server drop unlock facts as server truth", async () => {
+    const response = await POST(buildRequest({
+      events: [{
+        eventId: "evt_drop_unwrapped",
+        eventTimestampMs: 1767225600000,
+        eventName: "drop_unwrapped",
+        eventParams: {
+          page_path: "/drops/drop_123/preview",
+          session_id: "session_123",
+          drop_id: "drop_123",
+          transaction_id: "txn_unlock_123",
+          entitlement_id: "drop-entitlement:user_123:drop_123",
+          sourceTruth: "server",
+        },
+      }],
+    }));
+    const payload = await response.json();
+
+    expect(payload).toEqual({ success: true, processed: 1, skippedUnsupported: 0 });
+
+    const eventWrite = mockState.writes.find((write) => write.path === "analytics_event_facts/evt_drop_unwrapped");
+    expect(eventWrite?.data).toMatchObject({
+      eventName: "drop_unwrapped",
+      dropId: "drop_123",
+      transactionId: "txn_unlock_123",
+      sourceTruth: "server",
+      normalizedActionName: "drop_unwrapped",
+      metricEligible: true,
+    });
+  });
+
+  it("keeps legacy client unlock success telemetry out of the server-truth lane", async () => {
+    const response = await POST(buildRequest({
+      events: [{
+        eventId: "evt_unlock_support",
+        eventTimestampMs: 1767225600000,
+        eventName: "unlock_drop_success",
+        eventParams: {
+          page_path: "/drops/drop_123/preview",
+          session_id: "session_123",
+          drop_id: "drop_123",
+          transaction_id: "txn_unlock_support_123",
+          sourceTruth: "client_supporting",
+        },
+      }],
+    }));
+    const payload = await response.json();
+
+    expect(payload).toEqual({ success: true, processed: 1, skippedUnsupported: 0 });
+
+    const eventWrite = mockState.writes.find((write) => write.path === "analytics_event_facts/evt_unlock_support");
+    expect(eventWrite?.data).toMatchObject({
+      eventName: "unlock_drop_success",
+      transactionId: "txn_unlock_support_123",
+      sourceTruth: "client",
+      normalizedActionName: "drop_unwrapped",
+      metricEligible: true,
+    });
+  });
+
   it("excludes admin projection events from user behavior metrics", async () => {
     const response = await POST(buildRequest({
       events: [{

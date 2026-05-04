@@ -270,16 +270,7 @@ export function DropPreviewModal({ drop, onClose }: DropPreviewModalProps) {
         virtual_currency_name: "Gum Drops",
         item_name: drop.title,
       });
-      trackEvent("unlock_drop_success", {
-        drop_id: drop.id,
-        drop_category: drop.type,
-        unlock_cost: drop.unlockCost,
-        transaction_id: `${user.uid}:unlock:${drop.id}:${Number.isFinite(result.unwrappedAt) ? Math.floor(result.unwrappedAt) : "client"}`,
-        idempotency_key: `${user.uid}:unlock:${drop.id}`,
-        drop_tags: (drop.tags || []).join("|"),
-        source_component: "drop_preview_modal",
-        ...(consumeTimedFlow("drop_unlock").mergedParams ?? {}),
-      });
+      consumeTimedFlow("drop_unlock");
 
       if (userProfile) {
         const unwrappedAt = Number.isFinite(result.unwrappedAt) ? Math.floor(result.unwrappedAt) : Date.now();

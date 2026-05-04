@@ -23,6 +23,10 @@ const unlockRequestSchema = z.object({
     .regex(/^[A-Za-z0-9_-]+$/u, "Invalid dropId format"),
 });
 
+function buildDropEntitlementId(userId: string, dropId: string) {
+  return `drop-entitlement:${userId}:${dropId}`;
+}
+
 async function POST_handler(request: NextRequest) {
   try {
     const caller = await guardApiRequest(request, {
@@ -76,11 +80,22 @@ async function POST_handler(request: NextRequest) {
       const unlockedContent = new Set(
         unlockedContentRaw.filter((value): value is string => typeof value === "string")
       );
+      const entitlementId = buildDropEntitlementId(userId, dropId);
 
       if (unlockedContent.has(dropId)) {
         const existingUnwrappedRaw = Number((userData.unlockedContentTimestamps as Record<string, unknown> | undefined)?.[dropId]);
         const existingUnwrappedAt = Number.isFinite(existingUnwrappedRaw) ? Math.floor(existingUnwrappedRaw) : null;
-        return { newBalance: balance, alreadyUnlocked: true, unwrappedAt: existingUnwrappedAt, username, creatorId, usedSubscriptionAccess: false };
+        return {
+          newBalance: balance,
+          alreadyUnlocked: true,
+          unwrappedAt: existingUnwrappedAt,
+          username,
+          creatorId,
+          usedSubscriptionAccess: false,
+          entitlementId,
+          transactionId: "",
+          priceGd: 0,
+        };
       }
 
       let usedSubscriptionAccess = false;
@@ -108,6 +123,7 @@ async function POST_handler(request: NextRequest) {
         throw new Error(`INSUFFICIENT_FUNDS:${unlockCost}:${balance}`);
       }
       const transactionRef = adminDb.collection("transactions").doc();
+      const transactionId = transactionRef.id;
 
       // --- WRITE PHASE: Mutations only occur after all conditions are met ---
 
@@ -131,6 +147,9 @@ async function POST_handler(request: NextRequest) {
           unlockSource: usedSubscriptionAccess ? "creator_subscription" : "gumdrops",
           purchasedAmountSpent: spend.purchasedSpent,
           rewardAmountSpent: spend.rewardSpent,
+          sourceTruth: "server",
+          transactionId,
+          entitlementId,
         },
       }));
 
@@ -150,6 +169,9 @@ async function POST_handler(request: NextRequest) {
           : [],
         creatorId,
         usedSubscriptionAccess,
+        entitlementId,
+        transactionId,
+        priceGd: unlockCost,
       };
     });
 
@@ -162,18 +184,53 @@ async function POST_handler(request: NextRequest) {
         drop_title: result.title ?? "Drop",
         drop_tags: Array.isArray(result.tags) ? result.tags.join("|") : "",
         unlock_cost: result.cost ?? 0,
+        price_gd: result.priceGd ?? result.cost ?? 0,
         creator_id: result.creatorId ?? "",
         unlock_source: result.usedSubscriptionAccess ? "creator_subscription" : "gumdrops",
-        transaction_id: `${userId}:unlock:${dropId}:${result.unwrappedAt ?? "unknown"}`,
+        transaction_id: result.transactionId,
+        entitlement_id: result.entitlementId,
+        sourceTruth: "server",
       });
+      await trackServerEvent("drop_unwrapped", {
+        drop_id: dropId,
+        drop_title: result.title ?? "Drop",
+        drop_tags: Array.isArray(result.tags) ? result.tags.join("|") : "",
+        creator_id: result.creatorId ?? "",
+        target_creator_id: result.creatorId ?? "",
+        unlock_cost: result.cost ?? 0,
+        price_gd: result.priceGd ?? result.cost ?? 0,
+        unlock_source: result.usedSubscriptionAccess ? "creator_subscription" : "gumdrops",
+        entitlement_id: result.entitlementId,
+        transaction_id: result.transactionId,
+        sourceTruth: "server",
+        page_path: `/drops/${dropId}/preview`,
+      }, userId).catch(() => null);
+      await trackServerEvent("entitlement_granted", {
+        drop_id: dropId,
+        drop_title: result.title ?? "Drop",
+        creator_id: result.creatorId ?? "",
+        target_creator_id: result.creatorId ?? "",
+        target_user_id: userId,
+        entitlement_id: result.entitlementId,
+        entitlement_kind: "drop_unlock",
+        transaction_id: result.transactionId,
+        unlock_source: result.usedSubscriptionAccess ? "creator_subscription" : "gumdrops",
+        price_gd: result.priceGd ?? result.cost ?? 0,
+        sourceTruth: "server",
+        page_path: `/drops/${dropId}/preview`,
+      }, userId).catch(() => null);
       if (result.creatorId) {
         await trackServerEvent("creator_drop_unwrapped", {
           creator_id: result.creatorId,
+          target_creator_id: result.creatorId,
           drop_id: dropId,
           drop_title: result.title ?? "Drop",
           unlock_cost: result.cost ?? 0,
+          price_gd: result.priceGd ?? result.cost ?? 0,
           unlock_source: result.usedSubscriptionAccess ? "creator_subscription" : "gumdrops",
-          transaction_id: `${userId}:creator-unlock:${dropId}:${result.unwrappedAt ?? "unknown"}`,
+          entitlement_id: result.entitlementId,
+          transaction_id: result.transactionId,
+          sourceTruth: "server",
         }, userId).catch(() => null);
       }
     }
@@ -187,10 +244,15 @@ async function POST_handler(request: NextRequest) {
       success: true,
       title: result.title,
       cost: result.cost,
+      dropId,
+      priceGd: result.priceGd ?? result.cost ?? 0,
       newBalance: result.newBalance,
       alreadyUnlocked: result.alreadyUnlocked,
       unwrappedAt: result.unwrappedAt ?? null,
       usedSubscriptionAccess: result.usedSubscriptionAccess ?? false,
+      transactionId: result.transactionId,
+      entitlementId: result.entitlementId,
+      sourceTruth: "server",
     });
   } catch (error: unknown) {
     const message = error instanceof Error ? error.message : "";

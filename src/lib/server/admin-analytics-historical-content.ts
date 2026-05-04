@@ -97,7 +97,7 @@ export function buildHistoricalContentAnalytics(input: {
     current.previews += 1;
     categoryMixMap.set(label, current);
   });
-  (input.telemetryLogsByEvent.unlock_drop_success || []).forEach((record) => {
+  (input.telemetryLogsByEvent.drop_unwrapped || []).forEach((record) => {
     const label = getTelemetryParamString(record, "drop_category") || "unknown";
     const current = categoryMixMap.get(label) || { label, previews: 0, unlocks: 0 };
     current.unlocks += 1;
@@ -152,7 +152,7 @@ export function buildHistoricalContentAnalytics(input: {
   ];
 
   const tagDemandMap = new Map<string, number>();
-  (input.telemetryLogsByEvent.unlock_drop_success || []).forEach((record) => {
+  (input.telemetryLogsByEvent.drop_unwrapped || []).forEach((record) => {
     const rawTags = getTelemetryParamString(record, "drop_tags");
     rawTags
       .split("|")

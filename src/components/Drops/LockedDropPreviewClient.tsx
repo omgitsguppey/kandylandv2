@@ -39,6 +39,7 @@ export function LockedDropPreviewClient({ drop, creator, sourceComponent = "dire
     const [unlocking, setUnlocking] = useState(false);
     const [confirming, setConfirming] = useState(false);
     const [successTransactionId, setSuccessTransactionId] = useState<string | null>(null);
+    const [successEntitlementId, setSuccessEntitlementId] = useState<string | null>(null);
     const [selectedReaction, setSelectedReaction] = useState<string | null>(null);
     const ctaViewedKeysRef = useRef<Set<string>>(new Set());
     const successStateViewedRef = useRef(false);
@@ -147,9 +148,12 @@ export function LockedDropPreviewClient({ drop, creator, sourceComponent = "dire
         trackEvent("drop_preview_unlock_success_state_viewed", {
             ...getTelemetryPayload(),
             transaction_id: successTransactionId,
+            entitlement_id: successEntitlementId ?? "",
+            price_gd: drop.unlockCost,
+            sourceTruth: "client_supporting",
             idempotency_key: `${user?.uid ?? "unknown"}:preview_success_state:${drop.id}`,
         });
-    }, [drop.id, getTelemetryPayload, successTransactionId, user?.uid]);
+    }, [drop.id, drop.unlockCost, getTelemetryPayload, successEntitlementId, successTransactionId, user?.uid]);
 
     const handleReaction = (reactionKey: string, reactionLabel: string) => {
         setSelectedReaction(reactionKey);
@@ -210,7 +214,12 @@ export function LockedDropPreviewClient({ drop, creator, sourceComponent = "dire
             }
 
             const unwrappedAt = Number.isFinite(result.unwrappedAt) ? Math.floor(result.unwrappedAt) : Date.now();
-            const transactionId = `${user.uid}:unlock:${drop.id}:${unwrappedAt}`;
+            const transactionId = typeof result.transactionId === "string" && result.transactionId.trim().length > 0
+                ? result.transactionId.trim()
+                : `${user.uid}:unlock:${drop.id}:${unwrappedAt}`;
+            const entitlementId = typeof result.entitlementId === "string" && result.entitlementId.trim().length > 0
+                ? result.entitlementId.trim()
+                : `drop-entitlement:${user.uid}:${drop.id}`;
             setUserProfile((currentProfile) => applyUnlockedDropPreviewProfilePatch({
                 currentProfile,
                 dropId: drop.id,
@@ -220,6 +229,7 @@ export function LockedDropPreviewClient({ drop, creator, sourceComponent = "dire
             }));
             dispatchActivitySync();
             setSuccessTransactionId(transactionId);
+            setSuccessEntitlementId(entitlementId);
             trackIncompleteOnUnmountRef.current = false;
 
             if (!result.alreadyUnlocked) {
@@ -229,12 +239,7 @@ export function LockedDropPreviewClient({ drop, creator, sourceComponent = "dire
                     item_name: drop.title,
                 });
             }
-            trackEvent("unlock_drop_success", {
-                ...payload,
-                transaction_id: transactionId,
-                idempotency_key: `${user.uid}:preview_unlock:${drop.id}`,
-                ...(consumeTimedFlow(PREVIEW_UNLOCK_FLOW_KEY).mergedParams ?? {}),
-            });
+            consumeTimedFlow(PREVIEW_UNLOCK_FLOW_KEY);
             import("canvas-confetti")
                 .then((mod) => mod.default({ particleCount: 70, spread: 60, origin: { y: 0.74 } }))
                 .catch(() => undefined);

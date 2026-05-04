@@ -696,8 +696,10 @@ async function GET_handler(request: NextRequest) {
             const purchases = firstPartyPurchaseCount > 0
                 ? firstPartyPurchaseCount
                 : telemetryPurchaseCount;
-            const telemetryUnlockCount = eventsData.unlock_drop_success || 0;
-            const canonicalUnlockCount = Math.max(firstPartyUnlockCount, telemetryUnlockCount);
+            const telemetryUnlockCount = eventsData.drop_unwrapped || 0;
+            const canonicalUnlockCount = firstPartyUnlockCount > 0
+                ? firstPartyUnlockCount
+                : telemetryUnlockCount;
             const normalizedSignupCount = canonicalRegistrationCount > 0
                 ? canonicalRegistrationCount
                 : eventsData.auth_sign_up_success || 0;
