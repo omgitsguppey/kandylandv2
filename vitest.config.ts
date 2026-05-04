@@ -21,6 +21,7 @@ export default defineConfig({
       test: {
         environment: "node",
         include: ["tests/contracts/**/*.spec.ts", "tests/contracts/**/*.spec.tsx", "tests/unit/**/*.spec.ts", "tests/unit/**/*.spec.tsx"],
+        setupFiles: ["tests/setup/deterministic-mocks.ts", "tests/setup/jest-dom.ts"],
         alias: {
           "server-only": "node_modules/server-only/empty.js"
         }

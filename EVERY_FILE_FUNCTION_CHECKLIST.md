@@ -9,6 +9,13 @@ Scoring: all entries below are marked as included in the current validated sweep
 
 Current repo-wide state snapshot: see [FULL_SCALE_CODEBASE_AUDIT.md](/Users/uylus/OneDrive/Documents/KandyDrops_Final/FULL_SCALE_CODEBASE_AUDIT.md) for the current live baseline, verification state, and continuity rules, and see [REPO_MEMORY_LEDGER.md](/Users/uylus/OneDrive/Documents/KandyDrops_Final/REPO_MEMORY_LEDGER.md) for major architectural and workflow decisions. The detailed file/function body below remains valuable historical evidence, but it has not been fully regenerated against the current 2026-04-18 inventory review yet.
 
+## 2026-05-04 Component Test Coverage
+
+- [x] KandyDrops component tests verify behavior and state truth, not screenshots. Fast UI tests should use shared auth/profile/drop states, exercise real component affordances where practical, and preserve telemetry/source-of-truth contracts without changing product behavior.
+- [x] `tests/setup/jest-dom.ts`, `vitest.config.ts`, and `vitest.contracts.config.ts` wire jest-dom matchers into the fast component test lane.
+- [x] `tests/unit/utils/kandydrops-test-states.ts` owns common guest, logged-in user, admin, enough GumDrops, insufficient GumDrops, and owned/unwrapped Drop fixtures.
+- [x] `tests/unit/drop-card-state.spec.tsx`, `tests/unit/daily-checkin-variant.spec.tsx`, and `tests/unit/notification-read-state.spec.tsx` validate UI behavior without screenshots or browser audits.
+
 ## 2026-05-04 Ast-Grep Source Rule Coverage
 
 - [x] KandyDrops ast-grep rules are deterministic source guardrails. They catch forbidden shell, safe-area, preview content-protection, diagnostics, timer, and breakpoint patterns from source files without replacing targeted tests or broad runtime validation.

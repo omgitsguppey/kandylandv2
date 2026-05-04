@@ -1,5 +1,34 @@
 # KandyDrops Core Codebase Audit & Defensive Ledger
 
+## [2026-05-04 #129] PRE: Fast Component Behavior Tests
+
+Scope started:
+- Adding Testing Library dev dependencies and fast component behavior tests for Drop card state, DailyCheckIn variants, and notification read state.
+- Required outputs: jest-dom setup, Vitest setup wiring, shared auth/profile/drop test-state helpers, `tests/unit/drop-card-state.spec.tsx`, `tests/unit/daily-checkin-variant.spec.tsx`, `tests/unit/notification-read-state.spec.tsx`, `docs/agent-truth/component-test-doctrine.md`, targeted Vitest verification, commit, and push.
+- This pass must not run Playwright, Lighthouse, Cypress, full UI audits, or full `npm run check`, and must not change product UI, payment/economy logic, notification runtime behavior, Drop unlock behavior, DailyCheckIn claim logic, or telemetry semantics.
+
+Initial evidence:
+- Control tower routing, doctrine consultation workflow, product/copy/UI doctrine, source-of-truth map, shared component ownership, full governance files, existing Vitest configs, existing happy-dom component tests, DropCard, DailyCheckIn, NotificationBell, and notification hook state logic were consulted.
+- Current tests already support happy-dom through file pragmas and deterministic mocks; this pass adds Testing Library ergonomics without moving to flaky browser automation.
+
+Doctrine:
+- KandyDrops component tests verify behavior and state truth, not screenshots. Fast UI tests should use shared auth/profile/drop states, exercise real component affordances where practical, and preserve telemetry/source-of-truth contracts without changing product behavior.
+
+Scope completed:
+- Added Testing Library dev dependencies, including the required `@testing-library/dom` peer for the React test package.
+- Added jest-dom setup with explicit Testing Library cleanup, wired it into Vitest unit/contract configs, and exposed jest-dom matcher types.
+- Added shared KandyDrops test-state helpers for guest, logged-in user, admin, enough/insufficient GumDrops, owned/unwrapped Drop, profile, and user fixtures.
+- Added fast component behavior specs for Drop card auth/affordability state, DailyCheckIn dashboard versus Experiences presentation variants, and NotificationBell read/view state.
+- Added `docs/agent-truth/component-test-doctrine.md` and recorded the doctrine in the user, developer, AI/context, memory, and checklist truth surfaces.
+
+Verification:
+- `npx vitest run --config vitest.contracts.config.ts tests/unit/drop-card-state.spec.tsx tests/unit/daily-checkin-variant.spec.tsx tests/unit/notification-read-state.spec.tsx` passed with `3` files and `8` tests.
+- As requested, this pass did not run Playwright, Lighthouse, Cypress, broad UI audits, full `npm run check`, or broad runtime sweeps.
+
+Residual risk:
+- The test lane uses mocked auth/network/runtime dependencies and validates component behavior only; server route, Firebase rules, payment, ledger, and browser visual coverage remain owned by their targeted lanes.
+- `npm install` continued to report the existing `13` moderate npm audit findings; no audit fix was run in this scoped pass.
+
 ## [2026-05-04 #128] PRE: Ast-Grep Source Rule Checks
 
 Scope started:

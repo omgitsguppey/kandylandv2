@@ -4,6 +4,10 @@ Status: Canonical repository-memory and architecture-decision ledger
 Last refreshed: 2026-05-02
 Repo: `C:\Users\uylus\OneDrive\Documents\KandyDrops_Final`
 
+## 2026-05-04 Component behavior tests
+
+KandyDrops component tests verify behavior and state truth, not screenshots. Fast UI tests should use shared auth/profile/drop states, exercise real component affordances where practical, and preserve telemetry/source-of-truth contracts without changing product behavior. `tests/unit/utils/kandydrops-test-states.ts` owns common guest, user, admin, GumDrops, and owned Drop fixtures; current targeted tests cover Drop card CTA/affordability state, DailyCheckIn dashboard/experiences variants, and notification read-state behavior.
+
 ## 2026-05-04 Ast-grep source rules
 
 KandyDrops ast-grep rules are deterministic source guardrails. They catch forbidden shell, safe-area, preview content-protection, diagnostics, timer, and breakpoint patterns from source files without replacing targeted tests or broad runtime validation. The canonical command is `npm run check:ast-grep-rules`; `ast-grep.yml` documents rule ids/severity/category/fixes, `sgconfig.yml` anchors language globs, and `scripts/agent/run-ast-grep-rules.ts` uses `@ast-grep/napi` plus path-scoped source scans for actionable file/line findings.

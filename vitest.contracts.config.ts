@@ -33,7 +33,7 @@ export default defineConfig({
     alias: {
       "server-only": "node_modules/server-only/empty.js",
     },
-    setupFiles: ["tests/setup/deterministic-mocks.ts"],
+    setupFiles: ["tests/setup/deterministic-mocks.ts", "tests/setup/jest-dom.ts"],
     testTimeout: 10000,
     coverage: {
       provider: "v8",

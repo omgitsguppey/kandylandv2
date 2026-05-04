@@ -1,0 +1,169 @@
+// @vitest-environment happy-dom
+
+import React from "react";
+import { render, screen, waitFor } from "@testing-library/react";
+import userEvent from "@testing-library/user-event";
+import { beforeEach, describe, expect, it, vi } from "vitest";
+
+import { buildTestUser } from "./utils/kandydrops-test-states";
+
+const mockState = vi.hoisted(() => ({
+  user: { uid: "notify_user" },
+  push: vi.fn(),
+  authFetch: vi.fn(),
+  trackEvent: vi.fn(),
+  dispatchClientRuntimeEvent: vi.fn(),
+  reportRealtimeIssue: vi.fn(),
+  toastError: vi.fn(),
+}));
+
+function buildNotification(id: string, overrides: Record<string, unknown> = {}) {
+  return {
+    id,
+    title: "Drop ready",
+    message: "A new Drop is ready to unwrap. Open it before the timer closes.",
+    type: "success",
+    readBy: [],
+    createdAtMs: new Date("2026-05-04T15:00:00.000Z").getTime(),
+    link: "/drops/drop_1/preview",
+    ...overrides,
+  };
+}
+
+vi.mock("next/navigation", () => ({
+  useRouter: () => ({ push: mockState.push }),
+}));
+
+vi.mock("next/image", () => ({
+  default: ({ alt, ...props }: { alt: string }) => <img alt={alt} {...props} />,
+}));
+
+vi.mock("@/context/AuthContext", () => ({
+  useAuthIdentity: () => ({ user: mockState.user }),
+}));
+
+vi.mock("@/hooks/useDeferredClientReady", () => ({
+  useDeferredClientReady: () => true,
+}));
+
+vi.mock("@/hooks/useNetworkConditions", () => ({
+  useNetworkConditions: () => ({ isConstrained: false, isVerySlow: false }),
+}));
+
+vi.mock("@/hooks/client-runtime", () => ({
+  CLIENT_RUNTIME_EVENTS: {
+    openNotifications: "kandydrops:open-notifications",
+    notificationsSync: "kandydrops:notifications-sync",
+  },
+  dispatchClientRuntimeEvent: (...args: unknown[]) => mockState.dispatchClientRuntimeEvent(...args),
+  listenForClientRuntimeEvent: vi.fn(() => () => undefined),
+}));
+
+vi.mock("@/lib/authFetch", () => ({
+  authFetch: (...args: unknown[]) => mockState.authFetch(...args),
+}));
+
+vi.mock("@/lib/client-error-reporting", () => ({
+  reportRealtimeIssue: (...args: unknown[]) => mockState.reportRealtimeIssue(...args),
+}));
+
+vi.mock("@/lib/telemetry", () => ({
+  trackEvent: (...args: unknown[]) => mockState.trackEvent(...args),
+}));
+
+vi.mock("sonner", () => ({
+  toast: {
+    error: (...args: unknown[]) => mockState.toastError(...args),
+  },
+}));
+
+import { NotificationBell } from "@/components/Navigation/NotificationBell";
+
+describe("Notification read state", () => {
+  beforeEach(() => {
+    mockState.user = buildTestUser("notify_user");
+    mockState.push.mockReset();
+    mockState.authFetch.mockReset();
+    mockState.trackEvent.mockReset();
+    mockState.dispatchClientRuntimeEvent.mockReset();
+    mockState.reportRealtimeIssue.mockReset();
+    mockState.toastError.mockReset();
+  });
+
+  it("removes a notification from the visible list when marked read", async () => {
+    mockState.authFetch.mockImplementation(async (_url: string, options?: RequestInit) => {
+      if (options?.method === "PUT") {
+        return {
+          ok: true,
+          json: async () => ({ successCount: 1, failedCount: 0, notificationIds: ["note_1"] }),
+        };
+      }
+
+      return {
+        ok: true,
+        status: 200,
+        headers: new Headers({ etag: "notifications-v1" }),
+        json: async () => ({ success: true, notifications: [buildNotification("note_1")] }),
+      };
+    });
+
+    render(<NotificationBell />);
+
+    await userEvent.click(screen.getByRole("button", { name: /notifications/i }));
+    expect(await screen.findByText("Drop ready")).toBeInTheDocument();
+
+    await userEvent.click(screen.getByRole("button", { name: /mark as read/i }));
+
+    await waitFor(() => {
+      expect(screen.queryByText("Drop ready")).not.toBeInTheDocument();
+    });
+    expect(mockState.trackEvent).toHaveBeenCalledWith("notification_marked_read", expect.objectContaining({
+      notification_id: "note_1",
+      recipient_id: "notify_user",
+      optimistic: true,
+    }));
+    expect(mockState.dispatchClientRuntimeEvent).toHaveBeenCalledWith("kandydrops:notifications-sync", true);
+  });
+
+  it("marks an expanded notification as viewed while preserving it visibly", async () => {
+    mockState.authFetch.mockImplementation(async (_url: string, options?: RequestInit) => {
+      if (options?.method === "PUT") {
+        return {
+          ok: true,
+          json: async () => ({ successCount: 1, failedCount: 0, notificationIds: ["note_2"] }),
+        };
+      }
+
+      return {
+        ok: true,
+        status: 200,
+        headers: new Headers({ etag: "notifications-v2" }),
+        json: async () => ({
+          success: true,
+          notifications: [
+            buildNotification("note_2", {
+              message: "Kandy just dropped. You can open it now and keep access after unwrapping.",
+            }),
+          ],
+        }),
+      };
+    });
+
+    render(<NotificationBell />);
+
+    await userEvent.click(screen.getByRole("button", { name: /notifications/i }));
+    expect(await screen.findByText("Drop ready")).toBeInTheDocument();
+
+    await userEvent.click(screen.getByRole("button", { name: /^details$/i }));
+
+    await waitFor(() => {
+      expect(screen.getByText("Drop ready")).toBeInTheDocument();
+      expect(screen.getByRole("button", { name: /already read/i })).toHaveTextContent(/viewed/i);
+    });
+    expect(mockState.trackEvent).toHaveBeenCalledWith("notification_marked_read", expect.objectContaining({
+      notification_id: "note_2",
+      recipient_id: "notify_user",
+      optimistic: true,
+    }));
+  });
+});
