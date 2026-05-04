@@ -30,6 +30,7 @@
         "check:drops-mobile-refinement": "tsx scripts/agent/validate-drops-mobile-refinement.ts",
         "check:drop-cover-visibility-truth": "tsx scripts/agent/validate-drop-cover-visibility-truth.ts",
         "check:featured-carousel-polish": "tsx scripts/agent/validate-featured-carousel-polish.ts",
+        "check:drop-runtime-refresh": "tsx scripts/agent/validate-drop-runtime-refresh.ts",
         "check:drop-preview-page": "tsx scripts/agent/validate-drop-preview-page.ts",
         "check:drop-preview-legacy-handoff": "tsx scripts/agent/validate-drop-preview-legacy-handoff.ts",
         "score:beta": "tsx scripts/agent/score-public-beta-readiness.ts",

@@ -151,6 +151,8 @@ export function useDrops(
   }, [isConstrained, refreshDrops]);
 
   useEffect(() => {
+    // Allowed exception: public drop freshness runtime invalidation.
+    // This is the only approved public Drops Firestore listener; it only invalidates SWR/ETag data.
     if (!runtimeSubscriptionReady) {
       return;
     }
