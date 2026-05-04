@@ -56,6 +56,7 @@ vi.mock("@/lib/server/route-runtime-health", async (importOriginal) => {
 
 import { GET as getAdminThreads } from "@/app/api/admin/support/threads/route";
 import { GET as getAdminThread, PATCH as patchAdminThread, POST as postAdminReply } from "@/app/api/admin/support/threads/[threadId]/route";
+import { POST as postAdminMessageReply } from "@/app/api/admin/support/threads/[threadId]/messages/route";
 
 describe("admin support thread routes", () => {
     beforeEach(() => {
@@ -111,6 +112,14 @@ describe("admin support thread routes", () => {
                 messages: [],
             })
             .mockResolvedValueOnce({
+                thread: { id: "thread_1", status: "waiting_on_user", category: "technical", channel: "in_app", subject: "Upload issue", createdAt: 1, lastMessageAt: 3, userId: "user_1", userEmail: "user@example.com", userDisplayName: "User", userHandle: "user", messageCount: 2 },
+                messages: [{ id: "msg_1", threadId: "thread_1", senderRole: "admin", senderId: "admin_1", senderLabel: "admin@example.com", body: "Thanks, looking now.", createdAt: 3 }],
+            })
+            .mockResolvedValueOnce({
+                thread: { id: "thread_1", status: "waiting_on_user", category: "technical", channel: "in_app", subject: "Upload issue", createdAt: 1, lastMessageAt: 3, userId: "user_1", userEmail: "user@example.com", userDisplayName: "User", userHandle: "user", messageCount: 2 },
+                messages: [],
+            })
+            .mockResolvedValueOnce({
                 thread: { id: "thread_1", status: "resolved", category: "technical", channel: "in_app", subject: "Upload issue", createdAt: 1, lastMessageAt: 4, userId: "user_1", userEmail: "user@example.com", userDisplayName: "User", userHandle: "user", messageCount: 2 },
                 messages: [],
             });
@@ -122,9 +131,19 @@ describe("admin support thread routes", () => {
         const detailBody = await detailResponse.json();
         expect(detailResponse.status).toBe(200);
         expect(detailBody.verification.module).toBe("admin_support_threads_threadId_GET");
+        expect(detailBody.verification.canonicalSource).toBe("support_threads/support_messages");
 
-        const replyResponse = await postAdminReply(
+        const legacyReplyResponse = await postAdminReply(
             new NextRequest("http://localhost/api/admin/support/threads/thread_1", {
+                method: "POST",
+                body: JSON.stringify({ message: "Thanks, looking now." }),
+            }),
+            { params: Promise.resolve({ threadId: "thread_1" }) },
+        );
+        expect(legacyReplyResponse.status).toBe(200);
+
+        const replyResponse = await postAdminMessageReply(
+            new NextRequest("http://localhost/api/admin/support/threads/thread_1/messages", {
                 method: "POST",
                 body: JSON.stringify({ message: "Thanks, looking now." }),
             }),
@@ -133,6 +152,7 @@ describe("admin support thread routes", () => {
         const replyBody = await replyResponse.json();
 
         expect(replyBody.thread.status).toBe("waiting_on_user");
+        expect(replyBody.verification.module).toBe("admin_support_threads_threadId_messages_POST");
         expect(mockState.addSupportMessage).toHaveBeenCalledWith(expect.objectContaining({
             threadId: "thread_1",
             senderRole: "admin",
@@ -160,5 +180,22 @@ describe("admin support thread routes", () => {
         expect(response.status).toBe(403);
         expect(body.error).toBe("Admin access required");
         expect(mockState.listSupportThreadsForAdmin).not.toHaveBeenCalled();
+    });
+
+    it("non-admin cannot reply through admin support message route", async () => {
+        mockState.guardApiRequest.mockRejectedValueOnce(Object.assign(new Error("Admin access required"), { status: 403 }));
+
+        const response = await postAdminMessageReply(
+            new NextRequest("http://localhost/api/admin/support/threads/thread_1/messages", {
+                method: "POST",
+                body: JSON.stringify({ message: "Forbidden reply" }),
+            }),
+            { params: Promise.resolve({ threadId: "thread_1" }) },
+        );
+        const body = await response.json();
+
+        expect(response.status).toBe(403);
+        expect(body.error).toBe("Admin access required");
+        expect(mockState.addSupportMessage).not.toHaveBeenCalled();
     });
 });

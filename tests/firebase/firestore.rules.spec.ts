@@ -202,6 +202,8 @@ describe("firestore.rules", () => {
     await assertSucceeds(getDoc(doc(db, "security_events/event-1")));
     await assertSucceeds(getDoc(doc(db, "support_threads/thread-support")));
     await assertSucceeds(getDoc(doc(db, "support_threads/thread-support/support_messages/msg-support")));
+    await assertSucceeds(getDocs(query(collection(db, "support_threads"))));
+    await assertSucceeds(getDocs(query(collection(db, "support_threads", "thread-support", "support_messages"))));
   });
 
   it("allows admins to read analytics realtime lanes in the client", async () => {
@@ -255,6 +257,7 @@ describe("firestore.rules", () => {
       
     await assertSucceeds(getDoc(doc(db, "support_threads/thread-support")));
     await assertSucceeds(getDoc(doc(db, "support_threads/thread-support/support_messages/msg-support")));
+    await assertSucceeds(getDocs(query(collection(db, "support_threads", "thread-support", "support_messages"))));
   });
 
   it("blocks users from reading other users support threads", async () => {
@@ -262,6 +265,7 @@ describe("firestore.rules", () => {
       
     await assertFails(getDoc(doc(db, "support_threads/thread-support")));
     await assertFails(getDoc(doc(db, "support_threads/thread-support/support_messages/msg-support")));
+    await assertFails(getDocs(query(collection(db, "support_threads", "thread-support", "support_messages"))));
   });
 
   it("blocks direct client writes everywhere", async () => {
@@ -269,6 +273,8 @@ describe("firestore.rules", () => {
 
     await assertFails(setDoc(doc(db, "drops/new-drop"), { title: "Nope" }));
     await assertFails(setDoc(doc(db, "users/alice"), { displayName: "Changed" }));
+    await assertFails(setDoc(doc(db, "support_threads/thread-new"), { userId: "alice", subject: "Nope" }));
+    await assertFails(setDoc(doc(db, "support_threads/thread-support/support_messages/msg-new"), { body: "Nope" }));
     await assertFails(setDoc(doc(db, "analytics_event_facts/event-new"), { eventName: "nope" }));
     await assertFails(setDoc(doc(db, "adminSettings/debugAssistant"), { enabled: false }));
     await assertFails(setDoc(doc(db, "runtime_warning_records/warning-new"), { lastSeenAt: 1710000000000 }));

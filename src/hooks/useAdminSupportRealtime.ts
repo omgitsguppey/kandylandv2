@@ -74,6 +74,8 @@ function normalizeSummary(summary: Partial<AdminSupportThreadListSummary> | unde
 }
 
 function buildAdminSupportError(url: string, status: number, fallback?: string) {
+  const safeFallback = fallback && fallback !== "Internal server error" ? fallback : undefined;
+
   if (status === 401 || status === 403) {
     if (url.includes("/api/admin/support/threads/")) {
       return new Error("Support message detail route returned forbidden.");
@@ -82,10 +84,10 @@ function buildAdminSupportError(url: string, status: number, fallback?: string) 
   }
 
   if (url.includes("/api/admin/support/threads/")) {
-    return new Error(fallback || "Support thread detail failed for admin route.");
+    return new Error(safeFallback || "Support dashboard expected nested messages but received no messages.");
   }
 
-  return new Error(fallback || "Support thread list failed for admin route.");
+  return new Error(safeFallback || "Support thread list failed for admin route.");
 }
 
 async function readAdminSupportJson<T>(url: string, init?: RequestInit): Promise<T> {

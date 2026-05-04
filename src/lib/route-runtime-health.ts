@@ -979,6 +979,12 @@ export const ROUTE_RUNTIME_HEALTH_TARGETS = {
                 title: "Admin Support Threads [threadId] runtime",
                 slowThresholdMs: 1200,
             },
+    "admin/support/threads/[threadId]/messages:POST": {
+                routeName: "admin/support/threads/[threadId]/messages",
+                method: "POST",
+                title: "Admin Support Threads [threadId] Messages runtime",
+                slowThresholdMs: 1200,
+            },
     "admin/support/threads/[threadId]:PATCH": {
                 routeName: "admin/support/threads/[threadId]",
                 method: "PATCH",

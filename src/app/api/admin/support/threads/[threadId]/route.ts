@@ -4,6 +4,7 @@ import { z } from "zod";
 import { AuthError, handleApiError } from "@/lib/server/auth";
 import { ADMIN } from "@/lib/server/rate-limit";
 import { guardApiRequest } from "@/lib/server/request-guard";
+import { buildServerAdminModuleVerification } from "@/lib/server/admin-source-verification";
 import { getErrorMessage } from "@/lib/server/route-diagnostics";
 import { recordRouteRuntimeSample , withRouteRuntimeHealth } from "@/lib/server/route-runtime-health";
 import { addSupportMessage, getSupportThreadForAdmin, updateSupportThreadStatus } from "@/lib/server/support-threads";
@@ -20,6 +21,37 @@ const adminStatusSchema = z.object({
 type RouteContext = {
     params: Promise<{ threadId: string }>;
 };
+
+function buildAdminSupportThreadVerification(input: {
+    operation: "GET" | "POST" | "PATCH";
+    threadId: string;
+    threadFound: boolean;
+    messageCount: number;
+    freshnessTimestamp?: number | null;
+}) {
+    return buildServerAdminModuleVerification({
+        module: `admin_support_threads_threadId_${input.operation}`,
+        canonicalSource: "support_threads/support_messages",
+        fallbackSource: null,
+        freshnessTimestamp: input.freshnessTimestamp ?? Date.now(),
+        status: input.threadFound ? "live" : "degraded",
+        degradedReason: input.threadFound ? null : `Admin support thread ${input.threadId} was not found.`,
+        countComposition: {
+            threadFound: input.threadFound ? 1 : 0,
+            messages: input.messageCount,
+        },
+        sources: [{
+            key: "support_threads",
+            label: "support_threads",
+            role: "canonical",
+            status: input.threadFound ? "live" : "degraded",
+            freshnessTimestamp: input.freshnessTimestamp ?? null,
+            detail: input.threadFound
+                ? "Admin detail route loaded the support thread and nested support_messages."
+                : `Admin support thread ${input.threadId} was not found.`,
+        }],
+    });
+}
 
 function finalizeAdminSupportThreadRoute(
     key: "admin/support/threads/[threadId]:GET" | "admin/support/threads/[threadId]:POST" | "admin/support/threads/[threadId]:PATCH",
@@ -55,12 +87,29 @@ async function GET_handler(request: NextRequest, context: RouteContext) {
         const { threadId } = await context.params;
         const thread = await getSupportThreadForAdmin(threadId);
         if (!thread) {
-            return finalizeAdminSupportThreadRoute("admin/support/threads/[threadId]:GET", startedAt, NextResponse.json({ success: true, thread: null, messages: [] }));
+            return finalizeAdminSupportThreadRoute("admin/support/threads/[threadId]:GET", startedAt, NextResponse.json({
+                success: true,
+                thread: null,
+                messages: [],
+                verification: buildAdminSupportThreadVerification({
+                    operation: "GET",
+                    threadId,
+                    threadFound: false,
+                    messageCount: 0,
+                }),
+            }));
         }
 
         return finalizeAdminSupportThreadRoute("admin/support/threads/[threadId]:GET", startedAt, NextResponse.json({
             success: true,
             ...thread,
+            verification: buildAdminSupportThreadVerification({
+                operation: "GET",
+                threadId,
+                threadFound: true,
+                messageCount: thread.messages.length,
+                freshnessTimestamp: thread.thread.lastMessageAt || thread.thread.updatedAt || thread.thread.createdAt,
+            }),
         }));
     } catch (error) {
         return finalizeAdminSupportThreadRoute("admin/support/threads/[threadId]:GET", startedAt, handleApiError(error, "admin/support/thread"), error);
@@ -102,6 +151,13 @@ async function POST_handler(request: NextRequest, context: RouteContext) {
         return finalizeAdminSupportThreadRoute("admin/support/threads/[threadId]:POST", startedAt, NextResponse.json({
             success: true,
             ...refreshed,
+            verification: buildAdminSupportThreadVerification({
+                operation: "POST",
+                threadId,
+                threadFound: Boolean(refreshed?.thread),
+                messageCount: refreshed?.messages.length ?? 0,
+                freshnessTimestamp: refreshed?.thread.lastMessageAt ?? Date.now(),
+            }),
         }));
     } catch (error) {
         return finalizeAdminSupportThreadRoute("admin/support/threads/[threadId]:POST", startedAt, handleApiError(error, "admin/support/thread"), error);
@@ -137,6 +193,13 @@ async function PATCH_handler(request: NextRequest, context: RouteContext) {
         return finalizeAdminSupportThreadRoute("admin/support/threads/[threadId]:PATCH", startedAt, NextResponse.json({
             success: true,
             ...refreshed,
+            verification: buildAdminSupportThreadVerification({
+                operation: "PATCH",
+                threadId,
+                threadFound: Boolean(refreshed?.thread),
+                messageCount: refreshed?.messages.length ?? 0,
+                freshnessTimestamp: refreshed?.thread.lastMessageAt ?? Date.now(),
+            }),
         }));
     } catch (error) {
         return finalizeAdminSupportThreadRoute("admin/support/threads/[threadId]:PATCH", startedAt, handleApiError(error, "admin/support/thread"), error);

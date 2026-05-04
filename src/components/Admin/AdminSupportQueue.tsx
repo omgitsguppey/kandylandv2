@@ -136,7 +136,7 @@ export function AdminSupportQueue() {
 
         setReplying(true);
         try {
-            await readJson(`/api/admin/support/threads/${selectedThreadId}`, {
+            await readJson(`/api/admin/support/threads/${selectedThreadId}/messages`, {
                 method: "POST",
                 body: JSON.stringify({ message: reply }),
             });
@@ -150,7 +150,7 @@ export function AdminSupportQueue() {
                 severity: "error",
                 message: "Admin support reply failed",
                 detail: {
-                    route: `/api/admin/support/threads/${selectedThreadId}`,
+                    route: `/api/admin/support/threads/${selectedThreadId}/messages`,
                     component: "AdminSupportQueue",
                     threadId: selectedThreadId,
                     message: messageText,
