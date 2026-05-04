@@ -16,6 +16,8 @@ function resolveSource(input: {
   hasDaily?: boolean;
   hasFacts?: boolean;
   hasSessionFacts?: boolean;
+  hasWatchSessions?: boolean;
+  hasLegacyPageDuration?: boolean;
   hasTransactions?: boolean;
 }): UserBehaviorRollupSource {
   const sourceCount = [
@@ -23,6 +25,8 @@ function resolveSource(input: {
     input.hasDaily,
     input.hasFacts,
     input.hasSessionFacts,
+    input.hasWatchSessions,
+    input.hasLegacyPageDuration,
     input.hasTransactions,
   ].filter(Boolean).length;
 
@@ -31,6 +35,8 @@ function resolveSource(input: {
   if (input.hasDaily) return "analytics_user_daily";
   if (input.hasFacts) return "analytics_event_facts";
   if (input.hasSessionFacts) return "analytics_viewer_session_facts";
+  if (input.hasWatchSessions) return "watch_session_rollup";
+  if (input.hasLegacyPageDuration) return "legacy_page_duration";
   if (input.hasTransactions) return "transactions";
   return "unavailable";
 }
@@ -40,6 +46,7 @@ function resolveConfidence(input: {
   issueCount: number;
 }): UserBehaviorRollupConfidence {
   if (input.source === "unavailable") return "unknown";
+  if (input.source === "legacy_page_duration") return "low";
   if (input.issueCount > 1) return "low";
   if (input.issueCount === 1) return "medium";
   if (input.source === "mixed" || input.source === "analytics_users_rollup") return "high";
@@ -65,9 +72,11 @@ export function buildUserBehaviorRollup(input: {
   hasDaily?: boolean;
   hasFacts?: boolean;
   hasSessionFacts?: boolean;
+  hasWatchSessions?: boolean;
+  hasLegacyPageDuration?: boolean;
   hasTransactions?: boolean;
   commerceSourcePresent?: boolean;
-  sourceIssues?: string[];
+  sourceIssues?: Array<string | { code?: string; message: string; severity?: "info" | "warn" | "fail"; evidence?: Record<string, unknown> }>;
 }): UserBehaviorRollup {
   const views = Math.max(0, Math.round(readNumber(input.views)));
   const watchTimeMs = Math.max(
@@ -88,6 +97,8 @@ export function buildUserBehaviorRollup(input: {
         hasDaily: input.hasDaily === true,
         hasFacts: input.hasFacts === true,
         hasSessionFacts: input.hasSessionFacts === true,
+        hasWatchSessions: input.hasWatchSessions === true,
+        hasLegacyPageDuration: input.hasLegacyPageDuration === true,
         hasTransactions: input.hasTransactions === true,
       },
     });
@@ -95,9 +106,9 @@ export function buildUserBehaviorRollup(input: {
 
   if (views > 0 && watchTimeMs === 0) {
     issues.push({
-      code: "missing_watch_time_with_views",
+      code: "watch_time_missing_despite_views",
       severity: "warn",
-      message: "Views exist but watch time is missing; viewer watch capture may be incomplete.",
+      message: "Views exist but valid watch-session rollups are missing.",
       evidence: { views, watchTimeMs },
     });
   }
@@ -131,6 +142,17 @@ export function buildUserBehaviorRollup(input: {
 
   (input.sourceIssues ?? []).forEach((issue) => {
     if (!issue) return;
+    if (typeof issue !== "string") {
+      issues.push({
+        code: issue.code === "watch_time_missing_despite_views" || issue.code === "legacy_page_duration_fallback"
+          ? issue.code
+          : "source_degraded",
+        severity: issue.severity ?? "info",
+        message: issue.message,
+        evidence: issue.evidence ?? {},
+      });
+      return;
+    }
 
     issues.push({
       code: "source_degraded",

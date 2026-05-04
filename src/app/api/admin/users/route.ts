@@ -52,6 +52,7 @@ import {
 import { withRouteRuntimeHealth } from "@/lib/server/route-runtime-health";
 import { buildNotFoundResponse } from "@/lib/server/not-found";
 import { buildUserBehaviorRollup } from "@/lib/server/user-behavior-rollup";
+import { buildWatchTimeRollupFromRecords } from "@/lib/server/watch-time-rollup";
 
 function toTimestampNumber(value: unknown): number {
   if (typeof value === "number" && Number.isFinite(value)) {
@@ -406,6 +407,7 @@ async function readAdminUsersFastSummarySnapshot() {
     onboardedUsers,
     sevenDayReturners,
     payingUsers,
+    watchSessionsSnap,
     commerceSummarySnap,
   ] = await Promise.all([
     readAggregateCount(usersCollection),
@@ -415,16 +417,22 @@ async function readAdminUsersFastSummarySnapshot() {
     readAggregateCount(usersCollection.where("onboardingCompleted", "==", true)),
     readAggregateCount(analyticsRollupCollection.where("lastSeenAt", ">=", sevenDaysAgo)),
     readAggregateCount(analyticsRollupCollection.where("purchaseCount", ">", 0)),
+    adminDb.collection("analytics_watch_sessions").get(),
     adminDb.collection("analytics_commerce_rollup").doc("summary").get(),
   ]);
   const commerceSummaryRaw = commerceSummarySnap.exists
     ? commerceSummarySnap.data() as Record<string, unknown>
     : {};
-  const latestMetricAt = Math.max(
+  let latestMetricAt = Math.max(
     toTimestampNumber(commerceSummaryRaw.updatedAt),
     toTimestampNumber(commerceSummaryRaw.generatedAt),
     toTimestampNumber(commerceSummaryRaw.lastPurchaseAt),
   );
+  const watchRollup = buildWatchTimeRollupFromRecords({
+    records: watchSessionsSnap.docs.map((doc) => doc.data() as Record<string, unknown>),
+    views: Math.round(readMetric(commerceSummaryRaw, "unlockCount", "totalUnlocks", "unwrapCount")),
+  });
+  latestMetricAt = Math.max(latestMetricAt, watchRollup.latestWatchAt);
   const snapshot: AdminUserMetricsSnapshot = {
     totalUsers,
     activeUsers,
@@ -433,13 +441,15 @@ async function readAdminUsersFastSummarySnapshot() {
     pushEnabledUsers,
     trackedUnwraps: Math.round(readMetric(commerceSummaryRaw, "unlockCount", "totalUnlocks", "unwrapCount")),
     trackedPurchases: Math.round(readMetric(commerceSummaryRaw, "purchaseCount", "purchaseTransactionCount")),
-    watchTimeMs: Math.round(readMetric(commerceSummaryRaw, "watchSecondsTotal", "watchSeconds") * 1000),
+    watchTimeMs: watchRollup.watchTimeMs,
     onboardedUsers,
     totalRevenueUsd: readMetric(commerceSummaryRaw, "grossRevenueUsdTotal", "grossRevenueUsd"),
     payingUsers,
     generatedAt: nowMs,
     source: commerceSummarySnap.exists ? "hot_cache" : "live_fallback",
-    freshnessState: commerceSummarySnap.exists
+    freshnessState: watchRollup.issues.length > 0
+      ? "degraded"
+      : commerceSummarySnap.exists
       ? resolveSnapshotFreshness(nowMs, latestMetricAt)
       : totalUsers > 0
         ? "degraded"
@@ -451,12 +461,12 @@ async function readAdminUsersFastSummarySnapshot() {
     commerceSummaryRaw,
     commerceSummaryExists: commerceSummarySnap.exists,
     sourceLabel: commerceSummarySnap.exists
-      ? "users_count_aggregates+analytics_users_rollup_count_aggregates+analytics_commerce_rollup"
-      : "users_count_aggregates+analytics_users_rollup_count_aggregates",
+      ? "users_count_aggregates+analytics_users_rollup_count_aggregates+analytics_commerce_rollup+analytics_watch_sessions"
+      : "users_count_aggregates+analytics_users_rollup_count_aggregates+analytics_watch_sessions",
     staleReason: snapshot.freshnessState === "stale"
       ? "Admin user metrics are showing bounded hot-cache counts, but the commerce summary is older than 24h."
       : snapshot.freshnessState === "degraded"
-        ? "Admin user metrics are visible from bounded counts, but commerce hot-cache is unavailable."
+        ? watchRollup.issues[0]?.message ?? "Admin user metrics are visible from bounded counts, but commerce hot-cache is unavailable."
         : null,
   };
 }
@@ -691,10 +701,11 @@ async function GET_handler(request: NextRequest) {
         return NextResponse.json({ error: "Missing userId" }, { status: 400 });
       }
 
-      const [userSnap, analyticsSnap, userDailySnapshot] = await Promise.all([
+      const [userSnap, analyticsSnap, userDailySnapshot, watchSessionsSnapshot] = await Promise.all([
         adminDb.collection("users").doc(userId).get(),
         adminDb.collection("analytics_users_rollup").doc(userId).get(),
         adminDb.collection("analytics_user_daily").where("uid", "==", userId).get(),
+        adminDb.collection("analytics_watch_sessions").where("userId", "==", userId).get(),
       ]);
 
       if (!userSnap.exists) {
@@ -744,7 +755,11 @@ async function GET_handler(request: NextRequest) {
         spendGdTotal: Math.max(readMetric(raw, "spendGdTotal", "unlockSpendGdTotal"), dailyAggregate.spendGdTotal),
         lastPurchaseAt: Math.max(toTimestampNumber(raw.lastPurchaseAt), dailyAggregate.lastPurchaseAt),
       });
-      const watchSecondsTotal = Math.max(readMetric(raw, "watchSecondsTotal"), dailyAggregate.watchSecondsTotal);
+      const watchTimeRollup = buildWatchTimeRollupFromRecords({
+        records: watchSessionsSnapshot.docs.map((doc) => doc.data() as Record<string, unknown>),
+        views: Math.max(readMetric(raw, "viewCount"), dailyAggregate.viewCount),
+      });
+      const canonicalWatchSecondsTotal = Math.round(watchTimeRollup.watchTimeMs / 1000);
       const loadSampleCount = readMetric(raw, "loadSampleCount");
       const loadMsTotal = readMetric(raw, "loadMsTotal");
       const analytics = {
@@ -761,8 +776,8 @@ async function GET_handler(request: NextRequest) {
         authSuccessCount: Math.max(readMetric(raw, "authSuccessCount", "signInCount"), dailyAggregate.authSuccessCount),
         onboardingStartCount: Math.max(readMetric(raw, "onboardingStartCount", "guidedOnboardingStartCount"), dailyAggregate.onboardingStartCount),
         onboardingCompletionCount: Math.max(readMetric(raw, "onboardingCompletionCount", "guidedOnboardingCompletionCount"), dailyAggregate.onboardingCompletionCount, user.onboardingCompleted ? 1 : 0),
-        watchSecondsTotal,
-        watchHours: Number((watchSecondsTotal / 3600).toFixed(1)),
+        watchSecondsTotal: canonicalWatchSecondsTotal,
+        watchHours: Number((canonicalWatchSecondsTotal / 3600).toFixed(1)),
         avgLoadMs: Math.max(
           loadSampleCount > 0 ? Math.round(loadMsTotal / loadSampleCount) : 0,
           dailyAggregate.loadSampleCount > 0 ? Math.round(dailyAggregate.loadMsTotal / dailyAggregate.loadSampleCount) : 0,
@@ -806,7 +821,7 @@ async function GET_handler(request: NextRequest) {
         totalActions: metricSnapshot.eventCount,
         views: metricSnapshot.viewCount,
         unwraps: metricSnapshot.unwrapCount,
-        watchSecondsTotal: metricSnapshot.watchSecondsTotal,
+        watchTimeMs: watchTimeRollup.watchTimeMs,
         purchasesCount: metricSnapshot.purchaseCount,
         revenueUsd: metricSnapshot.grossRevenueUsd,
         paidGdPurchased: analytics.paidGumDrops,
@@ -818,9 +833,14 @@ async function GET_handler(request: NextRequest) {
         hasRollup: analyticsSnap.exists,
         hasDaily: userDailySnapshot.docs.length > 0,
         hasFacts: false,
+        hasWatchSessions: watchTimeRollup.validSessionCount > 0,
+        hasLegacyPageDuration: watchTimeRollup.source === "legacy_page_duration",
         hasTransactions: false,
         commerceSourcePresent: Boolean(analytics.commerceSourceLabel),
-        sourceIssues: metricIntegrity.failures,
+        sourceIssues: [
+          ...metricIntegrity.failures,
+          ...watchTimeRollup.issues,
+        ],
       });
       const analyticsByUser = {
         [user.uid]: {
@@ -865,6 +885,7 @@ async function GET_handler(request: NextRequest) {
       usersSnapshot,
       analyticsSnapshot,
       userDailySnapshot,
+      watchSessionsSnapshot,
       commerceSummarySnap,
       creatorRelationshipsSnap,
       creatorSubscriptionsSnap,
@@ -878,6 +899,7 @@ async function GET_handler(request: NextRequest) {
       adminDb.collection("users").orderBy("createdAt", "desc").get(),
       adminDb.collection("analytics_users_rollup").get(),
       adminDb.collection("analytics_user_daily").get(),
+      adminDb.collection("analytics_watch_sessions").get(),
       adminDb.collection("analytics_commerce_rollup").doc("summary").get(),
       adminDb.collection(CREATOR_COLLECTIONS.relationships).get(),
       adminDb.collection(CREATOR_COLLECTIONS.subscriptions).get(),
@@ -891,6 +913,16 @@ async function GET_handler(request: NextRequest) {
 
     const users = usersSnapshot.docs.map((doc) => serializeUserDoc(doc.id, doc.data()));
     const rollupUserIds = new Set(analyticsSnapshot.docs.map((doc) => doc.id));
+    const watchSessionsByUser = new Map<string, Record<string, unknown>[]>();
+    watchSessionsSnapshot.docs.forEach((doc) => {
+      const raw = doc.data() as Record<string, unknown>;
+      const userId = typeof raw.userId === "string" ? raw.userId : "";
+      if (!userId) {
+        return;
+      }
+
+      watchSessionsByUser.set(userId, [...(watchSessionsByUser.get(userId) ?? []), raw]);
+    });
     const creatorOpsByUser = new Map<string, CreatorOpsAggregate>();
 
     const readCreatorOps = (creatorId: string) => {
@@ -1052,7 +1084,6 @@ async function GET_handler(request: NextRequest) {
         const dailyAggregate = dailyAnalyticsByUser.get(doc.id) ?? buildEmptyDailyAggregate();
         const loadSampleCount = typeof raw.loadSampleCount === "number" ? raw.loadSampleCount : 0;
         const loadMsTotal = typeof raw.loadMsTotal === "number" ? raw.loadMsTotal : 0;
-        const watchSecondsTotal = typeof raw.watchSecondsTotal === "number" ? raw.watchSecondsTotal : 0;
         const mergedCommerceMetrics = buildCommerceMetricsFromRollup({
           ...dailyAggregate,
           ...raw,
@@ -1077,17 +1108,23 @@ async function GET_handler(request: NextRequest) {
           0,
           Math.round(Math.max(readMetric(raw, "purchaseTransactionCount", "purchaseCount"), dailyAggregate.purchaseCount)),
         );
+        const viewCount = Math.max(
+          Math.round(readMetric(raw, "viewCount")),
+          dailyAggregate.viewCount,
+          typeof raw.sessionCount === "number" ? raw.sessionCount : 0,
+        );
+        const watchTimeRollup = buildWatchTimeRollupFromRecords({
+          records: watchSessionsByUser.get(doc.id) ?? [],
+          views: viewCount,
+        });
+        const canonicalWatchSecondsTotal = Math.round(watchTimeRollup.watchTimeMs / 1000);
 
         return [doc.id, {
           uid: doc.id,
           username: typeof raw.username === "string" ? raw.username : doc.id,
           eventCount: Math.max(typeof raw.eventCount === "number" ? raw.eventCount : 0, dailyAggregate.eventCount),
           sessionCount: Math.max(typeof raw.sessionCount === "number" ? raw.sessionCount : 0, dailyAggregate.sessionCount),
-          viewCount: Math.max(
-            Math.round(readMetric(raw, "viewCount")),
-            dailyAggregate.viewCount,
-            typeof raw.sessionCount === "number" ? raw.sessionCount : 0,
-          ),
+          viewCount,
           engagedViewCount: Math.max(Math.round(readMetric(raw, "engagedViewCount")), dailyAggregate.engagedViewCount),
           passiveViewCount: Math.max(Math.round(readMetric(raw, "passiveViewCount")), dailyAggregate.passiveViewCount),
           bounceCount: Math.max(Math.round(readMetric(raw, "bounceCount")), dailyAggregate.bounceCount),
@@ -1108,8 +1145,8 @@ async function GET_handler(request: NextRequest) {
             Math.round(readMetric(raw, "onboardingCompletionCount", "guidedOnboardingCompletionCount")),
             dailyAggregate.onboardingCompletionCount,
           ),
-          watchSecondsTotal: Math.max(watchSecondsTotal, dailyAggregate.watchSecondsTotal),
-          watchHours: Number((Math.max(watchSecondsTotal, dailyAggregate.watchSecondsTotal) / 3600).toFixed(1)),
+          watchSecondsTotal: canonicalWatchSecondsTotal,
+          watchHours: Number((canonicalWatchSecondsTotal / 3600).toFixed(1)),
           avgLoadMs: Math.max(
             loadSampleCount > 0 ? Math.round(loadMsTotal / loadSampleCount) : 0,
             dailyAggregate.loadSampleCount > 0 ? Math.round(dailyAggregate.loadMsTotal / dailyAggregate.loadSampleCount) : 0,
@@ -1136,6 +1173,8 @@ async function GET_handler(request: NextRequest) {
           commerceTruthLabel: mergedCommerceMetrics.commerceTruthLabel,
           commerceSourceLabel: mergedCommerceMetrics.commerceSourceLabel,
           commerceEmptyReason: mergedCommerceMetrics.commerceEmptyReason,
+          watchTimeSource: watchTimeRollup.source,
+          watchTimeIssues: watchTimeRollup.issues,
         }];
       }),
     );
@@ -1189,12 +1228,7 @@ async function GET_handler(request: NextRequest) {
           const eventName = typeof raw.eventName === "string" ? raw.eventName : "";
           const timestamp = toTimestampNumber(raw.timestamp);
           const loadMs = typeof raw.loadMs === "number" && Number.isFinite(raw.loadMs) ? raw.loadMs : 0;
-          const watchSeconds = eventName === "viewer_session_completed"
-            ? Math.max(
-              typeof raw.sessionWatchSeconds === "number" && Number.isFinite(raw.sessionWatchSeconds) ? raw.sessionWatchSeconds : 0,
-              typeof raw.watchSeconds === "number" && Number.isFinite(raw.watchSeconds) ? raw.watchSeconds : 0,
-            )
-            : 0;
+          const watchSeconds = 0;
 
           const current = fallbackStats.get(uid) ?? {
             eventCount: 0,
@@ -1407,9 +1441,14 @@ async function GET_handler(request: NextRequest) {
         hasRollup: rollupUserIds.has(user.uid),
         hasDaily: dailyUserIds.has(user.uid),
         hasFacts: factRecoveredUserIds.has(user.uid),
+        hasWatchSessions: analytics.watchTimeSource === "watch_session_rollup",
+        hasLegacyPageDuration: analytics.watchTimeSource === "legacy_page_duration",
         hasTransactions: false,
         commerceSourcePresent: Boolean(analytics.commerceSourceLabel),
-        sourceIssues: metricIntegrity.failures,
+        sourceIssues: [
+          ...metricIntegrity.failures,
+          ...(Array.isArray(analytics.watchTimeIssues) ? analytics.watchTimeIssues : []),
+        ],
       });
 
       analyticsByUser[user.uid] = {

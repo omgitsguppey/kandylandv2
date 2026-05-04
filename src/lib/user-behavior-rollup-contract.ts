@@ -5,6 +5,8 @@ export type UserBehaviorRollupSource =
   | "analytics_user_daily"
   | "analytics_event_facts"
   | "analytics_viewer_session_facts"
+  | "watch_session_rollup"
+  | "legacy_page_duration"
   | "transactions"
   | "mixed"
   | "unavailable";
@@ -14,8 +16,10 @@ export type UserBehaviorRollupIssue = {
     | "missing_watch_time_with_views"
     | "missing_auth_stats_for_onboarded_user"
     | "missing_behavior_sources"
+    | "watch_time_missing_despite_views"
     | "commerce_source_missing"
     | "last_seen_missing"
+    | "legacy_page_duration_fallback"
     | "source_degraded";
   severity: "info" | "warn" | "fail";
   message: string;

@@ -39,7 +39,7 @@ function requireIncludes(source: string, needle: string, message: string) {
   requireIncludes(contract, field, `User behavior rollup contract must expose ${field}.`);
 });
 
-requireIncludes(helper, "missing_watch_time_with_views", "Rollup helper must issue missing watch time when views exist.");
+requireIncludes(helper, "watch_time_missing_despite_views", "Rollup helper must issue missing watch time when views exist.");
 requireIncludes(helper, "missing_auth_stats_for_onboarded_user", "Rollup helper must issue missing auth stats for onboarded users.");
 requireIncludes(helper, "commerce_source_missing", "Rollup helper must flag commerce source gaps.");
 requireIncludes(helper, "source_degraded", "Rollup helper must preserve source degradation issues.");

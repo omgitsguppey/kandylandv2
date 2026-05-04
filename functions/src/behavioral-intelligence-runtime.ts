@@ -563,15 +563,12 @@ function buildAggregates(input: Awaited<ReturnType<typeof readRecentCollections>
     const userId = readString(session.userId)
     const dropId = readString(session.dropId)
     const watchedAtMs = readNumber(session.lastSeenAtMs) || nowMs
-    const validWatchSeconds = readNumber(session.validWatchMs) / 1000
-    const totalWatchSeconds = Math.max(
-      validWatchSeconds,
-      readNumber(session.totalActiveSeconds),
-      readNumber(session.totalWatchSeconds),
-      readNumber(session.maxAssetWatchSeconds),
-    )
-    const watchScore = readNumber(session.watchScore)
     const watchScoreSource = readString(session.watchScoreSource) || "watch_session_rollup"
+    const validWatchSeconds = watchScoreSource === "watch_session_rollup"
+      ? readNumber(session.validWatchMs) / 1000
+      : 0
+    const totalWatchSeconds = validWatchSeconds
+    const watchScore = readNumber(session.watchScore)
 
     if (dropId && dropMap.has(dropId)) {
       const dropAggregate = ensureDropAggregate(dropMap.get(dropId) as DropRecord, dropAggregates)

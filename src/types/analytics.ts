@@ -55,6 +55,8 @@ export interface AnalyticsSessionFactRecord {
   startedCount?: number;
   completedCount?: number;
   watchSecondsTotal?: number;
+  validWatchMs?: number;
+  watchScoreSource?: "watch_session_rollup" | "legacy_page_duration";
   firstEventAtMs?: number;
   lastEventAtMs?: number;
 }

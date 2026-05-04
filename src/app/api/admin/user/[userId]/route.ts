@@ -20,6 +20,7 @@ import {
     scoreAdminUserEngagement,
 } from "@/lib/admin-user-metrics";
 import { buildUserBehaviorRollup } from "@/lib/server/user-behavior-rollup";
+import { buildWatchTimeRollupFromRecords } from "@/lib/server/watch-time-rollup";
 import {
     buildCreatorOnboardingCanonicalRecord,
     normalizeCreatorOnboardingCanonicalRecord,
@@ -96,7 +97,7 @@ async function GET_handler(
 
         const userRef = adminDb.collection("users").doc(userId);
         const creatorOnboardingRef = adminDb.collection(CREATOR_ONBOARDING_COLLECTION).doc(userId);
-        const [userSnap, transactionsSnap, analyticsRollupSnap, analyticsFactsSnap, sessionFactsSnap, userDailySnapshot, securityEventsSnap, supportThreadSnap, feedbackSnap, creatorOnboardingSnap, creatorOnboardingHistorySnap] = await Promise.all([
+        const [userSnap, transactionsSnap, analyticsRollupSnap, analyticsFactsSnap, sessionFactsSnap, watchSessionsSnap, userDailySnapshot, securityEventsSnap, supportThreadSnap, feedbackSnap, creatorOnboardingSnap, creatorOnboardingHistorySnap] = await Promise.all([
             userRef.get(),
             adminDb.collection("transactions")
                 .where("userId", "==", userId)
@@ -112,6 +113,9 @@ async function GET_handler(
             adminDb.collection("analytics_session_facts")
                 .where("userId", "==", userId)
                 .orderBy("lastEventAt", "desc")
+                .get(),
+            adminDb.collection("analytics_watch_sessions")
+                .where("userId", "==", userId)
                 .get(),
             adminDb.collection("analytics_user_daily")
                 .where("uid", "==", userId)
@@ -513,7 +517,11 @@ async function GET_handler(
             sessionFactViewCount,
         );
         const normalizedSessionCount = Math.max(readNumber(analyticsRollup.sessionCount), directViewSessionCount || directViewerOpenedCount, sessionFactViewCount);
-        const normalizedWatchSeconds = Math.max(rollupWatchSeconds, completedSessionWatchSeconds, sessionFactWatchSeconds);
+        const watchTimeRollup = buildWatchTimeRollupFromRecords({
+            records: watchSessionsSnap.docs.map((doc) => doc.data() as Record<string, unknown>),
+            views: normalizedViewCount,
+        });
+        const normalizedWatchSeconds = Math.round(watchTimeRollup.watchTimeMs / 1000);
         const normalizedBounceCount = Math.max(readNumber(analyticsRollup.bounceCount), dailyBounceCount, directBounceCount);
         const normalizedAuthSuccessCount = Math.max(readNumber(analyticsRollup.authSuccessCount), readNumber(analyticsRollup.signInCount), dailyAuthSuccessCount, directAuthSuccessCount);
         const normalizedOnboardingCompletionCount = Math.max(
@@ -565,9 +573,14 @@ async function GET_handler(
             hasDaily: userDaily.length > 0,
             hasFacts: directEventCount > 0,
             hasSessionFacts: sessionFacts.length > 0,
+            hasWatchSessions: watchTimeRollup.validSessionCount > 0,
+            hasLegacyPageDuration: watchTimeRollup.source === "legacy_page_duration",
             hasTransactions: transactions.length > 0,
             commerceSourcePresent: Boolean(commerceMetrics.commerceSourceLabel),
-            sourceIssues: metricIntegrity.failures,
+            sourceIssues: [
+                ...metricIntegrity.failures,
+                ...watchTimeRollup.issues,
+            ],
         });
 
         const analytics = {
@@ -615,6 +628,8 @@ async function GET_handler(
             recoveredFromFacts: metricIntegrity.recoveredFromFacts,
             engagementScore: scoreAdminUserEngagement(metricSnapshot, Date.now()),
             behaviorRollup,
+            watchTimeSource: watchTimeRollup.source,
+            watchTimeIssues: watchTimeRollup.issues,
             topViewedDrops: Array.from(viewedDrops.values())
                 .sort((left, right) => {
                     if (right.views !== left.views) {

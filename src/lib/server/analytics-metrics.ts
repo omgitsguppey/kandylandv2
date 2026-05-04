@@ -379,12 +379,16 @@ function buildViewerAccumulator(input: AnalyticsMetricEngineInput) {
   (input.sessionFacts ?? []).forEach((fact) => {
     const startedCount = Math.max(0, toNumber(fact.startedCount));
     const completedCount = Math.max(0, toNumber(fact.completedCount));
-    const watchSeconds = Math.max(0, toNumber(fact.watchSecondsTotal));
+    const watchScoreSource = toStringValue(fact.watchScoreSource) || "legacy_page_duration";
+    const validWatchMs = watchScoreSource === "watch_session_rollup"
+      ? Math.max(0, toNumber(fact.validWatchMs))
+      : 0;
+    const watchSeconds = validWatchMs / 1000;
 
     accumulator.startedSessions += startedCount;
     accumulator.completedSessions += completedCount;
 
-    if (startedCount > 0 && watchSeconds >= 60) {
+    if (startedCount > 0 && watchScoreSource === "watch_session_rollup" && watchSeconds >= 60) {
       accumulator.highWatchSessions += 1;
     }
 
