@@ -4,6 +4,10 @@ Status: Canonical repository-memory and architecture-decision ledger
 Last refreshed: 2026-05-02
 Repo: `C:\Users\uylus\OneDrive\Documents\KandyDrops_Final`
 
+## 2026-05-03 Mathematical public beta scoring
+
+KandyDrops public beta scoring is deterministic and mathematical. It exists to reduce terminal audit sprawl. Agents must use score:beta/check:beta-score and targeted tests first. Heavy browser audits are forbidden by default unless a finding explicitly escalates to runtime visual verification. The shared scoring model lives under `src/lib/agent-score/*`; it weights layout, hydration, economy, telemetry, content protection, orphaned logic, accessibility touch, and testing coverage findings with severity, confidence, recency, and blast-radius penalties. `repair:beta` is dry-run by default and can apply only exact high-confidence safe fixes outside payment/auth/economy/unlock/content enforcement.
+
 ## 2026-05-03 Paid package bonus source-of-funds truth
 
 Paid package bonus GumDrops are paid-source GumDrops. They count toward `gumDropsPurchasedBalance` and can be used for paid-only creator monetization surfaces. Reward-source GumDrops are only non-purchase rewards such as check-ins, tasks, referrals, onboarding, or admin reward adjustments. Wallet UI may display total delivered package value, but backend source-of-funds truth must preserve paid vs reward source correctly. `src/lib/gumdrop-ledger.ts` owns the canonical purchase credit helper and classifier behavior; PayPal capture credits delivered paid package value into purchased balance while preserving `paidGumDrops`, `bonusGumDrops`, and purchase bonus audit metadata.

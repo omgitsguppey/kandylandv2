@@ -1,5 +1,39 @@
 # KandyDrops Core Codebase Audit & Defensive Ledger
 
+## [2026-05-03 #121] PRE: Mathematical Public Beta Scoring
+
+Scope started:
+- Unifying deterministic public beta scoring and safe repair tooling into one mathematical repo self-audit system with weighted domains, deduped findings, confidence/blast-radius penalties, safe autofix gating, concise reports, and a small command budget.
+- Required outputs: shared `src/lib/agent-score/*` scoring core, beta score/repair/validation scripts, generated `agent/state/public-beta-score.generated.json`, package scripts, source-of-truth docs, focused verification, commit, and push.
+- This pass must not run Playwright, Lighthouse, Cypress, full `npm run check`, broad UI audits, or product UI/business behavior changes. It must not alter payment/auth/unlock/content enforcement, telemetry/privacy/session tracking, or GumDrops economy rules.
+
+Initial evidence:
+- Control tower routing, doctrine consultation workflow, product/copy/UI doctrine, surface matrix, source-of-truth map, shared component ownership, full governance files, generated task context, and adjacency trace for `src/lib/gumdrop-ledger.ts` were consulted.
+- Existing deterministic validator surfaces include mobile shell, chat, Drop preview, payment unlock security, GumDrops source-of-funds, telemetry catalog, content media, accessibility tap targets, design drift, and orphan cleanup. No `src/lib/device-layout-score.ts`, `src/lib/device-layout-contract.ts`, `ast-grep.yml`, or `sgconfig.yml` existed at the start of this pass.
+
+Doctrine:
+- KandyDrops public beta scoring is deterministic and mathematical. It exists to reduce terminal audit sprawl. Agents must use score:beta/check:beta-score and targeted tests first. Heavy browser audits are forbidden by default unless a finding explicitly escalates to runtime visual verification.
+
+Scope completed:
+- Added the shared mathematical scoring core under `src/lib/agent-score/*`, including domain weights, severity/confidence/blast-radius/recency penalty math, deduplication, critical auto-fail handling, command budget reporting, and the safe autofix gate.
+- Added `npm run score:beta`, `npm run repair:beta`, and `npm run check:beta-score` as the short deterministic beta audit lane, with no Playwright, Lighthouse, Cypress, full `npm run check`, or broad UI audit dependency in the default path.
+- Added deterministic source scanners for layout, hydration, economy, telemetry, content protection, orphaned logic, accessibility touch, and testing coverage. The report writes to `agent/state/public-beta-score.generated.json` with actionable weighted findings, escalation text, safe autofix counts, and minimal next commands.
+- Added dry-run-first repair behavior. `repair:beta -- --apply` can only apply exact high-confidence text fixes outside protected payment/auth/economy/unlock/content enforcement paths and re-scores afterward to prevent score regression or new critical findings.
+- Added `docs/agent-truth/public-beta-score.md`, source-truth doctrine notes, and `tests/unit/public-beta-score.spec.ts` to validate the scoring math, dedupe behavior, critical fail behavior, and low-confidence autofix refusal.
+
+Current report:
+- `npm run score:beta` produced `98.71/100 (clean)`, 4 deduped findings, and 0 safe autofixes available.
+- Top findings are non-blocking: locked preview telemetry should add `source_component`, CookieBanner remains statically imported in the global shell, `tests/mocks` is absent, and ast-grep config is absent.
+
+Verification:
+- Passed: `npm run score:beta`
+- Passed: `npm run check:beta-score`
+- Passed: `npm run repair:beta`
+- Passed: `npm run repair:beta -- --apply` (0 safe plans available/applied)
+- Passed: `npx vitest run --config vitest.contracts.config.ts tests/unit/public-beta-score.spec.ts`
+- Passed: `npm run typecheck -- --pretty false`
+- Passed: `git diff --check`
+
 ## [2026-05-03 #120] PRE: Paid Package Bonus Source-Of-Funds Truth
 
 Scope started:

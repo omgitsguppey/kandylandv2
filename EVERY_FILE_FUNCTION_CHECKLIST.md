@@ -9,6 +9,13 @@ Scoring: all entries below are marked as included in the current validated sweep
 
 Current repo-wide state snapshot: see [FULL_SCALE_CODEBASE_AUDIT.md](/Users/uylus/OneDrive/Documents/KandyDrops_Final/FULL_SCALE_CODEBASE_AUDIT.md) for the current live baseline, verification state, and continuity rules, and see [REPO_MEMORY_LEDGER.md](/Users/uylus/OneDrive/Documents/KandyDrops_Final/REPO_MEMORY_LEDGER.md) for major architectural and workflow decisions. The detailed file/function body below remains valuable historical evidence, but it has not been fully regenerated against the current 2026-04-18 inventory review yet.
 
+## 2026-05-03 Mathematical Public Beta Score Coverage
+
+- [x] `src/lib/agent-score/core.ts`, `src/lib/agent-score/weights.ts`, and `src/lib/agent-score/reporting.ts` own the deterministic public beta score schema, domain weights, severity/confidence/blast-radius math, deduplication, command budget, report writing, and terminal summary.
+- [x] `src/lib/agent-score/public-beta-scanner.ts` scans layout, hydration, economy, telemetry, content protection, orphaned logic, accessibility touch, and testing coverage with source-only deterministic checks and no Playwright/Lighthouse/Cypress dependency.
+- [x] `src/lib/agent-score/autofix.ts`, `scripts/agent/repair-public-beta-safe.ts`, and `scripts/agent/validate-public-beta-score.ts` own the dry-run-first repair flow, exact-text autofix gate, confidence threshold, protected path blocklist, score-not-decreasing guard, and report validation.
+- [x] `scripts/agent/score-public-beta-readiness.ts`, `agent/state/public-beta-score.generated.json`, `docs/agent-truth/public-beta-score.md`, and `tests/unit/public-beta-score.spec.ts` provide the canonical short command lane: `score:beta`, `check:beta-score`, `repair:beta`, targeted unit tests, and typecheck only when TypeScript changed.
+
 ## 2026-05-03 Paid Package Bonus Source-Of-Funds Coverage
 
 - [x] `src/lib/gumdrop-ledger.ts` owns the canonical purchase credit helper and classifier rule: Paid package bonus GumDrops are paid-source GumDrops. They count toward `gumDropsPurchasedBalance` and can be used for paid-only creator monetization surfaces. Reward-source GumDrops are only non-purchase rewards such as check-ins, tasks, referrals, onboarding, or admin reward adjustments. Wallet UI may display total delivered package value, but backend source-of-funds truth must preserve paid vs reward source correctly.
