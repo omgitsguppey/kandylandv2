@@ -59,6 +59,10 @@ Google owns structural language: breakpoints, adaptive layout, PWA display mode,
 
 KandyDrops layout scoring is deterministic. It detects violations of Google-style structure and Apple-style cohesion using hardcoded file/path/pattern rules. It can auto-fix exact safe token/string replacements only. It must escalate anything involving payments, auth, locked content exposure, keyboard runtime behavior, visual judgment, or product intent.
 
+## Device UI Dry Audit
+
+Device UI dry auditing is a deterministic source-level prediction system. It does not replace screenshots, but it catches known KandyDrops device physics violations before runtime: safe areas, bottom nav, top nav, chat focus, modal density, preview CTA placement, drop grid behavior, image loading, touch targets, and debug truth markers. Agents must run `npm run score:device-ui` and `npm run check:device-ui` before broad browser audits.
+
 ## Hydration Performance
 
 KandyDrops hydration uses staged priority lanes. Critical shell and first actions hydrate first. Telemetry/session/privacy truth remains connected. Diagnostics, overlays, bridges, cookie UI, bug reports, onboarding helpers, notification runtime, and PWA enhancement load after paint or idle unless required by the current interaction. No public-beta performance fix may disconnect tracking, privacy consent, parity truth, or source-of-truth debug surfaces.
@@ -264,6 +268,7 @@ Use existing repo lanes as required by the touched surface:
 Rules:
 
 - Google/Firebase/Storage/GA/AI/SQL cost-bearing changes require `npm run score:google-cost` and `npm run check:google-cost`. Google cost-bearing surfaces must be declared before use. Firestore, Storage, Google Analytics Data API, Vertex AI, Cloud Run/App Hosting, and any SQL/Data Connect runtime must have route-level cost contracts, budget guards, bounded rate limits, cache policies, and debug evidence. The app must fail audits before it surprises billing.
+- Device-level UI and shell changes should run `npm run score:device-ui` and `npm run check:device-ui` before broad browser audits. This deterministic lane predicts known mobile/PWA/tablet/desktop risks from source tokens, component structure, and debug truth markers.
 - Fast-loop verification should stay targeted. Use `npm run agent:test -- <path>` before broad repo sweeps when the work is narrow.
 - Broad signoff checks should remain separate from the implementation loop. `check:continuity`, UI audits, scheduler/runtime continuity, and Firebase rules are signoff lanes unless the touched surface explicitly requires them during iteration.
 - UI/admin UI changes require `npm run check:ui:coverage`, `npm run check:ui:runtime`, and `npm run check:ui:audits`.

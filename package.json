@@ -77,6 +77,8 @@
         "score:layout": "tsx scripts/agent/score-device-layout-contract.ts",
         "repair:layout": "tsx scripts/agent/repair-device-layout-contract.ts",
         "check:device-layout-score": "tsx scripts/agent/validate-device-layout-score.ts",
+        "score:device-ui": "tsx scripts/agent/score-device-ui-dry-audit.ts",
+        "check:device-ui": "tsx scripts/agent/validate-device-ui-dry-audit.ts",
         "score:hydration": "tsx scripts/agent/score-hydration-performance.ts",
         "check:hydration-performance": "tsx scripts/agent/validate-hydration-performance.ts",
         "score:economy": "tsx scripts/agent/score-gumdrop-economy.ts",

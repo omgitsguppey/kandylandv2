@@ -1,0 +1,168 @@
+{
+  "generatedAt": "2026-05-04T10:00:09.756Z",
+  "overallScore": 97,
+  "overallStatus": "clean",
+  "deviceScores": {
+    "xs-phone": 90,
+    "phone": 90,
+    "large-phone": 90,
+    "small-tablet": 100,
+    "tablet": 100,
+    "large-tablet": 100,
+    "desktop": 100,
+    "wide-desktop": 100,
+    "ultra-wide": 100
+  },
+  "surfaceScores": {
+    "home_guest_hero": 100,
+    "dashboard": 100,
+    "drops_page": 100,
+    "featured_carousel": 100,
+    "drop_card_grid": 100,
+    "full_page_drop_preview": 100,
+    "wallet_modal": 70,
+    "experiences_page": 100,
+    "daily_checkin": 100,
+    "chat_inbox": 100,
+    "chat_thread": 100,
+    "creator_profile": 100,
+    "creator_experiences": 100,
+    "notifications_panel": 100,
+    "support_page": 100,
+    "settings_page": 100,
+    "my_kandydrops_library": 100
+  },
+  "findings": [
+    {
+      "id": "dui_10zb1qn",
+      "canAutofix": false,
+      "autofixConfidence": 0,
+      "suggestedFix": "Review the source pattern and apply the shared shell/image/device token intentionally.",
+      "routeOrSurface": "wallet_modal",
+      "category": "wallet_density",
+      "severity": "moderate",
+      "filePath": "src/components/PurchaseModal.tsx",
+      "line": 431,
+      "evidence": [
+        "Found mobile sprawl heuristic class p-6."
+      ],
+      "expectedRule": "Wallet mobile modal uses compact density and avoids p-6/p-8 row sprawl.",
+      "actualPattern": "p-6",
+      "humanReadableWarning": "Wallet modal may push checkout controls below the fold.",
+      "deviceProfile": "xs-phone",
+      "displayMode": "standalone-pwa"
+    },
+    {
+      "id": "dui_14vtqjx",
+      "canAutofix": false,
+      "autofixConfidence": 0,
+      "suggestedFix": "Review the source pattern and apply the shared shell/image/device token intentionally.",
+      "routeOrSurface": "wallet_modal",
+      "category": "wallet_density",
+      "severity": "moderate",
+      "filePath": "src/components/PurchaseModal.tsx",
+      "line": 431,
+      "evidence": [
+        "Found mobile sprawl heuristic class p-6."
+      ],
+      "expectedRule": "Wallet mobile modal uses compact density and avoids p-6/p-8 row sprawl.",
+      "actualPattern": "p-6",
+      "humanReadableWarning": "Wallet modal may push checkout controls below the fold.",
+      "deviceProfile": "phone",
+      "displayMode": "standalone-pwa"
+    },
+    {
+      "id": "dui_1xzubhj",
+      "canAutofix": false,
+      "autofixConfidence": 0,
+      "suggestedFix": "Review the source pattern and apply the shared shell/image/device token intentionally.",
+      "routeOrSurface": "wallet_modal",
+      "category": "wallet_density",
+      "severity": "moderate",
+      "filePath": "src/components/PurchaseModal.tsx",
+      "line": 431,
+      "evidence": [
+        "Found mobile sprawl heuristic class p-6."
+      ],
+      "expectedRule": "Wallet mobile modal uses compact density and avoids p-6/p-8 row sprawl.",
+      "actualPattern": "p-6",
+      "humanReadableWarning": "Wallet modal may push checkout controls below the fold.",
+      "deviceProfile": "xs-phone",
+      "displayMode": "browser"
+    },
+    {
+      "id": "dui_41e4v1",
+      "canAutofix": false,
+      "autofixConfidence": 0,
+      "suggestedFix": "Review the source pattern and apply the shared shell/image/device token intentionally.",
+      "routeOrSurface": "wallet_modal",
+      "category": "wallet_density",
+      "severity": "moderate",
+      "filePath": "src/components/PurchaseModal.tsx",
+      "line": 431,
+      "evidence": [
+        "Found mobile sprawl heuristic class p-6."
+      ],
+      "expectedRule": "Wallet mobile modal uses compact density and avoids p-6/p-8 row sprawl.",
+      "actualPattern": "p-6",
+      "humanReadableWarning": "Wallet modal may push checkout controls below the fold.",
+      "deviceProfile": "phone",
+      "displayMode": "browser"
+    },
+    {
+      "id": "dui_bz6mqn",
+      "canAutofix": false,
+      "autofixConfidence": 0,
+      "suggestedFix": "Review the source pattern and apply the shared shell/image/device token intentionally.",
+      "routeOrSurface": "wallet_modal",
+      "category": "wallet_density",
+      "severity": "moderate",
+      "filePath": "src/components/PurchaseModal.tsx",
+      "line": 431,
+      "evidence": [
+        "Found mobile sprawl heuristic class p-6."
+      ],
+      "expectedRule": "Wallet mobile modal uses compact density and avoids p-6/p-8 row sprawl.",
+      "actualPattern": "p-6",
+      "humanReadableWarning": "Wallet modal may push checkout controls below the fold.",
+      "deviceProfile": "large-phone",
+      "displayMode": "browser"
+    },
+    {
+      "id": "dui_yiuc7r",
+      "canAutofix": false,
+      "autofixConfidence": 0,
+      "suggestedFix": "Review the source pattern and apply the shared shell/image/device token intentionally.",
+      "routeOrSurface": "wallet_modal",
+      "category": "wallet_density",
+      "severity": "moderate",
+      "filePath": "src/components/PurchaseModal.tsx",
+      "line": 431,
+      "evidence": [
+        "Found mobile sprawl heuristic class p-6."
+      ],
+      "expectedRule": "Wallet mobile modal uses compact density and avoids p-6/p-8 row sprawl.",
+      "actualPattern": "p-6",
+      "humanReadableWarning": "Wallet modal may push checkout controls below the fold.",
+      "deviceProfile": "large-phone",
+      "displayMode": "standalone-pwa"
+    }
+  ],
+  "criticalCount": 0,
+  "majorCount": 0,
+  "safeAutofixesAvailable": 0,
+  "recommendedFixOrder": [
+    "Normalize wallet and modal density markers before mobile signoff."
+  ],
+  "minimalVerificationCommands": [
+    "npm run score:device-ui",
+    "npm run check:device-ui",
+    "npm run typecheck only if TypeScript source changed",
+    "forbidden by default: playwright",
+    "forbidden by default: cypress",
+    "forbidden by default: lighthouse",
+    "forbidden by default: npm run check",
+    "forbidden by default: npm run check:ui:audits",
+    "forbidden by default: npm run check:ui:continuity"
+  ]
+}

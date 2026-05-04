@@ -1,5 +1,31 @@
 # KandyDrops Core Codebase Audit & Defensive Ledger
 
+## [2026-05-04 #145] PRE: Deterministic Device UI Dry Audit
+
+Scope started:
+- Creating a deterministic source-level device UI dry audit that scores likely browser/PWA/mobile/tablet/desktop layout failures from shell tokens, component structure, debug markers, image policy, and known KandyDrops device physics.
+- Required outputs include `src/lib/device-ui-dry-audit.ts`, `src/lib/device-ui-dry-audit-rules.ts`, scoring/validation scripts, generated report, package scripts, source-of-truth docs, commit, and push.
+- This pass must not change product UI behavior, run Playwright/Lighthouse/Cypress/full `npm run check`/broad UI audits, add browser automation, or auto-fix payments/auth/content access/keyboard runtime behavior/visual judgment.
+
+Evidence:
+- Control tower routing, doctrine files, device layout contract/scoring, user mobile shell tokens, recent chat/wallet/preview/drops/image truth work, and existing agent score validators were consulted before implementation.
+- Source confirms the repo already has canonical shell tokens, compact chat/wallet/experiences/drop/preview debug markers, sitewide image policy, and deterministic scoring conventions that this dry audit must consume rather than replace.
+
+Doctrine:
+- Device UI dry auditing is a deterministic source-level prediction system. It does not replace screenshots, but it catches known KandyDrops device physics violations before runtime: safe areas, bottom nav, top nav, chat focus, modal density, preview CTA placement, drop grid behavior, image loading, touch targets, and debug truth markers. Agents must run score:device-ui/check:device-ui before broad browser audits.
+
+Scope completed:
+- Added `src/lib/device-ui-dry-audit-rules.ts` with canonical dry-audit device profiles, browser/standalone-PWA display modes, surface ownership, severity penalties, status bands, and forbidden command budget.
+- Added `src/lib/device-ui-dry-audit.ts` with source-only scoring for viewport units, top/bottom nav clearance, safe areas, chat shell/input focus markers, wallet/Experiences density, locked preview safety/CTA placement, Drop card/grid truth, featured carousel metadata, touch targets, breakpoints, image loading, and vertical sprawl heuristics.
+- Added `scripts/agent/score-device-ui-dry-audit.ts`, `scripts/agent/validate-device-ui-dry-audit.ts`, package scripts `score:device-ui` / `check:device-ui`, generated `agent/state/device-ui-dry-audit.generated.json`, and source-of-truth docs.
+- Report currently scores 97/clean with focused moderate wallet modal sprawl heuristics and no critical or major findings.
+
+Verification:
+- `npm run score:device-ui` passed and wrote `agent/state/device-ui-dry-audit.generated.json`.
+- `npm run check:device-ui` passed.
+- `npm run typecheck` passed.
+- No Playwright, Lighthouse, Cypress, full `npm run check`, broad UI audits, browser automation, payment/auth/unlock/content behavior changes, or product UI changes were run.
+
 ## [2026-05-04 #144] PRE: Sitewide Image Loading Policy
 
 Scope started:

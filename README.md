@@ -32,6 +32,9 @@ Google owns structural language: breakpoints, adaptive layout, PWA display mode,
 ### Device Layout Score
 KandyDrops layout scoring is deterministic. It detects violations of Google-style structure and Apple-style cohesion using hardcoded file/path/pattern rules. It can auto-fix exact safe token/string replacements only. It must escalate anything involving payments, auth, locked content exposure, keyboard runtime behavior, visual judgment, or product intent.
 
+### Device UI Dry Audit
+Device UI dry auditing is a deterministic source-level prediction system. It does not replace screenshots, but it catches known KandyDrops device physics violations before runtime: safe areas, bottom nav, top nav, chat focus, modal density, preview CTA placement, drop grid behavior, image loading, touch targets, and debug truth markers. Agents must run `npm run score:device-ui` and `npm run check:device-ui` before broad browser audits.
+
 ### Hydration Performance
 KandyDrops hydration uses staged priority lanes. Critical shell and first actions hydrate first. Telemetry/session/privacy truth remains connected. Diagnostics, overlays, bridges, cookie UI, bug reports, onboarding helpers, notification runtime, and PWA enhancement load after paint or idle unless required by the current interaction. No public-beta performance fix may disconnect tracking, privacy consent, parity truth, or source-of-truth debug surfaces.
 

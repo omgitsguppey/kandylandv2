@@ -9,6 +9,13 @@ Scoring: all entries below are marked as included in the current validated sweep
 
 Current repo-wide state snapshot: see [FULL_SCALE_CODEBASE_AUDIT.md](/Users/uylus/OneDrive/Documents/KandyDrops_Final/FULL_SCALE_CODEBASE_AUDIT.md) for the current live baseline, verification state, and continuity rules, and see [REPO_MEMORY_LEDGER.md](/Users/uylus/OneDrive/Documents/KandyDrops_Final/REPO_MEMORY_LEDGER.md) for major architectural and workflow decisions. The detailed file/function body below remains valuable historical evidence, but it has not been fully regenerated against the current 2026-04-18 inventory review yet.
 
+## 2026-05-04 Device UI Dry Audit Coverage
+
+- [x] `src/lib/device-ui-dry-audit-rules.ts` owns the deterministic dry-audit device profiles, browser/standalone-PWA display modes, critical surface registry, severity penalties, status bands, and forbidden command list.
+- [x] `src/lib/device-ui-dry-audit.ts` owns source-only scoring for viewport units, bottom-nav and safe-area clearance, top-nav spacing, chat shell markers, wallet density, Experiences compact mode, preview CTA/content protection, Drop card/grid truth, featured carousel polish, touch targets, breakpoints, image loading, and vertical sprawl heuristics.
+- [x] `scripts/agent/score-device-ui-dry-audit.ts` writes `agent/state/device-ui-dry-audit.generated.json`; `scripts/agent/validate-device-ui-dry-audit.ts` validates report schema, every device profile score, every surface score, critical auto-fail, forbidden-command isolation, docs, package scripts, and autofix confidence.
+- [x] This lane is read-only by default. It may mark exact high-confidence autofix candidates, but must not mutate payment, auth, unlock enforcement, content access, route migration, keyboard runtime behavior, visual judgment, or product copy.
+
 ## 2026-05-04 Sitewide Image Loading Coverage
 
 - [x] `src/lib/image-loading-policy.ts` owns the surface-based image loading contract for homepage, Drop grids, featured carousel, locked preview, creator profile, dashboard/library, and viewer content surfaces.

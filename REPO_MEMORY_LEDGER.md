@@ -4,6 +4,10 @@ Status: Canonical repository-memory and architecture-decision ledger
 Last refreshed: 2026-05-02
 Repo: `C:\Users\uylus\OneDrive\Documents\KandyDrops_Final`
 
+## 2026-05-04 Device UI dry audit
+
+Device UI dry auditing is a deterministic source-level prediction system. It does not replace screenshots, but it catches known KandyDrops device physics violations before runtime: safe areas, bottom nav, top nav, chat focus, modal density, preview CTA placement, drop grid behavior, image loading, touch targets, and debug truth markers. `src/lib/device-ui-dry-audit-rules.ts` owns device profiles, display modes, surface ownership, severity penalties, and command budget. `src/lib/device-ui-dry-audit.ts` owns the hardcoded source scanner and score report. `npm run score:device-ui` writes `agent/state/device-ui-dry-audit.generated.json`; `npm run check:device-ui` validates schema, scores, critical auto-fail, forbidden-command isolation, docs, package scripts, and autofix confidence.
+
 ## 2026-05-04 Sitewide image loading policy
 
 KandyDrops image loading is surface-based. Above-fold LCP images are eager/preloaded sparingly, grids/rails/libraries and below-fold images are lazy, all fill images require accurate `sizes`, locked previews never render internal content thumbnails before unlock, and image loading blur remains separate from product-state blur. `src/lib/image-loading-policy.ts` owns the static policy and debug attributes; `npm run check:sitewide-image-optimization` validates policy usage, fill sizing, deprecated Next Image `priority` removal, card preload discipline, and locked-preview safety.
