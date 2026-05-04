@@ -1,0 +1,285 @@
+{
+  "generatedAt": "2026-05-04T21:07:36.960Z",
+  "overallScore": 91,
+  "status": "pass",
+  "criticalFailure": false,
+  "surfaces": [
+    {
+      "id": "home_auth_onboarding",
+      "label": "Home, auth, and onboarding",
+      "weight": 10,
+      "score": 10,
+      "status": "covered",
+      "files": [
+        "src/app/page.tsx",
+        "src/app/HomeClient.tsx",
+        "src/components/Hero.tsx",
+        "src/components/Landing/HomeHeroActions.tsx",
+        "src/components/Auth/AuthModal.tsx",
+        "src/components/CreatorDiscoveryRail.tsx",
+        "src/lib/telemetry.ts"
+      ],
+      "coveredEvents": [
+        "home_page_viewed",
+        "hero_cta_clicked",
+        "auth_sign_up_attempted",
+        "auth_sign_up_success",
+        "guided_onboarding_started",
+        "guided_onboarding_completed",
+        "creator_spotlight_viewed"
+      ],
+      "missingEvents": [],
+      "findings": []
+    },
+    {
+      "id": "dashboard_tasks",
+      "label": "Dashboard and tasks",
+      "weight": 10,
+      "score": 10,
+      "status": "covered",
+      "files": [
+        "src/app/dashboard/page.tsx",
+        "src/components/Dashboard/DailyCheckIn.tsx",
+        "src/components/Dashboard/DailyTasksModule.tsx"
+      ],
+      "coveredEvents": [
+        "daily_check_in_claim",
+        "daily_task_action_clicked"
+      ],
+      "missingEvents": [],
+      "findings": []
+    },
+    {
+      "id": "drops_preview_viewer",
+      "label": "Drops, preview, and viewer",
+      "weight": 18,
+      "score": 15,
+      "status": "partial",
+      "files": [
+        "src/components/DropCard.tsx",
+        "src/hooks/useDropCardImpression.ts",
+        "src/components/FeaturedCarousel.tsx",
+        "src/components/Drops/LockedDropPreviewView.tsx",
+        "src/components/Drops/LockedDropPreviewClient.tsx",
+        "src/hooks/useViewerWatchSession.ts",
+        "src/app/dashboard/viewer/adapters/ViewerTelemetryAdapter.ts",
+        "src/app/api/viewer/watch-session/route.ts",
+        "src/app/api/drops/unlock/route.ts"
+      ],
+      "coveredEvents": [
+        "drop_card_impression",
+        "featured_drop_viewed",
+        "featured_drop_clicked",
+        "drop_preview_opened",
+        "drop_preview_cta_clicked",
+        "drop_unlock_attempted",
+        "unlock_drop_success",
+        "watch_session_started",
+        "watch_session_visible_tick",
+        "watch_session_ended",
+        "viewer_asset_started"
+      ],
+      "missingEvents": [],
+      "findings": [
+        {
+          "severity": "major",
+          "surfaceId": "drops_preview_viewer",
+          "title": "Drops, preview, and viewer does not expose file_id",
+          "filePath": "src/components/DropCard.tsx",
+          "evidence": [
+            "file_id"
+          ],
+          "suggestedFix": "Add file_id to the event payload for Drops, preview, and viewer.",
+          "id": "drops_preview_viewer__src_components_dropcard_tsx__drops_preview_and_viewer_does_not_expose_file_id"
+        }
+      ]
+    },
+    {
+      "id": "wallet_payments",
+      "label": "Wallet and payments",
+      "weight": 15,
+      "score": 15,
+      "status": "covered",
+      "files": [
+        "src/components/PurchaseModal.tsx",
+        "src/app/api/paypal/capture/route.ts",
+        "src/lib/server/analytics.ts"
+      ],
+      "coveredEvents": [
+        "wallet_opened",
+        "purchase_package_selected",
+        "begin_checkout",
+        "gumdrops_purchase_completed",
+        "gumdrops_purchase_failed",
+        "purchase_verified"
+      ],
+      "missingEvents": [],
+      "findings": []
+    },
+    {
+      "id": "creator_profile_monetization",
+      "label": "Creator profile and monetization",
+      "weight": 12,
+      "score": 12,
+      "status": "covered",
+      "files": [
+        "src/components/CreatorDiscoveryRail.tsx",
+        "src/components/Creators/CreatorExperiencesPanel.tsx",
+        "src/app/creators/[username]/CreatorProfileClient.tsx",
+        "src/lib/server/creator-experiences.ts",
+        "src/app/api/creator/bookings/route.ts"
+      ],
+      "coveredEvents": [
+        "creator_profile_link_clicked",
+        "creator_followed",
+        "creator_unfollowed",
+        "creator_fan_pass_started",
+        "creator_custom_request_created",
+        "creator_call_booking_created",
+        "creator_call_booking_completed"
+      ],
+      "missingEvents": [],
+      "findings": []
+    },
+    {
+      "id": "chat_notifications_support",
+      "label": "Chat, notifications, and support",
+      "weight": 12,
+      "score": 12,
+      "status": "covered",
+      "files": [
+        "src/components/Chat/ChatExperience.tsx",
+        "src/components/Navigation/NotificationBell.tsx",
+        "src/components/Support/SupportInbox.tsx"
+      ],
+      "coveredEvents": [
+        "chat_thread_opened",
+        "chat_message_sent",
+        "chat_message_send_failed",
+        "notification_opened",
+        "notification_marked_read",
+        "notification_action_clicked",
+        "support_ticket_submitted",
+        "support_thread_opened",
+        "support_thread_replied",
+        "support_thread_reply_failed"
+      ],
+      "missingEvents": [],
+      "findings": []
+    },
+    {
+      "id": "admin_users_projection",
+      "label": "Admin users and projection",
+      "weight": 10,
+      "score": 10,
+      "status": "covered",
+      "files": [
+        "src/app/admin/users/page.tsx",
+        "src/context/AdminViewAsContext.tsx",
+        "src/app/api/admin/view-as-creator/route.ts"
+      ],
+      "coveredEvents": [
+        "admin_users_viewed",
+        "admin_user_detail_viewed",
+        "admin_view_as_creator_started",
+        "admin_view_as_creator_ended",
+        "admin_view_as_creator_action_blocked"
+      ],
+      "missingEvents": [],
+      "findings": []
+    },
+    {
+      "id": "moderation_security",
+      "label": "Moderation and security",
+      "weight": 13,
+      "score": 7,
+      "status": "partial",
+      "files": [
+        "src/lib/security-events.ts",
+        "src/lib/moderation/theft-risk-evidence.ts",
+        "src/app/api/admin/moderation/security-alerts/route.ts",
+        "src/app/api/security/log-attempt/route.ts"
+      ],
+      "coveredEvents": [
+        "confirmed_context_menu_attempt",
+        "confirmed_copy_attempt",
+        "heuristic_rapid_visibility_capture"
+      ],
+      "missingEvents": [],
+      "findings": [
+        {
+          "severity": "major",
+          "surfaceId": "moderation_security",
+          "title": "Moderation and security does not expose file_id",
+          "filePath": "src/lib/security-events.ts",
+          "evidence": [
+            "file_id"
+          ],
+          "suggestedFix": "Add file_id to the event payload for Moderation and security.",
+          "id": "moderation_security__src_lib_security_events_ts__moderation_and_security_does_not_expose_file_id"
+        },
+        {
+          "severity": "major",
+          "surfaceId": "moderation_security",
+          "title": "Moderation and security does not expose reason_code",
+          "filePath": "src/lib/security-events.ts",
+          "evidence": [
+            "reason_code"
+          ],
+          "suggestedFix": "Add reason_code to the event payload for Moderation and security.",
+          "id": "moderation_security__src_lib_security_events_ts__moderation_and_security_does_not_expose_reason_code"
+        }
+      ]
+    }
+  ],
+  "topFindings": [
+    {
+      "severity": "major",
+      "surfaceId": "drops_preview_viewer",
+      "title": "Drops, preview, and viewer does not expose file_id",
+      "filePath": "src/components/DropCard.tsx",
+      "evidence": [
+        "file_id"
+      ],
+      "suggestedFix": "Add file_id to the event payload for Drops, preview, and viewer.",
+      "id": "drops_preview_viewer__src_components_dropcard_tsx__drops_preview_and_viewer_does_not_expose_file_id"
+    },
+    {
+      "severity": "major",
+      "surfaceId": "moderation_security",
+      "title": "Moderation and security does not expose file_id",
+      "filePath": "src/lib/security-events.ts",
+      "evidence": [
+        "file_id"
+      ],
+      "suggestedFix": "Add file_id to the event payload for Moderation and security.",
+      "id": "moderation_security__src_lib_security_events_ts__moderation_and_security_does_not_expose_file_id"
+    },
+    {
+      "severity": "major",
+      "surfaceId": "moderation_security",
+      "title": "Moderation and security does not expose reason_code",
+      "filePath": "src/lib/security-events.ts",
+      "evidence": [
+        "reason_code"
+      ],
+      "suggestedFix": "Add reason_code to the event payload for Moderation and security.",
+      "id": "moderation_security__src_lib_security_events_ts__moderation_and_security_does_not_expose_reason_code"
+    }
+  ],
+  "criticalFindings": [],
+  "commandBudget": {
+    "allowed": [
+      "npm run score:tracking-surface-coverage",
+      "npm run check:tracking-surface-coverage",
+      "npm run typecheck"
+    ],
+    "forbidden": [
+      "npm run check",
+      "npm run check:ui:audits",
+      "playwright",
+      "cypress",
+      "lighthouse"
+    ]
+  }
+}

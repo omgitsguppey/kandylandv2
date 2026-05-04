@@ -7,6 +7,8 @@ import { buildAnalyticsTimeKeys, resolveTrackedTelemetryEvent } from "./analytic
 import { recordRouteWarning } from "./route-diagnostics";
 import { buildAnalyticsSemanticParams } from "@/lib/analytics-semantics";
 import { explainEventInclusion } from "@/lib/analytics/analytics-event-contract";
+import { BEHAVIORAL_EVENT_FACT_VERSION } from "@/lib/behavioral/event-fact-contract";
+import { normalizeBehavioralEventFact } from "@/lib/behavioral/normalize-event-fact";
 import { ANALYTICS_OPERATIONAL_COLLECTIONS } from "@/lib/server/analytics-governance";
 import { profileAllowsIdentifiedAnalytics } from "@/lib/server/privacy-consent";
 import type { UserProfile } from "@/types/db";
@@ -151,10 +153,28 @@ export async function trackServerEvent(
     source: "server",
   });
   const actorClassification = inclusion.actorClassification;
+  const normalizedEventFact = inclusion.includeInUserBehavior
+    ? normalizeBehavioralEventFact({
+      eventId: buildServerEventId(userId, canonicalEventName),
+      eventName: canonicalEventName,
+      params: enrichedParams,
+      timestamp: nowMs,
+      userId,
+      sessionId: readStringParam(enrichedParams, "session_id", "sessionId"),
+      pagePath,
+      dropId: readStringParam(enrichedParams, "drop_id", "dropId"),
+      creatorId: readStringParam(enrichedParams, "creator_id", "creatorId"),
+      assetKey: readStringParam(enrichedParams, "asset_key", "assetKey"),
+      assetIndex: readNullableNumberParam(enrichedParams, "asset_index", "assetIndex") ?? undefined,
+      source: "server",
+      valueUsd: readNullableNumberParam(enrichedParams, "gross_revenue_usd", "grossRevenueUsd", "amount_usd", "amountUsd", "price_usd", "priceUsd") ?? undefined,
+      gumDropsAmount: readNullableNumberParam(enrichedParams, "delivered_gumdrops", "deliveredGumDrops", "paid_gumdrops", "paidGumDrops", "gumdrops_amount", "gumDropsAmount") ?? undefined,
+    })
+    : null;
 
   try {
     const timeKeys = buildAnalyticsTimeKeys(nowMs);
-    const eventId = buildServerEventId(userId, canonicalEventName);
+    const eventId = normalizedEventFact?.eventId || buildServerEventId(userId, canonicalEventName);
     const writes: Array<Promise<unknown>> = [
       adminDb.collection("analytics_event_facts").doc(eventId).set({
         eventId,
@@ -217,6 +237,23 @@ export async function trackServerEvent(
         trackingSources: option?.sources || [],
         eventIndexVersion: readStringParam(enrichedParams, "event_index_version"),
         trackingOrigin: "server",
+        behavioralEventFactVersion: normalizedEventFact ? BEHAVIORAL_EVENT_FACT_VERSION : "",
+        normalizedActionName: normalizedEventFact?.normalizedAction ?? "",
+        normalizedActionId: normalizedEventFact?.dedupeKey ?? "",
+        normalizedActionConfidence: normalizedEventFact?.confidence ?? 0,
+        normalizedActionSourceTruth: normalizedEventFact?.sourceTruth ?? "",
+        normalizedActionReasonCode: normalizedEventFact?.reasonCode ?? "",
+        actionEntityId: normalizedEventFact?.entityId ?? "",
+        actionEntityType: normalizedEventFact?.entityType ?? "",
+        actionSourceComponent: normalizedEventFact?.sourceComponent ?? "",
+        actionRoute: normalizedEventFact?.route ?? "",
+        actionDropId: normalizedEventFact?.dropId ?? "",
+        actionFileId: normalizedEventFact?.fileId ?? "",
+        actionCreatorId: normalizedEventFact?.creatorId ?? "",
+        actionTransactionId: normalizedEventFact?.transactionId ?? "",
+        actionThreadId: normalizedEventFact?.threadId ?? "",
+        actionNotificationId: normalizedEventFact?.notificationId ?? "",
+        actionTaskId: normalizedEventFact?.taskId ?? "",
         guestUserAdminSeparation: {
           guestOrAnonymous: actorClassification.isGuestLike,
           authenticatedUser: actorClassification.isAuthenticatedUser,

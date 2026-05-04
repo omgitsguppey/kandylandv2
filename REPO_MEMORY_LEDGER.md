@@ -4,6 +4,10 @@ Status: Canonical repository-memory and architecture-decision ledger
 Last refreshed: 2026-05-02
 Repo: `C:\Users\uylus\OneDrive\Documents\KandyDrops_Final`
 
+## 2026-05-04 Behavioral tracking surface coverage
+
+KandyDrops now treats behavioral event-fact coverage as a scored control surface instead of an ad hoc telemetry assumption. `src/lib/behavioral/tracking-surface-map.ts` defines the canonical surfaces, critical events, and required payload fields. `scripts/agent/score-tracking-surface-coverage.ts` writes `agent/state/tracking-surface-coverage.generated.json`, and `scripts/agent/validate-tracking-surface-coverage.ts` enforces server-truth purchase/unlock coverage, viewer watch-session coverage, notification-read canonical scoring, and telemetry redaction constraints. `src/lib/server/analytics.ts` now persists normalized behavioral fact metadata for server events, so wallet/unlock/security facts can join the same admin and behavioral pipelines as identified ingest.
+
 ## 2026-05-04 Behavioral model validation harness
 
 KandyDrops behavioral math now has a deterministic validation control plane. `scripts/validate-behavioral-models.ts` evaluates user engagement score, user value score, recommendation ranking, watch-time estimation, theft-risk, and behavioral confidence against time-based train/validate splits and writes `agent/state/behavioral-model-validation.generated.json`. `scripts/train-behavioral-models.ts` chains recommendation artifact training with validation. `src/lib/recommendations/ml-ranker.ts` now checks the validation report before activating artifact scoring, so deterministic ranking remains active unless the report explicitly promotes recommendation mode to `hybrid` or `ml_active`. `npm run validate:behavioral-models` and `npm run check:math-goal-alignment` are the canonical regression lanes.

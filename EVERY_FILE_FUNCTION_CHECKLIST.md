@@ -9,6 +9,13 @@ Scoring: all entries below are marked as included in the current validated sweep
 
 Current repo-wide state snapshot: see [FULL_SCALE_CODEBASE_AUDIT.md](/Users/uylus/OneDrive/Documents/KandyDrops_Final/FULL_SCALE_CODEBASE_AUDIT.md) for the current live baseline, verification state, and continuity rules, and see [REPO_MEMORY_LEDGER.md](/Users/uylus/OneDrive/Documents/KandyDrops_Final/REPO_MEMORY_LEDGER.md) for major architectural and workflow decisions. The detailed file/function body below remains valuable historical evidence, but it has not been fully regenerated against the current 2026-04-18 inventory review yet.
 
+## 2026-05-04 Behavioral Tracking Surface Coverage
+
+- [x] `src/lib/behavioral/event-fact-contract.ts`, `src/lib/behavioral/normalize-event-fact.ts`, and `src/lib/server/analytics.ts` now carry the expanded canonical behavioral fact contract, alias coverage, and server-truth metadata persistence needed for wallet/unlock/security/admin facts to join the same normalized foundation.
+- [x] `src/components/CreatorDiscoveryRail.tsx`, `src/components/FeaturedCarousel.tsx`, `src/components/Support/SupportInbox.tsx`, `src/components/Navigation/NotificationBell.tsx`, and `src/app/admin/users/page.tsx` now emit the missing coverage events for creator spotlight, featured impressions, support thread open/reply, notification actions/reads, and admin user opens.
+- [x] `src/lib/behavioral/tracking-surface-map.ts` owns the deterministic surface map and weight model for coverage scoring.
+- [x] `scripts/agent/score-tracking-surface-coverage.ts`, `scripts/agent/validate-tracking-surface-coverage.ts`, `docs/agent-truth/tracking-surface-coverage.md`, the generated report, and package scripts `score:tracking-surface-coverage` / `check:tracking-surface-coverage` provide the targeted regression lane.
+
 ## 2026-05-04 Behavioral Model Validation Coverage
 
 - [x] `scripts/validate-behavioral-models.ts` owns time-based train/validation splits, synthetic validation dataset generation, KandyDrops goal metrics, baseline comparisons, active-mode decisions, and writing `agent/state/behavioral-model-validation.generated.json`.

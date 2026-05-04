@@ -253,10 +253,19 @@ async function POST_handler(request: NextRequest) {
                 normalizedActionName: normalizedEventFact?.normalizedAction ?? "",
                 normalizedActionId: normalizedEventFact?.dedupeKey ?? "",
                 normalizedActionConfidence: normalizedEventFact?.confidence ?? 0,
+                normalizedActionSourceTruth: normalizedEventFact?.sourceTruth ?? "",
+                normalizedActionReasonCode: normalizedEventFact?.reasonCode ?? "",
                 actionEntityId: normalizedEventFact?.entityId ?? "",
                 actionEntityType: normalizedEventFact?.entityType ?? "",
                 actionSourceComponent: normalizedEventFact?.sourceComponent ?? "",
                 actionRoute: normalizedEventFact?.route ?? "",
+                actionDropId: normalizedEventFact?.dropId ?? "",
+                actionFileId: normalizedEventFact?.fileId ?? "",
+                actionCreatorId: normalizedEventFact?.creatorId ?? "",
+                actionTransactionId: normalizedEventFact?.transactionId ?? "",
+                actionThreadId: normalizedEventFact?.threadId ?? "",
+                actionNotificationId: normalizedEventFact?.notificationId ?? "",
+                actionTaskId: normalizedEventFact?.taskId ?? "",
             };
 
             // Using batch.set with merge: false to mimic create, but safer. Deduplication is handled by background worker if duplicate

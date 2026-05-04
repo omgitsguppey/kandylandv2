@@ -135,6 +135,27 @@ function sanitizeStringValue(
     const normalizedValue = sanitizePossibleUrl(rawValue);
     const lowerKey = key.toLowerCase();
 
+    if (
+        lowerKey.includes("content_url")
+        || lowerKey.includes("contenturl")
+        || lowerKey.includes("asset_url")
+        || lowerKey.includes("asseturl")
+        || lowerKey.includes("media_url")
+        || lowerKey.includes("mediaurl")
+    ) {
+        return "[redacted_sensitive_url]";
+    }
+
+    if (
+        lowerKey.includes("raw_prompt")
+        || lowerKey.includes("prompt_body")
+        || lowerKey.includes("prompt_text")
+        || lowerKey.includes("message_body")
+        || lowerKey.includes("message_text")
+    ) {
+        return "[redacted_sensitive_text]";
+    }
+
     if (lowerKey.includes("email") || EMAIL_PATTERN.test(normalizedValue)) {
         return "[redacted_email]";
     }

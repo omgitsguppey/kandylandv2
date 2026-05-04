@@ -272,6 +272,17 @@ function NotificationItem({
     setIsPending(true);
     try {
       const destination = note.link || "/drops";
+      trackEvent("notification_action_clicked", {
+        source: "notifications_dropdown",
+        source_component: "notification_bell",
+        destination,
+        notification_id: note.id,
+        idempotency_key: `${note.id}:open`,
+        notification_type: note.type,
+        recipient_id: currentUserId ?? "",
+        entity_type: "notification",
+        entity_id: note.id,
+      });
       trackEvent("notification_opened", {
         source: "notifications_dropdown",
         source_component: "notification_bell",
@@ -296,6 +307,16 @@ function NotificationItem({
 
     setIsPending(true);
     try {
+      trackEvent("notification_marked_read", {
+        source: "notifications_dropdown",
+        source_component: "notification_bell",
+        notification_id: note.id,
+        idempotency_key: `${note.id}:read`,
+        notification_type: note.type,
+        recipient_id: currentUserId ?? "",
+        entity_type: "notification",
+        entity_id: note.id,
+      });
       const success = await markAsRead(note.id);
       if (!success) {
         toast.error("We couldn't mark that notification as read. Please try again.");

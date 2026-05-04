@@ -139,6 +139,34 @@ export function FeaturedCarousel({ drops, onSelectDrop }: FeaturedCarouselProps)
         return stopAutoAdvance;
     }, [startAutoAdvance, stopAutoAdvance]);
 
+    const featuredDropViewedKeyRef = useRef("");
+
+    useEffect(() => {
+        const activeFeaturedDrop = featuredDrops[safeIndex(activeIndex, featuredDrops.length)];
+        if (!activeFeaturedDrop) {
+            return;
+        }
+
+        const viewedKey = `${activeFeaturedDrop.id}:${safeIndex(activeIndex, featuredDrops.length)}`;
+        if (featuredDropViewedKeyRef.current === viewedKey) {
+            return;
+        }
+
+        featuredDropViewedKeyRef.current = viewedKey;
+        trackEvent("featured_drop_viewed", {
+            drop_id: activeFeaturedDrop.id,
+            creator_id: activeFeaturedDrop.creatorId || "",
+            drop_category: activeFeaturedDrop.type,
+            featured_rank: safeIndex(activeIndex, featuredDrops.length) + 1,
+            source_component: "compact_featured_carousel",
+            surface: "featured_carousel",
+            route: "/",
+            entity_type: "drop",
+            entity_id: activeFeaturedDrop.id,
+            ui_density: DROPS_MOBILE_UI_DENSITY,
+        });
+    }, [activeIndex, featuredDrops]);
+
     if (featuredDrops.length === 0) {
         return null;
     }
@@ -203,6 +231,14 @@ export function FeaturedCarousel({ drops, onSelectDrop }: FeaturedCarouselProps)
             </div>
         </section>
     );
+}
+
+function safeIndex(index: number, total: number) {
+    if (total <= 0) {
+        return 0;
+    }
+
+    return Math.min(Math.max(index, 0), total - 1);
 }
 
 function FeaturedDropSlide({

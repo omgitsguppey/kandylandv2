@@ -18,6 +18,7 @@ import { AdminTruthBadge } from "@/components/Admin/AdminTruthBadge";
 import { PageViewEvent } from "@/components/Analytics/PageViewEvent";
 import { AdminTasksManager } from "@/components/Admin/AdminTasksManager";
 import { reportClientIssue } from "@/lib/client-error-reporting";
+import { trackEvent } from "@/lib/telemetry";
 import {
     buildEngagementBehavioralExplanation,
     buildValueBehavioralExplanation,
@@ -127,6 +128,14 @@ export default function UserManagementPage() {
 
             mergeUserDetail(result);
             const detailUser = result.users?.[0] ? { ...user, ...result.users[0] } : user;
+            trackEvent("admin_user_detail_viewed", {
+                source_component: "admin_user_management",
+                route: "/admin/users",
+                admin_actor_uid: "self",
+                target_user_id: detailUser.uid,
+                entity_type: "admin",
+                entity_id: detailUser.uid,
+            });
             if (options.openContent) {
                 setContentUser(detailUser);
             }

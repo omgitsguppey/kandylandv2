@@ -349,6 +349,7 @@ export function CreatorDiscoveryRail({
         () => initialCreators.map((creator) => creator.uid).join("|"),
         [initialCreators],
     );
+    const creatorSpotlightViewedKeyRef = useRef("");
 
     useEffect(() => {
         startCreatorsTransition(() => {
@@ -502,6 +503,30 @@ export function CreatorDiscoveryRail({
 
         return combined.filter((creator) => creator.uid !== user?.uid);
     }, [followedCreators, recommendedCreators, user?.uid]);
+
+    useEffect(() => {
+        if (!primaryCreators.length) {
+            return;
+        }
+
+        const viewedKey = `${surface}:${primaryCreators.map((creator) => creator.uid).slice(0, 6).join("|")}`;
+        if (creatorSpotlightViewedKeyRef.current === viewedKey) {
+            return;
+        }
+
+        creatorSpotlightViewedKeyRef.current = viewedKey;
+        trackEvent("creator_spotlight_viewed", {
+            source_component: "creator_discovery_rail",
+            surface,
+            route: surface === "home" ? "/" : `/${surface}`,
+            auth_state: user ? "authenticated" : "guest",
+            creator_id: primaryCreators[0]?.uid ?? "",
+            entity_type: "creator",
+            entity_id: primaryCreators[0]?.uid ?? "",
+            visible_creator_ids: primaryCreators.slice(0, 6).map((creator) => creator.uid).join(","),
+            visible_creator_count: primaryCreators.length,
+        });
+    }, [primaryCreators, surface, user]);
 
     useEffect(() => {
         const missingCreators = primaryCreators

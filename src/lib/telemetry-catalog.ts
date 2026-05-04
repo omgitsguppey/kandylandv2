@@ -95,8 +95,8 @@ const DEFAULT_SERVER_SOURCES: TelemetryEventSource[] = ["ga4", "backend"];
 const DEFAULT_CANONICAL_SERVER_SOURCES: TelemetryEventSource[] = ["ga4", "backend", "canonical"];
 const DEFAULT_GA_ONLY_SOURCES: TelemetryEventSource[] = ["ga4"];
 
-export const TELEMETRY_EVENT_INDEX_VERSION = "2026.04.04.1";
-export const TELEMETRY_USER_ACTION_TAXONOMY_VERSION = "2026.05.event-facts.1";
+export const TELEMETRY_EVENT_INDEX_VERSION = "2026.05.04.1";
+export const TELEMETRY_USER_ACTION_TAXONOMY_VERSION = "2026.05.event-facts.2";
 export const TELEMETRY_USER_ACTION_TAXONOMY_NAMES = BEHAVIORAL_NORMALIZED_ACTIONS;
 
 export const TELEMETRY_EVENT_OPTIONS: TelemetryEventOption[] = [
@@ -154,6 +154,7 @@ export const TELEMETRY_EVENT_OPTIONS: TelemetryEventOption[] = [
   { eventName: "avatar_uploaded", label: "Avatar uploaded", category: "engagement", sources: DEFAULT_CLIENT_SOURCES, modules: ["onboarding"] },
   { eventName: "page_viewed", label: "Page viewed", category: "engagement", sources: DEFAULT_CLIENT_SOURCES, modules: ["engagement", "navigation"], auditCoveredBy: ["semantic_page_viewed"] },
   { eventName: "home_page_viewed", label: "Home page viewed", category: "engagement", sources: DEFAULT_CLIENT_SOURCES, modules: ["engagement", "navigation"] },
+  { eventName: "hero_cta_clicked", label: "Hero CTA clicked", category: "engagement", sources: DEFAULT_CLIENT_SOURCES, modules: ["engagement", "navigation"] },
   { eventName: "creator_apply_viewed", label: "Creator apply page viewed", category: "engagement", sources: DEFAULT_CLIENT_SOURCES, modules: ["creator", "engagement", "navigation"] },
   { eventName: "creator_waitlist_viewed", label: "Creator waitlist page viewed", category: "engagement", sources: DEFAULT_CLIENT_SOURCES, modules: ["creator", "engagement", "navigation"] },
   { eventName: "creator_agreement_viewed", label: "Creator agreement viewed", category: "engagement", sources: DEFAULT_CLIENT_SOURCES, modules: ["creator", "onboarding"] },
@@ -197,9 +198,12 @@ export const TELEMETRY_EVENT_OPTIONS: TelemetryEventOption[] = [
     { eventName: "dashboard_viewed", label: "Dashboard viewed", category: "engagement", sources: DEFAULT_CLIENT_SOURCES, modules: ["engagement", "navigation"] },
     { eventName: "library_viewed", label: "Library viewed", category: "engagement", sources: DEFAULT_CLIENT_SOURCES, modules: ["engagement", "content", "navigation"] },
     { eventName: "profile_settings_viewed", label: "Profile settings viewed", category: "engagement", sources: DEFAULT_CLIENT_SOURCES, modules: ["engagement", "navigation"] },
-    { eventName: "support_inbox_viewed", label: "Support inbox viewed", category: "engagement", sources: DEFAULT_CLIENT_SOURCES, modules: ["engagement", "navigation"] },
-    { eventName: "support_ticket_submitted", label: "Support ticket submitted", category: "engagement", sources: DEFAULT_CLIENT_SOURCES, modules: ["engagement"] },
-    { eventName: "experience_hub_viewed", label: "Experiences viewed", category: "engagement", sources: DEFAULT_CLIENT_SOURCES, modules: ["engagement", "tasks", "navigation"] },
+  { eventName: "support_inbox_viewed", label: "Support inbox viewed", category: "engagement", sources: DEFAULT_CLIENT_SOURCES, modules: ["engagement", "navigation"] },
+  { eventName: "support_ticket_submitted", label: "Support ticket submitted", category: "engagement", sources: DEFAULT_CLIENT_SOURCES, modules: ["engagement"] },
+  { eventName: "support_thread_opened", label: "Support thread opened", category: "engagement", sources: DEFAULT_CLIENT_SOURCES, modules: ["engagement", "navigation"] },
+  { eventName: "support_thread_replied", label: "Support thread replied", category: "engagement", sources: DEFAULT_CLIENT_SOURCES, modules: ["engagement"] },
+  { eventName: "support_thread_reply_failed", label: "Support thread reply failed", category: "engagement", sources: DEFAULT_CLIENT_SOURCES, modules: ["engagement"] },
+  { eventName: "experience_hub_viewed", label: "Experiences viewed", category: "engagement", sources: DEFAULT_CLIENT_SOURCES, modules: ["engagement", "tasks", "navigation"] },
   { eventName: "daily_check_in_claim", label: "Daily check-in claimed", category: "tasks", sources: DEFAULT_CLIENT_SOURCES, modules: ["tasks"], aliases: ["daily_reward_claimed"] },
   { eventName: "wallet_opened", label: "Wallet opened", category: "commerce", sources: DEFAULT_CLIENT_SOURCES, modules: ["commerce"] },
   { eventName: "wallet_closed_incomplete", label: "Wallet closed without completion", category: "commerce", sources: DEFAULT_CLIENT_SOURCES, modules: ["commerce"], auditCoveredBy: ["wallet_opened"] },
@@ -236,7 +240,7 @@ export const TELEMETRY_EVENT_OPTIONS: TelemetryEventOption[] = [
   { eventName: "watch_session_paused", label: "Watch session paused", category: "content", sources: DEFAULT_CLIENT_SOURCES, modules: ["viewer"] },
   { eventName: "watch_session_resumed", label: "Watch session resumed", category: "content", sources: DEFAULT_CLIENT_SOURCES, modules: ["viewer"] },
   { eventName: "watch_session_hidden", label: "Watch session hidden", category: "content", sources: DEFAULT_CLIENT_SOURCES, modules: ["viewer"] },
-  { eventName: "watch_session_ended", label: "Watch session ended", category: "content", sources: DEFAULT_CLIENT_SOURCES, modules: ["viewer", "content"] },
+  { eventName: "watch_session_ended", label: "Watch session ended", category: "content", sources: DEFAULT_CLIENT_SOURCES, modules: ["viewer", "content"], aliases: ["watch_session_completed"] },
   { eventName: "watch_score_computed", label: "Watch score computed", category: "content", sources: DEFAULT_CLIENT_SOURCES, modules: ["viewer", "content"] },
   { eventName: "viewer_asset_started", label: "Viewer asset started", category: "content", sources: DEFAULT_CLIENT_SOURCES, modules: ["viewer"] },
   { eventName: "viewer_asset_changed", label: "Viewer asset changed", category: "content", sources: DEFAULT_CLIENT_SOURCES, modules: ["viewer"] },
@@ -255,6 +259,7 @@ export const TELEMETRY_EVENT_OPTIONS: TelemetryEventOption[] = [
   { eventName: "creator_profile_viewed", label: "Creator profile viewed", category: "engagement", sources: DEFAULT_CLIENT_SOURCES, modules: ["creator", "engagement"] },
   { eventName: "creator_profile_link_clicked", label: "Creator profile link clicked", category: "navigation", sources: DEFAULT_CLIENT_SOURCES, modules: ["creator", "navigation"] },
   { eventName: "creator_profile_link_missing", label: "Creator profile link missing", category: "navigation", sources: DEFAULT_CLIENT_SOURCES, modules: ["creator", "navigation", "runtime"] },
+  { eventName: "creator_spotlight_viewed", label: "Creator spotlight viewed", category: "engagement", sources: DEFAULT_CLIENT_SOURCES, modules: ["creator", "engagement", "navigation"] },
   { eventName: "creator_settings_updated", label: "Creator settings updated", category: "engagement", sources: DEFAULT_CANONICAL_SERVER_SOURCES, modules: ["creator"] },
   { eventName: "creator_broadcast_opened", label: "Creator broadcast opened", category: "notifications", sources: DEFAULT_CLIENT_SOURCES, modules: ["creator", "notifications"] },
   { eventName: "creator_experience_lane_opened", label: "Creator experience lane opened", category: "engagement", sources: DEFAULT_CLIENT_SOURCES, modules: ["creator", "engagement"] },
@@ -290,6 +295,7 @@ export const TELEMETRY_EVENT_OPTIONS: TelemetryEventOption[] = [
   { eventName: "notifications_dropdown_opened", label: "Notifications opened", category: "notifications", sources: DEFAULT_CLIENT_SOURCES, modules: ["notifications"] },
   { eventName: "notification_opened", label: "Notification opened", category: "notifications", sources: DEFAULT_CLIENT_SOURCES, modules: ["notifications"] },
   { eventName: "notification_marked_read", label: "Notification marked read", category: "notifications", sources: DEFAULT_CLIENT_SOURCES, modules: ["notifications"], aliases: ["notification_read"] },
+  { eventName: "notification_action_clicked", label: "Notification action clicked", category: "notifications", sources: DEFAULT_CLIENT_SOURCES, modules: ["notifications", "navigation"] },
   { eventName: "notification_mark_all_read", label: "Notifications marked read", category: "notifications", sources: DEFAULT_CLIENT_SOURCES, modules: ["notifications"] },
   { eventName: "notification_cleared", label: "Notification cleared", category: "notifications", sources: DEFAULT_CLIENT_SOURCES, modules: ["notifications"], auditCoveredBy: ["notification_mark_all_read"] },
   { eventName: "task_notifications_enabled", label: "Notifications enabled", category: "notifications", sources: DEFAULT_CLIENT_SOURCES, modules: ["notifications", "tasks"], aliases: ["notification_enabled"] },
@@ -336,6 +342,7 @@ export const TELEMETRY_EVENT_OPTIONS: TelemetryEventOption[] = [
   { eventName: "insufficient_balance_modal_closed", label: "Insufficient balance modal closed", category: "commerce", sources: DEFAULT_CLIENT_SOURCES, modules: ["commerce"] },
   { eventName: "insufficient_balance_get_more_clicked", label: "Insufficient balance get more clicked", category: "commerce", sources: DEFAULT_CLIENT_SOURCES, modules: ["commerce"] },
   { eventName: "hero_cta_clicked", label: "Hero CTA clicked", category: "engagement", sources: DEFAULT_CLIENT_SOURCES, modules: ["engagement", "navigation"] },
+  { eventName: "featured_drop_viewed", label: "Featured drop viewed", category: "engagement", sources: DEFAULT_CLIENT_SOURCES, modules: ["engagement", "content"] },
   { eventName: "featured_drop_clicked", label: "Featured drop clicked", category: "engagement", sources: DEFAULT_CLIENT_SOURCES, modules: ["engagement", "content"] },
   { eventName: "admin_chart_view_changed", label: "Admin chart view changed", category: "admin", sources: DEFAULT_CLIENT_SOURCES, modules: ["admin"] },
   { eventName: "admin_action_performed", label: "Admin action performed", category: "admin", sources: DEFAULT_CANONICAL_SERVER_SOURCES, modules: ["admin"], auditCoveredBy: ["admin_analytics_viewed"] },

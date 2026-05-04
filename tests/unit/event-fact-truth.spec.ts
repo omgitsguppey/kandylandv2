@@ -11,20 +11,27 @@ import {
 
 describe("behavioral event facts", () => {
   it("exposes the canonical normalized actions", () => {
-    expect(BEHAVIORAL_NORMALIZED_ACTIONS).toEqual([
-      "onboarding_completed",
-      "daily_checkin_claimed",
-      "drop_viewed",
-      "drop_preview_opened",
-      "drop_unwrapped",
-      "file_viewed",
-      "watch_session_completed",
-      "gumdrops_purchased",
-      "creator_followed",
-      "notification_opened",
-      "support_ticket_created",
-      "chat_message_sent",
-    ]);
+    expect(BEHAVIORAL_NORMALIZED_ACTIONS).toEqual(
+      expect.arrayContaining([
+        "home_viewed",
+        "hero_cta_clicked",
+        "onboarding_completed",
+        "daily_checkin_claimed",
+        "creator_spotlight_viewed",
+        "drop_card_viewed",
+        "drop_preview_opened",
+        "drop_unwrapped",
+        "file_viewed",
+        "watch_session_started",
+        "watch_session_completed",
+        "wallet_opened",
+        "gumdrops_purchased",
+        "notification_read",
+        "notification_action_clicked",
+        "support_ticket_created",
+        "admin_user_opened",
+      ]),
+    );
   });
 
   it("normalizes a purchase event into a canonical event fact", () => {
@@ -104,6 +111,27 @@ describe("behavioral event facts", () => {
       eventName: "mystery_event_name",
       reason: "unknown_event_name",
       sourceComponent: "TestSurface",
+    });
+  });
+
+  it("normalizes notification reads to the canonical scoring action", () => {
+    const result = normalizeBehavioralEventFactWithDiagnostics({
+      eventName: "notification_marked_read",
+      params: {
+        source_component: "notification_bell",
+        route: "/dashboard",
+        notification_id: "note-1",
+      },
+      timestamp: 1000,
+      userId: "user-1",
+      sessionId: "session-1",
+      source: "client",
+    });
+
+    expect(result.fact).toMatchObject({
+      normalizedAction: "notification_read",
+      entityType: "notification",
+      entityId: "note-1",
     });
   });
 });

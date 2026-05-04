@@ -1,5 +1,27 @@
 # KandyDrops Core Codebase Audit & Defensive Ledger
 
+## [2026-05-04 #154] PRE: Behavioral Tracking Surface Coverage
+
+Scope started:
+- Extending canonical behavioral event-fact coverage across critical user and admin surfaces so User Management, Admin Overview, recommendations, moderation, watch time, wallet economics, and behavioral intelligence all read from the same normalized foundation.
+- Required outputs include expanded event-fact normalization, source-truth persistence for server events, tracking surface coverage mapping, deterministic scoring/validation scripts, generated coverage state, docs, and targeted surface emitters for creator spotlight, featured drops, support, notifications, and admin user detail opens.
+- This pass must not change public product behavior beyond invisible tracking, must keep money/unlock/security server-truth first, and must not leak sensitive URLs or raw message/prompt bodies through telemetry.
+
+Evidence:
+- Control tower routing, doctrine consultation workflow, telemetry audit workflow, governance ledgers, fast-start context, and adjacency traces for telemetry/event-fact/server analytics/viewer/admin surfaces were consulted before implementation.
+
+Scope completed:
+- Expanded the canonical behavioral event-fact contract and normalizer so home CTA, creator spotlight, featured drop, support thread, notification action, admin user open, and richer server-truth metadata all flow into the same normalized fact layer.
+- Updated `src/lib/server/analytics.ts` and identified ingest persistence so server-written wallet/unlock/security events now store normalized action metadata alongside event facts.
+- Added missing coverage emitters in `CreatorDiscoveryRail`, `FeaturedCarousel`, `SupportInbox`, `NotificationBell`, and `admin/users/page.tsx`.
+- Added `src/lib/behavioral/tracking-surface-map.ts`, `scripts/agent/score-tracking-surface-coverage.ts`, `scripts/agent/validate-tracking-surface-coverage.ts`, `agent/state/tracking-surface-coverage.generated.json`, package scripts, and doctrine notes for the deterministic coverage lane.
+
+Verification:
+- `npm run score:tracking-surface-coverage` passed and wrote `agent/state/tracking-surface-coverage.generated.json` with 91/100 coverage and no critical failures.
+- `npm run check:tracking-surface-coverage` passed.
+- `npx vitest run tests/unit/event-fact-truth.spec.ts` passed.
+- `npm run typecheck` passed.
+
 ## [2026-05-04 #153] PRE: Behavioral Model Validation Harness
 
 Scope started:

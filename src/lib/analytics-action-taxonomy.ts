@@ -88,10 +88,12 @@ export function dedupeNormalizedUserActions(actions: Array<NormalizedUserAction 
       normalizedAction: action.actionName,
       timestampMs: action.timestamp,
       route: action.route,
+      pagePath: action.route,
       sourceComponent: action.sourceComponent,
       ...(action.entityId ? { entityId: action.entityId } : {}),
       ...(action.entityType !== "unknown" ? { entityType: action.entityType } : {}),
       source: "server" as const,
+      sourceTruth: "server" as const,
       confidence: 1,
       dedupeKey: action.actionId,
     } satisfies BehavioralEventFact;
