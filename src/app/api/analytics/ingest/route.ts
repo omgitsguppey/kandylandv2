@@ -11,7 +11,9 @@ import { guardApiRequest } from "@/lib/server/request-guard";
 import { recordRouteWarning } from "@/lib/server/route-diagnostics";
 import { recordServerDiagnostic } from "@/lib/server/server-diagnostics";
 import { ANALYTICS_BATCH_ID_PATTERN, createAnalyticsBatchId, createAnalyticsStorageKey } from "@/lib/analytics-identifiers";
-import { dedupeNormalizedUserActions, normalizeUserAction } from "@/lib/analytics-action-taxonomy";
+import { BEHAVIORAL_EVENT_FACT_VERSION } from "@/lib/behavioral/event-fact-contract";
+import { buildBehavioralEventFactRollup } from "@/lib/server/event-fact-rollup";
+import { normalizeBehavioralEventFactWithDiagnostics } from "@/lib/behavioral/normalize-event-fact";
 import {
     ANALYTICS_CANONICAL_COLLECTIONS,
     ANALYTICS_OPERATIONAL_COLLECTIONS,
@@ -155,19 +157,25 @@ async function POST_handler(request: NextRequest) {
             x: typeof event.x === "number" ? Math.floor(event.x / 24) * 24 : undefined,
             y: typeof event.y === "number" ? Math.floor(event.y / 24) * 24 : undefined,
         }));
-        const normalizedActions = dedupeNormalizedUserActions(sanitizedEvents.map((event) => normalizeUserAction({
-            eventName: event.targetId || event.semanticSurfaceKey || event.type,
+        const normalizedEventFactResults = sanitizedEvents.map((event) => normalizeBehavioralEventFactWithDiagnostics({
+            eventName: event.semanticSurfaceKey || event.targetId || event.semanticScopeKey || event.type,
             params: {
-                source_component: event.targetId || event.targetTag || "guest_analytics_ingest",
+                source_component: event.semanticSurfaceKey || event.targetId || event.targetTag || "guest_analytics_ingest",
                 route: event.path,
                 drop_id: event.dropId,
             },
             timestamp: event.timestamp,
             sessionId: sessionId || sessionKey,
-            userId: sessionKey,
+            anonymousVisitorId: sessionKey,
             pagePath: event.path,
             dropId: event.dropId,
-        })));
+            source: "legacy",
+            confidence: 0.6,
+        }));
+        const eventFactRollup = buildBehavioralEventFactRollup({
+            facts: normalizedEventFactResults.map((result) => result.fact),
+            diagnostics: normalizedEventFactResults.map((result) => result.diagnostic),
+        });
 
         // Group events by a unique minute-bucket to prevent writing thousands of tiny docs.
         const minuteBucket = timeKeys.minuteKey;
@@ -247,8 +255,11 @@ async function POST_handler(request: NextRequest) {
                 maxScrollDepth: batchScrollDepth,
                 hasPixelData,
                 events: sanitizedEvents,
-                normalizedActions: normalizedActions.slice(0, 50),
-                normalizedActionCount: normalizedActions.length,
+                behavioralEventFactVersion: eventFactRollup.facts.length > 0 ? BEHAVIORAL_EVENT_FACT_VERSION : "",
+                normalizedActions: eventFactRollup.facts.slice(0, 50),
+                normalizedActionCount: eventFactRollup.facts.length,
+                unknownBehavioralEvents: eventFactRollup.unknownEvents.slice(0, 20),
+                unknownBehavioralEventCount: eventFactRollup.diagnostics.length,
                 createdAt: FieldValue.serverTimestamp(),
             });
 

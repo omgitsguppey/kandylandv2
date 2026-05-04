@@ -14,6 +14,8 @@ function assert(condition: unknown, message: string) {
 }
 
 const taxonomy = read("src/lib/analytics-action-taxonomy.ts");
+const eventFactContract = read("src/lib/behavioral/event-fact-contract.ts");
+const eventFactNormalizer = read("src/lib/behavioral/normalize-event-fact.ts");
 const identifiedIngest = read("src/app/api/analytics/ingest-identified/route.ts");
 const anonymousIngest = read("src/app/api/analytics/ingest/route.ts");
 const userDetailRoute = read("src/app/api/admin/user/[userId]/route.ts");
@@ -37,19 +39,19 @@ const requiredActions = [
 ];
 
 requiredActions.forEach((action) => {
-  assert(taxonomy.includes(`"${action}"`), `Missing user action taxonomy entry: ${action}`);
+  assert(eventFactContract.includes(`"${action}"`), `Missing user action taxonomy entry: ${action}`);
 });
 
 assert(taxonomy.includes("dedupeNormalizedUserActions"), "User action dedupe helper is missing.");
-assert(taxonomy.includes("sourceComponent") && taxonomy.includes("route") && taxonomy.includes("entityId"), "Normalized action shape is missing required fields.");
-assert(identifiedIngest.includes("normalizeUserAction"), "Identified ingest does not normalize user actions.");
+assert(eventFactNormalizer.includes("sourceComponent") && eventFactNormalizer.includes("route") && eventFactNormalizer.includes("entityId"), "Normalized action shape is missing required fields.");
+assert(identifiedIngest.includes("normalizeBehavioralEventFact"), "Identified ingest does not normalize user actions through behavioral event facts.");
 assert(identifiedIngest.includes("normalizedActionName") && identifiedIngest.includes("normalizedActionId"), "Identified ingest does not persist normalized action metadata.");
 assert(anonymousIngest.includes("normalizedActions") && anonymousIngest.includes("normalizedActionCount"), "Anonymous ingest does not record normalized action summary.");
 assert(userDetailRoute.includes("actionLedger") && userDetailRoute.includes("toUserActionLedgerItem"), "Admin user detail route does not expose normalized action ledger.");
-assert(userDetailRoute.includes("dedupeNormalizedUserActions"), "Admin user detail route does not dedupe normalized actions.");
+assert(userDetailRoute.includes("buildBehavioralEventFactRollup"), "Admin user detail route does not dedupe normalized actions through event facts.");
 assert(userDetailPage.includes("data-user-action-name") && userDetailPage.includes("action.label"), "Action Ledger UI does not render normalized action rows.");
 assert(!userDetailPage.includes("{transaction.description || transactionType}"), "Action Ledger still displays raw transaction/event names as the primary row.");
-assert(analyticsMetrics.includes("normalizeUserAction") && analyticsMetrics.includes("actionIds"), "Analytics metrics do not count normalized deduped actions.");
+assert(analyticsMetrics.includes("normalizeBehavioralEventFact") && analyticsMetrics.includes("actionIds"), "Analytics metrics do not count normalized deduped actions.");
 assert(telemetryCatalog.includes("TELEMETRY_USER_ACTION_TAXONOMY_NAMES"), "Telemetry catalog does not expose the user action taxonomy.");
 
 console.log("User action ledger event normalization validator passed.");

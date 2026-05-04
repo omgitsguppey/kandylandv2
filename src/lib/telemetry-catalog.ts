@@ -1,4 +1,4 @@
-import { USER_ACTION_NAMES } from "@/lib/analytics-action-taxonomy";
+import { BEHAVIORAL_NORMALIZED_ACTIONS } from "@/lib/behavioral/event-fact-contract";
 
 export type TelemetryEventCategory =
   | "auth"
@@ -96,8 +96,8 @@ const DEFAULT_CANONICAL_SERVER_SOURCES: TelemetryEventSource[] = ["ga4", "backen
 const DEFAULT_GA_ONLY_SOURCES: TelemetryEventSource[] = ["ga4"];
 
 export const TELEMETRY_EVENT_INDEX_VERSION = "2026.04.04.1";
-export const TELEMETRY_USER_ACTION_TAXONOMY_VERSION = "2026.05.user-action-ledger.1";
-export const TELEMETRY_USER_ACTION_TAXONOMY_NAMES = USER_ACTION_NAMES;
+export const TELEMETRY_USER_ACTION_TAXONOMY_VERSION = "2026.05.event-facts.1";
+export const TELEMETRY_USER_ACTION_TAXONOMY_NAMES = BEHAVIORAL_NORMALIZED_ACTIONS;
 
 export const TELEMETRY_EVENT_OPTIONS: TelemetryEventOption[] = [
   { eventName: "auth_modal_opened", label: "Auth modal opened", category: "auth", sources: DEFAULT_CLIENT_SOURCES, modules: ["auth"] },

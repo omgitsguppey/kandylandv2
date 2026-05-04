@@ -18,7 +18,7 @@ import {
   AnalyticsMetricResult,
   AnalyticsSessionFactRecord,
 } from "@/types/analytics";
-import { normalizeUserAction } from "@/lib/analytics-action-taxonomy";
+import { normalizeBehavioralEventFact } from "@/lib/behavioral/normalize-event-fact";
 
 interface AnalyticsMetricEngineInput {
   eventFacts?: AnalyticsEventFactRecord[];
@@ -295,7 +295,7 @@ function buildSessionSummaries(input: AnalyticsMetricEngineInput) {
       summary.pageViews += 1;
     }
 
-    const normalizedAction = normalizeUserAction({
+    const normalizedAction = normalizeBehavioralEventFact({
       eventId: (fact as Record<string, unknown>).eventId,
       eventName,
       params,
@@ -304,11 +304,12 @@ function buildSessionSummaries(input: AnalyticsMetricEngineInput) {
       sessionId: fact.sessionId,
       pagePath,
       dropId: fact.dropId,
+      source: "server",
     });
 
     if (normalizedAction) {
-      if (!summary.actionIds.has(normalizedAction.actionId)) {
-        summary.actionIds.add(normalizedAction.actionId);
+      if (!summary.actionIds.has(normalizedAction.dedupeKey)) {
+        summary.actionIds.add(normalizedAction.dedupeKey);
         summary.clickCount += 1;
       }
     } else if (isClickLikeEvent(eventName)) {

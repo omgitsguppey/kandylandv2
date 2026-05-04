@@ -39,7 +39,6 @@ describe("analytics action taxonomy", () => {
       userId: "user-1",
     })).toMatchObject({
       actionName: "drop_unwrapped",
-      actionId: "drop_unwrapped:evt_123",
       userId: "user-1",
       sessionId: "session-1",
       sourceComponent: "DropPreviewPage",
@@ -70,6 +69,29 @@ describe("analytics action taxonomy", () => {
 
     expect(dedupeNormalizedUserActions([first, retry])).toHaveLength(1);
     expect(dedupeNormalizedUserActions([first, retry])[0]?.timestamp).toBe(1200);
+  });
+
+  it("uses action-specific dedupe windows for repeat views", () => {
+    const first = normalizeUserAction({
+      eventName: "drop_clicked",
+      params: { source_component: "DropCard", drop_id: "drop-1" },
+      timestamp: 1000,
+      userId: "user-1",
+      sessionId: "session-1",
+      pagePath: "/drops",
+      dropId: "drop-1",
+    });
+    const retryWithinWindow = normalizeUserAction({
+      eventName: "drop_clicked",
+      params: { source_component: "DropCard", drop_id: "drop-1" },
+      timestamp: 9000,
+      userId: "user-1",
+      sessionId: "session-1",
+      pagePath: "/drops",
+      dropId: "drop-1",
+    });
+
+    expect(dedupeNormalizedUserActions([first, retryWithinWindow])).toHaveLength(1);
   });
 
   it("uses clean labels instead of raw event names", () => {

@@ -4,6 +4,10 @@ Status: Canonical repository-memory and architecture-decision ledger
 Last refreshed: 2026-05-02
 Repo: `C:\Users\uylus\OneDrive\Documents\KandyDrops_Final`
 
+## 2026-05-04 Behavioral event fact truth
+
+Behavioral analytics action truth now routes through a canonical event-fact layer before Action Ledger rendering, admin/global counts, or behavioral intelligence consumption. `src/lib/behavioral/event-fact-contract.ts` owns the normalized action list, entity types, source labels, confidence, and dedupe windows; `src/lib/behavioral/normalize-event-fact.ts` owns alias mapping, canonical normalization, and unknown-event diagnostics; `src/lib/server/event-fact-rollup.ts` owns deduped counts and unknown-event summaries. `src/lib/analytics-action-taxonomy.ts` is now a compatibility wrapper, not the canonical source. Identified ingest persists normalized event-fact metadata, guest ingest records unknown-event diagnostics instead of inflating counts, and `npm run check:event-fact-truth` is the deterministic regression lane.
+
 ## 2026-05-04 Admin Moderation real risk console
 
 KandyDrops moderation must never pretend browser/PWA screenshot detection is confirmed. Screenshot-like events are weak heuristic context unless confirmed by a real platform/server source. Moderation decisions are based on evidence-weighted scrape-risk scoring: entitlement failures, abnormal asset requests, viewer velocity, watch-time mismatch, repeated behavior, and server-backed content-protection events. Weak visibility/blur events alone do not justify action. `src/lib/moderation/scrape-risk-score.ts` owns the deterministic score, `src/lib/moderation/moderation-evidence.ts` owns evidence shape, `src/lib/admin-moderation-control-tower.ts` owns admin summary truth, `AdminEvidenceMediaPreview` prevents casual raw asset URL rendering, and `npm run check:admin-moderation-real-risk` validates the lane.

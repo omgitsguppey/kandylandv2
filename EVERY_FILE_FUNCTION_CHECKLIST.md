@@ -9,6 +9,15 @@ Scoring: all entries below are marked as included in the current validated sweep
 
 Current repo-wide state snapshot: see [FULL_SCALE_CODEBASE_AUDIT.md](/Users/uylus/OneDrive/Documents/KandyDrops_Final/FULL_SCALE_CODEBASE_AUDIT.md) for the current live baseline, verification state, and continuity rules, and see [REPO_MEMORY_LEDGER.md](/Users/uylus/OneDrive/Documents/KandyDrops_Final/REPO_MEMORY_LEDGER.md) for major architectural and workflow decisions. The detailed file/function body below remains valuable historical evidence, but it has not been fully regenerated against the current 2026-04-18 inventory review yet.
 
+## 2026-05-04 Behavioral Event Fact Truth Coverage
+
+- [x] Behavioral action truth is centralized in `src/lib/behavioral/event-fact-contract.ts` and `src/lib/behavioral/normalize-event-fact.ts`, including canonical action names, dedupe windows, source labels, confidence, and unknown-event diagnostics.
+- [x] `src/lib/server/event-fact-rollup.ts` owns deduped server rollups and unknown-event summaries for admin/user analytics consumers.
+- [x] `src/lib/analytics-action-taxonomy.ts` is a compatibility wrapper over the canonical event-fact layer rather than a separate alias/dedupe implementation.
+- [x] `src/app/api/analytics/ingest-identified/route.ts` and `src/app/api/analytics/ingest/route.ts` persist normalized fact metadata and route unknown events to diagnostics instead of production counts.
+- [x] `src/app/api/admin/user/[userId]/route.ts`, `src/app/admin/user/[userId]/page.tsx`, `src/lib/server/analytics-metrics.ts`, and `functions/src/behavioral-intelligence-runtime.ts` consume normalized facts for counts, ledgers, and behavioral scoring.
+- [x] `scripts/agent/validate-event-fact-truth.ts`, `tests/unit/event-fact-truth.spec.ts`, `tests/unit/user-action-taxonomy.spec.ts`, docs, and package script `check:event-fact-truth` provide the targeted regression lane.
+
 ## 2026-05-04 Admin Moderation Real Risk Coverage
 
 - [x] KandyDrops moderation uses evidence-weighted scrape-risk scoring and must not claim browser/PWA screenshot confirmation from weak visibility, blur, or page-leave signals.

@@ -1,5 +1,30 @@
 # KandyDrops Core Codebase Audit & Defensive Ledger
 
+## [2026-05-04 #151] PRE: Behavioral Event Fact Truth
+
+Scope started:
+- Normalizing behavioral analytics events behind a canonical event-fact layer so user actions, the admin Action Ledger, admin/user counts, and behavioral intelligence stop drifting on raw telemetry names and retry spam.
+- Required outputs include `src/lib/behavioral/event-fact-contract.ts`, `src/lib/behavioral/normalize-event-fact.ts`, `src/lib/server/event-fact-rollup.ts`, `scripts/agent/validate-event-fact-truth.ts`, `docs/agent-truth/event-fact-truth.md`, package script `check:event-fact-truth`, targeted tests, commit, and push.
+- This pass must not run Playwright/Lighthouse/Cypress/full `npm run check`, invent unknown-event production counts, regress watch-session-first truth, or let guest/identified retries inflate per-user or global action counts.
+
+Evidence:
+- Control tower routing, doctrine consultation, governance ledgers, telemetry catalog aliases, analytics ingest routes, admin user detail API/UI, admin metrics, behavioral runtime, and existing action-ledger validators were consulted before implementation.
+
+Doctrine:
+- Behavioral analytics must normalize raw telemetry into canonical event facts before Action Ledger rendering, admin counting, or recommendation inputs. Unknown events belong in diagnostics. Legacy/page-duration fallbacks must stay labeled.
+
+Scope completed:
+- Added `src/lib/behavioral/event-fact-contract.ts`, `src/lib/behavioral/normalize-event-fact.ts`, and `src/lib/server/event-fact-rollup.ts` to own the canonical normalized action list, dedupe windows, canonical event-fact shape, alias mapping, unknown-event diagnostics, and server rollups.
+- Rebased `src/lib/analytics-action-taxonomy.ts` onto the canonical event-fact layer instead of maintaining a second alias/dedupe implementation.
+- Updated `src/app/api/analytics/ingest-identified/route.ts`, `src/app/api/analytics/ingest/route.ts`, `src/lib/server/analytics-metrics.ts`, `src/app/api/admin/user/[userId]/route.ts`, `src/app/admin/user/[userId]/page.tsx`, `functions/src/behavioral-intelligence-runtime.ts`, and `src/lib/telemetry-catalog.ts` so identified/guest ingest, admin ledgers, admin counts, and behavioral intelligence consume normalized event facts and surface unknown events in diagnostics.
+- Added `scripts/agent/validate-event-fact-truth.ts`, `tests/unit/event-fact-truth.spec.ts`, refreshed `tests/unit/user-action-taxonomy.spec.ts`, updated the legacy validator for compatibility, and documented the doctrine in `docs/agent-truth/event-fact-truth.md`.
+
+Verification:
+- `npm run check:event-fact-truth` passed.
+- `npx vitest run tests/unit/event-fact-truth.spec.ts tests/unit/user-action-taxonomy.spec.ts` passed.
+- `npm run check:user-action-ledger-events` passed.
+- `npm run typecheck` passed.
+
 ## [2026-05-04 #150] PRE: Admin Moderation Real Risk Console
 
 Scope started:

@@ -10,7 +10,8 @@ import { resolveTrackedTelemetryEvent } from "@/lib/server/analytics-event-utils
 import { ANALYTICS_CANONICAL_COLLECTIONS, ANALYTICS_OPERATIONAL_COLLECTIONS, ANALYTICS_ROUTE_POLICIES } from "@/lib/server/analytics-governance";
 import { withRouteRuntimeHealth } from "@/lib/server/route-runtime-health";
 import { explainEventInclusion } from "@/lib/analytics/analytics-event-contract";
-import { normalizeUserAction } from "@/lib/analytics-action-taxonomy";
+import { BEHAVIORAL_EVENT_FACT_VERSION } from "@/lib/behavioral/event-fact-contract";
+import { normalizeBehavioralEventFact } from "@/lib/behavioral/normalize-event-fact";
 
 export const dynamic = "force-dynamic";
 
@@ -175,8 +176,8 @@ async function POST_handler(request: NextRequest) {
             });
             const actorClassification = inclusion.actorClassification;
             const adminId = actorClassification.isAdmin ? caller.uid : "";
-            const normalizedAction = inclusion.includeInUserBehavior
-                ? normalizeUserAction({
+            const normalizedEventFact = inclusion.includeInUserBehavior
+                ? normalizeBehavioralEventFact({
                     eventId,
                     eventName: canonicalEventName,
                     params: enrichedParams,
@@ -188,6 +189,9 @@ async function POST_handler(request: NextRequest) {
                     creatorId: String(enrichedParams.creator_id || enrichedParams.creatorId || ""),
                     assetKey: String(enrichedParams.asset_key || enrichedParams.assetKey || ""),
                     assetIndex: Number(enrichedParams.asset_index || enrichedParams.assetIndex || 0),
+                    source: "server",
+                    valueUsd: enrichedParams.gross_revenue_usd || enrichedParams.grossRevenueUsd || enrichedParams.amount_usd || enrichedParams.amountUsd,
+                    gumDropsAmount: enrichedParams.delivered_gumdrops || enrichedParams.deliveredGumDrops || enrichedParams.gumdrops_amount || enrichedParams.gumDropsAmount,
                 })
                 : null;
             
@@ -245,12 +249,14 @@ async function POST_handler(request: NextRequest) {
                     unknown: actorClassification.isUnknown,
                 },
                 params: enrichedParams,
-                normalizedActionName: normalizedAction?.actionName ?? "",
-                normalizedActionId: normalizedAction?.actionId ?? "",
-                actionEntityId: normalizedAction?.entityId ?? "",
-                actionEntityType: normalizedAction?.entityType ?? "",
-                actionSourceComponent: normalizedAction?.sourceComponent ?? "",
-                actionRoute: normalizedAction?.route ?? "",
+                behavioralEventFactVersion: normalizedEventFact ? BEHAVIORAL_EVENT_FACT_VERSION : "",
+                normalizedActionName: normalizedEventFact?.normalizedAction ?? "",
+                normalizedActionId: normalizedEventFact?.dedupeKey ?? "",
+                normalizedActionConfidence: normalizedEventFact?.confidence ?? 0,
+                actionEntityId: normalizedEventFact?.entityId ?? "",
+                actionEntityType: normalizedEventFact?.entityType ?? "",
+                actionSourceComponent: normalizedEventFact?.sourceComponent ?? "",
+                actionRoute: normalizedEventFact?.route ?? "",
             };
 
             // Using batch.set with merge: false to mimic create, but safer. Deduplication is handled by background worker if duplicate

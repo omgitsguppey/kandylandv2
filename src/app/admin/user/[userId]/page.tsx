@@ -690,6 +690,16 @@ export default function AdminUserAnalyticsPage() {
                                                 <span>{action.route}</span>
                                                 <span>{action.sourceComponent}</span>
                                             </div>
+                                            {action.rawEventName && action.rawEventName !== action.actionName ? (
+                                                <details className="mt-2 text-[10px] text-gray-500">
+                                                    <summary className="cursor-pointer list-none font-semibold uppercase tracking-[0.14em] text-gray-500">
+                                                        Debug
+                                                    </summary>
+                                                    <div className="mt-1 font-mono">
+                                                        Raw event: {action.rawEventName}
+                                                    </div>
+                                                </details>
+                                            ) : null}
                                         </div>
                                         <div className="ml-4 flex shrink-0 flex-col items-end gap-1">
                                             <span className="rounded-md border border-brand-purple/20 bg-brand-purple/10 px-2 py-0.5 text-xs font-bold text-brand-purple">

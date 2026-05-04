@@ -22,10 +22,11 @@ import {
 import { buildUserBehaviorRollup } from "@/lib/server/user-behavior-rollup";
 import { buildWatchTimeRollupFromRecords } from "@/lib/server/watch-time-rollup";
 import {
-    dedupeNormalizedUserActions,
-    normalizeUserAction,
     toUserActionLedgerItem,
 } from "@/lib/analytics-action-taxonomy";
+import { BEHAVIORAL_EVENT_FACT_VERSION } from "@/lib/behavioral/event-fact-contract";
+import { normalizeBehavioralEventFactWithDiagnostics } from "@/lib/behavioral/normalize-event-fact";
+import { buildBehavioralEventFactRollup } from "@/lib/server/event-fact-rollup";
 import {
     buildCreatorOnboardingCanonicalRecord,
     normalizeCreatorOnboardingCanonicalRecord,
@@ -469,21 +470,23 @@ async function GET_handler(
         const unlockSpendGdTotal = transactions
             .filter((transaction) => transaction.status === "completed" && transaction.type === "unlock_content")
             .reduce((sum, transaction) => sum + transaction.amount, 0);
-        const normalizedActionLedger = dedupeNormalizedUserActions([
-            ...analyticsFacts.map((event) => normalizeUserAction({
-                eventId: event.eventId,
-                eventName: event.eventName,
-                params: event.params,
-                timestamp: event.timestamp,
-                userId: event.userId || userId,
-                sessionId: event.sessionId,
-                pagePath: event.pagePath,
-                dropId: event.dropId,
-                creatorId: event.creatorId,
-                assetKey: event.assetKey,
-                assetIndex: event.assetIndex,
-            })),
-            ...watchSessionsSnap.docs.map((doc) => {
+        const behavioralEventFactRollup = buildBehavioralEventFactRollup({
+            facts: [
+                ...analyticsFacts.map((event) => normalizeBehavioralEventFactWithDiagnostics({
+                    eventId: event.eventId,
+                    eventName: event.eventName,
+                    params: event.params,
+                    timestamp: event.timestamp,
+                    userId: event.userId || userId,
+                    sessionId: event.sessionId,
+                    pagePath: event.pagePath,
+                    dropId: event.dropId,
+                    creatorId: event.creatorId,
+                    assetKey: event.assetKey,
+                    assetIndex: event.assetIndex,
+                    source: "server",
+                }).fact),
+                ...watchSessionsSnap.docs.map((doc) => {
                 const data = doc.data() as Record<string, unknown>;
                 const completed = data.completed === true
                     || data.completedSession === true
@@ -494,7 +497,7 @@ async function GET_handler(
                     return null;
                 }
 
-                return normalizeUserAction({
+                return normalizeBehavioralEventFactWithDiagnostics({
                     eventId: doc.id,
                     eventName: "watch_session_ended",
                     params: {
@@ -510,7 +513,8 @@ async function GET_handler(
                     sessionId: readString(data.sessionId) || doc.id,
                     pagePath: readString(data.route) || readString(data.pagePath) || "/dashboard/viewer",
                     dropId: readString(data.dropId),
-                });
+                    source: "materialized",
+                }).fact;
             }),
             ...transactions.map((transaction) => {
                 if (transaction.status !== "completed") {
@@ -527,7 +531,7 @@ async function GET_handler(
                     return null;
                 }
 
-                return normalizeUserAction({
+                return normalizeBehavioralEventFactWithDiagnostics({
                     eventId: transaction.id,
                     eventName,
                     params: {
@@ -541,10 +545,28 @@ async function GET_handler(
                     sessionId: `transaction:${transaction.id}`,
                     pagePath: transactionType === "unlock_content" ? "/drops" : "/wallet",
                     dropId: transaction.relatedDropId,
-                });
+                    source: "materialized",
+                    valueUsd: transaction.grossRevenueUsd ?? transaction.cost ?? 0,
+                    gumDropsAmount: transaction.deliveredGumDrops ?? transaction.amount,
+                }).fact;
             }),
-        ]);
-        const normalizedActionCount = normalizedActionLedger.length;
+            ],
+            diagnostics: analyticsFacts.map((event) => normalizeBehavioralEventFactWithDiagnostics({
+                eventId: event.eventId,
+                eventName: event.eventName,
+                params: event.params,
+                timestamp: event.timestamp,
+                userId: event.userId || userId,
+                sessionId: event.sessionId,
+                pagePath: event.pagePath,
+                dropId: event.dropId,
+                creatorId: event.creatorId,
+                assetKey: event.assetKey,
+                assetIndex: event.assetIndex,
+                source: "server",
+            }).diagnostic),
+        });
+        const normalizedActionCount = behavioralEventFactRollup.facts.length;
         const purchaseSourceCounts = [
             { key: "transactions", label: "Transactions", count: purchaseTransactions.length },
             { key: "rollup", label: "User rollup", count: rollupPurchaseCount },
@@ -721,8 +743,19 @@ async function GET_handler(
             recoveredFromFacts: metricIntegrity.recoveredFromFacts,
             engagementScore: scoreAdminUserEngagement(metricSnapshot, Date.now()),
             behaviorRollup,
-            actionLedger: normalizedActionLedger.slice(0, 80).map(toUserActionLedgerItem),
-            actionTaxonomyVersion: "user-action-taxonomy-v1",
+            actionLedger: behavioralEventFactRollup.facts.slice(0, 80).map((fact) => toUserActionLedgerItem({
+                actionName: fact.normalizedAction,
+                actionId: fact.dedupeKey,
+                timestamp: fact.timestampMs,
+                userId: fact.userId || userId,
+                sessionId: fact.sessionId || "unknown_session",
+                sourceComponent: fact.sourceComponent,
+                route: fact.route,
+                entityId: fact.entityId || null,
+                entityType: fact.entityType || "unknown",
+                rawEventName: fact.rawEventName,
+            })),
+            actionTaxonomyVersion: BEHAVIORAL_EVENT_FACT_VERSION,
             watchTimeSource: watchTimeRollup.source,
             watchTimeIssues: watchTimeRollup.issues,
             topViewedDrops: Array.from(viewedDrops.values())

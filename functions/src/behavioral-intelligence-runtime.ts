@@ -411,6 +411,60 @@ function isActionEvent(eventName: string) {
   ].includes(eventName)
 }
 
+function readNormalizedAction(record: Record<string, unknown>) {
+  const explicit = readString(record.normalizedActionName)
+  if (explicit) {
+    return explicit
+  }
+
+  const eventName = readString(record.eventName)
+  switch (eventName) {
+  case "guided_onboarding_completed":
+  case "onboarding_completed":
+  case "onboarding_complete":
+    return "onboarding_completed"
+  case "daily_check_in_claim":
+  case "daily_reward_claimed":
+    return "daily_checkin_claimed"
+  case "drop_clicked":
+  case "view_drop_details":
+    return "drop_viewed"
+  case "drop_preview_opened":
+  case "drop_preview_page_viewed":
+    return "drop_preview_opened"
+  case "unlock_drop_success":
+  case "drop_unwrapped":
+    return "drop_unwrapped"
+  case "viewer_asset_started":
+  case "viewer_asset_changed":
+  case "file_viewed":
+    return "file_viewed"
+  case "watch_session_completed":
+  case "watch_session_ended":
+  case "watch_score_computed":
+    return "watch_session_completed"
+  case "gumdrops_purchase_completed":
+  case "purchase_verified":
+  case "purchase":
+    return "gumdrops_purchased"
+  case "creator_followed":
+    return "creator_followed"
+  case "notification_opened":
+  case "notification_clicked":
+    return "notification_opened"
+  case "support_ticket_created":
+  case "support_ticket_submitted":
+  case "feedback_submitted":
+  case "bug_report_submitted":
+    return "support_ticket_created"
+  case "chat_message_sent":
+  case "creator_message_sent":
+    return "chat_message_sent"
+  default:
+    return ""
+  }
+}
+
 async function readRecentCollections(nowMs: number) {
   const windowStartMs = nowMs - WINDOW_MS
 
@@ -490,6 +544,7 @@ function buildAggregates(input: Awaited<ReturnType<typeof readRecentCollections>
   input.eventFacts.forEach((record) => {
     const event = record as AnalyticsEventFactRecord
     const eventName = readString(event.eventName)
+    const normalizedAction = readNormalizedAction(event)
     const userId = readString(event.userId)
     const sessionId = readString(event.sessionId)
     const dropId = readString(event.dropId)
@@ -509,13 +564,13 @@ function buildAggregates(input: Awaited<ReturnType<typeof readRecentCollections>
       if (eventName === "drop_card_impression") {
         dropAggregate.impressions += 1
       }
-      if (eventName === "drop_preview_opened" || eventName === "view_drop_details") {
+      if (normalizedAction === "drop_preview_opened" || normalizedAction === "drop_viewed") {
         dropAggregate.previewOpens += 1
       }
       if (eventName === "viewer_opened" || eventName === "viewer_session_started") {
         dropAggregate.viewerOpens += 1
       }
-      if (eventName === "unlock_drop_success") {
+      if (normalizedAction === "drop_unwrapped") {
         dropAggregate.unlocks += 1
       }
       if (timestamp >= nowMs - (24 * 60 * 60 * 1000)) {
@@ -576,16 +631,16 @@ function buildAggregates(input: Awaited<ReturnType<typeof readRecentCollections>
     if (eventName === "begin_checkout") {
       aggregate.checkoutStartCount += 1
     }
-    if (eventName === "gumdrops_purchase_completed" || eventName === "purchase_verified" || eventName === "purchase") {
+    if (normalizedAction === "gumdrops_purchased") {
       aggregate.purchaseCount += 1
     }
-    if (eventName === "drop_preview_opened" || eventName === "view_drop_details") {
+    if (normalizedAction === "drop_preview_opened" || normalizedAction === "drop_viewed") {
       aggregate.previewOpenCount += 1
     }
     if (eventName === "viewer_opened" || eventName === "viewer_session_started") {
       aggregate.viewerOpenCount += 1
     }
-    if (eventName === "unlock_drop_success") {
+    if (normalizedAction === "drop_unwrapped") {
       aggregate.unlockCount += 1
     }
 
@@ -596,12 +651,12 @@ function buildAggregates(input: Awaited<ReturnType<typeof readRecentCollections>
     if (creatorId) {
       aggregate.uniqueCreatorIds.add(creatorId)
       pushLimited(aggregate.recentCreatorIds, creatorId)
-      scoreMapIncrement(aggregate.topCreatorScores, creatorId, eventName === "unlock_drop_success" ? 2.5 : 0.35)
+      scoreMapIncrement(aggregate.topCreatorScores, creatorId, normalizedAction === "drop_unwrapped" ? 2.5 : normalizedAction === "creator_followed" ? 4 : 0.35)
     }
     if (category) {
-      scoreMapIncrement(aggregate.topCategoryScores, category, eventName === "unlock_drop_success" ? 2 : 0.25)
+      scoreMapIncrement(aggregate.topCategoryScores, category, normalizedAction === "drop_unwrapped" ? 2 : 0.25)
     }
-    tags.forEach((tag) => scoreMapIncrement(aggregate.topThemeScores, tag, eventName === "unlock_drop_success" ? 1.2 : 0.18))
+    tags.forEach((tag) => scoreMapIncrement(aggregate.topThemeScores, tag, normalizedAction === "drop_unwrapped" ? 1.2 : 0.18))
     scoreMapIncrement(
       aggregate.topExperienceScores,
       experienceKey,
